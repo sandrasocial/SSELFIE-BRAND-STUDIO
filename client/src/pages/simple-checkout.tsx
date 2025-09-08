@@ -1,7 +1,5 @@
 import { useState } from 'react';
 import { MemberNavigation } from '../components/member-navigation';
-import { HeroFullBleed } from '../components/HeroFullBleed';
-import { SandraImages } from '../lib/sandra-images';
 import { apiRequest } from "../lib/queryClient";
 import { useToast } from "../hooks/use-toast";
 import { useLocation } from 'wouter';
@@ -62,63 +60,198 @@ export default function SimpleCheckout() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen" style={{ 
+      background: '#ffffff',
+      fontFamily: 'Helvetica Neue, -apple-system, BlinkMacSystemFont, Segoe UI, Arial, sans-serif',
+      fontWeight: 300,
+      color: '#000000'
+    }}>
       <MemberNavigation />
       
-      <HeroFullBleed
-        backgroundImage="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/undefined/undefined_1756382691038.png"
-        tagline="Your transformation starts here"
-        title="SECURE CHECKOUT"
-        ctaText="Continue"
-        fullHeight={false}
-        overlay={0.7}
-      />
+      {/* Luxury Header Section - Following Voice Guide Design System */}
+      <header style={{ 
+        padding: '200px 0 128px', 
+        textAlign: 'center',
+        background: '#fafafa'
+      }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 96px' }}>
+          <div style={{
+            fontSize: '11px',
+            fontWeight: 400,
+            letterSpacing: '0.25em',
+            textTransform: 'uppercase',
+            color: '#757575',
+            marginBottom: '64px'
+          }}>
+            SECURE CHECKOUT
+          </div>
+          
+          <h1 style={{
+            fontFamily: 'Times New Roman, serif',
+            fontWeight: 200,
+            lineHeight: 0.9,
+            letterSpacing: '0.3em',
+            textTransform: 'uppercase',
+            fontSize: 'clamp(2.8rem, 7vw, 5rem)',
+            marginBottom: '96px'
+          }}>
+            COMPLETE YOUR<br />TRANSFORMATION
+          </h1>
+          
+          <p style={{
+            fontSize: '17px',
+            lineHeight: 1.7,
+            fontWeight: 300,
+            color: '#757575',
+            maxWidth: '55ch',
+            marginLeft: 'auto',
+            marginRight: 'auto'
+          }}>
+            You're moments away from accessing Maya, your AI personal brand strategist, 
+            and creating professional photos that represent exactly who you are.
+          </p>
+        </div>
+      </header>
 
-      <main className="max-w-4xl mx-auto px-8 py-16">
-        <div className="max-w-2xl mx-auto">
-          <div className="border border-gray-200 p-8 mb-8">
-            <h2 className="text-2xl font-light mb-6" style={{ fontFamily: 'Times New Roman, serif' }}>
-              Order Summary
+      <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 96px 200px' }}>
+        <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+          {/* Order Summary Card - Luxury Design */}
+          <div style={{
+            background: '#ffffff',
+            border: '1px solid #e8e8e8',
+            padding: '128px 96px',
+            marginBottom: '128px',
+            transition: 'all 400ms ease'
+          }}>
+            <h2 style={{
+              fontFamily: 'Times New Roman, serif',
+              fontWeight: 200,
+              letterSpacing: '0.25em',
+              textTransform: 'uppercase',
+              fontSize: '24px',
+              marginBottom: '96px',
+              lineHeight: 1.1,
+              textAlign: 'center'
+            }}>
+              Your Investment
             </h2>
-            <div className="flex justify-between items-center mb-4">
+            
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'flex-start',
+              marginBottom: '64px',
+              paddingBottom: '64px',
+              borderBottom: '1px solid #f0f0f0'
+            }}>
               <div>
-                <div className="font-medium">SSELFIE STUDIO</div>
-                <div className="text-sm text-gray-600">Personal AI model + 100 monthly photos + Maya AI photographer</div>
+                <div style={{
+                  fontSize: '17px',
+                  fontWeight: 300,
+                  color: '#000000',
+                  marginBottom: '20px',
+                  letterSpacing: '0.05em'
+                }}>
+                  SSELFIE STUDIO
+                </div>
+                <div style={{
+                  fontSize: '15px',
+                  color: '#757575',
+                  lineHeight: 1.6,
+                  maxWidth: '30ch'
+                }}>
+                  Personal AI model training + Maya AI photographer + 100 monthly professional photos
+                </div>
               </div>
-              <div className="text-xl font-light" style={{ fontFamily: 'Times New Roman, serif' }}>
+              <div style={{
+                fontFamily: 'Times New Roman, serif',
+                fontSize: '24px',
+                fontWeight: 200,
+                color: '#000000'
+              }}>
                 €47/month
               </div>
             </div>
-            <div className="border-t border-gray-200 pt-4">
-              <div className="flex justify-between items-center">
-                <div className="font-medium">Total</div>
-                <div className="text-xl font-light" style={{ fontFamily: 'Times New Roman, serif' }}>
-                  €47/month
-                </div>
+            
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}>
+              <div style={{
+                fontSize: '17px',
+                fontWeight: 300,
+                letterSpacing: '0.05em'
+              }}>
+                Total Today
+              </div>
+              <div style={{
+                fontFamily: 'Times New Roman, serif',
+                fontSize: '30px',
+                fontWeight: 200,
+                color: '#000000'
+              }}>
+                €47
               </div>
             </div>
           </div>
 
-          <div className="space-y-4">
+          {/* Payment Button - Luxury Style */}
+          <div style={{ marginBottom: '96px' }}>
             <button
               onClick={handleStripeCheckout}
               disabled={isProcessing}
-              className="w-full bg-black text-white py-4 px-6 text-xs uppercase tracking-wider hover:bg-gray-800 disabled:opacity-50 transition-colors"
+              style={{
+                width: '100%',
+                background: '#000000',
+                color: '#ffffff',
+                border: 'none',
+                padding: '48px 96px',
+                fontSize: '11px',
+                fontWeight: 400,
+                letterSpacing: '0.3em',
+                textTransform: 'uppercase',
+                cursor: isProcessing ? 'not-allowed' : 'pointer',
+                transition: 'all 300ms ease',
+                opacity: isProcessing ? 0.5 : 1
+              }}
+              onMouseEnter={!isProcessing ? (e) => e.target.style.background = '#757575' : undefined}
+              onMouseLeave={!isProcessing ? (e) => e.target.style.background = '#000000' : undefined}
             >
-              {isProcessing ? 'PROCESSING...' : 'PROCEED TO SECURE PAYMENT'}
+              {isProcessing ? 'PROCESSING YOUR PAYMENT...' : 'SECURE PAYMENT WITH STRIPE'}
             </button>
 
-            <div className="text-center text-sm text-gray-500">
-              <div className="flex items-center justify-center space-x-2">
-                <span>🔒</span>
-                <span>Secure payment powered by Stripe</span>
+            <div style={{
+              textAlign: 'center',
+              marginTop: '48px',
+              fontSize: '13px',
+              color: '#757575'
+            }}>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '20px'
+              }}>
+                <span style={{ fontSize: '16px' }}>🔒</span>
+                <span>256-bit SSL encryption • Secure payment powered by Stripe</span>
               </div>
             </div>
           </div>
 
-          <div className="mt-8 text-center text-sm text-gray-600">
+          {/* Terms - Luxury Typography */}
+          <div style={{
+            textAlign: 'center',
+            fontSize: '13px',
+            color: '#757575',
+            lineHeight: 1.6,
+            maxWidth: '50ch',
+            margin: '0 auto'
+          }}>
             <p>By proceeding, you agree to our Terms of Service and Privacy Policy.</p>
-            <p className="mt-2">Cancel anytime. No long-term commitment.</p>
+            <p style={{ marginTop: '20px' }}>
+              Cancel anytime with one click. No long-term commitment required.
+            </p>
           </div>
         </div>
       </main>
