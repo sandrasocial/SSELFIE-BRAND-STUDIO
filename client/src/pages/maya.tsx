@@ -85,6 +85,16 @@ export default function Maya() {
     initializeOnboarding
   } = useMayaOnboarding();
 
+  // Track onboarding completion status for blocking image generation
+  const [isOnboardingComplete, setIsOnboardingComplete] = useState(false);
+
+  // Update onboarding completion status
+  useEffect(() => {
+    if (onboardingStatus) {
+      setIsOnboardingComplete(onboardingStatus.isCompleted);
+    }
+  }, [onboardingStatus]);
+
   // Connection status monitoring
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
@@ -342,6 +352,17 @@ export default function Maya() {
 
   // Generate image from concept card using Maya's generation system
   const handleGenerateImage = async (card: ConceptCard) => {
+    // 🚫 BLOCK IMAGE GENERATION until onboarding is complete
+    if (!isOnboardingComplete) {
+      toast({ 
+        title: "Complete Your Setup First", 
+        description: "I need to get to know you better before creating your photos. This ensures they look perfect for you!",
+        variant: "destructive"
+      });
+      console.log('🚫 Maya: Blocked image generation - onboarding not complete');
+      return;
+    }
+
     if (generateFromSpecificConcept) {
       await generateFromSpecificConcept(card.title, card.id);
     } else {
@@ -398,6 +419,25 @@ export default function Maya() {
 
   const handleSendMessage = () => {
     if (!message.trim() || isTyping) return;
+
+    // 🚫 BLOCK concept generation requests until onboarding is complete
+    if (!isOnboardingComplete && !message.toLowerCase().includes('onboarding')) {
+      // Allow onboarding-related messages to go through
+      const isOnboardingMessage = message.toLowerCase().includes('start') || 
+                                  message.toLowerCase().includes('beginning') ||
+                                  message.toLowerCase().includes('help') ||
+                                  message.trim().length < 10; // Allow short responses during onboarding
+      
+      if (!isOnboardingMessage) {
+        toast({ 
+          title: "Let's Get to Know You First", 
+          description: "I need to learn about your style and needs before creating concepts. Let's complete your setup!",
+          variant: "destructive"
+        });
+        console.log('🚫 Maya: Blocked concept generation request - onboarding not complete');
+        return;
+      }
+    }
 
     addMessage({
       type: 'user', 
