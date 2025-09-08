@@ -248,10 +248,12 @@ router.post('/chat', requireStackAuth, adminContextDetection, async (req: AdminC
         });
       }
       
-      // Check if this is an onboarding trigger or continuation
+      // Check if this is an onboarding trigger or continuation - EXPANDED for legacy users
       const onboardingTriggers = [
         'onboarding', 'getting started', 'tell me about', 'what brought you here',
-        'setup', 'discovery', 'through the onboarding', 'start over', 'business context'
+        'setup', 'discovery', 'through the onboarding', 'start over', 'business context',
+        'questions', 'brand discovery', 'profile setup', 'tell me more about your business',
+        'help me understand', 'customization', 'personalize', 'brand strategy'
       ];
       
       const isOnboardingRequest = onboardingTriggers.some(trigger => 
