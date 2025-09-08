@@ -516,16 +516,19 @@ Use this strategic context to create photo concepts that directly support their 
     const data = await claudeResponse.json();
     let mayaResponse = data.content[0].text;
 
-    // SIMPLIFIED CONTEXT PRESERVATION: Essential context only
+    // 🧠 ENHANCED CONTEXT PRESERVATION: Extended memory for Maya
     const enhancedContext = {
       originalMayaResponse: mayaResponse,
-      conversationHistory: fullConversationHistory.slice(-3), // Last 3 exchanges for context
-      userPersonalBrand: message.substring(0, 200), // Simple context extraction
+      conversationHistory: fullConversationHistory.slice(-15), // INCREASED: Last 15 exchanges for extended context
+      userPersonalBrand: message.substring(0, 300), // Increased context extraction
       categoryContext: context,
       requestId: 'UNIFIED-' + Date.now(), // Track single API call requests
       stylingReasoning: extractStylingReasoning(mayaResponse),
       systemPrompt: mayaPersonality, // Same system prompt used
-      timestamp: Date.now()
+      timestamp: Date.now(),
+      totalConversationLength: fullConversationHistory.length, // Track conversation depth
+      memorySource: frontendHistory.length > 0 && databaseHistory.length > 0 ? 'merged' : 
+                    frontendHistory.length > 0 ? 'frontend' : 'database' // Track memory source
     };
     
     // CRITICAL DEBUG: Log Maya's raw response to check for emojis
