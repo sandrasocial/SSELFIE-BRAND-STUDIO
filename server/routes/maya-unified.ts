@@ -703,6 +703,63 @@ Use this strategic context to create photo concepts that directly support their 
     const data = await claudeResponse.json();
     let mayaResponse = data.content[0].text;
 
+    // 🎯 ONBOARDING DETECTION: Check if Maya wants to start structured onboarding
+    const onboardingKeywords = [
+      'let me ask you',
+      'key questions',
+      'onboarding',
+      'get started',
+      'tell me about your business',
+      'what\'s your primary business',
+      'where will you be using these photos',
+      'current challenge',
+      'profession?',
+      'primary business',
+      'tailored concepts for you',
+      'help me create perfectly'
+    ];
+    
+    const hasOnboardingIntent = onboardingKeywords.some(keyword => 
+      mayaResponse.toLowerCase().includes(keyword.toLowerCase())
+    );
+    
+    if (hasOnboardingIntent) {
+      console.log('🎯 ONBOARDING INTENT DETECTED: Maya wants to start onboarding flow');
+      console.log('🔄 REDIRECTING: From conversational to structured onboarding');
+      
+      // Import onboarding service
+      const { OnboardingService } = await import('../services/onboarding-service');
+      const onboardingService = new OnboardingService();
+      
+      // Start structured onboarding
+      const onboardingResponse = await onboardingService.processOnboardingMessage(
+        userId,
+        'Let\'s begin the onboarding process',
+        1 // Start at step 1
+      );
+      
+      // Format as structured onboarding response
+      const structuredResponse = {
+        success: true,
+        type: 'onboarding',
+        step: onboardingResponse.currentStep,
+        totalSteps: 6,
+        question: onboardingResponse.message,
+        fieldName: `step_${onboardingResponse.currentStep}`,
+        explanation: onboardingResponse.stepGuidance,
+        options: onboardingResponse.quickButtons.length > 0 ? onboardingResponse.quickButtons : undefined,
+        isOnboardingComplete: false,
+        progress: onboardingResponse.progress,
+        businessContext: {},
+        canGenerate: false,
+        chatId: chatId
+      };
+      
+      console.log('✅ ONBOARDING FLOW ACTIVATED: Returning structured onboarding UI');
+      logMayaAPI('/chat', startTime, true);
+      return res.json(structuredResponse);
+    }
+
     // 🧠 ENHANCED CONTEXT PRESERVATION: Extended memory for Maya
     const enhancedContext = {
       originalMayaResponse: mayaResponse,
