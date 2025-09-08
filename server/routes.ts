@@ -3281,7 +3281,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   });
 
   // User model endpoint for workspace model status (Fixed to use storage layer)
-  app.get('/api/user-model', requireActiveSubscription, async (req: any, res) => {
+  app.get('/api/user-model', requireStackAuth, async (req: any, res) => {
     try {
       const userId = req.user.id;
       console.log('🤖 Fetching user model for:', userId);
