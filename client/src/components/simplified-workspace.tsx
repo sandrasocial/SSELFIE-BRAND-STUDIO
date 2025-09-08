@@ -378,11 +378,61 @@ export function SimplifiedWorkspace() {
 
   const profileSuggestion = getProfileSuggestion();
 
-  // Handle Maya chat inline
+  // SMART HANDOFF LOGIC: Detect Maya page triggers
+  const detectMayaPageTriggers = (message: string) => {
+    const mayaPageTriggers = [
+      'create photos', 'generate concepts', 'make images', 'train model',
+      'upload photos', 'photo concepts', 'image generation', 'generate image',
+      'create concept', 'photo ideas', 'picture concepts', 'maya create',
+      'show me concepts', 'generate photos', 'design photos', 'create content'
+    ];
+    
+    return mayaPageTriggers.some(trigger => 
+      message.toLowerCase().includes(trigger.toLowerCase())
+    );
+  };
+
+  // Handle Maya chat with smart routing
   const handleSendMessage = async () => {
     if (!chatMessage.trim() || isTyping) return;
 
     const userMessage = chatMessage.trim();
+    
+    // Check for Maya page handoff triggers
+    if (detectMayaPageTriggers(userMessage)) {
+      // Store handoff context and redirect
+      const handoffContext = {
+        message: userMessage,
+        timestamp: new Date().toISOString(),
+        businessContext,
+        conversationHistory: messages.slice(-3)
+      };
+      
+      localStorage.setItem('maya-handoff-context', JSON.stringify(handoffContext));
+      
+      // Add transition message
+      const transitionMessage: ChatMessage = {
+        id: Date.now().toString() + '_transition',
+        type: 'maya',
+        content: `Perfect! I'll take you to my creation studio where we can work on "${userMessage}". Let me switch to my specialized photo creation interface...`,
+        timestamp: new Date(),
+        isFormatted: true
+      };
+      setMessages(prev => [...prev, {
+        id: Date.now().toString(),
+        type: 'user',
+        content: userMessage,
+        timestamp: new Date()
+      }, transitionMessage]);
+      
+      // Redirect to Maya page after brief delay
+      setTimeout(() => {
+        setLocation('/maya');
+      }, 1500);
+      
+      return;
+    }
+    
     setChatMessage('');
     setIsTyping(true);
 
