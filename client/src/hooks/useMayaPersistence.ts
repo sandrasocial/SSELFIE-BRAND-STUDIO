@@ -46,7 +46,7 @@ interface PersistedConversation {
 }
 
 const MAYA_CONVERSATION_KEY = 'maya_conversation';
-const MAX_MESSAGES = 20; // Phase 2.1: Keep 20 messages + concept cards + previews
+const MAX_MESSAGES = 30; // 🧠 MEMORY ENHANCED: Keep 30 messages for better context continuity
 const CONVERSATION_TTL = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 export const useMayaPersistence = (userId?: string) => {
@@ -104,7 +104,7 @@ export const useMayaPersistence = (userId?: string) => {
           cardTotal + (card.generatedImages?.length || 0), 0) || 0), 0);
 
       const persistedData: PersistedConversation = {
-        messages: updatedMessages.slice(-MAX_MESSAGES), // Keep only last 20 messages
+        messages: updatedMessages.slice(-MAX_MESSAGES), // Keep last 30 messages for extended context
         lastUpdated: Date.now(),
         userId,
         sessionId,
