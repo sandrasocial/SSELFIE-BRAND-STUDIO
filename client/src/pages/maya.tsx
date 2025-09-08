@@ -76,23 +76,8 @@ export default function Maya() {
   // Initialize Maya generation hook with persistent messages
   const { generateFromSpecificConcept } = useMayaGeneration(messages, setMessages, null, setIsTyping, toast);
 
-  // Maya onboarding system
-  const {
-    onboardingStatus,
-    isOnboardingMode,
-    checkOnboardingStatus,
-    initializeOnboarding
-  } = useMayaOnboarding();
-
   // Track onboarding completion status for blocking image generation
   const [isOnboardingComplete, setIsOnboardingComplete] = useState(false);
-
-  // Update onboarding completion status
-  useEffect(() => {
-    if (onboardingStatus) {
-      setIsOnboardingComplete(onboardingStatus.isCompleted);
-    }
-  }, [onboardingStatus]);
 
   // Connection status monitoring
   useEffect(() => {
@@ -230,11 +215,13 @@ export default function Maya() {
   useEffect(() => {
     if (user && messages.length === 0 && !conversationData) {
       console.log('🎯 Maya: New user detected, checking onboarding status...');
-      checkOnboardingStatus().then(async () => {
-        // Get fresh onboarding status to avoid race condition
+      try {
+        // Get onboarding status directly from status API
         const statusResponse = await fetch('/api/maya/status', {
           credentials: 'include'
         }).then(r => r.json());
+        
+        setIsOnboardingComplete(statusResponse.onboardingComplete || false);
         
         if (!statusResponse.onboardingComplete) {
           console.log('✅ Maya: Starting 6-step onboarding conversation service');
@@ -245,9 +232,11 @@ export default function Maya() {
           console.log('✅ Maya: User has completed onboarding, ready for concept generation');
           setHasStartedChat(false);
         }
-      });
+      } catch (error) {
+        console.error('❌ Maya: Failed to check onboarding status:', error);
+      }
     }
-  }, [user, messages.length, conversationData, checkOnboardingStatus, setMessages]);
+  }, [user, messages.length, conversationData, setMessages]);
 
   // ENHANCED SEAMLESS HANDOFF: Handle workspace-to-Maya transitions with user context
   useEffect(() => {
@@ -461,7 +450,7 @@ export default function Maya() {
   const startOnboardingConversation = async () => {
     console.log('🎯 Maya: Starting 6-step onboarding conversation service');
     try {
-      const response = await fetch('/api/maya/onboarding', {
+      const response = await fetch('/api/maya/start-onboarding', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
