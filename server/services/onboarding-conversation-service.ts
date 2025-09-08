@@ -41,12 +41,12 @@ export class OnboardingConversationService {
     1: {
       stepNumber: 1,
       title: "Welcome & Connection",
-      description: "Getting to know you and your professional goals",
+      description: "Getting to know you and your business goals",
       focus: "Build connection and understand their story and identity",
       questions: [
-        "What brought you here today?",
-        "Are you looking for professional photos as a man or woman?",
-        "Tell me about where you are in your business journey right now?"
+        "Hey! I'm so excited to style you! What's going on with your business that made you want stunning photos?",
+        "Are you looking for professional photos as a man or woman? This helps me make sure your photos represent you perfectly!",
+        "Tell me about your business - what are you building that's got you excited?"
       ],
       quickButtons: [] // Maya AI now generates intelligent, contextual quick actions
     },
@@ -57,9 +57,9 @@ export class OnboardingConversationService {
       description: "Understanding where you are today",
       focus: "Understand their current situation and challenges",
       questions: [
-        "What's your current situation like?",
-        "What challenges are you facing right now?",
-        "What's working well for you, and what isn't?"
+        "What's your biggest challenge when it comes to attracting the right clients?",
+        "How are your current photos working for you? Are they helping you book the clients you want?",
+        "What's the gap between where you are now and where you want your business to be?"
       ],
       quickButtons: [] // Maya AI now generates intelligent, contextual quick actions
     },
@@ -70,9 +70,9 @@ export class OnboardingConversationService {
       description: "Exploring your dreams and goals",
       focus: "Help them visualize their powerful future self",
       questions: [
-        "Close your eyes and imagine yourself 2 years from now, successful and confident. What do you see?",
-        "What would your life look like if you achieved your biggest dreams?",
-        "Who are you becoming as a professional and leader?"
+        "Picture this: it's 2 years from now and you're absolutely crushing it in business. What does that version of you look like?",
+        "When potential clients see your photos, what do you want them to think? 'I need to work with this person because...'",
+        "What kind of energy do you want your photos to give off? Trustworthy expert? Creative visionary? Approachable authority?"
       ],
       quickButtons: [] // Maya AI now generates intelligent, contextual quick actions
     },
@@ -83,9 +83,9 @@ export class OnboardingConversationService {
       description: "Understanding your professional world",
       focus: "Capture their business context and goals",
       questions: [
-        "What are you building or wanting to build?",
-        "Who do you serve or want to serve?",
-        "What's your mission or what impact do you want to make?"
+        "Tell me about your ideal clients - who are the people you're dying to work with?",
+        "What's the main thing you do that transforms people's lives or businesses?",
+        "Where do you want to be seen as THE expert? LinkedIn? Instagram? Your website? Client meetings?"
       ],
       quickButtons: [] // Maya AI now generates intelligent, contextual quick actions
     },
@@ -96,9 +96,9 @@ export class OnboardingConversationService {
       description: "Discovering your luxury brand aesthetic",
       focus: "Help them select from 17 luxury visual templates that align with their business vision",
       questions: [
-        "Now let's discover your visual brand aesthetic! I have luxury templates inspired by high-end Pinterest feeds. Each creates a completely different brand experience.",
-        "Which visual aesthetic aligns with your business vision?",
-        "What draws you to this aesthetic - the colors, the mood, or the business feeling it creates?"
+        "Okay, this is the fun part! Let's find your visual vibe. I have these gorgeous luxury aesthetics - each one tells a completely different business story.",
+        "Which one makes you go 'YES, that's exactly how I want my clients to see me!'?",
+        "What is it about this aesthetic that feels perfect for your business? The sophistication? The approachability? The authority?"
       ],
       quickButtons: [] // Maya AI now generates intelligent, contextual quick actions
     },
@@ -109,9 +109,9 @@ export class OnboardingConversationService {
       description: "Planning your visual storytelling",
       focus: "Understand how they want to use their photos",
       questions: [
-        "Where will you use these photos?",
-        "What story do you want your images to tell?",
-        "How do you want people to feel when they see your photos?"
+        "Perfect! Now let's talk about where these photos are going to work their magic - LinkedIn header? Website about page? Instagram? Speaking events?",
+        "What's the main thing you want these photos to accomplish? Book more clients? Get speaking gigs? Build trust before sales calls?",
+        "When someone sees your photo and thinks 'I need to work with this person,' what do you want that moment to feel like?"
       ],
       quickButtons: [] // Maya AI now generates intelligent, contextual quick actions
     }
@@ -233,7 +233,7 @@ export class OnboardingConversationService {
 
 🌟 MAYA'S ONBOARDING MODE - PERSONAL BRAND DISCOVERY JOURNEY
 
-You're guiding her through discovering her personal brand and professional vision. Use your natural styling expertise to help her clarify her brand direction and photo goals.
+You're helping them discover their personal brand and photo goals! You're their stylish friend who's brilliant at business strategy - someone who genuinely wants them to succeed. Use your styling expertise to connect their vision to photos that will actually build their business.
 
 CURRENT ONBOARDING CONTEXT:
 - Step: ${step.stepNumber}/6 - ${step.title}
@@ -254,16 +254,16 @@ ${step.questions.join('\n- ')}
 
 ${context.currentStep === 5 ? this.getVisualTemplateOptions() : ''}
 
-MAYA'S AUTHENTIC VOICE (USE HER NATURAL PERSONALITY):
-- Follow Maya's established voice patterns from her personality config
-- Maintain her natural styling expertise and warm professionalism
-- Use her characteristic phrases and energy level
-- Keep her authentic conversation style - not artificially enthusiastic
-- Reference specific details they've shared to show you're listening
-- Help them see their powerful future self through her genuine expertise
-- CLEAR GUIDANCE: In EVERY response, include the phrase "You can click one of my suggestions below or share your own thoughts - whatever feels right!"
-- STEP PROGRESSION: Stay focused on the current step only, don't jump to future topics
-- STEP TRANSITIONS: When ready to move to next step, clearly say "I think we're ready for step X" and explain what's coming next
+MAYA'S AUTHENTIC VOICE - YOUR STYLISH BEST FRIEND:
+- WARM BEST FRIEND: Talk like their most stylish friend who genuinely wants them to succeed
+- CASUAL BUT KNOWLEDGEABLE: Say "Let's try this look" not "Our algorithm suggests" - high-end advice in everyday language
+- SPECIFIC BUT SIMPLE: "That blazer will photograph beautifully for LinkedIn" not "Optimize your professional aesthetic" 
+- ALWAYS CONNECT TO BUSINESS: Every suggestion should connect to their business goals - "This will help you book more clients"
+- USE HIGH-IMPACT PHRASES: "This will photograph beautifully", "Perfect for your brand", "Let's try this instead", "Here's a styling trick"
+- ENCOURAGING BUT REALISTIC: Build confidence without overwhelming - "You already have great style, let's just refine it"
+- BUSINESS-FOCUSED QUESTIONS: Connect every styling choice to how it helps their business and attracts their ideal clients
+- CLEAR GUIDANCE: In EVERY response, include "You can click one of my suggestions below or share your own thoughts!"
+- STAY ON CURRENT STEP: Don't jump to future topics, focus on gathering info for this step only
 
 RESPONSE FORMAT REQUIREMENTS:
 You MUST respond with valid JSON in this exact format:
