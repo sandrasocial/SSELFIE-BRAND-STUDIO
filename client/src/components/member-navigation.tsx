@@ -5,9 +5,10 @@ import { UserButton } from '@stackframe/react';
 
 interface MemberNavigationProps {
   transparent?: boolean;
+  darkText?: boolean;
 }
 
-export function MemberNavigation({ transparent = true }: MemberNavigationProps) {
+export function MemberNavigation({ transparent = true, darkText = false }: MemberNavigationProps) {
   const [location, setLocation] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -67,7 +68,7 @@ export function MemberNavigation({ transparent = true }: MemberNavigationProps) 
                 setLocation("/workspace");
               }
             }}
-            className="font-serif text-xl font-light tracking-wide text-white hover:opacity-70 transition-opacity duration-300"
+            className={`font-serif text-xl font-light tracking-wide ${darkText ? 'text-black' : 'text-white'} hover:opacity-70 transition-opacity duration-300`}
             style={{ fontFamily: "Times New Roman, serif" }}
           >
             SSELFIE
@@ -81,8 +82,8 @@ export function MemberNavigation({ transparent = true }: MemberNavigationProps) 
                 onClick={() => setLocation(item.path)}
                 className={`text-xs uppercase tracking-[0.3em] font-light transition-all duration-300 ${
                   isActive(item.path)
-                    ? 'text-white border-b border-white/50 pb-1'
-                    : 'text-white/70 hover:text-white hover:tracking-[0.4em]'
+                    ? `${darkText ? 'text-black border-b border-black/50' : 'text-white border-b border-white/50'} pb-1`
+                    : `${darkText ? 'text-black/70 hover:text-black' : 'text-white/70 hover:text-white'} hover:tracking-[0.4em]`
                 }`}
               >
                 {item.label}
@@ -126,7 +127,7 @@ export function MemberNavigation({ transparent = true }: MemberNavigationProps) 
                     console.error('Failed to stop impersonation:', error);
                   }
                 }}
-                className="text-xs uppercase tracking-[0.3em] font-light text-white/70 hover:text-white hover:tracking-[0.4em] transition-all duration-300"
+                className={`text-xs uppercase tracking-[0.3em] font-light ${darkText ? 'text-black/70 hover:text-black' : 'text-white/70 hover:text-white'} hover:tracking-[0.4em] transition-all duration-300`}
               >
                 Back to Admin
               </button>
@@ -134,7 +135,7 @@ export function MemberNavigation({ transparent = true }: MemberNavigationProps) 
 
             <button
               onClick={handleLogout}
-              className="text-white border border-white/30 hover:bg-white hover:text-black transition-colors duration-300 text-xs tracking-[0.3em] uppercase px-6 py-2 font-light"
+              className={`${darkText ? 'text-black border border-black/30 hover:bg-black hover:text-white' : 'text-white border border-white/30 hover:bg-white hover:text-black'} transition-colors duration-300 text-xs tracking-[0.3em] uppercase px-6 py-2 font-light`}
             >
               Logout
             </button>
@@ -143,7 +144,7 @@ export function MemberNavigation({ transparent = true }: MemberNavigationProps) 
           {/* Mobile Menu Button - Minimalistic MENU text */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden text-xs uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
+            className={`md:hidden text-xs uppercase tracking-[0.4em] ${darkText ? 'text-black/80 hover:text-black' : 'text-white/80 hover:text-white'} transition-all duration-300`}
           >
             MENU
           </button>
@@ -163,8 +164,8 @@ export function MemberNavigation({ transparent = true }: MemberNavigationProps) 
                 }}
                 className={`text-sm uppercase tracking-[0.4em] transition-all duration-300 ${
                   isActive(item.path)
-                    ? 'text-white'
-                    : 'text-white/70 hover:text-white'
+                    ? `${darkText ? 'text-black' : 'text-white'}`
+                    : `${darkText ? 'text-black/70 hover:text-black' : 'text-white/70 hover:text-white'}`
                 }`}
               >
                 {item.label}
@@ -190,7 +191,7 @@ export function MemberNavigation({ transparent = true }: MemberNavigationProps) 
                   }
                   setMobileMenuOpen(false);
                 }}
-                className="text-sm uppercase tracking-[0.4em] text-white/70 hover:text-white transition-all duration-300 mt-8"
+                className={`text-sm uppercase tracking-[0.4em] ${darkText ? 'text-black/70 hover:text-black' : 'text-white/70 hover:text-white'} transition-all duration-300 mt-8`}
               >
                 Back to Admin
               </button>
@@ -201,7 +202,7 @@ export function MemberNavigation({ transparent = true }: MemberNavigationProps) 
                 handleLogout();
                 setMobileMenuOpen(false);
               }}
-              className="text-sm uppercase tracking-[0.4em] text-white/70 hover:text-white transition-all duration-300 mt-8"
+              className={`text-sm uppercase tracking-[0.4em] ${darkText ? 'text-black/70 hover:text-black' : 'text-white/70 hover:text-white'} transition-all duration-300 mt-8`}
             >
               Logout
             </button>
@@ -209,7 +210,7 @@ export function MemberNavigation({ transparent = true }: MemberNavigationProps) 
             {/* Close button */}
             <button
               onClick={() => setMobileMenuOpen(false)}
-              className="absolute top-6 right-6 text-xs uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
+              className={`absolute top-6 right-6 text-xs uppercase tracking-[0.4em] ${darkText ? 'text-black/80 hover:text-black' : 'text-white/80 hover:text-white'} transition-all duration-300`}
             >
               Close
             </button>
