@@ -482,6 +482,33 @@ export class PersonalBrandService {
     
     return [brandData.colorScheme];
   }
+  /**
+   * Save visual template selection to user profile
+   */
+  async saveVisualTemplate(userId: string, templateData: {
+    templateId: string;
+    templateName: string;
+    selectedAt: string;
+  }): Promise<void> {
+    try {
+      // Import users table and update visual template
+      const { users } = await import("../../shared/schema");
+      
+      await db
+        .update(users)
+        .set({ 
+          visualTemplate: templateData.templateId,
+          updatedAt: new Date()
+        })
+        .where(eq(users.id, userId));
+      
+      console.log(`✅ VISUAL TEMPLATE SAVED: ${templateData.templateName} (${templateData.templateId}) for user ${userId}`);
+      
+    } catch (error) {
+      console.error('❌ Error saving visual template:', error);
+      throw error;
+    }
+  }
 }
 
 // Export singleton instance
