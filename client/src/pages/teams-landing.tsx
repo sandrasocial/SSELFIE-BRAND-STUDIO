@@ -165,19 +165,19 @@ export default function TeamsLanding() {
             <div className="hidden md:flex items-center space-x-8">
               <button 
                 onClick={() => setLocation("/business")}
-                className="text-xs uppercase tracking-[0.3em] text-white/70 hover:text-white transition-all duration-300"
+                className="text-xs uppercase tracking-[0.3em] font-light text-white/70 hover:text-white transition-all duration-300"
               >
                 Business
               </button>
               <button
                 onClick={handleLogin}
-                className="text-xs uppercase tracking-[0.3em] text-white/70 hover:text-white transition-all duration-300"
+                className="text-xs uppercase tracking-[0.3em] font-light text-white/70 hover:text-white transition-all duration-300"
               >
                 Login
               </button>
               <button
                 onClick={handleContactSales}
-                className="text-white border border-white/30 hover:bg-white hover:text-black transition-colors duration-300 text-xs tracking-[0.3em] uppercase px-8 py-3 font-light"
+                className="text-white border border-white/30 hover:bg-white hover:text-black transition-colors duration-300 text-xs uppercase tracking-[0.3em] font-light px-8 py-3"
               >
                 Contact Sales
               </button>
@@ -187,13 +187,13 @@ export default function TeamsLanding() {
             <div className="md:hidden flex items-center space-x-3">
               <button
                 onClick={handleLogin}
-                className="text-xs uppercase tracking-[0.3em] text-white/70 hover:text-white transition-all duration-300 min-h-[44px] px-3 flex items-center"
+                className="text-xs uppercase tracking-[0.3em] font-light text-white/70 hover:text-white transition-all duration-300 min-h-[44px] px-3 flex items-center"
               >
                 Login
               </button>
               <button
                 onClick={handleContactSales}
-                className="text-white border border-white/30 hover:bg-white hover:text-black transition-colors duration-300 text-xs tracking-[0.3em] uppercase px-6 py-3 font-light min-h-[44px] min-w-[120px]"
+                className="text-white border border-white/30 hover:bg-white hover:text-black transition-colors duration-300 text-xs uppercase tracking-[0.3em] font-light px-6 py-3 min-h-[44px] min-w-[120px]"
               >
                 Contact
               </button>
@@ -233,7 +233,7 @@ export default function TeamsLanding() {
           
           <button 
             onClick={handleContactSales}
-            className="bg-white text-black px-12 py-4 text-sm uppercase tracking-[0.3em] hover:bg-gray-100 transition-all font-medium"
+            className="bg-white text-black px-12 py-4 text-xs uppercase tracking-[0.3em] font-light hover:bg-gray-100 transition-all"
           >
             Contact Sales
           </button>
@@ -570,7 +570,7 @@ export default function TeamsLanding() {
                 </div>
                 <button 
                   onClick={handleContactSales}
-                  className="w-full bg-black text-white py-4 text-sm uppercase tracking-[0.3em] hover:bg-gray-800 transition-all font-light"
+                  className="w-full bg-black text-white py-4 text-xs uppercase tracking-[0.3em] font-light hover:bg-gray-800 transition-all"
                 >
                   GET TEAM PRICING
                 </button>
@@ -589,7 +589,7 @@ export default function TeamsLanding() {
                 </div>
                 <button 
                   onClick={handleGetStarted}
-                  className="w-full border border-black text-black py-4 text-sm uppercase tracking-[0.3em] hover:bg-black hover:text-white transition-all font-light"
+                  className="w-full border border-black text-black py-4 text-xs uppercase tracking-[0.3em] font-light hover:bg-black hover:text-white transition-all"
                 >
                   See Individual Plans
                 </button>
@@ -628,7 +628,7 @@ export default function TeamsLanding() {
           
           <button 
             onClick={handleContactSales}
-            className="bg-white text-black px-12 py-4 text-sm uppercase tracking-[0.3em] hover:bg-gray-100 transition-all font-medium"
+            className="bg-white text-black px-12 py-4 text-xs uppercase tracking-[0.3em] font-light hover:bg-gray-100 transition-all"
           >
             GET TEAM PRICING
           </button>
