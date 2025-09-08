@@ -130,7 +130,7 @@ export default function AccountSettingsPage() {
                   <div>
                     <label className="block text-sm font-medium text-black mb-2">Display Name</label>
                     <div className="text-gray-900 py-2 px-0 border-b border-gray-200">
-                      {profile?.name || user?.email?.split('@')[0] || 'SSELFIE User'}
+                      {subscriptionData?.userDisplayName || profile?.name || user?.email?.split('@')[0] || 'SSELFIE User'}
                     </div>
                   </div>
 
@@ -144,7 +144,7 @@ export default function AccountSettingsPage() {
                   <div>
                     <label className="block text-sm font-medium text-black mb-2">Account Type</label>
                     <div className="text-gray-900 py-2 px-0 border-b border-gray-200">
-                      SSELFIE Studio Member
+                      {subscriptionData?.accountType || 'SSELFIE Studio Member'}
                     </div>
                   </div>
 
@@ -177,12 +177,16 @@ export default function AccountSettingsPage() {
                   <h3 className="font-medium text-black mb-4">Current Plan</h3>
                   <div className="flex items-center justify-between mb-4">
                     <div>
-                      <p className="font-medium text-black">SSELFIE Studio</p>
-                      <p className="text-sm text-gray-600">€47 per month</p>
+                      <p className="font-medium text-black">{subscriptionData?.planDisplayName || 'SSELFIE Studio'}</p>
+                      <p className="text-sm text-gray-600">
+                        €{subscriptionData?.monthlyPrice || 47} per month
+                      </p>
                     </div>
                     <div className="text-right">
                       <p className="text-sm text-gray-500">Monthly Images</p>
-                      <p className="font-medium text-black">100 included</p>
+                      <p className="font-medium text-black">
+                        {subscriptionData?.monthlyLimit === -1 ? 'Unlimited' : `${subscriptionData?.monthlyLimit || 100} included`}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -192,6 +196,34 @@ export default function AccountSettingsPage() {
                   <div className="border border-gray-200 p-6">
                     <h3 className="font-medium text-black mb-4">Current Usage</h3>
                     <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-600">Images Generated This Month</span>
+                        <span className="font-medium text-black">
+                          {subscriptionData.monthlyUsed || 0} / {subscriptionData.monthlyLimit === -1 ? '∞' : subscriptionData.monthlyLimit}
+                        </span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div 
+                          className="bg-black h-2 rounded-full" 
+                          style={{ 
+                            width: subscriptionData.monthlyLimit === -1 
+                              ? '0%' 
+                              : `${Math.min(((subscriptionData.monthlyUsed || 0) / subscriptionData.monthlyLimit) * 100, 100)}%`
+                          }}
+                        ></div>
+                      </div>
+                      {subscriptionData.nextBillingDate && (
+                        <div className="pt-2">
+                          <p className="text-sm text-gray-500">
+                            Next billing: {new Date(subscriptionData.nextBillingDate).toLocaleDateString('en-GB', { 
+                              year: 'numeric', 
+                              month: 'long', 
+                              day: 'numeric' 
+                            })}
+                          </p>
+                        </div>
+                      )}
+                    </div>
                       <div className="flex items-center justify-between">
                         <span className="text-sm text-gray-600">Images Generated This Month</span>
                         <span className="font-medium text-black">
