@@ -322,14 +322,25 @@ router.post('/member/chat', requireStackAuth, async (req, res) => {
 
 USER MESSAGE: "${message}"
 
-Maya, use your complete styling intelligence to respond naturally. If the user is asking for photo concepts, create 3-5 concept cards using this exact format:
+Maya, use your complete styling intelligence to respond naturally. If the user is asking for photo concepts, create 3-5 concept cards using this EXACT format:
 
-[EMOJI] **CONCEPT NAME IN ALL CAPS**
-[Brief styling description explaining your intelligent styling choices]
+🏔️ **MOUNTAIN EXPLORER CONCEPT**
+[Brief styling description explaining your intelligent choices]
 
-FLUX_PROMPT: triggerWord ${user.gender || 'woman'} [Complete FLUX prompt with professional styling description]
+FLUX_PROMPT: triggerWord ${user.gender || 'woman'} professional lifestyle photo wearing [detailed outfit description], [camera details like 85mm f/2.0 lens], natural skin texture, [lighting description]
 
-CRITICAL: Every concept MUST have a FLUX_PROMPT line for image generation. Use your emoji styling system (🏔️🌲⛰️☕🎿 etc.) and create detailed, natural FLUX prompts with camera details and styling descriptions.`;
+🌟 **NEXT CONCEPT NAME**
+[Brief styling description]
+
+FLUX_PROMPT: triggerWord ${user.gender || 'woman'} [complete detailed prompt]
+
+CRITICAL REQUIREMENTS:
+- EVERY concept must have its own FLUX_PROMPT line
+- FLUX_PROMPT lines must be complete and detailed
+- Use emojis (🏔️🌲⛰️☕🎿🏢💼✨) to start each concept
+- Create 3-5 concepts per response
+- Include camera details (85mm f/2.0 lens, shallow depth of field)
+- Always include "natural skin texture" in FLUX prompts`;
 
     console.log(`🎨 MAYA: Calling Maya's full AI intelligence system`);
     
