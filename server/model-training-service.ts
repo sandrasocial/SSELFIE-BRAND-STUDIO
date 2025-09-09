@@ -4,6 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { storage } from './storage';
+import { PersonalityManager } from './agents/personalities/personality-config';
 import { ArchitectureValidator } from './architecture-validator';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 
@@ -718,12 +719,11 @@ export class ModelTrainingService {
       // MAYA'S INTELLIGENT FLUX PARAMETERS: Use Maya's personality as single source of truth
       const { MAYA_PERSONALITY } = await import('./agents/personalities/maya-personality.js');
       
-      // ✅ MAYA PURE INTELLIGENCE: Trust Maya's complete parameter selection
-      // Maya's AI handles shot type detection, aspect ratio, and all FLUX parameters
-      const fluxParams = MAYA_PERSONALITY.fluxOptimization.halfBodyShot; // Default to half-body for balanced quality
+      // ✅ MAYA PURE INTELLIGENCE: Delegate all parameter selection to PersonalityManager
+      const mayaParams = PersonalityManager.getFluxParameters('maya', 'halfBodyShot');
       const aspectRatio = "4:5"; // Maya's default portrait aspect ratio
 
-      console.log(`🎯 MAYA PURE INTELLIGENCE: Using Maya's embedded parameter intelligence`);
+      console.log(`🎯 MAYA PURE INTELLIGENCE: Using PersonalityManager for parameter intelligence`);
       
       // Maya will specify parameters naturally in her response if needed
       // FLUX optimization settings with Maya's quality intelligence  
@@ -733,8 +733,8 @@ export class ModelTrainingService {
         output_format: "png",
         output_quality: 95,
         // CRITICAL FLUX PARAMETERS FOR BEAUTIFUL HANDS AND ANATOMICAL ACCURACY
-        guidance_scale: fluxParams.guidance_scale,
-        num_inference_steps: fluxParams.num_inference_steps
+        guidance_scale: mayaParams.guidance_scale,
+        num_inference_steps: mayaParams.num_inference_steps
         // ❌ NO lora_scale in merged - this is handled per-path below
       };
       
