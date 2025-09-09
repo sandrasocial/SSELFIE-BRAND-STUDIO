@@ -490,4 +490,25 @@ EXECUTION MODE: ${voice.executionMode.patterns?.map((p: string) => `"${p}"`).joi
     // Remove artificial restrictions that interrupt personality
     return message.length > 10; // Simple check - preserve for real conversations
   }
+
+  /**
+   * Get FLUX parameters for Maya from her personality configuration
+   * Centralizes parameter selection to eliminate service-level duplication
+   */
+  static getFluxParameters(agentId: string, shotType: string = 'halfBodyShot'): any {
+    if (agentId !== 'maya') {
+      throw new Error('FLUX parameters only available for Maya');
+    }
+
+    const personality = PURE_PERSONALITIES.maya;
+    if (!personality?.fluxOptimization) {
+      throw new Error('Maya FLUX optimization configuration missing');
+    }
+
+    // Return the specific shot type parameters from Maya's intelligence
+    const validShotTypes = ['closeUpPortrait', 'halfBodyShot', 'fullScenery'];
+    const normalizedShotType = validShotTypes.includes(shotType) ? shotType : 'halfBodyShot';
+    
+    return personality.fluxOptimization[normalizedShotType as keyof typeof personality.fluxOptimization];
+  }
 }
