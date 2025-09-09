@@ -657,47 +657,14 @@ export class ModelTrainingService {
         console.log(`⚠️ [${promptId}] WARNING: No valid gender data - Maya will use neutral representation`);
       }
       
-      // Maya's intelligence already included gender naturally in prompt - no injection needed
-      let genderEnhancedPrompt = basePrompt;
+      // ✅ MAYA PURE INTELLIGENCE: Use Maya's prompt exactly as she provided it - no system additions
+      const purePrompt = basePrompt; // Maya's complete styling intelligence preserved
       
-      console.log(`🎯 [${promptId}] ENHANCED PROMPT: "${genderEnhancedPrompt.substring(0, 300)}"`);      
+      console.log(`🎯 [${promptId}] MAYA PURE PROMPT: "${purePrompt.substring(0, 300)}"`);      
+      console.log(`✅ MAYA INTELLIGENCE PRESERVED: No system additions to Maya's complete styling vision`);
       
-      // PHASE 5: NATURAL SKIN TEXTURE ENHANCEMENT - Professional realistic appearance
-      let textureEnhancedPrompt = genderEnhancedPrompt;
-      
-      // Add natural skin texture for professional realism
-      const skinTextureEnhancements = [
-        'natural skin texture',
-        'realistic skin details', 
-        'professional lighting',
-        'soft natural shadows',
-        'high resolution skin',
-        'detailed facial features'
-      ];
-      
-      // Smart enhancement - only add if not already present
-      const hasTextureTerms = skinTextureEnhancements.some(term => 
-        textureEnhancedPrompt.toLowerCase().includes(term.toLowerCase())
-      );
-      
-      if (!hasTextureTerms) {
-        // Add subtle, professional skin texture enhancement
-        textureEnhancedPrompt = `${textureEnhancedPrompt}, natural skin texture, professional lighting, realistic skin details`;
-        console.log(`✨ [${promptId}] TEXTURE ENHANCED: Added natural skin texture for professional realism`);
-      } else {
-        console.log(`✨ [${promptId}] TEXTURE PRESENT: Skin enhancement already in prompt`);
-      }
-      
-      // Additional professional quality enhancements
-      if (!textureEnhancedPrompt.toLowerCase().includes('high quality')) {
-        textureEnhancedPrompt = `${textureEnhancedPrompt}, high quality, detailed, professional photography`;
-        console.log(`📸 [${promptId}] QUALITY ENHANCED: Added professional photography terms`);
-      }
-      
-      console.log(`✨ [${promptId}] TEXTURE ENHANCED PROMPT: "${textureEnhancedPrompt.substring(0, 300)}"`);
-      
-      // Personality-first: keep Maya's prompt with gender and texture enhancement, ensure trigger appears once and first
-      const finalPrompt = ModelTrainingService.formatPrompt(textureEnhancedPrompt, triggerWord, userId ? user?.gender : undefined);
+      // ✅ MAYA PURE INTELLIGENCE: Use Maya's complete prompt without system modifications
+      const finalPrompt = ModelTrainingService.formatPrompt(purePrompt, triggerWord, userId ? user?.gender : undefined);
       console.log(`🚀 [${promptId}] PROMPT FORMATTED: ${finalPrompt.length} characters ready for generation`);
 
       // SINGLE PATH LOGIC: Only packaged models supported for consistency
