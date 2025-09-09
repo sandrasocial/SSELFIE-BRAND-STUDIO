@@ -30,7 +30,6 @@ import { trackMayaActivity } from '../services/maya-usage-isolation';
 import { UserStyleMemoryService } from '../services/user-style-memory';
 import { SupportIntelligenceService } from '../services/support-intelligence';
 import { EscalationHandler, escalationHandler } from '../services/escalation-handler';
-import { OnboardingConversationService } from '../services/onboarding-conversation-service';
 import { simpleOnboardingService } from '../services/simple-onboarding-service';
 import { mayaPersonalizationService } from '../services/maya-personalization-service';
 
@@ -244,13 +243,13 @@ router.post('/start-onboarding', requireStackAuth, async (req: AdminContextReque
   try {
     console.log(`🎯 MAYA CONVERSATIONAL ONBOARDING: Starting intelligent onboarding for user ${userId}`);
     
-    // Use conversational onboarding service instead of static questions
-    const onboardingService = new OnboardingConversationService();
-    const onboardingResponse = await onboardingService.processOnboardingMessage(
-      userId,
-      'Let\'s begin your personalized onboarding',
-      1
-    );
+    // Use simple essential onboarding service
+    const questions = await simpleOnboardingService.getOnboardingQuestions();
+    const onboardingResponse = {
+      message: "Hey! I'm Maya, your personal styling assistant. Let me get to know you better with a few quick questions so I can create amazing photos that perfectly capture your style.",
+      questions: questions,
+      isOnboarding: true
+    };
 
     logMayaAPI('/start-onboarding', startTime, true);
     res.json(onboardingResponse);
@@ -358,7 +357,7 @@ router.post('/chat', requireStackAuth, adminContextDetection, async (req: AdminC
 
     // INTELLIGENT CONTEXT ROUTING: Enhanced dashboard vs creation detection
     if (context === 'dashboard') {
-      const onboardingService = new OnboardingConversationService();
+      // Simple onboarding service for member users
       
       // REVERSE HANDOFF DETECTION: Maya page back to workspace triggers
       const workspaceHandoffTriggers = [
@@ -3268,15 +3267,18 @@ router.post('/onboarding-response', requireStackAuth, async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    // Use conversational onboarding service for intelligent response processing
-    const onboardingService = new OnboardingConversationService();
-    const currentStep = user.onboardingStep || 1;
+    // Use simple onboarding service for processing answers
+    const result = await simpleOnboardingService.saveOnboardingAnswers(userId, {
+      gender: answer.gender,
+      preferredName: answer.preferredName,
+      primaryUse: answer.primaryUse,
+      styleVibe: answer.styleVibe
+    });
     
-    const onboardingResponse = await onboardingService.processOnboardingMessage(
-      userId,
-      answer,
-      currentStep
-    );
+    const onboardingResponse = {
+      message: result.message,
+      isCompleted: true
+    };
     
     // Update user's onboarding progress if moving to next step
     if (onboardingResponse.currentStep > currentStep) {
