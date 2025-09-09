@@ -8,15 +8,27 @@ export default function SimpleCheckout() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [email, setEmail] = useState('');
 
   const handleStripeCheckout = async () => {
+    if (!email) {
+      toast({
+        title: "Email Required",
+        description: "Please enter your email address to continue.",
+      });
+      return;
+    }
     setIsProcessing(true);
     
     try {
+      // Store email for auto-registration
+      localStorage.setItem('checkout-email', email);
+      
       // Create Stripe checkout session instead of payment intent
       const data = await apiRequest("/api/create-checkout-session", "POST", {
         plan: "sselfie-studio", // Use the correct plan name
-        successUrl: `${window.location.origin}/payment-success?plan=sselfie-studio`,
+        customerEmail: email, // Pass email to Stripe
+        successUrl: `${window.location.origin}/payment-success?plan=sselfie-studio&email=${encodeURIComponent(email)}`,
         cancelUrl: `${window.location.origin}/simple-checkout`,
       });
 
@@ -40,9 +52,20 @@ export default function SimpleCheckout() {
   };
 
   const handleTestPayment = async () => {
+    if (!email) {
+      toast({
+        title: "Email Required",
+        description: "Please enter your email address to continue.",
+      });
+      return;
+    }
+    
     setIsProcessing(true);
     
     try {
+      // Store email for auto-registration
+      localStorage.setItem('checkout-email', email);
+      
       // For testing - simulate successful payment
       await new Promise(resolve => setTimeout(resolve, 2000));
       
@@ -51,8 +74,8 @@ export default function SimpleCheckout() {
         description: "Redirecting to your workspace...",
       });
       
-      // Redirect to payment success page
-      setLocation('/payment-success?plan=sselfie-studio');
+      // Redirect to payment success page with email
+      setLocation(`/payment-success?plan=sselfie-studio&email=${encodeURIComponent(email)}`);
     } catch (error) {
       console.error('Test payment error:', error);
       setIsProcessing(false);
@@ -123,6 +146,61 @@ export default function SimpleCheckout() {
         padding: '0 clamp(20px, 5vw, 96px) clamp(80px, 20vw, 200px)' 
       }}>
         <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+          
+          {/* Email Collection Form */}
+          <div style={{
+            background: '#fafafa',
+            padding: 'clamp(48px, 12vw, 64px) clamp(32px, 8vw, 64px)',
+            marginBottom: 'clamp(48px, 12vw, 96px)',
+            border: '1px solid #e8e8e8'
+          }}>
+            <h3 style={{
+              fontFamily: 'Times New Roman, serif',
+              fontWeight: 200,
+              letterSpacing: 'clamp(0.15em, 2vw, 0.25em)',
+              textTransform: 'uppercase',
+              fontSize: 'clamp(18px, 4.5vw, 24px)',
+              marginBottom: 'clamp(32px, 8vw, 48px)',
+              textAlign: 'center',
+              lineHeight: 1.1
+            }}>
+              Your Email Address
+            </h3>
+            
+            <div style={{ marginBottom: 'clamp(32px, 8vw, 48px)' }}>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your email address"
+                style={{
+                  width: '100%',
+                  padding: '16px 20px',
+                  fontSize: '16px',
+                  border: '1px solid #e8e8e8',
+                  background: '#ffffff',
+                  fontFamily: 'Helvetica Neue, Arial, sans-serif',
+                  fontWeight: 300,
+                  outline: 'none',
+                  transition: 'border-color 300ms ease'
+                }}
+                onFocus={(e) => e.target.style.borderColor = '#757575'}
+                onBlur={(e) => e.target.style.borderColor = '#e8e8e8'}
+                required
+              />
+            </div>
+            
+            <p style={{
+              fontSize: 'clamp(13px, 3vw, 15px)',
+              color: '#757575',
+              lineHeight: 1.6,
+              fontWeight: 300,
+              textAlign: 'center',
+              marginBottom: '24px'
+            }}>
+              We'll create your account automatically after payment and send you a welcome email with next steps.
+            </p>
+          </div>
           {/* Order Summary Card - Mobile Responsive */}
           <div style={{
             background: '#ffffff',
