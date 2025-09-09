@@ -432,6 +432,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Update user gender - API endpoint for training flow
+  app.post('/api/user/update-gender', requireStackAuth, async (req: any, res) => {
+    try {
+      const { gender } = req.body;
+      const userId = req.user.id;
+      
+      if (!['man', 'woman', 'other'].includes(gender)) {
+        return res.status(400).json({ 
+          success: false,
+          error: 'Invalid gender value. Must be "man", "woman", or "other"' 
+        });
+      }
+      
+      await storage.updateUserProfile(userId, {
+        gender,
+        updatedAt: new Date()
+      });
+      
+      console.log(`✅ Updated gender for user ${userId}: ${gender}`);
+      res.json({ 
+        success: true,
+        message: 'Gender preference updated successfully'
+      });
+    } catch (error) {
+      console.error('❌ Gender update error:', error);
+      res.status(500).json({ 
+        success: false,
+        error: 'Failed to update gender preference' 
+      });
+    }
+  });
+
   // Helper functions for name parsing
   function extractFirstName(displayName?: string): string {
     if (!displayName) return '';
