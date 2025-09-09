@@ -308,8 +308,8 @@ router.post('/member/chat', requireStackAuth, async (req, res) => {
     
     // Use Maya's full intelligence system for conversation and concept generation
     // This calls Maya's personality system to handle styling and concept creation
-    const { PersonalityManager } = require('../agents/personalities/personality-config');
-    const { ClaudeApiServiceSimple } = require('../services/claude-api-service-simple');
+    const { PersonalityManager } = await import('../agents/personalities/personality-config.js');
+    const { ClaudeApiServiceSimple } = await import('../services/claude-api-service-simple.js');
     const claudeService = new ClaudeApiServiceSimple();
     
     const mayaPrompt = PersonalityManager.getNaturalPrompt('maya');
@@ -356,7 +356,22 @@ Maya, use your complete styling intelligence to respond naturally. If the user i
   }
 });
 
-// ✅ CLEANED UP: Removed gender extraction helpers - no longer needed
+// ✅ CONCEPT CARD EXTRACTION: Extract concept cards from Maya's response
+function extractConceptCards(mayaResponse: string, userId: string, userGender: string = 'woman'): any[] {
+  // Simple concept extraction for now - Maya's intelligence handles the details
+  if (mayaResponse.includes('concept') || mayaResponse.includes('photo') || mayaResponse.includes('look')) {
+    return [{
+      id: `concept_${userId}_${Date.now()}`,
+      title: 'Maya Styled Concept',
+      description: `Styled by Maya for ${userGender}`,
+      fluxPrompt: mayaResponse.substring(0, 200) + '...', // Use part of Maya's response
+      category: 'Lifestyle',
+      isGenerating: false,
+      hasGenerated: false
+    }];
+  }
+  return [];
+}
 
 // UNIFIED MAYA ENDPOINT - Handles all Maya interactions with admin/member distinction
 router.post('/chat', requireStackAuth, adminContextDetection, async (req: AdminContextRequest, res) => {
