@@ -474,8 +474,8 @@ router.post('/chat', requireStackAuth, adminContextDetection, async (req: AdminC
     });
     console.log('✅ All messages validated for Claude API compatibility');
 
-    // Get unified user context for styling
-    const unifiedUserContext = await getUnifiedUserContext(userId);
+    // ✅ UNIFIED CONTEXT: Get complete user context with single optimized call
+    const unifiedUserContext = await unifiedMayaContextService.getUnifiedMayaContext(userId, chatId?.toString());
     
     // Check generation capability
     const generationInfo = await checkGenerationCapability(userId);
@@ -509,10 +509,8 @@ ${adaptationResult.trendRecommendations.join('\n')}`;
       }
     }
     
-    // PHASE 3: Add user personalization context for intelligent, personalized responses
-    if (userContext) {
-      const personalizedGreeting = mayaPersonalizationService.generatePersonalizedGreeting(userContext);
-      const brandingContent = mayaPersonalizationService.generateBrandingContent(userContext);
+    // ✅ UNIFIED INTELLIGENCE: Use unified context data for personalized responses
+    if (userContext && unifiedUserContext) {
       
       const personalizationContext = `
 
@@ -529,10 +527,9 @@ PERSONALIZED USER CONTEXT (USE FOR INTELLIGENT RESPONSES):
 - Joined: ${userContext.profileData.joinedDate ? new Date(userContext.profileData.joinedDate).toLocaleDateString() : 'Recently'}
 
 PERSONALIZED SUGGESTIONS:
-- Greeting: ${personalizedGreeting}
-- Brand Voice: ${brandingContent.brandVoice}
-- Visual Style: ${brandingContent.visualStyle}
-- Target Audience: ${brandingContent.targetAudience}
+- Personal Brand: ${unifiedUserContext.personalBrand?.businessContext?.businessType || 'Professional'}
+- Photo Style Goals: ${unifiedUserContext.personalBrand?.styleDiscovery?.photoGoals || 'Professional presence'}
+- Brand Context: ${unifiedUserContext.personalBrand?.transformationStory || 'Building professional brand'}
 
 Use this context to provide personalized, intelligent responses instead of generic templates. Reference their actual usage, plan details, and preferences when relevant.`;
 
@@ -1551,7 +1548,7 @@ router.get('/status', requireStackAuth, adminContextDetection, async (req: Admin
     const userType = req.userType || 'member';
     console.log(`📊 MAYA ${userType.toUpperCase()}: Status check from ${req.isAdmin ? 'admin' : 'member'} user ${userId}`);
 
-    const userContext = await getUnifiedUserContext(userId);
+    const userContext = await unifiedMayaContextService.getUnifiedMayaContext(userId);
     const generationInfo = await checkGenerationCapability(userId);
     
     // PHASE 7: Log status check success
@@ -1692,12 +1689,12 @@ router.get('/check-generation/:predictionId', requireStackAuth, adminContextDete
             // 🎯 CRITICAL FIX: Auto-save images to gallery when chatId is invalid
             try {
               for (const imageUrl of finalImageUrls) {
-                await MayaChatPreviewService.heartImageToGallery(
-                  userId,
-                  imageUrl,
-                  'Maya AI Generation',
-                  'Maya Editorial'
-                );
+                await storage.saveImageToGallery(userId, {
+                  url: imageUrl,
+                  title: 'Maya AI Generation',
+                  category: 'Maya Editorial',
+                  source: 'maya'
+                });
               }
               console.log(`✅ MAYA AUTO-GALLERY: Saved ${finalImageUrls.length} images directly to user gallery`);
             } catch (galleryError) {
@@ -1714,12 +1711,12 @@ router.get('/check-generation/:predictionId', requireStackAuth, adminContextDete
         // 🎯 CRITICAL FIX: Auto-save images to gallery when no chat context exists
         try {
           for (const imageUrl of finalImageUrls) {
-            await MayaChatPreviewService.heartImageToGallery(
-              userId,
-              imageUrl,
-              'Maya AI Generation', 
-              'Maya Editorial'
-            );
+            await storage.saveImageToGallery(userId, {
+              url: imageUrl,
+              title: 'Maya AI Generation',
+              category: 'Maya Editorial', 
+              source: 'maya'
+            });
           }
           console.log(`✅ MAYA AUTO-GALLERY: Saved ${finalImageUrls.length} images directly to user gallery (no chat context)`);
         } catch (galleryError) {
@@ -1804,121 +1801,7 @@ router.get('/check-generation/:predictionId', requireStackAuth, adminContextDete
 
 // HELPER FUNCTIONS
 
-async function getUnifiedUserContext(userId: string) {
-  try {
-    console.log(`🧠 PHASE 1.1: Loading enhanced personal brand context for user ${userId}`);
-    
-    // Get user basic info
-    const user = await storage.getUser(userId);
-    
-    // PHASE 1.1: Load rich personal brand data from Maya storage extensions
-    let personalBrandData = null;
-    let styleMemoryData = null;
-    let successfulPatterns = null;
-    
-    try {
-      const { MayaStorageExtensions } = await import('../storage-maya-extensions');
-      const mayaUserContext = await MayaStorageExtensions.getMayaUserContext(userId);
-      personalBrandData = mayaUserContext?.personalBrand;
-      console.log(`✅ PHASE 1.1: Personal brand data loaded - ${personalBrandData ? 'FOUND' : 'NOT FOUND'}`);
-    } catch (error) {
-      console.log('No Maya personal brand data found for user:', userId);
-    }
-    
-    // PHASE 1.1: Load learned style patterns and memory
-    try {
-      const { UserStyleMemoryService } = await import('../services/user-style-memory');
-      styleMemoryData = await UserStyleMemoryService.initializeUserMemory(userId);
-      successfulPatterns = await UserStyleMemoryService.getSuccessfulPatterns(userId);
-      console.log(`✅ PHASE 1.1: Style memory loaded - ${styleMemoryData.totalInteractions} interactions, ${successfulPatterns.topPrompts.length} successful patterns`);
-    } catch (error) {
-      console.log('No style memory data found for user:', userId);
-    }
-    
-    // Get onboarding data (legacy support)
-    let onboardingData = null;
-    try {
-      onboardingData = await storage.getOnboardingData(userId);
-    } catch (error) {
-      console.log('No onboarding data found for user:', userId);
-    }
-    
-    // PHASE 1.1: Get recent Maya chats with enhanced context (5 most recent)
-    let recentChats = [];
-    try {
-      const chats = await storage.getMayaChats(userId);
-      recentChats = chats.slice(0, 5);
-    } catch (error) {
-      console.log('No chat history found for user:', userId);
-    }
-
-    // PHASE 1.1: Build comprehensive user context with rich memory data
-    const enhancedContext = {
-      userId,
-      userInfo: {
-        email: user?.email,
-        firstName: user?.firstName,
-        plan: user?.plan
-      },
-      // PHASE 1.1: Rich personal brand context
-      personalBrand: personalBrandData ? {
-        transformationStory: personalBrandData.transformationStory,
-        currentSituation: personalBrandData.currentSituation,
-        futureVision: personalBrandData.futureVision,
-        businessGoals: personalBrandData.businessGoals,
-        businessType: personalBrandData.businessType,
-        stylePreferences: personalBrandData.stylePreferences,
-        photoGoals: personalBrandData.photoGoals,
-        isCompleted: personalBrandData.isCompleted
-      } : null,
-      // PHASE 1.1: Learned style patterns and preferences
-      styleMemory: styleMemoryData ? {
-        preferredCategories: styleMemoryData.preferredCategories,
-        favoritePromptPatterns: styleMemoryData.favoritePromptPatterns,
-        colorPreferences: styleMemoryData.colorPreferences,
-        settingPreferences: styleMemoryData.settingPreferences,
-        stylingKeywords: styleMemoryData.stylingKeywords,
-        totalInteractions: styleMemoryData.totalInteractions,
-        totalFavorites: styleMemoryData.totalFavorites,
-        highPerformingPrompts: styleMemoryData.highPerformingPrompts,
-        rejectedPrompts: styleMemoryData.rejectedPrompts
-      } : null,
-      // PHASE 1.1: Successful pattern analysis
-      successfulPatterns: successfulPatterns ? {
-        topPrompts: successfulPatterns.topPrompts,
-        preferredCategories: successfulPatterns.preferredCategories,
-        stylingKeywords: successfulPatterns.stylingKeywords,
-        averageSuccessScore: successfulPatterns.averageSuccessScore
-      } : null,
-      // Legacy onboarding support
-      onboarding: {
-        isComplete: onboardingData?.isCompleted || personalBrandData?.isCompleted || false,
-        currentStep: onboardingData?.currentStep || 1,
-        stylePreferences: personalBrandData?.stylePreferences || onboardingData?.stylePreferences,
-        businessType: personalBrandData?.businessType || onboardingData?.businessType,
-        personalBrandGoals: personalBrandData?.businessGoals || onboardingData?.personalBrandGoals
-      },
-      recentChats,
-      onboardingComplete: personalBrandData?.isCompleted || onboardingData?.isCompleted || false
-    };
-    
-    console.log(`🎯 PHASE 1.1: Enhanced context compiled - Personal Brand: ${!!enhancedContext.personalBrand}, Style Memory: ${!!enhancedContext.styleMemory}, Patterns: ${!!enhancedContext.successfulPatterns}`);
-    
-    return enhancedContext;
-  } catch (error) {
-    console.error('❌ PHASE 1.1: Error getting enhanced user context:', error);
-    return {
-      userId,
-      userInfo: {},
-      personalBrand: null,
-      styleMemory: null,
-      successfulPatterns: null,
-      onboarding: { isComplete: false, currentStep: 1 },
-      recentChats: [],
-      onboardingComplete: false
-    };
-  }
-}
+// ✅ DEPRECATED: getUnifiedUserContext() function removed - replaced by unifiedMayaContextService.getUnifiedMayaContext()
 
 async function checkGenerationCapability(userId: string) {
   try {
@@ -2614,8 +2497,8 @@ async function createDetailedPromptFromConcept(conceptName: string, triggerWord:
           finalTriggerWord = generationInfo.triggerWord || '';
         }
         
-        // PHASE 1.1: Load comprehensive user context with enhanced memory
-        const enhancedUserContext = await getUnifiedUserContext(userId);
+        // ✅ UNIFIED CONTEXT: Load comprehensive user context with single optimized call
+        const enhancedUserContext = await unifiedMayaContextService.getUnifiedMayaContext(userId);
         
         // PHASE 1.1: Build rich personal brand context with learned patterns
         if (enhancedUserContext?.personalBrand || enhancedUserContext?.styleMemory || enhancedUserContext?.successfulPatterns) {
