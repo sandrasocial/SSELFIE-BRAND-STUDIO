@@ -300,50 +300,8 @@ router.post('/member/chat', requireStackAuth, async (req, res) => {
       clean: true
     });
 
-    // ✅ SIMPLIFIED ONBOARDING: Check for mandatory gender field ONLY
-    if (!user.gender) {
-      // Check if user is responding to gender question
-      const genderResponse = extractGenderFromMessage(message);
-      
-      if (genderResponse) {
-        console.log(`✅ MAYA: Gender captured - ${genderResponse}`);
-        
-        // Store gender in database
-        await storage.updateUser(userId, { gender: genderResponse });
-        
-        // Return success response and continue conversation
-        const response = {
-          success: true,
-          content: `Perfect! I've got that you're ${genderResponse === 'woman' ? 'a woman' : genderResponse === 'man' ? 'a man' : 'you'}. Now I can create photos that look amazing on you! What kind of photos are you looking to create today?`,
-          message: `Perfect! I've got that you're ${genderResponse === 'woman' ? 'a woman' : genderResponse === 'man' ? 'a man' : 'you'}. Now I can create photos that look amazing on you! What kind of photos are you looking to create today?`,
-          mode: context,
-          canGenerate: true,
-          chatId: chatId || `maya_${userId}_${Date.now()}`
-        };
-
-        logMayaAPI('/member/chat', startTime, true);
-        return res.json(response);
-      } else {
-        // Ask for gender - mandatory question
-        const genderQuestion = {
-          success: true,
-          content: `Hi! I'm Maya, your personal styling AI. Before I can create perfect photos for you, I need to know: are you a man or a woman? This helps me choose the right styling approach and technical settings for amazing results!`,
-          message: `Hi! I'm Maya, your personal styling AI. Before I can create perfect photos for you, I need to know: are you a man or a woman? This helps me choose the right styling approach and technical settings for amazing results!`,
-          mode: context,
-          canGenerate: false,
-          requiresGender: true,
-          quickButtons: ['Woman', 'Man', 'Prefer not to say'],
-          chatId: chatId || `maya_${userId}_${Date.now()}`
-        };
-
-        console.log(`🚫 MAYA: Gender required for user ${userId}`);
-        logMayaAPI('/member/chat', startTime, true);
-        return res.json(genderQuestion);
-      }
-    }
-
-    // ✅ USER HAS GENDER: Continue with Maya's natural conversation using full intelligence
-    console.log(`✅ MAYA: User has gender (${user.gender}), proceeding with full Maya intelligence`);
+    // ✅ SIMPLIFIED: No blocking logic - Maya works immediately
+    console.log(`✅ MAYA: Processing request for user ${userId}, proceeding with full Maya intelligence`);
     
     // Get Maya's personalization context
     const userContext = await mayaPersonalizationService.getUserPersonalizationContext(userId);
@@ -398,41 +356,7 @@ Maya, use your complete styling intelligence to respond naturally. If the user i
   }
 });
 
-// Helper function to extract gender from user message
-function extractGenderFromMessage(message: string): 'woman' | 'man' | 'prefer-not-to-say' | null {
-  const lowerMessage = message.toLowerCase();
-  
-  if (lowerMessage.includes('woman') || lowerMessage.includes('female') || lowerMessage.includes('she/her')) {
-    return 'woman';
-  }
-  if (lowerMessage.includes('man') || lowerMessage.includes('male') || lowerMessage.includes('he/him')) {
-    return 'man';
-  }
-  if (lowerMessage.includes('prefer not') || lowerMessage.includes('neither') || lowerMessage.includes('non-binary')) {
-    return 'prefer-not-to-say';
-  }
-  
-  return null;
-}
-
-// Helper function to extract concept cards from Maya's response
-function extractConceptCards(mayaResponse: string, userId: string, userGender: string): any[] {
-  // Look for concept cards in Maya's response
-  const conceptPattern = /(?:concept|idea|photo)\s*(?:card|concept)?\s*:?\s*["']?([^"\n]+)["']?/gi;
-  const matches = mayaResponse.match(conceptPattern);
-  
-  if (!matches) return [];
-  
-  return matches.slice(0, 3).map((match, index) => ({
-    id: `concept_${userId}_${Date.now()}_${index}`,
-    title: match.replace(/(?:concept|idea|photo)\s*(?:card|concept)?\s*:?\s*["']?/gi, '').trim(),
-    description: `Styled by Maya for ${userGender}`,
-    fluxPrompt: ModelTrainingService.formatPrompt(match.replace(/(?:concept|idea|photo)\s*(?:card|concept)?\s*:?\s*["']?/gi, '').trim(), ModelTrainingService.generateTriggerWord(userId), userGender),
-    category: 'Lifestyle',
-    isGenerating: false,
-    hasGenerated: false
-  }));
-}
+// ✅ CLEANED UP: Removed gender extraction helpers - no longer needed
 
 // UNIFIED MAYA ENDPOINT - Handles all Maya interactions with admin/member distinction
 router.post('/chat', requireStackAuth, adminContextDetection, async (req: AdminContextRequest, res) => {
