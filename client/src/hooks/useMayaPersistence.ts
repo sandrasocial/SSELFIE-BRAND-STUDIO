@@ -256,9 +256,10 @@ export const useMayaPersistence = (userId?: string) => {
   // PHASE 2.1: Clear conversation (for new session)
   const clearConversation = useCallback(() => {
     setMessages([]);
-    localStorage.removeItem(MAYA_CONVERSATION_KEY);
+    const conversationKey = getMayaConversationKey(userId);
+    localStorage.removeItem(conversationKey);
     console.log('🧹 PHASE 2.1: Conversation cleared');
-  }, []);
+  }, [userId]);
 
   // PHASE 2.1: Get conversation statistics
   const getConversationStats = useCallback(() => {
