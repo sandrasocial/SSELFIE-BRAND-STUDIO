@@ -15,6 +15,7 @@ export default function PaymentSuccess() {
     const urlParams = new URLSearchParams(window.location.search);
     const plan = urlParams.get('plan');
     const type = urlParams.get('type');
+    const email = urlParams.get('email') || localStorage.getItem('checkout-email');
     
     // Handle retraining payments specifically
     if (plan === 'retraining' && type === 'retrain') {
@@ -22,8 +23,9 @@ export default function PaymentSuccess() {
       return;
     }
     
-    // Handle regular subscription payments - redirect to training after successful payment
+    // Handle regular subscription payments
     if (isAuthenticated && user) {
+      // User is authenticated - upgrade existing account
       triggerUserUpgrade();
       
       // Show success message and redirect to training
@@ -36,14 +38,69 @@ export default function PaymentSuccess() {
       setTimeout(() => {
         setLocation('/simple-training');
       }, 3000);
+    } else if (email) {
+      // 🚀 AUTO-REGISTRATION: Create account for non-authenticated paying customer
+      handleAutoRegistration(email, plan || 'sselfie-studio');
     } else {
-      // Show success message for non-authenticated users
+      // Fallback: Show success message for non-authenticated users without email
       toast({
         title: "Payment Successful!",
         description: "Welcome to SSELFIE Studio! Please sign in to start your AI training.",
       });
     }
   }, [toast, isAuthenticated, user, setLocation]);
+
+  // 🚀 AUTO-REGISTRATION: Create account for paying users automatically
+  const handleAutoRegistration = async (email: string, plan: string) => {
+    try {
+      console.log('🚀 AUTO-REGISTRATION: Creating account for:', email);
+      
+      const response = await fetch('/api/auth/auto-register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email,
+          plan,
+          source: 'payment-success'
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        console.log('✅ AUTO-REGISTRATION: Account created successfully');
+        
+        // Show success message
+        toast({
+          title: "🎉 Welcome to SSELFIE Studio!",
+          description: "Your account has been created and your payment is successful. Check your email for next steps!",
+        });
+        
+        // Clear stored email
+        localStorage.removeItem('checkout-email');
+        
+        // Redirect to training after showing message
+        setTimeout(() => {
+          setLocation('/simple-training');
+        }, 4000);
+        
+      } else {
+        console.error('❌ AUTO-REGISTRATION: Failed to create account:', data.error);
+        toast({
+          title: "Payment Successful!",
+          description: "Your payment went through, but please contact support to activate your account.",
+          variant: "destructive"
+        });
+      }
+      
+    } catch (error) {
+      console.error('❌ AUTO-REGISTRATION: Network error:', error);
+      toast({
+        title: "Payment Successful!",
+        description: "Your payment was processed. Please check your email or contact support if you need help accessing your account.",
+      });
+    }
+  };
 
   // 🔄 PHASE 4: Handle successful retraining payments
   const handleRetrainingSuccess = async () => {
