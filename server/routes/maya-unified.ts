@@ -546,54 +546,66 @@ Use this context to provide personalized, intelligent responses instead of gener
       console.log('✨ PHASE 3: User personalization context added to Maya - she now has access to real user data for intelligent responses');
     }
     
-    // 🧠 CRITICAL FIX: Add user style memory and learned preferences to Maya's intelligence
+    // 🧠 CRITICAL PRIORITY FIX: Put user context FIRST to override Maya's hardcoded business defaults
     if (unifiedUserContext) {
-      let userStyleContext = '';
+      let userPriorityContext = `🎯 PRIORITY USER INTELLIGENCE - THIS OVERRIDES ALL DEFAULT STYLING APPROACHES:
+
+`;
       
       // Style Memory Integration
       if (unifiedUserContext.styleMemory && unifiedUserContext.styleMemory.totalInteractions > 0) {
-        userStyleContext += `
-
-USER STYLE MEMORY & LEARNED PREFERENCES:
-- Total Interactions: ${unifiedUserContext.styleMemory.totalInteractions}
+        userPriorityContext += `USER STYLE MEMORY & LEARNED PREFERENCES (${unifiedUserContext.styleMemory.totalInteractions} interactions):
 - Preferred Categories: ${unifiedUserContext.styleMemory.preferredCategories?.join(', ') || 'Learning user preferences'}
 - Favorite Styling Keywords: ${unifiedUserContext.styleMemory.stylingKeywords?.join(', ') || 'Learning user style'}
 - Color Preferences: ${unifiedUserContext.styleMemory.colorPreferences?.join(', ') || 'Learning color preferences'}
 - Setting Preferences: ${unifiedUserContext.styleMemory.settingPreferences?.join(', ') || 'Learning setting preferences'}
 - High Performing Prompts: ${unifiedUserContext.styleMemory.highPerformingPrompts?.slice(0, 3).join('; ') || 'Learning what works'}
-- Total Favorites: ${unifiedUserContext.styleMemory.totalFavorites}`;
+- Total Favorites: ${unifiedUserContext.styleMemory.totalFavorites}
+
+`;
       }
       
       // Personal Brand Context Integration
       if (unifiedUserContext.personalBrand && unifiedUserContext.personalBrand.isCompleted) {
-        userStyleContext += `
-
-PERSONAL BRAND STORY:
+        userPriorityContext += `PERSONAL BRAND STORY (PRIORITY CONTEXT):
 - Current Situation: ${unifiedUserContext.personalBrand.currentSituation || 'Not specified'}
 - Future Vision: ${unifiedUserContext.personalBrand.futureVision || 'Not specified'}
 - Business Type: ${unifiedUserContext.personalBrand.businessType || 'Not specified'}
 - Business Goals: ${unifiedUserContext.personalBrand.businessGoals || 'Not specified'}
 - Style Preferences: ${unifiedUserContext.personalBrand.stylePreferences || 'Not specified'}
-- Photo Goals: ${unifiedUserContext.personalBrand.photoGoals || 'Not specified'}`;
+- Photo Goals: ${unifiedUserContext.personalBrand.photoGoals || 'Not specified'}
+
+`;
       }
       
       // Successful Patterns Integration
       if (unifiedUserContext.successfulPatterns) {
-        userStyleContext += `
-
-LEARNED SUCCESS PATTERNS:
+        userPriorityContext += `LEARNED SUCCESS PATTERNS (HIGHEST PRIORITY):
 - Top Performing Prompts: ${unifiedUserContext.successfulPatterns.topPrompts?.slice(0, 3).join('; ') || 'Learning patterns'}
 - Preferred Categories: ${unifiedUserContext.successfulPatterns.preferredCategories?.join(', ') || 'Learning preferences'}
-- Success Score Average: ${unifiedUserContext.successfulPatterns.averageSuccessScore || 'Learning'}`;
+- Success Score Average: ${unifiedUserContext.successfulPatterns.averageSuccessScore || 'Learning'}
+
+`;
       }
       
-      if (userStyleContext) {
-        userStyleContext += `
+      if (userPriorityContext.length > 100) {
+        userPriorityContext += `🚨 CRITICAL MANDATE: This user's DEMONSTRATED preferences and learned patterns override ALL your default styling approaches. 
 
-IMPORTANT: Use this learned context to create photo concepts that match THIS USER'S unique interests, style, and preferences. Don't default to generic business concepts - adapt to their personal brand story and demonstrated preferences.`;
+IF USER SHOWS:
+- Outdoor/hunting interests → Create outdoor, nature, adventure concepts (NOT business)  
+- Creative pursuits → Create artistic, creative concepts (NOT professional business)
+- Casual lifestyle → Create lifestyle, authentic concepts (NOT corporate)
+- Sports/fitness → Create athletic, wellness concepts (NOT executive)
+
+NEVER default to "Professional Business" or "Executive" concepts unless the user's actual context explicitly shows business/corporate interests.
+
+ADAPT YOUR STYLING TO THEIR ACTUAL DEMONSTRATED INTERESTS, NOT YOUR DEFAULT BUSINESS TRAINING.
+
+`;
         
-        mayaPersonality += userStyleContext;
-        console.log('🧠 CRITICAL FIX: Maya now has access to full user style memory and learned preferences');
+        // 🎯 KEY FIX: Put user context FIRST to dominate Claude's attention
+        mayaPersonality = userPriorityContext + '\n\n' + mayaPersonality;
+        console.log('🧠 PRIORITY FIX: User context now LEADS Maya\'s intelligence - overriding business defaults');
       }
     }
     
