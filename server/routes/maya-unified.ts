@@ -1273,13 +1273,104 @@ router.post('/member/generate', requireStackAuth, async (req, res) => {
       });
     }
 
-    // Continue with existing generation logic...
-    logMayaAPI('/member/generate', startTime, true);
-    res.json({
-      success: true,
-      message: "Member-only generation endpoint created! Full implementation coming next...",
-      memberOnly: true
-    });
+    const safeCount = Math.min(Math.max(parseInt(count ?? 1, 10) || 1, 1), 6);
+    
+    // Get user context for trigger word
+    const generationInfo = await checkGenerationCapability(userId);
+    
+    // Check if user can generate - provide Maya's direct guidance if not
+    if (!generationInfo.canGenerate || !generationInfo.userModel || !generationInfo.triggerWord) {
+      return res.status(200).json({
+        success: false,
+        error: "Your AI model needs to complete training before creating personalized photos. Complete the training process with your selfies first.",
+        message: "Your AI model needs to complete training before creating personalized photos. Complete the training process with your selfies first.",
+        canGenerate: false
+      });
+    }
+    
+    let finalPrompt = prompt.trim();
+    
+    console.log(`🚧 MEMBER GENERATION DEBUG:`);
+    console.log(`📝 PROMPT: "${prompt}"`);
+    console.log(`🏷️ CONCEPT NAME: "${conceptName}"`);
+    console.log(`📋 CONCEPT ID: "${req.body.conceptId}"`);
+    
+    // CRITICAL FIX: Use embedded prompts from concept cards
+    if (conceptName && conceptName.length > 0) {
+      const conceptId = req.body.conceptId;
+      
+      // Try to get concept with embedded prompt
+      try {
+        console.log(`🔍 MEMBER CONTEXT SEARCH: Looking for concept "${conceptName}" with ID "${conceptId}"`);
+        
+        // Get recent chats to find concept cards
+        const recentChats = await storage.getMayaChats(userId);
+        let conceptCard = null;
+        
+        for (const chat of recentChats.slice(0, 5)) {
+          const messages = await storage.getMayaChatMessages(chat.id);
+          
+          for (const message of messages) {
+            if (message.content && typeof message.content === 'string') {
+              try {
+                const contentData = JSON.parse(message.content);
+                if (contentData.conceptCards && contentData.conceptCards.length > 0) {
+                  for (const card of contentData.conceptCards) {
+                    const lowerConceptName = conceptName.toLowerCase();
+                    const lowerCardTitle = card.title.toLowerCase();
+                    
+                    const isMatch = 
+                      (conceptId && card.id === conceptId) ||
+                      lowerCardTitle === lowerConceptName ||
+                      lowerCardTitle.includes(lowerConceptName) ||
+                      lowerConceptName.includes(lowerCardTitle);
+                    
+                    if (isMatch && card.fullPrompt) {
+                      conceptCard = card;
+                      break;
+                    }
+                  }
+                }
+              } catch (parseError) {
+                // Continue searching
+              }
+            }
+          }
+          if (conceptCard) break;
+        }
+        
+        if (conceptCard?.fullPrompt && conceptCard.fullPrompt.length > 0) {
+          console.log('✅ MEMBER EMBEDDED PROMPT: Using concept card FLUX prompt');
+          console.log('- FullPrompt length:', conceptCard.fullPrompt.length);
+          console.log('- FullPrompt preview:', conceptCard.fullPrompt.substring(0, 100));
+          
+          // Use the embedded prompt directly
+          finalPrompt = conceptCard.fullPrompt;
+        } else {
+          console.log('❌ MEMBER FALLBACK: No embedded prompt found, using concept title');
+        }
+      } catch (error) {
+        console.log(`❌ MEMBER CONCEPT SEARCH ERROR:`, error);
+      }
+    }
+    
+    // Generate images using Maya's model training service
+    try {
+      const result = await ModelTrainingService.generateUserImages(
+        userId,
+        finalPrompt,
+        safeCount,
+        { categoryContext: req.body.category || 'General' }
+      );
+      
+      console.log(`✅ MEMBER GENERATION SUCCESS: Images generated for user ${userId}`);
+      logMayaAPI('/member/generate', startTime, true);
+      return res.json(result);
+      
+    } catch (generationError) {
+      console.error(`❌ MEMBER GENERATION ERROR:`, generationError);
+      throw generationError;
+    }
 
   } catch (error: any) {
     console.error("Member Maya generate error:", error);
