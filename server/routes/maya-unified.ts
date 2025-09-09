@@ -1015,7 +1015,7 @@ router.post('/generate', requireStackAuth, adminContextDetection, async (req: Ad
     if (!prompt) {
       logMayaAPI('/generate', startTime, false, new Error('Prompt required'));
       return res.status(400).json({ 
-        error: "Ready to create professional photos for your business. Tell me what style you need - business headshots, lifestyle content, or brand photos?" 
+        error: "Let's create amazing photos that tell your story. What style or theme would you like to explore?" 
       });
     }
     
@@ -1999,13 +1999,13 @@ async function processMayaResponse(response: string, context: string, userId: st
       .trim();
     
     // Update the message to show Maya's original conversational response without concept details
-    // ALWAYS preserve Maya's original voice - no generic templates allowed
+    // ✅ PRESERVE MAYA'S PURE CREATIVITY: Never use generic business defaults
     if (cleanedMessage.length > 30) {
       processed.message = cleanedMessage;
     } else {
       // If cleaning removed too much, preserve Maya's original response intro
       const originalIntro = response.split('\n').slice(0, 3).join('\n').trim();
-      processed.message = originalIntro || "Ready to create professional photo concepts for your business.";
+      processed.message = originalIntro || "Let's create some amazing photo concepts that tell your unique story.";
     }
     
     console.log('🎯 MAYA CONCEPT CARDS: Parsed', concepts.length, 'concepts from response');
