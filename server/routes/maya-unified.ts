@@ -2543,31 +2543,6 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
   console.log('🎯 UNIFIED CONCEPT PARSING: Analyzing response for Maya\'s styling concepts');
   console.log('📝 RAW RESPONSE PREVIEW:', response.substring(0, 500).replace(/\n/g, '\\n'));
   
-  // 🚨 STEP 1: Check Maya's complete raw response structure
-  console.log('🔍 MAYA RAW RESPONSE STRUCTURE ANALYSIS:');
-  console.log('📄 COMPLETE RAW RESPONSE:');
-  console.log(response);
-  console.log('📄 END OF RAW RESPONSE');
-  
-  // 🚨 STEP 2: Check for FLUX_PROMPT lines in raw response
-  const fluxPromptMatches = response.match(/FLUX_PROMPT:[^\n]*/g);
-  console.log('🔍 RAW FLUX_PROMPT DETECTION:');
-  console.log(`- Found ${fluxPromptMatches?.length || 0} FLUX_PROMPT lines in raw response`);
-  if (fluxPromptMatches) {
-    fluxPromptMatches.forEach((match, index) => {
-      console.log(`  ${index + 1}. "${match}"`);
-    });
-  }
-  
-  // 🚨 STEP 3: Debug emoji pattern matching step by step
-  console.log('🔍 EMOJI PATTERN DEBUGGING:');
-  const debugPattern = /(🏔️|🌲|⛰️|☕|🏞️|🌄|🎿|🚡|🏕️|🌻|🌊|🌅|🔥|💎|🌟|✨|💫|👑|💼|🏢|💃|📸|🎬|🎯|🎨|💪|🚀|🎪|🎭|🎵|🎶|🎸|🎤|🎧|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\u2600-\u26FF])\s*\*\*([^*\n]{3,60})\*\*/gs;
-  const conceptTitles = [...response.matchAll(debugPattern)];
-  console.log(`- Found ${conceptTitles.length} concept title matches:`);
-  conceptTitles.forEach((match, i) => {
-    console.log(`  ${i+1}. Emoji: "${match[1]}", Title: "${match[2]}"`);
-  });
-  
   // ✅ FIXED REGEX: Captures EVERYTHING including FLUX_PROMPT lines
   const emojiConceptPattern = /([✨💫🔥🌟💎🌅🏢💼🌊👑💃📸🎬🎯🏆🚀💯⭐🌈🎭🎨🎪🏅🎸🎤🎵🎶🎺🎻🎲🎮🕹️🎳🏔️🌲⛰️🏞️🌄🏖️🌇🌆🌃🌌🌉🌁⛅☀️🌤️⛈️🌦️☔💧❄️⛄💥⚡🌠🎆🎇🎊🎉🎈🎁🎀🎗️🏵️🌺🌸🌼🌻🌹🥀🌷🌱🌿🍃🌾🌵🌴🌳💐])\s*\*\*([^*]+)\*\*\n([\s\S]+?)(?=\n[✨💫🔥🌟💎🌅🏢💼🌊👑💃📸🎬🎯🏆🚀💯⭐🌈🎭🎨🎪🏅🎸🎤🎵🎶🎺🎻🎲🎮🕹️🎳🏔️🌲⛰️🏞️🌄🏖️🌇🌆🌃🌌🌉🌁⛅☀️🌤️⛈️🌦️☔💧❄️⛄💥⚡🌠🎆🎇🎊🎉🎈🎁🎀🎗️🏵️🌺🌸🌼🌻🌹🥀🌷🌱🌿🍃🌾🌵🌴🌳💐]|$)/g;
   const multiConceptPattern = /\*\*([^*\n]{10,80})\*\*\n([^*]*?)(?=\*\*[^*\n]{10,80}\*\*|$)/gs;
@@ -2576,23 +2551,11 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
   let conceptNumber = 1;
   const foundConcepts = new Set();
   
-  // 🚨 STEP 4: Try Maya's emoji concept pattern with detailed debugging
   console.log('🔍 TRYING MAYA EMOJI CONCEPT PATTERN...');
-  let matchNumber = 0;
   while ((match = emojiConceptPattern.exec(response)) !== null) {
-    matchNumber++;
     const emoji = match[1];
     let conceptName = match[2].trim();
     let conceptContent = match[3].trim();
-    
-    // 🚨 DEBUG: Log what the regex captured
-    console.log(`🔍 REGEX MATCH ${matchNumber}:`);
-    console.log(`- Full match length: ${match[0].length} chars`);
-    console.log(`- Match[1] (emoji): "${emoji}"`);
-    console.log(`- Match[2] (name): "${conceptName}"`);
-    console.log(`- Match[3] (content): "${conceptContent.substring(0, 100)}${conceptContent.length > 100 ? '...' : ''}"`);
-    console.log(`- Content includes FLUX_PROMPT: ${conceptContent.includes('FLUX_PROMPT')}`);
-    console.log(`- Raw match[3] full content:`, conceptContent);
     
     // Clean the concept name first, then add emoji for styling identification
     conceptName = conceptName.replace(/\*\*/g, '').trim();
@@ -2620,12 +2583,6 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
     }
     
     // 🚨 DEBUG: Log FLUX prompt extraction
-    console.log(`🔍 FLUX PROMPT EXTRACTION DEBUG:`);
-    console.log(`- Concept content: "${conceptContent}"`);
-    console.log(`- FLUX_PROMPT match found: ${!!fluxPromptMatch}`);
-    console.log(`- Extracted prompt: "${embeddedFluxPrompt}"`);
-    console.log(`- Prompt length: ${embeddedFluxPrompt?.length || 0} chars`);
-    
     // Extract user-facing description (everything before FLUX_PROMPT)
     const userDescription = conceptContent.split('FLUX_PROMPT:')[0].trim();
     
@@ -2653,12 +2610,7 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
         isGenerating: false
       };
       
-      console.log(`💾 EMOJI CONCEPT STORED:`, {
-        title: conceptCard.title,
-        hasFullPrompt: !!conceptCard.fullPrompt,
-        fullPromptLength: conceptCard.fullPrompt?.length || 0,
-        emojiUsed: emoji
-      });
+      console.log(`💾 EMOJI CONCEPT STORED: "${conceptCard.title}" with ${conceptCard.fullPrompt?.length || 0} char FLUX prompt`);
       
       concepts.push(conceptCard);
     }
