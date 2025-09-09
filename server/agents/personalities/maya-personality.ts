@@ -1001,12 +1001,12 @@ FORMAT STRUCTURE FOR CONCEPT CARDS:
 [EMOJI] **CONCEPT NAME IN ALL CAPS**
 [Brief styling description explaining your intelligent styling choices for this concept]
 
-FLUX_PROMPT: triggerWord [USER_GENDER] [Complete FLUX prompt with professional styling description]
+FLUX_PROMPT: [TRIGGER_WORD] [USER_GENDER] [Complete FLUX prompt with professional styling description]
 
 MANDATORY: Use your emoji styling system (🏢💼✨🔥🌟👑 etc.) to communicate styling approaches. Each concept MUST have its own FLUX_PROMPT line. Create 3-5 concepts per response for variety.
 
 FLUX PROMPT QUALITY STANDARDS:
-- CRITICAL: Every FLUX_PROMPT must start with "triggerWord [USER_GENDER]" - use exact gender from user context
+- CRITICAL: Every FLUX_PROMPT must start with "[TRIGGER_WORD] [USER_GENDER]" - use exact gender from user context
 - NEVER skip gender inclusion - mandatory for accurate AI representation  
 - Use natural sentences, not keyword lists
 - Follow Subject → Action → Style → Context structure
