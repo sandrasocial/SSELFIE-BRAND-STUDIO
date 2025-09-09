@@ -657,14 +657,47 @@ export class ModelTrainingService {
         console.log(`⚠️ [${promptId}] WARNING: No valid gender data - Maya will use neutral representation`);
       }
       
-      // ✅ MAYA PURE INTELLIGENCE: Use Maya's prompt exactly as she provided it - no system additions
-      const purePrompt = basePrompt; // Maya's complete styling intelligence preserved
+      // Maya's intelligence already included gender naturally in prompt - no injection needed
+      let genderEnhancedPrompt = basePrompt;
       
-      console.log(`🎯 [${promptId}] MAYA PURE PROMPT: "${purePrompt.substring(0, 300)}"`);      
-      console.log(`✅ MAYA INTELLIGENCE PRESERVED: No system additions to Maya's complete styling vision`);
+      console.log(`🎯 [${promptId}] ENHANCED PROMPT: "${genderEnhancedPrompt.substring(0, 300)}"`);      
       
-      // ✅ MAYA PURE INTELLIGENCE: Use Maya's complete prompt without system modifications
-      const finalPrompt = ModelTrainingService.formatPrompt(purePrompt, triggerWord, userId ? user?.gender : undefined);
+      // PHASE 5: NATURAL SKIN TEXTURE ENHANCEMENT - Professional realistic appearance
+      let textureEnhancedPrompt = genderEnhancedPrompt;
+      
+      // Add natural skin texture for professional realism
+      const skinTextureEnhancements = [
+        'natural skin texture',
+        'realistic skin details', 
+        'professional lighting',
+        'soft natural shadows',
+        'high resolution skin',
+        'detailed facial features'
+      ];
+      
+      // Smart enhancement - only add if not already present
+      const hasTextureTerms = skinTextureEnhancements.some(term => 
+        textureEnhancedPrompt.toLowerCase().includes(term.toLowerCase())
+      );
+      
+      if (!hasTextureTerms) {
+        // Add subtle, professional skin texture enhancement
+        textureEnhancedPrompt = `${textureEnhancedPrompt}, natural skin texture, professional lighting, realistic skin details`;
+        console.log(`✨ [${promptId}] TEXTURE ENHANCED: Added natural skin texture for professional realism`);
+      } else {
+        console.log(`✨ [${promptId}] TEXTURE PRESENT: Skin enhancement already in prompt`);
+      }
+      
+      // Additional professional quality enhancements
+      if (!textureEnhancedPrompt.toLowerCase().includes('high quality')) {
+        textureEnhancedPrompt = `${textureEnhancedPrompt}, high quality, detailed, professional photography`;
+        console.log(`📸 [${promptId}] QUALITY ENHANCED: Added professional photography terms`);
+      }
+      
+      console.log(`✨ [${promptId}] TEXTURE ENHANCED PROMPT: "${textureEnhancedPrompt.substring(0, 300)}"`);
+      
+      // Personality-first: keep Maya's prompt with gender and texture enhancement, ensure trigger appears once and first
+      const finalPrompt = ModelTrainingService.formatPrompt(textureEnhancedPrompt, triggerWord);
       console.log(`🚀 [${promptId}] PROMPT FORMATTED: ${finalPrompt.length} characters ready for generation`);
 
       // SINGLE PATH LOGIC: Only packaged models supported for consistency
@@ -685,17 +718,17 @@ export class ModelTrainingService {
       // MAYA'S INTELLIGENT FLUX PARAMETERS: Use Maya's personality as single source of truth
       const { MAYA_PERSONALITY } = await import('./agents/personalities/maya-personality.js');
       
-      // ✅ MAYA PURE INTELLIGENCE: Trust Maya's complete parameter and framing selection
-      // Maya naturally chooses optimal shot type, aspect ratio, and all FLUX parameters
-      const fluxParams = MAYA_PERSONALITY.fluxOptimization.default || MAYA_PERSONALITY.fluxOptimization.halfBodyShot;
-      // ✅ MAYA ASPECT RATIO FREEDOM: Let Maya choose optimal framing (no forced aspect ratio)
+      // ✅ MAYA PURE INTELLIGENCE: Trust Maya's complete parameter selection
+      // Maya's AI handles shot type detection, aspect ratio, and all FLUX parameters
+      const fluxParams = MAYA_PERSONALITY.fluxOptimization.halfBodyShot; // Default to half-body for balanced quality
+      const aspectRatio = "4:5"; // Maya's default portrait aspect ratio
 
       console.log(`🎯 MAYA PURE INTELLIGENCE: Using Maya's embedded parameter intelligence`);
       
       // Maya will specify parameters naturally in her response if needed
-      // ✅ MAYA PURE INTELLIGENCE: Maya chooses optimal parameters and framing
+      // FLUX optimization settings with Maya's quality intelligence  
       const merged = {
-        // ✅ REMOVED: aspect_ratio - Maya decides optimal framing naturally
+        aspect_ratio: aspectRatio,
         megapixels: "1", 
         output_format: "png",
         output_quality: 95,
@@ -729,7 +762,7 @@ export class ModelTrainingService {
           // ✅ FLUX parameters only - packaged models have LoRA built-in
           guidance_scale: merged.guidance_scale,
           num_inference_steps: merged.num_inference_steps,
-          // ✅ REMOVED: aspect_ratio - Maya chooses optimal framing naturally
+          aspect_ratio: merged.aspect_ratio,
           megapixels: merged.megapixels,
           output_format: "png", 
           output_quality: 95,
@@ -780,26 +813,20 @@ export class ModelTrainingService {
   }
 
   // 🎯 MAYA PURE INTELLIGENCE: Absolute minimal formatting to preserve Maya's complete styling intelligence
-  static formatPrompt(prompt: string, triggerWord: string, userGender?: string): string {
+  static formatPrompt(prompt: string, triggerWord: string): string {
     console.log(`🎯 MAYA PURE INTELLIGENCE: Zero-interference formatting mode activated`);
     
     // Only normalize basic whitespace, preserve ALL Maya content
     const normalizedPrompt = (prompt || "").replace(/\s+/g, " ").trim();
 
-    // Create gender-aware trigger phrase
-    let genderAwareTrigger = triggerWord;
-    if (userGender && userGender !== 'prefer-not-to-say') {
-      genderAwareTrigger = `${triggerWord} ${userGender}`;
-    }
-
     // Check if trigger word is already properly positioned
-    if (normalizedPrompt.startsWith(triggerWord) || normalizedPrompt.startsWith(genderAwareTrigger)) {
+    if (normalizedPrompt.startsWith(triggerWord)) {
       console.log(`✅ MAYA PURE INTELLIGENCE: Trigger word already present, using Maya's exact output`);
       return normalizedPrompt;
     } else {
       // Only add trigger word if missing, preserve Maya's complete content
-      console.log(`✅ MAYA PURE INTELLIGENCE: Adding gender-aware trigger (${genderAwareTrigger}) to preserve Maya's complete styling intelligence`);
-      return `${genderAwareTrigger}, ${normalizedPrompt}`;
+      console.log(`✅ MAYA PURE INTELLIGENCE: Adding trigger word to preserve Maya's complete styling intelligence`);
+      return `${triggerWord}, ${normalizedPrompt}`;
     }
   }
 

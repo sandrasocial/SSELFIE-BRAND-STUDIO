@@ -30,14 +30,10 @@ import { trackMayaActivity } from '../services/maya-usage-isolation';
 import { UserStyleMemoryService } from '../services/user-style-memory';
 import { SupportIntelligenceService } from '../services/support-intelligence';
 import { EscalationHandler, escalationHandler } from '../services/escalation-handler';
-import { simpleOnboardingService } from '../services/simple-onboarding-service';
+import { OnboardingConversationService } from '../services/onboarding-conversation-service';
 import { mayaPersonalizationService } from '../services/maya-personalization-service';
-import { mayaStateMachine } from '../services/maya-state-machine';
 
 const router = Router();
-
-// 🎯 MEMBER-ONLY MAYA ENDPOINTS (NO ADMIN CONTAMINATION)
-// Clean routes for €47/month subscribers without admin middleware
 
 // PHASE 3: Performance Optimization - Maya Context Caching System  
 // Reduces Claude API calls by ~50% while maintaining perfect consistency
@@ -138,99 +134,6 @@ function logUserAbandonment(event: 'ONBOARDING_ABANDON' | 'CHAT_ABANDON' | 'GENE
   });
 }
 
-// 🎯 MEMBER-ONLY SIMPLE ONBOARDING (NO ADMIN MIDDLEWARE)
-router.post('/member/start-onboarding', requireStackAuth, async (req, res) => {
-  const startTime = Date.now();
-  const userId = (req.user as any)?.id || (req.user as any)?.claims?.sub;
-  
-  if (!userId) {
-    logMayaAPI('/member/start-onboarding', startTime, false, new Error('Authentication required'));
-    return res.status(401).json({ error: 'Authentication required' });
-  }
-
-  try {
-    console.log(`🎯 MEMBER MAYA SIMPLE ONBOARDING: Starting essential 4-question onboarding for user ${userId}`);
-    
-    // Use simple essential onboarding - no AI processing during collection
-    const welcomeMessage = simpleOnboardingService.createWelcomeMessage();
-    const questions = simpleOnboardingService.getEssentialQuestions();
-
-    // Track member-only usage
-    trackMayaActivity(userId, 'member', `maya_member_${userId}`, 'simple_onboarding', {
-      questionsCount: questions.length,
-      clean: true
-    });
-
-    logMayaAPI('/member/start-onboarding', startTime, true);
-    res.json({
-      message: welcomeMessage,
-      questions: questions,
-      onboardingType: 'essential',
-      questionsRemaining: questions.length
-    });
-    
-  } catch (error) {
-    console.error('❌ MEMBER MAYA SIMPLE ONBOARDING ERROR:', error);
-    logMayaAPI('/member/start-onboarding', startTime, false, error);
-    res.status(500).json({ error: 'Failed to start simple onboarding' });
-  }
-});
-
-// 🎯 MEMBER-ONLY SAVE ONBOARDING (NO ADMIN MIDDLEWARE)
-router.post('/member/save-onboarding', requireStackAuth, async (req, res) => {
-  const startTime = Date.now();
-  const userId = (req.user as any)?.id || (req.user as any)?.claims?.sub;
-  
-  if (!userId) {
-    logMayaAPI('/member/save-onboarding', startTime, false, new Error('Authentication required'));
-    return res.status(401).json({ error: 'Authentication required' });
-  }
-
-  try {
-    const { gender, preferredName, primaryUse, styleVibe } = req.body;
-    
-    console.log(`✅ MEMBER MAYA: Saving essential onboarding data for user ${userId}`);
-    
-    // Store essential data immediately (no AI processing)
-    await simpleOnboardingService.storeEssentialData({
-      userId,
-      gender,
-      preferredName,
-      primaryUse,
-      styleVibe
-    });
-    
-    // Complete onboarding and get Maya's readiness message
-    const completionMessage = await simpleOnboardingService.completeOnboarding(userId);
-    
-    // Track completion
-    trackMayaActivity(userId, 'member', `maya_member_${userId}`, 'onboarding_complete', {
-      gender,
-      primaryUse,
-      hasStyleVibe: !!styleVibe,
-      clean: true
-    });
-
-    logMayaAPI('/member/save-onboarding', startTime, true);
-    res.json({
-      success: true,
-      message: completionMessage,
-      onboardingComplete: true,
-      personalizedData: {
-        gender,
-        preferredName,
-        primaryUse,
-        styleVibe
-      }
-    });
-    
-  } catch (error) {
-    console.error('❌ MEMBER MAYA SAVE ONBOARDING ERROR:', error);
-    logMayaAPI('/member/save-onboarding', startTime, false, error);
-    res.status(500).json({ error: 'Failed to save onboarding data' });
-  }
-});
-
 // CONVERSATIONAL ONBOARDING - Maya's intelligent onboarding experience
 router.post('/start-onboarding', requireStackAuth, async (req: AdminContextRequest, res) => {
   const startTime = Date.now();
@@ -244,13 +147,13 @@ router.post('/start-onboarding', requireStackAuth, async (req: AdminContextReque
   try {
     console.log(`🎯 MAYA CONVERSATIONAL ONBOARDING: Starting intelligent onboarding for user ${userId}`);
     
-    // Use simple essential onboarding service
-    const questions = await simpleOnboardingService.getOnboardingQuestions();
-    const onboardingResponse = {
-      message: "Hey! I'm Maya, your personal styling assistant. Let me get to know you better with a few quick questions so I can create amazing photos that perfectly capture your style.",
-      questions: questions,
-      isOnboarding: true
-    };
+    // Use conversational onboarding service instead of static questions
+    const onboardingService = new OnboardingConversationService();
+    const onboardingResponse = await onboardingService.processOnboardingMessage(
+      userId,
+      'Let\'s begin your personalized onboarding',
+      1
+    );
 
     logMayaAPI('/start-onboarding', startTime, true);
     res.json(onboardingResponse);
@@ -261,133 +164,6 @@ router.post('/start-onboarding', requireStackAuth, async (req: AdminContextReque
     res.status(500).json({ error: 'Failed to start conversational onboarding' });
   }
 });
-
-// 🎯 MEMBER-ONLY CHAT (NO ADMIN MIDDLEWARE) - SIMPLIFIED ONBOARDING
-router.post('/member/chat', requireStackAuth, async (req, res) => {
-  const startTime = Date.now();
-  try {
-    const userId = (req.user as any)?.id || (req.user as any)?.claims?.sub;
-    if (!userId) {
-      logMayaAPI('/member/chat', startTime, false, new Error('Authentication required'));
-      return res.status(401).json({ 
-        error: "Authentication required to create professional photos. Please log in to access your photo creation service." 
-      });
-    }
-
-    // Load user context (member-only, no admin contamination)
-    const user = await storage.getUser(userId);
-    if (!user) {
-      logMayaAPI('/member/chat', startTime, false, new Error('User not found'));
-      return res.status(404).json({ error: 'User not found' });
-    }
-    
-    const { message, context = 'styling', chatId, conversationHistory = [] } = req.body;
-
-    if (!message) {
-      logMayaAPI('/member/chat', startTime, false, new Error('Message required'));
-      return res.status(400).json({ error: 'Message required' });
-    }
-
-    console.log(`🎨 MEMBER MAYA: Processing ${context} message for member user ${userId}`);
-    
-    // Clean member-only conversation ID (no admin switching)
-    const conversationId = `maya_member_${userId}_${chatId || 'default'}`;
-    
-    // Track member activity
-    trackMayaActivity(userId, 'member', conversationId, 'chat', {
-      context,
-      messageLength: message.length,
-      clean: true
-    });
-
-    // ✅ SIMPLIFIED: No blocking logic - Maya works immediately
-    console.log(`✅ MAYA: Processing request for user ${userId}, proceeding with full Maya intelligence`);
-    
-    // Get Maya's personalization context
-    const userContext = await mayaPersonalizationService.getUserPersonalizationContext(userId);
-    
-    // Use Maya's full intelligence system for conversation and concept generation
-    // This calls Maya's personality system to handle styling and concept creation
-    const { PersonalityManager } = await import('../agents/personalities/personality-config.js');
-    const { ClaudeApiServiceSimple } = await import('../services/claude-api-service-simple.js');
-    const claudeService = new ClaudeApiServiceSimple();
-    
-    const mayaPrompt = PersonalityManager.getNaturalPrompt('maya');
-    const contextualPrompt = `${mayaPrompt}
-
-🎯 USER CONTEXT:
-- Gender: ${user.gender}
-- User ID: ${userId}
-- Previous conversation: ${conversationHistory?.slice(-3)?.map((msg: any) => `${msg.role}: ${msg.content}`)?.join('\n') || 'No previous conversation'}
-
-USER MESSAGE: "${message}"
-
-Maya, use your complete styling intelligence to respond naturally. If the user is asking for photo concepts, create 3-5 concept cards using this format:
-
-[EMOJI] **[YOUR CONCEPT NAME]**
-[Brief styling description explaining your intelligent choices]
-
-FLUX_PROMPT: triggerWord ${user.gender || 'woman'} [complete detailed prompt with styling, camera details, lighting]
-
-CRITICAL REQUIREMENTS:
-- EVERY concept must have its own FLUX_PROMPT line
-- FLUX_PROMPT lines must be complete and detailed
-- Use appropriate emojis to start each concept based on the styling theme
-- Create 3-5 concepts per response
-- Include camera details (85mm f/2.0 lens, shallow depth of field)
-- Always include "natural skin texture" in FLUX prompts`;
-
-    console.log(`🎨 MAYA: Calling Maya's full AI intelligence system`);
-    
-    const mayaResponse = await claudeService.sendMessage(contextualPrompt, conversationId, 'maya', false);
-    
-    // Parse Maya's response for concept cards
-    const conceptCards = await parseConceptsFromResponse(mayaResponse, userId);
-    
-    // ✅ CRITICAL FIX: Clean Maya's response for user display (remove FLUX_PROMPT lines)
-    const cleanResponseForChat = cleanMayaResponseForChat(mayaResponse);
-    
-    const response = {
-      success: true,
-      content: cleanResponseForChat,
-      message: cleanResponseForChat,
-      mode: context,
-      canGenerate: true,
-      conceptCards: conceptCards,
-      chatId: chatId || `maya_${userId}_${Date.now()}`
-    };
-
-    logMayaAPI('/member/chat', startTime, true);
-    return res.json(response);
-
-  } catch (error) {
-    console.error('Member Maya chat error:', error);
-    logMayaAPI('/member/chat', startTime, false, error);
-    
-    return res.status(500).json({ 
-      success: false,
-      error: process.env.NODE_ENV === 'development' ? error.message : 'Chat system unavailable',
-      canGenerate: false
-    });
-  }
-});
-
-// ✅ MAYA RESPONSE CLEANING: Clean Maya's response for user chat display
-function cleanMayaResponseForChat(mayaResponse: string): string {
-  // Remove FLUX_PROMPT lines and technical content, keep conversational Maya content
-  let cleaned = mayaResponse;
-  
-  // Remove FLUX_PROMPT lines completely
-  cleaned = cleaned.replace(/FLUX_PROMPT:\s*[^\n]*\n?/g, '');
-  
-  // Remove separator lines
-  cleaned = cleaned.replace(/^---+$/gm, '');
-  
-  // Clean up extra whitespace
-  cleaned = cleaned.replace(/\n{3,}/g, '\n\n').trim();
-  
-  return cleaned;
-}
 
 // UNIFIED MAYA ENDPOINT - Handles all Maya interactions with admin/member distinction
 router.post('/chat', requireStackAuth, adminContextDetection, async (req: AdminContextRequest, res) => {
@@ -422,7 +198,7 @@ router.post('/chat', requireStackAuth, adminContextDetection, async (req: AdminC
 
     // INTELLIGENT CONTEXT ROUTING: Enhanced dashboard vs creation detection
     if (context === 'dashboard') {
-      // Simple onboarding service for member users
+      const onboardingService = new OnboardingConversationService();
       
       // REVERSE HANDOFF DETECTION: Maya page back to workspace triggers
       const workspaceHandoffTriggers = [
@@ -1229,170 +1005,6 @@ Use this strategic context to create photo concepts that directly support their 
   }
 });
 
-// 🎯 MEMBER-ONLY GENERATION (NO ADMIN MIDDLEWARE)
-router.post('/member/generate', requireStackAuth, async (req, res) => {
-  const startTime = Date.now();
-  try {
-    const userId = (req.user as any)?.id || (req.user as any)?.claims?.sub;
-    if (!userId) {
-      logMayaAPI('/member/generate', startTime, false, new Error('Authentication required'));
-      return res.status(401).json({ error: 'Authentication required' });
-    }
-    
-    const user = await storage.getUser(userId);
-    if (!user) {
-      logMayaAPI('/member/generate', startTime, false, new Error('User not found'));
-      return res.status(404).json({ error: 'User not found' });
-    }
-    
-    const { prompt, chatId, seed, count, conceptName } = req.body || {};
-    
-    // Log member generation start
-    logMayaGeneration('START', {
-      userId,
-      userType: 'member',
-      concept: conceptName || 'custom',
-      prompt: prompt?.substring(0, 100) + '...', 
-      count: count || 1,
-      clean: true
-    });
-    
-    console.log(`🖼️ MEMBER MAYA: Clean image generation request from member user ${userId}`);
-    
-    // Track member generation activity  
-    trackMayaActivity(userId, 'member', `maya_member_${userId}`, 'generation', {
-      conceptName: req.body.conceptName || 'custom_generation',
-      timestamp: new Date(),
-      clean: true
-    });
-    
-    if (!prompt) {
-      logMayaAPI('/member/generate', startTime, false, new Error('Prompt required'));
-      return res.status(400).json({ 
-        error: "Ready to create professional photos for your business. Tell me what style you need - business headshots, lifestyle content, or brand photos?" 
-      });
-    }
-
-    const safeCount = Math.min(Math.max(parseInt(count ?? 1, 10) || 1, 1), 6);
-    
-    // Get user context for trigger word
-    const generationInfo = await checkGenerationCapability(userId);
-    
-    // Check if user can generate - provide Maya's direct guidance if not
-    if (!generationInfo.canGenerate || !generationInfo.userModel || !generationInfo.triggerWord) {
-      return res.status(200).json({
-        success: false,
-        error: "Your AI model needs to complete training before creating personalized photos. Complete the training process with your selfies first.",
-        message: "Your AI model needs to complete training before creating personalized photos. Complete the training process with your selfies first.",
-        canGenerate: false
-      });
-    }
-    
-    let finalPrompt = prompt.trim();
-    
-    console.log(`🚧 MEMBER GENERATION DEBUG:`);
-    console.log(`📝 PROMPT: "${prompt}"`);
-    console.log(`🏷️ CONCEPT NAME: "${conceptName}"`);
-    console.log(`📋 CONCEPT ID: "${req.body.conceptId}"`);
-    
-    // CRITICAL FIX: Use embedded prompts from concept cards
-    if (conceptName && conceptName.length > 0) {
-      const conceptId = req.body.conceptId;
-      
-      // Try to get concept with embedded prompt
-      try {
-        console.log(`🔍 MEMBER CONTEXT SEARCH: Looking for concept "${conceptName}" with ID "${conceptId}"`);
-        
-        // Get recent chats to find concept cards
-        const recentChats = await storage.getMayaChats(userId);
-        let conceptCard = null;
-        
-        for (const chat of recentChats.slice(0, 5)) {
-          const messages = await storage.getMayaChatMessages(chat.id);
-          
-          for (const message of messages) {
-            if (message.content && typeof message.content === 'string') {
-              try {
-                const contentData = JSON.parse(message.content);
-                if (contentData.conceptCards && contentData.conceptCards.length > 0) {
-                  for (const card of contentData.conceptCards) {
-                    const lowerConceptName = conceptName.toLowerCase();
-                    const lowerCardTitle = card.title.toLowerCase();
-                    
-                    const isMatch = 
-                      (conceptId && card.id === conceptId) ||
-                      lowerCardTitle === lowerConceptName ||
-                      lowerCardTitle.includes(lowerConceptName) ||
-                      lowerConceptName.includes(lowerCardTitle);
-                    
-                    if (isMatch && card.fullPrompt) {
-                      conceptCard = card;
-                      break;
-                    }
-                  }
-                }
-              } catch (parseError) {
-                // Continue searching
-              }
-            }
-          }
-          if (conceptCard) break;
-        }
-        
-        if (conceptCard?.fullPrompt && conceptCard.fullPrompt.length > 0) {
-          console.log('✅ MEMBER EMBEDDED PROMPT: Using concept card FLUX prompt');
-          console.log('- FullPrompt length:', conceptCard.fullPrompt.length);
-          console.log('- FullPrompt preview:', conceptCard.fullPrompt.substring(0, 100));
-          
-          // Use the embedded prompt directly
-          finalPrompt = conceptCard.fullPrompt;
-        } else {
-          console.log('❌ MEMBER FALLBACK: No embedded prompt found, using concept title');
-        }
-      } catch (error) {
-        console.log(`❌ MEMBER CONCEPT SEARCH ERROR:`, error);
-      }
-    }
-    
-    // Generate images using Maya's model training service
-    try {
-      const result = await ModelTrainingService.generateUserImages(
-        userId,
-        finalPrompt,
-        safeCount,
-        { categoryContext: req.body.category || 'General' }
-      );
-      
-      console.log(`✅ MEMBER GENERATION SUCCESS: Images generated for user ${userId}`);
-      logMayaAPI('/member/generate', startTime, true);
-      return res.json(result);
-      
-    } catch (generationError) {
-      console.error(`❌ MEMBER GENERATION ERROR:`, generationError);
-      throw generationError;
-    }
-
-  } catch (error: any) {
-    console.error("Member Maya generate error:", error);
-    
-    logMayaGeneration('FAILED', {
-      userId: (req.user as any)?.claims?.sub || 'unknown',
-      userType: 'member',
-      error: error.message,
-      duration: Date.now() - startTime,
-      clean: true
-    });
-    
-    logMayaAPI('/member/generate', startTime, false, error);
-    
-    return res.status(500).json({ 
-      success: false,
-      error: process.env.NODE_ENV === 'development' ? error.message : 'Generation system unavailable',
-      canGenerate: false 
-    });
-  }
-});
-
 // Image generation through unified system
 router.post('/generate', requireStackAuth, adminContextDetection, async (req: AdminContextRequest, res) => {
   const startTime = Date.now(); // PHASE 7: Track generation performance
@@ -1473,35 +1085,346 @@ router.post('/generate', requireStackAuth, adminContextDetection, async (req: Ad
       const conceptId = req.body.conceptId;
       let originalContext = '';
       
-      // ✅ MAYA FRESH INTELLIGENCE: Skip complex caching and retrieval - use direct intelligence
-      console.log(`🎯 MAYA DIRECT CONCEPT: Processing "${conceptName}" with fresh styling intelligence`);
-      // Use simple concept-focused context for Maya's natural understanding  
-      const cleanedContext = `User selected concept: ${conceptName}`;
-      console.log(`✅ MAYA SIMPLIFIED CONTEXT: "${cleanedContext}"`);
+      // PRIORITY 1: Instant context retrieval from memory cache
+      const cacheKey = `${userId}-${conceptId || conceptName}`;
+      const cachedContext = mayaContextCache.get(cacheKey);
       
-      // ✅ MAYA FRESH INTELLIGENCE: Let Maya create fresh styling vision for every concept
-      console.log(`🎯 MAYA DIRECT GENERATION: Creating fresh styling for concept "${conceptName}"`);
-      
-      // Always use Maya's current intelligence - no database retrieval needed
-      finalPrompt = await createDetailedPromptFromConcept(conceptName, generationInfo.triggerWord, userId, cleanedContext, undefined, undefined);
-      console.log(`✅ MAYA FRESH STYLING: Generated ${finalPrompt.length} character prompt with current intelligence`);
-    } else {
-      // Handle custom prompts (non-concept generation)
-      console.log(`🎯 MAYA CUSTOM PROMPT: Processing direct user input: "${prompt}"`);
-      finalPrompt = prompt;
-    }
-    // ✅ MAYA SIMPLIFIED GENERATION: Proceed with the finalized prompt
-    console.log(`🎯 MAYA READY: Using finalized prompt of ${finalPrompt.length} characters`);
-    // ✅ MAYA GENERATION: Begin image generation with the finalized prompt
+      if (cachedContext && (Date.now() - cachedContext.timestamp < MAYA_CONTEXT_CACHE_TTL)) {
+        originalContext = cachedContext.originalContext;
+        console.log(`⚡ MAYA INSTANT CACHE: Retrieved Maya's context from memory for "${conceptName}" (${originalContext.length} chars)`);
+      } else {
+        // FALLBACK: Enhanced context retrieval from database with concept name matching
+        try {
+          console.log(`🔍 MAYA CONTEXT SEARCH: Looking for concept "${conceptName}" with ID "${conceptId}"`);
+          
+          // Get recent chats - expanded search for context retrieval
+          const recentChats = await storage.getMayaChats(userId);
+          
+          for (const chat of recentChats.slice(0, 5)) { // Increased to 5 chats for better context retrieval
+            const messages = await storage.getMayaChatMessages(chat.id);
+            
+            // Check both directions - recent messages first, then older
+            for (const message of messages) {
+              if (message.content && typeof message.content === 'string') {
+                try {
+                  // Check if content is JSON (Maya's complete response with concept cards)
+                  const contentData = JSON.parse(message.content);
+                  if (contentData.conceptCards && contentData.conceptCards.length > 0) {
+                    for (const conceptCard of contentData.conceptCards) {
+                      // Universal fuzzy matching for ALL concepts
+                      const lowerConceptName = conceptName.toLowerCase();
+                      const lowerCardTitle = conceptCard.title.toLowerCase();
+                      
+                      // Extract keywords (3+ chars) for intelligent matching
+                      const conceptWords = lowerConceptName.split(/\s+/).filter(word => word.length > 2);
+                      const cardWords = lowerCardTitle.split(/\s+/).filter(word => word.length > 2);
+                      
+                      // Advanced matching: partial word matching + stemming-like logic
+                      const matchingWords = conceptWords.filter(conceptWord => 
+                        cardWords.some(cardWord => {
+                          // Exact match or partial match (3+ chars)
+                          return cardWord === conceptWord || 
+                                 cardWord.includes(conceptWord) || 
+                                 conceptWord.includes(cardWord) ||
+                                 // Similar words (for beach/beachclub, etc)
+                                 (conceptWord.length > 3 && cardWord.length > 3 && 
+                                  (conceptWord.startsWith(cardWord.slice(0, 4)) || 
+                                   cardWord.startsWith(conceptWord.slice(0, 4))));
+                        })
+                      ).length;
+                      
+                      const isMatch = 
+                        (conceptId && conceptCard.id === conceptId) ||
+                        lowerCardTitle === lowerConceptName ||
+                        lowerCardTitle.includes(lowerConceptName) ||
+                        lowerConceptName.includes(lowerCardTitle) ||
+                        (matchingWords >= 1 && conceptWords.length >= 1); // Any meaningful word match
+                      
+                      if (isMatch && conceptCard.originalContext) {
+                        originalContext = conceptCard.originalContext;
+                        
+                        // CRITICAL: Check if concept has embedded fullPrompt from single API call
+                        console.log('🔍 FALLBACK CHECK: Examining concept for embedded prompt');
+                        console.log('- Concept name:', conceptName);
+                        console.log('- Looking for embedded fullPrompt...');
+                        console.log('🔍 FALLBACK ANALYSIS:');
+                        console.log('- Concept exists:', !!conceptCard);
+                        console.log('- FullPrompt field exists:', conceptCard.hasOwnProperty('fullPrompt'));
+                        console.log('- FullPrompt has content:', !!conceptCard.fullPrompt);
+                        console.log('- FullPrompt length:', conceptCard.fullPrompt?.length || 0);
+                        console.log('- Fallback reason:', !conceptCard.fullPrompt ? 'NO_FULL_PROMPT' : 
+                                   conceptCard.fullPrompt.length === 0 ? 'EMPTY_FULL_PROMPT' : 'UNKNOWN');
+                        console.log('- Concept structure keys:', Object.keys(conceptCard));
+                        
+                        // Enhanced debugging for concept card contents
+                        if (conceptCard.fullPrompt) {
+                          console.log('🎯 EMBEDDED PROMPT CONTENT ANALYSIS:');
+                          console.log('- Full prompt type:', typeof conceptCard.fullPrompt);
+                          console.log('- Full prompt valid string:', typeof conceptCard.fullPrompt === 'string');
+                          console.log('- Contains FLUX keywords:', /portrait|photograph|camera|lighting|professional/.test(conceptCard.fullPrompt));
+                          console.log('- Contains styling terms:', /blazer|dress|outfit|elegant|professional|business/.test(conceptCard.fullPrompt));
+                        } else {
+                          console.log('❌ NO EMBEDDED PROMPT: Concept card missing fullPrompt field');
+                          console.log('🔍 CONCEPT CARD STRUCTURE:', JSON.stringify(conceptCard, null, 2));
+                        }
+                        
+                        if (conceptCard.fullPrompt && conceptCard.fullPrompt.length > 0) {
+                          console.log('✅ SINGLE API SUCCESS: Using embedded fullPrompt');
+                          console.log('- FullPrompt length:', conceptCard.fullPrompt.length);
+                          console.log('- FullPrompt preview:', conceptCard.fullPrompt.substring(0, 100));
+                          
+                          // Use the embedded prompt directly and skip dual API call
+                          const cleanedPrompt = conceptCard.fullPrompt;
+                          console.log(`🎯 USING EMBEDDED PROMPT: Single API call consistency achieved`);
+                          
+                          // Generate images using the embedded prompt
+                          try {
+                            const result = await ModelTrainingService.generateUserImages(
+                              userId,
+                              cleanedPrompt,
+                              count,
+                              { categoryContext: req.body.category || 'General' }
+                            );
+                            
+                            console.log(`✅ SINGLE API GENERATION: Images generated using embedded prompt`);
+                            return res.json(result);
+                          } catch (error) {
+                            console.error(`❌ SINGLE API GENERATION ERROR:`, error);
+                            // Fall through to dual API call as backup
+                            console.log(`🔄 FALLBACK: Using dual API call due to generation error`);
+                          }
+                        } else {
+                          console.log('❌ SINGLE API FALLBACK: No embedded fullPrompt found');
+                          console.log('- Falling back to dual API call system');
+                          console.log('- Fallback reason:', !conceptCard.fullPrompt ? 'NO_FULL_PROMPT' : 
+                                     conceptCard.fullPrompt.length === 0 ? 'EMPTY_FULL_PROMPT' : 'UNKNOWN');
+                          
+                          // COMPREHENSIVE FALLBACK TRIGGER ANALYSIS
+                          console.log('🔍 COMPREHENSIVE FALLBACK ANALYSIS:');
+                          console.log('- Concept ID provided:', !!conceptId);
+                          console.log('- Concept ID value:', conceptId);
+                          console.log('- Concept name provided:', !!conceptName);
+                          console.log('- Concept name value:', conceptName);
+                          console.log('- ConceptCard retrieved:', !!conceptCard);
+                          console.log('- ConceptCard ID:', conceptCard?.id);
+                          console.log('- ConceptCard title:', conceptCard?.title);
+                          console.log('- ConceptCard has originalContext:', !!conceptCard?.originalContext);
+                          console.log('- ConceptCard originalContext length:', conceptCard?.originalContext?.length || 0);
+                          console.log('- ConceptCard created timestamp:', conceptCard?.createdAt);
+                          
+                          // Check if this is a timing issue - concept created but fullPrompt not populated
+                          if (conceptCard && !conceptCard.fullPrompt) {
+                            console.log('🚨 CRITICAL ISSUE: Concept exists but fullPrompt is missing');
+                            console.log('🔍 This indicates the single API call system created the concept but failed to embed the FLUX prompt');
+                            console.log('🔍 Root cause likely in parseConceptsFromResponse or concept creation logic');
+                          }
+                        }
+                        
+                        // Cache the context for future use - ENHANCED CONTEXT PRESERVATION
+                        mayaContextCache.set(cacheKey, {
+                          originalContext,
+                          conceptName,
+                          timestamp: Date.now(),
+                          // Enhanced context removed - using original context only
+                        });
+                        
+                        console.log(`✅ MAYA CONTEXT FOUND: "${conceptName}" → "${conceptCard.title}" (${originalContext.length} chars)`);
+                        console.log(`🎯 MAYA CONTEXT: ${originalContext.substring(0, 150)}...`);
+                        console.log(`💾 MAYA STORAGE: Context retrieved from structured database storage`);
+                        // This message now handled above in the else block
+                        break;
+                      }
+                    }
+                  }
+                } catch (parseError) {
+                  // FALLBACK: Search raw message content for concept mentions
+                  const lowerContent = message.content.toLowerCase();
+                  const lowerConceptName = conceptName.toLowerCase();
+                  
+                  // Extract key words from concept name for searching
+                  const conceptWords = lowerConceptName.split(/\s+/).filter(word => word.length > 3);
+                  
+                  // Check if message contains enough concept keywords
+                  const foundWords = conceptWords.filter(word => lowerContent.includes(word));
+                  
+                  if (foundWords.length >= 1 && message.content.length > 50) {
+                    // Extract relevant paragraph containing the concept
+                    const lines = message.content.split('\n');
+                    for (let i = 0; i < lines.length; i++) {
+                      const line = lines[i].toLowerCase();
+                      if (foundWords.some(word => line.includes(word))) {
+                        // Extract this paragraph and next few lines as context
+                        const contextLines = [];
+                        for (let j = Math.max(0, i-1); j < Math.min(i + 5, lines.length); j++) {
+                          if (lines[j].trim()) {
+                            contextLines.push(lines[j].trim());
+                          }
+                        }
+                        if (contextLines.length > 0) {
+                          originalContext = contextLines.join(' ').substring(0, 800);
+                          console.log(`💡 MAYA RAW EXTRACT: Found content for "${conceptName}" (${originalContext.length} chars)`);
+                          break;
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+              
+              if (originalContext) break;
+            }
+            if (originalContext) break;
+          }
+          
+          if (!originalContext) {
+            console.log(`⚠️ MAYA CONTEXT NOT FOUND: No context found for "${conceptName}" in ${recentChats.length} recent chats`);
+            console.log(`🔍 MAYA SEARCH DEBUG: Searched chats with ${recentChats.length} total chats, conceptId: "${conceptId}"`);
+            // Log some message content for debugging
+            if (recentChats.length > 0) {
+              const firstChat = recentChats[0];
+              const messages = await storage.getMayaChatMessages(firstChat.id);
+              console.log(`🔍 MAYA DEBUG: First chat has ${messages.length} messages`);
+              const sampleMessage = messages.find(m => m.content && m.content.length > 50);
+              if (sampleMessage) {
+                console.log(`🔍 MAYA DEBUG SAMPLE: ${sampleMessage.content.substring(0, 100)}...`);
+              }
+            }
+          }
+        } catch (error) {
+          console.log(`❌ MAYA CONTEXT RETRIEVAL ERROR:`, error);
+        }
+      }
 
-    // Generate images using Maya's simplified intelligence
+      // PHASE 3: Lazy generation using cached Maya context for perfect consistency
+      // CRITICAL FIX: PRESERVE emojis in concept names - they're essential for styling communication
+      const userConcept = conceptName; // Keep emojis intact for styling system
+      console.log(`🔗 MAYA CONTEXT HANDOFF: Concept "${userConcept}" with ${originalContext.length} chars`);
+      console.log(`🎨 MAYA UNIQUE CONTEXT: ${originalContext.substring(0, 300)}...`);
+      
+      // Check if context is empty and warn
+      if (!originalContext || originalContext.length < 10) {
+        console.log(`⚠️ MAYA EMPTY CONTEXT WARNING: No meaningful context found for "${conceptName}"`);
+        console.log(`🔍 MAYA CONTEXT DEBUG: conceptId="${conceptId}", conceptName="${conceptName}"`);
+      }
+      
+      // PHASE 3A: Detect category from context for targeted styling with shot type intelligence
+      let detectedCategory = '';
+      let categorySpecificGuidance = '';
+      const contextLower = originalContext.toLowerCase();
+      
+      if (contextLower.includes('business') || contextLower.includes('corporate') || contextLower.includes('executive') || contextLower.includes('professional')) {
+        detectedCategory = 'Business';
+        categorySpecificGuidance += '\n🎯 SHOT TYPE HINT: Business styling typically works best with half-body or close-up shots to show professional attire and confident expression.';
+      } else if (contextLower.includes('lifestyle') || contextLower.includes('elevated everyday') || contextLower.includes('effortless')) {
+        detectedCategory = 'Lifestyle';
+        categorySpecificGuidance += '\n🎯 SHOT TYPE HINT: Lifestyle concepts work beautifully as full scene environmental shots or relaxed half-body poses.';
+      } else if (contextLower.includes('casual') || contextLower.includes('authentic') || contextLower.includes('real moments')) {
+        detectedCategory = 'Casual & Authentic';
+        categorySpecificGuidance += '\n🎯 SHOT TYPE HINT: Casual styling benefits from natural environmental shots that capture authentic moments and relaxed poses.';
+      } else if (contextLower.includes('travel') || contextLower.includes('jet-set') || contextLower.includes('destination')) {
+        detectedCategory = 'Travel';
+        categorySpecificGuidance += '\n🎯 SHOT TYPE HINT: Travel concepts shine with environmental storytelling - full scene shots that capture location and outfit together.';
+      } else if (contextLower.includes('instagram') || contextLower.includes('social media') || contextLower.includes('feed')) {
+        detectedCategory = 'Instagram';
+        categorySpecificGuidance += '\n🎯 SHOT TYPE HINT: Instagram concepts work well with dynamic half-body shots or engaging environmental scenes for social media appeal.';
+      }
+      
+      // TASK 3 DEBUG: Log exactly what context Maya receives
+      console.log(`🔍 TASK 3 DEBUG - CONTEXT FLOW:`);
+      console.log(`📝 USER REQUEST: "${prompt}"`);
+      console.log(`🏷️ CONCEPT NAME: "${conceptName}"`);
+      console.log(`📋 ORIGINAL CONTEXT (first 300 chars): "${originalContext.substring(0, 300)}"`);
+      console.log(`🎯 DETECTED CATEGORY: "${detectedCategory}"`);
+      
+      // CRITICAL: Apply enhanced cleaning to originalContext before using it
+      const cleanedContext = originalContext;
+      console.log(`🧹 CLEANED CONTEXT (first 300 chars): "${cleanedContext.substring(0, 300)}"`);
+      
+      // TASK 4: Pipeline confirmation logs
+      console.log('🔗 PIPELINE CHECK: createDetailedPromptFromConcept called');
+      // CRITICAL AUDIT: Check for embedded prompt in concept
+      const conceptCard = await storage.getMayaConceptById(conceptId);
+      
+      // 📤 CONCEPT RETRIEVAL DEBUG: Log retrieval process
+      console.log('📤 CONCEPT RETRIEVAL DEBUG:');
+      console.log('- Retrieving concept:', conceptName);
+      console.log('- Concept ID:', conceptId);
+      console.log('- Retrieved concept:', !!conceptCard);
+      console.log('- Retrieved fullPrompt:', !!conceptCard?.fullPrompt);
+      
+      console.log(`🔍 SINGLE API CALL AUDIT: Concept "${conceptName}"`);
+      console.log(`- ConceptCard found: ${!!conceptCard}`);
+      console.log(`- Has fullPrompt: ${!!conceptCard?.fullPrompt}`);
+      console.log(`- FullPrompt length: ${conceptCard?.fullPrompt?.length || 0} characters`);
+      
+      if (conceptCard?.fullPrompt && conceptCard.fullPrompt.length > 50) {
+        console.log(`✅ SINGLE API CALL SUCCESS: Using embedded prompt from concept creation`);
+        console.log(`🎯 EMBEDDED PROMPT PREVIEW: ${conceptCard.fullPrompt.substring(0, 150)}...`);
+        finalPrompt = conceptCard.fullPrompt;
+        
+        // Skip dual API call - we have embedded prompt
+        console.log(`🚀 SKIPPING DUAL API CALL: Using single API call embedded prompt`);
+      } else {
+        console.log(`⚠️ SINGLE API CALL FALLBACK: No embedded prompt found, using dual API call`);
+        console.log(`🔍 DEBUG INFO: conceptId=${conceptId}, conceptName=${conceptName}`);
+      }
+      // ENHANCED CONTEXT PRESERVATION: Retrieve enhanced context for API Call #2
+      let retrievedEnhancedContext = null;
+      const enhancedContextCache = mayaContextCache.get(cacheKey);
+      if (enhancedContextCache) {
+        retrievedEnhancedContext = enhancedContextCache.originalContext;
+        console.log(`✅ ENHANCED CONTEXT RETRIEVED: Maya's complete context available for API Call #2`);
+      } else {
+        console.log(`⚠️ ENHANCED CONTEXT NOT FOUND: Using basic context preservation`);
+      }
+      
+      if (!finalPrompt || finalPrompt.length < 50) {
+        // CRITICAL ELIMINATION: Only call createDetailedPromptFromConcept when Maya hasn't provided intelligent prompt
+        console.log('🔄 DUAL API FALLBACK: No embedded prompt found, generating via createDetailedPromptFromConcept');
+        finalPrompt = await createDetailedPromptFromConcept(userConcept, generationInfo.triggerWord, userId, cleanedContext, detectedCategory, retrievedEnhancedContext);
+        console.log('🔄 DUAL API CALL: Generated new prompt via createDetailedPromptFromConcept');
+      } else {
+        console.log('✅ MAYA PURE INTELLIGENCE: Using embedded prompt, eliminating duplicate processing');
+        console.log('✅ SINGLE API CALL: Skipping createDetailedPromptFromConcept - Maya already provided intelligent prompt');
+      }
+      console.log('🎨 MAYA STYLED PROMPT:', finalPrompt.substring(0, 300));
+      console.log('✅ MAYA INTELLIGENCE ACTIVE in image generation');
+      console.log(`✅ MAYA LAZY GENERATION: Generated ${finalPrompt.length} character prompt with category: ${detectedCategory || 'General'}`);
+      console.log(`🔍 MAYA FINAL PROMPT PREVIEW: ${finalPrompt.substring(0, 300)}...`);
+    } else {
+      // STEP 2.1: Enhanced Custom User Request Detection
+      const isCustomUserRequest = !conceptName || conceptName.length === 0;
+      const isMayaGeneratedPrompt = prompt && prompt.length > 100 && 
+        /raw photo|film grain|professional photography|beautiful hands|detailed fingers/.test(prompt.toLowerCase());
+      
+      if (isMayaGeneratedPrompt) {
+        // Maya already provided intelligent prompt - use directly
+        console.log('✅ MAYA INTELLIGENCE PRESERVED: Maya-generated prompt detected, using directly');
+        console.log('✅ STEP 2.1 OPTIMIZATION: Skipping createDetailedPromptFromConcept for Maya prompt');
+        finalPrompt = prompt;
+      } else if (isCustomUserRequest && (!prompt || prompt.length < 100)) {
+        // Only process basic custom requests that need Maya's intelligence
+        console.log('🔗 STEP 2.1 CUSTOM ENHANCEMENT: Basic user request, applying Maya styling intelligence');
+        finalPrompt = await createDetailedPromptFromConcept(prompt, generationInfo.triggerWord, userId, `Custom user request: ${prompt}`, undefined, undefined);
+        console.log('🎨 MAYA STYLED PROMPT (custom):', finalPrompt.substring(0, 300));
+        console.log('✅ MAYA INTELLIGENCE ACTIVE in image generation (custom)');
+      } else {
+        // Use prompt as-is for other cases
+        console.log('✅ STEP 2.1 DIRECT USE: Using prompt without additional processing');
+        finalPrompt = prompt;
+      }
+    }
     
-    // Position trigger word if needed
+    // ✅ MAYA PURE INTELLIGENCE: Minimal trigger word positioning to preserve Maya's complete styling intelligence
     if (!finalPrompt.startsWith(generationInfo.triggerWord)) {
+      // Only position trigger word without altering Maya's content
       const withoutTrigger = finalPrompt.replace(new RegExp(`\\b${generationInfo.triggerWord}\\b`, 'gi'), '').replace(/^[\s,]+/, '').trim();
       finalPrompt = `${generationInfo.triggerWord}, ${withoutTrigger}`;
-      console.log(`🎯 MAYA: Positioned trigger word while preserving styling content`);
+      console.log(`🎯 MAYA PURE INTELLIGENCE: Positioned trigger word while preserving all styling content`);
     }
+    
+    // Category detection is now handled directly in createDetailedPromptFromConcept function
+    // This eliminates redundant category detection and ensures consistency
     
     const result = await ModelTrainingService.generateUserImages(
       userId,
@@ -1578,63 +1501,6 @@ router.post('/generate', requireStackAuth, adminContextDetection, async (req: Ad
       success: false,
       error: process.env.NODE_ENV === 'development' ? error.message : 'Generation system unavailable',
       canGenerate: false 
-    });
-  }
-});
-
-// 🎯 MEMBER-ONLY STATUS (NO ADMIN MIDDLEWARE)
-router.get('/member/status', requireStackAuth, async (req, res) => {
-  const startTime = Date.now();
-  try {
-    const userId = (req.user as any)?.id || (req.user as any)?.claims?.sub;
-    if (!userId) {
-      logMayaAPI('/member/status', startTime, false, new Error('Authentication required'));
-      return res.status(401).json({ 
-        error: "Authentication required to check your photo status. Please log in to access your professional photos." 
-      });
-    }
-    
-    console.log(`📊 MEMBER MAYA: Clean status check for member user ${userId}`);
-
-    const userContext = await getUnifiedUserContext(userId);
-    const generationInfo = await checkGenerationCapability(userId);
-    
-    // Log member performance
-    logMayaPerformance('STATUS_CHECK', {
-      userId,
-      userType: 'member',
-      onboardingComplete: userContext.onboardingComplete,
-      canGenerate: generationInfo.canGenerate,
-      hasModel: !!generationInfo.userModel,
-      clean: true
-    });
-    
-    logMayaAPI('/member/status', startTime, true);
-    
-    res.json({
-      success: true,
-      onboardingComplete: userContext.onboardingComplete,
-      canGenerate: generationInfo.canGenerate,
-      hasModel: !!generationInfo.userModel,
-      triggerWord: generationInfo.triggerWord,
-      chatHistory: userContext.recentChats,
-      memberOnly: true
-    });
-
-  } catch (error) {
-    console.error('Member Maya status error:', error);
-    
-    logMayaPerformance('STATUS_ERROR', {
-      userId: (req.user as any)?.claims?.sub || 'unknown',
-      userType: 'member',
-      error: error.message,
-      clean: true
-    });
-    
-    logMayaAPI('/member/status', startTime, false, error);
-    
-    res.status(500).json({ 
-      error: process.env.NODE_ENV === 'development' ? error.message : 'Status system unavailable' 
     });
   }
 });
@@ -2232,14 +2098,17 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
   console.log('🎯 UNIFIED CONCEPT PARSING: Analyzing response for Maya\'s styling concepts');
   console.log('📝 RAW RESPONSE PREVIEW:', response.substring(0, 500).replace(/\n/g, '\\n'));
   
-  // ✅ FIXED REGEX: Captures EVERYTHING including FLUX_PROMPT lines
-  const emojiConceptPattern = /([✨💫🔥🌟💎🌅🏢💼🌊👑💃📸🎬🎯🏆🚀💯⭐🌈🎭🎨🎪🏅🎸🎤🎵🎶🎺🎻🎲🎮🕹️🎳🏔️🌲⛰️🏞️🌄🏖️🌇🌆🌃🌌🌉🌁⛅☀️🌤️⛈️🌦️☔💧❄️⛄💥⚡🌠🎆🎇🎊🎉🎈🎁🎀🎗️🏵️🌺🌸🌼🌻🌹🥀🌷🌱🌿🍃🌾🌵🌴🌳💐])\s*\*\*([^*]+)\*\*\n([\s\S]+?)(?=\n[✨💫🔥🌟💎🌅🏢💼🌊👑💃📸🎬🎯🏆🚀💯⭐🌈🎭🎨🎪🏅🎸🎤🎵🎶🎺🎻🎲🎮🕹️🎳🏔️🌲⛰️🏞️🌄🏖️🌇🌆🌃🌌🌉🌁⛅☀️🌤️⛈️🌦️☔💧❄️⛄💥⚡🌠🎆🎇🎊🎉🎈🎁🎀🎗️🏵️🌺🌸🌼🌻🌹🥀🌷🌱🌿🍃🌾🌵🌴🌳💐]|$)/g;
+  // ENHANCED CONCEPT DETECTION: Maya's emoji styling system
+  // Pattern 1: Emoji + **Concept Name** (e.g., "🏢 **THE POWER PLAYER CASUAL**")
+  // Pattern 2: Traditional **Concept Name** format (fallback)
+  const emojiConceptPattern = /([✨💫🔥🌟💎🌅🏢💼🌊👑💃📸🎬])\s*\*\*([^*\n]{8,50})\*\*\n(.*?)(?=\n[✨💫🔥🌟💎🌅🏢💼🌊👑💃📸🎬]|\n\n[✨💫🔥🌟💎🌅🏢💼🌊👑💃📸🎬]|$)/gs;
   const multiConceptPattern = /\*\*([^*\n]{10,80})\*\*\n([^*]*?)(?=\*\*[^*\n]{10,80}\*\*|$)/gs;
   
   let match;
   let conceptNumber = 1;
   const foundConcepts = new Set();
   
+  // Try Maya's emoji concept pattern first
   console.log('🔍 TRYING MAYA EMOJI CONCEPT PATTERN...');
   while ((match = emojiConceptPattern.exec(response)) !== null) {
     const emoji = match[1];
@@ -2254,24 +2123,10 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
     console.log(`📝 CONCEPT CONTENT: "${conceptContent.substring(0, 200)}..."`);
     console.log(`📏 CONTENT LENGTH: ${conceptContent.length} characters`);
     
-    // SINGLE API CALL: Extract embedded FLUX prompt from concept content  
-    // 🔧 IMPROVED REGEX: Handle partial/incomplete FLUX_PROMPT lines
-    let fluxPromptMatch = conceptContent.match(/FLUX_PROMPT:\s*(.*?)(?=\n|$)/s);
-    let embeddedFluxPrompt = fluxPromptMatch ? fluxPromptMatch[1].trim() : null;
+    // SINGLE API CALL: Extract embedded FLUX prompt from concept content
+    const fluxPromptMatch = conceptContent.match(/FLUX_PROMPT:\s*(.*?)(?=\n|$)/s);
+    const embeddedFluxPrompt = fluxPromptMatch ? fluxPromptMatch[1].trim() : null;
     
-    // 🚨 FALLBACK: Try to find partial FLUX_PROMPT if main extraction fails
-    if (!embeddedFluxPrompt || embeddedFluxPrompt.length < 20) {
-      console.log('⚠️ FLUX_PROMPT incomplete, trying fallback extraction...');
-      
-      // Try capturing everything after FLUX_PROMPT: until end of content
-      const fallbackMatch = conceptContent.match(/FLUX_PROMPT:\s*(.*)/s);
-      if (fallbackMatch && fallbackMatch[1].trim().length > embeddedFluxPrompt?.length) {
-        embeddedFluxPrompt = fallbackMatch[1].trim();
-        console.log(`✅ FALLBACK EXTRACTION: Found ${embeddedFluxPrompt.length} chars`);
-      }
-    }
-    
-    // 🚨 DEBUG: Log FLUX prompt extraction
     // Extract user-facing description (everything before FLUX_PROMPT)
     const userDescription = conceptContent.split('FLUX_PROMPT:')[0].trim();
     
@@ -2299,7 +2154,12 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
         isGenerating: false
       };
       
-      console.log(`💾 EMOJI CONCEPT STORED: "${conceptCard.title}" with ${conceptCard.fullPrompt?.length || 0} char FLUX prompt`);
+      console.log(`💾 EMOJI CONCEPT STORED:`, {
+        title: conceptCard.title,
+        hasFullPrompt: !!conceptCard.fullPrompt,
+        fullPromptLength: conceptCard.fullPrompt?.length || 0,
+        emojiUsed: emoji
+      });
       
       concepts.push(conceptCard);
     }
@@ -2630,7 +2490,7 @@ async function createDetailedPromptFromConcept(conceptName: string, triggerWord:
   // This function applies Maya's full intelligence to both fresh requests and stored concept cards
   console.log(`🎨 MAYA INTELLIGENCE ACTIVATION: Processing "${conceptName}" with preserved context (${originalContext?.length || 0} chars)`);
   
-  // ✅ UNIFIED MAYA INTELLIGENCE: Pure styling expertise without constraints
+  // UNIFIED MAYA INTELLIGENCE: Use Maya's complete styling expertise with category-specific approaches
   
   try {
     // Load user's personal brand context for personalized styling
@@ -2726,9 +2586,35 @@ async function createDetailedPromptFromConcept(conceptName: string, triggerWord:
     console.log('🔍 CONTEXT BEING SENT TO CONCEPT GENERATION:');
     console.log(cleanOriginalContext);
 
-    // ✅ MAYA PURE INTELLIGENCE: Let Maya naturally understand styling context without forced categorization
-    console.log('✅ MAYA STYLING CONTEXT INPUT:', originalContext);
-    console.log('✅ MAYA PURE INTELLIGENCE: Natural styling understanding active, no category forcing');
+    // MAYA'S INTELLIGENT PROMPT EXTRACTION - CATEGORY-AWARE STYLING
+    let categorySpecificGuidance = '';
+    const detectedCategory = category || 'General';
+    
+    // PHASE 1 DEBUG: Log category detection
+    console.log('📝 CATEGORY DETECTED:', detectedCategory);
+    console.log('🎨 MAYA STYLING CONTEXT INPUT:', originalContext);
+    
+    // PHASE 2 DEBUG: Check Maya's Instagram category loading
+    console.log('🔍 CHECKING MAYA INSTAGRAM CATEGORY:');
+    const mayaPersonalityForDebug = MAYA_PERSONALITY;
+    if (mayaPersonalityForDebug.categories?.Instagram) {
+      console.log('Instagram stylingApproach:', mayaPersonalityForDebug.categories.Instagram.stylingApproach);
+    } else {
+      console.log('❌ Instagram category NOT FOUND in Maya personality');
+    }
+    
+    if (category) {
+      console.log(`🎨 MAYA CATEGORY TARGETING: Using ${category} specific styling approaches`);
+      categorySpecificGuidance = `
+
+🎯 CATEGORY-SPECIFIC STYLING FOCUS: ${category.toUpperCase()}
+CRITICAL: Use your ${category} styling approaches loaded in your personality. Reference the specific styling techniques, outfit formulas, and aesthetic principles for this category.`;
+      
+      // ✅ MAYA PURE INTELLIGENCE: Let Maya decide the perfect shot type for each concept naturally
+      
+      // PHASE 1 DEBUG: Log category guidance
+      console.log('🎯 CATEGORY SPECIFIC GUIDANCE:', categorySpecificGuidance);
+    }
 
     const mayaPromptPersonality = PersonalityManager.getNaturalPrompt('maya') + `
 
@@ -2742,6 +2628,7 @@ CONCEPT WITH EMOJIS: "${conceptName}"
 MAYA'S STYLING APPROACH: Use your intuitive understanding of emojis to guide styling naturally
 CONTEXT: "${cleanOriginalContext}"
 ${personalBrandContext}
+${categorySpecificGuidance}
 
 RESEARCH-BACKED FLUX 1.1 PRO REQUIREMENTS:
 - Use NATURAL LANGUAGE descriptions (not keyword lists)
@@ -2764,8 +2651,13 @@ Let your styling intelligence flow naturally! Create unexpected, beautiful combi
 - Draw from current trends but add your signature twist 
 - Mix luxury with accessibility, structure with softness, classic with contemporary
 
-✅ MAYA PURE FRAMING INTELLIGENCE:
-Trust your natural intuition for optimal framing! Your styling intelligence naturally includes perfect shot selection without any constraints or guidance.
+SHOT TYPE CREATIVE FREEDOM:
+YOU decide the best shot type based on the concept! Express your creative vision:
+- **Full-body shots**: Perfect for showcasing complete outfits, lifestyle moments, environmental storytelling
+- **Half-body shots**: Great for business looks, styling details, professional settings
+- **Close-up portraits**: Only when the concept specifically calls for facial focus or beauty shots
+
+Choose the framing that best tells the styling story. Include specific camera positioning and environmental details that enhance your creative vision.
 
 NATURAL ANATOMY GUIDANCE:
 Ensure all anatomy appears natural and professional:
@@ -2786,6 +2678,7 @@ Express your creative vision authentically with flawless anatomical details!`;
 
 CONCEPT: "${conceptName}"
 STYLING CONTEXT: "${cleanOriginalContext}"
+${categorySpecificGuidance}
 
 🎯 FLUX OPTIMIZATION REQUIREMENTS:
 - Write in NATURAL SENTENCES, not tag lists
@@ -3085,18 +2978,15 @@ router.post('/onboarding-response', requireStackAuth, async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    // Use simple onboarding service for processing answers
-    const result = await simpleOnboardingService.saveOnboardingAnswers(userId, {
-      gender: answer.gender,
-      preferredName: answer.preferredName,
-      primaryUse: answer.primaryUse,
-      styleVibe: answer.styleVibe
-    });
+    // Use conversational onboarding service for intelligent response processing
+    const onboardingService = new OnboardingConversationService();
+    const currentStep = user.onboardingStep || 1;
     
-    const onboardingResponse = {
-      message: result.message,
-      isCompleted: true
-    };
+    const onboardingResponse = await onboardingService.processOnboardingMessage(
+      userId,
+      answer,
+      currentStep
+    );
     
     // Update user's onboarding progress if moving to next step
     if (onboardingResponse.currentStep > currentStep) {
@@ -3363,46 +3253,6 @@ router.post('/chat-history', requireStackAuth, async (req: AdminContextRequest, 
       success: false,
       error: 'Failed to load chat history',
       source: 'database_error'
-    });
-  }
-});
-
-// 🎯 NEW: COMPLETE VISUAL ONBOARDING using Maya State Machine
-router.post('/member/complete-onboarding', requireStackAuth, async (req: AdminContextRequest, res) => {
-  const startTime = Date.now();
-  
-  try {
-    const userId = req.userId;
-    if (!userId) {
-      logMayaAPI('/complete-onboarding', startTime, false);
-      return res.status(401).json({ error: 'Authentication required' });
-    }
-
-    console.log('🎉 Maya: Completing visual onboarding for user', userId);
-    
-    // Complete onboarding using Maya State Machine
-    const result = await mayaStateMachine.completeOnboarding(userId, req.body);
-    
-    logMayaAPI('/complete-onboarding', startTime, result.success);
-    
-    if (result.success) {
-      res.json({
-        success: true,
-        message: result.message
-      });
-    } else {
-      res.status(500).json({
-        success: false,
-        message: result.message
-      });
-    }
-
-  } catch (error) {
-    console.error('❌ Maya: Visual onboarding completion error:', error);
-    logMayaAPI('/complete-onboarding', startTime, false);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to complete onboarding'
     });
   }
 });
