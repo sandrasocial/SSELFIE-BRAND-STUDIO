@@ -155,6 +155,9 @@ router.post('/chat', requireStackAuth, adminContextDetection, async (req: AdminC
       return res.status(404).json({ error: 'User not found' });
     }
     
+    // Get request parameters first
+    const { message, context = 'styling', chatId, conversationHistory = [], onboardingField, userState, userStats } = req.body;
+    
     // Get Maya's personalization context for intelligent, personalized responses
     const userContext = await mayaPersonalizationService.getUserPersonalizationContext(userId);
     
@@ -177,8 +180,6 @@ router.post('/chat', requireStackAuth, adminContextDetection, async (req: AdminC
     });
     
     // Maya can handle incomplete profiles conversationally - no blocking
-
-    const { message, context = 'styling', chatId, conversationHistory = [], onboardingField, userState, userStats } = req.body;
 
     if (!message) {
       logMayaAPI('/chat', startTime, false, new Error('Message required'));
