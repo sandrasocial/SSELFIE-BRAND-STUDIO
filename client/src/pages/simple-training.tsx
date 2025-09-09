@@ -138,13 +138,13 @@ function SimpleTraining() {
           // 🔄 PHASE 4: User without retraining access - route to retraining checkout
           console.log('🔄 PHASE 4: User with completed training - routing to retraining checkout');
           toast({
-            title: "✨ AI Model Ready!",
-            description: "Your AI model is trained and ready! Redirecting you to Maya to start creating beautiful photos.",
+            title: "✨ AI Model Already Trained!",
+            description: "To retrain your AI model with new photos, you'll need a retraining session for $10. This gives you full access to update your model.",
           });
           
           setTimeout(() => {
-            window.location.href = '/maya';
-          }, 2000);
+            window.location.href = '/retrain-checkout';
+          }, 4000);
         }
       } else {
         console.log('✅ Training complete but user on different page - no redirect needed');
@@ -187,11 +187,11 @@ function SimpleTraining() {
           if (stillOnTrainingPage) {
             toast({
               title: "Model Ready",
-              description: "Your AI training is complete. Redirecting to Maya...",
+              description: "Your AI training is complete. Redirecting to workspace...",
             });
             
             setTimeout(() => {
-              window.location.href = '/maya';
+              window.location.href = '/workspace';
             }, 2000);
           }
           
@@ -597,7 +597,7 @@ function SimpleTraining() {
                 </div>
               </div>
               
-              <Link href="/maya">
+              <Link href="/studio">
                 <div style={{
                   display: 'inline-block',
                   padding: '16px 32px',
@@ -623,7 +623,7 @@ function SimpleTraining() {
                   target.style.color = '#ffffff';
                 }}
                 >
-                  START WITH MAYA
+                  CONTINUE TO STUDIO
                 </div>
               </Link>
             </div>

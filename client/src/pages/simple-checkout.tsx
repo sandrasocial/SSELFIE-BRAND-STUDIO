@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { MemberNavigation } from '../components/member-navigation';
+import { HeroFullBleed } from '../components/HeroFullBleed';
+import { SandraImages } from '../lib/sandra-images';
 import { apiRequest } from "../lib/queryClient";
 import { useToast } from "../hooks/use-toast";
 import { useLocation } from 'wouter';
@@ -60,217 +62,63 @@ export default function SimpleCheckout() {
   };
 
   return (
-    <div className="min-h-screen" style={{ 
-      background: '#ffffff',
-      fontFamily: 'Helvetica Neue, -apple-system, BlinkMacSystemFont, Segoe UI, Arial, sans-serif',
-      fontWeight: 300,
-      color: '#000000'
-    }}>
+    <div className="min-h-screen bg-white">
       <MemberNavigation />
       
-      {/* Luxury Header Section - Mobile Responsive */}
-      <header style={{ 
-        padding: 'clamp(80px, 20vw, 200px) 0 clamp(64px, 15vw, 128px)', 
-        textAlign: 'center',
-        background: '#fafafa'
-      }}>
-        <div style={{ 
-          maxWidth: '1200px', 
-          margin: '0 auto', 
-          padding: '0 clamp(20px, 5vw, 96px)' 
-        }}>
-          <div style={{
-            fontSize: 'clamp(10px, 2.5vw, 11px)',
-            fontWeight: 400,
-            letterSpacing: '0.2em',
-            textTransform: 'uppercase',
-            color: '#757575',
-            marginBottom: 'clamp(32px, 8vw, 64px)'
-          }}>
-            SECURE CHECKOUT
-          </div>
-          
-          <h1 style={{
-            fontFamily: 'Times New Roman, serif',
-            fontWeight: 200,
-            lineHeight: 0.95,
-            letterSpacing: 'clamp(0.1em, 2vw, 0.3em)',
-            textTransform: 'uppercase',
-            fontSize: 'clamp(2rem, 8vw, 5rem)',
-            marginBottom: 'clamp(48px, 12vw, 96px)'
-          }}>
-            COMPLETE YOUR<br />TRANSFORMATION
-          </h1>
-          
-          <p style={{
-            fontSize: 'clamp(15px, 3.5vw, 17px)',
-            lineHeight: 1.7,
-            fontWeight: 300,
-            color: '#757575',
-            maxWidth: '55ch',
-            marginLeft: 'auto',
-            marginRight: 'auto'
-          }}>
-            You're moments away from accessing Maya, your AI personal brand strategist, 
-            and creating professional photos that represent exactly who you are.
-          </p>
-        </div>
-      </header>
+      <HeroFullBleed
+        backgroundImage="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/undefined/undefined_1756382691038.png"
+        tagline="Your transformation starts here"
+        title="SECURE CHECKOUT"
+        ctaText="Continue"
+        fullHeight={false}
+        overlay={0.7}
+      />
 
-      <main style={{ 
-        maxWidth: '1200px', 
-        margin: '0 auto', 
-        padding: '0 clamp(20px, 5vw, 96px) clamp(80px, 20vw, 200px)' 
-      }}>
-        <div style={{ maxWidth: '600px', margin: '0 auto' }}>
-          {/* Order Summary Card - Mobile Responsive */}
-          <div style={{
-            background: '#ffffff',
-            border: '1px solid #e8e8e8',
-            padding: 'clamp(48px, 12vw, 128px) clamp(24px, 6vw, 96px)',
-            marginBottom: 'clamp(64px, 16vw, 128px)',
-            transition: 'all 400ms ease'
-          }}>
-            <h2 style={{
-              fontFamily: 'Times New Roman, serif',
-              fontWeight: 200,
-              letterSpacing: 'clamp(0.15em, 3vw, 0.25em)',
-              textTransform: 'uppercase',
-              fontSize: 'clamp(18px, 4.5vw, 24px)',
-              marginBottom: 'clamp(48px, 12vw, 96px)',
-              lineHeight: 1.1,
-              textAlign: 'center'
-            }}>
-              Your Investment
+      <main className="max-w-4xl mx-auto px-8 py-16">
+        <div className="max-w-2xl mx-auto">
+          <div className="border border-gray-200 p-8 mb-8">
+            <h2 className="text-2xl font-light mb-6" style={{ fontFamily: 'Times New Roman, serif' }}>
+              Order Summary
             </h2>
-            
-            <div style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              justifyContent: 'space-between',
-              alignItems: 'flex-start',
-              gap: '16px',
-              marginBottom: 'clamp(32px, 8vw, 64px)',
-              paddingBottom: 'clamp(32px, 8vw, 64px)',
-              borderBottom: '1px solid #f0f0f0'
-            }}>
-              <div style={{ flex: '1 1 250px', minWidth: '250px' }}>
-                <div style={{
-                  fontSize: 'clamp(15px, 3.5vw, 17px)',
-                  fontWeight: 300,
-                  color: '#000000',
-                  marginBottom: '16px',
-                  letterSpacing: '0.05em'
-                }}>
-                  SSELFIE STUDIO
-                </div>
-                <div style={{
-                  fontSize: 'clamp(13px, 3vw, 15px)',
-                  color: '#757575',
-                  lineHeight: 1.6
-                }}>
-                  Personal AI model training + Maya AI photographer + 100 monthly professional photos
-                </div>
+            <div className="flex justify-between items-center mb-4">
+              <div>
+                <div className="font-medium">SSELFIE STUDIO</div>
+                <div className="text-sm text-gray-600">Personal AI model + 100 monthly photos + Maya AI photographer</div>
               </div>
-              <div style={{
-                fontFamily: 'Times New Roman, serif',
-                fontSize: 'clamp(20px, 5vw, 24px)',
-                fontWeight: 200,
-                color: '#000000',
-                whiteSpace: 'nowrap',
-                alignSelf: 'flex-start'
-              }}>
+              <div className="text-xl font-light" style={{ fontFamily: 'Times New Roman, serif' }}>
                 €47/month
               </div>
             </div>
-            
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center'
-            }}>
-              <div style={{
-                fontSize: 'clamp(15px, 3.5vw, 17px)',
-                fontWeight: 300,
-                letterSpacing: '0.05em'
-              }}>
-                Total Today
-              </div>
-              <div style={{
-                fontFamily: 'Times New Roman, serif',
-                fontSize: 'clamp(24px, 6vw, 30px)',
-                fontWeight: 200,
-                color: '#000000'
-              }}>
-                €47
+            <div className="border-t border-gray-200 pt-4">
+              <div className="flex justify-between items-center">
+                <div className="font-medium">Total</div>
+                <div className="text-xl font-light" style={{ fontFamily: 'Times New Roman, serif' }}>
+                  €47/month
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Payment Button - Mobile Optimized */}
-          <div style={{ marginBottom: 'clamp(48px, 12vw, 96px)' }}>
+          <div className="space-y-4">
             <button
               onClick={handleStripeCheckout}
               disabled={isProcessing}
-              style={{
-                width: '100%',
-                background: '#000000',
-                color: '#ffffff',
-                border: 'none',
-                padding: 'clamp(20px, 5vw, 48px) clamp(32px, 8vw, 96px)',
-                fontSize: 'clamp(10px, 2.5vw, 11px)',
-                fontWeight: 400,
-                letterSpacing: 'clamp(0.2em, 1vw, 0.3em)',
-                textTransform: 'uppercase',
-                cursor: isProcessing ? 'not-allowed' : 'pointer',
-                transition: 'all 300ms ease',
-                opacity: isProcessing ? 0.5 : 1,
-                minHeight: '48px', // Touch-friendly minimum
-                touchAction: 'manipulation' // Prevent zoom on double-tap
-              }}
-              onMouseEnter={!isProcessing ? (e) => e.target.style.background = '#757575' : undefined}
-              onMouseLeave={!isProcessing ? (e) => e.target.style.background = '#000000' : undefined}
+              className="w-full bg-black text-white py-4 px-6 text-xs uppercase tracking-wider hover:bg-gray-800 disabled:opacity-50 transition-colors"
             >
-              {isProcessing ? 'PROCESSING YOUR PAYMENT...' : 'SECURE PAYMENT WITH STRIPE'}
+              {isProcessing ? 'PROCESSING...' : 'PROCEED TO SECURE PAYMENT'}
             </button>
 
-            <div style={{
-              textAlign: 'center',
-              marginTop: 'clamp(24px, 6vw, 48px)',
-              fontSize: 'clamp(12px, 2.8vw, 13px)',
-              color: '#757575'
-            }}>
-              <div style={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '12px'
-              }}>
-                <span style={{ fontSize: '16px' }}>🔒</span>
-                <span style={{ 
-                  textAlign: 'center',
-                  lineHeight: 1.4
-                }}>
-                  256-bit SSL encryption • Secure payment powered by Stripe
-                </span>
+            <div className="text-center text-sm text-gray-500">
+              <div className="flex items-center justify-center space-x-2">
+                <span>🔒</span>
+                <span>Secure payment powered by Stripe</span>
               </div>
             </div>
           </div>
 
-          {/* Terms - Mobile Responsive Typography */}
-          <div style={{
-            textAlign: 'center',
-            fontSize: 'clamp(12px, 2.8vw, 13px)',
-            color: '#757575',
-            lineHeight: 1.6,
-            maxWidth: '50ch',
-            margin: '0 auto'
-          }}>
+          <div className="mt-8 text-center text-sm text-gray-600">
             <p>By proceeding, you agree to our Terms of Service and Privacy Policy.</p>
-            <p style={{ marginTop: '16px' }}>
-              Cancel anytime with one click. No long-term commitment required.
-            </p>
+            <p className="mt-2">Cancel anytime. No long-term commitment.</p>
           </div>
         </div>
       </main>

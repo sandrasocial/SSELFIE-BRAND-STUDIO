@@ -290,12 +290,11 @@ export function registerCheckoutRoutes(app: Express) {
       }
     }
 
-    // Handle successful payments via checkout.session.completed
+    // 🔄 PHASE 3: Handle successful retraining payments via checkout.session.completed
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object;
       const { plan, userId, type } = session.metadata || {};
       
-      // Handle retraining payments specifically
       if (plan === 'retraining-session' && type === 'retrain' && userId) {
         try {
           console.log(`🔄 RETRAINING PAYMENT: Successful payment for user ${userId} - session ${session.id}`);
@@ -308,27 +307,13 @@ export function registerCheckoutRoutes(app: Express) {
           console.error('Retraining payment processing error:', error);
         }
       }
-      
-      // Handle regular subscription payments (sselfie-studio plan)
-      else if (plan === 'sselfie-studio' || !plan) {
-        try {
-          console.log(`💰 SUBSCRIPTION PAYMENT: Successful payment - session ${session.id}`);
-          
-          // Create or update user with subscription access
-          await handleSubscriptionPayment(session);
-          
-          console.log(`✅ SUBSCRIPTION ACCESS: Granted for session ${session.id}`);
-        } catch (error) {
-          console.error('Subscription payment processing error:', error);
-        }
-      }
     }
 
     res.json({ received: true });
   });
 }
 
-// Grant retraining access to user
+// 🔄 PHASE 3: Grant retraining access to user
 async function grantRetrainingAccess(userId: string, sessionId: string) {
   try {
     // Update user with retraining access
@@ -343,69 +328,6 @@ async function grantRetrainingAccess(userId: string, sessionId: string) {
     console.error('Error granting retraining access:', error);
     throw error;
   }
-}
-
-// Handle successful subscription payment and user creation/upgrade
-async function handleSubscriptionPayment(session: any) {
-  try {
-    const customerEmail = session.customer_email || session.customer_details?.email;
-    
-    if (!customerEmail) {
-      console.log('No customer email found in session, skipping user creation');
-      return;
-    }
-    
-    console.log(`📧 Processing subscription for email: ${customerEmail}`);
-    
-    // Check if user already exists
-    let user = await storage.getUserByEmail(customerEmail);
-    
-    if (user) {
-      // Update existing user with subscription details
-      console.log(`👤 Updating existing user: ${user.id}`);
-      
-      await storage.updateUser(user.id, {
-        plan: 'sselfie-studio',
-        monthlyGenerationLimit: 100,
-        generationsUsedThisMonth: 0,
-        stripeCustomerId: session.customer,
-        mayaAiAccess: true,
-        updatedAt: new Date(),
-      });
-      
-      console.log(`✅ User ${user.id} upgraded to SSELFIE STUDIO plan`);
-    } else {
-      // Create new user with subscription
-      console.log(`👤 Creating new user for email: ${customerEmail}`);
-      
-      const newUserId = generateUserId(); // Generate unique user ID
-      
-      await storage.createUser({
-        id: newUserId,
-        email: customerEmail,
-        plan: 'sselfie-studio',
-        monthlyGenerationLimit: 100,
-        generationsUsedThisMonth: 0,
-        stripeCustomerId: session.customer,
-        mayaAiAccess: true,
-        victoriaAiAccess: false,
-        role: 'user',
-        preferredOnboardingMode: 'conversational',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      });
-      
-      console.log(`✅ New user ${newUserId} created with SSELFIE STUDIO plan`);
-    }
-  } catch (error) {
-    console.error('Error handling subscription payment:', error);
-    throw error;
-  }
-}
-
-// Generate unique user ID
-function generateUserId(): string {
-  return `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 }
 
 async function triggerPostPurchaseAutomation(userId: string, plan: string) {
