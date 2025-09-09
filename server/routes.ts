@@ -540,7 +540,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (existingUser) {
         console.log('✅ AUTO-REGISTER: User already exists, upgrading subscription');
         // Update existing user's subscription
-        await storage.updateUserSubscription(existingUser.id, {
+        await storage.updateUserProfile(existingUser.id, {
           plan: 'sselfie-studio',
           monthlyGenerationLimit: 100,
           mayaAiAccess: true,
@@ -571,8 +571,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         updatedAt: new Date()
       };
       
-      // Create user in database
-      await storage.createUser(userData);
+      // Create user in database using upsert
+      await storage.upsertUser(userData);
       
       console.log('✅ AUTO-REGISTER: User created successfully:', newUserId);
       
