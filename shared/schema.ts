@@ -610,7 +610,7 @@ export const mayaPersonalMemory = pgTable("maya_personal_memory", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// User Style Memory for learning preferences and patterns
+// User Style Memory for learning preferences and patterns - ✨ PHASE 4.3 ENHANCED
 export const userStyleMemory = pgTable("user_style_memory", {
   id: serial("id").primaryKey(),
   userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
@@ -631,6 +631,17 @@ export const userStyleMemory = pgTable("user_style_memory", {
   // Success patterns
   highPerformingPrompts: jsonb("high_performing_prompts").default('[]'), // Prompts that got favorited
   rejectedPrompts: jsonb("rejected_prompts").default('[]'), // Prompts user didn't like
+  
+  // ✨ PHASE 4.3: ENHANCED MEMORY ARCHITECTURE - Contemporary Fashion Intelligence
+  contemporaryPreferences: jsonb("contemporary_preferences").default('{}'), // 2025 trend preferences and modern style evolution
+  trendAlignment: jsonb("trend_alignment").default('{}'), // How user aligns with current fashion trends
+  culturalContext: jsonb("cultural_context").default('{}'), // Cultural sensitivity and context awareness
+  sustainabilityValues: jsonb("sustainability_values").default('{}'), // Environmental and ethical fashion preferences
+  moodPatterns: jsonb("mood_patterns").default('{}'), // Emotional state patterns and mood-based styling
+  seasonalPreferences: jsonb("seasonal_preferences").default('{}'), // Season-specific styling patterns
+  locationContext: jsonb("location_context").default('{}'), // Geographic and climate-based styling
+  personalityAdaptation: jsonb("personality_adaptation").default('{}'), // Maya's adaptation to user's personality type
+  fluxParameterPreferences: jsonb("flux_parameter_preferences").default('{}'), // User's preferred FLUX optimization settings
   
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
