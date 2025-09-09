@@ -82,7 +82,7 @@ export default function VictoriaChat() {
       {/* Header */}
       <div className="border-b border-gray-200 p-4 bg-white">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-r from-black to-gray-800 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 flex items-center justify-center">
             <Sparkles className="w-5 h-5 text-white" />
           </div>
           <div>

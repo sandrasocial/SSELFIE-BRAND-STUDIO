@@ -42,6 +42,11 @@ export const GlobalFooter: FC = () => {
                   Gallery
                 </Link>
               </li>
+              <li>
+                <Link href="/workspace" className="text-white/60 hover:text-white transition-colors text-sm font-light">
+                  Workspace
+                </Link>
+              </li>
             </ul>
           </div>
 

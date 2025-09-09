@@ -3281,7 +3281,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   });
 
   // User model endpoint for workspace model status (Fixed to use storage layer)
-  app.get('/api/user-model', requireStackAuth, async (req: any, res) => {
+  app.get('/api/user-model', requireActiveSubscription, async (req: any, res) => {
     try {
       const userId = req.user.id;
       console.log('🤖 Fetching user model for:', userId);
@@ -3450,7 +3450,7 @@ Example: "minimalist rooftop terrace overlooking city skyline at golden hour, we
   });
 
   // Model training endpoint for workspace step 1 - Uses BulletproofUploadService
-  app.post('/api/start-model-training', requireStackAuth, async (req: any, res) => {
+  app.post('/api/start-model-training', requireActiveSubscription, async (req: any, res) => {
     try {
       const authUserId = req.user.id || req.user.claims?.sub;
       const claims = req.user.claims;

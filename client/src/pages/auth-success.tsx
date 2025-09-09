@@ -17,9 +17,9 @@ export default function AuthSuccess() {
         description: "Successfully logged in!",
       });
 
-      // Redirect to home which will handle smart routing based on training status
+      // Redirect to workspace
       setTimeout(() => {
-        setLocation('/');
+        setLocation('/workspace');
       }, 1500);
     }
   }, [isAuthenticated, user, setLocation, toast]);
