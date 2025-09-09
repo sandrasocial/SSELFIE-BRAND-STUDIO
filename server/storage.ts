@@ -60,6 +60,12 @@ import {
   type InsertClaudeConversation,
   type InsertClaudeMessage,
 } from "../shared/schema";
+import { 
+  simpleOnboarding,
+  type SimpleOnboarding,
+  type InsertSimpleOnboarding,
+  type UserOnboardingStatus 
+} from "../shared/schema-simple-onboarding";
 import { db } from "./drizzle";
 import { eq, and, desc, gte, lte, sql } from "drizzle-orm";
 
@@ -81,10 +87,15 @@ export interface IStorage {
   getUserProfile(userId: string): Promise<UserProfile | undefined>;
   upsertUserProfile(data: InsertUserProfile): Promise<UserProfile>;
 
-  // Onboarding operations
+  // Onboarding operations (Legacy)
   getOnboardingData(userId: string): Promise<OnboardingData | undefined>;
   saveOnboardingData(data: InsertOnboardingData): Promise<OnboardingData>;
   updateOnboardingData(userId: string, data: Partial<OnboardingData>): Promise<OnboardingData>;
+
+  // Simple Onboarding operations (NEW)
+  getSimpleOnboarding(userId: string): Promise<SimpleOnboarding | undefined>;
+  saveSimpleOnboarding(data: InsertSimpleOnboarding): Promise<SimpleOnboarding>;
+  checkOnboardingStatus(userId: string): Promise<UserOnboardingStatus>;
 
   // AI Image operations (GALLERY ONLY - permanent S3 URLs) - Legacy support
   getAIImages(userId: string): Promise<AiImage[]>;
@@ -456,6 +467,33 @@ export class DatabaseStorage implements IStorage {
       .where(eq(onboardingData.userId, userId))
       .returning();
     return updated;
+  }
+
+  // =============================================================================
+  // SIMPLE ONBOARDING OPERATIONS (NEW SYSTEM)
+  // =============================================================================
+
+  async getSimpleOnboarding(userId: string): Promise<SimpleOnboarding | undefined> {
+    const [data] = await db
+      .select()
+      .from(simpleOnboarding)
+      .where(eq(simpleOnboarding.userId, userId));
+    return data;
+  }
+
+  async saveSimpleOnboarding(data: InsertSimpleOnboarding): Promise<SimpleOnboarding> {
+    const [saved] = await db.insert(simpleOnboarding).values(data as any).returning();
+    return saved;
+  }
+
+  async checkOnboardingStatus(userId: string): Promise<UserOnboardingStatus> {
+    const onboardingData = await this.getSimpleOnboarding(userId);
+    
+    return {
+      hasCompletedOnboarding: onboardingData?.isCompleted ?? false,
+      onboardingData: onboardingData ?? null,
+      userId
+    };
   }
 
   // AI Image operations
