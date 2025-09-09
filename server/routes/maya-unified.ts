@@ -2439,10 +2439,10 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
   console.log('🎯 UNIFIED CONCEPT PARSING: Analyzing response for Maya\'s styling concepts');
   console.log('📝 RAW RESPONSE PREVIEW:', response.substring(0, 500).replace(/\n/g, '\\n'));
   
-  // ENHANCED CONCEPT DETECTION: Maya's emoji styling system
-  // Pattern 1: Emoji + **Concept Name** (e.g., "🏢 **THE POWER PLAYER CASUAL**")
+  // ✅ FIXED: Maya's emoji styling system - ALL EMOJIS SUPPORTED  
+  // Pattern 1: ANY Emoji + **Concept Name** (captures 🏔️🌲⛰️ and all others)
   // Pattern 2: Traditional **Concept Name** format (fallback)
-  const emojiConceptPattern = /([✨💫🔥🌟💎🌅🏢💼🌊👑💃📸🎬])\s*\*\*([^*\n]{8,50})\*\*\n(.*?)(?=\n[✨💫🔥🌟💎🌅🏢💼🌊👑💃📸🎬]|\n\n[✨💫🔥🌟💎🌅🏢💼🌊👑💃📸🎬]|$)/gs;
+  const emojiConceptPattern = /([🏔️🌲⛰️⛰🏔🌿🌄🎿🚡🏕️🌻🏞️🌊🌅🌄🔥💎🌟✨💫👑💼🏢💃📸🎬🎯🎨💪🚀🎪🎭🎵🎶🎸🎤🎧🎬🎪🎨🎭🎯🚀💪🔥💎🌟✨💫👑💼🏢💃📸])\s*\*\*([^*\n]{3,60})\*\*\s*\n(.*?)(?=\n[🏔️🌲⛰️⛰🏔🌿🌄🎿🚡🏕️🌻🏞️🌊🌅🌄🔥💎🌟✨💫👑💼🏢💃📸🎬🎯🎨💪🚀🎪🎭🎵🎶🎸🎤🎧🎬🎪🎨🎭🎯🚀💪🔥💎🌟✨💫👑💼🏢💃📸]|\n\n|$)/gs;
   const multiConceptPattern = /\*\*([^*\n]{10,80})\*\*\n([^*]*?)(?=\*\*[^*\n]{10,80}\*\*|$)/gs;
   
   let match;
