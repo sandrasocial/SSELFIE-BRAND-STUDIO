@@ -427,7 +427,7 @@ function extractConceptCards(mayaResponse: string, userId: string, userGender: s
     id: `concept_${userId}_${Date.now()}_${index}`,
     title: match.replace(/(?:concept|idea|photo)\s*(?:card|concept)?\s*:?\s*["']?/gi, '').trim(),
     description: `Styled by Maya for ${userGender}`,
-    fluxPrompt: `${ModelTrainingService.generateTriggerWord(userId)} ${userGender}, ${match.replace(/(?:concept|idea|photo)\s*(?:card|concept)?\s*:?\s*["']?/gi, '').trim()}`,
+    fluxPrompt: ModelTrainingService.formatPrompt(match.replace(/(?:concept|idea|photo)\s*(?:card|concept)?\s*:?\s*["']?/gi, '').trim(), ModelTrainingService.generateTriggerWord(userId), userGender),
     category: 'Lifestyle',
     isGenerating: false,
     hasGenerated: false

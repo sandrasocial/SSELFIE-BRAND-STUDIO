@@ -697,7 +697,7 @@ export class ModelTrainingService {
       console.log(`✨ [${promptId}] TEXTURE ENHANCED PROMPT: "${textureEnhancedPrompt.substring(0, 300)}"`);
       
       // Personality-first: keep Maya's prompt with gender and texture enhancement, ensure trigger appears once and first
-      const finalPrompt = ModelTrainingService.formatPrompt(textureEnhancedPrompt, triggerWord);
+      const finalPrompt = ModelTrainingService.formatPrompt(textureEnhancedPrompt, triggerWord, userId ? user?.gender : undefined);
       console.log(`🚀 [${promptId}] PROMPT FORMATTED: ${finalPrompt.length} characters ready for generation`);
 
       // SINGLE PATH LOGIC: Only packaged models supported for consistency
@@ -813,20 +813,26 @@ export class ModelTrainingService {
   }
 
   // 🎯 MAYA PURE INTELLIGENCE: Absolute minimal formatting to preserve Maya's complete styling intelligence
-  static formatPrompt(prompt: string, triggerWord: string): string {
+  static formatPrompt(prompt: string, triggerWord: string, userGender?: string): string {
     console.log(`🎯 MAYA PURE INTELLIGENCE: Zero-interference formatting mode activated`);
     
     // Only normalize basic whitespace, preserve ALL Maya content
     const normalizedPrompt = (prompt || "").replace(/\s+/g, " ").trim();
 
+    // Create gender-aware trigger phrase
+    let genderAwareTrigger = triggerWord;
+    if (userGender && userGender !== 'prefer-not-to-say') {
+      genderAwareTrigger = `${triggerWord} ${userGender}`;
+    }
+
     // Check if trigger word is already properly positioned
-    if (normalizedPrompt.startsWith(triggerWord)) {
+    if (normalizedPrompt.startsWith(triggerWord) || normalizedPrompt.startsWith(genderAwareTrigger)) {
       console.log(`✅ MAYA PURE INTELLIGENCE: Trigger word already present, using Maya's exact output`);
       return normalizedPrompt;
     } else {
       // Only add trigger word if missing, preserve Maya's complete content
-      console.log(`✅ MAYA PURE INTELLIGENCE: Adding trigger word to preserve Maya's complete styling intelligence`);
-      return `${triggerWord}, ${normalizedPrompt}`;
+      console.log(`✅ MAYA PURE INTELLIGENCE: Adding gender-aware trigger (${genderAwareTrigger}) to preserve Maya's complete styling intelligence`);
+      return `${genderAwareTrigger}, ${normalizedPrompt}`;
     }
   }
 
