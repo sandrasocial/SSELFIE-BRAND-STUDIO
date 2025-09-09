@@ -8,7 +8,7 @@ import { MayaCategorizedGallery } from '../components/maya-categorized-gallery';
 import { MemberNavigation } from '../components/member-navigation';
 import { MayaUploadComponent } from '../components/maya/MayaUploadComponent';
 import { MayaExamplesGallery } from '../components/maya/MayaExamplesGallery';
-import { MayaVisualOnboarding } from '../components/maya/MayaVisualOnboarding';
+import { SimpleOnboardingForm } from '../components/SimpleOnboardingForm';
 import { useLocation } from 'wouter';
 
 // Maya luxury workspace - aligned with SSELFIE brand guidelines
@@ -542,62 +542,17 @@ export default function Maya() {
     });
   };
 
-  // Enhanced onboarding with visual cards option
-  const completeVisualOnboarding = async (visualData: any) => {
-    setIsCompletingOnboarding(true);
-    try {
-      // Use new visual onboarding completion endpoint
-      const response = await fetch('/api/maya/member/complete-onboarding', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(visualData)
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to complete visual onboarding');
-      }
-
-      const result = await response.json();
-      
-      // Mark onboarding as complete
-      setIsOnboardingComplete(true);
-      setOnboardingData(null);
-      
-      // Add welcome message to chat
-      addMessage({
-        type: 'maya',
-        content: result.message || `Perfect! I've got everything I need. Ready to create some stunning photos for you! ✨`,
-        timestamp: new Date().toISOString()
-      });
-
-      toast({
-        title: "Welcome to SSELFIE Studio!",
-        description: `Hey ${visualData.preferredName}! I'm ready to create amazing photos for you.`
-      });
-
-    } catch (error) {
-      console.error('❌ Maya: Failed to complete visual onboarding:', error);
-      toast({
-        title: "Oops!",
-        description: "There was an issue saving your preferences. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsCompletingOnboarding(false);
-    }
-  };
-
-  // Show luxury visual onboarding cards
+  // Show simple onboarding form if user needs onboarding
   if (onboardingData && !isOnboardingComplete) {
     return (
       <div className="flex h-screen bg-white">
         <MemberNavigation />
         <div className="flex-1 flex items-center justify-center p-8">
-          <MayaVisualOnboarding
-            onComplete={completeVisualOnboarding}
+          <SimpleOnboardingForm
+            questions={onboardingData.questions}
+            welcomeMessage={onboardingData.message}
+            onComplete={completeOnboarding}
             isLoading={isCompletingOnboarding}
-            initialMessage={onboardingData.message}
           />
         </div>
       </div>
