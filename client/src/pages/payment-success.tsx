@@ -42,11 +42,16 @@ export default function PaymentSuccess() {
       // 🚀 AUTO-REGISTRATION: Create account for non-authenticated paying customer
       handleAutoRegistration(email, plan || 'sselfie-studio');
     } else {
-      // Fallback: Show success message for non-authenticated users without email
+      // Fallback: Redirect to sign-up even without stored email
       toast({
         title: "Payment Successful!",
-        description: "Welcome to SSELFIE Studio! Please sign in to start your AI training.",
+        description: "Welcome to SSELFIE Studio! Complete your sign-up to start creating AI photos.",
       });
+      
+      // Redirect to sign-up page after showing message
+      setTimeout(() => {
+        window.location.href = `/handler/sign-up`;
+      }, 3000);
     }
   }, [toast, isAuthenticated, user, setLocation]);
 
@@ -73,32 +78,41 @@ export default function PaymentSuccess() {
         // Show success message
         toast({
           title: "🎉 Welcome to SSELFIE Studio!",
-          description: "Your account has been created and your payment is successful. Check your email for next steps!",
+          description: "Your account is ready! Complete your secure sign-up to start creating AI photos.",
         });
         
         // Clear stored email
         localStorage.removeItem('checkout-email');
         
-        // Redirect to training after showing message
+        // Redirect to Stack Auth sign-up instead of training
         setTimeout(() => {
-          setLocation('/simple-training');
+          window.location.href = `/handler/sign-up?email=${encodeURIComponent(email)}`;
         }, 4000);
         
       } else {
         console.error('❌ AUTO-REGISTRATION: Failed to create account:', data.error);
+        // Still redirect to sign-up even if database creation failed
         toast({
           title: "Payment Successful!",
-          description: "Your payment went through, but please contact support to activate your account.",
-          variant: "destructive"
+          description: "Complete your sign-up to access your AI training.",
         });
+        
+        setTimeout(() => {
+          window.location.href = `/handler/sign-up?email=${encodeURIComponent(email)}`;
+        }, 3000);
       }
       
     } catch (error) {
       console.error('❌ AUTO-REGISTRATION: Network error:', error);
+      // Redirect to sign-up even on error - user can still access with their email
       toast({
         title: "Payment Successful!",
-        description: "Your payment was processed. Please check your email or contact support if you need help accessing your account.",
+        description: "Complete your sign-up to access your subscription.",
       });
+      
+      setTimeout(() => {
+        window.location.href = `/handler/sign-up?email=${encodeURIComponent(email)}`;
+      }, 3000);
     }
   };
 
