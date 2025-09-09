@@ -262,7 +262,7 @@ router.post('/start-onboarding', requireStackAuth, async (req: AdminContextReque
   }
 });
 
-// 🎯 MEMBER-ONLY CHAT (NO ADMIN MIDDLEWARE)
+// 🎯 MEMBER-ONLY CHAT (NO ADMIN MIDDLEWARE) - SIMPLIFIED ONBOARDING
 router.post('/member/chat', requireStackAuth, async (req, res) => {
   const startTime = Date.now();
   try {
@@ -280,9 +280,6 @@ router.post('/member/chat', requireStackAuth, async (req, res) => {
       logMayaAPI('/member/chat', startTime, false, new Error('User not found'));
       return res.status(404).json({ error: 'User not found' });
     }
-    
-    // Get Maya's personalization context
-    const userContext = await mayaPersonalizationService.getUserPersonalizationContext(userId);
     
     const { message, context = 'styling', chatId, conversationHistory = [] } = req.body;
 
@@ -303,15 +300,91 @@ router.post('/member/chat', requireStackAuth, async (req, res) => {
       clean: true
     });
 
-    // Continue with the existing Maya chat logic but without admin contamination...
-    // [The rest of the chat logic would be here - I'll add this in the next step]
+    // ✅ SIMPLIFIED ONBOARDING: Check for mandatory gender field ONLY
+    if (!user.gender) {
+      // Check if user is responding to gender question
+      const genderResponse = extractGenderFromMessage(message);
+      
+      if (genderResponse) {
+        console.log(`✅ MAYA: Gender captured - ${genderResponse}`);
+        
+        // Store gender in database
+        await storage.updateUser(userId, { gender: genderResponse });
+        
+        // Return success response and continue conversation
+        const response = {
+          success: true,
+          content: `Perfect! I've got that you're ${genderResponse === 'woman' ? 'a woman' : genderResponse === 'man' ? 'a man' : 'you'}. Now I can create photos that look amazing on you! What kind of photos are you looking to create today?`,
+          message: `Perfect! I've got that you're ${genderResponse === 'woman' ? 'a woman' : genderResponse === 'man' ? 'a man' : 'you'}. Now I can create photos that look amazing on you! What kind of photos are you looking to create today?`,
+          mode: context,
+          canGenerate: true,
+          chatId: chatId || `maya_${userId}_${Date.now()}`
+        };
+
+        logMayaAPI('/member/chat', startTime, true);
+        return res.json(response);
+      } else {
+        // Ask for gender - mandatory question
+        const genderQuestion = {
+          success: true,
+          content: `Hi! I'm Maya, your personal styling AI. Before I can create perfect photos for you, I need to know: are you a man or a woman? This helps me choose the right styling approach and technical settings for amazing results!`,
+          message: `Hi! I'm Maya, your personal styling AI. Before I can create perfect photos for you, I need to know: are you a man or a woman? This helps me choose the right styling approach and technical settings for amazing results!`,
+          mode: context,
+          canGenerate: false,
+          requiresGender: true,
+          quickButtons: ['Woman', 'Man', 'Prefer not to say'],
+          chatId: chatId || `maya_${userId}_${Date.now()}`
+        };
+
+        console.log(`🚫 MAYA: Gender required for user ${userId}`);
+        logMayaAPI('/member/chat', startTime, true);
+        return res.json(genderQuestion);
+      }
+    }
+
+    // ✅ USER HAS GENDER: Continue with Maya's natural conversation using full intelligence
+    console.log(`✅ MAYA: User has gender (${user.gender}), proceeding with full Maya intelligence`);
     
-    logMayaAPI('/member/chat', startTime, true);
-    res.json({
+    // Get Maya's personalization context
+    const userContext = await mayaPersonalizationService.getUserPersonalizationContext(userId);
+    
+    // Use Maya's full intelligence system for conversation and concept generation
+    // This calls Maya's personality system to handle styling and concept creation
+    const { PersonalityManager } = require('../agents/personalities/personality-config');
+    const { ClaudeApiServiceSimple } = require('../services/claude-api-service-simple');
+    const claudeService = new ClaudeApiServiceSimple();
+    
+    const mayaPrompt = PersonalityManager.getNaturalPrompt('maya');
+    const contextualPrompt = `${mayaPrompt}
+
+🎯 USER CONTEXT:
+- Gender: ${user.gender}
+- User ID: ${userId}
+- Previous conversation: ${conversationHistory?.slice(-3)?.map((msg: any) => `${msg.role}: ${msg.content}`)?.join('\n') || 'No previous conversation'}
+
+USER MESSAGE: "${message}"
+
+Maya, use your complete styling intelligence to respond naturally. If the user is asking for photo concepts, create concept cards with your embedded FLUX prompts. Let your styling expertise guide everything.`;
+
+    console.log(`🎨 MAYA: Calling Maya's full AI intelligence system`);
+    
+    const mayaResponse = await claudeService.sendMessage(contextualPrompt, conversationId, 'maya', false);
+    
+    // Parse Maya's response for concept cards
+    const conceptCards = extractConceptCards(mayaResponse, userId, user.gender);
+    
+    const response = {
       success: true,
-      response: "Member-only Maya chat endpoint created! Full implementation coming next...",
-      canGenerate: true
-    });
+      content: mayaResponse,
+      message: mayaResponse,
+      mode: context,
+      canGenerate: true,
+      conceptCards: conceptCards,
+      chatId: chatId || `maya_${userId}_${Date.now()}`
+    };
+
+    logMayaAPI('/member/chat', startTime, true);
+    return res.json(response);
 
   } catch (error) {
     console.error('Member Maya chat error:', error);
@@ -324,6 +397,42 @@ router.post('/member/chat', requireStackAuth, async (req, res) => {
     });
   }
 });
+
+// Helper function to extract gender from user message
+function extractGenderFromMessage(message: string): 'woman' | 'man' | 'prefer-not-to-say' | null {
+  const lowerMessage = message.toLowerCase();
+  
+  if (lowerMessage.includes('woman') || lowerMessage.includes('female') || lowerMessage.includes('she/her')) {
+    return 'woman';
+  }
+  if (lowerMessage.includes('man') || lowerMessage.includes('male') || lowerMessage.includes('he/him')) {
+    return 'man';
+  }
+  if (lowerMessage.includes('prefer not') || lowerMessage.includes('neither') || lowerMessage.includes('non-binary')) {
+    return 'prefer-not-to-say';
+  }
+  
+  return null;
+}
+
+// Helper function to extract concept cards from Maya's response
+function extractConceptCards(mayaResponse: string, userId: string, userGender: string): any[] {
+  // Look for concept cards in Maya's response
+  const conceptPattern = /(?:concept|idea|photo)\s*(?:card|concept)?\s*:?\s*["']?([^"\n]+)["']?/gi;
+  const matches = mayaResponse.match(conceptPattern);
+  
+  if (!matches) return [];
+  
+  return matches.slice(0, 3).map((match, index) => ({
+    id: `concept_${userId}_${Date.now()}_${index}`,
+    title: match.replace(/(?:concept|idea|photo)\s*(?:card|concept)?\s*:?\s*["']?/gi, '').trim(),
+    description: `Styled by Maya for ${userGender}`,
+    fluxPrompt: `${ModelTrainingService.generateTriggerWord(userId)} ${userGender}, ${match.replace(/(?:concept|idea|photo)\s*(?:card|concept)?\s*:?\s*["']?/gi, '').trim()}`,
+    category: 'Lifestyle',
+    isGenerating: false,
+    hasGenerated: false
+  }));
+}
 
 // UNIFIED MAYA ENDPOINT - Handles all Maya interactions with admin/member distinction
 router.post('/chat', requireStackAuth, adminContextDetection, async (req: AdminContextRequest, res) => {
