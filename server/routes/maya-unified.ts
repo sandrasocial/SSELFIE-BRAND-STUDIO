@@ -2470,9 +2470,16 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
     console.log(`📝 CONCEPT CONTENT: "${conceptContent.substring(0, 200)}..."`);
     console.log(`📏 CONTENT LENGTH: ${conceptContent.length} characters`);
     
-    // SINGLE API CALL: Extract embedded FLUX prompt from concept content
+    // SINGLE API CALL: Extract embedded FLUX prompt from concept content  
     const fluxPromptMatch = conceptContent.match(/FLUX_PROMPT:\s*(.*?)(?=\n|$)/s);
     const embeddedFluxPrompt = fluxPromptMatch ? fluxPromptMatch[1].trim() : null;
+    
+    // 🚨 DEBUG: Log FLUX prompt extraction
+    console.log(`🔍 FLUX PROMPT EXTRACTION DEBUG:`);
+    console.log(`- Concept content: "${conceptContent}"`);
+    console.log(`- FLUX_PROMPT match found: ${!!fluxPromptMatch}`);
+    console.log(`- Extracted prompt: "${embeddedFluxPrompt}"`);
+    console.log(`- Prompt length: ${embeddedFluxPrompt?.length || 0} chars`);
     
     // Extract user-facing description (everything before FLUX_PROMPT)
     const userDescription = conceptContent.split('FLUX_PROMPT:')[0].trim();
