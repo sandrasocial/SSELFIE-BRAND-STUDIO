@@ -432,6 +432,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ✅ UPDATE USER ENDPOINT - For saving gender and other profile updates
+  app.post('/api/update-user', requireStackAuth, async (req: any, res) => {
+    try {
+      const userId = req.user.id; // User from Stack Auth middleware
+      const { gender } = req.body;
+      
+      console.log('📡 /api/update-user: Updating user profile:', userId, { gender });
+      
+      if (!gender) {
+        return res.status(400).json({ error: 'Gender is required' });
+      }
+
+      // Validate gender value
+      if (!['woman', 'man', 'prefer-not-to-say'].includes(gender)) {
+        return res.status(400).json({ error: 'Invalid gender value' });
+      }
+
+      // Update user profile in database
+      const updatedUser = await storage.updateUserProfile(userId, { gender });
+      
+      console.log('✅ User profile updated successfully:', updatedUser.id, { gender });
+      
+      res.json({
+        success: true,
+        user: {
+          id: updatedUser.id,
+          email: updatedUser.email,
+          gender: updatedUser.gender
+        }
+      });
+    } catch (error) {
+      console.error('❌ /api/update-user error:', error);
+      res.status(500).json({ error: 'Failed to update user profile' });
+    }
+  });
+
   // Helper functions for name parsing
   function extractFirstName(displayName?: string): string {
     if (!displayName) return '';
