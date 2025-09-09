@@ -33,7 +33,7 @@ import { EscalationHandler, escalationHandler } from '../services/escalation-han
 import { mayaPersonalizationService } from '../services/maya-personalization-service';
 import { MayaChatPreviewService } from '../maya-chat-preview-service';
 import { MayaAdaptationEngine } from '../services/maya-adaptation-engine';
-import { MayaContextSessionManager } from '../services/maya-context-session-manager';
+import { unifiedMayaMemoryService } from '../services/unified-maya-memory-service.js';
 import { MayaOptimizationService } from '../services/maya-optimization-service';
 
 const router = Router();
@@ -172,13 +172,8 @@ router.post('/chat', requireStackAuth, adminContextDetection, async (req: AdminC
     console.log(`🎯 PERSONALIZATION: Adapted Maya personality (confidence: ${adaptationResult.confidenceScore})`);
     console.log(`💡 ADAPTATION REASON: ${adaptationResult.adaptationReason}`);
     
-    // ✨ PHASE 3.3: ENHANCED CONTEXT RETENTION - Initialize session for improved context memory
-    const contextSession = await MayaContextSessionManager.initializeSession(userId, {
-      message,
-      context,
-      userContext,
-      adaptationResult
-    });
+    // ✨ PHASE 1: UNIFIED MEMORY - Get comprehensive Maya context with single database query
+    const unifiedContext = await unifiedMayaMemoryService.getUnifiedMayaContext(userId, undefined, message);
     
     // Maya can handle incomplete profiles conversationally - no blocking
 
@@ -2504,18 +2499,20 @@ async function saveUnifiedConversation(userId: string, userMessage: string, maya
       });
     }
 
-    // ✨ PHASE 3.3: Update session context with conversation insights
+    // ✨ PHASE 1: UNIFIED MEMORY - Save conversation with all context updates in one call
     if (sessionId) {
       try {
-        await MayaContextSessionManager.updateSessionContext(
-          sessionId,
+        await unifiedMayaMemoryService.saveUnifiedConversation(
+          userId,
           userMessage,
-          mayaResponse,
-          { context, userType, conversationId }
+          mayaResponse.message || mayaResponse,
+          sessionId,
+          mayaResponse.hasImageGeneration || false,
+          mayaResponse.conceptCards || []
         );
-        console.log(`📚 CONTEXT SESSION: Updated session ${sessionId} with conversation insights`);
+        console.log(`📚 UNIFIED MEMORY: Updated session ${sessionId} with comprehensive conversation data`);
       } catch (error) {
-        console.error('❌ SESSION CONTEXT UPDATE ERROR:', error);
+        console.error('❌ UNIFIED MEMORY UPDATE ERROR:', error);
       }
     }
 
