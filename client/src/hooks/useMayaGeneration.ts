@@ -204,7 +204,7 @@ export const useMayaGeneration = (
     
     try {
       // Call Maya's intelligent generation system with comprehensive error handling
-      const response = await apiRequest('/api/maya/generate', 'POST', {
+      const response = await apiRequest('/api/maya/member/generate', 'POST', {
         prompt,
         chatId: currentChatId || -1,
         // Maya's intelligence handles count, parameters, and all generation decisions
@@ -445,7 +445,7 @@ export const useMayaGeneration = (
     
     try {
       // CRITICAL FIX: Pass concept information to backend properly
-      const response = await fetch('/api/maya/generate', {
+      const response = await fetch('/api/maya/member/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
