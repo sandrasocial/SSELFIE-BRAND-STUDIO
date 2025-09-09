@@ -34,6 +34,7 @@ import { mayaPersonalizationService } from '../services/maya-personalization-ser
 import { MayaChatPreviewService } from '../maya-chat-preview-service';
 import { MayaAdaptationEngine } from '../services/maya-adaptation-engine';
 import { unifiedMayaMemoryService } from '../services/unified-maya-memory-service.js';
+import { unifiedMayaContextService } from '../services/unified-maya-context-service.js';
 import { MayaOptimizationService } from '../services/maya-optimization-service';
 
 const router = Router();
@@ -159,10 +160,21 @@ router.post('/chat', requireStackAuth, adminContextDetection, async (req: AdminC
     // Get request parameters first
     const { message, context = 'styling', chatId, conversationHistory = [], onboardingField, userState, userStats } = req.body;
     
-    // Get Maya's personalization context for intelligent, personalized responses
-    const userContext = await mayaPersonalizationService.getUserPersonalizationContext(userId);
+    // ✨ PHASE 2: UNIFIED CONTEXT - Single optimized query for ALL Maya context data
+    const unifiedContext = await unifiedMayaContextService.getUnifiedMayaContext(userId, chatId?.toString());
+    const userContext = {
+      userId: unifiedContext.userId,
+      subscriptionData: unifiedContext.subscription,
+      profileData: unifiedContext.profile,
+      usageStats: {
+        generationsThisMonth: unifiedContext.subscription.monthlyUsed,
+        remainingGenerations: unifiedContext.subscription.remainingGenerations,
+        usagePercentage: unifiedContext.subscription.usagePercentage,
+        canGenerate: unifiedContext.subscription.canGenerate
+      }
+    };
     
-    // ✨ PHASE 3: DYNAMIC PERSONALIZATION ENGINE - Adapt Maya's responses to user preferences
+    // ✨ PHASE 3: DYNAMIC PERSONALIZATION ENGINE - Adapt Maya's responses to user preferences  
     const adaptationResult = await MayaAdaptationEngine.adaptStylingApproach(
       userId, 
       { message, context, userContext },
@@ -171,9 +183,7 @@ router.post('/chat', requireStackAuth, adminContextDetection, async (req: AdminC
     
     console.log(`🎯 PERSONALIZATION: Adapted Maya personality (confidence: ${adaptationResult.confidenceScore})`);
     console.log(`💡 ADAPTATION REASON: ${adaptationResult.adaptationReason}`);
-    
-    // ✨ PHASE 1: UNIFIED MEMORY - Get comprehensive Maya context with single database query
-    const unifiedContext = await unifiedMayaMemoryService.getUnifiedMayaContext(userId, undefined, message);
+    console.log(`⚡ PHASE 2: Unified context loaded - eliminated 3-5 separate database queries`);
     
     // Maya can handle incomplete profiles conversationally - no blocking
 

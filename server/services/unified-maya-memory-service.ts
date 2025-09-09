@@ -159,7 +159,7 @@ export class UnifiedMayaMemoryService {
         sessionMetadata
       ] = await Promise.all([
         this.getConversationHistory(userId, 15),
-        personalBrandService.getPersonalBrandProfile(userId),
+        // Personal brand data will be provided by unified context service
         this.getPersonalInsights(userId),
         this.getOnboardingProgress(userId),
         this.getConversationMemory(userId),
