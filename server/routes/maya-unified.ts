@@ -37,61 +37,11 @@ import { MayaOptimizationService } from '../services/maya-optimization-service';
 
 const router = Router();
 
-// PHASE 3: Performance Optimization - Maya Context Caching System  
-// Reduces Claude API calls by ~50% while maintaining perfect consistency
-const mayaContextCache = new Map<string, { 
-  originalContext: string, 
-  conceptName: string,
-  timestamp: number 
-}>();
-const MAYA_CONTEXT_CACHE_TTL = 10 * 60 * 1000; // 10 minutes for context reuse
+// ✅ CACHE OPTIMIZATION: Using unified service caching instead of route-level caches
 
-// STEP 2.3: Maya Response Caching System
-// Single-pass processing with intelligent response caching
-const mayaResponseCache = new Map<string, {
-  response: any;
-  timestamp: number;
-}>();
-const MAYA_RESPONSE_CACHE_TTL = 5 * 60 * 1000; // 5 minutes for response reuse
 
-// PHASE 3: Cache cleanup utility
-function cleanupMayaContextCache() {
-  const now = Date.now();
-  for (const [key, value] of mayaContextCache.entries()) {
-    if (now - value.timestamp > MAYA_CONTEXT_CACHE_TTL) {
-      mayaContextCache.delete(key);
-    }
-  }
-}
 
-// STEP 2.3: Maya Response Cache Cleanup
-function cleanupMayaResponseCache() {
-  const now = Date.now();
-  for (const [key, value] of mayaResponseCache.entries()) {
-    if (now - value.timestamp > MAYA_RESPONSE_CACHE_TTL) {
-      mayaResponseCache.delete(key);
-    }
-  }
-}
 
-// STEP 2.3: Generate cache key from message content for optimal deduplication
-function generateMessageHash(message: string, context: string): string {
-  // Simple hash function for cache key generation
-  let hash = 0;
-  const content = message + context;
-  for (let i = 0; i < content.length; i++) {
-    const char = content.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash = hash & hash; // Convert to 32-bit integer
-  }
-  return Math.abs(hash).toString(36);
-}
-
-// Run cache cleanup every 5 minutes for both caches
-setInterval(() => {
-  cleanupMayaContextCache();
-  cleanupMayaResponseCache();
-}, 5 * 60 * 1000);
 
 // PHASE 7: Environment Variables Validation
 if (!process.env.REPLICATE_API_TOKEN) {
