@@ -32,6 +32,7 @@ import { SupportIntelligenceService } from '../services/support-intelligence';
 import { EscalationHandler, escalationHandler } from '../services/escalation-handler';
 import { simpleOnboardingService } from '../services/simple-onboarding-service';
 import { mayaPersonalizationService } from '../services/maya-personalization-service';
+import { mayaStateMachine } from '../services/maya-state-machine';
 
 const router = Router();
 
@@ -3545,6 +3546,46 @@ router.post('/chat-history', requireStackAuth, async (req: AdminContextRequest, 
       success: false,
       error: 'Failed to load chat history',
       source: 'database_error'
+    });
+  }
+});
+
+// 🎯 NEW: COMPLETE VISUAL ONBOARDING using Maya State Machine
+router.post('/member/complete-onboarding', requireStackAuth, async (req: AdminContextRequest, res) => {
+  const startTime = Date.now();
+  
+  try {
+    const userId = req.userId;
+    if (!userId) {
+      logMayaAPI('/complete-onboarding', startTime, false);
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    console.log('🎉 Maya: Completing visual onboarding for user', userId);
+    
+    // Complete onboarding using Maya State Machine
+    const result = await mayaStateMachine.completeOnboarding(userId, req.body);
+    
+    logMayaAPI('/complete-onboarding', startTime, result.success);
+    
+    if (result.success) {
+      res.json({
+        success: true,
+        message: result.message
+      });
+    } else {
+      res.status(500).json({
+        success: false,
+        message: result.message
+      });
+    }
+
+  } catch (error) {
+    console.error('❌ Maya: Visual onboarding completion error:', error);
+    logMayaAPI('/complete-onboarding', startTime, false);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to complete onboarding'
     });
   }
 });
