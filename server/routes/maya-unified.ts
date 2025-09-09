@@ -35,6 +35,7 @@ import { MayaChatPreviewService } from '../maya-chat-preview-service';
 import { MayaAdaptationEngine } from '../services/maya-adaptation-engine';
 import { unifiedMayaMemoryService } from '../services/unified-maya-memory-service.js';
 import { unifiedMayaContextService } from '../services/unified-maya-context-service.js';
+import { unifiedMayaIntelligenceService } from '../services/unified-maya-intelligence-service.js';
 import { MayaOptimizationService } from '../services/maya-optimization-service';
 
 const router = Router();
@@ -184,6 +185,14 @@ router.post('/chat', requireStackAuth, adminContextDetection, async (req: AdminC
     console.log(`🎯 PERSONALIZATION: Adapted Maya personality (confidence: ${adaptationResult.confidenceScore})`);
     console.log(`💡 ADAPTATION REASON: ${adaptationResult.adaptationReason}`);
     console.log(`⚡ PHASE 2: Unified context loaded - eliminated 3-5 separate database queries`);
+    
+    // ✨ PHASE 3: UNIFIED INTELLIGENCE - Load complete Maya intelligence with single optimized call
+    const mayaIntelligence = await unifiedMayaIntelligenceService.getUnifiedStyleIntelligence(
+      userId, 
+      unifiedContext, 
+      'chat'
+    );
+    console.log(`🧠 PHASE 3: Unified intelligence loaded - consolidated 4 intelligence services in ${mayaIntelligence.processingTime}ms (confidence: ${mayaIntelligence.intelligenceConfidence}%)`);
     
     // Maya can handle incomplete profiles conversationally - no blocking
 
