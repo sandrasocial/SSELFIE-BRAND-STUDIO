@@ -1492,69 +1492,9 @@ router.post('/generate', requireStackAuth, adminContextDetection, async (req: Ad
     }
     // ✅ MAYA SIMPLIFIED GENERATION: Proceed with the finalized prompt
     console.log(`🎯 MAYA READY: Using finalized prompt of ${finalPrompt.length} characters`);
-                  }
-                } catch (parseError) {
-                  // FALLBACK: Search raw message content for concept mentions
-                  const lowerContent = message.content.toLowerCase();
-                  const lowerConceptName = conceptName.toLowerCase();
-                  
-                  // Extract key words from concept name for searching
-                  const conceptWords = lowerConceptName.split(/\s+/).filter(word => word.length > 3);
-                  
-                  // Check if message contains enough concept keywords
-                  const foundWords = conceptWords.filter(word => lowerContent.includes(word));
-                  
-                  if (foundWords.length >= 1 && message.content.length > 50) {
-                    // Extract relevant paragraph containing the concept
-                    const lines = message.content.split('\n');
-                    for (let i = 0; i < lines.length; i++) {
-                      const line = lines[i].toLowerCase();
-                      if (foundWords.some(word => line.includes(word))) {
-                        // Extract this paragraph and next few lines as context
-                        const contextLines = [];
-                        for (let j = Math.max(0, i-1); j < Math.min(i + 5, lines.length); j++) {
-                          if (lines[j].trim()) {
-                            contextLines.push(lines[j].trim());
-                          }
-                        }
-                        if (contextLines.length > 0) {
-                          originalContext = contextLines.join(' ').substring(0, 800);
-                          console.log(`💡 MAYA RAW EXTRACT: Found content for "${conceptName}" (${originalContext.length} chars)`);
-                          break;
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-              
-              if (originalContext) break;
-            }
-            if (originalContext) break;
-          }
-          
-          if (!originalContext) {
-            console.log(`⚠️ MAYA CONTEXT NOT FOUND: No context found for "${conceptName}" in ${recentChats.length} recent chats`);
-            console.log(`🔍 MAYA SEARCH DEBUG: Searched chats with ${recentChats.length} total chats, conceptId: "${conceptId}"`);
-            // Log some message content for debugging
-            if (recentChats.length > 0) {
-              const firstChat = recentChats[0];
-              const messages = await storage.getMayaChatMessages(firstChat.id);
-              console.log(`🔍 MAYA DEBUG: First chat has ${messages.length} messages`);
-              const sampleMessage = messages.find(m => m.content && m.content.length > 50);
-              if (sampleMessage) {
-                console.log(`🔍 MAYA DEBUG SAMPLE: ${sampleMessage.content.substring(0, 100)}...`);
-              }
-            }
-          }
-        } catch (error) {
-          console.log(`❌ MAYA CONTEXT RETRIEVAL ERROR:`, error);
-        }
-      }
+    // ✅ MAYA GENERATION: Begin image generation with the finalized prompt
 
-      // PHASE 3: Lazy generation using cached Maya context for perfect consistency
-      // CRITICAL FIX: PRESERVE emojis in concept names - they're essential for styling communication
-      const userConcept = conceptName; // Keep emojis intact for styling system
+    // Generate images using Maya's simplified intelligence
       console.log(`🔗 MAYA CONTEXT HANDOFF: Concept "${userConcept}" with ${originalContext.length} chars`);
       console.log(`🎨 MAYA UNIQUE CONTEXT: ${originalContext.substring(0, 300)}...`);
       
