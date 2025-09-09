@@ -4,7 +4,7 @@
  */
 
 import { MayaBehaviorLearningService } from './maya-behavior-learning-service';
-import { MayaContextualMemoryService } from './maya-contextual-memory-service';
+import { unifiedMayaMemoryService } from './unified-maya-memory-service.js';
 
 export interface StylePrediction {
   // Predictive Intelligence
@@ -67,9 +67,9 @@ export class MayaPredictiveStyleService {
       // Get user behavior data
       const behaviorData = await this.getUserBehaviorData(userId);
       
-      // Get contextual intelligence
+      // Get contextual intelligence using unified memory service
       const contextualData = sessionId ? 
-        await MayaContextualMemoryService.getContextualIntelligence(userId, sessionId) : null;
+        (await unifiedMayaMemoryService.getUnifiedMayaContext(userId, sessionId)).contextualIntelligence : null;
       
       // Analyze style patterns
       const stylePatterns = await this.analyzeStylePatterns(behaviorData);

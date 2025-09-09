@@ -4,7 +4,7 @@
  */
 
 import { MayaBehaviorLearningService } from './maya-behavior-learning-service';
-import { MayaContextualMemoryService } from './maya-contextual-memory-service';
+import { unifiedMayaMemoryService } from './unified-maya-memory-service.js';
 import { MayaPredictiveStyleService } from './maya-predictive-styling-service';
 import { MayaBusinessIntelligenceService } from './maya-business-intelligence-service';
 
@@ -66,13 +66,14 @@ export class MayaPhase5IntegrationService {
       // Initialize all Phase 5 components
       await this.initializePhase5Components(userId, sessionId);
       
-      // Gather intelligence from all services
-      const [behaviorProfile, contextualIntelligence, stylePredictions, businessInsights] = await Promise.all([
+      // Gather intelligence from all services using unified memory
+      const unifiedContext = await unifiedMayaMemoryService.getUnifiedMayaContext(userId, sessionId);
+      const [behaviorProfile, stylePredictions, businessInsights] = await Promise.all([
         this.gatherBehaviorIntelligence(userId),
-        MayaContextualMemoryService.getContextualIntelligence(userId, sessionId),
         MayaPredictiveStyleService.generateStylePredictions(userId, sessionId),
         this.gatherBusinessIntelligence(userId)
       ]);
+      const contextualIntelligence = unifiedContext.contextualIntelligence;
       
       // Generate integrated personalization
       const personalizedResponseStyle = await this.generatePersonalizedResponseStyle(
@@ -123,8 +124,8 @@ export class MayaPhase5IntegrationService {
       // Initialize behavior tracking (Phase 5.1)
       await MayaBehaviorLearningService.initializeBehaviorTracking(userId);
       
-      // Initialize session context (Phase 5.2)
-      await MayaContextualMemoryService.initializeSessionContext(userId, sessionId);
+      // Initialize session context (Phase 5.2) - handled by unified memory service
+      await unifiedMayaMemoryService.getUnifiedMayaContext(userId, sessionId);
       
       console.log(`🚀 PHASE 5: All components initialized for user ${userId}`);
     } catch (error) {
@@ -310,13 +311,14 @@ export class MayaPhase5IntegrationService {
         );
       }
       
-      // Update contextual memory (Phase 5.2)
+      // Update contextual memory (Phase 5.2) using unified memory service
       if (interactionType === 'message') {
-        await MayaContextualMemoryService.updateConversationContext(
+        await unifiedMayaMemoryService.saveUnifiedConversation(
           userId,
-          sessionId,
           interactionData.userMessage,
-          interactionData.mayaResponse
+          interactionData.mayaResponse,
+          sessionId,
+          false
         );
       }
       
@@ -361,7 +363,7 @@ export class MayaPhase5IntegrationService {
     const capabilities = this.getPhase5Capabilities();
     const serviceStats = {
       behaviorLearning: MayaBehaviorLearningService.getLearningStats(),
-      contextualMemory: MayaContextualMemoryService.getContextualMemoryStats(),
+      contextualMemory: { phase: 'Unified Maya Memory v1.0', status: 'Operational' },
       predictiveEngine: MayaPredictiveStyleService.getPredictiveStats(),
       businessIntelligence: MayaBusinessIntelligenceService.getBusinessIntelligenceStats()
     };
