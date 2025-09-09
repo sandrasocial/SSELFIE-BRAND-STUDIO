@@ -331,10 +331,13 @@ Maya, use your complete styling intelligence to respond naturally. If the user i
     // Parse Maya's response for concept cards
     const conceptCards = await parseConceptsFromResponse(mayaResponse, userId);
     
+    // ✅ CRITICAL FIX: Clean Maya's response for user display (remove FLUX_PROMPT lines)
+    const cleanResponseForChat = cleanMayaResponseForChat(mayaResponse);
+    
     const response = {
       success: true,
-      content: mayaResponse,
-      message: mayaResponse,
+      content: cleanResponseForChat,
+      message: cleanResponseForChat,
       mode: context,
       canGenerate: true,
       conceptCards: conceptCards,
@@ -356,7 +359,22 @@ Maya, use your complete styling intelligence to respond naturally. If the user i
   }
 });
 
-// ✅ CONCEPT CARD EXTRACTION: Using the proper parseConceptsFromResponse function below
+// ✅ MAYA RESPONSE CLEANING: Clean Maya's response for user chat display
+function cleanMayaResponseForChat(mayaResponse: string): string {
+  // Remove FLUX_PROMPT lines and technical content, keep conversational Maya content
+  let cleaned = mayaResponse;
+  
+  // Remove FLUX_PROMPT lines completely
+  cleaned = cleaned.replace(/FLUX_PROMPT:\s*[^\n]*\n?/g, '');
+  
+  // Remove separator lines
+  cleaned = cleaned.replace(/^---+$/gm, '');
+  
+  // Clean up extra whitespace
+  cleaned = cleaned.replace(/\n{3,}/g, '\n\n').trim();
+  
+  return cleaned;
+}
 
 // UNIFIED MAYA ENDPOINT - Handles all Maya interactions with admin/member distinction
 router.post('/chat', requireStackAuth, adminContextDetection, async (req: AdminContextRequest, res) => {
