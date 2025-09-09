@@ -127,10 +127,13 @@ This'll just take a minute, and then we can start creating some incredible photo
 
   /**
    * Store essential onboarding data (no AI processing)
+   * Uses existing user table fields - safe approach with no schema changes
    */
   public async storeEssentialData(data: EssentialOnboardingData): Promise<void> {
-    // Store in database for Maya's future styling intelligence
-    console.log('📝 Storing essential onboarding data:', {
+    // Import storage at runtime to avoid circular dependencies
+    const { storage } = await import('../storage');
+    
+    console.log('📝 Storing essential onboarding data to existing user table:', {
       userId: data.userId,
       gender: data.gender,
       preferredName: data.preferredName,
@@ -138,8 +141,24 @@ This'll just take a minute, and then we can start creating some incredible photo
       styleVibe: data.styleVibe
     });
     
-    // TODO: Store in maya_onboarding_data table
-    // This will be used by Maya's personality for personalized concept generation
+    // Map to existing user table fields (safe - no schema changes needed!)
+    const userUpdates = {
+      gender: data.gender,                    // maps to users.gender
+      profession: data.preferredName,        // repurpose users.profession for preferredName
+      brand_style: data.primaryUse,          // repurpose users.brand_style for primaryUse  
+      photo_goals: data.styleVibe,           // repurpose users.photo_goals for styleVibe
+      onboarding_step: 4,                    // mark as completed (4 questions done)
+      profile_completed: true                // onboarding is complete
+    };
+
+    try {
+      // Update existing user record - no new tables needed!
+      await storage.updateUserProfile(data.userId, userUpdates);
+      console.log('✅ Essential onboarding data saved to existing user table successfully');
+    } catch (error) {
+      console.error('❌ Failed to store essential onboarding data:', error);
+      throw error;
+    }
   }
 
   /**
