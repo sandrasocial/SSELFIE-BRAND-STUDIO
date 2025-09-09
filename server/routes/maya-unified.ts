@@ -1708,53 +1708,12 @@ router.post('/generate', requireStackAuth, adminContextDetection, async (req: Ad
       const cleanedContext = originalContext;
       console.log(`🧹 CLEANED CONTEXT (first 300 chars): "${cleanedContext.substring(0, 300)}"`);
       
-      // TASK 4: Pipeline confirmation logs
-      console.log('🔗 PIPELINE CHECK: createDetailedPromptFromConcept called');
-      // CRITICAL AUDIT: Check for embedded prompt in concept
-      const conceptCard = await storage.getMayaConceptById(conceptId);
+      // ✅ MAYA FRESH INTELLIGENCE: Let Maya create fresh styling vision for every concept
+      console.log(`🎯 MAYA DIRECT GENERATION: Creating fresh styling for concept "${userConcept}"`);
       
-      // 📤 CONCEPT RETRIEVAL DEBUG: Log retrieval process
-      console.log('📤 CONCEPT RETRIEVAL DEBUG:');
-      console.log('- Retrieving concept:', conceptName);
-      console.log('- Concept ID:', conceptId);
-      console.log('- Retrieved concept:', !!conceptCard);
-      console.log('- Retrieved fullPrompt:', !!conceptCard?.fullPrompt);
-      
-      console.log(`🔍 SINGLE API CALL AUDIT: Concept "${conceptName}"`);
-      console.log(`- ConceptCard found: ${!!conceptCard}`);
-      console.log(`- Has fullPrompt: ${!!conceptCard?.fullPrompt}`);
-      console.log(`- FullPrompt length: ${conceptCard?.fullPrompt?.length || 0} characters`);
-      
-      if (conceptCard?.fullPrompt && conceptCard.fullPrompt.length > 50) {
-        console.log(`✅ SINGLE API CALL SUCCESS: Using embedded prompt from concept creation`);
-        console.log(`🎯 EMBEDDED PROMPT PREVIEW: ${conceptCard.fullPrompt.substring(0, 150)}...`);
-        finalPrompt = conceptCard.fullPrompt;
-        
-        // Skip dual API call - we have embedded prompt
-        console.log(`🚀 SKIPPING DUAL API CALL: Using single API call embedded prompt`);
-      } else {
-        console.log(`⚠️ SINGLE API CALL FALLBACK: No embedded prompt found, using dual API call`);
-        console.log(`🔍 DEBUG INFO: conceptId=${conceptId}, conceptName=${conceptName}`);
-      }
-      // ENHANCED CONTEXT PRESERVATION: Retrieve enhanced context for API Call #2
-      let retrievedEnhancedContext = null;
-      const enhancedContextCache = mayaContextCache.get(cacheKey);
-      if (enhancedContextCache) {
-        retrievedEnhancedContext = enhancedContextCache.originalContext;
-        console.log(`✅ ENHANCED CONTEXT RETRIEVED: Maya's complete context available for API Call #2`);
-      } else {
-        console.log(`⚠️ ENHANCED CONTEXT NOT FOUND: Using basic context preservation`);
-      }
-      
-      if (!finalPrompt || finalPrompt.length < 50) {
-        // CRITICAL ELIMINATION: Only call createDetailedPromptFromConcept when Maya hasn't provided intelligent prompt
-        console.log('🔄 DUAL API FALLBACK: No embedded prompt found, generating via createDetailedPromptFromConcept');
-        finalPrompt = await createDetailedPromptFromConcept(userConcept, generationInfo.triggerWord, userId, cleanedContext, undefined, retrievedEnhancedContext);
-        console.log('🔄 DUAL API CALL: Generated new prompt via createDetailedPromptFromConcept');
-      } else {
-        console.log('✅ MAYA PURE INTELLIGENCE: Using embedded prompt, eliminating duplicate processing');
-        console.log('✅ SINGLE API CALL: Skipping createDetailedPromptFromConcept - Maya already provided intelligent prompt');
-      }
+      // Always use Maya's current intelligence - no database retrieval needed
+      finalPrompt = await createDetailedPromptFromConcept(userConcept, generationInfo.triggerWord, userId, cleanedContext, undefined, undefined);
+      console.log(`✅ MAYA FRESH STYLING: Generated ${finalPrompt.length} character prompt with current intelligence`);
       console.log('🎨 MAYA STYLED PROMPT:', finalPrompt.substring(0, 300));
       console.log('✅ MAYA INTELLIGENCE ACTIVE in image generation');
       console.log(`✅ MAYA LAZY GENERATION: Generated ${finalPrompt.length} character prompt with pure intelligence`);
