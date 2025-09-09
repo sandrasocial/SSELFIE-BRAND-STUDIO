@@ -122,15 +122,6 @@ router.post('/chat', requireStackAuth, adminContextDetection, async (req: AdminC
       }
     };
     
-    // ✨ PHASE 3: DYNAMIC PERSONALIZATION ENGINE - Adapt Maya's responses to user preferences  
-    const adaptationResult = await MayaAdaptationEngine.adaptStylingApproach(
-      userId, 
-      { message, context, userContext },
-      conversationHistory
-    );
-    
-    console.log(`🎯 PERSONALIZATION: Adapted Maya personality (confidence: ${adaptationResult.confidenceScore})`);
-    console.log(`💡 ADAPTATION REASON: ${adaptationResult.adaptationReason}`);
     console.log(`⚡ PHASE 2: Unified context loaded - eliminated 3-5 separate database queries`);
     
     // ✨ PHASE 3: UNIFIED INTELLIGENCE - Load complete Maya intelligence with single optimized call
@@ -483,15 +474,15 @@ router.post('/chat', requireStackAuth, adminContextDetection, async (req: AdminC
     // CONTEXT-AWARE: Load personality based on context (styling vs support)
     // ✨ PHASE 3: Use adapted Maya personality for personalized conversations
     const baseMayaPersonality = PersonalityManager.getContextPrompt('maya', context);
-    let mayaPersonality = adaptationResult?.adaptedPersonality || baseMayaPersonality;
+    let mayaPersonality = baseMayaPersonality;
     
-    // Add adaptation insights to enhance conversation
-    if (adaptationResult && adaptationResult.confidenceScore > 0.7) {
+    // ✅ UNIFIED INTELLIGENCE: Add intelligence insights to enhance conversation
+    if (mayaIntelligence && mayaIntelligence.intelligenceConfidence > 70) {
       mayaPersonality += `\n\n🎯 PERSONALIZATION INSIGHTS:
-${adaptationResult.stylingAdjustments.join('\n')}
+${mayaIntelligence.stylePredictions.predictedStyles.slice(0, 3).join('\n')}
 
 💡 2025 TREND RECOMMENDATIONS FOR USER:
-${adaptationResult.trendRecommendations.join('\n')}`;
+${mayaIntelligence.trendIntelligence.personalizedTrends.slice(0, 3).join('\n')}`;
     }
     
     // PHASE 2: Add support intelligence for support context
@@ -2602,9 +2593,9 @@ CRITICAL: Use your ${category} styling approaches loaded in your personality. Re
       console.log('🎯 CATEGORY SPECIFIC GUIDANCE:', categorySpecificGuidance);
     }
 
-    // ✨ PHASE 3: Use adapted Maya personality for personalized styling
+    // ✅ UNIFIED INTELLIGENCE: Use Maya's complete personality for personalized styling
     const baseMayaPersonality = PersonalityManager.getNaturalPrompt('maya');
-    const personalizedMayaPersonality = adaptationResult?.adaptedPersonality || baseMayaPersonality;
+    const personalizedMayaPersonality = baseMayaPersonality;
     
     const mayaPromptPersonality = personalizedMayaPersonality + `
 
