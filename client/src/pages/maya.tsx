@@ -200,7 +200,7 @@ export default function Maya() {
 
   // Enhanced loading with database sync
   const { data: conversationData } = useQuery({
-    queryKey: ['/api/maya/conversation'],
+    queryKey: ['/api/maya/member/conversation'],
     enabled: !!user?.id && !isPersistenceLoading
   });
 
@@ -221,7 +221,7 @@ export default function Maya() {
       const checkOnboardingAndStart = async () => {
         try {
           // Get onboarding status directly from status API
-          const statusResponse = await fetch('/api/maya/status', {
+          const statusResponse = await fetch('/api/maya/member/status', {
             credentials: 'include'
           }).then(r => r.json());
           
@@ -382,7 +382,7 @@ export default function Maya() {
   // Send message to Maya with enhanced persistence
   const sendMessage = useMutation({
     mutationFn: async (messageContent: string) => {
-      const response = await fetch('/api/maya/chat', {
+      const response = await fetch('/api/maya/member/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: messageContent })
@@ -457,7 +457,7 @@ export default function Maya() {
   const startOnboardingConversation = async () => {
     console.log('🎯 Maya: Starting 6-step onboarding conversation service');
     try {
-      const response = await fetch('/api/maya/start-onboarding', {
+      const response = await fetch('/api/maya/member/start-onboarding', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
