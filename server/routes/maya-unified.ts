@@ -1473,106 +1473,18 @@ router.post('/generate', requireStackAuth, adminContextDetection, async (req: Ad
       const conceptId = req.body.conceptId;
       let originalContext = '';
       
-      // PRIORITY 1: Instant context retrieval from memory cache
-      const cacheKey = `${userId}-${conceptId || conceptName}`;
-      const cachedContext = mayaContextCache.get(cacheKey);
+      // ✅ MAYA FRESH INTELLIGENCE: Skip complex caching and retrieval - use direct intelligence
+      console.log(`🎯 MAYA DIRECT CONCEPT: Processing "${conceptName}" with fresh styling intelligence`);
+      // Use simple concept-focused context for Maya's natural understanding  
+      const cleanedContext = `User selected concept: ${conceptName}`;
+      console.log(`✅ MAYA SIMPLIFIED CONTEXT: "${cleanedContext}"`);
       
-      if (cachedContext && (Date.now() - cachedContext.timestamp < MAYA_CONTEXT_CACHE_TTL)) {
-        originalContext = cachedContext.originalContext;
-        console.log(`⚡ MAYA INSTANT CACHE: Retrieved Maya's context from memory for "${conceptName}" (${originalContext.length} chars)`);
-      } else {
-        // FALLBACK: Enhanced context retrieval from database with concept name matching
-        try {
-          console.log(`🔍 MAYA CONTEXT SEARCH: Looking for concept "${conceptName}" with ID "${conceptId}"`);
-          
-          // Get recent chats - expanded search for context retrieval
-          const recentChats = await storage.getMayaChats(userId);
-          
-          for (const chat of recentChats.slice(0, 5)) { // Increased to 5 chats for better context retrieval
-            const messages = await storage.getMayaChatMessages(chat.id);
-            
-            // Check both directions - recent messages first, then older
-            for (const message of messages) {
-              if (message.content && typeof message.content === 'string') {
-                try {
-                  // Check if content is JSON (Maya's complete response with concept cards)
-                  const contentData = JSON.parse(message.content);
-                  if (contentData.conceptCards && contentData.conceptCards.length > 0) {
-                    for (const conceptCard of contentData.conceptCards) {
-                      // Universal fuzzy matching for ALL concepts
-                      const lowerConceptName = conceptName.toLowerCase();
-                      const lowerCardTitle = conceptCard.title.toLowerCase();
-                      
-                      // Extract keywords (3+ chars) for intelligent matching
-                      const conceptWords = lowerConceptName.split(/\s+/).filter(word => word.length > 2);
-                      const cardWords = lowerCardTitle.split(/\s+/).filter(word => word.length > 2);
-                      
-                      // Advanced matching: partial word matching + stemming-like logic
-                      const matchingWords = conceptWords.filter(conceptWord => 
-                        cardWords.some(cardWord => {
-                          // Exact match or partial match (3+ chars)
-                          return cardWord === conceptWord || 
-                                 cardWord.includes(conceptWord) || 
-                                 conceptWord.includes(cardWord) ||
-                                 // Similar words (for beach/beachclub, etc)
-                                 (conceptWord.length > 3 && cardWord.length > 3 && 
-                                  (conceptWord.startsWith(cardWord.slice(0, 4)) || 
-                                   cardWord.startsWith(conceptWord.slice(0, 4))));
-                        })
-                      ).length;
-                      
-                      const isMatch = 
-                        (conceptId && conceptCard.id === conceptId) ||
-                        lowerCardTitle === lowerConceptName ||
-                        lowerCardTitle.includes(lowerConceptName) ||
-                        lowerConceptName.includes(lowerCardTitle) ||
-                        (matchingWords >= 1 && conceptWords.length >= 1); // Any meaningful word match
-                      
-                      if (isMatch && conceptCard.originalContext) {
-                        originalContext = conceptCard.originalContext;
-                        
-                        // CRITICAL: Check if concept has embedded fullPrompt from single API call
-                        console.log('🔍 FALLBACK CHECK: Examining concept for embedded prompt');
-                        console.log('- Concept name:', conceptName);
-                        console.log('- Looking for embedded fullPrompt...');
-                        console.log('🔍 FALLBACK ANALYSIS:');
-                        console.log('- Concept exists:', !!conceptCard);
-                        console.log('- FullPrompt field exists:', conceptCard.hasOwnProperty('fullPrompt'));
-                        console.log('- FullPrompt has content:', !!conceptCard.fullPrompt);
-                        console.log('- FullPrompt length:', conceptCard.fullPrompt?.length || 0);
-                        console.log('- Fallback reason:', !conceptCard.fullPrompt ? 'NO_FULL_PROMPT' : 
-                                   conceptCard.fullPrompt.length === 0 ? 'EMPTY_FULL_PROMPT' : 'UNKNOWN');
-                        console.log('- Concept structure keys:', Object.keys(conceptCard));
-                        
-                        // Enhanced debugging for concept card contents
-                        if (conceptCard.fullPrompt) {
-                          console.log('🎯 EMBEDDED PROMPT CONTENT ANALYSIS:');
-                          console.log('- Full prompt type:', typeof conceptCard.fullPrompt);
-                          console.log('- Full prompt valid string:', typeof conceptCard.fullPrompt === 'string');
-                          console.log('- Contains FLUX keywords:', /portrait|photograph|camera|lighting|professional/.test(conceptCard.fullPrompt));
-                          console.log('- Contains styling terms:', /blazer|dress|outfit|elegant|professional|business/.test(conceptCard.fullPrompt));
-                        } else {
-                          console.log('❌ NO EMBEDDED PROMPT: Concept card missing fullPrompt field');
-                          console.log('🔍 CONCEPT CARD STRUCTURE:', JSON.stringify(conceptCard, null, 2));
-                        }
-                        
-                        if (conceptCard.fullPrompt && conceptCard.fullPrompt.length > 0) {
-                          console.log('✅ SINGLE API SUCCESS: Using embedded fullPrompt');
-                          console.log('- FullPrompt length:', conceptCard.fullPrompt.length);
-                          console.log('- FullPrompt preview:', conceptCard.fullPrompt.substring(0, 100));
-                          
-                          // Use the embedded prompt directly and skip dual API call
-                          const cleanedPrompt = conceptCard.fullPrompt;
-                          console.log(`🎯 USING EMBEDDED PROMPT: Single API call consistency achieved`);
-                          
-                          // Generate images using the embedded prompt
-                          try {
-                            const result = await ModelTrainingService.generateUserImages(
-                              userId,
-                              cleanedPrompt,
-                              count,
-                              { categoryContext: req.body.category || 'General' }
-                            );
+      // ✅ MAYA FRESH INTELLIGENCE: Let Maya create fresh styling vision for every concept
+      console.log(`🎯 MAYA DIRECT GENERATION: Creating fresh styling for concept "${conceptName}"`);
+      
+      // Always use Maya's current intelligence - no database retrieval needed
+      finalPrompt = await createDetailedPromptFromConcept(conceptName, generationInfo.triggerWord, userId, cleanedContext, undefined, undefined);
+      console.log(`✅ MAYA FRESH STYLING: Generated ${finalPrompt.length} character prompt with current intelligence`);
                             
                             console.log(`✅ SINGLE API GENERATION: Images generated using embedded prompt`);
                             return res.json(result);
