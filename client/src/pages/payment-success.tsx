@@ -32,10 +32,10 @@ export default function PaymentSuccess() {
         description: "Your payment was successful. Let's start creating your AI model.",
       });
       
-      // Redirect to training after 3 seconds
+      // Redirect to training immediately for streamlined flow
       setTimeout(() => {
         setLocation('/simple-training');
-      }, 3000);
+      }, 2000);
     } else {
       // Show success message for non-authenticated users
       toast({

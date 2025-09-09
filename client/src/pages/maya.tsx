@@ -23,7 +23,7 @@ interface ChatMessage {
   showUpload?: boolean;
   showExamples?: boolean;
   quickButtons?: string[];
-  isOnboarding?: boolean;
+  requiresGender?: boolean;
 }
 
 
@@ -79,9 +79,8 @@ export default function Maya() {
   // Initialize Maya generation hook with persistent messages
   const { generateFromSpecificConcept } = useMayaGeneration(messages, setMessages, null, setIsTyping, toast);
 
-  // Track onboarding completion status for blocking image generation
-  const [isOnboardingComplete, setIsOnboardingComplete] = useState(false);
-  const [isCheckingOnboarding, setIsCheckingOnboarding] = useState(false);
+  // ✅ SIMPLIFIED: No complex onboarding blocking - Maya handles gender naturally
+  const [requiresGender, setRequiresGender] = useState(false);
 
   // Connection status monitoring
   useEffect(() => {
@@ -215,40 +214,14 @@ export default function Maya() {
     }
   }, [conversationData, messages.length, setMessages]);
 
-  // Initialize Maya with integrated luxury onboarding
+  // ✅ SIMPLIFIED: Initialize Maya conversation
   useEffect(() => {
-    if (user?.id && messages.length === 0 && !conversationData && !hasStartedChat && !isCheckingOnboarding) {
-      console.log('🎯 Maya: New user detected, starting integrated onboarding...');
-      
-      const startIntegratedOnboarding = async () => {
-        setIsCheckingOnboarding(true);
-        try {
-          // Get onboarding status
-          const statusResponse = await fetch('/api/maya/member/status', {
-            credentials: 'include'
-          }).then(r => r.json());
-          
-          setIsOnboardingComplete(statusResponse.onboardingComplete || false);
-          
-          if (!statusResponse.onboardingComplete) {
-            console.log('✅ Maya: Starting luxury integrated onboarding within chat');
-            startLuxuryOnboardingChat();
-            setHasStartedChat(true);
-          } else {
-            console.log('✅ Maya: User ready for concept generation');
-            startSimpleConversation();
-          }
-        } catch (error) {
-          console.error('❌ Maya: Failed to start integrated onboarding:', error);
-          startSimpleConversation(); // Fallback to regular chat
-        } finally {
-          setIsCheckingOnboarding(false);
-        }
-      };
-      
-      startIntegratedOnboarding();
+    if (user?.id && messages.length === 0 && !conversationData && !hasStartedChat) {
+      console.log('🎯 Maya: New user detected, starting simplified conversation...');
+      startSimpleConversation();
+      setHasStartedChat(true);
     }
-  }, [user?.id, messages.length, conversationData, hasStartedChat, isCheckingOnboarding]);
+  }, [user?.id, messages.length, conversationData, hasStartedChat]);
 
   // ENHANCED SEAMLESS HANDOFF: Handle workspace-to-Maya transitions with user context
   useEffect(() => {
@@ -352,17 +325,7 @@ export default function Maya() {
 
   // Generate image from concept card using Maya's generation system
   const handleGenerateImage = async (card: ConceptCard) => {
-    // 🚫 BLOCK IMAGE GENERATION until onboarding is complete
-    if (!isOnboardingComplete) {
-      toast({ 
-        title: "Complete Your Setup First", 
-        description: "I need to get to know you better before creating your photos. This ensures they look perfect for you!",
-        variant: "destructive"
-      });
-      console.log('🚫 Maya: Blocked image generation - onboarding not complete');
-      return;
-    }
-
+    // ✅ SIMPLIFIED: No blocking - Maya handles gender requirement naturally
     if (generateFromSpecificConcept) {
       await generateFromSpecificConcept(card.title, card.id);
     } else {
@@ -406,8 +369,12 @@ export default function Maya() {
           content: data.response || data.content || data.message || '',
           timestamp: new Date().toISOString(),
           conceptCards: data.conceptCards || [],
-          quickButtons: data.quickButtons || []
+          quickButtons: data.quickButtons || [],
+          requiresGender: data.requiresGender || false
         });
+        
+        // Update gender requirement state
+        setRequiresGender(data.requiresGender || false);
       }
       setIsTyping(false);
     },
@@ -420,25 +387,7 @@ export default function Maya() {
   const handleSendMessage = () => {
     if (!message.trim() || isTyping) return;
 
-    // 🚫 BLOCK concept generation requests until onboarding is complete
-    if (!isOnboardingComplete && !message.toLowerCase().includes('onboarding')) {
-      // Allow onboarding-related messages to go through
-      const isOnboardingMessage = message.toLowerCase().includes('start') || 
-                                  message.toLowerCase().includes('beginning') ||
-                                  message.toLowerCase().includes('help') ||
-                                  message.trim().length < 10; // Allow short responses during onboarding
-      
-      if (!isOnboardingMessage) {
-        toast({ 
-          title: "Let's Get to Know You First", 
-          description: "I need to learn about your style and needs before creating concepts. Let's complete your setup!",
-          variant: "destructive"
-        });
-        console.log('🚫 Maya: Blocked concept generation request - onboarding not complete');
-        return;
-      }
-    }
-
+    // ✅ SIMPLIFIED: No blocking - Maya handles everything naturally
     addMessage({
       type: 'user', 
       content: message.trim(),
@@ -531,7 +480,7 @@ Ready to get started? What's your name?`,
 
     addMessage({
       type: 'maya',
-      content: "Hey! I'm Maya. Ready to create some stunning photos? Tell me what you need and I'll help you look incredible. What are we working on?",
+      content: "Hey! I'm Maya, your personal styling AI. Ready to create some stunning photos together? Just tell me what you're looking for and I'll help you look incredible!",
       timestamp: new Date().toISOString()
     });
   };
