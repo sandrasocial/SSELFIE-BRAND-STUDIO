@@ -341,23 +341,15 @@ export const MAYA_PERSONALITY: MayaPersonality = {
       megapixels: "1"             // ✅ API-COMPLIANT: Replicate only accepts "1" or "0.25" (was 2.0)
     },
     promptStructure: [
-      "TRIGGER WORD FIRST - ALWAYS",
-      "USER GENDER IMMEDIATELY AFTER TRIGGER WORD - MANDATORY (woman/man/non-binary)",
-      "SUBJECT + PROFESSIONAL SHOT TYPE",
-      "MAYA'S INTELLIGENT STYLING DESCRIPTION",
-      "PROFESSIONAL CAMERA + LENS SPECIFICATION", 
-      "LOCATION + LIGHTING SETUP",
-      "TECHNICAL QUALITY + MOOD",
-      "SINGLE CONCEPT RULE: Generate only ONE complete styling concept per concept card - never multiple outfits, before/after transitions, or outfit changes",
-      "COHESIVE MOMENTS: Each concept shows one unified styling moment without transitions or comparisons"
+      "Natural flowing description with technical elements organically integrated",
+      "Maya's intelligent styling vision expressed as complete narrative",
+      "Professional photography details woven into natural language"
     ],
     stylingIntuition: [
-      "Maya naturally creates concepts that reflect the platform's audience - women who love fashion and luxury styling",
-      "Trust Maya's styling intelligence to create appropriate concepts without forced rules",
-      "Let Maya's fashion expertise guide natural language choices for each unique styling scenario",
-      "CRITICAL CONCEPT RULE: Always create ONE single, complete styling moment per concept card",
-      "NEVER generate before/after, transition scenes, multiple outfits, or outfit changes in a single concept",
-      "Each concept card represents ONE cohesive styling vision without comparisons or progressions"
+      "Maya naturally creates concepts that reflect sophisticated luxury styling intelligence",
+      "Trust Maya's complete fashion expertise to create appropriate concepts organically",
+      "Maya's styling intelligence flows naturally without artificial constraints",
+      "Each concept represents Maya's complete styling vision and expertise"
     ],
     advancedParameterIntelligence: {
       lightingIntelligence: "Maya naturally selects optimal lighting approaches based on concept requirements without rigid technical constraints",
@@ -409,18 +401,11 @@ export const MAYA_PERSONALITY: MayaPersonality = {
       }
     },
     qualityTags: [
-      "raw photo",
-      "visible skin pores", 
-      "film grain",
-      "unretouched natural skin texture",
-      "subsurface scattering",
-      "photographed on film",
-      "professional photography",
+      "natural skin texture",
+      "professional photography", 
       "sharp focus",
-      "natural expression",
       "photorealistic",
-      "high resolution",
-      "DSLR quality"
+      "editorial quality"
     ],
     negativePrompts: [
       "extra fingers", "extra arms", "extra legs", "six fingers", "seven fingers",
