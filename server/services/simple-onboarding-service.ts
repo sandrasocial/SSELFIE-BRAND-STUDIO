@@ -210,6 +210,76 @@ Let's start styling! What kind of photos are you in the mood for today? Just tel
         };
     }
   }
+
+  /**
+   * Save onboarding answers (route-compatible method)
+   * This method is called by the API routes
+   */
+  public async saveOnboardingAnswers(userId: string, answers: Record<string, string>) {
+    try {
+      console.log('💾 SIMPLE ONBOARDING: Processing answers for user', userId);
+      
+      // Convert answers to EssentialOnboardingData format
+      const essentialData: EssentialOnboardingData = {
+        userId,
+        gender: answers.gender as 'woman' | 'man' | 'prefer-not-to-say',
+        preferredName: answers.preferredName,
+        primaryUse: answers.primaryUse as 'business' | 'personal' | 'both',
+        styleVibe: answers.styleVibe
+      };
+
+      // Store the data using existing user table fields
+      await this.storeEssentialData(essentialData);
+      
+      return {
+        success: true,
+        message: `Perfect, ${answers.preferredName}! I've got everything I need. Ready to create some stunning ${answers.primaryUse} photos with ${answers.styleVibe} vibes? Let's make magic happen! ✨`
+      };
+      
+    } catch (error) {
+      console.error('❌ SIMPLE ONBOARDING: Failed to save answers:', error);
+      return {
+        success: false,
+        message: "Oops! I had trouble saving your preferences. Let's try again!",
+        error: error.message
+      };
+    }
+  }
+
+  /**
+   * Check if user has completed onboarding
+   */
+  public async checkOnboardingStatus(userId: string): Promise<{ 
+    onboardingComplete: boolean; 
+    userData?: any 
+  }> {
+    try {
+      const { storage } = await import('../storage');
+      const user = await storage.getUser(userId);
+      
+      if (!user) {
+        return { onboardingComplete: false };
+      }
+
+      // Check if user has completed our 4-question onboarding
+      const hasEssentialData = user.gender && user.profession && user.brand_style && user.photo_goals;
+      const isComplete = hasEssentialData && user.profile_completed && user.onboarding_step >= 4;
+      
+      return {
+        onboardingComplete: !!isComplete,
+        userData: isComplete ? {
+          gender: user.gender,
+          preferredName: user.profession,  // stored in profession field
+          primaryUse: user.brand_style,     // stored in brand_style field
+          styleVibe: user.photo_goals       // stored in photo_goals field
+        } : undefined
+      };
+      
+    } catch (error) {
+      console.error('❌ Failed to check onboarding status:', error);
+      return { onboardingComplete: false };
+    }
+  }
 }
 
 export const simpleOnboardingService = new SimpleOnboardingService();
