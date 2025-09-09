@@ -31,6 +31,7 @@ import { UserStyleMemoryService } from '../services/user-style-memory';
 import { SupportIntelligenceService } from '../services/support-intelligence';
 import { EscalationHandler, escalationHandler } from '../services/escalation-handler';
 import { OnboardingConversationService } from '../services/onboarding-conversation-service';
+import { simpleOnboardingService } from '../services/simple-onboarding-service';
 import { mayaPersonalizationService } from '../services/maya-personalization-service';
 
 const router = Router();
@@ -137,7 +138,7 @@ function logUserAbandonment(event: 'ONBOARDING_ABANDON' | 'CHAT_ABANDON' | 'GENE
   });
 }
 
-// 🎯 MEMBER-ONLY ONBOARDING (NO ADMIN MIDDLEWARE)
+// 🎯 MEMBER-ONLY SIMPLE ONBOARDING (NO ADMIN MIDDLEWARE)
 router.post('/member/start-onboarding', requireStackAuth, async (req, res) => {
   const startTime = Date.now();
   const userId = (req.user as any)?.id || (req.user as any)?.claims?.sub;
@@ -148,29 +149,85 @@ router.post('/member/start-onboarding', requireStackAuth, async (req, res) => {
   }
 
   try {
-    console.log(`🎯 MEMBER MAYA ONBOARDING: Starting clean onboarding for user ${userId}`);
+    console.log(`🎯 MEMBER MAYA SIMPLE ONBOARDING: Starting essential 4-question onboarding for user ${userId}`);
     
-    // Use conversational onboarding service for Maya-voiced onboarding  
-    const onboardingService = new OnboardingConversationService();
-    const onboardingResponse = await onboardingService.processOnboardingMessage(
-      userId,
-      'Let\'s begin your personalized onboarding',
-      1
-    );
+    // Use simple essential onboarding - no AI processing during collection
+    const welcomeMessage = simpleOnboardingService.createWelcomeMessage();
+    const questions = simpleOnboardingService.getEssentialQuestions();
 
     // Track member-only usage
-    trackMayaActivity(userId, 'member', `maya_member_${userId}`, 'onboarding', {
-      step: onboardingResponse.currentStep || 1,
+    trackMayaActivity(userId, 'member', `maya_member_${userId}`, 'simple_onboarding', {
+      questionsCount: questions.length,
       clean: true
     });
 
     logMayaAPI('/member/start-onboarding', startTime, true);
-    res.json(onboardingResponse);
+    res.json({
+      message: welcomeMessage,
+      questions: questions,
+      onboardingType: 'essential',
+      questionsRemaining: questions.length
+    });
     
   } catch (error) {
-    console.error('❌ MEMBER MAYA ONBOARDING ERROR:', error);
+    console.error('❌ MEMBER MAYA SIMPLE ONBOARDING ERROR:', error);
     logMayaAPI('/member/start-onboarding', startTime, false, error);
-    res.status(500).json({ error: 'Failed to start conversational onboarding' });
+    res.status(500).json({ error: 'Failed to start simple onboarding' });
+  }
+});
+
+// 🎯 MEMBER-ONLY SAVE ONBOARDING (NO ADMIN MIDDLEWARE)
+router.post('/member/save-onboarding', requireStackAuth, async (req, res) => {
+  const startTime = Date.now();
+  const userId = (req.user as any)?.id || (req.user as any)?.claims?.sub;
+  
+  if (!userId) {
+    logMayaAPI('/member/save-onboarding', startTime, false, new Error('Authentication required'));
+    return res.status(401).json({ error: 'Authentication required' });
+  }
+
+  try {
+    const { gender, preferredName, primaryUse, styleVibe } = req.body;
+    
+    console.log(`✅ MEMBER MAYA: Saving essential onboarding data for user ${userId}`);
+    
+    // Store essential data immediately (no AI processing)
+    await simpleOnboardingService.storeEssentialData({
+      userId,
+      gender,
+      preferredName,
+      primaryUse,
+      styleVibe
+    });
+    
+    // Complete onboarding and get Maya's readiness message
+    const completionMessage = await simpleOnboardingService.completeOnboarding(userId);
+    
+    // Track completion
+    trackMayaActivity(userId, 'member', `maya_member_${userId}`, 'onboarding_complete', {
+      gender,
+      primaryUse,
+      hasStyleVibe: !!styleVibe,
+      clean: true
+    });
+
+    logMayaAPI('/member/save-onboarding', startTime, true);
+    res.json({
+      success: true,
+      message: completionMessage,
+      onboardingComplete: true,
+      personalizedData: {
+        gender,
+        preferredName,
+        primaryUse,
+        styleVibe
+      }
+    });
+    
+  } catch (error) {
+    console.error('❌ MEMBER MAYA SAVE ONBOARDING ERROR:', error);
+    logMayaAPI('/member/save-onboarding', startTime, false, error);
+    res.status(500).json({ error: 'Failed to save onboarding data' });
   }
 });
 
