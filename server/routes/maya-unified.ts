@@ -1254,8 +1254,7 @@ router.post('/generate', requireStackAuth, adminContextDetection, async (req: Ad
         } catch (error) {
           console.log(`❌ MAYA CONTEXT RETRIEVAL ERROR:`, error);
         }
-      }
-
+      
       // PHASE 3: Lazy generation using cached Maya context for perfect consistency
       // CRITICAL FIX: PRESERVE emojis in concept names - they're essential for styling communication
       const userConcept = conceptName; // Keep emojis intact for styling system
