@@ -14,6 +14,8 @@ import {
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
+// Simple onboarding will be added directly to this file to avoid conflicts
+
 // Session storage table for Stack Auth (Stack Auth manages sessions automatically)
 export const sessions = pgTable(
   "sessions",

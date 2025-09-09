@@ -86,25 +86,37 @@ import { PageLoader } from "./components/PageLoader";
 
 // Removed duplicate photoshoot imports - using existing system
 
-// Smart Home component - Routes authenticated users to workspace
+// Smart Home component - Routes authenticated users based on training status
 function SmartHome() {
   const [, setLocation] = useLocation();
   const { isAuthenticated, isLoading } = useAuth();
 
-  useEffect(() => {
-    if (!isLoading) {
-      if (isAuthenticated) {
-        console.log('✅ User authenticated, redirecting to workspace');
-        setLocation('/workspace');
-      } else {
-        console.log('🔍 User not authenticated, staying on landing page');
-        // Stay on landing page for unauthenticated users
-      }
-    }
-  }, [isAuthenticated, isLoading, setLocation]);
+  // Fetch user model status to determine training completion
+  const { data: userModel, isLoading: isModelLoading } = useQuery({
+    queryKey: ['/api/user-model'],
+    enabled: isAuthenticated,
+    retry: false,
+    staleTime: 30 * 1000
+  });
 
-  // Show loading while determining auth state
-  if (isLoading) {
+  useEffect(() => {
+    if (!isLoading && !isModelLoading && isAuthenticated) {
+      // Check training status and route accordingly
+      if (!userModel || userModel.trainingStatus !== 'completed') {
+        console.log('🎯 User authenticated but needs training, redirecting to simple-training');
+        setLocation('/simple-training');
+      } else {
+        console.log('✅ User authenticated with completed training, redirecting to Maya');
+        setLocation('/maya');
+      }
+    } else if (!isLoading && !isAuthenticated) {
+      console.log('🔍 User not authenticated, staying on landing page');
+      // Stay on landing page for unauthenticated users
+    }
+  }, [isAuthenticated, isLoading, isModelLoading, userModel, setLocation]);
+
+  // Show loading while determining auth state and training status
+  if (isLoading || (isAuthenticated && isModelLoading)) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full" />
@@ -186,11 +198,6 @@ function Router() {
         }
         
         if (isAuthenticated) {
-          // If authenticated but no SSELFIE Studio subscription, redirect to checkout
-          if (requiresPayment) {
-            console.log('🔄 Auth: Redirecting to checkout - SSELFIE Studio subscription required (€47/month)');
-            return <Redirect to="/checkout" />;
-          }
           return <SmartHome />;
         }
         
@@ -349,9 +356,12 @@ function Router() {
 
 
       {/* PROTECTED ROUTES */}
-      <Route path="/workspace" component={(props) => <ProtectedRoute component={Workspace} {...props} />} />
+      {/* Workspace redirect to Maya - Maya is now the primary interface */}
+      <Route path="/workspace">
+        <Redirect to="/maya" />
+      </Route>
       <Route path="/studio">
-        <Redirect to="/workspace" />
+        <Redirect to="/maya" />
       </Route>
 
       

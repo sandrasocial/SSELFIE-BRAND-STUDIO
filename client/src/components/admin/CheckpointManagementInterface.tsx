@@ -69,7 +69,7 @@ export default function CheckpointManagementInterface() {
     switch (type) {
       case 'auto': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
       case 'manual': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
-      case 'milestone': return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200';
+      case 'milestone': return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
     }
   };
 
@@ -113,7 +113,7 @@ export default function CheckpointManagementInterface() {
               <div className="text-sm text-gray-600 dark:text-gray-400">Checkpoint interval</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-purple-600">7 days</div>
+              <div className="text-2xl font-bold text-gray-600">7 days</div>
               <div className="text-sm text-gray-600 dark:text-gray-400">Retention period</div>
             </div>
           </div>
@@ -206,7 +206,7 @@ export default function CheckpointManagementInterface() {
                   Create checkpoints at key project milestones
                 </div>
               </div>
-              <Badge className="bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
+              <Badge className="bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200">
                 Enabled
               </Badge>
             </div>

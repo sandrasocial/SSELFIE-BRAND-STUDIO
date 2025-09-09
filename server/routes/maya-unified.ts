@@ -30,10 +30,14 @@ import { trackMayaActivity } from '../services/maya-usage-isolation';
 import { UserStyleMemoryService } from '../services/user-style-memory';
 import { SupportIntelligenceService } from '../services/support-intelligence';
 import { EscalationHandler, escalationHandler } from '../services/escalation-handler';
-import { OnboardingConversationService } from '../services/onboarding-conversation-service';
+import { simpleOnboardingService } from '../services/simple-onboarding-service';
 import { mayaPersonalizationService } from '../services/maya-personalization-service';
+import { mayaStateMachine } from '../services/maya-state-machine';
 
 const router = Router();
+
+// 🎯 MEMBER-ONLY MAYA ENDPOINTS (NO ADMIN CONTAMINATION)
+// Clean routes for €47/month subscribers without admin middleware
 
 // PHASE 3: Performance Optimization - Maya Context Caching System  
 // Reduces Claude API calls by ~50% while maintaining perfect consistency
@@ -134,6 +138,99 @@ function logUserAbandonment(event: 'ONBOARDING_ABANDON' | 'CHAT_ABANDON' | 'GENE
   });
 }
 
+// 🎯 MEMBER-ONLY SIMPLE ONBOARDING (NO ADMIN MIDDLEWARE)
+router.post('/member/start-onboarding', requireStackAuth, async (req, res) => {
+  const startTime = Date.now();
+  const userId = (req.user as any)?.id || (req.user as any)?.claims?.sub;
+  
+  if (!userId) {
+    logMayaAPI('/member/start-onboarding', startTime, false, new Error('Authentication required'));
+    return res.status(401).json({ error: 'Authentication required' });
+  }
+
+  try {
+    console.log(`🎯 MEMBER MAYA SIMPLE ONBOARDING: Starting essential 4-question onboarding for user ${userId}`);
+    
+    // Use simple essential onboarding - no AI processing during collection
+    const welcomeMessage = simpleOnboardingService.createWelcomeMessage();
+    const questions = simpleOnboardingService.getEssentialQuestions();
+
+    // Track member-only usage
+    trackMayaActivity(userId, 'member', `maya_member_${userId}`, 'simple_onboarding', {
+      questionsCount: questions.length,
+      clean: true
+    });
+
+    logMayaAPI('/member/start-onboarding', startTime, true);
+    res.json({
+      message: welcomeMessage,
+      questions: questions,
+      onboardingType: 'essential',
+      questionsRemaining: questions.length
+    });
+    
+  } catch (error) {
+    console.error('❌ MEMBER MAYA SIMPLE ONBOARDING ERROR:', error);
+    logMayaAPI('/member/start-onboarding', startTime, false, error);
+    res.status(500).json({ error: 'Failed to start simple onboarding' });
+  }
+});
+
+// 🎯 MEMBER-ONLY SAVE ONBOARDING (NO ADMIN MIDDLEWARE)
+router.post('/member/save-onboarding', requireStackAuth, async (req, res) => {
+  const startTime = Date.now();
+  const userId = (req.user as any)?.id || (req.user as any)?.claims?.sub;
+  
+  if (!userId) {
+    logMayaAPI('/member/save-onboarding', startTime, false, new Error('Authentication required'));
+    return res.status(401).json({ error: 'Authentication required' });
+  }
+
+  try {
+    const { gender, preferredName, primaryUse, styleVibe } = req.body;
+    
+    console.log(`✅ MEMBER MAYA: Saving essential onboarding data for user ${userId}`);
+    
+    // Store essential data immediately (no AI processing)
+    await simpleOnboardingService.storeEssentialData({
+      userId,
+      gender,
+      preferredName,
+      primaryUse,
+      styleVibe
+    });
+    
+    // Complete onboarding and get Maya's readiness message
+    const completionMessage = await simpleOnboardingService.completeOnboarding(userId);
+    
+    // Track completion
+    trackMayaActivity(userId, 'member', `maya_member_${userId}`, 'onboarding_complete', {
+      gender,
+      primaryUse,
+      hasStyleVibe: !!styleVibe,
+      clean: true
+    });
+
+    logMayaAPI('/member/save-onboarding', startTime, true);
+    res.json({
+      success: true,
+      message: completionMessage,
+      onboardingComplete: true,
+      personalizedData: {
+        gender,
+        preferredName,
+        primaryUse,
+        styleVibe
+      }
+    });
+    
+  } catch (error) {
+    console.error('❌ MEMBER MAYA SAVE ONBOARDING ERROR:', error);
+    logMayaAPI('/member/save-onboarding', startTime, false, error);
+    res.status(500).json({ error: 'Failed to save onboarding data' });
+  }
+});
+
 // CONVERSATIONAL ONBOARDING - Maya's intelligent onboarding experience
 router.post('/start-onboarding', requireStackAuth, async (req: AdminContextRequest, res) => {
   const startTime = Date.now();
@@ -147,13 +244,13 @@ router.post('/start-onboarding', requireStackAuth, async (req: AdminContextReque
   try {
     console.log(`🎯 MAYA CONVERSATIONAL ONBOARDING: Starting intelligent onboarding for user ${userId}`);
     
-    // Use conversational onboarding service instead of static questions
-    const onboardingService = new OnboardingConversationService();
-    const onboardingResponse = await onboardingService.processOnboardingMessage(
-      userId,
-      'Let\'s begin your personalized onboarding',
-      1
-    );
+    // Use simple essential onboarding service
+    const questions = await simpleOnboardingService.getOnboardingQuestions();
+    const onboardingResponse = {
+      message: "Hey! I'm Maya, your personal styling assistant. Let me get to know you better with a few quick questions so I can create amazing photos that perfectly capture your style.",
+      questions: questions,
+      isOnboarding: true
+    };
 
     logMayaAPI('/start-onboarding', startTime, true);
     res.json(onboardingResponse);
@@ -162,6 +259,69 @@ router.post('/start-onboarding', requireStackAuth, async (req: AdminContextReque
     console.error('❌ MAYA CONVERSATIONAL ONBOARDING ERROR:', error);
     logMayaAPI('/start-onboarding', startTime, false, error);
     res.status(500).json({ error: 'Failed to start conversational onboarding' });
+  }
+});
+
+// 🎯 MEMBER-ONLY CHAT (NO ADMIN MIDDLEWARE)
+router.post('/member/chat', requireStackAuth, async (req, res) => {
+  const startTime = Date.now();
+  try {
+    const userId = (req.user as any)?.id || (req.user as any)?.claims?.sub;
+    if (!userId) {
+      logMayaAPI('/member/chat', startTime, false, new Error('Authentication required'));
+      return res.status(401).json({ 
+        error: "Authentication required to create professional photos. Please log in to access your photo creation service." 
+      });
+    }
+
+    // Load user context (member-only, no admin contamination)
+    const user = await storage.getUser(userId);
+    if (!user) {
+      logMayaAPI('/member/chat', startTime, false, new Error('User not found'));
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    // Get Maya's personalization context
+    const userContext = await mayaPersonalizationService.getUserPersonalizationContext(userId);
+    
+    const { message, context = 'styling', chatId, conversationHistory = [] } = req.body;
+
+    if (!message) {
+      logMayaAPI('/member/chat', startTime, false, new Error('Message required'));
+      return res.status(400).json({ error: 'Message required' });
+    }
+
+    console.log(`🎨 MEMBER MAYA: Processing ${context} message for member user ${userId}`);
+    
+    // Clean member-only conversation ID (no admin switching)
+    const conversationId = `maya_member_${userId}_${chatId || 'default'}`;
+    
+    // Track member activity
+    trackMayaActivity(userId, 'member', conversationId, 'chat', {
+      context,
+      messageLength: message.length,
+      clean: true
+    });
+
+    // Continue with the existing Maya chat logic but without admin contamination...
+    // [The rest of the chat logic would be here - I'll add this in the next step]
+    
+    logMayaAPI('/member/chat', startTime, true);
+    res.json({
+      success: true,
+      response: "Member-only Maya chat endpoint created! Full implementation coming next...",
+      canGenerate: true
+    });
+
+  } catch (error) {
+    console.error('Member Maya chat error:', error);
+    logMayaAPI('/member/chat', startTime, false, error);
+    
+    return res.status(500).json({ 
+      success: false,
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Chat system unavailable',
+      canGenerate: false
+    });
   }
 });
 
@@ -198,7 +358,7 @@ router.post('/chat', requireStackAuth, adminContextDetection, async (req: AdminC
 
     // INTELLIGENT CONTEXT ROUTING: Enhanced dashboard vs creation detection
     if (context === 'dashboard') {
-      const onboardingService = new OnboardingConversationService();
+      // Simple onboarding service for member users
       
       // REVERSE HANDOFF DETECTION: Maya page back to workspace triggers
       const workspaceHandoffTriggers = [
@@ -1005,6 +1165,79 @@ Use this strategic context to create photo concepts that directly support their 
   }
 });
 
+// 🎯 MEMBER-ONLY GENERATION (NO ADMIN MIDDLEWARE)
+router.post('/member/generate', requireStackAuth, async (req, res) => {
+  const startTime = Date.now();
+  try {
+    const userId = (req.user as any)?.id || (req.user as any)?.claims?.sub;
+    if (!userId) {
+      logMayaAPI('/member/generate', startTime, false, new Error('Authentication required'));
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+    
+    const user = await storage.getUser(userId);
+    if (!user) {
+      logMayaAPI('/member/generate', startTime, false, new Error('User not found'));
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    const { prompt, chatId, seed, count, conceptName } = req.body || {};
+    
+    // Log member generation start
+    logMayaGeneration('START', {
+      userId,
+      userType: 'member',
+      concept: conceptName || 'custom',
+      prompt: prompt?.substring(0, 100) + '...', 
+      count: count || 1,
+      clean: true
+    });
+    
+    console.log(`🖼️ MEMBER MAYA: Clean image generation request from member user ${userId}`);
+    
+    // Track member generation activity  
+    trackMayaActivity(userId, 'member', `maya_member_${userId}`, 'generation', {
+      conceptName: req.body.conceptName || 'custom_generation',
+      timestamp: new Date(),
+      clean: true
+    });
+    
+    if (!prompt) {
+      logMayaAPI('/member/generate', startTime, false, new Error('Prompt required'));
+      return res.status(400).json({ 
+        error: "Ready to create professional photos for your business. Tell me what style you need - business headshots, lifestyle content, or brand photos?" 
+      });
+    }
+
+    // Continue with existing generation logic...
+    logMayaAPI('/member/generate', startTime, true);
+    res.json({
+      success: true,
+      message: "Member-only generation endpoint created! Full implementation coming next...",
+      memberOnly: true
+    });
+
+  } catch (error: any) {
+    console.error("Member Maya generate error:", error);
+    
+    logMayaGeneration('FAILED', {
+      userId: (req.user as any)?.claims?.sub || 'unknown',
+      userType: 'member',
+      error: error.message,
+      duration: Date.now() - startTime,
+      clean: true
+    });
+    
+    logMayaAPI('/member/generate', startTime, false, error);
+    
+    return res.status(500).json({ 
+      success: false,
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Generation system unavailable',
+      canGenerate: false 
+    });
+  }
+});
+
 // Image generation through unified system
 router.post('/generate', requireStackAuth, adminContextDetection, async (req: AdminContextRequest, res) => {
   const startTime = Date.now(); // PHASE 7: Track generation performance
@@ -1501,6 +1734,63 @@ router.post('/generate', requireStackAuth, adminContextDetection, async (req: Ad
       success: false,
       error: process.env.NODE_ENV === 'development' ? error.message : 'Generation system unavailable',
       canGenerate: false 
+    });
+  }
+});
+
+// 🎯 MEMBER-ONLY STATUS (NO ADMIN MIDDLEWARE)
+router.get('/member/status', requireStackAuth, async (req, res) => {
+  const startTime = Date.now();
+  try {
+    const userId = (req.user as any)?.id || (req.user as any)?.claims?.sub;
+    if (!userId) {
+      logMayaAPI('/member/status', startTime, false, new Error('Authentication required'));
+      return res.status(401).json({ 
+        error: "Authentication required to check your photo status. Please log in to access your professional photos." 
+      });
+    }
+    
+    console.log(`📊 MEMBER MAYA: Clean status check for member user ${userId}`);
+
+    const userContext = await getUnifiedUserContext(userId);
+    const generationInfo = await checkGenerationCapability(userId);
+    
+    // Log member performance
+    logMayaPerformance('STATUS_CHECK', {
+      userId,
+      userType: 'member',
+      onboardingComplete: userContext.onboardingComplete,
+      canGenerate: generationInfo.canGenerate,
+      hasModel: !!generationInfo.userModel,
+      clean: true
+    });
+    
+    logMayaAPI('/member/status', startTime, true);
+    
+    res.json({
+      success: true,
+      onboardingComplete: userContext.onboardingComplete,
+      canGenerate: generationInfo.canGenerate,
+      hasModel: !!generationInfo.userModel,
+      triggerWord: generationInfo.triggerWord,
+      chatHistory: userContext.recentChats,
+      memberOnly: true
+    });
+
+  } catch (error) {
+    console.error('Member Maya status error:', error);
+    
+    logMayaPerformance('STATUS_ERROR', {
+      userId: (req.user as any)?.claims?.sub || 'unknown',
+      userType: 'member',
+      error: error.message,
+      clean: true
+    });
+    
+    logMayaAPI('/member/status', startTime, false, error);
+    
+    res.status(500).json({ 
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Status system unavailable' 
     });
   }
 });
@@ -2978,15 +3268,18 @@ router.post('/onboarding-response', requireStackAuth, async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    // Use conversational onboarding service for intelligent response processing
-    const onboardingService = new OnboardingConversationService();
-    const currentStep = user.onboardingStep || 1;
+    // Use simple onboarding service for processing answers
+    const result = await simpleOnboardingService.saveOnboardingAnswers(userId, {
+      gender: answer.gender,
+      preferredName: answer.preferredName,
+      primaryUse: answer.primaryUse,
+      styleVibe: answer.styleVibe
+    });
     
-    const onboardingResponse = await onboardingService.processOnboardingMessage(
-      userId,
-      answer,
-      currentStep
-    );
+    const onboardingResponse = {
+      message: result.message,
+      isCompleted: true
+    };
     
     // Update user's onboarding progress if moving to next step
     if (onboardingResponse.currentStep > currentStep) {
@@ -3253,6 +3546,46 @@ router.post('/chat-history', requireStackAuth, async (req: AdminContextRequest, 
       success: false,
       error: 'Failed to load chat history',
       source: 'database_error'
+    });
+  }
+});
+
+// 🎯 NEW: COMPLETE VISUAL ONBOARDING using Maya State Machine
+router.post('/member/complete-onboarding', requireStackAuth, async (req: AdminContextRequest, res) => {
+  const startTime = Date.now();
+  
+  try {
+    const userId = req.userId;
+    if (!userId) {
+      logMayaAPI('/complete-onboarding', startTime, false);
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    console.log('🎉 Maya: Completing visual onboarding for user', userId);
+    
+    // Complete onboarding using Maya State Machine
+    const result = await mayaStateMachine.completeOnboarding(userId, req.body);
+    
+    logMayaAPI('/complete-onboarding', startTime, result.success);
+    
+    if (result.success) {
+      res.json({
+        success: true,
+        message: result.message
+      });
+    } else {
+      res.status(500).json({
+        success: false,
+        message: result.message
+      });
+    }
+
+  } catch (error) {
+    console.error('❌ Maya: Visual onboarding completion error:', error);
+    logMayaAPI('/complete-onboarding', startTime, false);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to complete onboarding'
     });
   }
 });
