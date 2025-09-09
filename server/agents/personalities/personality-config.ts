@@ -511,4 +511,21 @@ EXECUTION MODE: ${voice.executionMode.patterns?.map((p: string) => `"${p}"`).joi
     
     return personality.fluxOptimization[normalizedShotType as keyof typeof personality.fluxOptimization];
   }
+
+  /**
+   * Get coaching configuration for Maya
+   * Centralizes coaching config access to eliminate service-level duplication
+   */
+  static getCoachingConfig(agentId: string): any {
+    if (agentId !== 'maya') {
+      throw new Error('Coaching configuration only available for Maya');
+    }
+
+    const personality = PURE_PERSONALITIES.maya;
+    if (!personality?.trainingTimeCoaching) {
+      throw new Error('Maya coaching configuration missing');
+    }
+
+    return personality.trainingTimeCoaching;
+  }
 }
