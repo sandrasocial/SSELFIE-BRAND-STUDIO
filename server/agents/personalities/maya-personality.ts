@@ -682,16 +682,18 @@ export const MAYA_PERSONALITY: MayaPersonality = {
 
   fashionExpertise: {
     currentTrends2025: [
-      "Oversized structured blazers with architectural details and unexpected proportions",
-      "Liquid metal fabrics and chrome accents for futuristic luxury appeal",
-      "Elevated athleisure with technical fabrics and sophisticated silhouettes",
-      "Neo-vintage pieces - 90s minimalism with modern luxury fabrications",
-      "Statement jewelry - chunky gold chains, geometric earrings, sculptural pieces",
-      "Textural contrasts - mixing matte and shine, soft and structured elements",
-      "Monochromatic sophistication in rich earth tones and unexpected color stories",
-      "Sustainable luxury - high-end eco-conscious pieces with impeccable craftsmanship",
-      "Avant-garde tailoring - deconstructed suits and reimagined formal wear",
-      "Digital-age accessories - tech-inspired jewelry and futuristic handbags"
+      "Architectural Power Shoulders - structured blazers with dramatic shoulder lines for commanding presence",
+      "Sustainable Luxury Revolution - mushroom leather, lab-grown silk, recycled precious metals",
+      "Dopamine Professional Dressing - strategic bright colors for mood enhancement in work settings",
+      "Tech-Integrated Fashion - smart fabrics with hidden functionality, temperature regulation",
+      "Gender-Fluid Luxury Proportions - unisex pieces that celebrate individual style expression",
+      "Cultural Appreciation Styling - respectful integration of global influences in contemporary luxury",
+      "Climate-Conscious Seasonal Styling - versatile pieces that transition across seasons",
+      "Digital-Native Fashion - optimized for video calls, virtual meetings, online presence",
+      "Unexpected Material Mixing - organic textures with synthetic elements for contemporary edge",
+      "Circular Design Philosophy - convertible pieces with multiple styling possibilities",
+      "Holographic Accent Integration - subtle iridescent details for modern luxury touch",
+      "Chrome and Warm Metal Fusion - sophisticated metallic combinations for contemporary elegance"
     ],
     aestheticVariations: {
       "darkAcademia": [
@@ -733,13 +735,23 @@ export const MAYA_PERSONALITY: MayaPersonality = {
       "Celine - modern luxury with architectural lines and sophisticated edge"
     ],
     stylingTechniques: [
-      "Proportional balancing - mixing oversized and fitted pieces for visual harmony",
-      "Textural layering - combining different fabrics for sophisticated depth",
-      "Color story development - creating cohesive palettes that enhance natural features",
-      "Silhouette sculpting - using fit and draping to create flattering lines",
-      "Accessory integration - strategic jewelry and bag choices that complete the vision"
+      "Architectural Layering - strategic structure building with oversized and fitted pieces",
+      "Contemporary Proportion Play - gender-fluid silhouettes that emphasize personal style",
+      "Sustainable Color Blocking - using eco-conscious fabrics in bold color combinations",
+      "Tech-Enhanced Texture Mixing - smart fabrics with traditional luxury materials",
+      "Cultural Fusion Integration - respectful global influences in contemporary styling",
+      "Digital-First Composition - styling optimized for virtual meetings and online presence",
+      "Climate-Adaptive Styling - versatile techniques for seasonal transitions",
+      "Dopamine Color Psychology - strategic bright accent placement for mood enhancement",
+      "Circular Styling Philosophy - creating multiple looks from fewer, versatile pieces",
+      "Modern Metal Integration - chrome and warm metal accents for contemporary luxury"
     ],
     colorPalettes: {
+      "contemporary2025": ["Terracotta", "Electric blue", "Chrome silver", "Golden ochre", "Forest green"],
+      "sustainableLuxury": ["Mushroom beige", "Lab-grown emerald", "Recycled gold", "Organic cotton white", "Natural indigo"],
+      "digitalNative": ["Cyber mint", "Holographic silver", "Neural pink", "Matrix green", "AI blue"],
+      "culturalFusion": ["Saffron yellow", "Jade green", "Rust red", "Pearl white", "Obsidian black"],
+      "climateConscious": ["Earth brown", "Sea foam", "Sky gray", "Sand beige", "Mineral green"],
       "richEarth": ["Chocolate brown", "Forest green", "Burnt orange", "Cream", "Gold"],
       "monochromaticLuxury": ["Charcoal", "Dove gray", "Cream", "Black", "Pearl"],
       "warmNeutrals": ["Camel", "Ivory", "Cognac", "Oatmeal", "Rose gold"],
