@@ -8,6 +8,7 @@ import { MayaCategorizedGallery } from '../components/maya-categorized-gallery';
 import { MemberNavigation } from '../components/member-navigation';
 import { MayaUploadComponent } from '../components/maya/MayaUploadComponent';
 import { MayaExamplesGallery } from '../components/maya/MayaExamplesGallery';
+import { SimpleOnboardingForm } from '../components/SimpleOnboardingForm';
 import { useLocation } from 'wouter';
 
 // Maya luxury workspace - aligned with SSELFIE brand guidelines
@@ -457,37 +458,77 @@ export default function Maya() {
   };
 
 
-  // Start the actual 6-step onboarding conversation service
+  // State for simple onboarding
+  const [onboardingData, setOnboardingData] = useState<any>(null);
+  const [isCompletingOnboarding, setIsCompletingOnboarding] = useState(false);
+
+  // Start the simple essential onboarding
   const startOnboardingConversation = async () => {
-    console.log('🎯 Maya: Starting 6-step onboarding conversation service');
+    console.log('🎯 Maya: Starting simple essential onboarding');
     try {
       const response = await fetch('/api/maya/member/start-onboarding', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ 
-          message: 'start_onboarding',
-          step: 1 
-        })
+        credentials: 'include'
       });
-      
-      if (response.ok) {
-        const data = await response.json();
-        addMessage({
-          type: 'maya',
-          content: data.message || "Hey! I'm Maya. I need to get to know you better before we create your photos. This helps me make sure everything looks perfect for you. What brought you my way today?",
-          timestamp: new Date().toISOString(),
-          quickButtons: data.quickButtons || ["Just starting out", "Need work photos", "Want to look better"],
-          isOnboarding: true
-        });
-      } else {
-        // Fallback if onboarding service isn't available
-        console.warn('⚠️ Onboarding service unavailable, using basic flow');
-        startSimpleConversation();
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
+
+      const data = await response.json();
+      console.log('✅ Maya: Simple onboarding data received');
+      setOnboardingData(data);
+      setIsTyping(false);
     } catch (error) {
-      console.error('❌ Failed to start onboarding:', error);
-      startSimpleConversation();
+      console.error('❌ Maya: Simple onboarding failed:', error);
+      setIsTyping(false);
+    }
+  };
+
+  // Complete onboarding with answers
+  const completeOnboarding = async (answers: Record<string, string>) => {
+    setIsCompletingOnboarding(true);
+    try {
+      const response = await fetch('/api/maya/member/save-onboarding', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(answers)
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('✅ Maya: Onboarding completed successfully');
+
+      // Mark onboarding as complete
+      setIsOnboardingComplete(true);
+      setOnboardingData(null);
+      
+      // Add Maya's completion message to conversation
+      addMessage({
+        type: 'maya',
+        content: data.message,
+        timestamp: new Date().toISOString()
+      });
+
+      toast({
+        title: "Welcome to SSELFIE Studio!",
+        description: `Hey ${answers.preferredName}! I'm ready to create amazing photos for you.`
+      });
+
+    } catch (error) {
+      console.error('❌ Maya: Failed to complete onboarding:', error);
+      toast({
+        title: "Oops!",
+        description: "There was an issue saving your preferences. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsCompletingOnboarding(false);
     }
   };
 
@@ -500,6 +541,23 @@ export default function Maya() {
       timestamp: new Date().toISOString()
     });
   };
+
+  // Show simple onboarding form if user needs onboarding
+  if (onboardingData && !isOnboardingComplete) {
+    return (
+      <div className="flex h-screen bg-white">
+        <MemberNavigation />
+        <div className="flex-1 flex items-center justify-center p-8">
+          <SimpleOnboardingForm
+            questions={onboardingData.questions}
+            welcomeMessage={onboardingData.message}
+            onComplete={completeOnboarding}
+            isLoading={isCompletingOnboarding}
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
