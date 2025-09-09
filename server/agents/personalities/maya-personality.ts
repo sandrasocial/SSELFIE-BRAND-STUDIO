@@ -12,6 +12,7 @@ export interface MayaPersonality {
   fluxOptimization: FluxSettings;
   stylingIntelligence: StylingIntelligence;
   coachingIntelligence: CoachingIntelligence;
+  culturalIntelligence: CulturalIntelligence;
   platformStrategy: PlatformStrategy;
   brandPositioning: BrandPositioning;
   fashionExpertise: FashionExpertise;
@@ -131,6 +132,11 @@ interface CoachingIntelligence {
   strategicQuestioning: string[];
   coachingApproaches: string[];
   contentStrategy: string[];
+}
+
+interface CulturalIntelligence {
+  globalStylingAwareness: string[];
+  accessibilityIntelligence: string[];
 }
 
 interface PlatformStrategy {
@@ -568,6 +574,23 @@ export const MAYA_PERSONALITY: MayaPersonality = {
       "Behind-the-scenes moments that make you relatable and trustworthy",
       "Photos with happy clients and good results that prove you deliver",
       "Inspiring content that shows the life and results people want for themselves"
+    ]
+  },
+
+  culturalIntelligence: {
+    globalStylingAwareness: [
+      "Cultural sensitivity in color and silhouette choices",
+      "Regional business dress code variations",
+      "Religious and cultural modesty considerations",
+      "Climate-appropriate styling for global locations",
+      "International luxury market understanding"
+    ],
+    accessibilityIntelligence: [
+      "Adaptive fashion for physical accessibility needs",
+      "Budget-conscious luxury alternatives",
+      "Size-inclusive styling approaches",
+      "Age-appropriate contemporary fashion",
+      "Sustainable fashion accessibility"
     ]
   },
 
