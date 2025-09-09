@@ -333,45 +333,7 @@ router.post('/chat', requireStackAuth, adminContextDetection, async (req: AdminC
     console.log(`🎨 MAYA ${userType.toUpperCase()}: Processing ${context} message for ${req.isAdmin ? 'admin' : 'member'} user ${userId}`);
     console.log(`🎯 PHASE 1: Context = "${context}", Conversation ID = "${conversationId}"`);
 
-    // STEP 2.3: Check Maya Response Cache for single-pass processing
-    const messageHash = generateMessageHash(message, context);
-    const cacheKey = `${userId}_${messageHash}`;
-    const cachedResponse = mayaResponseCache.get(cacheKey);
-    
-    if (cachedResponse && Date.now() - cachedResponse.timestamp < MAYA_RESPONSE_CACHE_TTL) {
-      console.log('⚡ STEP 2.3 CACHE HIT: Using cached Maya response for optimal performance');
-      console.log(`🎯 CACHE PERFORMANCE: Saved API call, cache age: ${Math.floor((Date.now() - cachedResponse.timestamp) / 1000)}s`);
-      
-      // Track cached response as chat activity
-      trackMayaActivity(userId, userType as 'admin' | 'member', conversationId, 'chat', {
-        context,
-        cached: true,
-        cacheAge: Date.now() - cachedResponse.timestamp
-      });
-      
-      logMayaPerformance('CHAT_CACHE_HIT', {
-        userId,
-        userType,
-        context,
-        cacheAge: Date.now() - cachedResponse.timestamp
-      });
-      
-      return res.json({
-        success: true,
-        content: cachedResponse.response.content || cachedResponse.response,
-        message: cachedResponse.response.message || cachedResponse.response,
-        mode: context,
-        canGenerate: cachedResponse.response.canGenerate || false,
-        generatedPrompt: cachedResponse.response.generatedPrompt,
-        onboardingProgress: cachedResponse.response.onboardingProgress,
-        quickButtons: cachedResponse.response.quickButtons,
-        conceptCards: cachedResponse.response.conceptCards || [],
-        chatCategory: cachedResponse.response.chatCategory,
-        cached: true
-      });
-    } else {
-      console.log('🔍 STEP 2.3 CACHE MISS: Processing new Maya response');
-    }
+    // UNIFIED SERVICES: Direct processing without duplicate caches
 
     // 🧠 ENHANCED MEMORY FIX: Intelligent context merging (frontend + database)
     let frontendHistory: any[] = conversationHistory || [];
@@ -961,13 +923,7 @@ Use this strategic context to create photo concepts that directly support their 
       chatCategory: processedResponse.chatCategory
     };
     
-    // STEP 2.3: Cache Maya response for single-pass processing optimization
-    mayaResponseCache.set(cacheKey, {
-      response: responseData,
-      timestamp: Date.now()
-    });
-    console.log('💾 STEP 2.3 CACHE STORED: Maya response cached for future requests');
-    console.log(`🎯 CACHE STATS: Total cached responses: ${mayaResponseCache.size}`);
+    // UNIFIED SERVICES: Response ready for frontend
     
     res.json(responseData);
 
