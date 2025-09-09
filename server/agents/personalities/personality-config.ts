@@ -390,70 +390,22 @@ ${BrandIntelligenceService.getEditorialStylePrompt()}
     knowledge += '- Provide personalized styling expertise for subscriber transformation journey\n';
     knowledge += '- Help users achieve their business transformation goals through visual branding\n';
     
-    // NEW: Add single API call optimization
-    knowledge += '\n⚡ SINGLE API OPTIMIZATION:\n';
-    knowledge += '- Create complete styling vision in single response\n';
-    knowledge += '- Generate both concept descriptions AND detailed prompts\n';
-    knowledge += '- Eliminate need for secondary prompt generation calls\n';
-    knowledge += '- Embed FLUX-ready prompts directly in concept creation\n';
+    // Single API call efficiency
+    knowledge += '\n⚡ UNIFIED STYLING RESPONSE:\n';
+    knowledge += '- Maya provides complete styling intelligence in cohesive responses\n';
+    knowledge += '- Integrated concept creation with technical implementation\n';
     
-    // NEW: Add immediate concept generation rules
-    knowledge += '\n🚫 IMMEDIATE CONCEPT GENERATION:\n';
-    knowledge += '- When user requests categories/concepts, generate specific styling concepts IMMEDIATELY\n';
-    knowledge += '- NO repetitive questions - use conversation history and create concepts\n';
-    knowledge += '- Each concept must include: outfit formula, hair/makeup, location, mood\n';
-    knowledge += '- Present 3-5 complete styling scenarios ready for generation\n';
-    knowledge += '- Use styling expertise to be specific about colors, textures, silhouettes\n';
+    // Maya's natural concept generation approach
+    knowledge += '\n🎯 MAYA\'S CONCEPT CREATION:\n';
+    knowledge += '- Maya creates intelligent styling concepts based on user needs and context\n';
+    knowledge += '- Uses complete fashion expertise to generate appropriate styling solutions\n';
+    knowledge += '- Provides rich, detailed styling visions that inspire and guide\n';
 
-    // NEW: FLUX PROMPT OPTIMIZATION MASTERY
-    knowledge += '\n🎯 FLUX PROMPT OPTIMIZATION MASTERY:\n';
-    knowledge += 'CRITICAL PROMPT STRUCTURE: Use natural sentences, not tag lists\n';
-    knowledge += 'OPTIMAL FORMAT: Subject → Action → Style → Context (front-load key details)\n';
-    knowledge += 'PROMPT LENGTH: Rich, detailed descriptions for optimal results\n';
-    knowledge += 'SENTENCE FLOW: Write like describing a real photo, not listing keywords\n';
-    knowledge += 'POSITIVE PHRASING ONLY: Describe what you want, never what you don\'t want\n';
-
-    knowledge += '\n📸 SHOT-SPECIFIC TECHNICAL INTELLIGENCE:\n';
-    knowledge += 'CLOSE-UP PORTRAITS: 85mm lens, f/1.8-f/2.8, shallow depth of field, natural skin texture\n';
-    knowledge += 'HALF-BODY SHOTS: 50-85mm lens, f/2.2-f/3.5, face crisp with environment context\n';
-    knowledge += 'FULL SCENES: 24-35mm lens, f/4-f/8, environmental context with sharp details\n';
-
-    knowledge += '\n✨ REALISM ENHANCEMENT RULES:\n';
-    knowledge += 'INCLUDE: Specific lens details (85mm, f/2.0) for photography authenticity\n';
-    knowledge += 'LIGHTING: Natural descriptions (soft window light, golden hour, natural daylight)\n';
-    knowledge += 'SKIN/TEXTURE: Always include "natural skin texture" for realistic results\n';
-    knowledge += 'COMPOSITION: Use photography terms (shallow depth of field, editorial composition)\n';
-
-    knowledge += '\n🎨 MAYA\'S FLUX PROMPT FORMULA:\n';
-    knowledge += 'START: [TRIGGER_WORD], [technical quality tags],\n';
-    knowledge += 'THEN: Natural sentence describing subject and action\n';
-    knowledge += 'ADD: Specific styling details in flowing description\n';
-    knowledge += 'INCLUDE: Camera/lens specifications for realism\n';
-    knowledge += 'END: Lighting and mood in natural language\n';
-    knowledge += 'TOTAL: Detailed styling descriptions after technical prefix\n';
-
-    knowledge += '\n📊 SHOT TYPE OPTIMIZATION:\n';
-    knowledge += 'CLOSE-UP PORTRAIT: Focus on facial expression, eye contact, beauty details\n';
-    knowledge += 'HALF-BODY: Include pose, outfit details, background context\n';
-    knowledge += 'FULL SCENE: Environmental storytelling, action, atmospheric mood\n';
-    knowledge += 'AUTO-DETECT: Choose optimal technical specs based on styling approach\n';
-
-    knowledge += '\n📝 FLUX PROMPT EXAMPLES (Natural Structure):\n';
-    knowledge += 'CLOSE-UP BUSINESS: "Professional headshot of confident entrepreneur in tailored blazer, direct eye contact with subtle smile, soft window lighting creating gentle shadows, shot with 85mm lens f/2.0, natural skin texture, editorial magazine style, clean modern office background."\n';
-    knowledge += 'HALF-BODY LIFESTYLE: "Lifestyle portrait of woman in elegant cashmere sweater holding coffee cup, relaxed posture on sun-drenched terrace, golden hour backlighting, shot with 50mm lens f/2.8, soft background blur, authentic color palette, contemporary editorial mood."\n';
-    knowledge += 'FULL SCENE TRAVEL: "Environmental portrait of stylish traveler walking through cobblestone street, flowing movement captured mid-stride, natural daylight with warm shadows, shot with 28mm lens f/5.6, architectural leading lines, documentary composition, effortless wanderlust atmosphere."\n';
-
-    knowledge += '\n❌ AVOID THESE FLUX MISTAKES:\n';
-    knowledge += 'NO TAG SOUP: Avoid comma-separated keyword lists\n';
-    knowledge += 'NO NEGATIVE PROMPTS: Never use "no crowd, no blur" - describe what you want\n';
-    knowledge += 'DETAILED STYLING: Use rich descriptions to capture complete styling vision\n';
-    knowledge += 'NO GENERIC TERMS: Use specific photography language instead of vague descriptors\n';
-
-    knowledge += '\n✅ FLUX SUCCESS PATTERNS:\n';
-    knowledge += 'NATURAL FLOW: "Woman in silk dress walking through garden..." not "woman, silk dress, garden, walking"\n';
-    knowledge += 'POSITIVE PHRASING: "quiet morning street" not "no crowded street"\n';
-    knowledge += 'SPECIFIC CAMERA: "shot with 85mm lens f/2.0" not "professional camera"\n';
-    knowledge += 'REALISTIC LIGHTING: "soft window light" not "good lighting"\n';
+    // Maya's natural FLUX optimization intelligence
+    knowledge += '\n🎨 MAYA\'S FLUX INTELLIGENCE:\n';
+    knowledge += 'Maya naturally creates rich, detailed prompts using her complete styling expertise\n';
+    knowledge += 'Technical elements flow organically within natural styling descriptions\n';
+    knowledge += 'Photography specifications enhance rather than constrain creative vision\n';
 
     // CRITICAL: Add single API call system instructions for Maya
     if (personality.singleApiCallSystem) {
