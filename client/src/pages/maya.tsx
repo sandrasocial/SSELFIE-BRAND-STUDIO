@@ -80,6 +80,7 @@ export default function Maya() {
 
   // Track onboarding completion status for blocking image generation
   const [isOnboardingComplete, setIsOnboardingComplete] = useState(false);
+  const [isCheckingOnboarding, setIsCheckingOnboarding] = useState(false);
 
   // Connection status monitoring
   useEffect(() => {
@@ -215,10 +216,11 @@ export default function Maya() {
 
   // Initialize Maya onboarding for new users - Fixed race condition
   useEffect(() => {
-    if (user?.id && messages.length === 0 && !conversationData && !hasStartedChat) {
+    if (user?.id && messages.length === 0 && !conversationData && !hasStartedChat && !isCheckingOnboarding) {
       console.log('🎯 Maya: New user detected, checking onboarding status...');
       
       const checkOnboardingAndStart = async () => {
+        setIsCheckingOnboarding(true);
         try {
           // Get onboarding status directly from status API
           const statusResponse = await fetch('/api/maya/member/status', {
@@ -228,8 +230,8 @@ export default function Maya() {
           setIsOnboardingComplete(statusResponse.onboardingComplete || false);
           
           if (!statusResponse.onboardingComplete) {
-            console.log('✅ Maya: Starting 6-step onboarding conversation service');
-            // Start actual onboarding conversation service
+            console.log('✅ Maya: Starting simple essential onboarding');
+            // Start simple essential onboarding (not complex conversation)
             await startOnboardingConversation();
             setHasStartedChat(true);
           } else {
@@ -238,12 +240,14 @@ export default function Maya() {
           }
         } catch (error) {
           console.error('❌ Maya: Failed to check onboarding status:', error);
+        } finally {
+          setIsCheckingOnboarding(false);
         }
       };
       
       checkOnboardingAndStart();
     }
-  }, [user?.id, messages.length, conversationData, hasStartedChat]);
+  }, [user?.id, messages.length, conversationData, hasStartedChat, isCheckingOnboarding]);
 
   // ENHANCED SEAMLESS HANDOFF: Handle workspace-to-Maya transitions with user context
   useEffect(() => {
