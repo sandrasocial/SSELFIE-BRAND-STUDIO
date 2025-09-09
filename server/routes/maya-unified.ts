@@ -34,6 +34,7 @@ import { mayaPersonalizationService } from '../services/maya-personalization-ser
 import { MayaChatPreviewService } from '../maya-chat-preview-service';
 import { MayaAdaptationEngine } from '../services/maya-adaptation-engine';
 import { MayaContextSessionManager } from '../services/maya-context-session-manager';
+import { MayaOptimizationService } from '../services/maya-optimization-service';
 
 const router = Router();
 
@@ -777,26 +778,36 @@ Use this strategic context to create photo concepts that directly support their 
     console.log('Expected Output: Concept cards with styling descriptions AND FLUX-ready prompts');
     
     // Single Claude API call with Maya's complete intelligence
-    const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': process.env.ANTHROPIC_API_KEY!,
-        'anthropic-version': '2023-06-01'
-      },
-      body: JSON.stringify({
-        model: 'claude-3-5-sonnet-20241022',
-        max_tokens: 8000,
-        system: mayaPersonality, // Contains ALL Maya intelligence from consolidated personality system
-        messages: [
-          ...fullConversationHistory,
-          {
-            role: 'user',
-            content: `${requestContext}${genderContext ? '\n\n' + genderContext : ''}${brandStrategyContext ? '\n\n' + brandStrategyContext : ''}`
-          }
-        ]
-      })
-    });
+    // ✨ PHASE 4.1: OPTIMIZED SINGLE API CALL - Use optimization service for enhanced performance
+    const optimizationConfig = {
+      includeEmbeddedPrompts: context === 'styling',
+      includeConceptGeneration: context === 'styling',
+      includeConversation: true,
+      maxConcepts: 4
+    };
+
+    const optimizedResult = await MayaOptimizationService.generateOptimizedConcepts(
+      `${requestContext}${genderContext ? '\n\n' + genderContext : ''}${brandStrategyContext ? '\n\n' + brandStrategyContext : ''}`,
+      mayaPersonality,
+      userId,
+      conversationId,
+      optimizationConfig
+    );
+
+    console.log(`🚀 PHASE 4.1: Optimization complete - ${optimizedResult.apiCallsUsed} API call(s), optimizations: ${optimizedResult.optimizationApplied.join(', ')}`);
+
+    // Create mock Claude response object for compatibility
+    const claudeResponse = {
+      ok: true,
+      async json() {
+        return {
+          content: [{
+            type: 'text',
+            text: optimizedResult.conversationalResponse
+          }]
+        };
+      }
+    };
 
     if (!claudeResponse.ok) {
       const errorBody = await claudeResponse.text();
@@ -811,6 +822,13 @@ Use this strategic context to create photo concepts that directly support their 
 
     const data = await claudeResponse.json();
     let mayaResponse = data.content[0].text;
+    
+    // ✨ PHASE 4.1: Integrate optimized concepts if available
+    let optimizedConcepts: any[] = [];
+    if (optimizedResult && optimizedResult.concepts.length > 0) {
+      optimizedConcepts = optimizedResult.concepts;
+      console.log(`🎯 PHASE 4.1: Using ${optimizedConcepts.length} optimized concepts with embedded prompts`);
+    }
 
     // 🎯 ONBOARDING DETECTION: Check if Maya wants to start structured onboarding
     const onboardingKeywords = [
@@ -932,7 +950,8 @@ Use this strategic context to create photo concepts that directly support their 
         context, 
         userId, 
         userContext,
-        generationInfo
+        generationInfo,
+        optimizedConcepts
       );
     }
     
@@ -2014,7 +2033,7 @@ function replaceMayaPlaceholders(response: string, triggerWord: string, userGend
   return processedResponse;
 }
 
-async function processMayaResponse(response: string, context: string, userId: string, userContext: any, generationInfo: any) {
+async function processMayaResponse(response: string, context: string, userId: string, userContext: any, generationInfo: any, optimizedConcepts: any[] = []) {
   // CRITICAL: Replace placeholders with actual user data before processing
   const userGender = userContext?.userInfo?.gender; 
   const processedResponse = replaceMayaPlaceholders(response, generationInfo.triggerWord, userGender);
@@ -2091,8 +2110,15 @@ async function processMayaResponse(response: string, context: string, userId: st
     }
   }
 
-  // NEW: Parse concepts into individual cards with embedded prompts - Enhanced for Maya's natural formatting
-  const concepts = await parseConceptsFromResponse(response, userId);
+  // ✨ PHASE 4.1: Use optimized concepts if available, otherwise parse from response
+  let concepts = optimizedConcepts;
+  if (concepts.length === 0) {
+    concepts = await parseConceptsFromResponse(response, userId);
+    console.log(`🔄 PHASE 4.1: Fallback to traditional concept parsing - ${concepts.length} concepts found`);
+  } else {
+    console.log(`🚀 PHASE 4.1: Using ${concepts.length} optimized concepts with embedded prompts`);
+  }
+  
   if (concepts.length > 0) {
     processed.conceptCards = concepts;
     // Remove traditional canGenerate since we have concept cards
