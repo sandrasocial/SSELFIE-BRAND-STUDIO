@@ -243,7 +243,7 @@ export default function Maya() {
       
       checkOnboardingAndStart();
     }
-  }, [user?.id, messages.length, conversationData, hasStartedChat]);
+  }, [user?.id, messages.length, conversationData, hasStartedChat, startOnboardingConversation]);
 
   // ENHANCED SEAMLESS HANDOFF: Handle workspace-to-Maya transitions with user context
   useEffect(() => {
