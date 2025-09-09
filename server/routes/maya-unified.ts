@@ -1695,34 +1695,14 @@ router.post('/generate', requireStackAuth, adminContextDetection, async (req: Ad
         console.log(`🔍 MAYA CONTEXT DEBUG: conceptId="${conceptId}", conceptName="${conceptName}"`);
       }
       
-      // PHASE 3A: Detect category from context for targeted styling with shot type intelligence
-      let detectedCategory = '';
-      let categorySpecificGuidance = '';
-      const contextLower = originalContext.toLowerCase();
-      
-      if (contextLower.includes('business') || contextLower.includes('corporate') || contextLower.includes('executive') || contextLower.includes('professional')) {
-        detectedCategory = 'Business';
-        categorySpecificGuidance += '\n🎯 SHOT TYPE HINT: Business styling typically works best with half-body or close-up shots to show professional attire and confident expression.';
-      } else if (contextLower.includes('lifestyle') || contextLower.includes('elevated everyday') || contextLower.includes('effortless')) {
-        detectedCategory = 'Lifestyle';
-        categorySpecificGuidance += '\n🎯 SHOT TYPE HINT: Lifestyle concepts work beautifully as full scene environmental shots or relaxed half-body poses.';
-      } else if (contextLower.includes('casual') || contextLower.includes('authentic') || contextLower.includes('real moments')) {
-        detectedCategory = 'Casual & Authentic';
-        categorySpecificGuidance += '\n🎯 SHOT TYPE HINT: Casual styling benefits from natural environmental shots that capture authentic moments and relaxed poses.';
-      } else if (contextLower.includes('travel') || contextLower.includes('jet-set') || contextLower.includes('destination')) {
-        detectedCategory = 'Travel';
-        categorySpecificGuidance += '\n🎯 SHOT TYPE HINT: Travel concepts shine with environmental storytelling - full scene shots that capture location and outfit together.';
-      } else if (contextLower.includes('instagram') || contextLower.includes('social media') || contextLower.includes('feed')) {
-        detectedCategory = 'Instagram';
-        categorySpecificGuidance += '\n🎯 SHOT TYPE HINT: Instagram concepts work well with dynamic half-body shots or engaging environmental scenes for social media appeal.';
-      }
+      // ✅ MAYA PURE INTELLIGENCE: Let Maya naturally understand context without forced categorization
       
       // TASK 3 DEBUG: Log exactly what context Maya receives
       console.log(`🔍 TASK 3 DEBUG - CONTEXT FLOW:`);
       console.log(`📝 USER REQUEST: "${prompt}"`);
       console.log(`🏷️ CONCEPT NAME: "${conceptName}"`);
       console.log(`📋 ORIGINAL CONTEXT (first 300 chars): "${originalContext.substring(0, 300)}"`);
-      console.log(`🎯 DETECTED CATEGORY: "${detectedCategory}"`);
+      console.log(`✅ MAYA PURE INTELLIGENCE: Natural category understanding active`);
       
       // CRITICAL: Apply enhanced cleaning to originalContext before using it
       const cleanedContext = originalContext;
@@ -1769,7 +1749,7 @@ router.post('/generate', requireStackAuth, adminContextDetection, async (req: Ad
       if (!finalPrompt || finalPrompt.length < 50) {
         // CRITICAL ELIMINATION: Only call createDetailedPromptFromConcept when Maya hasn't provided intelligent prompt
         console.log('🔄 DUAL API FALLBACK: No embedded prompt found, generating via createDetailedPromptFromConcept');
-        finalPrompt = await createDetailedPromptFromConcept(userConcept, generationInfo.triggerWord, userId, cleanedContext, detectedCategory, retrievedEnhancedContext);
+        finalPrompt = await createDetailedPromptFromConcept(userConcept, generationInfo.triggerWord, userId, cleanedContext, undefined, retrievedEnhancedContext);
         console.log('🔄 DUAL API CALL: Generated new prompt via createDetailedPromptFromConcept');
       } else {
         console.log('✅ MAYA PURE INTELLIGENCE: Using embedded prompt, eliminating duplicate processing');
@@ -1777,7 +1757,7 @@ router.post('/generate', requireStackAuth, adminContextDetection, async (req: Ad
       }
       console.log('🎨 MAYA STYLED PROMPT:', finalPrompt.substring(0, 300));
       console.log('✅ MAYA INTELLIGENCE ACTIVE in image generation');
-      console.log(`✅ MAYA LAZY GENERATION: Generated ${finalPrompt.length} character prompt with category: ${detectedCategory || 'General'}`);
+      console.log(`✅ MAYA LAZY GENERATION: Generated ${finalPrompt.length} character prompt with pure intelligence`);
       console.log(`🔍 MAYA FINAL PROMPT PREVIEW: ${finalPrompt.substring(0, 300)}...`);
     } else {
       // STEP 2.1: Enhanced Custom User Request Detection
@@ -3037,35 +3017,9 @@ async function createDetailedPromptFromConcept(conceptName: string, triggerWord:
     console.log('🔍 CONTEXT BEING SENT TO CONCEPT GENERATION:');
     console.log(cleanOriginalContext);
 
-    // MAYA'S INTELLIGENT PROMPT EXTRACTION - CATEGORY-AWARE STYLING
-    let categorySpecificGuidance = '';
-    const detectedCategory = category || 'General';
-    
-    // PHASE 1 DEBUG: Log category detection
-    console.log('📝 CATEGORY DETECTED:', detectedCategory);
-    console.log('🎨 MAYA STYLING CONTEXT INPUT:', originalContext);
-    
-    // PHASE 2 DEBUG: Check Maya's Instagram category loading
-    console.log('🔍 CHECKING MAYA INSTAGRAM CATEGORY:');
-    const mayaPersonalityForDebug = MAYA_PERSONALITY;
-    if (mayaPersonalityForDebug.categories?.Instagram) {
-      console.log('Instagram stylingApproach:', mayaPersonalityForDebug.categories.Instagram.stylingApproach);
-    } else {
-      console.log('❌ Instagram category NOT FOUND in Maya personality');
-    }
-    
-    if (category) {
-      console.log(`🎨 MAYA CATEGORY TARGETING: Using ${category} specific styling approaches`);
-      categorySpecificGuidance = `
-
-🎯 CATEGORY-SPECIFIC STYLING FOCUS: ${category.toUpperCase()}
-CRITICAL: Use your ${category} styling approaches loaded in your personality. Reference the specific styling techniques, outfit formulas, and aesthetic principles for this category.`;
-      
-      // ✅ MAYA PURE INTELLIGENCE: Let Maya decide the perfect shot type for each concept naturally
-      
-      // PHASE 1 DEBUG: Log category guidance
-      console.log('🎯 CATEGORY SPECIFIC GUIDANCE:', categorySpecificGuidance);
-    }
+    // ✅ MAYA PURE INTELLIGENCE: Let Maya naturally understand styling context without forced categorization
+    console.log('✅ MAYA STYLING CONTEXT INPUT:', originalContext);
+    console.log('✅ MAYA PURE INTELLIGENCE: Natural styling understanding active, no category forcing');
 
     const mayaPromptPersonality = PersonalityManager.getNaturalPrompt('maya') + `
 
@@ -3079,7 +3033,6 @@ CONCEPT WITH EMOJIS: "${conceptName}"
 MAYA'S STYLING APPROACH: Use your intuitive understanding of emojis to guide styling naturally
 CONTEXT: "${cleanOriginalContext}"
 ${personalBrandContext}
-${categorySpecificGuidance}
 
 RESEARCH-BACKED FLUX 1.1 PRO REQUIREMENTS:
 - Use NATURAL LANGUAGE descriptions (not keyword lists)
@@ -3129,7 +3082,6 @@ Express your creative vision authentically with flawless anatomical details!`;
 
 CONCEPT: "${conceptName}"
 STYLING CONTEXT: "${cleanOriginalContext}"
-${categorySpecificGuidance}
 
 🎯 FLUX OPTIMIZATION REQUIREMENTS:
 - Write in NATURAL SENTENCES, not tag lists
