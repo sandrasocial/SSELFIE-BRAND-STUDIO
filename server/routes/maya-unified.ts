@@ -1060,16 +1060,9 @@ router.post('/generate', requireStackAuth, adminContextDetection, async (req: Ad
       const conceptId = req.body.conceptId;
       let originalContext = '';
       
-      // PRIORITY 1: Instant context retrieval from memory cache
-      const cacheKey = `${userId}-${conceptId || conceptName}`;
-      const cachedContext = mayaContextCache.get(cacheKey);
-      
-      if (cachedContext && (Date.now() - cachedContext.timestamp < MAYA_CONTEXT_CACHE_TTL)) {
-        originalContext = cachedContext.originalContext;
-        console.log(`⚡ MAYA INSTANT CACHE: Retrieved Maya's context from memory for "${conceptName}" (${originalContext.length} chars)`);
-      } else {
-        // FALLBACK: Enhanced context retrieval from database with concept name matching
-        try {
+      // UNIFIED SERVICES: Direct context retrieval without duplicate caches
+      // Enhanced context retrieval from database with concept name matching
+      try {
           console.log(`🔍 MAYA CONTEXT SEARCH: Looking for concept "${conceptName}" with ID "${conceptId}"`);
           
           // Get recent chats - expanded search for context retrieval
@@ -1195,14 +1188,7 @@ router.post('/generate', requireStackAuth, adminContextDetection, async (req: Ad
                           }
                         }
                         
-                        // Cache the context for future use - ENHANCED CONTEXT PRESERVATION
-                        mayaContextCache.set(cacheKey, {
-                          originalContext,
-                          conceptName,
-                          timestamp: Date.now(),
-                          // Enhanced context removed - using original context only
-                        });
-                        
+                        // UNIFIED SERVICES: Context retrieved successfully
                         console.log(`✅ MAYA CONTEXT FOUND: "${conceptName}" → "${conceptCard.title}" (${originalContext.length} chars)`);
                         console.log(`🎯 MAYA CONTEXT: ${originalContext.substring(0, 150)}...`);
                         console.log(`💾 MAYA STORAGE: Context retrieved from structured database storage`);
@@ -1343,15 +1329,8 @@ router.post('/generate', requireStackAuth, adminContextDetection, async (req: Ad
         console.log(`⚠️ SINGLE API CALL FALLBACK: No embedded prompt found, using dual API call`);
         console.log(`🔍 DEBUG INFO: conceptId=${conceptId}, conceptName=${conceptName}`);
       }
-      // ENHANCED CONTEXT PRESERVATION: Retrieve enhanced context for API Call #2
-      let retrievedEnhancedContext = null;
-      const enhancedContextCache = mayaContextCache.get(cacheKey);
-      if (enhancedContextCache) {
-        retrievedEnhancedContext = enhancedContextCache.originalContext;
-        console.log(`✅ ENHANCED CONTEXT RETRIEVED: Maya's complete context available for API Call #2`);
-      } else {
-        console.log(`⚠️ ENHANCED CONTEXT NOT FOUND: Using basic context preservation`);
-      }
+      // UNIFIED SERVICES: Enhanced context handled by unified intelligence service
+      let retrievedEnhancedContext = originalContext;
       
       if (!finalPrompt || finalPrompt.length < 50) {
         // CRITICAL ELIMINATION: Only call createDetailedPromptFromConcept when Maya hasn't provided intelligent prompt
