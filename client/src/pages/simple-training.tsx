@@ -10,7 +10,7 @@ import ErrorBoundary from '../components/ErrorBoundary';
 
 function SimpleTraining() {
   // Always call hooks in the same order
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const { toast } = useToast();
   
   // State hooks always called consistently
@@ -22,6 +22,11 @@ function SimpleTraining() {
   const [isRetrainingMode, setIsRetrainingMode] = useState(false);
   const [uploadErrors, setUploadErrors] = useState<string[]>([]);
   const [isUploadingImages, setIsUploadingImages] = useState(false);
+  
+  // Gender selection state
+  const [userGender, setUserGender] = useState('');
+  const [genderCaptured, setGenderCaptured] = useState(false);
+  const [isCheckingGender, setIsCheckingGender] = useState(true);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -87,6 +92,41 @@ function SimpleTraining() {
       });
     }
   });
+
+  // Check and initialize gender status
+  useEffect(() => {
+    const checkGenderStatus = () => {
+      if (user?.gender) {
+        setUserGender(user.gender);
+        setGenderCaptured(true);
+      }
+      setIsCheckingGender(false);
+    };
+    
+    if (user) {
+      checkGenderStatus();
+    }
+  }, [user]);
+
+  // Gender selection handler
+  const handleGenderSelection = async (gender: string) => {
+    try {
+      const response = await apiRequest('/api/user/update-gender', 'POST', { gender });
+      if (response.success) {
+        setUserGender(gender);
+        setGenderCaptured(true);
+        toast({
+          title: "Perfect!",
+          description: "Now let's train your AI model with your selfies."
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to save preference. Please try again."
+      });
+    }
+  };
 
   // Initialize training state based on userModel data
   useEffect(() => {
@@ -825,6 +865,100 @@ function SimpleTraining() {
             </div>
           </div>
         </section>
+      </div>
+    );
+  }
+
+  // Gender Selection Step - must come before training
+  if (isCheckingGender) {
+    return (
+      <div style={{ 
+        minHeight: '100vh', 
+        background: '#ffffff',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+        fontWeight: 300,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+        <div style={{ color: '#0a0a0a' }}>Loading...</div>
+      </div>
+    );
+  }
+
+  if (!genderCaptured) {
+    return (
+      <div style={{ 
+        minHeight: '100vh', 
+        background: '#ffffff',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+        fontWeight: 300
+      }}>
+        <MemberNavigation darkText={true} />
+        <div style={{ paddingTop: '80px', paddingBottom: '60px', padding: '80px 32px 60px' }}>
+          <div style={{ textAlign: 'center', maxWidth: '800px', margin: '0 auto' }}>
+            <h2 style={{ 
+              fontFamily: 'Times New Roman, serif',
+              fontSize: '2rem',
+              fontWeight: 200,
+              letterSpacing: '0.2em',
+              marginBottom: '2rem',
+              color: '#0a0a0a'
+            }}>
+              TRAIN YOUR AI MODEL
+            </h2>
+            
+            <p style={{ 
+              color: '#666666', 
+              marginBottom: '3rem', 
+              fontSize: '18px',
+              lineHeight: '1.6',
+              maxWidth: '600px',
+              margin: '0 auto 3rem'
+            }}>
+              To train your personal AI model accurately, are you a man or woman? 
+              This ensures we generate photos that look like you.
+            </p>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: '500px', margin: '0 auto' }}>
+              {[
+                { value: 'woman', label: 'Woman', desc: 'Train AI for female photos' },
+                { value: 'man', label: 'Man', desc: 'Train AI for male photos' },
+                { value: 'other', label: 'Non-binary/Other', desc: 'Custom training approach' }
+              ].map(option => (
+                <button
+                  key={option.value}
+                  onClick={() => handleGenderSelection(option.value)}
+                  style={{
+                    width: '100%',
+                    padding: '24px',
+                    border: '1px solid #e5e5e5',
+                    borderRadius: '0',
+                    background: '#ffffff',
+                    cursor: 'pointer',
+                    transition: 'all 300ms ease',
+                    textAlign: 'left'
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.target as HTMLElement).style.borderColor = '#0a0a0a';
+                    (e.target as HTMLElement).style.background = '#f9f9f9';
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.target as HTMLElement).style.borderColor = '#e5e5e5';
+                    (e.target as HTMLElement).style.background = '#ffffff';
+                  }}
+                >
+                  <div style={{ fontWeight: 500, fontSize: '18px', marginBottom: '8px', color: '#0a0a0a' }}>
+                    {option.label}
+                  </div>
+                  <div style={{ color: '#666666', fontSize: '14px' }}>
+                    {option.desc}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
