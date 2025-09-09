@@ -329,7 +329,7 @@ Maya, use your complete styling intelligence to respond naturally. If the user i
     const mayaResponse = await claudeService.sendMessage(contextualPrompt, conversationId, 'maya', false);
     
     // Parse Maya's response for concept cards
-    const conceptCards = extractConceptCards(mayaResponse, userId, user.gender);
+    const conceptCards = await parseConceptsFromResponse(mayaResponse, userId);
     
     const response = {
       success: true,
@@ -356,22 +356,7 @@ Maya, use your complete styling intelligence to respond naturally. If the user i
   }
 });
 
-// ✅ CONCEPT CARD EXTRACTION: Extract concept cards from Maya's response
-function extractConceptCards(mayaResponse: string, userId: string, userGender: string = 'woman'): any[] {
-  // Simple concept extraction for now - Maya's intelligence handles the details
-  if (mayaResponse.includes('concept') || mayaResponse.includes('photo') || mayaResponse.includes('look')) {
-    return [{
-      id: `concept_${userId}_${Date.now()}`,
-      title: 'Maya Styled Concept',
-      description: `Styled by Maya for ${userGender}`,
-      fluxPrompt: mayaResponse.substring(0, 200) + '...', // Use part of Maya's response
-      category: 'Lifestyle',
-      isGenerating: false,
-      hasGenerated: false
-    }];
-  }
-  return [];
-}
+// ✅ CONCEPT CARD EXTRACTION: Using the proper parseConceptsFromResponse function below
 
 // UNIFIED MAYA ENDPOINT - Handles all Maya interactions with admin/member distinction
 router.post('/chat', requireStackAuth, adminContextDetection, async (req: AdminContextRequest, res) => {
