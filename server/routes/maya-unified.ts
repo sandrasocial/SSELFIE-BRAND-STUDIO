@@ -2477,8 +2477,8 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
     console.log(`  ${i+1}. Emoji: "${match[1]}", Title: "${match[2]}"`);
   });
   
-  // ✅ SIMPLE WORKING REGEX: Capture everything until next emoji concept
-  const emojiConceptPattern = /(🏔️|🌲|⛰️|☕|🏞️|🌄|🎿|🚡|🏕️|🌻|🌊|🌅|🔥|💎|🌟|✨|💫|👑|💼|🏢|💃|📸|🎬|🎯|🎨|💪|🚀|🎪|🎭|🎵|🎶|🎸|🎤|🎧|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\u2600-\u26FF])\s*\*\*([^*\n]{3,60})\*\*\s*\n([\s\S]*?)(?=(?:\n(?:🏔️|🌲|⛰️|☕|🏞️|🌄|🎿|🚡|🏕️|🌻|🌊|🌅|🔥|💎|🌟|✨|💫|👑|💼|🏢|💃|📸|🎬|🎯|🎨|💪|🚀|🎪|🎭|🎵|🎶|🎸|🎤|🎧|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\u2600-\u26FF])\s*\*\*)|\n\n|$)/g;
+  // ✅ FIXED REGEX: Captures EVERYTHING including FLUX_PROMPT lines
+  const emojiConceptPattern = /([✨💫🔥🌟💎🌅🏢💼🌊👑💃📸🎬🎯🏆🚀💯⭐🌈🎭🎨🎪🏅🎸🎤🎵🎶🎺🎻🎲🎮🕹️🎳🏔️🌲⛰️🏞️🌄🏖️🌇🌆🌃🌌🌉🌁⛅☀️🌤️⛈️🌦️☔💧❄️⛄💥⚡🌠🎆🎇🎊🎉🎈🎁🎀🎗️🏵️🌺🌸🌼🌻🌹🥀🌷🌱🌿🍃🌾🌵🌴🌳💐])\s*\*\*([^*]+)\*\*\n([\s\S]+?)(?=\n[✨💫🔥🌟💎🌅🏢💼🌊👑💃📸🎬🎯🏆🚀💯⭐🌈🎭🎨🎪🏅🎸🎤🎵🎶🎺🎻🎲🎮🕹️🎳🏔️🌲⛰️🏞️🌄🏖️🌇🌆🌃🌌🌉🌁⛅☀️🌤️⛈️🌦️☔💧❄️⛄💥⚡🌠🎆🎇🎊🎉🎈🎁🎀🎗️🏵️🌺🌸🌼🌻🌹🥀🌷🌱🌿🍃🌾🌵🌴🌳💐]|$)/g;
   const multiConceptPattern = /\*\*([^*\n]{10,80})\*\*\n([^*]*?)(?=\*\*[^*\n]{10,80}\*\*|$)/gs;
   
   let match;
