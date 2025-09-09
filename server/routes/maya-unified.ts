@@ -2680,14 +2680,8 @@ async function createDetailedPromptFromConcept(conceptName: string, triggerWord:
     console.log('📝 CATEGORY DETECTED:', detectedCategory);
     console.log('🎨 MAYA STYLING CONTEXT INPUT:', originalContext);
     
-    // PHASE 2 DEBUG: Check Maya's Instagram category loading
-    console.log('🔍 CHECKING MAYA INSTAGRAM CATEGORY:');
-    const mayaPersonalityForDebug = MAYA_PERSONALITY;
-    if (mayaPersonalityForDebug.categories?.Instagram) {
-      console.log('Instagram stylingApproach:', mayaPersonalityForDebug.categories.Instagram.stylingApproach);
-    } else {
-      console.log('❌ Instagram category NOT FOUND in Maya personality');
-    }
+    // ✅ PHASE 1.2: Use PersonalityManager for category validation
+    console.log('🔍 MAYA CATEGORY VALIDATION: Using PersonalityManager for category access');
     
     if (category) {
       console.log(`🎨 MAYA CATEGORY TARGETING: Using ${category} specific styling approaches`);
@@ -3059,7 +3053,8 @@ router.post('/training-coaching-start', requireStackAuth, async (req: AdminConte
     console.log(`🎯 TRAINING COACHING: Starting brand strategy coaching for user ${userId}`);
     
     // Get training-time coaching configuration from Maya's personality
-    const coachingConfig = MAYA_PERSONALITY.trainingTimeCoaching;
+    // ✅ PHASE 1.2: Delegate coaching config to PersonalityManager
+    const coachingConfig = PersonalityManager.getCoachingConfig('maya');
     const firstPhase = coachingConfig.coachingFlow[0];
     
     // Initialize coaching session in database
@@ -3122,7 +3117,8 @@ router.post('/training-coaching-response', requireStackAuth, async (req: AdminCo
     currentContext.lastUpdated = Date.now();
     
     // Get coaching configuration
-    const coachingConfig = MAYA_PERSONALITY.trainingTimeCoaching;
+    // ✅ PHASE 1.2: Delegate coaching config to PersonalityManager
+    const coachingConfig = PersonalityManager.getCoachingConfig('maya');
     const currentPhaseConfig = coachingConfig.coachingFlow.find(p => p.phase === currentPhase);
     
     if (!currentPhaseConfig) {
