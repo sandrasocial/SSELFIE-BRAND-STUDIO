@@ -2921,7 +2921,7 @@ async function createDetailedPromptFromConcept(conceptName: string, triggerWord:
   // This function applies Maya's full intelligence to both fresh requests and stored concept cards
   console.log(`🎨 MAYA INTELLIGENCE ACTIVATION: Processing "${conceptName}" with preserved context (${originalContext?.length || 0} chars)`);
   
-  // UNIFIED MAYA INTELLIGENCE: Use Maya's complete styling expertise with category-specific approaches
+  // ✅ UNIFIED MAYA INTELLIGENCE: Pure styling expertise without constraints
   
   try {
     // Load user's personal brand context for personalized styling
