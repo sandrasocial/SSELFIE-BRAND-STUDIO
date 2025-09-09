@@ -31,6 +31,7 @@ import { UserStyleMemoryService } from '../services/user-style-memory';
 import { SupportIntelligenceService } from '../services/support-intelligence';
 import { EscalationHandler, escalationHandler } from '../services/escalation-handler';
 import { mayaPersonalizationService } from '../services/maya-personalization-service';
+import { MayaChatPreviewService } from '../maya-chat-preview-service';
 
 const router = Router();
 
@@ -1624,14 +1625,44 @@ router.get('/check-generation/:predictionId', requireStackAuth, adminContextDete
               console.log(`⚠️ MAYA PERSISTENCE: No Maya message found in chat ${chatIdNumber}`);
             }
           } else {
-            console.log(`⚠️ MAYA PERSISTENCE: Invalid chatId "${chatId}" - skipping chat update`);
+            console.log(`⚠️ MAYA PERSISTENCE: Invalid chatId "${chatId}" - auto-saving to gallery instead`);
+            
+            // 🎯 CRITICAL FIX: Auto-save images to gallery when chatId is invalid
+            try {
+              for (const imageUrl of finalImageUrls) {
+                await MayaChatPreviewService.heartImageToGallery(
+                  userId,
+                  imageUrl,
+                  'Maya AI Generation',
+                  'Maya Editorial'
+                );
+              }
+              console.log(`✅ MAYA AUTO-GALLERY: Saved ${finalImageUrls.length} images directly to user gallery`);
+            } catch (galleryError) {
+              console.error('❌ MAYA AUTO-GALLERY: Failed to save to gallery:', galleryError);
+            }
           }
         } catch (persistError) {
           console.error('Maya persistence error (non-blocking):', persistError);
           // Chat persistence failed but URLs are already permanent - continue
         }
       } else {
-        console.log(`⚠️ MAYA PERSISTENCE: Missing chatId/messageId (chatId:"${chatId}", messageId:"${messageId}") - standalone generation, returning images without chat persistence`);
+        console.log(`⚠️ MAYA PERSISTENCE: Missing chatId/messageId (chatId:"${chatId}", messageId:"${messageId}") - auto-saving to gallery instead`);
+        
+        // 🎯 CRITICAL FIX: Auto-save images to gallery when no chat context exists
+        try {
+          for (const imageUrl of finalImageUrls) {
+            await MayaChatPreviewService.heartImageToGallery(
+              userId,
+              imageUrl,
+              'Maya AI Generation', 
+              'Maya Editorial'
+            );
+          }
+          console.log(`✅ MAYA AUTO-GALLERY: Saved ${finalImageUrls.length} images directly to user gallery (no chat context)`);
+        } catch (galleryError) {
+          console.error('❌ MAYA AUTO-GALLERY: Failed to save to gallery (no chat context):', galleryError);
+        }
       }
       
       // PHASE 7: Log successful generation completion
