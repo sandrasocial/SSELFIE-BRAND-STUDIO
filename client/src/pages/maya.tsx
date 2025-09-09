@@ -238,13 +238,7 @@ export default function Maya() {
           // Auto-start conversation with enhanced context after brief delay
           setTimeout(() => {
             setMessage(context.message);
-            chatMutation.mutate({
-              message: context.message,
-              context: 'styling',
-              conversationHistory: context.conversationHistory || [],
-              userState: context.businessContext,
-              userProfile: context.userProfile
-            });
+            sendMessage.mutate(context.message);
           }, 1000);
           
           console.log('✅ HANDOFF: User authentication verified, enhanced context applied');
@@ -344,11 +338,16 @@ export default function Maya() {
       const response = await fetch('/api/maya/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: messageContent })
+        credentials: 'include', // ✅ AUTHENTICATION FIX: Send Stack Auth cookies
+        body: JSON.stringify({ 
+          message: messageContent,
+          context: 'styling'
+        })
       });
 
       if (!response.ok) {
-        throw new Error('Failed to send message');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to send message');
       }
 
       return response.json();
