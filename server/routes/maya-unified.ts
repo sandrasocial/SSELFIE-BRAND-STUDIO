@@ -1485,56 +1485,13 @@ router.post('/generate', requireStackAuth, adminContextDetection, async (req: Ad
       // Always use Maya's current intelligence - no database retrieval needed
       finalPrompt = await createDetailedPromptFromConcept(conceptName, generationInfo.triggerWord, userId, cleanedContext, undefined, undefined);
       console.log(`✅ MAYA FRESH STYLING: Generated ${finalPrompt.length} character prompt with current intelligence`);
-                            
-                            console.log(`✅ SINGLE API GENERATION: Images generated using embedded prompt`);
-                            return res.json(result);
-                          } catch (error) {
-                            console.error(`❌ SINGLE API GENERATION ERROR:`, error);
-                            // Fall through to dual API call as backup
-                            console.log(`🔄 FALLBACK: Using dual API call due to generation error`);
-                          }
-                        } else {
-                          console.log('❌ SINGLE API FALLBACK: No embedded fullPrompt found');
-                          console.log('- Falling back to dual API call system');
-                          console.log('- Fallback reason:', !conceptCard.fullPrompt ? 'NO_FULL_PROMPT' : 
-                                     conceptCard.fullPrompt.length === 0 ? 'EMPTY_FULL_PROMPT' : 'UNKNOWN');
-                          
-                          // COMPREHENSIVE FALLBACK TRIGGER ANALYSIS
-                          console.log('🔍 COMPREHENSIVE FALLBACK ANALYSIS:');
-                          console.log('- Concept ID provided:', !!conceptId);
-                          console.log('- Concept ID value:', conceptId);
-                          console.log('- Concept name provided:', !!conceptName);
-                          console.log('- Concept name value:', conceptName);
-                          console.log('- ConceptCard retrieved:', !!conceptCard);
-                          console.log('- ConceptCard ID:', conceptCard?.id);
-                          console.log('- ConceptCard title:', conceptCard?.title);
-                          console.log('- ConceptCard has originalContext:', !!conceptCard?.originalContext);
-                          console.log('- ConceptCard originalContext length:', conceptCard?.originalContext?.length || 0);
-                          console.log('- ConceptCard created timestamp:', conceptCard?.createdAt);
-                          
-                          // Check if this is a timing issue - concept created but fullPrompt not populated
-                          if (conceptCard && !conceptCard.fullPrompt) {
-                            console.log('🚨 CRITICAL ISSUE: Concept exists but fullPrompt is missing');
-                            console.log('🔍 This indicates the single API call system created the concept but failed to embed the FLUX prompt');
-                            console.log('🔍 Root cause likely in parseConceptsFromResponse or concept creation logic');
-                          }
-                        }
-                        
-                        // Cache the context for future use - ENHANCED CONTEXT PRESERVATION
-                        mayaContextCache.set(cacheKey, {
-                          originalContext,
-                          conceptName,
-                          timestamp: Date.now(),
-                          // Enhanced context removed - using original context only
-                        });
-                        
-                        console.log(`✅ MAYA CONTEXT FOUND: "${conceptName}" → "${conceptCard.title}" (${originalContext.length} chars)`);
-                        console.log(`🎯 MAYA CONTEXT: ${originalContext.substring(0, 150)}...`);
-                        console.log(`💾 MAYA STORAGE: Context retrieved from structured database storage`);
-                        // This message now handled above in the else block
-                        break;
-                      }
-                    }
+    } else {
+      // Handle custom prompts (non-concept generation)
+      console.log(`🎯 MAYA CUSTOM PROMPT: Processing direct user input: "${prompt}"`);
+      finalPrompt = prompt;
+    }
+    // ✅ MAYA SIMPLIFIED GENERATION: Proceed with the finalized prompt
+    console.log(`🎯 MAYA READY: Using finalized prompt of ${finalPrompt.length} characters`);
                   }
                 } catch (parseError) {
                   // FALLBACK: Search raw message content for concept mentions
