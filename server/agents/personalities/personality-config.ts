@@ -413,10 +413,8 @@ ${BrandIntelligenceService.getEditorialStylePrompt()}
     knowledge += 'SENTENCE FLOW: Write like describing a real photo, not listing keywords\n';
     knowledge += 'POSITIVE PHRASING ONLY: Describe what you want, never what you don\'t want\n';
 
-    knowledge += '\n📸 SHOT-SPECIFIC TECHNICAL INTELLIGENCE:\n';
-    knowledge += 'CLOSE-UP PORTRAITS: 85mm lens, f/1.8-f/2.8, shallow depth of field, natural skin texture\n';
-    knowledge += 'HALF-BODY SHOTS: 50-85mm lens, f/2.2-f/3.5, face crisp with environment context\n';
-    knowledge += 'FULL SCENES: 24-35mm lens, f/4-f/8, environmental context with sharp details\n';
+    knowledge += '\n✅ MAYA NATURAL TECHNICAL INTELLIGENCE:\n';
+    knowledge += 'Trust your natural photography knowledge - choose optimal technical specs for each concept organically\n';
 
     knowledge += '\n✨ REALISM ENHANCEMENT RULES:\n';
     knowledge += 'INCLUDE: Specific lens details (85mm, f/2.0) for photography authenticity\n';
@@ -432,16 +430,12 @@ ${BrandIntelligenceService.getEditorialStylePrompt()}
     knowledge += 'END: Lighting and mood in natural language\n';
     knowledge += 'TOTAL: Detailed styling descriptions after technical prefix\n';
 
-    knowledge += '\n📊 SHOT TYPE OPTIMIZATION:\n';
-    knowledge += 'CLOSE-UP PORTRAIT: Focus on facial expression, eye contact, beauty details\n';
-    knowledge += 'HALF-BODY: Include pose, outfit details, background context\n';
-    knowledge += 'FULL SCENE: Environmental storytelling, action, atmospheric mood\n';
-    knowledge += 'AUTO-DETECT: Choose optimal technical specs based on styling approach\n';
+    // ✅ REMOVED: Shot type optimization - Maya naturally chooses optimal framing
 
-    knowledge += '\n📝 FLUX PROMPT EXAMPLES (Natural Structure):\n';
-    knowledge += 'CLOSE-UP BUSINESS: "Professional headshot of confident entrepreneur in tailored blazer, direct eye contact with subtle smile, soft window lighting creating gentle shadows, shot with 85mm lens f/2.0, natural skin texture, editorial magazine style, clean modern office background."\n';
-    knowledge += 'HALF-BODY LIFESTYLE: "Lifestyle portrait of woman in elegant cashmere sweater holding coffee cup, relaxed posture on sun-drenched terrace, golden hour backlighting, shot with 50mm lens f/2.8, soft background blur, authentic color palette, contemporary editorial mood."\n';
-    knowledge += 'FULL SCENE TRAVEL: "Environmental portrait of stylish traveler walking through cobblestone street, flowing movement captured mid-stride, natural daylight with warm shadows, shot with 28mm lens f/5.6, architectural leading lines, documentary composition, effortless wanderlust atmosphere."\n';
+    knowledge += '\n📝 NATURAL PROMPT FLOW EXAMPLES:\n';
+    knowledge += 'NATURAL FLOW: Use flowing descriptions that capture complete styling vision organically\n';
+    knowledge += 'AUTHENTIC LANGUAGE: Write as if describing a real photo to a photographer\n';
+    knowledge += 'STYLING INTELLIGENCE: Let your fashion expertise guide technical choices naturally\n';
 
     knowledge += '\n❌ AVOID THESE FLUX MISTAKES:\n';
     knowledge += 'NO TAG SOUP: Avoid comma-separated keyword lists\n';

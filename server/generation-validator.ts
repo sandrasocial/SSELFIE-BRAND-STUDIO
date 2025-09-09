@@ -215,11 +215,5 @@ export const FLUX_QUALITY_TAGS = [
   'DSLR quality'
 ];
 
-/**
- * Camera specifications optimized for different shot types
- */
-export const CAMERA_SPECS = {
-  closeUp: 'Canon EOS R5, 85mm f/1.4 lens, f/2.8 aperture, shallow depth of field, focus on eyes',
-  halfBody: 'Sony A7R V, 50mm f/1.2 lens, f/2.8 aperture, natural perspective, balanced composition',
-  fullBody: 'Canon EOS R5, 35mm f/1.8 lens, f/4 aperture, full scene coverage, environmental context'
-};
+// ✅ REMOVED: CAMERA_SPECS - Maya's intelligence naturally includes optimal camera selection
+// Maya chooses camera specifications as part of her complete styling intelligence
