@@ -2439,10 +2439,9 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
   console.log('🎯 UNIFIED CONCEPT PARSING: Analyzing response for Maya\'s styling concepts');
   console.log('📝 RAW RESPONSE PREVIEW:', response.substring(0, 500).replace(/\n/g, '\\n'));
   
-  // ✅ FIXED: Maya's emoji styling system - ALL EMOJIS SUPPORTED  
-  // Pattern 1: ANY Emoji + **Concept Name** (captures 🏔️🌲⛰️ and all others)
-  // Pattern 2: Traditional **Concept Name** format (fallback)
-  const emojiConceptPattern = /([🏔️🌲⛰️⛰🏔🌿🌄🎿🚡🏕️🌻🏞️🌊🌅🌄🔥💎🌟✨💫👑💼🏢💃📸🎬🎯🎨💪🚀🎪🎭🎵🎶🎸🎤🎧🎬🎪🎨🎭🎯🚀💪🔥💎🌟✨💫👑💼🏢💃📸])\s*\*\*([^*\n]{3,60})\*\*\s*\n(.*?)(?=\n[🏔️🌲⛰️⛰🏔🌿🌄🎿🚡🏕️🌻🏞️🌊🌅🌄🔥💎🌟✨💫👑💼🏢💃📸🎬🎯🎨💪🚀🎪🎭🎵🎶🎸🎤🎧🎬🎪🎨🎭🎯🚀💪🔥💎🌟✨💫👑💼🏢💃📸]|\n\n|$)/gs;
+  // ✅ FIXED: Maya's emoji styling system - RELIABLE EMOJI DETECTION
+  // Matches emojis followed by **Concept Name** (captures 🏔️☕⛰️ and all others)
+  const emojiConceptPattern = /(🏔️|🌲|⛰️|☕|🏞️|🌄|🎿|🚡|🏕️|🌻|🌊|🌅|🔥|💎|🌟|✨|💫|👑|💼|🏢|💃|📸|🎬|🎯|🎨|💪|🚀|🎪|🎭|🎵|🎶|🎸|🎤|🎧|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\u2600-\u26FF])\s*\*\*([^*\n]{3,60})\*\*\s*\n(.*?)(?=\n(?:🏔️|🌲|⛰️|☕|🏞️|🌄|🎿|🚡|🏕️|🌻|🌊|🌅|🔥|💎|🌟|✨|💫|👑|💼|🏢|💃|📸|🎬|🎯|🎨|💪|🚀|🎪|🎭|🎵|🎶|🎸|🎤|🎧|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\u2600-\u26FF])|\n\n|$)/gs;
   const multiConceptPattern = /\*\*([^*\n]{10,80})\*\*\n([^*]*?)(?=\*\*[^*\n]{10,80}\*\*|$)/gs;
   
   let match;
