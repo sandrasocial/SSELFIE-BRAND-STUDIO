@@ -524,6 +524,85 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // 🚀 AUTO-REGISTRATION: Create accounts for paying users automatically
+  app.post('/api/auth/auto-register', async (req: any, res) => {
+    try {
+      const { email, plan = 'sselfie-studio', source = 'payment' } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({ success: false, error: 'Email is required' });
+      }
+      
+      console.log('🚀 AUTO-REGISTER: Creating account for paying customer:', email);
+      
+      // Check if user already exists
+      const existingUser = await storage.getUserByEmail(email);
+      if (existingUser) {
+        console.log('✅ AUTO-REGISTER: User already exists, upgrading subscription');
+        // Update existing user's subscription
+        await storage.updateUserSubscription(existingUser.id, {
+          plan: 'sselfie-studio',
+          monthlyGenerationLimit: 100,
+          mayaAiAccess: true,
+          generationsUsedThisMonth: 0
+        });
+        
+        return res.json({ 
+          success: true, 
+          message: 'User subscription updated',
+          userId: existingUser.id,
+          action: 'upgraded'
+        });
+      }
+      
+      // Create new user account
+      const newUserId = `pay_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      
+      const userData = {
+        id: newUserId,
+        email,
+        plan: 'sselfie-studio',
+        role: 'user',
+        monthlyGenerationLimit: 100,
+        generationsUsedThisMonth: 0,
+        mayaAiAccess: true,
+        victoriaAiAccess: false,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+      
+      // Create user in database
+      await storage.createUser(userData);
+      
+      console.log('✅ AUTO-REGISTER: User created successfully:', newUserId);
+      
+      // Send welcome email
+      try {
+        const { sendWelcomeEmail } = await import('./services/email-service');
+        const emailSent = await sendWelcomeEmail(email, email.split('@')[0]);
+        console.log('📧 AUTO-REGISTER: Welcome email sent:', emailSent);
+      } catch (emailError) {
+        console.error('📧 AUTO-REGISTER: Welcome email failed:', emailError);
+        // Continue - don't fail registration because of email
+      }
+      
+      res.json({
+        success: true,
+        message: 'User registered successfully',
+        userId: newUserId,
+        action: 'created'
+      });
+      
+    } catch (error) {
+      console.error('❌ AUTO-REGISTER ERROR:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to register user',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
   // 🔄 PHASE 5: Register checkout routes for retraining system
   registerCheckoutRoutes(app);
   
