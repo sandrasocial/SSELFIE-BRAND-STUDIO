@@ -778,36 +778,27 @@ Use this strategic context to create photo concepts that directly support their 
     console.log('Expected Output: Concept cards with styling descriptions AND FLUX-ready prompts');
     
     // Single Claude API call with Maya's complete intelligence
-    // ✨ PHASE 4.1: OPTIMIZED SINGLE API CALL - Use optimization service for enhanced performance
-    const optimizationConfig = {
-      includeEmbeddedPrompts: context === 'styling',
-      includeConceptGeneration: context === 'styling',
-      includeConversation: true,
-      maxConcepts: 4
-    };
-
-    const optimizedResult = await MayaOptimizationService.generateOptimizedConcepts(
-      `${requestContext}${genderContext ? '\n\n' + genderContext : ''}${brandStrategyContext ? '\n\n' + brandStrategyContext : ''}`,
-      mayaPersonality,
-      userId,
-      conversationId,
-      optimizationConfig
-    );
-
-    console.log(`🚀 PHASE 4.1: Optimization complete - ${optimizedResult.apiCallsUsed} API call(s), optimizations: ${optimizedResult.optimizationApplied.join(', ')}`);
-
-    // Create mock Claude response object for compatibility
-    const claudeResponse = {
-      ok: true,
-      async json() {
-        return {
-          content: [{
-            type: 'text',
-            text: optimizedResult.conversationalResponse
-          }]
-        };
-      }
-    };
+    // Direct Claude API call with Maya's complete intelligence
+    const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': process.env.ANTHROPIC_API_KEY!,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify({
+        model: 'claude-3-5-sonnet-20241022',
+        max_tokens: 8000,
+        system: mayaPersonality, // Contains ALL Maya intelligence from consolidated personality system
+        messages: [
+          ...fullConversationHistory,
+          {
+            role: 'user',
+            content: `${requestContext}${genderContext ? '\n\n' + genderContext : ''}${brandStrategyContext ? '\n\n' + brandStrategyContext : ''}`
+          }
+        ]
+      })
+    });
 
     if (!claudeResponse.ok) {
       const errorBody = await claudeResponse.text();
@@ -823,12 +814,8 @@ Use this strategic context to create photo concepts that directly support their 
     const data = await claudeResponse.json();
     let mayaResponse = data.content[0].text;
     
-    // ✨ PHASE 4.1: Integrate optimized concepts if available
+    // Initialize optimized concepts as empty for now
     let optimizedConcepts: any[] = [];
-    if (optimizedResult && optimizedResult.concepts.length > 0) {
-      optimizedConcepts = optimizedResult.concepts;
-      console.log(`🎯 PHASE 4.1: Using ${optimizedConcepts.length} optimized concepts with embedded prompts`);
-    }
 
     // 🎯 ONBOARDING DETECTION: Check if Maya wants to start structured onboarding
     const onboardingKeywords = [
