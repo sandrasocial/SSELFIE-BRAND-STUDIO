@@ -30,7 +30,6 @@ import { trackMayaActivity } from '../services/maya-usage-isolation';
 import { UserStyleMemoryService } from '../services/user-style-memory';
 import { SupportIntelligenceService } from '../services/support-intelligence';
 import { EscalationHandler, escalationHandler } from '../services/escalation-handler';
-import { OnboardingConversationService } from '../services/onboarding-conversation-service';
 import { mayaPersonalizationService } from '../services/maya-personalization-service';
 
 const router = Router();
@@ -133,37 +132,6 @@ function logUserAbandonment(event: 'ONBOARDING_ABANDON' | 'CHAT_ABANDON' | 'GENE
     timestamp: Date.now()
   });
 }
-
-// CONVERSATIONAL ONBOARDING - Maya's intelligent onboarding experience
-router.post('/start-onboarding', requireStackAuth, async (req: AdminContextRequest, res) => {
-  const startTime = Date.now();
-  const userId = (req.user as any)?.id || (req.user as any)?.claims?.sub;
-  
-  if (!userId) {
-    logMayaAPI('/start-onboarding', startTime, false, new Error('Authentication required'));
-    return res.status(401).json({ error: 'Authentication required' });
-  }
-
-  try {
-    console.log(`🎯 MAYA CONVERSATIONAL ONBOARDING: Starting intelligent onboarding for user ${userId}`);
-    
-    // Use conversational onboarding service instead of static questions
-    const onboardingService = new OnboardingConversationService();
-    const onboardingResponse = await onboardingService.processOnboardingMessage(
-      userId,
-      'Let\'s begin your personalized onboarding',
-      1
-    );
-
-    logMayaAPI('/start-onboarding', startTime, true);
-    res.json(onboardingResponse);
-    
-  } catch (error) {
-    console.error('❌ MAYA CONVERSATIONAL ONBOARDING ERROR:', error);
-    logMayaAPI('/start-onboarding', startTime, false, error);
-    res.status(500).json({ error: 'Failed to start conversational onboarding' });
-  }
-});
 
 // UNIFIED MAYA ENDPOINT - Handles all Maya interactions with admin/member distinction
 router.post('/chat', requireStackAuth, adminContextDetection, async (req: AdminContextRequest, res) => {
@@ -2956,53 +2924,6 @@ router.post('/learn-from-favorites', requireStackAuth, async (req, res) => {
   } catch (error) {
     console.error('Learn from favorites error:', error);
     res.status(500).json({ error: 'Failed to learn from favorites' });
-  }
-});
-
-// CONVERSATIONAL ONBOARDING RESPONSE - Maya's intelligent response processing
-router.post('/onboarding-response', requireStackAuth, async (req, res) => {
-  try {
-    const userId = (req.user as any)?.id || (req.user as any)?.claims?.sub;
-    if (!userId) {
-      return res.status(401).json({ error: 'Authentication required' });
-    }
-
-    const { fieldName, answer } = req.body;
-    if (!answer) {
-      return res.status(400).json({ error: 'Answer is required' });
-    }
-
-    // Get current user data
-    const user = await storage.getUser(userId);
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-
-    // Use conversational onboarding service for intelligent response processing
-    const onboardingService = new OnboardingConversationService();
-    const currentStep = user.onboardingStep || 1;
-    
-    const onboardingResponse = await onboardingService.processOnboardingMessage(
-      userId,
-      answer,
-      currentStep
-    );
-    
-    // Update user's onboarding progress if moving to next step
-    if (onboardingResponse.currentStep > currentStep) {
-      await storage.updateUser(userId, { onboardingStep: onboardingResponse.currentStep });
-    }
-    
-    // Mark profile as completed if onboarding is done
-    if (onboardingResponse.nextAction === 'complete_onboarding') {
-      await storage.updateUser(userId, { profileCompleted: true, onboardingStep: 6 });
-    }
-
-    return res.json(onboardingResponse);
-    
-  } catch (error) {
-    console.error('Conversational onboarding response error:', error);
-    res.status(500).json({ error: 'Failed to process conversational onboarding response' });
   }
 });
 
