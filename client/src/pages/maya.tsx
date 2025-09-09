@@ -215,15 +215,15 @@ export default function Maya() {
     }
   }, [conversationData, messages.length, setMessages]);
 
-  // Initialize Maya onboarding for new users - Fixed race condition
+  // Initialize Maya with integrated luxury onboarding
   useEffect(() => {
     if (user?.id && messages.length === 0 && !conversationData && !hasStartedChat && !isCheckingOnboarding) {
-      console.log('🎯 Maya: New user detected, checking onboarding status...');
+      console.log('🎯 Maya: New user detected, starting integrated onboarding...');
       
-      const checkOnboardingAndStart = async () => {
+      const startIntegratedOnboarding = async () => {
         setIsCheckingOnboarding(true);
         try {
-          // Get onboarding status directly from status API
+          // Get onboarding status
           const statusResponse = await fetch('/api/maya/member/status', {
             credentials: 'include'
           }).then(r => r.json());
@@ -231,22 +231,22 @@ export default function Maya() {
           setIsOnboardingComplete(statusResponse.onboardingComplete || false);
           
           if (!statusResponse.onboardingComplete) {
-            console.log('✅ Maya: Starting simple essential onboarding');
-            // Start simple essential onboarding (not complex conversation)
-            await startOnboardingConversation();
+            console.log('✅ Maya: Starting luxury integrated onboarding within chat');
+            startLuxuryOnboardingChat();
             setHasStartedChat(true);
           } else {
-            console.log('✅ Maya: User has completed onboarding, ready for concept generation');
-            setHasStartedChat(false);
+            console.log('✅ Maya: User ready for concept generation');
+            startSimpleConversation();
           }
         } catch (error) {
-          console.error('❌ Maya: Failed to check onboarding status:', error);
+          console.error('❌ Maya: Failed to start integrated onboarding:', error);
+          startSimpleConversation(); // Fallback to regular chat
         } finally {
           setIsCheckingOnboarding(false);
         }
       };
       
-      checkOnboardingAndStart();
+      startIntegratedOnboarding();
     }
   }, [user?.id, messages.length, conversationData, hasStartedChat, isCheckingOnboarding]);
 
@@ -462,28 +462,22 @@ export default function Maya() {
   const [onboardingData, setOnboardingData] = useState<any>(null);
   const [isCompletingOnboarding, setIsCompletingOnboarding] = useState(false);
 
-  // Start the simple essential onboarding
-  const startOnboardingConversation = async () => {
-    console.log('🎯 Maya: Starting simple essential onboarding');
-    try {
-      const response = await fetch('/api/maya/member/start-onboarding', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include'
-      });
+  // Start luxury integrated onboarding within chat
+  const startLuxuryOnboardingChat = () => {
+    console.log('✨ Maya: Starting luxury integrated onboarding');
+    
+    // Welcome message with luxury styling - follows user's conversational flow
+    addMessage({
+      type: 'maya',
+      content: `Hello! 👋 I'm Maya, your personal AI stylist and brand strategist.
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+I've helped thousands of entrepreneurs create stunning professional photos that actually book clients. My job is to understand your style, your business goals, and create photos that make you look absolutely incredible.
 
-      const data = await response.json();
-      console.log('✅ Maya: Simple onboarding data received');
-      setOnboardingData(data);
-      setIsTyping(false);
-    } catch (error) {
-      console.error('❌ Maya: Simple onboarding failed:', error);
-      setIsTyping(false);
-    }
+Ready to get started? What's your name?`,
+      timestamp: new Date().toISOString(),
+      isOnboarding: true,
+      quickButtons: ['Let\'s begin', 'Tell me more about SSELFIE Studio']
+    });
   };
 
   // Complete onboarding with answers
@@ -542,22 +536,7 @@ export default function Maya() {
     });
   };
 
-  // Show simple onboarding form if user needs onboarding
-  if (onboardingData && !isOnboardingComplete) {
-    return (
-      <div className="flex h-screen bg-white">
-        <MemberNavigation />
-        <div className="flex-1 flex items-center justify-center p-8">
-          <SimpleOnboardingForm
-            questions={onboardingData.questions}
-            welcomeMessage={onboardingData.message}
-            onComplete={completeOnboarding}
-            isLoading={isCompletingOnboarding}
-          />
-        </div>
-      </div>
-    );
-  }
+  // Onboarding is now integrated within the chat interface - no separate page needed!
 
   return (
     <>
