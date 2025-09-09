@@ -1495,72 +1495,13 @@ router.post('/generate', requireStackAuth, adminContextDetection, async (req: Ad
     // ✅ MAYA GENERATION: Begin image generation with the finalized prompt
 
     // Generate images using Maya's simplified intelligence
-      console.log(`🔗 MAYA CONTEXT HANDOFF: Concept "${userConcept}" with ${originalContext.length} chars`);
-      console.log(`🎨 MAYA UNIQUE CONTEXT: ${originalContext.substring(0, 300)}...`);
-      
-      // Check if context is empty and warn
-      if (!originalContext || originalContext.length < 10) {
-        console.log(`⚠️ MAYA EMPTY CONTEXT WARNING: No meaningful context found for "${conceptName}"`);
-        console.log(`🔍 MAYA CONTEXT DEBUG: conceptId="${conceptId}", conceptName="${conceptName}"`);
-      }
-      
-      // ✅ MAYA PURE INTELLIGENCE: Let Maya naturally understand context without forced categorization
-      
-      // TASK 3 DEBUG: Log exactly what context Maya receives
-      console.log(`🔍 TASK 3 DEBUG - CONTEXT FLOW:`);
-      console.log(`📝 USER REQUEST: "${prompt}"`);
-      console.log(`🏷️ CONCEPT NAME: "${conceptName}"`);
-      console.log(`📋 ORIGINAL CONTEXT (first 300 chars): "${originalContext.substring(0, 300)}"`);
-      console.log(`✅ MAYA PURE INTELLIGENCE: Natural category understanding active`);
-      
-      // CRITICAL: Apply enhanced cleaning to originalContext before using it
-      const cleanedContext = originalContext;
-      console.log(`🧹 CLEANED CONTEXT (first 300 chars): "${cleanedContext.substring(0, 300)}"`);
-      
-      // ✅ MAYA FRESH INTELLIGENCE: Let Maya create fresh styling vision for every concept
-      console.log(`🎯 MAYA DIRECT GENERATION: Creating fresh styling for concept "${userConcept}"`);
-      
-      // Always use Maya's current intelligence - no database retrieval needed
-      finalPrompt = await createDetailedPromptFromConcept(userConcept, generationInfo.triggerWord, userId, cleanedContext, undefined, undefined);
-      console.log(`✅ MAYA FRESH STYLING: Generated ${finalPrompt.length} character prompt with current intelligence`);
-      console.log('🎨 MAYA STYLED PROMPT:', finalPrompt.substring(0, 300));
-      console.log('✅ MAYA INTELLIGENCE ACTIVE in image generation');
-      console.log(`✅ MAYA LAZY GENERATION: Generated ${finalPrompt.length} character prompt with pure intelligence`);
-      console.log(`🔍 MAYA FINAL PROMPT PREVIEW: ${finalPrompt.substring(0, 300)}...`);
-    } else {
-      // STEP 2.1: Enhanced Custom User Request Detection
-      const isCustomUserRequest = !conceptName || conceptName.length === 0;
-      const isMayaGeneratedPrompt = prompt && prompt.length > 100 && 
-        /raw photo|film grain|professional photography|beautiful hands|detailed fingers/.test(prompt.toLowerCase());
-      
-      if (isMayaGeneratedPrompt) {
-        // Maya already provided intelligent prompt - use directly
-        console.log('✅ MAYA INTELLIGENCE PRESERVED: Maya-generated prompt detected, using directly');
-        console.log('✅ STEP 2.1 OPTIMIZATION: Skipping createDetailedPromptFromConcept for Maya prompt');
-        finalPrompt = prompt;
-      } else if (isCustomUserRequest && (!prompt || prompt.length < 100)) {
-        // Only process basic custom requests that need Maya's intelligence
-        console.log('🔗 STEP 2.1 CUSTOM ENHANCEMENT: Basic user request, applying Maya styling intelligence');
-        finalPrompt = await createDetailedPromptFromConcept(prompt, generationInfo.triggerWord, userId, `Custom user request: ${prompt}`, undefined, undefined);
-        console.log('🎨 MAYA STYLED PROMPT (custom):', finalPrompt.substring(0, 300));
-        console.log('✅ MAYA INTELLIGENCE ACTIVE in image generation (custom)');
-      } else {
-        // Use prompt as-is for other cases
-        console.log('✅ STEP 2.1 DIRECT USE: Using prompt without additional processing');
-        finalPrompt = prompt;
-      }
-    }
     
-    // ✅ MAYA PURE INTELLIGENCE: Minimal trigger word positioning to preserve Maya's complete styling intelligence
+    // Position trigger word if needed
     if (!finalPrompt.startsWith(generationInfo.triggerWord)) {
-      // Only position trigger word without altering Maya's content
       const withoutTrigger = finalPrompt.replace(new RegExp(`\\b${generationInfo.triggerWord}\\b`, 'gi'), '').replace(/^[\s,]+/, '').trim();
       finalPrompt = `${generationInfo.triggerWord}, ${withoutTrigger}`;
-      console.log(`🎯 MAYA PURE INTELLIGENCE: Positioned trigger word while preserving all styling content`);
+      console.log(`🎯 MAYA: Positioned trigger word while preserving styling content`);
     }
-    
-    // Category detection is now handled directly in createDetailedPromptFromConcept function
-    // This eliminates redundant category detection and ensures consistency
     
     const result = await ModelTrainingService.generateUserImages(
       userId,
