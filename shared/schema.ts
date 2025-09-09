@@ -1243,6 +1243,42 @@ export const savedPrompts = pgTable("saved_prompts", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// PHASE 3: DYNAMIC PERSONALIZATION ENGINE - User Style Evolution Tracking
+export const userStyleEvolution = pgTable("user_style_evolution", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  
+  // Adaptation tracking
+  learningProgress: jsonb("learning_progress").default('{}'),
+  styleEvolutionPath: jsonb("style_evolution_path").default('[]'),
+  feedbackPatterns: jsonb("feedback_patterns").default('{}'),
+  contextualPreferences: jsonb("contextual_preferences").default('{}'),
+  
+  // Contemporary elements
+  trendAdaptation: jsonb("trend_adaptation").default('{}'),
+  culturalContext: jsonb("cultural_context").default('{}'),
+  sustainabilityPreferences: jsonb("sustainability_preferences").default('{}'),
+  
+  lastAdaptation: timestamp("last_adaptation").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow()
+});
+
+// Real-time Context Tracking  
+export const mayaContextSessions = pgTable("maya_context_sessions", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  sessionId: varchar("session_id").notNull(),
+  
+  // Session context
+  currentMood: varchar("current_mood"),
+  stylingGoals: jsonb("styling_goals").default('[]'),
+  contextualCues: jsonb("contextual_cues").default('{}'),
+  adaptationTriggers: jsonb("adaptation_triggers").default('[]'),
+  
+  sessionStarted: timestamp("session_started").defaultNow(),
+  lastInteraction: timestamp("last_interaction").defaultNow()
+});
+
 // Insert schemas for missing tables
 export const insertArchitectureAuditLogSchema = createInsertSchema(architectureAuditLog).omit({ id: true, auditDate: true });
 export const insertBrandbookSchema = createInsertSchema(brandbooks).omit({ id: true, createdAt: true, updatedAt: true });
@@ -1251,6 +1287,8 @@ export const insertInspirationPhotoSchema = createInsertSchema(inspirationPhotos
 export const insertModelRecoveryLogSchema = createInsertSchema(modelRecoveryLog).omit({ id: true, createdAt: true });
 export const insertSandraConversationSchema = createInsertSchema(sandraConversations).omit({ id: true, createdAt: true });
 export const insertSavedPromptSchema = createInsertSchema(savedPrompts).omit({ id: true, createdAt: true });
+export const insertUserStyleEvolutionSchema = createInsertSchema(userStyleEvolution).omit({ id: true, createdAt: true, lastAdaptation: true });
+export const insertMayaContextSessionSchema = createInsertSchema(mayaContextSessions).omit({ id: true, sessionStarted: true, lastInteraction: true });
 
 // Type exports for missing tables
 export type ArchitectureAuditLog = typeof architectureAuditLog.$inferSelect;
@@ -1267,6 +1305,10 @@ export type SandraConversation = typeof sandraConversations.$inferSelect;
 export type InsertSandraConversation = z.infer<typeof insertSandraConversationSchema>;
 export type SavedPrompt = typeof savedPrompts.$inferSelect;
 export type InsertSavedPrompt = z.infer<typeof insertSavedPromptSchema>;
+export type UserStyleEvolution = typeof userStyleEvolution.$inferSelect;
+export type InsertUserStyleEvolution = z.infer<typeof insertUserStyleEvolutionSchema>;
+export type MayaContextSession = typeof mayaContextSessions.$inferSelect;
+export type InsertMayaContextSession = z.infer<typeof insertMayaContextSessionSchema>;
 
 // Note: Website type already defined above at line 502
 // Note: styleguide_templates and user_styleguides are imported from styleguide-schema.ts
