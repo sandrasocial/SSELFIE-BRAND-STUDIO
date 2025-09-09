@@ -2452,6 +2452,16 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
   console.log('🎯 UNIFIED CONCEPT PARSING: Analyzing response for Maya\'s styling concepts');
   console.log('📝 RAW RESPONSE PREVIEW:', response.substring(0, 500).replace(/\n/g, '\\n'));
   
+  // 🚨 DEBUG: Check for FLUX_PROMPT lines in raw response
+  const fluxPromptMatches = response.match(/FLUX_PROMPT:[^\n]*/g);
+  console.log('🔍 RAW FLUX_PROMPT DETECTION:');
+  console.log(`- Found ${fluxPromptMatches?.length || 0} FLUX_PROMPT lines in raw response`);
+  if (fluxPromptMatches) {
+    fluxPromptMatches.forEach((match, index) => {
+      console.log(`  ${index + 1}. "${match}"`);
+    });
+  }
+  
   // ✅ FIXED: Maya's emoji styling system - RELIABLE EMOJI DETECTION
   // Matches emojis followed by **Concept Name** (captures 🏔️☕⛰️ and all others)
   const emojiConceptPattern = /(🏔️|🌲|⛰️|☕|🏞️|🌄|🎿|🚡|🏕️|🌻|🌊|🌅|🔥|💎|🌟|✨|💫|👑|💼|🏢|💃|📸|🎬|🎯|🎨|💪|🚀|🎪|🎭|🎵|🎶|🎸|🎤|🎧|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\u2600-\u26FF])\s*\*\*([^*\n]{3,60})\*\*\s*\n(.*?)(?=\n(?:🏔️|🌲|⛰️|☕|🏞️|🌄|🎿|🚡|🏕️|🌻|🌊|🌅|🔥|💎|🌟|✨|💫|👑|💼|🏢|💃|📸|🎬|🎯|🎨|💪|🚀|🎪|🎭|🎵|🎶|🎸|🎤|🎧|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\u2600-\u26FF])|\n\n|$)/gs;
@@ -2477,8 +2487,21 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
     console.log(`📏 CONTENT LENGTH: ${conceptContent.length} characters`);
     
     // SINGLE API CALL: Extract embedded FLUX prompt from concept content  
-    const fluxPromptMatch = conceptContent.match(/FLUX_PROMPT:\s*(.*?)(?=\n|$)/s);
-    const embeddedFluxPrompt = fluxPromptMatch ? fluxPromptMatch[1].trim() : null;
+    // 🔧 IMPROVED REGEX: Handle partial/incomplete FLUX_PROMPT lines
+    let fluxPromptMatch = conceptContent.match(/FLUX_PROMPT:\s*(.*?)(?=\n|$)/s);
+    let embeddedFluxPrompt = fluxPromptMatch ? fluxPromptMatch[1].trim() : null;
+    
+    // 🚨 FALLBACK: Try to find partial FLUX_PROMPT if main extraction fails
+    if (!embeddedFluxPrompt || embeddedFluxPrompt.length < 20) {
+      console.log('⚠️ FLUX_PROMPT incomplete, trying fallback extraction...');
+      
+      // Try capturing everything after FLUX_PROMPT: until end of content
+      const fallbackMatch = conceptContent.match(/FLUX_PROMPT:\s*(.*)/s);
+      if (fallbackMatch && fallbackMatch[1].trim().length > embeddedFluxPrompt?.length) {
+        embeddedFluxPrompt = fallbackMatch[1].trim();
+        console.log(`✅ FALLBACK EXTRACTION: Found ${embeddedFluxPrompt.length} chars`);
+      }
+    }
     
     // 🚨 DEBUG: Log FLUX prompt extraction
     console.log(`🔍 FLUX PROMPT EXTRACTION DEBUG:`);
