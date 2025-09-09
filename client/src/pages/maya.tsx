@@ -676,14 +676,35 @@ export default function Maya() {
                                       </span>
                                     </div>
 
-                                    <p 
-                                      className="text-gray-600 mb-6 leading-relaxed"
-                                      style={{ fontFamily: 'Helvetica Neue', fontWeight: 300, lineHeight: 1.7 }}
-                                    >
-                                      {card.description}
-                                    </p>
+                                    {!isExpanded && (
+                                      <p 
+                                        className="text-gray-600 mb-6 leading-relaxed"
+                                        style={{ fontFamily: 'Helvetica Neue', fontWeight: 300, lineHeight: 1.7 }}
+                                      >
+                                        {card.description.length > 150 
+                                          ? `${card.description.substring(0, 150)}...`
+                                          : card.description
+                                        }
+                                      </p>
+                                    )}
 
-                                    <div className="flex items-center justify-end">
+                                    {isExpanded && (
+                                      <p 
+                                        className="text-gray-600 mb-6 leading-relaxed"
+                                        style={{ fontFamily: 'Helvetica Neue', fontWeight: 300, lineHeight: 1.7 }}
+                                      >
+                                        {card.description}
+                                      </p>
+                                    )}
+
+                                    <div className="flex items-center justify-between">
+                                      <button
+                                        onClick={() => toggleCardExpansion(card.id)}
+                                        className="text-xs tracking-wider uppercase text-gray-600 hover:text-black transition-colors border-b border-transparent hover:border-black pb-1"
+                                        style={{ letterSpacing: '0.2em' }}
+                                      >
+                                        {isExpanded ? 'Show Less' : 'View Details'}
+                                      </button>
                                       <button
                                         onClick={() => handleGenerateImage(card)}
                                         disabled={card.isGenerating}
