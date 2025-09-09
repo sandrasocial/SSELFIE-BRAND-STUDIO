@@ -33,6 +33,7 @@ import { EscalationHandler, escalationHandler } from '../services/escalation-han
 import { mayaPersonalizationService } from '../services/maya-personalization-service';
 import { MayaChatPreviewService } from '../maya-chat-preview-service';
 import { MayaAdaptationEngine } from '../services/maya-adaptation-engine';
+import { MayaContextSessionManager } from '../services/maya-context-session-manager';
 
 const router = Router();
 
@@ -166,6 +167,14 @@ router.post('/chat', requireStackAuth, adminContextDetection, async (req: AdminC
     
     console.log(`🎯 PERSONALIZATION: Adapted Maya personality (confidence: ${adaptationResult.confidenceScore})`);
     console.log(`💡 ADAPTATION REASON: ${adaptationResult.adaptationReason}`);
+    
+    // ✨ PHASE 3.3: ENHANCED CONTEXT RETENTION - Initialize session for improved context memory
+    const contextSession = await MayaContextSessionManager.initializeSession(userId, {
+      message,
+      context,
+      userContext,
+      adaptationResult
+    });
     
     // Maya can handle incomplete profiles conversationally - no blocking
 
@@ -2397,7 +2406,7 @@ function getContextualQuickButtons(context: string, step: number = 1): string[] 
   return ["Tell me more", "Show me examples", "What do you recommend?"];
 }
 
-async function saveUnifiedConversation(userId: string, userMessage: string, mayaResponse: any, chatId: number | null, context: string, userType: string = 'member', conversationId: string = ''): Promise<number> {
+async function saveUnifiedConversation(userId: string, userMessage: string, mayaResponse: any, chatId: number | null, context: string, userType: string = 'member', conversationId: string = '', sessionId?: string): Promise<number> {
   try {
     let currentChatId = chatId;
     
@@ -2479,6 +2488,21 @@ async function saveUnifiedConversation(userId: string, userMessage: string, maya
           console.log(`  - FullPrompt preview: ${concept.fullPrompt.substring(0, 100)}...`);
         }
       });
+    }
+
+    // ✨ PHASE 3.3: Update session context with conversation insights
+    if (sessionId) {
+      try {
+        await MayaContextSessionManager.updateSessionContext(
+          sessionId,
+          userMessage,
+          mayaResponse,
+          { context, userType, conversationId }
+        );
+        console.log(`📚 CONTEXT SESSION: Updated session ${sessionId} with conversation insights`);
+      } catch (error) {
+        console.error('❌ SESSION CONTEXT UPDATE ERROR:', error);
+      }
     }
 
     return currentChatId;
