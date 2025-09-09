@@ -1962,9 +1962,33 @@ function extractStylingReasoning(mayaResponse: string): string {
   return reasoning || 'Styling chosen for category appropriateness, visual impact, and personal branding effectiveness.';
 }
 
+// PLACEHOLDER REPLACEMENT SYSTEM: Replace Maya's placeholders with actual user data
+function replaceMayaPlaceholders(response: string, triggerWord: string, userGender?: string): string {
+  let processedResponse = response;
+  
+  // Replace [TRIGGER_WORD] with actual trigger word
+  if (triggerWord) {
+    processedResponse = processedResponse.replace(/\[TRIGGER_WORD\]/g, triggerWord);
+  }
+  
+  // Replace [USER_GENDER] with actual user gender
+  if (userGender) {
+    processedResponse = processedResponse.replace(/\[USER_GENDER\]/g, userGender);
+  } else {
+    // If no gender, use neutral representation
+    processedResponse = processedResponse.replace(/\[USER_GENDER\]/g, 'person');
+  }
+  
+  return processedResponse;
+}
+
 async function processMayaResponse(response: string, context: string, userId: string, userContext: any, generationInfo: any) {
+  // CRITICAL: Replace placeholders with actual user data before processing
+  const userGender = userContext?.userInfo?.gender; 
+  const processedResponse = replaceMayaPlaceholders(response, generationInfo.triggerWord, userGender);
+  
   let processed = {
-    message: response,
+    message: processedResponse,
     canGenerate: false,
     generatedPrompt: null,
     onboardingProgress: null,
