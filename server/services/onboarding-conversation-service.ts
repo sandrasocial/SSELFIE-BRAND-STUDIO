@@ -1,5 +1,6 @@
 import { personalBrandService, type PersonalBrandProfile } from './personal-brand-service';
-import { mayaMemoryService } from './maya-memory-service';
+import { unifiedMayaMemoryService } from './unified-maya-memory-service.js';
+import { unifiedMayaContextService } from './unified-maya-context-service.js';
 import { PersonalityManager } from '../agents/personalities/personality-config';
 
 interface OnboardingStep {
@@ -135,7 +136,7 @@ export class OnboardingConversationService {
     const mayaResponse = await this.getMayaResponse(mayaPersonality, message, context);
     
     // Save conversation to memory
-    await mayaMemoryService.saveMayaConversation(
+    await unifiedMayaMemoryService.saveUnifiedConversation(
       userId,
       message,
       mayaResponse.message,
@@ -192,7 +193,9 @@ export class OnboardingConversationService {
     
     let personalBrand;
     if (isCompleted) {
-      personalBrand = await personalBrandService.getPersonalBrandProfile(userId);
+      // ✨ PHASE 2: Use unified context to avoid redundant database query
+      const unifiedContext = await unifiedMayaContextService.getUnifiedMayaContext(userId);
+      personalBrand = unifiedContext.personalBrand;
     }
     
     return {
@@ -209,8 +212,10 @@ export class OnboardingConversationService {
    * Load conversation context for Maya
    */
   private async loadConversationContext(userId: string, currentStep: number): Promise<ConversationContext> {
-    const personalBrandData = await personalBrandService.getPersonalBrandProfile(userId);
-    const conversationHistory = await mayaMemoryService.getConversationHistory(userId, 5);
+    // ✨ PHASE 2: Single unified context call instead of multiple separate queries
+    const unifiedContext = await unifiedMayaContextService.getUnifiedMayaContext(userId);
+    const personalBrandData = unifiedContext.personalBrand;
+    const conversationHistory = unifiedContext.conversationHistory.slice(-5);
     
     return {
       userId,
