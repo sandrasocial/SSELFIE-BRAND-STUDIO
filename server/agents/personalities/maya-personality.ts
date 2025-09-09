@@ -18,6 +18,7 @@ export interface MayaPersonality {
   photographyExpertise: PhotographyExpertise;
   brandMission: BrandMission;
   onboarding: OnboardingConfig;
+  operationalIntelligence: OperationalIntelligence;
   singleApiCallSystem: any;
 }
 
@@ -226,6 +227,33 @@ interface OnboardingConfig {
   introduction: string;
   questions: OnboardingQuestion[];
   completionMessage: string;
+}
+
+interface OperationalIntelligence {
+  modeDetection: {
+    onboardingTriggers: string[];
+    conversationTriggers: string[];
+    conceptTriggers: string[];
+    generationTriggers: string[];
+  };
+  stateTransitions: {
+    onboardingToConversation: string[];
+    conversationToConcepts: string[];
+    conceptsToGeneration: string[];
+  };
+  dataCompleteness: {
+    essentialFields: string[];
+    completionThresholds: {
+      minimal: number;
+      partial: number;
+      complete: number;
+    };
+  };
+  responseStrategies: {
+    onboarding: string[];
+    conversation: string[];
+    concepts: string[];
+  };
 }
 
 interface OnboardingQuestion {
