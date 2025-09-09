@@ -676,23 +676,14 @@ export default function Maya() {
                                       </span>
                                     </div>
 
-                                    {isExpanded && (
-                                      <p 
-                                        className="text-gray-600 mb-6 leading-relaxed"
-                                        style={{ fontFamily: 'Helvetica Neue', fontWeight: 300, lineHeight: 1.7 }}
-                                      >
-                                        {card.description}
-                                      </p>
-                                    )}
+                                    <p 
+                                      className="text-gray-600 mb-6 leading-relaxed"
+                                      style={{ fontFamily: 'Helvetica Neue', fontWeight: 300, lineHeight: 1.7 }}
+                                    >
+                                      {card.description}
+                                    </p>
 
-                                    <div className="flex items-center justify-between">
-                                      <button
-                                        onClick={() => toggleCardExpansion(card.id)}
-                                        className="text-xs tracking-wider uppercase text-gray-600 hover:text-black transition-colors border-b border-transparent hover:border-black pb-1"
-                                        style={{ letterSpacing: '0.2em' }}
-                                      >
-                                        {isExpanded ? 'Show Less' : 'View Details'}
-                                      </button>
+                                    <div className="flex items-center justify-end">
                                       <button
                                         onClick={() => handleGenerateImage(card)}
                                         disabled={card.isGenerating}
