@@ -23,7 +23,6 @@ interface ChatMessage {
   showUpload?: boolean;
   showExamples?: boolean;
   quickButtons?: string[];
-  requiresGender?: boolean;
 }
 
 
@@ -79,8 +78,7 @@ export default function Maya() {
   // Initialize Maya generation hook with persistent messages
   const { generateFromSpecificConcept } = useMayaGeneration(messages, setMessages, null, setIsTyping, toast);
 
-  // ✅ SIMPLIFIED: No complex onboarding blocking - Maya handles gender naturally
-  const [requiresGender, setRequiresGender] = useState(false);
+  // ✅ CLEANED UP: No blocking logic needed
 
   // Connection status monitoring
   useEffect(() => {
@@ -369,12 +367,8 @@ export default function Maya() {
           content: data.response || data.content || data.message || '',
           timestamp: new Date().toISOString(),
           conceptCards: data.conceptCards || [],
-          quickButtons: data.quickButtons || [],
-          requiresGender: data.requiresGender || false
+          quickButtons: data.quickButtons || []
         });
-        
-        // Update gender requirement state
-        setRequiresGender(data.requiresGender || false);
       }
       setIsTyping(false);
     },
