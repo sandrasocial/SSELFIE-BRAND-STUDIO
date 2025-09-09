@@ -8,7 +8,6 @@ import { MayaCategorizedGallery } from '../components/maya-categorized-gallery';
 import { MemberNavigation } from '../components/member-navigation';
 import { MayaUploadComponent } from '../components/maya/MayaUploadComponent';
 import { MayaExamplesGallery } from '../components/maya/MayaExamplesGallery';
-import { SimpleOnboardingForm } from '../components/SimpleOnboardingForm';
 import { MayaVisualOnboarding } from '../components/maya/MayaVisualOnboarding';
 import { useLocation } from 'wouter';
 
@@ -462,7 +461,6 @@ export default function Maya() {
   // State for simple onboarding
   const [onboardingData, setOnboardingData] = useState<any>(null);
   const [isCompletingOnboarding, setIsCompletingOnboarding] = useState(false);
-  const [useVisualOnboarding, setUseVisualOnboarding] = useState(true); // New: prefer visual cards over static forms
 
   // Start the simple essential onboarding
   const startOnboardingConversation = async () => {
@@ -590,38 +588,17 @@ export default function Maya() {
     }
   };
 
-  // Show onboarding - enhanced visual cards OR fallback to simple form
+  // Show luxury visual onboarding cards
   if (onboardingData && !isOnboardingComplete) {
     return (
       <div className="flex h-screen bg-white">
         <MemberNavigation />
         <div className="flex-1 flex items-center justify-center p-8">
-          {useVisualOnboarding ? (
-            // NEW: Luxury visual onboarding cards
-            <MayaVisualOnboarding
-              onComplete={completeVisualOnboarding}
-              isLoading={isCompletingOnboarding}
-              initialMessage={onboardingData.message}
-            />
-          ) : (
-            // FALLBACK: Original simple form (preserves all existing logic)
-            <SimpleOnboardingForm
-              questions={onboardingData.questions}
-              welcomeMessage={onboardingData.message}
-              onComplete={completeOnboarding}
-              isLoading={isCompletingOnboarding}
-            />
-          )}
-          
-          {/* Option to switch between old/new onboarding */}
-          <div className="absolute top-4 right-4">
-            <button
-              onClick={() => setUseVisualOnboarding(!useVisualOnboarding)}
-              className="text-xs text-gray-400 hover:text-gray-600 tracking-wider uppercase"
-            >
-              {useVisualOnboarding ? 'Use Simple Form' : 'Use Visual Cards'}
-            </button>
-          </div>
+          <MayaVisualOnboarding
+            onComplete={completeVisualOnboarding}
+            isLoading={isCompletingOnboarding}
+            initialMessage={onboardingData.message}
+          />
         </div>
       </div>
     );
