@@ -791,7 +791,7 @@ Use this strategic context to create photo concepts that directly support their 
     // CRITICAL DEBUG: Log Maya's raw response to check for emojis
     console.log('🔍 MAYA RAW RESPONSE FROM CLAUDE API:');
     console.log(mayaResponse.substring(0, 500) + '...');
-    console.log('🔍 EMOJI CHECK: Contains emojis?', /[✨💫🔥🌟💎🌅🏢💼🌊👑💃📸🎬]/.test(mayaResponse));
+    console.log('🔍 EMOJI CHECK: Contains ANY emojis?', /[\p{Emoji_Presentation}\p{Extended_Pictographic}]/u.test(mayaResponse));
     
     // PHASE 1 DEBUG: Log Maya's actual response to user
     console.log('🎯 MAYA USER RESPONSE (what user sees):');
@@ -2066,10 +2066,10 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
   console.log('🎯 UNIFIED CONCEPT PARSING: Analyzing response for Maya\'s styling concepts');
   console.log('📝 RAW RESPONSE PREVIEW:', response.substring(0, 500).replace(/\n/g, '\\n'));
   
-  // ENHANCED CONCEPT DETECTION: Maya's emoji styling system
-  // Pattern 1: Emoji + **Concept Name** (e.g., "🏢 **THE POWER PLAYER CASUAL**")
+  // ✅ UNLIMITED EMOJI CREATIVITY: Maya can use ANY emoji for concepts
+  // Pattern 1: ANY Emoji + **Concept Name** (e.g., "🦌 **WILDERNESS HUNTER**", "🏹 **OUTDOOR ADVENTURE**", "🎨 **CREATIVE ARTIST**")
   // Pattern 2: Traditional **Concept Name** format (fallback)
-  const emojiConceptPattern = /([✨💫🔥🌟💎🌅🏢💼🌊👑💃📸🎬])\s*\*\*([^*\n]{8,50})\*\*\n(.*?)(?=\n[✨💫🔥🌟💎🌅🏢💼🌊👑💃📸🎬]|\n\n[✨💫🔥🌟💎🌅🏢💼🌊👑💃📸🎬]|$)/gs;
+  const emojiConceptPattern = /([\p{Emoji_Presentation}\p{Extended_Pictographic}])\s*\*\*([^*\n]{8,50})\*\*\n(.*?)(?=\n[\p{Emoji_Presentation}\p{Extended_Pictographic}]|\n\n[\p{Emoji_Presentation}\p{Extended_Pictographic}]|$)/gsu;
   const multiConceptPattern = /\*\*([^*\n]{10,80})\*\*\n([^*]*?)(?=\*\*[^*\n]{10,80}\*\*|$)/gs;
   
   let match;
