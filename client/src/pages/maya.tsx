@@ -8,7 +8,6 @@ import { MayaCategorizedGallery } from '../components/maya-categorized-gallery';
 import { MemberNavigation } from '../components/member-navigation';
 import { MayaUploadComponent } from '../components/maya/MayaUploadComponent';
 import { MayaExamplesGallery } from '../components/maya/MayaExamplesGallery';
-import { SimpleOnboardingForm } from '../components/SimpleOnboardingForm';
 import { useLocation } from 'wouter';
 
 // Maya luxury workspace - aligned with SSELFIE brand guidelines
@@ -22,7 +21,6 @@ interface ChatMessage {
   isStreaming?: boolean;
   showUpload?: boolean;
   showExamples?: boolean;
-  quickButtons?: string[];
 }
 
 
@@ -77,8 +75,6 @@ export default function Maya() {
 
   // Initialize Maya generation hook with persistent messages
   const { generateFromSpecificConcept } = useMayaGeneration(messages, setMessages, null, setIsTyping, toast);
-
-  // ✅ CLEANED UP: No blocking logic needed
 
   // Connection status monitoring
   useEffect(() => {
@@ -199,7 +195,7 @@ export default function Maya() {
 
   // Enhanced loading with database sync
   const { data: conversationData } = useQuery({
-    queryKey: ['/api/maya/member/conversation'],
+    queryKey: ['/api/maya/conversation'],
     enabled: !!user?.id && !isPersistenceLoading
   });
 
@@ -212,14 +208,12 @@ export default function Maya() {
     }
   }, [conversationData, messages.length, setMessages]);
 
-  // ✅ SIMPLIFIED: Initialize Maya conversation
+  // Initialize chat state for new users
   useEffect(() => {
-    if (user?.id && messages.length === 0 && !conversationData && !hasStartedChat) {
-      console.log('🎯 Maya: New user detected, starting simplified conversation...');
-      startSimpleConversation();
-      setHasStartedChat(true);
+    if (messages.length === 0 && !conversationData) {
+      setHasStartedChat(false);
     }
-  }, [user?.id, messages.length, conversationData, hasStartedChat]);
+  }, [messages.length, conversationData]);
 
   // ENHANCED SEAMLESS HANDOFF: Handle workspace-to-Maya transitions with user context
   useEffect(() => {
@@ -237,7 +231,7 @@ export default function Maya() {
           const userName = context.userProfile?.name || 'there';
           addMessage({
             type: 'maya',
-            content: `Hey ${userName}! I got your message from the workspace: "${context.message}". Perfect! Let's create some photos that'll look amazing for ${context.businessContext?.industry || 'your work'}. What are we styling today?`,
+            content: `Welcome to my creation studio, ${userName}! I received your request from the workspace: "${context.message}". With your professional background in ${context.businessContext?.industry || 'your field'}, let me create photo concepts that perfectly showcase your expertise...`,
             timestamp: new Date().toISOString()
           });
           
@@ -323,7 +317,6 @@ export default function Maya() {
 
   // Generate image from concept card using Maya's generation system
   const handleGenerateImage = async (card: ConceptCard) => {
-    // ✅ SIMPLIFIED: No blocking - Maya handles gender requirement naturally
     if (generateFromSpecificConcept) {
       await generateFromSpecificConcept(card.title, card.id);
     } else {
@@ -348,7 +341,7 @@ export default function Maya() {
   // Send message to Maya with enhanced persistence
   const sendMessage = useMutation({
     mutationFn: async (messageContent: string) => {
-      const response = await fetch('/api/maya/member/chat', {
+      const response = await fetch('/api/maya/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: messageContent })
@@ -381,7 +374,6 @@ export default function Maya() {
   const handleSendMessage = () => {
     if (!message.trim() || isTyping) return;
 
-    // ✅ SIMPLIFIED: No blocking - Maya handles everything naturally
     addMessage({
       type: 'user', 
       content: message.trim(),
@@ -401,85 +393,15 @@ export default function Maya() {
   };
 
 
-  // State for simple onboarding
-  const [onboardingData, setOnboardingData] = useState<any>(null);
-  const [isCompletingOnboarding, setIsCompletingOnboarding] = useState(false);
-
-  // Start luxury integrated onboarding within chat
-  const startLuxuryOnboardingChat = () => {
-    console.log('✨ Maya: Starting luxury integrated onboarding');
-    
-    // Welcome message with luxury styling - follows user's conversational flow
-    addMessage({
-      type: 'maya',
-      content: `Hello! 👋 I'm Maya, your personal AI stylist and brand strategist.
-
-I've helped thousands of entrepreneurs create stunning professional photos that actually book clients. My job is to understand your style, your business goals, and create photos that make you look absolutely incredible.
-
-Ready to get started? What's your name?`,
-      timestamp: new Date().toISOString(),
-      isOnboarding: true,
-      quickButtons: ['Let\'s begin', 'Tell me more about SSELFIE Studio']
-    });
-  };
-
-  // Complete onboarding with answers
-  const completeOnboarding = async (answers: Record<string, string>) => {
-    setIsCompletingOnboarding(true);
-    try {
-      const response = await fetch('/api/maya/member/save-onboarding', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(answers)
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      console.log('✅ Maya: Onboarding completed successfully');
-
-      // Mark onboarding as complete
-      setIsOnboardingComplete(true);
-      setOnboardingData(null);
-      
-      // Add Maya's completion message to conversation
-      addMessage({
-        type: 'maya',
-        content: data.message,
-        timestamp: new Date().toISOString()
-      });
-
-      toast({
-        title: "Welcome to SSELFIE Studio!",
-        description: `Hey ${answers.preferredName}! I'm ready to create amazing photos for you.`
-      });
-
-    } catch (error) {
-      console.error('❌ Maya: Failed to complete onboarding:', error);
-      toast({
-        title: "Oops!",
-        description: "There was an issue saving your preferences. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsCompletingOnboarding(false);
-    }
-  };
-
   const startSimpleConversation = () => {
     setHasStartedChat(true);
 
     addMessage({
       type: 'maya',
-      content: "Hey! I'm Maya, your personal styling AI. Ready to create some stunning photos together? Just tell me what you're looking for and I'll help you look incredible!",
+      content: "I'm Maya, your photo creation specialist. Describe the professional photos you need and I'll create custom concepts with instant generation. What type of images are you looking to create?",
       timestamp: new Date().toISOString()
     });
   };
-
-  // Onboarding is now integrated within the chat interface - no separate page needed!
 
   return (
     <>
@@ -503,7 +425,7 @@ Ready to get started? What's your name?`,
                 className="text-xs tracking-widest uppercase text-gray-400 mb-8"
                 style={{ fontFamily: 'Helvetica Neue', fontWeight: 300, letterSpacing: '0.3em' }}
               >
-                AI Stylist
+                Personal Brand Strategist
               </div>
               <h1 
                 className="text-4xl md:text-5xl text-black mb-8"
@@ -713,35 +635,6 @@ Ready to get started? What's your name?`,
                         style={{ fontFamily: 'Helvetica Neue', fontWeight: 300, lineHeight: 1.7 }}
                       >
                         <p className="text-gray-800 whitespace-pre-wrap">{msg.content}</p>
-
-                        {/* Quick Action Buttons for Onboarding */}
-                        {msg.quickButtons && msg.quickButtons.length > 0 && (
-                          <div className="mt-8 space-y-3">
-                            {msg.quickButtons.map((buttonText, index) => (
-                              <button
-                                key={index}
-                                onClick={() => {
-                                  // Send the button text as a message directly
-                                  addMessage({
-                                    type: 'user', 
-                                    content: buttonText,
-                                    timestamp: new Date().toISOString()
-                                  });
-                                  setIsTyping(true);
-                                  sendMessage.mutate(buttonText);
-                                }}
-                                className="block w-full text-left px-6 py-4 bg-white border border-gray-200 hover:border-black hover:bg-gray-50 transition-all duration-200 text-sm tracking-wider uppercase"
-                                style={{ 
-                                  fontFamily: 'Helvetica Neue', 
-                                  fontWeight: 300,
-                                  letterSpacing: '0.1em'
-                                }}
-                              >
-                                {buttonText}
-                              </button>
-                            ))}
-                          </div>
-                        )}
 
                         {/* Luxury Concept Cards */}
                         {msg.conceptCards && msg.conceptCards.length > 0 && (

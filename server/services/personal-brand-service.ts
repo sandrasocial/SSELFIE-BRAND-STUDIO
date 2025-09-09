@@ -49,12 +49,8 @@ export interface PersonalBrandProfile {
   // Business Context
   businessContext: BusinessGoals;
   
-  // Visual Preferences & Demographics
+  // Visual Preferences  
   styleProfile: StylePreferences;
-  demographics: {
-    gender: 'woman' | 'man' | 'non-binary';
-    pronouns?: string;
-  };
   
   // Contact & Links
   contactInfo: {
