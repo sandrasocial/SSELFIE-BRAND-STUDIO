@@ -546,6 +546,57 @@ Use this context to provide personalized, intelligent responses instead of gener
       console.log('✨ PHASE 3: User personalization context added to Maya - she now has access to real user data for intelligent responses');
     }
     
+    // 🧠 CRITICAL FIX: Add user style memory and learned preferences to Maya's intelligence
+    if (unifiedUserContext) {
+      let userStyleContext = '';
+      
+      // Style Memory Integration
+      if (unifiedUserContext.styleMemory && unifiedUserContext.styleMemory.totalInteractions > 0) {
+        userStyleContext += `
+
+USER STYLE MEMORY & LEARNED PREFERENCES:
+- Total Interactions: ${unifiedUserContext.styleMemory.totalInteractions}
+- Preferred Categories: ${unifiedUserContext.styleMemory.preferredCategories?.join(', ') || 'Learning user preferences'}
+- Favorite Styling Keywords: ${unifiedUserContext.styleMemory.stylingKeywords?.join(', ') || 'Learning user style'}
+- Color Preferences: ${unifiedUserContext.styleMemory.colorPreferences?.join(', ') || 'Learning color preferences'}
+- Setting Preferences: ${unifiedUserContext.styleMemory.settingPreferences?.join(', ') || 'Learning setting preferences'}
+- High Performing Prompts: ${unifiedUserContext.styleMemory.highPerformingPrompts?.slice(0, 3).join('; ') || 'Learning what works'}
+- Total Favorites: ${unifiedUserContext.styleMemory.totalFavorites}`;
+      }
+      
+      // Personal Brand Context Integration
+      if (unifiedUserContext.personalBrand && unifiedUserContext.personalBrand.isCompleted) {
+        userStyleContext += `
+
+PERSONAL BRAND STORY:
+- Current Situation: ${unifiedUserContext.personalBrand.currentSituation || 'Not specified'}
+- Future Vision: ${unifiedUserContext.personalBrand.futureVision || 'Not specified'}
+- Business Type: ${unifiedUserContext.personalBrand.businessType || 'Not specified'}
+- Business Goals: ${unifiedUserContext.personalBrand.businessGoals || 'Not specified'}
+- Style Preferences: ${unifiedUserContext.personalBrand.stylePreferences || 'Not specified'}
+- Photo Goals: ${unifiedUserContext.personalBrand.photoGoals || 'Not specified'}`;
+      }
+      
+      // Successful Patterns Integration
+      if (unifiedUserContext.successfulPatterns) {
+        userStyleContext += `
+
+LEARNED SUCCESS PATTERNS:
+- Top Performing Prompts: ${unifiedUserContext.successfulPatterns.topPrompts?.slice(0, 3).join('; ') || 'Learning patterns'}
+- Preferred Categories: ${unifiedUserContext.successfulPatterns.preferredCategories?.join(', ') || 'Learning preferences'}
+- Success Score Average: ${unifiedUserContext.successfulPatterns.averageSuccessScore || 'Learning'}`;
+      }
+      
+      if (userStyleContext) {
+        userStyleContext += `
+
+IMPORTANT: Use this learned context to create photo concepts that match THIS USER'S unique interests, style, and preferences. Don't default to generic business concepts - adapt to their personal brand story and demonstrated preferences.`;
+        
+        mayaPersonality += userStyleContext;
+        console.log('🧠 CRITICAL FIX: Maya now has access to full user style memory and learned preferences');
+      }
+    }
+    
     // Add only essential request context
     const requestContext = `Current request: ${message}`;
     
