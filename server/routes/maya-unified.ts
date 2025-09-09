@@ -32,6 +32,7 @@ import { SupportIntelligenceService } from '../services/support-intelligence';
 import { EscalationHandler, escalationHandler } from '../services/escalation-handler';
 import { mayaPersonalizationService } from '../services/maya-personalization-service';
 import { MayaChatPreviewService } from '../maya-chat-preview-service';
+import { MayaAdaptationEngine } from '../services/maya-adaptation-engine';
 
 const router = Router();
 
@@ -155,6 +156,16 @@ router.post('/chat', requireStackAuth, adminContextDetection, async (req: AdminC
     
     // Get Maya's personalization context for intelligent, personalized responses
     const userContext = await mayaPersonalizationService.getUserPersonalizationContext(userId);
+    
+    // ✨ PHASE 3: DYNAMIC PERSONALIZATION ENGINE - Adapt Maya's responses to user preferences
+    const adaptationResult = await MayaAdaptationEngine.adaptStylingApproach(
+      userId, 
+      { message, context, userContext },
+      conversationHistory
+    );
+    
+    console.log(`🎯 PERSONALIZATION: Adapted Maya personality (confidence: ${adaptationResult.confidenceScore})`);
+    console.log(`💡 ADAPTATION REASON: ${adaptationResult.adaptationReason}`);
     
     // Maya can handle incomplete profiles conversationally - no blocking
 
@@ -498,7 +509,18 @@ router.post('/chat', requireStackAuth, adminContextDetection, async (req: AdminC
     const generationInfo = await checkGenerationCapability(userId);
     
     // CONTEXT-AWARE: Load personality based on context (styling vs support)
-    let mayaPersonality = PersonalityManager.getContextPrompt('maya', context);
+    // ✨ PHASE 3: Use adapted Maya personality for personalized conversations
+    const baseMayaPersonality = PersonalityManager.getContextPrompt('maya', context);
+    let mayaPersonality = adaptationResult?.adaptedPersonality || baseMayaPersonality;
+    
+    // Add adaptation insights to enhance conversation
+    if (adaptationResult && adaptationResult.confidenceScore > 0.7) {
+      mayaPersonality += `\n\n🎯 PERSONALIZATION INSIGHTS:
+${adaptationResult.stylingAdjustments.join('\n')}
+
+💡 2025 TREND RECOMMENDATIONS FOR USER:
+${adaptationResult.trendRecommendations.join('\n')}`;
+    }
     
     // PHASE 2: Add support intelligence for support context
     if (context === 'support') {
@@ -2696,7 +2718,11 @@ CRITICAL: Use your ${category} styling approaches loaded in your personality. Re
       console.log('🎯 CATEGORY SPECIFIC GUIDANCE:', categorySpecificGuidance);
     }
 
-    const mayaPromptPersonality = PersonalityManager.getNaturalPrompt('maya') + `
+    // ✨ PHASE 3: Use adapted Maya personality for personalized styling
+    const baseMayaPersonality = PersonalityManager.getNaturalPrompt('maya');
+    const personalizedMayaPersonality = adaptationResult?.adaptedPersonality || baseMayaPersonality;
+    
+    const mayaPromptPersonality = personalizedMayaPersonality + `
 
 🎯 MAYA'S TECHNICAL PROMPT MODE - 2025 FLUX OPTIMIZATION:
 You are creating a FLUX 1.1 Pro image generation prompt. This is TECHNICAL PROMPT CREATION, not conversation.
