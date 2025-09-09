@@ -718,17 +718,17 @@ export class ModelTrainingService {
       // MAYA'S INTELLIGENT FLUX PARAMETERS: Use Maya's personality as single source of truth
       const { MAYA_PERSONALITY } = await import('./agents/personalities/maya-personality.js');
       
-      // ✅ MAYA PURE INTELLIGENCE: Trust Maya's complete parameter selection
-      // Maya's AI handles shot type detection, aspect ratio, and all FLUX parameters
-      const fluxParams = MAYA_PERSONALITY.fluxOptimization.halfBodyShot; // Default to half-body for balanced quality
-      const aspectRatio = "4:5"; // Maya's default portrait aspect ratio
+      // ✅ MAYA PURE INTELLIGENCE: Trust Maya's complete parameter and framing selection
+      // Maya naturally chooses optimal shot type, aspect ratio, and all FLUX parameters
+      const fluxParams = MAYA_PERSONALITY.fluxOptimization.default || MAYA_PERSONALITY.fluxOptimization.halfBodyShot;
+      // ✅ MAYA ASPECT RATIO FREEDOM: Let Maya choose optimal framing (no forced aspect ratio)
 
       console.log(`🎯 MAYA PURE INTELLIGENCE: Using Maya's embedded parameter intelligence`);
       
       // Maya will specify parameters naturally in her response if needed
-      // FLUX optimization settings with Maya's quality intelligence  
+      // ✅ MAYA PURE INTELLIGENCE: Maya chooses optimal parameters and framing
       const merged = {
-        aspect_ratio: aspectRatio,
+        // ✅ REMOVED: aspect_ratio - Maya decides optimal framing naturally
         megapixels: "1", 
         output_format: "png",
         output_quality: 95,
@@ -762,7 +762,7 @@ export class ModelTrainingService {
           // ✅ FLUX parameters only - packaged models have LoRA built-in
           guidance_scale: merged.guidance_scale,
           num_inference_steps: merged.num_inference_steps,
-          aspect_ratio: merged.aspect_ratio,
+          // ✅ REMOVED: aspect_ratio - Maya chooses optimal framing naturally
           megapixels: merged.megapixels,
           output_format: "png", 
           output_quality: 95,

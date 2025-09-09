@@ -2648,7 +2648,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         input: {
           prompt: finalPrompt,
           num_outputs: 2,
-          aspect_ratio: "4:5",
+          // ✅ REMOVED: aspect_ratio - Maya chooses optimal framing naturally
           output_format: "png",
           output_quality: 95,
           seed: Math.floor(Math.random() * 1000000)
