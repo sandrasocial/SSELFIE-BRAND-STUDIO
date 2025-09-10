@@ -843,7 +843,11 @@ Format your response with clear scene breakdowns that can be used for video prod
       }
 
       // Check user's generation limit
-      const user = await storage.getUserById(userId);
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+      
       if (user.generationsUsedThisMonth >= user.monthlyGenerationLimit) {
         return res.status(429).json({
           error: 'Monthly generation limit reached',
