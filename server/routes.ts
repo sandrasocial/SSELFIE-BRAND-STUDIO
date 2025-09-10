@@ -335,6 +335,230 @@ function createFallbackScenes(message: string): any[] {
   ];
 }
 
+// 🎬 ENHANCED VIDEO PROCESSING FUNCTIONS FOR VEO INTEGRATION
+
+async function parseVideoScenes(mayaResponse: string, originalMessage: string, userModel: any, keyframes: any[]): Promise<any[]> {
+  const scenes: any[] = [];
+  
+  try {
+    // Extract scenes from Maya's enhanced video response
+    const sceneMatches = mayaResponse.match(/scene\s*(\d+)/gi);
+    const sceneParts = mayaResponse.split(/scene\s*\d+/i).slice(1);
+    
+    if (sceneMatches && sceneParts.length > 0) {
+      for (let i = 0; i < Math.min(sceneMatches.length, sceneParts.length, 5); i++) {
+        const sceneContent = sceneParts[i]?.trim() || '';
+        const sceneNumber = i + 1;
+        
+        // Enhanced scene with LoRA integration
+        scenes.push({
+          id: `scene_${sceneNumber}`,
+          scene: sceneNumber,
+          prompt: enhanceSceneWithLoRA(sceneContent, userModel),
+          originalPrompt: sceneContent,
+          userLoraModel: userModel.replicateModelId,
+          keyframeIndex: keyframes[i] ? i : null,
+          duration: extractDuration(sceneContent) || (3 + sceneNumber * 2), // 5-13 second range
+          cameraMovement: extractCameraMovement(sceneContent),
+          textOverlay: extractTextOverlay(sceneContent)
+        });
+      }
+    }
+    
+    console.log('📝 Video: Parsed', scenes.length, 'enhanced scenes with LoRA integration');
+  } catch (error) {
+    console.error('Video scene parsing error:', error);
+  }
+  
+  // If parsing failed, create personalized defaults
+  if (scenes.length === 0) {
+    return await createPersonalizedFallbackScenes(originalMessage, userModel.userId);
+  }
+  
+  // Ensure minimum 3 scenes
+  while (scenes.length < 3) {
+    const sceneNumber = scenes.length + 1;
+    scenes.push({
+      id: `scene_${sceneNumber}`,
+      scene: sceneNumber,
+      prompt: generatePersonalizedScenePrompt(sceneNumber, originalMessage, userModel),
+      userLoraModel: userModel.replicateModelId,
+      duration: 5 + sceneNumber * 2
+    });
+  }
+  
+  return scenes;
+}
+
+async function createPersonalizedFallbackScenes(message: string, userId: string): Promise<any[]> {
+  const messageContext = message?.toLowerCase() || '';
+  
+  // Get user model for personalization
+  let userModel;
+  try {
+    userModel = await storage.getUserModel(userId);
+  } catch (error) {
+    console.error('Error getting user model for fallback:', error);
+  }
+  
+  const loraPrompt = userModel?.replicateModelId ? `featuring ${userModel.replicateModelId} (trained LoRA model)` : 'featuring the user';
+  
+  return [
+    {
+      id: 'scene_1',
+      scene: 1,
+      prompt: `Opening Hook: ${messageContext.includes('business') ? 'Professional introduction shot' : 'Personal lifestyle moment'} ${loraPrompt} that immediately establishes brand presence and captures attention.`,
+      userLoraModel: userModel?.replicateModelId,
+      duration: 5
+    },
+    {
+      id: 'scene_2', 
+      scene: 2,
+      prompt: `Brand Development: Showcase expertise and personality ${loraPrompt} through authentic behind-the-scenes or process demonstration that builds connection.`,
+      userLoraModel: userModel?.replicateModelId,
+      duration: 8
+    },
+    {
+      id: 'scene_3',
+      scene: 3,
+      prompt: `Value & Call-to-Action: Present transformation or results ${loraPrompt} with clear next steps for audience engagement and conversion.`,
+      userLoraModel: userModel?.replicateModelId,
+      duration: 7
+    }
+  ];
+}
+
+function enhanceSceneWithLoRA(sceneContent: string, userModel: any): string {
+  // Enhance scene prompts with LoRA model integration
+  const loraReference = userModel?.replicateModelId ? `${userModel.replicateModelId} (professional trained model)` : 'user';
+  
+  // Add LoRA reference if not already present
+  if (!sceneContent.toLowerCase().includes('lora') && !sceneContent.toLowerCase().includes(userModel?.replicateModelId?.toLowerCase() || '')) {
+    return `${sceneContent} Featuring ${loraReference} with consistent appearance and professional branding.`;
+  }
+  
+  return sceneContent;
+}
+
+function extractDuration(sceneContent: string): number | null {
+  const durationMatch = sceneContent.match(/(\d+)[\s-]*seconds?/i);
+  return durationMatch ? parseInt(durationMatch[1]) : null;
+}
+
+function extractCameraMovement(sceneContent: string): string {
+  const movements = ['zoom in', 'zoom out', 'pan left', 'pan right', 'tilt up', 'tilt down', 'static', 'dolly', 'tracking'];
+  const found = movements.find(movement => sceneContent.toLowerCase().includes(movement));
+  return found || 'static';
+}
+
+function extractTextOverlay(sceneContent: string): string | null {
+  const overlayMatch = sceneContent.match(/text[:\s]*['""]([^'"]+)['"]/i);
+  return overlayMatch ? overlayMatch[1] : null;
+}
+
+function generatePersonalizedScenePrompt(sceneNumber: number, originalMessage: string, userModel: any): string {
+  const loraRef = userModel?.replicateModelId ? `featuring ${userModel.replicateModelId}` : 'featuring the user';
+  
+  switch (sceneNumber) {
+    case 1:
+      return `Opening scene ${loraRef}: Professional introduction establishing brand presence and personal connection.`;
+    case 2:
+      return `Development scene ${loraRef}: Building narrative through authentic expertise demonstration and personality showcase.`;
+    case 3:
+      return `Value scene ${loraRef}: Demonstrating transformation, results, or key benefits with clear audience takeaway.`;
+    case 4:
+      return `Resolution scene ${loraRef}: Bringing story to satisfying conclusion with measurable impact or outcome.`;
+    default:
+      return `Continuation scene ${loraRef}: Advancing brand narrative with engaging visual storytelling and personal touch.`;
+  }
+}
+
+// 🎬 VEO VIDEO GENERATION INTEGRATION
+
+async function generateVideoWithVEO(scenes: any[], format: string, userLoraModel: string, userId: string): Promise<string> {
+  try {
+    console.log('🎬 VEO: Starting video generation with', scenes.length, 'scenes for user', userId);
+    
+    // Prepare VEO generation request
+    const veoRequest = {
+      version: "latest", // Use latest VEO model
+      input: {
+        scenes: scenes.map(scene => ({
+          prompt: scene.prompt,
+          duration: scene.duration || 5,
+          lora_model: userLoraModel,
+          aspect_ratio: format === '16:9' ? '16:9' : '9:16',
+          camera_movement: scene.cameraMovement || 'static',
+          text_overlay: scene.textOverlay || null
+        })),
+        video_format: format,
+        fps: 24,
+        quality: 'high',
+        consistency: 'high' // Important for LoRA model consistency
+      }
+    };
+    
+    // Make request to Replicate VEO
+    const response = await fetch('https://api.replicate.com/v1/predictions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(veoRequest)
+    });
+    
+    if (!response.ok) {
+      throw new Error(`VEO API error: ${response.statusText}`);
+    }
+    
+    const result = await response.json();
+    console.log('🎬 VEO: Generation started with job ID:', result.id);
+    
+    return result.id;
+    
+  } catch (error) {
+    console.error('❌ VEO Generation Error:', error);
+    throw new Error(`Failed to start VEO video generation: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+}
+
+async function checkVideoGenerationStatus(jobId: string, userId: string): Promise<any> {
+  try {
+    console.log('🎬 VEO: Checking status for job:', jobId);
+    
+    // Query Replicate for job status
+    const response = await fetch(`https://api.replicate.com/v1/predictions/${jobId}`, {
+      headers: {
+        'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`
+      }
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Status check error: ${response.statusText}`);
+    }
+    
+    const result = await response.json();
+    
+    return {
+      status: result.status,
+      progress: result.status === 'processing' ? (result.progress || 0) : (result.status === 'succeeded' ? 100 : 0),
+      videoUrl: result.output,
+      error: result.error,
+      estimatedTime: result.status === 'starting' ? '2-5 minutes' : null,
+      createdAt: result.created_at,
+      completedAt: result.completed_at
+    };
+    
+  } catch (error) {
+    console.error('❌ VEO Status Check Error:', error);
+    return {
+      status: 'failed',
+      error: error instanceof Error ? error.message : 'Status check failed'
+    };
+  }
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Essential middleware setup
   app.use(express.json({ limit: '10mb' })); // Parse JSON bodies
@@ -756,93 +980,126 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // 🚨 PHASE 5: Support escalation routes
   app.use('/api/support', supportEscalationRouter);
   
-  // 🎬 STORY STUDIO ROUTES - Video generation and scene management
-  app.post('/api/story/generate-scenes', requireActiveSubscription, async (req: any, res) => {
+  // 🎬 AI SCENE DIRECTOR - Video generation with VEO integration and keyframe conditioning
+  app.post('/api/video/generate-story', requireActiveSubscription, async (req: any, res) => {
     try {
       const userId = req.user.id;
-      const { message, currentProject } = req.body;
+      const { message, currentProject, keyframes = [] } = req.body;
 
-      console.log('🎬 Story: Generating scenes for user:', userId, 'Message:', message);
+      console.log('🎬 Video: AI Scene Director generating story for user:', userId, 'Message:', message);
 
-      // ✅ FIXED: Use Maya's intelligence directly instead of broken localhost:5000 call
+      // Get user's LoRA model for personalization
+      const userModel = await storage.getUserModel(userId);
+      if (!userModel || userModel.status !== 'completed') {
+        return res.status(400).json({ 
+          error: 'User training required',
+          message: 'Please complete your model training before generating personalized videos'
+        });
+      }
+
+      // ✅ Use Maya's intelligence with video specialization
       const { PersonalityManager } = await import('./agents/personalities/personality-config');
       const { ClaudeApiServiceSimple } = await import('./services/claude-api-service-simple');
       
-      // Create story-specific conversation ID
-      const storyConversationId = `story_${userId}_${Date.now()}`;
+      // Create video-specific conversation ID
+      const videoConversationId = `video_${userId}_${Date.now()}`;
       const claudeService = new ClaudeApiServiceSimple();
       
-      // Use Maya's story director personality
-      const storyDirectorPrompt = `${PersonalityManager.getNaturalPrompt('maya')}
+      // Enhanced Maya video director with keyframe conditioning support
+      const videoDirectorPrompt = `${PersonalityManager.getNaturalPrompt('maya')}
 
-🎬 STORY DIRECTOR MODE: You are creating a compelling video story structure for brand storytelling.
+🎬 AI SCENE DIRECTOR MODE: You are Maya's specialized video director creating personalized brand videos.
 
-STORY CREATION TASK:
-Create a detailed 3-5 scene video story structure based on: "${message}"
+USER CONTEXT:
+- User LoRA Model: ${userModel.replicateModelId}
+- Keyframes Available: ${keyframes.length} reference images
+- Video Request: "${message}"
 
-STORY STRUCTURE REQUIREMENTS:
-- Scene 1: Opening Hook - Grab attention in first 3 seconds
-- Scene 2: Development - Build interest and connection
-- Scene 3: Climax/Value - Show the transformation or key benefit
-- Scene 4 (optional): Resolution - Clear outcome or result
-- Scene 5 (optional): Call to Action - What should viewers do next
+KEYFRAME CONDITIONING WORKFLOW:
+${keyframes.length > 0 ? `
+REFERENCE IMAGES PROVIDED:
+${keyframes.map((k: any, i: number) => `- Keyframe ${i+1}: ${k.description || 'User uploaded reference'}`).join('\n')}
+
+Use these keyframes to maintain visual consistency and guide the video narrative.
+` : 'No keyframes provided - generate scenes from text description only.'}
+
+VIDEO STORY STRUCTURE:
+Create a compelling 3-5 scene video optimized for ${req.body.format || '9:16'} format:
+- Scene 1: Hook (3-5 seconds) - Immediate attention grabber
+- Scene 2: Introduction (5-8 seconds) - Establish context/person
+- Scene 3: Development (8-12 seconds) - Build narrative/show value
+- Scene 4: Climax (5-8 seconds) - Key transformation/result
+- Scene 5: Call-to-Action (3-5 seconds) - Clear next step
 
 For each scene, provide:
-- Scene number and purpose
-- Detailed visual description (what the viewer sees)
-- Key message or emotion to convey
-- Approximate duration (3-15 seconds per scene)
+- Detailed visual description incorporating user's personal brand
+- Camera movement and framing suggestions
+- Keyframe conditioning instructions (if applicable)
+- Text overlay recommendations
+- Transition suggestions
 
-Format your response with clear scene breakdowns that can be used for video production.`;
+PERSONALIZATION REQUIREMENTS:
+- Use the user's trained LoRA model for consistent appearance
+- Maintain brand consistency across all scenes
+- Optimize for ${req.body.format === '16:9' ? 'landscape viewing' : 'vertical social media'}
 
-      // Generate story structure with Maya's intelligence
+Format your response with clear scene breakdowns for VEO video generation.`;
+
+      // Generate personalized video story structure
       const mayaResponse = await claudeService.sendMessage(
-        `Create a compelling video story structure: ${message}`,
-        storyConversationId,
+        videoDirectorPrompt,
+        videoConversationId,
         'maya',
         true
       );
 
-      // Parse Maya's response to extract scenes intelligently
-      const scenes = parseStoryScenes(mayaResponse, message);
+      // Parse and enhance scenes with user LoRA integration
+      const scenes = await parseVideoScenes(mayaResponse, message, userModel, keyframes);
 
+      // Create job for tracking
+      const jobId = `video_${userId}_${Date.now()}`;
+      
       res.json({
         success: true,
-        response: `I've crafted a compelling story structure for your brand video! Each scene is designed to engage your audience and build a powerful narrative that converts viewers into clients.`,
+        jobId: jobId,
+        response: `I've created a personalized video story structure using your trained model! Each scene is optimized for your brand and will feature you consistently throughout the narrative.`,
         scenes: scenes,
-        projectName: `Video Story: ${message.substring(0, 30)}...`,
-        description: message
+        projectName: `Personalized Video: ${message.substring(0, 30)}...`,
+        description: message,
+        userLoraModel: userModel.replicateModelId,
+        keyframesUsed: keyframes.length
       });
 
     } catch (error) {
-      console.error('Story scene generation error:', error);
+      console.error('Video story generation error:', error);
       
-      // ✅ DETERMINISTIC FALLBACK: Always provide working scenes even if AI fails
-      const fallbackScenes = createFallbackScenes(req.body.message || 'Brand Story');
+      // Enhanced fallback with user context
+      const fallbackScenes = await createPersonalizedFallbackScenes(req.body.message || 'Brand Video', req.user.id);
       
       res.json({
         success: true,
-        response: "I've created a professional story structure for you! These scenes will help tell your brand story effectively.",
+        jobId: `fallback_${req.user.id}_${Date.now()}`,
+        response: "I've created a professional video structure for you! These scenes will showcase your personal brand effectively.",
         scenes: fallbackScenes,
-        projectName: `Video Story: ${req.body.message?.substring(0, 30) || 'Brand Story'}...`,
-        description: req.body.message || 'Professional brand story'
+        projectName: `Brand Video: ${req.body.message?.substring(0, 30) || 'Personal Brand'}...`,
+        description: req.body.message || 'Professional brand video'
       });
     }
   });
 
-  app.post('/api/story/generate-video', requireActiveSubscription, async (req: any, res) => {
+  app.post('/api/video/generate', requireActiveSubscription, async (req: any, res) => {
     try {
       const userId = req.user.id;
-      const { project, format } = req.body;
+      const { scenes, format = '9:16', userLoraModel } = req.body;
 
-      console.log('🎬 Story: Generating video for user:', userId, 'Format:', format);
+      console.log('🎬 Video: Starting VEO generation for user:', userId, 'Scenes:', scenes.length);
 
-      // Validate project has scenes
-      if (!project?.scenes || project.scenes.length === 0) {
-        return res.status(400).json({ error: 'Project must have at least one scene' });
+      // Validate scenes
+      if (!scenes || scenes.length === 0) {
+        return res.status(400).json({ error: 'At least one scene required for video generation' });
       }
 
-      // Check user's generation limit
+      // Check generation limit
       const user = await storage.getUser(userId);
       if (!user) {
         return res.status(404).json({ error: 'User not found' });
@@ -856,32 +1113,57 @@ Format your response with clear scene breakdowns that can be used for video prod
         });
       }
 
-      // For now, simulate video generation (placeholder)
-      // TODO: Integrate with actual video generation service
-      const videoUrl = `https://example.com/generated-video-${Date.now()}.mp4`;
+      // Generate video using VEO via Replicate
+      const jobId = await generateVideoWithVEO(scenes, format, userLoraModel, userId);
 
-      // Increment user's generation count
+      // Increment generation count
       await storage.updateUserProfile(userId, {
         generationsUsedThisMonth: user.generationsUsedThisMonth + 1
       });
 
       res.json({
         success: true,
-        videoUrl: videoUrl,
-        format: format,
-        message: 'Video generation started successfully'
+        jobId: jobId,
+        message: 'Video generation started with VEO',
+        estimatedTime: '2-5 minutes',
+        scenes: scenes.length
       });
 
     } catch (error) {
-      console.error('Story video generation error:', error);
+      console.error('VEO video generation error:', error);
       res.status(500).json({
-        error: 'Failed to generate video',
+        error: 'Failed to start video generation',
         details: error instanceof Error ? error.message : 'Unknown error'
       });
     }
   });
 
-  console.log('✅ STORY STUDIO: Video generation routes active at /api/story/*');
+  app.get('/api/video/status/:jobId', requireActiveSubscription, async (req: any, res) => {
+    try {
+      const { jobId } = req.params;
+      const userId = req.user.id;
+
+      console.log('🎬 Video: Checking status for job:', jobId, 'User:', userId);
+
+      // Check job status from Replicate
+      const status = await checkVideoGenerationStatus(jobId, userId);
+
+      res.json({
+        success: true,
+        jobId: jobId,
+        ...status
+      });
+
+    } catch (error) {
+      console.error('Video status check error:', error);
+      res.status(500).json({
+        error: 'Failed to check video status',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  console.log('✅ AI SCENE DIRECTOR: Video generation routes active at /api/video/*');
   
   // Profile Management API
   app.get('/api/profile', requireStackAuth, async (req: any, res) => {
