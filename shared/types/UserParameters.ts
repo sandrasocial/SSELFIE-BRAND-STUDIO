@@ -2,7 +2,7 @@ export interface UserParameters {
   // FLUX Generation Parameters
   guidance: number;           // 2.5-3.2 range for natural to dramatic
   inferenceSteps: number;     // 28-50 range for speed vs quality
-  // REMOVED: loraScale - packaged models have LoRA built-in
+  loraScale: number;          // ✅ RESTORED: 1.1 for extracted LoRA weights
   outputQuality: number;      // 75-98 range for file quality
   
   // Phase 2: User Analysis Data

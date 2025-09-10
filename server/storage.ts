@@ -123,6 +123,7 @@ export interface IStorage {
   deleteUserModel(userId: string): Promise<void>;
   getMonthlyRetrainCount(userId: string, month: number, year: number): Promise<number>;
   getAllInProgressTrainings(): Promise<UserModel[]>;
+  getAllCompletedTrainings(): Promise<UserModel[]>; // ✅ LORA MIGRATION: Get completed training users
 
   // Selfie Upload operations
   getSelfieUploads(userId: string): Promise<SelfieUpload[]>;
@@ -192,6 +193,17 @@ export interface IStorage {
 
   // Email Capture operations
   captureEmail(data: InsertEmailCapture): Promise<EmailCapture>;
+
+  // ✅ RESTORED: LoRA Weight operations
+  storeLoRAWeights(data: {
+    userId: string;
+    trainingId: string;
+    weightsUrl: string;
+    checksum: string;
+    fileSize: number;
+    extractedAt: Date;
+  }): Promise<void>;
+  getLoRAWeights(userId: string): Promise<any | undefined>;
 
   // LoRA Training and Weights Management
   createTrainingRun(trainingRun: InsertTrainingRun): Promise<TrainingRun>;
@@ -760,6 +772,15 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(userModels)
       .where(eq(userModels.trainingStatus, 'training'))
+      .orderBy(desc(userModels.createdAt));
+  }
+
+  // ✅ LORA MIGRATION: Get all users with completed training for LoRA extraction
+  async getAllCompletedTrainings(): Promise<UserModel[]> {
+    return await db
+      .select()
+      .from(userModels)
+      .where(eq(userModels.trainingStatus, 'completed'))
       .orderBy(desc(userModels.createdAt));
   }
 
@@ -1634,6 +1655,69 @@ export class DatabaseStorage implements IStorage {
     // Mark all user's weights as archived, then set the selected one as available
     await db.update(loraWeights).set({ status: 'archived' }).where(eq(loraWeights.userId, userId));
     await db.update(loraWeights).set({ status: 'available' }).where(eq(loraWeights.id, weightId));
+  }
+
+  // ✅ RESTORED: Simple LoRA weights storage method
+  async storeLoRAWeights(data: {
+    userId: string;
+    trainingId: string;
+    weightsUrl: string;
+    checksum: string;
+    fileSize: number;
+    extractedAt: Date;
+  }): Promise<void> {
+    // Extract S3 bucket and key from URL for proper storage
+    const urlParts = data.weightsUrl.replace('https://', '').split('/');
+    const s3Bucket = urlParts[0].split('.s3.amazonaws.com')[0];
+    const s3Key = urlParts.slice(1).join('/');
+    
+    // Generate trigger word for this user
+    const triggerWord = `user${data.userId.replace(/[^a-zA-Z0-9]/g, '')}`;
+    
+    // Find or create training run record
+    let trainingRun = await this.getTrainingRunByTrainingId(data.trainingId);
+    if (!trainingRun) {
+      trainingRun = await this.createTrainingRun({
+        userId: data.userId,
+        trainingId: data.trainingId,
+        status: 'completed',
+        baseModel: 'flux-dev',
+        completedAt: data.extractedAt
+      });
+    }
+    
+    // Create LoRA weight record with Maya's intelligent scaling defaults
+    const mayaScales = {
+      closeUpPortrait: 0.9,  // From Maya personality
+      halfBodyShot: 1.0,     // From Maya personality  
+      fullScenery: 0.85,     // From Maya personality
+      creativeOptimized: 1.1 // From Maya personality - the key 1.1 value!
+    };
+    
+    await this.createLoraWeight({
+      userId: data.userId,
+      trainingRunId: trainingRun.id,
+      triggerWord: triggerWord,
+      baseModel: 'flux-dev',
+      s3Bucket: s3Bucket,
+      s3Key: s3Key,
+      fileSize: data.fileSize,
+      checksum: data.checksum,
+      rank: 32, // Standard LoRA rank
+      networkType: 'lora',
+      status: 'available',
+      defaultScales: mayaScales, // Maya's intelligent scaling per shot type
+      metadata: {
+        extractedAt: data.extractedAt,
+        originalUrl: data.weightsUrl
+      }
+    });
+    
+    console.log(`✅ LoRA WEIGHTS STORED: User ${data.userId}, scales=${JSON.stringify(mayaScales)}`);
+  }
+
+  async getLoRAWeights(userId: string): Promise<any | undefined> {
+    return this.getUserActiveLoraWeight(userId);
   }
 
   // Additional storage methods can be added here as needed
