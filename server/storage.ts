@@ -59,6 +59,12 @@ import {
   type ClaudeMessage,
   type InsertClaudeConversation,
   type InsertClaudeMessage,
+  trainingRuns,
+  loraWeights,
+  type TrainingRun,
+  type InsertTrainingRun,
+  type LoraWeight,
+  type InsertLoraWeight,
 } from "../shared/schema";
 import { db } from "./drizzle";
 import { eq, and, desc, gte, lte, sql } from "drizzle-orm";
@@ -186,6 +192,20 @@ export interface IStorage {
 
   // Email Capture operations
   captureEmail(data: InsertEmailCapture): Promise<EmailCapture>;
+
+  // LoRA Training and Weights Management
+  createTrainingRun(trainingRun: InsertTrainingRun): Promise<TrainingRun>;
+  getTrainingRun(id: number): Promise<TrainingRun | undefined>;
+  getTrainingRunByTrainingId(trainingId: string): Promise<TrainingRun | undefined>;
+  updateTrainingRun(id: number, updates: Partial<TrainingRun>): Promise<TrainingRun>;
+  listUserTrainingRuns(userId: string): Promise<TrainingRun[]>;
+  
+  createLoraWeight(weight: InsertLoraWeight): Promise<LoraWeight>;
+  getLoraWeight(id: number): Promise<LoraWeight | undefined>;
+  getUserActiveLoraWeight(userId: string): Promise<LoraWeight | undefined>;
+  listUserLoraWeights(userId: string): Promise<LoraWeight[]>;
+  updateLoraWeight(id: number, updates: Partial<LoraWeight>): Promise<LoraWeight>;
+  setActiveLoraWeight(userId: string, weightId: number): Promise<void>;
 
   // Admin operations
   setUserAsAdmin(email: string): Promise<User | null>;
@@ -1555,6 +1575,65 @@ export class DatabaseStorage implements IStorage {
       .where(eq(subscriptions.id, id))
       .returning();
     return subscription;
+  }
+
+  // LoRA Training and Weights Management
+  async createTrainingRun(trainingRun: InsertTrainingRun): Promise<TrainingRun> {
+    const [run] = await db.insert(trainingRuns).values(trainingRun).returning();
+    return run;
+  }
+
+  async getTrainingRun(id: number): Promise<TrainingRun | undefined> {
+    const [run] = await db.select().from(trainingRuns).where(eq(trainingRuns.id, id));
+    return run;
+  }
+
+  async getTrainingRunByTrainingId(trainingId: string): Promise<TrainingRun | undefined> {
+    const [run] = await db.select().from(trainingRuns).where(eq(trainingRuns.trainingId, trainingId));
+    return run;
+  }
+
+  async updateTrainingRun(id: number, updates: Partial<TrainingRun>): Promise<TrainingRun> {
+    const [run] = await db.update(trainingRuns).set(updates).where(eq(trainingRuns.id, id)).returning();
+    return run;
+  }
+
+  async listUserTrainingRuns(userId: string): Promise<TrainingRun[]> {
+    return db.select().from(trainingRuns).where(eq(trainingRuns.userId, userId)).orderBy(desc(trainingRuns.createdAt));
+  }
+
+  async createLoraWeight(weight: InsertLoraWeight): Promise<LoraWeight> {
+    const [loraWeight] = await db.insert(loraWeights).values(weight).returning();
+    return loraWeight;
+  }
+
+  async getLoraWeight(id: number): Promise<LoraWeight | undefined> {
+    const [weight] = await db.select().from(loraWeights).where(eq(loraWeights.id, id));
+    return weight;
+  }
+
+  async getUserActiveLoraWeight(userId: string): Promise<LoraWeight | undefined> {
+    // Get the most recent available LoRA weight for the user
+    const [weight] = await db.select().from(loraWeights)
+      .where(and(eq(loraWeights.userId, userId), eq(loraWeights.status, 'available')))
+      .orderBy(desc(loraWeights.createdAt))
+      .limit(1);
+    return weight;
+  }
+
+  async listUserLoraWeights(userId: string): Promise<LoraWeight[]> {
+    return db.select().from(loraWeights).where(eq(loraWeights.userId, userId)).orderBy(desc(loraWeights.createdAt));
+  }
+
+  async updateLoraWeight(id: number, updates: Partial<LoraWeight>): Promise<LoraWeight> {
+    const [weight] = await db.update(loraWeights).set(updates).where(eq(loraWeights.id, id)).returning();
+    return weight;
+  }
+
+  async setActiveLoraWeight(userId: string, weightId: number): Promise<void> {
+    // Mark all user's weights as archived, then set the selected one as available
+    await db.update(loraWeights).set({ status: 'archived' }).where(eq(loraWeights.userId, userId));
+    await db.update(loraWeights).set({ status: 'available' }).where(eq(loraWeights.id, weightId));
   }
 
   // Additional storage methods can be added here as needed
