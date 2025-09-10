@@ -425,6 +425,7 @@ function Router() {
       
       {/* AI AGENTS - Brand Studio */}
       <Route path="/maya" component={(props) => <ProtectedRoute component={BrandStudioPage} {...props} />} />
+      <Route path="/brand-studio" component={(props) => <ProtectedRoute component={BrandStudioPage} {...props} />} />
       <Route path="/victoria" component={(props) => (
         <Suspense fallback={<PageLoader />}>
           <ProtectedRoute component={Victoria} {...props} />
