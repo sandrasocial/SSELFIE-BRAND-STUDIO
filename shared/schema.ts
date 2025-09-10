@@ -702,6 +702,60 @@ export const mayaChatMessages = pgTable("maya_chat_messages", {
   canGenerateIdx: index("maya_chat_messages_can_generate_idx").on(table.canGenerate),
 }));
 
+// LoRA Training & Weights Storage Tables
+// Tracks individual training runs and their extracted LoRA weights
+export const trainingRuns = pgTable("training_runs", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  trainingId: varchar("training_id").notNull(), // Replicate training ID
+  status: varchar("status").notNull(), // 'started', 'training', 'completed', 'failed'
+  progress: integer("progress").default(0), // 0-100
+  baseModel: varchar("base_model").default("flux-dev"),
+  parameters: jsonb("parameters"), // Training params: steps, lr, rank, resolution, etc.
+  startedAt: timestamp("started_at").defaultNow(),
+  completedAt: timestamp("completed_at"),
+  datasetZipUrl: text("dataset_zip_url"), // S3 URL of training images
+  outputArtifactUrl: text("output_artifact_url"), // Replicate output URL
+  error: text("error"), // Error message if failed
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  userIdIdx: index("training_runs_user_id_idx").on(table.userId),
+  statusIdx: index("training_runs_status_idx").on(table.status),
+  trainingIdIdx: index("training_runs_training_id_idx").on(table.trainingId),
+}));
+
+export const loraWeights = pgTable("lora_weights", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  trainingRunId: integer("training_run_id").references(() => trainingRuns.id, { onDelete: "cascade" }).notNull(),
+  triggerWord: varchar("trigger_word").notNull(),
+  baseModel: varchar("base_model").notNull().default("flux-dev"),
+  
+  // Object Storage Details for .safetensors file
+  s3Bucket: varchar("s3_bucket"),
+  s3Key: varchar("s3_key"), // Path to .safetensors file in object storage
+  fileSize: integer("file_size"), // File size in bytes
+  checksum: varchar("checksum"), // File integrity verification
+  
+  // LoRA Technical Details
+  rank: integer("rank").default(32), // LoRA rank used in training
+  networkType: varchar("network_type").default("lora"), // "lora", "locon", etc.
+  status: varchar("status").default("available"), // 'available', 'archived', 'failed'
+  
+  // Maya's Intelligent Scaling Defaults per shot type
+  defaultScales: jsonb("default_scales"), // { closeUpPortrait: 1.0, halfBodyShot: 0.9, fullScenery: 0.85 }
+  metadata: jsonb("metadata"), // Additional LoRA metadata
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  userIdIdx: index("lora_weights_user_id_idx").on(table.userId),
+  statusIdx: index("lora_weights_status_idx").on(table.status),
+  trainingRunIdx: index("lora_weights_training_run_idx").on(table.trainingRunId),
+  triggerWordIdx: index("lora_weights_trigger_word_idx").on(table.triggerWord),
+}));
+
 
 
 
@@ -731,6 +785,8 @@ export const insertPromptAnalysisSchema = createInsertSchema(promptAnalysis).omi
 export const insertMayaChatSchema = createInsertSchema(mayaChats).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertMayaChatMessageSchema = createInsertSchema(mayaChatMessages).omit({ id: true, createdAt: true });
 export const insertGenerationTrackerSchema = createInsertSchema(generationTrackers).omit({ id: true, createdAt: true });
+export const insertTrainingRunSchema = createInsertSchema(trainingRuns).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertLoraWeightSchema = createInsertSchema(loraWeights).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertAgentConversationSchema = createInsertSchema(agentConversations).omit({ id: true, timestamp: true });
 export const insertWebsiteSchema = createInsertSchema(websites).omit({ id: true, createdAt: true, updatedAt: true });
 
@@ -761,6 +817,10 @@ export type MayaChatMessage = typeof mayaChatMessages.$inferSelect;
 export type InsertMayaChatMessage = typeof mayaChatMessages.$inferInsert;
 export type GenerationTracker = typeof generationTrackers.$inferSelect;
 export type InsertGenerationTracker = typeof generationTrackers.$inferInsert;
+export type TrainingRun = typeof trainingRuns.$inferSelect;
+export type InsertTrainingRun = typeof trainingRuns.$inferInsert;
+export type LoraWeight = typeof loraWeights.$inferSelect;
+export type InsertLoraWeight = typeof loraWeights.$inferInsert;
 // User profiles table schema already defined at top of file
 
 export type UserProfile = typeof userProfiles.$inferSelect;

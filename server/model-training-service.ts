@@ -734,8 +734,7 @@ export class ModelTrainingService {
         output_quality: 95,
         // CRITICAL FLUX PARAMETERS FOR BEAUTIFUL HANDS AND ANATOMICAL ACCURACY
         guidance_scale: mayaParams.guidance_scale,
-        num_inference_steps: mayaParams.num_inference_steps,
-        lora_scale: mayaParams.lora_scale // RESTORED: Essential for LoRA personalization
+        num_inference_steps: mayaParams.num_inference_steps
       };
       
       // Use intelligent count unless explicitly overridden
@@ -759,15 +758,15 @@ export class ModelTrainingService {
         input: {
           prompt: finalPrompt,
           num_outputs: finalCount,
-          // ✅ FLUX parameters with LoRA scale for personalization
+          // ✅ FLUX parameters for base model + separate LoRA weights
           guidance_scale: merged.guidance_scale,
           num_inference_steps: merged.num_inference_steps,
-          lora_scale: merged.lora_scale, // CRITICAL: LoRA strength for personalization
           aspect_ratio: merged.aspect_ratio,
           megapixels: merged.megapixels,
           output_format: "png", 
           output_quality: 95,
           seed: seed
+          // LoRA weights will be added separately from database storage
         }
       };
 
