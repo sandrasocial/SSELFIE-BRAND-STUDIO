@@ -34,10 +34,15 @@ interface ChatMessage {
   scenes?: StoryScene[];
 }
 
-export const StoryStudio: React.FC = () => {
+interface StoryStudioProps {
+  panelMode?: 'director' | 'canvas' | 'toolkit';
+  isMobile?: boolean;
+}
+
+export const StoryStudio: React.FC<StoryStudioProps> = ({ panelMode, isMobile = false }) => {
   const { user } = useAuth();
   const { toast } = useToast();
-  const { handoffData, clearHandoffData } = useBrandStudio();
+  const { handoffData, clearHandoffData, selectedItem, setSelectedItem } = useBrandStudio();
   
   // State management
   const [message, setMessage] = useState('');
@@ -47,6 +52,16 @@ export const StoryStudio: React.FC = () => {
   const [selectedScene, setSelectedScene] = useState<StoryScene | null>(null);
   const [videoFormat, setVideoFormat] = useState<'9:16' | '16:9'>('9:16');
   const [isGenerating, setIsGenerating] = useState(false);
+
+  // Check if mobile (use prop if provided, otherwise detect)
+  const [detectedMobile, setDetectedMobile] = useState(window.innerWidth < 768);
+  const isMobileState = isMobile !== undefined ? isMobile : detectedMobile;
+  
+  useEffect(() => {
+    const handleResize = () => setDetectedMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Handle handoff from Photo Studio
   useEffect(() => {
@@ -121,6 +136,111 @@ export const StoryStudio: React.FC = () => {
       setCurrentProject(emptyProject);
     }
   }, [handoffData, currentProject, messages.length]);
+
+  // Panel-specific rendering for three-panel layout
+  if (panelMode) {
+    if (panelMode === 'director') {
+      return (
+        <div className="h-full flex flex-col">
+          <div className="panel-header" style={{ 
+            background: 'linear-gradient(135deg, #000000 0%, #333333 100%)',
+            color: 'white',
+            padding: '20px',
+            position: 'relative',
+            zIndex: 10
+          }}>
+            <h3 className="text-lg font-light tracking-[0.3em] uppercase">The Director</h3>
+            <p className="text-xs opacity-75 mt-1">Story Strategy</p>
+          </div>
+          <div className="flex-1">
+            <DirectorPanel
+              mode="story"
+              messages={messages}
+              isTyping={isTyping}
+              message={message}
+              setMessage={setMessage}
+              onSendMessage={handleSendMessage}
+              disabled={isGenerating}
+              placeholder="Tell me about the story you want to create..."
+              className="border-none rounded-none h-full"
+            />
+          </div>
+        </div>
+      );
+    }
+    
+    if (panelMode === 'canvas') {
+      return (
+        <div className="h-full flex flex-col">
+          <div className="panel-header" style={{ 
+            background: 'rgba(255, 255, 255, 0.95)',
+            padding: '20px',
+            borderBottom: '1px solid #e0e0e0'
+          }}>
+            <h3 className="text-lg font-light tracking-[0.3em] uppercase">The Canvas</h3>
+            <p className="text-xs text-gray-500 mt-1">Story Storyboard</p>
+          </div>
+          <div className="flex-1 overflow-y-auto">
+            {currentProject?.scenes && currentProject.scenes.length > 0 ? (
+              <div className="p-6 space-y-6">
+                {currentProject.scenes.map((scene) => (
+                  <SceneCard
+                    key={scene.id}
+                    scene={scene}
+                    onUpdatePrompt={(prompt) => handleUpdateScene(scene.id, prompt)}
+                    onAddImage={(file) => handleAddImage(scene.id, file)}
+                    onSelect={() => {
+                      setSelectedScene(scene);
+                      setSelectedItem(scene);
+                    }}
+                    isSelected={selectedScene?.id === scene.id}
+                    hasImage={!!scene.imageFile}
+                    imageName={scene.imageName}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="flex items-center justify-center h-full text-center p-8">
+                <div>
+                  <div className="text-6xl mb-4">🎬</div>
+                  <h4 className="text-xl font-light tracking-[0.2em] uppercase mb-4">Your Story Canvas</h4>
+                  <p className="text-gray-600 max-w-md">Start a conversation with Maya to create compelling video stories for your brand</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+    
+    if (panelMode === 'toolkit') {
+      return (
+        <div className="h-full flex flex-col">
+          <div className="panel-header" style={{ 
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            color: 'white',
+            padding: '20px',
+            position: 'relative',
+            zIndex: 10
+          }}>
+            <h3 className="text-lg font-light tracking-[0.3em] uppercase">The Toolkit</h3>
+            <p className="text-xs opacity-75 mt-1">Video Actions</p>
+          </div>
+          <div className="flex-1">
+            <ToolkitPanel
+              mode="story"
+              selectedItem={selectedScene || selectedItem}
+              onItemAction={handleToolkitAction}
+              className="border-none rounded-none h-full"
+            >
+              <QuickActions mode="story" onAction={handleToolkitAction} />
+              <StatusDisplay mode="story" stats={{ scenes: currentProject?.scenes.length || 0, videos: 0 }} />
+            </ToolkitPanel>
+          </div>
+        </div>
+      );
+    }
+  }
 
   // Scene Director Chat - Generate scene ideas
   const generateScenes = useMutation({
@@ -347,7 +467,7 @@ export const StoryStudio: React.FC = () => {
 
   return (
     <>
-      {isMobile ? (
+      {isMobileState ? (
         // Mobile Layout
         <CanvasPanel mode="story" onItemSelect={setSelectedScene} selectedItem={selectedScene}>
           {/* Welcome State */}
