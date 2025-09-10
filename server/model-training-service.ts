@@ -6,7 +6,9 @@ import { fileURLToPath } from 'url';
 import { storage } from './storage';
 import { PersonalityManager } from './agents/personalities/personality-config';
 import { ArchitectureValidator } from './architecture-validator';
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { MAYA_PERSONALITY } from './agents/personalities/maya-personality';
 
 
 // Image categories and prompt templates
@@ -752,8 +754,11 @@ export class ModelTrainingService {
         throw new Error("BLOCKED: User model missing required packaged model ID or version. Please complete training first.");
       }
       
-      const userModelVersion = `${userModel.replicateModelId}:${userModel.replicateVersionId}`;
-      const requestBody = {
+      // ✅ RESTORED: Check for extracted LoRA weights first
+      const loraWeights = await storage.getLoRAWeights(userId);
+      
+      let userModelVersion = `${userModel.replicateModelId}:${userModel.replicateVersionId}`;
+      const requestBody: any = {
         version: userModelVersion,
         input: {
           prompt: finalPrompt,
@@ -766,13 +771,33 @@ export class ModelTrainingService {
           output_format: "png", 
           output_quality: 95,
           seed: seed
-          // LoRA weights will be added separately from database storage
         }
       };
 
-      // PACKAGED MODEL GUARD: Ensure we're using trained user models only
-      if (requestBody.version.includes("flux-1.1-pro")) {
-        throw new Error("BLOCKED: Attempted to use base FLUX model. Only packaged user models allowed.");
+      // ✅ RESTORED: Add LoRA weights if available for personalized images
+      if (loraWeights && loraWeights.s3Bucket && loraWeights.s3Key) {
+        // Use FLUX base model + LoRA weights for personalized results
+        requestBody.version = "black-forest-labs/flux-1.1-pro"; // Base FLUX model
+        
+        // 🔒 SECURITY FIX: Generate secure presigned URL instead of direct public access
+        const secureLoRAUrl = await this.generateSecureLoRAUrl(loraWeights.s3Bucket, loraWeights.s3Key, 7200); // 2 hours
+        requestBody.input.lora_weights = secureLoRAUrl;
+        
+        // Apply Maya's intelligent lora_scale based on detected shot type
+        const mayaLoreScale = this.getMayaLoraScale(finalPrompt, categoryContext);
+        requestBody.input.lora_scale = mayaLoreScale;
+        
+        console.log(`🎨 LORA PERSONALIZATION: Using extracted weights with lora_scale=${mayaLoreScale} (shot type optimized)`);
+        console.log(`🔒 Secure LoRA Weights: ${secureLoRAUrl.substring(0, 100)}...`);
+      } else {
+        console.log(`📦 PACKAGED MODEL: No extracted LoRA weights, using packaged model`);
+      }
+
+      // ✅ RESTORED: Allow base FLUX model when using extracted LoRA weights
+      if (requestBody.version.includes("flux-1.1-pro") && !requestBody.input.lora_weights) {
+        throw new Error("BLOCKED: Base FLUX model requires LoRA weights for personalization.");
+      } else if (requestBody.version.includes("flux-1.1-pro")) {
+        console.log(`✅ BASE FLUX + LORA: Using base FLUX model with personalized LoRA weights`);
       }
 
       console.log("🚚 Replicate payload keys:", Object.keys(requestBody.input), "version:", requestBody.version);
@@ -829,13 +854,172 @@ export class ModelTrainingService {
     }
   }
 
-  // REMOVED: extractLoRAWeights method - no longer needed for packaged-only approach
+  // ✅ RESTORED: LoRA weight extraction for personalized images
+  static async extractLoRAWeights(trainingId: string, userId: string): Promise<{ 
+    loraWeightsUrl: string; 
+    checksum: string; 
+    fileSize: number; 
+  }> {
+    console.log(`🔧 EXTRACTING LoRA WEIGHTS: Starting extraction for training ${trainingId}, user ${userId}`);
+    
+    try {
+      // Get training details from Replicate
+      const response = await fetch(`https://api.replicate.com/v1/trainings/${trainingId}`, {
+        headers: {
+          'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
+          'Content-Type': 'application/json'
+        }
+      });
 
-  // MAYA'S INTELLIGENT SHOT TYPE DETECTION - LIBERATION FROM HARDCODED RESTRICTIONS
-  // ✅ REMOVED: Shot type determination - Maya's intelligence includes framing decisions
+      if (!response.ok) {
+        throw new Error(`Failed to fetch training details: ${response.status}`);
+      }
 
-  // ✅ REMOVED: Intelligent parameter system - Maya's main response includes all parameter intelligence
-  // Maya's single Claude API call handles count and all other decision making
+      const trainingData = await response.json();
+      console.log(`🔍 TRAINING DATA:`, JSON.stringify(trainingData, null, 2));
+
+      // Extract the LoRA weights URL from training output
+      let loraWeightsUrl = null;
+      
+      if (trainingData.output && typeof trainingData.output === 'string') {
+        // Direct URL in output
+        loraWeightsUrl = trainingData.output;
+      } else if (trainingData.output && trainingData.output.weights) {
+        // Weights nested in output object
+        loraWeightsUrl = trainingData.output.weights;
+      } else if (trainingData.urls && trainingData.urls.get) {
+        // Alternative URL structure
+        loraWeightsUrl = trainingData.urls.get;
+      }
+
+      if (!loraWeightsUrl) {
+        throw new Error('No LoRA weights URL found in training output');
+      }
+
+      console.log(`📥 DOWNLOADING LoRA WEIGHTS: ${loraWeightsUrl}`);
+
+      // Download the LoRA weights file
+      const weightsResponse = await fetch(loraWeightsUrl);
+      if (!weightsResponse.ok) {
+        throw new Error(`Failed to download LoRA weights: ${weightsResponse.status}`);
+      }
+
+      const weightsBuffer = await weightsResponse.arrayBuffer();
+      const fileSize = weightsBuffer.byteLength;
+      
+      // Generate checksum for integrity verification
+      const crypto = await import('crypto');
+      const checksum = crypto.createHash('sha256').update(Buffer.from(weightsBuffer)).digest('hex');
+
+      console.log(`📊 LoRA WEIGHTS INFO: Size=${fileSize} bytes, Checksum=${checksum.substring(0, 16)}...`);
+
+      // Upload to S3 for permanent storage
+      const s3Key = `lora-weights/${userId}/${trainingId}-${Date.now()}.safetensors`;
+      
+      const uploadCommand = new PutObjectCommand({
+        Bucket: process.env.AWS_S3_BUCKET || 'sselfie-studio-assets',
+        Key: s3Key,
+        Body: Buffer.from(weightsBuffer),
+        ContentType: 'application/octet-stream',
+        // 🔒 SECURITY FIX: Ensure private access only
+        ACL: 'private',
+        ServerSideEncryption: 'AES256',
+        Metadata: {
+          userId: userId,
+          trainingId: trainingId,
+          checksum: checksum,
+          fileSize: fileSize.toString()
+        }
+      });
+
+      await this.s3.send(uploadCommand);
+
+      // 🔒 SECURITY FIX: Store S3 coordinates for presigned URL generation, not direct URL
+      const bucketName = process.env.AWS_S3_BUCKET || 'sselfie-studio-assets';
+      
+      console.log(`✅ LoRA WEIGHTS EXTRACTED: Stored securely in bucket ${bucketName}/${s3Key}`);
+
+      return {
+        s3Bucket: bucketName,
+        s3Key: s3Key,
+        checksum: checksum,
+        fileSize: fileSize
+      };
+
+    } catch (error) {
+      console.error(`❌ LoRA EXTRACTION FAILED for ${trainingId}:`, error);
+      throw new Error(`LoRA extraction failed: ${error.message}`);
+    }
+  }
+
+  // 🔒 SECURITY ENHANCEMENT: Generate presigned URL for secure LoRA weights access
+  static async generateSecureLoRAUrl(s3Bucket: string, s3Key: string, expiresIn: number = 3600): Promise<string> {
+    try {
+      const command = new GetObjectCommand({
+        Bucket: s3Bucket,
+        Key: s3Key
+      });
+      
+      // Generate presigned URL valid for 1 hour (3600 seconds) by default
+      const presignedUrl = await getSignedUrl(this.s3, command, { expiresIn });
+      
+      console.log(`🔒 SECURE LORA ACCESS: Generated presigned URL for ${s3Key} (expires in ${expiresIn}s)`);
+      return presignedUrl;
+      
+    } catch (error) {
+      console.error(`❌ PRESIGNED URL GENERATION FAILED for ${s3Key}:`, error);
+      throw new Error(`Failed to generate secure LoRA URL: ${error.message}`);
+    }
+  }
+
+  // 🎯 MAYA'S INTELLIGENT LORA SCALE DETECTION
+  // Apply the correct lora_scale based on Maya's shot type intelligence
+  static getMayaLoraScale(prompt: string, categoryContext?: string): number {
+    try {
+      // Extract Maya's shot type from prompt content and styling cues
+      const promptLower = prompt.toLowerCase();
+      const categoryLower = (categoryContext || '').toLowerCase();
+      
+      // 🔍 SHOT TYPE DETECTION: Analyze prompt for visual composition cues
+      // Close-up portrait indicators
+      if (promptLower.includes('headshot') || promptLower.includes('portrait') || 
+          promptLower.includes('close-up') || promptLower.includes('face') ||
+          promptLower.includes('professional headshot') || promptLower.includes('linkedin photo') ||
+          categoryLower.includes('headshot') || categoryLower.includes('portrait')) {
+        console.log(`🎯 MAYA LORA: Detected closeUpPortrait - using lora_scale=${MAYA_PERSONALITY.fluxOptimization.closeUpPortrait.lora_weight}`);
+        return MAYA_PERSONALITY.fluxOptimization.closeUpPortrait.lora_weight || 0.9;
+      }
+      
+      // Full scenery/environmental indicators
+      if (promptLower.includes('full body') || promptLower.includes('environment') ||
+          promptLower.includes('location') || promptLower.includes('background') ||
+          promptLower.includes('setting') || promptLower.includes('lifestyle') ||
+          promptLower.includes('travel') || promptLower.includes('outdoor') ||
+          categoryLower.includes('lifestyle') || categoryLower.includes('travel') ||
+          categoryLower.includes('environmental')) {
+        console.log(`🎯 MAYA LORA: Detected fullScenery - using lora_scale=${MAYA_PERSONALITY.fluxOptimization.fullScenery.lora_weight}`);
+        return MAYA_PERSONALITY.fluxOptimization.fullScenery.lora_weight || 0.85;
+      }
+      
+      // Creative/artistic indicators
+      if (promptLower.includes('creative') || promptLower.includes('artistic') ||
+          promptLower.includes('editorial') || promptLower.includes('avant-garde') ||
+          promptLower.includes('concept') || promptLower.includes('dramatic') ||
+          categoryLower.includes('creative') || categoryLower.includes('artistic') ||
+          categoryLower.includes('editorial')) {
+        console.log(`🎯 MAYA LORA: Detected creativeOptimized - using lora_scale=${MAYA_PERSONALITY.fluxOptimization.creativeOptimized.lora_weight}`);
+        return MAYA_PERSONALITY.fluxOptimization.creativeOptimized.lora_weight || 1.1;
+      }
+      
+      // Default to half-body shot (most common professional/business photos)
+      console.log(`🎯 MAYA LORA: Default halfBodyShot - using lora_scale=${MAYA_PERSONALITY.fluxOptimization.halfBodyShot.lora_weight}`);
+      return MAYA_PERSONALITY.fluxOptimization.halfBodyShot.lora_weight || 1.0;
+      
+    } catch (error) {
+      console.error('🎯 MAYA LORA: Error detecting shot type, using default 1.0:', error);
+      return 1.0; // Safe fallback
+    }
+  }
   /*
   private static async getIntelligentParameters(prompt: string, requestedCount: number, userId?: string, categoryContext?: string): Promise<{
     count: number;

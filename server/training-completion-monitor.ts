@@ -52,11 +52,23 @@ export class TrainingCompletionMonitor {
           versionId = trainingData.version;
         }
         
-        // REMOVED: LoRA weights extraction - packaged models only approach
-        console.log(`🎯 PACKAGED MODEL: Training completed, using packaged model approach`);
+        // ✅ RESTORED: LoRA weights extraction for personalized images
+        console.log(`🎯 LORA EXTRACTION: Training completed, extracting LoRA weights for personalization`);
+        
+        let extractedWeights = null;
+        try {
+          // Extract LoRA weights using restored extraction method
+          const { ModelTrainingService } = await import('./model-training-service');
+          extractedWeights = await ModelTrainingService.extractLoRAWeights(replicateModelId, userId);
+          console.log(`✅ LoRA WEIGHTS EXTRACTED: ${extractedWeights.loraWeightsUrl}`);
+        } catch (error) {
+          console.error(`❌ LoRA EXTRACTION FAILED for user ${userId}:`, error);
+          // Continue with packaged model as fallback
+          console.log(`🔄 FALLBACK: Using packaged model approach`);
+        }
         
         if (trainingData.output) {
-          console.log(`✅ Training output available for packaged model`);
+          console.log(`✅ Training output available for model completion`);
         } else {
           console.log(`⚠️ No training output - may need additional processing`);
         }
@@ -71,18 +83,35 @@ export class TrainingCompletionMonitor {
           console.log(`🆔 Generated trigger word: ${triggerWord} for user ${userId}`);
         }
         
-        // PACKAGED MODEL: Store training metadata for packaged model approach
+        // ✅ RESTORED: Store both packaged model and extracted LoRA weights
         await storage.updateUserModel(userId, {
           trainingStatus: 'completed',
           replicateModelId: replicateModelId, // Keep training ID for reference
           replicateVersionId: versionId, // Training version
-          // REMOVED: loraWeightsUrl - packaged models have LoRA built-in
+          loraWeightsUrl: extractedWeights?.loraWeightsUrl || null, // ✅ RESTORED: LoRA weights URL
           triggerWord: triggerWord, // CRITICAL: Ensure trigger word is stored
           trainedModelPath: paths.getUserModelPath(userId),
-          modelType: 'flux-packaged', // Updated: Indicates packaged model approach
+          modelType: extractedWeights ? 'flux-lora' : 'flux-packaged', // Dynamic model type
           completedAt: new Date(),
           updatedAt: new Date()
         });
+        
+        // Store LoRA weights metadata in separate table
+        if (extractedWeights) {
+          try {
+            await storage.storeLoRAWeights({
+              userId: userId,
+              trainingId: replicateModelId,
+              weightsUrl: extractedWeights.loraWeightsUrl,
+              checksum: extractedWeights.checksum,
+              fileSize: extractedWeights.fileSize,
+              extractedAt: new Date()
+            });
+            console.log(`✅ LoRA WEIGHTS METADATA STORED for user ${userId}`);
+          } catch (error) {
+            console.error(`❌ Failed to store LoRA weights metadata:`, error);
+          }
+        }
 
         // Send model ready email notification
         try {

@@ -10,6 +10,7 @@ export interface BASE_QUALITY_SETTINGS {
   megapixels: string;
   output_format: string;
   output_quality: number;
+  lora_scale?: number; // ✅ RESTORED: For extracted LoRA weights
 }
 
 // ✅ MAYA PURE INTELLIGENCE: No hardcoded defaults - Maya controls all parameters
@@ -28,16 +29,19 @@ export interface FluxOptimizationParams {
     guidance_scale: number;
     num_inference_steps: number;
     megapixels: string;
+    lora_scale?: number; // ✅ RESTORED: For extracted LoRA weights
   };
   halfBodyShot: {
     guidance_scale: number;
     num_inference_steps: number;
     megapixels: string;
+    lora_scale?: number; // ✅ RESTORED: For extracted LoRA weights
   };
   fullScenery: {
     guidance_scale: number;
     num_inference_steps: number;
     megapixels: string;
+    lora_scale?: number; // ✅ RESTORED: For extracted LoRA weights
   };
 }
 
@@ -47,6 +51,6 @@ export interface FluxOptimizationParams {
 export type ShotType = 'closeUpPortrait' | 'halfBodyShot' | 'fullScenery';
 
 /**
- * Model generation paths - packaged models only
+ * Model generation paths - both packaged and extracted LoRA
  */
-export type GenerationPath = 'packaged'; // REMOVED: 'base_flux_lora' - only packaged models supported
+export type GenerationPath = 'packaged' | 'base_flux_lora'; // ✅ RESTORED: Extracted LoRA weights support
