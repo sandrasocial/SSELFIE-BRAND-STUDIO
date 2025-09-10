@@ -91,9 +91,6 @@ export const users = pgTable("users", {
   trainingCoachingPhase: varchar("training_coaching_phase"), // businessGoals, platformStrategy, brandPositioning, completed
   trainingCoachingStep: integer("training_coaching_step").default(0),
   brandStrategyContext: jsonb("brand_strategy_context"), // Stores coaching responses and brand strategy insights
-  
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 // Email management for Ava agent
