@@ -17,6 +17,7 @@ import { optimizeRuntime } from "./utils/webVitals";
 // Core pages (loaded immediately)
 import Workspace from "./pages/workspace";
 import Maya from "./pages/maya";
+import BrandStudioPage from "./pages/BrandStudioPage";
 
 // Lazy loaded pages for better performance
 const BusinessLanding = lazy(() => import("./pages/business-landing"));
@@ -422,8 +423,8 @@ function Router() {
         </Suspense>
       )} />
       
-      {/* AI AGENTS */}
-      <Route path="/maya" component={(props) => <ProtectedRoute component={Maya} {...props} />} />
+      {/* AI AGENTS - Brand Studio */}
+      <Route path="/maya" component={(props) => <ProtectedRoute component={BrandStudioPage} {...props} />} />
       <Route path="/victoria" component={(props) => (
         <Suspense fallback={<PageLoader />}>
           <ProtectedRoute component={Victoria} {...props} />

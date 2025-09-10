@@ -1614,11 +1614,14 @@ router.get('/check-generation/:predictionId', requireStackAuth, adminContextDete
             // 🎯 CRITICAL FIX: Auto-save images to gallery when chatId is invalid
             try {
               for (const imageUrl of finalImageUrls) {
-                await storage.saveImageToGallery(userId, {
-                  url: imageUrl,
-                  title: 'Maya AI Generation',
+                await storage.saveAIImage({
+                  userId: userId,
+                  imageUrl: imageUrl,
+                  prompt: 'Maya AI Generation',
                   category: 'Maya Editorial',
-                  source: 'maya'
+                  source: 'maya',
+                  style: 'editorial',
+                  generationStatus: 'completed'
                 });
               }
               console.log(`✅ MAYA AUTO-GALLERY: Saved ${finalImageUrls.length} images directly to user gallery`);
@@ -1636,11 +1639,14 @@ router.get('/check-generation/:predictionId', requireStackAuth, adminContextDete
         // 🎯 CRITICAL FIX: Auto-save images to gallery when no chat context exists
         try {
           for (const imageUrl of finalImageUrls) {
-            await storage.saveImageToGallery(userId, {
-              url: imageUrl,
-              title: 'Maya AI Generation',
+            await storage.saveAIImage({
+              userId: userId,
+              imageUrl: imageUrl,
+              prompt: 'Maya AI Generation',
               category: 'Maya Editorial', 
-              source: 'maya'
+              source: 'maya',
+              style: 'editorial',
+              generationStatus: 'completed'
             });
           }
           console.log(`✅ MAYA AUTO-GALLERY: Saved ${finalImageUrls.length} images directly to user gallery (no chat context)`);
