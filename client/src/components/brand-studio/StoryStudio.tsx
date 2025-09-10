@@ -23,6 +23,9 @@ interface StoryProject {
   format: '9:16' | '16:9';
   status: 'draft' | 'generating' | 'completed';
   videoUrl?: string;
+  jobId?: string;
+  userLoraModel?: string;
+  estimatedTime?: string;
   createdAt: string;
 }
 
@@ -242,21 +245,24 @@ export const StoryStudio: React.FC<StoryStudioProps> = ({ panelMode, isMobile = 
     }
   }
 
-  // Scene Director Chat - Generate scene ideas
+  // AI Scene Director - Generate personalized video story with user LoRA
   const generateScenes = useMutation({
     mutationFn: async (messageContent: string) => {
-      const response = await fetch('/api/story/generate-scenes', {
+      const response = await fetch('/api/video/generate-story', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({ 
           message: messageContent,
-          currentProject: currentProject
+          currentProject: currentProject,
+          keyframes: [], // TODO: Add keyframe support
+          format: videoFormat
         })
       });
 
       if (!response.ok) {
-        throw new Error('Failed to generate scenes');
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to generate personalized video story');
       }
 
       return response.json();
@@ -267,42 +273,55 @@ export const StoryStudio: React.FC<StoryStudioProps> = ({ panelMode, isMobile = 
           ...currentProject!,
           scenes: data.scenes,
           name: data.projectName || currentProject!.name,
-          description: data.description || currentProject!.description
+          description: data.description || currentProject!.description,
+          jobId: data.jobId,
+          userLoraModel: data.userLoraModel
         };
         setCurrentProject(updatedProject);
         
         addMessage({
           type: 'maya',
-          content: data.response || 'I\'ve created your story scenes! Review and edit them as needed.',
+          content: data.response || 'I\'ve created your personalized video story using your trained model! Each scene will feature you consistently.',
           timestamp: new Date().toISOString(),
           scenes: data.scenes
         });
       }
       setIsTyping(false);
     },
-    onError: () => {
+    onError: (error: any) => {
       setIsTyping(false);
-      toast({ title: "Scene Generation Failed", description: "Please try again." });
+      const errorMessage = error.message || 'Failed to generate story';
+      
+      if (errorMessage.includes('training required')) {
+        toast({ 
+          title: "Training Required", 
+          description: "Please complete your model training first to generate personalized videos." 
+        });
+      } else {
+        toast({ title: "Story Generation Failed", description: errorMessage });
+      }
     }
   });
 
-  // Generate video from current project
+  // Generate video with VEO using personalized scenes and user LoRA
   const generateVideo = useMutation({
     mutationFn: async () => {
       if (!currentProject) throw new Error('No project available');
       
-      const response = await fetch('/api/story/generate-video', {
+      const response = await fetch('/api/video/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({
-          project: currentProject,
-          format: videoFormat
+          scenes: currentProject.scenes,
+          format: videoFormat,
+          userLoraModel: currentProject.userLoraModel
         })
       });
 
       if (!response.ok) {
-        throw new Error('Failed to generate video');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to start VEO video generation');
       }
 
       return response.json();
@@ -317,21 +336,24 @@ export const StoryStudio: React.FC<StoryStudioProps> = ({ panelMode, isMobile = 
       }
     },
     onSuccess: (data) => {
-      setIsGenerating(false);
       if (currentProject) {
         setCurrentProject({
           ...currentProject,
-          status: 'completed',
-          videoUrl: data.videoUrl
+          status: 'generating',
+          jobId: data.jobId,
+          estimatedTime: data.estimatedTime
         });
       }
       
       toast({
-        title: "Video Generated Successfully!",
-        description: "Your brand story video is ready"
+        title: "Video Generation Started!",
+        description: `VEO is creating your personalized video (${data.estimatedTime})`
       });
+
+      // Start polling for status
+      startVideoStatusPolling(data.jobId);
     },
-    onError: () => {
+    onError: (error: any) => {
       setIsGenerating(false);
       if (currentProject) {
         setCurrentProject({
@@ -339,7 +361,13 @@ export const StoryStudio: React.FC<StoryStudioProps> = ({ panelMode, isMobile = 
           status: 'draft'
         });
       }
-      toast({ title: "Video Generation Failed", description: "Please try again." });
+      
+      const errorMessage = error.message || 'Video generation failed';
+      if (errorMessage.includes('limit reached')) {
+        toast({ title: "Generation Limit Reached", description: "You've reached your monthly video generation limit." });
+      } else {
+        toast({ title: "Video Generation Failed", description: errorMessage });
+      }
     }
   });
 
@@ -372,6 +400,76 @@ export const StoryStudio: React.FC<StoryStudioProps> = ({ panelMode, isMobile = 
       e.preventDefault();
       handleSendMessage();
     }
+  };
+
+  // Video status polling for VEO generation
+  const startVideoStatusPolling = (jobId: string) => {
+    const pollInterval = setInterval(async () => {
+      try {
+        const response = await fetch(`/api/video/status/${jobId}`, {
+          credentials: 'include'
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to check video status');
+        }
+
+        const statusData = await response.json();
+
+        if (statusData.status === 'succeeded' && statusData.videoUrl) {
+          clearInterval(pollInterval);
+          setIsGenerating(false);
+          
+          if (currentProject) {
+            setCurrentProject({
+              ...currentProject,
+              status: 'completed',
+              videoUrl: statusData.videoUrl
+            });
+          }
+
+          toast({
+            title: "Video Ready!",
+            description: "Your personalized brand video has been generated successfully"
+          });
+
+        } else if (statusData.status === 'failed') {
+          clearInterval(pollInterval);
+          setIsGenerating(false);
+          
+          if (currentProject) {
+            setCurrentProject({
+              ...currentProject,
+              status: 'draft'
+            });
+          }
+
+          toast({
+            title: "Video Generation Failed",
+            description: statusData.error || "An error occurred during video generation"
+          });
+        }
+        // Continue polling if status is 'starting' or 'processing'
+        
+      } catch (error) {
+        console.error('Video status polling error:', error);
+        clearInterval(pollInterval);
+        setIsGenerating(false);
+        
+        if (currentProject) {
+          setCurrentProject({
+            ...currentProject,
+            status: 'draft'
+          });
+        }
+      }
+    }, 10000); // Poll every 10 seconds
+
+    // Stop polling after 10 minutes max
+    setTimeout(() => {
+      clearInterval(pollInterval);
+      setIsGenerating(false);
+    }, 600000);
   };
 
   // Update scene prompt
