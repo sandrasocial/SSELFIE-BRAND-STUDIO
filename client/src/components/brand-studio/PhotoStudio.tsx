@@ -1,0 +1,616 @@
+import React, { useState, useRef, useEffect } from 'react';
+import { useAuth } from '../../hooks/use-auth';
+import { useMayaGeneration } from '../../hooks/useMayaGeneration';
+import { useMayaPersistence } from '../../hooks/useMayaPersistence';
+import { useToast } from '../../hooks/use-toast';
+import { useBrandStudio } from '../../pages/BrandStudioPage';
+import { DirectorPanel } from './DirectorPanel';
+import { CanvasPanel, ConceptCard } from './CanvasPanel';
+import { ToolkitPanel, QuickActions, StatusDisplay } from './ToolkitPanel';
+import { MayaUploadComponent } from '../maya/MayaUploadComponent';
+import { MayaExamplesGallery } from '../maya/MayaExamplesGallery';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useLocation } from 'wouter';
+
+interface ChatMessage {
+  id: string;
+  type: 'user' | 'maya' | 'upload' | 'examples';
+  content: string;
+  timestamp: string;
+  conceptCards?: ConceptCard[];
+  isStreaming?: boolean;
+  showUpload?: boolean;
+  showExamples?: boolean;
+}
+
+interface ConceptCard {
+  id: string;
+  title: string;
+  description: string;
+  fluxPrompt?: string;
+  fullPrompt?: string;
+  category?: string;
+  imageUrl?: string;
+  generatedImages?: string[];
+  isGenerating?: boolean;
+  isLoading?: boolean;
+  hasGenerated?: boolean;
+}
+
+export const PhotoStudio: React.FC = () => {
+  const { user } = useAuth();
+  const [location, setLocation] = useLocation();
+  const [message, setMessage] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
+  const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
+  const [selectedConceptCard, setSelectedConceptCard] = useState<ConceptCard | null>(null);
+  const [hasStartedChat, setHasStartedChat] = useState(false);
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+  const { setActiveTab, setHandoffData } = useBrandStudio();
+
+  // Enhanced persistence system
+  const {
+    messages,
+    setMessages,
+    addMessage,
+    updateMessage,
+    updateConceptCard,
+    clearConversation,
+    getConversationStats,
+    isLoading: isPersistenceLoading,
+    sessionId
+  } = useMayaPersistence(user?.id);
+
+  // Initialize Maya generation hook with persistent messages
+  const { generateFromSpecificConcept } = useMayaGeneration(messages, setMessages, null, setIsTyping, toast);
+
+  // Connection status monitoring
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
+  // Auto-save and gallery functionality
+  const handleAutoSaveToGallery = async (imageUrl: string, conceptTitle: string) => {
+    try {
+      console.log('Auto-saving to gallery:', conceptTitle);
+      const response = await fetch('/api/ai-images', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          imageUrl,
+          prompt: conceptTitle,
+          category: detectCategory(conceptTitle),
+          isAutoSaved: true
+        })
+      });
+
+      if (response.ok) {
+        console.log('Auto-saved to gallery successfully');
+      }
+    } catch (error) {
+      console.error('Auto-save failed:', error);
+    }
+  };
+
+  const handleSaveToGallery = async (imageUrl: string, conceptTitle: string) => {
+    try {
+      console.log('Manual save to gallery:', conceptTitle);
+      toast({ title: "Saving to Gallery", description: "Adding image to your personal collection..." });
+
+      const response = await fetch('/api/ai-images', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          imageUrl,
+          prompt: conceptTitle,
+          category: detectCategory(conceptTitle),
+          isFavorite: true
+        })
+      });
+
+      if (response.ok) {
+        toast({ title: "Saved!", description: "Image added to your gallery" });
+      }
+    } catch (error) {
+      console.error('Save failed:', error);
+      toast({ title: "Save Failed", description: "Please try again" });
+    }
+  };
+
+  // Auto-categorize based on concept title
+  const detectCategory = (title: string): string => {
+    const text = title.toLowerCase();
+    if (text.includes('business') || text.includes('professional') || text.includes('corporate') || text.includes('executive')) return 'Business';
+    if (text.includes('fashion') || text.includes('style') || text.includes('elegant') || text.includes('luxe')) return 'Fashion';
+    if (text.includes('travel') || text.includes('destination') || text.includes('adventure') || text.includes('vacation')) return 'Travel';
+    return 'Lifestyle';
+  };
+
+  // Enhanced loading with database sync
+  const { data: conversationData } = useQuery({
+    queryKey: ['/api/maya/conversation'],
+    enabled: !!user?.id && !isPersistenceLoading
+  });
+
+  // Sync database conversation with localStorage
+  useEffect(() => {
+    if (conversationData && (conversationData as any).messages && messages.length === 0) {
+      console.log('Syncing database conversation with persistent storage');
+      setMessages(() => (conversationData as any).messages.slice(-20));
+      setHasStartedChat(true);
+    }
+  }, [conversationData, messages.length, setMessages]);
+
+  // Initialize chat state for new users
+  useEffect(() => {
+    if (messages.length === 0 && !conversationData) {
+      setHasStartedChat(false);
+    }
+  }, [messages.length, conversationData]);
+
+  // Enhanced seamless handoff
+  useEffect(() => {
+    const handoffContext = localStorage.getItem('maya-handoff-context');
+    if (handoffContext && user) {
+      try {
+        const context = JSON.parse(handoffContext);
+        console.log('🔄 ENHANCED HANDOFF: Received authenticated context from workspace:', context.message);
+        console.log('👤 User Profile:', context.userProfile);
+        console.log('🏢 Business Context:', context.businessContext);
+        
+        if (context.userProfile?.userId === user.id) {
+          const userName = context.userProfile?.name || 'there';
+          addMessage({
+            type: 'maya',
+            content: `Welcome to my creation studio, ${userName}! I received your request from the workspace: "${context.message}". With your professional background in ${context.businessContext?.industry || 'your field'}, let me create photo concepts that perfectly showcase your expertise...`,
+            timestamp: new Date().toISOString()
+          });
+          
+          setTimeout(() => {
+            setMessage(context.message);
+            sendMessage.mutate(context.message);
+          }, 1000);
+          
+          console.log('✅ HANDOFF: User authentication verified, enhanced context applied');
+        } else {
+          console.warn('⚠️ HANDOFF: User authentication mismatch, proceeding with standard flow');
+        }
+        
+        localStorage.removeItem('maya-handoff-context');
+        setHasStartedChat(true);
+        
+      } catch (error) {
+        console.error('Failed to process enhanced handoff context:', error);
+      }
+    }
+  }, [user]);
+
+  // Toggle concept card expansion
+  const toggleCardExpansion = (cardId: string) => {
+    setExpandedCards(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(cardId)) {
+        newSet.delete(cardId);
+      } else {
+        newSet.add(cardId);
+      }
+      return newSet;
+    });
+  };
+
+  // Generate image from concept card using Maya's generation system
+  const handleGenerateImage = async (card: ConceptCard) => {
+    if (generateFromSpecificConcept) {
+      await generateFromSpecificConcept(card.title, card.id);
+    } else {
+      console.error('Maya generation system not available');
+    }
+  };
+
+  // New Session Management
+  const handleNewSession = () => {
+    const stats = getConversationStats();
+    if (stats.totalMessages > 0) {
+      if (confirm(`Start a new styling session? This will clear your current conversation (${stats.totalMessages} messages, ${stats.conceptCards} concept cards, ${stats.images} images) but Maya will remember your style preferences.`)) {
+        clearConversation();
+        setSelectedConceptCard(null);
+        toast({ title: "New Session Started", description: "Fresh conversation started! Maya still remembers your style preferences." });
+      }
+    } else {
+      clearConversation();
+      setSelectedConceptCard(null);
+      toast({ title: "New Session", description: "Ready for a fresh styling conversation!" });
+    }
+  };
+
+  // Send message to Maya with enhanced persistence
+  const sendMessage = useMutation({
+    mutationFn: async (messageContent: string) => {
+      const response = await fetch('/api/maya/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ 
+          message: messageContent,
+          context: 'styling'
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to send message');
+      }
+
+      return response.json();
+    },
+    onSuccess: (data) => {
+      if (data.content || data.message) {
+        addMessage({
+          type: 'maya',
+          content: data.response || data.content || data.message || '',
+          timestamp: new Date().toISOString(),
+          conceptCards: data.conceptCards || [],
+          quickButtons: data.quickButtons || []
+        });
+      }
+      setIsTyping(false);
+    },
+    onError: () => {
+      setIsTyping(false);
+      toast({ title: "Connection Error", description: "Failed to send message. Please try again." });
+    }
+  });
+
+  const handleSendMessage = () => {
+    if (!message.trim() || isTyping) return;
+
+    addMessage({
+      type: 'user', 
+      content: message.trim(),
+      timestamp: new Date().toISOString()
+    });
+
+    setIsTyping(true);
+    sendMessage.mutate(message.trim());
+    setMessage('');
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
+
+  const startSimpleConversation = () => {
+    setHasStartedChat(true);
+
+    addMessage({
+      type: 'maya',
+      content: "I'm Maya, your photo creation specialist. Describe the professional photos you need and I'll create custom concepts with instant generation. What type of images are you looking to create?",
+      timestamp: new Date().toISOString()
+    });
+  };
+
+  // Handle toolkit actions
+  const handleToolkitAction = (action: string, data?: any) => {
+    switch (action) {
+      case 'generate':
+        if (selectedConceptCard) {
+          handleGenerateImage(selectedConceptCard);
+        }
+        break;
+      case 'variations':
+        if (selectedConceptCard) {
+          handleGenerateImage(selectedConceptCard);
+        }
+        break;
+      case 'save-all':
+        if (selectedConceptCard?.generatedImages) {
+          selectedConceptCard.generatedImages.forEach(imageUrl => {
+            handleSaveToGallery(imageUrl, selectedConceptCard.title);
+          });
+        }
+        break;
+      case 'create-video':
+        if (selectedConceptCard) {
+          // Seamless handoff to Story Studio
+          setHandoffData({
+            conceptCard: selectedConceptCard,
+            fromPhoto: true
+          });
+          setActiveTab('story');
+          toast({ 
+            title: "Switching to Story Studio", 
+            description: "Your concept is ready for video creation!" 
+          });
+        }
+        break;
+      case 'new-session':
+        handleNewSession();
+        break;
+      case 'view-gallery':
+        setLocation('/sselfie-gallery');
+        break;
+    }
+  };
+
+  // Get concept cards from messages
+  const conceptCards = messages.reduce((acc: ConceptCard[], msg) => {
+    if (msg.conceptCards) {
+      acc.push(...msg.conceptCards);
+    }
+    return acc;
+  }, []);
+
+  // Calculate stats
+  const stats = {
+    conceptCards: conceptCards.length,
+    images: conceptCards.reduce((acc, card) => acc + (card.generatedImages?.length || 0), 0)
+  };
+
+  // Check if mobile
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  return (
+    <>
+      {/* Connection Status Indicator */}
+      {!isOnline && (
+        <div className="fixed top-20 left-0 right-0 bg-red-500 text-white text-center py-2 z-50">
+          <div className="text-xs tracking-widest uppercase" style={{ fontFamily: 'Helvetica Neue', fontWeight: 300 }}>
+            Offline • Check your connection
+          </div>
+        </div>
+      )}
+
+      {isMobile ? (
+        // Mobile Layout: Single view with overlays
+        <CanvasPanel mode="photo" onItemSelect={setSelectedConceptCard} selectedItem={selectedConceptCard}>
+          {/* Welcome State */}
+          {!hasStartedChat && messages.length === 0 && (
+            <div className="text-center py-12">
+              <h2 className="text-xl mb-6" style={{ 
+                fontFamily: 'Times New Roman, serif', 
+                fontWeight: 200, 
+                letterSpacing: '0.2em',
+                lineHeight: 1.2
+              }}>
+                CREATE YOUR
+                <br />
+                PROFESSIONAL PHOTOS
+              </h2>
+              <p className="text-gray-600 mb-8 leading-relaxed text-sm">
+                Describe the professional photos you need and I'll create custom concepts with instant generation.
+              </p>
+
+              <div className="space-y-3">
+                {[
+                  "Corporate headshots with confidence",
+                  "Creative lifestyle content", 
+                  "Professional portraits that convert"
+                ].map((suggestion, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setMessage(suggestion)}
+                    className="w-full text-left px-4 py-3 border border-gray-200 hover:border-black hover:bg-gray-50 transition-all duration-300 text-sm"
+                  >
+                    {suggestion}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Concept Cards */}
+          {conceptCards.length > 0 && (
+            <div className="space-y-6">
+              <h3 className="spaced-title text-sm">Photo Concepts</h3>
+              {conceptCards.map((card, index) => (
+                <ConceptCard
+                  key={card.id}
+                  card={card}
+                  isExpanded={expandedCards.has(card.id)}
+                  onToggleExpand={() => toggleCardExpansion(card.id)}
+                  onGenerate={() => handleGenerateImage(card)}
+                  onSelect={() => setSelectedConceptCard(card)}
+                  onSaveToGallery={handleSaveToGallery}
+                  onCreateVideo={() => handleToolkitAction('create-video')}
+                  isSelected={selectedConceptCard?.id === card.id}
+                  showVideoButton={true}
+                />
+              ))}
+            </div>
+          )}
+
+          {/* Messages for Mobile */}
+          {messages.length > 0 && (
+            <div className="border-t pt-6 mt-6">
+              <div className="space-y-4">
+                {messages.slice(-3).map((msg) => (
+                  <div key={msg.id} className="space-y-2">
+                    <div className="text-xs text-gray-400 tracking-wider uppercase">
+                      {msg.type === 'user' ? 'You' : 'Maya'}
+                    </div>
+                    <div className={`p-3 rounded text-sm ${
+                      msg.type === 'user' 
+                        ? 'bg-black text-white' 
+                        : 'bg-gray-50 text-gray-800'
+                    }`}>
+                      <p className="whitespace-pre-wrap">{msg.content}</p>
+                    </div>
+
+                    {/* Handle special message types */}
+                    {msg.showUpload && (
+                      <div className="border-t pt-4">
+                        <MayaUploadComponent
+                          onUploadComplete={(success) => {
+                            if (success) console.log('Training initiated successfully');
+                          }}
+                          onTrainingStart={() => console.log('Training started')}
+                          className="luxury-upload"
+                        />
+                      </div>
+                    )}
+
+                    {msg.showExamples && (
+                      <div className="border-t pt-4">
+                        <MayaExamplesGallery className="luxury-examples" />
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Director Panel for Mobile */}
+          <DirectorPanel
+            mode="photo"
+            messages={messages}
+            isTyping={isTyping}
+            message={message}
+            setMessage={setMessage}
+            onSendMessage={handleSendMessage}
+            onKeyPress={handleKeyPress}
+            disabled={!isOnline}
+          />
+
+          {/* Toolkit Panel for Mobile */}
+          <ToolkitPanel
+            mode="photo"
+            selectedItem={selectedConceptCard}
+            onItemAction={handleToolkitAction}
+          >
+            <QuickActions mode="photo" onAction={handleToolkitAction} />
+            <StatusDisplay mode="photo" stats={stats} />
+          </ToolkitPanel>
+        </CanvasPanel>
+      ) : (
+        // Desktop Layout: Three-panel design
+        <>
+          {/* Left Panel: Director (Chat) */}
+          <DirectorPanel
+            mode="photo"
+            messages={messages}
+            isTyping={isTyping}
+            message={message}
+            setMessage={setMessage}
+            onSendMessage={handleSendMessage}
+            onKeyPress={handleKeyPress}
+            disabled={!isOnline}
+          />
+
+          {/* Center Panel: Canvas (Content) */}
+          <CanvasPanel mode="photo" onItemSelect={setSelectedConceptCard} selectedItem={selectedConceptCard}>
+            {/* Welcome State */}
+            {!hasStartedChat && messages.length === 0 && (
+              <div className="text-center py-12">
+                <h2 className="text-2xl mb-8" style={{ 
+                  fontFamily: 'Times New Roman, serif', 
+                  fontWeight: 200, 
+                  letterSpacing: '0.2em',
+                  lineHeight: 1.2
+                }}>
+                  CREATE YOUR
+                  <br />
+                  PROFESSIONAL PHOTOS
+                </h2>
+                <p className="text-gray-600 mb-12 leading-relaxed max-w-xl mx-auto">
+                  Describe the professional photos you need and I'll create custom concepts with instant generation.
+                </p>
+
+                <div className="space-y-3 max-w-md mx-auto">
+                  {[
+                    "Corporate headshots with confidence",
+                    "Creative lifestyle content", 
+                    "Professional portraits that convert"
+                  ].map((suggestion, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setMessage(suggestion)}
+                      className="w-full text-left px-6 py-4 border border-gray-200 hover:border-black hover:bg-gray-50 transition-all duration-300"
+                    >
+                      <span className="text-sm text-gray-700">
+                        {suggestion}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Concept Cards */}
+            {conceptCards.length > 0 && (
+              <div className="space-y-8">
+                <h3 className="spaced-title">Photo Concepts</h3>
+                {conceptCards.map((card, index) => (
+                  <ConceptCard
+                    key={card.id}
+                    card={card}
+                    isExpanded={expandedCards.has(card.id)}
+                    onToggleExpand={() => toggleCardExpansion(card.id)}
+                    onGenerate={() => handleGenerateImage(card)}
+                    onSelect={() => setSelectedConceptCard(card)}
+                    onSaveToGallery={handleSaveToGallery}
+                    onCreateVideo={() => handleToolkitAction('create-video')}
+                    isSelected={selectedConceptCard?.id === card.id}
+                    showVideoButton={true}
+                  />
+                ))}
+              </div>
+            )}
+
+            {/* Handle special message types */}
+            {messages.map((msg) => (
+              <div key={`special-${msg.id}`}>
+                {msg.showUpload && (
+                  <div className="mb-8 p-8 border border-gray-100">
+                    <MayaUploadComponent
+                      onUploadComplete={(success) => {
+                        if (success) console.log('Training initiated successfully');
+                      }}
+                      onTrainingStart={() => console.log('Training started')}
+                      className="luxury-upload"
+                    />
+                  </div>
+                )}
+
+                {msg.showExamples && (
+                  <div className="mb-8 p-8 border border-gray-100">
+                    <MayaExamplesGallery className="luxury-examples" />
+                  </div>
+                )}
+              </div>
+            ))}
+          </CanvasPanel>
+
+          {/* Right Panel: Toolkit (Actions) */}
+          <ToolkitPanel
+            mode="photo"
+            selectedItem={selectedConceptCard}
+            onItemAction={handleToolkitAction}
+          >
+            <QuickActions mode="photo" onAction={handleToolkitAction} />
+            <StatusDisplay mode="photo" stats={stats} />
+          </ToolkitPanel>
+        </>
+      )}
+    </>
+  );
+};
