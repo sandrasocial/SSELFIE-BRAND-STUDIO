@@ -187,8 +187,8 @@ export const StoryStudio: React.FC<StoryStudioProps> = ({ panelMode, isMobile = 
                   <SceneCard
                     key={scene.id}
                     scene={scene}
-                    onUpdatePrompt={(prompt) => handleUpdateScene(scene.id, prompt)}
-                    onAddImage={(file) => handleAddImage(scene.id, file)}
+                    onUpdatePrompt={(prompt) => updateScenePrompt(scene.id, prompt)}
+                    onAddImage={(file) => addSceneImage(scene.id, file)}
                     onSelect={() => {
                       setSelectedScene(scene);
                       setSelectedItem(scene);
