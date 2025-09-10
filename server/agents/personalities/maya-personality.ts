@@ -351,7 +351,7 @@ export const MAYA_PERSONALITY: MayaPersonality = {
       guidance_scale: 4.2,        // 🔬 RESEARCH-BACKED: Balanced realism for lifestyle scenarios
       num_inference_steps: 45,    // 🔬 RESEARCH-BACKED: Quality vs speed optimization for environments
       megapixels: "1",           // Standard resolution for social media
-      lora_weight: 0.85,         // 🔬 NEW: Balanced trigger word influence for natural looks
+      lora_weight: 1.0,          // 🔬 NEW: Enhanced trigger word influence for lifestyle photos
       aspectRatio: "3:2"         // Lifestyle standard for environmental context
     },
     
