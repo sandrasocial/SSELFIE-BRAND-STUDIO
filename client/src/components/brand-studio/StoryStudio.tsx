@@ -67,12 +67,12 @@ export const StoryStudio: React.FC<StoryStudioProps> = ({ panelMode, isMobile = 
   useEffect(() => {
     if (handoffData?.fromPhoto && handoffData?.conceptCard) {
       const conceptCard = handoffData.conceptCard;
-      console.log('🎬 Story Studio: Received handoff from Photo Studio:', conceptCard.title);
+      console.log('Story Studio: Received handoff from Photo Studio:', conceptCard.title);
       
       // Create initial project from concept card
       const newProject: StoryProject = {
         id: `project_${Date.now()}`,
-        name: `Video Story: ${conceptCard.title.replace(/[✨💫🔥🌟💎🌅🏢💼🌊👑💃📸🎬♦️🚖]/g, '').trim()}`,
+        name: `Video Story: ${conceptCard.title.replace(/[^a-zA-Z0-9\s\-_]/g, '').trim()}`,
         description: conceptCard.description,
         scenes: [
           {
@@ -143,7 +143,7 @@ export const StoryStudio: React.FC<StoryStudioProps> = ({ panelMode, isMobile = 
       return (
         <div className="h-full flex flex-col">
           <div className="panel-header" style={{ 
-            background: 'linear-gradient(135deg, #000000 0%, #333333 100%)',
+            background: '#000000',
             color: 'white',
             padding: '20px',
             position: 'relative',
@@ -202,7 +202,7 @@ export const StoryStudio: React.FC<StoryStudioProps> = ({ panelMode, isMobile = 
             ) : (
               <div className="flex items-center justify-center h-full text-center p-8">
                 <div>
-                  <div className="text-6xl mb-4">🎬</div>
+                  <div className="text-6xl mb-4">*</div>
                   <h4 className="text-xl font-light tracking-[0.2em] uppercase mb-4">Your Story Canvas</h4>
                   <p className="text-gray-600 max-w-md">Start a conversation with Maya to create compelling video stories for your brand</p>
                 </div>
@@ -217,7 +217,7 @@ export const StoryStudio: React.FC<StoryStudioProps> = ({ panelMode, isMobile = 
       return (
         <div className="h-full flex flex-col">
           <div className="panel-header" style={{ 
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            background: '#000000',
             color: 'white',
             padding: '20px',
             position: 'relative',

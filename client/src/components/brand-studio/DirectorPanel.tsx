@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { ChevronUp } from 'lucide-react';
 
 interface DirectorPanelProps {
   mode: 'photo' | 'story';
@@ -163,7 +164,7 @@ export const DirectorPanel: React.FC<DirectorPanelProps> = ({
             onClick={() => setIsExpanded(true)}
             className="fixed top-24 right-4 w-12 h-12 bg-black text-white rounded-full flex items-center justify-center z-30 shadow-lg"
           >
-            💬
+            <ChevronUp className="w-5 h-5" />
           </button>
         )}
 

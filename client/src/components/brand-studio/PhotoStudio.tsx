@@ -170,9 +170,9 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
     if (handoffContext && user) {
       try {
         const context = JSON.parse(handoffContext);
-        console.log('🔄 ENHANCED HANDOFF: Received authenticated context from workspace:', context.message);
-        console.log('👤 User Profile:', context.userProfile);
-        console.log('🏢 Business Context:', context.businessContext);
+        console.log('ENHANCED HANDOFF: Received authenticated context from workspace:', context.message);
+        console.log('User Profile:', context.userProfile);
+        console.log('Business Context:', context.businessContext);
         
         if (context.userProfile?.userId === user.id) {
           const userName = context.userProfile?.name || 'there';
@@ -381,7 +381,7 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
       return (
         <div className="h-full flex flex-col">
           <div className="panel-header" style={{ 
-            background: 'linear-gradient(135deg, #000000 0%, #333333 100%)',
+            background: '#000000',
             color: 'white',
             padding: '20px',
             position: 'relative',
@@ -443,7 +443,7 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
             ) : (
               <div className="flex items-center justify-center h-full text-center p-8">
                 <div>
-                  <div className="text-6xl mb-4">✨</div>
+                  <div className="text-6xl mb-4">*</div>
                   <h4 className="text-xl font-light tracking-[0.2em] uppercase mb-4">Your Creative Canvas</h4>
                   <p className="text-gray-600 max-w-md">Start a conversation with Maya to generate beautiful concept cards for your professional photos</p>
                 </div>
@@ -458,7 +458,7 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
       return (
         <div className="h-full flex flex-col">
           <div className="panel-header" style={{ 
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            background: '#000000',
             color: 'white',
             padding: '20px',
             position: 'relative',

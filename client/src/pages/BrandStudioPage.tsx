@@ -261,7 +261,7 @@ export default function BrandStudioPage() {
           .brand-studio-mobile {
             position: fixed;
             inset: 0;
-            background: linear-gradient(rgba(255, 255, 255, 0.98), rgba(255, 255, 255, 0.98)), url('${backgroundImage}');
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('${backgroundImage}');
             background-size: cover;
             background-position: center;
             display: flex;
@@ -323,8 +323,8 @@ export default function BrandStudioPage() {
           left: -40px;
           right: -40px;
           bottom: -40px;
-          background: url('${backgroundImage}') center/cover;
-          opacity: 0.03;
+          background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('${backgroundImage}') center/cover;
+          opacity: 0.25;
           border-radius: 20px;
           z-index: -1;
         }
@@ -374,8 +374,8 @@ export default function BrandStudioPage() {
           left: -20px;
           right: -20px;
           bottom: -20px;
-          background: url('${backgroundImage}') center/cover;
-          opacity: 0.05;
+          background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('${backgroundImage}') center/cover;
+          opacity: 0.2;
           border-radius: 12px;
           z-index: -1;
         }
@@ -482,7 +482,7 @@ export default function BrandStudioPage() {
             <div 
               className="min-h-screen" 
               style={{ 
-                backgroundImage: `linear-gradient(rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.95)), url(${backgroundImage})`,
+                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url(${backgroundImage})`,
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
                 backgroundAttachment: 'fixed'

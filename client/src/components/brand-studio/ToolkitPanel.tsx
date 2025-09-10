@@ -53,7 +53,7 @@ export const ToolkitPanel: React.FC<ToolkitPanelProps> = ({
       <div className="space-y-6">
         <div>
           <h4 className="spaced-title text-xs mb-4">
-            {selectedItem.title?.replace(/[✨💫🔥🌟💎🌅🏢💼🌊👑💃📸🎬♦️🚖]/g, '').trim()}
+            {selectedItem.title?.replace(/[^a-zA-Z0-9\s\-_]/g, '').trim()}
           </h4>
           <p className="text-xs text-gray-600 leading-relaxed mb-6">
             {selectedItem.description}
@@ -88,7 +88,7 @@ export const ToolkitPanel: React.FC<ToolkitPanelProps> = ({
               <button
                 onClick={() => onItemAction?.('create-video')}
                 className="luxury-btn w-full text-center bg-gradient-to-r from-purple-600 to-pink-600 text-white border-none"
-                style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}
+                style={{ background: '#000000' }}
               >
                 Create Video from Concept
               </button>
