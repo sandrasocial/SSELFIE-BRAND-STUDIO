@@ -37,7 +37,12 @@ interface ConceptCard {
   hasGenerated?: boolean;
 }
 
-export const PhotoStudio: React.FC = () => {
+interface PhotoStudioProps {
+  panelMode?: 'director' | 'canvas' | 'toolkit';
+  isMobile?: boolean;
+}
+
+export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = false }) => {
   const { user } = useAuth();
   const [location, setLocation] = useLocation();
   const [message, setMessage] = useState('');
@@ -48,7 +53,7 @@ export const PhotoStudio: React.FC = () => {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const queryClient = useQueryClient();
   const { toast } = useToast();
-  const { setActiveTab, setHandoffData } = useBrandStudio();
+  const { setActiveTab, setHandoffData, selectedItem, setSelectedItem } = useBrandStudio();
 
   // Enhanced persistence system
   const {
@@ -360,13 +365,123 @@ export const PhotoStudio: React.FC = () => {
     images: conceptCards.reduce((acc, card) => acc + (card.generatedImages?.length || 0), 0)
   };
 
-  // Check if mobile
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  // Check if mobile (use prop if provided, otherwise detect)
+  const [detectedMobile, setDetectedMobile] = useState(window.innerWidth < 768);
+  const isMobileState = isMobile !== undefined ? isMobile : detectedMobile;
+  
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    const handleResize = () => setDetectedMobile(window.innerWidth < 768);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // Panel-specific rendering for three-panel layout
+  if (panelMode) {
+    if (panelMode === 'director') {
+      return (
+        <div className="h-full flex flex-col">
+          <div className="panel-header" style={{ 
+            background: 'linear-gradient(135deg, #000000 0%, #333333 100%)',
+            color: 'white',
+            padding: '20px',
+            position: 'relative',
+            zIndex: 10
+          }}>
+            <h3 className="text-lg font-light tracking-[0.3em] uppercase">The Director</h3>
+            <p className="text-xs opacity-75 mt-1">Strategic Conversation</p>
+          </div>
+          <div className="flex-1">
+            <DirectorPanel
+              mode="photo"
+              messages={messages}
+              isTyping={isTyping}
+              message={message}
+              setMessage={setMessage}
+              onSendMessage={handleSendMessage}
+              onKeyPress={handleKeyPress}
+              disabled={!isOnline}
+              placeholder="What is the goal for this creative session?"
+              className="border-none rounded-none h-full"
+            />
+          </div>
+        </div>
+      );
+    }
+    
+    if (panelMode === 'canvas') {
+      return (
+        <div className="h-full flex flex-col">
+          <div className="panel-header" style={{ 
+            background: 'rgba(255, 255, 255, 0.95)',
+            padding: '20px',
+            borderBottom: '1px solid #e0e0e0'
+          }}>
+            <h3 className="text-lg font-light tracking-[0.3em] uppercase">The Canvas</h3>
+            <p className="text-xs text-gray-500 mt-1">Editorial Lookbook</p>
+          </div>
+          <div className="flex-1 overflow-y-auto">
+            {conceptCards.length > 0 ? (
+              <div className="p-6 space-y-6">
+                {conceptCards.map((card) => (
+                  <ConceptCard
+                    key={card.id}
+                    card={card}
+                    isExpanded={expandedCards.has(card.id)}
+                    onToggleExpand={() => toggleCardExpansion(card.id)}
+                    onGenerate={() => handleGenerateImage(card)}
+                    onSelect={() => {
+                      setSelectedConceptCard(card);
+                      setSelectedItem(card);
+                    }}
+                    onSaveToGallery={handleSaveToGallery}
+                    onCreateVideo={() => handleToolkitAction('create-video')}
+                    isSelected={selectedConceptCard?.id === card.id}
+                    showVideoButton={true}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="flex items-center justify-center h-full text-center p-8">
+                <div>
+                  <div className="text-6xl mb-4">✨</div>
+                  <h4 className="text-xl font-light tracking-[0.2em] uppercase mb-4">Your Creative Canvas</h4>
+                  <p className="text-gray-600 max-w-md">Start a conversation with Maya to generate beautiful concept cards for your professional photos</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+    
+    if (panelMode === 'toolkit') {
+      return (
+        <div className="h-full flex flex-col">
+          <div className="panel-header" style={{ 
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            color: 'white',
+            padding: '20px',
+            position: 'relative',
+            zIndex: 10
+          }}>
+            <h3 className="text-lg font-light tracking-[0.3em] uppercase">The Toolkit</h3>
+            <p className="text-xs opacity-75 mt-1">Action & Assets</p>
+          </div>
+          <div className="flex-1">
+            <ToolkitPanel
+              mode="photo"
+              selectedItem={selectedConceptCard || selectedItem}
+              onItemAction={handleToolkitAction}
+              className="border-none rounded-none h-full"
+            >
+              <QuickActions mode="photo" onAction={handleToolkitAction} />
+              <StatusDisplay mode="photo" stats={stats} />
+            </ToolkitPanel>
+          </div>
+        </div>
+      );
+    }
+  }
 
   return (
     <>
@@ -379,7 +494,7 @@ export const PhotoStudio: React.FC = () => {
         </div>
       )}
 
-      {isMobile ? (
+      {isMobileState ? (
         // Mobile Layout: Single view with overlays
         <CanvasPanel mode="photo" onItemSelect={setSelectedConceptCard} selectedItem={selectedConceptCard}>
           {/* Welcome State */}
