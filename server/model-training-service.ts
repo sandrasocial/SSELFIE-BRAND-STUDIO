@@ -998,7 +998,7 @@ export class ModelTrainingService {
           categoryLower.includes('lifestyle') || categoryLower.includes('travel') ||
           categoryLower.includes('environmental')) {
         console.log(`🎯 MAYA LORA: Detected fullScenery - using lora_scale=${MAYA_PERSONALITY.fluxOptimization.fullScenery.lora_weight}`);
-        return MAYA_PERSONALITY.fluxOptimization.fullScenery.lora_weight || 0.85;
+        return MAYA_PERSONALITY.fluxOptimization.fullScenery.lora_weight || 1.0;
       }
       
       // Creative/artistic indicators
