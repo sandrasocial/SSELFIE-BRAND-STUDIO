@@ -108,7 +108,7 @@ export const ConceptCard: React.FC<ConceptCardProps> = ({
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const cleanDisplayTitle = (title: string): string => {
-    return title.replace(/[✨💫🔥🌟💎🌅🏢💼🌊👑💃📸🎬♦️🚖]/g, '').trim();
+    return title.replace(/[^a-zA-Z0-9\s\-_]/g, '').trim();
   };
 
   return (
