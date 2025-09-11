@@ -5,7 +5,16 @@ import { GoogleGenAI, Type } from '@google/genai';
 
 // FIX: Initialize Gemini API client. API_KEY is expected from environment variables.
 const GEMINI_API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
-const ai = new GoogleGenAI({apiKey: GEMINI_API_KEY});
+
+// Initialize AI client only if API key is available
+let ai: GoogleGenAI | null = null;
+if (GEMINI_API_KEY) {
+    try {
+        ai = new GoogleGenAI({apiKey: GEMINI_API_KEY});
+    } catch (error) {
+        console.error('Failed to initialize Google GenAI:', error);
+    }
+}
 
 // FIX: Add helper function to convert Blob to base64 string for image uploads.
 function blobToBase64(blob: Blob): Promise<string> {
@@ -76,6 +85,10 @@ export const generatePhotoImage = async (prompt: string) => {
 
 // FIX: Implement draftStoryboard to call the Gemini API directly.
 export const draftStoryboard = async (concept: string) => {
+    if (!ai || !GEMINI_API_KEY) {
+        throw new Error('Google API key not configured. Please set VITE_GOOGLE_API_KEY environment variable.');
+    }
+    
     try {
         const response = await ai.models.generateContent({
             model: 'gemini-2.0-flash-exp',
@@ -109,6 +122,10 @@ export const draftStoryboard = async (concept: string) => {
 
 // FIX: Implement generateStory to start video generation jobs for each scene.
 export const generateStory = async (scenes: any[], conditioningImages: Record<string, File>, format: string) => {
+    if (!ai || !GEMINI_API_KEY) {
+        throw new Error('Google API key not configured. Please set VITE_GOOGLE_API_KEY environment variable.');
+    }
+    
     const jobs = [];
     for (const scene of scenes) {
         const config: any = {
@@ -143,6 +160,10 @@ export const generateStory = async (scenes: any[], conditioningImages: Record<st
 
 // FIX: Implement getJobStatus to poll the status of a video generation operation.
 export const getJobStatus = async (jobId: string) => {
+    if (!ai || !GEMINI_API_KEY) {
+        throw new Error('Google API key not configured. Please set VITE_GOOGLE_API_KEY environment variable.');
+    }
+    
     // Poll for the status of a single video generation operation using its name.
     const updatedOperation = await ai.operations.getVideosOperation({ operation: jobId });
     
