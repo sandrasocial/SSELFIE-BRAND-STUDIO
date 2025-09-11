@@ -224,10 +224,10 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
           const userName = context.userProfile?.name || 'there';
           // REMOVED: Legacy addMessage - now handled by centralized provider
           
-          // REMOVED: Legacy sendMessage.mutate - now using centralized sendMessage
+          // FIXED: Clear message after handoff send to prevent duplicate sending
           setTimeout(() => {
-            setMessage(context.message);
             sendMessage(context.message);
+            setMessage(''); // Clear the input to prevent duplicate sends
           }, 1000);
           
           console.log('✅ HANDOFF: User authentication verified, enhanced context applied');

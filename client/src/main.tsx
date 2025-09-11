@@ -56,7 +56,7 @@ if (!container) {
 const root = createRoot(container);
 
 root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
+  // REMOVED: React.StrictMode was causing duplicate API calls in development
+  // StrictMode intentionally double-renders components, causing Maya to respond twice
+  <App />
 );
