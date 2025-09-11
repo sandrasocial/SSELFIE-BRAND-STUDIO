@@ -18,23 +18,10 @@ interface ChatMessage {
   content: string;
   timestamp: string;
   conceptCards?: ConceptCard[];
+  quickButtons?: string[];
   isStreaming?: boolean;
   showUpload?: boolean;
   showExamples?: boolean;
-}
-
-interface ConceptCard {
-  id: string;
-  title: string;
-  description: string;
-  fluxPrompt?: string;
-  fullPrompt?: string;
-  category?: string;
-  imageUrl?: string;
-  generatedImages?: string[];
-  isGenerating?: boolean;
-  isLoading?: boolean;
-  hasGenerated?: boolean;
 }
 
 interface PhotoStudioProps {
@@ -51,9 +38,16 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
   const [selectedConceptCard, setSelectedConceptCard] = useState<ConceptCard | null>(null);
   const [hasStartedChat, setHasStartedChat] = useState(false);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [isNearBottom, setIsNearBottom] = useState(true);
+  const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const { setActiveTab, setHandoffData, selectedItem, setSelectedItem } = useBrandStudio();
+
+  // Auto-scroll refs from maya.tsx
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
 
   // Enhanced persistence system
   const {
@@ -84,6 +78,80 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
       window.removeEventListener('offline', handleOffline);
     };
   }, []);
+
+  // Auto-scroll system from maya.tsx
+  const handleScroll = () => {
+    if (chatContainerRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = chatContainerRef.current;
+      const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
+      const nearBottom = distanceFromBottom < 100;
+      
+      setIsNearBottom(nearBottom);
+      setShouldAutoScroll(nearBottom);
+    }
+  };
+
+  const smartScrollToBottom = (delay = 0, force = false) => {
+    setTimeout(() => {
+      if ((shouldAutoScroll || force) && messagesEndRef.current) {
+        messagesEndRef.current.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'end' 
+        });
+      }
+    }, delay);
+  };
+
+  const scrollToNewContent = () => {
+    setTimeout(() => {
+      if (messagesEndRef.current && shouldAutoScroll) {
+        messagesEndRef.current.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'end' 
+        });
+      }
+    }, 300);
+  };
+
+  // Smart auto-scroll effects
+  useEffect(() => {
+    const chatContainer = chatContainerRef.current;
+    if (!chatContainer) return;
+
+    chatContainer.addEventListener('scroll', handleScroll);
+    return () => chatContainer.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Auto-scroll when new messages arrive
+  useEffect(() => {
+    if (messages.length > 0) {
+      const lastMessage = messages[messages.length - 1];
+
+      if (lastMessage.type === 'user') {
+        smartScrollToBottom(100, true);
+      }
+      else if (lastMessage.type === 'maya' && !isTyping) {
+        smartScrollToBottom(500);
+      }
+    }
+  }, [messages.length, isTyping, shouldAutoScroll]);
+
+  // Auto-scroll when concept cards are generated
+  useEffect(() => {
+    if (messages.length > 0) {
+      const lastMessage = messages[messages.length - 1];
+      if (lastMessage.conceptCards && lastMessage.conceptCards.length > 0) {
+        scrollToNewContent();
+      }
+    }
+  }, [messages.map(m => m.conceptCards?.length).join(',')]);
+
+  // Auto-scroll when typing indicator changes
+  useEffect(() => {
+    if (isTyping) {
+      smartScrollToBottom(200);
+    }
+  }, [isTyping]);
 
   // Auto-save and gallery functionality
   const handleAutoSaveToGallery = async (imageUrl: string, conceptTitle: string) => {
