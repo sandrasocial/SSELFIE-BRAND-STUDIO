@@ -1,7 +1,9 @@
 import { FC } from 'react';
 import styled from 'styled-components';
 
-const LuxuryContainer = styled.div`
+const LuxuryContainer = styled.div.withConfig({
+  shouldForwardProp: (prop) => !['jsx', 'global'].includes(prop)
+})`
   background: #ffffff;
   color: #0a0a0a;
   padding: 4rem;
@@ -9,7 +11,9 @@ const LuxuryContainer = styled.div`
   margin: 0 auto;
 `;
 
-const LuxuryHeading = styled.h1`
+const LuxuryHeading = styled.h1.withConfig({
+  shouldForwardProp: (prop) => !['jsx', 'global'].includes(prop)
+})`
   font-family: "Times New Roman", serif;
   font-size: 3.5rem;
   font-weight: 400;
@@ -18,13 +22,17 @@ const LuxuryHeading = styled.h1`
   color: #0a0a0a;
 `;
 
-const AuditSection = styled.section`
+const AuditSection = styled.section.withConfig({
+  shouldForwardProp: (prop) => !['jsx', 'global'].includes(prop)
+})`
   margin: 4rem 0;
   border-bottom: 1px solid #f5f5f5;
   padding-bottom: 3rem;
 `;
 
-const SectionTitle = styled.h2`
+const SectionTitle = styled.h2.withConfig({
+  shouldForwardProp: (prop) => !['jsx', 'global'].includes(prop)
+})`
   font-family: "Times New Roman", serif;
   font-size: 2rem;
   font-weight: 400;
@@ -32,7 +40,9 @@ const SectionTitle = styled.h2`
   color: #0a0a0a;
 `;
 
-const AuditText = styled.p`
+const AuditText = styled.p.withConfig({
+  shouldForwardProp: (prop) => !['jsx', 'global'].includes(prop)
+})`
   font-family: "Times New Roman", serif;
   font-size: 1.125rem;
   line-height: 1.8;
@@ -40,19 +50,25 @@ const AuditText = styled.p`
   color: #0a0a0a;
 `;
 
-const AuditGrid = styled.div`
+const AuditGrid = styled.div.withConfig({
+  shouldForwardProp: (prop) => !['jsx', 'global'].includes(prop)
+})`
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 3rem;
   margin: 2rem 0;
 `;
 
-const AuditCard = styled.div`
+const AuditCard = styled.div.withConfig({
+  shouldForwardProp: (prop) => !['jsx', 'global'].includes(prop)
+})`
   background: #f5f5f5;
   padding: 2rem;
 `;
 
-const MetricValue = styled.div`
+const MetricValue = styled.div.withConfig({
+  shouldForwardProp: (prop) => !['jsx', 'global'].includes(prop)
+})`
   font-family: "Times New Roman", serif;
   font-size: 2.5rem;
   margin: 1rem 0;
