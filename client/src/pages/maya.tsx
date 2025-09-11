@@ -47,6 +47,12 @@ const cleanDisplayTitle = (title: string): string => {
 export default function Maya() {
   const { user } = useAuth();
   const [location, setLocation] = useLocation();
+  
+  // REDIRECT TO NEW BRAND STUDIO - The old Maya is deprecated
+  useEffect(() => {
+    console.log('🔄 REDIRECTING: Old Maya → New Brand Studio');
+    setLocation('/brand-studio');
+  }, [setLocation]);
   const [message, setMessage] = useState('');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
