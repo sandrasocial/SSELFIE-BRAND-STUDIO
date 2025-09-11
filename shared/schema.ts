@@ -13,6 +13,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
+import { ulid } from "ulid";
 
 // Session storage table for Stack Auth (Stack Auth manages sessions automatically)
 export const sessions = pgTable(
@@ -1338,6 +1339,72 @@ export const mayaContextSessions = pgTable("maya_context_sessions", {
   lastInteraction: timestamp("last_interaction").defaultNow()
 });
 
+// HYBRID BACKEND ARCHITECTURE: Maya Conversations and Concept Cards
+// New conversation system for Maya context preservation
+export const conversations = pgTable("conversations", {
+  id: varchar("id").primaryKey().$defaultFn(() => ulid()), // ULID for stable React keys
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  agentName: varchar("agent_name").notNull().default("maya"), // maya, victoria, etc.
+  title: varchar("title"),
+  status: varchar("status").default("active"), // active, archived
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_conversations_user_agent").on(table.userId, table.agentName),
+  index("idx_conversations_updated").on(table.updatedAt),
+]);
+
+// Messages for detailed conversation history  
+export const messages = pgTable("messages", {
+  id: varchar("id").primaryKey().$defaultFn(() => ulid()), // ULID for React keys
+  conversationId: varchar("conversation_id").references(() => conversations.id, { onDelete: "cascade" }).notNull(),
+  role: varchar("role").notNull(), // 'user', 'assistant', 'system'
+  content: text("content").notNull(),
+  meta: jsonb("meta"), // attachments, tool calls, etc.
+  tokenCount: integer("token_count").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("idx_messages_conversation_time").on(table.conversationId, table.createdAt),
+  index("idx_messages_role").on(table.role),
+]);
+
+// Conversation summaries for performance (rolling summaries)
+export const conversationSummaries = pgTable("conversation_summaries", {
+  id: varchar("id").primaryKey().$defaultFn(() => ulid()),
+  conversationId: varchar("conversation_id").references(() => conversations.id, { onDelete: "cascade" }).notNull().unique(),
+  summary: text("summary").notNull(),
+  lastMessageId: varchar("last_message_id").references(() => messages.id),
+  messageCount: integer("message_count").default(0),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_summaries_updated").on(table.updatedAt),
+]);
+
+// Concept cards with proper backend persistence
+export const conceptCards = pgTable("concept_cards", {
+  id: varchar("id").primaryKey().$defaultFn(() => ulid()), // ULID ensures unique React keys
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  conversationId: varchar("conversation_id").references(() => conversations.id, { onDelete: "cascade" }),
+  clientId: varchar("client_id"), // For idempotency on create
+  title: varchar("title").notNull(),
+  description: text("description"),
+  images: jsonb("images").default('[]'), // Array of image URLs
+  tags: text("tags").array().default('{}'), // String array for tags
+  status: varchar("status").default("draft"), // draft, final
+  sortOrder: integer("sort_order").default(0),
+  generatedImages: jsonb("generated_images"), // Generated image URLs
+  isLoading: boolean("is_loading").default(false),
+  isGenerating: boolean("is_generating").default(false),
+  hasGenerated: boolean("has_generated").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_concept_cards_user").on(table.userId),
+  index("idx_concept_cards_conversation").on(table.conversationId),
+  index("idx_concept_cards_client_id").on(table.userId, table.clientId), // For idempotency
+  index("idx_concept_cards_sort").on(table.sortOrder),
+]);
+
 // Insert schemas for missing tables
 export const insertArchitectureAuditLogSchema = createInsertSchema(architectureAuditLog).omit({ id: true, auditDate: true });
 export const insertBrandbookSchema = createInsertSchema(brandbooks).omit({ id: true, createdAt: true, updatedAt: true });
@@ -1348,6 +1415,12 @@ export const insertSandraConversationSchema = createInsertSchema(sandraConversat
 export const insertSavedPromptSchema = createInsertSchema(savedPrompts).omit({ id: true, createdAt: true });
 export const insertUserStyleEvolutionSchema = createInsertSchema(userStyleEvolution).omit({ id: true, createdAt: true, lastAdaptation: true });
 export const insertMayaContextSessionSchema = createInsertSchema(mayaContextSessions).omit({ id: true, sessionStarted: true, lastInteraction: true });
+
+// New hybrid backend insert schemas
+export const insertConversationSchema = createInsertSchema(conversations).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertMessageSchema = createInsertSchema(messages).omit({ id: true, createdAt: true });
+export const insertConversationSummarySchema = createInsertSchema(conversationSummaries).omit({ id: true, updatedAt: true });
+export const insertConceptCardSchema = createInsertSchema(conceptCards).omit({ id: true, createdAt: true, updatedAt: true });
 
 // Type exports for missing tables
 export type ArchitectureAuditLog = typeof architectureAuditLog.$inferSelect;
@@ -1368,6 +1441,16 @@ export type UserStyleEvolution = typeof userStyleEvolution.$inferSelect;
 export type InsertUserStyleEvolution = z.infer<typeof insertUserStyleEvolutionSchema>;
 export type MayaContextSession = typeof mayaContextSessions.$inferSelect;
 export type InsertMayaContextSession = z.infer<typeof insertMayaContextSessionSchema>;
+
+// New hybrid backend types
+export type Conversation = typeof conversations.$inferSelect;
+export type InsertConversation = z.infer<typeof insertConversationSchema>;
+export type Message = typeof messages.$inferSelect;
+export type InsertMessage = z.infer<typeof insertMessageSchema>;
+export type ConversationSummary = typeof conversationSummaries.$inferSelect;
+export type InsertConversationSummary = z.infer<typeof insertConversationSummarySchema>;
+export type ConceptCard = typeof conceptCards.$inferSelect;
+export type InsertConceptCard = z.infer<typeof insertConceptCardSchema>;
 
 // Note: Website type already defined above at line 502
 // Note: styleguide_templates and user_styleguides are imported from styleguide-schema.ts
