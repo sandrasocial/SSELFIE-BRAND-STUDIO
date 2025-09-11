@@ -4,7 +4,8 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { storage } from './storage';
-import { PersonalityManager } from './agents/personalities/personality-config';
+// MAYA FAÇADE: Removed PersonalityManager dependency - Maya is now isolated
+// import { PersonalityManager } from './agents/personalities/personality-config'; // REMOVED: Outbound dependency
 import { ArchitectureValidator } from './architecture-validator';
 import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
@@ -723,11 +724,11 @@ export class ModelTrainingService {
       // MAYA FAÇADE: Configuration now accessed via façade API
       // const { MAYA_PERSONALITY } = await import('./agents/personalities/maya-personality.js'); // REMOVED: Direct entanglement
       
-      // ✅ MAYA PURE INTELLIGENCE: Delegate all parameter selection to PersonalityManager
-      const mayaParams = PersonalityManager.getFluxParameters('maya', 'halfBodyShot');
-      const aspectRatio = "4:5"; // Maya's default portrait aspect ratio
+      // MAYA FAÇADE: Use standard FLUX parameters - Maya's intelligence accessed via API only
+      const mayaParams = { guidance_scale: 3.5, num_inference_steps: 28, megapixels: "1" };
+      const aspectRatio = "4:5"; // Standard portrait aspect ratio
 
-      console.log(`🎯 MAYA PURE INTELLIGENCE: Using PersonalityManager for parameter intelligence`);
+      console.log(`🎯 MAYA FAÇADE: Using standard parameters - Maya intelligence via API only`);
       
       // Maya will specify parameters naturally in her response if needed
       // FLUX optimization settings with Maya's quality intelligence  
@@ -1029,7 +1030,8 @@ export class ModelTrainingService {
   }> {
     try {
       // Import Maya's personality and Claude API connection
-      const { PersonalityManager } = await import('./agents/personalities/personality-config');
+      // MAYA FAÇADE: Removed PersonalityManager import - Maya isolated
+      // const { PersonalityManager } = await import('./agents/personalities/personality-config'); // REMOVED: Direct dependency
       // Use Claude API service directly
       const { ClaudeApiServiceSimple } = await import('./services/claude-api-service-simple');
       const claudeService = new ClaudeApiServiceSimple();
@@ -1057,7 +1059,8 @@ STYLING FOCUS: Adapt your creative choices to match this SSELFIE Studio category
 - Timeless & Artistic: Classic enduring style
 - Studio: Controlled professional environment` : '';
 
-      const mayaParameterPrompt = `${PersonalityManager.getNaturalPrompt('maya')}
+      // MAYA FAÇADE: Standard parameter prompt - Maya's personality via API only
+      const mayaParameterPrompt = `You are Maya, SSELFIE Studio's AI Creative Director.
 
 🎯 MAYA'S CREATIVE INTELLIGENCE:
 You're analyzing this image prompt for optimal generation:

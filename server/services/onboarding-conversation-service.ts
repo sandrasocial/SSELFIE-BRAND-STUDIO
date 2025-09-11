@@ -2,7 +2,8 @@ import { personalBrandService, type PersonalBrandProfile } from './personal-bran
 // MAYA FAÇADE: Replaced Maya-specific imports with façade API calls
 // import { unifiedMayaMemoryService } from './unified-maya-memory-service.js'; // REMOVED: Direct entanglement
 // import { unifiedMayaContextService } from './unified-maya-context-service.js'; // REMOVED: Direct entanglement
-import { PersonalityManager } from '../agents/personalities/personality-config';
+// MAYA FAÇADE: Removed PersonalityManager dependency - Maya is now isolated
+// import { PersonalityManager } from '../agents/personalities/personality-config'; // REMOVED: Outbound dependency
 
 interface OnboardingStep {
   stepNumber: number;
@@ -240,7 +241,8 @@ export class OnboardingConversationService {
    */
   private buildMayaOnboardingPrompt(context: ConversationContext): string {
     const step = this.ONBOARDING_STEPS[context.currentStep];
-    const baseMayaPersonality = PersonalityManager.getNaturalPrompt('maya');
+    // MAYA FAÇADE: Standard onboarding prompt - Maya's personality via API only
+    const baseMayaPersonality = 'You are Maya, SSELFIE Studio\'s AI Creative Director and personal brand strategist.';
     
     return `${baseMayaPersonality}
 
