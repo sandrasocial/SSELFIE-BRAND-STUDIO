@@ -6,22 +6,19 @@ import { useBrandStudio } from '../../contexts/BrandStudioContext';
 import { DirectorPanel } from './DirectorPanel';
 import { CanvasPanel, ConceptCard } from './CanvasPanel';
 import { ToolkitPanel, QuickActions, StatusDisplay } from './ToolkitPanel';
-import { MayaUploadComponent } from '../maya/MayaUploadComponent';
-import { MayaExamplesGallery } from '../maya/MayaExamplesGallery';
+// REMOVED: Old Maya system components - now using centralized BrandStudioProvider
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLocation } from 'wouter';
-import { useConceptCards, useUpdateConceptCardGeneration, type ConceptCard as ServerConceptCard } from '../../hooks/useConceptCards';
+// REMOVED: Old useConceptCards hook - now using centralized BrandStudioProvider concept management
 
 interface ChatMessage {
   id: string;
-  type: 'user' | 'maya' | 'upload' | 'examples';
+  type: 'user' | 'maya';
   content: string;
   timestamp: string;
   conceptCards?: ConceptCard[];
   quickButtons?: string[];
   isStreaming?: boolean;
-  showUpload?: boolean;
-  showExamples?: boolean;
 }
 
 interface PhotoStudioProps {
@@ -348,13 +345,13 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
     }
   };
 
-  // HYBRID BACKEND: Get concept cards from API with server-generated ULID keys
-  const { data: conceptCards = [], isLoading: isLoadingConcepts } = useConceptCards();
+  // REMOVED: Old useConceptCards hook - concept cards now come from centralized BrandStudioProvider
 
-  // Calculate stats
+  // Calculate stats using centralized concept cards from BrandStudioProvider
+  const conceptCardsList = Object.values(conceptCardsById);
   const stats = {
-    conceptCards: conceptCards.length,
-    images: conceptCards.reduce((acc, card) => acc + (card.generatedImages?.length || 0), 0)
+    conceptCards: conceptCardsList.length,
+    images: conceptCardsList.reduce((acc, card) => acc + (card.generatedImages?.length || 0), 0)
   };
 
   // Check if mobile (use prop if provided, otherwise detect)
@@ -416,9 +413,9 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
             <p className="text-xs text-gray-500 mt-1">Editorial Lookbook</p>
           </div>
           <div className="flex-1 overflow-y-auto">
-            {conceptCards.length > 0 ? (
+            {conceptCardsList.length > 0 ? (
               <div className="p-6 space-y-6">
-                {conceptCards.map((card) => (
+                {conceptCardsList.map((card) => (
                   <ConceptCard
                     key={card.id}
                     card={card}
@@ -531,10 +528,10 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
           )}
 
           {/* Concept Cards */}
-          {conceptCards.length > 0 && (
+          {conceptCardsList.length > 0 && (
             <div className="space-y-6">
               <h3 className="spaced-title text-sm">Photo Concepts</h3>
-              {conceptCards.map((card, index) => (
+              {conceptCardsList.map((card, index) => (
                 <ConceptCard
                   key={card.id}
                   card={card}
@@ -568,24 +565,7 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
                       <p className="whitespace-pre-wrap">{msg.content}</p>
                     </div>
 
-                    {/* Handle special message types */}
-                    {msg.showUpload && (
-                      <div className="border-t pt-4">
-                        <MayaUploadComponent
-                          onUploadComplete={(success) => {
-                            if (success) console.log('Training initiated successfully');
-                          }}
-                          onTrainingStart={() => console.log('Training started')}
-                          className="luxury-upload"
-                        />
-                      </div>
-                    )}
-
-                    {msg.showExamples && (
-                      <div className="border-t pt-4">
-                        <MayaExamplesGallery className="luxury-examples" />
-                      </div>
-                    )}
+                    {/* REMOVED: Old Maya special message types - now using Maya's unified personality system */}
                   </div>
                 ))}
               </div>
@@ -679,10 +659,10 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
             )}
 
             {/* Concept Cards */}
-            {conceptCards.length > 0 && (
+            {conceptCardsList.length > 0 && (
               <div className="space-y-8">
                 <h3 className="spaced-title">Photo Concepts</h3>
-                {conceptCards.map((card, index) => (
+                {conceptCardsList.map((card, index) => (
                   <ConceptCard
                     key={card.id}
                     card={card}
@@ -699,28 +679,7 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
               </div>
             )}
 
-            {/* Handle special message types */}
-            {messages.map((msg) => (
-              <div key={`special-${msg.id}`}>
-                {msg.showUpload && (
-                  <div className="mb-8 p-8 border border-gray-100">
-                    <MayaUploadComponent
-                      onUploadComplete={(success) => {
-                        if (success) console.log('Training initiated successfully');
-                      }}
-                      onTrainingStart={() => console.log('Training started')}
-                      className="luxury-upload"
-                    />
-                  </div>
-                )}
-
-                {msg.showExamples && (
-                  <div className="mb-8 p-8 border border-gray-100">
-                    <MayaExamplesGallery className="luxury-examples" />
-                  </div>
-                )}
-              </div>
-            ))}
+            {/* REMOVED: Old Maya special message types - desktop version - now using Maya's unified personality system */}
           </CanvasPanel>
 
           {/* Right Panel: Toolkit (Actions) */}
