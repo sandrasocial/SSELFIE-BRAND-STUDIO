@@ -13,6 +13,7 @@ interface DirectorPanelProps {
   placeholder?: string;
   className?: string;
   children?: React.ReactNode;
+  messagesEndRef?: React.RefObject<HTMLDivElement>;
 }
 
 export const DirectorPanel: React.FC<DirectorPanelProps> = ({
@@ -26,7 +27,8 @@ export const DirectorPanel: React.FC<DirectorPanelProps> = ({
   disabled = false,
   placeholder,
   className = '',
-  children
+  children,
+  messagesEndRef: externalMessagesEndRef
 }) => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -153,7 +155,7 @@ export const DirectorPanel: React.FC<DirectorPanelProps> = ({
                 </div>
               )}
               
-              <div ref={messagesEndRef} />
+              <div ref={externalMessagesEndRef || messagesEndRef} />
             </div>
           </div>
         )}
@@ -221,7 +223,7 @@ export const DirectorPanel: React.FC<DirectorPanelProps> = ({
           </div>
         )}
 
-        <div ref={messagesEndRef} />
+        <div ref={externalMessagesEndRef || messagesEndRef} />
       </div>
 
       {/* Desktop Input */}

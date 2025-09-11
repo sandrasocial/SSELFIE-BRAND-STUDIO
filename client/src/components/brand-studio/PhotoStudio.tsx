@@ -562,9 +562,11 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
         </div>
       )}
 
-      {isMobileState ? (
-        // Mobile Layout: Single view with overlays
-        <CanvasPanel mode="photo" onItemSelect={setSelectedConceptCard} selectedItem={selectedConceptCard}>
+      <div className="h-full flex flex-col">
+        {isMobileState ? (
+        // Mobile Layout: Single view with overlays  
+        <div ref={chatContainerRef} className="flex-1 overflow-y-auto">
+          <CanvasPanel mode="photo" onItemSelect={setSelectedConceptCard} selectedItem={selectedConceptCard}>
           {/* Welcome State */}
           {!hasStartedChat && messages.length === 0 && (
             <div className="text-center py-12">
@@ -672,6 +674,7 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
             onSendMessage={handleSendMessage}
             onKeyPress={handleKeyPress}
             disabled={!isOnline}
+            messagesEndRef={messagesEndRef}
           />
 
           {/* Toolkit Panel for Mobile */}
@@ -683,7 +686,9 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
             <QuickActions mode="photo" onAction={handleToolkitAction} />
             <StatusDisplay mode="photo" stats={stats} />
           </ToolkitPanel>
-        </CanvasPanel>
+            <div ref={messagesEndRef} />
+          </CanvasPanel>
+        </div>
       ) : (
         // Desktop Layout: Three-panel design
         <>
@@ -697,6 +702,7 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
             onSendMessage={handleSendMessage}
             onKeyPress={handleKeyPress}
             disabled={!isOnline}
+            messagesEndRef={messagesEndRef}
           />
 
           {/* Center Panel: Canvas (Content) */}
@@ -793,6 +799,31 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
             <StatusDisplay mode="photo" stats={stats} />
           </ToolkitPanel>
         </>
+      )}
+      </div>
+      
+      {/* Luxury Image Modal */}
+      {selectedImage && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-95 flex items-center justify-center z-50 p-8"
+          onClick={() => setSelectedImage(null)}
+        >
+          <div className="relative max-w-full max-h-full">
+            <img 
+              src={selectedImage}
+              alt="Full size view"
+              className="max-w-full max-h-full object-contain"
+              onClick={(e) => e.stopPropagation()}
+            />
+            <button 
+              onClick={() => setSelectedImage(null)}
+              className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center bg-white/10 hover:bg-white/20 text-white hover:text-white transition-colors"
+              title="Close"
+            >
+              <span className="text-lg leading-none">×</span>
+            </button>
+          </div>
+        </div>
       )}
     </>
   );
