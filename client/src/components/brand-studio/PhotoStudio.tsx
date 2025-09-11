@@ -4,8 +4,7 @@ import { useAuth } from '../../hooks/use-auth';
 import { useToast } from '../../hooks/use-toast';
 import { useBrandStudio } from '../../contexts/BrandStudioContext';
 import { DirectorPanel } from './DirectorPanel';
-import { CanvasPanel } from './CanvasPanel';
-import type { ConceptCard } from './CanvasPanel';
+import { CanvasPanel, LuxuryConceptCard, type ConceptCard } from './CanvasPanel';
 import { ToolkitPanel, QuickActions, StatusDisplay } from './ToolkitPanel';
 // REMOVED: Old Maya system components - now using centralized BrandStudioProvider
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -702,17 +701,14 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
               <div className="space-y-8">
                 <h3 className="spaced-title">Photo Concepts</h3>
                 {conceptCardsList.map((card, index) => (
-                  <ConceptCard
+                  <LuxuryConceptCard
                     key={card.id}
-                    card={card}
-                    isExpanded={expandedCards.has(card.id)}
-                    onToggleExpand={() => toggleCardExpansion(card.id)}
+                    concept={card}
+                    isSelected={selectedConceptCard?.id === card.id}
+                    onClick={() => selectConceptCard(card.id)}
                     onGenerate={() => handleGenerateImage(card)}
-                    onSelect={() => selectConceptCard(card.id)}
                     onSaveToGallery={handleSaveToGallery}
                     onCreateVideo={() => handleToolkitAction('create-video')}
-                    isSelected={selectedConceptCard?.id === card.id}
-                    showVideoButton={true}
                   />
                 ))}
               </div>
