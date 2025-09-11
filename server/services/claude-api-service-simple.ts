@@ -20,7 +20,9 @@ export class ClaudeApiServiceSimple {
     message: string,
     conversationId: string,
     agentName: string,
-    returnFullResponse = false
+    returnFullResponse = false,
+    conversationHistory?: any[],
+    systemPrompt?: string
   ): Promise<string> {
     console.log(`🚀 AGENT COMMUNICATION: ${agentName} processing message`);
     
@@ -37,28 +39,48 @@ export class ClaudeApiServiceSimple {
       const userId = '42585527'; // Your existing admin account
       await this.createConversationIfNotExists(userId, agentName, conversationId);
       
-      // Load conversation history
-      const messages = await this.loadConversationMessages(conversationId);
-      
-      // Prepare Claude API request
-      const validMessages = messages
-        .filter((msg: any) => msg.content && msg.content.trim())
-        .map((msg: any) => ({
-          role: msg.role === 'agent' ? 'assistant' : msg.role,
-          content: msg.content
-        }));
+      // Use provided conversation history or load from database
+      let validMessages: any[] = [];
+      if (conversationHistory && conversationHistory.length > 0) {
+        // Use provided conversation history (already in proper Claude API format)
+        validMessages = conversationHistory
+          .filter((msg: any) => msg.content && msg.content.trim())
+          .map((msg: any) => ({
+            role: msg.role === 'agent' ? 'assistant' : msg.role,
+            content: msg.content
+          }));
+        console.log(`🧠 MEMORY: Using provided conversation history (${validMessages.length} messages)`);
+      } else {
+        // Fallback to loading from database
+        const messages = await this.loadConversationMessages(conversationId);
+        validMessages = messages
+          .filter((msg: any) => msg.content && msg.content.trim())
+          .map((msg: any) => ({
+            role: msg.role === 'agent' ? 'assistant' : msg.role,
+            content: msg.content
+          }));
+        console.log(`🧠 MEMORY: Using database conversation history (${validMessages.length} messages)`);
+      }
         
       const claudeMessages = [
         ...validMessages,
         { role: 'user', content: message }
       ];
       
+      // Use provided system prompt or load from PersonalityManager
+      const finalSystemPrompt = systemPrompt || PersonalityManager.getNaturalPrompt(agentName);
+      if (systemPrompt) {
+        console.log(`🎯 PERSONALITY: Using provided enhanced system prompt (${systemPrompt.length} chars)`);
+      } else {
+        console.log(`🎯 PERSONALITY: Using default PersonalityManager prompt for ${agentName}`);
+      }
+      
       // Execute Claude API call (without tools - handled at route level)
       const response = await anthropic.messages.create({
         model: DEFAULT_MODEL_STR,
         max_tokens: 8192, // UNRESTRICTED: Increased from 4000 to allow full autonomous workflows
         temperature: 0.7,
-        system: PersonalityManager.getNaturalPrompt(agentName),
+        system: finalSystemPrompt,
         messages: claudeMessages
       });
       

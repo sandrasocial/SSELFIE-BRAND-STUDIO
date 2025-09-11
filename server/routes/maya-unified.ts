@@ -3191,9 +3191,17 @@ ${mayaIntelligence.trendIntelligence.personalizedTrends.slice(0, 3).join('\n')}`
       content: msg.content
     }));
 
-    // Call Claude API
+    // Call Claude API with correct parameter order: (message, conversationId, agentName, returnFullResponse, conversationHistory, systemPrompt)
     const { claudeApiServiceSimple } = await import('../services/claude-api-service-simple');
-    const response = await claudeApiServiceSimple.sendMessage('maya', message, fullConversationHistory, mayaPersonality);
+    const conversationId = `maya-chat-${userId}`;
+    const response = await claudeApiServiceSimple.sendMessage(
+      message, 
+      conversationId, 
+      'maya', 
+      false,
+      fullConversationHistory, // Pass the carefully constructed conversation history
+      mayaPersonality // Pass the enhanced personality with user context
+    );
 
     // Parse concept cards if any
     let conceptCards = [];
