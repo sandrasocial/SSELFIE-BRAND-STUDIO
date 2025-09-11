@@ -115,7 +115,7 @@ const ChartTooltipContent = forwardRef<
 >(
   (
     {
-      active,
+      active = false, // Ensure active prop is always defined (controlled)
       payload,
       className,
       indicator = "dot",
