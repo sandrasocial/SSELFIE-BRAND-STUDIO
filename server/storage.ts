@@ -65,6 +65,19 @@ import {
   type InsertTrainingRun,
   type LoraWeight,
   type InsertLoraWeight,
+  // New hybrid backend types
+  conversations,
+  messages,
+  conversationSummaries,
+  conceptCards,
+  type Conversation,
+  type InsertConversation,
+  type Message,
+  type InsertMessage,
+  type ConversationSummary,
+  type InsertConversationSummary,
+  type ConceptCard,
+  type InsertConceptCard,
 } from "../shared/schema";
 import { db } from "./drizzle";
 import { eq, and, desc, gte, lte, sql } from "drizzle-orm";
@@ -228,6 +241,34 @@ export interface IStorage {
   getUserCount(): Promise<number>;
   getAIImageCount(): Promise<number>;
   getAgentConversationCount(): Promise<number>;
+
+  // HYBRID BACKEND ARCHITECTURE: New conversation and concept card operations
+  // Conversation operations
+  createConversation(data: InsertConversation): Promise<Conversation>;
+  getConversation(id: string): Promise<Conversation | undefined>;
+  getUserConversations(userId: string, agentName?: string): Promise<Conversation[]>;
+  updateConversation(id: string, updates: Partial<Conversation>): Promise<Conversation>;
+  archiveConversation(id: string): Promise<Conversation>;
+
+  // Message operations
+  createMessage(data: InsertMessage): Promise<Message>;
+  getConversationMessages(conversationId: string, limit?: number): Promise<Message[]>;
+  getLastMessages(conversationId: string, count: number): Promise<Message[]>;
+  getMessagesAfter(conversationId: string, messageId: string): Promise<Message[]>;
+
+  // Conversation summary operations
+  upsertConversationSummary(data: InsertConversationSummary): Promise<ConversationSummary>;
+  getConversationSummary(conversationId: string): Promise<ConversationSummary | undefined>;
+  updateConversationSummary(conversationId: string, summary: string, lastMessageId: string, messageCount: number): Promise<ConversationSummary>;
+
+  // Concept card operations (with idempotency)
+  createConceptCard(data: InsertConceptCard): Promise<ConceptCard>;
+  getConceptCard(id: string): Promise<ConceptCard | undefined>;
+  getConceptCardByClientId(userId: string, clientId: string): Promise<ConceptCard | undefined>;
+  getUserConceptCards(userId: string, conversationId?: string): Promise<ConceptCard[]>;
+  updateConceptCard(id: string, updates: Partial<ConceptCard>): Promise<ConceptCard>;
+  updateConceptCardGeneration(id: string, generatedImages: any[], isLoading: boolean, isGenerating: boolean, hasGenerated: boolean): Promise<ConceptCard>;
+  deleteConceptCard(id: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -1736,6 +1777,220 @@ export class DatabaseStorage implements IStorage {
   async getAgentConversationCount(): Promise<number> {
     const result = await db.select({ count: sql`count(*)` }).from(claudeMessages);
     return Number(result[0]?.count || 0);
+  }
+
+  // HYBRID BACKEND ARCHITECTURE: Implementation of conversation and concept card operations
+  
+  // Conversation operations
+  async createConversation(data: InsertConversation): Promise<Conversation> {
+    const [conversation] = await db
+      .insert(conversations)
+      .values(data)
+      .returning();
+    return conversation;
+  }
+
+  async getConversation(id: string): Promise<Conversation | undefined> {
+    const [conversation] = await db
+      .select()
+      .from(conversations)
+      .where(eq(conversations.id, id));
+    return conversation;
+  }
+
+  async getUserConversations(userId: string, agentName?: string): Promise<Conversation[]> {
+    const conditions = [eq(conversations.userId, userId)];
+    if (agentName) {
+      conditions.push(eq(conversations.agentName, agentName));
+    }
+    
+    return await db
+      .select()
+      .from(conversations)
+      .where(and(...conditions))
+      .orderBy(desc(conversations.updatedAt));
+  }
+
+  async updateConversation(id: string, updates: Partial<Conversation>): Promise<Conversation> {
+    const [conversation] = await db
+      .update(conversations)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(conversations.id, id))
+      .returning();
+    return conversation;
+  }
+
+  async archiveConversation(id: string): Promise<Conversation> {
+    return this.updateConversation(id, { status: 'archived' });
+  }
+
+  // Message operations
+  async createMessage(data: InsertMessage): Promise<Message> {
+    const [message] = await db
+      .insert(messages)
+      .values(data)
+      .returning();
+    return message;
+  }
+
+  async getConversationMessages(conversationId: string, limit?: number): Promise<Message[]> {
+    let query = db
+      .select()
+      .from(messages)
+      .where(eq(messages.conversationId, conversationId))
+      .orderBy(desc(messages.createdAt));
+    
+    if (limit) {
+      query = query.limit(limit);
+    }
+    
+    return await query;
+  }
+
+  async getLastMessages(conversationId: string, count: number): Promise<Message[]> {
+    return await db
+      .select()
+      .from(messages)
+      .where(eq(messages.conversationId, conversationId))
+      .orderBy(desc(messages.createdAt))
+      .limit(count);
+  }
+
+  async getMessagesAfter(conversationId: string, messageId: string): Promise<Message[]> {
+    const targetMessage = await db
+      .select()
+      .from(messages)
+      .where(eq(messages.id, messageId));
+    
+    if (!targetMessage.length) return [];
+    
+    return await db
+      .select()
+      .from(messages)
+      .where(
+        and(
+          eq(messages.conversationId, conversationId),
+          gte(messages.createdAt, targetMessage[0].createdAt)
+        )
+      )
+      .orderBy(messages.createdAt);
+  }
+
+  // Conversation summary operations
+  async upsertConversationSummary(data: InsertConversationSummary): Promise<ConversationSummary> {
+    const existing = await this.getConversationSummary(data.conversationId);
+    
+    if (existing) {
+      const [summary] = await db
+        .update(conversationSummaries)
+        .set({ ...data, updatedAt: new Date() })
+        .where(eq(conversationSummaries.conversationId, data.conversationId))
+        .returning();
+      return summary;
+    } else {
+      const [summary] = await db
+        .insert(conversationSummaries)
+        .values(data)
+        .returning();
+      return summary;
+    }
+  }
+
+  async getConversationSummary(conversationId: string): Promise<ConversationSummary | undefined> {
+    const [summary] = await db
+      .select()
+      .from(conversationSummaries)
+      .where(eq(conversationSummaries.conversationId, conversationId));
+    return summary;
+  }
+
+  async updateConversationSummary(conversationId: string, summary: string, lastMessageId: string, messageCount: number): Promise<ConversationSummary> {
+    const [updated] = await db
+      .update(conversationSummaries)
+      .set({ 
+        summary, 
+        lastMessageId, 
+        messageCount, 
+        updatedAt: new Date() 
+      })
+      .where(eq(conversationSummaries.conversationId, conversationId))
+      .returning();
+    return updated;
+  }
+
+  // Concept card operations (with idempotency)
+  async createConceptCard(data: InsertConceptCard): Promise<ConceptCard> {
+    // Check for idempotency using clientId
+    if (data.clientId && data.userId) {
+      const existing = await this.getConceptCardByClientId(data.userId, data.clientId);
+      if (existing) {
+        return existing;
+      }
+    }
+
+    const [conceptCard] = await db
+      .insert(conceptCards)
+      .values(data)
+      .returning();
+    return conceptCard;
+  }
+
+  async getConceptCard(id: string): Promise<ConceptCard | undefined> {
+    const [conceptCard] = await db
+      .select()
+      .from(conceptCards)
+      .where(eq(conceptCards.id, id));
+    return conceptCard;
+  }
+
+  async getConceptCardByClientId(userId: string, clientId: string): Promise<ConceptCard | undefined> {
+    const [conceptCard] = await db
+      .select()
+      .from(conceptCards)
+      .where(
+        and(
+          eq(conceptCards.userId, userId),
+          eq(conceptCards.clientId, clientId)
+        )
+      );
+    return conceptCard;
+  }
+
+  async getUserConceptCards(userId: string, conversationId?: string): Promise<ConceptCard[]> {
+    const conditions = [eq(conceptCards.userId, userId)];
+    if (conversationId) {
+      conditions.push(eq(conceptCards.conversationId, conversationId));
+    }
+    
+    return await db
+      .select()
+      .from(conceptCards)
+      .where(and(...conditions))
+      .orderBy(conceptCards.sortOrder, desc(conceptCards.createdAt));
+  }
+
+  async updateConceptCard(id: string, updates: Partial<ConceptCard>): Promise<ConceptCard> {
+    const [conceptCard] = await db
+      .update(conceptCards)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(conceptCards.id, id))
+      .returning();
+    return conceptCard;
+  }
+
+  async updateConceptCardGeneration(id: string, generatedImages: any[], isLoading: boolean, isGenerating: boolean, hasGenerated: boolean): Promise<ConceptCard> {
+    return this.updateConceptCard(id, {
+      generatedImages,
+      isLoading,
+      isGenerating,
+      hasGenerated
+    });
+  }
+
+  async deleteConceptCard(id: string): Promise<void> {
+    await db
+      .delete(conceptCards)
+      .where(eq(conceptCards.id, id));
   }
 }
 
