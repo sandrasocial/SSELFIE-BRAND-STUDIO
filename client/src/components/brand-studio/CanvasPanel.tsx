@@ -74,12 +74,16 @@ export const CanvasPanel: React.FC<CanvasPanelProps> = ({
   );
 };
 
-// Concept Card Component for Photo Studio
+// Concept Card Component for Photo Studio - Updated to use extended Maya ConceptCard type
 interface ConceptCardProps {
   card: {
     id: string;
     title: string;
     description: string;
+    fluxPrompt?: string; // Maya's embedded FLUX-optimized prompt
+    emoji?: string; // Maya's styling emoji (🎯✨💼🌟💫🏆📸🎬)
+    creativeLook?: string; // One of Maya's 12 Creative Looks
+    creativeLookDescription?: string; // Brief description of the Creative Look
     generatedImages?: string[];
     isGenerating?: boolean;
     hasGenerated?: boolean;
@@ -121,16 +125,38 @@ export const ConceptCard: React.FC<ConceptCardProps> = ({
       >
         <div className="px-8 py-6">
           <div className="flex items-start justify-between mb-4">
-            <h4 
-              className="text-base tracking-wider uppercase text-black flex-1 cursor-pointer"
-              style={{ 
-                fontFamily: 'Times New Roman, serif', 
-                fontWeight: 200, 
-                letterSpacing: '0.2em' 
-              }}
-            >
-              {cleanDisplayTitle(card.title)}
-            </h4>
+            <div className="flex-1">
+              {/* Maya's Creative Look and Emoji Display */}
+              {(card.emoji || card.creativeLook) && (
+                <div className="flex items-center gap-2 mb-2">
+                  {card.emoji && (
+                    <span className="text-lg" title="Maya's styling approach">
+                      {card.emoji}
+                    </span>
+                  )}
+                  {card.creativeLook && (
+                    <span 
+                      className="text-xs tracking-wider uppercase text-gray-500 px-2 py-1 border border-gray-200 rounded"
+                      style={{ letterSpacing: '0.15em' }}
+                      title={card.creativeLookDescription || `Maya's ${card.creativeLook} creative direction`}
+                    >
+                      {card.creativeLook}
+                    </span>
+                  )}
+                </div>
+              )}
+              
+              <h4 
+                className="text-base tracking-wider uppercase text-black cursor-pointer"
+                style={{ 
+                  fontFamily: 'Times New Roman, serif', 
+                  fontWeight: 200, 
+                  letterSpacing: '0.2em' 
+                }}
+              >
+                {cleanDisplayTitle(card.title)}
+              </h4>
+            </div>
           </div>
 
           <p 
