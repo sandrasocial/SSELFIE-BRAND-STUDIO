@@ -1359,6 +1359,10 @@ Format your response with clear scene breakdowns for VEO video generation.`;
 
   console.log('✅ AI SCENE DIRECTOR: Video generation routes active at /api/video/*');
   
+  // Register the new secure video routes
+  app.use('/api/video', videoRoutes);
+  console.log('🎬 SECURE VIDEO ROUTES: Registered at /api/video/*');
+  
   // Profile Management API
   app.get('/api/profile', requireStackAuth, async (req: any, res) => {
     try {
