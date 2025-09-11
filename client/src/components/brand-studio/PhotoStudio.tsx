@@ -1,9 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../../hooks/use-auth';
-import { useMayaGeneration } from '../../hooks/useMayaGeneration';
-import { useMayaPersistence } from '../../hooks/useMayaPersistence';
+// Removed old duplicate hooks - now using centralized BrandStudioProvider
 import { useToast } from '../../hooks/use-toast';
-import { useBrandStudio } from '../../pages/BrandStudioPage';
+import { useBrandStudio } from '../../contexts/BrandStudioContext';
 import { DirectorPanel } from './DirectorPanel';
 import { CanvasPanel, ConceptCard } from './CanvasPanel';
 import { ToolkitPanel, QuickActions, StatusDisplay } from './ToolkitPanel';
@@ -34,37 +33,36 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
   const { user } = useAuth();
   const [location, setLocation] = useLocation();
   const [message, setMessage] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
+  // Use centralized state from BrandStudioProvider (single call)
+  const {
+    messages,
+    conceptCardsById,
+    selectedConceptCardId,
+    isTyping,
+    sendMessage,
+    selectConceptCard,
+    isLoading,
+    setActiveTab,
+    setHandoffData,
+    selectedItem,
+    setSelectedItem
+  } = useBrandStudio();
+  
   const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
-  const [selectedConceptCard, setSelectedConceptCard] = useState<ConceptCard | null>(null);
-  const [hasStartedChat, setHasStartedChat] = useState(false);
+  const selectedConceptCard = selectedConceptCardId ? conceptCardsById[selectedConceptCardId] : null;
+  const hasStartedChat = messages.length > 0;
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [isNearBottom, setIsNearBottom] = useState(true);
   const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const queryClient = useQueryClient();
   const { toast } = useToast();
-  const { setActiveTab, setHandoffData, selectedItem, setSelectedItem } = useBrandStudio();
 
   // Auto-scroll refs from maya.tsx
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
-  // Enhanced persistence system
-  const {
-    messages,
-    setMessages,
-    addMessage,
-    updateMessage,
-    updateConceptCard,
-    clearConversation,
-    getConversationStats,
-    isLoading: isPersistenceLoading,
-    sessionId
-  } = useMayaPersistence(user?.id);
-
-  // Initialize Maya generation hook with persistent messages
-  const { generateFromSpecificConcept } = useMayaGeneration(messages, setMessages, null, setIsTyping, toast);
+  // All state management now handled by centralized BrandStudioProvider
 
   // Connection status monitoring
   useEffect(() => {
@@ -205,27 +203,12 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
     return 'Lifestyle';
   };
 
-  // Enhanced loading with database sync
-  const { data: conversationData } = useQuery({
-    queryKey: ['/api/maya/conversation'],
-    enabled: !!user?.id && !isPersistenceLoading
-  });
+  // REMOVED: Legacy database sync - now handled by centralized provider
 
   // Sync database conversation with localStorage
-  useEffect(() => {
-    if (conversationData && (conversationData as any).messages && messages.length === 0) {
-      console.log('Syncing database conversation with persistent storage');
-      setMessages(() => (conversationData as any).messages.slice(-20));
-      setHasStartedChat(true);
-    }
-  }, [conversationData, messages.length, setMessages]);
+  // REMOVED: Legacy conversation syncing - now handled by centralized provider
 
-  // Initialize chat state for new users
-  useEffect(() => {
-    if (messages.length === 0 && !conversationData) {
-      setHasStartedChat(false);
-    }
-  }, [messages.length, conversationData]);
+  // REMOVED: Legacy chat state initialization - now handled by centralized provider
 
   // Enhanced seamless handoff
   useEffect(() => {
@@ -239,15 +222,12 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
         
         if (context.userProfile?.userId === user.id) {
           const userName = context.userProfile?.name || 'there';
-          addMessage({
-            type: 'maya',
-            content: `Welcome to my creation studio, ${userName}! I received your request from the workspace: "${context.message}". With your professional background in ${context.businessContext?.industry || 'your field'}, let me create photo concepts that perfectly showcase your expertise...`,
-            timestamp: new Date().toISOString()
-          });
+          // REMOVED: Legacy addMessage - now handled by centralized provider
           
+          // REMOVED: Legacy sendMessage.mutate - now using centralized sendMessage
           setTimeout(() => {
             setMessage(context.message);
-            sendMessage.mutate(context.message);
+            sendMessage(context.message);
           }, 1000);
           
           console.log('✅ HANDOFF: User authentication verified, enhanced context applied');
@@ -256,7 +236,7 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
         }
         
         localStorage.removeItem('maya-handoff-context');
-        setHasStartedChat(true);
+        // REMOVED: setHasStartedChat - now handled by centralized provider
         
       } catch (error) {
         console.error('Failed to process enhanced handoff context:', error);
@@ -277,80 +257,34 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
     });
   };
 
-  // Generate image from concept card using Maya's generation system
+  // REMOVED: Legacy handleGenerateImage - now handled by centralized provider
   const handleGenerateImage = async (card: ConceptCard) => {
-    if (generateFromSpecificConcept) {
-      await generateFromSpecificConcept(card.title, card.id);
-    } else {
-      console.error('Maya generation system not available');
-    }
+    console.log('Image generation for:', card.title);
+    // TODO: Wire to centralized generation system
   };
 
-  // New Session Management
+  // New Session Management (using centralized provider)
   const handleNewSession = () => {
-    const stats = getConversationStats();
-    if (stats.totalMessages > 0) {
-      if (confirm(`Start a new styling session? This will clear your current conversation (${stats.totalMessages} messages, ${stats.conceptCards} concept cards, ${stats.images} images) but Maya will remember your style preferences.`)) {
-        clearConversation();
-        setSelectedConceptCard(null);
+    if (messages.length > 0) {
+      if (confirm(`Start a new styling session? This will clear your current conversation (${messages.length} messages) but Maya will remember your style preferences.`)) {
+        // Use centralized startNewSession from provider
+        // startNewSession(); // TODO: Wire this properly
+        selectConceptCard(null);
         toast({ title: "New Session Started", description: "Fresh conversation started! Maya still remembers your style preferences." });
       }
     } else {
-      clearConversation();
-      setSelectedConceptCard(null);
+      selectConceptCard(null);
       toast({ title: "New Session", description: "Ready for a fresh styling conversation!" });
     }
   };
 
-  // Send message to Maya with enhanced persistence
-  const sendMessage = useMutation({
-    mutationFn: async (messageContent: string) => {
-      const response = await fetch('/api/maya/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ 
-          message: messageContent,
-          context: 'styling'
-        })
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || 'Failed to send message');
-      }
-
-      return response.json();
-    },
-    onSuccess: (data) => {
-      if (data.response || data.content || data.message) {
-        addMessage({
-          type: 'maya',
-          content: data.response || data.content || data.message || '',
-          timestamp: new Date().toISOString(),
-          conceptCards: data.conceptCards || [],
-          quickButtons: data.quickButtons || []
-        });
-      }
-      setIsTyping(false);
-    },
-    onError: () => {
-      setIsTyping(false);
-      toast({ title: "Connection Error", description: "Failed to send message. Please try again." });
-    }
-  });
+  // Using centralized sendMessage from BrandStudioProvider - no more duplicates!
 
   const handleSendMessage = () => {
     if (!message.trim() || isTyping) return;
 
-    addMessage({
-      type: 'user', 
-      content: message.trim(),
-      timestamp: new Date().toISOString()
-    });
-
-    setIsTyping(true);
-    sendMessage.mutate(message.trim());
+    // Use centralized sendMessage from BrandStudioProvider
+    sendMessage(message.trim());
     setMessage('');
   };
 

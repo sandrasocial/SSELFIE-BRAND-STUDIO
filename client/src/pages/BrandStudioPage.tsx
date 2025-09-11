@@ -1,11 +1,9 @@
-import React, { useState, createContext, useContext } from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../hooks/use-auth';
 import { MemberNavigation } from '../components/member-navigation';
-import { DirectorPanel } from '../components/brand-studio/DirectorPanel';
-import { CanvasPanel } from '../components/brand-studio/CanvasPanel';
-import { ToolkitPanel } from '../components/brand-studio/ToolkitPanel';
 import { PhotoStudio } from '../components/brand-studio/PhotoStudio';
 import { StoryStudio } from '../components/brand-studio/StoryStudio';
+import { BrandStudioProvider, useBrandStudio } from '../contexts/BrandStudioContext';
 
 // Luxury flatlay background images for editorial aesthetic
 const FLATLAY_IMAGES = [
@@ -19,14 +17,6 @@ const FLATLAY_IMAGES = [
   'https://i.postimg.cc/2Smmx7pn/105.png',
   'https://i.postimg.cc/YqQMgyPp/106.png',
   'https://i.postimg.cc/Bng37Psk/107.png',
-  'https://i.postimg.cc/zf2r8myk/108.png',
-  'https://i.postimg.cc/4dKT38tR/109.png',
-  'https://i.postimg.cc/dQzx2QMC/11.png',
-  'https://i.postimg.cc/4drRHzb7/110.png',
-  'https://i.postimg.cc/ryrkXPMS/111.png',
-  'https://i.postimg.cc/PrnktQ50/112.png',
-  'https://i.postimg.cc/3JjQW0yN/113.png',
-  'https://i.postimg.cc/wj68NxJV/114.png'
 ];
 
 // Get random flatlay image for background texture
@@ -34,35 +24,10 @@ const getRandomFlatlayImage = () => {
   return FLATLAY_IMAGES[Math.floor(Math.random() * FLATLAY_IMAGES.length)];
 };
 
-// Context for sharing data between panels
-interface BrandStudioContextType {
-  activeTab: 'photo' | 'story';
-  setActiveTab: (tab: 'photo' | 'story') => void;
-  selectedItem: any | null;
-  setSelectedItem: (item: any | null) => void;
-  handoffData: {
-    conceptCard?: any;
-    fromPhoto?: boolean;
-  } | null;
-  setHandoffData: (data: any) => void;
-  clearHandoffData: () => void;
-}
-
-const BrandStudioContext = createContext<BrandStudioContextType | null>(null);
-
-export const useBrandStudio = () => {
-  const context = useContext(BrandStudioContext);
-  if (!context) {
-    throw new Error('useBrandStudio must be used within BrandStudioProvider');
-  }
-  return context;
-};
-
-export default function BrandStudioPage() {
+// Brand Studio main component content
+function BrandStudioPageContent() {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<'photo' | 'story'>('photo');
-  const [selectedItem, setSelectedItem] = useState<any>(null);
-  const [handoffData, setHandoffData] = useState<any>(null);
+  const { activeTab, setActiveTab } = useBrandStudio();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [backgroundImage] = useState(getRandomFlatlayImage());
 
@@ -75,18 +40,6 @@ export default function BrandStudioPage() {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
-
-  const clearHandoffData = () => setHandoffData(null);
-
-  const contextValue: BrandStudioContextType = {
-    activeTab,
-    setActiveTab,
-    selectedItem,
-    setSelectedItem,
-    handoffData,
-    setHandoffData,
-    clearHandoffData
-  };
 
   return (
     <>
@@ -140,17 +93,6 @@ export default function BrandStudioPage() {
           font-size: clamp(var(--text-4xl), 6vw, var(--text-6xl));
         }
 
-        .spaced-title {
-          font-family: 'Times New Roman', serif;
-          font-weight: 200;
-          letter-spacing: 0.4em;
-          text-transform: uppercase;
-          line-height: 1;
-          margin-bottom: var(--space-md);
-          font-size: clamp(var(--text-lg), 3vw, var(--text-xl));
-          display: block;
-        }
-
         .body-large {
           font-size: clamp(var(--text-lg), 2.5vw, var(--text-xl));
           line-height: 1.6;
@@ -165,95 +107,6 @@ export default function BrandStudioPage() {
           font-weight: 300;
           max-width: 600px;
           color: var(--body-gray);
-        }
-
-        .luxury-btn {
-          display: inline-block;
-          padding: var(--space-md) var(--space-lg);
-          font-size: 12px;
-          font-weight: 300;
-          letter-spacing: 0.4em;
-          text-transform: uppercase;
-          text-decoration: none;
-          border: 1px solid var(--luxury-black);
-          color: var(--luxury-black);
-          background: transparent;
-          transition: all 400ms ease;
-          cursor: pointer;
-          position: relative;
-          overflow: hidden;
-          z-index: 1;
-          border-radius: 4px;
-        }
-
-        .luxury-btn::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: -100%;
-          width: 100%;
-          height: 100%;
-          background: var(--luxury-black);
-          transition: left 400ms ease;
-          z-index: -1;
-        }
-
-        .luxury-btn:hover::before {
-          left: 0;
-        }
-
-        .luxury-btn:hover {
-          color: var(--pure-white);
-        }
-
-        .luxury-btn:disabled {
-          border-color: var(--accent-line);
-          color: var(--accent-line);
-          cursor: not-allowed;
-          background: var(--editorial-gray);
-        }
-
-        .luxury-btn:disabled:hover {
-          color: var(--accent-line);
-        }
-
-        .luxury-btn:disabled:hover::before {
-          left: -100%;
-        }
-
-        .luxury-btn.secondary {
-          border-color: var(--accent-line);
-          color: var(--body-gray);
-        }
-
-        .luxury-btn.secondary:hover {
-          border-color: var(--luxury-black);
-          color: var(--pure-white);
-        }
-
-        .form-input {
-          width: 100%;
-          padding: var(--space-md);
-          border: 1px solid var(--accent-line);
-          font-size: var(--text-base);
-          font-weight: 300;
-          background: var(--pure-white);
-          transition: all 300ms ease;
-          font-family: inherit;
-          color: var(--luxury-black);
-          border-radius: 4px;
-        }
-
-        .form-input:focus {
-          outline: none;
-          border-color: var(--luxury-black);
-          background: var(--pure-white);
-          box-shadow: 0 0 0 3px rgba(0,0,0,0.1);
-        }
-
-        textarea.form-input {
-          min-height: 120px;
-          resize: vertical;
         }
 
         /* Mobile-First Creative Studio Design */
@@ -308,106 +161,8 @@ export default function BrandStudioPage() {
           }
         }
 
-        /* Three-Panel Maya Creative Workspace */
-        .three-panel-workspace {
-          padding: var(--space-xl) var(--space-lg);
-          max-width: 1600px;
-          margin: 0 auto;
-          position: relative;
-        }
-
-        .three-panel-workspace::before {
-          content: '';
-          position: absolute;
-          top: -40px;
-          left: -40px;
-          right: -40px;
-          bottom: -40px;
-          background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('${backgroundImage}') center/cover;
-          opacity: 0.25;
-          border-radius: 20px;
-          z-index: -1;
-        }
-
-        .workspace-panels {
-          display: grid;
-          grid-template-columns: 1fr 2fr 1fr;
-          gap: var(--space-lg);
-          min-height: calc(100vh - 400px);
-        }
-
-        .director-panel, .canvas-panel, .toolkit-panel {
-          background: rgba(255, 255, 255, 0.95);
-          border: 1px solid var(--accent-line);
-          border-radius: 8px;
-          overflow: hidden;
-          display: flex;
-          flex-direction: column;
-          backdrop-filter: blur(10px);
-          box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-        }
-
-        .director-panel {
-          position: relative;
-        }
-
-        .director-panel::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          height: 60px;
-          background: linear-gradient(135deg, #000000 0%, #333333 100%);
-          z-index: 1;
-        }
-
-        .canvas-panel {
-          position: relative;
-          overflow: visible;
-        }
-
-        .canvas-panel::before {
-          content: '';
-          position: absolute;
-          top: -20px;
-          left: -20px;
-          right: -20px;
-          bottom: -20px;
-          background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('${backgroundImage}') center/cover;
-          opacity: 0.2;
-          border-radius: 12px;
-          z-index: -1;
-        }
-
-        .toolkit-panel {
-          position: relative;
-        }
-
-        .toolkit-panel::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          height: 60px;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          z-index: 1;
-        }
-
         /* Desktop Layout */
         @media (min-width: 769px) {
-          .desktop-panel {
-            background: rgba(255, 255, 255, 0.95);
-            border: 1px solid var(--accent-line);
-            border-radius: 8px;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-          }
-
           .desktop-tab-bar {
             display: flex;
             background: rgba(249, 249, 249, 0.9);
@@ -436,124 +191,109 @@ export default function BrandStudioPage() {
         }
       `}</style>
 
-      <BrandStudioContext.Provider value={contextValue}>
-        <div className="brand-studio-container">
-          <MemberNavigation darkText={true} />
-          
-          {/* Mobile Layout - Layered Creative Studio */}
-          {isMobile ? (
-            <div className="brand-studio-mobile" style={{ paddingTop: '80px' }}>
-              <div className="mobile-content">
-                {/* Mobile Header */}
-                <div className="text-center py-8 px-4">
-                  <div className="luxury-eyebrow">Maya's Creative Studio</div>
-                  <h1 className="section-title text-3xl">BRAND WORKSPACE</h1>
-                  <p className="body-elegant text-sm mt-4">
-                    {activeTab === 'photo' 
-                      ? 'Create professional photos with Maya\'s strategic guidance'
-                      : 'Craft compelling video stories for your brand'
-                    }
-                  </p>
-                </div>
-                
-                {/* Mobile Canvas View */}
-                <div className="px-4">
-                  {activeTab === 'photo' ? <PhotoStudio isMobile={true} /> : <StoryStudio isMobile={true} />}
-                </div>
+      <div className="brand-studio-container">
+        <MemberNavigation darkText={true} />
+        
+        {/* Mobile Layout */}
+        {isMobile ? (
+          <div className="brand-studio-mobile" style={{ paddingTop: '80px' }}>
+            <div className="mobile-content">
+              {/* Mobile Header */}
+              <div className="text-center py-8 px-4">
+                <div className="luxury-eyebrow">Maya's Creative Studio</div>
+                <h1 className="section-title text-3xl">BRAND WORKSPACE</h1>
+                <p className="body-elegant text-sm mt-4">
+                  {activeTab === 'photo' 
+                    ? 'Create professional photos with Maya\'s strategic guidance'
+                    : 'Craft compelling video stories for your brand'
+                  }
+                </p>
               </div>
               
-              <div className="mobile-tab-bar">
-                <button
-                  className={`mobile-tab-button ${activeTab === 'photo' ? 'active' : ''}`}
-                  onClick={() => setActiveTab('photo')}
-                >
-                  📸 Studio
-                </button>
-                <button
-                  className={`mobile-tab-button ${activeTab === 'story' ? 'active' : ''}`}
-                  onClick={() => setActiveTab('story')}
-                >
-                  🎬 Stories
-                </button>
-              </div>
-            </div>
-          ) : (
-            /* Desktop Layout - Three-Panel Maya Creative Workspace */
-            <div 
-              className="min-h-screen" 
-              style={{ 
-                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url(${backgroundImage})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                backgroundAttachment: 'fixed'
-              }}
-            >
-              {/* Luxury Header */}
-              <div className="text-center py-16 border-b border-gray-100" style={{ paddingTop: '120px' }}>
-                <div className="luxury-eyebrow">AI PERSONAL BRAND STRATEGIST</div>
-                <h1 className="section-title">MAYA'S CREATIVE WORKSPACE</h1>
-                <p className="body-large mx-auto">
-                  The Strategic Conversation • The Editorial Lookbook • Action & Assets
-                </p>
-                
-                <div className="desktop-tab-bar mt-8 max-w-md mx-auto border border-gray-200 rounded">
-                  <button
-                    className={`desktop-tab-button ${activeTab === 'photo' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('photo')}
-                  >
-                    Photo Studio
-                  </button>
-                  <button
-                    className={`desktop-tab-button ${activeTab === 'story' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('story')}
-                  >
-                    Story Studio
-                  </button>
-                </div>
-              </div>
-
-              {/* Three-Panel Creative Workspace */}
-              <div className="three-panel-workspace">
+              {/* SINGLE STUDIO INSTANCE - No more duplicates! */}
+              <div className="px-4">
                 {activeTab === 'photo' ? (
-                  <div className="workspace-panels">
-                    {/* Left Panel: The Director (Strategic Conversation) */}
-                    <div className="director-panel">
-                      <PhotoStudio panelMode="director" />
-                    </div>
-                    
-                    {/* Center Panel: The Canvas (Editorial Lookbook) */}
-                    <div className="canvas-panel">
-                      <PhotoStudio panelMode="canvas" />
-                    </div>
-                    
-                    {/* Right Panel: The Toolkit & Gallery (Action and Assets) */}
-                    <div className="toolkit-panel">
-                      <PhotoStudio panelMode="toolkit" />
-                    </div>
-                  </div>
+                  <PhotoStudio />
                 ) : (
-                  <div className="workspace-panels">
-                    {/* Left Panel: The Director (Strategic Conversation) */}
-                    <div className="director-panel">
-                      <StoryStudio panelMode="director" />
-                    </div>
-                    
-                    {/* Center Panel: The Canvas (Editorial Lookbook) */}
-                    <div className="canvas-panel">
-                      <StoryStudio panelMode="canvas" />
-                    </div>
-                    
-                    {/* Right Panel: The Toolkit & Gallery (Action and Assets) */}
-                    <div className="toolkit-panel">
-                      <StoryStudio panelMode="toolkit" />
-                    </div>
-                  </div>
+                  <StoryStudio />
                 )}
               </div>
             </div>
-          )}
-        </div>
-      </BrandStudioContext.Provider>
+            
+            <div className="mobile-tab-bar">
+              <button
+                className={`mobile-tab-button ${activeTab === 'photo' ? 'active' : ''}`}
+                onClick={() => setActiveTab('photo')}
+                data-testid="button-photo-studio"
+              >
+                📸 Studio
+              </button>
+              <button
+                className={`mobile-tab-button ${activeTab === 'story' ? 'active' : ''}`}
+                onClick={() => setActiveTab('story')}
+                data-testid="button-story-studio"
+              >
+                🎬 Stories
+              </button>
+            </div>
+          </div>
+        ) : (
+          /* Desktop Layout */
+          <div 
+            className="min-h-screen" 
+            style={{ 
+              backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url(${backgroundImage})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              backgroundAttachment: 'fixed'
+            }}
+          >
+            {/* Luxury Header */}
+            <div className="text-center py-16 border-b border-gray-100" style={{ paddingTop: '120px' }}>
+              <div className="luxury-eyebrow">AI PERSONAL BRAND STRATEGIST</div>
+              <h1 className="section-title">MAYA'S CREATIVE WORKSPACE</h1>
+              <p className="body-large mx-auto">
+                The Strategic Conversation • The Editorial Lookbook • Action & Assets
+              </p>
+              
+              <div className="desktop-tab-bar mt-8 max-w-md mx-auto border border-gray-200 rounded">
+                <button
+                  className={`desktop-tab-button ${activeTab === 'photo' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('photo')}
+                  data-testid="button-photo-studio-desktop"
+                >
+                  Photo Studio
+                </button>
+                <button
+                  className={`desktop-tab-button ${activeTab === 'story' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('story')}
+                  data-testid="button-story-studio-desktop"
+                >
+                  Story Studio
+                </button>
+              </div>
+            </div>
+
+            {/* SINGLE STUDIO INSTANCE - No more panel duplication! */}
+            <div className="p-8">
+              {activeTab === 'photo' ? (
+                <PhotoStudio />
+              ) : (
+                <StoryStudio />
+              )}
+            </div>
+          </div>
+        )}
+      </div>
     </>
+  );
+}
+
+// Main wrapper with provider
+export default function BrandStudioPage() {
+  return (
+    <BrandStudioProvider>
+      <BrandStudioPageContent />
+    </BrandStudioProvider>
   );
 }
