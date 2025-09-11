@@ -89,21 +89,41 @@ ${mayaIntelligence.trendIntelligence.personalizedTrends.slice(0, 3).join('\n')}`
       mayaPersonality
     );
 
-    // Parse concept cards from response
+    // Parse concept cards from response using Creative Lookbook format
     let conceptCards: any[] = [];
     try {
-      const conceptRegex = /\*\*(.*?)\*\*[\s\S]*?FLUX_PROMPT:\s*([\s\S]*?)(?=---|$)/gi;
+      // Updated regex to handle Maya's Creative Lookbook format:
+      // 🎯 **THE NORDIC LIGHT**
+      // FLUX_PROMPT: `content in backticks`
+      const conceptRegex = /([🎯✨💫🔥🌟💎🌅🏢💼🌊👑💃📸🎬♦️🚖])\s*\*\*(.*?)\*\*[\s\S]*?FLUX_PROMPT:\s*`([^`]+)`/gi;
       let match;
       while ((match = conceptRegex.exec(claudeResponse)) !== null) {
+        const emoji = match[1].trim();
+        const title = match[2].trim();
+        const fluxPrompt = match[3].trim();
+        
+        console.log(`🎨 CONCEPT PARSED: ${emoji} ${title}`);
+        
         conceptCards.push({
           id: `concept_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-          title: match[1].trim(),
-          description: match[2].trim(),
-          fluxPrompt: match[2].trim()
+          title: `${emoji} ${title}`,
+          description: `Creative concept: ${title}`,
+          emoji: emoji,
+          creativeLook: title,
+          creativeLookDescription: `${title} styling concept`,
+          fluxPrompt: fluxPrompt
         });
       }
+      
+      if (conceptCards.length > 0) {
+        console.log(`✅ CONCEPT CARDS: Successfully parsed ${conceptCards.length} Creative Lookbook concepts`);
+      } else {
+        console.log('⚠️ CONCEPT CARDS: No Creative Lookbook concepts found in Maya response');
+      }
+      
     } catch (parseError) {
-      console.log('No concept cards found in Maya response');
+      console.error('❌ CONCEPT PARSING ERROR:', parseError);
+      console.log('📝 CONCEPT PARSING: Falling back to no concept cards');
     }
 
     // Log performance
