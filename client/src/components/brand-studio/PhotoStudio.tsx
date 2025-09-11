@@ -426,7 +426,7 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
                     onToggleExpand={() => toggleCardExpansion(card.id)}
                     onGenerate={() => handleGenerateImage(card)}
                     onSelect={() => {
-                      setSelectedConceptCard(card);
+                      selectConceptCard(card.id);
                       setSelectedItem(card);
                     }}
                     onSaveToGallery={handleSaveToGallery}
@@ -494,7 +494,7 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
         {isMobileState ? (
         // Mobile Layout: Single view with overlays  
         <div className="flex-1 overflow-y-auto">
-          <CanvasPanel mode="photo" onItemSelect={setSelectedConceptCard} selectedItem={selectedConceptCard}>
+          <CanvasPanel mode="photo" onItemSelect={(card) => selectConceptCard(card?.id)} selectedItem={selectedConceptCard}>
           {/* Welcome State */}
           {!hasStartedChat && messages.length === 0 && (
             <div className="text-center py-12">
@@ -541,7 +541,7 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
                   isExpanded={expandedCards.has(card.id)}
                   onToggleExpand={() => toggleCardExpansion(card.id)}
                   onGenerate={() => handleGenerateImage(card)}
-                  onSelect={() => setSelectedConceptCard(card)}
+                  onSelect={() => selectConceptCard(card.id)}
                   onSaveToGallery={handleSaveToGallery}
                   onCreateVideo={() => handleToolkitAction('create-video')}
                   isSelected={selectedConceptCard?.id === card.id}
@@ -640,7 +640,7 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
           />
 
           {/* Center Panel: Canvas (Content) */}
-          <CanvasPanel mode="photo" onItemSelect={setSelectedConceptCard} selectedItem={selectedConceptCard}>
+          <CanvasPanel mode="photo" onItemSelect={(card) => selectConceptCard(card?.id)} selectedItem={selectedConceptCard}>
             {/* Welcome State */}
             {!hasStartedChat && messages.length === 0 && (
               <div className="text-center py-12">
@@ -689,7 +689,7 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
                     isExpanded={expandedCards.has(card.id)}
                     onToggleExpand={() => toggleCardExpansion(card.id)}
                     onGenerate={() => handleGenerateImage(card)}
-                    onSelect={() => setSelectedConceptCard(card)}
+                    onSelect={() => selectConceptCard(card.id)}
                     onSaveToGallery={handleSaveToGallery}
                     onCreateVideo={() => handleToolkitAction('create-video')}
                     isSelected={selectedConceptCard?.id === card.id}

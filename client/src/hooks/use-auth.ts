@@ -25,10 +25,8 @@ export function useAuth() {
   const isLoading = isDbUserLoading;
   const isAuthenticated = !!stackUser?.id;
   
-  console.log('🔍 Auth: Stack user:', !!stackUser, stackUser?.id);
-  console.log('🔍 Auth: Database user:', !!dbUser);
-  console.log('🔍 Auth: Loading:', isLoading);
-  console.log('🔍 Auth: Authenticated:', isAuthenticated);
+  // REMOVED: Excessive auth logging causing infinite loop
+  // These logs were causing re-render loops. Auth state tracking removed for production.
 
   // Use database user data if available, fallback to Stack Auth user
   const user: User | undefined = dbUser || (stackUser ? {
