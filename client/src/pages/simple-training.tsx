@@ -183,7 +183,7 @@ function SimpleTraining() {
           });
           
           setTimeout(() => {
-            window.location.href = '/maya';
+            window.location.href = '/brand-studio';
           }, 2000);
         }
       } else {
@@ -231,7 +231,7 @@ function SimpleTraining() {
             });
             
             setTimeout(() => {
-              window.location.href = '/maya';
+              window.location.href = '/brand-studio';
             }, 2000);
           }
           

@@ -1,4 +1,4 @@
-import React, { ComponentType, useEffect, lazy, Suspense, startTransition } from 'react';
+import React, { ComponentType, useEffect, lazy, Suspense } from 'react';
 import { Route, useLocation, Redirect } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -7,87 +7,24 @@ import { TooltipProvider } from "./components/ui/tooltip";
 import { StackProvider, StackTheme, StackHandler } from "@stackframe/react";
 import { stackClientApp } from "./stack";
 import { useAuth } from "./hooks/use-auth";
-// Using JWKS backend verification with custom frontend OAuth flow
 import { useQuery } from "@tanstack/react-query";
 import { redirectToHttps, detectBrowserIssues, showDomainHelp } from "./utils/browserCompat";
 import { optimizeImageLoading, enableServiceWorkerCaching } from "./utils/performanceOptimizations";
 import { optimizeRuntime } from "./utils/webVitals";
-// Neon Auth.js - no client-side provider needed
 
-// Core pages (loaded immediately)
-import Workspace from "./pages/workspace";
-import Maya from "./pages/maya";
+// Core pages (loaded immediately) - BRAND STUDIO IS PRIMARY
 import BrandStudioPage from "./pages/BrandStudioPage";
 
-// Lazy loaded pages for better performance
+// Lazy loaded essential pages
 const BusinessLanding = lazy(() => import("./pages/business-landing"));
-const SSELFIEGallery = lazy(() => import("./pages/sselfie-gallery"));
 const SimpleTraining = lazy(() => import("./pages/simple-training"));
-const TeamsLanding = lazy(() => import("./pages/teams-landing"));
-const TeamsServicePackages = lazy(() => import("./pages/teams-service-packages"));
-const CompanyDashboard = lazy(() => import("./pages/company-dashboard"));
-const MayaBrandCustomization = lazy(() => import("./pages/maya-brand-customization"));
-const SalesConsultation = lazy(() => import("./pages/sales-consultation"));
-const ImplementationTimeline = lazy(() => import("./pages/implementation-timeline"));
-const Profile = lazy(() => import("./pages/profile"));
-const AccountSettings = lazy(() => import("./pages/account-settings"));
-const Pricing = lazy(() => import("./pages/pricing"));
-const About = lazy(() => import("./pages/about"));
-const Blog = lazy(() => import("./pages/blog"));
-const Contact = lazy(() => import("./pages/contact"));
-const FAQ = lazy(() => import("./pages/faq"));
-const Terms = lazy(() => import("./pages/terms"));
-const Privacy = lazy(() => import("./pages/privacy"));
-const HowItWorks = lazy(() => import("./pages/how-it-works"));
-const SelfieGuide = lazy(() => import("./pages/selfie-guide"));
 const PaymentSuccess = lazy(() => import("./pages/payment-success"));
-const Checkout = lazy(() => import("./pages/checkout"));
-const SimpleCheckout = lazy(() => import("./pages/simple-checkout"));
-const RetrainCheckout = lazy(() => import("./pages/retrain-checkout"));
 const ThankYou = lazy(() => import("./pages/thank-you"));
-const SandraPhotoshoot = lazy(() => import("./pages/sandra-photoshoot"));
-const AIGenerator = lazy(() => import("./pages/ai-generator"));
-
-const MarketingAutomation = lazy(() => import("./pages/marketing-automation"));
-
-// Admin pages - lazy loaded
-const AdminControlCenter = lazy(() => import("./pages/admin-control-center"));
-const AdminBusinessOverview = lazy(() => import("./pages/admin-business-overview"));
-const AdminConsultingAgents = lazy(() => import("./pages/admin-consulting-agents"));
-const AdminSubscriberImport = lazy(() => import("./pages/admin-subscriber-import"));
-const BridgeMonitor = lazy(() => import("./pages/admin/bridge-monitor"));
-
-// Feature pages - lazy loaded
-const CustomPhotoshootLibrary = lazy(() => import("./pages/custom-photoshoot-library"));
-const FlatlayLibrary = lazy(() => import("./pages/flatlay-library"));
-const Victoria = lazy(() => import("./pages/victoria"));
-const VictoriaChat = lazy(() => import("./pages/victoria-chat"));
-const VictoriaBuilder = lazy(() => import('./pages/victoria-builder'));
-const VictoriaPreview = lazy(() => import('./pages/victoria-preview'));
-const PhotoSelection = lazy(() => import("./pages/photo-selection"));
-
-// ✅ REMOVED: Auth success page no longer needed with direct Stack Auth integration
-// ✅ DELETED: Login page removed - using direct Stack Auth OAuth integration
-const DomainHelp = lazy(() => import("./pages/domain-help"));
-
-// Stack Auth authentication pages
-const AuthSignIn = lazy(() => import("./pages/AuthSignIn"));
-const AuthSignUp = lazy(() => import("./pages/AuthSignUp"));
-const SwitchAccount = lazy(() => import("./pages/switch-account"));
-const LaunchCountdown = lazy(() => import("./pages/launch-countdown"));
-const AdminAccessOnly = lazy(() => import("./pages/admin-access-only"));
-const Build = lazy(() => import("./pages/build"));
-const Settings = lazy(() => import("./pages/settings"));
-const EmailDashboard = lazy(() => import("./pages/EmailDashboard"));
 
 // Components
-import UnifiedLoginButton from "./components/UnifiedLoginButton";
-import LoginPrompt from "./components/LoginPrompt";
 import { PageLoader } from "./components/PageLoader";
 
-// Removed duplicate photoshoot imports - using existing system
-
-// Smart Home component - Routes authenticated users based on training status
+// Smart Home component - Routes authenticated users to Brand Studio
 function SmartHome() {
   const [, setLocation] = useLocation();
   const { isAuthenticated, isLoading } = useAuth();
@@ -107,12 +44,11 @@ function SmartHome() {
         console.log('🎯 User authenticated but needs training, redirecting to simple-training');
         setLocation('/simple-training');
       } else {
-        console.log('✅ User authenticated with completed training, redirecting to Maya');
-        setLocation('/maya');
+        console.log('✅ User authenticated with completed training, redirecting to Brand Studio');
+        setLocation('/brand-studio');
       }
     } else if (!isLoading && !isAuthenticated) {
       console.log('🔍 User not authenticated, staying on landing page');
-      // Stay on landing page for unauthenticated users
     }
   }, [isAuthenticated, isLoading, isModelLoading, userModel, setLocation]);
 
@@ -136,7 +72,6 @@ function SmartHome() {
 
 // Protected wrapper component that handles Stack Auth authentication
 function ProtectedRoute({ component: Component, ...props }: { component: ComponentType<any>, [key: string]: any }) {
-  // ✅ FIXED: All hooks called at top level, outside any conditions or try/catch
   const { isAuthenticated, isLoading, user } = useAuth();
   const [, setLocation] = useLocation();
   
@@ -155,7 +90,6 @@ function ProtectedRoute({ component: Component, ...props }: { component: Compone
     }
   }, [isLoading, isAuthenticated, setLocation]);
   
-  // ✅ FIXED: Simple conditional rendering without try/catch
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -181,18 +115,9 @@ function Router() {
       {/* STACK AUTH HANDLER - Must be first to catch authentication routes */}
       <Route path="/handler/:path*" component={HandlerRoutes} />
       
-      {/* STREAMLINED USER JOURNEY: Landing → Simple Checkout → Payment Success → Onboarding → Workspace */}
-
-      {/* LAUNCH COUNTDOWN */}
-      <Route path="/launch" component={() => (
-        <Suspense fallback={<PageLoader />}>
-          <LaunchCountdown />
-        </Suspense>
-      )} />
-      
-      {/* HOME ROUTE - Smart routing based on authentication and subscription */}
+      {/* HOME ROUTE - Smart routing based on authentication and training status */}
       <Route path="/" component={() => {
-        const { isAuthenticated, isLoading, hasActiveSubscription, requiresPayment } = useAuth();
+        const { isAuthenticated, isLoading } = useAuth();
         
         if (isLoading) {
           return <PageLoader />;
@@ -209,135 +134,14 @@ function Router() {
         );
       }} />
       
-      
+      {/* PUBLIC ROUTES */}
       <Route path="/business" component={() => (
         <Suspense fallback={<PageLoader />}>
           <BusinessLanding />
         </Suspense>
       )} />
-      
-
-
-
-      {/* ALL OTHER LANDING PAGES ARCHIVED - ONLY EDITORIAL-LANDING.TSX IS USED */}
-      <Route path="/about" component={() => (
-        <Suspense fallback={<PageLoader />}>
-          <About />
-        </Suspense>
-      )} />
-      <Route path="/how-it-works" component={() => (
-        <Suspense fallback={<PageLoader />}>
-          <HowItWorks />
-        </Suspense>
-      )} />
-      <Route path="/selfie-guide" component={() => (
-        <Suspense fallback={<PageLoader />}>
-          <SelfieGuide />
-        </Suspense>
-      )} />
-      <Route path="/blog" component={() => (
-        <Suspense fallback={<PageLoader />}>
-          <Blog />
-        </Suspense>
-      )} />
-      <Route path="/contact" component={() => (
-        <Suspense fallback={<PageLoader />}>
-          <Contact />
-        </Suspense>
-      )} />
-      <Route path="/faq" component={() => (
-        <Suspense fallback={<PageLoader />}>
-          <FAQ />
-        </Suspense>
-      )} />
-      <Route path="/terms" component={() => (
-        <Suspense fallback={<PageLoader />}>
-          <Terms />
-        </Suspense>
-      )} />
-      <Route path="/privacy" component={() => (
-        <Suspense fallback={<PageLoader />}>
-          <Privacy />
-        </Suspense>
-      )} />
-      <Route path="/pricing" component={() => (
-        <Suspense fallback={<PageLoader />}>
-          <Pricing />
-        </Suspense>
-      )} />
-      
-      <Route path="/teams" component={() => (
-        <Suspense fallback={<PageLoader />}>
-          <TeamsLanding />
-        </Suspense>
-      )} />
-      
-      <Route path="/teams/packages" component={() => (
-        <Suspense fallback={<PageLoader />}>
-          <TeamsServicePackages />
-        </Suspense>
-      )} />
-      
-      <Route path="/company-dashboard" component={() => (
-        <Suspense fallback={<PageLoader />}>
-          <CompanyDashboard />
-        </Suspense>
-      )} />
-      
-      <Route path="/maya-brand-customization" component={() => (
-        <Suspense fallback={<PageLoader />}>
-          <MayaBrandCustomization />
-        </Suspense>
-      )} />
-      
-      <Route path="/sales-consultation" component={() => (
-        <Suspense fallback={<PageLoader />}>
-          <SalesConsultation />
-        </Suspense>
-      )} />
-      
-      <Route path="/implementation-timeline" component={() => (
-        <Suspense fallback={<PageLoader />}>
-          <ImplementationTimeline />
-        </Suspense>
-      )} />
-      <Route path="/domain-help" component={() => (
-        <Suspense fallback={<PageLoader />}>
-          <DomainHelp />
-        </Suspense>
-      )} />
-
-      {/* JWT AUTH ROUTES */}
-      {/* ✅ DELETED: Login route removed - using direct Stack Auth OAuth */}
-      <Route path="/auth/sign-in" component={() => (
-        <Suspense fallback={<PageLoader />}>
-          <AuthSignUp />
-        </Suspense>
-      )} />
-      <Route path="/auth/sign-up" component={() => (
-        <Suspense fallback={<PageLoader />}>
-          <AuthSignUp />
-        </Suspense>
-      )} />
 
       {/* PAYMENT FLOW */}
-      <Route path="/checkout" component={() => (
-        <Suspense fallback={<PageLoader />}>
-          <Checkout />
-        </Suspense>
-      )} />
-      <Route path="/simple-checkout" component={() => (
-        <Suspense fallback={<PageLoader />}>
-          <SimpleCheckout />
-        </Suspense>
-      )} />
-      {/* 🔄 PHASE 2: DEDICATED RETRAINING CHECKOUT ROUTE */}
-      <Route path="/retrain-checkout" component={() => (
-        <Suspense fallback={<PageLoader />}>
-          <RetrainCheckout />
-        </Suspense>
-      )} />
-
       <Route path="/thank-you" component={() => (
         <Suspense fallback={<PageLoader />}>
           <ThankYou />
@@ -348,181 +152,31 @@ function Router() {
           <PaymentSuccess />
         </Suspense>
       )} />
-      {/* ✅ REMOVED: Auth success route no longer needed with direct Stack Auth integration */}
-      <Route path="/switch-account" component={() => (
-        <Suspense fallback={<PageLoader />}>
-          <SwitchAccount />
-        </Suspense>
-      )} />
-
 
       {/* PROTECTED ROUTES */}
-      {/* Workspace redirect to Maya - Maya is now the primary interface */}
-      <Route path="/workspace">
-        <Redirect to="/maya" />
-      </Route>
-      <Route path="/studio">
-        <Redirect to="/maya" />
-      </Route>
-
       
-      {/* AI TRAINING & PHOTOSHOOT WORKFLOW */}
-      <Route path="/ai-training">
-        <Redirect to="/simple-training" />
-      </Route>
+      {/* AI TRAINING WORKFLOW */}
       <Route path="/simple-training" component={(props) => (
         <Suspense fallback={<PageLoader />}>
           <ProtectedRoute component={SimpleTraining} {...props} />
         </Suspense>
       )} />
 
-
-      <Route path="/sandra-photoshoot" component={(props) => (
-        <Suspense fallback={<PageLoader />}>
-          <ProtectedRoute component={SandraPhotoshoot} {...props} />
-        </Suspense>
-      )} />
-      <Route path="/custom-photoshoot-library" component={(props) => (
-        <Suspense fallback={<PageLoader />}>
-          <ProtectedRoute component={CustomPhotoshootLibrary} {...props} />
-        </Suspense>
-      )} />
-      <Route path="/flatlay-library" component={(props) => (
-        <Suspense fallback={<PageLoader />}>
-          <ProtectedRoute component={FlatlayLibrary} {...props} />
-        </Suspense>
-      )} />
-
-      <Route path="/ai-generator" component={(props) => (
-        <Suspense fallback={<PageLoader />}>
-          <ProtectedRoute component={AIGenerator} {...props} />
-        </Suspense>
-      )} />
-      {/* GALLERY ROUTES: Single route with redirect for old path */}
-      <Route path="/gallery">
-        <Redirect to="/sselfie-gallery" />
-      </Route>
-      <Route path="/sselfie-gallery" component={(props) => (
-        <Suspense fallback={<PageLoader />}>
-          <ProtectedRoute component={SSELFIEGallery} {...props} />
-        </Suspense>
-      )} />
-      <Route path="/profile" component={(props) => (
-        <Suspense fallback={<PageLoader />}>
-          <ProtectedRoute component={Profile} {...props} />
-        </Suspense>
-      )} />
-      <Route path="/account-settings" component={(props) => (
-        <Suspense fallback={<PageLoader />}>
-          <ProtectedRoute component={AccountSettings} {...props} />
-        </Suspense>
-      )} />
-      <Route path="/settings" component={(props) => (
-        <Suspense fallback={<PageLoader />}>
-          <ProtectedRoute component={Settings} {...props} />
-        </Suspense>
-      )} />
-      
-      {/* AI AGENTS - Brand Studio */}
-      <Route path="/maya" component={(props) => <ProtectedRoute component={BrandStudioPage} {...props} />} />
+      {/* BRAND STUDIO - PRIMARY DESTINATION */}
       <Route path="/brand-studio" component={(props) => <ProtectedRoute component={BrandStudioPage} {...props} />} />
-      <Route path="/victoria" component={(props) => (
-        <Suspense fallback={<PageLoader />}>
-          <ProtectedRoute component={Victoria} {...props} />
-        </Suspense>
-      )} />
-      <Route path="/victoria-chat" component={(props) => (
-        <Suspense fallback={<PageLoader />}>
-          <ProtectedRoute component={VictoriaChat} {...props} />
-        </Suspense>
-      )} />
-      <Route path="/photo-selection" component={(props) => (
-        <Suspense fallback={<PageLoader />}>
-          <ProtectedRoute component={PhotoSelection} {...props} />
-        </Suspense>
-      )} />
-
-      <Route path="/victoria-builder" component={(props) => (
-        <Suspense fallback={<PageLoader />}>
-          <ProtectedRoute component={VictoriaBuilder} {...props} />
-        </Suspense>
-      )} />
-      <Route path="/victoria-preview" component={(props) => (
-        <Suspense fallback={<PageLoader />}>
-          <ProtectedRoute component={VictoriaPreview} {...props} />
-        </Suspense>
-      )} />
-      <Route path="/build" component={(props) => (
-        <Suspense fallback={<PageLoader />}>
-          <ProtectedRoute component={Build} {...props} />
-        </Suspense>
-      )} />
-
       
-      {/* SANDRA'S ADMIN SYSTEM - EMPIRE CONTROL CENTER */}
-      <Route path="/admin" component={(props) => (
-        <Suspense fallback={<PageLoader />}>
-          <ProtectedRoute component={AdminControlCenter} {...props} />
-        </Suspense>
-      )} />
-      <Route path="/admin-control-center" component={(props) => (
-        <Suspense fallback={<PageLoader />}>
-          <ProtectedRoute component={AdminControlCenter} {...props} />
-        </Suspense>
-      )} />
-      <Route path="/dashboard">
-        <Redirect to="/admin" />
+      {/* LEGACY MAYA REDIRECT - Redirect old /maya route to Brand Studio */}
+      <Route path="/maya">
+        <Redirect to="/brand-studio" />
       </Route>
       
-      {/* ADMIN SUB-PAGES */}
-      <Route path="/admin/business-overview" component={(props) => (
-        <Suspense fallback={<PageLoader />}>
-          <ProtectedRoute component={AdminBusinessOverview} {...props} />
-        </Suspense>
-      )} />
-      <Route path="/admin/consulting-agents" component={(props) => (
-        <Suspense fallback={<PageLoader />}>
-          <ProtectedRoute component={AdminConsultingAgents} {...props} />
-        </Suspense>
-      )} />
-      <Route path="/admin-consulting-agents" component={(props) => (
-        <Suspense fallback={<PageLoader />}>
-          <ProtectedRoute component={AdminConsultingAgents} {...props} />
-        </Suspense>
-      )} />
-      <Route path="/admin-business-overview" component={(props) => (
-        <Suspense fallback={<PageLoader />}>
-          <ProtectedRoute component={AdminBusinessOverview} {...props} />
-        </Suspense>
-      )} />
-      <Route path="/admin/subscriber-import" component={(props) => (
-        <Suspense fallback={<PageLoader />}>
-          <ProtectedRoute component={AdminSubscriberImport} {...props} />
-        </Suspense>
-      )} />
-      
-      <Route path="/admin/email-management" component={(props) => (
-        <Suspense fallback={<PageLoader />}>
-          <ProtectedRoute component={EmailDashboard} {...props} />
-        </Suspense>
-      )} />
-
-
-
-      <Route path="/admin-access-only" component={AdminAccessOnly} />
-      {/* Legacy admin routes - archived */}
-      {/* Legacy agent routes removed - use /admin/consulting-agents instead */}
-      
-      {/* ADMIN MARKETING AUTOMATION */}
-      <Route path="/marketing-automation" component={(props) => (
-        <Suspense fallback={<PageLoader />}>
-          <ProtectedRoute component={MarketingAutomation} {...props} />
-        </Suspense>
-      )} />
-      
-
-      {/* Test routes removed - all test files archived */}
-
+      {/* WORKSPACE REDIRECTS - All legacy workspace routes go to Brand Studio */}
+      <Route path="/workspace">
+        <Redirect to="/brand-studio" />
+      </Route>
+      <Route path="/studio">
+        <Redirect to="/brand-studio" />
+      </Route>
 
     </div>
   );
@@ -530,9 +184,7 @@ function Router() {
 
 // Stack Auth Handler component for authentication routes
 function HandlerRoutes({ params }: { params: { [key: string]: string } }) {
-  // Extract the sub-path after "/handler/" for Stack Auth - handle both "path*" and "0" parameters
-  const handlerPath = (params["path*"] || params["0"] || '').replace(/[)}]+$/, ''); // Remove trailing )}
-  
+  const handlerPath = (params["path*"] || params["0"] || '').replace(/[)}]+$/, '');
   return <StackHandler app={stackClientApp} location={handlerPath} fullPage />;
 }
 
@@ -550,8 +202,6 @@ function AppWithProvider() {
     </QueryClientProvider>
   );
 }
-
-// Error boundary removed - using simplified Stack Auth setup
 
 function App() {
   // Enhanced domain access handling
