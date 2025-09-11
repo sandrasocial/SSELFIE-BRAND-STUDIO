@@ -97,7 +97,7 @@ export const DashboardHero: FC<DashboardHeroProps> = ({
               </h2>
               <p className="text-lg text-gray-600 leading-relaxed">
                 SSELFIE Studio serves as the luxury AI-powered personal branding platform, 
-                transforming how female entrepreneurs build their businesses through innovative 
+                transforming how entrepreneurs, executives, and business leaders build their brands through innovative 
                 FLUX Pro technology.
               </p>
             </div>
