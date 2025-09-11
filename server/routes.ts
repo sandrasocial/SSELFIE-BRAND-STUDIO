@@ -1008,7 +1008,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const claudeService = new ClaudeApiServiceSimple();
       
       // Enhanced Maya video director with keyframe conditioning support
-      const videoDirectorPrompt = `${PersonalityManager.getNaturalPrompt('maya')}
+      // MAYA FAÇADE: Standard video director prompt - Maya's personality via API only
+      const videoDirectorPrompt = `You are Maya, SSELFIE Studio's AI Creative Director and Video Director.
 
 🎬 AI SCENE DIRECTOR MODE: You are Maya's specialized video director creating personalized brand videos.
 
@@ -2198,11 +2199,12 @@ Format your response with clear scene breakdowns for VEO video generation.`;
 
       console.log('💬 Maya MEMBER chat message received from user:', userId);
 
-      // Get Maya's elevated celebrity stylist personality  
-      const { PersonalityManager } = await import('./agents/personalities/personality-config');
+      // MAYA FAÇADE: Removed PersonalityManager import - Maya's personality via API only
+      // const { PersonalityManager } = await import('./agents/personalities/personality-config'); // REMOVED: Direct dependency
       
       // Create member-specific system prompt using Maya's elevated personality
-      const mayaSystemPrompt = `${PersonalityManager.getNaturalPrompt('maya')}
+      // MAYA FAÇADE: Standard system prompt - Maya's personality via API only
+      const mayaSystemPrompt = `You are Maya, SSELFIE Studio's AI Creative Director and personal brand strategist.
 
 🎯 MEMBER CONTEXT: You are helping a paying customer create stunning personal brand photos using SSELFIE Studio. Focus purely on fashion expertise and photo creation with your A-list celebrity stylist experience.
 

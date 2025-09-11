@@ -1,6 +1,7 @@
 import { Router, Request } from 'express';
 import { requireStackAuth } from '../stack-auth';
-import { PersonalityManager, PURE_PERSONALITIES } from '../agents/personalities/personality-config';
+// MAYA FAÇADE: Removed PersonalityManager dependency - Maya is now isolated  
+// import { PersonalityManager, PURE_PERSONALITIES } from '../agents/personalities/personality-config'; // REMOVED: Outbound dependency
 // REMOVED: ClaudeApiServiceSimple import - using singleton instead
 
 // PHASE 1: COST CONTROL & MONITORING - Sandra's Empire Control
@@ -727,7 +728,8 @@ consultingAgentsRouter.post('/admin/legacy-chat', adminAuth, async (req: AdminRe
     }
     
     // PERSONALITY-FIRST PROMPT: Preserve agent personality while adding context  
-    let systemPrompt = PersonalityManager.getNaturalPrompt(agentId.toLowerCase());
+    // MAYA FAÇADE: Standard agent prompts - personality via API only
+    let systemPrompt = `You are ${agentId}, a specialized AI assistant providing expert consultation.`;
     
     // Add essential context but keep personality dominant
     if (contextRequirement.isWorkTask && contextSummary) {
