@@ -582,6 +582,7 @@
     "typescript": "^5.9.2",
     "uid-safe": "^2.1.5",
     "uid2": "^0.0.4",
+    "ulid": "^3.0.1",
     "unbox-primitive": "^1.1.0",
     "undici-types": "^6.21.0",
     "unified": "^11.0.5",

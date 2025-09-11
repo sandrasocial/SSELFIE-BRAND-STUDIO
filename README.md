@@ -55,7 +55,7 @@ Each user's account is powered by a custom LoRA (Low-Rank Adaptation) model, tra
 | **Backend**            | Node.js / Express                    | Business logic and orchestration                             |
 | **Authentication**     | Stack Auth                           | Secure user management                                       |
 | **Database**           | NeonDB (Serverless Postgres)         | User data and conversation history                           |
-| **AI - Conversational**| Google Gemini API                    | Maya's intelligence and strategic analysis                   |
+| **AI - Conversational**| Claude API                   | Maya's intelligence and strategic analysis                   |
 | **AI - Image Gen**     | FLUX + Custom LoRA Models            | Hyper-personalized still images                             |
 | **AI - Video Gen**     | Google VEO API                       | High-quality cinematic video clips                          |
 | **Storage**            | AWS S3 (AES-256 Encrypted)          | Secure asset storage                                         |
