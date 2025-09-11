@@ -575,37 +575,21 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
                 <div className="space-y-2 mb-6">
                   <h3 className="text-white/70 text-xs uppercase tracking-wider mb-4">Maya's Creative Lookbook</h3>
                   {[
-                    { style: "The Scandinavian Minimalist", emoji: "🌿", desc: "Clean, bright, and intentional" },
-                    { style: "The Urban Moody", emoji: "🌃", desc: "Sophisticated and cinematic" },
-                    { style: "The High-End Coastal", emoji: "🌊", desc: "Effortless luxury meets the sea" },
-                    { style: "The Luxury Dark & Moody", emoji: "🍷", desc: "Rich, opulent, and mysterious" },
-                    { style: "The White Space Executive", emoji: "⚪", desc: "Modern, powerful, and clean" },
-                    { style: "The Black & Dark Auteur", emoji: "⚫", desc: "Creative, intense, and confident" },
-                    { style: "The Golden Hour Glow", emoji: "🌅", desc: "Warm, approachable, and authentic" },
-                    { style: "The Night Time Luxe", emoji: "✨", desc: "Energetic and glamorous" },
-                    { style: "The Classic B&W", emoji: "⬛", desc: "Timeless and emotional" },
-                    { style: "The Beige & Sophisticated", emoji: "🤎", desc: "Warm, calm, and professional" },
-                    { style: "The Fashion Street Style", emoji: "👗", desc: "Candid and editorial" },
-                    { style: "User-Directed Look", emoji: "🎯", desc: "Your unique vision" }
-                  ].map((suggestion, index) => (
+                    "The Scandinavian Minimalist",
+                    "The Urban Moody",
+                    "The High-End Coastal",
+                    "The Luxury Dark & Moody",
+                    "The White Space Executive",
+                    "The Black & Dark Auteur"
+                  ].map((style, index) => (
                     <button
                       key={index}
-                      onClick={() => setMessage(`I want ${suggestion.style.toLowerCase()} photos for ${suggestion.desc.toLowerCase()}`)}
-                      className="w-full text-left p-4 bg-white/15 backdrop-blur-sm border border-white/25 hover:bg-white/25 hover:border-white/40 transition-all duration-300 rounded-lg group"
-                      data-testid={`button-style-${suggestion.style.toLowerCase().replace(' ', '-')}`}
+                      onClick={() => setMessage(`I want ${style.toLowerCase()} photos`)}
+                      className="w-full text-left p-3 bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 hover:border-white/30 transition-all duration-300 rounded"
+                      data-testid={`button-style-${index}`}
                     >
-                      <div className="flex items-center gap-3">
-                        <span className="text-xl group-hover:scale-110 transition-transform duration-200">
-                          {suggestion.emoji}
-                        </span>
-                        <div className="text-left">
-                          <div className="text-white font-medium text-sm">
-                            {suggestion.style}
-                          </div>
-                          <div className="text-white/70 text-xs">
-                            {suggestion.desc}
-                          </div>
-                        </div>
+                      <div className="text-white text-sm">
+                        {style}
                       </div>
                     </button>
                   ))}
@@ -686,9 +670,10 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
         </div>
       ) : (
         // Desktop Layout: Three-panel design
-        <>
-          {/* Left Panel: Director (Chat) */}
-          <DirectorPanel
+        <div className="flex h-full">
+          {/* Left Panel: Director (Chat) - 1/3 width */}
+          <div className="w-1/3 border-r">
+            <DirectorPanel
             mode="photo"
             messages={messages}
             isTyping={isTyping}
@@ -701,10 +686,12 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
             chatContainerRef={chatContainerRef}
             shouldAutoScroll={shouldAutoScroll}
             onScroll={handleScroll}
-          />
+            />
+          </div>
 
-          {/* Center Panel: Canvas (Content) */}
-          <CanvasPanel 
+          {/* Center Panel: Canvas (Content) - 1/3 width */}
+          <div className="w-1/3 border-r">
+            <CanvasPanel 
             mode="photo" 
             conceptCards={Object.values(conceptCardsById)}
             selectedConceptId={selectedConceptCardId}
@@ -738,28 +725,21 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto">
                     <h3 className="text-white/70 text-sm uppercase tracking-wider mb-6 col-span-full">Choose Your Creative Direction</h3>
                     {[
-                      { style: "Executive Elegance", emoji: "👔", description: "Confident leadership portraits that command respect" },
-                      { style: "Creative Lifestyle", emoji: "✨", description: "Authentic brand storytelling with natural energy" }, 
-                      { style: "Editorial Luxury", emoji: "🏆", description: "Premium magazine-quality imagery" }
-                    ].map((suggestion, index) => (
+                      "The Scandinavian Minimalist",
+                      "The Urban Moody", 
+                      "The High-End Coastal",
+                      "The Luxury Dark & Moody",
+                      "The White Space Executive",
+                      "The Black & Dark Auteur"
+                    ].map((style, index) => (
                       <button
                         key={index}
-                        onClick={() => setMessage(`I want ${suggestion.style.toLowerCase()} photos - ${suggestion.description.toLowerCase()}`)}
-                        className="text-left p-6 bg-white/15 backdrop-blur-sm border border-white/25 hover:bg-white/25 hover:border-white/40 transition-all duration-300 rounded-lg group"
-                        data-testid={`button-style-desktop-${suggestion.style.toLowerCase().replace(' ', '-')}`}
+                        onClick={() => setMessage(`I want ${style.toLowerCase()} photos`)}
+                        className="text-left p-4 bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 hover:border-white/30 transition-all duration-300 rounded"
+                        data-testid={`button-style-desktop-${index}`}
                       >
-                        <div className="flex flex-col items-center text-center gap-3">
-                          <span className="text-3xl group-hover:scale-110 transition-transform duration-200">
-                            {suggestion.emoji}
-                          </span>
-                          <div>
-                            <div className="text-white font-medium text-lg mb-2">
-                              {suggestion.style}
-                            </div>
-                            <div className="text-white/70 text-sm leading-relaxed">
-                              {suggestion.description}
-                            </div>
-                          </div>
+                        <div className="text-white text-sm">
+                          {style}
                         </div>
                       </button>
                     ))}
@@ -787,18 +767,21 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
             )}
 
             {/* REMOVED: Old Maya special message types - desktop version - now using Maya's unified personality system */}
-          </CanvasPanel>
+            </CanvasPanel>
+          </div>
 
-          {/* Right Panel: Toolkit (Actions) */}
-          <ToolkitPanel
+          {/* Right Panel: Toolkit (Actions) - 1/3 width */}
+          <div className="w-1/3">
+            <ToolkitPanel
             mode="photo"
             selectedItem={selectedConceptCard}
             onItemAction={handleToolkitAction}
           >
             <QuickActions mode="photo" onAction={handleToolkitAction} />
             <StatusDisplay mode="photo" stats={stats} />
-          </ToolkitPanel>
-        </>
+            </ToolkitPanel>
+          </div>
+        </div>
       )}
       </div>
       
