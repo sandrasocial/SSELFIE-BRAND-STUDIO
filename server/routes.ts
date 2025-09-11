@@ -23,7 +23,7 @@ import { ModelRetrainService } from './retrain-model';
 // PHASE 4: OLD MAYA ROUTES ARCHIVED (Comment out old fragmented routes)
 // import { registerMayaAIRoutes } from './routes/maya-ai-routes';
 // import mayaOnboardingRoutes from './routes/maya-onboarding-routes';
-// MAYA FAÇADE: Maya now accessed via clean API calls only
+// MAYA UNIFIED: Maya now accessed via consolidated router
 // import mayaUnifiedRouter from './routes/maya-unified'; // REMOVED: Direct integration replaced with façade
 import supportEscalationRouter from './routes/support-escalation';
 
@@ -975,10 +975,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // registerMayaAIRoutes(app);
   // app.use('/api/maya-onboarding', mayaOnboardingRoutes);
   
-  // MAYA FAÇADE API: Clean entry point protecting Maya's core intelligence
-  const { default: mayaFacadeRouter } = await import('./routes/maya');
-  app.use('/api/maya', mayaFacadeRouter);
-  console.log('🎨 MAYA FAÇADE: Protected API active at /api/maya/* (V1 Launch Ready)');
+  // MAYA UNIFIED API: Consolidated router with direct implementation
+  const { default: mayaUnifiedRouter } = await import('./routes/maya');
+  app.use('/api/maya', mayaUnifiedRouter);
+  console.log('🎨 MAYA UNIFIED: API active at /api/maya/* (Consolidated Router)');
   
   // HYBRID BACKEND: Concept Cards API for clean persistence and unique React keys
   const { default: conceptCardsRouter } = await import('./routes/concept-cards');

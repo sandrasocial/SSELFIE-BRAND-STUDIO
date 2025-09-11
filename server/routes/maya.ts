@@ -149,7 +149,7 @@ ${mayaIntelligence.trendIntelligence.personalizedTrends.slice(0, 3).join('\n')}`
  * Story Studio storyboard creation (deprecated endpoint)
  * Note: This functionality is handled by the dedicated video service
  */
-router.post('/draft-storyboard', async (req: Request, res: Response) => {
+router.post('/draft-storyboard', requireStackAuth, async (req: Request, res: Response) => {
   try {
     console.log('🎬 MAYA UNIFIED: Story Studio storyboard request received');
     
@@ -186,7 +186,7 @@ router.post('/draft-storyboard', async (req: Request, res: Response) => {
 });
 
 /**
- * Health check endpoint for Maya Façade API
+ * Health check endpoint for Maya Unified API
  */
 router.get('/health', (req: Request, res: Response) => {
   res.json({
