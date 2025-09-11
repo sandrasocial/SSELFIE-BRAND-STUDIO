@@ -4,7 +4,8 @@
  */
 
 import { claudeApiServiceSimple } from '../../services/claude-api-service-simple';
-import { PersonalityManager } from '../../agents/personalities/personality-config';
+// MAYA FAÇADE: Removed PersonalityManager dependency - Maya is now isolated
+// import { PersonalityManager } from '../../agents/personalities/personality-config'; // REMOVED: Outbound dependency
 
 export interface AutoExecutionConfig {
   agentId: string;
