@@ -1,31 +1,37 @@
 /**
- * MAYA FAÇADE API - V1 LAUNCH STABILIZATION
+ * MAYA UNIFIED API - CONSOLIDATED CHAT SYSTEM
  * 
- * This is the ONLY entry point for Maya's creative functions.
- * This façade protects Maya from system entanglement and provides
- * a clean, stable API for all Maya interactions.
+ * Single cohesive router for all Maya interactions.
+ * Integrates the full Maya intelligence pipeline directly without dynamic imports.
  * 
- * Mission: Create a protective barrier around Maya's core intelligence
- * while maintaining functionality during the transition to V1 launch.
+ * This replaces the previous façade pattern with direct implementation
+ * for better performance and maintainability.
  */
 
 import { Router } from 'express';
 import type { Request, Response } from 'express';
 import { requireStackAuth } from '../stack-auth';
+import { storage } from '../storage';
+import { PersonalityManager } from '../agents/personalities/personality-config';
+import { unifiedMayaContextService } from '../services/unified-maya-context-service.js';
+import { unifiedMayaIntelligenceService } from '../services/unified-maya-intelligence-service.js';
+import { claudeApiServiceSimple } from '../services/claude-api-service-simple';
 
 const router = Router();
 
 /**
  * POST /api/maya/chat
  * 
- * Clean entry point for Photo Studio interactions
+ * Unified Maya chat endpoint with direct implementation
  * Handles all Maya conversations and concept generation for photo creation
  */
 router.post('/chat', requireStackAuth, async (req: Request, res: Response) => {
+  const startTime = Date.now();
+  
   try {
-    console.log('🎨 MAYA FAÇADE: Photo Studio chat request received');
+    console.log('🎨 MAYA UNIFIED: Photo Studio chat request received');
     
-    const { message, conversationHistory } = req.body;
+    const { message, conversationHistory = [], context = 'styling' } = req.body;
     const userId = (req as any).user?.id || (req as any).user?.claims?.sub;
     
     if (!message) {
@@ -40,34 +46,96 @@ router.post('/chat', requireStackAuth, async (req: Request, res: Response) => {
       });
     }
 
-    // For now, call the existing messy internal functions
-    // This will be cleaned up in subsequent steps
-    let response;
-    
-    try {
-      // Call the working maya-unified router handler directly
-      const mayaUnified = await import('../routes/maya-unified');
-      response = await mayaUnified.processChatRequest({
-        message,
-        userId,
-        conversationHistory: conversationHistory || [],
-        user: (req as any).user
-      });
-    } catch (error) {
-      console.log('⚠️ MAYA FAÇADE: Falling back to basic response due to:', error.message);
-      // Fallback response if unified service not available
-      response = {
-        reply: "Maya is temporarily unavailable during system maintenance. Please try again shortly.",
-        conceptCards: [],
-        status: 'fallback'
-      };
+    // Load user context
+    const user = await storage.getUser(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
     }
 
-    console.log('✅ MAYA FAÇADE: Photo Studio response generated');
-    res.json(response);
+    // Load unified Maya context and intelligence
+    const unifiedContext = await unifiedMayaContextService.getUnifiedMayaContext(userId, null);
+    const mayaIntelligence = await unifiedMayaIntelligenceService.getUnifiedStyleIntelligence(
+      userId, 
+      unifiedContext, 
+      'chat'
+    );
+
+    // Build Maya personality with user context
+    const baseMayaPersonality = PersonalityManager.getContextPrompt('maya', context);
+    let mayaPersonality = baseMayaPersonality;
+    
+    if (mayaIntelligence && mayaIntelligence.intelligenceConfidence > 70) {
+      mayaPersonality += `\n\n🎯 PERSONALIZATION INSIGHTS:
+${mayaIntelligence.stylePredictions.predictedStyles.slice(0, 3).join('\n')}
+
+💡 2025 TREND RECOMMENDATIONS FOR USER:
+${mayaIntelligence.trendIntelligence.personalizedTrends.slice(0, 3).join('\n')}`;
+    }
+
+    // Format conversation history for Claude
+    const fullConversationHistory = conversationHistory.map((msg: any) => ({
+      role: msg.type === 'user' ? 'user' : 'assistant',
+      content: msg.content
+    }));
+
+    // Call Claude API directly
+    const conversationId = `maya-chat-${userId}`;
+    const claudeResponse = await claudeApiServiceSimple.sendMessage(
+      message, 
+      conversationId, 
+      'maya', 
+      false,
+      fullConversationHistory,
+      mayaPersonality
+    );
+
+    // Parse concept cards from response
+    let conceptCards: any[] = [];
+    try {
+      const conceptRegex = /\*\*(.*?)\*\*[\s\S]*?FLUX_PROMPT:\s*([\s\S]*?)(?=---|$)/gi;
+      let match;
+      while ((match = conceptRegex.exec(claudeResponse)) !== null) {
+        conceptCards.push({
+          id: `concept_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          title: match[1].trim(),
+          description: match[2].trim(),
+          fluxPrompt: match[2].trim()
+        });
+      }
+    } catch (parseError) {
+      console.log('No concept cards found in Maya response');
+    }
+
+    // Log performance
+    const duration = Date.now() - startTime;
+    console.log('MAYA_API_PERFORMANCE', {
+      endpoint: '/chat',
+      duration,
+      success: true,
+      error: null,
+      timestamp: Date.now()
+    });
+
+    console.log('✅ MAYA UNIFIED: Photo Studio response generated');
+    
+    res.json({
+      response: claudeResponse,
+      reply: claudeResponse,
+      conceptCards: conceptCards,
+      status: 'success'
+    });
 
   } catch (error) {
-    console.error('❌ MAYA FAÇADE: Photo Studio error:', error);
+    const duration = Date.now() - startTime;
+    console.log('MAYA_API_PERFORMANCE', {
+      endpoint: '/chat',
+      duration,
+      success: false,
+      error: error.message,
+      timestamp: Date.now()
+    });
+    
+    console.error('❌ MAYA UNIFIED: Photo Studio error:', error);
     res.status(500).json({
       error: 'Maya encountered an issue with your request',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
@@ -78,12 +146,12 @@ router.post('/chat', requireStackAuth, async (req: Request, res: Response) => {
 /**
  * POST /api/maya/draft-storyboard
  * 
- * Clean entry point for Story Studio interactions
- * Handles Maya's video storyboard creation and narrative planning
+ * Story Studio storyboard creation (deprecated endpoint)
+ * Note: This functionality is handled by the dedicated video service
  */
 router.post('/draft-storyboard', async (req: Request, res: Response) => {
   try {
-    console.log('🎬 MAYA FAÇADE: Story Studio storyboard request received');
+    console.log('🎬 MAYA UNIFIED: Story Studio storyboard request received');
     
     const { concept, userId, preferences } = req.body;
     
@@ -93,38 +161,23 @@ router.post('/draft-storyboard', async (req: Request, res: Response) => {
       });
     }
 
-    // For now, call the existing messy internal functions
-    // This will be cleaned up in subsequent steps
-    let response;
+    // Redirect to dedicated video service endpoint
+    console.log('📍 MAYA UNIFIED: Redirecting to video service for storyboard creation');
     
-    try {
-      // Try to use the old maya-unified system temporarily  
-      const mayaUnified = await import('../routes/maya-unified');
-      if (mayaUnified && typeof mayaUnified.processStoryboardRequest === 'function') {
-        response = await mayaUnified.processStoryboardRequest({
-          concept,
-          userId,
-          preferences: preferences || {}
-        });
-      } else {
-        throw new Error('Maya storyboard service not available');
-      }
-    } catch (error) {
-      console.log('⚠️ MAYA FAÇADE: Falling back to basic storyboard response due to:', error.message);
-      // Fallback response if unified service not available
-      response = {
-        storyboard: [],
-        narrative: "Story Studio is temporarily unavailable during system maintenance. Please try again shortly.",
-        keyframes: [],
-        status: 'fallback'
-      };
-    }
+    const response = {
+      redirect: '/api/video/draft-storyboard',
+      message: 'Storyboard creation is handled by the dedicated video service',
+      concept,
+      userId,
+      preferences: preferences || {},
+      status: 'redirect'
+    };
 
-    console.log('✅ MAYA FAÇADE: Story Studio storyboard generated');
+    console.log('✅ MAYA UNIFIED: Story Studio redirect response generated');
     res.json(response);
 
   } catch (error) {
-    console.error('❌ MAYA FAÇADE: Story Studio error:', error);
+    console.error('❌ MAYA UNIFIED: Story Studio error:', error);
     res.status(500).json({
       error: 'Maya encountered an issue with your storyboard request',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
@@ -138,9 +191,9 @@ router.post('/draft-storyboard', async (req: Request, res: Response) => {
 router.get('/health', (req: Request, res: Response) => {
   res.json({
     status: 'healthy',
-    façade: 'active',
+    unified: 'active',
     timestamp: new Date().toISOString(),
-    message: 'Maya Façade API is protecting core intelligence'
+    message: 'Maya Unified API is operational'
   });
 });
 
