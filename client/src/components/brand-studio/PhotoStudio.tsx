@@ -258,33 +258,60 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
   // Image generation using provider's mutation system
   const handleGenerateImage = async (card: ConceptCard) => {
     try {
-      console.log('Starting image generation for:', card.title);
+      console.log('🎯 Starting image generation for:', card.title);
       toast({ title: "Generating Images", description: `Creating visuals for "${card.title}"...` });
       
-      // TODO: Implement proper image generation through BrandStudioProvider
-      // This should use a provider mutation that:
-      // 1. Calls the appropriate backend generation endpoint  
-      // 2. Updates conceptCardsById state with generated images
-      // 3. Invalidates relevant queries
-      
-      console.log('Image generation request:', {
+      const generationPayload = {
+        category: card.category || detectCategory(card.title),
+        subcategory: card.creativeLook || card.title,
+        prompt: card.fluxPrompt || card.description,
         conceptId: card.id,
-        title: card.title,
-        fluxPrompt: card.fluxPrompt || card.description,
-        creativeLook: card.creativeLook,
+        type: card.type || 'portrait',
         emoji: card.emoji
-      });
+      };
       
-      // Placeholder behavior - in production this would trigger actual generation
-      toast({ 
-        title: "Generation System Ready", 
-        description: "Image generation needs to be wired through BrandStudioProvider mutation",
-        variant: "destructive" 
+      console.log('🚀 Image generation request:', generationPayload);
+      
+      // Call the generation endpoint
+      const response = await fetch('/api/generate-user-images', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(generationPayload)
       });
+
+      if (!response.ok) {
+        const error = await response.text();
+        throw new Error(`Generation failed: ${response.status} - ${error}`);
+      }
+
+      const result = await response.json();
+      console.log('✅ Generation response:', result);
+
+      if (result.images && result.images.length > 0) {
+        console.log('🖼️ Generated images:', result.images);
+        
+        toast({ 
+          title: "Generation Complete!", 
+          description: `Created ${result.images.length} images for "${card.title}"` 
+        });
+
+        // Auto-save first image to gallery
+        if (result.images.length > 0) {
+          await handleAutoSaveToGallery(result.images[0], card.title);
+        }
+      } else {
+        throw new Error('No images generated');
+      }
       
     } catch (error) {
-      console.error('Image generation setup error:', error);
-      toast({ title: "Setup Error", description: "Image generation system needs implementation", variant: "destructive" });
+      console.error('❌ Image generation failed:', error);
+      toast({ 
+        title: "Generation Failed", 
+        description: error instanceof Error ? error.message : "Please try again" 
+      });
     }
   };
 
