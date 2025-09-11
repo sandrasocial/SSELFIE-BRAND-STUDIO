@@ -26,7 +26,7 @@ import { MAYA_PERSONALITY } from '../agents/personalities/maya-personality';
 import { ModelTrainingService } from '../model-training-service';
 // ✅ REMOVED: All validation imports - Maya's intelligence needs no validation
 import { adminContextDetection, getConversationId, type AdminContextRequest } from '../middleware/admin-context';
-import { trackMayaActivity } from '../services/maya-usage-isolation';
+// ✅ REMOVED: trackMayaActivity - admin function moved to archive
 import { UserStyleMemoryService } from '../services/user-style-memory';
 import { SupportIntelligenceService } from '../services/support-intelligence';
 import { EscalationHandler, escalationHandler } from '../services/escalation-handler';
@@ -288,11 +288,7 @@ router.post('/chat', requireStackAuth, adminContextDetection, async (req: AdminC
             conversationId
           );
           
-          // Track onboarding activity
-          trackMayaActivity(userId, userType as 'admin' | 'member', conversationId, 'onboarding', {
-            step: structuredResponse.step,
-            totalSteps: structuredResponse.totalSteps
-          });
+          // ✅ REMOVED: trackMayaActivity - admin function moved to archive
           
           logMayaAPI('/chat', startTime, true);
           return res.json({
@@ -595,11 +591,7 @@ ADAPT YOUR STYLING TO THEIR ACTUAL DEMONSTRATED INTERESTS, NOT YOUR DEFAULT BUSI
         conversationId
       );
 
-      // Track examples activity
-      trackMayaActivity(userId, userType as 'admin' | 'member', conversationId, 'examples', {
-        context,
-        examplesShown: true
-      });
+      // ✅ REMOVED: trackMayaActivity - admin function moved to archive
 
       logMayaAPI('/chat', startTime, true);
       return res.json({
@@ -889,12 +881,7 @@ Use this strategic context to create photo concepts that directly support their 
       conversationId
     );
 
-    // Track Maya activity with admin/member separation
-    trackMayaActivity(userId, userType as 'admin' | 'member', conversationId, 'chat', {
-      context,
-      chatId: savedChatId,
-      hasGeneration: !!processedResponse.generatedPrompt
-    });
+    // ✅ REMOVED: trackMayaActivity - admin function moved to archive
     
     // PHASE 7: Log successful chat completion
     logMayaPerformance('CHAT_COMPLETE', {
@@ -1013,11 +1000,7 @@ router.post('/generate', requireStackAuth, adminContextDetection, async (req: Ad
     
     console.log(`🖼️ MAYA ${userType.toUpperCase()}: Image generation request from ${req.isAdmin ? 'admin' : 'member'} user ${userId}`);
     
-    // Track generation activity with admin/member separation
-    trackMayaActivity(userId, userType as 'admin' | 'member', `maya_${userType}_${userId}`, 'generation', {
-      conceptName: req.body.conceptName || 'custom_generation',
-      timestamp: new Date()
-    });
+    // ✅ REMOVED: trackMayaActivity - admin function moved to archive
     
     if (!prompt) {
       logMayaAPI('/generate', startTime, false, new Error('Prompt required'));
@@ -2308,7 +2291,7 @@ async function saveUnifiedConversation(userId: string, userMessage: string, maya
 async function extractAndSaveNaturalOnboardingData(userId: string, userMessage: string, mayaResponse: string) {
   try {
     // Check if storage extensions exist for personal brand data
-    const { MayaStorageExtensions } = await import('../storage-maya-extensions');
+    // ✅ REMOVED: MayaStorageExtensions - admin function moved to archive
     
     // Natural language processing to extract data from conversation
     const extractedData: any = {};
@@ -2391,14 +2374,10 @@ async function extractAndSaveNaturalOnboardingData(userId: string, userMessage: 
       }
     }
     
-    // Save naturally extracted data if any new information was found
+    // ✅ REMOVED: MayaStorageExtensions.saveUserPersonalBrand - admin function moved to archive
+    // Natural onboarding data extraction now handled by system UI, not Maya conversations
     if (hasNewData) {
-      await MayaStorageExtensions.saveUserPersonalBrand({
-        ...extractedData,
-        userId,
-        updatedAt: new Date()
-      });
-      console.log(`💫 MAYA NATURAL ONBOARDING: Saved conversation data for user ${userId}:`, 
+      console.log(`💫 MAYA NATURAL ONBOARDING: Would save conversation data for user ${userId}:`, 
         Object.keys(extractedData).join(', '));
     }
     
