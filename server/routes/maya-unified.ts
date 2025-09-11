@@ -3133,4 +3133,95 @@ router.post('/chat-history', requireStackAuth, async (req: AdminContextRequest, 
   }
 });
 
+// Export function for Maya Façade to call
+export async function processChatRequest({ message, userId, conversationHistory, user }: {
+  message: string;
+  userId: string; 
+  conversationHistory: any[];
+  user: any;
+}) {
+  const startTime = Date.now();
+  
+  try {
+    // Load user context
+    const userObj = await storage.getUser(userId);
+    if (!userObj) {
+      throw new Error('User not found');
+    }
+
+    const context = 'styling';
+    const chatId = null; // New conversation
+    
+    // Get unified context
+    const unifiedContext = await unifiedMayaContextService.getUnifiedMayaContext(userId, chatId?.toString());
+    const userContext = {
+      userId: unifiedContext.userId,
+      subscriptionData: unifiedContext.subscription,
+      profileData: unifiedContext.profile,
+      usageStats: {
+        generationsThisMonth: unifiedContext.subscription.monthlyUsed,
+        remainingGenerations: unifiedContext.subscription.remainingGenerations,
+        usagePercentage: unifiedContext.subscription.usagePercentage,
+        canGenerate: unifiedContext.subscription.canGenerate
+      }
+    };
+
+    // Get Maya intelligence
+    const mayaIntelligence = await unifiedMayaIntelligenceService.getUnifiedStyleIntelligence(
+      userId, 
+      unifiedContext, 
+      'chat'
+    );
+
+    // Build Maya personality
+    const baseMayaPersonality = PersonalityManager.getContextPrompt('maya', context);
+    let mayaPersonality = baseMayaPersonality;
+    
+    if (mayaIntelligence && mayaIntelligence.intelligenceConfidence > 70) {
+      mayaPersonality += `\n\n🎯 PERSONALIZATION INSIGHTS:
+${mayaIntelligence.stylePredictions.predictedStyles.slice(0, 3).join('\n')}
+
+💡 2025 TREND RECOMMENDATIONS FOR USER:
+${mayaIntelligence.trendIntelligence.personalizedTrends.slice(0, 3).join('\n')}`;
+    }
+
+    // Format conversation history for Claude
+    const fullConversationHistory = conversationHistory.map(msg => ({
+      role: msg.type === 'user' ? 'user' : 'assistant',
+      content: msg.content
+    }));
+
+    // Call Claude API
+    const { claudeApiServiceSimple } = await import('../services/claude-api-service-simple');
+    const response = await claudeApiServiceSimple.sendMessage('maya', message, fullConversationHistory, mayaPersonality);
+
+    // Parse concept cards if any
+    let conceptCards = [];
+    try {
+      const conceptRegex = /\*\*(.*?)\*\*[\s\S]*?FLUX_PROMPT:\s*([\s\S]*?)(?=---|$)/gi;
+      let match;
+      while ((match = conceptRegex.exec(response)) !== null) {
+        conceptCards.push({
+          title: match[1].trim(),
+          prompt: match[2].trim()
+        });
+      }
+    } catch (parseError) {
+      console.log('No concept cards found in Maya response');
+    }
+
+    logMayaAPI('/chat', startTime, true);
+    return {
+      reply: response,
+      conceptCards: conceptCards,
+      status: 'success'
+    };
+
+  } catch (error) {
+    console.error('❌ Maya processChatRequest error:', error);
+    logMayaAPI('/chat', startTime, false, error);
+    throw error;
+  }
+}
+
 export default router;

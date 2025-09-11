@@ -11,6 +11,7 @@
 
 import { Router } from 'express';
 import type { Request, Response } from 'express';
+import { requireStackAuth } from '../stack-auth';
 
 const router = Router();
 
@@ -20,15 +21,22 @@ const router = Router();
  * Clean entry point for Photo Studio interactions
  * Handles all Maya conversations and concept generation for photo creation
  */
-router.post('/chat', async (req: Request, res: Response) => {
+router.post('/chat', requireStackAuth, async (req: Request, res: Response) => {
   try {
     console.log('🎨 MAYA FAÇADE: Photo Studio chat request received');
     
-    const { message, userId, conversationHistory } = req.body;
+    const { message, conversationHistory } = req.body;
+    const userId = (req as any).user?.id || (req as any).user?.claims?.sub;
     
-    if (!message || !userId) {
+    if (!message) {
       return res.status(400).json({
-        error: 'Missing required fields: message and userId'
+        error: 'Missing required field: message'
+      });
+    }
+    
+    if (!userId) {
+      return res.status(401).json({
+        error: 'Authentication required'
       });
     }
 
@@ -37,17 +45,14 @@ router.post('/chat', async (req: Request, res: Response) => {
     let response;
     
     try {
-      // Try to use the old maya-unified system temporarily
+      // Call the working maya-unified router handler directly
       const mayaUnified = await import('../routes/maya-unified');
-      if (mayaUnified && typeof mayaUnified.processChatRequest === 'function') {
-        response = await mayaUnified.processChatRequest({
-          message,
-          userId,
-          conversationHistory: conversationHistory || []
-        });
-      } else {
-        throw new Error('Maya unified service not available');
-      }
+      response = await mayaUnified.processChatRequest({
+        message,
+        userId,
+        conversationHistory: conversationHistory || [],
+        user: (req as any).user
+      });
     } catch (error) {
       console.log('⚠️ MAYA FAÇADE: Falling back to basic response due to:', error.message);
       // Fallback response if unified service not available
