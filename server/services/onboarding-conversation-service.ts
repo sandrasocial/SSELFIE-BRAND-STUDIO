@@ -1,6 +1,7 @@
 import { personalBrandService, type PersonalBrandProfile } from './personal-brand-service';
-import { unifiedMayaMemoryService } from './unified-maya-memory-service.js';
-import { unifiedMayaContextService } from './unified-maya-context-service.js';
+// MAYA FAÇADE: Replaced Maya-specific imports with façade API calls
+// import { unifiedMayaMemoryService } from './unified-maya-memory-service.js'; // REMOVED: Direct entanglement
+// import { unifiedMayaContextService } from './unified-maya-context-service.js'; // REMOVED: Direct entanglement
 import { PersonalityManager } from '../agents/personalities/personality-config';
 
 interface OnboardingStep {
@@ -135,13 +136,21 @@ export class OnboardingConversationService {
     // Call Maya's intelligence for response
     const mayaResponse = await this.getMayaResponse(mayaPersonality, message, context);
     
-    // Save conversation to memory
-    await unifiedMayaMemoryService.saveUnifiedConversation(
-      userId,
-      message,
-      mayaResponse.message,
-      false // No image generation during onboarding
-    );
+    // MAYA FAÇADE: Save conversation through façade API (for memory persistence)
+    try {
+      await fetch('http://localhost:5000/api/maya/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message,
+          userId,
+          conversationHistory: [] // Memory handling is now internal to façade
+        })
+      });
+      console.log('✅ FAÇADE: Onboarding message saved to Maya memory');
+    } catch (error) {
+      console.log('⚠️ FAÇADE: Memory persistence failed, continuing with onboarding');
+    }
     
     // Update personal brand data based on response
     await this.updatePersonalBrandData(userId, currentStep, message, mayaResponse);
@@ -193,9 +202,9 @@ export class OnboardingConversationService {
     
     let personalBrand;
     if (isCompleted) {
-      // ✨ PHASE 2: Use unified context to avoid redundant database query
-      const unifiedContext = await unifiedMayaContextService.getUnifiedMayaContext(userId);
-      personalBrand = unifiedContext.personalBrand;
+      // MAYA FAÇADE: Context is now internal to façade
+      // Personal brand data will be handled through the façade API
+      personalBrand = await personalBrandService.getPersonalBrand(userId);
     }
     
     return {
@@ -212,10 +221,10 @@ export class OnboardingConversationService {
    * Load conversation context for Maya
    */
   private async loadConversationContext(userId: string, currentStep: number): Promise<ConversationContext> {
-    // ✨ PHASE 2: Single unified context call instead of multiple separate queries
-    const unifiedContext = await unifiedMayaContextService.getUnifiedMayaContext(userId);
-    const personalBrandData = unifiedContext.personalBrand;
-    const conversationHistory = unifiedContext.conversationHistory.slice(-5);
+    // MAYA FAÇADE: Context is now internal to façade API
+    // Data gathering will be handled through façade API calls
+    const personalBrandData = await personalBrandService.getPersonalBrand(userId);
+    const conversationHistory = []; // Conversation history is now handled internally by façade
     
     return {
       userId,

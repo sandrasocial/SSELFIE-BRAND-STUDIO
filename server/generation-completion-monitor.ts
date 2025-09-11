@@ -6,7 +6,8 @@
  */
 
 import { storage } from './storage';
-import { MayaChatPreviewService } from './maya-chat-preview-service';
+// MAYA FAÇADE: Replaced Maya-specific import with façade API calls
+// import { MayaChatPreviewService } from './maya-chat-preview-service'; // REMOVED: Direct entanglement
 
 export class GenerationCompletionMonitor {
   private static instance: GenerationCompletionMonitor;
@@ -59,26 +60,21 @@ export class GenerationCompletionMonitor {
           updatedAt: new Date()
         });
 
-        // Save images to Maya chat for preview (CRITICAL: This was missing!)
+        // MAYA FAÇADE: Save to gallery through standard API instead of Maya-specific service
         try {
-          // Find the most recent Maya chat for this user
-          const userChats = await storage.getMayaChats(tracker.userId);
-          const activeChat = userChats[0]; // Use most recent chat
-          
-          if (activeChat) {
-            await MayaChatPreviewService.saveChatPreview(
-              activeChat.id,
-              imageUrls,
-              tracker.prompt || 'Maya Editorial Photoshoot',
-              predictionId
-            );
-            console.log(`💬 GENERATION MONITOR: Saved ${imageUrls.length} images to Maya chat ${activeChat.id}`);
-          } else {
-            console.log(`⚠️ GENERATION MONITOR: No Maya chat found for user ${tracker.userId}, images saved to tracker only`);
+          for (const imageUrl of imageUrls) {
+            await storage.createGeneratedImage({
+              userId: tracker.userId,
+              imageUrl,
+              prompt: tracker.prompt || 'Maya Editorial Photoshoot',
+              category: 'Maya Editorial',
+              status: 'completed'
+            });
           }
-        } catch (chatError) {
-          console.error(`❌ GENERATION MONITOR: Failed to save to Maya chat:`, chatError);
-          // Don't fail the whole operation if chat saving fails
+          console.log(`✅ GENERATION MONITOR: Saved ${imageUrls.length} images to gallery via façade`);
+        } catch (saveError) {
+          console.log(`⚠️ GENERATION MONITOR: Gallery save failed for user ${tracker.userId}:`, saveError);
+          // Don't fail the whole operation if gallery saving fails
         }
 
         return true;
