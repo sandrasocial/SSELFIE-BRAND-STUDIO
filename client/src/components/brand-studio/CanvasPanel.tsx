@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Camera, Video, Sparkles } from 'lucide-react';
+import { Camera, Video, Sparkles, Heart, RefreshCw } from 'lucide-react';
 
 // Flatlay image collection for luxury visual backgrounds
 const FLATLAY_IMAGES = [
@@ -43,13 +43,17 @@ interface LuxuryConceptCardProps {
   isSelected?: boolean;
   onClick?: () => void;
   onGenerate?: () => void;
+  onSaveToGallery?: (imageUrl: string, title: string) => void;
+  onCreateVideo?: () => void;
 }
 
 const LuxuryConceptCard: React.FC<LuxuryConceptCardProps> = ({ 
   concept, 
   isSelected = false, 
   onClick,
-  onGenerate 
+  onGenerate,
+  onSaveToGallery,
+  onCreateVideo 
 }) => {
   // Select a flatlay background based on concept ID for consistency
   const flatlayImage = FLATLAY_IMAGES[parseInt(concept.id.slice(-1)) % FLATLAY_IMAGES.length] || FLATLAY_IMAGES[0];
@@ -105,16 +109,73 @@ const LuxuryConceptCard: React.FC<LuxuryConceptCardProps> = ({
 
         {/* Action buttons */}
         <div className="flex gap-2 mt-auto">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onGenerate?.();
-            }}
-            className="flex-1 bg-white/90 backdrop-blur-sm text-gray-900 px-4 py-2 rounded-lg font-medium text-sm hover:bg-white transition-all duration-200 flex items-center justify-center gap-2"
-          >
-            <Camera className="w-4 h-4" />
-            Generate Photos
-          </button>
+          {concept.generatedImages && concept.generatedImages.length > 0 ? (
+            // Show generated images and actions
+            <div className="w-full space-y-2">
+              <div className="grid grid-cols-2 gap-2">
+                {concept.generatedImages.slice(0, 4).map((imageUrl, index) => (
+                  <div 
+                    key={index} 
+                    className="relative aspect-square bg-white/10 rounded-lg overflow-hidden cursor-pointer"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <img 
+                      src={imageUrl} 
+                      alt={`Generated ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onSaveToGallery?.(imageUrl, concept.title);
+                      }}
+                      className="absolute top-1 right-1 bg-black/50 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                      data-testid={`button-save-${concept.id}-${index}`}
+                    >
+                      <Heart className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onCreateVideo?.();
+                  }}
+                  className="flex-1 bg-white/20 backdrop-blur-sm text-white px-3 py-2 rounded-lg font-medium text-xs hover:bg-white/30 transition-all duration-200 flex items-center justify-center gap-2"
+                  data-testid={`button-create-video-${concept.id}`}
+                >
+                  <Video className="w-3 h-3" />
+                  Story Studio
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onGenerate?.();
+                  }}
+                  className="flex-1 bg-white/20 backdrop-blur-sm text-white px-3 py-2 rounded-lg font-medium text-xs hover:bg-white/30 transition-all duration-200 flex items-center justify-center gap-2"
+                  data-testid={`button-generate-more-${concept.id}`}
+                >
+                  <RefreshCw className="w-3 h-3" />
+                  More
+                </button>
+              </div>
+            </div>
+          ) : (
+            // Show generate button when no images exist
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onGenerate?.();
+              }}
+              className="flex-1 bg-white/90 backdrop-blur-sm text-gray-900 px-4 py-2 rounded-lg font-medium text-sm hover:bg-white transition-all duration-200 flex items-center justify-center gap-2"
+              data-testid={`button-generate-${concept.id}`}
+            >
+              <Camera className="w-4 h-4" />
+              {concept.isGenerating ? 'Generating...' : 'Generate Photos'}
+            </button>
+          )}
           
           {concept.type === 'portrait' && (
             <button
