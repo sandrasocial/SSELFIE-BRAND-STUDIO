@@ -170,7 +170,7 @@ export function BrandStudioProvider({ children }: { children: React.ReactNode })
     }
   }, [user, state.conversationId]);
 
-  // Load conversation history (with deduplication fix)
+  // Load conversation history (TEMPORARILY DISABLED - endpoint needs implementation)
   const { isLoading } = useQuery({
     queryKey: ['/api/maya/chat-history', state.conversationId],
     queryFn: async () => {
@@ -181,7 +181,7 @@ export function BrandStudioProvider({ children }: { children: React.ReactNode })
       }
       return response;
     },
-    enabled: !!state.conversationId && !!user && state.messages.length === 0,
+    enabled: false, // TEMPORARILY DISABLED until /api/maya/chat-history endpoint is implemented
     staleTime: 30000,
     refetchOnWindowFocus: false, // Prevent duplicate loading on focus
   });
