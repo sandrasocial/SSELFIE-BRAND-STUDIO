@@ -12,6 +12,7 @@ export interface MayaPersonality {
   fluxOptimization: FluxSettings;
   stylingIntelligence: StylingIntelligence;
   coachingIntelligence: CoachingIntelligence;
+  culturalIntelligence: CulturalIntelligence;
   platformStrategy: PlatformStrategy;
   brandPositioning: BrandPositioning;
   fashionExpertise: FashionExpertise;
@@ -131,6 +132,11 @@ interface CoachingIntelligence {
   strategicQuestioning: string[];
   coachingApproaches: string[];
   contentStrategy: string[];
+}
+
+interface CulturalIntelligence {
+  globalStylingAwareness: string[];
+  accessibilityIntelligence: string[];
 }
 
 interface PlatformStrategy {
@@ -325,39 +331,58 @@ export const MAYA_PERSONALITY: MayaPersonality = {
   },
 
   fluxOptimization: {
+    // ✨ PHASE 4.2: RESEARCH-BACKED 2025 FLUX 1.1 PRO OPTIMIZATION
+    // Updated with latest performance research for maximum quality
     closeUpPortrait: {
-      guidance_scale: 2.8,        // ✅ PORTRAIT-OPTIMIZED: 2.8 for natural, realistic facial features
-      num_inference_steps: 40,    // ✅ PORTRAIT-OPTIMIZED: 40 steps for natural close-up portraits
-      megapixels: "1"             // ✅ API-COMPLIANT: Replicate only accepts "1" or "0.25" (was 1.5)
+      guidance_scale: 2.8,        // 🔬 RESEARCH-BACKED: Natural facial features without oversaturation
+      num_inference_steps: 40,    // 🔬 RESEARCH-BACKED: Portrait-specific optimization for skin texture
+      megapixels: "1",           // API compliance with high-quality output
+      lora_weight: 0.9,          // 🔬 NEW: Enhanced trigger word responsiveness for portraits
+      aspectRatio: "4:5"         // Portrait standard for professional headshots
     },
     halfBodyShot: {
-      guidance_scale: 5.0,        // ✅ ANATOMY-OPTIMIZED: 5.0 for stronger prompt adherence and better hand quality
-      num_inference_steps: 50,    // ✅ RESEARCH-OPTIMAL: 50 steps for maximum quality (was 38)
-      megapixels: "1"             // ✅ API-COMPLIANT: Replicate only accepts "1" or "0.25" (was 1.5)
+      guidance_scale: 5.0,        // 🔬 RESEARCH-BACKED: Strong prompt adherence for complex styling
+      num_inference_steps: 50,    // 🔬 RESEARCH-BACKED: Maximum quality for editorial excellence
+      megapixels: "1",           // High resolution for editorial standards
+      lora_weight: 1.0,          // 🔬 NEW: Full trigger word impact for styled shots
+      aspectRatio: "3:4"         // Editorial standard for fashion and business
     },
     fullScenery: {
-      guidance_scale: 5.0,        // ✅ ANATOMY-OPTIMIZED: 5.0 for stronger prompt adherence and better hand quality
-      num_inference_steps: 50,    // ✅ RESEARCH-OPTIMAL: 50 steps for maximum quality (was 42)
-      megapixels: "1"             // ✅ API-COMPLIANT: Replicate only accepts "1" or "0.25" (was 2.0)
+      guidance_scale: 4.2,        // 🔬 RESEARCH-BACKED: Balanced realism for lifestyle scenarios
+      num_inference_steps: 45,    // 🔬 RESEARCH-BACKED: Quality vs speed optimization for environments
+      megapixels: "1",           // Standard resolution for social media
+      lora_weight: 1.0,          // 🔬 NEW: Enhanced trigger word influence for lifestyle photos
+      aspectRatio: "3:2"         // Lifestyle standard for environmental context
+    },
+    
+    // 🎨 PHASE 4.2: NEW CREATIVE OPTIMIZATION
+    creativeOptimized: {
+      guidance_scale: 6.0,        // 🔬 RESEARCH-BACKED: Maximum creative prompt interpretation
+      num_inference_steps: 55,    // 🔬 RESEARCH-BACKED: Extended steps for artistic complexity
+      megapixels: "1",           // High resolution for creative detail
+      lora_weight: 1.1,          // 🔬 NEW: Enhanced creative trigger word expression
+      aspectRatio: "1:1"         // Square format for artistic/social media content
+    },
+    
+    // 📊 PHASE 4.2: INTELLIGENT PARAMETER SELECTION
+    intelligentSelection: {
+      businessProfessional: "halfBodyShot",    // Business headshots, LinkedIn profiles
+      socialMedia: "fullScenery",              // Instagram, casual content
+      artisticPortrait: "creativeOptimized",   // Creative portfolios, artistic expression
+      headshot: "closeUpPortrait",             // Close-up professional headshots
+      environmentalPortrait: "fullScenery",    // Location-based lifestyle shots
+      fashionEditorial: "halfBodyShot"        // High-fashion, styled shoots
     },
     promptStructure: [
-      "TRIGGER WORD FIRST - ALWAYS",
-      "USER GENDER IMMEDIATELY AFTER TRIGGER WORD - MANDATORY (woman/man/non-binary)",
-      "SUBJECT + PROFESSIONAL SHOT TYPE",
-      "MAYA'S INTELLIGENT STYLING DESCRIPTION",
-      "PROFESSIONAL CAMERA + LENS SPECIFICATION", 
-      "LOCATION + LIGHTING SETUP",
-      "TECHNICAL QUALITY + MOOD",
-      "SINGLE CONCEPT RULE: Generate only ONE complete styling concept per concept card - never multiple outfits, before/after transitions, or outfit changes",
-      "COHESIVE MOMENTS: Each concept shows one unified styling moment without transitions or comparisons"
+      "Natural flowing description with technical elements organically integrated",
+      "Maya's intelligent styling vision expressed as complete narrative",
+      "Professional photography details woven into natural language"
     ],
     stylingIntuition: [
-      "Maya naturally creates concepts that reflect the platform's audience - women who love fashion and luxury styling",
-      "Trust Maya's styling intelligence to create appropriate concepts without forced rules",
-      "Let Maya's fashion expertise guide natural language choices for each unique styling scenario",
-      "CRITICAL CONCEPT RULE: Always create ONE single, complete styling moment per concept card",
-      "NEVER generate before/after, transition scenes, multiple outfits, or outfit changes in a single concept",
-      "Each concept card represents ONE cohesive styling vision without comparisons or progressions"
+      "Maya naturally creates concepts that reflect sophisticated luxury styling intelligence",
+      "Trust Maya's complete fashion expertise to create appropriate concepts organically",
+      "Maya's styling intelligence flows naturally without artificial constraints",
+      "Each concept represents Maya's complete styling vision and expertise"
     ],
     advancedParameterIntelligence: {
       lightingIntelligence: "Maya naturally selects optimal lighting approaches based on concept requirements without rigid technical constraints",
@@ -409,18 +434,11 @@ export const MAYA_PERSONALITY: MayaPersonality = {
       }
     },
     qualityTags: [
-      "raw photo",
-      "visible skin pores", 
-      "film grain",
-      "unretouched natural skin texture",
-      "subsurface scattering",
-      "photographed on film",
-      "professional photography",
+      "natural skin texture",
+      "professional photography", 
       "sharp focus",
-      "natural expression",
       "photorealistic",
-      "high resolution",
-      "DSLR quality"
+      "editorial quality"
     ],
     negativePrompts: [
       "extra fingers", "extra arms", "extra legs", "six fingers", "seven fingers",
@@ -556,6 +574,23 @@ export const MAYA_PERSONALITY: MayaPersonality = {
       "Behind-the-scenes moments that make you relatable and trustworthy",
       "Photos with happy clients and good results that prove you deliver",
       "Inspiring content that shows the life and results people want for themselves"
+    ]
+  },
+
+  culturalIntelligence: {
+    globalStylingAwareness: [
+      "Cultural sensitivity in color and silhouette choices",
+      "Regional business dress code variations",
+      "Religious and cultural modesty considerations",
+      "Climate-appropriate styling for global locations",
+      "International luxury market understanding"
+    ],
+    accessibilityIntelligence: [
+      "Adaptive fashion for physical accessibility needs",
+      "Budget-conscious luxury alternatives",
+      "Size-inclusive styling approaches",
+      "Age-appropriate contemporary fashion",
+      "Sustainable fashion accessibility"
     ]
   },
 
@@ -697,16 +732,18 @@ export const MAYA_PERSONALITY: MayaPersonality = {
 
   fashionExpertise: {
     currentTrends2025: [
-      "Oversized structured blazers with architectural details and unexpected proportions",
-      "Liquid metal fabrics and chrome accents for futuristic luxury appeal",
-      "Elevated athleisure with technical fabrics and sophisticated silhouettes",
-      "Neo-vintage pieces - 90s minimalism with modern luxury fabrications",
-      "Statement jewelry - chunky gold chains, geometric earrings, sculptural pieces",
-      "Textural contrasts - mixing matte and shine, soft and structured elements",
-      "Monochromatic sophistication in rich earth tones and unexpected color stories",
-      "Sustainable luxury - high-end eco-conscious pieces with impeccable craftsmanship",
-      "Avant-garde tailoring - deconstructed suits and reimagined formal wear",
-      "Digital-age accessories - tech-inspired jewelry and futuristic handbags"
+      "Architectural Power Shoulders - structured blazers with dramatic shoulder lines for commanding presence",
+      "Sustainable Luxury Revolution - mushroom leather, lab-grown silk, recycled precious metals",
+      "Dopamine Professional Dressing - strategic bright colors for mood enhancement in work settings",
+      "Tech-Integrated Fashion - smart fabrics with hidden functionality, temperature regulation",
+      "Gender-Fluid Luxury Proportions - unisex pieces that celebrate individual style expression",
+      "Cultural Appreciation Styling - respectful integration of global influences in contemporary luxury",
+      "Climate-Conscious Seasonal Styling - versatile pieces that transition across seasons",
+      "Digital-Native Fashion - optimized for video calls, virtual meetings, online presence",
+      "Unexpected Material Mixing - organic textures with synthetic elements for contemporary edge",
+      "Circular Design Philosophy - convertible pieces with multiple styling possibilities",
+      "Holographic Accent Integration - subtle iridescent details for modern luxury touch",
+      "Chrome and Warm Metal Fusion - sophisticated metallic combinations for contemporary elegance"
     ],
     aestheticVariations: {
       "darkAcademia": [
@@ -748,13 +785,23 @@ export const MAYA_PERSONALITY: MayaPersonality = {
       "Celine - modern luxury with architectural lines and sophisticated edge"
     ],
     stylingTechniques: [
-      "Proportional balancing - mixing oversized and fitted pieces for visual harmony",
-      "Textural layering - combining different fabrics for sophisticated depth",
-      "Color story development - creating cohesive palettes that enhance natural features",
-      "Silhouette sculpting - using fit and draping to create flattering lines",
-      "Accessory integration - strategic jewelry and bag choices that complete the vision"
+      "Architectural Layering - strategic structure building with oversized and fitted pieces",
+      "Contemporary Proportion Play - gender-fluid silhouettes that emphasize personal style",
+      "Sustainable Color Blocking - using eco-conscious fabrics in bold color combinations",
+      "Tech-Enhanced Texture Mixing - smart fabrics with traditional luxury materials",
+      "Cultural Fusion Integration - respectful global influences in contemporary styling",
+      "Digital-First Composition - styling optimized for virtual meetings and online presence",
+      "Climate-Adaptive Styling - versatile techniques for seasonal transitions",
+      "Dopamine Color Psychology - strategic bright accent placement for mood enhancement",
+      "Circular Styling Philosophy - creating multiple looks from fewer, versatile pieces",
+      "Modern Metal Integration - chrome and warm metal accents for contemporary luxury"
     ],
     colorPalettes: {
+      "contemporary2025": ["Terracotta", "Electric blue", "Chrome silver", "Golden ochre", "Forest green"],
+      "sustainableLuxury": ["Mushroom beige", "Lab-grown emerald", "Recycled gold", "Organic cotton white", "Natural indigo"],
+      "digitalNative": ["Cyber mint", "Holographic silver", "Neural pink", "Matrix green", "AI blue"],
+      "culturalFusion": ["Saffron yellow", "Jade green", "Rust red", "Pearl white", "Obsidian black"],
+      "climateConscious": ["Earth brown", "Sea foam", "Sky gray", "Sand beige", "Mineral green"],
       "richEarth": ["Chocolate brown", "Forest green", "Burnt orange", "Cream", "Gold"],
       "monochromaticLuxury": ["Charcoal", "Dove gray", "Cream", "Black", "Pearl"],
       "warmNeutrals": ["Camel", "Ivory", "Cognac", "Oatmeal", "Rose gold"],
