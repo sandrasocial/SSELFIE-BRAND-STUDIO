@@ -7,18 +7,24 @@
 // Secure Video Generation Routes for Story Studio
 // All AI operations performed server-side with Google Gemini API
 
-const express = require('express');
-const { GoogleGenerativeAI } = require('@google/genai');
-const router = express.Router();
-const { requireStackAuth } = require('../stack-auth');
+import express from 'express';
+// Gemini AI will be imported from the existing server setup
+import { requireStackAuth } from '../stack-auth.js';
 
-// Initialize Gemini AI client server-side
-let geminiAI;
-if (process.env.GOOGLE_API_KEY) {
-    geminiAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
-    console.log('🔑 STORY STUDIO: Gemini AI initialized server-side');
-} else {
-    console.error('❌ GOOGLE_API_KEY not found. Video generation will not work.');
+const router = express.Router();
+
+// Initialize Gemini AI client server-side using existing pattern
+let geminiAI = null;
+async function initGeminiAI() {
+    if (process.env.GOOGLE_API_KEY && !geminiAI) {
+        try {
+            const { GoogleGenAI } = await import('@google/genai');
+            geminiAI = new GoogleGenAI({ apiKey: process.env.GOOGLE_API_KEY });
+            console.log('🔑 STORY STUDIO: Gemini AI initialized server-side');
+        } catch (error) {
+            console.error('❌ Failed to initialize Gemini AI:', error);
+        }
+    }
 }
 
 // In-memory job storage (in production, use Redis or database)
@@ -43,6 +49,9 @@ router.post('/draft-storyboard', requireStackAuth, async (req, res) => {
 
         console.log('🎬 STORY STUDIO: Drafting storyboard for user:', userId, 'Concept:', concept);
 
+        // Initialize Gemini AI if needed
+        await initGeminiAI();
+        
         // Use Gemini to create storyboard
         const model = geminiAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
         
@@ -108,6 +117,9 @@ router.post('/generate-story', requireStackAuth, async (req, res) => {
         }
 
         console.log('🎬 STORY STUDIO: Generating videos for user:', userId, 'Scenes:', scenes.length);
+        
+        // Initialize Gemini AI if needed
+        await initGeminiAI();
 
         const jobs = [];
         
@@ -245,4 +257,4 @@ router.get('/status/:jobId', requireStackAuth, async (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;

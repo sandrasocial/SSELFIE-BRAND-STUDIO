@@ -7,18 +7,24 @@
 // Secure Maya Chat Routes
 // All AI operations performed server-side with Google Gemini API
 
-const express = require('express');
-const { GoogleGenerativeAI } = require('@google/genai');
-const router = express.Router();
-const { requireStackAuth } = require('../stack-auth');
+import express from 'express';
+// Gemini AI will be imported from the existing server setup
+import { requireStackAuth } from '../stack-auth.js';
 
-// Initialize Gemini AI client server-side
-let geminiAI;
-if (process.env.GOOGLE_API_KEY) {
-    geminiAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
-    console.log('🎨 MAYA: Gemini AI initialized server-side');
-} else {
-    console.error('❌ GOOGLE_API_KEY not found. Maya chat will not work.');
+const router = express.Router();
+
+// Initialize Gemini AI client server-side using existing pattern
+let geminiAI = null;
+async function initGeminiAI() {
+    if (process.env.GOOGLE_API_KEY && !geminiAI) {
+        try {
+            const { GoogleGenAI } = await import('@google/genai');
+            geminiAI = new GoogleGenAI({ apiKey: process.env.GOOGLE_API_KEY });
+            console.log('🎨 MAYA: Gemini AI initialized server-side');
+        } catch (error) {
+            console.error('❌ Failed to initialize Gemini AI:', error);
+        }
+    }
 }
 
 /**
@@ -39,6 +45,9 @@ router.post('/chat', requireStackAuth, async (req, res) => {
         }
 
         console.log('🎨 MAYA: Chat request from user:', userId, 'Message:', message.substring(0, 100) + '...');
+        
+        // Initialize Gemini AI if needed
+        await initGeminiAI();
 
         // Use Gemini for Maya's personality and responses
         const model = geminiAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
@@ -114,4 +123,4 @@ Always respond with both conversational text and structured concept cards when a
     }
 });
 
-module.exports = router;
+export default router;
