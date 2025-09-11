@@ -113,14 +113,8 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
     }, 300);
   };
 
-  // Smart auto-scroll effects
-  useEffect(() => {
-    const chatContainer = chatContainerRef.current;
-    if (!chatContainer) return;
-
-    chatContainer.addEventListener('scroll', handleScroll);
-    return () => chatContainer.removeEventListener('scroll', handleScroll);
-  }, []);
+  // Smart auto-scroll effects - handled by DirectorPanel via onScroll prop
+  // Removed to prevent duplicate scroll listeners
 
   // Auto-scroll when new messages arrive
   useEffect(() => {
@@ -470,6 +464,10 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
               disabled={!isOnline}
               placeholder="What is the goal for this creative session?"
               className="border-none rounded-none h-full"
+              messagesEndRef={messagesEndRef}
+              chatContainerRef={chatContainerRef}
+              shouldAutoScroll={shouldAutoScroll}
+              onScroll={handleScroll}
             />
           </div>
         </div>
@@ -565,7 +563,7 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
       <div className="h-full flex flex-col">
         {isMobileState ? (
         // Mobile Layout: Single view with overlays  
-        <div ref={chatContainerRef} className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto">
           <CanvasPanel mode="photo" onItemSelect={setSelectedConceptCard} selectedItem={selectedConceptCard}>
           {/* Welcome State */}
           {!hasStartedChat && messages.length === 0 && (
@@ -675,6 +673,9 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
             onKeyPress={handleKeyPress}
             disabled={!isOnline}
             messagesEndRef={messagesEndRef}
+            chatContainerRef={chatContainerRef}
+            shouldAutoScroll={shouldAutoScroll}
+            onScroll={handleScroll}
           />
 
           {/* Toolkit Panel for Mobile */}
@@ -703,6 +704,9 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
             onKeyPress={handleKeyPress}
             disabled={!isOnline}
             messagesEndRef={messagesEndRef}
+            chatContainerRef={chatContainerRef}
+            shouldAutoScroll={shouldAutoScroll}
+            onScroll={handleScroll}
           />
 
           {/* Center Panel: Canvas (Content) */}

@@ -14,6 +14,9 @@ interface DirectorPanelProps {
   className?: string;
   children?: React.ReactNode;
   messagesEndRef?: React.RefObject<HTMLDivElement>;
+  chatContainerRef?: React.RefObject<HTMLDivElement>;
+  shouldAutoScroll?: boolean;
+  onScroll?: () => void;
 }
 
 export const DirectorPanel: React.FC<DirectorPanelProps> = ({
@@ -28,7 +31,10 @@ export const DirectorPanel: React.FC<DirectorPanelProps> = ({
   placeholder,
   className = '',
   children,
-  messagesEndRef: externalMessagesEndRef
+  messagesEndRef: externalMessagesEndRef,
+  chatContainerRef: externalChatContainerRef,
+  shouldAutoScroll = true,
+  onScroll
 }) => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -45,10 +51,13 @@ export const DirectorPanel: React.FC<DirectorPanelProps> = ({
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Auto-scroll to bottom
+  // Smart auto-scroll - only if shouldAutoScroll is true and no external ref control
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+    if (shouldAutoScroll && !externalMessagesEndRef) {
+      const ref = messagesEndRef;
+      ref.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages, shouldAutoScroll, externalMessagesEndRef]);
 
   // Auto-resize textarea
   useEffect(() => {
@@ -125,7 +134,11 @@ export const DirectorPanel: React.FC<DirectorPanelProps> = ({
               </button>
             </div>
             
-            <div className="flex-1 overflow-y-auto p-4 pb-24">
+            <div 
+              ref={externalChatContainerRef}
+              className="flex-1 overflow-y-auto p-4 pb-24"
+              onScroll={onScroll}
+            >
               {messages.map((msg, index) => (
                 <div key={index} className="mb-6">
                   <div className="text-xs text-gray-400 tracking-wider uppercase mb-2">
@@ -188,7 +201,11 @@ export const DirectorPanel: React.FC<DirectorPanelProps> = ({
       </div>
 
       {/* Chat Messages */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-6">
+      <div 
+        ref={externalChatContainerRef}
+        className="flex-1 overflow-y-auto p-6 space-y-6"
+        onScroll={onScroll}
+      >
         {messages.map((msg, index) => (
           <div key={index} className="space-y-2">
             <div className="text-xs text-gray-400 tracking-wider uppercase">
