@@ -4,7 +4,8 @@ import { useAuth } from '../../hooks/use-auth';
 import { useToast } from '../../hooks/use-toast';
 import { useBrandStudio } from '../../contexts/BrandStudioContext';
 import { DirectorPanel } from './DirectorPanel';
-import { CanvasPanel, ConceptCard } from './CanvasPanel';
+import { CanvasPanel } from './CanvasPanel';
+import type { ConceptCard } from './CanvasPanel';
 import { ToolkitPanel, QuickActions, StatusDisplay } from './ToolkitPanel';
 // REMOVED: Old Maya system components - now using centralized BrandStudioProvider
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';

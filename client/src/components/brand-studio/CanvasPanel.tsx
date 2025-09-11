@@ -260,7 +260,7 @@ export const CanvasPanel: React.FC<CanvasPanelProps> = ({
   );
 };
 
-export { LuxuryConceptCard, ConceptCard };
+export { LuxuryConceptCard };
 
 // Legacy Concept Card Component (kept for backward compatibility)
 interface LegacyConceptCardProps {
