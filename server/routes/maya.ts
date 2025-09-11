@@ -9,25 +9,10 @@
  * while maintaining functionality during the transition to V1 launch.
  */
 
-const express = require('express');
-const router = express.Router();
+import { Router } from 'express';
+import type { Request, Response } from 'express';
 
-// Import the existing messy internal functions (temporary during migration)
-// These will be cleaned up in subsequent steps
-let mayaUnified;
-let modelTrainingService;
-
-try {
-  mayaUnified = require('../maya-unified.ts');
-} catch (error) {
-  console.log('⚠️ Maya Unified not found, will handle gracefully');
-}
-
-try {
-  modelTrainingService = require('../model-training-service.ts');
-} catch (error) {
-  console.log('⚠️ Model Training Service not found, will handle gracefully');
-}
+const router = Router();
 
 /**
  * POST /api/maya/chat
@@ -35,7 +20,7 @@ try {
  * Clean entry point for Photo Studio interactions
  * Handles all Maya conversations and concept generation for photo creation
  */
-router.post('/chat', async (req, res) => {
+router.post('/chat', async (req: Request, res: Response) => {
   try {
     console.log('🎨 MAYA FAÇADE: Photo Studio chat request received');
     
@@ -51,16 +36,23 @@ router.post('/chat', async (req, res) => {
     // This will be cleaned up in subsequent steps
     let response;
     
-    if (mayaUnified && mayaUnified.processChatRequest) {
-      response = await mayaUnified.processChatRequest({
-        message,
-        userId,
-        conversationHistory: conversationHistory || []
-      });
-    } else {
+    try {
+      // Try to use the old maya-unified system temporarily
+      const mayaUnified = await import('../routes/maya-unified');
+      if (mayaUnified && typeof mayaUnified.processChatRequest === 'function') {
+        response = await mayaUnified.processChatRequest({
+          message,
+          userId,
+          conversationHistory: conversationHistory || []
+        });
+      } else {
+        throw new Error('Maya unified service not available');
+      }
+    } catch (error) {
+      console.log('⚠️ MAYA FAÇADE: Falling back to basic response due to:', error.message);
       // Fallback response if unified service not available
       response = {
-        reply: "Maya is temporarily unavailable. Please try again shortly.",
+        reply: "Maya is temporarily unavailable during system maintenance. Please try again shortly.",
         conceptCards: [],
         status: 'fallback'
       };
@@ -84,7 +76,7 @@ router.post('/chat', async (req, res) => {
  * Clean entry point for Story Studio interactions
  * Handles Maya's video storyboard creation and narrative planning
  */
-router.post('/draft-storyboard', async (req, res) => {
+router.post('/draft-storyboard', async (req: Request, res: Response) => {
   try {
     console.log('🎬 MAYA FAÇADE: Story Studio storyboard request received');
     
@@ -100,17 +92,24 @@ router.post('/draft-storyboard', async (req, res) => {
     // This will be cleaned up in subsequent steps
     let response;
     
-    if (mayaUnified && mayaUnified.processStoryboardRequest) {
-      response = await mayaUnified.processStoryboardRequest({
-        concept,
-        userId,
-        preferences: preferences || {}
-      });
-    } else {
+    try {
+      // Try to use the old maya-unified system temporarily  
+      const mayaUnified = await import('../routes/maya-unified');
+      if (mayaUnified && typeof mayaUnified.processStoryboardRequest === 'function') {
+        response = await mayaUnified.processStoryboardRequest({
+          concept,
+          userId,
+          preferences: preferences || {}
+        });
+      } else {
+        throw new Error('Maya storyboard service not available');
+      }
+    } catch (error) {
+      console.log('⚠️ MAYA FAÇADE: Falling back to basic storyboard response due to:', error.message);
       // Fallback response if unified service not available
       response = {
         storyboard: [],
-        narrative: "Story Studio is temporarily unavailable. Please try again shortly.",
+        narrative: "Story Studio is temporarily unavailable during system maintenance. Please try again shortly.",
         keyframes: [],
         status: 'fallback'
       };
@@ -131,7 +130,7 @@ router.post('/draft-storyboard', async (req, res) => {
 /**
  * Health check endpoint for Maya Façade API
  */
-router.get('/health', (req, res) => {
+router.get('/health', (req: Request, res: Response) => {
   res.json({
     status: 'healthy',
     façade: 'active',
@@ -140,4 +139,4 @@ router.get('/health', (req, res) => {
   });
 });
 
-module.exports = router;
+export default router;

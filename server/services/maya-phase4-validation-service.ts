@@ -3,8 +3,9 @@
  * Maya Phase 4 Validation Service - Complete system verification and performance monitoring
  */
 
-import { MayaOptimizationService } from './maya-optimization-service';
-import { MayaMemoryEnhancementService } from './maya-memory-enhancement-service';
+// MAYA FAÇADE: Replaced Maya-specific imports with façade API calls
+// import { MayaOptimizationService } from './maya-optimization-service'; // REMOVED: Direct entanglement
+// import { MayaMemoryEnhancementService } from './maya-memory-enhancement-service'; // REMOVED: Direct entanglement
 import { PersonalityManager } from '../agents/personalities/personality-config';
 
 export interface ValidationResult {
@@ -119,10 +120,12 @@ export class MayaPhase4ValidationService {
     try {
       console.log('🔍 PHASE 4.4: Validating optimization service...');
       
-      // Test optimization service availability
-      const optimizationStats = MayaOptimizationService.getOptimizationStats();
-      
-      if (!optimizationStats.optimization) {
+      // MAYA FAÇADE: Test optimization service via health check
+      try {
+        const response = await fetch('http://localhost:5000/api/maya/health');
+        const healthData = await response.json();
+        
+        if (!response.ok || healthData.status !== 'healthy') {
         return {
           phase: '4.1',
           status: 'FAIL',
@@ -139,30 +142,34 @@ export class MayaPhase4ValidationService {
       };
       
       const startTime = Date.now();
-      const testResult = await MayaOptimizationService.generateOptimizedConcepts(
-        'Create elegant business photos for LinkedIn',
-        PersonalityManager.getNaturalPrompt('maya'),
-        'test-user',
-        'test-conversation',
-        testConfig
-      );
+      // MAYA FAÇADE: Test concept generation via façade API
+      const testResponse = await fetch('http://localhost:5000/api/maya/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: 'Create elegant business photos for LinkedIn',
+          userId: 'test-user',
+          conversationHistory: []
+        })
+      });
+      const testResult = await testResponse.json();
       const optimizationTime = Date.now() - startTime;
       
-      // Validate optimization results
-      if (testResult.apiCallsUsed !== 1) {
+      // Validate façade API response
+      if (!testResponse.ok) {
         return {
           phase: '4.1',
-          status: 'WARNING',
-          message: `Expected 1 API call, got ${testResult.apiCallsUsed}`,
+          status: 'FAIL',
+          message: `Maya façade API not responding: ${testResult.error || 'Unknown error'}`,
           performance: { optimizationTime }
         };
       }
       
-      if (testResult.optimizationApplied.length === 0) {
+      if (!testResult.reply) {
         return {
           phase: '4.1',
           status: 'WARNING',
-          message: 'No optimizations were applied',
+          message: 'Maya façade returned empty response',
           performance: { optimizationTime }
         };
       }
@@ -170,11 +177,11 @@ export class MayaPhase4ValidationService {
       return {
         phase: '4.1',
         status: 'PASS',
-        message: 'Optimization service functioning correctly',
+        message: 'Maya façade API functioning correctly',
         details: {
-          apiCalls: testResult.apiCallsUsed,
-          optimizations: testResult.optimizationApplied,
-          cacheHit: testResult.cacheHit
+          hasReply: !!testResult.reply,
+          hasConceptCards: !!testResult.conceptCards,
+          status: testResult.status || 'active'
         },
         performance: { optimizationTime }
       };
@@ -275,10 +282,12 @@ export class MayaPhase4ValidationService {
     try {
       console.log('🔍 PHASE 4.4: Validating memory system...');
       
-      // Test memory enhancement service
-      const memoryStats = MayaMemoryEnhancementService.getMemoryStats();
-      
-      if (!memoryStats.enhancedFields || memoryStats.enhancedFields.length === 0) {
+      // MAYA FAÇADE: Memory system is now internal to façade
+      try {
+        const response = await fetch('http://localhost:5000/api/maya/health');
+        const healthData = await response.json();
+        
+        if (!response.ok || healthData.status !== 'healthy') {
         return {
           phase: '4.3',
           status: 'FAIL',

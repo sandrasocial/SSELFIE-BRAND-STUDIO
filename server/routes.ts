@@ -22,7 +22,8 @@ import { ModelRetrainService } from './retrain-model';
 // PHASE 4: OLD MAYA ROUTES ARCHIVED (Comment out old fragmented routes)
 // import { registerMayaAIRoutes } from './routes/maya-ai-routes';
 // import mayaOnboardingRoutes from './routes/maya-onboarding-routes';
-import mayaUnifiedRouter from './routes/maya-unified';
+// MAYA FAÇADE: Maya now accessed via clean API calls only
+// import mayaUnifiedRouter from './routes/maya-unified'; // REMOVED: Direct integration replaced with façade
 import supportEscalationRouter from './routes/support-escalation';
 
 // UNIFIED ADMIN SYSTEM: Single consolidated admin agent interface - COMPETING SYSTEMS ELIMINATED
@@ -973,9 +974,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // registerMayaAIRoutes(app);
   // app.use('/api/maya-onboarding', mayaOnboardingRoutes);
   
-  // MAYA UNIFIED SYSTEM - Single intelligent conversation system  
-  app.use('/api/maya', mayaUnifiedRouter);
-  console.log('✅ MAYA UNIFIED: Single intelligent system active at /api/maya/*');
+  // MAYA FAÇADE API: Clean entry point protecting Maya's core intelligence
+  const { default: mayaFacadeRouter } = await import('./routes/maya');
+  app.use('/api/maya', mayaFacadeRouter);
+  console.log('🎨 MAYA FAÇADE: Protected API active at /api/maya/* (V1 Launch Ready)');
   
   // 🚨 PHASE 5: Support escalation routes
   app.use('/api/support', supportEscalationRouter);
@@ -2677,16 +2679,19 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
 
       console.log(`💖 Maya save: User ${userId} saving image from ${source}`);
       
-      // Use Maya's heart service to save to gallery
-      const { MayaChatPreviewService } = await import('./maya-chat-preview-service');
-      const savedImage = await MayaChatPreviewService.heartImageToGallery(
-        userId,
-        imageUrl,
-        prompt || 'Maya AI Generation',
-        'Maya Editorial'
-      );
-
-      console.log(`✅ Maya save: Image ${savedImage.id} saved to gallery`);
+      // MAYA FAÇADE: Use clean API call instead of direct import
+      try {
+        // Save to gallery through standard gallery API instead of Maya-specific service
+        const savedImage = await storage.createGeneratedImage({
+          userId,
+          imageUrl,
+          prompt: prompt || 'Maya AI Generation',
+          category: 'Maya Editorial',
+          status: 'completed'
+        });
+        
+        
+        console.log(`✅ Maya save: Image ${savedImage.id} saved to gallery via façade`);
       
       res.json({
         success: true,

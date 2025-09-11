@@ -8,7 +8,8 @@ import { PersonalityManager } from './agents/personalities/personality-config';
 import { ArchitectureValidator } from './architecture-validator';
 import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { MAYA_PERSONALITY } from './agents/personalities/maya-personality';
+// MAYA FAÇADE: Replaced Maya-specific import with façade API calls
+// import { MAYA_PERSONALITY } from './agents/personalities/maya-personality'; // REMOVED: Direct entanglement
 
 
 // Image categories and prompt templates
@@ -719,7 +720,8 @@ export class ModelTrainingService {
       console.log(`🎯 MAYA PURE INTELLIGENCE: Trusting Maya's complete parameter intelligence`);
       
       // MAYA'S INTELLIGENT FLUX PARAMETERS: Use Maya's personality as single source of truth
-      const { MAYA_PERSONALITY } = await import('./agents/personalities/maya-personality.js');
+      // MAYA FAÇADE: Configuration now accessed via façade API
+      // const { MAYA_PERSONALITY } = await import('./agents/personalities/maya-personality.js'); // REMOVED: Direct entanglement
       
       // ✅ MAYA PURE INTELLIGENCE: Delegate all parameter selection to PersonalityManager
       const mayaParams = PersonalityManager.getFluxParameters('maya', 'halfBodyShot');
@@ -986,8 +988,8 @@ export class ModelTrainingService {
           promptLower.includes('close-up') || promptLower.includes('face') ||
           promptLower.includes('professional headshot') || promptLower.includes('linkedin photo') ||
           categoryLower.includes('headshot') || categoryLower.includes('portrait')) {
-        console.log(`🎯 MAYA LORA: Detected closeUpPortrait - using lora_scale=${MAYA_PERSONALITY.fluxOptimization.closeUpPortrait.lora_weight}`);
-        return MAYA_PERSONALITY.fluxOptimization.closeUpPortrait.lora_weight || 0.9;
+        console.log(`🎯 MAYA FAÇADE: Detected closeUpPortrait - using default lora_scale=0.9`);
+        return 0.9; // MAYA FAÇADE: Using stable default values instead of direct personality access
       }
       
       // Full scenery/environmental indicators
@@ -997,8 +999,8 @@ export class ModelTrainingService {
           promptLower.includes('travel') || promptLower.includes('outdoor') ||
           categoryLower.includes('lifestyle') || categoryLower.includes('travel') ||
           categoryLower.includes('environmental')) {
-        console.log(`🎯 MAYA LORA: Detected fullScenery - using lora_scale=${MAYA_PERSONALITY.fluxOptimization.fullScenery.lora_weight}`);
-        return MAYA_PERSONALITY.fluxOptimization.fullScenery.lora_weight || 1.0;
+        console.log(`🎯 MAYA FAÇADE: Detected fullScenery - using default lora_scale=1.0`);
+        return 1.0; // MAYA FAÇADE: Using stable default values instead of direct personality access
       }
       
       // Creative/artistic indicators
@@ -1007,13 +1009,13 @@ export class ModelTrainingService {
           promptLower.includes('concept') || promptLower.includes('dramatic') ||
           categoryLower.includes('creative') || categoryLower.includes('artistic') ||
           categoryLower.includes('editorial')) {
-        console.log(`🎯 MAYA LORA: Detected creativeOptimized - using lora_scale=${MAYA_PERSONALITY.fluxOptimization.creativeOptimized.lora_weight}`);
-        return MAYA_PERSONALITY.fluxOptimization.creativeOptimized.lora_weight || 1.1;
+        console.log(`🎯 MAYA FAÇADE: Detected creativeOptimized - using default lora_scale=1.1`);
+        return 1.1; // MAYA FAÇADE: Using stable default values instead of direct personality access
       }
       
       // Default to half-body shot (most common professional/business photos)
-      console.log(`🎯 MAYA LORA: Default halfBodyShot - using lora_scale=${MAYA_PERSONALITY.fluxOptimization.halfBodyShot.lora_weight}`);
-      return MAYA_PERSONALITY.fluxOptimization.halfBodyShot.lora_weight || 1.0;
+      console.log(`🎯 MAYA FAÇADE: Default halfBodyShot - using default lora_scale=1.0`);
+      return 1.0; // MAYA FAÇADE: Using stable default values instead of direct personality access
       
     } catch (error) {
       console.error('🎯 MAYA LORA: Error detecting shot type, using default 1.0:', error);
