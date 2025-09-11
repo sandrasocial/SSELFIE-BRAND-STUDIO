@@ -323,7 +323,7 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
       return response.json();
     },
     onSuccess: (data) => {
-      if (data.content || data.message) {
+      if (data.response || data.content || data.message) {
         addMessage({
           type: 'maya',
           content: data.response || data.content || data.message || '',
