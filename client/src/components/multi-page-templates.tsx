@@ -126,7 +126,7 @@ export const SINGLE_PAGE_TEMPLATE = `<!DOCTYPE html>
                 <div class="service-card">
                     <h3>{{SERVICE_2_TITLE}}</h3>
                     <p>{{SERVICE_2_DESCRIPTION}}</p>
-                    <div class="service-price">Starting at $197</div>
+                    <div class="service-price">Starting at €47</div>
                     <a href="mailto:{{CONTACT_EMAIL}}" class="service-button">Learn More</a>
                 </div>
                 <div class="service-card">

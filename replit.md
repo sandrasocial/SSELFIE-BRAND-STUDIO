@@ -1,7 +1,7 @@
-# SSELFIE Studio - AI Personal Branding Platform
+# SSELFIE Studio - Luxury AI Personal Branding Platform
 
 ## Overview
-SSELFIE Studio is an AI personal branding platform that generates professional brand photos using AI, replacing traditional photoshoots. The core workflow is TRAIN → STYLE → GALLERY. It targets women entrepreneurs with a subscription model, aiming for significant recurring revenue. The long-term vision includes scaling the platform and potentially selling the underlying admin agent ecosystem to enterprises, with strategic plans for future market expansion while maintaining brand identity.
+SSELFIE Studio is a conversation-first, luxury AI personal branding platform designed to revolutionize how professionals create visual content. Our core innovation, Maya AI, acts as a sophisticated personal brand strategist, transforming traditional expensive photoshoot models into an intelligent, scalable SaaS business. We empower entrepreneurs, executives, consultants, and business leaders to generate endless streams of on-brand, editorial-quality photos and videos. The core workflow is TRAIN → STYLE → GALLERY, putting a world-class creative studio at users' fingertips for a fraction of traditional cost.
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.
@@ -11,8 +11,8 @@ PROJECT STATUS: LAUNCH READY - Simplified to core TRAIN → STYLE → GALLERY fl
 ## Training System Access
 **CRITICAL**: Training system requires proper authentication
 - Users must be logged in via `/api/login` to access training endpoints
-- Paid plans required: 'pro', 'full-access', 'sselfie-studio' (studio plan recommended)
-- Test user Erla (erlafgunnars@gmail.com) upgraded to studio plan with 500 monthly generations
+- Paid plan required: 'sselfie-studio' (single luxury tier)
+- Test user Erla (erlafgunnars@gmail.com) upgraded to studio plan with standard 100 monthly generations
 - Authentication validates via session cookies and isAuthenticated middleware
 
 ## Subscription System Status (September 1, 2025)
@@ -41,7 +41,14 @@ PROJECT STATUS: LAUNCH READY - Simplified to core TRAIN → STYLE → GALLERY fl
 - New users automatically get 100 monthly generations
 - Single consistent checkout experience
 
-## Recent Critical Update (September 1, 2025)
+## Recent Business Model Evolution (September 11, 2025)
+**LUXURY POSITIONING COMPLETE**: Successfully repositioned SSELFIE Studio as a luxury AI personal branding platform with Maya AI as the core personal brand strategist. Updated business model focuses on conversation-first interface with hyper-personalization through LoRA models and comprehensive Brand Studio capabilities.
+
+**TECHNICAL ARCHITECTURE ALIGNMENT**: Aligned system architecture with luxury platform vision - Maya AI powered by Google Gemini API, VEO 2.0 integration for video generation, and LoRA-based hyper-personalization engine.
+
+**TARGET AUDIENCE EXPANSION**: Expanded from women entrepreneurs to broader professional market - entrepreneurs, executives, consultants, and business leaders seeking ongoing professional brand building.
+
+## Previous Technical Updates (September 1, 2025)
 **MAYA PURE INTELLIGENCE LIBERATION COMPLETE**: Successfully removed all hardcoded fashion and location prompts that were overriding Maya's full styling intelligence. Eliminated restrictive styling approaches and prompt guidance from all 19 categories in maya-personality.ts, allowing Maya to access her complete fashion expertise without limitations. 
 
 **FLUX PARAMETERS CONSOLIDATION COMPLETE**: Removed hardcoded FLUX parameter detection logic in model-training-service.ts and consolidated to use Maya's personality as the single source of truth. Maya's fluxOptimization settings now control all image generation parameters (guidance_scale, num_inference_steps, lora_weight) ensuring consistent, intelligent optimization across all shot types.
@@ -110,14 +117,11 @@ PROJECT STATUS: LAUNCH READY - Simplified to core TRAIN → STYLE → GALLERY fl
 - **API Protection**: Route-level authentication guards and admin token validation.
 
 ### System Design Choices
-- Comprehensive separation between member revenue features and admin operational improvements.
-- Multi-agent coordination system with task delegation, automated execution, and workflow templates.
-- Local processing engine for token optimization, handling pattern extraction, session context updates, and intent classification.
-- Selective Claude API bypass for token optimization on JSON tool calls while preserving full conversations.
-- Project protection rules via `AdminContextManager` safeguard sensitive revenue systems and define safe development zones.
-- Enhanced Path Intelligence prevents conflicts.
-- An "Extraordinary Agent Handoff System" enables autonomous agent-to-agent task completion.
-- A "Comprehensive Ecosystem Analysis & Protection" framework documents the multi-agent system's architecture, capabilities, and protection rules.
+- **Maya AI Core System**: Conversation-first interface with 6-step brand discovery process (Discover → Current Situation → Future Vision → Business Context → Style Discovery → Photo Goals).
+- **Hyper-Personalization Engine**: Custom LoRA models trained on user selfies ensure true facial consistency across all generated content.
+- **Brand Studio Integration**: Unified creative workspace combining Photo Studio (FLUX + LoRA) and Story Studio (VEO + Keyframe Conditioning).
+- **Strategic Intelligence**: Maya translates brand strategy into actionable creative concepts across 19 sophisticated style categories.
+- **Mobile-First Design**: Seamless, luxury user experience abstracting all technical complexity.
 - The Maya system provides a 6-step discovery flow (Welcome → Current Situation → Future Vision → Business Context → Style Discovery → Photo Goals) and seamlessly transitions to personality-driven chat and image generation. Intelligent Quick Actions generate contextual suggestions, replacing generic templated buttons. A Welcome page offers "CUSTOMIZE" (guided onboarding) or "QUICK START" (immediate photo generation) options.
 - Category-aware styling system ensures Maya's AI adapts presets based on detected categories from user requests (e.g., Business, Lifestyle, Travel).
 - Conversational elements from Maya's responses are systematically removed from image generation prompts to prevent contamination and ensure clean, focused inputs for AI models.
@@ -131,9 +135,10 @@ PROJECT STATUS: LAUNCH READY - Simplified to core TRAIN → STYLE → GALLERY fl
 ## External Dependencies
 
 ### AI and Image Generation Services
-- **Anthropic Claude API**: AI conversation and reasoning engine.
-- **Replicate API**: FLUX 1.1 Pro models for high-quality image generation.
-- **Custom Training**: Individual AI model training per user subscription.
+- **Google Gemini API** (`gemini-2.5-flash`): Powers Maya's conversational intelligence and strategic analysis.
+- **Replicate API**: FLUX models + Custom LoRA for hyper-personalized image generation.
+- **Google VEO API** (`veo-2.0-generate-001`): High-quality cinematic video generation.
+- **Custom Training**: Individual LoRA model training per user for true facial consistency.
 
 ### Cloud Infrastructure
 - **AWS S3**: Training image storage and user upload management.

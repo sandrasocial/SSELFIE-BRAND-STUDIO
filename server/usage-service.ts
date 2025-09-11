@@ -1,6 +1,6 @@
 import { storage } from './storage';
 
-// Plan configuration with usage limits and costs - SIMPLIFIED FOR LAUNCH
+// Plan configuration with usage limits and costs - LUXURY AI PERSONAL BRANDING PLATFORM
 export const PLAN_LIMITS = {
   'admin': {
     totalGenerations: null,
@@ -13,7 +13,7 @@ export const PLAN_LIMITS = {
     totalGenerations: null,
     monthlyGenerations: 100, // €47/month for 100 AI images
     cost: 47,
-    description: '100 AI generations per month + Maya AI photographer',
+    description: '100 AI generations per month + Maya AI personal brand strategist',
     resetMonthly: true
   }
 } as const;
@@ -91,9 +91,9 @@ export class UsageService {
     
     let usage = await storage.getUserUsage(userId);
     
-    // Auto-initialize usage for new users with FREE plan
+    // Auto-initialize usage for new users with sselfie-studio plan
     if (!usage) {
-      await this.initializeUserUsage(userId, 'FREE');
+      await this.initializeUserUsage(userId, 'sselfie-studio');
       usage = await storage.getUserUsage(userId);
       if (!usage) {
         throw new Error('Failed to initialize user usage');
@@ -113,16 +113,11 @@ export class UsageService {
       }
     }
 
-    // For AI Pack (one-time purchase)
+    // Legacy ai-pack plans are migrated to sselfie-studio
     if (usage.plan === 'ai-pack') {
-      const remaining = usage.totalGenerationsAllowed - usage.totalGenerationsUsed;
-      return {
-        canGenerate: remaining > 0,
-        remainingGenerations: remaining,
-        totalUsed: usage.totalGenerationsUsed,
-        totalAllowed: usage.totalGenerationsAllowed,
-        reason: remaining <= 0 ? 'AI Pack limit reached. Upgrade to Studio for monthly generations.' : undefined
-      };
+      console.log(`Migrating legacy ai-pack user ${userId} to sselfie-studio plan`);
+      await this.initializeUserUsage(userId, 'sselfie-studio');
+      usage = await storage.getUserUsage(userId);
     }
 
     // For Studio plans (monthly limits)
@@ -186,9 +181,8 @@ export class UsageService {
 
       // Check if limit is reached
       const planLimits = PLAN_LIMITS[usage.plan as keyof typeof PLAN_LIMITS];
-      if (usage.plan === 'ai-pack') {
-        updates.isLimitReached = updates.totalGenerationsUsed >= usage.totalGenerationsAllowed;
-      } else if (planLimits.resetMonthly) {
+      // All plans use monthly limits in new single-tier model
+      if (planLimits.resetMonthly) {
         updates.isLimitReached = updates.monthlyGenerationsUsed >= (usage.monthlyGenerationsAllowed || 0);
       }
     }
@@ -281,23 +275,12 @@ export class UsageService {
 
     const usageCheck = await this.checkUsageLimit(userId);
     
-    // AI Pack users who are close to limit
-    if (usage.plan === 'ai-pack' && usageCheck.remainingGenerations <= 20) {
+    // Single-tier model: Users on sselfie-studio plan who need optimization advice
+    if (usage.plan === 'sselfie-studio' && usage.monthlyGenerationsUsed && usage.monthlyGenerationsUsed >= 90) {
       return {
-        shouldUpgrade: true,
-        reason: 'AI Pack limit almost reached',
-        recommendedPlan: 'studio-founding',
-        message: 'Upgrade to Studio Founding for 100 monthly generations + complete business platform!'
-      };
-    }
-
-    // Studio users who consistently hit monthly limits
-    if (usage.plan === 'studio-founding' && usage.monthlyGenerationsUsed && usage.monthlyGenerationsUsed >= 90) {
-      return {
-        shouldUpgrade: true,
-        reason: 'Monthly limit consistently reached',
-        recommendedPlan: 'studio-standard',
-        message: 'Upgrade to SSELFIE Studio for 100 monthly generations + Maya AI + Victoria AI!'
+        shouldUpgrade: false,
+        reason: 'High usage detected',
+        message: 'You\'re getting great value from your plan! Consider upgrading your photo selection strategy with Maya for even better results.'
       };
     }
 
