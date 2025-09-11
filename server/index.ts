@@ -65,6 +65,10 @@ async function startCompleteApp() {
   try {
     console.log('📦 Loading comprehensive routes...');
     
+    // HYBRID BACKEND: Ensure concept_cards table exists (bypasses drizzle-kit interactive prompt)
+    const { ensureConceptCardsTable } = await import('./db/ensureConceptCards');
+    await ensureConceptCardsTable();
+    
     // Load your complete routing system with all features
     const server = await registerRoutes(app);
     
