@@ -17,6 +17,28 @@ import { unifiedMayaContextService } from '../services/unified-maya-context-serv
 import { unifiedMayaIntelligenceService } from '../services/unified-maya-intelligence-service.js';
 import { claudeApiServiceSimple } from '../services/claude-api-service-simple';
 
+// Helper function for 80/20 rule concept type determination
+const determineConceptType = (title: string, fluxPrompt: string): 'portrait' | 'flatlay' | 'lifestyle' => {
+  const text = `${title} ${fluxPrompt}`.toLowerCase();
+  
+  // Detect flatlay/object concepts (20%)
+  if (text.includes('close-up') || text.includes('detail') || text.includes('texture') || 
+      text.includes('flatlay') || text.includes('object') || text.includes('prop') ||
+      text.includes('mug') || text.includes('book') || text.includes('jewelry') ||
+      text.includes('notebook') || text.includes('coffee') || text.includes('product')) {
+    return 'flatlay';
+  }
+  
+  // Detect lifestyle concepts
+  if (text.includes('walking') || text.includes('sitting') || text.includes('lifestyle') || 
+      text.includes('scene') || text.includes('environment') || text.includes('location')) {
+    return 'lifestyle';
+  }
+  
+  // Default to portrait (80%)
+  return 'portrait';
+};
+
 const router = Router();
 
 /**
@@ -104,6 +126,9 @@ ${mayaIntelligence.trendIntelligence.personalizedTrends.slice(0, 3).join('\n')}`
         
         console.log(`🎨 CONCEPT PARSED: ${emoji} ${title}`);
         
+        // Determine concept type for 80/20 rule implementation
+        const conceptType = determineConceptType(title, fluxPrompt);
+        
         conceptCards.push({
           id: `concept_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
           title: `${emoji} ${title}`,
@@ -111,7 +136,8 @@ ${mayaIntelligence.trendIntelligence.personalizedTrends.slice(0, 3).join('\n')}`
           emoji: emoji,
           creativeLook: title,
           creativeLookDescription: `${title} styling concept`,
-          fluxPrompt: fluxPrompt
+          fluxPrompt: fluxPrompt,
+          type: conceptType // portrait | flatlay | lifestyle for 80/20 rule
         });
       }
       
@@ -125,6 +151,7 @@ ${mayaIntelligence.trendIntelligence.personalizedTrends.slice(0, 3).join('\n')}`
       console.error('❌ CONCEPT PARSING ERROR:', parseError);
       console.log('📝 CONCEPT PARSING: Falling back to no concept cards');
     }
+
 
     // Log performance
     const duration = Date.now() - startTime;

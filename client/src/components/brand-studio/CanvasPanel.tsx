@@ -1,7 +1,155 @@
 import React, { useState } from 'react';
+import { Camera, Video, Sparkles } from 'lucide-react';
+
+// Flatlay image collection for luxury visual backgrounds
+const FLATLAY_IMAGES = [
+  'https://i.postimg.cc/VLCFmXVr/1.png',
+  'https://i.postimg.cc/WpDyqFyj/10.png', 
+  'https://i.postimg.cc/SRz1B39j/100.png',
+  'https://i.postimg.cc/bJ5FFpsK/101.png',
+  'https://i.postimg.cc/F15CNpbp/102.png',
+  'https://i.postimg.cc/pVh2VdY5/103.png',
+  'https://i.postimg.cc/tRK9sH2S/104.png',
+  'https://i.postimg.cc/2Smmx7pn/105.png',
+  'https://i.postimg.cc/YqQMgyPp/106.png',
+  'https://i.postimg.cc/Bng37Psk/107.png',
+  'https://i.postimg.cc/zf2r8myk/108.png',
+  'https://i.postimg.cc/4dKT38tR/109.png',
+  'https://i.postimg.cc/dQzx2QMC/11.png',
+  'https://i.postimg.cc/4drRHzb7/110.png',
+  'https://i.postimg.cc/ryrkXPMS/111.png',
+  'https://i.postimg.cc/PrnktQ50/112.png',
+  'https://i.postimg.cc/3JjQW0yN/113.png',
+  'https://i.postimg.cc/wj68NxJV/114.png'
+];
+
+export type ConceptCard = {
+  id: string;
+  title: string;
+  description: string;
+  emoji?: string;
+  creativeLook?: string;
+  creativeLookDescription?: string;
+  fluxPrompt?: string;
+  imageUrl?: string;
+  generatedImages?: string[];
+  isGenerating?: boolean;
+  category?: string;
+  type?: 'portrait' | 'flatlay' | 'lifestyle'; // 80/20 rule categorization
+};
+
+interface LuxuryConceptCardProps {
+  concept: ConceptCard;
+  isSelected?: boolean;
+  onClick?: () => void;
+  onGenerate?: () => void;
+}
+
+const LuxuryConceptCard: React.FC<LuxuryConceptCardProps> = ({ 
+  concept, 
+  isSelected = false, 
+  onClick,
+  onGenerate 
+}) => {
+  // Select a flatlay background based on concept ID for consistency
+  const flatlayImage = FLATLAY_IMAGES[parseInt(concept.id.slice(-1)) % FLATLAY_IMAGES.length] || FLATLAY_IMAGES[0];
+
+  return (
+    <div 
+      className={`luxury-concept-card group cursor-pointer transition-all duration-300 transform hover:scale-[1.02] hover:shadow-2xl ${
+        isSelected ? 'ring-2 ring-black shadow-2xl' : 'shadow-lg hover:shadow-xl'
+      }`}
+      onClick={onClick}
+      style={{
+        backgroundImage: `linear-gradient(135deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.1)), url(${flatlayImage})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}
+    >
+      {/* Content overlay */}
+      <div className="relative p-6 bg-gradient-to-t from-black/80 via-black/20 to-transparent min-h-[280px] flex flex-col justify-end">
+        
+        {/* Type indicator */}
+        <div className="absolute top-4 right-4">
+          <div className="bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full">
+            <span className="text-xs font-medium text-gray-800 tracking-wider uppercase">
+              {concept.type === 'portrait' ? 'Portrait' : concept.type === 'flatlay' ? 'Flatlay' : 'Lifestyle'}
+            </span>
+          </div>
+        </div>
+
+        {/* Creative Look Tag */}
+        {concept.creativeLook && (
+          <div className="mb-3">
+            <div className="inline-flex items-center bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full">
+              <Sparkles className="w-3 h-3 mr-2 text-white" />
+              <span className="text-xs text-white font-medium tracking-wide">
+                {concept.creativeLook}
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* Main content */}
+        <div className="text-white">
+          <h3 className="text-lg font-bold mb-2 leading-tight">
+            {concept.emoji && <span className="mr-2">{concept.emoji}</span>}
+            {concept.title}
+          </h3>
+          
+          <p className="text-sm text-white/90 mb-4 leading-relaxed">
+            {concept.description}
+          </p>
+        </div>
+
+        {/* Action buttons */}
+        <div className="flex gap-2 mt-auto">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onGenerate?.();
+            }}
+            className="flex-1 bg-white/90 backdrop-blur-sm text-gray-900 px-4 py-2 rounded-lg font-medium text-sm hover:bg-white transition-all duration-200 flex items-center justify-center gap-2"
+          >
+            <Camera className="w-4 h-4" />
+            Generate Photos
+          </button>
+          
+          {concept.type === 'portrait' && (
+            <button
+              onClick={(e) => e.stopPropagation()}
+              className="bg-black/50 backdrop-blur-sm text-white px-3 py-2 rounded-lg hover:bg-black/70 transition-all duration-200"
+            >
+              <Video className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+        
+        {/* Generated images preview */}
+        {concept.generatedImages?.length > 0 && (
+          <div className="mt-4 flex gap-1 overflow-x-auto">
+            {concept.generatedImages.slice(0, 4).map((img, idx) => (
+              <img 
+                key={idx}
+                src={img}
+                alt={`Generated ${idx + 1}`}
+                className="w-12 h-12 object-cover rounded border-2 border-white/50"
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
 
 interface CanvasPanelProps {
   mode: 'photo' | 'story';
+  conceptCards?: ConceptCard[];
+  selectedConceptId?: string | null;
+  onConceptSelect?: (id: string) => void;
+  onConceptGenerate?: (concept: ConceptCard) => void;
   children?: React.ReactNode;
   className?: string;
   onItemSelect?: (item: any) => void;
@@ -10,6 +158,10 @@ interface CanvasPanelProps {
 
 export const CanvasPanel: React.FC<CanvasPanelProps> = ({
   mode,
+  conceptCards = [],
+  selectedConceptId,
+  onConceptSelect,
+  onConceptGenerate,
   children,
   className = '',
   onItemSelect,
@@ -55,27 +207,63 @@ export const CanvasPanel: React.FC<CanvasPanelProps> = ({
     );
   }
 
-  // Desktop: Center panel with content
+  // Desktop: Center panel with luxury concept card grid
   return (
     <div className={`desktop-panel ${className}`}>
       <div className="p-6 border-b border-gray-100">
         <h3 className="spaced-title text-sm">
-          {mode === 'photo' ? 'Photo Canvas' : 'Story Canvas'}
+          {mode === 'photo' ? 'Creative Lookbook' : 'Story Canvas'}
         </h3>
         <p className="text-xs text-gray-500 tracking-wider uppercase">
-          Your Creative Workspace
+          Maya's Concept Gallery
         </p>
       </div>
 
       <div className="flex-1 overflow-y-auto p-6">
+        {conceptCards.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-full text-center">
+            <div 
+              className="w-full max-w-md h-64 rounded-xl mb-6 flex items-center justify-center"
+              style={{
+                backgroundImage: `linear-gradient(135deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.2)), url(${FLATLAY_IMAGES[0]})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center'
+              }}
+            >
+              <div className="text-white text-center">
+                <Sparkles className="w-12 h-12 mx-auto mb-4 opacity-80" />
+                <h3 className="text-xl font-bold mb-2">Ready to Create</h3>
+                <p className="text-sm opacity-90">Ask Maya for photo concepts and watch them come to life</p>
+              </div>
+            </div>
+            <p className="text-gray-600 text-sm">
+              Start a conversation with Maya to see your concept cards appear here
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {conceptCards.map((concept) => (
+              <LuxuryConceptCard
+                key={concept.id}
+                concept={concept}
+                isSelected={selectedConceptId === concept.id}
+                onClick={() => onConceptSelect?.(concept.id)}
+                onGenerate={() => onConceptGenerate?.(concept)}
+              />
+            ))}
+          </div>
+        )}
+
         {children}
       </div>
     </div>
   );
 };
 
-// Concept Card Component for Photo Studio - Updated to use extended Maya ConceptCard type
-interface ConceptCardProps {
+export { LuxuryConceptCard, ConceptCard };
+
+// Legacy Concept Card Component (kept for backward compatibility)
+interface LegacyConceptCardProps {
   card: {
     id: string;
     title: string;
@@ -98,7 +286,7 @@ interface ConceptCardProps {
   showVideoButton?: boolean;
 }
 
-export const ConceptCard: React.FC<ConceptCardProps> = ({
+const LegacyConceptCard: React.FC<LegacyConceptCardProps> = ({
   card,
   isExpanded = false,
   onToggleExpand,

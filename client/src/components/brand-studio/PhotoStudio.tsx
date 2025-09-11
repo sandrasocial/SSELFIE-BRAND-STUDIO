@@ -517,7 +517,13 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
         {isMobileState ? (
         // Mobile Layout: Single view with overlays  
         <div className="flex-1 overflow-y-auto">
-          <CanvasPanel mode="photo" onItemSelect={(card) => selectConceptCard(card?.id)} selectedItem={selectedConceptCard}>
+          <CanvasPanel 
+            mode="photo" 
+            conceptCards={Object.values(conceptCardsById)}
+            selectedConceptId={selectedConceptCardId}
+            onConceptSelect={selectConceptCard}
+            onConceptGenerate={handleGenerateImage}
+          >
           {/* Welcome State */}
           {!hasStartedChat && messages.length === 0 && (
             <div className="text-center py-12">
@@ -646,7 +652,13 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
           />
 
           {/* Center Panel: Canvas (Content) */}
-          <CanvasPanel mode="photo" onItemSelect={(card) => selectConceptCard(card?.id)} selectedItem={selectedConceptCard}>
+          <CanvasPanel 
+            mode="photo" 
+            conceptCards={Object.values(conceptCardsById)}
+            selectedConceptId={selectedConceptCardId}
+            onConceptSelect={selectConceptCard}
+            onConceptGenerate={handleGenerateImage}
+          >
             {/* Welcome State */}
             {!hasStartedChat && messages.length === 0 && (
               <div className="text-center py-12">
