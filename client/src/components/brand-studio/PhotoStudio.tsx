@@ -11,6 +11,7 @@ import { MayaUploadComponent } from '../maya/MayaUploadComponent';
 import { MayaExamplesGallery } from '../maya/MayaExamplesGallery';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLocation } from 'wouter';
+import { useConceptCards, useUpdateConceptCardGeneration, type ConceptCard as ServerConceptCard } from '../../hooks/useConceptCards';
 
 interface ChatMessage {
   id: string;
@@ -413,13 +414,8 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
     }
   };
 
-  // Get concept cards from messages
-  const conceptCards = messages.reduce((acc: ConceptCard[], msg) => {
-    if (msg.conceptCards) {
-      acc.push(...msg.conceptCards);
-    }
-    return acc;
-  }, []);
+  // HYBRID BACKEND: Get concept cards from API with server-generated ULID keys
+  const { data: conceptCards = [], isLoading: isLoadingConcepts } = useConceptCards();
 
   // Calculate stats
   const stats = {

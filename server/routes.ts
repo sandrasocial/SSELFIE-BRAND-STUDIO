@@ -980,6 +980,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api/maya', mayaFacadeRouter);
   console.log('🎨 MAYA FAÇADE: Protected API active at /api/maya/* (V1 Launch Ready)');
   
+  // HYBRID BACKEND: Concept Cards API for clean persistence and unique React keys
+  const { default: conceptCardsRouter } = await import('./routes/concept-cards');
+  app.use('/api/concepts', conceptCardsRouter);
+  console.log('💡 CONCEPT CARDS: API active at /api/concepts/* (ULID-based unique keys)');
+  
   // 🎥 STORY STUDIO API - Server-side AI video story generation
   // Initialize Gemini AI client for server-side operations
   let geminiAI: any = null;
