@@ -1,17 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Sparkles } from 'lucide-react';
-
-interface ChatMessage {
-  id: string;
-  type: 'user' | 'maya';
-  content: string;
-  timestamp: string;
-}
+import { ChevronUp } from 'lucide-react';
 
 interface DirectorPanelProps {
   mode: 'photo' | 'story';
-  messages: ChatMessage[];
-  isTyping: boolean;
+  messages?: any[];
+  isTyping?: boolean;
   message: string;
   setMessage: (message: string) => void;
   onSendMessage: () => void;
@@ -19,14 +12,17 @@ interface DirectorPanelProps {
   disabled?: boolean;
   placeholder?: string;
   className?: string;
+  children?: React.ReactNode;
   messagesEndRef?: React.RefObject<HTMLDivElement>;
   chatContainerRef?: React.RefObject<HTMLDivElement>;
+  shouldAutoScroll?: boolean;
+  onScroll?: () => void;
 }
 
 export const DirectorPanel: React.FC<DirectorPanelProps> = ({
   mode,
-  messages,
-  isTyping,
+  messages = [],
+  isTyping = false,
   message,
   setMessage,
   onSendMessage,
@@ -34,16 +30,34 @@ export const DirectorPanel: React.FC<DirectorPanelProps> = ({
   disabled = false,
   placeholder,
   className = '',
-  messagesEndRef,
-  chatContainerRef
+  children,
+  messagesEndRef: externalMessagesEndRef,
+  chatContainerRef: externalChatContainerRef,
+  shouldAutoScroll = true,
+  onScroll
 }) => {
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
-  const [hasStartedChat, setHasStartedChat] = useState(false);
 
-  // Default placeholders based on Maya's voice
-  const defaultPlaceholder = mode === 'photo' 
-    ? "What is the goal for this creative session?"
-    : "What story do you want to tell today?";
+  // Responsive monitoring
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Smart auto-scroll - only if shouldAutoScroll is true and no external ref control
+  useEffect(() => {
+    if (shouldAutoScroll && !externalMessagesEndRef) {
+      const ref = messagesEndRef;
+      ref.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages, shouldAutoScroll, externalMessagesEndRef]);
 
   // Auto-resize textarea
   useEffect(() => {
@@ -53,10 +67,9 @@ export const DirectorPanel: React.FC<DirectorPanelProps> = ({
     }
   }, [message]);
 
-  // Track if conversation has started
-  useEffect(() => {
-    setHasStartedChat(messages.length > 0);
-  }, [messages.length]);
+  const defaultPlaceholder = mode === 'photo' 
+    ? "Describe the professional photos you need for your business..."
+    : "Tell me about the story you want to create...";
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -66,153 +79,172 @@ export const DirectorPanel: React.FC<DirectorPanelProps> = ({
     onKeyPress?.(e);
   };
 
-  // Maya's guided prompts for getting started
-  const guidedPrompts = mode === 'photo' ? [
-    "I need professional headshots for my LinkedIn profile",
-    "Create lifestyle content for my brand's social media",
-    "Professional team photos for our company website",
-    "Executive portraits that command respect and trust"
-  ] : [
-    "A quick video showcasing my brand's mission",
-    "Behind-the-scenes content for social media",
-    "Professional introduction video for my website",
-    "Client testimonial story format"
-  ];
-
-  return (
-    <div className={`flex flex-col h-full ${className}`}>
-
-      {/* Welcome State - Maya's Warm Introduction */}
-      {!hasStartedChat && (
-        <div className="flex-1 flex flex-col justify-center p-6">
-          <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-gradient-to-br from-black to-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Sparkles className="w-8 h-8 text-white" />
-            </div>
-            <h3 
-              className="text-lg mb-2"
-              style={{ 
-                fontFamily: 'Times New Roman, serif', 
-                fontWeight: 300,
-                letterSpacing: '0.1em'
-              }}
-            >
-              Hello! I'm Maya
-            </h3>
-            <p className="text-gray-600 text-sm leading-relaxed mb-6">
-              {mode === 'photo' 
-                ? "I'm your personal brand strategist. Let's create professional photos that tell your unique story and build trust with your audience."
-                : "I'm here to help you craft compelling video stories. Together, we'll bring your brand's message to life in a way that truly connects."
-              }
-            </p>
-          </div>
-
-          {/* Guided Prompts */}
-          <div className="space-y-3">
-            <p 
-              className="text-xs text-gray-500 mb-3"
-              style={{ 
-                letterSpacing: '0.2em',
-                textTransform: 'uppercase',
-                fontWeight: 300
-              }}
-            >
-              Try asking me about:
-            </p>
-            {guidedPrompts.map((prompt, index) => (
+  // Mobile: Collapsible input overlay
+  if (isMobile) {
+    return (
+      <>
+        {/* Mobile Input Bar */}
+        <div className="fixed bottom-20 left-0 right-0 bg-white border-t border-gray-200 z-50">
+          <div className="px-4 py-3">
+            <div className="flex items-end space-x-3">
+              <div className="flex-1">
+                <textarea
+                  ref={inputRef}
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder={placeholder || defaultPlaceholder}
+                  className="w-full resize-none border border-gray-200 focus:border-black focus:outline-none px-4 py-3 bg-white transition-colors rounded"
+                  rows={1}
+                  disabled={disabled || isTyping}
+                  style={{ 
+                    fontFamily: 'Helvetica Neue', 
+                    fontWeight: 300, 
+                    minHeight: '44px',
+                    maxHeight: '120px',
+                    lineHeight: 1.6,
+                    fontSize: '16px' // Prevents zoom on iOS
+                  }}
+                />
+              </div>
               <button
-                key={index}
-                onClick={() => setMessage(prompt)}
-                className="w-full text-left px-4 py-3 text-sm border border-gray-200 hover:border-black hover:bg-gray-50 transition-all duration-200 rounded"
-                style={{ 
-                  fontWeight: 300,
-                  lineHeight: 1.5
-                }}
+                onClick={onSendMessage}
+                disabled={!message.trim() || isTyping || disabled}
+                className="bg-black text-white px-6 py-3 text-xs uppercase tracking-[0.3em] font-light hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed rounded"
+                style={{ minHeight: '44px', minWidth: '70px' }}
               >
-                "{prompt}"
+                {isTyping ? '...' : 'Send'}
               </button>
-            ))}
+            </div>
           </div>
         </div>
-      )}
+
+        {/* Mobile Chat Overlay (when expanded) */}
+        {isExpanded && (
+          <div className="fixed inset-0 bg-white z-40 flex flex-col">
+            <div className="flex items-center justify-between p-4 border-b border-gray-200">
+              <h3 className="spaced-title text-sm">
+                {mode === 'photo' ? 'Photo Chat' : 'Story Chat'}
+              </h3>
+              <button
+                onClick={() => setIsExpanded(false)}
+                className="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-black"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <div 
+              ref={externalChatContainerRef}
+              className="flex-1 overflow-y-auto p-4 pb-24"
+              onScroll={onScroll}
+            >
+              {messages.map((msg, index) => (
+                <div key={index} className="mb-6">
+                  <div className="text-xs text-gray-400 tracking-wider uppercase mb-2">
+                    {msg.type === 'user' ? 'You' : 'Maya'}
+                  </div>
+                  <div className={`p-4 rounded ${
+                    msg.type === 'user' 
+                      ? 'bg-black text-white ml-8' 
+                      : 'bg-gray-50 text-gray-800 mr-8'
+                  }`}>
+                    <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                  </div>
+                </div>
+              ))}
+              
+              {isTyping && (
+                <div className="mb-6">
+                  <div className="text-xs text-gray-400 tracking-wider uppercase mb-2">Maya</div>
+                  <div className="bg-gray-50 p-4 rounded mr-8 flex items-center">
+                    <div className="flex space-x-2">
+                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></div>
+                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
+                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse" style={{animationDelay: '0.4s'}}></div>
+                    </div>
+                    <span className="ml-4 text-xs text-gray-500 tracking-wider uppercase">Thinking...</span>
+                  </div>
+                </div>
+              )}
+              
+              <div ref={externalMessagesEndRef || messagesEndRef} />
+            </div>
+          </div>
+        )}
+
+        {/* Mobile Expand Button */}
+        {messages.length > 0 && !isExpanded && (
+          <button
+            onClick={() => setIsExpanded(true)}
+            className="fixed top-24 right-4 w-12 h-12 bg-black text-white rounded-full flex items-center justify-center z-30 shadow-lg"
+          >
+            <ChevronUp className="w-5 h-5" />
+          </button>
+        )}
+
+        {children}
+      </>
+    );
+  }
+
+  // Desktop: Full panel layout
+  return (
+    <div className={`desktop-panel ${className}`}>
+      <div className="p-6 border-b border-gray-100">
+        <h3 className="spaced-title text-sm">
+          {mode === 'photo' ? 'Photo Director' : 'Story Director'}
+        </h3>
+        <p className="text-xs text-gray-500 tracking-wider uppercase">
+          Maya's Creative Assistant
+        </p>
+      </div>
 
       {/* Chat Messages */}
-      {hasStartedChat && (
-        <div 
-          ref={chatContainerRef}
-          className="flex-1 overflow-y-auto p-6 space-y-6"
-          style={{ scrollBehavior: 'smooth' }}
-        >
-          {messages.map((msg, index) => (
-            <div key={msg.id} className="space-y-2">
-              <div 
-                className="text-xs text-gray-400"
-                style={{ 
-                  letterSpacing: '0.2em',
-                  textTransform: 'uppercase',
-                  fontWeight: 300
-                }}
-              >
-                {msg.type === 'user' ? 'You' : 'Maya'}
-              </div>
-              <div className={`p-4 rounded-lg max-w-[85%] ${
-                msg.type === 'user' 
-                  ? 'bg-black text-white ml-auto' 
-                  : 'bg-gray-50 text-gray-800'
-              }`}>
-                <p 
-                  className="whitespace-pre-wrap leading-relaxed"
-                  style={{ 
-                    fontWeight: 300,
-                    fontSize: '14px',
-                    lineHeight: 1.6
-                  }}
-                >
-                  {msg.content}
-                </p>
-              </div>
+      <div 
+        ref={externalChatContainerRef}
+        className="flex-1 overflow-y-auto p-6 space-y-6"
+        onScroll={onScroll}
+      >
+        {messages.map((msg, index) => (
+          <div key={index} className="space-y-2">
+            <div className="text-xs text-gray-400 tracking-wider uppercase">
+              {msg.type === 'user' ? 'You' : 'Maya'}
             </div>
-          ))}
-
-          {/* Maya's Typing Indicator */}
-          {isTyping && (
-            <div className="space-y-2">
-              <div 
-                className="text-xs text-gray-400"
-                style={{ 
-                  letterSpacing: '0.2em',
-                  textTransform: 'uppercase',
-                  fontWeight: 300
-                }}
-              >
-                Maya
-              </div>
-              <div className="bg-gray-50 p-4 rounded-lg max-w-[85%] flex items-center">
-                <div className="flex space-x-2">
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></div>
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse" style={{animationDelay: '0.4s'}}></div>
-                </div>
-                <span 
-                  className="ml-4 text-xs text-gray-500"
-                  style={{ 
-                    letterSpacing: '0.2em',
-                    textTransform: 'uppercase',
-                    fontWeight: 300
-                  }}
-                >
-                  Creating concepts...
-                </span>
-              </div>
+            <div className={`p-4 rounded-sm ${
+              msg.type === 'user' 
+                ? 'bg-black text-white text-sm' 
+                : 'bg-gray-50 text-gray-800 text-sm'
+            }`}>
+              <p className="whitespace-pre-wrap" style={{ lineHeight: 1.6 }}>
+                {msg.content}
+              </p>
             </div>
-          )}
+          </div>
+        ))}
 
-          <div ref={messagesEndRef} />
-        </div>
-      )}
+        {/* Typing Indicator */}
+        {isTyping && (
+          <div className="space-y-2">
+            <div className="text-xs text-gray-400 tracking-wider uppercase">Maya</div>
+            <div className="bg-gray-50 p-4 rounded-sm flex items-center">
+              <div className="flex space-x-2">
+                <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></div>
+                <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
+                <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse" style={{animationDelay: '0.4s'}}></div>
+              </div>
+              <span className="ml-4 text-xs text-gray-500 tracking-wider uppercase">
+                Thinking...
+              </span>
+            </div>
+          </div>
+        )}
 
-      {/* Message Input - Always Present */}
-      <div className="border-t border-gray-200 p-6">
+        <div ref={externalMessagesEndRef || messagesEndRef} />
+      </div>
+
+      {/* Desktop Input */}
+      <div className="border-t border-gray-100 p-6">
         <div className="flex items-end space-x-4">
           <div className="flex-1">
             <textarea
@@ -221,15 +253,15 @@ export const DirectorPanel: React.FC<DirectorPanelProps> = ({
               onChange={(e) => setMessage(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder={placeholder || defaultPlaceholder}
-              className="w-full resize-none border border-gray-200 focus:border-black focus:outline-none px-4 py-3 bg-white transition-colors rounded"
+              className="w-full resize-none border border-gray-200 focus:border-black focus:outline-none px-4 py-3 bg-white transition-colors rounded-sm"
               rows={1}
               disabled={disabled || isTyping}
               style={{ 
-                fontFamily: 'inherit', 
+                fontFamily: 'Helvetica Neue', 
                 fontWeight: 300, 
-                minHeight: '48px',
+                minHeight: '44px',
                 maxHeight: '120px',
-                lineHeight: 1.5,
+                lineHeight: 1.6,
                 fontSize: '14px'
               }}
             />
@@ -237,34 +269,15 @@ export const DirectorPanel: React.FC<DirectorPanelProps> = ({
           <button
             onClick={onSendMessage}
             disabled={!message.trim() || isTyping || disabled}
-            className="bg-black text-white px-6 py-3 hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2 rounded"
-            style={{ 
-              minHeight: '48px',
-              minWidth: '100px'
-            }}
+            className="bg-black text-white px-6 py-3 text-xs uppercase tracking-[0.3em] font-light hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed rounded-sm"
+            style={{ minHeight: '44px', minWidth: '80px' }}
           >
-            <Send className="w-4 h-4" />
-            <span 
-              className="text-xs"
-              style={{ 
-                letterSpacing: '0.2em',
-                textTransform: 'uppercase',
-                fontWeight: 300
-              }}
-            >
-              {isTyping ? 'Sending...' : 'Send'}
-            </span>
+            {isTyping ? 'Sending...' : 'Send'}
           </button>
         </div>
-
-        {/* Helpful tips */}
-        <p className="text-xs text-gray-400 mt-3 text-center" style={{ fontWeight: 300 }}>
-          {hasStartedChat 
-            ? "Press Enter to send, Shift+Enter for new line"
-            : `Tell Maya about your ${mode === 'photo' ? 'photo goals' : 'story vision'} and she'll create custom concepts`
-          }
-        </p>
       </div>
+
+      {children}
     </div>
   );
 };

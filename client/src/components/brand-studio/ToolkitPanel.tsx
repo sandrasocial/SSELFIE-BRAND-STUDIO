@@ -1,21 +1,8 @@
 import React, { useState } from 'react';
-import { Camera, Video, Heart, Download, Sparkles, ArrowRight, RefreshCw, FolderOpen } from 'lucide-react';
-
-interface ConceptCard {
-  id: string;
-  title: string;
-  description: string;
-  fluxPrompt?: string;
-  emoji?: string;
-  creativeLook?: string;
-  type?: 'portrait' | 'flatlay' | 'lifestyle';
-  generatedImages?: string[];
-  isGenerating?: boolean;
-}
 
 interface ToolkitPanelProps {
   mode: 'photo' | 'story';
-  selectedItem?: ConceptCard | any;
+  selectedItem?: any;
   onItemAction?: (action: string, data?: any) => void;
   className?: string;
   children?: React.ReactNode;
@@ -28,43 +15,35 @@ export const ToolkitPanel: React.FC<ToolkitPanelProps> = ({
   className = '',
   children
 }) => {
-  const [activeGalleryTab, setActiveGalleryTab] = useState<'recent' | 'favorites'>('recent');
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [showActionSheet, setShowActionSheet] = useState(false);
 
-  const handleAction = (action: string, data?: any) => {
-    onItemAction?.(action, data);
-  };
+  // Responsive monitoring
+  React.useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
 
-  // Mock gallery data - replace with real data
-  const recentImages = [
-    'https://picsum.photos/100/120?random=1',
-    'https://picsum.photos/100/120?random=2',
-    'https://picsum.photos/100/120?random=3',
-    'https://picsum.photos/100/120?random=4'
-  ];
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Show action sheet when item is selected on mobile
+  React.useEffect(() => {
+    if (isMobile && selectedItem) {
+      setShowActionSheet(true);
+    }
+  }, [selectedItem, isMobile]);
 
   const renderPhotoActions = () => {
     if (!selectedItem) {
       return (
         <div className="text-center py-8">
-          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Sparkles className="w-6 h-6 text-gray-400" />
-          </div>
-          <h4 
-            className="text-sm mb-2"
-            style={{ 
-              letterSpacing: '0.2em',
-              textTransform: 'uppercase',
-              fontWeight: 300,
-              fontFamily: 'Times New Roman, serif'
-            }}
-          >
-            No Concept Selected
-          </h4>
-          <p 
-            className="text-gray-500 text-sm leading-relaxed"
-            style={{ fontWeight: 300 }}
-          >
-            Select a concept card from your canvas to see available actions and begin creating.
+          <p className="text-xs text-gray-400 tracking-wider uppercase mb-4">
+            No concept selected
+          </p>
+          <p className="text-sm text-gray-600">
+            Select a concept card to see available actions
           </p>
         </div>
       );
@@ -72,216 +51,60 @@ export const ToolkitPanel: React.FC<ToolkitPanelProps> = ({
 
     return (
       <div className="space-y-6">
-
-        {/* Selected Concept Details */}
-        <div className="border-b border-gray-200 pb-6">
-          <div className="flex items-start space-x-3 mb-4">
-            {selectedItem.emoji && (
-              <span className="text-2xl">{selectedItem.emoji}</span>
-            )}
-            <div className="flex-1">
-              <h4 
-                className="text-base mb-2"
-                style={{ 
-                  fontFamily: 'Times New Roman, serif',
-                  fontWeight: 300,
-                  letterSpacing: '0.05em'
-                }}
-              >
-                {selectedItem.title}
-              </h4>
-              {selectedItem.creativeLook && (
-                <span 
-                  className="inline-block bg-gray-100 px-2 py-1 rounded text-xs text-gray-600 mb-3"
-                  style={{ 
-                    letterSpacing: '0.1em',
-                    textTransform: 'uppercase',
-                    fontWeight: 300
-                  }}
-                >
-                  {selectedItem.creativeLook}
-                </span>
-              )}
-            </div>
-          </div>
-          <p 
-            className="text-gray-600 text-sm leading-relaxed"
-            style={{ fontWeight: 300 }}
-          >
+        <div>
+          <h4 className="spaced-title text-xs mb-4">
+            {selectedItem.title?.replace(/[^a-zA-Z0-9\s\-_]/g, '').trim()}
+          </h4>
+          <p className="text-xs text-gray-600 leading-relaxed mb-6">
             {selectedItem.description}
           </p>
         </div>
 
-        {/* Primary Actions */}
         <div className="space-y-3">
-          <h5 
-            className="text-xs text-gray-500 mb-4"
-            style={{ 
-              letterSpacing: '0.2em',
-              textTransform: 'uppercase',
-              fontWeight: 300
-            }}
-          >
-            Create & Generate
-          </h5>
-
           <button
-            onClick={() => handleAction('generate')}
+            onClick={() => onItemAction?.('generate')}
             disabled={selectedItem.isGenerating}
-            className="w-full bg-black text-white px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+            className="luxury-btn w-full text-center"
           >
-            <Camera className="w-4 h-4" />
-            <span 
-              className="text-sm"
-              style={{ 
-                letterSpacing: '0.1em',
-                fontWeight: 400
-              }}
-            >
-              {selectedItem.isGenerating ? 'Creating Photos...' : 'Generate Photos'}
-            </span>
+            {selectedItem.isGenerating ? 'Creating Photos...' : 'Generate Photos'}
           </button>
 
           {selectedItem.generatedImages?.length > 0 && (
             <>
               <button
-                onClick={() => handleAction('variations')}
-                className="w-full bg-gray-100 text-gray-800 px-4 py-3 rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center space-x-2"
+                onClick={() => onItemAction?.('variations')}
+                className="luxury-btn secondary w-full text-center"
               >
-                <RefreshCw className="w-4 h-4" />
-                <span 
-                  className="text-sm"
-                  style={{ 
-                    letterSpacing: '0.1em',
-                    fontWeight: 400
-                  }}
-                >
-                  Generate Variations
-                </span>
+                Generate Variations
               </button>
 
               <button
-                onClick={() => handleAction('create-video')}
-                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-3 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-colors flex items-center justify-center space-x-2"
+                onClick={() => onItemAction?.('save-all')}
+                className="luxury-btn secondary w-full text-center"
               >
-                <Video className="w-4 h-4" />
-                <span 
-                  className="text-sm"
-                  style={{ 
-                    letterSpacing: '0.1em',
-                    fontWeight: 400
-                  }}
-                >
-                  Create Video Story
-                </span>
+                Save All to Gallery
+              </button>
+
+              <button
+                onClick={() => onItemAction?.('create-video')}
+                className="luxury-btn w-full text-center bg-gradient-to-r from-purple-600 to-pink-600 text-white border-none"
+                style={{ background: '#000000' }}
+              >
+                Create Video from Concept
               </button>
             </>
           )}
         </div>
 
-        {/* Gallery Actions */}
-        {selectedItem.generatedImages?.length > 0 && (
-          <div className="space-y-3 pt-6 border-t border-gray-200">
-            <h5 
-              className="text-xs text-gray-500 mb-4"
-              style={{ 
-                letterSpacing: '0.2em',
-                textTransform: 'uppercase',
-                fontWeight: 300
-              }}
-            >
-              Save & Organize
-            </h5>
-
-            <button
-              onClick={() => handleAction('save-gallery')}
-              className="w-full bg-gray-100 text-gray-800 px-4 py-3 rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center space-x-2"
-            >
-              <Heart className="w-4 h-4" />
-              <span 
-                className="text-sm"
-                style={{ 
-                  letterSpacing: '0.1em',
-                  fontWeight: 400
-                }}
-              >
-                Save to Gallery
-              </span>
-            </button>
-
-            <button
-              onClick={() => handleAction('download-all')}
-              className="w-full bg-gray-100 text-gray-800 px-4 py-3 rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center space-x-2"
-            >
-              <Download className="w-4 h-4" />
-              <span 
-                className="text-sm"
-                style={{ 
-                  letterSpacing: '0.1em',
-                  fontWeight: 400
-                }}
-              >
-                Download All
-              </span>
-            </button>
-          </div>
-        )}
-
-        {/* Generated Images Preview */}
-        {selectedItem.generatedImages?.length > 0 && (
-          <div className="pt-6 border-t border-gray-200">
-            <h5 
-              className="text-xs text-gray-500 mb-4"
-              style={{ 
-                letterSpacing: '0.2em',
-                textTransform: 'uppercase',
-                fontWeight: 300
-              }}
-            >
-              Generated Photos ({selectedItem.generatedImages.length})
-            </h5>
-            <div className="grid grid-cols-2 gap-2">
-              {selectedItem.generatedImages.slice(0, 4).map((img: string, idx: number) => (
-                <img 
-                  key={idx}
-                  src={img}
-                  alt={`Generated ${idx + 1}`}
-                  className="w-full h-20 object-cover rounded cursor-pointer hover:opacity-80 transition-opacity border border-gray-200"
-                />
-              ))}
-            </div>
-            {selectedItem.generatedImages.length > 4 && (
-              <p 
-                className="text-xs text-gray-500 mt-2 text-center"
-                style={{ fontWeight: 300 }}
-              >
-                +{selectedItem.generatedImages.length - 4} more photos
-              </p>
-            )}
-          </div>
-        )}
-
-        {/* Loading State */}
         {selectedItem.isGenerating && (
-          <div className="pt-6 border-t border-gray-200">
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <div className="flex items-center space-x-3">
-                <div className="flex space-x-2">
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></div>
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse" style={{animationDelay: '0.4s'}}></div>
-                </div>
-                <span 
-                  className="text-xs text-gray-600"
-                  style={{ 
-                    letterSpacing: '0.1em',
-                    textTransform: 'uppercase',
-                    fontWeight: 300
-                  }}
-                >
-                  Creating your professional photos...
-                </span>
+          <div className="pt-4 border-t border-gray-100">
+            <div className="flex items-center text-xs text-gray-500">
+              <div className="flex space-x-1 mr-3">
+                <div className="w-1 h-1 bg-gray-400 rounded-full animate-pulse"></div>
+                <div className="w-1 h-1 bg-gray-400 rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
+                <div className="w-1 h-1 bg-gray-400 rounded-full animate-pulse" style={{animationDelay: '0.4s'}}></div>
               </div>
+              Generating images...
             </div>
           </div>
         )}
@@ -292,224 +115,222 @@ export const ToolkitPanel: React.FC<ToolkitPanelProps> = ({
   const renderStoryActions = () => {
     return (
       <div className="space-y-6">
-        <div className="text-center py-8">
-          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Video className="w-6 h-6 text-gray-400" />
-          </div>
-          <h4 
-            className="text-sm mb-2"
-            style={{ 
-              letterSpacing: '0.2em',
-              textTransform: 'uppercase',
-              fontWeight: 300,
-              fontFamily: 'Times New Roman, serif'
-            }}
-          >
-            Video Creation Tools
-          </h4>
-          <p 
-            className="text-gray-500 text-sm leading-relaxed mb-6"
-            style={{ fontWeight: 300 }}
-          >
-            Configure your video settings and start creating compelling stories.
+        <div>
+          <h4 className="spaced-title text-xs mb-4">Story Tools</h4>
+          <p className="text-xs text-gray-600 leading-relaxed mb-6">
+            Configure your video generation settings
           </p>
         </div>
 
         <div className="space-y-4">
-          <h5 
-            className="text-xs text-gray-500 mb-4"
-            style={{ 
-              letterSpacing: '0.2em',
-              textTransform: 'uppercase',
-              fontWeight: 300
-            }}
-          >
-            Video Format
-          </h5>
-
-          <div className="space-y-2">
-            <button
-              onClick={() => handleAction('format', '9:16')}
-              className="w-full bg-gray-100 text-gray-800 px-4 py-3 rounded-lg hover:bg-gray-200 transition-colors text-left"
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <div 
-                    className="font-medium text-sm"
-                    style={{ letterSpacing: '0.05em' }}
-                  >
-                    Social Media (Portrait)
-                  </div>
-                  <div 
-                    className="text-xs text-gray-500"
-                    style={{ fontWeight: 300 }}
-                  >
-                    Perfect for Instagram, TikTok, Stories
-                  </div>
-                </div>
-                <div className="text-xs text-gray-400">9:16</div>
-              </div>
-            </button>
-
-            <button
-              onClick={() => handleAction('format', '16:9')}
-              className="w-full bg-gray-100 text-gray-800 px-4 py-3 rounded-lg hover:bg-gray-200 transition-colors text-left"
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <div 
-                    className="font-medium text-sm"
-                    style={{ letterSpacing: '0.05em' }}
-                  >
-                    Website (Landscape)
-                  </div>
-                  <div 
-                    className="text-xs text-gray-500"
-                    style={{ fontWeight: 300 }}
-                  >
-                    Great for YouTube, websites, presentations
-                  </div>
-                </div>
-                <div className="text-xs text-gray-400">16:9</div>
-              </div>
-            </button>
+          <div>
+            <label className="text-xs text-gray-500 tracking-wider uppercase mb-3 block">
+              Video Format
+            </label>
+            <div className="space-y-2">
+              <button
+                onClick={() => onItemAction?.('format', '9:16')}
+                className="luxury-btn secondary w-full text-center"
+              >
+                Social Media (Portrait)
+              </button>
+              <button
+                onClick={() => onItemAction?.('format', '16:9')}
+                className="luxury-btn secondary w-full text-center"
+              >
+                Website (Landscape)
+              </button>
+            </div>
           </div>
 
-          <div className="pt-4 border-t border-gray-200">
+          <div className="pt-4 border-t border-gray-100">
             <button
-              onClick={() => handleAction('generate-story')}
-              className="w-full bg-black text-white px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors flex items-center justify-center space-x-2"
+              onClick={() => onItemAction?.('generate-story')}
+              className="luxury-btn w-full text-center"
             >
-              <Video className="w-4 h-4" />
-              <span 
-                className="text-sm"
-                style={{ 
-                  letterSpacing: '0.1em',
-                  fontWeight: 400
-                }}
-              >
-                Bring My Story to Life
-              </span>
+              Generate Story Video
             </button>
           </div>
         </div>
+
+        {selectedItem && (
+          <div className="pt-4 border-t border-gray-100">
+            <h5 className="text-xs text-gray-500 tracking-wider uppercase mb-3">
+              Selected Scene
+            </h5>
+            <p className="text-xs text-gray-600 leading-relaxed">
+              Scene {selectedItem.scene}: {selectedItem.prompt}
+            </p>
+          </div>
+        )}
       </div>
     );
   };
 
-  return (
-    <div className={`flex flex-col h-full ${className}`}>
-      <div className="flex-1 overflow-y-auto">
-
-        {/* Content Tabs */}
-        <div className="border-b border-gray-200 mb-6">
-          <div className="flex">
-            <button
-              onClick={() => setActiveGalleryTab('recent')}
-              className={`px-4 py-3 text-xs transition-colors ${
-                activeGalleryTab === 'recent'
-                  ? 'border-b-2 border-black text-black'
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
-              style={{ 
-                letterSpacing: '0.2em',
-                textTransform: 'uppercase',
-                fontWeight: 300
-              }}
-            >
-              Actions
-            </button>
-            <button
-              onClick={() => setActiveGalleryTab('favorites')}
-              className={`px-4 py-3 text-xs transition-colors ${
-                activeGalleryTab === 'favorites'
-                  ? 'border-b-2 border-black text-black'
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
-              style={{ 
-                letterSpacing: '0.2em',
-                textTransform: 'uppercase',
-                fontWeight: 300
-              }}
-            >
-              Gallery
-            </button>
-          </div>
-        </div>
-
-        <div className="px-6">
-          {activeGalleryTab === 'recent' ? (
-            mode === 'photo' ? renderPhotoActions() : renderStoryActions()
-          ) : (
-            /* Gallery Tab */
-            <div className="space-y-6">
-              <div className="text-center">
-                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <FolderOpen className="w-6 h-6 text-gray-400" />
-                </div>
-                <h4 
-                  className="text-sm mb-2"
-                  style={{ 
-                    letterSpacing: '0.2em',
-                    textTransform: 'uppercase',
-                    fontWeight: 300,
-                    fontFamily: 'Times New Roman, serif'
-                  }}
+  // Mobile: Action Sheet Overlay
+  if (isMobile) {
+    return (
+      <>
+        {/* Mobile Action Sheet */}
+        {showActionSheet && (
+          <div className="fixed inset-0 bg-black/50 z-40 flex items-end">
+            <div className="bg-white w-full max-h-[70vh] overflow-y-auto rounded-t-lg">
+              <div className="p-4 border-b border-gray-200 flex items-center justify-between">
+                <h3 className="spaced-title text-sm">
+                  {mode === 'photo' ? 'Photo Actions' : 'Story Actions'}
+                </h3>
+                <button
+                  onClick={() => setShowActionSheet(false)}
+                  className="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-black"
                 >
-                  Your Gallery
-                </h4>
-                <p 
-                  className="text-gray-500 text-sm leading-relaxed mb-6"
-                  style={{ fontWeight: 300 }}
-                >
-                  Your most recent professional photos and videos, safely stored and ready to use.
-                </p>
+                  ✕
+                </button>
               </div>
-
-              {/* Recent Images Grid */}
-              <div>
-                <h5 
-                  className="text-xs text-gray-500 mb-3"
-                  style={{ 
-                    letterSpacing: '0.2em',
-                    textTransform: 'uppercase',
-                    fontWeight: 300
-                  }}
-                >
-                  Recent Photos
-                </h5>
-                <div className="grid grid-cols-2 gap-2">
-                  {recentImages.map((img, idx) => (
-                    <img 
-                      key={idx}
-                      src={img}
-                      alt={`Recent ${idx + 1}`}
-                      className="w-full h-20 object-cover rounded cursor-pointer hover:opacity-80 transition-opacity border border-gray-200"
-                    />
-                  ))}
-                </div>
+              
+              <div className="p-4">
+                {mode === 'photo' ? renderPhotoActions() : renderStoryActions()}
               </div>
-
-              <button
-                onClick={() => handleAction('view-full-gallery')}
-                className="w-full bg-gray-100 text-gray-800 px-4 py-3 rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center space-x-2"
-              >
-                <ArrowRight className="w-4 h-4" />
-                <span 
-                  className="text-sm"
-                  style={{ 
-                    letterSpacing: '0.1em',
-                    fontWeight: 400
-                  }}
-                >
-                  View Full Gallery
-                </span>
-              </button>
             </div>
-          )}
-        </div>
+          </div>
+        )}
+
+        {/* Mobile Quick Action Button */}
+        {selectedItem && !showActionSheet && (
+          <button
+            onClick={() => setShowActionSheet(true)}
+            className="fixed bottom-24 right-4 w-14 h-14 bg-black text-white rounded-full flex items-center justify-center z-30 shadow-lg"
+          >
+            ⚡
+          </button>
+        )}
 
         {children}
+      </>
+    );
+  }
+
+  // Desktop: Side panel
+  return (
+    <div className={`desktop-panel ${className}`}>
+      <div className="p-6 border-b border-gray-100">
+        <h3 className="spaced-title text-sm">
+          {mode === 'photo' ? 'Photo Toolkit' : 'Story Toolkit'}
+        </h3>
+        <p className="text-xs text-gray-500 tracking-wider uppercase">
+          Actions & Controls
+        </p>
+      </div>
+
+      <div className="flex-1 overflow-y-auto p-6">
+        {mode === 'photo' ? renderPhotoActions() : renderStoryActions()}
+        {children}
+      </div>
+    </div>
+  );
+};
+
+// Quick Actions Component for common actions
+interface QuickActionsProps {
+  mode: 'photo' | 'story';
+  onAction: (action: string) => void;
+  disabled?: boolean;
+}
+
+export const QuickActions: React.FC<QuickActionsProps> = ({
+  mode,
+  onAction,
+  disabled = false
+}) => {
+  if (mode === 'photo') {
+    return (
+      <div className="flex flex-wrap gap-2 mb-6">
+        <button
+          onClick={() => onAction('new-session')}
+          disabled={disabled}
+          className="luxury-btn secondary text-xs"
+        >
+          New Session
+        </button>
+        <button
+          onClick={() => onAction('view-gallery')}
+          disabled={disabled}
+          className="luxury-btn secondary text-xs"
+        >
+          View Gallery
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-wrap gap-2 mb-6">
+      <button
+        onClick={() => onAction('clear-scenes')}
+        disabled={disabled}
+        className="luxury-btn secondary text-xs"
+      >
+        Clear Scenes
+      </button>
+      <button
+        onClick={() => onAction('save-project')}
+        disabled={disabled}
+        className="luxury-btn secondary text-xs"
+      >
+        Save Project
+      </button>
+    </div>
+  );
+};
+
+// Status Display Component
+interface StatusDisplayProps {
+  mode: 'photo' | 'story';
+  stats?: {
+    conceptCards?: number;
+    images?: number;
+    scenes?: number;
+    videos?: number;
+  };
+}
+
+export const StatusDisplay: React.FC<StatusDisplayProps> = ({
+  mode,
+  stats = {}
+}) => {
+  if (mode === 'photo') {
+    return (
+      <div className="border-t border-gray-100 pt-6 mt-6">
+        <h5 className="text-xs text-gray-500 tracking-wider uppercase mb-3">
+          Session Stats
+        </h5>
+        <div className="grid grid-cols-2 gap-4 text-center">
+          <div>
+            <div className="text-lg font-light">{stats.conceptCards || 0}</div>
+            <div className="text-xs text-gray-500 uppercase tracking-wider">Concepts</div>
+          </div>
+          <div>
+            <div className="text-lg font-light">{stats.images || 0}</div>
+            <div className="text-xs text-gray-500 uppercase tracking-wider">Images</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="border-t border-gray-100 pt-6 mt-6">
+      <h5 className="text-xs text-gray-500 tracking-wider uppercase mb-3">
+        Project Stats
+      </h5>
+      <div className="grid grid-cols-2 gap-4 text-center">
+        <div>
+          <div className="text-lg font-light">{stats.scenes || 0}</div>
+          <div className="text-xs text-gray-500 uppercase tracking-wider">Scenes</div>
+        </div>
+        <div>
+          <div className="text-lg font-light">{stats.videos || 0}</div>
+          <div className="text-xs text-gray-500 uppercase tracking-wider">Videos</div>
+        </div>
       </div>
     </div>
   );
