@@ -132,8 +132,8 @@ When escalating, say: "This needs Sandra's direct attention. Reach her at hello@
    */
   private static buildNaturalPrompt(personality: any): string {
     
-    // Handle Maya with the new clean structure
-    if (personality.name === 'Maya' && personality.corePhilosophy) {
+    // Handle Maya with the new clean structure - detect by corePhilosophy property
+    if (personality.corePhilosophy && personality.aestheticDNA && personality.creativeLookbook) {
       return this.buildMayaPrompt(personality);
     }
     
