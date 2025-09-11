@@ -8,8 +8,12 @@ import { useToast } from '../hooks/use-toast';
 interface ConceptCard {
   id: string; // Server-generated ULID
   title: string;
-  description?: string;
+  description: string; // Made required to match UI usage
   fullPrompt?: string;
+  fluxPrompt?: string; // Embedded FLUX-optimized prompt from Maya
+  emoji?: string; // Maya's styling emoji (🎯✨💼🌟💫🏆📸🎬)
+  creativeLook?: string; // One of Maya's 12 Creative Looks
+  creativeLookDescription?: string; // Brief description of the Creative Look
   generatedImages?: string[];
   isGenerating: boolean;
   hasGenerated: boolean;

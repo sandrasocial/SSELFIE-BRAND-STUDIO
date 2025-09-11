@@ -41,6 +41,7 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
     isLoading,
     setActiveTab,
     setHandoffData,
+    startNewSession,
     selectedItem,
     setSelectedItem
   } = useBrandStudio();
@@ -254,10 +255,37 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
     });
   };
 
-  // REMOVED: Legacy handleGenerateImage - now handled by centralized provider
+  // Image generation using provider's mutation system
   const handleGenerateImage = async (card: ConceptCard) => {
-    console.log('Image generation for:', card.title);
-    // TODO: Wire to centralized generation system
+    try {
+      console.log('Starting image generation for:', card.title);
+      toast({ title: "Generating Images", description: `Creating visuals for "${card.title}"...` });
+      
+      // TODO: Implement proper image generation through BrandStudioProvider
+      // This should use a provider mutation that:
+      // 1. Calls the appropriate backend generation endpoint  
+      // 2. Updates conceptCardsById state with generated images
+      // 3. Invalidates relevant queries
+      
+      console.log('Image generation request:', {
+        conceptId: card.id,
+        title: card.title,
+        fluxPrompt: card.fluxPrompt || card.description,
+        creativeLook: card.creativeLook,
+        emoji: card.emoji
+      });
+      
+      // Placeholder behavior - in production this would trigger actual generation
+      toast({ 
+        title: "Generation System Ready", 
+        description: "Image generation needs to be wired through BrandStudioProvider mutation",
+        variant: "destructive" 
+      });
+      
+    } catch (error) {
+      console.error('Image generation setup error:', error);
+      toast({ title: "Setup Error", description: "Image generation system needs implementation", variant: "destructive" });
+    }
   };
 
   // New Session Management (using centralized provider)
@@ -265,7 +293,7 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
     if (messages.length > 0) {
       if (confirm(`Start a new styling session? This will clear your current conversation (${messages.length} messages) but Maya will remember your style preferences.`)) {
         // Use centralized startNewSession from provider
-        // startNewSession(); // TODO: Wire this properly
+        startNewSession();
         selectConceptCard(null);
         toast({ title: "New Session Started", description: "Fresh conversation started! Maya still remembers your style preferences." });
       }
@@ -293,13 +321,11 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
   };
 
   const startSimpleConversation = () => {
-    setHasStartedChat(true);
-
-    addMessage({
-      type: 'maya',
-      content: "I'm Maya, your photo creation specialist. Describe the professional photos you need and I'll create custom concepts with instant generation. What type of images are you looking to create?",
-      timestamp: new Date().toISOString()
-    });
+    // Show Maya's welcome message without sending it as a user message
+    // The provider should handle this via a static Maya welcome or direct message injection
+    console.log('Starting conversation with Maya...');
+    // TODO: Implement proper welcome message injection via provider
+    // For now, this is a placeholder that doesn't send user messages
   };
 
   // Handle toolkit actions
