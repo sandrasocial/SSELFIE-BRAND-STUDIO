@@ -469,20 +469,17 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
             {conceptCardsList.length > 0 ? (
               <div className="p-6 space-y-6">
                 {conceptCardsList.map((card) => (
-                  <ConceptCard
+                  <LuxuryConceptCard
                     key={card.id}
-                    card={card}
-                    isExpanded={expandedCards.has(card.id)}
-                    onToggleExpand={() => toggleCardExpansion(card.id)}
-                    onGenerate={() => handleGenerateImage(card)}
-                    onSelect={() => {
+                    concept={card}
+                    isSelected={selectedConceptCard?.id === card.id}
+                    onClick={() => {
                       selectConceptCard(card.id);
                       setSelectedItem(card);
                     }}
+                    onGenerate={() => handleGenerateImage(card)}
                     onSaveToGallery={handleSaveToGallery}
                     onCreateVideo={() => handleToolkitAction('create-video')}
-                    isSelected={selectedConceptCard?.id === card.id}
-                    showVideoButton={true}
                   />
                 ))}
               </div>
@@ -551,37 +548,68 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
             onConceptSelect={selectConceptCard}
             onConceptGenerate={handleGenerateImage}
           >
-          {/* Welcome State */}
+          {/* Maya's Creative Studio Welcome */}
           {!hasStartedChat && messages.length === 0 && (
-            <div className="text-center py-12">
-              <h2 className="text-xl mb-6" style={{ 
-                fontFamily: 'Times New Roman, serif', 
-                fontWeight: 200, 
-                letterSpacing: '0.2em',
-                lineHeight: 1.2
-              }}>
-                CREATE YOUR
-                <br />
-                PROFESSIONAL PHOTOS
-              </h2>
-              <p className="text-gray-600 mb-8 leading-relaxed text-sm">
-                Describe the professional photos you need and I'll create custom concepts with instant generation.
-              </p>
+            <div 
+              className="relative min-h-screen flex items-center justify-center p-4"
+              style={{
+                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.45)), url('https://i.postimg.cc/VLCFmXVr/1.png')`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat'
+              }}
+            >
+              <div className="text-center max-w-sm">
+                <h1 className="text-2xl mb-4 text-white" style={{ 
+                  fontFamily: 'Times New Roman, serif', 
+                  fontWeight: 300, 
+                  letterSpacing: '0.1em',
+                  lineHeight: 1.2
+                }}>
+                  Maya's Creative Studio
+                </h1>
+                <p className="text-white/90 mb-8 leading-relaxed">
+                  Let's bring your vision to life. Share what you're creating, and I'll craft the perfect concepts.
+                </p>
 
-              <div className="space-y-3">
-                {[
-                  "Corporate headshots with confidence",
-                  "Creative lifestyle content", 
-                  "Professional portraits that convert"
-                ].map((suggestion, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setMessage(suggestion)}
-                    className="w-full text-left px-4 py-3 border border-gray-200 hover:border-black hover:bg-gray-50 transition-all duration-300 text-sm"
-                  >
-                    {suggestion}
-                  </button>
-                ))}
+                <div className="space-y-2 mb-6">
+                  <h3 className="text-white/70 text-xs uppercase tracking-wider mb-4">Maya's Creative Lookbook</h3>
+                  {[
+                    { style: "The Scandinavian Minimalist", emoji: "🌿", desc: "Clean, bright, and intentional" },
+                    { style: "The Urban Moody", emoji: "🌃", desc: "Sophisticated and cinematic" },
+                    { style: "The High-End Coastal", emoji: "🌊", desc: "Effortless luxury meets the sea" },
+                    { style: "The Luxury Dark & Moody", emoji: "🍷", desc: "Rich, opulent, and mysterious" },
+                    { style: "The White Space Executive", emoji: "⚪", desc: "Modern, powerful, and clean" },
+                    { style: "The Black & Dark Auteur", emoji: "⚫", desc: "Creative, intense, and confident" },
+                    { style: "The Golden Hour Glow", emoji: "🌅", desc: "Warm, approachable, and authentic" },
+                    { style: "The Night Time Luxe", emoji: "✨", desc: "Energetic and glamorous" },
+                    { style: "The Classic B&W", emoji: "⬛", desc: "Timeless and emotional" },
+                    { style: "The Beige & Sophisticated", emoji: "🤎", desc: "Warm, calm, and professional" },
+                    { style: "The Fashion Street Style", emoji: "👗", desc: "Candid and editorial" },
+                    { style: "User-Directed Look", emoji: "🎯", desc: "Your unique vision" }
+                  ].map((suggestion, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setMessage(`I want ${suggestion.style.toLowerCase()} photos for ${suggestion.desc.toLowerCase()}`)}
+                      className="w-full text-left p-4 bg-white/15 backdrop-blur-sm border border-white/25 hover:bg-white/25 hover:border-white/40 transition-all duration-300 rounded-lg group"
+                      data-testid={`button-style-${suggestion.style.toLowerCase().replace(' ', '-')}`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="text-xl group-hover:scale-110 transition-transform duration-200">
+                          {suggestion.emoji}
+                        </span>
+                        <div className="text-left">
+                          <div className="text-white font-medium text-sm">
+                            {suggestion.style}
+                          </div>
+                          <div className="text-white/70 text-xs">
+                            {suggestion.desc}
+                          </div>
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           )}
@@ -591,17 +619,14 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
             <div className="space-y-6">
               <h3 className="spaced-title text-sm">Photo Concepts</h3>
               {conceptCardsList.map((card, index) => (
-                <ConceptCard
+                <LuxuryConceptCard
                   key={card.id}
-                  card={card}
-                  isExpanded={expandedCards.has(card.id)}
-                  onToggleExpand={() => toggleCardExpansion(card.id)}
+                  concept={card}
+                  isSelected={selectedConceptCard?.id === card.id}
+                  onClick={() => selectConceptCard(card.id)}
                   onGenerate={() => handleGenerateImage(card)}
-                  onSelect={() => selectConceptCard(card.id)}
                   onSaveToGallery={handleSaveToGallery}
                   onCreateVideo={() => handleToolkitAction('create-video')}
-                  isSelected={selectedConceptCard?.id === card.id}
-                  showVideoButton={true}
                 />
               ))}
             </div>
@@ -686,39 +711,59 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
             onConceptSelect={selectConceptCard}
             onConceptGenerate={handleGenerateImage}
           >
-            {/* Welcome State */}
+            {/* Maya's Creative Studio Welcome - Desktop */}
             {!hasStartedChat && messages.length === 0 && (
-              <div className="text-center py-12">
-                <h2 className="text-2xl mb-8" style={{ 
-                  fontFamily: 'Times New Roman, serif', 
-                  fontWeight: 200, 
-                  letterSpacing: '0.2em',
-                  lineHeight: 1.2
-                }}>
-                  CREATE YOUR
-                  <br />
-                  PROFESSIONAL PHOTOS
-                </h2>
-                <p className="text-gray-600 mb-12 leading-relaxed max-w-xl mx-auto">
-                  Describe the professional photos you need and I'll create custom concepts with instant generation.
-                </p>
+              <div 
+                className="relative h-full flex items-center justify-center p-8"
+                style={{
+                  backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.4)), url('https://i.postimg.cc/WpDyqFyj/10.png')`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  backgroundRepeat: 'no-repeat'
+                }}
+              >
+                <div className="text-center max-w-2xl">
+                  <h1 className="text-4xl mb-6 text-white" style={{ 
+                    fontFamily: 'Times New Roman, serif', 
+                    fontWeight: 300, 
+                    letterSpacing: '0.1em',
+                    lineHeight: 1.2
+                  }}>
+                    Maya's Creative Studio
+                  </h1>
+                  <p className="text-white/90 mb-12 leading-relaxed text-xl max-w-lg mx-auto">
+                    Let's bring your vision to life. Share what you're creating, and I'll craft the perfect concepts for you.
+                  </p>
 
-                <div className="space-y-3 max-w-md mx-auto">
-                  {[
-                    "Corporate headshots with confidence",
-                    "Creative lifestyle content", 
-                    "Professional portraits that convert"
-                  ].map((suggestion, index) => (
-                    <button
-                      key={index}
-                      onClick={() => setMessage(suggestion)}
-                      className="w-full text-left px-6 py-4 border border-gray-200 hover:border-black hover:bg-gray-50 transition-all duration-300"
-                    >
-                      <span className="text-sm text-gray-700">
-                        {suggestion}
-                      </span>
-                    </button>
-                  ))}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto">
+                    <h3 className="text-white/70 text-sm uppercase tracking-wider mb-6 col-span-full">Choose Your Creative Direction</h3>
+                    {[
+                      { style: "Executive Elegance", emoji: "👔", description: "Confident leadership portraits that command respect" },
+                      { style: "Creative Lifestyle", emoji: "✨", description: "Authentic brand storytelling with natural energy" }, 
+                      { style: "Editorial Luxury", emoji: "🏆", description: "Premium magazine-quality imagery" }
+                    ].map((suggestion, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setMessage(`I want ${suggestion.style.toLowerCase()} photos - ${suggestion.description.toLowerCase()}`)}
+                        className="text-left p-6 bg-white/15 backdrop-blur-sm border border-white/25 hover:bg-white/25 hover:border-white/40 transition-all duration-300 rounded-lg group"
+                        data-testid={`button-style-desktop-${suggestion.style.toLowerCase().replace(' ', '-')}`}
+                      >
+                        <div className="flex flex-col items-center text-center gap-3">
+                          <span className="text-3xl group-hover:scale-110 transition-transform duration-200">
+                            {suggestion.emoji}
+                          </span>
+                          <div>
+                            <div className="text-white font-medium text-lg mb-2">
+                              {suggestion.style}
+                            </div>
+                            <div className="text-white/70 text-sm leading-relaxed">
+                              {suggestion.description}
+                            </div>
+                          </div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
             )}
