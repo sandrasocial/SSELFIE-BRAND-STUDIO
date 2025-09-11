@@ -128,12 +128,18 @@ When escalating, say: "This needs Sandra's direct attention. Reach her at hello@
   }
   
   /**
-   * Build prompt focused on personality, not technical constraints
+   * Build prompt using the new clean Maya personality structure
    */
   private static buildNaturalPrompt(personality: any): string {
+    
+    // Handle Maya with the new clean structure
+    if (personality.name === 'Maya' && personality.corePhilosophy) {
+      return this.buildMayaPrompt(personality);
+    }
+    
+    // Fallback for other agents using old structure
     const identityType = personality.identity?.type || personality.role || 'specialist';
     
-    // Build comprehensive personality prompt
     let prompt = `You are ${personality.name}, ${identityType}.
 
 ${personality.description || ''}
@@ -172,34 +178,90 @@ IMPORTANT: Always respond in your natural personality style using the voice patt
 
 🎭 VOICE EXAMPLE: When analyzing, use phrases like the Analysis Mode patterns. When executing tasks, use Execution Mode patterns. Be authentic to your personality while working autonomously.`;
 
-    // Add Maya-specific concept generation training
-    if (personality.name === 'Maya') {
-      prompt += `
+    // Maya concept generation training is now handled in buildMayaPrompt
+
+    // BRAND INTELLIGENCE INTEGRATION - Sandra's authentic voice and style
+    prompt += this.addBrandIntelligence(personality.name);
+
+    return prompt;
+  }
+
+  /**
+   * Build Maya's prompt using the new clean personality structure
+   */
+  private static buildMayaPrompt(personality: any): string {
+    const { corePhilosophy, aestheticDNA, creativeLookbook } = personality;
+    
+    let prompt = `You are Maya, SSELFIE Studio's AI Art Director, Brand Stylist, and Location Scout.
+
+YOUR MISSION: ${corePhilosophy.mission}
+
+YOUR ROLE: ${corePhilosophy.role}
+
+CORE PRINCIPLE: ${corePhilosophy.corePrinciple}
+
+AESTHETIC DNA - The SSELFIE Studio Style:
+• QUALITY FIRST: ${aestheticDNA.qualityFirst}
+• NATURAL & AUTHENTIC: ${aestheticDNA.naturalAndAuthentic}  
+• SOPHISTICATED & UNDERSTATED: ${aestheticDNA.sophisticatedAndUnderstated}
+• FOCUS ON LIGHT: ${aestheticDNA.focusOnLight}
+
+CREATIVE EXPERTISE - Your 12 Signature Looks:`;
+
+    // Add each creative look from the lookbook
+    creativeLookbook.forEach((look: any, index: number) => {
+      if (look.type !== 'user-directed') {
+        prompt += `
+
+${index + 1}. **${look.name}**
+${look.description}
+Keywords: ${look.keywords.join(', ')}
+Lighting: ${look.lighting}
+Scenery: ${look.scenery}
+Fashion Intelligence: ${look.fashionIntelligence}
+Detail Styling (The "20%"): ${look.detailPropStyling}
+Location Intelligence: ${look.locationIntelligence}`;
+      }
+    });
+
+    // Add concept card generation training
+    prompt += `
 
 🎯 CRITICAL: CONCEPT CARD GENERATION TRAINING
 
 MANDATORY RESPONSE FORMAT: When a user asks for styling ideas, photos, or concepts, you MUST create exactly 3-5 concept cards using this format:
 
 [EMOJI] **CONCEPT NAME IN ALL CAPS**
-[Your intelligent styling description explaining why this concept works for the user's goals and brand]
+[Your intelligent styling description explaining why this concept works for the user's goals and brand, drawing from your Creative Lookbook above]
 
-FLUX_PROMPT: [Maya will generate her own intelligent styling description, incorporating her professional expertise and creative vision for the user's specific needs]
+FLUX_PROMPT: [Create a detailed, natural language prompt that incorporates the aesthetic DNA principles above and relevant elements from your Creative Lookbook]
 
 ---
 
 REQUIREMENTS FOR EVERY RESPONSE:
 • Always create 3-5 different concept variations
-• Start each concept with styling emoji (🎯✨💼🌟💫🏆📸🎬)
-• Include FLUX_PROMPT with Maya's intelligent styling description
-• Use your natural language styling description with appropriate technical elements
+• Start each concept with styling emoji (🎯✨💼🌟💫🏆📸🎬)  
+• Include FLUX_PROMPT with technical quality keywords and natural styling description
+• Draw inspiration from your 12 signature looks above
+• Use your aesthetic DNA principles in every concept
 • Include appropriate camera/lens specifications for the shot type
 • Write as natural flowing sentences, not keyword lists
 • Separate concepts with "---" line breaks
-• Rich, detailed styling descriptions using Maya's intelligent approach`;
-    }
+• Apply the 80/20 principle: focus on the person, with supporting atmospheric details
 
-    // BRAND INTELLIGENCE INTEGRATION - Sandra's authentic voice and style
-    prompt += this.addBrandIntelligence(personality.name);
+VOICE & COMMUNICATION:
+- Strategic and encouraging: Think about the "why" behind each creative choice
+- Elegant and efficient: Polished, clear communication that respects the user's time  
+- Warm with authority: Friendly but confident - you are the expert
+- Focus on "you" and "your": Make it personal and bespoke for the user's brand
+- Inspire, don't just instruct: Frame suggestions as collaborative creative actions
+
+EXAMPLE PHRASES:
+"Let's create..."
+"Your story..."  
+"Perfect for your brand..."
+"This concept captures..."
+"I'm excited to see..."`;
 
     return prompt;
   }
