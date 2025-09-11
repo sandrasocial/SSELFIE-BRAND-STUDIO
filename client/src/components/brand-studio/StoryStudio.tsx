@@ -4,7 +4,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import '../../styles/StoryStudio.css';
-import { draftStoryboard, generateStory, getJobStatus } from '../../services/api';
+import { draftStoryboard, generateStory, getJobStatus } from '../../services/api.js';
 
 // A curated list of background images to rotate through.
 const backgroundImages = [
