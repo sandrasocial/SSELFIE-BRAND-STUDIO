@@ -182,7 +182,7 @@ export function BrandStudioProvider({ children }: { children: React.ReactNode })
     refetchOnWindowFocus: false, // Prevent duplicate loading on focus
   });
 
-  // Send message mutation
+  // Send message mutation (with duplicate prevention)
   const sendMessageMutation = useMutation({
     mutationFn: async (messageContent: string) => {
       const response = await fetch('/api/maya/chat', {
@@ -233,9 +233,9 @@ export function BrandStudioProvider({ children }: { children: React.ReactNode })
     }
   });
 
-  // Actions
+  // Actions (with duplicate prevention)
   const sendMessage = useCallback((content: string) => {
-    if (!content.trim() || state.isTyping) return;
+    if (!content.trim() || state.isTyping || sendMessageMutation.isPending) return;
 
     // Add user message immediately
     const userMessage: ChatMessage = {
