@@ -980,6 +980,196 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api/maya', mayaFacadeRouter);
   console.log('🎨 MAYA FAÇADE: Protected API active at /api/maya/* (V1 Launch Ready)');
   
+  // 🎥 STORY STUDIO API - Server-side AI video story generation
+  // Initialize Gemini AI client for server-side operations
+  let geminiAI: any = null;
+  try {
+    const { GoogleGenAI } = await import('@google/genai');
+    if (process.env.GOOGLE_API_KEY) {
+      geminiAI = new GoogleGenAI({ apiKey: process.env.GOOGLE_API_KEY });
+      console.log('🔑 STORY STUDIO: Gemini AI initialized server-side');
+    } else {
+      console.warn('⚠️ STORY STUDIO: GOOGLE_API_KEY not configured');
+    }
+  } catch (error) {
+    console.error('❌ STORY STUDIO: Failed to initialize Gemini AI:', error);
+  }
+  
+  // POST /api/story/draft - Draft storyboard using Gemini
+  app.post('/api/story/draft', requireStackAuth, async (req: any, res) => {
+    try {
+      const { concept } = req.body;
+      const userId = req.user.id;
+      
+      if (!concept) {
+        return res.status(400).json({ error: 'Concept is required' });
+      }
+      
+      if (!geminiAI) {
+        return res.status(500).json({ error: 'AI service not available' });
+      }
+      
+      console.log('🎬 STORY STUDIO: Drafting storyboard for user:', userId);
+      
+      const prompt = `You are Maya, an AI brand strategist for luxury brands. A user wants to create a short video reel based on the following concept: "${concept}". Your task is to break this concept down into a 3-scene storyboard. For each scene, write a concise, cinematic prompt that an AI video generator can use. Respond in JSON format.`;
+      
+      const { Type } = await import('@google/genai');
+      const response = await geminiAI.models.generateContent({
+        model: 'gemini-2.0-flash-exp',
+        contents: prompt,
+        config: {
+          responseMimeType: 'application/json',
+          responseSchema: {
+            type: Type.OBJECT,
+            properties: {
+              scenes: {
+                type: Type.ARRAY,
+                items: {
+                  type: Type.OBJECT,
+                  properties: {
+                    scene: { type: Type.INTEGER },
+                    prompt: { type: Type.STRING },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+      
+      const json = JSON.parse(response.text);
+      res.json({ scenes: json.scenes });
+      
+    } catch (error) {
+      console.error('❌ STORY STUDIO: Storyboard drafting failed:', error);
+      res.status(500).json({ error: 'Failed to draft storyboard' });
+    }
+  });
+  
+  // POST /api/story/generate - Generate story videos using VEO
+  app.post('/api/story/generate', requireStackAuth, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const scenes = JSON.parse(req.body.scenes || '[]');
+      const format = req.body.format || '9:16';
+      
+      if (!scenes.length) {
+        return res.status(400).json({ error: 'Scenes are required' });
+      }
+      
+      if (!geminiAI) {
+        return res.status(500).json({ error: 'AI service not available' });
+      }
+      
+      console.log('🎬 STORY STUDIO: Generating videos for user:', userId, 'Scenes:', scenes.length);
+      
+      const jobs = [];
+      const formData = req as any; // Express with multer/body parsing
+      
+      for (const scene of scenes) {
+        const config: any = {
+          model: 'veo-2.0-generate-001',
+          prompt: scene.prompt,
+          config: {
+            numberOfVideos: 1,
+            aspectRatio: format,
+            durationSeconds: 4,
+            fps: 24,
+            resolution: '1080p',
+          },
+        };
+        
+        // Check for conditioning image
+        const imageFile = formData.files?.[`image_${scene.id}`];
+        if (imageFile && imageFile[0]) {
+          const file = imageFile[0];
+          const base64 = file.buffer.toString('base64');
+          config.image = {
+            imageBytes: base64,
+            mimeType: file.mimetype,
+          };
+        }
+        
+        // Start video generation
+        const operation = await geminiAI.models.generateVideos(config);
+        jobs.push({ 
+          sceneId: scene.id, 
+          jobId: operation.name, 
+          sceneNum: scene.scene 
+        });
+      }
+      
+      res.json({ jobs });
+      
+    } catch (error) {
+      console.error('❌ STORY STUDIO: Video generation failed:', error);
+      res.status(500).json({ error: 'Failed to generate videos' });
+    }
+  });
+  
+  // GET /api/story/status/:jobId - Get job status
+  app.get('/api/story/status/:jobId', requireStackAuth, async (req: any, res) => {
+    try {
+      const { jobId } = req.params;
+      const userId = req.user.id;
+      
+      if (!geminiAI) {
+        return res.status(500).json({ error: 'AI service not available' });
+      }
+      
+      console.log('🔍 STORY STUDIO: Checking status for job:', jobId, 'User:', userId);
+      
+      // Poll video generation status
+      const updatedOperation = await geminiAI.operations.getVideosOperation({ operation: jobId });
+      
+      const metadata = updatedOperation.metadata;
+      const status = {
+        done: updatedOperation.done,
+        progressPercent: metadata?.progressPercent,
+        state: metadata?.state,
+        videoUrl: null,
+        error: null,
+      };
+      
+      if (updatedOperation.done) {
+        if (updatedOperation.response) {
+          const videos = updatedOperation.response.generatedVideos;
+          if (videos && videos.length > 0) {
+            const videoData = videos[0];
+            // Create authenticated URL for video access
+            const url = `${decodeURIComponent(videoData.video.uri)}&key=${process.env.GOOGLE_API_KEY}`;
+            
+            try {
+              // Fetch and proxy the video for security
+              const videoResponse = await fetch(url);
+              if (videoResponse.ok) {
+                const videoBuffer = await videoResponse.arrayBuffer();
+                const videoBase64 = Buffer.from(videoBuffer).toString('base64');
+                status.videoUrl = `data:video/mp4;base64,${videoBase64}`;
+              } else {
+                status.error = 'Failed to fetch generated video';
+              }
+            } catch (fetchError) {
+              status.error = 'Failed to fetch generated video';
+            }
+          } else {
+            status.error = 'No videos were generated';
+          }
+        } else if (updatedOperation.error) {
+          status.error = updatedOperation.error.message || 'Video generation failed';
+        }
+      }
+      
+      res.json(status);
+      
+    } catch (error) {
+      console.error('❌ STORY STUDIO: Status check failed:', error);
+      res.status(500).json({ error: 'Failed to check job status' });
+    }
+  });
+  
+  console.log('🎥 STORY STUDIO: API routes registered at /api/story/*');
+  
   // 🚨 PHASE 5: Support escalation routes
   app.use('/api/support', supportEscalationRouter);
   
