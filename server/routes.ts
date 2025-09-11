@@ -16,6 +16,7 @@ import { registerVictoriaWebsiteGenerator } from "./routes/victoria-website-gene
 import subscriberImportRouter from './routes/subscriber-import';
 // REMOVED: Conflicting admin routers - consolidated into single adminRouter
 import { whitelabelRoutes } from './routes/white-label-setup';
+import videoRoutes from './routes/video';
 import path from 'path';
 import fs from 'fs';
 import { ModelRetrainService } from './retrain-model';
