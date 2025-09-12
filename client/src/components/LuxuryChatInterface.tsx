@@ -19,48 +19,90 @@ export function LuxuryConceptCard({ concept }: { concept: any }) {
     setImageUrls([]);
 
     try {
+      console.log(`🎬 Starting generation for concept: ${concept.title}`);
+      console.log(`🎯 Using prompt: ${concept.fluxPrompt || concept.title || concept.description}`);
+      
       // Step 1: Start the generation and get a prediction ID
       const startResponse = await fetch('/api/maya/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           prompt: concept.fluxPrompt || concept.title || concept.description,
-          conceptData: concept
+          conceptData: concept,
+          count: 2 // Generate 2 images
         }),
         credentials: 'include',
       });
 
+      console.log(`📊 Start response status: ${startResponse.status}`);
+
       if (!startResponse.ok) {
-        throw new Error('Failed to start image generation.');
+        const errorData = await startResponse.json().catch(() => ({ error: 'Unknown error' }));
+        console.error(`❌ Generation start failed (${startResponse.status}):`, errorData);
+        throw new Error(errorData.error || errorData.message || 'Failed to start image generation.');
       }
 
-      const { predictionId } = await startResponse.json();
+      const startResult = await startResponse.json();
+      console.log(`✅ Generation started:`, startResult);
 
-      // Step 2: Poll for the result
+      if (!startResult.predictionId) {
+        throw new Error('No prediction ID received from server');
+      }
+
+      const { predictionId } = startResult;
+
+      // Step 2: Poll for the result with enhanced error handling
       const pollInterval = setInterval(async () => {
         try {
-          const checkResponse = await fetch(`/api/maya/check-generation/${predictionId}`);
+          console.log(`🔍 Polling prediction: ${predictionId}`);
+          
+          const checkResponse = await fetch(`/api/maya/check-generation/${predictionId}`, {
+            credentials: 'include'
+          });
+          
+          console.log(`📊 Poll response status: ${checkResponse.status}`);
+          
           if (!checkResponse.ok) {
-            throw new Error('Server error while checking status.');
+            const errorText = await checkResponse.text();
+            console.error(`❌ Polling error (${checkResponse.status}):`, errorText);
+            throw new Error(`Server error while checking status: ${checkResponse.status}`);
           }
+          
           const result = await checkResponse.json();
+          console.log(`📋 Poll result:`, result);
 
-          if (result.status === 'succeeded' && result.imageUrls) {
+          if (result.status === 'succeeded' && result.imageUrls && result.imageUrls.length > 0) {
+            console.log(`✅ Generation complete! Got ${result.imageUrls.length} images`);
             clearInterval(pollInterval);
             setIsLoading(false);
             setImageUrls(result.imageUrls);
           } else if (result.status === 'failed') {
+            console.error(`❌ Generation failed:`, result.error || 'Unknown error');
             clearInterval(pollInterval);
             setIsLoading(false);
-            setError('Image generation failed. Please try again.');
+            setError(result.error || 'Image generation failed. Please try again.');
+          } else if (result.status === 'processing') {
+            console.log(`⏳ Still processing... (${result.progress || 'no progress info'})`);
+          } else {
+            console.log(`🔄 Current status: ${result.status}`);
           }
           // If status is 'processing', the interval continues
         } catch (pollError) {
+          console.error(`❌ Polling exception:`, pollError);
           clearInterval(pollInterval);
           setIsLoading(false);
-          setError('An error occurred while polling for results.');
+          setError(`Polling error: ${pollError.message}`);
         }
       }, 4000); // Poll every 4 seconds
+      
+      // Add timeout to prevent infinite polling
+      setTimeout(() => {
+        clearInterval(pollInterval);
+        if (isLoading) {
+          setIsLoading(false);
+          setError('Generation timed out. Please try again.');
+        }
+      }, 300000); // 5 minute timeout
     } catch (err) {
       setIsLoading(false);
       setError((err as Error).message);
