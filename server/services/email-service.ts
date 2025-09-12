@@ -30,8 +30,8 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
       to: params.to,
       subject: params.subject,
       html: params.html,
-      reply_to: SSELFIE_CONFIG.replyTo,
-      tags: (params.tags || []).map(tag => ({ name: tag }))
+      replyTo: SSELFIE_CONFIG.replyTo,
+      tags: (params.tags || []).map(tag => ({ name: tag, value: tag }))
     });
 
     console.log('Email sent successfully:', result.data?.id);

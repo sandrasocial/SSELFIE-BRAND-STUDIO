@@ -1,6 +1,6 @@
 import React from 'react';
 import { WelcomeHeader } from '../components/WelcomeHeader';
-import LuxuryChatInterface from '../components/LuxuryChatInterface';
+import { LuxuryChatInterface } from '../components/LuxuryChatInterface';
 
 export function StudioPage() {
   return (

@@ -7,6 +7,7 @@ import { useToast } from '../hooks/use-toast';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { apiRequest } from '../lib/queryClient';
 import ErrorBoundary from '../components/ErrorBoundary';
+import { User, UserModel } from '../types';
 
 function SimpleTraining() {
   // Always call hooks in the same order
@@ -96,8 +97,8 @@ function SimpleTraining() {
   // Check and initialize gender status
   useEffect(() => {
     const checkGenderStatus = () => {
-      if (user?.gender) {
-        setUserGender(user.gender);
+      if ((user as any)?.gender) {
+        setUserGender((user as any).gender);
         setGenderCaptured(true);
       }
       setIsCheckingGender(false);
@@ -163,7 +164,7 @@ function SimpleTraining() {
       // 🔄 PHASE 4: Enhanced retraining logic with retraining access support
       const currentPath = window.location.pathname;
       const isOnTrainingPage = currentPath.includes('simple-training') || currentPath.includes('ai-training');
-      const hasRetrainingAccess = userModel?.hasRetrainingAccess === true;
+      const hasRetrainingAccess = (userModel as any)?.hasRetrainingAccess === true;
       
       if (isOnTrainingPage) {
         if (hasRetrainingAccess) {
