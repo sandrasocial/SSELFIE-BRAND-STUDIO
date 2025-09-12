@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { StudioPage } from '../pages/StudioPage';
 import SSELFIEGallery from '../pages/sselfie-gallery';
 
-export function MobileTabLayout() {
+function MobileTabLayout() {
   const [activeTab, setActiveTab] = useState('studio');
 
   const renderActiveTab = () => {
