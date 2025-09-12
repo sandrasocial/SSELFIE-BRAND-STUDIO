@@ -183,7 +183,7 @@ function SimpleTraining() {
           });
           
           setTimeout(() => {
-            window.location.href = '/brand-studio';
+            window.location.href = '/app';
           }, 2000);
         }
       } else {
@@ -231,7 +231,7 @@ function SimpleTraining() {
             });
             
             setTimeout(() => {
-              window.location.href = '/brand-studio';
+              window.location.href = '/app';
             }, 2000);
           }
           

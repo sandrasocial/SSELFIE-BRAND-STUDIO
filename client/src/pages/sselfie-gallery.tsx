@@ -3,23 +3,18 @@ import StoryStudioModal from '../components/StoryStudioModal';
 import { useAuth } from '../hooks/use-auth';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { MemberNavigation } from '../components/member-navigation';
-// Removed PaymentVerification - free users should access gallery
-import { HeroFullBleed } from '../components/hero-full-bleed';
 import { SandraImages } from '../lib/sandra-images';
 import { apiRequest } from '../lib/queryClient';
 import ErrorBoundary from '../components/ErrorBoundary';
 import { useMemoryCleanup } from '../hooks/useMemoryCleanup';
 import { getOptimalStaleTime } from '../utils/performanceOptimizations';
 import { performanceMonitor } from '../utils/performanceMonitor';
-import VirtualizedImageGrid from '../components/VirtualizedImageGrid';
 
 function SSELFIEGallery() {
   const { user, isAuthenticated } = useAuth();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [storyStudioImage, setStoryStudioImage] = useState<{ id: string, url: string } | null>(null);
-  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [downloadingImages, setDownloadingImages] = useState(new Set<string>());
-  const [isDownloadingAll, setIsDownloadingAll] = useState(false);
   const queryClient = useQueryClient();
 
   // Pagination state
@@ -169,9 +164,8 @@ function SSELFIEGallery() {
     }
   };
 
-  const filteredImages = showFavoritesOnly ? 
-    aiImages.filter(img => favorites.includes(img.id)) : 
-    aiImages;
+  // Minimalist: always show all images
+  const filteredImages = aiImages;
 
   if (!isAuthenticated) {
     return (
@@ -216,348 +210,151 @@ function SSELFIEGallery() {
   }
 
   return (
-      <div className="min-h-screen bg-white touch-manipulation" style={{ 
-        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-        fontWeight: 300,
-        color: '#0a0a0a'
+    <div className="min-h-screen bg-white touch-manipulation" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif', fontWeight: 300, color: '#0a0a0a' }}>
+      <MemberNavigation />
+      {/* Minimalist Gallery Grid */}
+      <div style={{
+        maxWidth: 900,
+        margin: '0 auto',
+        padding: '32px 8px 64px 8px',
       }}>
-        <MemberNavigation />
-        
-        {/* Full Bleed Hero Section */}
-        <HeroFullBleed
-          backgroundImage="https://i.postimg.cc/76vVdbWY/out-0-7.png"
-          title="SSELFIE"
-          subtitle="GALLERY"
-          tagline="Your professional photo library"
-          alignment="center"
-          overlay={0.4}
-        />
-        
-        {/* Gallery Statistics & Controls Section - Mobile Optimized */}
-        <section style={{
-          padding: 'clamp(40px, 8vw, 80px) 0 clamp(30px, 6vw, 60px) 0',
-          background: '#ffffff'
+        {isLoading ? (
+          <div style={{ display: 'flex', gap: 24 }}>
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} style={{ flex: 1, aspectRatio: '3/4', background: '#f0f0f0', borderRadius: 8 }} />
+            ))}
+          </div>
+        ) : filteredImages.length === 0 ? (
+          <div style={{ textAlign: 'center', color: '#888', fontSize: 20, marginTop: 80 }}>No photos yet.</div>
+        ) : (
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: 16,
+          }}>
+            {filteredImages.map((image, idx) => (
+              <div
+                key={image.id}
+                style={{
+                  background: '#f5f5f5',
+                  borderRadius: 8,
+                  overflow: 'hidden',
+                  aspectRatio: '3/4',
+                  cursor: 'pointer',
+                  marginBottom: 0
+                }}
+                onClick={() => setSelectedImage(image.imageUrl)}
+              >
+                <img
+                  src={image.imageUrl}
+                  alt={`SSELFIE ${idx + 1}`}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                />
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Minimalist Image Detail Modal */}
+      {selectedImage && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(0,0,0,0.96)',
+          zIndex: 1000,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexDirection: 'column',
+          padding: '0 16px'
         }}>
           <div style={{
-            maxWidth: '1400px',
+            width: '100%',
+            maxWidth: 420,
             margin: '0 auto',
-            padding: '0 clamp(20px, 6vw, 6vw)'
+            background: 'transparent',
+            borderRadius: 12,
+            boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            padding: 0,
           }}>
-            <div style={{
-              textAlign: 'center',
-              marginBottom: '60px'
-            }}>
-              <p style={{
-                fontSize: '20px',
-                lineHeight: 1.5,
-                fontWeight: 300,
-                maxWidth: '700px',
-                margin: '0 auto 40px auto',
-                color: '#666666'
-              }}>
-                Every photo here is you, just elevated. Download what serves your brand, delete what doesn't. 
-                This is your professional arsenal ready for anything.
-              </p>
-            </div>
-            
-            {/* Gallery Stats - Centered Layout - Mobile Responsive */}
-            <div style={{
-              display: 'flex',
-              justifyContent: 'center',
-              gap: 'clamp(40px, 10vw, 80px)',
-              alignItems: 'center',
-              marginBottom: 'clamp(30px, 8vw, 60px)',
-              flexWrap: 'wrap',
-              padding: '0 20px'
-            }}>
-              <div style={{ textAlign: 'center' }}>
-                <div style={{
-                  fontFamily: 'Times New Roman, serif',
-                  fontSize: 'clamp(32px, 12vw, 64px)',
-                  fontWeight: 200,
-                  lineHeight: 1,
-                  marginBottom: '8px'
-                }}>
-                  {aiImages.length}
-                </div>
-                <div style={{
-                  fontSize: '11px',
-                  letterSpacing: '0.3em',
-                  textTransform: 'uppercase',
-                  color: '#666666'
-                }}>
-                  Professional Photos
-                </div>
-              </div>
-              
-              <div style={{ textAlign: 'center' }}>
-                <div style={{
-                  fontFamily: 'Times New Roman, serif',
-                  fontSize: 'clamp(32px, 12vw, 64px)',
-                  fontWeight: 200,
-                  lineHeight: 1,
-                  marginBottom: '8px'
-                }}>
-                  {favorites.length}
-                </div>
-                <div style={{
-                  fontSize: '11px',
-                  letterSpacing: '0.3em',
-                  textTransform: 'uppercase',
-                  color: '#666666'
-                }}>
-                  Favorites Saved
-                </div>
-              </div>
-              
-              {aiImages.length > 0 && (
-                <button
-                  onClick={downloadAllImages}
-                  disabled={isDownloadingAll}
-                  className="touch-manipulation"
-                  style={{
-                    padding: 'clamp(14px, 3vw, 16px) clamp(24px, 6vw, 32px)',
-                    fontSize: 'clamp(10px, 2.5vw, 11px)',
-                    fontWeight: 400,
-                    letterSpacing: '0.3em',
-                    textTransform: 'uppercase',
-                    textDecoration: 'none',
-                    border: '1px solid #0a0a0a',
-                    color: '#0a0a0a',
-                    background: 'transparent',
-                    transition: 'all 300ms ease',
-                    cursor: isDownloadingAll ? 'wait' : 'pointer',
-                    minWidth: 'clamp(180px, 30vw, 200px)',
-                    minHeight: '44px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '8px',
-                    opacity: isDownloadingAll ? 0.7 : 1
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!isDownloadingAll) {
-                      (e.target as HTMLButtonElement).style.background = '#0a0a0a';
-                      (e.target as HTMLButtonElement).style.color = '#ffffff';
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!isDownloadingAll) {
-                      (e.target as HTMLButtonElement).style.background = 'transparent';
-                      (e.target as HTMLButtonElement).style.color = '#0a0a0a';
-                    }
-                  }}
-                >
-                  {isDownloadingAll ? (
-                    <>
-                      <div style={{
-                        width: '16px',
-                        height: '16px',
-                        border: '2px solid rgba(10, 10, 10, 0.3)',
-                        borderTop: '2px solid #0a0a0a',
-                        borderRadius: '50%',
-                        animation: 'spin 1s linear infinite'
-                      }} />
-                      <span>Downloading Photos...</span>
-                    </>
-                  ) : (
-                    'Download All Photos'
-                  )}
-                </button>
-              )}
-              
-
-            </div>
-
-            {/* Filter Controls - Centered */}
-            <div style={{
-              display: 'flex',
-              justifyContent: 'center',
-              gap: '20px',
-              alignItems: 'center',
-              marginBottom: '60px',
-              flexWrap: 'wrap'
-            }}>
-              <button
-                onClick={() => setShowFavoritesOnly(false)}
-                style={{
-                  padding: '16px 32px',
-                  fontSize: '11px',
-                  fontWeight: 400,
-                  letterSpacing: '0.3em',
-                  textTransform: 'uppercase',
-                  border: showFavoritesOnly ? '1px solid #cccccc' : '1px solid #0a0a0a',
-                  color: showFavoritesOnly ? '#666666' : '#ffffff',
-                  background: showFavoritesOnly ? 'transparent' : '#0a0a0a',
-                  cursor: 'pointer',
-                  transition: 'all 300ms ease'
-                }}
-              >
-                All Photos ({aiImages.length})
-              </button>
-              
-              <button
-                onClick={() => setShowFavoritesOnly(true)}
-                style={{
-                  padding: '16px 32px',
-                  fontSize: '11px',
-                  fontWeight: 400,
-                  letterSpacing: '0.3em',
-                  textTransform: 'uppercase',
-                  border: showFavoritesOnly ? '1px solid #0a0a0a' : '1px solid #cccccc',
-                  color: showFavoritesOnly ? '#ffffff' : '#666666',
-                  background: showFavoritesOnly ? '#0a0a0a' : 'transparent',
-                  cursor: 'pointer',
-                  transition: 'all 300ms ease'
-                }}
-              >
-                ♥ Favorites ({favorites.length})
-              </button>
-            </div>
-          </div>
-        </section>
-
-        {/* Gallery Grid Section */}
-        {isLoading ? (
-          <section style={{ padding: '80px 0', background: '#f5f5f5' }}>
-            <div style={{
-              maxWidth: '1400px',
-              margin: '0 auto',
-              padding: '0 6vw',
-              textAlign: 'center'
-            }}>
-              <div style={{
-                fontSize: '16px',
-                color: '#666666',
-                fontWeight: 300
-              }}>
-                Loading your gallery...
-              </div>
-            </div>
-          </section>
-        ) : aiImages.length === 0 ? (
-          <section style={{ padding: '80px 0', background: '#f5f5f5' }}>
-            <div style={{
-              maxWidth: '1400px',
-              margin: '0 auto',
-              padding: '0 6vw',
-              textAlign: 'center'
-            }}>
-              <h2 style={{
-                fontFamily: 'Times New Roman, serif',
-                fontSize: 'clamp(2rem, 4vw, 4rem)',
-                fontWeight: 200,
-                letterSpacing: '-0.01em',
-                textTransform: 'uppercase',
-                marginBottom: '32px',
-                lineHeight: 1
-              }}>
-                Your Gallery Awaits
-              </h2>
-              <p style={{
-                fontSize: '20px',
-                lineHeight: 1.6,
-                fontWeight: 300,
-                maxWidth: '600px',
-                margin: '0 auto 48px auto',
-                color: '#666666'
-              }}>
-                This is where your professional brand photos will live. Ready to see what happens when AI meets your selfies? 
-                Spoiler: it's magic.
-              </p>
+            <img
+              src={selectedImage}
+              alt="Selected SSELFIE"
+              style={{ width: '100%', height: 'auto', objectFit: 'contain', borderRadius: 10, marginBottom: 24, background: '#f5f5f5' }}
+            />
+            <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, marginBottom: 12 }}>
               <a
-                href="/sandra-photoshoot"
-                style={{
-                  display: 'inline-block',
-                  padding: '20px 40px',
-                  fontSize: '11px',
-                  fontWeight: 400,
-                  letterSpacing: '0.3em',
-                  textTransform: 'uppercase',
-                  textDecoration: 'none',
-                  border: '1px solid #0a0a0a',
-                  color: '#ffffff',
-                  background: '#0a0a0a',
-                  transition: 'all 300ms ease'
-                }}
-                onMouseEnter={(e) => {
-                  (e.target as HTMLAnchorElement).style.background = 'transparent';
-                  (e.target as HTMLAnchorElement).style.color = '#0a0a0a';
-                }}
-                onMouseLeave={(e) => {
-                  (e.target as HTMLAnchorElement).style.background = '#0a0a0a';
-                  (e.target as HTMLAnchorElement).style.color = '#ffffff';
+                href="#"
+                style={{ color: '#0a0a0a', fontSize: 15, textDecoration: 'underline', fontWeight: 500, background: 'none', border: 'none', cursor: 'pointer' }}
+                onClick={e => {
+                  e.preventDefault();
+                  const img = filteredImages.find(img => img.imageUrl === selectedImage);
+                  if (img) toggleFavorite(img.id);
                 }}
               >
-                Start Your First Photoshoot
+                {(() => {
+                  const img = filteredImages.find(img => img.imageUrl === selectedImage);
+                  return img && favorites.includes(img.id) ? '♥ Unfavorite' : '♡ Favorite';
+                })()}
+              </a>
+              <a
+                href="#"
+                style={{ color: '#0a0a0a', fontSize: 15, textDecoration: 'underline', fontWeight: 500, background: 'none', border: 'none', cursor: 'pointer' }}
+                onClick={e => {
+                  e.preventDefault();
+                  const img = filteredImages.find(img => img.imageUrl === selectedImage);
+                  if (img) {
+                    setSelectedImage(null);
+                    setTimeout(() => {
+                      setStoryStudioImage({ id: String(img.id), url: img.imageUrl });
+                    }, 200);
+                  }
+                }}
+              >
+                Create Video Clip
+              </a>
+              <a
+                href="#"
+                style={{ color: '#0a0a0a', fontSize: 15, textDecoration: 'underline', fontWeight: 500, background: 'none', border: 'none', cursor: 'pointer' }}
+                onClick={e => {
+                  e.preventDefault();
+                  downloadImage(selectedImage, 'sselfie.jpg');
+                }}
+              >
+                Download
+              </a>
+              <a
+                href="#"
+                style={{ color: '#ff4444', fontSize: 15, textDecoration: 'underline', fontWeight: 500, background: 'none', border: 'none', cursor: 'pointer' }}
+                onClick={e => {
+                  e.preventDefault();
+                  const img = filteredImages.find(img => img.imageUrl === selectedImage);
+                  if (img) deleteImage(img.id);
+                  setSelectedImage(null);
+                }}
+              >
+                Delete
+              </a>
+              <a
+                href="#"
+                style={{ color: '#888', fontSize: 15, textDecoration: 'underline', fontWeight: 400, background: 'none', border: 'none', cursor: 'pointer' }}
+                onClick={e => {
+                  e.preventDefault();
+                  setSelectedImage(null);
+                }}
+              >
+                Close
               </a>
             </div>
-          </section>
-        ) : (
-          <section style={{ 
-            padding: '0 0 100px 0',
-            background: '#ffffff'
-          }}>
-            <div style={{
-              maxWidth: '1400px',
-              margin: '0 auto',
-              padding: '0 6vw'
-            }}>
-              {isLoading ? (
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(clamp(250px, 40vw, 300px), 1fr))',
-                  gap: 'clamp(16px, 4vw, 30px)',
-                  padding: '0 20px'
-                }}>
-                  {Array.from({ length: 6 }).map((_, index) => (
-                    <div
-                      key={index}
-                      style={{
-                        aspectRatio: '3/4',
-                        background: 'linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)',
-                        backgroundSize: '200% 100%',
-                        animation: 'shimmer 2s infinite',
-                        borderRadius: '4px'
-                      }}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(clamp(250px, 40vw, 300px), 1fr))',
-                  gap: 'clamp(16px, 4vw, 30px)',
-                  padding: '0 20px'
-                }}>
-                {filteredImages.map((image, index) => (
-                  <div
-                    key={image.id}
-                    style={{
-                      overflow: 'hidden',
-                      background: '#f5f5f5',
-                      aspectRatio: '3/4',
-                      cursor: 'pointer'
-                    }}
-                    onClick={() => setSelectedImage(image.imageUrl)}
-                  >
-                    <img 
-                      src={image.imageUrl}
-                      alt={`SSELFIE ${index + 1}`}
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover',
-                        transition: 'transform 1000ms cubic-bezier(0.4, 0, 0.2, 1)'
-                      }}
-                    />
-                  </div>
-                ))}
-                </div>
-              )}
-            </div>
-          </section>
-        )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
 
         {/* Image Lightbox */}
         {selectedImage && (
