@@ -125,6 +125,34 @@ export function LuxuryChatInterface() {
 
   return (
     <div style={{ maxWidth: '700px', margin: '0 auto', border: '1px solid #e0e0e0', background: '#fff', display: 'flex', flexDirection: 'column', height: 'calc(100vh - 250px)' }}>
+      {/* Add Choose Style button at the top */}
+      <div style={{ padding: '16px', borderBottom: '1px solid #eee', background: '#faf9f7', display: 'flex', alignItems: 'center', gap: 12 }}>
+        <button
+          type="button"
+          style={{
+            background: '#fff',
+            color: '#000',
+            border: '1px solid #ccc',
+            borderRadius: '20px',
+            padding: '8px 20px',
+            fontSize: '13px',
+            fontWeight: 500,
+            letterSpacing: '0.2em',
+            textTransform: 'uppercase',
+            cursor: 'pointer',
+            boxShadow: '0 1px 4px rgba(0,0,0,0.03)'
+          }}
+          onClick={() => setShowStyleSelector(true)}
+        >
+          {selectedStyle ? `Style: ${selectedStyle.name}` : 'Choose Style'}
+        </button>
+        {selectedStyle && (
+          <span style={{ color: '#888', fontSize: 13 }}>
+            {selectedStyle.aesthetic}
+          </span>
+        )}
+      </div>
+
       <div style={{ flex: 1, overflowY: 'auto', padding: '16px' }}>
         {messages.map((msg, index) => (
           <div key={index} style={{ marginBottom: '16px', textAlign: msg.role === 'user' ? 'right' : 'left' }}>
