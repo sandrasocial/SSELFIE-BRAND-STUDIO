@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import StoryStudioModal from '../components/StoryStudioModal';
 import { useAuth } from '../hooks/use-auth';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { MemberNavigation } from '../components/member-navigation';
@@ -15,6 +16,7 @@ import VirtualizedImageGrid from '../components/VirtualizedImageGrid';
 function SSELFIEGallery() {
   const { user, isAuthenticated } = useAuth();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [storyStudioImage, setStoryStudioImage] = useState<{ id: string, url: string } | null>(null);
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [downloadingImages, setDownloadingImages] = useState(new Set<string>());
   const [isDownloadingAll, setIsDownloadingAll] = useState(false);
@@ -532,7 +534,6 @@ function SSELFIEGallery() {
                   <div
                     key={image.id}
                     style={{
-                      position: 'relative',
                       overflow: 'hidden',
                       background: '#f5f5f5',
                       aspectRatio: '3/4',
@@ -549,206 +550,7 @@ function SSELFIEGallery() {
                         objectFit: 'cover',
                         transition: 'transform 1000ms cubic-bezier(0.4, 0, 0.2, 1)'
                       }}
-                      onMouseEnter={(e) => {
-                        (e.target as HTMLImageElement).style.transform = 'scale(1.05)';
-                      }}
-                      onMouseLeave={(e) => {
-                        (e.target as HTMLImageElement).style.transform = 'scale(1)';
-                      }}
                     />
-                    
-
-
-                    {/* Favorite Heart Button */}
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        console.log('Heart button clicked, preventing modal');
-                        toggleFavorite(image.id);
-                      }}
-                      onMouseDown={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                      }}
-                      disabled={toggleFavoriteMutation.isPending}
-                      className="touch-manipulation"
-                      style={{
-                        position: 'absolute',
-                        top: 'clamp(12px, 3vw, 16px)',
-                        right: 'clamp(12px, 3vw, 16px)',
-                        background: 'rgba(0, 0, 0, 0.6)',
-                        border: 'none',
-                        color: favorites.includes(image.id) ? '#ff4444' : '#ffffff',
-                        fontSize: 'clamp(18px, 4vw, 20px)',
-                        padding: 'clamp(10px, 2.5vw, 12px)',
-                        cursor: toggleFavoriteMutation.isPending ? 'wait' : 'pointer',
-                        borderRadius: '50%',
-                        transition: 'all 300ms ease',
-                        backdropFilter: 'blur(10px)',
-                        zIndex: 10,
-                        minWidth: '44px',
-                        minHeight: '44px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                      }}
-                      onMouseEnter={(e) => {
-                        if (!toggleFavoriteMutation.isPending) {
-                          (e.target as HTMLButtonElement).style.background = 'rgba(0, 0, 0, 0.8)';
-                          (e.target as HTMLButtonElement).style.transform = 'scale(1.1)';
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        if (!toggleFavoriteMutation.isPending) {
-                          (e.target as HTMLButtonElement).style.background = 'rgba(0, 0, 0, 0.6)';
-                          (e.target as HTMLButtonElement).style.transform = 'scale(1)';
-                        }
-                      }}
-                    >
-                      {toggleFavoriteMutation.isPending ? (
-                        <div style={{
-                          width: '16px',
-                          height: '16px',
-                          border: '2px solid rgba(255, 255, 255, 0.3)',
-                          borderTop: '2px solid #ffffff',
-                          borderRadius: '50%',
-                          animation: 'spin 1s linear infinite'
-                        }} />
-                      ) : (
-                        favorites.includes(image.id) ? '♥' : '♡'
-                      )}
-                    </button>
-                    
-                    <div style={{
-                      position: 'absolute',
-                      inset: 0,
-                      background: 'linear-gradient(to bottom, transparent 50%, rgba(10, 10, 10, 0.9) 100%)',
-                      opacity: 0,
-                      transition: 'opacity 500ms ease',
-                      display: 'flex',
-                      alignItems: 'flex-end',
-                      padding: '30px'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.opacity = '1';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.opacity = '0';
-                    }}>
-                      <div style={{ width: '100%' }}>
-                        <div style={{
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center'
-                        }}>
-                          <div>
-                            <h4 style={{
-                              color: '#ffffff',
-                              fontSize: '11px',
-                              fontWeight: 400,
-                              letterSpacing: '0.3em',
-                              textTransform: 'uppercase',
-                              marginBottom: '4px'
-                            }}>
-                              SSELFIE {index + 1}
-                            </h4>
-                            <p style={{
-                              color: 'rgba(255, 255, 255, 0.8)',
-                              fontSize: '12px',
-                              margin: 0
-                            }}>
-                              {image.prompt ? image.prompt.substring(0, 40) + '...' : 'Professional brand photo'}
-                            </p>
-                          </div>
-                          <div style={{ display: 'flex', gap: '8px' }}>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                downloadImage(image.imageUrl, `sselfie-${index + 1}.jpg`);
-                              }}
-                              disabled={downloadingImages.has(image.imageUrl)}
-                              className="touch-manipulation"
-                              style={{
-                                background: 'rgba(255, 255, 255, 0.2)',
-                                border: '1px solid rgba(255, 255, 255, 0.3)',
-                                color: '#ffffff',
-                                padding: 'clamp(8px, 2vw, 10px) clamp(10px, 3vw, 12px)',
-                                fontSize: 'clamp(9px, 2vw, 10px)',
-                                letterSpacing: '0.2em',
-                                textTransform: 'uppercase',
-                                cursor: downloadingImages.has(image.imageUrl) ? 'wait' : 'pointer',
-                                transition: 'all 300ms ease',
-                                minWidth: 'clamp(70px, 15vw, 80px)',
-                                minHeight: '44px',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                gap: '4px'
-                              }}
-                              onMouseEnter={(e) => {
-                                if (!downloadingImages.has(image.imageUrl)) {
-                                  (e.target as HTMLButtonElement).style.background = '#ffffff';
-                                  (e.target as HTMLButtonElement).style.color = '#0a0a0a';
-                                }
-                              }}
-                              onMouseLeave={(e) => {
-                                if (!downloadingImages.has(image.imageUrl)) {
-                                  (e.target as HTMLButtonElement).style.background = 'rgba(255, 255, 255, 0.2)';
-                                  (e.target as HTMLButtonElement).style.color = '#ffffff';
-                                }
-                              }}
-                            >
-                              {downloadingImages.has(image.imageUrl) ? (
-                                <>
-                                  <div style={{
-                                    width: '12px',
-                                    height: '12px',
-                                    border: '2px solid rgba(255, 255, 255, 0.3)',
-                                    borderTop: '2px solid #ffffff',
-                                    borderRadius: '50%',
-                                    animation: 'spin 1s linear infinite'
-                                  }} />
-                                  <span>...</span>
-                                </>
-                              ) : (
-                                'Download'
-                              )}
-                            </button>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                deleteImage(image.id);
-                              }}
-                              className="touch-manipulation"
-                              style={{
-                                background: 'rgba(255, 68, 68, 0.2)',
-                                border: '1px solid rgba(255, 68, 68, 0.4)',
-                                color: '#ff4444',
-                                padding: 'clamp(8px, 2vw, 10px) clamp(10px, 3vw, 12px)',
-                                fontSize: 'clamp(9px, 2vw, 10px)',
-                                letterSpacing: '0.2em',
-                                textTransform: 'uppercase',
-                                cursor: 'pointer',
-                                transition: 'all 300ms ease',
-                                minHeight: '44px',
-                                minWidth: 'clamp(60px, 12vw, 70px)'
-                              }}
-                              onMouseEnter={(e) => {
-                                (e.target as HTMLButtonElement).style.background = '#ff4444';
-                                (e.target as HTMLButtonElement).style.color = '#ffffff';
-                              }}
-                              onMouseLeave={(e) => {
-                                (e.target as HTMLButtonElement).style.background = 'rgba(255, 68, 68, 0.2)';
-                                (e.target as HTMLButtonElement).style.color = '#ff4444';
-                              }}
-                            >
-                              Delete
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
                   </div>
                 ))}
                 </div>
@@ -763,19 +565,26 @@ function SSELFIEGallery() {
             style={{
               position: 'fixed',
               inset: 0,
-              background: 'rgba(0, 0, 0, 0.9)',
+              background: 'rgba(0, 0, 0, 0.96)',
               zIndex: 1000,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              padding: '40px'
+              flexDirection: 'column',
+              padding: '0 16px'
             }}
-            onClick={() => setSelectedImage(null)}
           >
             <div style={{
-              position: 'relative',
-              maxWidth: '90vw',
-              maxHeight: '90vh'
+              width: '100%',
+              maxWidth: '420px',
+              margin: '0 auto',
+              background: 'transparent',
+              borderRadius: '12px',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              padding: '0',
             }}>
               <img 
                 src={selectedImage}
@@ -783,27 +592,140 @@ function SSELFIEGallery() {
                 style={{
                   width: '100%',
                   height: 'auto',
-                  objectFit: 'contain'
+                  objectFit: 'contain',
+                  borderRadius: '10px',
+                  marginBottom: '24px',
+                  background: '#f5f5f5'
                 }}
               />
-              <button
-                onClick={() => setSelectedImage(null)}
-                style={{
-                  position: 'absolute',
-                  top: '-40px',
-                  right: '0',
-                  background: 'transparent',
-                  border: 'none',
-                  color: '#ffffff',
-                  fontSize: '24px',
-                  cursor: 'pointer',
-                  padding: '8px'
-                }}
-              >
-                ×
-              </button>
+              <div style={{
+                width: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '12px',
+                marginBottom: '12px'
+              }}>
+                <a
+                  href="#"
+                  style={{
+                    color: '#0a0a0a',
+                    fontSize: '15px',
+                    textDecoration: 'underline',
+                    fontWeight: 500,
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                  }}
+                  onClick={e => {
+                    e.preventDefault();
+                    // Find image object by URL
+                    const img = filteredImages.find(img => img.imageUrl === selectedImage);
+                    if (img) toggleFavorite(img.id);
+                  }}
+                >
+                  {(() => {
+                    const img = filteredImages.find(img => img.imageUrl === selectedImage);
+                    return img && favorites.includes(img.id) ? '♥ Unfavorite' : '♡ Favorite';
+                  })()}
+                </a>
+                <a
+                  href="#"
+                  style={{
+                    color: '#0a0a0a',
+                    fontSize: '15px',
+                    textDecoration: 'underline',
+                    fontWeight: 500,
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                  }}
+                  onClick={e => {
+                    e.preventDefault();
+                    // Find image object by URL
+                    const img = filteredImages.find(img => img.imageUrl === selectedImage);
+                    if (img) {
+                      setSelectedImage(null);
+                      setTimeout(() => {
+                        setStoryStudioImage({ id: String(img.id), url: img.imageUrl });
+                      }, 200); // Small delay for modal transition
+                    }
+                  }}
+                >
+                  Create Video
+                </a>
+                <a
+                  href="#"
+                  style={{
+                    color: '#0a0a0a',
+                    fontSize: '15px',
+                    textDecoration: 'underline',
+                    fontWeight: 500,
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                  }}
+                  onClick={e => {
+                    e.preventDefault();
+                    downloadImage(selectedImage, 'sselfie.jpg');
+                  }}
+                >
+                  Download
+                </a>
+                <a
+                  href="#"
+                  style={{
+                    color: '#ff4444',
+                    fontSize: '15px',
+                    textDecoration: 'underline',
+                    fontWeight: 500,
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                  }}
+                  onClick={e => {
+                    e.preventDefault();
+                    const img = filteredImages.find(img => img.imageUrl === selectedImage);
+                    if (img) deleteImage(img.id);
+                    setSelectedImage(null);
+                  }}
+                >
+                  Delete
+                </a>
+                <a
+                  href="#"
+                  style={{
+                    color: '#888',
+                    fontSize: '15px',
+                    textDecoration: 'underline',
+                    fontWeight: 400,
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                  }}
+                  onClick={e => {
+                    e.preventDefault();
+                    setSelectedImage(null);
+                  }}
+                >
+                  Close
+                </a>
+              </div>
             </div>
           </div>
+        )}
+
+        {/* Story Studio Modal */}
+        {storyStudioImage && (
+          <StoryStudioModal
+            imageId={storyStudioImage.id}
+            imageUrl={storyStudioImage.url}
+            onClose={() => setStoryStudioImage(null)}
+            onSuccess={() => {
+              setStoryStudioImage(null);
+              queryClient.invalidateQueries({ queryKey: ['/api/gallery-images'] });
+            }}
+          />
         )}
 
         {/* CSS Animations */}
@@ -819,78 +741,7 @@ function SSELFIEGallery() {
           }
         `}</style>
 
-        {/* Editorial Quote Section - Only show if user has images */}
-        {aiImages.length > 0 && (
-          <section style={{
-            padding: '100px 0',
-            background: '#f5f5f5'
-          }}>
-            <div style={{
-              maxWidth: '800px',
-              margin: '0 auto',
-              padding: '0 6vw',
-              textAlign: 'center'
-            }}>
-              <blockquote style={{
-                fontFamily: 'Times New Roman, serif',
-                fontSize: 'clamp(1.5rem, 3vw, 2.5rem)',
-                fontWeight: 200,
-                lineHeight: 1.4,
-                marginBottom: '40px',
-                fontStyle: 'italic',
-                color: '#0a0a0a'
-              }}>
-                "Every photo in your gallery tells a story. Some whisper confidence, others shout CEO energy. 
-                Your job? Choose the ones that match where you're going, not where you've been."
-              </blockquote>
-              <cite style={{
-                fontSize: '11px',
-                letterSpacing: '0.3em',
-                textTransform: 'uppercase',
-                color: '#666666',
-                fontStyle: 'normal'
-              }}>
-                Sandra's Gallery Philosophy
-              </cite>
-            </div>
-          </section>
-        )}
-        
-        {/* Navigation Back to Studio */}
-        <section style={{ padding: '60px 0', background: '#ffffff', textAlign: 'center' }}>
-          <div style={{
-            maxWidth: '1400px',
-            margin: '0 auto',
-            padding: '0 6vw'
-          }}>
-            <a
-              href="/workspace"
-              style={{
-                display: 'inline-block',
-                padding: '20px 40px',
-                fontSize: '11px',
-                fontWeight: 400,
-                letterSpacing: '0.3em',
-                textTransform: 'uppercase',
-                textDecoration: 'none',
-                border: '1px solid #0a0a0a',
-                color: '#0a0a0a',
-                background: 'transparent',
-                transition: 'all 300ms ease'
-              }}
-              onMouseEnter={(e) => {
-                (e.target as HTMLAnchorElement).style.background = '#0a0a0a';
-                (e.target as HTMLAnchorElement).style.color = '#ffffff';
-              }}
-              onMouseLeave={(e) => {
-                (e.target as HTMLAnchorElement).style.background = 'transparent';
-                (e.target as HTMLAnchorElement).style.color = '#0a0a0a';
-              }}
-            >
-              Back to STUDIO
-            </a>
-          </div>
-        </section>
+        {/* Minimalist gallery: editorial quote and navigation removed */}
       </div>
   );
 }
