@@ -164,7 +164,14 @@ function Router() {
       )} />
 
       {/* NEW TABBED UI ROUTE */}
-      <Route path="/app" component={(props) => <ProtectedRoute component={AppLayout} {...props} />} />
+      <Route
+        path="/app"
+        component={(props) => (
+          <Suspense fallback={<PageLoader />}>
+            <ProtectedRoute component={AppLayout} {...props} />
+          </Suspense>
+        )}
+      />
 
       {/* LEGACY MAYA REDIRECT - Redirect old /maya route to new UI */}
       <Route path="/maya">
