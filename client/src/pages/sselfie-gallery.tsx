@@ -7,7 +7,8 @@ import ErrorBoundary from '../components/ErrorBoundary';
 
 function SSELFIEGallery() {
   const { user, isAuthenticated } = useAuth();
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedImage, setSelectedImage] = useState<any | null>(null);
+  const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
   const queryClient = useQueryClient();
 
   // Fetch user's gallery images
@@ -73,6 +74,10 @@ function SSELFIEGallery() {
     }
   };
 
+  const handleOpenVideoModal = () => {
+    setIsVideoModalOpen(true);
+  };
+
   if (!isAuthenticated) {
     return (
       <div style={{ minHeight: '100vh', background: '#ffffff' }}>
@@ -89,7 +94,9 @@ function SSELFIEGallery() {
     <div className="min-h-screen bg-white">
       <MemberNavigation />
       
-      <div style={{ maxWidth: 900, margin: '0 auto', padding: '32px 8px 64px 8px' }}>
+      <div style={{ padding: '20px' }}>
+        <h1 style={{ fontFamily: "'Times New Roman', serif", fontWeight: 200, letterSpacing: '0.2em', textAlign: 'center', marginBottom: '20px' }}>GALLERY</h1>
+        
         {isLoading ? (
           <div style={{ display: 'flex', gap: 24 }}>
             {Array.from({ length: 6 }).map((_, i) => (
@@ -101,23 +108,21 @@ function SSELFIEGallery() {
             No photos yet.
           </div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-            {aiImages.map((image, idx) => (
-              <div
-                key={image.id}
-                style={{
-                  background: '#f5f5f5',
-                  borderRadius: 8,
-                  overflow: 'hidden',
-                  aspectRatio: '3/4',
-                  cursor: 'pointer',
-                }}
-                onClick={() => setSelectedImage(image.imageUrl)}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
+            gap: '16px'
+          }}>
+            {aiImages.map((image) => (
+              <div 
+                key={image.id} 
+                onClick={() => setSelectedImage(image)} 
+                style={{ aspectRatio: '1 / 1.25', cursor: 'pointer' }}
               >
-                <img
-                  src={image.imageUrl}
-                  alt={`SSELFIE ${idx + 1}`}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                <img 
+                  src={image.imageUrl} 
+                  alt="Generated art" 
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 8 }} 
                 />
               </div>
             ))}
@@ -125,80 +130,93 @@ function SSELFIEGallery() {
         )}
       </div>
 
-      {selectedImage && (
-        <div style={{
-          position: 'fixed',
-          inset: 0,
-          background: 'rgba(0,0,0,0.96)',
-          zIndex: 1000,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          flexDirection: 'column',
-          padding: '0 16px'
-        }}>
-          <div style={{
-            width: '100%',
-            maxWidth: 420,
-            margin: '0 auto',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-          }}>
-            <img
-              src={selectedImage}
-              alt="Selected SSELFIE"
-              style={{ 
-                width: '100%', 
-                height: 'auto', 
-                objectFit: 'contain', 
-                borderRadius: 10, 
-                marginBottom: 24, 
-                background: '#f5f5f5' 
-              }}
+      {/* Image Detail Modal */}
+      {selectedImage && !isVideoModalOpen && (
+        <div 
+          onClick={() => setSelectedImage(null)} 
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+        >
+          <div 
+            onClick={(e) => e.stopPropagation()} 
+            style={{ background: 'white', padding: '20px', maxWidth: '90vw', maxHeight: '90vh', display: 'flex', flexDirection: 'column', gap: '20px' }}
+          >
+            <img 
+              src={selectedImage.imageUrl} 
+              alt="Selected" 
+              style={{ maxWidth: '100%', maxHeight: '70vh', objectFit: 'contain' }} 
             />
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
-              <button
-                style={{ 
-                  color: '#fff', 
-                  fontSize: 15, 
-                  cursor: 'pointer',
-                  background: 'none',
-                  border: 'none'
-                }}
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', textTransform: 'uppercase', letterSpacing: '0.2em', fontSize: '11px' }}>
+              <button 
                 onClick={() => {
-                  const img = aiImages.find(img => img.imageUrl === selectedImage);
+                  const img = aiImages.find(img => img.id === selectedImage.id);
                   if (img) toggleFavorite(img.id);
                 }}
+                style={{background: 'none', border: 'none', cursor: 'pointer'}}
               >
                 {(() => {
-                  const img = aiImages.find(img => img.imageUrl === selectedImage);
+                  const img = aiImages.find(img => img.id === selectedImage.id);
                   return img && favorites.includes(img.id) ? '♥ Unfavorite' : '♡ Favorite';
                 })()}
               </button>
-              <button
-                style={{ color: '#fff', fontSize: 15, cursor: 'pointer', background: 'none', border: 'none' }}
-                onClick={() => downloadImage(selectedImage, 'sselfie.jpg')}
+              <button 
+                onClick={handleOpenVideoModal} 
+                style={{background: 'none', border: 'none', cursor: 'pointer'}}
+              >
+                Create Video Clip
+              </button>
+              <a 
+                href={selectedImage.imageUrl} 
+                download 
+                style={{color: 'black', textDecoration: 'none'}}
               >
                 Download
-              </button>
-              <button
-                style={{ color: '#ff4444', fontSize: 15, cursor: 'pointer', background: 'none', border: 'none' }}
-                onClick={() => {
-                  const img = aiImages.find(img => img.imageUrl === selectedImage);
-                  if (img) deleteImage(img.id);
-                  setSelectedImage(null);
-                }}
+              </a>
+              <button 
+                onClick={() => deleteImage(selectedImage.id)} 
+                style={{background: 'none', border: 'none', cursor: 'pointer', color: 'red'}}
               >
                 Delete
               </button>
-              <button
-                style={{ color: '#888', fontSize: 15, cursor: 'pointer', background: 'none', border: 'none' }}
-                onClick={() => setSelectedImage(null)}
-              >
-                Close
-              </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Story Studio Modal */}
+      {isVideoModalOpen && (
+        <div 
+          onClick={() => setIsVideoModalOpen(false)} 
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+        >
+          <div 
+            onClick={(e) => e.stopPropagation()} 
+            style={{ background: 'white', padding: '20px', textAlign: 'center', borderRadius: '8px', maxWidth: '500px' }}
+          >
+            <h2 style={{ fontFamily: "'Times New Roman', serif", fontWeight: 200, letterSpacing: '0.2em', marginBottom: '20px' }}>CREATE VIDEO</h2>
+            <img 
+              src={selectedImage?.imageUrl} 
+              style={{width: '200px', margin: '16px auto', borderRadius: '8px'}} 
+              alt="Selected for video"
+            />
+            <p style={{ marginBottom: '20px', fontSize: '14px', color: '#666' }}>
+              Video generation will be connected here. This will integrate with your Story Studio service.
+            </p>
+            <button 
+              onClick={() => setIsVideoModalOpen(false)}
+              style={{ 
+                background: '#000', 
+                color: '#fff', 
+                padding: '12px 24px', 
+                border: 'none', 
+                borderRadius: '24px',
+                cursor: 'pointer',
+                textTransform: 'uppercase',
+                letterSpacing: '0.3em',
+                fontSize: '11px'
+              }}
+            >
+              Close
+            </button>
           </div>
         </div>
       )}

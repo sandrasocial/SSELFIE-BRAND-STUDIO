@@ -42,3 +42,5 @@ function MobileTabLayout() {
     </div>
   );
 }
+
+export { MobileTabLayout };
