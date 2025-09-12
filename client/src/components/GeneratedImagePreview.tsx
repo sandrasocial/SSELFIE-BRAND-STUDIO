@@ -34,6 +34,9 @@ const GeneratedImagePreview: React.FC<GeneratedImagePreviewProps> = ({
 
   const handleSaveImage = async (imageUrl: string) => {
     try {
+      console.log('🔄 Attempting to save image:', imageUrl);
+      console.log('🔄 Concept data:', concept);
+      
       const response = await fetch('/api/save-image', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -45,21 +48,45 @@ const GeneratedImagePreview: React.FC<GeneratedImagePreviewProps> = ({
         credentials: 'include'
       });
 
+      console.log('📊 Save response status:', response.status);
+      
       if (response.ok) {
+        const result = await response.json();
+        console.log('✅ Save response:', result);
         setSavedImages(prev => new Set([...prev, imageUrl]));
-        console.log('✅ Image saved to gallery');
+        console.log('✅ Image saved to gallery successfully');
+        
+        // Show success feedback
+        alert('Image saved to gallery!');
       } else {
-        console.error('Failed to save image');
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        console.error('❌ Failed to save image:', response.status, errorData);
+        alert(`Failed to save image: ${errorData.error || 'Unknown error'}`);
       }
     } catch (error) {
-      console.error('Error saving image:', error);
+      console.error('❌ Error saving image:', error);
+      alert(`Error saving image: ${error.message}`);
     }
   };
 
-  const handleSaveAll = () => {
-    if (onSave && imageUrls.length > 0) {
-      onSave(imageUrls);
-      imageUrls.forEach(url => setSavedImages(prev => new Set([...prev, url])));
+  const handleSaveAll = async () => {
+    console.log('🔄 Attempting to save all images:', imageUrls);
+    
+    try {
+      // Save each image individually 
+      for (const imageUrl of imageUrls) {
+        await handleSaveImage(imageUrl);
+      }
+      
+      // Also call the onSave callback if provided
+      if (onSave && imageUrls.length > 0) {
+        onSave(imageUrls);
+      }
+      
+      console.log('✅ All images saved successfully');
+    } catch (error) {
+      console.error('❌ Error saving all images:', error);
+      alert(`Error saving images: ${error.message}`);
     }
   };
 
