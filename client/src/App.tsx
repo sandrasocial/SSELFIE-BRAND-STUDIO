@@ -137,18 +137,7 @@ function Router() {
         )}
       />
 
-      {/* LEGACY MAYA REDIRECT - Redirect old /maya route to new UI */}
-      <Route path="/maya">
-        <Redirect to="/app" />
-      </Route>
 
-      {/* WORKSPACE REDIRECTS - All legacy workspace routes go to new UI */}
-      <Route path="/workspace">
-        <Redirect to="/app" />
-      </Route>
-      <Route path="/studio">
-        <Redirect to="/app" />
-      </Route>
 
     </div>
   );
