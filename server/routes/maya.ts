@@ -369,15 +369,21 @@ router.post('/generate', requireStackAuth, adminContextDetection, async (req, re
     const { prompt, conceptName, conceptId, count = 2, preset, seed } = req.body || {};
     if (!prompt) return res.status(400).json({ error: 'Prompt required' });
 
+    console.log(`🎬 MAYA GENERATION: Starting for user ${userId}`);
+    console.log(`🎯 MAYA GENERATION: Prompt: "${prompt.substring(0, 200)}..."`);
+
     // Check generation capability
-  const generationInfo = await checkGenerationCapability(userId);
+    const generationInfo = await checkGenerationCapability(userId);
     if (!generationInfo.canGenerate || !generationInfo.userModel || !generationInfo.triggerWord) {
+      console.log(`❌ MAYA GENERATION: User ${userId} model not ready`);
       return res.status(200).json({
         success: false,
         error: "AI model not ready. Complete training first.",
         canGenerate: false
       });
     }
+
+    console.log(`✅ MAYA GENERATION: User ${userId} model ready, trigger: ${generationInfo.triggerWord}`);
 
     let finalPrompt = prompt.trim();
     // Always prepend trigger word (e.g., gender)
@@ -386,6 +392,8 @@ router.post('/generate', requireStackAuth, adminContextDetection, async (req, re
       finalPrompt = `${generationInfo.triggerWord} ${cleanPrompt}`;
     }
 
+    console.log(`🚀 MAYA GENERATION: Final prompt: "${finalPrompt.substring(0, 200)}..."`);
+
     // Start image generation
     const result = await ModelTrainingService.generateUserImages(
       userId,
@@ -393,10 +401,12 @@ router.post('/generate', requireStackAuth, adminContextDetection, async (req, re
       Math.min(Math.max(parseInt(count, 10) || 2, 1), 6),
       { seed }
     );
+    
+    console.log(`✅ MAYA GENERATION: Started with prediction ID: ${result.predictionId}`);
     return res.json({ success: true, predictionId: result.predictionId });
   } catch (error) {
-    console.error('Unified Maya generate error:', error);
-    return res.status(500).json({ error: 'Failed to start image generation.' });
+    console.error('❌ MAYA GENERATION ERROR:', error);
+    return res.status(500).json({ error: 'Failed to start image generation.', details: error.message });
   }
 });
 
@@ -408,17 +418,28 @@ router.get('/check-generation/:predictionId', requireStackAuth, adminContextDete
     const predictionId = req.params.predictionId;
     if (!predictionId) return res.status(400).json({ error: 'Prediction ID required' });
 
+    console.log(`🔍 MAYA POLLING: Checking prediction ${predictionId} for user ${userId}`);
+
     // Use robust ModelTrainingService for polling and S3 migration
     const statusResult = await ModelTrainingService.checkGenerationStatus(predictionId);
+    
+    console.log(`📊 MAYA POLLING: Status result for ${predictionId}:`, {
+      status: statusResult.status,
+      imageCount: statusResult.imageUrls?.length || 0
+    });
+
     if (statusResult.status === 'succeeded') {
-      return res.json({ status: 'succeeded', imageUrls: statusResult.imageUrls });
+      console.log(`✅ MAYA POLLING: Generation ${predictionId} complete with ${statusResult.imageUrls?.length || 0} images`);
+      return res.json({ status: 'succeeded', imageUrls: statusResult.imageUrls || [] });
     } else if (statusResult.status === 'failed' || statusResult.status === 'canceled') {
-      return res.json({ status: 'failed' });
+      console.log(`❌ MAYA POLLING: Generation ${predictionId} failed`);
+      return res.json({ status: 'failed', error: 'Generation failed' });
     } else {
+      console.log(`⏳ MAYA POLLING: Generation ${predictionId} still processing`);
       return res.json({ status: 'processing' });
     }
   } catch (error) {
-    console.error('Maya check generation error:', error);
+    console.error('❌ MAYA POLLING ERROR:', error);
     return res.status(500).json({ status: 'error', error: 'Status check failed' });
   }
 });
