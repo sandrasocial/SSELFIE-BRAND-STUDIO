@@ -1369,8 +1369,10 @@ Format your response with clear scene breakdowns for VEO video generation.`;
       const { imageId, motionPrompt } = req.body;
 
       console.log(`🎥 VEO 3: Starting video generation for user ${userId}, image ${imageId}`);
+      console.log(`🎥 VEO 3: Request body:`, req.body);
 
       if (!imageId || !motionPrompt) {
+        console.error(`❌ VEO 3: Missing required fields - imageId: ${imageId}, motionPrompt: ${motionPrompt}`);
         return res.status(400).json({ 
           error: 'Image ID and motion prompt are required' 
         });
@@ -1381,18 +1383,26 @@ Format your response with clear scene breakdowns for VEO video generation.`;
       const { generatedImages } = await import('../shared/schema');
       const { eq } = await import('drizzle-orm');
 
+      console.log(`🎥 VEO 3: Looking up image with ID: ${imageId} (type: ${typeof imageId})`);
+
       const [image] = await db
         .select()
         .from(generatedImages)
         .where(eq(generatedImages.id, parseInt(imageId)))
         .limit(1);
 
+      console.log(`🎥 VEO 3: Database query result:`, image ? 'Found image' : 'No image found');
+      
       if (!image) {
+        console.error(`❌ VEO 3: Image not found in database for ID: ${imageId}`);
         return res.status(404).json({ error: 'Image not found' });
       }
 
+      console.log(`🎥 VEO 3: Image found - userId: ${image.userId}, selectedUrl: ${image.selectedUrl ? 'exists' : 'null'}`);
+
       // Verify user owns this image
       if (image.userId !== userId) {
+        console.error(`❌ VEO 3: Access denied - Image belongs to user ${image.userId}, request from user ${userId}`);
         return res.status(403).json({ error: 'Access denied' });
       }
 
