@@ -325,27 +325,7 @@ router.post('/draft-storyboard', requireStackAuth, async (req: Request, res: Res
   }
 });
 
-// GET /api/maya/check-generation/:predictionId
-router.get('/check-generation/:predictionId', async (req: Request, res: Response) => {
-  const { predictionId } = req.params;
-  try {
-    // Import Replicate/Flux API logic (assume ModelTrainingService for now)
-    const { ModelTrainingService } = await import('../model-training-service');
-    // This should check the status and return image URLs if done
-    const statusResult = await ModelTrainingService.checkGenerationStatus(predictionId);
-    if (statusResult.status === 'succeeded') {
-      // statusResult.imageUrls should be an array of permanent URLs
-      return res.json({ status: 'succeeded', imageUrls: statusResult.imageUrls });
-    } else if (statusResult.status === 'failed' || statusResult.status === 'canceled') {
-      return res.json({ status: 'failed' });
-    } else {
-      return res.json({ status: 'processing' });
-    }
-  } catch (error) {
-    console.error('❌ Error checking generation status:', error);
-    return res.status(500).json({ status: 'error', error: error.message });
-  }
-});
+// Removed duplicate route - using the properly authenticated version below
 
 /**
  * Health check endpoint for Maya Unified API
