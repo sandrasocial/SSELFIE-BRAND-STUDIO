@@ -14,6 +14,7 @@ import { optimizeRuntime } from "./utils/webVitals";
 
 // Core pages (loaded immediately) - BRAND STUDIO IS PRIMARY
 import BrandStudioPage from "./pages/BrandStudioPage";
+import AppLayout from "./pages/AppLayout";
 
 // Lazy loaded essential pages
 const BusinessLanding = lazy(() => import("./pages/business-landing"));
@@ -45,7 +46,7 @@ function SmartHome() {
         setLocation('/simple-training');
       } else {
         console.log('✅ User authenticated with completed training, redirecting to Brand Studio');
-        setLocation('/brand-studio');
+  setLocation('/app');
       }
     } else if (!isLoading && !isAuthenticated) {
       console.log('🔍 User not authenticated, staying on landing page');
@@ -162,20 +163,20 @@ function Router() {
         </Suspense>
       )} />
 
-      {/* BRAND STUDIO - PRIMARY DESTINATION */}
-      <Route path="/brand-studio" component={(props) => <ProtectedRoute component={BrandStudioPage} {...props} />} />
-      
-      {/* LEGACY MAYA REDIRECT - Redirect old /maya route to Brand Studio */}
+      {/* NEW TABBED UI ROUTE */}
+      <Route path="/app" component={(props) => <ProtectedRoute component={AppLayout} {...props} />} />
+
+      {/* LEGACY MAYA REDIRECT - Redirect old /maya route to new UI */}
       <Route path="/maya">
-        <Redirect to="/brand-studio" />
+        <Redirect to="/app" />
       </Route>
-      
-      {/* WORKSPACE REDIRECTS - All legacy workspace routes go to Brand Studio */}
+
+      {/* WORKSPACE REDIRECTS - All legacy workspace routes go to new UI */}
       <Route path="/workspace">
-        <Redirect to="/brand-studio" />
+        <Redirect to="/app" />
       </Route>
       <Route path="/studio">
-        <Redirect to="/brand-studio" />
+        <Redirect to="/app" />
       </Route>
 
     </div>
