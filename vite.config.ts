@@ -45,8 +45,9 @@ export default defineConfig(async ({ mode }) => {
       host: "0.0.0.0",
       port: parseInt(process.env.PORT || "5000"),
       hmr: {
-        host: "0.0.0.0",
-        port: parseInt(process.env.PORT || "5000"),
+        host: "fantastic-space-orbit-4j6xjqq799j437w49-5000.app.github.dev",
+        protocol: "wss",
+        port: 443
       },
       fs: { strict: false },
     },

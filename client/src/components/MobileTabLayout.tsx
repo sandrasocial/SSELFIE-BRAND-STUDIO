@@ -9,70 +9,59 @@ interface MobileTabLayoutProps {
 
 export const MobileTabLayout: React.FC<MobileTabLayoutProps> = ({ activeTab, onTabChange, children }) => {
   return (
-    <div className="mobile-tab-layout">
-      <div className="mobile-tab-content">{children}</div>
-      <nav className="mobile-tab-bar">
-        <button
-          className={`mobile-tab-button${activeTab === 'studio' ? ' active' : ''}`}
-          onClick={() => onTabChange('studio')}
-          aria-label="Studio"
-        >
-          <FiHome size={22} />
-          <span>Studio</span>
-        </button>
-        <button
-          className={`mobile-tab-button${activeTab === 'gallery' ? ' active' : ''}`}
-          onClick={() => onTabChange('gallery')}
-          aria-label="Gallery"
-        >
-          <FiImage size={22} />
-          <span>Gallery</span>
-        </button>
-        <button
-          className={`mobile-tab-button${activeTab === 'account' ? ' active' : ''}`}
-          onClick={() => onTabChange('account')}
-          aria-label="Account"
-        >
-          <FiUser size={22} />
-          <span>Account</span>
-        </button>
-      </nav>
-      <style jsx>{`
-        .mobile-tab-layout {
-          display: flex;
-          flex-direction: column;
-          height: 100vh;
+      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+        <main style={{ flex: 1, paddingBottom: '80px' }}>
+          {children}
+        import React, { useState } from 'react';
+        import { StudioPage } from '../pages/StudioPage';
+        import SSELFIEGallery from '../pages/sselfie-gallery';
+
+        export function MobileTabLayout() {
+          const [activeTab, setActiveTab] = useState('studio');
+
+          const renderActiveTab = () => {
+            switch (activeTab) {
+              case 'studio':
+                return <StudioPage />;
+              case 'gallery':
+                return <SSELFIEGallery />;
+              case 'account':
+                return <div>Account Page Coming Soon</div>;
+              default:
+                return <StudioPage />;
+            }
+          };
+
+          return (
+            <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+              <main style={{ flex: 1, paddingBottom: '80px' }}>
+                {renderActiveTab()}
+              </main>
+              <div style={{
+                position: 'fixed', bottom: 0, left: 0, right: 0,
+                background: 'rgba(255, 255, 255, 0.95)',
+                borderTop: '1px solid #e0e0e0',
+                display: 'flex', zIndex: 100, backdropFilter: 'blur(10px)'
+              }}>
+                <button
+                  onClick={() => setActiveTab('studio')}
+                  style={{ flex: 1, padding: '16px', border: 'none', background: activeTab === 'studio' ? '#f5f5f5' : 'transparent', textTransform: 'uppercase', letterSpacing: '0.3em', fontSize: '11px' }}
+                >
+                  Studio
+                </button>
+                <button
+                  onClick={() => setActiveTab('gallery')}
+                  style={{ flex: 1, padding: '16px', border: 'none', background: activeTab === 'gallery' ? '#f5f5f5' : 'transparent', textTransform: 'uppercase', letterSpacing: '0.3em', fontSize: '11px' }}
+                >
+                  Gallery
+                </button>
+                <button
+                  onClick={() => setActiveTab('account')}
+                  style={{ flex: 1, padding: '16px', border: 'none', background: activeTab === 'account' ? '#f5f5f5' : 'transparent', textTransform: 'uppercase', letterSpacing: '0.3em', fontSize: '11px' }}
+                >
+                  Account
+                </button>
+              </div>
+            </div>
+          );
         }
-        .mobile-tab-content {
-          flex: 1;
-          overflow-y: auto;
-        }
-        .mobile-tab-bar {
-          display: flex;
-          border-top: 1px solid #e0e0e0;
-          background: #fff;
-          box-shadow: 0 -2px 12px rgba(0,0,0,0.04);
-        }
-        .mobile-tab-button {
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          padding: 10px 0 6px 0;
-          background: none;
-          border: none;
-          font-size: 11px;
-          color: #666;
-          transition: color 0.2s;
-        }
-        .mobile-tab-button.active {
-          color: #000;
-        }
-        .mobile-tab-button span {
-          margin-top: 2px;
-        }
-      `}</style>
-    </div>
-  );
-};
