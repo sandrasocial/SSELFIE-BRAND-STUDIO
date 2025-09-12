@@ -1,7 +1,7 @@
-
 import React, { useRef, useState } from 'react';
 import LuxuryConceptCard from '../components/brand-studio/LuxuryConceptCard';
 import GeneratedImagePreview from '../components/GeneratedImagePreview';
+import { WelcomeHeader } from '../components/WelcomeHeader';
 
 interface FeedMessage {
   id: string;
@@ -100,6 +100,7 @@ const StudioPage: React.FC = () => {
 
   return (
     <div className="studio-page min-h-screen flex flex-col bg-neutral-50">
+      <WelcomeHeader />
       <div ref={feedRef} className="flex-1 overflow-y-auto px-4 py-8 space-y-6">
         {feed.map((msg) =>
           msg.component ? (
