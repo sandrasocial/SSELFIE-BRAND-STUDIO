@@ -976,7 +976,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // app.use('/api/maya-onboarding', mayaOnboardingRoutes);
   
   // MAYA UNIFIED API: Consolidated router with direct implementation
-  const { default: mayaUnifiedRouter } = await import('./routes/maya');
+  const { default: mayaUnifiedRouter } = await import('./routes/maya.ts');
   app.use('/api/maya', mayaUnifiedRouter);
   console.log('🎨 MAYA UNIFIED: API active at /api/maya/* (Consolidated Router)');
   
