@@ -7,7 +7,7 @@ const router = Router();
 // Trigger manual insight from specific agent (for testing)
 router.post('/trigger-manual/:agentName', requireStackAuth, async (req: any, res) => {
   try {
-    const userId = req.user?.claims?.sub;
+    const userId = req.user.id;
     if (userId !== '42585527') { // Sandra's user ID
       return res.status(403).json({ message: 'Admin access required' });
     }
@@ -73,7 +73,7 @@ router.post('/process-context', async (req, res) => {
 // Get agent engine statistics
 router.get('/stats', requireStackAuth, async (req: any, res) => {
   try {
-    const userId = req.user?.claims?.sub;
+    const userId = req.user.id;
     if (userId !== '42585527') {
       return res.status(403).json({ message: 'Admin access required' });
     }
@@ -97,7 +97,7 @@ router.get('/stats', requireStackAuth, async (req: any, res) => {
 // Test multiple agent insights
 router.post('/test-multi-agent', requireStackAuth, async (req: any, res) => {
   try {
-    const userId = req.user?.claims?.sub;
+    const userId = req.user.id;
     if (userId !== '42585527') {
       return res.status(403).json({ message: 'Admin access required' });
     }

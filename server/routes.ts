@@ -1371,7 +1371,7 @@ Format your response with clear scene breakdowns for VEO video generation.`;
   // Profile Management API
   app.get('/api/profile', requireStackAuth, async (req: any, res) => {
     try {
-      const userId = req.user?.claims?.sub;
+      const userId = req.user.id;
       if (!userId) {
         return res.status(401).json({ error: 'User not authenticated' });
       }
@@ -1395,7 +1395,7 @@ Format your response with clear scene breakdowns for VEO video generation.`;
 
   app.put('/api/profile', requireStackAuth, async (req: any, res) => {
     try {
-      const userId = req.user?.claims?.sub;
+      const userId = req.user.id;
       if (!userId) {
         return res.status(401).json({ error: 'User not authenticated' });
       }
@@ -1500,7 +1500,7 @@ Format your response with clear scene breakdowns for VEO video generation.`;
   // CRITICAL: System health check for user models
   app.get('/api/admin/validate-all-models', requireStackAuth, async (req: any, res) => {
     try {
-      const userId = req.user?.claims?.sub;
+      const userId = req.user.id;
       const user = await storage.getUser(userId);
       
       // Only admin can access this endpoint
@@ -1529,7 +1529,7 @@ Format your response with clear scene breakdowns for VEO video generation.`;
   // Victoria AI Website Builder - Uses saved onboarding data for enhanced generation
   app.post('/api/victoria/generate', requireStackAuth, async (req: any, res) => {
     try {
-      const userId = req.user?.claims?.sub;
+      const userId = req.user.id;
       const websiteData = req.body;
       
       // Generate website using Victoria AI
@@ -1650,7 +1650,7 @@ Format your response with clear scene breakdowns for VEO video generation.`;
   app.post('/api/victoria/customize', requireStackAuth, async (req: any, res) => {
     try {
       const { siteId, modifications } = req.body;
-      const userId = req.user?.claims?.sub;
+      const userId = req.user.id;
       
       const { db } = await import('./drizzle');
       const { websites } = await import('../shared/schema');
@@ -1675,7 +1675,7 @@ Format your response with clear scene breakdowns for VEO video generation.`;
   app.post('/api/victoria/deploy', requireStackAuth, async (req: any, res) => {
     try {
       const { siteId } = req.body;
-      const userId = req.user?.claims?.sub;
+      const userId = req.user.id;
       
       const { db } = await import('./drizzle');
       const { websites } = await import('../shared/schema');
@@ -1705,7 +1705,7 @@ Format your response with clear scene breakdowns for VEO video generation.`;
 
   app.get('/api/victoria/websites', requireStackAuth, async (req: any, res) => {
     try {
-      const userId = req.user?.claims?.sub;
+      const userId = req.user.id;
       const { db } = await import('./drizzle');
       const { websites } = await import('../shared/schema');
       const { eq, desc } = await import('drizzle-orm');
@@ -1726,7 +1726,7 @@ Format your response with clear scene breakdowns for VEO video generation.`;
   // Save brand assessment from new personal brand flow
   app.post('/api/save-brand-assessment', requireStackAuth, async (req: any, res) => {
     try {
-      const userId = req.user?.claims?.sub;
+      const userId = req.user.id;
       const assessmentData = req.body;
       
       const { db } = await import('./drizzle');
@@ -1782,7 +1782,7 @@ Format your response with clear scene breakdowns for VEO video generation.`;
   // Website management endpoints
   app.get('/api/websites', requireStackAuth, async (req: any, res) => {
     try {
-      const userId = req.user?.claims?.sub;
+      const userId = req.user.id;
       const { db } = await import('./drizzle');
       const { websites } = await import('../shared/schema');
       const { eq, desc } = await import('drizzle-orm');
@@ -1802,7 +1802,7 @@ Format your response with clear scene breakdowns for VEO video generation.`;
 
   app.post('/api/websites', requireStackAuth, async (req: any, res) => {
     try {
-      const userId = req.user?.claims?.sub;
+      const userId = req.user.id;
       const { db } = await import('./drizzle');
       const { websites, insertWebsiteSchema } = await import('../shared/schema');
       
@@ -1827,7 +1827,7 @@ Format your response with clear scene breakdowns for VEO video generation.`;
 
   app.put('/api/websites/:id', requireStackAuth, async (req: any, res) => {
     try {
-      const userId = req.user?.claims?.sub;
+      const userId = req.user.id;
       const websiteId = parseInt(req.params.id);
       const { db } = await import('./drizzle');
       const { websites } = await import('../shared/schema');
@@ -1852,7 +1852,7 @@ Format your response with clear scene breakdowns for VEO video generation.`;
 
   app.delete('/api/websites/:id', requireStackAuth, async (req: any, res) => {
     try {
-      const userId = req.user?.claims?.sub;
+      const userId = req.user.id;
       const websiteId = parseInt(req.params.id);
       const { db } = await import('./drizzle');
       const { websites } = await import('../shared/schema');
@@ -1876,7 +1876,7 @@ Format your response with clear scene breakdowns for VEO video generation.`;
 
   app.post('/api/websites/:id/refresh-screenshot', requireStackAuth, async (req: any, res) => {
     try {
-      const userId = req.user?.claims?.sub;
+      const userId = req.user.id;
       const websiteId = parseInt(req.params.id);
       // TODO: Implement screenshot generation logic
       // For now, return success
@@ -1892,7 +1892,7 @@ Format your response with clear scene breakdowns for VEO video generation.`;
   // 🚨 Check training status and handle failures
   app.get('/api/training-status', requireStackAuth, async (req: any, res) => {
     try {
-      const userId = req.user?.id || req.user?.claims?.sub;
+      const userId = req.user.id;
       console.log(`🔍 Checking training status for user: ${userId}`);
       
       // Get user plan to verify they can retrain
@@ -1934,7 +1934,7 @@ Format your response with clear scene breakdowns for VEO video generation.`;
   // 🔧 PHASE 3: Retry model extraction for failed trainings
   app.post('/api/training/retry-extraction', requireStackAuth, async (req: any, res) => {
     try {
-      const userId = req.user?.id || req.user?.claims?.sub;
+      const userId = req.user.id;
       console.log(`🔧 PHASE 3: Model extraction retry requested for user: ${userId}`);
       
       // Get user plan to verify they can retry
@@ -1987,7 +1987,7 @@ Format your response with clear scene breakdowns for VEO video generation.`;
   app.get('/api/training-progress/:requestId', requireStackAuth, async (req: any, res) => {
     try {
       const { requestId } = req.params;
-      const authUserId = req.user?.id || req.user?.claims?.sub;
+      const authUserId = req.user.id;
       
       console.log(`🔍 TRAINING PROGRESS: Request for ${requestId}, auth user: ${authUserId}`);
       
@@ -2108,7 +2108,7 @@ Format your response with clear scene breakdowns for VEO video generation.`;
   // Simple training page route (for direct image upload)
   app.post('/api/train-model', requireStackAuth, async (req: any, res) => {
     try {
-      const userId = req.user?.claims?.sub;
+      const userId = req.user.id;
       const { images } = req.body;
       
       console.log(`🎯 Training model for user: ${userId} with ${images?.length || 0} images`);
@@ -2297,7 +2297,7 @@ Format your response with clear scene breakdowns for VEO video generation.`;
   // User Model endpoint - Production ready (DUPLICATE - REMOVE THIS ONE)
   app.get('/api/user-model-old', requireStackAuth, async (req: any, res) => {
     try {
-      const userId = req.user?.claims?.sub;
+      const userId = req.user.id;
       console.log('🤖 OLD ENDPOINT - Fetching user model for user:', userId);
       
       const { db } = await import('./drizzle');
@@ -2330,7 +2330,7 @@ Format your response with clear scene breakdowns for VEO video generation.`;
   // NOTE: Main Maya interactions now use /api/maya/* unified system
   app.get('/api/maya-chats', requireStackAuth, async (req: any, res) => {
     try {
-      const userId = req.user?.claims?.sub;
+      const userId = req.user.id;
       console.log('💬 Fetching Maya chats for user:', userId);
       
       const userChats = await storage.getMayaChats(userId);
@@ -2348,7 +2348,7 @@ Format your response with clear scene breakdowns for VEO video generation.`;
   // LEGACY: Get Maya chats organized by category
   app.get('/api/maya-chats/categorized', requireStackAuth, async (req: any, res) => {
     try {
-      const userId = req.user?.claims?.sub;
+      const userId = req.user.id;
       console.log('📂 Fetching categorized Maya chats for user:', userId);
       
       const categorizedChats = await storage.getMayaChatsByCategory(userId);
@@ -2365,7 +2365,7 @@ Format your response with clear scene breakdowns for VEO video generation.`;
 
   app.post('/api/maya-chats', requireStackAuth, async (req: any, res) => {
     try {
-      const userId = req.user?.claims?.sub;
+      const userId = req.user.id;
       const { chatTitle, chatSummary } = req.body;
       
       console.log('💬 Creating Maya chat for user:', userId);
@@ -2391,7 +2391,7 @@ Format your response with clear scene breakdowns for VEO video generation.`;
   app.post('/api/maya-chat', requireStackAuth, async (req: any, res) => {
     try {
       const { message, chatHistory } = req.body;
-      const userId = req.user?.claims?.sub;
+      const userId = req.user.id;
       
       if (!message) {
         return res.status(400).json({ error: 'Message is required' });
@@ -2550,7 +2550,7 @@ Remember: You are the MEMBER experience Maya - provide creative guidance and ima
   app.post('/api/victoria-website-chat', requireStackAuth, async (req: any, res) => {
     try {
       const { message, onboardingData, conversationHistory } = req.body;
-      const userId = req.user?.claims?.sub;
+      const userId = req.user.id;
       
       if (!message) {
         return res.status(400).json({ error: 'Message is required' });
@@ -2711,7 +2711,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     try {
       console.log('🎬 Maya generation endpoint called');
       
-      const userId = req.user?.claims?.sub;
+      const userId = req.user.id;
       const { prompt, customPrompt } = req.body;
       const actualPrompt = customPrompt || prompt;
       
@@ -2813,7 +2813,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   app.get('/api/check-generation/:predictionId', requireStackAuth, async (req: any, res) => {
     try {
       const { predictionId } = req.params;
-      const userId = req.user?.claims?.sub;
+      const userId = req.user.id;
       
       console.log(`🔍 Maya polling: Checking prediction ${predictionId} for user ${userId}`);
       
@@ -2872,7 +2872,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   // Maya save image endpoint - Heart functionality
   app.post('/api/save-image', requireStackAuth, async (req: any, res) => {
     try {
-      const userId = req.user?.claims?.sub;
+      const userId = req.user.id;
       const { imageUrl, source, prompt } = req.body;
 
       if (!imageUrl) {
@@ -3004,7 +3004,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       console.log(`✅ TRACKER DEBUG: Found tracker ${trackerId}, userId: ${tracker.userId}, status: ${tracker.status}`);
       
       // Verify user owns this tracker - use auth ID directly for admin
-      const authUserId = req.user?.id || req.user?.claims?.sub;
+      const authUserId = req.user.id;
       const claims = req.user.claims;
       
       console.log(`🔍 USER DEBUG: Auth user ID: ${authUserId}, Email: ${claims.email}`);
@@ -3078,7 +3078,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       }
       
       // Get the correct database user ID
-      const authUserId = req.user?.id || req.user?.claims?.sub;
+      const authUserId = req.user.id;
       const claims = req.user.claims;
       
       let user = await storage.getUser(authUserId);
@@ -3131,7 +3131,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   // 🔥 CRITICAL FIX: Gallery images endpoint - ONLY return user-hearted/saved images
   app.get('/api/gallery-images', requireStackAuth, async (req: any, res) => {
     try {
-      const authUserId = req.user?.id || req.user?.claims?.sub;
+      const authUserId = req.user.id;
       const claims = req.user.claims;
       
       // Get the correct database user ID
@@ -3197,7 +3197,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   // 🔄 ADMIN IMAGE MIGRATION: Restore admin user images to SSELFIE gallery
   app.post('/api/admin/migrate-images-to-gallery', requireStackAuth, async (req: any, res) => {
     try {
-      const authUserId = req.user?.id || req.user?.claims?.sub;
+      const authUserId = req.user.id;
       const claims = req.user.claims;
       
       // Get the correct database user ID
@@ -3286,7 +3286,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   // Subscription API - Required for workspace functionality
   app.get('/api/subscription', requireStackAuth, async (req: any, res) => {
     try {
-      const userId = req.user?.claims?.sub;
+      const userId = req.user.id;
       
       // For now, return basic subscription data
       // TODO: Integrate with Stripe for real subscription data
@@ -3307,7 +3307,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   // Real Usage API - Connected to actual user data
   app.get('/api/usage/status', requireStackAuth, async (req: any, res) => {
     try {
-      const userId = req.user?.claims?.sub;
+      const userId = req.user.id;
       if (!userId) {
         return res.status(401).json({ error: 'Authentication required' });
       }
@@ -3337,7 +3337,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   // Usage endpoint for account settings page
   app.get('/api/usage', requireStackAuth, async (req: any, res) => {
     try {
-      const userId = req.user?.claims?.sub;
+      const userId = req.user.id;
       if (!userId) {
         return res.status(401).json({ error: 'Authentication required' });
       }
@@ -3701,7 +3701,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         userId = '42585527'; // Sandra's actual admin user ID
         console.log('✅ ADMIN AUTH: Using Sandra admin userId:', userId);
       } else if (req.requireStackAuth()) {
-        userId = req.user?.claims?.sub || req.user?.id;
+        userId = req.user.id;
         console.log('🔒 SESSION AUTH: Using session userId:', userId);
       }
 
@@ -3954,7 +3954,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   // Get user's favorite image IDs
   app.get('/api/images/favorites', requireStackAuth, async (req: any, res) => {
     try {
-      const authUserId = req.user?.id || req.user?.claims?.sub;
+      const authUserId = req.user.id;
       const claims = req.user.claims;
       
       // Get the correct database user ID
@@ -3997,7 +3997,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   app.post('/api/images/:imageId/favorite', requireStackAuth, async (req: any, res) => {
     try {
       const { imageId } = req.params;
-      const authUserId = req.user?.id || req.user?.claims?.sub;
+      const authUserId = req.user.id;
       const claims = req.user.claims;
       
       // Get the correct database user ID
@@ -4063,7 +4063,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   app.delete('/api/ai-images/:imageId', requireStackAuth, async (req: any, res) => {
     try {
       const { imageId } = req.params;
-      const authUserId = req.user?.id || req.user?.claims?.sub;
+      const authUserId = req.user.id;
       const claims = req.user.claims;
       
       // Get the correct database user ID
@@ -4352,7 +4352,7 @@ Example: "minimalist rooftop terrace overlooking city skyline at golden hour, we
   // Enhanced endpoint for users to start fresh training (retraining)
   app.post('/api/initiate-new-training', requireStackAuth, async (req: any, res) => {
     try {
-      const userId = req.user?.id || req.user?.claims?.sub;
+      const userId = req.user.id;
       const { resetExisting = false } = req.body;
       
       console.log(`🚀 RETRAIN: User ${userId} initiating new training (reset: ${resetExisting})`);

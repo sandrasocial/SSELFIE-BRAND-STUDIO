@@ -7,7 +7,7 @@ const router = Router();
 router.post('/api/victoria-website-chat', requireStackAuth, async (req: any, res) => {
   try {
     const { message, conversationHistory, selectedImages = [], selectedFlatlays = [] } = req.body;
-    const userId = req.user.claims.sub;
+    const userId = req.user.id;
 
     // Enhanced prompt for Victoria website generation
     const websiteGenerationPrompt = `

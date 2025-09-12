@@ -116,72 +116,56 @@ ${mayaIntelligence.trendIntelligence.personalizedTrends.slice(0, 3).join('\n')}`
     let parsedMessages: any[] = [];
     
     try {
-      // Improved parsing function to prevent duplication and map content correctly
+      // New, resilient concept card parser
       function parseMayaResponse(responseText: string) {
-        const messages = [];
+        const messages: any[] = [];
         const conceptDelimiter = '---';
-        
-        // Split the entire response by the concept delimiter
-        const parts = responseText.split(conceptDelimiter).map(p => p.trim()).filter(Boolean);
 
-        // The first part is always the introductory text
-        if (parts.length > 0) {
-          // Clean up any potential concept titles from the intro text
-          const introText = parts[0].split('🎯')[0].trim();
-          if (introText) {
-            messages.push({
-              sender: 'ai',
-              type: 'text',
-              content: introText,
-            });
-          }
+        const firstConceptMarkerIndex = responseText.search(/🎯|✨|🌟|📸/);
+
+        if (firstConceptMarkerIndex === -1) {
+          // No concepts found, return the entire response as a single text message
+          return [{ sender: 'ai', type: 'text', content: responseText.trim() }];
         }
 
-        // Process the remaining parts as concept cards
-        const conceptParts = responseText.includes(conceptDelimiter) ? parts : [responseText]; // Handle cases with and without delimiters
+        // 1. Isolate and add the introductory text
+        const introText = responseText.substring(0, firstConceptMarkerIndex).trim();
+        if (introText) {
+          messages.push({ sender: 'ai', type: 'text', content: introText });
+        }
 
-        for (const part of conceptParts) {
-          const titleMatch = part.match(/🎯\s*\*\*(.*?)\*\*/);
-          const fluxPromptMatch = part.match(/FLUX_PROMPT:\s*`([^`]+)`/);
+        // 2. Isolate the text containing all concept blocks
+        const conceptsText = responseText.substring(firstConceptMarkerIndex);
+        const conceptBlocks = conceptsText.split(conceptDelimiter).map(block => block.trim()).filter(Boolean);
 
-          if (titleMatch && fluxPromptMatch) {
-            // The description is the text between the title and the FLUX_PROMPT
-            const descriptionStartIndex = part.indexOf(titleMatch[0]) + titleMatch[0].length;
-            const descriptionEndIndex = part.indexOf('FLUX_PROMPT:');
-            const description = part.substring(descriptionStartIndex, descriptionEndIndex).trim();
-            
-            const title = titleMatch[1].trim();
-            const fluxPrompt = fluxPromptMatch[1].trim();
+        for (const block of conceptBlocks) {
+          // 3. Use a precise regex to capture title, description, and prompt
+          const conceptRegex = /(?:🎯|✨|🌟|📸)\s*\*\*(.*?)\*\*\s*([\s\S]*?)\s*FLUX_PROMPT:\s*([\s\S]*)/;
+          const match = block.match(conceptRegex);
+
+          if (match) {
+            const title = match[1].trim();
+            const description = match[2].trim();
+            const fluxPrompt = match[3].trim();
 
             messages.push({
               sender: 'ai',
               type: 'concept',
               content: {
                 title: title,
-                category: 'AI Concept', // You can enhance this later
-                description: description, // Correctly mapped description
-                fluxPrompt: fluxPrompt, // Correctly mapped FLUX prompt
+                category: 'AI Concept',
+                description: description, // Correct description
+                fluxPrompt: fluxPrompt, // Correct prompt
               },
             });
           }
         }
 
-        // If no concepts were parsed but there's text, return the text.
-        // This handles regular chat messages that don't contain concepts.
-        if (messages.length === 0 && responseText) {
-          return [{
-            sender: 'ai',
-            type: 'text',
-            content: responseText,
-          }];
-        }
-
         return messages;
       }
 
-      // Parse the Claude response using the improved parser
+      // Parse the Claude response using the new parser
       parsedMessages = parseMayaResponse(claudeResponse);
-      
       // Extract concept cards from parsed messages
       conceptCards = parsedMessages
         .filter(msg => msg.type === 'concept')
@@ -189,12 +173,8 @@ ${mayaIntelligence.trendIntelligence.personalizedTrends.slice(0, 3).join('\n')}`
           const concept = msg.content;
           const emoji = concept.title.match(/^([🎯✨💫🔥🌟💎🌅🏢💼🌊👑💃📸🎬♦️🚖])/)?.[1] || '🎯';
           const title = concept.title.replace(/^[🎯✨💫🔥🌟💎🌅🏢💼🌊👑💃📸🎬♦️🚖]\s*/, '');
-          
-          console.log(`🎨 CONCEPT PARSED: ${emoji} ${title}`);
-          
           // Determine concept type for 80/20 rule implementation
           const conceptType = determineConceptType(title, concept.fluxPrompt);
-          
           return {
             id: `concept_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
             title: `${emoji} ${title}`,
@@ -206,13 +186,11 @@ ${mayaIntelligence.trendIntelligence.personalizedTrends.slice(0, 3).join('\n')}`
             type: conceptType // portrait | flatlay | lifestyle for 80/20 rule
           };
         });
-      
       if (conceptCards.length > 0) {
         console.log(`✅ CONCEPT CARDS: Successfully parsed ${conceptCards.length} Creative Lookbook concepts`);
       } else {
         console.log('⚠️ CONCEPT CARDS: No Creative Lookbook concepts found in Maya response');
       }
-      
     } catch (parseError) {
       console.error('❌ CONCEPT PARSING ERROR:', parseError);
       console.log('📝 CONCEPT PARSING: Falling back to no concept cards');
@@ -300,6 +278,60 @@ router.post('/draft-storyboard', requireStackAuth, async (req: Request, res: Res
       error: 'Maya encountered an issue with your storyboard request',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
+  }
+});
+
+/**
+ * POST /api/maya/generate
+ * 
+ * Generate images from concept cards created by Maya
+ * Validates user has trained model and triggers image generation
+ */
+router.post('/generate', requireStackAuth, async (req: Request, res: Response) => {
+  try {
+    console.log('🎨 MAYA UNIFIED: Image generation request received');
+    const { prompt, conceptData } = req.body;
+    const userId = (req as any).user?.id || (req as any).user?.claims?.sub;
+    if (!prompt) return res.status(400).json({ error: 'Missing required field: prompt' });
+    if (!userId) return res.status(401).json({ error: 'Authentication required' });
+    const userModel = await storage.getUserModelByUserId(userId);
+    if (!userModel || userModel.trainingStatus !== 'completed' || !userModel.replicateVersionId) {
+      return res.status(400).json({ success: false, message: "Your AI model isn't ready yet. Please complete training first.", error: "USER_MODEL_NOT_TRAINED" });
+    }
+    // Import and call ModelTrainingService directly
+    const { ModelTrainingService } = await import('../model-training-service');
+    // This should trigger the Replicate/Flux job and return a predictionId
+    const result = await ModelTrainingService.generateUserImages(userId, prompt, 4);
+    // Immediately return the predictionId for polling
+    res.json({ success: true, predictionId: result.predictionId });
+  } catch (error) {
+    console.error('❌ MAYA UNIFIED: Image generation error:', error);
+    if (error.message === 'USER_MODEL_NOT_TRAINED: User must train their AI model before generating images. Individual models required.') {
+      return res.status(400).json({ success: false, message: "Your AI model isn't ready yet. Please complete training first.", error: "USER_MODEL_NOT_TRAINED" });
+    }
+    res.status(500).json({ error: 'Maya encountered an issue with your image generation request', details: process.env.NODE_ENV === 'development' ? error.message : undefined });
+  }
+});
+
+// GET /api/maya/check-generation/:predictionId
+router.get('/check-generation/:predictionId', async (req: Request, res: Response) => {
+  const { predictionId } = req.params;
+  try {
+    // Import Replicate/Flux API logic (assume ModelTrainingService for now)
+    const { ModelTrainingService } = await import('../model-training-service');
+    // This should check the status and return image URLs if done
+    const statusResult = await ModelTrainingService.checkGenerationStatus(predictionId);
+    if (statusResult.status === 'succeeded') {
+      // statusResult.imageUrls should be an array of permanent URLs
+      return res.json({ status: 'completed', imageUrls: statusResult.imageUrls });
+    } else if (statusResult.status === 'failed' || statusResult.status === 'canceled') {
+      return res.json({ status: 'failed' });
+    } else {
+      return res.json({ status: 'processing' });
+    }
+  } catch (error) {
+    console.error('❌ Error checking generation status:', error);
+    return res.status(500).json({ status: 'error', error: error.message });
   }
 });
 

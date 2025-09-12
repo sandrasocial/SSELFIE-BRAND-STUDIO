@@ -8,7 +8,7 @@ const router = Router();
 // 📧 Add email account (personal or business)
 router.post('/accounts', requireStackAuth, async (req: any, res) => {
   try {
-    const userId = req.user.claims.sub;
+    const userId = req.user.id;
     const { type, email, provider, accessToken, refreshToken } = req.body;
 
     if (!type || !email || !provider) {
@@ -47,7 +47,7 @@ router.post('/accounts', requireStackAuth, async (req: any, res) => {
 // 🔍 Process unread emails
 router.post('/process', requireStackAuth, async (req: any, res) => {
   try {
-    const userId = req.user.claims.sub;
+    const userId = req.user.id;
     console.log(`📧 AVA: Processing emails for user ${userId}`);
 
     const insights = await emailManagementAgent.processUnreadEmails(userId);
@@ -66,7 +66,7 @@ router.post('/process', requireStackAuth, async (req: any, res) => {
 // 🚀 Start automated monitoring
 router.post('/monitor/start', requireStackAuth, async (req: any, res) => {
   try {
-    const userId = req.user.claims.sub;
+    const userId = req.user.id;
     const { intervalMinutes = 60 } = req.body;
 
     emailManagementAgent.startEmailMonitoring(userId, intervalMinutes);
@@ -93,7 +93,7 @@ router.post('/monitor/start', requireStackAuth, async (req: any, res) => {
 // 📊 Get email summary dashboard  
 router.get('/dashboard', requireStackAuth, async (req: any, res) => {
   try {
-    const userId = req.user.claims.sub;
+    const userId = req.user.id;
     console.log(`📊 Loading REAL email dashboard for user ${userId}`);
     
     // Try to get real email data from Gmail integration
@@ -147,7 +147,7 @@ router.get('/dashboard', requireStackAuth, async (req: any, res) => {
 // 🎯 Test email processing (available for all users)
 router.post('/test-processing', requireStackAuth, async (req: any, res) => {
   try {
-    const userId = req.user.claims.sub;
+    const userId = req.user.id;
 
     // Simulate email processing with mock data
     await SlackNotificationService.sendAgentInsight(

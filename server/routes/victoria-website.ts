@@ -39,7 +39,7 @@ const CustomizationSchema = z.object({
 router.post('/generate', requireStackAuth, async (req: any, res) => {
   try {
     const validatedData = WebsiteGenerationSchema.parse(req.body);
-    const userId = req.user.claims.sub;
+    const userId = req.user.id;
 
     // Generate website ID
     const websiteId = `site_${userId}_${Date.now()}`;
@@ -116,7 +116,7 @@ router.get('/templates', requireStackAuth, async (req: any, res) => {
 router.post('/customize', requireStackAuth, async (req: any, res) => {
   try {
     const validatedData = CustomizationSchema.parse(req.body);
-    const userId = req.user.claims.sub;
+    const userId = req.user.id;
 
     // Verify ownership
     const [existingWebsite] = await db
@@ -166,7 +166,7 @@ router.post('/customize', requireStackAuth, async (req: any, res) => {
 router.post('/deploy', requireStackAuth, async (req: any, res) => {
   try {
     const { siteId, domainPreferences } = req.body;
-    const userId = req.user.claims.sub;
+    const userId = req.user.id;
 
     // Verify ownership
     const [website] = await db

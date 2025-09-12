@@ -7,7 +7,7 @@ const router = Router();
 // 🔐 Start Gmail OAuth flow
 router.get('/connect/:accountType', requireStackAuth, async (req: any, res) => {
   try {
-    const userId = req.user.claims.sub;
+    const userId = req.user.id;
     const { accountType } = req.params;
 
     if (!['personal', 'business'].includes(accountType)) {
@@ -55,7 +55,7 @@ router.get('/callback', async (req, res) => {
 // 📧 Fetch emails from connected Gmail accounts
 router.post('/fetch-emails', requireStackAuth, async (req: any, res) => {
   try {
-    const userId = req.user.claims.sub;
+    const userId = req.user.id;
     
     console.log(`📧 Fetching emails for user ${userId}`);
     await gmailIntegration.processAllGmailAccounts(userId);
@@ -74,7 +74,7 @@ router.post('/fetch-emails', requireStackAuth, async (req: any, res) => {
 // 📊 Get connected Gmail accounts status
 router.get('/accounts', requireStackAuth, async (req: any, res) => {
   try {
-    const userId = req.user.claims.sub;
+    const userId = req.user.id;
     const accounts = await gmailIntegration.getGmailAccounts(userId);
     
     res.json({

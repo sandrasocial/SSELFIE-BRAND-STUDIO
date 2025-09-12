@@ -16,7 +16,7 @@ export function registerVictoriaWebsiteGenerator(app: Express) {
   // Generate complete website using Victoria's AI
   app.post('/api/victoria/generate-website', requireStackAuth, async (req: any, res) => {
     try {
-      const userId = req.user?.claims?.sub;
+      const userId = req.user.id;
       const data: WebsiteGenerationRequest = req.body;
 
       // Generate website structure based on input
