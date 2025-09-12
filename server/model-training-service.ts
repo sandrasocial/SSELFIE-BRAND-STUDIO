@@ -59,7 +59,7 @@ export class ModelTrainingService {
               Key: key,
               Body: imgBuffer,
               ContentType: 'image/png',
-              ACL: 'public-read',
+              // No ACL - bucket policy handles permissions
             });
             await s3.send(putCmd);
             const publicUrl = `https://${bucket}.s3.amazonaws.com/${key}`;
@@ -978,8 +978,7 @@ export class ModelTrainingService {
         Key: s3Key,
         Body: Buffer.from(weightsBuffer),
         ContentType: 'application/octet-stream',
-        // 🔒 SECURITY FIX: Ensure private access only
-        ACL: 'private',
+        // No ACL - bucket policy handles permissions  
         ServerSideEncryption: 'AES256',
         Metadata: {
           userId: userId,
