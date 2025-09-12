@@ -2,10 +2,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useMayaChat } from '../hooks/useMayaChat';
 import { StyleSelector } from './StyleSelector';
 import { BrandStyleCollection } from '../data/brand-style-collections';
+import GeneratedImagePreview from './GeneratedImagePreview';
 
 /**
  * LuxuryConceptCard Component
- * Renders a single concept card, handles image generation, polling, and previewing results.
+ * Renders a single concept card, handles image generation, polling, and uses GeneratedImagePreview.
  */
 export function LuxuryConceptCard({ concept }: { concept: any }) {
   const [isLoading, setIsLoading] = useState(false);
@@ -66,6 +67,16 @@ export function LuxuryConceptCard({ concept }: { concept: any }) {
     }
   };
 
+  const handleSaveImages = async (imageUrls: string[]) => {
+    try {
+      console.log('Saving images to gallery:', imageUrls);
+      // The GeneratedImagePreview component handles individual saves
+      // This could be used for batch operations if needed
+    } catch (error) {
+      console.error('Error saving images:', error);
+    }
+  };
+
   return (
     <div style={{ border: '1px solid #e0e0e0', padding: '16px', margin: '16px 0', background: '#f5f5f5' }}>
       <p style={{ margin: 0, textTransform: 'uppercase', letterSpacing: '0.3em', fontSize: '11px', color: '#666' }}>{concept.category}</p>
@@ -78,19 +89,15 @@ export function LuxuryConceptCard({ concept }: { concept: any }) {
         </button>
       )}
 
-      {isLoading && <p>Generating images, please wait...</p>}
       {error && <p style={{ color: 'red' }}>{error}</p>}
 
-      {imageUrls.length > 0 && (
-        <div>
-          <h5 style={{ marginTop: '20px', textTransform: 'uppercase', letterSpacing: '0.2em', fontSize: '12px' }}>Generated Images:</h5>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px', marginTop: '8px' }}>
-            {imageUrls.map((url, index) => (
-              <img key={index} src={url} alt={`Generated ${index + 1}`} style={{ width: '100%', height: 'auto', objectFit: 'cover' }} />
-            ))}
-          </div>
-        </div>
-      )}
+      {/* Use the enhanced GeneratedImagePreview component */}
+      <GeneratedImagePreview
+        imageUrls={imageUrls}
+        isLoading={isLoading}
+        concept={concept}
+        onSave={handleSaveImages}
+      />
     </div>
   );
 }
