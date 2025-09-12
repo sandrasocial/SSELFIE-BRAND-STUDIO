@@ -424,6 +424,91 @@ router.get('/check-generation/:predictionId', requireStackAuth, adminContextDete
   }
 });
 
+/**
+ * POST /api/maya/get-video-prompt
+ * 
+ * Maya's Video Direction Service - Analyzes an image and creates cinematic motion prompts for VEO 3
+ */
+router.post('/get-video-prompt', requireStackAuth, async (req: any, res: Response) => {
+  try {
+    const userId = req.user?.id;
+
+    console.log(`🎬 MAYA VIDEO DIRECTION: Request received from user ${userId}`);
+    console.log(`🎬 MAYA VIDEO DIRECTION: Request body:`, req.body);
+
+    if (!userId) {
+      console.error('❌ MAYA VIDEO DIRECTION: No user ID found');
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    const { imageUrl } = req.body;
+
+    if (!imageUrl) {
+      console.error('❌ MAYA VIDEO DIRECTION: No image URL provided');
+      return res.status(400).json({ error: 'Image URL is required' });
+    }
+
+    console.log(`🎬 MAYA VIDEO DIRECTION: Creating motion prompt for user ${userId} with image: ${imageUrl.substring(0, 50)}...`);
+
+    // Maya's specialized video director system prompt
+    const videoDirectorPrompt = `You are Maya, SSELFIE Studio's AI Creative Director and Video Director. 
+
+🎬 VIDEO DIRECTION MODE: You are analyzing an image to create the perfect motion prompt for VEO 3 video generation.
+
+Your expertise includes:
+- Cinematic storytelling and visual narrative
+- Fashion and lifestyle video aesthetics
+- Professional portrait cinematography
+- Understanding of what makes compelling short-form video content
+
+TASK: Analyze the provided image and create ONE single, cinematic motion prompt that would work perfectly with VEO 3.
+
+MOTION PROMPT GUIDELINES:
+- Keep it to 1-2 sentences maximum
+- Focus on subtle, elegant movements that enhance the subject
+- Consider lighting, mood, and emotional impact
+- Use professional cinematography terminology
+- Make it suitable for high-end fashion/lifestyle content
+
+EXAMPLES of good motion prompts:
+- "Slow zoom in on her confident expression as city lights blur softly behind her"
+- "Gentle camera push forward while she turns her head slightly, hair catching the golden light"
+- "Subtle dolly shot revealing more of the elegant scene as she maintains perfect poise"
+- "Soft focus pull from background to subject, emphasizing her thoughtful expression"
+
+Respond with ONLY the motion prompt - no explanation, no additional text.`;
+
+    // Create conversation ID for this video direction request
+    const videoConversationId = `video_direction_${userId}_${Date.now()}`;
+    
+    console.log(`🎬 MAYA VIDEO DIRECTION: Calling Claude API with conversation ID: ${videoConversationId}`);
+    
+    // Call Claude API with Maya's video director intelligence
+    const mayaVideoPrompt = await claudeApiServiceSimple.sendMessage(
+      videoDirectorPrompt,
+      videoConversationId,
+      'maya',
+      true
+    );
+
+    console.log(`✅ MAYA VIDEO DIRECTION: Generated motion prompt for user ${userId}: "${mayaVideoPrompt.substring(0, 100)}..."`);
+
+    res.json({ 
+      videoPrompt: mayaVideoPrompt,
+      director: 'Maya - AI Creative Director',
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('❌ MAYA VIDEO DIRECTION ERROR:', error);
+    console.error('❌ MAYA VIDEO DIRECTION ERROR STACK:', error instanceof Error ? error.stack : 'No stack trace');
+    res.status(500).json({ 
+      error: 'Failed to generate video direction',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
 // Helper: checkGenerationCapability (from backup)
 async function checkGenerationCapability(userId: string) {
   try {
