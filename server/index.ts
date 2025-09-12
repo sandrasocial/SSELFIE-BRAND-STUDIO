@@ -1,3 +1,5 @@
+
+import "./env-setup.js";
 // SSELFIE STUDIO - COMPREHENSIVE SERVER WITH ALL FEATURES
 // This is your main application server with Maya, Victoria, Training, Payments, Admin systems
 import express from 'express';

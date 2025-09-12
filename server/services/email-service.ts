@@ -1,5 +1,5 @@
-// SSELFIE Studio Email Service - Resend Integration
-// Invisible Empire Architecture for 87% Profit Margins
+
+
 
 import { Resend } from 'resend';
 
