@@ -111,35 +111,101 @@ ${mayaIntelligence.trendIntelligence.personalizedTrends.slice(0, 3).join('\n')}`
       mayaPersonality
     );
 
-    // Parse concept cards from response using Creative Lookbook format
+    // Parse concept cards from response using improved parsing logic
     let conceptCards: any[] = [];
+    let parsedMessages: any[] = [];
+    
     try {
-      // Updated regex to handle Maya's Creative Lookbook format:
-      // 🎯 **THE NORDIC LIGHT**
-      // FLUX_PROMPT: `content in backticks`
-      const conceptRegex = /([🎯✨💫🔥🌟💎🌅🏢💼🌊👑💃📸🎬♦️🚖])\s*\*\*(.*?)\*\*[\s\S]*?FLUX_PROMPT:\s*`([^`]+)`/gi;
-      let match;
-      while ((match = conceptRegex.exec(claudeResponse)) !== null) {
-        const emoji = match[1].trim();
-        const title = match[2].trim();
-        const fluxPrompt = match[3].trim();
+      // Improved parsing function to prevent duplication and map content correctly
+      function parseMayaResponse(responseText: string) {
+        const messages = [];
+        const conceptDelimiter = '---';
         
-        console.log(`🎨 CONCEPT PARSED: ${emoji} ${title}`);
-        
-        // Determine concept type for 80/20 rule implementation
-        const conceptType = determineConceptType(title, fluxPrompt);
-        
-        conceptCards.push({
-          id: `concept_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-          title: `${emoji} ${title}`,
-          description: `Creative concept: ${title}`,
-          emoji: emoji,
-          creativeLook: title,
-          creativeLookDescription: `${title} styling concept`,
-          fluxPrompt: fluxPrompt,
-          type: conceptType // portrait | flatlay | lifestyle for 80/20 rule
-        });
+        // Split the entire response by the concept delimiter
+        const parts = responseText.split(conceptDelimiter).map(p => p.trim()).filter(Boolean);
+
+        // The first part is always the introductory text
+        if (parts.length > 0) {
+          // Clean up any potential concept titles from the intro text
+          const introText = parts[0].split('🎯')[0].trim();
+          if (introText) {
+            messages.push({
+              sender: 'ai',
+              type: 'text',
+              content: introText,
+            });
+          }
+        }
+
+        // Process the remaining parts as concept cards
+        const conceptParts = responseText.includes(conceptDelimiter) ? parts : [responseText]; // Handle cases with and without delimiters
+
+        for (const part of conceptParts) {
+          const titleMatch = part.match(/🎯\s*\*\*(.*?)\*\*/);
+          const fluxPromptMatch = part.match(/FLUX_PROMPT:\s*`([^`]+)`/);
+
+          if (titleMatch && fluxPromptMatch) {
+            // The description is the text between the title and the FLUX_PROMPT
+            const descriptionStartIndex = part.indexOf(titleMatch[0]) + titleMatch[0].length;
+            const descriptionEndIndex = part.indexOf('FLUX_PROMPT:');
+            const description = part.substring(descriptionStartIndex, descriptionEndIndex).trim();
+            
+            const title = titleMatch[1].trim();
+            const fluxPrompt = fluxPromptMatch[1].trim();
+
+            messages.push({
+              sender: 'ai',
+              type: 'concept',
+              content: {
+                title: title,
+                category: 'AI Concept', // You can enhance this later
+                description: description, // Correctly mapped description
+                fluxPrompt: fluxPrompt, // Correctly mapped FLUX prompt
+              },
+            });
+          }
+        }
+
+        // If no concepts were parsed but there's text, return the text.
+        // This handles regular chat messages that don't contain concepts.
+        if (messages.length === 0 && responseText) {
+          return [{
+            sender: 'ai',
+            type: 'text',
+            content: responseText,
+          }];
+        }
+
+        return messages;
       }
+
+      // Parse the Claude response using the improved parser
+      parsedMessages = parseMayaResponse(claudeResponse);
+      
+      // Extract concept cards from parsed messages
+      conceptCards = parsedMessages
+        .filter(msg => msg.type === 'concept')
+        .map((msg, index) => {
+          const concept = msg.content;
+          const emoji = concept.title.match(/^([🎯✨💫🔥🌟💎🌅🏢💼🌊👑💃📸🎬♦️🚖])/)?.[1] || '🎯';
+          const title = concept.title.replace(/^[🎯✨💫🔥🌟💎🌅🏢💼🌊👑💃📸🎬♦️🚖]\s*/, '');
+          
+          console.log(`🎨 CONCEPT PARSED: ${emoji} ${title}`);
+          
+          // Determine concept type for 80/20 rule implementation
+          const conceptType = determineConceptType(title, concept.fluxPrompt);
+          
+          return {
+            id: `concept_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            title: `${emoji} ${title}`,
+            description: concept.description || `Creative concept: ${title}`,
+            emoji: emoji,
+            creativeLook: title,
+            creativeLookDescription: concept.description || `${title} styling concept`,
+            fluxPrompt: concept.fluxPrompt,
+            type: conceptType // portrait | flatlay | lifestyle for 80/20 rule
+          };
+        });
       
       if (conceptCards.length > 0) {
         console.log(`✅ CONCEPT CARDS: Successfully parsed ${conceptCards.length} Creative Lookbook concepts`);
@@ -165,9 +231,14 @@ ${mayaIntelligence.trendIntelligence.personalizedTrends.slice(0, 3).join('\n')}`
 
     console.log('✅ MAYA UNIFIED: Photo Studio response generated');
     
+    // Use parsed response or fall back to original claudeResponse
+    const responseText = parsedMessages.length > 0 && parsedMessages.some(msg => msg.type === 'text') 
+      ? parsedMessages.filter(msg => msg.type === 'text').map(msg => msg.content).join('\n')
+      : claudeResponse;
+    
     res.json({
-      response: claudeResponse,
-      reply: claudeResponse,
+      response: responseText,
+      reply: responseText,
       conceptCards: conceptCards,
       status: 'success'
     });
