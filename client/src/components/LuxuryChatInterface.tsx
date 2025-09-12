@@ -1,8 +1,10 @@
 import { FC, FormEvent, useState } from 'react';
+import { ReactNode } from 'react';
 interface Message {
   id: string;
-  type: 'user' | 'agent';
-  content: string;
+  type: 'user' | 'agent' | 'component';
+  text?: string;
+  component?: ReactNode;
   timestamp: Date;
   agentName?: string;
 }
@@ -74,37 +76,46 @@ const LuxuryChatInterface: FC<LuxuryChatInterfaceProps> = ({
             </p>
           </div>
         ) : (
-          messages.map((message) => (
-            <div
-              key={message.id}
-              className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
-            >
+          messages.map((message) => {
+            if (message.component) {
+              return (
+                <div key={message.id} className="flex justify-start">
+                  <div className="w-full">{message.component}</div>
+                </div>
+              );
+            }
+            return (
               <div
-                className={`max-w-xs lg:max-w-md px-4 py-3 ${
-                  message.type === 'user'
-                    ? 'bg-black text-white'
-                    : 'bg-gray-100 text-black border border-gray-200'
-                }`}
+                key={message.id}
+                className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
               >
-                {message.type === 'agent' && (
-                  <p className="text-xs text-gray-500 mb-1 uppercase tracking-wide">
-                    {message.agentName || agentName}
+                <div
+                  className={`max-w-xs lg:max-w-md px-4 py-3 ${
+                    message.type === 'user'
+                      ? 'bg-black text-white'
+                      : 'bg-gray-100 text-black border border-gray-200'
+                  }`}
+                >
+                  {message.type === 'agent' && (
+                    <p className="text-xs text-gray-500 mb-1 uppercase tracking-wide">
+                      {message.agentName || agentName}
+                    </p>
+                  )}
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                    {message.text}
                   </p>
-                )}
-                <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                  {message.content}
-                </p>
-                <p className={`text-xs mt-2 ${
-                  message.type === 'user' ? 'text-gray-300' : 'text-gray-500'
-                }`}>
-                  {message.timestamp.toLocaleTimeString([], { 
-                    hour: '2-digit', 
-                    minute: '2-digit' 
-                  })}
-                </p>
+                  <p className={`text-xs mt-2 ${
+                    message.type === 'user' ? 'text-gray-300' : 'text-gray-500'
+                  }`}>
+                    {message.timestamp.toLocaleTimeString([], { 
+                      hour: '2-digit', 
+                      minute: '2-digit' 
+                    })}
+                  </p>
+                </div>
               </div>
-            </div>
-          ))
+            );
+          })
         )}
         
         {status === 'thinking' && (
