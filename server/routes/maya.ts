@@ -311,8 +311,8 @@ router.post('/draft-storyboard', requireStackAuth, async (req: Request, res: Res
       input: {
         prompt: finalPrompt,
         num_outputs: 2,             // CORRECTED
-        guidance_scale: 3.5,
-        num_inference_steps: 40,    // CORRECTED
+        guidance_scale: 5,          // UPDATED: Better quality
+        num_inference_steps: 50,    // UPDATED: Better quality
       },
     });
 

@@ -776,8 +776,8 @@ export class ModelTrainingService {
       // MAYA FAÇADE: Configuration now accessed via façade API
       // const { MAYA_PERSONALITY } = await import('./agents/personalities/maya-personality.js'); // REMOVED: Direct entanglement
       
-      // MAYA FAÇADE: Use standard FLUX parameters - Maya's intelligence accessed via API only
-  const mayaParams = { guidance_scale: 3.5, num_inference_steps: 40, megapixels: "1" };
+      // MAYA FAÇADE: Use enhanced FLUX parameters for better quality  
+  const mayaParams = { guidance_scale: 5, num_inference_steps: 50, megapixels: "1" };
       const aspectRatio = "4:5"; // Standard portrait aspect ratio
 
       console.log(`🎯 MAYA FAÇADE: Using standard parameters - Maya intelligence via API only`);
