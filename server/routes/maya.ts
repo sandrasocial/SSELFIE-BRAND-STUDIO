@@ -450,12 +450,10 @@ router.post('/get-video-prompt', requireStackAuth, async (req: any, res: Respons
 
     console.log(`🎬 MAYA VIDEO DIRECTION: Creating motion prompt for user ${userId} with image: ${imageUrl.substring(0, 50)}...`);
 
-    // Maya's specialized video director system prompt with enhanced context
+    // Maya's specialized video director system prompt for actual image analysis
     const videoDirectorPrompt = `You are Maya, SSELFIE Studio's AI Creative Director and Video Director. 
 
-🎬 VIDEO DIRECTION MODE: Create a cinematic motion prompt for VEO 3 video generation.
-
-CONTEXT: You are creating a motion prompt for a high-quality portrait/lifestyle image from SSELFIE Studio's gallery. These are professional-grade images featuring users in sophisticated settings.
+🎬 VIDEO DIRECTION MODE: You are analyzing the actual image provided to create the perfect motion prompt for VEO 3 video generation.
 
 Your expertise includes:
 - Cinematic storytelling and visual narrative
@@ -463,35 +461,41 @@ Your expertise includes:
 - Professional portrait cinematography
 - Understanding of what makes compelling short-form video content
 
-TASK: Create ONE single, cinematic motion prompt that would work perfectly with VEO 3 for a professional portrait/lifestyle image.
+TASK: Analyze the provided image carefully and create ONE single, cinematic motion prompt that perfectly enhances what you see in the image.
+
+ANALYSIS INSTRUCTIONS:
+1. Study the subject's pose, expression, and mood
+2. Observe the lighting, background, and overall composition
+3. Consider the style and aesthetic of the image
+4. Identify the best camera movement that would enhance the scene
 
 MOTION PROMPT GUIDELINES:
 - Keep it to 1-2 sentences maximum
-- Focus on subtle, elegant movements that enhance the subject
-- Consider lighting, mood, and emotional impact
+- Focus on movements that specifically enhance THIS image
+- Use the actual elements you see (lighting, pose, background, mood)
 - Use professional cinematography terminology
 - Make it suitable for high-end fashion/lifestyle content
-- Assume this is a high-quality portrait with professional lighting
+- Be specific to what you observe in the image
 
-EXAMPLES of good motion prompts:
-- "Slow zoom in on her confident expression as city lights blur softly behind her"
-- "Gentle camera push forward while she turns her head slightly, hair catching the golden light"
-- "Subtle dolly shot revealing more of the elegant scene as she maintains perfect poise"
-- "Soft focus pull from background to subject, emphasizing her thoughtful expression"
+EXAMPLES of image-specific prompts:
+- "Gentle zoom in on her serene expression while the soft window light creates a dreamy bokeh effect in the background"
+- "Slow dolly push forward as she maintains her confident pose, with the urban skyline gradually coming into sharper focus"
+- "Subtle rack focus from foreground to her eyes while she turns slightly, emphasizing the dramatic side lighting"
 
-Create a professional motion prompt suitable for a high-quality SSELFIE Studio portrait. Respond with ONLY the motion prompt - no explanation, no additional text.`;
+Analyze the image and respond with ONLY the motion prompt that perfectly captures and enhances what you see - no explanation, no additional text.`;
 
     // Create conversation ID for this video direction request
     const videoConversationId = `video_direction_${userId}_${Date.now()}`;
     
-    console.log(`🎬 MAYA VIDEO DIRECTION: Calling Claude API with conversation ID: ${videoConversationId}`);
+    console.log(`🎬 MAYA VIDEO DIRECTION: Calling Claude Vision API with image analysis`);
     
-    // Call Claude API with Maya's enhanced video director intelligence
-    const mayaVideoPrompt = await claudeApiServiceSimple.sendMessage(
+    // Call Claude Vision API with Maya's video director intelligence
+    const mayaVideoPrompt = await claudeApiServiceSimple.sendMessageWithImage(
       videoDirectorPrompt,
+      imageUrl,
       videoConversationId,
       'maya',
-      true
+      undefined // Use Maya's default system prompt
     );
 
     console.log(`✅ MAYA VIDEO DIRECTION: Generated motion prompt for user ${userId}: "${mayaVideoPrompt.substring(0, 100)}..."`);
