@@ -6,8 +6,10 @@ export function WelcomeHeader() {
   // TODO: Fetch a dynamic tip from Maya
   const mayaTip = "Try a 'Golden Hour' concept for a warmer, more approachable feel.";
 
-  // Calculate remaining generations
-  const generationsRemaining = (user?.monthlyGenerationLimit ?? 0) - (user?.generationsUsedThisMonth ?? 0);
+  // Calculate remaining generations with safe fallbacks
+  const monthlyGenerationLimit = (user && 'monthlyGenerationLimit' in user && typeof (user as any).monthlyGenerationLimit === 'number') ? (user as any).monthlyGenerationLimit : 0;
+  const generationsUsedThisMonth = (user && 'generationsUsedThisMonth' in user && typeof (user as any).generationsUsedThisMonth === 'number') ? (user as any).generationsUsedThisMonth : 0;
+  const generationsRemaining = monthlyGenerationLimit - generationsUsedThisMonth;
 
   return (
     <div style={{

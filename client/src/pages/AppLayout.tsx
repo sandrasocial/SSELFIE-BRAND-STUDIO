@@ -1,8 +1,13 @@
 import React from 'react';
-import { MobileTabLayout } from '../components/MobileTabLayout';
+import { MobileTabLayout } from '../components/MobileTabLayout'; // Assuming this path is correct
 
-const AppLayout: React.FC = () => {
-  return <MobileTabLayout />;
-};
+export function AppLayout() {
+  return (
+    <div>
+      {/* This component will contain the main app structure */}
+      <MobileTabLayout />
+    </div>
+  );
+}
 
-export default AppLayout;
+export default AppLayout; // Retaining the default export
