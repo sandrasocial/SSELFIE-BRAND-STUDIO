@@ -7,9 +7,9 @@ import { BrandStyleCollection } from '../data/brand-style-collections';
  * LuxuryConceptCard Component
  * Renders a single concept card, handles image generation, polling, and previewing results.
  */
-function LuxuryConceptCard({ concept }: { concept: any }) {
+export function LuxuryConceptCard({ concept }: { concept: any }) {
   const [isLoading, setIsLoading] = useState(false);
-  const [imageUrls, setImageUrls] = useState<string[]>([]);
+  const [imageUrls, setImageUrls] = useState<string[]>(concept.generatedImages || []);
   const [error, setError] = useState<string | null>(null);
 
   const handleGenerate = async () => {
@@ -22,7 +22,11 @@ function LuxuryConceptCard({ concept }: { concept: any }) {
       const startResponse = await fetch('/api/maya/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: concept.fluxPrompt }),
+        body: JSON.stringify({
+          prompt: concept.fluxPrompt || concept.title || concept.description,
+          conceptData: concept
+        }),
+        credentials: 'include',
       });
 
       if (!startResponse.ok) {
@@ -36,12 +40,11 @@ function LuxuryConceptCard({ concept }: { concept: any }) {
         try {
           const checkResponse = await fetch(`/api/maya/check-generation/${predictionId}`);
           if (!checkResponse.ok) {
-            // Stop polling on server error
             throw new Error('Server error while checking status.');
           }
           const result = await checkResponse.json();
 
-          if (result.status === 'completed') {
+          if (result.status === 'succeeded' && result.imageUrls) {
             clearInterval(pollInterval);
             setIsLoading(false);
             setImageUrls(result.imageUrls);
@@ -57,7 +60,6 @@ function LuxuryConceptCard({ concept }: { concept: any }) {
           setError('An error occurred while polling for results.');
         }
       }, 4000); // Poll every 4 seconds
-
     } catch (err) {
       setIsLoading(false);
       setError((err as Error).message);

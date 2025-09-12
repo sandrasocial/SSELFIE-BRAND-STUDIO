@@ -16,6 +16,9 @@ import { PersonalityManager } from '../agents/personalities/personality-config';
 import { unifiedMayaContextService } from '../services/unified-maya-context-service.js';
 import { unifiedMayaIntelligenceService } from '../services/unified-maya-intelligence-service.js';
 import { claudeApiServiceSimple } from '../services/claude-api-service-simple';
+import { adminContextDetection } from '../middleware/admin-context';
+import { ModelTrainingService } from '../model-training-service';
+
 
 // Helper function for 80/20 rule concept type determination
 const determineConceptType = (title: string, fluxPrompt: string): 'portrait' | 'flatlay' | 'lifestyle' => {
@@ -88,10 +91,7 @@ router.post('/chat', requireStackAuth, async (req: Request, res: Response) => {
     
     if (mayaIntelligence && mayaIntelligence.intelligenceConfidence > 70) {
       mayaPersonality += `\n\n🎯 PERSONALIZATION INSIGHTS:
-${mayaIntelligence.stylePredictions.predictedStyles.slice(0, 3).join('\n')}
-
-💡 2025 TREND RECOMMENDATIONS FOR USER:
-${mayaIntelligence.trendIntelligence.personalizedTrends.slice(0, 3).join('\n')}`;
+${mayaIntelligence.stylePredictions.predictedStyles.slice(0, 3).join('\n')}`;
     }
 
     // Format conversation history for Claude
@@ -283,33 +283,45 @@ router.post('/draft-storyboard', requireStackAuth, async (req: Request, res: Res
 
 /**
  * POST /api/maya/generate
- * 
- * Generate images from concept cards created by Maya
- * Validates user has trained model and triggers image generation
- */
-router.post('/generate', requireStackAuth, async (req: Request, res: Response) => {
-  try {
-    console.log('🎨 MAYA UNIFIED: Image generation request received');
-    const { prompt, conceptData } = req.body;
-    const userId = (req as any).user?.id || (req as any).user?.claims?.sub;
-    if (!prompt) return res.status(400).json({ error: 'Missing required field: prompt' });
-    if (!userId) return res.status(401).json({ error: 'Authentication required' });
-    const userModel = await storage.getUserModelByUserId(userId);
-    if (!userModel || userModel.trainingStatus !== 'completed' || !userModel.replicateVersionId) {
-      return res.status(400).json({ success: false, message: "Your AI model isn't ready yet. Please complete training first.", error: "USER_MODEL_NOT_TRAINED" });
+// (Removed duplicate legacy polling endpoint. Only robust ModelTrainingService-based endpoint remains.)
+    const user = await db.query.users.findFirst({
+      where: (users, { eq }) => eq(users.id, userId),
+    });
+
+    if (!user || !user.gender) {
+      return res.status(400).json({ error: 'User gender is not set. Please complete onboarding.' });
     }
-    // Import and call ModelTrainingService directly
-    const { ModelTrainingService } = await import('../model-training-service');
-    // This should trigger the Replicate/Flux job and return a predictionId
-    const result = await ModelTrainingService.generateUserImages(userId, prompt, 4);
-    // Immediately return the predictionId for polling
-    res.json({ success: true, predictionId: result.predictionId });
+
+    // 2. CRITICAL: Prepend the gender to the prompt
+    const finalPrompt = `${user.gender}, ${prompt}`;
+
+    // 3. Find the user's trained model
+    const userModel = await db.query.userModels.findFirst({
+      where: (userModels, { eq }) => eq(userModels.userId, userId),
+    });
+
+    if (!userModel || userModel.trainingStatus !== 'completed') {
+      return res.status(400).json({ error: 'No trained model found. Please complete model training first.' });
+    }
+
+    // 4. CRITICAL: Set the correct generation parameters
+    const replicate = new Replicate({ auth: process.env.REPLICATE_API_TOKEN });
+    const prediction = await replicate.predictions.create({
+      version: userModel.replicateVersionId, // Use the user's specific model version
+      input: {
+        prompt: finalPrompt,
+        num_outputs: 2,             // CORRECTED
+        guidance_scale: 3.5,
+        num_inference_steps: 40,    // CORRECTED
+      },
+    });
+
+    // 5. Immediately return the prediction ID to the frontend for polling
+    res.json({ success: true, predictionId: prediction.id });
+
   } catch (error) {
-    console.error('❌ MAYA UNIFIED: Image generation error:', error);
-    if (error.message === 'USER_MODEL_NOT_TRAINED: User must train their AI model before generating images. Individual models required.') {
-      return res.status(400).json({ success: false, message: "Your AI model isn't ready yet. Please complete training first.", error: "USER_MODEL_NOT_TRAINED" });
-    }
-    res.status(500).json({ error: 'Maya encountered an issue with your image generation request', details: process.env.NODE_ENV === 'development' ? error.message : undefined });
+    console.error('Error starting image generation:', error);
+    res.status(500).json({ error: 'Failed to start image generation.' });
   }
 });
 
@@ -323,7 +335,7 @@ router.get('/check-generation/:predictionId', async (req: Request, res: Response
     const statusResult = await ModelTrainingService.checkGenerationStatus(predictionId);
     if (statusResult.status === 'succeeded') {
       // statusResult.imageUrls should be an array of permanent URLs
-      return res.json({ status: 'completed', imageUrls: statusResult.imageUrls });
+      return res.json({ status: 'succeeded', imageUrls: statusResult.imageUrls });
     } else if (statusResult.status === 'failed' || statusResult.status === 'canceled') {
       return res.json({ status: 'failed' });
     } else {
@@ -347,4 +359,85 @@ router.get('/health', (req: Request, res: Response) => {
   });
 });
 
+
+
+// --- IMAGE GENERATION ENDPOINT ---
+router.post('/generate', requireStackAuth, adminContextDetection, async (req, res) => {
+  try {
+    const userId = (req.user as any)?.id || (req.user as any)?.claims?.sub;
+    if (!userId) return res.status(401).json({ error: 'Authentication required' });
+    const { prompt, conceptName, conceptId, count = 2, preset, seed } = req.body || {};
+    if (!prompt) return res.status(400).json({ error: 'Prompt required' });
+
+    // Check generation capability
+  const generationInfo = await checkGenerationCapability(userId);
+    if (!generationInfo.canGenerate || !generationInfo.userModel || !generationInfo.triggerWord) {
+      return res.status(200).json({
+        success: false,
+        error: "AI model not ready. Complete training first.",
+        canGenerate: false
+      });
+    }
+
+    let finalPrompt = prompt.trim();
+    // Always prepend trigger word (e.g., gender)
+    if (!finalPrompt.startsWith(generationInfo.triggerWord)) {
+      const cleanPrompt = finalPrompt.replace(new RegExp(generationInfo.triggerWord, 'gi'), '').replace(/^[\s,]+/, '').trim();
+      finalPrompt = `${generationInfo.triggerWord} ${cleanPrompt}`;
+    }
+
+    // Start image generation
+    const result = await ModelTrainingService.generateUserImages(
+      userId,
+      finalPrompt,
+      Math.min(Math.max(parseInt(count, 10) || 2, 1), 6),
+      { seed }
+    );
+    return res.json({ success: true, predictionId: result.predictionId });
+  } catch (error) {
+    console.error('Unified Maya generate error:', error);
+    return res.status(500).json({ error: 'Failed to start image generation.' });
+  }
+});
+
+// --- POLLING ENDPOINT ---
+router.get('/check-generation/:predictionId', requireStackAuth, adminContextDetection, async (req, res) => {
+  try {
+    const userId = (req.user as any)?.id || (req.user as any)?.claims?.sub;
+    if (!userId) return res.status(401).json({ error: 'Authentication required' });
+    const predictionId = req.params.predictionId;
+    if (!predictionId) return res.status(400).json({ error: 'Prediction ID required' });
+
+    // Use robust ModelTrainingService for polling and S3 migration
+    const statusResult = await ModelTrainingService.checkGenerationStatus(predictionId);
+    if (statusResult.status === 'succeeded') {
+      return res.json({ status: 'succeeded', imageUrls: statusResult.imageUrls });
+    } else if (statusResult.status === 'failed' || statusResult.status === 'canceled') {
+      return res.json({ status: 'failed' });
+    } else {
+      return res.json({ status: 'processing' });
+    }
+  } catch (error) {
+    console.error('Maya check generation error:', error);
+    return res.status(500).json({ status: 'error', error: 'Status check failed' });
+  }
+});
+
+// Helper: checkGenerationCapability (from backup)
+async function checkGenerationCapability(userId: string) {
+  try {
+    const userModel = await storage.getUserModelByUserId(userId);
+    return {
+      canGenerate: !!userModel?.triggerWord,
+      triggerWord: userModel?.triggerWord || null,
+      userModel: userModel
+    };
+  } catch (error) {
+    return {
+      canGenerate: false,
+      triggerWord: null,
+      userModel: null
+    };
+  }
+}
 export default router;
