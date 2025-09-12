@@ -802,20 +802,28 @@ export class ClaudeApiServiceSimple {
         throw new Error(`Agent ${agentName} not found`);
       }
 
-      // For now, we'll use text-based analysis since direct image URL might not work
-      // with Anthropic's current API. We'll enhance the prompt to acknowledge this limitation.
-      const enhancedMessage = `${message}
+      // Fetch the image and convert to base64
+      console.log(`🖼️ VISION: Fetching image from URL: ${imageUrl}`);
+      
+      const imageResponse = await fetch(imageUrl);
+      if (!imageResponse.ok) {
+        throw new Error(`Failed to fetch image: ${imageResponse.status} ${imageResponse.statusText}`);
+      }
+      
+      const imageBuffer = await imageResponse.arrayBuffer();
+      const base64Image = Buffer.from(imageBuffer).toString('base64');
+      
+      // Detect image type from URL or default to PNG
+      let mediaType = 'image/png';
+      if (imageUrl.toLowerCase().includes('.jpg') || imageUrl.toLowerCase().includes('.jpeg')) {
+        mediaType = 'image/jpeg';
+      } else if (imageUrl.toLowerCase().includes('.webp')) {
+        mediaType = 'image/webp';
+      }
+      
+      console.log(`🖼️ VISION: Image converted to base64 (${mediaType}, ${Math.round(base64Image.length / 1024)}KB)`);
 
-IMAGE CONTEXT: I can see there's an image at: ${imageUrl}
-
-Please provide a professional cinematic motion prompt based on typical high-quality portrait/lifestyle photography. Focus on:
-- Subtle, elegant camera movements
-- Professional cinematography techniques
-- Movements that enhance the subject
-- SSELFIE Studio's sophisticated aesthetic standards
-
-Create a motion prompt that would work well for most high-quality portrait or lifestyle images.`;
-
+      // Use Claude Vision API with proper image format
       const response = await anthropic.messages.create({
         model: DEFAULT_MODEL_STR,
         max_tokens: 1000,
@@ -823,24 +831,41 @@ Create a motion prompt that would work well for most high-quality portrait or li
         messages: [
           {
             role: 'user',
-            content: enhancedMessage
+            content: [
+              {
+                type: 'image',
+                source: {
+                  type: 'base64',
+                  media_type: mediaType,
+                  data: base64Image
+                }
+              },
+              {
+                type: 'text',
+                text: message
+              }
+            ]
           }
         ]
       });
 
       const content = response.content[0];
       if (content.type === 'text') {
-        console.log(`✅ VISION ANALYSIS COMPLETE: ${agentName} generated motion prompt`);
+        console.log(`✅ VISION ANALYSIS COMPLETE: ${agentName} analyzed image successfully`);
+        console.log(`🎬 Generated prompt preview: "${content.text.substring(0, 100)}..."`);
         return content.text;
       } else {
-        throw new Error('Unexpected response format from Claude');
+        throw new Error('Unexpected response format from Claude Vision');
       }
 
     } catch (error: any) {
       console.error(`❌ VISION ANALYSIS ERROR (${agentName}):`, error);
       
-      // Provide a professional fallback response
-      return "Slow zoom in on the subject with subtle depth-of-field transitions, highlighting natural expression and professional lighting while maintaining elegant composition.";
+      // Provide a professional fallback response if image analysis fails
+      const fallbackPrompt = "Slow zoom in on the subject with subtle depth-of-field transitions, highlighting natural expression and professional lighting while maintaining elegant composition.";
+      
+      console.log(`🔄 VISION FALLBACK: Using professional default prompt`);
+      return fallbackPrompt;
     }
   }
 }
