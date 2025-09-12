@@ -9,7 +9,7 @@ const userPreferences: Record<string, any> = {};
 // Get notification preferences
 router.get('/', requireStackAuth, async (req: any, res) => {
   try {
-    const userId = req.user?.claims?.sub;
+    const userId = req.user.id;
     if (userId !== '42585527') { // Sandra's user ID
       return res.status(403).json({ message: 'Admin access required' });
     }
@@ -69,7 +69,7 @@ router.get('/', requireStackAuth, async (req: any, res) => {
 // Save notification preferences
 router.post('/', requireStackAuth, async (req: any, res) => {
   try {
-    const userId = req.user?.claims?.sub;
+    const userId = req.user.id;
     if (userId !== '42585527') {
       return res.status(403).json({ message: 'Admin access required' });
     }
@@ -213,7 +213,7 @@ router.post('/should-notify', async (req, res) => {
 // Reset preferences to defaults
 router.post('/reset', requireStackAuth, async (req: any, res) => {
   try {
-    const userId = req.user?.claims?.sub;
+    const userId = req.user.id;
     if (userId !== '42585527') {
       return res.status(403).json({ message: 'Admin access required' });
     }

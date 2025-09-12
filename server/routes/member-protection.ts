@@ -36,7 +36,7 @@ router.get('/health/member-features', async (req, res) => {
 // Pre-deployment validation for admin changes
 router.get('/validate/pre-admin-changes', requireStackAuth, async (req: any, res) => {
   try {
-    const userId = req.user?.claims?.sub;
+    const userId = req.user.id;
     
     // Test critical member APIs
     const validationResults = {

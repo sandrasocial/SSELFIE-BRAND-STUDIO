@@ -8,7 +8,7 @@ const router = Router();
 // Test route to verify Slack integration works
 router.post('/send-launch-status', requireStackAuth, async (req: any, res) => {
   try {
-    const userId = req.user?.claims?.sub;
+    const userId = req.user.id;
     
     // Only allow Sandra (admin) to trigger test
     if (userId !== '42585527') {
@@ -53,7 +53,7 @@ router.post('/send-launch-status', requireStackAuth, async (req: any, res) => {
 // Test agent conversation trigger
 router.post('/trigger-agent-conversation/:agentName', requireStackAuth, async (req: any, res) => {
   try {
-    const userId = req.user?.claims?.sub;
+    const userId = req.user.id;
     
     if (userId !== '42585527') {
       return res.status(403).json({ message: 'Admin access required' });
@@ -88,7 +88,7 @@ router.post('/trigger-agent-conversation/:agentName', requireStackAuth, async (r
 // Show agent team status
 router.get('/agent-team-status', requireStackAuth, async (req: any, res) => {
   try {
-    const userId = req.user?.claims?.sub;
+    const userId = req.user.id;
     
     if (userId !== '42585527') {
       return res.status(403).json({ message: 'Admin access required' });

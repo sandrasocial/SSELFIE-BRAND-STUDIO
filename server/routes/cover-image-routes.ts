@@ -51,7 +51,7 @@ export function registerCoverImageRoutes(app: Express) {
           promptId,
           collectionId,
           imageUrl: permanentUrl,
-          createdBy: req.user?.claims?.sub,
+          createdBy: req.user.id,
           createdAt: new Date()
         });
       }

@@ -270,7 +270,7 @@ const adminAuth = async (req: AdminRequest, res: any, next: any) => {
     });
     
     // Verify user is admin in database
-    const userId = req.user?.claims?.sub;
+    const userId = req.user.id;
     if (!userId) {
       return res.status(401).json({ message: "Authentication required" });
     }
@@ -319,7 +319,7 @@ export async function handleAdminConsultingChat(req: AdminRequest, res: any) {
       });
     }
 
-    const userId = req.user?.claims?.sub;
+    const userId = req.user.id;
     
     if (!userId) {
       return res.status(401).json({
@@ -454,7 +454,7 @@ consultingAgentsRouter.post('/admin/consulting-chat', adminAuth, async (req: Adm
 // Get cost summary for dashboard
 consultingAgentsRouter.get('/admin/cost-summary', adminAuth, async (req: AdminRequest, res: any) => {
   try {
-    const userId = req.user?.claims?.sub;
+    const userId = req.user.id;
     const timeframe = (req.query.timeframe as string) || 'today';
     
     const costSummary = await AgentCostTrackingService.getCostSummary(userId, timeframe as any);
@@ -475,7 +475,7 @@ consultingAgentsRouter.get('/admin/cost-summary', adminAuth, async (req: AdminRe
 // Create or update agent budget
 consultingAgentsRouter.post('/admin/agent-budget', adminAuth, async (req: AdminRequest, res: any) => {
   try {
-    const userId = req.user?.claims?.sub;
+    const userId = req.user.id;
     const { agentId, budgetType, budgetLimit, alertThreshold } = req.body;
     
     if (!budgetType || !budgetLimit) {
@@ -528,7 +528,7 @@ consultingAgentsRouter.post('/admin/agent-budget', adminAuth, async (req: AdminR
 // Emergency stop all agents
 consultingAgentsRouter.post('/admin/emergency-stop', adminAuth, async (req: AdminRequest, res: any) => {
   try {
-    const userId = req.user?.claims?.sub;
+    const userId = req.user.id;
     const { reason } = req.body;
     
     const stopped = await AgentCostTrackingService.emergencyStopAllAgents(
@@ -559,7 +559,7 @@ consultingAgentsRouter.post('/admin/emergency-stop', adminAuth, async (req: Admi
 // Create default budgets for new admin users
 consultingAgentsRouter.post('/admin/setup-budgets', adminAuth, async (req: AdminRequest, res: any) => {
   try {
-    const userId = req.user?.claims?.sub;
+    const userId = req.user.id;
     
     await AgentCostTrackingService.createDefaultBudgets(userId);
     
@@ -1042,7 +1042,7 @@ consultingAgentsRouter.post('/admin/legacy-chat', adminAuth, async (req: AdminRe
       error: error instanceof Error ? error.message : error,
       stack: error instanceof Error ? error.stack : undefined,
       agentId: req.body?.agentId,
-      userId: req.user?.claims?.sub
+      userId: req.user.id
     });
     res.status(500).json({
       success: false,

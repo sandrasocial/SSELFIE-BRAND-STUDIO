@@ -8,7 +8,7 @@ const router = Router();
 // 📱 Process Instagram DMs and ManyChat messages
 router.post('/process', requireStackAuth, async (req: any, res) => {
   try {
-    const userId = req.user.claims.sub;
+    const userId = req.user.id;
     console.log(`📱 Processing Instagram messages for user ${userId}`);
 
     const processedMessages = await instagramIntegration.processInstagramMessages(userId);
@@ -31,7 +31,7 @@ router.post('/process', requireStackAuth, async (req: any, res) => {
 // 📊 Get Instagram message dashboard
 router.get('/dashboard', requireStackAuth, async (req: any, res) => {
   try {
-    const userId = req.user.claims.sub;
+    const userId = req.user.id;
     console.log(`📱 Loading REAL Instagram dashboard for user ${userId}`);
     
     // Try to get real Instagram data from integration
@@ -98,7 +98,7 @@ router.get('/dashboard', requireStackAuth, async (req: any, res) => {
 // 🧪 Test Instagram processing (available for all users)
 router.post('/test-processing', requireStackAuth, async (req: any, res) => {
   try {
-    const userId = req.user.claims.sub;
+    const userId = req.user.id;
 
     // Simulate Instagram processing with realistic data
     await SlackNotificationService.sendAgentInsight(

@@ -76,7 +76,7 @@ export class ArchitectureValidator {
       throw new Error('Authentication required');
     }
     
-    const userId = req.user?.claims?.sub;
+    const userId = req.user.id;
     if (!userId) {
       throw new Error('User ID not found in session');
     }

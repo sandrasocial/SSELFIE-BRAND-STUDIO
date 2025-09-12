@@ -7,7 +7,7 @@ const router = Router();
 // Test Slack connection endpoint
 router.post('/test-slack', requireStackAuth, async (req: any, res) => {
   try {
-    const userId = req.user?.claims?.sub;
+    const userId = req.user.id;
     if (userId !== '42585527') { // Sandra's user ID
       return res.status(403).json({ message: 'Admin access required' });
     }
@@ -49,7 +49,7 @@ router.post('/test-slack', requireStackAuth, async (req: any, res) => {
 // Send manual insight notification (for testing)
 router.post('/send-insight', requireStackAuth, async (req: any, res) => {
   try {
-    const userId = req.user?.claims?.sub;
+    const userId = req.user.id;
     if (userId !== '42585527') {
       return res.status(403).json({ message: 'Admin access required' });
     }
@@ -81,7 +81,7 @@ router.post('/send-insight', requireStackAuth, async (req: any, res) => {
 // Send urgent request notification
 router.post('/urgent-request', requireStackAuth, async (req: any, res) => {
   try {
-    const userId = req.user?.claims?.sub;
+    const userId = req.user.id;
     if (userId !== '42585527') {
       return res.status(403).json({ message: 'Admin access required' });
     }

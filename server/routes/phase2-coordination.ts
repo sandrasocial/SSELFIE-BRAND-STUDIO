@@ -11,7 +11,7 @@ router.post('/execute-phase2-workflow', requireStackAuth, async (req: any, res) 
     const workflowExecution = {
       workflow_id: `phase2_${Date.now()}`,
       initiated_at: new Date().toISOString(),
-      initiated_by: req.user?.claims?.sub,
+      initiated_by: req.user.id,
       status: 'INITIATED',
       
       tasks: {

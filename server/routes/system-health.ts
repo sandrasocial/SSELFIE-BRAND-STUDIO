@@ -88,7 +88,7 @@ let systemHealth: SystemHealthMetrics = {
 // Get comprehensive system health
 router.get('/', requireStackAuth, async (req: any, res) => {
   try {
-    const userId = req.user?.claims?.sub;
+    const userId = req.user.id;
     if (userId !== '42585527') { // Sandra's user ID
       return res.status(403).json({ message: 'Admin access required' });
     }
@@ -116,7 +116,7 @@ router.get('/', requireStackAuth, async (req: any, res) => {
 // Get quick health status
 router.get('/status', requireStackAuth, async (req: any, res) => {
   try {
-    const userId = req.user?.claims?.sub;
+    const userId = req.user.id;
     if (userId !== '42585527') {
       return res.status(403).json({ message: 'Admin access required' });
     }
@@ -143,7 +143,7 @@ router.get('/status', requireStackAuth, async (req: any, res) => {
 // Run system diagnostics
 router.post('/diagnostics', requireStackAuth, async (req: any, res) => {
   try {
-    const userId = req.user?.claims?.sub;
+    const userId = req.user.id;
     if (userId !== '42585527') {
       return res.status(403).json({ message: 'Admin access required' });
     }

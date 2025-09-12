@@ -7,7 +7,7 @@ const router = Router();
 // Comprehensive system validation for Phase 1 verification
 router.get('/phase1-validation', requireStackAuth, async (req: any, res) => {
   try {
-    const userId = req.user?.claims?.sub;
+    const userId = req.user.id;
     
     // Test all critical Phase 1 components
     const validationResults = {
@@ -85,7 +85,7 @@ router.get('/auth-test', requireStackAuth, async (req: any, res) => {
 // Database connectivity test
 router.get('/database-test', requireStackAuth, async (req: any, res) => {
   try {
-    const userId = req.user?.claims?.sub;
+    const userId = req.user.id;
     const user = await storage.getUser(userId);
     
     res.json({

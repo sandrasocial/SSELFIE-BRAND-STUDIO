@@ -17,7 +17,7 @@ export function registerCheckoutRoutes(app: Express) {
   app.post("/api/create-retrain-checkout-session", requireStackAuth, async (req: any, res) => {
     try {
       const { successUrl, cancelUrl } = req.body;
-      const userId = req.user?.claims?.sub;
+      const userId = req.user.id;
       
       if (!userId) {
         return res.status(401).json({ message: 'User authentication required for retraining' });
@@ -121,7 +121,7 @@ export function registerCheckoutRoutes(app: Express) {
   // Get user's subscription details
   app.get("/api/subscription", requireStackAuth, async (req: any, res) => {
     try {
-      const userId = req.user?.claims?.sub;
+      const userId = req.user.id;
       if (!userId) {
         return res.status(401).json({ message: 'User authentication required' });
       }
@@ -152,7 +152,7 @@ export function registerCheckoutRoutes(app: Express) {
   // Get user's invoices
   app.get("/api/invoices", requireStackAuth, async (req: any, res) => {
     try {
-      const userId = req.user?.claims?.sub;
+      const userId = req.user.id;
       if (!userId) {
         return res.status(401).json({ message: 'User authentication required' });
       }
@@ -178,7 +178,7 @@ export function registerCheckoutRoutes(app: Express) {
   // Cancel subscription (at period end)
   app.post("/api/subscription/cancel", requireStackAuth, async (req: any, res) => {
     try {
-      const userId = req.user?.claims?.sub;
+      const userId = req.user.id;
       if (!userId) {
         return res.status(401).json({ message: 'User authentication required' });
       }
@@ -203,7 +203,7 @@ export function registerCheckoutRoutes(app: Express) {
   // Reactivate subscription (remove cancel_at_period_end)
   app.post("/api/subscription/reactivate", requireStackAuth, async (req: any, res) => {
     try {
-      const userId = req.user?.claims?.sub;
+      const userId = req.user.id;
       if (!userId) {
         return res.status(401).json({ message: 'User authentication required' });
       }

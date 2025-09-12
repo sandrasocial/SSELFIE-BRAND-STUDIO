@@ -787,11 +787,12 @@ export class ModelTrainingService {
         requestBody.input.lora_weights = secureLoRAUrl;
         
         // Apply Maya's intelligent lora_scale based on detected shot type
-        const mayaLoreScale = this.getMayaLoraScale(finalPrompt, categoryContext);
-        requestBody.input.lora_scale = mayaLoreScale;
+  // categoryContext may be undefined in this scope; use options?.categoryContext if available
+  const mayaLoraScale = this.getMayaLoraScale(finalPrompt, options?.categoryContext);
+  requestBody.input.lora_scale = mayaLoraScale;
         
-        console.log(`🎨 LORA PERSONALIZATION: Using extracted weights with lora_scale=${mayaLoreScale} (shot type optimized)`);
-        console.log(`🔒 Secure LoRA Weights: ${secureLoRAUrl.substring(0, 100)}...`);
+  console.log(`🎨 LORA PERSONALIZATION: Using extracted weights with lora_scale=${mayaLoraScale} (shot type optimized)`);
+  console.log(`🔒 Secure LoRA Weights: ${secureLoRAUrl.substring(0, 100)}...`);
       } else {
         console.log(`📦 PACKAGED MODEL: No extracted LoRA weights, using packaged model`);
       }
@@ -943,8 +944,7 @@ export class ModelTrainingService {
       console.log(`✅ LoRA WEIGHTS EXTRACTED: Stored securely in bucket ${bucketName}/${s3Key}`);
 
       return {
-        s3Bucket: bucketName,
-        s3Key: s3Key,
+        loraWeightsUrl: `s3://${bucketName}/${s3Key}`,
         checksum: checksum,
         fileSize: fileSize
       };
