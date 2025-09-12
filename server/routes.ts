@@ -2881,25 +2881,33 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
 
       console.log(`💖 Maya save: User ${userId} saving image from ${source}`);
       
-      // MAYA FAÇADE: Use clean API call instead of direct import
+      // Save image to gallery using the correct storage method
       try {
-        // Save to gallery through standard gallery API instead of Maya-specific service
-        const savedImage = await storage.createGeneratedImage({
+        // Save to generatedImages table with proper structure for gallery display
+        const savedImage = await storage.saveGeneratedImage({
           userId,
-          imageUrl,
-          prompt: prompt || 'Maya AI Generation',
           category: 'Maya Editorial',
-          status: 'completed'
+          subcategory: 'Professional',
+          prompt: prompt || 'Maya AI Generation',
+          imageUrls: JSON.stringify([imageUrl]), // Store as JSON array
+          selectedUrl: imageUrl, // Set as selected URL for display
+          saved: true // CRITICAL: Mark as saved so it appears in gallery
         });
         
-        
-        console.log(`✅ Maya save: Image ${savedImage.id} saved to gallery via façade`);
+        console.log(`✅ Maya save: Image ${savedImage.id} saved to gallery with saved=true`);
       
-      res.json({
-        success: true,
-        message: 'Image saved to gallery',
-        imageId: savedImage.id
-      });
+        res.json({
+          success: true,
+          message: 'Image saved to gallery',
+          imageId: savedImage.id
+        });
+      
+      } catch (saveError) {
+        console.error('❌ Maya save API error:', saveError);
+        res.status(500).json({ 
+          error: saveError instanceof Error ? saveError.message : 'Failed to save image'
+        });
+      }
       
     } catch (error) {
       console.error('❌ Maya save error:', error);
