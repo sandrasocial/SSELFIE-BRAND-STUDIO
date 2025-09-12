@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { MemberNavigation } from '../components/member-navigation';
 import { apiRequest } from '../lib/queryClient';
 import ErrorBoundary from '../components/ErrorBoundary';
+import StoryStudioModal from '../components/StoryStudioModal';
 
 function SSELFIEGallery() {
   const { user, isAuthenticated } = useAuth();
@@ -183,42 +184,18 @@ function SSELFIEGallery() {
       )}
 
       {/* Story Studio Modal */}
-      {isVideoModalOpen && (
-        <div 
-          onClick={() => setIsVideoModalOpen(false)} 
-          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-        >
-          <div 
-            onClick={(e) => e.stopPropagation()} 
-            style={{ background: 'white', padding: '20px', textAlign: 'center', borderRadius: '8px', maxWidth: '500px' }}
-          >
-            <h2 style={{ fontFamily: "'Times New Roman', serif", fontWeight: 200, letterSpacing: '0.2em', marginBottom: '20px' }}>CREATE VIDEO</h2>
-            <img 
-              src={selectedImage?.imageUrl} 
-              style={{width: '200px', margin: '16px auto', borderRadius: '8px'}} 
-              alt="Selected for video"
-            />
-            <p style={{ marginBottom: '20px', fontSize: '14px', color: '#666' }}>
-              Video generation will be connected here. This will integrate with your Story Studio service.
-            </p>
-            <button 
-              onClick={() => setIsVideoModalOpen(false)}
-              style={{ 
-                background: '#000', 
-                color: '#fff', 
-                padding: '12px 24px', 
-                border: 'none', 
-                borderRadius: '24px',
-                cursor: 'pointer',
-                textTransform: 'uppercase',
-                letterSpacing: '0.3em',
-                fontSize: '11px'
-              }}
-            >
-              Close
-            </button>
-          </div>
-        </div>
+      {isVideoModalOpen && selectedImage && (
+        <StoryStudioModal
+          imageId={selectedImage.id.toString()}
+          imageUrl={selectedImage.imageUrl}
+          onClose={() => setIsVideoModalOpen(false)}
+          onSuccess={() => {
+            // Video generation started successfully
+            console.log('✅ Video generation started for image:', selectedImage.id);
+            // Optionally refresh the gallery or show a success message
+            queryClient.invalidateQueries({ queryKey: ['/api/gallery-images'] });
+          }}
+        />
       )}
     </div>
   );
