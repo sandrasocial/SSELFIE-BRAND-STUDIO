@@ -15,6 +15,8 @@ function SSELFIEGallery() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [storyStudioImage, setStoryStudioImage] = useState<{ id: string, url: string } | null>(null);
   const [downloadingImages, setDownloadingImages] = useState(new Set<string>());
+  const [isDownloadingAll, setIsDownloadingAll] = useState(false);
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const queryClient = useQueryClient();
 
   // Pagination state

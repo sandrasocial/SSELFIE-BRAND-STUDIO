@@ -42,7 +42,7 @@ function SmartHome() {
   useEffect(() => {
     if (!isLoading && !isModelLoading && isAuthenticated) {
       // Check training status and route accordingly
-      if (!userModel || userModel.trainingStatus !== 'completed') {
+      if (!userModel || (userModel as any).trainingStatus !== 'completed') {
         console.log('🎯 User authenticated but needs training, redirecting to simple-training');
         setLocation('/simple-training');
       } else {
