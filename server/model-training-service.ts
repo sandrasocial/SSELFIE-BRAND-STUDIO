@@ -27,6 +27,58 @@ export const IMAGE_CATEGORIES = {
 // Creates individual LoRA models for each user using ostris/flux-dev-lora-trainer
 // Each user gets ONLY their own trained LoRA weights - NO EXCEPTIONS
 export class ModelTrainingService {
+  /**
+   * Poll Replicate API for prediction status and return { status, imageUrls }
+   */
+  static async checkGenerationStatus(predictionId: string): Promise<{ status: string; imageUrls?: string[] }> {
+    try {
+      const response = await fetch(`https://api.replicate.com/v1/predictions/${predictionId}`, {
+        headers: {
+          'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to fetch prediction status: ${response.status}`);
+      }
+      const data = await response.json();
+      // Replicate returns status: 'starting', 'processing', 'succeeded', 'failed', 'canceled'
+      if (data.status === 'succeeded' && Array.isArray(data.output)) {
+        // Download each Replicate image and upload to S3 for permanent URL
+        const s3 = this.s3;
+        const bucket = process.env.AWS_S3_BUCKET || 'sselfie-studio-assets';
+        const uploadedUrls: string[] = [];
+        for (const imageUrl of data.output) {
+          try {
+            const imgResp = await fetch(imageUrl);
+            if (!imgResp.ok) throw new Error(`Failed to fetch image: ${imageUrl}`);
+            const imgBuffer = Buffer.from(await imgResp.arrayBuffer());
+            const key = `maya-generated/${predictionId}/${Date.now()}-${Math.random().toString(36).slice(2,8)}.png`;
+            const putCmd = new PutObjectCommand({
+              Bucket: bucket,
+              Key: key,
+              Body: imgBuffer,
+              ContentType: 'image/png',
+              ACL: 'public-read',
+            });
+            await s3.send(putCmd);
+            const publicUrl = `https://${bucket}.s3.amazonaws.com/${key}`;
+            uploadedUrls.push(publicUrl);
+          } catch (err) {
+            console.error('❌ Error uploading image to S3:', err);
+          }
+        }
+        return { status: 'succeeded', imageUrls: uploadedUrls };
+      } else if (data.status === 'failed' || data.status === 'canceled') {
+        return { status: 'failed' };
+      } else {
+        return { status: 'processing' };
+      }
+    } catch (error: any) {
+      console.error('❌ Error in checkGenerationStatus:', error);
+      throw new Error(error.message || 'Failed to check generation status');
+    }
+  }
   // Configure AWS S3 (use environment region for consistency)
   private static s3 = new S3Client({
     credentials: {
@@ -725,7 +777,7 @@ export class ModelTrainingService {
       // const { MAYA_PERSONALITY } = await import('./agents/personalities/maya-personality.js'); // REMOVED: Direct entanglement
       
       // MAYA FAÇADE: Use standard FLUX parameters - Maya's intelligence accessed via API only
-      const mayaParams = { guidance_scale: 3.5, num_inference_steps: 28, megapixels: "1" };
+  const mayaParams = { guidance_scale: 3.5, num_inference_steps: 40, megapixels: "1" };
       const aspectRatio = "4:5"; // Standard portrait aspect ratio
 
       console.log(`🎯 MAYA FAÇADE: Using standard parameters - Maya intelligence via API only`);
@@ -743,7 +795,8 @@ export class ModelTrainingService {
       };
       
       // Use intelligent count unless explicitly overridden
-      const finalCount = intelligentParams.count;
+  // Always use 2 outputs as per new quality standards
+  const finalCount = 2;
       
       // DYNAMIC SEED GENERATION: No hardcoding, random generation for variety
       const seed = typeof options?.seed === 'number'
@@ -765,10 +818,10 @@ export class ModelTrainingService {
         version: userModelVersion,
         input: {
           prompt: finalPrompt,
-          num_outputs: finalCount,
+          num_outputs: finalCount, // Always 2
           // ✅ FLUX parameters for base model + separate LoRA weights
-          guidance_scale: merged.guidance_scale,
-          num_inference_steps: merged.num_inference_steps,
+          guidance_scale: merged.guidance_scale, // 3.5
+          num_inference_steps: merged.num_inference_steps, // 40
           aspect_ratio: merged.aspect_ratio,
           megapixels: merged.megapixels,
           output_format: "png", 
