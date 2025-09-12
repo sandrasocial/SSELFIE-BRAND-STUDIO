@@ -2,6 +2,7 @@ import React, { ComponentType, useEffect, lazy, Suspense } from 'react';
 import { Route, useLocation, Redirect } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
+import { ProtectedRoute } from './components/ProtectedRoute';
 import { Toaster } from "./components/ui/toaster";
 import { TooltipProvider } from "./components/ui/tooltip";
 import { StackProvider, StackTheme, StackHandler } from "@stackframe/react";
@@ -72,43 +73,6 @@ function SmartHome() {
 }
 
 // Protected wrapper component that handles Stack Auth authentication
-function ProtectedRoute({ component: Component, ...props }: { component: ComponentType<any>, [key: string]: any }) {
-  const { isAuthenticated, isLoading, user } = useAuth();
-  const [, setLocation] = useLocation();
-  
-  // Enhanced logging for debugging navigation issues
-  useEffect(() => {
-    if (process.env.NODE_ENV === 'development') {
-      console.log('ProtectedRoute state:', { isAuthenticated, isLoading, hasUser: !!user });
-    }
-  }, [isAuthenticated, isLoading, user]);
-
-  // Redirect to sign-in if not authenticated
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      console.log('🔍 ProtectedRoute: Redirecting to Stack Auth sign-in');
-      setLocation('/handler/sign-in');
-    }
-  }, [isLoading, isAuthenticated, setLocation]);
-  
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full" />
-      </div>
-    );
-  }
-  
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full" />
-      </div>
-    );
-  }
-  
-  return <Component {...props} />;
-}
 
 function Router() {
   return (
@@ -159,7 +123,7 @@ function Router() {
       {/* AI TRAINING WORKFLOW */}
       <Route path="/simple-training" component={(props) => (
         <Suspense fallback={<PageLoader />}>
-          <ProtectedRoute component={SimpleTraining} {...props} />
+            <ProtectedRoute component={SimpleTraining} {...props} />
         </Suspense>
       )} />
 
@@ -168,7 +132,7 @@ function Router() {
         path="/app"
         component={(props) => (
           <Suspense fallback={<PageLoader />}>
-            <ProtectedRoute component={AppLayout} {...props} />
+              <ProtectedRoute component={AppLayout} {...props} />
           </Suspense>
         )}
       />
