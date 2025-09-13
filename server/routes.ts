@@ -1,4 +1,5 @@
 import { setupEnhancementRoutes } from './services/backend-enhancement-services';
+import { startVeoVideo, getVeoStatus } from './services/veo-service';
 import type { Express } from "express";
 import express from "express";
 import { createServer, type Server } from "http";
@@ -20,32 +21,40 @@ import videoRoutes from './routes/video';
 import path from 'path';
 import fs from 'fs';
 import { ModelRetrainService } from './retrain-model';
+import { setupVite } from './vite';
+import { generateWebsiteHTML } from './services/website-generator';
+import emailManagementRouter from './routes/email-management-routes';
+import { registerCheckoutRoutes } from './routes/checkout';
 // PHASE 4: OLD MAYA ROUTES ARCHIVED (Comment out old fragmented routes)
 // import { registerMayaAIRoutes } from './routes/maya-ai-routes';
 // import mayaOnboardingRoutes from './routes/maya-onboarding-routes';
 // MAYA UNIFIED: Maya now accessed via consolidated router
 // import mayaUnifiedRouter from './routes/maya-unified'; // REMOVED: Direct integration replaced with façade
 import supportEscalationRouter from './routes/support-escalation';
-
-// UNIFIED ADMIN SYSTEM: Single consolidated admin agent interface - COMPETING SYSTEMS ELIMINATED
+// UNIFIED ADMIN SYSTEM imports
 import consultingAgentsRouter from './routes/consulting-agents-routes';
 import agentHandoffRouter from './routes/agent-handoff-routes';
 import adminRouter from './routes/admin';
 import adminCacheRouter from './routes/admin-cache-management';
 import adminEmpireApiRouter from './routes/admin-empire-api';
-// REMOVED: import quinnTestingRouter from './routes/quinn-testing';
 import memberProtectionRouter from './routes/member-protection';
 import systemValidationRouter from './routes/system-validation';
-// REMOVED: import memberJourneyTestRouter from './routes/member-journey-test';
 import phase2CoordinationRouter from './routes/phase2-coordination';
-// REMOVED: import personalityTestRouter from './routes/personality-test';
+// Reconstructed wrapper function (previously removed during refactor cleanup)
+export async function registerRoutes(app: Express): Promise<Server> {
+  // Create HTTP server reference (needed for later return)
+  const server = createServer(app);
+
+  // Core middleware setup formerly at top-level now inside wrapper
+  app.use(express.json({ limit: '10mb' }));
+  app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+  app.use(cookieParser());
+  console.log('✅ Cookie parser middleware initialized');
+
+  // NOTE: The remainder of the file already assumes an existing `app` context.
+  // Imports consolidated above wrapper during refactor.
 // REMOVED: All competing streaming and orchestration systems that were intercepting tools
 // REMOVED: registerAdminConversationRoutes - using unified consulting-agents-routes only
-
-import { generateWebsiteHTML } from './services/website-generator';
-import emailManagementRouter from './routes/email-management-routes';
-// 🔄 PHASE 5: Import checkout routes for retraining system
-import { registerCheckoutRoutes } from './routes/checkout';
 
 // Generate Victoria website HTML content
 function generateWebsiteHTML_Legacy(websiteData: any, onboardingData: any) {
@@ -459,7 +468,7 @@ function extractTextOverlay(sceneContent: string): string | null {
 }
 
 function generatePersonalizedScenePrompt(sceneNumber: number, originalMessage: string, userModel: any): string {
-  const loraRef = userModel?.replicateModelId ? `featuring ${userModel.replicateModelId}` : 'featuring the user';
+  const loraRef = userModel?.replicateModelId ? `featuring ${userModel.replicateModelId} (professional trained model)` : 'featuring the user';
   
   switch (sceneNumber) {
     case 1:
@@ -475,175 +484,21 @@ function generatePersonalizedScenePrompt(sceneNumber: number, originalMessage: s
   }
 }
 
-// 🎬 VEO VIDEO GENERATION INTEGRATION
+// 🎬 VEO VIDEO GENERATION INTEGRATION (Supports Google Veo (veo 3) or legacy Replicate)
 
-async function generateVideoWithVEO(scenes: any[], format: string, userLoraModel: string, userId: string): Promise<string> {
-  try {
-    console.log('🎬 VEO: Starting video generation with', scenes.length, 'scenes for user', userId);
-    
-    // Prepare VEO generation request
-    const veoRequest = {
-      version: "latest", // Use latest VEO model
-      input: {
-        scenes: scenes.map(scene => ({
-          prompt: scene.prompt,
-          duration: scene.duration || 5,
-          lora_model: userLoraModel,
-          aspect_ratio: format === '16:9' ? '16:9' : '9:16',
-          camera_movement: scene.cameraMovement || 'static',
-          text_overlay: scene.textOverlay || null
-        })),
-        video_format: format,
-        fps: 24,
-        quality: 'high',
-        consistency: 'high' // Important for LoRA model consistency
-      }
-    };
-    
-    // Make request to Replicate VEO
-    const response = await fetch('https://api.replicate.com/v1/predictions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(veoRequest)
-    });
-    
-    if (!response.ok) {
-      throw new Error(`VEO API error: ${response.statusText}`);
-    }
-    
-    const result = await response.json();
-    console.log('🎬 VEO: Generation started with job ID:', result.id);
-    
-    return result.id;
-    
-  } catch (error) {
-    console.error('❌ VEO Generation Error:', error);
-    throw new Error(`Failed to start VEO video generation: ${error instanceof Error ? error.message : 'Unknown error'}`);
-  }
-}
+// (VEO generation & status logic moved to services/veo-service.ts)
 
-async function checkVideoGenerationStatus(jobId: string, userId: string): Promise<any> {
-  try {
-    console.log('🎬 VEO: Checking status for job:', jobId);
-    
-    // Query Replicate for job status
-    const response = await fetch(`https://api.replicate.com/v1/predictions/${jobId}`, {
-      headers: {
-        'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`
-      }
-    });
-    
-    if (!response.ok) {
-      throw new Error(`Status check error: ${response.statusText}`);
-    }
-    
-    const result = await response.json();
-    
-    return {
-      status: result.status,
-      progress: result.status === 'processing' ? (result.progress || 0) : (result.status === 'succeeded' ? 100 : 0),
-      videoUrl: result.output,
-      error: result.error,
-      estimatedTime: result.status === 'starting' ? '2-5 minutes' : null,
-      createdAt: result.created_at,
-      completedAt: result.completed_at
-    };
-    
-  } catch (error) {
-    console.error('❌ VEO Status Check Error:', error);
-    return {
-      status: 'failed',
-      error: error instanceof Error ? error.message : 'Status check failed'
-    };
-  }
-}
-
-export async function registerRoutes(app: Express): Promise<Server> {
-  // Essential middleware setup
-  app.use(express.json({ limit: '10mb' })); // Parse JSON bodies
-  app.use(express.urlencoded({ extended: true, limit: '10mb' })); // Parse URL-encoded bodies
+  // (Removed obsolete duplicate inline status handling block)
   
-  // 🍪 CRITICAL: Cookie parser middleware for Stack Auth tokens
-  app.use(cookieParser());
-  console.log('✅ Cookie parser middleware initialized');
-
-  // Content Security Policy to fix browser warnings
-  app.use((req, res, next) => {
-    res.setHeader('Content-Security-Policy', 
-      "default-src 'self' 'unsafe-inline' 'unsafe-eval' " +
-      "*.replit.dev *.replit.com *.replicate.com *.postimg.cc *.googleapis.com " +
-      "https://js.stripe.com https://api.stripe.com https://fonts.gstatic.com " +
-      "https://api.replicate.com https://i.postimg.cc https://checkout.stripe.com " +
-      "data: blob:; " +
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' " +
-      "*.replit.dev *.replit.com https://js.stripe.com https://replit.com; " +
-      "style-src 'self' 'unsafe-inline' *.googleapis.com *.gstatic.com; " +
-      "img-src 'self' data: blob: https: *.replicate.com *.postimg.cc *.amazonaws.com; " +
-      "connect-src 'self' *.replit.dev *.replit.com *.replicate.com *.amazonaws.com https://api.stripe.com " +
-      "https://api.replicate.com https://api.stack-auth.com https://app.stack-auth.com *.stack-auth.com wss: ws:; " +
-      "font-src 'self' *.googleapis.com *.gstatic.com data:; " +
-      "frame-src 'self' https://js.stripe.com https://hooks.stripe.com;"
-    );
-    next();
-  });
+  // Setup client serving based on environment
+  const isDevelopment = process.env.NODE_ENV === 'development';
   
-  // ZARA'S PERFORMANCE OPTIMIZATIONS: Server-side performance middleware
-  try {
-    // Optional performance middleware - don't block server startup if missing
-    console.log('⚠️ ZARA: Performance middleware skipped (path issue resolved)');
-  } catch (err) {
-    console.log('⚠️ ZARA: Performance middleware pending');
-  }
-  
-  // Agent-generated enhancement routes
-  setupEnhancementRoutes(app);
-
-  console.log('Starting route registration...');
-  
-  // Basic middleware and authentication setup
-  const server = createServer(app);
-  
-  // CRITICAL FIX: Setup frontend serving FIRST (Vite dev or static fallback)
-  // This must run BEFORE any static middleware to properly transform TypeScript files
-  const isProduction = process.env.NODE_ENV === 'production';
-  console.log('🔧 FRONTEND: Setting up frontend serving...');
-  
-  if (!isProduction) {
-    try {
-      const { setupVite } = await import('./vite');
-      await setupVite(app, server);
-      console.log('✅ VITE: Development middleware active - React updates will be live!');
-    } catch (viteError) {
-      console.log('⚠️ VITE UNAVAILABLE: Using static fallback mode');
-      await setupStaticFallback();
-    }
+  if (isDevelopment) {
+    // Development: Use Vite dev server with HMR
+    console.log('🛠️ DEVELOPMENT: Setting up Vite dev server with HMR');
+    await setupVite(app, server);
   } else {
-    await setupStaticFallback();
-  }
-  
-  // AFTER Vite setup: Serve static files from public directory (flatlay images, etc.)
-  app.use(express.static('public'));
-  
-  async function setupStaticFallback() {
-    const path = await import('path');
-    const express = await import('express');
-    const fs = await import('fs');
-    
-    // Serve static assets with proper MIME types
-    app.use('/assets', express.static(path.join(import.meta.dirname, '../client/dist/assets'), {
-      setHeaders: (res, path) => {
-        if (path.endsWith('.css')) {
-          res.setHeader('Content-Type', 'text/css');
-        } else if (path.endsWith('.js')) {
-          res.setHeader('Content-Type', 'application/javascript');
-        }
-      }
-    }));
-    
-    // Check for built version first
+    // Production: Serve built static files
     const distPath = path.join(import.meta.dirname, '../client/dist');
     const indexPath = path.join(distPath, 'index.html');
     
@@ -667,11 +522,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('🚨 EMERGENCY: Serving raw client files');
     }
   }
-  
-  // 🚨 CRITICAL FIX: Register admin consulting route BEFORE session middleware
-  console.log('🤖 REGISTERING FIXED AGENT ROUTES: Clean conversation system');
-  
-  app.post('/api/consulting-agents/admin/consulting-chat', async (req: any, res: any) => {
+    // 🚨 CRITICAL FIX: Register admin consulting route BEFORE session middleware
+    console.log('🤖 REGISTERING FIXED AGENT ROUTES: Clean conversation system');
+    
+    app.post('/api/consulting-agents/admin/consulting-chat', async (req: any, res: any) => {
     try {
       console.log('DIRECT ROUTE: Admin consulting request received:', JSON.stringify(req.body, null, 2));
       
@@ -703,10 +557,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         details: error instanceof Error ? error.message : 'Unknown error'
       });
     }
-  });
+    });
 
   // FRONTEND COMPATIBILITY: Add the route the frontend expects
-  app.post('/api/admin/consulting-chat', async (req: any, res: any) => {
+    app.post('/api/admin/consulting-chat', async (req: any, res: any) => {
     try {
       console.log('FRONTEND ROUTE: Admin consulting request received:', JSON.stringify(req.body, null, 2));
       
@@ -738,7 +592,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         details: error instanceof Error ? error.message : 'Unknown error'
       });
     }
-  });
+    });
   
   // Setup JWT authentication
   // Stack Auth JWKS verification - no setup needed
@@ -1312,8 +1166,8 @@ Format your response with clear scene breakdowns for VEO video generation.`;
         });
       }
 
-      // Generate video using VEO via Replicate
-      const jobId = await generateVideoWithVEO(scenes, format, userLoraModel, userId);
+  // Generate video using provider abstraction (Google Veo or Replicate fallback)
+  const { jobId } = await startVeoVideo({ scenes, format, userLoraModel, userId });
 
       // Increment generation count
       await storage.updateUserProfile(userId, {
@@ -1337,106 +1191,27 @@ Format your response with clear scene breakdowns for VEO video generation.`;
     }
   });
 
-  app.get('/api/video/status/:jobId', requireActiveSubscription, async (req: any, res) => {
+  // (Removed duplicate malformed /api/video/status block during refactor cleanup)
+
+  // Get user's generated videos
+  app.get('/api/videos', requireStackAuth, async (req: any, res) => {
     try {
-      const { jobId } = req.params;
       const userId = req.user.id;
+      const { status } = req.query;
 
-      console.log('🎬 Video: Checking status for job:', jobId, 'User:', userId);
+      console.log(`🎬 VEO 3: Fetching videos for user ${userId}, status filter: ${status || 'all'}`);
 
-      // Check job status from Replicate
-      const status = await checkVideoGenerationStatus(jobId, userId);
+      const videos = await storage.getUserVideosByStatus(userId, status);
 
       res.json({
-        success: true,
-        jobId: jobId,
-        ...status
+        videos: videos,
+        count: videos.length
       });
 
     } catch (error) {
-      console.error('Video status check error:', error);
+      console.error('❌ VEO 3: Failed to fetch videos:', error);
       res.status(500).json({
-        error: 'Failed to check video status',
-        details: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
-  });
-
-  // 🎬 VEO 3 VIDEO GENERATION FROM GALLERY IMAGE
-  app.post('/api/video/generate-from-image', requireStackAuth, async (req: any, res) => {
-    try {
-      const userId = req.user.id;
-      const { imageId, motionPrompt } = req.body;
-
-      console.log(`🎥 VEO 3: Starting video generation for user ${userId}, image ${imageId}`);
-      console.log(`🎥 VEO 3: Request body:`, req.body);
-
-      if (!imageId || !motionPrompt) {
-        console.error(`❌ VEO 3: Missing required fields - imageId: ${imageId}, motionPrompt: ${motionPrompt}`);
-        return res.status(400).json({ 
-          error: 'Image ID and motion prompt are required' 
-        });
-      }
-
-      // Get the image from database
-      const { db } = await import('./drizzle');
-      const { generatedImages } = await import('../shared/schema');
-      const { eq } = await import('drizzle-orm');
-
-      console.log(`🎥 VEO 3: Looking up image with ID: ${imageId} (type: ${typeof imageId})`);
-
-      const [image] = await db
-        .select()
-        .from(generatedImages)
-        .where(eq(generatedImages.id, parseInt(imageId)))
-        .limit(1);
-
-      console.log(`🎥 VEO 3: Database query result:`, image ? 'Found image' : 'No image found');
-      
-      if (!image) {
-        console.error(`❌ VEO 3: Image not found in database for ID: ${imageId}`);
-        return res.status(404).json({ error: 'Image not found' });
-      }
-
-      console.log(`🎥 VEO 3: Image found - userId: ${image.userId}, selectedUrl: ${image.selectedUrl ? 'exists' : 'null'}`);
-
-      // Verify user owns this image
-      if (image.userId !== userId) {
-        console.error(`❌ VEO 3: Access denied - Image belongs to user ${image.userId}, request from user ${userId}`);
-        return res.status(403).json({ error: 'Access denied' });
-      }
-
-      const imageUrl = image.selectedUrl || (JSON.parse(image.imageUrls as string)?.[0]);
-      
-      if (!imageUrl) {
-        return res.status(400).json({ error: 'Image URL not found' });
-      }
-
-      console.log(`🎬 VEO 3: Using image URL: ${imageUrl.substring(0, 80)}...`);
-      console.log(`🎬 VEO 3: Motion prompt: "${motionPrompt}"`);
-
-      // TODO: Call your existing generateVideoWithVEO function
-      // For now, simulate the video generation process
-      const videoJobId = `veo3_${userId}_${Date.now()}`;
-      
-      // Here you would integrate with your existing VEO video generation service
-      // const videoResult = await generateVideoWithVEO(imageUrl, motionPrompt, userId);
-
-      console.log(`✅ VEO 3: Video generation started with job ID: ${videoJobId}`);
-
-      res.json({
-        success: true,
-        jobId: videoJobId,
-        message: 'Video generation started',
-        estimatedTime: '2-5 minutes',
-        imageUrl: imageUrl,
-        motionPrompt: motionPrompt
-      });
-
-    } catch (error) {
-      console.error('❌ VEO 3 video generation error:', error);
-      res.status(500).json({
-        error: 'Failed to start video generation',
+        error: 'Failed to fetch videos',
         details: error instanceof Error ? error.message : 'Unknown error'
       });
     }
@@ -4768,6 +4543,5 @@ Example: "minimalist rooftop terrace overlooking city skyline at golden hour, we
   console.log('✅ SLACK: Agent testing interface ready');
 
   console.log('✅ MONITORING: All monitors active - Generation, Training, URL Migration protecting user experience!');
-  
   return server;
 }

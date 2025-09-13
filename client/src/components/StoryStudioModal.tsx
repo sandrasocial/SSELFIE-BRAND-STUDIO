@@ -1,19 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { apiRequest } from '../lib/queryClient';
+import VideoPreview from './VideoPreview';
 
 interface StoryStudioModalProps {
   imageId: string;
   imageUrl: string;
+  imageSource?: string; // 'generated' or 'legacy'
   onClose: () => void;
   onSuccess: () => void;
 }
 
-const StoryStudioModal: React.FC<StoryStudioModalProps> = ({ imageId, imageUrl, onClose, onSuccess }) => {
+const StoryStudioModal: React.FC<StoryStudioModalProps> = ({ imageId, imageUrl, imageSource, onClose, onSuccess }) => {
   const [motionPrompt, setMotionPrompt] = useState('');
   const [mayaVideoPrompt, setMayaVideoPrompt] = useState<string>('');
   const [isLoadingPrompt, setIsLoadingPrompt] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [videoJobId, setVideoJobId] = useState<string | null>(null);
+  const [videoStatus, setVideoStatus] = useState<'idle' | 'generating' | 'completed' | 'failed'>('idle');
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [progress, setProgress] = useState(0);
 
   // Get Maya's video direction when component mounts
   useEffect(() => {
@@ -61,18 +67,60 @@ const StoryStudioModal: React.FC<StoryStudioModalProps> = ({ imageId, imageUrl, 
     getMayaDirection();
   }, [imageUrl]);
 
+  // Poll video status
+  useEffect(() => {
+    if (!videoJobId || videoStatus !== 'generating') return;
+
+    const pollStatus = async () => {
+      try {
+        const res = await fetch(`/api/video/status/${videoJobId}`, {
+          credentials: 'include'
+        });
+        
+        if (res.ok) {
+          const data = await res.json();
+          
+          if (data.status === 'completed' && data.videoUrl) {
+            setVideoStatus('completed');
+            setVideoUrl(data.videoUrl);
+            setProgress(100);
+            setLoading(false);
+            console.log('✅ Video generation completed!');
+          } else if (data.status === 'failed') {
+            setVideoStatus('failed');
+            setError(data.error || 'Video generation failed');
+            setLoading(false);
+            console.error('❌ Video generation failed:', data.error);
+          } else if (data.status === 'processing') {
+            setProgress(data.progress || 50);
+            console.log(`🎬 Video generation progress: ${data.progress || 50}%`);
+          }
+        }
+      } catch (error) {
+        console.error('❌ Error checking video status:', error);
+      }
+    };
+
+    const interval = setInterval(pollStatus, 3000); // Poll every 3 seconds
+    return () => clearInterval(interval);
+  }, [videoJobId, videoStatus]);
+
   const handleGenerate = async () => {
+    if (!motionPrompt.trim()) return;
+    
     setLoading(true);
     setError(null);
+    
     try {
-      console.log('🎥 Starting video generation with prompt:', motionPrompt);
+      console.log('🎬 Starting video generation for image:', imageId, 'with prompt:', motionPrompt);
       
       const res = await fetch('/api/video/generate-from-image', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          imageId: parseInt(imageId), 
-          motionPrompt: motionPrompt.trim() 
+        body: JSON.stringify({
+          imageId: parseInt(imageId), // Ensure it's a number
+          motionPrompt: motionPrompt.trim(),
+          imageSource: imageSource || 'generated' // default to 'generated' if not provided
         }),
         credentials: 'include'
       });
@@ -85,11 +133,18 @@ const StoryStudioModal: React.FC<StoryStudioModalProps> = ({ imageId, imageUrl, 
       const result = await res.json();
       console.log('✅ Video generation started:', result);
       
-      onSuccess();
-      onClose();
+      // Set video generation state
+      setVideoJobId(result.jobId);
+      setVideoStatus('generating');
+      setProgress(10);
+      
+      // Don't close modal immediately - let user see progress
+      // The VideoPreview component will handle the completion state
+      
     } catch (err: any) {
       console.error('❌ Video generation error:', err);
       setError(err.message || 'Unknown error');
+      setVideoStatus('failed');
     } finally {
       setLoading(false);
     }
@@ -221,19 +276,68 @@ const StoryStudioModal: React.FC<StoryStudioModalProps> = ({ imageId, imageUrl, 
           }}
           disabled={loading || isLoadingPrompt}
         />
+
+        {/* Video Preview Component */}
+        <div style={{ marginBottom: 16 }}>
+          <VideoPreview
+            videoUrl={videoUrl || undefined}
+            posterUrl={imageUrl}
+            isLoading={loading || videoStatus === 'generating'}
+            error={videoStatus === 'failed' ? error : null}
+            progress={progress}
+            status={videoStatus === 'idle' ? 'pending' : videoStatus}
+            onRetry={() => {
+              setVideoStatus('idle');
+              setError(null);
+              setProgress(0);
+              setVideoUrl(null);
+              setVideoJobId(null);
+            }}
+            onSave={async () => {
+              if (videoUrl) {
+                try {
+                  // Add video to favorites/saved
+                  await apiRequest('/api/videos/save', 'POST', {
+                    videoUrl,
+                    imageId,
+                    motionPrompt
+                  });
+                  console.log('✅ Video saved successfully');
+                } catch (error) {
+                  console.error('❌ Error saving video:', error);
+                }
+              }
+            }}
+            onDownload={() => {
+              if (videoUrl) {
+                const link = document.createElement('a');
+                link.href = videoUrl;
+                link.download = `video-${Date.now()}.mp4`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+              }
+            }}
+            className="w-full max-w-md mx-auto"
+            title={`Video generated from image ${imageId}`}
+          />
+        </div>
+
         <button
           onClick={handleGenerate}
-          disabled={loading || isLoadingPrompt || !motionPrompt.trim()}
+          disabled={!motionPrompt.trim() || loading || isLoadingPrompt || videoStatus === 'generating'}
           style={{
             width: '100%',
-            padding: '14px',
-            borderRadius: '6px',
-            background: (loading || isLoadingPrompt || !motionPrompt.trim()) ? '#ccc' : '#0a0a0a',
-            color: '#fff',
-            fontWeight: 600,
-            fontSize: 16,
+            padding: '14px 24px',
+            background: (!motionPrompt.trim() || loading || isLoadingPrompt || videoStatus === 'generating') 
+              ? '#ccc' 
+              : 'linear-gradient(135deg, #8b5cf6 0%, #a855f7 50%, #c084fc 100%)',
+            color: 'white',
             border: 'none',
-            cursor: (loading || isLoadingPrompt) ? 'wait' : 'pointer',
+            borderRadius: '8px',
+            fontSize: 16,
+            fontWeight: 500,
+            cursor: (loading || isLoadingPrompt || videoStatus === 'generating') ? 'wait' : 'pointer',
             marginBottom: 12,
             display: 'flex',
             alignItems: 'center',
@@ -241,7 +345,7 @@ const StoryStudioModal: React.FC<StoryStudioModalProps> = ({ imageId, imageUrl, 
             gap: '8px'
           }}
         >
-          {loading ? (
+          {(loading || videoStatus === 'generating') ? (
             <>
               <div style={{
                 width: '16px',
@@ -251,7 +355,7 @@ const StoryStudioModal: React.FC<StoryStudioModalProps> = ({ imageId, imageUrl, 
                 borderRadius: '50%',
                 animation: 'spin 1s linear infinite'
               }}></div>
-              Generating Clip...
+              {videoStatus === 'generating' ? 'Generating Video...' : 'Generating Clip...'}
             </>
           ) : isLoadingPrompt ? (
             'Waiting for Maya...'

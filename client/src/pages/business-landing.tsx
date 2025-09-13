@@ -225,18 +225,27 @@ export default function BusinessLanding() {
   };
 
   const handleLogin = async () => {
+    console.log('🔍 Login button clicked');
+    console.log('🔍 Stack Auth app available:', !!app);
+    console.log('🔍 Environment vars:', { STACK_PROJECT_ID, STACK_PUBLISHABLE_CLIENT_KEY });
+    
     if (!app) {
+      console.log('🔄 Using fallback login method');
       // Fallback to direct OAuth URL
       const projectId = STACK_PROJECT_ID;
       const publishableKey = STACK_PUBLISHABLE_CLIENT_KEY;
 
       if (publishableKey) {
+        console.log('🚀 Redirecting to Stack Auth handler');
         window.location.href = `/handler/sign-in`;
+      } else {
+        console.error('❌ No publishable key found');
       }
       return;
     }
 
     try {
+      console.log('🚀 Using Stack Auth SDK method');
       // ✅ Use Stack Auth SDK method
       await app.signInWithOAuth('google');
     } catch (error) {

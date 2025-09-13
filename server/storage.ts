@@ -27,6 +27,9 @@ import {
   type InsertAiImage,
   type GeneratedImage,
   type InsertGeneratedImage,
+  generatedVideos,
+  type GeneratedVideo,
+  type InsertGeneratedVideo,
   type GenerationTracker,
   type InsertGenerationTracker,
   type UserModel,
@@ -113,6 +116,13 @@ export interface IStorage {
   getGeneratedImages(userId: string): Promise<GeneratedImage[]>;
   saveGeneratedImage(data: InsertGeneratedImage): Promise<GeneratedImage>;
   updateGeneratedImage(id: number, data: Partial<GeneratedImage>): Promise<GeneratedImage>;
+
+  // Generated Videos operations (VEO 3 video generation)
+  getGeneratedVideos(userId: string): Promise<GeneratedVideo[]>;
+  saveGeneratedVideo(data: InsertGeneratedVideo): Promise<GeneratedVideo>;
+  updateGeneratedVideo(id: number, data: Partial<GeneratedVideo>): Promise<GeneratedVideo>;
+  getGeneratedVideoByJobId(jobId: string): Promise<GeneratedVideo | undefined>;
+  getUserVideosByStatus(userId: string, status?: string): Promise<GeneratedVideo[]>;
 
   // Generation Tracker operations (TEMP PREVIEW ONLY - for Maya chat)
   createGenerationTracker(data: InsertGenerationTracker): Promise<GenerationTracker>;
@@ -592,6 +602,50 @@ export class DatabaseStorage implements IStorage {
       .where(eq(generatedImages.id, id))
       .returning();
     return updated;
+  }
+
+  // Generated Videos operations (VEO 3 video generation)
+  async getGeneratedVideos(userId: string): Promise<GeneratedVideo[]> {
+    return await db
+      .select()
+      .from(generatedVideos)
+      .where(eq(generatedVideos.userId, userId))
+      .orderBy(desc(generatedVideos.createdAt));
+  }
+
+  async saveGeneratedVideo(data: InsertGeneratedVideo): Promise<GeneratedVideo> {
+    const [saved] = await db.insert(generatedVideos).values(data).returning();
+    return saved;
+  }
+
+  async updateGeneratedVideo(id: number, data: Partial<GeneratedVideo>): Promise<GeneratedVideo> {
+    const [updated] = await db
+      .update(generatedVideos)
+      .set({ ...data, updatedAt: new Date() })
+      .where(eq(generatedVideos.id, id))
+      .returning();
+    return updated;
+  }
+
+  async getGeneratedVideoByJobId(jobId: string): Promise<GeneratedVideo | undefined> {
+    const [video] = await db
+      .select()
+      .from(generatedVideos)
+      .where(eq(generatedVideos.jobId, jobId));
+    return video;
+  }
+
+  async getUserVideosByStatus(userId: string, status?: string): Promise<GeneratedVideo[]> {
+    const query = db
+      .select()
+      .from(generatedVideos)
+      .where(eq(generatedVideos.userId, userId));
+    
+    if (status) {
+      query.where(eq(generatedVideos.status, status));
+    }
+    
+    return await query.orderBy(desc(generatedVideos.createdAt));
   }
 
   // 🔑 Generation Tracker Methods - for temp preview workflow ONLY

@@ -114,6 +114,15 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx" defer></script>
+    <!-- Lightweight static video preview modal (non-React) -->
+    <div id="video-preview-modal" class="video-preview-modal" aria-hidden="true">
+      <div class="video-preview-content" role="dialog" aria-modal="true" aria-label="Video preview">
+        <button id="video-preview-close" class="video-preview-close-btn" type="button" aria-label="Close video preview">&times;</button>
+        <video id="video-preview-player" playsinline preload="metadata"></video>
+      </div>
+    </div>
+    <!-- Dedicated script to manage the preview modal (kept separate from React bundle) -->
+    <script type="module" src="/src/index.tsx" defer></script>
     <script>
       // Override Vite client to prevent WebSocket connection attempts
       if (window.__vite_plugin_react_preamble_installed__) {

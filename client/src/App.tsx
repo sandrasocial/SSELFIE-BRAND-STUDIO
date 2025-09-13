@@ -20,6 +20,7 @@ import AppLayout from "./pages/AppLayout";
 // Lazy loaded essential pages
 const BusinessLanding = lazy(() => import("./pages/business-landing"));
 const SimpleTraining = lazy(() => import("./pages/simple-training"));
+const SimpleCheckout = lazy(() => import("./pages/simple-checkout"));
 const PaymentSuccess = lazy(() => import("./pages/payment-success"));
 const ThankYou = lazy(() => import("./pages/thank-you"));
 
@@ -107,6 +108,11 @@ function Router() {
       )} />
 
       {/* PAYMENT FLOW */}
+      <Route path="/simple-checkout" component={() => (
+        <Suspense fallback={<PageLoader />}>
+          <SimpleCheckout />
+        </Suspense>
+      )} />
       <Route path="/thank-you" component={() => (
         <Suspense fallback={<PageLoader />}>
           <ThankYou />

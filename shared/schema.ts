@@ -476,6 +476,28 @@ export const generatedImages = pgTable("generated_images", {
   createdAt: timestamp("created_at").defaultNow()
 });
 
+// Generated Videos table (for VEO 3 video generation)
+export const generatedVideos = pgTable("generated_videos", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  imageId: integer("image_id"), // Source image for video generation
+  imageSource: varchar("image_source").default("generated"), // 'generated' or 'legacy'
+  motionPrompt: text("motion_prompt").notNull(),
+  videoUrl: varchar("video_url"), // Final video URL when completed
+  jobId: varchar("job_id").notNull(), // VEO generation job ID
+  status: varchar("status").default("pending"), // pending, processing, completed, failed
+  estimatedTime: varchar("estimated_time"), // e.g., "2-5 minutes"
+  progress: integer("progress").default(0), // 0-100
+  errorMessage: text("error_message"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  completedAt: timestamp("completed_at"),
+}, (table) => [
+  index("generated_videos_user_id_idx").on(table.userId),
+  index("generated_videos_job_id_idx").on(table.jobId),
+  index("generated_videos_status_idx").on(table.status),
+]);
+
 // Victoria AI chat conversations
 export const victoriaChats = pgTable("victoria_chats", {
   id: serial("id").primaryKey(),
@@ -859,6 +881,8 @@ export type InsertUserModel = typeof userModels.$inferInsert;
 export type UserModel = typeof userModels.$inferSelect;
 export type InsertGeneratedImage = typeof generatedImages.$inferInsert;
 export type GeneratedImage = typeof generatedImages.$inferSelect;
+export type InsertGeneratedVideo = typeof generatedVideos.$inferInsert;
+export type GeneratedVideo = typeof generatedVideos.$inferSelect;
 export type InsertVictoriaChat = typeof victoriaChats.$inferInsert;
 export type VictoriaChat = typeof victoriaChats.$inferSelect;
 export type InsertPhotoSelection = typeof photoSelections.$inferInsert;

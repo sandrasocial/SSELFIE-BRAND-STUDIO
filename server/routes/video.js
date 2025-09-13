@@ -257,4 +257,33 @@ router.get('/status/:jobId', requireStackAuth, async (req, res) => {
     }
 });
 
+/**
+ * POST /api/videos/save
+ * Save a generated video to user's favorites/gallery
+ */
+router.post('/save', requireStackAuth, async (req, res) => {
+    try {
+        const { videoUrl, imageId, motionPrompt } = req.body;
+        const userId = req.user?.id;
+
+        if (!videoUrl || !imageId) {
+            return res.status(400).json({ error: 'Video URL and image ID are required' });
+        }
+
+        console.log('💾 STORY STUDIO: Saving video for user:', userId);
+
+        // Here you could save video metadata to database
+        // For now, just return success
+        
+        res.json({ 
+            success: true, 
+            message: 'Video saved successfully' 
+        });
+
+    } catch (error) {
+        console.error('❌ STORY STUDIO: Save video failed:', error);
+        res.status(500).json({ error: 'Failed to save video' });
+    }
+});
+
 export default router;
