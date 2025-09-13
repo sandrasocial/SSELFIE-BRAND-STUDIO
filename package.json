@@ -625,6 +625,8 @@
   },
   "scripts": {
   "dev": "cd server && npx tsx index.ts",
+  "dev:client": "npx vite --port 5173",
+  "dev:server": "cd server && npx tsx start.ts",
   "start": "cd server && npx tsx index.ts",
   "build": "vite build client",
   "test": "echo \"No tests specified\" && exit 0"

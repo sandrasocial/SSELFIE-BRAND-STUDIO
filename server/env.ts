@@ -1,4 +1,9 @@
 
+import dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config();
+
 export const DATABASE_URL = process.env.DATABASE_URL;
 export const STACK_SECRET_SERVER_KEY = process.env.STACK_SECRET_SERVER_KEY;
 export const VITE_STACK_PUBLISHABLE_CLIENT_KEY = process.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY;

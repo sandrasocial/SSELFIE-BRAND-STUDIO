@@ -2705,7 +2705,10 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     }
   });
 
+  */
+  
   // Maya save image endpoint - Heart functionality
+  console.log('🔧 REGISTERING: /api/save-image route');
   app.post('/api/save-image', requireStackAuth, async (req: any, res) => {
     try {
       const userId = req.user.id;
@@ -2752,7 +2755,6 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       });
     }
   });
-  */
   
   // STREAMING ADMIN ROUTES - Fixed WebSocket communication
   // ELIMINATED: registerStreamingAdminRoutes - was intercepting tools before reaching bypass system
