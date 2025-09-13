@@ -2,17 +2,16 @@ import type { Express } from "express";
 import { requireStackAuth } from '../stack-auth';
 import { storage } from "../storage";
 // import { sendWelcomeEmail } from "../email-service";
+
 import Stripe from "stripe";
 
-if (!process.env.STRIPE_SECRET_KEY) {
-  throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
-}
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: "2025-08-27.basil",
-});
-
 export function registerCheckoutRoutes(app: Express) {
+  if (!process.env.STRIPE_SECRET_KEY) {
+    throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
+  }
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+    apiVersion: "2025-08-27.basil",
+  });
   // 🔄 PHASE 3: Create Retraining Checkout Session
   app.post("/api/create-retrain-checkout-session", requireStackAuth, async (req: any, res) => {
     try {

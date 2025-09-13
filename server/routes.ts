@@ -490,38 +490,7 @@ function generatePersonalizedScenePrompt(sceneNumber: number, originalMessage: s
 
   // (Removed obsolete duplicate inline status handling block)
   
-  // Setup client serving based on environment
-  const isDevelopment = process.env.NODE_ENV === 'development';
-  
-  if (isDevelopment) {
-    // Development: Use Vite dev server with HMR
-    console.log('🛠️ DEVELOPMENT: Setting up Vite dev server with HMR');
-    await setupVite(app, server);
-  } else {
-    // Production: Serve built static files
-    const distPath = path.join(import.meta.dirname, '../client/dist');
-    const indexPath = path.join(distPath, 'index.html');
-    
-    if (fs.existsSync(indexPath)) {
-      app.use(express.static(distPath));
-      app.get('*', (req, res) => {
-        if (!req.path.startsWith('/api/')) {
-          res.sendFile(indexPath);
-        }
-      });
-      console.log('📁 STATIC: Serving built app from client/dist');
-    } else {
-      // Emergency: Serve raw client files
-      const clientPath = path.join(import.meta.dirname, '../client');
-      app.use(express.static(clientPath));
-      app.get('*', (req, res) => {
-        if (!req.path.startsWith('/api/')) {
-          res.sendFile(path.join(clientPath, 'index.html'));
-        }
-      });
-      console.log('🚨 EMERGENCY: Serving raw client files');
-    }
-  }
+  // (Static file serving and Vite dev server setup moved to server/start.ts)
     // 🚨 CRITICAL FIX: Register admin consulting route BEFORE session middleware
     console.log('🤖 REGISTERING FIXED AGENT ROUTES: Clean conversation system');
     
@@ -1965,27 +1934,39 @@ Format your response with clear scene breakdowns for VEO video generation.`;
     try {
       const userId = req.user.id;
       const { images } = req.body;
-      
+      const user = await storage.getUser(userId);
+      if (!user || !user.gender || !['man', 'woman', 'other'].includes(user.gender)) {
+        return res.status(400).json({
+          success: false,
+          error: 'User gender is required before starting training. Please set your gender in your profile.'
+        });
+      }
       console.log(`🎯 Training model for user: ${userId} with ${images?.length || 0} images`);
-      
       if (!images || !Array.isArray(images) || images.length < 5) {
         return res.status(400).json({
           success: false,
           message: 'At least 5 images are required for training'
         });
       }
-      
       const { ModelTrainingService } = await import('./model-training-service');
       const result = await ModelTrainingService.startModelTraining(userId, images);
-      
+      // After training starts, check if user is missing LoRA weights and trigger extraction if needed
+      const loraWeight = await storage.getUserActiveLoraWeight(userId);
+      if (!loraWeight) {
+        // Try to extract LoRA weights if not present (non-blocking)
+        try {
+          await ModelTrainingService.retryModelExtraction?.(userId);
+        } catch (err) {
+          console.warn('LoRA extraction attempt failed (non-blocking):', err);
+        }
+      }
       res.json({
         success: true,
         message: 'Training started successfully',
         trainingId: result.trainingId,
-        triggerWord: `${userId}_selfie`, // Simple trigger word
+        triggerWord: `${userId}_selfie`,
         status: result.status
       });
-      
     } catch (error) {
       console.error('❌ Training error:', error);
       res.status(500).json({
@@ -3182,12 +3163,12 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       }
       
       const usage = {
-        plan: user.plan || 'sselfie-studio',
-        monthlyUsed: user.monthlyGenerationsUsed || 0,
-        monthlyLimit: user.monthlyGenerationLimit || 100,
-        isAdmin: user.monthlyGenerationLimit === -1,
-        nextBillingDate: user.subscriptionRenewDate,
-        subscriptionActive: user.monthlyGenerationLimit > 0 || user.monthlyGenerationLimit === -1
+  plan: user.plan || 'sselfie-studio',
+  monthlyUsed: user.generationsUsedThisMonth || 0,
+  monthlyLimit: user.monthlyGenerationLimit || 100,
+  isAdmin: user.monthlyGenerationLimit === -1,
+  // nextBillingDate: user.subscriptionRenewDate, // Not present in schema
+  subscriptionActive: user.monthlyGenerationLimit > 0 || user.monthlyGenerationLimit === -1
       };
       
       res.json(usage);
@@ -3213,20 +3194,20 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       
       // Return comprehensive usage and subscription data
       const subscriptionData = {
-        plan: user.plan || 'sselfie-studio',
-        planDisplayName: 'SSELFIE Studio',
-        monthlyPrice: 47, // EUR
-        currency: 'EUR',
-        monthlyUsed: user.monthlyGenerationsUsed || 0,
-        monthlyLimit: user.monthlyGenerationLimit || 100,
-        isAdmin: user.monthlyGenerationLimit === -1,
-        nextBillingDate: user.subscriptionRenewDate,
-        subscriptionActive: user.monthlyGenerationLimit > 0 || user.monthlyGenerationLimit === -1,
-        userDisplayName: user.name || user.email?.split('@')[0] || 'SSELFIE User',
-        email: user.email,
-        accountType: user.monthlyGenerationLimit === -1 ? 'Admin Account' : 'SSELFIE Studio Member',
-        joinedDate: user.createdAt,
-        features: [
+  plan: user.plan || 'sselfie-studio',
+  planDisplayName: 'SSELFIE Studio',
+  monthlyPrice: 47, // EUR
+  currency: 'EUR',
+  monthlyUsed: user.generationsUsedThisMonth || 0,
+  monthlyLimit: user.monthlyGenerationLimit || 100,
+  isAdmin: user.monthlyGenerationLimit === -1,
+  // nextBillingDate: user.subscriptionRenewDate, // Not present in schema
+  subscriptionActive: user.monthlyGenerationLimit > 0 || user.monthlyGenerationLimit === -1,
+  userDisplayName: user.displayName || user.email?.split('@')[0] || 'SSELFIE User',
+  email: user.email,
+  accountType: user.monthlyGenerationLimit === -1 ? 'Admin Account' : 'SSELFIE Studio Member',
+  joinedDate: user.createdAt,
+  features: [
           'Personal AI model training',
           '100 monthly professional photos',
           'Maya AI photographer access',
@@ -4381,6 +4362,86 @@ Example: "minimalist rooftop terrace overlooking city skyline at golden hour, we
 
       console.log('📊 DATA STATUS: Checking data consistency...');
       
+
+  // LoRA Weights Audit - Enumerate users missing active LoRA weights or gender
+  app.get('/api/admin/lora-audit', async (req: any, res) => {
+    try {
+      const adminToken = req.headers['x-admin-token'];
+      const isAdminAuth = adminToken === 'sandra-admin-2025';
+      const sessionUser = req.user;
+      const isSessionAdmin = req.requireStackAuth && sessionUser?.claims?.email === 'ssa@ssasocial.com';
+      if (!isAdminAuth && !isSessionAdmin) {
+        return res.status(401).json({ message: 'Admin access required' });
+      }
+
+      const { db } = await import('./drizzle');
+      const { users, loraWeights } = await import('../shared/schema');
+      const { eq, and, desc, sql, isNotNull } = await import('drizzle-orm');
+
+      // Fetch all users (could paginate later if needed)
+      const allUsers = await db.select({
+        id: users.id,
+        email: users.email,
+        gender: users.gender,
+        plan: users.plan,
+        createdAt: users.createdAt
+      }).from(users);
+
+      // For performance, fetch latest available LoRA weight per user via a window or subquery approach
+      // Simpler initial approach: fetch all available weights then reduce in memory (user count is expected manageable for admin use)
+      const availableWeights = await db.select({
+        id: loraWeights.id,
+        userId: loraWeights.userId,
+        status: loraWeights.status,
+        createdAt: loraWeights.createdAt,
+        s3Bucket: loraWeights.s3Bucket,
+        s3Key: loraWeights.s3Key
+      }).from(loraWeights).where(eq(loraWeights.status, 'available'));
+
+      const weightMap: Record<string, typeof availableWeights[number]> = {};
+      for (const w of availableWeights) {
+        const existing = weightMap[w.userId];
+        if (!existing || (existing.createdAt && w.createdAt && w.createdAt > existing.createdAt)) {
+          weightMap[w.userId] = w;
+        }
+      }
+
+      const withWeights: string[] = [];
+      const missingWeights: string[] = [];
+      const missingGender: string[] = [];
+      const withWeightsAndGender: string[] = [];
+
+      for (const u of allUsers) {
+        const hasWeight = !!weightMap[u.id];
+        const hasGender = !!u.gender && u.gender.trim().length > 0;
+        if (hasWeight) withWeights.push(u.id); else missingWeights.push(u.id);
+        if (!hasGender) missingGender.push(u.id);
+        if (hasWeight && hasGender) withWeightsAndGender.push(u.id);
+      }
+
+      const summary = {
+        totalUsers: allUsers.length,
+        usersWithWeights: withWeights.length,
+        usersMissingWeights: missingWeights.length,
+        usersMissingGender: missingGender.length,
+        usersFullyPersonalized: withWeightsAndGender.length,
+        coveragePercent: allUsers.length ? +(withWeights.length / allUsers.length * 100).toFixed(2) : 0,
+        fullPersonalizationPercent: allUsers.length ? +(withWeightsAndGender.length / allUsers.length * 100).toFixed(2) : 0
+      };
+
+      // Provide small samples (first 25) to avoid huge payloads
+      const sample = {
+        withWeights: withWeights.slice(0, 25),
+        missingWeights: missingWeights.slice(0, 25),
+        missingGender: missingGender.slice(0, 25)
+      };
+
+      res.json({ success: true, summary, sample });
+    } catch (error) {
+      console.error('❌ LoRA audit error:', error);
+      res.status(500).json({ success: false, message: 'Failed to run LoRA audit', error: error instanceof Error ? error.message : 'Unknown error' });
+    }
+  });
       const { db } = await import('./drizzle');
       const { aiImages, generatedImages, selfieUploads, userModels, generationTrackers } = await import('../shared/schema');
       const { sql } = await import('drizzle-orm');
@@ -4453,7 +4514,8 @@ Example: "minimalist rooftop terrace overlooking city skyline at golden hour, we
       }
       
       // Check if user already has LoRA weights (already migrated)
-      if (userModel.loraWeightsUrl && userModel.modelType === 'flux-lora-weights') {
+  // loraWeightsUrl is not present on userModel; use LoRA weights table for status
+  if (userModel.modelType === 'flux-lora-weights') {
         return res.json({
           success: true,
           message: `User ${userId} already migrated to LoRA weights architecture`
@@ -4463,16 +4525,16 @@ Example: "minimalist rooftop terrace overlooking city skyline at golden hour, we
       console.log(`⚡ User ${userId} needs migration:`);
       console.log(`   Current Model: ${userModel.replicateModelId}`);
       console.log(`   Model Type: ${userModel.modelType}`);
-      console.log(`   LoRA Weights: ${userModel.loraWeightsUrl || 'None'}`);
+  // console.log('   LoRA Weights: (see LoRA weights table)');
       
       // Reset user to require retraining with new architecture
       await storage.updateUserModel(userId, {
-        trainingStatus: 'pending',
-        replicateModelId: null,
-        replicateVersionId: null,
-        loraWeightsUrl: null,
-        modelType: 'flux-lora-weights', // Set new architecture type
-        updatedAt: new Date()
+  trainingStatus: 'pending',
+  replicateModelId: null,
+  replicateVersionId: null,
+  // loraWeightsUrl: null, // Not present in schema
+  modelType: 'flux-lora-weights', // Set new architecture type
+  updatedAt: new Date()
       });
       
       console.log(`✅ User ${userId} migrated - ready for retraining with LoRA architecture`);

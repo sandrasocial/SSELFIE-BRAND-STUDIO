@@ -3,11 +3,13 @@
 
 import { Resend } from 'resend';
 
-if (!process.env.RESEND_API_KEY) {
-  throw new Error("RESEND_API_KEY environment variable must be set");
-}
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+function getResendInstance() {
+  if (!process.env.RESEND_API_KEY) {
+    throw new Error("RESEND_API_KEY environment variable must be set");
+  }
+  return new Resend(process.env.RESEND_API_KEY);
+}
 
 // Email configuration
 const SSELFIE_CONFIG = {
@@ -25,6 +27,7 @@ export interface EmailParams {
 // Core email sending function
 export async function sendEmail(params: EmailParams): Promise<boolean> {
   try {
+    const resend = getResendInstance();
     const result = await resend.emails.send({
       from: SSELFIE_CONFIG.from,
       to: params.to,

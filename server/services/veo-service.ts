@@ -32,26 +32,61 @@ export interface VideoStatusResult {
 
 // Public API
 export async function startVeoVideo(opts: StartVideoOptions): Promise<StartVideoResult> {
-  if (process.env.GOOGLE_API_KEY) {
-    const jobId = await startGoogleVeo(opts);
-    return { jobId, provider: 'google' };
+  if (!process.env.GOOGLE_API_KEY) {
+    throw new Error('Google VEO not configured: missing GOOGLE_API_KEY. (Replicate fallback disabled by configuration)');
   }
-  const jobId = await startReplicateVeo(opts);
-  return { jobId, provider: 'replicate' };
+  const jobId = await startGoogleVeo(opts);
+  return { jobId, provider: 'google' };
 }
 
 export async function getVeoStatus(jobId: string, userId: string): Promise<VideoStatusResult> {
-  if (process.env.GOOGLE_API_KEY) {
-    return getGoogleVeoStatus(jobId, userId);
+  if (!process.env.GOOGLE_API_KEY) {
+    return { status: 'failed', error: 'Google VEO not configured' };
   }
-  return getReplicateVeoStatus(jobId, userId);
+  return getGoogleVeoStatus(jobId, userId);
 }
+
 
 // --- Provider Implementations ---
 
 async function startGoogleVeo({ scenes, format, userLoraModel, userId }: StartVideoOptions): Promise<string> {
   console.log('🎬 VEO(Google): Start request', { sceneCount: scenes.length, userId });
-  const modelVersion = process.env.VEO_GOOGLE_MODEL || 'veo-001';
+  const requestedModel = process.env.VEO_GOOGLE_MODEL;
+  let candidateModels: string[] = [];
+  if (requestedModel) candidateModels.push(requestedModel);
+  try {
+    // Attempt to fetch available models and filter those that look like VEO video generation models
+    const listUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${process.env.GOOGLE_API_KEY}`;
+    const listRes = await fetch(listUrl);
+    if (listRes.ok) {
+      const listJson: any = await listRes.json();
+      const veoModels = (listJson.models || [])
+        .map((m: any) => m.name?.split('/').pop())
+        .filter((n: string) => n && /veo/i.test(n));
+      // Preserve explicit request priority, then append discovered models not already included
+      for (const m of veoModels) {
+        if (!candidateModels.includes(m)) candidateModels.push(m);
+      }
+      console.log('📋 VEO(Google): Discovered models', candidateModels);
+    } else {
+      console.log('⚠️ VEO(Google): Could not list models', listRes.status);
+    }
+  } catch (e) {
+    console.log('⚠️ VEO(Google): Model listing failed', e instanceof Error ? e.message : e);
+  }
+  // Final safety fallback order if discovery empty
+  if (candidateModels.length === 0) {
+    candidateModels = ['veo-2.0-generate-001', 'veo-2.0-short', 'veo-002', 'veo-001'];
+  }
+
+  // Map aspect ratio to expected enum tokens if raw '9:16' / '16:9' unsupported
+  const aspectMap: Record<string, string> = {
+    '9:16': 'PORTRAIT',
+    '16:9': 'LANDSCAPE',
+    '1:1': 'SQUARE'
+  };
+  const mappedAspect = aspectMap[format] || format;
+
   const processedScenes = scenes.map((s, i) => ({
     prompt: (s.prompt || 'Untitled scene').slice(0, 800),
     duration: clampDuration(s.duration),
@@ -59,63 +94,48 @@ async function startGoogleVeo({ scenes, format, userLoraModel, userId }: StartVi
   }));
   const combinedPrompt = processedScenes.map((s, i) => `Scene ${i + 1} (${s.duration}s): ${s.prompt}`).join('\n');
   const totalDuration = processedScenes.reduce((acc, s) => acc + (s.duration || 5), 0);
-  const body: any = {
+  const bodyBase: any = {
     prompt: { text: combinedPrompt },
     config: {
-      aspectRatio: format,
+      aspectRatio: mappedAspect,
       durationSeconds: Math.min(totalDuration, 60),
       ...(userLoraModel ? { personalizationHint: userLoraModel } : {})
     }
   };
-  console.log('🎬 VEO(Google): Payload preview', JSON.stringify({ prompt: { text: body.prompt.text.slice(0, 160) + '…' }, config: body.config }, null, 2));
-  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelVersion}:generateVideo?key=${process.env.GOOGLE_API_KEY}`;
-  const res = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-  if (!res.ok) {
-    const raw = await safeRead(res);
-    console.error('❌ VEO(Google) start error', res.status, res.statusText, raw);
-    throw new Error(`Google Veo start failed ${res.status}: ${raw}`);
+  console.log('🎬 VEO(Google): Payload preview', JSON.stringify({ prompt: { text: bodyBase.prompt.text.slice(0, 160) + '…' }, config: bodyBase.config }, null, 2));
+
+  let lastError: Error | null = null;
+  for (const modelVersion of candidateModels) {
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelVersion}:generateVideo?key=${process.env.GOOGLE_API_KEY}`;
+    console.log('🔁 VEO(Google): Trying model', modelVersion);
+    const res = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(bodyBase) });
+    if (!res.ok) {
+      const raw = await safeRead(res);
+      console.error('❌ VEO(Google) start error', { modelVersion, status: res.status, statusText: res.statusText, raw });
+      // 404: model not found, attempt fallback
+      if (res.status === 404) {
+        lastError = new Error(`model ${modelVersion} not found (404)`);
+        continue;
+      }
+      // Other errors: abort immediately
+      throw new Error(`Google Veo start failed ${res.status}: ${raw}`);
+    }
+    const json = await res.json();
+    const jobId = json.name || json.operationId || json.id || `googleVeo_${Date.now()}`;
+    console.log('✅ VEO(Google): Job started', { jobId, modelVersion });
+    return jobId;
   }
-  const json = await res.json();
-  const jobId = json.name || json.operationId || json.id || `googleVeo_${Date.now()}`;
-  console.log('✅ VEO(Google): Job started', jobId);
-  return jobId;
+  throw new Error(
+    `All Google VEO model attempts failed: ${candidateModels.join(', ')} – last error: ${lastError?.message || 'unknown'}.
+Troubleshooting steps:
+1. Confirm your Google project has VEO video generation access enabled.
+2. Ensure the API key is unrestricted or has Generative Language API enabled.
+3. Run: curl -s 'https://generativelanguage.googleapis.com/v1beta/models?key=YOUR_KEY' | grep -i veo
+4. If no models appear, request access or verify billing.
+5. If models appear with different names, set VEO_GOOGLE_MODEL to that exact name.`
+  );
 }
 
-async function startReplicateVeo({ scenes, format, userLoraModel, userId }: StartVideoOptions): Promise<string> {
-  console.log('🎬 VEO(Replicate): Start request', { sceneCount: scenes.length, userId });
-  const veoInput: Record<string, any> = {
-    scenes: scenes.map(s => ({
-      prompt: s.prompt?.slice(0, 800) || 'Untitled scene',
-      duration: clampDuration(s.duration),
-      ...(userLoraModel ? { lora_model: userLoraModel } : {}),
-      aspect_ratio: format,
-      camera_movement: s.cameraMovement || 'static',
-      ...(s.textOverlay ? { text_overlay: s.textOverlay } : {})
-    })),
-    video_format: format,
-    format,
-    fps: 24,
-    quality: 'high',
-    consistency: 'high'
-  };
-  Object.keys(veoInput).forEach(k => { if (veoInput[k] == null) delete veoInput[k]; });
-  const body = { version: process.env.VEO_MODEL_VERSION || 'latest', input: veoInput };
-  console.log('🎬 VEO(Replicate): Payload preview', JSON.stringify({ ...body, input: { ...body.input, scenes: body.input.scenes.map((s: any) => ({ ...s, prompt: s.prompt.slice(0, 60) + '…' })) } }, null, 2));
-  const res = await fetch('https://api.replicate.com/v1/predictions', {
-    method: 'POST',
-    headers: { 'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
-  });
-  if (!res.ok) {
-    const raw = await safeRead(res);
-    console.error('❌ VEO(Replicate) start error', res.status, res.statusText, raw);
-    if (res.status === 422) throw new Error(`VEO 422 Unprocessable Entity: ${raw}`);
-    throw new Error(`Replicate Veo start failed ${res.status}: ${raw}`);
-  }
-  const json = await res.json();
-  console.log('✅ VEO(Replicate): Job started', json.id);
-  return json.id;
-}
 
 async function getGoogleVeoStatus(jobId: string, userId: string): Promise<VideoStatusResult> {
   try {
@@ -133,24 +153,6 @@ async function getGoogleVeoStatus(jobId: string, userId: string): Promise<VideoS
   }
 }
 
-async function getReplicateVeoStatus(jobId: string, userId: string): Promise<VideoStatusResult> {
-  try {
-    const res = await fetch(`https://api.replicate.com/v1/predictions/${jobId}`, { headers: { 'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}` } });
-    if (!res.ok) return { status: 'failed', error: `Replicate status ${res.status}` };
-    const json = await res.json();
-    return {
-      status: json.status,
-      progress: json.status === 'processing' ? (json.progress || 0) : (json.status === 'succeeded' ? 100 : 0),
-      videoUrl: json.output,
-      error: json.error,
-      estimatedTime: json.status === 'starting' ? '2-5 minutes' : null,
-      createdAt: json.created_at,
-      completedAt: json.completed_at
-    };
-  } catch (e) {
-    return { status: 'failed', error: e instanceof Error ? e.message : 'Replicate status failed' };
-  }
-}
 
 function clampDuration(d?: number): number { return Math.min(Math.max(d || 5, 1), 12); }
 
