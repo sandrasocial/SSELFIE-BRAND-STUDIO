@@ -21,6 +21,10 @@ export default function UnifiedLoginButton({ text, showBrand }: UnifiedLoginButt
   }
 
   const handleLogin = async () => {
+    console.log('🔍 UnifiedLoginButton: Login button clicked');
+    console.log('🔍 UnifiedLoginButton: Stack Auth app available:', !!app);
+    console.log('🔍 UnifiedLoginButton: Environment vars:', { STACK_PROJECT_ID, STACK_PUBLISHABLE_CLIENT_KEY });
+    
     if (!app) {
       console.warn('⚠️ Stack Auth not available, using fallback');
       // Fallback to direct OAuth URL if Stack Auth fails
@@ -28,6 +32,7 @@ export default function UnifiedLoginButton({ text, showBrand }: UnifiedLoginButt
       const publishableKey = STACK_PUBLISHABLE_CLIENT_KEY;
       
       if (publishableKey) {
+        console.log('🚀 UnifiedLoginButton: Redirecting to Stack Auth handler');
         window.location.href = `/handler/sign-in`;
       } else {
         console.error('❌ No Stack Auth configuration available');
@@ -36,6 +41,7 @@ export default function UnifiedLoginButton({ text, showBrand }: UnifiedLoginButt
     }
     
     try {
+      console.log('🚀 UnifiedLoginButton: Using Stack Auth SDK method');
       // ✅ Use proper Stack Auth SDK method
       await app.signInWithOAuth('google');
     } catch (error) {

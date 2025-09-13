@@ -48,6 +48,27 @@ if (import.meta.env.DEV) {
 
 console.log('SSELFIE Studio: Starting up with Stack Auth authentication...');
 
+// Global listener for static modal video save events
+window.addEventListener('video:preview:save', async (e: Event) => {
+  const detail = (e as CustomEvent).detail || {};
+  const canonical = detail.originalSrc || detail.src;
+  if (!canonical) return;
+  try {
+    const res = await fetch('/api/videos/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ videoUrl: canonical, source: 'static-modal' })
+    });
+    if (!res.ok) {
+      console.warn('[Video Save] Failed to persist video:', res.status, await res.text());
+    } else {
+      console.log('[Video Save] Persisted video successfully');
+    }
+  } catch (err) {
+    console.warn('[Video Save] Error persisting video', err);
+  }
+});
+
 const container = document.getElementById("root");
 if (!container) {
   throw new Error("Root container not found");

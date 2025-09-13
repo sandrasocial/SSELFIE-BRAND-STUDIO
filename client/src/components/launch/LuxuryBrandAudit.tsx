@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 const LuxuryContainer = styled.div.withConfig({
   shouldForwardProp: (prop) => prop !== 'as'
-})
+})`
   background: #ffffff;
   color: #0a0a0a;
   padding: 4rem;
@@ -13,7 +13,7 @@ const LuxuryContainer = styled.div.withConfig({
 
 const LuxuryHeading = styled.h1.withConfig({
   shouldForwardProp: (prop) => prop !== 'as'
-})
+})`
   font-family: "Times New Roman", serif;
   font-size: 3.5rem;
   font-weight: 400;
@@ -24,7 +24,7 @@ const LuxuryHeading = styled.h1.withConfig({
 
 const AuditSection = styled.section.withConfig({
   shouldForwardProp: (prop) => prop !== 'as'
-})
+})`
   margin: 4rem 0;
   border-bottom: 1px solid #f5f5f5;
   padding-bottom: 3rem;
@@ -32,7 +32,7 @@ const AuditSection = styled.section.withConfig({
 
 const SectionTitle = styled.h2.withConfig({
   shouldForwardProp: (prop) => prop !== 'as'
-})
+})`
   font-family: "Times New Roman", serif;
   font-size: 2rem;
   font-weight: 400;
@@ -42,7 +42,7 @@ const SectionTitle = styled.h2.withConfig({
 
 const AuditText = styled.p.withConfig({
   shouldForwardProp: (prop) => prop !== 'as'
-})
+})`
   font-family: "Times New Roman", serif;
   font-size: 1.125rem;
   line-height: 1.8;

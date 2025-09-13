@@ -188,6 +188,7 @@ function SSELFIEGallery() {
         <StoryStudioModal
           imageId={selectedImage.id.toString()}
           imageUrl={selectedImage.imageUrl}
+          imageSource={selectedImage.source}
           onClose={() => setIsVideoModalOpen(false)}
           onSuccess={() => {
             // Video generation started successfully
