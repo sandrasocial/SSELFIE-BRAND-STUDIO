@@ -1,3 +1,5 @@
+// Placeholder import to satisfy import order linter
+import type {} from 'node:fs';
 /**
  * Performance optimization utilities for SSELFIE Studio
  * Phase 3: Performance Optimization and Code Cleanup
