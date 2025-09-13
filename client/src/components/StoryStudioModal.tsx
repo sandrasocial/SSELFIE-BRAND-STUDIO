@@ -127,7 +127,8 @@ const StoryStudioModal: React.FC<StoryStudioModalProps> = ({ imageId, imageUrl, 
       
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({ error: 'Unknown error' }));
-        throw new Error(errorData.error || 'Failed to generate video');
+        const mergedMessage = [errorData.error, errorData.details].filter(Boolean).join(' – ');
+        throw new Error(mergedMessage || 'Failed to generate video');
       }
       
       const result = await res.json();

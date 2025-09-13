@@ -4,6 +4,7 @@
  */
 
 import { ClaudeApiServiceSimple } from './claude-api-service-simple';
+import { enforceGender, normalizeGender } from '../utils/gender-prompt';
 // MAYA FAÇADE: Removed PersonalityManager dependency - Maya is now isolated
 // import { PersonalityManager } from '../agents/personalities/personality-config'; // REMOVED: Outbound dependency
 
@@ -272,7 +273,25 @@ FLUX PROMPT:`;
       
       // Clean and format the response
       const cleanPrompt = response.replace(/^FLUX PROMPT:\s*/i, '').trim();
-      const finalPrompt = `${triggerWord}, ${cleanPrompt}`;
+      let finalPrompt = `${triggerWord}, ${cleanPrompt}`;
+
+      // Inject gender token just after trigger word if missing & available
+      try {
+        const { storage } = await import('../storage');
+        const user = await storage.getUser(userId);
+        const secureGender = normalizeGender(user?.gender);
+        if (secureGender) {
+          const enforced = enforceGender(triggerWord, finalPrompt, secureGender);
+            if (enforced !== finalPrompt) {
+              console.log('✅ GENDER ENFORCED IN OPTIMIZED PROMPT');
+              finalPrompt = enforced;
+            }
+        } else {
+          console.log('⚠️ GENDER NOT AVAILABLE FOR USER DURING OPTIMIZED PROMPT ENFORCEMENT');
+        }
+      } catch (gErr) {
+        console.log('⚠️ GENDER ENFORCEMENT FAILED (non-blocking):', gErr instanceof Error ? gErr.message : gErr);
+      }
       
       console.log('✅ PHASE 4.1: Optimized prompt generated successfully');
       return finalPrompt;

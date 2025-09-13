@@ -1,4 +1,6 @@
 import { jwtVerify, createRemoteJWKSet } from 'jose';
+import fs from 'fs';
+import path from 'path';
 import type { Request, Response, NextFunction } from 'express';
 
 // Stack Auth configuration
@@ -6,8 +8,18 @@ const STACK_AUTH_PROJECT_ID = '253d7343-a0d4-43a1-be5c-822f590d40be';
 const STACK_AUTH_API_URL = 'https://api.stack-auth.com/api/v1';
 const JWKS_URL = `${STACK_AUTH_API_URL}/projects/${STACK_AUTH_PROJECT_ID}/.well-known/jwks.json`;
 
-// Create JWKS resolver
-const JWKS = createRemoteJWKSet(new URL(JWKS_URL));
+// Create JWKS resolver or use test public key in test mode
+let JWKS: any;
+import { createPublicKey, KeyObject } from 'crypto';
+if (process.env.NODE_ENV === 'test') {
+  // Use test public key for JWT verification as a KeyObject
+  const testPubKeyPath = path.join(__dirname, '__tests__', 'test-public.key');
+  const testPublicKeyPem = fs.readFileSync(testPubKeyPath, 'utf8');
+  const testPublicKey: KeyObject = createPublicKey({ key: testPublicKeyPem, format: 'pem', type: 'spki' });
+  JWKS = testPublicKey;
+} else {
+  JWKS = createRemoteJWKSet(new URL(JWKS_URL));
+}
 
 // Authentication cache to improve performance
 interface CachedUser {
@@ -66,15 +78,26 @@ declare global {
 
 // ✅ SIMPLIFIED: Direct Stack Auth integration - no token exchange needed
 
-// Verify JWT token directly using Stack Auth JWKS
+// Verify JWT token directly using Stack Auth JWKS or test public key
 async function verifyJWTToken(token: string) {
   try {
-    // Verify JWT using Stack Auth's JWKS
-    const { payload } = await jwtVerify(token, JWKS, {
-      issuer: `${STACK_AUTH_API_URL}/projects/${STACK_AUTH_PROJECT_ID}`,
-      audience: STACK_AUTH_PROJECT_ID,
-    });
-    
+    let payload;
+    if (process.env.NODE_ENV === 'test') {
+      // Use test public key and RS256
+      const { payload: testPayload } = await jwtVerify(token, JWKS, {
+        algorithms: ['RS256'],
+        issuer: `${STACK_AUTH_API_URL}/projects/${STACK_AUTH_PROJECT_ID}`,
+        audience: STACK_AUTH_PROJECT_ID,
+      });
+      payload = testPayload;
+    } else {
+      // Verify JWT using Stack Auth's JWKS
+      const { payload: prodPayload } = await jwtVerify(token, JWKS, {
+        issuer: `${STACK_AUTH_API_URL}/projects/${STACK_AUTH_PROJECT_ID}`,
+        audience: STACK_AUTH_PROJECT_ID,
+      });
+      payload = prodPayload;
+    }
     return payload;
   } catch (error) {
     throw new Error(`JWT verification failed: ${error.message}`);

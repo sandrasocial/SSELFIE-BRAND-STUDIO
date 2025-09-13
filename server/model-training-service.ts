@@ -698,29 +698,34 @@ export class ModelTrainingService {
       
       console.log(`🎯 [${promptId}] BASE PROMPT: "${basePrompt.substring(0, 300)}"`);      
       
-      // PHASE 4: SECURE GENDER VALIDATION - Maya handles representation through intelligence
+      // PHASE 4: SECURE GENDER VALIDATION + MANDATORY INJECTION
       const user = await storage.getUser(userId);
       if (!user) {
         throw new Error('User not found for image generation');
       }
       
       // SECURE: Validate user gender is legitimate value (no injection possible)
-      const validGenders = ['woman', 'man', 'non-binary'] as const;
-      const secureGender = validGenders.includes(user.gender as any) ? user.gender : null;
-      
+      const { enforceGender, normalizeGender, promptHasGender } = await import('./utils/gender-prompt');
+      const secureGender = normalizeGender(user.gender);
+
       if (secureGender) {
-        console.log(`👤 [${promptId}] SECURE GENDER: User is "${secureGender}" - Maya handled representation in prompt generation`);
+        console.log(`👤 [${promptId}] USER GENDER: ${secureGender}`);
       } else {
-        console.log(`⚠️ [${promptId}] WARNING: No valid gender data - Maya will use neutral representation`);
+        console.log(`⚠️ [${promptId}] USER GENDER MISSING: proceeding without explicit token`);
       }
-      
-      // Maya's intelligence already included gender naturally in prompt - no injection needed
-      let genderEnhancedPrompt = basePrompt;
+
+      // ENFORCE: Ensure gender token injected right after trigger word when available.
+      let genderEnhancedPrompt = enforceGender(triggerWord, basePrompt, secureGender || undefined);
+      if (genderEnhancedPrompt !== basePrompt) {
+        console.log(`✅ [${promptId}] GENDER INJECTED: "${genderEnhancedPrompt.substring(0,140)}"`);
+      } else {
+        console.log(`ℹ️ [${promptId}] GENDER ALREADY PRESENT OR NOT AVAILABLE`);
+      }
       
       console.log(`🎯 [${promptId}] ENHANCED PROMPT: "${genderEnhancedPrompt.substring(0, 300)}"`);      
       
       // PHASE 5: NATURAL SKIN TEXTURE ENHANCEMENT - Professional realistic appearance
-      let textureEnhancedPrompt = genderEnhancedPrompt;
+  let textureEnhancedPrompt = genderEnhancedPrompt;
       
       // Add natural skin texture for professional realism
       const skinTextureEnhancements = [
