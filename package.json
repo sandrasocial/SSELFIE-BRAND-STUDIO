@@ -624,9 +624,10 @@
     "zwitch": "^2.0.4"
   },
   "scripts": {
-    "dev": "cd server && npx tsx index.ts",
-    "start": "cd server && npx tsx index.ts",
-    "build": "vite build client"
+  "dev": "cd server && npx tsx index.ts",
+  "start": "cd server && npx tsx index.ts",
+  "build": "vite build client",
+  "test": "echo \"No tests specified\" && exit 0"
   },
   "keywords": [],
   "author": "",
