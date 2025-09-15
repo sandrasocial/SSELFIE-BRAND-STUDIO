@@ -1,5 +1,21 @@
 import { storage } from './storage';
 
+// User usage type definition
+export interface UserUsage {
+  id: number;
+  plan: string;
+  userId: string;
+  createdAt: Date;
+  updatedAt: Date;
+  currentPeriodStart: Date;
+  currentPeriodEnd: Date;
+  monthlyGenerationsAllowed: number;
+  monthlyGenerationsUsed: number;
+  totalCostIncurred: string;
+  isLimitReached: boolean;
+  lastGenerationAt: Date;
+}
+
 // Plan configuration with usage limits and costs - LUXURY AI PERSONAL BRANDING PLATFORM
 export const PLAN_LIMITS = {
   'admin': {
@@ -126,8 +142,8 @@ export class UsageService {
       return {
         canGenerate: monthlyRemaining > 0,
         remainingGenerations: monthlyRemaining,
-        totalUsed: usage.totalGenerationsUsed,
-        totalAllowed: usage.totalGenerationsAllowed || 999999,
+        totalUsed: usage.monthlyGenerationsUsed,
+        totalAllowed: usage.monthlyGenerationsAllowed || 999999,
         monthlyUsed: usage.monthlyGenerationsUsed || 0,
         monthlyAllowed: usage.monthlyGenerationsAllowed,
         resetDate: usage.currentPeriodEnd || undefined,
@@ -138,7 +154,7 @@ export class UsageService {
     return {
       canGenerate: false,
       remainingGenerations: 0,
-      totalUsed: usage.totalGenerationsUsed,
+      totalUsed: usage.monthlyGenerationsUsed,
       totalAllowed: 0,
       reason: 'Invalid plan configuration'
     };
@@ -173,7 +189,7 @@ export class UsageService {
 
     // Only count 'generation' actions against limits, NOT 'training'
     if (update.actionType === 'generation') {
-      updates.totalGenerationsUsed = usage.totalGenerationsUsed + 1;
+      updates.monthlyGenerationsUsed = usage.monthlyGenerationsUsed + 1;
       
       if (usage.monthlyGenerationsAllowed) {
         updates.monthlyGenerationsUsed = (usage.monthlyGenerationsUsed || 0) + 1;
@@ -241,7 +257,7 @@ export class UsageService {
     return {
       userId,
       plan: usage.plan,
-      totalGenerations: usage.totalGenerationsUsed,
+      totalGenerations: usage.monthlyGenerationsUsed,
       totalCost,
       planRevenue,
       profitMargin,

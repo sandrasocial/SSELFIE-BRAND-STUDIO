@@ -1,0 +1,2598 @@
+{
+  "timestamp": "2025-09-15T15:11:59.616Z",
+  "summary": {
+    "totalFiles": 662,
+    "tsFiles": 644,
+    "jsFiles": 18,
+    "eslintErrors": 7469,
+    "eslintWarnings": 4392,
+    "highComplexityFiles": 237,
+    "serviceFiles": 145
+  },
+  "problematicFiles": [
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/.eslintrc.js",
+      "errors": 1,
+      "warnings": 0
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/api/video/draft-storyboard.ts",
+      "errors": 2,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/dist/assets/index-BwetURzK.js",
+      "errors": 3236,
+      "warnings": 254
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/App.tsx",
+      "errors": 17,
+      "warnings": 13
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/AdminNavigation.tsx",
+      "errors": 6,
+      "warnings": 2
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/ErrorBoundary.tsx",
+      "errors": 2,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/GeneratedImagePreview.tsx",
+      "errors": 19,
+      "warnings": 12
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/HeroFullBleed.tsx",
+      "errors": 1,
+      "warnings": 0
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/LuxuryChatInterface.tsx",
+      "errors": 25,
+      "warnings": 18
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/LuxuryErrorBoundary.tsx",
+      "errors": 4,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/OptimizedImage.tsx",
+      "errors": 3,
+      "warnings": 0
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/ProtectedRoute.tsx",
+      "errors": 0,
+      "warnings": 2
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/QuickAccessPanel.tsx",
+      "errors": 2,
+      "warnings": 0
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/RollbackButton.tsx",
+      "errors": 3,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/StoryStudioModal.tsx",
+      "errors": 19,
+      "warnings": 15
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/SystemVerificationComplete.tsx",
+      "errors": 0,
+      "warnings": 3
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/UnifiedLoginButton.tsx",
+      "errors": 13,
+      "warnings": 11
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/UsageTracker.tsx",
+      "errors": 0,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/VictoriaChat.tsx",
+      "errors": 2,
+      "warnings": 0
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/VideoPreview.tsx",
+      "errors": 12,
+      "warnings": 0
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/VirtualizedImageGrid.tsx",
+      "errors": 7,
+      "warnings": 2
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/WelcomeHeader.tsx",
+      "errors": 0,
+      "warnings": 4
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/Workspace.tsx",
+      "errors": 2,
+      "warnings": 5
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/admin/AgentWorkflowAccelerator.tsx",
+      "errors": 2,
+      "warnings": 0
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/admin/CheckpointManagementInterface.tsx",
+      "errors": 2,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/admin/ElenaWorkflowsTab.tsx",
+      "errors": 1,
+      "warnings": 0
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/admin/LuxuryProgressDisplay.tsx",
+      "errors": 0,
+      "warnings": 2
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/admin/ManyChatPSIDUploader.tsx",
+      "errors": 2,
+      "warnings": 2
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/admin/ServiceIntegrationUI.tsx",
+      "errors": 2,
+      "warnings": 6
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/admin/WhiteLabelClientManager.tsx",
+      "errors": 2,
+      "warnings": 2
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/agent-insights-dashboard.tsx",
+      "errors": 3,
+      "warnings": 5
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/archived/maya-interface-old.tsx",
+      "errors": 8,
+      "warnings": 8
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/archived/workspace-original/simplified-workspace.tsx",
+      "errors": 2,
+      "warnings": 12
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/brand-studio/CanvasPanel.tsx",
+      "errors": 8,
+      "warnings": 7
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/brand-studio/DirectorPanel.tsx",
+      "errors": 8,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/brand-studio/PhotoStudio.tsx",
+      "errors": 37,
+      "warnings": 32
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/brand-studio/StoryStudio.tsx",
+      "errors": 12,
+      "warnings": 3
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/brand-studio/ToolkitPanel.tsx",
+      "errors": 4,
+      "warnings": 2
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/bridge/StatusDashboard.tsx",
+      "errors": 3,
+      "warnings": 4
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/bridge/TaskStatusIndicator.tsx",
+      "errors": 0,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/completion-modal.tsx",
+      "errors": 4,
+      "warnings": 0
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/content-moderation-dashboard.tsx",
+      "errors": 1,
+      "warnings": 10
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/customer-management-dashboard.tsx",
+      "errors": 0,
+      "warnings": 6
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/dashboard/ProgressDashboard.tsx",
+      "errors": 8,
+      "warnings": 0
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/dev-preview-modal.tsx",
+      "errors": 1,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/editorial-story.tsx",
+      "errors": 0,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/editorial/EditorialHeading.tsx",
+      "errors": 1,
+      "warnings": 0
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/email-capture-modal.tsx",
+      "errors": 5,
+      "warnings": 2
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/enhanced-error-boundary.tsx",
+      "errors": 4,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/free-tier-signup.tsx",
+      "errors": 5,
+      "warnings": 7
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/hero-full-bleed.tsx",
+      "errors": 1,
+      "warnings": 0
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/inline-email-capture.tsx",
+      "errors": 5,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/loading-screen.tsx",
+      "errors": 0,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/luxury/AriaEditorialShowcase.tsx",
+      "errors": 0,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/maya-categorized-gallery.tsx",
+      "errors": 22,
+      "warnings": 4
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/maya/MayaUploadComponent.tsx",
+      "errors": 12,
+      "warnings": 7
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/member-navigation.tsx",
+      "errors": 12,
+      "warnings": 3
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/moodboard-gallery.tsx",
+      "errors": 0,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/notification-preferences.tsx",
+      "errors": 2,
+      "warnings": 3
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/onboarding/BrandCustomizer.tsx",
+      "errors": 0,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/onboarding/PersonalBrandQuestionnaire.tsx",
+      "errors": 14,
+      "warnings": 0
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/onboarding/RealImageSelection.tsx",
+      "errors": 5,
+      "warnings": 7
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/payment-verification.tsx",
+      "errors": 3,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/portfolio-section.tsx",
+      "errors": 3,
+      "warnings": 2
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/pre-login-navigation-unified.tsx",
+      "errors": 4,
+      "warnings": 0
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/preview/DeveloperPreview.tsx",
+      "errors": 1,
+      "warnings": 3
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/pricing-card.tsx",
+      "errors": 0,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/quick-specialist-access.tsx",
+      "errors": 4,
+      "warnings": 0
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/revenue-analytics-dashboard.tsx",
+      "errors": 0,
+      "warnings": 2
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/sandra-ai-chat.tsx",
+      "errors": 1,
+      "warnings": 9
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/signup-gift.tsx",
+      "errors": 3,
+      "warnings": 2
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/simplified-workspace.tsx",
+      "errors": 23,
+      "warnings": 9
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/styleguide-preview.tsx",
+      "errors": 1,
+      "warnings": 0
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/support-chat-bubble.tsx",
+      "errors": 14,
+      "warnings": 7
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/support-management-dashboard.tsx",
+      "errors": 2,
+      "warnings": 3
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/system-health-monitor.tsx",
+      "errors": 1,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/ui/alert-dialog.tsx",
+      "errors": 2,
+      "warnings": 0
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/ui/alert.tsx",
+      "errors": 6,
+      "warnings": 0
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/ui/badge.tsx",
+      "errors": 1,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/ui/breadcrumb.tsx",
+      "errors": 5,
+      "warnings": 0
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/ui/button.tsx",
+      "errors": 2,
+      "warnings": 0
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/ui/calendar.tsx",
+      "errors": 0,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/ui/card.tsx",
+      "errors": 12,
+      "warnings": 0
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/ui/carousel.tsx",
+      "errors": 9,
+      "warnings": 0
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/ui/chart.tsx",
+      "errors": 3,
+      "warnings": 2
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/ui/command.tsx",
+      "errors": 1,
+      "warnings": 0
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/ui/context-menu.tsx",
+      "errors": 1,
+      "warnings": 0
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/ui/dialog.tsx",
+      "errors": 2,
+      "warnings": 0
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/ui/drawer.tsx",
+      "errors": 2,
+      "warnings": 0
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/ui/dropdown-menu.tsx",
+      "errors": 1,
+      "warnings": 0
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/ui/editorial-button.tsx",
+      "errors": 2,
+      "warnings": 0
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/ui/editorial-card.tsx",
+      "errors": 0,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/ui/editorial-grid.tsx",
+      "errors": 0,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/ui/feature-card.tsx",
+      "errors": 0,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/ui/form.tsx",
+      "errors": 6,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/ui/hero-card.tsx",
+      "errors": 0,
+      "warnings": 2
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/ui/input.tsx",
+      "errors": 2,
+      "warnings": 0
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/ui/install-button.tsx",
+      "errors": 2,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/ui/loading-states.tsx",
+      "errors": 0,
+      "warnings": 2
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/ui/menubar.tsx",
+      "errors": 1,
+      "warnings": 0
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/ui/minimal-card.tsx",
+      "errors": 0,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/ui/navigation-button.tsx",
+      "errors": 4,
+      "warnings": 0
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/ui/offer-card.tsx",
+      "errors": 1,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/ui/pagination.tsx",
+      "errors": 2,
+      "warnings": 0
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/ui/resizable.tsx",
+      "errors": 0,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/ui/section-headline.tsx",
+      "errors": 0,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/ui/sheet.tsx",
+      "errors": 2,
+      "warnings": 0
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/ui/sidebar.tsx",
+      "errors": 24,
+      "warnings": 0
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/ui/skeleton.tsx",
+      "errors": 1,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/ui/table.tsx",
+      "errors": 16,
+      "warnings": 0
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/ui/textarea.tsx",
+      "errors": 2,
+      "warnings": 0
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/ui/toaster.tsx",
+      "errors": 0,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/ui/tooltip.tsx",
+      "errors": 0,
+      "warnings": 4
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/ui/typography.tsx",
+      "errors": 4,
+      "warnings": 0
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/user-progress-tracker.tsx",
+      "errors": 0,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/victoria/AIWebsiteBuilder.tsx",
+      "errors": 5,
+      "warnings": 15
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/victoria/VictoriaChat.tsx",
+      "errors": 2,
+      "warnings": 2
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/victoria/VictoriaEditorialBuilder.tsx",
+      "errors": 1,
+      "warnings": 8
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/victoria/WebsitePreview.tsx",
+      "errors": 2,
+      "warnings": 2
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/victoria/WebsiteWizard.tsx",
+      "errors": 39,
+      "warnings": 5
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/welcome-editorial.tsx",
+      "errors": 3,
+      "warnings": 3
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/workspace-interface.tsx",
+      "errors": 0,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/workspace/WebsiteCard.tsx",
+      "errors": 3,
+      "warnings": 0
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/workspace/WebsiteManager.tsx",
+      "errors": 2,
+      "warnings": 4
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/components/workspace/WebsiteScreenshot.tsx",
+      "errors": 0,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/contexts/BrandStudioContext.tsx",
+      "errors": 3,
+      "warnings": 6
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/env.ts",
+      "errors": 3,
+      "warnings": 2
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/hooks/use-auth.ts",
+      "errors": 0,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/hooks/use-mobile.tsx",
+      "errors": 3,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/hooks/use-toast.ts",
+      "errors": 1,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/hooks/useAgentActivityData.ts",
+      "errors": 3,
+      "warnings": 3
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/hooks/useConceptCards.ts",
+      "errors": 4,
+      "warnings": 5
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/hooks/useDashboardData.ts",
+      "errors": 2,
+      "warnings": 0
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/hooks/useGrafanaData.ts",
+      "errors": 2,
+      "warnings": 0
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/hooks/useImageOptimization.ts",
+      "errors": 13,
+      "warnings": 0
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/hooks/useMayaChat.ts",
+      "errors": 3,
+      "warnings": 4
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/hooks/useMayaGeneration.ts",
+      "errors": 38,
+      "warnings": 52
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/hooks/useMayaPersistence.ts",
+      "errors": 24,
+      "warnings": 17
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/hooks/useMemoryCleanup.ts",
+      "errors": 13,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/hooks/useVirtualizedGrid.ts",
+      "errors": 3,
+      "warnings": 2
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/hooks/useWebsiteBuilder.ts",
+      "errors": 3,
+      "warnings": 3
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/index.tsx",
+      "errors": 58,
+      "warnings": 9
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/lib/modelValidation.ts",
+      "errors": 1,
+      "warnings": 4
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/lib/queryClient.ts",
+      "errors": 3,
+      "warnings": 2
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/main.tsx",
+      "errors": 16,
+      "warnings": 12
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/pages/BrandStudioPage.tsx",
+      "errors": 4,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/pages/EmailDashboard.tsx",
+      "errors": 3,
+      "warnings": 10
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/pages/about.tsx",
+      "errors": 13,
+      "warnings": 5
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/pages/account-settings.tsx",
+      "errors": 5,
+      "warnings": 0
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/pages/admin-business-overview.tsx",
+      "errors": 0,
+      "warnings": 23
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/pages/admin-consulting-agents.tsx",
+      "errors": 35,
+      "warnings": 32
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/pages/admin-control-center.tsx",
+      "errors": 1,
+      "warnings": 4
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/pages/admin-subscriber-import.tsx",
+      "errors": 0,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/pages/admin/bridge-monitor.tsx",
+      "errors": 13,
+      "warnings": 5
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/pages/ai-generator.tsx",
+      "errors": 21,
+      "warnings": 25
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/pages/archived/admin-users.tsx",
+      "errors": 0,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/pages/archived/maya-complex-old.tsx",
+      "errors": 20,
+      "warnings": 42
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/pages/archived/maya-old-with-useMayaChat.tsx",
+      "errors": 20,
+      "warnings": 42
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/pages/archived/rachel-activation.tsx",
+      "errors": 0,
+      "warnings": 3
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/pages/archived/rachel-chat.tsx",
+      "errors": 0,
+      "warnings": 2
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/pages/archived/sandra-ai.tsx",
+      "errors": 8,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/pages/archived/simple-training.tsx",
+      "errors": 55,
+      "warnings": 21
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/pages/archived/sselfie-gallery.tsx",
+      "errors": 47,
+      "warnings": 17
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/pages/archived/welcome.tsx",
+      "errors": 5,
+      "warnings": 2
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/pages/auth-success.tsx",
+      "errors": 7,
+      "warnings": 0
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/pages/blog.tsx",
+      "errors": 0,
+      "warnings": 3
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/pages/business-landing.tsx",
+      "errors": 23,
+      "warnings": 12
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/pages/checkout.tsx",
+      "errors": 14,
+      "warnings": 8
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/pages/company-dashboard.tsx",
+      "errors": 2,
+      "warnings": 3
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/pages/component-demo.tsx",
+      "errors": 1,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/pages/contact.tsx",
+      "errors": 3,
+      "warnings": 0
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/pages/custom-photoshoot-library.tsx",
+      "errors": 9,
+      "warnings": 6
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/pages/domain-help.tsx",
+      "errors": 7,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/pages/editorial-landing.tsx",
+      "errors": 18,
+      "warnings": 5
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/pages/flatlay-library.tsx",
+      "errors": 1,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/pages/how-it-works.tsx",
+      "errors": 11,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/pages/implementation-timeline.tsx",
+      "errors": 0,
+      "warnings": 2
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/pages/launch-countdown.tsx",
+      "errors": 9,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/pages/marketing-automation.tsx",
+      "errors": 0,
+      "warnings": 6
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/pages/maya-brand-customization.tsx",
+      "errors": 0,
+      "warnings": 3
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/pages/maya.tsx",
+      "errors": 50,
+      "warnings": 33
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/pages/payment-success.tsx",
+      "errors": 29,
+      "warnings": 9
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/pages/photo-selection.tsx",
+      "errors": 0,
+      "warnings": 3
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/pages/pricing.tsx",
+      "errors": 18,
+      "warnings": 5
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/pages/profile.tsx",
+      "errors": 5,
+      "warnings": 3
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/pages/retrain-checkout.tsx",
+      "errors": 9,
+      "warnings": 2
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/pages/sales-consultation.tsx",
+      "errors": 1,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/pages/sandra-photoshoot.tsx",
+      "errors": 0,
+      "warnings": 2
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/pages/settings.tsx",
+      "errors": 2,
+      "warnings": 4
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/pages/simple-checkout.tsx",
+      "errors": 9,
+      "warnings": 4
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/pages/simple-training.tsx",
+      "errors": 59,
+      "warnings": 28
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/pages/sselfie-gallery.tsx",
+      "errors": 6,
+      "warnings": 5
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/pages/switch-account.tsx",
+      "errors": 2,
+      "warnings": 2
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/pages/teams-landing.tsx",
+      "errors": 12,
+      "warnings": 2
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/pages/teams-service-packages.tsx",
+      "errors": 1,
+      "warnings": 2
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/pages/thank-you.tsx",
+      "errors": 3,
+      "warnings": 0
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/pages/victoria-builder.tsx",
+      "errors": 6,
+      "warnings": 12
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/pages/victoria-chat.tsx",
+      "errors": 12,
+      "warnings": 2
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/pages/victoria-preview.tsx",
+      "errors": 32,
+      "warnings": 26
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/pages/victoria.tsx",
+      "errors": 0,
+      "warnings": 3
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/services/WebsiteGenerator.ts",
+      "errors": 0,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/services/api.js",
+      "errors": 6,
+      "warnings": 0
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/services/imageGeneration.ts",
+      "errors": 2,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/services/implementation-tracker.ts",
+      "errors": 6,
+      "warnings": 4
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/services/search-optimization.ts",
+      "errors": 8,
+      "warnings": 10
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/services/service-templates.ts",
+      "errors": 1,
+      "warnings": 2
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/types/index.ts",
+      "errors": 0,
+      "warnings": 2
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/utils/browserCompat.ts",
+      "errors": 7,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/utils/domainHelpers.ts",
+      "errors": 13,
+      "warnings": 3
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/utils/performanceMonitor.ts",
+      "errors": 22,
+      "warnings": 18
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/utils/performanceOptimizations.ts",
+      "errors": 17,
+      "warnings": 9
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/utils/pwa.ts",
+      "errors": 32,
+      "warnings": 13
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/src/utils/webVitals.ts",
+      "errors": 23,
+      "warnings": 6
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/tailwind.config.js",
+      "errors": 1,
+      "warnings": 0
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/client/test-style-collections.js",
+      "errors": 10,
+      "warnings": 10
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/drizzle.config.ts",
+      "errors": 1,
+      "warnings": 0
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/jest.setup.js",
+      "errors": 10,
+      "warnings": 2
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/playwright.config.ts",
+      "errors": 3,
+      "warnings": 0
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/scripts/dependency-analysis.js",
+      "errors": 18,
+      "warnings": 18
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/__tests__/image-generation-pipeline.test.ts",
+      "errors": 15,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/__tests__/integration/service-integration.test.ts",
+      "errors": 42,
+      "warnings": 5
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/__tests__/maya-performance.test.ts",
+      "errors": 51,
+      "warnings": 43
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/__tests__/maya-pipeline.test.ts",
+      "errors": 23,
+      "warnings": 28
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/__tests__/maya-validation.test.ts",
+      "errors": 41,
+      "warnings": 44
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/__tests__/routes/admin.test.ts",
+      "errors": 16,
+      "warnings": 3
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/__tests__/routes/ai-generation.test.ts",
+      "errors": 68,
+      "warnings": 8
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/__tests__/routes/auth.test.ts",
+      "errors": 39,
+      "warnings": 6
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/__tests__/routes/gallery.test.ts",
+      "errors": 20,
+      "warnings": 3
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/__tests__/routes/maya.test.ts",
+      "errors": 20,
+      "warnings": 3
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/__tests__/routes/utility.test.ts",
+      "errors": 28,
+      "warnings": 2
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/__tests__/routes/websites.test.ts",
+      "errors": 36,
+      "warnings": 3
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/__tests__/services/base-service.test.ts",
+      "errors": 41,
+      "warnings": 5
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/__tests__/services/user-service.test.ts",
+      "errors": 43,
+      "warnings": 4
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/agents/personality-integration-service.ts",
+      "errors": 5,
+      "warnings": 12
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/api/plan-b-status.js",
+      "errors": 2,
+      "warnings": 2
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/architecture-validator.ts",
+      "errors": 10,
+      "warnings": 12
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/audit/memory-systems-audit.ts",
+      "errors": 19,
+      "warnings": 20
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/bulletproof-upload-service.ts",
+      "errors": 52,
+      "warnings": 42
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/check-zara-workflow.ts",
+      "errors": 30,
+      "warnings": 29
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/config/logging.ts",
+      "errors": 8,
+      "warnings": 12
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/config/monitoring.ts",
+      "errors": 8,
+      "warnings": 9
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/conversation/manager.js",
+      "errors": 1,
+      "warnings": 4
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/core/architecture-guardian.ts",
+      "errors": 21,
+      "warnings": 21
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/core/file-registry-system.ts",
+      "errors": 2,
+      "warnings": 3
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/data-consolidation-service.ts",
+      "errors": 16,
+      "warnings": 18
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/db.ts",
+      "errors": 0,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/db/ensureConceptCards.ts",
+      "errors": 3,
+      "warnings": 3
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/email-service.ts",
+      "errors": 6,
+      "warnings": 5
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/enterprise/analytics-reporting.ts",
+      "errors": 2,
+      "warnings": 5
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/enterprise/global-expansion.ts",
+      "errors": 2,
+      "warnings": 5
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/enterprise/predictive-intelligence.ts",
+      "errors": 3,
+      "warnings": 7
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/enterprise/security-audit.ts",
+      "errors": 10,
+      "warnings": 21
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/env.ts",
+      "errors": 23,
+      "warnings": 0
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/generation-completion-monitor.ts",
+      "errors": 22,
+      "warnings": 16
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/generation-validator.ts",
+      "errors": 5,
+      "warnings": 3
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/image-compression-service.ts",
+      "errors": 3,
+      "warnings": 3
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/image-storage-service.ts",
+      "errors": 20,
+      "warnings": 13
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/index-deployment.ts",
+      "errors": 23,
+      "warnings": 13
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/index.ts",
+      "errors": 2,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/integrations/external-api-service.ts",
+      "errors": 25,
+      "warnings": 23
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/maya-chat-preview-service.ts",
+      "errors": 4,
+      "warnings": 5
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/maya-memory-cleanup.ts",
+      "errors": 10,
+      "warnings": 10
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/memory/admin-context-manager.ts",
+      "errors": 12,
+      "warnings": 19
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/middleware/admin-context.ts",
+      "errors": 3,
+      "warnings": 5
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/middleware/errorHandler.ts",
+      "errors": 1,
+      "warnings": 2
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/middleware/performance-middleware.ts",
+      "errors": 4,
+      "warnings": 3
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/middleware/rate-limiter.ts",
+      "errors": 1,
+      "warnings": 4
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/middleware/revenue-protection.ts",
+      "errors": 1,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/middleware/security.ts",
+      "errors": 0,
+      "warnings": 3
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/migration-monitor.ts",
+      "errors": 24,
+      "warnings": 22
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/migration-phase-1.ts",
+      "errors": 9,
+      "warnings": 10
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/model-training-service.ts",
+      "errors": 113,
+      "warnings": 92
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/model-validation-service.ts",
+      "errors": 16,
+      "warnings": 16
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/monitoring/business-health-dashboard.ts",
+      "errors": 10,
+      "warnings": 11
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/monitoring/token-usage-monitor.ts",
+      "errors": 2,
+      "warnings": 2
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/protocols/enforcer.js",
+      "errors": 2,
+      "warnings": 3
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/retrain-model.ts",
+      "errors": 11,
+      "warnings": 7
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/routes.ts",
+      "errors": 55,
+      "warnings": 90
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/routes/admin-emergency-controls.ts",
+      "errors": 0,
+      "warnings": 2
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/routes/admin-empire-api.ts",
+      "errors": 13,
+      "warnings": 27
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/routes/admin-metrics.ts",
+      "errors": 0,
+      "warnings": 2
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/routes/admin-notifications.ts",
+      "errors": 3,
+      "warnings": 6
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/routes/admin/intervention-campaign.ts",
+      "errors": 6,
+      "warnings": 6
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/routes/admin/user-intervention.ts",
+      "errors": 3,
+      "warnings": 3
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/routes/agent-insights-data.ts",
+      "errors": 7,
+      "warnings": 18
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/routes/agent-insights.ts",
+      "errors": 4,
+      "warnings": 7
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/routes/automation.ts",
+      "errors": 16,
+      "warnings": 24
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/routes/checkout.ts",
+      "errors": 34,
+      "warnings": 46
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/routes/concept-cards.ts",
+      "errors": 16,
+      "warnings": 22
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/routes/cover-image-routes.ts",
+      "errors": 8,
+      "warnings": 5
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/routes/email-automation.ts",
+      "errors": 6,
+      "warnings": 6
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/routes/email-management-routes.ts",
+      "errors": 8,
+      "warnings": 14
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/routes/enterprise-routes.ts",
+      "errors": 19,
+      "warnings": 30
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/routes/flatlay-library.ts",
+      "errors": 3,
+      "warnings": 3
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/routes/instagram-management.ts",
+      "errors": 8,
+      "warnings": 14
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/routes/maya.js",
+      "errors": 9,
+      "warnings": 7
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/routes/member-protection.ts",
+      "errors": 2,
+      "warnings": 4
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/routes/middleware/auth.ts",
+      "errors": 0,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/routes/middleware/error-handler.ts",
+      "errors": 3,
+      "warnings": 11
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/routes/modules/admin.ts",
+      "errors": 0,
+      "warnings": 4
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/routes/modules/agent-protocol.ts",
+      "errors": 0,
+      "warnings": 15
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/routes/modules/ai-generation.ts",
+      "errors": 0,
+      "warnings": 27
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/routes/modules/auth.ts",
+      "errors": 1,
+      "warnings": 7
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/routes/modules/claude.ts",
+      "errors": 0,
+      "warnings": 9
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/routes/modules/gallery.ts",
+      "errors": 0,
+      "warnings": 36
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/routes/modules/maya.ts",
+      "errors": 0,
+      "warnings": 27
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/routes/modules/training.ts",
+      "errors": 0,
+      "warnings": 23
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/routes/modules/usage.ts",
+      "errors": 0,
+      "warnings": 13
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/routes/modules/utility.ts",
+      "errors": 3,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/routes/modules/websites.ts",
+      "errors": 0,
+      "warnings": 15
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/routes/notification-preferences.ts",
+      "errors": 5,
+      "warnings": 9
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/routes/phase2-coordination.ts",
+      "errors": 3,
+      "warnings": 7
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/routes/rollback.ts",
+      "errors": 3,
+      "warnings": 3
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/routes/slack-test.ts",
+      "errors": 12,
+      "warnings": 6
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/routes/stack-webhook.ts",
+      "errors": 12,
+      "warnings": 15
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/routes/support-escalation.ts",
+      "errors": 4,
+      "warnings": 9
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/routes/system-health.ts",
+      "errors": 6,
+      "warnings": 8
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/routes/system-validation.ts",
+      "errors": 1,
+      "warnings": 4
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/routes/test-agent-notifications.ts",
+      "errors": 2,
+      "warnings": 2
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/routes/test-slack-agents.ts",
+      "errors": 3,
+      "warnings": 6
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/routes/victoria-chat.ts",
+      "errors": 4,
+      "warnings": 4
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/routes/victoria-service.ts",
+      "errors": 4,
+      "warnings": 27
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/routes/victoria-website-generator.ts",
+      "errors": 4,
+      "warnings": 5
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/routes/victoria-website.ts",
+      "errors": 4,
+      "warnings": 24
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/routes/video.js",
+      "errors": 25,
+      "warnings": 18
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/run-migration-phase-1.ts",
+      "errors": 22,
+      "warnings": 18
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/s3-policy-updater.ts",
+      "errors": 13,
+      "warnings": 13
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/scripts/categorize-existing-images.ts",
+      "errors": 17,
+      "warnings": 15
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/scripts/migrate-temp-urls.ts",
+      "errors": 20,
+      "warnings": 18
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/services/PerformanceMonitor.ts",
+      "errors": 4,
+      "warnings": 4
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/services/agent-context-intelligence.ts",
+      "errors": 2,
+      "warnings": 7
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/services/agent-context-monitor.ts",
+      "errors": 14,
+      "warnings": 16
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/services/agent-cost-tracking.ts",
+      "errors": 10,
+      "warnings": 10
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/services/agent-insight-engine.ts",
+      "errors": 15,
+      "warnings": 19
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/services/ai-generation-service.ts",
+      "errors": 0,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/services/approval-service.ts",
+      "errors": 0,
+      "warnings": 2
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/services/backend-enhancement-services.ts",
+      "errors": 9,
+      "warnings": 20
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/services/base-service.ts",
+      "errors": 1,
+      "warnings": 7
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/services/claude-api-service-simple.ts",
+      "errors": 71,
+      "warnings": 93
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/services/deployment-tracking-service.ts",
+      "errors": 4,
+      "warnings": 4
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/services/email-management-agent.ts",
+      "errors": 17,
+      "warnings": 30
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/services/email-service.ts",
+      "errors": 4,
+      "warnings": 2
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/services/enhanced-path-intelligence.ts",
+      "errors": 1,
+      "warnings": 2
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/services/escalation-handler.ts",
+      "errors": 4,
+      "warnings": 3
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/services/flodesk-import.ts",
+      "errors": 15,
+      "warnings": 12
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/services/instagram-integration.ts",
+      "errors": 28,
+      "warnings": 23
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/services/intelligent-task-distributor.ts",
+      "errors": 5,
+      "warnings": 5
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/services/launch-excellence-protocol.ts",
+      "errors": 2,
+      "warnings": 4
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/services/launch-focused-agent-service.ts",
+      "errors": 3,
+      "warnings": 9
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/services/manychat-import.ts",
+      "errors": 10,
+      "warnings": 8
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/services/maya-adaptation-engine.ts",
+      "errors": 9,
+      "warnings": 23
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/services/maya-behavior-learning-service.ts",
+      "errors": 13,
+      "warnings": 37
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/services/maya-business-intelligence-service.ts",
+      "errors": 15,
+      "warnings": 67
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/services/maya-memory-enhancement-service.ts",
+      "errors": 10,
+      "warnings": 35
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/services/maya-optimization-service.ts",
+      "errors": 16,
+      "warnings": 18
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/services/maya-personalization-service.ts",
+      "errors": 3,
+      "warnings": 3
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/services/maya-phase4-validation-service.ts",
+      "errors": 16,
+      "warnings": 17
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/services/maya-phase5-integration-service.ts",
+      "errors": 10,
+      "warnings": 60
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/services/maya-predictive-styling-service.ts",
+      "errors": 9,
+      "warnings": 25
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/services/maya-trend-intelligence.ts",
+      "errors": 9,
+      "warnings": 45
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/services/maya-usage-isolation.ts",
+      "errors": 13,
+      "warnings": 14
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/services/maya-visual-analysis.ts",
+      "errors": 9,
+      "warnings": 34
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/services/onboarding-conversation-service.ts",
+      "errors": 7,
+      "warnings": 13
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/services/payment.ts",
+      "errors": 3,
+      "warnings": 2
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/services/personal-brand-service.ts",
+      "errors": 0,
+      "warnings": 2
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/services/progress-tracking.ts",
+      "errors": 9,
+      "warnings": 25
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/services/simple-memory-service.ts",
+      "errors": 17,
+      "warnings": 26
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/services/slack-notification-service.ts",
+      "errors": 16,
+      "warnings": 12
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/services/stripe.ts",
+      "errors": 4,
+      "warnings": 7
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/services/support-intelligence.ts",
+      "errors": 9,
+      "warnings": 12
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/services/task-dependency-mapping.ts",
+      "errors": 4,
+      "warnings": 6
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/services/unified-maya-context-service.ts",
+      "errors": 9,
+      "warnings": 12
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/services/unified-maya-intelligence-service.ts",
+      "errors": 7,
+      "warnings": 23
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/services/unified-maya-memory-service.ts",
+      "errors": 22,
+      "warnings": 51
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/services/unified-session-manager.ts",
+      "errors": 19,
+      "warnings": 23
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/services/user-intervention-service.ts",
+      "errors": 1,
+      "warnings": 2
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/services/user-style-memory.ts",
+      "errors": 8,
+      "warnings": 9
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/services/web-search-optimization.ts",
+      "errors": 13,
+      "warnings": 15
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/services/workflow-executor.ts",
+      "errors": 0,
+      "warnings": 6
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/services/workflow-service.ts",
+      "errors": 3,
+      "warnings": 6
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/stack-auth.ts",
+      "errors": 39,
+      "warnings": 38
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/start.ts",
+      "errors": 17,
+      "warnings": 9
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/storage-maya-extensions.ts",
+      "errors": 61,
+      "warnings": 76
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/storage.ts",
+      "errors": 36,
+      "warnings": 75
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/testing/maya-ab-testing-framework.ts",
+      "errors": 0,
+      "warnings": 2
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/testing/phase-6-integration.ts",
+      "errors": 5,
+      "warnings": 11
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/testing/success-metrics-tracker.ts",
+      "errors": 4,
+      "warnings": 4
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/tests/maya-intelligence-validation.test.ts",
+      "errors": 6,
+      "warnings": 9
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/tests/phase-6-test-runner.ts",
+      "errors": 15,
+      "warnings": 15
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/tools/bash.ts",
+      "errors": 18,
+      "warnings": 9
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/tools/coordinate_agent.ts",
+      "errors": 10,
+      "warnings": 2
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/tools/execute_sql_tool.ts",
+      "errors": 8,
+      "warnings": 8
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/tools/file-integration-enforcer.ts",
+      "errors": 2,
+      "warnings": 6
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/tools/file_safety_guard.ts",
+      "errors": 7,
+      "warnings": 3
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/tools/get_handoff_tasks.ts",
+      "errors": 2,
+      "warnings": 3
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/tools/get_latest_lsp_diagnostics.ts",
+      "errors": 5,
+      "warnings": 8
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/tools/mark_completed_and_get_feedback.ts",
+      "errors": 3,
+      "warnings": 3
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/tools/report_progress.ts",
+      "errors": 4,
+      "warnings": 4
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/tools/restart-workflow.ts",
+      "errors": 4,
+      "warnings": 3
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/tools/search_filesystem.ts",
+      "errors": 28,
+      "warnings": 28
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/tools/str_replace_based_edit_tool.ts",
+      "errors": 9,
+      "warnings": 10
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/tools/web_search.ts",
+      "errors": 7,
+      "warnings": 6
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/tools/workflow-executor.ts",
+      "errors": 3,
+      "warnings": 12
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/track-zara.ts",
+      "errors": 38,
+      "warnings": 38
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/training-completion-monitor.ts",
+      "errors": 63,
+      "warnings": 51
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/usage-service.ts",
+      "errors": 5,
+      "warnings": 11
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/utils/api-documentation.ts",
+      "errors": 3,
+      "warnings": 19
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/utils/build-optimizer.ts",
+      "errors": 1,
+      "warnings": 5
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/utils/cache.ts",
+      "errors": 1,
+      "warnings": 8
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/utils/config-manager.ts",
+      "errors": 30,
+      "warnings": 3
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/utils/configuration.ts",
+      "errors": 3,
+      "warnings": 6
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/utils/dashboard.ts",
+      "errors": 11,
+      "warnings": 3
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/utils/db-optimizer.ts",
+      "errors": 6,
+      "warnings": 9
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/utils/deployment.ts",
+      "errors": 9,
+      "warnings": 4
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/utils/elena-delegation-system.ts",
+      "errors": 13,
+      "warnings": 16
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/utils/email-service.ts",
+      "errors": 5,
+      "warnings": 5
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/utils/env-audit.ts",
+      "errors": 1,
+      "warnings": 2
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/utils/env-validator.ts",
+      "errors": 1,
+      "warnings": 0
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/utils/error-boundary.ts",
+      "errors": 3,
+      "warnings": 8
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/utils/error-handler.ts",
+      "errors": 3,
+      "warnings": 22
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/utils/error-handling.ts",
+      "errors": 3,
+      "warnings": 20
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/utils/error-tracker.ts",
+      "errors": 6,
+      "warnings": 10
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/utils/feature-flags.ts",
+      "errors": 11,
+      "warnings": 0
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/utils/health-check.ts",
+      "errors": 31,
+      "warnings": 4
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/utils/logger.ts",
+      "errors": 8,
+      "warnings": 13
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/utils/logging.ts",
+      "errors": 5,
+      "warnings": 4
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/utils/middleware.ts",
+      "errors": 6,
+      "warnings": 11
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/utils/monitoring.ts",
+      "errors": 6,
+      "warnings": 16
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/utils/parameter-injection-system.ts",
+      "errors": 1,
+      "warnings": 6
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/utils/paths.ts",
+      "errors": 6,
+      "warnings": 0
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/utils/performance-monitor.ts",
+      "errors": 4,
+      "warnings": 5
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/utils/security-monitor.ts",
+      "errors": 8,
+      "warnings": 5
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/utils/semantic-search-system.ts",
+      "errors": 4,
+      "warnings": 4
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/utils/service-layer.ts",
+      "errors": 1,
+      "warnings": 22
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/utils/structured-logger.ts",
+      "errors": 11,
+      "warnings": 8
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/utils/testing-framework.ts",
+      "errors": 8,
+      "warnings": 13
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/utils/testing.ts",
+      "errors": 65,
+      "warnings": 0
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/utils/zara-enhancement-system.ts",
+      "errors": 19,
+      "warnings": 21
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/utils/zara-integration-hooks.ts",
+      "errors": 13,
+      "warnings": 18
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/vite.ts",
+      "errors": 3,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/workflows/automation/auto-task-executor.ts",
+      "errors": 7,
+      "warnings": 9
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/server/workflows/enhanced-handoff-system.ts",
+      "errors": 14,
+      "warnings": 16
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/shared/schema-maya-onboarding.ts",
+      "errors": 0,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/shared/schema-maya-simplified.ts",
+      "errors": 0,
+      "warnings": 3
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/shared/schema.ts",
+      "errors": 1,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/shared/styleguide-schema.ts",
+      "errors": 0,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/shared/types.ts",
+      "errors": 1,
+      "warnings": 0
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/shared/types/AdminHeroCoordinationPlan.ts",
+      "errors": 0,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/shared/types/CampaignData.ts",
+      "errors": 0,
+      "warnings": 2
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/shared/types/ChatMessage.ts",
+      "errors": 1,
+      "warnings": 3
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/shared/types/ComprehensiveQualityReport.ts",
+      "errors": 4,
+      "warnings": 7
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/shared/types/InsertUserWebsiteOnboarding.ts",
+      "errors": 0,
+      "warnings": 2
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/shared/types/LuxuryStandards.ts",
+      "errors": 0,
+      "warnings": 6
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/shared/types/ModelQualityMetrics.ts",
+      "errors": 0,
+      "warnings": 5
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/shared/types/StudioProject.ts",
+      "errors": 0,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/shared/types/UXQualityMetrics.ts",
+      "errors": 0,
+      "warnings": 5
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/shared/types/User.ts",
+      "errors": 0,
+      "warnings": 2
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/shared/types/UserParameters.ts",
+      "errors": 0,
+      "warnings": 2
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/shared/types/dashboard.ts",
+      "errors": 0,
+      "warnings": 1
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/test-save-image.js",
+      "errors": 5,
+      "warnings": 5
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/tests-examples/demo-todo-app.spec.ts",
+      "errors": 3,
+      "warnings": 2
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/vite.config.ts",
+      "errors": 2,
+      "warnings": 0
+    },
+    {
+      "path": "/Users/MD760HA/SSELFIE-BRAND-STUDIO/vite.optimized.config.ts",
+      "errors": 7,
+      "warnings": 0
+    }
+  ],
+  "complexFiles": [
+    {
+      "path": "client/src/data/cleaned-flatlay-collections.ts",
+      "lines": 2535,
+      "functions": 0,
+      "complexity": 2535
+    },
+    {
+      "path": "client/src/pages/archived/maya-complex-old.tsx",
+      "lines": 2146,
+      "functions": 40,
+      "complexity": 2186
+    },
+    {
+      "path": "client/src/pages/archived/maya-old-with-useMayaChat.tsx",
+      "lines": 2146,
+      "functions": 40,
+      "complexity": 2186
+    },
+    {
+      "path": "server/storage.ts",
+      "lines": 2088,
+      "functions": 6,
+      "complexity": 2094
+    },
+    {
+      "path": "client/src/pages/simple-training.tsx",
+      "lines": 1869,
+      "functions": 47,
+      "complexity": 1916
+    },
+    {
+      "path": "client/src/pages/archived/simple-training.tsx",
+      "lines": 1734,
+      "functions": 40,
+      "complexity": 1774
+    },
+    {
+      "path": "shared/schema.ts",
+      "lines": 1711,
+      "functions": 0,
+      "complexity": 1711
+    },
+    {
+      "path": "client/src/components/simplified-workspace.tsx",
+      "lines": 1347,
+      "functions": 34,
+      "complexity": 1381
+    },
+    {
+      "path": "server/model-training-service.ts",
+      "lines": 1227,
+      "functions": 7,
+      "complexity": 1234
+    },
+    {
+      "path": "client/src/pages/ai-generator.tsx",
+      "lines": 1184,
+      "functions": 39,
+      "complexity": 1223
+    },
+    {
+      "path": "server/routes.ts",
+      "lines": 1163,
+      "functions": 26,
+      "complexity": 1189
+    },
+    {
+      "path": "client/src/components/multi-page-templates.tsx",
+      "lines": 1152,
+      "functions": 0,
+      "complexity": 1152
+    },
+    {
+      "path": "client/src/pages/admin-consulting-agents.tsx",
+      "lines": 1093,
+      "functions": 24,
+      "complexity": 1117
+    },
+    {
+      "path": "client/src/pages/maya.tsx",
+      "lines": 916,
+      "functions": 52,
+      "complexity": 968
+    },
+    {
+      "path": "client/src/pages/archived/sselfie-gallery.tsx",
+      "lines": 904,
+      "functions": 36,
+      "complexity": 940
+    },
+    {
+      "path": "server/services/claude-api-service-simple.ts",
+      "lines": 873,
+      "functions": 1,
+      "complexity": 874
+    },
+    {
+      "path": "client/src/components/brand-studio/PhotoStudio.tsx",
+      "lines": 813,
+      "functions": 40,
+      "complexity": 853
+    },
+    {
+      "path": "server/services/unified-maya-memory-service.ts",
+      "lines": 823,
+      "functions": 1,
+      "complexity": 824
+    },
+    {
+      "path": "client/src/components/ui/sidebar.tsx",
+      "lines": 783,
+      "functions": 26,
+      "complexity": 809
+    },
+    {
+      "path": "server/storage-maya-extensions.ts",
+      "lines": 778,
+      "functions": 6,
+      "complexity": 784
+    }
+  ],
+  "serviceFiles": [
+    "api/auth/[...auth].ts",
+    "api/video/draft-storyboard.ts",
+    "api/video/generate-from-image.ts",
+    "api/video/generate-story.ts",
+    "api/video/save.ts",
+    "api/video/status.ts",
+    "client/src/pages/teams-service-packages.tsx",
+    "client/src/services/WebsiteGenerator.ts",
+    "client/src/services/imageGeneration.ts",
+    "client/src/services/implementation-tracker.ts",
+    "client/src/services/search-optimization.ts",
+    "client/src/services/service-templates.ts",
+    "server/__tests__/integration/service-integration.test.ts",
+    "server/__tests__/routes/admin.test.ts",
+    "server/__tests__/routes/ai-generation.test.ts",
+    "server/__tests__/routes/auth.test.ts",
+    "server/__tests__/routes/gallery.test.ts",
+    "server/__tests__/routes/maya.test.ts",
+    "server/__tests__/routes/utility.test.ts",
+    "server/__tests__/routes/websites.test.ts",
+    "server/__tests__/services/base-service.test.ts",
+    "server/__tests__/services/user-service.test.ts",
+    "server/agents/personality-integration-service.ts",
+    "server/bulletproof-upload-service.ts",
+    "server/data-consolidation-service.ts",
+    "server/email-service.ts",
+    "server/image-compression-service.ts",
+    "server/image-storage-service.ts",
+    "server/integrations/external-api-service.ts",
+    "server/maya-chat-preview-service.ts",
+    "server/model-training-service.ts",
+    "server/model-validation-service.ts",
+    "server/routed-pages-priority.ts",
+    "server/routes/admin/intervention-campaign.ts",
+    "server/routes/admin/user-intervention.ts",
+    "server/routes/admin-emergency-controls.ts",
+    "server/routes/admin-empire-api.ts",
+    "server/routes/admin-metrics.ts",
+    "server/routes/admin-notifications.ts",
+    "server/routes/agent-insights-data.ts",
+    "server/routes/agent-insights.ts",
+    "server/routes/auth.ts",
+    "server/routes/automation.ts",
+    "server/routes/checkout.ts",
+    "server/routes/concept-cards.ts",
+    "server/routes/cover-image-routes.ts",
+    "server/routes/email-automation.ts",
+    "server/routes/email-management-routes.ts",
+    "server/routes/enterprise-routes.ts",
+    "server/routes/flatlay-library.ts",
+    "server/routes/instagram-management.ts",
+    "server/routes/member-protection.ts",
+    "server/routes/middleware/auth.ts",
+    "server/routes/middleware/error-handler.ts",
+    "server/routes/modules/admin.ts",
+    "server/routes/modules/agent-protocol.ts",
+    "server/routes/modules/ai-generation.ts",
+    "server/routes/modules/auth.ts",
+    "server/routes/modules/claude.ts",
+    "server/routes/modules/gallery.ts",
+    "server/routes/modules/maya.ts",
+    "server/routes/modules/training.ts",
+    "server/routes/modules/usage.ts",
+    "server/routes/modules/utility.ts",
+    "server/routes/modules/websites.ts",
+    "server/routes/notification-preferences.ts",
+    "server/routes/phase2-coordination.ts",
+    "server/routes/rollback.ts",
+    "server/routes/slack-test.ts",
+    "server/routes/stack-webhook.ts",
+    "server/routes/support-escalation.ts",
+    "server/routes/system-health.ts",
+    "server/routes/system-validation.ts",
+    "server/routes/test-agent-notifications.ts",
+    "server/routes/test-slack-agents.ts",
+    "server/routes/victoria-chat.ts",
+    "server/routes/victoria-service.ts",
+    "server/routes/victoria-website-generator.ts",
+    "server/routes/victoria-website.ts",
+    "server/routes.ts",
+    "server/services/PerformanceMonitor.ts",
+    "server/services/agent-context-intelligence.ts",
+    "server/services/agent-context-monitor.ts",
+    "server/services/agent-cost-tracking.ts",
+    "server/services/agent-insight-engine.ts",
+    "server/services/ai-generation-service.ts",
+    "server/services/approval-service.ts",
+    "server/services/backend-enhancement-services.ts",
+    "server/services/base-service.ts",
+    "server/services/brand-intelligence-service.ts",
+    "server/services/claude-api-service-simple.ts",
+    "server/services/deployment-tracking-service.ts",
+    "server/services/email-intervention-campaign.ts",
+    "server/services/email-management-agent.ts",
+    "server/services/email-service.ts",
+    "server/services/enhanced-path-intelligence.ts",
+    "server/services/escalation-handler.ts",
+    "server/services/flodesk-import.ts",
+    "server/services/instagram-integration.ts",
+    "server/services/intelligent-task-distributor.ts",
+    "server/services/launch-excellence-protocol.ts",
+    "server/services/launch-focused-agent-service.ts",
+    "server/services/manychat-import.ts",
+    "server/services/maya-adaptation-engine.ts",
+    "server/services/maya-behavior-learning-service.ts",
+    "server/services/maya-business-intelligence-service.ts",
+    "server/services/maya-memory-enhancement-service.ts",
+    "server/services/maya-optimization-service.ts",
+    "server/services/maya-personalization-service.ts",
+    "server/services/maya-phase4-validation-service.ts",
+    "server/services/maya-phase5-integration-service.ts",
+    "server/services/maya-predictive-styling-service.ts",
+    "server/services/maya-trend-intelligence.ts",
+    "server/services/maya-usage-isolation.ts",
+    "server/services/maya-visual-analysis.ts",
+    "server/services/onboarding-conversation-service.ts",
+    "server/services/payment.ts",
+    "server/services/personal-brand-service.ts",
+    "server/services/progress-tracking.ts",
+    "server/services/simple-memory-service.ts",
+    "server/services/slack-notification-service.ts",
+    "server/services/stripe.ts",
+    "server/services/support-intelligence.ts",
+    "server/services/task-dependency-mapping.ts",
+    "server/services/unified-maya-context-service.ts",
+    "server/services/unified-maya-intelligence-service.ts",
+    "server/services/unified-maya-memory-service.ts",
+    "server/services/unified-session-manager.ts",
+    "server/services/user-intervention-service.ts",
+    "server/services/user-service.ts",
+    "server/services/user-style-memory.ts",
+    "server/services/verification-enforcement.ts",
+    "server/services/web-search-optimization.ts",
+    "server/services/workflow-executor.ts",
+    "server/services/workflow-service.ts",
+    "server/unified-generation-service.ts",
+    "server/usage-service.ts",
+    "server/utils/api-documentation.ts",
+    "server/utils/email-service.ts",
+    "server/utils/service-layer.ts",
+    "client/src/services/api.js",
+    "server/api/plan-b-status.js",
+    "server/routes/admin-tools.js",
+    "server/routes/maya.js",
+    "server/routes/video.js"
+  ]
+}

@@ -1,0 +1,103 @@
+{
+  "timestamp": "2025-09-15T15:10:48.333Z",
+  "summary": {
+    "totalFiles": 16,
+    "totalDependencies": 1,
+    "circularDependencies": 0,
+    "serviceFiles": 5
+  },
+  "mostConnected": [
+    {
+      "file": "server/routes/admin-tools.js",
+      "incoming": 1,
+      "outgoing": 1,
+      "total": 2
+    },
+    {
+      "file": "client/dist/assets/index-BwetURzK.js",
+      "incoming": 0,
+      "outgoing": 0,
+      "total": 0
+    },
+    {
+      "file": "client/postcss.config.js",
+      "incoming": 0,
+      "outgoing": 0,
+      "total": 0
+    },
+    {
+      "file": "client/src/services/api.js",
+      "incoming": 0,
+      "outgoing": 0,
+      "total": 0
+    },
+    {
+      "file": "client/tailwind.config.js",
+      "incoming": 0,
+      "outgoing": 0,
+      "total": 0
+    },
+    {
+      "file": "client/test-style-collections.js",
+      "incoming": 0,
+      "outgoing": 0,
+      "total": 0
+    },
+    {
+      "file": "jest.config.js",
+      "incoming": 0,
+      "outgoing": 0,
+      "total": 0
+    },
+    {
+      "file": "jest.setup.js",
+      "incoming": 0,
+      "outgoing": 0,
+      "total": 0
+    },
+    {
+      "file": "scripts/dependency-analysis.js",
+      "incoming": 0,
+      "outgoing": 0,
+      "total": 0
+    },
+    {
+      "file": "server/api/plan-b-status.js",
+      "incoming": 0,
+      "outgoing": 0,
+      "total": 0
+    }
+  ],
+  "circularDependencies": [],
+  "serviceFiles": [
+    {
+      "file": "client/src/services/api.js",
+      "dependencies": [],
+      "dependents": []
+    },
+    {
+      "file": "server/api/plan-b-status.js",
+      "dependencies": [],
+      "dependents": []
+    },
+    {
+      "file": "server/routes/admin-tools.js",
+      "dependencies": [
+        "server/middleware/admin-bypass.js"
+      ],
+      "dependents": [
+        "server/middleware/admin-bypass.js"
+      ]
+    },
+    {
+      "file": "server/routes/maya.js",
+      "dependencies": [],
+      "dependents": []
+    },
+    {
+      "file": "server/routes/video.js",
+      "dependencies": [],
+      "dependents": []
+    }
+  ]
+}

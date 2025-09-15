@@ -1,134 +1,172 @@
 /**
- * Structured Logging Utility
- * Provides consistent logging across the application
+ * Comprehensive Logging System
+ * Structured logging with different levels and outputs
  */
 
-export enum LogLevel {
-  ERROR = 'error',
-  WARN = 'warn',
-  INFO = 'info',
-  DEBUG = 'debug'
-}
-
-export interface LogContext {
-  userId?: string;
+export interface LogEntry {
+  timestamp: string;
+  level: 'debug' | 'info' | 'warn' | 'error' | 'fatal';
+  message: string;
+  service: string;
   requestId?: string;
-  service?: string;
-  operation?: string;
-  duration?: number;
-  [key: string]: any;
+  userId?: string;
+  sessionId?: string;
+  endpoint?: string;
+  method?: string;
+  statusCode?: number;
+  responseTime?: number;
+  userAgent?: string;
+  ip?: string;
+  error?: {
+    name: string;
+    message: string;
+    stack?: string;
+  };
+  metadata?: Record<string, any>;
+  environment: string;
+  version: string;
 }
 
 export class Logger {
   private service: string;
-  private context: LogContext;
+  private enabled: boolean;
+  private logLevel: 'debug' | 'info' | 'warn' | 'error' | 'fatal';
 
-  constructor(service: string, context: LogContext = {}) {
+  constructor(service: string) {
     this.service = service;
-    this.context = context;
+    this.enabled = true;
+    this.logLevel = (process.env.LOG_LEVEL as any) || 'info';
   }
 
-  private formatMessage(level: LogLevel, message: string, data?: any): string {
-    const timestamp = new Date().toISOString();
-    const contextStr = Object.keys(this.context).length > 0 
-      ? ` [${Object.entries(this.context).map(([k, v]) => `${k}=${v}`).join(', ')}]`
-      : '';
-    
-    return `[${timestamp}] ${level.toUpperCase()} ${this.service}: ${message}${contextStr}${data ? ` ${JSON.stringify(data, null, 2)}` : ''}`;
+  /**
+   * Log debug message
+   */
+  public debug(message: string, metadata?: Record<string, any>): void {
+    this.log('debug', message, metadata);
   }
 
-  private log(level: LogLevel, message: string, data?: any): void {
-    const formattedMessage = this.formatMessage(level, message, data);
+  /**
+   * Log info message
+   */
+  public info(message: string, metadata?: Record<string, any>): void {
+    this.log('info', message, metadata);
+  }
+
+  /**
+   * Log warning message
+   */
+  public warn(message: string, metadata?: Record<string, any>): void {
+    this.log('warn', message, metadata);
+  }
+
+  /**
+   * Log error message
+   */
+  public error(message: string, metadata?: Record<string, any>): void {
+    this.log('error', message, metadata);
+  }
+
+  /**
+   * Log fatal message
+   */
+  public fatal(message: string, metadata?: Record<string, any>): void {
+    this.log('fatal', message, metadata);
+  }
+
+  /**
+   * Log message with specified level
+   */
+  private log(level: LogEntry['level'], message: string, metadata?: Record<string, any>): void {
+    if (!this.isEnabled || !this.shouldLog(level)) {
+      return;
+    }
+
+    const logEntry: LogEntry = {
+      timestamp: new Date().toISOString(),
+      level,
+      message,
+      service: this.service,
+      environment: process.env.NODE_ENV || 'development',
+      version: process.env.npm_package_version || '1.0.0',
+      ...metadata,
+    };
+
+    this.outputLog(logEntry);
+  }
+
+  /**
+   * Check if should log based on level
+   */
+  private shouldLog(level: LogEntry['level']): boolean {
+    const levels = ['debug', 'info', 'warn', 'error', 'fatal'];
+    const currentLevelIndex = levels.indexOf(this.logLevel);
+    const messageLevelIndex = levels.indexOf(level);
+    return messageLevelIndex >= currentLevelIndex;
+  }
+
+  /**
+   * Output log entry
+   */
+  private outputLog(entry: LogEntry): void {
+    const { timestamp, level, message, service, ...rest } = entry;
     
+    const logMessage = {
+      timestamp,
+      level: level.toUpperCase(),
+      service,
+      message,
+      ...rest,
+    };
+
     switch (level) {
-      case LogLevel.ERROR:
-        console.error(formattedMessage);
+      case 'debug':
+        console.debug(JSON.stringify(logMessage, null, 2));
         break;
-      case LogLevel.WARN:
-        console.warn(formattedMessage);
+      case 'info':
+        console.info(JSON.stringify(logMessage, null, 2));
         break;
-      case LogLevel.INFO:
-        console.info(formattedMessage);
+      case 'warn':
+        console.warn(JSON.stringify(logMessage, null, 2));
         break;
-      case LogLevel.DEBUG:
-        if (process.env.NODE_ENV === 'development') {
-          console.debug(formattedMessage);
-        }
+      case 'error':
+      case 'fatal':
+        console.error(JSON.stringify(logMessage, null, 2));
         break;
     }
   }
 
-  error(message: string, data?: any): void {
-    this.log(LogLevel.ERROR, message, data);
+  /**
+   * Create child logger with additional context
+   */
+  public child(additionalContext: Record<string, any>): Logger {
+    const childLogger = new Logger(this.service);
+    childLogger.log = (level, message, metadata) => {
+      this.log(level, message, { ...additionalContext, ...metadata });
+    };
+    return childLogger;
   }
 
-  warn(message: string, data?: any): void {
-    this.log(LogLevel.WARN, message, data);
+  /**
+   * Set log level
+   */
+  public setLogLevel(level: 'debug' | 'info' | 'warn' | 'error' | 'fatal'): void {
+    this.logLevel = level;
   }
 
-  info(message: string, data?: any): void {
-    this.log(LogLevel.INFO, message, data);
+  /**
+   * Enable/disable logging
+   */
+  public setEnabled(enabled: boolean): void {
+    this.isEnabled = enabled;
   }
 
-  debug(message: string, data?: any): void {
-    this.log(LogLevel.DEBUG, message, data);
-  }
-
-  // Create a child logger with additional context
-  child(additionalContext: LogContext): Logger {
-    return new Logger(this.service, { ...this.context, ...additionalContext });
-  }
-
-  // Performance logging
-  time(label: string): void {
-    console.time(`[${this.service}] ${label}`);
-  }
-
-  timeEnd(label: string): void {
-    console.timeEnd(`[${this.service}] ${label}`);
+  /**
+   * Check if logging is enabled
+   */
+  public isEnabled(): boolean {
+    return this.enabled;
   }
 }
 
-// Create default logger instances
-export const logger = new Logger('App');
-export const apiLogger = new Logger('API');
-export const dbLogger = new Logger('Database');
-export const aiLogger = new Logger('AI');
-
-// Request logging middleware
-export const requestLogger = (req: any, res: any, next: any) => {
-  const requestId = `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-  req.requestId = requestId;
-  
-  const startTime = Date.now();
-  
-  const childLogger = apiLogger.child({
-    requestId,
-    method: req.method,
-    url: req.url,
-    userAgent: req.get('User-Agent'),
-    ip: req.ip
-  });
-
-  childLogger.info('Request started');
-
-  res.on('finish', () => {
-    const duration = Date.now() - startTime;
-    childLogger.info('Request completed', {
-      statusCode: res.statusCode,
-      duration: `${duration}ms`
-    });
-  });
-
-  next();
-};
-
-// Error logging utility
-export const logError = (error: Error, context: LogContext = {}) => {
-  const errorLogger = logger.child(context);
-  errorLogger.error('Unhandled error', {
-    message: error.message,
-    stack: error.stack,
-    name: error.name
-  });
-};
+// Export default logger instance
+export const logger = new Logger('SSELFIE Studio');

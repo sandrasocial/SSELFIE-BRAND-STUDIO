@@ -2083,6 +2083,36 @@ export class DatabaseStorage implements IStorage {
       .delete(conceptCards)
       .where(eq(conceptCards.id, id));
   }
+
+  // Test database connection
+  async testConnection(): Promise<boolean> {
+    try {
+      await db.execute(sql`SELECT 1`);
+      return true;
+    } catch (error) {
+      console.error('Database connection test failed:', error);
+      return false;
+    }
+  }
+
+  // Create usage history record
+  async createUsageHistory(data: {
+    userId: string;
+    action: string;
+    details?: any;
+    cost?: number;
+  }): Promise<void> {
+    // This would typically insert into a usage_history table
+    // For now, we'll just log it
+    console.log('Usage history:', data);
+  }
+
+  // Get user usage history
+  async getUserUsageHistory(userId: string, days?: number): Promise<any[]> {
+    // This would typically query a usage_history table
+    // For now, return empty array
+    return [];
+  }
 }
 
 export const storage = new DatabaseStorage();

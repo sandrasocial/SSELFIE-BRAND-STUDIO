@@ -1,111 +1,74 @@
 /**
- * Agent Protocol Routes Module
+ * Agent Protocol Routes
  * Handles agent communication and protocol management
  */
 
 import { Router } from 'express';
 import { requireStackAuth } from '../middleware/auth';
-
 import { asyncHandler, createError, sendSuccess, validateRequired } from '../middleware/error-handler';
+
 const router = Router();
 
-// Agent Protocol Validation
-router.post('
-    const { protocol, version, data } = req.body;
+// Register agent protocol
+router.post('/api/agent-protocol', asyncHandler(async (req: any, res) => {
+  const { protocol, version, data } = req.body;
+  validateRequired({ protocol, version });
 
-    if (!protocol) {
-      throw createError.validation("Protocol is required");
-    }
-
-    // TODO: Implement agent protocol validation
-    sendSuccess(res, {message: 'Protocol validated successfully',
-      protocol,
-      version,
-      valid: true});
-  ', asyncHandler(async (req, res) => {
-console.error('Error validating agent protocol:', error);
+  // Mock implementation - replace with actual protocol service
+  const protocolId = `protocol_${Date.now()}`;
+  sendSuccess(res, { protocolId, message: 'Protocol registered successfully' }, 201);
 }));
 
-// Agent Status Check
-router.get('
-    const { agentId } = req.params;
+// Get agent status
+router.get('/api/agent-protocol/:agentId', asyncHandler(async (req: any, res) => {
+  const { agentId } = req.params;
 
-    // TODO: Implement agent status checking
-    sendSuccess(res, {agentId,
-      status: 'active',
-      lastSeen: new Date().toISOString(),
-      capabilities: []});
-  ', asyncHandler(async (req, res) => {
-console.error('Error checking agent status:', error);
+  // Mock implementation - replace with actual agent service
+  const status = { agentId, status: 'active', lastSeen: new Date().toISOString() };
+  sendSuccess(res, { status });
 }));
 
-// Agent Registration
-router.post('
-    const { agentId, capabilities, metadata } = req.body;
+// Update agent capabilities
+router.post('/api/agent-protocol/:agentId/capabilities', asyncHandler(async (req: any, res) => {
+  const { agentId, capabilities, metadata } = req.body;
+  validateRequired({ agentId, capabilities });
 
-    if (!agentId) {
-      throw createError.validation("Agent ID is required");
-    }
-
-    // TODO: Implement agent registration
-    sendSuccess(res, {message: 'Agent registered successfully',
-      agentId,
-      capabilities,
-      metadata});
-  ', asyncHandler(async (req, res) => {
-console.error('Error registering agent:', error);
+  // Mock implementation - replace with actual capability service
+  sendSuccess(res, { message: 'Capabilities updated successfully' });
 }));
 
-// Agent Communication
-router.post('
-    const { agentId, message, type } = req.body;
+// Send message to agent
+router.post('/api/agent-protocol/:agentId/message', asyncHandler(async (req: any, res) => {
+  const { agentId, message, type } = req.body;
+  validateRequired({ agentId, message });
 
-    if (!agentId || !message) {
-      throw createError.validation("Agent ID and message are required");
-    }
-
-    // TODO: Implement agent communication
-    sendSuccess(res, {message: 'Communication sent successfully',
-      agentId,
-      response: 'Message received and processed'});
-  ', asyncHandler(async (req, res) => {
-console.error('Error communicating with agent:', error);
+  // Mock implementation - replace with actual messaging service
+  const messageId = `msg_${Date.now()}`;
+  sendSuccess(res, { messageId, message: 'Message sent successfully' }, 201);
 }));
 
-// Agent List
-router.get('
-    // TODO: Implement agent listing
-    sendSuccess(res, {agents: [],
-      count: 0});
-  ', requireStackAuth, asyncHandler(async (req, res) => {
-console.error('Error fetching agents:', error);
+// List all agents
+router.get('/api/agents', requireStackAuth, asyncHandler(async (req: any, res) => {
+  // Mock implementation - replace with actual agent service
+  sendSuccess(res, { agents: [], count: 0 });
 }));
 
-// Agent Configuration
-router.get('
-    const { agentId } = req.params;
+// Get agent details
+router.get('/api/agents/:agentId', requireStackAuth, asyncHandler(async (req: any, res) => {
+  const { agentId } = req.params;
 
-    // TODO: Implement agent configuration retrieval
-    sendSuccess(res, {agentId,
-      config: {
-        enabled: true,
-        timeout: 30000,
-        retries: 3
-      }});
-  ', requireStackAuth, asyncHandler(async (req, res) => {
-console.error('Error fetching agent config:', error);
+  // Mock implementation - replace with actual agent service
+  const agent = { id: agentId, name: 'Test Agent', status: 'active' };
+  sendSuccess(res, { agent });
 }));
 
-router.put('
-    const { agentId } = req.params;
-    const config = req.body;
+// Update agent
+router.put('/api/agents/:agentId', requireStackAuth, asyncHandler(async (req: any, res) => {
+  const { agentId } = req.params;
+  const { name, status, config } = req.body;
 
-    // TODO: Implement agent configuration updates
-    sendSuccess(res, {message: 'Agent configuration updated successfully',
-      agentId,
-      config});
-  ', requireStackAuth, asyncHandler(async (req, res) => {
-console.error('Error updating agent config:', error);
+  // Mock implementation - replace with actual agent service
+  sendSuccess(res, { message: 'Agent updated successfully' });
 }));
 
 export default router;
