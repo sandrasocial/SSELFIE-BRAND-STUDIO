@@ -161,6 +161,12 @@ function Router() {
 function HandlerRoutes({ params }: { params: { [key: string]: string } }) {
   const handlerPath = params.path || '';
   
+  // Debug logging
+  console.log('🔍 HandlerRoutes: params =', params);
+  console.log('🔍 HandlerRoutes: handlerPath =', handlerPath);
+  console.log('🔍 HandlerRoutes: STACK_PROJECT_ID =', STACK_PROJECT_ID);
+  console.log('🔍 HandlerRoutes: STACK_PUBLISHABLE_CLIENT_KEY =', STACK_PUBLISHABLE_CLIENT_KEY ? 'present' : 'missing');
+  
   // Check if Stack Auth is properly configured
   if (!STACK_PROJECT_ID || !STACK_PUBLISHABLE_CLIENT_KEY) {
     return (
@@ -188,6 +194,9 @@ function HandlerRoutes({ params }: { params: { [key: string]: string } }) {
     params: { path: handlerPath },
     location: { pathname: `/handler/${handlerPath}` }
   };
+  
+  console.log('🔍 HandlerRoutes: routeProps =', routeProps);
+  console.log('🔍 HandlerRoutes: stackClientApp =', stackClientApp);
   
   return <StackHandler app={stackClientApp} routeProps={routeProps} fullPage />;
 }
