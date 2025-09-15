@@ -1076,7 +1076,7 @@ Format your response with clear scene breakdowns for VEO video generation.`;
       //   'maya',
       //   true
       // );
-      const mayaResponse = { content: 'Video generation temporarily disabled' }; // Placeholder
+      const mayaResponse = 'Video generation temporarily disabled'; // Placeholder
 
       // Parse and enhance scenes with user LoRA integration
       const scenes = await parseVideoScenes(mayaResponse, message, userModel, keyframes);
