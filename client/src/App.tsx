@@ -215,17 +215,31 @@ function HandlerRoutes({ params }: { params: { [key: string]: string } }) {
   React.useEffect(() => {
     if (currentUrl.includes('oauth-callback') || currentUrl.includes('code=')) {
       console.log('🔍 HandlerRoutes: OAuth callback detected, waiting for authentication...');
+      console.log('🔍 HandlerRoutes: Current auth state - isAuthenticated:', isAuthenticated, 'isLoading:', isLoading);
+      
       // Give Stack Auth time to process the callback
       const timer = setTimeout(() => {
+        console.log('🔍 HandlerRoutes: After timeout - isAuthenticated:', isAuthenticated, 'isLoading:', isLoading);
         if (isAuthenticated) {
           console.log('🔍 HandlerRoutes: OAuth callback processed, redirecting to /app');
           window.location.href = '/app';
+        } else {
+          console.log('🔍 HandlerRoutes: Authentication not detected, trying again...');
+          // Try again after another second
+          setTimeout(() => {
+            if (isAuthenticated) {
+              console.log('🔍 HandlerRoutes: Second attempt - redirecting to /app');
+              window.location.href = '/app';
+            } else {
+              console.log('🔍 HandlerRoutes: Authentication still not detected, showing sign-in form');
+            }
+          }, 1000);
         }
-      }, 1000);
+      }, 2000);
       
       return () => clearTimeout(timer);
     }
-  }, [currentUrl, isAuthenticated]);
+  }, [currentUrl, isAuthenticated, isLoading]);
   
   if (isLoading) {
     return (
@@ -246,6 +260,14 @@ function HandlerRoutes({ params }: { params: { [key: string]: string } }) {
         <SignIn 
           afterSignInUrl="/app"
           afterSignUpUrl="/app"
+          onSuccess={() => {
+            console.log('🔍 HandlerRoutes: SignIn onSuccess callback triggered');
+            // Force redirect after successful authentication
+            setTimeout(() => {
+              console.log('🔍 HandlerRoutes: Forcing redirect to /app');
+              window.location.href = '/app';
+            }, 500);
+          }}
         />
       </div>
     </div>
