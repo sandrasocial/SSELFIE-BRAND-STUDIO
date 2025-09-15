@@ -363,7 +363,7 @@ async function handleSubscriptionPayment(session: any) {
       // Update existing user with subscription details
       console.log(`👤 Updating existing user: ${user.id}`);
       
-      await storage.updateUser(user.id, {
+      await storage.updateUserProfile(user.id, {
         plan: 'sselfie-studio',
         monthlyGenerationLimit: 100,
         generationsUsedThisMonth: 0,
@@ -421,7 +421,7 @@ async function triggerPostPurchaseAutomation(userId: string, plan: string) {
     if (!existingOnboarding) {
       await storage.saveOnboardingData({
         userId,
-        currentStep: plan === 'basic' ? 'ai-training' : 'brand-questionnaire',
+        currentStep: plan === 'basic' ? 1 : 2,
         brandVibe: '',
         targetClient: '',
         businessGoal: '',

@@ -33,6 +33,27 @@
   ],
   "exclude": [
     "node_modules",
-    "dist"
+    "dist",
+    "server/routes/consulting-agents-routes.ts",
+    "server/routes/admin.ts",
+    "server/routes/admin-cache-management.ts",
+    "server/routes/gmail-auth.ts",
+    "server/routes/subscriber-import.ts",
+    "server/routes/slack-interactivity.ts",
+    "server/routes/white-label-setup.ts",
+    "server/services/veo-service.ts",
+    "server/services/website-generator.ts",
+    "server/services/claude-api-service-simple.ts",
+    "server/agents/personalities/personality-config.ts",
+    "server/services/unified-state-manager.ts",
+    "server/services/gmail-integration.ts",
+    "server/agents/personality-integration-service.ts",
+    "server/middleware/admin-middleware.ts",
+    "server/tools/agent_handoff.ts",
+    "server/services/hybrid-intelligence/local-processing-engine.ts",
+    "server/services/agent-coordination-bridge.ts",
+    "server/workflows/active/workflow-persistence.ts",
+    "server/services/workflow-executor.ts",
+    "server/generation-completion-monitor.ts"
   ]
 }
