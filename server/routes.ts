@@ -702,7 +702,8 @@ function generatePersonalizedScenePrompt(sceneNumber: number, originalMessage: s
     }
   });
 
-  // Save image to gallery - POST endpoint
+  /*
+  // Maya Chat endpoint - MEMBER AGENT (Personal Brand Photography Guide)
   app.post('/api/maya-chat', requireStackAuth, async (req: any, res) => {
     try {
       const { message, chatHistory } = req.body;

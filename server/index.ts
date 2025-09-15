@@ -2,19 +2,33 @@
 import "./env-setup.js";
 import express from 'express';
 import { registerRoutes } from './routes';
+import { securityHeaders, inputValidation } from './middleware/security';
+import { rateLimits } from './middleware/rate-limiter';
+import { cacheMiddleware, staticDataCache } from './utils/cache';
+import { Logger } from './utils/logger';
 
 const app = express();
+const logger = new Logger('Server');
+
+// Trust proxy for rate limiting
 app.set('trust proxy', true);
 
-// Health and root endpoints
-app.get('/health', (req, res) => {
+// Security middleware
+app.use(securityHeaders);
+app.use(inputValidation);
+
+// Rate limiting
+app.use(rateLimits.general);
+
+// Health and root endpoints with caching
+app.get('/health', cacheMiddleware(staticDataCache, 30), (req, res) => {
   res.status(200).json({
     status: 'healthy',
     service: 'SSELFIE Studio',
     timestamp: new Date().toISOString(),
   });
 });
-app.get('/api/health', (req, res) => {
+app.get('/api/health', cacheMiddleware(staticDataCache, 30), (req, res) => {
   res.status(200).json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
