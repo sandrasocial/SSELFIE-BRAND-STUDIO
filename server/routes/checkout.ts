@@ -424,7 +424,7 @@ async function triggerPostPurchaseAutomation(userId: string, plan: string) {
         currentStep: plan === 'basic' ? 1 : 2,
         brandVoice: '',
         targetAudience: '',
-        businessGoal: '',
+        businessGoals: '',
         completedSteps: [],
       });
     }
