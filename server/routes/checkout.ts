@@ -425,7 +425,6 @@ async function triggerPostPurchaseAutomation(userId: string, plan: string) {
         brandVoice: '',
         targetAudience: '',
         businessGoals: '',
-        completedSteps: [],
       });
     }
 
