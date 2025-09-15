@@ -182,7 +182,13 @@ function HandlerRoutes({ params }: { params: { [key: string]: string } }) {
     );
   }
   
-  return <StackHandler app={stackClientApp} location={handlerPath} fullPage />;
+  // Create routeProps object as expected by StackHandler
+  const routeProps = {
+    params: { path: handlerPath },
+    location: { pathname: `/handler/${handlerPath}` }
+  };
+  
+  return <StackHandler app={stackClientApp} routeProps={routeProps} fullPage />;
 }
 
 function AppWithProvider() {
