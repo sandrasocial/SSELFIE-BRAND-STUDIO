@@ -19,7 +19,18 @@ export default {
   ],
   moduleNameMapper: {
     '^(\\.{1,2}/.*)\\.js$': '$1',
+    '^(\\.{1,2}/.*)$': '$1',
   },
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
-  extensionsToTreatAsEsm: ['.ts']
+  extensionsToTreatAsEsm: ['.ts'],
+  // Fix for ES modules like jose
+  transformIgnorePatterns: [
+    'node_modules/(?!(jose|@stackframe|@tanstack)/)'
+  ],
+  // Increase timeout for performance tests
+  testTimeout: 30000,
+  // Handle module resolution for ES modules
+  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
+  // Fix for personality-config.js import
+  resolver: undefined
 };

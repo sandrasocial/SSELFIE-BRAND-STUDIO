@@ -477,7 +477,7 @@ function SimpleTraining() {
             }}>
               <img 
                 src={SandraImages.editorial.aiSuccess}
-                alt=""
+                alt="Decorative illustration"
                 style={{
                   width: '100%',
                   height: '100%',
@@ -703,7 +703,7 @@ function SimpleTraining() {
           }}>
             <img 
               src={SandraImages.editorial.thinking}
-              alt=""
+              alt="Decorative illustration"
               style={{
                 width: '100%',
                 height: '100%',
@@ -1027,7 +1027,7 @@ function SimpleTraining() {
             }}>
               <img 
                 src={SandraImages.editorial.aiSuccess}
-                alt=""
+                alt="Decorative illustration"
                 style={{
                   width: '100%',
                   height: '100%',

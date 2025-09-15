@@ -53,9 +53,13 @@ export function MemberNavigation({ transparent = true, darkText = false }: Membe
 
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-      scrolled || !transparent ? 'bg-black/90 backdrop-blur-md' : 'bg-transparent'
-    }`}>
+    <nav 
+      role="navigation" 
+      aria-label="Main navigation"
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        scrolled || !transparent ? 'bg-black/90 backdrop-blur-md' : 'bg-transparent'
+      }`}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="flex items-center justify-between">
           <button 
@@ -68,6 +72,7 @@ export function MemberNavigation({ transparent = true, darkText = false }: Membe
                 setLocation("/maya");
               }
             }}
+            aria-label="SSELFIE home page"
             className={`font-serif text-xl font-light tracking-wide ${darkText ? 'text-black' : 'text-white'} hover:opacity-70 transition-opacity duration-300`}
             style={{ fontFamily: "Times New Roman, serif" }}
           >
@@ -75,11 +80,14 @@ export function MemberNavigation({ transparent = true, darkText = false }: Membe
           </button>
           
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center space-x-8" role="menubar">
             {navItems.map((item) => (
               <button
                 key={item.path}
                 onClick={() => setLocation(item.path)}
+                role="menuitem"
+                aria-current={isActive(item.path) ? 'page' : undefined}
+                aria-label={`Navigate to ${item.label}`}
                 className={`text-xs uppercase tracking-[0.3em] font-light transition-all duration-300 ${
                   isActive(item.path)
                     ? `${darkText ? 'text-black border-b border-black/50' : 'text-white border-b border-white/50'} pb-1`
@@ -91,18 +99,18 @@ export function MemberNavigation({ transparent = true, darkText = false }: Membe
             ))}
 
             {/* Stack Auth UserButton with Maya's luxury styling */}
-            <div className="flex items-center">
+            <div className="flex items-center" role="menuitem">
               <UserButton 
                 showUserInfo={false}
                 extraItems={[
                   {
                     text: 'Subscription & Billing',
-                    icon: <span className="text-sm">💳</span>,
+                    icon: <span className="text-sm" aria-hidden="true">💳</span>,
                     onClick: () => setLocation('/account-settings?tab=billing')
                   },
                   {
                     text: 'Business Profile', 
-                    icon: <span className="text-sm">👤</span>,
+                    icon: <span className="text-sm" aria-hidden="true">👤</span>,
                     onClick: () => setLocation('/profile')
                   }
                 ]}
@@ -127,6 +135,7 @@ export function MemberNavigation({ transparent = true, darkText = false }: Membe
                     console.error('Failed to stop impersonation:', error);
                   }
                 }}
+                aria-label="Stop impersonation and return to admin dashboard"
                 className={`text-xs uppercase tracking-[0.3em] font-light ${darkText ? 'text-black/70 hover:text-black' : 'text-white/70 hover:text-white'} hover:tracking-[0.4em] transition-all duration-300`}
               >
                 Back to Admin
@@ -135,6 +144,7 @@ export function MemberNavigation({ transparent = true, darkText = false }: Membe
 
             <button
               onClick={handleLogout}
+              aria-label="Logout from account"
               className={`${darkText ? 'text-black border border-black/30 hover:bg-black hover:text-white' : 'text-white border border-white/30 hover:bg-white hover:text-black'} transition-colors duration-300 text-xs tracking-[0.3em] uppercase px-6 py-2 font-light`}
             >
               Logout
@@ -144,6 +154,9 @@ export function MemberNavigation({ transparent = true, darkText = false }: Membe
           {/* Mobile Menu Button - Minimalistic MENU text */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Toggle mobile menu"
+            aria-expanded={mobileMenuOpen}
+            aria-controls="mobile-menu"
             className={`md:hidden text-xs uppercase tracking-[0.4em] ${darkText ? 'text-black/80 hover:text-black' : 'text-white/80 hover:text-white'} transition-all duration-300`}
           >
             MENU
@@ -153,8 +166,14 @@ export function MemberNavigation({ transparent = true, darkText = false }: Membe
       
       {/* Mobile Menu - Minimalistic Black Overlay */}
       {mobileMenuOpen && (
-        <div className="md:hidden fixed top-0 left-0 right-0 bottom-0 z-[999] bg-black/95 backdrop-blur-md">
-          <div className="flex flex-col items-center justify-center h-full space-y-8 px-6">
+        <div 
+          id="mobile-menu"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Mobile navigation menu"
+          className="md:hidden fixed top-0 left-0 right-0 bottom-0 z-[999] bg-black/95 backdrop-blur-md"
+        >
+          <div className="flex flex-col items-center justify-center h-full space-y-8 px-6" role="menu">
             {navItems.map((item) => (
               <button
                 key={item.path}
@@ -162,6 +181,9 @@ export function MemberNavigation({ transparent = true, darkText = false }: Membe
                   setLocation(item.path);
                   setMobileMenuOpen(false);
                 }}
+                role="menuitem"
+                aria-current={isActive(item.path) ? 'page' : undefined}
+                aria-label={`Navigate to ${item.label}`}
                 className={`text-sm uppercase tracking-[0.4em] transition-all duration-300 ${
                   isActive(item.path)
                     ? `${darkText ? 'text-black' : 'text-white'}`
