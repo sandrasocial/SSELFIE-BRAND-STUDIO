@@ -205,7 +205,7 @@ export class OnboardingConversationService {
     if (isCompleted) {
       // MAYA FAÇADE: Context is now internal to façade
       // Personal brand data will be handled through the façade API
-      personalBrand = await personalBrandService.getPersonalBrand(userId);
+      personalBrand = await personalBrandService.getPersonalBrandProfile(userId);
     }
     
     return {
@@ -224,7 +224,7 @@ export class OnboardingConversationService {
   private async loadConversationContext(userId: string, currentStep: number): Promise<ConversationContext> {
     // MAYA FAÇADE: Context is now internal to façade API
     // Data gathering will be handled through façade API calls
-    const personalBrandData = await personalBrandService.getPersonalBrand(userId);
+    const personalBrandData = await personalBrandService.getPersonalBrandProfile(userId);
     const conversationHistory = []; // Conversation history is now handled internally by façade
     
     return {

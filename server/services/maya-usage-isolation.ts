@@ -84,7 +84,7 @@ class MayaUsageIsolationService {
   async getMemberAnalytics(): Promise<MayaAnalytics['memberMetrics']> {
     try {
       // Get all Maya chats excluding admin conversations
-      const allChats = await storage.getMayaChats();
+      const allChats = await storage.getAllMayaChats();
       const memberChats = allChats.filter(chat => !chat.chatTitle?.startsWith('[ADMIN]'));
       
       const memberMetrics = {
@@ -116,7 +116,7 @@ class MayaUsageIsolationService {
   async getAdminAnalytics(): Promise<MayaAnalytics['adminMetrics']> {
     try {
       // Get admin-specific Maya usage
-      const allChats = await storage.getMayaChats();
+      const allChats = await storage.getAllMayaChats();
       const adminChats = allChats.filter(chat => chat.chatTitle?.startsWith('[ADMIN]'));
       
       const adminMetrics = {
@@ -145,7 +145,7 @@ class MayaUsageIsolationService {
    */
   async validateSeparation(): Promise<MayaAnalytics['separationStatus']> {
     try {
-      const allChats = await storage.getMayaChats();
+      const allChats = await storage.getAllMayaChats();
       const adminChats = allChats.filter(chat => chat.chatTitle?.startsWith('[ADMIN]'));
       const memberChats = allChats.filter(chat => !chat.chatTitle?.startsWith('[ADMIN]'));
 
@@ -209,7 +209,7 @@ class MayaUsageIsolationService {
   private async getActiveMemberCount(): Promise<number> {
     try {
       // Count unique member users (excluding admin)
-      const allChats = await storage.getMayaChats();
+      const allChats = await storage.getAllMayaChats();
       const memberChats = allChats.filter(chat => !chat.chatTitle?.startsWith('[ADMIN]'));
       const uniqueMembers = new Set(memberChats.map(chat => chat.userId));
       return uniqueMembers.size;
@@ -221,7 +221,7 @@ class MayaUsageIsolationService {
   private async getPopularMemberCategories(): Promise<string[]> {
     try {
       // Analyze member chat categories
-      const allChats = await storage.getMayaChats();
+      const allChats = await storage.getAllMayaChats();
       const memberChats = allChats.filter(chat => !chat.chatTitle?.startsWith('[ADMIN]'));
       
       const categories = memberChats.map(chat => {

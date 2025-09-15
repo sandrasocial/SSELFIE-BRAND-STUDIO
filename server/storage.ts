@@ -1451,6 +1451,14 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(mayaChats.lastActivity || mayaChats.createdAt));
   }
 
+  // Get all Maya chats (for analytics)
+  async getAllMayaChats(): Promise<MayaChat[]> {
+    return await db
+      .select()
+      .from(mayaChats)
+      .orderBy(desc(mayaChats.lastActivity || mayaChats.createdAt));
+  }
+
   // Get Maya chats by category for organized display
   async getMayaChatsByCategory(userId: string): Promise<{ [key: string]: MayaChat[] }> {
     const chats = await this.getMayaChats(userId);

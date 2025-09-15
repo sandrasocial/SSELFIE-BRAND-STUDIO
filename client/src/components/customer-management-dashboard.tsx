@@ -49,7 +49,7 @@ export function CustomerManagementDashboard() {
       <div className="grid grid-cols-4 gap-6">
         <div className="border border-gray-200 p-6 text-center">
           <div className="text-3xl font-serif font-light mb-2">
-            {customerInsights?.newThisMonth || 0}
+            {(customerInsights as any)?.newThisMonth || 0}
           </div>
           <div className="text-xs uppercase tracking-[0.3em] text-gray-600">
             New This Month
@@ -57,7 +57,7 @@ export function CustomerManagementDashboard() {
         </div>
         <div className="border border-gray-200 p-6 text-center">
           <div className="text-3xl font-serif font-light mb-2 text-green-600">
-            €{customerInsights?.averageLifetimeValue || 0}
+            €{(customerInsights as any)?.averageLifetimeValue || 0}
           </div>
           <div className="text-xs uppercase tracking-[0.3em] text-gray-600">
             Avg Lifetime Value

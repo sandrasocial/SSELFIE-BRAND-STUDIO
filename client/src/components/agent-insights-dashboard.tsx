@@ -106,8 +106,8 @@ export function AgentInsightsDashboard() {
     }
   });
 
-  const insights: AgentInsight[] = insightsData?.insights || [];
-  const stats: InsightStats = statsData?.stats || {
+  const insights: AgentInsight[] = (insightsData as any)?.insights || [];
+  const stats: InsightStats = (statsData as any)?.stats || {
     total: 0, today: 0, thisWeek: 0, unread: 0,
     byType: { strategic: 0, technical: 0, operational: 0, urgent: 0 },
     byPriority: { high: 0, medium: 0, low: 0 },

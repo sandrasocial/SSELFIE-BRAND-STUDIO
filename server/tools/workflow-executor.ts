@@ -1,9 +1,9 @@
-import { DatabaseService } from '../services/database-service';
+import { DatabaseStorage } from '../storage';
 
 export class WorkflowExecutor {
-  private db: DatabaseService;
+  private db: DatabaseStorage;
 
-  constructor(db: DatabaseService) {
+  constructor(db: DatabaseStorage) {
     this.db = db;
   }
 
