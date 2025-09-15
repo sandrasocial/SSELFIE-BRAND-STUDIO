@@ -11,6 +11,17 @@ console.log('🔍 Stack Auth Config:', {
   keyStartsWith: STACK_PUBLISHABLE_CLIENT_KEY?.startsWith?.('pck_'),
 });
 
+// Validate configuration before creating StackClientApp
+if (!STACK_PROJECT_ID || !STACK_PUBLISHABLE_CLIENT_KEY) {
+  console.error('❌ Stack Auth: Missing required configuration');
+  throw new Error('Stack Auth configuration is incomplete');
+}
+
+if (!STACK_PUBLISHABLE_CLIENT_KEY.startsWith('pck_')) {
+  console.error('❌ Stack Auth: Invalid publishable client key format');
+  throw new Error('Stack Auth publishable client key is invalid');
+}
+
 export const stackClientApp = new StackClientApp({
   projectId: STACK_PROJECT_ID,
   publishableClientKey: STACK_PUBLISHABLE_CLIENT_KEY,
