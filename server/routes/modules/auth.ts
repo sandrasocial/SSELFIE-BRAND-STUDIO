@@ -47,14 +47,14 @@ router.post('/api/auth/auto-register', asyncHandler(async (req: any, res) => {
   sendSuccess(res, {
     message: 'User created successfully',
     userId: newUser.id
-  }, 201);
+  }, 'User created successfully', 201);
 }));
 
 // Update user gender
 router.post('/api/user/update-gender', requireStackAuth, asyncHandler(async (req: any, res) => {
   const userId = req.user.id;
   const { gender } = req.body;
-  validateRequired({ gender });
+  validateRequired({ gender }, ['gender']);
 
   if (!['man', 'woman', 'other'].includes(gender)) {
     throw createError.validation('Invalid gender value. Must be "man", "woman", or "other"');

@@ -16,7 +16,7 @@ router.post('/api/agent-protocol', asyncHandler(async (req: any, res) => {
 
   // Mock implementation - replace with actual protocol service
   const protocolId = `protocol_${Date.now()}`;
-  sendSuccess(res, { protocolId, message: 'Protocol registered successfully' }, 201);
+  sendSuccess(res, { protocolId, message: 'Protocol registered successfully' }, 'Protocol registered successfully', 201);
 }));
 
 // Get agent status
@@ -31,7 +31,7 @@ router.get('/api/agent-protocol/:agentId', asyncHandler(async (req: any, res) =>
 // Update agent capabilities
 router.post('/api/agent-protocol/:agentId/capabilities', asyncHandler(async (req: any, res) => {
   const { agentId, capabilities, metadata } = req.body;
-  validateRequired({ agentId, capabilities });
+  validateRequired({ agentId, capabilities }, ['agentId', 'capabilities']);
 
   // Mock implementation - replace with actual capability service
   sendSuccess(res, { message: 'Capabilities updated successfully' });
@@ -40,11 +40,11 @@ router.post('/api/agent-protocol/:agentId/capabilities', asyncHandler(async (req
 // Send message to agent
 router.post('/api/agent-protocol/:agentId/message', asyncHandler(async (req: any, res) => {
   const { agentId, message, type } = req.body;
-  validateRequired({ agentId, message });
+  validateRequired({ agentId, message }, ['agentId', 'message']);
 
   // Mock implementation - replace with actual messaging service
   const messageId = `msg_${Date.now()}`;
-  sendSuccess(res, { messageId, message: 'Message sent successfully' }, 201);
+  sendSuccess(res, { messageId, message: 'Message sent successfully' }, 'Message sent successfully', 201);
 }));
 
 // List all agents
