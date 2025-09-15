@@ -65,10 +65,10 @@ export class GenerationCompletionMonitor {
           for (const imageUrl of imageUrls) {
             await storage.saveGeneratedImage({
               userId: tracker.userId,
-              imageUrl,
+              imageUrls: JSON.stringify([imageUrl]),
               prompt: tracker.prompt || 'Maya Editorial Photoshoot',
               category: 'Maya Editorial',
-              status: 'completed'
+              subcategory: 'Professional'
             });
           }
           console.log(`✅ GENERATION MONITOR: Saved ${imageUrls.length} images to gallery via façade`);
