@@ -8,11 +8,7 @@
       "destination": "/api/index.ts"
     },
     {
-      "source": "/handler/(.*)",
-      "destination": "/api/handler/[...path].ts"
-    },
-    {
-      "source": "/((?!api/|handler/).*)",
+      "source": "/((?!api/).*)",
       "destination": "/client/dist/index.html"
     }
   ]

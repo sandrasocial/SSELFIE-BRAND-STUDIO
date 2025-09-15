@@ -8,6 +8,7 @@ import { TooltipProvider } from "./components/ui/tooltip";
 import { StackProvider, StackTheme, StackHandler } from "@stackframe/react";
 import { stackClientApp } from "./stack";
 import { useAuth } from "./hooks/use-auth";
+import { STACK_PROJECT_ID, STACK_PUBLISHABLE_CLIENT_KEY } from './env';
 import { useQuery } from "@tanstack/react-query";
 import { redirectToHttps, detectBrowserIssues, showDomainHelp } from "./utils/browserCompat";
 import { optimizeImageLoading, enableServiceWorkerCaching } from "./utils/performanceOptimizations";
@@ -158,6 +159,29 @@ function Router() {
 // Stack Auth Handler component for authentication routes
 function HandlerRoutes({ params }: { params: { [key: string]: string } }) {
   const handlerPath = (params["path*"] || params["0"] || '').replace(/[)}]+$/, '');
+  
+  // Check if Stack Auth is properly configured
+  if (!STACK_PROJECT_ID || !STACK_PUBLISHABLE_CLIENT_KEY) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="max-w-md w-full bg-white shadow-lg rounded-lg p-6">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-gray-900 mb-4">Authentication Error</h1>
+            <p className="text-gray-600 mb-6">
+              Stack Auth is not properly configured. Please check your environment variables.
+            </p>
+            <button 
+              onClick={() => window.location.href = '/'}
+              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+            >
+              Go Home
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
   return <StackHandler app={stackClientApp} location={handlerPath} fullPage />;
 }
 
