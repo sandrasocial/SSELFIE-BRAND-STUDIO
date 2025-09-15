@@ -11,7 +11,11 @@ if (!STACK_PROJECT_ID) {
 }
 if (!STACK_PUBLISHABLE_CLIENT_KEY || !STACK_PUBLISHABLE_CLIENT_KEY.startsWith("pck_")) {
   // eslint-disable-next-line no-console
-  console.error("Neon Auth: Missing or invalid VITE_STACK_PUBLISHABLE_CLIENT_KEY");
+  console.error("Neon Auth: Missing or invalid VITE_STACK_PUBLISHABLE_CLIENT_KEY", {
+    key: STACK_PUBLISHABLE_CLIENT_KEY,
+    keyType: typeof STACK_PUBLISHABLE_CLIENT_KEY,
+    keyLength: STACK_PUBLISHABLE_CLIENT_KEY?.length
+  });
 }
 
 // Optional one-time debug (guarded)
