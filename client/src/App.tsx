@@ -5,7 +5,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { Toaster } from "./components/ui/toaster";
 import { TooltipProvider } from "./components/ui/tooltip";
-import { StackProvider, StackTheme, StackHandler } from "@stackframe/react";
+import { StackProvider, StackTheme, SignIn } from "@stackframe/react";
 import { stackClientApp } from "./stack";
 import { useAuth } from "./hooks/use-auth";
 import { STACK_PROJECT_ID, STACK_PUBLISHABLE_CLIENT_KEY } from './env';
@@ -191,11 +191,13 @@ function HandlerRoutes({ params }: { params: { [key: string]: string } }) {
   
   console.log('🔍 HandlerRoutes: stackClientApp =', stackClientApp);
   
-  // Try different StackHandler configurations
-  // Option 1: Basic configuration
+  // Use SignIn component directly instead of StackHandler
+  // This should avoid the startsWith error in the Stack Auth library
   return (
-    <div>
-      <StackHandler app={stackClientApp} />
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="max-w-md w-full bg-white shadow-lg rounded-lg p-6">
+        <SignIn />
+      </div>
     </div>
   );
 }
