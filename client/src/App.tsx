@@ -193,10 +193,36 @@ function HandlerRoutes({ params }: { params: { [key: string]: string } }) {
   
   // Use SignIn component directly instead of StackHandler
   // This should avoid the startsWith error in the Stack Auth library
+  const { isAuthenticated, isLoading } = useAuth();
+  
+  // Redirect to /app if user is already authenticated
+  React.useEffect(() => {
+    if (isAuthenticated && !isLoading) {
+      console.log('🔍 HandlerRoutes: User is authenticated, redirecting to /app');
+      window.location.href = '/app';
+    }
+  }, [isAuthenticated, isLoading]);
+  
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="max-w-md w-full bg-white shadow-lg rounded-lg p-6">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="max-w-md w-full bg-white shadow-lg rounded-lg p-6">
-        <SignIn />
+        <SignIn 
+          afterSignInUrl="/app"
+          afterSignUpUrl="/app"
+        />
       </div>
     </div>
   );
