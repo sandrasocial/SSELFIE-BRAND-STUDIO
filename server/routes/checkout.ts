@@ -422,7 +422,7 @@ async function triggerPostPurchaseAutomation(userId: string, plan: string) {
       await storage.saveOnboardingData({
         userId,
         currentStep: plan === 'basic' ? 1 : 2,
-        brandVibe: '',
+        brandVoice: '',
         targetClient: '',
         businessGoal: '',
         completedSteps: [],
