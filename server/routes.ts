@@ -1011,7 +1011,7 @@ function generatePersonalizedScenePrompt(sceneNumber: number, originalMessage: s
 
       // Get user's LoRA model for personalization
       const userModel = await storage.getUserModel(userId);
-      if (!userModel || userModel.status !== 'completed') {
+      if (!userModel || userModel.trainingStatus !== 'completed') {
         return res.status(400).json({ 
           error: 'User training required',
           message: 'Please complete your model training before generating personalized videos'

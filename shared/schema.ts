@@ -1521,7 +1521,7 @@ export const conceptCards = pgTable("concept_cards", {
   title: varchar("title").notNull(),
   description: text("description"),
   images: jsonb("images").default('[]'), // Array of image URLs
-  tags: text("tags").array().default('{}'), // String array for tags
+  tags: text("tags").array().default([]), // String array for tags
   status: varchar("status").default("draft"), // draft, final
   sortOrder: integer("sort_order").default(0),
   generatedImages: jsonb("generated_images"), // Generated image URLs
