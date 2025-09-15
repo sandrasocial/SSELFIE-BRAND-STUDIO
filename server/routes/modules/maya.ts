@@ -31,7 +31,7 @@ router.get('/api/maya-chats/:chatId', requireStackAuth, asyncHandler(async (req:
 router.post('/api/maya-chat', requireStackAuth, asyncHandler(async (req: any, res) => {
   const userId = req.user.id;
   const { message, chatHistory } = req.body;
-  validateRequired({ message });
+  validateRequired({ message }, ['message']);
 
   // Mock implementation - replace with actual maya service
   const response = {
@@ -70,11 +70,11 @@ router.post('/api/maya-chats/:chatId/messages', requireStackAuth, asyncHandler(a
   const userId = req.user.id;
   const { chatId } = req.params;
   const { message } = req.body;
-  validateRequired({ message });
+  validateRequired({ message }, ['message']);
 
   // Mock implementation - replace with actual maya service
   const messageId = `msg_${Date.now()}`;
-  sendSuccess(res, { messageId, message: 'Message sent successfully' }, 201);
+  sendSuccess(res, { messageId, message: 'Message sent successfully' }, 'Message sent successfully', 201);
 }));
 
 // Update message
@@ -94,7 +94,7 @@ router.post('/api/maya-chats', requireStackAuth, asyncHandler(async (req: any, r
 
   // Mock implementation - replace with actual maya service
   const chatId = `chat_${Date.now()}`;
-  sendSuccess(res, { chatId, message: 'New Maya chat created' }, 201);
+  sendSuccess(res, { chatId, message: 'New Maya chat created' }, 'New Maya chat created', 201);
 }));
 
 export default router;

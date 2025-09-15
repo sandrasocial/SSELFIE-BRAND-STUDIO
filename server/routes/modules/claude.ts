@@ -11,7 +11,7 @@ const router = Router();
 // Send message to Claude
 router.post('/api/claude/chat', asyncHandler(async (req: any, res) => {
   const { message, conversationId, agentId } = req.body;
-  validateRequired({ message });
+  validateRequired({ message }, ['message']);
 
   // Mock implementation - replace with actual Claude service
   const response = "Hello! I'm Claude, your AI assistant. How can I help you today?";

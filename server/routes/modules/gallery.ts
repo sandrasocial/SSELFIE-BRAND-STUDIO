@@ -43,11 +43,11 @@ router.post('/api/gallery/save', requireStackAuth, asyncHandler(async (req: any,
 router.post('/api/gallery/generate', requireStackAuth, asyncHandler(async (req: any, res) => {
   const userId = req.user.id;
   const { prompt, style, count } = req.body;
-  validateRequired({ prompt });
+  validateRequired({ prompt }, ['prompt']);
 
   // Mock implementation - replace with actual generation service
   const jobId = `gen_${Date.now()}`;
-  sendSuccess(res, { jobId, message: 'Image generation started' }, 202);
+  sendSuccess(res, { jobId, message: 'Image generation started' }, 'Image generation started', 202);
 }));
 
 // Get gallery by category
@@ -113,22 +113,22 @@ router.get('/api/gallery/prediction/:predictionId', requireStackAuth, asyncHandl
 router.post('/api/gallery/concept', requireStackAuth, asyncHandler(async (req: any, res) => {
   const userId = req.user.id;
   const { concept, style, count } = req.body;
-  validateRequired({ concept });
+  validateRequired({ concept }, ['concept']);
 
   // Mock implementation - replace with actual concept service
   const jobId = `concept_${Date.now()}`;
-  sendSuccess(res, { jobId, message: 'Concept generation started' }, 202);
+  sendSuccess(res, { jobId, message: 'Concept generation started' }, 'Concept generation started', 202);
 }));
 
 // Generate style images
 router.post('/api/gallery/style', requireStackAuth, asyncHandler(async (req: any, res) => {
   const userId = req.user.id;
   const { style, count } = req.body;
-  validateRequired({ style });
+  validateRequired({ style }, ['style']);
 
   // Mock implementation - replace with actual style service
   const jobId = `style_${Date.now()}`;
-  sendSuccess(res, { jobId, message: 'Style generation started' }, 202);
+  sendSuccess(res, { jobId, message: 'Style generation started' }, 'Style generation started', 202);
 }));
 
 export default router;
