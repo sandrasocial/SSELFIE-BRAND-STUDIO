@@ -19,16 +19,5 @@
       "src": "/(.*)",
       "dest": "/client/dist/index.html"
     }
-  ],
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "X-Frame-Options",
-          "value": "DENY"
-        }
-      ]
-    }
   ]
 }
