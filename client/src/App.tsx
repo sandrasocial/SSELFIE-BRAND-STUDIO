@@ -254,21 +254,22 @@ function HandlerRoutes({ params }: { params: { [key: string]: string } }) {
     );
   }
   
+  // For Stack Auth, we need to redirect to the hosted sign-in page
+  // The OAuth callback will be handled by Stack Auth's hosted pages
+  React.useEffect(() => {
+    console.log('🔍 HandlerRoutes: Redirecting to Stack Auth hosted sign-in');
+    // Use Stack Auth's hosted sign-in URL
+    const hostedSignInUrl = `https://app.stack-auth.com/${STACK_PROJECT_ID}/sign-in`;
+    window.location.href = hostedSignInUrl;
+  }, []);
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="max-w-md w-full bg-white shadow-lg rounded-lg p-6">
-        <SignIn 
-          afterSignInUrl="/app"
-          afterSignUpUrl="/app"
-          onSuccess={() => {
-            console.log('🔍 HandlerRoutes: SignIn onSuccess callback triggered');
-            // Force redirect after successful authentication
-            setTimeout(() => {
-              console.log('🔍 HandlerRoutes: Forcing redirect to /app');
-              window.location.href = '/app';
-            }, 500);
-          }}
-        />
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Redirecting to sign in...</p>
+        </div>
       </div>
     </div>
   );
