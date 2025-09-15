@@ -48,11 +48,11 @@ router.post('/api/maya-chat', requireStackAuth, asyncHandler(async (req: any, re
 router.post('/api/maya-generate', requireStackAuth, asyncHandler(async (req: any, res) => {
   const userId = req.user.id;
   const { prompt, style, count } = req.body;
-  validateRequired({ prompt });
+  validateRequired({ prompt }, ['prompt']);
 
   // Mock implementation - replace with actual generation service
   const jobId = `maya_${Date.now()}`;
-  sendSuccess(res, { jobId, message: 'Maya generation started' }, 202);
+  sendSuccess(res, { jobId, message: 'Maya generation started' }, 'Maya generation started', 202);
 }));
 
 // Get Maya chat history

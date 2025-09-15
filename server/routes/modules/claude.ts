@@ -39,17 +39,17 @@ router.get('/api/claude/conversation/:conversationId', asyncHandler(async (req: 
 // Create new conversation
 router.post('/api/claude/conversation', asyncHandler(async (req: any, res) => {
   const { agentId, title } = req.body;
-  validateRequired({ agentId });
+  validateRequired({ agentId }, ['agentId']);
 
   // Mock implementation - replace with actual Claude service
   const conversationId = `conv_${Date.now()}`;
-  sendSuccess(res, { conversationId, message: 'Conversation created successfully' }, 201);
+  sendSuccess(res, { conversationId, message: 'Conversation created successfully' }, 'Conversation created successfully', 201);
 }));
 
 // End conversation
 router.post('/api/claude/conversation/end', asyncHandler(async (req: any, res) => {
   const { conversationId } = req.body;
-  validateRequired({ conversationId });
+  validateRequired({ conversationId }, ['conversationId']);
 
   // Mock implementation - replace with actual Claude service
   sendSuccess(res, { message: 'Conversation ended successfully' });

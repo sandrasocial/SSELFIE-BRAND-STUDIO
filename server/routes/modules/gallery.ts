@@ -21,22 +21,22 @@ router.get('/api/gallery', requireStackAuth, asyncHandler(async (req: any, res) 
 router.post('/api/gallery/upload', requireStackAuth, asyncHandler(async (req: any, res) => {
   const userId = req.user.id;
   const { imageUrl, metadata } = req.body;
-  validateRequired({ imageUrl });
+  validateRequired({ imageUrl }, ['imageUrl']);
 
   // Mock implementation - replace with actual upload service
   const imageId = `img_${Date.now()}`;
-  sendSuccess(res, { imageId, message: 'Image uploaded successfully' }, 201);
+  sendSuccess(res, { imageId, message: 'Image uploaded successfully' }, 'Image uploaded successfully', 201);
 }));
 
 // Save image to gallery
 router.post('/api/gallery/save', requireStackAuth, asyncHandler(async (req: any, res) => {
   const userId = req.user.id;
   const { imageUrl, prompt, style } = req.body;
-  validateRequired({ imageUrl });
+  validateRequired({ imageUrl }, ['imageUrl']);
 
   // Mock implementation - replace with actual save service
   const imageId = `img_${Date.now()}`;
-  sendSuccess(res, { imageId, message: 'Image saved to gallery' }, 201);
+  sendSuccess(res, { imageId, message: 'Image saved to gallery' }, 'Image saved to gallery', 201);
 }));
 
 // Generate gallery image

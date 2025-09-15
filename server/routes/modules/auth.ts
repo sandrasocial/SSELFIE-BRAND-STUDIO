@@ -14,7 +14,7 @@ const router = Router();
 // Get current user
 router.get('/api/auth/user', requireStackAuth, asyncHandler(async (req: any, res) => {
   const userId = req.user.id;
-  const user = await userService.getUserById(userId);
+  const user = await userService.getUser(userId);
 
   if (!user) {
     throw createError.notFound('User not found');
@@ -29,7 +29,7 @@ router.get('/api/auth/user', requireStackAuth, asyncHandler(async (req: any, res
 // Auto-register user
 router.post('/api/auth/auto-register', asyncHandler(async (req: any, res) => {
   const { email, name } = req.body;
-  validateRequired({ email });
+  validateRequired({ email }, ['email']);
 
   let existingUser = await userService.getUserByEmail(email);
 
@@ -40,8 +40,7 @@ router.post('/api/auth/auto-register', asyncHandler(async (req: any, res) => {
     });
   }
 
-  const newUser = await userService.createUser({
-    email,
+  const newUser = await userService.createUser(email, {
     displayName: name || email.split('@')[0],
   });
 
@@ -68,7 +67,7 @@ router.post('/api/user/update-gender', requireStackAuth, asyncHandler(async (req
 // Get user profile
 router.get('/api/profile', requireStackAuth, asyncHandler(async (req: any, res) => {
   const userId = req.user.id;
-  const user = await userService.getUserById(userId);
+  const user = await userService.getUser(userId);
 
   if (!user) {
     throw createError.notFound('User not found');
