@@ -26,4 +26,11 @@ export const stackClientApp = new StackClientApp({
   projectId: STACK_PROJECT_ID,
   publishableClientKey: STACK_PUBLISHABLE_CLIENT_KEY,
   tokenStore: "cookie",
+  urls: {
+    signIn: "/handler/sign-in",
+    signUp: "/handler/sign-up",
+    afterSignIn: "/app",
+    afterSignUp: "/app",
+    afterSignOut: "/",
+  },
 });
