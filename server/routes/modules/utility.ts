@@ -6,12 +6,13 @@
 import { Router } from 'express';
 import * as path from 'path';
 import * as fs from 'fs';
+import { asyncHandler, createError, sendSuccess } from '../middleware/error-handler';
 
 const router = Router();
 
 // Health check endpoints
 router.get('/health', (req, res) => {
-  res.status(200).json({
+  sendSuccess(res, {
     status: 'healthy',
     service: 'SSELFIE Studio',
     timestamp: new Date().toISOString(),
@@ -19,7 +20,7 @@ router.get('/health', (req, res) => {
 });
 
 router.get('/api/health', (req, res) => {
-  res.status(200).json({
+  sendSuccess(res, {
     status: 'healthy',
     timestamp: new Date().toISOString(),
     env: process.env.NODE_ENV || 'development'
@@ -32,13 +33,13 @@ router.get('/', (req, res) => {
 });
 
 // Training zip download
-router.get("/training-zip/:filename", (req, res) => {
+router.get("/training-zip/:filename", asyncHandler(async (req, res) => {
   const filename = req.params.filename;
   const filePath = path.join(process.cwd(), 'training-zips', filename);
   
   // Check if file exists
   if (!fs.existsSync(filePath)) {
-    return res.status(404).json({ error: 'File not found' });
+    throw createError.notFound('Training file not found');
   }
   
   // Set appropriate headers
@@ -51,8 +52,8 @@ router.get("/training-zip/:filename", (req, res) => {
   
   fileStream.on('error', (error) => {
     console.error('Error streaming file:', error);
-    res.status(500).json({ error: 'Error streaming file' });
+    throw createError.internal('Error streaming file', { filename });
   });
-});
+}));
 
 export default router;

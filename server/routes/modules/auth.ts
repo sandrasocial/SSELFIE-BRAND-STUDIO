@@ -7,17 +7,17 @@ import { Router } from 'express';
 import { requireStackAuth } from '../middleware/auth';
 import { storage } from '../../storage';
 import { asyncHandler, createError, sendSuccess, validateRequired } from '../middleware/error-handler';
+import { userService } from '../../services/user-service';
 
 const router = Router();
 
 // Get current user
-router.get('/api/auth/user', requireStackAuth, async (req: any, res) => {
-  try {
+router.get('
     const userId = req.user.id;
     const user = await storage.getUser(userId);
     
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      throw createError.notFound("User not found");
     }
     
     res.json({
@@ -26,19 +26,16 @@ router.get('/api/auth/user', requireStackAuth, async (req: any, res) => {
       createdAt: user.createdAt,
       // Add other user fields as needed
     });
-  } catch (error) {
-    console.error('Error fetching user:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
+  ', requireStackAuth, asyncHandler(async (req, res) => {
+console.error('Error fetching user:', error);
+}));
 
 // Auto-register user
-router.post('/api/auth/auto-register', async (req: any, res) => {
-  try {
+router.post('
     const { email, name } = req.body;
     
     if (!email) {
-      return res.status(400).json({ error: 'Email is required' });
+      throw createError.validation("Email is required");
     }
     
     // Check if user already exists
@@ -62,11 +59,9 @@ router.post('/api/auth/auto-register', async (req: any, res) => {
       message: 'User created successfully',
       userId: newUser.id
     });
-  } catch (error) {
-    console.error('Error auto-registering user:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
+  ', asyncHandler(async (req, res) => {
+console.error('Error auto-registering user:', error);
+}));
 
 // Test authentication
 router.get('/api/test-auth', requireStackAuth, async (req: any, res) => {
@@ -78,33 +73,29 @@ router.get('/api/test-auth', requireStackAuth, async (req: any, res) => {
 });
 
 // Update user gender
-router.post('/api/user/update-gender', requireStackAuth, async (req: any, res) => {
-  try {
+router.post('
     const { gender } = req.body;
     const userId = req.user.id;
     
     if (!gender) {
-      return res.status(400).json({ error: 'Gender is required' });
+      throw createError.validation("Gender is required");
     }
     
     // Update user gender
     await storage.updateUserProfile(userId, { gender });
     
     res.json({ message: 'Gender updated successfully' });
-  } catch (error) {
-    console.error('Error updating gender:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
+  ', requireStackAuth, asyncHandler(async (req, res) => {
+console.error('Error updating gender:', error);
+}));
 
 // Get user profile
-router.get('/api/profile', requireStackAuth, async (req: any, res) => {
-  try {
+router.get('
     const userId = req.user.id;
     const user = await storage.getUser(userId);
     
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      throw createError.notFound("User not found");
     }
     
     res.json({
@@ -115,15 +106,12 @@ router.get('/api/profile', requireStackAuth, async (req: any, res) => {
       createdAt: user.createdAt,
       // Add other profile fields
     });
-  } catch (error) {
-    console.error('Error fetching profile:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
+  ', requireStackAuth, asyncHandler(async (req, res) => {
+console.error('Error fetching profile:', error);
+}));
 
 // Update user profile
-router.put('/api/profile', requireStackAuth, async (req: any, res) => {
-  try {
+router.put('
     const userId = req.user.id;
     const updates = req.body;
     
@@ -137,17 +125,15 @@ router.put('/api/profile', requireStackAuth, async (req: any, res) => {
       }, {} as any);
     
     if (Object.keys(filteredUpdates).length === 0) {
-      return res.status(400).json({ error: 'No valid fields to update' });
+      throw createError.validation("No valid fields to update");
     }
     
     // Update user
     await storage.updateUserProfile(userId, filteredUpdates);
     
     res.json({ message: 'Profile updated successfully' });
-  } catch (error) {
-    console.error('Error updating profile:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
+  ', requireStackAuth, asyncHandler(async (req, res) => {
+console.error('Error updating profile:', error);
+}));
 
 export default router;

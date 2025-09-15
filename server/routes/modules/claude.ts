@@ -6,99 +6,70 @@
 import { Router } from 'express';
 import { requireStackAuth } from '../middleware/auth';
 
+import { asyncHandler, createError, sendSuccess, validateRequired } from '../middleware/error-handler';
 const router = Router();
 
 // Claude Conversation Routes
-router.post('/api/claude/send-message', async (req: any, res) => {
-  try {
+router.post('
     const { message, conversationId, agentId } = req.body;
 
     if (!message) {
-      return res.status(400).json({ error: 'Message is required' });
+      throw createError.validation("Message is required");
     }
 
     // TODO: Implement Claude message sending
-    res.json({
-      success: true,
-      message: 'Claude message sent',
+    sendSuccess(res, {message: 'Claude message sent',
       response: 'Claude response placeholder',
-      conversationId: conversationId || `conv_${Date.now()}`
-    });
-  } catch (error) {
-    console.error('Error sending Claude message:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
+      conversationId: conversationId || `conv_${Date.now()}`});
+  ', asyncHandler(async (req, res) => {
+console.error('Error sending Claude message:', error);
+}));
 
-router.get('/api/claude/conversations/:agentId', async (req: any, res) => {
-  try {
+router.get('
     const { agentId } = req.params;
 
     // TODO: Implement conversations listing
-    res.json({
-      success: true,
-      agentId,
+    sendSuccess(res, {agentId,
       conversations: [],
-      count: 0
-    });
-  } catch (error) {
-    console.error('Error fetching conversations:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
+      count: 0});
+  ', asyncHandler(async (req, res) => {
+console.error('Error fetching conversations:', error);
+}));
 
-router.get('/api/claude/conversation/:conversationId/history', async (req: any, res) => {
-  try {
+router.get('
     const { conversationId } = req.params;
 
     // TODO: Implement conversation history
-    res.json({
-      success: true,
-      conversationId,
+    sendSuccess(res, {conversationId,
       history: [],
-      count: 0
-    });
-  } catch (error) {
-    console.error('Error fetching conversation history:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
+      count: 0});
+  ', asyncHandler(async (req, res) => {
+console.error('Error fetching conversation history:', error);
+}));
 
-router.post('/api/claude/conversation/new', async (req: any, res) => {
-  try {
+router.post('
     const { agentId, title } = req.body;
 
     // TODO: Implement new conversation creation
-    res.json({
-      success: true,
-      message: 'New conversation created',
+    sendSuccess(res, {message: 'New conversation created',
       conversationId: `conv_${Date.now()}`,
-      agentId
-    });
-  } catch (error) {
-    console.error('Error creating new conversation:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
+      agentId});
+  ', asyncHandler(async (req, res) => {
+console.error('Error creating new conversation:', error);
+}));
 
-router.post('/api/claude/conversation/clear', async (req: any, res) => {
-  try {
+router.post('
     const { conversationId } = req.body;
 
     if (!conversationId) {
-      return res.status(400).json({ error: 'Conversation ID is required' });
+      throw createError.validation("Conversation ID is required");
     }
 
     // TODO: Implement conversation clearing
-    res.json({
-      success: true,
-      message: 'Conversation cleared',
-      conversationId
-    });
-  } catch (error) {
-    console.error('Error clearing conversation:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
+    sendSuccess(res, {message: 'Conversation cleared',
+      conversationId});
+  ', asyncHandler(async (req, res) => {
+console.error('Error clearing conversation:', error);
+}));
 
 export default router;
