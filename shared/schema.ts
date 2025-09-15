@@ -997,9 +997,45 @@ export const websiteBuilderConversations = pgTable('website_builder_conversation
 });
 
 // BUILD feature insert schemas
-export const insertUserWebsiteOnboardingSchema = createInsertSchema(userWebsiteOnboarding).omit({ id: true, createdAt: true, updatedAt: true });
-export const insertUserGeneratedWebsitesSchema = createInsertSchema(userGeneratedWebsites).omit({ id: true, createdAt: true, updatedAt: true, publishedAt: true });
-export const insertWebsiteBuilderConversationsSchema = createInsertSchema(websiteBuilderConversations).omit({ id: true, createdAt: true, updatedAt: true, lastActivity: true });
+export const insertUserWebsiteOnboardingSchema = z.object({
+  userId: z.string(),
+  personalBrandName: z.string().optional(),
+  story: z.string().optional(),
+  businessType: z.string().optional(),
+  colorPreferences: z.record(z.any()).default({}),
+  targetAudience: z.string().optional(),
+  brandKeywords: z.array(z.string()).default([]),
+  goals: z.string().optional(),
+  currentStep: z.string().default('story'),
+  isCompleted: z.boolean().default(false)
+});
+
+export const insertUserGeneratedWebsitesSchema = z.object({
+  userId: z.string(),
+  onboardingId: z.number().optional(),
+  title: z.string(),
+  subdomain: z.string().optional(),
+  htmlContent: z.string(),
+  cssContent: z.string(),
+  jsContent: z.string().default(''),
+  metadata: z.record(z.any()).default({}),
+  isPublished: z.boolean().default(false),
+  status: z.string().default('draft'),
+  templateUsed: z.string().optional(),
+  customizations: z.record(z.any()).default({}),
+  analytics: z.record(z.any()).default({}),
+  seoScore: z.number().default(0)
+});
+
+export const insertWebsiteBuilderConversationsSchema = z.object({
+  userId: z.string(),
+  websiteId: z.number().optional(),
+  onboardingId: z.number().optional(),
+  messages: z.array(z.any()).default([]),
+  context: z.record(z.any()).default({}),
+  isActive: z.boolean().default(true),
+  conversationType: z.string().default('onboarding')
+});
 
 // BUILD feature type exports
 export type UserWebsiteOnboarding = typeof userWebsiteOnboarding.$inferSelect;
@@ -1123,28 +1159,65 @@ export const agentBudgets = pgTable("agent_budgets", {
 });
 
 // Additional Agent Learning Schemas
-export const insertAgentKnowledgeBaseSchemaOnly = createInsertSchema(agentKnowledgeBase);
-export type InsertAgentKnowledgeBaseOnly = z.infer<typeof insertAgentKnowledgeBaseSchemaOnly>;
-export type AgentKnowledgeBaseType = typeof agentKnowledgeBase.$inferSelect;
+export const insertAgentKnowledgeBaseSchema = z.object({
+  agentId: z.string(),
+  topic: z.string(),
+  content: z.string(),
+  source: z.string(),
+  confidence: z.number(),
+  tags: z.array(z.string()).optional()
+});
 
-export const insertAgentKnowledgeBaseSchema = createInsertSchema(agentKnowledgeBase);
+export const insertAgentPerformanceMetricsSchema = z.object({
+  agentId: z.string(),
+  taskType: z.string(),
+  successRate: z.number(),
+  averageTime: z.number().default(0),
+  userSatisfactionScore: z.number().default(0),
+  totalTasks: z.number().default(0),
+  improvementTrend: z.string().default('stable')
+});
+
+export const insertAgentTrainingSessionsSchema = z.object({
+  agentId: z.string(),
+  sessionType: z.string(),
+  trainingData: z.record(z.any()),
+  improvements: z.string().optional(),
+  performanceGain: z.number().optional(),
+  trainedBy: z.string().optional()
+});
+
 export type InsertAgentKnowledgeBase = z.infer<typeof insertAgentKnowledgeBaseSchema>;
 export type AgentKnowledgeBase = typeof agentKnowledgeBase.$inferSelect;
-
-export const insertAgentPerformanceMetricsSchema = createInsertSchema(agentPerformanceMetrics);
 export type InsertAgentPerformanceMetrics = z.infer<typeof insertAgentPerformanceMetricsSchema>;
 export type AgentPerformanceMetrics = typeof agentPerformanceMetrics.$inferSelect;
-
-export const insertAgentTrainingSessionsSchema = createInsertSchema(agentTrainingSessions);
 export type InsertAgentTrainingSession = z.infer<typeof insertAgentTrainingSessionsSchema>;
 export type AgentTrainingSession = typeof agentTrainingSessions.$inferSelect;
 
 // Cost tracking type exports
-export const insertAgentCostTrackingSchema = createInsertSchema(agentCostTracking);
+export const insertAgentCostTrackingSchema = z.object({
+  userId: z.string(),
+  agentId: z.string(),
+  conversationId: z.string().optional(),
+  apiCalls: z.number().default(0),
+  tokensUsed: z.number().default(0),
+  estimatedCost: z.number().default(0),
+  taskType: z.string().optional()
+});
+
+export const insertAgentBudgetsSchema = z.object({
+  userId: z.string(),
+  agentId: z.string().optional(),
+  budgetType: z.string(),
+  budgetLimit: z.number(),
+  currentSpend: z.number().default(0),
+  isActive: z.boolean().default(true),
+  resetDate: z.date().optional(),
+  alertThreshold: z.number().default(80)
+});
+
 export type InsertAgentCostTracking = z.infer<typeof insertAgentCostTrackingSchema>;
 export type AgentCostTracking = typeof agentCostTracking.$inferSelect;
-
-export const insertAgentBudgetsSchema = createInsertSchema(agentBudgets);
 export type InsertAgentBudgets = z.infer<typeof insertAgentBudgetsSchema>;
 export type AgentBudgets = typeof agentBudgets.$inferSelect;
 
@@ -1204,15 +1277,50 @@ export const agentSessions = pgTable("agent_sessions", {
 });
 
 // Approval workflow type exports
-export const insertApprovalQueueSchema = createInsertSchema(approvalQueue);
+export const insertApprovalQueueSchema = z.object({
+  userId: z.string(),
+  agentId: z.string(),
+  contentType: z.string(),
+  contentTitle: z.string(),
+  contentPreview: z.string(),
+  fullContent: z.record(z.any()),
+  targetAudience: z.string().optional(),
+  impactLevel: z.string().default("medium"),
+  estimatedCost: z.number().optional(),
+  status: z.string().default("pending"),
+  adminComments: z.string().optional(),
+  originalConversationId: z.string().optional(),
+  reviewedAt: z.date().optional(),
+  approvedBy: z.string().optional()
+});
+
+export const insertAgentHandoffRequestsSchema = z.object({
+  fromAgentId: z.string(),
+  toTargetType: z.string(),
+  toTargetId: z.string().optional(),
+  requestType: z.string(),
+  contextSummary: z.string(),
+  urgencyLevel: z.string().default("normal"),
+  conversationId: z.string().optional(),
+  originalTask: z.string().optional(),
+  currentProgress: z.record(z.any()).optional(),
+  status: z.string().default("pending"),
+  responseRequired: z.boolean().default(true),
+  respondedAt: z.date().optional()
+});
+
+export const insertAgentSessionsSchema = z.object({
+  agentId: z.string(),
+  userId: z.string(),
+  conversationId: z.string().optional(),
+  status: z.string().default("active"),
+  endedAt: z.date().optional()
+});
+
 export type InsertApprovalQueue = z.infer<typeof insertApprovalQueueSchema>;
 export type ApprovalQueue = typeof approvalQueue.$inferSelect;
-
-export const insertAgentHandoffRequestsSchema = createInsertSchema(agentHandoffRequests);
 export type InsertAgentHandoffRequests = z.infer<typeof insertAgentHandoffRequestsSchema>;
 export type AgentHandoffRequests = typeof agentHandoffRequests.$inferSelect;
-
-export const insertAgentSessionsSchema = createInsertSchema(agentSessions);
 export type InsertAgentSessions = z.infer<typeof insertAgentSessionsSchema>;
 export type AgentSessions = typeof agentSessions.$inferSelect;
 
@@ -1430,21 +1538,143 @@ export const conceptCards = pgTable("concept_cards", {
 ]);
 
 // Insert schemas for missing tables
-export const insertArchitectureAuditLogSchema = createInsertSchema(architectureAuditLog).omit({ id: true, auditDate: true });
-export const insertBrandbookSchema = createInsertSchema(brandbooks).omit({ id: true, createdAt: true, updatedAt: true });
-export const insertDashboardSchema = createInsertSchema(dashboards).omit({ id: true, createdAt: true, updatedAt: true });
-export const insertInspirationPhotoSchema = createInsertSchema(inspirationPhotos).omit({ id: true, createdAt: true });
-export const insertModelRecoveryLogSchema = createInsertSchema(modelRecoveryLog).omit({ id: true, createdAt: true });
-export const insertSandraConversationSchema = createInsertSchema(sandraConversations).omit({ id: true, createdAt: true });
-export const insertSavedPromptSchema = createInsertSchema(savedPrompts).omit({ id: true, createdAt: true });
-export const insertUserStyleEvolutionSchema = createInsertSchema(userStyleEvolution).omit({ id: true, createdAt: true, lastAdaptation: true });
-export const insertMayaContextSessionSchema = createInsertSchema(mayaContextSessions).omit({ id: true, sessionStarted: true, lastInteraction: true });
+export const insertArchitectureAuditLogSchema = z.object({
+  totalUsers: z.number().optional(),
+  compliantUsers: z.number().optional(),
+  violationsFound: z.array(z.string()).optional(),
+  violationsFixed: z.array(z.string()).optional(),
+  auditStatus: z.string().optional()
+});
+
+export const insertBrandbookSchema = z.object({
+  userId: z.string(),
+  businessName: z.string(),
+  tagline: z.string().optional(),
+  story: z.string().optional(),
+  primaryFont: z.string().default("Times New Roman"),
+  secondaryFont: z.string().default("Inter"),
+  primaryColor: z.string().default("#0a0a0a"),
+  secondaryColor: z.string().default("#ffffff"),
+  accentColor: z.string().default("#f5f5f5"),
+  logoType: z.string(),
+  logoUrl: z.string().optional(),
+  logoPrompt: z.string().optional(),
+  moodboardStyle: z.string(),
+  voiceTone: z.string().optional(),
+  voicePersonality: z.string().optional(),
+  keyPhrases: z.string().optional(),
+  isPublished: z.boolean().default(false),
+  brandbookUrl: z.string().optional(),
+  templateType: z.string().default("minimal-executive"),
+  customDomain: z.string().optional(),
+  isLive: z.boolean().default(false)
+});
+
+export const insertDashboardSchema = z.object({
+  userId: z.string(),
+  config: z.record(z.any()),
+  onboardingData: z.record(z.any()).optional(),
+  templateType: z.string(),
+  quickLinks: z.record(z.any()).optional(),
+  customUrl: z.string().optional(),
+  isPublished: z.boolean().default(false),
+  backgroundColor: z.string().default("#ffffff"),
+  accentColor: z.string().default("#0a0a0a"),
+  isLive: z.boolean().default(false)
+});
+
+export const insertInspirationPhotoSchema = z.object({
+  userId: z.string(),
+  imageUrl: z.string(),
+  description: z.string().optional(),
+  tags: z.record(z.any()).optional(),
+  source: z.string().default("upload"),
+  isActive: z.boolean().default(true)
+});
+
+export const insertModelRecoveryLogSchema = z.object({
+  userId: z.string(),
+  oldModelId: z.string().optional(),
+  newModelId: z.string().optional(),
+  recoveryStatus: z.string().optional()
+});
+
+export const insertSandraConversationSchema = z.object({
+  userId: z.string(),
+  message: z.string(),
+  response: z.string(),
+  userStylePreferences: z.record(z.any()).optional(),
+  suggestedPrompt: z.string().optional()
+});
+
+export const insertSavedPromptSchema = z.object({
+  userId: z.string(),
+  name: z.string(),
+  description: z.string().optional(),
+  prompt: z.string(),
+  camera: z.string().optional(),
+  texture: z.string().optional(),
+  collection: z.string().optional()
+});
+
+export const insertUserStyleEvolutionSchema = z.object({
+  userId: z.string(),
+  learningProgress: z.record(z.any()).default({}),
+  styleEvolutionPath: z.array(z.any()).default([]),
+  feedbackPatterns: z.record(z.any()).default({}),
+  contextualPreferences: z.record(z.any()).default({}),
+  trendAdaptation: z.record(z.any()).default({}),
+  culturalContext: z.record(z.any()).default({}),
+  sustainabilityPreferences: z.record(z.any()).default({})
+});
+
+export const insertMayaContextSessionSchema = z.object({
+  userId: z.string(),
+  sessionId: z.string(),
+  currentMood: z.string().optional(),
+  stylingGoals: z.array(z.any()).default([]),
+  contextualCues: z.record(z.any()).default({}),
+  adaptationTriggers: z.array(z.any()).default([])
+});
 
 // New hybrid backend insert schemas
-export const insertConversationSchema = createInsertSchema(conversations).omit({ id: true, createdAt: true, updatedAt: true });
-export const insertMessageSchema = createInsertSchema(messages).omit({ id: true, createdAt: true });
-export const insertConversationSummarySchema = createInsertSchema(conversationSummaries).omit({ id: true, updatedAt: true });
-export const insertConceptCardSchema = createInsertSchema(conceptCards).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertConversationSchema = z.object({
+  userId: z.string(),
+  agentName: z.string().default("maya"),
+  title: z.string().optional(),
+  status: z.string().default("active")
+});
+
+export const insertMessageSchema = z.object({
+  conversationId: z.string(),
+  role: z.string(),
+  content: z.string(),
+  meta: z.record(z.any()).optional(),
+  tokenCount: z.number().default(0)
+});
+
+export const insertConversationSummarySchema = z.object({
+  conversationId: z.string(),
+  summary: z.string(),
+  lastMessageId: z.string().optional(),
+  messageCount: z.number().default(0)
+});
+
+export const insertConceptCardSchema = z.object({
+  userId: z.string(),
+  conversationId: z.string().optional(),
+  clientId: z.string().optional(),
+  title: z.string(),
+  description: z.string().optional(),
+  images: z.array(z.any()).default([]),
+  tags: z.array(z.string()).default([]),
+  status: z.string().default("draft"),
+  sortOrder: z.number().default(0),
+  generatedImages: z.record(z.any()).optional(),
+  isLoading: z.boolean().default(false),
+  isGenerating: z.boolean().default(false),
+  hasGenerated: z.boolean().default(false)
+});
 
 // Type exports for missing tables
 export type ArchitectureAuditLog = typeof architectureAuditLog.$inferSelect;
