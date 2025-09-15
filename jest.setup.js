@@ -1,6 +1,4 @@
 // Jest setup file for Phase 6 Testing Framework
-import { createRequire } from 'module';
-global.require = createRequire(import.meta.url);
 
 // Mock environment variables for testing
 process.env.NODE_ENV = 'test';

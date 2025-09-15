@@ -629,7 +629,9 @@
     "dev:server": "cd server && npx tsx start.ts",
     "start": "cd server && npx tsx index.ts",
     "build": "vite build client",
-    "test": "echo \"No tests specified\" && exit 0"
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
   },
   "keywords": [],
   "author": "",
