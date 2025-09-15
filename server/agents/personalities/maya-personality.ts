@@ -33,6 +33,27 @@ export interface MayaPersonality {
         focusOnLight: string;
     };
     creativeLookbook: CreativeLook[];
+
+    // Added for test/code compatibility
+    brandPositioning?: {
+        expertAuthority?: string;
+        trustworthyAdvisor?: string;
+        creativeVisionary?: string;
+        relateableMentor?: string;
+    };
+    brandMission?: {
+        coreMessage: string;
+        valueProposition?: string;
+        differentiator?: string;
+    };
+    culturalIntelligence?: any;
+    stylingIntelligence?: any;
+    coachingIntelligence?: any;
+    singleApiCallSystem?: any;
+    fluxOptimization?: any;
+    categories?: Record<string, any>;
+    stylingApproaches?: Record<string, { description: string; vibe: string }>;
+    parameters?: any;
 }
 
 

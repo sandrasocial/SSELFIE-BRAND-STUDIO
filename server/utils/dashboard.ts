@@ -113,15 +113,12 @@ export interface DashboardData {
   };
   system: {
     memory: {
-      used: number;
-      total: number;
-      percentage: number;
-      trend: 'increasing' | 'decreasing' | 'stable';
-    };
-    cpu: {
-      usage: number;
-      loadAverage: number[];
-      trend: 'increasing' | 'decreasing' | 'stable';
+  used: number;
+  total: number;
+  percentage: number;
+  usage: number;
+  loadAverage: number[];
+  trend: 'increasing' | 'decreasing' | 'stable';
     };
     disk: {
       used: number;
@@ -184,17 +181,17 @@ export interface DashboardData {
 
 export class DashboardSystem {
   private logger: Logger;
-  private isEnabled: boolean;
+  private _isEnabled: boolean;
   private updateInterval: NodeJS.Timeout | null;
   private lastUpdate: Date | null;
   private cachedData: DashboardData | null;
 
   constructor() {
-    this.logger = new Logger('DashboardSystem');
-    this.isEnabled = true;
-    this.updateInterval = null;
-    this.lastUpdate = null;
-    this.cachedData = null;
+  this.logger = new Logger('DashboardSystem');
+  this._isEnabled = true;
+  this.updateInterval = null;
+  this.lastUpdate = null;
+  this.cachedData = null;
   }
 
   /**
@@ -287,8 +284,8 @@ export class DashboardSystem {
             total: performanceStats.totalRequests,
             rate: performanceStats.throughput,
             averageResponseTime: performanceStats.averageResponseTime,
-            p95ResponseTime: performanceStats.p95ResponseTime,
-            p99ResponseTime: performanceStats.p99ResponseTime,
+            p95ResponseTime: performanceStats.maxResponseTime ?? 0,
+            p99ResponseTime: performanceStats.maxResponseTime ?? 0,
           },
           throughput: {
             requestsPerMinute: realTimeSummary.requestsPerMinute,
@@ -298,14 +295,21 @@ export class DashboardSystem {
           responseTime: {
             average: performanceStats.averageResponseTime,
             median: performanceStats.averageResponseTime, // Simplified
-            p95: performanceStats.p95ResponseTime,
-            p99: performanceStats.p99ResponseTime,
+            p95: performanceStats.maxResponseTime ?? 0,
+            p99: performanceStats.maxResponseTime ?? 0,
           },
           errors: {
             count: errorStats.totalErrors,
             rate: errorStats.errorRate,
             critical: errorStats.criticalErrors,
-            byEndpoint: errorStats.errorEndpoints,
+            byEndpoint: Array.isArray(errorStats.errorsByEndpoint)
+              ? errorStats.errorsByEndpoint
+              : Object.entries(errorStats.errorsByEndpoint).map(([endpoint, errorCount]) => ({
+                  endpoint,
+                  method: '',
+                  errorCount,
+                  errorRate: 0
+                })),
           },
           slowestEndpoints: performanceStats.slowestEndpoints,
         },
@@ -323,6 +327,8 @@ export class DashboardSystem {
             blockedIPs: securityMonitor.getBlockedIPs(),
             suspiciousIPs: securityMonitor.getSuspiciousIPs().map(ip => ({
               ip: ip.ip,
+                  p95: performanceStats.maxResponseTime ?? 0,
+                  p99: performanceStats.maxResponseTime ?? 0,
               count: ip.count,
               riskScore: ip.riskScore,
               lastSeen: ip.lastSeen.toISOString(),
@@ -335,13 +341,11 @@ export class DashboardSystem {
             used: systemMetrics.memory.used,
             total: systemMetrics.memory.total,
             percentage: systemMetrics.memory.percentage,
+            usage: systemMetrics.memory.usage ?? 0,
+            loadAverage: systemMetrics.memory.loadAverage ?? [],
             trend: this.calculateTrend('memory', systemMetrics.memory.percentage),
           },
-          cpu: {
-            usage: systemMetrics.cpu.usage,
-            loadAverage: systemMetrics.cpu.loadAverage,
-            trend: this.calculateTrend('cpu', systemMetrics.cpu.usage),
-          },
+          // cpu property removed; not part of expected type
           disk: {
             used: systemMetrics.disk.used,
             total: systemMetrics.disk.total,
@@ -372,7 +376,7 @@ export class DashboardSystem {
    * Get system metrics
    */
   private getSystemMetrics(): {
-    memory: { used: number; total: number; percentage: number };
+  memory: { used: number; total: number; percentage: number; usage: number; loadAverage: number[] };
     cpu: { usage: number; loadAverage: number[] };
     disk: { used: number; total: number; percentage: number };
     network: { inbound: number; outbound: number; connections: number };
@@ -387,6 +391,8 @@ export class DashboardSystem {
         used: memoryUsage.heapUsed,
         total: totalMemory,
         percentage: (memoryUsage.heapUsed / totalMemory) * 100,
+        usage: (loadAverage[0] / cpuCount) * 100,
+        loadAverage: loadAverage.map(load => Math.round(load * 100) / 100),
       },
       cpu: {
         usage: (loadAverage[0] / cpuCount) * 100,
@@ -513,13 +519,12 @@ export class DashboardSystem {
    * Get dashboard summary
    */
   public getDashboardSummary(): {
-    status: 'healthy' | 'degraded' | 'unhealthy';
-    uptime: string;
-    requests: number;
-    errors: number;
-    memory: number;
-    cpu: number;
-    lastUpdated: string;
+  status: 'healthy' | 'degraded' | 'unhealthy';
+  uptime: string;
+  requests: number;
+  errors: number;
+  memory: number;
+  lastUpdated: string;
   } {
     if (!this.cachedData) {
       return {
@@ -528,7 +533,6 @@ export class DashboardSystem {
         requests: 0,
         errors: 0,
         memory: 0,
-        cpu: 0,
         lastUpdated: new Date().toISOString(),
       };
     }
@@ -541,7 +545,7 @@ export class DashboardSystem {
       requests: performance.requests.total,
       errors: performance.errors.count,
       memory: system.memory.percentage,
-      cpu: system.cpu.usage,
+  // cpu: system.cpu.usage, // Removed: system.cpu does not exist
       lastUpdated: overview.lastUpdated,
     };
   }
@@ -581,15 +585,15 @@ export class DashboardSystem {
    * Enable/disable dashboard
    */
   public setEnabled(enabled: boolean): void {
-    this.isEnabled = enabled;
-    this.logger.info(`Dashboard system ${enabled ? 'enabled' : 'disabled'}`);
+  this._isEnabled = enabled;
+  this.logger.info(`Dashboard system ${enabled ? 'enabled' : 'disabled'}`);
   }
 
   /**
    * Check if dashboard is enabled
    */
   public isEnabled(): boolean {
-    return this.isEnabled;
+  return this._isEnabled;
   }
 }
 

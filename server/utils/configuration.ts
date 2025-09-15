@@ -16,13 +16,13 @@ export interface ConfigurationOptions {
 
 export class ConfigurationSystem {
   private logger: Logger;
-  private isEnabled: boolean;
+  private _isEnabled: boolean;
   private options: ConfigurationOptions;
 
   constructor(options: ConfigurationOptions) {
-    this.logger = new Logger('ConfigurationSystem');
-    this.isEnabled = true;
-    this.options = {
+  this.logger = new Logger('ConfigurationSystem');
+  this._isEnabled = true;
+  this.options = {
       validateOnLoad: true,
       hotReload: false,
       encryption: false,
@@ -34,7 +34,7 @@ export class ConfigurationSystem {
    * Initialize configuration system
    */
   public async initialize(): Promise<void> {
-    if (!this.isEnabled) {
+  if (!this._isEnabled) {
       this.logger.warn('Configuration system is disabled');
       return;
     }
@@ -199,7 +199,7 @@ export class ConfigurationSystem {
    * Get configuration for specific environment
    */
   public getConfigurationForEnvironment(environment: string): any {
-    if (!this.isEnabled) {
+  if (!this._isEnabled) {
       throw new Error('Configuration system is disabled');
     }
 
@@ -210,7 +210,7 @@ export class ConfigurationSystem {
    * Validate configuration
    */
   public validateConfiguration(): { valid: boolean; errors: string[] } {
-    if (!this.isEnabled) {
+  if (!this._isEnabled) {
       throw new Error('Configuration system is disabled');
     }
 
@@ -236,15 +236,15 @@ export class ConfigurationSystem {
    * Enable/disable configuration system
    */
   public setEnabled(enabled: boolean): void {
-    this.isEnabled = enabled;
-    this.logger.info(`Configuration system ${enabled ? 'enabled' : 'disabled'}`);
+  this._isEnabled = enabled;
+  this.logger.info(`Configuration system ${enabled ? 'enabled' : 'disabled'}`);
   }
 
   /**
    * Check if configuration system is enabled
    */
   public isEnabled(): boolean {
-    return this.isEnabled;
+  return this._isEnabled;
   }
 }
 

@@ -29,18 +29,18 @@ export interface ErrorResponse {
 
 export class ErrorHandlingSystem {
   private logger: Logger;
-  private isEnabled: boolean;
+  private _isEnabled: boolean;
 
   constructor() {
-    this.logger = new Logger('ErrorHandlingSystem');
-    this.isEnabled = true;
+  this.logger = new Logger('ErrorHandlingSystem');
+  this._isEnabled = true;
   }
 
   /**
    * Handle application errors
    */
   public handleError(context: ErrorContext): void {
-    if (!this.isEnabled) {
+  if (!this._isEnabled) {
       return;
     }
 
@@ -302,15 +302,15 @@ export class ErrorHandlingSystem {
    * Enable/disable error handling
    */
   public setEnabled(enabled: boolean): void {
-    this.isEnabled = enabled;
-    this.logger.info(`Error handling system ${enabled ? 'enabled' : 'disabled'}`);
+  this._isEnabled = enabled;
+  this.logger.info(`Error handling system ${enabled ? 'enabled' : 'disabled'}`);
   }
 
   /**
    * Check if error handling is enabled
    */
   public isEnabled(): boolean {
-    return this.isEnabled;
+  return this._isEnabled;
   }
 }
 
