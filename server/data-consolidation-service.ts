@@ -247,8 +247,7 @@ export class DataConsolidationService {
             await db
               .update(aiImages)
               .set({ 
-                generationStatus: newStatus,
-                updatedAt: new Date()
+                generationStatus: newStatus
               })
               .where(eq(aiImages.id, aiImage.id));
             

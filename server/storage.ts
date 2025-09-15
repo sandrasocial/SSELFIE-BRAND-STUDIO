@@ -636,13 +636,13 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getUserVideosByStatus(userId: string, status?: string): Promise<GeneratedVideo[]> {
-    const query = db
+    let query = db
       .select()
       .from(generatedVideos)
       .where(eq(generatedVideos.userId, userId));
     
     if (status) {
-      query.where(eq(generatedVideos.status, status));
+      query = query.where(eq(generatedVideos.status, status));
     }
     
     return await query.orderBy(desc(generatedVideos.createdAt));
@@ -1839,7 +1839,10 @@ export class DatabaseStorage implements IStorage {
   async createConversation(data: InsertConversation): Promise<Conversation> {
     const [conversation] = await db
       .insert(conversations)
-      .values(data)
+      .values({
+        ...data,
+        tags: data.tags || [] // Ensure tags is an array
+      })
       .returning();
     return conversation;
   }

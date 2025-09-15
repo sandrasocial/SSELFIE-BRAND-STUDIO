@@ -92,8 +92,7 @@ export class TrainingCompletionMonitor {
           triggerWord: triggerWord, // CRITICAL: Ensure trigger word is stored
           trainedModelPath: paths.getUserModelPath(userId),
           modelType: extractedWeights ? 'flux-lora' : 'flux-packaged', // Dynamic model type
-          completedAt: new Date(),
-          updatedAt: new Date()
+          completedAt: new Date()
         });
         
         // Store LoRA weights metadata in separate table
