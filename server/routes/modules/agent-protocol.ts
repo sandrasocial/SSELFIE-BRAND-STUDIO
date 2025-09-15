@@ -6,147 +6,106 @@
 import { Router } from 'express';
 import { requireStackAuth } from '../middleware/auth';
 
+import { asyncHandler, createError, sendSuccess, validateRequired } from '../middleware/error-handler';
 const router = Router();
 
 // Agent Protocol Validation
-router.post('/api/agent-protocol/validate', async (req: any, res) => {
-  try {
+router.post('
     const { protocol, version, data } = req.body;
 
     if (!protocol) {
-      return res.status(400).json({ error: 'Protocol is required' });
+      throw createError.validation("Protocol is required");
     }
 
     // TODO: Implement agent protocol validation
-    res.json({
-      success: true,
-      message: 'Protocol validated successfully',
+    sendSuccess(res, {message: 'Protocol validated successfully',
       protocol,
       version,
-      valid: true
-    });
-  } catch (error) {
-    console.error('Error validating agent protocol:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
+      valid: true});
+  ', asyncHandler(async (req, res) => {
+console.error('Error validating agent protocol:', error);
+}));
 
 // Agent Status Check
-router.get('/api/agent-protocol/status/:agentId', async (req: any, res) => {
-  try {
+router.get('
     const { agentId } = req.params;
 
     // TODO: Implement agent status checking
-    res.json({
-      success: true,
-      agentId,
+    sendSuccess(res, {agentId,
       status: 'active',
       lastSeen: new Date().toISOString(),
-      capabilities: []
-    });
-  } catch (error) {
-    console.error('Error checking agent status:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
+      capabilities: []});
+  ', asyncHandler(async (req, res) => {
+console.error('Error checking agent status:', error);
+}));
 
 // Agent Registration
-router.post('/api/agent-protocol/register', async (req: any, res) => {
-  try {
+router.post('
     const { agentId, capabilities, metadata } = req.body;
 
     if (!agentId) {
-      return res.status(400).json({ error: 'Agent ID is required' });
+      throw createError.validation("Agent ID is required");
     }
 
     // TODO: Implement agent registration
-    res.json({
-      success: true,
-      message: 'Agent registered successfully',
+    sendSuccess(res, {message: 'Agent registered successfully',
       agentId,
       capabilities,
-      metadata
-    });
-  } catch (error) {
-    console.error('Error registering agent:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
+      metadata});
+  ', asyncHandler(async (req, res) => {
+console.error('Error registering agent:', error);
+}));
 
 // Agent Communication
-router.post('/api/agent-protocol/communicate', async (req: any, res) => {
-  try {
+router.post('
     const { agentId, message, type } = req.body;
 
     if (!agentId || !message) {
-      return res.status(400).json({ error: 'Agent ID and message are required' });
+      throw createError.validation("Agent ID and message are required");
     }
 
     // TODO: Implement agent communication
-    res.json({
-      success: true,
-      message: 'Communication sent successfully',
+    sendSuccess(res, {message: 'Communication sent successfully',
       agentId,
-      response: 'Message received and processed'
-    });
-  } catch (error) {
-    console.error('Error communicating with agent:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
+      response: 'Message received and processed'});
+  ', asyncHandler(async (req, res) => {
+console.error('Error communicating with agent:', error);
+}));
 
 // Agent List
-router.get('/api/agent-protocol/agents', requireStackAuth, async (req: any, res) => {
-  try {
+router.get('
     // TODO: Implement agent listing
-    res.json({
-      success: true,
-      agents: [],
-      count: 0
-    });
-  } catch (error) {
-    console.error('Error fetching agents:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
+    sendSuccess(res, {agents: [],
+      count: 0});
+  ', requireStackAuth, asyncHandler(async (req, res) => {
+console.error('Error fetching agents:', error);
+}));
 
 // Agent Configuration
-router.get('/api/agent-protocol/config/:agentId', requireStackAuth, async (req: any, res) => {
-  try {
+router.get('
     const { agentId } = req.params;
 
     // TODO: Implement agent configuration retrieval
-    res.json({
-      success: true,
-      agentId,
+    sendSuccess(res, {agentId,
       config: {
         enabled: true,
         timeout: 30000,
         retries: 3
-      }
-    });
-  } catch (error) {
-    console.error('Error fetching agent config:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
+      }});
+  ', requireStackAuth, asyncHandler(async (req, res) => {
+console.error('Error fetching agent config:', error);
+}));
 
-router.put('/api/agent-protocol/config/:agentId', requireStackAuth, async (req: any, res) => {
-  try {
+router.put('
     const { agentId } = req.params;
     const config = req.body;
 
     // TODO: Implement agent configuration updates
-    res.json({
-      success: true,
-      message: 'Agent configuration updated successfully',
+    sendSuccess(res, {message: 'Agent configuration updated successfully',
       agentId,
-      config
-    });
-  } catch (error) {
-    console.error('Error updating agent config:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
+      config});
+  ', requireStackAuth, asyncHandler(async (req, res) => {
+console.error('Error updating agent config:', error);
+}));
 
 export default router;

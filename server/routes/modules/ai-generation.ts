@@ -6,298 +6,215 @@
 import { Router } from 'express';
 import { requireStackAuth, requireActiveSubscription } from '../middleware/auth';
 import { storage } from '../../storage';
+import { asyncHandler, createError, sendSuccess, validateRequired } from '../middleware/error-handler';
 
 const router = Router();
 
 // Story Generation Routes
-router.post('/api/story/draft', requireStackAuth, async (req: any, res) => {
-  try {
-    const { concept } = req.body;
-    const userId = req.user.id;
+router.post('/api/story/draft', requireStackAuth, asyncHandler(async (req: any, res) => {
+  const { concept } = req.body;
+  const userId = req.user.id;
 
-    if (!concept) {
-      return res.status(400).json({ error: 'Concept is required' });
-    }
-
-    // TODO: Implement story draft generation
-    // This should call the actual story generation service
-    res.json({
-      success: true,
-      message: 'Story draft generation started',
-      jobId: `draft_${Date.now()}`,
-      concept
-    });
-  } catch (error) {
-    console.error('Error generating story draft:', error);
-    res.status(500).json({ error: 'Internal server error' });
+  if (!concept) {
+    throw createError.validation("Concept is required");
   }
-});
 
-router.post('/api/story/generate', requireStackAuth, async (req: any, res) => {
-  try {
-    const { concept, style, length } = req.body;
-    const userId = req.user.id;
+  // TODO: Implement story draft generation
+  sendSuccess(res, {
+    message: 'Story draft generation started',
+    jobId: `draft_${Date.now()}`,
+    concept
+  });
+}));
 
-    if (!concept) {
-      return res.status(400).json({ error: 'Concept is required' });
-    }
+router.post('/api/story/generate', requireStackAuth, asyncHandler(async (req: any, res) => {
+  const { concept, style, length } = req.body;
+  const userId = req.user.id;
 
-    // TODO: Implement full story generation
-    res.json({
-      success: true,
-      message: 'Story generation started',
-      jobId: `story_${Date.now()}`,
-      concept,
-      style,
-      length
-    });
-  } catch (error) {
-    console.error('Error generating story:', error);
-    res.status(500).json({ error: 'Internal server error' });
+  if (!concept) {
+    throw createError.validation("Concept is required");
   }
-});
 
-router.get('/api/story/status/:jobId', requireStackAuth, async (req: any, res) => {
-  try {
-    const { jobId } = req.params;
-    const userId = req.user.id;
+  // TODO: Implement full story generation
+  sendSuccess(res, {
+    message: 'Story generation started',
+    jobId: `story_${Date.now()}`,
+    concept,
+    style,
+    length
+  });
+}));
 
-    // TODO: Implement job status checking
-    res.json({
-      jobId,
-      status: 'processing',
-      progress: 50,
-      message: 'Story generation in progress'
-    });
-  } catch (error) {
-    console.error('Error checking story status:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
+router.get('/api/story/status/:jobId', requireStackAuth, asyncHandler(async (req: any, res) => {
+  const { jobId } = req.params;
+  const userId = req.user.id;
+
+  // TODO: Implement story status checking
+  sendSuccess(res, {
+    jobId,
+    status: 'processing',
+    progress: 50,
+    message: 'Story generation in progress'
+  });
+}));
 
 // Video Generation Routes
-router.post('/api/video/generate-story', requireActiveSubscription, async (req: any, res) => {
-  try {
-    const { story, style, duration } = req.body;
-    const userId = req.user.id;
+router.post('/api/video/generate-story', requireActiveSubscription, asyncHandler(async (req: any, res) => {
+  const { story, style, duration } = req.body;
+  const userId = req.user.id;
 
-    if (!story) {
-      return res.status(400).json({ error: 'Story is required' });
-    }
-
-    // TODO: Implement video generation from story
-    res.json({
-      success: true,
-      message: 'Video generation started',
-      jobId: `video_${Date.now()}`,
-      story,
-      style,
-      duration
-    });
-  } catch (error) {
-    console.error('Error generating video from story:', error);
-    res.status(500).json({ error: 'Internal server error' });
+  if (!story) {
+    throw createError.validation("Story is required");
   }
-});
 
-router.post('/api/video/generate', requireActiveSubscription, async (req: any, res) => {
-  try {
-    const { prompt, style, duration } = req.body;
-    const userId = req.user.id;
+  // TODO: Implement video generation from story
+  sendSuccess(res, {
+    message: 'Video generation started',
+    jobId: `video_${Date.now()}`,
+    story,
+    style,
+    duration
+  });
+}));
 
-    if (!prompt) {
-      return res.status(400).json({ error: 'Prompt is required' });
-    }
+router.post('/api/video/generate', requireActiveSubscription, asyncHandler(async (req: any, res) => {
+  const { prompt, style, duration } = req.body;
+  const userId = req.user.id;
 
-    // TODO: Implement general video generation
-    res.json({
-      success: true,
-      message: 'Video generation started',
-      jobId: `video_${Date.now()}`,
-      prompt,
-      style,
-      duration
-    });
-  } catch (error) {
-    console.error('Error generating video:', error);
-    res.status(500).json({ error: 'Internal server error' });
+  if (!prompt) {
+    throw createError.validation("Prompt is required");
   }
-});
 
-router.get('/api/videos', requireStackAuth, async (req: any, res) => {
-  try {
-    const userId = req.user.id;
-    const videos = await storage.getUserVideosByStatus(userId);
+  // TODO: Implement general video generation
+  sendSuccess(res, {
+    message: 'Video generation started',
+    jobId: `video_${Date.now()}`,
+    prompt,
+    style,
+    duration
+  });
+}));
 
-    res.json({
-      success: true,
-      videos,
-      count: videos.length
-    });
-  } catch (error) {
-    console.error('Error fetching videos:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
+router.get('/api/videos', requireStackAuth, asyncHandler(async (req: any, res) => {
+  const userId = req.user.id;
+  const videos = await storage.getUserVideosByStatus(userId);
+
+  sendSuccess(res, {
+    videos,
+    count: videos.length
+  });
+}));
 
 // Victoria AI Routes
-router.post('/api/victoria/generate', requireStackAuth, async (req: any, res) => {
-  try {
-    const { prompt, style, businessType } = req.body;
-    const userId = req.user.id;
+router.post('/api/victoria/generate', requireStackAuth, asyncHandler(async (req: any, res) => {
+  const { prompt, style, businessType } = req.body;
+  const userId = req.user.id;
 
-    if (!prompt) {
-      return res.status(400).json({ error: 'Prompt is required' });
-    }
-
-    // TODO: Implement Victoria AI generation
-    res.json({
-      success: true,
-      message: 'Victoria AI generation started',
-      jobId: `victoria_${Date.now()}`,
-      prompt,
-      style,
-      businessType
-    });
-  } catch (error) {
-    console.error('Error generating Victoria AI content:', error);
-    res.status(500).json({ error: 'Internal server error' });
+  if (!prompt) {
+    throw createError.validation("Prompt is required");
   }
-});
 
-router.post('/api/victoria/customize', requireStackAuth, async (req: any, res) => {
-  try {
-    const { contentId, customizations } = req.body;
-    const userId = req.user.id;
+  // TODO: Implement Victoria AI generation
+  sendSuccess(res, {
+    message: 'Victoria AI generation started',
+    jobId: `victoria_${Date.now()}`,
+    prompt,
+    style,
+    businessType
+  });
+}));
 
-    if (!contentId) {
-      return res.status(400).json({ error: 'Content ID is required' });
-    }
+router.post('/api/victoria/customize', requireStackAuth, asyncHandler(async (req: any, res) => {
+  const { contentId, customizations } = req.body;
+  const userId = req.user.id;
 
-    // TODO: Implement Victoria customization
-    res.json({
-      success: true,
-      message: 'Victoria content customized',
-      contentId,
-      customizations
-    });
-  } catch (error) {
-    console.error('Error customizing Victoria content:', error);
-    res.status(500).json({ error: 'Internal server error' });
+  if (!contentId) {
+    throw createError.validation("Content ID is required");
   }
-});
 
-router.post('/api/victoria/deploy', requireStackAuth, async (req: any, res) => {
-  try {
-    const { contentId, deploymentOptions } = req.body;
-    const userId = req.user.id;
+  // TODO: Implement Victoria customization
+  sendSuccess(res, {
+    message: 'Victoria content customized',
+    contentId,
+    customizations
+  });
+}));
 
-    if (!contentId) {
-      return res.status(400).json({ error: 'Content ID is required' });
-    }
+router.post('/api/victoria/deploy', requireStackAuth, asyncHandler(async (req: any, res) => {
+  const { contentId, deploymentOptions } = req.body;
+  const userId = req.user.id;
 
-    // TODO: Implement Victoria deployment
-    res.json({
-      success: true,
-      message: 'Victoria content deployed',
-      contentId,
-      deploymentOptions
-    });
-  } catch (error) {
-    console.error('Error deploying Victoria content:', error);
-    res.status(500).json({ error: 'Internal server error' });
+  if (!contentId) {
+    throw createError.validation("Content ID is required");
   }
-});
 
-router.get('/api/victoria/websites', requireStackAuth, async (req: any, res) => {
-  try {
-    const userId = req.user.id;
+  // TODO: Implement Victoria deployment
+  sendSuccess(res, {
+    message: 'Victoria content deployed',
+    contentId,
+    deploymentOptions
+  });
+}));
 
-    // TODO: Implement Victoria websites listing
-    res.json({
-      success: true,
-      websites: [],
-      count: 0
-    });
-  } catch (error) {
-    console.error('Error fetching Victoria websites:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
+router.get('/api/victoria/websites', requireStackAuth, asyncHandler(async (req: any, res) => {
+  const userId = req.user.id;
+
+  // TODO: Implement Victoria websites listing
+  sendSuccess(res, {
+    websites: [],
+    count: 0
+  });
+}));
 
 // AI Images Routes
-router.post('/api/ai-images', requireActiveSubscription, async (req: any, res) => {
-  try {
-    const { prompt, style, count } = req.body;
-    const userId = req.user.id;
+router.post('/api/ai-images', requireActiveSubscription, asyncHandler(async (req: any, res) => {
+  const { prompt, style, count } = req.body;
+  const userId = req.user.id;
 
-    if (!prompt) {
-      return res.status(400).json({ error: 'Prompt is required' });
-    }
-
-    // TODO: Implement AI image generation
-    res.json({
-      success: true,
-      message: 'AI image generation started',
-      jobId: `images_${Date.now()}`,
-      prompt,
-      style,
-      count: count || 1
-    });
-  } catch (error) {
-    console.error('Error generating AI images:', error);
-    res.status(500).json({ error: 'Internal server error' });
+  if (!prompt) {
+    throw createError.validation("Prompt is required");
   }
-});
 
-router.get('/api/ai-images', requireActiveSubscription, async (req: any, res) => {
-  try {
-    const userId = req.user.id;
+  // TODO: Implement AI image generation
+  sendSuccess(res, {
+    message: 'AI image generation started',
+    jobId: `images_${Date.now()}`,
+    prompt,
+    style,
+    count: count || 1
+  });
+}));
 
-    // TODO: Implement AI images listing
-    res.json({
-      success: true,
-      images: [],
-      count: 0
-    });
-  } catch (error) {
-    console.error('Error fetching AI images:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
+router.get('/api/ai-images', requireActiveSubscription, asyncHandler(async (req: any, res) => {
+  const userId = req.user.id;
+
+  // TODO: Implement AI images listing
+  sendSuccess(res, {
+    images: [],
+    count: 0
+  });
+}));
 
 // Maya AI Routes
-router.get('/api/maya-chats', requireStackAuth, async (req: any, res) => {
-  try {
-    const userId = req.user.id;
-    const chats = await storage.getMayaChats(userId);
+router.get('/api/maya-chats', requireStackAuth, asyncHandler(async (req: any, res) => {
+  const userId = req.user.id;
+  const chats = await storage.getMayaChats(userId);
 
-    res.json({
-      success: true,
-      chats,
-      count: chats.length
-    });
-  } catch (error) {
-    console.error('Error fetching Maya chats:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
+  sendSuccess(res, {
+    chats,
+    count: chats.length
+  });
+}));
 
-router.get('/api/maya-chats/categorized', requireStackAuth, async (req: any, res) => {
-  try {
-    const userId = req.user.id;
+router.get('/api/maya-chats/categorized', requireStackAuth, asyncHandler(async (req: any, res) => {
+  const userId = req.user.id;
 
-    // TODO: Implement categorized Maya chats
-    res.json({
-      success: true,
-      categories: [],
-      chats: [],
-      count: 0
-    });
-  } catch (error) {
-    console.error('Error fetching categorized Maya chats:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
+  // TODO: Implement categorized Maya chats
+  sendSuccess(res, {
+    categories: [],
+    chats: [],
+    count: 0
+  });
+}));
 
 export default router;
