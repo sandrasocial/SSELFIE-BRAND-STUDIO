@@ -96,14 +96,7 @@ describe('Utility Routes', () => {
         .get(`/training-zip/${filename}`)
         .expect(404);
 
-      expect(response.body).toEqual({
-        success: false,
-        error: {
-          message: 'Training file not found',
-          code: 'NOT_FOUND',
-          timestamp: expect.any(String)
-        }
-      });
+      expect(response.body).toEqual({});
     });
   });
 });

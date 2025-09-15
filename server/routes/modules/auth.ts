@@ -1,6 +1,6 @@
 /**
- * Authentication Routes Module
- * User authentication and profile management
+ * Authentication Routes
+ * Handles user authentication and profile management
  */
 
 import { Router } from 'express';
@@ -12,128 +12,94 @@ import { userService } from '../../services/user-service';
 const router = Router();
 
 // Get current user
-router.get('
-    const userId = req.user.id;
-    const user = await storage.getUser(userId);
-    
-    if (!user) {
-      throw createError.notFound("User not found");
-    }
-    
-    res.json({
-      id: user.id,
-      email: user.email,
-      createdAt: user.createdAt,
-      // Add other user fields as needed
-    });
-  ', requireStackAuth, asyncHandler(async (req, res) => {
-console.error('Error fetching user:', error);
+router.get('/api/auth/user', requireStackAuth, asyncHandler(async (req: any, res) => {
+  const userId = req.user.id;
+  const user = await userService.getUserById(userId);
+
+  if (!user) {
+    throw createError.notFound('User not found');
+  }
+  sendSuccess(res, {
+    id: user.id,
+    email: user.email,
+    createdAt: user.createdAt,
+  });
 }));
 
 // Auto-register user
-router.post('
-    const { email, name } = req.body;
-    
-    if (!email) {
-      throw createError.validation("Email is required");
-    }
-    
-    // Check if user already exists
-    const existingUser = await storage.getUserByEmail(email);
-    if (existingUser) {
-      return res.json({ 
-        message: 'User already exists',
-        userId: existingUser.id 
-      });
-    }
-    
-    // Create new user
-    const newUser = await storage.createUser({
-      id: crypto.randomUUID(),
-      email,
-      displayName: name || email.split('@')[0],
-      // Add other required fields
+router.post('/api/auth/auto-register', asyncHandler(async (req: any, res) => {
+  const { email, name } = req.body;
+  validateRequired({ email });
+
+  let existingUser = await userService.getUserByEmail(email);
+
+  if (existingUser) {
+    return sendSuccess(res, {
+      message: 'User already exists',
+      userId: existingUser.id
     });
-    
-    res.status(201).json({
-      message: 'User created successfully',
-      userId: newUser.id
-    });
-  ', asyncHandler(async (req, res) => {
-console.error('Error auto-registering user:', error);
+  }
+
+  const newUser = await userService.createUser({
+    email,
+    displayName: name || email.split('@')[0],
+  });
+
+  sendSuccess(res, {
+    message: 'User created successfully',
+    userId: newUser.id
+  }, 201);
 }));
 
-// Test authentication
-router.get('/api/test-auth', requireStackAuth, async (req: any, res) => {
-  res.json({
-    message: 'Authentication successful',
-    userId: req.user.id,
-    email: req.user.email
-  });
-});
-
 // Update user gender
-router.post('
-    const { gender } = req.body;
-    const userId = req.user.id;
-    
-    if (!gender) {
-      throw createError.validation("Gender is required");
-    }
-    
-    // Update user gender
-    await storage.updateUserProfile(userId, { gender });
-    
-    res.json({ message: 'Gender updated successfully' });
-  ', requireStackAuth, asyncHandler(async (req, res) => {
-console.error('Error updating gender:', error);
+router.post('/api/user/update-gender', requireStackAuth, asyncHandler(async (req: any, res) => {
+  const userId = req.user.id;
+  const { gender } = req.body;
+  validateRequired({ gender });
+
+  if (!['man', 'woman', 'other'].includes(gender)) {
+    throw createError.validation('Invalid gender value. Must be "man", "woman", or "other"');
+  }
+
+  await userService.updateUserProfile(userId, { gender });
+  sendSuccess(res, { message: 'Gender updated successfully' });
 }));
 
 // Get user profile
-router.get('
-    const userId = req.user.id;
-    const user = await storage.getUser(userId);
-    
-    if (!user) {
-      throw createError.notFound("User not found");
-    }
-    
-    res.json({
-      id: user.id,
-      email: user.email,
-      name: user.displayName,
-      gender: user.gender,
-      createdAt: user.createdAt,
-      // Add other profile fields
-    });
-  ', requireStackAuth, asyncHandler(async (req, res) => {
-console.error('Error fetching profile:', error);
+router.get('/api/profile', requireStackAuth, asyncHandler(async (req: any, res) => {
+  const userId = req.user.id;
+  const user = await userService.getUserById(userId);
+
+  if (!user) {
+    throw createError.notFound('User not found');
+  }
+  sendSuccess(res, {
+    id: user.id,
+    email: user.email,
+    name: user.displayName,
+    gender: user.gender,
+    createdAt: user.createdAt,
+  });
 }));
 
 // Update user profile
-router.put('
-    const userId = req.user.id;
-    const updates = req.body;
-    
-    // Validate updates
-    const allowedFields = ['name', 'gender', 'email'];
-    const filteredUpdates = Object.keys(updates)
-      .filter(key => allowedFields.includes(key))
-      .reduce((obj, key) => {
-        obj[key] = updates[key];
-        return obj;
-      }, {} as any);
-    
-    if (Object.keys(filteredUpdates).length === 0) {
-      throw createError.validation("No valid fields to update");
-    }
-    
-    // Update user
-    await storage.updateUserProfile(userId, filteredUpdates);
-    
-    res.json({ message: 'Profile updated successfully' });
-  ', requireStackAuth, asyncHandler(async (req, res) => {
-console.error('Error updating profile:', error);
+router.put('/api/profile', requireStackAuth, asyncHandler(async (req: any, res) => {
+  const userId = req.user.id;
+  const { displayName, firstName, lastName, profileImageUrl, gender } = req.body;
+
+  const updates: Partial<any> = {};
+  if (displayName) updates.displayName = displayName;
+  if (firstName) updates.firstName = firstName;
+  if (lastName) updates.lastName = lastName;
+  if (profileImageUrl) updates.profileImageUrl = profileImageUrl;
+  if (gender) updates.gender = gender;
+
+  if (Object.keys(updates).length === 0) {
+    throw createError.validation('No valid fields to update');
+  }
+
+  await userService.updateUserProfile(userId, updates);
+  sendSuccess(res, { message: 'Profile updated successfully' });
 }));
 
 export default router;

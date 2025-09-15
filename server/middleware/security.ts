@@ -1,45 +1,106 @@
-import helmet from 'helmet';
-import cors from 'cors';
-import rateLimit from 'express-rate-limit';
-import { Express } from 'express';
+/**
+ * Security Middleware
+ * Provides security headers and input validation
+ */
 
-export const configureSecurityMiddleware = (app: Express) => {
-  // Basic security headers
-  app.use(helmet());
+import { Request, Response, NextFunction } from 'express';
+import { Logger } from '../utils/logger';
 
-  // CORS configuration
-  app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5000',
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Cookie']
-  }));
+export class SecurityMiddleware {
+  private logger: Logger;
 
-  // Rate limiting
-  const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // limit each IP to 100 requests per windowMs
-    message: 'Too many requests from this IP, please try again later.'
-  });
-  app.use('/api/', limiter);
+  constructor() {
+    this.logger = new Logger('SecurityMiddleware');
+  }
 
-  // Additional security measures
-  app.use(helmet.noSniff());
-  app.use(helmet.xssFilter());
-  app.use(helmet.hidePoweredBy());
-  app.use(helmet.frameguard({ action: 'deny' }));
+  /**
+   * Security headers middleware
+   */
+  securityHeaders() {
+    return (req: Request, res: Response, next: NextFunction) => {
+      // CORS headers
+      res.set('Access-Control-Allow-Origin', '*');
+      res.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+      res.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+      res.set('Access-Control-Max-Age', '86400');
 
-  // Content Security Policy
-  app.use(helmet.contentSecurityPolicy({
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'", "https://api.stripe.com"],
-      frameSrc: ["'self'", "https://js.stripe.com"],
-      objectSrc: ["'none'"],
-      upgradeInsecureRequests: [],
-    },
-  }));
-};
+      // Security headers
+      res.set('X-Content-Type-Options', 'nosniff');
+      res.set('X-Frame-Options', 'DENY');
+      res.set('X-XSS-Protection', '1; mode=block');
+      res.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+
+      // Content Security Policy
+      res.set('Content-Security-Policy', 
+        "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';"
+      );
+
+      next();
+    };
+  }
+
+  /**
+   * Input validation middleware
+   */
+  inputValidation() {
+    return (req: Request, res: Response, next: NextFunction) => {
+      try {
+        // Validate request body size
+        const contentLength = parseInt(req.get('Content-Length') || '0');
+        const maxSize = 10 * 1024 * 1024; // 10MB
+        if (contentLength > maxSize) {
+          return res.status(413).json({
+            success: false,
+            error: { message: 'Request entity too large', code: 'PAYLOAD_TOO_LARGE' }
+          });
+        }
+
+        // Sanitize request body
+        if (req.body && typeof req.body === 'object') {
+          req.body = this.sanitizeObject(req.body);
+        }
+
+        next();
+      } catch (error) {
+        this.logger.error('Input validation error', { error: error.message });
+        return res.status(400).json({
+          success: false,
+          error: { message: 'Input validation failed', code: 'VALIDATION_ERROR' }
+        });
+      }
+    };
+  }
+
+  /**
+   * Sanitize object recursively
+   */
+  private sanitizeObject(obj: any): any {
+    if (obj === null || obj === undefined) return obj;
+    if (typeof obj === 'string') return this.sanitizeString(obj);
+    if (Array.isArray(obj)) return obj.map(item => this.sanitizeObject(item));
+    if (typeof obj === 'object') {
+      const sanitized: any = {};
+      for (const [key, value] of Object.entries(obj)) {
+        sanitized[this.sanitizeString(key)] = this.sanitizeObject(value);
+      }
+      return sanitized;
+    }
+    return obj;
+  }
+
+  /**
+   * Sanitize string
+   */
+  private sanitizeString(str: string): string {
+    return str
+      .replace(/[<>]/g, '')
+      .replace(/javascript:/gi, '')
+      .replace(/on\w+\s*=/gi, '')
+      .trim();
+  }
+}
+
+// Create global security middleware instance
+export const securityMiddleware = new SecurityMiddleware();
+export const securityHeaders = securityMiddleware.securityHeaders();
+export const inputValidation = securityMiddleware.inputValidation();

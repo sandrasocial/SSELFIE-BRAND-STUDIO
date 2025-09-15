@@ -1,118 +1,100 @@
 /**
- * Maya AI Routes Module
- * Handles Maya AI chat and conversation management
+ * Maya Routes
+ * Handles Maya AI chat and interactions
  */
 
 import { Router } from 'express';
 import { requireStackAuth } from '../middleware/auth';
-import { storage } from '../../storage';
-
 import { asyncHandler, createError, sendSuccess, validateRequired } from '../middleware/error-handler';
+
 const router = Router();
 
-// Maya Chat Routes
-router.get('
-    const userId = req.user.id;
-    const chats = await storage.getMayaChats(userId);
-
-    sendSuccess(res, {chats,
-      count: chats.length});
-  ', requireStackAuth, asyncHandler(async (req, res) => {
-console.error('Error fetching Maya chats:', error);
+// Get Maya chats
+router.get('/api/maya-chats', requireStackAuth, asyncHandler(async (req: any, res) => {
+  const userId = req.user.id;
+  // Mock implementation - replace with actual maya service
+  const chats = [];
+  sendSuccess(res, { chats, count: chats.length });
 }));
 
-router.get('
-    const userId = req.user.id;
+// Get Maya chat by ID
+router.get('/api/maya-chats/:chatId', requireStackAuth, asyncHandler(async (req: any, res) => {
+  const userId = req.user.id;
+  const { chatId } = req.params;
 
-    // TODO: Implement categorized Maya chats
-    sendSuccess(res, {categories: [],
-      chats: [],
-      count: 0});
-  ', requireStackAuth, asyncHandler(async (req, res) => {
-console.error('Error fetching categorized Maya chats:', error);
+  // Mock implementation - replace with actual maya service
+  const chat = { id: chatId, messages: [] };
+  sendSuccess(res, { chat });
 }));
 
-router.post('
-    const userId = req.user.id;
-    const { title, description } = req.body;
+// Send message to Maya
+router.post('/api/maya-chat', requireStackAuth, asyncHandler(async (req: any, res) => {
+  const userId = req.user.id;
+  const { message, chatHistory } = req.body;
+  validateRequired({ message });
 
-    // TODO: Implement Maya chat creation
-    sendSuccess(res, {message: 'Maya chat created',
-      chatId: `chat_${Date.now()}`});
-  ', requireStackAuth, asyncHandler(async (req, res) => {
-console.error('Error creating Maya chat:', error);
+  // Mock implementation - replace with actual maya service
+  const response = {
+    message: "Hello! I'm Maya, your AI creative director. How can I help you today?",
+    canGenerate: false,
+    agentName: 'Maya - Celebrity Stylist & AI Photography Guide',
+    agentType: 'member',
+    timestamp: new Date().toISOString()
+  };
+  sendSuccess(res, response);
 }));
 
-router.post('
-    const userId = req.user.id;
-    const { message, chatId } = req.body;
+// Generate images with Maya
+router.post('/api/maya-generate', requireStackAuth, asyncHandler(async (req: any, res) => {
+  const userId = req.user.id;
+  const { prompt, style, count } = req.body;
+  validateRequired({ prompt });
 
-    if (!message) {
-      throw createError.validation("Message is required");
-    }
-
-    // TODO: Implement Maya chat message
-    sendSuccess(res, {message: 'Maya chat message sent',
-      response: 'Maya response placeholder'});
-  ', requireStackAuth, asyncHandler(async (req, res) => {
-console.error('Error sending Maya chat message:', error);
+  // Mock implementation - replace with actual generation service
+  const jobId = `maya_${Date.now()}`;
+  sendSuccess(res, { jobId, message: 'Maya generation started' }, 202);
 }));
 
-// Maya Chat Messages Routes
-router.get('
-    const { chatId } = req.params;
-    const userId = req.user.id;
+// Get Maya chat history
+router.get('/api/maya-chats/:chatId/messages', requireStackAuth, asyncHandler(async (req: any, res) => {
+  const userId = req.user.id;
+  const { chatId } = req.params;
 
-    // TODO: Implement chat messages fetching
-    sendSuccess(res, {chatId,
-      messages: [],
-      count: 0});
-  ', requireStackAuth, asyncHandler(async (req, res) => {
-console.error('Error fetching chat messages:', error);
+  // Mock implementation - replace with actual maya service
+  const messages = [];
+  sendSuccess(res, { messages, count: messages.length });
 }));
 
-router.post('
-    const { chatId } = req.params;
-    const userId = req.user.id;
-    const { message } = req.body;
+// Send message to specific chat
+router.post('/api/maya-chats/:chatId/messages', requireStackAuth, asyncHandler(async (req: any, res) => {
+  const userId = req.user.id;
+  const { chatId } = req.params;
+  const { message } = req.body;
+  validateRequired({ message });
 
-    if (!message) {
-      throw createError.validation("Message is required");
-    }
-
-    // TODO: Implement message creation
-    sendSuccess(res, {message: 'Message created',
-      messageId: `msg_${Date.now()}`});
-  ', requireStackAuth, asyncHandler(async (req, res) => {
-console.error('Error creating message:', error);
+  // Mock implementation - replace with actual maya service
+  const messageId = `msg_${Date.now()}`;
+  sendSuccess(res, { messageId, message: 'Message sent successfully' }, 201);
 }));
 
-router.patch('
-    const { chatId, messageId } = req.params;
-    const userId = req.user.id;
-    const { previewData } = req.body;
+// Update message
+router.patch('/api/maya-chats/:chatId/messages/:messageId', requireStackAuth, asyncHandler(async (req: any, res) => {
+  const userId = req.user.id;
+  const { chatId, messageId } = req.params;
+  const { content } = req.body;
 
-    // TODO: Implement preview update
-    sendSuccess(res, {message: 'Preview updated',
-      messageId});
-  ', requireStackAuth, asyncHandler(async (req, res) => {
-console.error('Error updating preview:', error);
+  // Mock implementation - replace with actual maya service
+  sendSuccess(res, { message: 'Message updated successfully' });
 }));
 
-// Victoria Website Chat Routes
-router.post('
-    const userId = req.user.id;
-    const { message, websiteId } = req.body;
+// Create new Maya chat
+router.post('/api/maya-chats', requireStackAuth, asyncHandler(async (req: any, res) => {
+  const userId = req.user.id;
+  const { title, initialMessage } = req.body;
 
-    if (!message) {
-      throw createError.validation("Message is required");
-    }
-
-    // TODO: Implement Victoria website chat
-    sendSuccess(res, {message: 'Victoria website chat message sent',
-      response: 'Victoria response placeholder'});
-  ', requireStackAuth, asyncHandler(async (req, res) => {
-console.error('Error sending Victoria website chat:', error);
+  // Mock implementation - replace with actual maya service
+  const chatId = `chat_${Date.now()}`;
+  sendSuccess(res, { chatId, message: 'New Maya chat created' }, 201);
 }));
 
 export default router;

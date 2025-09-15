@@ -1,167 +1,134 @@
 /**
- * Gallery Routes Module
- * Handles image gallery and generation operations
+ * Gallery Routes
+ * Handles image gallery management
  */
 
 import { Router } from 'express';
-import { requireStackAuth, requireActiveSubscription } from '../middleware/auth';
-import { storage } from '../../storage';
-
+import { requireStackAuth } from '../middleware/auth';
 import { asyncHandler, createError, sendSuccess, validateRequired } from '../middleware/error-handler';
+
 const router = Router();
 
-// Gallery Management Routes
-router.get('
-    const userId = req.user.id;
-    const { page = 1, limit = 20 } = req.query;
-
-    // TODO: Implement gallery images listing
-    sendSuccess(res, {images: [],
-      pagination: {
-        page: Number(page),
-        limit: Number(limit),
-        total: 0,
-        pages: 0
-      }});
-  ', requireStackAuth, asyncHandler(async (req, res) => {
-console.error('Error fetching gallery images:', error);
+// Get user gallery
+router.get('/api/gallery', requireStackAuth, asyncHandler(async (req: any, res) => {
+  const userId = req.user.id;
+  // Mock implementation - replace with actual gallery service
+  const gallery = [];
+  sendSuccess(res, { gallery, count: gallery.length });
 }));
 
-router.post('
-    const userId = req.user.id;
-    const { imageData, metadata } = req.body;
+// Upload image to gallery
+router.post('/api/gallery/upload', requireStackAuth, asyncHandler(async (req: any, res) => {
+  const userId = req.user.id;
+  const { imageUrl, metadata } = req.body;
+  validateRequired({ imageUrl });
 
-    if (!imageData) {
-      throw createError.validation("Image data is required");
-    }
-
-    // TODO: Implement preview saving to gallery
-    sendSuccess(res, {message: 'Preview saved to gallery',
-      imageId: `image_${Date.now()}`});
-  ', requireStackAuth, asyncHandler(async (req, res) => {
-console.error('Error saving preview to gallery:', error);
+  // Mock implementation - replace with actual upload service
+  const imageId = `img_${Date.now()}`;
+  sendSuccess(res, { imageId, message: 'Image uploaded successfully' }, 201);
 }));
 
-// Image Generation Routes
-router.post('
-    const userId = req.user.id;
-    const { prompt, style, count } = req.body;
+// Save image to gallery
+router.post('/api/gallery/save', requireStackAuth, asyncHandler(async (req: any, res) => {
+  const userId = req.user.id;
+  const { imageUrl, prompt, style } = req.body;
+  validateRequired({ imageUrl });
 
-    if (!prompt) {
-      throw createError.validation("Prompt is required");
-    }
-
-    // TODO: Implement Maya image generation
-    sendSuccess(res, {message: 'Maya image generation started',
-      jobId: `maya_${Date.now()}`,
-      prompt,
-      style,
-      count: count || 1});
-  ', requireStackAuth, asyncHandler(async (req, res) => {
-console.error('Error generating Maya images:', error);
+  // Mock implementation - replace with actual save service
+  const imageId = `img_${Date.now()}`;
+  sendSuccess(res, { imageId, message: 'Image saved to gallery' }, 201);
 }));
 
-router.post('
-    const userId = req.user.id;
-    const { prompt, style, count } = req.body;
+// Generate gallery image
+router.post('/api/gallery/generate', requireStackAuth, asyncHandler(async (req: any, res) => {
+  const userId = req.user.id;
+  const { prompt, style, count } = req.body;
+  validateRequired({ prompt });
 
-    if (!prompt) {
-      throw createError.validation("Prompt is required");
-    }
-
-    // TODO: Implement user image generation
-    sendSuccess(res, {message: 'User image generation started',
-      jobId: `user_${Date.now()}`,
-      prompt,
-      style,
-      count: count || 1});
-  ', requireStackAuth, asyncHandler(async (req, res) => {
-console.error('Error generating user images:', error);
+  // Mock implementation - replace with actual generation service
+  const jobId = `gen_${Date.now()}`;
+  sendSuccess(res, { jobId, message: 'Image generation started' }, 202);
 }));
 
-// Image Management Routes
-router.get('
-    const userId = req.user.id;
+// Get gallery by category
+router.get('/api/gallery/category/:category', requireStackAuth, asyncHandler(async (req: any, res) => {
+  const userId = req.user.id;
+  const { category } = req.params;
 
-    // TODO: Implement favorites listing
-    sendSuccess(res, {favorites: [],
-      count: 0});
-  ', requireStackAuth, asyncHandler(async (req, res) => {
-console.error('Error fetching favorites:', error);
+  // Mock implementation - replace with actual category service
+  const gallery = [];
+  sendSuccess(res, { gallery, category, count: gallery.length });
 }));
 
-router.post('
-    const { imageId } = req.params;
-    const userId = req.user.id;
+// Get specific image
+router.get('/api/gallery/image/:imageId', requireStackAuth, asyncHandler(async (req: any, res) => {
+  const userId = req.user.id;
+  const { imageId } = req.params;
 
-    // TODO: Implement image favoriting
-    sendSuccess(res, {message: 'Image favorited',
-      imageId});
-  ', requireStackAuth, asyncHandler(async (req, res) => {
-console.error('Error favoriting image:', error);
+  // Mock implementation - replace with actual image service
+  const image = { id: imageId, url: 'mock-url' };
+  sendSuccess(res, { image });
 }));
 
-router.delete('
-    const { imageId } = req.params;
-    const userId = req.user.id;
+// Update image metadata
+router.post('/api/gallery/image/:imageId', requireStackAuth, asyncHandler(async (req: any, res) => {
+  const userId = req.user.id;
+  const { imageId } = req.params;
+  const { metadata } = req.body;
 
-    // TODO: Implement image deletion
-    sendSuccess(res, {message: 'Image deleted',
-      imageId});
-  ', requireStackAuth, asyncHandler(async (req, res) => {
-console.error('Error deleting image:', error);
+  // Mock implementation - replace with actual update service
+  sendSuccess(res, { message: 'Image metadata updated' });
 }));
 
-// Generation Tracking Routes
-router.get('
-    const { trackerId } = req.params;
-    const userId = req.user.id;
+// Delete image
+router.delete('/api/gallery/image/:imageId', requireStackAuth, asyncHandler(async (req: any, res) => {
+  const userId = req.user.id;
+  const { imageId } = req.params;
 
-    // TODO: Implement generation tracking
-    sendSuccess(res, {trackerId,
-      status: 'processing',
-      progress: 50});
-  ', requireStackAuth, asyncHandler(async (req, res) => {
-console.error('Error checking generation tracker:', error);
+  // Mock implementation - replace with actual delete service
+  sendSuccess(res, { message: 'Image deleted successfully' });
 }));
 
-router.get('
-    const { predictionId } = req.params;
-    const userId = req.user.id;
+// Get generation tracker
+router.get('/api/gallery/tracker/:trackerId', requireStackAuth, asyncHandler(async (req: any, res) => {
+  const userId = req.user.id;
+  const { trackerId } = req.params;
 
-    // TODO: Implement generation checking
-    sendSuccess(res, {predictionId,
-      status: 'completed',
-      result: null});
-  ', requireStackAuth, asyncHandler(async (req, res) => {
-console.error('Error checking generation:', error);
+  // Mock implementation - replace with actual tracker service
+  const tracker = { id: trackerId, status: 'completed' };
+  sendSuccess(res, { tracker });
 }));
 
-// Image Saving Routes
-router.post('
-    const userId = req.user.id;
-    const { imageData, metadata } = req.body;
+// Get prediction status
+router.get('/api/gallery/prediction/:predictionId', requireStackAuth, asyncHandler(async (req: any, res) => {
+  const userId = req.user.id;
+  const { predictionId } = req.params;
 
-    if (!imageData) {
-      throw createError.validation("Image data is required");
-    }
-
-    // TODO: Implement image saving
-    sendSuccess(res, {message: 'Image saved successfully',
-      imageId: `saved_${Date.now()}`});
-  ', requireStackAuth, asyncHandler(async (req, res) => {
-console.error('Error saving image:', error);
+  // Mock implementation - replace with actual prediction service
+  const prediction = { id: predictionId, status: 'completed' };
+  sendSuccess(res, { prediction });
 }));
 
-// Admin Gallery Routes
-router.post('
-    const userId = req.user.id;
+// Generate concept images
+router.post('/api/gallery/concept', requireStackAuth, asyncHandler(async (req: any, res) => {
+  const userId = req.user.id;
+  const { concept, style, count } = req.body;
+  validateRequired({ concept });
 
-    // TODO: Implement image migration
-    sendSuccess(res, {message: 'Image migration initiated',
-      migratedCount: 0});
-  ', requireStackAuth, asyncHandler(async (req, res) => {
-console.error('Error migrating images:', error);
+  // Mock implementation - replace with actual concept service
+  const jobId = `concept_${Date.now()}`;
+  sendSuccess(res, { jobId, message: 'Concept generation started' }, 202);
+}));
+
+// Generate style images
+router.post('/api/gallery/style', requireStackAuth, asyncHandler(async (req: any, res) => {
+  const userId = req.user.id;
+  const { style, count } = req.body;
+  validateRequired({ style });
+
+  // Mock implementation - replace with actual style service
+  const jobId = `style_${Date.now()}`;
+  sendSuccess(res, { jobId, message: 'Style generation started' }, 202);
 }));
 
 export default router;
