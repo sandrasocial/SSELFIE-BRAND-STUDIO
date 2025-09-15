@@ -8,14 +8,6 @@
       "destination": "/api/index.ts"
     },
     {
-      "source": "/handler/(.*)",
-      "destination": "/client/dist/index.html"
-    },
-    {
-      "source": "/oauth-callback",
-      "destination": "/client/dist/index.html"
-    },
-    {
       "source": "/((?!api/).*)",
       "destination": "/client/dist/index.html"
     }
