@@ -63,7 +63,7 @@ export class GenerationCompletionMonitor {
         // MAYA FAÇADE: Save to gallery through standard API instead of Maya-specific service
         try {
           for (const imageUrl of imageUrls) {
-            await storage.createGeneratedImage({
+            await storage.saveGeneratedImage({
               userId: tracker.userId,
               imageUrl,
               prompt: tracker.prompt || 'Maya Editorial Photoshoot',

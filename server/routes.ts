@@ -1,5 +1,5 @@
 import { setupEnhancementRoutes } from './services/backend-enhancement-services';
-import { startVeoVideo, getVeoStatus } from './services/veo-service';
+// import { startVeoVideo, getVeoStatus } from './services/veo-service'; // DISABLED
 import type { Express } from "express";
 import express from "express";
 import { createServer, type Server } from "http";
@@ -14,15 +14,15 @@ import emailAutomation from './routes/email-automation';
 import victoriaWebsiteRouter from "./routes/victoria-website";
 import { registerVictoriaService } from "./routes/victoria-service";
 import { registerVictoriaWebsiteGenerator } from "./routes/victoria-website-generator";
-import subscriberImportRouter from './routes/subscriber-import';
+// import subscriberImportRouter from './routes/subscriber-import'; // DISABLED
 // REMOVED: Conflicting admin routers - consolidated into single adminRouter
-import { whitelabelRoutes } from './routes/white-label-setup';
+// import { whitelabelRoutes } from './routes/white-label-setup'; // DISABLED
 import videoRoutes from './routes/video';
 import path from 'path';
 import fs from 'fs';
 import { ModelRetrainService } from './retrain-model';
 import { setupVite } from './vite';
-import { generateWebsiteHTML } from './services/website-generator';
+// import { generateWebsiteHTML } from './services/website-generator'; // DISABLED
 import emailManagementRouter from './routes/email-management-routes';
 import { registerCheckoutRoutes } from './routes/checkout';
 // PHASE 4: OLD MAYA ROUTES ARCHIVED (Comment out old fragmented routes)
@@ -32,10 +32,10 @@ import { registerCheckoutRoutes } from './routes/checkout';
 // import mayaUnifiedRouter from './routes/maya-unified'; // REMOVED: Direct integration replaced with façade
 import supportEscalationRouter from './routes/support-escalation';
 // UNIFIED ADMIN SYSTEM imports
-import consultingAgentsRouter from './routes/consulting-agents-routes';
-import agentHandoffRouter from './routes/agent-handoff-routes';
-import adminRouter from './routes/admin';
-import adminCacheRouter from './routes/admin-cache-management';
+// import consultingAgentsRouter from './routes/consulting-agents-routes'; // DISABLED
+// import agentHandoffRouter from './routes/agent-handoff-routes'; // DISABLED
+// import adminRouter from './routes/admin'; // DISABLED
+// import adminCacheRouter from './routes/admin-cache-management'; // DISABLED
 import adminEmpireApiRouter from './routes/admin-empire-api';
 import memberProtectionRouter from './routes/member-protection';
 import systemValidationRouter from './routes/system-validation';
@@ -1019,8 +1019,8 @@ function generatePersonalizedScenePrompt(sceneNumber: number, originalMessage: s
       }
 
       // ✅ Use Maya's intelligence with video specialization
-      const { PersonalityManager } = await import('./agents/personalities/personality-config');
-      const { ClaudeApiServiceSimple } = await import('./services/claude-api-service-simple');
+      // const { PersonalityManager } = await import('./agents/personalities/personality-config'); // DISABLED
+      // const { ClaudeApiServiceSimple } = await import('./services/claude-api-service-simple'); // DISABLED
       
       // Create video-specific conversation ID
       const videoConversationId = `video_${userId}_${Date.now()}`;
@@ -1993,8 +1993,8 @@ Format your response with clear scene breakdowns for VEO video generation.`;
   app.use('/api/email-management', emailManagementRouter);
   
   // 🔐 Gmail Authentication Routes
-  const gmailAuthRouter = await import('./routes/gmail-auth');
-  app.use('/api/auth/gmail', gmailAuthRouter.default);
+  // const gmailAuthRouter = await import('./routes/gmail-auth'); // DISABLED
+  // app.use('/api/auth/gmail', gmailAuthRouter.default); // DISABLED
   
   // 📱 Instagram DM Management Routes
   const instagramManagementRouter = await import('./routes/instagram-management');
@@ -3497,8 +3497,8 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       const userId = '42585527';
       
       // UNIFIED SERVICE: Use singleton to eliminate service multiplication
-      const { claudeApiServiceSimple } = await import('./services/claude-api-service-simple');
-      const claudeService = claudeApiServiceSimple;
+      // const { claudeApiServiceSimple } = await import('./services/claude-api-service-simple'); // DISABLED
+      // const claudeService = claudeApiServiceSimple; // DISABLED
       
       console.log('🎯 DIRECT AGENT ACCESS: Using Claude API with workspace tools (cost-optimized)');
       
@@ -3667,7 +3667,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       const conversationId = `conv_${agentName}_${userId || 'anonymous'}`;
       
       // UNIFIED SERVICE: Use singleton to eliminate service multiplication
-      const { claudeApiServiceSimple } = await import('./services/claude-api-service-simple');
+      // const { claudeApiServiceSimple } = await import('./services/claude-api-service-simple'); // DISABLED
       
       // Create conversation using available public method
       const conversationDbId = conversationId;
@@ -3773,8 +3773,8 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       }
 
       // UNIFIED SERVICE: Use singleton to eliminate service multiplication
-      const { claudeApiServiceSimple } = await import('./services/claude-api-service-simple');
-      const claudeService = claudeApiServiceSimple;
+      // const { claudeApiServiceSimple } = await import('./services/claude-api-service-simple'); // DISABLED
+      // const claudeService = claudeApiServiceSimple; // DISABLED
       // Simple response generation for basic messaging
       const response = `Hello! I'm ${agentName}, ready to help you with your request: "${message}"`;
 
@@ -4590,7 +4590,7 @@ Example: "minimalist rooftop terrace overlooking city skyline at golden hour, we
   AgentContextMonitor.getInstance().startMonitoring(30); // Check every 30 minutes for launch opportunities
   
   // Connect Slack Interactive System with raw body parsing for signature verification
-  const slackInteractivityRouter = await import('./routes/slack-interactivity');
+  // const slackInteractivityRouter = await import('./routes/slack-interactivity'); // DISABLED
   
   // Add raw body parser specifically for Slack webhooks
   app.use('/api/slack', express.raw({
