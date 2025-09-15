@@ -40,6 +40,9 @@ import adminEmpireApiRouter from './routes/admin-empire-api';
 import memberProtectionRouter from './routes/member-protection';
 import systemValidationRouter from './routes/system-validation';
 import phase2CoordinationRouter from './routes/phase2-coordination';
+// New modular routes
+import utilityRoutes from './routes/modules/utility';
+import authRoutes from './routes/modules/auth';
 // Reconstructed wrapper function (previously removed during refactor cleanup)
 export async function registerRoutes(app: Express): Promise<Server> {
   // Create HTTP server reference (needed for later return)
@@ -50,6 +53,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use(express.urlencoded({ extended: true, limit: '10mb' }));
   app.use(cookieParser());
   console.log('✅ Cookie parser middleware initialized');
+
+  // Register new modular routes
+  app.use('/', utilityRoutes);
+  app.use('/', authRoutes);
+  console.log('✅ Modular routes registered');
 
   // NOTE: The remainder of the file already assumes an existing `app` context.
   // Imports consolidated above wrapper during refactor.
