@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../hooks/use-auth';
+import { useAuth } from '../../../hooks/use-auth';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'wouter';
-import { SandraImages } from '../lib/sandra-images';
+import { SandraImages } from '../../../lib/sandra-images';
 import { SupportChatBubble } from './support-chat-bubble';
 import { MemberNavigation } from './member-navigation';
 import '../components/support-chat-styles.css';

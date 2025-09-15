@@ -39,7 +39,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         },
       },
     });
-    const json = JSON.parse(response.text.trim());
+    const json = JSON.parse(response.text?.trim() || '{}');
     res.json(json);
   } catch (error) {
     res.status(500).json({ error: 'Failed to draft storyboard' });

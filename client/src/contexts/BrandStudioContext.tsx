@@ -51,6 +51,9 @@ interface BrandStudioContextType extends BrandStudioState {
   setHandoffData: (data: any) => void;
   clearHandoffData: () => void;
   startNewSession: () => void;
+  // Additional properties
+  selectedItem: any;
+  setSelectedItem: (item: any) => void;
   // Status
   isLoading: boolean;
 }
@@ -286,6 +289,8 @@ export function BrandStudioProvider({ children }: { children: React.ReactNode })
     setHandoffData,
     clearHandoffData,
     startNewSession,
+    selectedItem: null,
+    setSelectedItem: () => {},
     isLoading: isLoading || sendMessageMutation.isPending
   };
 
