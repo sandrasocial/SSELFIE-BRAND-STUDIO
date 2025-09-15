@@ -79,21 +79,21 @@ export class APIDocumentationSystem {
   private endpoints: Map<string, APIEndpoint>;
   private schemas: Map<string, any>;
   private examples: Map<string, any>;
-  private isEnabled: boolean;
+  private _isEnabled: boolean;
 
   constructor() {
-    this.logger = new Logger('APIDocumentationSystem');
-    this.endpoints = new Map();
-    this.schemas = new Map();
-    this.examples = new Map();
-    this.isEnabled = true;
+  this.logger = new Logger('APIDocumentationSystem');
+  this.endpoints = new Map();
+  this.schemas = new Map();
+  this.examples = new Map();
+  this._isEnabled = true;
   }
 
   /**
    * Register an API endpoint
    */
   public registerEndpoint(endpoint: APIEndpoint): void {
-    if (!this.isEnabled) {
+  if (!this._isEnabled) {
       return;
     }
 
@@ -106,7 +106,7 @@ export class APIDocumentationSystem {
    * Register a schema
    */
   public registerSchema(name: string, schema: any): void {
-    if (!this.isEnabled) {
+  if (!this._isEnabled) {
       return;
     }
 
@@ -118,7 +118,7 @@ export class APIDocumentationSystem {
    * Register an example
    */
   public registerExample(name: string, example: any): void {
-    if (!this.isEnabled) {
+  if (!this._isEnabled) {
       return;
     }
 
@@ -534,15 +534,15 @@ export class APIDocumentationSystem {
    * Enable/disable documentation system
    */
   public setEnabled(enabled: boolean): void {
-    this.isEnabled = enabled;
-    this.logger.info(`API documentation system ${enabled ? 'enabled' : 'disabled'}`);
+  this._isEnabled = enabled;
+  this.logger.info(`API documentation system ${enabled ? 'enabled' : 'disabled'}`);
   }
 
   /**
    * Check if documentation system is enabled
    */
   public isEnabled(): boolean {
-    return this.isEnabled;
+  return this._isEnabled;
   }
 }
 

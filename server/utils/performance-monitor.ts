@@ -12,20 +12,38 @@ export interface PerformanceMetric {
   memoryUsage: number;
   cpuUsage: number;
   success: boolean;
+  responseTime?: number; // ms, for compatibility with stats calculations
+  errorRate?: number; // for compatibility with stats calculations
   metadata?: Record<string, any>;
 }
 
 export interface PerformanceStats {
-  operation: string;
-  totalCalls: number;
-  successRate: number;
-  averageDuration: number;
-  minDuration: number;
-  maxDuration: number;
-  p95Duration: number;
-  p99Duration: number;
-  averageMemoryUsage: number;
-  averageCpuUsage: number;
+  // Existing fields
+  operation?: string;
+  totalCalls?: number;
+  successRate?: number;
+  averageDuration?: number;
+  minDuration?: number;
+  maxDuration?: number;
+  p95Duration?: number;
+  p99Duration?: number;
+  averageMemoryUsage?: number;
+  averageCpuUsage?: number;
+
+  // Added for dashboard/health-check compatibility
+  averageResponseTime?: number;
+  maxResponseTime?: number;
+  minResponseTime?: number;
+  errorRate?: number;
+  throughput?: number;
+  totalRequests?: number;
+  requestsPerMinute?: number;
+  requestsPerHour?: number;
+  requestsPerDay?: number;
+  p95?: number;
+  p99?: number;
+  slowestEndpoints?: any;
+  activeUsers?: number;
 }
 
 export class PerformanceMonitor {
@@ -248,7 +266,7 @@ export class PerformanceMonitor {
    * Enable/disable monitoring
    */
   setEnabled(enabled: boolean): void {
-    this.isEnabled = enabled;
+  this.enabled = enabled;
     this.logger.info(`Performance monitoring ${enabled ? 'enabled' : 'disabled'}`);
   }
 
