@@ -636,18 +636,22 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getUserVideosByStatus(userId: string, status?: string): Promise<GeneratedVideo[]> {
-    const baseQuery = db
-      .select()
-      .from(generatedVideos)
-      .where(eq(generatedVideos.userId, userId));
-    
     if (status) {
-      return await baseQuery
-        .where(eq(generatedVideos.status, status))
+      return await db
+        .select()
+        .from(generatedVideos)
+        .where(and(
+          eq(generatedVideos.userId, userId),
+          eq(generatedVideos.status, status)
+        ))
         .orderBy(desc(generatedVideos.createdAt));
     }
     
-    return await baseQuery.orderBy(desc(generatedVideos.createdAt));
+    return await db
+      .select()
+      .from(generatedVideos)
+      .where(eq(generatedVideos.userId, userId))
+      .orderBy(desc(generatedVideos.createdAt));
   }
 
   // 🔑 Generation Tracker Methods - for temp preview workflow ONLY
@@ -1841,7 +1845,13 @@ export class DatabaseStorage implements IStorage {
   async createConversation(data: InsertConversation): Promise<Conversation> {
     const [conversation] = await db
       .insert(conversations)
-      .values(data)
+      .values({
+        ...data,
+        userId: data.userId || '',
+        agentName: data.agentName || 'maya',
+        title: data.title || 'New Conversation',
+        status: data.status || 'active'
+      })
       .returning();
     return conversation;
   }
