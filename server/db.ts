@@ -1,5 +1,7 @@
 import { Pool } from 'pg';
 import { DATABASE_URL } from './env';
+import { drizzle } from 'drizzle-orm/node-postgres';
+import * as schema from '../shared/schema';
 
 export const pool = new Pool({
   connectionString: DATABASE_URL,
@@ -8,3 +10,6 @@ export const pool = new Pool({
 });
 
 export const query = (text: string, params?: any[]) => pool.query(text, params);
+
+// Export drizzle db instance for ORM operations
+export const db = drizzle(pool, { schema });

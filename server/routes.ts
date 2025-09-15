@@ -799,7 +799,7 @@ function generatePersonalizedScenePrompt(sceneNumber: number, originalMessage: s
   // app.use('/api/maya-onboarding', mayaOnboardingRoutes);
   
   // MAYA UNIFIED API: Consolidated router with direct implementation
-  const { default: mayaUnifiedRouter } = await import('./routes/maya.ts');
+  const { default: mayaUnifiedRouter } = await import('./routes/maya');
   app.use('/api/maya', mayaUnifiedRouter);
   console.log('🎨 MAYA UNIFIED: API active at /api/maya/* (Consolidated Router)');
   
