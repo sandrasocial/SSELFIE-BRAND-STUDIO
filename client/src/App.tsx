@@ -1,4 +1,4 @@
-import React, { ComponentType, useEffect, lazy, Suspense } from 'react';
+import React, { ComponentType, useEffect } from 'react';
 import { Route, useLocation, Redirect } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -17,12 +17,12 @@ import { optimizeRuntime } from "./utils/webVitals";
 import BrandStudioPage from "./pages/BrandStudioPage";
 import AppLayout from "./pages/AppLayout";
 
-// Lazy loaded essential pages
-const BusinessLanding = lazy(() => import("./pages/business-landing"));
-const SimpleTraining = lazy(() => import("./pages/simple-training"));
-const SimpleCheckout = lazy(() => import("./pages/simple-checkout"));
-const PaymentSuccess = lazy(() => import("./pages/payment-success"));
-const ThankYou = lazy(() => import("./pages/thank-you"));
+// Import all pages directly to ensure they're included in the main bundle
+import BusinessLanding from "./pages/business-landing";
+import SimpleTraining from "./pages/simple-training";
+import SimpleCheckout from "./pages/simple-checkout";
+import PaymentSuccess from "./pages/payment-success";
+import ThankYou from "./pages/thank-you";
 
 // Components
 import { PageLoader } from "./components/PageLoader";
@@ -93,53 +93,29 @@ function Router() {
           return <SmartHome />;
         }
         
-        return (
-          <Suspense fallback={<PageLoader />}>
-            <BusinessLanding />
-          </Suspense>
-        );
+        return <BusinessLanding />;
       }} />
       
       {/* PUBLIC ROUTES */}
-      <Route path="/business" component={() => (
-        <Suspense fallback={<PageLoader />}>
-          <BusinessLanding />
-        </Suspense>
-      )} />
+      <Route path="/business" component={BusinessLanding} />
 
       {/* PAYMENT FLOW */}
-      <Route path="/simple-checkout" component={() => (
-        <Suspense fallback={<PageLoader />}>
-          <SimpleCheckout />
-        </Suspense>
-      )} />
-      <Route path="/thank-you" component={() => (
-        <Suspense fallback={<PageLoader />}>
-          <ThankYou />
-        </Suspense>
-      )} />
-      <Route path="/payment-success" component={() => (
-        <Suspense fallback={<PageLoader />}>
-          <PaymentSuccess />
-        </Suspense>
-      )} />
+      <Route path="/simple-checkout" component={SimpleCheckout} />
+      <Route path="/thank-you" component={ThankYou} />
+      <Route path="/payment-success" component={PaymentSuccess} />
 
       {/* PROTECTED ROUTES */}
       
       {/* AI TRAINING WORKFLOW */}
       <Route path="/simple-training" component={(props) => (
-        <Suspense fallback={<PageLoader />}>
-            <ProtectedRoute component={SimpleTraining} {...props} />
-        </Suspense>
+        <ProtectedRoute component={SimpleTraining} {...props} />
       )} />
 
       {/* NEW TABBED UI ROUTE */}
       <Route
         path="/app"
         component={(props) => (
-          <Suspense fallback={<PageLoader />}>
-              <ProtectedRoute component={AppLayout} {...props} />
-          </Suspense>
+          <ProtectedRoute component={AppLayout} {...props} />
         )}
       />
 

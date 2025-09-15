@@ -40,6 +40,14 @@ export default defineConfig(async ({ mode }) => {
     build: {
       outDir: path.resolve(import.meta.dirname, "client/dist"),
       emptyOutDir: true,
+      rollupOptions: {
+        output: {
+          // Force all code into a single bundle instead of separate chunks
+          manualChunks: undefined,
+          // Ensure all pages are included in the main bundle
+          inlineDynamicImports: true,
+        },
+      },
     },
     server: {
       host: "0.0.0.0",
