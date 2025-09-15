@@ -34,7 +34,7 @@ router.post('/api/training/start', requireStackAuth, asyncHandler(async (req: an
 
   // Mock implementation - replace with actual training service
   const trainingId = `training_${Date.now()}`;
-  sendSuccess(res, { trainingId, message: 'Training started successfully' }, 202);
+  sendSuccess(res, { trainingId, message: 'Training started successfully' }, 'Training started successfully', 202);
 }));
 
 // Stop training

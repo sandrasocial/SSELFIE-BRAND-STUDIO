@@ -157,7 +157,7 @@ export class Logger {
    * Enable/disable logging
    */
   public setEnabled(enabled: boolean): void {
-    this.isEnabled = enabled;
+    this.enabled = enabled;
   }
 
   /**

@@ -12,7 +12,7 @@ const router = Router();
 // Register agent protocol
 router.post('/api/agent-protocol', asyncHandler(async (req: any, res) => {
   const { protocol, version, data } = req.body;
-  validateRequired({ protocol, version });
+  validateRequired({ protocol, version }, ['protocol', 'version']);
 
   // Mock implementation - replace with actual protocol service
   const protocolId = `protocol_${Date.now()}`;
