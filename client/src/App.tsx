@@ -89,6 +89,9 @@ function Router() {
       <Route path="/handler/:path" component={HandlerRoutes} />
       <Route path="/handler" component={HandlerRoutes} />
       
+      {/* OAuth callback handler */}
+      <Route path="/oauth-callback" component={HandlerRoutes} />
+      
       {/* HOME ROUTE - Smart routing based on authentication and training status */}
       <Route path="/" component={() => {
         const { isAuthenticated, isLoading } = useAuth();
@@ -160,10 +163,12 @@ function Router() {
 // Stack Auth Handler component for authentication routes
 function HandlerRoutes({ params }: { params: { [key: string]: string } }) {
   const handlerPath = params.path || '';
+  const currentUrl = window.location.href;
   
   // Debug logging
   console.log('🔍 HandlerRoutes: params =', params);
   console.log('🔍 HandlerRoutes: handlerPath =', handlerPath);
+  console.log('🔍 HandlerRoutes: currentUrl =', currentUrl);
   console.log('🔍 HandlerRoutes: STACK_PROJECT_ID =', STACK_PROJECT_ID);
   console.log('🔍 HandlerRoutes: STACK_PUBLISHABLE_CLIENT_KEY =', STACK_PUBLISHABLE_CLIENT_KEY ? 'present' : 'missing');
   
@@ -199,9 +204,28 @@ function HandlerRoutes({ params }: { params: { [key: string]: string } }) {
   React.useEffect(() => {
     if (isAuthenticated && !isLoading) {
       console.log('🔍 HandlerRoutes: User is authenticated, redirecting to /app');
-      window.location.href = '/app';
+      // Use a small delay to ensure the authentication state is fully processed
+      setTimeout(() => {
+        window.location.href = '/app';
+      }, 100);
     }
   }, [isAuthenticated, isLoading]);
+  
+  // Handle OAuth callback specifically
+  React.useEffect(() => {
+    if (currentUrl.includes('oauth-callback') || currentUrl.includes('code=')) {
+      console.log('🔍 HandlerRoutes: OAuth callback detected, waiting for authentication...');
+      // Give Stack Auth time to process the callback
+      const timer = setTimeout(() => {
+        if (isAuthenticated) {
+          console.log('🔍 HandlerRoutes: OAuth callback processed, redirecting to /app');
+          window.location.href = '/app';
+        }
+      }, 1000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [currentUrl, isAuthenticated]);
   
   if (isLoading) {
     return (
