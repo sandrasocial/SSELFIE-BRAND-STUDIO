@@ -46,6 +46,12 @@ import authRoutes from './routes/modules/auth';
 import aiGenerationRoutes from './routes/modules/ai-generation';
 import adminRoutes from './routes/modules/admin';
 import agentProtocolRoutes from './routes/modules/agent-protocol';
+import websitesRoutes from './routes/modules/websites';
+import trainingRoutes from './routes/modules/training';
+import galleryRoutes from './routes/modules/gallery';
+import mayaRoutes from './routes/modules/maya';
+import claudeRoutes from './routes/modules/claude';
+import usageRoutes from './routes/modules/usage';
 // Reconstructed wrapper function (previously removed during refactor cleanup)
 export async function registerRoutes(app: Express): Promise<Server> {
   // Create HTTP server reference (needed for later return)
@@ -63,6 +69,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/', aiGenerationRoutes);
   app.use('/', adminRoutes);
   app.use('/', agentProtocolRoutes);
+  app.use('/', websitesRoutes);
+  app.use('/', trainingRoutes);
+  app.use('/', galleryRoutes);
+  app.use('/', mayaRoutes);
+  app.use('/', claudeRoutes);
+  app.use('/', usageRoutes);
   console.log('✅ Modular routes registered');
 
   // NOTE: The remainder of the file already assumes an existing `app` context.
