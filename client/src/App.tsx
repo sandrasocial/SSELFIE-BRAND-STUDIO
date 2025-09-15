@@ -189,16 +189,15 @@ function HandlerRoutes({ params }: { params: { [key: string]: string } }) {
     );
   }
   
-  // Create routeProps object as expected by StackHandler
-  const routeProps = {
-    params: { path: handlerPath },
-    location: { pathname: `/handler/${handlerPath}` }
-  };
-  
-  console.log('🔍 HandlerRoutes: routeProps =', routeProps);
   console.log('🔍 HandlerRoutes: stackClientApp =', stackClientApp);
   
-  return <StackHandler app={stackClientApp} routeProps={routeProps} fullPage />;
+  // Try different StackHandler configurations
+  // Option 1: Basic configuration
+  return (
+    <div>
+      <StackHandler app={stackClientApp} />
+    </div>
+  );
 }
 
 function AppWithProvider() {
