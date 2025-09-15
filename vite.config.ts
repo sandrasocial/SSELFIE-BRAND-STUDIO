@@ -40,12 +40,48 @@ export default defineConfig(async ({ mode }) => {
     build: {
       outDir: path.resolve(import.meta.dirname, "client/dist"),
       emptyOutDir: true,
+      // Optimize bundle size
+      chunkSizeWarningLimit: 1000,
       rollupOptions: {
         output: {
-          // Force all code into a single bundle instead of separate chunks
-          manualChunks: undefined,
-          // Ensure all pages are included in the main bundle
-          inlineDynamicImports: true,
+          // Enable code splitting for better performance
+          manualChunks: {
+            // Vendor chunks for better caching
+            'react-vendor': ['react', 'react-dom'],
+            'stack-vendor': ['@stackframe/react', '@stackframe/stack'],
+            'query-vendor': ['@tanstack/react-query'],
+            'ui-vendor': ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-tooltip'],
+            'utils-vendor': ['wouter', 'clsx', 'class-variance-authority'],
+            // Page chunks for lazy loading
+            'pages-auth': [
+              './src/pages/simple-training.tsx',
+              './src/pages/simple-checkout.tsx',
+              './src/pages/payment-success.tsx'
+            ],
+            'pages-app': [
+              './src/pages/BrandStudioPage.tsx',
+              './src/pages/AppLayout.tsx'
+            ],
+            'pages-landing': [
+              './src/pages/business-landing.tsx',
+              './src/pages/about.tsx',
+              './src/pages/how-it-works.tsx'
+            ]
+          },
+          // Optimize chunk naming
+          chunkFileNames: 'assets/[name]-[hash].js',
+          entryFileNames: 'assets/[name]-[hash].js',
+          assetFileNames: 'assets/[name]-[hash].[ext]'
+        },
+      },
+      // Enable source maps for debugging
+      sourcemap: mode === 'development',
+      // Optimize minification
+      minify: 'terser',
+      terserOptions: {
+        compress: {
+          drop_console: mode === 'production',
+          drop_debugger: mode === 'production',
         },
       },
     },

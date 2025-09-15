@@ -12,17 +12,23 @@ import { useQuery } from "@tanstack/react-query";
 import { redirectToHttps, detectBrowserIssues, showDomainHelp } from "./utils/browserCompat";
 import { optimizeImageLoading, enableServiceWorkerCaching } from "./utils/performanceOptimizations";
 import { optimizeRuntime } from "./utils/webVitals";
+import { ErrorBoundary } from "./components/ErrorBoundary";
+import { initializeMobileOptimization } from "./utils/mobileOptimization";
+import { performanceMonitor } from "./utils/performanceMonitor";
+import { initializeRuntimeOptimization } from "./utils/runtimeOptimization";
 
 // Core pages (loaded immediately) - BRAND STUDIO IS PRIMARY
 import BrandStudioPage from "./pages/BrandStudioPage";
 import AppLayout from "./pages/AppLayout";
 
-// Import all pages directly to ensure they're included in the main bundle
-import BusinessLanding from "./pages/business-landing";
-import SimpleTraining from "./pages/simple-training";
-import SimpleCheckout from "./pages/simple-checkout";
-import PaymentSuccess from "./pages/payment-success";
-import ThankYou from "./pages/thank-you";
+// Lazy load non-critical pages for better performance
+import { lazy, Suspense } from "react";
+
+const BusinessLanding = lazy(() => import("./pages/business-landing"));
+const SimpleTraining = lazy(() => import("./pages/simple-training"));
+const SimpleCheckout = lazy(() => import("./pages/simple-checkout"));
+const PaymentSuccess = lazy(() => import("./pages/payment-success"));
+const ThankYou = lazy(() => import("./pages/thank-you"));
 
 // Components
 import { PageLoader } from "./components/PageLoader";
@@ -93,22 +99,46 @@ function Router() {
           return <SmartHome />;
         }
         
-        return <BusinessLanding />;
+        return (
+          <Suspense fallback={<PageLoader />}>
+            <BusinessLanding />
+          </Suspense>
+        );
       }} />
       
       {/* PUBLIC ROUTES */}
-      <Route path="/business" component={BusinessLanding} />
+      <Route path="/business" component={() => (
+        <Suspense fallback={<PageLoader />}>
+          <BusinessLanding />
+        </Suspense>
+      )} />
 
       {/* PAYMENT FLOW */}
-      <Route path="/simple-checkout" component={SimpleCheckout} />
-      <Route path="/thank-you" component={ThankYou} />
-      <Route path="/payment-success" component={PaymentSuccess} />
+      <Route path="/simple-checkout" component={() => (
+        <Suspense fallback={<PageLoader />}>
+          <SimpleCheckout />
+        </Suspense>
+      )} />
+      <Route path="/thank-you" component={() => (
+        <Suspense fallback={<PageLoader />}>
+          <ThankYou />
+        </Suspense>
+      )} />
+      <Route path="/payment-success" component={() => (
+        <Suspense fallback={<PageLoader />}>
+          <PaymentSuccess />
+        </Suspense>
+      )} />
 
       {/* PROTECTED ROUTES */}
       
       {/* AI TRAINING WORKFLOW */}
       <Route path="/simple-training" component={(props) => (
-        <ProtectedRoute component={SimpleTraining} {...props} />
+        <ProtectedRoute component={() => (
+          <Suspense fallback={<PageLoader />}>
+            <SimpleTraining />
+          </Suspense>
+        )} {...props} />
       )} />
 
       {/* NEW TABBED UI ROUTE */}
@@ -180,6 +210,16 @@ function App() {
       optimizeImageLoading();
       enableServiceWorkerCaching();
       optimizeRuntime();
+      
+      // Phase 5: Mobile optimization
+      initializeMobileOptimization();
+      
+      // Phase 6: Performance monitoring
+      console.log('📊 Performance monitoring initialized');
+      console.log('📊 Performance Score:', performanceMonitor.getPerformanceScore());
+      
+      // Phase 7: Runtime optimization
+      initializeRuntimeOptimization();
     } catch (error) {
       console.error('Error in App initialization:', error);
     }
@@ -188,9 +228,9 @@ function App() {
   console.log('SSELFIE Studio: App rendering...');
   
   return (
-    <>
+    <ErrorBoundary>
       <Router />
-    </>
+    </ErrorBoundary>
   );
 }
 

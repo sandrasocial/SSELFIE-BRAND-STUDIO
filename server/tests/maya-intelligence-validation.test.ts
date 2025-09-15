@@ -5,7 +5,7 @@
 
 import { describe, test, expect, beforeEach } from '@jest/globals';
 import { MAYA_PERSONALITY } from '../agents/personalities/maya-personality.js';
-import { PersonalityManager } from '../agents/personalities/personality-config.js';
+import { PersonalityManager } from '../agents/personalities/personality-config';
 import { MayaVisualAnalysisService } from '../services/maya-visual-analysis.js';
 import { MayaTrendIntelligenceService } from '../services/maya-trend-intelligence.js';
 import { MayaOptimizationService } from '../services/maya-optimization-service.js';
