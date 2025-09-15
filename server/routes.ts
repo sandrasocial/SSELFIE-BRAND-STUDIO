@@ -43,6 +43,9 @@ import phase2CoordinationRouter from './routes/phase2-coordination';
 // New modular routes
 import utilityRoutes from './routes/modules/utility';
 import authRoutes from './routes/modules/auth';
+import aiGenerationRoutes from './routes/modules/ai-generation';
+import adminRoutes from './routes/modules/admin';
+import agentProtocolRoutes from './routes/modules/agent-protocol';
 // Reconstructed wrapper function (previously removed during refactor cleanup)
 export async function registerRoutes(app: Express): Promise<Server> {
   // Create HTTP server reference (needed for later return)
@@ -57,6 +60,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register new modular routes
   app.use('/', utilityRoutes);
   app.use('/', authRoutes);
+  app.use('/', aiGenerationRoutes);
+  app.use('/', adminRoutes);
+  app.use('/', agentProtocolRoutes);
   console.log('✅ Modular routes registered');
 
   // NOTE: The remainder of the file already assumes an existing `app` context.
