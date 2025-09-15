@@ -88,7 +88,6 @@ export class TrainingCompletionMonitor {
           trainingStatus: 'completed',
           replicateModelId: replicateModelId, // Keep training ID for reference
           replicateVersionId: versionId, // Training version
-          loraWeightsUrl: extractedWeights?.loraWeightsUrl || null, // ✅ RESTORED: LoRA weights URL
           triggerWord: triggerWord, // CRITICAL: Ensure trigger word is stored
           trainedModelPath: paths.getUserModelPath(userId),
           modelType: extractedWeights ? 'flux-lora' : 'flux-packaged', // Dynamic model type
@@ -133,7 +132,7 @@ export class TrainingCompletionMonitor {
             console.log(`🎯 STRATEGIC TRAINING COMPLETION: User ${userId} completed brand strategy coaching`);
             
             // Parse brand strategy context
-            const strategyData = JSON.parse(user.brandStrategyContext);
+            const strategyData = JSON.parse(user.brandStrategyContext as string);
             const responses = strategyData.responses;
             
             console.log(`✨ STRATEGIC CONCEPTS: User ${userId} ready for strategy-informed photo creation`);
@@ -243,7 +242,7 @@ export class TrainingCompletionMonitor {
             console.log(`🎯 STRATEGIC TRAINING COMPLETION: User ${userId} completed brand strategy coaching`);
             
             // Parse brand strategy context
-            const strategyData = JSON.parse(user.brandStrategyContext);
+            const strategyData = JSON.parse(user.brandStrategyContext as string);
             const responses = strategyData.responses;
             
             console.log(`✨ STRATEGIC CONCEPTS: User ${userId} ready for strategy-informed photo creation`);

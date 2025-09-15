@@ -636,16 +636,18 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getUserVideosByStatus(userId: string, status?: string): Promise<GeneratedVideo[]> {
-    let query = db
+    const baseQuery = db
       .select()
       .from(generatedVideos)
       .where(eq(generatedVideos.userId, userId));
     
     if (status) {
-      query = query.where(eq(generatedVideos.status, status));
+      return await baseQuery
+        .where(eq(generatedVideos.status, status))
+        .orderBy(desc(generatedVideos.createdAt));
     }
     
-    return await query.orderBy(desc(generatedVideos.createdAt));
+    return await baseQuery.orderBy(desc(generatedVideos.createdAt));
   }
 
   // 🔑 Generation Tracker Methods - for temp preview workflow ONLY
@@ -1839,10 +1841,7 @@ export class DatabaseStorage implements IStorage {
   async createConversation(data: InsertConversation): Promise<Conversation> {
     const [conversation] = await db
       .insert(conversations)
-      .values({
-        ...data,
-        tags: data.tags || [] // Ensure tags is an array
-      })
+      .values(data)
       .returning();
     return conversation;
   }
@@ -1885,23 +1884,28 @@ export class DatabaseStorage implements IStorage {
   async createMessage(data: InsertMessage): Promise<Message> {
     const [message] = await db
       .insert(messages)
-      .values(data)
+      .values({
+        ...data,
+        role: data.role || 'user',
+        content: data.content || '',
+        conversationId: data.conversationId || ''
+      })
       .returning();
     return message;
   }
 
   async getConversationMessages(conversationId: string, limit?: number): Promise<Message[]> {
-    let query = db
+    const baseQuery = db
       .select()
       .from(messages)
       .where(eq(messages.conversationId, conversationId))
       .orderBy(desc(messages.createdAt));
     
     if (limit) {
-      query = query.limit(limit);
+      return await baseQuery.limit(limit);
     }
     
-    return await query;
+    return await baseQuery;
   }
 
   async getLastMessages(conversationId: string, count: number): Promise<Message[]> {
@@ -1940,14 +1944,22 @@ export class DatabaseStorage implements IStorage {
     if (existing) {
       const [summary] = await db
         .update(conversationSummaries)
-        .set({ ...data, updatedAt: new Date() })
+        .set({ 
+          ...data, 
+          summary: data.summary || '',
+          updatedAt: new Date() 
+        })
         .where(eq(conversationSummaries.conversationId, data.conversationId))
         .returning();
       return summary;
     } else {
       const [summary] = await db
         .insert(conversationSummaries)
-        .values(data)
+        .values({
+          ...data,
+          conversationId: data.conversationId || '',
+          summary: data.summary || ''
+        })
         .returning();
       return summary;
     }
@@ -1987,7 +1999,11 @@ export class DatabaseStorage implements IStorage {
 
     const [conceptCard] = await db
       .insert(conceptCards)
-      .values(data)
+      .values({
+        ...data,
+        userId: data.userId || '',
+        title: data.title || 'Untitled Concept'
+      })
       .returning();
     return conceptCard;
   }
