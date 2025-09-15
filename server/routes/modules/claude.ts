@@ -1,75 +1,58 @@
 /**
- * Claude AI Routes Module
- * Handles Claude AI conversations and messaging
+ * Claude Routes
+ * Handles Claude AI interactions
  */
 
 import { Router } from 'express';
-import { requireStackAuth } from '../middleware/auth';
-
 import { asyncHandler, createError, sendSuccess, validateRequired } from '../middleware/error-handler';
+
 const router = Router();
 
-// Claude Conversation Routes
-router.post('
-    const { message, conversationId, agentId } = req.body;
+// Send message to Claude
+router.post('/api/claude/chat', asyncHandler(async (req: any, res) => {
+  const { message, conversationId, agentId } = req.body;
+  validateRequired({ message });
 
-    if (!message) {
-      throw createError.validation("Message is required");
-    }
-
-    // TODO: Implement Claude message sending
-    sendSuccess(res, {message: 'Claude message sent',
-      response: 'Claude response placeholder',
-      conversationId: conversationId || `conv_${Date.now()}`});
-  ', asyncHandler(async (req, res) => {
-console.error('Error sending Claude message:', error);
+  // Mock implementation - replace with actual Claude service
+  const response = "Hello! I'm Claude, your AI assistant. How can I help you today?";
+  sendSuccess(res, { response, conversationId: conversationId || `conv_${Date.now()}` });
 }));
 
-router.get('
-    const { agentId } = req.params;
+// Get Claude conversations
+router.get('/api/claude/conversations/:agentId', asyncHandler(async (req: any, res) => {
+  const { agentId } = req.params;
 
-    // TODO: Implement conversations listing
-    sendSuccess(res, {agentId,
-      conversations: [],
-      count: 0});
-  ', asyncHandler(async (req, res) => {
-console.error('Error fetching conversations:', error);
+  // Mock implementation - replace with actual Claude service
+  const conversations = [];
+  sendSuccess(res, { conversations, count: conversations.length });
 }));
 
-router.get('
-    const { conversationId } = req.params;
+// Get specific conversation
+router.get('/api/claude/conversation/:conversationId', asyncHandler(async (req: any, res) => {
+  const { conversationId } = req.params;
 
-    // TODO: Implement conversation history
-    sendSuccess(res, {conversationId,
-      history: [],
-      count: 0});
-  ', asyncHandler(async (req, res) => {
-console.error('Error fetching conversation history:', error);
+  // Mock implementation - replace with actual Claude service
+  const conversation = { id: conversationId, messages: [] };
+  sendSuccess(res, { conversation });
 }));
 
-router.post('
-    const { agentId, title } = req.body;
+// Create new conversation
+router.post('/api/claude/conversation', asyncHandler(async (req: any, res) => {
+  const { agentId, title } = req.body;
+  validateRequired({ agentId });
 
-    // TODO: Implement new conversation creation
-    sendSuccess(res, {message: 'New conversation created',
-      conversationId: `conv_${Date.now()}`,
-      agentId});
-  ', asyncHandler(async (req, res) => {
-console.error('Error creating new conversation:', error);
+  // Mock implementation - replace with actual Claude service
+  const conversationId = `conv_${Date.now()}`;
+  sendSuccess(res, { conversationId, message: 'Conversation created successfully' }, 201);
 }));
 
-router.post('
-    const { conversationId } = req.body;
+// End conversation
+router.post('/api/claude/conversation/end', asyncHandler(async (req: any, res) => {
+  const { conversationId } = req.body;
+  validateRequired({ conversationId });
 
-    if (!conversationId) {
-      throw createError.validation("Conversation ID is required");
-    }
-
-    // TODO: Implement conversation clearing
-    sendSuccess(res, {message: 'Conversation cleared',
-      conversationId});
-  ', asyncHandler(async (req, res) => {
-console.error('Error clearing conversation:', error);
+  // Mock implementation - replace with actual Claude service
+  sendSuccess(res, { message: 'Conversation ended successfully' });
 }));
 
 export default router;

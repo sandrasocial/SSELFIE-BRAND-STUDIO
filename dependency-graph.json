@@ -1,0 +1,18 @@
+{
+  "client/postcss.config.js": [],
+  "client/src/services/api.js": [],
+  "client/tailwind.config.js": [],
+  "client/test-style-collections.js": [],
+  "jest.config.js": [],
+  "jest.setup.js": [],
+  "server/api/plan-b-status.js": [],
+  "server/conversation/manager.js": [],
+  "server/middleware/admin-bypass.js": [],
+  "server/protocols/enforcer.js": [],
+  "server/routes/admin-tools.js": [
+    "server/middleware/admin-bypass.js"
+  ],
+  "server/routes/maya.js": [],
+  "server/routes/video.js": [],
+  "test-save-image.js": []
+}

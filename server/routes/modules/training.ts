@@ -1,135 +1,97 @@
 /**
- * Training Routes Module
- * Handles model training and retraining operations
+ * Training Routes
+ * Handles model training and data management
  */
 
 import { Router } from 'express';
 import { requireStackAuth } from '../middleware/auth';
-import { storage } from '../../storage';
-
 import { asyncHandler, createError, sendSuccess, validateRequired } from '../middleware/error-handler';
+
 const router = Router();
 
-// Training Status Routes
-router.get('
-    const userId = req.user.id;
+// Get training status
+router.get('/api/training/status', requireStackAuth, asyncHandler(async (req: any, res) => {
+  const userId = req.user.id;
 
-    // TODO: Implement training status checking
-    sendSuccess(res, {status: 'idle',
-      progress: 0,
-      message: 'No active training'});
-  ', requireStackAuth, asyncHandler(async (req, res) => {
-console.error('Error checking training status:', error);
+  // Mock implementation - replace with actual training service
+  const status = { userId, status: 'idle', lastTraining: null };
+  sendSuccess(res, { status });
 }));
 
-router.get('
-    const { requestId } = req.params;
-    const userId = req.user.id;
+// Get training request status
+router.get('/api/training/request/:requestId', requireStackAuth, asyncHandler(async (req: any, res) => {
+  const { requestId } = req.params;
 
-    // TODO: Implement training progress tracking
-    sendSuccess(res, {requestId,
-      progress: 50,
-      status: 'training',
-      message: 'Training in progress'});
-  ', requireStackAuth, asyncHandler(async (req, res) => {
-console.error('Error checking training progress:', error);
+  // Mock implementation - replace with actual training service
+  const request = { id: requestId, status: 'completed', progress: 100 };
+  sendSuccess(res, { request });
 }));
 
-// Training Operations
-router.post('
-    const userId = req.user.id;
-    const { extractionId } = req.body;
+// Start training
+router.post('/api/training/start', requireStackAuth, asyncHandler(async (req: any, res) => {
+  const userId = req.user.id;
+  const { modelType, data } = req.body;
 
-    // TODO: Implement extraction retry
-    sendSuccess(res, {message: 'Extraction retry initiated',
-      extractionId});
-  ', requireStackAuth, asyncHandler(async (req, res) => {
-console.error('Error retrying extraction:', error);
+  // Mock implementation - replace with actual training service
+  const trainingId = `training_${Date.now()}`;
+  sendSuccess(res, { trainingId, message: 'Training started successfully' }, 202);
 }));
 
-router.post('
-    const userId = req.user.id;
-    const { modelType, trainingData } = req.body;
+// Stop training
+router.post('/api/training/stop', requireStackAuth, asyncHandler(async (req: any, res) => {
+  const userId = req.user.id;
+  const { trainingId } = req.body;
 
-    if (!modelType) {
-      throw createError.validation("Model type is required");
-    }
-
-    // TODO: Implement model training
-    sendSuccess(res, {message: 'Model training initiated',
-      trainingId: `training_${Date.now()}`,
-      modelType});
-  ', requireStackAuth, asyncHandler(async (req, res) => {
-console.error('Error training model:', error);
+  // Mock implementation - replace with actual training service
+  sendSuccess(res, { message: 'Training stopped successfully' });
 }));
 
-router.post('
-    const userId = req.user.id;
-    const { modelConfig } = req.body;
+// Validate training data
+router.post('/api/training/validate', requireStackAuth, asyncHandler(async (req: any, res) => {
+  const userId = req.user.id;
+  const { data } = req.body;
 
-    // TODO: Implement model training start
-    sendSuccess(res, {message: 'Model training started',
-      trainingId: `training_${Date.now()}`});
-  ', requireStackAuth, asyncHandler(async (req, res) => {
-console.error('Error starting model training:', error);
+  // Mock implementation - replace with actual validation service
+  const validation = { valid: true, errors: [] };
+  sendSuccess(res, { validation });
 }));
 
-router.post('
-    const userId = req.user.id;
-    const { trainingParams } = req.body;
+// Get training metrics
+router.post('/api/training/metrics', requireStackAuth, asyncHandler(async (req: any, res) => {
+  const userId = req.user.id;
+  const { trainingId } = req.body;
 
-    // TODO: Implement new training initiation
-    sendSuccess(res, {message: 'New training initiated',
-      trainingId: `training_${Date.now()}`});
-  ', requireStackAuth, asyncHandler(async (req, res) => {
-console.error('Error initiating new training:', error);
+  // Mock implementation - replace with actual metrics service
+  const metrics = { accuracy: 0.95, loss: 0.05, epoch: 10 };
+  sendSuccess(res, { metrics });
 }));
 
-// Admin Training Routes
-router.post('
-    const { userId } = req.params;
+// Consolidate data
+router.post('/api/training/consolidate/:userId', asyncHandler(async (req: any, res) => {
+  const { userId } = req.params;
 
-    // TODO: Implement admin training restart
-    sendSuccess(res, {message: 'Training restarted for user',
-      userId});
-  ', asyncHandler(async (req, res) => {
-console.error('Error restarting training:', error);
+  // Mock implementation - replace with actual consolidation service
+  sendSuccess(res, { message: 'Data consolidation initiated' });
 }));
 
-router.post('
-    // TODO: Implement data consolidation
-    sendSuccess(res, {message: 'Data consolidation initiated'});
-  ', asyncHandler(async (req, res) => {
-console.error('Error consolidating data:', error);
+// Get consolidation status
+router.get('/api/training/consolidation/status', asyncHandler(async (req: any, res) => {
+  // Mock implementation - replace with actual consolidation service
+  sendSuccess(res, { status: 'healthy', lastConsolidation: new Date().toISOString() });
 }));
 
-router.get('
-    // TODO: Implement data status checking
-    sendSuccess(res, {status: 'healthy',
-      lastConsolidation: new Date().toISOString()});
-  ', asyncHandler(async (req, res) => {
-console.error('Error checking data status:', error);
+// Get memory audit
+router.get('/api/training/memory/audit', asyncHandler(async (req: any, res) => {
+  // Mock implementation - replace with actual audit service
+  sendSuccess(res, { audit: { totalMemory: '1GB', usedMemory: '500MB', freeMemory: '500MB' } });
 }));
 
-router.get('
-    // TODO: Implement LoRA audit
-    sendSuccess(res, {audit: {
-        totalModels: 0,
-        activeModels: 0,
-        inactiveModels: 0
-      }});
-  ', asyncHandler(async (req, res) => {
-console.error('Error auditing LoRA:', error);
-}));
+// Cleanup memory
+router.post('/api/training/memory/cleanup/:userId', asyncHandler(async (req: any, res) => {
+  const { userId } = req.params;
 
-router.post('
-    const { userId } = req.params;
-
-    // TODO: Implement LoRA migration
-    sendSuccess(res, {message: 'LoRA migration initiated',
-      userId});
-  ', asyncHandler(async (req, res) => {
-console.error('Error migrating to LoRA:', error);
+  // Mock implementation - replace with actual cleanup service
+  sendSuccess(res, { message: 'Memory cleanup completed' });
 }));
 
 export default router;
