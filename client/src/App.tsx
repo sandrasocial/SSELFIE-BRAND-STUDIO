@@ -86,7 +86,8 @@ function Router() {
   return (
     <div>
       {/* STACK AUTH HANDLER - Must be first to catch authentication routes */}
-      <Route path="/handler/:path*" component={HandlerRoutes} />
+      <Route path="/handler/:path" component={HandlerRoutes} />
+      <Route path="/handler" component={HandlerRoutes} />
       
       {/* HOME ROUTE - Smart routing based on authentication and training status */}
       <Route path="/" component={() => {
@@ -158,7 +159,7 @@ function Router() {
 
 // Stack Auth Handler component for authentication routes
 function HandlerRoutes({ params }: { params: { [key: string]: string } }) {
-  const handlerPath = (params["path*"] || params["0"] || '').replace(/[)}]+$/, '');
+  const handlerPath = params.path || '';
   
   // Check if Stack Auth is properly configured
   if (!STACK_PROJECT_ID || !STACK_PUBLISHABLE_CLIENT_KEY) {
