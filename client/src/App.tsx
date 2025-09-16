@@ -89,7 +89,8 @@ function Router() {
       <Route path="/handler/:path" component={HandlerRoutes} />
       <Route path="/handler" component={HandlerRoutes} />
       
-      {/* OAuth callback is handled automatically by Stack Auth */}
+      {/* OAuth callback handler */}
+      <Route path="/handler/oauth-callback" component={OAuthCallbackHandler} />
       
       {/* HOME ROUTE - Smart routing based on authentication and training status */}
       <Route path="/" component={() => {
@@ -159,6 +160,42 @@ function Router() {
   );
 }
 
+// OAuth Callback Handler component
+function OAuthCallbackHandler() {
+  const { isAuthenticated, isLoading } = useAuth();
+  
+  useEffect(() => {
+    console.log('🔄 OAuth Callback Handler: Processing authentication...');
+    console.log('🍪 Cookies in callback:', document.cookie);
+    
+    // Check if we have authentication cookies
+    const hasStackAccess = document.cookie.includes('stack-access');
+    console.log('🔍 Has stack-access cookie:', hasStackAccess);
+    
+    // Check for OAuth outer cookies
+    const oauthOuterCookies = document.cookie.split(';').filter(cookie => cookie.includes('stack-oauth-outer'));
+    console.log('🔍 OAuth outer cookies found:', oauthOuterCookies.length);
+    
+    if (isAuthenticated) {
+      console.log('✅ OAuth Callback: User is authenticated, redirecting to /app');
+      window.location.href = '/app';
+    } else if (!isLoading) {
+      console.log('❌ OAuth Callback: Authentication failed, redirecting to sign-in');
+      window.location.href = '/handler/sign-in';
+    }
+  }, [isAuthenticated, isLoading]);
+  
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+        <p className="text-gray-600">Completing authentication...</p>
+        <p className="text-sm text-gray-500 mt-2">Please wait while we process your login.</p>
+      </div>
+    </div>
+  );
+}
+
 // Stack Auth Handler component for authentication routes
 function HandlerRoutes({ params }: { params: { [key: string]: string } }) {
   const handlerPath = params.path || '';
@@ -191,15 +228,54 @@ function HandlerRoutes({ params }: { params: { [key: string]: string } }) {
   const isOAuthCallback = oauthOuterCookies.length > 0 && !hasStackAccess;
   console.log('🔍 HandlerRoutes: Is OAuth callback state:', isOAuthCallback);
   
-  // If we're in OAuth callback state, show loading and let Stack Auth handle it
+  // If we're in OAuth callback state, show loading and try to process it
   if (isOAuthCallback) {
     console.log('🔄 HandlerRoutes: OAuth callback in progress, showing loading...');
+    
+    // Try to manually process the OAuth callback
+    useEffect(() => {
+      const processOAuthCallback = async () => {
+        console.log('🔄 Attempting to process OAuth callback manually...');
+        
+        try {
+          // Check if we can access the Stack Auth app instance
+          if (window.stackClientApp) {
+            console.log('🔍 Stack Auth app instance found, attempting to process callback...');
+            
+            // Try to trigger the OAuth callback processing
+            // This might be needed if Stack Auth doesn't automatically process it
+            setTimeout(() => {
+              console.log('🔄 Checking authentication state after timeout...');
+              // Force a re-render to check if authentication completed
+              window.location.reload();
+            }, 3000);
+          } else {
+            console.log('⚠️ Stack Auth app instance not found');
+            // Fallback: reload the page to let Stack Auth handle it
+            setTimeout(() => {
+              console.log('🔄 Reloading page to process OAuth callback...');
+              window.location.reload();
+            }, 2000);
+          }
+        } catch (error) {
+          console.error('❌ Error processing OAuth callback:', error);
+          // Fallback: reload the page
+          setTimeout(() => {
+            window.location.reload();
+          }, 2000);
+        }
+      };
+      
+      processOAuthCallback();
+    }, []);
+    
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Completing authentication...</p>
           <p className="text-sm text-gray-500 mt-2">Please wait while we process your login.</p>
+          <p className="text-xs text-gray-400 mt-1">This may take a few seconds...</p>
         </div>
       </div>
     );
