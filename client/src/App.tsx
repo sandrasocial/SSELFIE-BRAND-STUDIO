@@ -90,7 +90,7 @@ function Router() {
       <Route path="/handler" component={HandlerRoutes} />
       
       {/* OAuth callback handler */}
-      <Route path="/oauth-callback" component={HandlerRoutes} />
+      <Route path="/oauth-callback" component={OAuthCallback} />
       
       {/* HOME ROUTE - Smart routing based on authentication and training status */}
       <Route path="/" component={() => {
@@ -156,6 +156,38 @@ function Router() {
 
 
 
+    </div>
+  );
+}
+
+// OAuth Callback component to handle authentication completion
+function OAuthCallback() {
+  const { isAuthenticated, isLoading } = useAuth();
+  
+  useEffect(() => {
+    console.log('🔄 OAuth Callback: Processing authentication...');
+    console.log('🍪 Cookies in callback:', document.cookie);
+    
+    // Check if we have authentication cookies
+    const hasStackAccess = document.cookie.includes('stack-access');
+    console.log('🔍 Has stack-access cookie:', hasStackAccess);
+    
+    if (isAuthenticated) {
+      console.log('✅ OAuth Callback: User is authenticated, redirecting to /app');
+      window.location.href = '/app';
+    } else if (!isLoading) {
+      console.log('❌ OAuth Callback: Authentication failed, redirecting to sign-in');
+      window.location.href = '/handler/sign-in';
+    }
+  }, [isAuthenticated, isLoading]);
+  
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+        <p className="text-gray-600">Completing authentication...</p>
+        <p className="text-sm text-gray-500 mt-2">Please wait while we process your login.</p>
+      </div>
     </div>
   );
 }
