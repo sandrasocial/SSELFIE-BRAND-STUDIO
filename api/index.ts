@@ -25,6 +25,7 @@ async function verifyJWTToken(token: string) {
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     console.log('🔍 API Handler: Request received', req.url);
+    console.log('🔍 Method:', req.method);
     console.log('🔍 Headers:', JSON.stringify(req.headers, null, 2));
     console.log('🔍 Cookies:', JSON.stringify(req.cookies, null, 2));
     
@@ -294,7 +295,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // Handle gallery images endpoint
-    if (req.url?.includes('/api/gallery')) {
+    if (req.url === '/api/gallery' || req.url?.startsWith('/api/gallery?')) {
       console.log('🔍 Gallery endpoint called');
       
       try {
@@ -368,7 +369,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // Handle gallery-images endpoint (alternative)
-    if (req.url?.includes('/api/gallery-images')) {
+    if (req.url === '/api/gallery-images' || req.url?.startsWith('/api/gallery-images?')) {
       console.log('🔍 Gallery-images endpoint called');
       
       try {
