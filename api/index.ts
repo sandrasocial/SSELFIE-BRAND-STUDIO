@@ -418,166 +418,58 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           return res.status(400).json({ error: 'Message is required' });
         }
         
-        // Initialize Google Gemini AI
-        let geminiAI: any = null;
-        try {
-          if (process.env.GOOGLE_API_KEY) {
-            // Dynamic import to avoid build-time dependency issues
-            const googleAI = await import('@google/generative-ai');
-            geminiAI = new googleAI.GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
-            console.log('🎨 MAYA: Gemini AI initialized');
-          } else {
-            console.log('⚠️ MAYA: No Google API key found, using fallback response');
-          }
-        } catch (error) {
-          console.log('❌ MAYA: Failed to initialize Gemini AI:', (error as Error).message);
-        }
-        
+        // Connect to REAL Maya system using Claude API
         let mayaResponse = '';
         let conceptCards: any[] = [];
         
-        if (geminiAI) {
-          // Use real Maya personality with Google Gemini
-          const model = (geminiAI as any).getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
+        try {
+          // Use the real Maya personality system
+          const { PersonalityManager } = await import('../server/agents/personalities/personality-config.js');
+          const baseMayaPersonality = PersonalityManager.getNaturalPrompt('maya');
           
-          // Maya's complete personality prompt
-          const systemPrompt = `You are Maya, SSELFIE Studio's AI Creative Director and Personal Brand Strategist. You are sophisticated, intuitive, and deeply understand luxury personal branding.
+          console.log('🎨 MAYA: Using real personality system with Claude API');
+          
+          // Call Claude API with Maya's real personality
+          const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-api-key': process.env.ANTHROPIC_API_KEY || '',
+              'anthropic-version': '2023-06-01'
+            },
+            body: JSON.stringify({
+              model: 'claude-3-5-sonnet-20241022',
+              max_tokens: 4000,
+              system: baseMayaPersonality,
+              messages: [
+                ...(conversationHistory || []).map((entry: any) => ({
+                  role: entry.role === 'user' ? 'user' : 'assistant',
+                  content: entry.content || entry.message
+                })),
+                {
+                  role: 'user',
+                  content: message
+                }
+              ]
+            })
+          });
 
-CORE PHILOSOPHY:
-- Mission: To act as a world-class AI Art Director, Brand Stylist, and Location Scout, translating a user's personal brand into a cohesive, editorial-quality visual identity.
-- Role: You are the user's creative partner, providing sophisticated visual direction with expertise in lighting, composition, fashion, and scenery.
-- Core Principle: Always create 3-5 concept cards. 80% should feature the individual (portraits/lifestyle), while 20% should be supporting flatlay/object imagery that builds the brand world.
-
-AESTHETIC DNA:
-- Quality First: All prompts begin with technical keywords: "raw photo, editorial quality, professional photography, sharp focus, film grain, visible skin pores"
-- Natural and Authentic: Avoid overly perfect, 'plastic' AI looks. Strive for authenticity.
-- Sophisticated and Understated: Elegant and confident, never loud or trendy. It whispers luxury, it doesn't shout.
-- Focus on Light: Light is the most important element. Whether it's soft morning light, dramatic shadows, or golden hour glow, the lighting must be intentional and evocative.
-
-CREATIVE LOOKBOOK (12 Signature Styles):
-1. The Scandinavian Minimalist - Clean, bright, intentional with natural materials
-2. The Urban Moody - Sophisticated, atmospheric, cinematic for professionals with edge
-3. The High-End Coastal - Effortless luxury meets the sea, relaxed elegance
-4. The Luxury Dark & Moody - Rich, opulent, mysterious with old-world elegance
-5. The 'White Space' Executive - Modern, powerful, clean for forward-thinking leaders
-6. The 'Black & Dark' Auteur - Creative, intense, confident for artists and visionaries
-7. The Golden Hour Glow - Warm, approachable, authentic capturing magic hour
-8. The Night Time Luxe - Energetic, sophisticated, glamorous city energy
-9. The Classic B&W - Timeless, emotional, powerful focus on form and texture
-10. The Beige & Sophisticated - Warm, calm, professional new neutral for business
-11. The Fashion Street Style - Candid, effortless, editorial modern tastemaker
-12. The User-Directed Look - Flexible framework adapting to specific user requests
-
-CRITICAL: CONCEPT CARD GENERATION TRAINING
-
-MANDATORY RESPONSE FORMAT: When a user asks for styling ideas, photos, or concepts, you MUST create exactly 3-5 concept cards using this format:
-
-[EMOJI] **CONCEPT NAME IN ALL CAPS**
-[Your intelligent styling description explaining why this concept works for the user's goals and brand, drawing from your Creative Lookbook above]
-
-FLUX_PROMPT: [Create a detailed, natural language prompt that incorporates the aesthetic DNA principles above and relevant elements from your Creative Lookbook]
-
----
-
-REQUIREMENTS FOR EVERY RESPONSE:
-• Always create 3-5 different concept variations
-• Start each concept with styling emoji (🎯✨💼🌟💫🏆📸🎬)  
-• Include FLUX_PROMPT with technical quality keywords and natural styling description
-• Draw inspiration from your 12 signature looks above
-• Use your aesthetic DNA principles in every concept
-• Include appropriate camera/lens specifications for the shot type
-• Write as natural flowing sentences, not keyword lists
-• Separate concepts with "---" line breaks
-• Apply the 80/20 principle: ALWAYS include 3-4 portrait/lifestyle concepts (80%) AND 1-2 flatlay/object concepts (20%) drawn from the "Detail Styling" sections of your Creative Looks above
-
-VOICE & COMMUNICATION:
-- Strategic and encouraging: Think about the "why" behind each creative choice
-- Elegant and efficient: Polished, clear communication that respects the user's time  
-- Warm with authority: Friendly but confident - you are the expert
-- Focus on "you" and "your": Make it personal and bespoke for the user's brand
-- Inspire, don't just instruct: Frame suggestions as collaborative creative actions
-
-EXAMPLE PHRASES:
-"Let's create..."
-"Your story..."  
-"Perfect for your brand..."
-"This concept captures..."
-"I'm excited to see..."`;
-
-          // Build conversation context
-          let conversationContext = systemPrompt + '\n\n';
-          if (conversationHistory && Array.isArray(conversationHistory)) {
-            conversationHistory.forEach(entry => {
-              if (entry.role === 'user') conversationContext += `User: ${entry.content}\n`;
-              if (entry.role === 'assistant') conversationContext += `Maya: ${entry.content}\n`;
-            });
+          if (!claudeResponse.ok) {
+            throw new Error(`Claude API error: ${claudeResponse.status}`);
           }
-          conversationContext += `User: ${message}\nMaya:`;
 
-          try {
-            const result = await model.generateContent(conversationContext);
-            const response = result.response;
-            mayaResponse = response.text();
-            
-            // Extract concept cards from Maya's response
-            conceptCards = extractConceptCards(mayaResponse);
-            
-            console.log('✅ MAYA: Generated response with', conceptCards.length, 'concept cards');
-          } catch (geminiError) {
-            console.log('❌ MAYA: Gemini generation failed:', geminiError.message);
-            // Fallback to basic response
-            mayaResponse = `I understand you're looking for styling concepts! Let me create some personalized photo concepts for your brand.
-
-Here are 3 concept cards tailored to your needs:
-
-🎯 **PROFESSIONAL HEADSHOT**
-A clean, confident portrait perfect for your professional brand. Think crisp white background, natural lighting, and a sharp blazer.
-
-FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus, film grain, visible skin pores, confident business professional, clean white background, natural lighting, sharp blazer, professional headshot, high-end portrait
-
----
-
-✨ **LIFESTYLE BRAND SHOT**  
-A more relaxed, approachable image that shows your personality while maintaining professionalism. Perfect for social media and marketing materials.
-
-FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus, film grain, visible skin pores, lifestyle portrait, natural lighting, approachable professional, modern office setting, authentic expression
-
----
-
-💼 **EXECUTIVE PRESENCE**
-A powerful, commanding image that conveys authority and expertise. Ideal for speaking engagements and thought leadership content.
-
-FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus, film grain, visible skin pores, executive portrait, dramatic lighting, commanding presence, dark background, professional attire, confident expression`;
-            
-            conceptCards = [
-              {
-                id: `concept_${Date.now()}_1`,
-                title: 'Professional Headshot',
-                description: 'A clean, confident portrait perfect for your professional brand.',
-                fluxPrompt: 'raw photo, editorial quality, professional photography, sharp focus, film grain, visible skin pores, confident business professional, clean white background, natural lighting, sharp blazer, professional headshot, high-end portrait',
-                category: 'Professional',
-                emoji: '🎯'
-              },
-              {
-                id: `concept_${Date.now()}_2`, 
-                title: 'Lifestyle Brand Shot',
-                description: 'A more relaxed, approachable image that shows your personality.',
-                fluxPrompt: 'raw photo, editorial quality, professional photography, sharp focus, film grain, visible skin pores, lifestyle portrait, natural lighting, approachable professional, modern office setting, authentic expression',
-                category: 'Lifestyle',
-                emoji: '✨'
-              },
-              {
-                id: `concept_${Date.now()}_3`,
-                title: 'Executive Presence', 
-                description: 'A powerful, commanding image that conveys authority and expertise.',
-                fluxPrompt: 'raw photo, editorial quality, professional photography, sharp focus, film grain, visible skin pores, executive portrait, dramatic lighting, commanding presence, dark background, professional attire, confident expression',
-                category: 'Executive',
-                emoji: '💼'
-              }
-            ];
-          }
-        } else {
-          // Fallback response when Gemini is not available
+          const data = await claudeResponse.json();
+          mayaResponse = data.content[0].text;
+          
+          // Extract concept cards from Maya's response
+          conceptCards = extractConceptCards(mayaResponse);
+          
+          console.log('✅ MAYA: Generated response with', conceptCards.length, 'concept cards using Claude API');
+          
+        } catch (claudeError) {
+          console.log('❌ MAYA: Claude API failed:', (claudeError as Error).message);
+          
+          // Fallback to basic response when Claude is not available
           mayaResponse = `I understand you're looking for styling concepts! Let me create some personalized photo concepts for your brand.
 
 Here are 3 concept cards tailored to your needs:
