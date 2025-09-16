@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -162,11 +162,19 @@ function Router() {
 
 // OAuth Callback Handler component
 function OAuthCallbackHandler() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, hasStackAuthUser, stackUser } = useAuth();
+  const [redirectAttempted, setRedirectAttempted] = useState(false);
+  const [showFallback, setShowFallback] = useState(false);
   
   useEffect(() => {
     console.log('🔄 OAuth Callback Handler: Processing authentication...');
     console.log('🍪 Cookies in callback:', document.cookie);
+    console.log('🔍 Stack user exists:', !!stackUser?.id);
+    console.log('🔍 Has Stack Auth user:', hasStackAuthUser);
+    console.log('🔍 Is authenticated:', isAuthenticated);
+    console.log('🔍 Is loading:', isLoading);
+    console.log('🔍 Current URL:', window.location.href);
+    console.log('🔍 URL search params:', window.location.search);
     
     // Check if we have authentication cookies
     const hasStackAccess = document.cookie.includes('stack-access');
@@ -176,21 +184,94 @@ function OAuthCallbackHandler() {
     const oauthOuterCookies = document.cookie.split(';').filter(cookie => cookie.includes('stack-oauth-outer'));
     console.log('🔍 OAuth outer cookies found:', oauthOuterCookies.length);
     
-    if (isAuthenticated) {
-      console.log('✅ OAuth Callback: User is authenticated, redirecting to /app');
-      window.location.href = '/app';
-    } else if (!isLoading) {
-      console.log('❌ OAuth Callback: Authentication failed, redirecting to sign-in');
-      window.location.href = '/handler/sign-in';
+    // Check if this looks like an OAuth callback (has code parameter)
+    const hasOAuthCode = window.location.search.includes('code=');
+    console.log('🔍 Has OAuth code parameter:', hasOAuthCode);
+    
+    // If we have a Stack Auth user, we can proceed even if database user isn't loaded yet
+    if (hasStackAuthUser && !redirectAttempted) {
+      console.log('✅ OAuth Callback: Stack Auth user found, redirecting to /app');
+      setRedirectAttempted(true);
+      // Small delay to ensure cookies are properly set
+      setTimeout(() => {
+        window.location.href = '/app';
+      }, 1000);
+    } else if (!isLoading && !hasStackAuthUser && !redirectAttempted) {
+      console.log('❌ OAuth Callback: No Stack Auth user found, redirecting to sign-in');
+      setRedirectAttempted(true);
+      setTimeout(() => {
+        window.location.href = '/handler/sign-in';
+      }, 1000);
     }
-  }, [isAuthenticated, isLoading]);
+    
+    // Force redirect after 10 seconds if we have OAuth code but no Stack user
+    if (hasOAuthCode && !hasStackAuthUser && !redirectAttempted) {
+      const forceRedirectTimer = setTimeout(() => {
+        console.log('⚠️ OAuth Callback: Force redirect after timeout');
+        setRedirectAttempted(true);
+        window.location.href = '/app';
+      }, 10000);
+      
+      return () => clearTimeout(forceRedirectTimer);
+    }
+    
+    // Show fallback link after 3 seconds if still loading
+    const fallbackTimer = setTimeout(() => {
+      if (isLoading || !hasStackAuthUser) {
+        setShowFallback(true);
+      }
+    }, 3000);
+    
+    // Also show fallback if we have Stack Auth user but are still loading after 2 seconds
+    const quickFallbackTimer = setTimeout(() => {
+      if (hasStackAuthUser && isLoading) {
+        setShowFallback(true);
+      }
+    }, 2000);
+    
+    return () => {
+      clearTimeout(fallbackTimer);
+      clearTimeout(quickFallbackTimer);
+    };
+  }, [isAuthenticated, isLoading, hasStackAuthUser, stackUser, redirectAttempted]);
   
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="text-center">
+      <div className="text-center max-w-md mx-auto px-4">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-        <p className="text-gray-600">Completing authentication...</p>
-        <p className="text-sm text-gray-500 mt-2">Please wait while we process your login.</p>
+        <p className="text-gray-600 mb-2">Completing authentication...</p>
+        <p className="text-sm text-gray-500 mb-4">Please wait while we process your login.</p>
+        
+        {showFallback && (
+          <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <p className="text-sm text-yellow-800 mb-3">
+              If you're not automatically redirected, click one of the links below:
+            </p>
+            <div className="space-y-2">
+              <a 
+                href="/app" 
+                className="inline-block bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors mr-2"
+              >
+                Continue to App
+              </a>
+              <a 
+                href="/handler/sign-in" 
+                className="inline-block bg-gray-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-700 transition-colors"
+              >
+                Try Sign In Again
+              </a>
+            </div>
+            <p className="text-xs text-yellow-700 mt-2">
+              This usually happens if you have slow internet or ad blockers enabled.
+            </p>
+            <div className="mt-3 text-xs text-gray-600">
+              <p>Debug info:</p>
+              <p>Stack User: {stackUser?.id ? 'Yes' : 'No'}</p>
+              <p>Loading: {isLoading ? 'Yes' : 'No'}</p>
+              <p>Has Stack Access Cookie: {document.cookie.includes('stack-access') ? 'Yes' : 'No'}</p>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

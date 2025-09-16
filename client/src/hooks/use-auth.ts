@@ -27,6 +27,9 @@ export function useAuth() {
   // Enhanced authentication check - use both Stack Auth and API response
   const isAuthenticated = !!stackUser?.id && !!dbUser;
   
+  // For OAuth callbacks, we can proceed with just Stack Auth user
+  const hasStackAuthUser = !!stackUser?.id;
+  
   // Debug logging for authentication state
   console.log('🔍 useAuth: Stack user exists:', !!stackUser?.id);
   console.log('🔍 useAuth: Stack user data:', stackUser);
@@ -56,6 +59,7 @@ export function useAuth() {
     user,
     isLoading,
     isAuthenticated,
+    hasStackAuthUser, // For OAuth callbacks
     hasActiveSubscription,
     requiresPayment: isAuthenticated && !hasActiveSubscription,
     error: error?.message || null,
