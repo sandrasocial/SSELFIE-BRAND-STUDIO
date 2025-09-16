@@ -334,7 +334,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             type: 'generated',
             title: img.title || 'Generated Image',
             description: img.description || 'Generated image',
-            imageUrl: img.imageUrl,
+            imageUrl: img.selectedUrl || (img.imageUrls ? JSON.parse(img.imageUrls)[0] : null),
             createdAt: img.createdAt.toISOString(),
             tags: img.tags || ['generated']
           }))
@@ -395,7 +395,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             type: 'generated',
             title: img.title || 'Generated Image',
             description: img.description || 'Generated image',
-            imageUrl: img.imageUrl,
+            imageUrl: img.selectedUrl || (img.imageUrls ? JSON.parse(img.imageUrls)[0] : null),
             createdAt: img.createdAt.toISOString(),
             tags: img.tags || ['generated']
           }))
