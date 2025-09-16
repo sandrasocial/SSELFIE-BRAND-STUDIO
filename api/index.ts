@@ -416,6 +416,40 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     }
     
+    // Test database connection endpoint
+    if (req.url === '/api/test-db') {
+      try {
+        const { storage } = await import('../server/storage');
+        const user = await getAuthenticatedUser();
+        
+        // Test basic database operations
+        const dbUser = await storage.getUser(user.id);
+        const aiImages = await storage.getAIImages(user.id);
+        const generatedImages = await storage.getGeneratedImages(user.id);
+        
+        return res.status(200).json({
+          message: 'Database connection test',
+          user: {
+            id: user.id,
+            email: user.email,
+            dbUser: dbUser ? { id: dbUser.id, email: dbUser.email } : null
+          },
+          counts: {
+            aiImages: aiImages.length,
+            generatedImages: generatedImages.length
+          },
+          sampleAiImages: aiImages.slice(0, 3),
+          sampleGeneratedImages: generatedImages.slice(0, 3)
+        });
+      } catch (error) {
+        return res.status(500).json({
+          message: 'Database connection failed',
+          error: error.message,
+          stack: error.stack
+        });
+      }
+    }
+
     // Default response
     return res.status(200).json({
       message: 'SSELFIE Studio API',
