@@ -8,6 +8,14 @@
       "destination": "/api/index.ts"
     },
     {
+      "source": "/handler/sign-in",
+      "destination": "/client/dist/index.html"
+    },
+    {
+      "source": "/handler/sign-up", 
+      "destination": "/client/dist/index.html"
+    },
+    {
       "source": "/handler/(.*)",
       "destination": "/client/dist/index.html"
     },
