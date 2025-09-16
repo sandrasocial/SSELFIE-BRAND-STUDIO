@@ -89,8 +89,7 @@ function Router() {
       <Route path="/handler/:path" component={HandlerRoutes} />
       <Route path="/handler" component={HandlerRoutes} />
       
-      {/* OAuth callback handler */}
-      <Route path="/oauth-callback" component={OAuthCallback} />
+      {/* OAuth callback is handled automatically by Stack Auth */}
       
       {/* HOME ROUTE - Smart routing based on authentication and training status */}
       <Route path="/" component={() => {
@@ -160,54 +159,51 @@ function Router() {
   );
 }
 
-// OAuth Callback component to handle authentication completion
-function OAuthCallback() {
-  const { isAuthenticated, isLoading } = useAuth();
-  
-  useEffect(() => {
-    console.log('🔄 OAuth Callback: Processing authentication...');
-    console.log('🍪 Cookies in callback:', document.cookie);
-    
-    // Check if we have authentication cookies
-    const hasStackAccess = document.cookie.includes('stack-access');
-    console.log('🔍 Has stack-access cookie:', hasStackAccess);
-    
-    if (isAuthenticated) {
-      console.log('✅ OAuth Callback: User is authenticated, redirecting to /app');
-      window.location.href = '/app';
-    } else if (!isLoading) {
-      console.log('❌ OAuth Callback: Authentication failed, redirecting to sign-in');
-      window.location.href = '/handler/sign-in';
-    }
-  }, [isAuthenticated, isLoading]);
-  
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-        <p className="text-gray-600">Completing authentication...</p>
-        <p className="text-sm text-gray-500 mt-2">Please wait while we process your login.</p>
-      </div>
-    </div>
-  );
-}
-
 // Stack Auth Handler component for authentication routes
 function HandlerRoutes({ params }: { params: { [key: string]: string } }) {
   const handlerPath = params.path || '';
   const currentUrl = window.location.href;
   const { isAuthenticated, isLoading } = useAuth();
 
-      // Debug logging
-      console.log('🔍 HandlerRoutes: params =', params);
-      console.log('🔍 HandlerRoutes: handlerPath =', handlerPath);
-      console.log('🔍 HandlerRoutes: currentUrl =', currentUrl);
-      console.log('🔍 HandlerRoutes: isAuthenticated =', isAuthenticated);
-      console.log('🔍 HandlerRoutes: Cookies =', document.cookie);
-      console.log('🔍 HandlerRoutes: Stack Auth config =', {
-        projectId: STACK_PROJECT_ID,
-        publishableKey: STACK_PUBLISHABLE_CLIENT_KEY?.substring(0, 20) + '...'
-      });
+  // Debug logging
+  console.log('🔍 HandlerRoutes: params =', params);
+  console.log('🔍 HandlerRoutes: handlerPath =', handlerPath);
+  console.log('🔍 HandlerRoutes: currentUrl =', currentUrl);
+  console.log('🔍 HandlerRoutes: isAuthenticated =', isAuthenticated);
+  console.log('🔍 HandlerRoutes: Cookies =', document.cookie);
+  console.log('🔍 HandlerRoutes: Stack Auth config =', {
+    projectId: STACK_PROJECT_ID,
+    publishableKey: STACK_PUBLISHABLE_CLIENT_KEY?.substring(0, 20) + '...'
+  });
+  
+  // Check for OAuth outer cookies
+  const oauthOuterCookies = document.cookie.split(';').filter(cookie => cookie.includes('stack-oauth-outer'));
+  console.log('🔍 HandlerRoutes: OAuth outer cookies found:', oauthOuterCookies.length);
+  if (oauthOuterCookies.length > 0) {
+    console.log('🔍 HandlerRoutes: OAuth outer cookies:', oauthOuterCookies);
+  }
+  
+  // Check for stack-access cookie
+  const hasStackAccess = document.cookie.includes('stack-access');
+  console.log('🔍 HandlerRoutes: Has stack-access cookie:', hasStackAccess);
+  
+  // Check if we're in an OAuth callback state (have outer cookies but no access cookie)
+  const isOAuthCallback = oauthOuterCookies.length > 0 && !hasStackAccess;
+  console.log('🔍 HandlerRoutes: Is OAuth callback state:', isOAuthCallback);
+  
+  // If we're in OAuth callback state, show loading and let Stack Auth handle it
+  if (isOAuthCallback) {
+    console.log('🔄 HandlerRoutes: OAuth callback in progress, showing loading...');
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Completing authentication...</p>
+          <p className="text-sm text-gray-500 mt-2">Please wait while we process your login.</p>
+        </div>
+      </div>
+    );
+  }
 
   // Check if Stack Auth is properly configured
   if (!STACK_PROJECT_ID || !STACK_PUBLISHABLE_CLIENT_KEY) {

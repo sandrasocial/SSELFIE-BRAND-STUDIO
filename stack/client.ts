@@ -19,8 +19,7 @@ export const stackClientApp = new StackClientApp({
     afterSignIn: "/app",
     afterSignUp: "/app",
     afterSignOut: "/",
-    // Add OAuth callback URL
-    oauthCallback: "/oauth-callback",
+    // Remove custom OAuth callback - let Stack Auth handle it automatically
   },
   // Enable debug mode to see what's happening
   debug: true,
