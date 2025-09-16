@@ -1,16 +1,17 @@
-import React, { ComponentType, useEffect } from 'react';
-import { Route, useLocation, Redirect } from "wouter";
+/* eslint-disable no-console */
+import React, { useEffect } from 'react';
+import { Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { Toaster } from "./components/ui/toaster";
 import { TooltipProvider } from "./components/ui/tooltip";
-import { StackHandler, StackProvider, StackTheme, SignIn, SignUp } from "@stackframe/react";
+import { StackProvider, StackTheme, SignIn, SignUp } from "@stackframe/react";
 import { stackClientApp } from "../../stack/client";
 import { useAuth } from "./hooks/use-auth";
 import { STACK_PROJECT_ID, STACK_PUBLISHABLE_CLIENT_KEY } from './env';
 import { useQuery } from "@tanstack/react-query";
-import { redirectToHttps, detectBrowserIssues, showDomainHelp } from "./utils/browserCompat";
+import { detectBrowserIssues, showDomainHelp } from "./utils/browserCompat";
 import { optimizeImageLoading, enableServiceWorkerCaching } from "./utils/performanceOptimizations";
 import { optimizeRuntime } from "./utils/webVitals";
 import { ErrorBoundary } from "./components/ErrorBoundary";
@@ -19,7 +20,6 @@ import { performanceMonitor } from "./utils/performanceMonitor";
 import { initializeRuntimeOptimization } from "./utils/runtimeOptimization";
 
 // Core pages (loaded immediately) - BRAND STUDIO IS PRIMARY
-import BrandStudioPage from "./pages/BrandStudioPage";
 import AppLayout from "./pages/AppLayout";
 
 // Lazy load non-critical pages for better performance
@@ -50,7 +50,7 @@ function SmartHome() {
   useEffect(() => {
     if (!isLoading && !isModelLoading && isAuthenticated) {
       // Check training status and route accordingly
-      if (!userModel || (userModel as any).trainingStatus !== 'completed') {
+      if (!userModel || (userModel as { trainingStatus?: string }).trainingStatus !== 'completed') {
         console.log('🎯 User authenticated but needs training, redirecting to simple-training');
         setLocation('/simple-training');
       } else {
@@ -239,7 +239,7 @@ function HandlerRoutes({ params }: { params: { [key: string]: string } }) {
         
         try {
           // Check if we can access the Stack Auth app instance
-          if (window.stackClientApp) {
+          if (stackClientApp) {
             console.log('🔍 Stack Auth app instance found, attempting to process callback...');
             
             // Try to trigger the OAuth callback processing
@@ -346,33 +346,9 @@ function HandlerRoutes({ params }: { params: { [key: string]: string } }) {
         </div>
 
             {isSignIn ? (
-              <SignIn 
-                app={stackClientApp}
-                afterSignInUrl="/app"
-                afterSignUpUrl="/app"
-                onSuccess={() => {
-                  console.log('🎉 SignIn: Authentication successful!');
-                  console.log('🍪 Cookies after sign-in:', document.cookie);
-                  // Force a page reload to ensure cookies are properly set
-                  setTimeout(() => {
-                    window.location.href = '/app';
-                  }, 1000);
-                }}
-              />
+              <SignIn />
             ) : (
-              <SignUp 
-                app={stackClientApp}
-                afterSignInUrl="/app"
-                afterSignUpUrl="/app"
-                onSuccess={() => {
-                  console.log('🎉 SignUp: Registration successful!');
-                  console.log('🍪 Cookies after sign-up:', document.cookie);
-                  // Force a page reload to ensure cookies are properly set
-                  setTimeout(() => {
-                    window.location.href = '/app';
-                  }, 1000);
-                }}
-              />
+              <SignUp />
             )}
 
         <div className="mt-6 text-center">
