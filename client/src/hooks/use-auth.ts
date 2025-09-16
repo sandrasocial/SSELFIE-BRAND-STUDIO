@@ -29,9 +29,12 @@ export function useAuth() {
   
   // Debug logging for authentication state
   console.log('🔍 useAuth: Stack user exists:', !!stackUser?.id);
+  console.log('🔍 useAuth: Stack user data:', stackUser);
   console.log('🔍 useAuth: API user exists:', !!dbUser);
+  console.log('🔍 useAuth: API user data:', dbUser);
   console.log('🔍 useAuth: Is authenticated:', isAuthenticated);
   console.log('🔍 useAuth: API error:', error);
+  console.log('🔍 useAuth: Cookies:', document.cookie);
 
   // Use database user data if available, fallback to Stack Auth user
   const user: User | undefined = dbUser || (stackUser ? {

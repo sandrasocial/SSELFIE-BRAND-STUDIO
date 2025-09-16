@@ -166,11 +166,16 @@ function HandlerRoutes({ params }: { params: { [key: string]: string } }) {
   const currentUrl = window.location.href;
   const { isAuthenticated, isLoading } = useAuth();
 
-  // Debug logging
-  console.log('🔍 HandlerRoutes: params =', params);
-  console.log('🔍 HandlerRoutes: handlerPath =', handlerPath);
-  console.log('🔍 HandlerRoutes: currentUrl =', currentUrl);
-  console.log('🔍 HandlerRoutes: isAuthenticated =', isAuthenticated);
+      // Debug logging
+      console.log('🔍 HandlerRoutes: params =', params);
+      console.log('🔍 HandlerRoutes: handlerPath =', handlerPath);
+      console.log('🔍 HandlerRoutes: currentUrl =', currentUrl);
+      console.log('🔍 HandlerRoutes: isAuthenticated =', isAuthenticated);
+      console.log('🔍 HandlerRoutes: Cookies =', document.cookie);
+      console.log('🔍 HandlerRoutes: Stack Auth config =', {
+        projectId: STACK_PROJECT_ID,
+        publishableKey: STACK_PUBLISHABLE_CLIENT_KEY?.substring(0, 20) + '...'
+      });
 
   // Check if Stack Auth is properly configured
   if (!STACK_PROJECT_ID || !STACK_PUBLISHABLE_CLIENT_KEY) {
@@ -236,19 +241,35 @@ function HandlerRoutes({ params }: { params: { [key: string]: string } }) {
           </p>
         </div>
 
-        {isSignIn ? (
-          <SignIn 
-            app={stackClientApp}
-            afterSignInUrl="/app"
-            afterSignUpUrl="/app"
-          />
-        ) : (
-          <SignUp 
-            app={stackClientApp}
-            afterSignInUrl="/app"
-            afterSignUpUrl="/app"
-          />
-        )}
+            {isSignIn ? (
+              <SignIn 
+                app={stackClientApp}
+                afterSignInUrl="/app"
+                afterSignUpUrl="/app"
+                onSuccess={() => {
+                  console.log('🎉 SignIn: Authentication successful!');
+                  console.log('🍪 Cookies after sign-in:', document.cookie);
+                  // Force a page reload to ensure cookies are properly set
+                  setTimeout(() => {
+                    window.location.href = '/app';
+                  }, 1000);
+                }}
+              />
+            ) : (
+              <SignUp 
+                app={stackClientApp}
+                afterSignInUrl="/app"
+                afterSignUpUrl="/app"
+                onSuccess={() => {
+                  console.log('🎉 SignUp: Registration successful!');
+                  console.log('🍪 Cookies after sign-up:', document.cookie);
+                  // Force a page reload to ensure cookies are properly set
+                  setTimeout(() => {
+                    window.location.href = '/app';
+                  }, 1000);
+                }}
+              />
+            )}
 
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-600">
