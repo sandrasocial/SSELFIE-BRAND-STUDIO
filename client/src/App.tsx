@@ -5,8 +5,8 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { Toaster } from "./components/ui/toaster";
 import { TooltipProvider } from "./components/ui/tooltip";
-import { StackProvider, StackTheme, SignIn } from "@stackframe/react";
-import { stackClientApp } from "./stack";
+import { StackHandler, StackProvider, StackTheme } from "@stackframe/react";
+import { stackClientApp } from "../../stack/client";
 import { useAuth } from "./hooks/use-auth";
 import { STACK_PROJECT_ID, STACK_PUBLISHABLE_CLIENT_KEY } from './env';
 import { useQuery } from "@tanstack/react-query";
@@ -164,107 +164,19 @@ function Router() {
 function HandlerRoutes({ params }: { params: { [key: string]: string } }) {
   const handlerPath = params.path || '';
   const currentUrl = window.location.href;
-  
+
   // Debug logging
   console.log('🔍 HandlerRoutes: params =', params);
   console.log('🔍 HandlerRoutes: handlerPath =', handlerPath);
   console.log('🔍 HandlerRoutes: currentUrl =', currentUrl);
-  console.log('🔍 HandlerRoutes: STACK_PROJECT_ID =', STACK_PROJECT_ID);
-  console.log('🔍 HandlerRoutes: STACK_PUBLISHABLE_CLIENT_KEY =', STACK_PUBLISHABLE_CLIENT_KEY ? 'present' : 'missing');
-  
-  // Check if Stack Auth is properly configured
-  if (!STACK_PROJECT_ID || !STACK_PUBLISHABLE_CLIENT_KEY) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="max-w-md w-full bg-white shadow-lg rounded-lg p-6">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">Authentication Error</h1>
-            <p className="text-gray-600 mb-6">
-              Stack Auth is not properly configured. Please check your environment variables.
-            </p>
-            <button 
-              onClick={() => window.location.href = '/'}
-              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
-            >
-              Go Home
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-  
-  console.log('🔍 HandlerRoutes: stackClientApp =', stackClientApp);
-  
-  // Use SignIn component directly instead of StackHandler
-  // This should avoid the startsWith error in the Stack Auth library
-  const { isAuthenticated, isLoading } = useAuth();
-  
-  // Redirect to /app if user is already authenticated
-  React.useEffect(() => {
-    if (isAuthenticated && !isLoading) {
-      console.log('🔍 HandlerRoutes: User is authenticated, redirecting to /app');
-      // Use a small delay to ensure the authentication state is fully processed
-      setTimeout(() => {
-        window.location.href = '/app';
-      }, 100);
-    }
-  }, [isAuthenticated, isLoading]);
-  
-  // Handle OAuth callback specifically
-  React.useEffect(() => {
-    if (currentUrl.includes('oauth-callback') || currentUrl.includes('code=')) {
-      console.log('🔍 HandlerRoutes: OAuth callback detected, waiting for authentication...');
-      console.log('🔍 HandlerRoutes: Current auth state - isAuthenticated:', isAuthenticated, 'isLoading:', isLoading);
-      
-      // Give Stack Auth time to process the callback
-      const timer = setTimeout(() => {
-        console.log('🔍 HandlerRoutes: After timeout - isAuthenticated:', isAuthenticated, 'isLoading:', isLoading);
-        if (isAuthenticated) {
-          console.log('🔍 HandlerRoutes: OAuth callback processed, redirecting to /app');
-          window.location.href = '/app';
-        } else {
-          console.log('🔍 HandlerRoutes: Authentication not detected, trying again...');
-          // Try again after another second
-          setTimeout(() => {
-            if (isAuthenticated) {
-              console.log('🔍 HandlerRoutes: Second attempt - redirecting to /app');
-              window.location.href = '/app';
-            } else {
-              console.log('🔍 HandlerRoutes: Authentication still not detected, showing sign-in form');
-            }
-          }, 1000);
-        }
-      }, 2000);
-      
-      return () => clearTimeout(timer);
-    }
-  }, [currentUrl, isAuthenticated, isLoading]);
-  
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="max-w-md w-full bg-white shadow-lg rounded-lg p-6">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-  
-  // Use Stack Auth React components for sign-in
+
+  // Use StackHandler as per Stack Auth documentation
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full bg-white shadow-lg rounded-lg p-6">
-        <SignIn 
-          app={stackClientApp}
-          afterSignInUrl="/app"
-          afterSignUpUrl="/app"
-        />
-      </div>
-    </div>
+    <StackHandler 
+      app={stackClientApp} 
+      location={currentUrl} 
+      fullPage 
+    />
   );
 }
 
