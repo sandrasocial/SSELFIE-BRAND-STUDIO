@@ -286,6 +286,75 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         });
       }
     }
+
+    // Handle gallery images endpoint
+    if (req.url?.includes('/api/gallery-images')) {
+      console.log('🔍 Gallery images endpoint called');
+      
+      try {
+        const user = await getAuthenticatedUser();
+        console.log('🔍 Getting gallery images for user:', user.id, user.email);
+        
+        // Mock gallery images - always return an array
+        const galleryImages = [
+          {
+            id: `image_1_${user.id}`,
+            userId: user.id,
+            url: `https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/${user.id}/gallery_1_${Date.now()}.png`,
+            prompt: 'Professional headshot with clean background',
+            style: 'professional',
+            category: 'headshots',
+            createdAt: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
+            metadata: {
+              width: 1024,
+              height: 1024,
+              format: 'png',
+              size: '1.2MB'
+            }
+          },
+          {
+            id: `image_2_${user.id}`,
+            userId: user.id,
+            url: `https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/${user.id}/gallery_2_${Date.now()}.png`,
+            prompt: 'Creative portrait with artistic lighting',
+            style: 'creative',
+            category: 'portraits',
+            createdAt: new Date(Date.now() - 172800000).toISOString(), // 2 days ago
+            metadata: {
+              width: 1024,
+              height: 1024,
+              format: 'png',
+              size: '1.1MB'
+            }
+          },
+          {
+            id: `image_3_${user.id}`,
+            userId: user.id,
+            url: `https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/${user.id}/gallery_3_${Date.now()}.png`,
+            prompt: 'Lifestyle photography with natural lighting',
+            style: 'lifestyle',
+            category: 'lifestyle',
+            createdAt: new Date(Date.now() - 259200000).toISOString(), // 3 days ago
+            metadata: {
+              width: 1024,
+              height: 1024,
+              format: 'png',
+              size: '1.3MB'
+            }
+          }
+        ];
+        
+        console.log('📊 Returning gallery images:', galleryImages.length, 'images');
+        return res.status(200).json(galleryImages);
+        
+      } catch (error) {
+        console.log('❌ Gallery images fetch failed:', error.message);
+        return res.status(401).json({ 
+          message: 'Authentication required',
+          error: error.message
+        });
+      }
+    }
     
     // Default response
     return res.status(200).json({
