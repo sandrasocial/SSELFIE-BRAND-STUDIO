@@ -293,8 +293,133 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     }
 
-    // Gallery images endpoint is now handled by the main server routes
-    // This API handler is for Vercel serverless functions only
+    // Handle gallery images endpoint
+    if (req.url?.includes('/api/gallery')) {
+      console.log('🔍 Gallery endpoint called');
+      
+      try {
+        const user = await getAuthenticatedUser();
+        console.log('🔍 Getting gallery images for user:', user.id, user.email);
+        
+        // Mock gallery images for now - in production this would fetch from database
+        const galleryImages = [
+          {
+            id: `gallery_1_${user.id}`,
+            userId: user.id,
+            type: 'ai_generated',
+            title: 'Professional Headshot',
+            description: 'AI-generated professional headshot',
+            imageUrl: `https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/${user.id}/professional_headshot_1.png`,
+            createdAt: new Date(Date.now() - 86400000).toISOString(),
+            tags: ['professional', 'headshot', 'business']
+          },
+          {
+            id: `gallery_2_${user.id}`,
+            userId: user.id,
+            type: 'ai_generated',
+            title: 'Creative Portrait',
+            description: 'AI-generated creative portrait',
+            imageUrl: `https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/${user.id}/creative_portrait_1.png`,
+            createdAt: new Date(Date.now() - 172800000).toISOString(),
+            tags: ['creative', 'portrait', 'artistic']
+          },
+          {
+            id: `gallery_3_${user.id}`,
+            userId: user.id,
+            type: 'ai_generated',
+            title: 'Lifestyle Shot',
+            description: 'AI-generated lifestyle photography',
+            imageUrl: `https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/${user.id}/lifestyle_shot_1.png`,
+            createdAt: new Date(Date.now() - 259200000).toISOString(),
+            tags: ['lifestyle', 'casual', 'natural']
+          },
+          {
+            id: `gallery_4_${user.id}`,
+            userId: user.id,
+            type: 'ai_generated',
+            title: 'Business Professional',
+            description: 'AI-generated business professional image',
+            imageUrl: `https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/${user.id}/business_professional_1.png`,
+            createdAt: new Date(Date.now() - 345600000).toISOString(),
+            tags: ['business', 'professional', 'corporate']
+          },
+          {
+            id: `gallery_5_${user.id}`,
+            userId: user.id,
+            type: 'ai_generated',
+            title: 'Creative Artist',
+            description: 'AI-generated creative artist portrait',
+            imageUrl: `https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/${user.id}/creative_artist_1.png`,
+            createdAt: new Date(Date.now() - 432000000).toISOString(),
+            tags: ['creative', 'artist', 'unique']
+          }
+        ];
+        
+        console.log('📊 Returning gallery images:', galleryImages.length, 'images');
+        return res.status(200).json(galleryImages);
+        
+      } catch (error) {
+        console.log('❌ Gallery fetch failed:', error.message);
+        return res.status(401).json({ 
+          message: 'Authentication required',
+          error: error.message
+        });
+      }
+    }
+
+    // Handle gallery-images endpoint (alternative)
+    if (req.url?.includes('/api/gallery-images')) {
+      console.log('🔍 Gallery-images endpoint called');
+      
+      try {
+        const user = await getAuthenticatedUser();
+        console.log('🔍 Getting gallery images for user:', user.id, user.email);
+        
+        // Return the same mock data as /api/gallery
+        const galleryImages = [
+          {
+            id: `gallery_1_${user.id}`,
+            userId: user.id,
+            type: 'ai_generated',
+            title: 'Professional Headshot',
+            description: 'AI-generated professional headshot',
+            imageUrl: `https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/${user.id}/professional_headshot_1.png`,
+            createdAt: new Date(Date.now() - 86400000).toISOString(),
+            tags: ['professional', 'headshot', 'business']
+          },
+          {
+            id: `gallery_2_${user.id}`,
+            userId: user.id,
+            type: 'ai_generated',
+            title: 'Creative Portrait',
+            description: 'AI-generated creative portrait',
+            imageUrl: `https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/${user.id}/creative_portrait_1.png`,
+            createdAt: new Date(Date.now() - 172800000).toISOString(),
+            tags: ['creative', 'portrait', 'artistic']
+          },
+          {
+            id: `gallery_3_${user.id}`,
+            userId: user.id,
+            type: 'ai_generated',
+            title: 'Lifestyle Shot',
+            description: 'AI-generated lifestyle photography',
+            imageUrl: `https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/${user.id}/lifestyle_shot_1.png`,
+            createdAt: new Date(Date.now() - 259200000).toISOString(),
+            tags: ['lifestyle', 'casual', 'natural']
+          }
+        ];
+        
+        console.log('📊 Returning gallery-images:', galleryImages.length, 'images');
+        return res.status(200).json(galleryImages);
+        
+      } catch (error) {
+        console.log('❌ Gallery-images fetch failed:', error.message);
+        return res.status(401).json({ 
+          message: 'Authentication required',
+          error: error.message
+        });
+      }
+    }
     
     // Default response
     return res.status(200).json({
