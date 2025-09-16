@@ -61,21 +61,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       
       // Check cookies for stored access token
       if (!accessToken && req.cookies) {
+        console.log('🍪 All cookies received:', JSON.stringify(req.cookies, null, 2));
+        
         // Stack Auth stores tokens in 'stack-access' cookie as array format
         const stackAccessCookie = req.cookies['stack-access'];
+        console.log('🍪 stack-access cookie:', stackAccessCookie);
         
         if (stackAccessCookie) {
           try {
             // Parse the array format: ["token_id", "jwt_token"]
             const stackAccessArray = JSON.parse(stackAccessCookie);
+            console.log('🍪 Parsed stack-access array:', stackAccessArray);
+            
             if (Array.isArray(stackAccessArray) && stackAccessArray.length >= 2) {
               accessToken = stackAccessArray[1]; // JWT is the second element
               console.log('🔐 Found access token in stack-access cookie');
             } else {
-              console.log('⚠️ Invalid stack-access cookie format');
+              console.log('⚠️ Invalid stack-access cookie format - not an array or insufficient elements');
             }
           } catch (error) {
             console.log('❌ Failed to parse stack-access cookie:', error);
+            console.log('🍪 Raw cookie value:', stackAccessCookie);
           }
         }
         
@@ -85,7 +91,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           if (accessToken) {
             console.log('🔐 Found access token in stack-access-token cookie');
           } else {
-            console.log('🔍 No access token found in cookies');
+            console.log('🔍 No access token found in any cookies');
           }
         }
       }

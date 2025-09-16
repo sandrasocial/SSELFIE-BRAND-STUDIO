@@ -8,8 +8,9 @@ export const stackClientApp = new StackClientApp({
   // Configure cookie settings for proper authentication
   cookieOptions: {
     sameSite: 'lax', // Allow cookies to be sent with same-site requests
-    secure: true, // Only send cookies over HTTPS in production
-    domain: window.location.hostname === 'localhost' ? 'localhost' : '.sselfie.ai', // Set domain for production
+    secure: window.location.protocol === 'https:', // Only secure in production
+    domain: window.location.hostname === 'localhost' ? undefined : '.sselfie.ai', // Set domain for production, undefined for localhost
+    path: '/', // Ensure cookie is available for all paths
   },
   // Configure URLs for proper redirects
   urls: {
