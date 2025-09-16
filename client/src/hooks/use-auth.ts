@@ -23,10 +23,15 @@ export function useAuth() {
   });
 
   const isLoading = isDbUserLoading;
-  const isAuthenticated = !!stackUser?.id;
   
-  // REMOVED: Excessive auth logging causing infinite loop
-  // These logs were causing re-render loops. Auth state tracking removed for production.
+  // Enhanced authentication check - use both Stack Auth and API response
+  const isAuthenticated = !!stackUser?.id && !!dbUser;
+  
+  // Debug logging for authentication state
+  console.log('🔍 useAuth: Stack user exists:', !!stackUser?.id);
+  console.log('🔍 useAuth: API user exists:', !!dbUser);
+  console.log('🔍 useAuth: Is authenticated:', isAuthenticated);
+  console.log('🔍 useAuth: API error:', error);
 
   // Use database user data if available, fallback to Stack Auth user
   const user: User | undefined = dbUser || (stackUser ? {
@@ -50,7 +55,7 @@ export function useAuth() {
     isAuthenticated,
     hasActiveSubscription,
     requiresPayment: isAuthenticated && !hasActiveSubscription,
-    error: null,
+    error: error?.message || null,
     stackUser, // Provide access to raw Stack Auth user
   };
 }
