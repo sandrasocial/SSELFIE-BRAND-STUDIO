@@ -583,11 +583,26 @@ export class DatabaseStorage implements IStorage {
 
   // Generated Images operations (NEW ENHANCED GALLERY - primary table)
   async getGeneratedImages(userId: string): Promise<GeneratedImage[]> {
-    return await db
+    // Direct lookup first
+    let images = await db
       .select()
       .from(generatedImages)
       .where(eq(generatedImages.userId, userId))
       .orderBy(desc(generatedImages.createdAt));
+    
+    if (images.length === 0) {
+      // For Stack Auth users, check by linked original user ID
+      const linkedUser = await this.getUserByStackAuthId(userId);
+      if (linkedUser) {
+        images = await db
+          .select()
+          .from(generatedImages)
+          .where(eq(generatedImages.userId, linkedUser.id))
+          .orderBy(desc(generatedImages.createdAt));
+      }
+    }
+    
+    return images;
   }
 
   async saveGeneratedImage(data: InsertGeneratedImage): Promise<GeneratedImage> {
@@ -606,11 +621,26 @@ export class DatabaseStorage implements IStorage {
 
   // Generated Videos operations (VEO 3 video generation)
   async getGeneratedVideos(userId: string): Promise<GeneratedVideo[]> {
-    return await db
+    // Direct lookup first
+    let videos = await db
       .select()
       .from(generatedVideos)
       .where(eq(generatedVideos.userId, userId))
       .orderBy(desc(generatedVideos.createdAt));
+    
+    if (videos.length === 0) {
+      // For Stack Auth users, check by linked original user ID
+      const linkedUser = await this.getUserByStackAuthId(userId);
+      if (linkedUser) {
+        videos = await db
+          .select()
+          .from(generatedVideos)
+          .where(eq(generatedVideos.userId, linkedUser.id))
+          .orderBy(desc(generatedVideos.createdAt));
+      }
+    }
+    
+    return videos;
   }
 
   async saveGeneratedVideo(data: InsertGeneratedVideo): Promise<GeneratedVideo> {
