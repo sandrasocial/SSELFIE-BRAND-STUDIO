@@ -11,10 +11,12 @@
     {
       "source": "/api/(.*)",
       "destination": "/api/index.ts"
-    },
+    }
+  ],
+  "routes": [
     {
-      "source": "/(.*)",
-      "destination": "/client/dist/index.html"
+      "src": "/((?!api).*)",
+      "dest": "/client/dist/index.html"
     }
   ]
 }
