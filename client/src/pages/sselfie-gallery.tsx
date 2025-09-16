@@ -6,14 +6,100 @@ import { apiRequest } from '../lib/queryClient';
 import ErrorBoundary from '../components/ErrorBoundary';
 import StoryStudioModal from '../components/StoryStudioModal';
 
+// ImageDetailModal Component
+interface GalleryImage {
+  id: string | number;
+  imageUrl: string;
+  title?: string;
+  source?: string;
+}
+
+function ImageDetailModal({ 
+  selectedImage, 
+  onClose, 
+  onToggleFavorite, 
+  onDownload, 
+  onDelete, 
+  onCreateVideo,
+  isFavorite 
+}: {
+  selectedImage: GalleryImage;
+  onClose: () => void;
+  onToggleFavorite: () => void;
+  onDownload: () => void;
+  onDelete: () => void;
+  onCreateVideo: () => void;
+  isFavorite: boolean;
+}) {
+  return (
+    <div 
+      className="fixed inset-0 bg-black bg-opacity-80 z-50 flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      <div 
+        className="bg-white max-w-4xl max-h-[90vh] w-full flex flex-col"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-2xl text-gray-600 hover:text-gray-800 z-10"
+          aria-label="Close modal"
+        >
+          ×
+        </button>
+        
+        {/* Image */}
+        <div className="flex-1 flex items-center justify-center p-4">
+          <img 
+            src={selectedImage.imageUrl} 
+            alt={selectedImage.title || 'Gallery image'} 
+            className="max-w-full max-h-[70vh] object-contain"
+          />
+        </div>
+        
+        {/* Actions */}
+        <div className="border-t border-gray-200 p-4">
+          <div className="flex flex-wrap justify-center gap-6 text-xs uppercase tracking-wider">
+            <button 
+              onClick={onToggleFavorite}
+              className="text-black hover:text-gray-600 transition-colors"
+            >
+              {isFavorite ? '♥ Unfavorite' : '♡ Favorite'}
+            </button>
+            <button 
+              onClick={onCreateVideo}
+              className="text-black hover:text-gray-600 transition-colors"
+            >
+              Create Video Clip
+            </button>
+            <button 
+              onClick={onDownload}
+              className="text-black hover:text-gray-600 transition-colors"
+            >
+              Download
+            </button>
+            <button 
+              onClick={onDelete}
+              className="text-red-600 hover:text-red-800 transition-colors"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function SSELFIEGallery() {
   const { user, isAuthenticated } = useAuth();
-  const [selectedImage, setSelectedImage] = useState<any | null>(null);
+  const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
   const queryClient = useQueryClient();
 
   // Fetch user's gallery images
-  const { data: aiImagesData, isLoading } = useQuery<any[]>({
+  const { data: aiImagesData, isLoading } = useQuery<GalleryImage[]>({
     queryKey: ['/api/gallery-images'],
     enabled: isAuthenticated && !!user,
     staleTime: 5 * 60 * 1000,
@@ -51,30 +137,34 @@ function SSELFIEGallery() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/gallery-images'] });
       queryClient.invalidateQueries({ queryKey: ['/api/images/favorites'] });
+      setSelectedImage(null); // Close modal after deletion
     }
   });
 
-  const downloadImage = (imageUrl: string, filename: string) => {
+  const downloadImage = (imageUrl: string, filename?: string) => {
     try {
       const link = document.createElement('a');
       link.href = imageUrl;
-      link.download = filename;
+      link.download = filename || 'sselfie-image';
       link.target = '_blank';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Error downloading image:', error);
     }
   };
 
-  const toggleFavorite = (imageId: number) => {
-    toggleFavoriteMutation.mutate(imageId);
+  const toggleFavorite = (imageId: string | number) => {
+    const numericId = typeof imageId === 'string' ? parseInt(imageId, 10) : imageId;
+    toggleFavoriteMutation.mutate(numericId);
   };
 
-  const deleteImage = (imageId: number) => {
-    if (confirm('Are you sure you want to delete this photo?')) {
-      deleteImageMutation.mutate(imageId);
+  const deleteImage = (imageId: string | number) => {
+    if (window.confirm('Are you sure you want to delete this photo?')) {
+      const numericId = typeof imageId === 'string' ? parseInt(imageId, 10) : imageId;
+      deleteImageMutation.mutate(numericId);
     }
   };
 
@@ -82,13 +172,39 @@ function SSELFIEGallery() {
     setIsVideoModalOpen(true);
   };
 
+  const handleCloseModal = () => {
+    setSelectedImage(null);
+  };
+
+  const handleDownload = () => {
+    if (selectedImage) {
+      downloadImage(selectedImage.imageUrl, selectedImage.title || 'sselfie-image');
+    }
+  };
+
+  const handleDelete = () => {
+    if (selectedImage) {
+      deleteImage(selectedImage.id);
+    }
+  };
+
+  const handleToggleFavorite = () => {
+    if (selectedImage) {
+      toggleFavorite(selectedImage.id);
+    }
+  };
+
+  const handleCreateVideo = () => {
+    handleOpenVideoModal();
+  };
+
   if (!isAuthenticated) {
     return (
-      <div style={{ minHeight: '100vh', background: '#ffffff' }}>
+      <div className="min-h-screen bg-white">
         <MemberNavigation />
-        <div style={{ padding: '120px 40px', textAlign: 'center' }}>
-          <h1>Please Sign In</h1>
-          <p>You need to be signed in to access your SSELFIE Gallery.</p>
+        <div className="px-5 py-30 text-center">
+          <h1 className="text-2xl font-light tracking-widest mb-4">Please Sign In</h1>
+          <p className="text-gray-600">You need to be signed in to access your SSELFIE Gallery.</p>
         </div>
       </div>
     );
@@ -98,35 +214,37 @@ function SSELFIEGallery() {
     <div className="min-h-screen bg-white">
       <MemberNavigation />
       
-      <div style={{ padding: '20px' }}>
-        <h1 style={{ fontFamily: "'Times New Roman', serif", fontWeight: 200, letterSpacing: '0.2em', textAlign: 'center', marginBottom: '20px' }}>GALLERY</h1>
+      {/* Simple Container with Clean Padding */}
+      <div className="px-4 py-6">
+        <h1 className="font-serif font-light tracking-widest text-center mb-6 text-2xl">
+          GALLERY
+        </h1>
         
         {isLoading ? (
-          <div style={{ display: 'flex', gap: 24 }}>
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} style={{ flex: 1, aspectRatio: '3/4', background: '#f0f0f0', borderRadius: 8 }} />
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div 
+                key={i} 
+                className="aspect-square bg-gray-100 rounded-lg animate-pulse" 
+              />
             ))}
           </div>
         ) : aiImages.length === 0 ? (
-          <div style={{ textAlign: 'center', color: '#888', fontSize: 20, marginTop: 80 }}>
+          <div className="text-center text-gray-500 text-lg mt-20">
             No photos yet.
           </div>
         ) : (
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
-            gap: '16px'
-          }}>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {aiImages.map((image) => (
               <div 
                 key={image.id} 
                 onClick={() => setSelectedImage(image)} 
-                style={{ aspectRatio: '1 / 1.25', cursor: 'pointer' }}
+                className="aspect-square cursor-pointer group"
               >
                 <img 
                   src={image.imageUrl} 
-                  alt="Generated art" 
-                  style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 8 }} 
+                  alt={image.title || 'Generated art'} 
+                  className="w-full h-full object-cover rounded-lg transition-transform group-hover:scale-105"
                 />
               </div>
             ))}
@@ -136,54 +254,15 @@ function SSELFIEGallery() {
 
       {/* Image Detail Modal */}
       {selectedImage && !isVideoModalOpen && (
-        <div 
-          onClick={() => setSelectedImage(null)} 
-          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-        >
-          <div 
-            onClick={(e) => e.stopPropagation()} 
-            style={{ background: 'white', padding: '20px', maxWidth: '90vw', maxHeight: '90vh', display: 'flex', flexDirection: 'column', gap: '20px' }}
-          >
-            <img 
-              src={selectedImage.imageUrl} 
-              alt="Selected" 
-              style={{ maxWidth: '100%', maxHeight: '70vh', objectFit: 'contain' }} 
-            />
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', textTransform: 'uppercase', letterSpacing: '0.2em', fontSize: '11px' }}>
-              <button 
-                onClick={() => {
-                  const img = aiImages.find(img => img.id === selectedImage.id);
-                  if (img) toggleFavorite(img.id);
-                }}
-                style={{background: 'none', border: 'none', cursor: 'pointer'}}
-              >
-                {(() => {
-                  const img = aiImages.find(img => img.id === selectedImage.id);
-                  return img && favorites.includes(img.id) ? '♥ Unfavorite' : '♡ Favorite';
-                })()}
-              </button>
-              <button 
-                onClick={handleOpenVideoModal} 
-                style={{background: 'none', border: 'none', cursor: 'pointer'}}
-              >
-                Create Video Clip
-              </button>
-              <a 
-                href={selectedImage.imageUrl} 
-                download 
-                style={{color: 'black', textDecoration: 'none'}}
-              >
-                Download
-              </a>
-              <button 
-                onClick={() => deleteImage(selectedImage.id)} 
-                style={{background: 'none', border: 'none', cursor: 'pointer', color: 'red'}}
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
+        <ImageDetailModal
+          selectedImage={selectedImage}
+          onClose={handleCloseModal}
+          onToggleFavorite={handleToggleFavorite}
+          onDownload={handleDownload}
+          onDelete={handleDelete}
+          onCreateVideo={handleCreateVideo}
+          isFavorite={favorites.includes(typeof selectedImage.id === 'string' ? parseInt(selectedImage.id, 10) : selectedImage.id)}
+        />
       )}
 
       {/* Story Studio Modal */}
@@ -194,9 +273,8 @@ function SSELFIEGallery() {
           imageSource={selectedImage.source}
           onClose={() => setIsVideoModalOpen(false)}
           onSuccess={() => {
-            // Video generation started successfully
+            // eslint-disable-next-line no-console
             console.log('✅ Video generation started for image:', selectedImage.id);
-            // Optionally refresh the gallery or show a success message
             queryClient.invalidateQueries({ queryKey: ['/api/gallery-images'] });
           }}
         />
