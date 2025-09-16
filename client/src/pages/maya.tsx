@@ -4,7 +4,6 @@ import { useAuth } from '../hooks/use-auth';
 import { useMayaGeneration } from '../hooks/useMayaGeneration';
 import { useMayaPersistence } from '../hooks/useMayaPersistence';
 import { useToast } from '../hooks/use-toast';
-import { MayaCategorizedGallery } from '../components/maya-categorized-gallery';
 import { MemberNavigation } from '../components/member-navigation';
 import { MayaUploadComponent } from '../components/maya/MayaUploadComponent';
 import { MayaExamplesGallery } from '../components/maya/MayaExamplesGallery';
