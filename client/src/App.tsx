@@ -5,7 +5,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { Toaster } from "./components/ui/toaster";
 import { TooltipProvider } from "./components/ui/tooltip";
-import { StackHandler, StackProvider, StackTheme } from "@stackframe/react";
+import { StackHandler, StackProvider, StackTheme, SignIn, SignUp } from "@stackframe/react";
 import { stackClientApp } from "../../stack/client";
 import { useAuth } from "./hooks/use-auth";
 import { STACK_PROJECT_ID, STACK_PUBLISHABLE_CLIENT_KEY } from './env';
@@ -164,19 +164,108 @@ function Router() {
 function HandlerRoutes({ params }: { params: { [key: string]: string } }) {
   const handlerPath = params.path || '';
   const currentUrl = window.location.href;
+  const { isAuthenticated, isLoading } = useAuth();
 
   // Debug logging
   console.log('🔍 HandlerRoutes: params =', params);
   console.log('🔍 HandlerRoutes: handlerPath =', handlerPath);
   console.log('🔍 HandlerRoutes: currentUrl =', currentUrl);
+  console.log('🔍 HandlerRoutes: isAuthenticated =', isAuthenticated);
 
-  // Use StackHandler as per Stack Auth documentation
+  // Check if Stack Auth is properly configured
+  if (!STACK_PROJECT_ID || !STACK_PUBLISHABLE_CLIENT_KEY) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="max-w-md w-full bg-white shadow-lg rounded-lg p-6">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-gray-900 mb-4">Authentication Error</h1>
+            <p className="text-gray-600 mb-6">
+              Stack Auth is not properly configured. Please check your environment variables.
+            </p>
+            <button
+              onClick={() => window.location.href = '/'}
+              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+            >
+              Go Home
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // If user is already authenticated, redirect to app
+  if (isAuthenticated && !isLoading) {
+    console.log('🔍 HandlerRoutes: User is authenticated, redirecting to /app');
+    window.location.href = '/app';
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Redirecting to your account...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Determine which form to show based on the path
+  const isSignUp = handlerPath === 'sign-up' || currentUrl.includes('sign-up');
+  const isSignIn = handlerPath === 'sign-in' || currentUrl.includes('sign-in') || !isSignUp;
+
   return (
-    <StackHandler 
-      app={stackClientApp} 
-      location={currentUrl} 
-      fullPage 
-    />
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="max-w-md w-full bg-white shadow-lg rounded-lg p-8">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-light text-gray-900 mb-2" style={{ fontFamily: "Times New Roman, serif" }}>
+            SSELFIE
+          </h1>
+          <p className="text-gray-600">
+            {isSignUp ? 'Create your account' : 'Welcome back'}
+          </p>
+        </div>
+
+        {isSignIn ? (
+          <SignIn 
+            app={stackClientApp}
+            afterSignInUrl="/app"
+            afterSignUpUrl="/app"
+          />
+        ) : (
+          <SignUp 
+            app={stackClientApp}
+            afterSignInUrl="/app"
+            afterSignUpUrl="/app"
+          />
+        )}
+
+        <div className="mt-6 text-center">
+          <p className="text-sm text-gray-600">
+            {isSignIn ? "Don't have an account? " : "Already have an account? "}
+            <button
+              onClick={() => {
+                const newPath = isSignIn ? '/handler/sign-up' : '/handler/sign-in';
+                window.location.href = newPath;
+              }}
+              className="text-blue-600 hover:text-blue-700 font-medium"
+            >
+              {isSignIn ? 'Sign up' : 'Sign in'}
+            </button>
+          </p>
+        </div>
+      </div>
+    </div>
   );
 }
 
