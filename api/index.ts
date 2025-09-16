@@ -1,5 +1,22 @@
+/* eslint-disable no-console */
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { jwtVerify, createRemoteJWKSet } from 'jose';
+
+// Types
+interface ConceptCard {
+  id: string;
+  title: string;
+  description: string;
+  fluxPrompt: string;
+  category: string;
+  emoji: string;
+}
+
+interface ConversationEntry {
+  role: 'user' | 'assistant';
+  content: string;
+  message?: string;
+}
 
 // Stack Auth configuration
 const STACK_AUTH_PROJECT_ID = '253d7343-a0d4-43a1-be5c-822f590d40be';
@@ -7,11 +24,12 @@ const STACK_AUTH_API_URL = 'https://api.stack-auth.com/api/v1';
 const JWKS_URL = `${STACK_AUTH_API_URL}/projects/${STACK_AUTH_PROJECT_ID}/.well-known/jwks.json`;
 
 // Create JWKS resolver
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const JWKS = createRemoteJWKSet(new (globalThis as any).URL(JWKS_URL));
 
 // Helper function to extract concept cards from Maya's response
-function extractConceptCards(response: string): any[] {
-  const conceptCards: any[] = [];
+function extractConceptCards(response: string): ConceptCard[] {
+  const conceptCards: ConceptCard[] = [];
   
   try {
     // Split response by concept separators
@@ -254,15 +272,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       
       try {
         const user = await getAuthenticatedUser();
-        console.log('🔍 Maya generate for user:', user.id, user.email);
+        console.log('🔍 Maya generate for user:', user.id);
         
         // Get request body
         const body = req.body || {};
         console.log('🔍 Maya generate request body:', JSON.stringify(body, null, 2));
         
-        const { prompt, chatId, conceptName, count = 2 } = body as {
+        const { prompt, conceptName, count = 2 } = body as {
           prompt?: string;
-          chatId?: string;
           conceptName?: string;
           count?: number;
         };
@@ -325,7 +342,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       console.log('🔍 Maya status endpoint called:', req.url);
       
       try {
-        const user = await getAuthenticatedUser();
+        await getAuthenticatedUser();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const url = new (globalThis as any).URL(req.url || '', `http://${req.headers.host}`);
         const predictionId = url.searchParams.get('predictionId');
         
@@ -348,7 +366,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           console.log('🎉 Generation completed! Triggering completion monitor...');
           
           // Import and trigger the generation completion monitor
-          const { GenerationCompletionMonitor } = await import('../server/generation-completion-monitor');
+          // const { GenerationCompletionMonitor } = await import('../server/generation-completion-monitor');
           
           // Find the generation tracker for this prediction
           const { storage } = await import('../server/storage');
@@ -411,7 +429,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const { message, context = 'styling', conversationHistory = [] } = body as {
           message?: string;
           context?: string;
-          conversationHistory?: any[];
+          conversationHistory?: ConversationEntry[];
         };
         
         if (!message) {
@@ -420,7 +438,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         
         // Connect to REAL Maya system using Claude API
         let mayaResponse = '';
-        let conceptCards: any[] = [];
+        let conceptCards: ConceptCard[] = [];
         
         try {
           // Use the real Maya personality system
@@ -442,9 +460,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               max_tokens: 4000,
               system: baseMayaPersonality,
               messages: [
-                ...(conversationHistory || []).map((entry: any) => ({
+                ...(conversationHistory || []).map((entry: ConversationEntry) => ({
                   role: entry.role === 'user' ? 'user' : 'assistant',
-                  content: entry.content || entry.message
+                  content: entry.content || entry.message || ''
                 })),
                 {
                   role: 'user',
@@ -549,7 +567,7 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
       
       try {
         const user = await getAuthenticatedUser();
-        console.log('🔍 Getting Maya chats for user:', user.id, user.email);
+        console.log('🔍 Getting Maya chats for user:', user.id);
         
         // Mock list of Maya chats
         const chats = [
