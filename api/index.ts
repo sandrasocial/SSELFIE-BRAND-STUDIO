@@ -172,6 +172,120 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         });
       }
     }
+
+    // Handle Maya chat endpoints
+    if (req.url?.includes('/api/maya-chat') || req.url?.includes('/api/maya-generate')) {
+      console.log('🔍 Maya chat endpoint called:', req.url);
+      
+      try {
+        const user = await getAuthenticatedUser();
+        console.log('🔍 Maya chat for user:', user.id, user.email);
+        
+        // Get request body
+        const body = req.body || {};
+        console.log('🔍 Maya chat request body:', JSON.stringify(body, null, 2));
+        
+        // Mock Maya response with concept generation
+        const mayaResponse = {
+          id: `maya_${Date.now()}`,
+          userId: user.id,
+          message: body.message || 'Hello! I\'m Maya, your AI photographer.',
+          concepts: [
+            {
+              id: `concept_1_${Date.now()}`,
+              title: 'Professional Headshot',
+              description: 'Clean, corporate headshot perfect for LinkedIn',
+              style: 'professional',
+              prompt: 'professional headshot, business attire, clean background, corporate style',
+              imageUrl: `https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/${user.id}/maya_concept_1_${Date.now()}.png`
+            },
+            {
+              id: `concept_2_${Date.now()}`,
+              title: 'Creative Portrait',
+              description: 'Artistic and creative portrait with unique lighting',
+              style: 'creative',
+              prompt: 'creative portrait, artistic lighting, unique composition, modern style',
+              imageUrl: `https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/${user.id}/maya_concept_2_${Date.now()}.png`
+            },
+            {
+              id: `concept_3_${Date.now()}`,
+              title: 'Lifestyle Shot',
+              description: 'Casual, approachable lifestyle photography',
+              style: 'lifestyle',
+              prompt: 'lifestyle photography, casual attire, natural lighting, approachable style',
+              imageUrl: `https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/${user.id}/maya_concept_3_${Date.now()}.png`
+            }
+          ],
+          cards: [
+            {
+              id: `card_1_${Date.now()}`,
+              title: 'Business Professional',
+              description: 'Perfect for your LinkedIn profile and business materials',
+              style: 'professional',
+              imageUrl: `https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/${user.id}/maya_card_1_${Date.now()}.png`
+            },
+            {
+              id: `card_2_${Date.now()}`,
+              title: 'Creative Artist',
+              description: 'Showcase your creative side with this artistic portrait',
+              style: 'creative',
+              imageUrl: `https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/${user.id}/maya_card_2_${Date.now()}.png`
+            }
+          ],
+          timestamp: new Date().toISOString()
+        };
+        
+        console.log('📊 Returning Maya response:', JSON.stringify(mayaResponse, null, 2));
+        return res.status(200).json(mayaResponse);
+        
+      } catch (error) {
+        console.log('❌ Maya chat failed:', error.message);
+        return res.status(401).json({ 
+          message: 'Authentication required',
+          error: error.message
+        });
+      }
+    }
+
+    // Handle Maya chats list endpoint
+    if (req.url?.includes('/api/maya-chats')) {
+      console.log('🔍 Maya chats list endpoint called');
+      
+      try {
+        const user = await getAuthenticatedUser();
+        console.log('🔍 Getting Maya chats for user:', user.id, user.email);
+        
+        // Mock list of Maya chats
+        const chats = [
+          {
+            id: `chat_1_${user.id}`,
+            userId: user.id,
+            title: 'Professional Headshots',
+            lastMessage: 'I\'ve generated some professional headshot concepts for you.',
+            createdAt: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
+            updatedAt: new Date().toISOString()
+          },
+          {
+            id: `chat_2_${user.id}`,
+            userId: user.id,
+            title: 'Creative Portraits',
+            lastMessage: 'Here are some creative portrait ideas to explore.',
+            createdAt: new Date(Date.now() - 172800000).toISOString(), // 2 days ago
+            updatedAt: new Date(Date.now() - 3600000).toISOString() // 1 hour ago
+          }
+        ];
+        
+        console.log('📊 Returning Maya chats:', chats.length, 'chats');
+        return res.status(200).json(chats);
+        
+      } catch (error) {
+        console.log('❌ Maya chats fetch failed:', error.message);
+        return res.status(401).json({ 
+          message: 'Authentication required',
+          error: error.message
+        });
+      }
+    }
     
     // Default response
     return res.status(200).json({
