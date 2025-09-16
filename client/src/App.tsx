@@ -197,11 +197,42 @@ function OAuthCallbackHandler() {
         window.location.href = '/app';
       }, 1000);
     } else if (!isLoading && !hasStackAuthUser && !redirectAttempted) {
-      console.log('❌ OAuth Callback: No Stack Auth user found, redirecting to sign-in');
-      setRedirectAttempted(true);
-      setTimeout(() => {
-        window.location.href = '/handler/sign-in';
-      }, 1000);
+      console.log('🔄 OAuth Callback: No Stack Auth user found yet, waiting for Stack Auth to process...');
+      
+      // Try to force Stack Auth to process the OAuth callback
+      const forceProcessOAuth = async () => {
+        try {
+          if (stackClientApp) {
+            console.log('🔄 OAuth Callback: Attempting to force Stack Auth to process OAuth callback...');
+            
+            // Try to trigger a refresh of the Stack Auth state
+            // This might help Stack Auth process the OAuth callback
+            setTimeout(() => {
+              console.log('🔄 OAuth Callback: Refreshing page to let Stack Auth process OAuth callback...');
+              window.location.reload();
+            }, 2000);
+          }
+        } catch (error) {
+          console.error('❌ OAuth Callback: Error forcing OAuth processing:', error);
+        }
+      };
+      
+      forceProcessOAuth();
+      
+      // Give Stack Auth more time to process the OAuth callback
+      const waitForStackAuth = setTimeout(() => {
+        if (hasStackAuthUser) {
+          console.log('✅ OAuth Callback: Stack Auth user found after waiting, redirecting to /app');
+          setRedirectAttempted(true);
+          window.location.href = '/app';
+        } else {
+          console.log('❌ OAuth Callback: Still no Stack Auth user after waiting, redirecting to sign-in');
+          setRedirectAttempted(true);
+          window.location.href = '/handler/sign-in';
+        }
+      }, 5000);
+      
+      return () => clearTimeout(waitForStackAuth);
     }
     
     // Force redirect after 10 seconds if we have OAuth code but no Stack user
@@ -309,54 +340,18 @@ function HandlerRoutes({ params }: { params: { [key: string]: string } }) {
   const isOAuthCallback = oauthOuterCookies.length > 0 && !hasStackAccess;
   console.log('🔍 HandlerRoutes: Is OAuth callback state:', isOAuthCallback);
   
-  // If we're in OAuth callback state, show loading and try to process it
+  // If we're in OAuth callback state, let Stack Auth handle it automatically
   if (isOAuthCallback) {
-    console.log('🔄 HandlerRoutes: OAuth callback in progress, showing loading...');
+    console.log('🔄 HandlerRoutes: OAuth callback detected, letting Stack Auth handle it...');
     
-    // Try to manually process the OAuth callback
-    useEffect(() => {
-      const processOAuthCallback = async () => {
-        console.log('🔄 Attempting to process OAuth callback manually...');
-        
-        try {
-          // Check if we can access the Stack Auth app instance
-          if (stackClientApp) {
-            console.log('🔍 Stack Auth app instance found, attempting to process callback...');
-            
-            // Try to trigger the OAuth callback processing
-            // This might be needed if Stack Auth doesn't automatically process it
-            setTimeout(() => {
-              console.log('🔄 Checking authentication state after timeout...');
-              // Force a re-render to check if authentication completed
-              window.location.reload();
-            }, 3000);
-          } else {
-            console.log('⚠️ Stack Auth app instance not found');
-            // Fallback: reload the page to let Stack Auth handle it
-            setTimeout(() => {
-              console.log('🔄 Reloading page to process OAuth callback...');
-              window.location.reload();
-            }, 2000);
-          }
-        } catch (error) {
-          console.error('❌ Error processing OAuth callback:', error);
-          // Fallback: reload the page
-          setTimeout(() => {
-            window.location.reload();
-          }, 2000);
-        }
-      };
-      
-      processOAuthCallback();
-    }, []);
-    
+    // Let Stack Auth handle the OAuth callback automatically
+    // Don't interfere with the process
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
+        <div className="text-center max-w-md mx-auto px-4">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Completing authentication...</p>
-          <p className="text-sm text-gray-500 mt-2">Please wait while we process your login.</p>
-          <p className="text-xs text-gray-400 mt-1">This may take a few seconds...</p>
+          <p className="text-gray-600 mb-2">Processing OAuth authentication...</p>
+          <p className="text-sm text-gray-500">Please wait while we complete your login.</p>
         </div>
       </div>
     );

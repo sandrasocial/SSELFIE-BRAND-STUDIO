@@ -15,4 +15,6 @@ export const stackClientApp = new StackClientApp({
     // Add explicit OAuth callback URL
     oauthCallback: "/handler/oauth-callback",
   },
+  // Enable automatic OAuth callback processing
+  autoProcessOAuthCallback: true,
 });
