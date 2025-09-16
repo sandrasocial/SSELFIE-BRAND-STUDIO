@@ -7,7 +7,7 @@ const STACK_AUTH_API_URL = 'https://api.stack-auth.com/api/v1';
 const JWKS_URL = `${STACK_AUTH_API_URL}/projects/${STACK_AUTH_PROJECT_ID}/.well-known/jwks.json`;
 
 // Create JWKS resolver
-const JWKS = createRemoteJWKSet(new URL(JWKS_URL));
+const JWKS = createRemoteJWKSet(new (globalThis as any).URL(JWKS_URL));
 
 // Verify JWT token directly using Stack Auth JWKS
 async function verifyJWTToken(token: string) {
@@ -124,8 +124,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return {
         id: userId,
         email: userEmail,
-        firstName: userName?.split(' ')[0],
-        lastName: userName?.split(' ').slice(1).join(' '),
+        firstName: (userName as string)?.split(' ')[0],
+        lastName: (userName as string)?.split(' ').slice(1).join(' '),
         plan: 'sselfie-studio', // Default plan
         role: 'user', // Default role
         stackUser: userInfo // Include raw Stack Auth user data
@@ -175,6 +175,153 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         console.log('❌ User model fetch failed:', error.message);
         return res.status(401).json({ 
           message: 'Authentication required',
+          error: error.message
+        });
+      }
+    }
+
+    // Handle Maya generate endpoint
+    if (req.url?.includes('/api/maya/generate')) {
+      console.log('🔍 Maya generate endpoint called:', req.url);
+      
+      try {
+        const user = await getAuthenticatedUser();
+        console.log('🔍 Maya generate for user:', user.id, user.email);
+        
+        // Get request body
+        const body = req.body || {};
+        console.log('🔍 Maya generate request body:', JSON.stringify(body, null, 2));
+        
+        const { prompt, chatId, conceptName, count = 2 } = body as {
+          prompt?: string;
+          chatId?: string;
+          conceptName?: string;
+          count?: number;
+        };
+        
+        if (!prompt) {
+          return res.status(400).json({ error: 'Prompt is required' });
+        }
+        
+        // Import the generation service
+        const { ModelTrainingService } = await import('../server/model-training-service');
+        
+        console.log('🎨 Starting image generation for user:', user.id);
+        console.log('🎯 Prompt:', prompt);
+        console.log('🎯 Count:', count);
+        
+        // Generate images using the ModelTrainingService
+        const generationResult = await ModelTrainingService.generateUserImages(
+          user.id as string,
+          prompt as string,
+          count as number,
+          { categoryContext: (conceptName as string) || 'Maya Generation' }
+        );
+        
+        console.log('✅ Generation result:', generationResult);
+        
+        // Create generation tracker for monitoring
+        const { storage } = await import('../server/storage');
+        const tracker = await storage.createGenerationTracker({
+          userId: user.id as string,
+          predictionId: generationResult.predictionId as string,
+          prompt: prompt as string,
+          status: 'processing',
+          createdAt: new Date(),
+          updatedAt: new Date()
+        });
+        
+        console.log('📝 Created generation tracker:', tracker.id);
+        
+        // Return the generation result with prediction ID for polling
+        return res.status(200).json({
+          success: true,
+          predictionId: generationResult.predictionId,
+          generatedImageId: generationResult.generatedImageId,
+          trackerId: tracker.id,
+          message: 'Image generation started successfully',
+          images: generationResult.images || []
+        });
+        
+      } catch (error) {
+        console.log('❌ Maya generate failed:', error.message);
+        return res.status(500).json({ 
+          message: 'Image generation failed',
+          error: error.message
+        });
+      }
+    }
+
+    // Handle Maya generation status endpoint (for polling)
+    if (req.url?.includes('/api/maya/status')) {
+      console.log('🔍 Maya status endpoint called:', req.url);
+      
+      try {
+        const user = await getAuthenticatedUser();
+        const url = new (globalThis as any).URL(req.url || '', `http://${req.headers.host}`);
+        const predictionId = url.searchParams.get('predictionId');
+        
+        if (!predictionId) {
+          return res.status(400).json({ error: 'Prediction ID is required' });
+        }
+        
+        // Import the generation service
+        const { ModelTrainingService } = await import('../server/model-training-service');
+        
+        console.log('🔍 Checking generation status for prediction:', predictionId);
+        
+        // Check generation status
+        const statusResult = await ModelTrainingService.checkGenerationStatus(predictionId);
+        
+        console.log('📊 Generation status result:', statusResult);
+        
+        // If generation is completed, trigger the completion monitor
+        if (statusResult.status === 'succeeded' && statusResult.imageUrls && statusResult.imageUrls.length > 0) {
+          console.log('🎉 Generation completed! Triggering completion monitor...');
+          
+          // Import and trigger the generation completion monitor
+          const { GenerationCompletionMonitor } = await import('../server/generation-completion-monitor');
+          
+          // Find the generation tracker for this prediction
+          const { storage } = await import('../server/storage');
+          const tracker = await storage.getGenerationTrackerByPredictionId(predictionId);
+          
+          if (tracker) {
+            console.log('📝 Found generation tracker:', tracker.id);
+            
+            // Update the tracker with completed images
+            await storage.updateGenerationTracker(tracker.id, {
+              status: 'completed',
+              imageUrls: JSON.stringify(statusResult.imageUrls),
+              updatedAt: new Date()
+            });
+            
+            // Save images to gallery
+            for (const imageUrl of statusResult.imageUrls) {
+              await storage.saveGeneratedImage({
+                userId: tracker.userId,
+                imageUrls: JSON.stringify([imageUrl]),
+                prompt: tracker.prompt || 'Maya Editorial Photoshoot',
+                category: 'Maya Editorial',
+                subcategory: 'Professional'
+              });
+            }
+            
+            console.log('✅ Saved images to gallery for user:', tracker.userId);
+          }
+        }
+        
+        return res.status(200).json({
+          success: true,
+          status: statusResult.status,
+          images: statusResult.imageUrls || [],
+          predictionId: predictionId
+        });
+        
+      } catch (error) {
+        console.log('❌ Maya status check failed:', error.message);
+        return res.status(500).json({ 
+          message: 'Status check failed',
           error: error.message
         });
       }
@@ -307,8 +454,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         
         // Fetch images from both tables
         const [aiImages, generatedImages] = await Promise.all([
-          storage.getAIImages(user.id),
-          storage.getGeneratedImages(user.id)
+          storage.getAIImages(user.id as string),
+          storage.getGeneratedImages(user.id as string)
         ]);
         
         console.log('📊 Found AI images:', aiImages.length);
@@ -324,7 +471,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             title: img.style || 'AI Generated Image',
             description: img.prompt || 'AI-generated image',
             imageUrl: img.imageUrl,
-            createdAt: img.createdAt.toISOString(),
+            createdAt: (img.createdAt || new Date()).toISOString(),
             tags: img.style ? [img.style] : ['ai-generated']
           })),
           // Format generated images (new table)
@@ -332,11 +479,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             id: `gen_${img.id}`,
             userId: img.userId,
             type: 'generated',
-            title: img.title || 'Generated Image',
-            description: img.description || 'Generated image',
+            title: 'Generated Image',
+            description: img.prompt || 'Generated image',
             imageUrl: img.selectedUrl || (img.imageUrls ? JSON.parse(img.imageUrls)[0] : null),
-            createdAt: img.createdAt.toISOString(),
-            tags: img.tags || ['generated']
+            createdAt: (img.createdAt || new Date()).toISOString(),
+            tags: [img.category || 'generated']
           }))
         ];
         
@@ -368,8 +515,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         
         // Fetch images from both tables
         const [aiImages, generatedImages] = await Promise.all([
-          storage.getAIImages(user.id),
-          storage.getGeneratedImages(user.id)
+          storage.getAIImages(user.id as string),
+          storage.getGeneratedImages(user.id as string)
         ]);
         
         console.log('📊 Found AI images:', aiImages.length);
@@ -385,7 +532,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             title: img.style || 'AI Generated Image',
             description: img.prompt || 'AI-generated image',
             imageUrl: img.imageUrl,
-            createdAt: img.createdAt.toISOString(),
+            createdAt: (img.createdAt || new Date()).toISOString(),
             tags: img.style ? [img.style] : ['ai-generated']
           })),
           // Format generated images (new table)
@@ -393,11 +540,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             id: `gen_${img.id}`,
             userId: img.userId,
             type: 'generated',
-            title: img.title || 'Generated Image',
-            description: img.description || 'Generated image',
+            title: 'Generated Image',
+            description: img.prompt || 'Generated image',
             imageUrl: img.selectedUrl || (img.imageUrls ? JSON.parse(img.imageUrls)[0] : null),
-            createdAt: img.createdAt.toISOString(),
-            tags: img.tags || ['generated']
+            createdAt: (img.createdAt || new Date()).toISOString(),
+            tags: [img.category || 'generated']
           }))
         ];
         
@@ -423,9 +570,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const user = await getAuthenticatedUser();
         
         // Test basic database operations
-        const dbUser = await storage.getUser(user.id);
-        const aiImages = await storage.getAIImages(user.id);
-        const generatedImages = await storage.getGeneratedImages(user.id);
+        const dbUser = await storage.getUser(user.id as string);
+        const aiImages = await storage.getAIImages(user.id as string);
+        const generatedImages = await storage.getGeneratedImages(user.id as string);
         
         return res.status(200).json({
           message: 'Database connection test',
