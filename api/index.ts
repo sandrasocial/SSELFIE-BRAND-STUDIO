@@ -302,67 +302,54 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const user = await getAuthenticatedUser();
         console.log('🔍 Getting gallery images for user:', user.id, user.email);
         
-        // Mock gallery images for now - in production this would fetch from database
+        // Import storage service to fetch real images
+        const { storage } = await import('../server/storage');
+        
+        // Fetch images from both tables
+        const [aiImages, generatedImages] = await Promise.all([
+          storage.getAIImages(user.id),
+          storage.getGeneratedImages(user.id)
+        ]);
+        
+        console.log('📊 Found AI images:', aiImages.length);
+        console.log('📊 Found generated images:', generatedImages.length);
+        
+        // Combine and format images for gallery
         const galleryImages = [
-          {
-            id: `gallery_1_${user.id}`,
-            userId: user.id,
+          // Format AI images (legacy table)
+          ...aiImages.map(img => ({
+            id: img.id.toString(),
+            userId: img.userId,
             type: 'ai_generated',
-            title: 'Professional Headshot',
-            description: 'AI-generated professional headshot',
-            imageUrl: `https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/${user.id}/professional_headshot_1.png`,
-            createdAt: new Date(Date.now() - 86400000).toISOString(),
-            tags: ['professional', 'headshot', 'business']
-          },
-          {
-            id: `gallery_2_${user.id}`,
-            userId: user.id,
-            type: 'ai_generated',
-            title: 'Creative Portrait',
-            description: 'AI-generated creative portrait',
-            imageUrl: `https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/${user.id}/creative_portrait_1.png`,
-            createdAt: new Date(Date.now() - 172800000).toISOString(),
-            tags: ['creative', 'portrait', 'artistic']
-          },
-          {
-            id: `gallery_3_${user.id}`,
-            userId: user.id,
-            type: 'ai_generated',
-            title: 'Lifestyle Shot',
-            description: 'AI-generated lifestyle photography',
-            imageUrl: `https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/${user.id}/lifestyle_shot_1.png`,
-            createdAt: new Date(Date.now() - 259200000).toISOString(),
-            tags: ['lifestyle', 'casual', 'natural']
-          },
-          {
-            id: `gallery_4_${user.id}`,
-            userId: user.id,
-            type: 'ai_generated',
-            title: 'Business Professional',
-            description: 'AI-generated business professional image',
-            imageUrl: `https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/${user.id}/business_professional_1.png`,
-            createdAt: new Date(Date.now() - 345600000).toISOString(),
-            tags: ['business', 'professional', 'corporate']
-          },
-          {
-            id: `gallery_5_${user.id}`,
-            userId: user.id,
-            type: 'ai_generated',
-            title: 'Creative Artist',
-            description: 'AI-generated creative artist portrait',
-            imageUrl: `https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/${user.id}/creative_artist_1.png`,
-            createdAt: new Date(Date.now() - 432000000).toISOString(),
-            tags: ['creative', 'artist', 'unique']
-          }
+            title: img.style || 'AI Generated Image',
+            description: img.prompt || 'AI-generated image',
+            imageUrl: img.imageUrl,
+            createdAt: img.createdAt.toISOString(),
+            tags: img.style ? [img.style] : ['ai-generated']
+          })),
+          // Format generated images (new table)
+          ...generatedImages.map(img => ({
+            id: `gen_${img.id}`,
+            userId: img.userId,
+            type: 'generated',
+            title: img.title || 'Generated Image',
+            description: img.description || 'Generated image',
+            imageUrl: img.imageUrl,
+            createdAt: img.createdAt.toISOString(),
+            tags: img.tags || ['generated']
+          }))
         ];
         
-        console.log('📊 Returning gallery images:', galleryImages.length, 'images');
+        // Sort by creation date (newest first)
+        galleryImages.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        
+        console.log('📊 Returning gallery images:', galleryImages.length, 'total images');
         return res.status(200).json(galleryImages);
         
       } catch (error) {
         console.log('❌ Gallery fetch failed:', error.message);
-        return res.status(401).json({ 
-          message: 'Authentication required',
+        return res.status(500).json({ 
+          message: 'Failed to fetch gallery images',
           error: error.message
         });
       }
@@ -376,47 +363,54 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const user = await getAuthenticatedUser();
         console.log('🔍 Getting gallery images for user:', user.id, user.email);
         
-        // Return the same mock data as /api/gallery
+        // Import storage service to fetch real images
+        const { storage } = await import('../server/storage');
+        
+        // Fetch images from both tables
+        const [aiImages, generatedImages] = await Promise.all([
+          storage.getAIImages(user.id),
+          storage.getGeneratedImages(user.id)
+        ]);
+        
+        console.log('📊 Found AI images:', aiImages.length);
+        console.log('📊 Found generated images:', generatedImages.length);
+        
+        // Combine and format images for gallery
         const galleryImages = [
-          {
-            id: `gallery_1_${user.id}`,
-            userId: user.id,
+          // Format AI images (legacy table)
+          ...aiImages.map(img => ({
+            id: img.id.toString(),
+            userId: img.userId,
             type: 'ai_generated',
-            title: 'Professional Headshot',
-            description: 'AI-generated professional headshot',
-            imageUrl: `https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/${user.id}/professional_headshot_1.png`,
-            createdAt: new Date(Date.now() - 86400000).toISOString(),
-            tags: ['professional', 'headshot', 'business']
-          },
-          {
-            id: `gallery_2_${user.id}`,
-            userId: user.id,
-            type: 'ai_generated',
-            title: 'Creative Portrait',
-            description: 'AI-generated creative portrait',
-            imageUrl: `https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/${user.id}/creative_portrait_1.png`,
-            createdAt: new Date(Date.now() - 172800000).toISOString(),
-            tags: ['creative', 'portrait', 'artistic']
-          },
-          {
-            id: `gallery_3_${user.id}`,
-            userId: user.id,
-            type: 'ai_generated',
-            title: 'Lifestyle Shot',
-            description: 'AI-generated lifestyle photography',
-            imageUrl: `https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/${user.id}/lifestyle_shot_1.png`,
-            createdAt: new Date(Date.now() - 259200000).toISOString(),
-            tags: ['lifestyle', 'casual', 'natural']
-          }
+            title: img.style || 'AI Generated Image',
+            description: img.prompt || 'AI-generated image',
+            imageUrl: img.imageUrl,
+            createdAt: img.createdAt.toISOString(),
+            tags: img.style ? [img.style] : ['ai-generated']
+          })),
+          // Format generated images (new table)
+          ...generatedImages.map(img => ({
+            id: `gen_${img.id}`,
+            userId: img.userId,
+            type: 'generated',
+            title: img.title || 'Generated Image',
+            description: img.description || 'Generated image',
+            imageUrl: img.imageUrl,
+            createdAt: img.createdAt.toISOString(),
+            tags: img.tags || ['generated']
+          }))
         ];
         
-        console.log('📊 Returning gallery-images:', galleryImages.length, 'images');
+        // Sort by creation date (newest first)
+        galleryImages.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        
+        console.log('📊 Returning gallery-images:', galleryImages.length, 'total images');
         return res.status(200).json(galleryImages);
         
       } catch (error) {
         console.log('❌ Gallery-images fetch failed:', error.message);
-        return res.status(401).json({ 
-          message: 'Authentication required',
+        return res.status(500).json({ 
+          message: 'Failed to fetch gallery images',
           error: error.message
         });
       }
