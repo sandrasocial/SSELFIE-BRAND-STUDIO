@@ -48,10 +48,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
     }
     
-    // Handle authentication endpoints
-    if (req.url?.includes('/api/auth/user')) {
-      console.log('🔍 Auth user endpoint called');
-      
+    // Helper function to get authenticated user
+    async function getAuthenticatedUser() {
       let accessToken: string | undefined;
       
       // Check Authorization header for Bearer token
@@ -93,11 +91,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
       
       if (!accessToken) {
-        console.log('❌ No access token found');
-        return res.status(401).json({ 
-          message: 'Authentication required',
-          error: 'No access token found'
-        });
+        throw new Error('No access token found');
       }
 
       console.log('🔐 Verifying JWT token...');
@@ -120,8 +114,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         name: userName
       });
       
-      // Return user information
-      return res.status(200).json({
+      return {
         id: userId,
         email: userEmail,
         firstName: userName?.split(' ')[0],
@@ -129,7 +122,55 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         plan: 'sselfie-studio', // Default plan
         role: 'user', // Default role
         stackUser: userInfo // Include raw Stack Auth user data
-      });
+      };
+    }
+
+    // Handle authentication endpoints
+    if (req.url?.includes('/api/auth/user')) {
+      console.log('🔍 Auth user endpoint called');
+      
+      try {
+        const user = await getAuthenticatedUser();
+        return res.status(200).json(user);
+      } catch (error) {
+        console.log('❌ Authentication failed:', error.message);
+        return res.status(401).json({ 
+          message: 'Authentication required',
+          error: error.message
+        });
+      }
+    }
+
+    // Handle user model endpoint
+    if (req.url?.includes('/api/user-model')) {
+      console.log('🔍 User model endpoint called');
+      
+      try {
+        const user = await getAuthenticatedUser();
+        console.log('🔍 Getting model for user:', user.id, user.email);
+        
+        // For now, return a mock model status
+        // In a real implementation, this would query your database
+        const modelStatus = {
+          id: `model_${user.id}`,
+          userId: user.id,
+          trainingStatus: 'completed', // Mock: assume user has completed training
+          modelType: 'sselfie-studio',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          // Add other model properties as needed
+        };
+        
+        console.log('📊 Returning model status:', modelStatus);
+        return res.status(200).json(modelStatus);
+        
+      } catch (error) {
+        console.log('❌ User model fetch failed:', error.message);
+        return res.status(401).json({ 
+          message: 'Authentication required',
+          error: error.message
+        });
+      }
     }
     
     // Default response
