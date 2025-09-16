@@ -6,6 +6,7 @@
 import { Router } from 'express';
 import { requireStackAuth } from '../middleware/auth';
 import { asyncHandler, createError, sendSuccess, validateRequired } from '../middleware/error-handler';
+import { storage } from '../../storage';
 
 const router = Router();
 
@@ -15,6 +16,71 @@ router.get('/api/gallery', requireStackAuth, asyncHandler(async (req: any, res) 
   // Mock implementation - replace with actual gallery service
   const gallery = [];
   sendSuccess(res, { gallery, count: gallery.length });
+}));
+
+// Get user gallery images (frontend calls this endpoint)
+router.get('/api/gallery-images', requireStackAuth, asyncHandler(async (req: any, res) => {
+  const userId = req.user.id;
+  
+  try {
+    console.log('🔍 Gallery: Fetching images for user:', userId);
+    
+    // Get AI images from the database
+    const aiImages = await storage.getAIImages(userId);
+    console.log('📊 Gallery: Found', aiImages.length, 'AI images');
+    
+    // Also get generated images (newer table)
+    const generatedImages = await storage.getGeneratedImages(userId);
+    console.log('📊 Gallery: Found', generatedImages.length, 'generated images');
+    
+    // Combine both sources and format for frontend
+    const allImages = [
+      // AI Images (legacy format)
+      ...aiImages.map(img => ({
+        id: img.id,
+        userId: img.userId,
+        url: img.imageUrl,
+        prompt: img.prompt,
+        style: img.style,
+        category: img.category || 'gallery',
+        source: img.source || 'workspace',
+        createdAt: img.createdAt,
+        metadata: {
+          width: 1024,
+          height: 1024,
+          format: 'png',
+          size: '1.2MB'
+        }
+      })),
+      // Generated Images (newer format)
+      ...generatedImages.map(img => ({
+        id: img.id,
+        userId: img.userId,
+        url: img.selectedUrl || img.imageUrl,
+        prompt: img.prompt,
+        style: img.category || 'gallery',
+        category: img.category || 'gallery',
+        source: 'maya-generation',
+        createdAt: img.createdAt,
+        metadata: {
+          width: img.width || 1024,
+          height: img.height || 1024,
+          format: 'png',
+          size: '1.2MB'
+        }
+      }))
+    ];
+    
+    // Sort by creation date (newest first)
+    allImages.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    
+    console.log('📊 Gallery: Returning', allImages.length, 'total images');
+    sendSuccess(res, allImages);
+    
+  } catch (error) {
+    console.error('❌ Gallery: Error fetching images:', error);
+    throw createError.internal('Failed to fetch gallery images');
+  }
 }));
 
 // Upload image to gallery
