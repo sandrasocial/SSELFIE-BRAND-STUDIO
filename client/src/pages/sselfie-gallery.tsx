@@ -13,12 +13,15 @@ function SSELFIEGallery() {
   const queryClient = useQueryClient();
 
   // Fetch user's gallery images
-  const { data: aiImages = [], isLoading } = useQuery<any[]>({
+  const { data: aiImagesData, isLoading } = useQuery<any[]>({
     queryKey: ['/api/gallery-images'],
     enabled: isAuthenticated && !!user,
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
   });
+
+  // Defensive check: ensure aiImages is always an array
+  const aiImages = Array.isArray(aiImagesData) ? aiImagesData : [];
 
   // Fetch user's favorites
   const { data: favoritesData } = useQuery<{ favorites: number[] }>({
