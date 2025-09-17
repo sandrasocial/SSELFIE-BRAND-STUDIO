@@ -1,4 +1,5 @@
-import { SignIn } from "@stackframe/stack";
+import { SignIn } from "@stackframe/react";
+import { stackClientApp } from "../src/stack";
 
 export function MySignInPage() {
   return (
@@ -10,15 +11,7 @@ export function MySignInPage() {
         <p className="text-center text-[#6b5e4e] mb-8 font-light">
           Sign in to your Studio
         </p>
-        <SignIn
-          fullPage={false}
-          automaticRedirect={true}
-          extraInfo={
-            <div className="text-xs text-center text-[#8c7b6b] mt-6">
-              By signing in, you agree to our <a href="/terms" className="underline hover:text-[#bfa77a]">Terms</a>.
-            </div>
-          }
-        />
+        <SignIn app={stackClientApp} />
       </div>
     </div>
   );

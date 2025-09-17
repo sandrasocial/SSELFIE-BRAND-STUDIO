@@ -1,4 +1,5 @@
-import { OAuthButton } from '@stackframe/stack';
+import { SignIn } from '@stackframe/react';
+import { stackClientApp } from '../src/stack';
 
 export default function OAuthSignInPage() {
   return (
@@ -11,8 +12,7 @@ export default function OAuthSignInPage() {
           Sign in to your Studio
         </p>
         <div className="flex flex-col gap-4">
-          <OAuthButton provider="google" type="sign-in" />
-          <OAuthButton provider="github" type="sign-up" />
+          <SignIn app={stackClientApp} />
         </div>
       </div>
     </div>

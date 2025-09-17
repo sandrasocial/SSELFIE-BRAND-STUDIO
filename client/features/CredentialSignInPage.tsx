@@ -1,4 +1,5 @@
-import { CredentialSignIn } from '@stackframe/stack';
+import { SignIn } from '@stackframe/react';
+import { stackClientApp } from '../src/stack';
 
 export default function CredentialSignInPage() {
   return (
@@ -10,7 +11,7 @@ export default function CredentialSignInPage() {
         <p className="text-center text-[#6b5e4e] mb-8 font-light">
           Sign in to your Studio
         </p>
-        <CredentialSignIn />
+        <SignIn app={stackClientApp} />
       </div>
     </div>
   );
