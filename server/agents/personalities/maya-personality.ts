@@ -65,6 +65,12 @@ export interface MayaPersonality {
     categories?: Record<string, any>;
     stylingApproaches?: Record<string, { description: string; vibe: string }>;
     parameters?: any;
+    name?: string; // Added for compatibility
+    voice?: { // Added for compatibility
+        analysisMode: { triggers: string[]; patterns: string[]; };
+        executionMode: { triggers: string[]; patterns: string[]; };
+        supportMode: { triggers: string[]; patterns: string[]; };
+    };
 }
 
 
