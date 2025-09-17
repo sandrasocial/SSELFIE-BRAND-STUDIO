@@ -1,4 +1,4 @@
-import { UserButton } from "@stackframe/stack";
+import { UserButton } from "@stackframe/react";
 
 // Replace with your actual icon component
 function CustomIcon() {

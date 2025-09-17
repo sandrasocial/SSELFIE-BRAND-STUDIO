@@ -368,8 +368,8 @@ function HandlerRoutes() {
   const hasStackAccess = document.cookie.includes('stack-access');
   console.log('🔍 HandlerRoutes: Has stack-access cookie:', hasStackAccess);
   
-  // Check if we're in an OAuth callback state (have outer cookies but no access cookie)
-  const isOAuthCallback = oauthOuterCookies.length > 0 && !hasStackAccess;
+  // Check if we're in an OAuth callback state (outer cookie)
+  const isOAuthCallback = oauthOuterCookies.length > 0;
   console.log('🔍 HandlerRoutes: Is OAuth callback state:', isOAuthCallback);
   const alreadyProcessed = sessionStorage.getItem('oauth_processed') === '1';
   
