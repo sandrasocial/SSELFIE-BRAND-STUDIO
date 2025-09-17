@@ -58,10 +58,10 @@ export class MayaPersonalizationService {
         plan: user.plan || 'sselfie-studio',
         planDisplayName: 'SSELFIE Studio',
         monthlyPrice: 47,
-        monthlyUsed: user.monthlyGenerationsUsed || 0,
+        monthlyUsed: user.generationsUsedThisMonth || 0,
         monthlyLimit: user.monthlyGenerationLimit || 100,
         isAdmin: user.monthlyGenerationLimit === -1,
-        nextBillingDate: user.subscriptionRenewDate,
+        nextBillingDate: user.currentPeriodEnd,
         subscriptionActive: user.monthlyGenerationLimit > 0 || user.monthlyGenerationLimit === -1,
         accountType: user.monthlyGenerationLimit === -1 ? 'Admin Account' : 'SSELFIE Studio Member',
         features: [
@@ -75,7 +75,7 @@ export class MayaPersonalizationService {
 
       // Build profile context
       const profileData = {
-        name: user.name,
+        name: user.displayName || `${user.firstName} ${user.lastName}`,
         email: user.email || '',
         firstName: user.firstName,
         lastName: user.lastName,
@@ -88,14 +88,14 @@ export class MayaPersonalizationService {
       // Build usage context
       const remainingGenerations = user.monthlyGenerationLimit === -1 
         ? -1 
-        : (user.monthlyGenerationLimit || 100) - (user.monthlyGenerationsUsed || 0);
+        : (user.monthlyGenerationLimit || 100) - (user.generationsUsedThisMonth || 0);
         
       const usagePercentage = user.monthlyGenerationLimit === -1 
         ? 0 
-        : ((user.monthlyGenerationsUsed || 0) / (user.monthlyGenerationLimit || 100)) * 100;
+        : ((user.generationsUsedThisMonth || 0) / (user.monthlyGenerationLimit || 100)) * 100;
 
       const usageStats = {
-        generationsThisMonth: user.monthlyGenerationsUsed || 0,
+        generationsThisMonth: user.generationsUsedThisMonth || 0,
         remainingGenerations: Math.max(remainingGenerations, 0),
         usagePercentage: Math.min(usagePercentage, 100),
         canGenerate: user.monthlyGenerationLimit === -1 || remainingGenerations > 0
