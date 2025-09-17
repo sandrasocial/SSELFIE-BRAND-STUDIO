@@ -168,6 +168,17 @@ function OAuthCallbackHandler() {
   const { isAuthenticated, isLoading, hasStackAuthUser, stackUser } = useAuth();
   const [redirectAttempted, setRedirectAttempted] = useState(false);
   const [showFallback, setShowFallback] = useState(false);
+  // ensure we don't get stuck on callback
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const hasAccess = document.cookie.includes('stack-access');
+      if (!hasAccess && !hasStackAuthUser) {
+        // if SDK failed to set cookie, bounce once back to sign-in to restart flow
+        window.location.replace('/handler/sign-in');
+      }
+    }, 8000);
+    return () => clearTimeout(timer);
+  }, [hasStackAuthUser]);
   
   useEffect(() => {
     console.log('🔄 OAuth Callback Handler: Processing authentication...');
@@ -345,9 +356,10 @@ function HandlerRoutes() {
   // Check if we're in an OAuth callback state (have outer cookies but no access cookie)
   const isOAuthCallback = oauthOuterCookies.length > 0 && !hasStackAccess;
   console.log('🔍 HandlerRoutes: Is OAuth callback state:', isOAuthCallback);
+  const alreadyProcessed = sessionStorage.getItem('oauth_processed') === '1';
   
   // If we're in OAuth callback state, let Stack Auth handle it automatically
-  if (isOAuthCallback) {
+  if (isOAuthCallback && !alreadyProcessed) {
     console.log('🔄 HandlerRoutes: OAuth callback detected, redirecting to /handler/oauth-callback...');
     // Redirect to explicit callback route and also mount hidden SignIn to trigger SDK processing
     setTimeout(() => {
@@ -355,6 +367,8 @@ function HandlerRoutes() {
         const query = window.location.search || '';
         window.location.replace(`/handler/oauth-callback${query}`);
       }
+      // prevent multiple redirects
+      sessionStorage.setItem('oauth_processed', '1');
     }, 10);
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
