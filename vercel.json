@@ -2,7 +2,7 @@
   "buildCommand": "npm run build",
   "outputDirectory": "client/dist",
   "redirects": [
-    { "source": "/(.*)", "destination": "https://sselfie.ai/$1", "has": [{ "host": "www.sselfie.ai" }], "permanent": true }
+    { "source": "/:path*", "destination": "https://sselfie.ai/:path*", "permanent": true }
   ],
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/$1" },
