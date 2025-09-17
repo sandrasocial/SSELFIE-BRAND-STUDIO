@@ -24,8 +24,8 @@ export function useAuth() {
 
   const isLoading = isDbUserLoading;
   
-  // Enhanced authentication check - use both Stack Auth and API response
-  const isAuthenticated = !!stackUser?.id && !!dbUser;
+  // Consider user authenticated as soon as Stack Auth says so (avoids loops)
+  const isAuthenticated = !!stackUser?.id;
   
   // For OAuth callbacks, we can proceed with just Stack Auth user
   const hasStackAuthUser = !!stackUser?.id;
