@@ -162,53 +162,35 @@ function Router() {
   );
 }
 
-// OAuth Callback Handler component - SIMPLIFIED
+// OAuth Callback Handler component - ULTRA SIMPLIFIED
 function OAuthCallbackHandler() {
   const { hasStackAuthUser } = useAuth();
-  const [timeoutReached, setTimeoutReached] = useState(false);
   
   useEffect(() => {
     console.log('🔄 OAuth Callback: Processing...');
     console.log('🔍 Stack user exists:', hasStackAuthUser);
-    console.log('🔍 Current URL:', window.location.href);
     
-    // Success case: Stack Auth user detected
+    // Immediate redirect on success
     if (hasStackAuthUser) {
       console.log('✅ OAuth Callback: Success, redirecting to /app');
       window.location.replace('/app');
       return;
     }
     
-    // Set up timeout to prevent getting stuck
-    const timeoutTimer = setTimeout(() => {
-      console.log('⚠️ OAuth Callback: Timeout reached, redirecting to sign-in');
-      setTimeoutReached(true);
+    // Single timeout, no state changes
+    const timer = setTimeout(() => {
+      console.log('⚠️ OAuth Callback: Timeout, redirecting to sign-in');
       window.location.replace('/handler/sign-in');
-    }, 5000); // 5 second timeout
+    }, 3000); // Reduced to 3 seconds
     
-    return () => clearTimeout(timeoutTimer);
+    return () => clearTimeout(timer);
   }, [hasStackAuthUser]);
   
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="text-center max-w-md mx-auto px-4">
+      <div className="text-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-        <p className="text-gray-600 mb-2">Completing authentication...</p>
-        <p className="text-sm text-gray-500">Please wait while we process your login.</p>
-        
-        {timeoutReached && (
-          <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <p className="text-sm text-yellow-800 mb-3">
-              Authentication is taking longer than expected.
-            </p>
-            <a 
-              href="/handler/sign-in" 
-              className="inline-block bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors"
-            >
-              Try Again
-            </a>
-          </div>
-        )}
+        <p className="text-gray-600">Completing authentication...</p>
       </div>
     </div>
   );
