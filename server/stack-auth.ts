@@ -1,7 +1,8 @@
+/* eslint-disable no-console */
 import { jwtVerify, createRemoteJWKSet } from 'jose';
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
+import { fileURLToPath, URL } from 'url';
 import type { Request, Response, NextFunction } from 'express';
 
 // ES module __dirname equivalent
@@ -14,21 +15,21 @@ const STACK_AUTH_API_URL = 'https://api.stack-auth.com/api/v1';
 const JWKS_URL = `${STACK_AUTH_API_URL}/projects/${STACK_AUTH_PROJECT_ID}/.well-known/jwks.json`;
 
 // Create JWKS resolver or use test public key in test mode
-let JWKS: any; // eslint-disable-line @typescript-eslint/no-explicit-any
 import { createPublicKey, KeyObject } from 'crypto';
+let testPublicKey: KeyObject | undefined;
+let remoteJwks: ReturnType<typeof createRemoteJWKSet> | undefined;
 if (process.env.NODE_ENV === 'test') {
   // Use test public key for JWT verification as a KeyObject
   const testPubKeyPath = path.join(__dirname, '__tests__', 'test-public.key');
   const testPublicKeyPem = fs.readFileSync(testPubKeyPath, 'utf8');
-  const testPublicKey: KeyObject = createPublicKey({ key: testPublicKeyPem, format: 'pem', type: 'spki' });
-  JWKS = testPublicKey;
+  testPublicKey = createPublicKey({ key: testPublicKeyPem, format: 'pem', type: 'spki' });
 } else {
-  JWKS = createRemoteJWKSet(new URL(JWKS_URL));
+  remoteJwks = createRemoteJWKSet(new URL(JWKS_URL));
 }
 
 // Authentication cache to improve performance
 interface CachedUser {
-  dbUser: any;
+  dbUser: unknown;
   timestamp: number;
   tokenHash: string;
 }
@@ -72,6 +73,9 @@ export interface StackAuthUser {
   displayName?: string;
   isAdmin?: boolean; // Added for compatibility
   // Add other Stack Auth user properties as needed
+  email?: string | null;
+  role?: string | null;
+  monthlyGenerationLimit?: number | null;
 }
 
 declare global {
@@ -88,9 +92,9 @@ declare global {
 async function verifyJWTToken(token: string) {
   try {
     let payload;
-    if (process.env.NODE_ENV === 'test') {
+    if (process.env.NODE_ENV === 'test' && testPublicKey) {
       // Use test public key and RS256
-      const { payload: testPayload } = await jwtVerify(token, JWKS, {
+      const { payload: testPayload } = await jwtVerify(token, testPublicKey, {
         algorithms: ['RS256'],
         issuer: `${STACK_AUTH_API_URL}/projects/${STACK_AUTH_PROJECT_ID}`,
         audience: STACK_AUTH_PROJECT_ID,
@@ -98,15 +102,16 @@ async function verifyJWTToken(token: string) {
       payload = testPayload;
     } else {
       // Verify JWT using Stack Auth's JWKS
-      const { payload: prodPayload } = await jwtVerify(token, JWKS, {
+      const { payload: prodPayload } = await jwtVerify(token, remoteJwks!, {
         issuer: `${STACK_AUTH_API_URL}/projects/${STACK_AUTH_PROJECT_ID}`,
         audience: STACK_AUTH_PROJECT_ID,
       });
       payload = prodPayload;
     }
     return payload;
-  } catch (error) {
-    throw new Error(`JWT verification failed: ${error.message}`);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    throw new Error(`JWT verification failed: ${message}`);
   }
 }
 
@@ -182,7 +187,7 @@ export async function verifyStackAuthToken(req: Request, res: Response, next: Ne
     
     if (cached && (Date.now() - cached.timestamp < CACHE_DURATION)) {
       console.log('⚡ Stack Auth: Using cached authentication');
-      req.user = cached.dbUser;
+      req.user = cached.dbUser as StackAuthUser;
       return next();
     }
     
@@ -270,13 +275,15 @@ export async function verifyStackAuthToken(req: Request, res: Response, next: Ne
     console.log('🎯 Stack Auth: User authenticated successfully, ID:', dbUser.id, 'Plan:', dbUser.plan || 'No subscription');
     
     next();
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('❌ Stack Auth: Token verification failed:', error);
-    console.error('❌ Error type:', error.constructor.name);
-    console.error('❌ Error message:', error.message);
+    if (error instanceof Error) {
+      console.error('❌ Error type:', error.constructor.name);
+      console.error('❌ Error message:', error.message);
+    }
     return res.status(401).json({ 
       message: 'Invalid or expired token',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      error: process.env.NODE_ENV === 'development' && error instanceof Error ? error.message : undefined
     });
   }
 }
@@ -315,8 +322,8 @@ export function requireActiveSubscription(req: Request, res: Response, next: Nex
       
       console.log('✅ Active subscription verified for user:', user.email);
       next();
-    } catch (error) {
-      console.error('❌ Subscription validation error:', error);
+    } catch (_error) {
+      console.error('❌ Subscription validation error:', _error);
       res.status(500).json({ message: 'Subscription validation failed' });
     }
   });
@@ -331,7 +338,7 @@ export async function optionalStackAuth(req: Request, res: Response, next: NextF
   try {
     await verifyStackAuthToken(req, res, () => {}); // Don't call next() in callback
     next(); // Call next here if verification succeeds
-  } catch (error) {
+  } catch {
     // If verification fails, still continue but without user
     req.user = undefined;
     next();
@@ -349,7 +356,7 @@ export async function authenticateAdmin(req: Request, res: Response, next: NextF
     }
     
     next();
-  } catch (error) {
+  } catch {
     return res.status(401).json({ error: 'Authentication required' });
   }
 }

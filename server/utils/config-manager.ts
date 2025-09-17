@@ -244,27 +244,27 @@ export class ConfigManager {
   /**
    * Export configuration (excluding sensitive values)
    */
-  public exportConfiguration(includeSensitive: boolean = false): Record<string, any> {
-    const config = { ...this.config };
+  public exportConfiguration(includeSensitive: boolean = false): Record<string, unknown> {
+    const config = { ...(this.config as unknown as Record<string, unknown>) } as Record<string, unknown>;
 
     if (!includeSensitive) {
       // Redact sensitive values
-      config.database.password = '[REDACTED]';
-      config.auth.stackSecretKey = '[REDACTED]';
-      config.ai.anthropicApiKey = '[REDACTED]';
-      config.ai.googleApiKey = '[REDACTED]';
-      config.ai.replicateApiToken = '[REDACTED]';
-      config.storage.awsAccessKeyId = '[REDACTED]';
-      config.storage.awsSecretAccessKey = '[REDACTED]';
-      config.payment.stripeSecretKey = '[REDACTED]';
-      config.email.flodeskApiKey = '[REDACTED]';
-      config.email.resendApiKey = '[REDACTED]';
-      config.social.instagramAccessToken = '[REDACTED]';
-      config.social.metaAccessToken = '[REDACTED]';
-      config.social.manychatToken = '[REDACTED]';
+      (config.database as Record<string, unknown>).password = '[REDACTED]';
+      (config.auth as Record<string, unknown>).stackSecretKey = '[REDACTED]';
+      (config.ai as Record<string, unknown>).anthropicApiKey = '[REDACTED]';
+      (config.ai as Record<string, unknown>).googleApiKey = '[REDACTED]';
+      (config.ai as Record<string, unknown>).replicateApiToken = '[REDACTED]';
+      (config.storage as Record<string, unknown>).awsAccessKeyId = '[REDACTED]';
+      (config.storage as Record<string, unknown>).awsSecretAccessKey = '[REDACTED]';
+      (config.payment as Record<string, unknown>).stripeSecretKey = '[REDACTED]';
+      (config.email as Record<string, unknown>).flodeskApiKey = '[REDACTED]';
+      (config.email as Record<string, unknown>).resendApiKey = '[REDACTED]';
+      (config.social as Record<string, unknown>).instagramAccessToken = '[REDACTED]';
+      (config.social as Record<string, unknown>).metaAccessToken = '[REDACTED]';
+      (config.social as Record<string, unknown>).manychatToken = '[REDACTED]';
     }
 
-    return config;
+    return config as Record<string, unknown>;
   }
 
   /**
@@ -330,16 +330,17 @@ export class ConfigManager {
    */
   public setConfigValue(path: string, value: unknown): void {
     const keys = path.split('.');
-    let current: unknown = this.config;
-    
+    let current: Record<string, unknown> = this.config as unknown as Record<string, unknown>;
+
     for (let i = 0; i < keys.length - 1; i++) {
       const key = keys[i];
-      if (!(key in current) || typeof current[key] !== 'object') {
+      const next = current[key];
+      if (typeof next !== 'object' || next === null) {
         current[key] = {};
       }
-      current = current[key];
+      current = current[key] as Record<string, unknown>;
     }
-    
+
     current[keys[keys.length - 1]] = value;
     this.logger.info(`Configuration value set: ${path}`);
   }
@@ -365,7 +366,7 @@ export class ConfigManager {
    */
   public getConfigurationForEnvironment(environment: string): Record<string, unknown> {
     return {
-      ...this.config,
+      ...(this.config as unknown as Record<string, unknown>),
       environment,
       nodeEnv: environment
     };
