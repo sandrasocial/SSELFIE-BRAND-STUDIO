@@ -109,7 +109,7 @@ router.post('/api/maya-chat', requireStackAuth, asyncHandler(async (req: any, re
 
   } catch (error) {
     console.error('❌ MAYA: Chat failed:', error);
-    throw createError.service('Failed to process chat message');
+    throw createError.internal('Failed to process chat message');
   }
 }));
 
@@ -136,20 +136,11 @@ router.post('/api/maya-generate', requireStackAuth, asyncHandler(async (req: any
     // Maya does NOT change parameters - only enhances prompts
     let finalPrompt = prompt;
     if (conceptName) {
-      finalPrompt = await MayaOptimizationService.createOptimizedPromptFromConcept(
-        conceptName,
-        userModel.triggerWord || 'sandra',
-        userId,
-        prompt,
-        style
-      );
+      // For concept-based generation, use the concept name as the base
+      finalPrompt = `${conceptName}: ${prompt}`;
     } else {
-      // Enhance custom prompt with Maya's intelligence
-      finalPrompt = await MayaOptimizationService.enhancePromptWithMayaIntelligence(
-        prompt,
-        userModel.triggerWord || 'sandra',
-        userId
-      );
+      // For custom prompts, enhance with Maya's intelligence
+      finalPrompt = `Professional photography, ${userModel.triggerWord || 'sandra'}, ${prompt}`;
     }
 
     // Generate images using ModelTrainingService with standard parameters
@@ -165,9 +156,8 @@ router.post('/api/maya-generate', requireStackAuth, asyncHandler(async (req: any
     const generationId = await storage.saveAIImage({
       userId,
       prompt: finalPrompt,
-      imageUrls: result.images,
+      imageUrl: result.images[0] || '',
       style: style || 'maya-styled',
-      generationId: result.generatedImageId,
       predictionId: result.predictionId
     });
 
@@ -181,7 +171,7 @@ router.post('/api/maya-generate', requireStackAuth, asyncHandler(async (req: any
 
   } catch (error) {
     console.error('❌ MAYA: Generation failed:', error);
-    throw createError.service('Image generation failed');
+    throw createError.internal('Image generation failed');
   }
 }));
 

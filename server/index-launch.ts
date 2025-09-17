@@ -157,7 +157,9 @@ app.get('/api/training/check/:trainingId', requireStackAuth, async (req, res) =>
   try {
     const { trainingId } = req.params as { trainingId: string };
     const { TrainingCompletionMonitor } = await import('./training-completion-monitor');
-    const status = await TrainingCompletionMonitor.getInstance().checkTrainingStatus(trainingId);
+    const monitor = TrainingCompletionMonitor.getInstance();
+    // Check if training is complete by looking at the database
+    const status = await monitor.getTrainingStatus(trainingId);
     return res.json(status);
   } catch (error) {
     return res.status(500).json({ message: 'Failed to check training id' });

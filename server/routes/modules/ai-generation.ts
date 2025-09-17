@@ -195,9 +195,8 @@ router.post('/api/ai-images', requireActiveSubscription, asyncHandler(async (req
     const generationId = await storage.saveAIImage({
       userId,
       prompt,
-      imageUrls: result.images,
+      imageUrl: result.images[0] || '',
       style: style || 'ai-generated',
-      generationId: result.generatedImageId,
       predictionId: result.predictionId
     });
 
@@ -211,7 +210,7 @@ router.post('/api/ai-images', requireActiveSubscription, asyncHandler(async (req
 
   } catch (error) {
     console.error('❌ AI Images: Generation failed:', error);
-    throw createError.service('Image generation failed');
+    throw createError.internal('Image generation failed');
   }
 }));
 

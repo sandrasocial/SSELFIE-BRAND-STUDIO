@@ -1543,7 +1543,7 @@ export class DatabaseStorage implements IStorage {
       .insert(mayaChats)
       .values({
         userId,
-        title: data.title,
+        chatTitle: data.title,
         chatCategory: 'Style Consultation',
         lastActivity: new Date()
       })
@@ -1565,10 +1565,9 @@ export class DatabaseStorage implements IStorage {
       .insert(mayaChats)
       .values({
         userId,
-        title: 'New Maya Chat',
+        chatTitle: 'New Maya Chat',
         chatCategory: 'Style Consultation',
-        lastActivity: new Date(),
-        conceptCards: data.conceptCards
+        lastActivity: new Date()
       })
       .returning();
     
@@ -1592,7 +1591,7 @@ export class DatabaseStorage implements IStorage {
     return await db
       .select()
       .from(mayaChatMessages)
-      .where(and(eq(mayaChatMessages.chatId, parseInt(chatId)), eq(mayaChatMessages.userId, userId)))
+      .where(eq(mayaChatMessages.chatId, parseInt(chatId)))
       .orderBy(asc(mayaChatMessages.createdAt));
   }
 
@@ -1602,8 +1601,7 @@ export class DatabaseStorage implements IStorage {
       .insert(mayaChatMessages)
       .values({
         chatId: parseInt(chatId),
-        userId,
-        message: data.message,
+        content: data.message,
         role: data.role as 'user' | 'assistant',
         createdAt: new Date()
       })
@@ -1616,8 +1614,8 @@ export class DatabaseStorage implements IStorage {
   async updateMayaMessage(messageId: string, userId: string, updates: { content: string }): Promise<void> {
     await db
       .update(mayaChatMessages)
-      .set({ message: updates.content })
-      .where(and(eq(mayaChatMessages.id, parseInt(messageId)), eq(mayaChatMessages.userId, userId)));
+      .set({ content: updates.content })
+      .where(eq(mayaChatMessages.id, parseInt(messageId)));
   }
 
   // Legacy method - use createMayaChat(userId, data) instead
