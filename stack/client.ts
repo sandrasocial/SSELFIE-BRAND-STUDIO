@@ -46,3 +46,10 @@ export const stackClientApp = new StackClientApp({
     oauthCallback: "/handler/oauth-callback",
   },
 });
+
+// Debug the Stack Auth instance
+console.log('🔍 Stack Auth Instance Created:', {
+  projectId: stackClientApp.projectId,
+  urls: stackClientApp.urls,
+  tokenStore: 'cookie'
+});
