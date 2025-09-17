@@ -318,7 +318,6 @@ function HandlerRoutes() {
   const { isAuthenticated, isLoading } = useAuth();
 
   // Debug logging
-  console.log('🔍 HandlerRoutes: params =', params);
   console.log('🔍 HandlerRoutes: handlerPath =', handlerPath);
   console.log('🔍 HandlerRoutes: currentUrl =', currentUrl);
   console.log('🔍 HandlerRoutes: isAuthenticated =', isAuthenticated);
