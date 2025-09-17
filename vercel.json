@@ -1,7 +1,7 @@
 {
   "version": 2,
-  "buildCommand": "npm run build",
-  "outputDirectory": "client/dist",
+  "buildCommand": "npm run vercel-build",
+  "outputDirectory": "dist",
   "installCommand": "npm install",
   "framework": null,
   "builds": [
@@ -10,18 +10,18 @@
       "use": "@vercel/node"
     }
   ],
-  "rewrites": [
+  "routes": [
     {
-      "source": "/api/(.*)",
-      "destination": "/server/index-launch.ts"
+      "src": "/api/(.*)",
+      "dest": "/server/index-launch.ts"
     },
     {
-      "source": "/health",
-      "destination": "/server/index-launch.ts"
+      "src": "/health",
+      "dest": "/server/index-launch.ts"
     },
     {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "src": "/(.*)",
+      "dest": "/index.html"
     }
   ],
   "headers": [
