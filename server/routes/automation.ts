@@ -32,7 +32,7 @@ export function registerAutomationRoutes(app: Express) {
       const existingOnboarding = await storage.getOnboardingData(userId);
       
       if (!existingOnboarding) {
-        await storage.createOnboardingData({
+        await storage.createUserOnboardingData({
           userId,
           currentStep: plan === 'ai-pack' ? 'selfie-upload' : 'brand-questionnaire',
           brandVibe: '',
@@ -169,7 +169,6 @@ export function registerAutomationRoutes(app: Express) {
           userId,
           prompt,
           imageUrl: '', // Will be updated when processing completes
-          status: 'pending',
         });
       });
 

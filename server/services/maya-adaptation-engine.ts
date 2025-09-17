@@ -6,6 +6,7 @@
 import { storage } from '../storage';
 import { ClaudeApiServiceSimple } from './claude-api-service-simple';
 import { PersonalityManager } from '../agents/personalities/personality-config';
+import { db } from '../drizzle';
 
 export interface AdaptationResult {
   adaptedPersonality: any;
@@ -123,7 +124,7 @@ Respond with JSON:
         LIMIT 1
       `;
       
-      const evolutionData = await storage.db.execute(evolutionQuery, [userId]);
+      const evolutionData = await db.execute(evolutionQuery, [userId]);
       
       // Get recent gallery favorites for style preferences
       const favoritesQuery = `
@@ -134,7 +135,7 @@ Respond with JSON:
         LIMIT 20
       `;
       
-      const favorites = await storage.db.execute(favoritesQuery, [userId]);
+      const favorites = await db.execute(favoritesQuery, [userId]);
 
       if (evolutionData.length === 0) {
         // New user - create initial profile
@@ -205,7 +206,7 @@ Respond with JSON:
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
       `;
       
-      await storage.db.execute(insertQuery, [
+      await db.execute(insertQuery, [
         userId,
         JSON.stringify({ stage: 'initial', completedLearning: [] }),
         JSON.stringify([{ timestamp: Date.now(), stage: 'onboarding' }]),
@@ -247,7 +248,7 @@ Respond with JSON:
         context: context
       };
       
-      await storage.db.execute(updateQuery, [
+      await db.execute(updateQuery, [
         userId,
         new Date().toISOString(),
         JSON.stringify([evolutionEntry])
