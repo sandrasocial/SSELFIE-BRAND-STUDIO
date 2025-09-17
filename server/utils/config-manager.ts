@@ -371,26 +371,6 @@ export class ConfigManager {
     };
   }
 
-  /**
-   * Validate configuration
-   */
-  public validateConfiguration(): { valid: boolean; errors: string[] } {
-    const errors: string[] = [];
-    
-    // Basic validation - check for required fields
-    if (!this.config.database) {
-      errors.push('Database configuration is missing');
-    }
-    
-    if (!this.config.ai) {
-      errors.push('AI configuration is missing');
-    }
-    
-    return {
-      valid: errors.length === 0,
-      errors
-    };
-  }
 }
 
 // Export singleton instance
