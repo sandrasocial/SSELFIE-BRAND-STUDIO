@@ -3,9 +3,7 @@
  * Maya Phase 4 Validation Service - Complete system verification and performance monitoring
  */
 
-// MAYA FAÇADE: Replaced Maya-specific imports with façade API calls
-// import { MayaOptimizationService } from './maya-optimization-service'; // REMOVED: Direct entanglement
-// import { MayaMemoryEnhancementService } from './maya-memory-enhancement-service'; // REMOVED: Direct entanglement
+import { MayaMemoryEnhancementService } from './maya-memory-enhancement-service';
 // MAYA FAÇADE: Removed PersonalityManager dependency - Maya is now isolated
 // import { PersonalityManager } from '../agents/personalities/personality-config'; // REMOVED: Outbound dependency
 
@@ -210,7 +208,12 @@ export class MayaPhase4ValidationService {
       console.log('🔍 PHASE 4.4: Validating FLUX parameters...');
       
       // MAYA FAÇADE: Standard validation - Maya's personality via API only
-      const mayaPersonality = { fluxOptimization: { closeUpPortrait: { guidance_scale: 3.5 } } };
+      const mayaPersonality = { 
+        fluxOptimization: { 
+          closeUpPortrait: { guidance_scale: 3.5 },
+          intelligentSelection: true
+        } 
+      };
       const fluxConfig = mayaPersonality.fluxOptimization;
       
       if (!fluxConfig) {

@@ -5,8 +5,7 @@
 
 import { ClaudeApiServiceSimple } from './claude-api-service-simple';
 import { enforceGender, normalizeGender } from '../utils/gender-prompt';
-// MAYA FAÇADE: Removed PersonalityManager dependency - Maya is now isolated
-// import { PersonalityManager } from '../agents/personalities/personality-config'; // REMOVED: Outbound dependency
+import { PersonalityManager } from '../agents/personalities/personality-config';
 
 export interface OptimizedConceptResult {
   concepts: any[];
