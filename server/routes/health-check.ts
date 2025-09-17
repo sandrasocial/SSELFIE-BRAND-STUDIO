@@ -226,7 +226,7 @@ async function checkExternalServices(): Promise<{ status: string; details?: any 
         try {
           const response = await fetch(service.url, { 
             method: 'HEAD',
-            timeout: 5000 
+            signal: AbortSignal.timeout(5000)
           });
           return {
             name: service.name,

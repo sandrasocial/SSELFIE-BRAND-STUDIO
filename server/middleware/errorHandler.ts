@@ -1,11 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
 import { logger } from '../config/monitoring';
+import { StackAuthUser } from '../stack-auth';
 
 // Extend Express Request type to include user property
 declare global {
   namespace Express {
     interface Request {
-      user?: any;
+      user?: StackAuthUser;
     }
   }
 }

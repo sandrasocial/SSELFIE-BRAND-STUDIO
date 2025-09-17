@@ -19,15 +19,8 @@ export class ImageCompressionService {
 
       // Use sharp for high-quality compression
       const compressedBuffer = await sharp(originalBuffer)
-        .resize(1024, 1024, {
-          fit: 'inside',
-          withoutEnlargement: true
-        })
-        .jpeg({
-          quality: 85, // High quality for AI training
-          progressive: true,
-          mozjpeg: true
-        })
+        .resize(1024, 1024)
+        .jpeg()
         .toBuffer();
 
       const compressedBase64 = compressedBuffer.toString('base64');
