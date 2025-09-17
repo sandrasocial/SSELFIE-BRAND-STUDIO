@@ -4,12 +4,12 @@
   "outputDirectory": "client/dist",
   "installCommand": "npm install",
   "framework": null,
-  "functions": {
-    "server/index.ts": {
-      "runtime": "nodejs18.x",
-      "maxDuration": 30
+  "builds": [
+    {
+      "src": "server/index.ts",
+      "use": "@vercel/node"
     }
-  },
+  ],
   "rewrites": [
     {
       "source": "/api/(.*)",
