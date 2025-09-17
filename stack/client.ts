@@ -7,9 +7,7 @@ export const stackClientApp = new StackClientApp({
   tokenStore: "cookie",
   // Ensure cookies are set for the apex domain and are secure
   cookieOptions: {
-    domain: typeof window !== 'undefined' && window.location.hostname.endsWith('.sselfie.ai')
-      ? '.sselfie.ai'
-      : undefined,
+    // Use host-only cookie to avoid domain-mismatch during redirects
     path: "/",
     secure: true,
     sameSite: "lax"
