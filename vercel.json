@@ -1,13 +1,13 @@
 {
   "version": 2,
-  "buildCommand": "npm run vercel-build",
-  "outputDirectory": "client/dist",
-  "installCommand": "npm install",
-  "framework": null,
   "builds": [
     {
-      "src": "client/dist/**",
-      "use": "@vercel/static"
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "client/dist",
+        "buildCommand": "npm run vercel-build"
+      }
     },
     {
       "src": "server/index-launch.ts",
