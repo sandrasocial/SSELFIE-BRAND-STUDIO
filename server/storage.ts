@@ -61,8 +61,6 @@ import {
   claudeMessages,
   type ClaudeConversation,
   type ClaudeMessage,
-  type InsertClaudeConversation,
-  type InsertClaudeMessage,
   trainingRuns,
   loraWeights,
   type TrainingRun,

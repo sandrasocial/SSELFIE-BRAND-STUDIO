@@ -120,9 +120,9 @@ export class ConfigManager {
   /**
    * Get configuration value
    */
-  public getConfigValue<T = any>(path: string): T {
+  public getConfigValue<T = unknown>(path: string): T {
     const keys = path.split('.');
-    let value: any = this.config;
+    let value: unknown = this.config;
 
     for (const key of keys) {
       if (value && typeof value === 'object' && key in value) {
@@ -292,9 +292,9 @@ export class ConfigManager {
   /**
    * Get configuration value by path
    */
-  public get<T = any>(path: string, defaultValue?: T): T {
+  public get<T = unknown>(path: string, defaultValue?: T): T {
     const keys = path.split('.');
-    let value: any = this.config;
+    let value: unknown = this.config;
     
     for (const key of keys) {
       if (value && typeof value === 'object' && key in value) {
@@ -312,7 +312,7 @@ export class ConfigManager {
    */
   public has(path: string): boolean {
     const keys = path.split('.');
-    let value: any = this.config;
+    let value: unknown = this.config;
     
     for (const key of keys) {
       if (value && typeof value === 'object' && key in value) {
@@ -328,9 +328,9 @@ export class ConfigManager {
   /**
    * Set configuration value by path
    */
-  public setConfigValue(path: string, value: any): void {
+  public setConfigValue(path: string, value: unknown): void {
     const keys = path.split('.');
-    let current: any = this.config;
+    let current: unknown = this.config;
     
     for (let i = 0; i < keys.length - 1; i++) {
       const key = keys[i];
@@ -347,7 +347,7 @@ export class ConfigManager {
   /**
    * Import configuration from external source
    */
-  public importConfiguration(config: any): void {
+  public importConfiguration(config: Record<string, unknown>): void {
     this.config = { ...this.config, ...config };
     this.logger.info('Configuration imported successfully');
   }
@@ -363,7 +363,7 @@ export class ConfigManager {
   /**
    * Get configuration for specific environment
    */
-  public getConfigurationForEnvironment(environment: string): any {
+  public getConfigurationForEnvironment(environment: string): Record<string, unknown> {
     return {
       ...this.config,
       environment,

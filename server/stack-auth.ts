@@ -1,7 +1,12 @@
 import { jwtVerify, createRemoteJWKSet } from 'jose';
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import type { Request, Response, NextFunction } from 'express';
+
+// ES module __dirname equivalent
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Stack Auth configuration
 const STACK_AUTH_PROJECT_ID = '253d7343-a0d4-43a1-be5c-822f590d40be';
@@ -9,7 +14,7 @@ const STACK_AUTH_API_URL = 'https://api.stack-auth.com/api/v1';
 const JWKS_URL = `${STACK_AUTH_API_URL}/projects/${STACK_AUTH_PROJECT_ID}/.well-known/jwks.json`;
 
 // Create JWKS resolver or use test public key in test mode
-let JWKS: any;
+let JWKS: any; // eslint-disable-line @typescript-eslint/no-explicit-any
 import { createPublicKey, KeyObject } from 'crypto';
 if (process.env.NODE_ENV === 'test') {
   // Use test public key for JWT verification as a KeyObject
@@ -214,7 +219,7 @@ export async function verifyStackAuthToken(req: Request, res: Response, next: Ne
     });
     
     // Get or create user in our database with email-based linking for existing users
-    const { storage } = await import('./storage');
+    const { storage } = await import('./storage.js');
     
     // Step 1: Try to find user by Stack Auth ID first
     let dbUser = await storage.getUserByStackAuthId(userId);
@@ -283,14 +288,14 @@ export async function verifyStackAuthToken(req: Request, res: Response, next: Ne
 export function requireActiveSubscription(req: Request, res: Response, next: NextFunction) {
   requireStackAuth(req, res, async () => {
     try {
-      const user = req.user as any;
+      const user = req.user as StackAuthUser;
       
       if (!user || !user.id) {
         return res.status(401).json({ message: 'Authentication required' });
       }
       
       // Check if user has active subscription
-      const { storage } = await import('./storage');
+      const { storage } = await import('./storage.js');
       const subscription = await storage.getUserSubscription(user.id);
       
       // Allow admin users and users with active subscriptions
