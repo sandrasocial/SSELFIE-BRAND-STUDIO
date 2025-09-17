@@ -34,7 +34,7 @@ export function registerAutomationRoutes(app: Express) {
       if (!existingOnboarding) {
         await storage.saveOnboardingData({
           userId,
-          currentStep: plan === 'ai-pack' ? 'selfie-upload' : 'brand-questionnaire',
+          currentStep: plan === 'ai-pack' ? 1 : 2,
           brandVibe: '',
           targetClient: '',
           businessGoal: '',

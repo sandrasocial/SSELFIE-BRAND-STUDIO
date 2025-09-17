@@ -70,9 +70,9 @@ async function categorizeExistingImages() {
       // Update the image with detected category
       await db.execute(`
         UPDATE ai_images 
-        SET category = $1 
-        WHERE id = $2
-      `, [category, String(row.id)]);
+        SET category = '${category}' 
+        WHERE id = ${String(row.id)}
+      `);
       
       // Count categories
       switch (category) {

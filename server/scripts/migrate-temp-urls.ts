@@ -33,9 +33,9 @@ async function migrateTempUrls() {
           // Update the image with permanent URL
           await db.execute(`
             UPDATE ai_images 
-            SET image_url = $1 
-            WHERE id = $2
-          `, [permanentUrl, String(row.id)]);
+            SET image_url = '${permanentUrl}' 
+            WHERE id = ${String(row.id)}
+          `);
           
           console.log(`✅ Image ${row.id}: Migrated to permanent S3 URL`);
           console.log(`   Old: ${String(row.image_url).substring(0, 50)}...`);
