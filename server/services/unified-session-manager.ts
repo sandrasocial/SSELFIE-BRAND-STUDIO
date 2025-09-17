@@ -150,9 +150,10 @@ export class UnifiedSessionManager {
   /**
    * RESTORE AGENT CONTEXTS: Get all agent session data for user
    */
-  private async restoreAgentContexts(userId: string): Promise<AgentSessionContext[]> {
+  private async restoreAgentContexts(userId: string, tx?: any): Promise<AgentSessionContext[]> {
     try {
-      const contexts = await db.select()
+      const query = tx ? tx.select() : db.select();
+      const contexts = await query
         .from(agentSessionContexts)
         .where(eq(agentSessionContexts.userId, userId))
         .orderBy(desc(agentSessionContexts.lastInteraction))
@@ -207,9 +208,10 @@ export class UnifiedSessionManager {
   /**
    * GET USER PROFILE: Fetch user data for session
    */
-  private async getUserProfile(userId: string): Promise<any> {
+  private async getUserProfile(userId: string, tx?: any): Promise<any> {
     try {
-      const user = await db.select()
+      const query = tx ? tx.select() : db.select();
+      const user = await query
         .from(users)
         .where(eq(users.id, userId))
         .limit(1);
@@ -225,9 +227,10 @@ export class UnifiedSessionManager {
   /**
    * GET LAST USER ACTIVITY: Find most recent activity timestamp
    */
-  private async getLastUserActivity(userId: string): Promise<Date> {
+  private async getLastUserActivity(userId: string, tx?: any): Promise<Date> {
     try {
-      const lastContext = await db.select()
+      const query = tx ? tx.select() : db.select();
+      const lastContext = await query
         .from(agentSessionContexts)
         .where(eq(agentSessionContexts.userId, userId))
         .orderBy(desc(agentSessionContexts.lastInteraction))

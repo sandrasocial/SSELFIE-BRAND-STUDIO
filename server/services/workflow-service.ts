@@ -11,9 +11,10 @@ export class WorkflowService {
   }
 
   async executeWorkflow(workflowName: string, userId: string): Promise<void> {
+    let workflow: any = null;
     try {
       // Load workflow definition
-      const workflow = await this.loadWorkflow(workflowName);
+      workflow = await this.loadWorkflow(workflowName);
       
       // Verify user permissions
       if (!await this.verifyPermissions(userId, workflow.requiredRole)) {
