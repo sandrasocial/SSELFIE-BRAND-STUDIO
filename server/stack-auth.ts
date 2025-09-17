@@ -331,3 +331,19 @@ export async function optionalStackAuth(req: Request, res: Response, next: NextF
     next();
   }
 }
+
+// Admin authentication - requires admin role
+export async function authenticateAdmin(req: Request, res: Response, next: NextFunction) {
+  try {
+    await verifyStackAuthToken(req, res, () => {});
+    
+    // Check if user has admin role
+    if (!req.user || !req.user.isAdmin) {
+      return res.status(403).json({ error: 'Admin access required' });
+    }
+    
+    next();
+  } catch (error) {
+    return res.status(401).json({ error: 'Authentication required' });
+  }
+}
