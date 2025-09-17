@@ -348,16 +348,23 @@ function HandlerRoutes() {
   
   // If we're in OAuth callback state, let Stack Auth handle it automatically
   if (isOAuthCallback) {
-    console.log('🔄 HandlerRoutes: OAuth callback detected, letting Stack Auth handle it...');
-    
-    // Let Stack Auth handle the OAuth callback automatically
-    // Don't interfere with the process
+    console.log('🔄 HandlerRoutes: OAuth callback detected, redirecting to /handler/oauth-callback...');
+    // Redirect to explicit callback route and also mount hidden SignIn to trigger SDK processing
+    setTimeout(() => {
+      if (window.location.pathname !== '/handler/oauth-callback') {
+        const query = window.location.search || '';
+        window.location.replace(`/handler/oauth-callback${query}`);
+      }
+    }, 10);
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center max-w-md mx-auto px-4">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600 mb-2">Processing OAuth authentication...</p>
           <p className="text-sm text-gray-500">Please wait while we complete your login.</p>
+          <div style={{ display: 'none' }}>
+            <SignIn app={stackClientApp} />
+          </div>
         </div>
       </div>
     );
