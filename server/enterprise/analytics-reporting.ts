@@ -5,7 +5,7 @@
 
 import { predictiveIntelligence, type PredictiveMetrics } from './predictive-intelligence';
 import { securityAudit, type SecurityMetrics } from './security-audit';
-import { performanceMonitor, type PerformanceMetrics } from './performance-monitor';
+import { PerformanceMonitor, type PerformanceMetrics } from './performance-monitor';
 import { globalExpansion, type GlobalExpansionMetrics } from './global-expansion';
 
 export interface EnterpriseAnalytics {
