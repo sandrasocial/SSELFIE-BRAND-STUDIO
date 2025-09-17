@@ -133,7 +133,7 @@ export abstract class BaseService {
   /**
    * Check if service is enabled
    */
-  public isEnabled(): boolean {
+  public getEnabled(): boolean {
     return this.isEnabled;
   }
 }

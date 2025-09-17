@@ -1,4 +1,5 @@
 import { db } from '../drizzle'
+import { users } from '../../shared/schema'
 import { LaunchMetrics } from '../../shared/types/launch-metrics'
 
 export class LaunchExcellenceProtocol {
@@ -33,7 +34,8 @@ export class LaunchExcellenceProtocol {
    */
   private async validateDatabase(): Promise<boolean> {
     try {
-      await this.db.ping()
+      // Test database connection with a simple query
+      await this.db.select().from(users).limit(1)
       return true
     } catch (error) {
       console.error('Database validation failed:', error)
@@ -85,8 +87,8 @@ export class LaunchExcellenceProtocol {
     try {
       const metrics = await this.validateLaunchReadiness()
       
-      // Store launch validation results
-      await this.db.set('launch:latest:metrics', metrics)
+      // Store launch validation results (placeholder)
+      console.log('Launch validation completed:', metrics)
       
       return true
     } catch (error) {
