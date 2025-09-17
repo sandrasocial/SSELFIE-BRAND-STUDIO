@@ -107,7 +107,7 @@ export class SearchOptimizer {
   private shouldCache(result: SearchResult): boolean {
     // Cache documentation sites and technical resources
     const documentationSites = [
-      'docs.replit.com',
+      'docs.vercel.com',
       'developer.mozilla.org',
       'reactjs.org',
       'typescript.org',

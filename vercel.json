@@ -1,11 +1,44 @@
 {
+  "version": 2,
   "buildCommand": "npm run build",
   "outputDirectory": "client/dist",
-  "redirects": [
-    { "source": "/:path*", "destination": "https://sselfie.ai/:path*", "permanent": true }
+  "installCommand": "npm install",
+  "framework": null,
+  "functions": {
+    "server/index.ts": {
+      "runtime": "nodejs18.x",
+      "maxDuration": 30
+    }
+  },
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/server/index.ts"
+    },
+    {
+      "src": "/health",
+      "dest": "/server/index.ts"
+    },
+    {
+      "src": "/(.*\\.(js|jsx|ts|tsx|css|json|ico|png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot))$",
+      "dest": "/client/dist/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/client/dist/index.html"
+    }
   ],
-  "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/$1" },
-    { "source": "/(.*)", "destination": "/index.html" }
-  ]
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET, POST, PUT, DELETE, OPTIONS" },
+        { "key": "Access-Control-Allow-Headers", "value": "Content-Type, Authorization" }
+      ]
+    }
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  }
 }

@@ -468,7 +468,7 @@ function App() {
       console.log('SSELFIE Studio: App initializing...');
       
       // Only apply redirects for production domain, not localhost
-      if (window.location.hostname !== 'localhost' && !window.location.hostname.includes('replit')) {
+      if (window.location.hostname !== 'localhost' && !window.location.hostname.includes('vercel')) {
         // Force HTTPS redirect if needed
         if (window.location.protocol === 'http:' && window.location.hostname === 'sselfie.ai') {
           window.location.href = window.location.href.replace('http:', 'https:');

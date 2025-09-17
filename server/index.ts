@@ -41,7 +41,44 @@ app.get('/', (req, res) => {
 
 // Register all routes (async for test compatibility)
 async function setupApp() {
-  await registerRoutes(app);
+  try {
+    console.log('🚀 Setting up SSELFIE Studio server...');
+    
+    // Setup static file serving based on environment
+    const isProduction = process.env.NODE_ENV === 'production';
+    
+    if (isProduction) {
+      // In production, Vercel handles static files via vercel.json routes
+      // Only serve attached assets (user uploads, etc.)
+      app.use('/attached_assets', express.static(path.join(process.cwd(), 'attached_assets')));
+      console.log('📁 Production: Vercel handling static files, serving attached assets only');
+    } else {
+      // Development mode: serve built files if they exist
+      const distPath = path.join(process.cwd(), 'client', 'dist');
+      if (require('fs').existsSync(distPath)) {
+        app.use(express.static(distPath));
+        app.use('/assets', express.static(path.join(distPath, 'assets')));
+        app.use('/attached_assets', express.static(path.join(process.cwd(), 'attached_assets')));
+        
+        // SPA fallback for development
+        app.get('*', (req, res) => {
+          if (req.path.startsWith('/api/') || req.path === '/health') {
+            return;
+          }
+          res.sendFile(path.join(distPath, 'index.html'));
+        });
+        console.log('📁 Development: Serving static files from client/dist');
+      }
+    }
+    
+    // Register API routes
+    await registerRoutes(app);
+    
+    console.log('✅ Server setup completed successfully');
+  } catch (error) {
+    console.error('❌ Server setup failed:', error);
+    throw error;
+  }
 }
 
 // Only auto-run if not in test
