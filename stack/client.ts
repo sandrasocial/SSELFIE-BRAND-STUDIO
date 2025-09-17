@@ -19,8 +19,8 @@ export const stackClientApp = new StackClientApp({
     afterSignIn: "/app",
     afterSignUp: "/app",
     afterSignOut: "/",
-    // Add explicit OAuth callback URL
-    oauthCallback: "/handler/oauth-callback",
+    // Force top-level redirect callback on our domain to avoid third-party cookie scenarios
+    oauthCallback: typeof window !== 'undefined' ? `${window.location.origin}/handler/oauth-callback` : "/handler/oauth-callback",
   },
   // Enable automatic OAuth callback processing
   autoProcessOAuthCallback: true,

@@ -275,6 +275,10 @@ function OAuthCallbackHandler() {
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
         <p className="text-gray-600 mb-2">Completing authentication...</p>
         <p className="text-sm text-gray-500 mb-4">Please wait while we process your login.</p>
+        {/* Mount SignIn silently so the SDK can auto-process the OAuth callback */}
+        <div style={{ display: 'none' }}>
+          <SignIn app={stackClientApp} />
+        </div>
         
         {showFallback && (
           <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
