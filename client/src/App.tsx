@@ -376,7 +376,7 @@ function HandlerRoutes() {
   // If we're in OAuth callback state, let Stack Auth handle it automatically
   if (isOAuthCallback && !alreadyProcessed) {
     console.log('🔄 HandlerRoutes: OAuth callback detected, redirecting to /handler/oauth-callback...');
-    // Redirect to explicit callback route; SDK will read from localStorage
+    // Redirect to explicit callback route; SDK will read from cookies
     setTimeout(() => {
       if (window.location.pathname !== '/handler/oauth-callback') {
         const query = window.location.search || '';
