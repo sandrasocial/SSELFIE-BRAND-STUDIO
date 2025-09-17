@@ -202,6 +202,22 @@ function OAuthCallbackHandler() {
     const hasOAuthCode = window.location.search.includes('code=');
     console.log('🔍 Has OAuth code parameter:', hasOAuthCode);
     
+    // Proactively invoke SDK callback handlers if available
+    (async () => {
+      try {
+        const anyApp = stackClientApp as unknown as Record<string, any>;
+        if (typeof anyApp?.processOAuthCallback === 'function') {
+          await anyApp.processOAuthCallback();
+          console.log('🔄 OAuth Callback: processOAuthCallback invoked');
+        } else if (typeof anyApp?.handleOAuthCallback === 'function') {
+          await anyApp.handleOAuthCallback();
+          console.log('🔄 OAuth Callback: handleOAuthCallback invoked');
+        }
+      } catch (e) {
+        console.log('⚠️ OAuth Callback: SDK callback invocation failed (non-fatal)', e);
+      }
+    })();
+
     // If we have a Stack Auth user, we can proceed even if database user isn't loaded yet
     if (hasStackAuthUser && !redirectAttempted) {
       console.log('✅ OAuth Callback: Stack Auth user found, redirecting to /app');
