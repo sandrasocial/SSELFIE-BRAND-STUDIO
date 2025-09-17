@@ -487,4 +487,97 @@ export class MayaPredictiveStyleService {
       status: 'Active'
     };
   }
+
+  // Missing static methods that are referenced but not implemented
+  static async predictEmergingTrends(userId: string, stylePatterns: any): Promise<string[]> {
+    return []; // Placeholder implementation
+  }
+
+  static calculateTrendAlignment(stylePatterns: any): number {
+    return 0.8; // Placeholder implementation
+  }
+
+  static determineTrendTimeline(behaviorData: any): string {
+    return '3-6 months'; // Placeholder implementation
+  }
+
+  static async generateSeasonalPredictions(userId: string, contextualData: any): Promise<string[]> {
+    return []; // Placeholder implementation
+  }
+
+  static async generateEventPredictions(userId: string, contextualData: any): Promise<string[]> {
+    return []; // Placeholder implementation
+  }
+
+  static async generateMoodPredictions(userId: string, contextualData: any): Promise<string[]> {
+    return []; // Placeholder implementation
+  }
+
+  static identifySkillBuildingAreas(stylePatterns: any): string[] {
+    return []; // Placeholder implementation
+  }
+
+  static identifyConfidenceBuilders(stylePatterns: any): string[] {
+    return []; // Placeholder implementation
+  }
+
+  static async generateCustomConceptSeeds(userId: string, stylePatterns: any): Promise<string[]> {
+    return []; // Placeholder implementation
+  }
+
+  static async generateRemixSuggestions(userId: string, stylePatterns: any): Promise<string[]> {
+    return []; // Placeholder implementation
+  }
+
+  static identifyUnexploredAreas(stylePatterns: any): string[] {
+    return []; // Placeholder implementation
+  }
+
+  static async generateComfortZoneExpanders(userId: string, stylePatterns: any): Promise<string[]> {
+    return []; // Placeholder implementation
+  }
+
+  static async predictPhaseTransition(userId: string, behaviorData: any): Promise<string> {
+    return 'stable'; // Placeholder implementation
+  }
+
+  static identifyPhaseTransitionSignals(behaviorData: any): string[] {
+    return []; // Placeholder implementation
+  }
+
+  static async predictOptimalEngagementTimes(userId: string, behaviorData: any): Promise<string[]> {
+    return []; // Placeholder implementation
+  }
+
+  static async calculatePreferredSessionLength(userId: string, behaviorData: any): Promise<number> {
+    return 30; // Placeholder implementation
+  }
+
+  static async determineIdealComplexity(userId: string, behaviorData: any): Promise<string> {
+    return 'medium'; // Placeholder implementation
+  }
+
+  static async predictSubscriptionSatisfaction(userId: string, behaviorData: any): Promise<number> {
+    return 0.8; // Placeholder implementation
+  }
+
+  static async predictFeatureInterest(userId: string, behaviorData: any): Promise<string[]> {
+    return []; // Placeholder implementation
+  }
+
+  static async calculateRetentionProbability(userId: string, behaviorData: any): Promise<number> {
+    return 0.8; // Placeholder implementation
+  }
+
+  static calculatePreferenceStrength(stylePatterns: any): number {
+    return 0.8; // Placeholder implementation
+  }
+
+  static analyzeEvolutionTrend(stylePatterns: any): string {
+    return 'progressive'; // Placeholder implementation
+  }
+
+  static async getExpandedStyleSuggestions(userId: string, stylePatterns: any): Promise<string[]> {
+    return []; // Placeholder implementation
+  }
 }
