@@ -17,9 +17,11 @@ export function useAuth() {
   // Fetch our database user data if Stack Auth user exists
   const { data: dbUser, isLoading: isDbUserLoading, error } = useQuery({
     queryKey: ["/api/auth/user"],
-    retry: false,
+    retry: 3, // Enable retries for network issues
+    retryDelay: 1000, // Wait 1s between retries
     enabled: !!stackUser?.id, // Only fetch if Stack Auth user exists
     staleTime: 5 * 60 * 1000, // 5 minutes cache
+    refetchOnWindowFocus: false, // Avoid excessive refetching
   });
 
   // Never block UI on DB fetch; Stack user presence is enough to render app

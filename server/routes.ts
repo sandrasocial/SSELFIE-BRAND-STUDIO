@@ -44,6 +44,7 @@ import phase2CoordinationRouter from './routes/phase2-coordination';
 import utilityRoutes from './routes/modules/utility';
 import authRoutes from './routes/modules/auth';
 import aiGenerationRoutes from './routes/modules/ai-generation';
+import { setupStackWebhook } from './routes/stack-webhook';
 import adminRoutes from './routes/modules/admin';
 import agentProtocolRoutes from './routes/modules/agent-protocol';
 import websitesRoutes from './routes/modules/websites';
@@ -67,6 +68,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/', utilityRoutes);
   app.use('/', authRoutes);
   app.use('/', aiGenerationRoutes);
+  
+  // Setup Stack Auth webhook for automatic user creation
+  setupStackWebhook(app);
   app.use('/', adminRoutes);
   app.use('/', agentProtocolRoutes);
   app.use('/', websitesRoutes);
