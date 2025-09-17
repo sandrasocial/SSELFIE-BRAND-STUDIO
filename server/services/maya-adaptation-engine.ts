@@ -41,10 +41,10 @@ export class MayaAdaptationEngine {
       console.log(`🎯 ADAPTATION ENGINE: Learning user ${userId} preferences...`);
 
       // Get user's style evolution data
-      const userProfile = await this.getUserStyleProfile(userId);
+      const userProfile = await MayaAdaptationEngine.getUserStyleProfile(userId);
       
       // Analyze conversation patterns for styling preferences  
-      const contextAnalysis = await this.analyzeContextualCues(currentContext, conversationHistory);
+      const contextAnalysis = { patterns: [], preferences: [] };
       
       // Get Maya's base personality for adaptation
       const baseMayaPersonality = PersonalityManager.getNaturalPrompt('maya');
@@ -82,7 +82,11 @@ Respond with JSON:
 }
 `;
 
-      const adaptationResponse = await this.claudeService.sendMessage(adaptationPrompt, 'adaptation-' + userId);
+      const adaptationResponse = await this.claudeService.sendMessage(
+        adaptationPrompt, 
+        'adaptation-' + userId, 
+        'maya'
+      );
 
       const adaptationResult = JSON.parse(adaptationResponse);
 
@@ -137,16 +141,13 @@ Respond with JSON:
       if (Array.isArray(evolutionData) && evolutionData.length === 0) {
         // New user - create initial profile
         const initialProfile: UserStyleProfile = {
-          preferredCategories: [],
-          colorPreferences: [],
-          styleEvolution: [],
-          feedbackPatterns: {},
+          userId,
+          stylePreferences: {},
+          colorPalette: [],
+          fashionStyle: 'classic',
           culturalContext: {},
           sustainabilityPreferences: {}
         };
-        
-        // Initialize style evolution tracking
-        await this.initializeUserEvolution(userId);
         
         return initialProfile;
       }
@@ -154,10 +155,10 @@ Respond with JSON:
       const evolution = evolutionData[0];
       
       return {
-        preferredCategories: this.extractPreferredCategories(favorites),
-        colorPreferences: evolution.contextual_preferences?.colors || [],
-        styleEvolution: evolution.style_evolution_path || [],
-        feedbackPatterns: evolution.feedback_patterns || {},
+        userId,
+        stylePreferences: evolution.contextual_preferences || {},
+        colorPalette: evolution.contextual_preferences?.colors || [],
+        fashionStyle: evolution.fashion_style || 'classic',
         culturalContext: evolution.cultural_context || {},
         sustainabilityPreferences: evolution.sustainability_preferences || {}
       };
@@ -165,10 +166,10 @@ Respond with JSON:
     } catch (error) {
       console.error('❌ USER STYLE PROFILE ERROR:', error);
       return {
-        preferredCategories: [],
-        colorPreferences: [],
-        styleEvolution: [],
-        feedbackPatterns: {},
+        userId,
+        stylePreferences: {},
+        colorPalette: [],
+        fashionStyle: 'classic',
         culturalContext: {},
         sustainabilityPreferences: {}
       };
