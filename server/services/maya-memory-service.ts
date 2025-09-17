@@ -25,4 +25,16 @@ export class MayaMemoryService {
     // Placeholder implementation
     return { success: true };
   }
+
+  static getMemoryStats() {
+    console.warn('Using placeholder MayaMemoryService.getMemoryStats(). Implement actual memory stats retrieval.');
+    return {
+      totalEntries: 0,
+      activeSessions: 0,
+      enhancedFields: [],
+    };
+  }
 }
+
+// Export singleton instance
+export const mayaMemoryService = new MayaMemoryService(new DatabaseStorage());

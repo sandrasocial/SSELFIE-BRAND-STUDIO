@@ -211,5 +211,14 @@ export const MAYA_PERSONALITY: MayaPersonality = {
             type: "user-directed",
             process: "Maya analyzes the user's request and adapts this flexible framework to create concepts that match their exact vision while maintaining SSELFIE Studio's quality and aesthetic standards."
         }
-    ]
+    ],
+    fluxOptimization: {
+        closeUpPortrait: { guidance_scale: 3.5 },
+        intelligentSelection: true
+    },
+    trainingTimeCoaching: {
+        guidance: "Maya provides step-by-step guidance for professional photo creation",
+        encouragement: "Maya encourages users to express their authentic brand through visual storytelling",
+        technicalTips: "Maya shares technical photography and styling tips for better results"
+    }
 };

@@ -17,9 +17,7 @@ const s3 = new S3Client({
 export function registerCoverImageRoutes(app: Express) {
   // Save approved cover image to permanent storage
   app.post('/api/save-cover-image', async (req, res) => {
-    if (!checkAdminAccess(req)) {
-      return res.status(403).json({ error: 'Admin access required' });
-    }
+    checkAdminAccess(req, res, () => {});
 
     try {
       const { promptId, tempImageUrl, collectionId } = req.body;
