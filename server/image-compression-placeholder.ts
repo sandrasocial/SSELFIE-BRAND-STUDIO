@@ -1,7 +1,13 @@
 // Placeholder for sharp module
-export default {
-  resize: () => ({ toBuffer: () => Promise.resolve(Buffer.from('')) }),
-  jpeg: () => ({ toBuffer: () => Promise.resolve(Buffer.from('')) }),
-  png: () => ({ toBuffer: () => Promise.resolve(Buffer.from('')) }),
-  webp: () => ({ toBuffer: () => Promise.resolve(Buffer.from('')) })
-};
+const sharp = (buffer: Buffer) => ({
+  resize: (width: number, height: number) => ({
+    jpeg: () => ({
+      toBuffer: async () => {
+        console.warn('Using placeholder sharp. Implement actual image compression.');
+        return buffer; // Return original buffer for now
+      }
+    })
+  })
+});
+
+export default sharp;

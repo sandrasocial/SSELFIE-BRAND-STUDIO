@@ -34,6 +34,11 @@ export class MayaMemoryService {
       enhancedFields: [],
     };
   }
+
+  static async clearRestrictiveCategorizations(userId: string) {
+    console.warn('Using placeholder MayaMemoryService.clearRestrictiveCategorizations(). Implement actual categorization clearing.');
+    return { success: true };
+  }
 }
 
 // Export singleton instance

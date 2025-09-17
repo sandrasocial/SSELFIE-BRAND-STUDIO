@@ -122,7 +122,7 @@ router.post('/customize', requireStackAuth, async (req: any, res) => {
     const [existingWebsite] = await db
       .select()
       .from(websites)
-      .where(eq(websites.id, validatedData.siteId))
+      .where(eq(websites.id, parseInt(validatedData.siteId)))
       .limit(1);
 
     if (!existingWebsite || existingWebsite.userId !== userId) {

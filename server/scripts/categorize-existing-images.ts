@@ -65,14 +65,14 @@ async function categorizeExistingImages() {
     
     // Process each image
     for (const row of result.rows) {
-      const category = detectCategoryFromPrompt(row.prompt || '');
+      const category = detectCategoryFromPrompt(String(row.prompt || ''));
       
       // Update the image with detected category
       await db.execute(`
         UPDATE ai_images 
         SET category = $1 
         WHERE id = $2
-      `, [category, row.id]);
+      `, [category, String(row.id)]);
       
       // Count categories
       switch (category) {
@@ -82,7 +82,7 @@ async function categorizeExistingImages() {
         case 'Travel': travelCount++; break;
       }
       
-      console.log(`✅ Image ${row.id}: "${row.prompt?.substring(0, 50)}..." → ${category}`);
+      console.log(`✅ Image ${row.id}: "${String(row.prompt || '').substring(0, 50)}..." → ${category}`);
     }
     
     console.log('\n📈 Categorization Results:');
