@@ -38,7 +38,7 @@ class PWAManager {
   }
 
   private async registerServiceWorker() {
-    if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
+    if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production' && !/handler\//.test(window.location.pathname)) {
       try {
         const registration = await navigator.serviceWorker.register('/sw.js');
         console.log('SSELFIE Studio: Service Worker registered', registration);
