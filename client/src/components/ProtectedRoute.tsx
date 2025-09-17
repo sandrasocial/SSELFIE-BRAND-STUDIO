@@ -16,7 +16,11 @@ export function ProtectedRoute({ component: Component, ...props }: { component: 
   }, [isLoading, isAuthenticated, setLocation]);
 
   // Show a loading spinner while authentication is in progress.
-  if (isLoading || !isAuthenticated) {
+  if (isLoading) {
+    return <PageLoader />;
+  }
+  if (!isAuthenticated) {
+    setLocation('/handler/sign-in');
     return <PageLoader />;
   }
 

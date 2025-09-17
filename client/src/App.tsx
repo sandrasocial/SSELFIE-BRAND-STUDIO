@@ -42,15 +42,15 @@ function SmartHome() {
   // Fetch user model status to determine training completion
   const { data: userModel, isLoading: isModelLoading } = useQuery({
     queryKey: ['/api/user-model'],
-    enabled: isAuthenticated,
+    enabled: isAuthenticated, // we consider Stack user sufficient to fetch
     retry: false,
     staleTime: 30 * 1000
   });
 
   useEffect(() => {
-    if (!isLoading && !isModelLoading && isAuthenticated) {
+    if (!isLoading && isAuthenticated) {
       // Check training status and route accordingly
-      if (!userModel || (userModel as { trainingStatus?: string }).trainingStatus !== 'completed') {
+      if (userModel && (userModel as { trainingStatus?: string }).trainingStatus !== 'completed') {
         console.log('🎯 User authenticated but needs training, redirecting to simple-training');
         setLocation('/simple-training');
       } else {
@@ -60,7 +60,7 @@ function SmartHome() {
     } else if (!isLoading && !isAuthenticated) {
       console.log('🔍 User not authenticated, staying on landing page');
     }
-  }, [isAuthenticated, isLoading, isModelLoading, userModel, setLocation]);
+  }, [isAuthenticated, isLoading, userModel, setLocation]);
 
   // Show loading while determining auth state and training status
   if (isLoading || (isAuthenticated && isModelLoading)) {
