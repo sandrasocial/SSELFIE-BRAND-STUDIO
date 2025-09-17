@@ -358,7 +358,7 @@ export class MonitoringSystem {
   /**
    * Check if monitoring is enabled
    */
-  public isEnabled(): boolean {
+  public getEnabled(): boolean {
     return this.isEnabled;
   }
 }

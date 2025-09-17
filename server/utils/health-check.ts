@@ -759,7 +759,7 @@ export class HealthCheckSystem {
   /**
    * Get health check status
    */
-  public isEnabled(): boolean {
+  public getEnabled(): boolean {
     return this.isEnabled;
   }
 }

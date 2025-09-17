@@ -234,21 +234,21 @@ export class LocalProcessingEngine {
         type: 'communication_style',
         category: 'preference',
         data: {
-          politenessLevel: userLower.includes('please') ? 'polite' : 'direct',
-          requestType: userLower.includes('help') ? 'assistance' : 'action',
-          urgencyLevel: userLower.includes('urgent') || userLower.includes('quickly') ? 'high' : 'normal'
+          politenessLevel: message.includes('please') ? 'polite' : 'direct',
+          requestType: message.includes('help') ? 'assistance' : 'action',
+          urgencyLevel: message.includes('urgent') || message.includes('quickly') ? 'high' : 'normal'
         }
       });
     }
 
     // 5. DESIGN PATTERN RECOGNITION (LOCAL)
-    if (userLower.includes('design') || userLower.includes('ui') || userLower.includes('component')) {
+    if (message.includes('design') || message.includes('ui') || message.includes('component')) {
       patterns.push({
         type: 'design_request',
         category: 'creative',
         data: {
           designType: this.identifyDesignTypeLocally(userMessage),
-          luxuryElements: userLower.includes('luxury') || userLower.includes('sophisticated'),
+          luxuryElements: message.includes('luxury') || message.includes('sophisticated'),
           colorPreferences: this.extractColorPreferencesLocally(userMessage)
         }
       });
