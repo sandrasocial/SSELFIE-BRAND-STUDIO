@@ -88,7 +88,7 @@ export class UnifiedSessionManager {
       // Cache the session data
       this.sessionCache.set(cacheKey, sessionData);
 
-      console.log(`✅ SESSION RESTORED: ${agentContexts.length} agent contexts, Replit: ${replitSessionValid ? 'valid' : 'invalid'}`);
+      console.log(`✅ SESSION RESTORED: ${sessionData.agentContexts.length} agent contexts, Replit: ${sessionData.replitSessionValid ? 'valid' : 'invalid'}`);
       return sessionData;
 
     } catch (error) {
@@ -112,7 +112,7 @@ export class UnifiedSessionManager {
       console.log(`💾 SAVING AGENT CONTEXT: ${context.agentId} for user ${context.userId}`);
 
       // Create memory snapshot
-      const memorySnapshot = await ConversationManager.retrieveAgentMemory(
+      const memorySnapshot = await this.retrieveAgentMemory(
         context.agentId, 
         context.userId
       );
@@ -300,6 +300,24 @@ export class UnifiedSessionManager {
     } catch (error) {
       console.error('❌ Failed to get active agent sessions:', error);
       return [];
+    }
+  }
+
+  /**
+   * RETRIEVE AGENT MEMORY: Get agent memory for context
+   */
+  private async retrieveAgentMemory(agentId: string, userId: string): Promise<any> {
+    try {
+      // Placeholder implementation
+      return {
+        agentId,
+        userId,
+        memory: {},
+        timestamp: new Date()
+      };
+    } catch (error) {
+      console.error('❌ Failed to retrieve agent memory:', error);
+      return null;
     }
   }
 }
