@@ -82,10 +82,7 @@ Respond with JSON:
 }
 `;
 
-      const adaptationResponse = await this.claudeService.sendMessage([{
-        role: 'user',
-        content: adaptationPrompt
-      }]);
+      const adaptationResponse = await this.claudeService.sendMessage(adaptationPrompt, 'adaptation-' + userId);
 
       const adaptationResult = JSON.parse(adaptationResponse);
 
@@ -124,7 +121,7 @@ Respond with JSON:
         LIMIT 1
       `;
       
-      const evolutionData = await db.execute(evolutionQuery, [userId]);
+      const evolutionData = await db.execute(evolutionQuery.replace('$1', `'${userId}'`));
       
       // Get recent gallery favorites for style preferences
       const favoritesQuery = `
@@ -135,9 +132,9 @@ Respond with JSON:
         LIMIT 20
       `;
       
-      const favorites = await db.execute(favoritesQuery, [userId]);
+      const favorites = await db.execute(favoritesQuery.replace('$1', `'${userId}'`));
 
-      if (evolutionData.length === 0) {
+      if (Array.isArray(evolutionData) && evolutionData.length === 0) {
         // New user - create initial profile
         const initialProfile: UserStyleProfile = {
           preferredCategories: [],
@@ -206,16 +203,7 @@ Respond with JSON:
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
       `;
       
-      await db.execute(insertQuery, [
-        userId,
-        JSON.stringify({ stage: 'initial', completedLearning: [] }),
-        JSON.stringify([{ timestamp: Date.now(), stage: 'onboarding' }]),
-        JSON.stringify({}),
-        JSON.stringify({ initialized: true }),
-        JSON.stringify({ preferences: [] }),
-        JSON.stringify({ detected: false }),
-        JSON.stringify({ conscious: false })
-      ]);
+      await db.execute(insertQuery.replace('$1', `'${userId}'`).replace('$2', `'${JSON.stringify(initialProfile)}'`).replace('$3', `'${JSON.stringify([])}'`).replace('$4', `'${JSON.stringify({})}'`).replace('$5', `'${JSON.stringify({ initialized: true })}'`).replace('$6', `'${JSON.stringify({})}'`).replace('$7', `'${JSON.stringify({})}'`).replace('$8', `'${JSON.stringify({})}'`));
       
       console.log(`✅ ADAPTATION ENGINE: Initialized style evolution for user ${userId}`);
     } catch (error) {
@@ -248,11 +236,7 @@ Respond with JSON:
         context: context
       };
       
-      await db.execute(updateQuery, [
-        userId,
-        new Date().toISOString(),
-        JSON.stringify([evolutionEntry])
-      ]);
+      await db.execute(updateQuery.replace('$1', `'${userId}'`).replace('$2', `'${new Date().toISOString()}'`).replace('$3', `'${JSON.stringify([evolutionEntry])}'`));
       
     } catch (error) {
       console.error('❌ ADAPTATION RECORDING ERROR:', error);

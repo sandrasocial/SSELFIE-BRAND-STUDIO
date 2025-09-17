@@ -35,10 +35,10 @@ export function registerAutomationRoutes(app: Express) {
         await storage.saveOnboardingData({
           userId,
           currentStep: plan === 'ai-pack' ? 1 : 2,
-          brandVibe: '',
-          targetClient: '',
-          businessGoal: '',
-          completedSteps: [],
+          brandVoice: '',
+          targetAudience: '',
+          businessGoals: '',
+          completed: false,
         });
       }
 

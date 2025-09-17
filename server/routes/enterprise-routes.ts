@@ -6,7 +6,7 @@
 import type { Express } from 'express';
 import { predictiveIntelligence } from '../enterprise/predictive-intelligence';
 import { securityAudit } from '../enterprise/security-audit';
-import { performanceMonitor } from '../enterprise/performance-monitor';
+import { PerformanceMonitor } from '../enterprise/performance-monitor';
 import { globalExpansion } from '../enterprise/global-expansion';
 import { analyticsReporting } from '../enterprise/analytics-reporting';
 import { requireStackAuth } from '../stack-auth';
