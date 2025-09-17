@@ -17,6 +17,7 @@ import {
   emailCaptures,
   mayaChats,
   mayaChatMessages,
+  userStyleMemory,
   type User,
   type InsertUser,
   type UserProfile,
@@ -2142,6 +2143,26 @@ export class DatabaseStorage implements IStorage {
     // This would typically query a usage_history table
     // For now, return empty array
     return [];
+  }
+
+  // User style memory methods
+  async getUserStyleMemory(userId: string): Promise<any> {
+    const [memory] = await db.select().from(userStyleMemory).where(eq(userStyleMemory.userId, userId));
+    return memory;
+  }
+
+  async createUserStyleMemory(data: any): Promise<any> {
+    const [memory] = await db.insert(userStyleMemory).values(data).returning();
+    return memory;
+  }
+
+  async updateUserStyleMemory(userId: string, data: any): Promise<any> {
+    const [memory] = await db
+      .update(userStyleMemory)
+      .set({ ...data, updatedAt: new Date() })
+      .where(eq(userStyleMemory.userId, userId))
+      .returning();
+    return memory;
   }
 }
 
