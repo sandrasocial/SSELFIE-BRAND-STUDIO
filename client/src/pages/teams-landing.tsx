@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from "wouter";
 import { GlobalFooter } from '../components/global-footer';
-import { useStackApp } from "@stackframe/stack";
+// Avoid importing secondary Stack SDK on public pages
 
 export default function TeamsLanding() {
   const [, setLocation] = useLocation();
-  const app = useStackApp();
+  // No direct SDK usage here to avoid conflicts
 
   // Comprehensive SEO Meta Tags for Teams/Enterprise
   useEffect(() => {
@@ -138,14 +138,7 @@ export default function TeamsLanding() {
     setLocation('/business');
   };
 
-  const handleLogin = async () => {
-    try {
-      // ✅ FIXED: Use proper Stack Auth SDK method
-      await app.signInWithOAuth('google');
-    } catch (error) {
-      console.error('❌ Stack Auth: OAuth login failed:', error);
-    }
-  };
+  const handleLogin = () => { window.location.href = '/handler/sign-in'; };
 
   return (
     <div className="min-h-screen bg-white">
