@@ -1,6 +1,7 @@
 
 import "./env-setup.js";
 import express from 'express';
+import path from 'path';
 import { registerRoutes } from './routes';
 import { securityHeaders, inputValidation } from './middleware/security';
 import { rateLimits } from './middleware/rate-limiter';
