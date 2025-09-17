@@ -74,7 +74,7 @@ export default function BusinessLanding() {
     const faviconLinks = [
       { rel: 'icon', type: 'image/png', href: '/favicon.png', sizes: '32x32' },
       { rel: 'apple-touch-icon', href: '/favicon.png', sizes: '180x180' },
-      { rel: 'manifest', href: '/site.webmanifest' }
+      { rel: 'manifest', href: '/manifest.json' }
     ];
     
     faviconLinks.forEach(linkData => {
