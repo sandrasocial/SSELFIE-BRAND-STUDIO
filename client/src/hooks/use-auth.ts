@@ -22,7 +22,8 @@ export function useAuth() {
     staleTime: 5 * 60 * 1000, // 5 minutes cache
   });
 
-  const isLoading = isDbUserLoading;
+  // Never block UI on DB fetch; Stack user presence is enough to render app
+  const isLoading = false;
   
   // Consider user authenticated as soon as Stack Auth says so (avoids loops)
   const isAuthenticated = !!stackUser?.id;
