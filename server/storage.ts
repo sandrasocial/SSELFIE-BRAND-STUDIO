@@ -82,7 +82,7 @@ import {
   type InsertConceptCard,
 } from "../shared/schema";
 import { db } from "./drizzle";
-import { eq, and, desc, gte, lte, sql } from "drizzle-orm";
+import { eq, and, desc, asc, gte, lte, sql } from "drizzle-orm";
 
 // Interface for storage operations
 export interface IStorage {
