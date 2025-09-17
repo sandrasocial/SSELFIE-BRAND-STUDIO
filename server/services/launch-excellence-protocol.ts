@@ -1,11 +1,11 @@
-import { Database } from '@/lib/database'
-import { LaunchMetrics } from '@/shared/types/launch-metrics'
+import { db } from '../drizzle'
+import { LaunchMetrics } from '../../shared/types/launch-metrics'
 
 export class LaunchExcellenceProtocol {
-  private db: Database
+  private db: typeof db
   
   constructor() {
-    this.db = new Database()
+    this.db = db
   }
 
   /**
