@@ -104,9 +104,10 @@ export class UserService extends BaseService {
       }
       
       const sanitizedData = this.sanitizeInput(userData);
-      const userId = this.generateId('user');
+      // Use provided ID (for Stack Auth users) or generate new one
+      const userId = sanitizedData.id || this.generateId('user');
       
-      this.log('info', 'Creating new user', { email, userId });
+      this.log('info', 'Creating new user', { email, userId, isStackAuthUser: !!sanitizedData.id });
       
       const newUser = await this.storage.createUser({
         id: userId,
@@ -116,6 +117,11 @@ export class UserService extends BaseService {
         lastName: sanitizedData.lastName,
         gender: sanitizedData.gender,
         profileImageUrl: sanitizedData.profileImageUrl,
+        // Stack Auth users get basic plan by default
+        plan: sanitizedData.id ? 'sselfie-studio' : null,
+        role: sanitizedData.id ? 'user' : null,
+        monthlyGenerationLimit: sanitizedData.id ? 100 : 0,
+        mayaAiAccess: sanitizedData.id ? true : false,
         createdAt: new Date(),
         updatedAt: new Date()
       });

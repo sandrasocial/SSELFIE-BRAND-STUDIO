@@ -14,14 +14,35 @@ const router = Router();
 // Get current user
 router.get('/api/auth/user', requireStackAuth, asyncHandler(async (req: any, res) => {
   const userId = req.user.id;
-  const user = await userService.getUser(userId);
+  let user = await userService.getUser(userId);
+
+  // If user doesn't exist in database but Stack Auth user exists, create them
+  if (!user && req.user) {
+    console.log('🔄 Auto-creating user from Stack Auth data:', req.user.email);
+    user = await userService.createUser(req.user.email || req.user.id, {
+      id: req.user.id,
+      email: req.user.email,
+      displayName: req.user.displayName,
+      firstName: req.user.firstName,
+      lastName: req.user.lastName,
+      profileImageUrl: req.user.profileImageUrl,
+    });
+    console.log('✅ User auto-created successfully:', user.id);
+  }
 
   if (!user) {
     throw createError.notFound('User not found');
   }
+  
   sendSuccess(res, {
     id: user.id,
     email: user.email,
+    displayName: user.displayName,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    plan: user.plan,
+    role: user.role,
+    monthlyGenerationLimit: user.monthlyGenerationLimit,
     createdAt: user.createdAt,
   });
 }));
