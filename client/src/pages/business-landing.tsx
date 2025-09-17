@@ -402,7 +402,7 @@ export default function BusinessLanding() {
               <div className="relative overflow-hidden rounded-lg mb-6 sm:mb-8"
                    style={{ height: 'clamp(240px, 50vw, 320px)' }}>
                 <img
-                  src="https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/api/proxy-image?url=https%3A%2F%2Fsselfie-training-zips.s3.eu-north-1.amazonaws.com%2Fgenerated-images%2F42585527%2Fmaya_gn5xs1grwxrme0cs3g4tfwe220_0_1757111996442.png"
+                  src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_gn5xs1grwxrme0cs3g4tfwe220_0_1757111996442.png"
                   alt="Upload process"
                   className="w-full h-full object-cover object-[center_20%]"
                 />
