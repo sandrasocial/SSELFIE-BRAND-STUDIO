@@ -1,19 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { GlobalFooter } from "../components/global-footer";
-import { useStackApp } from "@stackframe/stack";
+import { SignIn } from "@stackframe/react";
+import { stackClientApp } from "../stack";
 import { STACK_PROJECT_ID, STACK_PUBLISHABLE_CLIENT_KEY } from "../env";
 
 export default function BusinessLanding() {
   const [, setLocation] = useLocation();
-  // Safely use Stack Auth hook with error handling for when outside provider
-  let app;
-  try {
-    app = useStackApp();
-  } catch (error) {
-    // This is fine - component can work without Stack Auth for public pages
-    app = null;
-  }
+  // We avoid using useStackApp to prevent SDK conflicts on public pages
 
   // Comprehensive SEO Meta Tags
   useEffect(() => {
@@ -224,33 +218,8 @@ export default function BusinessLanding() {
     setLocation('/simple-checkout');
   };
 
-  const handleLogin = async () => {
-    console.log('🔍 Login button clicked');
-    console.log('🔍 Stack Auth app available:', !!app);
-    console.log('🔍 Environment vars:', { STACK_PROJECT_ID, STACK_PUBLISHABLE_CLIENT_KEY });
-    
-    if (!app) {
-      console.log('🔄 Using fallback login method');
-      // Fallback to direct OAuth URL
-      const projectId = STACK_PROJECT_ID;
-      const publishableKey = STACK_PUBLISHABLE_CLIENT_KEY;
-
-      if (publishableKey) {
-        console.log('🚀 Redirecting to Stack Auth handler');
-        window.location.href = `/handler/sign-in`;
-      } else {
-        console.error('❌ No publishable key found');
-      }
-      return;
-    }
-
-    try {
-      console.log('🚀 Using Stack Auth SDK method');
-      // ✅ Use Stack Auth SDK method
-      await app.signInWithOAuth('google');
-    } catch (error) {
-      console.error('❌ Stack Auth: OAuth login failed:', error);
-    }
+  const handleLogin = () => {
+    window.location.href = '/handler/sign-in';
   };
 
   return (
