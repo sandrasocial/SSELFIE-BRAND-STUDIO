@@ -18,6 +18,8 @@ export interface PerformanceMetrics {
     bytesOut: number;
     connections: number;
   };
+  applicationPerformance?: any; // Added for compatibility
+  systemHealth?: any; // Added for compatibility
 }
 
 export class PerformanceMonitor {

@@ -258,51 +258,7 @@ export class LocalProcessingEngine {
   }
 
   // ================== INTENT ANALYSIS (LOCAL) ==================
-  
-  /**
-   * Extract user intent using local pattern matching
-   */
-  extractIntentLocally(message: string): string {
-    const lower = message.toLowerCase();
-    if (lower.includes('create') || lower.includes('build') || lower.includes('make')) return 'create';
-    if (lower.includes('fix') || lower.includes('repair') || lower.includes('debug')) return 'fix';
-    if (lower.includes('analyze') || lower.includes('check') || lower.includes('review')) return 'analyze';
-    if (lower.includes('explain') || lower.includes('help') || lower.includes('how')) return 'explain';
-    if (lower.includes('update') || lower.includes('modify') || lower.includes('change')) return 'update';
-    if (lower.includes('optimize') || lower.includes('improve') || lower.includes('enhance')) return 'optimize';
-    if (lower.includes('deploy') || lower.includes('launch') || lower.includes('publish')) return 'deploy';
-    if (lower.includes('test') || lower.includes('validate') || lower.includes('verify')) return 'test';
-    return 'general';
-  }
 
-  /**
-   * Classify response type using local analysis
-   */
-  extractResponseTypeLocally(response: string): string {
-    if (response.includes('```') || response.includes('tsx') || response.includes('typescript')) return 'code';
-    if (response.includes('✅') || response.includes('🔧') || response.includes('🎯')) return 'actionable';
-    if (response.includes('analysis') || response.includes('found') || response.includes('discovered')) return 'analytical';
-    if (response.length > 1000) return 'comprehensive';
-    if (response.includes('ERROR') || response.includes('❌') || response.includes('failed')) return 'error';
-    if (response.includes('WARNING') || response.includes('⚠️')) return 'warning';
-    return 'standard';
-  }
-
-  /**
-   * Identify task type using local pattern matching
-   */
-  identifyTaskTypeLocally(message: string): string {
-    const lower = message.toLowerCase();
-    if (lower.includes('component') || lower.includes('tsx') || lower.includes('react')) return 'component_development';
-    if (lower.includes('database') || lower.includes('schema') || lower.includes('sql')) return 'database';
-    if (lower.includes('api') || lower.includes('endpoint') || lower.includes('route')) return 'api_development';
-    if (lower.includes('design') || lower.includes('ui') || lower.includes('styling')) return 'design';
-    if (lower.includes('agent') || lower.includes('ai') || lower.includes('claude')) return 'agent_system';
-    if (lower.includes('auth') || lower.includes('login') || lower.includes('session')) return 'authentication';
-    if (lower.includes('deploy') || lower.includes('build') || lower.includes('production')) return 'deployment';
-    if (lower.includes('test') || lower.includes('debug') || lower.includes('error')) return 'debugging';
-    return 'general_development';
-  }
 
   // ================== TOOL RESULT PROCESSING (LOCAL) ==================
   

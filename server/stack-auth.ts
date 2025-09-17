@@ -65,6 +65,7 @@ interface StackAuthUser {
   id: string;
   primaryEmail?: string;
   displayName?: string;
+  isAdmin?: boolean; // Added for compatibility
   // Add other Stack Auth user properties as needed
 }
 

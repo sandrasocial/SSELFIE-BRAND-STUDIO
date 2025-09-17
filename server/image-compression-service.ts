@@ -1,4 +1,4 @@
-import sharp from 'sharp';
+import sharp from './image-compression-placeholder';
 import { Buffer } from 'buffer';
 
 export class ImageCompressionService {
