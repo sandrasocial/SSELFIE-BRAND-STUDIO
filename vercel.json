@@ -6,6 +6,10 @@
   "framework": null,
   "builds": [
     {
+      "src": "client/dist/**",
+      "use": "@vercel/static"
+    },
+    {
       "src": "server/index-launch.ts",
       "use": "@vercel/node"
     }
