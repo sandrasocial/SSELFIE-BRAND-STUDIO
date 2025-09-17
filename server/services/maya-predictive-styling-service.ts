@@ -86,11 +86,11 @@ export class MayaPredictiveStyleService {
         predictionBasis: predictions.basis,
         alternativeStyles: predictions.alternatives,
         emergingTrends: await this.predictEmergingTrends(userId, stylePatterns),
-        personalTrendAlignment: this.calculateTrendAlignment(stylePatterns),
-        trendTimeline: this.determineTrendTimeline(behaviorData),
+        personalTrendAlignment: await this.calculateTrendAlignment(stylePatterns),
+        trendTimeline: await this.determineTrendTimeline(behaviorData),
         seasonalPredictions: await this.generateSeasonalPredictions(userId, contextualData),
         eventBasedPredictions: await this.generateEventPredictions(userId, contextualData),
-        moodBasedPredictions: this.generateMoodPredictions(stylePatterns)
+        moodBasedPredictions: await this.generateMoodPredictions(stylePatterns)
       };
       
       console.log(`✅ PHASE 5.3: Style predictions generated with ${confidenceScore}% confidence`);
