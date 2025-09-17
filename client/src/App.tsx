@@ -150,12 +150,11 @@ function Router() {
       )} />
 
       {/* NEW TABBED UI ROUTE */}
-      <Route
-        path="/app"
-        component={(props) => (
-          <ProtectedRoute component={AppLayout} {...props} />
-        )}
-      />
+      <Route path="/app" component={() => (
+        <Suspense fallback={<PageLoader />}>
+          <AppLayout />
+        </Suspense>
+      )} />
 
 
 
