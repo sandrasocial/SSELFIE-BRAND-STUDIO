@@ -1,5 +1,334 @@
+# SSELFIE STUDIO - PROJECT RULES FOR CURSOR AI
+
+## 🏗️ CRITICAL ARCHITECTURE - NEVER BREAK
+
+### Essential Files (Protected)
+```typescript
+// User Journey Files - SACRED
+business-landing.tsx        // Entry point for new users
+simple-checkout.tsx         // Payment processing 
+payment-success.tsx         // Post-payment redirect
+simple-training.tsx         // AI model training (20+ min process)
+
+// Main App Structure - CORE
+AppLayout.tsx              // Main app wrapper
+MobileTabLayout.tsx        // Tab navigation (Studio/Gallery/Account)
+BrandStudioPage.tsx        // Core creative workspace  
+sselfie-gallery.tsx        // User photo gallery
+
+// Authentication System - REQUIRED
+Auth.tsx, AuthSignIn.tsx   // Stack Auth components
+MemberNavigation.tsx       // Top navigation with auth
+ProtectedRoute.tsx         // Route protection
+
+// Navigation & UI - STRUCTURAL  
+GlobalFooter.tsx           // Footer component
+```
+
+### Architecture Constraints (Zero Tolerance)
+
+#### 1. Individual Models Only
+```typescript
+// NEVER allow fallback to generic models
+// Every user MUST have their own trained AI model
+// No shared models, no placeholders, no exceptions
+
+// From architecture-validator.ts - NEVER remove these
+ArchitectureValidator.enforceZeroTolerance();
+ArchitectureValidator.validateUserModel(userId);
+```
+
+#### 2. Authentication Requirements
+```typescript
+// All training/generation endpoints require:
+const userId = req.user?.claims?.sub;
+if (!userId) throw new Error('Authentication required');
+
+// Plan validation (only one plan now):
+const validPlans = ['sselfie-studio']; // €47/month, 100 images
+// Admin users get unlimited: monthlyGenerationLimit: -1
+```
+
+#### 3. Database Integrity  
+```typescript
+// User model validation pattern:
+if (!userModel || userModel.trainingStatus !== 'completed') {
+  throw new Error('Training required');
+}
+if (!userModel.replicateVersionId) {
+  throw new Error('Version ID missing');
+}
+```
+
+## 🔧 DEVELOPMENT RULES
+
+### Before Any Changes
+1. **Test Critical Path**: Business Landing → Checkout → Training → App
+2. **Verify Authentication**: Stack Auth integration intact
+3. **Check Mobile**: All changes work on mobile devices
+4. **Validate Data Flow**: React Query patterns maintained
+
+### Component Modification Guidelines
+
+#### Protected Components
+```typescript
+// When editing core components, preserve:
+// 1. All props and interfaces
+// 2. Navigation structure integrity
+// 3. Stack Auth integration
+// 4. Mobile-responsive design
+// 5. Error boundary wrapping
+
+// Example: Never break MobileTabLayout tabs
+const tabs = ['studio', 'gallery', 'account']; // Fixed structure
+```
+
+#### State Management Patterns
+```typescript
+// React Query - Standard Pattern
+const { data, isLoading, error } = useQuery({
+  queryKey: ['/api/endpoint'],
+  enabled: isAuthenticated, // Always check auth
+  retry: false,
+  staleTime: 30 * 1000
+});
+
+// Mutations with cache invalidation
+const mutation = useMutation({
+  mutationFn: () => apiRequest('/api/endpoint', 'POST'),
+  onSuccess: () => {
+    queryClient.invalidateQueries(['/api/related-data']);
+    toast({ title: "Success", description: "Action completed" });
+  }
+});
+```
+
+### React Query Requirements
+- **Loading States**: Always handle isLoading
+- **Error Boundaries**: Wrap critical queries  
+- **Cache Keys**: Use consistent `/api/endpoint` format
+- **Authentication**: Enable queries only when authenticated
+- **Invalidation**: Clear cache after mutations that change data
+
+## 🚨 CRITICAL VALIDATION SYSTEMS
+
+### Model Training Validation
+```typescript
+// From model-validation-service.ts - CRITICAL CHECKS
+export interface ModelValidationResult {
+  isValid: boolean;
+  canGenerate: boolean;
+  modelId: string | null;
+  versionId: string | null;  
+  triggerWord: string | null;
+  errorMessage?: string;
+}
+
+// Database corruption detection and auto-fix
+if (versionId && versionId.includes(':')) {
+  // Fix corruption: "model:version" → separate fields
+  const [modelId, cleanVersionId] = versionId.split(':');
+  await this.correctDatabaseModel(userId, modelId, cleanVersionId);
+}
+```
+
+### Payment System Integration  
+```typescript
+// Stripe webhook handling (checkout.ts)
+if (event.type === 'checkout.session.completed') {
+  const { plan, userId } = session.metadata;
+  
+  // Only handle sselfie-studio plan
+  if (plan === 'sselfie-studio') {
+    await handleSubscriptionPayment(session);
+  }
+}
+
+// Customer portal access
+app.get('/api/payments/customer-portal', requireStackAuth, async (req, res) => {
+  // Create Stripe customer portal session
+});
+```
+
+### Training System Validation
+```typescript
+// Training access validation (routes.ts)
+const user = await storage.getUser(userId);
+const hasAccess = user.subscriptionPlan === 'sselfie-studio' || 
+                  user.monthlyGenerationLimit === -1; // Admin
+
+if (!hasAccess) {
+  throw new Error('Subscription required for training');
+}
+```
+
+## 📱 MOBILE-FIRST DEVELOPMENT  
+
+### Responsive Design Requirements
+```css
+/* Touch-friendly minimum sizes */
+button { min-height: 48px; }
+input { min-height: 44px; }
+
+/* Mobile-first breakpoints */
+@media (max-width: 768px) {
+  /* Primary mobile experience */
+}
+@media (min-width: 769px) {
+  /* Enhanced desktop experience */
+}
+```
+
+### Mobile Navigation Pattern
+```typescript
+// MobileTabLayout structure - NEVER BREAK
+const tabs = [
+  { id: 'studio', label: 'Studio', component: StudioPage },
+  { id: 'gallery', label: 'Gallery', component: SSELFIEGallery }, 
+  { id: 'account', label: 'Account', component: ProfilePage }
+];
+
+// Fixed bottom navigation with proper spacing
+style={{ 
+  position: 'fixed', 
+  bottom: 0, 
+  paddingBottom: 'env(safe-area-inset-bottom)' 
+}}
+```
+
+## 🔍 TESTING & VALIDATION
+
+### Pre-Deployment Checklist
+```bash
+# Critical path testing
+✓ Can new users sign up and pay?
+✓ Does training complete successfully?
+✓ Can users generate photos after training?
+✓ Do all navigation routes work?
+✓ Are mobile interactions functional?
+
+# Authentication testing  
+✓ Login/logout flows work
+✓ Protected routes redirect properly
+✓ User session persists correctly
+
+# Payment system testing
+✓ Stripe checkout completes
+✓ Webhooks process correctly
+✓ Customer portal accessible
+```
+
+### Error Handling Standards
+```typescript
+// User-friendly error patterns
+try {
+  await criticalOperation();
+} catch (error) {
+  console.error('Technical details:', error);
+  
+  toast({
+    title: "Something went wrong",
+    description: "Clear explanation of what to do next",
+  });
+  
+  // Graceful degradation when possible
+  setFallbackState();
+}
+
+// Error boundaries around critical components
+<LuxuryErrorBoundary>
+  <CriticalUserInterface />
+</LuxuryErrorBoundary>
+```
+
+## 🔐 SECURITY & DATA INTEGRITY
+
+### Authentication Patterns
+```typescript
+// Stack Auth integration - PRESERVE EXACTLY
+const { user, isAuthenticated } = useAuth();
+
+// API route protection
+export const requireStackAuth = (req: any, res: any, next: any) => {
+  if (!req.isAuthenticated()) {
+    return res.status(401).json({ message: 'Authentication required' });
+  }
+  next();
+};
+```
+
+### Data Validation  
+```typescript
+// File upload validation (training)
+const validFileTypes = ['image/jpeg', 'image/png', 'image/heic'];
+const maxFileSize = 10 * 1024 * 1024; // 10MB
+const minFiles = 10; // Minimum selfies required
+
+// Input sanitization for all user data
+const sanitizedInput = validator.escape(userInput);
+```
+
+## 🚀 PERFORMANCE REQUIREMENTS
+
+### Image Handling
+```typescript
+// Compression before upload
+const compressImage = async (file: File) => {
+  const canvas = document.createElement('canvas');
+  // Compress to max 1080px width, 85% quality
+  return compressedFile;
+};
+```
+
+### Query Optimization  
+```typescript
+// Efficient data fetching
+const { data } = useQuery({
+  queryKey: ['/api/user-images', { page, category }],
+  staleTime: 5 * 60 * 1000, // 5 minutes for images
+  gcTime: 30 * 60 * 1000, // 30 minutes cache
+});
+```
+
+## 💡 DEVELOPMENT MINDSET
+
+### Critical Questions for Every Change
+1. **Breaking Change Test**: "Will this break existing user workflows?"
+2. **Authentication Test**: "Does this preserve Stack Auth integration?"
+3. **Mobile Test**: "Does this work on a phone screen?"
+4. **Performance Test**: "Will this slow down the critical path?"
+5. **Data Integrity Test**: "Could this corrupt user model data?"
+
+### When Problems Occur
+1. **Preserve User Data**: Never lose training models or user photos
+2. **Maintain Authentication**: Keep login/logout working
+3. **Protect Payment Flow**: Subscription system must stay functional
+4. **Enable Error Recovery**: Help users get back on track
+
+### Code Quality Standards
+```typescript
+// TypeScript strictly enforced
+interface UserModel {
+  id: string;
+  userId: string;
+  trainingStatus: 'pending' | 'training' | 'completed' | 'failed';
+  replicateModelId?: string;
+  replicateVersionId?: string;
+  triggerWord?: string;
+}
+
+// Comprehensive error handling
+async function criticalOperation(): Promise<Result> {
+  try {
+    const result = await riskyOperation();
+    return { success: true, data: result };
+  } catch (error) {
+    console.error('Operation failed:', error);
+    return { success: false, error: error.message };
+  }
+}
+```
+
 ---
-description:
-globs:
-alwaysApply: true
----
+
+**Remember**: The technical implementation exists to serve the user journey. Every line of code should make it easier for entrepreneurs to get professional photos, not harder.
