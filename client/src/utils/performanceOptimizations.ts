@@ -22,7 +22,7 @@ export const optimizeImageLoading = () => {
 
 // Bundle optimization
 export const enableServiceWorkerCaching = () => {
-  if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
+  if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production' && !/handler\//.test(window.location.pathname)) {
     // Wrap in try-catch and add proper error handling to prevent unhandled promise rejections
     try {
       navigator.serviceWorker.register('/sw.js')

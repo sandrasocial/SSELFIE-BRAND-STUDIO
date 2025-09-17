@@ -470,20 +470,7 @@ function App() {
     try {
       console.log('SSELFIE Studio: App initializing...');
       
-      // Only apply redirects for production domain, not localhost
-      if (window.location.hostname !== 'localhost' && !window.location.hostname.includes('vercel')) {
-        // Force HTTPS redirect if needed
-        if (window.location.protocol === 'http:' && window.location.hostname === 'sselfie.ai') {
-          window.location.href = window.location.href.replace('http:', 'https:');
-          return;
-        }
-        
-        // Handle www subdomain redirect
-        if (window.location.hostname === 'www.sselfie.ai') {
-          window.location.href = window.location.href.replace('www.sselfie.ai', 'sselfie.ai');
-          return;
-        }
-      }
+      // Do not force domain canonicalization in client; avoid potential redirect loops
       
       // Check for domain access issues
       const issues = detectBrowserIssues();
