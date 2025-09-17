@@ -19,6 +19,20 @@ export class ImageStorageService {
   private static readonly BUCKET_NAME = process.env.AWS_S3_BUCKET;
 
   /**
+   * Migrate temporary URL to permanent S3 URL
+   */
+  static async migrateTempUrlToS3(tempUrl: string, userId: string): Promise<string> {
+    try {
+      // Extract image ID from temp URL or generate one
+      const imageId = tempUrl.split('/').pop()?.split('.')[0] || `migrated-${Date.now()}`;
+      return await this.storeImagePermanently(tempUrl, userId, imageId);
+    } catch (error) {
+      console.error('Failed to migrate temp URL to S3:', error);
+      return tempUrl; // Return original URL if migration fails
+    }
+  }
+
+  /**
    * Downloads image from Replicate URL and uploads to S3 for permanent storage
    */
   static async storeImagePermanently(replicateUrl: string, userId: string, imageId: string): Promise<string> {

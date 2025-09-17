@@ -8,3 +8,7 @@ export function requireAdmin(req: Request, res: Response, next: NextFunction) {
 export function adminOnly(req: Request, res: Response, next: NextFunction) {
   return authenticateAdmin(req, res, next);
 }
+
+export function checkAdminAccess(req: Request, res: Response, next: NextFunction) {
+  return authenticateAdmin(req, res, next);
+}

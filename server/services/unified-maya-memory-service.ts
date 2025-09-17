@@ -434,7 +434,7 @@ export class UnifiedMayaMemoryService {
   private async getConversationMemory(userId: string): Promise<ConversationMemory> {
     try {
       // Get recent favorites for style analysis
-      const favoritesQuery = await storage.getAiImages(userId);
+      const favoritesQuery = await storage.getAIImages(userId);
       const favorites = favoritesQuery.filter(img => img.isSelected || img.isFavorite).slice(0, 15);
       
       return {
