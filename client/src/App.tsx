@@ -85,9 +85,12 @@ function SmartHome() {
 function Router() {
   return (
     <div>
-      {/* STACK AUTH HANDLER - Must be first to catch authentication routes */}
-      <Route path="/handler/:path" component={HandlerRoutes} />
+      {/* STACK AUTH HANDLER - Explicit routes only to avoid accidental matches */}
+      <Route path="/handler/sign-in" component={HandlerRoutes} />
+      <Route path="/handler/sign-up" component={HandlerRoutes} />
       <Route path="/handler" component={HandlerRoutes} />
+      {/* Guard against accidental /handler/app by redirecting to /app */}
+      <Route path="/handler/app" component={() => { window.location.href = '/app'; return null; }} />
       
       {/* OAuth callback handler */}
       <Route path="/handler/oauth-callback" component={OAuthCallbackHandler} />
@@ -309,8 +312,8 @@ function OAuthCallbackHandler() {
 }
 
 // Stack Auth Handler component for authentication routes
-function HandlerRoutes({ params }: { params: { [key: string]: string } }) {
-  const handlerPath = params.path || '';
+function HandlerRoutes() {
+  const handlerPath = window.location.pathname.replace('/handler/', '') || '';
   const currentUrl = window.location.href;
   const { isAuthenticated, isLoading } = useAuth();
 
