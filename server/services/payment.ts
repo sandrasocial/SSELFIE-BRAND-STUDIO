@@ -16,7 +16,7 @@ export class PaymentService {
       });
       return subscription;
     } catch (error) {
-      logger.error('Subscription creation failed', { error });
+      logger.error('Subscription creation failed', { error: error.message });
       throw error;
     }
   }
@@ -41,7 +41,7 @@ export class PaymentService {
       
       return { status: 'success' };
     } catch (error) {
-      logger.error('Webhook handling failed', { error });
+      logger.error('Webhook handling failed', { error: error.message });
       throw error;
     }
   }
@@ -73,7 +73,7 @@ export class PaymentService {
 
       return invoice;
     } catch (error) {
-      logger.error('Invoice generation failed', { error });
+      logger.error('Invoice generation failed', { error: error.message });
       throw error;
     }
   }
