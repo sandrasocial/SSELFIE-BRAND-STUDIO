@@ -48,6 +48,17 @@ export interface MayaPersonality {
     };
     culturalIntelligence?: any;
     stylingIntelligence?: any;
+    trainingTimeCoaching?: {
+        guidance: string;
+        encouragement: string;
+        technicalTips: string;
+    };
+    systemPrompt?: string;
+    fashionExpertise?: {
+        knowledge: string;
+        trends: string;
+        styling: string;
+    };
     coachingIntelligence?: any;
     singleApiCallSystem?: any;
     fluxOptimization?: any;
