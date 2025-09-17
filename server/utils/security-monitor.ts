@@ -177,6 +177,7 @@ export class SecurityMonitor {
 
     const { path, method, body, query, headers } = req;
     const requestString = JSON.stringify({ path, method, body, query, headers }).toLowerCase();
+    const userAgent = req.get('User-Agent') || 'unknown';
 
     // SQL Injection detection
     const sqlPatterns = [
