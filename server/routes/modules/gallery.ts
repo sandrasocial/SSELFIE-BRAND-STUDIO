@@ -48,15 +48,15 @@ router.get('/api/gallery', requireStackAuth, asyncHandler(async (req: any, res) 
       ...generatedImages.map(img => ({
         id: img.id,
         userId: img.userId,
-        url: img.selectedUrl || img.imageUrl,
+        url: img.selectedUrl || (img.imageUrls ? JSON.parse(img.imageUrls)[0] : ''),
         prompt: img.prompt,
         style: img.category || 'gallery',
         category: img.category || 'gallery',
         source: 'maya-generation',
         createdAt: img.createdAt,
         metadata: {
-          width: img.width || 1024,
-          height: img.height || 1024,
+          width: 1024, // Default width for generated images
+          height: 1024, // Default height for generated images
           format: 'png',
           size: '1.2MB'
         }
@@ -113,15 +113,15 @@ router.get('/api/gallery-images', requireStackAuth, asyncHandler(async (req: any
       ...generatedImages.map(img => ({
         id: img.id,
         userId: img.userId,
-        url: img.selectedUrl || img.imageUrl,
+        url: img.selectedUrl || (img.imageUrls ? JSON.parse(img.imageUrls)[0] : ''),
         prompt: img.prompt,
         style: img.category || 'gallery',
         category: img.category || 'gallery',
         source: 'maya-generation',
         createdAt: img.createdAt,
         metadata: {
-          width: img.width || 1024,
-          height: img.height || 1024,
+          width: 1024, // Default width for generated images
+          height: 1024, // Default height for generated images
           format: 'png',
           size: '1.2MB'
         }
