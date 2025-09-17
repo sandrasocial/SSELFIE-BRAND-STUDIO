@@ -281,7 +281,7 @@ export class LoggingSystem {
   /**
    * Check if logging is enabled
    */
-  public isEnabled(): boolean {
+  public getEnabled(): boolean {
     return this.isEnabled;
   }
 }
