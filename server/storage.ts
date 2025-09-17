@@ -175,32 +175,36 @@ export interface IStorage {
 
   // Maya chat operations
   getMayaChats(userId: string): Promise<MayaChat[]>;
-  createMayaChat(data: InsertMayaChat): Promise<MayaChat>;
-  getMayaChatMessages(chatId: number): Promise<MayaChatMessage[]>;
+  getMayaChat(chatId: string, userId: string): Promise<MayaChat | undefined>;
+  createMayaChat(userId: string, data: { title: string; initialMessage?: string }): Promise<string>;
+  saveMayaChat(userId: string, data: { message: string; response: string; conceptCards: any[]; context: any }): Promise<string>;
+  getMayaChatMessages(chatId: string, userId: string): Promise<MayaChatMessage[]>;
+  saveMayaMessage(chatId: string, userId: string, data: { message: string; role: string }): Promise<string>;
+  updateMayaMessage(messageId: string, userId: string, updates: { content: string }): Promise<void>;
   // REMOVED: getAllMayaChatMessages to prevent session mixing
   createMayaChatMessage(data: InsertMayaChatMessage): Promise<MayaChatMessage>;
   saveMayaChatMessage(data: InsertMayaChatMessage): Promise<MayaChatMessage>; // CRITICAL FIX: Missing method
   updateMayaChatMessage(messageId: number, updates: Partial<{ imagePreview: string; generatedPrompt: string }>): Promise<void>;
-  getMayaConceptById(conceptId: string): Promise<any | undefined>; // CRITICAL FIX: Add missing concept retrieval method
+  getMayaConceptById(conceptId: string): Promise<Record<string, unknown> | undefined>; // CRITICAL FIX: Add missing concept retrieval method
 
   // Photo selections operations
   savePhotoSelections(data: InsertPhotoSelection): Promise<PhotoSelection>;
   getPhotoSelections(userId: string): Promise<PhotoSelection | undefined>;
-  getInspirationPhotos(userId: string): Promise<any[]>;
+  getInspirationPhotos(userId: string): Promise<Array<{ id: number; url: string; description: string }>>;
 
   // Sandra AI conversation operations
-  getSandraConversations(userId: string): Promise<any[]>;
-  saveSandraConversation(data: any): Promise<any>;
+  getSandraConversations(userId: string): Promise<unknown[]>;
+  saveSandraConversation(data: unknown): Promise<unknown>;
 
   // Agent conversation operations
-  saveAgentConversation(agentId: string, userId: string, userMessage: string, agentResponse: string, fileOperations: any[], conversationId?: string): Promise<ClaudeConversation>;
+  saveAgentConversation(agentId: string, userId: string, userMessage: string, agentResponse: string, fileOperations: unknown[], conversationId?: string): Promise<ClaudeConversation>;
   getAgentConversations(agentId: string, userId: string): Promise<ClaudeMessage[]>;
-  getAgentConversationHistory(agentId: string, userId: string, conversationId?: string): Promise<any[]>;
+  getAgentConversationHistory(agentId: string, userId: string, conversationId?: string): Promise<Array<{ role: string; content: string }>>;
   getAllAgentConversations(userId: string): Promise<ClaudeMessage[]>;
   
   // Agent memory operations
-  saveAgentMemory(agentId: string, userId: string, memoryData: any): Promise<void>;
-  getAgentMemory(agentId: string, userId: string): Promise<any | null>;
+  saveAgentMemory(agentId: string, userId: string, memoryData: unknown): Promise<void>;
+  getAgentMemory(agentId: string, userId: string): Promise<Record<string, unknown> | null>;
   clearAgentMemory(agentId: string, userId: string): Promise<void>;
 
   // Landing page operations
@@ -225,7 +229,7 @@ export interface IStorage {
     fileSize: number;
     extractedAt: Date;
   }): Promise<void>;
-  getLoRAWeights(userId: string): Promise<any | undefined>;
+  getLoRAWeights(userId: string): Promise<{ s3Bucket: string; s3Key: string } | undefined>;
 
   // LoRA Training and Weights Management
   createTrainingRun(trainingRun: InsertTrainingRun): Promise<TrainingRun>;
@@ -276,10 +280,12 @@ export interface IStorage {
   getConceptCardByClientId(userId: string, clientId: string): Promise<ConceptCard | undefined>;
   getUserConceptCards(userId: string, conversationId?: string): Promise<ConceptCard[]>;
   updateConceptCard(id: string, updates: Partial<ConceptCard>): Promise<ConceptCard>;
-  updateConceptCardGeneration(id: string, generatedImages: any[], isLoading: boolean, isGenerating: boolean, hasGenerated: boolean): Promise<ConceptCard>;
+  updateConceptCardGeneration(id: string, generatedImages: unknown[], isLoading: boolean, isGenerating: boolean, hasGenerated: boolean): Promise<ConceptCard>;
   deleteConceptCard(id: string): Promise<void>;
 }
 
+/* eslint-disable no-console */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export class DatabaseStorage implements IStorage {
   // User operations (required for Replit Auth)
   async getUser(id: string): Promise<User | undefined> {
@@ -361,7 +367,7 @@ export class DatabaseStorage implements IStorage {
     }
 
     // First try to find existing user by ID
-    let existingUser = await this.getUser(userData.id);
+    const existingUser = await this.getUser(userData.id);
 
     if (existingUser) {
       console.log('✅ Found existing user by ID, updating...');
@@ -429,9 +435,10 @@ export class DatabaseStorage implements IStorage {
         .values(userData)
         .returning();
       return user;
-    } catch (error: any) {
+    } catch (error: unknown) {
       // If duplicate key error on email, try to return existing user
-      if (error?.code === '23505' && error?.constraint === 'users_email_unique') {
+      const e = error as { code?: string; constraint?: string };
+      if (e?.code === '23505' && e?.constraint === 'users_email_unique') {
         console.log('🔄 Duplicate email constraint, fetching existing user...');
         const [existingUser] = await db
           .select()
@@ -527,7 +534,7 @@ export class DatabaseStorage implements IStorage {
 
 
   async saveOnboardingData(data: InsertOnboardingData): Promise<OnboardingData> {
-    const [saved] = await db.insert(onboardingData).values(data as any).returning();
+    const [saved] = await db.insert(onboardingData).values(data).returning();
     return saved;
   }
 
@@ -564,10 +571,15 @@ export class DatabaseStorage implements IStorage {
     return images;
   }
 
+  async getUserAIImages(userId: string): Promise<AiImage[]> {
+    return this.getAIImages(userId);
+  }
+
   async saveAIImage(data: InsertAiImage): Promise<AiImage> {
     // Remove project_id from data since we're not using projects table
-    const { projectId, ...imageData } = data as any;
-    const [saved] = await db.insert(aiImages).values(imageData).returning();
+    const imageData = { ...(data as InsertAiImage) } as InsertAiImage & Record<string, unknown>;
+    delete (imageData as Record<string, unknown>)['projectId'];
+    const [saved] = await db.insert(aiImages).values(imageData as InsertAiImage).returning();
     return saved;
   }
 
@@ -687,7 +699,7 @@ export class DatabaseStorage implements IStorage {
   async createGenerationTracker(data: InsertGenerationTracker): Promise<GenerationTracker> {
     const [tracker] = await db
       .insert(generationTrackers)
-      .values(data as any)
+      .values(data)
       .returning();
     return tracker;
   }
@@ -695,7 +707,7 @@ export class DatabaseStorage implements IStorage {
   async saveGenerationTracker(data: InsertGenerationTracker): Promise<GenerationTracker> {
     const [tracker] = await db
       .insert(generationTrackers)
-      .values(data as any)
+      .values(data)
       .returning();
     return tracker;
   }
@@ -933,7 +945,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Add methods to work with actual database columns
-  async getUserModelByDatabaseUserId(userId: string): Promise<any> {
+  async getUserModelByDatabaseUserId(userId: string): Promise<unknown> {
     const result = await db.select().from(userModels).where(eq(userModels.userId, userId));
     return result[0];
   }
@@ -1144,18 +1156,18 @@ export class DatabaseStorage implements IStorage {
     return selection;
   }
 
-  async getInspirationPhotos(userId: string): Promise<any[]> {
+  async getInspirationPhotos(userId: string): Promise<Array<{ id: number; url: string; description: string }>> {
     // Get user's selected photos from photo selections
     const photoSelections = await this.getPhotoSelections(userId);
-    if (!photoSelections || !Array.isArray((photoSelections as any).selectedSelfieIds) || !(photoSelections as any).selectedSelfieIds.length) {
+    // selectedSelfieIds is JSON array in schema; guard at runtime
+    if (!photoSelections || !Array.isArray((photoSelections as unknown as { selectedSelfieIds?: number[] }).selectedSelfieIds) || !(photoSelections as unknown as { selectedSelfieIds?: number[] }).selectedSelfieIds?.length) {
       return [];
     }
 
     // Get the actual images from AI images table
     const userImages = await this.getAIImages(userId);
-    const selectedImages = userImages.filter(img => 
-      (photoSelections as any).selectedSelfieIds.includes(img.id)
-    );
+    const selectedIds = (photoSelections as unknown as { selectedSelfieIds: number[] }).selectedSelfieIds;
+    const selectedImages = userImages.filter(img => selectedIds.includes(img.id));
 
     return selectedImages.map(img => ({
       id: img.id,
@@ -1309,7 +1321,7 @@ export class DatabaseStorage implements IStorage {
     return messages;
   }
 
-  async getAgentConversationHistory(agentId: string, userId: string, conversationId?: string): Promise<any[]> {
+  async getAgentConversationHistory(agentId: string, userId: string, conversationId?: string): Promise<Array<{ role: string; content: string }>> {
     if (conversationId) {
       // Get specific conversation
       const messages = await db.select()
@@ -1366,23 +1378,25 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Sandra AI conversation operations (minimal implementation)
-  async getSandraConversations(userId: string): Promise<any[]> {
+  async getSandraConversations(): Promise<unknown[]> {
     // For now, return empty array - could implement full conversation storage later
     return [];
   }
 
-  async saveSandraConversation(data: any): Promise<any> {
+  async saveSandraConversation(data: unknown): Promise<unknown> {
     // For now, just return the data - could implement full conversation storage later
     return data;
   }
 
   // Agent memory operations - Complete implementation
-  async saveAgentMemory(agentId: string, userId: string, memoryData: any): Promise<void> {
+  async saveAgentMemory(agentId: string, userId: string, memoryData: unknown): Promise<void> {
     try {
       // ENHANCED: Include full conversation history in memory data
+      const base = (typeof memoryData === 'object' && memoryData !== null) ? (memoryData as Record<string, unknown>) : {};
+      const conversationHistory = Array.isArray((base as { conversationHistory?: unknown[] }).conversationHistory) ? (base as { conversationHistory?: unknown[] }).conversationHistory : [];
       const enhancedMemoryData = {
-        ...memoryData,
-        conversationHistory: memoryData.conversationHistory || [],
+        ...base,
+        conversationHistory,
         lastSaved: new Date().toISOString()
       };
       
@@ -1514,7 +1528,100 @@ export class DatabaseStorage implements IStorage {
     return categorizedChats;
   }
 
-  async createMayaChat(data: InsertMayaChat): Promise<MayaChat> {
+  // Get specific Maya chat
+  async getMayaChat(chatId: string, userId: string): Promise<MayaChat | undefined> {
+    const [chat] = await db
+      .select()
+      .from(mayaChats)
+      .where(and(eq(mayaChats.id, parseInt(chatId)), eq(mayaChats.userId, userId)));
+    return chat;
+  }
+
+  // Create new Maya chat
+  async createMayaChat(userId: string, data: { title: string; initialMessage?: string }): Promise<string> {
+    const [chat] = await db
+      .insert(mayaChats)
+      .values({
+        userId,
+        title: data.title,
+        chatCategory: 'Style Consultation',
+        lastActivity: new Date()
+      })
+      .returning();
+    
+    if (data.initialMessage) {
+      await this.saveMayaMessage(chat.id.toString(), userId, {
+        message: data.initialMessage,
+        role: 'user'
+      });
+    }
+    
+    return chat.id.toString();
+  }
+
+  // Save Maya chat with message and response
+  async saveMayaChat(userId: string, data: { message: string; response: string; conceptCards: any[]; context: any }): Promise<string> {
+    const [chat] = await db
+      .insert(mayaChats)
+      .values({
+        userId,
+        title: 'New Maya Chat',
+        chatCategory: 'Style Consultation',
+        lastActivity: new Date(),
+        conceptCards: data.conceptCards
+      })
+      .returning();
+    
+    // Save user message
+    await this.saveMayaMessage(chat.id.toString(), userId, {
+      message: data.message,
+      role: 'user'
+    });
+    
+    // Save Maya response
+    await this.saveMayaMessage(chat.id.toString(), userId, {
+      message: data.response,
+      role: 'assistant'
+    });
+    
+    return chat.id.toString();
+  }
+
+  // Get Maya chat messages
+  async getMayaChatMessages(chatId: string, userId: string): Promise<MayaChatMessage[]> {
+    return await db
+      .select()
+      .from(mayaChatMessages)
+      .where(and(eq(mayaChatMessages.chatId, parseInt(chatId)), eq(mayaChatMessages.userId, userId)))
+      .orderBy(asc(mayaChatMessages.createdAt));
+  }
+
+  // Save Maya message
+  async saveMayaMessage(chatId: string, userId: string, data: { message: string; role: string }): Promise<string> {
+    const [message] = await db
+      .insert(mayaChatMessages)
+      .values({
+        chatId: parseInt(chatId),
+        userId,
+        message: data.message,
+        role: data.role as 'user' | 'assistant',
+        createdAt: new Date()
+      })
+      .returning();
+    
+    return message.id.toString();
+  }
+
+  // Update Maya message
+  async updateMayaMessage(messageId: string, userId: string, updates: { content: string }): Promise<void> {
+    await db
+      .update(mayaChatMessages)
+      .set({ message: updates.content })
+      .where(and(eq(mayaChatMessages.id, parseInt(messageId)), eq(mayaChatMessages.userId, userId)));
+  }
+
+  // Legacy method - use createMayaChat(userId, data) instead
+  async createMayaChatLegacy(data: InsertMayaChat): Promise<MayaChat> {
     const [chat] = await db
       .insert(mayaChats)
       .values(data)
@@ -1570,7 +1677,8 @@ export class DatabaseStorage implements IStorage {
     return updatedUser;
   }
 
-  async getMayaChatMessages(chatId: number): Promise<MayaChatMessage[]> {
+  // Legacy method - use getMayaChatMessages(chatId, userId) instead
+  async getMayaChatMessagesLegacy(chatId: number): Promise<MayaChatMessage[]> {
     const messages = await db
       .select()
       .from(mayaChatMessages)
@@ -1582,17 +1690,19 @@ export class DatabaseStorage implements IStorage {
       const processedMsg = {
         ...msg,
         imagePreview: msg.imagePreview ? JSON.parse(msg.imagePreview) : null,
-        conceptCards: msg.conceptCards ? msg.conceptCards : null, // ENHANCED: conceptCards stored as JSONB with fullPrompt preserved
+        conceptCards: msg.conceptCards ? (msg.conceptCards as unknown) : null, // ENHANCED: conceptCards stored as JSONB with fullPrompt preserved
         quickButtons: msg.quickButtons ? JSON.parse(msg.quickButtons) : null,
       };
       
       // CRITICAL: Verify fullPrompt field preservation in retrieved concept cards
       if (processedMsg.conceptCards && Array.isArray(processedMsg.conceptCards)) {
-        const conceptsWithPrompts = processedMsg.conceptCards.filter((card: any) => card.fullPrompt);
+        const conceptsWithPrompts = (processedMsg.conceptCards as Array<Record<string, unknown>>).filter((card) => 'fullPrompt' in card && (card as { fullPrompt?: string }).fullPrompt);
         if (conceptsWithPrompts.length > 0) {
           console.log(`💾 DATABASE RETRIEVAL: Retrieved ${conceptsWithPrompts.length} concept cards with preserved fullPrompt fields`);
-          conceptsWithPrompts.forEach((card: any, index: number) => {
-            console.log(`  📋 Retrieved concept ${index + 1}: "${card.title}" - fullPrompt: ${card.fullPrompt?.length || 0} chars`);
+          conceptsWithPrompts.forEach((card, index: number) => {
+            const title = (card as { title?: string }).title || '';
+            const fullPromptLen = (card as { fullPrompt?: string }).fullPrompt?.length || 0;
+            console.log(`  📋 Retrieved concept ${index + 1}: "${title}" - fullPrompt: ${fullPromptLen} chars`);
           });
         }
       }
@@ -1609,11 +1719,13 @@ export class DatabaseStorage implements IStorage {
     
     // CRITICAL: Ensure fullPrompt field is preserved in concept cards
     if (data.conceptCards && Array.isArray(data.conceptCards)) {
-      const conceptsWithPrompts = data.conceptCards.filter((card: any) => card.fullPrompt);
+      const conceptsWithPrompts = (data.conceptCards as Array<Record<string, unknown>>).filter((card) => 'fullPrompt' in card && card.fullPrompt);
       if (conceptsWithPrompts.length > 0) {
         console.log(`💾 DATABASE STORAGE: Preserving ${conceptsWithPrompts.length} concept cards with embedded fullPrompt fields`);
-        conceptsWithPrompts.forEach((card: any, index: number) => {
-          console.log(`  📋 Concept ${index + 1}: "${card.title}" - fullPrompt: ${card.fullPrompt?.length || 0} chars`);
+        conceptsWithPrompts.forEach((card, index: number) => {
+          const title = (card as { title?: string }).title || '';
+          const fullPromptLen = (card as { fullPrompt?: string }).fullPrompt?.length || 0;
+          console.log(`  📋 Concept ${index + 1}: "${title}" - fullPrompt: ${fullPromptLen} chars`);
         });
       }
     }
@@ -1631,7 +1743,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   // CRITICAL FIX: Add missing getMayaConceptById method for generation system
-  async getMayaConceptById(conceptId: string): Promise<any | undefined> {
+  async getMayaConceptById(conceptId: string): Promise<Record<string, unknown> | undefined> {
     console.log(`🔍 CONCEPT RETRIEVAL: Searching for concept ID "${conceptId}"`);
     
     // Search through Maya chat messages for concept cards with matching ID
@@ -1644,10 +1756,12 @@ export class DatabaseStorage implements IStorage {
     // Look through each message's conceptCards for the matching conceptId
     for (const message of messages) {
       if (message.conceptCards && Array.isArray(message.conceptCards)) {
-        const conceptCard = message.conceptCards.find((card: any) => card.id === conceptId);
+        const conceptCard = (message.conceptCards as Array<Record<string, unknown>>).find((card) => (card as { id?: string }).id === conceptId);
         if (conceptCard) {
-          console.log(`✅ CONCEPT FOUND: "${conceptCard.title}" with fullPrompt: ${!!conceptCard.fullPrompt} (${conceptCard.fullPrompt?.length || 0} chars)`);
-          return conceptCard;
+          const title = (conceptCard as { title?: string }).title || '';
+          const fullPrompt = (conceptCard as { fullPrompt?: string }).fullPrompt;
+          console.log(`✅ CONCEPT FOUND: "${title}" with fullPrompt: ${!!fullPrompt} (${fullPrompt?.length || 0} chars)`);
+          return conceptCard as Record<string, unknown>;
         }
       }
     }
@@ -1854,8 +1968,10 @@ export class DatabaseStorage implements IStorage {
     console.log(`✅ LoRA WEIGHTS STORED: User ${data.userId}, scales=${JSON.stringify(mayaScales)}`);
   }
 
-  async getLoRAWeights(userId: string): Promise<any | undefined> {
-    return this.getUserActiveLoraWeight(userId);
+  async getLoRAWeights(userId: string): Promise<{ s3Bucket: string; s3Key: string } | undefined> {
+    const weight = await this.getUserActiveLoraWeight(userId);
+    if (!weight) return undefined;
+    return { s3Bucket: (weight as any).s3Bucket, s3Key: (weight as any).s3Key };
   }
 
   // Additional storage methods can be added here as needed
@@ -2098,7 +2214,7 @@ export class DatabaseStorage implements IStorage {
     return conceptCard;
   }
 
-  async updateConceptCardGeneration(id: string, generatedImages: any[], isLoading: boolean, isGenerating: boolean, hasGenerated: boolean): Promise<ConceptCard> {
+  async updateConceptCardGeneration(id: string, generatedImages: unknown[], isLoading: boolean, isGenerating: boolean, hasGenerated: boolean): Promise<ConceptCard> {
     return this.updateConceptCard(id, {
       generatedImages,
       isLoading,
@@ -2128,7 +2244,7 @@ export class DatabaseStorage implements IStorage {
   async createUsageHistory(data: {
     userId: string;
     action: string;
-    details?: any;
+    details?: Record<string, unknown>;
     cost?: number;
   }): Promise<void> {
     // This would typically insert into a usage_history table
@@ -2137,24 +2253,26 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Get user usage history
-  async getUserUsageHistory(userId: string, days?: number): Promise<any[]> {
+  async getUserUsageHistory(): Promise<unknown[]> {
     // This would typically query a usage_history table
     // For now, return empty array
     return [];
   }
 
   // User style memory methods
-  async getUserStyleMemory(userId: string): Promise<any> {
+  async getUserStyleMemory(userId: string): Promise<unknown> {
     const [memory] = await db.select().from(userStyleMemory).where(eq(userStyleMemory.userId, userId));
     return memory;
   }
 
-  async createUserStyleMemory(data: any): Promise<any> {
-    const [memory] = await db.insert(userStyleMemory).values(data).returning();
+  async createUserStyleMemory(data: Record<string, unknown>): Promise<unknown> {
+    // Ensure required fields exist
+    const payload = data as Partial<typeof userStyleMemory.$inferInsert>;
+    const [memory] = await db.insert(userStyleMemory).values(payload as typeof userStyleMemory.$inferInsert).returning();
     return memory;
   }
 
-  async updateUserStyleMemory(userId: string, data: any): Promise<any> {
+  async updateUserStyleMemory(userId: string, data: Record<string, unknown>): Promise<unknown> {
     const [memory] = await db
       .update(userStyleMemory)
       .set({ ...data, updatedAt: new Date() })

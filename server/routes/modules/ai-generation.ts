@@ -6,6 +6,7 @@
 import { Router } from 'express';
 import { requireStackAuth, requireActiveSubscription } from '../middleware/auth';
 import { storage } from '../../storage';
+import { ModelTrainingService } from '../../model-training-service';
 import { asyncHandler, createError, sendSuccess, validateRequired } from '../middleware/error-handler';
 
 const router = Router();
@@ -166,33 +167,58 @@ router.get('/api/victoria/websites', requireStackAuth, asyncHandler(async (req: 
   });
 }));
 
-// AI Images Routes
+// AI Images Routes - Real Implementation
 router.post('/api/ai-images', requireActiveSubscription, asyncHandler(async (req: any, res) => {
-  const { prompt, style, count } = req.body;
+  const { prompt, style, count, seed } = req.body;
   const userId = req.user.id;
 
   if (!prompt) {
     throw createError.validation("Prompt is required");
   }
 
-  // TODO: Implement AI image generation
-  sendSuccess(res, {
-    message: 'AI image generation started',
-    jobId: `images_${Date.now()}`,
-    prompt,
-    style,
-    count: count || 1
-  });
+  try {
+    // Get user's model and LoRA weights
+    const userModel = await storage.getUserModelByUserId(userId);
+    if (!userModel || userModel.trainingStatus !== 'completed') {
+      throw createError.validation('User model not ready. Please complete training first.');
+    }
+
+    // Generate images using ModelTrainingService
+    const result = await ModelTrainingService.generateUserImages(
+      userId,
+      prompt,
+      count || 2,
+      { seed, categoryContext: style }
+    );
+
+    // Save generation to database
+    const generationId = await storage.saveAIImage({
+      userId,
+      prompt,
+      imageUrls: result.images,
+      style: style || 'ai-generated',
+      generationId: result.generatedImageId,
+      predictionId: result.predictionId
+    });
+
+    sendSuccess(res, {
+      jobId: result.predictionId,
+      generationId,
+      images: result.images,
+      prompt,
+      message: 'AI image generation completed successfully'
+    });
+
+  } catch (error) {
+    console.error('❌ AI Images: Generation failed:', error);
+    throw createError.service('Image generation failed');
+  }
 }));
 
 router.get('/api/ai-images', requireActiveSubscription, asyncHandler(async (req: any, res) => {
   const userId = req.user.id;
-
-  // TODO: Implement AI images listing
-  sendSuccess(res, {
-    images: [],
-    count: 0
-  });
+  const images = await storage.getUserAIImages(userId);
+  sendSuccess(res, { images, count: images.length });
 }));
 
 // Maya AI Routes

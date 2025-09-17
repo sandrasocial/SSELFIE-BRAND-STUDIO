@@ -1,0 +1,48 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "noEmit": false,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "declaration": false,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "skipLibCheck": true
+  },
+  "files": [
+    "server/index-launch.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "client",
+    "server/__tests__/**",
+    "server/tests/**",
+    "server/enterprise/**",
+    "server/integrations/**",
+    "server/services/hybrid-intelligence/**",
+    "server/services/veo-service.ts",
+    "server/services/website-generator.ts",
+    "server/services/claude-api-service-simple.ts",
+    "server/utils/monitoring.ts",
+    "server/utils/middleware.ts",
+    "server/utils/build-optimizer.ts",
+    "server/utils/db-optimizer.ts",
+    "server/utils/config-loader.ts",
+    "server/utils/semantic-search-system.ts",
+    "server/utils/logging.ts",
+    "server/agents/**",
+    "server/workflows/**",
+    "server/tools/**",
+    "server/monitoring/**",
+    "server/usage-service.ts",
+    "server/workflows/enhanced-handoff-system.ts",
+    "server/maya-memory-cleanup.ts",
+    "server/tests/**",
+    "server/routes/enterprise-routes.ts",
+    "server/routes/**/*.disabled",
+    "shared/types/**"
+  ]
+}
+
