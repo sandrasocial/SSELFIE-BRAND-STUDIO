@@ -9,7 +9,7 @@ import { TooltipProvider } from "./components/ui/tooltip";
 import { StackProvider, StackTheme, SignIn, SignUp } from "@stackframe/react";
 import { stackClientApp } from "../../stack/client";
 import { useAuth } from "./hooks/use-auth";
-import { STACK_PROJECT_ID, STACK_PUBLISHABLE_CLIENT_KEY } from './env';
+// Removed unused environment imports - using consolidated config
 import { useQuery } from "@tanstack/react-query";
 import { detectBrowserIssues, showDomainHelp } from "./utils/browserCompat";
 import { optimizeImageLoading, enableServiceWorkerCaching } from "./utils/performanceOptimizations";
@@ -162,178 +162,51 @@ function Router() {
   );
 }
 
-// OAuth Callback Handler component
+// OAuth Callback Handler component - SIMPLIFIED
 function OAuthCallbackHandler() {
-  const { isAuthenticated, isLoading, hasStackAuthUser, stackUser } = useAuth();
-  const [redirectAttempted, setRedirectAttempted] = useState(false);
-  const [showFallback, setShowFallback] = useState(false);
-  // ensure we don't get stuck on callback
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      const hasAccess = document.cookie.includes('stack-access');
-      if (!hasAccess && !hasStackAuthUser) {
-        // if SDK failed to set cookie, bounce once back to sign-in to restart flow
-        window.location.replace('/handler/sign-in');
-      }
-    }, 8000);
-    return () => clearTimeout(timer);
-  }, [hasStackAuthUser]);
+  const { hasStackAuthUser } = useAuth();
+  const [timeoutReached, setTimeoutReached] = useState(false);
   
   useEffect(() => {
-    console.log('🔄 OAuth Callback Handler: Processing authentication...');
-    console.log('🍪 Cookies in callback:', document.cookie);
-    console.log('🔍 Stack user exists:', !!stackUser?.id);
-    console.log('🔍 Has Stack Auth user:', hasStackAuthUser);
-    console.log('🔍 Is authenticated:', isAuthenticated);
-    console.log('🔍 Is loading:', isLoading);
+    console.log('🔄 OAuth Callback: Processing...');
+    console.log('🔍 Stack user exists:', hasStackAuthUser);
     console.log('🔍 Current URL:', window.location.href);
-    console.log('🔍 URL search params:', window.location.search);
     
-    // Check if we have authentication cookies
-    const hasStackAccess = document.cookie.includes('stack-access');
-    console.log('🔍 Has stack-access cookie:', hasStackAccess);
-    
-    // Check for OAuth outer cookies
-    const oauthOuterCookies = document.cookie.split(';').filter(cookie => cookie.includes('stack-oauth-outer'));
-    console.log('🔍 OAuth outer cookies found:', oauthOuterCookies.length);
-    
-    // Check if this looks like an OAuth callback (has code parameter)
-    const hasOAuthCode = window.location.search.includes('code=');
-    console.log('🔍 Has OAuth code parameter:', hasOAuthCode);
-    
-    // Proactively invoke SDK callback handlers if available
-    (async () => {
-      try {
-        const anyApp = stackClientApp as unknown as Record<string, any>;
-        if (typeof anyApp?.processOAuthCallback === 'function') {
-          await anyApp.processOAuthCallback();
-          console.log('🔄 OAuth Callback: processOAuthCallback invoked');
-        } else if (typeof anyApp?.handleOAuthCallback === 'function') {
-          await anyApp.handleOAuthCallback();
-          console.log('🔄 OAuth Callback: handleOAuthCallback invoked');
-        }
-      } catch (e) {
-        console.log('⚠️ OAuth Callback: SDK callback invocation failed (non-fatal)', e);
-      }
-    })();
-
-    // If we have a Stack Auth user, we can proceed even if database user isn't loaded yet
-    if (hasStackAuthUser && !redirectAttempted) {
-      console.log('✅ OAuth Callback: Stack Auth user found, redirecting to /app');
-      setRedirectAttempted(true);
-      // Small delay to ensure cookies are properly set
-      setTimeout(() => {
-        window.location.href = '/app';
-      }, 1000);
-    } else if (!isLoading && !hasStackAuthUser && !redirectAttempted) {
-      console.log('🔄 OAuth Callback: No Stack Auth user found yet, waiting for Stack Auth to process...');
-      
-      // Try to force Stack Auth to process the OAuth callback
-      const forceProcessOAuth = async () => {
-        try {
-          if (stackClientApp) {
-            console.log('🔄 OAuth Callback: Attempting to force Stack Auth to process OAuth callback...');
-            
-            // Try to trigger a refresh of the Stack Auth state
-            // This might help Stack Auth process the OAuth callback
-            setTimeout(() => {
-              console.log('🔄 OAuth Callback: Refreshing page to let Stack Auth process OAuth callback...');
-              window.location.reload();
-            }, 2000);
-          }
-        } catch (error) {
-          console.error('❌ OAuth Callback: Error forcing OAuth processing:', error);
-        }
-      };
-      
-      forceProcessOAuth();
-      
-      // Give Stack Auth more time to process the OAuth callback
-      const waitForStackAuth = setTimeout(() => {
-        if (hasStackAuthUser) {
-          console.log('✅ OAuth Callback: Stack Auth user found after waiting, redirecting to /app');
-          setRedirectAttempted(true);
-          window.location.href = '/app';
-        } else {
-          console.log('❌ OAuth Callback: Still no Stack Auth user after waiting, redirecting to sign-in');
-          setRedirectAttempted(true);
-          window.location.href = '/handler/sign-in';
-        }
-      }, 5000);
-      
-      return () => clearTimeout(waitForStackAuth);
+    // Success case: Stack Auth user detected
+    if (hasStackAuthUser) {
+      console.log('✅ OAuth Callback: Success, redirecting to /app');
+      window.location.replace('/app');
+      return;
     }
     
-    // Force redirect after 10 seconds if we have OAuth code but no Stack user
-    if (hasOAuthCode && !hasStackAuthUser && !redirectAttempted) {
-      const forceRedirectTimer = setTimeout(() => {
-        console.log('⚠️ OAuth Callback: Force redirect after timeout');
-        setRedirectAttempted(true);
-        window.location.href = '/app';
-      }, 10000);
-      
-      return () => clearTimeout(forceRedirectTimer);
-    }
+    // Set up timeout to prevent getting stuck
+    const timeoutTimer = setTimeout(() => {
+      console.log('⚠️ OAuth Callback: Timeout reached, redirecting to sign-in');
+      setTimeoutReached(true);
+      window.location.replace('/handler/sign-in');
+    }, 5000); // 5 second timeout
     
-    // Show fallback link after 3 seconds if still loading
-    const fallbackTimer = setTimeout(() => {
-      if (isLoading || !hasStackAuthUser) {
-        setShowFallback(true);
-      }
-    }, 3000);
-    
-    // Also show fallback if we have Stack Auth user but are still loading after 2 seconds
-    const quickFallbackTimer = setTimeout(() => {
-      if (hasStackAuthUser && isLoading) {
-        setShowFallback(true);
-      }
-    }, 2000);
-    
-    return () => {
-      clearTimeout(fallbackTimer);
-      clearTimeout(quickFallbackTimer);
-    };
-  }, [isAuthenticated, isLoading, hasStackAuthUser, stackUser, redirectAttempted]);
+    return () => clearTimeout(timeoutTimer);
+  }, [hasStackAuthUser]);
   
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="text-center max-w-md mx-auto px-4">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
         <p className="text-gray-600 mb-2">Completing authentication...</p>
-        <p className="text-sm text-gray-500 mb-4">Please wait while we process your login.</p>
-        {/* Mount SignIn silently so the SDK can auto-process the OAuth callback */}
-        <div style={{ display: 'none' }}>
-          <SignIn app={stackClientApp} />
-        </div>
+        <p className="text-sm text-gray-500">Please wait while we process your login.</p>
         
-        {showFallback && (
+        {timeoutReached && (
           <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
             <p className="text-sm text-yellow-800 mb-3">
-              If you're not automatically redirected, click one of the links below:
+              Authentication is taking longer than expected.
             </p>
-            <div className="space-y-2">
-              <a 
-                href="/app" 
-                className="inline-block bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors mr-2"
-              >
-                Continue to App
-              </a>
-              <a 
-                href="/handler/sign-in" 
-                className="inline-block bg-gray-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-700 transition-colors"
-              >
-                Try Sign In Again
-              </a>
-            </div>
-            <p className="text-xs text-yellow-700 mt-2">
-              This usually happens if you have slow internet or ad blockers enabled.
-            </p>
-            <div className="mt-3 text-xs text-gray-600">
-              <p>Debug info:</p>
-              <p>Stack User: {stackUser?.id ? 'Yes' : 'No'}</p>
-              <p>Loading: {isLoading ? 'Yes' : 'No'}</p>
-              <p>Has Stack Access Cookie: {document.cookie.includes('stack-access') ? 'Yes' : 'No'}</p>
-            </div>
+            <a 
+              href="/handler/sign-in" 
+              className="inline-block bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors"
+            >
+              Try Again
+            </a>
           </div>
         )}
       </div>
@@ -341,112 +214,33 @@ function OAuthCallbackHandler() {
   );
 }
 
-// Stack Auth Handler component for authentication routes
+// Stack Auth Handler component for authentication routes - SIMPLIFIED
 function HandlerRoutes() {
   const handlerPath = window.location.pathname.replace('/handler/', '') || '';
-  const currentUrl = window.location.href;
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated } = useAuth();
 
-  // Debug logging
   console.log('🔍 HandlerRoutes: handlerPath =', handlerPath);
-  console.log('🔍 HandlerRoutes: currentUrl =', currentUrl);
   console.log('🔍 HandlerRoutes: isAuthenticated =', isAuthenticated);
-  console.log('🔍 HandlerRoutes: Cookies =', document.cookie);
-  console.log('🔍 HandlerRoutes: Stack Auth config =', {
-    projectId: STACK_PROJECT_ID,
-    publishableKey: STACK_PUBLISHABLE_CLIENT_KEY?.substring(0, 20) + '...'
-  });
   
-  // Check for OAuth outer cookies
+  // Check for OAuth outer cookies (callback state)
   const oauthOuterCookies = document.cookie.split(';').filter(cookie => cookie.includes('stack-oauth-outer'));
-  console.log('🔍 HandlerRoutes: OAuth outer cookies found:', oauthOuterCookies.length);
+  
+  // If we're in OAuth callback state, redirect to callback handler
   if (oauthOuterCookies.length > 0) {
-    console.log('🔍 HandlerRoutes: OAuth outer cookies:', oauthOuterCookies);
-  }
-  
-  // Check for stack-access cookie
-  const hasStackAccess = document.cookie.includes('stack-access');
-  console.log('🔍 HandlerRoutes: Has stack-access cookie:', hasStackAccess);
-  
-  // Check if we're in an OAuth callback state (outer cookie)
-  const isOAuthCallback = oauthOuterCookies.length > 0;
-  console.log('🔍 HandlerRoutes: Is OAuth callback state:', isOAuthCallback);
-  const alreadyProcessed = sessionStorage.getItem('oauth_processed') === '1';
-  
-  // If we're in OAuth callback state, let Stack Auth handle it automatically
-  if (isOAuthCallback && !alreadyProcessed) {
-    console.log('🔄 HandlerRoutes: OAuth callback detected, redirecting to /handler/oauth-callback...');
-    // Redirect to explicit callback route; SDK will read from cookies
-    setTimeout(() => {
-      if (window.location.pathname !== '/handler/oauth-callback') {
-        const query = window.location.search || '';
-        window.location.replace(`/handler/oauth-callback${query}`);
-      }
-      // prevent multiple redirects
-      sessionStorage.setItem('oauth_processed', '1');
-    }, 10);
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center max-w-md mx-auto px-4">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 mb-2">Processing OAuth authentication...</p>
-          <p className="text-sm text-gray-500">Please wait while we complete your login.</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Check if Stack Auth is properly configured
-  if (!STACK_PROJECT_ID || !STACK_PUBLISHABLE_CLIENT_KEY) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="max-w-md w-full bg-white shadow-lg rounded-lg p-6">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">Authentication Error</h1>
-            <p className="text-gray-600 mb-6">
-              Stack Auth is not properly configured. Please check your environment variables.
-            </p>
-            <button
-              onClick={() => window.location.href = '/'}
-              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
-            >
-              Go Home
-            </button>
-          </div>
-        </div>
-      </div>
-    );
+    console.log('🔄 HandlerRoutes: OAuth callback detected, redirecting to callback...');
+    window.location.replace('/handler/oauth-callback');
+    return <div>Redirecting...</div>;
   }
 
   // If user is already authenticated, redirect to app
-  if (isAuthenticated && !isLoading) {
+  if (isAuthenticated) {
     console.log('🔍 HandlerRoutes: User is authenticated, redirecting to /app');
-    window.location.href = '/app';
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Redirecting to your account...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Show loading state
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
+    window.location.replace('/app');
+    return <div>Redirecting to app...</div>;
   }
 
   // Determine which form to show based on the path
-  const isSignUp = handlerPath === 'sign-up' || currentUrl.includes('sign-up');
-  const isSignIn = handlerPath === 'sign-in' || currentUrl.includes('sign-in') || !isSignUp;
+  const isSignUp = handlerPath === 'sign-up';
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -460,23 +254,23 @@ function HandlerRoutes() {
           </p>
         </div>
 
-            {isSignIn ? (
-              <SignIn />
-            ) : (
-              <SignUp />
-            )}
+        {isSignUp ? (
+          <SignUp app={stackClientApp} />
+        ) : (
+          <SignIn app={stackClientApp} />
+        )}
 
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-600">
-            {isSignIn ? "Don't have an account? " : "Already have an account? "}
+            {!isSignUp ? "Don't have an account? " : "Already have an account? "}
             <button
               onClick={() => {
-                const newPath = isSignIn ? '/handler/sign-up' : '/handler/sign-in';
+                const newPath = !isSignUp ? '/handler/sign-up' : '/handler/sign-in';
                 window.location.href = newPath;
               }}
               className="text-blue-600 hover:text-blue-700 font-medium"
             >
-              {isSignIn ? 'Sign up' : 'Sign in'}
+              {!isSignUp ? 'Sign up' : 'Sign in'}
             </button>
           </p>
         </div>

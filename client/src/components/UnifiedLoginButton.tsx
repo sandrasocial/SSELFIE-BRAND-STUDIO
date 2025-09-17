@@ -1,8 +1,7 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
-import { useStackApp } from "@stackframe/stack";
-import { STACK_PROJECT_ID, STACK_PUBLISHABLE_CLIENT_KEY } from "@/env";
+import { stackClientApp } from "../../../stack/client";
 
 interface UnifiedLoginButtonProps {
   text: string;
@@ -11,54 +10,18 @@ interface UnifiedLoginButtonProps {
 
 export default function UnifiedLoginButton({ text, showBrand }: UnifiedLoginButtonProps) {
   const { user, isAuthenticated, isLoading } = useAuth();
-  let app;
-  
-  try {
-    app = useStackApp();
-  } catch (error) {
-    console.warn('⚠️ Stack Auth not available:', error);
-    app = null;
-  }
 
   const handleLogin = async () => {
     console.log('🔍 UnifiedLoginButton: Login button clicked');
-    console.log('🔍 UnifiedLoginButton: Stack Auth app available:', !!app);
-    console.log('🔍 UnifiedLoginButton: Environment vars:', { STACK_PROJECT_ID, STACK_PUBLISHABLE_CLIENT_KEY });
-    
-    if (!app) {
-      console.warn('⚠️ Stack Auth not available, using fallback');
-      // Fallback to direct OAuth URL if Stack Auth fails
-      const projectId = STACK_PROJECT_ID;
-      const publishableKey = STACK_PUBLISHABLE_CLIENT_KEY;
-      
-      if (publishableKey) {
-        console.log('🚀 UnifiedLoginButton: Redirecting to Stack Auth handler');
-        window.location.href = `/handler/sign-in`;
-      } else {
-        console.error('❌ No Stack Auth configuration available');
-      }
-      return;
-    }
-    
-    try {
-      console.log('🚀 UnifiedLoginButton: Using Stack Auth SDK method');
-      // ✅ Use proper Stack Auth SDK method
-      await app.signInWithOAuth('google');
-    } catch (error) {
-      console.error('❌ Stack Auth: OAuth login failed:', error);
-    }
+    console.log('🚀 UnifiedLoginButton: Redirecting to Stack Auth handler');
+    // Always use the handler route for consistency
+    window.location.href = `/handler/sign-in`;
   };
 
   const handleLogout = async () => {
-    if (!app) {
-      // Fallback logout
-      window.location.href = '/';
-      return;
-    }
-    
     try {
       // ✅ Use proper Stack Auth SDK method  
-      await app.signOut();
+      await stackClientApp.signOut();
       // Stack Auth handles redirect automatically
     } catch (error) {
       console.error('❌ Stack Auth: Logout error:', error);

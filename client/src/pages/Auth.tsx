@@ -1,6 +1,6 @@
 import * as React from "react";
 import { SignIn, SignUp, UserButton } from "@stackframe/react";
-import { stackClientApp } from "../stack";
+import { stackClientApp } from "../../../stack/client";
 
 export default function Auth() {
   return (
