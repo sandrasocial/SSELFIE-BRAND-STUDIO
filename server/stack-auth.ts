@@ -61,7 +61,7 @@ function hashToken(token: string): string {
   return hash.toString();
 }
 
-interface StackAuthUser {
+export interface StackAuthUser {
   id: string;
   primaryEmail?: string;
   displayName?: string;

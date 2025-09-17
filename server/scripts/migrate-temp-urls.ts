@@ -24,10 +24,10 @@ async function migrateTempUrls() {
     
     for (const row of result.rows) {
       try {
-        console.log(`🔄 Migrating image ${row.id}: ${row.image_url.substring(0, 60)}...`);
+        console.log(`🔄 Migrating image ${row.id}: ${String(row.image_url).substring(0, 60)}...`);
         
         // Use the image storage service to migrate to permanent S3 URL
-        const permanentUrl = await imageStorage.migrateTempUrlToS3(row.image_url, row.user_id);
+        const permanentUrl = await ImageStorageService.migrateTempUrlToS3(String(row.image_url), String(row.user_id));
         
         if (permanentUrl && permanentUrl !== row.image_url) {
           // Update the image with permanent URL
@@ -35,11 +35,11 @@ async function migrateTempUrls() {
             UPDATE ai_images 
             SET image_url = $1 
             WHERE id = $2
-          `, [permanentUrl, row.id]);
+          `, [permanentUrl, String(row.id)]);
           
           console.log(`✅ Image ${row.id}: Migrated to permanent S3 URL`);
-          console.log(`   Old: ${row.image_url.substring(0, 50)}...`);
-          console.log(`   New: ${permanentUrl.substring(0, 50)}...`);
+          console.log(`   Old: ${String(row.image_url).substring(0, 50)}...`);
+          console.log(`   New: ${String(permanentUrl).substring(0, 50)}...`);
           successCount++;
         } else {
           console.log(`⚠️  Image ${row.id}: Migration skipped (may already be permanent)`);

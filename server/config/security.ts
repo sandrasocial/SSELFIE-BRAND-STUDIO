@@ -4,7 +4,7 @@ import { Express } from 'express';
 
 export const configureSecurityMiddleware = (app: Express) => {
   // CSRF Protection
-  app.use(csrf());
+  app.use(csurf());
   
   // Security Headers with Helmet
   app.use(helmet({

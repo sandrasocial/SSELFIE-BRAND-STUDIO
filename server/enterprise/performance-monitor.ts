@@ -55,6 +55,25 @@ export class PerformanceMonitor {
       timestamp: new Date().toISOString()
     };
   }
+
+  static async generatePerformanceReport() {
+    // Placeholder implementation
+    return {
+      reportId: 'perf-' + Date.now(),
+      generatedAt: new Date().toISOString(),
+      metrics: await this.getMetrics()
+    };
+  }
+
+  static async getSystemAlerts() {
+    // Placeholder implementation
+    return [];
+  }
+
+  static async resolveAlert(alertId: string) {
+    // Placeholder implementation
+    return { success: true, alertId };
+  }
 }
 
 // Export singleton instance
