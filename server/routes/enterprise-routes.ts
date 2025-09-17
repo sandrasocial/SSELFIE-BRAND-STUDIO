@@ -77,7 +77,7 @@ export function registerEnterpriseRoutes(app: Express): void {
   app.get('/api/enterprise/performance-report', requireStackAuth, async (req, res) => {
     try {
       console.log('📊 PERFORMANCE MONITOR: Generating performance report...');
-      const report = await performanceMonitor.generatePerformanceReport();
+      const report = await PerformanceMonitor.generatePerformanceReport();
       res.json({
         success: true,
         data: report,
@@ -96,7 +96,7 @@ export function registerEnterpriseRoutes(app: Express): void {
   // Performance alerts endpoint
   app.get('/api/enterprise/performance/alerts', requireStackAuth, async (req, res) => {
     try {
-      const alerts = await performanceMonitor.getSystemAlerts();
+      const alerts = await PerformanceMonitor.getSystemAlerts();
       res.json({
         success: true,
         data: alerts,
@@ -116,7 +116,7 @@ export function registerEnterpriseRoutes(app: Express): void {
   app.post('/api/enterprise/performance/alerts/:alertId/resolve', requireStackAuth, async (req, res) => {
     try {
       const { alertId } = req.params;
-      const resolved = await performanceMonitor.resolveAlert(alertId);
+      const resolved = await PerformanceMonitor.resolveAlert(alertId);
       
       if (resolved) {
         res.json({

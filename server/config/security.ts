@@ -7,19 +7,7 @@ export const configureSecurityMiddleware = (app: Express) => {
   app.use(csurf());
   
   // Security Headers with Helmet
-  app.use(helmet({
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'"],
-        scriptSrc: ["'self'", "'unsafe-inline'"],
-        styleSrc: ["'self'", "'unsafe-inline'"],
-        imgSrc: ["'self'", "data:", "https:"],
-        connectSrc: ["'self'", "https://api.stripe.com"],
-        frameSrc: ["'self'", "https://js.stripe.com"],
-      },
-    },
-    crossOriginEmbedderPolicy: false,
-  }));
+  app.use(helmet());
 
   // Rate Limiting
   const limiter = rateLimit({

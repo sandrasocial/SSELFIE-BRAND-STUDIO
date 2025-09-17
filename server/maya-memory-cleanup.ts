@@ -26,7 +26,7 @@ export async function cleanupAllRestrictiveMemory(): Promise<void> {
     
     for (const user of allUsers) {
       try {
-        await mayaMemoryService.clearRestrictiveCategorizations(user.id);
+        await MayaMemoryService.clearRestrictiveCategorizations(user.id);
         cleanedCount++;
         
         if (cleanedCount % 10 === 0) {
@@ -53,7 +53,7 @@ export async function cleanupUserRestrictiveMemory(userId: string): Promise<void
   console.log(`🧠 MAYA MEMORY CLEANUP: Cleaning restrictive categorizations for user ${userId}`);
   
   try {
-    await mayaMemoryService.clearRestrictiveCategorizations(userId);
+      await MayaMemoryService.clearRestrictiveCategorizations(userId);
     console.log(`✅ Successfully cleaned restrictive memory for user ${userId}`);
   } catch (error) {
     console.error(`❌ Failed to clean memory for user ${userId}:`, error);

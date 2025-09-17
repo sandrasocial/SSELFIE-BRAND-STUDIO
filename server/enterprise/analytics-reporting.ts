@@ -279,7 +279,7 @@ export class AnalyticsReportingEngine {
     ] = await Promise.all([
       predictiveIntelligence.generatePredictiveMetrics(),
       securityAudit.generateSecurityReport(),
-      performanceMonitor.generatePerformanceReport(),
+      PerformanceMonitor.generatePerformanceReport(),
       globalExpansion.generateExpansionMetrics()
     ]);
 
