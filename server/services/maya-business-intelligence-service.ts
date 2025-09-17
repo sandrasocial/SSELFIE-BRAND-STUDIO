@@ -139,9 +139,9 @@ export class MayaBusinessIntelligenceService {
         referralPotential: this.calculateReferralPotential(engagementMetrics, userBehavior),
         brandAdvocacyScore: this.calculateBrandAdvocacyScore(engagementMetrics, userBehavior),
         wordOfMouthIndex: this.calculateWordOfMouthIndex(engagementMetrics, userBehavior),
-        marketExpansionPotential: this.identifyMarketExpansion(userBehavior),
+        marketExpansionPotential: this.identifyMarketExpansion(userBehavior, engagementMetrics),
         featureGaps: this.identifyFeatureGaps(userBehavior, engagementMetrics),
-        contentNeedAreas: this.identifyContentNeeds(userBehavior),
+        contentNeedAreas: this.identifyContentNeeds(userBehavior, engagementMetrics),
         userExperienceIssues: this.identifyUXIssues(engagementMetrics, userBehavior),
         innovationOpportunities: this.identifyInnovationOpportunities(userBehavior, engagementMetrics)
       };
