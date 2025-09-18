@@ -498,6 +498,25 @@ export const generatedVideos = pgTable("generated_videos", {
   index("generated_videos_status_idx").on(table.status),
 ]);
 
+// Video Storyboards table (for multi-scene video composition)
+export const videoStoryboards = pgTable("video_storyboards", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  scenes: jsonb("scenes").notNull(), // Array of {motionPrompt, duration, style?, imageId?}
+  mode: varchar("mode").default("sequential"), // sequential, parallel
+  composedVideoUrl: varchar("composed_video_url"), // Final composed video URL
+  status: varchar("status").default("pending"), // pending, processing, completed, failed
+  progress: integer("progress").default(0), // 0-100
+  jobId: varchar("job_id"), // Composition job ID for tracking
+  errorMessage: text("error_message"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  completedAt: timestamp("completed_at"),
+}, (table) => [
+  index("video_storyboards_user_id_idx").on(table.userId),
+  index("video_storyboards_status_idx").on(table.status),
+]);
+
 // Victoria AI chat conversations
 export const victoriaChats = pgTable("victoria_chats", {
   id: serial("id").primaryKey(),
@@ -883,6 +902,8 @@ export type InsertGeneratedImage = typeof generatedImages.$inferInsert;
 export type GeneratedImage = typeof generatedImages.$inferSelect;
 export type InsertGeneratedVideo = typeof generatedVideos.$inferInsert;
 export type GeneratedVideo = typeof generatedVideos.$inferSelect;
+export type InsertVideoStoryboard = typeof videoStoryboards.$inferInsert;
+export type VideoStoryboard = typeof videoStoryboards.$inferSelect;
 export type InsertVictoriaChat = typeof victoriaChats.$inferInsert;
 export type VictoriaChat = typeof victoriaChats.$inferSelect;
 export type InsertPhotoSelection = typeof photoSelections.$inferInsert;
