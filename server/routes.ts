@@ -51,8 +51,9 @@ import adminRoutes from './routes/modules/admin';
 import agentProtocolRoutes from './routes/modules/agent-protocol';
 import websitesRoutes from './routes/modules/websites';
 import trainingRoutes from './routes/modules/training';
-import galleryRoutes from './routes/modules/gallery';
-import mayaRoutes from './routes/modules/maya';
+// TESTING: Using simplified routes to diagnose loading issues
+import galleryRoutes from './routes/modules/gallery-simple';
+import mayaRoutes from './routes/modules/maya-simple';
 import claudeRoutes from './routes/modules/claude';
 import usageRoutes from './routes/modules/usage';
 // Reconstructed wrapper function (previously removed during refactor cleanup)
