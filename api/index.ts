@@ -535,6 +535,126 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     }
 
+    // Handle Maya video prompt endpoint
+    if (req.url?.includes('/api/maya/get-video-prompt')) {
+      console.log('🔍 Maya video prompt endpoint called:', req.url);
+      
+      try {
+        const user = await getAuthenticatedUser();
+        
+        if (req.method !== 'POST') {
+          return res.status(405).json({ error: 'Method not allowed' });
+        }
+        
+        const { imageUrl } = req.body || {};
+        
+        if (!imageUrl) {
+          return res.status(400).json({ error: 'Image URL is required' });
+        }
+        
+        console.log('🎬 MAYA VIDEO DIRECTION: Creating motion prompt for user:', user.id);
+        
+        // Maya's video director system prompt
+        const videoDirectorPrompt = `You are Maya, SSELFIE Studio's AI Creative Director and Video Director. 
+
+🎬 VIDEO DIRECTION MODE: You are analyzing the actual image provided to create the perfect motion prompt for VEO 3 video generation.
+
+Your expertise includes:
+- Cinematic storytelling and visual narrative
+- Fashion and lifestyle video aesthetics
+- Professional portrait cinematography
+- Understanding of what makes compelling short-form video content
+
+TASK: Analyze the provided image carefully and create ONE single, cinematic motion prompt that perfectly enhances what you see in the image.
+
+ANALYSIS INSTRUCTIONS:
+1. Study the subject's pose, expression, and mood
+2. Observe the lighting, background, and overall composition
+3. Consider the style and aesthetic of the image
+4. Identify the best camera movement that would enhance the scene
+
+MOTION PROMPT GUIDELINES:
+- Keep it to 1-2 sentences maximum
+- Focus on movements that specifically enhance THIS image
+- Use the actual elements you see (lighting, pose, background, mood)
+- Use professional cinematography terminology
+- Make it suitable for high-end fashion/lifestyle content
+- Be specific to what you observe in the image
+
+Analyze the image and respond with ONLY the motion prompt that perfectly captures and enhances what you see - no explanation, no additional text.`;
+
+        try {
+          // Call Claude Vision API for real image analysis
+          const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-api-key': process.env.ANTHROPIC_API_KEY || '',
+              'anthropic-version': '2023-06-01'
+            },
+            body: JSON.stringify({
+              model: 'claude-3-5-sonnet-20241022',
+              max_tokens: 1000,
+              messages: [
+                {
+                  role: 'user',
+                  content: [
+                    {
+                      type: 'text',
+                      text: videoDirectorPrompt
+                    },
+                    {
+                      type: 'image',
+                      source: {
+                        type: 'base64',
+                        media_type: 'image/jpeg',
+                        data: imageUrl.startsWith('data:') ? imageUrl.split(',')[1] : imageUrl
+                      }
+                    }
+                  ]
+                }
+              ]
+            })
+          });
+
+          let videoPrompt = 'Gentle zoom in with soft natural lighting, creating an elegant and professional atmosphere.';
+          
+          if (claudeResponse.ok) {
+            const data = await claudeResponse.json();
+            videoPrompt = data.content[0].text;
+            console.log('✅ MAYA VIDEO DIRECTION: Generated custom prompt via Claude Vision');
+          } else {
+            console.log('⚠️ MAYA VIDEO DIRECTION: Claude Vision failed, using fallback prompt');
+          }
+          
+          res.setHeader('Cache-Control', 'no-store');
+          return res.status(200).json({
+            videoPrompt,
+            director: 'Maya - AI Creative Director',
+            timestamp: new Date().toISOString()
+          });
+          
+        } catch (error) {
+          // Fallback to a good default prompt
+          const fallbackPrompt = 'Gentle zoom in with soft natural lighting, creating an elegant and professional atmosphere.';
+          
+          res.setHeader('Cache-Control', 'no-store');
+          return res.status(200).json({
+            videoPrompt: fallbackPrompt,
+            director: 'Maya - AI Creative Director (Fallback)',
+            timestamp: new Date().toISOString()
+          });
+        }
+        
+      } catch (authError) {
+        console.log('❌ Maya video prompt auth failed:', authError.message);
+        return res.status(401).json({ 
+          error: 'Authentication required',
+          message: authError.message
+        });
+      }
+    }
+
     // Handle Maya generate endpoint
     if (req.url?.includes('/api/maya/generate')) {
       console.log('🔍 Maya generate endpoint called:', req.url);

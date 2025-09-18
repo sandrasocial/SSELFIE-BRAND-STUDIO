@@ -646,6 +646,7 @@
     "@types/node": "^24.4.0",
     "@typescript-eslint/eslint-plugin": "^8.43.0",
     "@typescript-eslint/parser": "^8.43.0",
+    "@vercel/node": "^5.3.22",
     "@vitejs/plugin-react": "^5.0.1",
     "@vitest/coverage-istanbul": "^3.2.4",
     "@vitest/ui": "^3.2.4",
