@@ -3,6 +3,7 @@ import {
   userProfiles,
   onboardingData,
   aiImages,
+  imagesVariants,
   generatedImages,
   generationTrackers,
   userModels,
@@ -26,6 +27,8 @@ import {
   type InsertOnboardingData,
   type AiImage,
   type InsertAiImage,
+  type ImageVariant,
+  type InsertImageVariant,
   type GeneratedImage,
   type InsertGeneratedImage,
   generatedVideos,
@@ -109,7 +112,12 @@ export interface IStorage {
 
   // AI Image operations (GALLERY ONLY - permanent S3 URLs) - Legacy support
   getAIImages(userId: string): Promise<AiImage[]>;
+  getAIImageById(imageId: string, userId: string): Promise<AiImage | undefined>;
   saveAIImage(data: InsertAiImage): Promise<AiImage>;
+  
+  // Image Variants operations (HD upscaled versions, crops, etc.)
+  getImageVariant(imageId: number, kind: string): Promise<ImageVariant | undefined>;
+  createImageVariant(data: InsertImageVariant): Promise<ImageVariant>;
 
   // Generated Images operations (NEW ENHANCED GALLERY - primary table)
   getGeneratedImages(userId: string): Promise<GeneratedImage[]>;
@@ -580,6 +588,28 @@ export class DatabaseStorage implements IStorage {
     const imageData = { ...(data as InsertAiImage) } as InsertAiImage & Record<string, unknown>;
     delete (imageData as Record<string, unknown>)['projectId'];
     const [saved] = await db.insert(aiImages).values(imageData as InsertAiImage).returning();
+    return saved;
+  }
+
+  async getAIImageById(imageId: string, userId: string): Promise<AiImage | undefined> {
+    const [image] = await db
+      .select()
+      .from(aiImages)
+      .where(and(eq(aiImages.id, parseInt(imageId)), eq(aiImages.userId, userId)));
+    return image;
+  }
+
+  // Image Variants operations
+  async getImageVariant(imageId: number, kind: string): Promise<ImageVariant | undefined> {
+    const [variant] = await db
+      .select()
+      .from(imagesVariants)
+      .where(and(eq(imagesVariants.imageId, imageId), eq(imagesVariants.kind, kind)));
+    return variant;
+  }
+
+  async createImageVariant(data: InsertImageVariant): Promise<ImageVariant> {
+    const [saved] = await db.insert(imagesVariants).values(data).returning();
     return saved;
   }
 

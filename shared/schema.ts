@@ -246,6 +246,24 @@ export const aiImages = pgTable("ai_images", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Image variants table for HD upscaled versions, crops, etc.
+export const imagesVariants = pgTable("images_variants", {
+  id: serial("id").primaryKey(),
+  imageId: integer("image_id").references(() => aiImages.id, { onDelete: "cascade" }).notNull(),
+  kind: varchar("kind").notNull(), // 'hd', 'compressed', 'cropped', etc.
+  url: varchar("url").notNull(),
+  width: integer("width"),
+  height: integer("height"),
+  provider: varchar("provider"), // 'real_esrgan', 'topaz', etc.
+  scale: integer("scale"), // 2, 4, etc. for upscaled images
+  fileSize: integer("file_size"), // in bytes
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [
+  index("idx_images_variants_image_id").on(table.imageId),
+  index("idx_images_variants_kind").on(table.kind),
+  index("idx_images_variants_created_at").on(table.createdAt),
+]);
+
 // Templates table
 export const templates = pgTable("templates", {
   id: serial("id").primaryKey(),
@@ -789,6 +807,7 @@ export const insertUserSchema = createInsertSchema(users).omit({ createdAt: true
 export const insertUserProfileSchema = createInsertSchema(userProfiles).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertProjectSchema = createInsertSchema(projects).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertAiImageSchema = createInsertSchema(aiImages).omit({ id: true, createdAt: true });
+export const insertImageVariantSchema = createInsertSchema(imagesVariants).omit({ id: true, createdAt: true });
 export const insertTemplateSchema = createInsertSchema(templates).omit({ id: true, createdAt: true });
 export const insertSubscriptionSchema = createInsertSchema(subscriptions).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertOnboardingDataSchema = createInsertSchema(onboardingData).omit({ id: true, createdAt: true, updatedAt: true });
@@ -869,6 +888,8 @@ export type InsertAgentCapability = typeof agentCapabilities.$inferInsert;
 export type Project = typeof projects.$inferSelect;
 export type InsertAiImage = typeof aiImages.$inferInsert;
 export type AiImage = typeof aiImages.$inferSelect;
+export type InsertImageVariant = typeof imagesVariants.$inferInsert;
+export type ImageVariant = typeof imagesVariants.$inferSelect;
 export type InsertTemplate = typeof templates.$inferInsert;
 export type Template = typeof templates.$inferSelect;
 export type InsertSubscription = typeof subscriptions.$inferInsert;
