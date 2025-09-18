@@ -1,0 +1,14 @@
+# SSELFIE Core Rules
+- Never modify: /server/auth/**, /server/stack-auth.ts, /client/src/lib/stack/**, /server/db/** (schema).
+- Only create new services under: /server/services/** and new UI under /client/src/features/**.
+- Always create a new branch: feat/{short-task}-{date}.
+- Always run: pnpm i; pnpm typecheck; pnpm lint; pnpm test; pnpm build before PR.
+- If tests fail: attempt one autofix cycle, else open PR with checklist + failing logs.
+- All env reads go through /server/config/env.ts (add keys there + .env.example).
+- Do not duplicate utils: search repo for similar function before adding.
+- All generators must be behind feature flags and route-guarded.
+
+
+globs:
+alwaysApply: true
+---

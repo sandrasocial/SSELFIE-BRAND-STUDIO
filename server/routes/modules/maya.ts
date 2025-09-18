@@ -308,4 +308,67 @@ router.get('/api/maya/personality', requireStackAuth, asyncHandler(async (req: a
   sendSuccess(res, { personality });
 }));
 
+// Maya Video Prompt Endpoint - Migrated from disabled file
+router.post('/api/maya/get-video-prompt', requireStackAuth, asyncHandler(async (req: any, res) => {
+  const userId = req.user.id;
+  const { imageUrl } = req.body;
+  validateRequired({ imageUrl }, ['imageUrl']);
+
+  try {
+    console.log(`🎬 MAYA VIDEO DIRECTION: Creating motion prompt for user ${userId}`);
+    
+    // Maya's video director system prompt
+    const videoDirectorPrompt = `You are Maya, SSELFIE Studio's AI Creative Director and Video Director. 
+
+🎬 VIDEO DIRECTION MODE: You are analyzing the actual image provided to create the perfect motion prompt for VEO 3 video generation.
+
+Your expertise includes:
+- Cinematic storytelling and visual narrative
+- Fashion and lifestyle video aesthetics
+- Professional portrait cinematography
+- Understanding of what makes compelling short-form video content
+
+TASK: Analyze the provided image carefully and create ONE single, cinematic motion prompt that perfectly enhances what you see in the image.
+
+ANALYSIS INSTRUCTIONS:
+1. Study the subject's pose, expression, and mood
+2. Observe the lighting, background, and overall composition
+3. Consider the style and aesthetic of the image
+4. Identify the best camera movement that would enhance the scene
+
+MOTION PROMPT GUIDELINES:
+- Keep it to 1-2 sentences maximum
+- Focus on movements that specifically enhance THIS image
+- Use the actual elements you see (lighting, pose, background, mood)
+- Use professional cinematography terminology
+- Make it suitable for high-end fashion/lifestyle content
+- Be specific to what you observe in the image
+
+Analyze the image and respond with ONLY the motion prompt that perfectly captures and enhances what you see - no explanation, no additional text.`;
+
+    // Use Claude API service for image analysis
+    const claudeService = new ClaudeApiServiceSimple();
+    const videoConversationId = `video_direction_${userId}_${Date.now()}`;
+    
+    const mayaVideoPrompt = await claudeService.sendMessageWithImage(
+      videoDirectorPrompt,
+      imageUrl,
+      videoConversationId,
+      'maya'
+    );
+
+    console.log(`✅ MAYA VIDEO DIRECTION: Generated motion prompt for user ${userId}`);
+
+    sendSuccess(res, { 
+      videoPrompt: mayaVideoPrompt,
+      director: 'Maya - AI Creative Director',
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('❌ MAYA VIDEO DIRECTION ERROR:', error);
+    throw createError.internal('Failed to generate video direction');
+  }
+}));
+
 export default router;

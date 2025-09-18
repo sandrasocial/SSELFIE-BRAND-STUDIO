@@ -290,4 +290,10 @@ router.post('/save', requireStackAuth, async (req, res) => {
     }
 });
 
+// Import storyboard routes
+import storyboardRouter from './video_storyboard';
+
+// Mount storyboard routes
+router.use('/', storyboardRouter);
+
 export default router;

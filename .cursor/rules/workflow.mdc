@@ -1,0 +1,15 @@
+# Cursor Workflow State
+PHASE: 1
+CHECKS:
+- Branch created ✅
+- New code isolated under approved dirs ✅
+- pnpm typecheck/lint/test/build all green ✅
+- PR opened with summary + test plan ✅
+RECOVERY:
+- If build/test fail → attempt one autofix, else open PR with logs.
+- If touching protected files → STOP and request approval in PR.
+---
+description:
+globs:
+alwaysApply: true
+---

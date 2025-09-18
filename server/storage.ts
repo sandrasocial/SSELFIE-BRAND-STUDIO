@@ -31,6 +31,9 @@ import {
   generatedVideos,
   type GeneratedVideo,
   type InsertGeneratedVideo,
+  videoStoryboards,
+  type VideoStoryboard,
+  type InsertVideoStoryboard,
   type GenerationTracker,
   type InsertGenerationTracker,
   type UserModel,
@@ -80,6 +83,13 @@ import {
   type InsertConversationSummary,
   type ConceptCard,
   type InsertConceptCard,
+  // Brand Assets types
+  brandAssets,
+  imageVariants,
+  type BrandAsset,
+  type InsertBrandAsset,
+  type ImageVariant,
+  type InsertImageVariant,
 } from "../shared/schema";
 import { db } from "./drizzle";
 import { eq, and, desc, asc, gte, lte, sql } from "drizzle-orm";
@@ -109,6 +119,7 @@ export interface IStorage {
 
   // AI Image operations (GALLERY ONLY - permanent S3 URLs) - Legacy support
   getAIImages(userId: string): Promise<AiImage[]>;
+  getAIImage(userId: string, imageId: number): Promise<AiImage | undefined>; // P3-C: Get single AI image
   saveAIImage(data: InsertAiImage): Promise<AiImage>;
 
   // Generated Images operations (NEW ENHANCED GALLERY - primary table)
@@ -282,6 +293,18 @@ export interface IStorage {
   updateConceptCard(id: string, updates: Partial<ConceptCard>): Promise<ConceptCard>;
   updateConceptCardGeneration(id: string, generatedImages: unknown[], isLoading: boolean, isGenerating: boolean, hasGenerated: boolean): Promise<ConceptCard>;
   deleteConceptCard(id: string): Promise<void>;
+
+  // Brand Assets operations (P3-C feature)
+  getBrandAssets(userId: string): Promise<BrandAsset[]>;
+  saveBrandAsset(data: InsertBrandAsset): Promise<BrandAsset>;
+  deleteBrandAsset(assetId: number, userId: string): Promise<boolean>;
+  getBrandAsset(assetId: number, userId: string): Promise<BrandAsset | undefined>;
+
+  // Image Variants operations (for non-destructive placement)
+  saveImageVariant(data: InsertImageVariant): Promise<ImageVariant>;
+  getImageVariants(userId: string, originalImageId?: number): Promise<ImageVariant[]>;
+  getImageVariant(variantId: number, userId: string): Promise<ImageVariant | undefined>;
+  updateImageVariant(variantId: number, updates: Partial<ImageVariant>): Promise<ImageVariant>;
 }
 
 /* eslint-disable no-console */
@@ -581,6 +604,14 @@ export class DatabaseStorage implements IStorage {
     delete (imageData as Record<string, unknown>)['projectId'];
     const [saved] = await db.insert(aiImages).values(imageData as InsertAiImage).returning();
     return saved;
+  }
+
+  async getAIImage(userId: string, imageId: number): Promise<AiImage | undefined> {
+    const [image] = await db
+      .select()
+      .from(aiImages)
+      .where(and(eq(aiImages.id, imageId), eq(aiImages.userId, userId)));
+    return image;
   }
 
   async updateAIImage(id: number, data: Partial<AiImage>): Promise<AiImage> {
@@ -2225,6 +2256,77 @@ export class DatabaseStorage implements IStorage {
     await db
       .delete(conceptCards)
       .where(eq(conceptCards.id, id));
+  }
+
+  // Brand Assets operations (P3-C feature)
+  async getBrandAssets(userId: string): Promise<BrandAsset[]> {
+    return await db
+      .select()
+      .from(brandAssets)
+      .where(eq(brandAssets.userId, userId))
+      .orderBy(desc(brandAssets.createdAt));
+  }
+
+  async saveBrandAsset(data: InsertBrandAsset): Promise<BrandAsset> {
+    const [asset] = await db
+      .insert(brandAssets)
+      .values(data)
+      .returning();
+    return asset;
+  }
+
+  async deleteBrandAsset(assetId: number, userId: string): Promise<boolean> {
+    const result = await db
+      .delete(brandAssets)
+      .where(and(eq(brandAssets.id, assetId), eq(brandAssets.userId, userId)));
+    return result.changes > 0;
+  }
+
+  async getBrandAsset(assetId: number, userId: string): Promise<BrandAsset | undefined> {
+    const [asset] = await db
+      .select()
+      .from(brandAssets)
+      .where(and(eq(brandAssets.id, assetId), eq(brandAssets.userId, userId)));
+    return asset;
+  }
+
+  // Image Variants operations (for non-destructive placement)
+  async saveImageVariant(data: InsertImageVariant): Promise<ImageVariant> {
+    const [variant] = await db
+      .insert(imageVariants)
+      .values(data)
+      .returning();
+    return variant;
+  }
+
+  async getImageVariants(userId: string, originalImageId?: number): Promise<ImageVariant[]> {
+    const conditions = [eq(imageVariants.userId, userId)];
+    if (originalImageId) {
+      conditions.push(eq(imageVariants.originalImageId, originalImageId));
+    }
+    
+    return await db
+      .select()
+      .from(imageVariants)
+      .where(and(...conditions))
+      .orderBy(desc(imageVariants.createdAt));
+  }
+
+  async getImageVariant(variantId: number, userId: string): Promise<ImageVariant | undefined> {
+    const [variant] = await db
+      .select()
+      .from(imageVariants)
+      .where(and(eq(imageVariants.id, variantId), eq(imageVariants.userId, userId)));
+    return variant;
+  }
+
+  async updateImageVariant(variantId: number, updates: Partial<ImageVariant>): Promise<ImageVariant> {
+    const [variant] = await db
+      .update(imageVariants)
+      .set(updates)
+      .where(eq(imageVariants.id, variantId))
+      .returning();
+    return variant;
   }
 
   // Test database connection
