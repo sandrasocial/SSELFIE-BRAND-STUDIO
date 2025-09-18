@@ -71,7 +71,7 @@ export class MayaOptimizationService {
       optimizationApplied.push('single_api_call');
       
       // Parse the optimized response for all components
-      const parsedResult = this.parseOptimizedResponse(mayaResponse, config);
+      const parsedResult = await this.parseOptimizedResponse(mayaResponse, config, userId);
       
       // Cache successful prompts for future optimization
       if (parsedResult.concepts.length > 0) {
@@ -158,10 +158,11 @@ Generate comprehensive response now:`;
   /**
    * Parse optimized response to extract all components
    */
-  private static parseOptimizedResponse(
+  private static async parseOptimizedResponse(
     response: string,
-    config: SingleCallConfig
-  ): { concepts: any[]; conversationalResponse: string } {
+    config: SingleCallConfig,
+    userId?: string
+  ): Promise<{ concepts: any[]; conversationalResponse: string }> {
     const concepts: any[] = [];
     let conversationalResponse = '';
     
@@ -187,12 +188,36 @@ Generate comprehensive response now:`;
           const embeddedPrompt = fluxPromptMatch ? fluxPromptMatch[1].trim() : null;
           
           if (embeddedPrompt) {
+            let finalPrompt = embeddedPrompt;
+            
+            // Apply gender enforcement to embedded prompt if userId provided
+            if (userId) {
+              try {
+                const { storage } = await import('../storage');
+                const user = await storage.getUser(userId);
+                const userModel = await storage.getUserModelByUserId(userId);
+                
+                if (user?.gender && userModel?.triggerWord) {
+                  const secureGender = normalizeGender(user.gender);
+                  if (secureGender) {
+                    const enforced = enforceGender(userModel.triggerWord, finalPrompt, secureGender);
+                    if (enforced !== finalPrompt) {
+                      console.log(`✅ GENDER ENFORCED IN CONCEPT: ${conceptName}`);
+                      finalPrompt = enforced;
+                    }
+                  }
+                }
+              } catch (genderError) {
+                console.log('⚠️ Gender enforcement failed for concept (non-blocking):', genderError instanceof Error ? genderError.message : genderError);
+              }
+            }
+
             concepts.push({
               id: `optimized_concept_${conceptNumber++}`,
               title: conceptName,
               description: description.substring(0, 120) + (description.length > 120 ? '...' : ''),
               originalContext: description,
-              fullPrompt: embeddedPrompt,
+              fullPrompt: finalPrompt,
               canGenerate: true,
               isGenerating: false,
               optimization: 'single_api_call_embedded'

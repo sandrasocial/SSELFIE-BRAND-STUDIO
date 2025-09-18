@@ -27,6 +27,87 @@ const JWKS_URL = `${STACK_AUTH_API_URL}/projects/${STACK_AUTH_PROJECT_ID}/.well-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const JWKS = createRemoteJWKSet(new (globalThis as any).URL(JWKS_URL));
 
+// Helper function to apply gender context to concept cards
+async function applyGenderContext(conceptCards: ConceptCard[], userId: string): Promise<ConceptCard[]> {
+  try {
+    console.log('🎯 Applying gender context to concept cards for user:', userId);
+    
+    // Import required utilities
+    const { storage } = await import('../server/storage');
+    const { enforceGender, normalizeGender } = await import('../server/utils/gender-prompt');
+    
+    // Get user data
+    const [user, userModel] = await Promise.all([
+      storage.getUser(userId),
+      storage.getUserModelByUserId(userId)
+    ]);
+    
+    if (!user?.gender || !userModel?.triggerWord) {
+      console.log('⚠️ Gender or trigger word not available, skipping gender enforcement');
+      return conceptCards;
+    }
+    
+    const secureGender = normalizeGender(user.gender);
+    if (!secureGender) {
+      console.log('⚠️ Invalid gender format, skipping gender enforcement');
+      return conceptCards;
+    }
+    
+    console.log(`✅ Applying gender context: ${secureGender} with trigger: ${userModel.triggerWord}`);
+    
+    // Apply gender enforcement to each concept card
+    return conceptCards.map((concept, index) => {
+      let updatedPrompt = concept.fluxPrompt;
+      let updatedDescription = concept.description;
+      
+      // Enforce gender in FLUX prompt
+      if (updatedPrompt) {
+        const enforcedPrompt = enforceGender(userModel.triggerWord!, updatedPrompt, secureGender);
+        if (enforcedPrompt !== updatedPrompt) {
+          console.log(`✅ Gender enforced in concept ${index + 1}: ${concept.title}`);
+          updatedPrompt = enforcedPrompt;
+        }
+      }
+      
+      // Apply pronoun corrections to description based on gender
+      if (updatedDescription) {
+        if (secureGender === 'man') {
+          // Replace female pronouns with male equivalents
+          updatedDescription = updatedDescription
+            .replace(/\bshe\b/gi, 'he')
+            .replace(/\bher\b/gi, 'his')
+            .replace(/\bwoman\b/gi, 'man')
+            .replace(/\bwomen\b/gi, 'men');
+        } else if (secureGender === 'woman') {
+          // Replace male pronouns with female equivalents (less common but for safety)
+          updatedDescription = updatedDescription
+            .replace(/\bhe\b/gi, 'she')
+            .replace(/\bhis\b/gi, 'her')
+            .replace(/\bman\b/gi, 'woman')
+            .replace(/\bmen\b/gi, 'women');
+        } else if (secureGender === 'non-binary') {
+          // Replace gendered pronouns with neutral alternatives
+          updatedDescription = updatedDescription
+            .replace(/\b(he|she)\b/gi, 'they')
+            .replace(/\b(his|her)\b/gi, 'their')
+            .replace(/\b(man|woman)\b/gi, 'person')
+            .replace(/\b(men|women)\b/gi, 'people');
+        }
+      }
+      
+      return {
+        ...concept,
+        fluxPrompt: updatedPrompt,
+        description: updatedDescription
+      };
+    });
+    
+  } catch (error) {
+    console.log('❌ Gender context application failed (non-blocking):', error instanceof Error ? error.message : error);
+    return conceptCards; // Return original cards if gender enforcement fails
+  }
+}
+
 // Helper function to extract concept cards from Maya's response
 function extractConceptCards(response: string): ConceptCard[] {
   const conceptCards: ConceptCard[] = [];
@@ -672,6 +753,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           // Extract concept cards from Maya's response
           conceptCards = extractConceptCards(mayaResponse);
           
+          // Apply gender context to concept cards
+          conceptCards = await applyGenderContext(conceptCards, user.id as string);
+          
           console.log('✅ MAYA: Generated response with', conceptCards.length, 'concept cards using Claude API');
           
         } catch (claudeError) {
@@ -727,6 +811,9 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
               emoji: '🎬'
             }
           ];
+          
+          // Apply gender context to fallback concept cards
+          conceptCards = await applyGenderContext(conceptCards, user.id as string);
         }
         
         const response = {
@@ -851,6 +938,45 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
         return res.status(500).json({ 
           message: 'Failed to fetch gallery images',
           error: error.message
+        });
+      }
+    }
+
+    // Handle user gender update endpoint
+    if (req.url === '/api/user/update-gender') {
+      if (req.method !== 'POST') {
+        return res.status(405).json({ error: 'Method not allowed' });
+      }
+      
+      try {
+        const user = await getAuthenticatedUser();
+        const { gender } = req.body || {};
+        
+        if (!gender) {
+          return res.status(400).json({ error: 'Gender is required' });
+        }
+        
+        if (!['man', 'woman', 'female', 'male', 'non-binary', 'other'].includes(gender.toLowerCase())) {
+          return res.status(400).json({ error: 'Invalid gender value' });
+        }
+        
+        // Update user gender in database
+        const { storage } = await import('../server/storage');
+        await storage.updateUserProfile(user.id as string, { gender });
+        
+        console.log(`✅ Updated gender for user ${user.id}: ${gender}`);
+        
+        res.setHeader('Cache-Control', 'no-store');
+        return res.status(200).json({ 
+          success: true, 
+          message: 'Gender updated successfully' 
+        });
+        
+      } catch (error) {
+        console.log('❌ Gender update failed:', error.message);
+        return res.status(500).json({ 
+          error: 'Failed to update gender',
+          message: error.message 
         });
       }
     }
