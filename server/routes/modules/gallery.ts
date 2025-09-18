@@ -257,3 +257,46 @@ router.post('/api/gallery/style', requireStackAuth, asyncHandler(async (req: any
 }));
 
 export default router;
+
+// DEBUG: Inspect gallery linkage for current user and any linked legacy ID
+router.get('/api/debug/gallery-inspect', requireStackAuth, asyncHandler(async (req: any, res) => {
+  res.setHeader('Cache-Control', 'no-store');
+  const stackUserId = req.user.id;
+  const linkedUser = await storage.getUserByStackAuthId(stackUserId);
+  const legacyUserId = linkedUser?.id;
+
+  const result: Record<string, unknown> = {
+    stackUserId,
+    legacyUserId: legacyUserId || null,
+  };
+
+  // Helper to safely sample arrays
+  const sample = <T>(arr: T[] | undefined, n = 5) => (Array.isArray(arr) ? arr.slice(0, n) : []);
+
+  // Fetch images for stack ID
+  const aiStack = await storage.getAIImages(stackUserId);
+  const genStack = await storage.getGeneratedImages(stackUserId);
+
+  // If there is a legacy linked id, fetch those as well
+  let aiLegacy: unknown[] = [];
+  let genLegacy: unknown[] = [];
+  if (legacyUserId) {
+    aiLegacy = await storage.getAIImages(String(legacyUserId));
+    genLegacy = await storage.getGeneratedImages(String(legacyUserId));
+  }
+
+  result['counts'] = {
+    aiForStackId: aiStack.length,
+    generatedForStackId: genStack.length,
+    aiForLegacyId: aiLegacy.length,
+    generatedForLegacyId: genLegacy.length,
+  };
+  result['samples'] = {
+    aiForStackId: sample(aiStack),
+    generatedForStackId: sample(genStack),
+    aiForLegacyId: sample(aiLegacy as unknown[]),
+    generatedForLegacyId: sample(genLegacy as unknown[]),
+  };
+
+  res.json(result);
+}));
