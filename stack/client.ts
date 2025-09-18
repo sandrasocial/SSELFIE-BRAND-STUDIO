@@ -39,8 +39,8 @@ export const stackClientApp = new StackClientApp({
   urls: {
     signIn: "/handler/sign-in",
     signUp: "/handler/sign-up", 
-    afterSignIn: "/app",
-    afterSignUp: "/app",
+    afterSignIn: "/auth-success",
+    afterSignUp: "/auth-success",
     afterSignOut: "/",
     // Simplified callback URL without dynamic origin
     oauthCallback: "/handler/oauth-callback",

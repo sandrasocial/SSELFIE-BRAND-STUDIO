@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -30,6 +30,7 @@ const SimpleTraining = lazy(() => import("./pages/simple-training"));
 const SimpleCheckout = lazy(() => import("./pages/simple-checkout"));
 const PaymentSuccess = lazy(() => import("./pages/payment-success"));
 const ThankYou = lazy(() => import("./pages/thank-you"));
+const AuthSuccess = lazy(() => import("./pages/auth-success"));
 
 // Components
 import { PageLoader } from "./components/PageLoader";
@@ -94,6 +95,13 @@ function Router() {
       
       {/* OAuth callback handler */}
       <Route path="/handler/oauth-callback" component={OAuthCallbackHandler} />
+
+      {/* Post-auth success handoff */}
+      <Route path="/auth-success" component={() => (
+        <Suspense fallback={<PageLoader />}>
+          <AuthSuccess />
+        </Suspense>
+      )} />
       
       {/* HOME ROUTE - Smart routing based on authentication and training status */}
       <Route path="/" component={() => {
@@ -164,27 +172,25 @@ function Router() {
 
 // OAuth Callback Handler component - ULTRA SIMPLIFIED
 function OAuthCallbackHandler() {
-  const { hasStackAuthUser } = useAuth();
-  
   useEffect(() => {
-    console.log('🔄 OAuth Callback: Processing...');
-    console.log('🔍 Stack user exists:', hasStackAuthUser);
-    
-    // Immediate redirect on success
-    if (hasStackAuthUser) {
-      console.log('✅ OAuth Callback: Success, redirecting to /app');
-      window.location.replace('/app');
-      return;
-    }
-    
-    // Single timeout, no state changes
-    const timer = setTimeout(() => {
-      console.log('⚠️ OAuth Callback: Timeout, redirecting to sign-in');
-      window.location.replace('/handler/sign-in');
-    }, 3000); // Reduced to 3 seconds
-    
-    return () => clearTimeout(timer);
-  }, [hasStackAuthUser]);
+    let cancelled = false;
+    const run = async () => {
+      try {
+        console.log('🔄 OAuth Callback: Exchanging code for session...');
+        const { stackClientApp } = await import("../../stack/client");
+        const hasRedirected = await stackClientApp.callOAuthCallback();
+        if (!cancelled) {
+          if (hasRedirected) return; // SDK already redirected (usually to afterSignIn)
+          window.location.replace('/auth-success');
+        }
+      } catch (err) {
+        console.error('OAuth callback failed:', err);
+        if (!cancelled) window.location.replace('/handler/sign-in');
+      }
+    };
+    run();
+    return () => { cancelled = true; };
+  }, []);
   
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -237,9 +243,9 @@ function HandlerRoutes() {
         </div>
 
         {isSignUp ? (
-          <SignUp app={stackClientApp} />
+          <SignUp />
         ) : (
-          <SignIn app={stackClientApp} />
+          <SignIn />
         )}
 
         <div className="mt-6 text-center">
