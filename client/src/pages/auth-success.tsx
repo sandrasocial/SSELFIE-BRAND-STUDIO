@@ -1,17 +1,23 @@
 import React, { useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { useAuth } from '../hooks/use-auth';
+import { apiFetch } from '../lib/api';
 
 export default function AuthSuccess() {
   const { isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
 
   useEffect(() => {
-    // After OAuth callback, land here briefly and then route to home
-    const timer = setTimeout(() => {
-      setLocation('/');
-    }, 500);
-    return () => clearTimeout(timer);
+    (async () => {
+      try {
+        await apiFetch('/me');
+        setLocation('/app');
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.error('Bootstrap /me failed:', e);
+        setLocation('/handler/sign-in');
+      }
+    })();
   }, [setLocation]);
 
   return (
