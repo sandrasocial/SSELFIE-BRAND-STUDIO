@@ -256,6 +256,106 @@ router.post('/api/gallery/style', requireStackAuth, asyncHandler(async (req: any
   sendSuccess(res, { jobId, message: 'Style generation started' }, 'Style generation started', 202);
 }));
 
+// Upscale image - Create HD variant
+router.post('/api/upscale', requireStackAuth, asyncHandler(async (req: any, res) => {
+  const userId = req.user.id;
+  const { imageId, provider, scale } = req.body;
+  
+  validateRequired({ imageId }, ['imageId']);
+  
+  // Import upscale services dynamically
+  const { isUpscalingEnabled, getUpscaleProvider, getProviderConfig } = await import('../../config/upscale');
+  
+  // Check if upscaling is configured
+  if (!isUpscalingEnabled()) {
+    return res.status(501).json({
+      error: 'Upscaling not configured',
+      message: 'Image upscaling is not available. Please configure UPSCALE_PROVIDER environment variable.'
+    });
+  }
+  
+  try {
+    // Get original image
+    const originalImage = await storage.getAIImageById(imageId, userId);
+    if (!originalImage) {
+      return res.status(404).json({
+        error: 'Image not found',
+        message: 'The specified image could not be found.'
+      });
+    }
+    
+    // Check if HD variant already exists
+    const existingVariant = await storage.getImageVariant(imageId, 'hd');
+    if (existingVariant) {
+      return sendSuccess(res, {
+        variantId: existingVariant.id,
+        url: existingVariant.url,
+        width: existingVariant.width,
+        height: existingVariant.height,
+        cached: true
+      }, 'HD variant already exists');
+    }
+    
+    // Determine provider and scale
+    const configuredProvider = provider || getUpscaleProvider();
+    const config = getProviderConfig(configuredProvider);
+    const upscaleScale = scale || config.defaultScale;
+    
+    // Import and call appropriate upscaling service
+    let upscaleResult;
+    if (configuredProvider === 'real_esrgan') {
+      const { upscaleImageWithRealESRGAN } = await import('../../services/upscale/real_esrgan');
+      upscaleResult = await upscaleImageWithRealESRGAN(originalImage.imageUrl, upscaleScale);
+    } else if (configuredProvider === 'topaz') {
+      const { upscaleImageWithTopaz } = await import('../../services/upscale/topaz');
+      upscaleResult = await upscaleImageWithTopaz(originalImage.imageUrl, upscaleScale);
+    } else {
+      return res.status(501).json({
+        error: 'Unsupported provider',
+        message: `Provider ${configuredProvider} is not supported.`
+      });
+    }
+    
+    // Handle upscaling error
+    if ('error' in upscaleResult) {
+      return res.status(500).json({
+        error: 'Upscaling failed',
+        message: upscaleResult.error,
+        details: upscaleResult.details
+      });
+    }
+    
+    // Save variant to database
+    const variant = await storage.createImageVariant({
+      imageId: parseInt(imageId),
+      kind: 'hd',
+      url: upscaleResult.url,
+      width: upscaleResult.width,
+      height: upscaleResult.height,
+      provider: upscaleResult.provider,
+      scale: upscaleResult.scale,
+      fileSize: null // We don't have file size info yet
+    });
+    
+    sendSuccess(res, {
+      variantId: variant.id,
+      url: variant.url,
+      width: variant.width,
+      height: variant.height,
+      provider: variant.provider,
+      scale: variant.scale
+    }, 'Image upscaled successfully');
+    
+  } catch (error: any) {
+    console.error('❌ UPSCALE: Route error:', error);
+    res.status(500).json({
+      error: 'Upscaling failed',
+      message: 'An unexpected error occurred during upscaling.',
+      details: error.message
+    });
+  }
+}));
+
 export default router;
 
 // DEBUG: Inspect gallery linkage for current user and any linked legacy ID

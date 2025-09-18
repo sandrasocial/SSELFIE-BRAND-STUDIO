@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/use-auth';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { MemberNavigation } from '../components/member-navigation';
@@ -23,7 +23,11 @@ function ImageDetailModal({
   onDownload, 
   onDelete, 
   onCreateVideo,
-  isFavorite 
+  onUpscale,
+  isFavorite,
+  isUpscaleEnabled,
+  isUpscaling,
+  upscaleError 
 }: {
   selectedImage: GalleryImage;
   onClose: () => void;
@@ -31,7 +35,11 @@ function ImageDetailModal({
   onDownload: () => void;
   onDelete: () => void;
   onCreateVideo: () => void;
+  onUpscale: () => void;
   isFavorite: boolean;
+  isUpscaleEnabled: boolean | null;
+  isUpscaling: boolean;
+  upscaleError: string | null;
 }) {
   return (
     <div 
@@ -69,6 +77,20 @@ function ImageDetailModal({
             >
               {isFavorite ? '♥ Unfavorite' : '♡ Favorite'}
             </button>
+            {/* HD Upscale Button - Only show if upscaling is enabled */}
+            {isUpscaleEnabled && (
+              <button 
+                onClick={onUpscale}
+                disabled={isUpscaling}
+                className={`transition-colors ${
+                  isUpscaling 
+                    ? 'text-gray-400 cursor-not-allowed' 
+                    : 'text-black hover:text-gray-600'
+                }`}
+              >
+                {isUpscaling ? '⟳ Upscaling...' : '📐 HD'}
+              </button>
+            )}
             <button 
               onClick={onCreateVideo}
               className="text-black hover:text-gray-600 transition-colors"
@@ -88,6 +110,12 @@ function ImageDetailModal({
               Delete
             </button>
           </div>
+          {/* Upscale Error Display */}
+          {upscaleError && (
+            <div className="mt-2 text-xs text-red-600 text-center">
+              {upscaleError}
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -98,6 +126,9 @@ function SSELFIEGallery() {
   const { user, isAuthenticated } = useAuth();
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
+  const [upscalingImageId, setUpscalingImageId] = useState<string | null>(null);
+  const [upscaleError, setUpscaleError] = useState<string | null>(null);
+  const [isUpscaleEnabled, setIsUpscaleEnabled] = useState<boolean | null>(null);
   const queryClient = useQueryClient();
 
   // Fetch user's gallery images
@@ -147,6 +178,85 @@ function SSELFIEGallery() {
       setSelectedImage(null); // Close modal after deletion
     }
   });
+
+  // HD Upscale image mutation
+  const upscaleImageMutation = useMutation({
+    mutationFn: async (imageId: string) => {
+      const response = await apiFetch('/upscale', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ imageId, scale: 2 })
+      });
+      return response;
+    },
+    onMutate: (imageId) => {
+      setUpscalingImageId(imageId);
+      setUpscaleError(null);
+    },
+    onSuccess: (data, imageId) => {
+      setUpscalingImageId(null);
+      
+      // Show success toast or update image URL to HD version
+      if (data.url && selectedImage) {
+        // Update the selected image to show the HD version
+        setSelectedImage({
+          ...selectedImage,
+          url: data.url,
+          imageUrl: data.url
+        });
+      }
+    },
+    onError: (error: any, imageId) => {
+      setUpscalingImageId(null);
+      const errorMessage = error?.message || error?.error || 'Failed to upscale image';
+      setUpscaleError(errorMessage);
+      console.error('Upscale error:', error);
+    }
+  });
+
+  // Check if upscaling is enabled on mount
+  useEffect(() => {
+    const checkUpscaleEnabled = async () => {
+      try {
+        // Make a lightweight OPTIONS request or check without actually processing
+        const response = await fetch('/api/upscale', {
+          method: 'OPTIONS',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        
+        // If the endpoint exists (even with 405 Method Not Allowed), upscaling may be available
+        if (response.status === 405 || response.status === 200) {
+          setIsUpscaleEnabled(true);
+          return;
+        }
+        
+        // Try a minimal POST request to check for configuration
+        const testResponse = await apiFetch('/upscale', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ imageId: 'test' })
+        });
+        setIsUpscaleEnabled(true);
+      } catch (error: any) {
+        const errorText = JSON.stringify(error).toLowerCase();
+        if (errorText.includes('not configured') || errorText.includes('upscaling not available')) {
+          setIsUpscaleEnabled(false);
+        } else if (error.status === 404) {
+          // Endpoint doesn't exist
+          setIsUpscaleEnabled(false);
+        } else {
+          // Other errors suggest the endpoint exists but failed for other reasons (like missing imageId)
+          setIsUpscaleEnabled(true);
+        }
+      }
+    };
+    
+    if (isAuthenticated) {
+      checkUpscaleEnabled();
+    }
+  }, [isAuthenticated]);
 
   const downloadImage = (imageUrl: string, filename?: string) => {
     try {
@@ -204,6 +314,12 @@ function SSELFIEGallery() {
 
   const handleCreateVideo = () => {
     handleOpenVideoModal();
+  };
+
+  const handleUpscale = () => {
+    if (selectedImage) {
+      upscaleImageMutation.mutate(selectedImage.id.toString());
+    }
   };
 
   if (!isAuthenticated) {
@@ -269,7 +385,11 @@ function SSELFIEGallery() {
           onDownload={handleDownload}
           onDelete={handleDelete}
           onCreateVideo={handleCreateVideo}
+          onUpscale={handleUpscale}
           isFavorite={favorites.includes(typeof selectedImage.id === 'string' ? parseInt(selectedImage.id, 10) : selectedImage.id)}
+          isUpscaleEnabled={isUpscaleEnabled === true}
+          isUpscaling={upscalingImageId === selectedImage.id.toString()}
+          upscaleError={upscaleError}
         />
       )}
 

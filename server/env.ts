@@ -28,4 +28,8 @@ export const REPLIT_DEV_DOMAIN = process.env.REPLIT_DEV_DOMAIN;
 export const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
 export const TESTING_VITE_STRIPE_PUBLIC_KEY = process.env.TESTING_VITE_STRIPE_PUBLIC_KEY;
 
+// Image upscaling configuration
+export const UPSCALE_PROVIDER = process.env.UPSCALE_PROVIDER; // 'real_esrgan' | 'topaz' | undefined
+export const TOPAZ_API_KEY = process.env.TOPAZ_API_KEY;
+
 
