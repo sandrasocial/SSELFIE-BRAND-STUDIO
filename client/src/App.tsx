@@ -94,12 +94,8 @@ function Router() {
       {/* Guard against accidental /handler/app by redirecting to /app */}
       <Route path="/handler/app" component={() => { window.location.href = '/app'; return null; }} />
       
-      {/* OAuth callback handler - single source of truth */}
-      <Route path="/handler/oauth-callback" component={() => (
-        <Suspense fallback={<PageLoader />}>
-          <OAuthCallback />
-        </Suspense>
-      )} />
+      {/* OAuth callback handler - single source of truth, no extra fallback */}
+      <Route path="/handler/oauth-callback" component={OAuthCallback} />
 
       {/* Post-auth success handoff */}
       <Route path="/auth-success" component={() => (

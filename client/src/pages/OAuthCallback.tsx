@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'wouter';
 import { useStackApp } from '@stackframe/react';
+import { PageLoader } from '../components/PageLoader';
 
 function hasCallbackParams() {
   const p = new URLSearchParams(window.location.search);
@@ -36,10 +37,10 @@ export default function OAuthCallback(): JSX.Element {
   }, [app, setLocation]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div className="min-h-screen flex items-center justify-center">
       <div className="text-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-        <p className="text-gray-600">
+        <PageLoader />
+        <p className="text-gray-600 mt-4">
           {status === 'error' ? 'Authentication failed…' : 'Completing authentication…'}
         </p>
       </div>
