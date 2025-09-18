@@ -162,7 +162,9 @@ export function LuxuryChatInterface() {
   const handleStyleSelect = (style: BrandStyleCollection) => {
     setSelectedStyle(style);
     setShowStyleSelector(false);
-    const styleMessage = `I've chosen the "${style.name}" style. Please create concepts that match this aesthetic.`;
+    const styleMessage = `I've chosen the "${style.name}" style. ${style.description}
+
+Please create photo concepts that match this signature look, drawing from your ${style.name} expertise with ${style.aesthetic.toLowerCase()}.`;
     sendMessage(styleMessage);
   };
 
@@ -198,9 +200,14 @@ export function LuxuryChatInterface() {
           {selectedStyle ? `Style: ${selectedStyle.name}` : 'Choose Style'}
         </button>
         {selectedStyle && (
-          <span style={{ color: '#888', fontSize: 13 }}>
-            {selectedStyle.aesthetic}
-          </span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <span style={{ color: '#888', fontSize: 13, fontWeight: 500 }}>
+              {selectedStyle.aesthetic}
+            </span>
+            <span style={{ color: '#aaa', fontSize: 12, lineHeight: '1.3', maxWidth: '400px' }}>
+              {selectedStyle.description}
+            </span>
+          </div>
         )}
       </div>
 
