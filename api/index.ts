@@ -324,6 +324,50 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(200).json({ ok: true, count: results.length, users: results });
     }
 
+    // Admin: link legacy numeric user ID to Stack Auth ID
+    // Body: { legacyUserId: string | number, stackId: string }
+    if (req.url === '/api/admin/link-legacy-user') {
+      if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+      const adminToken = req.headers['x-admin-token'] as string;
+      const expected = process.env.ADMIN_TOKEN || 'sandra-admin-2025';
+      if (adminToken !== expected) return res.status(401).json({ error: 'Unauthorized' });
+      const { legacyUserId, stackId } = (req.body || {}) as { legacyUserId?: string | number; stackId?: string };
+      if (!legacyUserId || !stackId) return res.status(400).json({ error: 'legacyUserId and stackId required' });
+      const { storage } = await import('../server/storage');
+      const linked = await storage.linkStackAuthId(String(legacyUserId), String(stackId));
+      res.setHeader('Cache-Control', 'no-store');
+      return res.status(200).json({ ok: true, linkedUserId: linked.id, email: linked.email });
+    }
+
+    // Admin export: Get metadata for all users to update in Stack dashboard manually
+    // Returns: [{ email, stackId, legacyUserId, triggerWord, modelStatus, modelName }]
+    if (req.url === '/api/admin/export-user-metadata') {
+      if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
+      const adminToken = req.headers['x-admin-token'] as string;
+      const expected = process.env.ADMIN_TOKEN || 'sandra-admin-2025';
+      if (adminToken !== expected) return res.status(401).json({ error: 'Unauthorized' });
+      const { storage } = await import('../server/storage');
+      const users = await storage.getAllUsers();
+      const result = [] as Array<Record<string, unknown>>;
+      for (const u of users) {
+        const legacyUserId = (u as any).id;
+        const stackId = (u as any).stackAuthId || null;
+        let model = await storage.getUserModelByUserId(String(legacyUserId));
+        const trained = !!model && (model as any).trainingStatus === 'completed';
+        const triggerWord = model?.triggerWord || `user${String(legacyUserId).replace(/[^a-zA-Z0-9]/g, '')}`;
+        result.push({
+          email: (u as any).email || null,
+          stackId,
+          legacyUserId,
+          triggerWord,
+          modelStatus: model?.trainingStatus || 'not_started',
+          modelName: model?.modelName || null
+        });
+      }
+      res.setHeader('Cache-Control', 'no-store');
+      return res.status(200).json({ count: result.length, users: result });
+    }
+
     // /api/me: ensure DB user and return JSON
     if (req.url === '/api/me' || req.url?.startsWith('/api/me?')) {
       try {
