@@ -1164,5 +1164,26 @@ Remember: You are the MEMBER experience Maya - provide creative guidance and ima
 
   console.log('✅ MONITORING: All monitors active - Generation, Training, URL Migration protecting user experience!');
   
+  // JSON health alias for frontend helpers
+  app.get('/api/health-check', (_req, res) => {
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
+    res.json({ ok: true, ts: Date.now() });
+  });
+
+  // Favorites minimal stubs to avoid 404 HTML
+  app.get('/api/images/favorites', requireStackAuth, async (req: any, res) => {
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
+    res.json({ favorites: [] });
+  });
+  app.post('/api/images/:id/favorite', requireStackAuth, async (req: any, res) => {
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
+    res.json({ ok: true });
+  });
+
+  // Ensure unknown /api/* never returns HTML
+  app.use('/api', (_req, res) => {
+    res.status(404).json({ error: 'Not found' });
+  });
+
   return server;
 }
