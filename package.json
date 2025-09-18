@@ -632,7 +632,7 @@
     "start": "cd server && npx tsx index.ts",
     "build": "vite build --config vite.config.ts",
     "build:server": "esbuild server/index-launch.ts --bundle --platform=node --format=esm --outdir=dist-server --sourcemap --target=node20 --external:@google/genai --external:express --external:@aws-sdk/* --external:drizzle-orm --external:pg --external:ws --external:@react-email/render",
-    "vercel-build": "npm run build && npm run build:server",
+    "vercel-build": "npm run build",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage"

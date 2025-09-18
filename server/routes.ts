@@ -72,8 +72,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/', authRoutes);
   app.use('/', aiGenerationRoutes);
   
-  // Setup Stack Auth webhook for automatic user creation
-  setupStackWebhook(app);
+  // DISABLED: Stack Auth webhook now handled by Vercel serverless functions in /api/index.ts
+  // setupStackWebhook(app);
   app.use('/', adminRoutes);
   app.use('/', agentProtocolRoutes);
   app.use('/', websitesRoutes);
