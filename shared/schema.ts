@@ -489,6 +489,7 @@ export const generatedVideos = pgTable("generated_videos", {
   estimatedTime: varchar("estimated_time"), // e.g., "2-5 minutes"
   progress: integer("progress").default(0), // 0-100
   errorMessage: text("error_message"),
+  saved: boolean("saved").default(false), // User saved to favorites
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
   completedAt: timestamp("completed_at"),
