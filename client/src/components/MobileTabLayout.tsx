@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { StudioPage } from '../pages/StudioPage';
 import SSELFIEGallery from '../pages/sselfie-gallery';
+import { MemberNavigation } from './member-navigation';
 
 function MobileTabLayout() {
   const [activeTab, setActiveTab] = useState('studio');
@@ -28,11 +29,12 @@ function MobileTabLayout() {
         WebkitOverflowScrolling: 'touch' // Smooth scrolling on iOS
       }}
     >
+      <MemberNavigation transparent={true} darkText={false} />
       <main 
         style={{ 
           flex: 1, 
           paddingBottom: '80px',
-          paddingTop: 'env(safe-area-inset-top)', // Handle iPhone notch
+          paddingTop: 'calc(env(safe-area-inset-top) + 64px)', // Space for top nav
           paddingLeft: 'env(safe-area-inset-left)',
           paddingRight: 'env(safe-area-inset-right)',
           minHeight: 'calc(100vh - 80px)'
