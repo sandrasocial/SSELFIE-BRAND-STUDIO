@@ -2,7 +2,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 // Stack Auth project config (should match your server setup)
-const STACK_AUTH_PROJECT_ID = '253d7343-a0d4-43a1-be5c-822f590d40be';
+const STACK_AUTH_PROJECT_ID = process.env.STACK_AUTH_PROJECT_ID || process.env.VITE_STACK_PROJECT_ID || '253d7343-a0d4-43a1-be5c-822f590d40be';
 const STACK_AUTH_API_URL = 'https://api.stack-auth.com/api/v1';
 const STACK_AUTH_BASE_URL = `${STACK_AUTH_API_URL}/projects/${STACK_AUTH_PROJECT_ID}`;
 

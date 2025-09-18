@@ -18,8 +18,8 @@ interface ConversationEntry {
   message?: string;
 }
 
-// Stack Auth configuration
-const STACK_AUTH_PROJECT_ID = '253d7343-a0d4-43a1-be5c-822f590d40be';
+// Stack Auth configuration - use environment variables
+const STACK_AUTH_PROJECT_ID = process.env.STACK_AUTH_PROJECT_ID || process.env.VITE_STACK_PROJECT_ID || '253d7343-a0d4-43a1-be5c-822f590d40be';
 const STACK_AUTH_API_URL = 'https://api.stack-auth.com/api/v1';
 const JWKS_URL = `${STACK_AUTH_API_URL}/projects/${STACK_AUTH_PROJECT_ID}/.well-known/jwks.json`;
 
@@ -517,44 +517,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     }
 
-    // Stack webhook to upsert users: /api/webhooks/stack
-    if (req.url === '/api/webhooks/stack' || req.url?.startsWith('/api/webhooks/stack')) {
-      if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Method not allowed' });
-      }
-      const providedSecret = (req.headers['x-stack-webhook-secret'] as string) || (req.headers['x-stack-verification-secret'] as string) || (req.query as any)?.secret;
-      const expected = process.env.STACK_WEBHOOK_SECRET || process.env.STACK_WEBHOOK_VERIFICATION_SECRET || 'whsec_7WGUrgkt9xr/owfaNByhs9LjnxyX4Wa3';
-      
-      console.log('🔐 Webhook secret check:', {
-        provided: providedSecret ? '***' + providedSecret.slice(-4) : 'none',
-        expected: expected ? '***' + expected.slice(-4) : 'none',
-        headers: Object.keys(req.headers).filter(h => h.toLowerCase().includes('stack'))
-      });
-      
-      if (!expected || providedSecret !== expected) {
-        console.log('❌ Webhook secret mismatch - allowing for testing');
-        // Temporarily allow for testing - remove this in production
-        // return res.status(401).json({ error: 'Invalid webhook secret' });
-      }
-      res.setHeader('Cache-Control', 'no-store');
-      try {
-        const body = req.body || {};
-        const eventType = (body.event && body.event.type) || body.type || 'unknown';
-        const u = body.data?.user || body.user || body.data || {};
-        const stackUser = {
-          id: u.id || u.sub || u.user_id,
-          email: u.email || u.primaryEmail || u.primary_email,
-          displayName: u.displayName || u.display_name || u.name,
-          firstName: u.firstName || u.given_name || null,
-          lastName: u.lastName || u.family_name || null,
-          profileImageUrl: u.profileImageUrl || u.avatar_url || null,
-        };
-        const dbUser = await ensureDbUserFromStack(stackUser);
-        return res.status(200).json({ ok: true, event: eventType, userId: dbUser.id });
-      } catch (e) {
-        return res.status(500).json({ error: 'Webhook processing failed', detail: (e as Error).message });
-      }
-    }
+    // Stack webhook is now handled by dedicated /api/webhooks/stack.ts endpoint
+    // This allows proper Vercel serverless function routing
 
     // Admin backfill: POST /api/admin/backfill-stack-users { users: [{id,email,displayName,firstName,lastName,profileImageUrl}] }
     if (req.url === '/api/admin/backfill-stack-users') {
