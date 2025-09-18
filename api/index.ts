@@ -114,6 +114,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     console.log('🔍 Method:', req.method);
     console.log('🔍 Headers:', JSON.stringify(req.headers, null, 2));
     console.log('🔍 Cookies:', JSON.stringify(req.cookies, null, 2));
+    // Vercel Skew Protection: pin requests to this deployment via cookie
+    if (
+      process.env.VERCEL_SKEW_PROTECTION_ENABLED === '1' &&
+      process.env.VERCEL_DEPLOYMENT_ID
+    ) {
+      try {
+        const cookieValue = `__vdpl=${process.env.VERCEL_DEPLOYMENT_ID}; Path=/; HttpOnly; Secure; SameSite=Lax`;
+        const existing = res.getHeader('Set-Cookie');
+        if (Array.isArray(existing)) {
+          res.setHeader('Set-Cookie', [...existing, cookieValue]);
+        } else if (typeof existing === 'string' && existing.length > 0) {
+          res.setHeader('Set-Cookie', [existing, cookieValue]);
+        } else {
+          res.setHeader('Set-Cookie', cookieValue);
+        }
+      } catch (e) {
+        console.log('⚠️ Failed to set __vdpl cookie:', (e as Error).message);
+      }
+    }
     
     // Set CORS headers for authentication
     res.setHeader('Access-Control-Allow-Origin', '*');
