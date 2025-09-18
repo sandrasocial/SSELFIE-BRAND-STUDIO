@@ -246,6 +246,26 @@ export const aiImages = pgTable("ai_images", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Image variants table - for inpainting and variations (non-destructive editing)
+export const imageVariants = pgTable("image_variants", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  originalImageId: integer("original_image_id"), // References either aiImages.id or generatedImages.id
+  originalImageType: varchar("original_image_type").notNull(), // 'ai_image' or 'generated_image'
+  imageUrl: varchar("image_url").notNull(), // URL of the variant image
+  kind: varchar("kind").notNull(), // 'inpaint' or 'variation'
+  prompt: text("prompt"), // Prompt used for the variant
+  maskData: text("mask_data"), // Base64 PNG mask data for inpainting
+  predictionId: varchar("prediction_id"), // Replicate prediction ID
+  generationStatus: varchar("generation_status").default("pending"), // pending, processing, completed, failed
+  metadata: jsonb("metadata"), // Additional metadata (original dimensions, parameters, etc.)
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Image variant types
+export type ImageVariant = typeof imageVariants.$inferSelect;
+export type InsertImageVariant = typeof imageVariants.$inferInsert;
+
 // Templates table
 export const templates = pgTable("templates", {
   id: serial("id").primaryKey(),

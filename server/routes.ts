@@ -53,6 +53,8 @@ import galleryRoutes from './routes/modules/gallery';
 import mayaRoutes from './routes/modules/maya';
 import claudeRoutes from './routes/modules/claude';
 import usageRoutes from './routes/modules/usage';
+import inpaintRoutes from './routes/inpaint';
+import imagesRoutes from './routes/images';
 // Reconstructed wrapper function (previously removed during refactor cleanup)
 export async function registerRoutes(app: Express): Promise<Server> {
   // Create HTTP server reference (needed for later return)
@@ -79,6 +81,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/', mayaRoutes);
   app.use('/', claudeRoutes);
   app.use('/', usageRoutes);
+  app.use('/', inpaintRoutes);
+  app.use('/', imagesRoutes);
   console.log('✅ Modular routes registered');
 
   // NOTE: The remainder of the file already assumes an existing `app` context.
