@@ -407,7 +407,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           console.log('✅ AUTO-REGISTRATION: User already exists, updating plan:', existingUser.id);
           
           // Update existing user's plan
-          const updatedUser = await storage.updateUser(existingUser.id, {
+          const updatedUser = await storage.updateUserProfile(existingUser.id, {
             plan: plan,
             monthlyGenerationLimit: plan === 'sselfie-studio' ? 100 : -1,
             mayaAiAccess: true,
@@ -695,7 +695,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
         
         // Check if user has a trained model
-        let userModel = null;
+        let userModel: any = null;
         try {
           userModel = await storage.getUserModel(dbUser.id);
         } catch (error) {
@@ -738,8 +738,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           updatedAt: userModel?.updatedAt || null,
           // User context for training decisions
           userPlan: dbUser.plan,
-          hasActiveSubscription: dbUser.monthlyGenerationLimit === -1 || dbUser.monthlyGenerationLimit > 0,
-          onboardingSource: dbUser.onboardingProgress ? JSON.parse(dbUser.onboardingProgress).source : 'unknown'
+          hasActiveSubscription: (dbUser.monthlyGenerationLimit === -1 || (dbUser.monthlyGenerationLimit && dbUser.monthlyGenerationLimit > 0)),
+          onboardingSource: dbUser.onboardingProgress ? JSON.parse(dbUser.onboardingProgress as string).source : 'unknown'
         };
         
         console.log('📊 Returning REAL model status for new user flow:', {

@@ -2268,9 +2268,14 @@ export class DatabaseStorage implements IStorage {
   }
 
   async saveBrandAsset(data: InsertBrandAsset): Promise<BrandAsset> {
+    // Ensure required fields are present
+    if (!data.url || !data.userId || !data.filename) {
+      throw new Error('Missing required fields: url, userId, filename');
+    }
+    
     const [asset] = await db
       .insert(brandAssets)
-      .values(data)
+      .values(data as any)
       .returning();
     return asset;
   }
@@ -2279,7 +2284,7 @@ export class DatabaseStorage implements IStorage {
     const result = await db
       .delete(brandAssets)
       .where(and(eq(brandAssets.id, assetId), eq(brandAssets.userId, userId)));
-    return result.changes > 0;
+    return (result as any).rowCount > 0;
   }
 
   async getBrandAsset(assetId: number, userId: string): Promise<BrandAsset | undefined> {
@@ -2292,9 +2297,14 @@ export class DatabaseStorage implements IStorage {
 
   // Image Variants operations (for non-destructive placement)
   async saveImageVariant(data: InsertImageVariant): Promise<ImageVariant> {
+    // Ensure required fields are present
+    if (!data.userId || !data.originalImageId || !data.variantUrl) {
+      throw new Error('Missing required fields: userId, originalImageId, variantUrl');
+    }
+    
     const [variant] = await db
       .insert(imageVariants)
-      .values(data)
+      .values(data as any)
       .returning();
     return variant;
   }
