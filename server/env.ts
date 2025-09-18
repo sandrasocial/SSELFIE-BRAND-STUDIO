@@ -28,4 +28,10 @@ export const REPLIT_DEV_DOMAIN = process.env.REPLIT_DEV_DOMAIN;
 export const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
 export const TESTING_VITE_STRIPE_PUBLIC_KEY = process.env.TESTING_VITE_STRIPE_PUBLIC_KEY;
 
+// VEO 3 Video Generation Configuration
+export const VEO3_ENABLED = process.env.VEO3_ENABLED;
+export const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
+export const VEO3_MODEL = process.env.VEO3_MODEL;
+export const VEO_GOOGLE_MODEL = process.env.VEO_GOOGLE_MODEL; // Legacy compatibility
+
 
