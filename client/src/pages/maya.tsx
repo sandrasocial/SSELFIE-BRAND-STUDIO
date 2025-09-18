@@ -340,22 +340,14 @@ export default function Maya() {
   // Send message to Maya with enhanced persistence
   const sendMessage = useMutation({
     mutationFn: async (messageContent: string) => {
-      const response = await fetch('/api/maya/chat', {
+      const { apiFetch } = await import('../lib/api');
+      return apiFetch('/maya/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include', // ✅ AUTHENTICATION FIX: Send Stack Auth cookies
-        body: JSON.stringify({ 
+        json: {
           message: messageContent,
           context: 'styling'
-        })
+        }
       });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || 'Failed to send message');
-      }
-
-      return response.json();
     },
     onSuccess: (data) => {
       if (data.content || data.message) {
