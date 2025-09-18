@@ -3,6 +3,7 @@ import { useAuth } from '../hooks/use-auth';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { MemberNavigation } from '../components/member-navigation';
 import { apiRequest } from '../lib/queryClient';
+import { apiFetch } from '../lib/api';
 import ErrorBoundary from '../components/ErrorBoundary';
 import StoryStudioModal from '../components/StoryStudioModal';
 
@@ -105,6 +106,11 @@ function SSELFIEGallery() {
     enabled: isAuthenticated && !!user,
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
+    queryFn: async () => {
+      // Force correct API base and JSON handling
+      const data = await apiFetch('/gallery-images');
+      return Array.isArray(data) ? data : (data?.images || []);
+    }
   });
 
   // Defensive check: ensure aiImages is always an array
