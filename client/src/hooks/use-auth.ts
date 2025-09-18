@@ -17,11 +17,23 @@ export function useAuth() {
   // Fetch our database user data if Stack Auth user exists
   const { data: dbUser, isLoading: isDbUserLoading, error } = useQuery({
     queryKey: ["/api/auth/user"],
-    retry: 3, // Enable retries for network issues
-    retryDelay: 1000, // Wait 1s between retries
-    enabled: !!stackUser?.id, // Only fetch if Stack Auth user exists
-    staleTime: 5 * 60 * 1000, // 5 minutes cache
-    refetchOnWindowFocus: false, // Avoid excessive refetching
+    retry: 1,
+    retryDelay: 750,
+    enabled: !!stackUser?.id,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    queryFn: async () => {
+      const res = await fetch('/api/auth/user', { credentials: 'include' });
+      if (res.status === 401) {
+        return null;
+      }
+      const contentType = res.headers.get('content-type') || '';
+      if (!contentType.includes('application/json')) {
+        const text = await res.text();
+        throw new Error(`Unexpected content-type: ${contentType} body starts: ${text.slice(0, 80)}`);
+      }
+      return await res.json();
+    }
   });
 
   // Never block UI on DB fetch; Stack user presence is enough to render app
