@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { StudioPage } from '../pages/StudioPage';
 import SSELFIEGallery from '../pages/sselfie-gallery';
-import { MemberNavigation } from './member-navigation';
+import { AppTopNav } from './AppTopNav';
 
 function MobileTabLayout() {
   const [activeTab, setActiveTab] = useState('studio');
@@ -29,7 +29,7 @@ function MobileTabLayout() {
         WebkitOverflowScrolling: 'touch' // Smooth scrolling on iOS
       }}
     >
-      <MemberNavigation transparent={true} darkText={false} />
+      <AppTopNav />
       <main 
         style={{ 
           flex: 1, 
