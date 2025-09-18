@@ -670,27 +670,87 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     }
 
-    // Handle user model endpoint
+    // Handle user model endpoint - CRITICAL for new user flow
     if (req.url?.includes('/api/user-model')) {
       console.log('🔍 User model endpoint called');
       
       try {
         const user = await getAuthenticatedUser();
+        const { storage } = await import('../server/storage');
+        
         console.log('🔍 Getting model for user:', user.id, user.email);
         
-        // For now, return a mock model status
-        // In a real implementation, this would query your database
+        // Get user from database to check training status
+        let dbUser = await storage.getUser(user.id as string);
+        if (!dbUser && user.email) {
+          dbUser = await storage.getUserByEmail(user.email as string);
+        }
+        
+        if (!dbUser) {
+          console.log('❌ No database user found for:', user.id);
+          return res.status(404).json({ 
+            message: 'User not found in database',
+            error: 'Database user not found'
+          });
+        }
+        
+        // Check if user has a trained model
+        let userModel = null;
+        try {
+          userModel = await storage.getUserModel(dbUser.id);
+        } catch (error) {
+          console.log('📊 No existing user model found for:', dbUser.id);
+          userModel = null;
+        }
+        
+        // Determine training status based on actual data
+        let trainingStatus = 'not_started';
+        let needsTraining = true;
+        let canRetrain = false;
+        
+        if (userModel) {
+          // User has a model - check its status
+          trainingStatus = userModel.trainingStatus || 'not_started';
+          needsTraining = trainingStatus !== 'completed';
+          canRetrain = true; // Users with models can retrain
+          
+          console.log('📊 Existing user model found:', {
+            id: userModel.id,
+            status: trainingStatus,
+            needsTraining,
+            canRetrain
+          });
+        } else {
+          // New user - no model exists
+          console.log('🆕 New user detected - no model exists');
+          needsTraining = true;
+          canRetrain = false;
+        }
+        
         const modelStatus = {
-          id: `model_${user.id}`,
-          userId: user.id,
-          trainingStatus: 'completed', // Mock: assume user has completed training
+          id: userModel?.id || null,
+          userId: dbUser.id,
+          trainingStatus: trainingStatus,
+          needsTraining: needsTraining,
+          canRetrain: canRetrain,
           modelType: 'sselfie-studio',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          // Add other model properties as needed
+          createdAt: userModel?.createdAt || null,
+          updatedAt: userModel?.updatedAt || null,
+          // User context for training decisions
+          userPlan: dbUser.plan,
+          hasActiveSubscription: dbUser.monthlyGenerationLimit === -1 || dbUser.monthlyGenerationLimit > 0,
+          onboardingSource: dbUser.onboardingProgress ? JSON.parse(dbUser.onboardingProgress).source : 'unknown'
         };
         
-        console.log('📊 Returning model status:', modelStatus);
+        console.log('📊 Returning REAL model status for new user flow:', {
+          trainingStatus,
+          needsTraining,
+          canRetrain,
+          userPlan: dbUser.plan,
+          onboardingSource: modelStatus.onboardingSource
+        });
+        
+        res.setHeader('Cache-Control', 'no-store');
         return res.status(200).json(modelStatus);
         
       } catch (error) {
