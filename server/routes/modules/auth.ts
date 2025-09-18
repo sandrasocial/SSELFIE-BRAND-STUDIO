@@ -33,6 +33,7 @@ router.get('/api/me', requireStackAuth, asyncHandler(async (req: any, res) => {
 
 // Get current user
 router.get('/api/auth/user', requireStackAuth, asyncHandler(async (req: any, res) => {
+  res.setHeader('Cache-Control', 'no-store');
   const userId = req.user.id;
   let user = await userService.getUser(userId);
 

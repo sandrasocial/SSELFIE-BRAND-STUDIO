@@ -15,6 +15,7 @@ router.get('/api/gallery', requireStackAuth, asyncHandler(async (req: any, res) 
   const userId = req.user.id;
   
   try {
+    res.setHeader('Cache-Control', 'no-store');
     console.log('🔍 Gallery: Fetching images for user:', userId);
     
     // Get AI images from the database
@@ -80,6 +81,7 @@ router.get('/api/gallery-images', requireStackAuth, asyncHandler(async (req: any
   const userId = req.user.id;
   
   try {
+    res.setHeader('Cache-Control', 'no-store');
     console.log('🔍 Gallery: Fetching images for user:', userId);
     
     // Get AI images from the database
