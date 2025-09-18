@@ -246,40 +246,69 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         console.log('🔐 Found Bearer token in Authorization header');
       }
       
-      // Check cookies for stored access token
+      // Check cookies for stored access token - Compatible with Stack Auth v2.8.36
       if (!accessToken && req.cookies) {
-        console.log('🍪 All cookies received:', JSON.stringify(req.cookies, null, 2));
+        console.log('🍪 All cookies received:', Object.keys(req.cookies));
         
-        // Stack Auth stores tokens in 'stack-access' cookie as array format
-        const stackAccessCookie = req.cookies['stack-access'];
-        console.log('🍪 stack-access cookie:', stackAccessCookie);
+        // Try all possible Stack Auth cookie formats
+        const cookiesToTry = [
+          'stack-access',           // Current format
+          'stack-access-token',     // Legacy format
+          'stack_session',          // Alternative format
+          '__Secure-next-auth.session-token', // NextAuth format if used
+        ];
         
-        if (stackAccessCookie) {
-          try {
-            // Parse the array format: ["token_id", "jwt_token"]
-            const stackAccessArray = JSON.parse(stackAccessCookie);
-            console.log('🍪 Parsed stack-access array:', stackAccessArray);
+        for (const cookieName of cookiesToTry) {
+          const cookieValue = req.cookies[cookieName];
+          
+          if (cookieValue) {
+            console.log(`🍪 Found cookie: ${cookieName}`);
             
-            if (Array.isArray(stackAccessArray) && stackAccessArray.length >= 2) {
-              accessToken = stackAccessArray[1]; // JWT is the second element
-              console.log('🔐 Found access token in stack-access cookie');
-            } else {
-              console.log('⚠️ Invalid stack-access cookie format - not an array or insufficient elements');
+            try {
+              // Try parsing as JSON array first
+              if (cookieValue.startsWith('[')) {
+                const stackAccessArray = JSON.parse(cookieValue);
+                if (Array.isArray(stackAccessArray) && stackAccessArray.length >= 2) {
+                  accessToken = stackAccessArray[1]; // JWT is the second element
+                  console.log('🔐 Found access token in JSON array format');
+                  break;
+                }
+              }
+              
+              // Try parsing as JSON object
+              if (cookieValue.startsWith('{')) {
+                const stackAccessObj = JSON.parse(cookieValue);
+                if (stackAccessObj.accessToken || stackAccessObj.token || stackAccessObj.jwt) {
+                  accessToken = stackAccessObj.accessToken || stackAccessObj.token || stackAccessObj.jwt;
+                  console.log('🔐 Found access token in JSON object format');
+                  break;
+                }
+              }
+              
+              // Try as direct token (string format)
+              if (cookieValue.length > 20 && cookieValue.includes('.')) {
+                // Looks like a JWT token
+                accessToken = cookieValue;
+                console.log('🔐 Found access token in direct string format');
+                break;
+              }
+              
+            } catch (parseError) {
+              console.log(`⚠️ Failed to parse ${cookieName} cookie:`, parseError);
+              
+              // If parsing fails, try as direct token
+              if (cookieValue.length > 20) {
+                accessToken = cookieValue;
+                console.log('🔐 Using raw cookie value as token');
+                break;
+              }
             }
-          } catch (error) {
-            console.log('❌ Failed to parse stack-access cookie:', error);
-            console.log('🍪 Raw cookie value:', stackAccessCookie);
           }
         }
         
-        // Fallback: check for old stack-access-token format
         if (!accessToken) {
-          accessToken = req.cookies['stack-access-token'];
-          if (accessToken) {
-            console.log('🔐 Found access token in stack-access-token cookie');
-          } else {
-            console.log('🔍 No access token found in any cookies');
-          }
+          console.log('🔍 No valid access token found in cookies');
+          console.log('🔍 Available cookies:', Object.keys(req.cookies));
         }
       }
       
@@ -353,7 +382,45 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       } as any);
     }
 
-    // Handle authentication endpoints
+    // Handle Stack Auth API proxy endpoints
+    if (req.url?.startsWith('/api/auth/')) {
+      console.log('🔍 Stack Auth API proxy called:', req.url);
+      
+      try {
+        // Proxy to Stack Auth API
+        const stackAuthPath = req.url.replace('/api/auth', '');
+        const stackAuthUrl = `https://api.stack-auth.com/api/v1/projects/${STACK_AUTH_PROJECT_ID}${stackAuthPath}`;
+        
+        console.log('🔄 Proxying to Stack Auth:', stackAuthUrl);
+        
+        const proxyResponse = await fetch(stackAuthUrl, {
+          method: req.method,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': req.headers.authorization || '',
+            'x-stack-project-id': STACK_AUTH_PROJECT_ID,
+            ...(req.body ? {} : {})
+          },
+          body: req.body ? JSON.stringify(req.body) : undefined
+        });
+        
+        const responseData = await proxyResponse.text();
+        
+        res.setHeader('Content-Type', proxyResponse.headers.get('content-type') || 'application/json');
+        res.setHeader('Cache-Control', 'no-store');
+        
+        return res.status(proxyResponse.status).send(responseData);
+        
+      } catch (error) {
+        console.log('❌ Stack Auth proxy failed:', error.message);
+        return res.status(500).json({ 
+          error: 'Stack Auth proxy failed',
+          message: error.message
+        });
+      }
+    }
+
+    // Handle authentication user endpoint (legacy)
     if (req.url?.includes('/api/auth/user')) {
       console.log('🔍 Auth user endpoint called');
       
