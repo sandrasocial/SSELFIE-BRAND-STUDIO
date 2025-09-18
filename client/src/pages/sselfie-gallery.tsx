@@ -6,6 +6,8 @@ import { apiRequest } from '../lib/queryClient';
 import { apiFetch } from '../lib/api';
 import ErrorBoundary from '../components/ErrorBoundary';
 import StoryStudioModal from '../components/StoryStudioModal';
+import BrandAssetPlacementModal from '../components/BrandAssetPlacementModal';
+import { VideoGenerateDialog } from '../features/video';
 
 // ImageDetailModal Component
 interface GalleryImage {
@@ -23,6 +25,7 @@ function ImageDetailModal({
   onDownload, 
   onDelete, 
   onCreateVideo,
+  onPlaceBrandAsset,
   isFavorite 
 }: {
   selectedImage: GalleryImage;
@@ -31,6 +34,7 @@ function ImageDetailModal({
   onDownload: () => void;
   onDelete: () => void;
   onCreateVideo: () => void;
+  onPlaceBrandAsset: () => void;
   isFavorite: boolean;
 }) {
   return (
@@ -73,8 +77,17 @@ function ImageDetailModal({
               onClick={onCreateVideo}
               className="text-black hover:text-gray-600 transition-colors"
             >
-              Create Video Clip
+              Make Video
             </button>
+            {/* P3-C: Brand Asset Placement Feature */}
+            {process.env.REACT_APP_BRAND_ASSETS_ENABLED === '1' && (
+              <button 
+                onClick={onPlaceBrandAsset}
+                className="text-black hover:text-gray-600 transition-colors"
+              >
+                Place Brand Asset
+              </button>
+            )}
             <button 
               onClick={onDownload}
               className="text-black hover:text-gray-600 transition-colors"
@@ -98,6 +111,8 @@ function SSELFIEGallery() {
   const { user, isAuthenticated } = useAuth();
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
+  const [isVideoDialogOpen, setIsVideoDialogOpen] = useState(false);
+  const [isBrandPlacementModalOpen, setIsBrandPlacementModalOpen] = useState(false);
   const queryClient = useQueryClient();
 
   // Fetch user's gallery images
@@ -179,6 +194,10 @@ function SSELFIEGallery() {
     setIsVideoModalOpen(true);
   };
 
+  const handleOpenVideoDialog = () => {
+    setIsVideoDialogOpen(true);
+  };
+
   const handleCloseModal = () => {
     setSelectedImage(null);
   };
@@ -203,7 +222,12 @@ function SSELFIEGallery() {
   };
 
   const handleCreateVideo = () => {
-    handleOpenVideoModal();
+    handleOpenVideoDialog();
+  };
+
+  const handlePlaceBrandAsset = () => {
+    // Keep the selected image but close the detail modal and open brand placement modal
+    setIsBrandPlacementModalOpen(true);
   };
 
   if (!isAuthenticated) {
@@ -261,7 +285,7 @@ function SSELFIEGallery() {
       </div>
 
       {/* Image Detail Modal */}
-      {selectedImage && !isVideoModalOpen && (
+      {selectedImage && !isVideoModalOpen && !isVideoDialogOpen && (
         <ImageDetailModal
           selectedImage={selectedImage}
           onClose={handleCloseModal}
@@ -269,6 +293,7 @@ function SSELFIEGallery() {
           onDownload={handleDownload}
           onDelete={handleDelete}
           onCreateVideo={handleCreateVideo}
+          onPlaceBrandAsset={handlePlaceBrandAsset}
           isFavorite={favorites.includes(typeof selectedImage.id === 'string' ? parseInt(selectedImage.id, 10) : selectedImage.id)}
         />
       )}
@@ -285,6 +310,37 @@ function SSELFIEGallery() {
             console.log('✅ Video generation started for image:', selectedImage.id);
             queryClient.invalidateQueries({ queryKey: ['/api/gallery-images'] });
           }}
+        />
+      )}
+
+      {/* VideoGenerateDialog */}
+      {isVideoDialogOpen && selectedImage && (
+        <VideoGenerateDialog
+          isOpen={isVideoDialogOpen}
+          onClose={() => {
+            setIsVideoDialogOpen(false);
+            setSelectedImage(null);
+          }}
+          imageId={selectedImage.id.toString()}
+          imageUrl={selectedImage.imageUrl || selectedImage.url || ''}
+          onSuccess={() => {
+            console.log('✅ Video generation completed for image:', selectedImage.id);
+            queryClient.invalidateQueries({ queryKey: ['/api/gallery-images'] });
+          }}
+        />
+      )}
+
+      {/* P3-C: Brand Asset Placement Modal */}
+      {isBrandPlacementModalOpen && selectedImage && (
+        <BrandAssetPlacementModal
+          isOpen={isBrandPlacementModalOpen}
+          onClose={() => {
+            setIsBrandPlacementModalOpen(false);
+            setSelectedImage(null);
+          }}
+          imageId={typeof selectedImage.id === 'string' ? parseInt(selectedImage.id, 10) : selectedImage.id}
+          imageUrl={selectedImage.imageUrl || selectedImage.url || ''}
+          imageTitle={selectedImage.title}
         />
       )}
     </div>

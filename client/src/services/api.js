@@ -68,18 +68,15 @@ export async function getJobStatus(jobId) {
  * Sends a message to the Maya chat API.
  * @param {string} message - The user's message.
  * @param {object} history - The chat history (not fully implemented in component).
- * @returns {Promise<{response: string, conceptCards: Array<{title: string, prompt: string}>}>} - A promise that resolves to Maya's response.
+ * @returns {Promise<{response: string, conceptCards: Array<{title: string, prompt: string}>>>} - A promise that resolves to Maya's response.
  */
 export async function sendMayaMessage(message, history) {
-    const response = await fetch('/api/maya/chat', {
+    // Use authenticated apiFetch instead of raw fetch to prevent 401 errors
+    const { apiFetch } = await import('../lib/api');
+    return apiFetch('/maya/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message, history }),
+        json: { message, history }
     });
-    if (!response.ok) {
-        throw new Error(`Failed to send message to Maya: ${response.statusText}`);
-    }
-    return response.json();
 }
 
 /**
