@@ -1,5 +1,6 @@
 import { useUser } from "@stackframe/react";
 import { useQuery } from "@tanstack/react-query";
+import { apiFetch } from "../lib/api";
 
 export interface User {
   id: string;
@@ -15,24 +16,16 @@ export function useAuth() {
   const stackUser = useUser();
   
   // Fetch our database user data if Stack Auth user exists
-  const { data: dbUser, isLoading: isDbUserLoading, error } = useQuery({
-    queryKey: ["/api/auth/user"],
+  const { data: dbUser, error } = useQuery({
+    queryKey: ["/api/me"],
     retry: 1,
     retryDelay: 750,
     enabled: !!stackUser?.id,
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
     queryFn: async () => {
-      const res = await fetch('/api/auth/user', { credentials: 'include' });
-      if (res.status === 401) {
-        return null;
-      }
-      const contentType = res.headers.get('content-type') || '';
-      if (!contentType.includes('application/json')) {
-        const text = await res.text();
-        throw new Error(`Unexpected content-type: ${contentType} body starts: ${text.slice(0, 80)}`);
-      }
-      return await res.json();
+      const data = await apiFetch('/me');
+      return data?.user ?? null;
     }
   });
 
@@ -46,13 +39,7 @@ export function useAuth() {
   const hasStackAuthUser = !!stackUser?.id;
   
   // Debug logging for authentication state
-  console.log('🔍 useAuth: Stack user exists:', !!stackUser?.id);
-  console.log('🔍 useAuth: Stack user data:', stackUser);
-  console.log('🔍 useAuth: API user exists:', !!dbUser);
-  console.log('🔍 useAuth: API user data:', dbUser);
-  console.log('🔍 useAuth: Is authenticated:', isAuthenticated);
-  console.log('🔍 useAuth: API error:', error);
-  console.log('🔍 useAuth: Cookies:', document.cookie);
+  // Minimal diagnostics; avoid noisy logs in production
 
   // Use database user data if available, fallback to Stack Auth user
   const user: User | undefined = dbUser || (stackUser ? {
