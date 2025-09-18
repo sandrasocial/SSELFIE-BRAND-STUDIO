@@ -260,8 +260,10 @@ Requirements:
 - Start with trigger word
 - Natural language description (not keywords)
 - Contemporary 2025 styling intelligence
-- 100-250 words optimal length
+- Rich, flowing descriptions with scene, lighting, and styling details
+- 150-300+ words encouraged for comprehensive prompts
 - Professional photography specifications
+- Include atmospheric and contextual elements for storytelling
 
 FLUX PROMPT:`;
 
