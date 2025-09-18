@@ -31,6 +31,7 @@ const SimpleCheckout = lazy(() => import("./pages/simple-checkout"));
 const PaymentSuccess = lazy(() => import("./pages/payment-success"));
 const ThankYou = lazy(() => import("./pages/thank-you"));
 const AuthSuccess = lazy(() => import("./pages/auth-success"));
+const OAuthCallback = lazy(() => import("./pages/OAuthCallback"));
 
 // Components
 import { PageLoader } from "./components/PageLoader";
@@ -93,8 +94,12 @@ function Router() {
       {/* Guard against accidental /handler/app by redirecting to /app */}
       <Route path="/handler/app" component={() => { window.location.href = '/app'; return null; }} />
       
-      {/* OAuth callback handler */}
-      <Route path="/handler/oauth-callback" component={OAuthCallbackHandler} />
+      {/* OAuth callback handler - single source of truth */}
+      <Route path="/handler/oauth-callback" component={() => (
+        <Suspense fallback={<PageLoader />}>
+          <OAuthCallback />
+        </Suspense>
+      )} />
 
       {/* Post-auth success handoff */}
       <Route path="/auth-success" component={() => (
@@ -163,41 +168,6 @@ function Router() {
           <AppLayout />
         </Suspense>
       )} />
-
-
-
-    </div>
-  );
-}
-
-// OAuth Callback Handler component - ULTRA SIMPLIFIED
-function OAuthCallbackHandler() {
-  useEffect(() => {
-    let cancelled = false;
-    const run = async () => {
-      try {
-        console.log('🔄 OAuth Callback: Exchanging code for session...');
-        const { stackClientApp } = await import("../../stack/client");
-        const hasRedirected = await stackClientApp.callOAuthCallback();
-        if (!cancelled) {
-          if (hasRedirected) return; // SDK already redirected (usually to afterSignIn)
-          window.location.replace('/auth-success');
-        }
-      } catch (err) {
-        console.error('OAuth callback failed:', err);
-        if (!cancelled) window.location.replace('/handler/sign-in');
-      }
-    };
-    run();
-    return () => { cancelled = true; };
-  }, []);
-  
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-        <p className="text-gray-600">Completing authentication...</p>
-      </div>
     </div>
   );
 }
