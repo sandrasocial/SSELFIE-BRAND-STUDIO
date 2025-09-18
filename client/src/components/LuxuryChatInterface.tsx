@@ -186,7 +186,8 @@ export function LuxuryChatInterface() {
       console.log('⚠️ Could not fetch gender context (non-blocking):', error);
     }
     
-    const styleMessage = `${genderContext}I've chosen the "${style.name}" style. ${style.description}
+    // Enhanced message that includes styleKey for prompt-builder integration
+    const styleMessage = `${genderContext}I've chosen the "${style.name}" style (styleKey: ${style.id}). ${style.description}
 
 Please create photo concepts that match this signature look, drawing from your ${style.name} expertise with ${style.aesthetic.toLowerCase()}.`;
     sendMessage(styleMessage);

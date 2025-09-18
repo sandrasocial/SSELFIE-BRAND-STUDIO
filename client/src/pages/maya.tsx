@@ -677,10 +677,7 @@ export default function Maya() {
                                         className="text-gray-600 mb-6 leading-relaxed"
                                         style={{ fontFamily: 'Helvetica Neue', fontWeight: 300, lineHeight: 1.7 }}
                                       >
-                                        {card.description.length > 150 
-                                          ? `${card.description.substring(0, 150)}...`
-                                          : card.description
-                                        }
+                                        {card.description}
                                       </p>
                                     )}
 

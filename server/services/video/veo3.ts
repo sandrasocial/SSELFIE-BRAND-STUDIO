@@ -92,7 +92,7 @@ export async function generateVeo3Video(options: VeoGenerationOptions): Promise<
 
   // Prepare the request payload
   const requestPayload: any = {
-    prompt: { text: motionPrompt.slice(0, 800) }, // Limit prompt length
+    prompt: { text: motionPrompt }, // Use full prompt for better quality
     config: {
       aspectRatio: mappedAspect,
       durationSeconds: preset.maxDurationSeconds,
