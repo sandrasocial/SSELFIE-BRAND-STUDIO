@@ -4,6 +4,7 @@ import {
   onboardingData,
   aiImages,
   generatedImages,
+  imageVariants,
   generationTrackers,
   userModels,
   selfieUploads,
@@ -28,6 +29,8 @@ import {
   type InsertAiImage,
   type GeneratedImage,
   type InsertGeneratedImage,
+  type ImageVariant,
+  type InsertImageVariant,
   generatedVideos,
   type GeneratedVideo,
   type InsertGeneratedVideo,
@@ -115,6 +118,14 @@ export interface IStorage {
   getGeneratedImages(userId: string): Promise<GeneratedImage[]>;
   saveGeneratedImage(data: InsertGeneratedImage): Promise<GeneratedImage>;
   updateGeneratedImage(id: number, data: Partial<GeneratedImage>): Promise<GeneratedImage>;
+
+  // Image Variants operations (for inpainting and variations)
+  createImageVariant(data: InsertImageVariant): Promise<number>;
+  updateImageVariant(id: number, updates: Partial<ImageVariant>): Promise<ImageVariant>;
+  getImageVariant(id: number): Promise<ImageVariant | undefined>;
+  getImageVariants(originalImageId: number, originalImageType: string, kind?: string): Promise<ImageVariant[]>;
+  getImageVariantsByKind(userId: string, kind: string): Promise<ImageVariant[]>;
+  getUserImageVariants(userId: string): Promise<ImageVariant[]>;
 
   // Generated Videos operations (VEO 3 video generation)
   getGeneratedVideos(userId: string): Promise<GeneratedVideo[]>;
@@ -628,6 +639,67 @@ export class DatabaseStorage implements IStorage {
       .where(eq(generatedImages.id, id))
       .returning();
     return updated;
+  }
+
+  // Image Variants operations (for inpainting and variations)
+  async createImageVariant(data: InsertImageVariant): Promise<number> {
+    const [saved] = await db.insert(imageVariants).values(data).returning();
+    return saved.id;
+  }
+
+  async updateImageVariant(id: number, updates: Partial<ImageVariant>): Promise<ImageVariant> {
+    const [updated] = await db
+      .update(imageVariants)
+      .set({ ...updates })
+      .where(eq(imageVariants.id, id))
+      .returning();
+    
+    return updated;
+  }
+
+  async getImageVariant(id: number): Promise<ImageVariant | undefined> {
+    const [variant] = await db
+      .select()
+      .from(imageVariants)
+      .where(eq(imageVariants.id, id))
+      .limit(1);
+    
+    return variant;
+  }
+
+  async getImageVariants(originalImageId: number, originalImageType: string, kind?: string): Promise<ImageVariant[]> {
+    let query = db
+      .select()
+      .from(imageVariants)
+      .where(and(
+        eq(imageVariants.originalImageId, originalImageId),
+        eq(imageVariants.originalImageType, originalImageType)
+      ));
+
+    if (kind) {
+      query = query.where(eq(imageVariants.kind, kind));
+    }
+
+    return await query.orderBy(desc(imageVariants.createdAt));
+  }
+
+  async getImageVariantsByKind(userId: string, kind: string): Promise<ImageVariant[]> {
+    return await db
+      .select()
+      .from(imageVariants)
+      .where(and(
+        eq(imageVariants.userId, userId),
+        eq(imageVariants.kind, kind)
+      ))
+      .orderBy(desc(imageVariants.createdAt));
+  }
+
+  async getUserImageVariants(userId: string): Promise<ImageVariant[]> {
+    return await db
+      .select()
+      .from(imageVariants)
+      .where(eq(imageVariants.userId, userId))
+      .orderBy(desc(imageVariants.createdAt));
   }
 
   // Generated Videos operations (VEO 3 video generation)

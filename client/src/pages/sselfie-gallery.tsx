@@ -6,6 +6,8 @@ import { apiRequest } from '../lib/queryClient';
 import { apiFetch } from '../lib/api';
 import ErrorBoundary from '../components/ErrorBoundary';
 import StoryStudioModal from '../components/StoryStudioModal';
+import ImageInpaint from '../features/editor/ImageInpaint';
+import ImageVariationsModal from '../components/ImageVariationsModal';
 
 // ImageDetailModal Component
 interface GalleryImage {
@@ -23,6 +25,8 @@ function ImageDetailModal({
   onDownload, 
   onDelete, 
   onCreateVideo,
+  onInpaint,
+  onMoreLikeThis,
   isFavorite 
 }: {
   selectedImage: GalleryImage;
@@ -31,8 +35,14 @@ function ImageDetailModal({
   onDownload: () => void;
   onDelete: () => void;
   onCreateVideo: () => void;
+  onInpaint: () => void;
+  onMoreLikeThis: () => void;
   isFavorite: boolean;
 }) {
+  const [showEditDropdown, setShowEditDropdown] = useState(false);
+  
+  // Check if INPAINT_ENABLED is available (we can assume it is for the UI)
+  const inpaintEnabled = process.env.REACT_APP_INPAINT_ENABLED === '1' || true; // Default to enabled
   return (
     <div 
       className="fixed inset-0 bg-black bg-opacity-80 z-50 flex items-center justify-center p-4"
@@ -69,6 +79,39 @@ function ImageDetailModal({
             >
               {isFavorite ? '♥ Unfavorite' : '♡ Favorite'}
             </button>
+            
+            {/* Edit Dropdown */}
+            {inpaintEnabled && (
+              <div className="relative">
+                <button 
+                  onClick={() => setShowEditDropdown(!showEditDropdown)}
+                  className="text-black hover:text-gray-600 transition-colors"
+                >
+                  ✏️ Edit ▼
+                </button>
+                {showEditDropdown && (
+                  <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-white border border-gray-200 rounded-md shadow-lg min-w-40 z-10">
+                    <button
+                      onClick={() => {
+                        onInpaint();
+                        setShowEditDropdown(false);
+                      }}
+                      className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2"
+                    >
+                      <span>🎨</span>
+                      <span>Inpaint (beta)</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+            
+            <button 
+              onClick={onMoreLikeThis}
+              className="text-black hover:text-gray-600 transition-colors"
+            >
+              ✨ More Like This
+            </button>
             <button 
               onClick={onCreateVideo}
               className="text-black hover:text-gray-600 transition-colors"
@@ -98,6 +141,10 @@ function SSELFIEGallery() {
   const { user, isAuthenticated } = useAuth();
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
+  const [isInpaintModalOpen, setIsInpaintModalOpen] = useState(false);
+  const [inpaintImage, setInpaintImage] = useState<GalleryImage | null>(null);
+  const [isVariationsModalOpen, setIsVariationsModalOpen] = useState(false);
+  const [variationsImage, setVariationsImage] = useState<GalleryImage | null>(null);
   const queryClient = useQueryClient();
 
   // Fetch user's gallery images
@@ -206,6 +253,44 @@ function SSELFIEGallery() {
     handleOpenVideoModal();
   };
 
+  const handleOpenInpaint = () => {
+    if (selectedImage) {
+      setInpaintImage(selectedImage);
+      setIsInpaintModalOpen(true);
+      setSelectedImage(null); // Close the detail modal
+    }
+  };
+
+  const handleCloseInpaint = () => {
+    setIsInpaintModalOpen(false);
+    setInpaintImage(null);
+  };
+
+  const handleInpaintComplete = (resultUrl: string) => {
+    // Invalidate gallery images to refresh the gallery
+    queryClient.invalidateQueries({ queryKey: ['/api/gallery-images'] });
+    console.log('✅ Inpainting completed, result URL:', resultUrl);
+  };
+
+  const handleOpenVariations = () => {
+    if (selectedImage) {
+      setVariationsImage(selectedImage);
+      setIsVariationsModalOpen(true);
+      setSelectedImage(null); // Close the detail modal
+    }
+  };
+
+  const handleCloseVariations = () => {
+    setIsVariationsModalOpen(false);
+    setVariationsImage(null);
+  };
+
+  const handleVariationsSaved = (count: number) => {
+    // Invalidate gallery images to refresh the gallery
+    queryClient.invalidateQueries({ queryKey: ['/api/gallery-images'] });
+    console.log(`✅ ${count} variations saved to gallery`);
+  };
+
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-white">
@@ -261,7 +346,7 @@ function SSELFIEGallery() {
       </div>
 
       {/* Image Detail Modal */}
-      {selectedImage && !isVideoModalOpen && (
+      {selectedImage && !isVideoModalOpen && !isInpaintModalOpen && !isVariationsModalOpen && (
         <ImageDetailModal
           selectedImage={selectedImage}
           onClose={handleCloseModal}
@@ -269,6 +354,8 @@ function SSELFIEGallery() {
           onDownload={handleDownload}
           onDelete={handleDelete}
           onCreateVideo={handleCreateVideo}
+          onInpaint={handleOpenInpaint}
+          onMoreLikeThis={handleOpenVariations}
           isFavorite={favorites.includes(typeof selectedImage.id === 'string' ? parseInt(selectedImage.id, 10) : selectedImage.id)}
         />
       )}
@@ -285,6 +372,30 @@ function SSELFIEGallery() {
             console.log('✅ Video generation started for image:', selectedImage.id);
             queryClient.invalidateQueries({ queryKey: ['/api/gallery-images'] });
           }}
+        />
+      )}
+
+      {/* Inpainting Modal */}
+      {isInpaintModalOpen && inpaintImage && (
+        <ImageInpaint
+          imageUrl={inpaintImage.imageUrl || inpaintImage.url || ''}
+          imageId={typeof inpaintImage.id === 'string' ? parseInt(inpaintImage.id, 10) : inpaintImage.id}
+          onClose={handleCloseInpaint}
+          onInpaintComplete={handleInpaintComplete}
+        />
+      )}
+
+      {/* Variations Modal */}
+      {isVariationsModalOpen && variationsImage && (
+        <ImageVariationsModal
+          originalImage={{
+            id: variationsImage.id,
+            imageUrl: variationsImage.imageUrl,
+            url: variationsImage.url,
+            title: variationsImage.title
+          }}
+          onClose={handleCloseVariations}
+          onVariationsSaved={handleVariationsSaved}
         />
       )}
     </div>
