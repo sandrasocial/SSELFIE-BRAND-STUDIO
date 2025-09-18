@@ -36,6 +36,11 @@ export async function apiRequest(
   if (contentType && contentType.includes('application/json')) {
     return await res.json();
   }
+  // If the server returned HTML, surface a clear error
+  if (contentType && contentType.includes('text/html')) {
+    const text = await res.text();
+    throw new Error(`Expected JSON but received HTML from ${finalUrl}. First bytes: ${text.slice(0, 120)}`);
+  }
   
   return res;
 }
