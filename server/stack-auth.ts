@@ -138,37 +138,58 @@ export async function verifyStackAuthToken(req: Request, res: Response, next: Ne
     
     // Check cookies for stored access token
     if (!accessToken && req.cookies) {
-      // Stack Auth stores tokens in 'stack-access' cookie as array format
-      const stackAccessCookie = req.cookies['stack-access'];
-      
-      if (stackAccessCookie) {
+      // Helper: attempt to parse token from any cookie named like 'stack-access*'
+      const tryParseAccessFromCookieValue = (val: unknown): string | undefined => {
+        if (!val || typeof val !== 'string') return undefined;
         try {
-          // Parse the array format: ["token_id", "jwt_token"]
-          const stackAccessArray = JSON.parse(stackAccessCookie);
-          if (Array.isArray(stackAccessArray) && stackAccessArray.length >= 2) {
-            accessToken = stackAccessArray[1]; // JWT is the second element
-            console.log('🔐 Stack Auth: Found access token in stack-access cookie');
-          } else {
-            console.log('⚠️ Stack Auth: Invalid stack-access cookie format');
+          // New format: JSON array ["token_id", "jwt"]
+          const parsed = JSON.parse(val);
+          if (Array.isArray(parsed) && parsed.length >= 2 && typeof parsed[1] === 'string') {
+            return parsed[1] as string;
           }
-        } catch (error) {
-          console.log('❌ Stack Auth: Failed to parse stack-access cookie:', error);
+        } catch {
+          // Some environments may store the raw JWT as a string
+          if (val.split('.').length === 3) return val; // looks like a JWT
+        }
+        return undefined;
+      };
+
+      // 1) Exact key
+      const exact = req.cookies['stack-access'];
+      if (!accessToken && exact) {
+        const token = tryParseAccessFromCookieValue(exact);
+        if (token) {
+          accessToken = token;
+          console.log('🔐 Stack Auth: Found access token in stack-access cookie');
         }
       }
-      
-      // Fallback: check for old stack-access-token format
+
+      // 2) Any cookie whose name starts with 'stack-access'
       if (!accessToken) {
-        accessToken = req.cookies['stack-access-token'];
-        if (accessToken) {
-          console.log('🔐 Stack Auth: Found access token in stack-access-token cookie');
-        } else {
-          console.log('🔍 Stack Auth: No stack-access or stack-access-token cookie found');
-          console.log('🔍 Available cookies:', Object.keys(req.cookies));
-          // Log cookie values without sensitive data
-          for (const [name, value] of Object.entries(req.cookies)) {
-            console.log(`🔍 Cookie '${name}': ${typeof value === 'string' ? value.substring(0, 10) + '...' : value}`);
+        const matchingKeys = Object.keys(req.cookies).filter(k => k.startsWith('stack-access'));
+        for (const key of matchingKeys) {
+          const token = tryParseAccessFromCookieValue(req.cookies[key]);
+          if (token) {
+            accessToken = token;
+            console.log(`🔐 Stack Auth: Found access token in cookie '${key}'`);
+            break;
           }
         }
+      }
+
+      // 3) Legacy fallback
+      if (!accessToken) {
+        const legacy = req.cookies['stack-access-token'];
+        if (legacy) {
+          accessToken = legacy;
+          console.log('🔐 Stack Auth: Found access token in stack-access-token cookie');
+        }
+      }
+
+      if (!accessToken) {
+        console.log('🔍 Stack Auth: No access token cookies found');
+        console.log('🔍 Available cookies:', Object.keys(req.cookies));
+        // Log cookie names only (no values) to avoid leaking data
       }
     }
     
