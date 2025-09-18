@@ -397,7 +397,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         if (!dbUser) {
           // Try link by email
           if (user.email) {
-            const byEmail = await storage.getUserByEmail(user.email);
+            const byEmail = await storage.getUserByEmail(user.email as string);
             if (byEmail) {
               dbUser = await storage.linkStackAuthId(byEmail.id, user.id as string);
             }
@@ -677,54 +677,54 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         } catch (claudeError) {
           console.log('❌ MAYA: Claude API failed:', (claudeError as Error).message);
           
-          // Fallback to basic response when Claude is not available
-          mayaResponse = `I understand you're looking for styling concepts! Let me create some personalized photo concepts for your brand.
+          // Fallback to creative storytelling concepts aligned with Maya's signature looks
+          mayaResponse = `I understand you're looking for styling concepts! Let me create some personalized photo concepts that tell your unique brand story.
 
-Here are 3 concept cards tailored to your needs:
+Here are 3 concept cards inspired by my signature editorial looks:
 
-🎯 **PROFESSIONAL HEADSHOT**
-A clean, confident portrait perfect for your professional brand. Think crisp white background, natural lighting, and a sharp blazer.
+🌟 **THE GOLDEN HOUR STORYTELLER**
+Capture your authentic warmth and approachability with the magic of golden hour light. This concept positions you as someone who brings light and positivity to their work, perfect for coaches, consultants, and creative entrepreneurs.
 
-FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus, film grain, visible skin pores, confident business professional, clean white background, natural lighting, sharp blazer, professional headshot, high-end portrait
-
----
-
-✨ **LIFESTYLE BRAND SHOT**  
-A more relaxed, approachable image that shows your personality while maintaining professionalism. Perfect for social media and marketing materials.
-
-FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus, film grain, visible skin pores, lifestyle portrait, natural lighting, approachable professional, modern office setting, authentic expression
+FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus, film grain, visible skin pores, warm golden hour lighting streaming through large windows, person in soft knit sweater in neutral tones, authentic genuine smile, seated at a modern wooden table with soft shadows, warm backlit hair, natural makeup emphasizing warmth, cozy sophisticated environment with plants
 
 ---
 
-💼 **EXECUTIVE PRESENCE**
-A powerful, commanding image that conveys authority and expertise. Ideal for speaking engagements and thought leadership content.
+✨ **THE SCANDINAVIAN MINIMALIST VISION**  
+A clean, intentional aesthetic that speaks to your clarity of thought and sophisticated approach. This concept communicates reliability and premium quality through understated elegance.
 
-FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus, film grain, visible skin pores, executive portrait, dramatic lighting, commanding presence, dark background, professional attire, confident expression`;
+FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus, film grain, visible skin pores, bright airy minimalist interior with white walls and light wood floors, person in high-quality neutral clothing - cream cashmere sweater, natural lighting from large windows with sheer curtains, serene confident expression, clean architectural lines, hygge atmosphere
+
+---
+
+🎬 **THE URBAN CREATIVE MUSE**
+For the innovative thinker who thrives in dynamic environments. This concept captures your creative edge and forward-thinking approach through sophisticated urban aesthetics and moody lighting.
+
+FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus, film grain, visible skin pores, atmospheric urban setting with soft industrial elements, dramatic side lighting creating interesting shadows, person in elevated casual wear - structured blazer over quality basics, thoughtful contemplative expression, modern art gallery or loft space background, cinematic depth of field`;
           
           conceptCards = [
             {
               id: `concept_${Date.now()}_1`,
-              title: 'Professional Headshot',
-              description: 'A clean, confident portrait perfect for your professional brand.',
-              fluxPrompt: 'raw photo, editorial quality, professional photography, sharp focus, film grain, visible skin pores, confident business professional, clean white background, natural lighting, sharp blazer, professional headshot, high-end portrait',
-              category: 'Professional',
-              emoji: '🎯'
+              title: 'The Golden Hour Storyteller',
+              description: 'Capture your authentic warmth and approachability with the magic of golden hour light.',
+              fluxPrompt: 'raw photo, editorial quality, professional photography, sharp focus, film grain, visible skin pores, warm golden hour lighting streaming through large windows, person in soft knit sweater in neutral tones, authentic genuine smile, seated at a modern wooden table with soft shadows, warm backlit hair, natural makeup emphasizing warmth, cozy sophisticated environment with plants',
+              category: 'Editorial',
+              emoji: '🌟'
             },
             {
               id: `concept_${Date.now()}_2`, 
-              title: 'Lifestyle Brand Shot',
-              description: 'A more relaxed, approachable image that shows your personality.',
-              fluxPrompt: 'raw photo, editorial quality, professional photography, sharp focus, film grain, visible skin pores, lifestyle portrait, natural lighting, approachable professional, modern office setting, authentic expression',
-              category: 'Lifestyle',
+              title: 'The Scandinavian Minimalist Vision',
+              description: 'A clean, intentional aesthetic that speaks to your clarity of thought and sophisticated approach.',
+              fluxPrompt: 'raw photo, editorial quality, professional photography, sharp focus, film grain, visible skin pores, bright airy minimalist interior with white walls and light wood floors, person in high-quality neutral clothing - cream cashmere sweater, natural lighting from large windows with sheer curtains, serene confident expression, clean architectural lines, hygge atmosphere',
+              category: 'Editorial',
               emoji: '✨'
             },
             {
               id: `concept_${Date.now()}_3`,
-              title: 'Executive Presence', 
-              description: 'A powerful, commanding image that conveys authority and expertise.',
-              fluxPrompt: 'raw photo, editorial quality, professional photography, sharp focus, film grain, visible skin pores, executive portrait, dramatic lighting, commanding presence, dark background, professional attire, confident expression',
-              category: 'Executive',
-              emoji: '💼'
+              title: 'The Urban Creative Muse', 
+              description: 'For the innovative thinker who thrives in dynamic environments with creative edge.',
+              fluxPrompt: 'raw photo, editorial quality, professional photography, sharp focus, film grain, visible skin pores, atmospheric urban setting with soft industrial elements, dramatic side lighting creating interesting shadows, person in elevated casual wear - structured blazer over quality basics, thoughtful contemplative expression, modern art gallery or loft space background, cinematic depth of field',
+              category: 'Editorial',
+              emoji: '🎬'
             }
           ];
         }

@@ -246,6 +246,8 @@ REQUIREMENTS FOR EVERY RESPONSE:
 • Use your aesthetic DNA principles in every concept
 • Include appropriate camera/lens specifications for the shot type
 • Write as natural flowing sentences, not keyword lists
+• Don't be afraid to be detailed – comprehensive multi-sentence descriptions are encouraged
+• Create rich, descriptive prompts with scene, lighting, and styling details (150-200+ words optimal)
 • Separate concepts with "---" line breaks
 • Apply the 80/20 principle: ALWAYS include 3-4 portrait/lifestyle concepts (80%) AND 1-2 flatlay/object concepts (20%) drawn from the "Detail Styling" sections of your Creative Looks above
 
