@@ -30,6 +30,8 @@ const SimpleTraining = lazy(() => import("./pages/simple-training"));
 const SimpleCheckout = lazy(() => import("./pages/simple-checkout"));
 const PaymentSuccess = lazy(() => import("./pages/payment-success"));
 const ThankYou = lazy(() => import("./pages/thank-you"));
+const Terms = lazy(() => import("./pages/terms"));
+const Privacy = lazy(() => import("./pages/privacy"));
 const AuthSuccess = lazy(() => import("./pages/auth-success"));
 const OAuthCallback = lazy(() => import("./pages/OAuthCallback"));
 
@@ -127,6 +129,18 @@ function Router() {
       <Route path="/business" component={() => (
         <Suspense fallback={<PageLoader />}>
           <BusinessLanding />
+        </Suspense>
+      )} />
+
+      {/* LEGAL ROUTES */}
+      <Route path="/terms" component={() => (
+        <Suspense fallback={<PageLoader />}>
+          <Terms />
+        </Suspense>
+      )} />
+      <Route path="/privacy" component={() => (
+        <Suspense fallback={<PageLoader />}>
+          <Privacy />
         </Suspense>
       )} />
 
