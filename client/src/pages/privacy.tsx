@@ -1,13 +1,25 @@
 import React from 'react';
-import { PreLoginNavigationUnified } from '../components/pre-login-navigation-unified';
+import { GlobalFooter } from '../components/global-footer';
+import { Link } from 'wouter';
 import { HeroFullBleed } from '../components/hero-full-bleed';
 import { SandraImages } from '../components/sandra-image-library';
-import { Link } from 'wouter';
 
 export default function PrivacyPage() {
   return (
     <div className="bg-white">
-      <PreLoginNavigationUnified />
+      {/* Minimal top bar matching business landing (transparent, white text) */}
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-md">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 flex items-center justify-between">
+          <Link href="/">
+            <a className="font-serif text-lg sm:text-xl font-light tracking-wide text-white" style={{ fontFamily: 'Times New Roman, serif' }}>SSELFIE</a>
+          </Link>
+          <div className="hidden md:flex items-center space-x-6">
+            <Link href="/business"><a className="text-xs uppercase tracking-[0.3em] font-light text-white/70 hover:text-white">Home</a></Link>
+            <Link href="/terms"><a className="text-xs uppercase tracking-[0.3em] font-light text-white/70 hover:text-white">Terms</a></Link>
+            <Link href="/privacy"><a className="text-xs uppercase tracking-[0.3em] font-light text-white/70 hover:text-white">Privacy</a></Link>
+          </div>
+        </div>
+      </nav>
       
       <main>
         {/* Hero Section */}
@@ -148,6 +160,7 @@ export default function PrivacyPage() {
           </div>
         </section>
       </main>
+      <GlobalFooter />
     </div>
   );
 }
