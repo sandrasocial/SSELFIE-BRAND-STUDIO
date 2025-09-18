@@ -224,6 +224,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       
       try {
         const user = await getAuthenticatedUser();
+        res.setHeader('Cache-Control', 'no-store');
         return res.status(200).json(user);
       } catch (error) {
         console.log('❌ Authentication failed:', error.message);
@@ -231,6 +232,41 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           message: 'Authentication required',
           error: error.message
         });
+      }
+    }
+
+    // /api/me: ensure DB user and return JSON
+    if (req.url === '/api/me' || req.url?.startsWith('/api/me?')) {
+      try {
+        const user = await getAuthenticatedUser();
+        const { storage } = await import('../server/storage');
+        // Try to get existing user
+        let dbUser = await storage.getUser(user.id as string);
+        if (!dbUser) {
+          // Try link by email
+          if (user.email) {
+            const byEmail = await storage.getUserByEmail(user.email);
+            if (byEmail) {
+              dbUser = await storage.linkStackAuthId(byEmail.id, user.id as string);
+            }
+          }
+        }
+        if (!dbUser) {
+          // Create new user
+          dbUser = await storage.upsertUser({
+            id: user.id as string,
+            email: (user.email as string) || null,
+            displayName: `${user.firstName || ''} ${user.lastName || ''}`.trim() || null,
+            firstName: user.firstName || null,
+            lastName: user.lastName || null,
+            profileImageUrl: null,
+          } as any);
+        }
+        res.setHeader('Cache-Control', 'no-store');
+        return res.status(200).json({ user: dbUser });
+      } catch (error) {
+        console.log('❌ /api/me failed:', (error as Error).message);
+        return res.status(401).json({ message: 'Authentication required', error: (error as Error).message });
       }
     }
 
@@ -319,6 +355,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         console.log('📝 Created generation tracker:', tracker.id);
         
         // Return the generation result with prediction ID for polling
+        res.setHeader('Cache-Control', 'no-store');
         return res.status(200).json({
           success: true,
           predictionId: generationResult.predictionId,
@@ -397,6 +434,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           }
         }
         
+        res.setHeader('Cache-Control', 'no-store');
         return res.status(200).json({
           success: true,
           status: statusResult.status,
@@ -414,7 +452,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // Handle Maya chat endpoints
-    if (req.url?.includes('/api/maya-chat') || req.url?.includes('/api/maya-generate')) {
+    if (req.url?.includes('/api/maya/chat') || req.url?.includes('/api/maya-chat') || req.url?.includes('/api/maya-generate')) {
       console.log('🔍 Maya chat endpoint called:', req.url);
       
       try {
@@ -550,6 +588,7 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
         };
         
         console.log('📊 Returning Maya response:', JSON.stringify(response, null, 2));
+        res.setHeader('Cache-Control', 'no-store');
         return res.status(200).json(response);
         
       } catch (error) {
@@ -590,6 +629,7 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
         ];
         
         console.log('📊 Returning Maya chats:', chats.length, 'chats');
+        res.setHeader('Cache-Control', 'no-store');
         return res.status(200).json(chats);
         
       } catch (error) {
@@ -651,6 +691,7 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
         galleryImages.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         
         console.log('📊 Returning gallery images:', galleryImages.length, 'total images');
+        res.setHeader('Cache-Control', 'no-store');
         return res.status(200).json(galleryImages);
         
       } catch (error) {
@@ -712,6 +753,7 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
         galleryImages.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         
         console.log('📊 Returning gallery-images:', galleryImages.length, 'total images');
+        res.setHeader('Cache-Control', 'no-store');
         return res.status(200).json(galleryImages);
         
       } catch (error) {
