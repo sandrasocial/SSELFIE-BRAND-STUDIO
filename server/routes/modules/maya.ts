@@ -113,6 +113,80 @@ router.post('/api/maya-chat', requireStackAuth, asyncHandler(async (req: any, re
   }
 }));
 
+// Alias for legacy frontend endpoint: /api/maya/chat → use same handler as /api/maya-chat
+router.post('/api/maya/chat', requireStackAuth, asyncHandler(async (req: any, res) => {
+  const userId = req.user.id;
+  const { message, chatHistory, context } = req.body;
+  validateRequired({ message }, ['message']);
+
+  try {
+    const basePersonality = PersonalityManager.getNaturalPrompt('maya');
+    let mayaPersonality = basePersonality;
+
+    try {
+      const adaptation = await MayaAdaptationEngine.adaptStylingApproach(
+        userId, 
+        context || {}, 
+        chatHistory || []
+      );
+      if (adaptation.adaptedPersonality) {
+        mayaPersonality = adaptation.adaptedPersonality;
+        console.log('🎯 MAYA: Applied personalized adaptation');
+      }
+    } catch (adaptError) {
+      console.log('⚠️ MAYA: Adaptation failed, using base personality');
+    }
+
+    const claudeHistory = (chatHistory || []).map((entry: any) => ({
+      role: entry.user ? 'user' : 'assistant',
+      content: entry.user || entry.maya || entry.response || ''
+    })).filter((msg: any) => msg.content.trim());
+
+    const mayaResponse = await claudeService.sendMessage(
+      message,
+      `maya-chat-${userId}`,
+      'maya',
+      false,
+      claudeHistory,
+      mayaPersonality
+    );
+
+    let conceptCards = [];
+    try {
+      const conceptRegex = /(?:concept|idea|suggestion)[\s\S]*?(?:title|name):\s*["']?([^"'\n]+)["']?[\s\S]*?(?:prompt|description):\s*["']?([^"'\n]+)["']?/gi;
+      let match;
+      while ((match = conceptRegex.exec(mayaResponse)) !== null) {
+        conceptCards.push({
+          title: match[1].trim(),
+          prompt: match[2].trim()
+        });
+      }
+    } catch (parseError) {
+      console.log('No concept cards extracted from response');
+    }
+
+    const chatId = await storage.saveMayaChat(userId, {
+      message,
+      response: mayaResponse,
+      conceptCards,
+      context: context || {}
+    });
+
+    sendSuccess(res, {
+      response: mayaResponse,
+      conceptCards,
+      chatId,
+      agentName: 'Maya - AI Creative Director',
+      agentType: 'member',
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('❌ MAYA: Chat failed:', error);
+    throw createError.internal('Failed to process chat message');
+  }
+}));
+
 // Generate images with Maya's full pipeline
 router.post('/api/maya-generate', requireStackAuth, asyncHandler(async (req: any, res) => {
   const userId = req.user.id;

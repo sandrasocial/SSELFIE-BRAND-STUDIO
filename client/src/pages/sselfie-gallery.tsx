@@ -9,7 +9,8 @@ import StoryStudioModal from '../components/StoryStudioModal';
 // ImageDetailModal Component
 interface GalleryImage {
   id: string | number;
-  imageUrl: string;
+  imageUrl?: string;
+  url?: string;
   title?: string;
   source?: string;
 }
@@ -52,7 +53,7 @@ function ImageDetailModal({
         {/* Image */}
         <div className="flex-1 flex items-center justify-center p-4">
           <img 
-            src={selectedImage.imageUrl} 
+            src={selectedImage.imageUrl || selectedImage.url || ''} 
             alt={selectedImage.title || 'Gallery image'} 
             className="max-w-full max-h-[70vh] object-contain"
           />
@@ -178,7 +179,8 @@ function SSELFIEGallery() {
 
   const handleDownload = () => {
     if (selectedImage) {
-      downloadImage(selectedImage.imageUrl, selectedImage.title || 'sselfie-image');
+      const src = selectedImage.imageUrl || selectedImage.url || '';
+      downloadImage(src, selectedImage.title || 'sselfie-image');
     }
   };
 
@@ -242,7 +244,7 @@ function SSELFIEGallery() {
                 className="aspect-square cursor-pointer group"
               >
                 <img 
-                  src={image.imageUrl} 
+                  src={image.imageUrl || image.url || ''} 
                   alt={image.title || 'Generated art'} 
                   className="w-full h-full object-cover rounded-lg transition-transform group-hover:scale-105"
                 />
