@@ -159,10 +159,34 @@ export function LuxuryChatInterface() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const handleStyleSelect = (style: BrandStyleCollection) => {
+  const handleStyleSelect = async (style: BrandStyleCollection) => {
     setSelectedStyle(style);
     setShowStyleSelector(false);
-    const styleMessage = `I've chosen the "${style.name}" style. ${style.description}
+    
+    // Get user gender for context (optional)
+    let genderContext = '';
+    try {
+      const response = await fetch('/api/me', {
+        credentials: 'include'
+      });
+      if (response.ok) {
+        const userData = await response.json();
+        const userGender = userData.user?.gender;
+        if (userGender) {
+          if (userGender.toLowerCase().includes('female') || userGender === 'woman') {
+            genderContext = 'As a woman, ';
+          } else if (userGender.toLowerCase().includes('male') || userGender === 'man') {
+            genderContext = 'As a man, ';
+          } else if (userGender.toLowerCase().includes('non-binary') || userGender === 'non-binary') {
+            genderContext = 'As a non-binary person, ';
+          }
+        }
+      }
+    } catch (error) {
+      console.log('⚠️ Could not fetch gender context (non-blocking):', error);
+    }
+    
+    const styleMessage = `${genderContext}I've chosen the "${style.name}" style. ${style.description}
 
 Please create photo concepts that match this signature look, drawing from your ${style.name} expertise with ${style.aesthetic.toLowerCase()}.`;
     sendMessage(styleMessage);
