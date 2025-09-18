@@ -10,6 +10,26 @@ import { asyncHandler, createError, sendSuccess, validateRequired } from '../mid
 import { userService } from '../../services/user-service';
 
 const router = Router();
+// Me endpoint: JSON only, no cache, ensures user exists
+router.get('/api/me', requireStackAuth, asyncHandler(async (req: any, res) => {
+  res.setHeader('Cache-Control', 'no-store');
+  const userId = req.user.id;
+  let user = await userService.getUser(userId);
+  if (!user && req.user) {
+    user = await userService.createUser(req.user.email || req.user.id, {
+      id: req.user.id,
+      email: req.user.email,
+      displayName: req.user.displayName,
+      firstName: req.user.firstName,
+      lastName: req.user.lastName,
+      profileImageUrl: req.user.profileImageUrl,
+    });
+  }
+  if (!user) {
+    throw createError.notFound('User not found');
+  }
+  sendSuccess(res, { user });
+}));
 
 // Get current user
 router.get('/api/auth/user', requireStackAuth, asyncHandler(async (req: any, res) => {
