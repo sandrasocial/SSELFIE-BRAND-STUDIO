@@ -218,6 +218,41 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       };
     }
 
+    // Helper: ensure DB user exists/linked from Stack user fields
+    async function ensureDbUserFromStack(stackUser: { id?: string; email?: string | null; displayName?: string | null; firstName?: string | null; lastName?: string | null; profileImageUrl?: string | null; }) {
+      const { storage } = await import('../server/storage');
+      const stackId = (stackUser.id || '') as string;
+      const email = (stackUser.email || '') as string;
+
+      // Try by ID
+      let dbUser = stackId ? await storage.getUser(stackId) : undefined;
+      if (dbUser) return dbUser;
+
+      // Try by linked stack auth id
+      if (!dbUser && stackId) {
+        dbUser = await storage.getUserByStackAuthId(stackId);
+        if (dbUser) return dbUser;
+      }
+
+      // Try by email, then link
+      if (!dbUser && email) {
+        const byEmail = await storage.getUserByEmail(email);
+        if (byEmail) {
+          return await storage.linkStackAuthId(byEmail.id, stackId || byEmail.id);
+        }
+      }
+
+      // Create new
+      return await storage.upsertUser({
+        id: stackId || email || `user_${Date.now()}`,
+        email: email || null,
+        displayName: stackUser.displayName || null,
+        firstName: stackUser.firstName || (stackUser.displayName ? stackUser.displayName.split(' ')[0] : null),
+        lastName: stackUser.lastName || (stackUser.displayName ? stackUser.displayName.split(' ').slice(1).join(' ') : null),
+        profileImageUrl: stackUser.profileImageUrl || null,
+      } as any);
+    }
+
     // Handle authentication endpoints
     if (req.url?.includes('/api/auth/user')) {
       console.log('🔍 Auth user endpoint called');
@@ -233,6 +268,60 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           error: error.message
         });
       }
+    }
+
+    // Stack webhook to upsert users: /api/webhooks/stack
+    if (req.url === '/api/webhooks/stack' || req.url?.startsWith('/api/webhooks/stack')) {
+      if (req.method !== 'POST') {
+        return res.status(405).json({ error: 'Method not allowed' });
+      }
+      const providedSecret = (req.headers['x-stack-webhook-secret'] as string) || (req.headers['x-stack-verification-secret'] as string) || (req.query as any)?.secret;
+      const expected = process.env.STACK_WEBHOOK_SECRET || process.env.STACK_WEBHOOK_VERIFICATION_SECRET;
+      if (!expected || providedSecret !== expected) {
+        return res.status(401).json({ error: 'Invalid webhook secret' });
+      }
+      res.setHeader('Cache-Control', 'no-store');
+      try {
+        const body = req.body || {};
+        const eventType = (body.event && body.event.type) || body.type || 'unknown';
+        const u = body.data?.user || body.user || body.data || {};
+        const stackUser = {
+          id: u.id || u.sub || u.user_id,
+          email: u.email || u.primaryEmail || u.primary_email,
+          displayName: u.displayName || u.display_name || u.name,
+          firstName: u.firstName || u.given_name || null,
+          lastName: u.lastName || u.family_name || null,
+          profileImageUrl: u.profileImageUrl || u.avatar_url || null,
+        };
+        const dbUser = await ensureDbUserFromStack(stackUser);
+        return res.status(200).json({ ok: true, event: eventType, userId: dbUser.id });
+      } catch (e) {
+        return res.status(500).json({ error: 'Webhook processing failed', detail: (e as Error).message });
+      }
+    }
+
+    // Admin backfill: POST /api/admin/backfill-stack-users { users: [{id,email,displayName,firstName,lastName,profileImageUrl}] }
+    if (req.url === '/api/admin/backfill-stack-users') {
+      if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+      const adminToken = req.headers['x-admin-token'] as string;
+      const expected = process.env.ADMIN_TOKEN || 'sandra-admin-2025';
+      if (adminToken !== expected) return res.status(401).json({ error: 'Unauthorized' });
+      const users = (req.body && (req.body as any).users) || [];
+      if (!Array.isArray(users)) return res.status(400).json({ error: 'users array required' });
+      const results: any[] = [];
+      for (const u of users) {
+        const dbUser = await ensureDbUserFromStack({
+          id: u.id,
+          email: u.email,
+          displayName: u.displayName,
+          firstName: u.firstName,
+          lastName: u.lastName,
+          profileImageUrl: u.profileImageUrl,
+        });
+        results.push({ id: dbUser.id, email: dbUser.email });
+      }
+      res.setHeader('Cache-Control', 'no-store');
+      return res.status(200).json({ ok: true, count: results.length, users: results });
     }
 
     // /api/me: ensure DB user and return JSON
