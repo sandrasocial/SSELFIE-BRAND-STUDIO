@@ -4,13 +4,14 @@
  */
 
 import { Router } from 'express';
-import { requireAdmin } from '../middleware/auth';
+import { requireStackAuth } from '../../stack-auth';
+import { adminContextDetection } from '../../middleware/admin-context';
 import { asyncHandler, createError, sendSuccess } from '../middleware/error-handler';
 
 const router = Router();
 
 // Admin dashboard/validation routes
-router.get('/api/admin/validate-all-models', requireAdmin, asyncHandler(async (req: any, res) => {
+router.get('/api/admin/validate-all-models', requireStackAuth, adminContextDetection, asyncHandler(async (req: any, res) => {
   // Logic for validating all models
   sendSuccess(res, {
     message: 'Admin validate all models endpoint (placeholder)'
