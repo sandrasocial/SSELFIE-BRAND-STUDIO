@@ -611,6 +611,15 @@ function generatePersonalizedScenePrompt(sceneNumber: number, originalMessage: s
   app.use('/api/concepts', conceptCardsRouter);
   console.log('💡 CONCEPT CARDS: API active at /api/concepts/* (ULID-based unique keys)');
   
+  // P3-C BRAND ASSETS: Upload and placement of brand assets (logos, product shots)
+  if (process.env.BRAND_ASSETS_ENABLED === '1') {
+    const { default: brandAssetsRouter } = await import('./routes/brand-assets');
+    const { default: brandPlacementRouter } = await import('./routes/brand-placement');
+    app.use('/api/brand-assets', brandAssetsRouter);
+    app.use('/api/brand-assets', brandPlacementRouter);
+    console.log('🎨 BRAND ASSETS: API active at /api/brand-assets/* (Upload & Placement)');
+  }
+  
   // 🎥 STORY STUDIO API - Server-side AI video story generation
   // Initialize Gemini AI client for server-side operations
   let geminiAI: any = null;

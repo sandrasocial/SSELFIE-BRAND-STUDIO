@@ -1326,6 +1326,38 @@ export type AgentSessions = typeof agentSessions.$inferSelect;
 
 export type InsertUsageHistory = typeof usageHistory.$inferInsert;
 
+// Brand Assets table for P3-C feature
+export const brandAssets = pgTable("brand_assets", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  kind: varchar("kind").notNull(), // 'logo' | 'product'
+  url: varchar("url").notNull(), // S3 URL of the uploaded asset
+  filename: varchar("filename").notNull(),
+  fileSize: integer("file_size"), // File size in bytes
+  meta: jsonb("meta"), // Additional metadata (dimensions, etc.)
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("idx_brand_assets_user").on(table.userId),
+  index("idx_brand_assets_kind").on(table.kind),
+]);
+
+// Image Variants table for non-destructive brand asset placement
+export const imageVariants = pgTable("image_variants", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  originalImageId: integer("original_image_id").references(() => aiImages.id, { onDelete: "cascade" }).notNull(),
+  variantUrl: varchar("variant_url").notNull(), // S3 URL of the variant image
+  variantType: varchar("variant_type").notNull(), // 'brand_placement', 'inpaint', 'overlay'
+  brandAssetId: integer("brand_asset_id").references(() => brandAssets.id),
+  placementData: jsonb("placement_data"), // Position, scale, etc.
+  processingStatus: varchar("processing_status").default("pending"), // pending, processing, completed, failed
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("idx_image_variants_user").on(table.userId),
+  index("idx_image_variants_original").on(table.originalImageId),
+  index("idx_image_variants_asset").on(table.brandAssetId),
+]);
+
 // Export styleguide tables and types  
 export { userStyleguides, styleguideTemplates } from "./styleguide-schema";
 export type { UserStyleguide, StyleguideTemplate, InsertUserStyleguide, InsertStyleguideTemplate } from "./styleguide-schema";
@@ -1676,6 +1708,26 @@ export const insertConceptCardSchema = z.object({
   hasGenerated: z.boolean().default(false)
 });
 
+// Brand Assets schemas
+export const insertBrandAssetSchema = z.object({
+  userId: z.string(),
+  kind: z.enum(['logo', 'product']),
+  url: z.string(),
+  filename: z.string(),
+  fileSize: z.number().optional(),
+  meta: z.record(z.any()).optional()
+});
+
+export const insertImageVariantSchema = z.object({
+  userId: z.string(),
+  originalImageId: z.number(),
+  variantUrl: z.string(),
+  variantType: z.string(),
+  brandAssetId: z.number().optional(),
+  placementData: z.record(z.any()).optional(),
+  processingStatus: z.string().default("pending")
+});
+
 // Type exports for missing tables
 export type ArchitectureAuditLog = typeof architectureAuditLog.$inferSelect;
 export type InsertArchitectureAuditLog = z.infer<typeof insertArchitectureAuditLogSchema>;
@@ -1705,6 +1757,12 @@ export type ConversationSummary = typeof conversationSummaries.$inferSelect;
 export type InsertConversationSummary = z.infer<typeof insertConversationSummarySchema>;
 export type ConceptCard = typeof conceptCards.$inferSelect;
 export type InsertConceptCard = z.infer<typeof insertConceptCardSchema>;
+
+// Brand Assets types
+export type BrandAsset = typeof brandAssets.$inferSelect;
+export type InsertBrandAsset = z.infer<typeof insertBrandAssetSchema>;
+export type ImageVariant = typeof imageVariants.$inferSelect;
+export type InsertImageVariant = z.infer<typeof insertImageVariantSchema>;
 
 // Note: Website type already defined above at line 502
 // Note: styleguide_templates and user_styleguides are imported from styleguide-schema.ts
