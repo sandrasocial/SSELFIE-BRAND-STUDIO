@@ -8,6 +8,10 @@
         "distDir": "client/dist",
         "buildCommand": "npm run build"
       }
+    },
+    {
+      "src": "api/**/*.ts",
+      "use": "@vercel/node"
     }
   ],
   "rewrites": [
