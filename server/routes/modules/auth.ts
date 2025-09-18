@@ -4,7 +4,7 @@
  */
 
 import { Router } from 'express';
-import { requireStackAuth } from '../middleware/auth';
+import { requireStackAuth } from '../../stack-auth';
 import { storage } from '../../storage';
 import { asyncHandler, createError, sendSuccess, validateRequired } from '../middleware/error-handler';
 import { userService } from '../../services/user-service';
