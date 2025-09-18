@@ -382,8 +382,88 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       } as any);
     }
 
+    // Handle auto-registration for new paying customers
+    if (req.url === '/api/auth/auto-register') {
+      if (req.method !== 'POST') {
+        return res.status(405).json({ error: 'Method not allowed' });
+      }
+      
+      try {
+        const { email, plan, source } = req.body || {};
+        
+        if (!email || !plan) {
+          return res.status(400).json({ error: 'Email and plan are required' });
+        }
+        
+        console.log('🚀 AUTO-REGISTRATION: Creating database user for:', email, 'plan:', plan);
+        
+        // Import storage to create database user
+        const { storage } = await import('../server/storage');
+        
+        // Check if user already exists by email
+        const existingUser = await storage.getUserByEmail(email);
+        
+        if (existingUser) {
+          console.log('✅ AUTO-REGISTRATION: User already exists, updating plan:', existingUser.id);
+          
+          // Update existing user's plan
+          const updatedUser = await storage.updateUser(existingUser.id, {
+            plan: plan,
+            monthlyGenerationLimit: plan === 'sselfie-studio' ? 100 : -1,
+            mayaAiAccess: true,
+            lastLoginAt: new Date()
+          });
+          
+          return res.status(200).json({
+            success: true,
+            message: 'Account updated successfully',
+            userId: updatedUser.id,
+            email: updatedUser.email,
+            action: 'updated'
+          });
+        }
+        
+        // Create new database user (pre-registration for payment)
+        const newUserId = `user_${Date.now()}_${email.split('@')[0]}`;
+        const newUser = await storage.upsertUser({
+          id: newUserId,
+          email: email,
+          displayName: email.split('@')[0], // Use email prefix as default name
+          firstName: null,
+          lastName: null,
+          profileImageUrl: null,
+          plan: plan,
+          role: 'user',
+          monthlyGenerationLimit: plan === 'sselfie-studio' ? 100 : -1,
+          mayaAiAccess: true,
+          victoriaAiAccess: false,
+          onboardingProgress: JSON.stringify({ source: source || 'payment-success' })
+        } as any);
+        
+        console.log('✅ AUTO-REGISTRATION: Database user created successfully:', newUser.id);
+        
+        res.setHeader('Cache-Control', 'no-store');
+        return res.status(201).json({
+          success: true,
+          message: 'Account pre-created successfully',
+          userId: newUser.id,
+          email: newUser.email,
+          plan: newUser.plan,
+          action: 'created'
+        });
+        
+      } catch (error) {
+        console.error('❌ AUTO-REGISTRATION: Failed:', error);
+        return res.status(500).json({
+          success: false,
+          error: 'Failed to create account',
+          message: error.message
+        });
+      }
+    }
+
     // Handle Stack Auth API proxy endpoints
-    if (req.url?.startsWith('/api/auth/')) {
+    if (req.url?.startsWith('/api/auth/') && !req.url.includes('auto-register')) {
       console.log('🔍 Stack Auth API proxy called:', req.url);
       
       try {
@@ -540,28 +620,48 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       try {
         const user = await getAuthenticatedUser();
         const { storage } = await import('../server/storage');
-        // Try to get existing user
-        let dbUser = await storage.getUser(user.id as string);
-        if (!dbUser) {
-          // Try link by email
-          if (user.email) {
-            const byEmail = await storage.getUserByEmail(user.email as string);
-            if (byEmail) {
-              dbUser = await storage.linkStackAuthId(byEmail.id, user.id as string);
-            }
-          }
+      // Enhanced user linking for new users who paid first
+      let dbUser = await storage.getUser(user.id as string);
+      
+      if (!dbUser) {
+        // Try to find user by Stack Auth ID first
+        dbUser = await storage.getUserByStackAuthId(user.id as string);
+      }
+      
+      if (!dbUser && user.email) {
+        // Try to find user by email (for users who paid before creating Stack Auth account)
+        const byEmail = await storage.getUserByEmail(user.email as string);
+        if (byEmail) {
+          console.log('🔗 Linking existing paid user to Stack Auth:', byEmail.email, '→', user.id);
+          
+          // Link the existing database user to Stack Auth ID
+          dbUser = await storage.linkStackAuthId(byEmail.id, user.id as string);
+          
+          console.log('✅ Successfully linked paid user to Stack Auth account');
         }
-        if (!dbUser) {
-          // Create new user
-          dbUser = await storage.upsertUser({
-            id: user.id as string,
-            email: (user.email as string) || null,
-            displayName: `${user.firstName || ''} ${user.lastName || ''}`.trim() || null,
-            firstName: user.firstName || null,
-            lastName: user.lastName || null,
-            profileImageUrl: null,
-          } as any);
-        }
+      }
+      
+      if (!dbUser) {
+        // Create completely new user (no prior payment)
+        console.log('🆕 Creating new user account:', user.email);
+        
+        dbUser = await storage.upsertUser({
+          id: user.id as string,
+          email: (user.email as string) || null,
+          displayName: `${user.firstName || ''} ${user.lastName || ''}`.trim() || null,
+          firstName: user.firstName || null,
+          lastName: user.lastName || null,
+          profileImageUrl: null,
+          plan: 'sselfie-studio', // Default plan for new users
+          role: 'user',
+          monthlyGenerationLimit: 100,
+          mayaAiAccess: true,
+          victoriaAiAccess: false,
+          onboardingProgress: JSON.stringify({ source: 'direct-signup' })
+        } as any);
+        
+        console.log('✅ Created new user account:', dbUser.id);
+      }
         res.setHeader('Cache-Control', 'no-store');
         return res.status(200).json({ user: dbUser });
       } catch (error) {
