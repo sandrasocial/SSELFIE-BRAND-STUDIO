@@ -169,7 +169,7 @@ Generate comprehensive response now:`;
     try {
       // Extract conversational response
       const conversationMatch = response.match(/CONVERSATIONAL_RESPONSE:\s*(.*?)(?=\n\d+\.|$)/s);
-      conversationalResponse = conversationMatch ? conversationMatch[1].trim() : response.substring(0, 500);
+      conversationalResponse = conversationMatch ? conversationMatch[1].trim() : response; // Preserve full response
       
       if (config.includeConceptGeneration) {
         // Extract concepts with embedded prompts using optimized parsing
@@ -215,7 +215,7 @@ Generate comprehensive response now:`;
             concepts.push({
               id: `optimized_concept_${conceptNumber++}`,
               title: conceptName,
-              description: description.substring(0, 120) + (description.length > 120 ? '...' : ''),
+              description: description, // Preserve full description - let UI handle display truncation
               originalContext: description,
               fullPrompt: finalPrompt,
               canGenerate: true,
@@ -233,7 +233,7 @@ Generate comprehensive response now:`;
     } catch (error) {
       console.error('❌ OPTIMIZATION PARSING ERROR:', error);
       // Fallback to simple extraction
-      conversationalResponse = response.substring(0, 500);
+      conversationalResponse = response; // Preserve full response for quality
     }
     
     return { concepts, conversationalResponse };
