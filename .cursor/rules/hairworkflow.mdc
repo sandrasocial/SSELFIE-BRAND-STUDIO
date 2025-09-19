@@ -1,0 +1,25 @@
+---
+description:Implement “Hair Stage Mode” (interactive presentation) — PHASE {1/2/3/4}
+
+Context:
+- We already have SecureIframe, MentimeterEmbed, CanvaEmbed, QR generator, LevelPartner webhook, Sophia trends, /hair route.
+- Do not touch auth or core DB except new tables.
+- Follow repo rules; open a feature branch; run full checks; open PR with demo GIF.
+
+Deliver:
+- Files, routes, and components as listed in phase {N} of the plan.
+- Strict iframe sandbox + CSP; whitelist *.mentimeter.com and *.canva.com only.
+- PresenterConsole (deck fullscreen + side poll/controls), AudienceClient (poll/CTA/QR).
+- (Phase 2) Socket.IO realtime sync with room per session.
+- (Phase 3) Analytics + LevelPartner enrichment + basic stats page.
+- (Phase 4) WorkshopPane with Sophia trends and quick actions.
+
+Acceptance:
+- Fullscreen works reliably (Esc exits); Mentimeter/Canva render; QR links carry UTM.
+- Realtime state mirrors under 200ms; reconnect ok.
+- Analytics events persist and show up in /stats.
+- All checks green; PR includes demo + test notes.
+
+globs:
+alwaysApply: true
+---
