@@ -248,6 +248,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
     }
     
+    // Helper function to parse cookie header when req.cookies is unavailable
+    function parseCookieHeader(cookieHeader?: string): Record<string, string> {
+      if (!cookieHeader) return {};
+      const out: Record<string, string> = {};
+      for (const part of cookieHeader.split(';')) {
+        const idx = part.indexOf('=');
+        if (idx > -1) {
+          const k = part.slice(0, idx).trim();
+          const v = decodeURIComponent(part.slice(idx + 1).trim());
+          out[k] = v;
+        }
+      }
+      return out;
+    }
+
     // Helper function to get authenticated user
     async function getAuthenticatedUser() {
       let accessToken: string | undefined;
@@ -259,9 +274,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         console.log('🔐 Found Bearer token in Authorization header');
       }
       
-      // Check cookies for stored access token - Compatible with Stack Auth v2.8.36
-      if (!accessToken && req.cookies) {
-        console.log('🍪 All cookies received:', Object.keys(req.cookies));
+      // Check cookies for stored access token - handle both req.cookies and header cookies
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const cookiesSource: any = (req as any).cookies || parseCookieHeader(req.headers.cookie as string);
+      if (!accessToken && cookiesSource) {
+        try { console.log('🍪 All cookies received:', Object.keys(cookiesSource)); } catch {}
         
         // Try all possible Stack Auth cookie formats
         const cookiesToTry = [
@@ -272,7 +289,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         ];
         
         for (const cookieName of cookiesToTry) {
-          const cookieValue = req.cookies[cookieName];
+          const cookieValue = cookiesSource[cookieName];
           
           if (cookieValue) {
             console.log(`🍪 Found cookie: ${cookieName}`);
@@ -320,8 +337,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
         
         if (!accessToken) {
-          console.log('🔍 No valid access token found in cookies');
-          console.log('🔍 Available cookies:', Object.keys(req.cookies));
+          try { console.log('🔍 No valid access token found in cookies'); } catch {}
+          try { console.log('🔍 Available cookies:', Object.keys(cookiesSource)); } catch {}
         }
       }
       
@@ -655,7 +672,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(200).json({ user: dbUser });
       } catch (error) {
         console.log('❌ /api/me failed:', (error as Error).message);
-        return res.status(401).json({ message: 'Authentication required', error: (error as Error).message });
+        const body = { message: 'Authentication required', error: (error as Error).message };
+        // Support both Node and Web-standard surfaces
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        if (typeof (res as any).status === 'function') {
+          return res.status(401).json(body);
+        } else {
+          // @ts-ignore
+          return new Response(JSON.stringify(body), { status: 401, headers: { 'content-type': 'application/json' } });
+        }
       }
     }
 
@@ -1425,9 +1450,13 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
     
   } catch (error) {
     console.error('❌ API Handler Error:', error);
-    return res.status(500).json({
-      error: 'Internal server error',
-      message: error.message
-    });
+    const body = { error: 'Internal server error', message: (error as Error).message };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if (typeof (res as any).status === 'function') {
+      return res.status(500).json(body);
+    } else {
+      // @ts-ignore
+      return new Response(JSON.stringify(body), { status: 500, headers: { 'content-type': 'application/json' } });
+    }
   }
 }
