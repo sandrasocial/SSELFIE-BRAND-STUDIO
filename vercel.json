@@ -5,8 +5,7 @@
   "outputDirectory": "client/dist",
   "functions": {
     "api/**": {
-      "runtime": "nodejs20.x",
-      "includeFiles": "server/**"
+      "runtime": "nodejs20.x"
     }
   },
   "rewrites": [
