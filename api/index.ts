@@ -1,6 +1,13 @@
 /* eslint-disable no-console */
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { jwtVerify, createRemoteJWKSet } from 'jose';
+// Lazy-load jose at runtime to avoid bootstrap issues
+let _jose: { jwtVerify: any; createRemoteJWKSet: any } | null = null;
+async function getJose() {
+  if (_jose) return _jose;
+  const mod = await import('jose');
+  _jose = { jwtVerify: mod.jwtVerify, createRemoteJWKSet: mod.createRemoteJWKSet } as any;
+  return _jose;
+}
 
 // Types
 interface ConceptCard {
@@ -25,7 +32,7 @@ const JWKS_URL = `${STACK_AUTH_API_URL}/projects/${STACK_AUTH_PROJECT_ID}/.well-
 
 // Create JWKS resolver
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const JWKS = createRemoteJWKSet(new (globalThis as any).URL(JWKS_URL));
+let JWKS: any;
 
 // Helper function to apply gender context to concept cards
 async function applyGenderContext(conceptCards: ConceptCard[], userId: string): Promise<ConceptCard[]> {
@@ -179,6 +186,11 @@ function getCategoryFromTitle(title: string): string {
 // Verify JWT token directly using Stack Auth JWKS
 async function verifyJWTToken(token: string) {
   try {
+    const { jwtVerify, createRemoteJWKSet } = await getJose();
+    if (!JWKS) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      JWKS = createRemoteJWKSet(new (globalThis as any).URL(JWKS_URL));
+    }
     const { payload } = await jwtVerify(token, JWKS, {
       issuer: `${STACK_AUTH_API_URL}/projects/${STACK_AUTH_PROJECT_ID}`,
       audience: STACK_AUTH_PROJECT_ID,
