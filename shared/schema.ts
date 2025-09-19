@@ -802,6 +802,22 @@ export const loraWeights = pgTable("lora_weights", {
 
 
 
+// Live Sessions - For Stage Mode interactive presentations
+export const liveSessions = pgTable("live_sessions", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  deckUrl: text("deck_url"),
+  mentiUrl: text("menti_url"),
+  ctaUrl: text("cta_url"),
+  title: text("title").notNull(),
+  createdBy: uuid("created_by").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+}, (table) => ({
+  createdByIdx: index("idx_live_sessions_created_by").on(table.createdBy),
+  createdAtIdx: index("idx_live_sessions_created_at").on(table.createdAt),
+  titleIdx: index("idx_live_sessions_title").on(table.title),
+}));
+
 // Schema exports
 export const upsertUserSchema = createInsertSchema(users);
 export const insertUserSchema = createInsertSchema(users).omit({ createdAt: true, updatedAt: true });
@@ -818,6 +834,7 @@ export const insertVictoriaChatSchema = createInsertSchema(victoriaChats).omit({
 export const insertPhotoSelectionSchema = createInsertSchema(photoSelections).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertLandingPageSchema = createInsertSchema(landingPages).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertBrandOnboardingSchema = createInsertSchema(brandOnboarding).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertLiveSessionSchema = createInsertSchema(liveSessions).omit({ id: true, createdAt: true, updatedAt: true });
 
 export const insertUserLandingPageSchema = createInsertSchema(userLandingPages).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertUserPersonalBrandSchema = createInsertSchema(userPersonalBrand).omit({ id: true, createdAt: true, updatedAt: true });
@@ -1784,6 +1801,10 @@ export type BrandAsset = typeof brandAssets.$inferSelect;
 export type InsertBrandAsset = z.infer<typeof insertBrandAssetSchema>;
 export type ImageVariant = typeof imageVariants.$inferSelect;
 export type InsertImageVariant = z.infer<typeof insertImageVariantSchema>;
+
+// Live Sessions types
+export type LiveSession = typeof liveSessions.$inferSelect;
+export type InsertLiveSession = z.infer<typeof insertLiveSessionSchema>;
 
 // Note: Website type already defined above at line 502
 // Note: styleguide_templates and user_styleguides are imported from styleguide-schema.ts

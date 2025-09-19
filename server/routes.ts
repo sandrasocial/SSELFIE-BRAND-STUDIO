@@ -18,6 +18,7 @@ import { registerVictoriaWebsiteGenerator } from "./routes/victoria-website-gene
 // REMOVED: Conflicting admin routers - consolidated into single adminRouter
 // import { whitelabelRoutes } from './routes/white-label-setup'; // DISABLED
 import videoRoutes from './routes/video';
+import { liveSessionRoutes } from './routes/live-session';
 // NOTE: Disabled legacy Maya route to prevent conflicts with modular Maya routes
 // import mayaRoutes from './routes/maya'; // DISABLED: Using modular Maya routes instead
 import path from 'path';
@@ -620,6 +621,10 @@ function generatePersonalizedScenePrompt(sceneNumber: number, originalMessage: s
   const { default: conceptCardsRouter } = await import('./routes/concept-cards');
   app.use('/api/concepts', conceptCardsRouter);
   console.log('💡 CONCEPT CARDS: API active at /api/concepts/* (ULID-based unique keys)');
+  
+  // Stage Mode Live Session Routes  
+  app.use('/api/live', liveSessionRoutes);
+  console.log('🎪 LIVE SESSIONS: Stage Mode API active at /api/live/* (Interactive presentations)');
   
   // P3-C BRAND ASSETS: Upload and placement of brand assets (logos, product shots)
   if (process.env.BRAND_ASSETS_ENABLED === '1') {
