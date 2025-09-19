@@ -37,8 +37,8 @@ const AuthSuccess = lazy(() => import("./pages/auth-success"));
 const OAuthCallback = lazy(() => import("./pages/OAuthCallback"));
 
 // Stage Mode components (lazy loaded)
-const PresenterConsole = lazy(() => import("./components/stage-mode/PresenterConsole"));
-const AudienceClient = lazy(() => import("./components/stage-mode/AudienceClient"));
+const PresenterConsole = lazy(() => import("./features/live/PresenterConsole"));
+const AudienceClient = lazy(() => import("./features/live/AudienceClient"));
 
 // Components
 import { PageLoader } from "./components/PageLoader";
