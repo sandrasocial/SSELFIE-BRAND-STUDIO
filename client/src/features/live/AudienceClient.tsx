@@ -7,6 +7,8 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useLocation } from 'wouter';
 import InteractivePresentation from './InteractivePresentation';
 import MentimeterEmbed from '../../components/MentimeterEmbed';
+import { useSocket, ReactionData } from './hooks/useSocket';
+import { useAnalytics, useUTMParams } from './hooks/useAnalytics';
 
 interface SessionParams {
   sessionId: string;
@@ -26,7 +28,10 @@ export default function AudienceClient() {
   const [showQR, setShowQR] = useState(false);
   const [utmParams, setUtmParams] = useState<UTMParams>({});
 
-  // Extract UTM parameters from URL
+  // Extract UTM parameters using the hook
+  const utmParamsFromURL = useUTMParams();
+
+  // Extract UTM parameters from URL and set local state
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const params: UTMParams = {};
@@ -44,6 +49,13 @@ export default function AudienceClient() {
     // Check for QR display parameter
     setShowQR(urlParams.get('qr') === '1');
   }, []);
+
+  // Auto-track QR view if qr=1 parameter is present
+  useEffect(() => {
+    if (showQR && sessionId) {
+      // We'll initialize this in the InteractivePresentation component
+    }
+  }, [showQR, sessionId]);
 
   // Helper function to add UTM parameters to URLs
   const addUtmToUrl = (baseUrl: string): string => {
@@ -73,7 +85,51 @@ export default function AudienceClient() {
 
   return (
     <InteractivePresentation sessionId={sessionId} enablePolling>
-      {(session) => (
+      {(session) => {
+        // Initialize real-time socket connection (audience role)
+        const { 
+          isConnected, 
+          sessionState: remoteState,
+          reactionCounts,
+          emitReaction 
+        } = useSocket({ 
+          sessionId, 
+          role: 'audience', 
+          enabled: true 
+        });
+
+        // Initialize analytics tracking with UTM parameters
+        const { trackEvent } = useAnalytics({
+          sessionId,
+          enableAutoTracking: true,
+          utmParams: utmParamsFromURL,
+        });
+
+        // Track QR view if qr=1 parameter is present
+        useEffect(() => {
+          if (showQR) {
+            trackEvent('qr_view');
+          }
+        }, [showQR, trackEvent]);
+
+        // Handle CTA click with analytics
+        const handleCTAClick = (url: string) => {
+          trackEvent('cta_click', { url });
+          window.open(addUtmToUrl(url), '_blank', 'noopener,noreferrer');
+        };
+
+        // Handle reactions
+        const handleReaction = (emoji: ReactionData['emoji']) => {
+          emitReaction(emoji);
+          trackEvent('reaction', { emoji });
+        };
+
+        // Use remote state for controlling visibility (fallback to local state)
+        const shouldShowPoll = remoteState.showPoll !== undefined ? remoteState.showPoll : true;
+        const shouldShowQR = remoteState.showQR !== undefined ? remoteState.showQR : showQR;
+        const shouldShowCTA = remoteState.showCTA !== undefined ? remoteState.showCTA : !!session.ctaUrl;
+
+        return (
         <div className="min-h-screen bg-gray-50">
           {/* Header */}
           <div className="bg-white shadow-sm px-6 py-4 border-b sticky top-0 z-10">
@@ -90,6 +146,15 @@ export default function AudienceClient() {
                       Live Session
                     </span>
                   )}
+                  
+                  {/* Real-time Status */}
+                  <div className="flex items-center space-x-2">
+                    <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-gray-400'}`} />
+                    <span className="text-xs text-gray-500">
+                      {isConnected ? 'Connected' : 'Offline'}
+                    </span>
+                  </div>
+                  
                   <div className="text-sm text-gray-500">
                     {sessionId.slice(0, 8)}...
                   </div>
@@ -111,7 +176,7 @@ export default function AudienceClient() {
                     Interactive Poll
                   </h2>
                   
-                  {session.mentiUrl ? (
+                  {session.mentiUrl && shouldShowPoll ? (
                     <div className="bg-gray-50 rounded-lg min-h-[400px] lg:min-h-[500px]">
                       <MentimeterEmbed
                         presentationId={extractMentimeterPresentationId(session.mentiUrl) || undefined}
@@ -128,20 +193,63 @@ export default function AudienceClient() {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
                         </div>
-                        <h3 className="text-lg font-medium text-gray-900 mb-2">Get Ready to Participate</h3>
+                        <h3 className="text-lg font-medium text-gray-900 mb-2">
+                          {session.mentiUrl && !shouldShowPoll 
+                            ? 'Poll Hidden by Host' 
+                            : 'Get Ready to Participate'
+                          }
+                        </h3>
                         <p className="text-gray-600 max-w-sm">
-                          The host will launch interactive elements during the presentation. Stay tuned!
+                          {session.mentiUrl && !shouldShowPoll 
+                            ? 'The host has temporarily hidden the poll. It will appear when activated.'
+                            : 'The host will launch interactive elements during the presentation. Stay tuned!'
+                          }
                         </p>
                       </div>
                     </div>
                   )}
+
+                  {/* Reaction Bar */}
+                  <div className="mt-4 p-4 bg-white rounded-lg border">
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="text-sm font-medium text-gray-900">Send Reaction</h4>
+                      {Object.keys(reactionCounts).length > 0 && (
+                        <div className="flex items-center space-x-2">
+                          {Object.entries(reactionCounts).map(([emoji, count]) => (
+                            <span key={emoji} className="text-sm bg-gray-100 rounded-full px-2 py-1">
+                              {emoji} {count}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div className="flex space-x-2">
+                      {(['👏', '🔥', '💖', '✨', '💯'] as const).map(emoji => (
+                        <button
+                          key={emoji}
+                          onClick={() => handleReaction(emoji)}
+                          className="flex-1 py-2 px-3 text-2xl bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors border hover:border-gray-300"
+                          disabled={!isConnected}
+                        >
+                          {emoji}
+                        </button>
+                      ))}
+                    </div>
+                    
+                    {!isConnected && (
+                      <p className="text-xs text-gray-500 mt-2 text-center">
+                        Connect to send reactions
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
 
               {/* Sidebar */}
               <div className="space-y-6">
                 {/* Call to Action */}
-                {session.ctaUrl && (
+                {session.ctaUrl && shouldShowCTA && (
                   <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border border-blue-200 p-6">
                     <h3 className="text-lg font-semibold mb-2 text-blue-900 flex items-center">
                       <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -150,14 +258,20 @@ export default function AudienceClient() {
                       Take Action
                     </h3>
                     <p className="text-blue-700 mb-4">Ready to learn more? Join the experience:</p>
-                    <a
-                      href={addUtmToUrl(session.ctaUrl)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-block w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-center font-medium shadow-sm"
+                    <button
+                      onClick={() => handleCTAClick(session.ctaUrl!)}
+                      className="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-center font-medium shadow-sm"
                     >
                       Get Started Now
-                    </a>
+                    </button>
+                  </div>
+                )}
+                
+                {/* Hidden CTA Message */}
+                {session.ctaUrl && !shouldShowCTA && (
+                  <div className="bg-gray-50 rounded-xl border border-gray-200 p-6">
+                    <h3 className="text-lg font-semibold mb-2 text-gray-700">Action Available</h3>
+                    <p className="text-gray-600">The host will activate the call-to-action when ready.</p>
                   </div>
                 )}
 
@@ -189,7 +303,7 @@ export default function AudienceClient() {
                 </div>
 
                 {/* QR Code Display (for screens behind audience) */}
-                {showQR && (
+                {shouldShowQR && (
                   <div className="bg-white rounded-xl shadow-sm border p-6">
                     <h3 className="text-lg font-semibold mb-4 text-gray-900 text-center">Join This Session</h3>
                     <div className="text-center">
@@ -239,7 +353,8 @@ export default function AudienceClient() {
             </div>
           </div>
         </div>
-      )}
+        ); // End of main return statement
+      }}
     </InteractivePresentation>
   );
 }

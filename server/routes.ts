@@ -19,6 +19,7 @@ import { registerVictoriaWebsiteGenerator } from "./routes/victoria-website-gene
 // import { whitelabelRoutes } from './routes/white-label-setup'; // DISABLED
 import videoRoutes from './routes/video';
 import { liveSessionRoutes } from './routes/live-session';
+import { analyticsRoutes } from './routes/analytics';
 // NOTE: Disabled legacy Maya route to prevent conflicts with modular Maya routes
 // import mayaRoutes from './routes/maya'; // DISABLED: Using modular Maya routes instead
 import path from 'path';
@@ -625,6 +626,10 @@ function generatePersonalizedScenePrompt(sceneNumber: number, originalMessage: s
   // Stage Mode Live Session Routes  
   app.use('/api/live', liveSessionRoutes);
   console.log('🎪 LIVE SESSIONS: Stage Mode API active at /api/live/* (Interactive presentations)');
+  
+  // Stage Mode Analytics Routes
+  app.use('/api/analytics', analyticsRoutes);
+  console.log('📊 ANALYTICS: Stage Mode analytics API active at /api/analytics/* (Event tracking)');
   
   // P3-C BRAND ASSETS: Upload and placement of brand assets (logos, product shots)
   if (process.env.BRAND_ASSETS_ENABLED === '1') {

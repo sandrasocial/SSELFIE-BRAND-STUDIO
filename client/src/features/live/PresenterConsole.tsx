@@ -10,6 +10,8 @@ import InteractivePresentation from './InteractivePresentation';
 import StageControls from './components/StageControls';
 import CanvaEmbed from '../../components/CanvaEmbed';
 import MentimeterEmbed from '../../components/MentimeterEmbed';
+import { useSocket } from './hooks/useSocket';
+import { useAnalytics } from './hooks/useAnalytics';
 
 interface SessionParams {
   sessionId: string;
@@ -98,16 +100,88 @@ export default function PresenterConsole() {
 
   return (
     <InteractivePresentation sessionId={sessionId} enablePolling>
-      {(session) => (
+      {(session) => {
+        // Initialize real-time socket connection (presenter role)
+        const { 
+          isConnected, 
+          isConnecting, 
+          error: socketError, 
+          sessionState: remoteState,
+          reactionCounts,
+          emitStateUpdate 
+        } = useSocket({ 
+          sessionId, 
+          role: 'presenter', 
+          enabled: true 
+        });
+
+        // Initialize analytics tracking
+        const { trackEvent } = useAnalytics({
+          sessionId,
+          enableAutoTracking: true,
+        });
+
+        // Sync local state with remote state and emit updates
+        const syncStateUpdate = useCallback((updates: any) => {
+          // Update local state first for immediate UI response
+          if (updates.showPoll !== undefined) setShowPoll(updates.showPoll);
+          if (updates.showQR !== undefined) setShowQR(updates.showQR);
+          if (updates.showCTA !== undefined) setShowCTA(updates.showCTA);
+
+          // Emit to other clients
+          emitStateUpdate(updates);
+
+          // Track state changes
+          trackEvent('state_change', updates);
+        }, [emitStateUpdate, trackEvent]);
+
+        // Update StageControls callbacks to use real-time sync
+        const handleTogglePoll = useCallback((show: boolean) => {
+          syncStateUpdate({ showPoll: show });
+        }, [syncStateUpdate]);
+
+        const handleToggleQR = useCallback((show: boolean) => {
+          syncStateUpdate({ showQR: show });
+        }, [syncStateUpdate]);
+
+        const handleToggleCTA = useCallback((show: boolean) => {
+          syncStateUpdate({ showCTA: show });
+        }, [syncStateUpdate]);
+
+        return (
         <div className={`min-h-screen bg-gray-900 text-white ${isFullscreen ? 'fixed inset-0 z-50' : ''}`}>
           {/* Header */}
           <div className="bg-gray-800 px-6 py-4 border-b border-gray-700">
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-xl font-bold">{session.title}</h1>
-                <p className="text-gray-400 text-sm">
-                  Presenter Console • Host: {user?.displayName || user?.email || 'You'}
-                </p>
+                <div className="flex items-center space-x-3">
+                  <p className="text-gray-400 text-sm">
+                    Host: {user?.displayName || user?.email || 'You'}
+                  </p>
+                  
+                  {/* Real-time Status Indicator */}
+                  <div className="flex items-center space-x-2">
+                    <div className={`w-2 h-2 rounded-full ${
+                      isConnected ? 'bg-green-500' : isConnecting ? 'bg-yellow-500' : 'bg-red-500'
+                    }`} />
+                    <span className="text-xs text-gray-400">
+                      {isConnected ? 'Live' : isConnecting ? 'Connecting...' : 'Offline'}
+                    </span>
+                  </div>
+
+                  {/* Reaction Counter */}
+                  {Object.keys(reactionCounts).length > 0 && (
+                    <div className="flex items-center space-x-2 bg-gray-700 rounded-full px-3 py-1">
+                      <span className="text-xs text-gray-300">Reactions:</span>
+                      {Object.entries(reactionCounts).map(([emoji, count]) => (
+                        <span key={emoji} className="text-xs text-white">
+                          {emoji} {count}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
               <div className="flex items-center space-x-4">
                 <div className="text-sm text-gray-400">
@@ -195,18 +269,34 @@ export default function PresenterConsole() {
                 showPoll={showPoll}
                 showQR={showQR}
                 showCTA={showCTA}
-                onTogglePoll={setShowPoll}
-                onToggleQR={setShowQR}
-                onToggleCTA={setShowCTA}
+                onTogglePoll={handleTogglePoll}
+                onToggleQR={handleToggleQR}
+                onToggleCTA={handleToggleCTA}
                 onFullscreen={handleFullscreen}
                 isFullscreen={isFullscreen}
                 ctaUrl={session.ctaUrl}
                 sessionId={sessionId}
               />
+              
+              {/* Socket Error Display */}
+              {socketError && (
+                <div className="bg-red-900 border border-red-600 rounded-lg p-3 mb-4">
+                  <div className="flex items-center">
+                    <svg className="w-4 h-4 text-red-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div>
+                      <p className="text-sm text-red-200 font-medium">Real-time Connection Issue</p>
+                      <p className="text-xs text-red-300">{socketError}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
-      )}
+        ); // End of main return statement
+      }} 
     </InteractivePresentation>
   );
 }
