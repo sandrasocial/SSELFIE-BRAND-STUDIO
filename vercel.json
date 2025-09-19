@@ -3,7 +3,9 @@
   "framework": null,
   "buildCommand": "npm run build",
   "outputDirectory": "client/dist",
-  
+  "functions": {
+    "api/**": { "runtime": "nodejs20.x" }
+  },
   "rewrites": [
     { "source": "/site.webmanifest", "destination": "/manifest.json" },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
