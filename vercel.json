@@ -3,6 +3,9 @@
   "framework": null,
   "buildCommand": "npm run build",
   "outputDirectory": "client/dist",
+  "functions": {
+    "api/**.{js,ts}": { "runtime": "vercel/node@20.x" }
+  },
   
   "rewrites": [
     { "source": "/site.webmanifest", "destination": "/manifest.json" },
