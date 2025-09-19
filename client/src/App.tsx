@@ -26,6 +26,7 @@ import AppLayout from "./pages/AppLayout";
 import { lazy, Suspense } from "react";
 
 const BusinessLanding = lazy(() => import("./pages/business-landing"));
+const HairLanding = lazy(() => import("./pages/hair-landing"));
 const SimpleTraining = lazy(() => import("./pages/simple-training"));
 const SimpleCheckout = lazy(() => import("./pages/simple-checkout"));
 const PaymentSuccess = lazy(() => import("./pages/payment-success"));
@@ -129,6 +130,12 @@ function Router() {
       <Route path="/business" component={() => (
         <Suspense fallback={<PageLoader />}>
           <BusinessLanding />
+        </Suspense>
+      )} />
+      
+      <Route path="/hair" component={() => (
+        <Suspense fallback={<PageLoader />}>
+          <HairLanding />
         </Suspense>
       )} />
 
