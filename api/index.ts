@@ -238,6 +238,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (req.method === 'OPTIONS') {
       return res.status(200).end();
     }
+
+    // Safe JSON responder that works with both Node res and Web Response
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const json = (response: any, status: number, body: unknown) => {
+      if (typeof response?.status === 'function') {
+        return response.status(status).json(body);
+      }
+      // @ts-ignore
+      return new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } });
+    };
     
     // Simple health check
     if (req.url?.includes('/api/health')) {
@@ -765,11 +775,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         });
         
         res.setHeader('Cache-Control', 'no-store');
-        return res.status(200).json(modelStatus);
+        return json(res, 200, modelStatus);
         
       } catch (error) {
         console.log('❌ User model fetch failed:', error.message);
-        return res.status(401).json({ 
+        return json(res, 401, { 
           message: 'Authentication required',
           error: error.message
         });
@@ -1296,11 +1306,11 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
         
         console.log('📊 Returning gallery images:', galleryImages.length, 'total images');
         res.setHeader('Cache-Control', 'no-store');
-        return res.status(200).json(galleryImages);
+        return json(res, 200, galleryImages);
         
       } catch (error) {
         console.log('❌ Gallery fetch failed:', error.message);
-        return res.status(500).json({ 
+        return json(res, 500, { 
           message: 'Failed to fetch gallery images',
           error: error.message
         });
