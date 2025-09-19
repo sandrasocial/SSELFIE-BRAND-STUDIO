@@ -20,3 +20,4 @@ ALTER TABLE "video_storyboards" ADD CONSTRAINT "video_storyboards_user_id_users_
 -- Add indexes for performance
 CREATE INDEX IF NOT EXISTS "video_storyboards_user_id_idx" ON "video_storyboards" ("user_id");
 CREATE INDEX IF NOT EXISTS "video_storyboards_status_idx" ON "video_storyboards" ("status");
+

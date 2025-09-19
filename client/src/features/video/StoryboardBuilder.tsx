@@ -346,3 +346,4 @@ export function StoryboardBuilder({ imageId, onGenerate, className }: Storyboard
     </div>
   );
 }
+
