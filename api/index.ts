@@ -250,15 +250,18 @@ function getCategoryFromTitle(title: string): string {
   }
 }
 
-// Verify JWT token directly using Stack Auth JWKS
+// Verify JWT token directly using Stack Auth JWKS (local JWKS with fetch timeout)
 async function verifyJWTToken(token: string) {
   try {
     const jose = await getJose();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { jwtVerify, createRemoteJWKSet } = jose as any;
+    const { jwtVerify, createLocalJWKSet } = jose as any;
     if (!JWKS) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      JWKS = createRemoteJWKSet(new (globalThis as any).URL(JWKS_URL));
+      // Fetch JWKS with timeout and create a local JWK set to avoid remote hangs
+      const resp = await timedFetch(JWKS_URL, 3000);
+      if (!resp.ok) throw new Error(`JWKS HTTP ${resp.status}`);
+      const jwks = await resp.json();
+      JWKS = createLocalJWKSet(jwks);
     }
     const { payload } = await jwtVerify(token, JWKS, {
       issuer: `${STACK_AUTH_API_URL}/projects/${STACK_AUTH_PROJECT_ID}`,
@@ -712,28 +715,29 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // /api/me: ensure DB user and return JSON
     if (req.url === '/api/me' || req.url?.startsWith('/api/me?')) {
+      const t = logStart('GET /api/me');
       // Ensure we return JSON content type
       res.setHeader('Content-Type', 'application/json');
       
       try {
         const user = await getAuthenticatedUser();
         const { storage } = await import('../server/storage');
-      // Enhanced user linking for new users who paid first
-        let dbUser = await storage.getUser(user.id as string);
+        // Enhanced user linking for new users who paid first
+        let dbUser = await withTimeout(storage.getUser(user.id as string), 4000, 'getUser');
       
         if (!dbUser) {
-        // Try to find user by Stack Auth ID first
-        dbUser = await storage.getUserByStackAuthId(user.id as string);
+          // Try to find user by Stack Auth ID first
+          dbUser = await withTimeout(storage.getUserByStackAuthId(user.id as string), 4000, 'getUserByStackAuthId');
       }
       
       if (!dbUser && user.email) {
         // Try to find user by email (for users who paid before creating Stack Auth account)
-            const byEmail = await storage.getUserByEmail(user.email as string);
+            const byEmail = await withTimeout(storage.getUserByEmail(user.email as string), 4000, 'getUserByEmail');
             if (byEmail) {
           console.log('🔗 Linking existing paid user to Stack Auth:', byEmail.email, '→', user.id);
           
           // Link the existing database user to Stack Auth ID
-              dbUser = await storage.linkStackAuthId(byEmail.id, user.id as string);
+              dbUser = await withTimeout(storage.linkStackAuthId(byEmail.id, user.id as string), 4000, 'linkStackAuthId');
           
           console.log('✅ Successfully linked paid user to Stack Auth account');
             }
@@ -743,7 +747,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // Create completely new user (no prior payment)
         console.log('🆕 Creating new user account:', user.email);
         
-          dbUser = await storage.upsertUser({
+          dbUser = await withTimeout(storage.upsertUser({
             id: user.id as string,
             email: (user.email as string) || null,
             displayName: `${user.firstName || ''} ${user.lastName || ''}`.trim() || null,
@@ -756,13 +760,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           mayaAiAccess: true,
           victoriaAiAccess: false,
           onboardingProgress: JSON.stringify({ source: 'direct-signup' })
-          } as any);
+          } as any), 5000, 'upsertUser');
         
         console.log('✅ Created new user account:', dbUser.id);
         }
         res.setHeader('Cache-Control', 'no-store');
+        t.end('ok');
         return res.status(200).json({ user: dbUser });
       } catch (error) {
+        t.end('error', { error: (error as Error).message });
         console.log('❌ /api/me failed:', (error as Error).message);
         const body = { message: 'Authentication required', error: (error as Error).message };
         // Support both Node and Web-standard surfaces
