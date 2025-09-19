@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 import { VercelRequest, VercelResponse } from '@vercel/node';
+export const config = { runtime: 'nodejs20.x' } as const;
 // Lazy-load jose at runtime to avoid bootstrap issues
 let _jose: { jwtVerify: any; createRemoteJWKSet: any } | null = null;
 async function getJose() {
