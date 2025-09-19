@@ -4,7 +4,8 @@
   "buildCommand": "npm run build",
   "outputDirectory": "client/dist",
   "functions": {
-    "api/**/*.ts": {
+    "api/**": {
+      "runtime": "nodejs20.x",
       "includeFiles": "server/**"
     }
   },
