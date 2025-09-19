@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 import { VercelRequest, VercelResponse } from '@vercel/node';
+import { jwtVerify, createRemoteJWKSet } from 'jose';
 
 // Types
 interface ConceptCard {
