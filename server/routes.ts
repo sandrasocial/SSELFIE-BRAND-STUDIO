@@ -51,6 +51,9 @@ import adminRoutes from './routes/modules/admin';
 import agentProtocolRoutes from './routes/modules/agent-protocol';
 import websitesRoutes from './routes/modules/websites';
 import trainingRoutes from './routes/modules/training';
+import levelPartnerWebhook from './routes/levelpartner-webhook';
+import hairTrendsRoute from './routes/hair-trends-route';
+import { scheduleTrendAnalysis } from './scheduled-tasks/fetch-hair-trends';
 // DISABLED: Express routes conflict with Vercel serverless functions
 // import galleryRoutes from './routes/modules/gallery';
 // import mayaRoutes from './routes/modules/maya';
@@ -78,12 +81,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/', agentProtocolRoutes);
   app.use('/', websitesRoutes);
   app.use('/', trainingRoutes);
+  app.use('/', levelPartnerWebhook);
+  app.use('/api', hairTrendsRoute);
   // DISABLED: Using Vercel serverless functions instead of Express routes
   // app.use('/', galleryRoutes);
   // app.use('/', mayaRoutes);
   app.use('/', claudeRoutes);
   app.use('/', usageRoutes);
-  console.log('✅ Modular routes registered');
+  console.log('✅ Modular routes registered (including LevelPartner webhook and Hair Trends)');
 
   // NOTE: The remainder of the file already assumes an existing `app` context.
   // Imports consolidated above wrapper during refactor.
@@ -1199,5 +1204,9 @@ Remember: You are the MEMBER experience Maya - provide creative guidance and ima
     res.status(404).json({ error: 'Not found' });
   });
 
+  // Initialize Sophia trend analysis scheduling
+  console.log('🤖 Initializing Sophia trend analysis system...');
+  scheduleTrendAnalysis();
+  
   return server;
 }
