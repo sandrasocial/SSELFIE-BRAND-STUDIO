@@ -335,3 +335,4 @@ export async function cancelComposition(compositionJobId: string, sceneJobs?: Co
     console.log(`🛑 VIDEO COMPOSER: ${sceneJobs.length} scene jobs cancelled`);
   }
 }
+

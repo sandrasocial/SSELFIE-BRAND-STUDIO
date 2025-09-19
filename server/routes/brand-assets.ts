@@ -188,3 +188,4 @@ router.delete('/:assetId', requireStackAuth, async (req, res) => {
 });
 
 export default router;
+

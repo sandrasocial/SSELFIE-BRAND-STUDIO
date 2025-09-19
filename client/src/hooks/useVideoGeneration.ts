@@ -107,3 +107,4 @@ export function useVideoGeneration(options: UseVideoGenerationOptions = {}) {
     reset
   };
 }
+

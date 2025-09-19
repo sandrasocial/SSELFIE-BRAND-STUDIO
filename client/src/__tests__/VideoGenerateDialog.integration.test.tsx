@@ -154,3 +154,4 @@ describe('VideoGenerateDialog Integration', () => {
     expect(screen.queryByText('Generate Video with VEO 3')).not.toBeInTheDocument();
   });
 });
+

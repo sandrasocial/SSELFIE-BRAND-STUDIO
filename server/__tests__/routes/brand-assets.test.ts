@@ -222,3 +222,4 @@ describe('Brand Assets Routes', () => {
     });
   });
 });
+

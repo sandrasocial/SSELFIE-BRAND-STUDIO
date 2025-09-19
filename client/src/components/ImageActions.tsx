@@ -229,3 +229,4 @@ const ImageActions: React.FC<ImageActionsProps> = ({
 };
 
 export default ImageActions;
+

@@ -36,3 +36,4 @@ CREATE INDEX IF NOT EXISTS "idx_image_variants_asset" ON "image_variants" ("bran
 ALTER TABLE "image_variants" ADD CONSTRAINT "image_variants_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE cascade ON UPDATE no action;
 ALTER TABLE "image_variants" ADD CONSTRAINT "image_variants_original_image_id_ai_images_id_fk" FOREIGN KEY ("original_image_id") REFERENCES "ai_images"("id") ON DELETE cascade ON UPDATE no action;
 ALTER TABLE "image_variants" ADD CONSTRAINT "image_variants_brand_asset_id_brand_assets_id_fk" FOREIGN KEY ("brand_asset_id") REFERENCES "brand_assets"("id") ON DELETE set null ON UPDATE no action;
+
