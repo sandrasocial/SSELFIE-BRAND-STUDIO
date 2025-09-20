@@ -320,6 +320,50 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(200).end();
     }
 
+    // Admin export: Markdown document of trained users for manual Stack updates
+    if (req.url === '/api/admin/export-trained-users-doc') {
+      if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
+      try {
+        const adminToken = req.headers['x-admin-token'] as string;
+        const expected = process.env.ADMIN_TOKEN || 'sandra-admin-2025';
+        if (adminToken !== expected) return res.status(401).json({ error: 'Unauthorized' });
+
+        const { storage } = await import('../server/storage.js');
+        const models = await storage.getAllCompletedTrainings();
+
+        const header = [
+          '# Trained Users Export',
+          '',
+          'Copy/paste this table into your Stack dashboard import or keep as a reference.',
+          '',
+          '| Email | LegacyUserId | StackId | TriggerWord | ModelStatus | ModelName | ReplicateModelId | ReplicateVersionId | CompletedAt |',
+          '|---|---:|---|---|---|---|---|---|---|'
+        ].join('\n');
+
+        const rows: string[] = [];
+        for (const m of models) {
+          const u = await storage.getUser(m.userId);
+          const email = (u as any)?.email || '';
+          const legacyId = (u as any)?.id || m.userId;
+          const stackId = (u as any)?.stackAuthId || '';
+          const trigger = (m as any)?.triggerWord || '';
+          const status = (m as any)?.trainingStatus || '';
+          const modelName = (m as any)?.modelName || '';
+          const replicateModelId = (m as any)?.replicateModelId || '';
+          const replicateVersionId = (m as any)?.replicateVersionId || '';
+          const completedAt = (m as any)?.completedAt ? new Date((m as any).completedAt).toISOString() : '';
+          rows.push(`| ${email} | ${legacyId} | ${stackId} | ${trigger} | ${status} | ${modelName} | ${replicateModelId} | ${replicateVersionId} | ${completedAt} |`);
+        }
+
+        const markdown = `${header}\n${rows.join('\n')}\n`;
+        res.setHeader('Content-Type', 'text/markdown; charset=utf-8');
+        res.setHeader('Cache-Control', 'no-store');
+        return res.status(200).send(markdown);
+      } catch (error) {
+        return res.status(500).json({ error: 'Failed to export trained users', message: (error as Error).message });
+      }
+    }
+
     // Safe JSON responder that works with both Node res and Web Response
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const json = (response: any, status: number, body: unknown) => {
