@@ -107,7 +107,7 @@ function ImageDetailModal({
   );
 }
 
-function SSELFIEGallery() {
+function SSELFIEGallery({ hideMemberNav = false }: { hideMemberNav?: boolean }) {
   const { user, isAuthenticated } = useAuth();
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
@@ -233,7 +233,7 @@ function SSELFIEGallery() {
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-white">
-        <MemberNavigation />
+        {!hideMemberNav && <MemberNavigation />}
         <div className="px-5 py-30 text-center">
           <h1 className="text-2xl font-light tracking-widest mb-4">Please Sign In</h1>
           <p className="text-gray-600">You need to be signed in to access your SSELFIE Gallery.</p>
@@ -244,7 +244,7 @@ function SSELFIEGallery() {
 
   return (
     <div className="min-h-screen bg-white">
-      <MemberNavigation />
+      {!hideMemberNav && <MemberNavigation />}
       
       {/* Simple Container with Clean Padding */}
       <div className="px-4 py-6">
@@ -347,10 +347,10 @@ function SSELFIEGallery() {
   );
 }
 
-export default function SSELFIEGalleryWithErrorBoundary() {
+export default function SSELFIEGalleryWithErrorBoundary(props: { hideMemberNav?: boolean }) {
   return (
     <ErrorBoundary>
-      <SSELFIEGallery />
+      <SSELFIEGallery hideMemberNav={props?.hideMemberNav} />
     </ErrorBoundary>
   );
 }

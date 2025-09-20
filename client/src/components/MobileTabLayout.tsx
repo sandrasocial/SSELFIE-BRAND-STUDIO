@@ -11,7 +11,7 @@ function MobileTabLayout() {
       case 'studio':
         return <StudioPage />;
       case 'gallery':
-        return <SSELFIEGallery />;
+        return <SSELFIEGallery hideMemberNav />;
       case 'account':
         return <div style={{ padding: '20px' }}>Account Page Coming Soon</div>;
       default:

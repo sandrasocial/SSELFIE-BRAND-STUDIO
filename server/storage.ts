@@ -90,8 +90,8 @@ import {
   type InsertBrandAsset,
   type ImageVariant,
   type InsertImageVariant,
-} from "../shared/schema";
-import { db } from "./drizzle";
+} from "../shared/schema.js";
+import { db } from "./drizzle.js";
 import { eq, and, desc, asc, gte, lte, sql } from "drizzle-orm";
 
 // Interface for storage operations
