@@ -200,6 +200,26 @@ export const userProfiles = pgTable("user_profiles", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Hair leads table for QR code signups (Norwegian market)
+export const hairLeads = pgTable("hair_leads", {
+  id: serial("id").primaryKey(),
+  navn: varchar("navn").notNull(), // Name in Norwegian
+  epost: varchar("epost").notNull(), // Email in Norwegian
+  telefon: varchar("telefon"), // Phone number (optional)
+  kilde: varchar("kilde").default("qr-code"), // Source: qr-code, landing-page, etc
+  interesse: text("interesse"), // Interest/comments (optional)
+  levelpartnerSynced: boolean("levelpartner_synced").default(false), // For future LevelPartner integration
+  levelpartnerSyncedAt: timestamp("levelpartner_synced_at"),
+  status: varchar("status").default("new"), // new, contacted, converted, unsubscribed
+  notater: text("notater"), // Notes in Norwegian
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_hair_leads_epost").on(table.epost),
+  index("idx_hair_leads_created").on(table.createdAt),
+  index("idx_hair_leads_kilde").on(table.kilde),
+]);
+
 // User projects/brands table
 export const projects = pgTable("projects", {
   id: serial("id").primaryKey(),
@@ -845,6 +865,7 @@ export const liveEvents = pgTable("live_events", {
 export const upsertUserSchema = createInsertSchema(users);
 export const insertUserSchema = createInsertSchema(users).omit({ createdAt: true, updatedAt: true });
 export const insertUserProfileSchema = createInsertSchema(userProfiles).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertHairLeadSchema = createInsertSchema(hairLeads).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertProjectSchema = createInsertSchema(projects).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertAiImageSchema = createInsertSchema(aiImages).omit({ id: true, createdAt: true });
 export const insertTemplateSchema = createInsertSchema(templates).omit({ id: true, createdAt: true });
@@ -1851,6 +1872,10 @@ export type InsertLiveSession = z.infer<typeof insertLiveSessionSchema>;
 // Live Events types
 export type LiveEvent = typeof liveEvents.$inferSelect;
 export type InsertLiveEvent = z.infer<typeof insertLiveEventSchema>;
+
+// Hair Leads types
+export type HairLead = typeof hairLeads.$inferSelect;
+export type InsertHairLead = z.infer<typeof insertHairLeadSchema>;
 
 // Note: Website type already defined above at line 502
 // Note: styleguide_templates and user_styleguides are imported from styleguide-schema.ts
