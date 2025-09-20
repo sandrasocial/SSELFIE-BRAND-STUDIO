@@ -56,8 +56,8 @@ export function MemberNavigation({ transparent = true, darkText = false }: Membe
     <nav 
       role="navigation" 
       aria-label="Main navigation"
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled || !transparent ? 'bg-black/90 backdrop-blur-md' : 'bg-transparent'
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-sophisticated ${
+        scrolled || !transparent ? 'editorial-glass' : 'bg-transparent'
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -73,7 +73,7 @@ export function MemberNavigation({ transparent = true, darkText = false }: Membe
               }
             }}
             aria-label="SSELFIE home page"
-            className={`font-serif text-xl font-light tracking-wide ${darkText ? 'text-black' : 'text-white'} hover:opacity-70 transition-opacity duration-300`}
+            className={`editorial-headline text-xl font-light tracking-extra-wide ${darkText ? 'text-neutral-900' : 'text-neutral-200'} hover:opacity-70 transition-all duration-300 ease-sophisticated`}
             style={{ fontFamily: "Times New Roman, serif" }}
           >
             SSELFIE
@@ -88,10 +88,10 @@ export function MemberNavigation({ transparent = true, darkText = false }: Membe
                 role="menuitem"
                 aria-current={isActive(item.path) ? 'page' : undefined}
                 aria-label={`Navigate to ${item.label}`}
-                className={`text-xs uppercase tracking-[0.3em] font-light transition-all duration-300 ${
+                className={`editorial-headline text-xs tracking-wide font-light transition-all duration-300 ease-sophisticated ${
                   isActive(item.path)
-                    ? `${darkText ? 'text-black border-b border-black/50' : 'text-white border-b border-white/50'} pb-1`
-                    : `${darkText ? 'text-black/70 hover:text-black' : 'text-white/70 hover:text-white'} hover:tracking-[0.4em]`
+                    ? `${darkText ? 'text-neutral-900 border-b border-neutral-700/50' : 'text-neutral-200 border-b border-neutral-500/50'} pb-1`
+                    : `${darkText ? 'text-neutral-600 hover:text-neutral-900' : 'text-neutral-400 hover:text-neutral-200'} hover:tracking-extra-wide`
                 }`}
               >
                 {item.label}
@@ -145,33 +145,38 @@ export function MemberNavigation({ transparent = true, darkText = false }: Membe
             <button
               onClick={handleLogout}
               aria-label="Logout from account"
-              className={`${darkText ? 'text-black border border-black/30 hover:bg-black hover:text-white' : 'text-white border border-white/30 hover:bg-white hover:text-black'} transition-colors duration-300 text-xs tracking-[0.3em] uppercase px-6 py-2 font-light`}
+              className={`editorial-headline text-xs tracking-wide px-6 py-2 font-light transition-all duration-300 ease-sophisticated rounded-xl ${
+                darkText 
+                  ? 'text-neutral-900 border border-neutral-300 hover:bg-neutral-900 hover:text-neutral-200' 
+                  : 'text-neutral-200 border border-neutral-600/30 hover:bg-neutral-200 hover:text-neutral-900'
+              }`}
             >
-              Logout
+              LOGOUT
             </button>
           </div>
           
-          {/* Mobile Menu Button - Minimalistic MENU text */}
+          {/* Mobile Menu Button - Editorial luxury styling */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label="Toggle mobile menu"
             aria-expanded={mobileMenuOpen}
             aria-controls="mobile-menu"
-            className={`md:hidden text-xs uppercase tracking-[0.4em] ${darkText ? 'text-black/80 hover:text-black' : 'text-white/80 hover:text-white'} transition-all duration-300`}
+            className={`md:hidden editorial-headline text-xs tracking-extra-wide ${darkText ? 'text-neutral-600 hover:text-neutral-900' : 'text-neutral-400 hover:text-neutral-200'} transition-all duration-300 ease-sophisticated`}
           >
             MENU
           </button>
         </div>
       </div>
       
-      {/* Mobile Menu - Minimalistic Black Overlay */}
+      {/* Editorial Mobile Menu - Sophisticated overlay */}
       {mobileMenuOpen && (
         <div 
           id="mobile-menu"
           role="dialog"
           aria-modal="true"
           aria-label="Mobile navigation menu"
-          className="md:hidden fixed top-0 left-0 right-0 bottom-0 z-[999] bg-black/95 backdrop-blur-md"
+          className="md:hidden fixed top-0 left-0 right-0 bottom-0 z-[999] editorial-glass"
+          style={{ background: 'rgba(0, 0, 0, 0.97)' }}
         >
           <div className="flex flex-col items-center justify-center h-full space-y-8 px-6" role="menu">
             {navItems.map((item) => (
@@ -184,10 +189,10 @@ export function MemberNavigation({ transparent = true, darkText = false }: Membe
                 role="menuitem"
                 aria-current={isActive(item.path) ? 'page' : undefined}
                 aria-label={`Navigate to ${item.label}`}
-                className={`text-sm uppercase tracking-[0.4em] transition-all duration-300 ${
+                className={`editorial-headline text-sm tracking-extra-wide transition-all duration-300 ease-sophisticated ${
                   isActive(item.path)
-                    ? `${darkText ? 'text-black' : 'text-white'}`
-                    : `${darkText ? 'text-black/70 hover:text-black' : 'text-white/70 hover:text-white'}`
+                    ? 'text-neutral-200'
+                    : 'text-neutral-400 hover:text-neutral-200'
                 }`}
               >
                 {item.label}
@@ -224,17 +229,17 @@ export function MemberNavigation({ transparent = true, darkText = false }: Membe
                 handleLogout();
                 setMobileMenuOpen(false);
               }}
-              className={`text-sm uppercase tracking-[0.4em] ${darkText ? 'text-black/70 hover:text-black' : 'text-white/70 hover:text-white'} transition-all duration-300 mt-8`}
+              className="editorial-headline text-sm tracking-extra-wide text-neutral-400 hover:text-neutral-200 transition-all duration-300 ease-sophisticated mt-8"
             >
-              Logout
+              LOGOUT
             </button>
             
             {/* Close button */}
             <button
               onClick={() => setMobileMenuOpen(false)}
-              className={`absolute top-6 right-6 text-xs uppercase tracking-[0.4em] ${darkText ? 'text-black/80 hover:text-black' : 'text-white/80 hover:text-white'} transition-all duration-300`}
+              className="absolute top-6 right-6 editorial-headline text-xs tracking-extra-wide text-neutral-400 hover:text-neutral-200 transition-all duration-300 ease-sophisticated"
             >
-              Close
+              CLOSE
             </button>
           </div>
         </div>

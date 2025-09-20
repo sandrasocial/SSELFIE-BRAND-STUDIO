@@ -19,6 +19,9 @@ import { initializeMobileOptimization } from "./utils/mobileOptimization";
 import { performanceMonitor } from "./utils/performanceMonitor";
 import { initializeRuntimeOptimization } from "./utils/runtimeOptimization";
 
+// Editorial Luxury Styling
+import "./styles/editorial-luxury.css";
+
 // Core pages (loaded immediately) - BRAND STUDIO IS PRIMARY
 import AppLayout from "./pages/AppLayout";
 
