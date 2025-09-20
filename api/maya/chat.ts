@@ -5,6 +5,17 @@ export const config = {
 
 export default async function handler(req: Request) {
   try {
+    if (req.method === 'OPTIONS') {
+      return new Response(null, {
+        status: 200,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+        }
+      });
+    }
+
     if (req.method !== 'POST') {
       return new Response(JSON.stringify({ error: 'Method not allowed' }), {
         status: 405,
@@ -12,7 +23,22 @@ export default async function handler(req: Request) {
       });
     }
 
-    const { messages } = await req.json();
+    const body = await req.json().catch(() => ({} as any));
+    let { messages } = body as { messages?: Array<{ role: string; content: string }>; message?: string; conversationHistory?: Array<{ role: string; content?: string; message?: string }>; } as any;
+
+    // Accept alternative payload shape: { message, conversationHistory }
+    if (!messages || !Array.isArray(messages)) {
+      const singleMessage = (body as any).message as string | undefined;
+      const conversationHistory = (body as any).conversationHistory as Array<{ role: string; content?: string; message?: string }> | undefined;
+      const historyMessages = Array.isArray(conversationHistory)
+        ? conversationHistory.map((m) => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: m.content || m.message || '' }))
+        : [];
+      const initial = singleMessage ? [{ role: 'user', content: singleMessage }] : [];
+      const synthesized = [...historyMessages, ...initial].filter(m => m.content && m.content.length > 0);
+      if (synthesized.length > 0) {
+        messages = synthesized as any;
+      }
+    }
     
     if (!messages || !Array.isArray(messages)) {
       return new Response(JSON.stringify({ error: 'Messages array is required' }), {
