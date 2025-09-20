@@ -1,26 +1,26 @@
 import React from 'react';
 import { MobileTabLayout } from '../components/MobileTabLayout';
-import '../styles/editorial-luxury.css';
 
+// Editorial Luxury AppLayout - Pure Black Sophistication
 export function AppLayout() {
   return (
-    <div className="relative min-h-screen bg-editorial-black">
-      {/* Editorial gradient backdrop for maximum sophistication */}
-      <div className="absolute inset-0 bg-gradient-to-br from-editorial-black via-neutral-950 to-neutral-900" />
+    <div className="min-h-screen bg-black relative">
+      {/* Subtle editorial gradient backdrop */}
+      <div className="absolute inset-0 bg-gradient-to-br from-black via-neutral-950 to-neutral-900" />
       
-      {/* Main content container with luxury spacing */}
-      <div className="relative flex-1 p-3 pt-1">
-        {/* Editorial glass container with sophisticated layering */}
-        <div className="min-h-screen editorial-glass rounded-4xl shadow-editorial-xl">
-          {/* Inner content with refined padding */}
-          <div className="min-h-screen p-8">
+      {/* Main content container with editorial spacing */}
+      <div className="relative min-h-screen mx-3 pt-1">
+        {/* Editorial container with sophisticated backdrop */}
+        <div className="min-h-screen bg-neutral-950/80 backdrop-blur-editorial rounded-editorial-xl shadow-editorial-xl border border-neutral-800/30">
+          {/* Inner content with luxury padding */}
+          <div className="min-h-screen">
             <MobileTabLayout />
           </div>
         </div>
       </div>
       
-      {/* Minimal bottom gradient for visual depth */}
-      <div className="absolute bottom-0 left-0 right-0 h-4 bg-gradient-to-t from-black/50 to-transparent pointer-events-none" />
+      {/* Minimal bottom safe area */}
+      <div className="h-4 bg-gradient-to-t from-black/50 to-transparent" />
     </div>
   );
 }
