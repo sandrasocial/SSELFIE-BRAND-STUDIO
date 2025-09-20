@@ -125,6 +125,22 @@ module.exports = {
         'editorial': '20px',
         'editorial-lg': '40px',
       },
+      padding: {
+        'editorial-xs': 'var(--space-editorial-xs)',
+        'editorial-sm': 'var(--space-editorial-sm)', 
+        'editorial-md': 'var(--space-editorial-md)',
+        'editorial-lg': 'var(--space-editorial-lg)',
+        'editorial-xl': 'var(--space-editorial-xl)',
+        'editorial-2xl': 'var(--space-editorial-2xl)',
+      },
+      margin: {
+        'editorial-xs': 'var(--space-editorial-xs)',
+        'editorial-sm': 'var(--space-editorial-sm)', 
+        'editorial-md': 'var(--space-editorial-md)',
+        'editorial-lg': 'var(--space-editorial-lg)',
+        'editorial-xl': 'var(--space-editorial-xl)',
+        'editorial-2xl': 'var(--space-editorial-2xl)',
+      },
       keyframes: {
         "accordion-down": {
           from: { height: "0" },
