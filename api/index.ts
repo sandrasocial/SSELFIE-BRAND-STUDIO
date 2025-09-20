@@ -117,8 +117,8 @@ async function applyGenderContext(conceptCards: ConceptCard[], userId: string): 
     console.log('🎯 Applying gender context to concept cards for user:', userId);
     
     // Import required utilities
-    const { storage } = await import('../server/storage.ts');
-    const { enforceGender, normalizeGender } = await import('../server/utils/gender-prompt.ts');
+    const { storage } = await import('../server/storage.js');
+    const { enforceGender, normalizeGender } = await import('../server/utils/gender-prompt.js');
     
     // Get user data
     const [user, userModel] = await Promise.all([
@@ -484,7 +484,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Helper: ensure DB user exists/linked from Stack user fields
     async function ensureDbUserFromStack(stackUser: { id?: string; email?: string | null; displayName?: string | null; firstName?: string | null; lastName?: string | null; profileImageUrl?: string | null; }) {
-      const { storage } = await import('../server/storage.ts');
+      const { storage } = await import('../server/storage.js');
       const stackId = (stackUser.id || '') as string;
       const email = (stackUser.email || '') as string;
 
@@ -533,7 +533,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         console.log('🚀 AUTO-REGISTRATION: Creating database user for:', email, 'plan:', plan);
         
         // Import storage to create database user
-        const { storage } = await import('../server/storage.ts');
+        const { storage } = await import('../server/storage.js');
         
         // Check if user already exists by email
         const existingUser = await storage.getUserByEmail(email);
@@ -688,7 +688,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (adminToken !== expected) return res.status(401).json({ error: 'Unauthorized' });
       const { legacyUserId, stackId } = (req.body || {}) as { legacyUserId?: string | number; stackId?: string };
       if (!legacyUserId || !stackId) return res.status(400).json({ error: 'legacyUserId and stackId required' });
-      const { storage } = await import('../server/storage.ts');
+      const { storage } = await import('../server/storage.js');
       const linked = await storage.linkStackAuthId(String(legacyUserId), String(stackId));
       res.setHeader('Cache-Control', 'no-store');
       return res.status(200).json({ ok: true, linkedUserId: linked.id, email: linked.email });
@@ -701,7 +701,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const adminToken = req.headers['x-admin-token'] as string;
       const expected = process.env.ADMIN_TOKEN || 'sandra-admin-2025';
       if (adminToken !== expected) return res.status(401).json({ error: 'Unauthorized' });
-      const { storage } = await import('../server/storage.ts');
+      const { storage } = await import('../server/storage.js');
       const users = await storage.getAllUsers();
       const result = [] as Array<Record<string, unknown>>;
       for (const u of users) {
@@ -731,7 +731,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       
       try {
         const user = await getAuthenticatedUser();
-        const { storage } = await import('../server/storage.ts');
+        const { storage } = await import('../server/storage.js');
         // Enhanced user linking for new users who paid first
         let dbUser = await withTimeout(storage.getUser(user.id as string), 4000, 'getUser');
       
@@ -800,7 +800,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       
       try {
         const user = await getAuthenticatedUser();
-      const { storage } = await import('../server/storage.ts');
+      const { storage } = await import('../server/storage.js');
         
         console.log('🔍 Getting model for user:', user.id, user.email);
         
@@ -1051,7 +1051,7 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
         console.log('✅ Generation result:', generationResult);
         
         // Create generation tracker for monitoring
-        const { storage } = await import('../server/storage.ts');
+        const { storage } = await import('../server/storage.js');
         const tracker = await storage.createGenerationTracker({
           userId: user.id as string,
           predictionId: generationResult.predictionId as string,
@@ -1115,7 +1115,7 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
           // const { GenerationCompletionMonitor } = await import('../server/generation-completion-monitor');
           
           // Find the generation tracker for this prediction
-          const { storage } = await import('../server/storage.ts');
+          const { storage } = await import('../server/storage.js');
           const tracker = await storage.getGenerationTrackerByPredictionId(predictionId);
           
           if (tracker) {
@@ -1193,7 +1193,7 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
         
         try {
           // Use the real Maya personality system
-          const { PersonalityManager } = await import('../server/agents/personalities/personality-config.ts');
+          const { PersonalityManager } = await import('../server/agents/personalities/personality-config.js');
           const baseMayaPersonality = PersonalityManager.getNaturalPrompt('maya');
           
           console.log('🎨 MAYA: Using real personality system with Claude API');
@@ -1371,7 +1371,7 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
         console.log('🔍 Getting gallery images for user:', user.id, user.email);
         
         // Import storage service to fetch real images
-        const { storage } = await import('../server/storage.ts');
+        const { storage } = await import('../server/storage.js');
         
         // Fetch images from both tables
         const [aiImages, generatedImages] = await Promise.all([
@@ -1445,7 +1445,7 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
         }
         
         // Update user gender in database
-        const { storage } = await import('../server/storage.ts');
+        const { storage } = await import('../server/storage.js');
         await storage.updateUserProfile(user.id as string, { gender });
         
         console.log(`✅ Updated gender for user ${user.id}: ${gender}`);
@@ -1474,7 +1474,7 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
         console.log('🔍 Getting gallery images for user:', user.id, user.email);
         
         // Import storage service to fetch real images
-        const { storage } = await import('../server/storage.ts');
+        const { storage } = await import('../server/storage.js');
         
         // Fetch images from both tables
         const [aiImages, generatedImages] = await Promise.all([
@@ -1532,7 +1532,7 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
     // Test database connection endpoint
     if (req.url === '/api/test-db') {
       try {
-        const { storage } = await import('../server/storage.ts');
+        const { storage } = await import('../server/storage.js');
         const user = await getAuthenticatedUser();
         
         // Test basic database operations
