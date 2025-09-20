@@ -55,7 +55,7 @@ async function timedFetch(url: string, ms = 3000, init?: FetchInit) {
   const id = setTimeout(() => ac.abort(), ms);
   try {
     // Use global fetch; if types are missing, fall back to any
-    const f: any = (globalThis as any).fetch || fetch;
+    const f = (globalThis as any).fetch || fetch;
     return await f(url, { ...(init || {}), signal: ac.signal });
   } finally {
     clearTimeout(id);
@@ -369,9 +369,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const json = (response: unknown, status: number, body: unknown) => {
       const r = response as { status?: (code: number) => { json: (b: unknown) => unknown } };
       if (typeof r?.status === 'function') {
-        return response.status(status).json(body);
+        return (response as any).status(status).json(body);
       }
-  const NodeResponse: any = (globalThis as any).Response;
+      const NodeResponse = (globalThis as any).Response;
       try {
         // @ts-ignore
         return new NodeResponse(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } });
@@ -385,7 +385,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Shim Response surface if platform provides Web-standard Response instead of VercelResponse
     const resAny = res as unknown as { status?: (code: number) => { json: (b: unknown) => unknown; send: (t: string) => unknown; end: () => unknown }, setHeader?: (k: string, v: unknown) => void, getHeader?: (k: string) => unknown };
     if (typeof resAny.status !== 'function') {
-  const NodeResponse: any = (globalThis as any).Response;
+      const NodeResponse = (globalThis as any).Response;
       resAny.setHeader = resAny.setHeader || (() => {});
       resAny.getHeader = resAny.getHeader || (() => undefined);
       resAny.status = (code: number) => ({
@@ -866,31 +866,30 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       try {
         const user = await getAuthenticatedUser();
         const { storage } = await import('../server/storage.js');
-        // Enhanced user linking for new users who paid first
-        let dbUser = await withTimeout(storage.getUser(user.id as string), 4000, 'getUser');
-      
-        if (!dbUser) {
-          // Try to find user by Stack Auth ID first
-          dbUser = await withTimeout(storage.getUserByStackAuthId(user.id as string), 4000, 'getUserByStackAuthId');
-      }
-      
-      if (!dbUser && user.email) {
-        // Try to find user by email (for users who paid before creating Stack Auth account)
-            const byEmail = await withTimeout(storage.getUserByEmail(user.email as string), 4000, 'getUserByEmail');
-            if (byEmail) {
-          console.log('🔗 Linking existing paid user to Stack Auth:', byEmail.email, '→', user.id);
-          
-          // Link the existing database user to Stack Auth ID
-              dbUser = await withTimeout(storage.linkStackAuthId(byEmail.id, user.id as string), 4000, 'linkStackAuthId');
-          
-          console.log('✅ Successfully linked paid user to Stack Auth account');
-            }
-          }
-      
-        if (!dbUser) {
-        // Create completely new user (no prior payment)
-        console.log('🆕 Creating new user account:', user.email);
         
+        // OPTIMIZED: Single database call with fallback logic
+        let dbUser = await withTimeout(storage.getUser(user.id as string), 3000, 'getUser');
+      
+        if (!dbUser) {
+          // Try to find user by Stack Auth ID or email in parallel
+          const [byStackId, byEmail] = await Promise.all([
+            withTimeout(storage.getUserByStackAuthId(user.id as string), 3000, 'getUserByStackAuthId'),
+            user.email ? withTimeout(storage.getUserByEmail(user.email as string), 3000, 'getUserByEmail') : Promise.resolve(undefined)
+          ]);
+          
+          if (byStackId) {
+            dbUser = byStackId;
+          } else if (byEmail) {
+            console.log('🔗 Linking existing paid user to Stack Auth:', byEmail.email, '→', user.id);
+            dbUser = await withTimeout(storage.linkStackAuthId(byEmail.id, user.id as string), 3000, 'linkStackAuthId');
+            console.log('✅ Successfully linked paid user to Stack Auth account');
+          }
+        }
+      
+        if (!dbUser) {
+          // Create completely new user (no prior payment)
+          console.log('🆕 Creating new user account:', user.email);
+          
           dbUser = await withTimeout(storage.upsertUser({
             id: user.id as string,
             email: (user.email as string) || null,
@@ -898,16 +897,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             firstName: user.firstName || null,
             lastName: user.lastName || null,
             profileImageUrl: null,
-          plan: 'sselfie-studio', // Default plan for new users
-          role: 'user',
-          monthlyGenerationLimit: 100,
-          mayaAiAccess: true,
-          victoriaAiAccess: false,
-          onboardingProgress: JSON.stringify({ source: 'direct-signup' })
-          }), 5000, 'upsertUser');
-        
-        console.log('✅ Created new user account:', dbUser.id);
+            plan: 'sselfie-studio', // Default plan for new users
+            role: 'user',
+            monthlyGenerationLimit: 100,
+            mayaAiAccess: true,
+            victoriaAiAccess: false,
+            onboardingProgress: JSON.stringify({ source: 'direct-signup' })
+          }), 4000, 'upsertUser');
+          
+          console.log('✅ Created new user account:', dbUser.id);
         }
+        
         res.setHeader('Cache-Control', 'no-store');
         t.end('ok');
         return res.status(200).json({ user: dbUser });
@@ -916,11 +916,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         console.log('❌ /api/me failed:', (error as Error).message);
         const body = { message: 'Authentication required', error: (error as Error).message };
         // Support both Node and Web-standard surfaces
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         if (typeof (res as unknown as { status?: unknown }).status === 'function') {
           return res.status(401).json(body);
         } else {
-          const NodeResponse = (globalThis as unknown as { Response: typeof Response }).Response;
+          const NodeResponse = (globalThis as any).Response;
           return new NodeResponse(JSON.stringify(body), { status: 401, headers: { 'content-type': 'application/json' } });
         }
       }
@@ -953,7 +952,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // Check if user has a trained model
         let userModel: UserModel | null = null;
         try {
-          userModel = await withTimeout(storage.getUserModel(dbUser.id), 5000, 'getUserModel');
+          const model = await withTimeout(storage.getUserModel(dbUser.id), 5000, 'getUserModel');
+          userModel = model || null;
         } catch (error) {
           console.log('📊 No existing user model found for:', dbUser.id);
           userModel = null;
@@ -991,7 +991,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             const obj = typeof op === 'string' ? JSON.parse(op) : op;
             onboardingSourceSafe = (obj && obj.source) || 'unknown';
           }
-        } catch {}
+        } catch {
+          // Ignore parsing errors
+        }
 
         const modelStatus = {
           id: userModel?.id || null,
@@ -1734,10 +1736,16 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
         // Import storage service to fetch real images
         const { storage } = await import('../server/storage.js');
         
-        // Fetch images from both tables
+        // OPTIMIZED: Reduced timeout and better error handling
         const [aiImages, generatedImages] = await Promise.all([
-          withTimeout(storage.getAIImages(user.id as string), 5000, 'getAIImages'),
-          withTimeout(storage.getGeneratedImages(user.id as string), 5000, 'getGeneratedImages')
+          withTimeout(storage.getAIImages(user.id as string), 3000, 'getAIImages').catch(err => {
+            console.warn('⚠️ AI images fetch failed:', err.message);
+            return [];
+          }),
+          withTimeout(storage.getGeneratedImages(user.id as string), 3000, 'getGeneratedImages').catch(err => {
+            console.warn('⚠️ Generated images fetch failed:', err.message);
+            return [];
+          })
         ]);
         
         console.log('📊 Found AI images:', aiImages.length);
