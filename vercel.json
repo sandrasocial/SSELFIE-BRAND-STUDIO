@@ -5,6 +5,17 @@
       "destination": "/index.html"
     }
   ],
+  "functions": {
+    "api/me.ts": {
+      "maxDuration": 30
+    },
+    "api/gallery-images.ts": {
+      "maxDuration": 30
+    },
+    "api/index.ts": {
+      "maxDuration": 60
+    }
+  },
   "crons": [
     {
       "path": "/api/cron/training-completion-monitor",

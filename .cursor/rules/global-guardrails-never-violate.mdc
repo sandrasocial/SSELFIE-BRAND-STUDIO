@@ -1,0 +1,13 @@
+---
+description:Do not rename, move, or delete these files: business-landing.tsx, simple-checkout.tsx, payment-success.tsx, simple-training.tsx, AppLayout.tsx, MobileTabLayout.tsx, BrandStudioPage.tsx, sselfie-gallery.tsx, Stack Auth components, MemberNavigation.tsx, GlobalFooter.tsx.
+Do not change props/public interfaces of existing components.
+Do not alter routes, API signatures, or server files. No new endpoints. No runtime changes to API.
+Do not introduce any, eslint-disable directives, or implicit any.
+Client imports must not add “.js” extensions; server imports must keep explicit “.js”.
+Use Tailwind and CSS variables (no hardcoded color hexes in components, outside of theme tokens).
+Maintain WCAG AAA contrast; maintain 44px min touch targets.
+If a component reference is missing (e.g., SafeAreaView), emulate with existing primitives instead of adding new libraries.
+
+globs:
+alwaysApply: true
+---
