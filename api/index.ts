@@ -336,6 +336,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return { status, headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) };
       }
     };
+
+    // Shim Response surface if platform provides Web-standard Response instead of VercelResponse
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const resAny: any = res as any;
+    if (typeof resAny.status !== 'function') {
+      const NodeResponse = (globalThis as any).Response;
+      resAny.setHeader = resAny.setHeader || (() => {});
+      resAny.getHeader = resAny.getHeader || (() => undefined);
+      resAny.status = (code: number) => ({
+        json: (body: unknown) => new NodeResponse(JSON.stringify(body), { status: code, headers: { 'content-type': 'application/json' } }),
+        send: (text: string) => new NodeResponse(text, { status: code }),
+        end: () => new NodeResponse(null, { status: code }),
+      });
+    }
     
     // Simple health check
     if (req.url?.includes('/api/health')) {
