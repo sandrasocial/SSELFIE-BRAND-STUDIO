@@ -1,0 +1,79 @@
+/* Editorial Luxury Theme Variables */
+@layer base {
+  :root {
+    /* Editorial Dark Mode (Default) - Pure sophistication */
+    --background: #000000;
+    --surface: #0A0A0A;
+    --surface-elevated: #171717;
+    --text-primary: #E5E5E5;
+    --text-secondary: #A3A3A3;
+    --text-tertiary: #737373;
+    --accent-primary: #E5E5E5;
+    --accent-secondary: #525252;
+    --accent-tertiary: #262626;
+  }
+  
+  [data-theme='light'] {
+    --background: #FAFAFA;
+    --surface: #FFFFFF;
+    --surface-elevated: #F5F5F5;
+    --text-primary: #171717;
+    --text-secondary: #525252;
+    --text-tertiary: #737373;
+  }
+}
+
+/* Editorial Base Styles */
+@layer components {
+  .editorial-card {
+    @apply bg-gradient-to-br from-neutral-800/30 to-neutral-900/30 rounded-4xl border border-neutral-700/20 p-8 transition-all duration-300 ease-sophisticated;
+  }
+  
+  .editorial-button {
+    @apply bg-neutral-200 text-black px-8 py-4 rounded-2xl font-light tracking-wide transition-all duration-200 hover:bg-neutral-300 hover:scale-[1.02] active:scale-[0.98];
+  }
+  
+  .editorial-button-secondary {
+    @apply bg-neutral-800/40 text-neutral-200 px-8 py-4 rounded-2xl font-light tracking-wide border border-neutral-700/30 transition-all duration-200 hover:bg-neutral-800/60;
+  }
+  
+  .editorial-input {
+    @apply bg-neutral-800/30 border border-neutral-700/30 rounded-2xl px-6 py-4 text-neutral-200 placeholder-neutral-500 focus:border-neutral-600 focus:ring-2 focus:ring-neutral-600/20 transition-colors duration-200;
+  }
+  
+  .editorial-text-header {
+    @apply font-light text-neutral-200 tracking-wide;
+  }
+  
+  .editorial-text-body {
+    @apply font-light text-neutral-300;
+  }
+  
+  .editorial-text-caption {
+    @apply font-light text-neutral-500 tracking-wide;
+  }
+  
+  .editorial-glass {
+    @apply backdrop-blur-2xl bg-neutral-950/80 border border-neutral-800/30;
+  }
+  
+  .editorial-floating-tab {
+    @apply bg-neutral-900/90 backdrop-blur-md rounded-2xl shadow-editorial border border-neutral-700/30 transition-all duration-300 ease-sophisticated;
+  }
+}
+
+/* Editorial Typography */
+@layer utilities {
+  .editorial-headline {
+    font-family: 'Inter', 'SF Pro Display', system-ui, sans-serif;
+    font-weight: 300;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  
+  .editorial-body {
+    font-family: 'Inter', 'SF Pro Display', system-ui, sans-serif;
+    font-weight: 300;
+    line-height: 1.6;
+  }
+}
