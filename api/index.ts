@@ -781,6 +781,83 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(200).json({ count: result.length, users: result });
     }
 
+    // Admin: push trained users' metadata to Stack Auth
+    if (req.url === '/api/admin/push-stack-metadata') {
+      if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+      const adminToken = req.headers['x-admin-token'] as string;
+      const expected = process.env.ADMIN_TOKEN || 'sandra-admin-2025';
+      if (adminToken !== expected) return res.status(401).json({ error: 'Unauthorized' });
+
+      const PROJECT_ID = process.env.STACK_AUTH_PROJECT_ID || process.env.VITE_STACK_PROJECT_ID;
+      const STACK_KEY = process.env.STACK_ADMIN_KEY || process.env.STACK_SERVER_KEY || '';
+      if (!PROJECT_ID || !STACK_KEY) {
+        return res.status(500).json({ error: 'Missing STACK_AUTH_PROJECT_ID or STACK_ADMIN_KEY on server' });
+      }
+
+      try {
+        const { storage } = await import('../server/storage.js');
+        const trainedModels = await storage.getAllCompletedTrainings();
+        const updated: Array<{ stackId: string; legacyUserId: string; email: string | null; ok: boolean; status: number }>
+          = [];
+        const skipped: Array<{ userId: string; reason: string }> = [];
+
+        for (const m of trainedModels) {
+          const userId = (m as any).userId as string;
+          const u = await storage.getUser(userId);
+          const email = (u as any)?.email || null;
+          const stackId = (u as any)?.stackAuthId || null;
+          if (!stackId) {
+            skipped.push({ userId, reason: 'No stackAuthId' });
+            continue;
+          }
+          const triggerWord = (m as any)?.triggerWord || `user${String(userId).replace(/[^a-zA-Z0-9]/g, '')}`;
+          const modelStatus = (m as any)?.trainingStatus || 'completed';
+          const modelName = (m as any)?.modelName || '';
+          const replicateModelId = (m as any)?.replicateModelId || '';
+          const replicateVersionId = (m as any)?.replicateVersionId || '';
+
+          const body = {
+            metadata: {
+              legacyUserId: userId,
+              triggerWord,
+              modelStatus,
+              modelName,
+              replicateModelId,
+              replicateVersionId,
+            },
+          };
+
+          let status = 0;
+          try {
+            const resp = await timedFetch(`https://api.stack-auth.com/api/v1/projects/${PROJECT_ID}/users/${stackId}`, 8000, {
+              method: 'PATCH',
+              headers: {
+                'Authorization': `Bearer ${STACK_KEY}`,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(body),
+            });
+            status = resp.status;
+            updated.push({ stackId, legacyUserId: userId, email, ok: resp.ok, status });
+          } catch (err) {
+            updated.push({ stackId, legacyUserId: userId, email, ok: false, status });
+          }
+        }
+
+        return res.status(200).json({
+          ok: true,
+          projectId: PROJECT_ID,
+          updatedCount: updated.filter(x => x.ok).length,
+          failedCount: updated.filter(x => !x.ok).length,
+          skippedCount: skipped.length,
+          updated,
+          skipped,
+        });
+      } catch (error) {
+        return res.status(500).json({ error: 'Push to Stack failed', message: (error as Error).message });
+      }
+    }
+
     // /api/me: ensure DB user and return JSON
     if (req.url === '/api/me' || req.url?.startsWith('/api/me?')) {
       const t = logStart('GET /api/me');
