@@ -242,7 +242,7 @@ export default function HairLanding() {
             <div className="flex flex-col items-center">
               <div className="mb-6 p-4 bg-gray-100 rounded-lg">
                 <img 
-                  src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent("https://sselfie.ai/hair/signup")}`}
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent("https://sselfie.ai/hair/signup")}&v=2`}
                   alt="QR-kode for påmelding til Hair Experience"
                   className="w-48 h-48 cursor-pointer"
                   onClick={() => setLocation('/hair/signup')}
