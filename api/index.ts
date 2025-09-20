@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { VercelRequest, VercelResponse } from '@vercel/node';
+import type { VercelRequest, VercelResponse } from '@vercel/node';
 export const config = { runtime: 'nodejs20.x' } as const;
 // Lazy-load jose at runtime to avoid bootstrap issues
 let _jose: { jwtVerify: any; createLocalJWKSet: any; createRemoteJWKSet: any } | null = null;
@@ -1085,8 +1085,7 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
         
         console.log('✅ Generation result:', generationResult);
         
-        // Create generation tracker for monitoring
-        const { storage } = await import('../server/storage.js');
+        // Create generation tracker for monitoring (reuse storage from gating import)
         const tracker = await storage.createGenerationTracker({
           userId: user.id as string,
           predictionId: generationResult.predictionId as string,
@@ -1365,7 +1364,7 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
         } catch (persistError) {
           console.log('⚠️ Maya persistence failed:', (persistError as Error).message);
         }
-
+        
         console.log('📊 Returning Maya response:', JSON.stringify(response, null, 2));
         res.setHeader('Cache-Control', 'no-store');
         t.end('ok', { concepts: response.conceptCards?.length || 0 });
