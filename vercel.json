@@ -1,14 +1,18 @@
 {
-  "functions": {
-    "api/**.ts": {
-      "runtime": "nodejs20.x",
-      "maxDuration": 60
-    }
-  },
   "rewrites": [
     {
       "source": "/((?!api/).*)",
       "destination": "/index.html"
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/cron",
+      "schedule": "0 10 * * *"
+    },
+    {
+      "path": "/api/hair-trends/analyze", 
+      "schedule": "0 9 * * 1"
     }
   ]
 }
