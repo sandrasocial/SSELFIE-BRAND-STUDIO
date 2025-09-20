@@ -18,12 +18,21 @@ export async function apiRequest(
   data?: unknown | undefined,
 ): Promise<any> {
   const finalUrl = getApiUrl(url);
+  // Attach Stack Auth bearer if available (unifies with apiFetch behavior)
+  let authHeader: Record<string, string> = {};
+  try {
+    const { getStackApp } = await import('../stack/stack-context');
+    const stack = getStackApp?.();
+    const token = await (stack as any)?.getAccessToken?.();
+    if (token) authHeader = { Authorization: `Bearer ${token}` };
+  } catch {}
   
   const res = await fetch(finalUrl, {
     method,
     headers: {
       ...(data ? { "Content-Type": "application/json" } : {}),
       'Cache-Control': 'no-cache',
+      ...authHeader,
     },
     body: data ? JSON.stringify(data) : undefined,
     credentials: "include",

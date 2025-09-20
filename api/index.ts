@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import { VercelRequest, VercelResponse } from '@vercel/node';
-export const config = { runtime: 'nodejs' } as const;
+export const config = { runtime: 'nodejs20.x' } as const;
 // Lazy-load jose at runtime to avoid bootstrap issues
 let _jose: { jwtVerify: any; createLocalJWKSet: any; createRemoteJWKSet: any } | null = null;
 async function getJose() {
@@ -1373,6 +1373,45 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
           message: 'Authentication required',
           error: error.message
         });
+      }
+    }
+
+    // Training status for authenticated user (polled by frontend during training)
+    if (req.url === '/api/training/status' || req.url?.startsWith('/api/training/status?')) {
+      try {
+        const user = await getAuthenticatedUser();
+        const { storage } = await import('../server/storage.js');
+        const model = await storage.getUserModelByUserId(user.id as string);
+        const status = model?.trainingStatus || 'not_started';
+        const progress = model?.trainingProgress || (status === 'completed' ? 100 : 0);
+        const predictionId = (await storage.getUserGenerationTrackers(user.id as string))?.[0]?.predictionId || null;
+        res.setHeader('Cache-Control', 'no-store');
+        return res.status(200).json({ status, progress, predictionId, model });
+      } catch (error) {
+        return res.status(401).json({ error: 'Authentication required', message: (error as Error).message });
+      }
+    }
+
+    // Cron: training completion monitor (to be scheduled in Vercel Cron)
+    if (req.url === '/api/cron/training-completion-monitor') {
+      try {
+        const { TrainingCompletionMonitor } = await import('../server/training-completion-monitor');
+        await TrainingCompletionMonitor.checkAllInProgressTrainings();
+        return res.status(200).json({ ok: true });
+      } catch (error) {
+        return res.status(500).json({ ok: false, error: (error as Error).message });
+      }
+    }
+
+    // Cron: generation completion monitor (to be scheduled in Vercel Cron)
+    if (req.url === '/api/cron/generation-completion-monitor') {
+      try {
+        const { GenerationCompletionMonitor } = await import('../server/generation-completion-monitor');
+        const monitor = new GenerationCompletionMonitor();
+        await monitor.checkAllInProgressGenerations();
+        return res.status(200).json({ ok: true });
+      } catch (error) {
+        return res.status(500).json({ ok: false, error: (error as Error).message });
       }
     }
 
