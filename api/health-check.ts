@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 export const config = { 
-  runtime: 'nodejs',
+  runtime: 'nodejs20.x',
   maxDuration: 10 
 };
 
