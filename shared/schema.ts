@@ -1164,7 +1164,7 @@ export const importedSubscribers = pgTable("imported_subscribers", {
   originalId: varchar("original_id").notNull(),
   status: varchar("status").notNull(), // 'active' | 'unsubscribed'
   tags: jsonb("tags").$type<string[]>().default([]),
-  customFields: jsonb("custom_fields").$type<Record<string, any>>().default({}),
+  customFields: jsonb("custom_fields").$type<Record<string, unknown>>().default({}),
   messengerData: jsonb("messenger_data"),
   importedAt: timestamp("imported_at").defaultNow(),
   createdAt: timestamp("created_at").defaultNow(),

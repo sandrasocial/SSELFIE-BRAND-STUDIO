@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import type { AiImage, UserModel } from '../shared/schema.js';
+import type { AiImage, UserModel, InsertUser } from '../shared/schema.js';
 export const config = { runtime: 'nodejs' } as const;
 // Lazy-load jose at runtime to avoid bootstrap issues
 type JoseModule = typeof import('jose');
@@ -45,16 +45,24 @@ const JWKS_URL = `${STACK_AUTH_API_URL}/projects/${STACK_AUTH_PROJECT_ID}/.well-
 
 // Create JWKS resolver
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-let JWKS: any;
+let JWKS: any; // JWKS type from jose library - complex type that's not worth importing
 
 // Timed fetch helper to avoid hard timeouts on external calls
 type FetchInit = { method?: string; headers?: Record<string, string>; body?: string };
+
+// Declare AbortController for environments where it might not be available
+declare const AbortController: {
+  new(): { abort(): void; signal: { addEventListener: (event: string, handler: () => void) => void } };
+};
+
 async function timedFetch(url: string, ms = 3000, init?: FetchInit) {
-  const AbortCtor = typeof AbortController !== 'undefined' ? AbortController : (globalThis as unknown as { AbortController: typeof AbortController }).AbortController;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const AbortCtor = typeof AbortController !== 'undefined' ? AbortController : (globalThis as any).AbortController;
   const ac = new AbortCtor();
   const id = setTimeout(() => ac.abort(), ms);
   try {
     // Use global fetch; if types are missing, fall back to any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const f = (globalThis as any).fetch || fetch;
     return await f(url, { ...(init || {}), signal: ac.signal });
   } finally {
@@ -63,7 +71,6 @@ async function timedFetch(url: string, ms = 3000, init?: FetchInit) {
 }
 
 // Generic timeout wrapper for promises
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function withTimeout<T>(promise: Promise<T>, ms: number, label = 'operation'): Promise<T> {
   return new Promise<T>((resolve, reject) => {
     const to = setTimeout(() => reject(new Error(`${label} timed out after ${ms}ms`)), ms);
@@ -103,11 +110,15 @@ function nowMs(): number {
 }
 function logStart(route: string, meta?: Record<string, unknown>) {
   const start = nowMs();
-  try { console.log(`▶️ ${route} start`, meta || {}); } catch (_e) { void 0; }
+  try { console.log(`▶️ ${route} start`, meta || {}); } catch {
+    // Ignore logging errors
+  }
   return {
     end: (outcome: string, extra?: Record<string, unknown>) => {
       const elapsed = Math.round(nowMs() - start);
-      try { console.log(`⏱️ ${route} ${outcome}`, { elapsedMs: elapsed, ...(extra || {}) }); } catch (_e) { void 0; }
+      try { console.log(`⏱️ ${route} ${outcome}`, { elapsedMs: elapsed, ...(extra || {}) }); } catch {
+        // Ignore logging errors
+      }
       return elapsed;
     }
   };
@@ -369,13 +380,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const json = (response: unknown, status: number, body: unknown) => {
       const r = response as { status?: (code: number) => { json: (b: unknown) => unknown } };
       if (typeof r?.status === 'function') {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         return (response as any).status(status).json(body);
       }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const NodeResponse = (globalThis as any).Response;
       try {
         // @ts-ignore
         return new NodeResponse(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } });
-      } catch (_e) {
+      } catch {
         // Final fallback for unknown environments
         // @ts-ignore
         return { status, headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) };
@@ -385,6 +398,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Shim Response surface if platform provides Web-standard Response instead of VercelResponse
     const resAny = res as unknown as { status?: (code: number) => { json: (b: unknown) => unknown; send: (t: string) => unknown; end: () => unknown }, setHeader?: (k: string, v: unknown) => void, getHeader?: (k: string) => unknown };
     if (typeof resAny.status !== 'function') {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const NodeResponse = (globalThis as any).Response;
       resAny.setHeader = resAny.setHeader || (() => {});
       resAny.getHeader = resAny.getHeader || (() => undefined);
@@ -440,7 +454,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       // Check cookies for stored access token - handle both req.cookies and header cookies
       const cookiesSource: Record<string, string> = (req as unknown as { cookies?: Record<string, string> }).cookies || parseCookieHeader(req.headers.cookie as string);
       if (!accessToken && cookiesSource) {
-        try { console.log('🍪 All cookies received:', Object.keys(cookiesSource)); } catch (e) { /* ignore */ }
+        try { console.log('🍪 All cookies received:', Object.keys(cookiesSource)); } catch {
+          // Ignore logging errors
+        }
         
         // Try all possible Stack Auth cookie formats
         const cookiesToTry = [
@@ -486,7 +502,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               }
               
             } catch (parseError) {
-              console.log(`⚠️ Failed to parse ${cookieName} cookie:`, parseError);
+              console.log(`⚠️ Failed to parse ${cookieName} cookie:`, (parseError as Error).message);
               
               // If parsing fails, try as direct token
               if (cookieValue.length > 20) {
@@ -499,8 +515,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
         
         if (!accessToken) {
-          try { console.log('🔍 No valid access token found in cookies'); } catch (e) { /* ignore */ }
-          try { console.log('🔍 Available cookies:', Object.keys(cookiesSource)); } catch (e) { /* ignore */ }
+          try { console.log('🔍 No valid access token found in cookies'); } catch {
+            // Ignore logging errors
+          }
+          try { console.log('🔍 Available cookies:', Object.keys(cookiesSource)); } catch {
+            // Ignore logging errors
+          }
         }
       }
       
@@ -571,7 +591,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         firstName: stackUser.firstName || (stackUser.displayName ? stackUser.displayName.split(' ')[0] : null),
         lastName: stackUser.lastName || (stackUser.displayName ? stackUser.displayName.split(' ').slice(1).join(' ') : null),
         profileImageUrl: stackUser.profileImageUrl || null,
-      } as any);
+      } as InsertUser);
     }
 
     // Handle auto-registration for new paying customers
@@ -630,7 +650,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           mayaAiAccess: true,
           victoriaAiAccess: false,
           onboardingProgress: JSON.stringify({ source: source || 'payment-success' })
-        } as any);
+        } as InsertUser);
         
         console.log('✅ AUTO-REGISTRATION: Database user created successfully:', newUser.id);
         
@@ -765,7 +785,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const legacyUserId = u.id;
         const stackId = u.stackAuthId || null;
         const model = await storage.getUserModelByUserId(String(legacyUserId));
-        const trained = !!model && model.trainingStatus === 'completed';
         const triggerWord = model?.triggerWord || `user${String(legacyUserId).replace(/[^a-zA-Z0-9]/g, '')}`;
         result.push({
           email: u.email || null,
@@ -838,7 +857,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             });
             status = resp.status;
             updated.push({ stackId, legacyUserId: userId, email, ok: resp.ok, status });
-          } catch (err) {
+          } catch {
             updated.push({ stackId, legacyUserId: userId, email, ok: false, status });
           }
         }
@@ -919,6 +938,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         if (typeof (res as unknown as { status?: unknown }).status === 'function') {
           return res.status(401).json(body);
         } else {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const NodeResponse = (globalThis as any).Response;
           return new NodeResponse(JSON.stringify(body), { status: 401, headers: { 'content-type': 'application/json' } });
         }
@@ -954,7 +974,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         try {
           const model = await withTimeout(storage.getUserModel(dbUser.id), 5000, 'getUserModel');
           userModel = model || null;
-        } catch (error) {
+        } catch {
           console.log('📊 No existing user model found for:', dbUser.id);
           userModel = null;
         }
@@ -986,6 +1006,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // Safely read onboarding source from jsonb or string
         let onboardingSourceSafe = 'unknown';
         try {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const op = (dbUser as any).onboardingProgress;
           if (op) {
             const obj = typeof op === 'string' ? JSON.parse(op) : op;
@@ -1140,7 +1161,7 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
             timestamp: new Date().toISOString()
           });
           
-        } catch (error) {
+        } catch {
           // Fallback to a good default prompt
           const fallbackPrompt = 'Gentle zoom in with soft natural lighting, creating an elegant and professional atmosphere.';
           
@@ -1594,7 +1615,7 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
         const model = await storage.getUserModelByUserId(targetUserId);
         const progress = model?.trainingProgress || (model?.trainingStatus === 'completed' ? 100 : 0);
         return res.status(200).json({ progress });
-      } catch (error) {
+      } catch {
         return res.status(401).json({ error: 'Authentication required' });
       }
     }
@@ -1739,11 +1760,11 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
         // OPTIMIZED: Reduced timeout and better error handling
         const [aiImages, generatedImages] = await Promise.all([
           withTimeout(storage.getAIImages(user.id as string), 3000, 'getAIImages').catch(err => {
-            console.warn('⚠️ AI images fetch failed:', err.message);
+            console.warn('⚠️ AI images fetch failed:', (err as Error).message);
             return [];
           }),
           withTimeout(storage.getGeneratedImages(user.id as string), 3000, 'getGeneratedImages').catch(err => {
-            console.warn('⚠️ Generated images fetch failed:', err.message);
+            console.warn('⚠️ Generated images fetch failed:', (err as Error).message);
             return [];
           })
         ]);
@@ -1840,7 +1861,7 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
           .map((img: AiImage) => img.id);
         res.setHeader('Cache-Control', 'no-store');
         return res.status(200).json({ favorites: favIds });
-      } catch (error) {
+      } catch {
         return res.status(200).json({ favorites: [] });
       }
     }
@@ -1902,6 +1923,7 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
       return res.status(500).json(body);
     } else {
       // @ts-ignore
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const NodeResponse = (globalThis as any).Response;
       // @ts-ignore
       return new NodeResponse(JSON.stringify(body), { status: 500, headers: { 'content-type': 'application/json' } });
