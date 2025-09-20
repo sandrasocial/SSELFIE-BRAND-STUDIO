@@ -865,6 +865,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           canRetrain = false;
         }
         
+        // Safely read onboarding source from jsonb or string
+        let onboardingSourceSafe = 'unknown';
+        try {
+          const op = (dbUser as any).onboardingProgress;
+          if (op) {
+            const obj = typeof op === 'string' ? JSON.parse(op) : op;
+            onboardingSourceSafe = (obj && obj.source) || 'unknown';
+          }
+        } catch {}
+
         const modelStatus = {
           id: userModel?.id || null,
           userId: dbUser.id,
@@ -877,7 +887,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           // User context for training decisions
           userPlan: dbUser.plan,
           hasActiveSubscription: (dbUser.monthlyGenerationLimit === -1 || (dbUser.monthlyGenerationLimit && dbUser.monthlyGenerationLimit > 0)),
-          onboardingSource: dbUser.onboardingProgress ? JSON.parse(dbUser.onboardingProgress as string).source : 'unknown'
+          onboardingSource: onboardingSourceSafe
         };
         
         console.log('📊 Returning REAL model status for new user flow:', {
