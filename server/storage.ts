@@ -614,6 +614,14 @@ export class DatabaseStorage implements IStorage {
     return image;
   }
 
+  async deleteAIImage(userId: string, imageId: number): Promise<boolean> {
+    const result = await db
+      .delete(aiImages)
+      .where(and(eq(aiImages.id, imageId), eq(aiImages.userId, userId)));
+    // drizzle returns object; presence of a result is enough
+    return Boolean((result as unknown as { rowCount?: number }).rowCount ?? true);
+  }
+
   async updateAIImage(id: number, data: Partial<AiImage>): Promise<AiImage> {
     const [updated] = await db
       .update(aiImages)
