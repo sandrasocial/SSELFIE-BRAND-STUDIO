@@ -857,8 +857,26 @@ export const insertVictoriaChatSchema = createInsertSchema(victoriaChats).omit({
 export const insertPhotoSelectionSchema = createInsertSchema(photoSelections).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertLandingPageSchema = createInsertSchema(landingPages).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertBrandOnboardingSchema = createInsertSchema(brandOnboarding).omit({ id: true, createdAt: true, updatedAt: true });
-export const insertLiveSessionSchema = createInsertSchema(liveSessions).omit({ id: true, createdAt: true, updatedAt: true });
-export const insertLiveEventSchema = createInsertSchema(liveEvents).omit({ id: true, createdAt: true });
+export const insertLiveSessionSchema = z.object({
+  deckUrl: z.string().optional(),
+  mentiUrl: z.string().optional(),
+  ctaUrl: z.string().optional(),
+  title: z.string(),
+  createdBy: z.string().uuid(),
+});
+
+export const insertLiveEventSchema = z.object({
+  sessionId: z.string().uuid(),
+  eventType: z.string(),
+  meta: z.record(z.any()).optional().default({}),
+  userAgent: z.string().optional(),
+  ipAddress: z.string().optional(),
+  utmSource: z.string().optional(),
+  utmCampaign: z.string().optional(),
+  utmMedium: z.string().optional(),
+  utmContent: z.string().optional(),
+  utmTerm: z.string().optional(),
+});
 
 export const insertUserLandingPageSchema = createInsertSchema(userLandingPages).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertUserPersonalBrandSchema = createInsertSchema(userPersonalBrand).omit({ id: true, createdAt: true, updatedAt: true });
