@@ -3,7 +3,7 @@ import { withTimeout } from '../_utils/timing';
 import { sql } from 'drizzle-orm';
 
 export const config = { 
-  runtime: 'nodejs',
+  runtime: 'nodejs20.x',
   maxDuration: 20 
 };
 
