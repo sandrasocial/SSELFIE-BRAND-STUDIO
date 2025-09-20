@@ -1439,8 +1439,8 @@ export const imageVariants = pgTable("image_variants", {
 ]);
 
 // Export styleguide tables and types  
-export { userStyleguides, styleguideTemplates } from "./styleguide-schema";
-export type { UserStyleguide, StyleguideTemplate, InsertUserStyleguide, InsertStyleguideTemplate } from "./styleguide-schema";
+export { userStyleguides, styleguideTemplates } from "./styleguide-schema.js";
+export type { UserStyleguide, StyleguideTemplate, InsertUserStyleguide, InsertStyleguideTemplate } from "./styleguide-schema.js";
 
 // Website management schema types
 // MISSING TABLE DEFINITIONS - Adding to resolve database schema mismatches
