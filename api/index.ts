@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import type { AiImage } from '../shared/schema.js';
+import type { AiImage, UserModel } from '../shared/schema.js';
 export const config = { runtime: 'nodejs' } as const;
 // Lazy-load jose at runtime to avoid bootstrap issues
 type JoseModule = typeof import('jose');
@@ -718,7 +718,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const adminToken = req.headers['x-admin-token'] as string;
       const expected = process.env.ADMIN_TOKEN || 'sandra-admin-2025';
       if (adminToken !== expected) return res.status(401).json({ error: 'Unauthorized' });
-      const users = (req.body && (req.body as any).users) || [];
+      const users = (req.body && (req.body as { users?: Array<{ id: string; email?: string | null; displayName?: string | null; firstName?: string | null; lastName?: string | null; profileImageUrl?: string | null }> }).users) || [];
       if (!Array.isArray(users)) return res.status(400).json({ error: 'users array required' });
       const results: Array<{ id: string; email: string | null }> = [];
       for (const u of users) {
@@ -951,7 +951,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
         
         // Check if user has a trained model
-        let userModel: any = null;
+        let userModel: UserModel | null = null;
         try {
           userModel = await withTimeout(storage.getUserModel(dbUser.id), 5000, 'getUserModel');
         } catch (error) {
