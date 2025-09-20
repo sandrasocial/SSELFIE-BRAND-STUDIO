@@ -1392,6 +1392,32 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
       }
     }
 
+    // Alias: support legacy hyphen path /api/training-status
+    if (req.url === '/api/training-status' || req.url?.startsWith('/api/training-status?')) {
+      // Delegate to the canonical handler
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (req as any).url = '/api/training/status';
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return (handler as any)(req, res);
+    }
+
+    // Training progress endpoint used by simple-training.tsx
+    if (req.url?.startsWith('/api/training-progress/')) {
+      try {
+        const user = await getAuthenticatedUser();
+        const targetUserId = req.url.split('/').pop() as string;
+        if ((user.id as string) !== targetUserId) {
+          return res.status(403).json({ error: 'Forbidden' });
+        }
+        const { storage } = await import('../server/storage.js');
+        const model = await storage.getUserModelByUserId(targetUserId);
+        const progress = model?.trainingProgress || (model?.trainingStatus === 'completed' ? 100 : 0);
+        return res.status(200).json({ progress });
+      } catch (error) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+    }
+
     // Cron: training completion monitor (to be scheduled in Vercel Cron)
     if (req.url === '/api/cron/training-completion-monitor') {
       try {
@@ -1651,6 +1677,25 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
         return res.status(200).json({ ok: true, id: imageId, isFavorite: next });
       } catch (error) {
         return res.status(500).json({ error: 'Failed to toggle favorite', message: (error as Error).message });
+      }
+    }
+
+    // Delete legacy AI image
+    if (req.method === 'DELETE' && req.url?.startsWith('/api/ai-images/')) {
+      try {
+        const user = await getAuthenticatedUser();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const url = new (globalThis as any).URL(req.url || '', `http://${req.headers.host}`);
+        const parts = url.pathname.split('/');
+        const idStr = parts[3];
+        const imageId = parseInt(idStr, 10);
+        if (!imageId || Number.isNaN(imageId)) return res.status(400).json({ error: 'Invalid image id' });
+        const { storage } = await import('../server/storage.js');
+        const ok = await storage.deleteAIImage(user.id as string, imageId);
+        res.setHeader('Cache-Control', 'no-store');
+        return res.status(200).json({ ok, id: imageId });
+      } catch (error) {
+        return res.status(500).json({ error: 'Failed to delete image', message: (error as Error).message });
       }
     }
 

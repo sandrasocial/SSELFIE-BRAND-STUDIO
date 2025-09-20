@@ -7,12 +7,12 @@
   ],
   "crons": [
     {
-      "path": "/api/cron",
-      "schedule": "0 10 * * *"
+      "path": "/api/cron/training-completion-monitor",
+      "schedule": "*/2 * * * *"
     },
     {
-      "path": "/api/hair-trends/analyze", 
-      "schedule": "0 9 * * 1"
+      "path": "/api/cron/generation-completion-monitor",
+      "schedule": "* * * * *"
     }
   ]
 }
