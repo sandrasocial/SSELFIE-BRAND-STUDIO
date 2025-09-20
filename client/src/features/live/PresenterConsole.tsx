@@ -12,6 +12,7 @@ import CanvaEmbed from '../../components/CanvaEmbed';
 import MentimeterEmbed from '../../components/MentimeterEmbed';
 import { useSocket } from './hooks/useSocket';
 import { useAnalytics } from './hooks/useAnalytics';
+import TabbedPresenterInterface from './components/TabbedPresenterInterface';
 
 interface SessionParams {
   sessionId: string;
@@ -197,74 +198,25 @@ export default function PresenterConsole() {
             </div>
           </div>
 
-          {/* Main Layout */}
+          {/* Main Layout with Tabbed Interface */}
           <div className="flex h-[calc(100vh-80px)]">
-            {/* Presentation Area */}
-            <div 
-              ref={presentationRef}
-              className="flex-1 bg-black flex items-center justify-center relative"
-            >
-              {session.deckUrl ? (
-                <div className="w-full h-full">
-                  <CanvaEmbed
-                    designId={extractCanvaDesignId(session.deckUrl) || undefined}
-                    height="100%"
-                    className="w-full h-full"
-                    title={`${session.title} - Presentation Deck`}
-                  />
-                </div>
-              ) : (
-                <div className="text-center">
-                  <div className="w-24 h-24 bg-gray-700 rounded-lg flex items-center justify-center mb-4 mx-auto">
-                    <svg className="w-12 h-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                  </div>
-                  <h2 className="text-2xl font-bold text-gray-300 mb-2">No Presentation Loaded</h2>
-                  <p className="text-gray-500">Configure a deck URL to display your presentation here</p>
-                  <p className="text-gray-600 text-sm mt-2">Press F for fullscreen mode</p>
-                </div>
-              )}
-
-              {/* Fullscreen Notice */}
-              {isFullscreen && (
-                <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-gray-800 bg-opacity-90 px-4 py-2 rounded-lg z-10">
-                  <p className="text-sm text-gray-300">Press ESC to exit fullscreen</p>
-                </div>
-              )}
+            {/* Main Tabbed Content Area */}
+            <div className="flex-1">
+              <TabbedPresenterInterface
+                session={session}
+                sessionId={sessionId}
+                showPoll={showPoll}
+                showQR={showQR}
+                showCTA={showCTA}
+                isFullscreen={isFullscreen}
+                presentationRef={presentationRef}
+                onFullscreen={handleFullscreen}
+                socketError={socketError}
+              />
             </div>
 
-            {/* Control Panel */}
-            <div className="w-80 bg-gray-800 border-l border-gray-700 flex flex-col">
-              {/* Poll Section */}
-              <div className="flex-1 p-4">
-                <h3 className="text-lg font-semibold mb-4">Interactive Poll</h3>
-                {session.mentiUrl && showPoll ? (
-                  <div className="bg-gray-900 rounded-lg h-64">
-                    <MentimeterEmbed
-                      presentationId={extractMentimeterPresentationId(session.mentiUrl) || undefined}
-                      height="256px"
-                      className="w-full h-full"
-                      title={`${session.title} - Interactive Poll`}
-                    />
-                  </div>
-                ) : (
-                  <div className="bg-gray-900 rounded-lg h-64 flex items-center justify-center">
-                    <div className="text-center">
-                      <div className="w-12 h-12 bg-gray-700 rounded-lg flex items-center justify-center mb-2 mx-auto">
-                        <svg className="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                        </svg>
-                      </div>
-                      <p className="text-gray-500 text-sm">
-                        {session.mentiUrl ? 'Poll hidden' : 'No poll configured'}
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Stage Controls */}
+            {/* Stage Controls Sidebar */}
+            <div className="w-80 bg-gray-800 border-l border-gray-700">
               <StageControls
                 showPoll={showPoll}
                 showQR={showQR}
@@ -277,21 +229,6 @@ export default function PresenterConsole() {
                 ctaUrl={session.ctaUrl}
                 sessionId={sessionId}
               />
-              
-              {/* Socket Error Display */}
-              {socketError && (
-                <div className="bg-red-900 border border-red-600 rounded-lg p-3 mb-4">
-                  <div className="flex items-center">
-                    <svg className="w-4 h-4 text-red-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <div>
-                      <p className="text-sm text-red-200 font-medium">Real-time Connection Issue</p>
-                      <p className="text-xs text-red-300">{socketError}</p>
-                    </div>
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         </div>

@@ -55,6 +55,7 @@ import websitesRoutes from './routes/modules/websites';
 import trainingRoutes from './routes/modules/training';
 import levelPartnerWebhook from './routes/levelpartner-webhook';
 import hairTrendsRoute from './routes/hair-trends-route';
+import trendsCurrentRoute from './routes/trends-current';
 import { scheduleTrendAnalysis } from './scheduled-tasks/fetch-hair-trends';
 // DISABLED: Express routes conflict with Vercel serverless functions
 // import galleryRoutes from './routes/modules/gallery';
@@ -85,6 +86,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/', trainingRoutes);
   app.use('/', levelPartnerWebhook);
   app.use('/api', hairTrendsRoute);
+  app.use('/api/trends', trendsCurrentRoute);
   // DISABLED: Using Vercel serverless functions instead of Express routes
   // app.use('/', galleryRoutes);
   // app.use('/', mayaRoutes);
