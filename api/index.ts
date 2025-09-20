@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import type { AiImage } from '../shared/schema.js';
 export const config = { runtime: 'nodejs' } as const;
 // Lazy-load jose at runtime to avoid bootstrap issues
 let _jose: { jwtVerify: any; createLocalJWKSet: any; createRemoteJWKSet: any } | null = null;
@@ -101,11 +102,11 @@ function nowMs(): number {
 }
 function logStart(route: string, meta?: Record<string, unknown>) {
   const start = nowMs();
-  try { console.log(`▶️ ${route} start`, meta || {}); } catch {}
+  try { console.log(`▶️ ${route} start`, meta || {}); } catch (_e) { void 0; }
   return {
     end: (outcome: string, extra?: Record<string, unknown>) => {
       const elapsed = Math.round(nowMs() - start);
-      try { console.log(`⏱️ ${route} ${outcome}`, { elapsedMs: elapsed, ...(extra || {}) }); } catch {}
+      try { console.log(`⏱️ ${route} ${outcome}`, { elapsedMs: elapsed, ...(extra || {}) }); } catch (_e) { void 0; }
       return elapsed;
     }
   };
@@ -1477,9 +1478,9 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
         try {
           const { storage } = await import('../server/storage.js');
           const existingConvs = await storage.getUserConversations(user.id as string, 'maya');
-          const conversationId = (existingConvs && existingConvs[0]?.id) || (await storage.createConversation({ userId: user.id as string, agentName: 'maya', title: 'Maya Chat' })).id;
-          await storage.createMessage({ conversationId, role: 'user', content: message });
-          await storage.createMessage({ conversationId, role: 'assistant', content: mayaResponse });
+          const conversationId = (existingConvs && existingConvs[0]?.id) || (await storage.createConversation({ userId: user.id as string, agentName: 'maya', title: 'Maya Chat', status: 'active' })).id;
+          await storage.createMessage({ conversationId, role: 'user', content: message, tokenCount: 0 });
+          await storage.createMessage({ conversationId, role: 'assistant', content: mayaResponse, tokenCount: 0 });
           for (let i = 0; i < (conceptCards?.length || 0); i++) {
             const c = conceptCards[i];
             await storage.createConceptCard({
@@ -1488,8 +1489,14 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
               clientId: `maya_${Date.now()}_${i + 1}`,
               title: c.title,
               description: c.description,
+              status: 'draft',
+              images: [],
               tags: [c.category],
-              generatedImages: null,
+              sortOrder: 0,
+              isLoading: false,
+              isGenerating: false,
+              hasGenerated: false,
+              generatedImages: {},
             });
           }
         } catch (persistError) {
@@ -1823,8 +1830,10 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
       try {
         const user = await getAuthenticatedUser();
         const { storage } = await import('../server/storage.js');
-        const ai = await withTimeout(storage.getAIImages(user.id as string), 5000, 'getAIImages');
-        const favIds = ai.filter(img => (img as any).isFavorite || (img as any).isSelected).map(img => img.id);
+        const ai = await withTimeout(storage.getAIImages(user.id as string), 5000, 'getAIImages') as unknown as AiImage[];
+        const favIds = ai
+          .filter((img: AiImage) => Boolean(img.isFavorite || img.isSelected))
+          .map((img: AiImage) => img.id);
         res.setHeader('Cache-Control', 'no-store');
         return res.status(200).json({ favorites: favIds });
       } catch (error) {
@@ -1846,9 +1855,9 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
         if (!imageId || Number.isNaN(imageId)) return res.status(400).json({ error: 'Invalid image id' });
         const { storage } = await import('../server/storage.js');
         // Fetch image to read current favorite state (from legacy ai_images)
-        const img = await withTimeout(storage.getAIImage(user.id as string, imageId), 4000, 'getAIImage');
-        const next = !(img as any)?.isFavorite;
-        await withTimeout(storage.updateAIImage(imageId, { isFavorite: next }), 4000, 'updateAIImage');
+        const img = await withTimeout(storage.getAIImage(user.id as string, imageId), 4000, 'getAIImage') as unknown as AiImage | undefined;
+        const next = !(img?.isFavorite ?? false);
+        await withTimeout(storage.updateAIImage(imageId, { isFavorite: next } as Partial<AiImage>), 4000, 'updateAIImage');
         res.setHeader('Cache-Control', 'no-store');
         return res.status(200).json({ ok: true, id: imageId, isFavorite: next });
       } catch (error) {

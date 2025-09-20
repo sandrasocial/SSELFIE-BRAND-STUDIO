@@ -14,6 +14,7 @@ import {
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { ulid } from "ulid";
+import { randomUUID } from 'node:crypto';
 
 // Session storage table for Stack Auth (Stack Auth manages sessions automatically)
 export const sessions = pgTable(
@@ -1145,7 +1146,7 @@ export type UserGeneratedWebsite = typeof userGeneratedWebsites.$inferSelect;
 
 // Imported subscribers table for email list migration
 export const importedSubscribers = pgTable("imported_subscribers", {
-  id: varchar("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  id: varchar("id").primaryKey().$defaultFn(() => randomUUID()),
   email: varchar("email"),
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
