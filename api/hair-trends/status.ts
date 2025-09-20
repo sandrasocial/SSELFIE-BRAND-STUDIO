@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { withTimeout } from '../_utils/timing';
+import { sql } from 'drizzle-orm';
 
 export const config = { 
   runtime: 'nodejs',
@@ -36,7 +37,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     );
 
     const latestTrends = await withTimeout(
-      db.execute('SELECT created_at FROM hair_trends ORDER BY created_at DESC LIMIT 1'),
+      db.execute(sql`SELECT created_at FROM hair_trends ORDER BY created_at DESC LIMIT 1`),
       5000,
       'status-check'
     ) as { created_at: string }[];
