@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { useAuth } from '../hooks/use-auth';
 import { UserButton } from '@stackframe/react';
+import { Menu, X, Home, Camera, User, CreditCard, LogOut, Shield } from 'lucide-react';
 
 interface MemberNavigationProps {
   transparent?: boolean;
@@ -39,11 +40,11 @@ export function MemberNavigation({ transparent = true, darkText = false }: Membe
   const isAdmin = user?.email === 'ssa@ssasocial.com';
   const isImpersonating = user?.email === 'shannon@soulresets.com' && user?.role === 'user';
 
-  // Member navigation items - SIMPLIFIED TO STUDIO, GALLERY, ACCOUNT SETTINGS, LOGOUT  
+  // Editorial Navigation Items with Icons
   const navItems = [
-    { path: '/maya', label: 'Studio' },
-    { path: '/sselfie-gallery', label: 'Gallery' },
-    { path: '/account-settings', label: 'Account' },
+    { path: '/maya', label: 'Studio', icon: Home },
+    { path: '/sselfie-gallery', label: 'Gallery', icon: Camera },
+    { path: '/account-settings', label: 'Account', icon: User },
   ];
 
   const handleLogout = () => {
@@ -56,16 +57,17 @@ export function MemberNavigation({ transparent = true, darkText = false }: Membe
     <nav 
       role="navigation" 
       aria-label="Main navigation"
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-sophisticated ${
-        scrolled || !transparent ? 'editorial-glass' : 'bg-transparent'
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-sophisticated ${
+        scrolled || !transparent 
+          ? 'bg-neutral-900/90 backdrop-blur-editorial border-b border-neutral-800/30 shadow-subtle' 
+          : 'bg-transparent'
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="max-w-7xl mx-auto px-editorial-sm sm:px-editorial-md lg:px-editorial-lg py-editorial-sm">
         <div className="flex items-center justify-between">
           <button 
             onClick={(e) => {
               e.preventDefault();
-              // If already on maya/studio, just scroll to top instead of navigating
               if (location === '/maya' || location === '/studio') {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               } else {
@@ -73,44 +75,64 @@ export function MemberNavigation({ transparent = true, darkText = false }: Membe
               }
             }}
             aria-label="SSELFIE home page"
-            className={`editorial-headline text-xl font-light tracking-extra-wide ${darkText ? 'text-neutral-900' : 'text-neutral-200'} hover:opacity-70 transition-all duration-300 ease-sophisticated`}
+            className={`font-serif text-xl font-light tracking-wide transition-all duration-300 ease-sophisticated hover:tracking-extra-wide ${
+              darkText 
+                ? 'text-black hover:text-neutral-700' 
+                : 'text-neutral-200 hover:text-white'
+            }`}
             style={{ fontFamily: "Times New Roman, serif" }}
           >
             SSELFIE
           </button>
           
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8" role="menubar">
-            {navItems.map((item) => (
-              <button
-                key={item.path}
-                onClick={() => setLocation(item.path)}
-                role="menuitem"
-                aria-current={isActive(item.path) ? 'page' : undefined}
-                aria-label={`Navigate to ${item.label}`}
-                className={`editorial-headline text-xs tracking-wide font-light transition-all duration-300 ease-sophisticated ${
-                  isActive(item.path)
-                    ? `${darkText ? 'text-neutral-900 border-b border-neutral-700/50' : 'text-neutral-200 border-b border-neutral-500/50'} pb-1`
-                    : `${darkText ? 'text-neutral-600 hover:text-neutral-900' : 'text-neutral-400 hover:text-neutral-200'} hover:tracking-extra-wide`
-                }`}
-              >
-                {item.label}
-              </button>
-            ))}
+          {/* Editorial Desktop Navigation */}
+          <div className="hidden md:flex items-center space-x-editorial-sm" role="menubar">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <button
+                  key={item.path}
+                  onClick={() => setLocation(item.path)}
+                  role="menuitem"
+                  aria-current={isActive(item.path) ? 'page' : undefined}
+                  aria-label={`Navigate to ${item.label}`}
+                  className={`editorial-nav-item group flex items-center space-x-2 px-editorial-xs py-2 text-xs uppercase tracking-wide font-light transition-all duration-300 ease-sophisticated ${
+                    isActive(item.path)
+                      ? `${
+                          darkText 
+                            ? 'text-black bg-neutral-200/10 border-b border-black/30' 
+                            : 'text-neutral-200 bg-neutral-800/40 border-b border-neutral-200/30'
+                        } pb-1`
+                      : `${
+                          darkText 
+                            ? 'text-black/60 hover:text-black hover:bg-black/5' 
+                            : 'text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/20'
+                        } hover:tracking-extra-wide`
+                  }`}
+                >
+                  <Icon 
+                    size={14} 
+                    strokeWidth={1.5}
+                    className="transition-transform duration-300 group-hover:scale-110" 
+                  />
+                  <span>{item.label}</span>
+                </button>
+              );
+            })}
 
-            {/* Stack Auth UserButton with Maya's luxury styling */}
-            <div className="flex items-center" role="menuitem">
+            {/* Editorial UserButton with Sophisticated Styling */}
+            <div className="flex items-center editorial-scale-in" role="menuitem">
               <UserButton 
                 showUserInfo={false}
                 extraItems={[
                   {
                     text: 'Subscription & Billing',
-                    icon: <span className="text-sm" aria-hidden="true">💳</span>,
+                    icon: <CreditCard size={16} strokeWidth={1.5} />,
                     onClick: () => setLocation('/account-settings?tab=billing')
                   },
                   {
                     text: 'Business Profile', 
-                    icon: <span className="text-sm" aria-hidden="true">👤</span>,
+                    icon: <User size={16} strokeWidth={1.5} />,
                     onClick: () => setLocation('/profile')
                   }
                 ]}
@@ -136,110 +158,128 @@ export function MemberNavigation({ transparent = true, darkText = false }: Membe
                   }
                 }}
                 aria-label="Stop impersonation and return to admin dashboard"
-                className={`text-xs uppercase tracking-[0.3em] font-light ${darkText ? 'text-black/70 hover:text-black' : 'text-white/70 hover:text-white'} hover:tracking-[0.4em] transition-all duration-300`}
+                className={`editorial-button-secondary flex items-center space-x-2 text-xs uppercase tracking-wide font-light transition-all duration-300 ease-sophisticated`}
               >
-                Back to Admin
+                <Shield size={14} strokeWidth={1.5} />
+                <span>Back to Admin</span>
               </button>
             )}
 
             <button
               onClick={handleLogout}
               aria-label="Logout from account"
-              className={`editorial-headline text-xs tracking-wide px-6 py-2 font-light transition-all duration-300 ease-sophisticated rounded-xl ${
-                darkText 
-                  ? 'text-neutral-900 border border-neutral-300 hover:bg-neutral-900 hover:text-neutral-200' 
-                  : 'text-neutral-200 border border-neutral-600/30 hover:bg-neutral-200 hover:text-neutral-900'
-              }`}
+              className={`editorial-button-secondary flex items-center space-x-2 text-xs uppercase tracking-wide px-editorial-sm py-2 font-light transition-all duration-300 ease-sophisticated hover:scale-105 active:scale-95`}
             >
-              LOGOUT
+              <LogOut size={14} strokeWidth={1.5} />
+              <span>Logout</span>
             </button>
           </div>
           
-          {/* Mobile Menu Button - Editorial luxury styling */}
+          {/* Editorial Mobile Menu Button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label="Toggle mobile menu"
             aria-expanded={mobileMenuOpen}
             aria-controls="mobile-menu"
-            className={`md:hidden editorial-headline text-xs tracking-extra-wide ${darkText ? 'text-neutral-600 hover:text-neutral-900' : 'text-neutral-400 hover:text-neutral-200'} transition-all duration-300 ease-sophisticated`}
+            className={`md:hidden p-2 rounded-editorial-md transition-all duration-300 ease-sophisticated ${
+              darkText 
+                ? 'text-black/80 hover:text-black hover:bg-black/5' 
+                : 'text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/20'
+            }`}
           >
-            MENU
+            {mobileMenuOpen ? (
+              <X size={20} strokeWidth={1.5} />
+            ) : (
+              <Menu size={20} strokeWidth={1.5} />
+            )}
           </button>
         </div>
       </div>
       
-      {/* Editorial Mobile Menu - Sophisticated overlay */}
+      {/* Editorial Mobile Menu - Sophisticated Overlay */}
       {mobileMenuOpen && (
         <div 
           id="mobile-menu"
           role="dialog"
           aria-modal="true"
           aria-label="Mobile navigation menu"
-          className="md:hidden fixed top-0 left-0 right-0 bottom-0 z-[999] editorial-glass"
-          style={{ background: 'rgba(0, 0, 0, 0.97)' }}
+          className="md:hidden fixed inset-0 z-[999] editorial-modal-overlay editorial-fade-in"
         >
-          <div className="flex flex-col items-center justify-center h-full space-y-8 px-6" role="menu">
-            {navItems.map((item) => (
-              <button
-                key={item.path}
-                onClick={() => {
-                  setLocation(item.path);
-                  setMobileMenuOpen(false);
-                }}
-                role="menuitem"
-                aria-current={isActive(item.path) ? 'page' : undefined}
-                aria-label={`Navigate to ${item.label}`}
-                className={`editorial-headline text-sm tracking-extra-wide transition-all duration-300 ease-sophisticated ${
-                  isActive(item.path)
-                    ? 'text-neutral-200'
-                    : 'text-neutral-400 hover:text-neutral-200'
-                }`}
-              >
-                {item.label}
-              </button>
-            ))}
+          <div className="flex flex-col items-center justify-center h-full space-y-editorial-md px-editorial-md" role="menu">
+            <div className="editorial-card bg-neutral-900/95 p-editorial-lg rounded-editorial-xl backdrop-blur-editorial-lg border border-neutral-800/50">
+              <div className="flex flex-col space-y-editorial-sm">
+                {navItems.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <button
+                      key={item.path}
+                      onClick={() => {
+                        setLocation(item.path);
+                        setMobileMenuOpen(false);
+                      }}
+                      role="menuitem"
+                      aria-current={isActive(item.path) ? 'page' : undefined}
+                      aria-label={`Navigate to ${item.label}`}
+                      className={`editorial-nav-item flex items-center space-x-4 p-editorial-sm rounded-editorial-md text-sm uppercase tracking-wide transition-all duration-300 ease-sophisticated ${
+                        isActive(item.path)
+                          ? 'text-neutral-200 bg-neutral-800/60'
+                          : 'text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/30'
+                      }`}
+                    >
+                      <Icon size={18} strokeWidth={1.5} />
+                      <span>{item.label}</span>
+                    </button>
+                  );
+                })}
+                
+                <div className="editorial-divider my-editorial-sm" />
 
-            {isImpersonating && (
-              <button
-                onClick={async () => {
-                  try {
-                    const response = await fetch('/api/admin/stop-impersonation', {
-                      method: 'POST',
-                      headers: { 
-                        'Content-Type': 'application/json',
-                        'x-admin-token': 'sandra-admin-2025'
+                {isImpersonating && (
+                  <button
+                    onClick={async () => {
+                      try {
+                        const response = await fetch('/api/admin/stop-impersonation', {
+                          method: 'POST',
+                          headers: { 
+                            'Content-Type': 'application/json',
+                            'x-admin-token': 'sandra-admin-2025'
+                          }
+                        });
+                        if (response.ok) {
+                          window.location.href = '/admin-dashboard';
+                        }
+                      } catch (error) {
+                        console.error('Failed to stop impersonation:', error);
                       }
-                    });
-                    if (response.ok) {
-                      window.location.href = '/admin-dashboard';
-                    }
-                  } catch (error) {
-                    console.error('Failed to stop impersonation:', error);
-                  }
-                  setMobileMenuOpen(false);
-                }}
-                className={`text-sm uppercase tracking-[0.4em] ${darkText ? 'text-black/70 hover:text-black' : 'text-white/70 hover:text-white'} transition-all duration-300 mt-8`}
-              >
-                Back to Admin
-              </button>
-            )}
+                      setMobileMenuOpen(false);
+                    }}
+                    className="editorial-nav-item flex items-center space-x-4 p-editorial-sm rounded-editorial-md text-sm uppercase tracking-wide text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/30 transition-all duration-300 ease-sophisticated"
+                  >
+                    <Shield size={18} strokeWidth={1.5} />
+                    <span>Back to Admin</span>
+                  </button>
+                )}
 
-            <button
-              onClick={() => {
-                handleLogout();
-                setMobileMenuOpen(false);
-              }}
-              className="editorial-headline text-sm tracking-extra-wide text-neutral-400 hover:text-neutral-200 transition-all duration-300 ease-sophisticated mt-8"
-            >
-              LOGOUT
-            </button>
+                <button
+                  onClick={() => {
+                    handleLogout();
+                    setMobileMenuOpen(false);
+                  }}
+                  className="editorial-nav-item flex items-center space-x-4 p-editorial-sm rounded-editorial-md text-sm uppercase tracking-wide text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/30 transition-all duration-300 ease-sophisticated"
+                >
+                  <LogOut size={18} strokeWidth={1.5} />
+                  <span>Logout</span>
+                </button>
+              </div>
+            </div>
             
-            {/* Close button */}
+            {/* Editorial Close Button */}
             <button
               onClick={() => setMobileMenuOpen(false)}
-              className="absolute top-6 right-6 editorial-headline text-xs tracking-extra-wide text-neutral-400 hover:text-neutral-200 transition-all duration-300 ease-sophisticated"
+              className="absolute top-editorial-sm right-editorial-sm p-3 rounded-editorial-md text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/20 transition-all duration-300 ease-sophisticated"
+              aria-label="Close navigation menu"
             >
-              CLOSE
+              <X size={20} strokeWidth={1.5} />
             </button>
           </div>
         </div>
