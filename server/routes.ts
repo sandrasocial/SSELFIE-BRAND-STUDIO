@@ -18,6 +18,8 @@ import { registerVictoriaWebsiteGenerator } from "./routes/victoria-website-gene
 // REMOVED: Conflicting admin routers - consolidated into single adminRouter
 // import { whitelabelRoutes } from './routes/white-label-setup'; // DISABLED
 import videoRoutes from './routes/video';
+import { liveSessionRoutes } from './routes/live-session';
+import { analyticsRoutes } from './routes/analytics';
 // NOTE: Disabled legacy Maya route to prevent conflicts with modular Maya routes
 // import mayaRoutes from './routes/maya'; // DISABLED: Using modular Maya routes instead
 import path from 'path';
@@ -53,6 +55,7 @@ import websitesRoutes from './routes/modules/websites';
 import trainingRoutes from './routes/modules/training';
 import levelPartnerWebhook from './routes/levelpartner-webhook';
 import hairTrendsRoute from './routes/hair-trends-route';
+import trendsCurrentRoute from './routes/trends-current';
 import { scheduleTrendAnalysis } from './scheduled-tasks/fetch-hair-trends';
 // DISABLED: Express routes conflict with Vercel serverless functions
 // import galleryRoutes from './routes/modules/gallery';
@@ -83,6 +86,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/', trainingRoutes);
   app.use('/', levelPartnerWebhook);
   app.use('/api', hairTrendsRoute);
+  app.use('/api/trends', trendsCurrentRoute);
   // DISABLED: Using Vercel serverless functions instead of Express routes
   // app.use('/', galleryRoutes);
   // app.use('/', mayaRoutes);
@@ -620,6 +624,14 @@ function generatePersonalizedScenePrompt(sceneNumber: number, originalMessage: s
   const { default: conceptCardsRouter } = await import('./routes/concept-cards');
   app.use('/api/concepts', conceptCardsRouter);
   console.log('💡 CONCEPT CARDS: API active at /api/concepts/* (ULID-based unique keys)');
+  
+  // Stage Mode Live Session Routes  
+  app.use('/api/live', liveSessionRoutes);
+  console.log('🎪 LIVE SESSIONS: Stage Mode API active at /api/live/* (Interactive presentations)');
+  
+  // Stage Mode Analytics Routes
+  app.use('/api/analytics', analyticsRoutes);
+  console.log('📊 ANALYTICS: Stage Mode analytics API active at /api/analytics/* (Event tracking)');
   
   // P3-C BRAND ASSETS: Upload and placement of brand assets (logos, product shots)
   if (process.env.BRAND_ASSETS_ENABLED === '1') {

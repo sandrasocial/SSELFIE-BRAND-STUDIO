@@ -5,6 +5,7 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { Logger } from '../utils/logger';
+import { ALLOWED_EMBED_HOSTS } from '../env';
 
 export class SecurityMiddleware {
   private logger: Logger;
@@ -26,14 +27,30 @@ export class SecurityMiddleware {
 
       // Security headers
       res.set('X-Content-Type-Options', 'nosniff');
-      res.set('X-Frame-Options', 'DENY');
       res.set('X-XSS-Protection', '1; mode=block');
       res.set('Referrer-Policy', 'strict-origin-when-cross-origin');
 
-      // Content Security Policy
-      res.set('Content-Security-Policy', 
-        "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';"
-      );
+      // For Stage Mode routes, use SAMEORIGIN for iframe compatibility
+      // For other routes, use DENY for maximum security
+      const isStageRoute = req.path.startsWith('/hair/live') || req.path.startsWith('/hair/guest');
+      res.set('X-Frame-Options', isStageRoute ? 'SAMEORIGIN' : 'DENY');
+
+      // Enhanced Content Security Policy for Stage Mode
+      const allowedHosts = ALLOWED_EMBED_HOSTS.split(',').map(host => host.trim());
+      const mentimeterHosts = allowedHosts.filter(host => host.includes('mentimeter')).map(host => `https://${host.replace(/^\*\./, '')}`);
+      const canvaHosts = allowedHosts.filter(host => host.includes('canva')).map(host => `https://${host.replace(/^\*\./, '')}`);
+      
+      const cspDirectives = [
+        "frame-ancestors 'self'",
+        `frame-src 'self' ${mentimeterHosts.join(' ')} ${canvaHosts.join(' ')}`,
+        `script-src 'self' 'unsafe-inline' 'unsafe-eval' ${mentimeterHosts.join(' ')} ${canvaHosts.join(' ')}`,
+        "img-src 'self' data: https:",
+        `connect-src 'self' ${mentimeterHosts.join(' ')} ${canvaHosts.join(' ')} wss:`,
+        "upgrade-insecure-requests",
+        "style-src 'self' 'unsafe-inline'"
+      ];
+
+      res.set('Content-Security-Policy', cspDirectives.join('; '));
 
       next();
     };

@@ -7,6 +7,8 @@ import { securityHeaders, inputValidation } from './middleware/security';
 import { rateLimits } from './middleware/rate-limiter';
 import { cacheMiddleware, staticDataCache } from './utils/cache';
 import { Logger } from './utils/logger';
+import { liveSessionsManager } from './realtime/live-sessions';
+import { LIVE_SOCKET_ENABLED } from './env';
 
 const app = express();
 const logger = new Logger('Server');
@@ -72,8 +74,16 @@ async function setupApp() {
       }
     }
     
-    // Register API routes
-    await registerRoutes(app);
+    // Register API routes and get HTTP server
+    const server = await registerRoutes(app);
+    
+    // Initialize Socket.IO for real-time features if enabled
+    if (LIVE_SOCKET_ENABLED) {
+      liveSessionsManager.initialize(server);
+      console.log('🔄 Socket.IO real-time server initialized');
+    } else {
+      console.log('⚡ Socket.IO disabled via LIVE_SOCKET_ENABLED environment variable');
+    }
     
     console.log('✅ Server setup completed successfully');
   } catch (error) {

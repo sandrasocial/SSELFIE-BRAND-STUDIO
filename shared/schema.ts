@@ -802,6 +802,45 @@ export const loraWeights = pgTable("lora_weights", {
 
 
 
+// Live Sessions - For Stage Mode interactive presentations
+export const liveSessions = pgTable("live_sessions", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  deckUrl: text("deck_url"),
+  mentiUrl: text("menti_url"),
+  ctaUrl: text("cta_url"),
+  title: text("title").notNull(),
+  createdBy: uuid("created_by").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+}, (table) => ({
+  createdByIdx: index("idx_live_sessions_created_by").on(table.createdBy),
+  createdAtIdx: index("idx_live_sessions_created_at").on(table.createdAt),
+  titleIdx: index("idx_live_sessions_title").on(table.title),
+}));
+
+// Live Events - For Stage Mode analytics and tracking
+export const liveEvents = pgTable("live_events", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  sessionId: uuid("session_id").references(() => liveSessions.id, { onDelete: "cascade" }).notNull(),
+  eventType: varchar("event_type").notNull(), // 'qr_view', 'cta_click', 'signup_success', 'reaction', 'state_change'
+  meta: jsonb("meta").default({}),
+  userAgent: text("user_agent"),
+  ipAddress: text("ip_address"), // Using text instead of inet for broader compatibility
+  utmSource: varchar("utm_source"),
+  utmCampaign: varchar("utm_campaign"),
+  utmMedium: varchar("utm_medium"),
+  utmContent: varchar("utm_content"),
+  utmTerm: varchar("utm_term"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+}, (table) => ({
+  sessionIdIdx: index("idx_live_events_session_id").on(table.sessionId),
+  eventTypeIdx: index("idx_live_events_type").on(table.eventType),
+  createdAtIdx: index("idx_live_events_created_at").on(table.createdAt),
+  sessionTypeIdx: index("idx_live_events_session_type").on(table.sessionId, table.eventType),
+  utmSourceIdx: index("idx_live_events_utm_source").on(table.utmSource),
+  analyticsIdx: index("idx_live_events_analytics").on(table.sessionId, table.eventType, table.createdAt),
+}));
+
 // Schema exports
 export const upsertUserSchema = createInsertSchema(users);
 export const insertUserSchema = createInsertSchema(users).omit({ createdAt: true, updatedAt: true });
@@ -818,6 +857,8 @@ export const insertVictoriaChatSchema = createInsertSchema(victoriaChats).omit({
 export const insertPhotoSelectionSchema = createInsertSchema(photoSelections).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertLandingPageSchema = createInsertSchema(landingPages).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertBrandOnboardingSchema = createInsertSchema(brandOnboarding).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertLiveSessionSchema = createInsertSchema(liveSessions).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertLiveEventSchema = createInsertSchema(liveEvents).omit({ id: true, createdAt: true });
 
 export const insertUserLandingPageSchema = createInsertSchema(userLandingPages).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertUserPersonalBrandSchema = createInsertSchema(userPersonalBrand).omit({ id: true, createdAt: true, updatedAt: true });
@@ -1784,6 +1825,14 @@ export type BrandAsset = typeof brandAssets.$inferSelect;
 export type InsertBrandAsset = z.infer<typeof insertBrandAssetSchema>;
 export type ImageVariant = typeof imageVariants.$inferSelect;
 export type InsertImageVariant = z.infer<typeof insertImageVariantSchema>;
+
+// Live Sessions types
+export type LiveSession = typeof liveSessions.$inferSelect;
+export type InsertLiveSession = z.infer<typeof insertLiveSessionSchema>;
+
+// Live Events types
+export type LiveEvent = typeof liveEvents.$inferSelect;
+export type InsertLiveEvent = z.infer<typeof insertLiveEventSchema>;
 
 // Note: Website type already defined above at line 502
 // Note: styleguide_templates and user_styleguides are imported from styleguide-schema.ts

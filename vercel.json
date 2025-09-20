@@ -1,15 +1,14 @@
 {
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": null,
-  "buildCommand": "npm run build",
-  "outputDirectory": "client/dist",
-  
-  
+  "functions": {
+    "api/**.ts": {
+      "runtime": "nodejs20.x",
+      "maxDuration": 60
+    }
+  },
   "rewrites": [
-    { "source": "/site.webmanifest", "destination": "/manifest.json" },
-    { "source": "/((?!api/).*)", "destination": "/index.html" }
-  ],
-  "env": {
-    "NODE_ENV": "production"
-  }
+    {
+      "source": "/((?!api/).*)",
+      "destination": "/index.html"
+    }
+  ]
 }

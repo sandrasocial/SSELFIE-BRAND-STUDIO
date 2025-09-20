@@ -1,5 +1,8 @@
 import { Router } from 'express';
 import { optionalStackAuth } from '../stack-auth';
+import { db } from '../db';
+import { liveSessions, liveEvents } from '../../shared/schema';
+import { eq } from 'drizzle-orm';
 
 const router = Router();
 
@@ -7,6 +10,7 @@ interface LevelPartnerSignupRequest {
   name: string;
   email: string;
   source?: string;
+  sessionId?: string; // Stage Mode session ID
   utm_source?: string;
   utm_medium?: string;
   utm_campaign?: string;
@@ -27,6 +31,12 @@ interface LevelPartnerApiPayload {
     referrer_url?: string;
     landing_page?: string;
     signup_timestamp: string;
+    // Stage Mode specific data
+    stage_mode?: {
+      session_id?: string;
+      session_title?: string;
+      engagement_type?: string; // 'live_session' | 'hair_experience'
+    };
   };
 }
 
@@ -37,7 +47,7 @@ interface LevelPartnerApiPayload {
  */
 router.post('/levelpartner-signup', optionalStackAuth, async (req, res) => {
   try {
-    const { name, email, source = 'hair-landing' }: LevelPartnerSignupRequest = req.body;
+    const { name, email, source = 'hair-landing', sessionId }: LevelPartnerSignupRequest = req.body;
     
     // Extract UTM parameters from query string and body
     const utm_source = req.query.utm_source as string || req.body.utm_source || 'organic';
@@ -50,12 +60,37 @@ router.post('/levelpartner-signup', optionalStackAuth, async (req, res) => {
       name,
       email,
       source,
+      sessionId,
       utm_source,
       utm_medium,
       utm_campaign,
       utm_term,
       utm_content
     });
+
+    // Fetch Stage Mode session data if sessionId is provided
+    let sessionData = null;
+    if (sessionId) {
+      try {
+        const sessionResult = await db
+          .select()
+          .from(liveSessions)
+          .where(eq(liveSessions.id, sessionId))
+          .limit(1);
+        
+        if (sessionResult.length > 0) {
+          sessionData = sessionResult[0];
+          console.log('📊 Stage Mode session found:', {
+            id: sessionData.id,
+            title: sessionData.title,
+            createdAt: sessionData.createdAt
+          });
+        }
+      } catch (error) {
+        console.warn('⚠️ Failed to fetch session data:', error.message);
+        // Continue without session data - don't break the signup process
+      }
+    }
 
     // Validate required fields
     if (!name || !email) {
@@ -87,7 +122,15 @@ router.post('/levelpartner-signup', optionalStackAuth, async (req, res) => {
         utm_content,
         referrer_url: req.headers.referer || req.headers.referrer as string,
         landing_page: source === 'hair-landing' ? '/hair' : '/business',
-        signup_timestamp: new Date().toISOString()
+        signup_timestamp: new Date().toISOString(),
+        // Include Stage Mode session data if available
+        ...(sessionData && {
+          stage_mode: {
+            session_id: sessionData.id,
+            session_title: sessionData.title,
+            engagement_type: utm_source === 'stage' ? 'live_session' : 'hair_experience'
+          }
+        })
       }
     };
 
@@ -133,6 +176,33 @@ router.post('/levelpartner-signup', optionalStackAuth, async (req, res) => {
     const levelPartnerResult = await levelPartnerResponse.json();
     console.log('✅ LevelPartner success:', levelPartnerResult);
 
+    // Track signup success event if sessionId is provided
+    if (sessionId) {
+      try {
+        await db.insert(liveEvents).values({
+          sessionId,
+          eventType: 'signup_success',
+          meta: {
+            name,
+            email,
+            levelpartner_response: levelPartnerResult,
+            signup_source: source
+          },
+          utmSource: utm_source,
+          utmCampaign: utm_campaign,
+          utmMedium: utm_medium,
+          utmContent: utm_content,
+          utmTerm: utm_term,
+          userAgent: req.headers['user-agent'],
+          ipAddress: req.ip || req.connection.remoteAddress,
+        });
+        console.log('📊 Signup success event tracked for session:', sessionId);
+      } catch (error) {
+        console.warn('⚠️ Failed to track signup success event:', error.message);
+        // Don't break the response - analytics tracking is optional
+      }
+    }
+
     // Return success response
     res.status(200).json({
       success: true,
@@ -142,7 +212,13 @@ router.post('/levelpartner-signup', optionalStackAuth, async (req, res) => {
         utm_source,
         utm_medium,
         utm_campaign,
-        source
+        source,
+        ...(sessionData && {
+          stage_mode: {
+            session_id: sessionData.id,
+            session_title: sessionData.title
+          }
+        })
       }
     });
 
