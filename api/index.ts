@@ -518,9 +518,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       console.log('🔍 JWT payload:', JSON.stringify(userInfo, null, 2));
       
       // Extract user information
-      const userId = userInfo.sub || userInfo.user_id || userInfo.id;
-      const userEmail = userInfo.email || userInfo.primary_email || userInfo.primaryEmail || userInfo.email_address || userInfo.user_email;
-      const userName = userInfo.displayName || userInfo.display_name || userInfo.name || userInfo.given_name || userInfo.full_name;
+      const userId = String(userInfo.sub || userInfo.user_id || userInfo.id || '');
+      const userEmail = String(userInfo.email || userInfo.primary_email || userInfo.primaryEmail || userInfo.email_address || userInfo.user_email || '');
+      const userName = String(userInfo.displayName || userInfo.display_name || userInfo.name || userInfo.given_name || userInfo.full_name || '');
       
       console.log('📊 Extracted user info:', {
         id: userId,
@@ -531,8 +531,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return {
         id: userId,
         email: userEmail,
-        firstName: (userName as string)?.split(' ')[0],
-        lastName: (userName as string)?.split(' ').slice(1).join(' '),
+        firstName: userName?.split(' ')[0] || null,
+        lastName: userName?.split(' ').slice(1).join(' ') || null,
         plan: 'sselfie-studio', // Default plan
         role: 'user', // Default role
         stackUser: userInfo // Include raw Stack Auth user data

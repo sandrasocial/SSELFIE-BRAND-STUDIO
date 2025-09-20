@@ -16,7 +16,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Quick database health check
     const dbHealth = await Promise.race([
       storage.getUserCount().then(count => ({ status: 'healthy', count, latency: Date.now() - dbStart })),
-      new Promise((_, reject) => setTimeout(() => reject(new Error('Database timeout')), 5000))
+      new Promise<never>((_, reject) => setTimeout(() => reject(new Error('Database timeout')), 5000))
     ]);
     
     const totalTime = Date.now() - startTime;
