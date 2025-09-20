@@ -242,14 +242,21 @@ export default function HairLanding() {
             <div className="flex flex-col items-center">
               <div className="mb-6 p-4 bg-gray-100 rounded-lg">
                 <img 
-                  src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent("https://sselfie.ai/hair")}`}
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent("https://sselfie.ai/hair/signup")}`}
                   alt="QR-kode for påmelding til Hair Experience"
-                  className="w-48 h-48"
+                  className="w-48 h-48 cursor-pointer"
+                  onClick={() => setLocation('/hair/signup')}
                 />
               </div>
-              <p className="text-sm uppercase tracking-[0.3em] font-light text-gray-600">
+              <p className="text-sm uppercase tracking-[0.3em] font-light text-gray-600 mb-4">
                 Scan with your phone
               </p>
+              <button
+                onClick={() => setLocation('/hair/signup')}
+                className="bg-black text-white px-6 py-2 text-xs uppercase tracking-[0.3em] font-light hover:bg-gray-800 transition-colors duration-300"
+              >
+                Eller klikk her for påmelding
+              </button>
             </div>
 
             <div className="text-center md:text-left max-w-md">
@@ -263,15 +270,15 @@ export default function HairLanding() {
               <div className="space-y-4">
                 <div className="flex items-center">
                   <span className="w-8 h-8 bg-black text-white rounded-full flex items-center justify-center text-sm font-light mr-4">1</span>
-                  <span className="font-light">Scan QR code or click signup</span>
+                  <span className="font-light">Skann QR-kode eller klikk på påmelding</span>
                 </div>
                 <div className="flex items-center">
                   <span className="w-8 h-8 bg-black text-white rounded-full flex items-center justify-center text-sm font-light mr-4">2</span>
-                  <span className="font-light">Upload 10+ hair/beauty selfies</span>
+                  <span className="font-light">Last opp 10+ hår/skjønnhet selfies</span>
                 </div>
                 <div className="flex items-center">
                   <span className="w-8 h-8 bg-black text-white rounded-full flex items-center justify-center text-sm font-light mr-4">3</span>
-                  <span className="font-light">Generate 100 professional photos monthly</span>
+                  <span className="font-light">Generer 100 profesjonelle bilder månedlig</span>
                 </div>
               </div>
             </div>
