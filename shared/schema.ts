@@ -866,7 +866,17 @@ export const liveEvents = pgTable("live_events", {
 export const upsertUserSchema = createInsertSchema(users);
 export const insertUserSchema = createInsertSchema(users).omit({ createdAt: true, updatedAt: true });
 export const insertUserProfileSchema = createInsertSchema(userProfiles).omit({ id: true, createdAt: true, updatedAt: true });
-export const insertHairLeadSchema = createInsertSchema(hairLeads).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertHairLeadSchema = z.object({
+  navn: z.string(),
+  epost: z.string().email(),
+  telefon: z.string().optional(),
+  kilde: z.string().default("qr-code"),
+  interesse: z.string().optional(),
+  levelpartnerSynced: z.boolean().default(false),
+  levelpartnerSyncedAt: z.date().optional(),
+  status: z.string().default("new"),
+  notater: z.string().optional(),
+});
 export const insertProjectSchema = createInsertSchema(projects).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertAiImageSchema = createInsertSchema(aiImages).omit({ id: true, createdAt: true });
 export const insertTemplateSchema = createInsertSchema(templates).omit({ id: true, createdAt: true });
