@@ -1577,6 +1577,44 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
       }
     }
 
+    // Favorites: list favorite image ids for current user
+    if (req.url === '/api/images/favorites' || req.url?.startsWith('/api/images/favorites?')) {
+      try {
+        const user = await getAuthenticatedUser();
+        const { storage } = await import('../server/storage.js');
+        const ai = await withTimeout(storage.getAIImages(user.id as string), 5000, 'getAIImages');
+        const favIds = ai.filter(img => (img as any).isFavorite || (img as any).isSelected).map(img => img.id);
+        res.setHeader('Cache-Control', 'no-store');
+        return res.status(200).json({ favorites: favIds });
+      } catch (error) {
+        return res.status(200).json({ favorites: [] });
+      }
+    }
+
+    // Favorites: toggle favorite for an image by id
+    if (req.url?.startsWith('/api/images/') && req.url?.endsWith('/favorite')) {
+      if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+      try {
+        const user = await getAuthenticatedUser();
+        // Parse image id from URL: /api/images/:id/favorite
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const url = new (globalThis as any).URL(req.url || '', `http://${req.headers.host}`);
+        const parts = url.pathname.split('/');
+        const idStr = parts[3];
+        const imageId = parseInt(idStr, 10);
+        if (!imageId || Number.isNaN(imageId)) return res.status(400).json({ error: 'Invalid image id' });
+        const { storage } = await import('../server/storage.js');
+        // Fetch image to read current favorite state (from legacy ai_images)
+        const img = await withTimeout(storage.getAIImage(user.id as string, imageId), 4000, 'getAIImage');
+        const next = !(img as any)?.isFavorite;
+        await withTimeout(storage.updateAIImage(imageId, { isFavorite: next }), 4000, 'updateAIImage');
+        res.setHeader('Cache-Control', 'no-store');
+        return res.status(200).json({ ok: true, id: imageId, isFavorite: next });
+      } catch (error) {
+        return res.status(500).json({ error: 'Failed to toggle favorite', message: (error as Error).message });
+      }
+    }
+
     // Default response
     return res.status(200).json({
       message: 'SSELFIE Studio API',
