@@ -2,6 +2,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { withTimeout } from '../_utils/timing';
 
 export const config = { 
+  runtime: 'nodejs20.x',
   maxDuration: 20 
 };
 
