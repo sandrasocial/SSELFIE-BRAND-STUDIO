@@ -36,6 +36,11 @@ const Privacy = lazy(() => import("./pages/privacy"));
 const AuthSuccess = lazy(() => import("./pages/auth-success"));
 const OAuthCallback = lazy(() => import("./pages/OAuthCallback"));
 
+// Stage Mode components (lazy loaded)
+const PresenterConsole = lazy(() => import("./features/live/PresenterConsole"));
+const AudienceClient = lazy(() => import("./features/live/AudienceClient"));
+const SessionStats = lazy(() => import("./features/live/SessionStats"));
+
 // Components
 import { PageLoader } from "./components/PageLoader";
 
@@ -184,6 +189,29 @@ function Router() {
         <Suspense fallback={<PageLoader />}>
           <AppLayout />
         </Suspense>
+      )} />
+
+      {/* STAGE MODE ROUTES */}
+      <Route path="/hair/live/:sessionId" component={(props) => (
+        <ProtectedRoute component={() => (
+          <Suspense fallback={<PageLoader />}>
+            <PresenterConsole {...props} />
+          </Suspense>
+        )} {...props} />
+      )} />
+
+      <Route path="/hair/guest/:sessionId" component={(props) => (
+        <Suspense fallback={<PageLoader />}>
+          <AudienceClient {...props} />
+        </Suspense>
+      )} />
+
+      <Route path="/hair/live/:sessionId/stats" component={(props) => (
+        <ProtectedRoute component={() => (
+          <Suspense fallback={<PageLoader />}>
+            <SessionStats {...props} />
+          </Suspense>
+        )} {...props} />
       )} />
     </div>
   );
