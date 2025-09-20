@@ -3,11 +3,12 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import type { AiImage } from '../shared/schema.js';
 export const config = { runtime: 'nodejs' } as const;
 // Lazy-load jose at runtime to avoid bootstrap issues
-let _jose: { jwtVerify: any; createLocalJWKSet: any; createRemoteJWKSet: any } | null = null;
+type JoseModule = typeof import('jose');
+let _jose: Pick<JoseModule, 'jwtVerify' | 'createLocalJWKSet' | 'createRemoteJWKSet'> | null = null;
 async function getJose() {
   if (_jose) return _jose;
-  const mod = await import('jose');
-  _jose = { jwtVerify: (mod as any).jwtVerify, createLocalJWKSet: (mod as any).createLocalJWKSet, createRemoteJWKSet: (mod as any).createRemoteJWKSet } as any;
+  const mod: JoseModule = await import('jose');
+  _jose = { jwtVerify: mod.jwtVerify, createLocalJWKSet: mod.createLocalJWKSet, createRemoteJWKSet: mod.createRemoteJWKSet };
   return _jose;
 }
 
@@ -47,14 +48,15 @@ const JWKS_URL = `${STACK_AUTH_API_URL}/projects/${STACK_AUTH_PROJECT_ID}/.well-
 let JWKS: any;
 
 // Timed fetch helper to avoid hard timeouts on external calls
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function timedFetch(url: string, ms = 3000, init?: any) {
-  const AbortCtor = (globalThis as any).AbortController;
+type FetchInit = { method?: string; headers?: Record<string, string>; body?: string };
+async function timedFetch(url: string, ms = 3000, init?: FetchInit) {
+  const AbortCtor = typeof AbortController !== 'undefined' ? AbortController : (globalThis as unknown as { AbortController: typeof AbortController }).AbortController;
   const ac = new AbortCtor();
   const id = setTimeout(() => ac.abort(), ms);
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return await (globalThis.fetch as any)(url, { ...(init || {}), signal: ac.signal });
+    // Use global fetch; if types are missing, fall back to any
+    const f: any = (globalThis as any).fetch || fetch;
+    return await f(url, { ...(init || {}), signal: ac.signal });
   } finally {
     clearTimeout(id);
   }
@@ -96,8 +98,7 @@ function setLogoutCookies(res: import('@vercel/node').VercelResponse) {
 
 // Simple structured logging helpers
 function nowMs(): number {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const perf = (globalThis as any).performance;
+  const perf = (globalThis as unknown as { performance?: { now: () => number } }).performance;
   return typeof perf?.now === 'function' ? perf.now() : Date.now();
 }
 function logStart(route: string, meta?: Record<string, unknown>) {
@@ -264,9 +265,8 @@ function getCategoryFromTitle(title: string): string {
 // Verify JWT token directly using Stack Auth JWKS (local JWKS with fetch timeout)
 async function verifyJWTToken(token: string) {
   try {
-    const jose = await getJose();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { jwtVerify, createLocalJWKSet } = jose as any;
+  const jose = await getJose();
+  const { jwtVerify, createLocalJWKSet } = jose;
     if (!JWKS) {
       // Fetch JWKS with timeout and create a local JWK set to avoid remote hangs
       const resp = await timedFetch(JWKS_URL, 3000);
@@ -344,15 +344,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const rows: string[] = [];
         for (const m of models) {
           const u = await storage.getUser(m.userId);
-          const email = (u as any)?.email || '';
-          const legacyId = (u as any)?.id || m.userId;
-          const stackId = (u as any)?.stackAuthId || '';
-          const trigger = (m as any)?.triggerWord || '';
-          const status = (m as any)?.trainingStatus || '';
-          const modelName = (m as any)?.modelName || '';
-          const replicateModelId = (m as any)?.replicateModelId || '';
-          const replicateVersionId = (m as any)?.replicateVersionId || '';
-          const completedAt = (m as any)?.completedAt ? new Date((m as any).completedAt).toISOString() : '';
+          const email = (u as { email?: string } | undefined)?.email || '';
+          const legacyId = (u as { id?: string } | undefined)?.id || m.userId;
+          const stackId = (u as { stackAuthId?: string } | undefined)?.stackAuthId || '';
+          const trigger = (m as { triggerWord?: string } | undefined)?.triggerWord || '';
+          const status = (m as { trainingStatus?: string } | undefined)?.trainingStatus || '';
+          const modelName = (m as { modelName?: string } | undefined)?.modelName || '';
+          const replicateModelId = (m as { replicateModelId?: string } | undefined)?.replicateModelId || '';
+          const replicateVersionId = (m as { replicateVersionId?: string } | undefined)?.replicateVersionId || '';
+          const completedAt = (m as { completedAt?: string | Date } | undefined)?.completedAt ? new Date((m as { completedAt?: string | Date }).completedAt as string).toISOString() : '';
           rows.push(`| ${email} | ${legacyId} | ${stackId} | ${trigger} | ${status} | ${modelName} | ${replicateModelId} | ${replicateVersionId} | ${completedAt} |`);
         }
 
@@ -366,12 +366,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // Safe JSON responder that works with both Node res and Web Response
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const json = (response: any, status: number, body: unknown) => {
-      if (typeof response?.status === 'function') {
+    const json = (response: unknown, status: number, body: unknown) => {
+      const r = response as { status?: (code: number) => { json: (b: unknown) => unknown } };
+      if (typeof r?.status === 'function') {
         return response.status(status).json(body);
       }
-      const NodeResponse = (globalThis as any).Response;
+  const NodeResponse: any = (globalThis as any).Response;
       try {
         // @ts-ignore
         return new NodeResponse(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } });
@@ -383,10 +383,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     };
 
     // Shim Response surface if platform provides Web-standard Response instead of VercelResponse
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const resAny: any = res as any;
+    const resAny = res as unknown as { status?: (code: number) => { json: (b: unknown) => unknown; send: (t: string) => unknown; end: () => unknown }, setHeader?: (k: string, v: unknown) => void, getHeader?: (k: string) => unknown };
     if (typeof resAny.status !== 'function') {
-      const NodeResponse = (globalThis as any).Response;
+  const NodeResponse: any = (globalThis as any).Response;
       resAny.setHeader = resAny.setHeader || (() => {});
       resAny.getHeader = resAny.getHeader || (() => undefined);
       resAny.status = (code: number) => ({
@@ -439,8 +438,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
       
       // Check cookies for stored access token - handle both req.cookies and header cookies
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const cookiesSource: any = (req as any).cookies || parseCookieHeader(req.headers.cookie as string);
+      const cookiesSource: Record<string, string> = (req as unknown as { cookies?: Record<string, string> }).cookies || parseCookieHeader(req.headers.cookie as string);
       if (!accessToken && cookiesSource) {
         try { console.log('🍪 All cookies received:', Object.keys(cookiesSource)); } catch (e) { /* ignore */ }
         
@@ -722,7 +720,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (adminToken !== expected) return res.status(401).json({ error: 'Unauthorized' });
       const users = (req.body && (req.body as any).users) || [];
       if (!Array.isArray(users)) return res.status(400).json({ error: 'users array required' });
-      const results: any[] = [];
+      const results: Array<{ id: string; email: string | null }> = [];
       for (const u of users) {
         const dbUser = await ensureDbUserFromStack({
           id: u.id,
@@ -762,15 +760,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (adminToken !== expected) return res.status(401).json({ error: 'Unauthorized' });
       const { storage } = await import('../server/storage.js');
       const users = await storage.getAllUsers();
-      const result = [] as Array<Record<string, unknown>>;
-      for (const u of users) {
-        const legacyUserId = (u as any).id;
-        const stackId = (u as any).stackAuthId || null;
+      const result: Array<{ email: string | null; stackId: string | null; legacyUserId: string; triggerWord: string; modelStatus: string; modelName: string | null }> = [];
+      for (const u of users as Array<{ id: string; stackAuthId?: string; email?: string }>) {
+        const legacyUserId = u.id;
+        const stackId = u.stackAuthId || null;
         const model = await storage.getUserModelByUserId(String(legacyUserId));
-        const trained = !!model && (model as any).trainingStatus === 'completed';
+        const trained = !!model && model.trainingStatus === 'completed';
         const triggerWord = model?.triggerWord || `user${String(legacyUserId).replace(/[^a-zA-Z0-9]/g, '')}`;
         result.push({
-          email: (u as any).email || null,
+          email: u.email || null,
           stackId,
           legacyUserId,
           triggerWord,
@@ -802,20 +800,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           = [];
         const skipped: Array<{ userId: string; reason: string }> = [];
 
-        for (const m of trainedModels) {
-          const userId = (m as any).userId as string;
+        for (const m of trainedModels as Array<{ userId: string; triggerWord?: string; trainingStatus?: string; modelName?: string; replicateModelId?: string; replicateVersionId?: string }>) {
+          const userId = m.userId;
           const u = await storage.getUser(userId);
-          const email = (u as any)?.email || null;
-          const stackId = (u as any)?.stackAuthId || null;
+          const email = (u as { email?: string } | undefined)?.email || null;
+          const stackId = (u as { stackAuthId?: string } | undefined)?.stackAuthId || null;
           if (!stackId) {
             skipped.push({ userId, reason: 'No stackAuthId' });
             continue;
           }
-          const triggerWord = (m as any)?.triggerWord || `user${String(userId).replace(/[^a-zA-Z0-9]/g, '')}`;
-          const modelStatus = (m as any)?.trainingStatus || 'completed';
-          const modelName = (m as any)?.modelName || '';
-          const replicateModelId = (m as any)?.replicateModelId || '';
-          const replicateVersionId = (m as any)?.replicateVersionId || '';
+          const triggerWord = m.triggerWord || `user${String(userId).replace(/[^a-zA-Z0-9]/g, '')}`;
+          const modelStatus = m.trainingStatus || 'completed';
+          const modelName = m.modelName || '';
+          const replicateModelId = m.replicateModelId || '';
+          const replicateVersionId = m.replicateVersionId || '';
 
           const body = {
             metadata: {
@@ -906,7 +904,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           mayaAiAccess: true,
           victoriaAiAccess: false,
           onboardingProgress: JSON.stringify({ source: 'direct-signup' })
-          } as any), 5000, 'upsertUser');
+          }), 5000, 'upsertUser');
         
         console.log('✅ Created new user account:', dbUser.id);
         }
@@ -919,12 +917,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const body = { message: 'Authentication required', error: (error as Error).message };
         // Support both Node and Web-standard surfaces
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        if (typeof (res as any).status === 'function') {
+        if (typeof (res as unknown as { status?: unknown }).status === 'function') {
           return res.status(401).json(body);
         } else {
-          // @ts-ignore
-          const NodeResponse = (globalThis as any).Response;
-          // @ts-ignore
+          const NodeResponse = (globalThis as unknown as { Response: typeof Response }).Response;
           return new NodeResponse(JSON.stringify(body), { status: 401, headers: { 'content-type': 'application/json' } });
         }
       }
