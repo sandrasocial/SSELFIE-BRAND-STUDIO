@@ -952,7 +952,7 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
 
         try {
           // Call Claude Vision API for real image analysis
-        const claudeResponse = await timedFetch('https://api.anthropic.com/v1/messages', 10000, {
+        const claudeResponse = await timedFetch('https://api.anthropic.com/v1/messages', 15000, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -970,14 +970,22 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
                       type: 'text',
                       text: videoDirectorPrompt
                     },
-                    {
-                      type: 'image',
-                      source: {
-                        type: 'base64',
-                        media_type: 'image/jpeg',
-                        data: imageUrl.startsWith('data:') ? imageUrl.split(',')[1] : imageUrl
-                      }
-                    }
+                    imageUrl.startsWith('data:')
+                      ? {
+                          type: 'image',
+                          source: {
+                            type: 'base64',
+                            media_type: 'image/jpeg',
+                            data: imageUrl.split(',')[1]
+                          }
+                        }
+                      : {
+                          type: 'image',
+                          source: {
+                            type: 'url',
+                            url: imageUrl
+                          }
+                        }
                   ]
                 }
               ]
@@ -1043,22 +1051,35 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
           count?: number;
         };
         
-        if (!prompt) {
+        const trimmedPrompt = (prompt || '').toString().trim().slice(0, 2000);
+        const safeCount = Math.max(1, Math.min(Number(count) || 1, 4));
+        
+        if (!trimmedPrompt) {
           return res.status(400).json({ error: 'Prompt is required' });
+        }
+        
+        // Access gating: require trained model and plan access
+        const { storage } = await import('../server/storage.js');
+        const model = await storage.getUserModelByUserId(user.id as string);
+        if (!model || model.trainingStatus !== 'completed') {
+          return res.status(403).json({
+            error: 'Model training required',
+            message: 'Please complete training first. Redirecting to training...'
+          });
         }
         
         // Import the generation service
         const { ModelTrainingService } = await import('../server/model-training-service');
         
         console.log('🎨 Starting image generation for user:', user.id);
-        console.log('🎯 Prompt:', prompt);
-        console.log('🎯 Count:', count);
+        console.log('🎯 Prompt:', trimmedPrompt);
+        console.log('🎯 Count:', safeCount);
         
         // Generate images using the ModelTrainingService
         const generationResult = await ModelTrainingService.generateUserImages(
           user.id as string,
-          prompt as string,
-          count as number,
+          trimmedPrompt,
+          safeCount,
           { categoryContext: (conceptName as string) || 'Maya Generation' }
         );
         
@@ -1209,11 +1230,13 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
           // Use the real Maya personality system
           const { PersonalityManager } = await import('../server/agents/personalities/personality-config.js');
           const baseMayaPersonality = PersonalityManager.getNaturalPrompt('maya');
+          const structuredOutputInstruction = `\n\nSTRICT OUTPUT FORMAT:\nReturn EXACTLY 3 concepts separated by a line with three dashes (---).\nFor each concept, output 3 lines only:\n1) An emoji followed by a space and a bold title: "+emoji+ **TITLE**"\n2) One sentence description\n3) A line starting with "FLUX_PROMPT:" followed by a single line image generation prompt.\nDo not add any extra text before or after the three concepts.`;
+          const systemPrompt = `${baseMayaPersonality}${structuredOutputInstruction}`;
           
           console.log('🎨 MAYA: Using real personality system with Claude API');
           
           // Call Claude API with Maya's real personality
-          const claudeResponse = await timedFetch('https://api.anthropic.com/v1/messages', 10000, {
+          const claudeResponse = await timedFetch('https://api.anthropic.com/v1/messages', 18000, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -1223,7 +1246,7 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
             body: JSON.stringify({
               model: 'claude-3-5-sonnet-20241022',
               max_tokens: 4000,
-              system: baseMayaPersonality,
+              system: systemPrompt,
               messages: [
                 ...(conversationHistory || []).map((entry: ConversationEntry) => ({
                   role: entry.role === 'user' ? 'user' : 'assistant',
@@ -1320,6 +1343,29 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
           context: context
         };
         
+        // Persist conversation and messages + concept cards for continuity
+        try {
+          const { storage } = await import('../server/storage.js');
+          const existingConvs = await storage.getUserConversations(user.id as string, 'maya');
+          const conversationId = (existingConvs && existingConvs[0]?.id) || (await storage.createConversation({ userId: user.id as string, agentName: 'maya', title: 'Maya Chat' })).id;
+          await storage.createMessage({ conversationId, role: 'user', content: message });
+          await storage.createMessage({ conversationId, role: 'assistant', content: mayaResponse });
+          for (let i = 0; i < (conceptCards?.length || 0); i++) {
+            const c = conceptCards[i];
+            await storage.createConceptCard({
+              userId: user.id as string,
+              conversationId,
+              clientId: `maya_${Date.now()}_${i + 1}`,
+              title: c.title,
+              description: c.description,
+              tags: [c.category],
+              generatedImages: null,
+            });
+          }
+        } catch (persistError) {
+          console.log('⚠️ Maya persistence failed:', (persistError as Error).message);
+        }
+
         console.log('📊 Returning Maya response:', JSON.stringify(response, null, 2));
         res.setHeader('Cache-Control', 'no-store');
         t.end('ok', { concepts: response.conceptCards?.length || 0 });
