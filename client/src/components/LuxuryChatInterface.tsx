@@ -3,15 +3,32 @@ import { useMayaChat } from '../hooks/useMayaChat';
 import { StyleSelector } from './StyleSelector';
 import { BrandStyleCollection } from '../data/brand-style-collections';
 import GeneratedImagePreview from './GeneratedImagePreview';
+import { MessageCircle, Send, Sparkles, Camera, MoreHorizontal } from 'lucide-react';
+
+
+// Utility function to strip emojis from frontend display while preserving for backend
+const stripEmojisForDisplay = (text: string): string => {
+  // Remove emojis but keep the text content
+  return text.replace(/[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, '').trim();
+};
 
 /**
  * LuxuryConceptCard Component
  * Renders a single concept card, handles image generation, polling, and uses GeneratedImagePreview.
  */
-export function LuxuryConceptCard({ concept }: { concept: any }) {
+interface ConceptCard {
+  title: string;
+  description: string;
+  category?: string;
+  fluxPrompt?: string;
+  generatedImages?: string[];
+}
+
+export function LuxuryConceptCard({ concept }: { concept: ConceptCard }) {
   const [isLoading, setIsLoading] = useState(false);
   const [imageUrls, setImageUrls] = useState<string[]>(concept.generatedImages || []);
   const [error, setError] = useState<string | null>(null);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const handleGenerate = async () => {
     setIsLoading(true);
@@ -19,9 +36,6 @@ export function LuxuryConceptCard({ concept }: { concept: any }) {
     setImageUrls([]);
 
     try {
-      console.log(`🎬 Starting generation for concept: ${concept.title}`);
-      console.log(`🎯 Using prompt: ${concept.fluxPrompt || concept.title || concept.description}`);
-      
       // Step 1: Start the generation and get a prediction ID
       const startResponse = await fetch('/api/maya/generate', {
         method: 'POST',
@@ -34,16 +48,12 @@ export function LuxuryConceptCard({ concept }: { concept: any }) {
         credentials: 'include',
       });
 
-      console.log(`📊 Start response status: ${startResponse.status}`);
-
       if (!startResponse.ok) {
         const errorData = await startResponse.json().catch(() => ({ error: 'Unknown error' }));
-        console.error(`❌ Generation start failed (${startResponse.status}):`, errorData);
         throw new Error(errorData.error || errorData.message || 'Failed to start image generation.');
       }
 
       const startResult = await startResponse.json();
-      console.log(`✅ Generation started:`, startResult);
 
       if (!startResult.predictionId) {
         throw new Error('No prediction ID received from server');
@@ -54,44 +64,32 @@ export function LuxuryConceptCard({ concept }: { concept: any }) {
       // Step 2: Poll for the result with enhanced error handling
       const pollInterval = setInterval(async () => {
         try {
-          console.log(`🔍 Polling prediction: ${predictionId}`);
-          
           const checkResponse = await fetch(`/api/maya/check-generation/${predictionId}`, {
             credentials: 'include'
           });
           
-          console.log(`📊 Poll response status: ${checkResponse.status}`);
-          
           if (!checkResponse.ok) {
-            const errorText = await checkResponse.text();
-            console.error(`❌ Polling error (${checkResponse.status}):`, errorText);
             throw new Error(`Server error while checking status: ${checkResponse.status}`);
           }
           
           const result = await checkResponse.json();
-          console.log(`📋 Poll result:`, result);
 
           if (result.status === 'succeeded' && result.imageUrls && result.imageUrls.length > 0) {
-            console.log(`✅ Generation complete! Got ${result.imageUrls.length} images`);
             clearInterval(pollInterval);
             setIsLoading(false);
             setImageUrls(result.imageUrls);
+            setShowSuccess(true);
+            setTimeout(() => setShowSuccess(false), 3000);
           } else if (result.status === 'failed') {
-            console.error(`❌ Generation failed:`, result.error || 'Unknown error');
             clearInterval(pollInterval);
             setIsLoading(false);
             setError(result.error || 'Image generation failed. Please try again.');
-          } else if (result.status === 'processing') {
-            console.log(`⏳ Still processing... (${result.progress || 'no progress info'})`);
-          } else {
-            console.log(`🔄 Current status: ${result.status}`);
           }
           // If status is 'processing', the interval continues
         } catch (pollError) {
-          console.error(`❌ Polling exception:`, pollError);
           clearInterval(pollInterval);
           setIsLoading(false);
-          setError(`Polling error: ${pollError.message}`);
+          setError(`Polling error: ${(pollError as Error).message}`);
         }
       }, 4000); // Poll every 4 seconds
       
@@ -109,36 +107,93 @@ export function LuxuryConceptCard({ concept }: { concept: any }) {
     }
   };
 
-  const handleSaveImages = async (imageUrls: string[]) => {
+  const handleSaveImages = async () => {
     try {
-      console.log('Saving images to gallery:', imageUrls);
       // The GeneratedImagePreview component handles individual saves
       // This could be used for batch operations if needed
-    } catch (error) {
-      console.error('Error saving images:', error);
+    } catch {
+      // Handle error silently or show user feedback
     }
   };
 
   return (
-    <div style={{ border: '1px solid #e0e0e0', padding: '16px', margin: '16px 0', background: '#f5f5f5' }}>
-      <p style={{ margin: 0, textTransform: 'uppercase', letterSpacing: '0.3em', fontSize: '11px', color: '#666' }}>{concept.category}</p>
-      <h4 style={{ margin: '8px 0', fontFamily: "'Times New Roman', serif", fontWeight: 200, letterSpacing: '0.2em' }}>{concept.title}</h4>
-      <p style={{ margin: '0 0 16px 0', fontSize: '14px', color: '#666' }}>{concept.description}</p>
+    <div className="editorial-card mb-6 group">
+      {/* Concept Header */}
+      <div className="flex items-start justify-between mb-4">
+        <div className="flex-1">
+          <div className="flex items-center gap-3 mb-2">
+            <span className="editorial-badge">{concept.category || 'Concept'}</span>
+            <Sparkles size={16} className="text-neutral-400" strokeWidth={1.5} />
+          </div>
+          <h4 className="editorial-heading-2 text-neutral-200 mb-2">{stripEmojisForDisplay(concept.title)}</h4>
+          <p className="editorial-text-body text-neutral-400 leading-relaxed">{concept.description}</p>
+        </div>
+      </div>
       
+      {/* Action Button */}
       {!isLoading && imageUrls.length === 0 && (
-        <button onClick={handleGenerate} style={{ background: '#000', color: '#fff', padding: '12px 16px', border: 'none', cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.3em', fontSize: '11px' }}>
-          Generate Photos
+        <button 
+          onClick={handleGenerate}
+          className="editorial-button w-full mb-6 group-hover:scale-[1.02] transition-all duration-300 min-h-[48px] py-4"
+        >
+          <Camera className="mr-2" size={18} strokeWidth={1.5} />
+          GENERATE PHOTOS
         </button>
       )}
 
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {/* Error State */}
+      {error && (
+        <div className="bg-red-900/20 border border-red-800/30 rounded-lg p-4 mb-4">
+          <div className="flex items-start gap-3">
+            <div className="w-5 h-5 bg-red-500/20 rounded-full flex items-center justify-center mt-0.5">
+              <span className="text-red-400 text-xs">!</span>
+            </div>
+            <div className="flex-1">
+              <h4 className="text-red-300 text-sm font-medium mb-1">Generation Failed</h4>
+              <p className="text-red-300 text-sm">{error}</p>
+              <button 
+                onClick={() => setError(null)}
+                className="text-red-400 text-xs mt-2 hover:text-red-300 transition-colors"
+              >
+                Dismiss
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
-      {/* Use the enhanced GeneratedImagePreview component */}
+      {/* Loading State */}
+      {isLoading && (
+        <div className="flex flex-col items-center justify-center py-8 mb-6">
+          <div className="editorial-spinner mr-3 mb-3"></div>
+          <span className="text-neutral-400 text-sm tracking-wide mb-2">GENERATING YOUR VISION</span>
+          <div className="w-full bg-neutral-800/30 rounded-full h-1">
+            <div className="bg-gradient-to-r from-neutral-300 to-neutral-500 h-1 rounded-full animate-pulse"></div>
+          </div>
+        </div>
+      )}
+
+      {/* Success State */}
+      {showSuccess && (
+        <div className="bg-green-900/20 border border-green-800/30 rounded-lg p-4 mb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-5 h-5 bg-green-500/20 rounded-full flex items-center justify-center">
+              <span className="text-green-400 text-xs">✓</span>
+            </div>
+            <div>
+              <h4 className="text-green-300 text-sm font-medium">Images Generated Successfully!</h4>
+              <p className="text-green-300 text-xs">Your photos are ready to view and save.</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Generated Images */}
       <GeneratedImagePreview
         imageUrls={imageUrls}
         isLoading={isLoading}
         concept={concept}
-        onSave={handleSaveImages}
+        onSave={() => handleSaveImages()}
       />
     </div>
   );
@@ -153,7 +208,8 @@ export function LuxuryChatInterface() {
   const [inputValue, setInputValue] = useState('');
   const [selectedStyle, setSelectedStyle] = useState<BrandStyleCollection | null>(null);
   const [showStyleSelector, setShowStyleSelector] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const messagesEndRef = useRef<any>(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -182,8 +238,8 @@ export function LuxuryChatInterface() {
           }
         }
       }
-    } catch (error) {
-      console.log('⚠️ Could not fetch gender context (non-blocking):', error);
+    } catch {
+      // Could not fetch gender context (non-blocking)
     }
     
     // Enhanced message that includes styleKey for prompt-builder integration
@@ -202,75 +258,153 @@ Please create photo concepts that match this signature look, drawing from your $
   };
 
   return (
-    <div style={{ maxWidth: '700px', margin: '0 auto', border: '1px solid #e0e0e0', background: '#fff', display: 'flex', flexDirection: 'column', height: 'calc(100vh - 250px)' }}>
-      {/* Add Choose Style button at the top */}
-      <div style={{ padding: '16px', borderBottom: '1px solid #eee', background: '#faf9f7', display: 'flex', alignItems: 'center', gap: 12 }}>
-        <button
-          type="button"
-          style={{
-            background: '#fff',
-            color: '#000',
-            border: '1px solid #ccc',
-            borderRadius: '20px',
-            padding: '8px 20px',
-            fontSize: '13px',
-            fontWeight: 500,
-            letterSpacing: '0.2em',
-            textTransform: 'uppercase',
-            cursor: 'pointer',
-            boxShadow: '0 1px 4px rgba(0,0,0,0.03)'
-          }}
-          onClick={() => setShowStyleSelector(true)}
-        >
-          {selectedStyle ? `Style: ${selectedStyle.name}` : 'Choose Style'}
-        </button>
+    <div className="h-full flex flex-col bg-neutral-950/80 backdrop-blur-2xl rounded-editorial-xl border border-neutral-800/30 overflow-hidden">
+      {/* Luxury Header */}
+      <div className="p-6 border-b border-neutral-800/30 bg-gradient-to-r from-neutral-900/50 to-neutral-800/30">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-neutral-800/40 rounded-editorial-md border border-neutral-700/30">
+              <MessageCircle size={20} className="text-neutral-300" strokeWidth={1.5} />
+            </div>
+            <div>
+              <h2 className="editorial-heading-1 text-neutral-200">MAYA STUDIO</h2>
+              <p className="editorial-text-caption text-neutral-500">AI Creative Director</p>
+            </div>
+          </div>
+          
+          <button
+            onClick={() => setShowStyleSelector(true)}
+            className="editorial-button-secondary flex items-center gap-2 px-4 py-3 min-h-[48px]"
+          >
+            <Sparkles size={16} strokeWidth={1.5} />
+            {selectedStyle ? selectedStyle.name : 'CHOOSE STYLE'}
+          </button>
+        </div>
+        
         {selectedStyle && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-            <span style={{ color: '#888', fontSize: 13, fontWeight: 500 }}>
-              {selectedStyle.aesthetic}
-            </span>
-            <span style={{ color: '#aaa', fontSize: 12, lineHeight: '1.3', maxWidth: '400px' }}>
-              {selectedStyle.description}
-            </span>
+          <div className="mt-4 p-4 bg-neutral-800/20 rounded-editorial-md border border-neutral-700/20">
+            <div className="flex items-start gap-3">
+              <div className="w-2 h-2 bg-neutral-400 rounded-full mt-2"></div>
+              <div>
+                <h4 className="editorial-text-header text-neutral-300 mb-1">{selectedStyle.aesthetic}</h4>
+                <p className="editorial-text-body text-neutral-400 text-sm leading-relaxed">
+                  {selectedStyle.description}
+                </p>
+              </div>
+            </div>
           </div>
         )}
       </div>
 
-      <div style={{ flex: 1, overflowY: 'auto', padding: '16px' }}>
+      {/* Messages Container */}
+      <div className="flex-1 overflow-y-auto p-6 space-y-8">
         {messages.map((msg, index) => (
-          <div key={index} style={{ marginBottom: '16px', textAlign: msg.role === 'user' ? 'right' : 'left' }}>
-            <div style={{ display: 'inline-block', padding: '10px 15px', borderRadius: '12px', background: msg.role === 'user' ? '#000' : '#f5f5f5', color: msg.role === 'user' ? '#fff' : '#000', maxWidth: '80%' }}>
-              <p style={{ margin: 0, fontSize: '14px', lineHeight: 1.5 }}>
-                {msg.content}
-              </p>
-            </div>
-            {msg.role === 'maya' && msg.conceptCards && (
-              <div style={{ marginTop: '12px', textAlign: 'left' }}>
-                {msg.conceptCards.map((concept: any, conceptIndex: number) => (
-                  <LuxuryConceptCard key={conceptIndex} concept={concept} />
-                ))}
+          <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+            <div className={`max-w-[85%] ${msg.role === 'user' ? 'order-2' : 'order-1'}`}>
+              {/* Message Bubble */}
+              <div className={`editorial-card p-6 ${
+                msg.role === 'user' 
+                  ? 'bg-neutral-200 text-black ml-auto' 
+                  : 'bg-neutral-800/40 text-neutral-200'
+              }`}>
+                <div className="space-y-3">
+                  <p className="editorial-text-body leading-relaxed">{msg.content}</p>
+                  
+                  {/* Message timestamp */}
+                  <div className={`text-xs tracking-wide ${
+                    msg.role === 'user' ? 'text-neutral-600' : 'text-neutral-500'
+                  }`}>
+                    {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </div>
+                </div>
               </div>
-            )}
+              
+              {/* Concept Cards for Maya */}
+              {msg.role === 'maya' && msg.conceptCards && (
+                <div className="mt-6 space-y-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-1 h-1 bg-neutral-400 rounded-full"></div>
+                    <span className="text-neutral-500 text-xs tracking-wide uppercase">Concept Ideas</span>
+                  </div>
+                  {msg.conceptCards.map((concept: ConceptCard, conceptIndex: number) => (
+                    <LuxuryConceptCard key={conceptIndex} concept={concept} />
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         ))}
 
+        {/* Style Selector Modal */}
         {showStyleSelector && (
-          <StyleSelector 
-            onStyleSelect={handleStyleSelect} 
-            selectedStyleId={selectedStyle?.id}
-          />
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="editorial-modal max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="editorial-heading-1 text-neutral-200">CHOOSE YOUR STYLE</h3>
+                  <button
+                    onClick={() => setShowStyleSelector(false)}
+                    className="p-2 hover:bg-neutral-800/40 rounded-editorial-md transition-colors"
+                  >
+                    <MoreHorizontal size={20} className="text-neutral-400" strokeWidth={1.5} />
+                  </button>
+                </div>
+                <StyleSelector 
+                  onStyleSelect={handleStyleSelect} 
+                  selectedStyleId={selectedStyle?.id}
+                />
+              </div>
+            </div>
+          </div>
         )}
         
-        {isTyping && <div style={{ textAlign: 'center', color: '#666' }}>Maya is thinking...</div>}
+        {/* Typing Indicator */}
+        {isTyping && (
+          <div className="flex items-center justify-start">
+            <div className="editorial-card p-4 bg-neutral-800/40">
+              <div className="flex items-center gap-3">
+                <div className="flex space-x-1">
+                  <div className="w-2 h-2 bg-neutral-400 rounded-full animate-bounce"></div>
+                  <div className="w-2 h-2 bg-neutral-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                  <div className="w-2 h-2 bg-neutral-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                </div>
+                <span className="text-neutral-400 text-sm tracking-wide">Maya is crafting your vision...</span>
+              </div>
+            </div>
+          </div>
+        )}
         <div ref={messagesEndRef} />
       </div>
 
-      <form onSubmit={handleSendMessage} style={{ display: 'flex', padding: '16px', borderTop: '1px solid #e0e0e0' }}>
-        <input type="text" value={inputValue} onChange={(e) => setInputValue(e.target.value)} placeholder="Chat with Maya..." style={{ flex: 1, padding: '10px', border: '1px solid #ccc', borderRadius: '20px', marginRight: '8px' }} disabled={isTyping} />
-        <button type="submit" style={{ padding: '10px 20px', border: 'none', borderRadius: '20px', background: '#000', color: '#fff', cursor: 'pointer' }} disabled={isTyping}>
-          Send
-        </button>
-      </form>
+      {/* Input Area */}
+      <div className="p-6 border-t border-neutral-800/30 bg-gradient-to-r from-neutral-900/50 to-neutral-800/30">
+        <form onSubmit={handleSendMessage} className="flex gap-3">
+          <div className="flex-1 relative">
+            <input 
+              type="text" 
+              value={inputValue} 
+              onChange={(e) => setInputValue(e.target.value)} 
+              placeholder="Describe your vision to Maya..." 
+              className="editorial-input w-full pr-12 min-h-[48px] text-base"
+              disabled={isTyping}
+              autoComplete="off"
+              autoCorrect="off"
+              autoCapitalize="off"
+              spellCheck="false"
+            />
+            <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+              <Camera size={18} className="text-neutral-500" strokeWidth={1.5} />
+            </div>
+          </div>
+          <button 
+            type="submit" 
+            className="editorial-button px-6 py-3 min-h-[48px] disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={isTyping || !inputValue.trim()}
+          >
+            <Send size={18} strokeWidth={1.5} />
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
