@@ -16,11 +16,7 @@ interface BrandAsset {
   url: string;
   filename: string;
   fileSize?: number;
-<<<<<<< HEAD
-  meta?: any;
-=======
   meta?: Record<string, unknown>;
->>>>>>> origin/main
   createdAt: string;
 }
 
@@ -62,11 +58,7 @@ const BrandAssetPlacementModal: React.FC<BrandAssetPlacementModalProps> = ({
       imageId: number;
       assetId: number;
       mode: 'overlay' | 'inpaint';
-<<<<<<< HEAD
-      position?: any;
-=======
       position?: { x: number; y: number; width: number; height: number };
->>>>>>> origin/main
       scale?: number;
     }) => {
       const response = await fetch('/api/brand-assets/place', {
@@ -85,27 +77,11 @@ const BrandAssetPlacementModal: React.FC<BrandAssetPlacementModalProps> = ({
 
       return response.json();
     },
-<<<<<<< HEAD
-    onSuccess: (data) => {
-      console.log('Placement successful:', data);
-=======
     onSuccess: (data: { variant?: { processingStatus?: string }; message?: string }) => {
->>>>>>> origin/main
       // Invalidate gallery queries to refresh the UI
       queryClient.invalidateQueries({ queryKey: ['/api/gallery-images'] });
       onClose();
       
-<<<<<<< HEAD
-      if (data.variant.processingStatus === 'completed') {
-        alert('Brand asset placed successfully!');
-      } else {
-        alert(`Placement started! ${data.message || 'Processing in background.'}`);
-      }
-    },
-    onError: (error: Error) => {
-      console.error('Placement error:', error);
-      alert(`Placement failed: ${error.message}`);
-=======
       if (data.variant?.processingStatus === 'completed') {
         window.alert('Brand asset placed successfully!');
       } else {
@@ -114,17 +90,12 @@ const BrandAssetPlacementModal: React.FC<BrandAssetPlacementModalProps> = ({
     },
     onError: (error: Error) => {
       window.alert(`Placement failed: ${error.message}`);
->>>>>>> origin/main
     },
   });
 
   const handlePlaceAsset = () => {
     if (!selectedAsset) {
-<<<<<<< HEAD
-      alert('Please select a brand asset first');
-=======
       window.alert('Please select a brand asset first');
->>>>>>> origin/main
       return;
     }
 
@@ -344,9 +315,4 @@ const BrandAssetPlacementModal: React.FC<BrandAssetPlacementModalProps> = ({
   );
 };
 
-<<<<<<< HEAD
 export default BrandAssetPlacementModal;
-=======
-export default BrandAssetPlacementModal;
-
->>>>>>> origin/main
