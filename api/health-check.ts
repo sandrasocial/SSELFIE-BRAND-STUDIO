@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { quickHealthCheck } from './_utils/timing';
+import { quickHealthCheck } from './_utils/timing.js';
 
 export const config = { 
   runtime: 'nodejs',
