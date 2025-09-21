@@ -112,23 +112,23 @@ export function LuxuryProfileScreen({ user }: { user?: any }) {
     joinDate: '2024'
   });
 
-  // Fetch real user profile data
+  // Fetch real user profile data using available Vercel serverless endpoints
   const { data: userProfile } = useQuery({
-    queryKey: ['/api/user-profile'],
+    queryKey: ['/api/auth/user'],
     enabled: !!user,
     retry: 1,
     staleTime: 60 * 1000
   });
 
   const { data: userImages } = useQuery({
-    queryKey: ['/api/user-images/recent', 6],
+    queryKey: ['/api/gallery'],
     enabled: !!user,
     retry: 1,
     staleTime: 30 * 1000
   });
 
   const { data: userStats } = useQuery({
-    queryKey: ['/api/user-stats'],
+    queryKey: ['/api/user-model'],
     enabled: !!user,
     retry: 1,
     staleTime: 60 * 1000

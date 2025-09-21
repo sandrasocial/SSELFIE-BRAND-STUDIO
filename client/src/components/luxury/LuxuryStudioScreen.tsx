@@ -15,7 +15,7 @@ export function LuxuryStudioScreen({ user }: { user?: any }) {
   });
 
   const { data: recentImages } = useQuery({
-    queryKey: ['/api/user-images/recent'],
+    queryKey: ['/api/gallery'],
     enabled: !!user,
     retry: false,
     staleTime: 60 * 1000
