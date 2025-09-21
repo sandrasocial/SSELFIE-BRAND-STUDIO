@@ -334,6 +334,11 @@ function SSELFIEGallery({ hideMemberNav = false }: { hideMemberNav?: boolean }) 
     }
   };
 
+  const handlePlaceBrandAsset = () => {
+    // Keep the selected image but close the detail modal and open brand placement modal
+    setIsBrandPlacementModalOpen(true);
+  };
+
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-black">
@@ -778,7 +783,6 @@ function SSELFIEGallery({ hideMemberNav = false }: { hideMemberNav?: boolean }) 
           }}
         />
       )}
-
       {/* P3-C: Brand Asset Placement Modal */}
       {isBrandPlacementModalOpen && selectedImage && (
         <BrandAssetPlacementModal
