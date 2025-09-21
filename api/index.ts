@@ -529,7 +529,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
 
       console.log('🔐 Verifying JWT token...');
-      console.log('🔍 Token preview:', accessToken.substring(0, 20) + '...');
+      console.log('🔍 Token preview:', (accessToken as string).substring(0, 20) + '...');
       
       // Verify JWT token
       const userInfo = await verifyJWTToken(accessToken);
