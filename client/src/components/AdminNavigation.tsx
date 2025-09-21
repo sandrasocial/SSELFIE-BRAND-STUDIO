@@ -11,7 +11,6 @@ export function AdminNavigation({ transparent = true }: AdminNavigationProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { user } = useAuth();
-  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {

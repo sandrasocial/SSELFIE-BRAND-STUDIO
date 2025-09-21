@@ -2,11 +2,14 @@
 import "./env-setup.js";
 import express from 'express';
 import path from 'path';
+import fs from 'fs';
 import { registerRoutes } from './routes';
 import { securityHeaders, inputValidation } from './middleware/security';
 import { rateLimits } from './middleware/rate-limiter';
 import { cacheMiddleware, staticDataCache } from './utils/cache';
 import { Logger } from './utils/logger';
+import { liveSessionsManager } from './realtime/live-sessions';
+import { LIVE_SOCKET_ENABLED } from './env';
 
 const app = express();
 const logger = new Logger('Server');
@@ -56,7 +59,7 @@ async function setupApp() {
     } else {
       // Development mode: serve built files if they exist
       const distPath = path.join(process.cwd(), 'client', 'dist');
-      if (require('fs').existsSync(distPath)) {
+      if (fs.existsSync(distPath)) {
         app.use(express.static(distPath));
         app.use('/assets', express.static(path.join(distPath, 'assets')));
         app.use('/attached_assets', express.static(path.join(process.cwd(), 'attached_assets')));
@@ -72,8 +75,16 @@ async function setupApp() {
       }
     }
     
-    // Register API routes
-    await registerRoutes(app);
+    // Register API routes and get HTTP server
+    const server = await registerRoutes(app);
+    
+    // Initialize Socket.IO for real-time features if enabled
+    if (LIVE_SOCKET_ENABLED) {
+      liveSessionsManager.initialize(server);
+      console.log('🔄 Socket.IO real-time server initialized');
+    } else {
+      console.log('⚡ Socket.IO disabled via LIVE_SOCKET_ENABLED environment variable');
+    }
     
     console.log('✅ Server setup completed successfully');
   } catch (error) {
