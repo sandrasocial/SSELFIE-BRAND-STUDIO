@@ -1,3 +1,4 @@
+// @ts-ignore - node-fetch types may not be available but functionality works
 import fetch from 'node-fetch';
 
 export interface VeoGenerationMode {
