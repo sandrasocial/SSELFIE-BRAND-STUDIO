@@ -3,7 +3,6 @@ import { StudioPage } from '../pages/StudioPage';
 import { GalleryScreen } from './GalleryScreen';
 import SSELFIEGallery from '../pages/sselfie-gallery';
 import { useAuth } from '../hooks/use-auth';
-import { useQuery } from '@tanstack/react-query';
 import { Camera, Grid, User, Settings, Sparkles, Heart, Share2, Smartphone, Search, Package, Shirt } from 'lucide-react';
 
 // Maya's Smart Aesthetic Feed Categories - Editorial Neutral Palette
@@ -23,71 +22,46 @@ const FEED_PATTERNS = {
   uniform: [1, 1, 1, 1, 1, 1, 1, 1, 1]
 };
 
-// InstagramStyleProfile Component - Luxury Redesign with Real Data
+// InstagramStyleProfile Component - Editorial Luxury Redesign
 const InstagramStyleProfile = ({ user }: { user: { name?: string; email?: string; image?: string } }) => {
   const [selectedPattern, setSelectedPattern] = useState('checkerboard');
   const [feedImages, setFeedImages] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch real user gallery data using correct Vercel serverless endpoint
-  const { data: userImages, isLoading: imagesLoading, error } = useQuery({
-    queryKey: ['/api/gallery'],
-    enabled: !!user,
-    retry: 1,
-    staleTime: 30 * 1000,
-    refetchOnWindowFocus: false
-  });
-
-  // Process real user images when they load
+  // Mock data for demonstration - in real app, this would come from Maya's AI categorization
   useEffect(() => {
-    if (userImages && Array.isArray(userImages)) {
-      // Process real user images
-      const processedImages = userImages.slice(0, 9).map((img, index) => ({
-        id: img.id || index,
-        url: img.url || img.image_url,
-        category: img.category || ['flatlay', 'closeup', 'fullbody', 'objects', 'halfbody'][index % 5],
-        likes: img.likes || Math.floor(Math.random() * 50) + 10,
-        comments: img.comments || Math.floor(Math.random() * 10) + 1,
-        saved: img.saved || false,
-        liked: img.liked || false,
-        createdAt: img.created_at || new Date().toISOString()
-      }));
-      
-      setFeedImages(processedImages);
+    const mockImages = [
+      { id: 1, url: '/gallery-luxury-workspace.jpg', category: 'flatlay', likes: 42, comments: 8, saved: false },
+      { id: 2, url: '/flatlay-luxury-planning.jpg', category: 'closeup', likes: 38, comments: 5, saved: true },
+      { id: 3, url: '/gallery-luxury-workspace.jpg', category: 'fullbody', likes: 67, comments: 12, saved: false },
+      { id: 4, url: '/flatlay-luxury-planning.jpg', category: 'objects', likes: 29, comments: 3, saved: true },
+      { id: 5, url: '/gallery-luxury-workspace.jpg', category: 'halfbody', likes: 51, comments: 7, saved: false },
+      { id: 6, url: '/flatlay-luxury-planning.jpg', category: 'flatlay', likes: 33, comments: 4, saved: false },
+      { id: 7, url: '/gallery-luxury-workspace.jpg', category: 'closeup', likes: 45, comments: 9, saved: true },
+      { id: 8, url: '/flatlay-luxury-planning.jpg', category: 'fullbody', likes: 58, comments: 11, saved: false },
+      { id: 9, url: '/gallery-luxury-workspace.jpg', category: 'objects', likes: 41, comments: 6, saved: false }
+    ];
+    
+    setTimeout(() => {
+      setFeedImages(mockImages);
       setIsLoading(false);
-    } else if (!imagesLoading && userImages !== undefined) {
-      // No images found - show empty state
-      setFeedImages([]);
-      setIsLoading(false);
-    }
-  }, [userImages, imagesLoading]);
+    }, 1000);
+  }, []);
 
-  const toggleLike = (imageId: string | number) => {
+  const toggleLike = (imageId: number) => {
     setFeedImages(prev => prev.map(img => 
       img.id === imageId 
         ? { ...img, liked: !img.liked, likes: img.liked ? img.likes - 1 : img.likes + 1 }
         : img
     ));
-    
-    // Send to API using correct Vercel serverless endpoint
-    fetch(`/api/gallery/${imageId}/like`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' }
-    }).catch(console.error);
   };
 
-  const toggleSave = (imageId: string | number) => {
+  const toggleSave = (imageId: number) => {
     setFeedImages(prev => prev.map(img => 
       img.id === imageId 
         ? { ...img, saved: !img.saved }
         : img
     ));
-    
-    // Send to API using correct Vercel serverless endpoint
-    fetch(`/api/gallery/${imageId}/save`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' }
-    }).catch(console.error);
   };
 
   const getPatternClass = (index: number) => {
@@ -96,88 +70,56 @@ const InstagramStyleProfile = ({ user }: { user: { name?: string; email?: string
     return span === 0.5 ? 'col-span-1 row-span-1' : 'col-span-1 row-span-2';
   };
 
-  if (isLoading || imagesLoading) {
+  if (isLoading) {
     return (
-      <div className="luxury-loading-container">
-        <div className="luxury-spinner" />
-        <p className="luxury-loading-message">Loading your aesthetic feed...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="luxury-card text-center py-12">
-        <h3 className="luxury-heading-3 mb-4">Gallery Unavailable</h3>
-        <p className="luxury-text-body mb-6">
-          We're having trouble loading your gallery. Please try again.
-        </p>
-        <button 
-          onClick={() => window.location.reload()}
-          className="luxury-button-primary"
-        >
-          Retry
-        </button>
+      <div className="editorial-loading-container">
+        <div className="editorial-spinner w-12 h-12 mb-4"></div>
+        <p className="editorial-loading-message">Loading your aesthetic feed...</p>
       </div>
     );
   }
 
   return (
     <div className="space-y-8">
-      {/* Luxury Profile Header */}
-      <div className="text-center space-y-6">
-        <div className="relative inline-block">
-          {user?.image ? (
-            <img 
-              src={user.image}
-              alt={user?.name || 'Profile'}
-              className="w-32 h-32 rounded-full object-cover border border-zinc-700/30"
-              style={{ boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)' }}
-            />
-          ) : (
-            <div className="w-32 h-32 rounded-full bg-gradient-to-br from-zinc-800 to-zinc-900 border border-zinc-700/30 flex items-center justify-center">
-              <User size={40} className="text-zinc-400" strokeWidth={1.5} />
-            </div>
-          )}
-          <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-white rounded-full border-2 border-black flex items-center justify-center">
-            <div className="w-4 h-4 bg-green-500 rounded-full animate-pulse"></div>
-          </div>
+      {/* Editorial Profile Header */}
+      <div className="editorial-profile-header">
+        <div className="editorial-profile-avatar w-24 h-24 mx-auto mb-4 bg-gradient-to-br from-neutral-800 to-neutral-900 rounded-full border-2 border-neutral-700/30 flex items-center justify-center">
+          <User size={32} className="text-neutral-400" strokeWidth={1.5} />
         </div>
-        
-        <div className="space-y-4">
-          <h2 className="luxury-heading-2 text-center">
-            {(user?.name || 'YOUR PROFILE').toUpperCase()}
-          </h2>
-          <p className="luxury-text-caption">CREATIVE DIRECTOR</p>
-        </div>
+        <h1 className="editorial-profile-name text-center mb-2">
+          {user?.name?.toUpperCase() || 'YOUR PROFILE'}
+        </h1>
+        <p className="editorial-profile-tier text-center">
+          {user?.email || 'CREATIVE DIRECTOR'}
+        </p>
       </div>
 
-      {/* Luxury Stats Grid */}
-      <div className="grid grid-cols-3 gap-8">
-        <div className="text-center space-y-3">
-          <div className="luxury-heading-3">{feedImages.length}</div>
-          <div className="luxury-text-caption">Photos</div>
+      {/* Editorial Stats Grid */}
+      <div className="editorial-stats-grid">
+        <div className="text-center">
+          <div className="editorial-stat-value">247</div>
+          <div className="editorial-stat-label">PHOTOS</div>
         </div>
-        <div className="text-center space-y-3">
-          <div className="luxury-heading-3">1.2K</div>
-          <div className="luxury-text-caption">Followers</div>
+        <div className="text-center">
+          <div className="editorial-stat-value">1.2K</div>
+          <div className="editorial-stat-label">FOLLOWERS</div>
         </div>
-        <div className="text-center space-y-3">
-          <div className="luxury-heading-3">89</div>
-          <div className="luxury-text-caption">Following</div>
+        <div className="text-center">
+          <div className="editorial-stat-value">89</div>
+          <div className="editorial-stat-label">FOLLOWING</div>
         </div>
       </div>
 
       {/* Pattern Selector */}
-      <div className="luxury-card">
-        <h3 className="luxury-heading-3 mb-4">Feed Layout</h3>
+      <div className="editorial-card p-6">
+        <h3 className="editorial-heading-3 mb-4">Feed Layout</h3>
         <div className="flex gap-2">
           {Object.entries(FEED_PATTERNS).map(([key]) => (
             <button
               key={key}
               onClick={() => setSelectedPattern(key)}
-              className={`luxury-button-secondary text-xs py-2 px-4 ${
-                selectedPattern === key ? 'bg-zinc-700/50' : ''
+              className={`editorial-button-secondary px-4 py-2 text-sm ${
+                selectedPattern === key ? 'bg-neutral-700/50' : ''
               }`}
             >
               {key.charAt(0).toUpperCase() + key.slice(1)}
@@ -187,14 +129,14 @@ const InstagramStyleProfile = ({ user }: { user: { name?: string; email?: string
       </div>
 
       {/* Maya's Smart Categorization Info */}
-      <div className="luxury-card">
+      <div className="editorial-card p-6">
         <div className="flex items-start gap-3">
-          <div className="p-3 bg-zinc-800/40 rounded-xl border border-zinc-700/30">
-            <Sparkles size={20} className="text-zinc-300" strokeWidth={1.5} />
+          <div className="p-3 bg-neutral-800/40 rounded-lg border border-neutral-700/30">
+            <Sparkles size={20} className="text-neutral-300" strokeWidth={1.5} />
           </div>
           <div>
-            <h4 className="luxury-text-body mb-2">Maya's Smart Categorization</h4>
-            <p className="luxury-text-caption text-zinc-400 leading-relaxed">
+            <h4 className="editorial-text-header mb-2">Maya's Smart Categorization</h4>
+            <p className="editorial-text-body text-neutral-400 leading-relaxed">
               Your photos are automatically organized by Maya's AI into aesthetic categories: 
               flatlays, close-ups, full body, objects, and half-body shots. 
               This creates a visually balanced, magazine-quality feed.
@@ -203,80 +145,56 @@ const InstagramStyleProfile = ({ user }: { user: { name?: string; email?: string
         </div>
       </div>
 
-      {/* Gallery Content */}
-      {feedImages.length === 0 ? (
-        <div className="luxury-card text-center py-12">
-          <div className="w-16 h-16 bg-zinc-800/30 rounded-full mx-auto mb-6 flex items-center justify-center">
-            <Camera size={24} className="text-zinc-500" />
-          </div>
-          <h3 className="luxury-heading-3 mb-4">Your Gallery Awaits</h3>
-          <p className="luxury-text-body mb-6 max-w-md mx-auto">
-            Start creating stunning photos with Maya to build your personal brand gallery
-          </p>
-          <button className="luxury-button-primary">
-            Create First Photo
-          </button>
-        </div>
-      ) : (
-        /* Luxury Gallery Grid */
-        <div className="grid grid-cols-2 gap-3">
-          {feedImages.map((image, index) => {
-            const category = MAYA_CATEGORIES[image.category as keyof typeof MAYA_CATEGORIES];
-            const Icon = category?.icon || Package;
-            
-            return (
-              <div 
-                key={image.id} 
-                className={`luxury-gallery-item ${getPatternClass(index)}`}
-              >
-                <div className="luxury-gallery-image">
-                  {image.url ? (
-                    <img 
-                      src={image.url} 
-                      alt={`Gallery ${index + 1}`}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                    />
-                  ) : (
-                    <div className={`w-full h-full bg-gradient-to-br ${category?.color || 'from-zinc-700 to-zinc-800'} rounded-lg flex items-center justify-center`}>
-                      <Icon size={32} className="text-zinc-400" strokeWidth={1.5} />
-                    </div>
-                  )}
-                  <div className="luxury-gallery-overlay"></div>
-                  <div className="luxury-gallery-actions">
-                    <div className="flex justify-between items-center">
-                      <span className="text-white text-xs tracking-wide uppercase">
-                        {category?.name || 'PHOTO'}
-                      </span>
-                      <div className="flex space-x-2">
-                        <button 
-                          onClick={() => toggleLike(image.id)}
-                          className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition-colors duration-300"
-                        >
-                          <Heart 
-                            size={14} 
-                            className={`${image.liked ? 'text-red-500 fill-current' : 'text-white'}`} 
-                            strokeWidth={1.5} 
-                          />
-                        </button>
-                        <button 
-                          onClick={() => toggleSave(image.id)}
-                          className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition-colors duration-300"
-                        >
-                          <Share2 
-                            size={14} 
-                            className={`${image.saved ? 'text-blue-400' : 'text-white'}`} 
-                            strokeWidth={1.5} 
-                          />
-                        </button>
-                      </div>
+      {/* Editorial Feed Grid */}
+      <div className="grid grid-cols-2 gap-3">
+        {feedImages.map((image, index) => {
+          const category = MAYA_CATEGORIES[image.category as keyof typeof MAYA_CATEGORIES];
+          const Icon = category?.icon || Package;
+          
+          return (
+            <div 
+              key={image.id} 
+              className={`editorial-gallery-item ${getPatternClass(index)}`}
+            >
+              <div className="editorial-gallery-image">
+                <div className={`w-full h-full bg-gradient-to-br ${category?.color || 'from-neutral-700 to-neutral-800'} rounded-lg flex items-center justify-center`}>
+                  <Icon size={32} className="text-neutral-400" strokeWidth={1.5} />
+                </div>
+                <div className="editorial-gallery-overlay"></div>
+                <div className="editorial-gallery-actions">
+                  <div className="flex justify-between items-center">
+                    <span className="text-white text-xs tracking-wide">
+                      {category?.name || 'PHOTO'}
+                    </span>
+                    <div className="flex space-x-2">
+                      <button 
+                        onClick={() => toggleLike(image.id)}
+                        className="p-1.5 bg-white/20 backdrop-blur-sm rounded transition-colors hover:bg-white/30"
+                      >
+                        <Heart 
+                          size={14} 
+                          className={`${image.liked ? 'text-red-500 fill-current' : 'text-white'}`} 
+                          strokeWidth={1.5} 
+                        />
+                      </button>
+                      <button 
+                        onClick={() => toggleSave(image.id)}
+                        className="p-1.5 bg-white/20 backdrop-blur-sm rounded transition-colors hover:bg-white/30"
+                      >
+                        <Share2 
+                          size={14} 
+                          className={`${image.saved ? 'text-blue-400' : 'text-white'}`} 
+                          strokeWidth={1.5} 
+                        />
+                      </button>
                     </div>
                   </div>
                 </div>
               </div>
-            );
-          })}
-        </div>
-      )}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 };
@@ -311,44 +229,50 @@ const createTabs = (user: { name?: string; email?: string; image?: string }) => 
     description: 'Settings & preferences',
     component: (
       <div className="space-y-8">
-        <div className="text-center space-y-4 pt-8">
-          <h1 className="luxury-heading-1">ACCOUNT</h1>
-          <p className="luxury-text-caption">Manage your preferences</p>
+        <div className="editorial-profile-header">
+          <h1 className="editorial-heading-1 text-center">ACCOUNT</h1>
+          <p className="editorial-text-caption text-center">Manage your preferences</p>
         </div>
         
-        <div className="space-y-6">
-          <div className="luxury-card">
-            <h3 className="luxury-heading-3 mb-4">Profile Settings</h3>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between py-4 hover:bg-zinc-700/20 rounded-lg px-4 -mx-4 transition-all duration-300 min-h-[48px]">
-                <span className="luxury-text-body">Name</span>
-                <span className="luxury-text-caption">{user?.name || 'Not set'}</span>
+        <div className="space-y-4">
+          <div className="editorial-card p-6">
+            <h3 className="editorial-heading-3 mb-4">Profile Settings</h3>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between py-3 border-b border-neutral-800/30">
+                <span className="editorial-text-body">Name</span>
+                <span className="editorial-text-caption">{user?.name || 'Not set'}</span>
               </div>
-              <div className="flex items-center justify-between py-4 hover:bg-zinc-700/20 rounded-lg px-4 -mx-4 transition-all duration-300 min-h-[48px]">
-                <span className="luxury-text-body">Email</span>
-                <span className="luxury-text-caption">{user?.email || 'Not set'}</span>
+              <div className="flex items-center justify-between py-3 border-b border-neutral-800/30">
+                <span className="editorial-text-body">Email</span>
+                <span className="editorial-text-caption">{user?.email || 'Not set'}</span>
               </div>
-              <div className="flex items-center justify-between py-4 hover:bg-zinc-700/20 rounded-lg px-4 -mx-4 transition-all duration-300 min-h-[48px]">
-                <span className="luxury-text-body">Member Since</span>
-                <span className="luxury-text-caption">2024</span>
+              <div className="flex items-center justify-between py-3">
+                <span className="editorial-text-body">Member Since</span>
+                <span className="editorial-text-caption">2024</span>
               </div>
             </div>
           </div>
           
-          <div className="luxury-card">
-            <h3 className="luxury-heading-3 mb-4">Preferences</h3>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between py-4 hover:bg-zinc-700/20 rounded-lg px-4 -mx-4 transition-all duration-300 min-h-[48px]">
-                <span className="luxury-text-body">Notifications</span>
-                <div className="luxury-toggle"></div>
+          <div className="editorial-card p-6">
+            <h3 className="editorial-heading-3 mb-4">Preferences</h3>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between py-3 border-b border-neutral-800/30">
+                <span className="editorial-text-body">Notifications</span>
+                <div className="w-12 h-6 bg-neutral-700 rounded-full relative">
+                  <div className="w-5 h-5 bg-neutral-200 rounded-full absolute top-0.5 right-0.5 transition-transform"></div>
+                </div>
               </div>
-              <div className="flex items-center justify-between py-4 hover:bg-zinc-700/20 rounded-lg px-4 -mx-4 transition-all duration-300 min-h-[48px]">
-                <span className="luxury-text-body">Dark Mode</span>
-                <div className="luxury-toggle active"></div>
+              <div className="flex items-center justify-between py-3 border-b border-neutral-800/30">
+                <span className="editorial-text-body">Dark Mode</span>
+                <div className="w-12 h-6 bg-neutral-200 rounded-full relative">
+                  <div className="w-5 h-5 bg-neutral-800 rounded-full absolute top-0.5 left-0.5 transition-transform"></div>
+                </div>
               </div>
-              <div className="flex items-center justify-between py-4 hover:bg-zinc-700/20 rounded-lg px-4 -mx-4 transition-all duration-300 min-h-[48px]">
-                <span className="luxury-text-body">Auto-save</span>
-                <div className="luxury-toggle active"></div>
+              <div className="flex items-center justify-between py-3">
+                <span className="editorial-text-body">Auto-save</span>
+                <div className="w-12 h-6 bg-neutral-200 rounded-full relative">
+                  <div className="w-5 h-5 bg-neutral-800 rounded-full absolute top-0.5 left-0.5 transition-transform"></div>
+                </div>
               </div>
             </div>
           </div>
@@ -371,51 +295,51 @@ function MobileTabLayout() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col overflow-x-hidden bg-black" style={{ WebkitOverflowScrolling: 'touch' }}>
-      {/* Luxury Breadcrumb */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-800/20 bg-gradient-to-r from-black/20 to-transparent sticky top-0 z-40 backdrop-blur-sm">
+    <div className="min-h-screen flex flex-col overflow-x-hidden bg-editorial-background" style={{ WebkitOverflowScrolling: 'touch' }}>
+      {/* Enhanced Editorial Breadcrumb with Luxury Styling */}
+      <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-800/20 bg-gradient-to-r from-neutral-950/20 to-transparent sticky top-0 z-40 backdrop-blur-sm">
         <div className="flex items-center gap-3">
-          <div className="w-2 h-2 bg-zinc-400 rounded-full opacity-60"></div>
-          <span className="luxury-eyebrow text-zinc-500 tracking-ultra-wide">
+          <div className="w-2 h-2 bg-neutral-400 rounded-full opacity-60"></div>
+          <span className="editorial-eyebrow text-neutral-500 tracking-ultra-wide">
             {currentTab?.label?.toUpperCase() || 'STUDIO'}
           </span>
         </div>
-        <div className="luxury-text-caption text-zinc-600 font-serif">
+        <div className="editorial-text-header text-neutral-600 text-sm tracking-extra-wide font-serif">
           SSELFIE
         </div>
       </div>
 
-      {/* Main Content Area */}
+      {/* Enhanced Main Content Area with Semantic Spacing */}
       <main 
-        className="flex-1 pb-24 overflow-y-auto overscroll-behavior-y-contain"
+        className="flex-1 pb-navigation-bottom-margin pt-header-offset overflow-y-auto overscroll-behavior-y-contain"
         style={{
           paddingLeft: 'env(safe-area-inset-left)',
           paddingRight: 'env(safe-area-inset-right)',
-          minHeight: 'calc(100vh - 120px)'
+          minHeight: 'calc(100vh - var(--navigation-bottom-margin))'
         }}
         role="main" 
         aria-label="Main content"
       >
         <div className="px-6 py-8 min-h-full">
-          <div className="luxury-fade-in">
+          <div className="animate-editorial-fade-in">
             {currentTab?.component}
           </div>
         </div>
       </main>
 
-      {/* Luxury Floating Tab Bar */}
+      {/* Editorial Luxury Floating Tab Bar */}
       <nav 
         role="navigation" 
         aria-label="Mobile navigation"
-        className="fixed bottom-4 left-4 right-4 z-50"
+        className="fixed bottom-floating-navigation-bottom left-floating-navigation-horizontal right-floating-navigation-horizontal z-50"
         style={{
           paddingBottom: 'env(safe-area-inset-bottom)',
           paddingLeft: 'env(safe-area-inset-left)',
           paddingRight: 'env(safe-area-inset-right)'
         }}
       >
-        <div className="luxury-tab-container">
-          <div className="luxury-tab-grid">
+        <div className="editorial-floating-tab p-3">
+          <div className="flex">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
@@ -424,7 +348,11 @@ function MobileTabLayout() {
                 <button
                   key={tab.id}
                   onClick={() => handleTabChange(tab.id)}
-                  className={`luxury-tab-button ${isActive ? 'active' : ''}`}
+                  className={`flex-1 p-4 rounded-xl transition-all duration-300 ease-sophisticated min-h-[56px] flex flex-col items-center justify-center editorial-headline ${
+                    isActive 
+                      ? 'bg-neutral-800/60 text-neutral-200' 
+                      : 'text-neutral-500 hover:bg-neutral-800/30 hover:text-neutral-300'
+                  }`}
                   style={{ 
                     WebkitTapHighlightColor: 'transparent',
                     touchAction: 'manipulation'
@@ -436,7 +364,7 @@ function MobileTabLayout() {
                   role="tab"
                   tabIndex={isActive ? 0 : -1}
                 >
-                  <div className={`luxury-tab-icon ${
+                  <div className={`p-2 rounded-xl transition-all duration-500 ${
                     isActive 
                       ? 'transform scale-105' 
                       : ''
@@ -447,7 +375,11 @@ function MobileTabLayout() {
                       className="transition-all duration-500" 
                     />
                   </div>
-                  <span className="luxury-tab-label">
+                  <span className={`text-xs font-light tracking-wide transition-all duration-500 uppercase mt-1`}
+                    style={{ 
+                      fontSize: '10px',
+                      letterSpacing: '0.2em'
+                    }}>
                     {tab.label}
                   </span>
                 </button>

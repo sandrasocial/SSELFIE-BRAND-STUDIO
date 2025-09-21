@@ -19,8 +19,8 @@ import { initializeMobileOptimization } from "./utils/mobileOptimization";
 import { performanceMonitor } from "./utils/performanceMonitor";
 import { initializeRuntimeOptimization } from "./utils/runtimeOptimization";
 
-// Luxury Mobile Styling
-import "./styles/luxury-mobile.css";
+// Editorial Luxury Styling
+import "./styles/editorial-luxury.css";
 
 // Core pages (loaded immediately) - BRAND STUDIO IS PRIMARY
 import AppLayout from "./pages/AppLayout";
@@ -31,7 +31,7 @@ import { lazy, Suspense } from "react";
 const BusinessLanding = lazy(() => import("./pages/business-landing"));
 const HairLanding = lazy(() => import("./pages/hair-landing"));
 const HairSignup = lazy(() => import("./pages/hair-signup"));
-const LuxuryTrainingPage = lazy(() => import("./components/LuxuryTrainingPage"));
+const SimpleTraining = lazy(() => import("./pages/simple-training"));
 const SimpleCheckout = lazy(() => import("./pages/simple-checkout"));
 const PaymentSuccess = lazy(() => import("./pages/payment-success"));
 const ThankYou = lazy(() => import("./pages/thank-you"));
@@ -189,7 +189,7 @@ function Router() {
       <Route path="/simple-training" component={(props) => (
         <ProtectedRoute component={() => (
           <Suspense fallback={<PageLoader />}>
-            <LuxuryTrainingPage />
+            <SimpleTraining />
           </Suspense>
         )} {...props} />
       )} />
