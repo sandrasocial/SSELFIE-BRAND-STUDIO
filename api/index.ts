@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import type { AiImage, UserModel, InsertUser } from '../shared/schema.js';
-import { withTimeout, withDatabaseTimeout, withDatabaseTimeoutAndRetry, withExternalApiTimeout, isTimeoutError } from './_utils/timing.js';
+import type { AiImage, UserModel, InsertUser } from '../shared/schema';
+import { withTimeout, withDatabaseTimeout, withDatabaseTimeoutAndRetry, withExternalApiTimeout, isTimeoutError } from './_utils/timing';
 export const config = { 
   runtime: 'nodejs',
   maxDuration: 40
@@ -174,8 +174,8 @@ async function applyGenderContext(conceptCards: ConceptCard[], userId: string): 
     console.log('🎯 Applying gender context to concept cards for user:', userId);
     
     // Import required utilities
-    const { storage } = await import('../server/storage.js');
-    const { enforceGender, normalizeGender } = await import('../server/utils/gender-prompt.js');
+    const { storage } = await import('../server/storage');
+    const { enforceGender, normalizeGender } = await import('../server/utils/gender-prompt');
     
     // Get user data
     const [user, userModel] = await Promise.all([
@@ -384,7 +384,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const expected = process.env.ADMIN_TOKEN || 'sandra-admin-2025';
         if (adminToken !== expected) return res.status(401).json({ error: 'Unauthorized' });
 
-        const { storage } = await import('../server/storage.js');
+        const { storage } = await import('../server/storage');
         const models = await storage.getAllCompletedTrainings();
 
         const header = [
@@ -605,7 +605,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Helper: ensure DB user exists/linked from Stack user fields
     async function ensureDbUserFromStack(stackUser: { id?: string; email?: string | null; displayName?: string | null; firstName?: string | null; lastName?: string | null; profileImageUrl?: string | null; }) {
-      const { storage } = await import('../server/storage.js');
+      const { storage } = await import('../server/storage');
       const stackId = (stackUser.id || '') as string;
       const email = (stackUser.email || '') as string;
 
@@ -654,7 +654,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         console.log('🚀 AUTO-REGISTRATION: Creating database user for:', email, 'plan:', plan);
         
         // Import storage to create database user
-        const { storage } = await import('../server/storage.js');
+        const { storage } = await import('../server/storage');
         
         // Check if user already exists by email
         const existingUser = await storage.getUserByEmail(email);
@@ -809,7 +809,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (adminToken !== expected) return res.status(401).json({ error: 'Unauthorized' });
       const { legacyUserId, stackId } = (req.body || {}) as { legacyUserId?: string | number; stackId?: string };
       if (!legacyUserId || !stackId) return res.status(400).json({ error: 'legacyUserId and stackId required' });
-      const { storage } = await import('../server/storage.js');
+      const { storage } = await import('../server/storage');
       const linked = await storage.linkStackAuthId(String(legacyUserId), String(stackId));
       res.setHeader('Cache-Control', 'no-store');
       return res.status(200).json({ ok: true, linkedUserId: linked.id, email: linked.email });
@@ -822,7 +822,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const adminToken = req.headers['x-admin-token'] as string;
       const expected = process.env.ADMIN_TOKEN || 'sandra-admin-2025';
       if (adminToken !== expected) return res.status(401).json({ error: 'Unauthorized' });
-      const { storage } = await import('../server/storage.js');
+      const { storage } = await import('../server/storage');
       const users = await storage.getAllUsers();
       const result: Array<{ email: string | null; stackId: string | null; legacyUserId: string; triggerWord: string; modelStatus: string; modelName: string | null }> = [];
       for (const u of users as Array<{ id: string; stackAuthId?: string; email?: string }>) {
@@ -857,7 +857,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
 
       try {
-        const { storage } = await import('../server/storage.js');
+        const { storage } = await import('../server/storage');
         const trainedModels = await storage.getAllCompletedTrainings();
         const updated: Array<{ stackId: string; legacyUserId: string; email: string | null; ok: boolean; status: number }>
           = [];
@@ -938,7 +938,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
 
         const user = await getAuthenticatedUser();
-        const { storage } = await import('../server/storage.js');
+        const { storage } = await import('../server/storage');
         
         // OPTIMIZED: Use faster database timeouts with retry for critical user operations
         let dbUser = await withDatabaseTimeoutAndRetry(
@@ -1055,7 +1055,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       
       try {
         const user = await getAuthenticatedUser();
-        const { storage } = await import('../server/storage.js');
+        const { storage } = await import('../server/storage');
         
         console.log('🔍 Getting model for user:', user.id, user.email);
         
@@ -1340,7 +1340,7 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
         }
         
         // Access gating: require trained model and plan access
-        const { storage } = await import('../server/storage.js');
+        const { storage } = await import('../server/storage');
         const model = await storage.getUserModelByUserId(user.id as string);
         if (!model || model.trainingStatus !== 'completed') {
           return res.status(403).json({
@@ -1430,7 +1430,7 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
           // const { GenerationCompletionMonitor } = await import('../server/generation-completion-monitor');
           
           // Find the generation tracker for this prediction
-          const { storage } = await import('../server/storage.js');
+          const { storage } = await import('../server/storage');
           const tracker = await storage.getGenerationTrackerByPredictionId(predictionId);
           
           if (tracker) {
@@ -1508,7 +1508,7 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
         
         try {
           // Use the real Maya personality system
-          const { PersonalityManager } = await import('../server/agents/personalities/personality-config.js');
+          const { PersonalityManager } = await import('../server/agents/personalities/personality-config');
           const baseMayaPersonality = PersonalityManager.getNaturalPrompt('maya');
           const structuredOutputInstruction = `\n\nSTRICT OUTPUT FORMAT:\nReturn EXACTLY 3 concepts separated by a line with three dashes (---).\nFor each concept, output 3 lines only:\n1) An emoji followed by a space and a bold title: "+emoji+ **TITLE**"\n2) One sentence description\n3) A line starting with "FLUX_PROMPT:" followed by a single line image generation prompt.\nDo not add any extra text before or after the three concepts.`;
           const systemPrompt = `${baseMayaPersonality}${structuredOutputInstruction}`;
@@ -1645,7 +1645,7 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
         // This is non-critical, so if it times out we'll still return the response
         withDatabaseTimeout(
           (async () => {
-            const { storage } = await import('../server/storage.js');
+            const { storage } = await import('../server/storage');
             const existingConvs = await storage.getUserConversations(user.id as string, 'maya');
             const conversationId = (existingConvs && existingConvs[0]?.id) || (await storage.createConversation({ userId: user.id as string, agentName: 'maya', title: 'Maya Chat', status: 'active' })).id;
             await storage.createMessage({ conversationId, role: 'user', content: message, tokenCount: 0 });
@@ -1746,7 +1746,7 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
     if (req.url === '/api/training/status' || req.url?.startsWith('/api/training/status?')) {
       try {
         const user = await getAuthenticatedUser();
-        const { storage } = await import('../server/storage.js');
+        const { storage } = await import('../server/storage');
         const model = await storage.getUserModelByUserId(user.id as string);
         const status = model?.trainingStatus || 'not_started';
         const progress = model?.trainingProgress || (status === 'completed' ? 100 : 0);
@@ -1775,7 +1775,7 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
         if ((user.id as string) !== targetUserId) {
           return res.status(403).json({ error: 'Forbidden' });
         }
-        const { storage } = await import('../server/storage.js');
+        const { storage } = await import('../server/storage');
         const model = await storage.getUserModelByUserId(targetUserId);
         const progress = model?.trainingProgress || (model?.trainingStatus === 'completed' ? 100 : 0);
         return res.status(200).json({ progress });
@@ -1816,7 +1816,7 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
         console.log('🔍 Getting gallery images for user:', user.id, user.email);
         
         // Import storage service to fetch real images
-        const { storage } = await import('../server/storage.js');
+        const { storage } = await import('../server/storage');
         
         // Fetch images from both tables
         const [aiImages, generatedImages] = await Promise.all([
@@ -1890,7 +1890,7 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
         }
         
         // Update user gender in database
-        const { storage } = await import('../server/storage.js');
+        const { storage } = await import('../server/storage');
         await storage.updateUserProfile(user.id as string, { gender });
         
         console.log(`✅ Updated gender for user ${user.id}: ${gender}`);
@@ -1930,7 +1930,7 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
         console.log('🔍 Getting gallery images for user:', user.id, user.email);
         
         // Import storage service to fetch real images
-        const { storage } = await import('../server/storage.js');
+        const { storage } = await import('../server/storage');
         
         // OPTIMIZED: Reduced timeout and better error handling
         const [aiImages, generatedImages] = await Promise.all([
@@ -2001,7 +2001,7 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
     // Test database connection endpoint
     if (req.url === '/api/test-db') {
       try {
-        const { storage } = await import('../server/storage.js');
+        const { storage } = await import('../server/storage');
         const user = await getAuthenticatedUser();
         
         // Test basic database operations
@@ -2036,7 +2036,7 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
     if (req.url === '/api/images/favorites' || req.url?.startsWith('/api/images/favorites?')) {
       try {
         const user = await getAuthenticatedUser();
-        const { storage } = await import('../server/storage.js');
+        const { storage } = await import('../server/storage');
         const ai = await withTimeout(storage.getAIImages(user.id as string), 5000, 'getAIImages') as unknown as AiImage[];
         const favIds = ai
           .filter((img: AiImage) => Boolean(img.isFavorite || img.isSelected))
@@ -2060,7 +2060,7 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
         const idStr = parts[3];
         const imageId = parseInt(idStr, 10);
         if (!imageId || Number.isNaN(imageId)) return res.status(400).json({ error: 'Invalid image id' });
-        const { storage } = await import('../server/storage.js');
+        const { storage } = await import('../server/storage');
         // Fetch image to read current favorite state (from legacy ai_images)
         const img = await withTimeout(storage.getAIImage(user.id as string, imageId), 4000, 'getAIImage') as unknown as AiImage | undefined;
         const next = !(img?.isFavorite ?? false);
@@ -2082,7 +2082,7 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
         const idStr = parts[3];
         const imageId = parseInt(idStr, 10);
         if (!imageId || Number.isNaN(imageId)) return res.status(400).json({ error: 'Invalid image id' });
-        const { storage } = await import('../server/storage.js');
+        const { storage } = await import('../server/storage');
         const ok = await storage.deleteAIImage(user.id as string, imageId);
         res.setHeader('Cache-Control', 'no-store');
         return res.status(200).json({ ok, id: imageId });
