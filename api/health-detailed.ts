@@ -27,9 +27,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       timestamp: new Date().toISOString(),
       performance: {
         totalLatency: totalTime,
-        databaseLatency: dbHealth.latency,
-        databaseStatus: dbHealth.status,
-        userCount: dbHealth.count
+        databaseLatency: (dbHealth as any).latency,
+        databaseStatus: (dbHealth as any).status,
+        userCount: (dbHealth as any).count
       },
       environment: {
         nodeVersion: process.version,
