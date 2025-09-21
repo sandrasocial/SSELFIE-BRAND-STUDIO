@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import MobileTabLayout from '../components/MobileTabLayout';
+import { MobileTabLayout } from '../components/MobileTabLayout';
 import { useAuth } from '../hooks/use-auth';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { Bell, Wifi, Battery, Signal } from 'lucide-react';
+import '../styles/editorial-luxury.css';
 
 // Editorial Luxury AppLayout - Complete Redesign
 export function AppLayout() {
@@ -77,20 +78,20 @@ export function AppLayout() {
   }
 
   return (
-    <div className="h-screen bg-black relative overflow-hidden font-sans">
+    <div className="relative min-h-screen bg-editorial-black">
       {/* Enhanced Editorial gradient backdrop with luxury depth */}
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-black via-neutral-950 to-neutral-900"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-editorial-black via-neutral-950 to-neutral-900"></div>
         <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/50 via-transparent to-transparent"></div>
       </div>
       
-      {/* Luxury Editorial container with glass morphism */}
-      <div className="relative flex-1 mx-3 pt-1 h-full">
-        <div className="flex-1 bg-neutral-950/80 backdrop-blur-2xl rounded-[2rem] shadow-editorial-xl border border-neutral-800/30 overflow-hidden h-full">
-          <div className="flex-1 p-8 h-full flex flex-col">
+      {/* Luxury Editorial container with glass morphism and semantic spacing */}
+      <div className="relative flex-1 p-3 pt-1 min-h-screen">
+        <div className="min-h-screen editorial-glass rounded-4xl shadow-editorial-xl overflow-hidden">
+          <div className="min-h-screen p-8 flex flex-col">
           
             {/* Enhanced Editorial Status Bar with Luxury Design */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-800/20 bg-gradient-to-r from-transparent via-neutral-950/30 to-transparent">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-800/20 bg-gradient-to-r from-transparent via-neutral-950/30 to-transparent mb-6">
               <div className="flex items-center gap-6">
                 <div className="editorial-text-header text-neutral-200 text-lg font-light tracking-wide">
                   {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -148,8 +149,8 @@ export function AppLayout() {
           </div>
         </div>
         
-        {/* Subtle bottom safe area with gradient */}
-        <div className="h-4 bg-gradient-to-t from-black/50 to-transparent"></div>
+        {/* Minimal bottom gradient for visual depth */}
+        <div className="absolute bottom-0 left-0 right-0 h-4 bg-gradient-to-t from-black/50 to-transparent pointer-events-none" />
       </div>
     </div>
   );

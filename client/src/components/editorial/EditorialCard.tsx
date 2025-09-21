@@ -32,4 +32,3 @@ export function EditorialCard({
       {children}
     </div>
   );
-}
