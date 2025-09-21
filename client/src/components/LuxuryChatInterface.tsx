@@ -3,7 +3,7 @@ import { useMayaChat } from '../hooks/useMayaChat';
 import { StyleSelector } from './StyleSelector';
 import { BrandStyleCollection } from '../data/brand-style-collections';
 import GeneratedImagePreview from './GeneratedImagePreview';
-import { MessageCircle, Send, Sparkles, Camera, MoreHorizontal } from 'lucide-react';
+import { MessageCircle, Send, Sparkles, Camera, X, MoreHorizontal } from 'lucide-react';
 
 // Utility function to strip emojis from frontend display while preserving for backend
 const stripEmojisForDisplay = (text: string): string => {
@@ -11,8 +11,7 @@ const stripEmojisForDisplay = (text: string): string => {
 };
 
 /**
- * LuxuryConceptCard Component - Editorial Luxury Redesign
- * Renders a single concept card with sophisticated styling and interactions
+ * LuxuryConceptCard Component - Clean Demo Style
  */
 interface ConceptCard {
   title: string;
@@ -101,50 +100,45 @@ export function LuxuryConceptCard({ concept }: { concept: ConceptCard }) {
     }
   };
 
-  const handleSaveImages = async () => {
-    try {
-      // The GeneratedImagePreview component handles individual saves
-      // This could be used for batch operations if needed
-    } catch {
-      // Handle error silently or show user feedback
-    }
-  };
-
   return (
-    <div className="editorial-concept-card">
-      <div className="editorial-concept-header">
-        <div className="editorial-concept-content">
-          <div className="editorial-concept-badge">
-            <span className="editorial-badge">{concept.category || 'Concept'}</span>
-            <Sparkles size={16} className="text-neutral-400" strokeWidth={1.5} />
+    <div className="bg-gradient-to-br from-neutral-800/20 to-neutral-900/20 rounded-xl p-6 border border-neutral-700/20 transition-all duration-300 hover:border-neutral-600/30">
+      <div className="space-y-4">
+        <div className="flex items-center gap-3">
+          <div className="px-3 py-1 bg-neutral-700/30 rounded-full border border-neutral-600/20">
+            <span className="text-xs text-neutral-300 tracking-wide uppercase">{concept.category || 'Concept'}</span>
           </div>
-          <h4 className="editorial-concept-title">{stripEmojisForDisplay(concept.title)}</h4>
-          <p className="editorial-concept-description">{concept.description}</p>
+          <Sparkles size={14} className="text-neutral-400" strokeWidth={1.5} />
+        </div>
+        <div className="space-y-2">
+          <h4 className="text-lg font-light text-neutral-200 tracking-wide">{stripEmojisForDisplay(concept.title)}</h4>
+          <p className="text-sm text-neutral-400 leading-relaxed">{concept.description}</p>
         </div>
       </div>
       
       {!isLoading && imageUrls.length === 0 && (
-        <button 
-          onClick={handleGenerate}
-          className="editorial-button w-full mb-6 group-hover:scale-[1.02] transition-all duration-300"
-        >
-          <Camera className="mr-2" size={18} strokeWidth={1.5} />
-          GENERATE PHOTOS
-        </button>
+        <div className="mt-6">
+          <button 
+            onClick={handleGenerate}
+            className="w-full bg-neutral-200 text-black px-6 py-4 rounded-xl font-light tracking-wide transition-all duration-200 hover:bg-neutral-300 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2"
+          >
+            <Camera size={18} strokeWidth={1.5} />
+            GENERATE PHOTOS
+          </button>
+        </div>
       )}
 
       {error && (
-        <div className="editorial-error-container">
+        <div className="mt-6 p-4 bg-red-900/10 border border-red-500/20 rounded-xl">
           <div className="flex items-start gap-3">
-            <div className="editorial-error-icon">
-              <span className="text-red-400 text-xs">!</span>
+            <div className="w-6 h-6 bg-red-500/20 rounded-full flex items-center justify-center flex-shrink-0">
+              <span className="text-red-400 text-xs font-semibold">!</span>
             </div>
-            <div className="flex-1">
-              <h4 className="editorial-error-title">Generation Failed</h4>
-              <p className="editorial-error-message">{error}</p>
+            <div className="flex-1 space-y-2">
+              <h4 className="text-sm font-medium text-red-300">Generation Failed</h4>
+              <p className="text-xs text-red-400 leading-relaxed">{error}</p>
               <button 
                 onClick={() => setError(null)}
-                className="editorial-error-dismiss"
+                className="text-xs text-red-300 hover:text-red-200 transition-colors"
               >
                 Dismiss
               </button>
@@ -154,24 +148,24 @@ export function LuxuryConceptCard({ concept }: { concept: ConceptCard }) {
       )}
 
       {isLoading && (
-        <div className="editorial-loading-container">
-          <div className="editorial-spinner mr-3 mb-3"></div>
-          <span className="editorial-loading-message">GENERATING YOUR VISION</span>
-          <div className="editorial-loading-progress">
-            <div className="editorial-loading-bar"></div>
+        <div className="mt-6 flex flex-col items-center justify-center py-8 space-y-4">
+          <div className="w-8 h-8 border-2 border-neutral-300 border-t-transparent rounded-full animate-spin"></div>
+          <span className="text-sm text-neutral-400 tracking-wide">GENERATING YOUR VISION</span>
+          <div className="w-48 h-1 bg-neutral-800 rounded-full overflow-hidden">
+            <div className="w-full h-full bg-gradient-to-r from-transparent via-neutral-300 to-transparent animate-pulse"></div>
           </div>
         </div>
       )}
 
       {showSuccess && (
-        <div className="editorial-success-container">
+        <div className="mt-6 p-4 bg-green-900/10 border border-green-500/20 rounded-xl">
           <div className="flex items-center gap-3">
-            <div className="editorial-success-icon">
-              <span className="text-green-400 text-xs">✓</span>
+            <div className="w-6 h-6 bg-green-500/20 rounded-full flex items-center justify-center">
+              <span className="text-green-400 text-xs font-semibold">✓</span>
             </div>
-            <div>
-              <h4 className="editorial-success-title">Images Generated Successfully!</h4>
-              <p className="editorial-success-message">Your photos are ready to view and save.</p>
+            <div className="space-y-1">
+              <h4 className="text-sm font-medium text-green-300">Images Generated Successfully!</h4>
+              <p className="text-xs text-green-400">Your photos are ready to view and save.</p>
             </div>
           </div>
         </div>
@@ -181,23 +175,21 @@ export function LuxuryConceptCard({ concept }: { concept: ConceptCard }) {
         imageUrls={imageUrls}
         isLoading={isLoading}
         concept={concept}
-        onSave={() => handleSaveImages()}
+        onSave={() => {}}
       />
     </div>
   );
 }
 
 /**
- * LuxuryChatInterface Component - Editorial Luxury Redesign
- * Main chat interface with Maya AI, featuring sophisticated styling and interactions
+ * LuxuryChatInterface Component - Clean Demo Style
  */
 export function LuxuryChatInterface() {
   const { messages, sendMessage, isTyping } = useMayaChat();
   const [inputValue, setInputValue] = useState('');
   const [selectedStyle, setSelectedStyle] = useState<BrandStyleCollection | null>(null);
   const [showStyleSelector, setShowStyleSelector] = useState(false);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const messagesEndRef = useRef<any>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -244,68 +236,64 @@ Please create photo concepts that match this signature look, drawing from your $
   };
 
   return (
-    <div className="editorial-chat-container">
-      <div className="editorial-chat-header">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-neutral-800/40 rounded-editorial-md border border-neutral-700/30">
-              <MessageCircle size={20} className="text-neutral-300" strokeWidth={1.5} />
-            </div>
-            <div>
-              <h2 className="editorial-heading-1 text-neutral-200">MAYA STUDIO</h2>
-              <p className="editorial-text-caption text-neutral-500">AI Creative Director</p>
-            </div>
+    <div className="h-full flex flex-col">
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-4">
+          <div className="p-2 bg-neutral-800/40 rounded-lg border border-neutral-700/30">
+            <MessageCircle size={18} className="text-neutral-300" strokeWidth={1.5} />
           </div>
-          
-          <button
-            onClick={() => setShowStyleSelector(true)}
-            className="editorial-button-secondary flex items-center gap-2 px-4 py-3"
-          >
-            <Sparkles size={16} strokeWidth={1.5} />
-            {selectedStyle ? selectedStyle.name : 'CHOOSE STYLE'}
-          </button>
+          <div>
+            <h3 className="text-lg font-light text-neutral-200 tracking-wide">Maya Studio</h3>
+            <p className="text-xs text-neutral-500 tracking-wide">AI Creative Director</p>
+          </div>
         </div>
         
-        {selectedStyle && (
-          <div className="mt-4 p-4 bg-neutral-800/20 rounded-editorial-md border border-neutral-700/20">
-            <div className="flex items-start gap-3">
-              <div className="w-2 h-2 bg-neutral-400 rounded-full mt-2"></div>
-              <div>
-                <h4 className="editorial-text-header text-neutral-300 mb-1">{selectedStyle.aesthetic}</h4>
-                <p className="editorial-text-body text-neutral-400 text-sm leading-relaxed">
-                  {selectedStyle.description}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
+        <button
+          onClick={() => setShowStyleSelector(true)}
+          className="px-4 py-2 bg-neutral-800/40 text-neutral-200 border border-neutral-700/30 rounded-lg text-sm font-light tracking-wide transition-all duration-200 hover:bg-neutral-800/60"
+        >
+          <Sparkles size={14} strokeWidth={1.5} className="inline mr-2" />
+          {selectedStyle ? selectedStyle.name : 'Choose Style'}
+        </button>
       </div>
 
-      <div className="editorial-chat-messages">
+      {selectedStyle && (
+        <div className="mb-4 p-4 bg-neutral-800/20 rounded-lg border border-neutral-700/20">
+          <div className="flex items-start gap-3">
+            <div className="w-2 h-2 bg-neutral-400 rounded-full mt-2"></div>
+            <div>
+              <h4 className="text-sm font-medium text-neutral-300 mb-1">{selectedStyle.aesthetic}</h4>
+              <p className="text-xs text-neutral-400 leading-relaxed">
+                {selectedStyle.description}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="flex-1 overflow-y-auto space-y-4 mb-6 pr-2">
         {messages.map((msg, index) => (
           <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div className={`max-w-[85%] ${msg.role === 'user' ? 'order-2' : 'order-1'}`}>
-              <div className={`editorial-card p-6 ${
+              <div className={`p-4 rounded-lg ${
                 msg.role === 'user' 
-                  ? 'editorial-message-user ml-auto' 
-                  : 'editorial-message-maya'
+                  ? 'bg-neutral-700/30 border border-neutral-600/30' 
+                  : 'bg-neutral-800/30 border border-neutral-700/30'
               }`}>
-                <div className="space-y-3">
-                  <p className="editorial-text-body leading-relaxed">{msg.content}</p>
+                <div className="space-y-2">
+                  <p className="text-sm text-neutral-200 leading-relaxed">{msg.content}</p>
                   
-                  <div className={`text-xs tracking-wide ${
-                    msg.role === 'user' ? 'text-neutral-600' : 'text-neutral-500'
-                  }`}>
+                  <div className="text-xs text-neutral-500">
                     {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </div>
                 </div>
               </div>
               
               {msg.role === 'maya' && msg.conceptCards && (
-                <div className="mt-6 space-y-6">
-                  <div className="flex items-center gap-3 mb-4">
+                <div className="mt-4 space-y-4">
+                  <div className="flex items-center gap-2">
                     <div className="w-1 h-1 bg-neutral-400 rounded-full"></div>
-                    <span className="text-neutral-500 text-xs tracking-wide uppercase">Concept Ideas</span>
+                    <span className="text-neutral-500 text-xs tracking-wide">Concept Ideas</span>
                   </div>
                   {msg.conceptCards.map((concept: ConceptCard, conceptIndex: number) => (
                     <LuxuryConceptCard key={conceptIndex} concept={concept} />
@@ -317,16 +305,16 @@ Please create photo concepts that match this signature look, drawing from your $
         ))}
 
         {showStyleSelector && (
-          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="editorial-modal max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+          <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-neutral-950/95 backdrop-blur-2xl rounded-2xl border border-neutral-800/30 max-w-2xl w-full max-h-[80vh] overflow-y-auto">
               <div className="p-6">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="editorial-heading-1 text-neutral-200">CHOOSE YOUR STYLE</h3>
+                  <h3 className="text-xl font-light text-neutral-200 tracking-wide">Choose Your Style</h3>
                   <button
                     onClick={() => setShowStyleSelector(false)}
-                    className="p-2 hover:bg-neutral-800/40 rounded-editorial-md transition-colors"
+                    className="p-2 hover:bg-neutral-800/40 rounded-lg transition-colors"
                   >
-                    <MoreHorizontal size={20} className="text-neutral-400" strokeWidth={1.5} />
+                    <X size={20} className="text-neutral-400" strokeWidth={1.5} />
                   </button>
                 </div>
                 <StyleSelector 
@@ -339,15 +327,15 @@ Please create photo concepts that match this signature look, drawing from your $
         )}
         
         {isTyping && (
-          <div className="editorial-typing-container">
-            <div className="editorial-typing-card">
+          <div className="flex justify-start">
+            <div className="bg-neutral-800/30 border border-neutral-700/30 p-4 rounded-lg max-w-[85%]">
               <div className="flex items-center gap-3">
-                <div className="editorial-typing-dots">
-                  <div className="editorial-typing-dot"></div>
-                  <div className="editorial-typing-dot" style={{ animationDelay: '0.1s' }}></div>
-                  <div className="editorial-typing-dot" style={{ animationDelay: '0.2s' }}></div>
+                <div className="flex gap-1">
+                  <div className="w-2 h-2 bg-neutral-400 rounded-full animate-pulse"></div>
+                  <div className="w-2 h-2 bg-neutral-400 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+                  <div className="w-2 h-2 bg-neutral-400 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
                 </div>
-                <span className="editorial-typing-text">Maya is crafting your vision...</span>
+                <span className="text-sm text-neutral-400">Maya is crafting your vision...</span>
               </div>
             </div>
           </div>
@@ -355,7 +343,7 @@ Please create photo concepts that match this signature look, drawing from your $
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="editorial-chat-input-area">
+      <div className="border-t border-neutral-800/30 pt-4">
         <form onSubmit={handleSendMessage} className="flex gap-3">
           <div className="flex-1 relative">
             <input 
@@ -363,7 +351,7 @@ Please create photo concepts that match this signature look, drawing from your $
               value={inputValue} 
               onChange={(e) => setInputValue(e.target.value)} 
               placeholder="Describe your vision to Maya..." 
-              className="editorial-input w-full pr-12"
+              className="w-full px-4 py-3 bg-neutral-800/30 border border-neutral-700/30 rounded-lg text-neutral-200 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-neutral-600/50 pr-12"
               disabled={isTyping}
               autoComplete="off"
               autoCorrect="off"
@@ -371,15 +359,15 @@ Please create photo concepts that match this signature look, drawing from your $
               spellCheck="false"
             />
             <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-              <Camera size={18} className="text-neutral-500" strokeWidth={1.5} />
+              <Camera size={16} className="text-neutral-500" strokeWidth={1.5} />
             </div>
           </div>
           <button 
             type="submit" 
-            className="editorial-button px-6 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-3 bg-neutral-200 text-black rounded-lg font-light transition-all duration-200 hover:bg-neutral-300 disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={isTyping || !inputValue.trim()}
           >
-            <Send size={18} strokeWidth={1.5} />
+            <Send size={16} strokeWidth={1.5} />
           </button>
         </form>
       </div>
