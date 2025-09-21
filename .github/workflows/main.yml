@@ -3,8 +3,38 @@ name: SSELFIE CI/CD
 on:
   push:
     branches: [ main ]
+    paths:
+      - 'client/**'
+      - 'server/**'
+      - 'shared/**'
+      - 'api/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'vercel.json'
+      - 'vite.config.ts'
+      - 'vite.optimized.config.ts'
+      - 'tsconfig.json'
+      - 'tsconfig.server.json'
+      - 'drizzle.config.ts'
+      - 'Dockerfile'
+      - '.github/workflows/**'
   pull_request:
     branches: [ main ]
+    paths:
+      - 'client/**'
+      - 'server/**'
+      - 'shared/**'
+      - 'api/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'vercel.json'
+      - 'vite.config.ts'
+      - 'vite.optimized.config.ts'
+      - 'tsconfig.json'
+      - 'tsconfig.server.json'
+      - 'drizzle.config.ts'
+      - 'Dockerfile'
+      - '.github/workflows/**'
 
 jobs:
   build:

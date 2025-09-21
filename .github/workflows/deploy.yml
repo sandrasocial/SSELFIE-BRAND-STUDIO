@@ -3,6 +3,20 @@ name: Deploy
 on:
   push:
     branches: [ main ]
+    paths:
+      - 'client/**'
+      - 'server/**'
+      - 'shared/**'
+      - 'api/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'vercel.json'
+      - 'vite.config.ts'
+      - 'vite.optimized.config.ts'
+      - 'tsconfig.json'
+      - 'tsconfig.server.json'
+      - 'drizzle.config.ts'
+      - 'Dockerfile'
 
 jobs:
   deploy:

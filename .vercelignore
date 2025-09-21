@@ -1,0 +1,67 @@
+# Build optimization: Ignore files that don't affect deployment
+# This helps reduce build times and deployment size
+
+# Documentation and non-production files
+*.md
+!README.md
+!replit.md
+docs/
+project_tracking/
+admin-development/
+security-audit/
+onboarding/
+
+# Development and testing files
+tests/
+test-*
+*.test.*
+*.spec.*
+jest.config.js
+jest.setup.js
+playwright.config.ts
+vitest.config.ts
+
+# Development workflow files
+.github/
+workflow-storage.json
+enhanced-workflow-storage.json
+agent-audit-report.json
+debug_*.txt
+memory-restoration-debug-test.js
+test-navigation.json
+
+# Large development assets
+maya-system-backup/
+attached_assets/
+*.tar.gz
+*.zip
+export_*.txt
+export_*.csv
+
+# Cache and temporary files
+.cache/
+.vite/
+node_modules/
+*.log
+coverage/
+dist/
+build/
+
+# Development environment files
+.env.local
+.env.development.local
+.env.test.local
+cookies*.txt
+fresh_cookies.txt
+test_cookies.txt
+
+# IDE and editor files
+.vscode/
+.cursor/
+*.tsbuildinfo
+
+# Dependency analysis files
+dependency-*.json
+eslint-report.json
+code-quality-report.json
+launch-readiness-report.json
