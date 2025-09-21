@@ -176,9 +176,9 @@ export function GalleryScreen() {
                 </div>
               </div>
             );
-          })
-        )}
-      </div>
+          })}
+        </div>
+      )}
 
       {/* Editorial load more - Following Styleguide */}
       {aiImages.length > 0 && (
