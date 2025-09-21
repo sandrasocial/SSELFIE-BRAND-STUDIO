@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSELFIE Layout Fix - Before/After</title>
+    <style>
+        body { 
+            margin: 0; 
+            font-family: Arial, sans-serif; 
+            background: #111;
+            color: white;
+            display: flex;
+            gap: 20px;
+            padding: 20px;
+        }
+        
+        .comparison {
+            flex: 1;
+            text-align: center;
+        }
+        
+        .phone-frame {
+            width: 375px;
+            height: 812px;
+            background: #000;
+            border-radius: 40px;
+            padding: 10px;
+            margin: 0 auto;
+            position: relative;
+            border: 3px solid #333;
+        }
+        
+        .screen {
+            width: 100%;
+            height: 100%;
+            border-radius: 30px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        /* BEFORE - Problematic layout */
+        .before .black-area {
+            background: #000;
+            height: 400px;
+            width: 100%;
+        }
+        
+        .before .mobile-interface {
+            background: linear-gradient(135deg, #1a1a1a 0%, #111 100%);
+            height: 392px;
+            position: relative;
+            border-radius: 20px 20px 0 0;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        /* AFTER - Fixed layout */
+        .after .mobile-interface {
+            background: linear-gradient(135deg, #1a1a1a 0%, #111 100%);
+            height: 100%;
+            position: relative;
+            border-radius: 30px;
+            border: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .status-bar {
+            height: 40px;
+            background: rgba(255,255,255,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            font-size: 12px;
+            border-radius: 20px 20px 0 0;
+        }
+        
+        .content-area {
+            flex: 1;
+            padding: 20px;
+            overflow: hidden;
+        }
+        
+        .studio-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .studio-title {
+            font-size: 24px;
+            font-weight: 300;
+            letter-spacing: 0.2em;
+            margin-bottom: 5px;
+        }
+        
+        .studio-subtitle {
+            font-size: 10px;
+            letter-spacing: 0.3em;
+            color: #888;
+        }
+        
+        .featured-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .tab-nav {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            height: 60px;
+            background: rgba(0,0,0,0.8);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .tab {
+            font-size: 10px;
+            text-align: center;
+            opacity: 0.6;
+        }
+        
+        .tab.active {
+            opacity: 1;
+        }
+        
+        h2 {
+            color: #fff;
+            margin-bottom: 10px;
+        }
+        
+        .issue {
+            color: #ff6b6b;
+            font-weight: bold;
+        }
+        
+        .fixed {
+            color: #51cf66;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="comparison">
+        <h2>❌ <span class="issue">BEFORE</span> - Layout Issue</h2>
+        <div class="phone-frame before">
+            <div class="screen">
+                <div class="black-area"></div>
+                <div class="mobile-interface">
+                    <div class="status-bar">
+                        <span>06:15 PM</span>
+                        <span>85%</span>
+                    </div>
+                    <div class="content-area">
+                        <div class="studio-header">
+                            <div class="studio-title">STUDIO</div>
+                            <div class="studio-subtitle">CREATE • CAPTURE • CURATE</div>
+                        </div>
+                        <div class="featured-card">
+                            <div style="font-size: 14px; margin-bottom: 5px;">Featured Session</div>
+                            <div style="font-size: 12px; color: #888;">Professional Portrait Series</div>
+                        </div>
+                    </div>
+                    <div class="tab-nav">
+                        <div class="tab active">STUDIO</div>
+                        <div class="tab">MAYA</div>
+                        <div class="tab">GALLERY</div>
+                        <div class="tab">PROFILE</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <p style="color: #ff6b6b; margin-top: 20px;">
+            ⚠️ Large black area caused by competing layout systems:<br>
+            • AppLayout wrapper + MobileTabLayout full-screen container<br>
+            • Conflicting CSS classes and positioning
+        </p>
+    </div>
+
+    <div class="comparison">
+        <h2>✅ <span class="fixed">AFTER</span> - Fixed Layout</h2>
+        <div class="phone-frame after">
+            <div class="screen">
+                <div class="mobile-interface">
+                    <div class="status-bar">
+                        <span>06:15 PM</span>
+                        <span>85%</span>
+                    </div>
+                    <div class="content-area">
+                        <div class="studio-header">
+                            <div class="studio-title">STUDIO</div>
+                            <div class="studio-subtitle">CREATE • CAPTURE • CURATE</div>
+                        </div>
+                        <div class="featured-card">
+                            <div style="font-size: 14px; margin-bottom: 5px;">Featured Session</div>
+                            <div style="font-size: 12px; color: #888;">Professional Portrait Series</div>
+                        </div>
+                        <div class="featured-card" style="height: 60px; display: flex; gap: 10px;">
+                            <div style="flex: 1; background: rgba(255,255,255,0.1); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 10px;">
+                                📱 CHAT WITH MAYA
+                            </div>
+                            <div style="flex: 1; background: rgba(255,255,255,0.05); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 10px;">
+                                🖼️ BROWSE GALLERY
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-nav">
+                        <div class="tab active">STUDIO</div>
+                        <div class="tab">MAYA</div>
+                        <div class="tab">GALLERY</div>
+                        <div class="tab">PROFILE</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <p style="color: #51cf66; margin-top: 20px;">
+            ✅ Clean layout with proper component hierarchy:<br>
+            • Single layout system through AppLayout<br>
+            • MobileTabLayout fits within content area<br>
+            • No conflicting CSS containers
+        </p>
+    </div>
+</body>
+</html>

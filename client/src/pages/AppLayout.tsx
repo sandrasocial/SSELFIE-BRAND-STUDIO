@@ -110,7 +110,7 @@ export function AppLayout() {
             </div>
           </div>
 
-          {/* Content area with editorial spacing */}
+          {/* Content area */}
           <div className="luxury-content">
             <MobileTabLayout />
           </div>
