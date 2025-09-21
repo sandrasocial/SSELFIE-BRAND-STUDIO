@@ -15,6 +15,7 @@ module.exports = {
       fontSize: {
         'display-2xl': ['3rem', { lineHeight: '1.1', letterSpacing: '0.1em', fontWeight: '300' }],
         'display-xl': ['2.5rem', { lineHeight: '1.15', letterSpacing: '0.05em', fontWeight: '300' }],
+        'display-lg': ['2rem', { lineHeight: '1.2', letterSpacing: '0.04em', fontWeight: '300' }],
         'heading-1': ['1.75rem', { lineHeight: '1.25', letterSpacing: '0.025em', fontWeight: '300' }],
         'heading-2': ['1.375rem', { lineHeight: '1.3', letterSpacing: '0.025em', fontWeight: '300' }],
         'body-lg': ['1.125rem', { lineHeight: '1.6', fontWeight: '300' }],
