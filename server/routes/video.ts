@@ -1,11 +1,12 @@
-import express from 'express';
+import { Router } from 'express';
 import { requireStackAuth } from '../stack-auth';
 import { generateVeo3Video, getVeo3Status, getQualityPreset } from '../services/video/veo3';
+import { storage } from '../storage';
+import { generatedImages, aiImages } from '../../shared/schema';
+import { eq, and } from 'drizzle-orm';
 import { db } from '../drizzle';
-import { generatedVideos, generatedImages, aiImages } from '../../shared/schema';
-import { eq, and, desc } from 'drizzle-orm';
 
-const router = express.Router();
+const router = Router();
 
 /**
  * POST /api/video/generate
@@ -121,8 +122,8 @@ router.post('/generate', requireStackAuth, async (req, res) => {
       aspectRatio
     });
 
-    // Save job to database
-    const videoRecord = await db.insert(generatedVideos).values({
+    // Save job to database using storage service
+    const videoRecord = await storage.saveGeneratedVideo({
       userId,
       imageId: imageId ? parseInt(imageId) : null,
       imageSource: imageId ? 'generated' : null,
@@ -130,21 +131,19 @@ router.post('/generate', requireStackAuth, async (req, res) => {
       jobId: result.jobId,
       status: 'pending',
       progress: 0,
-      estimatedTime: result.estimatedTime,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    }).returning();
+      estimatedTime: result.estimatedTime
+    });
 
     console.log('✅ VEO 3: Job started and saved', { 
       jobId: result.jobId, 
-      videoRecordId: videoRecord[0]?.id,
+      videoRecordId: videoRecord.id,
       estimatedTime: result.estimatedTime
     });
 
     res.json({
       success: true,
       jobId: result.jobId,
-      videoId: videoRecord[0]?.id,
+      videoId: videoRecord.id,
       provider: result.provider,
       estimatedTime: result.estimatedTime,
       mode,
@@ -184,14 +183,10 @@ router.get('/status/:jobId', requireStackAuth, async (req, res) => {
       return res.status(400).json({ error: 'Job ID is required' });
     }
 
-    // Verify the job belongs to the user
-    const videoRecord = await db.select().from(generatedVideos)
-      .where(and(
-        eq(generatedVideos.jobId, jobId),
-        eq(generatedVideos.userId, userId)
-      )).limit(1);
+    // Verify the job belongs to the user using storage service
+    const videoRecord = await storage.getGeneratedVideoByJobId(jobId);
 
-    if (videoRecord.length === 0) {
+    if (!videoRecord || videoRecord.userId !== userId) {
       return res.status(404).json({ error: 'Video job not found or access denied' });
     }
 
@@ -199,23 +194,20 @@ router.get('/status/:jobId', requireStackAuth, async (req, res) => {
     const status = await getVeo3Status(jobId, userId);
     
     // Update database record if needed
-    const record = videoRecord[0];
     const needsUpdate = 
-      record.status !== status.status ||
-      record.progress !== status.progress ||
-      (status.videoUrl && !record.videoUrl);
+      videoRecord.status !== status.status ||
+      videoRecord.progress !== status.progress ||
+      (status.videoUrl && !videoRecord.videoUrl);
 
+    let updatedRecord = videoRecord;
     if (needsUpdate) {
-      await db.update(generatedVideos)
-        .set({
-          status: status.status,
-          progress: status.progress || record.progress,
-          videoUrl: status.videoUrl || record.videoUrl,
-          errorMessage: status.error || record.errorMessage,
-          updatedAt: new Date(),
-          ...(status.completedAt && { completedAt: new Date(status.completedAt) })
-        })
-        .where(eq(generatedVideos.id, record.id));
+      updatedRecord = await storage.updateGeneratedVideo(videoRecord.id, {
+        status: status.status,
+        progress: status.progress || videoRecord.progress,
+        videoUrl: status.videoUrl || videoRecord.videoUrl,
+        errorMessage: status.error || videoRecord.errorMessage,
+        ...(status.completedAt && { completedAt: new Date(status.completedAt) })
+      });
     }
 
     console.log('🔍 VEO 3: Status check', {
@@ -227,9 +219,9 @@ router.get('/status/:jobId', requireStackAuth, async (req, res) => {
 
     res.json({
       ...status,
-      videoId: record.id,
-      createdAt: record.createdAt,
-      imageId: record.imageId
+      videoId: updatedRecord.id,
+      createdAt: updatedRecord.createdAt,
+      imageId: updatedRecord.imageId
     });
 
   } catch (error) {
@@ -261,11 +253,8 @@ router.get('/history', requireStackAuth, async (req, res) => {
     const limit = Math.min(parseInt(req.query.limit as string) || 20, 50);
     const offset = Math.max(parseInt(req.query.offset as string) || 0, 0);
 
-    const videos = await db.select().from(generatedVideos)
-      .where(eq(generatedVideos.userId, userId))
-      .orderBy(desc(generatedVideos.createdAt))
-      .limit(limit)
-      .offset(offset);
+    const allVideos = await storage.getGeneratedVideos(userId);
+    const videos = allVideos.slice(offset, offset + limit);
 
     console.log('📚 VEO 3: History request', { 
       userId, 
@@ -290,7 +279,7 @@ router.get('/history', requireStackAuth, async (req, res) => {
       pagination: {
         limit,
         offset,
-        hasMore: videos.length === limit
+        hasMore: offset + videos.length < allVideos.length
       }
     });
 
@@ -324,25 +313,20 @@ router.post('/save', requireStackAuth, async (req, res) => {
       return res.status(400).json({ error: 'Video ID is required' });
     }
 
-    // Verify video exists and belongs to user
-    const video = await db.select().from(generatedVideos)
-      .where(and(
-        eq(generatedVideos.id, videoId),
-        eq(generatedVideos.userId, userId)
-      )).limit(1);
+    // Verify video exists and belongs to user using storage service
+    const allUserVideos = await storage.getGeneratedVideos(userId);
+    const video = allUserVideos.find(v => v.id === videoId);
 
-    if (video.length === 0) {
+    if (!video) {
       return res.status(404).json({ error: 'Video not found or access denied' });
     }
 
-    if (video[0].status !== 'completed' || !video[0].videoUrl) {
+    if (video.status !== 'completed' || !video.videoUrl) {
       return res.status(400).json({ error: 'Video is not ready to be saved' });
     }
 
-    // Mark as saved
-    await db.update(generatedVideos)
-      .set({ saved: true, updatedAt: new Date() })
-      .where(eq(generatedVideos.id, videoId));
+    // Mark as saved using storage service
+    await storage.updateGeneratedVideo(videoId, { saved: true });
 
     console.log('💾 VEO 3: Video saved', { videoId, userId });
 
