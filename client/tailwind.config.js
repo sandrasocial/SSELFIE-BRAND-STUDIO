@@ -11,7 +11,6 @@ module.exports = {
       fontFamily: {
         'times': ['Times New Roman', 'Times', 'serif'],
         'sans': ['Inter', 'SF Pro Display', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
-        'display': ['Inter', 'SF Pro Display', 'system-ui', 'sans-serif'],
       },
       fontSize: {
         'display-2xl': ['3rem', { lineHeight: '1.1', letterSpacing: '0.1em', fontWeight: '300' }],
