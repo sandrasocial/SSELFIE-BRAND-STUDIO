@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { StudioPage } from '../pages/StudioPage';
 import SSELFIEGallery from '../pages/sselfie-gallery';
 import { useAuth } from '../hooks/use-auth';
-import { Camera, Grid, User, Settings, Sparkles, Home, ChevronRight, Heart, MessageCircle, Share2, MoreHorizontal, Smartphone, Search, Package, Shirt, Bell, Shield, Palette, Crown } from 'lucide-react';
+import { Camera, Grid, User, Settings, Sparkles, Heart, Share2, Smartphone, Search, Package, Shirt } from 'lucide-react';
 
-// Maya's Smart Aesthetic Feed Categories - Sophisticated Neutral Palette
+// Maya's Smart Aesthetic Feed Categories - Editorial Neutral Palette
 const MAYA_CATEGORIES = {
   'flatlay': { name: 'Flatlay', icon: Smartphone, color: 'from-neutral-700/30 to-neutral-800/30' },
   'closeup': { name: 'Close-up', icon: Search, color: 'from-neutral-600/30 to-neutral-700/30' },
@@ -21,7 +21,7 @@ const FEED_PATTERNS = {
   uniform: [1, 1, 1, 1, 1, 1, 1, 1, 1]
 };
 
-// InstagramStyleProfile Component
+// InstagramStyleProfile Component - Editorial Luxury Redesign
 const InstagramStyleProfile = ({ user }: { user: { name?: string; email?: string; image?: string } }) => {
   const [selectedPattern, setSelectedPattern] = useState('checkerboard');
   const [feedImages, setFeedImages] = useState([]);
@@ -50,189 +50,149 @@ const InstagramStyleProfile = ({ user }: { user: { name?: string; email?: string
   const toggleLike = (imageId: number) => {
     setFeedImages(prev => prev.map(img => 
       img.id === imageId 
-        ? { ...img, likes: img.saved ? img.likes - 1 : img.likes + 1, saved: !img.saved }
+        ? { ...img, liked: !img.liked, likes: img.liked ? img.likes - 1 : img.likes + 1 }
         : img
     ));
   };
 
-  const getPatternSize = (index: number) => {
-    const pattern = FEED_PATTERNS[selectedPattern as keyof typeof FEED_PATTERNS];
-    return pattern[index % pattern.length];
+  const toggleSave = (imageId: number) => {
+    setFeedImages(prev => prev.map(img => 
+      img.id === imageId 
+        ? { ...img, saved: !img.saved }
+        : img
+    ));
   };
 
+  const getPatternClass = (index: number) => {
+    const pattern = FEED_PATTERNS[selectedPattern as keyof typeof FEED_PATTERNS];
+    const span = pattern[index % pattern.length];
+    return span === 0.5 ? 'col-span-1 row-span-1' : 'col-span-1 row-span-2';
+  };
+
+  if (isLoading) {
+    return (
+      <div className="editorial-loading-container">
+        <div className="editorial-spinner w-12 h-12 mb-4"></div>
+        <p className="editorial-loading-message">Loading your aesthetic feed...</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-6">
-      {/* Instagram-style Header */}
-      <div className="px-6 py-4">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-4">
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-neutral-800/40 to-neutral-900/40 border-2 border-neutral-700/30 flex items-center justify-center">
-              {user?.image ? (
-                <img 
-                  src={user.image} 
-                  alt={user.name || 'User'} 
-                  className="w-full h-full rounded-full object-cover"
-                />
-              ) : (
-                <User size={32} className="text-neutral-400" strokeWidth={1.5} />
-              )}
-            </div>
-            <div>
-              <h1 className="text-xl font-light text-neutral-200 tracking-wide">
-                {user?.name || 'maya_user'}
-              </h1>
-              <p className="text-neutral-400 text-sm">Professional Creative</p>
-              <p className="text-neutral-500 text-xs mt-1">AI-Generated Aesthetic Feed</p>
-            </div>
-          </div>
-          <button className="text-neutral-400 hover:text-neutral-300 transition-colors">
-            <MoreHorizontal size={20} strokeWidth={1.5} />
-          </button>
+    <div className="space-y-8">
+      {/* Editorial Profile Header */}
+      <div className="editorial-profile-header">
+        <div className="editorial-profile-avatar w-24 h-24 mx-auto mb-4 bg-gradient-to-br from-neutral-800 to-neutral-900 rounded-full border-2 border-neutral-700/30 flex items-center justify-center">
+          <User size={32} className="text-neutral-400" strokeWidth={1.5} />
         </div>
+        <h1 className="editorial-profile-name text-center mb-2">
+          {user?.name?.toUpperCase() || 'YOUR PROFILE'}
+        </h1>
+        <p className="editorial-profile-tier text-center">
+          {user?.email || 'CREATIVE DIRECTOR'}
+        </p>
+      </div>
 
-        {/* Stats */}
-        <div className="flex items-center gap-8 mb-6">
-          <div className="text-center">
-            <div className="text-lg font-light text-neutral-200">{feedImages.length}</div>
-            <div className="text-xs text-neutral-500 tracking-wide">posts</div>
-          </div>
-          <div className="text-center">
-            <div className="text-lg font-light text-neutral-200">1.2K</div>
-            <div className="text-xs text-neutral-500 tracking-wide">followers</div>
-          </div>
-          <div className="text-center">
-            <div className="text-lg font-light text-neutral-200">89</div>
-            <div className="text-xs text-neutral-500 tracking-wide">following</div>
-          </div>
+      {/* Editorial Stats Grid */}
+      <div className="editorial-stats-grid">
+        <div className="text-center">
+          <div className="editorial-stat-value">247</div>
+          <div className="editorial-stat-label">PHOTOS</div>
         </div>
-
-        {/* Action Buttons */}
-        <div className="flex gap-2">
-          <button className="flex-1 bg-neutral-200 text-black px-4 py-2 rounded-lg font-light tracking-wide transition-all duration-200 hover:bg-neutral-300">
-            Edit Profile
-          </button>
-          <button className="flex-1 bg-neutral-800/40 text-neutral-200 px-4 py-2 rounded-lg font-light tracking-wide border border-neutral-700/30 transition-all duration-200 hover:bg-neutral-800/60">
-            Share Profile
-          </button>
+        <div className="text-center">
+          <div className="editorial-stat-value">1.2K</div>
+          <div className="editorial-stat-label">FOLLOWERS</div>
+        </div>
+        <div className="text-center">
+          <div className="editorial-stat-value">89</div>
+          <div className="editorial-stat-label">FOLLOWING</div>
         </div>
       </div>
 
       {/* Pattern Selector */}
-      <div className="px-6">
-        <div className="flex items-center gap-2 mb-4">
-          <Sparkles size={16} className="text-neutral-400" strokeWidth={1.5} />
-          <span className="text-sm text-neutral-400 tracking-wide">FEED PATTERN</span>
-        </div>
+      <div className="editorial-card p-6">
+        <h3 className="editorial-heading-3 mb-4">Feed Layout</h3>
         <div className="flex gap-2">
-          {Object.entries(FEED_PATTERNS).map(([pattern]) => (
+          {Object.entries(FEED_PATTERNS).map(([key]) => (
             <button
-              key={pattern}
-              onClick={() => setSelectedPattern(pattern)}
-              className={`px-3 py-1 rounded-lg text-xs tracking-wide transition-all duration-200 ${
-                selectedPattern === pattern
-                  ? 'bg-neutral-200 text-black'
-                  : 'bg-neutral-800/40 text-neutral-400 hover:bg-neutral-700/40'
+              key={key}
+              onClick={() => setSelectedPattern(key)}
+              className={`editorial-button-secondary px-4 py-2 text-sm ${
+                selectedPattern === key ? 'bg-neutral-700/50' : ''
               }`}
             >
-              {pattern.charAt(0).toUpperCase() + pattern.slice(1)}
+              {key.charAt(0).toUpperCase() + key.slice(1)}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Aesthetic Feed Grid */}
-      <div className="px-6">
-        {isLoading ? (
-          <div className="grid grid-cols-3 gap-1">
-            {Array.from({ length: 9 }).map((_, i) => (
-              <div 
-                key={i} 
-                className="aspect-square bg-neutral-800/30 rounded-lg animate-pulse"
-                style={{ 
-                  gridColumn: getPatternSize(i) === 0.5 ? 'span 1' : 'span 2',
-                  gridRow: getPatternSize(i) === 0.5 ? 'span 1' : 'span 2'
-                }}
-              />
-            ))}
+      {/* Maya's Smart Categorization Info */}
+      <div className="editorial-card p-6">
+        <div className="flex items-start gap-3">
+          <div className="p-3 bg-neutral-800/40 rounded-lg border border-neutral-700/30">
+            <Sparkles size={20} className="text-neutral-300" strokeWidth={1.5} />
           </div>
-        ) : (
-          <div className="grid grid-cols-3 gap-1">
-            {feedImages.map((image, index) => {
-              const category = MAYA_CATEGORIES[image.category as keyof typeof MAYA_CATEGORIES];
-              const size = getPatternSize(index);
-              
-              return (
-                <div
-                  key={image.id}
-                  className="relative group cursor-pointer"
-                  style={{ 
-                    gridColumn: size === 0.5 ? 'span 1' : 'span 2',
-                    gridRow: size === 0.5 ? 'span 1' : 'span 2'
-                  }}
-                >
-                  <div className={`aspect-square relative overflow-hidden rounded-lg ${
-                    size === 0.5 ? 'aspect-square' : 'aspect-[2/1]'
-                  }`}>
-                    <img
-                      src={image.url}
-                      alt={`${category.name} shot`}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                    
-                    {/* Category Badge */}
-                    <div className={`absolute top-2 left-2 px-2 py-1 rounded-full bg-gradient-to-r ${category.color} backdrop-blur-sm`}>
-                      <span className="text-xs text-neutral-200 font-light flex items-center gap-1">
-                        <category.icon size={12} strokeWidth={1.5} />
-                        {category.name}
-                      </span>
-                    </div>
-                    
-                    {/* Hover Overlay */}
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300 flex items-center justify-center">
-                      <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center gap-4">
-                        <button 
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toggleLike(image.id);
-                          }}
-                          className="flex items-center gap-1 text-white"
-                        >
-                          <Heart 
-                            size={16} 
-                            className={image.saved ? 'fill-current text-red-400' : 'text-white'} 
-                            strokeWidth={1.5} 
-                          />
-                          <span className="text-xs font-light">{image.likes}</span>
-                        </button>
-                        <button className="flex items-center gap-1 text-white">
-                          <MessageCircle size={16} strokeWidth={1.5} />
-                          <span className="text-xs font-light">{image.comments}</span>
-                        </button>
-                        <button className="text-white">
-                          <Share2 size={16} strokeWidth={1.5} />
-                        </button>
-                      </div>
+          <div>
+            <h4 className="editorial-text-header mb-2">Maya's Smart Categorization</h4>
+            <p className="editorial-text-body text-neutral-400 leading-relaxed">
+              Your photos are automatically organized by Maya's AI into aesthetic categories: 
+              flatlays, close-ups, full body, objects, and half-body shots. 
+              This creates a visually balanced, magazine-quality feed.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Editorial Feed Grid */}
+      <div className="grid grid-cols-2 gap-3">
+        {feedImages.map((image, index) => {
+          const category = MAYA_CATEGORIES[image.category as keyof typeof MAYA_CATEGORIES];
+          const Icon = category?.icon || Package;
+          
+          return (
+            <div 
+              key={image.id} 
+              className={`editorial-gallery-item ${getPatternClass(index)}`}
+            >
+              <div className="editorial-gallery-image">
+                <div className={`w-full h-full bg-gradient-to-br ${category?.color || 'from-neutral-700 to-neutral-800'} rounded-lg flex items-center justify-center`}>
+                  <Icon size={32} className="text-neutral-400" strokeWidth={1.5} />
+                </div>
+                <div className="editorial-gallery-overlay"></div>
+                <div className="editorial-gallery-actions">
+                  <div className="flex justify-between items-center">
+                    <span className="text-white text-xs tracking-wide">
+                      {category?.name || 'PHOTO'}
+                    </span>
+                    <div className="flex space-x-2">
+                      <button 
+                        onClick={() => toggleLike(image.id)}
+                        className="p-1.5 bg-white/20 backdrop-blur-sm rounded transition-colors hover:bg-white/30"
+                      >
+                        <Heart 
+                          size={14} 
+                          className={`${image.liked ? 'text-red-500 fill-current' : 'text-white'}`} 
+                          strokeWidth={1.5} 
+                        />
+                      </button>
+                      <button 
+                        onClick={() => toggleSave(image.id)}
+                        className="p-1.5 bg-white/20 backdrop-blur-sm rounded transition-colors hover:bg-white/30"
+                      >
+                        <Share2 
+                          size={14} 
+                          className={`${image.saved ? 'text-blue-400' : 'text-white'}`} 
+                          strokeWidth={1.5} 
+                        />
+                      </button>
                     </div>
                   </div>
                 </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
-
-      {/* Maya's Smart Categorization Info */}
-      <div className="px-6 py-4 bg-gradient-to-r from-neutral-800/20 to-neutral-900/20 rounded-lg mx-6 border border-neutral-700/30">
-        <div className="flex items-center gap-3 mb-3">
-          <div className="w-8 h-8 bg-gradient-to-br from-neutral-700/30 to-neutral-800/30 rounded-full flex items-center justify-center">
-            <Sparkles size={16} className="text-neutral-300" strokeWidth={1.5} />
-          </div>
-          <h3 className="text-sm font-light text-neutral-200 tracking-wide">MAYA'S SMART CATEGORIZATION</h3>
-        </div>
-        <p className="text-xs text-neutral-400 leading-relaxed">
-          Your images are automatically categorized and arranged using AI-powered aesthetic analysis. 
-          Maya analyzes composition, lighting, and visual elements to create the perfect feed layout.
-        </p>
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -244,239 +204,147 @@ const createTabs = (user: { name?: string; email?: string; image?: string }) => 
     id: 'studio',
     label: 'Studio',
     icon: Camera,
-    component: StudioPage,
-    badge: null,
-    description: 'Create & Generate'
+    description: 'Create with Maya AI',
+    component: <StudioPage />
   },
   {
-    id: 'gallery', 
+    id: 'gallery',
     label: 'Gallery',
     icon: Grid,
-    component: () => <SSELFIEGallery hideMemberNav />,
-    badge: null,
-    description: 'Your Collection'
+    description: 'Your photo collection',
+    component: <SSELFIEGallery />
   },
   {
     id: 'profile',
-    label: 'Profile', 
+    label: 'Profile',
     icon: User,
-    component: () => <InstagramStyleProfile user={user} />,
-    badge: null,
-    description: 'Your Aesthetic Feed'
+    description: 'Your aesthetic feed',
+    component: <InstagramStyleProfile user={user} />
   },
   {
     id: 'account',
-    label: 'Account', 
+    label: 'Account',
     icon: Settings,
-    component: () => (
+    description: 'Settings & preferences',
+    component: (
       <div className="space-y-8">
-        {/* Enhanced Account header */}
-        <div className="text-center space-y-2 pt-4">
-          <h2 className="text-2xl font-light text-neutral-200 tracking-wide">ACCOUNT</h2>
-          <p className="text-neutral-500 text-sm tracking-wide">Settings & Preferences</p>
+        <div className="editorial-profile-header">
+          <h1 className="editorial-heading-1 text-center">ACCOUNT</h1>
+          <p className="editorial-text-caption text-center">Manage your preferences</p>
         </div>
         
-        {/* User Info Card */}
-        <div className="bg-gradient-to-br from-neutral-800/20 to-neutral-900/20 rounded-editorial-xl border border-neutral-700/30 p-6">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-neutral-700/40 to-neutral-800/40 border border-neutral-600/30 flex items-center justify-center">
-              {user?.image ? (
-                <img 
-                  src={user.image} 
-                  alt={user.name || 'User'} 
-                  className="w-full h-full rounded-full object-cover"
-                />
-              ) : (
-                <User size={20} className="text-neutral-400" strokeWidth={1.5} />
-              )}
+        <div className="space-y-4">
+          <div className="editorial-card p-6">
+            <h3 className="editorial-heading-3 mb-4">Profile Settings</h3>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between py-3 border-b border-neutral-800/30">
+                <span className="editorial-text-body">Name</span>
+                <span className="editorial-text-caption">{user?.name || 'Not set'}</span>
+              </div>
+              <div className="flex items-center justify-between py-3 border-b border-neutral-800/30">
+                <span className="editorial-text-body">Email</span>
+                <span className="editorial-text-caption">{user?.email || 'Not set'}</span>
+              </div>
+              <div className="flex items-center justify-between py-3">
+                <span className="editorial-text-body">Member Since</span>
+                <span className="editorial-text-caption">2024</span>
+              </div>
             </div>
-            <div className="flex-1">
-              <h3 className="text-lg font-light text-neutral-200 tracking-wide">
-                {user?.name || 'Maya User'}
-              </h3>
-              <p className="text-neutral-400 text-sm">{user?.email || 'user@sselfie.com'}</p>
-              <p className="text-neutral-500 text-xs tracking-wide">ELITE MEMBER</p>
+          </div>
+          
+          <div className="editorial-card p-6">
+            <h3 className="editorial-heading-3 mb-4">Preferences</h3>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between py-3 border-b border-neutral-800/30">
+                <span className="editorial-text-body">Notifications</span>
+                <div className="w-12 h-6 bg-neutral-700 rounded-full relative">
+                  <div className="w-5 h-5 bg-neutral-200 rounded-full absolute top-0.5 right-0.5 transition-transform"></div>
+                </div>
+              </div>
+              <div className="flex items-center justify-between py-3 border-b border-neutral-800/30">
+                <span className="editorial-text-body">Dark Mode</span>
+                <div className="w-12 h-6 bg-neutral-200 rounded-full relative">
+                  <div className="w-5 h-5 bg-neutral-800 rounded-full absolute top-0.5 left-0.5 transition-transform"></div>
+                </div>
+              </div>
+              <div className="flex items-center justify-between py-3">
+                <span className="editorial-text-body">Auto-save</span>
+                <div className="w-12 h-6 bg-neutral-200 rounded-full relative">
+                  <div className="w-5 h-5 bg-neutral-800 rounded-full absolute top-0.5 left-0.5 transition-transform"></div>
+                </div>
+              </div>
             </div>
-            <button className="text-neutral-400 hover:text-neutral-300 transition-colors">
-              <ChevronRight size={16} strokeWidth={1.5} />
-            </button>
           </div>
         </div>
-        
-        {/* Enhanced Settings groups */}
-        <div className="space-y-6">
-          {[
-            { 
-              title: 'Notifications', 
-              icon: Bell, 
-              items: [
-                { name: 'Push Notifications', status: 'Enabled', description: 'Get instant updates' },
-                { name: 'Email Updates', status: 'Weekly', description: 'Weekly digest' },
-                { name: 'SMS Alerts', status: 'Disabled', description: 'Text notifications' }
-              ] 
-            },
-            { 
-              title: 'Privacy & Security', 
-              icon: Shield, 
-              items: [
-                { name: 'Profile Visibility', status: 'Public', description: 'Who can see your profile' },
-                { name: 'Data Sharing', status: 'Limited', description: 'Analytics and usage data' },
-                { name: 'Two-Factor Auth', status: 'Enabled', description: 'Extra security layer' }
-              ] 
-            },
-            { 
-              title: 'Appearance', 
-              icon: Palette, 
-              items: [
-                { name: 'Theme', status: 'Dark', description: 'App appearance' },
-                { name: 'Language', status: 'English', description: 'Interface language' },
-                { name: 'Typography', status: 'Editorial', description: 'Font style' }
-              ] 
-            },
-            { 
-              title: 'Subscription', 
-              icon: Crown, 
-              items: [
-                { name: 'Plan', status: 'Elite', description: '€47/month' },
-                { name: 'Billing', status: 'Monthly', description: 'Next charge: Dec 15' },
-                { name: 'Usage', status: '24/100', description: 'Photos this month' }
-              ] 
-            },
-          ].map((group, index) => (
-            <div key={index} className="space-y-4">
-              <div className="flex items-center space-x-3 pb-2 border-b border-neutral-800/30">
-                <group.icon size={18} className="text-neutral-400" strokeWidth={1.5} />
-                <h3 className="text-lg font-light text-neutral-200 tracking-wide">{group.title.toUpperCase()}</h3>
-              </div>
-              
-              <div className="space-y-2">
-                {group.items.map((item, itemIndex) => (
-                  <div key={itemIndex} className="flex items-center justify-between py-4 hover:bg-neutral-800/20 rounded-editorial-lg px-3 transition-colors cursor-pointer group">
-                    <div className="flex-1">
-                      <span className="text-neutral-200 font-light block">{item.name}</span>
-                      <span className="text-neutral-500 text-xs">{item.description}</span>
-                    </div>
-                    <div className="flex items-center space-x-3">
-                      <span className="text-neutral-400 text-sm">{item.status}</span>
-                      <ChevronRight size={14} className="text-neutral-600 group-hover:text-neutral-500 transition-colors" strokeWidth={1.5} />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Enhanced Sign out */}
-        <div className="pt-8 border-t border-neutral-800/30">
-          <button className="w-full text-neutral-400 text-sm tracking-wide hover:text-neutral-300 transition-colors py-4 flex items-center justify-center gap-2">
-            <Settings size={16} strokeWidth={1.5} />
-            SIGN OUT
-          </button>
-        </div>
       </div>
-    ),
-    badge: null,
-    description: 'Settings'
-  },
+    )
+  }
 ];
 
+// Main MobileTabLayout Component - Editorial Luxury Redesign
 function MobileTabLayout() {
   const [activeTab, setActiveTab] = useState('studio');
-  const [isTransitioning, setIsTransitioning] = useState(false);
   const { user } = useAuth();
-
-  const tabs = createTabs(user);
+  
+  const tabs = createTabs(user || {});
+  const currentTab = tabs.find(tab => tab.id === activeTab);
 
   const handleTabChange = (tabId: string) => {
-    if (tabId === activeTab) return;
-    
-    setIsTransitioning(true);
     setActiveTab(tabId);
-    
-    setTimeout(() => setIsTransitioning(false), 300);
-  };
-
-  const renderActiveTab = () => {
-    const activeTabConfig = tabs.find(tab => tab.id === activeTab);
-    if (!activeTabConfig) return <StudioPage />;
-    
-    const Component = activeTabConfig.component;
-    return <Component />;
   };
 
   return (
     <div className="h-full flex flex-col">
-      {/* Navigation Breadcrumb */}
-      <div className="px-8 py-4 border-b border-neutral-800/30">
-        <div className="flex items-center gap-2 text-sm">
-          <Home size={14} className="text-neutral-500" strokeWidth={1.5} />
-          <ChevronRight size={12} className="text-neutral-600" strokeWidth={1.5} />
-          <span className="text-neutral-400 tracking-wide">
-            {tabs.find(tab => tab.id === activeTab)?.label || 'Studio'}
-          </span>
-        </div>
+      {/* Breadcrumb Navigation */}
+      <div className="flex items-center gap-2 px-8 py-4 border-b border-neutral-800/30">
+        <div className="w-1 h-1 bg-neutral-400 rounded-full"></div>
+        <span className="editorial-text-caption text-neutral-500">
+          {currentTab?.label?.toUpperCase() || 'STUDIO'}
+        </span>
       </div>
 
       {/* Main Content Area */}
-      <main className="flex-1 overflow-y-auto" role="main" aria-label="Main content">
-        <div className={`editorial-fade-in transition-all duration-300 ${
-          isTransitioning ? 'opacity-50 scale-95' : 'opacity-100 scale-100'
-        }`}>
-          {renderActiveTab()}
-        </div>
-      </main>
-      
+      <div className="flex-1 overflow-y-auto">
+        {currentTab?.component}
+      </div>
+
       {/* Enhanced Floating Tab Bar */}
-      <div className="absolute bottom-6 left-4 right-4 z-50">
-        <div className="bg-neutral-900/95 backdrop-blur-2xl rounded-2xl shadow-2xl border border-neutral-800/40 px-2 py-3">
-          <div className="flex justify-around items-center">
-          {tabs.map((tab) => {
-            const Icon = tab.icon;
-            const isActive = activeTab === tab.id;
-            
-            return (
-              <button
-                key={tab.id}
+      <div className="editorial-tab-bar">
+        <div className="editorial-tab-bar-container">
+          <div className="editorial-tab-bar-content">
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
+              
+              return (
+                <button
+                  key={tab.id}
                   onClick={() => handleTabChange(tab.id)}
-                  className={`flex flex-col items-center space-y-1 px-4 py-3 rounded-xl transition-all duration-300 group min-h-[56px] touch-manipulation ${
-                    isActive 
-                      ? 'bg-neutral-800/60 scale-105' 
-                      : 'hover:bg-neutral-800/30 hover:scale-102'
+                  className={`editorial-tab ${
+                    isActive ? 'editorial-tab-active' : 'editorial-tab-inactive'
                   }`}
                   title={tab.description}
                 >
-                  <div className="relative">
-                <Icon 
-                  size={20} 
-                  strokeWidth={1.5}
-                      className={`transition-all duration-300 ${
-                        isActive 
-                          ? 'text-neutral-200 scale-110' 
-                          : 'text-neutral-500 group-hover:text-neutral-400'
-                      }`}
-                    />
-                    {tab.badge && (
-                      <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full flex items-center justify-center">
-                        <span className="text-xs text-white font-bold">{tab.badge}</span>
-                      </div>
-                    )}
-                  </div>
-                  <span className={`text-xs font-light tracking-wide transition-all duration-300 ${
-                    isActive 
-                      ? 'text-neutral-200' 
-                      : 'text-neutral-500 group-hover:text-neutral-400'
+                  <Icon 
+                    size={22} 
+                    strokeWidth={1.5} 
+                    className={`transition-colors duration-300 ${
+                      isActive ? 'text-neutral-200' : 'text-neutral-500'
+                    }`} 
+                  />
+                  <span className={`text-xs font-light tracking-wide transition-colors duration-300 ${
+                    isActive ? 'text-neutral-200' : 'text-neutral-500'
                   }`}>
-                  {tab.label}
-                </span>
-              </button>
-            );
-          })}
-        </div>
+                    {tab.label}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>
   );
 }
 
-export { MobileTabLayout };
+export default MobileTabLayout;
