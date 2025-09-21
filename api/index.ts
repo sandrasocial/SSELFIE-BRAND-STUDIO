@@ -2,7 +2,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import type { AiImage, UserModel, InsertUser } from '../shared/schema';
 export const config = { 
-  runtime: 'nodejs20.x',
+  runtime: 'nodejs',
   maxDuration: 60
 } as const;
 // Lazy-load jose at runtime to avoid bootstrap issues
