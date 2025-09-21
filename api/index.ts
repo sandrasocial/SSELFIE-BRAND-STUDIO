@@ -936,13 +936,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             firstName: user.firstName || null,
             lastName: user.lastName || null,
             profileImageUrl: null,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            lastLoginAt: new Date(),
             plan: 'sselfie-studio',
             role: 'user',
             monthlyGenerationLimit: 100,
             mayaAiAccess: true,
             victoriaAiAccess: false,
-            onboardingProgress: JSON.stringify({ source: 'direct-signup' })
-          };
+            onboardingProgress: { source: 'direct-signup' }
+          } as any;
           
           dbUser = await withDatabaseTimeout(
             storage.upsertUser(fallbackUser),
