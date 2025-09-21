@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../hooks/use-auth';
 import { useLocation } from 'wouter';
-import { Camera, Grid, Play, Plus, Star, Sparkles, Image as ImageIcon } from 'lucide-react';
+import { Camera, Grid, Play, Plus, Star, Sparkles, Image as ImageIcon, MessageCircle } from 'lucide-react';
 
 // Studio Screen Component - Following Demo App Style Guide
 export function StudioScreen() {
