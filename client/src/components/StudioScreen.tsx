@@ -66,7 +66,7 @@ export function StudioScreen() {
         >
           <Grid size={24} strokeWidth={1.2} />
           <span>Browse Gallery</span>
-        </div>
+        </button>
       </div>
 
       {/* Quick Actions Grid - Following Styleguide */}
