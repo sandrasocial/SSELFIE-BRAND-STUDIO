@@ -7,6 +7,7 @@ import { Router } from 'express';
 import { requireStackAuth } from '../../stack-auth';
 import { adminContextDetection } from '../../middleware/admin-context';
 import { asyncHandler, createError, sendSuccess } from '../middleware/error-handler';
+import { requireAdmin } from '../middleware/auth';
 
 const router = Router();
 

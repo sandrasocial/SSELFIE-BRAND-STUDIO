@@ -4,6 +4,7 @@
  */
 
 import { Logger } from './logger';
+import fs from 'fs';
 
 export interface LogEntry {
   timestamp: string;
@@ -36,7 +37,7 @@ export class FileLogOutput implements LogOutput {
   private path: string;
 
   constructor(logPath: string) {
-    this.fs = require('fs');
+    this.fs = fs;
     this.path = logPath;
   }
 
