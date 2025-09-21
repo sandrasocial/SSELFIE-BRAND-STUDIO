@@ -375,8 +375,8 @@ function SSELFIEGallery({ hideMemberNav = false }: { hideMemberNav?: boolean }) 
           {/* Main Header */}
           <div className="flex justify-between items-start">
             <div className="space-y-2">
-              <h2 className="text-2xl font-light text-neutral-200 tracking-wide">GALLERY</h2>
-              <p className="text-neutral-500 text-sm tracking-wide">Curated Collection</p>
+              <h2 className="editorial-heading-1 text-neutral-200">GALLERY</h2>
+              <p className="editorial-text-caption text-neutral-500">Curated Collection</p>
               
               {/* Gallery Stats */}
               <div className="flex items-center gap-6 pt-2">
@@ -559,16 +559,16 @@ function SSELFIEGallery({ hideMemberNav = false }: { hideMemberNav?: boolean }) 
               <div className="p-8 bg-neutral-800/20 rounded-editorial-xl border border-neutral-700/20 mb-6 inline-block">
                 <Camera size={48} className="text-neutral-600" strokeWidth={1.5} />
           </div>
-              <h3 className="text-xl font-light text-neutral-300 mb-2">
+              <h3 className="editorial-heading-2 text-neutral-300 mb-2">
                 {searchQuery ? 'NO RESULTS FOUND' : 'NO PHOTOS YET'}
               </h3>
-              <p className="text-neutral-500 mb-6">
+              <p className="editorial-text-body text-neutral-500 mb-6">
                 {searchQuery 
                   ? `No photos match "${searchQuery}"` 
                   : 'Start creating professional portraits with Maya'
                 }
               </p>
-              <button className="bg-neutral-200 text-black px-6 py-3 rounded-editorial-xl font-light tracking-wide transition-all duration-200 hover:bg-neutral-300">
+              <button className="editorial-button">
                 <Plus className="mr-2 inline" size={18} strokeWidth={1.5} />
                 {searchQuery ? 'CLEAR SEARCH' : 'CREATE FIRST PHOTO'}
               </button>

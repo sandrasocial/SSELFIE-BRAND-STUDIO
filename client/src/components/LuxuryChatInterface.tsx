@@ -5,16 +5,14 @@ import { BrandStyleCollection } from '../data/brand-style-collections';
 import GeneratedImagePreview from './GeneratedImagePreview';
 import { MessageCircle, Send, Sparkles, Camera, MoreHorizontal } from 'lucide-react';
 
-
 // Utility function to strip emojis from frontend display while preserving for backend
 const stripEmojisForDisplay = (text: string): string => {
-  // Remove emojis but keep the text content
   return text.replace(/[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, '').trim();
 };
 
 /**
- * LuxuryConceptCard Component
- * Renders a single concept card, handles image generation, polling, and uses GeneratedImagePreview.
+ * LuxuryConceptCard Component - Editorial Luxury Redesign
+ * Renders a single concept card with sophisticated styling and interactions
  */
 interface ConceptCard {
   title: string;
@@ -36,14 +34,13 @@ export function LuxuryConceptCard({ concept }: { concept: ConceptCard }) {
     setImageUrls([]);
 
     try {
-      // Step 1: Start the generation and get a prediction ID
       const startResponse = await fetch('/api/maya/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           prompt: concept.fluxPrompt || concept.title || concept.description,
           conceptData: concept,
-          count: 2 // Generate 2 images
+          count: 2
         }),
         credentials: 'include',
       });
@@ -61,7 +58,6 @@ export function LuxuryConceptCard({ concept }: { concept: ConceptCard }) {
 
       const { predictionId } = startResult;
 
-      // Step 2: Poll for the result with enhanced error handling
       const pollInterval = setInterval(async () => {
         try {
           const checkResponse = await fetch(`/api/maya/check-generation/${predictionId}`, {
@@ -85,22 +81,20 @@ export function LuxuryConceptCard({ concept }: { concept: ConceptCard }) {
             setIsLoading(false);
             setError(result.error || 'Image generation failed. Please try again.');
           }
-          // If status is 'processing', the interval continues
         } catch (pollError) {
           clearInterval(pollInterval);
           setIsLoading(false);
           setError(`Polling error: ${(pollError as Error).message}`);
         }
-      }, 4000); // Poll every 4 seconds
+      }, 4000);
       
-      // Add timeout to prevent infinite polling
       setTimeout(() => {
         clearInterval(pollInterval);
         if (isLoading) {
           setIsLoading(false);
           setError('Generation timed out. Please try again.');
         }
-      }, 300000); // 5 minute timeout
+      }, 300000);
     } catch (err) {
       setIsLoading(false);
       setError((err as Error).message);
@@ -117,43 +111,40 @@ export function LuxuryConceptCard({ concept }: { concept: ConceptCard }) {
   };
 
   return (
-    <div className="editorial-card mb-6 group">
-      {/* Concept Header */}
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex-1">
-          <div className="flex items-center gap-3 mb-2">
+    <div className="editorial-concept-card">
+      <div className="editorial-concept-header">
+        <div className="editorial-concept-content">
+          <div className="editorial-concept-badge">
             <span className="editorial-badge">{concept.category || 'Concept'}</span>
             <Sparkles size={16} className="text-neutral-400" strokeWidth={1.5} />
           </div>
-          <h4 className="editorial-heading-2 text-neutral-200 mb-2">{stripEmojisForDisplay(concept.title)}</h4>
-          <p className="editorial-text-body text-neutral-400 leading-relaxed">{concept.description}</p>
+          <h4 className="editorial-concept-title">{stripEmojisForDisplay(concept.title)}</h4>
+          <p className="editorial-concept-description">{concept.description}</p>
         </div>
       </div>
       
-      {/* Action Button */}
       {!isLoading && imageUrls.length === 0 && (
         <button 
           onClick={handleGenerate}
-          className="editorial-button w-full mb-6 group-hover:scale-[1.02] transition-all duration-300 min-h-[48px] py-4"
+          className="editorial-button w-full mb-6 group-hover:scale-[1.02] transition-all duration-300"
         >
           <Camera className="mr-2" size={18} strokeWidth={1.5} />
           GENERATE PHOTOS
         </button>
       )}
 
-      {/* Error State */}
       {error && (
-        <div className="bg-red-900/20 border border-red-800/30 rounded-lg p-4 mb-4">
+        <div className="editorial-error-container">
           <div className="flex items-start gap-3">
-            <div className="w-5 h-5 bg-red-500/20 rounded-full flex items-center justify-center mt-0.5">
+            <div className="editorial-error-icon">
               <span className="text-red-400 text-xs">!</span>
             </div>
             <div className="flex-1">
-              <h4 className="text-red-300 text-sm font-medium mb-1">Generation Failed</h4>
-              <p className="text-red-300 text-sm">{error}</p>
+              <h4 className="editorial-error-title">Generation Failed</h4>
+              <p className="editorial-error-message">{error}</p>
               <button 
                 onClick={() => setError(null)}
-                className="text-red-400 text-xs mt-2 hover:text-red-300 transition-colors"
+                className="editorial-error-dismiss"
               >
                 Dismiss
               </button>
@@ -162,33 +153,30 @@ export function LuxuryConceptCard({ concept }: { concept: ConceptCard }) {
         </div>
       )}
 
-      {/* Loading State */}
       {isLoading && (
-        <div className="flex flex-col items-center justify-center py-8 mb-6">
+        <div className="editorial-loading-container">
           <div className="editorial-spinner mr-3 mb-3"></div>
-          <span className="text-neutral-400 text-sm tracking-wide mb-2">GENERATING YOUR VISION</span>
-          <div className="w-full bg-neutral-800/30 rounded-full h-1">
-            <div className="bg-gradient-to-r from-neutral-300 to-neutral-500 h-1 rounded-full animate-pulse"></div>
+          <span className="editorial-loading-message">GENERATING YOUR VISION</span>
+          <div className="editorial-loading-progress">
+            <div className="editorial-loading-bar"></div>
           </div>
         </div>
       )}
 
-      {/* Success State */}
       {showSuccess && (
-        <div className="bg-green-900/20 border border-green-800/30 rounded-lg p-4 mb-4">
+        <div className="editorial-success-container">
           <div className="flex items-center gap-3">
-            <div className="w-5 h-5 bg-green-500/20 rounded-full flex items-center justify-center">
+            <div className="editorial-success-icon">
               <span className="text-green-400 text-xs">✓</span>
             </div>
             <div>
-              <h4 className="text-green-300 text-sm font-medium">Images Generated Successfully!</h4>
-              <p className="text-green-300 text-xs">Your photos are ready to view and save.</p>
+              <h4 className="editorial-success-title">Images Generated Successfully!</h4>
+              <p className="editorial-success-message">Your photos are ready to view and save.</p>
             </div>
           </div>
         </div>
       )}
 
-      {/* Generated Images */}
       <GeneratedImagePreview
         imageUrls={imageUrls}
         isLoading={isLoading}
@@ -200,8 +188,8 @@ export function LuxuryConceptCard({ concept }: { concept: ConceptCard }) {
 }
 
 /**
- * LuxuryChatInterface Component
- * The main chat window that manages the conversation flow with Maya.
+ * LuxuryChatInterface Component - Editorial Luxury Redesign
+ * Main chat interface with Maya AI, featuring sophisticated styling and interactions
  */
 export function LuxuryChatInterface() {
   const { messages, sendMessage, isTyping } = useMayaChat();
@@ -219,7 +207,6 @@ export function LuxuryChatInterface() {
     setSelectedStyle(style);
     setShowStyleSelector(false);
     
-    // Get user gender for context (optional)
     let genderContext = '';
     try {
       const response = await fetch('/api/me', {
@@ -242,7 +229,6 @@ export function LuxuryChatInterface() {
       // Could not fetch gender context (non-blocking)
     }
     
-    // Enhanced message that includes styleKey for prompt-builder integration
     const styleMessage = `${genderContext}I've chosen the "${style.name}" style (styleKey: ${style.id}). ${style.description}
 
 Please create photo concepts that match this signature look, drawing from your ${style.name} expertise with ${style.aesthetic.toLowerCase()}.`;
@@ -258,9 +244,8 @@ Please create photo concepts that match this signature look, drawing from your $
   };
 
   return (
-    <div className="h-full flex flex-col bg-neutral-950/80 backdrop-blur-2xl rounded-editorial-xl border border-neutral-800/30 overflow-hidden">
-      {/* Luxury Header */}
-      <div className="p-6 border-b border-neutral-800/30 bg-gradient-to-r from-neutral-900/50 to-neutral-800/30">
+    <div className="editorial-chat-container">
+      <div className="editorial-chat-header">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="p-3 bg-neutral-800/40 rounded-editorial-md border border-neutral-700/30">
@@ -274,7 +259,7 @@ Please create photo concepts that match this signature look, drawing from your $
           
           <button
             onClick={() => setShowStyleSelector(true)}
-            className="editorial-button-secondary flex items-center gap-2 px-4 py-3 min-h-[48px]"
+            className="editorial-button-secondary flex items-center gap-2 px-4 py-3"
           >
             <Sparkles size={16} strokeWidth={1.5} />
             {selectedStyle ? selectedStyle.name : 'CHOOSE STYLE'}
@@ -296,21 +281,18 @@ Please create photo concepts that match this signature look, drawing from your $
         )}
       </div>
 
-      {/* Messages Container */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-8">
+      <div className="editorial-chat-messages">
         {messages.map((msg, index) => (
           <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div className={`max-w-[85%] ${msg.role === 'user' ? 'order-2' : 'order-1'}`}>
-              {/* Message Bubble */}
               <div className={`editorial-card p-6 ${
                 msg.role === 'user' 
-                  ? 'bg-neutral-200 text-black ml-auto' 
-                  : 'bg-neutral-800/40 text-neutral-200'
+                  ? 'editorial-message-user ml-auto' 
+                  : 'editorial-message-maya'
               }`}>
                 <div className="space-y-3">
                   <p className="editorial-text-body leading-relaxed">{msg.content}</p>
                   
-                  {/* Message timestamp */}
                   <div className={`text-xs tracking-wide ${
                     msg.role === 'user' ? 'text-neutral-600' : 'text-neutral-500'
                   }`}>
@@ -319,7 +301,6 @@ Please create photo concepts that match this signature look, drawing from your $
                 </div>
               </div>
               
-              {/* Concept Cards for Maya */}
               {msg.role === 'maya' && msg.conceptCards && (
                 <div className="mt-6 space-y-6">
                   <div className="flex items-center gap-3 mb-4">
@@ -335,7 +316,6 @@ Please create photo concepts that match this signature look, drawing from your $
           </div>
         ))}
 
-        {/* Style Selector Modal */}
         {showStyleSelector && (
           <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <div className="editorial-modal max-w-2xl w-full max-h-[80vh] overflow-y-auto">
@@ -358,17 +338,16 @@ Please create photo concepts that match this signature look, drawing from your $
           </div>
         )}
         
-        {/* Typing Indicator */}
         {isTyping && (
-          <div className="flex items-center justify-start">
-            <div className="editorial-card p-4 bg-neutral-800/40">
+          <div className="editorial-typing-container">
+            <div className="editorial-typing-card">
               <div className="flex items-center gap-3">
-                <div className="flex space-x-1">
-                  <div className="w-2 h-2 bg-neutral-400 rounded-full animate-bounce"></div>
-                  <div className="w-2 h-2 bg-neutral-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                  <div className="w-2 h-2 bg-neutral-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                <div className="editorial-typing-dots">
+                  <div className="editorial-typing-dot"></div>
+                  <div className="editorial-typing-dot" style={{ animationDelay: '0.1s' }}></div>
+                  <div className="editorial-typing-dot" style={{ animationDelay: '0.2s' }}></div>
                 </div>
-                <span className="text-neutral-400 text-sm tracking-wide">Maya is crafting your vision...</span>
+                <span className="editorial-typing-text">Maya is crafting your vision...</span>
               </div>
             </div>
           </div>
@@ -376,8 +355,7 @@ Please create photo concepts that match this signature look, drawing from your $
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input Area */}
-      <div className="p-6 border-t border-neutral-800/30 bg-gradient-to-r from-neutral-900/50 to-neutral-800/30">
+      <div className="editorial-chat-input-area">
         <form onSubmit={handleSendMessage} className="flex gap-3">
           <div className="flex-1 relative">
             <input 
@@ -385,7 +363,7 @@ Please create photo concepts that match this signature look, drawing from your $
               value={inputValue} 
               onChange={(e) => setInputValue(e.target.value)} 
               placeholder="Describe your vision to Maya..." 
-              className="editorial-input w-full pr-12 min-h-[48px] text-base"
+              className="editorial-input w-full pr-12"
               disabled={isTyping}
               autoComplete="off"
               autoCorrect="off"
@@ -398,7 +376,7 @@ Please create photo concepts that match this signature look, drawing from your $
           </div>
           <button 
             type="submit" 
-            className="editorial-button px-6 py-3 min-h-[48px] disabled:opacity-50 disabled:cursor-not-allowed"
+            className="editorial-button px-6 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={isTyping || !inputValue.trim()}
           >
             <Send size={18} strokeWidth={1.5} />
