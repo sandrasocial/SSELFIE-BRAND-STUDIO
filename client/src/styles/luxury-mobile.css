@@ -740,3 +740,141 @@ body {
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }
+/* =================================================================== */
+/* TAB LAYOUT COMPONENTS */
+/* =================================================================== */
+
+.luxury-tab-content {
+  height: 100%;
+  padding: var(--space-xl);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+}
+
+.luxury-tab-header {
+  padding-bottom: var(--space-lg);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* =================================================================== */
+/* GALLERY COMPONENTS */
+/* =================================================================== */
+
+.luxury-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+.luxury-gallery-item {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  cursor: pointer;
+  group: true;
+}
+
+.luxury-gallery-image {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+}
+
+.luxury-gallery-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0);
+  transition: all var(--transition-medium);
+}
+
+.luxury-gallery-item:hover .luxury-gallery-overlay {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.luxury-gallery-actions {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 1rem;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.6));
+  opacity: 0;
+  transition: all var(--transition-medium);
+}
+
+.luxury-gallery-item:hover .luxury-gallery-actions {
+  opacity: 1;
+}
+
+.luxury-gallery-skeleton {
+  aspect-ratio: 1;
+  background: var(--luxury-zinc-800);
+  border-radius: var(--radius-lg);
+  opacity: 0.3;
+  animation: pulse 2s infinite;
+}
+
+.luxury-gallery-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: var(--space-3xl) var(--space-xl);
+}
+
+/* =================================================================== */
+/* CHAT COMPONENTS */
+/* =================================================================== */
+
+.luxury-chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-lg) 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+}
+
+.luxury-message {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.luxury-message-user {
+  align-items: flex-end;
+}
+
+.luxury-message-maya {
+  align-items: flex-start;
+}
+
+.luxury-message-content {
+  max-width: 85%;
+  padding: var(--space-lg);
+  border-radius: var(--radius-xl);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.luxury-message-user .luxury-message-content {
+  background: var(--luxury-black);
+  color: var(--luxury-white);
+}
+
+.luxury-message-maya .luxury-message-content {
+  background: rgba(39, 39, 42, 0.3);
+  color: var(--luxury-white);
+}
+
+.luxury-chat-input {
+  padding-top: var(--space-lg);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.6; }
+}

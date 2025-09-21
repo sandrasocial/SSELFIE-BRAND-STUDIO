@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { StudioPage } from '../pages/StudioPage';
+import { MayaChat } from './MayaChat';
 import { GalleryScreen } from './GalleryScreen';
-import SSELFIEGallery from '../pages/sselfie-gallery';
+import { StudioScreen } from './StudioScreen';
 import { useAuth } from '../hooks/use-auth';
 import { useQuery } from '@tanstack/react-query';
-import { Camera, Grid, User, Settings, Sparkles, Heart, Share2, Smartphone, Search, Package, Shirt } from 'lucide-react';
+import { Camera, Grid, User, Settings, MessageCircle, Heart, Share2, Smartphone, Search, Package, Shirt } from 'lucide-react';
 
 // Maya's Smart Aesthetic Feed Categories - Editorial Neutral Palette
 const MAYA_CATEGORIES = {
@@ -288,14 +288,21 @@ const createTabs = (user: { name?: string; email?: string; image?: string }) => 
     label: 'Studio',
     icon: Camera,
     description: 'Create with Maya AI',
-    component: <StudioPage />
+    component: <StudioScreen />
+  },
+  {
+    id: 'maya',
+    label: 'Maya',
+    icon: MessageCircle,
+    description: 'AI Photo Stylist',
+    component: <MayaChat />
   },
   {
     id: 'gallery',
     label: 'Gallery',
     icon: Grid,
     description: 'Your photo collection',
-    component: <SSELFIEGallery hideMemberNav />
+    component: <GalleryScreen />
   },
   {
     id: 'profile',

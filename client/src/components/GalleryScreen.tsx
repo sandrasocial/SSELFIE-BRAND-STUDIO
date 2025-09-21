@@ -18,24 +18,41 @@ export function GalleryScreen() {
   const { user, isAuthenticated } = useAuth();
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
 
-  // Fetch user's gallery images
-  const { data: aiImagesData, isLoading } = useQuery<GalleryImage[]>({
+  // Fetch user's gallery images with proper error handling
+  const { data: aiImagesData, isLoading, error } = useQuery<GalleryImage[]>({
     queryKey: ['/api/gallery-images'],
     enabled: isAuthenticated && !!user,
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
+    retry: 1,
     queryFn: async () => {
-      const data = await apiFetch('/gallery-images');
-      return Array.isArray(data) ? data : (data?.images || []);
+      try {
+        const data = await apiFetch('/gallery-images');
+        return Array.isArray(data) ? data : (data?.images || []);
+      } catch (error) {
+        console.warn('Gallery API not available, showing empty state');
+        return [];
+      }
     }
   });
 
-  // Fetch user's favorites
+  // Fetch user's favorites with proper error handling
   const { data: favoritesData } = useQuery<{ favorites: number[] }>({
     queryKey: ['/api/images/favorites'],
     enabled: isAuthenticated && !!user,
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
+    retry: 1,
+    queryFn: async () => {
+      try {
+        const response = await fetch('/api/images/favorites', { credentials: 'include' });
+        if (!response.ok) throw new Error('Favorites not available');
+        return response.json();
+      } catch (error) {
+        console.warn('Favorites API not available');
+        return { favorites: [] };
+      }
+    }
   });
 
   const aiImages = Array.isArray(aiImagesData) ? aiImagesData : [];
@@ -78,66 +95,74 @@ export function GalleryScreen() {
   }
 
   return (
-    <div className="space-y-8">
-      {/* Gallery header matching demo */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-light text-neutral-200 tracking-wide">GALLERY</h2>
-          <p className="text-neutral-500 text-sm tracking-wide mt-1">Curated Collection</p>
-        </div>
-        <div className="flex space-x-3">
-          <button className="p-3 bg-neutral-800/40 rounded-lg border border-neutral-700/30">
-            <Search size={18} className="text-neutral-400" strokeWidth={1.5} />
-          </button>
-          <button className="p-3 bg-neutral-800/40 rounded-lg border border-neutral-700/30">
-            <MoreHorizontal size={18} className="text-neutral-400" strokeWidth={1.5} />
-          </button>
+    <div className="luxury-tab-content">
+      {/* Gallery header */}
+      <div className="luxury-tab-header">
+        <div className="flex justify-between items-center">
+          <div>
+            <h2 className="luxury-heading-2">GALLERY</h2>
+            <p className="luxury-text-caption">Your photo collection</p>
+          </div>
+          <div className="flex space-x-3">
+            <button className="w-10 h-10 bg-zinc-800/30 rounded-xl border border-zinc-700/20 hover:bg-zinc-700/50 transition-all duration-300 flex items-center justify-center">
+              <Search size={18} className="text-zinc-400 hover:text-white transition-colors" strokeWidth={1.2} />
+            </button>
+            <button className="w-10 h-10 bg-zinc-800/30 rounded-xl border border-zinc-700/20 hover:bg-zinc-700/50 transition-all duration-300 flex items-center justify-center">
+              <MoreHorizontal size={18} className="text-zinc-400 hover:text-white transition-colors" strokeWidth={1.2} />
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Gallery grid - editorial layout matching demo */}
-      <div className="grid grid-cols-2 gap-3">
+      {/* Gallery grid */}
+      <div className="luxury-gallery-grid">
         {isLoading ? (
           Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="aspect-square bg-neutral-800/30 rounded-lg animate-pulse" />
+            <div key={i} className="luxury-gallery-skeleton" />
           ))
         ) : aiImages.length === 0 ? (
-          <div className="col-span-2 text-center py-16">
-            <Camera size={48} className="text-neutral-600 mx-auto mb-4" strokeWidth={1.5} />
-            <h3 className="text-lg font-light text-neutral-300 mb-2">NO PHOTOS YET</h3>
-            <p className="text-neutral-500 text-sm mb-6">Start creating professional portraits with Maya</p>
+          <div className="luxury-gallery-empty">
+            <div className="w-16 h-16 bg-zinc-800/30 rounded-full mx-auto mb-6 flex items-center justify-center">
+              <Camera size={24} className="text-zinc-500" />
+            </div>
+            <h3 className="luxury-heading-3 mb-4">Your Gallery Awaits</h3>
+            <p className="luxury-text-body mb-6 max-w-md mx-auto text-center">
+              Start creating stunning photos with Maya to build your personal brand gallery
+            </p>
           </div>
         ) : (
           aiImages.map((image, index) => {
             const isFavorite = favorites.includes(typeof image.id === 'string' ? parseInt(image.id, 10) : image.id);
             
             return (
-              <div key={image.id} className="relative group cursor-pointer">
-                <div className="aspect-square relative overflow-hidden rounded-lg">
+              <div key={image.id} className="luxury-gallery-item">
+                <div className="luxury-gallery-image">
                   <img 
                     src={image.imageUrl || image.url || ''} 
                     alt={image.title || `Gallery ${index + 1}`}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                     onClick={() => setSelectedImage(image)}
                   />
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300"></div>
+                  <div className="luxury-gallery-overlay"></div>
                   
-                  {/* Minimal overlay matching demo */}
-                  <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  {/* Gallery actions */}
+                  <div className="luxury-gallery-actions">
                     <div className="flex justify-between items-center">
-                      <span className="text-white text-xs tracking-wide">IMG_{String(index + 1).padStart(3, '0')}</span>
+                      <span className="text-white text-xs tracking-wide uppercase">
+                        IMG_{String(index + 1).padStart(3, '0')}
+                      </span>
                       <div className="flex space-x-2">
                         <button 
                           onClick={(e) => {
                             e.stopPropagation();
                             toggleFavorite(image.id);
                           }}
-                          className="p-1.5 bg-white/20 backdrop-blur-sm rounded transition-colors hover:bg-white/30"
+                          className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition-colors duration-300"
                         >
                           <Heart 
                             size={14} 
-                            className={isFavorite ? 'text-red-400 fill-current' : 'text-white'} 
-                            strokeWidth={1.5} 
+                            className={isFavorite ? 'text-red-500 fill-current' : 'text-white'} 
+                            strokeWidth={1.2} 
                           />
                         </button>
                         <button 
@@ -145,9 +170,9 @@ export function GalleryScreen() {
                             e.stopPropagation();
                             setSelectedImage(image);
                           }}
-                          className="p-1.5 bg-white/20 backdrop-blur-sm rounded transition-colors hover:bg-white/30"
+                          className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition-colors duration-300"
                         >
-                          <Eye size={14} className="text-white" strokeWidth={1.5} />
+                          <Eye size={14} className="text-white" strokeWidth={1.2} />
                         </button>
                       </div>
                     </div>
@@ -159,16 +184,7 @@ export function GalleryScreen() {
         )}
       </div>
 
-      {/* Load more - minimal matching demo */}
-      {aiImages.length > 0 && (
-        <div className="text-center pt-4">
-          <button className="text-neutral-400 text-sm tracking-wide hover:text-neutral-300 transition-colors">
-            LOAD MORE
-          </button>
-        </div>
-      )}
-
-      {/* Simple Image Detail Modal */}
+      {/* Image Detail Modal */}
       {selectedImage && (
         <div 
           className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4"
