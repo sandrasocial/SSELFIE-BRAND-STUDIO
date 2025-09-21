@@ -48,7 +48,7 @@ export function LuxuryTrainingPage() {
     setSelfieImages(prev => prev.filter((_, i) => i !== index));
   };
 
-  // Training mutation
+  // Training mutation using correct Vercel serverless endpoint
   const startTrainingMutation = useMutation({
     mutationFn: async (data: { images: File[]; gender: string }) => {
       const formData = new FormData();
@@ -57,7 +57,7 @@ export function LuxuryTrainingPage() {
       });
       formData.append('gender', data.gender);
       
-      return apiRequest('/api/start-training', {
+      return apiRequest('/api/start-model-training', {
         method: 'POST',
         body: formData
       });

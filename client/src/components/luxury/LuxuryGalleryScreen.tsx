@@ -96,9 +96,9 @@ export function LuxuryGalleryScreen() {
   const [activeFilter, setActiveFilter] = useState('all');
   const { user } = useAuth();
 
-  // Fetch real user gallery data
+  // Fetch real user gallery data using correct Vercel serverless endpoint
   const { data: userImages, isLoading: imagesLoading, error } = useQuery({
-    queryKey: ['/api/user-images', activeFilter],
+    queryKey: ['/api/gallery', activeFilter],
     enabled: !!user,
     retry: 1,
     staleTime: 30 * 1000,
@@ -106,7 +106,7 @@ export function LuxuryGalleryScreen() {
   });
 
   const { data: galleryStats } = useQuery({
-    queryKey: ['/api/user-gallery-stats'],
+    queryKey: ['/api/gallery-stats'],
     enabled: !!user,
     retry: 1,
     staleTime: 60 * 1000
@@ -142,8 +142,8 @@ export function LuxuryGalleryScreen() {
         : img
     ));
     
-    // Send to API
-    fetch(`/api/user-images/${imageId}/like`, {
+    // Send to API using correct Vercel serverless endpoint
+    fetch(`/api/gallery/${imageId}/like`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' }
     }).catch(console.error);
@@ -156,8 +156,8 @@ export function LuxuryGalleryScreen() {
         : img
     ));
     
-    // Send to API
-    fetch(`/api/user-images/${imageId}/save`, {
+    // Send to API using correct Vercel serverless endpoint
+    fetch(`/api/gallery/${imageId}/save`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' }
     }).catch(console.error);

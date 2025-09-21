@@ -50,9 +50,9 @@ function LuxuryConceptCard({ concept, onGenerate }: { concept: any; onGenerate: 
   const handleGenerate = async () => {
     setIsGenerating(true);
     
-    // Call real API endpoint for photo generation
+    // Call real Maya API endpoint for concept-based photo generation
     try {
-      const response = await fetch('/api/photo-generation', {
+      const response = await fetch('/api/maya/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
