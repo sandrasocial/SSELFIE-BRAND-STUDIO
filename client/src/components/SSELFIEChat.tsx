@@ -6,7 +6,7 @@ import { Camera, Send, MessageCircle, Sparkles } from 'lucide-react';
 
 interface ChatMessage {
   id: string;
-  type: 'user' | 'maya';
+  type: 'user' | 'sselfie';
   content: string;
   timestamp: string;
   conceptCards?: ConceptCard[];
@@ -20,8 +20,8 @@ interface ConceptCard {
   generatedImages?: string[];
 }
 
-// Maya Chat Component - Mobile Optimized for Tab Layout
-export function MayaChat() {
+// SSELFIE Chat Component - Mobile Optimized for Tab Layout  
+export function SSELFIEChat() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [message, setMessage] = useState('');
@@ -34,7 +34,7 @@ export function MayaChat() {
       setMessages([{
         id: '1',
         type: 'maya',
-        content: "Hi! I'm Maya, your AI photo stylist. Tell me what kind of professional photos you need and I'll create custom concepts for you.",
+        content: "Hi! I'm your SSELFIE AI photo stylist. Tell me what kind of professional photos you need and I'll create custom concepts for you.",
         timestamp: new Date().toISOString()
       }]);
     }
