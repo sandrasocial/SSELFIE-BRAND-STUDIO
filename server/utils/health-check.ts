@@ -8,6 +8,9 @@ import { monitoringSystem } from './monitoring';
 import { performanceMonitor } from './performance-monitor';
 import { errorTracker } from './error-tracker';
 import { securityMonitor } from './security-monitor';
+import os from 'os';
+import fs from 'fs';
+import path from 'path';
 
 export interface HealthCheckResult {
   status: 'healthy' | 'degraded' | 'unhealthy';
@@ -398,7 +401,7 @@ export class HealthCheckSystem {
     
     try {
       const memoryUsage = process.memoryUsage();
-      const totalMemory = require('os').totalmem();
+      const totalMemory = os.totalmem();
       const usedMemory = memoryUsage.heapUsed;
       const percentage = (usedMemory / totalMemory) * 100;
 
@@ -446,8 +449,8 @@ export class HealthCheckSystem {
     const startTime = Date.now();
     
     try {
-      const loadAverage = require('os').loadavg();
-      const cpuCount = require('os').cpus().length;
+      const loadAverage = os.loadavg();
+      const cpuCount = os.cpus().length;
       const cpuUsage = loadAverage[0] / cpuCount; // 1-minute load average per CPU
       const percentage = cpuUsage * 100;
 
@@ -493,8 +496,7 @@ export class HealthCheckSystem {
     const startTime = Date.now();
     
     try {
-      const fs = require('fs');
-      const path = require('path');
+      // fs and path already imported
       
       // Check disk space
       const stats = fs.statSync(process.cwd());
@@ -651,9 +653,9 @@ export class HealthCheckSystem {
    */
   private getSystemMetrics(): HealthCheckResult['metrics'] {
     const memoryUsage = process.memoryUsage();
-    const totalMemory = require('os').totalmem();
-    const loadAverage = require('os').loadavg();
-    const cpuCount = require('os').cpus().length;
+    const totalMemory = os.totalmem();
+    const loadAverage = os.loadavg();
+    const cpuCount = os.cpus().length;
     
     const performanceStats = performanceMonitor.getPerformanceStats(1);
     const errorStats = errorTracker.getErrorStats(1);
@@ -703,7 +705,7 @@ export class HealthCheckSystem {
 
     // Add memory alerts
     const memoryUsage = process.memoryUsage();
-    const totalMemory = require('os').totalmem();
+    const totalMemory = os.totalmem();
     const memoryPercentage = (memoryUsage.heapUsed / totalMemory) * 100;
 
     if (memoryPercentage > 90) {
