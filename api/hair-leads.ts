@@ -2,7 +2,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { db } from '../server/db/drizzle';
 import { hairLeads, insertHairLeadSchema } from '../shared/schema';
 
-export const config = { runtime: 'nodejs20.x' } as const;
+export const config = { runtime: 'nodejs' } as const;
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Set CORS headers
