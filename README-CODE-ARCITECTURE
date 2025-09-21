@@ -1,0 +1,149 @@
+SSELFIE Brand Studio - Luxury Mobile Design Implementation
+Overview
+Complete redesign of SSELFIE Brand Studio using luxury mobile-first design principles based on the demo app style guide. All components have been redesigned to provide a consistent, high-end user experience.
+
+IMPORTANT: This application uses Vercel serverless functions, not Express.js
+
+Architecture
+Vercel Serverless Infrastructure
+The application is built for Vercel serverless deployment:
+
+Frontend: Vite + React (mobile-first)
+Backend: Vercel serverless functions in /api directory
+Main Handler: /api/index.ts - consolidated serverless function
+Authentication: Stack Auth via serverless functions
+Database: NeonDB (Serverless Postgres)
+AI Integration: Claude API & Gemini AI via serverless functions
+Key API Endpoints (Vercel Serverless)
+// Main consolidated handler
+/api/index.ts - Primary serverless function
+
+// Authentication & User Management
+GET /api/auth/user - User profile and authentication
+GET /api/user-model - Training status and model information
+
+// Training System
+POST /api/start-model-training - Initiate AI model training
+GET /api/training/status - Monitor training progress
+
+// Gallery & Images
+GET /api/gallery - User's photo collection
+POST /api/gallery/{id}/like - Photo interactions
+POST /api/gallery/{id}/save - Save functionality
+
+// Maya AI (Serverless)
+POST /api/maya/chat - Maya conversation & concept generation
+POST /api/maya/generate - AI photo generation
+Components Architecture
+1. LuxuryMobileApp.tsx
+Main app container using serverless APIs
+
+Connects to /api/user-model for authentication routing
+Serverless data fetching via React Query
+Mobile-first responsive design
+2. LuxuryMayaScreen.tsx
+Maya AI interface with serverless backend
+
+Uses /api/maya/chat serverless function
+Real-time concept card generation via Claude API
+Emoji detection system (backend only)
+No frontend emoji display
+3. LuxuryGalleryScreen.tsx
+Photo gallery with serverless data
+
+Fetches from /api/gallery serverless endpoint
+Real-time image interactions
+No mock data - all serverless database connections
+4. LuxuryTrainingPage.tsx
+AI training via serverless functions
+
+Uses /api/start-model-training for initialization
+Progress tracking via /api/training/status
+Real-time status updates
+Serverless Integration Details
+Maya AI Serverless Implementation
+Located in /api/index.ts starting at line 1479:
+
+if (req.url?.includes('/api/maya/chat')) {
+ // Real Claude API integration
+ // Emoji-based concept detection (backend only)
+ // Structured concept card generation
+ // No emojis shown in frontend UI
+}
+Database Connections
+All database operations use serverless-compatible patterns:
+
+Connection pooling optimized for serverless
+Timeout handling for function limits
+Retry logic for database operations
+Real data - no mock responses
+Authentication Flow
+Stack Auth via serverless functions
+User routing based on /api/user-model response
+Training status determines app experience
+All endpoints use serverless authentication
+Key Corrections Made
+Fixed API Endpoint References
+Before: Referenced Express server routes incorrectly
+
+// WRONG - this was referencing Express routes
+server/routes/maya.js
+/api/user-images/recent
+/api/start-training
+After: Updated to use actual Vercel serverless endpoints
+
+// CORRECT - actual serverless functions
+/api/maya/chat (in /api/index.ts)
+/api/gallery 
+/api/start-model-training
+Architecture Alignment
+Removed: References to Express.js server architecture
+Added: Proper Vercel serverless function documentation
+Updated: All component API calls to match serverless endpoints
+Verified: Build process works with serverless architecture
+Production Deployment
+Vercel Configuration
+File: vercel.json
+
+{
+ "functions": {
+   "api/index.ts": { "maxDuration": 40 },
+   "api/maya/chat.ts": { "maxDuration": 40 }
+ },
+ "rewrites": [
+   {
+     "source": "/((?!api/).*)",
+     "destination": "/index.html"
+   }
+ ]
+}
+Build Process
+npm run build - Client build via Vite
+npm run vercel-build - Production build
+Serverless functions deployed automatically
+No Express server configuration needed
+Dependencies
+Serverless-Specific
+@vercel/node - Vercel serverless runtime
+@stackframe/react - Authentication (serverless compatible)
+@tanstack/react-query - API state management
+jose - JWT handling for serverless auth
+No Express Dependencies
+The application does not use:
+
+Express.js server
+Express middleware
+Express routes
+All backend functionality is handled by Vercel serverless functions.
+
+Maintenance Notes
+Adding New Features
+Create serverless functions in /api directory
+Follow Vercel function patterns
+Update vercel.json configuration
+Use proper timeout and retry handling
+API Endpoint Updates
+All endpoints are in /api/index.ts (main handler)
+Some endpoints have dedicated files (e.g., /api/maya/chat.ts)
+All delegate to the main handler for consistency
+This implementation is production-ready for Vercel deployment with proper serverless architecture, real database connections, and no mock data.
