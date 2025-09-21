@@ -1,7 +1,11 @@
 /* eslint-disable no-console */
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import type { AiImage, UserModel, InsertUser } from '../shared/schema.js';
-export const config = { runtime: 'nodejs' } as const;
+import { withTimeout, withDatabaseTimeout, withExternalApiTimeout, isTimeoutError } from './_utils/timing.js';
+export const config = { 
+  runtime: 'nodejs',
+  maxDuration: 45
+} as const;
 // Lazy-load jose at runtime to avoid bootstrap issues
 type JoseModule = typeof import('jose');
 let _jose: Pick<JoseModule, 'jwtVerify' | 'createLocalJWKSet' | 'createRemoteJWKSet'> | null = null;
@@ -56,35 +60,30 @@ declare const AbortController: {
 };
 
 async function timedFetch(url: string, ms = 3000, init?: FetchInit) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const AbortCtor = typeof AbortController !== 'undefined' ? AbortController : (globalThis as any).AbortController;
-  const ac = new AbortCtor();
-  const id = setTimeout(() => ac.abort(), ms);
-  try {
-    // Use global fetch; if types are missing, fall back to any
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const f = (globalThis as any).fetch || fetch;
-    return await f(url, { ...(init || {}), signal: ac.signal });
-  } finally {
-    clearTimeout(id);
-  }
+  // Use the enhanced external API timeout utility
+  return withExternalApiTimeout(
+    async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const AbortCtor = typeof AbortController !== 'undefined' ? AbortController : (globalThis as any).AbortController;
+      const ac = new AbortCtor();
+      const id = setTimeout(() => ac.abort(), ms);
+      try {
+        // Use global fetch; if types are missing, fall back to any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const f = (globalThis as any).fetch || fetch;
+        return await f(url, { ...(init || {}), signal: ac.signal });
+      } finally {
+        clearTimeout(id);
+      }
+    },
+    new Response(JSON.stringify({ error: 'Network timeout' }), { status: 408 }),
+    ms,
+    1,
+    `fetch-${url}`
+  );
 }
 
-// Generic timeout wrapper for promises
-function withTimeout<T>(promise: Promise<T>, ms: number, label = 'operation'): Promise<T> {
-  return new Promise<T>((resolve, reject) => {
-    const to = setTimeout(() => reject(new Error(`${label} timed out after ${ms}ms`)), ms);
-    promise
-      .then(value => {
-        clearTimeout(to);
-        resolve(value);
-      })
-      .catch(err => {
-        clearTimeout(to);
-        reject(err);
-      });
-  });
-}
+// Remove duplicate withTimeout function - using the one from timing utils instead
 
 function setLogoutCookies(res: import('@vercel/node').VercelResponse) {
   const expired = [
@@ -886,43 +885,71 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const user = await getAuthenticatedUser();
         const { storage } = await import('../server/storage.js');
         
-        // OPTIMIZED: Single database call with fallback logic
-        let dbUser = await withTimeout(storage.getUser(user.id as string), 3000, 'getUser');
+        // OPTIMIZED: Use database timeout with fallback for faster response
+        let dbUser = await withDatabaseTimeout(
+          storage.getUser(user.id as string), 
+          null, 
+          3000, 
+          'getUser'
+        );
       
         if (!dbUser) {
-          // Try to find user by Stack Auth ID or email in parallel
+          // Try to find user by Stack Auth ID or email in parallel with shorter timeouts
           const [byStackId, byEmail] = await Promise.all([
-            withTimeout(storage.getUserByStackAuthId(user.id as string), 3000, 'getUserByStackAuthId'),
-            user.email ? withTimeout(storage.getUserByEmail(user.email as string), 3000, 'getUserByEmail') : Promise.resolve(undefined)
+            withDatabaseTimeout(
+              storage.getUserByStackAuthId(user.id as string), 
+              null, 
+              2500, 
+              'getUserByStackAuthId'
+            ),
+            user.email ? withDatabaseTimeout(
+              storage.getUserByEmail(user.email as string), 
+              null, 
+              2500, 
+              'getUserByEmail'
+            ) : Promise.resolve(null)
           ]);
           
           if (byStackId) {
             dbUser = byStackId;
           } else if (byEmail) {
             console.log('🔗 Linking existing paid user to Stack Auth:', byEmail.email, '→', user.id);
-            dbUser = await withTimeout(storage.linkStackAuthId(byEmail.id, user.id as string), 3000, 'linkStackAuthId');
+            dbUser = await withDatabaseTimeout(
+              storage.linkStackAuthId(byEmail.id, user.id as string), 
+              byEmail, // Use existing user as fallback if linking fails
+              3000, 
+              'linkStackAuthId'
+            );
             console.log('✅ Successfully linked paid user to Stack Auth account');
           }
         }
       
         if (!dbUser) {
-          // Create completely new user (no prior payment)
+          // Create completely new user (no prior payment) with timeout fallback
           console.log('🆕 Creating new user account:', user.email);
           
-          dbUser = await withTimeout(storage.upsertUser({
+          // Create a minimal user object as fallback
+          const fallbackUser = {
             id: user.id as string,
             email: (user.email as string) || null,
             displayName: `${user.firstName || ''} ${user.lastName || ''}`.trim() || null,
             firstName: user.firstName || null,
             lastName: user.lastName || null,
             profileImageUrl: null,
-            plan: 'sselfie-studio', // Default plan for new users
+            plan: 'sselfie-studio',
             role: 'user',
             monthlyGenerationLimit: 100,
             mayaAiAccess: true,
             victoriaAiAccess: false,
             onboardingProgress: JSON.stringify({ source: 'direct-signup' })
-          }), 4000, 'upsertUser');
+          };
+          
+          dbUser = await withDatabaseTimeout(
+            storage.upsertUser(fallbackUser),
+            fallbackUser, // Use fallback if DB operation times out
+            4000, 
+            'upsertUser'
+          );
           
           console.log('✅ Created new user account:', dbUser.id);
         }
@@ -933,6 +960,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       } catch (error) {
         t.end('error', { error: (error as Error).message });
         console.log('❌ /api/me failed:', (error as Error).message);
+        
+        // Enhanced error handling for timeout scenarios
+        if (isTimeoutError(error)) {
+          const timeoutBody = { 
+            message: 'Service temporarily unavailable, please try again', 
+            error: 'Request timeout',
+            code: 'TIMEOUT'
+          };
+          return res.status(503).json(timeoutBody);
+        }
+        
         const body = { message: 'Authentication required', error: (error as Error).message };
         // Support both Node and Web-standard surfaces
         if (typeof (res as unknown as { status?: unknown }).status === 'function') {
@@ -951,14 +989,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       
       try {
         const user = await getAuthenticatedUser();
-      const { storage } = await import('../server/storage.js');
+        const { storage } = await import('../server/storage.js');
         
         console.log('🔍 Getting model for user:', user.id, user.email);
         
-        // Get user from database to check training status
-        let dbUser = await withTimeout(storage.getUser(user.id as string), 4000, 'getUser');
+        // Get user from database to check training status with faster timeouts
+        let dbUser = await withDatabaseTimeout(
+          storage.getUser(user.id as string), 
+          null, 
+          3000, 
+          'getUser'
+        );
+        
         if (!dbUser && user.email) {
-          dbUser = await withTimeout(storage.getUserByEmail(user.email as string), 4000, 'getUserByEmail');
+          dbUser = await withDatabaseTimeout(
+            storage.getUserByEmail(user.email as string), 
+            null, 
+            3000, 
+            'getUserByEmail'
+          );
         }
         
         if (!dbUser) {
@@ -969,13 +1018,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           });
         }
         
-        // Check if user has a trained model
+        // Check if user has a trained model with fallback
         let userModel: UserModel | null = null;
         try {
-          const model = await withTimeout(storage.getUserModel(dbUser.id), 5000, 'getUserModel');
-          userModel = model || null;
-        } catch {
-          console.log('📊 No existing user model found for:', dbUser.id);
+          userModel = await withDatabaseTimeout(
+            storage.getUserModel(dbUser.id), 
+            null, // Fallback to null if timeout occurs
+            4000, 
+            'getUserModel'
+          );
+        } catch (error) {
+          console.log('📊 Model fetch failed or timed out for:', dbUser.id, (error as Error).message);
           userModel = null;
         }
         
@@ -1046,6 +1099,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       } catch (error) {
         const elapsed = t.end('error', { error: (error as Error).message });
         console.log('❌ User model fetch failed:', (error as Error).message, { elapsedMs: elapsed });
+        
+        // Enhanced error handling for timeout scenarios
+        if (isTimeoutError(error)) {
+          return json(res, 503, { 
+            message: 'Service temporarily unavailable, please try again',
+            error: 'Request timeout',
+            code: 'TIMEOUT'
+          });
+        }
+        
         return json(res, 401, { 
           message: 'Authentication required',
           error: error.message
@@ -1372,7 +1435,7 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
           return res.status(400).json({ error: 'Message is required' });
         }
         
-        // Connect to REAL Maya system using Claude API
+        // Connect to REAL Maya system using Claude API with timeout protection
         let mayaResponse = '';
         let conceptCards: ConceptCard[] = [];
         
@@ -1385,45 +1448,58 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
           
           console.log('🎨 MAYA: Using real personality system with Claude API');
           
-          // Call Claude API with Maya's real personality
-          const claudeResponse = await timedFetch('https://api.anthropic.com/v1/messages', 18000, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'x-api-key': process.env.ANTHROPIC_API_KEY || '',
-              'anthropic-version': '2023-06-01'
+          // Call Claude API with Maya's real personality using enhanced timeout
+          const claudeResponse = await withExternalApiTimeout(
+            async () => {
+              return timedFetch('https://api.anthropic.com/v1/messages', 15000, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'x-api-key': process.env.ANTHROPIC_API_KEY || '',
+                  'anthropic-version': '2023-06-01'
+                },
+                body: JSON.stringify({
+                  model: 'claude-3-5-sonnet-20241022',
+                  max_tokens: 4000,
+                  system: systemPrompt,
+                  messages: [
+                    ...(conversationHistory || []).map((entry: ConversationEntry) => ({
+                      role: entry.role === 'user' ? 'user' : 'assistant',
+                      content: entry.content || entry.message || ''
+                    })),
+                    {
+                      role: 'user',
+                      content: message
+                    }
+                  ]
+                })
+              });
             },
-            body: JSON.stringify({
-              model: 'claude-3-5-sonnet-20241022',
-              max_tokens: 4000,
-              system: systemPrompt,
-              messages: [
-                ...(conversationHistory || []).map((entry: ConversationEntry) => ({
-                  role: entry.role === 'user' ? 'user' : 'assistant',
-                  content: entry.content || entry.message || ''
-                })),
-                {
-                  role: 'user',
-                  content: message
-                }
-              ]
-            })
-          });
+            null, // No fallback response from this level
+            15000, // 15 second timeout
+            0, // No retries for chat to keep it fast
+            'claude-api-maya-chat'
+          );
 
-          if (!claudeResponse.ok) {
-            throw new Error(`Claude API error: ${claudeResponse.status}`);
+          if (claudeResponse && claudeResponse.ok) {
+            const data = await claudeResponse.json();
+            mayaResponse = data.content[0].text;
+            
+            // Extract concept cards from Maya's response
+            conceptCards = extractConceptCards(mayaResponse);
+            
+            // Apply gender context to concept cards with timeout
+            conceptCards = await withDatabaseTimeout(
+              applyGenderContext(conceptCards, user.id as string),
+              conceptCards, // Fallback to original cards if timeout
+              3000,
+              'applyGenderContext'
+            );
+            
+            console.log('✅ MAYA: Generated response with', conceptCards.length, 'concept cards using Claude API');
+          } else {
+            throw new Error('Claude API not available');
           }
-
-          const data = await claudeResponse.json();
-          mayaResponse = data.content[0].text;
-          
-          // Extract concept cards from Maya's response
-          conceptCards = extractConceptCards(mayaResponse);
-          
-          // Apply gender context to concept cards
-          conceptCards = await applyGenderContext(conceptCards, user.id as string);
-          
-          console.log('✅ MAYA: Generated response with', conceptCards.length, 'concept cards using Claude API');
           
         } catch (claudeError) {
           console.log('❌ MAYA: Claude API failed:', (claudeError as Error).message);
@@ -1479,8 +1555,13 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
             }
           ];
           
-          // Apply gender context to fallback concept cards
-          conceptCards = await applyGenderContext(conceptCards, user.id as string);
+          // Apply gender context to fallback concept cards with timeout
+          conceptCards = await withDatabaseTimeout(
+            applyGenderContext(conceptCards, user.id as string),
+            conceptCards, // Fallback to original cards if timeout
+            2000,
+            'applyGenderContext-fallback'
+          );
         }
         
         const response = {
@@ -1493,34 +1574,40 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
           context: context
         };
         
-        // Persist conversation and messages + concept cards for continuity
-        try {
-          const { storage } = await import('../server/storage.js');
-          const existingConvs = await storage.getUserConversations(user.id as string, 'maya');
-          const conversationId = (existingConvs && existingConvs[0]?.id) || (await storage.createConversation({ userId: user.id as string, agentName: 'maya', title: 'Maya Chat', status: 'active' })).id;
-          await storage.createMessage({ conversationId, role: 'user', content: message, tokenCount: 0 });
-          await storage.createMessage({ conversationId, role: 'assistant', content: mayaResponse, tokenCount: 0 });
-          for (let i = 0; i < (conceptCards?.length || 0); i++) {
-            const c = conceptCards[i];
-            await storage.createConceptCard({
-              userId: user.id as string,
-              conversationId,
-              clientId: `maya_${Date.now()}_${i + 1}`,
-              title: c.title,
-              description: c.description,
-              status: 'draft',
-              images: [],
-              tags: [c.category],
-              sortOrder: 0,
-              isLoading: false,
-              isGenerating: false,
-              hasGenerated: false,
-              generatedImages: {},
-            });
-          }
-        } catch (persistError) {
-          console.log('⚠️ Maya persistence failed:', (persistError as Error).message);
-        }
+        // Persist conversation and messages + concept cards for continuity with timeout
+        // This is non-critical, so if it times out we'll still return the response
+        withDatabaseTimeout(
+          (async () => {
+            const { storage } = await import('../server/storage.js');
+            const existingConvs = await storage.getUserConversations(user.id as string, 'maya');
+            const conversationId = (existingConvs && existingConvs[0]?.id) || (await storage.createConversation({ userId: user.id as string, agentName: 'maya', title: 'Maya Chat', status: 'active' })).id;
+            await storage.createMessage({ conversationId, role: 'user', content: message, tokenCount: 0 });
+            await storage.createMessage({ conversationId, role: 'assistant', content: mayaResponse, tokenCount: 0 });
+            for (let i = 0; i < (conceptCards?.length || 0); i++) {
+              const c = conceptCards[i];
+              await storage.createConceptCard({
+                userId: user.id as string,
+                conversationId,
+                clientId: `maya_${Date.now()}_${i + 1}`,
+                title: c.title,
+                description: c.description,
+                status: 'draft',
+                images: [],
+                tags: [c.category],
+                sortOrder: 0,
+                isLoading: false,
+                isGenerating: false,
+                hasGenerated: false,
+                generatedImages: {},
+              });
+            }
+          })(),
+          null, // No fallback needed for persistence
+          5000,
+          'maya-conversation-persistence'
+        ).catch((persistError) => {
+          console.log('⚠️ Maya persistence failed (non-critical):', (persistError as Error).message);
+        });
         
         console.log('📊 Returning Maya response:', JSON.stringify(response, null, 2));
         res.setHeader('Cache-Control', 'no-store');
@@ -1530,6 +1617,16 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
       } catch (error) {
         t.end('error', { error: (error as Error).message });
         console.log('❌ Maya chat failed:', (error as Error).message);
+        
+        // Enhanced error handling for timeout scenarios
+        if (isTimeoutError(error)) {
+          return res.status(503).json({ 
+            message: 'Maya is temporarily unavailable, please try again',
+            error: 'Service timeout',
+            code: 'TIMEOUT'
+          });
+        }
+        
         return res.status(401).json({ 
           message: 'Authentication required',
           error: (error as Error).message

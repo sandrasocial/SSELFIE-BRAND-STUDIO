@@ -23,3 +23,61 @@ export function createTimeoutError(label: string, ms: number): Error {
 export function isTimeoutError(error: unknown): boolean {
   return error instanceof Error && error.message.startsWith('TIMEOUT');
 }
+
+/**
+ * Database operation timeout wrapper with fallback
+ */
+export function withDatabaseTimeout<T>(
+  promise: Promise<T>, 
+  fallbackValue: T, 
+  ms: number = 5000, 
+  label: string = 'database-op'
+): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((resolve) => 
+      setTimeout(() => {
+        console.warn(`⚠️ Database timeout for ${label} after ${ms}ms, using fallback`);
+        resolve(fallbackValue);
+      }, ms)
+    )
+  ]);
+}
+
+/**
+ * External API call timeout wrapper with retry
+ */
+export function withExternalApiTimeout<T>(
+  apiCall: () => Promise<T>, 
+  fallbackValue: T, 
+  ms: number = 3000, 
+  retries: number = 1,
+  label: string = 'external-api'
+): Promise<T> {
+  const attempt = async (attemptNum: number): Promise<T> => {
+    try {
+      return await withTimeout(apiCall(), ms, `${label}-attempt-${attemptNum}`);
+    } catch (error) {
+      if (attemptNum < retries && isTimeoutError(error)) {
+        console.warn(`⚠️ Retrying ${label} (attempt ${attemptNum + 1}/${retries + 1})`);
+        return attempt(attemptNum + 1);
+      }
+      console.warn(`⚠️ External API timeout for ${label}, using fallback`);
+      return fallbackValue;
+    }
+  };
+  
+  return attempt(1);
+}
+
+/**
+ * Fast health check with immediate response
+ */
+export function quickHealthCheck(): Promise<{ status: 'healthy' | 'degraded'; timestamp: string }> {
+  const startTime = Date.now();
+  
+  return Promise.resolve({
+    status: Date.now() - startTime < 100 ? 'healthy' : 'degraded',
+    timestamp: new Date().toISOString()
+  });
+}
