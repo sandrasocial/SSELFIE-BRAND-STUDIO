@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { StudioPage } from '../pages/StudioPage';
-import SSELFIEGallery from '../pages/sselfie-gallery';
+import { GalleryScreen } from './GalleryScreen';
 import { useAuth } from '../hooks/use-auth';
 import { Camera, Grid, User, Settings, Sparkles, Heart, Share2, Smartphone, Search, Package, Shirt } from 'lucide-react';
 
@@ -212,7 +212,7 @@ const createTabs = (user: { name?: string; email?: string; image?: string }) => 
     label: 'Gallery',
     icon: Grid,
     description: 'Your photo collection',
-    component: <SSELFIEGallery />
+    component: <GalleryScreen />
   },
   {
     id: 'profile',
