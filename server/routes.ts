@@ -5,10 +5,10 @@ import express from "express";
 import { createServer, type Server } from "http";
 import cookieParser from "cookie-parser";
 import { setupRollbackRoutes } from './routes/rollback.js';
-import { storage } from "./storage";
+import { storage } from "./storage.js";
 import { requireStackAuth, requireActiveSubscription, optionalStackAuth } from './stack-auth';
-import { db } from "./drizzle";
-import { claudeConversations, claudeMessages } from "../shared/schema";
+import { db } from "./drizzle.js";
+import { claudeConversations, claudeMessages } from "../shared/schema.js";
 import { eq, and, desc } from "drizzle-orm";
 import emailAutomation from './routes/email-automation';
 import victoriaWebsiteRouter from "./routes/victoria-website";
@@ -18,6 +18,10 @@ import { registerVictoriaWebsiteGenerator } from "./routes/victoria-website-gene
 // REMOVED: Conflicting admin routers - consolidated into single adminRouter
 // import { whitelabelRoutes } from './routes/white-label-setup'; // DISABLED
 import videoRoutes from './routes/video';
+import { liveSessionRoutes } from './routes/live-session';
+import { analyticsRoutes } from './routes/analytics';
+// NOTE: Disabled legacy Maya route to prevent conflicts with modular Maya routes
+// import mayaRoutes from './routes/maya'; // DISABLED: Using modular Maya routes instead
 import path from 'path';
 import fs from 'fs';
 import { ModelRetrainService } from './retrain-model';
@@ -49,8 +53,13 @@ import adminRoutes from './routes/modules/admin';
 import agentProtocolRoutes from './routes/modules/agent-protocol';
 import websitesRoutes from './routes/modules/websites';
 import trainingRoutes from './routes/modules/training';
-import galleryRoutes from './routes/modules/gallery';
-import mayaRoutes from './routes/modules/maya';
+import levelPartnerWebhook from './routes/levelpartner-webhook';
+import hairTrendsRoute from './routes/hair-trends-route';
+import trendsCurrentRoute from './routes/trends-current';
+import { scheduleTrendAnalysis } from './scheduled-tasks/fetch-hair-trends';
+// DISABLED: Express routes conflict with Vercel serverless functions
+// import galleryRoutes from './routes/modules/gallery';
+// import mayaRoutes from './routes/modules/maya';
 import claudeRoutes from './routes/modules/claude';
 import usageRoutes from './routes/modules/usage';
 // Reconstructed wrapper function (previously removed during refactor cleanup)
@@ -69,17 +78,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/', authRoutes);
   app.use('/', aiGenerationRoutes);
   
-  // Setup Stack Auth webhook for automatic user creation
-  setupStackWebhook(app);
+  // DISABLED: Stack Auth webhook now handled by Vercel serverless functions in /api/index.ts
+  // setupStackWebhook(app);
   app.use('/', adminRoutes);
   app.use('/', agentProtocolRoutes);
   app.use('/', websitesRoutes);
   app.use('/', trainingRoutes);
-  app.use('/', galleryRoutes);
-  app.use('/', mayaRoutes);
+  app.use('/', levelPartnerWebhook);
+  app.use('/api', hairTrendsRoute);
+  app.use('/api/trends', trendsCurrentRoute);
+  // DISABLED: Using Vercel serverless functions instead of Express routes
+  // app.use('/', galleryRoutes);
+  // app.use('/', mayaRoutes);
   app.use('/', claudeRoutes);
   app.use('/', usageRoutes);
-  console.log('✅ Modular routes registered');
+  console.log('✅ Modular routes registered (including LevelPartner webhook and Hair Trends)');
 
   // NOTE: The remainder of the file already assumes an existing `app` context.
   // Imports consolidated above wrapper during refactor.
@@ -601,15 +614,33 @@ function generatePersonalizedScenePrompt(sceneNumber: number, originalMessage: s
   // registerMayaAIRoutes(app);
   // app.use('/api/maya-onboarding', mayaOnboardingRoutes);
   
-  // MAYA UNIFIED API: Consolidated router with direct implementation
-  const { default: mayaUnifiedRouter } = await import('./routes/maya');
-  app.use('/api/maya', mayaUnifiedRouter);
-  console.log('🎨 MAYA UNIFIED: API active at /api/maya/* (Consolidated Router)');
+  // MAYA UNIFIED API: Now handled by modular routes (./routes/modules/maya)
+  // Legacy maya router disabled to prevent conflicts with modular Maya routes
+  // const { default: mayaUnifiedRouter } = await import('./routes/maya');
+  // app.use('/api/maya', mayaUnifiedRouter);
+  console.log('🎨 MAYA ROUTES: Active via modular system (./routes/modules/maya)');
   
   // HYBRID BACKEND: Concept Cards API for clean persistence and unique React keys
   const { default: conceptCardsRouter } = await import('./routes/concept-cards');
   app.use('/api/concepts', conceptCardsRouter);
   console.log('💡 CONCEPT CARDS: API active at /api/concepts/* (ULID-based unique keys)');
+  
+  // Stage Mode Live Session Routes  
+  app.use('/api/live', liveSessionRoutes);
+  console.log('🎪 LIVE SESSIONS: Stage Mode API active at /api/live/* (Interactive presentations)');
+  
+  // Stage Mode Analytics Routes
+  app.use('/api/analytics', analyticsRoutes);
+  console.log('📊 ANALYTICS: Stage Mode analytics API active at /api/analytics/* (Event tracking)');
+  
+  // P3-C BRAND ASSETS: Upload and placement of brand assets (logos, product shots)
+  if (process.env.BRAND_ASSETS_ENABLED === '1') {
+    const { default: brandAssetsRouter } = await import('./routes/brand-assets');
+    const { default: brandPlacementRouter } = await import('./routes/brand-placement');
+    app.use('/api/brand-assets', brandAssetsRouter);
+    app.use('/api/brand-assets', brandPlacementRouter);
+    console.log('🎨 BRAND ASSETS: API active at /api/brand-assets/* (Upload & Placement)');
+  }
   
   // 🎥 STORY STUDIO API - Server-side AI video story generation
   // Initialize Gemini AI client for server-side operations
@@ -1189,5 +1220,9 @@ Remember: You are the MEMBER experience Maya - provide creative guidance and ima
     res.status(404).json({ error: 'Not found' });
   });
 
+  // Initialize Sophia trend analysis scheduling
+  console.log('🤖 Initializing Sophia trend analysis system...');
+  scheduleTrendAnalysis();
+  
   return server;
 }

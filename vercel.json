@@ -1,25 +1,56 @@
 {
-  "version": 2,
-  "builds": [
+  "rewrites": [
     {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "client/dist",
-        "buildCommand": "npm run build"
-      }
-    },
-    {
-      "src": "api/**/*.ts",
-      "use": "@vercel/node"
+      "source": "/((?!api/).*)",
+      "destination": "/index.html"
     }
   ],
-  "routes": [
-    { "src": "/site.webmanifest", "dest": "/manifest.json" },
-    { "handle": "filesystem" },
-    { "src": "/(.*)", "dest": "/index.html" }
-  ],
-  "env": {
-    "NODE_ENV": "production"
-  }
+  "functions": {
+    "api/me.ts": {
+      "maxDuration": 20
+    },
+    "api/gallery-images.ts": {
+      "maxDuration": 25
+    },
+    "api/index.ts": {
+      "maxDuration": 40
+    },
+    "api/maya/chat.ts": {
+      "maxDuration": 40
+    },
+    "api/health-check.ts": {
+      "maxDuration": 5
+    },
+    "api/health-detailed.ts": {
+      "maxDuration": 8
+    },
+    "api/hair-trends.ts": {
+      "maxDuration": 20
+    },
+    "api/hair-trends/status.ts": {
+      "maxDuration": 10
+    },
+    "api/video/generate-from-image.ts": {
+      "maxDuration": 40
+    },
+    "api/video/generate-story.ts": {
+      "maxDuration": 25
+    },
+    "api/ping.ts": {
+      "maxDuration": 3
+    },
+    "api/test.ts": {
+      "maxDuration": 8
+    }
+  },
+  "crons": [
+    {
+      "path": "/api/cron/training-completion-monitor",
+      "schedule": "*/2 * * * *"
+    },
+    {
+      "path": "/api/cron/generation-completion-monitor",
+      "schedule": "* * * * *"
+    }
+  ]
 }

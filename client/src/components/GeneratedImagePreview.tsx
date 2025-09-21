@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Heart, Download, X, Save, Sparkles } from 'lucide-react';
 
 interface GeneratedImagePreviewProps {
   imageUrls: string[];
@@ -92,94 +93,90 @@ const GeneratedImagePreview: React.FC<GeneratedImagePreviewProps> = ({
 
   return (
     <>
-      <div style={{ marginTop: '16px' }}>
+      <div className="mt-6">
         {isLoading ? (
-          <div>
-            <p style={{ fontSize: '12px', color: '#666', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.2em' }}>
-              Generating images...
-            </p>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px' }}>
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-neutral-800/40 rounded-editorial-md border border-neutral-700/30">
+                <Sparkles size={16} className="text-neutral-400" strokeWidth={1.5} />
+              </div>
+              <p className="text-neutral-400 text-sm tracking-wide uppercase">
+                Generating your vision...
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
               {skeletons.map((_, i) => (
                 <div 
                   key={i} 
-                  style={{ 
-                    background: '#f0f0f0', 
-                    borderRadius: '8px', 
-                    aspectRatio: '4/5',
-                    animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
-                  }} 
+                  className="aspect-square bg-neutral-800/30 rounded-editorial-lg border border-neutral-700/20 animate-pulse"
                 />
               ))}
             </div>
           </div>
         ) : imageUrls.length > 0 ? (
-          <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-              <p style={{ fontSize: '12px', color: '#666', margin: 0, textTransform: 'uppercase', letterSpacing: '0.2em' }}>
-                Generated Images
-              </p>
+          <div className="space-y-6">
+            {/* Header */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-neutral-800/40 rounded-editorial-md border border-neutral-700/30">
+                  <Sparkles size={16} className="text-neutral-300" strokeWidth={1.5} />
+                </div>
+                <p className="text-neutral-300 text-sm tracking-wide uppercase">
+                  Generated Images
+                </p>
+              </div>
               <button
                 onClick={handleSaveAll}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: '#666',
-                  cursor: 'pointer',
-                  fontSize: '11px',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.2em',
-                  textDecoration: 'underline'
-                }}
+                className="text-neutral-400 text-xs tracking-wide uppercase hover:text-neutral-300 transition-colors flex items-center gap-2"
               >
-                Save All to Gallery
+                <Save size={14} strokeWidth={1.5} />
+                Save All
               </button>
             </div>
             
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px' }}>
+            {/* Image Grid */}
+            <div className="grid grid-cols-2 gap-4">
               {imageUrls.map((url, index) => (
-                <div key={index} style={{ position: 'relative', cursor: 'pointer' }}>
-                  <img
-                    src={url}
-                    alt={`Generated ${index + 1}`}
-                    style={{ 
-                      width: '100%', 
-                      aspectRatio: '4/5',
-                      objectFit: 'cover', 
-                      borderRadius: '8px',
-                      background: '#f0f0f0'
-                    }}
-                    onClick={() => setSelectedImage(url)}
-                  />
-                  
-                  {/* Overlay with actions */}
-                  <div style={{
-                    position: 'absolute',
-                    top: '8px',
-                    right: '8px',
-                    display: 'flex',
-                    gap: '4px'
-                  }}>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleSaveImage(url);
-                      }}
-                      style={{
-                        background: savedImages.has(url) ? '#ff4444' : 'rgba(255,255,255,0.9)',
-                        border: 'none',
-                        borderRadius: '50%',
-                        width: '28px',
-                        height: '28px',
-                        cursor: 'pointer',
-                        fontSize: '14px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                      }}
-                      title={savedImages.has(url) ? 'Saved to gallery' : 'Save to gallery'}
-                    >
-                      {savedImages.has(url) ? '♥' : '♡'}
-                    </button>
+                <div key={index} className="group relative cursor-pointer">
+                  <div className="aspect-square relative overflow-hidden rounded-editorial-lg border border-neutral-700/20 bg-neutral-800/20">
+                    <img
+                      src={url}
+                      alt={`Generated ${index + 1}`}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      onClick={() => setSelectedImage(url)}
+                    />
+                    
+                    {/* Sophisticated Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    
+                    {/* Action Buttons */}
+                    <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleSaveImage(url);
+                        }}
+                        className={`p-2 rounded-full backdrop-blur-sm transition-all duration-200 ${
+                          savedImages.has(url) 
+                            ? 'bg-red-500/90 text-white' 
+                            : 'bg-white/20 text-white hover:bg-white/30'
+                        }`}
+                        title={savedImages.has(url) ? 'Saved to gallery' : 'Save to gallery'}
+                      >
+                        <Heart 
+                          size={14} 
+                          strokeWidth={1.5} 
+                          className={savedImages.has(url) ? 'fill-current' : ''}
+                        />
+                      </button>
+                    </div>
+                    
+                    {/* Image Number */}
+                    <div className="absolute bottom-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <span className="text-white text-xs tracking-wide font-light">
+                        IMG_{String(index + 1).padStart(2, '0')}
+                      </span>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -188,82 +185,62 @@ const GeneratedImagePreview: React.FC<GeneratedImagePreviewProps> = ({
         ) : null}
       </div>
 
-      {/* Full-screen preview modal */}
+      {/* Luxury Full-screen preview modal */}
       {selectedImage && (
-        <div style={{
-          position: 'fixed',
-          inset: 0,
-          background: 'rgba(0,0,0,0.95)',
-          zIndex: 1000,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          flexDirection: 'column',
-          padding: '20px'
-        }}>
-          <div style={{
-            width: '100%',
-            maxWidth: '500px',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-          }}>
-            <img
-              src={selectedImage}
-              alt="Full preview"
-              style={{
-                width: '100%',
-                height: 'auto',
-                objectFit: 'contain',
-                borderRadius: '12px',
-                marginBottom: '24px',
-                maxHeight: '70vh'
-              }}
-            />
-            
-            <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-              <button
-                onClick={() => handleSaveImage(selectedImage)}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: savedImages.has(selectedImage) ? '#ff4444' : '#fff',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px'
-                }}
-              >
-                {savedImages.has(selectedImage) ? '♥' : '♡'} 
-                {savedImages.has(selectedImage) ? 'Saved' : 'Save to Gallery'}
-              </button>
-              
-              <button
-                onClick={() => downloadImage(selectedImage, `maya-generation-${Date.now()}.png`)}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: '#fff',
-                  cursor: 'pointer',
-                  fontSize: '14px'
-                }}
-              >
-                ⬇ Download
-              </button>
-              
+        <div className="fixed inset-0 bg-black/95 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="editorial-modal max-w-4xl w-full max-h-[90vh] flex flex-col">
+            {/* Header */}
+            <div className="flex items-center justify-between p-6 border-b border-neutral-800/30">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-neutral-800/40 rounded-editorial-md border border-neutral-700/30">
+                  <Sparkles size={16} className="text-neutral-300" strokeWidth={1.5} />
+                </div>
+                <h3 className="text-lg font-light text-neutral-200 tracking-wide">IMAGE PREVIEW</h3>
+              </div>
               <button
                 onClick={() => setSelectedImage(null)}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: '#888',
-                  cursor: 'pointer',
-                  fontSize: '14px'
-                }}
+                className="p-2 hover:bg-neutral-800/40 rounded-editorial-md transition-colors"
               >
-                ✕ Close
+                <X size={20} className="text-neutral-400" strokeWidth={1.5} />
               </button>
+            </div>
+            
+            {/* Image */}
+            <div className="flex-1 flex items-center justify-center p-8 bg-gradient-to-br from-neutral-900/50 to-neutral-800/30">
+              <img
+                src={selectedImage}
+                alt="Full preview"
+                className="max-w-full max-h-[60vh] object-contain rounded-editorial-lg shadow-editorial-xl"
+              />
+            </div>
+            
+            {/* Actions */}
+            <div className="p-6 border-t border-neutral-800/30 bg-gradient-to-r from-neutral-900/50 to-neutral-800/30">
+              <div className="flex items-center justify-center gap-4">
+                <button
+                  onClick={() => handleSaveImage(selectedImage)}
+                  className={`editorial-button-secondary flex items-center gap-2 px-6 py-3 ${
+                    savedImages.has(selectedImage) 
+                      ? 'bg-red-900/20 text-red-300 border-red-800/30' 
+                      : ''
+                  }`}
+                >
+                  <Heart 
+                    size={16} 
+                    strokeWidth={1.5} 
+                    className={savedImages.has(selectedImage) ? 'fill-current' : ''}
+                  />
+                  {savedImages.has(selectedImage) ? 'SAVED' : 'SAVE TO GALLERY'}
+                </button>
+                
+                <button
+                  onClick={() => downloadImage(selectedImage, `maya-generation-${Date.now()}.png`)}
+                  className="editorial-button-secondary flex items-center gap-2 px-6 py-3"
+                >
+                  <Download size={16} strokeWidth={1.5} />
+                  DOWNLOAD
+                </button>
+              </div>
             </div>
           </div>
         </div>
