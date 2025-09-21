@@ -1,12 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { MobileTabLayout } from '../components/MobileTabLayout';
+import { Camera, Grid, User, MessageCircle, Star, Bell, Wifi, Battery, Signal } from 'lucide-react';
 import { useAuth } from '../hooks/use-auth';
-import { ThemeToggle } from '../components/ThemeToggle';
-import { Bell, Wifi, Battery, Signal } from 'lucide-react';
+import { LuxuryStudioScreen } from './luxury/LuxuryStudioScreen';
+import { LuxuryMayaScreen } from './luxury/LuxuryMayaScreen';
+import { LuxuryGalleryScreen } from './luxury/LuxuryGalleryScreen';
+import { LuxuryProfileScreen } from './luxury/LuxuryProfileScreen';
 import '../styles/luxury-mobile.css';
 
-// Editorial Luxury AppLayout - Complete Redesign
-export function AppLayout() {
+// Tab Configuration
+const LUXURY_TABS = [
+  { id: 'studio', label: 'Studio', icon: Camera },
+  { id: 'maya', label: 'Maya', icon: MessageCircle },
+  { id: 'gallery', label: 'Gallery', icon: Grid },
+  { id: 'profile', label: 'Profile', icon: User },
+];
+
+export function LuxuryMobileApp() {
+  const [activeTab, setActiveTab] = useState('studio');
   const [isLoading, setIsLoading] = useState(true);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [batteryLevel, setBatteryLevel] = useState(85);
@@ -33,7 +43,7 @@ export function AppLayout() {
     return (
       <div className="luxury-app-container">
         <div className="luxury-gradient-bg">
-          <div className="luxury-content text-center">
+          <div className="luxury-loading-container">
             {/* Luxury Loading Animation */}
             <div className="w-16 h-16 mx-auto mb-6 relative">
               <div className="absolute inset-0 border-2 border-white/20 rounded-full"></div>
@@ -41,8 +51,8 @@ export function AppLayout() {
             </div>
             
             {/* Brand Identity */}
-            <h1 className="luxury-heading-1 text-center mb-4">SSELFIE</h1>
-            <p className="luxury-text-caption text-center">BRAND STUDIO LOADING</p>
+            <h1 className="luxury-heading-2 text-center mb-4">SSELFIE</h1>
+            <p className="luxury-text-caption text-center">LOADING EXPERIENCE</p>
           </div>
         </div>
         
@@ -84,35 +94,40 @@ export function AppLayout() {
                 <div className="w-1 h-4 bg-white/60 rounded-full" />
                 <div className="w-1 h-4 bg-white/30 rounded-full" />
               </div>
-              
-              {isAuthenticated && user && (
-                <div className="luxury-status-indicator">
-                  <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
-                  <span className="text-xs tracking-wide font-light">ONLINE</span>
-                </div>
-              )}
-              
-              <div className="luxury-status-indicator">
-                <ThemeToggle />
-              </div>
-              
-              <div className="luxury-status-indicator">
-                <Bell size={14} strokeWidth={1.2} />
-                {hasNotifications && (
-                  <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                )}
-              </div>
-              
-              <div className="luxury-status-indicator">
-                <Battery size={14} strokeWidth={1.2} />
-                <span className="text-xs">{Math.round(batteryLevel)}%</span>
-              </div>
             </div>
           </div>
 
           {/* Content area with editorial spacing */}
-          <div className="luxury-content">
-            <MobileTabLayout />
+          <div className="luxury-content luxury-fade-in">
+            {activeTab === 'studio' && <LuxuryStudioScreen user={user} />}
+            {activeTab === 'maya' && <LuxuryMayaScreen />}
+            {activeTab === 'gallery' && <LuxuryGalleryScreen />}
+            {activeTab === 'profile' && <LuxuryProfileScreen user={user} />}
+          </div>
+        </div>
+      </div>
+
+      {/* Floating editorial tab bar */}
+      <div className="luxury-floating-tabs">
+        <div className="luxury-tab-container">
+          <div className="luxury-tab-grid">
+            {LUXURY_TABS.map((tab) => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
+              
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`luxury-tab-button ${isActive ? 'active' : ''}`}
+                  aria-label={`Switch to ${tab.label}`}
+                  aria-current={isActive ? 'page' : undefined}
+                >
+                  <Icon size={22} strokeWidth={1.2} className="luxury-tab-icon" />
+                  <span className="luxury-tab-label">{tab.label}</span>
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -120,4 +135,4 @@ export function AppLayout() {
   );
 }
 
-export default AppLayout;
+export default LuxuryMobileApp;
