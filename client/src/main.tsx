@@ -2,7 +2,6 @@ import React from 'react';
 import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
-import "./styles/editorial-luxury.css";
 
 // Debug logging for troubleshooting
 console.log('SSELFIE Studio: Main.tsx loading...');
