@@ -44,6 +44,7 @@ const VideoGenerateDialog: React.FC<VideoGenerateDialogProps> = ({
   
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [warning, setWarning] = useState<string | null>(null);
   const [job, setJob] = useState<VideoGenerationJob | null>(null);
   const [videoStatus, setVideoStatus] = useState<'idle' | 'pending' | 'processing' | 'completed' | 'failed'>('idle');
   const [progress, setProgress] = useState(0);
@@ -104,6 +105,7 @@ const VideoGenerateDialog: React.FC<VideoGenerateDialogProps> = ({
 
     setIsGenerating(true);
     setError(null);
+    setWarning(null);
     setJob(null);
     setVideoStatus('idle');
     setProgress(0);
@@ -132,7 +134,7 @@ const VideoGenerateDialog: React.FC<VideoGenerateDialogProps> = ({
       setVideoStatus('pending');
       
       if (response.audioWarning) {
-        setError(response.audioWarning);
+        setWarning(response.audioWarning);
       }
 
     } catch (error: any) {
@@ -145,6 +147,7 @@ const VideoGenerateDialog: React.FC<VideoGenerateDialogProps> = ({
 
   const handleRetry = () => {
     setError(null);
+    setWarning(null);
     setJob(null);
     setVideoStatus('idle');
     setProgress(0);
@@ -299,6 +302,13 @@ const VideoGenerateDialog: React.FC<VideoGenerateDialogProps> = ({
             {error && (
               <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
                 <div className="text-red-800 text-sm">{error}</div>
+              </div>
+            )}
+
+            {/* Warning Message */}
+            {warning && (
+              <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <div className="text-yellow-800 text-sm">{warning}</div>
               </div>
             )}
 
