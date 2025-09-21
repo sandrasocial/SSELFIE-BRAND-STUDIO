@@ -38,4 +38,3 @@ export function EditorialTextarea({
       {...props}
     />
   );
-}

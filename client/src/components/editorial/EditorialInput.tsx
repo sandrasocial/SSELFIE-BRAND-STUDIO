@@ -38,4 +38,3 @@ export function EditorialInput({
       {...props}
     />
   );
-}

@@ -45,4 +45,3 @@ export function EditorialText({ variant = 'body', children, className = '' }: Ed
       {children}
     </p>
   );
-}

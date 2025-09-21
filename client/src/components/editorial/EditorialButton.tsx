@@ -45,4 +45,3 @@ export function EditorialButton({
       {children}
     </button>
   );
-}

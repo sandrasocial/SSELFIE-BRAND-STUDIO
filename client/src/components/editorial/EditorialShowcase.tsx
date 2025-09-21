@@ -7,7 +7,6 @@ import {
   EditorialHeading, 
   EditorialText 
 } from './index';
-import { useEditorialAnimations } from '../../hooks/useEditorialAnimations';
 
 // Example showcase component demonstrating the editorial luxury system
 export function EditorialShowcase() {
@@ -213,4 +212,3 @@ export function EditorialShowcase() {
       </div>
     </div>
   );
-}

@@ -108,7 +108,6 @@ export class EditorialAnimations {
 
   // Parallax effect for backgrounds
   static createParallaxEffect(element: HTMLElement, speed = 0.5) {
-    const handleScroll = () => {
       const scrolled = window.pageYOffset;
       const parallax = scrolled * speed;
       element.style.transform = `translateY(${parallax}px)`;
@@ -116,8 +115,6 @@ export class EditorialAnimations {
     
     window.addEventListener('scroll', handleScroll, { passive: true });
     
-    // Return cleanup function
-    return () => window.removeEventListener('scroll', handleScroll);
   }
 
   // Intersection Observer for scroll animations
@@ -134,8 +131,3 @@ export class EditorialAnimations {
       rootMargin: '50px 0px -50px 0px'
     });
 
-    elements.forEach(element => observer.observe(element));
-    
-    return observer;
-  }
-}
