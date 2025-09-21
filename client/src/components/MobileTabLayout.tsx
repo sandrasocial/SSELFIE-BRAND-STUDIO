@@ -295,59 +295,70 @@ function MobileTabLayout() {
 
   return (
     <div className="h-full flex flex-col bg-editorial-background">
-      {/* Enhanced Breadcrumb Navigation with Mobile Optimization */}
-      <div className="flex items-center gap-2 px-4 py-3 border-b border-neutral-800/30 bg-editorial-surface sticky top-0 z-40 backdrop-blur-sm">
-        <div className="w-1 h-1 bg-neutral-400 rounded-full"></div>
-        <span className="editorial-text-caption text-neutral-500 uppercase tracking-wide">
-          {currentTab?.label?.toUpperCase() || 'STUDIO'}
-        </span>
-        <div className="ml-auto text-xs text-neutral-500">
+      {/* Enhanced Editorial Breadcrumb with Luxury Styling */}
+      <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-800/20 bg-gradient-to-r from-neutral-950/20 to-transparent sticky top-0 z-40 backdrop-blur-sm">
+        <div className="flex items-center gap-3">
+          <div className="w-2 h-2 bg-neutral-400 rounded-full opacity-60"></div>
+          <span className="editorial-eyebrow text-neutral-500 tracking-ultra-wide">
+            {currentTab?.label?.toUpperCase() || 'STUDIO'}
+          </span>
+        </div>
+        <div className="editorial-text-header text-neutral-600 text-sm tracking-extra-wide font-serif">
           SSELFIE
         </div>
       </div>
 
-      {/* Main Content Area with Safe Area Support */}
-      <div className="flex-1 overflow-y-auto overscroll-behavior-y-contain" style={{ paddingBottom: 'calc(80px + env(safe-area-inset-bottom))' }}>
-        <div className="editorial-container min-h-full">
-          {currentTab?.component}
+      {/* Enhanced Main Content Area with Luxury Spacing */}
+      <div 
+        className="flex-1 overflow-y-auto overscroll-behavior-y-contain" 
+        style={{ paddingBottom: 'calc(120px + env(safe-area-inset-bottom))' }}
+      >
+        <div className="px-6 py-8 min-h-full">
+          <div className="animate-editorial-fade-in">
+            {currentTab?.component}
+          </div>
         </div>
       </div>
 
-      {/* Enhanced Floating Tab Bar with Mobile-First Design */}
+      {/* Luxury Editorial Floating Tab Bar */}
       <div className="editorial-tab-bar">
-        <div className="editorial-tab-bar-container">
-          <div className="editorial-tab-bar-content">
-            {tabs.map((tab) => {
-              const Icon = tab.icon;
-              const isActive = activeTab === tab.id;
-              
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => handleTabChange(tab.id)}
-                  className={`editorial-tab editorial-touchable ${
-                    isActive ? 'editorial-tab-active' : 'editorial-tab-inactive'
-                  }`}
-                  title={tab.description}
-                  aria-label={`Switch to ${tab.label}`}
-                  aria-current={isActive ? 'page' : undefined}
-                >
+        <div className="editorial-tab-bar-content">
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.id;
+            
+            return (
+              <button
+                key={tab.id}
+                onClick={() => handleTabChange(tab.id)}
+                className={`editorial-tab editorial-touchable ${
+                  isActive ? 'editorial-tab-active' : 'editorial-tab-inactive'
+                }`}
+                title={tab.description}
+                aria-label={`Switch to ${tab.label}`}
+                aria-current={isActive ? 'page' : undefined}
+              >
+                <div className={`p-3 rounded-xl transition-all duration-500 ${
+                  isActive 
+                    ? 'bg-neutral-800/60 transform scale-105' 
+                    : 'hover:bg-neutral-800/30'
+                }`}>
                   <Icon 
-                    size={20} 
-                    strokeWidth={1.5} 
-                    className={`transition-colors duration-300 ${
+                    size={22} 
+                    strokeWidth={1.2} 
+                    className={`transition-all duration-500 ${
                       isActive ? 'text-neutral-200' : 'text-neutral-500'
                     }`} 
                   />
-                  <span className={`text-xs font-light tracking-wide transition-colors duration-300 ${
-                    isActive ? 'text-neutral-200' : 'text-neutral-500'
-                  }`}>
-                    {tab.label}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
+                </div>
+                <span className={`text-xs font-light tracking-normal-wide transition-all duration-500 uppercase ${
+                  isActive ? 'text-neutral-200' : 'text-neutral-500'
+                }`}>
+                  {tab.label}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>
