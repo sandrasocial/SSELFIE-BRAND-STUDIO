@@ -29,6 +29,18 @@
     },
     "api/hair-trends/status.ts": {
       "maxDuration": 15
+    },
+    "api/video/generate-from-image.ts": {
+      "maxDuration": 45
+    },
+    "api/video/generate-story.ts": {
+      "maxDuration": 30
+    },
+    "api/ping.ts": {
+      "maxDuration": 5
+    },
+    "api/test.ts": {
+      "maxDuration": 10
     }
   },
   "crons": [
