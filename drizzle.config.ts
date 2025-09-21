@@ -6,5 +6,7 @@ export default defineConfig({
   dialect: 'postgresql',
   dbCredentials: {
     url: process.env.DATABASE_URL!
-  }
+  },
+  // Neon serverless driver doesn't need special configuration for schema operations
+  // The connection will use whatever driver is configured in the app
 });
