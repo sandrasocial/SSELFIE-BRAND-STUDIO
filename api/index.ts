@@ -102,7 +102,52 @@ function setLogoutCookies(res: import('@vercel/node').VercelResponse) {
   }
 }
 
-// Simple structured logging helpers
+// Simple circuit breaker for database operations
+interface CircuitBreakerState {
+  failures: number;
+  lastFailure: number;
+  isOpen: boolean;
+}
+
+const circuitBreaker: CircuitBreakerState = {
+  failures: 0,
+  lastFailure: 0,
+  isOpen: false
+};
+
+const CIRCUIT_BREAKER_THRESHOLD = 5; // Open after 5 failures
+const CIRCUIT_BREAKER_TIMEOUT = 30000; // 30 seconds
+const CIRCUIT_BREAKER_RESET_TIME = 60000; // Reset after 1 minute
+
+function checkCircuitBreaker(): boolean {
+  const now = Date.now();
+  
+  // Reset if enough time has passed
+  if (circuitBreaker.isOpen && now - circuitBreaker.lastFailure > CIRCUIT_BREAKER_RESET_TIME) {
+    circuitBreaker.isOpen = false;
+    circuitBreaker.failures = 0;
+    console.log('🔄 Circuit breaker reset');
+  }
+  
+  return !circuitBreaker.isOpen;
+}
+
+function recordCircuitBreakerFailure() {
+  circuitBreaker.failures++;
+  circuitBreaker.lastFailure = Date.now();
+  
+  if (circuitBreaker.failures >= CIRCUIT_BREAKER_THRESHOLD) {
+    circuitBreaker.isOpen = true;
+    console.log('⚠️ Circuit breaker opened due to repeated database failures');
+  }
+}
+
+function recordCircuitBreakerSuccess() {
+  if (circuitBreaker.failures > 0) {
+    circuitBreaker.failures = 0;
+    console.log('✅ Circuit breaker: database operations successful');
+  }
+}
 function nowMs(): number {
   const perf = (globalThis as unknown as { performance?: { now: () => number } }).performance;
   return typeof perf?.now === 'function' ? perf.now() : Date.now();
@@ -882,6 +927,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       res.setHeader('Content-Type', 'application/json');
       
       try {
+        // Check circuit breaker before attempting database operations
+        if (!checkCircuitBreaker()) {
+          console.warn('⚠️ Circuit breaker open, returning cached user fallback');
+          return res.status(503).json({
+            message: 'Service temporarily unavailable due to database issues',
+            error: 'Circuit breaker open',
+            code: 'CIRCUIT_BREAKER_OPEN'
+          });
+        }
+
         const user = await getAuthenticatedUser();
         const { storage } = await import('../server/storage.js');
         
@@ -893,6 +948,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           1, // 1 retry
           'getUser'
         );
+        
+        // Record success if we got this far
+        if (dbUser) {
+          recordCircuitBreakerSuccess();
+        }
       
         if (!dbUser) {
           // Try to find user by Stack Auth ID or email in parallel with shorter timeouts
@@ -961,6 +1021,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       } catch (error) {
         t.end('error', { error: (error as Error).message });
         console.log('❌ /api/me failed:', (error as Error).message);
+        
+        // Record circuit breaker failure for database-related errors
+        if (isTimeoutError(error) || (error as Error).message.includes('database')) {
+          recordCircuitBreakerFailure();
+        }
         
         // Enhanced error handling for timeout scenarios
         if (isTimeoutError(error)) {
