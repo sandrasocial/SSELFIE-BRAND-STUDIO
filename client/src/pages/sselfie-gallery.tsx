@@ -8,6 +8,7 @@ import ErrorBoundary from '../components/ErrorBoundary';
 import StoryStudioModal from '../components/StoryStudioModal';
 import BrandAssetPlacementModal from '../components/BrandAssetPlacementModal';
 import { VideoGenerateDialog } from '../features/video';
+import { Camera, Grid, Search, MoreHorizontal, Heart, Download, Trash2, Play, Plus, Filter, Calendar, Star, Eye, X, Check, SortAsc, SortDesc } from 'lucide-react';
 
 // ImageDetailModal Component
 interface GalleryImage {
@@ -39,66 +40,87 @@ function ImageDetailModal({
 }) {
   return (
     <div 
-      className="fixed inset-0 bg-black bg-opacity-80 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4"
       onClick={onClose}
     >
       <div 
-        className="bg-white max-w-4xl max-h-[90vh] w-full flex flex-col"
+        className="editorial-modal max-w-6xl max-h-[95vh] w-full flex flex-col bg-neutral-950/95 backdrop-blur-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Close Button */}
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 border-b border-neutral-800/30">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-neutral-800/40 rounded-editorial-md border border-neutral-700/30">
+              <Camera size={20} className="text-neutral-300" strokeWidth={1.5} />
+            </div>
+            <div>
+              <h3 className="editorial-heading-2 text-neutral-200">IMAGE DETAILS</h3>
+              <p className="editorial-text-caption text-neutral-500">Professional Portrait</p>
+            </div>
+          </div>
+          
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-2xl text-gray-600 hover:text-gray-800 z-10"
+            className="p-2 hover:bg-neutral-800/40 rounded-editorial-md transition-colors"
           aria-label="Close modal"
         >
-          ×
+            <MoreHorizontal size={20} className="text-neutral-400" strokeWidth={1.5} />
         </button>
+        </div>
         
         {/* Image */}
-        <div className="flex-1 flex items-center justify-center p-4">
+        <div className="flex-1 flex items-center justify-center p-8 bg-gradient-to-br from-neutral-900/50 to-neutral-800/30">
           <img 
             src={selectedImage.imageUrl || selectedImage.url || ''} 
             alt={selectedImage.title || 'Gallery image'} 
-            className="max-w-full max-h-[70vh] object-contain"
+            className="max-w-full max-h-[60vh] object-contain rounded-editorial-lg shadow-editorial-xl"
           />
         </div>
         
         {/* Actions */}
-        <div className="border-t border-gray-200 p-4">
-          <div className="flex flex-wrap justify-center gap-6 text-xs uppercase tracking-wider">
+        <div className="p-6 border-t border-neutral-800/30 bg-gradient-to-r from-neutral-900/50 to-neutral-800/30">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
             <button 
               onClick={onToggleFavorite}
-              className="text-black hover:text-gray-600 transition-colors"
+              className="editorial-button-secondary flex items-center justify-center gap-2 py-3"
             >
-              {isFavorite ? '♥ Unfavorite' : '♡ Favorite'}
+              <Heart size={16} className={isFavorite ? 'text-red-400 fill-current' : 'text-neutral-400'} strokeWidth={1.5} />
+              {isFavorite ? 'UNFAVORITE' : 'FAVORITE'}
             </button>
+            
             <button 
               onClick={onCreateVideo}
-              className="text-black hover:text-gray-600 transition-colors"
+              className="editorial-button-secondary flex items-center justify-center gap-2 py-3"
             >
-              Make Video
+              <Play size={16} className="text-neutral-400" strokeWidth={1.5} />
+              MAKE VIDEO
             </button>
+            
             {/* P3-C: Brand Asset Placement Feature */}
             {process.env.REACT_APP_BRAND_ASSETS_ENABLED === '1' && (
               <button 
                 onClick={onPlaceBrandAsset}
-                className="text-black hover:text-gray-600 transition-colors"
+                className="editorial-button-secondary flex items-center justify-center gap-2 py-3"
               >
-                Place Brand Asset
+                <Plus size={16} className="text-neutral-400" strokeWidth={1.5} />
+                BRAND ASSET
               </button>
             )}
+            
             <button 
               onClick={onDownload}
-              className="text-black hover:text-gray-600 transition-colors"
+              className="editorial-button-secondary flex items-center justify-center gap-2 py-3"
             >
-              Download
+              <Download size={16} className="text-neutral-400" strokeWidth={1.5} />
+              DOWNLOAD
             </button>
+            
             <button 
               onClick={onDelete}
-              className="text-red-600 hover:text-red-800 transition-colors"
+              className="editorial-button-secondary flex items-center justify-center gap-2 py-3 text-red-400 hover:text-red-300 hover:bg-red-900/20"
             >
-              Delete
+              <Trash2 size={16} className="text-red-400" strokeWidth={1.5} />
+              DELETE
             </button>
           </div>
         </div>
@@ -113,6 +135,12 @@ function SSELFIEGallery({ hideMemberNav = false }: { hideMemberNav?: boolean }) 
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
   const [isVideoDialogOpen, setIsVideoDialogOpen] = useState(false);
   const [isBrandPlacementModalOpen, setIsBrandPlacementModalOpen] = useState(false);
+  const [selectedImages, setSelectedImages] = useState<Set<string | number>>(new Set());
+  const [viewMode, setViewMode] = useState<'grid' | 'masonry'>('grid');
+  const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'favorites'>('newest');
+  const [filterBy, setFilterBy] = useState<'all' | 'favorites' | 'recent'>('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showFilters, setShowFilters] = useState(false);
   const queryClient = useQueryClient();
 
   // Fetch user's gallery images
@@ -140,6 +168,50 @@ function SSELFIEGallery({ hideMemberNav = false }: { hideMemberNav?: boolean }) 
   });
 
   const favorites: number[] = favoritesData?.favorites || [];
+
+  // Filter and sort images
+  const filteredImages = React.useMemo(() => {
+    let filtered = aiImages;
+
+    // Apply search filter
+    if (searchQuery) {
+      filtered = filtered.filter(image => 
+        (image.title || '').toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    // Apply category filter
+    if (filterBy === 'favorites') {
+      filtered = filtered.filter(image => 
+        favorites.includes(typeof image.id === 'string' ? parseInt(image.id, 10) : image.id)
+      );
+    } else if (filterBy === 'recent') {
+      // Filter for images created in last 7 days (mock implementation)
+      filtered = filtered.slice(0, 10);
+    }
+
+    // Apply sorting
+    if (sortBy === 'newest') {
+      filtered = [...filtered].reverse();
+    } else if (sortBy === 'oldest') {
+      filtered = [...filtered];
+    } else if (sortBy === 'favorites') {
+      filtered = filtered.sort((a, b) => {
+        const bIsFavorite = favorites.includes(typeof b.id === 'string' ? parseInt(b.id, 10) : b.id);
+        return bIsFavorite ? 1 : -1;
+      });
+    }
+
+    return filtered;
+  }, [aiImages, searchQuery, filterBy, sortBy, favorites]);
+
+  // Gallery statistics
+  const galleryStats = React.useMemo(() => ({
+    total: aiImages.length,
+    favorites: favorites.length,
+    recent: Math.min(aiImages.length, 10),
+    selected: selectedImages.size
+  }), [aiImages.length, favorites.length, selectedImages.size]);
 
   // Toggle favorite mutation
   const toggleFavoriteMutation = useMutation({
@@ -190,10 +262,6 @@ function SSELFIEGallery({ hideMemberNav = false }: { hideMemberNav?: boolean }) 
     }
   };
 
-  const handleOpenVideoModal = () => {
-    setIsVideoModalOpen(true);
-  };
-
   const handleOpenVideoDialog = () => {
     setIsVideoDialogOpen(true);
   };
@@ -230,56 +298,437 @@ function SSELFIEGallery({ hideMemberNav = false }: { hideMemberNav?: boolean }) 
     setIsBrandPlacementModalOpen(true);
   };
 
+  // Bulk selection functions
+  const toggleImageSelection = (imageId: string | number) => {
+    setSelectedImages(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(imageId)) {
+        newSet.delete(imageId);
+      } else {
+        newSet.add(imageId);
+      }
+      return newSet;
+    });
+  };
+
+
+  const clearSelection = () => {
+    setSelectedImages(new Set());
+  };
+
+  const handleBulkDownload = () => {
+    selectedImages.forEach(imageId => {
+      const image = filteredImages.find(img => img.id === imageId);
+      if (image) {
+        downloadImage(image.imageUrl || image.url || '', image.title || 'sselfie-image');
+      }
+    });
+  };
+
+  const handleBulkDelete = () => {
+    if (window.confirm(`Are you sure you want to delete ${selectedImages.size} photos?`)) {
+      selectedImages.forEach(imageId => {
+        deleteImage(imageId);
+      });
+      clearSelection();
+    }
+  };
+
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-black">
         {!hideMemberNav && <MemberNavigation />}
-        <div className="px-5 py-30 text-center">
-          <h1 className="text-2xl font-light tracking-widest mb-4">Please Sign In</h1>
-          <p className="text-gray-600">You need to be signed in to access your SSELFIE Gallery.</p>
+        <div className="flex items-center justify-center min-h-screen p-6">
+          <div className="text-center">
+            <div className="p-6 bg-neutral-800/40 rounded-editorial-xl border border-neutral-700/30 mb-6 inline-block">
+              <Camera size={48} className="text-neutral-400 mx-auto" strokeWidth={1.5} />
+            </div>
+            <h1 className="editorial-heading-1 text-neutral-200 mb-4">AUTHENTICATION REQUIRED</h1>
+            <p className="editorial-text-body text-neutral-400">Please sign in to access your luxury gallery.</p>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-black relative overflow-hidden">
+      {/* Luxury Background with Parallax Effect */}
+      <div className="absolute inset-0 bg-gradient-to-br from-black via-neutral-950 to-neutral-900">
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-15"
+          style={{
+            backgroundImage: 'url(/flatlay-luxury-planning.jpg)',
+            backgroundAttachment: 'fixed',
+            backgroundPosition: 'center center'
+          }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-black/85 via-neutral-950/70 to-black/85" />
+      </div>
+      
       {!hideMemberNav && <MemberNavigation />}
       
-      {/* Simple Container with Clean Padding */}
-      <div className="px-4 py-6">
-        <h1 className="font-serif font-light tracking-widest text-center mb-6 text-2xl">
-          GALLERY
-        </h1>
+      {/* Luxury Gallery Container */}
+      <div className="relative z-10 p-6">
+        {/* Enhanced Gallery Header */}
+        <div className="space-y-6">
+          {/* Main Header */}
+          <div className="flex justify-between items-start">
+            <div className="space-y-2">
+              <h2 className="text-2xl font-light text-neutral-200 tracking-wide">GALLERY</h2>
+              <p className="text-neutral-500 text-sm tracking-wide">Curated Collection</p>
+              
+              {/* Gallery Stats */}
+              <div className="flex items-center gap-6 pt-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-neutral-400 rounded-full"></div>
+                  <span className="text-xs text-neutral-400 tracking-wide">
+                    {galleryStats.total} PHOTOS
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Star size={12} className="text-neutral-400" strokeWidth={1.5} />
+                  <span className="text-xs text-neutral-400 tracking-wide">
+                    {galleryStats.favorites} FAVORITES
+                  </span>
+                </div>
+                {selectedImages.size > 0 && (
+                  <div className="flex items-center gap-2">
+                    <Check size={12} className="text-neutral-300" strokeWidth={1.5} />
+                    <span className="text-xs text-neutral-300 tracking-wide">
+                      {selectedImages.size} SELECTED
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            {/* Action Buttons */}
+            <div className="flex items-center gap-3">
+              {/* Search */}
+              <div className="relative">
+                <Search size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400" strokeWidth={1.5} />
+                <input
+                  type="text"
+                  placeholder="Search photos..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 pr-4 py-2 bg-neutral-800/40 border border-neutral-700/30 rounded-lg text-neutral-200 text-sm placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-neutral-600/50 w-48"
+                />
+              </div>
+              
+              {/* Filter Toggle */}
+              <button 
+                onClick={() => setShowFilters(!showFilters)}
+                className={`p-3 rounded-lg border transition-all duration-200 ${
+                  showFilters 
+                    ? 'bg-neutral-700/40 border-neutral-600/50' 
+                    : 'bg-neutral-800/40 border-neutral-700/30 hover:bg-neutral-700/40'
+                }`}
+              >
+                <Filter size={18} className="text-neutral-400" strokeWidth={1.5} />
+              </button>
+              
+              {/* View Mode */}
+              <div className="flex bg-neutral-800/40 rounded-lg border border-neutral-700/30 p-1">
+                <button
+                  onClick={() => setViewMode('grid')}
+                  className={`p-2 rounded-md transition-all duration-200 ${
+                    viewMode === 'grid' ? 'bg-neutral-700/60' : 'hover:bg-neutral-700/40'
+                  }`}
+                >
+                  <Grid size={16} className="text-neutral-400" strokeWidth={1.5} />
+                </button>
+                <button
+                  onClick={() => setViewMode('masonry')}
+                  className={`p-2 rounded-md transition-all duration-200 ${
+                    viewMode === 'masonry' ? 'bg-neutral-700/60' : 'hover:bg-neutral-700/40'
+                  }`}
+                >
+                  <Eye size={16} className="text-neutral-400" strokeWidth={1.5} />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Filters Panel */}
+          {showFilters && (
+            <div className="bg-neutral-800/20 backdrop-blur-sm rounded-editorial-lg border border-neutral-700/30 p-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* Sort By */}
+                <div className="space-y-3">
+                  <label className="text-xs text-neutral-400 tracking-wide uppercase">Sort By</label>
+                  <div className="flex flex-col space-y-2">
+                    {[
+                      { value: 'newest', label: 'Newest First', icon: SortDesc },
+                      { value: 'oldest', label: 'Oldest First', icon: SortAsc },
+                      { value: 'favorites', label: 'Favorites First', icon: Star }
+                    ].map((option) => {
+                      const Icon = option.icon;
+                      return (
+                        <button
+                          key={option.value}
+                          onClick={() => setSortBy(option.value as 'newest' | 'oldest' | 'favorites')}
+                          className={`flex items-center gap-3 p-3 rounded-lg transition-all duration-200 ${
+                            sortBy === option.value
+                              ? 'bg-neutral-700/40 border border-neutral-600/50'
+                              : 'hover:bg-neutral-700/20'
+                          }`}
+                        >
+                          <Icon size={16} className="text-neutral-400" strokeWidth={1.5} />
+                          <span className="text-sm text-neutral-300">{option.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Filter By */}
+                <div className="space-y-3">
+                  <label className="text-xs text-neutral-400 tracking-wide uppercase">Filter By</label>
+                  <div className="flex flex-col space-y-2">
+                    {[
+                      { value: 'all', label: 'All Photos', icon: Grid },
+                      { value: 'favorites', label: 'Favorites Only', icon: Star },
+                      { value: 'recent', label: 'Recent (7 days)', icon: Calendar }
+                    ].map((option) => {
+                      const Icon = option.icon;
+                      return (
+                        <button
+                          key={option.value}
+                          onClick={() => setFilterBy(option.value as 'all' | 'favorites' | 'recent')}
+                          className={`flex items-center gap-3 p-3 rounded-lg transition-all duration-200 ${
+                            filterBy === option.value
+                              ? 'bg-neutral-700/40 border border-neutral-600/50'
+                              : 'hover:bg-neutral-700/20'
+                          }`}
+                        >
+                          <Icon size={16} className="text-neutral-400" strokeWidth={1.5} />
+                          <span className="text-sm text-neutral-300">{option.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Bulk Actions */}
+                {selectedImages.size > 0 && (
+                  <div className="space-y-3">
+                    <label className="text-xs text-neutral-400 tracking-wide uppercase">Bulk Actions</label>
+                    <div className="flex flex-col space-y-2">
+                      <button
+                        onClick={handleBulkDownload}
+                        className="flex items-center gap-3 p-3 rounded-lg hover:bg-neutral-700/20 transition-all duration-200"
+                      >
+                        <Download size={16} className="text-neutral-400" strokeWidth={1.5} />
+                        <span className="text-sm text-neutral-300">Download Selected</span>
+                      </button>
+                      <button
+                        onClick={handleBulkDelete}
+                        className="flex items-center gap-3 p-3 rounded-lg hover:bg-red-900/20 transition-all duration-200"
+                      >
+                        <Trash2 size={16} className="text-red-400" strokeWidth={1.5} />
+                        <span className="text-sm text-red-300">Delete Selected</span>
+                      </button>
+                      <button
+                        onClick={clearSelection}
+                        className="flex items-center gap-3 p-3 rounded-lg hover:bg-neutral-700/20 transition-all duration-200"
+                      >
+                        <X size={16} className="text-neutral-400" strokeWidth={1.5} />
+                        <span className="text-sm text-neutral-300">Clear Selection</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
         
+        {/* Enhanced Gallery Grid */}
+        <div className={`mt-8 ${viewMode === 'masonry' ? 'columns-2 gap-3' : 'grid grid-cols-2 gap-3'}`}>
         {isLoading ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {Array.from({ length: 8 }).map((_, i) => (
+            Array.from({ length: 6 }).map((_, i) => (
               <div 
                 key={i} 
-                className="aspect-square bg-gray-100 rounded-lg animate-pulse" 
+                className={`${viewMode === 'masonry' ? 'break-inside-avoid mb-3' : ''} aspect-square bg-neutral-800/30 rounded-editorial-lg animate-pulse border border-neutral-700/20`} 
               />
-            ))}
+            ))
+          ) : filteredImages.length === 0 ? (
+            <div className="col-span-2 text-center py-20">
+              <div className="p-8 bg-neutral-800/20 rounded-editorial-xl border border-neutral-700/20 mb-6 inline-block">
+                <Camera size={48} className="text-neutral-600" strokeWidth={1.5} />
           </div>
-        ) : aiImages.length === 0 ? (
-          <div className="text-center text-gray-500 text-lg mt-20">
-            No photos yet.
+              <h3 className="text-xl font-light text-neutral-300 mb-2">
+                {searchQuery ? 'NO RESULTS FOUND' : 'NO PHOTOS YET'}
+              </h3>
+              <p className="text-neutral-500 mb-6">
+                {searchQuery 
+                  ? `No photos match "${searchQuery}"` 
+                  : 'Start creating professional portraits with Maya'
+                }
+              </p>
+              <button className="bg-neutral-200 text-black px-6 py-3 rounded-editorial-xl font-light tracking-wide transition-all duration-200 hover:bg-neutral-300">
+                <Plus className="mr-2 inline" size={18} strokeWidth={1.5} />
+                {searchQuery ? 'CLEAR SEARCH' : 'CREATE FIRST PHOTO'}
+              </button>
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {aiImages.map((image) => (
+            filteredImages.map((image, index) => {
+              const isSelected = selectedImages.has(image.id);
+              const isFavorite = favorites.includes(typeof image.id === 'string' ? parseInt(image.id, 10) : image.id);
+              
+              return (
               <div 
                 key={image.id} 
-                onClick={() => setSelectedImage(image)} 
-                className="aspect-square cursor-pointer group"
+                  className={`${viewMode === 'masonry' ? 'break-inside-avoid mb-3' : ''} relative group cursor-pointer`}
               >
+                  <div className={`${viewMode === 'masonry' ? 'aspect-[4/5]' : 'aspect-square'} relative overflow-hidden rounded-editorial-lg border-2 transition-all duration-300 ${
+                    isSelected 
+                      ? 'border-neutral-300 shadow-editorial-lg' 
+                      : 'border-neutral-700/20 hover:border-neutral-600/40'
+                  }`}>
                 <img 
                   src={image.imageUrl || image.url || ''} 
                   alt={image.title || 'Generated art'} 
-                  className="w-full h-full object-cover rounded-lg transition-transform group-hover:scale-105"
-                />
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      onClick={() => setSelectedImage(image)}
+                    />
+                    
+                    {/* Selection Overlay */}
+                    {isSelected && (
+                      <div className="absolute inset-0 bg-neutral-300/20 backdrop-blur-sm flex items-center justify-center">
+                        <div className="w-8 h-8 bg-neutral-200 rounded-full flex items-center justify-center shadow-lg">
+                          <Check size={16} className="text-black" strokeWidth={2} />
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Hover Overlay */}
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300"></div>
+                    
+                    {/* Selection Checkbox */}
+                    <div className="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleImageSelection(image.id);
+                        }}
+                        className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${
+                          isSelected
+                            ? 'bg-neutral-200 border-neutral-200'
+                            : 'bg-black/50 border-white/50 hover:bg-black/70'
+                        }`}
+                      >
+                        {isSelected && <Check size={12} className="text-black" strokeWidth={2} />}
+                      </button>
+                    </div>
+                    
+                    {/* Favorite Indicator */}
+                    {isFavorite && (
+                      <div className="absolute top-3 right-3">
+                        <div className="w-6 h-6 bg-red-500/90 rounded-full flex items-center justify-center backdrop-blur-sm">
+                          <Heart size={12} className="text-white fill-current" strokeWidth={1.5} />
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Action Overlay */}
+                    <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <div className="flex justify-between items-center">
+                        <div className="space-y-1">
+                          <span className="text-white text-xs tracking-wide font-light">
+                            IMG_{String(index + 1).padStart(3, '0')}
+                          </span>
+                          {image.title && (
+                            <p className="text-white/80 text-xs truncate max-w-24">
+                              {image.title}
+                            </p>
+                          )}
+                        </div>
+                        <div className="flex space-x-2">
+                          <button 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleFavorite(image.id);
+                            }}
+                            className="p-1.5 bg-white/20 backdrop-blur-sm rounded-editorial-md hover:bg-white/30 transition-colors"
+                          >
+                            <Heart 
+                              size={14} 
+                              className={`${isFavorite ? 'text-red-400 fill-current' : 'text-white'}`} 
+                              strokeWidth={1.5} 
+                            />
+                          </button>
+                          <button 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedImage(image);
+                            }}
+                            className="p-1.5 bg-white/20 backdrop-blur-sm rounded-editorial-md hover:bg-white/30 transition-colors"
+                          >
+                            <Eye size={14} className="text-white" strokeWidth={1.5} />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+
+        {/* Load more - enhanced */}
+        {filteredImages.length > 0 && (
+          <div className="text-center pt-8">
+            <button className="text-neutral-400 text-sm tracking-wide hover:text-neutral-300 transition-colors px-6 py-3 rounded-editorial-lg hover:bg-neutral-800/20">
+              LOAD MORE
+            </button>
+          </div>
+        )}
+
+        {/* Floating Bulk Actions Bar */}
+        {selectedImages.size > 0 && (
+          <div className="fixed bottom-24 left-1/2 transform -translate-x-1/2 z-40">
+            <div className="bg-neutral-900/95 backdrop-blur-2xl rounded-editorial-xl border border-neutral-700/30 px-6 py-4 shadow-editorial-xl">
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <Check size={16} className="text-neutral-300" strokeWidth={1.5} />
+                  <span className="text-sm text-neutral-300 font-light">
+                    {selectedImages.size} SELECTED
+                  </span>
+                </div>
+                
+                <div className="w-px h-6 bg-neutral-700/50"></div>
+                
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={handleBulkDownload}
+                    className="flex items-center gap-2 px-4 py-2 bg-neutral-800/40 rounded-editorial-md hover:bg-neutral-700/40 transition-colors"
+                  >
+                    <Download size={14} className="text-neutral-400" strokeWidth={1.5} />
+                    <span className="text-xs text-neutral-300 tracking-wide">DOWNLOAD</span>
+                  </button>
+                  
+                  <button
+                    onClick={handleBulkDelete}
+                    className="flex items-center gap-2 px-4 py-2 bg-red-900/20 rounded-editorial-md hover:bg-red-900/30 transition-colors"
+                  >
+                    <Trash2 size={14} className="text-red-400" strokeWidth={1.5} />
+                    <span className="text-xs text-red-300 tracking-wide">DELETE</span>
+                  </button>
+                  
+                  <button
+                    onClick={clearSelection}
+                    className="flex items-center gap-2 px-4 py-2 bg-neutral-800/40 rounded-editorial-md hover:bg-neutral-700/40 transition-colors"
+                  >
+                    <X size={14} className="text-neutral-400" strokeWidth={1.5} />
+                    <span className="text-xs text-neutral-300 tracking-wide">CLEAR</span>
+                  </button>
+                </div>
               </div>
-            ))}
+            </div>
           </div>
         )}
       </div>
@@ -324,7 +773,7 @@ function SSELFIEGallery({ hideMemberNav = false }: { hideMemberNav?: boolean }) 
           imageId={selectedImage.id.toString()}
           imageUrl={selectedImage.imageUrl || selectedImage.url || ''}
           onSuccess={() => {
-            console.log('✅ Video generation completed for image:', selectedImage.id);
+            // Video generation completed
             queryClient.invalidateQueries({ queryKey: ['/api/gallery-images'] });
           }}
         />

@@ -37,10 +37,10 @@ export function AppTopNav() {
           </button>
 
         <div className="hidden md:flex items-center space-x-8">
-          <button onClick={() => go('/app')} className="text-xs uppercase tracking-[0.3em] font-light text-black/80 hover:text-black">Studio</button>
-          <button onClick={() => go('/sselfie-gallery')} className="text-xs uppercase tracking-[0.3em] font-light text-black/80 hover:text-black">Gallery</button>
-          <button onClick={() => go('/account-settings')} className="text-xs uppercase tracking-[0.3em] font-light text-black/80 hover:text-black">Account</button>
-          <button onClick={handleLogout} className="text-xs uppercase tracking-[0.3em] font-light text-black border border-black/30 px-4 py-2 hover:bg-black hover:text-white transition-colors">Logout</button>
+          <button onClick={() => go('/app')} className="text-xs uppercase tracking-[0.3em] font-light text-neutral-300 hover:text-neutral-200 transition-colors">Studio</button>
+          <button onClick={() => go('/sselfie-gallery')} className="text-xs uppercase tracking-[0.3em] font-light text-neutral-300 hover:text-neutral-200 transition-colors">Gallery</button>
+          <button onClick={() => go('/account-settings')} className="text-xs uppercase tracking-[0.3em] font-light text-neutral-300 hover:text-neutral-200 transition-colors">Account</button>
+          <button onClick={handleLogout} className="text-xs uppercase tracking-[0.3em] font-light text-neutral-300 border border-neutral-600/30 px-4 py-2 hover:bg-neutral-800/40 hover:text-neutral-200 transition-colors">Logout</button>
         </div>
         </div>
       </div>

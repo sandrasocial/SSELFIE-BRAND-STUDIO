@@ -35,7 +35,7 @@ interface AuthenticatedUser {
   lastName: string | null;
   plan: string;
   role: string;
-  stackUser: any;
+  stackUser: Record<string, unknown>;
 }
 
 // Stack Auth configuration - use environment variables
