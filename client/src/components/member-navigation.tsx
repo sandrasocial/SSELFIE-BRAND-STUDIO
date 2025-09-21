@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { useAuth } from '../hooks/use-auth';
 import { UserButton } from '@stackframe/react';
-import { Menu, X, Home, Camera, User, LogOut } from 'lucide-react';
+import { Menu, X, Home, Camera, User, LogOut, CreditCard, Shield } from 'lucide-react';
 
 interface MemberNavigationProps {
   transparent?: boolean;
