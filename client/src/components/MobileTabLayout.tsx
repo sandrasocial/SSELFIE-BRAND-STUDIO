@@ -124,8 +124,8 @@ const InstagramStyleProfile = ({ user }: { user: { name?: string; email?: string
 
   return (
     <div className="space-y-8">
-      {/* Luxury Profile Header */}
-      <div className="text-center space-y-6">
+      {/* Editorial profile header - Following Styleguide */}
+      <div className="text-center space-y-8 pt-6">
         <div className="relative inline-block">
           {user?.image ? (
             <img 
@@ -139,33 +139,45 @@ const InstagramStyleProfile = ({ user }: { user: { name?: string; email?: string
               <User size={40} className="text-zinc-400" strokeWidth={1.5} />
             </div>
           )}
-          <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-white rounded-full border-2 border-black flex items-center justify-center">
-            <div className="w-4 h-4 bg-green-500 rounded-full animate-pulse"></div>
+          <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-white rounded-full border-2 border-zinc-950 flex items-center justify-center">
+            <div className="w-4 h-4 bg-green-500 rounded-full"></div>
           </div>
         </div>
         
         <div className="space-y-4">
-          <h2 className="luxury-heading-2 text-center">
-            {(user?.name || 'YOUR PROFILE').toUpperCase()}
+          <h2 className="text-3xl font-serif font-extralight tracking-[0.2em] text-white uppercase leading-tight">
+            {user?.name || 'Your Profile'}
           </h2>
-          <p className="luxury-text-caption">CREATIVE DIRECTOR</p>
+          <p className="text-zinc-400 text-sm tracking-[0.4em] uppercase font-light">Creative Director</p>
+        </div>
+
+        {/* Enhanced stats with better hierarchy - Following Styleguide */}
+        <div className="grid grid-cols-3 gap-8 pt-6">
+          <div className="text-center space-y-3">
+            <div className="text-3xl font-serif font-extralight text-white">{feedImages.length}</div>
+            <div className="text-sm text-zinc-400 tracking-[0.2em] uppercase font-light">Posts</div>
+          </div>
+          <div className="text-center space-y-3">
+            <div className="text-3xl font-serif font-extralight text-white">1.2k</div>
+            <div className="text-sm text-zinc-400 tracking-[0.2em] uppercase font-light">Followers</div>
+          </div>
+          <div className="text-center space-y-3">
+            <div className="text-3xl font-serif font-extralight text-white">89</div>
+            <div className="text-sm text-zinc-400 tracking-[0.2em] uppercase font-light">Following</div>
+          </div>
         </div>
       </div>
 
-      {/* Luxury Stats Grid */}
-      <div className="grid grid-cols-3 gap-8">
-        <div className="text-center space-y-3">
-          <div className="luxury-heading-3">{feedImages.length}</div>
-          <div className="luxury-text-caption">Photos</div>
-        </div>
-        <div className="text-center space-y-3">
-          <div className="luxury-heading-3">1.2K</div>
-          <div className="luxury-text-caption">Followers</div>
-        </div>
-        <div className="text-center space-y-3">
-          <div className="luxury-heading-3">89</div>
-          <div className="luxury-text-caption">Following</div>
-        </div>
+      {/* Enhanced action buttons with better touch targets - Following Styleguide */}
+      <div className="grid grid-cols-2 gap-4">
+        <button className="group relative bg-white text-black px-6 py-5 rounded-xl font-light tracking-[0.2em] uppercase text-sm transition-all duration-500 hover:scale-[1.02] overflow-hidden">
+          <div className="absolute inset-0 bg-black transform -translate-x-full group-hover:translate-x-0 transition-transform duration-500"></div>
+          <span className="relative z-10 group-hover:text-white transition-colors duration-500">Edit Profile</span>
+        </button>
+        <button className="bg-zinc-800/30 text-white px-6 py-5 rounded-xl font-light tracking-[0.2em] uppercase text-sm border border-zinc-700/20 transition-all duration-500 hover:bg-zinc-800/50 hover:border-zinc-600/30 hover:scale-[1.02] flex items-center justify-center gap-2">
+          <Settings size={16} strokeWidth={1.2} />
+          Settings
+        </button>
       </div>
 
       {/* Pattern Selector */}
@@ -203,78 +215,87 @@ const InstagramStyleProfile = ({ user }: { user: { name?: string; email?: string
         </div>
       </div>
 
-      {/* Gallery Content */}
+      {/* Gallery Content - Following Styleguide */}
       {feedImages.length === 0 ? (
-        <div className="luxury-card text-center py-12">
+        <div className="text-center py-16">
           <div className="w-16 h-16 bg-zinc-800/30 rounded-full mx-auto mb-6 flex items-center justify-center">
             <Camera size={24} className="text-zinc-500" />
           </div>
-          <h3 className="luxury-heading-3 mb-4">Your Gallery Awaits</h3>
-          <p className="luxury-text-body mb-6 max-w-md mx-auto">
+          <h3 className="text-lg font-serif font-extralight tracking-[0.2em] text-white uppercase mb-2">Your Gallery Awaits</h3>
+          <p className="text-zinc-500 text-sm tracking-[0.1em] uppercase font-light mb-6 max-w-md mx-auto">
             Start creating stunning photos with Maya to build your personal brand gallery
           </p>
-          <button className="luxury-button-primary">
-            Create First Photo
+          <button className="group relative bg-white text-black px-6 py-4 rounded-xl font-light tracking-[0.2em] uppercase text-sm transition-all duration-500 hover:scale-[1.02] overflow-hidden">
+            <div className="absolute inset-0 bg-black transform -translate-x-full group-hover:translate-x-0 transition-transform duration-500"></div>
+            <span className="relative z-10 group-hover:text-white transition-colors duration-500">Create First Photo</span>
           </button>
         </div>
       ) : (
-        /* Luxury Gallery Grid */
-        <div className="grid grid-cols-2 gap-3">
-          {feedImages.map((image, index) => {
-            const category = MAYA_CATEGORIES[image.category as keyof typeof MAYA_CATEGORIES];
-            const Icon = category?.icon || Package;
-            
-            return (
-              <div 
-                key={image.id} 
-                className={`luxury-gallery-item ${getPatternClass(index)}`}
-              >
-                <div className="luxury-gallery-image">
-                  {image.url ? (
-                    <img 
-                      src={image.url} 
-                      alt={`Gallery ${index + 1}`}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                    />
-                  ) : (
-                    <div className={`w-full h-full bg-gradient-to-br ${category?.color || 'from-zinc-700 to-zinc-800'} rounded-lg flex items-center justify-center`}>
-                      <Icon size={32} className="text-zinc-400" strokeWidth={1.5} />
-                    </div>
-                  )}
-                  <div className="luxury-gallery-overlay"></div>
-                  <div className="luxury-gallery-actions">
-                    <div className="flex justify-between items-center">
-                      <span className="text-white text-xs tracking-wide uppercase">
-                        {category?.name || 'PHOTO'}
-                      </span>
-                      <div className="flex space-x-2">
-                        <button 
-                          onClick={() => toggleLike(image.id)}
-                          className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition-colors duration-300"
-                        >
-                          <Heart 
-                            size={14} 
-                            className={`${image.liked ? 'text-red-500 fill-current' : 'text-white'}`} 
-                            strokeWidth={1.5} 
-                          />
-                        </button>
-                        <button 
-                          onClick={() => toggleSave(image.id)}
-                          className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition-colors duration-300"
-                        >
-                          <Share2 
-                            size={14} 
-                            className={`${image.saved ? 'text-blue-400' : 'text-white'}`} 
-                            strokeWidth={1.5} 
-                          />
-                        </button>
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <h3 className="text-xl font-serif font-extralight tracking-[0.2em] text-white uppercase">Recent Work</h3>
+            <button className="text-zinc-400 text-xs tracking-[0.2em] uppercase hover:text-white transition-colors duration-300 font-light">
+              View All
+            </button>
+          </div>
+          
+          {/* Gallery grid with editorial hover effects - Following Styleguide */}
+          <div className="grid grid-cols-2 gap-3">
+            {feedImages.map((image, index) => {
+              const category = MAYA_CATEGORIES[image.category as keyof typeof MAYA_CATEGORIES];
+              const Icon = category?.icon || Package;
+              
+              return (
+                <div key={image.id} className="relative group cursor-pointer overflow-hidden rounded-lg">
+                  <div className="aspect-square relative">
+                    {image.url ? (
+                      <img 
+                        src={image.url} 
+                        alt={`Gallery ${index + 1}`}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      />
+                    ) : (
+                      <div className={`w-full h-full bg-zinc-800/20 rounded-xl border border-zinc-700/20 flex items-center justify-center hover:bg-zinc-800/30 transition-all duration-300 hover:scale-105 cursor-pointer group`}>
+                        <Icon size={24} className="text-zinc-600 group-hover:text-zinc-400 transition-colors" strokeWidth={1} />
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all duration-500"></div>
+                    
+                    {/* Sophisticated overlay - Following Styleguide */}
+                    <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500">
+                      <div className="flex justify-between items-center">
+                        <span className="text-white text-xs tracking-[0.2em] uppercase font-light">
+                          {category?.name || 'PHOTO'}
+                        </span>
+                        <div className="flex space-x-2">
+                          <button 
+                            onClick={() => toggleLike(image.id)}
+                            className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition-colors duration-300"
+                          >
+                            <Heart 
+                              size={14} 
+                              className={`${image.liked ? 'text-red-400 fill-current' : 'text-white'}`} 
+                              strokeWidth={1.2} 
+                            />
+                          </button>
+                          <button 
+                            onClick={() => toggleSave(image.id)}
+                            className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition-colors duration-300"
+                          >
+                            <Share2 
+                              size={14} 
+                              className={`${image.saved ? 'text-blue-400' : 'text-white'}`} 
+                              strokeWidth={1.2} 
+                            />
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       )}
     </div>

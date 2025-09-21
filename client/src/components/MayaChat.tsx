@@ -174,65 +174,108 @@ export function MayaChat() {
   };
 
   return (
-    <div className="luxury-tab-content">
-      {/* Header */}
-      <div className="luxury-tab-header">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-zinc-800/40 rounded-full flex items-center justify-center">
-            <MessageCircle size={20} className="text-zinc-300" />
+    <div className="h-full flex flex-col space-y-6">
+      {/* Maya Header - Following Styleguide */}
+      <div className="flex items-center justify-between pt-4">
+        <div className="flex items-center gap-4">
+          <div className="p-3 bg-zinc-800/40 rounded-xl border border-zinc-700/30">
+            <MessageCircle size={20} className="text-zinc-300" strokeWidth={1.2} />
           </div>
           <div>
-            <h2 className="luxury-heading-2">MAYA</h2>
-            <p className="luxury-text-caption">AI Photo Stylist</p>
+            <h3 className="text-xl font-serif font-extralight tracking-[0.2em] text-white uppercase">Maya Studio</h3>
+            <p className="text-xs text-zinc-500 tracking-[0.2em] uppercase font-light">AI Stylist & Brand Strategist</p>
           </div>
         </div>
       </div>
 
-      {/* Messages */}
-      <div className="luxury-chat-messages">
+      {/* Chat Messages - Following Styleguide Design */}
+      <div className="flex-1 overflow-y-auto space-y-4 pr-2">
         {messages.map((msg) => (
-          <div key={msg.id} className={`luxury-message ${msg.type === 'user' ? 'luxury-message-user' : 'luxury-message-maya'}`}>
-            <div className="luxury-message-content">
-              <p className="luxury-text-body">{msg.content}</p>
+          <div key={msg.id} className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}>
+            <div className={`max-w-[85%] ${msg.type === 'user' ? 'order-2' : 'order-1'}`}>
+              <div className={`p-4 rounded-xl ${
+                msg.type === 'user' 
+                  ? 'bg-zinc-700/30 border border-zinc-600/30' 
+                  : 'bg-zinc-800/30 border border-zinc-700/30'
+              }`}>
+                <div className="space-y-2">
+                  <p className="text-sm text-white leading-relaxed font-light">{msg.content}</p>
+                  <div className="text-xs text-zinc-500 font-light">
+                    {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </div>
+                </div>
+              </div>
               
-              {/* Concept Cards */}
-              {msg.conceptCards && msg.conceptCards.length > 0 && (
-                <div className="mt-6 space-y-4">
-                  <h3 className="luxury-heading-3">Photo Concepts</h3>
+              {/* Concept Cards - Using Styleguide Design */}
+              {msg.type === 'maya' && msg.conceptCards && msg.conceptCards.length > 0 && (
+                <div className="mt-4 space-y-4">
+                  <div className="flex items-center gap-2">
+                    <div className="w-1 h-1 bg-zinc-400 rounded-full"></div>
+                    <span className="text-zinc-500 text-xs tracking-[0.2em] uppercase font-light">Concept Ideas</span>
+                  </div>
                   {msg.conceptCards.map((card) => (
-                    <div key={card.id} className="luxury-card">
-                      <h4 className="luxury-heading-4 mb-2">{card.title}</h4>
-                      <p className="luxury-text-body mb-4">{card.description}</p>
+                    <div key={card.id} className="bg-gradient-to-br from-zinc-800/20 to-zinc-900/20 rounded-2xl p-6 border border-zinc-700/20 transition-all duration-500 hover:border-zinc-600/30 hover:bg-gradient-to-br hover:from-zinc-800/30 hover:to-zinc-900/30">
+                      <div className="space-y-5">
+                        {/* Enhanced header with better hierarchy */}
+                        <div className="flex items-center justify-between">
+                          <div className="px-4 py-2 bg-zinc-700/30 rounded-full border border-zinc-600/20">
+                            <span className="text-sm text-zinc-300 tracking-[0.1em] uppercase font-light">Photo</span>
+                          </div>
+                          <div className="w-2 h-2 bg-zinc-500 rounded-full"></div>
+                        </div>
+                        
+                        {/* Improved content hierarchy - Following Styleguide */}
+                        <div className="space-y-4">
+                          <h4 className="text-xl font-serif font-extralight tracking-[0.1em] text-white uppercase leading-tight">{card.title}</h4>
+                          <p className="text-base text-zinc-300 leading-relaxed font-light">{card.description}</p>
+                        </div>
+                      </div>
                       
+                      {/* Generate Button - Following Styleguide Design */}
                       {card.generatedImages && card.generatedImages.length > 0 ? (
-                        <div className="grid grid-cols-2 gap-2 mb-4">
-                          {card.generatedImages.map((imageUrl, index) => (
-                            <img
-                              key={index}
-                              src={imageUrl}
-                              alt={`Generated ${card.title} ${index + 1}`}
-                              className="w-full h-24 object-cover rounded-lg"
-                            />
-                          ))}
+                        <div className="mt-6 space-y-4">
+                          <div className="grid grid-cols-2 gap-3">
+                            {card.generatedImages.map((imageUrl, index) => (
+                              <img
+                                key={index}
+                                src={imageUrl}
+                                alt={`Generated ${card.title} ${index + 1}`}
+                                className="w-full aspect-square object-cover rounded-xl"
+                              />
+                            ))}
+                          </div>
+                          <div className="grid grid-cols-2 gap-3">
+                            <button className="px-5 py-3 bg-white text-black rounded-xl font-light tracking-[0.1em] uppercase text-sm transition-all duration-300 hover:bg-zinc-200 min-h-[48px]">
+                              Save All
+                            </button>
+                            <button className="px-5 py-3 bg-zinc-800/30 text-white border border-zinc-700/20 rounded-xl font-light tracking-[0.1em] uppercase text-sm transition-all duration-300 hover:bg-zinc-800/50 min-h-[48px]">
+                              Share
+                            </button>
+                          </div>
                         </div>
                       ) : (
-                        <button
-                          onClick={() => handleGenerateImage(card)}
-                          disabled={card.isGenerating}
-                          className="luxury-button-primary w-full"
-                        >
-                          {card.isGenerating ? (
-                            <div className="flex items-center justify-center gap-2">
-                              <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                              Creating...
+                        <div className="mt-8">
+                          <button 
+                            onClick={() => handleGenerateImage(card)}
+                            disabled={card.isGenerating}
+                            className="group relative w-full bg-white text-black px-8 py-5 rounded-2xl font-light tracking-[0.2em] uppercase text-sm transition-all duration-500 hover:scale-[1.02] active:scale-[0.98] overflow-hidden min-h-[56px] disabled:opacity-50"
+                          >
+                            <div className="absolute inset-0 bg-black transform -translate-x-full group-hover:translate-x-0 transition-transform duration-500"></div>
+                            <div className="relative z-10 group-hover:text-white transition-colors duration-500 flex items-center justify-center gap-3">
+                              {card.isGenerating ? (
+                                <>
+                                  <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                                  <span>Creating Magic</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Camera size={18} strokeWidth={1.2} />
+                                  <span>Generate Photos</span>
+                                </>
+                              )}
                             </div>
-                          ) : (
-                            <div className="flex items-center justify-center gap-2">
-                              <Camera size={16} />
-                              Generate Photos
-                            </div>
-                          )}
-                        </button>
+                          </button>
+                        </div>
                       )}
                     </div>
                   ))}
@@ -242,49 +285,50 @@ export function MayaChat() {
           </div>
         ))}
 
-        {/* Typing Indicator */}
+        {/* Typing Indicator - Following Styleguide */}
         {isTyping && (
-          <div className="luxury-message luxury-message-maya">
-            <div className="luxury-message-content">
-              <div className="flex items-center gap-2">
+          <div className="flex justify-start">
+            <div className="bg-zinc-800/30 border border-zinc-700/30 p-4 rounded-xl max-w-[85%]">
+              <div className="flex items-center gap-3">
                 <div className="flex gap-1">
-                  <div className="w-2 h-2 bg-zinc-400 rounded-full animate-pulse" />
+                  <div className="w-2 h-2 bg-zinc-400 rounded-full animate-pulse"></div>
                   <div className="w-2 h-2 bg-zinc-400 rounded-full animate-pulse" style={{animationDelay: '0.2s'}} />
                   <div className="w-2 h-2 bg-zinc-400 rounded-full animate-pulse" style={{animationDelay: '0.4s'}} />
                 </div>
-                <span className="luxury-text-caption">Maya is thinking...</span>
+                <span className="text-sm text-zinc-400 font-light">Maya is crafting your vision...</span>
               </div>
             </div>
           </div>
         )}
       </div>
 
-      {/* Input */}
-      <div className="luxury-chat-input">
-        <div className="flex gap-3">
+      {/* Chat Input - Following Styleguide Design */}
+      <div className="border-t border-zinc-800/20 pt-4">
+        <form onSubmit={handleSendMessage} className="flex gap-3">
           <div className="flex-1 relative">
             <input
               type="text"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Describe the photos you need..."
-              className="luxury-input w-full pr-12"
+              placeholder="Describe your vision to Maya..."
+              className="w-full px-4 py-3 bg-zinc-800/30 border border-zinc-700/30 rounded-xl text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-600/50 pr-12 font-light"
               disabled={isTyping}
               style={{ fontSize: '16px' }} // Prevents zoom on iOS
             />
             <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-              <Camera size={16} className="text-zinc-500" />
+              <Camera size={16} className="text-zinc-500" strokeWidth={1.2} />
             </div>
           </div>
           <button
-            onClick={handleSendMessage}
+            type="submit"
             disabled={!message.trim() || isTyping}
-            className="luxury-button-primary px-4"
+            className="group relative px-4 py-3 bg-white text-black rounded-xl font-light transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden"
           >
-            <Send size={16} />
+            <div className="absolute inset-0 bg-black transform scale-0 group-hover:scale-100 transition-transform duration-300 origin-center"></div>
+            <Send size={16} strokeWidth={1.2} className="relative z-10 group-hover:text-white transition-colors duration-300" />
           </button>
-        </div>
+        </form>
       </div>
     </div>
   );
