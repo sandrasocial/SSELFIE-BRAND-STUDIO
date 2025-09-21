@@ -378,7 +378,7 @@ function MobileTabLayout() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col overflow-x-hidden bg-black" style={{ WebkitOverflowScrolling: 'touch' }}>
+    <div className="flex flex-col h-full">
       {/* Luxury Breadcrumb */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-800/20 bg-gradient-to-r from-black/20 to-transparent sticky top-0 z-40 backdrop-blur-sm">
         <div className="flex items-center gap-3">
@@ -397,8 +397,7 @@ function MobileTabLayout() {
         className="flex-1 pb-24 overflow-y-auto overscroll-behavior-y-contain"
         style={{
           paddingLeft: 'env(safe-area-inset-left)',
-          paddingRight: 'env(safe-area-inset-right)',
-          minHeight: 'calc(100vh - 120px)'
+          paddingRight: 'env(safe-area-inset-right)'
         }}
         role="main" 
         aria-label="Main content"
