@@ -38,4 +38,8 @@ export function EditorialInput({
       {...props}
     />
   );
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> origin/main

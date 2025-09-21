@@ -45,4 +45,8 @@ export function EditorialButton({
       {children}
     </button>
   );
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> origin/main

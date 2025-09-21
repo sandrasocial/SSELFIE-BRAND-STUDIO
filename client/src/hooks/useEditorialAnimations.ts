@@ -1,7 +1,11 @@
 import { useEffect, useRef } from 'react';
 import { EditorialAnimations } from '../utils/editorialAnimations';
 
+<<<<<<< HEAD
 // React hook for editorial animations with proper cleanup
+=======
+// React hook for editorial animations
+>>>>>>> origin/main
 export function useEditorialAnimations() {
   const fadeInRef = useRef<HTMLElement>(null);
   const hoverScaleRef = useRef<HTMLElement>(null);
@@ -32,6 +36,7 @@ export function useEditorialAnimations() {
   };
 }
 
+<<<<<<< HEAD
 // Hook for parallax effects with proper cleanup
 export function useParallaxEffect(speed = 0.5) {
   const elementRef = useRef<HTMLElement>(null);
@@ -57,6 +62,8 @@ export function useParallaxEffect(speed = 0.5) {
   return elementRef;
 }
 
+=======
+>>>>>>> origin/main
 // Hook for staggered list animations
 export function useStaggerAnimation(itemCount: number) {
   const containerRef = useRef<HTMLElement>(null);
@@ -78,6 +85,7 @@ export function useStaggerAnimation(itemCount: number) {
 // Hook for intersection observer animations
 export function useScrollAnimation() {
   const elementsRef = useRef<HTMLElement[]>([]);
+<<<<<<< HEAD
   const observerRef = useRef<IntersectionObserver | null>(null);
 
   useEffect(() => {
@@ -93,6 +101,13 @@ export function useScrollAnimation() {
       }
       elementsRef.current = [];
     };
+=======
+
+  useEffect(() => {
+    if (elementsRef.current.length > 0) {
+      EditorialAnimations.observeInView(elementsRef.current);
+    }
+>>>>>>> origin/main
   }, []);
 
   const addElement = (element: HTMLElement | null) => {
@@ -102,4 +117,8 @@ export function useScrollAnimation() {
   };
 
   return { addElement };
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> origin/main
