@@ -65,25 +65,25 @@ export function MemberNavigation({ transparent = true, darkText = false }: Membe
     >
       <div className="max-w-7xl mx-auto px-editorial-sm sm:px-editorial-md lg:px-editorial-lg py-editorial-sm">
         <div className="flex items-center justify-between">
-          <button 
-            onClick={(e) => {
-              e.preventDefault();
-              if (location === '/maya' || location === '/studio') {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              } else {
-                setLocation("/maya");
-              }
-            }}
-            aria-label="SSELFIE home page"
-            className={`font-serif text-xl font-light tracking-wide transition-all duration-300 ease-sophisticated hover:tracking-extra-wide ${
-              darkText 
-                ? 'text-black hover:text-neutral-700' 
-                : 'text-neutral-200 hover:text-white'
-            }`}
-            style={{ fontFamily: "Times New Roman, serif" }}
-          >
-            SSELFIE
-          </button>
+            <button 
+              onClick={(e) => {
+                e.preventDefault();
+                if (location === '/maya' || location === '/studio') {
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else {
+                  setLocation("/maya");
+                }
+              }}
+              aria-label="SSELFIE home page"
+              className={`font-serif text-2xl font-extralight tracking-ultra-wide transition-all duration-500 ease-luxury hover:tracking-ultra-wide hover:scale-105 ${
+                darkText 
+                  ? 'text-black hover:text-neutral-700' 
+                  : 'text-neutral-200 hover:text-white'
+              }`}
+              style={{ fontFamily: "Times New Roman, serif" }}
+            >
+              SSELFIE
+            </button>
           
           {/* Editorial Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-editorial-sm" role="menubar">
@@ -96,26 +96,32 @@ export function MemberNavigation({ transparent = true, darkText = false }: Membe
                   role="menuitem"
                   aria-current={isActive(item.path) ? 'page' : undefined}
                   aria-label={`Navigate to ${item.label}`}
-                  className={`editorial-nav-item group flex items-center space-x-2 px-editorial-xs py-2 text-xs uppercase tracking-wide font-light transition-all duration-300 ease-sophisticated ${
+                  className={`editorial-nav-item group flex items-center space-x-3 px-4 py-3 text-xs uppercase tracking-normal-wide font-extralight transition-all duration-500 ease-luxury rounded-xl ${
                     isActive(item.path)
                       ? `${
                           darkText 
-                            ? 'text-black bg-neutral-200/10 border-b border-black/30' 
-                            : 'text-neutral-200 bg-neutral-800/40 border-b border-neutral-200/30'
-                        } pb-1`
+                            ? 'text-black bg-neutral-200/15 border border-black/20 shadow-luxury' 
+                            : 'text-neutral-200 bg-neutral-800/50 border border-neutral-200/20 shadow-luxury'
+                        } transform scale-105`
                       : `${
                           darkText 
-                            ? 'text-black/60 hover:text-black hover:bg-black/5' 
-                            : 'text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/20'
-                        } hover:tracking-extra-wide`
+                            ? 'text-black/60 hover:text-black hover:bg-black/8 hover:scale-102' 
+                            : 'text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/30 hover:scale-102'
+                        } hover:tracking-wide`
                   }`}
                 >
-                  <Icon 
-                    size={14} 
-                    strokeWidth={1.5}
-                    className="transition-transform duration-300 group-hover:scale-110" 
-                  />
-                  <span>{item.label}</span>
+                  <div className={`p-2 rounded-lg transition-all duration-500 ${
+                    isActive(item.path) 
+                      ? (darkText ? 'bg-black/10' : 'bg-neutral-700/50')
+                      : 'group-hover:bg-neutral-700/30'
+                  }`}>
+                    <Icon 
+                      size={16} 
+                      strokeWidth={1.2}
+                      className="transition-all duration-500 group-hover:scale-110" 
+                    />
+                  </div>
+                  <span className="font-serif tracking-wide">{item.label}</span>
                 </button>
               );
             })}
@@ -168,10 +174,12 @@ export function MemberNavigation({ transparent = true, darkText = false }: Membe
             <button
               onClick={handleLogout}
               aria-label="Logout from account"
-              className={`editorial-button-secondary flex items-center space-x-2 text-xs uppercase tracking-wide px-editorial-sm py-2 font-light transition-all duration-300 ease-sophisticated hover:scale-105 active:scale-95`}
+              className={`editorial-button-secondary flex items-center space-x-3 text-xs uppercase tracking-normal-wide px-6 py-3 font-extralight transition-all duration-500 ease-luxury hover:scale-105 active:scale-95 rounded-xl border border-neutral-700/20 hover:border-neutral-600/30`}
             >
-              <LogOut size={14} strokeWidth={1.5} />
-              <span>Logout</span>
+              <div className="p-1.5 bg-neutral-800/30 rounded-lg">
+                <LogOut size={14} strokeWidth={1.2} />
+              </div>
+              <span className="font-serif tracking-wide">Logout</span>
             </button>
           </div>
           
@@ -220,14 +228,20 @@ export function MemberNavigation({ transparent = true, darkText = false }: Membe
                       role="menuitem"
                       aria-current={isActive(item.path) ? 'page' : undefined}
                       aria-label={`Navigate to ${item.label}`}
-                      className={`editorial-nav-item flex items-center space-x-4 p-editorial-sm rounded-editorial-md text-sm uppercase tracking-wide transition-all duration-300 ease-sophisticated ${
+                      className={`editorial-nav-item flex items-center space-x-4 p-4 rounded-xl text-sm uppercase tracking-normal-wide font-extralight transition-all duration-500 ease-luxury ${
                         isActive(item.path)
-                          ? 'text-neutral-200 bg-neutral-800/60'
-                          : 'text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/30'
+                          ? 'text-neutral-200 bg-neutral-800/70 border border-neutral-700/30 transform scale-105'
+                          : 'text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/40 hover:scale-102'
                       }`}
                     >
-                      <Icon size={18} strokeWidth={1.5} />
-                      <span>{item.label}</span>
+                      <div className={`p-2 rounded-lg transition-all duration-500 ${
+                        isActive(item.path) 
+                          ? 'bg-neutral-700/50'
+                          : 'hover:bg-neutral-700/30'
+                      }`}>
+                        <Icon size={18} strokeWidth={1.2} />
+                      </div>
+                      <span className="font-serif tracking-wide">{item.label}</span>
                     </button>
                   );
                 })}
