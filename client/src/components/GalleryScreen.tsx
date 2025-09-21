@@ -95,62 +95,58 @@ export function GalleryScreen() {
   }
 
   return (
-    <div className="luxury-tab-content">
-      {/* Gallery header */}
-      <div className="luxury-tab-header">
-        <div className="flex justify-between items-center">
-          <div>
-            <h2 className="luxury-heading-2">GALLERY</h2>
-            <p className="luxury-text-caption">Your photo collection</p>
-          </div>
-          <div className="flex space-x-3">
-            <button className="w-10 h-10 bg-zinc-800/30 rounded-xl border border-zinc-700/20 hover:bg-zinc-700/50 transition-all duration-300 flex items-center justify-center">
-              <Search size={18} className="text-zinc-400 hover:text-white transition-colors" strokeWidth={1.2} />
-            </button>
-            <button className="w-10 h-10 bg-zinc-800/30 rounded-xl border border-zinc-700/20 hover:bg-zinc-700/50 transition-all duration-300 flex items-center justify-center">
-              <MoreHorizontal size={18} className="text-zinc-400 hover:text-white transition-colors" strokeWidth={1.2} />
-            </button>
-          </div>
+    <div className="space-y-8">
+      {/* Editorial gallery header - Following Styleguide */}
+      <div className="flex justify-between items-start pt-4">
+        <div className="space-y-3">
+          <h2 className="text-3xl font-serif font-extralight tracking-[0.3em] text-white uppercase">Gallery</h2>
+          <p className="text-zinc-500 text-sm tracking-[0.2em] uppercase font-light">Curated Collection</p>
+        </div>
+        <div className="flex space-x-3">
+          <button className="p-3 bg-zinc-800/30 rounded-xl border border-zinc-700/20 hover:bg-zinc-700/50 transition-all duration-300 hover:scale-105">
+            <Search size={18} className="text-zinc-400 hover:text-white transition-colors" strokeWidth={1.2} />
+          </button>
+          <button className="p-3 bg-zinc-800/30 rounded-xl border border-zinc-700/20 hover:bg-zinc-700/50 transition-all duration-300 hover:scale-105">
+            <MoreHorizontal size={18} className="text-zinc-400 hover:text-white transition-colors" strokeWidth={1.2} />
+          </button>
         </div>
       </div>
 
-      {/* Gallery grid */}
-      <div className="luxury-gallery-grid">
-        {isLoading ? (
-          Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="luxury-gallery-skeleton" />
-          ))
-        ) : aiImages.length === 0 ? (
-          <div className="luxury-gallery-empty">
-            <div className="w-16 h-16 bg-zinc-800/30 rounded-full mx-auto mb-6 flex items-center justify-center">
-              <Camera size={24} className="text-zinc-500" />
-            </div>
-            <h3 className="luxury-heading-3 mb-4">Your Gallery Awaits</h3>
-            <p className="luxury-text-body mb-6 max-w-md mx-auto text-center">
-              Start creating stunning photos with Maya to build your personal brand gallery
-            </p>
+      {/* Gallery grid with editorial hover effects - Following Styleguide */}
+      {isLoading ? (
+        <div className="grid grid-cols-2 gap-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="aspect-square bg-zinc-800/30 rounded-xl animate-pulse" />
+          ))}
+        </div>
+      ) : aiImages.length === 0 ? (
+        <div className="text-center py-16">
+          <div className="w-16 h-16 bg-zinc-800/30 rounded-full mx-auto mb-6 flex items-center justify-center">
+            <Camera size={24} className="text-zinc-500" />
           </div>
-        ) : (
-          aiImages.map((image, index) => {
+          <h3 className="text-lg font-serif font-extralight tracking-[0.2em] text-white uppercase mb-2">Your Gallery Awaits</h3>
+          <p className="text-zinc-500 text-sm tracking-[0.1em] uppercase font-light mb-6">Start creating stunning photos with Maya to build your personal brand gallery</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 gap-3">
+          {aiImages.map((image, index) => {
             const isFavorite = favorites.includes(typeof image.id === 'string' ? parseInt(image.id, 10) : image.id);
             
             return (
-              <div key={image.id} className="luxury-gallery-item">
-                <div className="luxury-gallery-image">
+              <div key={image.id} className="relative group cursor-pointer overflow-hidden rounded-lg">
+                <div className="aspect-square relative">
                   <img 
                     src={image.imageUrl || image.url || ''} 
                     alt={image.title || `Gallery ${index + 1}`}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                     onClick={() => setSelectedImage(image)}
                   />
-                  <div className="luxury-gallery-overlay"></div>
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all duration-500"></div>
                   
-                  {/* Gallery actions */}
-                  <div className="luxury-gallery-actions">
+                  {/* Sophisticated overlay - Following Styleguide */}
+                  <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500">
                     <div className="flex justify-between items-center">
-                      <span className="text-white text-xs tracking-wide uppercase">
-                        IMG_{String(index + 1).padStart(3, '0')}
-                      </span>
+                      <span className="text-white text-xs tracking-[0.2em] uppercase font-light">IMG_{String(index + 1).padStart(3, '0')}</span>
                       <div className="flex space-x-2">
                         <button 
                           onClick={(e) => {
@@ -161,7 +157,7 @@ export function GalleryScreen() {
                         >
                           <Heart 
                             size={14} 
-                            className={isFavorite ? 'text-red-500 fill-current' : 'text-white'} 
+                            className={isFavorite ? 'text-red-400 fill-current' : 'text-white'} 
                             strokeWidth={1.2} 
                           />
                         </button>
@@ -184,7 +180,16 @@ export function GalleryScreen() {
         )}
       </div>
 
-      {/* Image Detail Modal */}
+      {/* Editorial load more - Following Styleguide */}
+      {aiImages.length > 0 && (
+        <div className="text-center pt-8">
+          <button className="text-zinc-400 text-xs tracking-[0.3em] uppercase hover:text-white transition-colors duration-300 font-light border-b border-zinc-700/20 hover:border-white/20 pb-1">
+            Load More
+          </button>
+        </div>
+      )}
+
+      {/* Image Detail Modal - Following Styleguide */}
       {selectedImage && (
         <div 
           className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4"
