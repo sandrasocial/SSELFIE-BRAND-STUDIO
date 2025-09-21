@@ -30,7 +30,7 @@ export function isTimeoutError(error: unknown): boolean {
 export function withDatabaseTimeout<T>(
   promise: Promise<T>, 
   fallbackValue: T, 
-  ms: number = 5000, 
+  ms: number = 3000, // Reduced default from 5000ms to 3000ms
   label: string = 'database-op'
 ): Promise<T> {
   return Promise.race([
@@ -80,4 +80,37 @@ export function quickHealthCheck(): Promise<{ status: 'healthy' | 'degraded'; ti
     status: Date.now() - startTime < 100 ? 'healthy' : 'degraded',
     timestamp: new Date().toISOString()
   });
+}
+
+/**
+ * Database operation with retry and exponential backoff for critical operations
+ */
+export function withDatabaseTimeoutAndRetry<T>(
+  promiseFactory: () => Promise<T>,
+  fallbackValue: T,
+  ms: number = 2000,
+  retries: number = 2,
+  label: string = 'critical-db-op'
+): Promise<T> {
+  const attempt = async (attemptNum: number): Promise<T> => {
+    const backoffDelay = Math.min(1000 * Math.pow(2, attemptNum - 1), 3000);
+    
+    if (attemptNum > 1) {
+      console.log(`⏳ Retrying ${label} (attempt ${attemptNum}/${retries + 1}) with ${backoffDelay}ms backoff`);
+      await new Promise(resolve => setTimeout(resolve, backoffDelay));
+    }
+    
+    try {
+      return await withDatabaseTimeout(promiseFactory(), fallbackValue, ms, `${label}-attempt-${attemptNum}`);
+    } catch (error) {
+      if (attemptNum < retries + 1) {
+        console.warn(`⚠️ ${label} attempt ${attemptNum} failed, retrying...`);
+        return attempt(attemptNum + 1);
+      }
+      console.error(`❌ ${label} failed after ${retries + 1} attempts, using fallback`);
+      return fallbackValue;
+    }
+  };
+  
+  return attempt(1);
 }

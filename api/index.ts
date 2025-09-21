@@ -1,10 +1,10 @@
 /* eslint-disable no-console */
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import type { AiImage, UserModel, InsertUser } from '../shared/schema.js';
-import { withTimeout, withDatabaseTimeout, withExternalApiTimeout, isTimeoutError } from './_utils/timing.js';
+import { withTimeout, withDatabaseTimeout, withDatabaseTimeoutAndRetry, withExternalApiTimeout, isTimeoutError } from './_utils/timing.js';
 export const config = { 
   runtime: 'nodejs',
-  maxDuration: 45
+  maxDuration: 40
 } as const;
 // Lazy-load jose at runtime to avoid bootstrap issues
 type JoseModule = typeof import('jose');
@@ -102,7 +102,52 @@ function setLogoutCookies(res: import('@vercel/node').VercelResponse) {
   }
 }
 
-// Simple structured logging helpers
+// Simple circuit breaker for database operations
+interface CircuitBreakerState {
+  failures: number;
+  lastFailure: number;
+  isOpen: boolean;
+}
+
+const circuitBreaker: CircuitBreakerState = {
+  failures: 0,
+  lastFailure: 0,
+  isOpen: false
+};
+
+const CIRCUIT_BREAKER_THRESHOLD = 5; // Open after 5 failures
+const CIRCUIT_BREAKER_TIMEOUT = 30000; // 30 seconds
+const CIRCUIT_BREAKER_RESET_TIME = 60000; // Reset after 1 minute
+
+function checkCircuitBreaker(): boolean {
+  const now = Date.now();
+  
+  // Reset if enough time has passed
+  if (circuitBreaker.isOpen && now - circuitBreaker.lastFailure > CIRCUIT_BREAKER_RESET_TIME) {
+    circuitBreaker.isOpen = false;
+    circuitBreaker.failures = 0;
+    console.log('🔄 Circuit breaker reset');
+  }
+  
+  return !circuitBreaker.isOpen;
+}
+
+function recordCircuitBreakerFailure() {
+  circuitBreaker.failures++;
+  circuitBreaker.lastFailure = Date.now();
+  
+  if (circuitBreaker.failures >= CIRCUIT_BREAKER_THRESHOLD) {
+    circuitBreaker.isOpen = true;
+    console.log('⚠️ Circuit breaker opened due to repeated database failures');
+  }
+}
+
+function recordCircuitBreakerSuccess() {
+  if (circuitBreaker.failures > 0) {
+    circuitBreaker.failures = 0;
+    console.log('✅ Circuit breaker: database operations successful');
+  }
+}
 function nowMs(): number {
   const perf = (globalThis as unknown as { performance?: { now: () => number } }).performance;
   return typeof perf?.now === 'function' ? perf.now() : Date.now();
@@ -882,16 +927,32 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       res.setHeader('Content-Type', 'application/json');
       
       try {
+        // Check circuit breaker before attempting database operations
+        if (!checkCircuitBreaker()) {
+          console.warn('⚠️ Circuit breaker open, returning cached user fallback');
+          return res.status(503).json({
+            message: 'Service temporarily unavailable due to database issues',
+            error: 'Circuit breaker open',
+            code: 'CIRCUIT_BREAKER_OPEN'
+          });
+        }
+
         const user = await getAuthenticatedUser();
         const { storage } = await import('../server/storage.js');
         
-        // OPTIMIZED: Use database timeout with fallback for faster response
-        let dbUser = await withDatabaseTimeout(
-          storage.getUser(user.id as string), 
+        // OPTIMIZED: Use faster database timeouts with retry for critical user operations
+        let dbUser = await withDatabaseTimeoutAndRetry(
+          () => storage.getUser(user.id as string), 
           null, 
-          3000, 
+          2000, // Reduced from 3000ms
+          1, // 1 retry
           'getUser'
         );
+        
+        // Record success if we got this far
+        if (dbUser) {
+          recordCircuitBreakerSuccess();
+        }
       
         if (!dbUser) {
           // Try to find user by Stack Auth ID or email in parallel with shorter timeouts
@@ -899,13 +960,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             withDatabaseTimeout(
               storage.getUserByStackAuthId(user.id as string), 
               null, 
-              2500, 
+              2000, // Reduced from 2500ms
               'getUserByStackAuthId'
             ),
             user.email ? withDatabaseTimeout(
               storage.getUserByEmail(user.email as string), 
               null, 
-              2500, 
+              2000, // Reduced from 2500ms
               'getUserByEmail'
             ) : Promise.resolve(null)
           ]);
@@ -917,7 +978,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             dbUser = await withDatabaseTimeout(
               storage.linkStackAuthId(byEmail.id, user.id as string), 
               byEmail, // Use existing user as fallback if linking fails
-              3000, 
+              2500, // Reduced from 3000ms
               'linkStackAuthId'
             );
             console.log('✅ Successfully linked paid user to Stack Auth account');
@@ -947,7 +1008,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           dbUser = await withDatabaseTimeout(
             storage.upsertUser(fallbackUser),
             fallbackUser, // Use fallback if DB operation times out
-            4000, 
+            3000, // Reduced from 4000ms
             'upsertUser'
           );
           
@@ -960,6 +1021,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       } catch (error) {
         t.end('error', { error: (error as Error).message });
         console.log('❌ /api/me failed:', (error as Error).message);
+        
+        // Record circuit breaker failure for database-related errors
+        if (isTimeoutError(error) || (error as Error).message.includes('database')) {
+          recordCircuitBreakerFailure();
+        }
         
         // Enhanced error handling for timeout scenarios
         if (isTimeoutError(error)) {
@@ -994,10 +1060,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         console.log('🔍 Getting model for user:', user.id, user.email);
         
         // Get user from database to check training status with faster timeouts
-        let dbUser = await withDatabaseTimeout(
-          storage.getUser(user.id as string), 
+        let dbUser = await withDatabaseTimeoutAndRetry(
+          () => storage.getUser(user.id as string), 
           null, 
-          3000, 
+          2000, // Reduced from 3000ms
+          1, // 1 retry
           'getUser'
         );
         
@@ -1005,7 +1072,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           dbUser = await withDatabaseTimeout(
             storage.getUserByEmail(user.email as string), 
             null, 
-            3000, 
+            2000, // Reduced from 3000ms
             'getUserByEmail'
           );
         }
@@ -1018,13 +1085,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           });
         }
         
-        // Check if user has a trained model with fallback
+        // Check if user has a trained model with fallback and reduced timeout
         let userModel: UserModel | null = null;
         try {
           userModel = await withDatabaseTimeout(
             storage.getUserModel(dbUser.id), 
             null, // Fallback to null if timeout occurs
-            4000, 
+            3000, // Reduced from 4000ms
             'getUserModel'
           );
         } catch (error) {
@@ -1451,7 +1518,7 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
           // Call Claude API with Maya's real personality using enhanced timeout
           const claudeResponse = await withExternalApiTimeout(
             async () => {
-              return timedFetch('https://api.anthropic.com/v1/messages', 15000, {
+              return timedFetch('https://api.anthropic.com/v1/messages', 12000, {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
@@ -1476,7 +1543,7 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
               });
             },
             null, // No fallback response from this level
-            15000, // 15 second timeout
+            12000, // Reduced from 15s to 12s timeout
             0, // No retries for chat to keep it fast
             'claude-api-maya-chat'
           );
@@ -1492,7 +1559,7 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
             conceptCards = await withDatabaseTimeout(
               applyGenderContext(conceptCards, user.id as string),
               conceptCards, // Fallback to original cards if timeout
-              3000,
+              2500, // Reduced from 3000ms
               'applyGenderContext'
             );
             
@@ -1848,6 +1915,17 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
       const t = logStart('GET /api/gallery-images');
       
       try {
+        // Check circuit breaker before database operations
+        if (!checkCircuitBreaker()) {
+          console.warn('⚠️ Circuit breaker open for gallery-images');
+          return res.status(503).json({
+            images: [],
+            total: 0,
+            message: 'Service temporarily unavailable',
+            code: 'CIRCUIT_BREAKER_OPEN'
+          });
+        }
+
         const user = await getAuthenticatedUser();
         console.log('🔍 Getting gallery images for user:', user.id, user.email);
         
@@ -1856,15 +1934,22 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
         
         // OPTIMIZED: Reduced timeout and better error handling
         const [aiImages, generatedImages] = await Promise.all([
-          withTimeout(storage.getAIImages(user.id as string), 3000, 'getAIImages').catch(err => {
+          withTimeout(storage.getAIImages(user.id as string), 2500, 'getAIImages').catch(err => {
             console.warn('⚠️ AI images fetch failed:', (err as Error).message);
+            recordCircuitBreakerFailure();
             return [];
           }),
-          withTimeout(storage.getGeneratedImages(user.id as string), 3000, 'getGeneratedImages').catch(err => {
+          withTimeout(storage.getGeneratedImages(user.id as string), 2500, 'getGeneratedImages').catch(err => {
             console.warn('⚠️ Generated images fetch failed:', (err as Error).message);
+            recordCircuitBreakerFailure();
             return [];
           })
         ]);
+        
+        // Record success if we got data
+        if (aiImages.length > 0 || generatedImages.length > 0) {
+          recordCircuitBreakerSuccess();
+        }
         
         console.log('📊 Found AI images:', aiImages.length);
         console.log('📊 Found generated images:', generatedImages.length);
