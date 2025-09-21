@@ -1055,11 +1055,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       
       try {
         const user = await getAuthenticatedUser();
-<<<<<<< HEAD
-      const { storage } = await import('../server/storage');
-=======
-        const { storage } = await import('../server/storage.js');
->>>>>>> e84561a43be815eb60b32d33e0e3baa08a280524
+        const { storage } = await import('../server/storage');
         
         console.log('🔍 Getting model for user:', user.id, user.email);
         
@@ -1645,41 +1641,11 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
           context: context
         };
         
-<<<<<<< HEAD
-        // Persist conversation and messages + concept cards for continuity
-        try {
-          const { storage } = await import('../server/storage');
-          const existingConvs = await storage.getUserConversations(user.id as string, 'maya');
-          const conversationId = (existingConvs && existingConvs[0]?.id) || (await storage.createConversation({ userId: user.id as string, agentName: 'maya', title: 'Maya Chat', status: 'active' })).id;
-          await storage.createMessage({ conversationId, role: 'user', content: message, tokenCount: 0 });
-          await storage.createMessage({ conversationId, role: 'assistant', content: mayaResponse, tokenCount: 0 });
-          for (let i = 0; i < (conceptCards?.length || 0); i++) {
-            const c = conceptCards[i];
-            await storage.createConceptCard({
-              userId: user.id as string,
-              conversationId,
-              clientId: `maya_${Date.now()}_${i + 1}`,
-              title: c.title,
-              description: c.description,
-              status: 'draft',
-              images: [],
-              tags: [c.category],
-              sortOrder: 0,
-              isLoading: false,
-              isGenerating: false,
-              hasGenerated: false,
-              generatedImages: {},
-            });
-          }
-        } catch (persistError) {
-          console.log('⚠️ Maya persistence failed:', (persistError as Error).message);
-        }
-=======
         // Persist conversation and messages + concept cards for continuity with timeout
         // This is non-critical, so if it times out we'll still return the response
         withDatabaseTimeout(
           (async () => {
-            const { storage } = await import('../server/storage.js');
+            const { storage } = await import('../server/storage');
             const existingConvs = await storage.getUserConversations(user.id as string, 'maya');
             const conversationId = (existingConvs && existingConvs[0]?.id) || (await storage.createConversation({ userId: user.id as string, agentName: 'maya', title: 'Maya Chat', status: 'active' })).id;
             await storage.createMessage({ conversationId, role: 'user', content: message, tokenCount: 0 });
@@ -1709,7 +1675,6 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
         ).catch((persistError) => {
           console.log('⚠️ Maya persistence failed (non-critical):', (persistError as Error).message);
         });
->>>>>>> e84561a43be815eb60b32d33e0e3baa08a280524
         
         console.log('📊 Returning Maya response:', JSON.stringify(response, null, 2));
         res.setHeader('Cache-Control', 'no-store');
