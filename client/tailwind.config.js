@@ -134,12 +134,12 @@ module.exports = {
         'editorial-2xl': 'var(--space-editorial-2xl)',
       },
       margin: {
-        'editorial-xs': 'var(--space-editorial-xs)',
-        'editorial-sm': 'var(--space-editorial-sm)', 
-        'editorial-md': 'var(--space-editorial-md)',
-        'editorial-lg': 'var(--space-editorial-lg)',
-        'editorial-xl': 'var(--space-editorial-xl)',
-        'editorial-2xl': 'var(--space-editorial-2xl)',
+        'editorial-xs': '0.75rem',
+        'editorial-sm': '1.25rem',
+        'editorial-md': '2rem',
+        'editorial-lg': '3rem',
+        'editorial-xl': '4rem',
+        'editorial-2xl': '6rem',
       },
       keyframes: {
         "accordion-down": {
