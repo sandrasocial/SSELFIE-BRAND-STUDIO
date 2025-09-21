@@ -202,26 +202,26 @@ function Router() {
       )} />
 
       {/* STAGE MODE ROUTES */}
-      <Route path="/hair/live/:sessionId" component={(props) => (
+      <Route path="/hair/live/:sessionId" component={() => (
         <ProtectedRoute component={() => (
           <Suspense fallback={<PageLoader />}>
-            <PresenterConsole {...props} />
+            <PresenterConsole />
           </Suspense>
-        )} {...props} />
+        )} />
       )} />
 
-      <Route path="/hair/guest/:sessionId" component={(props) => (
+      <Route path="/hair/guest/:sessionId" component={() => (
         <Suspense fallback={<PageLoader />}>
-          <AudienceClient {...props} />
+          <AudienceClient />
         </Suspense>
       )} />
 
-      <Route path="/hair/live/:sessionId/stats" component={(props) => (
+      <Route path="/hair/live/:sessionId/stats" component={() => (
         <ProtectedRoute component={() => (
           <Suspense fallback={<PageLoader />}>
-            <SessionStats {...props} />
+            <SessionStats />
           </Suspense>
-        )} {...props} />
+        )} />
       )} />
     </div>
   );

@@ -16,7 +16,7 @@ interface BrandAsset {
   url: string;
   filename: string;
   fileSize?: number;
-  meta?: any;
+  meta?: Record<string, unknown>;
   createdAt: string;
 }
 
@@ -58,7 +58,7 @@ const BrandAssetPlacementModal: React.FC<BrandAssetPlacementModalProps> = ({
       imageId: number;
       assetId: number;
       mode: 'overlay' | 'inpaint';
-      position?: any;
+      position?: { x: number; y: number; width: number; height: number };
       scale?: number;
     }) => {
       const response = await fetch('/api/brand-assets/place', {
@@ -77,27 +77,25 @@ const BrandAssetPlacementModal: React.FC<BrandAssetPlacementModalProps> = ({
 
       return response.json();
     },
-    onSuccess: (data) => {
-      console.log('Placement successful:', data);
+    onSuccess: (data: { variant?: { processingStatus?: string }; message?: string }) => {
       // Invalidate gallery queries to refresh the UI
       queryClient.invalidateQueries({ queryKey: ['/api/gallery-images'] });
       onClose();
       
-      if (data.variant.processingStatus === 'completed') {
-        alert('Brand asset placed successfully!');
+      if (data.variant?.processingStatus === 'completed') {
+        window.alert('Brand asset placed successfully!');
       } else {
-        alert(`Placement started! ${data.message || 'Processing in background.'}`);
+        window.alert(`Placement started! ${data.message || 'Processing in background.'}`);
       }
     },
     onError: (error: Error) => {
-      console.error('Placement error:', error);
-      alert(`Placement failed: ${error.message}`);
+      window.alert(`Placement failed: ${error.message}`);
     },
   });
 
   const handlePlaceAsset = () => {
     if (!selectedAsset) {
-      alert('Please select a brand asset first');
+      window.alert('Please select a brand asset first');
       return;
     }
 

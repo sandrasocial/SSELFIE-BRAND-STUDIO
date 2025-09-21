@@ -2,6 +2,7 @@
 import "./env-setup.js";
 import express from 'express';
 import path from 'path';
+import fs from 'fs';
 import { registerRoutes } from './routes';
 import { securityHeaders, inputValidation } from './middleware/security';
 import { rateLimits } from './middleware/rate-limiter';
@@ -58,7 +59,7 @@ async function setupApp() {
     } else {
       // Development mode: serve built files if they exist
       const distPath = path.join(process.cwd(), 'client', 'dist');
-      if (require('fs').existsSync(distPath)) {
+      if (fs.existsSync(distPath)) {
         app.use(express.static(distPath));
         app.use('/assets', express.static(path.join(distPath, 'assets')));
         app.use('/attached_assets', express.static(path.join(process.cwd(), 'attached_assets')));

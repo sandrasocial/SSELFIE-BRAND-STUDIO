@@ -38,4 +38,8 @@ export function EditorialTextarea({
       {...props}
     />
   );
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> origin/main

@@ -32,4 +32,8 @@ export function EditorialCard({
       {children}
     </div>
   );
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> origin/main
