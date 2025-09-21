@@ -10,7 +10,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   
   try {
     // Test database connection
-    const { storage } = await import('../server/storage.js');
+    const { storage } = await import('../server/storage');
     const dbStart = Date.now();
     
     // Quick database health check

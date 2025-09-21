@@ -1381,7 +1381,7 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
         
         try {
           // Use the real Maya personality system
-          const { PersonalityManager } = await import('../server/agents/personalities/personality-config.js');
+          const { PersonalityManager } = await import('../server/agents/personalities/personality-config');
           const baseMayaPersonality = PersonalityManager.getNaturalPrompt('maya');
           const structuredOutputInstruction = `\n\nSTRICT OUTPUT FORMAT:\nReturn EXACTLY 3 concepts separated by a line with three dashes (---).\nFor each concept, output 3 lines only:\n1) An emoji followed by a space and a bold title: "+emoji+ **TITLE**"\n2) One sentence description\n3) A line starting with "FLUX_PROMPT:" followed by a single line image generation prompt.\nDo not add any extra text before or after the three concepts.`;
           const systemPrompt = `${baseMayaPersonality}${structuredOutputInstruction}`;

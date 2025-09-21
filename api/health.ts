@@ -1,6 +1,6 @@
 // Minimal health endpoint using Node runtime default handler
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-export const config = { runtime: 'nodejs' } as const;
+export const config = { runtime: 'nodejs20.x' } as const;
 
 export default function handler(_req: VercelRequest, res: VercelResponse) {
   // Support both VercelResponse and Web-standard Response surfaces

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'wouter';
-import { useStackApp } from '@stackframe/react/dist/esm/lib/hooks';
+import { useStackApp } from '@stackframe/react';
 import { PageLoader } from '../components/PageLoader';
 
 function hasCallbackParams() {

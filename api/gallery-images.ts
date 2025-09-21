@@ -3,7 +3,7 @@ export const config = {
   runtime: 'nodejs20.x',
   maxDuration: 30
 } as const;
-import main from './index.js';
+import main from './index';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   return main(req, res);
