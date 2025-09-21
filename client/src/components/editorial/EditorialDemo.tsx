@@ -24,8 +24,3 @@ export function EditorialDemo() {
       </EditorialCard>
     </div>
   );
-<<<<<<< HEAD
-}
-=======
-}
->>>>>>> origin/main

@@ -108,20 +108,6 @@ export class EditorialAnimations {
 
   // Parallax effect for backgrounds
   static createParallaxEffect(element: HTMLElement, speed = 0.5) {
-<<<<<<< HEAD
-    // Check if element is still in DOM
-    if (!element || !element.parentNode) {
-      return () => {}; // Return empty cleanup function
-    }
-
-    const handleScroll = () => {
-      // Additional safety check during execution
-      if (!element || !element.parentNode) {
-        return;
-      }
-=======
-    const handleScroll = () => {
->>>>>>> origin/main
       const scrolled = window.pageYOffset;
       const parallax = scrolled * speed;
       element.style.transform = `translateY(${parallax}px)`;
@@ -129,36 +115,10 @@ export class EditorialAnimations {
     
     window.addEventListener('scroll', handleScroll, { passive: true });
     
-<<<<<<< HEAD
-    // Return cleanup function that ensures event listener is always removed
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      // Clear any potential references to prevent memory leaks
-      element = null as any;
-    };
-=======
-    // Return cleanup function
-    return () => window.removeEventListener('scroll', handleScroll);
->>>>>>> origin/main
   }
 
   // Intersection Observer for scroll animations
   static observeInView(elements: HTMLElement[], config: AnimationConfig = {}) {
-<<<<<<< HEAD
-    // Filter out null/undefined elements
-    const validElements = elements.filter(element => element && element.parentNode);
-    
-    if (validElements.length === 0) {
-      // Return a mock observer with proper cleanup
-      return {
-        disconnect: () => {},
-        observe: () => {},
-        unobserve: () => {}
-      };
-    }
-
-=======
->>>>>>> origin/main
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
@@ -171,16 +131,3 @@ export class EditorialAnimations {
       rootMargin: '50px 0px -50px 0px'
     });
 
-<<<<<<< HEAD
-    validElements.forEach(element => observer.observe(element));
-    
-    return observer;
-  }
-}
-=======
-    elements.forEach(element => observer.observe(element));
-    
-    return observer;
-  }
-}
->>>>>>> origin/main
