@@ -8,6 +8,7 @@ import { monitoringSystem } from './monitoring';
 import { performanceMonitor } from './performance-monitor';
 import { errorTracker } from './error-tracker';
 import { securityMonitor } from './security-monitor';
+import os from 'os';
 import { healthCheckSystem } from './health-check';
 
 export interface DashboardData {
@@ -382,9 +383,9 @@ export class DashboardSystem {
     network: { inbound: number; outbound: number; connections: number };
   } {
     const memoryUsage = process.memoryUsage();
-    const totalMemory = require('os').totalmem();
-    const loadAverage = require('os').loadavg();
-    const cpuCount = require('os').cpus().length;
+    const totalMemory = os.totalmem();
+    const loadAverage = os.loadavg();
+    const cpuCount = os.cpus().length;
 
     return {
       memory: {

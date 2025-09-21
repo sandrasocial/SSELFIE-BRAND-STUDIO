@@ -4,7 +4,7 @@
  */
 
 import { Router } from 'express';
-import { requireStackAuth, requireActiveSubscription } from '../middleware/auth';
+import { requireStackAuth, requireActiveSubscription } from '../../stack-auth';
 import { storage } from '../../storage';
 import { ModelTrainingService } from '../../model-training-service';
 import { asyncHandler, createError, sendSuccess, validateRequired } from '../middleware/error-handler';

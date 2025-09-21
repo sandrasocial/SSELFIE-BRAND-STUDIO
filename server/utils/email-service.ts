@@ -3,6 +3,8 @@
  * Handles sending escalation emails to Sandra
  */
 
+import sgMail from '@sendgrid/mail';
+
 interface EmailRequest {
   to: string;
   subject: string;
@@ -31,7 +33,6 @@ export async function sendEmail(request: EmailRequest): Promise<boolean> {
     // In production, replace with actual email service:
     /*
     if (process.env.SENDGRID_API_KEY) {
-      const sgMail = require('@sendgrid/mail');
       sgMail.setApiKey(process.env.SENDGRID_API_KEY);
       
       await sgMail.send({

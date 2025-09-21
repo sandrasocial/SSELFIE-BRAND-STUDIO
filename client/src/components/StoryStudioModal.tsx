@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { apiRequest } from '../lib/queryClient';
 import VideoPreview from './VideoPreview';
 
 interface StoryStudioModalProps {
@@ -30,8 +29,10 @@ const StoryStudioModal: React.FC<StoryStudioModalProps> = ({ imageId, imageUrl, 
         
         console.log('🎬 Requesting Maya\'s video direction for image:', imageUrl);
         
-        const response = await apiRequest('/api/maya/get-video-prompt', 'POST', {
-          imageUrl: imageUrl
+        const { apiFetch } = await import('../lib/api');
+        const response = await apiFetch('/maya/get-video-prompt', {
+          method: 'POST',
+          json: { imageUrl: imageUrl }
         });
         
         console.log('✅ Maya video direction received:', response);

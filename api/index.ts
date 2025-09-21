@@ -1,6 +1,20 @@
 /* eslint-disable no-console */
-import { VercelRequest, VercelResponse } from '@vercel/node';
-import { jwtVerify, createRemoteJWKSet } from 'jose';
+import type { VercelRequest, VercelResponse } from '@vercel/node';
+import type { AiImage, UserModel, InsertUser } from '../shared/schema';
+import { withTimeout, withDatabaseTimeout, withDatabaseTimeoutAndRetry, withExternalApiTimeout, isTimeoutError } from './_utils/timing.js';
+export const config = { 
+  runtime: 'nodejs',
+  maxDuration: 40
+} as const;
+// Lazy-load jose at runtime to avoid bootstrap issues
+type JoseModule = typeof import('jose');
+let _jose: Pick<JoseModule, 'jwtVerify' | 'createLocalJWKSet' | 'createRemoteJWKSet'> | null = null;
+async function getJose() {
+  if (_jose) return _jose;
+  const mod: JoseModule = await import('jose');
+  _jose = { jwtVerify: mod.jwtVerify, createLocalJWKSet: mod.createLocalJWKSet, createRemoteJWKSet: mod.createRemoteJWKSet };
+  return _jose;
+}
 
 // Types
 interface ConceptCard {
@@ -18,14 +32,222 @@ interface ConversationEntry {
   message?: string;
 }
 
-// Stack Auth configuration
-const STACK_AUTH_PROJECT_ID = '253d7343-a0d4-43a1-be5c-822f590d40be';
+interface AuthenticatedUser {
+  id: string;
+  email: string | null;
+  firstName: string | null;
+  lastName: string | null;
+  plan: string;
+  role: string;
+  stackUser: Record<string, unknown>;
+}
+
+// Stack Auth configuration - use environment variables
+const STACK_AUTH_PROJECT_ID = process.env.STACK_AUTH_PROJECT_ID || process.env.VITE_STACK_PROJECT_ID || '253d7343-a0d4-43a1-be5c-822f590d40be';
 const STACK_AUTH_API_URL = 'https://api.stack-auth.com/api/v1';
 const JWKS_URL = `${STACK_AUTH_API_URL}/projects/${STACK_AUTH_PROJECT_ID}/.well-known/jwks.json`;
 
 // Create JWKS resolver
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const JWKS = createRemoteJWKSet(new (globalThis as any).URL(JWKS_URL));
+let JWKS: any; // JWKS type from jose library - complex type that's not worth importing
+
+// Timed fetch helper to avoid hard timeouts on external calls
+type FetchInit = { method?: string; headers?: Record<string, string>; body?: string };
+
+// Declare AbortController for environments where it might not be available
+declare const AbortController: {
+  new(): { abort(): void; signal: { addEventListener: (event: string, handler: () => void) => void } };
+};
+
+async function timedFetch(url: string, ms = 3000, init?: FetchInit) {
+  // Use the enhanced external API timeout utility
+  return withExternalApiTimeout(
+    async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const AbortCtor = typeof AbortController !== 'undefined' ? AbortController : (globalThis as any).AbortController;
+      const ac = new AbortCtor();
+      const id = setTimeout(() => ac.abort(), ms);
+      try {
+        // Use global fetch; if types are missing, fall back to any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const f = (globalThis as any).fetch || fetch;
+        return await f(url, { ...(init || {}), signal: ac.signal });
+      } finally {
+        clearTimeout(id);
+      }
+    },
+    new Response(JSON.stringify({ error: 'Network timeout' }), { status: 408 }),
+    ms,
+    1,
+    `fetch-${url}`
+  );
+}
+
+// Remove duplicate withTimeout function - using the one from timing utils instead
+
+function setLogoutCookies(res: import('@vercel/node').VercelResponse) {
+  const expired = [
+    'stack-access',
+    'stack-access-token',
+    'stack_session',
+    '__Secure-next-auth.session-token'
+  ].map(name => `${name}=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0`);
+  const existing = res.getHeader('Set-Cookie');
+  if (Array.isArray(existing)) {
+    res.setHeader('Set-Cookie', [...existing, ...expired]);
+  } else if (typeof existing === 'string' && existing.length > 0) {
+    res.setHeader('Set-Cookie', [existing, ...expired]);
+  } else {
+    res.setHeader('Set-Cookie', expired);
+  }
+}
+
+// Simple circuit breaker for database operations
+interface CircuitBreakerState {
+  failures: number;
+  lastFailure: number;
+  isOpen: boolean;
+}
+
+const circuitBreaker: CircuitBreakerState = {
+  failures: 0,
+  lastFailure: 0,
+  isOpen: false
+};
+
+const CIRCUIT_BREAKER_THRESHOLD = 5; // Open after 5 failures
+const CIRCUIT_BREAKER_TIMEOUT = 30000; // 30 seconds
+const CIRCUIT_BREAKER_RESET_TIME = 60000; // Reset after 1 minute
+
+function checkCircuitBreaker(): boolean {
+  const now = Date.now();
+  
+  // Reset if enough time has passed
+  if (circuitBreaker.isOpen && now - circuitBreaker.lastFailure > CIRCUIT_BREAKER_RESET_TIME) {
+    circuitBreaker.isOpen = false;
+    circuitBreaker.failures = 0;
+    console.log('🔄 Circuit breaker reset');
+  }
+  
+  return !circuitBreaker.isOpen;
+}
+
+function recordCircuitBreakerFailure() {
+  circuitBreaker.failures++;
+  circuitBreaker.lastFailure = Date.now();
+  
+  if (circuitBreaker.failures >= CIRCUIT_BREAKER_THRESHOLD) {
+    circuitBreaker.isOpen = true;
+    console.log('⚠️ Circuit breaker opened due to repeated database failures');
+  }
+}
+
+function recordCircuitBreakerSuccess() {
+  if (circuitBreaker.failures > 0) {
+    circuitBreaker.failures = 0;
+    console.log('✅ Circuit breaker: database operations successful');
+  }
+}
+function nowMs(): number {
+  const perf = (globalThis as unknown as { performance?: { now: () => number } }).performance;
+  return typeof perf?.now === 'function' ? perf.now() : Date.now();
+}
+function logStart(route: string, meta?: Record<string, unknown>) {
+  const start = nowMs();
+  try { console.log(`▶️ ${route} start`, meta || {}); } catch {
+    // Ignore logging errors
+  }
+  return {
+    end: (outcome: string, extra?: Record<string, unknown>) => {
+      const elapsed = Math.round(nowMs() - start);
+      try { console.log(`⏱️ ${route} ${outcome}`, { elapsedMs: elapsed, ...(extra || {}) }); } catch {
+        // Ignore logging errors
+      }
+      return elapsed;
+    }
+  };
+}
+
+// Helper function to apply gender context to concept cards
+async function applyGenderContext(conceptCards: ConceptCard[], userId: string): Promise<ConceptCard[]> {
+  try {
+    console.log('🎯 Applying gender context to concept cards for user:', userId);
+    
+    // Import required utilities
+    const { storage } = await import('../server/storage');
+    const { enforceGender, normalizeGender } = await import('../server/utils/gender-prompt');
+    
+    // Get user data
+    const [user, userModel] = await Promise.all([
+      storage.getUser(userId),
+      storage.getUserModelByUserId(userId)
+    ]);
+    
+    if (!user?.gender || !userModel?.triggerWord) {
+      console.log('⚠️ Gender or trigger word not available, skipping gender enforcement');
+      return conceptCards;
+    }
+    
+    const secureGender = normalizeGender(user.gender);
+    if (!secureGender) {
+      console.log('⚠️ Invalid gender format, skipping gender enforcement');
+      return conceptCards;
+    }
+    
+    console.log(`✅ Applying gender context: ${secureGender} with trigger: ${userModel.triggerWord}`);
+    
+    // Apply gender enforcement to each concept card
+    return conceptCards.map((concept, index) => {
+      let updatedPrompt = concept.fluxPrompt;
+      let updatedDescription = concept.description;
+      
+      // Enforce gender in FLUX prompt
+      if (updatedPrompt) {
+        const enforcedPrompt = enforceGender(userModel.triggerWord!, updatedPrompt, secureGender);
+        if (enforcedPrompt !== updatedPrompt) {
+          console.log(`✅ Gender enforced in concept ${index + 1}: ${concept.title}`);
+          updatedPrompt = enforcedPrompt;
+        }
+      }
+      
+      // Apply pronoun corrections to description based on gender
+      if (updatedDescription) {
+        if (secureGender === 'man') {
+          // Replace female pronouns with male equivalents
+          updatedDescription = updatedDescription
+            .replace(/\bshe\b/gi, 'he')
+            .replace(/\bher\b/gi, 'his')
+            .replace(/\bwoman\b/gi, 'man')
+            .replace(/\bwomen\b/gi, 'men');
+        } else if (secureGender === 'woman') {
+          // Replace male pronouns with female equivalents (less common but for safety)
+          updatedDescription = updatedDescription
+            .replace(/\bhe\b/gi, 'she')
+            .replace(/\bhis\b/gi, 'her')
+            .replace(/\bman\b/gi, 'woman')
+            .replace(/\bmen\b/gi, 'women');
+        } else if (secureGender === 'non-binary') {
+          // Replace gendered pronouns with neutral alternatives
+          updatedDescription = updatedDescription
+            .replace(/\b(he|she)\b/gi, 'they')
+            .replace(/\b(his|her)\b/gi, 'their')
+            .replace(/\b(man|woman)\b/gi, 'person')
+            .replace(/\b(men|women)\b/gi, 'people');
+        }
+      }
+      
+      return {
+        ...concept,
+        fluxPrompt: updatedPrompt,
+        description: updatedDescription
+      };
+    });
+    
+  } catch (error) {
+    console.log('❌ Gender context application failed (non-blocking):', error instanceof Error ? error.message : error);
+    return conceptCards; // Return original cards if gender enforcement fails
+  }
+}
 
 // Helper function to extract concept cards from Maya's response
 function extractConceptCards(response: string): ConceptCard[] {
@@ -95,16 +317,25 @@ function getCategoryFromTitle(title: string): string {
   }
 }
 
-// Verify JWT token directly using Stack Auth JWKS
+// Verify JWT token directly using Stack Auth JWKS (local JWKS with fetch timeout)
 async function verifyJWTToken(token: string) {
   try {
+  const jose = await getJose();
+  const { jwtVerify, createLocalJWKSet } = jose;
+    if (!JWKS) {
+      // Fetch JWKS with timeout and create a local JWK set to avoid remote hangs
+      const resp = await timedFetch(JWKS_URL, 3000);
+      if (!resp.ok) throw new Error(`JWKS HTTP ${resp.status}`);
+      const jwks = await resp.json();
+      JWKS = createLocalJWKSet(jwks);
+    }
     const { payload } = await jwtVerify(token, JWKS, {
       issuer: `${STACK_AUTH_API_URL}/projects/${STACK_AUTH_PROJECT_ID}`,
       audience: STACK_AUTH_PROJECT_ID,
     });
     return payload;
   } catch (error) {
-    throw new Error(`JWT verification failed: ${error.message}`);
+    throw new Error(`JWT verification failed: ${(error as Error).message}`);
   }
 }
 
@@ -144,6 +375,83 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (req.method === 'OPTIONS') {
       return res.status(200).end();
     }
+
+    // Admin export: Markdown document of trained users for manual Stack updates
+    if (req.url === '/api/admin/export-trained-users-doc') {
+      if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
+      try {
+        const adminToken = req.headers['x-admin-token'] as string;
+        const expected = process.env.ADMIN_TOKEN || 'sandra-admin-2025';
+        if (adminToken !== expected) return res.status(401).json({ error: 'Unauthorized' });
+
+        const { storage } = await import('../server/storage');
+        const models = await storage.getAllCompletedTrainings();
+
+        const header = [
+          '# Trained Users Export',
+          '',
+          'Copy/paste this table into your Stack dashboard import or keep as a reference.',
+          '',
+          '| Email | LegacyUserId | StackId | TriggerWord | ModelStatus | ModelName | ReplicateModelId | ReplicateVersionId | CompletedAt |',
+          '|---|---:|---|---|---|---|---|---|---|'
+        ].join('\n');
+
+        const rows: string[] = [];
+        for (const m of models) {
+          const u = await storage.getUser(m.userId);
+          const email = (u as { email?: string } | undefined)?.email || '';
+          const legacyId = (u as { id?: string } | undefined)?.id || m.userId;
+          const stackId = (u as { stackAuthId?: string } | undefined)?.stackAuthId || '';
+          const trigger = (m as { triggerWord?: string } | undefined)?.triggerWord || '';
+          const status = (m as { trainingStatus?: string } | undefined)?.trainingStatus || '';
+          const modelName = (m as { modelName?: string } | undefined)?.modelName || '';
+          const replicateModelId = (m as { replicateModelId?: string } | undefined)?.replicateModelId || '';
+          const replicateVersionId = (m as { replicateVersionId?: string } | undefined)?.replicateVersionId || '';
+          const completedAt = (m as { completedAt?: string | Date } | undefined)?.completedAt ? new Date((m as { completedAt?: string | Date }).completedAt as string).toISOString() : '';
+          rows.push(`| ${email} | ${legacyId} | ${stackId} | ${trigger} | ${status} | ${modelName} | ${replicateModelId} | ${replicateVersionId} | ${completedAt} |`);
+        }
+
+        const markdown = `${header}\n${rows.join('\n')}\n`;
+        res.setHeader('Content-Type', 'text/markdown; charset=utf-8');
+        res.setHeader('Cache-Control', 'no-store');
+        return res.status(200).send(markdown);
+      } catch (error) {
+        return res.status(500).json({ error: 'Failed to export trained users', message: (error as Error).message });
+      }
+    }
+
+    // Safe JSON responder that works with both Node res and Web Response
+    const json = (response: unknown, status: number, body: unknown) => {
+      const r = response as { status?: (code: number) => { json: (b: unknown) => unknown } };
+      if (typeof r?.status === 'function') {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        return (response as any).status(status).json(body);
+      }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const NodeResponse = (globalThis as any).Response;
+      try {
+        // @ts-ignore
+        return new NodeResponse(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } });
+      } catch {
+        // Final fallback for unknown environments
+        // @ts-ignore
+        return { status, headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) };
+      }
+    };
+
+    // Shim Response surface if platform provides Web-standard Response instead of VercelResponse
+    const resAny = res as unknown as { status?: (code: number) => { json: (b: unknown) => unknown; send: (t: string) => unknown; end: () => unknown }, setHeader?: (k: string, v: unknown) => void, getHeader?: (k: string) => unknown };
+    if (typeof resAny.status !== 'function') {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const NodeResponse = (globalThis as any).Response;
+      resAny.setHeader = resAny.setHeader || (() => {});
+      resAny.getHeader = resAny.getHeader || (() => undefined);
+      resAny.status = (code: number) => ({
+        json: (body: unknown) => new NodeResponse(JSON.stringify(body), { status: code, headers: { 'content-type': 'application/json' } }),
+        send: (text: string) => new NodeResponse(text, { status: code }),
+        end: () => new NodeResponse(null, { status: code }),
+      });
+    }
     
     // Simple health check
     if (req.url?.includes('/api/health')) {
@@ -153,9 +461,31 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         timestamp: new Date().toISOString(),
       });
     }
+
+    // Logout: clear auth cookies to break loops
+    if (req.url === '/api/logout') {
+      setLogoutCookies(res);
+      res.setHeader('Cache-Control', 'no-store');
+      return res.status(200).json({ ok: true, loggedOut: true });
+    }
+    
+    // Helper function to parse cookie header when req.cookies is unavailable
+    function parseCookieHeader(cookieHeader?: string): Record<string, string> {
+      if (!cookieHeader) return {};
+      const out: Record<string, string> = {};
+      for (const part of cookieHeader.split(';')) {
+        const idx = part.indexOf('=');
+        if (idx > -1) {
+          const k = part.slice(0, idx).trim();
+          const v = decodeURIComponent(part.slice(idx + 1).trim());
+          out[k] = v;
+        }
+      }
+      return out;
+    }
     
     // Helper function to get authenticated user
-    async function getAuthenticatedUser() {
+    async function getAuthenticatedUser(): Promise<AuthenticatedUser> {
       let accessToken: string | undefined;
       
       // Check Authorization header for Bearer token
@@ -165,39 +495,75 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         console.log('🔐 Found Bearer token in Authorization header');
       }
       
-      // Check cookies for stored access token
-      if (!accessToken && req.cookies) {
-        console.log('🍪 All cookies received:', JSON.stringify(req.cookies, null, 2));
+      // Check cookies for stored access token - handle both req.cookies and header cookies
+      const cookiesSource: Record<string, string> = (req as unknown as { cookies?: Record<string, string> }).cookies || parseCookieHeader(req.headers.cookie as string);
+      if (!accessToken && cookiesSource) {
+        try { console.log('🍪 All cookies received:', Object.keys(cookiesSource)); } catch {
+          // Ignore logging errors
+        }
         
-        // Stack Auth stores tokens in 'stack-access' cookie as array format
-        const stackAccessCookie = req.cookies['stack-access'];
-        console.log('🍪 stack-access cookie:', stackAccessCookie);
+        // Try all possible Stack Auth cookie formats
+        const cookiesToTry = [
+          'stack-access',           // Current format
+          'stack-access-token',     // Legacy format
+          'stack_session',          // Alternative format
+          '__Secure-next-auth.session-token', // NextAuth format if used
+        ];
         
-        if (stackAccessCookie) {
-          try {
-            // Parse the array format: ["token_id", "jwt_token"]
-            const stackAccessArray = JSON.parse(stackAccessCookie);
-            console.log('🍪 Parsed stack-access array:', stackAccessArray);
+        for (const cookieName of cookiesToTry) {
+          const cookieValue = cookiesSource[cookieName];
+          
+          if (cookieValue) {
+            console.log(`🍪 Found cookie: ${cookieName}`);
             
+            try {
+              // Try parsing as JSON array first
+              if (cookieValue.startsWith('[')) {
+                const stackAccessArray = JSON.parse(cookieValue);
             if (Array.isArray(stackAccessArray) && stackAccessArray.length >= 2) {
               accessToken = stackAccessArray[1]; // JWT is the second element
-              console.log('🔐 Found access token in stack-access cookie');
-            } else {
-              console.log('⚠️ Invalid stack-access cookie format - not an array or insufficient elements');
+                  console.log('🔐 Found access token in JSON array format');
+                  break;
+                }
+              }
+              
+              // Try parsing as JSON object
+              if (cookieValue.startsWith('{')) {
+                const stackAccessObj = JSON.parse(cookieValue);
+                if (stackAccessObj.accessToken || stackAccessObj.token || stackAccessObj.jwt) {
+                  accessToken = stackAccessObj.accessToken || stackAccessObj.token || stackAccessObj.jwt;
+                  console.log('🔐 Found access token in JSON object format');
+                  break;
+                }
+              }
+              
+              // Try as direct token (string format)
+              if (cookieValue.length > 20 && cookieValue.includes('.')) {
+                // Looks like a JWT token
+                accessToken = cookieValue;
+                console.log('🔐 Found access token in direct string format');
+                break;
+              }
+              
+            } catch (parseError) {
+              console.log(`⚠️ Failed to parse ${cookieName} cookie:`, (parseError as Error).message);
+              
+              // If parsing fails, try as direct token
+              if (cookieValue.length > 20) {
+                accessToken = cookieValue;
+                console.log('🔐 Using raw cookie value as token');
+                break;
+              }
             }
-          } catch (error) {
-            console.log('❌ Failed to parse stack-access cookie:', error);
-            console.log('🍪 Raw cookie value:', stackAccessCookie);
           }
         }
         
-        // Fallback: check for old stack-access-token format
         if (!accessToken) {
-          accessToken = req.cookies['stack-access-token'];
-          if (accessToken) {
-            console.log('🔐 Found access token in stack-access-token cookie');
-          } else {
-            console.log('🔍 No access token found in any cookies');
+          try { console.log('🔍 No valid access token found in cookies'); } catch {
+            // Ignore logging errors
+          }
+          try { console.log('🔍 Available cookies:', Object.keys(cookiesSource)); } catch {
+            // Ignore logging errors
           }
         }
       }
@@ -207,7 +573,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
 
       console.log('🔐 Verifying JWT token...');
-      console.log('🔍 Token preview:', accessToken.substring(0, 20) + '...');
+      console.log('🔍 Token preview:', (accessToken as string).substring(0, 20) + '...');
       
       // Verify JWT token
       const userInfo = await verifyJWTToken(accessToken);
@@ -216,9 +582,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       console.log('🔍 JWT payload:', JSON.stringify(userInfo, null, 2));
       
       // Extract user information
-      const userId = userInfo.sub || userInfo.user_id || userInfo.id;
-      const userEmail = userInfo.email || userInfo.primary_email || userInfo.primaryEmail || userInfo.email_address || userInfo.user_email;
-      const userName = userInfo.displayName || userInfo.display_name || userInfo.name || userInfo.given_name || userInfo.full_name;
+      const userId = String(userInfo.sub || userInfo.user_id || userInfo.id || '');
+      const userEmail = String(userInfo.email || userInfo.primary_email || userInfo.primaryEmail || userInfo.email_address || userInfo.user_email || '');
+      const userName = String(userInfo.displayName || userInfo.display_name || userInfo.name || userInfo.given_name || userInfo.full_name || '');
       
       console.log('📊 Extracted user info:', {
         id: userId,
@@ -229,8 +595,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return {
         id: userId,
         email: userEmail,
-        firstName: (userName as string)?.split(' ')[0],
-        lastName: (userName as string)?.split(' ').slice(1).join(' '),
+        firstName: userName?.split(' ')[0] || null,
+        lastName: userName?.split(' ').slice(1).join(' ') || null,
         plan: 'sselfie-studio', // Default plan
         role: 'user', // Default role
         stackUser: userInfo // Include raw Stack Auth user data
@@ -269,10 +635,128 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         firstName: stackUser.firstName || (stackUser.displayName ? stackUser.displayName.split(' ')[0] : null),
         lastName: stackUser.lastName || (stackUser.displayName ? stackUser.displayName.split(' ').slice(1).join(' ') : null),
         profileImageUrl: stackUser.profileImageUrl || null,
-      } as any);
+      } as InsertUser);
     }
 
-    // Handle authentication endpoints
+    // Handle auto-registration for new paying customers
+    if (req.url === '/api/auth/auto-register') {
+      if (req.method !== 'POST') {
+        return res.status(405).json({ error: 'Method not allowed' });
+      }
+      
+      try {
+        const { email, plan, source } = req.body || {};
+        
+        if (!email || !plan) {
+          return res.status(400).json({ error: 'Email and plan are required' });
+        }
+        
+        console.log('🚀 AUTO-REGISTRATION: Creating database user for:', email, 'plan:', plan);
+        
+        // Import storage to create database user
+        const { storage } = await import('../server/storage');
+        
+        // Check if user already exists by email
+        const existingUser = await storage.getUserByEmail(email);
+        
+        if (existingUser) {
+          console.log('✅ AUTO-REGISTRATION: User already exists, updating plan:', existingUser.id);
+          
+          // Update existing user's plan
+          const updatedUser = await storage.updateUserProfile(existingUser.id, {
+            plan: plan,
+            monthlyGenerationLimit: plan === 'sselfie-studio' ? 100 : -1,
+            mayaAiAccess: true,
+            lastLoginAt: new Date()
+          });
+          
+          return res.status(200).json({
+            success: true,
+            message: 'Account updated successfully',
+            userId: updatedUser.id,
+            email: updatedUser.email,
+            action: 'updated'
+          });
+        }
+        
+        // Create new database user (pre-registration for payment)
+        const newUserId = `user_${Date.now()}_${email.split('@')[0]}`;
+        const newUser = await storage.upsertUser({
+          id: newUserId,
+          email: email,
+          displayName: email.split('@')[0], // Use email prefix as default name
+          firstName: null,
+          lastName: null,
+          profileImageUrl: null,
+          plan: plan,
+          role: 'user',
+          monthlyGenerationLimit: plan === 'sselfie-studio' ? 100 : -1,
+          mayaAiAccess: true,
+          victoriaAiAccess: false,
+          onboardingProgress: JSON.stringify({ source: source || 'payment-success' })
+        } as InsertUser);
+        
+        console.log('✅ AUTO-REGISTRATION: Database user created successfully:', newUser.id);
+        
+        res.setHeader('Cache-Control', 'no-store');
+        return res.status(201).json({
+          success: true,
+          message: 'Account pre-created successfully',
+          userId: newUser.id,
+          email: newUser.email,
+          plan: newUser.plan,
+          action: 'created'
+        });
+        
+      } catch (error) {
+        console.error('❌ AUTO-REGISTRATION: Failed:', error);
+        return res.status(500).json({
+          success: false,
+          error: 'Failed to create account',
+          message: error.message
+        });
+      }
+    }
+
+    // Handle Stack Auth API proxy endpoints
+    if (req.url?.startsWith('/api/auth/') && !req.url.includes('auto-register')) {
+      console.log('🔍 Stack Auth API proxy called:', req.url);
+      
+      try {
+        // Proxy to Stack Auth API
+        const stackAuthPath = req.url.replace('/api/auth', '');
+        const stackAuthUrl = `https://api.stack-auth.com/api/v1/projects/${STACK_AUTH_PROJECT_ID}${stackAuthPath}`;
+        
+        console.log('🔄 Proxying to Stack Auth:', stackAuthUrl);
+        
+        const proxyResponse = await fetch(stackAuthUrl, {
+          method: req.method,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': req.headers.authorization || '',
+            'x-stack-project-id': STACK_AUTH_PROJECT_ID,
+            ...(req.body ? {} : {})
+          },
+          body: req.body ? JSON.stringify(req.body) : undefined
+        });
+        
+        const responseData = await proxyResponse.text();
+        
+        res.setHeader('Content-Type', proxyResponse.headers.get('content-type') || 'application/json');
+        res.setHeader('Cache-Control', 'no-store');
+        
+        return res.status(proxyResponse.status).send(responseData);
+        
+      } catch (error) {
+        console.log('❌ Stack Auth proxy failed:', error.message);
+        return res.status(500).json({ 
+          error: 'Stack Auth proxy failed',
+          message: error.message
+        });
+      }
+    }
+
+    // Handle authentication user endpoint (legacy)
     if (req.url?.includes('/api/auth/user')) {
       console.log('🔍 Auth user endpoint called');
       
@@ -289,35 +773,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     }
 
-    // Stack webhook to upsert users: /api/webhooks/stack
-    if (req.url === '/api/webhooks/stack' || req.url?.startsWith('/api/webhooks/stack')) {
-      if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Method not allowed' });
-      }
-      const providedSecret = (req.headers['x-stack-webhook-secret'] as string) || (req.headers['x-stack-verification-secret'] as string) || (req.query as any)?.secret;
-      const expected = process.env.STACK_WEBHOOK_SECRET || process.env.STACK_WEBHOOK_VERIFICATION_SECRET;
-      if (!expected || providedSecret !== expected) {
-        return res.status(401).json({ error: 'Invalid webhook secret' });
-      }
-      res.setHeader('Cache-Control', 'no-store');
-      try {
-        const body = req.body || {};
-        const eventType = (body.event && body.event.type) || body.type || 'unknown';
-        const u = body.data?.user || body.user || body.data || {};
-        const stackUser = {
-          id: u.id || u.sub || u.user_id,
-          email: u.email || u.primaryEmail || u.primary_email,
-          displayName: u.displayName || u.display_name || u.name,
-          firstName: u.firstName || u.given_name || null,
-          lastName: u.lastName || u.family_name || null,
-          profileImageUrl: u.profileImageUrl || u.avatar_url || null,
-        };
-        const dbUser = await ensureDbUserFromStack(stackUser);
-        return res.status(200).json({ ok: true, event: eventType, userId: dbUser.id });
-      } catch (e) {
-        return res.status(500).json({ error: 'Webhook processing failed', detail: (e as Error).message });
-      }
-    }
+    // Stack webhook is now handled by dedicated /api/webhooks/stack.ts endpoint
+    // This allows proper Vercel serverless function routing
 
     // Admin backfill: POST /api/admin/backfill-stack-users { users: [{id,email,displayName,firstName,lastName,profileImageUrl}] }
     if (req.url === '/api/admin/backfill-stack-users') {
@@ -325,9 +782,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const adminToken = req.headers['x-admin-token'] as string;
       const expected = process.env.ADMIN_TOKEN || 'sandra-admin-2025';
       if (adminToken !== expected) return res.status(401).json({ error: 'Unauthorized' });
-      const users = (req.body && (req.body as any).users) || [];
+      const users = (req.body && (req.body as { users?: Array<{ id: string; email?: string | null; displayName?: string | null; firstName?: string | null; lastName?: string | null; profileImageUrl?: string | null }> }).users) || [];
       if (!Array.isArray(users)) return res.status(400).json({ error: 'users array required' });
-      const results: any[] = [];
+      const results: Array<{ id: string; email: string | null }> = [];
       for (const u of users) {
         const dbUser = await ensureDbUserFromStack({
           id: u.id,
@@ -367,15 +824,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (adminToken !== expected) return res.status(401).json({ error: 'Unauthorized' });
       const { storage } = await import('../server/storage');
       const users = await storage.getAllUsers();
-      const result = [] as Array<Record<string, unknown>>;
-      for (const u of users) {
-        const legacyUserId = (u as any).id;
-        const stackId = (u as any).stackAuthId || null;
-        let model = await storage.getUserModelByUserId(String(legacyUserId));
-        const trained = !!model && (model as any).trainingStatus === 'completed';
+      const result: Array<{ email: string | null; stackId: string | null; legacyUserId: string; triggerWord: string; modelStatus: string; modelName: string | null }> = [];
+      for (const u of users as Array<{ id: string; stackAuthId?: string; email?: string }>) {
+        const legacyUserId = u.id;
+        const stackId = u.stackAuthId || null;
+        const model = await storage.getUserModelByUserId(String(legacyUserId));
         const triggerWord = model?.triggerWord || `user${String(legacyUserId).replace(/[^a-zA-Z0-9]/g, '')}`;
         result.push({
-          email: (u as any).email || null,
+          email: u.email || null,
           stackId,
           legacyUserId,
           triggerWord,
@@ -387,69 +843,473 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(200).json({ count: result.length, users: result });
     }
 
-    // /api/me: ensure DB user and return JSON
-    if (req.url === '/api/me' || req.url?.startsWith('/api/me?')) {
+    // Admin: push trained users' metadata to Stack Auth
+    if (req.url === '/api/admin/push-stack-metadata') {
+      if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+      const adminToken = req.headers['x-admin-token'] as string;
+      const expected = process.env.ADMIN_TOKEN || 'sandra-admin-2025';
+      if (adminToken !== expected) return res.status(401).json({ error: 'Unauthorized' });
+
+      const PROJECT_ID = process.env.STACK_AUTH_PROJECT_ID || process.env.VITE_STACK_PROJECT_ID;
+      const STACK_KEY = process.env.STACK_ADMIN_KEY || process.env.STACK_SERVER_KEY || '';
+      if (!PROJECT_ID || !STACK_KEY) {
+        return res.status(500).json({ error: 'Missing STACK_AUTH_PROJECT_ID or STACK_ADMIN_KEY on server' });
+      }
+
       try {
-        const user = await getAuthenticatedUser();
         const { storage } = await import('../server/storage');
-        // Try to get existing user
-        let dbUser = await storage.getUser(user.id as string);
-        if (!dbUser) {
-          // Try link by email
-          if (user.email) {
-            const byEmail = await storage.getUserByEmail(user.email);
-            if (byEmail) {
-              dbUser = await storage.linkStackAuthId(byEmail.id, user.id as string);
-            }
+        const trainedModels = await storage.getAllCompletedTrainings();
+        const updated: Array<{ stackId: string; legacyUserId: string; email: string | null; ok: boolean; status: number }>
+          = [];
+        const skipped: Array<{ userId: string; reason: string }> = [];
+
+        for (const m of trainedModels as Array<{ userId: string; triggerWord?: string; trainingStatus?: string; modelName?: string; replicateModelId?: string; replicateVersionId?: string }>) {
+          const userId = m.userId;
+          const u = await storage.getUser(userId);
+          const email = (u as { email?: string } | undefined)?.email || null;
+          const stackId = (u as { stackAuthId?: string } | undefined)?.stackAuthId || null;
+          if (!stackId) {
+            skipped.push({ userId, reason: 'No stackAuthId' });
+            continue;
+          }
+          const triggerWord = m.triggerWord || `user${String(userId).replace(/[^a-zA-Z0-9]/g, '')}`;
+          const modelStatus = m.trainingStatus || 'completed';
+          const modelName = m.modelName || '';
+          const replicateModelId = m.replicateModelId || '';
+          const replicateVersionId = m.replicateVersionId || '';
+
+          const body = {
+            metadata: {
+              legacyUserId: userId,
+              triggerWord,
+              modelStatus,
+              modelName,
+              replicateModelId,
+              replicateVersionId,
+            },
+          };
+
+          let status = 0;
+          try {
+            const resp = await timedFetch(`https://api.stack-auth.com/api/v1/projects/${PROJECT_ID}/users/${stackId}`, 8000, {
+              method: 'PATCH',
+              headers: {
+                'Authorization': `Bearer ${STACK_KEY}`,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(body),
+            });
+            status = resp.status;
+            updated.push({ stackId, legacyUserId: userId, email, ok: resp.ok, status });
+          } catch {
+            updated.push({ stackId, legacyUserId: userId, email, ok: false, status });
           }
         }
+
+        return res.status(200).json({
+          ok: true,
+          projectId: PROJECT_ID,
+          updatedCount: updated.filter(x => x.ok).length,
+          failedCount: updated.filter(x => !x.ok).length,
+          skippedCount: skipped.length,
+          updated,
+          skipped,
+        });
+      } catch (error) {
+        return res.status(500).json({ error: 'Push to Stack failed', message: (error as Error).message });
+      }
+    }
+
+    // /api/me: ensure DB user and return JSON
+    if (req.url === '/api/me' || req.url?.startsWith('/api/me?')) {
+      const t = logStart('GET /api/me');
+      // Ensure we return JSON content type
+      res.setHeader('Content-Type', 'application/json');
+      
+      try {
+        // Check circuit breaker before attempting database operations
+        if (!checkCircuitBreaker()) {
+          console.warn('⚠️ Circuit breaker open, returning cached user fallback');
+          return res.status(503).json({
+            message: 'Service temporarily unavailable due to database issues',
+            error: 'Circuit breaker open',
+            code: 'CIRCUIT_BREAKER_OPEN'
+          });
+        }
+
+        const user = await getAuthenticatedUser();
+        const { storage } = await import('../server/storage');
+        
+        // OPTIMIZED: Use faster database timeouts with retry for critical user operations
+        let dbUser = await withDatabaseTimeoutAndRetry(
+          () => storage.getUser(user.id as string), 
+          null, 
+          2000, // Reduced from 3000ms
+          1, // 1 retry
+          'getUser'
+        );
+        
+        // Record success if we got this far
+        if (dbUser) {
+          recordCircuitBreakerSuccess();
+        }
+      
         if (!dbUser) {
-          // Create new user
-          dbUser = await storage.upsertUser({
+          // Try to find user by Stack Auth ID or email in parallel with shorter timeouts
+          const [byStackId, byEmail] = await Promise.all([
+            withDatabaseTimeout(
+              storage.getUserByStackAuthId(user.id as string), 
+              null, 
+              2000, // Reduced from 2500ms
+              'getUserByStackAuthId'
+            ),
+            user.email ? withDatabaseTimeout(
+              storage.getUserByEmail(user.email as string), 
+              null, 
+              2000, // Reduced from 2500ms
+              'getUserByEmail'
+            ) : Promise.resolve(null)
+          ]);
+          
+          if (byStackId) {
+            dbUser = byStackId;
+          } else if (byEmail) {
+            console.log('🔗 Linking existing paid user to Stack Auth:', byEmail.email, '→', user.id);
+            dbUser = await withDatabaseTimeout(
+              storage.linkStackAuthId(byEmail.id, user.id as string), 
+              byEmail, // Use existing user as fallback if linking fails
+              2500, // Reduced from 3000ms
+              'linkStackAuthId'
+            );
+            console.log('✅ Successfully linked paid user to Stack Auth account');
+          }
+        }
+      
+        if (!dbUser) {
+          // Create completely new user (no prior payment) with timeout fallback
+          console.log('🆕 Creating new user account:', user.email);
+          
+          // Create a minimal user object as fallback
+          const fallbackUser = {
             id: user.id as string,
             email: (user.email as string) || null,
             displayName: `${user.firstName || ''} ${user.lastName || ''}`.trim() || null,
             firstName: user.firstName || null,
             lastName: user.lastName || null,
             profileImageUrl: null,
-          } as any);
+            plan: 'sselfie-studio',
+            role: 'user',
+            monthlyGenerationLimit: 100,
+            mayaAiAccess: true,
+            victoriaAiAccess: false,
+            onboardingProgress: JSON.stringify({ source: 'direct-signup' })
+          };
+          
+          dbUser = await withDatabaseTimeout(
+            storage.upsertUser(fallbackUser),
+            fallbackUser, // Use fallback if DB operation times out
+            3000, // Reduced from 4000ms
+            'upsertUser'
+          );
+          
+          console.log('✅ Created new user account:', dbUser.id);
         }
+        
         res.setHeader('Cache-Control', 'no-store');
+        t.end('ok');
         return res.status(200).json({ user: dbUser });
       } catch (error) {
+        t.end('error', { error: (error as Error).message });
         console.log('❌ /api/me failed:', (error as Error).message);
-        return res.status(401).json({ message: 'Authentication required', error: (error as Error).message });
+        
+        // Record circuit breaker failure for database-related errors
+        if (isTimeoutError(error) || (error as Error).message.includes('database')) {
+          recordCircuitBreakerFailure();
+        }
+        
+        // Enhanced error handling for timeout scenarios
+        if (isTimeoutError(error)) {
+          const timeoutBody = { 
+            message: 'Service temporarily unavailable, please try again', 
+            error: 'Request timeout',
+            code: 'TIMEOUT'
+          };
+          return res.status(503).json(timeoutBody);
+        }
+        
+        const body = { message: 'Authentication required', error: (error as Error).message };
+        // Support both Node and Web-standard surfaces
+        if (typeof (res as unknown as { status?: unknown }).status === 'function') {
+          return res.status(401).json(body);
+        } else {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const NodeResponse = (globalThis as any).Response;
+          return new NodeResponse(JSON.stringify(body), { status: 401, headers: { 'content-type': 'application/json' } });
+        }
       }
     }
 
-    // Handle user model endpoint
+    // Handle user model endpoint - CRITICAL for new user flow
     if (req.url?.includes('/api/user-model')) {
-      console.log('🔍 User model endpoint called');
+      const t = logStart('GET /api/user-model');
       
       try {
         const user = await getAuthenticatedUser();
+        const { storage } = await import('../server/storage');
+        
         console.log('🔍 Getting model for user:', user.id, user.email);
         
-        // For now, return a mock model status
-        // In a real implementation, this would query your database
+        // Get user from database to check training status with faster timeouts
+        let dbUser = await withDatabaseTimeoutAndRetry(
+          () => storage.getUser(user.id as string), 
+          null, 
+          2000, // Reduced from 3000ms
+          1, // 1 retry
+          'getUser'
+        );
+        
+        if (!dbUser && user.email) {
+          dbUser = await withDatabaseTimeout(
+            storage.getUserByEmail(user.email as string), 
+            null, 
+            2000, // Reduced from 3000ms
+            'getUserByEmail'
+          );
+        }
+        
+        if (!dbUser) {
+          console.log('❌ No database user found for:', user.id);
+          return res.status(404).json({ 
+            message: 'User not found in database',
+            error: 'Database user not found'
+          });
+        }
+        
+        // Check if user has a trained model with fallback and reduced timeout
+        let userModel: UserModel | null = null;
+        try {
+          userModel = await withDatabaseTimeout(
+            storage.getUserModel(dbUser.id), 
+            null, // Fallback to null if timeout occurs
+            3000, // Reduced from 4000ms
+            'getUserModel'
+          );
+        } catch (error) {
+          console.log('📊 Model fetch failed or timed out for:', dbUser.id, (error as Error).message);
+          userModel = null;
+        }
+        
+        // Determine training status based on actual data
+        let trainingStatus = 'not_started';
+        let needsTraining = true;
+        let canRetrain = false;
+        
+        if (userModel) {
+          // User has a model - check its status
+          trainingStatus = userModel.trainingStatus || 'not_started';
+          needsTraining = trainingStatus !== 'completed';
+          canRetrain = true; // Users with models can retrain
+          
+          console.log('📊 Existing user model found:', {
+            id: userModel.id,
+            status: trainingStatus,
+            needsTraining,
+            canRetrain
+          });
+        } else {
+          // New user - no model exists
+          console.log('🆕 New user detected - no model exists');
+          needsTraining = true;
+          canRetrain = false;
+        }
+        
+        // Safely read onboarding source from jsonb or string
+        let onboardingSourceSafe = 'unknown';
+        try {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const op = (dbUser as any).onboardingProgress;
+          if (op) {
+            const obj = typeof op === 'string' ? JSON.parse(op) : op;
+            onboardingSourceSafe = (obj && obj.source) || 'unknown';
+          }
+        } catch {
+          // Ignore parsing errors
+        }
+
         const modelStatus = {
-          id: `model_${user.id}`,
-          userId: user.id,
-          trainingStatus: 'completed', // Mock: assume user has completed training
+          id: userModel?.id || null,
+          userId: dbUser.id,
+          trainingStatus: trainingStatus,
+          needsTraining: needsTraining,
+          canRetrain: canRetrain,
           modelType: 'sselfie-studio',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          // Add other model properties as needed
+          createdAt: userModel?.createdAt || null,
+          updatedAt: userModel?.updatedAt || null,
+          // User context for training decisions
+          userPlan: dbUser.plan,
+          hasActiveSubscription: (dbUser.monthlyGenerationLimit === -1 || (dbUser.monthlyGenerationLimit && dbUser.monthlyGenerationLimit > 0)),
+          onboardingSource: onboardingSourceSafe
         };
         
-        console.log('📊 Returning model status:', modelStatus);
-        return res.status(200).json(modelStatus);
+        console.log('📊 Returning REAL model status for new user flow:', {
+          trainingStatus,
+          needsTraining,
+          canRetrain,
+          userPlan: dbUser.plan,
+          onboardingSource: modelStatus.onboardingSource
+        });
+        
+        res.setHeader('Cache-Control', 'no-store');
+        t.end('ok');
+        return json(res, 200, modelStatus);
         
       } catch (error) {
-        console.log('❌ User model fetch failed:', error.message);
-        return res.status(401).json({ 
+        const elapsed = t.end('error', { error: (error as Error).message });
+        console.log('❌ User model fetch failed:', (error as Error).message, { elapsedMs: elapsed });
+        
+        // Enhanced error handling for timeout scenarios
+        if (isTimeoutError(error)) {
+          return json(res, 503, { 
+            message: 'Service temporarily unavailable, please try again',
+            error: 'Request timeout',
+            code: 'TIMEOUT'
+          });
+        }
+        
+        return json(res, 401, { 
           message: 'Authentication required',
           error: error.message
+        });
+      }
+    }
+
+    // Handle Maya video prompt endpoint
+    if (req.url?.includes('/api/maya/get-video-prompt')) {
+      const t = logStart('POST /api/maya/get-video-prompt');
+      
+      try {
+        const user = await getAuthenticatedUser();
+        
+        if (req.method !== 'POST') {
+          return res.status(405).json({ error: 'Method not allowed' });
+        }
+        
+        const { imageUrl } = req.body || {};
+        
+        if (!imageUrl) {
+          return res.status(400).json({ error: 'Image URL is required' });
+        }
+        
+        console.log('🎬 MAYA VIDEO DIRECTION: Creating motion prompt for user:', user.id);
+        
+        // Maya's video director system prompt
+        const videoDirectorPrompt = `You are Maya, SSELFIE Studio's AI Creative Director and Video Director. 
+
+🎬 VIDEO DIRECTION MODE: You are analyzing the actual image provided to create the perfect motion prompt for VEO 3 video generation.
+
+Your expertise includes:
+- Cinematic storytelling and visual narrative
+- Fashion and lifestyle video aesthetics
+- Professional portrait cinematography
+- Understanding of what makes compelling short-form video content
+
+TASK: Analyze the provided image carefully and create ONE single, cinematic motion prompt that perfectly enhances what you see in the image.
+
+ANALYSIS INSTRUCTIONS:
+1. Study the subject's pose, expression, and mood
+2. Observe the lighting, background, and overall composition
+3. Consider the style and aesthetic of the image
+4. Identify the best camera movement that would enhance the scene
+
+MOTION PROMPT GUIDELINES:
+- Keep it to 1-2 sentences maximum
+- Focus on movements that specifically enhance THIS image
+- Use the actual elements you see (lighting, pose, background, mood)
+- Use professional cinematography terminology
+- Make it suitable for high-end fashion/lifestyle content
+- Be specific to what you observe in the image
+
+Analyze the image and respond with ONLY the motion prompt that perfectly captures and enhances what you see - no explanation, no additional text.`;
+
+        try {
+          // Call Claude Vision API for real image analysis
+        const claudeResponse = await timedFetch('https://api.anthropic.com/v1/messages', 15000, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-api-key': process.env.ANTHROPIC_API_KEY || '',
+              'anthropic-version': '2023-06-01'
+            },
+            body: JSON.stringify({
+              model: 'claude-3-5-sonnet-20241022',
+              max_tokens: 1000,
+              messages: [
+                {
+                  role: 'user',
+                  content: [
+                    {
+                      type: 'text',
+                      text: videoDirectorPrompt
+                    },
+                    imageUrl.startsWith('data:')
+                      ? {
+                          type: 'image',
+                          source: {
+                            type: 'base64',
+                            media_type: 'image/jpeg',
+                            data: imageUrl.split(',')[1]
+                          }
+                        }
+                      : {
+                          type: 'image',
+                          source: {
+                            type: 'url',
+                            url: imageUrl
+                          }
+                        }
+                  ]
+                }
+              ]
+            })
+        });
+
+          let videoPrompt = 'Gentle zoom in with soft natural lighting, creating an elegant and professional atmosphere.';
+          
+          if (claudeResponse.ok) {
+            const data = await claudeResponse.json();
+            videoPrompt = data.content[0].text;
+            console.log('✅ MAYA VIDEO DIRECTION: Generated custom prompt via Claude Vision');
+          } else {
+            console.log('⚠️ MAYA VIDEO DIRECTION: Claude Vision failed, using fallback prompt');
+          }
+          
+          res.setHeader('Cache-Control', 'no-store');
+          t.end('ok');
+          return res.status(200).json({
+            videoPrompt,
+            director: 'Maya - AI Creative Director',
+            timestamp: new Date().toISOString()
+          });
+          
+        } catch {
+          // Fallback to a good default prompt
+          const fallbackPrompt = 'Gentle zoom in with soft natural lighting, creating an elegant and professional atmosphere.';
+          
+          res.setHeader('Cache-Control', 'no-store');
+          t.end('fallback');
+          return res.status(200).json({
+            videoPrompt: fallbackPrompt,
+            director: 'Maya - AI Creative Director (Fallback)',
+            timestamp: new Date().toISOString()
+          });
+        }
+        
+      } catch (authError) {
+        t.end('unauthorized');
+        console.log('❌ Maya video prompt auth failed:', (authError as Error).message);
+        return res.status(401).json({ 
+          error: 'Authentication required',
+          message: (authError as Error).message
         });
       }
     }
@@ -472,29 +1332,41 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           count?: number;
         };
         
-        if (!prompt) {
+        const trimmedPrompt = (prompt || '').toString().trim().slice(0, 2000);
+        const safeCount = Math.max(1, Math.min(Number(count) || 1, 4));
+        
+        if (!trimmedPrompt) {
           return res.status(400).json({ error: 'Prompt is required' });
+        }
+        
+        // Access gating: require trained model and plan access
+        const { storage } = await import('../server/storage');
+        const model = await storage.getUserModelByUserId(user.id as string);
+        if (!model || model.trainingStatus !== 'completed') {
+          return res.status(403).json({
+            error: 'Model training required',
+            message: 'Please complete training first. Redirecting to training...'
+          });
         }
         
         // Import the generation service
         const { ModelTrainingService } = await import('../server/model-training-service');
         
         console.log('🎨 Starting image generation for user:', user.id);
-        console.log('🎯 Prompt:', prompt);
-        console.log('🎯 Count:', count);
+        console.log('🎯 Prompt:', trimmedPrompt);
+        console.log('🎯 Count:', safeCount);
         
         // Generate images using the ModelTrainingService
         const generationResult = await ModelTrainingService.generateUserImages(
           user.id as string,
-          prompt as string,
-          count as number,
+          trimmedPrompt,
+          safeCount,
           { categoryContext: (conceptName as string) || 'Maya Generation' }
         );
         
         console.log('✅ Generation result:', generationResult);
         
-        // Create generation tracker for monitoring
-        const { storage } = await import('../server/storage');
+        // Create generation tracker for monitoring (reuse storage from gating import)
         const tracker = await storage.createGenerationTracker({
           userId: user.id as string,
           predictionId: generationResult.predictionId as string,
@@ -605,7 +1477,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Handle Maya chat endpoints
     if (req.url?.includes('/api/maya/chat') || req.url?.includes('/api/maya-chat') || req.url?.includes('/api/maya-generate')) {
-      console.log('🔍 Maya chat endpoint called:', req.url);
+      const t = logStart('POST /api/maya/chat');
+      
+      if (req.method !== 'POST') {
+        return res.status(405).json({ error: 'Method not allowed. Only POST requests are supported.' });
+      }
       
       try {
         const user = await getAuthenticatedUser();
@@ -626,107 +1502,133 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           return res.status(400).json({ error: 'Message is required' });
         }
         
-        // Connect to REAL Maya system using Claude API
+        // Connect to REAL Maya system using Claude API with timeout protection
         let mayaResponse = '';
         let conceptCards: ConceptCard[] = [];
         
         try {
           // Use the real Maya personality system
-          const { PersonalityManager } = await import('../server/agents/personalities/personality-config.js');
+          const { PersonalityManager } = await import('../server/agents/personalities/personality-config');
           const baseMayaPersonality = PersonalityManager.getNaturalPrompt('maya');
+          const structuredOutputInstruction = `\n\nSTRICT OUTPUT FORMAT:\nReturn EXACTLY 3 concepts separated by a line with three dashes (---).\nFor each concept, output 3 lines only:\n1) An emoji followed by a space and a bold title: "+emoji+ **TITLE**"\n2) One sentence description\n3) A line starting with "FLUX_PROMPT:" followed by a single line image generation prompt.\nDo not add any extra text before or after the three concepts.`;
+          const systemPrompt = `${baseMayaPersonality}${structuredOutputInstruction}`;
           
           console.log('🎨 MAYA: Using real personality system with Claude API');
           
-          // Call Claude API with Maya's real personality
-          const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'x-api-key': process.env.ANTHROPIC_API_KEY || '',
-              'anthropic-version': '2023-06-01'
+          // Call Claude API with Maya's real personality using enhanced timeout
+          const claudeResponse = await withExternalApiTimeout(
+            async () => {
+              return timedFetch('https://api.anthropic.com/v1/messages', 12000, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'x-api-key': process.env.ANTHROPIC_API_KEY || '',
+                  'anthropic-version': '2023-06-01'
+                },
+                body: JSON.stringify({
+                  model: 'claude-3-5-sonnet-20241022',
+                  max_tokens: 4000,
+                  system: systemPrompt,
+                  messages: [
+                    ...(conversationHistory || []).map((entry: ConversationEntry) => ({
+                      role: entry.role === 'user' ? 'user' : 'assistant',
+                      content: entry.content || entry.message || ''
+                    })),
+                    {
+                      role: 'user',
+                      content: message
+                    }
+                  ]
+                })
+              });
             },
-            body: JSON.stringify({
-              model: 'claude-3-5-sonnet-20241022',
-              max_tokens: 4000,
-              system: baseMayaPersonality,
-              messages: [
-                ...(conversationHistory || []).map((entry: ConversationEntry) => ({
-                  role: entry.role === 'user' ? 'user' : 'assistant',
-                  content: entry.content || entry.message || ''
-                })),
-                {
-                  role: 'user',
-                  content: message
-                }
-              ]
-            })
-          });
+            null, // No fallback response from this level
+            12000, // Reduced from 15s to 12s timeout
+            0, // No retries for chat to keep it fast
+            'claude-api-maya-chat'
+          );
 
-          if (!claudeResponse.ok) {
-            throw new Error(`Claude API error: ${claudeResponse.status}`);
+          if (claudeResponse && claudeResponse.ok) {
+            const data = await claudeResponse.json();
+            mayaResponse = data.content[0].text;
+            
+            // Extract concept cards from Maya's response
+            conceptCards = extractConceptCards(mayaResponse);
+            
+            // Apply gender context to concept cards with timeout
+            conceptCards = await withDatabaseTimeout(
+              applyGenderContext(conceptCards, user.id as string),
+              conceptCards, // Fallback to original cards if timeout
+              2500, // Reduced from 3000ms
+              'applyGenderContext'
+            );
+            
+            console.log('✅ MAYA: Generated response with', conceptCards.length, 'concept cards using Claude API');
+          } else {
+            throw new Error('Claude API not available');
           }
-
-          const data = await claudeResponse.json();
-          mayaResponse = data.content[0].text;
-          
-          // Extract concept cards from Maya's response
-          conceptCards = extractConceptCards(mayaResponse);
-          
-          console.log('✅ MAYA: Generated response with', conceptCards.length, 'concept cards using Claude API');
           
         } catch (claudeError) {
           console.log('❌ MAYA: Claude API failed:', (claudeError as Error).message);
           
-          // Fallback to basic response when Claude is not available
-          mayaResponse = `I understand you're looking for styling concepts! Let me create some personalized photo concepts for your brand.
+          // Fallback to creative storytelling concepts aligned with Maya's signature looks
+          mayaResponse = `I understand you're looking for styling concepts! Let me create some personalized photo concepts that tell your unique brand story.
 
-Here are 3 concept cards tailored to your needs:
+Here are 3 concept cards inspired by my signature editorial looks:
 
-🎯 **PROFESSIONAL HEADSHOT**
-A clean, confident portrait perfect for your professional brand. Think crisp white background, natural lighting, and a sharp blazer.
+🌟 **THE GOLDEN HOUR STORYTELLER**
+Capture your authentic warmth and approachability with the magic of golden hour light. This concept positions you as someone who brings light and positivity to their work, perfect for coaches, consultants, and creative entrepreneurs.
 
-FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus, film grain, visible skin pores, confident business professional, clean white background, natural lighting, sharp blazer, professional headshot, high-end portrait
-
----
-
-✨ **LIFESTYLE BRAND SHOT**  
-A more relaxed, approachable image that shows your personality while maintaining professionalism. Perfect for social media and marketing materials.
-
-FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus, film grain, visible skin pores, lifestyle portrait, natural lighting, approachable professional, modern office setting, authentic expression
+FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus, film grain, visible skin pores, warm golden hour lighting streaming through large windows, person in soft knit sweater in neutral tones, authentic genuine smile, seated at a modern wooden table with soft shadows, warm backlit hair, natural makeup emphasizing warmth, cozy sophisticated environment with plants
 
 ---
 
-💼 **EXECUTIVE PRESENCE**
-A powerful, commanding image that conveys authority and expertise. Ideal for speaking engagements and thought leadership content.
+✨ **THE SCANDINAVIAN MINIMALIST VISION**  
+A clean, intentional aesthetic that speaks to your clarity of thought and sophisticated approach. This concept communicates reliability and premium quality through understated elegance.
 
-FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus, film grain, visible skin pores, executive portrait, dramatic lighting, commanding presence, dark background, professional attire, confident expression`;
+FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus, film grain, visible skin pores, bright airy minimalist interior with white walls and light wood floors, person in high-quality neutral clothing - cream cashmere sweater, natural lighting from large windows with sheer curtains, serene confident expression, clean architectural lines, hygge atmosphere
+
+---
+
+🎬 **THE URBAN CREATIVE MUSE**
+For the innovative thinker who thrives in dynamic environments. This concept captures your creative edge and forward-thinking approach through sophisticated urban aesthetics and moody lighting.
+
+FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus, film grain, visible skin pores, atmospheric urban setting with soft industrial elements, dramatic side lighting creating interesting shadows, person in elevated casual wear - structured blazer over quality basics, thoughtful contemplative expression, modern art gallery or loft space background, cinematic depth of field`;
           
           conceptCards = [
             {
               id: `concept_${Date.now()}_1`,
-              title: 'Professional Headshot',
-              description: 'A clean, confident portrait perfect for your professional brand.',
-              fluxPrompt: 'raw photo, editorial quality, professional photography, sharp focus, film grain, visible skin pores, confident business professional, clean white background, natural lighting, sharp blazer, professional headshot, high-end portrait',
-              category: 'Professional',
-              emoji: '🎯'
+              title: 'The Golden Hour Storyteller',
+              description: 'Capture your authentic warmth and approachability with the magic of golden hour light.',
+              fluxPrompt: 'raw photo, editorial quality, professional photography, sharp focus, film grain, visible skin pores, warm golden hour lighting streaming through large windows, person in soft knit sweater in neutral tones, authentic genuine smile, seated at a modern wooden table with soft shadows, warm backlit hair, natural makeup emphasizing warmth, cozy sophisticated environment with plants',
+              category: 'Editorial',
+              emoji: '🌟'
             },
             {
               id: `concept_${Date.now()}_2`, 
-              title: 'Lifestyle Brand Shot',
-              description: 'A more relaxed, approachable image that shows your personality.',
-              fluxPrompt: 'raw photo, editorial quality, professional photography, sharp focus, film grain, visible skin pores, lifestyle portrait, natural lighting, approachable professional, modern office setting, authentic expression',
-              category: 'Lifestyle',
+              title: 'The Scandinavian Minimalist Vision',
+              description: 'A clean, intentional aesthetic that speaks to your clarity of thought and sophisticated approach.',
+              fluxPrompt: 'raw photo, editorial quality, professional photography, sharp focus, film grain, visible skin pores, bright airy minimalist interior with white walls and light wood floors, person in high-quality neutral clothing - cream cashmere sweater, natural lighting from large windows with sheer curtains, serene confident expression, clean architectural lines, hygge atmosphere',
+              category: 'Editorial',
               emoji: '✨'
             },
             {
               id: `concept_${Date.now()}_3`,
-              title: 'Executive Presence', 
-              description: 'A powerful, commanding image that conveys authority and expertise.',
-              fluxPrompt: 'raw photo, editorial quality, professional photography, sharp focus, film grain, visible skin pores, executive portrait, dramatic lighting, commanding presence, dark background, professional attire, confident expression',
-              category: 'Executive',
-              emoji: '💼'
+              title: 'The Urban Creative Muse', 
+              description: 'For the innovative thinker who thrives in dynamic environments with creative edge.',
+              fluxPrompt: 'raw photo, editorial quality, professional photography, sharp focus, film grain, visible skin pores, atmospheric urban setting with soft industrial elements, dramatic side lighting creating interesting shadows, person in elevated casual wear - structured blazer over quality basics, thoughtful contemplative expression, modern art gallery or loft space background, cinematic depth of field',
+              category: 'Editorial',
+              emoji: '🎬'
             }
           ];
+          
+          // Apply gender context to fallback concept cards with timeout
+          conceptCards = await withDatabaseTimeout(
+            applyGenderContext(conceptCards, user.id as string),
+            conceptCards, // Fallback to original cards if timeout
+            2000,
+            'applyGenderContext-fallback'
+          );
         }
         
         const response = {
@@ -739,15 +1641,62 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
           context: context
         };
         
+        // Persist conversation and messages + concept cards for continuity with timeout
+        // This is non-critical, so if it times out we'll still return the response
+        withDatabaseTimeout(
+          (async () => {
+            const { storage } = await import('../server/storage');
+            const existingConvs = await storage.getUserConversations(user.id as string, 'maya');
+            const conversationId = (existingConvs && existingConvs[0]?.id) || (await storage.createConversation({ userId: user.id as string, agentName: 'maya', title: 'Maya Chat', status: 'active' })).id;
+            await storage.createMessage({ conversationId, role: 'user', content: message, tokenCount: 0 });
+            await storage.createMessage({ conversationId, role: 'assistant', content: mayaResponse, tokenCount: 0 });
+            for (let i = 0; i < (conceptCards?.length || 0); i++) {
+              const c = conceptCards[i];
+              await storage.createConceptCard({
+                userId: user.id as string,
+                conversationId,
+                clientId: `maya_${Date.now()}_${i + 1}`,
+                title: c.title,
+                description: c.description,
+                status: 'draft',
+                images: [],
+                tags: [c.category],
+                sortOrder: 0,
+                isLoading: false,
+                isGenerating: false,
+                hasGenerated: false,
+                generatedImages: {},
+              });
+            }
+          })(),
+          null, // No fallback needed for persistence
+          5000,
+          'maya-conversation-persistence'
+        ).catch((persistError) => {
+          console.log('⚠️ Maya persistence failed (non-critical):', (persistError as Error).message);
+        });
+        
         console.log('📊 Returning Maya response:', JSON.stringify(response, null, 2));
         res.setHeader('Cache-Control', 'no-store');
+        t.end('ok', { concepts: response.conceptCards?.length || 0 });
         return res.status(200).json(response);
         
       } catch (error) {
-        console.log('❌ Maya chat failed:', error.message);
+        t.end('error', { error: (error as Error).message });
+        console.log('❌ Maya chat failed:', (error as Error).message);
+        
+        // Enhanced error handling for timeout scenarios
+        if (isTimeoutError(error)) {
+          return res.status(503).json({ 
+            message: 'Maya is temporarily unavailable, please try again',
+            error: 'Service timeout',
+            code: 'TIMEOUT'
+          });
+        }
+        
         return res.status(401).json({ 
           message: 'Authentication required',
-          error: error.message
+          error: (error as Error).message
         });
       }
     }
@@ -793,9 +1742,74 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
       }
     }
 
+    // Training status for authenticated user (polled by frontend during training)
+    if (req.url === '/api/training/status' || req.url?.startsWith('/api/training/status?')) {
+      try {
+        const user = await getAuthenticatedUser();
+        const { storage } = await import('../server/storage');
+        const model = await storage.getUserModelByUserId(user.id as string);
+        const status = model?.trainingStatus || 'not_started';
+        const progress = model?.trainingProgress || (status === 'completed' ? 100 : 0);
+        const predictionId = (await storage.getUserGenerationTrackers(user.id as string))?.[0]?.predictionId || null;
+        res.setHeader('Cache-Control', 'no-store');
+        return res.status(200).json({ status, progress, predictionId, model });
+      } catch (error) {
+        return res.status(401).json({ error: 'Authentication required', message: (error as Error).message });
+      }
+    }
+
+    // Alias: support legacy hyphen path /api/training-status
+    if (req.url === '/api/training-status' || req.url?.startsWith('/api/training-status?')) {
+      // Delegate to the canonical handler
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (req as any).url = '/api/training/status';
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return (handler as any)(req, res);
+    }
+
+    // Training progress endpoint used by simple-training.tsx
+    if (req.url?.startsWith('/api/training-progress/')) {
+      try {
+        const user = await getAuthenticatedUser();
+        const targetUserId = req.url.split('/').pop() as string;
+        if ((user.id as string) !== targetUserId) {
+          return res.status(403).json({ error: 'Forbidden' });
+        }
+        const { storage } = await import('../server/storage');
+        const model = await storage.getUserModelByUserId(targetUserId);
+        const progress = model?.trainingProgress || (model?.trainingStatus === 'completed' ? 100 : 0);
+        return res.status(200).json({ progress });
+      } catch {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+    }
+
+    // Cron: training completion monitor (to be scheduled in Vercel Cron)
+    if (req.url === '/api/cron/training-completion-monitor') {
+      try {
+        const { TrainingCompletionMonitor } = await import('../server/training-completion-monitor');
+        await TrainingCompletionMonitor.checkAllInProgressTrainings();
+        return res.status(200).json({ ok: true });
+      } catch (error) {
+        return res.status(500).json({ ok: false, error: (error as Error).message });
+      }
+    }
+
+    // Cron: generation completion monitor (to be scheduled in Vercel Cron)
+    if (req.url === '/api/cron/generation-completion-monitor') {
+      try {
+        const { GenerationCompletionMonitor } = await import('../server/generation-completion-monitor');
+        const monitor = new GenerationCompletionMonitor();
+        await monitor.checkAllInProgressGenerations();
+        return res.status(200).json({ ok: true });
+      } catch (error) {
+        return res.status(500).json({ ok: false, error: (error as Error).message });
+      }
+    }
+
     // Handle gallery images endpoint
     if (req.url === '/api/gallery' || req.url?.startsWith('/api/gallery?')) {
-      console.log('🔍 Gallery endpoint called');
+      const t = logStart('GET /api/gallery');
       
       try {
         const user = await getAuthenticatedUser();
@@ -806,8 +1820,8 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
         
         // Fetch images from both tables
         const [aiImages, generatedImages] = await Promise.all([
-          storage.getAIImages(user.id as string),
-          storage.getGeneratedImages(user.id as string)
+          withTimeout(storage.getAIImages(user.id as string), 5000, 'getAIImages'),
+          withTimeout(storage.getGeneratedImages(user.id as string), 5000, 'getGeneratedImages')
         ]);
         
         console.log('📊 Found AI images:', aiImages.length);
@@ -844,33 +1858,98 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
         
         console.log('📊 Returning gallery images:', galleryImages.length, 'total images');
         res.setHeader('Cache-Control', 'no-store');
-        return res.status(200).json(galleryImages);
+        t.end('ok', { count: galleryImages.length });
+        return json(res, 200, galleryImages);
         
       } catch (error) {
-        console.log('❌ Gallery fetch failed:', error.message);
-        return res.status(500).json({ 
+        t.end('error', { error: (error as Error).message });
+        console.log('❌ Gallery fetch failed:', (error as Error).message);
+        return json(res, 500, { 
           message: 'Failed to fetch gallery images',
-          error: error.message
+          error: (error as Error).message
+        });
+      }
+    }
+
+    // Handle user gender update endpoint
+    if (req.url === '/api/user/update-gender') {
+      if (req.method !== 'POST') {
+        return res.status(405).json({ error: 'Method not allowed' });
+      }
+      
+      try {
+        const user = await getAuthenticatedUser();
+        const { gender } = req.body || {};
+        
+        if (!gender) {
+          return res.status(400).json({ error: 'Gender is required' });
+        }
+        
+        if (!['man', 'woman', 'female', 'male', 'non-binary', 'other'].includes(gender.toLowerCase())) {
+          return res.status(400).json({ error: 'Invalid gender value' });
+        }
+        
+        // Update user gender in database
+        const { storage } = await import('../server/storage');
+        await storage.updateUserProfile(user.id as string, { gender });
+        
+        console.log(`✅ Updated gender for user ${user.id}: ${gender}`);
+        
+        res.setHeader('Cache-Control', 'no-store');
+        return res.status(200).json({ 
+          success: true, 
+          message: 'Gender updated successfully' 
+        });
+        
+      } catch (error) {
+        console.log('❌ Gender update failed:', error.message);
+        return res.status(500).json({ 
+          error: 'Failed to update gender',
+          message: error.message 
         });
       }
     }
 
     // Handle gallery-images endpoint (alternative)
     if (req.url === '/api/gallery-images' || req.url?.startsWith('/api/gallery-images?')) {
-      console.log('🔍 Gallery-images endpoint called');
+      const t = logStart('GET /api/gallery-images');
       
       try {
+        // Check circuit breaker before database operations
+        if (!checkCircuitBreaker()) {
+          console.warn('⚠️ Circuit breaker open for gallery-images');
+          return res.status(503).json({
+            images: [],
+            total: 0,
+            message: 'Service temporarily unavailable',
+            code: 'CIRCUIT_BREAKER_OPEN'
+          });
+        }
+
         const user = await getAuthenticatedUser();
         console.log('🔍 Getting gallery images for user:', user.id, user.email);
         
         // Import storage service to fetch real images
         const { storage } = await import('../server/storage');
         
-        // Fetch images from both tables
+        // OPTIMIZED: Reduced timeout and better error handling
         const [aiImages, generatedImages] = await Promise.all([
-          storage.getAIImages(user.id as string),
-          storage.getGeneratedImages(user.id as string)
+          withTimeout(storage.getAIImages(user.id as string), 2500, 'getAIImages').catch(err => {
+            console.warn('⚠️ AI images fetch failed:', (err as Error).message);
+            recordCircuitBreakerFailure();
+            return [];
+          }),
+          withTimeout(storage.getGeneratedImages(user.id as string), 2500, 'getGeneratedImages').catch(err => {
+            console.warn('⚠️ Generated images fetch failed:', (err as Error).message);
+            recordCircuitBreakerFailure();
+            return [];
+          })
         ]);
+        
+        // Record success if we got data
+        if (aiImages.length > 0 || generatedImages.length > 0) {
+          recordCircuitBreakerSuccess();
+        }
         
         console.log('📊 Found AI images:', aiImages.length);
         console.log('📊 Found generated images:', generatedImages.length);
@@ -906,13 +1985,15 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
         
         console.log('📊 Returning gallery-images:', galleryImages.length, 'total images');
         res.setHeader('Cache-Control', 'no-store');
+        t.end('ok', { count: galleryImages.length });
         return res.status(200).json(galleryImages);
         
       } catch (error) {
-        console.log('❌ Gallery-images fetch failed:', error.message);
+        t.end('error', { error: (error as Error).message });
+        console.log('❌ Gallery-images fetch failed:', (error as Error).message);
         return res.status(500).json({ 
           message: 'Failed to fetch gallery images',
-          error: error.message
+          error: (error as Error).message
         });
       }
     }
@@ -951,6 +2032,65 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
       }
     }
 
+    // Favorites: list favorite image ids for current user
+    if (req.url === '/api/images/favorites' || req.url?.startsWith('/api/images/favorites?')) {
+      try {
+        const user = await getAuthenticatedUser();
+        const { storage } = await import('../server/storage');
+        const ai = await withTimeout(storage.getAIImages(user.id as string), 5000, 'getAIImages') as unknown as AiImage[];
+        const favIds = ai
+          .filter((img: AiImage) => Boolean(img.isFavorite || img.isSelected))
+          .map((img: AiImage) => img.id);
+        res.setHeader('Cache-Control', 'no-store');
+        return res.status(200).json({ favorites: favIds });
+      } catch {
+        return res.status(200).json({ favorites: [] });
+      }
+    }
+
+    // Favorites: toggle favorite for an image by id
+    if (req.url?.startsWith('/api/images/') && req.url?.endsWith('/favorite')) {
+      if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+      try {
+        const user = await getAuthenticatedUser();
+        // Parse image id from URL: /api/images/:id/favorite
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const url = new (globalThis as any).URL(req.url || '', `http://${req.headers.host}`);
+        const parts = url.pathname.split('/');
+        const idStr = parts[3];
+        const imageId = parseInt(idStr, 10);
+        if (!imageId || Number.isNaN(imageId)) return res.status(400).json({ error: 'Invalid image id' });
+        const { storage } = await import('../server/storage');
+        // Fetch image to read current favorite state (from legacy ai_images)
+        const img = await withTimeout(storage.getAIImage(user.id as string, imageId), 4000, 'getAIImage') as unknown as AiImage | undefined;
+        const next = !(img?.isFavorite ?? false);
+        await withTimeout(storage.updateAIImage(imageId, { isFavorite: next } as Partial<AiImage>), 4000, 'updateAIImage');
+        res.setHeader('Cache-Control', 'no-store');
+        return res.status(200).json({ ok: true, id: imageId, isFavorite: next });
+      } catch (error) {
+        return res.status(500).json({ error: 'Failed to toggle favorite', message: (error as Error).message });
+      }
+    }
+
+    // Delete legacy AI image
+    if (req.method === 'DELETE' && req.url?.startsWith('/api/ai-images/')) {
+      try {
+        const user = await getAuthenticatedUser();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const url = new (globalThis as any).URL(req.url || '', `http://${req.headers.host}`);
+        const parts = url.pathname.split('/');
+        const idStr = parts[3];
+        const imageId = parseInt(idStr, 10);
+        if (!imageId || Number.isNaN(imageId)) return res.status(400).json({ error: 'Invalid image id' });
+        const { storage } = await import('../server/storage');
+        const ok = await storage.deleteAIImage(user.id as string, imageId);
+        res.setHeader('Cache-Control', 'no-store');
+        return res.status(200).json({ ok, id: imageId });
+      } catch (error) {
+        return res.status(500).json({ error: 'Failed to delete image', message: (error as Error).message });
+      }
+    }
+
     // Default response
     return res.status(200).json({
       message: 'SSELFIE Studio API',
@@ -959,9 +2099,16 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
     
   } catch (error) {
     console.error('❌ API Handler Error:', error);
-    return res.status(500).json({
-      error: 'Internal server error',
-      message: error.message
-    });
+    const body = { error: 'Internal server error', message: (error as Error).message };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if (typeof (res as any).status === 'function') {
+      return res.status(500).json(body);
+    } else {
+      // @ts-ignore
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const NodeResponse = (globalThis as any).Response;
+      // @ts-ignore
+      return new NodeResponse(JSON.stringify(body), { status: 500, headers: { 'content-type': 'application/json' } });
+    }
   }
 }
