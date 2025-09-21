@@ -243,4 +243,9 @@ describe('Brand Placement Routes', () => {
       expect(response.body.error).toBe('Invalid variant ID');
     });
   });
+<<<<<<< HEAD
 });
+=======
+});
+
+>>>>>>> origin/main

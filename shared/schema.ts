@@ -14,6 +14,7 @@ import {
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { ulid } from "ulid";
+import { randomUUID } from 'node:crypto';
 
 // Session storage table for Stack Auth (Stack Auth manages sessions automatically)
 export const sessions = pgTable(
@@ -199,6 +200,26 @@ export const userProfiles = pgTable("user_profiles", {
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
+
+// Hair leads table for QR code signups (Norwegian market)
+export const hairLeads = pgTable("hair_leads", {
+  id: serial("id").primaryKey(),
+  navn: varchar("navn").notNull(), // Name in Norwegian
+  epost: varchar("epost").notNull(), // Email in Norwegian
+  telefon: varchar("telefon"), // Phone number (optional)
+  kilde: varchar("kilde").default("qr-code"), // Source: qr-code, landing-page, etc
+  interesse: text("interesse"), // Interest/comments (optional)
+  levelpartnerSynced: boolean("levelpartner_synced").default(false), // For future LevelPartner integration
+  levelpartnerSyncedAt: timestamp("levelpartner_synced_at"),
+  status: varchar("status").default("new"), // new, contacted, converted, unsubscribed
+  notater: text("notater"), // Notes in Norwegian
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_hair_leads_epost").on(table.epost),
+  index("idx_hair_leads_created").on(table.createdAt),
+  index("idx_hair_leads_kilde").on(table.kilde),
+]);
 
 // User projects/brands table
 export const projects = pgTable("projects", {
@@ -498,6 +519,25 @@ export const generatedVideos = pgTable("generated_videos", {
   index("generated_videos_status_idx").on(table.status),
 ]);
 
+// Video Storyboards table (for multi-scene video composition)
+export const videoStoryboards = pgTable("video_storyboards", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  scenes: jsonb("scenes").notNull(), // Array of {motionPrompt, duration, style?, imageId?}
+  mode: varchar("mode").default("sequential"), // sequential, parallel
+  composedVideoUrl: varchar("composed_video_url"), // Final composed video URL
+  status: varchar("status").default("pending"), // pending, processing, completed, failed
+  progress: integer("progress").default(0), // 0-100
+  jobId: varchar("job_id"), // Composition job ID for tracking
+  errorMessage: text("error_message"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  completedAt: timestamp("completed_at"),
+}, (table) => [
+  index("video_storyboards_user_id_idx").on(table.userId),
+  index("video_storyboards_status_idx").on(table.status),
+]);
+
 // Victoria AI chat conversations
 export const victoriaChats = pgTable("victoria_chats", {
   id: serial("id").primaryKey(),
@@ -783,10 +823,60 @@ export const loraWeights = pgTable("lora_weights", {
 
 
 
+// Live Sessions - For Stage Mode interactive presentations
+export const liveSessions = pgTable("live_sessions", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  deckUrl: text("deck_url"),
+  mentiUrl: text("menti_url"),
+  ctaUrl: text("cta_url"),
+  title: text("title").notNull(),
+  createdBy: uuid("created_by").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+}, (table) => ({
+  createdByIdx: index("idx_live_sessions_created_by").on(table.createdBy),
+  createdAtIdx: index("idx_live_sessions_created_at").on(table.createdAt),
+  titleIdx: index("idx_live_sessions_title").on(table.title),
+}));
+
+// Live Events - For Stage Mode analytics and tracking
+export const liveEvents = pgTable("live_events", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  sessionId: uuid("session_id").references(() => liveSessions.id, { onDelete: "cascade" }).notNull(),
+  eventType: varchar("event_type").notNull(), // 'qr_view', 'cta_click', 'signup_success', 'reaction', 'state_change'
+  meta: jsonb("meta").default({}),
+  userAgent: text("user_agent"),
+  ipAddress: text("ip_address"), // Using text instead of inet for broader compatibility
+  utmSource: varchar("utm_source"),
+  utmCampaign: varchar("utm_campaign"),
+  utmMedium: varchar("utm_medium"),
+  utmContent: varchar("utm_content"),
+  utmTerm: varchar("utm_term"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+}, (table) => ({
+  sessionIdIdx: index("idx_live_events_session_id").on(table.sessionId),
+  eventTypeIdx: index("idx_live_events_type").on(table.eventType),
+  createdAtIdx: index("idx_live_events_created_at").on(table.createdAt),
+  sessionTypeIdx: index("idx_live_events_session_type").on(table.sessionId, table.eventType),
+  utmSourceIdx: index("idx_live_events_utm_source").on(table.utmSource),
+  analyticsIdx: index("idx_live_events_analytics").on(table.sessionId, table.eventType, table.createdAt),
+}));
+
 // Schema exports
 export const upsertUserSchema = createInsertSchema(users);
 export const insertUserSchema = createInsertSchema(users).omit({ createdAt: true, updatedAt: true });
 export const insertUserProfileSchema = createInsertSchema(userProfiles).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertHairLeadSchema = z.object({
+  navn: z.string(),
+  epost: z.string().email(),
+  telefon: z.string().optional(),
+  kilde: z.string().default("qr-code"),
+  interesse: z.string().optional(),
+  levelpartnerSynced: z.boolean().default(false),
+  levelpartnerSyncedAt: z.date().optional(),
+  status: z.string().default("new"),
+  notater: z.string().optional(),
+});
 export const insertProjectSchema = createInsertSchema(projects).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertAiImageSchema = createInsertSchema(aiImages).omit({ id: true, createdAt: true });
 export const insertTemplateSchema = createInsertSchema(templates).omit({ id: true, createdAt: true });
@@ -799,6 +889,26 @@ export const insertVictoriaChatSchema = createInsertSchema(victoriaChats).omit({
 export const insertPhotoSelectionSchema = createInsertSchema(photoSelections).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertLandingPageSchema = createInsertSchema(landingPages).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertBrandOnboardingSchema = createInsertSchema(brandOnboarding).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertLiveSessionSchema = z.object({
+  deckUrl: z.string().optional(),
+  mentiUrl: z.string().optional(),
+  ctaUrl: z.string().optional(),
+  title: z.string(),
+  createdBy: z.string().uuid(),
+});
+
+export const insertLiveEventSchema = z.object({
+  sessionId: z.string().uuid(),
+  eventType: z.string(),
+  meta: z.record(z.any()).optional().default({}),
+  userAgent: z.string().optional(),
+  ipAddress: z.string().optional(),
+  utmSource: z.string().optional(),
+  utmCampaign: z.string().optional(),
+  utmMedium: z.string().optional(),
+  utmContent: z.string().optional(),
+  utmTerm: z.string().optional(),
+});
 
 export const insertUserLandingPageSchema = createInsertSchema(userLandingPages).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertUserPersonalBrandSchema = createInsertSchema(userPersonalBrand).omit({ id: true, createdAt: true, updatedAt: true });
@@ -883,6 +993,8 @@ export type InsertGeneratedImage = typeof generatedImages.$inferInsert;
 export type GeneratedImage = typeof generatedImages.$inferSelect;
 export type InsertGeneratedVideo = typeof generatedVideos.$inferInsert;
 export type GeneratedVideo = typeof generatedVideos.$inferSelect;
+export type InsertVideoStoryboard = typeof videoStoryboards.$inferInsert;
+export type VideoStoryboard = typeof videoStoryboards.$inferSelect;
 export type InsertVictoriaChat = typeof victoriaChats.$inferInsert;
 export type VictoriaChat = typeof victoriaChats.$inferSelect;
 export type InsertPhotoSelection = typeof photoSelections.$inferInsert;
@@ -1044,7 +1156,7 @@ export type UserGeneratedWebsite = typeof userGeneratedWebsites.$inferSelect;
 
 // Imported subscribers table for email list migration
 export const importedSubscribers = pgTable("imported_subscribers", {
-  id: varchar("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  id: varchar("id").primaryKey().$defaultFn(() => randomUUID()),
   email: varchar("email"),
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
@@ -1052,7 +1164,7 @@ export const importedSubscribers = pgTable("imported_subscribers", {
   originalId: varchar("original_id").notNull(),
   status: varchar("status").notNull(), // 'active' | 'unsubscribed'
   tags: jsonb("tags").$type<string[]>().default([]),
-  customFields: jsonb("custom_fields").$type<Record<string, any>>().default({}),
+  customFields: jsonb("custom_fields").$type<Record<string, unknown>>().default({}),
   messengerData: jsonb("messenger_data"),
   importedAt: timestamp("imported_at").defaultNow(),
   createdAt: timestamp("created_at").defaultNow(),
@@ -1359,8 +1471,8 @@ export const imageVariants = pgTable("image_variants", {
 ]);
 
 // Export styleguide tables and types  
-export { userStyleguides, styleguideTemplates } from "./styleguide-schema";
-export type { UserStyleguide, StyleguideTemplate, InsertUserStyleguide, InsertStyleguideTemplate } from "./styleguide-schema";
+export { userStyleguides, styleguideTemplates } from "./styleguide-schema.js";
+export type { UserStyleguide, StyleguideTemplate, InsertUserStyleguide, InsertStyleguideTemplate } from "./styleguide-schema.js";
 
 // Website management schema types
 // MISSING TABLE DEFINITIONS - Adding to resolve database schema mismatches
@@ -1764,6 +1876,17 @@ export type InsertBrandAsset = z.infer<typeof insertBrandAssetSchema>;
 export type ImageVariant = typeof imageVariants.$inferSelect;
 export type InsertImageVariant = z.infer<typeof insertImageVariantSchema>;
 
+// Live Sessions types
+export type LiveSession = typeof liveSessions.$inferSelect;
+export type InsertLiveSession = z.infer<typeof insertLiveSessionSchema>;
+
+// Live Events types
+export type LiveEvent = typeof liveEvents.$inferSelect;
+export type InsertLiveEvent = z.infer<typeof insertLiveEventSchema>;
+
+// Hair Leads types
+export type HairLead = typeof hairLeads.$inferSelect;
+export type InsertHairLead = z.infer<typeof insertHairLeadSchema>;
 // Note: Website type already defined above at line 502
 // Note: styleguide_templates and user_styleguides are imported from styleguide-schema.ts
 // Note: agentTasks, emailCaptures, and userWebsiteOnboarding are already defined earlier in this file

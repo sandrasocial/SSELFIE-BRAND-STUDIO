@@ -9,8 +9,8 @@ import type { Request, Response, NextFunction } from 'express';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Stack Auth configuration
-const STACK_AUTH_PROJECT_ID = '253d7343-a0d4-43a1-be5c-822f590d40be';
+// Stack Auth configuration - use environment variables
+const STACK_AUTH_PROJECT_ID = process.env.STACK_AUTH_PROJECT_ID || process.env.VITE_STACK_PROJECT_ID || '253d7343-a0d4-43a1-be5c-822f590d40be';
 const STACK_AUTH_API_URL = 'https://api.stack-auth.com/api/v1';
 const JWKS_URL = `${STACK_AUTH_API_URL}/projects/${STACK_AUTH_PROJECT_ID}/.well-known/jwks.json`;
 
@@ -35,8 +35,8 @@ interface CachedUser {
 }
 
 const authCache = new Map<string, CachedUser>();
-const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
-const MAX_CACHE_SIZE = 1000;
+const CACHE_DURATION = 3 * 60 * 1000; // Reduced from 5 to 3 minutes for faster auth updates
+const MAX_CACHE_SIZE = 500; // Reduced from 1000 to 500 for better memory management
 
 // Clean expired cache entries
 function cleanExpiredCache() {
@@ -88,27 +88,41 @@ declare global {
 
 // ✅ SIMPLIFIED: Direct Stack Auth integration - no token exchange needed
 
-// Verify JWT token directly using Stack Auth JWKS or test public key
+// Verify JWT token directly using Stack Auth JWKS or test public key with timeout
 async function verifyJWTToken(token: string) {
   try {
-    let payload;
-    if (process.env.NODE_ENV === 'test' && testPublicKey) {
-      // Use test public key and RS256
-      const { payload: testPayload } = await jwtVerify(token, testPublicKey, {
-        algorithms: ['RS256'],
-        issuer: `${STACK_AUTH_API_URL}/projects/${STACK_AUTH_PROJECT_ID}`,
-        audience: STACK_AUTH_PROJECT_ID,
-      });
-      payload = testPayload;
-    } else {
-      // Verify JWT using Stack Auth's JWKS
-      const { payload: prodPayload } = await jwtVerify(token, remoteJwks!, {
-        issuer: `${STACK_AUTH_API_URL}/projects/${STACK_AUTH_PROJECT_ID}`,
-        audience: STACK_AUTH_PROJECT_ID,
-      });
-      payload = prodPayload;
-    }
-    return payload;
+    // Add timeout to JWT verification to prevent hanging
+    const verificationPromise = new Promise(async (resolve, reject) => {
+      try {
+        let payload;
+        if (process.env.NODE_ENV === 'test' && testPublicKey) {
+          // Use test public key and RS256
+          const { payload: testPayload } = await jwtVerify(token, testPublicKey, {
+            algorithms: ['RS256'],
+            issuer: `${STACK_AUTH_API_URL}/projects/${STACK_AUTH_PROJECT_ID}`,
+            audience: STACK_AUTH_PROJECT_ID,
+          });
+          payload = testPayload;
+        } else {
+          // Verify JWT using Stack Auth's JWKS
+          const { payload: prodPayload } = await jwtVerify(token, remoteJwks!, {
+            issuer: `${STACK_AUTH_API_URL}/projects/${STACK_AUTH_PROJECT_ID}`,
+            audience: STACK_AUTH_PROJECT_ID,
+          });
+          payload = prodPayload;
+        }
+        resolve(payload);
+      } catch (error) {
+        reject(error);
+      }
+    });
+
+    // Race between verification and timeout
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('JWT verification timeout after 3s')), 3000)
+    );
+
+    return await Promise.race([verificationPromise, timeoutPromise]);
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : String(error);
     throw new Error(`JWT verification failed: ${message}`);

@@ -28,16 +28,41 @@ export default function PaymentSuccess() {
       // User is authenticated - upgrade existing account
       triggerUserUpgrade();
       
-      // Show success message and redirect to training
-      toast({
-        title: "Welcome to SSELFIE Studio!",
-        description: "Your payment was successful. Let's start creating your AI model.",
-      });
+      // Check if user already has completed training
+      const checkTrainingStatus = async () => {
+        try {
+          const response = await fetch('/api/user-model');
+          if (response.ok) {
+            const modelData = await response.json();
+            if (modelData.trainingStatus === 'completed') {
+              // Existing user with completed training - redirect to app
+              toast({
+                title: "🎉 Payment Successful!",
+                description: "Your subscription has been upgraded! Welcome back to SSELFIE Studio.",
+              });
+              
+              setTimeout(() => {
+                setLocation('/app');
+              }, 3000);
+              return;
+            }
+          }
+        } catch (error) {
+          console.log('Could not check training status:', error);
+        }
+        
+        // New user or training not completed - redirect to training
+        toast({
+          title: "Welcome to SSELFIE Studio!",
+          description: "Your payment was successful. Let's start creating your AI model.",
+        });
+        
+        setTimeout(() => {
+          setLocation('/simple-training');
+        }, 3000);
+      };
       
-      // Redirect to training after 3 seconds
-      setTimeout(() => {
-        setLocation('/simple-training');
-      }, 3000);
+      checkTrainingStatus();
     } else if (email) {
       // 🚀 AUTO-REGISTRATION: Create account for non-authenticated paying customer
       handleAutoRegistration(email, plan || 'sselfie-studio');

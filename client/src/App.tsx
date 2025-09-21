@@ -19,6 +19,9 @@ import { initializeMobileOptimization } from "./utils/mobileOptimization";
 import { performanceMonitor } from "./utils/performanceMonitor";
 import { initializeRuntimeOptimization } from "./utils/runtimeOptimization";
 
+// Editorial Luxury Styling
+import "./styles/editorial-luxury.css";
+
 // Core pages (loaded immediately) - BRAND STUDIO IS PRIMARY
 import AppLayout from "./pages/AppLayout";
 
@@ -26,6 +29,8 @@ import AppLayout from "./pages/AppLayout";
 import { lazy, Suspense } from "react";
 
 const BusinessLanding = lazy(() => import("./pages/business-landing"));
+const HairLanding = lazy(() => import("./pages/hair-landing"));
+const HairSignup = lazy(() => import("./pages/hair-signup"));
 const SimpleTraining = lazy(() => import("./pages/simple-training"));
 const SimpleCheckout = lazy(() => import("./pages/simple-checkout"));
 const PaymentSuccess = lazy(() => import("./pages/payment-success"));
@@ -34,6 +39,11 @@ const Terms = lazy(() => import("./pages/terms"));
 const Privacy = lazy(() => import("./pages/privacy"));
 const AuthSuccess = lazy(() => import("./pages/auth-success"));
 const OAuthCallback = lazy(() => import("./pages/OAuthCallback"));
+
+// Stage Mode components (lazy loaded)
+const PresenterConsole = lazy(() => import("./features/live/PresenterConsole"));
+const AudienceClient = lazy(() => import("./features/live/AudienceClient"));
+const SessionStats = lazy(() => import("./features/live/SessionStats"));
 
 // Components
 import { PageLoader } from "./components/PageLoader";
@@ -131,6 +141,18 @@ function Router() {
           <BusinessLanding />
         </Suspense>
       )} />
+      
+      <Route path="/hair" component={() => (
+        <Suspense fallback={<PageLoader />}>
+          <HairLanding />
+        </Suspense>
+      )} />
+      
+      <Route path="/hair/signup" component={() => (
+        <Suspense fallback={<PageLoader />}>
+          <HairSignup />
+        </Suspense>
+      )} />
 
       {/* LEGAL ROUTES */}
       <Route path="/terms" component={() => (
@@ -177,6 +199,29 @@ function Router() {
         <Suspense fallback={<PageLoader />}>
           <AppLayout />
         </Suspense>
+      )} />
+
+      {/* STAGE MODE ROUTES */}
+      <Route path="/hair/live/:sessionId" component={() => (
+        <ProtectedRoute component={() => (
+          <Suspense fallback={<PageLoader />}>
+            <PresenterConsole />
+          </Suspense>
+        )} />
+      )} />
+
+      <Route path="/hair/guest/:sessionId" component={() => (
+        <Suspense fallback={<PageLoader />}>
+          <AudienceClient />
+        </Suspense>
+      )} />
+
+      <Route path="/hair/live/:sessionId/stats" component={() => (
+        <ProtectedRoute component={() => (
+          <Suspense fallback={<PageLoader />}>
+            <SessionStats />
+          </Suspense>
+        )} />
       )} />
     </div>
   );

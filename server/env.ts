@@ -27,5 +27,7 @@ export const PORT = process.env.PORT;
 export const REPLIT_DEV_DOMAIN = process.env.REPLIT_DEV_DOMAIN;
 export const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
 export const TESTING_VITE_STRIPE_PUBLIC_KEY = process.env.TESTING_VITE_STRIPE_PUBLIC_KEY;
+export const ALLOWED_EMBED_HOSTS = process.env.ALLOWED_EMBED_HOSTS || 'mentimeter.com,*.mentimeter.com,canva.com,*.canva.com';
+export const LIVE_SOCKET_ENABLED = process.env.LIVE_SOCKET_ENABLED === '1';
 
 
