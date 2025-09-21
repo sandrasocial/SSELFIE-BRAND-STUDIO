@@ -30,14 +30,46 @@ export function AppLayout() {
 
   if (isLoading) {
     return (
-      <div className="h-screen bg-black flex items-center justify-center relative overflow-hidden">
+      <div className="h-screen bg-editorial-background flex items-center justify-center relative overflow-hidden">
+        {/* Mobile-First Loading Screen */}
         <div className="absolute inset-0 editorial-gradient-bg"></div>
-        <div className="relative z-10 text-center">
-          <div className="editorial-spinner w-20 h-20 mx-auto mb-8"></div>
-          <h2 className="editorial-heading-1 text-neutral-200 tracking-widest mb-2">SSELFIE</h2>
-          <p className="editorial-text-caption text-neutral-500 mb-4">LOADING EXPERIENCE</p>
-          <div className="w-48 h-1 bg-neutral-800 rounded-full overflow-hidden">
+        <div className="relative z-10 text-center px-4">
+          {/* Luxury Loading Animation */}
+          <div className="w-16 h-16 mx-auto mb-6 relative">
+            <div className="absolute inset-0 border-2 border-neutral-800 rounded-full"></div>
+            <div className="absolute inset-0 border-t-2 border-neutral-300 rounded-full animate-editorial-spin"></div>
+          </div>
+          
+          {/* Brand Identity */}
+          <h1 className="editorial-heading-1 text-editorial-text-primary mb-2 tracking-widest">
+            SSELFIE
+          </h1>
+          <p className="editorial-text-caption text-editorial-text-secondary uppercase tracking-wide mb-4">
+            Brand Studio Loading
+          </p>
+          
+          {/* Progress Bar */}
+          <div className="w-48 h-1 bg-neutral-800 rounded-full overflow-hidden mx-auto">
             <div className="editorial-loading-bar"></div>
+          </div>
+        </div>
+        
+        {/* Mobile Status Bar Simulation */}
+        <div className="fixed top-0 left-0 right-0 flex items-center justify-between px-4 py-2 bg-editorial-background/80 backdrop-blur-sm z-50">
+          <div className="flex items-center gap-1">
+            <span className="text-xs text-editorial-text-primary font-medium">
+              {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </span>
+          </div>
+          <div className="flex items-center gap-1">
+            <Signal size={14} className="text-editorial-text-primary" />
+            <Wifi size={14} className="text-editorial-text-primary" />
+            <div className="flex items-center gap-1">
+              <Battery size={14} className="text-editorial-text-primary" />
+              <span className="text-xs text-editorial-text-primary">
+                {Math.round(batteryLevel)}%
+              </span>
+            </div>
           </div>
         </div>
       </div>
