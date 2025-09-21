@@ -26,7 +26,7 @@ function MobileTabLayout() {
     <div className="min-h-screen flex flex-col overflow-x-hidden" style={{ WebkitOverflowScrolling: 'touch' }}>
       <AppTopNav />
       <main 
-        className="flex-1 pb-24 pt-20"
+        className="flex-1 pb-main-content pt-header-offset"
         style={{
           paddingLeft: 'env(safe-area-inset-left)',
           paddingRight: 'env(safe-area-inset-right)',
