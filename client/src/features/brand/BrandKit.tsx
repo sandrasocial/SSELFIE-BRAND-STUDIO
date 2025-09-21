@@ -338,9 +338,4 @@ const BrandKit: React.FC<BrandKitProps> = ({ onAssetSelect, selectedAssetId }) =
   );
 };
 
-<<<<<<< HEAD
 export default BrandKit;
-=======
-export default BrandKit;
-
->>>>>>> origin/main
