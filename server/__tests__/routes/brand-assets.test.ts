@@ -221,9 +221,4 @@ describe('Brand Assets Routes', () => {
       expect(response.body.error).toBe('Invalid asset ID');
     });
   });
-<<<<<<< HEAD
 });
-=======
-});
-
->>>>>>> origin/main
