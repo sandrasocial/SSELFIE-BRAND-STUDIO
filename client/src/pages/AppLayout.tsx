@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MobileTabLayout } from '../components/MobileTabLayout';
+import MobileTabLayout from '../components/MobileTabLayout';
 import { useAuth } from '../hooks/use-auth';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { Bell, Wifi, Battery, Signal } from 'lucide-react';
