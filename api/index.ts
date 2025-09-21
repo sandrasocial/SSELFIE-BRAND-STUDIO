@@ -989,20 +989,30 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           // Create completely new user (no prior payment) with timeout fallback
           console.log('🆕 Creating new user account:', user.email);
           
-          // Create a minimal user object as fallback
+          // Create a minimal user object as fallback that matches InsertUser type
           const fallbackUser = {
             id: user.id as string,
+            stackAuthId: user.id as string, // Link to Stack Auth
             email: (user.email as string) || null,
             displayName: `${user.firstName || ''} ${user.lastName || ''}`.trim() || null,
             firstName: user.firstName || null,
             lastName: user.lastName || null,
-            profileImageUrl: null,
-            plan: 'sselfie-studio',
-            role: 'user',
+            profileImageUrl: user.profileImageUrl || null,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            lastLoginAt: new Date(),
+            plan: 'sselfie-studio' as const,
+            role: 'user' as const,
             monthlyGenerationLimit: 100,
+            generationsUsedThisMonth: 0,
             mayaAiAccess: true,
             victoriaAiAccess: false,
-            onboardingProgress: JSON.stringify({ source: 'direct-signup' })
+            hasRetrainingAccess: false,
+            onboardingProgress: { source: 'direct-signup' },
+            preferredOnboardingMode: 'conversational' as const,
+            trainingCoachingStarted: false,
+            trainingCoachingCompleted: false,
+            trainingCoachingStep: 0
           };
           
           dbUser = await withDatabaseTimeout(
