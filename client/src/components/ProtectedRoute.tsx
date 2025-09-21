@@ -1,29 +1,40 @@
 import React, { ComponentType, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { useAuth } from '../hooks/use-auth';
-import { PageLoader } from './PageLoader'; // Ensure PageLoader is imported
+import { PageLoader } from './PageLoader';
 
-// This is now the single source of truth for protecting routes.
-export function ProtectedRoute({ component: Component, ...props }: { component: ComponentType<any>, [key: string]: any }) {
-  const { isAuthenticated, isLoading } = useAuth();
+// Enhanced ProtectedRoute with proper Stack Auth integration
+export function ProtectedRoute({ 
+  component: Component, 
+  fallbackPath = '/handler/sign-in',
+  ...props 
+}: { 
+  component: ComponentType<any>;
+  fallbackPath?: string;
+  [key: string]: any;
+}) {
+  const { isAuthenticated, isLoading, hasStackAuthUser } = useAuth();
   const [, setLocation] = useLocation();
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      // Redirect to the Stack Auth sign-in page if not authenticated.
-      setLocation('/handler/sign-in');
+    // Only redirect if we're sure the user is not authenticated
+    // For OAuth flows, hasStackAuthUser might be true even if DB user isn't loaded yet
+    if (!isLoading && !isAuthenticated && !hasStackAuthUser) {
+      setLocation(fallbackPath);
     }
-  }, [isLoading, isAuthenticated, setLocation]);
+  }, [isLoading, isAuthenticated, hasStackAuthUser, setLocation, fallbackPath]);
 
-  // Show a loading spinner while authentication is in progress.
+  // Show loading while authentication state is being determined
   if (isLoading) {
     return <PageLoader />;
   }
-  if (!isAuthenticated) {
-    setLocation('/handler/sign-in');
+
+  // For OAuth callbacks, allow rendering if Stack Auth user exists
+  // even if DB user isn't loaded yet
+  if (!isAuthenticated && !hasStackAuthUser) {
     return <PageLoader />;
   }
 
-  // If authenticated, render the requested component.
+  // Render the protected component
   return <Component {...props} />;
 }

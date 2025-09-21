@@ -30,14 +30,46 @@ export function AppLayout() {
 
   if (isLoading) {
     return (
-      <div className="h-screen bg-black flex items-center justify-center relative overflow-hidden">
+      <div className="h-screen bg-editorial-background flex items-center justify-center relative overflow-hidden">
+        {/* Mobile-First Loading Screen */}
         <div className="absolute inset-0 editorial-gradient-bg"></div>
-        <div className="relative z-10 text-center">
-          <div className="editorial-spinner w-20 h-20 mx-auto mb-8"></div>
-          <h2 className="editorial-heading-1 text-neutral-200 tracking-widest mb-2">SSELFIE</h2>
-          <p className="editorial-text-caption text-neutral-500 mb-4">LOADING EXPERIENCE</p>
-          <div className="w-48 h-1 bg-neutral-800 rounded-full overflow-hidden">
+        <div className="relative z-10 text-center px-4">
+          {/* Luxury Loading Animation */}
+          <div className="w-16 h-16 mx-auto mb-6 relative">
+            <div className="absolute inset-0 border-2 border-neutral-800 rounded-full"></div>
+            <div className="absolute inset-0 border-t-2 border-neutral-300 rounded-full animate-editorial-spin"></div>
+          </div>
+          
+          {/* Brand Identity */}
+          <h1 className="editorial-heading-1 text-editorial-text-primary mb-2 tracking-widest">
+            SSELFIE
+          </h1>
+          <p className="editorial-text-caption text-editorial-text-secondary uppercase tracking-wide mb-4">
+            Brand Studio Loading
+          </p>
+          
+          {/* Progress Bar */}
+          <div className="w-48 h-1 bg-neutral-800 rounded-full overflow-hidden mx-auto">
             <div className="editorial-loading-bar"></div>
+          </div>
+        </div>
+        
+        {/* Mobile Status Bar Simulation */}
+        <div className="fixed top-0 left-0 right-0 flex items-center justify-between px-4 py-2 bg-editorial-background/80 backdrop-blur-sm z-50">
+          <div className="flex items-center gap-1">
+            <span className="text-xs text-editorial-text-primary font-medium">
+              {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </span>
+          </div>
+          <div className="flex items-center gap-1">
+            <Signal size={14} className="text-editorial-text-primary" />
+            <Wifi size={14} className="text-editorial-text-primary" />
+            <div className="flex items-center gap-1">
+              <Battery size={14} className="text-editorial-text-primary" />
+              <span className="text-xs text-editorial-text-primary">
+                {Math.round(batteryLevel)}%
+              </span>
+            </div>
           </div>
         </div>
       </div>
@@ -46,66 +78,78 @@ export function AppLayout() {
 
   return (
     <div className="h-screen bg-black relative overflow-hidden font-sans">
-      {/* Editorial gradient backdrop */}
-      <div className="absolute inset-0 editorial-gradient-bg"></div>
+      {/* Enhanced Editorial gradient backdrop with luxury depth */}
+      <div className="absolute inset-0">
+        <div className="absolute inset-0 bg-gradient-to-br from-black via-neutral-950 to-neutral-900"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/50 via-transparent to-transparent"></div>
+      </div>
       
-      {/* Editorial container - Phone-like design */}
-      <div className="editorial-container">
-        <div className="editorial-phone-container">
+      {/* Luxury Editorial container with glass morphism */}
+      <div className="relative flex-1 mx-3 pt-1 h-full">
+        <div className="flex-1 bg-neutral-950/80 backdrop-blur-2xl rounded-[2rem] shadow-editorial-xl border border-neutral-800/30 overflow-hidden h-full">
+          <div className="flex-1 p-8 h-full flex flex-col">
           
-          {/* Editorial Status Bar */}
-          <div className="editorial-status-bar">
-            <div className="flex items-center gap-4">
-              <div className="editorial-text-header text-neutral-200">
-                {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-              </div>
-              {isAuthenticated && user && (
-                <div className="flex items-center gap-2 px-3 py-1 editorial-badge">
-                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                  <span className="text-xs text-neutral-300 tracking-wide">ONLINE</span>
+            {/* Enhanced Editorial Status Bar with Luxury Design */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-800/20 bg-gradient-to-r from-transparent via-neutral-950/30 to-transparent">
+              <div className="flex items-center gap-6">
+                <div className="editorial-text-header text-neutral-200 text-lg font-light tracking-wide">
+                  {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </div>
-              )}
-            </div>
-            
-            <div className="flex items-center gap-3">
-              {/* Theme Toggle */}
-              <ThemeToggle />
-              
-              {/* Signal Strength */}
-              <div className="flex items-center gap-1">
-                <Signal size={14} className="text-neutral-400" strokeWidth={1.5} />
-                <div className="flex space-x-1">
-                  <div className="w-1 h-3 bg-neutral-400 rounded-full"></div>
-                  <div className="w-1 h-3 bg-neutral-400 rounded-full"></div>
-                  <div className="w-1 h-3 bg-neutral-400 rounded-full"></div>
-                  <div className="w-1 h-3 bg-neutral-600 rounded-full"></div>
-                </div>
-              </div>
-              
-              {/* WiFi */}
-              <Wifi size={14} className="text-neutral-400" strokeWidth={1.5} />
-              
-              {/* Notifications */}
-              <div className="relative">
-                <Bell size={14} className="text-neutral-400" strokeWidth={1.5} />
-                {hasNotifications && (
-                  <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>
+                {isAuthenticated && user && (
+                  <div className="flex items-center gap-3 px-4 py-2 bg-neutral-800/30 rounded-xl border border-neutral-700/20">
+                    <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
+                    <span className="text-xs text-neutral-300 tracking-ultra-wide font-light">ONLINE</span>
+                  </div>
                 )}
               </div>
               
-              {/* Battery */}
-              <div className="flex items-center gap-1">
-                <Battery size={14} className="text-neutral-400" strokeWidth={1.5} />
-                <span className="text-xs text-neutral-400 font-light">{Math.round(batteryLevel)}%</span>
+              <div className="flex items-center gap-4">
+                {/* Theme Toggle */}
+                <div className="p-2 rounded-lg bg-neutral-800/20 border border-neutral-700/20 hover:bg-neutral-800/30 transition-all duration-300">
+                  <ThemeToggle />
+                </div>
+                
+                {/* Signal Strength with Enhanced Design */}
+                <div className="flex items-center gap-2 px-3 py-2 bg-neutral-800/20 rounded-lg">
+                  <Signal size={14} className="text-neutral-400" strokeWidth={1.2} />
+                  <div className="flex space-x-1">
+                    <div className="w-1 h-4 bg-neutral-300 rounded-full"></div>
+                    <div className="w-1 h-4 bg-neutral-300 rounded-full"></div>
+                    <div className="w-1 h-4 bg-neutral-300 rounded-full"></div>
+                    <div className="w-1 h-4 bg-neutral-600 rounded-full opacity-50"></div>
+                  </div>
+                </div>
+                
+                {/* WiFi with Premium Styling */}
+                <div className="p-2 rounded-lg bg-neutral-800/20">
+                  <Wifi size={14} className="text-neutral-400" strokeWidth={1.2} />
+                </div>
+                
+                {/* Enhanced Notifications */}
+                <div className="relative p-2 rounded-lg bg-neutral-800/20 hover:bg-neutral-800/30 transition-all duration-300">
+                  <Bell size={14} className="text-neutral-400" strokeWidth={1.2} />
+                  {hasNotifications && (
+                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-neutral-950 animate-pulse"></div>
+                  )}
+                </div>
+                
+                {/* Premium Battery Display */}
+                <div className="flex items-center gap-2 px-3 py-2 bg-neutral-800/20 rounded-lg">
+                  <Battery size={14} className="text-neutral-400" strokeWidth={1.2} />
+                  <span className="text-xs text-neutral-400 font-light tracking-wide">{Math.round(batteryLevel)}%</span>
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Editorial content area */}
-          <div className="editorial-content">
-            <MobileTabLayout />
+            {/* Enhanced Editorial content area with perfect spacing */}
+            <div className="flex-1 overflow-hidden">
+              <MobileTabLayout />
+            </div>
           </div>
         </div>
+        
+        {/* Subtle bottom safe area with gradient */}
+        <div className="h-4 bg-gradient-to-t from-black/50 to-transparent"></div>
       </div>
     </div>
   );
