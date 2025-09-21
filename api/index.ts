@@ -1,10 +1,10 @@
 /* eslint-disable no-console */
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import type { AiImage, UserModel, InsertUser } from '../shared/schema.js';
-import { withTimeout, withDatabaseTimeout, withExternalApiTimeout, isTimeoutError } from './_utils/timing.js';
+import { withTimeout, withDatabaseTimeout, withDatabaseTimeoutAndRetry, withExternalApiTimeout, isTimeoutError } from './_utils/timing.js';
 export const config = { 
   runtime: 'nodejs',
-  maxDuration: 45
+  maxDuration: 40
 } as const;
 // Lazy-load jose at runtime to avoid bootstrap issues
 type JoseModule = typeof import('jose');
@@ -885,11 +885,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const user = await getAuthenticatedUser();
         const { storage } = await import('../server/storage.js');
         
-        // OPTIMIZED: Use database timeout with fallback for faster response
-        let dbUser = await withDatabaseTimeout(
-          storage.getUser(user.id as string), 
+        // OPTIMIZED: Use faster database timeouts with retry for critical user operations
+        let dbUser = await withDatabaseTimeoutAndRetry(
+          () => storage.getUser(user.id as string), 
           null, 
-          3000, 
+          2000, // Reduced from 3000ms
+          1, // 1 retry
           'getUser'
         );
       
@@ -899,13 +900,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             withDatabaseTimeout(
               storage.getUserByStackAuthId(user.id as string), 
               null, 
-              2500, 
+              2000, // Reduced from 2500ms
               'getUserByStackAuthId'
             ),
             user.email ? withDatabaseTimeout(
               storage.getUserByEmail(user.email as string), 
               null, 
-              2500, 
+              2000, // Reduced from 2500ms
               'getUserByEmail'
             ) : Promise.resolve(null)
           ]);
@@ -917,7 +918,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             dbUser = await withDatabaseTimeout(
               storage.linkStackAuthId(byEmail.id, user.id as string), 
               byEmail, // Use existing user as fallback if linking fails
-              3000, 
+              2500, // Reduced from 3000ms
               'linkStackAuthId'
             );
             console.log('✅ Successfully linked paid user to Stack Auth account');
@@ -947,7 +948,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           dbUser = await withDatabaseTimeout(
             storage.upsertUser(fallbackUser),
             fallbackUser, // Use fallback if DB operation times out
-            4000, 
+            3000, // Reduced from 4000ms
             'upsertUser'
           );
           
@@ -994,10 +995,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         console.log('🔍 Getting model for user:', user.id, user.email);
         
         // Get user from database to check training status with faster timeouts
-        let dbUser = await withDatabaseTimeout(
-          storage.getUser(user.id as string), 
+        let dbUser = await withDatabaseTimeoutAndRetry(
+          () => storage.getUser(user.id as string), 
           null, 
-          3000, 
+          2000, // Reduced from 3000ms
+          1, // 1 retry
           'getUser'
         );
         
@@ -1005,7 +1007,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           dbUser = await withDatabaseTimeout(
             storage.getUserByEmail(user.email as string), 
             null, 
-            3000, 
+            2000, // Reduced from 3000ms
             'getUserByEmail'
           );
         }
@@ -1018,13 +1020,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           });
         }
         
-        // Check if user has a trained model with fallback
+        // Check if user has a trained model with fallback and reduced timeout
         let userModel: UserModel | null = null;
         try {
           userModel = await withDatabaseTimeout(
             storage.getUserModel(dbUser.id), 
             null, // Fallback to null if timeout occurs
-            4000, 
+            3000, // Reduced from 4000ms
             'getUserModel'
           );
         } catch (error) {
