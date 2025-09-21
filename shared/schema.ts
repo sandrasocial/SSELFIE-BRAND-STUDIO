@@ -1888,7 +1888,6 @@ export type InsertLiveEvent = z.infer<typeof insertLiveEventSchema>;
 // Hair Leads types
 export type HairLead = typeof hairLeads.$inferSelect;
 export type InsertHairLead = z.infer<typeof insertHairLeadSchema>;
-
 // Note: Website type already defined above at line 502
 // Note: styleguide_templates and user_styleguides are imported from styleguide-schema.ts
 // Note: agentTasks, emailCaptures, and userWebsiteOnboarding are already defined earlier in this file

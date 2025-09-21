@@ -234,5 +234,9 @@ async function processInpaintPlacement(
   }
 }
 
+<<<<<<< HEAD
+export default router;
+=======
 export default router;
 
+>>>>>>> origin/main

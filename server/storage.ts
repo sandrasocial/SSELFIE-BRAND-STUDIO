@@ -621,7 +621,6 @@ export class DatabaseStorage implements IStorage {
     // drizzle returns object; presence of a result is enough
     return Boolean((result as unknown as { rowCount?: number }).rowCount ?? true);
   }
-
   async updateAIImage(id: number, data: Partial<AiImage>): Promise<AiImage> {
     const [updated] = await db
       .update(aiImages)
