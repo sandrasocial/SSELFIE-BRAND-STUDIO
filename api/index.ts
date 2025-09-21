@@ -1518,7 +1518,7 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
           // Call Claude API with Maya's real personality using enhanced timeout
           const claudeResponse = await withExternalApiTimeout(
             async () => {
-              return timedFetch('https://api.anthropic.com/v1/messages', 15000, {
+              return timedFetch('https://api.anthropic.com/v1/messages', 12000, {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
@@ -1543,7 +1543,7 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
               });
             },
             null, // No fallback response from this level
-            15000, // 15 second timeout
+            12000, // Reduced from 15s to 12s timeout
             0, // No retries for chat to keep it fast
             'claude-api-maya-chat'
           );
@@ -1559,7 +1559,7 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
             conceptCards = await withDatabaseTimeout(
               applyGenderContext(conceptCards, user.id as string),
               conceptCards, // Fallback to original cards if timeout
-              3000,
+              2500, // Reduced from 3000ms
               'applyGenderContext'
             );
             
@@ -1915,6 +1915,17 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
       const t = logStart('GET /api/gallery-images');
       
       try {
+        // Check circuit breaker before database operations
+        if (!checkCircuitBreaker()) {
+          console.warn('⚠️ Circuit breaker open for gallery-images');
+          return res.status(503).json({
+            images: [],
+            total: 0,
+            message: 'Service temporarily unavailable',
+            code: 'CIRCUIT_BREAKER_OPEN'
+          });
+        }
+
         const user = await getAuthenticatedUser();
         console.log('🔍 Getting gallery images for user:', user.id, user.email);
         
@@ -1923,15 +1934,22 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
         
         // OPTIMIZED: Reduced timeout and better error handling
         const [aiImages, generatedImages] = await Promise.all([
-          withTimeout(storage.getAIImages(user.id as string), 3000, 'getAIImages').catch(err => {
+          withTimeout(storage.getAIImages(user.id as string), 2500, 'getAIImages').catch(err => {
             console.warn('⚠️ AI images fetch failed:', (err as Error).message);
+            recordCircuitBreakerFailure();
             return [];
           }),
-          withTimeout(storage.getGeneratedImages(user.id as string), 3000, 'getGeneratedImages').catch(err => {
+          withTimeout(storage.getGeneratedImages(user.id as string), 2500, 'getGeneratedImages').catch(err => {
             console.warn('⚠️ Generated images fetch failed:', (err as Error).message);
+            recordCircuitBreakerFailure();
             return [];
           })
         ]);
+        
+        // Record success if we got data
+        if (aiImages.length > 0 || generatedImages.length > 0) {
+          recordCircuitBreakerSuccess();
+        }
         
         console.log('📊 Found AI images:', aiImages.length);
         console.log('📊 Found generated images:', generatedImages.length);
