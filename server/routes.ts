@@ -667,6 +667,10 @@ function generatePersonalizedScenePrompt(sceneNumber: number, originalMessage: s
   // Email automation routes
   app.use('/api/email', emailAutomation);
   
+  // 🎬 VEO 3 Video generation routes
+  app.use('/api/video', videoRoutes);
+  console.log('🎬 VEO 3: Video generation API active at /api/video/*');
+  
   // 📧 AVA Email Management Agent Routes
   app.use('/api/email-management', emailManagementRouter);
   
