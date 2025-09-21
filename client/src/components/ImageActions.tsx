@@ -25,7 +25,7 @@ const ImageActions: React.FC<ImageActionsProps> = ({
 
   // Handle keyboard navigation
   useEffect(() => {
-    const handleKeyPress = (event: KeyboardEvent) => {
+    const handleKeyPress = (event: globalThis.KeyboardEvent) => {
       if (!compareMode) return;
 
       if (event.key === 'ArrowLeft') {
