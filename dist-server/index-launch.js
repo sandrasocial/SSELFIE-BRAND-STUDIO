@@ -710,6 +710,44 @@ var require_cookie_parser = __commonJS({
   }
 });
 
+// server/env.ts
+var import_dotenv2, DATABASE_URL, STACK_SECRET_SERVER_KEY, VITE_STACK_PUBLISHABLE_CLIENT_KEY, REPLICATE_API_TOKEN, REPLICATE_USERNAME, ANTHROPIC_API_KEY, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION, AWS_S3_BUCKET, ADMIN_USER_ID, SHANNON_USER_ID, FLODESK_API_KEY, RESEND_API_KEY, INSTAGRAM_BUSINESS_ACCOUNT_ID, META_ACCESS_TOKEN, MANYCHAT_API_TOKEN, MAKE_API_TOKEN, NODE_ENV, PORT, REPLIT_DEV_DOMAIN, STRIPE_SECRET_KEY, TESTING_VITE_STRIPE_PUBLIC_KEY, ALLOWED_EMBED_HOSTS, LIVE_SOCKET_ENABLED, VEO3_ENABLED, GOOGLE_API_KEY, VEO3_MODEL, VEO_GOOGLE_MODEL;
+var init_env = __esm({
+  "server/env.ts"() {
+    import_dotenv2 = __toESM(require_main(), 1);
+    import_dotenv2.default.config();
+    DATABASE_URL = process.env.DATABASE_URL;
+    STACK_SECRET_SERVER_KEY = process.env.STACK_SECRET_SERVER_KEY;
+    VITE_STACK_PUBLISHABLE_CLIENT_KEY = process.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY;
+    REPLICATE_API_TOKEN = process.env.REPLICATE_API_TOKEN;
+    REPLICATE_USERNAME = process.env.REPLICATE_USERNAME;
+    ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
+    AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID;
+    AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY;
+    AWS_REGION = process.env.AWS_REGION;
+    AWS_S3_BUCKET = process.env.AWS_S3_BUCKET;
+    ADMIN_USER_ID = process.env.ADMIN_USER_ID;
+    SHANNON_USER_ID = process.env.SHANNON_USER_ID;
+    FLODESK_API_KEY = process.env.FLODESK_API_KEY;
+    RESEND_API_KEY = process.env.RESEND_API_KEY;
+    INSTAGRAM_BUSINESS_ACCOUNT_ID = process.env.INSTAGRAM_BUSINESS_ACCOUNT_ID;
+    META_ACCESS_TOKEN = process.env.META_ACCESS_TOKEN;
+    MANYCHAT_API_TOKEN = process.env.MANYCHAT_API_TOKEN;
+    MAKE_API_TOKEN = process.env.MAKE_API_TOKEN;
+    NODE_ENV = process.env.NODE_ENV;
+    PORT = process.env.PORT;
+    REPLIT_DEV_DOMAIN = process.env.REPLIT_DEV_DOMAIN;
+    STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
+    TESTING_VITE_STRIPE_PUBLIC_KEY = process.env.TESTING_VITE_STRIPE_PUBLIC_KEY;
+    ALLOWED_EMBED_HOSTS = process.env.ALLOWED_EMBED_HOSTS || "mentimeter.com,*.mentimeter.com,canva.com,*.canva.com";
+    LIVE_SOCKET_ENABLED = process.env.LIVE_SOCKET_ENABLED === "1";
+    VEO3_ENABLED = process.env.VEO3_ENABLED;
+    GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
+    VEO3_MODEL = process.env.VEO3_MODEL;
+    VEO_GOOGLE_MODEL = process.env.VEO_GOOGLE_MODEL;
+  }
+});
+
 // node_modules/zod/v4/core/core.js
 // @__NO_SIDE_EFFECTS__
 function $constructor(name, initializer3, params) {
@@ -16839,6 +16877,7 @@ __export(schema_exports, {
   aiImages: () => aiImages,
   approvalQueue: () => approvalQueue,
   architectureAuditLog: () => architectureAuditLog,
+  brandAssets: () => brandAssets,
   brandOnboarding: () => brandOnboarding,
   brandbooks: () => brandbooks,
   claudeConversations: () => claudeConversations,
@@ -16853,6 +16892,8 @@ __export(schema_exports, {
   generatedImages: () => generatedImages,
   generatedVideos: () => generatedVideos,
   generationTrackers: () => generationTrackers,
+  hairLeads: () => hairLeads,
+  imageVariants: () => imageVariants,
   importedSubscribers: () => importedSubscribers,
   insertAgentBudgetsSchema: () => insertAgentBudgetsSchema,
   insertAgentCapabilitySchema: () => insertAgentCapabilitySchema,
@@ -16867,6 +16908,7 @@ __export(schema_exports, {
   insertAiImageSchema: () => insertAiImageSchema,
   insertApprovalQueueSchema: () => insertApprovalQueueSchema,
   insertArchitectureAuditLogSchema: () => insertArchitectureAuditLogSchema,
+  insertBrandAssetSchema: () => insertBrandAssetSchema,
   insertBrandOnboardingSchema: () => insertBrandOnboardingSchema,
   insertBrandbookSchema: () => insertBrandbookSchema,
   insertClaudeConversationSchema: () => insertClaudeConversationSchema,
@@ -16877,8 +16919,12 @@ __export(schema_exports, {
   insertDashboardSchema: () => insertDashboardSchema,
   insertGeneratedImageSchema: () => insertGeneratedImageSchema,
   insertGenerationTrackerSchema: () => insertGenerationTrackerSchema,
+  insertHairLeadSchema: () => insertHairLeadSchema,
+  insertImageVariantSchema: () => insertImageVariantSchema,
   insertInspirationPhotoSchema: () => insertInspirationPhotoSchema,
   insertLandingPageSchema: () => insertLandingPageSchema,
+  insertLiveEventSchema: () => insertLiveEventSchema,
+  insertLiveSessionSchema: () => insertLiveSessionSchema,
   insertLoraWeightSchema: () => insertLoraWeightSchema,
   insertMayaChatMessageSchema: () => insertMayaChatMessageSchema,
   insertMayaChatSchema: () => insertMayaChatSchema,
@@ -16911,6 +16957,8 @@ __export(schema_exports, {
   inspirationPhotos: () => inspirationPhotos,
   instagramMessages: () => instagramMessages,
   landingPages: () => landingPages,
+  liveEvents: () => liveEvents,
+  liveSessions: () => liveSessions,
   loraWeights: () => loraWeights,
   mayaChatMessages: () => mayaChatMessages,
   mayaChats: () => mayaChats,
@@ -16945,6 +16993,7 @@ __export(schema_exports, {
   userWebsiteOnboarding: () => userWebsiteOnboarding,
   users: () => users,
   victoriaChats: () => victoriaChats,
+  videoStoryboards: () => videoStoryboards,
   websiteBuilderConversations: () => websiteBuilderConversations,
   websites: () => websites
 });
@@ -16961,7 +17010,8 @@ import {
   decimal,
   uuid as uuid3
 } from "drizzle-orm/pg-core";
-var sessions, agentSessionContexts, users, emailAccounts, processedEmails, instagramMessages, websites, userProfiles, projects, generationTrackers, aiImages, templates, claudeConversations, claudeMessages, agentLearning, agentCapabilities, agentConversations, subscriptions, userUsage, usageHistory, onboardingData, selfieUploads, userModels, generatedImages, generatedVideos, victoriaChats, photoSelections, landingPages, brandOnboarding, userLandingPages, userPersonalBrand, mayaPersonalMemory, userStyleMemory, promptAnalysis, mayaChats, mayaChatMessages, trainingRuns, loraWeights, upsertUserSchema, insertUserSchema, insertUserProfileSchema, insertProjectSchema, insertAiImageSchema, insertTemplateSchema, insertSubscriptionSchema, insertOnboardingDataSchema, insertSelfieUploadSchema, insertUserModelSchema, insertGeneratedImageSchema, insertVictoriaChatSchema, insertPhotoSelectionSchema, insertLandingPageSchema, insertBrandOnboardingSchema, insertUserLandingPageSchema, insertUserPersonalBrandSchema, insertMayaPersonalMemorySchema, insertUserStyleMemorySchema, insertPromptAnalysisSchema, insertMayaChatSchema, insertMayaChatMessageSchema, insertGenerationTrackerSchema, insertTrainingRunSchema, insertLoraWeightSchema, insertAgentConversationSchema, insertWebsiteSchema, insertClaudeConversationSchema, insertClaudeMessageSchema, insertAgentLearningSchema, insertAgentCapabilitySchema, emailCaptures, domains, userWebsiteOnboarding, userGeneratedWebsites, websiteBuilderConversations, insertUserWebsiteOnboardingSchema, insertUserGeneratedWebsitesSchema, insertWebsiteBuilderConversationsSchema, importedSubscribers, agentTasks, agentKnowledgeBase, agentPerformanceMetrics, agentTrainingSessions, agentCostTracking, agentBudgets, insertAgentKnowledgeBaseSchema, insertAgentPerformanceMetricsSchema, insertAgentTrainingSessionsSchema, insertAgentCostTrackingSchema, insertAgentBudgetsSchema, approvalQueue, agentHandoffRequests, agentSessions, insertApprovalQueueSchema, insertAgentHandoffRequestsSchema, insertAgentSessionsSchema, architectureAuditLog, brandbooks, dashboards, inspirationPhotos, modelRecoveryLog, sandraConversations, savedPrompts, userStyleEvolution, mayaContextSessions, conversations, messages, conversationSummaries, conceptCards, insertArchitectureAuditLogSchema, insertBrandbookSchema, insertDashboardSchema, insertInspirationPhotoSchema, insertModelRecoveryLogSchema, insertSandraConversationSchema, insertSavedPromptSchema, insertUserStyleEvolutionSchema, insertMayaContextSessionSchema, insertConversationSchema, insertMessageSchema, insertConversationSummarySchema, insertConceptCardSchema;
+import { randomUUID } from "node:crypto";
+var sessions, agentSessionContexts, users, emailAccounts, processedEmails, instagramMessages, websites, userProfiles, hairLeads, projects, generationTrackers, aiImages, templates, claudeConversations, claudeMessages, agentLearning, agentCapabilities, agentConversations, subscriptions, userUsage, usageHistory, onboardingData, selfieUploads, userModels, generatedImages, generatedVideos, videoStoryboards, victoriaChats, photoSelections, landingPages, brandOnboarding, userLandingPages, userPersonalBrand, mayaPersonalMemory, userStyleMemory, promptAnalysis, mayaChats, mayaChatMessages, trainingRuns, loraWeights, liveSessions, liveEvents, upsertUserSchema, insertUserSchema, insertUserProfileSchema, insertHairLeadSchema, insertProjectSchema, insertAiImageSchema, insertTemplateSchema, insertSubscriptionSchema, insertOnboardingDataSchema, insertSelfieUploadSchema, insertUserModelSchema, insertGeneratedImageSchema, insertVictoriaChatSchema, insertPhotoSelectionSchema, insertLandingPageSchema, insertBrandOnboardingSchema, insertLiveSessionSchema, insertLiveEventSchema, insertUserLandingPageSchema, insertUserPersonalBrandSchema, insertMayaPersonalMemorySchema, insertUserStyleMemorySchema, insertPromptAnalysisSchema, insertMayaChatSchema, insertMayaChatMessageSchema, insertGenerationTrackerSchema, insertTrainingRunSchema, insertLoraWeightSchema, insertAgentConversationSchema, insertWebsiteSchema, insertClaudeConversationSchema, insertClaudeMessageSchema, insertAgentLearningSchema, insertAgentCapabilitySchema, emailCaptures, domains, userWebsiteOnboarding, userGeneratedWebsites, websiteBuilderConversations, insertUserWebsiteOnboardingSchema, insertUserGeneratedWebsitesSchema, insertWebsiteBuilderConversationsSchema, importedSubscribers, agentTasks, agentKnowledgeBase, agentPerformanceMetrics, agentTrainingSessions, agentCostTracking, agentBudgets, insertAgentKnowledgeBaseSchema, insertAgentPerformanceMetricsSchema, insertAgentTrainingSessionsSchema, insertAgentCostTrackingSchema, insertAgentBudgetsSchema, approvalQueue, agentHandoffRequests, agentSessions, insertApprovalQueueSchema, insertAgentHandoffRequestsSchema, insertAgentSessionsSchema, brandAssets, imageVariants, architectureAuditLog, brandbooks, dashboards, inspirationPhotos, modelRecoveryLog, sandraConversations, savedPrompts, userStyleEvolution, mayaContextSessions, conversations, messages, conversationSummaries, conceptCards, insertArchitectureAuditLogSchema, insertBrandbookSchema, insertDashboardSchema, insertInspirationPhotoSchema, insertModelRecoveryLogSchema, insertSandraConversationSchema, insertSavedPromptSchema, insertUserStyleEvolutionSchema, insertMayaContextSessionSchema, insertConversationSchema, insertMessageSchema, insertConversationSummarySchema, insertConceptCardSchema, insertBrandAssetSchema, insertImageVariantSchema;
 var init_schema = __esm({
   "shared/schema.ts"() {
     init_drizzle_zod();
@@ -17173,6 +17223,32 @@ var init_schema = __esm({
       createdAt: timestamp2("created_at").defaultNow(),
       updatedAt: timestamp2("updated_at").defaultNow()
     });
+    hairLeads = pgTable2("hair_leads", {
+      id: serial("id").primaryKey(),
+      navn: varchar2("navn").notNull(),
+      // Name in Norwegian
+      epost: varchar2("epost").notNull(),
+      // Email in Norwegian
+      telefon: varchar2("telefon"),
+      // Phone number (optional)
+      kilde: varchar2("kilde").default("qr-code"),
+      // Source: qr-code, landing-page, etc
+      interesse: text2("interesse"),
+      // Interest/comments (optional)
+      levelpartnerSynced: boolean5("levelpartner_synced").default(false),
+      // For future LevelPartner integration
+      levelpartnerSyncedAt: timestamp2("levelpartner_synced_at"),
+      status: varchar2("status").default("new"),
+      // new, contacted, converted, unsubscribed
+      notater: text2("notater"),
+      // Notes in Norwegian
+      createdAt: timestamp2("created_at").defaultNow(),
+      updatedAt: timestamp2("updated_at").defaultNow()
+    }, (table) => [
+      index("idx_hair_leads_epost").on(table.epost),
+      index("idx_hair_leads_created").on(table.createdAt),
+      index("idx_hair_leads_kilde").on(table.kilde)
+    ]);
     projects = pgTable2("projects", {
       id: serial("id").primaryKey(),
       userId: varchar2("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
@@ -17480,6 +17556,8 @@ var init_schema = __esm({
       progress: integer3("progress").default(0),
       // 0-100
       errorMessage: text2("error_message"),
+      saved: boolean5("saved").default(false),
+      // User saved to favorites
       createdAt: timestamp2("created_at").defaultNow(),
       updatedAt: timestamp2("updated_at").defaultNow(),
       completedAt: timestamp2("completed_at")
@@ -17487,6 +17565,29 @@ var init_schema = __esm({
       index("generated_videos_user_id_idx").on(table.userId),
       index("generated_videos_job_id_idx").on(table.jobId),
       index("generated_videos_status_idx").on(table.status)
+    ]);
+    videoStoryboards = pgTable2("video_storyboards", {
+      id: serial("id").primaryKey(),
+      userId: varchar2("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+      scenes: jsonb2("scenes").notNull(),
+      // Array of {motionPrompt, duration, style?, imageId?}
+      mode: varchar2("mode").default("sequential"),
+      // sequential, parallel
+      composedVideoUrl: varchar2("composed_video_url"),
+      // Final composed video URL
+      status: varchar2("status").default("pending"),
+      // pending, processing, completed, failed
+      progress: integer3("progress").default(0),
+      // 0-100
+      jobId: varchar2("job_id"),
+      // Composition job ID for tracking
+      errorMessage: text2("error_message"),
+      createdAt: timestamp2("created_at").defaultNow(),
+      updatedAt: timestamp2("updated_at").defaultNow(),
+      completedAt: timestamp2("completed_at")
+    }, (table) => [
+      index("video_storyboards_user_id_idx").on(table.userId),
+      index("video_storyboards_status_idx").on(table.status)
     ]);
     victoriaChats = pgTable2("victoria_chats", {
       id: serial("id").primaryKey(),
@@ -17773,9 +17874,57 @@ var init_schema = __esm({
       trainingRunIdx: index("lora_weights_training_run_idx").on(table.trainingRunId),
       triggerWordIdx: index("lora_weights_trigger_word_idx").on(table.triggerWord)
     }));
+    liveSessions = pgTable2("live_sessions", {
+      id: uuid3("id").primaryKey().defaultRandom(),
+      deckUrl: text2("deck_url"),
+      mentiUrl: text2("menti_url"),
+      ctaUrl: text2("cta_url"),
+      title: text2("title").notNull(),
+      createdBy: uuid3("created_by").references(() => users.id, { onDelete: "cascade" }).notNull(),
+      createdAt: timestamp2("created_at", { withTimezone: true }).defaultNow().notNull(),
+      updatedAt: timestamp2("updated_at", { withTimezone: true }).defaultNow().notNull()
+    }, (table) => ({
+      createdByIdx: index("idx_live_sessions_created_by").on(table.createdBy),
+      createdAtIdx: index("idx_live_sessions_created_at").on(table.createdAt),
+      titleIdx: index("idx_live_sessions_title").on(table.title)
+    }));
+    liveEvents = pgTable2("live_events", {
+      id: uuid3("id").primaryKey().defaultRandom(),
+      sessionId: uuid3("session_id").references(() => liveSessions.id, { onDelete: "cascade" }).notNull(),
+      eventType: varchar2("event_type").notNull(),
+      // 'qr_view', 'cta_click', 'signup_success', 'reaction', 'state_change'
+      meta: jsonb2("meta").default({}),
+      userAgent: text2("user_agent"),
+      ipAddress: text2("ip_address"),
+      // Using text instead of inet for broader compatibility
+      utmSource: varchar2("utm_source"),
+      utmCampaign: varchar2("utm_campaign"),
+      utmMedium: varchar2("utm_medium"),
+      utmContent: varchar2("utm_content"),
+      utmTerm: varchar2("utm_term"),
+      createdAt: timestamp2("created_at", { withTimezone: true }).defaultNow().notNull()
+    }, (table) => ({
+      sessionIdIdx: index("idx_live_events_session_id").on(table.sessionId),
+      eventTypeIdx: index("idx_live_events_type").on(table.eventType),
+      createdAtIdx: index("idx_live_events_created_at").on(table.createdAt),
+      sessionTypeIdx: index("idx_live_events_session_type").on(table.sessionId, table.eventType),
+      utmSourceIdx: index("idx_live_events_utm_source").on(table.utmSource),
+      analyticsIdx: index("idx_live_events_analytics").on(table.sessionId, table.eventType, table.createdAt)
+    }));
     upsertUserSchema = createInsertSchema(users);
     insertUserSchema = createInsertSchema(users).omit({ createdAt: true, updatedAt: true });
     insertUserProfileSchema = createInsertSchema(userProfiles).omit({ id: true, createdAt: true, updatedAt: true });
+    insertHairLeadSchema = external_exports2.object({
+      navn: external_exports2.string(),
+      epost: external_exports2.string().email(),
+      telefon: external_exports2.string().optional(),
+      kilde: external_exports2.string().default("qr-code"),
+      interesse: external_exports2.string().optional(),
+      levelpartnerSynced: external_exports2.boolean().default(false),
+      levelpartnerSyncedAt: external_exports2.date().optional(),
+      status: external_exports2.string().default("new"),
+      notater: external_exports2.string().optional()
+    });
     insertProjectSchema = createInsertSchema(projects).omit({ id: true, createdAt: true, updatedAt: true });
     insertAiImageSchema = createInsertSchema(aiImages).omit({ id: true, createdAt: true });
     insertTemplateSchema = createInsertSchema(templates).omit({ id: true, createdAt: true });
@@ -17788,6 +17937,25 @@ var init_schema = __esm({
     insertPhotoSelectionSchema = createInsertSchema(photoSelections).omit({ id: true, createdAt: true, updatedAt: true });
     insertLandingPageSchema = createInsertSchema(landingPages).omit({ id: true, createdAt: true, updatedAt: true });
     insertBrandOnboardingSchema = createInsertSchema(brandOnboarding).omit({ id: true, createdAt: true, updatedAt: true });
+    insertLiveSessionSchema = external_exports2.object({
+      deckUrl: external_exports2.string().optional(),
+      mentiUrl: external_exports2.string().optional(),
+      ctaUrl: external_exports2.string().optional(),
+      title: external_exports2.string(),
+      createdBy: external_exports2.string().uuid()
+    });
+    insertLiveEventSchema = external_exports2.object({
+      sessionId: external_exports2.string().uuid(),
+      eventType: external_exports2.string(),
+      meta: external_exports2.record(external_exports2.any()).optional().default({}),
+      userAgent: external_exports2.string().optional(),
+      ipAddress: external_exports2.string().optional(),
+      utmSource: external_exports2.string().optional(),
+      utmCampaign: external_exports2.string().optional(),
+      utmMedium: external_exports2.string().optional(),
+      utmContent: external_exports2.string().optional(),
+      utmTerm: external_exports2.string().optional()
+    });
     insertUserLandingPageSchema = createInsertSchema(userLandingPages).omit({ id: true, createdAt: true, updatedAt: true });
     insertUserPersonalBrandSchema = createInsertSchema(userPersonalBrand).omit({ id: true, createdAt: true, updatedAt: true });
     insertMayaPersonalMemorySchema = createInsertSchema(mayaPersonalMemory).omit({ id: true, createdAt: true, updatedAt: true });
@@ -17941,7 +18109,7 @@ var init_schema = __esm({
       conversationType: external_exports2.string().default("onboarding")
     });
     importedSubscribers = pgTable2("imported_subscribers", {
-      id: varchar2("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+      id: varchar2("id").primaryKey().$defaultFn(() => randomUUID()),
       email: varchar2("email"),
       firstName: varchar2("first_name"),
       lastName: varchar2("last_name"),
@@ -18180,6 +18348,42 @@ var init_schema = __esm({
       status: external_exports2.string().default("active"),
       endedAt: external_exports2.date().optional()
     });
+    brandAssets = pgTable2("brand_assets", {
+      id: serial("id").primaryKey(),
+      userId: varchar2("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+      kind: varchar2("kind").notNull(),
+      // 'logo' | 'product'
+      url: varchar2("url").notNull(),
+      // S3 URL of the uploaded asset
+      filename: varchar2("filename").notNull(),
+      fileSize: integer3("file_size"),
+      // File size in bytes
+      meta: jsonb2("meta"),
+      // Additional metadata (dimensions, etc.)
+      createdAt: timestamp2("created_at").defaultNow()
+    }, (table) => [
+      index("idx_brand_assets_user").on(table.userId),
+      index("idx_brand_assets_kind").on(table.kind)
+    ]);
+    imageVariants = pgTable2("image_variants", {
+      id: serial("id").primaryKey(),
+      userId: varchar2("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+      originalImageId: integer3("original_image_id").references(() => aiImages.id, { onDelete: "cascade" }).notNull(),
+      variantUrl: varchar2("variant_url").notNull(),
+      // S3 URL of the variant image
+      variantType: varchar2("variant_type").notNull(),
+      // 'brand_placement', 'inpaint', 'overlay'
+      brandAssetId: integer3("brand_asset_id").references(() => brandAssets.id),
+      placementData: jsonb2("placement_data"),
+      // Position, scale, etc.
+      processingStatus: varchar2("processing_status").default("pending"),
+      // pending, processing, completed, failed
+      createdAt: timestamp2("created_at").defaultNow()
+    }, (table) => [
+      index("idx_image_variants_user").on(table.userId),
+      index("idx_image_variants_original").on(table.originalImageId),
+      index("idx_image_variants_asset").on(table.brandAssetId)
+    ]);
     architectureAuditLog = pgTable2("architecture_audit_log", {
       id: serial("id").primaryKey(),
       auditDate: timestamp2("audit_date").defaultNow(),
@@ -18489,50 +18693,50 @@ var init_schema = __esm({
       isGenerating: external_exports2.boolean().default(false),
       hasGenerated: external_exports2.boolean().default(false)
     });
-  }
-});
-
-// server/env.ts
-var import_dotenv2, DATABASE_URL, STACK_SECRET_SERVER_KEY, VITE_STACK_PUBLISHABLE_CLIENT_KEY, REPLICATE_API_TOKEN, REPLICATE_USERNAME, ANTHROPIC_API_KEY, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION, AWS_S3_BUCKET, ADMIN_USER_ID, SHANNON_USER_ID, FLODESK_API_KEY, RESEND_API_KEY, INSTAGRAM_BUSINESS_ACCOUNT_ID, META_ACCESS_TOKEN, MANYCHAT_API_TOKEN, MAKE_API_TOKEN, NODE_ENV, PORT, REPLIT_DEV_DOMAIN, STRIPE_SECRET_KEY, TESTING_VITE_STRIPE_PUBLIC_KEY;
-var init_env = __esm({
-  "server/env.ts"() {
-    import_dotenv2 = __toESM(require_main(), 1);
-    import_dotenv2.default.config();
-    DATABASE_URL = process.env.DATABASE_URL;
-    STACK_SECRET_SERVER_KEY = process.env.STACK_SECRET_SERVER_KEY;
-    VITE_STACK_PUBLISHABLE_CLIENT_KEY = process.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY;
-    REPLICATE_API_TOKEN = process.env.REPLICATE_API_TOKEN;
-    REPLICATE_USERNAME = process.env.REPLICATE_USERNAME;
-    ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
-    AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID;
-    AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY;
-    AWS_REGION = process.env.AWS_REGION;
-    AWS_S3_BUCKET = process.env.AWS_S3_BUCKET;
-    ADMIN_USER_ID = process.env.ADMIN_USER_ID;
-    SHANNON_USER_ID = process.env.SHANNON_USER_ID;
-    FLODESK_API_KEY = process.env.FLODESK_API_KEY;
-    RESEND_API_KEY = process.env.RESEND_API_KEY;
-    INSTAGRAM_BUSINESS_ACCOUNT_ID = process.env.INSTAGRAM_BUSINESS_ACCOUNT_ID;
-    META_ACCESS_TOKEN = process.env.META_ACCESS_TOKEN;
-    MANYCHAT_API_TOKEN = process.env.MANYCHAT_API_TOKEN;
-    MAKE_API_TOKEN = process.env.MAKE_API_TOKEN;
-    NODE_ENV = process.env.NODE_ENV;
-    PORT = process.env.PORT;
-    REPLIT_DEV_DOMAIN = process.env.REPLIT_DEV_DOMAIN;
-    STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
-    TESTING_VITE_STRIPE_PUBLIC_KEY = process.env.TESTING_VITE_STRIPE_PUBLIC_KEY;
+    insertBrandAssetSchema = external_exports2.object({
+      userId: external_exports2.string(),
+      kind: external_exports2.enum(["logo", "product"]),
+      url: external_exports2.string(),
+      filename: external_exports2.string(),
+      fileSize: external_exports2.number().optional(),
+      meta: external_exports2.record(external_exports2.any()).optional()
+    });
+    insertImageVariantSchema = external_exports2.object({
+      userId: external_exports2.string(),
+      originalImageId: external_exports2.number(),
+      variantUrl: external_exports2.string(),
+      variantType: external_exports2.string(),
+      brandAssetId: external_exports2.number().optional(),
+      placementData: external_exports2.record(external_exports2.any()).optional(),
+      processingStatus: external_exports2.string().default("pending")
+    });
   }
 });
 
 // server/db.ts
 var db_exports = {};
 __export(db_exports, {
+  checkDatabaseHealth: () => checkDatabaseHealth,
   db: () => db,
   pool: () => pool,
   query: () => query
 });
 import { Pool } from "pg";
 import { drizzle } from "drizzle-orm/node-postgres";
+async function checkDatabaseHealth() {
+  const start = Date.now();
+  try {
+    await query("SELECT 1");
+    const latency = Date.now() - start;
+    return { healthy: true, latency };
+  } catch (error40) {
+    return {
+      healthy: false,
+      error: error40 instanceof Error ? error40.message : "Unknown database error",
+      latency: Date.now() - start
+    };
+  }
+}
 var pool, query, db;
 var init_db = __esm({
   "server/db.ts"() {
@@ -18541,7 +18745,27 @@ var init_db = __esm({
     pool = new Pool({
       connectionString: DATABASE_URL,
       max: 10,
+      min: 2,
+      idleTimeoutMillis: 3e4,
+      connectionTimeoutMillis: 5e3,
+      // Reduced from 10000ms to 5000ms for faster failures
+      query_timeout: 8e3,
+      // Reduced from 15000ms to 8000ms for faster query failures
+      statement_timeout: 8e3,
+      // Reduced from 15000ms to 8000ms
       ssl: { rejectUnauthorized: false }
+    });
+    pool.on("error", (err) => {
+      console.error("\u274C Unexpected database pool error:", err);
+    });
+    pool.on("connect", () => {
+      console.log("\u2705 Database connection established");
+    });
+    pool.on("acquire", () => {
+      console.log("\u{1F504} Database connection acquired from pool");
+    });
+    pool.on("remove", () => {
+      console.log("\u{1F5D1}\uFE0F Database connection removed from pool");
     });
     query = (text3, params) => pool.query(text3, params);
     db = drizzle(pool, { schema: schema_exports });
@@ -18565,7 +18789,7 @@ __export(storage_exports, {
   DatabaseStorage: () => DatabaseStorage,
   storage: () => storage
 });
-import { eq, and, desc, gte, lte, sql } from "drizzle-orm";
+import { eq, and, desc, asc, gte, lte, sql } from "drizzle-orm";
 var DatabaseStorage, storage;
 var init_storage = __esm({
   "server/storage.ts"() {
@@ -18763,6 +18987,14 @@ var init_storage = __esm({
         delete imageData["projectId"];
         const [saved] = await db2.insert(aiImages).values(imageData).returning();
         return saved;
+      }
+      async getAIImage(userId, imageId) {
+        const [image] = await db2.select().from(aiImages).where(and(eq(aiImages.id, imageId), eq(aiImages.userId, userId)));
+        return image;
+      }
+      async deleteAIImage(userId, imageId) {
+        const result = await db2.delete(aiImages).where(and(eq(aiImages.id, imageId), eq(aiImages.userId, userId)));
+        return Boolean(result.rowCount ?? true);
       }
       async updateAIImage(id, data) {
         const [updated] = await db2.update(aiImages).set({ ...data }).where(eq(aiImages.id, id)).returning();
@@ -19343,7 +19575,7 @@ var init_storage = __esm({
       async createMayaChat(userId, data) {
         const [chat] = await db2.insert(mayaChats).values({
           userId,
-          title: data.title,
+          chatTitle: data.title,
           chatCategory: "Style Consultation",
           lastActivity: /* @__PURE__ */ new Date()
         }).returning();
@@ -19359,10 +19591,9 @@ var init_storage = __esm({
       async saveMayaChat(userId, data) {
         const [chat] = await db2.insert(mayaChats).values({
           userId,
-          title: "New Maya Chat",
+          chatTitle: "New Maya Chat",
           chatCategory: "Style Consultation",
-          lastActivity: /* @__PURE__ */ new Date(),
-          conceptCards: data.conceptCards
+          lastActivity: /* @__PURE__ */ new Date()
         }).returning();
         await this.saveMayaMessage(chat.id.toString(), userId, {
           message: data.message,
@@ -19376,14 +19607,13 @@ var init_storage = __esm({
       }
       // Get Maya chat messages
       async getMayaChatMessages(chatId, userId) {
-        return await db2.select().from(mayaChatMessages).where(and(eq(mayaChatMessages.chatId, parseInt(chatId)), eq(mayaChatMessages.userId, userId))).orderBy(asc(mayaChatMessages.createdAt));
+        return await db2.select().from(mayaChatMessages).where(eq(mayaChatMessages.chatId, parseInt(chatId))).orderBy(asc(mayaChatMessages.createdAt));
       }
       // Save Maya message
       async saveMayaMessage(chatId, userId, data) {
         const [message2] = await db2.insert(mayaChatMessages).values({
           chatId: parseInt(chatId),
-          userId,
-          message: data.message,
+          content: data.message,
           role: data.role,
           createdAt: /* @__PURE__ */ new Date()
         }).returning();
@@ -19391,7 +19621,7 @@ var init_storage = __esm({
       }
       // Update Maya message
       async updateMayaMessage(messageId, userId, updates) {
-        await db2.update(mayaChatMessages).set({ message: updates.content }).where(and(eq(mayaChatMessages.id, parseInt(messageId)), eq(mayaChatMessages.userId, userId)));
+        await db2.update(mayaChatMessages).set({ content: updates.content }).where(eq(mayaChatMessages.id, parseInt(messageId)));
       }
       // Legacy method - use createMayaChat(userId, data) instead
       async createMayaChatLegacy(data) {
@@ -19802,6 +20032,48 @@ var init_storage = __esm({
       }
       async deleteConceptCard(id) {
         await db2.delete(conceptCards).where(eq(conceptCards.id, id));
+      }
+      // Brand Assets operations (P3-C feature)
+      async getBrandAssets(userId) {
+        return await db2.select().from(brandAssets).where(eq(brandAssets.userId, userId)).orderBy(desc(brandAssets.createdAt));
+      }
+      async saveBrandAsset(data) {
+        if (!data.url || !data.userId || !data.filename) {
+          throw new Error("Missing required fields: url, userId, filename");
+        }
+        const [asset] = await db2.insert(brandAssets).values(data).returning();
+        return asset;
+      }
+      async deleteBrandAsset(assetId, userId) {
+        const result = await db2.delete(brandAssets).where(and(eq(brandAssets.id, assetId), eq(brandAssets.userId, userId)));
+        return result.rowCount > 0;
+      }
+      async getBrandAsset(assetId, userId) {
+        const [asset] = await db2.select().from(brandAssets).where(and(eq(brandAssets.id, assetId), eq(brandAssets.userId, userId)));
+        return asset;
+      }
+      // Image Variants operations (for non-destructive placement)
+      async saveImageVariant(data) {
+        if (!data.userId || !data.originalImageId || !data.variantUrl) {
+          throw new Error("Missing required fields: userId, originalImageId, variantUrl");
+        }
+        const [variant] = await db2.insert(imageVariants).values(data).returning();
+        return variant;
+      }
+      async getImageVariants(userId, originalImageId) {
+        const conditions = [eq(imageVariants.userId, userId)];
+        if (originalImageId) {
+          conditions.push(eq(imageVariants.originalImageId, originalImageId));
+        }
+        return await db2.select().from(imageVariants).where(and(...conditions)).orderBy(desc(imageVariants.createdAt));
+      }
+      async getImageVariant(variantId, userId) {
+        const [variant] = await db2.select().from(imageVariants).where(and(eq(imageVariants.id, variantId), eq(imageVariants.userId, userId)));
+        return variant;
+      }
+      async updateImageVariant(variantId, updates) {
+        const [variant] = await db2.update(imageVariants).set(updates).where(eq(imageVariants.id, variantId)).returning();
+        return variant;
       }
       // Test database connection
       async testConnection() {
@@ -45051,17 +45323,15 @@ var init_model_training_service = __esm({
           throw new Error(error40.message || "Failed to check generation status");
         }
       }
-      static {
-        // Configure AWS S3 (use eu-north-1 for sselfie-training-zips bucket)
-        this.s3 = new S3Client({
-          credentials: {
-            accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-            secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
-          },
-          region: "eu-north-1"
-          // Fixed region for bucket compatibility
-        });
-      }
+      // Configure AWS S3 (use eu-north-1 for sselfie-training-zips bucket)
+      static s3 = new S3Client({
+        credentials: {
+          accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+          secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+        },
+        region: "eu-north-1"
+        // Fixed region for bucket compatibility
+      });
       // Generate unique trigger word for user
       static generateTriggerWord(userId) {
         const cleanUserId = userId.replace(/[^a-zA-Z0-9]/g, "");
@@ -47120,18 +47390,28 @@ MANDATORY RESPONSE FORMAT: When a user asks for styling ideas, photos, or concep
 [EMOJI] **CONCEPT NAME IN ALL CAPS**
 [Your intelligent styling description explaining why this concept works for the user's goals and brand, drawing from your Creative Lookbook above]
 
-FLUX_PROMPT: [Create a detailed, natural language prompt that incorporates the aesthetic DNA principles above and relevant elements from your Creative Lookbook]
+FLUX_PROMPT: [Write a richly detailed prompt (aim for 3-5 sentences) covering setting, lighting, pose, attire, props, and atmosphere. Think Italian caf\xE9 scenes, golden hour bedrooms, sophisticated urban environments - create flowing narrative descriptions that paint a complete picture]
 
 ---
+
+\u{1F3A8} PROMPT CRAFTING EXCELLENCE:
+Your FLUX_PROMPT should be a flowing narrative that includes:
+1. **Setting & Environment**: Specific location details (marble countertops, floor-to-ceiling windows, Persian rugs)
+2. **Lighting Quality**: Describe the light source and mood (warm morning light streaming, dramatic side lighting, soft diffused glow)
+3. **Subject & Pose**: Natural positioning that tells a story (leaning against weathered brick wall, seated at ornate writing desk)
+4. **Styling & Attire**: Specific clothing textures and details (cashmere turtleneck, tailored wool blazer, flowing silk dress)
+5. **Props & Atmosphere**: Environmental elements that enhance the mood (steaming ceramic mug, vintage leather journal, architectural shadows)
 
 REQUIREMENTS FOR EVERY RESPONSE:
 \u2022 Always create 3-5 different concept variations
 \u2022 Start each concept with styling emoji (\u{1F3AF}\u2728\u{1F4BC}\u{1F31F}\u{1F4AB}\u{1F3C6}\u{1F4F8}\u{1F3AC})  
-\u2022 Include FLUX_PROMPT with technical quality keywords and natural styling description
+\u2022 Write FLUX_PROMPT as natural flowing sentences (3-5 sentences minimum)
+\u2022 Each prompt should read like a scene from a luxury lifestyle magazine
+\u2022 Include technical quality keywords AND rich atmospheric details
 \u2022 Draw inspiration from your 12 signature looks above
 \u2022 Use your aesthetic DNA principles in every concept
-\u2022 Include appropriate camera/lens specifications for the shot type
-\u2022 Write as natural flowing sentences, not keyword lists
+\u2022 Include appropriate camera/lens specifications naturally within the description
+\u2022 Create immersive, story-driven prompts (200-300+ words encouraged for complex scenes)
 \u2022 Separate concepts with "---" line breaks
 \u2022 Apply the 80/20 principle: ALWAYS include 3-4 portrait/lifestyle concepts (80%) AND 1-2 flatlay/object concepts (20%) drawn from the "Detail Styling" sections of your Creative Looks above
 
@@ -55161,9 +55441,8 @@ var init_training_completion_monitor = __esm({
     init_storage();
     init_paths();
     TrainingCompletionMonitor = class _TrainingCompletionMonitor {
-      constructor() {
-        this.intervalId = null;
-      }
+      static instance;
+      intervalId = null;
       static getInstance() {
         if (!_TrainingCompletionMonitor.instance) {
           _TrainingCompletionMonitor.instance = new _TrainingCompletionMonitor();
@@ -55432,9 +55711,8 @@ var init_generation_completion_monitor = __esm({
   "server/generation-completion-monitor.ts"() {
     init_storage();
     GenerationCompletionMonitor = class _GenerationCompletionMonitor {
-      constructor() {
-        this.intervalId = null;
-      }
+      static instance;
+      intervalId = null;
       static getInstance() {
         if (!_GenerationCompletionMonitor.instance) {
           _GenerationCompletionMonitor.instance = new _GenerationCompletionMonitor();
@@ -55561,19 +55839,15 @@ var init_image_storage_service = __esm({
   "server/image-storage-service.ts"() {
     init_storage();
     ImageStorageService = class {
-      static {
-        this.s3 = new S3Client3({
-          credentials: {
-            accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-            secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
-          },
-          region: "eu-north-1"
-          // Fixed region for bucket compatibility
-        });
-      }
-      static {
-        this.BUCKET_NAME = process.env.AWS_S3_BUCKET;
-      }
+      static s3 = new S3Client3({
+        credentials: {
+          accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+          secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+        },
+        region: "eu-north-1"
+        // Fixed region for bucket compatibility
+      });
+      static BUCKET_NAME = process.env.AWS_S3_BUCKET;
       /**
        * Migrate temporary URL to permanent S3 URL
        */
@@ -55739,10 +56013,9 @@ var init_migration_monitor = __esm({
     init_db();
     init_image_storage_service();
     MigrationMonitor = class _MigrationMonitor {
-      constructor() {
-        this.isRunning = false;
-        this.intervalId = null;
-      }
+      static instance;
+      isRunning = false;
+      intervalId = null;
       static getInstance() {
         if (!_MigrationMonitor.instance) {
           _MigrationMonitor.instance = new _MigrationMonitor();
@@ -55893,6 +56166,9 @@ import path8 from "path";
 
 // server/utils/logger.ts
 var Logger = class _Logger {
+  service;
+  enabled;
+  logLevel;
   constructor(service) {
     this.service = service;
     this.enabled = true;
@@ -56015,7 +56291,9 @@ var Logger = class _Logger {
 var logger = new Logger("SSELFIE Studio");
 
 // server/middleware/security.ts
+init_env();
 var SecurityMiddleware = class {
+  logger;
   constructor() {
     this.logger = new Logger("SecurityMiddleware");
   }
@@ -56029,13 +56307,23 @@ var SecurityMiddleware = class {
       res.set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With");
       res.set("Access-Control-Max-Age", "86400");
       res.set("X-Content-Type-Options", "nosniff");
-      res.set("X-Frame-Options", "DENY");
       res.set("X-XSS-Protection", "1; mode=block");
       res.set("Referrer-Policy", "strict-origin-when-cross-origin");
-      res.set(
-        "Content-Security-Policy",
-        "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';"
-      );
+      const isStageRoute = req.path.startsWith("/hair/live") || req.path.startsWith("/hair/guest");
+      res.set("X-Frame-Options", isStageRoute ? "SAMEORIGIN" : "DENY");
+      const allowedHosts = ALLOWED_EMBED_HOSTS.split(",").map((host) => host.trim());
+      const mentimeterHosts = allowedHosts.filter((host) => host.includes("mentimeter")).map((host) => `https://${host.replace(/^\*\./, "")}`);
+      const canvaHosts = allowedHosts.filter((host) => host.includes("canva")).map((host) => `https://${host.replace(/^\*\./, "")}`);
+      const cspDirectives = [
+        "frame-ancestors 'self'",
+        `frame-src 'self' ${mentimeterHosts.join(" ")} ${canvaHosts.join(" ")}`,
+        `script-src 'self' 'unsafe-inline' 'unsafe-eval' ${mentimeterHosts.join(" ")} ${canvaHosts.join(" ")}`,
+        "img-src 'self' data: https:",
+        `connect-src 'self' ${mentimeterHosts.join(" ")} ${canvaHosts.join(" ")} wss:`,
+        "upgrade-insecure-requests",
+        "style-src 'self' 'unsafe-inline'"
+      ];
+      res.set("Content-Security-Policy", cspDirectives.join("; "));
       next();
     };
   }
@@ -56095,8 +56383,9 @@ var inputValidation = securityMiddleware.inputValidation();
 
 // server/middleware/rate-limiter.ts
 var RateLimiter = class {
+  requests = /* @__PURE__ */ new Map();
+  logger;
   constructor() {
-    this.requests = /* @__PURE__ */ new Map();
     this.logger = new Logger("RateLimiter");
     setInterval(() => {
       this.cleanup();
@@ -56273,6 +56562,9 @@ import * as fs from "fs";
 
 // server/routes/middleware/error-handler.ts
 var RouteError = class extends Error {
+  statusCode;
+  code;
+  details;
   constructor(message2, statusCode = 500, code, details) {
     super(message2);
     this.name = "RouteError";
@@ -57806,7 +58098,7 @@ import { fileURLToPath, URL as URL2 } from "url";
 import { createPublicKey } from "crypto";
 var __filename = fileURLToPath(import.meta.url);
 var __dirname = path2.dirname(__filename);
-var STACK_AUTH_PROJECT_ID = "253d7343-a0d4-43a1-be5c-822f590d40be";
+var STACK_AUTH_PROJECT_ID = process.env.STACK_AUTH_PROJECT_ID || process.env.VITE_STACK_PROJECT_ID || "253d7343-a0d4-43a1-be5c-822f590d40be";
 var STACK_AUTH_API_URL = "https://api.stack-auth.com/api/v1";
 var JWKS_URL = `${STACK_AUTH_API_URL}/projects/${STACK_AUTH_PROJECT_ID}/.well-known/jwks.json`;
 var testPublicKey;
@@ -57819,8 +58111,8 @@ if (process.env.NODE_ENV === "test") {
   remoteJwks = createRemoteJWKSet(new URL2(JWKS_URL));
 }
 var authCache = /* @__PURE__ */ new Map();
-var CACHE_DURATION = 5 * 60 * 1e3;
-var MAX_CACHE_SIZE = 1e3;
+var CACHE_DURATION = 3 * 60 * 1e3;
+var MAX_CACHE_SIZE = 500;
 function cleanExpiredCache() {
   const now = Date.now();
   for (const [key, cached2] of authCache.entries()) {
@@ -57846,22 +58138,32 @@ function hashToken(token) {
 }
 async function verifyJWTToken(token) {
   try {
-    let payload;
-    if (process.env.NODE_ENV === "test" && testPublicKey) {
-      const { payload: testPayload } = await jwtVerify(token, testPublicKey, {
-        algorithms: ["RS256"],
-        issuer: `${STACK_AUTH_API_URL}/projects/${STACK_AUTH_PROJECT_ID}`,
-        audience: STACK_AUTH_PROJECT_ID
-      });
-      payload = testPayload;
-    } else {
-      const { payload: prodPayload } = await jwtVerify(token, remoteJwks, {
-        issuer: `${STACK_AUTH_API_URL}/projects/${STACK_AUTH_PROJECT_ID}`,
-        audience: STACK_AUTH_PROJECT_ID
-      });
-      payload = prodPayload;
-    }
-    return payload;
+    const verificationPromise = new Promise(async (resolve, reject) => {
+      try {
+        let payload;
+        if (process.env.NODE_ENV === "test" && testPublicKey) {
+          const { payload: testPayload } = await jwtVerify(token, testPublicKey, {
+            algorithms: ["RS256"],
+            issuer: `${STACK_AUTH_API_URL}/projects/${STACK_AUTH_PROJECT_ID}`,
+            audience: STACK_AUTH_PROJECT_ID
+          });
+          payload = testPayload;
+        } else {
+          const { payload: prodPayload } = await jwtVerify(token, remoteJwks, {
+            issuer: `${STACK_AUTH_API_URL}/projects/${STACK_AUTH_PROJECT_ID}`,
+            audience: STACK_AUTH_PROJECT_ID
+          });
+          payload = prodPayload;
+        }
+        resolve(payload);
+      } catch (error40) {
+        reject(error40);
+      }
+    });
+    const timeoutPromise = new Promise(
+      (_3, reject) => setTimeout(() => reject(new Error("JWT verification timeout after 3s")), 3e3)
+    );
+    return await Promise.race([verificationPromise, timeoutPromise]);
   } catch (error40) {
     const message2 = error40 instanceof Error ? error40.message : String(error40);
     throw new Error(`JWT verification failed: ${message2}`);
@@ -57883,31 +58185,47 @@ async function verifyStackAuthToken(req, res, next) {
       console.log("\u{1F510} Stack Auth: Found Bearer token in Authorization header");
     }
     if (!accessToken && req.cookies) {
-      const stackAccessCookie = req.cookies["stack-access"];
-      if (stackAccessCookie) {
+      const tryParseAccessFromCookieValue = (val) => {
+        if (!val || typeof val !== "string") return void 0;
         try {
-          const stackAccessArray = JSON.parse(stackAccessCookie);
-          if (Array.isArray(stackAccessArray) && stackAccessArray.length >= 2) {
-            accessToken = stackAccessArray[1];
-            console.log("\u{1F510} Stack Auth: Found access token in stack-access cookie");
-          } else {
-            console.log("\u26A0\uFE0F Stack Auth: Invalid stack-access cookie format");
+          const parsed = JSON.parse(val);
+          if (Array.isArray(parsed) && parsed.length >= 2 && typeof parsed[1] === "string") {
+            return parsed[1];
           }
-        } catch (error40) {
-          console.log("\u274C Stack Auth: Failed to parse stack-access cookie:", error40);
+        } catch {
+          if (val.split(".").length === 3) return val;
+        }
+        return void 0;
+      };
+      const exact = req.cookies["stack-access"];
+      if (!accessToken && exact) {
+        const token = tryParseAccessFromCookieValue(exact);
+        if (token) {
+          accessToken = token;
+          console.log("\u{1F510} Stack Auth: Found access token in stack-access cookie");
         }
       }
       if (!accessToken) {
-        accessToken = req.cookies["stack-access-token"];
-        if (accessToken) {
-          console.log("\u{1F510} Stack Auth: Found access token in stack-access-token cookie");
-        } else {
-          console.log("\u{1F50D} Stack Auth: No stack-access or stack-access-token cookie found");
-          console.log("\u{1F50D} Available cookies:", Object.keys(req.cookies));
-          for (const [name, value] of Object.entries(req.cookies)) {
-            console.log(`\u{1F50D} Cookie '${name}': ${typeof value === "string" ? value.substring(0, 10) + "..." : value}`);
+        const matchingKeys = Object.keys(req.cookies).filter((k2) => k2.startsWith("stack-access"));
+        for (const key of matchingKeys) {
+          const token = tryParseAccessFromCookieValue(req.cookies[key]);
+          if (token) {
+            accessToken = token;
+            console.log(`\u{1F510} Stack Auth: Found access token in cookie '${key}'`);
+            break;
           }
         }
+      }
+      if (!accessToken) {
+        const legacy = req.cookies["stack-access-token"];
+        if (legacy) {
+          accessToken = legacy;
+          console.log("\u{1F510} Stack Auth: Found access token in stack-access-token cookie");
+        }
+      }
+      if (!accessToken) {
+        console.log("\u{1F50D} Stack Auth: No access token cookies found");
+        console.log("\u{1F50D} Available cookies:", Object.keys(req.cookies));
       }
     }
     if (!accessToken) {
@@ -58034,9 +58352,7 @@ function requireStackAuth(req, res, next) {
 // server/services/base-service.ts
 init_storage();
 var BaseService = class {
-  constructor() {
-    this.storage = storage;
-  }
+  storage = storage;
   /**
    * Generate a unique ID
    */
@@ -58151,8 +58467,8 @@ var UserService = class extends BaseService {
         throw new Error("Email is required");
       }
       const sanitizedData = this.sanitizeInput(userData);
-      const userId = this.generateId("user");
-      this.log("info", "Creating new user", { email: email3, userId });
+      const userId = sanitizedData.id || this.generateId("user");
+      this.log("info", "Creating new user", { email: email3, userId, isStackAuthUser: !!sanitizedData.id });
       const newUser = await this.storage.createUser({
         id: userId,
         email: email3,
@@ -58161,6 +58477,11 @@ var UserService = class extends BaseService {
         lastName: sanitizedData.lastName,
         gender: sanitizedData.gender,
         profileImageUrl: sanitizedData.profileImageUrl,
+        // Stack Auth users get basic plan by default
+        plan: sanitizedData.id ? "sselfie-studio" : null,
+        role: sanitizedData.id ? "user" : null,
+        monthlyGenerationLimit: sanitizedData.id ? 100 : 0,
+        mayaAiAccess: sanitizedData.id ? true : false,
         createdAt: /* @__PURE__ */ new Date(),
         updatedAt: /* @__PURE__ */ new Date()
       });
@@ -58213,15 +58534,53 @@ var userService = new UserService();
 
 // server/routes/modules/auth.ts
 var router2 = Router2();
-router2.get("/api/auth/user", requireStackAuth, asyncHandler(async (req, res) => {
+router2.get("/api/me", requireStackAuth, asyncHandler(async (req, res) => {
+  res.setHeader("Cache-Control", "no-store");
   const userId = req.user.id;
-  const user = await userService.getUser(userId);
+  let user = await userService.getUser(userId);
+  if (!user && req.user) {
+    user = await userService.createUser(req.user.email || req.user.id, {
+      id: req.user.id,
+      email: req.user.email,
+      displayName: req.user.displayName,
+      firstName: req.user.firstName,
+      lastName: req.user.lastName,
+      profileImageUrl: req.user.profileImageUrl
+    });
+  }
+  if (!user) {
+    throw createError.notFound("User not found");
+  }
+  sendSuccess(res, { user });
+}));
+router2.get("/api/auth/user", requireStackAuth, asyncHandler(async (req, res) => {
+  res.setHeader("Cache-Control", "no-store");
+  const userId = req.user.id;
+  let user = await userService.getUser(userId);
+  if (!user && req.user) {
+    console.log("\u{1F504} Auto-creating user from Stack Auth data:", req.user.email);
+    user = await userService.createUser(req.user.email || req.user.id, {
+      id: req.user.id,
+      email: req.user.email,
+      displayName: req.user.displayName,
+      firstName: req.user.firstName,
+      lastName: req.user.lastName,
+      profileImageUrl: req.user.profileImageUrl
+    });
+    console.log("\u2705 User auto-created successfully:", user.id);
+  }
   if (!user) {
     throw createError.notFound("User not found");
   }
   sendSuccess(res, {
     id: user.id,
     email: user.email,
+    displayName: user.displayName,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    plan: user.plan,
+    role: user.role,
+    monthlyGenerationLimit: user.monthlyGenerationLimit,
     createdAt: user.createdAt
   });
 }));
@@ -58343,6 +58702,7 @@ var router4 = Router4();
 router4.get("/api/gallery", requireStackAuth, asyncHandler(async (req, res) => {
   const userId = req.user.id;
   try {
+    res.setHeader("Cache-Control", "no-store");
     console.log("\u{1F50D} Gallery: Fetching images for user:", userId);
     const aiImages2 = await storage.getAIImages(userId);
     console.log("\u{1F4CA} Gallery: Found", aiImages2.length, "AI images");
@@ -58397,6 +58757,7 @@ router4.get("/api/gallery", requireStackAuth, asyncHandler(async (req, res) => {
 router4.get("/api/gallery-images", requireStackAuth, asyncHandler(async (req, res) => {
   const userId = req.user.id;
   try {
+    res.setHeader("Cache-Control", "no-store");
     console.log("\u{1F50D} Gallery: Fetching images for user:", userId);
     const aiImages2 = await storage.getAIImages(userId);
     console.log("\u{1F4CA} Gallery: Found", aiImages2.length, "AI images");
@@ -58519,6 +58880,38 @@ router4.post("/api/gallery/style", requireStackAuth, asyncHandler(async (req, re
   sendSuccess(res, { jobId, message: "Style generation started" }, "Style generation started", 202);
 }));
 var gallery_default = router4;
+router4.get("/api/debug/gallery-inspect", requireStackAuth, asyncHandler(async (req, res) => {
+  res.setHeader("Cache-Control", "no-store");
+  const stackUserId = req.user.id;
+  const linkedUser = await storage.getUserByStackAuthId(stackUserId);
+  const legacyUserId = linkedUser?.id;
+  const result = {
+    stackUserId,
+    legacyUserId: legacyUserId || null
+  };
+  const sample = (arr, n2 = 5) => Array.isArray(arr) ? arr.slice(0, n2) : [];
+  const aiStack = await storage.getAIImages(stackUserId);
+  const genStack = await storage.getGeneratedImages(stackUserId);
+  let aiLegacy = [];
+  let genLegacy = [];
+  if (legacyUserId) {
+    aiLegacy = await storage.getAIImages(String(legacyUserId));
+    genLegacy = await storage.getGeneratedImages(String(legacyUserId));
+  }
+  result["counts"] = {
+    aiForStackId: aiStack.length,
+    generatedForStackId: genStack.length,
+    aiForLegacyId: aiLegacy.length,
+    generatedForLegacyId: genLegacy.length
+  };
+  result["samples"] = {
+    aiForStackId: sample(aiStack),
+    generatedForStackId: sample(genStack),
+    aiForLegacyId: sample(aiLegacy),
+    generatedForLegacyId: sample(genLegacy)
+  };
+  res.json(result);
+}));
 
 // server/routes/modules/usage.ts
 import { Router as Router5 } from "express";
@@ -62179,12 +62572,9 @@ import { eq as eq3, and as and3, desc as desc3 } from "drizzle-orm";
 // server/services/simple-memory-service.ts
 init_storage();
 var SimpleMemoryService = class _SimpleMemoryService {
+  static instance;
+  contextCache = /* @__PURE__ */ new Map();
   constructor() {
-    this.contextCache = /* @__PURE__ */ new Map();
-    /**
-     * ZARA'S WORKFLOW STATE TRACKING: Fix admin agent context loss between coordination calls
-     */
-    this.workflowStates = /* @__PURE__ */ new Map();
   }
   static getInstance() {
     if (!_SimpleMemoryService.instance) {
@@ -62385,6 +62775,10 @@ ${recentMemories}`;
       // Always full context
     };
   }
+  /**
+   * ZARA'S WORKFLOW STATE TRACKING: Fix admin agent context loss between coordination calls
+   */
+  workflowStates = /* @__PURE__ */ new Map();
   async saveWorkflowState(workflowId, state) {
     this.workflowStates.set(workflowId, {
       ...state,
@@ -62413,9 +62807,10 @@ init_drizzle();
 init_schema();
 import { eq as eq2, and as and2, desc as desc2, sql as sql2 } from "drizzle-orm";
 var LocalProcessingEngine = class _LocalProcessingEngine {
+  static instance;
+  learningCache = /* @__PURE__ */ new Map();
+  crossAgentPatterns = /* @__PURE__ */ new Map();
   constructor() {
-    this.learningCache = /* @__PURE__ */ new Map();
-    this.crossAgentPatterns = /* @__PURE__ */ new Map();
     console.log("\u{1F9E0} PHASE 3: Cross-Agent Learning Engine initializing...");
     this.initializeCrossAgentLearning();
   }
@@ -63781,269 +64176,19 @@ Suggestions: ${suggestions.join(", ")}`);
 };
 var claudeApiServiceSimple = new ClaudeApiServiceSimple();
 
-// server/services/maya-optimization-service.ts
-init_gender_prompt();
-init_personality_config();
-var MayaOptimizationService = class {
-  static {
-    this.claudeService = new ClaudeApiServiceSimple();
-  }
-  static {
-    this.promptCache = /* @__PURE__ */ new Map();
-  }
-  static {
-    this.PROMPT_CACHE_TTL = 15 * 60 * 1e3;
-  }
-  // 15 minutes
-  /**
-   * PHASE 4.1: Optimized single API call for concept generation with embedded prompts
-   */
-  static async generateOptimizedConcepts(userMessage, enhancedPersonality, userId, conversationId, config2 = {
-    includeEmbeddedPrompts: true,
-    includeConceptGeneration: true,
-    includeConversation: true,
-    maxConcepts: 4
-  }) {
-    try {
-      console.log("\u{1F680} PHASE 4.1: Starting optimized single API call for concept generation");
-      const optimizationApplied = [];
-      const cacheKey = this.generatePromptCacheKey(userMessage, userId);
-      const cachedPrompt = this.promptCache.get(cacheKey);
-      if (cachedPrompt && Date.now() - cachedPrompt.timestamp < this.PROMPT_CACHE_TTL) {
-        console.log("\u26A1 CACHE HIT: Using cached optimized prompt");
-        optimizationApplied.push("prompt_cache_hit");
-      }
-      const optimizedPrompt = this.buildSingleCallPrompt(enhancedPersonality, userMessage, config2);
-      const startTime = Date.now();
-      const mayaResponse = await this.claudeService.sendMessage([{
-        role: "user",
-        content: optimizedPrompt
-      }]);
-      const apiDuration = Date.now() - startTime;
-      console.log(`\u2705 PHASE 4.1: Single API call completed in ${apiDuration}ms`);
-      optimizationApplied.push("single_api_call");
-      const parsedResult = this.parseOptimizedResponse(mayaResponse, config2);
-      if (parsedResult.concepts.length > 0) {
-        this.promptCache.set(cacheKey, {
-          prompt: optimizedPrompt,
-          timestamp: Date.now()
-        });
-        optimizationApplied.push("prompt_cached");
-      }
-      console.log(`\u{1F3AF} PHASE 4.1: Generated ${parsedResult.concepts.length} concepts with ${optimizationApplied.length} optimizations`);
-      return {
-        concepts: parsedResult.concepts,
-        conversationalResponse: parsedResult.conversationalResponse,
-        apiCallsUsed: 1,
-        optimizationApplied,
-        cacheHit: !!cachedPrompt
-      };
-    } catch (error40) {
-      console.error("\u274C PHASE 4.1 OPTIMIZATION ERROR:", error40);
-      return {
-        concepts: [],
-        conversationalResponse: "I'm excited to help you create amazing photos! Let me know what style you're looking for.",
-        apiCallsUsed: 1,
-        optimizationApplied: ["fallback_used"],
-        cacheHit: false
-      };
-    }
-  }
-  /**
-   * Build optimized prompt that includes all required outputs in single call
-   */
-  static buildSingleCallPrompt(enhancedPersonality, userMessage, config2) {
-    return `${enhancedPersonality}
-
-\u{1F3AF} OPTIMIZED SINGLE API CALL - Generate ALL outputs in one response:
-
-USER REQUEST: "${userMessage}"
-
-REQUIRED OUTPUT FORMAT (include ALL sections):
-
-1. CONVERSATIONAL_RESPONSE:
-[Your natural, engaging response to the user]
-
-2. STYLING_CONCEPTS: ${config2.maxConcepts} concept cards
-${config2.includeConceptGeneration ? `
-Format each concept as:
-\u{1F31F} **CONCEPT NAME**
-[User-facing description of the styling concept and approach]
-FLUX_PROMPT: [Complete FLUX-optimized generation prompt]
-
-Example:
-\u2728 **EXECUTIVE CONFIDENCE**
-A powerful professional look featuring structured blazers and confident poses that communicate leadership authority.
-FLUX_PROMPT: Professional woman in tailored charcoal blazer with architectural shoulders, confident direct gaze, studio lighting with soft shadows, half-body composition showing executive presence, minimal jewelry, natural makeup emphasizing confidence, neutral background
-
-` : ""}
-
-3. PERSONALIZATION_INSIGHTS:
-[Key personalization observations about the user's style preferences]
-
-4. GENERATION_GUIDANCE:
-[Technical guidance for image generation optimization]
-
-OPTIMIZATION REQUIREMENTS:
-- Natural conversational flow while including all technical components
-- Embedded FLUX prompts for zero additional API calls
-- Contemporary 2025 fashion intelligence
-- User-specific personalization
-- Complete response in single API call
-
-Generate comprehensive response now:`;
-  }
-  /**
-   * Parse optimized response to extract all components
-   */
-  static parseOptimizedResponse(response, config2) {
-    const concepts = [];
-    let conversationalResponse = "";
-    try {
-      const conversationMatch = response.match(/CONVERSATIONAL_RESPONSE:\s*(.*?)(?=\n\d+\.|$)/s);
-      conversationalResponse = conversationMatch ? conversationMatch[1].trim() : response.substring(0, 500);
-      if (config2.includeConceptGeneration) {
-        const conceptPattern = /([\p{Emoji_Presentation}\p{Extended_Pictographic}])\s*\*\*([^*\n]{8,50})\*\*\n(.*?)(?=FLUX_PROMPT:\s*(.*?)(?=\n[\p{Emoji_Presentation}\p{Extended_Pictographic}]|\n\n|$))/gsu;
-        let match;
-        let conceptNumber = 1;
-        while ((match = conceptPattern.exec(response)) !== null && concepts.length < config2.maxConcepts) {
-          const emoji3 = match[1];
-          const conceptName = `${emoji3} ${match[2].trim()}`;
-          const description = match[3].trim();
-          const fluxPromptMatch = response.substring(match.index + match[0].length).match(/FLUX_PROMPT:\s*(.*?)(?=\n[\p{Emoji_Presentation}\p{Extended_Pictographic}]|\n\n|$)/s);
-          const embeddedPrompt = fluxPromptMatch ? fluxPromptMatch[1].trim() : null;
-          if (embeddedPrompt) {
-            concepts.push({
-              id: `optimized_concept_${conceptNumber++}`,
-              title: conceptName,
-              description: description.substring(0, 120) + (description.length > 120 ? "..." : ""),
-              originalContext: description,
-              fullPrompt: embeddedPrompt,
-              canGenerate: true,
-              isGenerating: false,
-              optimization: "single_api_call_embedded"
-            });
-            console.log(`\u2705 PARSED OPTIMIZED CONCEPT: ${conceptName} with embedded prompt`);
-          }
-        }
-      }
-      console.log(`\u{1F3AF} OPTIMIZATION PARSING: ${concepts.length} concepts extracted from single API call`);
-    } catch (error40) {
-      console.error("\u274C OPTIMIZATION PARSING ERROR:", error40);
-      conversationalResponse = response.substring(0, 500);
-    }
-    return { concepts, conversationalResponse };
-  }
-  /**
-   * Generate cache key for prompt optimization
-   */
-  static generatePromptCacheKey(userMessage, userId) {
-    const content = `${userMessage}_${userId}`;
-    let hash = 0;
-    for (let i2 = 0; i2 < content.length; i2++) {
-      const char = content.charCodeAt(i2);
-      hash = (hash << 5) - hash + char;
-      hash = hash & hash;
-    }
-    return `opt_${Math.abs(hash).toString(36)}`;
-  }
-  /**
-   * Enhanced fallback prompt generation with optimization
-   */
-  static async createOptimizedPromptFromConcept(conceptName, triggerWord, userId, context, category) {
-    try {
-      console.log("\u{1F527} PHASE 4.1: Creating optimized prompt for concept");
-      const baseMayaPersonality = PersonalityManager.getNaturalPrompt("maya");
-      const optimizedPrompt = `${baseMayaPersonality}
-
-\u{1F3AF} OPTIMIZED PROMPT GENERATION - Single focused output:
-
-CONCEPT: "${conceptName}"
-TRIGGER WORD: "${triggerWord}"
-CONTEXT: "${context}"
-${category ? `CATEGORY: "${category}"` : ""}
-
-Generate ONLY the FLUX-optimized image generation prompt.
-No conversation, no explanations - just the technical prompt:
-
-Requirements:
-- Start with trigger word
-- Natural language description (not keywords)
-- Contemporary 2025 styling intelligence
-- 100-250 words optimal length
-- Professional photography specifications
-
-FLUX PROMPT:`;
-      const response = await this.claudeService.sendMessage([{
-        role: "user",
-        content: optimizedPrompt
-      }]);
-      const cleanPrompt = response.replace(/^FLUX PROMPT:\s*/i, "").trim();
-      let finalPrompt = `${triggerWord}, ${cleanPrompt}`;
-      try {
-        const { storage: storage2 } = await Promise.resolve().then(() => (init_storage(), storage_exports));
-        const user = await storage2.getUser(userId);
-        const secureGender = normalizeGender(user?.gender);
-        if (secureGender) {
-          const enforced = enforceGender(triggerWord, finalPrompt, secureGender);
-          if (enforced !== finalPrompt) {
-            console.log("\u2705 GENDER ENFORCED IN OPTIMIZED PROMPT");
-            finalPrompt = enforced;
-          }
-        } else {
-          console.log("\u26A0\uFE0F GENDER NOT AVAILABLE FOR USER DURING OPTIMIZED PROMPT ENFORCEMENT");
-        }
-      } catch (gErr) {
-        console.log("\u26A0\uFE0F GENDER ENFORCEMENT FAILED (non-blocking):", gErr instanceof Error ? gErr.message : gErr);
-      }
-      console.log("\u2705 PHASE 4.1: Optimized prompt generated successfully");
-      return finalPrompt;
-    } catch (error40) {
-      console.error("\u274C OPTIMIZED PROMPT GENERATION ERROR:", error40);
-      return `${triggerWord}, professional photo of a person in ${conceptName} style`;
-    }
-  }
-  /**
-   * Cache cleanup for prompt optimization
-   */
-  static cleanupOptimizationCaches() {
-    const now = Date.now();
-    for (const [key, value] of this.promptCache.entries()) {
-      if (now - value.timestamp > this.PROMPT_CACHE_TTL) {
-        this.promptCache.delete(key);
-      }
-    }
-  }
-  /**
-   * Get optimization statistics
-   */
-  static getOptimizationStats() {
-    return {
-      promptCacheSize: this.promptCache.size,
-      promptCacheTTL: this.PROMPT_CACHE_TTL,
-      optimization: "single_api_call_architecture"
-    };
-  }
-};
-setInterval(() => {
-  MayaOptimizationService.cleanupOptimizationCaches();
-}, 5 * 60 * 1e3);
-
 // server/services/maya-adaptation-engine.ts
 init_personality_config();
 init_drizzle();
-var MayaAdaptationEngine = class {
-  static {
-    this.claudeService = new ClaudeApiServiceSimple();
-  }
+var MayaAdaptationEngine = class _MayaAdaptationEngine {
+  static claudeService = new ClaudeApiServiceSimple();
   /**
    * Real-time personalization based on user interaction patterns
    */
   static async adaptStylingApproach(userId, currentContext, conversationHistory = []) {
     try {
       console.log(`\u{1F3AF} ADAPTATION ENGINE: Learning user ${userId} preferences...`);
-      const userProfile = await this.getUserStyleProfile(userId);
-      const contextAnalysis = await this.analyzeContextualCues(currentContext, conversationHistory);
+      const userProfile = await _MayaAdaptationEngine.getUserStyleProfile(userId);
+      const contextAnalysis = { patterns: [], preferences: [] };
       const baseMayaPersonality = PersonalityManager.getNaturalPrompt("maya");
       const adaptationPrompt = `
 \u{1F3AF} MAYA ADAPTATION ENGINE - PERSONALIZED STYLING INTELLIGENCE
@@ -64076,7 +64221,11 @@ Respond with JSON:
   "nextPersonalizationStep": "What to learn next about this user"
 }
 `;
-      const adaptationResponse = await this.claudeService.sendMessage(adaptationPrompt, "adaptation-" + userId);
+      const adaptationResponse = await this.claudeService.sendMessage(
+        adaptationPrompt,
+        "adaptation-" + userId,
+        "maya"
+      );
       const adaptationResult = JSON.parse(adaptationResponse);
       await this.recordAdaptation(userId, adaptationResult, currentContext);
       console.log(`\u2705 ADAPTATION ENGINE: Generated personalized styling approach (confidence: ${adaptationResult.confidenceScore})`);
@@ -64115,32 +64264,31 @@ Respond with JSON:
       const favorites = await db2.execute(favoritesQuery.replace("$1", `'${userId}'`));
       if (Array.isArray(evolutionData) && evolutionData.length === 0) {
         const initialProfile2 = {
-          preferredCategories: [],
-          colorPreferences: [],
-          styleEvolution: [],
-          feedbackPatterns: {},
+          userId,
+          stylePreferences: {},
+          colorPalette: [],
+          fashionStyle: "classic",
           culturalContext: {},
           sustainabilityPreferences: {}
         };
-        await this.initializeUserEvolution(userId);
         return initialProfile2;
       }
       const evolution = evolutionData[0];
       return {
-        preferredCategories: this.extractPreferredCategories(favorites),
-        colorPreferences: evolution.contextual_preferences?.colors || [],
-        styleEvolution: evolution.style_evolution_path || [],
-        feedbackPatterns: evolution.feedback_patterns || {},
+        userId,
+        stylePreferences: evolution.contextual_preferences || {},
+        colorPalette: evolution.contextual_preferences?.colors || [],
+        fashionStyle: evolution.fashion_style || "classic",
         culturalContext: evolution.cultural_context || {},
         sustainabilityPreferences: evolution.sustainability_preferences || {}
       };
     } catch (error40) {
       console.error("\u274C USER STYLE PROFILE ERROR:", error40);
       return {
-        preferredCategories: [],
-        colorPreferences: [],
-        styleEvolution: [],
-        feedbackPatterns: {},
+        userId,
+        stylePreferences: {},
+        colorPalette: [],
+        fashionStyle: "classic",
         culturalContext: {},
         sustainabilityPreferences: {}
       };
@@ -64333,7 +64481,71 @@ router6.post("/api/maya-chat", requireStackAuth, asyncHandler(async (req, res) =
     });
   } catch (error40) {
     console.error("\u274C MAYA: Chat failed:", error40);
-    throw createError.service("Failed to process chat message");
+    throw createError.internal("Failed to process chat message");
+  }
+}));
+router6.post("/api/maya/chat", requireStackAuth, asyncHandler(async (req, res) => {
+  const userId = req.user.id;
+  const { message: message2, chatHistory, context } = req.body;
+  validateRequired({ message: message2 }, ["message"]);
+  try {
+    const basePersonality = PersonalityManager.getNaturalPrompt("maya");
+    let mayaPersonality = basePersonality;
+    try {
+      const adaptation = await MayaAdaptationEngine.adaptStylingApproach(
+        userId,
+        context || {},
+        chatHistory || []
+      );
+      if (adaptation.adaptedPersonality) {
+        mayaPersonality = adaptation.adaptedPersonality;
+        console.log("\u{1F3AF} MAYA: Applied personalized adaptation");
+      }
+    } catch (adaptError) {
+      console.log("\u26A0\uFE0F MAYA: Adaptation failed, using base personality");
+    }
+    const claudeHistory = (chatHistory || []).map((entry) => ({
+      role: entry.user ? "user" : "assistant",
+      content: entry.user || entry.maya || entry.response || ""
+    })).filter((msg) => msg.content.trim());
+    const mayaResponse = await claudeService.sendMessage(
+      message2,
+      `maya-chat-${userId}`,
+      "maya",
+      false,
+      claudeHistory,
+      mayaPersonality
+    );
+    let conceptCards2 = [];
+    try {
+      const conceptRegex = /(?:concept|idea|suggestion)[\s\S]*?(?:title|name):\s*["']?([^"'\n]+)["']?[\s\S]*?(?:prompt|description):\s*["']?([^"'\n]+)["']?/gi;
+      let match;
+      while ((match = conceptRegex.exec(mayaResponse)) !== null) {
+        conceptCards2.push({
+          title: match[1].trim(),
+          prompt: match[2].trim()
+        });
+      }
+    } catch (parseError) {
+      console.log("No concept cards extracted from response");
+    }
+    const chatId = await storage.saveMayaChat(userId, {
+      message: message2,
+      response: mayaResponse,
+      conceptCards: conceptCards2,
+      context: context || {}
+    });
+    sendSuccess(res, {
+      response: mayaResponse,
+      conceptCards: conceptCards2,
+      chatId,
+      agentName: "Maya - AI Creative Director",
+      agentType: "member",
+      timestamp: (/* @__PURE__ */ new Date()).toISOString()
+    });
+  } catch (error40) {
+    console.error("\u274C MAYA: Chat failed:", error40);
+    throw createError.internal("Failed to process chat message");
   }
 }));
 router6.post("/api/maya-generate", requireStackAuth, asyncHandler(async (req, res) => {
@@ -64351,19 +64563,9 @@ router6.post("/api/maya-generate", requireStackAuth, asyncHandler(async (req, re
     }
     let finalPrompt = prompt;
     if (conceptName) {
-      finalPrompt = await MayaOptimizationService.createOptimizedPromptFromConcept(
-        conceptName,
-        userModel.triggerWord || "sandra",
-        userId,
-        prompt,
-        style
-      );
+      finalPrompt = `${conceptName}: ${prompt}`;
     } else {
-      finalPrompt = await MayaOptimizationService.enhancePromptWithMayaIntelligence(
-        prompt,
-        userModel.triggerWord || "sandra",
-        userId
-      );
+      finalPrompt = `Professional photography, ${userModel.triggerWord || "sandra"}, ${prompt}`;
     }
     const result = await ModelTrainingService.generateUserImages(
       userId,
@@ -64374,9 +64576,8 @@ router6.post("/api/maya-generate", requireStackAuth, asyncHandler(async (req, re
     const generationId = await storage.saveAIImage({
       userId,
       prompt: finalPrompt,
-      imageUrls: result.images,
+      imageUrl: result.images[0] || "",
       style: style || "maya-styled",
-      generationId: result.generatedImageId,
       predictionId: result.predictionId
     });
     sendSuccess(res, {
@@ -64388,7 +64589,7 @@ router6.post("/api/maya-generate", requireStackAuth, asyncHandler(async (req, re
     });
   } catch (error40) {
     console.error("\u274C MAYA: Generation failed:", error40);
-    throw createError.service("Image generation failed");
+    throw createError.internal("Image generation failed");
   }
 }));
 router6.get("/api/maya-chats/:chatId/messages", requireStackAuth, asyncHandler(async (req, res) => {
@@ -64432,6 +64633,58 @@ router6.get("/api/maya-images", requireStackAuth, asyncHandler(async (req, res) 
 router6.get("/api/maya/personality", requireStackAuth, asyncHandler(async (req, res) => {
   const personality = PersonalityManager.getNaturalPrompt("maya");
   sendSuccess(res, { personality });
+}));
+router6.post("/api/maya/get-video-prompt", requireStackAuth, asyncHandler(async (req, res) => {
+  const userId = req.user.id;
+  const { imageUrl } = req.body;
+  validateRequired({ imageUrl }, ["imageUrl"]);
+  try {
+    console.log(`\u{1F3AC} MAYA VIDEO DIRECTION: Creating motion prompt for user ${userId}`);
+    const videoDirectorPrompt = `You are Maya, SSELFIE Studio's AI Creative Director and Video Director. 
+
+\u{1F3AC} VIDEO DIRECTION MODE: You are analyzing the actual image provided to create the perfect motion prompt for VEO 3 video generation.
+
+Your expertise includes:
+- Cinematic storytelling and visual narrative
+- Fashion and lifestyle video aesthetics
+- Professional portrait cinematography
+- Understanding of what makes compelling short-form video content
+
+TASK: Analyze the provided image carefully and create ONE single, cinematic motion prompt that perfectly enhances what you see in the image.
+
+ANALYSIS INSTRUCTIONS:
+1. Study the subject's pose, expression, and mood
+2. Observe the lighting, background, and overall composition
+3. Consider the style and aesthetic of the image
+4. Identify the best camera movement that would enhance the scene
+
+MOTION PROMPT GUIDELINES:
+- Keep it to 1-2 sentences maximum
+- Focus on movements that specifically enhance THIS image
+- Use the actual elements you see (lighting, pose, background, mood)
+- Use professional cinematography terminology
+- Make it suitable for high-end fashion/lifestyle content
+- Be specific to what you observe in the image
+
+Analyze the image and respond with ONLY the motion prompt that perfectly captures and enhances what you see - no explanation, no additional text.`;
+    const claudeService2 = new ClaudeApiServiceSimple();
+    const videoConversationId = `video_direction_${userId}_${Date.now()}`;
+    const mayaVideoPrompt = await claudeService2.sendMessageWithImage(
+      videoDirectorPrompt,
+      imageUrl,
+      videoConversationId,
+      "maya"
+    );
+    console.log(`\u2705 MAYA VIDEO DIRECTION: Generated motion prompt for user ${userId}`);
+    sendSuccess(res, {
+      videoPrompt: mayaVideoPrompt,
+      director: "Maya - AI Creative Director",
+      timestamp: (/* @__PURE__ */ new Date()).toISOString()
+    });
+  } catch (error40) {
+    console.error("\u274C MAYA VIDEO DIRECTION ERROR:", error40);
+    throw createError.internal("Failed to generate video direction");
+  }
 }));
 var maya_default = router6;
 
@@ -64577,9 +64830,8 @@ router7.post("/api/ai-images", requireActiveSubscription, asyncHandler(async (re
     const generationId = await storage.saveAIImage({
       userId,
       prompt,
-      imageUrls: result.images,
+      imageUrl: result.images[0] || "",
       style: style || "ai-generated",
-      generationId: result.generatedImageId,
       predictionId: result.predictionId
     });
     sendSuccess(res, {
@@ -64591,7 +64843,7 @@ router7.post("/api/ai-images", requireActiveSubscription, asyncHandler(async (re
     });
   } catch (error40) {
     console.error("\u274C AI Images: Generation failed:", error40);
-    throw createError.service("Image generation failed");
+    throw createError.internal("Image generation failed");
   }
 }));
 router7.get("/api/ai-images", requireActiveSubscription, asyncHandler(async (req, res) => {
@@ -64628,16 +64880,14 @@ import { Upload } from "@aws-sdk/lib-storage";
 import fs6 from "fs";
 import path7 from "path";
 var BulletproofUploadService = class {
-  static {
-    this.s3 = new S3Client2({
-      credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
-      },
-      region: "eu-north-1"
-      // Fixed region for bucket compatibility
-    });
-  }
+  static s3 = new S3Client2({
+    credentials: {
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+    },
+    region: "eu-north-1"
+    // Fixed region for bucket compatibility
+  });
   /**
    * STEP 1: VALIDATE UPLOADED IMAGES
    * - Check file types and sizes
@@ -65146,9 +65396,11 @@ app.get("/api/training/status", requireStackAuth, async (req, res) => {
 app.get("/api/training/check/:trainingId", requireStackAuth, async (req, res) => {
   try {
     const { trainingId } = req.params;
-    const { TrainingCompletionMonitor: TrainingCompletionMonitor2 } = await Promise.resolve().then(() => (init_training_completion_monitor(), training_completion_monitor_exports));
-    const status = await TrainingCompletionMonitor2.getInstance().checkTrainingStatus(trainingId);
-    return res.json(status);
+    return res.json({
+      trainingId,
+      status: "checking",
+      message: "Training status check endpoint"
+    });
   } catch (error40) {
     return res.status(500).json({ message: "Failed to check training id" });
   }
