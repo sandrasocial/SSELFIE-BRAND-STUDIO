@@ -7,19 +7,10 @@ import {
   EditorialHeading, 
   EditorialText 
 } from './index';
-<<<<<<< HEAD
-import { useEditorialAnimations, useParallaxEffect } from '../../hooks/useEditorialAnimations';
-=======
-import { useEditorialAnimations } from '../../hooks/useEditorialAnimations';
->>>>>>> origin/main
 
 // Example showcase component demonstrating the editorial luxury system
 export function EditorialShowcase() {
   const { fadeInRef, hoverScaleRef, touchFeedbackRef } = useEditorialAnimations();
-<<<<<<< HEAD
-  const parallaxRef = useParallaxEffect(0.3); // Subtle parallax effect
-=======
->>>>>>> origin/main
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-editorial-black via-neutral-950 to-neutral-900 p-8">
@@ -221,8 +212,3 @@ export function EditorialShowcase() {
       </div>
     </div>
   );
-<<<<<<< HEAD
-}
-=======
-}
->>>>>>> origin/main
