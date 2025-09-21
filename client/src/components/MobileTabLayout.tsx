@@ -294,21 +294,26 @@ function MobileTabLayout() {
   };
 
   return (
-    <div className="h-full flex flex-col">
-      {/* Breadcrumb Navigation */}
-      <div className="flex items-center gap-2 px-8 py-4 border-b border-neutral-800/30">
+    <div className="h-full flex flex-col bg-editorial-background">
+      {/* Enhanced Breadcrumb Navigation with Mobile Optimization */}
+      <div className="flex items-center gap-2 px-4 py-3 border-b border-neutral-800/30 bg-editorial-surface sticky top-0 z-40 backdrop-blur-sm">
         <div className="w-1 h-1 bg-neutral-400 rounded-full"></div>
-        <span className="editorial-text-caption text-neutral-500">
+        <span className="editorial-text-caption text-neutral-500 uppercase tracking-wide">
           {currentTab?.label?.toUpperCase() || 'STUDIO'}
         </span>
+        <div className="ml-auto text-xs text-neutral-500">
+          SSELFIE
+        </div>
       </div>
 
-      {/* Main Content Area */}
-      <div className="flex-1 overflow-y-auto">
-        {currentTab?.component}
+      {/* Main Content Area with Safe Area Support */}
+      <div className="flex-1 overflow-y-auto overscroll-behavior-y-contain" style={{ paddingBottom: 'calc(80px + env(safe-area-inset-bottom))' }}>
+        <div className="editorial-container min-h-full">
+          {currentTab?.component}
+        </div>
       </div>
 
-      {/* Enhanced Floating Tab Bar */}
+      {/* Enhanced Floating Tab Bar with Mobile-First Design */}
       <div className="editorial-tab-bar">
         <div className="editorial-tab-bar-container">
           <div className="editorial-tab-bar-content">
@@ -320,13 +325,15 @@ function MobileTabLayout() {
                 <button
                   key={tab.id}
                   onClick={() => handleTabChange(tab.id)}
-                  className={`editorial-tab ${
+                  className={`editorial-tab editorial-touchable ${
                     isActive ? 'editorial-tab-active' : 'editorial-tab-inactive'
                   }`}
                   title={tab.description}
+                  aria-label={`Switch to ${tab.label}`}
+                  aria-current={isActive ? 'page' : undefined}
                 >
                   <Icon 
-                    size={22} 
+                    size={20} 
                     strokeWidth={1.5} 
                     className={`transition-colors duration-300 ${
                       isActive ? 'text-neutral-200' : 'text-neutral-500'
