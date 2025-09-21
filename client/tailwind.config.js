@@ -3,30 +3,58 @@ module.exports = {
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
-    "../shared/**/*.{js,ts,jsx,tsx}",
+    "./public/**/*.html",
+    "./**/*.{js,ts,jsx,tsx}",
   ],
   darkMode: ["class"],
   theme: {
     extend: {
       fontFamily: {
-        'times': ['Times New Roman', 'Times', 'serif'],
-        'sans': ['Inter', 'SF Pro Display', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
-        'display': ['Inter', 'SF Pro Display', 'system-ui', 'sans-serif'],
+        'serif': ['Times New Roman', 'Times', 'Georgia', 'serif'],
+        'sans': ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Helvetica Neue', 'Arial', 'sans-serif'],
+        'display': ['Times New Roman', 'Times', 'Georgia', 'serif'],
       },
       fontSize: {
-        'display-2xl': ['3rem', { lineHeight: '1.1', letterSpacing: '0.1em', fontWeight: '300' }],
-        'display-xl': ['2.5rem', { lineHeight: '1.15', letterSpacing: '0.05em', fontWeight: '300' }],
-        'heading-1': ['1.75rem', { lineHeight: '1.25', letterSpacing: '0.025em', fontWeight: '300' }],
-        'heading-2': ['1.375rem', { lineHeight: '1.3', letterSpacing: '0.025em', fontWeight: '300' }],
-        'body-lg': ['1.125rem', { lineHeight: '1.6', fontWeight: '300' }],
-        'body': ['1rem', { lineHeight: '1.6', fontWeight: '300' }],
-        'caption': ['0.75rem', { lineHeight: '1.4', letterSpacing: '0.05em', fontWeight: '400' }],
+        // Editorial display sizes with ultra-wide letter spacing
+        'display-9xl': ['8rem', { lineHeight: '0.85', letterSpacing: '0.4em', fontWeight: '200' }],
+        'display-8xl': ['6rem', { lineHeight: '0.85', letterSpacing: '0.4em', fontWeight: '200' }],
+        'display-7xl': ['4.5rem', { lineHeight: '0.9', letterSpacing: '0.3em', fontWeight: '200' }],
+        'display-6xl': ['3.75rem', { lineHeight: '0.9', letterSpacing: '0.3em', fontWeight: '200' }],
+        'display-2xl': ['3rem', { lineHeight: '1.1', letterSpacing: '0.3em', fontWeight: '200' }],
+        'display-xl': ['2.5rem', { lineHeight: '1.15', letterSpacing: '0.2em', fontWeight: '200' }],
+        
+        // Section and spaced titles
+        'title-3xl': ['1.875rem', { lineHeight: '1', letterSpacing: '0.6em', fontWeight: '200' }],
+        'title-2xl': ['1.5rem', { lineHeight: '1', letterSpacing: '0.4em', fontWeight: '200' }],
+        'title-xl': ['1.25rem', { lineHeight: '1.1', letterSpacing: '0.3em', fontWeight: '200' }],
+        
+        // Editorial quotes
+        'quote-6xl': ['3.75rem', { lineHeight: '1.15', letterSpacing: '-0.02em', fontWeight: '300' }],
+        'quote-5xl': ['3rem', { lineHeight: '1.15', letterSpacing: '-0.02em', fontWeight: '300' }],
+        
+        // Existing sizes enhanced
+        'heading-1': ['1.75rem', { lineHeight: '1.25', letterSpacing: '0.2em', fontWeight: '200' }],
+        'heading-2': ['1.375rem', { lineHeight: '1.3', letterSpacing: '0.15em', fontWeight: '200' }],
+        'body-lg': ['1.125rem', { lineHeight: '1.8', fontWeight: '300' }],
+        'body': ['1rem', { lineHeight: '1.7', fontWeight: '300' }],
+        'caption': ['0.75rem', { lineHeight: '1.4', letterSpacing: '0.2em', fontWeight: '300' }],
+        'eyebrow': ['0.625rem', { lineHeight: '1.4', letterSpacing: '0.5em', fontWeight: '300' }],
       },
       letterSpacing: {
-        'ultra-wide': '0.2em',
-        'extra-wide': '0.1em',
-        'wide': '0.05em',
+        'ultra-wide': '0.6em',
+        'extra-wide': '0.4em',
+        'wide': '0.3em',
+        'normal-wide': '0.2em',
+        'slight': '0.1em',
+        'tight': '-0.01em',
+        'tighter': '-0.02em',
         'normal': '0em',
+      },
+      fontWeight: {
+        'extralight': '200',
+        'light': '300',
+        'normal': '400',
+        'medium': '500',
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -104,11 +132,14 @@ module.exports = {
         'editorial': '0 25px 50px -12px rgba(0, 0, 0, 0.6)',
         'editorial-lg': '0 35px 60px -15px rgba(0, 0, 0, 0.7)',
         'editorial-xl': '0 45px 80px -20px rgba(0, 0, 0, 0.8)',
+        'luxury': '0 8px 32px rgba(0, 0, 0, 0.3)',
+        'luxury-lg': '0 16px 48px rgba(0, 0, 0, 0.4)',
         'subtle': '0 4px 6px -1px rgba(0, 0, 0, 0.3)',
       },
       transitionTimingFunction: {
         'editorial': 'cubic-bezier(0.25, 0.46, 0.45, 0.94)',
         'sophisticated': 'cubic-bezier(0.4, 0, 0.2, 1)',
+        'luxury-ease': 'cubic-bezier(0.23, 1, 0.32, 1)',
       },
       spacing: {
         '18': '4.5rem',
