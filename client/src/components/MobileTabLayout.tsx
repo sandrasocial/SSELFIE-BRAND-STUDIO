@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { MayaChat } from './MayaChat';
+import { SSELFIEChat } from './SSELFIEChat';
 import { GalleryScreen } from './GalleryScreen';
 import { StudioScreen } from './StudioScreen';
 import { useAuth } from '../hooks/use-auth';
 import { useQuery } from '@tanstack/react-query';
 import { Camera, Grid, User, Settings, MessageCircle, Heart, Share2, Smartphone, Search, Package, Shirt } from 'lucide-react';
 
-// Maya's Smart Aesthetic Feed Categories - Editorial Neutral Palette
-const MAYA_CATEGORIES = {
+// SSELFIE's Smart Aesthetic Feed Categories - Editorial Neutral Palette
+const SSELFIE_CATEGORIES = {
   'flatlay': { name: 'Flatlay', icon: Smartphone, color: 'from-neutral-700/30 to-neutral-800/30' },
   'closeup': { name: 'Close-up', icon: Search, color: 'from-neutral-600/30 to-neutral-700/30' },
   'fullbody': { name: 'Full Body', icon: User, color: 'from-neutral-800/30 to-neutral-900/30' },
@@ -198,16 +198,16 @@ const InstagramStyleProfile = ({ user }: { user: { name?: string; email?: string
         </div>
       </div>
 
-      {/* Maya's Smart Categorization Info */}
+      {/* SSELFIE's Smart Categorization Info */}
       <div className="luxury-card">
         <div className="flex items-start gap-3">
           <div className="p-3 bg-zinc-800/40 rounded-xl border border-zinc-700/30">
             <Sparkles size={20} className="text-zinc-300" strokeWidth={1.5} />
           </div>
           <div>
-            <h4 className="luxury-text-body mb-2">Maya's Smart Categorization</h4>
+            <h4 className="luxury-text-body mb-2">SSELFIE's Smart Categorization</h4>
             <p className="luxury-text-caption text-zinc-400 leading-relaxed">
-              Your photos are automatically organized by Maya's AI into aesthetic categories: 
+              Your photos are automatically organized by SSELFIE's AI into aesthetic categories: 
               flatlays, close-ups, full body, objects, and half-body shots. 
               This creates a visually balanced, magazine-quality feed.
             </p>
@@ -242,7 +242,7 @@ const InstagramStyleProfile = ({ user }: { user: { name?: string; email?: string
           {/* Gallery grid with editorial hover effects - Following Styleguide */}
           <div className="grid grid-cols-2 gap-3">
             {feedImages.map((image, index) => {
-              const category = MAYA_CATEGORIES[image.category as keyof typeof MAYA_CATEGORIES];
+              const category = SSELFIE_CATEGORIES[image.category as keyof typeof SSELFIE_CATEGORIES];
               const Icon = category?.icon || Package;
               
               return (
@@ -308,15 +308,15 @@ const createTabs = (user: { name?: string; email?: string; image?: string }) => 
     id: 'studio',
     label: 'Studio',
     icon: Camera,
-    description: 'Create with Maya AI',
+    description: 'Create with SSELFIE AI',
     component: <StudioScreen />
   },
   {
-    id: 'maya',
-    label: 'Maya',
+    id: 'sselfie',
+    label: 'SSELFIE',
     icon: MessageCircle,
     description: 'AI Photo Stylist',
-    component: <MayaChat />
+    component: <SSELFIEChat />
   },
   {
     id: 'gallery',
