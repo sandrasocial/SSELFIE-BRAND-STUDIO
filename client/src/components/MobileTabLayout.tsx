@@ -26,11 +26,11 @@ function MobileTabLayout() {
     <div className="min-h-screen flex flex-col overflow-x-hidden" style={{ WebkitOverflowScrolling: 'touch' }}>
       <AppTopNav />
       <main 
-        className="flex-1 pb-main-content pt-header-offset"
+        className="flex-1 pb-navigation-bottom-margin pt-header-offset"
         style={{
           paddingLeft: 'env(safe-area-inset-left)',
           paddingRight: 'env(safe-area-inset-right)',
-          minHeight: 'calc(100vh - 6rem)'
+          minHeight: 'calc(100vh - var(--navigation-bottom-margin))'
         }}
         role="main" 
         aria-label="Main content"
@@ -41,7 +41,7 @@ function MobileTabLayout() {
       <nav 
         role="navigation" 
         aria-label="Mobile navigation"
-        className="fixed bottom-6 left-4 right-4 z-50"
+        className="fixed bottom-floating-navigation-bottom left-floating-navigation-horizontal right-floating-navigation-horizontal z-50"
         style={{
           paddingBottom: 'env(safe-area-inset-bottom)',
           paddingLeft: 'env(safe-area-inset-left)',

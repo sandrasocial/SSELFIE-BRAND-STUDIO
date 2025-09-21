@@ -105,6 +105,13 @@ module.exports = {
         '18': '4.5rem',
         '88': '22rem',
         '112': '28rem',
+        // Semantic layout spacing
+        'header-height': 'var(--header-height)',
+        'navigation-bottom-margin': 'var(--navigation-bottom-margin)',
+        'header-offset': 'var(--header-offset)',
+        'main-content-bottom': 'var(--main-content-bottom)',
+        'floating-navigation-bottom': 'var(--floating-navigation-bottom)',
+        'floating-navigation-horizontal': 'var(--floating-navigation-horizontal)',
       },
       // Editorial shadow system
       boxShadow: {
