@@ -4,7 +4,6 @@ import { AIWebsiteBuilder } from '../components/victoria/AIWebsiteBuilder';
 export default function BuildPage() {
   return (
     <div className="min-h-screen bg-white">
-      {/* Build optimization test comment */}
       <AIWebsiteBuilder />
     </div>
   );
