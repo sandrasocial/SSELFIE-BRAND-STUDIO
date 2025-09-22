@@ -7,7 +7,7 @@ import request from 'supertest';
 import express from 'express';
 
 // Mock dependencies
-jest.mock('../stack-auth.js', () => ({
+jest.mock('../stack-auth', () => ({
   requireStackAuth: (req: any, res: any, next: any) => {
     req.user = { id: 'test_user_123' };
     next();
@@ -469,7 +469,7 @@ describe('Video Storyboard Routes', () => {
 
     it('should validate user authentication', async () => {
       // Mock unauthenticated request by overriding auth middleware
-      jest.doMock('../stack-auth.js', () => ({
+      jest.doMock('../stack-auth', () => ({
         requireStackAuth: (req: any, res: any, next: any) => {
           res.status(401).json({ error: 'Unauthorized' });
         }

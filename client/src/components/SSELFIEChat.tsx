@@ -34,7 +34,7 @@ export function SSELFIEChat() {
       setMessages([{
         id: '1',
         type: 'maya',
-        content: "Hi! I'm your SSELFIE AI photo stylist. Tell me what kind of professional photos you need and I'll create custom concepts for you.",
+        content: "Hello beautiful! I'm SSELFIE, your AI brand strategist. Ready to create photos that make you look absolutely unstoppable? Tell me your vision and I'll design the perfect concepts.",
         timestamp: new Date().toISOString()
       }]);
     }
@@ -62,7 +62,7 @@ export function SSELFIEChat() {
       const mayaMessage: ChatMessage = {
         id: Date.now().toString(),
         type: 'maya',
-        content: data.response || data.content || "I'd love to help you create amazing photos!",
+        content: data.response || data.content || "Darling, something went perfectly wrong, but I've got you! Let's create something amazing together.",
         timestamp: new Date().toISOString(),
         conceptCards: data.conceptCards || []
       };
@@ -78,14 +78,14 @@ export function SSELFIEChat() {
       const fallbackMessage: ChatMessage = {
         id: Date.now().toString(),
         type: 'maya',
-        content: "I'm having trouble connecting right now, but I'd love to help you create stunning professional photos! Try describing what kind of photos you need.",
+        content: "Slight technical hiccup, but nothing stops a boss babe! While I reconnect, describe your dream photo shoot and I'll have concepts ready the moment I'm back.",
         timestamp: new Date().toISOString()
       };
       
       setMessages(prev => [...prev, fallbackMessage]);
       toast({ 
-        title: "Connection Issue", 
-        description: "Maya will respond once connection is restored." 
+        title: "SSELFIE Reconnecting", 
+        description: "Your brand strategist will be right back!" 
       });
     }
   });
@@ -151,9 +151,9 @@ export function SSELFIEChat() {
           )
         })));
 
-        toast({ title: "Photos Ready!", description: "Your professional photos have been created." });
+        toast({ title: "Stunning Work!", description: "Your luxury photos are ready to download." });
       } else {
-        throw new Error('Generation failed');
+        throw new Error('Creative systems temporarily offline');
       }
     } catch (error) {
       console.error('Image generation error:', error);
@@ -167,8 +167,8 @@ export function SSELFIEChat() {
       })));
 
       toast({ 
-        title: "Generation Error", 
-        description: "Unable to generate photos right now. Please try again." 
+        title: "Studio Momentarily Busy", 
+        description: "Your photos are in high demand! Try again in just a moment." 
       });
     }
   };
