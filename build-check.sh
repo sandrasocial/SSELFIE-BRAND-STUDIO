@@ -2,7 +2,17 @@
 
 # SSELFIE Brand Studio - Vercel Ignored Build Step
 # This script prevents unnecessary builds by checking if relevant files have changed
-# Exit code 1 = Build needed, Exit code 0 = Skip build
+
+# Exit code constants for clarity
+readonly BUILD_NEEDED=1
+readonly SKIP_BUILD=0
+
+# Parse command line options
+QUICK_MODE=false
+if [[ "$1" == "--quick" ]]; then
+  QUICK_MODE=true
+  echo "🏃 Quick mode enabled - will exit on first change detected"
+fi
 
 echo "🔍 SSELFIE Build Optimization - Checking for changes..."
 
@@ -27,7 +37,7 @@ TRIGGER_PATHS=(
 # Check if this is the initial commit or if there's no previous commit
 if ! git rev-parse HEAD^ >/dev/null 2>&1; then
   echo "✅ Initial commit or no previous commit found - proceeding with build"
-  exit 1
+  exit $BUILD_NEEDED
 fi
 
 # Check if we're on a deployment branch
@@ -38,7 +48,7 @@ echo "📝 Current branch: $BRANCH"
 COMMIT_MSG=$(git log -1 --pretty=%B)
 if [[ "$COMMIT_MSG" == *"[force-build]"* ]] || [[ "$COMMIT_MSG" == *"force build"* ]]; then
   echo "🔨 Force build requested in commit message - proceeding with build"
-  exit 1
+  exit $BUILD_NEEDED
 fi
 
 # Check for changes in each trigger path
@@ -55,6 +65,12 @@ for path in "${TRIGGER_PATHS[@]}"; do
       echo "🚨 Changes found: $path"
       HAS_CHANGES=true
       CHANGED_PATHS+=("$path")
+      
+      # Early exit optimization in quick mode or default behavior
+      if [[ "$QUICK_MODE" == true ]]; then
+        echo "🏃 Quick mode: Changes detected, skipping remaining checks"
+        break
+      fi
     fi
   else
     echo "⚠️  Path not found: $path"
@@ -70,11 +86,12 @@ if [ "$HAS_CHANGES" = true ]; then
   done
   echo ""
   echo "🏗️  Proceeding with build due to relevant changes"
-  exit 1
+  exit $BUILD_NEEDED
 else
   echo ""
   echo "✅ No changes detected in build-critical paths"
   echo "💰 Skipping build to optimize costs and deployment time"
   echo "ℹ️  Add '[force-build]' to commit message to override this check"
-  exit 0
+  echo "ℹ️  Use '--quick' flag for faster checking when you expect changes"
+  exit $SKIP_BUILD
 fi

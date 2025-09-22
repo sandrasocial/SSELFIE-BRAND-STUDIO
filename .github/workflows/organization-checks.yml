@@ -38,19 +38,35 @@ jobs:
         
     - name: Check Import Organization
       run: |
-        # Basic import order check - ensure blank line after import block
+        # Import organization check - ensure blank line after import block
         # Only check project files, not node_modules
         find . -name "*.ts" -o -name "*.tsx" | grep -v node_modules | while read file; do
           # Skip files that don't have imports
           if ! grep -q "^import" "$file"; then
             continue
           fi
-          # For files with imports, check if there's a blank line after the import block
-          # Use a more permissive check - look for any blank line within 10 lines after last import
-          if grep -A 10 "^import" "$file" | grep -q "^$"; then
-            continue
-          else
-            echo "❌ Import organization issue in: $file (consider adding blank line after imports)"
+          
+          # Use awk to find the actual end of the import block and check for blank line
+          has_blank_after_imports=$(awk '
+            BEGIN { in_imports = 0; last_import_line = 0 }
+            /^import/ { in_imports = 1; last_import_line = NR }
+            /^[^import]/ && in_imports && !/^\/\*/ && !/^\*/ && !/^\/\// && NF > 0 {
+              # Found first non-import, non-comment line after imports
+              if (NR == last_import_line + 1) {
+                # No blank line after imports
+                print "0"
+                exit
+              } else {
+                # There is a blank line
+                print "1"
+                exit
+              }
+            }
+            END { if (last_import_line > 0) print "1" }  # File only has imports, ok
+          ' "$file")
+          
+          if [ "$has_blank_after_imports" = "0" ]; then
+            echo "❌ Import organization issue in: $file (missing blank line after imports)"
           fi
         done
         echo "✅ Import organization check completed"
