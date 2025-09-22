@@ -9,7 +9,7 @@
 
 import express from 'express';
 // Gemini AI will be imported from the existing server setup
-import { requireStackAuth } from '../stack-auth.js';
+import { requireStackAuth } from '../stack-auth';
 
 const router = express.Router();
 
