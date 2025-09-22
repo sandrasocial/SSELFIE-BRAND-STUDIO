@@ -43,7 +43,7 @@
     "api/test.ts": {
       "maxDuration": 8
     },
-    "api/test-neon-connection.ts": {
+    "api/test-db-connectivity.ts": {
       "maxDuration": 10
     },
     "api/test-serverless-db.ts": {
