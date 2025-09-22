@@ -97,8 +97,8 @@ function MobileTabLayout() {
   };
 
   return (
-    <div className="flex flex-col h-full bg-transparent">
-      {/* Status Bar */}
+    <div className="luxury-app-container">
+      {/* Luxury Status Bar */}
       <div className="luxury-status-bar">
         <div className="luxury-status-time">
           {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -143,44 +143,23 @@ function MobileTabLayout() {
           </span>
         </div>
         <div className="luxury-text-caption text-zinc-600 font-serif">
-          SSELFIE
+          BRAND STUDIO
         </div>
       </div>
 
-      {/* Main Content Area */}
-      <main 
-        className="flex-1 pb-32 overflow-y-auto overscroll-behavior-y-contain"
-        style={{
-          paddingLeft: 'env(safe-area-inset-left)',
-          paddingRight: 'env(safe-area-inset-right)',
-          paddingBottom: 'calc(8rem + env(safe-area-inset-bottom))'
-        }}
-        role="main" 
-        aria-label="Main content"
-      >
-        <div className="px-6 py-6 min-h-full">
-          <div className="luxury-fade-in">
-            {currentTab?.component || (
-              <div className="text-center py-12">
-                <p className="luxury-text-caption">Content will load in new page</p>
-              </div>
-            )}
-          </div>
+      {/* Main Content Area - Uses luxury system classes */}
+      <main className="luxury-content luxury-tab-content" role="main" aria-label="Main content">
+        <div className="luxury-fade-in">
+          {currentTab?.component || (
+            <div className="text-center py-12">
+              <p className="luxury-text-caption">Content will load in new page</p>
+            </div>
+          )}
         </div>
       </main>
 
       {/* Luxury Floating Tab Bar */}
-      <nav 
-        role="navigation" 
-        aria-label="Mobile navigation"
-        className="fixed bottom-4 left-4 right-4 z-50"
-        style={{
-          paddingBottom: 'env(safe-area-inset-bottom)',
-          paddingLeft: 'env(safe-area-inset-left)',
-          paddingRight: 'env(safe-area-inset-right)',
-          zIndex: 9999
-        }}
-      >
+      <div className="luxury-floating-tabs">
         <div className="luxury-tab-container">
           <div className="luxury-tab-grid">
             {tabs.map((tab) => {
@@ -192,10 +171,6 @@ function MobileTabLayout() {
                   key={tab.id}
                   onClick={() => handleTabChange(tab.id)}
                   className={`luxury-tab-button ${isActive ? 'active' : ''}`}
-                  style={{ 
-                    WebkitTapHighlightColor: 'transparent',
-                    touchAction: 'manipulation'
-                  }}
                   title={tab.description}
                   aria-label={`Switch to ${tab.label}`}
                   aria-current={isActive ? 'page' : undefined}
@@ -203,11 +178,7 @@ function MobileTabLayout() {
                   role="tab"
                   tabIndex={isActive ? 0 : -1}
                 >
-                  <div className={`luxury-tab-icon ${
-                    isActive 
-                      ? 'transform scale-105' 
-                      : ''
-                  }`}>
+                  <div className="luxury-tab-icon">
                     <Icon 
                       size={20} 
                       strokeWidth={1.2} 
@@ -222,7 +193,7 @@ function MobileTabLayout() {
             })}
           </div>
         </div>
-      </nav>
+      </div>
     </div>
   );
 }
