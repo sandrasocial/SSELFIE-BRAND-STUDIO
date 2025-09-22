@@ -1,12 +1,12 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    "./client/index.html",
-    "./client/src/**/*.{js,ts,jsx,tsx}",
-    "./client/public/**/*.html",
-    "./client/**/*.{js,ts,jsx,tsx}",
-    "./server/**/*.{js,ts,jsx,tsx}",
-    "./shared/**/*.{js,ts,jsx,tsx}",
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+    "./public/**/*.html",
+    "./**/*.{js,ts,jsx,tsx}",
+    "../server/**/*.{js,ts,jsx,tsx}",
+    "../shared/**/*.{js,ts,jsx,tsx}",
   ],
   darkMode: ["class"],
   theme: {
