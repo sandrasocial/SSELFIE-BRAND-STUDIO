@@ -52,7 +52,8 @@ const SessionStats = lazy(() => import("./features/live/SessionStats"));
 // Components
 import { PageLoader } from "./components/PageLoader";
 
-// Smart Home component - Routes authenticated users to Brand Studio
+// Smart Home component - Routes users through simplified journey
+// NEW USER JOURNEY: Authentication → Training → App Studio → Advanced Features  
 function SmartHome() {
   const [, setLocation] = useLocation();
   const { isAuthenticated, isLoading } = useAuth();
@@ -67,16 +68,16 @@ function SmartHome() {
 
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
-      // Check training status and route accordingly
+      // SIMPLIFIED JOURNEY: Training → App Studio (no old workspace/build flow)
       if (userModel && (userModel as { trainingStatus?: string }).trainingStatus !== 'completed') {
-        console.log('🎯 User authenticated but needs training, redirecting to simple-training');
+        console.log('🎯 User needs training → /simple-training (onboarding)');
         setLocation('/simple-training');
       } else {
-        console.log('✅ User authenticated with completed training, redirecting to Brand Studio');
-  setLocation('/app');
+        console.log('✅ User trained → /app (mobile-first studio tabs)');
+        setLocation('/app');
       }
     } else if (!isLoading && !isAuthenticated) {
-      console.log('🔍 User not authenticated, staying on landing page');
+      console.log('🔍 User not authenticated → staying on landing page');
     }
   }, [isAuthenticated, isLoading, userModel, setLocation]);
 

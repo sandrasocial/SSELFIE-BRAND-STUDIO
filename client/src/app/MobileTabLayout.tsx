@@ -8,6 +8,16 @@ import { useAuth } from '../hooks/use-auth';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { Camera, Grid, User, Settings, MessageCircle, Bell, Battery, Signal, Wifi } from 'lucide-react';
 
+// SSELFIE BRAND STUDIO - MOBILE-FIRST TAB NAVIGATION
+// User Journey: Authentication → Training → App Studio (Tabs) → Advanced Features
+// 
+// Tab Structure (Mobile-First Design):
+// 1. Studio Tab - Main creation interface
+// 2. Maya Tab - AI styling assistant  
+// 3. Gallery Tab - Photo collection (routes to full page)
+// 4. Profile Tab - User settings & progress
+// 5. More Tab - Advanced tools & settings
+
 // Editorial Tab Configuration - Clean and Focused
 const createTabs = (user: { name?: string; email?: string; image?: string }) => [
   {
