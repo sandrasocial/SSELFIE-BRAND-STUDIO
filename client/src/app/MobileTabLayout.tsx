@@ -4,6 +4,7 @@ import { SSELFIEChat } from '../components/SSELFIEChat';
 import { StudioScreen } from '../components/StudioScreen';
 import { ProfileScreen } from '../components/ProfileScreen';
 import { AccountScreen } from '../components/AccountScreen';
+import GalleryTabScreen from '../components/GalleryTabScreen';
 import { useAuth } from '../hooks/use-auth';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { Camera, Grid, User, Settings, MessageCircle, Bell, Battery, Signal, Wifi } from 'lucide-react';
@@ -11,10 +12,10 @@ import { Camera, Grid, User, Settings, MessageCircle, Bell, Battery, Signal, Wif
 // SSELFIE BRAND STUDIO - MOBILE-FIRST TAB NAVIGATION
 // User Journey: Authentication → Training → App Studio (Tabs) → Advanced Features
 // 
-// Tab Structure (Mobile-First Design):
+// Tab Structure (Mobile-Optimized Design):
 // 1. Studio Tab - Main creation interface
 // 2. Maya Tab - AI styling assistant  
-// 3. Gallery Tab - Photo collection (routes to full page)
+// 3. Gallery Tab - Photo collection (mobile-optimized tab component)
 // 4. Profile Tab - User settings & progress
 // 5. More Tab - Advanced tools & settings
 
@@ -39,8 +40,7 @@ const createTabs = (user: { name?: string; email?: string; image?: string }) => 
     label: 'Gallery',
     icon: Grid,
     description: 'Your photo collection',
-    isRoute: true,
-    route: '/sselfie-gallery'
+    component: <GalleryTabScreen />
   },
   {
     id: 'profile',
@@ -86,14 +86,7 @@ function MobileTabLayout() {
   }, []);
 
   const handleTabChange = (tabId: string) => {
-    const tab = tabs.find(t => t.id === tabId);
-    if (tab?.isRoute && tab.route) {
-      // Navigate to the full page route
-      setLocation(tab.route);
-    } else {
-      // Switch to the tab component
-      setActiveTab(tabId);
-    }
+    setActiveTab(tabId);
   };
 
   return (
@@ -148,8 +141,15 @@ function MobileTabLayout() {
         )}
       </main>
 
-      {/* Tab Navigation */}
-      <div className="fixed bottom-4 left-4 right-4 z-50">
+      {/* Tab Navigation - Mobile Optimized */}
+      <div 
+        className="fixed bottom-4 left-4 right-4 z-50"
+        style={{
+          paddingBottom: 'env(safe-area-inset-bottom)',
+          paddingLeft: 'env(safe-area-inset-left)',
+          paddingRight: 'env(safe-area-inset-right)',
+        }}
+      >
         <div className="bg-zinc-800/90 backdrop-blur-md border border-white/10 rounded-2xl p-2">
           <div className="flex justify-around">
             {tabs.map((tab) => {
@@ -160,11 +160,15 @@ function MobileTabLayout() {
                 <button
                   key={tab.id}
                   onClick={() => handleTabChange(tab.id)}
-                  className={`flex-1 flex flex-col items-center justify-center p-3 rounded-xl transition-all duration-300 ${
+                  className={`flex-1 flex flex-col items-center justify-center p-3 rounded-xl transition-all duration-300 min-h-[56px] ${
                     isActive 
                       ? 'bg-white/10 text-white scale-105' 
                       : 'text-zinc-500 hover:text-white hover:bg-white/5'
                   }`}
+                  style={{ 
+                    WebkitTapHighlightColor: 'transparent',
+                    touchAction: 'manipulation'
+                  }}
                   title={tab.description}
                   aria-label={`Switch to ${tab.label}`}
                 >
