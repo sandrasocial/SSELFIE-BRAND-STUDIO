@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
-import { SSELFIEChat } from './SSELFIEChat';
-import { StudioScreen } from './StudioScreen';
-import { ProfileScreen } from './ProfileScreen';
-import { AccountScreen } from './AccountScreen';
+import { SSELFIEChat } from '../components/SSELFIEChat';
+import { StudioScreen } from '../components/StudioScreen';
+import { ProfileScreen } from '../components/ProfileScreen';
+import { AccountScreen } from '../components/AccountScreen';
 import { useAuth } from '../hooks/use-auth';
-import { ThemeToggle } from './ThemeToggle';
+import { ThemeToggle } from '../components/ThemeToggle';
 import { Camera, Grid, User, Settings, MessageCircle, Bell, Battery, Signal, Wifi } from 'lucide-react';
 
 // Editorial Tab Configuration - Clean and Focused

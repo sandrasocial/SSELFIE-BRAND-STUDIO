@@ -23,20 +23,20 @@ import { initializeRuntimeOptimization } from "./utils/runtimeOptimization";
 import "./styles/luxury-mobile.css";
 
 // Core pages (loaded immediately) - BRAND STUDIO IS PRIMARY
-import AppLayout from "./pages/AppLayout";
+import AppLayout from "./app/AppLayout";
 
 // Lazy load non-critical pages for better performance
 import { lazy, Suspense } from "react";
 
-const BusinessLanding = lazy(() => import("./pages/business-landing"));
-const HairLanding = lazy(() => import("./pages/hair-landing"));
-const HairSignup = lazy(() => import("./pages/hair-signup"));
-const SimpleTraining = lazy(() => import("./pages/simple-training"));
+const BusinessLanding = lazy(() => import("./pages/landing/business-landing"));
+const HairLanding = lazy(() => import("./pages/landing/hair-landing"));
+const HairSignup = lazy(() => import("./pages/landing/hair-signup"));
+const SimpleTraining = lazy(() => import("./pages/onboarding/simple-training"));
 const SimpleCheckout = lazy(() => import("./pages/simple-checkout"));
 const PaymentSuccess = lazy(() => import("./pages/payment-success"));
 const ThankYou = lazy(() => import("./pages/thank-you"));
-const Terms = lazy(() => import("./pages/terms"));
-const Privacy = lazy(() => import("./pages/privacy"));
+const Terms = lazy(() => import("./pages/legal/terms"));
+const Privacy = lazy(() => import("./pages/legal/privacy"));
 const AuthSuccess = lazy(() => import("./pages/auth-success"));
 const OAuthCallback = lazy(() => import("./pages/OAuthCallback"));
 
