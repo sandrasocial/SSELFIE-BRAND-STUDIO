@@ -29,9 +29,9 @@
             --zinc-900: #18181b;
             --zinc-950: #09090b;
             
-            /* Earthy Accents */
-            --warm-beige: #9a8d84;
-            --greyge: #a39b96;
+            /* Stone Accent Colors */
+            --stone-light: #c0c0c0;
+            --stone-medium: #888888;
             --warm-gray: #8b8680;
             --sage: #9caa9c;
             --stone: #b5a991;
@@ -145,7 +145,7 @@
             left: 0;
             width: 60px;
             height: 2px;
-            background: var(--warm-beige);
+            background: var(--stone-medium);
         }
         
         .title-subsection {
@@ -163,7 +163,7 @@
             font-weight: 400;
             letter-spacing: 0.4em;
             text-transform: uppercase;
-            color: var(--greyge);
+            color: var(--stone-light);
             margin-bottom: var(--space-lg);
             position: relative;
         }
@@ -175,7 +175,7 @@
             right: -var(--space-xl);
             width: 40px;
             height: 1px;
-            background: var(--greyge);
+            background: var(--stone-light);
             opacity: 0.6;
         }
         
@@ -245,7 +245,7 @@
             content: '';
             position: absolute;
             inset: 0;
-            background: radial-gradient(circle at top right, rgba(163, 144, 129, 0.1) 0%, transparent 50%);
+            background: radial-gradient(circle at top right, rgba(192, 192, 192, 0.1) 0%, transparent 50%);
             opacity: 0;
             transition: opacity 500ms ease;
         }
@@ -255,7 +255,7 @@
         }
         
         .lookbook-card:hover {
-            border-color: rgba(163, 144, 129, 0.4);
+            border-color: rgba(192, 192, 192, 0.4);
             transform: translateY(-4px);
             box-shadow: var(--shadow-medium);
         }
@@ -274,10 +274,10 @@
             position: relative;
         }
         
-        .lookbook-tag {
-            background: rgba(163, 144, 129, 0.1);
-            border: 1px solid rgba(163, 144, 129, 0.3);
-            color: var(--greyge);
+        .lookbook-tag, .concept-type {
+            background: rgba(192, 192, 192, 0.1);
+            border: 1px solid rgba(192, 192, 192, 0.3);
+            color: var(--stone-light);
             padding: var(--space-xs) var(--space-sm);
             border-radius: 20px;
             font-size: var(--text-xs);
@@ -607,7 +607,7 @@
         }
         
         .btn-secondary:hover {
-            border-color: var(--warm-beige);
+            border-color: var(--stone-medium);
             transform: translateY(-2px);
         }
         
@@ -658,7 +658,7 @@
             left: 0;
             width: 30px;
             height: 1px;
-            background: var(--warm-beige);
+            background: var(--stone-medium);
         }
         
         .nav-links {
@@ -686,7 +686,7 @@
             transform: translateX(-50%);
             width: 0;
             height: 1px;
-            background: var(--warm-beige);
+            background: var(--stone-medium);
             transition: width 300ms ease;
         }
         
@@ -924,7 +924,7 @@
                         <div class="lookbook-tag">Minimal</div>
                         <h3 class="concept-title">The Clean & Bright</h3>
                         <p class="concept-description">Think Scandinavian vibes - lots of white, natural light, and simple elegance. Perfect for wellness coaches and lifestyle brands.</p>
-                        <p class="body-text" style="font-size: var(--text-xs); color: var(--greyge); margin-top: var(--space-md);">Vibe: bright, airy, peaceful, clean, simple</p>
+                                                    <p class="body-text" style="font-size: var(--text-xs); color: var(--stone-light); margin-top: var(--space-md);">Vibe: bright, airy, peaceful, clean, simple</p>
                     </div>
                     
                     <div class="lookbook-card floating-element stagger-1">
@@ -934,7 +934,7 @@
                         <div class="lookbook-tag">Dramatic</div>
                         <h3 class="concept-title">The Dark & Moody</h3>
                         <p class="concept-description">Sexy shadows and dramatic lighting. Great for lawyers, consultants, and anyone who wants to look seriously cool.</p>
-                        <p class="body-text" style="font-size: var(--text-xs); color: var(--greyge); margin-top: var(--space-md);">Vibe: mysterious, powerful, sophisticated, edgy</p>
+                        <p class="body-text" style="font-size: var(--text-xs); color: var(--stone-light); margin-top: var(--space-md);">Vibe: mysterious, powerful, sophisticated, edgy</p>
                     </div>
                     
                     <div class="lookbook-card floating-element stagger-2">
@@ -944,7 +944,7 @@
                         <div class="lookbook-tag">Relaxed</div>
                         <h3 class="concept-title">The Coastal Luxury</h3>
                         <p class="concept-description">Beach vibes meets high-end elegance. Soft, warm light and breezy clothes that say "successful but chill."</p>
-                        <p class="body-text" style="font-size: var(--text-xs); color: var(--greyge); margin-top: var(--space-md);">Vibe: relaxed, expensive, beachy, effortless</p>
+                        <p class="body-text" style="font-size: var(--text-xs); color: var(--stone-light); margin-top: var(--space-md);">Vibe: relaxed, expensive, beachy, effortless</p>
                     </div>
                     
                     <div class="lookbook-card floating-element stagger-3">
@@ -954,7 +954,7 @@
                         <div class="lookbook-tag">Opulent</div>
                         <h3 class="concept-title">The Rich & Luxe</h3>
                         <p class="concept-description">Think old money meets private club. Dark wood, leather, and candlelight for that "I've definitely made it" energy.</p>
-                        <p class="body-text" style="font-size: var(--text-xs); color: var(--greyge); margin-top: var(--space-md);">Vibe: wealthy, classic, mysterious, heritage</p>
+                        <p class="body-text" style="font-size: var(--text-xs); color: var(--stone-light); margin-top: var(--space-md);">Vibe: wealthy, classic, mysterious, heritage</p>
                     </div>
                     
                     <div class="lookbook-card floating-element stagger-4">
@@ -964,7 +964,7 @@
                         <div class="lookbook-tag">Corporate</div>
                         <h3 class="concept-title">The Modern Boss</h3>
                         <p class="concept-description">Clean, white, and powerful. Perfect for tech founders and modern leaders who want to look innovative and trustworthy.</p>
-                        <p class="body-text" style="font-size: var(--text-xs); color: var(--greyge); margin-top: var(--space-md);">Vibe: clean, modern, powerful, innovative</p>
+                        <p class="body-text" style="font-size: var(--text-xs); color: var(--stone-light); margin-top: var(--space-md);">Vibe: clean, modern, powerful, innovative</p>
                     </div>
                     
                     <div class="lookbook-card floating-element stagger-5">
@@ -974,12 +974,12 @@
                         <div class="lookbook-tag">Natural</div>
                         <h3 class="concept-title">The Golden Hour Magic</h3>
                         <p class="concept-description">That perfect sunset glow that makes everyone look like a movie star. Warm, authentic, and totally Instagram-worthy.</p>
-                        <p class="body-text" style="font-size: var(--text-xs); color: var(--greyge); margin-top: var(--space-md);">Vibe: warm, authentic, dreamy, sun-kissed</p>
+                        <p class="body-text" style="font-size: var(--text-xs); color: var(--stone-light); margin-top: var(--space-md);">Vibe: warm, authentic, dreamy, sun-kissed</p>
                     </div>
                 </div>
                 
                 <div style="text-align: center; margin-top: var(--space-3xl);">
-                    <p class="body-text" style="margin-bottom: var(--space-xl);">Plus 6 more sophisticated lookbooks including Night Time Luxe, Classic B&W, Beige & Sophisticated, and Fashion Street Style.</p>
+                    <p class="body-text" style="margin-bottom: var(--space-xl);">Plus 6 more amazing styles including Night Glamour, Black & White Classic, and Street Style Chic.</p>
                 </div>
             </div>
         </section>
@@ -987,16 +987,16 @@
         <!-- Maya in Action -->
         <section id="maya" class="section">
             <div class="container">
-                <div class="eyebrow">AI Art Direction</div>
-                <h2 class="title-section">Maya's Creative Process</h2>
-                <p class="body-large">See how Maya translates brand vision into sophisticated visual concepts using her art director expertise and creative intelligence.</p>
+                <div class="eyebrow">See Maya Work</div>
+                <h2 class="title-section">Maya Creates Your Photos</h2>
+                <p class="body-large">Watch Maya work with someone just like you. She asks the right questions and creates exactly the photos you need.</p>
                 
                 <div class="maya-chat">
                     <div class="maya-header">
                         <img src="https://i.postimg.cc/fTtCnzZv/out-1-22.png" alt="Maya" class="maya-profile">
                         <div class="maya-info">
                             <h4>Maya</h4>
-                            <p>AI Art Director & Brand Stylist</p>
+                            <p style="color: var(--stone-light); font-size: var(--text-sm);">Your Photo Stylist</p>
                         </div>
                     </div>
                     
@@ -1007,13 +1007,13 @@
                                 <span>Maya</span>
                             </div>
                             <div class="message-content">
-                                I'm Maya, your world-class AI Art Director. I'll translate your personal brand into editorial-quality visual storytelling. Tell me about your business and the impression you want to create.
+                                Hey! I'm Maya. I help people get amazing photos that actually look like them. Tell me what kind of business you're in and how you want people to feel when they see your photos.
                             </div>
                         </div>
                         
                         <div class="message user">
                             <div class="message-content">
-                                I'm a management consultant who helps tech startups scale. I want photos that show expertise but approachability - someone CEOs trust with their biggest challenges.
+                                I help tech startups grow their business. I want to look smart and trustworthy, but not stuffy or intimidating.
                             </div>
                         </div>
                         
@@ -1023,7 +1023,7 @@
                                 <span>Maya</span>
                             </div>
                             <div class="message-content">
-                                Perfect vision. I'm seeing "The White Space Executive" aesthetic - clean, modern, powerful yet approachable. I'll create 4 portrait concepts and 1 flatlay that builds your advisory brand world.
+                                Perfect! I'm thinking "Modern Boss" vibes - clean, bright, and approachable. I'll create 5 different shots: a close-up headshot, some half-body shots, a full scene, and a flat lay of your workspace.
                             </div>
                         </div>
                     </div>
@@ -1031,43 +1031,43 @@
                 
                 <!-- Maya's Concept Cards -->
                 <div style="margin-top: var(--space-3xl);">
-                    <h3 class="title-subsection">Maya's Generated Concepts</h3>
-                    <p class="body-text" style="margin-bottom: var(--space-xl);">Following her 80/20 rule: 4 portraits that establish executive presence, 1 flatlay that supports the advisory brand story.</p>
+                    <h3 class="title-subsection">Maya's Photo Ideas</h3>
+                    <p class="body-text" style="margin-bottom: var(--space-xl);">Here's what Maya created - a mix of shots that work together like a perfect Instagram feed.</p>
                     
                     <div class="concept-cards">
                         <div class="concept-card">
-                            <div class="concept-visual">Executive Portrait</div>
-                            <div class="concept-type">Portrait - 80%</div>
-                            <h4 class="concept-title">Executive Authority</h4>
-                            <p class="concept-description">Clean architectural background, sharp focus on confident expression. Lighting that shows competence without coldness.</p>
+                            <div class="concept-visual">Close-Up Headshot</div>
+                            <div class="concept-type">Close-Up</div>
+                            <h4 class="concept-title">The LinkedIn Winner</h4>
+                            <p class="concept-description">Sharp focus on your face with perfect lighting. This is your main profile photo that makes people want to work with you.</p>
                         </div>
                         
                         <div class="concept-card">
-                            <div class="concept-visual">Consulting Session</div>
-                            <div class="concept-type">Portrait - 80%</div>
-                            <h4 class="concept-title">Strategic Advisor</h4>
-                            <p class="concept-description">Mid-conversation moment, whiteboard in soft focus background. Shows you in your element, solving problems.</p>
+                            <div class="concept-visual">Half Body Shot</div>
+                            <div class="concept-type">Half Body</div>
+                            <h4 class="concept-title">The Approachable Expert</h4>
+                            <p class="concept-description">Waist up, slight smile, clean background. Shows personality while keeping it professional.</p>
                         </div>
                         
                         <div class="concept-card">
-                            <div class="concept-visual">Approachable Expert</div>
-                            <div class="concept-type">Portrait - 80%</div>
-                            <h4 class="concept-title">Trusted Partner</h4>
-                            <p class="concept-description">Slight smile, open posture. Modern office setting that says "I understand your world and challenges."</p>
+                            <div class="concept-visual">Full Body Scene</div>
+                            <div class="concept-type">Full Scene</div>
+                            <h4 class="concept-title">The Working Moment</h4>
+                            <p class="concept-description">You in your element - maybe presenting or in a modern office. Shows you actually doing what you do.</p>
                         </div>
                         
                         <div class="concept-card">
-                            <div class="concept-visual">Thought Leader</div>
-                            <div class="concept-type">Portrait - 80%</div>
-                            <h4 class="concept-title">Industry Visionary</h4>
-                            <p class="concept-description">Speaking setup, confident stance. Perfect for keynotes and thought leadership content.</p>
+                            <div class="concept-visual">Lifestyle Shot</div>
+                            <div class="concept-type">Lifestyle</div>
+                            <h4 class="concept-title">The Human Side</h4>
+                            <p class="concept-description">More relaxed version - maybe with coffee or in a casual but stylish setting. Shows you're real.</p>
                         </div>
                         
                         <div class="concept-card">
-                            <div class="concept-visual">Strategic Tools</div>
-                            <div class="concept-type">Flatlay - 20%</div>
-                            <h4 class="concept-title">Advisory Arsenal</h4>
-                            <p class="concept-description">Clean flatlay of strategic tools: premium notebook, quality pen, minimal tech. Supports the advisor brand narrative.</p>
+                            <div class="concept-visual">Workspace Flat Lay</div>
+                            <div class="concept-type">Flat Lay</div>
+                            <h4 class="concept-title">The Tool Kit</h4>
+                            <p class="concept-description">Beautiful overhead shot of your laptop, notebook, coffee - all the things that tell your work story without showing your face.</p>
                         </div>
                     </div>
                 </div>
@@ -1077,26 +1077,26 @@
         <!-- Enhanced Color System */
         <section id="colors" class="section">
             <div class="container">
-                <div class="eyebrow">Visual Foundation</div>
-                <h2 class="title-section">Editorial Color Psychology</h2>
+                <div class="eyebrow">Colors</div>
+                <h2 class="title-section">Beautiful Colors</h2>
                 
                 <div class="color-hero">
                     <div>
-                        <p class="body-large">Sophisticated monochromatic palette with earthy accents. Maya uses these colors to create depth and editorial sophistication without overwhelming the photography.</p>
+                        <p class="body-large">Maya uses sophisticated colors that make photos look expensive and professional. Lots of grays and natural tones that never go out of style.</p>
                         <div class="color-palette">
                             <div class="color-swatch-mini" style="background: #000000;"></div>
                             <div class="color-swatch-mini" style="background: #27272a;"></div>
                             <div class="color-swatch-mini" style="background: #52525b;"></div>
-                            <div class="color-swatch-mini" style="background: #a39081;"></div>
-                            <div class="color-swatch-mini" style="background: #c7b299;"></div>
+                            <div class="color-swatch-mini" style="background: #888888;"></div>
+                            <div class="color-swatch-mini" style="background: #c0c0c0;"></div>
                             <div class="color-swatch-mini" style="background: #ffffff; border-color: #333;"></div>
                         </div>
                     </div>
                     
                     <div class="color-demo">
-                        <h3 style="margin-bottom: var(--space-lg);">Editorial Sophistication</h3>
-                        <div style="height: 100px; background: linear-gradient(135deg, var(--black) 0%, var(--greyge) 50%, var(--warm-beige) 100%); border-radius: var(--radius-md); margin-bottom: var(--space-lg);"></div>
-                        <p class="body-text">Every shade carefully chosen to evoke trust, sophistication, and premium quality while letting Maya's photography take center stage.</p>
+                        <h3 style="margin-bottom: var(--space-lg);">Luxury Feel</h3>
+                        <div style="height: 100px; background: linear-gradient(135deg, var(--black) 0%, var(--stone-medium) 50%, var(--stone-light) 100%); border-radius: var(--radius-md); margin-bottom: var(--space-lg);"></div>
+                        <p class="body-text">These colors make everything look more expensive and trustworthy, while letting your photos be the star.</p>
                     </div>
                 </div>
                 
@@ -1139,22 +1139,22 @@
                         </div>
                     </div>
                     
-                    <!-- Earthy Accents -->
+                    <!-- Stone Accent Colors -->
                     <div class="color-group">
-                        <h3 class="title-subsection">Maya's Earthy Accents</h3>
+                        <h3 class="title-subsection">Maya's Stone Colors</h3>
                         
                         <div class="color-sample">
-                            <div class="color-swatch" style="background: #c7b299;"></div>
-                            <div style="color: var(--white); font-weight: 300; margin-bottom: var(--space-xs);">Warm Beige</div>
-                            <div style="font-family: monospace; font-size: var(--text-sm); color: var(--zinc-400); margin-bottom: var(--space-xs);">#c7b299</div>
-                            <div style="font-size: var(--text-sm); color: var(--zinc-500); line-height: 1.5;">Maya's identity, premium features, navigation accents</div>
+                            <div class="color-swatch" style="background: #c0c0c0;"></div>
+                            <div style="color: var(--white); font-weight: 300; margin-bottom: var(--space-xs);">Light Stone</div>
+                            <div style="font-family: monospace; font-size: var(--text-sm); color: var(--zinc-400); margin-bottom: var(--space-xs);">#c0c0c0</div>
+                            <div style="font-size: var(--text-sm); color: var(--zinc-500); line-height: 1.5;">Labels, eyebrow text, light accents, subtle details</div>
                         </div>
                         
                         <div class="color-sample">
-                            <div class="color-swatch" style="background: #a39081;"></div>
-                            <div style="color: var(--white); font-weight: 300; margin-bottom: var(--space-xs);">Greyge</div>
-                            <div style="font-family: monospace; font-size: var(--text-sm); color: var(--zinc-400); margin-bottom: var(--space-xs);">#a39081</div>
-                            <div style="font-size: var(--text-sm); color: var(--zinc-500); line-height: 1.5;">Category tags, eyebrow text, natural accents, subtle details</div>
+                            <div class="color-swatch" style="background: #888888;"></div>
+                            <div style="color: var(--white); font-weight: 300; margin-bottom: var(--space-xs);">Medium Stone</div>
+                            <div style="font-family: monospace; font-size: var(--text-sm); color: var(--zinc-400); margin-bottom: var(--space-xs);">#888888</div>
+                            <div style="font-size: var(--text-sm); color: var(--zinc-500); line-height: 1.5;">Maya's signature elements, navigation accents, borders</div>
                         </div>
                     </div>
                 </div>
@@ -1164,14 +1164,14 @@
         <!-- Component System -->
         <section id="components" class="section">
             <div class="container">
-                <div class="eyebrow">Interface Elements</div>
-                <h2 class="title-section">Design System</h2>
-                <p class="body-large">Sophisticated interface components that support Maya's creative process while maintaining editorial luxury aesthetic.</p>
+                <div class="eyebrow">How It Looks</div>
+                <h2 class="title-section">Beautiful Design</h2>
+                <p class="body-large">Every button, every message, every detail is designed to make you feel confident about getting amazing photos.</p>
                 
                 <div class="color-grid">
                     <!-- Typography System -->
                     <div class="color-group">
-                        <h3 class="title-subsection">Typography Hierarchy</h3>
+                        <h3 class="title-subsection">Beautiful Text</h3>
                         <div style="margin: var(--space-lg) 0;">
                             <div style="font-size: var(--text-xs); color: var(--greyge); letter-spacing: 0.3em; text-transform: uppercase; margin-bottom: var(--space-sm);">Hero Title</div>
                             <h1 style="font-family: 'Times New Roman', serif; font-size: var(--text-4xl); font-weight: 100; letter-spacing: 0.3em; text-transform: uppercase; margin-bottom: var(--space-md);">CREATIVE</h1>
@@ -1200,26 +1200,26 @@
                     
                     <!-- Maya's Interface -->
                     <div class="color-group">
-                        <h3 class="title-subsection">Maya's Interface</h3>
+                        <h3 class="title-subsection">Talking with Maya</h3>
                         <div style="background: var(--zinc-800); border-radius: var(--radius-md); padding: var(--space-lg); margin-top: var(--space-lg);">
                             <div style="display: flex; align-items: center; gap: var(--space-sm); margin-bottom: var(--space-md);">
                                 <img src="https://i.postimg.cc/fTtCnzZv/out-1-22.png" alt="Maya" class="maya-profile" style="width: 24px; height: 24px;">
-                                <span style="font-size: var(--text-xs); color: var(--greyge); letter-spacing: 0.1em; text-transform: uppercase;">Maya</span>
+                                <span style="font-size: var(--text-xs); color: var(--stone-light); letter-spacing: 0.1em; text-transform: uppercase;">Maya</span>
                             </div>
-                            <p style="color: var(--zinc-200); font-size: var(--text-sm); line-height: 1.5;">I'll create 4 portrait concepts in "The White Space Executive" aesthetic, plus 1 strategic flatlay that builds your advisory brand world.</p>
+                            <p style="color: var(--zinc-200); font-size: var(--text-sm); line-height: 1.5;">I'll create 5 different photos for you - close-ups, half body shots, and lifestyle scenes that work together like a perfect Instagram feed.</p>
                         </div>
-                        <p class="body-text" style="margin-top: var(--space-lg); font-size: var(--text-xs);">Maya's conversational interface uses earthy accents and sophisticated typography to create trust and creative confidence.</p>
+                        <p class="body-text" style="margin-top: var(--space-lg); font-size: var(--text-xs);">Maya's chat feels warm and personal, like talking to your most stylish friend who really gets photography.</p>
                     </div>
                 </div>
                 
                 <div style="background: var(--zinc-900); border-radius: var(--radius-xl); padding: var(--space-2xl); margin-top: var(--space-3xl); text-align: center;">
                     <div style="display: flex; align-items: center; justify-content: center; gap: var(--space-md); margin-bottom: var(--space-lg);">
                         <img src="https://i.postimg.cc/fTtCnzZv/out-1-22.png" alt="Maya" class="maya-profile">
-                        <h3 class="title-subsection" style="margin: 0;">Ready for World-Class Visual Direction?</h3>
+                        <h3 class="title-subsection" style="margin: 0;">Ready for Amazing Photos?</h3>
                     </div>
-                    <p class="body-large" style="margin-bottom: var(--space-xl);">Maya combines AI intelligence with art director expertise to create editorial-quality concepts that elevate your personal brand.</p>
+                    <p class="body-large" style="margin-bottom: var(--space-xl);">Maya creates Instagram-worthy photos that make you look incredible and help grow your business. Every photo feels authentically you, just elevated.</p>
                     <button class="btn-primary" style="max-width: 300px;">
-                        <span>Start Creating with Maya</span>
+                        <span>Start Taking Photos with Maya</span>
                     </button>
                 </div>
             </div>
