@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SSELFIEChat } from './SSELFIEChat';
 import { GalleryScreen } from './GalleryScreen';
 import { StudioScreen } from './StudioScreen';
 import { ProfileScreen } from './ProfileScreen';
 import { AccountScreen } from './AccountScreen';
 import { useAuth } from '../hooks/use-auth';
-import { Camera, Grid, User, Settings, MessageCircle } from 'lucide-react';
+import { ThemeToggle } from './ThemeToggle';
+import { Camera, Grid, User, Settings, MessageCircle, Bell, Battery, Signal, Wifi } from 'lucide-react';
 
 // Editorial Tab Configuration - Clean and Focused
 const createTabs = (user: { name?: string; email?: string; image?: string }) => [
@@ -49,10 +50,28 @@ const createTabs = (user: { name?: string; email?: string; image?: string }) => 
 // Main MobileTabLayout Component - Editorial Luxury Redesign
 function MobileTabLayout() {
   const [activeTab, setActiveTab] = useState('studio');
-  const { user } = useAuth();
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [batteryLevel, setBatteryLevel] = useState(85);
+  const [hasNotifications, setHasNotifications] = useState(true);
+  const { user, isAuthenticated } = useAuth();
   
   const tabs = createTabs(user || {});
   const currentTab = tabs.find(tab => tab.id === activeTab);
+
+  // Status bar timer
+  useEffect(() => {
+    const clockTimer = setInterval(() => setCurrentTime(new Date()), 1000);
+    
+    // Simulate battery level changes
+    const batteryTimer = setInterval(() => {
+      setBatteryLevel(prev => Math.max(20, prev - Math.random() * 2));
+    }, 30000);
+    
+    return () => {
+      clearInterval(clockTimer);
+      clearInterval(batteryTimer);
+    };
+  }, []);
 
   const handleTabChange = (tabId: string) => {
     setActiveTab(tabId);
@@ -60,6 +79,43 @@ function MobileTabLayout() {
 
   return (
     <div className="flex flex-col h-full bg-transparent">
+      {/* Status Bar */}
+      <div className="luxury-status-bar">
+        <div className="luxury-status-time">
+          {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+        </div>
+        <div className="luxury-status-indicators">
+          <div className="luxury-status-indicator">
+            <div className="w-1 h-4 bg-white rounded-full" />
+            <div className="w-1 h-4 bg-white/60 rounded-full" />
+            <div className="w-1 h-4 bg-white/30 rounded-full" />
+          </div>
+          
+          {isAuthenticated && user && (
+            <div className="luxury-status-indicator">
+              <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
+              <span className="text-xs tracking-wide font-light">ONLINE</span>
+            </div>
+          )}
+          
+          <div className="luxury-status-indicator">
+            <ThemeToggle />
+          </div>
+          
+          <div className="luxury-status-indicator">
+            <Bell size={14} strokeWidth={1.2} />
+            {hasNotifications && (
+              <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+            )}
+          </div>
+          
+          <div className="luxury-status-indicator">
+            <Battery size={14} strokeWidth={1.2} />
+            <span className="text-xs">{Math.round(batteryLevel)}%</span>
+          </div>
+        </div>
+      </div>
+
       {/* Editorial Header */}
       <div className="luxury-header-container">
         <div className="luxury-brand-mark">
@@ -74,15 +130,16 @@ function MobileTabLayout() {
 
       {/* Main Content Area */}
       <main 
-        className="flex-1 pb-24 overflow-y-auto overscroll-behavior-y-contain"
+        className="flex-1 pb-32 overflow-y-auto overscroll-behavior-y-contain"
         style={{
           paddingLeft: 'env(safe-area-inset-left)',
-          paddingRight: 'env(safe-area-inset-right)'
+          paddingRight: 'env(safe-area-inset-right)',
+          paddingBottom: 'calc(8rem + env(safe-area-inset-bottom))'
         }}
         role="main" 
         aria-label="Main content"
       >
-        <div className="px-6 py-8 min-h-full">
+        <div className="px-6 py-6 min-h-full">
           <div className="luxury-fade-in">
             {currentTab?.component}
           </div>
@@ -97,7 +154,8 @@ function MobileTabLayout() {
         style={{
           paddingBottom: 'env(safe-area-inset-bottom)',
           paddingLeft: 'env(safe-area-inset-left)',
-          paddingRight: 'env(safe-area-inset-right)'
+          paddingRight: 'env(safe-area-inset-right)',
+          zIndex: 9999
         }}
       >
         <div className="luxury-tab-container">

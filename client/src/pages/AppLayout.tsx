@@ -69,53 +69,8 @@ export function AppLayout() {
       {/* Sophisticated gradient backdrop */}
       <div className="luxury-gradient-bg" />
       
-      {/* Main app container with enhanced glass morphism */}
-      <div className="luxury-mobile-wrapper">
-        <div className="luxury-glass-container h-full overflow-hidden">
-          
-          {/* Editorial status bar */}
-          <div className="luxury-status-bar">
-            <div className="luxury-status-time">
-              {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-            </div>
-            <div className="luxury-status-indicators">
-              <div className="luxury-status-indicator">
-                <div className="w-1 h-4 bg-white rounded-full" />
-                <div className="w-1 h-4 bg-white/60 rounded-full" />
-                <div className="w-1 h-4 bg-white/30 rounded-full" />
-              </div>
-              
-              {isAuthenticated && user && (
-                <div className="luxury-status-indicator">
-                  <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
-                  <span className="text-xs tracking-wide font-light">ONLINE</span>
-                </div>
-              )}
-              
-              <div className="luxury-status-indicator">
-                <ThemeToggle />
-              </div>
-              
-              <div className="luxury-status-indicator">
-                <Bell size={14} strokeWidth={1.2} />
-                {hasNotifications && (
-                  <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                )}
-              </div>
-              
-              <div className="luxury-status-indicator">
-                <Battery size={14} strokeWidth={1.2} />
-                <span className="text-xs">{Math.round(batteryLevel)}%</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Content area */}
-          <div className="luxury-content">
-            <MobileTabLayout />
-          </div>
-        </div>
-      </div>
+      {/* Render MobileTabLayout directly without wrapper to avoid double layout */}
+      <MobileTabLayout />
     </div>
   );
 }
