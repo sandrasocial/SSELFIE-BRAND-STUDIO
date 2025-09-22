@@ -1,5 +1,4 @@
 import { setupEnhancementRoutes } from './services/backend-enhancement-services';
-// import { startVeoVideo, getVeoStatus } from './services/veo-service'; // DISABLED
 import type { Express } from "express";
 import express from "express";
 import { createServer, type Server } from "http";
@@ -14,32 +13,16 @@ import emailAutomation from './routes/email-automation';
 import victoriaWebsiteRouter from "./routes/victoria-website";
 import { registerVictoriaService } from "./routes/victoria-service";
 import { registerVictoriaWebsiteGenerator } from "./routes/victoria-website-generator";
-// import subscriberImportRouter from './routes/subscriber-import'; // DISABLED
-// REMOVED: Conflicting admin routers - consolidated into single adminRouter
-// import { whitelabelRoutes } from './routes/white-label-setup'; // DISABLED
 import videoRoutes from './routes/video';
 import { liveSessionRoutes } from './routes/live-session';
 import { analyticsRoutes } from './routes/analytics';
-// NOTE: Disabled legacy Maya route to prevent conflicts with modular Maya routes
-// import mayaRoutes from './routes/maya'; // DISABLED: Using modular Maya routes instead
 import path from 'path';
 import fs from 'fs';
 import { ModelRetrainService } from './retrain-model';
 import { setupVite } from './vite';
-// import { generateWebsiteHTML } from './services/website-generator'; // DISABLED
 import emailManagementRouter from './routes/email-management-routes';
 import { registerCheckoutRoutes } from './routes/checkout';
-// PHASE 4: OLD MAYA ROUTES ARCHIVED (Comment out old fragmented routes)
-// import { registerMayaAIRoutes } from './routes/maya-ai-routes';
-// import mayaOnboardingRoutes from './routes/maya-onboarding-routes';
-// MAYA UNIFIED: Maya now accessed via consolidated router
-// import mayaUnifiedRouter from './routes/maya-unified'; // REMOVED: Direct integration replaced with façade
 import supportEscalationRouter from './routes/support-escalation';
-// UNIFIED ADMIN SYSTEM imports
-// import consultingAgentsRouter from './routes/consulting-agents-routes'; // DISABLED
-// import agentHandoffRouter from './routes/agent-handoff-routes'; // DISABLED
-// import adminRouter from './routes/admin'; // DISABLED
-// import adminCacheRouter from './routes/admin-cache-management'; // DISABLED
 import adminEmpireApiRouter from './routes/admin-empire-api';
 import memberProtectionRouter from './routes/member-protection';
 import systemValidationRouter from './routes/system-validation';
@@ -57,9 +40,6 @@ import levelPartnerWebhook from './routes/levelpartner-webhook';
 import hairTrendsRoute from './routes/hair-trends-route';
 import trendsCurrentRoute from './routes/trends-current';
 import { scheduleTrendAnalysis } from './scheduled-tasks/fetch-hair-trends';
-// DISABLED: Express routes conflict with Vercel serverless functions
-// import galleryRoutes from './routes/modules/gallery';
-// import mayaRoutes from './routes/modules/maya';
 import claudeRoutes from './routes/modules/claude';
 import usageRoutes from './routes/modules/usage';
 // Reconstructed wrapper function (previously removed during refactor cleanup)
@@ -78,8 +58,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/', authRoutes);
   app.use('/', aiGenerationRoutes);
   
-  // DISABLED: Stack Auth webhook now handled by Vercel serverless functions in /api/index.ts
-  // setupStackWebhook(app);
   app.use('/', adminRoutes);
   app.use('/', agentProtocolRoutes);
   app.use('/', websitesRoutes);
@@ -87,9 +65,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/', levelPartnerWebhook);
   app.use('/api', hairTrendsRoute);
   app.use('/api/trends', trendsCurrentRoute);
-  // DISABLED: Using Vercel serverless functions instead of Express routes
-  // app.use('/', galleryRoutes);
-  // app.use('/', mayaRoutes);
   app.use('/', claudeRoutes);
   app.use('/', usageRoutes);
   console.log('✅ Modular routes registered (including LevelPartner webhook and Hair Trends)');

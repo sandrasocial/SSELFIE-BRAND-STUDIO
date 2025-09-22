@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'wouter';
 import { SSELFIEChat } from './SSELFIEChat';
-import { GalleryScreen } from './GalleryScreen';
 import { StudioScreen } from './StudioScreen';
 import { ProfileScreen } from './ProfileScreen';
 import { AccountScreen } from './AccountScreen';
@@ -29,7 +29,8 @@ const createTabs = (user: { name?: string; email?: string; image?: string }) => 
     label: 'Gallery',
     icon: Grid,
     description: 'Your photo collection',
-    component: <GalleryScreen />
+    isRoute: true,
+    route: '/sselfie-gallery'
   },
   {
     id: 'profile',
@@ -54,6 +55,7 @@ function MobileTabLayout() {
   const [batteryLevel, setBatteryLevel] = useState(85);
   const [hasNotifications, setHasNotifications] = useState(true);
   const { user, isAuthenticated } = useAuth();
+  const [, setLocation] = useLocation();
   
   const tabs = createTabs(user || {});
   const currentTab = tabs.find(tab => tab.id === activeTab);
@@ -74,7 +76,14 @@ function MobileTabLayout() {
   }, []);
 
   const handleTabChange = (tabId: string) => {
-    setActiveTab(tabId);
+    const tab = tabs.find(t => t.id === tabId);
+    if (tab?.isRoute && tab.route) {
+      // Navigate to the full page route
+      setLocation(tab.route);
+    } else {
+      // Switch to the tab component
+      setActiveTab(tabId);
+    }
   };
 
   return (
@@ -141,7 +150,11 @@ function MobileTabLayout() {
       >
         <div className="px-6 py-6 min-h-full">
           <div className="luxury-fade-in">
-            {currentTab?.component}
+            {currentTab?.component || (
+              <div className="text-center py-12">
+                <p className="luxury-text-caption">Content will load in new page</p>
+              </div>
+            )}
           </div>
         </div>
       </main>
