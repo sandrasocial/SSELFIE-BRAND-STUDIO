@@ -34,7 +34,7 @@ export function SSELFIEChat() {
       setMessages([{
         id: '1',
         type: 'maya',
-        content: "Hello beautiful! I'm SSELFIE, your AI brand strategist. Ready to create photos that make you look absolutely unstoppable? Tell me your vision and I'll design the perfect concepts.",
+        content: "Hey! Ready to create some stunning photos? I'm Maya, your AI stylist and brand strategist. What are we styling today?",
         timestamp: new Date().toISOString()
       }]);
     }
@@ -62,7 +62,7 @@ export function SSELFIEChat() {
       const mayaMessage: ChatMessage = {
         id: Date.now().toString(),
         type: 'maya',
-        content: data.response || data.content || "Darling, something went perfectly wrong, but I've got you! Let's create something amazing together.",
+        content: data.response || data.content || "I can see what you're going for—here's how to nail it! Let's create something that'll photograph beautifully.",
         timestamp: new Date().toISOString(),
         conceptCards: data.conceptCards || []
       };
@@ -78,14 +78,14 @@ export function SSELFIEChat() {
       const fallbackMessage: ChatMessage = {
         id: Date.now().toString(),
         type: 'maya',
-        content: "Slight technical hiccup, but nothing stops a boss babe! While I reconnect, describe your dream photo shoot and I'll have concepts ready the moment I'm back.",
+        content: "Quick tech hiccup on my end! While I reconnect, tell me about your business—what kind of clients do you want to attract?",
         timestamp: new Date().toISOString()
       };
       
       setMessages(prev => [...prev, fallbackMessage]);
       toast({ 
-        title: "SSELFIE Reconnecting", 
-        description: "Your brand strategist will be right back!" 
+        title: "Maya Reconnecting", 
+        description: "Your stylist will be right back!" 
       });
     }
   });
@@ -151,7 +151,7 @@ export function SSELFIEChat() {
           )
         })));
 
-        toast({ title: "Stunning Work!", description: "Your luxury photos are ready to download." });
+        toast({ title: "Photos Ready!", description: "This will photograph beautifully!" });
       } else {
         throw new Error('Creative systems temporarily offline');
       }
@@ -167,8 +167,8 @@ export function SSELFIEChat() {
       })));
 
       toast({ 
-        title: "Studio Momentarily Busy", 
-        description: "Your photos are in high demand! Try again in just a moment." 
+        title: "Quick Styling Pause", 
+        description: "Let me try that again—you're going to love the result!" 
       });
     }
   };
