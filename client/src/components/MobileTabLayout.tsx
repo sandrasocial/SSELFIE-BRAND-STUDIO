@@ -295,7 +295,7 @@ function MobileTabLayout() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col overflow-x-hidden bg-editorial-background" style={{ WebkitOverflowScrolling: 'touch' }}>
+    <div className="min-h-screen flex flex-col overflow-x-hidden bg-neutral-950" style={{ WebkitOverflowScrolling: 'touch' }}>
       {/* Enhanced Editorial Breadcrumb with Luxury Styling */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-800/20 bg-gradient-to-r from-neutral-950/20 to-transparent sticky top-0 z-40 backdrop-blur-sm">
         <div className="flex items-center gap-3">
