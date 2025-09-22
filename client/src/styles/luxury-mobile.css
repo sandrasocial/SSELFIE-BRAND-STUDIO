@@ -129,7 +129,9 @@ body {
 
 /* Content Area */
 .luxury-content {
-  padding: var(--space-xl);
+  padding: var(--space-xl) var(--space-md);
+  padding-top: calc(5rem + env(safe-area-inset-top));
+  padding-bottom: calc(8rem + env(safe-area-inset-bottom));
   flex: 1;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
@@ -213,20 +215,28 @@ body {
 
 /* Status Bar */
 .luxury-status-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9998;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: var(--space-md) var(--space-xl);
+  padding: env(safe-area-inset-top) var(--space-md) var(--space-sm) var(--space-md);
+  background: rgba(0, 0, 0, 0.9);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.02) 50%, transparent 100%);
+  min-height: 2.5rem;
 }
 
 .luxury-status-time {
   font-family: var(--font-sans);
-  font-size: 1rem;
-  font-weight: 300;
-  letter-spacing: 0.1em;
-  color: var(--luxury-zinc-200);
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  color: var(--luxury-white);
 }
 
 .luxury-status-indicators {
@@ -245,6 +255,23 @@ body {
   border-radius: var(--radius-md);
   font-size: 0.75rem;
   color: var(--luxury-zinc-400);
+}
+
+/* Header Container */
+.luxury-header-container {
+  position: sticky;
+  top: calc(2.5rem + env(safe-area-inset-top));
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.9);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: var(--space-lg) var(--space-md) var(--space-md) var(--space-md);
+  text-align: center;
+}
+
+.luxury-brand-mark {
+  margin-bottom: var(--space-xs);
 }
 
 /* Floating Tab Bar */
@@ -745,12 +772,12 @@ body {
 /* =================================================================== */
 
 .luxury-tab-content {
-  height: 100%;
-  padding: var(--space-xl);
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: var(--space-xl);
+  gap: var(--space-lg);
+  height: 100%;
+  padding: 0; /* Remove duplicate padding since luxury-content handles it */
+  overflow-y: auto;
 }
 
 .luxury-tab-header {
