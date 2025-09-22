@@ -657,9 +657,9 @@ function generatePersonalizedScenePrompt(sceneNumber: number, originalMessage: s
   const instagramManagementRouter = await import('./routes/instagram-management');
   app.use('/api/instagram-management', instagramManagementRouter.default);
   
-  // 🧪 Slack Integration Testing Routes
-  const slackTestRouter = await import('./routes/slack-test');
-  app.use('/api/slack', slackTestRouter.default);
+  // 🧪 Slack Integration Testing Routes (DISABLED - moved to legacy)
+  // const slackTestRouter = await import('./routes/slack-test');
+  // app.use('/api/slack', slackTestRouter.default);
   
   // Subscriber import routes
   // const subscriberImport = await import('./routes/subscriber-import'); // DISABLED
@@ -1166,11 +1166,11 @@ Remember: You are the MEMBER experience Maya - provide creative guidance and ima
   // app.use('/api/slack', slackInteractivityRouter.default); // DISABLED
   console.log('✅ SLACK: Interactive agent conversation system connected');
 
-  // Connect Slack Testing Routes
-  const testSlackAgentsRouter = await import('./routes/test-slack-agents');
-  app.use('/api/test-slack-agents', testSlackAgentsRouter.default);
-  app.use('/api/test-slack', testSlackAgentsRouter.default);
-  console.log('✅ SLACK: Agent testing interface ready');
+  // Connect Slack Testing Routes (DISABLED - moved to legacy)
+  // const testSlackAgentsRouter = await import('./routes/test-slack-agents');
+  // app.use('/api/test-slack-agents', testSlackAgentsRouter.default);
+  // app.use('/api/test-slack', testSlackAgentsRouter.default);
+  // console.log('✅ SLACK: Agent testing interface ready');
 
   console.log('✅ MONITORING: All monitors active - Generation, Training, URL Migration protecting user experience!');
   
