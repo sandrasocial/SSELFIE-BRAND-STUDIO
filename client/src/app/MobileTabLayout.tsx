@@ -40,7 +40,7 @@ const createTabs = (user: { name?: string; email?: string; image?: string }) => 
     label: 'Gallery',
     icon: Grid,
     description: 'Your photo collection',
-    component: <GalleryTabScreen />
+    route: '/gallery'
   },
   {
     id: 'profile',
