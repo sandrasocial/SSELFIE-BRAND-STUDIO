@@ -39,15 +39,6 @@
     "api/ping.ts": {
       "maxDuration": 3
     },
-    "api/test.ts": {
-      "maxDuration": 8
-    },
-    "api/test-neon-connection.ts": {
-      "maxDuration": 10
-    },
-    "api/test-serverless-db.ts": {
-      "maxDuration": 15
-    },
     "api/hair-leads.ts": {
       "maxDuration": 10
     }
