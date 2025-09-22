@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SSELFIE | Complete Design System & Brand Guidelines</title>
+    <title>SSELFIE | Complete Design System & Maya's Creative Intelligence</title>
     <style>
         * {
             margin: 0;
@@ -12,9 +12,11 @@
         }
         
         :root {
-            /* Editorial Color System */
+            /* Enhanced Color System */
             --black: #000000;
             --white: #ffffff;
+            --cream: #faf9f7;
+            --warm-white: #f8f7f4;
             --zinc-50: #fafafa;
             --zinc-100: #f4f4f5;
             --zinc-200: #e4e4e7;
@@ -27,12 +29,19 @@
             --zinc-900: #18181b;
             --zinc-950: #09090b;
             
+            /* Stone Accent Colors */
+            --stone-light: #c0c0c0;
+            --stone-medium: #888888;
+            --warm-gray: #8b8680;
+            --sage: #9caa9c;
+            --stone: #b5a991;
+            
             /* Status Colors */
             --green-500: #22c55e;
             --red-500: #ef4444;
             --yellow-500: #eab308;
             
-            /* Editorial Spacing System */
+            /* Enhanced Spacing */
             --space-xs: 8px;
             --space-sm: 16px;
             --space-md: 24px;
@@ -41,6 +50,7 @@
             --space-2xl: 64px;
             --space-3xl: 96px;
             --space-4xl: 128px;
+            --space-5xl: 160px;
             
             /* Typography Scale */
             --text-xs: 12px;
@@ -56,6 +66,18 @@
             --text-7xl: 72px;
             --text-8xl: 96px;
             --text-9xl: 128px;
+            
+            /* Shadows */
+            --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.1);
+            --shadow-medium: 0 8px 40px rgba(0, 0, 0, 0.12);
+            --shadow-strong: 0 20px 60px rgba(0, 0, 0, 0.15);
+            
+            /* Border Radius */
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            --radius-2xl: 32px;
         }
         
         body {
@@ -69,393 +91,240 @@
         }
         
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 var(--space-md);
+        }
+        
+        .wide-container {
+            max-width: 1600px;
             margin: 0 auto;
             padding: 0 var(--space-md);
         }
         
         .section {
-            padding: var(--space-4xl) 0;
+            padding: var(--space-5xl) 0;
             border-bottom: 1px solid var(--zinc-800);
+            position: relative;
         }
         
         .section:last-child {
             border-bottom: none;
         }
         
-        /* Typography Classes */
+        /* Enhanced Typography */
         .title-hero {
             font-family: 'Times New Roman', serif;
-            font-size: clamp(var(--text-6xl), 8vw, var(--text-8xl));
-            font-weight: 200;
-            line-height: 0.85;
-            letter-spacing: 0.4em;
+            font-size: clamp(var(--text-6xl), 8vw, 120px);
+            font-weight: 100;
+            line-height: 0.8;
+            letter-spacing: 0.5em;
             text-transform: uppercase;
             margin-bottom: var(--space-xl);
+            background: linear-gradient(135deg, var(--white) 0%, var(--zinc-300) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
         
         .title-section {
             font-family: 'Times New Roman', serif;
-            font-size: clamp(var(--text-4xl), 6vw, var(--text-6xl));
-            font-weight: 200;
+            font-size: clamp(var(--text-3xl), 5vw, var(--text-6xl));
+            font-weight: 100;
             line-height: 0.9;
             letter-spacing: 0.3em;
             text-transform: uppercase;
             margin-bottom: var(--space-2xl);
+            position: relative;
+        }
+        
+        .title-section::after {
+            content: '';
+            position: absolute;
+            bottom: -var(--space-lg);
+            left: 0;
+            width: 60px;
+            height: 2px;
+            background: var(--stone-medium);
         }
         
         .title-subsection {
             font-family: 'Times New Roman', serif;
-            font-size: clamp(var(--text-2xl), 4vw, var(--text-4xl));
+            font-size: clamp(var(--text-lg), 2.5vw, var(--text-2xl));
             font-weight: 200;
-            line-height: 1;
-            letter-spacing: 0.2em;
+            line-height: 1.1;
+            letter-spacing: 0.15em;
             text-transform: uppercase;
             margin-bottom: var(--space-lg);
         }
         
         .eyebrow {
             font-size: var(--text-xs);
-            font-weight: 300;
-            letter-spacing: 0.3em;
+            font-weight: 400;
+            letter-spacing: 0.4em;
             text-transform: uppercase;
-            color: var(--zinc-500);
+            color: var(--stone-light);
             margin-bottom: var(--space-lg);
+            position: relative;
+        }
+        
+        .eyebrow::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            right: -var(--space-xl);
+            width: 40px;
+            height: 1px;
+            background: var(--stone-light);
+            opacity: 0.6;
         }
         
         .body-text {
-            font-size: clamp(var(--text-base), 2vw, var(--text-lg));
-            line-height: 1.7;
+            font-size: clamp(var(--text-sm), 1.5vw, var(--text-base));
+            line-height: 1.8;
             font-weight: 300;
             color: var(--zinc-300);
             max-width: 65ch;
         }
         
         .body-large {
-            font-size: clamp(var(--text-lg), 2.5vw, var(--text-xl));
+            font-size: clamp(var(--text-base), 2vw, var(--text-xl));
             line-height: 1.6;
             font-weight: 300;
             color: var(--zinc-200);
-            max-width: 60ch;
+            max-width: 50ch;
         }
         
-        /* Color Showcase */
-        .color-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: var(--space-xl);
-            margin: var(--space-2xl) 0;
-        }
-        
-        .color-group {
-            background: var(--zinc-900);
-            border: 1px solid var(--zinc-800);
-            border-radius: 16px;
-            padding: var(--space-xl);
-        }
-        
-        .color-sample {
-            margin-bottom: var(--space-lg);
-        }
-        
-        .color-swatch {
-            height: 80px;
-            border-radius: 8px;
-            margin-bottom: var(--space-sm);
-            border: 1px solid var(--zinc-700);
-        }
-        
-        .color-name {
-            font-family: 'Times New Roman', serif;
-            font-weight: 200;
-            letter-spacing: 0.2em;
-            text-transform: uppercase;
-            margin-bottom: var(--space-xs);
-            color: var(--white);
-        }
-        
-        .color-code {
-            font-family: 'Monaco', 'Menlo', monospace;
-            font-size: var(--text-sm);
-            color: var(--zinc-400);
-            margin-bottom: var(--space-xs);
-        }
-        
-        .color-usage {
-            font-size: var(--text-sm);
-            color: var(--zinc-500);
-            line-height: 1.5;
-        }
-        
-        /* Typography Showcase */
-        .type-example {
-            padding: var(--space-xl) 0;
-            border-bottom: 1px solid var(--zinc-900);
-        }
-        
-        .type-example:last-child {
-            border-bottom: none;
-        }
-        
-        .type-label {
-            font-size: var(--text-xs);
-            color: var(--zinc-500);
-            letter-spacing: 0.3em;
-            text-transform: uppercase;
-            margin-bottom: var(--space-md);
-        }
-        
-        /* Component Examples */
-        .component-grid {
-            display: grid;
-            gap: var(--space-xl);
-            margin: var(--space-2xl) 0;
-        }
-        
-        .component-example {
-            background: var(--zinc-900);
-            border: 1px solid var(--zinc-800);
-            border-radius: 16px;
-            padding: var(--space-xl);
-        }
-        
-        /* Button Examples */
-        .btn-primary {
-            background: var(--white);
-            color: var(--black);
-            border: none;
-            padding: var(--space-lg) var(--space-xl);
-            border-radius: 12px;
-            font-size: var(--text-sm);
-            font-weight: 300;
-            letter-spacing: 0.2em;
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: all 300ms ease;
+        /* Hero Section with Visual Impact */
+        .hero-section {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.02) 0%, transparent 70%);
             position: relative;
             overflow: hidden;
-            min-height: 48px;
+            padding: var(--space-2xl) 0;
         }
         
-        .btn-primary::before {
+        .hero-visual {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 50%;
+            height: 80vh;
+            background: linear-gradient(135deg, var(--zinc-900) 0%, var(--zinc-800) 100%);
+            border-radius: var(--radius-2xl);
+            opacity: 0.1;
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+        
+        /* Maya's Creative Lookbooks */
+        .lookbook-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--space-lg);
+            margin: var(--space-2xl) 0;
+        }
+        
+        .lookbook-card {
+            background: var(--zinc-900);
+            border: 1px solid var(--zinc-800);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            transition: all 500ms ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .lookbook-card::before {
             content: '';
             position: absolute;
             inset: 0;
-            background: var(--black);
-            transform: translateX(-100%);
-            transition: transform 500ms ease;
+            background: radial-gradient(circle at top right, rgba(192, 192, 192, 0.1) 0%, transparent 50%);
+            opacity: 0;
+            transition: opacity 500ms ease;
         }
         
-        .btn-primary:hover::before {
-            transform: translateX(0);
+        .lookbook-card:hover::before {
+            opacity: 1;
         }
         
-        .btn-primary:hover {
-            color: var(--white);
-            transform: scale(1.02);
+        .lookbook-card:hover {
+            border-color: rgba(192, 192, 192, 0.4);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-medium);
         }
         
-        .btn-primary > span {
-            position: relative;
-            z-index: 1;
-            transition: color 500ms ease;
-        }
-        
-        .btn-secondary {
-            background: transparent;
-            color: var(--white);
-            border: 1px solid var(--zinc-700);
-            padding: var(--space-lg) var(--space-xl);
-            border-radius: 12px;
-            font-size: var(--text-sm);
-            font-weight: 300;
-            letter-spacing: 0.2em;
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: all 300ms ease;
-            min-height: 48px;
-        }
-        
-        .btn-secondary:hover {
-            background: var(--zinc-800);
-            border-color: var(--zinc-600);
-            transform: scale(1.02);
-        }
-        
-        /* Card Examples */
-        .card-luxury {
-            background: linear-gradient(135deg, rgba(39, 39, 42, 0.2) 0%, rgba(24, 24, 27, 0.2) 100%);
-            border: 1px solid var(--zinc-700);
-            border-radius: 16px;
-            padding: var(--space-xl);
-            transition: all 500ms ease;
-        }
-        
-        .card-luxury:hover {
-            border-color: var(--zinc-600);
-            background: linear-gradient(135deg, rgba(39, 39, 42, 0.3) 0%, rgba(24, 24, 27, 0.3) 100%);
-        }
-        
-        /* Input Examples */
-        .input-luxury {
-            background: rgba(39, 39, 42, 0.3);
-            border: 1px solid var(--zinc-700);
-            border-radius: 12px;
-            padding: var(--space-lg);
-            color: var(--white);
-            font-size: var(--text-base);
-            font-weight: 300;
+        .lookbook-visual {
             width: 100%;
-            transition: all 300ms ease;
-        }
-        
-        .input-luxury::placeholder {
-            color: var(--zinc-500);
-        }
-        
-        .input-luxury:focus {
-            outline: none;
-            border-color: var(--zinc-600);
-            background: rgba(39, 39, 42, 0.5);
-        }
-        
-        /* Voice Guide Styles */
-        .voice-example {
-            background: var(--zinc-900);
-            border: 1px solid var(--zinc-800);
-            border-radius: 12px;
-            padding: var(--space-lg);
-            margin: var(--space-md) 0;
-        }
-        
-        .voice-do {
-            border-left: 4px solid var(--green-500);
-        }
-        
-        .voice-dont {
-            border-left: 4px solid var(--red-500);
-        }
-        
-        .voice-example-text {
-            font-style: italic;
-            color: var(--zinc-300);
-            margin-bottom: var(--space-sm);
-        }
-        
-        .voice-note {
-            font-size: var(--text-sm);
-            color: var(--zinc-500);
-        }
-        
-        /* Layout Grid */
-        .grid-demo {
-            display: grid;
-            grid-template-columns: repeat(12, 1fr);
-            gap: var(--space-md);
-            margin: var(--space-xl) 0;
-        }
-        
-        .grid-item {
-            background: var(--zinc-800);
-            border: 1px solid var(--zinc-700);
-            border-radius: 8px;
-            padding: var(--space-md);
-            text-align: center;
-            font-size: var(--text-sm);
-            color: var(--zinc-400);
-        }
-        
-        .col-3 { grid-column: span 3; }
-        .col-4 { grid-column: span 4; }
-        .col-6 { grid-column: span 6; }
-        .col-8 { grid-column: span 8; }
-        .col-12 { grid-column: span 12; }
-        
-        /* Mobile Responsiveness */
-        @media (max-width: 768px) {
-            .container {
-                padding: 0 var(--space-sm);
-            }
-            
-            .color-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .grid-demo {
-                grid-template-columns: repeat(4, 1fr);
-            }
-            
-            .col-3, .col-4, .col-6, .col-8 {
-                grid-column: span 4;
-            }
-        }
-        
-        /* Navigation */
-        .nav {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            background: rgba(0, 0, 0, 0.95);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--zinc-800);
-            z-index: 1000;
-            padding: var(--space-md) 0;
-        }
-        
-        .nav-container {
+            height: 200px;
+            background: linear-gradient(135deg, var(--zinc-700) 0%, var(--zinc-600) 100%);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--space-lg);
             display: flex;
-            justify-content: space-between;
             align-items: center;
-        }
-        
-        .nav-logo {
-            font-family: 'Times New Roman', serif;
-            font-size: var(--text-xl);
-            font-weight: 200;
-            letter-spacing: 0.3em;
-            text-transform: uppercase;
-            color: var(--white);
-        }
-        
-        .nav-links {
-            display: flex;
-            gap: var(--space-xl);
-            list-style: none;
-        }
-        
-        .nav-links a {
+            justify-content: center;
             color: var(--zinc-400);
-            text-decoration: none;
             font-size: var(--text-sm);
-            font-weight: 300;
-            letter-spacing: 0.2em;
+            position: relative;
+        }
+        
+        .lookbook-tag, .concept-type {
+            background: rgba(192, 192, 192, 0.1);
+            border: 1px solid rgba(192, 192, 192, 0.3);
+            color: var(--stone-light);
+            padding: var(--space-xs) var(--space-sm);
+            border-radius: 20px;
+            font-size: var(--text-xs);
+            letter-spacing: 0.1em;
             text-transform: uppercase;
-            transition: color 300ms ease;
+            display: inline-block;
+            margin-bottom: var(--space-md);
         }
         
-        .nav-links a:hover {
-            color: var(--white);
-        }
-        
-        /* Content offset for fixed nav */
-        .main-content {
-            margin-top: 80px;
-        }
-        
-        /* Maya Chat Example */
-        .maya-chat {
-            background: var(--zinc-900);
-            border: 1px solid var(--zinc-800);
-            border-radius: 16px;
-            overflow: hidden;
-            max-width: 600px;
+        /* Maya's Profile Integration */
+        .maya-profile {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid var(--greyge);
+            object-fit: cover;
         }
         
         .maya-header {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
             background: var(--zinc-800);
             padding: var(--space-lg);
             border-bottom: 1px solid var(--zinc-700);
+        }
+        
+        .maya-info h4 {
+            color: var(--white);
+            margin-bottom: var(--space-xs);
+            font-size: var(--text-base);
+            font-weight: 300;
+        }
+        
+        .maya-info p {
+            color: var(--greyge);
+            font-size: var(--text-sm);
+        }
+        
+        /* Enhanced Chat Interface */
+        .maya-chat {
+            background: var(--zinc-900);
+            border: 1px solid var(--zinc-800);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            max-width: 100%;
+            margin: var(--space-xl) 0;
         }
         
         .maya-messages {
@@ -466,50 +335,100 @@
         
         .message {
             margin-bottom: var(--space-lg);
+            display: flex;
+            flex-direction: column;
         }
         
-        .message-user {
-            text-align: right;
+        .message.user {
+            align-items: flex-end;
+        }
+        
+        .message.maya {
+            align-items: flex-start;
         }
         
         .message-content {
-            display: inline-block;
             background: var(--zinc-800);
             padding: var(--space-md) var(--space-lg);
-            border-radius: 12px;
-            max-width: 80%;
+            border-radius: var(--radius-md);
+            max-width: 85%;
             color: var(--zinc-200);
             font-size: var(--text-sm);
             line-height: 1.5;
+            position: relative;
         }
         
-        .message-user .message-content {
-            background: var(--zinc-700);
+        .message.maya .message-content {
+            background: linear-gradient(135deg, rgba(163, 144, 129, 0.1) 0%, rgba(163, 144, 129, 0.05) 100%);
+            border: 1px solid rgba(163, 144, 129, 0.2);
+            color: var(--white);
         }
         
-        .maya-input {
-            padding: var(--space-lg);
-            border-top: 1px solid var(--zinc-800);
+        .message-header {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            margin-bottom: var(--space-sm);
+        }
+        
+        .message-header .maya-profile {
+            width: 24px;
+            height: 24px;
+        }
+        
+        .message-header span {
+            font-size: var(--text-xs);
+            color: var(--greyge);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+        
+        /* Concept Cards Showcase */
+        .concept-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: var(--space-lg);
+            margin: var(--space-2xl) 0;
         }
         
         .concept-card {
             background: linear-gradient(135deg, rgba(39, 39, 42, 0.2) 0%, rgba(24, 24, 27, 0.2) 100%);
             border: 1px solid var(--zinc-700);
-            border-radius: 16px;
+            border-radius: var(--radius-lg);
             padding: var(--space-lg);
-            margin: var(--space-md) 0;
+            transition: all 500ms ease;
         }
         
-        .concept-category {
-            background: rgba(39, 39, 42, 0.5);
-            border: 1px solid var(--zinc-600);
-            border-radius: 20px;
-            padding: var(--space-xs) var(--space-md);
-            display: inline-block;
+        .concept-card:hover {
+            border-color: var(--zinc-600);
+            background: linear-gradient(135deg, rgba(39, 39, 42, 0.3) 0%, rgba(24, 24, 27, 0.3) 100%);
+        }
+        
+        .concept-visual {
+            width: 100%;
+            height: 180px;
+            background: linear-gradient(135deg, var(--zinc-700) 0%, var(--zinc-600) 100%);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--space-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--zinc-500);
             font-size: var(--text-xs);
-            color: var(--zinc-300);
             letter-spacing: 0.1em;
             text-transform: uppercase;
+        }
+        
+        .concept-type {
+            background: rgba(163, 144, 129, 0.1);
+            border: 1px solid rgba(163, 144, 129, 0.3);
+            color: var(--greyge);
+            padding: var(--space-xs) var(--space-sm);
+            border-radius: 20px;
+            font-size: var(--text-xs);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            display: inline-block;
             margin-bottom: var(--space-md);
         }
         
@@ -529,21 +448,415 @@
             line-height: 1.6;
             margin-bottom: var(--space-lg);
         }
+        
+        /* Enhanced Color System */
+        .color-system {
+            margin: var(--space-3xl) 0;
+        }
+        
+        .color-hero {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-2xl);
+            margin-bottom: var(--space-3xl);
+            align-items: center;
+        }
+        
+        .color-demo {
+            background: var(--zinc-900);
+            border-radius: var(--radius-xl);
+            padding: var(--space-2xl);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .color-demo::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--black) 0%, var(--zinc-600) 50%, var(--white) 100%);
+        }
+        
+        .color-palette {
+            display: flex;
+            gap: var(--space-xs);
+            margin: var(--space-lg) 0;
+            flex-wrap: wrap;
+        }
+        
+        .color-swatch-mini {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--zinc-700);
+        }
+        
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: var(--space-xl);
+            margin: var(--space-2xl) 0;
+        }
+        
+        .color-group {
+            background: var(--zinc-900);
+            border: 1px solid var(--zinc-800);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            box-shadow: var(--shadow-soft);
+        }
+        
+        .color-sample {
+            margin-bottom: var(--space-lg);
+        }
+        
+        .color-swatch {
+            height: 80px;
+            border-radius: var(--radius-md);
+            margin-bottom: var(--space-sm);
+            border: 1px solid var(--zinc-700);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .color-swatch::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(45deg, transparent 45%, rgba(255, 255, 255, 0.1) 50%, transparent 55%);
+        }
+        
+        /* Premium Button Styles */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--white) 0%, var(--zinc-100) 100%);
+            color: var(--black);
+            border: none;
+            padding: var(--space-lg) var(--space-xl);
+            border-radius: var(--radius-md);
+            font-size: var(--text-sm);
+            font-weight: 400;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 400ms ease;
+            position: relative;
+            overflow: hidden;
+            min-height: 48px;
+            box-shadow: var(--shadow-soft);
+            width: 100%;
+        }
+        
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, var(--black) 0%, var(--zinc-800) 100%);
+            transform: translateY(100%);
+            transition: transform 400ms ease;
+        }
+        
+        .btn-primary:hover::before {
+            transform: translateY(0);
+        }
+        
+        .btn-primary:hover {
+            color: var(--white);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+        
+        .btn-primary > span {
+            position: relative;
+            z-index: 1;
+            transition: color 400ms ease;
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            color: var(--white);
+            border: 1px solid var(--zinc-600);
+            padding: var(--space-lg) var(--space-xl);
+            border-radius: var(--radius-md);
+            font-size: var(--text-sm);
+            font-weight: 400;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 300ms ease;
+            min-height: 48px;
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+        }
+        
+        .btn-secondary::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: var(--zinc-800);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 300ms ease;
+        }
+        
+        .btn-secondary:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .btn-secondary:hover {
+            border-color: var(--stone-medium);
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary > span {
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Navigation Enhancement */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--zinc-800);
+            z-index: 1000;
+            padding: var(--space-md) 0;
+            transition: all 300ms ease;
+        }
+        
+        .nav.scrolled {
+            background: rgba(0, 0, 0, 0.95);
+            border-bottom-color: var(--zinc-700);
+        }
+        
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .nav-logo {
+            font-family: 'Times New Roman', serif;
+            font-size: var(--text-xl);
+            font-weight: 100;
+            letter-spacing: 0.4em;
+            text-transform: uppercase;
+            color: var(--white);
+            position: relative;
+        }
+        
+        .nav-logo::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 30px;
+            height: 1px;
+            background: var(--stone-medium);
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: var(--space-lg);
+            list-style: none;
+        }
+        
+        .nav-links a {
+            color: var(--zinc-400);
+            text-decoration: none;
+            font-size: var(--text-sm);
+            font-weight: 300;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            transition: all 300ms ease;
+            position: relative;
+        }
+        
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 1px;
+            background: var(--stone-medium);
+            transition: width 300ms ease;
+        }
+        
+        .nav-links a:hover {
+            color: var(--white);
+        }
+        
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+        
+        .main-content {
+            margin-top: 0;
+        }
+        
+        /* Mobile Optimizations */
+        @media (max-width: 1024px) {
+            .hero-visual {
+                display: none;
+            }
+            
+            .color-hero {
+                grid-template-columns: 1fr;
+            }
+            
+            .lookbook-grid {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            }
+        }
+        
+        @media (max-width: 768px) {
+            :root {
+                --space-5xl: 80px;
+                --space-4xl: 64px;
+                --space-3xl: 48px;
+            }
+            
+            .container, .wide-container {
+                padding: 0 var(--space-sm);
+            }
+            
+            .section {
+                padding: var(--space-3xl) 0;
+            }
+            
+            .hero-section {
+                min-height: 80vh;
+                padding: var(--space-xl) 0;
+            }
+            
+            .title-hero {
+                font-size: clamp(var(--text-4xl), 12vw, var(--text-6xl));
+                letter-spacing: 0.3em;
+            }
+            
+            .title-section {
+                font-size: clamp(var(--text-2xl), 6vw, var(--text-4xl));
+                letter-spacing: 0.2em;
+            }
+            
+            .eyebrow::after {
+                display: none;
+            }
+            
+            .color-grid, .lookbook-grid, .concept-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-links {
+                gap: var(--space-sm);
+            }
+            
+            .nav-links a {
+                font-size: var(--text-xs);
+            }
+            
+            .message-content {
+                max-width: 95%;
+            }
+            
+            .btn-primary, .btn-secondary {
+                padding: var(--space-md) var(--space-lg);
+                font-size: var(--text-xs);
+            }
+            
+            .maya-chat {
+                margin: var(--space-lg) 0;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .container, .wide-container {
+                padding: 0 var(--space-xs);
+            }
+            
+            .nav-container {
+                padding: 0 var(--space-sm);
+            }
+            
+            .nav-logo {
+                font-size: var(--text-base);
+            }
+            
+            .nav-links {
+                gap: var(--space-xs);
+            }
+            
+            .nav-links a {
+                font-size: 10px;
+            }
+            
+            .lookbook-card, .concept-card, .color-group {
+                padding: var(--space-lg);
+            }
+        }
+        
+        /* Animation Classes */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.8s ease forwards;
+        }
+        
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .stagger-1 { animation-delay: 0.1s; }
+        .stagger-2 { animation-delay: 0.2s; }
+        .stagger-3 { animation-delay: 0.3s; }
+        .stagger-4 { animation-delay: 0.4s; }
+        
+        /* Floating Elements */
+        .floating-element {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        /* Premium Loading States */
+        .loading-shimmer {
+            background: linear-gradient(90deg, var(--zinc-800) 25%, var(--zinc-700) 50%, var(--zinc-800) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
     </style>
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="nav">
+    <!-- Enhanced Navigation -->
+    <nav class="nav" id="navbar">
         <div class="container">
             <div class="nav-container">
                 <div class="nav-logo">SSELFIE</div>
                 <ul class="nav-links">
                     <li><a href="#brand">Brand</a></li>
+                    <li><a href="#maya">Maya</a></li>
+                    <li><a href="#lookbooks">Styles</a></li>
                     <li><a href="#colors">Colors</a></li>
-                    <li><a href="#typography">Typography</a></li>
-                    <li><a href="#components">Components</a></li>
-                    <li><a href="#voice">Voice</a></li>
-                    <li><a href="#layout">Layout</a></li>
+                    <li><a href="#components">System</a></li>
                 </ul>
             </div>
         </div>
@@ -551,469 +864,370 @@
 
     <div class="main-content">
         <!-- Hero Section -->
-        <section class="section">
+        <section class="hero-section">
+            <div class="hero-visual"></div>
             <div class="container">
-                <div class="eyebrow">Design System V1.0</div>
-                <h1 class="title-hero">SSELFIE</h1>
-                <p class="body-large">Complete design system and brand guidelines for the world's most sophisticated AI photo platform. Editorial luxury meets entrepreneurial authenticity.</p>
+                <div class="hero-content">
+                    <div class="eyebrow fade-in">Your Personal Photo Stylist V2.0</div>
+                    <h1 class="title-hero fade-in stagger-1">SSELFIE</h1>
+                    <p class="body-large fade-in stagger-2">Maya creates stunning photos that make you look amazing and help you grow your business. Think luxury Instagram meets professional headshots.</p>
+                    <div style="margin-top: var(--space-2xl); display: flex; gap: var(--space-lg); flex-wrap: wrap;">
+                        <button class="btn-primary fade-in stagger-3" style="flex: 1; min-width: 200px;">
+                            <span>Meet Maya</span>
+                        </button>
+                        <button class="btn-secondary fade-in stagger-4" style="flex: 1; min-width: 200px;">
+                            <span>View Lookbooks</span>
+                        </button>
+                    </div>
+                </div>
             </div>
         </section>
 
         <!-- Brand Foundation -->
         <section id="brand" class="section">
             <div class="container">
-                <div class="eyebrow">Foundation</div>
-                <h2 class="title-section">Brand Principles</h2>
+                <div class="eyebrow">Meet Maya</div>
+                <h2 class="title-section">Your Photo Stylist</h2>
+                <p class="body-large">Maya knows exactly how to make you look incredible in photos. She creates 5 different shots every time: some close-ups, some full body, and some lifestyle scenes that tell your story.</p>
                 
                 <div class="color-grid">
                     <div class="color-group">
-                        <h3 class="title-subsection">Editorial Luxury</h3>
-                        <p class="body-text">Sophisticated, understated elegance that whispers confidence rather than shouting for attention. Every element refined to magazine-quality standards.</p>
+                        <h3 class="title-subsection">She Gets Great Lighting</h3>
+                        <p class="body-text">Maya knows that good lighting makes everyone look amazing. Whether it's soft morning light or dramatic shadows, she picks the perfect lighting for your vibe.</p>
                     </div>
                     
                     <div class="color-group">
-                        <h3 class="title-subsection">Authentic Entrepreneurs</h3>
-                        <p class="body-text">Professional yet human. We celebrate real business builders with genuine stories, not perfect facades or corporate speak.</p>
+                        <h3 class="title-subsection">Instagram Ready</h3>
+                        <p class="body-text">Every photo looks like it belongs on a luxury Instagram feed. Sharp, beautiful, and totally you - but elevated.</p>
                     </div>
                     
                     <div class="color-group">
-                        <h3 class="title-subsection">Maya's Intelligence</h3>
-                        <p class="body-text">AI that feels like your most stylish friend who happens to be brilliant at business strategy. Warm, knowledgeable, confidence-building.</p>
+                        <h3 class="title-subsection">Mix of Shots</h3>
+                        <p class="body-text">Not just headshots. Maya creates close-ups, half body shots, full scenes, and flat lays that work together to show who you are.</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Color System -->
+        <!-- Maya's Lookbooks -->
+        <section id="lookbooks" class="section">
+            <div class="wide-container">
+                <div class="eyebrow">Photo Styles</div>
+                <h2 class="title-section">Maya's Looks</h2>
+                <p class="body-large">Different vibes for different people. Maya has mastered these Instagram-worthy styles that make everyone look incredible.</p>
+                
+                <div class="lookbook-grid">
+                    <div class="lookbook-card floating-element">
+                        <div class="lookbook-visual">
+                            <div>Clean & Bright</div>
+                        </div>
+                        <div class="lookbook-tag">Minimal</div>
+                        <h3 class="concept-title">The Clean & Bright</h3>
+                        <p class="concept-description">Think Scandinavian vibes - lots of white, natural light, and simple elegance. Perfect for wellness coaches and lifestyle brands.</p>
+                                                    <p class="body-text" style="font-size: var(--text-xs); color: var(--stone-light); margin-top: var(--space-md);">Vibe: bright, airy, peaceful, clean, simple</p>
+                    </div>
+                    
+                    <div class="lookbook-card floating-element stagger-1">
+                        <div class="lookbook-visual">
+                            <div>Dark & Moody</div>
+                        </div>
+                        <div class="lookbook-tag">Dramatic</div>
+                        <h3 class="concept-title">The Dark & Moody</h3>
+                        <p class="concept-description">Sexy shadows and dramatic lighting. Great for lawyers, consultants, and anyone who wants to look seriously cool.</p>
+                        <p class="body-text" style="font-size: var(--text-xs); color: var(--stone-light); margin-top: var(--space-md);">Vibe: mysterious, powerful, sophisticated, edgy</p>
+                    </div>
+                    
+                    <div class="lookbook-card floating-element stagger-2">
+                        <div class="lookbook-visual">
+                            <div>Coastal Luxury</div>
+                        </div>
+                        <div class="lookbook-tag">Relaxed</div>
+                        <h3 class="concept-title">The Coastal Luxury</h3>
+                        <p class="concept-description">Beach vibes meets high-end elegance. Soft, warm light and breezy clothes that say "successful but chill."</p>
+                        <p class="body-text" style="font-size: var(--text-xs); color: var(--stone-light); margin-top: var(--space-md);">Vibe: relaxed, expensive, beachy, effortless</p>
+                    </div>
+                    
+                    <div class="lookbook-card floating-element stagger-3">
+                        <div class="lookbook-visual">
+                            <div>Rich & Luxe</div>
+                        </div>
+                        <div class="lookbook-tag">Opulent</div>
+                        <h3 class="concept-title">The Rich & Luxe</h3>
+                        <p class="concept-description">Think old money meets private club. Dark wood, leather, and candlelight for that "I've definitely made it" energy.</p>
+                        <p class="body-text" style="font-size: var(--text-xs); color: var(--stone-light); margin-top: var(--space-md);">Vibe: wealthy, classic, mysterious, heritage</p>
+                    </div>
+                    
+                    <div class="lookbook-card floating-element stagger-4">
+                        <div class="lookbook-visual">
+                            <div>Modern Boss</div>
+                        </div>
+                        <div class="lookbook-tag">Corporate</div>
+                        <h3 class="concept-title">The Modern Boss</h3>
+                        <p class="concept-description">Clean, white, and powerful. Perfect for tech founders and modern leaders who want to look innovative and trustworthy.</p>
+                        <p class="body-text" style="font-size: var(--text-xs); color: var(--stone-light); margin-top: var(--space-md);">Vibe: clean, modern, powerful, innovative</p>
+                    </div>
+                    
+                    <div class="lookbook-card floating-element stagger-5">
+                        <div class="lookbook-visual">
+                            <div>Golden Hour Magic</div>
+                        </div>
+                        <div class="lookbook-tag">Natural</div>
+                        <h3 class="concept-title">The Golden Hour Magic</h3>
+                        <p class="concept-description">That perfect sunset glow that makes everyone look like a movie star. Warm, authentic, and totally Instagram-worthy.</p>
+                        <p class="body-text" style="font-size: var(--text-xs); color: var(--stone-light); margin-top: var(--space-md);">Vibe: warm, authentic, dreamy, sun-kissed</p>
+                    </div>
+                </div>
+                
+                <div style="text-align: center; margin-top: var(--space-3xl);">
+                    <p class="body-text" style="margin-bottom: var(--space-xl);">Plus 6 more amazing styles including Night Glamour, Black & White Classic, and Street Style Chic.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Maya in Action -->
+        <section id="maya" class="section">
+            <div class="container">
+                <div class="eyebrow">See Maya Work</div>
+                <h2 class="title-section">Maya Creates Your Photos</h2>
+                <p class="body-large">Watch Maya work with someone just like you. She asks the right questions and creates exactly the photos you need.</p>
+                
+                <div class="maya-chat">
+                    <div class="maya-header">
+                        <img src="https://i.postimg.cc/fTtCnzZv/out-1-22.png" alt="Maya" class="maya-profile">
+                        <div class="maya-info">
+                            <h4>Maya</h4>
+                            <p style="color: var(--stone-light); font-size: var(--text-sm);">Your Photo Stylist</p>
+                        </div>
+                    </div>
+                    
+                    <div class="maya-messages">
+                        <div class="message maya">
+                            <div class="message-header">
+                                <img src="https://i.postimg.cc/fTtCnzZv/out-1-22.png" alt="Maya" class="maya-profile">
+                                <span>Maya</span>
+                            </div>
+                            <div class="message-content">
+                                Hey! I'm Maya. I help people get amazing photos that actually look like them. Tell me what kind of business you're in and how you want people to feel when they see your photos.
+                            </div>
+                        </div>
+                        
+                        <div class="message user">
+                            <div class="message-content">
+                                I help tech startups grow their business. I want to look smart and trustworthy, but not stuffy or intimidating.
+                            </div>
+                        </div>
+                        
+                        <div class="message maya">
+                            <div class="message-header">
+                                <img src="https://i.postimg.cc/fTtCnzZv/out-1-22.png" alt="Maya" class="maya-profile">
+                                <span>Maya</span>
+                            </div>
+                            <div class="message-content">
+                                Perfect! I'm thinking "Modern Boss" vibes - clean, bright, and approachable. I'll create 5 different shots: a close-up headshot, some half-body shots, a full scene, and a flat lay of your workspace.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Maya's Concept Cards -->
+                <div style="margin-top: var(--space-3xl);">
+                    <h3 class="title-subsection">Maya's Photo Ideas</h3>
+                    <p class="body-text" style="margin-bottom: var(--space-xl);">Here's what Maya created - a mix of shots that work together like a perfect Instagram feed.</p>
+                    
+                    <div class="concept-cards">
+                        <div class="concept-card">
+                            <div class="concept-visual">Close-Up Headshot</div>
+                            <div class="concept-type">Close-Up</div>
+                            <h4 class="concept-title">The LinkedIn Winner</h4>
+                            <p class="concept-description">Sharp focus on your face with perfect lighting. This is your main profile photo that makes people want to work with you.</p>
+                        </div>
+                        
+                        <div class="concept-card">
+                            <div class="concept-visual">Half Body Shot</div>
+                            <div class="concept-type">Half Body</div>
+                            <h4 class="concept-title">The Approachable Expert</h4>
+                            <p class="concept-description">Waist up, slight smile, clean background. Shows personality while keeping it professional.</p>
+                        </div>
+                        
+                        <div class="concept-card">
+                            <div class="concept-visual">Full Body Scene</div>
+                            <div class="concept-type">Full Scene</div>
+                            <h4 class="concept-title">The Working Moment</h4>
+                            <p class="concept-description">You in your element - maybe presenting or in a modern office. Shows you actually doing what you do.</p>
+                        </div>
+                        
+                        <div class="concept-card">
+                            <div class="concept-visual">Lifestyle Shot</div>
+                            <div class="concept-type">Lifestyle</div>
+                            <h4 class="concept-title">The Human Side</h4>
+                            <p class="concept-description">More relaxed version - maybe with coffee or in a casual but stylish setting. Shows you're real.</p>
+                        </div>
+                        
+                        <div class="concept-card">
+                            <div class="concept-visual">Workspace Flat Lay</div>
+                            <div class="concept-type">Flat Lay</div>
+                            <h4 class="concept-title">The Tool Kit</h4>
+                            <p class="concept-description">Beautiful overhead shot of your laptop, notebook, coffee - all the things that tell your work story without showing your face.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Enhanced Color System */
         <section id="colors" class="section">
             <div class="container">
-                <div class="eyebrow">Visual Foundation</div>
-                <h2 class="title-section">Color System</h2>
-                <p class="body-large">Sophisticated monochromatic palette that creates depth through nuanced grays and strategic contrast. No bright colors - luxury lives in restraint.</p>
+                <div class="eyebrow">Colors</div>
+                <h2 class="title-section">Beautiful Colors</h2>
+                
+                <div class="color-hero">
+                    <div>
+                        <p class="body-large">Maya uses sophisticated colors that make photos look expensive and professional. Lots of grays and natural tones that never go out of style.</p>
+                        <div class="color-palette">
+                            <div class="color-swatch-mini" style="background: #000000;"></div>
+                            <div class="color-swatch-mini" style="background: #27272a;"></div>
+                            <div class="color-swatch-mini" style="background: #52525b;"></div>
+                            <div class="color-swatch-mini" style="background: #888888;"></div>
+                            <div class="color-swatch-mini" style="background: #c0c0c0;"></div>
+                            <div class="color-swatch-mini" style="background: #ffffff; border-color: #333;"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="color-demo">
+                        <h3 style="margin-bottom: var(--space-lg);">Luxury Feel</h3>
+                        <div style="height: 100px; background: linear-gradient(135deg, var(--black) 0%, var(--stone-medium) 50%, var(--stone-light) 100%); border-radius: var(--radius-md); margin-bottom: var(--space-lg);"></div>
+                        <p class="body-text">These colors make everything look more expensive and trustworthy, while letting your photos be the star.</p>
+                    </div>
+                </div>
                 
                 <div class="color-grid">
-                    <!-- Primary Colors -->
+                    <!-- Primary Foundation -->
                     <div class="color-group">
-                        <h3 class="title-subsection">Primary</h3>
+                        <h3 class="title-subsection">Primary Foundation</h3>
                         
                         <div class="color-sample">
                             <div class="color-swatch" style="background: #000000;"></div>
-                            <div class="color-name">Pure Black</div>
-                            <div class="color-code">#000000</div>
-                            <div class="color-usage">Main background, headlines, maximum contrast</div>
+                            <div style="color: var(--white); font-weight: 300; margin-bottom: var(--space-xs);">Pure Black</div>
+                            <div style="font-family: monospace; font-size: var(--text-sm); color: var(--zinc-400); margin-bottom: var(--space-xs);">#000000</div>
+                            <div style="font-size: var(--text-sm); color: var(--zinc-500); line-height: 1.5;">Main background, maximum impact headlines, sophisticated contrast</div>
                         </div>
                         
                         <div class="color-sample">
                             <div class="color-swatch" style="background: #ffffff; border-color: #333;"></div>
-                            <div class="color-name">Pure White</div>
-                            <div class="color-code">#ffffff</div>
-                            <div class="color-usage">Primary text on dark, button backgrounds, clean space</div>
+                            <div style="color: var(--white); font-weight: 300; margin-bottom: var(--space-xs);">Pure White</div>
+                            <div style="font-family: monospace; font-size: var(--text-sm); color: var(--zinc-400); margin-bottom: var(--space-xs);">#ffffff</div>
+                            <div style="font-size: var(--text-sm); color: var(--zinc-500); line-height: 1.5;">Primary text, premium buttons, clean breathing space</div>
                         </div>
                     </div>
                     
-                    <!-- Zinc Scale -->
+                    <!-- Sophisticated Grays -->
                     <div class="color-group">
-                        <h3 class="title-subsection">Zinc Scale</h3>
+                        <h3 class="title-subsection">Editorial Grays</h3>
                         
                         <div class="color-sample">
-                            <div class="color-swatch" style="background: #fafafa;"></div>
-                            <div class="color-name">Zinc 50</div>
-                            <div class="color-code">#fafafa</div>
-                            <div class="color-usage">Light mode backgrounds</div>
+                            <div class="color-swatch" style="background: #27272a;"></div>
+                            <div style="color: var(--white); font-weight: 300; margin-bottom: var(--space-xs);">Premium Dark</div>
+                            <div style="font-family: monospace; font-size: var(--text-sm); color: var(--zinc-400); margin-bottom: var(--space-xs);">#27272a</div>
+                            <div style="font-size: var(--text-sm); color: var(--zinc-500); line-height: 1.5;">Elevated surfaces, Maya's interface, premium cards</div>
                         </div>
                         
                         <div class="color-sample">
                             <div class="color-swatch" style="background: #a1a1aa;"></div>
-                            <div class="color-name">Zinc 400</div>
-                            <div class="color-code">#a1a1aa</div>
-                            <div class="color-usage">Secondary text, subtle elements</div>
-                        </div>
-                        
-                        <div class="color-sample">
-                            <div class="color-swatch" style="background: #71717a;"></div>
-                            <div class="color-name">Zinc 500</div>
-                            <div class="color-code">#71717a</div>
-                            <div class="color-usage">Tertiary text, inactive states</div>
-                        </div>
-                        
-                        <div class="color-sample">
-                            <div class="color-swatch" style="background: #27272a;"></div>
-                            <div class="color-name">Zinc 800</div>
-                            <div class="color-code">#27272a</div>
-                            <div class="color-usage">Card backgrounds, elevated surfaces</div>
-                        </div>
-                        
-                        <div class="color-sample">
-                            <div class="color-swatch" style="background: #18181b;"></div>
-                            <div class="color-name">Zinc 900</div>
-                            <div class="color-code">#18181b</div>
-                            <div class="color-usage">Deep backgrounds, containers</div>
+                            <div style="color: var(--white); font-weight: 300; margin-bottom: var(--space-xs);">Editorial Gray</div>
+                            <div style="font-family: monospace; font-size: var(--text-sm); color: var(--zinc-400); margin-bottom: var(--space-xs);">#a1a1aa</div>
+                            <div style="font-size: var(--text-sm); color: var(--zinc-500); line-height: 1.5;">Secondary text, sophisticated details, quiet elements</div>
                         </div>
                     </div>
                     
-                    <!-- Status Colors -->
+                    <!-- Stone Accent Colors -->
                     <div class="color-group">
-                        <h3 class="title-subsection">Status</h3>
+                        <h3 class="title-subsection">Maya's Stone Colors</h3>
                         
                         <div class="color-sample">
-                            <div class="color-swatch" style="background: #22c55e;"></div>
-                            <div class="color-name">Success</div>
-                            <div class="color-code">#22c55e</div>
-                            <div class="color-usage">Photo generation success, online status</div>
+                            <div class="color-swatch" style="background: #c0c0c0;"></div>
+                            <div style="color: var(--white); font-weight: 300; margin-bottom: var(--space-xs);">Light Stone</div>
+                            <div style="font-family: monospace; font-size: var(--text-sm); color: var(--zinc-400); margin-bottom: var(--space-xs);">#c0c0c0</div>
+                            <div style="font-size: var(--text-sm); color: var(--zinc-500); line-height: 1.5;">Labels, eyebrow text, light accents, subtle details</div>
                         </div>
                         
                         <div class="color-sample">
-                            <div class="color-swatch" style="background: #ef4444;"></div>
-                            <div class="color-name">Error</div>
-                            <div class="color-code">#ef4444</div>
-                            <div class="color-usage">Error states, failed uploads</div>
-                        </div>
-                        
-                        <div class="color-sample">
-                            <div class="color-swatch" style="background: #eab308;"></div>
-                            <div class="color-name">Warning</div>
-                            <div class="color-code">#eab308</div>
-                            <div class="color-usage">Processing states, cautions</div>
+                            <div class="color-swatch" style="background: #888888;"></div>
+                            <div style="color: var(--white); font-weight: 300; margin-bottom: var(--space-xs);">Medium Stone</div>
+                            <div style="font-family: monospace; font-size: var(--text-sm); color: var(--zinc-400); margin-bottom: var(--space-xs);">#888888</div>
+                            <div style="font-size: var(--text-sm); color: var(--zinc-500); line-height: 1.5;">Maya's signature elements, navigation accents, borders</div>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Typography -->
-        <section id="typography" class="section">
-            <div class="container">
-                <div class="eyebrow">Editorial Foundation</div>
-                <h2 class="title-section">Typography</h2>
-                <p class="body-large">Two fonts, infinite sophistication. Times New Roman for editorial impact, system fonts for interface clarity. Ultra-light weights and generous letter spacing create the luxury feel.</p>
-                
-                <div class="type-example">
-                    <div class="type-label">Hero Title / Times New Roman 200</div>
-                    <h1 class="title-hero">TRANSFORMATION</h1>
-                    <p class="body-text">Letter spacing: 0.4em • Transform: uppercase • Use for: Main headlines, hero sections</p>
-                </div>
-                
-                <div class="type-example">
-                    <div class="type-label">Section Title / Times New Roman 200</div>
-                    <h2 class="title-section">CREATIVE DIRECTION</h2>
-                    <p class="body-text">Letter spacing: 0.3em • Transform: uppercase • Use for: Section headers, page titles</p>
-                </div>
-                
-                <div class="type-example">
-                    <div class="type-label">Subsection / Times New Roman 200</div>
-                    <h3 class="title-subsection">BRAND STORYTELLING</h3>
-                    <p class="body-text">Letter spacing: 0.2em • Transform: uppercase • Use for: Card titles, component headers</p>
-                </div>
-                
-                <div class="type-example">
-                    <div class="type-label">Eyebrow / System Sans 300</div>
-                    <div class="eyebrow">SSELFIE STUDIO METHOD</div>
-                    <p class="body-text">Letter spacing: 0.3em • Transform: uppercase • Use for: Category labels, breadcrumbs</p>
-                </div>
-                
-                <div class="type-example">
-                    <div class="type-label">Body Large / System Sans 300</div>
-                    <p class="body-large">Every entrepreneur deserves professional photos that actually look like them, without breaking the bank. Start with what you have, where you are.</p>
-                    <p class="body-text">Weight: 300 • Line height: 1.6 • Use for: Introductions, emphasis paragraphs</p>
-                </div>
-                
-                <div class="type-example">
-                    <div class="type-label">Body Text / System Sans 300</div>
-                    <p class="body-text">Professional photos shouldn't require a professional photographer. Our AI understands lighting, composition, and what makes entrepreneurs look confident and approachable.</p>
-                    <p class="body-text">Weight: 300 • Line height: 1.7 • Use for: Regular content, descriptions</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- Components -->
+        <!-- Component System -->
         <section id="components" class="section">
             <div class="container">
-                <div class="eyebrow">Interface Elements</div>
-                <h2 class="title-section">Components</h2>
-                <p class="body-large">Sophisticated interface elements that maintain the editorial luxury aesthetic while ensuring excellent usability and accessibility.</p>
-                
-                <div class="component-grid">
-                    <!-- Buttons -->
-                    <div class="component-example">
-                        <h3 class="title-subsection">Buttons</h3>
-                        <div style="display: flex; gap: var(--space-lg); flex-wrap: wrap; margin-top: var(--space-lg);">
-                            <button class="btn-primary">
-                                <span>Generate Photos</span>
-                            </button>
-                            <button class="btn-secondary">Browse Gallery</button>
-                        </div>
-                        <p class="body-text" style="margin-top: var(--space-lg);">Primary: White background with slide-in black hover effect. Secondary: Transparent with zinc border.</p>
-                    </div>
-                    
-                    <!-- Cards -->
-                    <div class="component-example">
-                        <h3 class="title-subsection">Cards</h3>
-                        <div class="card-luxury" style="margin-top: var(--space-lg);">
-                            <div class="concept-category">Professional</div>
-                            <h4 class="concept-title">Executive Presence</h4>
-                            <p class="concept-description">Sophisticated headshot with gorgeous natural light. Makes people think "I need to work with them."</p>
-                            <button class="btn-primary">
-                                <span>Generate Photos</span>
-                            </button>
-                        </div>
-                        <p class="body-text" style="margin-top: var(--space-lg);">Gradient backgrounds, subtle borders, sophisticated hover effects.</p>
-                    </div>
-                    
-                    <!-- Inputs -->
-                    <div class="component-example">
-                        <h3 class="title-subsection">Form Elements</h3>
-                        <input type="text" class="input-luxury" placeholder="Describe your vision to Maya..." style="margin-top: var(--space-lg);">
-                        <p class="body-text" style="margin-top: var(--space-lg);">Transparent backgrounds with zinc borders. Focus states enhance opacity and border color.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Maya Voice Guide -->
-        <section id="voice" class="section">
-            <div class="container">
-                <div class="eyebrow">AI Personality</div>
-                <h2 class="title-section">Maya's Voice</h2>
-                <p class="body-large">Maya is your personal stylist and brand strategist—your most stylish friend who happens to be brilliant at business strategy. Warm, knowledgeable, confidence-building.</p>
-                
-                <div style="margin-top: var(--space-2xl);">
-                    <h3 class="title-subsection">Core Personality</h3>
-                    
-                    <div class="voice-example voice-do">
-                        <div class="voice-example-text">"Hey! Ready to create some stunning photos that'll help you book more clients?"</div>
-                        <div class="voice-note">✓ Warm, enthusiastic, business-focused</div>
-                    </div>
-                    
-                    <div class="voice-example voice-dont">
-                        <div class="voice-example-text">"Hello! How can I assist you with your professional image optimization today?"</div>
-                        <div class="voice-note">✗ Too formal, corporate, jargony</div>
-                    </div>
-                </div>
-                
-                <div style="margin-top: var(--space-2xl);">
-                    <h3 class="title-subsection">Styling Advice</h3>
-                    
-                    <div class="voice-example voice-do">
-                        <div class="voice-example-text">"This blazer will photograph beautifully for LinkedIn - it gives you authority without being too formal."</div>
-                        <div class="voice-note">✓ Specific, business-connected, visual outcome focused</div>
-                    </div>
-                    
-                    <div class="voice-example voice-dont">
-                        <div class="voice-example-text">"Consider implementing these aesthetic modifications to optimize your professional branding strategy."</div>
-                        <div class="voice-note">✗ Too technical, buzzword-heavy, no clear benefit</div>
-                    </div>
-                </div>
-                
-                <div style="margin-top: var(--space-2xl);">
-                    <h3 class="title-subsection">Confidence Building</h3>
-                    
-                    <div class="voice-example voice-do">
-                        <div class="voice-example-text">"You already have great instincts - let's just refine them and make sure every photo works hard for your business."</div>
-                        <div class="voice-note">✓ Builds on existing strengths, empowering, clear value</div>
-                    </div>
-                    
-                    <div class="voice-example voice-dont">
-                        <div class="voice-example-text">"Our AI algorithm will transform your suboptimal image quality into professional-grade outputs."</div>
-                        <div class="voice-note">✗ Technical language, implies current photos are bad</div>
-                    </div>
-                </div>
-                
-                <div style="margin-top: var(--space-2xl);">
-                    <h3 class="title-subsection">Key Phrases</h3>
-                    <div class="color-grid">
-                        <div class="color-group">
-                            <h4 style="color: var(--green-500); margin-bottom: var(--space-md);">Always Use</h4>
-                            <ul style="list-style: none; color: var(--zinc-300); line-height: 2;">
-                                <li>"This will photograph beautifully"</li>
-                                <li>"Perfect for your brand"</li>
-                                <li>"You're going to love this"</li>
-                                <li>"Trust me on this one"</li>
-                                <li>"Here's a styling trick"</li>
-                                <li>"This helps you book more clients"</li>
-                            </ul>
-                        </div>
-                        <div class="color-group">
-                            <h4 style="color: var(--red-500); margin-bottom: var(--space-md);">Never Use</h4>
-                            <ul style="list-style: none; color: var(--zinc-300); line-height: 2;">
-                                <li>"Optimize," "leverage," "facilitate"</li>
-                                <li>"Algorithm," "processing," "parameters"</li>
-                                <li>"Transform your entire brand"</li>
-                                <li>"Suboptimal image quality"</li>
-                                <li>"Professional-grade outputs"</li>
-                                <li>"AI-powered solutions"</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Layout System -->
-        <section id="layout" class="section">
-            <div class="container">
-                <div class="eyebrow">Spatial Design</div>
-                <h2 class="title-section">Layout System</h2>
-                <p class="body-large">Editorial spacing that creates breathing room and sophistication. Based on 8px grid with generous white space ratios.</p>
-                
-                <div style="margin-top: var(--space-2xl);">
-                    <h3 class="title-subsection">Spacing Scale</h3>
-                    <div class="color-grid">
-                        <div class="color-group">
-                            <h4 style="margin-bottom: var(--space-md);">Micro Spacing</h4>
-                            <div style="background: var(--zinc-700); height: 8px; margin-bottom: var(--space-xs);"></div>
-                            <div style="font-family: monospace; font-size: var(--text-sm); color: var(--zinc-400);">xs: 8px</div>
-                            <div style="background: var(--zinc-700); height: 16px; margin: var(--space-sm) 0 var(--space-xs);"></div>
-                            <div style="font-family: monospace; font-size: var(--text-sm); color: var(--zinc-400);">sm: 16px</div>
-                        </div>
-                        <div class="color-group">
-                            <h4 style="margin-bottom: var(--space-md);">Standard Spacing</h4>
-                            <div style="background: var(--zinc-600); height: 24px; margin-bottom: var(--space-xs);"></div>
-                            <div style="font-family: monospace; font-size: var(--text-sm); color: var(--zinc-400);">md: 24px</div>
-                            <div style="background: var(--zinc-600); height: 32px; margin: var(--space-sm) 0 var(--space-xs);"></div>
-                            <div style="font-family: monospace; font-size: var(--text-sm); color: var(--zinc-400);">lg: 32px</div>
-                        </div>
-                        <div class="color-group">
-                            <h4 style="margin-bottom: var(--space-md);">Editorial Spacing</h4>
-                            <div style="background: var(--zinc-500); height: 48px; margin-bottom: var(--space-xs);"></div>
-                            <div style="font-family: monospace; font-size: var(--text-sm); color: var(--zinc-400);">xl: 48px</div>
-                            <div style="background: var(--zinc-500); height: 64px; margin: var(--space-sm) 0 var(--space-xs);"></div>
-                            <div style="font-family: monospace; font-size: var(--text-sm); color: var(--zinc-400);">2xl: 64px</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div style="margin-top: var(--space-2xl);">
-                    <h3 class="title-subsection">Grid System</h3>
-                    <div class="grid-demo">
-                        <div class="grid-item col-3">3 Columns</div>
-                        <div class="grid-item col-6">6 Columns</div>
-                        <div class="grid-item col-3">3 Columns</div>
-                        <div class="grid-item col-4">4 Columns</div>
-                        <div class="grid-item col-8">8 Columns</div>
-                        <div class="grid-item col-12">12 Columns (Full Width)</div>
-                    </div>
-                    <p class="body-text">12-column grid with 24px gaps. Mobile collapses to 4-column system for simplified layout.</p>
-                </div>
-                
-                <div style="margin-top: var(--space-2xl);">
-                    <h3 class="title-subsection">Editorial Ratios</h3>
-                    <div class="color-grid">
-                        <div class="color-group">
-                            <h4 style="margin-bottom: var(--space-md);">Content Distribution</h4>
-                            <p class="body-text" style="margin-bottom: var(--space-md);">60-70% content, 30-40% white space</p>
-                            <div style="display: flex; height: 40px;">
-                                <div style="background: var(--zinc-600); flex: 7; margin-right: 4px;"></div>
-                                <div style="background: var(--zinc-800); flex: 3;"></div>
-                            </div>
-                        </div>
-                        <div class="color-group">
-                            <h4 style="margin-bottom: var(--space-md);">Maya's Response Ratio</h4>
-                            <p class="body-text" style="margin-bottom: var(--space-md);">80% portraits, 20% supporting imagery</p>
-                            <div style="display: flex; height: 40px;">
-                                <div style="background: var(--zinc-600); flex: 8; margin-right: 4px;"></div>
-                                <div style="background: var(--zinc-700); flex: 2;"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Maya Chat Example -->
-        <section class="section">
-            <div class="container">
-                <div class="eyebrow">Live Example</div>
-                <h2 class="title-section">Maya in Action</h2>
-                <p class="body-large">See how Maya's voice and the design system work together to create sophisticated, helpful interactions.</p>
-                
-                <div class="maya-chat" style="margin-top: var(--space-2xl);">
-                    <div class="maya-header">
-                        <h4 style="color: var(--white); margin-bottom: var(--space-xs);">Maya Studio</h4>
-                        <p style="color: var(--zinc-400); font-size: var(--text-sm);">AI Stylist & Brand Strategist</p>
-                    </div>
-                    
-                    <div class="maya-messages">
-                        <div class="message">
-                            <div class="message-content">
-                                Hey! I'm Maya, your personal stylist and brand strategist. Ready to create some stunning photos that'll help you book more clients?
-                            </div>
-                        </div>
-                        
-                        <div class="message message-user">
-                            <div class="message-content">
-                                I need professional photos for my consulting business. Something that shows I'm approachable but credible.
-                            </div>
-                        </div>
-                        
-                        <div class="message">
-                            <div class="message-content">
-                                Perfect! You have great instincts. Let's create photos that work hard for your business:
-                            </div>
-                        </div>
-                        
-                        <div class="concept-card">
-                            <div class="concept-category">Portrait</div>
-                            <h4 class="concept-title">LinkedIn Power Shot</h4>
-                            <p class="concept-description">Clean headshot with gorgeous natural light. This says "trust me with your biggest project."</p>
-                            <button class="btn-primary">
-                                <span>Generate Photos</span>
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div class="maya-input">
-                        <input type="text" class="input-luxury" placeholder="Describe your vision to Maya...">
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Implementation Notes -->
-        <section class="section">
-            <div class="container">
-                <div class="eyebrow">Implementation</div>
-                <h2 class="title-section">Developer Guidelines</h2>
+                <div class="eyebrow">How It Looks</div>
+                <h2 class="title-section">Beautiful Design</h2>
+                <p class="body-large">Every button, every message, every detail is designed to make you feel confident about getting amazing photos.</p>
                 
                 <div class="color-grid">
+                    <!-- Typography System -->
                     <div class="color-group">
-                        <h3 class="title-subsection">Accessibility</h3>
-                        <ul style="list-style: none; color: var(--zinc-300); line-height: 2;">
-                            <li>• Minimum touch targets: 48px</li>
-                            <li>• Text contrast: 4.5:1 minimum</li>
-                            <li>• Focus states: 2px white outline</li>
-                            <li>• Screen reader labels on all interactive elements</li>
-                            <li>• Reduced motion support</li>
-                        </ul>
+                        <h3 class="title-subsection">Beautiful Text</h3>
+                        <div style="margin: var(--space-lg) 0;">
+                            <div style="font-size: var(--text-xs); color: var(--greyge); letter-spacing: 0.3em; text-transform: uppercase; margin-bottom: var(--space-sm);">Hero Title</div>
+                            <h1 style="font-family: 'Times New Roman', serif; font-size: var(--text-4xl); font-weight: 100; letter-spacing: 0.3em; text-transform: uppercase; margin-bottom: var(--space-md);">CREATIVE</h1>
+                            
+                            <div style="font-size: var(--text-xs); color: var(--greyge); letter-spacing: 0.3em; text-transform: uppercase; margin-bottom: var(--space-sm);">Body Large</div>
+                            <p class="body-large" style="margin-bottom: var(--space-md);">Maya translates your vision into visual stories.</p>
+                            
+                            <div style="font-size: var(--text-xs); color: var(--greyge); letter-spacing: 0.3em; text-transform: uppercase; margin-bottom: var(--space-sm);">Body Text</div>
+                            <p class="body-text">Clean, readable typography that supports Maya's sophisticated art direction process.</p>
+                        </div>
                     </div>
                     
+                    <!-- Button Components -->
                     <div class="color-group">
-                        <h3 class="title-subsection">Performance</h3>
-                        <ul style="list-style: none; color: var(--zinc-300); line-height: 2;">
-                            <li>• Font loading: system fonts for speed</li>
-                            <li>• Animation: transform and opacity only</li>
-                            <li>• Images: WebP with fallbacks</li>
-                            <li>• Shadows: Use box-shadow sparingly</li>
-                            <li>• 60fps animations with hardware acceleration</li>
-                        </ul>
+                        <h3 class="title-subsection">Interactive Elements</h3>
+                        <div style="display: flex; flex-direction: column; gap: var(--space-md); margin-top: var(--space-lg);">
+                            <button class="btn-primary">
+                                <span>Generate Concepts</span>
+                            </button>
+                            <button class="btn-secondary">
+                                <span>View Lookbooks</span>
+                            </button>
+                        </div>
+                        <p class="body-text" style="margin-top: var(--space-lg); font-size: var(--text-xs);">Premium interactions with sophisticated hover states and micro-animations that enhance the creative process.</p>
                     </div>
                     
+                    <!-- Maya's Interface -->
                     <div class="color-group">
-                        <h3 class="title-subsection">Mobile First</h3>
-                        <ul style="list-style: none; color: var(--zinc-300); line-height: 2;">
-                            <li>• Design for 375px width minimum</li>
-                            <li>• Touch-friendly 48px+ buttons</li>
-                            <li>• Readable 16px+ body text</li>
-                            <li>• Generous tap targets spacing</li>
-                            <li>• Thumb-reach navigation zones</li>
-                        </ul>
+                        <h3 class="title-subsection">Talking with Maya</h3>
+                        <div style="background: var(--zinc-800); border-radius: var(--radius-md); padding: var(--space-lg); margin-top: var(--space-lg);">
+                            <div style="display: flex; align-items: center; gap: var(--space-sm); margin-bottom: var(--space-md);">
+                                <img src="https://i.postimg.cc/fTtCnzZv/out-1-22.png" alt="Maya" class="maya-profile" style="width: 24px; height: 24px;">
+                                <span style="font-size: var(--text-xs); color: var(--stone-light); letter-spacing: 0.1em; text-transform: uppercase;">Maya</span>
+                            </div>
+                            <p style="color: var(--zinc-200); font-size: var(--text-sm); line-height: 1.5;">I'll create 5 different photos for you - close-ups, half body shots, and lifestyle scenes that work together like a perfect Instagram feed.</p>
+                        </div>
+                        <p class="body-text" style="margin-top: var(--space-lg); font-size: var(--text-xs);">Maya's chat feels warm and personal, like talking to your most stylish friend who really gets photography.</p>
                     </div>
+                </div>
+                
+                <div style="background: var(--zinc-900); border-radius: var(--radius-xl); padding: var(--space-2xl); margin-top: var(--space-3xl); text-align: center;">
+                    <div style="display: flex; align-items: center; justify-content: center; gap: var(--space-md); margin-bottom: var(--space-lg);">
+                        <img src="https://i.postimg.cc/fTtCnzZv/out-1-22.png" alt="Maya" class="maya-profile">
+                        <h3 class="title-subsection" style="margin: 0;">Ready for Amazing Photos?</h3>
+                    </div>
+                    <p class="body-large" style="margin-bottom: var(--space-xl);">Maya creates Instagram-worthy photos that make you look incredible and help grow your business. Every photo feels authentically you, just elevated.</p>
+                    <button class="btn-primary" style="max-width: 300px;">
+                        <span>Start Taking Photos with Maya</span>
+                    </button>
                 </div>
             </div>
         </section>
     </div>
 
     <script>
-        // Smooth scroll for navigation
+        // Enhanced scroll navigation
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
@@ -1027,16 +1241,81 @@
             });
         });
         
-        // Add interactive button examples
-        document.querySelectorAll('.btn-primary').forEach(button => {
+        // Navbar scroll effect
+        const navbar = document.getElementById('navbar');
+        let lastScrollTop = 0;
+        
+        window.addEventListener('scroll', () => {
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            
+            if (scrollTop > 100) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+            
+            lastScrollTop = scrollTop;
+        });
+        
+        // Enhanced button interactions
+        document.querySelectorAll('.btn-primary, .btn-secondary').forEach(button => {
             button.addEventListener('mouseenter', function() {
-                this.style.transform = 'scale(1.02)';
+                this.style.transform = 'translateY(-2px)';
             });
             
             button.addEventListener('mouseleave', function() {
-                this.style.transform = 'scale(1)';
+                this.style.transform = 'translateY(0)';
             });
         });
+        
+        // Intersection Observer for animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animationPlayState = 'running';
+                }
+            });
+        }, observerOptions);
+        
+        document.querySelectorAll('.fade-in').forEach(el => {
+            observer.observe(el);
+        });
+        
+        // Smooth hover effects for cards
+        document.querySelectorAll('.lookbook-card, .concept-card, .color-group').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transition = 'all 0.3s ease';
+            });
+        });
+        
+        // Mobile menu handling (if needed)
+        function handleResize() {
+            const navLinks = document.querySelector('.nav-links');
+            if (window.innerWidth < 768) {
+                // Mobile optimizations handled via CSS
+            }
+        }
+        
+        window.addEventListener('resize', handleResize);
+        handleResize(); // Initial call
+        
+        // Enhanced mobile touch interactions
+        if ('ontouchstart' in window) {
+            document.querySelectorAll('.lookbook-card, .concept-card').forEach(card => {
+                card.addEventListener('touchstart', function() {
+                    this.style.transform = 'translateY(-2px)';
+                });
+                
+                card.addEventListener('touchend', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+        }
     </script>
 </body>
 </html>
