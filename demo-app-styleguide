@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Camera, Home, User, Settings, Star, Grid, Search, Bell, ChevronRight, Heart, Share2, MessageCircle, Play, Plus, MoreHorizontal, Send, X } from 'lucide-react';
+import { Camera, Home, User, Settings, Star, Grid, Search, Bell, ChevronRight, Heart, Share2, MessageCircle, Play, Plus, MoreHorizontal, Send, X, Sparkles, Zap, Image } from 'lucide-react';
 
-const LuxuryMobileAppDemo = () => {
+const SselfieApp = () => {
   const [activeTab, setActiveTab] = useState('studio');
   const [isLoading, setIsLoading] = useState(true);
   const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 2000);
+    const timer = setTimeout(() => setIsLoading(false), 2500);
     const clockTimer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => {
       clearTimeout(timer);
@@ -23,12 +23,12 @@ const LuxuryMobileAppDemo = () => {
   ];
 
   const user = {
-    name: 'Daniela Rodriguez',
+    name: 'Sarah Chen',
     avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
-    membershipTier: 'Elite',
-    followers: '2.5k',
-    following: '378',
-    posts: '115'
+    membershipTier: 'Premium',
+    followers: '3.2k',
+    following: '428',
+    posts: '127'
   };
 
   const galleryItems = [
@@ -45,39 +45,52 @@ const LuxuryMobileAppDemo = () => {
       <div className="h-screen bg-black flex items-center justify-center relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-black via-zinc-950 to-black"></div>
         <div className="relative z-10 text-center px-8">
-          <div className="w-16 h-16 border border-white/20 rounded-full animate-spin mx-auto mb-12 flex items-center justify-center">
-            <div className="w-2 h-2 bg-white rounded-full"></div>
+          <div className="w-20 h-20 border border-stone-light/30 rounded-full animate-spin mx-auto mb-16 flex items-center justify-center">
+            <div className="w-3 h-3 rounded-full animate-pulse" style={{backgroundColor: '#c0c0c0'}}></div>
           </div>
-          <h2 className="text-white text-3xl font-serif font-extralight tracking-[0.4em] mb-4">SSELFIE</h2>
-          <p className="text-white/60 text-xs font-light tracking-[0.3em] uppercase">LOADING EXPERIENCE</p>
+          <h1 className="text-white text-4xl font-serif font-thin tracking-[0.5em] mb-6 leading-none">SSELFIE</h1>
+          <p className="text-xs font-light tracking-[0.4em] uppercase" style={{color: '#c0c0c0', opacity: 0.7}}>Creating Magic</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="h-screen bg-black relative overflow-hidden" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif' }}>
-      {/* Sophisticated gradient backdrop */}
-      <div className="absolute inset-0 bg-gradient-to-br from-black via-zinc-950/90 to-black"></div>
+    <div className="h-screen bg-black relative overflow-hidden" style={{ 
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif'
+    }}>
+      {/* Stone color variables */}
+      <style>{`
+        .stone-light { color: #c0c0c0; }
+        .stone-medium { color: #888888; }
+        .bg-stone-light { background-color: rgba(192, 192, 192, 0.1); }
+        .border-stone-light { border-color: rgba(192, 192, 192, 0.3); }
+        .bg-stone-medium { background-color: rgba(136, 136, 136, 0.1); }
+        .border-stone-medium { border-color: rgba(136, 136, 136, 0.3); }
+      `}</style>
+      {/* Enhanced gradient backdrop */}
+      <div className="absolute inset-0 bg-gradient-to-br from-black via-zinc-950/95 to-black"></div>
       
-      {/* Main app container with enhanced glass morphism */}
-      <div className="relative h-full mx-3 pt-1 pb-24">
-        <div className="h-full bg-zinc-950/80 backdrop-blur-2xl rounded-[2rem] border border-zinc-800/20 overflow-hidden" style={{ boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.6)' }}>
+      {/* Main app container */}
+      <div className="relative h-full mx-2 pt-1 pb-20">
+        <div className="h-full bg-zinc-950/90 backdrop-blur-3xl rounded-[2.5rem] border border-zinc-800/30 overflow-hidden shadow-2xl">
           
-          {/* Editorial status bar */}
-          <div className="flex justify-between items-center px-8 py-6 pb-4 border-b border-zinc-800/20">
+          {/* Premium status bar */}
+          <div className="flex justify-between items-center px-8 py-6 pb-4">
             <div className="text-white font-light tracking-wide text-base">
               {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
             </div>
-            <div className="flex space-x-1">
-              <div className="w-6 h-2 bg-white rounded-full"></div>
-              <div className="w-6 h-2 bg-white/60 rounded-full"></div>
-              <div className="w-6 h-2 bg-white/30 rounded-full"></div>
+            <div className="flex items-center space-x-2">
+              <div className="flex space-x-1">
+                <div className="w-7 h-2.5 bg-white rounded-full"></div>
+                <div className="w-7 h-2.5 bg-white/60 rounded-full"></div>
+                <div className="w-7 h-2.5 bg-white/30 rounded-full"></div>
+              </div>
             </div>
           </div>
 
-          {/* Content area with editorial spacing */}
-          <div className="flex-1 px-8 pb-8 pt-4">
+          {/* Content area */}
+          <div className="flex-1 px-8 pb-8 pt-2 h-full overflow-y-auto">
             {activeTab === 'studio' && <StudioScreen user={user} />}
             {activeTab === 'maya' && <MayaScreen />}
             {activeTab === 'gallery' && <GalleryScreen items={galleryItems} />}
@@ -86,9 +99,9 @@ const LuxuryMobileAppDemo = () => {
         </div>
       </div>
 
-      {/* Floating editorial tab bar */}
-      <div className="absolute bottom-6 left-4 right-4">
-        <div className="bg-zinc-900/90 backdrop-blur-2xl rounded-2xl border border-zinc-800/30 px-4 py-3" style={{ boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)' }}>
+      {/* Floating premium tab bar */}
+      <div className="absolute bottom-4 left-3 right-3">
+        <div className="bg-zinc-950/95 backdrop-blur-3xl rounded-3xl border border-zinc-800/40 px-2 py-2 shadow-2xl">
           <div className="flex justify-around items-center">
             {tabs.map((tab) => {
               const Icon = tab.icon;
@@ -98,22 +111,21 @@ const LuxuryMobileAppDemo = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex flex-col items-center space-y-2 px-5 py-3 rounded-xl transition-all duration-500 ease-out ${
+                  className={`flex flex-col items-center space-y-2 px-6 py-4 rounded-2xl transition-all duration-500 ease-out min-w-[70px] ${
                     isActive 
-                      ? 'bg-zinc-800/60 transform scale-105' 
-                      : 'hover:bg-zinc-800/30 hover:scale-102'
+                      ? 'bg-zinc-800/70 transform scale-105' 
+                      : 'hover:bg-zinc-800/40 hover:scale-102'
                   }`}
                 >
                   <Icon 
-                    size={22} 
-                    strokeWidth={1.2}
+                    size={24} 
+                    strokeWidth={1}
                     className={`transition-all duration-300 ${
-                      isActive ? 'text-white' : 'text-zinc-500'
+                      isActive ? 'text-white' : 'text-stone-medium'
                     }`}
                   />
-                  <span className={`text-xs font-light tracking-[0.2em] uppercase transition-all duration-300 ${
-                    isActive ? 'text-white' : 'text-zinc-500'
-                  }`}>
+                  <span className={`text-xs font-light tracking-[0.2em] uppercase transition-all duration-300`}
+                    style={{color: isActive ? '#ffffff' : '#888888'}}>
                     {tab.label}
                   </span>
                 </button>
@@ -127,76 +139,127 @@ const LuxuryMobileAppDemo = () => {
 };
 
 const StudioScreen = ({ user }) => (
-  <div className="space-y-8">
-    {/* Editorial header */}
-    <div className="text-center space-y-6 pt-8">
-      <h1 className="text-4xl font-serif font-extralight tracking-[0.4em] text-white leading-none">
+  <div className="space-y-6 pb-6 sm:space-y-8">
+    {/* Clean hub header */}
+    <div className="pt-4 sm:pt-6">
+      <h1 className="text-2xl sm:text-4xl font-serif font-thin tracking-[0.4em] text-white uppercase leading-tight mb-2">
         STUDIO
       </h1>
-      <p className="text-zinc-400 text-xs tracking-[0.3em] uppercase font-light">
-        CREATE • CAPTURE • CURATE
+      <p className="text-xs tracking-[0.3em] uppercase font-light" style={{color: '#888888'}}>
+        Creative Control Center
       </p>
     </div>
 
-    {/* Featured session card with enhanced styling */}
-    <div className="bg-gradient-to-br from-zinc-800/20 to-zinc-900/20 rounded-2xl p-8 border border-zinc-700/20 transition-all duration-500 hover:border-zinc-600/30 hover:bg-gradient-to-br hover:from-zinc-800/30 hover:to-zinc-900/30">
-      <div className="flex justify-between items-start mb-8">
+    {/* Status overview cards */}
+    <div className="grid grid-cols-3 gap-3 sm:gap-4">
+      <div className="bg-zinc-900/50 border border-zinc-800/40 rounded-lg sm:rounded-xl p-3 sm:p-4 hover:bg-zinc-900/70 transition-all duration-300 min-h-[80px] sm:min-h-auto">
+        <div className="text-xs tracking-[0.2em] uppercase font-light mb-2" style={{color: '#888888'}}>Active</div>
+        <div className="text-xl sm:text-2xl font-serif font-thin text-white mb-1">12</div>
+        <div className="text-xs font-light" style={{color: '#c0c0c0'}}>Sessions</div>
+      </div>
+      <div className="bg-zinc-900/50 border border-zinc-800/40 rounded-lg sm:rounded-xl p-3 sm:p-4 hover:bg-zinc-900/70 transition-all duration-300 min-h-[80px] sm:min-h-auto">
+        <div className="text-xs tracking-[0.2em] uppercase font-light mb-2" style={{color: '#888888'}}>Ready</div>
+        <div className="text-xl sm:text-2xl font-serif font-thin text-white mb-1">47</div>
+        <div className="text-xs font-light" style={{color: '#c0c0c0'}}>Photos</div>
+      </div>
+      <div className="bg-zinc-900/50 border border-zinc-800/40 rounded-lg sm:rounded-xl p-3 sm:p-4 hover:bg-zinc-900/70 transition-all duration-300 min-h-[80px] sm:min-h-auto">
+        <div className="text-xs tracking-[0.2em] uppercase font-light mb-2" style={{color: '#888888'}}>Queue</div>
+        <div className="text-xl sm:text-2xl font-serif font-thin text-white mb-1">3</div>
+        <div className="text-xs font-light" style={{color: '#c0c0c0'}}>Pending</div>
+      </div>
+    </div>
+
+    {/* Main control panel */}
+    <div className="bg-zinc-900/40 border border-zinc-800/30 rounded-xl sm:rounded-2xl p-4 sm:p-6">
+      <div className="flex justify-between items-start mb-4 sm:mb-6">
+        <div className="flex-1 min-w-0">
+          <div className="text-xs tracking-[0.2em] uppercase font-light mb-2" style={{color: '#888888'}}>Current Session</div>
+          <h3 className="text-lg sm:text-xl font-serif font-thin tracking-[0.1em] text-white uppercase truncate">Executive Portrait</h3>
+          <p className="text-sm font-light mt-2" style={{color: '#c0c0c0'}}>Professional series • 5 shots remaining</p>
+        </div>
+        <div className="flex items-center gap-2 ml-4">
+          <div className="w-2 h-2 bg-white rounded-full"></div>
+          <span className="text-xs tracking-[0.1em] uppercase font-light" style={{color: '#c0c0c0'}}>Live</span>
+        </div>
+      </div>
+      
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4 sm:mb-6">
+        <div className="aspect-[4/3] sm:aspect-[4/3] bg-zinc-800/40 rounded-lg sm:rounded-xl border border-zinc-700/30 flex items-center justify-center group hover:bg-zinc-800/60 transition-all duration-300 cursor-pointer">
+          <Camera size={20} className="text-stone-medium group-hover:text-stone-light transition-colors sm:w-6 sm:h-6" strokeWidth={1} />
+        </div>
         <div className="space-y-3">
-          <h3 className="text-xl font-serif font-extralight tracking-[0.2em] text-white uppercase">Featured Session</h3>
-          <p className="text-zinc-400 text-sm font-light">Professional Portrait Series</p>
+          <div className="flex justify-between text-xs">
+            <span className="tracking-[0.1em] uppercase font-light" style={{color: '#888888'}}>Progress</span>
+            <span className="font-light" style={{color: '#c0c0c0'}}>40%</span>
+          </div>
+          <div className="w-full h-1 bg-zinc-800 rounded-full overflow-hidden">
+            <div className="w-2/5 h-full bg-stone-light rounded-full"></div>
+          </div>
+          <div className="space-y-2 pt-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-light" style={{color: '#c0c0c0'}}>Close-up headshot</span>
+              <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-light" style={{color: '#c0c0c0'}}>Half body shot</span>
+              <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-light" style={{color: '#888888'}}>Full scene</span>
+              <div className="w-1.5 h-1.5 bg-zinc-600 rounded-full"></div>
+            </div>
+          </div>
         </div>
-        <button className="p-3 bg-zinc-700/30 rounded-xl border border-zinc-600/20 hover:bg-zinc-700/50 transition-all duration-300 hover:scale-105 group">
-          <Play size={18} className="text-zinc-300 group-hover:text-white transition-colors" fill="currentColor" />
-        </button>
       </div>
       
-      <div className="w-full h-32 bg-zinc-800/30 rounded-xl mb-8 relative overflow-hidden border border-zinc-700/20">
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-zinc-600/10 to-transparent"></div>
-        <div className="absolute inset-0 flex items-center justify-center">
-          <Camera size={32} className="text-zinc-600" strokeWidth={1} />
-        </div>
-      </div>
-      
-      <div className="flex justify-between items-center">
-        <span className="text-zinc-400 text-sm font-light tracking-wide">45 minutes • 24 shots</span>
-        <button className="text-white text-xs tracking-[0.2em] uppercase hover:text-zinc-300 transition-colors font-light">
-          View Details
-        </button>
-      </div>
-    </div>
-
-    {/* Editorial action buttons */}
-    <div className="grid grid-cols-2 gap-4">
-      <button className="group relative bg-white text-black px-8 py-6 rounded-xl font-light tracking-[0.2em] uppercase text-xs transition-all duration-500 hover:scale-[1.02] active:scale-[0.98] overflow-hidden">
-        <div className="absolute inset-0 bg-black transform -translate-x-full group-hover:translate-x-0 transition-transform duration-500"></div>
-        <div className="relative z-10 group-hover:text-white transition-colors duration-500 flex flex-col items-center space-y-3">
-          <Camera size={24} strokeWidth={1.2} />
-          <span>New Session</span>
-        </div>
-      </button>
-      <button className="bg-zinc-800/30 text-white px-8 py-6 rounded-xl font-light tracking-[0.2em] uppercase text-xs border border-zinc-700/20 transition-all duration-500 hover:bg-zinc-800/50 hover:border-zinc-600/30 hover:scale-[1.02] flex flex-col items-center space-y-3">
-        <Grid size={24} strokeWidth={1.2} />
-        <span>Browse</span>
+      <button className="w-full bg-white text-black py-3 sm:py-4 rounded-lg sm:rounded-xl font-light tracking-[0.2em] uppercase text-sm transition-all duration-300 hover:bg-zinc-100 hover:transform hover:translate-y-[-1px] min-h-[48px]">
+        Continue Session
       </button>
     </div>
 
-    {/* Editorial activity list */}
-    <div className="space-y-6">
-      <h3 className="text-lg font-serif font-extralight tracking-[0.2em] text-white uppercase">Recent Activity</h3>
+    {/* Quick actions grid */}
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <button className="bg-zinc-800/40 border border-zinc-700/30 rounded-lg sm:rounded-xl p-4 sm:p-6 text-left hover:bg-zinc-800/60 hover:border-stone-light/40 transition-all duration-300 group min-h-[100px] sm:min-h-auto">
+        <div className="flex items-center justify-between mb-3 sm:mb-4">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 bg-stone-medium/10 rounded-lg sm:rounded-xl flex items-center justify-center border border-stone-medium/20">
+            <Plus size={16} className="text-stone-light sm:w-5 sm:h-5" strokeWidth={1} />
+          </div>
+          <ChevronRight size={14} className="text-stone-medium group-hover:text-stone-light transition-colors sm:w-4 sm:h-4" strokeWidth={1} />
+        </div>
+        <h4 className="text-sm sm:text-base font-light text-white mb-1 sm:mb-2">New Session</h4>
+        <p className="text-xs font-light" style={{color: '#888888'}}>Start fresh photo series</p>
+      </button>
+      
+      <button className="bg-zinc-800/40 border border-zinc-700/30 rounded-lg sm:rounded-xl p-4 sm:p-6 text-left hover:bg-zinc-800/60 hover:border-stone-light/40 transition-all duration-300 group min-h-[100px] sm:min-h-auto">
+        <div className="flex items-center justify-between mb-3 sm:mb-4">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 bg-stone-medium/10 rounded-lg sm:rounded-xl flex items-center justify-center border border-stone-medium/20">
+            <Grid size={16} className="text-stone-light sm:w-5 sm:h-5" strokeWidth={1} />
+          </div>
+          <ChevronRight size={14} className="text-stone-medium group-hover:text-stone-light transition-colors sm:w-4 sm:h-4" strokeWidth={1} />
+        </div>
+        <h4 className="text-sm sm:text-base font-light text-white mb-1 sm:mb-2">Browse Gallery</h4>
+        <p className="text-xs font-light" style={{color: '#888888'}}>View completed work</p>
+      </button>
+    </div>
+
+    {/* Recent activity - minimalist */}
+    <div className="space-y-4">
+      <h3 className="text-base sm:text-lg font-serif font-thin tracking-[0.2em] text-white uppercase">Recent Activity</h3>
       <div className="space-y-1">
         {[
-          { action: 'Portrait session completed', time: '2h ago', status: 'Processed' },
-          { action: 'Gallery updated', time: '1d ago', status: 'Published' },
-          { action: 'Profile enhanced', time: '3d ago', status: 'Archived' },
+          { action: 'Executive session completed', time: '2h ago', type: 'completion' },
+          { action: 'Brand photos exported', time: '1d ago', type: 'export' },
+          { action: 'New session started', time: '3d ago', type: 'start' },
         ].map((item, index) => (
-          <div key={index} className="flex items-center justify-between py-6 border-b border-zinc-800/20 last:border-b-0 hover:bg-zinc-800/10 transition-colors duration-300 px-4 -mx-4 rounded-lg">
-            <div className="space-y-2">
-              <p className="text-white font-light text-base">{item.action}</p>
-              <p className="text-zinc-500 text-xs tracking-[0.1em] uppercase font-light">{item.time}</p>
+          <div key={index} className="flex items-center justify-between py-3 sm:py-4 border-b border-zinc-800/20 last:border-b-0 hover:bg-zinc-800/10 transition-colors duration-300 px-3 sm:px-4 -mx-3 sm:-mx-4 rounded-lg sm:rounded-xl">
+            <div className="flex items-center gap-3 flex-1 min-w-0">
+              <div className={`w-1.5 h-1.5 rounded-full ${
+                item.type === 'completion' ? 'bg-white' : 
+                item.type === 'export' ? 'bg-stone-light' : 'bg-zinc-500'
+              }`}></div>
+              <span className="text-sm font-light text-white truncate">{item.action}</span>
             </div>
-            <div className="text-right">
-              <span className="text-zinc-400 text-xs tracking-[0.1em] uppercase font-light">{item.status}</span>
-            </div>
+            <span className="text-xs tracking-[0.1em] uppercase font-light ml-2" style={{color: '#888888'}}>{item.time}</span>
           </div>
         ))}
       </div>
@@ -205,45 +268,51 @@ const StudioScreen = ({ user }) => (
 );
 
 const GalleryScreen = ({ items }) => (
-  <div className="space-y-8">
-    {/* Editorial gallery header */}
+  <div className="space-y-6 pb-6 sm:space-y-8">
+    {/* Gallery header */}
     <div className="flex justify-between items-start pt-4">
-      <div className="space-y-3">
-        <h2 className="text-3xl font-serif font-extralight tracking-[0.3em] text-white uppercase">Gallery</h2>
-        <p className="text-zinc-500 text-sm tracking-[0.2em] uppercase font-light">Curated Collection</p>
+      <div className="space-y-3 sm:space-y-4 flex-1 min-w-0">
+        <h2 className="text-2xl sm:text-4xl font-serif font-thin tracking-[0.4em] text-white uppercase leading-tight">Gallery</h2>
+        <p className="text-xs tracking-[0.2em] uppercase font-light" style={{color: '#888888'}}>Your Beautiful Photos</p>
       </div>
-      <div className="flex space-x-3">
-        <button className="p-3 bg-zinc-800/30 rounded-xl border border-zinc-700/20 hover:bg-zinc-700/50 transition-all duration-300 hover:scale-105">
-          <Search size={18} className="text-zinc-400 hover:text-white transition-colors" strokeWidth={1.2} />
+      <div className="flex space-x-2 sm:space-x-3 ml-4">
+        <button className="p-3 sm:p-4 bg-zinc-800/40 rounded-lg sm:rounded-2xl border border-zinc-700/30 transition-all duration-300 hover:scale-105">
+          <Search size={16} strokeWidth={1.2} style={{color: '#c0c0c0'}} className="sm:w-5 sm:h-5" />
         </button>
-        <button className="p-3 bg-zinc-800/30 rounded-xl border border-zinc-700/20 hover:bg-zinc-700/50 transition-all duration-300 hover:scale-105">
-          <MoreHorizontal size={18} className="text-zinc-400 hover:text-white transition-colors" strokeWidth={1.2} />
+        <button className="p-3 sm:p-4 bg-zinc-800/40 rounded-lg sm:rounded-2xl border border-zinc-700/30 hover:bg-zinc-800/60 hover:border-stone-light/40 transition-all duration-300 hover:scale-105">
+          <MoreHorizontal size={16} className="text-stone-light hover:text-white transition-colors sm:w-5 sm:h-5" strokeWidth={1.2} />
         </button>
       </div>
     </div>
 
-    {/* Gallery grid with editorial hover effects */}
-    <div className="grid grid-cols-2 gap-3">
+    {/* Gallery grid */}
+    <div className="grid grid-cols-2 gap-3 sm:gap-4">
       {items.map((item, index) => (
-        <div key={index} className="relative group cursor-pointer overflow-hidden rounded-lg">
+        <div key={index} className="relative group cursor-pointer overflow-hidden rounded-lg sm:rounded-2xl">
           <div className="aspect-square relative">
             <img 
               src={item} 
               alt={`Gallery ${index + 1}`}
               className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
             />
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all duration-500"></div>
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-500"></div>
             
-            {/* Sophisticated overlay */}
-            <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500">
-              <div className="flex justify-between items-center">
-                <span className="text-white text-xs tracking-[0.2em] uppercase font-light">IMG_{String(index + 1).padStart(3, '0')}</span>
-                <div className="flex space-x-2">
-                  <button className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition-colors duration-300">
-                    <Heart size={14} className="text-white" strokeWidth={1.2} />
+            {/* Enhanced overlay */}
+            <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-6 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500">
+              <div className="flex justify-between items-end">
+                <div className="space-y-1 sm:space-y-2 flex-1 min-w-0">
+                  <span className="text-white text-xs tracking-[0.2em] uppercase font-light block">Photo {String(index + 1).padStart(2, '0')}</span>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-white rounded-full"></div>
+                    <span className="text-xs font-light truncate" style={{color: '#c0c0c0', opacity: 0.8}}>Ready</span>
+                  </div>
+                </div>
+                <div className="flex space-x-2 sm:space-x-3 ml-2">
+                  <button className="w-8 h-8 sm:w-10 sm:h-10 bg-white/20 backdrop-blur-sm rounded-lg sm:rounded-2xl flex items-center justify-center hover:bg-white/30 transition-colors duration-300 hover:scale-110">
+                    <Heart size={14} className="text-white sm:w-4 sm:h-4" strokeWidth={1.2} />
                   </button>
-                  <button className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition-colors duration-300">
-                    <Share2 size={14} className="text-white" strokeWidth={1.2} />
+                  <button className="w-8 h-8 sm:w-10 sm:h-10 bg-white/20 backdrop-blur-sm rounded-lg sm:rounded-2xl flex items-center justify-center hover:bg-white/30 transition-colors duration-300 hover:scale-110">
+                    <Share2 size={14} className="text-white sm:w-4 sm:h-4" strokeWidth={1.2} />
                   </button>
                 </div>
               </div>
@@ -253,10 +322,12 @@ const GalleryScreen = ({ items }) => (
       ))}
     </div>
 
-    {/* Editorial load more */}
-    <div className="text-center pt-8">
-      <button className="text-zinc-400 text-xs tracking-[0.3em] uppercase hover:text-white transition-colors duration-300 font-light border-b border-zinc-700/20 hover:border-white/20 pb-1">
-        Load More
+    {/* Load more */}
+    <div className="text-center pt-4 sm:pt-6">
+      <button className="text-sm tracking-[0.3em] uppercase font-light border-b pb-2 flex items-center gap-2 mx-auto transition-colors duration-300"
+              style={{color: '#c0c0c0', opacity: 0.8, borderColor: 'rgba(136, 136, 136, 0.2)'}}>
+        <Plus size={14} className="sm:w-4 sm:h-4" />
+        See More Photos
       </button>
     </div>
   </div>
@@ -266,74 +337,77 @@ const ProfileScreen = ({ user }) => {
   const [activeSection, setActiveSection] = useState('profile');
   
   if (activeSection === 'settings') {
-    return <AccountSettings onBack={() => setActiveSection('profile')} />;
+    return <SettingsScreen onBack={() => setActiveSection('profile')} />;
   }
   
   return (
-    <div className="space-y-8">
-      {/* Editorial profile header */}
-      <div className="text-center space-y-8 pt-6">
+    <div className="space-y-6 pb-6 sm:space-y-8">
+      {/* Profile header */}
+      <div className="text-center space-y-6 sm:space-y-8 pt-4 sm:pt-6">
         <div className="relative inline-block">
           <img 
             src={user.avatar}
             alt={user.name}
-            className="w-32 h-32 rounded-full object-cover border border-zinc-700/30"
-            style={{ boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)' }}
+            className="w-28 h-28 sm:w-36 sm:h-36 rounded-full object-cover border-2 border-zinc-700/40 shadow-2xl"
           />
-          <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-white rounded-full border-2 border-zinc-950 flex items-center justify-center">
-            <div className="w-4 h-4 bg-green-500 rounded-full"></div>
+          <div className="absolute -bottom-1 -right-1 sm:-bottom-2 sm:-right-2 w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-full border-3 border-zinc-950 flex items-center justify-center shadow-lg">
+            <div className="w-4 h-4 sm:w-5 sm:h-5 bg-white rounded-full"></div>
           </div>
         </div>
         
-        <div className="space-y-4">
-          <h2 className="text-3xl font-serif font-extralight tracking-[0.2em] text-white uppercase leading-tight">{user.name}</h2>
-          <p className="text-zinc-400 text-sm tracking-[0.4em] uppercase font-light">{user.membershipTier} Member</p>
+        <div className="space-y-3 sm:space-y-4">
+          <h2 className="text-2xl sm:text-4xl font-serif font-thin tracking-[0.3em] text-white uppercase leading-tight">{user.name}</h2>
+          <p className="text-xs sm:text-sm tracking-[0.4em] uppercase font-light bg-stone-medium/10 px-3 py-2 sm:px-4 sm:py-2 rounded-full inline-block" style={{color: '#c0c0c0'}}>
+            {user.membershipTier} Member
+          </p>
         </div>
 
-        {/* Enhanced stats with better hierarchy */}
-        <div className="grid grid-cols-3 gap-8 pt-6">
-          <div className="text-center space-y-3">
-            <div className="text-3xl font-serif font-extralight text-white">{user.posts}</div>
-            <div className="text-sm text-zinc-400 tracking-[0.2em] uppercase font-light">Posts</div>
+        {/* Stats */}
+        <div className="grid grid-cols-3 gap-4 sm:gap-8 pt-2 sm:pt-4">
+          <div className="text-center space-y-2 sm:space-y-3">
+            <div className="text-2xl sm:text-4xl font-serif font-thin text-white">{user.posts}</div>
+            <div className="text-xs sm:text-sm tracking-[0.2em] uppercase font-light" style={{color: '#888888'}}>Photos</div>
           </div>
-          <div className="text-center space-y-3">
-            <div className="text-3xl font-serif font-extralight text-white">{user.followers}</div>
-            <div className="text-sm text-zinc-400 tracking-[0.2em] uppercase font-light">Followers</div>
+          <div className="text-center space-y-2 sm:space-y-3">
+            <div className="text-2xl sm:text-4xl font-serif font-thin text-white">{user.followers}</div>
+            <div className="text-xs sm:text-sm tracking-[0.2em] uppercase font-light" style={{color: '#888888'}}>Followers</div>
           </div>
-          <div className="text-center space-y-3">
-            <div className="text-3xl font-serif font-extralight text-white">{user.following}</div>
-            <div className="text-sm text-zinc-400 tracking-[0.2em] uppercase font-light">Following</div>
+          <div className="text-center space-y-2 sm:space-y-3">
+            <div className="text-2xl sm:text-4xl font-serif font-thin text-white">{user.following}</div>
+            <div className="text-xs sm:text-sm tracking-[0.2em] uppercase font-light" style={{color: '#888888'}}>Following</div>
           </div>
         </div>
       </div>
 
-      {/* Enhanced action buttons with better touch targets */}
-      <div className="grid grid-cols-2 gap-4">
-        <button className="group relative bg-white text-black px-6 py-5 rounded-xl font-light tracking-[0.2em] uppercase text-sm transition-all duration-500 hover:scale-[1.02] overflow-hidden">
-          <div className="absolute inset-0 bg-black transform -translate-x-full group-hover:translate-x-0 transition-transform duration-500"></div>
-          <span className="relative z-10 group-hover:text-white transition-colors duration-500">Edit Profile</span>
+      {/* Action buttons */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+        <button className="group relative bg-white text-black px-4 py-4 sm:px-6 sm:py-6 rounded-lg sm:rounded-2xl font-light tracking-[0.2em] uppercase text-sm transition-all duration-500 hover:scale-[1.02] overflow-hidden shadow-lg min-h-[52px] sm:min-h-auto">
+          <div className="absolute inset-0 bg-black transform -translate-x-full group-hover:translate-x-0 transition-transform duration-700"></div>
+          <span className="relative z-10 group-hover:text-white transition-colors duration-700">Edit Profile</span>
         </button>
         <button 
           onClick={() => setActiveSection('settings')}
-          className="bg-zinc-800/30 text-white px-6 py-5 rounded-xl font-light tracking-[0.2em] uppercase text-sm border border-zinc-700/20 transition-all duration-500 hover:bg-zinc-800/50 hover:border-zinc-600/30 hover:scale-[1.02] flex items-center justify-center gap-2"
+          className="bg-zinc-800/40 text-white px-4 py-4 sm:px-6 sm:py-6 rounded-lg sm:rounded-2xl font-light tracking-[0.2em] uppercase text-sm border border-zinc-700/30 transition-all duration-500 hover:bg-zinc-800/60 hover:border-stone-light/40 hover:scale-[1.02] flex items-center justify-center gap-2 sm:gap-3 min-h-[52px] sm:min-h-auto"
         >
-          <Settings size={16} strokeWidth={1.2} />
+          <Settings size={16} strokeWidth={1.2} className="sm:w-[18px] sm:h-[18px]" />
           Settings
         </button>
       </div>
 
-      {/* Enhanced recent work grid with better spacing */}
-      <div className="space-y-6">
+      {/* Recent work */}
+      <div className="space-y-4 sm:space-y-6">
         <div className="flex items-center justify-between">
-          <h3 className="text-xl font-serif font-extralight tracking-[0.2em] text-white uppercase">Recent Work</h3>
-          <button className="text-zinc-400 text-xs tracking-[0.2em] uppercase hover:text-white transition-colors duration-300 font-light">
+          <h3 className="text-lg sm:text-2xl font-serif font-thin tracking-[0.2em] text-white uppercase">Recent Work</h3>
+          <button className="text-sm tracking-[0.2em] uppercase font-light transition-colors duration-300"
+                  style={{color: '#c0c0c0', opacity: 0.8}}>
             View All
           </button>
         </div>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-3 gap-2 sm:gap-4">
           {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className="aspect-square bg-zinc-800/20 rounded-xl border border-zinc-700/20 flex items-center justify-center hover:bg-zinc-800/30 transition-all duration-300 hover:scale-105 cursor-pointer group">
-              <Camera size={24} className="text-zinc-600 group-hover:text-zinc-400 transition-colors" strokeWidth={1} />
+            <div key={i} className="aspect-square bg-zinc-800/30 rounded-lg sm:rounded-2xl border flex items-center justify-center cursor-pointer group transition-all duration-300 hover:scale-105"
+                 style={{borderColor: 'rgba(113, 113, 122, 0.3)'}}>
+              <Camera size={20} strokeWidth={1} style={{color: '#888888'}} className="group-hover:text-white transition-colors sm:w-7 sm:h-7" />
             </div>
           ))}
         </div>
@@ -342,74 +416,77 @@ const ProfileScreen = ({ user }) => {
   );
 };
 
-// Enhanced Account Settings Component
-const AccountSettings = ({ onBack }) => (
-  <div className="space-y-6">
-    {/* Header with back navigation */}
-    <div className="flex items-center gap-4 pt-4">
+const SettingsScreen = ({ onBack }) => (
+  <div className="space-y-4 pb-6 sm:space-y-6">
+    {/* Header */}
+    <div className="flex items-center gap-3 sm:gap-4 pt-4">
       <button 
         onClick={onBack}
-        className="p-3 bg-zinc-800/40 rounded-xl border border-zinc-700/30 hover:bg-zinc-700/50 transition-all duration-300"
+        className="p-3 sm:p-4 bg-zinc-800/50 rounded-lg sm:rounded-2xl border border-zinc-700/40 hover:bg-zinc-800/70 hover:border-stone-light/40 transition-all duration-300"
       >
-        <ChevronRight size={18} className="text-zinc-300 transform rotate-180" strokeWidth={1.2} />
+        <ChevronRight size={16} className="text-stone-light transform rotate-180 sm:w-5 sm:h-5" strokeWidth={1.2} />
       </button>
-      <div>
-        <h2 className="text-2xl font-serif font-extralight tracking-[0.3em] text-white uppercase">Settings</h2>
-        <p className="text-zinc-500 text-sm tracking-[0.2em] uppercase font-light mt-1">Preferences & Account</p>
+      <div className="flex-1 min-w-0">
+        <h2 className="text-xl sm:text-3xl font-serif font-thin tracking-[0.4em] text-white uppercase">Settings</h2>
+        <p className="text-xs sm:text-sm tracking-[0.2em] uppercase font-light mt-1 sm:mt-2" style={{color: '#888888'}}>Your Preferences</p>
       </div>
     </div>
     
-    {/* Enhanced settings groups with better UX */}
-    <div className="space-y-6">
+    {/* Settings groups */}
+    <div className="space-y-4 sm:space-y-6">
       {[
         { 
           title: 'Notifications', 
           icon: Bell, 
           items: [
-            { name: 'Push Notifications', status: 'Enabled', type: 'toggle' },
-            { name: 'Email Updates', status: 'Weekly', type: 'select' },
-            { name: 'SMS Alerts', status: 'Disabled', type: 'toggle' }
+            { name: 'Photo completion alerts', status: 'On', type: 'toggle' },
+            { name: 'Maya updates', status: 'Weekly', type: 'select' },
+            { name: 'Tips & inspiration', status: 'On', type: 'toggle' }
           ] 
         },
         { 
-          title: 'Privacy', 
+          title: 'Photo Quality', 
+          icon: Camera, 
+          items: [
+            { name: 'Image resolution', status: 'High', type: 'select' },
+            { name: 'Auto-enhance', status: 'On', type: 'toggle' },
+            { name: 'Background removal', status: 'Auto', type: 'select' }
+          ] 
+        },
+        { 
+          title: 'Account', 
           icon: User, 
           items: [
-            { name: 'Profile Visibility', status: 'Public', type: 'select' },
-            { name: 'Data Sharing', status: 'Limited', type: 'select' },
-            { name: 'Analytics', status: 'Enabled', type: 'toggle' }
-          ] 
-        },
-        { 
-          title: 'Appearance', 
-          icon: Settings, 
-          items: [
-            { name: 'Theme', status: 'Dark', type: 'select' },
-            { name: 'Language', status: 'English', type: 'select' },
-            { name: 'Typography', status: 'Editorial', type: 'select' }
+            { name: 'Profile visibility', status: 'Public', type: 'select' },
+            { name: 'Data backup', status: 'Cloud', type: 'select' },
+            { name: 'Photo sharing', status: 'On', type: 'toggle' }
           ] 
         },
       ].map((group, index) => (
-        <div key={index} className="bg-zinc-800/20 rounded-xl p-6 border border-zinc-700/20">
-          <div className="flex items-center space-x-3 mb-6">
-            <group.icon size={20} className="text-zinc-400" strokeWidth={1.2} />
-            <h3 className="text-lg font-serif font-extralight tracking-[0.2em] text-white uppercase">{group.title}</h3>
+        <div key={index} className="bg-zinc-800/30 rounded-lg sm:rounded-2xl p-4 sm:p-8 border border-zinc-700/30">
+          <div className="flex items-center space-x-3 sm:space-x-4 mb-4 sm:mb-8">
+            <div className="p-2 sm:p-3 bg-stone-medium/10 rounded-lg sm:rounded-2xl border border-stone-medium/20">
+              <group.icon size={18} className="text-stone-light sm:w-[22px] sm:h-[22px]" strokeWidth={1.2} />
+            </div>
+            <h3 className="text-base sm:text-xl font-serif font-thin tracking-[0.2em] text-white uppercase">{group.title}</h3>
           </div>
           
-          <div className="space-y-2">
+          <div className="space-y-1 sm:space-y-2">
             {group.items.map((item, itemIndex) => (
-              <div key={itemIndex} className="flex items-center justify-between py-4 hover:bg-zinc-700/20 rounded-lg px-4 -mx-4 transition-all duration-300 cursor-pointer group min-h-[48px]">
-                <span className="text-white font-light text-base">{item.name}</span>
-                <div className="flex items-center space-x-3">
-                  <span className="text-zinc-400 text-sm font-light">{item.status}</span>
+              <div key={itemIndex} className="flex items-center justify-between py-3 sm:py-5 hover:bg-zinc-700/30 rounded-lg sm:rounded-2xl px-3 sm:px-6 -mx-3 sm:-mx-6 transition-all duration-300 cursor-pointer group min-h-[48px] sm:min-h-[56px]">
+                <span className="text-sm sm:text-base text-white font-light flex-1 min-w-0 truncate">{item.name}</span>
+                <div className="flex items-center space-x-3 sm:space-x-4 ml-4">
+                  <span className="text-xs sm:text-sm font-light" style={{color: '#c0c0c0'}}>{item.status}</span>
                   {item.type === 'toggle' ? (
-                    <div className="w-12 h-6 bg-zinc-700 rounded-full relative">
-                      <div className={`w-5 h-5 bg-white rounded-full absolute top-0.5 transition-transform duration-200 ${
-                        item.status === 'Enabled' ? 'translate-x-6' : 'translate-x-0.5'
+                    <div className={`w-12 h-6 sm:w-14 sm:h-7 rounded-full relative transition-colors duration-300 ${
+                      item.status === 'On' ? 'bg-stone-light/30' : 'bg-zinc-700'
+                    }`}>
+                      <div className={`w-5 h-5 sm:w-6 sm:h-6 bg-white rounded-full absolute top-0.5 transition-transform duration-300 ${
+                        item.status === 'On' ? 'translate-x-6 sm:translate-x-7' : 'translate-x-0.5'
                       }`}></div>
                     </div>
                   ) : (
-                    <ChevronRight size={16} className="text-zinc-600 group-hover:text-zinc-400 transition-colors" strokeWidth={1.2} />
+                    <ChevronRight size={14} className="text-stone-medium group-hover:text-stone-light transition-colors sm:w-[18px] sm:h-[18px]" strokeWidth={1.2} />
                   )}
                 </div>
               </div>
@@ -419,437 +496,32 @@ const AccountSettings = ({ onBack }) => (
       ))}
     </div>
 
-    {/* Enhanced sign out with better UX */}
-    <div className="pt-6 border-t border-zinc-800/20">
-      <button className="w-full text-zinc-400 text-sm tracking-[0.2em] uppercase hover:text-white transition-colors py-5 font-light border border-zinc-700/20 hover:border-zinc-600/30 rounded-xl hover:bg-zinc-800/20">
+    {/* Sign out */}
+    <div className="pt-4 sm:pt-6 border-t border-zinc-800/20">
+      <button className="w-full text-sm tracking-[0.2em] uppercase font-light border rounded-lg sm:rounded-2xl py-4 sm:py-6 transition-colors hover:text-white hover:bg-zinc-800/30 min-h-[52px] sm:min-h-auto"
+              style={{
+                color: '#c0c0c0', 
+                opacity: 0.8,
+                borderColor: 'rgba(113, 113, 122, 0.3)'
+              }}>
         Sign Out
       </button>
     </div>
   </div>
 );
 
-const AccountScreen = () => (
-  <div className="space-y-8">
-    {/* Editorial account header */}
-    <div className="text-center space-y-4 pt-8">
-      <h2 className="text-3xl font-serif font-extralight tracking-[0.3em] text-white uppercase">Account</h2>
-      <p className="text-zinc-500 text-sm tracking-[0.2em] uppercase font-light">Settings & Preferences</p>
-    </div>
-    
-    {/* Editorial settings groups */}
-    <div className="space-y-8">
-      {[
-        { 
-          title: 'Notifications', 
-          icon: Bell, 
-          items: [
-            { name: 'Push Notifications', status: 'Enabled' },
-            { name: 'Email Updates', status: 'Weekly' },
-            { name: 'SMS Alerts', status: 'Disabled' }
-          ] 
-        },
-        { 
-          title: 'Privacy', 
-          icon: User, 
-          items: [
-            { name: 'Profile Visibility', status: 'Public' },
-            { name: 'Data Sharing', status: 'Limited' },
-            { name: 'Analytics', status: 'Enabled' }
-          ] 
-        },
-        { 
-          title: 'Appearance', 
-          icon: Settings, 
-          items: [
-            { name: 'Theme', status: 'Dark' },
-            { name: 'Language', status: 'English' },
-            { name: 'Typography', status: 'Editorial' }
-          ] 
-        },
-      ].map((group, index) => (
-        <div key={index} className="space-y-6">
-          <div className="flex items-center space-x-4 pb-4 border-b border-zinc-800/20">
-            <group.icon size={18} className="text-zinc-400" strokeWidth={1.2} />
-            <h3 className="text-lg font-serif font-extralight tracking-[0.2em] text-white uppercase">{group.title}</h3>
-          </div>
-          
-          <div className="space-y-1">
-            {group.items.map((item, itemIndex) => (
-              <div key={itemIndex} className="flex items-center justify-between py-4 hover:bg-zinc-800/10 rounded-lg px-4 -mx-4 transition-all duration-300 cursor-pointer group">
-                <span className="text-white font-light">{item.name}</span>
-                <div className="flex items-center space-x-3">
-                  <span className="text-zinc-500 text-sm font-light">{item.status}</span>
-                  <ChevronRight size={14} className="text-zinc-600 group-hover:text-zinc-400 transition-colors" strokeWidth={1.2} />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      ))}
-    </div>
-
-    {/* Editorial sign out */}
-    <div className="pt-8 border-t border-zinc-800/20">
-      <button className="w-full text-zinc-400 text-xs tracking-[0.3em] uppercase hover:text-white transition-colors py-4 font-light border-b border-zinc-700/20 hover:border-white/20">
-        Sign Out
-      </button>
-    </div>
-  </div>
-);
-
-// Mock data for Maya chat
-const mockBrandStyles = [
-  {
-    id: 'minimalist',
-    name: 'Minimalist CEO',
-    description: 'Clean, confident, and understated elegance for modern executives',
-    aesthetic: 'Modern Minimalism',
-    mood: 'Confident & Clean',
-    primaryColor: '#000000',
-    secondaryColor: '#ffffff',
-    accentColor: '#f5f5f5',
-    primaryFont: 'Inter',
-    targetAudience: 'C-Suite executives, entrepreneurs, consultants',
-    heroImage: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face'
-  },
-  {
-    id: 'creative',
-    name: 'Creative Visionary',
-    description: 'Bold, artistic, and authentic for creative professionals',
-    aesthetic: 'Artistic Expression',
-    mood: 'Bold & Authentic',
-    primaryColor: '#2c2c2c',
-    secondaryColor: '#ff6b35',
-    accentColor: '#f0f0f0',
-    primaryFont: 'Times New Roman',
-    targetAudience: 'Artists, designers, creative directors',
-    heroImage: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=400&fit=crop&crop=face'
-  },
-  {
-    id: 'luxury',
-    name: 'Luxury Elite',
-    description: 'Sophisticated, premium, and exclusive for high-end brands',
-    aesthetic: 'Luxury Editorial',
-    mood: 'Sophisticated & Elite',
-    primaryColor: '#1a1a1a',
-    secondaryColor: '#d4af37',
-    accentColor: '#f8f8f8',
-    primaryFont: 'Times New Roman',
-    targetAudience: 'Luxury brand founders, premium service providers',
-    heroImage: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=400&h=400&fit=crop&crop=face'
-  }
-];
-
-const mockConcepts = [
-  {
-    title: 'Executive Portrait Series',
-    description: 'Professional headshots with confident lighting that convey authority and approachability',
-    category: 'Professional'
-  },
-  {
-    title: 'Authentic Lifestyle Moments',
-    description: 'Natural, behind-the-scenes shots that show your personality and build connections',
-    category: 'Lifestyle'
-  },
-  {
-    title: 'Brand Storytelling',
-    description: 'Cohesive imagery that tells your entrepreneurial journey and builds trust',
-    category: 'Brand'
-  }
-];
-
-// Enhanced Luxury Concept Card Component with better UX
-const LuxuryConceptCard = ({ concept, onGenerate }) => {
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [isGenerated, setIsGenerated] = useState(false);
-
-  const handleGenerate = async () => {
-    setIsGenerating(true);
-    onGenerate();
-    
-    // Simulate generation time with haptic feedback
-    setTimeout(() => {
-      setIsGenerating(false);
-      setIsGenerated(true);
-    }, 3000);
-  };
-
-  return (
-    <div className="bg-gradient-to-br from-zinc-800/20 to-zinc-900/20 rounded-2xl p-6 border border-zinc-700/20 transition-all duration-500 hover:border-zinc-600/30 hover:bg-gradient-to-br hover:from-zinc-800/30 hover:to-zinc-900/30">
-      <div className="space-y-5">
-        {/* Enhanced header with better hierarchy */}
-        <div className="flex items-center justify-between">
-          <div className="px-4 py-2 bg-zinc-700/30 rounded-full border border-zinc-600/20">
-            <span className="text-sm text-zinc-300 tracking-[0.1em] uppercase font-light">{concept.category}</span>
-          </div>
-          <div className="w-2 h-2 bg-zinc-500 rounded-full"></div>
-        </div>
-        
-        {/* Improved content hierarchy */}
-        <div className="space-y-4">
-          <h4 className="text-xl font-serif font-extralight tracking-[0.1em] text-white uppercase leading-tight">{concept.title}</h4>
-          <p className="text-base text-zinc-300 leading-relaxed font-light">{concept.description}</p>
-        </div>
-      </div>
-      
-      {/* Enhanced interaction states */}
-      {!isGenerating && !isGenerated && (
-        <div className="mt-8">
-          <button 
-            onClick={handleGenerate}
-            className="group relative w-full bg-white text-black px-8 py-5 rounded-2xl font-light tracking-[0.2em] uppercase text-sm transition-all duration-500 hover:scale-[1.02] active:scale-[0.98] overflow-hidden min-h-[56px]"
-          >
-            <div className="absolute inset-0 bg-black transform -translate-x-full group-hover:translate-x-0 transition-transform duration-500"></div>
-            <div className="relative z-10 group-hover:text-white transition-colors duration-500 flex items-center justify-center gap-3">
-              <Camera size={18} strokeWidth={1.2} />
-              <span>Generate Photos</span>
-            </div>
-          </button>
-        </div>
-      )}
-
-      {/* Enhanced loading state */}
-      {isGenerating && (
-        <div className="mt-8 flex flex-col items-center justify-center py-12 space-y-6">
-          <div className="relative">
-            <div className="w-12 h-12 border-2 border-white/20 rounded-full animate-spin"></div>
-            <div className="absolute inset-0 w-12 h-12 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-          </div>
-          <div className="text-center space-y-3">
-            <span className="text-lg text-zinc-200 tracking-[0.2em] uppercase font-light">Creating Magic</span>
-            <div className="w-64 h-1 bg-zinc-800 rounded-full overflow-hidden">
-              <div className="w-full h-full bg-gradient-to-r from-transparent via-white/50 to-transparent animate-pulse"></div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Enhanced success state */}
-      {isGenerated && (
-        <div className="mt-8 space-y-6">
-          <div className="p-5 bg-green-900/20 border border-green-500/30 rounded-2xl">
-            <div className="flex items-center gap-4">
-              <div className="w-8 h-8 bg-green-500/30 rounded-full flex items-center justify-center">
-                <span className="text-green-300 text-sm font-light">✓</span>
-              </div>
-              <div className="space-y-1">
-                <h4 className="text-base font-light text-green-200">Photos Ready!</h4>
-                <p className="text-sm text-green-300/80 font-light">Your vision came to life beautifully.</p>
-              </div>
-            </div>
-          </div>
-          
-          {/* Enhanced photo grid */}
-          <div className="grid grid-cols-2 gap-3">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="aspect-square bg-zinc-800/30 rounded-xl border border-zinc-700/20 flex items-center justify-center hover:bg-zinc-800/50 transition-all duration-300 cursor-pointer group relative overflow-hidden">
-                <Camera size={24} className="text-zinc-600 group-hover:text-zinc-400 transition-colors" strokeWidth={1} />
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300"></div>
-              </div>
-            ))}
-          </div>
-          
-          {/* Enhanced action buttons */}
-          <div className="grid grid-cols-2 gap-3">
-            <button className="px-5 py-3 bg-white text-black rounded-xl font-light tracking-[0.1em] uppercase text-sm transition-all duration-300 hover:bg-zinc-200 min-h-[48px]">
-              Save All
-            </button>
-            <button className="px-5 py-3 bg-zinc-800/30 text-white border border-zinc-700/20 rounded-xl font-light tracking-[0.1em] uppercase text-sm transition-all duration-300 hover:bg-zinc-800/50 min-h-[48px]">
-              Share
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
-
-// Style Selector Component
-const StyleSelector = ({ onStyleSelect, selectedStyleId, onClose }) => (
-  <div className="space-y-8">
-    <div className="text-center space-y-4">
-      <div className="flex items-center justify-center gap-3 mb-4">
-        <div className="p-3 bg-zinc-800/40 rounded-xl border border-zinc-700/30">
-          <Star size={20} className="text-zinc-300" strokeWidth={1.2} />
-        </div>
-        <h2 className="text-2xl font-serif font-extralight tracking-[0.3em] text-white uppercase">
-          Choose Style
-        </h2>
-      </div>
-      <p className="text-zinc-400 text-sm tracking-[0.1em] uppercase font-light max-w-md mx-auto">
-        Select the aesthetic that represents your vision
-      </p>
-    </div>
-
-    <div className="grid grid-cols-1 gap-6">
-      {mockBrandStyles.map((style) => (
-        <div
-          key={style.id}
-          onClick={() => onStyleSelect(style)}
-          className={`
-            relative group cursor-pointer rounded-xl overflow-hidden
-            transform transition-all duration-500 hover:scale-[1.02]
-            border border-zinc-700/20 bg-zinc-800/20 backdrop-blur-sm
-            ${selectedStyleId === style.id 
-              ? 'ring-1 ring-white/20 bg-zinc-800/40' 
-              : 'hover:bg-zinc-800/30'
-            }
-          `}
-        >
-          <div className="flex gap-4 p-6">
-            <div className="w-16 h-16 relative overflow-hidden rounded-lg flex-shrink-0">
-              <img
-                src={style.heroImage}
-                alt={style.name}
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-              />
-              
-              {selectedStyleId === style.id && (
-                <div className="absolute top-1 right-1 w-5 h-5 bg-white rounded-full flex items-center justify-center">
-                  <div className="w-2 h-2 bg-black rounded-full"></div>
-                </div>
-              )}
-            </div>
-
-            <div className="flex-1 space-y-3">
-              <div>
-                <h3 className="text-base font-serif font-extralight tracking-[0.1em] text-white uppercase mb-1">
-                  {style.name}
-                </h3>
-                <p className="text-xs text-zinc-400 leading-relaxed font-light">
-                  {style.description}
-                </p>
-              </div>
-              
-              <div className="flex items-center gap-3">
-                <div className="flex space-x-2">
-                  <div
-                    className="w-4 h-4 rounded-full border border-zinc-600/30"
-                    style={{ backgroundColor: style.primaryColor }}
-                  />
-                  <div
-                    className="w-4 h-4 rounded-full border border-zinc-600/30"
-                    style={{ backgroundColor: style.secondaryColor }}
-                  />
-                  <div
-                    className="w-4 h-4 rounded-full border border-zinc-600/30"
-                    style={{ backgroundColor: style.accentColor }}
-                  />
-                </div>
-                <span className="text-xs text-zinc-500 tracking-[0.1em] uppercase font-light">
-                  {style.aesthetic}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
-  </div>
-);
-
-// Maya Chat Screen Component
 const MayaScreen = () => {
   const [messages, setMessages] = useState([
     {
       role: 'maya',
-      content: 'Hey! I\'m Maya, your personal stylist and brand strategist. Think of me as your most stylish friend who happens to be brilliant at business strategy.\n\nI\'m here to help you create photos that actually build your brand - the kind that make potential clients think "I need to work with them." Ready to create some stunning photos that\'ll help you book more clients?',
+      content: 'I help people get amazing photos that actually look like them.\n\nI create 5 different shots every time - some close-ups, some full body, and some lifestyle scenes that work together like a perfect feed. What kind of photos are you dreaming of?',
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     }
   ]);
   const [inputValue, setInputValue] = useState('');
-  const [selectedStyle, setSelectedStyle] = useState(null);
-  const [showStyleSelector, setShowStyleSelector] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
 
-  const handleStyleSelect = (style) => {
-    setSelectedStyle(style);
-    setShowStyleSelector(false);
-    
-    const styleMessage = {
-      role: 'user',
-      content: `I\'m drawn to the "${style.name}" style. ${style.description}`,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    };
-    
-    setMessages(prev => [...prev, styleMessage]);
-    
-    // Maya responds with warm, specific styling advice
-    setTimeout(() => {
-      setIsTyping(true);
-      setTimeout(() => {
-        setIsTyping(false);
-        const conceptMessage = {
-          role: 'maya',
-          content: `Perfect choice! ${style.name} is going to look incredible on you.\n\nHere\'s what I\'m thinking - three concepts that\'ll help you book more clients:`,
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          concepts: getMayaStyledConcepts(style)
-        };
-        setMessages(prev => [...prev, conceptMessage]);
-      }, 2200);
-    }, 600);
-  };
-
-  const getMayaStyledConcepts = (style) => {
-    if (style.id === 'minimalist') {
-      return [
-        {
-          title: 'LinkedIn Power Shot',
-          description: 'Clean headshot with gorgeous natural light. This says "trust me with your biggest project."',
-          category: 'Portrait'
-        },
-        {
-          title: 'Workspace Vibes',
-          description: 'You in your element, looking focused and approachable. Clients love seeing the person behind the work.',
-          category: 'Lifestyle'
-        },
-        {
-          title: 'Brand Details',
-          description: 'Coffee setup or workspace styling. These supporting shots make your whole brand feel premium.',
-          category: 'Detail'
-        }
-      ];
-    } else if (style.id === 'creative') {
-      return [
-        {
-          title: 'Creative Genius Shot',
-          description: 'Bold lighting that shows your creative intensity. Perfect for attracting dream creative projects.',
-          category: 'Portrait'
-        },
-        {
-          title: 'In the Zone',
-          description: 'Caught sketching or brainstorming. Shows clients the magic behind your creative process.',
-          category: 'Lifestyle'
-        },
-        {
-          title: 'Artist\'s World',
-          description: 'Your tools, inspiration, works in progress. Helps clients visualize collaborating with you.',
-          category: 'Detail'
-        }
-      ];
-    } else {
-      return [
-        {
-          title: 'Executive Presence',
-          description: 'Sophisticated but warm. Makes people want to hire you for their most important projects.',
-          category: 'Portrait'
-        },
-        {
-          title: 'Strategic Thinking',
-          description: 'You reviewing plans or in thoughtful mode. Shows the high-level thinking clients pay for.',
-          category: 'Lifestyle'
-        },
-        {
-          title: 'Premium Touch',
-          description: 'Quality materials, elegant details. Whispers "premium service" without saying a word.',
-          category: 'Detail'
-        }
-      ];
-    }
-  };
-
-  const handleSendMessage = (e) => {
-    e.preventDefault();
+  const handleSendMessage = () => {
     if (inputValue.trim() && !isTyping) {
       const userMessage = {
         role: 'user',
@@ -860,90 +532,88 @@ const MayaScreen = () => {
       setMessages(prev => [...prev, userMessage]);
       setInputValue('');
       
-      // Maya responds with warm, specific advice
       setTimeout(() => {
         setIsTyping(true);
         setTimeout(() => {
           setIsTyping(false);
           const mayaMessage = {
             role: 'maya',
-            content: 'I can totally see your vision! You have great instincts.\n\nLet\'s create photos that work hard for your business:',
+            content: 'I can see your vision. You have great instincts.\n\nHere\'s what I\'m thinking - 5 photos that will make you look incredible:',
             timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             concepts: [
               {
-                title: 'Your Signature Look',
-                description: 'That perfect shot that makes people think "I need to work with them." Great for everything from LinkedIn to your website.',
-                category: 'Portrait'
+                title: 'The LinkedIn Winner',
+                description: 'Sharp focus on your face with perfect lighting. This is your main profile photo.',
+                category: 'Close-Up'
               },
               {
-                title: 'Behind-the-Scenes',
-                description: 'You doing what you do best. These authentic moments make clients feel like they already trust you.',
+                title: 'The Approachable Expert', 
+                description: 'Waist up, slight smile, clean background. Shows personality while staying professional.',
+                category: 'Half Body'
+              },
+              {
+                title: 'Working in Your Element',
+                description: 'You doing what you do best - maybe at your desk or in a meeting. Shows authenticity.',
                 category: 'Lifestyle'
               },
               {
-                title: 'Brand Story',
-                description: 'Details that show your personality and quality. Trust me, these make all the difference.',
-                category: 'Detail'
+                title: 'The Human Side',
+                description: 'More relaxed version - maybe with coffee. Shows you\'re real and approachable.',
+                category: 'Casual'
+              },
+              {
+                title: 'Beautiful Details',
+                description: 'Workspace flat lay - laptop, notebook, coffee. Tells your story without showing your face.',
+                category: 'Flat Lay'
               }
             ]
           };
           setMessages(prev => [...prev, mayaMessage]);
-        }, 2400);
-      }, 700);
+        }, 2800);
+      }, 800);
     }
   };
 
   return (
-    <div className="h-full flex flex-col space-y-6">
+    <div className="h-full flex flex-col space-y-4 pb-6 sm:space-y-6">
       {/* Maya Header */}
       <div className="flex items-center justify-between pt-4">
-        <div className="flex items-center gap-4">
-          <div className="p-3 bg-zinc-800/40 rounded-xl border border-zinc-700/30">
-            <MessageCircle size={20} className="text-zinc-300" strokeWidth={1.2} />
+        <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-stone-light/30 overflow-hidden">
+            <img 
+              src="https://i.postimg.cc/fTtCnzZv/out-1-22.png" 
+              alt="Maya" 
+              className="w-full h-full object-cover"
+            />
           </div>
-          <div>
-            <h3 className="text-xl font-serif font-extralight tracking-[0.2em] text-white uppercase">Maya Studio</h3>
-            <p className="text-xs text-zinc-500 tracking-[0.2em] uppercase font-light">AI Stylist & Brand Strategist</p>
+          <div className="flex-1 min-w-0">
+            <h3 className="text-xl sm:text-2xl font-serif font-thin tracking-[0.3em] text-white uppercase">Maya</h3>
+            <p className="text-xs tracking-[0.2em] uppercase font-light" style={{color: '#888888'}}>Your Photo Stylist</p>
           </div>
         </div>
         
-        <button
-          onClick={() => setShowStyleSelector(true)}
-          className="px-4 py-2 bg-zinc-800/30 text-white border border-zinc-700/20 rounded-xl text-xs font-light tracking-[0.1em] uppercase transition-all duration-300 hover:bg-zinc-800/50 hover:border-zinc-600/30"
-        >
-          <Star size={14} strokeWidth={1.2} className="inline mr-2" />
-          {selectedStyle ? selectedStyle.name : 'Choose Style'}
-        </button>
+        <div className="flex items-center gap-2 ml-4">
+          <div className="w-2 h-2 sm:w-3 sm:h-3 bg-white rounded-full"></div>
+          <span className="text-xs font-light" style={{color: '#c0c0c0', opacity: 0.8}}>Online</span>
+        </div>
       </div>
 
-      {/* Selected Style Display */}
-      {selectedStyle && (
-        <div className="p-4 bg-zinc-800/20 rounded-xl border border-zinc-700/20">
-          <div className="flex items-start gap-3">
-            <div className="w-2 h-2 bg-zinc-400 rounded-full mt-2"></div>
-            <div>
-              <h4 className="text-sm font-light text-zinc-300 mb-1 tracking-[0.1em] uppercase">{selectedStyle.aesthetic}</h4>
-              <p className="text-xs text-zinc-400 leading-relaxed font-light">
-                {selectedStyle.description}
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Chat Messages */}
-      <div className="flex-1 overflow-y-auto space-y-4 pr-2">
+      <div className="flex-1 overflow-y-auto space-y-4 sm:space-y-6 pr-1 sm:pr-2">
         {messages.map((msg, index) => (
           <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div className={`max-w-[85%] ${msg.role === 'user' ? 'order-2' : 'order-1'}`}>
-              <div className={`p-4 rounded-xl ${
+              <div className={`p-4 sm:p-6 rounded-2xl sm:rounded-3xl border ${
                 msg.role === 'user' 
-                  ? 'bg-zinc-700/30 border border-zinc-600/30' 
-                  : 'bg-zinc-800/30 border border-zinc-700/30'
-              }`}>
-                <div className="space-y-2">
-                  <p className="text-sm text-white leading-relaxed font-light">{msg.content}</p>
-                  <div className="text-xs text-zinc-500 font-light">
+                  ? 'bg-zinc-700/40 border-zinc-600/40' 
+                  : ''
+              }`} style={msg.role === 'maya' ? {
+                background: 'linear-gradient(135deg, rgba(136, 136, 136, 0.1) 0%, rgba(192, 192, 192, 0.05) 100%)',
+                borderColor: 'rgba(192, 192, 192, 0.2)'
+              } : {}}>
+                <div className="space-y-2 sm:space-y-3">
+                  <p className="text-sm sm:text-base text-white leading-relaxed font-light">{msg.content}</p>
+                  <div className="text-xs font-light" style={{color: msg.role === 'maya' ? '#c0c0c0' : '#a1a1aa', opacity: 0.6}}>
                     {msg.timestamp}
                   </div>
                 </div>
@@ -951,17 +621,13 @@ const MayaScreen = () => {
               
               {/* Concept Cards */}
               {msg.role === 'maya' && msg.concepts && (
-                <div className="mt-4 space-y-4">
-                  <div className="flex items-center gap-2">
-                    <div className="w-1 h-1 bg-zinc-400 rounded-full"></div>
-                    <span className="text-zinc-500 text-xs tracking-[0.2em] uppercase font-light">Concept Ideas</span>
+                <div className="mt-4 sm:mt-6 space-y-3 sm:space-y-4">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="w-1 h-1 rounded-full" style={{backgroundColor: '#c0c0c0'}}></div>
+                    <span className="text-xs tracking-[0.2em] uppercase font-light" style={{color: '#c0c0c0', opacity: 0.8}}>Photo Ideas</span>
                   </div>
                   {msg.concepts.map((concept, conceptIndex) => (
-                    <LuxuryConceptCard 
-                      key={conceptIndex} 
-                      concept={concept} 
-                      onGenerate={() => console.log('Generating:', concept.title)}
-                    />
+                    <ConceptCard key={conceptIndex} concept={concept} />
                   ))}
                 </div>
               )}
@@ -972,72 +638,153 @@ const MayaScreen = () => {
         {/* Typing Indicator */}
         {isTyping && (
           <div className="flex justify-start">
-            <div className="bg-zinc-800/30 border border-zinc-700/30 p-4 rounded-xl max-w-[85%]">
-              <div className="flex items-center gap-3">
+            <div className="bg-gradient-to-br border p-4 sm:p-6 rounded-2xl sm:rounded-3xl max-w-[85%]"
+                 style={{
+                   background: 'linear-gradient(135deg, rgba(136, 136, 136, 0.1) 0%, rgba(192, 192, 192, 0.05) 100%)',
+                   borderColor: 'rgba(192, 192, 192, 0.2)'
+                 }}>
+              <div className="flex items-center gap-3 sm:gap-4">
                 <div className="flex gap-1">
-                  <div className="w-2 h-2 bg-zinc-400 rounded-full animate-pulse"></div>
-                  <div className="w-2 h-2 bg-zinc-400 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
-                  <div className="w-2 h-2 bg-zinc-400 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+                  <div className="w-2 h-2 rounded-full animate-bounce" style={{backgroundColor: '#c0c0c0'}}></div>
+                  <div className="w-2 h-2 rounded-full animate-bounce" style={{backgroundColor: '#c0c0c0', animationDelay: '0.2s'}}></div>
+                  <div className="w-2 h-2 rounded-full animate-bounce" style={{backgroundColor: '#c0c0c0', animationDelay: '0.4s'}}></div>
                 </div>
-                <span className="text-sm text-zinc-400 font-light">Maya is crafting your vision...</span>
+                <span className="text-sm sm:text-base font-light" style={{color: '#c0c0c0', opacity: 0.8}}>Maya is creating your photos...</span>
               </div>
             </div>
           </div>
         )}
       </div>
 
-      {/* Style Selector Modal */}
-      {showStyleSelector && (
-        <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-zinc-950/95 backdrop-blur-2xl rounded-2xl border border-zinc-800/30 max-w-lg w-full max-h-[80vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-serif font-extralight tracking-[0.2em] text-white uppercase">Choose Style</h3>
-                <button
-                  onClick={() => setShowStyleSelector(false)}
-                  className="p-2 hover:bg-zinc-800/40 rounded-lg transition-colors"
-                >
-                  <X size={20} className="text-zinc-400" strokeWidth={1.2} />
-                </button>
-              </div>
-              <StyleSelector 
-                onStyleSelect={handleStyleSelect} 
-                selectedStyleId={selectedStyle?.id}
-                onClose={() => setShowStyleSelector(false)}
-              />
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Chat Input */}
-      <div className="border-t border-zinc-800/20 pt-4">
-        <form onSubmit={handleSendMessage} className="flex gap-3">
+      <div className="border-t border-zinc-800/20 pt-4 sm:pt-6">
+        <div className="flex gap-3 sm:gap-4">
           <div className="flex-1 relative">
             <input 
               type="text" 
               value={inputValue} 
-              onChange={(e) => setInputValue(e.target.value)} 
-              placeholder="Describe your vision to Maya..." 
-              className="w-full px-4 py-3 bg-zinc-800/30 border border-zinc-700/30 rounded-xl text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-600/50 pr-12 font-light"
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyPress={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSendMessage();
+                }
+              }}
+              placeholder="Tell Maya what kind of photos you want..." 
+              className="w-full px-4 py-3 sm:px-6 sm:py-4 bg-zinc-800/40 border border-zinc-700/40 rounded-lg sm:rounded-2xl text-white placeholder-stone-medium focus:outline-none focus:ring-2 focus:ring-stone-light/30 focus:border-stone-light/40 pr-12 sm:pr-14 font-light text-sm sm:text-base min-h-[48px] sm:min-h-auto"
               disabled={isTyping}
             />
-            <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-              <Camera size={16} className="text-zinc-500" strokeWidth={1.2} />
+            <div className="absolute right-3 sm:right-5 top-1/2 transform -translate-y-1/2">
+              <Camera size={16} className="text-stone-medium sm:w-[18px] sm:h-[18px]" strokeWidth={1.2} />
             </div>
           </div>
           <button 
-            type="submit" 
-            className="group relative px-4 py-3 bg-white text-black rounded-xl font-light transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden"
+            onClick={handleSendMessage}
+            className="group relative px-4 py-3 sm:px-6 sm:py-4 bg-white text-black rounded-lg sm:rounded-2xl font-light transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden shadow-lg min-h-[48px] sm:min-h-auto min-w-[48px] sm:min-w-auto"
             disabled={isTyping || !inputValue.trim()}
           >
-            <div className="absolute inset-0 bg-black transform scale-0 group-hover:scale-100 transition-transform duration-300 origin-center"></div>
-            <Send size={16} strokeWidth={1.2} className="relative z-10 group-hover:text-white transition-colors duration-300" />
+            <div className="absolute inset-0 bg-black transform scale-0 group-hover:scale-100 transition-transform duration-500 origin-center"></div>
+            <Send size={16} strokeWidth={1.2} className="relative z-10 group-hover:text-white transition-colors duration-500 sm:w-[18px] sm:h-[18px]" />
           </button>
-        </form>
+        </div>
       </div>
     </div>
   );
 };
 
-export default LuxuryMobileAppDemo;
+const ConceptCard = ({ concept }) => {
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [isGenerated, setIsGenerated] = useState(false);
+
+  const handleGenerate = async () => {
+    setIsGenerating(true);
+    
+    setTimeout(() => {
+      setIsGenerating(false);
+      setIsGenerated(true);
+    }, 3500);
+  };
+
+  return (
+    <div className="bg-zinc-900/40 border border-zinc-800/30 rounded-lg sm:rounded-2xl p-4 sm:p-6 transition-all duration-300 hover:bg-zinc-900/60 hover:border-zinc-700/40">
+      <div className="space-y-4 sm:space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div className="px-3 py-1 bg-stone-medium/10 rounded-full border border-stone-medium/20">
+            <span className="text-xs tracking-[0.1em] uppercase font-light" style={{color: '#c0c0c0'}}>{concept.category}</span>
+          </div>
+          <div className="w-1 h-1 rounded-full" style={{backgroundColor: '#888888'}}></div>
+        </div>
+        
+        {/* Content */}
+        <div className="space-y-3 sm:space-y-4">
+          <h4 className="text-sm sm:text-base font-serif font-thin tracking-[0.1em] text-white uppercase leading-tight">{concept.title}</h4>
+          <p className="text-xs sm:text-sm font-light leading-relaxed" style={{color: '#c0c0c0'}}>{concept.description}</p>
+        </div>
+      </div>
+      
+      {/* Button States */}
+      {!isGenerating && !isGenerated && (
+        <div className="mt-4 sm:mt-6">
+          <button 
+            onClick={handleGenerate}
+            className="w-full bg-white text-black px-4 py-3 sm:px-6 sm:py-4 rounded-lg sm:rounded-xl font-light tracking-[0.2em] uppercase text-xs sm:text-sm transition-all duration-300 hover:bg-zinc-100 hover:transform hover:translate-y-[-1px] min-h-[44px] sm:min-h-auto"
+          >
+            Create This Photo
+          </button>
+        </div>
+      )}
+
+      {/* Loading State */}
+      {isGenerating && (
+        <div className="mt-4 sm:mt-6 flex flex-col items-center justify-center py-6 sm:py-8 space-y-4 sm:space-y-6">
+          <div className="relative">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 border border-stone-light/20 rounded-full animate-spin"></div>
+            <div className="absolute inset-0 w-8 h-8 sm:w-10 sm:h-10 border border-white border-t-transparent rounded-full animate-spin"></div>
+          </div>
+          <div className="text-center space-y-2 sm:space-y-3">
+            <span className="text-sm sm:text-base tracking-[0.2em] uppercase font-light" style={{color: '#c0c0c0'}}>Creating</span>
+            <div className="w-32 h-0.5 sm:w-48 sm:h-1 bg-zinc-800 rounded-full overflow-hidden">
+              <div className="w-full h-full bg-white animate-pulse"></div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Success State */}
+      {isGenerated && (
+        <div className="mt-4 sm:mt-6 space-y-4 sm:space-y-6">
+          <div className="p-3 sm:p-4 bg-zinc-800/40 border border-zinc-700/40 rounded-lg sm:rounded-xl">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="w-6 h-6 sm:w-8 sm:h-8 bg-white/10 rounded-full flex items-center justify-center">
+                <div className="w-2 h-2 sm:w-3 sm:h-3 bg-white rounded-full"></div>
+              </div>
+              <div className="space-y-1 sm:space-y-2 flex-1 min-w-0">
+                <h4 className="text-sm sm:text-base font-light text-white">Photo Ready</h4>
+                <p className="text-xs font-light truncate" style={{color: '#c0c0c0'}}>This turned out beautifully</p>
+              </div>
+            </div>
+          </div>
+          
+          {/* Photo Preview */}
+          <div className="aspect-video bg-zinc-800/40 rounded-lg sm:rounded-xl border border-zinc-700/30 flex items-center justify-center hover:bg-zinc-800/60 transition-all duration-300 cursor-pointer group relative overflow-hidden">
+            <Camera size={24} className="text-stone-medium group-hover:text-stone-light transition-colors sm:w-8 sm:h-8" strokeWidth={1} />
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300"></div>
+          </div>
+          
+          {/* Actions */}
+          <div className="grid grid-cols-2 gap-3 sm:gap-4">
+            <button className="px-4 py-3 sm:px-6 sm:py-4 bg-white text-black rounded-lg sm:rounded-xl font-light tracking-[0.1em] uppercase text-xs sm:text-sm transition-all duration-300 hover:bg-zinc-200 min-h-[44px] sm:min-h-auto">
+              Save Photo
+            </button>
+            <button className="px-4 py-3 sm:px-6 sm:py-4 bg-zinc-800/40 text-white border border-zinc-700/30 rounded-lg sm:rounded-xl font-light tracking-[0.1em] uppercase text-xs sm:text-sm transition-all duration-300 hover:bg-zinc-800/60 hover:border-stone-light/40 min-h-[44px] sm:min-h-auto">
+              Share
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default SselfieApp;
