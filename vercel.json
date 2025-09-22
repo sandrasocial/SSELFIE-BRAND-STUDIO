@@ -43,9 +43,7 @@
     "api/test.ts": {
       "maxDuration": 8
     },
-    "api/test-db-connectivity.ts": {
-      "maxDuration": 10
-    },
+
     "api/test-serverless-db.ts": {
       "maxDuration": 15
     },
