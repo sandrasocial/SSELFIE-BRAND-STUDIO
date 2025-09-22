@@ -40,10 +40,8 @@ const Privacy = lazy(() => import("./pages/privacy"));
 const AuthSuccess = lazy(() => import("./pages/auth-success"));
 const OAuthCallback = lazy(() => import("./pages/OAuthCallback"));
 
-// Critical pages (marked as priority in routed-pages-priority.ts)
-const Workspace = lazy(() => import("./pages/workspace"));
+// Critical pages (marked as priority in routed-pages-priority.ts)  
 const Maya = lazy(() => import("./pages/maya"));
-const Build = lazy(() => import("./pages/build"));
 const SSELFIEGallery = lazy(() => import("./pages/sselfie-gallery"));
 
 // Stage Mode components (lazy loaded)
@@ -201,26 +199,10 @@ function Router() {
       )} />
 
       {/* CRITICAL WORKFLOW PAGES */}
-      <Route path="/workspace" component={(props) => (
-        <ProtectedRoute component={() => (
-          <Suspense fallback={<PageLoader />}>
-            <Workspace />
-          </Suspense>
-        )} {...props} />
-      )} />
-      
       <Route path="/maya" component={(props) => (
         <ProtectedRoute component={() => (
           <Suspense fallback={<PageLoader />}>
             <Maya />
-          </Suspense>
-        )} {...props} />
-      )} />
-      
-      <Route path="/build" component={(props) => (
-        <ProtectedRoute component={() => (
-          <Suspense fallback={<PageLoader />}>
-            <Build />
           </Suspense>
         )} {...props} />
       )} />
