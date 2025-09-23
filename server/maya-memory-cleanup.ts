@@ -7,7 +7,7 @@
  * to detect user needs through authentic conversation.
  */
 
-import { MayaMemoryService } from './services/maya-memory-service';
+import { MayaMemoryService, mayaMemoryService } from './services/maya-memory-service';
 import { storage } from './storage';
 
 /**

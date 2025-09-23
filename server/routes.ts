@@ -23,7 +23,6 @@ import { setupVite } from './vite';
 import emailManagementRouter from './routes/email-management-routes';
 import { registerCheckoutRoutes } from './routes/checkout';
 import supportEscalationRouter from './routes/support-escalation';
-import adminEmpireApiRouter from './routes/admin-empire-api';
 import memberProtectionRouter from './routes/member-protection';
 import systemValidationRouter from './routes/system-validation';
 import phase2CoordinationRouter from './routes/phase2-coordination';

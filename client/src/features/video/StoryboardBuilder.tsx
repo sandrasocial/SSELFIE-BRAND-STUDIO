@@ -5,7 +5,7 @@ import { Input } from '../../components/ui/input';
 import { Textarea } from '../../components/ui/textarea';
 import { Badge } from '../../components/ui/badge';
 import { Trash2, Play, Plus, Camera, Clock, Sparkles } from 'lucide-react';
-import { useToast } from '../../components/ui/use-toast';
+import { useToast } from '../../hooks/use-toast';
 
 interface StoryboardScene {
   id: string;
