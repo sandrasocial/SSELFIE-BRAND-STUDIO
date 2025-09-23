@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import type { AiImage, UserModel, InsertUser } from '../shared/schema';
+import type { AiImage, UserModel, InsertUser } from '@shared/schema.js';
 import { withTimeout, withDatabaseTimeout, withDatabaseTimeoutAndRetry, withExternalApiTimeout, isTimeoutError } from './_utils/timing.js';
 export const config = { 
   runtime: 'nodejs',

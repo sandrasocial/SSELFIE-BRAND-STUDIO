@@ -23,7 +23,8 @@
       "@components/*": ["client/src/components/*"],
       "@lib/*": ["client/src/lib/*"],
       "@shared/*": ["shared/*"],
-      "@assets/*": ["attached_assets/*"]
+  "@assets/*": ["attached_assets/*"],
+  "@server/*": ["server/*"]
     }
   },
   "include": [

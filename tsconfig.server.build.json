@@ -1,0 +1,19 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "dist-server",
+    "declaration": false,
+    "emitDeclarationOnly": false,
+    "noEmit": false,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowJs": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true
+  },
+  "include": [
+    "server/**/*",
+    "shared/**/*",
+    "api/**/*"
+  ]
+}
