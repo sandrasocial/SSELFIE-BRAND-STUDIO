@@ -42,7 +42,7 @@ export const ImageSelector: FC<ImageSelectionProps> = ({
       {/* AI Generated Photos Section */}
       <section className="space-y-4">
         <h3 className="eyebrow-text">Your AI Portfolio</h3>
-        <ScrollArea className="h-[400px] w-full">
+        <div className="h-[400px] w-full overflow-auto">
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 p-4">
             {aiGallery.editorialVersions.map((photo, index) => (
               <Card 
@@ -60,13 +60,13 @@ export const ImageSelector: FC<ImageSelectionProps> = ({
               </Card>
             ))}
           </div>
-        </ScrollArea>
+        </div>
       </section>
 
       {/* Flatlay Library Section */}
       <section className="space-y-4">
         <h3 className="eyebrow-text">Luxury Flatlay Collection</h3>
-        <ScrollArea className="h-[400px] w-full">
+        <div className="h-[400px] w-full overflow-auto">
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 p-4">
             {flatlayLibrary.editorialLayouts.map((layout, index) => (
               <Card 
@@ -84,7 +84,7 @@ export const ImageSelector: FC<ImageSelectionProps> = ({
               </Card>
             ))}
           </div>
-        </ScrollArea>
+        </div>
       </section>
 
       {/* Selected Images Preview */}

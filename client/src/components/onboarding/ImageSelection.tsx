@@ -40,7 +40,7 @@ const ImageSelection: FC<ImageSelectionProps> = ({
         </p>
       </div>
 
-      <ScrollArea className="h-[800px] pr-6">
+      <div className="h-[800px] pr-6 overflow-auto">
         <div className="space-y-12">
           {/* Your AI Photos Section */}
           <div className="space-y-4">
@@ -111,7 +111,7 @@ const ImageSelection: FC<ImageSelectionProps> = ({
             </div>
           </div>
         </div>
-      </ScrollArea>
+      </div>
 
       {/* Selected Preview */}
       <div className="mt-8 pt-6 border-t border-accent-line">
