@@ -125,3 +125,6 @@ onboarding/
 /blob-report/
 /playwright/.cache/
 .vercel
+
+*storybook.log
+storybook-static
