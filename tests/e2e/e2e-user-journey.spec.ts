@@ -76,4 +76,4 @@ test('Critical User Journey (E2E): New user signup, payment, training, Maya chat
     await expect(page.getByTestId('image-preview')).toHaveAttribute('src', '/mock/generated-image.jpg');
     await page.getByTestId('tab-gallery').click();
     await expect(page.getByTestId('gallery-image')).toHaveAttribute('src', '/mock/generated-image.jpg');
-  });
+});

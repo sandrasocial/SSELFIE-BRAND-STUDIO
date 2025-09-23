@@ -49,7 +49,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'npm run dev',
+  command: "bash -c 'export $(grep -v \"^#\" .env.server | xargs) && npm run dev'",
     url: 'http://localhost:5173',
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
