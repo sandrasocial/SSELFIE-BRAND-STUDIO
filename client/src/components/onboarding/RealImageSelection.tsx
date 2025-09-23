@@ -1,7 +1,7 @@
 import { FC, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Card } from '../ui/card';
-// ScrollArea component removed
+import { ScrollArea } from '../ui/scroll-area';
 import { Check, Image, Sparkles } from 'lucide-react';
 import { cleanedFlatlayCollections } from '../../data/cleaned-flatlay-collections';
 
