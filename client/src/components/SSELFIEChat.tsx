@@ -6,7 +6,7 @@ import { Camera, Send, MessageCircle, Sparkles } from 'lucide-react';
 
 interface ChatMessage {
   id: string;
-  type: 'user' | 'sselfie';
+  type: 'user' | 'sselfie' | 'maya';
   content: string;
   timestamp: string;
   conceptCards?: ConceptCard[];
