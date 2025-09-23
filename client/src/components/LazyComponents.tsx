@@ -5,7 +5,6 @@ import { lazy } from 'react';
 export const AdminConsultingAgents = lazy(() => import('../pages/admin-consulting-agents'));
 export const MayaPhotoshoot = lazy(() => import('../pages/maya'));
 export const VictoriaChat = lazy(() => import('../pages/victoria-chat'));
-export const MemberWorkspace = lazy(() => import('../pages/workspace'));
 
 // Heavy utility components
 export const ReactMarkdown = lazy(() => import('react-markdown'));
