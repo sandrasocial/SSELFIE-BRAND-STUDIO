@@ -52,6 +52,11 @@ export function useStaggerAnimation(itemCount: number) {
 // Hook for intersection observer animations
 export function useScrollAnimation() {
   const elementsRef = useRef<HTMLElement[]>([]);
+  
+  useEffect(() => {
+    if (elementsRef.current.length > 0) {
+      EditorialAnimations.observeInView(elementsRef.current);
+    }
   }, []);
 
   const addElement = (element: HTMLElement | null) => {
@@ -61,3 +66,4 @@ export function useScrollAnimation() {
   };
 
   return { addElement };
+}

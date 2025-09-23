@@ -212,3 +212,4 @@ export function EditorialShowcase() {
       </div>
     </div>
   );
+}
