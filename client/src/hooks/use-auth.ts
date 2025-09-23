@@ -7,8 +7,24 @@ export interface User {
   email: string;
   firstName?: string;
   lastName?: string;
+  displayName?: string;
+  profileImageUrl?: string;
   plan?: string;
   role?: string;
+  // User preferences and profile data
+  gender?: string;
+  profession?: string;
+  brandStyle?: string;
+  photoGoals?: string;
+  preferredOnboardingMode?: string;
+  // Training and access flags
+  trainingCoachingCompleted?: boolean;
+  mayaAiAccess?: boolean;
+  victoriaAiAccess?: boolean;
+  hasRetrainingAccess?: boolean;
+  // Usage tracking
+  monthlyGenerationLimit?: number;
+  generationsUsedThisMonth?: number;
 }
 
 // ✅ FIXED: Stack Auth integration with proper error handling
