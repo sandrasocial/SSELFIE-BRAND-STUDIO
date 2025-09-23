@@ -23,7 +23,7 @@ import { initializeRuntimeOptimization } from "./utils/runtimeOptimization";
 import "./styles/luxury-mobile.css";
 
 // Core pages (loaded immediately) - BRAND STUDIO IS PRIMARY
-import AppLayout from "./app/AppLayout";
+import SselfieAppLayout from "./app_v2/SselfieAppLayout";
 
 // Lazy load non-critical pages for better performance
 import { lazy, Suspense } from "react";
@@ -219,7 +219,7 @@ function Router() {
       {/* NEW TABBED UI ROUTE */}
       <Route path="/app" component={() => (
         <Suspense fallback={<PageLoader />}>
-          <AppLayout />
+          <SselfieAppLayout />
         </Suspense>
       )} />
 
