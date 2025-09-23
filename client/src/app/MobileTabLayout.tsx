@@ -1,12 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
-import { SSELFIEChat } from './SSELFIEChat';
-import { StudioScreen } from './StudioScreen';
-import { ProfileScreen } from './ProfileScreen';
-import { AccountScreen } from './AccountScreen';
+import { SSELFIEChat } from '../components/SSELFIEChat';
+import { StudioScreen } from '../components/StudioScreen';
+import { ProfileScreen } from '../components/ProfileScreen';
+import { AccountScreen } from '../components/AccountScreen';
+import GalleryTabScreen from '../components/GalleryTabScreen';
 import { useAuth } from '../hooks/use-auth';
-import { ThemeToggle } from './ThemeToggle';
+import { ThemeToggle } from '../components/ThemeToggle';
 import { Camera, Grid, User, Settings, MessageCircle, Bell, Battery, Signal, Wifi } from 'lucide-react';
+
+// SSELFIE BRAND STUDIO - MOBILE-FIRST TAB NAVIGATION
+// User Journey: Authentication → Training → App Studio (Tabs) → Advanced Features
+// 
+// Tab Structure (Mobile-Optimized Design):
+// 1. Studio Tab - Main creation interface
+// 2. Maya Tab - AI styling assistant  
+// 3. Gallery Tab - Photo collection (mobile-optimized tab component)
+// 4. Profile Tab - User settings & progress
+// 5. More Tab - Advanced tools & settings
 
 // Editorial Tab Configuration - Clean and Focused
 const createTabs = (user: { name?: string; email?: string; image?: string }) => [
@@ -29,8 +40,7 @@ const createTabs = (user: { name?: string; email?: string; image?: string }) => 
     label: 'Gallery',
     icon: Grid,
     description: 'Your photo collection',
-    isRoute: true,
-    route: '/sselfie-gallery'
+    route: '/gallery'
   },
   {
     id: 'profile',
@@ -48,7 +58,7 @@ const createTabs = (user: { name?: string; email?: string; image?: string }) => 
   }
 ];
 
-// Main MobileTabLayout Component - Editorial Luxury Redesign
+// Main MobileTabLayout Component - Fixed Structure
 function MobileTabLayout() {
   const [activeTab, setActiveTab] = useState('studio');
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -76,103 +86,72 @@ function MobileTabLayout() {
   }, []);
 
   const handleTabChange = (tabId: string) => {
-    const tab = tabs.find(t => t.id === tabId);
-    if (tab?.isRoute && tab.route) {
-      // Navigate to the full page route
-      setLocation(tab.route);
-    } else {
-      // Switch to the tab component
-      setActiveTab(tabId);
-    }
+    setActiveTab(tabId);
   };
 
   return (
-    <div className="flex flex-col h-full bg-transparent">
+    <div className="min-h-screen bg-black text-white flex flex-col">
       {/* Status Bar */}
-      <div className="luxury-status-bar">
-        <div className="luxury-status-time">
+      <div className="fixed top-0 left-0 right-0 z-50 flex justify-between items-center px-4 py-2 bg-black/90 backdrop-blur-md">
+        <div className="text-sm font-medium">
           {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
         </div>
-        <div className="luxury-status-indicators">
-          <div className="luxury-status-indicator">
-            <div className="w-1 h-4 bg-white rounded-full" />
-            <div className="w-1 h-4 bg-white/60 rounded-full" />
-            <div className="w-1 h-4 bg-white/30 rounded-full" />
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1">
+            <div className="w-1 h-3 bg-white rounded-full" />
+            <div className="w-1 h-3 bg-white/60 rounded-full" />
+            <div className="w-1 h-3 bg-white/30 rounded-full" />
           </div>
           
           {isAuthenticated && user && (
-            <div className="luxury-status-indicator">
+            <div className="flex items-center gap-1">
               <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
-              <span className="text-xs tracking-wide font-light">ONLINE</span>
+              <span className="text-xs tracking-wide">ONLINE</span>
             </div>
           )}
           
-          <div className="luxury-status-indicator">
-            <ThemeToggle />
-          </div>
-          
-          <div className="luxury-status-indicator">
-            <Bell size={14} strokeWidth={1.2} />
+          <div className="flex items-center gap-1">
+            <Bell size={12} />
             {hasNotifications && (
-              <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+              <div className="w-1 h-1 bg-red-500 rounded-full"></div>
             )}
           </div>
           
-          <div className="luxury-status-indicator">
-            <Battery size={14} strokeWidth={1.2} />
+          <div className="flex items-center gap-1">
+            <Battery size={12} />
             <span className="text-xs">{Math.round(batteryLevel)}%</span>
           </div>
         </div>
       </div>
 
-      {/* Editorial Header */}
-      <div className="luxury-header-container">
-        <div className="luxury-brand-mark">
-          <span className="luxury-heading-2 text-center">
-            SSELFIE
-          </span>
-        </div>
-        <div className="luxury-text-caption text-zinc-600 font-serif">
+      {/* Header */}
+      <div className="sticky top-10 z-40 bg-black/90 backdrop-blur-md border-b border-white/10 p-4 text-center">
+        <h1 className="text-2xl font-serif font-light tracking-[0.3em] text-white uppercase">
           SSELFIE
-        </div>
+        </h1>
+        <p className="text-xs text-zinc-500 tracking-[0.2em] uppercase">BRAND STUDIO</p>
       </div>
 
       {/* Main Content Area */}
-      <main 
-        className="flex-1 pb-32 overflow-y-auto overscroll-behavior-y-contain"
-        style={{
-          paddingLeft: 'env(safe-area-inset-left)',
-          paddingRight: 'env(safe-area-inset-right)',
-          paddingBottom: 'calc(8rem + env(safe-area-inset-bottom))'
-        }}
-        role="main" 
-        aria-label="Main content"
-      >
-        <div className="px-6 py-6 min-h-full">
-          <div className="luxury-fade-in">
-            {currentTab?.component || (
-              <div className="text-center py-12">
-                <p className="luxury-text-caption">Content will load in new page</p>
-              </div>
-            )}
+      <main className="flex-1 px-4 py-6 pb-32 overflow-y-auto">
+        {currentTab?.component || (
+          <div className="text-center py-12">
+            <p className="text-zinc-500 text-sm">Content will load in new page</p>
           </div>
-        </div>
+        )}
       </main>
 
-      {/* Luxury Floating Tab Bar */}
-      <nav 
-        role="navigation" 
-        aria-label="Mobile navigation"
+      {/* Tab Navigation - Mobile Optimized */}
+      <div 
         className="fixed bottom-4 left-4 right-4 z-50"
         style={{
           paddingBottom: 'env(safe-area-inset-bottom)',
           paddingLeft: 'env(safe-area-inset-left)',
           paddingRight: 'env(safe-area-inset-right)',
-          zIndex: 9999
         }}
       >
-        <div className="luxury-tab-container">
-          <div className="luxury-tab-grid">
+        <div className="bg-zinc-800/90 backdrop-blur-md border border-white/10 rounded-2xl p-2">
+          <div className="flex justify-around">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
@@ -181,30 +160,20 @@ function MobileTabLayout() {
                 <button
                   key={tab.id}
                   onClick={() => handleTabChange(tab.id)}
-                  className={`luxury-tab-button ${isActive ? 'active' : ''}`}
+                  className={`flex-1 flex flex-col items-center justify-center p-3 rounded-xl transition-all duration-300 min-h-[56px] ${
+                    isActive 
+                      ? 'bg-white/10 text-white scale-105' 
+                      : 'text-zinc-500 hover:text-white hover:bg-white/5'
+                  }`}
                   style={{ 
                     WebkitTapHighlightColor: 'transparent',
                     touchAction: 'manipulation'
                   }}
                   title={tab.description}
                   aria-label={`Switch to ${tab.label}`}
-                  aria-current={isActive ? 'page' : undefined}
-                  aria-pressed={isActive}
-                  role="tab"
-                  tabIndex={isActive ? 0 : -1}
                 >
-                  <div className={`luxury-tab-icon ${
-                    isActive 
-                      ? 'transform scale-105' 
-                      : ''
-                  }`}>
-                    <Icon 
-                      size={20} 
-                      strokeWidth={1.2} 
-                      className="transition-all duration-500" 
-                    />
-                  </div>
-                  <span className="luxury-tab-label">
+                  <Icon size={20} strokeWidth={1.2} className="mb-1" />
+                  <span className="text-xs tracking-wide uppercase font-light">
                     {tab.label}
                   </span>
                 </button>
@@ -212,7 +181,7 @@ function MobileTabLayout() {
             })}
           </div>
         </div>
-      </nav>
+      </div>
     </div>
   );
 }

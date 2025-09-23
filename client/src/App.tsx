@@ -23,22 +23,26 @@ import { initializeRuntimeOptimization } from "./utils/runtimeOptimization";
 import "./styles/luxury-mobile.css";
 
 // Core pages (loaded immediately) - BRAND STUDIO IS PRIMARY
-import AppLayout from "./pages/AppLayout";
+import AppLayout from "./app/AppLayout";
 
 // Lazy load non-critical pages for better performance
 import { lazy, Suspense } from "react";
 
-const BusinessLanding = lazy(() => import("./pages/business-landing"));
-const HairLanding = lazy(() => import("./pages/hair-landing"));
-const HairSignup = lazy(() => import("./pages/hair-signup"));
-const LuxuryTrainingPage = lazy(() => import("./components/LuxuryTrainingPage"));
+const BusinessLanding = lazy(() => import("./pages/landing/business-landing"));
+const HairLanding = lazy(() => import("./pages/landing/hair-landing"));
+const HairSignup = lazy(() => import("./pages/landing/hair-signup"));
+const SimpleTraining = lazy(() => import("./pages/onboarding/simple-training"));
 const SimpleCheckout = lazy(() => import("./pages/simple-checkout"));
 const PaymentSuccess = lazy(() => import("./pages/payment-success"));
 const ThankYou = lazy(() => import("./pages/thank-you"));
-const Terms = lazy(() => import("./pages/terms"));
-const Privacy = lazy(() => import("./pages/privacy"));
+const Terms = lazy(() => import("./pages/legal/terms"));
+const Privacy = lazy(() => import("./pages/legal/privacy"));
 const AuthSuccess = lazy(() => import("./pages/auth-success"));
 const OAuthCallback = lazy(() => import("./pages/OAuthCallback"));
+
+// Critical pages (marked as priority in routed-pages-priority.ts)  
+const Maya = lazy(() => import("./pages/maya"));
+const SSELFIEGallery = lazy(() => import("./pages/sselfie-gallery"));
 
 // Stage Mode components (lazy loaded)
 const PresenterConsole = lazy(() => import("./features/live/PresenterConsole"));
@@ -48,7 +52,8 @@ const SessionStats = lazy(() => import("./features/live/SessionStats"));
 // Components
 import { PageLoader } from "./components/PageLoader";
 
-// Smart Home component - Routes authenticated users to Brand Studio
+// Smart Home component - Routes users through simplified journey
+// NEW USER JOURNEY: Authentication → Training → App Studio → Advanced Features  
 function SmartHome() {
   const [, setLocation] = useLocation();
   const { isAuthenticated, isLoading } = useAuth();
@@ -63,16 +68,16 @@ function SmartHome() {
 
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
-      // Check training status and route accordingly
+      // SIMPLIFIED JOURNEY: Training → App Studio (no old workspace/build flow)
       if (userModel && (userModel as { trainingStatus?: string }).trainingStatus !== 'completed') {
-        console.log('🎯 User authenticated but needs training, redirecting to simple-training');
+        console.log('🎯 User needs training → /simple-training (onboarding)');
         setLocation('/simple-training');
       } else {
-        console.log('✅ User authenticated with completed training, redirecting to Brand Studio');
-  setLocation('/app');
+        console.log('✅ User trained → /app (mobile-first studio tabs)');
+        setLocation('/app');
       }
     } else if (!isLoading && !isAuthenticated) {
-      console.log('🔍 User not authenticated, staying on landing page');
+      console.log('🔍 User not authenticated → staying on landing page');
     }
   }, [isAuthenticated, isLoading, userModel, setLocation]);
 
@@ -189,7 +194,24 @@ function Router() {
       <Route path="/simple-training" component={(props) => (
         <ProtectedRoute component={() => (
           <Suspense fallback={<PageLoader />}>
-            <LuxuryTrainingPage />
+            <SimpleTraining />
+          </Suspense>
+        )} {...props} />
+      )} />
+
+      {/* CRITICAL WORKFLOW PAGES */}
+      <Route path="/maya" component={(props) => (
+        <ProtectedRoute component={() => (
+          <Suspense fallback={<PageLoader />}>
+            <Maya />
+          </Suspense>
+        )} {...props} />
+      )} />
+      
+      <Route path="/sselfie-gallery" component={(props) => (
+        <ProtectedRoute component={() => (
+          <Suspense fallback={<PageLoader />}>
+            <SSELFIEGallery />
           </Suspense>
         )} {...props} />
       )} />
