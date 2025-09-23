@@ -12,7 +12,7 @@ export function AppTopNav() {
 
   const handleLogout = async () => {
     try {
-      await stackClientApp.signOut();
+      window.location.href = '/api/auth/logout';
     } catch {
       window.location.href = '/';
     }

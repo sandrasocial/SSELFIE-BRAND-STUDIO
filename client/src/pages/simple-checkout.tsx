@@ -306,8 +306,8 @@ export default function SimpleCheckout() {
                 minHeight: '48px', // Touch-friendly minimum
                 touchAction: 'manipulation' // Prevent zoom on double-tap
               }}
-              onMouseEnter={!isProcessing ? (e) => e.target.style.background = '#757575' : undefined}
-              onMouseLeave={!isProcessing ? (e) => e.target.style.background = '#000000' : undefined}
+              onMouseEnter={!isProcessing ? (e) => (e.target as HTMLElement).style.background = '#757575' : undefined}
+              onMouseLeave={!isProcessing ? (e) => (e.target as HTMLElement).style.background = '#000000' : undefined}
             >
               {isProcessing ? 'PROCESSING YOUR PAYMENT...' : 'SECURE PAYMENT WITH STRIPE'}
             </button>
