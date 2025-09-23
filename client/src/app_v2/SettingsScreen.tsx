@@ -10,8 +10,11 @@ const SettingsScreen: React.FC = () => {
     return (
       <div className="min-h-screen bg-stone-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-8 h-8 border-2 border-stone-300 border-t-stone-600 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-sm text-stone-600">Loading account settings...</p>
+          <div className="w-20 h-20 border border-stone-300 rounded-full animate-spin mx-auto mb-8 flex items-center justify-center">
+            <div className="w-3 h-3 bg-stone-600 rounded-full animate-pulse"></div>
+          </div>
+          <h1 className="text-stone-900 text-4xl font-serif font-thin tracking-[0.5em] mb-6 leading-none">SSELFIE</h1>
+          <p className="text-xs font-light tracking-[0.4em] uppercase text-stone-500 opacity-70">Loading Settings</p>
         </div>
       </div>
     );
@@ -21,9 +24,9 @@ const SettingsScreen: React.FC = () => {
     return (
       <div className="min-h-screen bg-stone-50 flex items-center justify-center">
         <div className="text-center">
-          <Settings className="h-12 w-12 text-stone-400 mx-auto mb-4" />
-          <h2 className="text-xl font-light text-stone-900 mb-2">Authentication Required</h2>
-          <p className="text-stone-600">Please sign in to view your account settings</p>
+          <Settings className="h-16 w-16 text-stone-400 mx-auto mb-6" strokeWidth={1} />
+          <h2 className="text-2xl font-serif font-thin text-stone-900 mb-2 tracking-[0.3em] uppercase">Authentication Required</h2>
+          <p className="text-stone-600 font-light">Please sign in to view your account settings</p>
         </div>
       </div>
     );

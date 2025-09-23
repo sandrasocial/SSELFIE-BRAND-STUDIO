@@ -119,22 +119,7 @@ const MayaScreen: React.FC = () => {
                             {card.description}
                           </p>
                           <div className="flex gap-2">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="text-xs"
-                            >
-                              <Camera className="w-3 h-3 mr-1" />
-                              Generate Photo
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className="text-xs"
-                            >
-                              <Heart className="w-3 h-3 mr-1" />
-                              Save
-                            </Button>
+                            {/* Add concept card actions here if needed, e.g. Save, Share, etc. */}
                           </div>
                         </div>
                       </div>
@@ -145,26 +130,13 @@ const MayaScreen: React.FC = () => {
             </div>
           </div>
         ))}
-        
-        {isTyping && (
-          <div className="flex justify-start">
-            <div className="bg-gray-100 rounded-2xl px-6 py-4 flex items-center gap-3">
-              <Loader2 className="w-4 h-4 animate-spin" />
-              <span className="text-gray-600">Maya is thinking...</span>
-            </div>
-          </div>
-        )}
-        
         <div ref={messagesEndRef} />
       </div>
-
-      {/* Error Display */}
       {error && (
         <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
           <p className="text-red-700 text-sm">{error}</p>
         </div>
       )}
-
       {/* Message Input */}
       <div className="flex gap-3">
         <div className="flex-1 relative">
