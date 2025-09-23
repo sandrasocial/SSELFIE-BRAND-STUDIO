@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import VideoPreview from './VideoPreview';
+import { apiRequest } from '../lib/queryClient';
 
 interface StoryStudioModalProps {
   imageId: string;
