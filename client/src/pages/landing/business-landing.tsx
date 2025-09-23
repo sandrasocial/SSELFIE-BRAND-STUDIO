@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { GlobalFooter } from "../../components/global-footer";
 import { SignIn } from "@stackframe/react";
-import { stackClientApp } from "../../../stack";
+import { stackClientApp } from "../../../../stack/client";
 import { STACK_PROJECT_ID, STACK_PUBLISHABLE_CLIENT_KEY } from "../../env";
 
 export default function BusinessLanding() {

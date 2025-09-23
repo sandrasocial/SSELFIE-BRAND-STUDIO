@@ -484,8 +484,8 @@ export default function PaymentSuccess() {
               minHeight: '48px', // Touch-friendly minimum
               touchAction: 'manipulation' // Prevent zoom on double-tap
             }}
-            onMouseEnter={(e) => e.target.style.background = '#757575'}
-            onMouseLeave={(e) => e.target.style.background = '#000000'}
+            onMouseEnter={(e) => (e.target as HTMLElement).style.background = '#757575'}
+            onMouseLeave={(e) => (e.target as HTMLElement).style.background = '#000000'}
           >
             START YOUR AI TRAINING
           </button>
