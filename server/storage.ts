@@ -1,3 +1,41 @@
+// Utility: Default user fields for onboarding/business logic
+function getDefaultUserFields(overrides: Partial<InsertUser> = {}): InsertUser {
+  return {
+    id: overrides.id ?? '',
+    stackAuthId: overrides.stackAuthId ?? '',
+    email: overrides.email ?? '',
+    firstName: overrides.firstName ?? '',
+    lastName: overrides.lastName ?? '',
+    displayName: overrides.displayName ?? '',
+    profileImageUrl: overrides.profileImageUrl ?? '',
+    createdAt: overrides.createdAt ?? new Date(),
+    updatedAt: overrides.updatedAt ?? new Date(),
+    lastLoginAt: overrides.lastLoginAt ?? new Date(),
+    plan: 'sselfie-studio',
+    role: 'user',
+    monthlyGenerationLimit: 100,
+    mayaAiAccess: true,
+    victoriaAiAccess: false,
+    preferredOnboardingMode: 'conversational',
+    onboardingProgress: {},
+    gender: '',
+    profession: '',
+    brandStyle: '',
+    photoGoals: '',
+    trainingCoachingStarted: false,
+    trainingCoachingCompleted: false,
+    trainingCoachingPhase: '',
+    trainingCoachingStep: 0,
+    brandStrategyContext: {},
+    generationsUsedThisMonth: 0,
+    hasRetrainingAccess: false,
+    retrainingSessionId: '',
+    retrainingPaidAt: null,
+    stripeCustomerId: '',
+    stripeSubscriptionId: '',
+    ...overrides
+  };
+}
 import {
   users,
   userProfiles,
@@ -347,26 +385,24 @@ export class DatabaseStorage implements IStorage {
 
   async createUser(userData: InsertUser): Promise<User> {
     console.log('🔄 Creating new user:', userData.email);
-    
+    let finalUserData = getDefaultUserFields(userData);
     // Special admin setup for ssa@ssasocial.com
-    if (userData.email === 'ssa@ssasocial.com') {
-      userData.role = 'admin';
-      userData.monthlyGenerationLimit = -1; // Unlimited
-      userData.plan = 'sselfie-studio';
-      userData.mayaAiAccess = true;
-      userData.victoriaAiAccess = true;
+    if (finalUserData.email === 'ssa@ssasocial.com') {
+      finalUserData.role = 'admin';
+      finalUserData.monthlyGenerationLimit = -1; // Unlimited
+      finalUserData.plan = 'sselfie-studio';
+      finalUserData.mayaAiAccess = true;
+      finalUserData.victoriaAiAccess = true;
       console.log('👑 Setting admin privileges for ssa@ssasocial.com');
     }
-
     const [user] = await db
       .insert(users)
       .values({
-        ...userData,
+        ...finalUserData,
         createdAt: new Date(),
         updatedAt: new Date(),
       })
       .returning();
-      
     console.log('✅ Created new user:', user.id, user.email);
     return user;
   }
@@ -378,84 +414,57 @@ export class DatabaseStorage implements IStorage {
 
   async upsertUser(userData: InsertUser): Promise<User> {
     console.log('🔄 Upserting user:', userData.id, userData.email);
-
+    let finalUserData = getDefaultUserFields(userData);
     // Special admin setup for ssa@ssasocial.com
-    if (userData.email === 'ssa@ssasocial.com') {
-      userData.role = 'admin';
-      userData.monthlyGenerationLimit = -1; // Unlimited
-      userData.plan = 'sselfie-studio';
-      userData.mayaAiAccess = true;
-      userData.victoriaAiAccess = true;
+    if (finalUserData.email === 'ssa@ssasocial.com') {
+      finalUserData.role = 'admin';
+      finalUserData.monthlyGenerationLimit = -1; // Unlimited
+      finalUserData.plan = 'sselfie-studio';
+      finalUserData.mayaAiAccess = true;
+      finalUserData.victoriaAiAccess = true;
       console.log('👑 Setting admin privileges for ssa@ssasocial.com');
     }
-
     // First try to find existing user by ID
-    const existingUser = await this.getUser(userData.id);
-
+    const existingUser = await this.getUser(finalUserData.id);
     if (existingUser) {
       console.log('✅ Found existing user by ID, updating...');
       const [user] = await db
         .update(users)
         .set({
-          firstName: userData.firstName,
-          lastName: userData.lastName,
-          profileImageUrl: userData.profileImageUrl,
-          // Stack Auth integration - no extra fields needed
-          displayName: userData.displayName,
-          lastLoginAt: userData.lastLoginAt,
-          // Business logic fields
-          role: userData.role,
-          monthlyGenerationLimit: userData.monthlyGenerationLimit,
-          plan: userData.plan,
-          mayaAiAccess: userData.mayaAiAccess,
-          victoriaAiAccess: userData.victoriaAiAccess,
+          ...finalUserData,
           updatedAt: new Date(),
         })
-        .where(eq(users.id, userData.id))
+        .where(eq(users.id, finalUserData.id))
         .returning();
       return user;
     }
-
     // If not found by ID, check by email and update that record with new ID
-    if (userData.email) {
+    if (finalUserData.email) {
       const [userByEmail] = await db
         .select()
         .from(users)
-        .where(eq(users.email, userData.email));
-
+        .where(eq(users.email, finalUserData.email));
       if (userByEmail) {
-        console.log('✅ Found existing user by email, updating with new Replit ID...');
-        // Update the existing user record with the new Replit ID
+        console.log('✅ Found existing user by email, updating with new Stack Auth ID...');
+        // Update the existing user record with the new Stack Auth ID
         const [updatedUser] = await db
           .update(users)
           .set({
-            id: userData.id, // Update to new Stack Auth user ID
-            firstName: userData.firstName,
-            lastName: userData.lastName,
-            profileImageUrl: userData.profileImageUrl,
-            // Stack Auth integration - no extra fields needed
-            displayName: userData.displayName,
-            lastLoginAt: userData.lastLoginAt,
-            // Business logic fields
-            role: userData.role,
-            monthlyGenerationLimit: userData.monthlyGenerationLimit,
-            plan: userData.plan,
-            mayaAiAccess: userData.mayaAiAccess,
-            victoriaAiAccess: userData.victoriaAiAccess,
+            ...finalUserData,
+            id: finalUserData.id,
             updatedAt: new Date(),
           })
-          .where(eq(users.email, userData.email))
+          .where(eq(users.email, finalUserData.email))
           .returning();
         return updatedUser;
       }
     }
-
     // User doesn't exist by ID or email, create new one
     console.log('🆕 Creating new user...');
     try {
       const [user] = await db
         .insert(users)
-        .values(userData)
+        .values(finalUserData)
         .returning();
       return user;
     } catch (error: unknown) {
@@ -466,7 +475,7 @@ export class DatabaseStorage implements IStorage {
         const [existingUser] = await db
           .select()
           .from(users)
-          .where(eq(users.email, userData.email || ''));
+          .where(eq(users.email, finalUserData.email || ''));
         if (existingUser) {
           return existingUser;
         }
