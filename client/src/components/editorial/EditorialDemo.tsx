@@ -24,3 +24,4 @@ export function EditorialDemo() {
       </EditorialCard>
     </div>
   );
+}

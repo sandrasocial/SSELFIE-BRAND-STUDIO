@@ -1,7 +1,7 @@
 import { FC } from 'react';
 import { Card } from '../ui/card';
 import { Input } from '../ui/input';
-// Label component removed
+import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
 
 export interface PersonalBrandAssessment {
