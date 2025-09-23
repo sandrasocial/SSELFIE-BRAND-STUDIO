@@ -16,10 +16,12 @@ export default defineConfig(({ mode }) => {
         react: path.resolve(import.meta.dirname, "node_modules/react"),
         "react-dom": path.resolve(import.meta.dirname, "node_modules/react-dom"),
 
-        // your existing aliases (unchanged)
-        "@": path.resolve(import.meta.dirname, "client", "src"),
-        "@shared": path.resolve(import.meta.dirname, "shared"),
-        "@assets": path.resolve(import.meta.dirname, "attached_assets"),
+  // your existing aliases (unchanged)
+  "@": path.resolve(import.meta.dirname, "client", "src"),
+  "@components": path.resolve(import.meta.dirname, "client", "src", "components"),
+  "@lib": path.resolve(import.meta.dirname, "client", "src", "lib"),
+  "@shared": path.resolve(import.meta.dirname, "shared"),
+  "@assets": path.resolve(import.meta.dirname, "attached_assets"),
       },
     },
 

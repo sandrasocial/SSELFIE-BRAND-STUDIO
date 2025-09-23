@@ -16,7 +16,7 @@ export class PaymentService {
       });
       return subscription;
     } catch (error) {
-      logger.error('Subscription creation failed', { error: error.message });
+      logger.error(`Subscription creation failed: ${(error as Error).message}`);
       throw error;
     }
   }
@@ -41,19 +41,19 @@ export class PaymentService {
       
       return { status: 'success' };
     } catch (error) {
-      logger.error('Webhook handling failed', { error: error.message });
+      logger.error(`Webhook handling failed: ${(error as Error).message}`);
       throw error;
     }
   }
 
   private async handleInvoicePaid(invoice: any) {
     // Implement invoice paid logic
-    logger.info('Invoice paid', { invoiceId: invoice.id });
+  logger.info(`Invoice paid: invoiceId=${invoice.id}`);
   }
 
   private async handleSubscriptionCanceled(subscription: any) {
     // Implement subscription cancellation logic
-    logger.info('Subscription canceled', { subscriptionId: subscription.id });
+  logger.info(`Subscription canceled: subscriptionId=${subscription.id}`);
   }
 
   async generateInvoice(customerId: string, amount: number) {
@@ -73,7 +73,7 @@ export class PaymentService {
 
       return invoice;
     } catch (error) {
-      logger.error('Invoice generation failed', { error: error.message });
+      logger.error(`Invoice generation failed: ${(error as Error).message}`);
       throw error;
     }
   }

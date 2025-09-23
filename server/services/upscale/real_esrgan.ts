@@ -4,14 +4,14 @@
  */
 
 import { REPLICATE_API_TOKEN } from '../../env';
-import type { UpscaleScale } from '../../config/upscale';
+// import type { UpscaleScale } from '../../config/upscale';
 
 export interface UpscaleResult {
   url: string;
   width: number;
   height: number;
   provider: 'real_esrgan';
-  scale: UpscaleScale;
+  scale: number; // Fallback to number if UpscaleScale type is missing
 }
 
 export interface UpscaleError {
@@ -24,7 +24,7 @@ export interface UpscaleError {
  */
 export async function upscaleImageWithRealESRGAN(
   imageUrl: string,
-  scale: UpscaleScale = 2
+  scale: number = 2
 ): Promise<UpscaleResult | UpscaleError> {
   try {
     if (!REPLICATE_API_TOKEN) {

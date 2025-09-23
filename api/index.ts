@@ -292,7 +292,11 @@ function extractConceptCards(response: string): ConceptCard[] {
       }
     });
   } catch (error) {
-    console.log('❌ Error extracting concept cards:', error.message);
+    if (error instanceof Error) {
+      console.log('❌ Error extracting concept cards:', error.message);
+    } else {
+      console.log('❌ Error extracting concept cards:', error);
+    }
   }
   
   return conceptCards;
@@ -341,10 +345,7 @@ async function verifyJWTToken(token: string) {
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
-    console.log('🔍 API Handler: Request received', req.url);
-    console.log('🔍 Method:', req.method);
-    console.log('🔍 Headers:', JSON.stringify(req.headers, null, 2));
-    console.log('🔍 Cookies:', JSON.stringify(req.cookies, null, 2));
+  console.log('🔍 API Handler:', { url: req.url, method: req.method });
     // Vercel Skew Protection: pin requests to this deployment via cookie
     if (
       process.env.VERCEL_SKEW_PROTECTION_ENABLED === '1' &&
@@ -365,14 +366,26 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     }
     
-    // Set CORS headers for authentication
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    // Set CORS headers for authentication (reflect origin for credentials)
+    const origin = req.headers.origin || '';
+    const allowed = [
+      'https://your-prod-domain.com',
+      'https://your-preview.vercel.app',
+      'http://localhost:5173'
+    ];
+    if (allowed.includes(origin)) {
+      res.setHeader('Access-Control-Allow-Origin', origin);
+      res.setHeader('Vary', 'Origin');
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
+    } else {
+      res.setHeader('Access-Control-Allow-Origin', 'https://your-prod-domain.com');
+    }
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-stack-access-token');
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-stack-access-token, x-admin-token');
     
     // Handle preflight requests
     if (req.method === 'OPTIONS') {
+      // Mirror CORS headers for preflight
       return res.status(200).end();
     }
 
@@ -713,7 +726,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(500).json({
           success: false,
           error: 'Failed to create account',
-          message: error.message
+          message: error instanceof Error ? error.message : String(error)
         });
       }
     }
@@ -748,10 +761,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(proxyResponse.status).send(responseData);
         
       } catch (error) {
-        console.log('❌ Stack Auth proxy failed:', error.message);
+        if (error instanceof Error) {
+          console.log('❌ Stack Auth proxy failed:', error.message);
+        } else {
+          console.log('❌ Stack Auth proxy failed:', error);
+        }
         return res.status(500).json({ 
           error: 'Stack Auth proxy failed',
-          message: error.message
+          message: error instanceof Error ? error.message : String(error)
         });
       }
     }
@@ -765,10 +782,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         res.setHeader('Cache-Control', 'no-store');
         return res.status(200).json(user);
       } catch (error) {
-        console.log('❌ Authentication failed:', error.message);
+        if (error instanceof Error) {
+          console.log('❌ Authentication failed:', error.message);
+        } else {
+          console.log('❌ Authentication failed:', error);
+        }
         return res.status(401).json({ 
           message: 'Authentication required',
-          error: error.message
+          error: error instanceof Error ? error.message : String(error)
         });
       }
     }
@@ -955,64 +976,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
       
         if (!dbUser) {
-          // Try to find user by Stack Auth ID or email in parallel with shorter timeouts
-          const [byStackId, byEmail] = await Promise.all([
-            withDatabaseTimeout(
-              storage.getUserByStackAuthId(user.id as string), 
-              null, 
-              2000, // Reduced from 2500ms
-              'getUserByStackAuthId'
-            ),
-            user.email ? withDatabaseTimeout(
-              storage.getUserByEmail(user.email as string), 
-              null, 
-              2000, // Reduced from 2500ms
-              'getUserByEmail'
-            ) : Promise.resolve(null)
-          ]);
-          
-          if (byStackId) {
-            dbUser = byStackId;
-          } else if (byEmail) {
-            console.log('🔗 Linking existing paid user to Stack Auth:', byEmail.email, '→', user.id);
-            dbUser = await withDatabaseTimeout(
-              storage.linkStackAuthId(byEmail.id, user.id as string), 
-              byEmail, // Use existing user as fallback if linking fails
-              2500, // Reduced from 3000ms
-              'linkStackAuthId'
-            );
-            console.log('✅ Successfully linked paid user to Stack Auth account');
-          }
-        }
-      
-        if (!dbUser) {
-          // Create completely new user (no prior payment) with timeout fallback
-          console.log('🆕 Creating new user account:', user.email);
-          
-          // Create a minimal user object as fallback
-          const fallbackUser = {
-            id: user.id as string,
-            email: (user.email as string) || null,
-            displayName: `${user.firstName || ''} ${user.lastName || ''}`.trim() || null,
-            firstName: user.firstName || null,
-            lastName: user.lastName || null,
-            profileImageUrl: null,
-            plan: 'sselfie-studio',
-            role: 'user',
-            monthlyGenerationLimit: 100,
-            mayaAiAccess: true,
-            victoriaAiAccess: false,
-            onboardingProgress: JSON.stringify({ source: 'direct-signup' })
-          };
-          
-          dbUser = await withDatabaseTimeout(
-            storage.upsertUser(fallbackUser),
-            fallbackUser, // Use fallback if DB operation times out
-            3000, // Reduced from 4000ms
-            'upsertUser'
-          );
-          
-          console.log('✅ Created new user account:', dbUser.id);
+          // If no user is found in the database, return an error instead of creating a fallback user
+          console.error('❌ No database user found for:', user.id, user.email);
+          t.end('error', { error: 'No database user found' });
+          return res.status(404).json({
+            message: 'User not found in database',
+            error: 'Database user not found'
+          });
         }
         
         res.setHeader('Cache-Control', 'no-store');
@@ -1178,7 +1148,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         
         return json(res, 401, { 
           message: 'Authentication required',
-          error: error.message
+          error: error instanceof Error ? error.message : String(error)
         });
       }
     }
@@ -1390,10 +1360,14 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
         });
         
       } catch (error) {
-        console.log('❌ Maya generate failed:', error.message);
+        if (error instanceof Error) {
+          console.log('❌ Maya generate failed:', error.message);
+        } else {
+          console.log('❌ Maya generate failed:', error);
+        }
         return res.status(500).json({ 
           message: 'Image generation failed',
-          error: error.message
+          error: error instanceof Error ? error.message : String(error)
         });
       }
     }
@@ -1467,10 +1441,14 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
         });
         
       } catch (error) {
-        console.log('❌ Maya status check failed:', error.message);
+        if (error instanceof Error) {
+          console.log('❌ Maya status check failed:', error.message);
+        } else {
+          console.log('❌ Maya status check failed:', error);
+        }
         return res.status(500).json({ 
           message: 'Status check failed',
-          error: error.message
+          error: error instanceof Error ? error.message : String(error)
         });
       }
     }
@@ -1734,10 +1712,14 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
         return res.status(200).json(chats);
         
       } catch (error) {
-        console.log('❌ Maya chats fetch failed:', error.message);
+        if (error instanceof Error) {
+          console.log('❌ Maya chats fetch failed:', error.message);
+        } else {
+          console.log('❌ Maya chats fetch failed:', error);
+        }
         return res.status(401).json({ 
           message: 'Authentication required',
-          error: error.message
+          error: error instanceof Error ? error.message : String(error)
         });
       }
     }
@@ -1760,11 +1742,8 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
 
     // Alias: support legacy hyphen path /api/training-status
     if (req.url === '/api/training-status' || req.url?.startsWith('/api/training-status?')) {
-      // Delegate to the canonical handler
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (req as any).url = '/api/training/status';
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return (handler as any)(req, res);
+      // Use 307 redirect instead of handler recursion
+      return res.status(307).setHeader('Location', '/api/training/status').end();
     }
 
     // Training progress endpoint used by simple-training.tsx
@@ -1902,10 +1881,14 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
         });
         
       } catch (error) {
-        console.log('❌ Gender update failed:', error.message);
+        if (error instanceof Error) {
+          console.log('❌ Gender update failed:', error.message);
+        } else {
+          console.log('❌ Gender update failed:', error);
+        }
         return res.status(500).json({ 
           error: 'Failed to update gender',
-          message: error.message 
+          message: error instanceof Error ? error.message : String(error)
         });
       }
     }
@@ -2026,8 +2009,8 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
       } catch (error) {
         return res.status(500).json({
           message: 'Database connection failed',
-          error: error.message,
-          stack: error.stack
+          error: error instanceof Error ? error.message : String(error),
+          stack: error instanceof Error ? error.stack : undefined
         });
       }
     }

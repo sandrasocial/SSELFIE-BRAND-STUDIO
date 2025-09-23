@@ -37,4 +37,6 @@ export function EditorialInput({
       className={`editorial-input w-full focus:outline-none ${className}`}
       {...props}
     />
+
   );
+}

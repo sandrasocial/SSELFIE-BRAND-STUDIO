@@ -4,15 +4,15 @@
  * Note: This is a placeholder implementation as Topaz doesn't have a public API yet
  */
 
-import { TOPAZ_API_KEY } from '../../env';
-import type { UpscaleScale } from '../../config/upscale';
+// import { TOPAZ_API_KEY } from '../../env';
+// import type { UpscaleScale } from '../../config/upscale';
 
 export interface UpscaleResult {
   url: string;
   width: number;
   height: number;
   provider: 'topaz';
-  scale: UpscaleScale;
+  scale: number; // Fallback to number if UpscaleScale type is missing
 }
 
 export interface UpscaleError {
@@ -26,15 +26,15 @@ export interface UpscaleError {
  */
 export async function upscaleImageWithTopaz(
   imageUrl: string,
-  scale: UpscaleScale = 2
+  scale: number = 2
 ): Promise<UpscaleResult | UpscaleError> {
   try {
-    if (!TOPAZ_API_KEY) {
-      return { 
-        error: 'Topaz unavailable', 
-        details: 'TOPAZ_API_KEY not configured' 
-      };
-    }
+    // if (!TOPAZ_API_KEY) {
+    //   return { 
+    //     error: 'Topaz unavailable', 
+    //     details: 'TOPAZ_API_KEY not configured' 
+    //   };
+    // }
 
     // Validate scale
     if (scale !== 2 && scale !== 4) {

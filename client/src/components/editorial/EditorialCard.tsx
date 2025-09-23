@@ -31,4 +31,6 @@ export function EditorialCard({
     <div className={`${baseClasses} ${variantClasses[variant]} ${paddingClasses[padding]} ${className}`}>
       {children}
     </div>
+
   );
+}

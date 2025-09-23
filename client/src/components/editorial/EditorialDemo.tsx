@@ -23,4 +23,6 @@ export function EditorialDemo() {
         </div>
       </EditorialCard>
     </div>
+
   );
+}

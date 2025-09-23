@@ -39,11 +39,10 @@ export class WorkflowExecutor {
       
       // Get current database schema
       for (const table of tables) {
-        const [tableInfo] = await db.query(
-          'SELECT column_name, data_type FROM information_schema.columns WHERE table_name = ?',
-          [table]
+        const result = await db.execute(
+          `SELECT column_name, data_type FROM information_schema.columns WHERE table_name = '${table}'`
         );
-        
+        const tableInfo = result.rows;
         // Verify against schema definition
         if (!this.validateTableSchema(tableInfo, schemaContent, table)) {
           throw new Error(`Schema mismatch for table: ${table}`);
@@ -60,17 +59,17 @@ export class WorkflowExecutor {
   async executeFixes(operations: string[]): Promise<void> {
     try {
       // Start transaction
-      await db.query('BEGIN');
+      await db.execute('BEGIN');
 
       for (const operation of operations) {
-        await db.query(operation);
+        await db.execute(operation);
       }
 
       // Commit if all operations successful
-      await db.query('COMMIT');
+      await db.execute('COMMIT');
     } catch (error) {
       // Rollback on error
-      await db.query('ROLLBACK');
+      await db.execute('ROLLBACK');
       throw new Error(`Fix execution failed: ${error.message}`);
     }
   }
@@ -79,8 +78,8 @@ export class WorkflowExecutor {
   async verifyFixes(checks: string[]): Promise<boolean> {
     try {
       for (const check of checks) {
-        const [result] = await db.query(check);
-        if (result.count > 0) {
+        const result = await db.execute(check);
+        if (result.rows && result.rows[0] && Number(result.rows[0].count) > 0) {
           throw new Error(`Verification failed for check: ${check}`);
         }
       }

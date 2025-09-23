@@ -24,6 +24,7 @@ export function EditorialHeading({ level = 1, children, className = '' }: Editor
     <Component className={`${baseClasses} ${levelClasses[level]} ${className}`}>
       {children}
     </Component>
+
   );
 }
 
@@ -45,3 +46,4 @@ export function EditorialText({ variant = 'body', children, className = '' }: Ed
       {children}
     </p>
   );
+}

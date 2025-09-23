@@ -2,9 +2,9 @@ import { useEffect, useRef } from 'react';
 import { EditorialAnimations } from '../utils/editorialAnimations';
 
 export function useEditorialAnimations() {
-  const fadeInRef = useRef<HTMLElement>(null);
-  const hoverScaleRef = useRef<HTMLElement>(null);
-  const touchFeedbackRef = useRef<HTMLElement>(null);
+  const fadeInRef = useRef<HTMLDivElement>(null);
+  const hoverScaleRef = useRef<HTMLDivElement>(null);
+  const touchFeedbackRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (fadeInRef.current) {
@@ -52,7 +52,6 @@ export function useStaggerAnimation(itemCount: number) {
 // Hook for intersection observer animations
 export function useScrollAnimation() {
   const elementsRef = useRef<HTMLElement[]>([]);
-  }, []);
 
   const addElement = (element: HTMLElement | null) => {
     if (element && !elementsRef.current.includes(element)) {
@@ -61,3 +60,4 @@ export function useScrollAnimation() {
   };
 
   return { addElement };
+}

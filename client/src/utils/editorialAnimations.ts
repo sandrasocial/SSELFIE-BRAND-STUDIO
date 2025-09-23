@@ -19,7 +19,7 @@ export class EditorialAnimations {
       duration,
       easing,
       fill: 'forwards'
-    });
+  });
   }
 
   // Sophisticated fade animations
@@ -108,13 +108,9 @@ export class EditorialAnimations {
 
   // Parallax effect for backgrounds
   static createParallaxEffect(element: HTMLElement, speed = 0.5) {
-      const scrolled = window.pageYOffset;
-      const parallax = scrolled * speed;
-      element.style.transform = `translateY(${parallax}px)`;
-    };
-    
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    
+    const scrolled = window.pageYOffset;
+    const parallax = scrolled * speed;
+    element.style.transform = `translateY(${parallax}px)`;
   }
 
   // Intersection Observer for scroll animations
@@ -130,4 +126,10 @@ export class EditorialAnimations {
       threshold: 0.1,
       rootMargin: '50px 0px -50px 0px'
     });
+    elements.forEach(el => observer.observe(el));
+  }
+}
+
+
+
 

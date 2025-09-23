@@ -36,15 +36,21 @@ export function withServerlessDb<T = any>(
       return result;
       
     } catch (error) {
-      console.error('❌ Serverless handler error:', error);
-      
+      if (error instanceof Error) {
+        console.error('❌ Serverless handler error:', error.message, error.stack);
+      } else {
+        console.error('❌ Serverless handler error:', error);
+      }
       // Ensure cleanup on error
       try {
         await cleanup();
       } catch (cleanupError) {
-        console.error('❌ Cleanup error:', cleanupError);
+        if (cleanupError instanceof Error) {
+          console.error('❌ Cleanup error:', cleanupError.message, cleanupError.stack);
+        } else {
+          console.error('❌ Cleanup error:', cleanupError);
+        }
       }
-      
       throw error;
     }
   };
@@ -93,6 +99,11 @@ export function withHealthHeaders(
       // Add error info to headers
       res.setHeader('X-Database-Error', 'true');
       res.setHeader('X-Database-Driver', 'neon-serverless');
+      if (error instanceof Error) {
+        console.error('❌ Database health check error:', error.message, error.stack);
+      } else {
+        console.error('❌ Database health check error:', error);
+      }
       throw error;
     }
   };

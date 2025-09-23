@@ -37,4 +37,6 @@ export function EditorialTextarea({
       className={`editorial-input w-full resize-none focus:outline-none ${className}`}
       {...props}
     />
+
   );
+}
