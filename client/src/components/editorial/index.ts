@@ -3,3 +3,7 @@ export { EditorialButton } from './EditorialButton';
 export { EditorialCard } from './EditorialCard';
 export { EditorialInput } from './EditorialInput';
 export { EditorialTextarea } from './EditorialTextarea';
+export { EditorialHeading } from './EditorialHeading';
+export { EditorialText } from './EditorialText';
+export { EditorialDemo } from './EditorialDemo';
+export { EditorialShowcase } from './EditorialShowcase';

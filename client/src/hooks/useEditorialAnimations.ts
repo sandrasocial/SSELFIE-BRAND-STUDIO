@@ -2,9 +2,9 @@ import { useEffect, useRef } from 'react';
 import { EditorialAnimations } from '../utils/editorialAnimations';
 
 export function useEditorialAnimations() {
-  const fadeInRef = useRef<HTMLElement>(null);
-  const hoverScaleRef = useRef<HTMLElement>(null);
-  const touchFeedbackRef = useRef<HTMLElement>(null);
+  const fadeInRef = useRef<any>(null);
+  const hoverScaleRef = useRef<any>(null);
+  const touchFeedbackRef = useRef<any>(null);
 
   useEffect(() => {
     if (fadeInRef.current) {

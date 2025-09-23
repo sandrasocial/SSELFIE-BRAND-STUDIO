@@ -4,13 +4,17 @@ interface EditorialTextProps {
   size?: 'sm' | 'base' | 'lg';
   weight?: 'normal' | 'medium' | 'bold';
   italic?: boolean;
+  className?: string;
+  variant?: string;
 }
 
 export const EditorialText: FC<EditorialTextProps> = ({
   children,
   size = 'base',
   weight = 'normal',
-  italic = false
+  italic = false,
+  className = '',
+  variant
 }) => {
   const sizeClasses = {
     sm: 'text-sm md:text-base',
@@ -33,6 +37,7 @@ export const EditorialText: FC<EditorialTextProps> = ({
       text-zinc-800
       leading-relaxed
       mb-6
+      ${className}
     `}>
       {children}
     </p>
