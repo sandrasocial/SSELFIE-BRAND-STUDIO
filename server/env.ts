@@ -1,10 +1,13 @@
 
-import * as dotenv from 'dotenv';
 
-// Load environment variables
-dotenv.config();
+import * as dotenv from 'dotenv';
+// Only load .env.server in non-production environments
+if (process.env.NODE_ENV !== 'production') {
+	dotenv.config({ path: '.env.server' });
+}
 
 export const DATABASE_URL = process.env.DATABASE_URL;
+console.log('DEBUG: DATABASE_URL at startup:', DATABASE_URL);
 export const STACK_SECRET_SERVER_KEY = process.env.STACK_SECRET_SERVER_KEY;
 export const VITE_STACK_PUBLISHABLE_CLIENT_KEY = process.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY;
 export const REPLICATE_API_TOKEN = process.env.REPLICATE_API_TOKEN;
