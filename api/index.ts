@@ -1,14 +1,16 @@
 /* eslint-disable no-console */
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import type { AiImage, UserModel, InsertUser } from '@shared/schema.js';
 import { withTimeout, withDatabaseTimeout, withDatabaseTimeoutAndRetry, withExternalApiTimeout, isTimeoutError } from './_utils/timing.js';
+
 export const config = { 
   runtime: 'nodejs',
   maxDuration: 40
 } as const;
+
 // Lazy-load jose at runtime to avoid bootstrap issues
 type JoseModule = typeof import('jose');
 let _jose: Pick<JoseModule, 'jwtVerify' | 'createLocalJWKSet' | 'createRemoteJWKSet'> | null = null;
+
 async function getJose() {
   if (_jose) return _jose;
   const mod: JoseModule = await import('jose');
@@ -17,6 +19,39 @@ async function getJose() {
 }
 
 // Types
+// Minimal InsertUser type for local use
+type InsertUser = {
+  id: string;
+  email?: string | null;
+  displayName?: string | null;
+  firstName?: string | null;
+  lastName?: string | null;
+  profileImageUrl?: string | null;
+  plan?: string;
+  role?: string;
+  monthlyGenerationLimit?: number;
+  mayaAiAccess?: boolean;
+  victoriaAiAccess?: boolean;
+  onboardingProgress?: string;
+  preferredOnboardingMode?: string;
+  lastLoginAt?: Date;
+};
+
+// Minimal UserModel type for local use
+type UserModel = {
+  id: string | number;
+  userId: string;
+  trainingStatus?: string | null;
+  createdAt?: Date | null;
+  updatedAt?: Date | null;
+};
+
+// Minimal AiImage type for local use
+type AiImage = {
+  id: number;
+  isFavorite?: boolean;
+  isSelected?: boolean;
+};
 interface ConceptCard {
   id: string;
   title: string;
@@ -42,34 +77,24 @@ interface AuthenticatedUser {
   stackUser: Record<string, unknown>;
 }
 
-// Stack Auth configuration - use environment variables
+// Stack Auth configuration
 const STACK_AUTH_PROJECT_ID = process.env.STACK_AUTH_PROJECT_ID || process.env.VITE_STACK_PROJECT_ID || '253d7343-a0d4-43a1-be5c-822f590d40be';
 const STACK_AUTH_API_URL = 'https://api.stack-auth.com/api/v1';
 const JWKS_URL = `${STACK_AUTH_API_URL}/projects/${STACK_AUTH_PROJECT_ID}/.well-known/jwks.json`;
 
 // Create JWKS resolver
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let JWKS: any; // JWKS type from jose library - complex type that's not worth importing
+let JWKS: any;
 
-// Timed fetch helper to avoid hard timeouts on external calls
+// Timed fetch helper
 type FetchInit = { method?: string; headers?: Record<string, string>; body?: string };
 
-// Declare AbortController for environments where it might not be available
-declare const AbortController: {
-  new(): { abort(): void; signal: { addEventListener: (event: string, handler: () => void) => void } };
-};
-
 async function timedFetch(url: string, ms = 3000, init?: FetchInit) {
-  // Use the enhanced external API timeout utility
   return withExternalApiTimeout(
     async () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const AbortCtor = typeof AbortController !== 'undefined' ? AbortController : (globalThis as any).AbortController;
       const ac = new AbortCtor();
       const id = setTimeout(() => ac.abort(), ms);
       try {
-        // Use global fetch; if types are missing, fall back to any
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const f = (globalThis as any).fetch || fetch;
         return await f(url, { ...(init || {}), signal: ac.signal });
       } finally {
@@ -83,15 +108,15 @@ async function timedFetch(url: string, ms = 3000, init?: FetchInit) {
   );
 }
 
-// Remove duplicate withTimeout function - using the one from timing utils instead
-
-function setLogoutCookies(res: import('@vercel/node').VercelResponse) {
+// Cookie management
+function setLogoutCookies(res: VercelResponse) {
   const expired = [
     'stack-access',
     'stack-access-token',
     'stack_session',
     '__Secure-next-auth.session-token'
   ].map(name => `${name}=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0`);
+  
   const existing = res.getHeader('Set-Cookie');
   if (Array.isArray(existing)) {
     res.setHeader('Set-Cookie', [...existing, ...expired]);
@@ -102,7 +127,7 @@ function setLogoutCookies(res: import('@vercel/node').VercelResponse) {
   }
 }
 
-// Simple circuit breaker for database operations
+// Circuit breaker for database operations
 interface CircuitBreakerState {
   failures: number;
   lastFailure: number;
@@ -115,14 +140,13 @@ const circuitBreaker: CircuitBreakerState = {
   isOpen: false
 };
 
-const CIRCUIT_BREAKER_THRESHOLD = 5; // Open after 5 failures
-const CIRCUIT_BREAKER_TIMEOUT = 30000; // 30 seconds
-const CIRCUIT_BREAKER_RESET_TIME = 60000; // Reset after 1 minute
+const CIRCUIT_BREAKER_THRESHOLD = 5;
+const CIRCUIT_BREAKER_TIMEOUT = 30000;
+const CIRCUIT_BREAKER_RESET_TIME = 60000;
 
 function checkCircuitBreaker(): boolean {
   const now = Date.now();
   
-  // Reset if enough time has passed
   if (circuitBreaker.isOpen && now - circuitBreaker.lastFailure > CIRCUIT_BREAKER_RESET_TIME) {
     circuitBreaker.isOpen = false;
     circuitBreaker.failures = 0;
@@ -148,19 +172,26 @@ function recordCircuitBreakerSuccess() {
     console.log('✅ Circuit breaker: database operations successful');
   }
 }
+
+// Logging utilities
 function nowMs(): number {
   const perf = (globalThis as unknown as { performance?: { now: () => number } }).performance;
   return typeof perf?.now === 'function' ? perf.now() : Date.now();
 }
+
 function logStart(route: string, meta?: Record<string, unknown>) {
   const start = nowMs();
-  try { console.log(`▶️ ${route} start`, meta || {}); } catch {
+  try { 
+    console.log(`▶️ ${route} start`, meta || {}); 
+  } catch {
     // Ignore logging errors
   }
   return {
     end: (outcome: string, extra?: Record<string, unknown>) => {
       const elapsed = Math.round(nowMs() - start);
-      try { console.log(`⏱️ ${route} ${outcome}`, { elapsedMs: elapsed, ...(extra || {}) }); } catch {
+      try { 
+        console.log(`⏱️ ${route} ${outcome}`, { elapsedMs: elapsed, ...(extra || {}) }); 
+      } catch {
         // Ignore logging errors
       }
       return elapsed;
@@ -168,16 +199,14 @@ function logStart(route: string, meta?: Record<string, unknown>) {
   };
 }
 
-// Helper function to apply gender context to concept cards
+// Gender context application
 async function applyGenderContext(conceptCards: ConceptCard[], userId: string): Promise<ConceptCard[]> {
   try {
     console.log('🎯 Applying gender context to concept cards for user:', userId);
     
-    // Import required utilities
     const { storage } = await import('../server/storage');
     const { enforceGender, normalizeGender } = await import('../server/utils/gender-prompt');
     
-    // Get user data
     const [user, userModel] = await Promise.all([
       storage.getUser(userId),
       storage.getUserModelByUserId(userId)
@@ -196,12 +225,10 @@ async function applyGenderContext(conceptCards: ConceptCard[], userId: string): 
     
     console.log(`✅ Applying gender context: ${secureGender} with trigger: ${userModel.triggerWord}`);
     
-    // Apply gender enforcement to each concept card
     return conceptCards.map((concept, index) => {
       let updatedPrompt = concept.fluxPrompt;
       let updatedDescription = concept.description;
       
-      // Enforce gender in FLUX prompt
       if (updatedPrompt) {
         const enforcedPrompt = enforceGender(userModel.triggerWord!, updatedPrompt, secureGender);
         if (enforcedPrompt !== updatedPrompt) {
@@ -210,24 +237,20 @@ async function applyGenderContext(conceptCards: ConceptCard[], userId: string): 
         }
       }
       
-      // Apply pronoun corrections to description based on gender
       if (updatedDescription) {
         if (secureGender === 'man') {
-          // Replace female pronouns with male equivalents
           updatedDescription = updatedDescription
             .replace(/\bshe\b/gi, 'he')
             .replace(/\bher\b/gi, 'his')
             .replace(/\bwoman\b/gi, 'man')
             .replace(/\bwomen\b/gi, 'men');
         } else if (secureGender === 'woman') {
-          // Replace male pronouns with female equivalents (less common but for safety)
           updatedDescription = updatedDescription
             .replace(/\bhe\b/gi, 'she')
             .replace(/\bhis\b/gi, 'her')
             .replace(/\bman\b/gi, 'woman')
             .replace(/\bmen\b/gi, 'women');
         } else if (secureGender === 'non-binary') {
-          // Replace gendered pronouns with neutral alternatives
           updatedDescription = updatedDescription
             .replace(/\b(he|she)\b/gi, 'they')
             .replace(/\b(his|her)\b/gi, 'their')
@@ -245,34 +268,29 @@ async function applyGenderContext(conceptCards: ConceptCard[], userId: string): 
     
   } catch (error) {
     console.log('❌ Gender context application failed (non-blocking):', error instanceof Error ? error.message : error);
-    return conceptCards; // Return original cards if gender enforcement fails
+    return conceptCards;
   }
 }
 
-// Helper function to extract concept cards from Maya's response
+// Extract concept cards from Maya's response
 function extractConceptCards(response: string): ConceptCard[] {
   const conceptCards: ConceptCard[] = [];
   
   try {
-    // Split response by concept separators
     const conceptSections = response.split('---').filter(section => section.trim());
     
     conceptSections.forEach((section, index) => {
       const lines = section.trim().split('\n').filter(line => line.trim());
       
       if (lines.length >= 2) {
-        // Extract emoji and title from first line
         const titleLine = lines[0];
         const emojiMatch = titleLine.match(/^([🎯✨💼🌟💫🏆📸🎬])/u);
         const titleMatch = titleLine.match(/\*\*(.*?)\*\*/);
         
         const emoji = emojiMatch ? emojiMatch[1] : '🎯';
         const title = titleMatch ? titleMatch[1].trim() : `Concept ${index + 1}`;
-        
-        // Extract description (second line)
         const description = lines[1] || '';
         
-        // Find FLUX_PROMPT
         let fluxPrompt = '';
         const fluxPromptLine = lines.find(line => line.includes('FLUX_PROMPT:'));
         if (fluxPromptLine) {
@@ -292,13 +310,13 @@ function extractConceptCards(response: string): ConceptCard[] {
       }
     });
   } catch (error) {
-    console.log('❌ Error extracting concept cards:', error.message);
+    console.log('❌ Error extracting concept cards:', (error as Error).message);
   }
   
   return conceptCards;
 }
 
-// Helper function to categorize concepts
+// Categorize concepts
 function getCategoryFromTitle(title: string): string {
   const titleLower = title.toLowerCase();
   
@@ -308,7 +326,7 @@ function getCategoryFromTitle(title: string): string {
     return 'Lifestyle';
   } else if (titleLower.includes('executive') || titleLower.includes('authority') || titleLower.includes('commanding')) {
     return 'Executive';
-  } else if (titleLower.includes('creative') || titleLower.includes('artistic') || titleLower.includes('artistic')) {
+  } else if (titleLower.includes('creative') || titleLower.includes('artistic')) {
     return 'Creative';
   } else if (titleLower.includes('editorial') || titleLower.includes('fashion') || titleLower.includes('street')) {
     return 'Editorial';
@@ -317,39 +335,73 @@ function getCategoryFromTitle(title: string): string {
   }
 }
 
-// Verify JWT token directly using Stack Auth JWKS (local JWKS with fetch timeout)
+// JWT verification
 async function verifyJWTToken(token: string) {
   try {
-  const jose = await getJose();
-  const { jwtVerify, createLocalJWKSet } = jose;
+    const jose = await getJose();
+    const { jwtVerify, createLocalJWKSet } = jose;
+    
     if (!JWKS) {
-      // Fetch JWKS with timeout and create a local JWK set to avoid remote hangs
       const resp = await timedFetch(JWKS_URL, 3000);
       if (!resp.ok) throw new Error(`JWKS HTTP ${resp.status}`);
       const jwks = await resp.json();
       JWKS = createLocalJWKSet(jwks);
     }
+    
     const { payload } = await jwtVerify(token, JWKS, {
       issuer: `${STACK_AUTH_API_URL}/projects/${STACK_AUTH_PROJECT_ID}`,
       audience: STACK_AUTH_PROJECT_ID,
     });
+    
     return payload;
   } catch (error) {
     throw new Error(`JWT verification failed: ${(error as Error).message}`);
   }
 }
 
+// Default user fields
+function getDefaultUserFields(overrides: Partial<InsertUser> = {}): InsertUser {
+  return {
+    id: overrides.id ?? '',
+    email: overrides.email ?? null,
+    displayName: overrides.displayName ?? null,
+    firstName: overrides.firstName ?? null,
+    lastName: overrides.lastName ?? null,
+    profileImageUrl: overrides.profileImageUrl ?? null,
+    plan: overrides.plan ?? 'sselfie-studio',
+    role: overrides.role ?? 'user',
+    monthlyGenerationLimit: overrides.monthlyGenerationLimit ?? 100,
+    mayaAiAccess: overrides.mayaAiAccess ?? true,
+    victoriaAiAccess: overrides.victoriaAiAccess ?? false,
+    onboardingProgress: overrides.onboardingProgress ?? JSON.stringify({ source: 'direct-signup' }),
+    preferredOnboardingMode: overrides.preferredOnboardingMode ?? 'conversational',
+    lastLoginAt: overrides.lastLoginAt ?? new Date(),
+  };
+}
+
+// Parse cookie header
+function parseCookieHeader(cookieHeader?: string): Record<string, string> {
+  if (!cookieHeader) return {};
+  const out: Record<string, string> = {};
+  for (const part of cookieHeader.split(';')) {
+    const idx = part.indexOf('=');
+    if (idx > -1) {
+      const k = part.slice(0, idx).trim();
+      const v = decodeURIComponent(part.slice(idx + 1).trim());
+      out[k] = v;
+    }
+  }
+  return out;
+}
+
+// Main handler function
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     console.log('🔍 API Handler: Request received', req.url);
     console.log('🔍 Method:', req.method);
-    console.log('🔍 Headers:', JSON.stringify(req.headers, null, 2));
-    console.log('🔍 Cookies:', JSON.stringify(req.cookies, null, 2));
-    // Vercel Skew Protection: pin requests to this deployment via cookie
-    if (
-      process.env.VERCEL_SKEW_PROTECTION_ENABLED === '1' &&
-      process.env.VERCEL_DEPLOYMENT_ID
-    ) {
+
+    // Vercel Skew Protection
+    if (process.env.VERCEL_SKEW_PROTECTION_ENABLED === '1' && process.env.VERCEL_DEPLOYMENT_ID) {
       try {
         const cookieValue = `__vdpl=${process.env.VERCEL_DEPLOYMENT_ID}; Path=/; HttpOnly; Secure; SameSite=Lax`;
         const existing = res.getHeader('Set-Cookie');
@@ -365,7 +417,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     }
     
-    // Set CORS headers for authentication
+    // Set CORS headers
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-stack-access-token');
@@ -376,9 +428,196 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(200).end();
     }
 
-    // Admin export: Markdown document of trained users for manual Stack updates
+    // Safe JSON responder
+    const json = (response: unknown, status: number, body: unknown) => {
+      const r = response as { status?: (code: number) => { json: (b: unknown) => unknown } };
+      if (typeof r?.status === 'function') {
+        return (response as any).status(status).json(body);
+      }
+      const NodeResponse = (globalThis as any).Response;
+      try {
+        return new NodeResponse(JSON.stringify(body), { 
+          status, 
+          headers: { 'content-type': 'application/json' } 
+        });
+      } catch {
+        return { 
+          status, 
+          headers: { 'content-type': 'application/json' }, 
+          body: JSON.stringify(body) 
+        };
+      }
+    };
+
+    // Health check
+    if (req.url?.includes('/api/health')) {
+      return res.status(200).json({
+        status: 'healthy',
+        service: 'SSELFIE Studio API',
+        timestamp: new Date().toISOString(),
+      });
+    }
+
+    // Logout endpoint
+    if (req.url === '/api/logout') {
+      setLogoutCookies(res);
+      res.setHeader('Cache-Control', 'no-store');
+      return res.status(200).json({ ok: true, loggedOut: true });
+    }
+    
+    // Get authenticated user helper function
+    async function getAuthenticatedUser(): Promise<AuthenticatedUser> {
+      let accessToken: string | undefined;
+      
+      // Check Authorization header
+      const authHeader = req.headers.authorization;
+      if (authHeader?.startsWith('Bearer ')) {
+        accessToken = authHeader.substring(7);
+        console.log('🔐 Found Bearer token in Authorization header');
+      }
+      
+      // Check cookies
+      const cookiesSource: Record<string, string> = (req as unknown as { cookies?: Record<string, string> }).cookies || parseCookieHeader(req.headers.cookie as string);
+      if (!accessToken && cookiesSource) {
+        console.log('🍪 All cookies received:', Object.keys(cookiesSource));
+        
+        const cookiesToTry = [
+          'stack-access',
+          'stack-access-token',
+          'stack_session',
+          '__Secure-next-auth.session-token',
+        ];
+        
+        for (const cookieName of cookiesToTry) {
+          const cookieValue = cookiesSource[cookieName];
+          
+          if (cookieValue) {
+            console.log(`🍪 Found cookie: ${cookieName}`);
+            
+            try {
+              // Try parsing as JSON array
+              if (cookieValue.startsWith('[')) {
+                const stackAccessArray = JSON.parse(cookieValue);
+                if (Array.isArray(stackAccessArray) && stackAccessArray.length >= 2) {
+                  accessToken = stackAccessArray[1];
+                  console.log('🔐 Found access token in JSON array format');
+                  break;
+                }
+              }
+              
+              // Try parsing as JSON object
+              if (cookieValue.startsWith('{')) {
+                const stackAccessObj = JSON.parse(cookieValue);
+                if (stackAccessObj.accessToken || stackAccessObj.token || stackAccessObj.jwt) {
+                  accessToken = stackAccessObj.accessToken || stackAccessObj.token || stackAccessObj.jwt;
+                  console.log('🔐 Found access token in JSON object format');
+                  break;
+                }
+              }
+              
+              // Try as direct token
+              if (cookieValue.length > 20 && cookieValue.includes('.')) {
+                accessToken = cookieValue;
+                console.log('🔐 Found access token in direct string format');
+                break;
+              }
+              
+            } catch (parseError) {
+              console.log(`⚠️ Failed to parse ${cookieName} cookie:`, (parseError as Error).message);
+              
+              if (cookieValue.length > 20) {
+                accessToken = cookieValue;
+                console.log('🔐 Using raw cookie value as token');
+                break;
+              }
+            }
+          }
+        }
+        
+        if (!accessToken) {
+          console.log('🔍 No valid access token found in cookies');
+        }
+      }
+      
+      if (!accessToken) {
+        throw new Error('No access token found');
+      }
+
+      console.log('🔐 Verifying JWT token...');
+      
+      // Verify JWT token
+      const userInfo = await verifyJWTToken(accessToken);
+      
+      console.log('✅ JWT verified successfully');
+      
+      // Extract user information
+      const userId = String(userInfo.sub || userInfo.user_id || userInfo.id || '');
+      const userEmail = String(userInfo.email || userInfo.primary_email || userInfo.primaryEmail || userInfo.email_address || userInfo.user_email || '');
+      const userName = String(userInfo.displayName || userInfo.display_name || userInfo.name || userInfo.given_name || userInfo.full_name || '');
+      
+      console.log('📊 Extracted user info:', {
+        id: userId,
+        email: userEmail,
+        name: userName
+      });
+      
+      return {
+        id: userId,
+        email: userEmail,
+        firstName: userName?.split(' ')[0] || null,
+        lastName: userName?.split(' ').slice(1).join(' ') || null,
+        plan: 'sselfie-studio',
+        role: 'user',
+        stackUser: userInfo
+      };
+    }
+
+    // Ensure DB user exists
+    async function ensureDbUserFromStack(stackUser: { 
+      id?: string; 
+      email?: string | null; 
+      displayName?: string | null; 
+      firstName?: string | null; 
+      lastName?: string | null; 
+      profileImageUrl?: string | null; 
+    }) {
+      const { storage } = await import('../server/storage');
+      const stackId = (stackUser.id || '') as string;
+      const email = (stackUser.email || '') as string;
+
+      // Try by ID
+      let dbUser = stackId ? await storage.getUser(stackId) : undefined;
+      if (dbUser) return dbUser;
+
+      // Try by linked stack auth id
+      if (!dbUser && stackId) {
+        dbUser = await storage.getUserByStackAuthId(stackId);
+        if (dbUser) return dbUser;
+      }
+
+      // Try by email, then link
+      if (!dbUser && email) {
+        const byEmail = await storage.getUserByEmail(email);
+        if (byEmail) {
+          return await storage.linkStackAuthId(byEmail.id, stackId || byEmail.id);
+        }
+      }
+
+      // Create new user
+      return await storage.upsertUser(getDefaultUserFields({
+        id: stackId || email || `user_${Date.now()}`,
+        email: email || null,
+        displayName: stackUser.displayName || null,
+        firstName: stackUser.firstName || (stackUser.displayName ? stackUser.displayName.split(' ')[0] : null),
+        lastName: stackUser.lastName || (stackUser.displayName ? stackUser.displayName.split(' ').slice(1).join(' ') : null),
+        profileImageUrl: stackUser.profileImageUrl || null,
+      }));
+    }
+
+    // Admin export: trained users document
     if (req.url === '/api/admin/export-trained-users-doc') {
       if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
+      
       try {
         const adminToken = req.headers['x-admin-token'] as string;
         const expected = process.env.ADMIN_TOKEN || 'sandra-admin-2025';
@@ -420,225 +659,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     }
 
-    // Safe JSON responder that works with both Node res and Web Response
-    const json = (response: unknown, status: number, body: unknown) => {
-      const r = response as { status?: (code: number) => { json: (b: unknown) => unknown } };
-      if (typeof r?.status === 'function') {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        return (response as any).status(status).json(body);
-      }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const NodeResponse = (globalThis as any).Response;
-      try {
-        // @ts-ignore
-        return new NodeResponse(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } });
-      } catch {
-        // Final fallback for unknown environments
-        // @ts-ignore
-        return { status, headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) };
-      }
-    };
-
-    // Shim Response surface if platform provides Web-standard Response instead of VercelResponse
-    const resAny = res as unknown as { status?: (code: number) => { json: (b: unknown) => unknown; send: (t: string) => unknown; end: () => unknown }, setHeader?: (k: string, v: unknown) => void, getHeader?: (k: string) => unknown };
-    if (typeof resAny.status !== 'function') {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const NodeResponse = (globalThis as any).Response;
-      resAny.setHeader = resAny.setHeader || (() => {});
-      resAny.getHeader = resAny.getHeader || (() => undefined);
-      resAny.status = (code: number) => ({
-        json: (body: unknown) => new NodeResponse(JSON.stringify(body), { status: code, headers: { 'content-type': 'application/json' } }),
-        send: (text: string) => new NodeResponse(text, { status: code }),
-        end: () => new NodeResponse(null, { status: code }),
-      });
-    }
-    
-    // Simple health check
-    if (req.url?.includes('/api/health')) {
-      return res.status(200).json({
-        status: 'healthy',
-        service: 'SSELFIE Studio API',
-        timestamp: new Date().toISOString(),
-      });
-    }
-
-    // Logout: clear auth cookies to break loops
-    if (req.url === '/api/logout') {
-      setLogoutCookies(res);
-      res.setHeader('Cache-Control', 'no-store');
-      return res.status(200).json({ ok: true, loggedOut: true });
-    }
-    
-    // Helper function to parse cookie header when req.cookies is unavailable
-    function parseCookieHeader(cookieHeader?: string): Record<string, string> {
-      if (!cookieHeader) return {};
-      const out: Record<string, string> = {};
-      for (const part of cookieHeader.split(';')) {
-        const idx = part.indexOf('=');
-        if (idx > -1) {
-          const k = part.slice(0, idx).trim();
-          const v = decodeURIComponent(part.slice(idx + 1).trim());
-          out[k] = v;
-        }
-      }
-      return out;
-    }
-    
-    // Helper function to get authenticated user
-    async function getAuthenticatedUser(): Promise<AuthenticatedUser> {
-      let accessToken: string | undefined;
-      
-      // Check Authorization header for Bearer token
-      const authHeader = req.headers.authorization;
-      if (authHeader?.startsWith('Bearer ')) {
-        accessToken = authHeader.substring(7);
-        console.log('🔐 Found Bearer token in Authorization header');
-      }
-      
-      // Check cookies for stored access token - handle both req.cookies and header cookies
-      const cookiesSource: Record<string, string> = (req as unknown as { cookies?: Record<string, string> }).cookies || parseCookieHeader(req.headers.cookie as string);
-      if (!accessToken && cookiesSource) {
-        try { console.log('🍪 All cookies received:', Object.keys(cookiesSource)); } catch {
-          // Ignore logging errors
-        }
-        
-        // Try all possible Stack Auth cookie formats
-        const cookiesToTry = [
-          'stack-access',           // Current format
-          'stack-access-token',     // Legacy format
-          'stack_session',          // Alternative format
-          '__Secure-next-auth.session-token', // NextAuth format if used
-        ];
-        
-        for (const cookieName of cookiesToTry) {
-          const cookieValue = cookiesSource[cookieName];
-          
-          if (cookieValue) {
-            console.log(`🍪 Found cookie: ${cookieName}`);
-            
-            try {
-              // Try parsing as JSON array first
-              if (cookieValue.startsWith('[')) {
-                const stackAccessArray = JSON.parse(cookieValue);
-            if (Array.isArray(stackAccessArray) && stackAccessArray.length >= 2) {
-              accessToken = stackAccessArray[1]; // JWT is the second element
-                  console.log('🔐 Found access token in JSON array format');
-                  break;
-                }
-              }
-              
-              // Try parsing as JSON object
-              if (cookieValue.startsWith('{')) {
-                const stackAccessObj = JSON.parse(cookieValue);
-                if (stackAccessObj.accessToken || stackAccessObj.token || stackAccessObj.jwt) {
-                  accessToken = stackAccessObj.accessToken || stackAccessObj.token || stackAccessObj.jwt;
-                  console.log('🔐 Found access token in JSON object format');
-                  break;
-                }
-              }
-              
-              // Try as direct token (string format)
-              if (cookieValue.length > 20 && cookieValue.includes('.')) {
-                // Looks like a JWT token
-                accessToken = cookieValue;
-                console.log('🔐 Found access token in direct string format');
-                break;
-              }
-              
-            } catch (parseError) {
-              console.log(`⚠️ Failed to parse ${cookieName} cookie:`, (parseError as Error).message);
-              
-              // If parsing fails, try as direct token
-              if (cookieValue.length > 20) {
-                accessToken = cookieValue;
-                console.log('🔐 Using raw cookie value as token');
-                break;
-              }
-            }
-          }
-        }
-        
-        if (!accessToken) {
-          try { console.log('🔍 No valid access token found in cookies'); } catch {
-            // Ignore logging errors
-          }
-          try { console.log('🔍 Available cookies:', Object.keys(cookiesSource)); } catch {
-            // Ignore logging errors
-          }
-        }
-      }
-      
-      if (!accessToken) {
-        throw new Error('No access token found');
-      }
-
-      console.log('🔐 Verifying JWT token...');
-      console.log('🔍 Token preview:', (accessToken as string).substring(0, 20) + '...');
-      
-      // Verify JWT token
-      const userInfo = await verifyJWTToken(accessToken);
-      
-      console.log('✅ JWT verified successfully');
-      console.log('🔍 JWT payload:', JSON.stringify(userInfo, null, 2));
-      
-      // Extract user information
-      const userId = String(userInfo.sub || userInfo.user_id || userInfo.id || '');
-      const userEmail = String(userInfo.email || userInfo.primary_email || userInfo.primaryEmail || userInfo.email_address || userInfo.user_email || '');
-      const userName = String(userInfo.displayName || userInfo.display_name || userInfo.name || userInfo.given_name || userInfo.full_name || '');
-      
-      console.log('📊 Extracted user info:', {
-        id: userId,
-        email: userEmail,
-        name: userName
-      });
-      
-      return {
-        id: userId,
-        email: userEmail,
-        firstName: userName?.split(' ')[0] || null,
-        lastName: userName?.split(' ').slice(1).join(' ') || null,
-        plan: 'sselfie-studio', // Default plan
-        role: 'user', // Default role
-        stackUser: userInfo // Include raw Stack Auth user data
-      };
-    }
-
-    // Helper: ensure DB user exists/linked from Stack user fields
-    async function ensureDbUserFromStack(stackUser: { id?: string; email?: string | null; displayName?: string | null; firstName?: string | null; lastName?: string | null; profileImageUrl?: string | null; }) {
-      const { storage } = await import('../server/storage');
-      const stackId = (stackUser.id || '') as string;
-      const email = (stackUser.email || '') as string;
-
-      // Try by ID
-      let dbUser = stackId ? await storage.getUser(stackId) : undefined;
-      if (dbUser) return dbUser;
-
-      // Try by linked stack auth id
-      if (!dbUser && stackId) {
-        dbUser = await storage.getUserByStackAuthId(stackId);
-        if (dbUser) return dbUser;
-      }
-
-      // Try by email, then link
-      if (!dbUser && email) {
-        const byEmail = await storage.getUserByEmail(email);
-        if (byEmail) {
-          return await storage.linkStackAuthId(byEmail.id, stackId || byEmail.id);
-        }
-      }
-
-      // Create new
-      return await storage.upsertUser({
-        id: stackId || email || `user_${Date.now()}`,
-        email: email || null,
-        displayName: stackUser.displayName || null,
-        firstName: stackUser.firstName || (stackUser.displayName ? stackUser.displayName.split(' ')[0] : null),
-        lastName: stackUser.lastName || (stackUser.displayName ? stackUser.displayName.split(' ').slice(1).join(' ') : null),
-        profileImageUrl: stackUser.profileImageUrl || null,
-      } as InsertUser);
-    }
-
-    // Handle auto-registration for new paying customers
+    // Auto-registration endpoint
     if (req.url === '/api/auth/auto-register') {
       if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method not allowed' });
@@ -653,16 +674,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         
         console.log('🚀 AUTO-REGISTRATION: Creating database user for:', email, 'plan:', plan);
         
-        // Import storage to create database user
         const { storage } = await import('../server/storage');
-        
-        // Check if user already exists by email
         const existingUser = await storage.getUserByEmail(email);
         
         if (existingUser) {
           console.log('✅ AUTO-REGISTRATION: User already exists, updating plan:', existingUser.id);
           
-          // Update existing user's plan
           const updatedUser = await storage.updateUserProfile(existingUser.id, {
             plan: plan,
             monthlyGenerationLimit: plan === 'sselfie-studio' ? 100 : -1,
@@ -679,22 +696,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           });
         }
         
-        // Create new database user (pre-registration for payment)
         const newUserId = `user_${Date.now()}_${email.split('@')[0]}`;
-        const newUser = await storage.upsertUser({
+        const newUser = await storage.upsertUser(getDefaultUserFields({
           id: newUserId,
           email: email,
-          displayName: email.split('@')[0], // Use email prefix as default name
+          displayName: email.split('@')[0],
           firstName: null,
           lastName: null,
           profileImageUrl: null,
           plan: plan,
-          role: 'user',
           monthlyGenerationLimit: plan === 'sselfie-studio' ? 100 : -1,
-          mayaAiAccess: true,
-          victoriaAiAccess: false,
           onboardingProgress: JSON.stringify({ source: source || 'payment-success' })
-        } as InsertUser);
+        }));
         
         console.log('✅ AUTO-REGISTRATION: Database user created successfully:', newUser.id);
         
@@ -713,17 +726,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(500).json({
           success: false,
           error: 'Failed to create account',
-          message: error.message
+          message: (error as Error).message
         });
       }
     }
 
-    // Handle Stack Auth API proxy endpoints
+    // Stack Auth API proxy endpoints
     if (req.url?.startsWith('/api/auth/') && !req.url.includes('auto-register')) {
       console.log('🔍 Stack Auth API proxy called:', req.url);
       
       try {
-        // Proxy to Stack Auth API
         const stackAuthPath = req.url.replace('/api/auth', '');
         const stackAuthUrl = `https://api.stack-auth.com/api/v1/projects/${STACK_AUTH_PROJECT_ID}${stackAuthPath}`;
         
@@ -748,15 +760,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(proxyResponse.status).send(responseData);
         
       } catch (error) {
-        console.log('❌ Stack Auth proxy failed:', error.message);
+        console.log('❌ Stack Auth proxy failed:', (error as Error).message);
         return res.status(500).json({ 
           error: 'Stack Auth proxy failed',
-          message: error.message
+          message: (error as Error).message
         });
       }
     }
 
-    // Handle authentication user endpoint (legacy)
+    // Auth user endpoint
     if (req.url?.includes('/api/auth/user')) {
       console.log('🔍 Auth user endpoint called');
       
@@ -765,25 +777,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         res.setHeader('Cache-Control', 'no-store');
         return res.status(200).json(user);
       } catch (error) {
-        console.log('❌ Authentication failed:', error.message);
+        console.log('❌ Authentication failed:', (error as Error).message);
         return res.status(401).json({ 
           message: 'Authentication required',
-          error: error.message
+          error: (error as Error).message
         });
       }
     }
 
-    // Stack webhook is now handled by dedicated /api/webhooks/stack.ts endpoint
-    // This allows proper Vercel serverless function routing
-
-    // Admin backfill: POST /api/admin/backfill-stack-users { users: [{id,email,displayName,firstName,lastName,profileImageUrl}] }
+    // Admin endpoints
     if (req.url === '/api/admin/backfill-stack-users') {
       if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
       const adminToken = req.headers['x-admin-token'] as string;
       const expected = process.env.ADMIN_TOKEN || 'sandra-admin-2025';
       if (adminToken !== expected) return res.status(401).json({ error: 'Unauthorized' });
+      
       const users = (req.body && (req.body as { users?: Array<{ id: string; email?: string | null; displayName?: string | null; firstName?: string | null; lastName?: string | null; profileImageUrl?: string | null }> }).users) || [];
       if (!Array.isArray(users)) return res.status(400).json({ error: 'users array required' });
+      
       const results: Array<{ id: string; email: string | null }> = [];
       for (const u of users) {
         const dbUser = await ensureDbUserFromStack({
@@ -796,35 +807,36 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         });
         results.push({ id: dbUser.id, email: dbUser.email });
       }
+      
       res.setHeader('Cache-Control', 'no-store');
       return res.status(200).json({ ok: true, count: results.length, users: results });
     }
 
-    // Admin: link legacy numeric user ID to Stack Auth ID
-    // Body: { legacyUserId: string | number, stackId: string }
     if (req.url === '/api/admin/link-legacy-user') {
       if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
       const adminToken = req.headers['x-admin-token'] as string;
       const expected = process.env.ADMIN_TOKEN || 'sandra-admin-2025';
       if (adminToken !== expected) return res.status(401).json({ error: 'Unauthorized' });
+      
       const { legacyUserId, stackId } = (req.body || {}) as { legacyUserId?: string | number; stackId?: string };
       if (!legacyUserId || !stackId) return res.status(400).json({ error: 'legacyUserId and stackId required' });
+      
       const { storage } = await import('../server/storage');
       const linked = await storage.linkStackAuthId(String(legacyUserId), String(stackId));
       res.setHeader('Cache-Control', 'no-store');
       return res.status(200).json({ ok: true, linkedUserId: linked.id, email: linked.email });
     }
 
-    // Admin export: Get metadata for all users to update in Stack dashboard manually
-    // Returns: [{ email, stackId, legacyUserId, triggerWord, modelStatus, modelName }]
     if (req.url === '/api/admin/export-user-metadata') {
       if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
       const adminToken = req.headers['x-admin-token'] as string;
       const expected = process.env.ADMIN_TOKEN || 'sandra-admin-2025';
       if (adminToken !== expected) return res.status(401).json({ error: 'Unauthorized' });
+      
       const { storage } = await import('../server/storage');
       const users = await storage.getAllUsers();
       const result: Array<{ email: string | null; stackId: string | null; legacyUserId: string; triggerWord: string; modelStatus: string; modelName: string | null }> = [];
+      
       for (const u of users as Array<{ id: string; stackAuthId?: string; email?: string }>) {
         const legacyUserId = u.id;
         const stackId = u.stackAuthId || null;
@@ -839,11 +851,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           modelName: model?.modelName || null
         });
       }
+      
       res.setHeader('Cache-Control', 'no-store');
       return res.status(200).json({ count: result.length, users: result });
     }
 
-    // Admin: push trained users' metadata to Stack Auth
     if (req.url === '/api/admin/push-stack-metadata') {
       if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
       const adminToken = req.headers['x-admin-token'] as string;
@@ -859,8 +871,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       try {
         const { storage } = await import('../server/storage');
         const trainedModels = await storage.getAllCompletedTrainings();
-        const updated: Array<{ stackId: string; legacyUserId: string; email: string | null; ok: boolean; status: number }>
-          = [];
+        const updated: Array<{ stackId: string; legacyUserId: string; email: string | null; ok: boolean; status: number }> = [];
         const skipped: Array<{ userId: string; reason: string }> = [];
 
         for (const m of trainedModels as Array<{ userId: string; triggerWord?: string; trainingStatus?: string; modelName?: string; replicateModelId?: string; replicateVersionId?: string }>) {
@@ -868,10 +879,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           const u = await storage.getUser(userId);
           const email = (u as { email?: string } | undefined)?.email || null;
           const stackId = (u as { stackAuthId?: string } | undefined)?.stackAuthId || null;
+          
           if (!stackId) {
             skipped.push({ userId, reason: 'No stackAuthId' });
             continue;
           }
+          
           const triggerWord = m.triggerWord || `user${String(userId).replace(/[^a-zA-Z0-9]/g, '')}`;
           const modelStatus = m.trainingStatus || 'completed';
           const modelName = m.modelName || '';
@@ -920,14 +933,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     }
 
-    // /api/me: ensure DB user and return JSON
+    // /api/me endpoint
     if (req.url === '/api/me' || req.url?.startsWith('/api/me?')) {
       const t = logStart('GET /api/me');
-      // Ensure we return JSON content type
       res.setHeader('Content-Type', 'application/json');
       
       try {
-        // Check circuit breaker before attempting database operations
         if (!checkCircuitBreaker()) {
           console.warn('⚠️ Circuit breaker open, returning cached user fallback');
           return res.status(503).json({
@@ -940,33 +951,30 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const user = await getAuthenticatedUser();
         const { storage } = await import('../server/storage');
         
-        // OPTIMIZED: Use faster database timeouts with retry for critical user operations
         let dbUser = await withDatabaseTimeoutAndRetry(
           () => storage.getUser(user.id as string), 
           null, 
-          2000, // Reduced from 3000ms
-          1, // 1 retry
+          2000,
+          1,
           'getUser'
         );
         
-        // Record success if we got this far
         if (dbUser) {
           recordCircuitBreakerSuccess();
         }
       
         if (!dbUser) {
-          // Try to find user by Stack Auth ID or email in parallel with shorter timeouts
           const [byStackId, byEmail] = await Promise.all([
             withDatabaseTimeout(
               storage.getUserByStackAuthId(user.id as string), 
               null, 
-              2000, // Reduced from 2500ms
+              2000,
               'getUserByStackAuthId'
             ),
             user.email ? withDatabaseTimeout(
               storage.getUserByEmail(user.email as string), 
               null, 
-              2000, // Reduced from 2500ms
+              2000,
               'getUserByEmail'
             ) : Promise.resolve(null)
           ]);
@@ -977,8 +985,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             console.log('🔗 Linking existing paid user to Stack Auth:', byEmail.email, '→', user.id);
             dbUser = await withDatabaseTimeout(
               storage.linkStackAuthId(byEmail.id, user.id as string), 
-              byEmail, // Use existing user as fallback if linking fails
-              2500, // Reduced from 3000ms
+              byEmail,
+              2500,
               'linkStackAuthId'
             );
             console.log('✅ Successfully linked paid user to Stack Auth account');
@@ -986,48 +994,69 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
       
         if (!dbUser) {
-          // Create completely new user (no prior payment) with timeout fallback
           console.log('🆕 Creating new user account:', user.email);
           
-          // Create a minimal user object as fallback
           const fallbackUser = {
             id: user.id as string,
+            stackAuthId: user.id as string,
             email: (user.email as string) || null,
-            displayName: `${user.firstName || ''} ${user.lastName || ''}`.trim() || null,
             firstName: user.firstName || null,
             lastName: user.lastName || null,
+            displayName: `${user.firstName || ''} ${user.lastName || ''}`.trim() || null,
             profileImageUrl: null,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            lastLoginAt: new Date(),
             plan: 'sselfie-studio',
             role: 'user',
             monthlyGenerationLimit: 100,
             mayaAiAccess: true,
             victoriaAiAccess: false,
-            onboardingProgress: JSON.stringify({ source: 'direct-signup' })
+            onboardingProgress: JSON.stringify({ source: 'direct-signup' }),
+            preferredOnboardingMode: 'conversational',
+            stripeCustomerId: '',
+            stripeSubscriptionId: '',
+            generationsUsedThisMonth: 0,
+            hasRetrainingAccess: false,
+            retrainingSessionId: '',
+            retrainingPaidAt: null,
+            gender: '',
+            profession: '',
+            brandStyle: '',
+            photoGoals: '',
+            trainingCoachingStarted: false,
+            trainingCoachingCompleted: false,
+            trainingCoachingPhase: '',
+            trainingCoachingStep: 0,
+            brandStrategyContext: {},
           };
           
           dbUser = await withDatabaseTimeout(
             storage.upsertUser(fallbackUser),
-            fallbackUser, // Use fallback if DB operation times out
-            3000, // Reduced from 4000ms
+            fallbackUser,
+            3000,
             'upsertUser'
           );
           
-          console.log('✅ Created new user account:', dbUser.id);
+          if (dbUser) {
+            console.log('✅ Created new user account:', dbUser.id);
+          } else {
+            console.log('✅ Created new user account: <null>');
+          }
         }
         
         res.setHeader('Cache-Control', 'no-store');
         t.end('ok');
         return res.status(200).json({ user: dbUser });
+        
       } catch (error) {
         t.end('error', { error: (error as Error).message });
         console.log('❌ /api/me failed:', (error as Error).message);
         
-        // Record circuit breaker failure for database-related errors
         if (isTimeoutError(error) || (error as Error).message.includes('database')) {
           recordCircuitBreakerFailure();
         }
         
-        // Enhanced error handling for timeout scenarios
         if (isTimeoutError(error)) {
           const timeoutBody = { 
             message: 'Service temporarily unavailable, please try again', 
@@ -1038,18 +1067,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
         
         const body = { message: 'Authentication required', error: (error as Error).message };
-        // Support both Node and Web-standard surfaces
-        if (typeof (res as unknown as { status?: unknown }).status === 'function') {
-          return res.status(401).json(body);
-        } else {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const NodeResponse = (globalThis as any).Response;
-          return new NodeResponse(JSON.stringify(body), { status: 401, headers: { 'content-type': 'application/json' } });
-        }
+        return res.status(401).json(body);
       }
     }
 
-    // Handle user model endpoint - CRITICAL for new user flow
+    // User model endpoint
     if (req.url?.includes('/api/user-model')) {
       const t = logStart('GET /api/user-model');
       
@@ -1059,12 +1081,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         
         console.log('🔍 Getting model for user:', user.id, user.email);
         
-        // Get user from database to check training status with faster timeouts
         let dbUser = await withDatabaseTimeoutAndRetry(
           () => storage.getUser(user.id as string), 
           null, 
-          2000, // Reduced from 3000ms
-          1, // 1 retry
+          2000,
+          1,
           'getUser'
         );
         
@@ -1072,7 +1093,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           dbUser = await withDatabaseTimeout(
             storage.getUserByEmail(user.email as string), 
             null, 
-            2000, // Reduced from 3000ms
+            2000,
             'getUserByEmail'
           );
         }
@@ -1085,30 +1106,28 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           });
         }
         
-        // Check if user has a trained model with fallback and reduced timeout
         let userModel: UserModel | null = null;
         try {
-          userModel = await withDatabaseTimeout(
+          const result = await withDatabaseTimeout(
             storage.getUserModel(dbUser.id), 
-            null, // Fallback to null if timeout occurs
-            3000, // Reduced from 4000ms
+            null,
+            3000,
             'getUserModel'
           );
+          userModel = result ?? null;
         } catch (error) {
           console.log('📊 Model fetch failed or timed out for:', dbUser.id, (error as Error).message);
           userModel = null;
         }
         
-        // Determine training status based on actual data
         let trainingStatus = 'not_started';
         let needsTraining = true;
         let canRetrain = false;
         
         if (userModel) {
-          // User has a model - check its status
           trainingStatus = userModel.trainingStatus || 'not_started';
           needsTraining = trainingStatus !== 'completed';
-          canRetrain = true; // Users with models can retrain
+          canRetrain = true;
           
           console.log('📊 Existing user model found:', {
             id: userModel.id,
@@ -1117,16 +1136,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             canRetrain
           });
         } else {
-          // New user - no model exists
           console.log('🆕 New user detected - no model exists');
           needsTraining = true;
           canRetrain = false;
         }
         
-        // Safely read onboarding source from jsonb or string
         let onboardingSourceSafe = 'unknown';
         try {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const op = (dbUser as any).onboardingProgress;
           if (op) {
             const obj = typeof op === 'string' ? JSON.parse(op) : op;
@@ -1145,13 +1161,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           modelType: 'sselfie-studio',
           createdAt: userModel?.createdAt || null,
           updatedAt: userModel?.updatedAt || null,
-          // User context for training decisions
           userPlan: dbUser.plan,
           hasActiveSubscription: (dbUser.monthlyGenerationLimit === -1 || (dbUser.monthlyGenerationLimit && dbUser.monthlyGenerationLimit > 0)),
           onboardingSource: onboardingSourceSafe
         };
         
-        console.log('📊 Returning REAL model status for new user flow:', {
+        console.log('📊 Returning model status:', {
           trainingStatus,
           needsTraining,
           canRetrain,
@@ -1167,7 +1182,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const elapsed = t.end('error', { error: (error as Error).message });
         console.log('❌ User model fetch failed:', (error as Error).message, { elapsedMs: elapsed });
         
-        // Enhanced error handling for timeout scenarios
         if (isTimeoutError(error)) {
           return json(res, 503, { 
             message: 'Service temporarily unavailable, please try again',
@@ -1178,12 +1192,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         
         return json(res, 401, { 
           message: 'Authentication required',
-          error: error.message
+          error: (error as Error).message
         });
       }
     }
 
-    // Handle Maya video prompt endpoint
+    // Maya video prompt endpoint
     if (req.url?.includes('/api/maya/get-video-prompt')) {
       const t = logStart('POST /api/maya/get-video-prompt');
       
@@ -1202,7 +1216,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         
         console.log('🎬 MAYA VIDEO DIRECTION: Creating motion prompt for user:', user.id);
         
-        // Maya's video director system prompt
         const videoDirectorPrompt = `You are Maya, SSELFIE Studio's AI Creative Director and Video Director. 
 
 🎬 VIDEO DIRECTION MODE: You are analyzing the actual image provided to create the perfect motion prompt for VEO 3 video generation.
@@ -1232,8 +1245,7 @@ MOTION PROMPT GUIDELINES:
 Analyze the image and respond with ONLY the motion prompt that perfectly captures and enhances what you see - no explanation, no additional text.`;
 
         try {
-          // Call Claude Vision API for real image analysis
-        const claudeResponse = await timedFetch('https://api.anthropic.com/v1/messages', 15000, {
+          const claudeResponse = await timedFetch('https://api.anthropic.com/v1/messages', 15000, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -1271,7 +1283,7 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
                 }
               ]
             })
-        });
+          });
 
           let videoPrompt = 'Gentle zoom in with soft natural lighting, creating an elegant and professional atmosphere.';
           
@@ -1292,7 +1304,6 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
           });
           
         } catch {
-          // Fallback to a good default prompt
           const fallbackPrompt = 'Gentle zoom in with soft natural lighting, creating an elegant and professional atmosphere.';
           
           res.setHeader('Cache-Control', 'no-store');
@@ -1314,7 +1325,7 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
       }
     }
 
-    // Handle Maya generate endpoint
+    // Maya generate endpoint
     if (req.url?.includes('/api/maya/generate')) {
       console.log('🔍 Maya generate endpoint called:', req.url);
       
@@ -1322,7 +1333,6 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
         const user = await getAuthenticatedUser();
         console.log('🔍 Maya generate for user:', user.id);
         
-        // Get request body
         const body = req.body || {};
         console.log('🔍 Maya generate request body:', JSON.stringify(body, null, 2));
         
@@ -1339,7 +1349,6 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
           return res.status(400).json({ error: 'Prompt is required' });
         }
         
-        // Access gating: require trained model and plan access
         const { storage } = await import('../server/storage');
         const model = await storage.getUserModelByUserId(user.id as string);
         if (!model || model.trainingStatus !== 'completed') {
@@ -1349,14 +1358,12 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
           });
         }
         
-        // Import the generation service
         const { ModelTrainingService } = await import('../server/model-training-service');
         
         console.log('🎨 Starting image generation for user:', user.id);
         console.log('🎯 Prompt:', trimmedPrompt);
         console.log('🎯 Count:', safeCount);
         
-        // Generate images using the ModelTrainingService
         const generationResult = await ModelTrainingService.generateUserImages(
           user.id as string,
           trimmedPrompt,
@@ -1366,7 +1373,6 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
         
         console.log('✅ Generation result:', generationResult);
         
-        // Create generation tracker for monitoring (reuse storage from gating import)
         const tracker = await storage.createGenerationTracker({
           userId: user.id as string,
           predictionId: generationResult.predictionId as string,
@@ -1378,7 +1384,6 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
         
         console.log('📝 Created generation tracker:', tracker.id);
         
-        // Return the generation result with prediction ID for polling
         res.setHeader('Cache-Control', 'no-store');
         return res.status(200).json({
           success: true,
@@ -1390,21 +1395,20 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
         });
         
       } catch (error) {
-        console.log('❌ Maya generate failed:', error.message);
+        console.log('❌ Maya generate failed:', (error as Error).message);
         return res.status(500).json({ 
           message: 'Image generation failed',
-          error: error.message
+          error: (error as Error).message
         });
       }
     }
 
-    // Handle Maya generation status endpoint (for polling)
+    // Maya generation status endpoint
     if (req.url?.includes('/api/maya/status')) {
       console.log('🔍 Maya status endpoint called:', req.url);
       
       try {
         await getAuthenticatedUser();
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const url = new (globalThis as any).URL(req.url || '', `http://${req.headers.host}`);
         const predictionId = url.searchParams.get('predictionId');
         
@@ -1412,38 +1416,29 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
           return res.status(400).json({ error: 'Prediction ID is required' });
         }
         
-        // Import the generation service
         const { ModelTrainingService } = await import('../server/model-training-service');
         
         console.log('🔍 Checking generation status for prediction:', predictionId);
         
-        // Check generation status
         const statusResult = await ModelTrainingService.checkGenerationStatus(predictionId);
         
         console.log('📊 Generation status result:', statusResult);
         
-        // If generation is completed, trigger the completion monitor
         if (statusResult.status === 'succeeded' && statusResult.imageUrls && statusResult.imageUrls.length > 0) {
           console.log('🎉 Generation completed! Triggering completion monitor...');
           
-          // Import and trigger the generation completion monitor
-          // const { GenerationCompletionMonitor } = await import('../server/generation-completion-monitor');
-          
-          // Find the generation tracker for this prediction
           const { storage } = await import('../server/storage');
           const tracker = await storage.getGenerationTrackerByPredictionId(predictionId);
           
           if (tracker) {
             console.log('📝 Found generation tracker:', tracker.id);
             
-            // Update the tracker with completed images
             await storage.updateGenerationTracker(tracker.id, {
               status: 'completed',
               imageUrls: JSON.stringify(statusResult.imageUrls),
               updatedAt: new Date()
             });
             
-            // Save images to gallery
             for (const imageUrl of statusResult.imageUrls) {
               await storage.saveGeneratedImage({
                 userId: tracker.userId,
@@ -1467,15 +1462,15 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
         });
         
       } catch (error) {
-        console.log('❌ Maya status check failed:', error.message);
+        console.log('❌ Maya status check failed:', (error as Error).message);
         return res.status(500).json({ 
           message: 'Status check failed',
-          error: error.message
+          error: (error as Error).message
         });
       }
     }
 
-    // Handle Maya chat endpoints
+    // Maya chat endpoints
     if (req.url?.includes('/api/maya/chat') || req.url?.includes('/api/maya-chat') || req.url?.includes('/api/maya-generate')) {
       const t = logStart('POST /api/maya/chat');
       
@@ -1487,11 +1482,9 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
         const user = await getAuthenticatedUser();
         console.log('🔍 Maya chat for user:', user.id, user.email);
         
-        // Get request body
         const body = req.body || {};
         console.log('🔍 Maya chat request body:', JSON.stringify(body, null, 2));
         
-        // Real Maya response with Google Gemini AI
         const { message, context = 'styling', conversationHistory = [] } = body as {
           message?: string;
           context?: string;
@@ -1502,12 +1495,10 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
           return res.status(400).json({ error: 'Message is required' });
         }
         
-        // Connect to REAL Maya system using Claude API with timeout protection
         let mayaResponse = '';
         let conceptCards: ConceptCard[] = [];
         
         try {
-          // Use the real Maya personality system
           const { PersonalityManager } = await import('../server/agents/personalities/personality-config');
           const baseMayaPersonality = PersonalityManager.getNaturalPrompt('maya');
           const structuredOutputInstruction = `\n\nSTRICT OUTPUT FORMAT:\nReturn EXACTLY 3 concepts separated by a line with three dashes (---).\nFor each concept, output 3 lines only:\n1) An emoji followed by a space and a bold title: "+emoji+ **TITLE**"\n2) One sentence description\n3) A line starting with "FLUX_PROMPT:" followed by a single line image generation prompt.\nDo not add any extra text before or after the three concepts.`;
@@ -1515,7 +1506,6 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
           
           console.log('🎨 MAYA: Using real personality system with Claude API');
           
-          // Call Claude API with Maya's real personality using enhanced timeout
           const claudeResponse = await withExternalApiTimeout(
             async () => {
               return timedFetch('https://api.anthropic.com/v1/messages', 12000, {
@@ -1542,9 +1532,9 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
                 })
               });
             },
-            null, // No fallback response from this level
-            12000, // Reduced from 15s to 12s timeout
-            0, // No retries for chat to keep it fast
+            null,
+            12000,
+            0,
             'claude-api-maya-chat'
           );
 
@@ -1552,14 +1542,12 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
             const data = await claudeResponse.json();
             mayaResponse = data.content[0].text;
             
-            // Extract concept cards from Maya's response
             conceptCards = extractConceptCards(mayaResponse);
             
-            // Apply gender context to concept cards with timeout
             conceptCards = await withDatabaseTimeout(
               applyGenderContext(conceptCards, user.id as string),
-              conceptCards, // Fallback to original cards if timeout
-              2500, // Reduced from 3000ms
+              conceptCards,
+              2500,
               'applyGenderContext'
             );
             
@@ -1571,7 +1559,6 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
         } catch (claudeError) {
           console.log('❌ MAYA: Claude API failed:', (claudeError as Error).message);
           
-          // Fallback to creative storytelling concepts aligned with Maya's signature looks
           mayaResponse = `I understand you're looking for styling concepts! Let me create some personalized photo concepts that tell your unique brand story.
 
 Here are 3 concept cards inspired by my signature editorial looks:
@@ -1622,10 +1609,9 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
             }
           ];
           
-          // Apply gender context to fallback concept cards with timeout
           conceptCards = await withDatabaseTimeout(
             applyGenderContext(conceptCards, user.id as string),
-            conceptCards, // Fallback to original cards if timeout
+            conceptCards,
             2000,
             'applyGenderContext-fallback'
           );
@@ -1641,8 +1627,7 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
           context: context
         };
         
-        // Persist conversation and messages + concept cards for continuity with timeout
-        // This is non-critical, so if it times out we'll still return the response
+        // Persist conversation (non-critical)
         withDatabaseTimeout(
           (async () => {
             const { storage } = await import('../server/storage');
@@ -1669,7 +1654,7 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
               });
             }
           })(),
-          null, // No fallback needed for persistence
+          null,
           5000,
           'maya-conversation-persistence'
         ).catch((persistError) => {
@@ -1685,7 +1670,6 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
         t.end('error', { error: (error as Error).message });
         console.log('❌ Maya chat failed:', (error as Error).message);
         
-        // Enhanced error handling for timeout scenarios
         if (isTimeoutError(error)) {
           return res.status(503).json({ 
             message: 'Maya is temporarily unavailable, please try again',
@@ -1701,7 +1685,7 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
       }
     }
 
-    // Handle Maya chats list endpoint
+    // Maya chats list endpoint
     if (req.url?.includes('/api/maya-chats')) {
       console.log('🔍 Maya chats list endpoint called');
       
@@ -1709,14 +1693,13 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
         const user = await getAuthenticatedUser();
         console.log('🔍 Getting Maya chats for user:', user.id);
         
-        // Mock list of Maya chats
         const chats = [
           {
             id: `chat_1_${user.id}`,
             userId: user.id,
             title: 'Professional Headshots',
             lastMessage: 'I\'ve generated some professional headshot concepts for you.',
-            createdAt: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
+            createdAt: new Date(Date.now() - 86400000).toISOString(),
             updatedAt: new Date().toISOString()
           },
           {
@@ -1724,8 +1707,8 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
             userId: user.id,
             title: 'Creative Portraits',
             lastMessage: 'Here are some creative portrait ideas to explore.',
-            createdAt: new Date(Date.now() - 172800000).toISOString(), // 2 days ago
-            updatedAt: new Date(Date.now() - 3600000).toISOString() // 1 hour ago
+            createdAt: new Date(Date.now() - 172800000).toISOString(),
+            updatedAt: new Date(Date.now() - 3600000).toISOString()
           }
         ];
         
@@ -1734,15 +1717,15 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
         return res.status(200).json(chats);
         
       } catch (error) {
-        console.log('❌ Maya chats fetch failed:', error.message);
+        console.log('❌ Maya chats fetch failed:', (error as Error).message);
         return res.status(401).json({ 
           message: 'Authentication required',
-          error: error.message
+          error: (error as Error).message
         });
       }
     }
 
-    // Training status for authenticated user (polled by frontend during training)
+    // Training status endpoints
     if (req.url === '/api/training/status' || req.url?.startsWith('/api/training/status?')) {
       try {
         const user = await getAuthenticatedUser();
@@ -1758,16 +1741,13 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
       }
     }
 
-    // Alias: support legacy hyphen path /api/training-status
+    // Training status alias
     if (req.url === '/api/training-status' || req.url?.startsWith('/api/training-status?')) {
-      // Delegate to the canonical handler
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (req as any).url = '/api/training/status';
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return (handler as any)(req, res);
+      return handler(req, res);
     }
 
-    // Training progress endpoint used by simple-training.tsx
+    // Training progress endpoint
     if (req.url?.startsWith('/api/training-progress/')) {
       try {
         const user = await getAuthenticatedUser();
@@ -1784,7 +1764,7 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
       }
     }
 
-    // Cron: training completion monitor (to be scheduled in Vercel Cron)
+    // Cron endpoints
     if (req.url === '/api/cron/training-completion-monitor') {
       try {
         const { TrainingCompletionMonitor } = await import('../server/training-completion-monitor');
@@ -1795,7 +1775,6 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
       }
     }
 
-    // Cron: generation completion monitor (to be scheduled in Vercel Cron)
     if (req.url === '/api/cron/generation-completion-monitor') {
       try {
         const { GenerationCompletionMonitor } = await import('../server/generation-completion-monitor');
@@ -1807,29 +1786,47 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
       }
     }
 
-    // Handle gallery images endpoint
-    if (req.url === '/api/gallery' || req.url?.startsWith('/api/gallery?')) {
-      const t = logStart('GET /api/gallery');
+    // Gallery endpoints
+    if (req.url === '/api/gallery' || req.url?.startsWith('/api/gallery?') || req.url === '/api/gallery-images' || req.url?.startsWith('/api/gallery-images?')) {
+      const t = logStart('GET /api/gallery-images');
       
       try {
+        if (!checkCircuitBreaker()) {
+          console.warn('⚠️ Circuit breaker open for gallery-images');
+          return res.status(503).json({
+            images: [],
+            total: 0,
+            message: 'Service temporarily unavailable',
+            code: 'CIRCUIT_BREAKER_OPEN'
+          });
+        }
+
         const user = await getAuthenticatedUser();
         console.log('🔍 Getting gallery images for user:', user.id, user.email);
         
-        // Import storage service to fetch real images
         const { storage } = await import('../server/storage');
         
-        // Fetch images from both tables
         const [aiImages, generatedImages] = await Promise.all([
-          withTimeout(storage.getAIImages(user.id as string), 5000, 'getAIImages'),
-          withTimeout(storage.getGeneratedImages(user.id as string), 5000, 'getGeneratedImages')
+          withTimeout(storage.getAIImages(user.id as string), 2500, 'getAIImages').catch(err => {
+            console.warn('⚠️ AI images fetch failed:', (err as Error).message);
+            recordCircuitBreakerFailure();
+            return [];
+          }),
+          withTimeout(storage.getGeneratedImages(user.id as string), 2500, 'getGeneratedImages').catch(err => {
+            console.warn('⚠️ Generated images fetch failed:', (err as Error).message);
+            recordCircuitBreakerFailure();
+            return [];
+          })
         ]);
+        
+        if (aiImages.length > 0 || generatedImages.length > 0) {
+          recordCircuitBreakerSuccess();
+        }
         
         console.log('📊 Found AI images:', aiImages.length);
         console.log('📊 Found generated images:', generatedImages.length);
         
-        // Combine and format images for gallery
         const galleryImages = [
-          // Format AI images (legacy table)
           ...aiImages.map(img => ({
             id: img.id.toString(),
             userId: img.userId,
@@ -1840,7 +1837,6 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
             createdAt: (img.createdAt || new Date()).toISOString(),
             tags: img.style ? [img.style] : ['ai-generated']
           })),
-          // Format generated images (new table)
           ...generatedImages.map(img => ({
             id: `gen_${img.id}`,
             userId: img.userId,
@@ -1853,25 +1849,24 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
           }))
         ];
         
-        // Sort by creation date (newest first)
         galleryImages.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         
         console.log('📊 Returning gallery images:', galleryImages.length, 'total images');
         res.setHeader('Cache-Control', 'no-store');
         t.end('ok', { count: galleryImages.length });
-        return json(res, 200, galleryImages);
+        return res.status(200).json(galleryImages);
         
       } catch (error) {
         t.end('error', { error: (error as Error).message });
         console.log('❌ Gallery fetch failed:', (error as Error).message);
-        return json(res, 500, { 
+        return res.status(500).json({ 
           message: 'Failed to fetch gallery images',
           error: (error as Error).message
         });
       }
     }
 
-    // Handle user gender update endpoint
+    // User gender update endpoint
     if (req.url === '/api/user/update-gender') {
       if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method not allowed' });
@@ -1889,7 +1884,6 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
           return res.status(400).json({ error: 'Invalid gender value' });
         }
         
-        // Update user gender in database
         const { storage } = await import('../server/storage');
         await storage.updateUserProfile(user.id as string, { gender });
         
@@ -1902,109 +1896,20 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
         });
         
       } catch (error) {
-        console.log('❌ Gender update failed:', error.message);
+        console.log('❌ Gender update failed:', (error as Error).message);
         return res.status(500).json({ 
           error: 'Failed to update gender',
-          message: error.message 
+          message: (error as Error).message 
         });
       }
     }
 
-    // Handle gallery-images endpoint (alternative)
-    if (req.url === '/api/gallery-images' || req.url?.startsWith('/api/gallery-images?')) {
-      const t = logStart('GET /api/gallery-images');
-      
-      try {
-        // Check circuit breaker before database operations
-        if (!checkCircuitBreaker()) {
-          console.warn('⚠️ Circuit breaker open for gallery-images');
-          return res.status(503).json({
-            images: [],
-            total: 0,
-            message: 'Service temporarily unavailable',
-            code: 'CIRCUIT_BREAKER_OPEN'
-          });
-        }
-
-        const user = await getAuthenticatedUser();
-        console.log('🔍 Getting gallery images for user:', user.id, user.email);
-        
-        // Import storage service to fetch real images
-        const { storage } = await import('../server/storage');
-        
-        // OPTIMIZED: Reduced timeout and better error handling
-        const [aiImages, generatedImages] = await Promise.all([
-          withTimeout(storage.getAIImages(user.id as string), 2500, 'getAIImages').catch(err => {
-            console.warn('⚠️ AI images fetch failed:', (err as Error).message);
-            recordCircuitBreakerFailure();
-            return [];
-          }),
-          withTimeout(storage.getGeneratedImages(user.id as string), 2500, 'getGeneratedImages').catch(err => {
-            console.warn('⚠️ Generated images fetch failed:', (err as Error).message);
-            recordCircuitBreakerFailure();
-            return [];
-          })
-        ]);
-        
-        // Record success if we got data
-        if (aiImages.length > 0 || generatedImages.length > 0) {
-          recordCircuitBreakerSuccess();
-        }
-        
-        console.log('📊 Found AI images:', aiImages.length);
-        console.log('📊 Found generated images:', generatedImages.length);
-        
-        // Combine and format images for gallery
-        const galleryImages = [
-          // Format AI images (legacy table)
-          ...aiImages.map(img => ({
-            id: img.id.toString(),
-            userId: img.userId,
-            type: 'ai_generated',
-            title: img.style || 'AI Generated Image',
-            description: img.prompt || 'AI-generated image',
-            imageUrl: img.imageUrl,
-            createdAt: (img.createdAt || new Date()).toISOString(),
-            tags: img.style ? [img.style] : ['ai-generated']
-          })),
-          // Format generated images (new table)
-          ...generatedImages.map(img => ({
-            id: `gen_${img.id}`,
-            userId: img.userId,
-            type: 'generated',
-            title: 'Generated Image',
-            description: img.prompt || 'Generated image',
-            imageUrl: img.selectedUrl || (img.imageUrls ? JSON.parse(img.imageUrls)[0] : null),
-            createdAt: (img.createdAt || new Date()).toISOString(),
-            tags: [img.category || 'generated']
-          }))
-        ];
-        
-        // Sort by creation date (newest first)
-        galleryImages.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-        
-        console.log('📊 Returning gallery-images:', galleryImages.length, 'total images');
-        res.setHeader('Cache-Control', 'no-store');
-        t.end('ok', { count: galleryImages.length });
-        return res.status(200).json(galleryImages);
-        
-      } catch (error) {
-        t.end('error', { error: (error as Error).message });
-        console.log('❌ Gallery-images fetch failed:', (error as Error).message);
-        return res.status(500).json({ 
-          message: 'Failed to fetch gallery images',
-          error: (error as Error).message
-        });
-      }
-    }
-    
     // Test database connection endpoint
     if (req.url === '/api/test-db') {
       try {
         const { storage } = await import('../server/storage');
         const user = await getAuthenticatedUser();
         
-        // Test basic database operations
         const dbUser = await storage.getUser(user.id as string);
         const aiImages = await storage.getAIImages(user.id as string);
         const generatedImages = await storage.getGeneratedImages(user.id as string);
@@ -2026,13 +1931,13 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
       } catch (error) {
         return res.status(500).json({
           message: 'Database connection failed',
-          error: error.message,
-          stack: error.stack
+          error: (error as Error).message,
+          stack: (error as Error).stack
         });
       }
     }
 
-    // Favorites: list favorite image ids for current user
+    // Favorites endpoints
     if (req.url === '/api/images/favorites' || req.url?.startsWith('/api/images/favorites?')) {
       try {
         const user = await getAuthenticatedUser();
@@ -2048,20 +1953,18 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
       }
     }
 
-    // Favorites: toggle favorite for an image by id
     if (req.url?.startsWith('/api/images/') && req.url?.endsWith('/favorite')) {
       if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+      
       try {
         const user = await getAuthenticatedUser();
-        // Parse image id from URL: /api/images/:id/favorite
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const url = new (globalThis as any).URL(req.url || '', `http://${req.headers.host}`);
         const parts = url.pathname.split('/');
         const idStr = parts[3];
         const imageId = parseInt(idStr, 10);
         if (!imageId || Number.isNaN(imageId)) return res.status(400).json({ error: 'Invalid image id' });
+        
         const { storage } = await import('../server/storage');
-        // Fetch image to read current favorite state (from legacy ai_images)
         const img = await withTimeout(storage.getAIImage(user.id as string, imageId), 4000, 'getAIImage') as unknown as AiImage | undefined;
         const next = !(img?.isFavorite ?? false);
         await withTimeout(storage.updateAIImage(imageId, { isFavorite: next } as Partial<AiImage>), 4000, 'updateAIImage');
@@ -2072,16 +1975,16 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
       }
     }
 
-    // Delete legacy AI image
+    // Delete AI image endpoint
     if (req.method === 'DELETE' && req.url?.startsWith('/api/ai-images/')) {
       try {
         const user = await getAuthenticatedUser();
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const url = new (globalThis as any).URL(req.url || '', `http://${req.headers.host}`);
         const parts = url.pathname.split('/');
         const idStr = parts[3];
         const imageId = parseInt(idStr, 10);
         if (!imageId || Number.isNaN(imageId)) return res.status(400).json({ error: 'Invalid image id' });
+        
         const { storage } = await import('../server/storage');
         const ok = await storage.deleteAIImage(user.id as string, imageId);
         res.setHeader('Cache-Control', 'no-store');
@@ -2100,15 +2003,15 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
   } catch (error) {
     console.error('❌ API Handler Error:', error);
     const body = { error: 'Internal server error', message: (error as Error).message };
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    
     if (typeof (res as any).status === 'function') {
       return res.status(500).json(body);
     } else {
-      // @ts-ignore
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const NodeResponse = (globalThis as any).Response;
-      // @ts-ignore
-      return new NodeResponse(JSON.stringify(body), { status: 500, headers: { 'content-type': 'application/json' } });
+      return new NodeResponse(JSON.stringify(body), { 
+        status: 500, 
+        headers: { 'content-type': 'application/json' } 
+      });
     }
   }
 }
