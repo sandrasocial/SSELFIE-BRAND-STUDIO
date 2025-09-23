@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { SSELFIEChat } from '../components/SSELFIEChat';
-import { StudioScreen } from '../components/StudioScreen';
-import { ProfileScreen } from '../components/ProfileScreen';
-import { AccountScreen } from '../components/AccountScreen';
+import StudioScreen from '../app_v2/StudioScreen';
+import ProfileScreen from '../app_v2/ProfileScreen';
+import SettingsScreen from '../app_v2/SettingsScreen';
 import GalleryTabScreen from '../components/GalleryTabScreen';
 import { useAuth } from '../hooks/use-auth';
 import { ThemeToggle } from '../components/ThemeToggle';
@@ -47,14 +47,14 @@ const createTabs = (user: { name?: string; email?: string; image?: string }) => 
     label: 'Profile',
     icon: User,
     description: 'Your aesthetic feed',
-    component: <ProfileScreen user={user || {}} />
+    component: <ProfileScreen />
   },
   {
     id: 'more',
     label: 'More',
     icon: Settings,
     description: 'Advanced tools & settings',
-    component: <AccountScreen user={user || {}} />
+    component: <SettingsScreen />
   }
 ];
 

@@ -44,7 +44,7 @@ function BrandStudioPageContent() {
   return (
     <>
       {/* Luxury Brand Studio CSS */}
-      <style jsx global>{`
+      <style>{`
         :root {
           --luxury-black: #000000;
           --pure-white: #ffffff;
