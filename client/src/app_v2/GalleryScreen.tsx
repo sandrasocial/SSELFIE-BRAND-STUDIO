@@ -159,19 +159,19 @@ const GalleryScreen: React.FC = () => {
           <p className="text-xs tracking-[0.2em] uppercase font-light text-stone-500">Your Beautiful Photos</p>
         </div>
         <div className="flex space-x-3 ml-4">
-          <button className="p-4 bg-stone-200/40 rounded-2xl border border-stone-300/50 transition-all duration-300 hover:scale-105">
-            <Search size={16} strokeWidth={1} className="text-stone-600" />
-          </button>
-          <button className="p-4 bg-stone-200/40 rounded-2xl border border-stone-300/50 hover:bg-stone-200/60 hover:border-stone-400/60 transition-all duration-300 hover:scale-105">
-            <MoreHorizontal size={16} className="text-stone-600 hover:text-stone-800 transition-colors" strokeWidth={1} />
-          </button>
+            <button className="p-4 bg-stone-200/40 rounded-2xl border border-stone-300/50 transition-all duration-300 hover:scale-105">
+              <Search size={16} strokeWidth={1.5} className="text-stone-600" />
+            </button>
+            <button className="p-4 bg-stone-200/40 rounded-2xl border border-stone-300/50 hover:bg-stone-200/60 hover:border-stone-400/60 transition-all duration-300 hover:scale-105">
+              <MoreHorizontal size={16} className="text-stone-600 hover:text-stone-800 transition-colors" strokeWidth={1.5} />
+            </button>
         </div>
       </div>
 
       {/* Search and Filter */}
       <div className="mt-6 flex flex-col sm:flex-row gap-4 max-w-6xl mx-auto px-6">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-stone-400" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-stone-400" strokeWidth={1.5} />
           <input
             type="text"
             placeholder="Search your images..."
