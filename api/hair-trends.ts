@@ -65,7 +65,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Fetch latest trends with timeout
     const trends = await withTimeout(
-      db.execute('SELECT * FROM hair_trends ORDER BY created_at DESC LIMIT 4'),
+      db.execute('SELECT id, trend_name, image_url, week_range FROM hair_trends ORDER BY created_at DESC LIMIT 4'),
       8000,
       'trends-fetch'
     ) as TrendDataResponse[];
