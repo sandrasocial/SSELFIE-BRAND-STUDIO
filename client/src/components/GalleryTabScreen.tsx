@@ -206,11 +206,7 @@ function GalleryTabScreen() {
   // Same mutation functions as original
   const toggleFavoriteMutation = useMutation({
     mutationFn: async ({ imageId, isFavorite }: { imageId: number; isFavorite: boolean }) => {
-      return apiRequest(isFavorite ? '/images/unfavorite' : '/images/favorite', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ imageId })
-      });
+      return apiRequest(isFavorite ? '/images/unfavorite' : '/images/favorite', 'POST', { imageId });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/images/favorites'] });
@@ -219,9 +215,7 @@ function GalleryTabScreen() {
 
   const deleteImageMutation = useMutation({
     mutationFn: async (imageId: string | number) => {
-      return apiRequest(`/images/${imageId}`, {
-        method: 'DELETE'
-      });
+      return apiRequest(`/images/${imageId}`, 'DELETE');
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/gallery-images'] });

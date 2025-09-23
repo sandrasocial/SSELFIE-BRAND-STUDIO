@@ -2,9 +2,9 @@ import { useEffect, useRef } from 'react';
 import { EditorialAnimations } from '../utils/editorialAnimations';
 
 export function useEditorialAnimations() {
-  const fadeInRef = useRef<HTMLElement>(null);
-  const hoverScaleRef = useRef<HTMLElement>(null);
-  const touchFeedbackRef = useRef<HTMLElement>(null);
+  const fadeInRef = useRef<HTMLDivElement>(null);
+  const hoverScaleRef = useRef<HTMLDivElement>(null);
+  const touchFeedbackRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (fadeInRef.current) {
@@ -33,7 +33,7 @@ export function useEditorialAnimations() {
 
 // Hook for staggered list animations
 export function useStaggerAnimation(itemCount: number) {
-  const containerRef = useRef<HTMLElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (containerRef.current && itemCount > 0) {
@@ -51,7 +51,7 @@ export function useStaggerAnimation(itemCount: number) {
 
 // Hook for intersection observer animations
 export function useScrollAnimation() {
-  const elementsRef = useRef<HTMLElement[]>([]);
+  const elementsRef = useRef<HTMLDivElement[]>([]);
 
   useEffect(() => {
     if (elementsRef.current.length > 0) {
@@ -59,7 +59,7 @@ export function useScrollAnimation() {
     }
   }, []);
 
-  const addElement = (element: HTMLElement | null) => {
+  const addElement = (element: HTMLDivElement | null) => {
     if (element && !elementsRef.current.includes(element)) {
       elementsRef.current.push(element);
     }
