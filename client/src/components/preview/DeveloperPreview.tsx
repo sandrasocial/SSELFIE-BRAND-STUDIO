@@ -1,5 +1,5 @@
-import { FC } from 'react';
-import { ChatInterface } from './ChatInterface';
+import { FC, useState } from 'react';
+// import { ChatInterface } from './ChatInterface'; // TODO: Create ChatInterface component
 
 interface DeveloperPreviewProps {
   currentPage: string;
@@ -37,6 +37,7 @@ const DeveloperPreview: FC<DeveloperPreviewProps> = ({
         </div>
       </div>
 
+      {/* TODO: Implement ChatInterface component
       <ChatInterface
         onSendMessage={(message) => {
           // Handle chat messages and live edits
@@ -44,6 +45,7 @@ const DeveloperPreview: FC<DeveloperPreviewProps> = ({
         activeComponent={activeComponent}
         onComponentSelect={(component) => setActiveComponent(component)}
       />
+      */}
     </div>
   );
 };
