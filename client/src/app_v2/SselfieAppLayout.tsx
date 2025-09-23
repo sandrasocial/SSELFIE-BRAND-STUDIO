@@ -82,90 +82,85 @@ function SselfieAppLayout() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col">
+    <div className="min-h-screen bg-stone-50 flex flex-col" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif' }}>
       {/* Status Bar */}
-      <div className="fixed top-0 left-0 right-0 z-50 flex justify-between items-center px-4 py-2 bg-black/90 backdrop-blur-md">
-        <div className="text-sm font-medium">
+      <div className="fixed top-0 left-0 right-0 z-50 flex justify-between items-center px-6 py-4 bg-stone-100/80 backdrop-blur-3xl border-b border-stone-200/80 shadow-lg">
+        <div className="text-stone-900 font-light tracking-wide text-sm">
           {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
         </div>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1">
-            <div className="w-1 h-3 bg-white rounded-full" />
-            <div className="w-1 h-3 bg-white/60 rounded-full" />
-            <div className="w-1 h-3 bg-white/30 rounded-full" />
+        <div className="flex items-center space-x-3">
+          <div className="flex space-x-1">
+            <div className="w-5 h-2 bg-stone-800 rounded-full"></div>
+            <div className="w-5 h-2 bg-stone-400 rounded-full"></div>
+            <div className="w-5 h-2 bg-stone-300 rounded-full"></div>
           </div>
-          
           {isAuthenticated && user && (
-            <div className="flex items-center gap-1">
+            <div className="flex items-center space-x-2">
               <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
-              <span className="text-xs tracking-wide">ONLINE</span>
+              <span className="text-xs tracking-[0.3em] uppercase font-light text-stone-600">Online</span>
             </div>
           )}
-          
-          <div className="flex items-center gap-1">
-            <Bell size={12} />
+          <div className="flex items-center space-x-1">
+            <Bell size={16} strokeWidth={1} className="text-stone-500" />
             {hasNotifications && (
-              <div className="w-1 h-1 bg-red-500 rounded-full"></div>
+              <div className="w-2 h-2 bg-red-500 rounded-full"></div>
             )}
           </div>
-          
-          <div className="flex items-center gap-1">
-            <Battery size={12} />
-            <span className="text-xs">{Math.round(batteryLevel)}%</span>
+          <div className="flex items-center space-x-1">
+            <Battery size={16} strokeWidth={1} className="text-stone-500" />
+            <span className="text-xs text-stone-700">{Math.round(batteryLevel)}%</span>
           </div>
         </div>
       </div>
 
       {/* Header */}
-      <div className="sticky top-10 z-40 bg-black/90 backdrop-blur-md border-b border-white/10 p-4 text-center">
-        <h1 className="text-2xl font-serif font-light tracking-[0.3em] text-white uppercase">
-          SSELFIE
-        </h1>
-        <p className="text-xs text-zinc-500 tracking-[0.2em] uppercase">BRAND STUDIO</p>
+      <div className="sticky top-16 z-40 bg-stone-100/80 backdrop-blur-3xl border-b border-stone-200/80 p-6 text-center shadow">
+        <h1 className="text-4xl font-serif font-thin tracking-[0.5em] text-stone-900 uppercase mb-2 leading-none">SSELFIE</h1>
+        <p className="text-xs font-light tracking-[0.4em] uppercase text-stone-500 opacity-70">Brand Studio</p>
       </div>
 
       {/* Main Content Area */}
-      <main className="flex-1 px-4 py-6 pb-32 overflow-y-auto">
+      <main className="flex-1 px-6 py-8 pb-40 overflow-y-auto">
         {currentTab?.component || (
           <div className="text-center py-12">
-            <p className="text-zinc-500 text-sm">Tab content loading...</p>
+            <p className="text-stone-500 text-sm">Tab content loading...</p>
           </div>
         )}
       </main>
 
-      {/* Tab Navigation - Mobile Optimized */}
-      <div 
-        className="fixed bottom-4 left-4 right-4 z-50"
+      {/* Floating Tab Bar */}
+      <div
+        className="fixed bottom-6 left-4 right-4 z-50"
         style={{
           paddingBottom: 'env(safe-area-inset-bottom)',
           paddingLeft: 'env(safe-area-inset-left)',
           paddingRight: 'env(safe-area-inset-right)',
         }}
       >
-        <div className="bg-zinc-800/90 backdrop-blur-md border border-white/10 rounded-2xl p-2">
-          <div className="flex justify-around">
+        <div className="bg-stone-100/95 backdrop-blur-3xl rounded-2xl border border-stone-200/60 px-2 py-2 shadow-lg">
+          <div className="flex justify-around items-center">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
-              
               return (
                 <button
                   key={tab.id}
                   onClick={() => handleTabChange(tab.id)}
-                  className={`flex-1 flex flex-col items-center justify-center p-3 rounded-xl transition-all duration-300 min-h-[56px] ${
-                    isActive 
-                      ? 'bg-white/10 text-white scale-105' 
-                      : 'text-zinc-500 hover:text-white hover:bg-white/5'
+                  className={`flex flex-col items-center space-y-2 px-6 py-4 rounded-2xl transition-all duration-500 ease-out min-w-[70px] ${
+                    isActive
+                      ? 'bg-stone-200/70 transform scale-105'
+                      : 'hover:bg-stone-200/40 hover:scale-102'
                   }`}
-                  style={{ 
-                    WebkitTapHighlightColor: 'transparent',
-                    touchAction: 'manipulation'
-                  }}
+                  style={{ WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }}
                   title={tab.description}
                   aria-label={`Switch to ${tab.label}`}
                 >
-                  <Icon size={20} strokeWidth={1.2} className="mb-1" />
-                  <span className="text-xs tracking-wide uppercase font-light">
+                  <Icon
+                    size={20}
+                    strokeWidth={1}
+                    className={`transition-all duration-300 ${isActive ? 'text-stone-900' : 'text-stone-500'}`}
+                  />
+                  <span className={`text-xs font-light tracking-[0.2em] uppercase transition-all duration-300 ${isActive ? 'text-stone-900' : 'text-stone-500'}`}>
                     {tab.label}
                   </span>
                 </button>

@@ -55,8 +55,11 @@ const StudioScreen: React.FC = () => {
     return (
       <div className="min-h-screen bg-stone-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-8 h-8 border-2 border-stone-300 border-t-stone-600 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-sm text-stone-600">Loading studio...</p>
+          <div className="w-20 h-20 border border-stone-300 rounded-full animate-spin mx-auto mb-8 flex items-center justify-center">
+            <div className="w-3 h-3 bg-stone-600 rounded-full animate-pulse"></div>
+          </div>
+          <h1 className="text-stone-900 text-4xl font-serif font-thin tracking-[0.5em] mb-6 leading-none">SSELFIE</h1>
+          <p className="text-xs font-light tracking-[0.4em] uppercase text-stone-500 opacity-70">Loading Studio</p>
         </div>
       </div>
     );
@@ -66,9 +69,9 @@ const StudioScreen: React.FC = () => {
     return (
       <div className="min-h-screen bg-stone-50 flex items-center justify-center">
         <div className="text-center">
-          <Camera className="h-12 w-12 text-stone-400 mx-auto mb-4" />
-          <h2 className="text-xl font-light text-stone-900 mb-2">Authentication Required</h2>
-          <p className="text-stone-600">Please sign in to access your studio</p>
+          <Camera className="h-16 w-16 text-stone-400 mx-auto mb-6" strokeWidth={1} />
+          <h2 className="text-2xl font-serif font-thin text-stone-900 mb-2 tracking-[0.3em] uppercase">Authentication Required</h2>
+          <p className="text-stone-600 font-light">Please sign in to access your studio</p>
         </div>
       </div>
     );
@@ -78,12 +81,12 @@ const StudioScreen: React.FC = () => {
     return (
       <div className="min-h-screen bg-stone-50 flex items-center justify-center">
         <div className="text-center max-w-md mx-auto px-6">
-          <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-          <h2 className="text-xl font-light text-stone-900 mb-2">Unable to Load Studio</h2>
-          <p className="text-stone-600 mb-4">We're having trouble connecting to your studio data.</p>
+          <AlertCircle className="h-16 w-16 text-red-500 mx-auto mb-6" strokeWidth={1} />
+          <h2 className="text-2xl font-serif font-thin text-stone-900 mb-2 tracking-[0.3em] uppercase">Unable to Load Studio</h2>
+          <p className="text-stone-600 mb-4 font-light">We're having trouble connecting to your studio data.</p>
           <button 
             onClick={() => window.location.reload()}
-            className="px-4 py-2 bg-stone-900 text-white rounded-lg hover:bg-stone-800 transition-colors"
+            className="btn-primary"
           >
             Try Again
           </button>
@@ -95,7 +98,7 @@ const StudioScreen: React.FC = () => {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'completed':
-        return <CheckCircle className="h-6 w-6 text-green-500" />;
+        return <CheckCircle className="h-6 w-6 text-green-500" strokeWidth={1} />;
       case 'training':
       case 'pending':
         return <Clock className="h-6 w-6 text-amber-500" />;
