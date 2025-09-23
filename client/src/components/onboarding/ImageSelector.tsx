@@ -1,6 +1,6 @@
 import { FC, useState } from 'react';
 import { Card } from '../ui/card';
-import { ScrollArea } from '../ui/scroll-area';
+// import { ScrollArea } from '../ui/scroll-area'; // TODO: Create ScrollArea component
 
 interface ImageSelectionProps {
   aiGallery: {

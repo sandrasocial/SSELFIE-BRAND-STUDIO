@@ -83,7 +83,7 @@ export const RealImageSelection: FC<RealImageSelectionProps> = ({
         </p>
       </div>
 
-      <ScrollArea className="h-[800px] pr-6">
+      <div className="h-[800px] pr-6 overflow-auto">
         <div className="space-y-12">
           {/* Your AI Photos Section */}
           <div className="space-y-6">
@@ -199,7 +199,7 @@ Selected: {selectedAIPhotos.length} of 8 AI photos
             </div>
           </div>
         </div>
-      </ScrollArea>
+      </div>
 
       {/* Selection Summary & Continue */}
       <div className="mt-8 pt-6 border-t border-accent-line">
