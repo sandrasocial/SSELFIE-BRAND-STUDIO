@@ -97,19 +97,38 @@ export class UserService extends BaseService {
   /**
    * Create new user
    */
+  // Utility: Default user fields for onboarding/business logic
+  getDefaultUserFields(overrides: Partial<UserProfile> = {}): any {
+    return {
+      plan: 'sselfie-studio',
+      role: 'user',
+      monthlyGenerationLimit: 100,
+      mayaAiAccess: true,
+      victoriaAiAccess: false,
+      preferredOnboardingMode: 'conversational',
+      onboardingProgress: {},
+      gender: '',
+      profession: '',
+      brandStyle: '',
+      photoGoals: '',
+      trainingCoachingStarted: false,
+      trainingCoachingCompleted: false,
+      trainingCoachingPhase: '',
+      trainingCoachingStep: 0,
+      brandStrategyContext: {},
+      ...overrides
+    };
+  }
+
   async createUser(email: string, userData: Partial<UserProfile> = {}): Promise<UserProfile> {
     try {
       if (!email) {
         throw new Error('Email is required');
       }
-      
       const sanitizedData = this.sanitizeInput(userData);
-      // Use provided ID (for Stack Auth users) or generate new one
       const userId = sanitizedData.id || this.generateId('user');
-      
       this.log('info', 'Creating new user', { email, userId, isStackAuthUser: !!sanitizedData.id });
-      
-      const newUser = await this.storage.createUser({
+      const newUser = await this.storage.createUser(this.getDefaultUserFields({
         id: userId,
         email,
         displayName: sanitizedData.displayName || email.split('@')[0],
@@ -117,15 +136,9 @@ export class UserService extends BaseService {
         lastName: sanitizedData.lastName,
         gender: sanitizedData.gender,
         profileImageUrl: sanitizedData.profileImageUrl,
-        // Stack Auth users get basic plan by default
-        plan: sanitizedData.id ? 'sselfie-studio' : null,
-        role: sanitizedData.id ? 'user' : null,
-        monthlyGenerationLimit: sanitizedData.id ? 100 : 0,
-        mayaAiAccess: sanitizedData.id ? true : false,
         createdAt: new Date(),
         updatedAt: new Date()
-      });
-      
+      }));
       return {
         id: newUser.id,
         email: newUser.email,
