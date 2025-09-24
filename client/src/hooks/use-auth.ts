@@ -59,11 +59,11 @@ export function useAuth() {
   
   // Check for service unavailable errors (database/model issues)
   const hasServiceError = error && (
-    error.message?.includes('couldn\'t load your creative studio') ||
-    error.message?.includes('SERVICE_UNAVAILABLE') ||
-    error.message?.includes('MODEL_DATA_UNAVAILABLE') ||
-    error.message?.includes('MODEL_NOT_READY') ||
-    error.message?.includes('TIMEOUT')
+    error.code === 'SERVICE_UNAVAILABLE' ||
+    error.code === 'MODEL_DATA_UNAVAILABLE' ||
+    error.code === 'MODEL_NOT_READY' ||
+    error.code === 'TIMEOUT' ||
+    error.code === 'COULD_NOT_LOAD_CREATIVE_STUDIO'
   );
 
   // Use database user data only - no fallback to Stack Auth data
