@@ -24,6 +24,7 @@ import "./styles/luxury-mobile.css";
 
 // Core pages (loaded immediately) - BRAND STUDIO IS PRIMARY
 import SselfieAppLayout from "./app_v2/SselfieAppLayout";
+import TestAppLayout from "./components/TestAppLayout";
 
 // Lazy load non-critical pages for better performance
 import { lazy, Suspense } from "react";
@@ -104,6 +105,15 @@ function SmartHome() {
 function Router() {
   return (
     <div>
+      {/* DEV MODE: Direct access to app for testing UI components */}
+      {process.env.NODE_ENV === 'development' && (
+        <Route path="/app-test" component={() => (
+          <Suspense fallback={<PageLoader />}>
+            <TestAppLayout />
+          </Suspense>
+        )} />
+      )}
+      
       {/* STACK AUTH HANDLER - Explicit routes only to avoid accidental matches */}
       <Route path="/handler/sign-in" component={HandlerRoutes} />
       <Route path="/handler/sign-up" component={HandlerRoutes} />
