@@ -1,134 +1,116 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useLocation } from 'wouter';
-import { useStackApp } from '@stackframe/react';
+import { useStackApp, useUser } from '@stackframe/react';
 import { PageLoader } from '../components/PageLoader';
 
-function hasCallbackParams() {
-  const p = new URLSearchParams(window.location.search);
-  return p.has('code') && p.has('state');
-}
-
+/**
+ * OAuth Callback Component - Definitive Fix
+ * 
+ * This component handles the OAuth callback from Stack Auth providers.
+ * It processes the authorization code and completes the authentication flow
+ * without requiring page refreshes.
+ */
 export default function OAuthCallback(): JSX.Element {
   const app = useStackApp();
+  const user = useUser();
   const [, setLocation] = useLocation();
-  const ranRef = useRef(false);
-  const [status, setStatus] = useState<'idle' | 'working' | 'done' | 'error'>('idle');
-  const [debugInfo, setDebugInfo] = useState<any>(null);
+  const hasProcessedCallback = useRef(false);
 
   useEffect(() => {
-    if (ranRef.current) return;
-    
-    // ✅ DIAGNOSTIC LOG: OAuth callback component loaded
-    console.log('🔄 OAuth callback component loaded at:', new Date().toISOString());
-    console.log('🔍 Current URL:', window.location.href);
-    console.log('🔍 URL parameters:', Object.fromEntries(new URLSearchParams(window.location.search)));
-    
-    if (!hasCallbackParams()) {
-      console.log('❌ No OAuth callback parameters found, redirecting to sign-in');
-      setLocation('/handler/sign-in');
-      return;
-    }
-    
-    const urlParams = new URLSearchParams(window.location.search);
-    setDebugInfo({
-      code: urlParams.has('code') ? 'present' : 'missing',
-      state: urlParams.has('state') ? 'present' : 'missing',
-      error: urlParams.get('error') || 'none',
-      fullParams: Object.fromEntries(urlParams)
-    });
-    
-    console.log('✅ OAuth callback parameters found:', {
-      hasCode: urlParams.has('code'),
-      hasState: urlParams.has('state'),
-      error: urlParams.get('error'),
-      allParams: Object.fromEntries(urlParams)
-    });
-    
-    ranRef.current = true;
-
-    (async () => {
-      try {
-        setStatus('working');
-        console.log('🔐 About to call app.callOAuthCallback() at:', new Date().toISOString());
-        
-        // Enhanced callback handling with better error detection
-        const hasRedirected = await app.callOAuthCallback();
-        
-        console.log('✅ app.callOAuthCallback() completed:', { hasRedirected });
-        setStatus('done');
-        
-        // Give Stack Auth a moment to set the cookies/tokens
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        // Try to verify the authentication was successful
-        try {
-          const user = app.getUser();
-          console.log('🔍 User after OAuth callback:', { user: !!user, userId: user?.id });
-          
-          if (user) {
-            console.log('✅ User authenticated successfully, redirecting to /auth-success');
-            if (!hasRedirected) setLocation('/auth-success');
-          } else {
-            console.log('⚠️ OAuth callback completed but no user found, waiting then checking again');
-            // Wait a bit more and try again
-            setTimeout(async () => {
-              const retryUser = app.getUser();
-              if (retryUser) {
-                console.log('✅ User found on retry, redirecting to /auth-success');
-                setLocation('/auth-success');
-              } else {
-                console.log('❌ Still no user after retry, redirecting to sign-in');
-                setLocation('/handler/sign-in');
-              }
-            }, 1000);
-          }
-        } catch (userCheckError) {
-          console.log('⚠️ Error checking user status:', userCheckError);
-          if (!hasRedirected) setLocation('/auth-success');
-        }
-        
-      } catch (err) {
-        console.error('❌ OAuth callback failed at:', new Date().toISOString(), err);
-        setStatus('error');
-        
-        // Enhanced error handling - try to extract useful error information
-        if (err instanceof Error) {
-          console.error('❌ Error details:', {
-            message: err.message,
-            stack: err.stack,
-            name: err.name
-          });
-        }
-        
-        // Give it one more chance after a delay
-        setTimeout(() => {
-          console.log('🔄 Retrying OAuth callback after error...');
-          setLocation('/handler/sign-in');
-        }, 2000);
+    const processOAuthCallback = async () => {
+      // Prevent double processing
+      if (hasProcessedCallback.current) return;
+      
+      console.log('🔄 OAuth Callback: Starting authentication process at:', new Date().toISOString());
+      console.log('🔍 OAuth Callback: Current URL:', window.location.href);
+      console.log('🔍 OAuth Callback: Search params:', window.location.search);
+      
+      // Check for OAuth callback parameters
+      const urlParams = new URLSearchParams(window.location.search);
+      const hasCode = urlParams.has('code');
+      const hasState = urlParams.has('state');
+      const hasError = urlParams.has('error');
+      
+      if (hasError) {
+        const error = urlParams.get('error');
+        const errorDescription = urlParams.get('error_description');
+        console.error('❌ OAuth Callback: OAuth error received:', error, errorDescription);
+        setLocation('/handler/sign-in');
+        return;
       }
-    })();
+      
+      if (!hasCode || !hasState) {
+        console.log('❌ OAuth Callback: Missing required OAuth parameters, redirecting to sign-in');
+        setLocation('/handler/sign-in');
+        return;
+      }
+      
+      hasProcessedCallback.current = true;
+      
+      try {
+        console.log('🔐 OAuth Callback: Processing OAuth callback with Stack Auth...');
+        
+        // Use Stack Auth's built-in OAuth callback handler
+        const result = await app.callOAuthCallback();
+        
+        console.log('✅ OAuth Callback: Stack Auth callback processed successfully:', result);
+        
+        // Wait a moment for the authentication state to propagate
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Check if we're now authenticated
+        const currentUser = app.getUser();
+        if (currentUser) {
+          console.log('✅ OAuth Callback: User authenticated successfully:', currentUser.id);
+          setLocation('/auth-success');
+        } else {
+          console.log('⚠️ OAuth Callback: Callback processed but no user found, checking again...');
+          
+          // Wait a bit more and try again
+          setTimeout(() => {
+            const retryUser = app.getUser();
+            if (retryUser) {
+              console.log('✅ OAuth Callback: User found on retry:', retryUser.id);
+              setLocation('/auth-success');
+            } else {
+              console.log('❌ OAuth Callback: Still no user after retry, redirecting to sign-in');
+              setLocation('/handler/sign-in');
+            }
+          }, 2000);
+        }
+        
+      } catch (error) {
+        console.error('❌ OAuth Callback: Authentication failed:', error);
+        hasProcessedCallback.current = false; // Allow retry
+        
+        // Wait before redirecting to give user time to see what happened
+        setTimeout(() => {
+          setLocation('/handler/sign-in');
+        }, 3000);
+      }
+    };
+
+    processOAuthCallback();
   }, [app, setLocation]);
 
+  // If user is already authenticated (from previous session), redirect immediately
+  useEffect(() => {
+    if (user && !hasProcessedCallback.current) {
+      console.log('✅ OAuth Callback: User already authenticated, redirecting to app');
+      setLocation('/auth-success');
+    }
+  }, [user, setLocation]);
+
   return (
-    <div className="min-h-screen flex items-center justify-center">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="text-center max-w-md px-6">
         <PageLoader />
         <p className="text-gray-600 mt-4">
-          {status === 'error' ? 'Authentication failed, retrying…' : 'Completing authentication…'}
+          Completing authentication...
         </p>
-        {status === 'working' && (
-          <p className="text-sm text-gray-500 mt-2">
-            Processing OAuth callback...
-          </p>
-        )}
-        {process.env.NODE_ENV === 'development' && debugInfo && (
-          <details className="mt-4 text-left">
-            <summary className="text-sm text-gray-500 cursor-pointer">Debug Info</summary>
-            <pre className="mt-2 text-xs text-gray-400 bg-gray-100 p-2 rounded overflow-auto">
-              {JSON.stringify(debugInfo, null, 2)}
-            </pre>
-          </details>
-        )}
+        <p className="text-sm text-gray-500 mt-2">
+          Processing your sign-in with Stack Auth
+        </p>
       </div>
     </div>
   );
