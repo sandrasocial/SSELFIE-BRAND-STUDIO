@@ -428,26 +428,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(200).end();
     }
 
-    // Safe JSON responder
-    const json = (response: unknown, status: number, body: unknown) => {
-      const r = response as { status?: (code: number) => { json: (b: unknown) => unknown } };
-      if (typeof r?.status === 'function') {
-        return (response as any).status(status).json(body);
-      }
-      const NodeResponse = (globalThis as any).Response;
-      try {
-        return new NodeResponse(JSON.stringify(body), { 
-          status, 
-          headers: { 'content-type': 'application/json' } 
-        });
-      } catch {
-        return { 
-          status, 
-          headers: { 'content-type': 'application/json' }, 
-          body: JSON.stringify(body) 
-        };
-      }
-    };
+    // Ensure response object integrity
+    if (!res || typeof res.status !== 'function') {
+      console.error('❌ CRITICAL: Response object is corrupted or missing');
+      throw new Error('Response object is not a valid Vercel response');
+    }
 
     // Health check
     if (req.url?.includes('/api/health')) {
@@ -2118,16 +2103,17 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
     
   } catch (error) {
     console.error('❌ API Handler Error:', error);
-    const body = { error: 'Internal server error', message: (error as Error).message };
     
-    if (typeof (res as any).status === 'function') {
-      return res.status(500).json(body);
-    } else {
-      const NodeResponse = (globalThis as any).Response;
-      return new NodeResponse(JSON.stringify(body), { 
-        status: 500, 
-        headers: { 'content-type': 'application/json' } 
-      });
+    // Ensure we have a valid response object
+    if (!res || typeof res.status !== 'function') {
+      console.error('❌ CRITICAL: Response object corrupted in error handler');
+      // In this case, we can't send a proper response, so let Vercel handle it
+      throw error;
     }
+    
+    return res.status(500).json({ 
+      error: 'Internal server error', 
+      message: (error as Error).message 
+    });
   }
 }
