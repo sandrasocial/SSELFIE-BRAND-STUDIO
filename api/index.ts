@@ -428,12 +428,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(200).end();
     }
 
-    // Ensure response object integrity
-    if (!res || typeof res.status !== 'function') {
-      console.error('❌ CRITICAL: Response object is corrupted or missing');
-      throw new Error('Response object is not a valid Vercel response');
-    }
-
     // Health check
     if (req.url?.includes('/api/health')) {
       return res.status(200).json({
@@ -2104,16 +2098,26 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
   } catch (error) {
     console.error('❌ API Handler Error:', error);
     
-    // Ensure we have a valid response object
-    if (!res || typeof res.status !== 'function') {
-      console.error('❌ CRITICAL: Response object corrupted in error handler');
-      // In this case, we can't send a proper response, so let Vercel handle it
-      throw error;
+    // Defensive error response - handle different response object types
+    try {
+      if (res && typeof res.status === 'function') {
+        return res.status(500).json({ 
+          error: 'Internal server error', 
+          message: (error as Error).message 
+        });
+      }
+    } catch (responseError) {
+      console.error('❌ Response object failed, using fallback:', responseError);
     }
     
-    return res.status(500).json({ 
+    // Final fallback using Node Response
+    const NodeResponse = (globalThis as any).Response;
+    return new NodeResponse(JSON.stringify({ 
       error: 'Internal server error', 
       message: (error as Error).message 
+    }), { 
+      status: 500, 
+      headers: { 'content-type': 'application/json' } 
     });
   }
 }
