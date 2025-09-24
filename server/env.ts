@@ -1,9 +1,18 @@
 
 
 import * as dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// ES module __dirname equivalent
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 // Only load .env.server in non-production environments
 if (process.env.NODE_ENV !== 'production') {
-	dotenv.config({ path: '.env.server' });
+	// Load from project root, not server directory
+	const envPath = path.join(__dirname, '..', '.env.server');
+	dotenv.config({ path: envPath });
 }
 
 export const DATABASE_URL = process.env.DATABASE_URL;
