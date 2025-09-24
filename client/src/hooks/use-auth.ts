@@ -32,7 +32,7 @@ export function useAuth() {
   const stackUser = useUser();
   
   // Fetch our database user data if Stack Auth user exists
-  const { data: dbUser, error } = useQuery({
+  const { data: dbUserResponse, error } = useQuery({
     queryKey: ["/api/me"],
     retry: 1,
     retryDelay: 750,
@@ -41,9 +41,13 @@ export function useAuth() {
     refetchOnWindowFocus: false,
     queryFn: async () => {
       const data = await apiFetch('/me');
-      return data?.user ?? null;
+      return data; // Return full response including fallback flag
     }
   });
+
+  // Extract user data from response, handling both full DB response and fallback
+  const dbUser = dbUserResponse?.user;
+  const isFallbackMode = dbUserResponse?.fallback === true;
 
   // Never block UI on DB fetch; Stack user presence is enough to render app
   const isLoading = false;
@@ -82,5 +86,6 @@ export function useAuth() {
     requiresPayment: isAuthenticated && !hasActiveSubscription,
     error: error?.message || null,
     stackUser, // Provide access to raw Stack Auth user
+    isFallbackMode, // Indicates if we're running in auth-only mode
   };
 }

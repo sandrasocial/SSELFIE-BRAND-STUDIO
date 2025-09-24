@@ -1066,8 +1066,42 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           return res.status(503).json(timeoutBody);
         }
         
-        const body = { message: 'Authentication required', error: (error as Error).message };
-        return res.status(401).json(body);
+        // Enhanced fallback: if database operations fail but we have authentication, 
+        // return basic user info from Stack Auth to keep the app functional
+        try {
+          console.log('🔄 Database failed, attempting authentication-only fallback...');
+          const user = await getAuthenticatedUser();
+          const basicUser = {
+            id: user.id,
+            email: user.email,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            displayName: `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email?.split('@')[0] || 'User',
+            plan: 'sselfie-studio', // Default plan
+            role: 'user',
+            monthlyGenerationLimit: 100, // Default limit
+            mayaAiAccess: true,
+            victoriaAiAccess: false,
+            // Add minimal required fields for UI
+            generationsUsedThisMonth: 0,
+            hasRetrainingAccess: false,
+            profileImageUrl: null,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          };
+          
+          console.log('✅ Authentication fallback successful, returning basic user info');
+          res.setHeader('Cache-Control', 'no-store, max-age=30'); // Short cache for fallback
+          return res.status(200).json({ 
+            user: basicUser,
+            fallback: true,
+            message: 'Using authentication-only mode due to database unavailability'
+          });
+        } catch {
+          // Final fallback - authentication completely failed  
+          const body = { message: 'Authentication required', error: (error as Error).message };
+          return res.status(401).json(body);
+        }
       }
     }
 
