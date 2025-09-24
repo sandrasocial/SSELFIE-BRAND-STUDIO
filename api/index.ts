@@ -938,6 +938,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const t = logStart('GET /api/me');
       res.setHeader('Content-Type', 'application/json');
       
+      // ✅ DIAGNOSTIC LOG 1: Function handler invoked
+      console.log('🚀 /api/me handler invoked at:', new Date().toISOString());
+      
+      // ✅ DIAGNOSTIC LOG 2: Environment variable status
+      console.log('🔍 DATABASE_URL status:', {
+        found: !!process.env.DATABASE_URL,
+        length: process.env.DATABASE_URL?.length || 0,
+        preview: process.env.DATABASE_URL?.substring(0, 20) + '...' || 'NOT_FOUND'
+      });
+      
       try {
         if (!checkCircuitBreaker()) {
           console.warn('⚠️ Circuit breaker open, returning cached user fallback');
@@ -948,8 +958,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           });
         }
 
+        // ✅ DIAGNOSTIC LOG 3: About to get authenticated user
+        console.log('🔐 About to call getAuthenticatedUser() at:', new Date().toISOString());
         const user = await getAuthenticatedUser();
+        console.log('✅ getAuthenticatedUser() completed, userId:', user.id);
+        
+        // ✅ DIAGNOSTIC LOG 4: About to import storage module
+        console.log('📦 About to import storage module at:', new Date().toISOString());
         const { storage } = await import('../server/storage');
+        console.log('✅ Storage module imported successfully');
+        
+        // ✅ DIAGNOSTIC LOG 5: About to create database connection/client
+        console.log('🗄️ About to attempt database connection for user lookup at:', new Date().toISOString());
+        console.log('🔍 Using userId for database query:', user.id);
+        
+        // ✅ DIAGNOSTIC LOG 6: About to execute database query
+        console.log('⚡ About to execute storage.getUser() query at:', new Date().toISOString());
         
         let dbUser = await withDatabaseTimeoutAndRetry(
           () => storage.getUser(user.id as string), 
@@ -959,11 +983,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           'getUser'
         );
         
+        // ✅ DIAGNOSTIC LOG 7: Database query completed
+        console.log('✅ storage.getUser() completed at:', new Date().toISOString(), 'result:', !!dbUser);
+        
         if (dbUser) {
           recordCircuitBreakerSuccess();
+          console.log('✅ Database connection established successfully');
         }
       
         if (!dbUser) {
+          // ✅ DIAGNOSTIC LOG 8: User not found, trying alternative lookups
+          console.log('🔍 User not found by ID, attempting alternative lookups at:', new Date().toISOString());
+          
           const [byStackId, byEmail] = await Promise.all([
             withDatabaseTimeout(
               storage.getUserByStackAuthId(user.id as string), 
@@ -979,8 +1010,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             ) : Promise.resolve(null)
           ]);
           
+          console.log('✅ Alternative lookups completed:', { byStackId: !!byStackId, byEmail: !!byEmail });
+          
           if (byStackId) {
             dbUser = byStackId;
+            console.log('✅ Found user by Stack Auth ID');
           } else if (byEmail) {
             console.log('🔗 Linking existing paid user to Stack Auth:', byEmail.email, '→', user.id);
             dbUser = await withDatabaseTimeout(
@@ -994,7 +1028,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
       
         if (!dbUser) {
-          console.log('🆕 Creating new user account:', user.email);
+          // ✅ DIAGNOSTIC LOG 9: Creating new user
+          console.log('🆕 Creating new user account at:', new Date().toISOString(), 'for:', user.email);
           
           const fallbackUser = {
             id: user.id as string,
@@ -1045,9 +1080,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           }
         }
         
+        // ✅ DIAGNOSTIC LOG 10: About to fetch user model data
+        console.log('🎯 About to fetch user model data at:', new Date().toISOString(), 'for userId:', dbUser.id);
+        
         // Strict requirement: Must also fetch user's trained model data
         let userModel;
         try {
+          // ✅ DIAGNOSTIC LOG 11: Executing getUserModel query
+          console.log('⚡ About to execute storage.getUserModel() query at:', new Date().toISOString());
+          
           userModel = await withDatabaseTimeoutAndRetry(
             () => storage.getUserModel(dbUser.id),
             null,
@@ -1055,6 +1096,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             1,
             'getUserModel'
           );
+          
+          // ✅ DIAGNOSTIC LOG 12: getUserModel query completed
+          console.log('✅ storage.getUserModel() completed at:', new Date().toISOString(), 'hasModel:', !!userModel);
+          if (userModel) {
+            console.log('📋 Model details:', {
+              id: userModel.id,
+              trainingStatus: userModel.trainingStatus,
+              hasReplicateVersionId: !!userModel.replicateVersionId,
+              triggerWord: userModel.triggerWord
+            });
+          }
+          
         } catch (modelError) {
           console.log('❌ Failed to fetch user model data:', (modelError as Error).message);
           recordCircuitBreakerFailure();
@@ -1085,6 +1138,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         recordCircuitBreakerSuccess();
         res.setHeader('Cache-Control', 'no-store');
+        
+        // ✅ DIAGNOSTIC LOG 13: Final user object before response
+        console.log('🎉 About to send successful response at:', new Date().toISOString());
+        console.log('📤 Final user object summary:', {
+          userId: dbUser.id,
+          userEmail: dbUser.email,
+          modelId: userModel.id,
+          modelStatus: userModel.trainingStatus,
+          hasReplicateVersionId: !!userModel.replicateVersionId
+        });
+        
         t.end('ok');
         return res.status(200).json({ 
           user: dbUser,
