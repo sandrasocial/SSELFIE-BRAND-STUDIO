@@ -27,12 +27,12 @@ export interface User {
   generationsUsedThisMonth?: number;
 }
 
-// ✅ FIXED: Stack Auth integration with proper error handling
+// ✅ FIXED: Stack Auth integration with strict database requirements
 export function useAuth() {
   const stackUser = useUser();
   
   // Fetch our database user data if Stack Auth user exists
-  const { data: dbUserResponse, error } = useQuery({
+  const { data: dbUserResponse, error, isLoading: dbLoading } = useQuery({
     queryKey: ["/api/me"],
     retry: 1,
     retryDelay: 750,
@@ -41,35 +41,33 @@ export function useAuth() {
     refetchOnWindowFocus: false,
     queryFn: async () => {
       const data = await apiFetch('/me');
-      return data; // Return full response including fallback flag
+      return data; // Return full response including error details
     }
   });
 
-  // Extract user data from response, handling both full DB response and fallback
+  // Extract user data from response
   const dbUser = dbUserResponse?.user;
-  const isFallbackMode = dbUserResponse?.fallback === true;
-
-  // Never block UI on DB fetch; Stack user presence is enough to render app
-  const isLoading = false;
   
-  // Consider user authenticated as soon as Stack Auth says so (avoids loops)
-  const isAuthenticated = !!stackUser?.id;
+  // Loading state: waiting for Stack Auth or database
+  const isLoading = !stackUser || (!!stackUser?.id && dbLoading);
+  
+  // Consider user authenticated only if Stack Auth AND database data is available
+  const isAuthenticated = !!stackUser?.id && !!dbUser;
   
   // For OAuth callbacks, we can proceed with just Stack Auth user
   const hasStackAuthUser = !!stackUser?.id;
   
-  // Debug logging for authentication state
-  // Minimal diagnostics; avoid noisy logs in production
+  // Check for service unavailable errors (database/model issues)
+  const hasServiceError = error && (
+    error.message?.includes('couldn\'t load your creative studio') ||
+    error.message?.includes('SERVICE_UNAVAILABLE') ||
+    error.message?.includes('MODEL_DATA_UNAVAILABLE') ||
+    error.message?.includes('MODEL_NOT_READY') ||
+    error.message?.includes('TIMEOUT')
+  );
 
-  // Use database user data if available, fallback to Stack Auth user
-  const user: User | undefined = dbUser || (stackUser ? {
-    id: stackUser.id,
-    email: stackUser.primaryEmail || '',
-    firstName: stackUser.displayName?.split(' ')[0],
-    lastName: stackUser.displayName?.split(' ').slice(1).join(' '),
-    plan: 'sselfie-studio', // Default, will be overridden by database
-    role: 'user' // Default, will be overridden by database
-  } : undefined);
+  // Use database user data only - no fallback to Stack Auth data
+  const user: User | undefined = dbUser;
   
   // Check if user has active subscription (single-tier €47/month model)
   const hasActiveSubscription = dbUser ? (
@@ -85,7 +83,7 @@ export function useAuth() {
     hasActiveSubscription,
     requiresPayment: isAuthenticated && !hasActiveSubscription,
     error: error?.message || null,
+    hasServiceError, // Indicates database/model unavailable
     stackUser, // Provide access to raw Stack Auth user
-    isFallbackMode, // Indicates if we're running in auth-only mode
   };
 }

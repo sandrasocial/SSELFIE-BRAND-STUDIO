@@ -1045,9 +1045,56 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           }
         }
         
+        // Strict requirement: Must also fetch user's trained model data
+        let userModel;
+        try {
+          userModel = await withDatabaseTimeoutAndRetry(
+            () => storage.getUserModel(dbUser.id),
+            null,
+            2000,
+            1,
+            'getUserModel'
+          );
+        } catch (modelError) {
+          console.log('❌ Failed to fetch user model data:', (modelError as Error).message);
+          recordCircuitBreakerFailure();
+          const errorBody = {
+            message: 'We couldn\'t load your creative studio right now. Please try again in a few moments.',
+            error: 'Unable to load model data',
+            code: 'MODEL_DATA_UNAVAILABLE'
+          };
+          return res.status(503).json(errorBody);
+        }
+
+        // Ensure user has trained model with replicate version ID
+        if (!userModel || !userModel.replicateVersionId || userModel.trainingStatus !== 'completed') {
+          console.log('❌ User does not have completed trained model:', {
+            hasModel: !!userModel,
+            replicateVersionId: userModel?.replicateVersionId,
+            trainingStatus: userModel?.trainingStatus
+          });
+          
+          const errorBody = {
+            message: 'We couldn\'t load your creative studio right now. Please try again in a few moments.',
+            error: 'Trained model not available',
+            code: 'MODEL_NOT_READY',
+            trainingStatus: userModel?.trainingStatus || 'not_started'
+          };
+          return res.status(503).json(errorBody);
+        }
+
+        recordCircuitBreakerSuccess();
         res.setHeader('Cache-Control', 'no-store');
         t.end('ok');
-        return res.status(200).json({ user: dbUser });
+        return res.status(200).json({ 
+          user: dbUser,
+          model: {
+            id: userModel.id,
+            replicateVersionId: userModel.replicateVersionId,
+            trainingStatus: userModel.trainingStatus,
+            triggerWord: userModel.triggerWord
+          }
+        });
         
       } catch (error) {
         t.end('error', { error: (error as Error).message });
@@ -1059,49 +1106,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         
         if (isTimeoutError(error)) {
           const timeoutBody = { 
-            message: 'Service temporarily unavailable, please try again', 
+            message: 'We couldn\'t load your creative studio right now. Please try again in a few moments.',
             error: 'Request timeout',
             code: 'TIMEOUT'
           };
           return res.status(503).json(timeoutBody);
         }
         
-        // Enhanced fallback: if database operations fail but we have authentication, 
-        // return basic user info from Stack Auth to keep the app functional
-        try {
-          console.log('🔄 Database failed, attempting authentication-only fallback...');
-          const user = await getAuthenticatedUser();
-          const basicUser = {
-            id: user.id,
-            email: user.email,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            displayName: `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email?.split('@')[0] || 'User',
-            plan: 'sselfie-studio', // Default plan
-            role: 'user',
-            monthlyGenerationLimit: 100, // Default limit
-            mayaAiAccess: true,
-            victoriaAiAccess: false,
-            // Add minimal required fields for UI
-            generationsUsedThisMonth: 0,
-            hasRetrainingAccess: false,
-            profileImageUrl: null,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
-          };
-          
-          console.log('✅ Authentication fallback successful, returning basic user info');
-          res.setHeader('Cache-Control', 'no-store, max-age=30'); // Short cache for fallback
-          return res.status(200).json({ 
-            user: basicUser,
-            fallback: true,
-            message: 'Using authentication-only mode due to database unavailability'
-          });
-        } catch {
-          // Final fallback - authentication completely failed  
-          const body = { message: 'Authentication required', error: (error as Error).message };
-          return res.status(401).json(body);
-        }
+        // For any other errors, show the user-friendly message
+        const body = { 
+          message: 'We couldn\'t load your creative studio right now. Please try again in a few moments.',
+          error: (error as Error).message,
+          code: 'SERVICE_UNAVAILABLE'
+        };
+        return res.status(503).json(body);
       }
     }
 

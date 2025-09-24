@@ -54,15 +54,15 @@ const SessionStats = lazy(() => import("./features/live/SessionStats"));
 import { PageLoader } from "./components/PageLoader";
 
 // Smart Home component - Routes users through simplified journey
-// NEW USER JOURNEY: Authentication → Training → App Studio → Advanced Features  
+// NEW USER JOURNEY: Authentication → Database Validation → Training → App Studio  
 function SmartHome() {
   const [, setLocation] = useLocation();
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, hasServiceError, error } = useAuth();
 
   // Fetch user model status to determine training completion
   const { data: userModel, isLoading: isModelLoading } = useQuery({
     queryKey: ['/api/user-model'],
-    enabled: isAuthenticated, // we consider Stack user sufficient to fetch
+    enabled: isAuthenticated, // Only fetch if user is fully authenticated with database
     retry: false,
     staleTime: 30 * 1000
   });
@@ -77,16 +77,49 @@ function SmartHome() {
         console.log('✅ User trained → /app (mobile-first studio tabs)');
         setLocation('/app');
       }
-    } else if (!isLoading && !isAuthenticated) {
+    } else if (!isLoading && !isAuthenticated && !hasServiceError) {
       console.log('🔍 User not authenticated → staying on landing page');
     }
-  }, [isAuthenticated, isLoading, userModel, setLocation]);
+  }, [isAuthenticated, isLoading, hasServiceError, userModel, setLocation]);
 
   // Show loading while determining auth state and training status
   if (isLoading || (isAuthenticated && isModelLoading)) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
+  // Show service error state if database/model data unavailable
+  if (hasServiceError) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+        <div className="text-center max-w-md">
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 18.5c-.77.833.192 2.5 1.732 2.5z"></path>
+            </svg>
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Service Temporarily Unavailable</h2>
+          <p className="text-gray-600 mb-6">
+            We couldn't load your creative studio right now. Please try again in a few moments.
+          </p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Try Again
+          </button>
+          {process.env.NODE_ENV === 'development' && error && (
+            <details className="mt-4 text-left">
+              <summary className="text-sm text-gray-500 cursor-pointer">Error Details</summary>
+              <pre className="mt-2 text-xs text-gray-400 bg-gray-100 p-2 rounded overflow-auto">
+                {error}
+              </pre>
+            </details>
+          )}
+        </div>
       </div>
     );
   }
@@ -131,12 +164,16 @@ function Router() {
         </Suspense>
       )} />
       
-      {/* HOME ROUTE - Smart routing based on authentication and training status */}
+      {/* HOME ROUTE - Smart routing based on authentication and service availability */}
       <Route path="/" component={() => {
-        const { isAuthenticated, isLoading } = useAuth();
+        const { isAuthenticated, isLoading, hasServiceError } = useAuth();
         
         if (isLoading) {
           return <PageLoader />;
+        }
+        
+        if (hasServiceError) {
+          return <SmartHome />; // SmartHome will handle the service error display
         }
         
         if (isAuthenticated) {
