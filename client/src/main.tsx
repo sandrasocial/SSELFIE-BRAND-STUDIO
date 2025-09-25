@@ -3,6 +3,16 @@ import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
 
+// 💡 IMPORT ALL PROVIDERS HERE
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { StackProvider } from '@stackframe/react'; // This is the ReactStackProvider
+import { Toaster } from './components/ui/toaster';
+import { TooltipProvider } from './components/ui/tooltip';
+
+// Import queryClient and stackClientApp
+import { queryClient } from "./lib/queryClient";
+import { stackClientApp } from "../../stack/client";
+
 // Debug logging for troubleshooting
 console.log('SSELFIE Studio: Main.tsx loading...');
 console.log('SSELFIE Studio: Root element found:', !!document.getElementById("root"));
@@ -70,14 +80,21 @@ window.addEventListener('video:preview:save', async (e: Event) => {
 });
 
 const container = document.getElementById("root");
-if (!container) {
-  throw new Error("Root container not found");
-}
-
+if (!container) throw new Error("Failed to find the root element");
 const root = createRoot(container);
 
 root.render(
-  // REMOVED: React.StrictMode was causing duplicate API calls in development
-  // StrictMode intentionally double-renders components, causing Maya to respond twice
-  <App />
+  <React.StrictMode>
+    {/* 1. StackProvider MUST wrap everything that uses auth hooks */}
+    <StackProvider app={stackClientApp}>
+      {/* 2. QueryClientProvider wraps the entire application logic */}
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          {/* 3. App component only renders the router */}
+          <App />
+          <Toaster />
+        </TooltipProvider>
+      </QueryClientProvider>
+    </StackProvider>
+  </React.StrictMode>
 );
