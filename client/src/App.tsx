@@ -1,13 +1,8 @@
 /* eslint-disable no-console */
 import React, { useEffect } from 'react';
 import { Route, useLocation } from "wouter";
-import { queryClient } from "./lib/queryClient";
-import { QueryClientProvider } from "@tanstack/react-query";
 import { ProtectedRoute } from './components/ProtectedRoute';
-import { Toaster } from "./components/ui/toaster";
-import { TooltipProvider } from "./components/ui/tooltip";
-import { StackProvider, StackTheme, SignIn, SignUp } from "@stackframe/react";
-import { stackClientApp } from "../../stack/client";
+import { SignIn, SignUp } from "@stackframe/react";
 import { useAuth } from "./hooks/use-auth";
 // Removed unused environment imports - using consolidated config
 import { useQuery } from "@tanstack/react-query";
@@ -314,21 +309,6 @@ function HandlerRoutes() {
   );
 }
 
-function AppWithProvider() {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <StackProvider app={stackClientApp}>
-        <StackTheme>
-          <TooltipProvider>
-            <App />
-            <Toaster />
-          </TooltipProvider>
-        </StackTheme>
-      </StackProvider>
-    </QueryClientProvider>
-  );
-}
-
 function App() {
   // Enhanced domain access handling
   useEffect(() => {
@@ -374,4 +354,4 @@ function App() {
   );
 }
 
-export default AppWithProvider;
+export default App;
