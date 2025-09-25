@@ -4,7 +4,7 @@ import App from "./App";
 import "./index.css";
 
 // 💡 IMPORT ALL PROVIDERS HERE
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { StackProvider } from '@stackframe/react'; // This is the ReactStackProvider
 import { Toaster } from './components/ui/toaster';
 import { TooltipProvider } from './components/ui/tooltip';
