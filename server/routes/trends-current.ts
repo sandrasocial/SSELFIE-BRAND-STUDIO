@@ -7,16 +7,28 @@ import { Router } from 'express';
 import { requireStackAuth } from '../stack-auth.js';
 import { db } from '../drizzle.js';
 import { sql } from 'drizzle-orm';
-import type { AuthenticatedRequest } from '../types/auth.js';
-import { HairTrendSchema, CurrentTrendsResponseSchema, type CurrentTrendsResponse } from '../types/trends.js';
 
 const router = Router();
+
+interface CurrentTrendsResponse {
+  success: boolean;
+  trends: {
+    styles: string[];
+    colors: string[];
+    techniques: string[];
+    social_insights: string[];
+  };
+  summary: string;
+  confidence: number;
+  weekRange: string;
+  lastUpdate: string;
+}
 
 /**
  * GET /api/trends/current
  * Get current week's trends optimized for Workshop Mode
  */
-router.get('/current', requireStackAuth, async (req: AuthenticatedRequest, res) => {
+router.get('/current', requireStackAuth, async (req: any, res) => {
   try {
     console.log('🎯 Current trends requested for Workshop Mode by user:', req.user?.id);
 
@@ -32,9 +44,15 @@ router.get('/current', requireStackAuth, async (req: AuthenticatedRequest, res) 
       FROM hair_trends 
       ORDER BY created_at DESC 
       LIMIT 1
-    `);
-
-    const trends = HairTrendSchema.array().parse(result.rows);
+    `) as { rows: Array<{
+      id: number;
+      week_range: string;
+      trend_data: any;
+      summary: string;
+      confidence: number;
+      created_at: string;
+    }> };
+    const trends = result.rows;
 
     if (!trends || trends.length === 0) {
       return res.json({
@@ -54,45 +72,38 @@ router.get('/current', requireStackAuth, async (req: AuthenticatedRequest, res) 
     }
 
     const latestTrend = trends[0];
-
-    // Default trend data
-    const defaultTrends = {
-      styles: [
-        'Curtain Bangs with Layers',
-        'Wolf Cut Variations',
-        'Face-Framing Highlights',
-      ],
-      colors: [
-        'Warm Honey Blonde',
-        'Chocolate Cherry',
-        'Dimensional Brunette',
-      ],
-      techniques: [
-        'Balayage Contouring',
-        'Money Piece Highlights',
-        'Shadow Root Blending',
-      ],
-      social_insights: [
-        '#HairTransformation trending',
-        'Before/After content +45%',
-        'Hair care routines viral',
-      ]
-    };
+    const trendData = latestTrend.trend_data || {};
 
     // Format response optimized for WorkshopPane
-    const response = CurrentTrendsResponseSchema.parse({
+    const response: CurrentTrendsResponse = {
       success: true,
       trends: {
-        styles: latestTrend.trend_data?.trends?.styles ?? defaultTrends.styles,
-        colors: latestTrend.trend_data?.trends?.colors ?? defaultTrends.colors,
-        techniques: latestTrend.trend_data?.trends?.techniques ?? defaultTrends.techniques,
-        social_insights: latestTrend.trend_data?.trends?.social_insights ?? defaultTrends.social_insights
+        styles: trendData.trends?.styles || [
+          'Curtain Bangs with Layers',
+          'Wolf Cut Variations',
+          'Face-Framing Highlights',
+        ],
+        colors: trendData.trends?.colors || [
+          'Warm Honey Blonde',
+          'Chocolate Cherry',
+          'Dimensional Brunette',
+        ],
+        techniques: trendData.trends?.techniques || [
+          'Balayage Contouring',
+          'Money Piece Highlights',
+          'Shadow Root Blending',
+        ],
+        social_insights: trendData.trends?.social_insights || [
+          '#HairTransformation trending',
+          'Before/After content +45%',
+          'Hair care routines viral',
+        ]
       },
       summary: latestTrend.summary || 'Current hair trends show a focus on natural textures and dimensional color techniques.',
       confidence: latestTrend.confidence || 0.85,
       weekRange: latestTrend.week_range || 'Current Week',
       lastUpdate: latestTrend.created_at || new Date().toISOString()
-    });
+    };
 
     res.json(response);
 
@@ -100,7 +111,7 @@ router.get('/current', requireStackAuth, async (req: AuthenticatedRequest, res) 
     console.error('❌ Current trends fetch error:', error);
     
     // Return fallback data instead of error to keep Workshop Mode functional
-    const fallbackResponse = CurrentTrendsResponseSchema.parse({
+    res.json({
       success: true,
       trends: {
         styles: [
@@ -137,8 +148,6 @@ router.get('/current', requireStackAuth, async (req: AuthenticatedRequest, res) 
       weekRange: 'Current Week',
       lastUpdate: new Date().toISOString()
     });
-    
-    res.json(fallbackResponse);
   }
 });
 

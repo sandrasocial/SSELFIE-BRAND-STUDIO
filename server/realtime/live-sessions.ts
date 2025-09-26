@@ -21,10 +21,8 @@ class LiveSessionsManager {
    * @param server - HTTP server instance (currently unused in stub implementation)
    */
   initialize(server: any): void {
-    console.log('🔄 Live Sessions Manager initialized (stub mode)');
-    // In a full implementation, this would set up Socket.IO
-    // For now, we just log that it's initialized
-  }
+    console.log('🔄 Live Sessions Manager initialized (stub mode)')';    // In a full implementation, this would set up Socket.IO'
+    // For now, we just log that it's initialized';  }'
 
   /**
    * Get session state

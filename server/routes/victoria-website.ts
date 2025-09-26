@@ -1,10 +1,4 @@
-import { Router } from 'express';
-import { z } from 'zod'';
-import { requireStackAuth } from '..stack-auth';.js
-import { db } from '..drizzle';.js
-import { users, websites } from '..../shared/schema';
-import { eq } from 'drizzle-orm'';
-
+import { Router } from "express";import { z } from "zod";import { requireStackAuth } from "..stack-auth.js";import { db } from "..drizzle.js";import { users, websites } from "..../shared/schema";import { eq } from "drizzle-orm";"
 const router = Router();
 
 // Validation schemas
@@ -36,8 +30,7 @@ const CustomizationSchema = z.object({
 });
 
 // POST /api/victoria/generate - Main website generation endpoint
-router.post('/generate', requireStackAuth, async (req: any, res) => {
-  try {
+router.post('/generate', requireStackAuth, async (req: any, res) => {';  try {'
     const validatedData = WebsiteGenerationSchema.parse(req.body);
     const userId = req.user.id;
 
@@ -51,8 +44,7 @@ router.post('/generate', requireStackAuth, async (req: any, res) => {
     const [website] = await db.insert(websites).values({
       userId,
       title: validatedData.businessName,
-      slug: validatedData.businessName.toLowerCase().replace(/\s+/g, '-'),
-      content: {
+      slug: validatedData.businessName.toLowerCase().replace(/\s+/g, '-'),';      content: {'
         businessType: validatedData.businessType,
         businessDescription: validatedData.businessDescription,
         targetAudience: validatedData.targetAudience,
@@ -62,9 +54,7 @@ router.post('/generate', requireStackAuth, async (req: any, res) => {
         generatedAt: new Date().toISOString(),
         ...generatedWebsite
       },
-      status: 'generated',
-      templateId: 'victoria-editorial'
-    }).returning();
+      status: generated,';      templateId: victoria-editorial;    }).returning()';'
 
     res.json({
       success: true,
@@ -79,17 +69,14 @@ router.post('/generate', requireStackAuth, async (req: any, res) => {
     });
 
   } catch (error) {
-    console.error('Website generation error:', error);
-    res.status(500).json({
+    console.error('Website generation error: , error);    res.status(500).json({'
       success: false,
-      error: 'Website generation failed'
-    });
+      error: Website generation failed;    })';'
   }
 });
 
 // GET /api/victoria/templates - Fetch available templates
-router.get('/templates', requireStackAuth, async (req: any, res) => {
-  try {
+router.get('/templates', requireStackAuth, async (req: any, res) => {';  try {'
     const { industry, style, complexity } = req.query;
 
     const templates = await getFilteredTemplates({
@@ -104,17 +91,14 @@ router.get('/templates', requireStackAuth, async (req: any, res) => {
     });
 
   } catch (error) {
-    console.error('Template fetch error:', error);
-    res.status(500).json({
+    console.error('Template fetch error: , error);    res.status(500).json({'
       success: false,
-      error: 'Failed to fetch templates'
-    });
+      error: Failed to fetch templates;    })';'
   }
 });
 
 // POST /api/victoria/customize - Real-time website customization
-router.post('/customize', requireStackAuth, async (req: any, res) => {
-  try {
+router.post('/customize', requireStackAuth, async (req: any, res) => {';  try {'
     const validatedData = CustomizationSchema.parse(req.body);
     const userId = req.user.id;
 
@@ -128,8 +112,7 @@ router.post('/customize', requireStackAuth, async (req: any, res) => {
     if (!existingWebsite || existingWebsite.userId !== userId) {
       return res.status(404).json({
         success: false,
-        error: 'Website not found'
-      });
+        error: Website not found;      })';'
     }
 
     // Apply customizations
@@ -154,17 +137,14 @@ router.post('/customize', requireStackAuth, async (req: any, res) => {
     });
 
   } catch (error) {
-    console.error('Customization error:', error);
-    res.status(500).json({
+    console.error('Customization error: , error);    res.status(500).json({'
       success: false,
-      error: 'Customization failed'
-    });
+      error: Customization failed;    })';'
   }
 });
 
 // POST /api/victoria/deploy - Deploy generated website
-router.post('/deploy', requireStackAuth, async (req: any, res) => {
-  try {
+router.post('/deploy', requireStackAuth, async (req: any, res) => {';  try {'
     const { siteId, domainPreferences } = req.body;
     const userId = req.user.id;
 
@@ -178,8 +158,7 @@ router.post('/deploy', requireStackAuth, async (req: any, res) => {
     if (!website || website.userId !== userId) {
       return res.status(404).json({
         success: false,
-        error: 'Website not found'
-      });
+        error: Website not found;      })';'
     }
 
     // Deploy website
@@ -189,8 +168,7 @@ router.post('/deploy', requireStackAuth, async (req: any, res) => {
     await db
       .update(websites)
       .set({
-        status: 'deployed',
-        url: deployment.url,
+        status: deployed,';        url: deployment.url,'
         content: {
           ...website.content as any,
           deployedAt: new Date().toISOString(),
@@ -204,17 +182,14 @@ router.post('/deploy', requireStackAuth, async (req: any, res) => {
       success: true,
       deployment: {
         url: deployment.url,
-        status: 'live',
-        deploymentTime: deployment.duration
+        status: live,';        deploymentTime: deployment.duration'
       }
     });
 
   } catch (error) {
-    console.error('Deployment error:', error);
-    res.status(500).json({
+    console.error('Deployment error: , error);    res.status(500).json({'
       success: false,
-      error: 'Deployment failed'
-    });
+      error: Deployment failed;    })';'
   }
 });
 
@@ -237,12 +212,7 @@ async function generateWebsiteFromRequirements(requirements: any, websiteId: str
 async function selectOptimalTemplate(requirements: any) {
   // Template selection logic based on business type and preferences
   const templates = {
-    'consulting': 'luxury-professional',
-    'ecommerce': 'modern-store',
-    'portfolio': 'creative-showcase',
-    'service': 'service-focused',
-    'default': 'elegant-business'
-  };
+    'consulting': 'luxury-professional','ecommerce': 'modern-store','portfolio': 'creative-showcase','service': 'service-focused','default': 'elegant-business';  }`;'
 
   return templates[requirements.businessType as keyof typeof templates] || templates.default;
 }
@@ -253,59 +223,39 @@ async function generateBusinessContent(requirements: any) {
     hero: {
       headline: `Transform Your Business with ${requirements.businessName}`,
       subheading: requirements.businessDescription,
-      cta: 'Get Started Today'
-    },
+      cta: Get Started Today';    },'
     about: {
-      title: 'About Us',
-      content: `${requirements.businessName} specializes in ${requirements.businessType} services, helping ${requirements.targetAudience} achieve their goals.`
+      title: About Us,`;      content: `${requirements.businessName} specializes in ${requirements.businessType} services, helping ${requirements.targetAudience} achieve their goals.`
     },
     services: requirements.keyFeatures.map((feature: string) => ({
       title: feature,
       description: `Professional ${feature.toLowerCase()} services tailored to your needs.`
     })),
     contact: {
-      title: 'Get In Touch',
-      content: 'Ready to get started? Contact us today for a consultation.'
-    }
+      title: Get In Touch,';      content: Ready to get started? Contact us today for a consultation.';    }'
   };
 }
 
 async function customizeDesign(requirements: any) {
   // Design customization based on brand personality
   const designThemes = {
-    'professional': {
-      colors: { primary: '#1a1a1a', secondary: '#f5f5f5', accent: '#666666' },
-      typography: { heading: 'Times New Roman', body: 'Georgia' }
-    },
-    'modern': {
-      colors: { primary: '#000000', secondary: '#ffffff', accent: '#f0f0f0' },
-      typography: { heading: 'Times New Roman', body: 'Arial' }
-    },
-    'elegant': {
-      colors: { primary: '#2c2c2c', secondary: '#fafafa', accent: '#888888' },
-      typography: { heading: 'Times New Roman', body: 'Times New Roman' }
-    }
+    'professional': {';      colors: { primary: #1a1a1a, secondary: #f5f5f5, accent: #666666 },';      typography: { heading: Times New Roman, body: Georgia }';    },'
+    'modern': {';      colors: { primary: #000000, secondary: #ffffff, accent: #f0f0f0 },';      typography: { heading: Times New Roman, body: Arial }';    },'
+    'elegant': {';      colors: { primary: #2c2c2c, secondary: #fafafa, accent: #888888 },';      typography: { heading: Times New Roman, body: Times New Roman }';    }'
   };
 
-  const theme = designThemes['elegant']; // Default to elegant theme
-  
+  const theme = designThemes[elegant]'; // Default to elegant theme';  '
   return {
     ...theme,
-    layout: 'single-page',
-    spacing: 'generous',
-    style: 'editorial'
-  };
+    layout: single-page,`;    spacing: generous,";    style: editorial;  }`"
 }
 
 function generatePreviewHTML(template: string, content: any, design: any) {
   // Generate HTML preview for the website
   return `
     <!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>${content.hero.headline}</title>
+    <html lang="en">";    <head>"
+      <meta charset="UTF-8">";      <meta name="viewport" content="width=device-width, initial-scale=1.0">";      <title>${content.hero.headline}</title>"
       <style>
         body { 
           font-family: ${design.typography.body}; 
@@ -323,13 +273,11 @@ function generatePreviewHTML(template: string, content: any, design: any) {
       </style>
     </head>
     <body>
-      <section class="hero">
-        <h1>${content.hero.headline}</h1>
+      <section class="hero">`        <h1>${content.hero.headline}</h1>"
         <p>${content.hero.subheading}</p>
         <button>${content.hero.cta}</button>
       </section>
-      <section class="section">
-        <h2>${content.about.title}</h2>
+      <section class="section'>`;        <h2>${content.about.title}</h2>"
         <p>${content.about.content}</p>
       </section>
     </body>
@@ -341,19 +289,9 @@ async function getFilteredTemplates(filters: any) {
   // Return filtered template list
   return [
     {
-      id: 'luxury-professional',
-      name: 'Luxury Professional',
-      category: 'consulting',
-      preview: '/templates/luxury-professional-preview.jpg',
-      features: ['Contact Forms', 'Portfolio Gallery', 'Service Listings']
-    },
+      id: luxury-professional,';      name: Luxury Professional,';      category: consulting,';      preview: /templates/luxury-professional-preview.jpg,';      features: ['Contact Forms', 'Portfolio Gallery', 'Service Listings']';    },'
     {
-      id: 'elegant-business',
-      name: 'Elegant Business',
-      category: 'service',
-      preview: '/templates/elegant-business-preview.jpg',
-      features: ['Team Profiles', 'Testimonials', 'Booking System']
-    }
+      id: elegant-business,';      name: Elegant Business,';      category: service,';      preview: /templates/elegant-business-preview.jpg,';      features: ['Team Profiles', 'Testimonials', 'Booking System']`;    }'
   ];
 }
 

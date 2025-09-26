@@ -1,16 +1,10 @@
-import { Router } from 'express';
-import { requireStackAuth } from '..stack-auth';.js
-import { AgentInsightEngine } from '..services/agent-insight-engine';
-
+import { Router } from "express";import { requireStackAuth } from "..stack-auth.js";import { AgentInsightEngine } from "..services/agent-insight-engine";"
 const router = Router();
 
 // Trigger manual insight from specific agent (for testing)
-router.post('/trigger-manual/:agentName', requireStackAuth, async (req: any, res) => {
-  try {
+router.post('/trigger-manual/:agentName', requireStackAuth, async (req: any, res) => {';  try {'
     const userId = req.user.id;
-    if (userId !== '42585527') { // Sandra's user ID
-      return res.status(403).json({ message: 'Admin access required' });
-    }
+    if (userId !== '42585527') { // Sandra's user ID';      return res.status(403).json({ message: Admin access required })';    }'
 
     const { agentName } = req.params;
     const context = req.body.context || {};
@@ -24,24 +18,20 @@ router.post('/trigger-manual/:agentName', requireStackAuth, async (req: any, res
     });
 
   } catch (error) {
-    console.error('Manual insight trigger error:', error);
-    res.status(500).json({
+    console.error('Manual insight trigger error: , error);    res.status(500).json({'
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
+      error: error instanceof Error ? error.message: Unknown error;    })';'
   }
 });
 
 // Process context data and check for triggered insights
-router.post('/process-context', async (req, res) => {
-  try {
+router.post('/process-context', async (req, res) => {';  try {'
     const context = req.body;
     
     if (!context || Object.keys(context).length === 0) {
       return res.status(400).json({
         success: false,
-        error: 'Context data required'
-      });
+        error: Context data required;      })';'
     }
 
     const insights = await AgentInsightEngine.processContext(context);
@@ -62,21 +52,16 @@ router.post('/process-context', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Process context error:', error);
-    res.status(500).json({
+    console.error('Process context error: , error);    res.status(500).json({'
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
+      error: error instanceof Error ? error.message: Unknown error;    })';'
   }
 });
 
 // Get agent engine statistics
-router.get('/stats', requireStackAuth, async (req: any, res) => {
-  try {
+router.get('/stats', requireStackAuth, async (req: any, res) => {';  try {'
     const userId = req.user.id;
-    if (userId !== '42585527') {
-      return res.status(403).json({ message: 'Admin access required' });
-    }
+    if (userId !== '42585527') {';      return res.status(403).json({ message: Admin access required })';    }'
 
     const stats = AgentInsightEngine.getAgentStats();
     
@@ -86,31 +71,24 @@ router.get('/stats', requireStackAuth, async (req: any, res) => {
     });
 
   } catch (error) {
-    console.error('Get stats error:', error);
-    res.status(500).json({
+    console.error('Get stats error: , error);    res.status(500).json({'
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
+      error: error instanceof Error ? error.message: Unknown error;    })';'
   }
 });
 
 // Test multiple agent insights
-router.post('/test-multi-agent', requireStackAuth, async (req: any, res) => {
-  try {
+router.post('/test-multi-agent', requireStackAuth, async (req: any, res) => {';  try {'
     const userId = req.user.id;
-    if (userId !== '42585527') {
-      return res.status(403).json({ message: 'Admin access required' });
-    }
+    if (userId !== '42585527') {';      return res.status(403).json({ message: Admin access required })';    }'
 
     // Simulate context that would trigger multiple agents
     const testContext = {
       revenue_growth_percent: 25,
       page_load_time: 3500,
       conversion_drop_off: 35,
-      drop_off_stage: 'checkout',
-      new_styling_requests: 75,
-      trending_style: 'professional business portraits',
-      content_engagement_rate: 9.2,
+      drop_off_stage: checkout,';      new_styling_requests: 75,'
+      trending_style: professional business portraits,`;      content_engagement_rate: 9.2,
       manual_tasks_per_day: 25,
       estimated_time_savings: 12
     };
@@ -134,11 +112,9 @@ router.post('/test-multi-agent', requireStackAuth, async (req: any, res) => {
     });
 
   } catch (error) {
-    console.error('Multi-agent test error:', error);
-    res.status(500).json({
+    console.error('Multi-agent test error: , error);    res.status(500).json({'
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
+      error: error instanceof Error ? error.message: Unknown error;    })`;
   }
 });
 

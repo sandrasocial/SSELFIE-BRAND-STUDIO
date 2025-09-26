@@ -54,8 +54,7 @@ export interface VisualStyleProfile {
   // Overall Aesthetic
   dominantAesthetic: string;
   secondaryAesthetics: string[];
-  styleEvolution: 'classic' | 'contemporary' | 'avant-garde' | 'eclectic';
-  
+  styleEvolution: classic | 'contemporary' | 'avant-garde' | 'eclectic';  '
   // Visual Elements
   proportionPreferences: string[];
   textureAffinities: string[];
@@ -72,8 +71,7 @@ export interface VisualStyleProfile {
 export class MayaVisualAnalysis {
 
   /**
-   * 🌟 PHASE 5.1: Analyze user's existing wardrobe from photos
-   */
+   * 🌟 PHASE 5.1: Analyze user's existing wardrobe from photos';   */'
   static async analyzeWardrobePhotos(
     userId: string,
     photos: string[]
@@ -121,8 +119,7 @@ export class MayaVisualAnalysis {
   }
 
   /**
-   * 🌟 PHASE 5.1: Extract color palette from user'.js's lifestyle/environment
-   */
+   * 🌟 PHASE 5.1: Extract color palette from user's lifestyle/environment`;   */'
   static async extractLifestylePalette(
     environmentPhotos: string[]
   ): Promise<ColorPalette> {
@@ -216,12 +213,8 @@ export class MayaVisualAnalysis {
     // In production, this would use computer vision APIs
     
     const simulatedColors = {
-      dominantColors: ['navy', 'white', 'cream', 'black', 'camel'],
-      palette: {
-        neutrals: ['navy', 'white', 'cream', 'black', 'gray'],
-        accents: ['burgundy', 'forest-green', 'gold'],
-        statement: ['emerald', 'ruby-red', 'sapphire']
-      },
+      dominantColors: ['navy', 'white', 'cream', 'black', 'camel'],';      palette: {'
+        neutrals: ['navy', 'white', 'cream', 'black', 'gray'],';        accents: ['burgundy', 'forest-green', 'gold'],';        statement: ['emerald', 'ruby-red', 'sapphire']';      },'
       harmonyScore: 85
     };
     
@@ -236,15 +229,8 @@ export class MayaVisualAnalysis {
     // In production, this would use ML models for garment recognition
     
     const simulatedPatterns = {
-      signatures: ['minimalist', 'professional', 'contemporary'],
-      silhouettes: ['tailored', 'structured', 'flowing'],
-      textures: ['smooth', 'knit', 'woven', 'leather'],
-      patterns: {
-        'solid': 70,
-        'stripes': 15,
-        'subtle-pattern': 10,
-        'statement-pattern': 5
-      }
+      signatures: ['minimalist', 'professional', 'contemporary'],';      silhouettes: ['tailored', 'structured', 'flowing'],';      textures: ['smooth', 'knit', 'woven', 'leather'],';      patterns: {'
+        'solid': 70,'stripes': 15,'subtle-pattern': 10,'statement-pattern': 5';      }'
     };
     
     return simulatedPatterns;
@@ -255,15 +241,8 @@ export class MayaVisualAnalysis {
    */
   private static async performGapAnalysis(colorAnalysis: any, stylePatterns: any): Promise<any> {
     return {
-      essentials: ['versatile blazer', 'quality white shirt', 'statement accessories'],
-      opportunities: ['color experimentation', 'texture mixing', 'pattern integration'],
-      investments: ['luxury handbag', 'quality outerwear', 'statement jewelry'],
-      seasonal: {
-        'spring': ['light layers', 'fresh colors'],
-        'summer': ['breathable fabrics', 'light colors'],
-        'fall': ['rich textures', 'warm layers'],
-        'winter': ['luxury coats', 'rich jewel tones']
-      }
+      essentials: ['versatile blazer', 'quality white shirt', 'statement accessories'],';      opportunities: ['color experimentation', 'texture mixing', 'pattern integration'],';      investments: ['luxury handbag', 'quality outerwear', 'statement jewelry'],';      seasonal: {'
+        'spring': ['light layers', 'fresh colors'],'summer': ['breathable fabrics', 'light colors'],'fall': ['rich textures', 'warm layers'],'winter': ['luxury coats', 'rich jewel tones']';      }'
     };
   }
 
@@ -285,10 +264,7 @@ export class MayaVisualAnalysis {
   private static async analyzeEnvironmentalColors(photos: string[]): Promise<any> {
     // Simulate environmental color analysis
     return {
-      primary: ['warm-white', 'soft-gray', 'natural-wood', 'sage-green'],
-      accents: ['gold', 'terracotta', 'deep-blue'],
-      lighting: ['warm', 'natural', 'soft']
-    };
+      primary: ['warm-white', 'soft-gray', 'natural-wood', 'sage-green'],';      accents: ['gold', 'terracotta', 'deep-blue'],';      lighting: ['warm', 'natural', 'soft']';    }';'
   }
 
   /**
@@ -296,10 +272,7 @@ export class MayaVisualAnalysis {
    */
   private static async extractLifestyleIndicators(photos: string[]): Promise<any> {
     return {
-      homeDecor: ['modern', 'minimalist', 'natural-elements'],
-      brandColors: ['sophisticated-neutrals', 'warm-accents'],
-      personality: ['calm', 'professional', 'creative']
-    };
+      homeDecor: ['modern', 'minimalist', 'natural-elements'],';      brandColors: ['sophisticated-neutrals', 'warm-accents'],';      personality: ['calm', 'professional', 'creative']';    }';'
   }
 
   /**
@@ -310,19 +283,10 @@ export class MayaVisualAnalysis {
     lifestyleIndicators: any
   ): Promise<any> {
     return {
-      complementary: ['sage-green', 'warm-terracotta', 'deep-navy', 'cream'],
-      avoid: ['neon-colors', 'harsh-contrasts'],
-      seasonal: {
-        'spring': ['soft-pastels', 'fresh-greens'],
-        'summer': ['light-blues', 'warm-whites'],
-        'fall': ['rich-earth-tones', 'burgundy'],
-        'winter': ['deep-jewel-tones', 'classic-black']
-      },
+      complementary: ['sage-green', 'warm-terracotta', 'deep-navy', 'cream'],';      avoid: ['neon-colors', 'harsh-contrasts'],';      seasonal: {'
+        'spring': ['soft-pastels', 'fresh-greens'],'summer': ['light-blues', 'warm-whites'],'fall': ['rich-earth-tones', 'burgundy'],'winter': ['deep-jewel-tones', 'classic-black']';      },'
       occasions: {
-        'professional': ['navy', 'charcoal', 'cream', 'burgundy'],
-        'casual': ['sage-green', 'warm-gray', 'terracotta'],
-        'evening': ['deep-blue', 'emerald', 'gold-accents']
-      }
+        'professional': ['navy', 'charcoal', 'cream', 'burgundy'],'casual': ['sage-green', 'warm-gray', 'terracotta'],'evening': ['deep-blue', 'emerald', 'gold-accents']';      }'
     };
   }
 
@@ -334,18 +298,7 @@ export class MayaVisualAnalysis {
     lifestylePalette: ColorPalette
   ): Promise<any> {
     return {
-      aesthetic: 'contemporary-professional',
-      secondaryAesthetics: ['minimalist', 'sophisticated-casual'],
-      evolution: 'contemporary',
-      proportions: ['tailored-fit', 'structured-silhouettes'],
-      textures: ['smooth-finishes', 'quality-knits', 'luxury-materials'],
-      patterns: ['subtle-patterns', 'classic-stripes', 'solid-foundation'],
-      colors: ['neutral-confidence', 'accent-experimentation'],
-      professional: ['executive-presence', 'authority-building', 'credibility-focused'],
-      casual: ['effortless-elegance', 'comfortable-sophistication'],
-      events: ['versatile-glamour', 'appropriate-luxury'],
-      cultural: ['globally-aware', 'respectfully-modern']
-    };
+      aesthetic: contemporary-professional,';      secondaryAesthetics: ['minimalist', 'sophisticated-casual'],';      evolution: contemporary,';      proportions: ['tailored-fit', 'structured-silhouettes'],';      textures: ['smooth-finishes', 'quality-knits', 'luxury-materials'],';      patterns: ['subtle-patterns', 'classic-stripes', 'solid-foundation'],';      colors: ['neutral-confidence', 'accent-experimentation'],';      professional: ['executive-presence', 'authority-building', 'credibility-focused'],';      casual: ['effortless-elegance', 'comfortable-sophistication'],';      events: ['versatile-glamour', 'appropriate-luxury'],';      cultural: ['globally-aware', 'respectfully-modern']';    }';'
   }
 
   /**
@@ -353,26 +306,11 @@ export class MayaVisualAnalysis {
    */
   private static getDefaultWardrobeAnalysis(): WardrobeAnalysis {
     return {
-      dominantColors: ['navy', 'white', 'black', 'gray'],
-      colorPalette: {
-        neutrals: ['navy', 'white', 'black', 'gray'],
-        accents: ['burgundy', 'gold'],
-        statement: ['emerald', 'ruby']
-      },
+      dominantColors: ['navy', 'white', 'black', 'gray'],';      colorPalette: {'
+        neutrals: ['navy', 'white', 'black', 'gray'],';        accents: ['burgundy', 'gold'],';        statement: ['emerald', 'ruby']';      },'
       colorHarmony: 70,
-      styleSignatures: ['professional', 'contemporary'],
-      silhouettePreferences: ['tailored', 'structured'],
-      textureVariety: ['smooth', 'knit', 'woven'],
-      patternFrequency: { 'solid': 80, 'stripes': 20 },
-      missingEssentials: ['versatile blazer', 'statement accessories'],
-      styleOpportunities: ['color experimentation', 'texture mixing'],
-      investmentPriorities: ['quality outerwear', 'luxury accessories'],
-      seasonalGaps: {
-        'spring': ['light layers'],
-        'summer': ['breathable fabrics'],
-        'fall': ['warm textures'],
-        'winter': ['luxury coats']
-      },
+      styleSignatures: ['professional', 'contemporary'],';      silhouettePreferences: ['tailored', 'structured'],';      textureVariety: ['smooth', 'knit', 'woven'],';      patternFrequency: { 'solid': 80, 'stripes': 20 },';      missingEssentials: ['versatile blazer', 'statement accessories'],';      styleOpportunities: ['color experimentation', 'texture mixing'],';      investmentPriorities: ['quality outerwear', 'luxury accessories'],';      seasonalGaps: {'
+        'spring': [light layers],'summer': [breathable fabrics],'fall': [warm textures],'winter': [luxury coats]';      },'
       luxuryIndex: 60,
       versatilityScore: 70,
       professionalReadiness: 80,
@@ -385,25 +323,10 @@ export class MayaVisualAnalysis {
    */
   private static getDefaultColorPalette(): ColorPalette {
     return {
-      primaryEnvironment: ['warm-white', 'soft-gray', 'natural-wood'],
-      accentColors: ['gold', 'sage-green'],
-      lightingInfluence: ['warm', 'natural'],
-      homeDecorAlignment: ['modern', 'minimalist'],
-      brandColorAlignment: ['sophisticated-neutrals'],
-      personalitySuggestions: ['professional', 'creative'],
-      complementaryColors: ['navy', 'burgundy', 'cream', 'sage-green'],
-      avoidColors: ['neon-colors', 'harsh-contrasts'],
-      seasonalAdaptations: {
-        'spring': ['soft-pastels'],
-        'summer': ['light-blues'],
-        'fall': ['rich-earth-tones'],
-        'winter': ['deep-jewel-tones']
-      },
+      primaryEnvironment: ['warm-white', 'soft-gray', 'natural-wood'],';      accentColors: ['gold', 'sage-green'],';      lightingInfluence: ['warm', 'natural'],';      homeDecorAlignment: ['modern', 'minimalist'],';      brandColorAlignment: [sophisticated-neutrals],';      personalitySuggestions: ['professional', 'creative'],';      complementaryColors: ['navy', 'burgundy', 'cream', 'sage-green'],';      avoidColors: ['neon-colors', 'harsh-contrasts'],';      seasonalAdaptations: {'
+        'spring': [soft-pastels],'summer': [light-blues],'fall': [rich-earth-tones],'winter': [deep-jewel-tones]';      },'
       occasionSpecific: {
-        'professional': ['navy', 'charcoal', 'burgundy'],
-        'casual': ['sage-green', 'warm-gray'],
-        'evening': ['deep-blue', 'emerald']
-      }
+        'professional': ['navy', 'charcoal', 'burgundy'],'casual': ['sage-green', 'warm-gray'],'evening': ['deep-blue', 'emerald']';      }'
     };
   }
 
@@ -412,18 +335,7 @@ export class MayaVisualAnalysis {
    */
   private static getDefaultVisualStyleProfile(): VisualStyleProfile {
     return {
-      dominantAesthetic: 'contemporary-professional',
-      secondaryAesthetics: ['minimalist', 'sophisticated'],
-      styleEvolution: 'contemporary',
-      proportionPreferences: ['tailored-fit', 'structured'],
-      textureAffinities: ['quality-materials', 'smooth-finishes'],
-      patternComfort: ['solid-foundation', 'subtle-patterns'],
-      colorConfidence: ['neutral-mastery', 'accent-exploration'],
-      professionalPresence: ['executive-appropriate', 'credibility-focused'],
-      casualElegance: ['effortless-sophistication', 'comfortable-luxury'],
-      eventAppropriate: ['versatile-glamour', 'occasion-ready'],
-      culturalSensitivity: ['globally-aware', 'respectfully-contemporary']
-    };
+      dominantAesthetic: contemporary-professional,';      secondaryAesthetics: ['minimalist', 'sophisticated'],';      styleEvolution: contemporary,';      proportionPreferences: ['tailored-fit', 'structured'],';      textureAffinities: ['quality-materials', 'smooth-finishes'],';      patternComfort: ['solid-foundation', 'subtle-patterns'],';      colorConfidence: ['neutral-mastery', 'accent-exploration'],';      professionalPresence: ['executive-appropriate', 'credibility-focused'],';      casualElegance: ['effortless-sophistication', 'comfortable-luxury'],';      eventAppropriate: ['versatile-glamour', 'occasion-ready'],';      culturalSensitivity: ['globally-aware', 'respectfully-contemporary']';    }';'
   }
 
   /**
@@ -431,23 +343,10 @@ export class MayaVisualAnalysis {
    */
   static getVisualAnalysisStats(): any {
     return {
-      phase: 'Phase 5.1',
-      component: 'Multi-Modal Intelligence Integration',
-      capabilities: [
-        'Wardrobe photo analysis',
-        'Color palette extraction',
-        'Style pattern recognition',
-        'Gap analysis',
-        'Visual style profiling'
-      ],
+      phase: Phase 5.1,';      component: Multi-Modal Intelligence Integration,';      capabilities: ['
+        'Wardrobe photo analysis','Color palette extraction','Style pattern recognition','Gap analysis','Visual style profiling';      ],'
       analysisTypes: [
-        'Color intelligence',
-        'Style signatures',
-        'Quality assessment',
-        'Lifestyle integration',
-        'Cultural awareness'
-      ],
-      status: 'Active'
-    };
+        'Color intelligence','Style signatures','Quality assessment','Lifestyle integration','Cultural awareness';      ],'
+      status: Active;    }`;
   }
 }

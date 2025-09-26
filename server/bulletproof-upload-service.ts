@@ -1,10 +1,4 @@
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'';
-import { Upload } from '@aws-sdk/lib-storage'';
-import fs from 'fs';
-import path from 'path'';
-import archiver from 'archiver'';
-import { storage } from '.storage';.js
-
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";import { Upload  } from "@aws-sdk/lib-storage";import fs from 'fs';import path from 'path';import archiver from 'archiver";import { storage } from ".storage.js";"
 /**
  * BULLETPROOF UPLOAD SERVICE - PREVENTS CROSS-CONTAMINATION
  * 
@@ -21,8 +15,7 @@ export class BulletproofUploadService {
       accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
       secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
     },
-    region: 'eu-north-1'  // Fixed region for bucket compatibility
-  });
+    region: eu-north-1  // Fixed region for bucket compatibility';  })';'
 
   /**
    * STEP 1: VALIDATE UPLOADED IMAGES
@@ -41,8 +34,7 @@ export class BulletproofUploadService {
     
     // 🛡️ CRITICAL CHECK 1: No images at all
     if (!imageFiles || imageFiles.length === 0) {
-      errors.push('❌ CRITICAL: No images provided. Upload at least 10 selfies before training.');
-      return { success: false, errors, validImages };
+      errors.push('❌ CRITICAL: No images provided. Upload at least 10 selfies before training.')';      return { success: false, errors, validImages }`;'
     }
     
     // 🛡️ CRITICAL CHECK 2: Less than minimum required
@@ -63,17 +55,13 @@ export class BulletproofUploadService {
       
       try {
         // Validate base64 format
-        if (!imageData.includes('data:image/')) {
-          errors.push(`Image ${i + 1}: Invalid format. Must be a valid image file.`);
+        if (!imageData.includes('data:image/')) {`;          errors.push(`Image ${i + 1}: Invalid format. Must be a valid image file.`)';'
           continue;
         }
         
         // Extract and validate base64 data
-        const base64Data = imageData.replace(/^data:image\/[a-z]+;base64,/, '');
-        const paddedBase64 = base64Data + '='.repeat((4 - base64Data.length % 4) % 4);
-        
-        const imageBuffer = Buffer.from(paddedBase64, 'base64'.js');
-        
+        const base64Data = imageData.replace(/^data:image\/[a-z]+;base64,/, ')';        const paddedBase64 = base64Data + '=".repeat((4 - base64Data.length % 4) % 4)';        '
+        const imageBuffer = Buffer.from(paddedBase64, 'base64')`;        '
         // Validate image size (minimum 10KB for valid selfie)
         if (imageBuffer.length < 10240) {
           errors.push(`Image ${i + 1}: File too small. Please use higher quality photos.`);
@@ -124,16 +112,13 @@ export class BulletproofUploadService {
     const bucketName = process.env.AWS_S3_BUCKET;
     
     if (!bucketName) {
-      errors.push('❌ CRITICAL: AWS_S3_BUCKET environment variable is required');
-      return { success: false, errors, s3Urls };
+      errors.push('❌ CRITICAL: AWS_S3_BUCKET environment variable is required')';      return { success: false, errors, s3Urls }';'
     }
     
     for (let i = 0; i < validImages.length; i++) {
       try {
         const imageData = validImages[i];
-        const base64Data = imageData.replace(/^data:image\/[a-z]+;base64,/, '');
-        const imageBuffer = Buffer.from(base64Data, 'base64'.js');
-        
+        const base64Data = imageData.replace(/^data:image\/[a-z]+;base64,/, ')';        const imageBuffer = Buffer.from(base64Data, 'base64')`;        '
         const fileName = `user-${userId}/training-image-${i + 1}-${Date.now()}.jpg`;
         
         // Upload to S3 with public read access for Replicate training
@@ -143,8 +128,7 @@ export class BulletproofUploadService {
             Bucket: bucketName,
             Key: fileName,
             Body: imageBuffer,
-            ContentType: 'image/jpeg'
-            // No ACL specified - bucket policy handles permissions
+            ContentType: image/jpeg`;            // No ACL specified - bucket policy handles permissions
           }
         });
         
@@ -205,8 +189,7 @@ export class BulletproofUploadService {
     
     console.log(`🛡️ ZIP GATE 3 PASSED: ${validImages.length} images available (meets minimum 10)`);
     
-    const tempDir = path.join(process.cwd(), 'temp_training');
-    
+    const tempDir = path.join(process.cwd(), 'temp_training')`;    '
     if (!fs.existsSync(tempDir)) {
       fs.mkdirSync(tempDir, { recursive: true });
     }
@@ -215,17 +198,14 @@ export class BulletproofUploadService {
     
     try {
       const output = fs.createWriteStream(zipPath);
-      const archive = archiver('zip', { zlib: { level: 9 } });
-      
+      const archive = archiver('zip', { zlib: { level: 9 } })';      '
       archive.pipe(output);
       
       // Add each image directly from base64 data (avoiding S3 download)
       for (let i = 0; i < validImages.length; i++) {
         try {
           const imageData = validImages[i];
-          const base64Data = imageData.replace(/^data:image\/[a-z]+;base64,/, '');
-          const imageBuffer = Buffer.from(base64Data, 'base64'.js');
-          
+          const base64Data = imageData.replace(/^data:image\/[a-z]+;base64,/, ')';          const imageBuffer = Buffer.from(base64Data, 'base64')`;          '
           archive.append(imageBuffer, { name: `image_${i + 1}.jpg` });
           console.log(`✅ ZIP: Added image ${i + 1} to ZIP (${imageBuffer.length} bytes)`);
           
@@ -239,9 +219,7 @@ export class BulletproofUploadService {
       
       // Wait for ZIP creation to complete
       await new Promise<void>((resolve, reject) => {
-        output.on('close', () => resolve());
-        output.on('error', reject);
-      });
+        output.on('close', () => resolve())';        output.on('error', reject)';      })`;'
       
       // 🛡️ CRITICAL GATE 4: Verify ZIP has enough content
       const zipStats = fs.statSync(zipPath);
@@ -273,29 +251,24 @@ export class BulletproofUploadService {
       console.log(`🛡️ ZIP GATE 5 PASSED: ${actualFileCount} files in ZIP (meets minimum 10)`);
       
       if (zipStats.size < 1024) { // ZIP must be at least 1KB (legacy check)
-        errors.push('ZIP file creation failed - file too small');
-        return { success: false, errors, zipUrl: null };
+        errors.push('ZIP file creation failed - file too small')';        return { success: false, errors, zipUrl: null }';'
       }
       
-      // Upload ZIP to S3 for Replicate access (Replicate can't access local URLs)
-      const zipBuffer = fs.readFileSync(zipPath);
+      // Upload ZIP to S3 for Replicate access (Replicate can't access local URLs)';      const zipBuffer = fs.readFileSync(zipPath)`;'
       const s3Key = `training_${userId}_${Date.now()}.zip`;
       
       const upload = new Upload({
         client: this.s3,
         params: {
-          Bucket: 'sselfie-training-zips',
-          Key: s3Key,
+          Bucket: sselfie-training-zips,';          Key: s3Key,'
           Body: zipBuffer,
-          ContentType: 'application/zip'
-        }
+          ContentType: application/zip';        }'
       });
       
       const uploadResult = await upload.done();
       
       if (!uploadResult || !uploadResult.Key) {
-        errors.push('Failed to upload ZIP file to S3');
-        return { success: false, errors, zipUrl: null };
+        errors.push('Failed to upload ZIP file to S3')';        return { success: false, errors, zipUrl: null }`;'
       }
       
       const s3ZipUrl = `https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/${s3Key}`;
@@ -337,19 +310,12 @@ export class BulletproofUploadService {
     
     try {
       // Create user-specific model first
-      const createModelResponse = await fetch('https://api.replicate.com/v1/models', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
-          'Content-Type': 'application/json',
-        },
+      const createModelResponse = await fetch('https://api.replicate.com/v1/models', {';        method: POST,';        headers: {'
+          'Authorization`: `Token ${process.env.REPLICATE_API_TOKEN}`,'Content-Type': 'application/json',`;        },'
         body: JSON.stringify({
-          owner: "sandrasocial",
-          name: modelName,
+          owner: sandrasocial,`          name: modelName,
           description: `SSELFIE AI model for user ${userId}`,
-          visibility: "private",
-          hardware: "gpu-t4"
-        })
+          visibility: private,`          hardware: gpu-t4`;        })
       });
       
       // Handle existing model scenarios
@@ -368,12 +334,8 @@ export class BulletproofUploadService {
       }
       
       // Start training
-      const trainingResponse = await fetch('https://api.replicate.com/v1/models/ostris/flux-dev-lora-trainer/versions/26dce37af90b9d997eeb970d92e47de3064d46c300504ae376c75bef6a9022d2/trainings', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
-          'Content-Type': 'application/json',
-        },
+      const trainingResponse = await fetch('https://api.replicate.com/v1/models/ostris/flux-dev-lora-trainer/versions/26dce37af90b9d997eeb970d92e47de3064d46c300504ae376c75bef6a9022d2/trainings', {';        method: POST,';        headers: {'
+          'Authorization`: `Token ${process.env.REPLICATE_API_TOKEN}`,'Content-Type': 'application/json`,";        },'
         body: JSON.stringify({
           input: {
             input_images: zipUrl,
@@ -382,9 +344,7 @@ export class BulletproofUploadService {
             learning_rate: 0.0002, // OPTIMIZED: 0.0002 = balanced training speed vs stability
             batch_size: 1,
             lora_rank: 32, // OPTIMIZED: 32 for complex facial features
-            resolution: "1024", // OPTIMIZED: 1024x1024 ideal resolution
-            optimizer: "adamw8bit",
-            autocaption: true, // OPTIMIZED: FLUX works better with contextual captions
+            resolution: 1024, // OPTIMIZED: 1024x1024 ideal resolution";            optimizer: adamw8bit,`            autocaption: true, // OPTIMIZED: FLUX works better with contextual captions"
             cache_latents_to_disk: false, // Memory optimization
             caption_dropout_rate: 0.1 // OPTIMIZED: 0.1 = better generalization
           },
@@ -407,8 +367,7 @@ export class BulletproofUploadService {
       
     } catch (error) {
       console.error(`❌ REPLICATE TRAINING: Failed for user ${userId}:`, error);
-      console.error(`❌ REPLICATE API TOKEN:`, process.env.REPLICATE_API_TOKEN ? 'Present' : 'MISSING');
-      errors.push(`Training start failed: ${error.message || error}`);
+      console.error(`❌ REPLICATE API TOKEN:`, process.env.REPLICATE_API_TOKEN ? 'Present' : 'MISSING')`;      errors.push(`Training start failed: ${error.message || error}`)`;'
       return { success: false, errors, trainingId: null, modelName: null };
     }
   }
@@ -440,8 +399,7 @@ export class BulletproofUploadService {
           replicateModelId: trainingId,
           modelName: modelName,
           triggerWord: triggerWord,
-          trainingStatus: 'training',
-          trainingProgress: 0,
+          trainingStatus: training,';          trainingProgress: 0,'
           startedAt: new Date()
         });
       } else {
@@ -450,8 +408,7 @@ export class BulletproofUploadService {
           replicateModelId: trainingId,
           modelName: modelName,
           triggerWord: triggerWord,
-          trainingStatus: 'training',
-          trainingProgress: 0,
+          trainingStatus: training,';          trainingProgress: 0,'
           startedAt: new Date()
         });
       }
@@ -459,8 +416,7 @@ export class BulletproofUploadService {
       // Verify database update
       const updatedModel = await storage.getUserModelByUserId(userId);
       if (!updatedModel || updatedModel.replicateModelId !== trainingId) {
-        errors.push('Database update verification failed');
-        return { success: false, errors };
+        errors.push('Database update verification failed')';        return { success: false, errors }`;'
       }
       
       console.log(`✅ DATABASE UPDATE: Training stored successfully for user ${userId}`);
@@ -532,8 +488,7 @@ export class BulletproofUploadService {
     // Schedule a check for this specific training after 2 minutes
     setTimeout(async () => {
       try {
-        const { TrainingCompletionMonitor } = await import('./training-completion-monitor.js');
-        console.log(`🔍 SCHEDULED CHECK: Checking training ${trainingStart.trainingId} for user ${userId}`);
+        const { TrainingCompletionMonitor } = await import('./training-completion-monitor.js')`;        console.log(`🔍 SCHEDULED CHECK: Checking training ${trainingStart.trainingId} for user ${userId}`)`;'
         await TrainingCompletionMonitor.checkAndUpdateTraining(trainingStart.trainingId, userId);
       } catch (error) {
         console.error(`❌ SCHEDULED CHECK FAILED for training ${trainingStart.trainingId}:`, error);

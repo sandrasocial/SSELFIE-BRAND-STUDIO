@@ -1,105 +1,39 @@
 /**
- * CRITICAL PRODUCTION FIX: Generation Completion Monitor
- * Automatically detects and updates completed generations from Replicate API
- * Saves images to Maya chat previews when generation completes
- * This service was missing - explains why Maya images weren't appearing despite successful generation
+ * Generation Completion Monitor
+ * Automatically detects and updates completed image/video generations
  */
 
-import { storage } from '.storage';.js
-// MAYA FAÇADE: Replaced Maya-specific import with façade API calls
-// import { MayaChatPreviewService } from '.maya-chat-preview-service'; .js// REMOVED: Direct entanglement
+import { storage } from './storage.js';
+
+interface GenerationStatus {
+  id: string;
+  status: 'starting' | 'processing' | 'succeeded' | 'failed' | 'canceled';
+  error?: string;
+  output?: {
+    url?: string;
+    duration?: number;
+    size?: number;
+  };
+  logs?: string;
+  created_at: string;
+  started_at?: string;
+  completed_at?: string;
+}
 
 export class GenerationCompletionMonitor {
   private static instance: GenerationCompletionMonitor;
   private intervalId: NodeJS.Timeout | null = null;
+  private readonly checkIntervalMs: number;
 
-  static getInstance(): GenerationCompletionMonitor {
-    if (!GenerationCompletionMonitor.instance) {
-      GenerationCompletionMonitor.instance = new GenerationCompletionMonitor();
-    }
-    return GenerationCompletionMonitor.instance;
+  private constructor(checkIntervalMs = 60000) { // Default 1 minute
+    this.checkIntervalMs = checkIntervalMs;
   }
 
-  /**
-   * Check a specific generation status and update database + Maya chat
-   */
-  static async checkAndUpdateGeneration(predictionId: string, trackerId: number): Promise<boolean> {
-    try {
-      console.log(`🎬 GENERATION MONITOR: Checking prediction ${predictionId} for tracker ${trackerId}`);
-      
-      const response = await fetch(`https://api.replicate.com/v1/predictions/${predictionId}`, {
-        headers: {
-          'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (!response.ok) {
-        console.error(`❌ GENERATION MONITOR: Replicate API error for ${predictionId}: ${response.status}`);
-        return false;
-      }
-
-      const predictionData = await response.json();
-      console.log(`📊 GENERATION MONITOR: Prediction ${predictionId} status: ${predictionData.status}`);
-
-      const tracker = await storage.getGenerationTracker(trackerId);
-      if (!tracker) {
-        console.error(`❌ GENERATION MONITOR: Tracker ${trackerId} not found`);
-        return false;
-      }
-
-      if (predictionData.status === 'succeeded' && predictionData.output) {
-        console.log(`✅ GENERATION MONITOR: Generation completed! Updating tracker ${trackerId}`);
-        
-        const imageUrls = Array.isArray(predictionData.output) ? predictionData.output : [predictionData.output];
-        
-        // Update tracker with completed images
-        await storage.updateGenerationTracker(trackerId, {
-          status: 'completed',
-          imageUrls: JSON.stringify(imageUrls),
-          updatedAt: new Date()
-        });
-
-        // MAYA FAÇADE: Save to gallery through standard API instead of Maya-specific service
-        try {
-          for (const imageUrl of imageUrls) {
-            await storage.saveGeneratedImage({
-              userId: tracker.userId,
-              imageUrls: JSON.stringify([imageUrl]),
-              prompt: tracker.prompt || 'Maya Editorial Photoshoot',
-              category: 'Maya Editorial',
-              subcategory: 'Professional'
-            });
-          }
-          console.log(`✅ GENERATION MONITOR: Saved ${imageUrls.length} images to gallery via façade`);
-        } catch (saveError) {
-          console.log(`⚠️ GENERATION MONITOR: Gallery save failed for user ${tracker.userId}:`, saveError);
-          // Don't fail the whole operation if gallery saving fails
-        }
-
-        return true;
-        
-      } else if (predictionData.status === 'failed') {
-        console.log(`❌ GENERATION MONITOR: Generation failed for tracker ${trackerId}`);
-        
-        const errorMessage = predictionData.error || 'Generation failed';
-        
-        await storage.updateGenerationTracker(trackerId, {
-          status: 'failed',
-          imageUrls: JSON.stringify([`Error: ${errorMessage}`]),
-          updatedAt: new Date()
-        });
-
-        return true;
-      }
-
-      // Still processing
-      return false;
-      
-    } catch (error) {
-      console.error(`❌ GENERATION MONITOR: Error checking generation ${predictionId}:`, error);
-      return false;
+  static getInstance(checkIntervalMs?: number): GenerationCompletionMonitor {
+    if (!GenerationCompletionMonitor.instance) {
+      GenerationCompletionMonitor.instance = new GenerationCompletionMonitor(checkIntervalMs);
     }
+    return GenerationCompletionMonitor.instance;
   }
 
   /**
@@ -108,8 +42,7 @@ export class GenerationCompletionMonitor {
   async checkAllInProgressGenerations(): Promise<void> {
     try {
       console.log('🔍 GENERATION MONITOR: Checking all in-progress generations...');
-
-      // Get all processing generation trackers
+      
       const processingTrackers = await storage.getProcessingGenerationTrackers();
       
       if (processingTrackers.length === 0) {
@@ -135,7 +68,91 @@ export class GenerationCompletionMonitor {
   }
 
   /**
-   * Start automatic monitoring of generations
+   * Check a specific generation status and update database
+   */
+  private static async checkAndUpdateGeneration(
+    predictionId: string,
+    trackerId: number
+  ): Promise<boolean> {
+    try {
+      console.log(`🎬 GENERATION MONITOR: Checking prediction ${predictionId} for tracker ${trackerId}`);
+      
+      const response = await fetch(`https://api.replicate.com/v1/predictions/${predictionId}`, {
+        headers: {
+          'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        console.error(`❌ GENERATION MONITOR: Replicate API error for ${predictionId}: ${response.status}`);
+        return false;
+      }
+
+      const predictionData: GenerationStatus = await response.json();
+      console.log(`📊 GENERATION MONITOR: Prediction ${predictionId} status: ${predictionData.status}`);
+
+      const tracker = await storage.getGenerationTracker(trackerId);
+      if (!tracker) {
+        console.error(`❌ GENERATION MONITOR: Tracker ${trackerId} not found`);
+        return false;
+      }
+
+      if (predictionData.status === 'succeeded' && predictionData.output) {
+        console.log(`✅ GENERATION MONITOR: Generation completed! Updating tracker ${trackerId}`);
+        
+        const imageUrls = Array.isArray(predictionData.output) ? predictionData.output : [predictionData.output];
+        
+        // Update tracker with completed images
+        await storage.updateGenerationTracker(trackerId, {
+          status: 'completed',
+          imageUrls: JSON.stringify(imageUrls),
+          updatedAt: new Date()
+        });
+
+        // Save to gallery
+        try {
+          for (const imageUrl of imageUrls) {
+            await storage.saveGeneratedImage({
+              userId: tracker.userId,
+              imageUrls: JSON.stringify([imageUrl]),
+              prompt: tracker.prompt || 'AI Generated Image',
+              category: 'Generated',
+              subcategory: 'Image'
+            });
+          }
+          console.log(`✅ GENERATION MONITOR: Saved ${imageUrls.length} images to gallery`);
+        } catch (saveError) {
+          console.log(`⚠️ GENERATION MONITOR: Gallery save failed for user ${tracker.userId}:`, saveError);
+          // Don't fail the whole operation if gallery saving fails
+        }
+
+        return true;
+        
+      } else if (predictionData.status === 'failed') {
+        console.log(`❌ GENERATION MONITOR: Generation failed for tracker ${trackerId}`);
+        
+        const errorMessage = predictionData.error || 'Generation failed';
+        await storage.updateGenerationTracker(trackerId, {
+          status: 'failed',
+          imageUrls: JSON.stringify([`Error: ${errorMessage}`]),
+          updatedAt: new Date()
+        });
+
+        return true;
+      }
+
+      // Still processing
+      return false;
+      
+    } catch (error) {
+      console.error(`❌ GENERATION MONITOR: Error checking generation ${predictionId}:`, error);
+      return false;
+    }
+  }
+
+  /**
+   * Start automatic monitoring
    */
   startMonitoring(): void {
     if (this.intervalId) {
@@ -145,17 +162,18 @@ export class GenerationCompletionMonitor {
 
     console.log('🚀 GENERATION MONITOR: Starting automatic generation monitoring...');
     
-    // Check every 30 seconds (same as training monitor)
-    this.intervalId = setInterval(() => {
-      this.checkAllInProgressGenerations();
-    }, 30000);
+    // Check every 30 seconds
+    this.intervalId = setInterval(
+      () => this.checkAllInProgressGenerations(),
+      this.checkIntervalMs
+    );
 
     // Run initial check
     this.checkAllInProgressGenerations();
   }
 
   /**
-   * Stop automatic monitoring
+   * Stop monitoring
    */
   stopMonitoring(): void {
     if (this.intervalId) {

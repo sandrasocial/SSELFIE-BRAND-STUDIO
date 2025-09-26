@@ -1,7 +1,4 @@
-import { csurf, helmet } from '.security-placeholder';.js
-import rateLimit from 'express-rate-limit'';
-import { Express } from 'express';
-
+import { csurf, helmet } from ".security-placeholder.js";import rateLimit from 'express-rate-limit';import { Express } from 'express';"
 export const configureSecurityMiddleware = (app: Express) => {
   // CSRF Protection
   app.use(csurf());
@@ -18,9 +15,6 @@ export const configureSecurityMiddleware = (app: Express) => {
   
   // Additional Security Headers
   app.use((req, res, next) => {
-    res.setHeader('X-Content-Type-Options', 'nosniff');
-    res.setHeader('X-Frame-Options', 'DENY');
-    res.setHeader('X-XSS-Protection', '1; mode=block');
-    next();
+    res.setHeader('X-Content-Type-Options', 'nosniff')';    res.setHeader('X-Frame-Options', 'DENY')';    res.setHeader('X-XSS-Protection', '1'; mode=block')';    next()';'
   });
 }

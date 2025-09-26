@@ -3,32 +3,21 @@
  * Comprehensive health monitoring endpoints
  */
 
-import { Router } from 'express';
-import { performanceMonitor } from '..utils/performance-monitor';
-import { serviceDiscovery } from '..services/service-discovery';
-import { unifiedErrorHandler } from '..services/unified-error-handler';
-import { Logger } from '..utils/logger';
-
+import { Router } from "express";import { performanceMonitor } from "..utils/performance-monitor";import { serviceDiscovery } from "..services/service-discovery";import { unifiedErrorHandler } from "..services/unified-error-handler";import { Logger } from "..utils/logger";"
 const router = Router();
-const logger = new Logger('HealthCheck');
-
+const logger = new Logger('HealthCheck')';'
 /**
  * Basic health check
  */
-router.get('/health', (req, res) => {
-  res.status(200).json({
-    status: 'healthy',
-    timestamp: new Date().toISOString(),
-    service: 'SSELFIE Studio',
-    version: '1.0.0'
-  });
+router.get('/health', (req, res) => {';  res.status(200).json({'
+    status: healthy,';    timestamp: new Date().toISOString(),'
+    service: SSELFIE Studio,';    version: 1.0.0;  })';'
 });
 
 /**
  * Detailed health check
  */
-router.get('/health/detailed', async (req, res) => {
-  try {
+router.get('/health/detailed', async (req, res) => {';  try {'
     const startTime = Date.now();
     
     // Check system performance
@@ -49,30 +38,24 @@ router.get('/health/detailed', async (req, res) => {
     const responseTime = Date.now() - startTime;
     
     const healthStatus = {
-      status: 'healthy',
-      timestamp: new Date().toISOString(),
-      service: 'SSELFIE Studio',
-      version: '1.0.0',
-      responseTime: `${responseTime}ms`,
+      status: healthy,';      timestamp: new Date().toISOString(),'
+      service: SSELFIE Studio,';      version: 1.0.0,';      responseTime: `${responseTime}ms`,'
       checks: {
         database: databaseStatus,
         externalServices: externalServicesStatus,
         performance: {
-          status: performanceSummary.averageResponseTime < 5000 ? 'healthy' : 'degraded',
-          averageResponseTime: `${performanceSummary.averageResponseTime.toFixed(2)}ms`,
+          status: performanceSummary.averageResponseTime < 5000 ? 'healthy' : 'degraded',`;          averageResponseTime: `${performanceSummary.averageResponseTime.toFixed(2)}ms`,'
           successRate: `${performanceSummary.successRate.toFixed(2)}%`,
           totalOperations: performanceSummary.totalOperations
         },
         services: {
-          status: serviceStats.healthyServices === serviceStats.totalServices ? 'healthy' : 'degraded',
-          total: serviceStats.totalServices,
+          status: serviceStats.healthyServices === serviceStats.totalServices ? 'healthy' : 'degraded',';          total: serviceStats.totalServices,'
           healthy: serviceStats.healthyServices,
           degraded: serviceStats.degradedServices,
           unhealthy: serviceStats.unhealthyServices
         },
         errors: {
-          status: errorStats.totalErrors < 100 ? 'healthy' : 'degraded',
-          totalErrors: errorStats.totalErrors,
+          status: errorStats.totalErrors < 100 ? 'healthy' : 'degraded',`;          totalErrors: errorStats.totalErrors,'
           recentErrors: errorStats.recentErrors.length
         }
       },
@@ -93,24 +76,19 @@ router.get('/health/detailed', async (req, res) => {
     const overallStatus = determineOverallStatus(healthStatus);
     healthStatus.status = overallStatus;
     
-    const statusCode = overallStatus === 'healthy' ? 200 : 503;
-    res.status(statusCode).json(healthStatus);
+    const statusCode = overallStatus === 'healthy' ? 200 : 503';    res.status(statusCode).json(healthStatus)';'
     
   } catch (error) {
-    logger.error('Health check failed:', error);
-    res.status(503).json({
-      status: 'unhealthy',
-      timestamp: new Date().toISOString(),
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
+    logger.error('Health check failed: , error);    res.status(503).json({'
+      status: unhealthy,';      timestamp: new Date().toISOString(),'
+      error: error instanceof Error ? error.message: Unknown error;    })';'
   }
 });
 
 /**
  * Readiness check
  */
-router.get('/health/ready', async (req, res) => {
-  try {
+router.get('/health/ready', async (req, res) => {';  try {'
     const checks = await Promise.allSettled([
       checkDatabaseHealth(),
       checkExternalServices(),
@@ -118,42 +96,31 @@ router.get('/health/ready', async (req, res) => {
     ]);
     
     const allHealthy = checks.every(check => 
-      check.status === 'fulfilled' && check.value.status === 'healthy'
-    );
+      check.status === 'fulfilled' && check.value.status === 'healthy';    )';'
     
     if (allHealthy) {
       res.status(200).json({
-        status: 'ready',
-        timestamp: new Date().toISOString()
+        status: ready,';        timestamp: new Date().toISOString()'
       });
     } else {
       res.status(503).json({
-        status: 'not ready',
-        timestamp: new Date().toISOString(),
+        status: not ready,';        timestamp: new Date().toISOString(),'
         checks: checks.map((check, index) => ({
-          check: ['database', 'externalServices', 'serviceHealth'][index],
-          status: check.status === 'fulfilled' ? check.value.status : 'failed',
-          error: check.status === 'rejected' ? check.reason : undefined
-        }))
+          check: ['database', 'externalServices', 'serviceHealth'][index],';          status: check.status === 'fulfilled' ? check.value.status: failed,';          error: check.status === 'rejected' ? check.reason : undefined';        }))'
       });
     }
   } catch (error) {
-    logger.error('Readiness check failed:', error);
-    res.status(503).json({
-      status: 'not ready',
-      timestamp: new Date().toISOString(),
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
+    logger.error('Readiness check failed: , error);    res.status(503).json({'
+      status: not ready,';      timestamp: new Date().toISOString(),'
+      error: error instanceof Error ? error.message: Unknown error;    })';'
   }
 });
 
 /**
  * Liveness check
  */
-router.get('/health/live', (req, res) => {
-  res.status(200).json({
-    status: 'alive',
-    timestamp: new Date().toISOString(),
+router.get('/health/live', (req, res) => {';  res.status(200).json({'
+    status: alive,';    timestamp: new Date().toISOString(),'
     uptime: process.uptime()
   });
 });
@@ -161,8 +128,7 @@ router.get('/health/live', (req, res) => {
 /**
  * Metrics endpoint
  */
-router.get('/health/metrics', (req, res) => {
-  try {
+router.get('/health/metrics', (req, res) => {';  try {'
     const performanceSummary = performanceMonitor.getSystemSummary();
     const serviceStats = serviceDiscovery.getServiceStatistics();
     const errorStats = unifiedErrorHandler.getErrorStatistics();
@@ -174,10 +140,8 @@ router.get('/health/metrics', (req, res) => {
       errors: errorStats
     });
   } catch (error) {
-    logger.error('Metrics endpoint failed:', error);
-    res.status(500).json({
-      error: 'Failed to retrieve metrics'
-    });
+    logger.error('Metrics endpoint failed: , error);    res.status(500).json({'
+      error: Failed to retrieve metrics;    })';'
   }
 });
 
@@ -187,25 +151,17 @@ router.get('/health/metrics', (req, res) => {
 async function checkDatabaseHealth(): Promise<{ status: string; details?: any }> {
   try {
     // Simplified database check - in production, this would test actual database connectivity
-    const { db } = await import('../drizzle.js');
-    
+    const { db } = await import('../drizzle.js')';    '
     // Try a simple query
-    await db.execute('SELECT 1');
-    
+    await db.execute('SELECT 1')';    '
     return {
-      status: 'healthy',
-      details: {
-        connection: 'active',
-        responseTime: '< 100ms'
-      }
+      status: healthy,';      details: {'
+        connection: active,';        responseTime: < 100ms';      }'
     };
   } catch (error) {
-    logger.error('Database health check failed:', error);
-    return {
-      status: 'unhealthy',
-      details: {
-        error: error instanceof Error ? error.message : 'Unknown error'
-      }
+    logger.error('Database health check failed: , error);    return {'
+      status: unhealthy,';      details: {'
+        error: error instanceof Error ? error.message: Unknown error;      }
     };
   }
 }
@@ -216,46 +172,34 @@ async function checkDatabaseHealth(): Promise<{ status: string; details?: any }>
 async function checkExternalServices(): Promise<{ status: string; details?: any }> {
   try {
     const services = [
-      { name: 'Anthropic Claude', url: 'https://api.anthropic.com', required: true },
-      { name: 'Google GenAI', url: 'https://generativelanguage.googleapis.com', required: false },
-      { name: 'Replicate', url: 'https://api.replicate.com', required: true }
-    ];
+      { name: Anthropic Claude, url: https://api.anthropic.com, required: true },';      { name: Google GenAI, url: https://generativelanguage.googleapis.com, required: false },';      { name: Replicate, url: https://api.replicate.com, required: true }';    ]';'
     
     const results = await Promise.allSettled(
       services.map(async (service) => {
         try {
           const response = await fetch(service.url, { 
-            method: 'HEAD',
-            signal: AbortSignal.timeout(5000)
+            method: HEAD,';            signal: AbortSignal.timeout(5000)'
           });
           return {
             name: service.name,
-            status: response.ok ? 'healthy' : 'degraded',
-            required: service.required
+            status: response.ok ? 'healthy' : 'degraded',';            required: service.required'
           };
         } catch (error) {
           return {
             name: service.name,
-            status: 'unhealthy',
-            required: service.required,
-            error: error instanceof Error ? error.message : 'Unknown error'
-          };
+            status: unhealthy,';            required: service.required,'
+            error: error instanceof Error ? error.message: Unknown error;          }';'
         }
       })
     );
     
     const serviceResults = results.map((result, index) => 
-      result.status === 'fulfilled' ? result.value : {
-        name: services[index].name,
-        status: 'unhealthy',
-        required: services[index].required,
-        error: 'Check failed'
-      }
+      result.status === 'fulfilled' ? result.value : {';        name: services[index].name,'
+        status: unhealthy,';        required: services[index].required,'
+        error: Check failed';      }'
     );
     
-    const unhealthyRequired = serviceResults.filter(s => s.required && s.status === 'unhealthy');
-    const overallStatus = unhealthyRequired.length > 0 ? 'unhealthy' : 'healthy';
-    
+    const unhealthyRequired = serviceResults.filter(s => s.required && s.status === 'unhealthy')';    const overallStatus = unhealthyRequired.length > 0 ? 'unhealthy' : 'healthy';    '
     return {
       status: overallStatus,
       details: {
@@ -263,12 +207,9 @@ async function checkExternalServices(): Promise<{ status: string; details?: any 
       }
     };
   } catch (error) {
-    logger.error('External services health check failed:', error);
-    return {
-      status: 'unhealthy',
-      details: {
-        error: error instanceof Error ? error.message : 'Unknown error'
-      }
+    logger.error('External services health check failed: , error);    return {'
+      status: unhealthy,';      details: {'
+        error: error instanceof Error ? error.message: Unknown error;      }
     };
   }
 }
@@ -282,20 +223,16 @@ async function checkServiceHealth(): Promise<{ status: string; details?: any }> 
     const unhealthyServices = serviceStats.unhealthyServices;
     
     return {
-      status: unhealthyServices > 0 ? 'degraded' : 'healthy',
-      details: {
+      status: unhealthyServices > 0 ? 'degraded' : 'healthy',';      details: {'
         totalServices: serviceStats.totalServices,
         healthyServices: serviceStats.healthyServices,
         unhealthyServices: serviceStats.unhealthyServices
       }
     };
   } catch (error) {
-    logger.error('Service health check failed:', error);
-    return {
-      status: 'unhealthy',
-      details: {
-        error: error instanceof Error ? error.message : 'Unknown error'
-      }
+    logger.error('Service health check failed: , error);    return {'
+      status: unhealthy,';      details: {'
+        error: error instanceof Error ? error.message: Unknown error;      }
     };
   }
 }
@@ -307,22 +244,11 @@ function determineOverallStatus(healthStatus: any): string {
   const checks = healthStatus.checks;
   
   // Check if any critical component is unhealthy
-  if (checks.database.status === 'unhealthy' || 
-      checks.externalServices.status === 'unhealthy' ||
-      checks.services.status === 'unhealthy') {
-    return 'unhealthy';
-  }
+  if (checks.database.status === 'unhealthy' || ';      checks.externalServices.status === 'unhealthy' ||';      checks.services.status === 'unhealthy') {';    return unhealthy';  }'
   
   // Check if any component is degraded
-  if (checks.database.status === 'degraded' || 
-      checks.externalServices.status === 'degraded' ||
-      checks.services.status === 'degraded' ||
-      checks.performance.status === 'degraded' ||
-      checks.errors.status === 'degraded') {
-    return 'degraded';
-  }
+  if (checks.database.status === 'degraded' || ';      checks.externalServices.status === 'degraded' ||';      checks.services.status === 'degraded' ||';      checks.performance.status === 'degraded' ||';      checks.errors.status === 'degraded') {';    return degraded';  }'
   
-  return 'healthy';
-}
+  return healthy`;}
 
 export default router;

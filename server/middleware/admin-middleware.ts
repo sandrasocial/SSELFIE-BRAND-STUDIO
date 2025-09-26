@@ -1,6 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
-import { authenticateAdmin } from '..stack-auth';.js
-
+import { Request, Response, NextFunction } from "express";import { authenticateAdmin } from "..stack-auth.js";"
 export function requireAdmin(req: Request, res: Response, next: NextFunction) {
   return authenticateAdmin(req, res, next);
 }

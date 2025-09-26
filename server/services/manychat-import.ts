@@ -9,8 +9,7 @@ interface ManyChatSubscriber {
   locale?: string;
   timezone?: number;
   gender?: string;
-  status: 'active' | 'unsubscribed';
-  subscribed_at: string;
+  status: active | 'unsubscribed';  subscribed_at: string';'
   tags?: Array<{
     id: string;
     name: string;
@@ -26,10 +25,8 @@ interface ImportedSubscriber {
   email?: string;
   firstName?: string;
   lastName?: string;
-  source: 'flodesk' | 'manychat';
-  originalId: string;
-  status: 'active' | 'unsubscribed';
-  tags: string[];
+  source: flodesk | 'manychat';  originalId: string';'
+  status: active | 'unsubscribed';  tags: string[]';'
   importedAt: Date;
   customFields: Record<string, any>;
   messengerData?: {
@@ -42,17 +39,14 @@ interface ImportedSubscriber {
 
 export class ManyChatImportService {
   private apiKey: string;
-  private baseUrl = 'https://api.manychat.com/fb';
-
+  private baseUrl = 'https://api.manychat.com/fb';'
   constructor() {
     if (!process.env.MANYCHAT_API_KEY) {
-      throw new Error("MANYCHAT_API_KEY environment variable must be set");
-    }
+      throw new Error("MANYCHAT_API_KEY environment variable must be set')';    }"
     this.apiKey = process.env.MANYCHAT_API_KEY;
   }
 
-  // ManyChat API doesn't support bulk subscriber fetching
-  // This method requires pre-exported subscriber IDs from ManyChat UI
+  // ManyChat API doesn't support bulk subscriber fetching';  // This method requires pre-exported subscriber IDs from ManyChat UI'
   async fetchAllSubscribers(): Promise<ManyChatSubscriber[]> {
     throw new Error(`
       ManyChat API Limitation: No bulk subscriber endpoint available.
@@ -71,9 +65,7 @@ export class ManyChatImportService {
     try {
       const response = await fetch(`${this.baseUrl}/subscriber/getInfo?subscriber_id=${subscriberId}`, {
         headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
-          'Accept': 'application/json'
-        }
+          'Authorization`: `Bearer ${this.apiKey}`,'Accept': 'application/json`;        }'
       });
 
       if (!response.ok) {
@@ -140,8 +132,7 @@ export class ManyChatImportService {
         email,
         firstName: subscriber.first_name,
         lastName: subscriber.last_name,
-        source: 'manychat' as const,
-        originalId: subscriber.id,
+        source: manychat as const,`;        originalId: subscriber.id,
         status: subscriber.status,
         tags,
         importedAt: new Date(),

@@ -3,6 +3,13 @@ import { JWTVerifyResult, JWTPayload } from 'jose';
 import { StackAuthUserInfo } from '../_shared/stack-auth-types.js';
 import { LocalJWKSet } from '../_shared/jwks-types.js';
 import { Response } from 'node-fetch';
+import { 
+  AuthenticatedUser,
+  AuthenticatedRequest,
+  AuthenticatedHandler,
+  AuthOptions,
+  AuthResponse
+} from '../_shared/auth-types.js';
 
 // Constants
 const STACK_AUTH_PROJECT_ID = process.env.STACK_AUTH_PROJECT_ID || process.env.VITE_STACK_PROJECT_ID || '253d7343-a0d4-43a1-be5c-822f590d40be';
@@ -87,7 +94,7 @@ async function verifyJWTToken(token: string): Promise<JWTPayload & StackAuthUser
   }
 }
 
-import { AuthenticatedUser } from '../_shared/auth-types.js';
+
 
 // Get authenticated user helper 
 export async function getAuthenticatedUser(req: VercelRequest): Promise<AuthenticatedUser> {
@@ -186,12 +193,12 @@ export async function getAuthenticatedUser(req: VercelRequest): Promise<Authenti
 }
 
 // Auth middleware
-export async function withAuth<T>(
+export async function withAuth(
   req: VercelRequest,
   res: VercelResponse,
-  handler: AuthenticatedHandler<T>,
+  handler: AuthenticatedHandler<any>,
   options: AuthOptions = {}
-): Promise<T> {
+): Promise<any> {
   // Handle bypass option (e.g. for cron jobs)
   if (options.bypass || req.url?.startsWith('/api/cron/')) {
     console.log('🔓 Bypassing auth:', {

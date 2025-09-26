@@ -1,7 +1,4 @@
-import { db } from '..drizzle.js'.js
-import { users } from '..../shared/schema.js'
-import { LaunchMetrics } from '..../shared/types/launch-metrics.js'
-
+import { db } from "..drizzle.js";import { users } from "..../shared/schema.js";import { LaunchMetrics } from "..../shared/types/launch-metrics.js";"
 export class LaunchExcellenceProtocol {
   private db: typeof db
   
@@ -14,10 +11,8 @@ export class LaunchExcellenceProtocol {
    */
   async validateLaunchReadiness(): Promise<LaunchMetrics> {
     const metrics: LaunchMetrics = {
-      systemStatus: 'optimal',
-      performanceScore: 100,
-      securityStatus: 'verified',
-      lastChecked: new Date().toISOString(),
+      systemStatus: optimal,';      performanceScore: 100,'
+      securityStatus: verified,';      lastChecked: new Date().toISOString(),'
       criticalChecks: {
         database: await this.validateDatabase(),
         api: await this.validateAPIEndpoints(),
@@ -38,8 +33,7 @@ export class LaunchExcellenceProtocol {
       await this.db.select().from(users).limit(1)
       return true
     } catch (error) {
-      console.error('Database validation failed:', error)
-      return false
+      console.error('Database validation failed: , error);      return false'
     }
   }
 
@@ -48,11 +42,7 @@ export class LaunchExcellenceProtocol {
    */
   private async validateAPIEndpoints(): Promise<boolean> {
     const criticalEndpoints = [
-      '/api/auth',
-      '/api/workflow',
-      '/api/models',
-      '/api/admin'
-    ]
+      '/api/auth','/api/workflow','/api/models','/api/admin';    ]'
     
     // Implement endpoint health checks
     return true
@@ -88,12 +78,10 @@ export class LaunchExcellenceProtocol {
       const metrics = await this.validateLaunchReadiness()
       
       // Store launch validation results (placeholder)
-      console.log('Launch validation completed:', metrics)
-      
+      console.log('Launch validation completed: , metrics);      '
       return true
     } catch (error) {
-      console.error('Launch checklist execution failed:', error)
-      return false
+      console.error('Launch checklist execution failed: , error);      return false'
     }
   }
 }

@@ -1,11 +1,10 @@
 /**
  * AUTOMATIC TASK EXECUTION SYSTEM
- * Automatically triggers agents to begin working on assigned tasks without manual activation
+ * Automatic task executor that triggers agents to begin working on assigned tasks without manual activation
  */
 
-import { claudeApiServiceSimple } from '..../services/claude-api-service-simple';
-// MAYA FAÇADE: Removed PersonalityManager dependency - Maya is now isolated
-// import { PersonalityManager } from '..../agents/personalities/personality-config'; // REMOVED: Outbound dependency
+import { ClaudeApiService } from '../../services/hybrid-intelligence/claude-api.service.js';
+const claudeApiService = new ClaudeApiService();
 
 export interface AutoExecutionConfig {
   agentId: string;
@@ -16,7 +15,6 @@ export interface AutoExecutionConfig {
 }
 
 export class AutoTaskExecutor {
-  
   /**
    * Automatically trigger an agent to start working on their assigned task
    */
@@ -24,17 +22,16 @@ export class AutoTaskExecutor {
     try {
       const { agentId, conversationId, taskDescription, priority, delayMs = 0 } = config;
       
-      console.log(`⚡ AUTO-EXECUTION: Triggering ${agentId} to start work immediately`);
+      console.log(`[Lightning] AUTO-EXECUTION: Triggering ${agentId} to start work immediately`);
       
       // Optional delay (for dependency management)
       if (delayMs > 0) {
-        console.log(`⏳ AUTO-EXECUTION: Waiting ${delayMs}ms before triggering ${agentId}`);
+        console.log(`AUTO-EXECUTION: Waiting ${delayMs}ms before triggering ${agentId}`);
         await new Promise(resolve => setTimeout(resolve, delayMs));
       }
       
       // Create immediate execution trigger message
-      const autoExecutionMessage = `
-⚡ AUTOMATIC TASK EXECUTION TRIGGER ⚡
+      const autoExecutionMessage = `[Lightning] AUTOMATIC TASK EXECUTION TRIGGER [Lightning]
 
 You have been assigned a ${priority.toUpperCase()} priority task and must begin working IMMEDIATELY.
 
@@ -50,24 +47,23 @@ You have been assigned a ${priority.toUpperCase()} priority task and must begin 
 
 **Priority Level:** ${priority.toUpperCase()} - Work with appropriate urgency.
 
-START WORKING NOW. Use your specialized tools and expertise to execute your task systematically.
-`;
+START WORKING NOW. Use your specialized tools and expertise to execute your task systematically.`;
 
       // Send auto-execution trigger to agent
-      const response = await claudeApiServiceSimple.sendMessage(
+      const response: string = await claudeApiService.sendMessage(
         autoExecutionMessage,
         conversationId,
         agentId,
         false // Basic response
       );
 
-      console.log(`✅ AUTO-EXECUTION: ${agentId} triggered successfully`);
-      console.log(`📄 Response: ${response.substring(0, 150)}...`);
+      console.log(`[OK] AUTO-EXECUTION: ${agentId} triggered successfully`);
+      console.log(`[Doc] Response: ${response.substring(0, 150)}...`);
       
       return true;
       
     } catch (error) {
-      console.error(`❌ AUTO-EXECUTION FAILED for ${config.agentId}:`, error);
+      console.error(`AUTO-EXECUTION FAILED for ${config.agentId}:`, error);
       return false;
     }
   }
@@ -75,10 +71,7 @@ START WORKING NOW. Use your specialized tools and expertise to execute your task
   /**
    * Trigger multiple agents simultaneously with auto-execution
    */
-  static async triggerMultipleAgents(configs: AutoExecutionConfig[]): Promise<{
-    successful: string[];
-    failed: string[];
-  }> {
+  static async triggerMultipleAgents(configs: AutoExecutionConfig[]): Promise<{ successful: string[]; failed: string[] }> {
     const results = await Promise.allSettled(
       configs.map(config => this.triggerAutoExecution(config))
     );
@@ -87,15 +80,15 @@ START WORKING NOW. Use your specialized tools and expertise to execute your task
     const failed: string[] = [];
     
     results.forEach((result, index) => {
-      const agentId = configs[index].agentId;
-      if (result.status === 'fulfilled' && result.value) {
-        successful.push(agentId);
-      } else {
-        failed.push(agentId);
+      const config = configs[index];
+      if (config && result.status === 'fulfilled' && result.value) {
+        successful.push(config.agentId);
+      } else if (config) {
+        failed.push(config.agentId);
       }
     });
     
-    console.log(`✅ AUTO-EXECUTION BATCH: ${successful.length} successful, ${failed.length} failed`);
+    console.log(`[OK] AUTO-EXECUTION BATCH: ${successful.length} successful, ${failed.length} failed`);
     return { successful, failed };
   }
   

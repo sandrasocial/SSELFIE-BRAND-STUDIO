@@ -3,9 +3,8 @@
  * Monitors and alerts on security-related events and threats
  */
 
-import { Logger } from './logger';
-import { Request, Response } from 'express';
-
+import { Logger } from "./logger.js";
+import { Request, Response } from "express";
 export interface SecurityEvent {
   timestamp: string;
   eventId: string;
@@ -19,14 +18,14 @@ export interface SecurityEvent {
     sessionId?: string;
   };
   details: {
-    endpoint?: string;
-    method?: string;
-    requestBody?: any;
-    queryParams?: any;
-    headers?: any;
-    responseCode?: number;
-    attackVector?: string;
-    payload?: string;
+    endpoint?: string | undefined;
+    method?: string | undefined;
+    requestBody?: any | undefined;
+    queryParams?: any | undefined;
+    headers?: any | undefined;
+    responseCode?: number | undefined;
+    attackVector?: string | undefined;
+    payload?: string | undefined;
   };
   riskScore: number; // 0-100
   blocked: boolean;
@@ -68,7 +67,10 @@ export class SecurityMonitor {
   private blockedIPs: Set<string>;
   private suspiciousIPs: Map<string, { count: number; lastSeen: Date; riskScore: number }>;
   private rateLimitTracker: Map<string, { count: number; resetTime: number }>;
-
+  
+  /**
+   * Creates a new SecurityMonitor instance.
+   */
   constructor(maxEvents: number = 10000) {
     this.logger = new Logger('SecurityMonitor');
     this.events = [];
@@ -77,6 +79,124 @@ export class SecurityMonitor {
     this.blockedIPs = new Set();
     this.suspiciousIPs = new Map();
     this.rateLimitTracker = new Map();
+  }
+
+  private checkRateLimit(ip: string, endpoint: string): void {
+    const key = `${ip}:${endpoint}`;
+    const now = Date.now();
+    const windowMs = 60 * 1000; // 1 minute
+    const maxRequests = 100; // Max requests per minute per endpoint
+
+    const current = this.rateLimitTracker.get(key);
+    
+    if (!current) {
+      this.rateLimitTracker.set(key, { count: 1, resetTime: now + windowMs });
+      return;
+    }
+
+    // Reset if window expired
+    if (now > current.resetTime) {
+      this.rateLimitTracker.set(key, { count: 1, resetTime: now + windowMs });
+      return;
+    }
+
+    // Increment count
+    current.count++;
+
+    // Check if limit exceeded
+    if (current.count > maxRequests) {
+      this.logSecurityEvent({
+        type: 'rate_limit_exceeded',
+        severity: 'medium',
+        description: `Rate limit exceeded for ${endpoint}`,
+        source: { ip },
+        details: {
+          endpoint,
+          attackVector: 'rate_limit_exceeded'
+        },
+        riskScore: 50,
+        blocked: true,
+        actionTaken: 'Request blocked - Rate limit exceeded'
+      });
+
+      // Temporarily block IP
+      this.blockedIPs.add(ip);
+      setTimeout(() => {
+        this.blockedIPs.delete(ip);
+      }, 15 * 60 * 1000); // 15 minutes
+    }
+  }
+
+  private generateEventId(): string {
+    return `sec_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  }
+
+  private logSecurityEvent(eventData: Omit<SecurityEvent, 'timestamp' | 'eventId' | 'environment' | 'version'>): void {
+    const event: SecurityEvent = {
+      timestamp: new Date().toISOString(),
+      eventId: this.generateEventId(),
+      environment: process.env.NODE_ENV || 'development',
+      version: process.env.npm_package_version || '1.0.0',
+      ...eventData
+    };
+
+    // Add to events array (with size limit)
+    if (this.events.length >= this.maxEvents) {
+      this.events.shift(); // Remove oldest event
+    }
+    this.events.push(event);
+
+    // Log event
+    this.logger.warn('Security event detected', {
+      eventId: event.eventId,
+      type: event.type,
+      severity: event.severity,
+      description: event.description,
+      source: event.source,
+      riskScore: event.riskScore,
+      blocked: event.blocked
+    });
+
+    // Send critical alerts
+    if (event.severity === 'critical' || event.riskScore > 90) {
+      this.sendSecurityAlert(event);
+    }
+  }
+
+  private async sendSecurityAlert(event: SecurityEvent): Promise<void> {
+    try {
+      // Send to Slack
+      if (process.env.SLACK_WEBHOOK_URL) {
+        await fetch(process.env.SLACK_WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            text: '🚨 Security Alert',
+            attachments: [{
+              color: 'danger',
+              fields: [
+                { title: 'Event ID', value: event.eventId, short: true },
+                { title: 'Type', value: event.type, short: true },
+                { title: 'Severity', value: event.severity, short: true },
+                { title: 'Description', value: event.description, short: false },
+                { title: 'Source IP', value: event.source.ip, short: true },
+                { title: 'Risk Score', value: event.riskScore.toString(), short: true },
+                { title: 'Blocked', value: event.blocked ? 'Yes' : 'No', short: true },
+                { title: 'Action', value: event.actionTaken, short: false }
+              ]
+            }]
+          })
+        });
+      }
+
+      // Send to email (if configured)
+      if (process.env.SECURITY_EMAIL) {
+        // This would integrate with your email service
+        this.logger.info('Security alert email sent', { eventId: event.eventId });
+      }
+    } catch (error) {
+      this.logger.error('Failed to send security alert', { error });
+    }
   }
 
   /**
@@ -106,11 +226,11 @@ export class SecurityMonitor {
           queryParams: req.query,
           headers: req.headers,
           responseCode: 403,
-          attackVector: 'blocked_ip',
+          attackVector: 'blocked_ip'
         },
         riskScore: 90,
         blocked: true,
-        actionTaken: 'Request blocked - IP in blocklist',
+        actionTaken: 'Request blocked - IP in blocklist'
       });
       return;
     }
@@ -178,7 +298,6 @@ export class SecurityMonitor {
     const { path, method, body, query, headers } = req;
     const requestString = JSON.stringify({ path, method, body, query, headers }).toLowerCase();
     const userAgent = req.get('User-Agent') || 'unknown';
-
     // SQL Injection detection
     const sqlPatterns = [
       /union\s+select/i,
@@ -203,7 +322,7 @@ export class SecurityMonitor {
           blocked: true,
           actionTaken: 'Request blocked - SQL injection detected',
           attackVector: 'sql_injection',
-          payload: this.extractPayload(requestString, pattern),
+          payload: this.extractPayload(requestString, pattern)
         });
       }
     }
@@ -230,7 +349,7 @@ export class SecurityMonitor {
           blocked: true,
           actionTaken: 'Request blocked - XSS detected',
           attackVector: 'xss',
-          payload: this.extractPayload(requestString, pattern),
+          payload: this.extractPayload(requestString, pattern)
         });
       }
     }
@@ -253,7 +372,7 @@ export class SecurityMonitor {
           blocked: true,
           actionTaken: 'Request blocked - Path traversal detected',
           attackVector: 'path_traversal',
-          payload: this.extractPayload(requestString, pattern),
+          payload: this.extractPayload(requestString, pattern)
         });
       }
     }
@@ -280,7 +399,7 @@ export class SecurityMonitor {
           blocked: true,
           actionTaken: 'Request blocked - Command injection detected',
           attackVector: 'command_injection',
-          payload: this.extractPayload(requestString, pattern),
+          payload: this.extractPayload(requestString, pattern)
         });
       }
     }
@@ -308,7 +427,7 @@ export class SecurityMonitor {
           riskScore: 60,
           blocked: false,
           actionTaken: 'Request flagged - Suspicious user agent',
-          attackVector: 'suspicious_user_agent',
+          attackVector: 'suspicious_user_agent'
         });
       }
     }
@@ -322,7 +441,7 @@ export class SecurityMonitor {
         riskScore: 40,
         blocked: false,
         actionTaken: 'Request flagged - Unusual pattern',
-        attackVector: 'unusual_pattern',
+        attackVector: 'unusual_pattern'
       });
     }
 
@@ -341,7 +460,7 @@ export class SecurityMonitor {
       'x-real-ip',
       'x-originating-ip',
       'x-remote-ip',
-      'x-remote-addr',
+      'x-remote-addr'
     ];
 
     const hasUnusualHeaders = unusualHeaders.some(header => 
@@ -357,7 +476,7 @@ export class SecurityMonitor {
       /\/adminer/,
       /\/\.env/,
       /\/config/,
-      /\/backup/,
+      /\/backup/
     ];
 
     const hasUnusualPath = unusualPaths.some(pattern => pattern.test(path));
@@ -375,55 +494,6 @@ export class SecurityMonitor {
   private extractPayload(requestString: string, pattern: RegExp): string {
     const match = pattern.exec(requestString);
     return match ? match[0] : '';
-  }
-
-  /**
-   * Check rate limiting
-   */
-  private checkRateLimit(ip: string, endpoint: string): void {
-    const key = `${ip}:${endpoint}`;
-    const now = Date.now();
-    const windowMs = 60 * 1000; // 1 minute
-    const maxRequests = 100; // Max requests per minute per endpoint
-
-    const current = this.rateLimitTracker.get(key);
-    
-    if (!current) {
-      this.rateLimitTracker.set(key, { count: 1, resetTime: now + windowMs });
-      return;
-    }
-
-    // Reset if window expired
-    if (now > current.resetTime) {
-      this.rateLimitTracker.set(key, { count: 1, resetTime: now + windowMs });
-      return;
-    }
-
-    // Increment count
-    current.count++;
-
-    // Check if limit exceeded
-    if (current.count > maxRequests) {
-      this.logSecurityEvent({
-        type: 'rate_limit_exceeded',
-        severity: 'medium',
-        description: `Rate limit exceeded for ${endpoint}`,
-        source: { ip },
-        details: {
-          endpoint,
-          attackVector: 'rate_limit_exceeded',
-        },
-        riskScore: 50,
-        blocked: true,
-        actionTaken: 'Request blocked - Rate limit exceeded',
-      });
-
-      // Temporarily block IP
-      this.blockedIPs.add(ip);
-      setTimeout(() => {
-        this.blockedIPs.delete(ip);
-      }, 15 * 60 * 1000); // 15 minutes
-    }
   }
 
   /**
@@ -448,87 +518,6 @@ export class SecurityMonitor {
     if (riskScore > 80) {
       this.blockedIPs.add(ip);
       this.logger.warn('IP blocked due to high risk score', { ip, riskScore });
-    }
-  }
-
-  /**
-   * Log security event
-   */
-  private logSecurityEvent(eventData: Omit<SecurityEvent, 'timestamp' | 'eventId' | 'environment' | 'version'>): void {
-    const event: SecurityEvent = {
-      timestamp: new Date().toISOString(),
-      eventId: this.generateEventId(),
-      environment: process.env.NODE_ENV || 'development',
-      version: process.env.npm_package_version || '1.0.0',
-      ...eventData,
-    };
-
-    // Add to events array (with size limit)
-    if (this.events.length >= this.maxEvents) {
-      this.events.shift(); // Remove oldest event
-    }
-    this.events.push(event);
-
-    // Log event
-    this.logger.warn('Security event detected', {
-      eventId: event.eventId,
-      type: event.type,
-      severity: event.severity,
-      description: event.description,
-      source: event.source,
-      riskScore: event.riskScore,
-      blocked: event.blocked,
-    });
-
-    // Send critical alerts
-    if (event.severity === 'critical' || event.riskScore > 90) {
-      this.sendSecurityAlert(event);
-    }
-  }
-
-  /**
-   * Generate unique event ID
-   */
-  private generateEventId(): string {
-    return `sec_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-  }
-
-  /**
-   * Send security alert
-   */
-  private async sendSecurityAlert(event: SecurityEvent): Promise<void> {
-    try {
-      // Send to Slack
-      if (process.env.SLACK_WEBHOOK_URL) {
-        await fetch(process.env.SLACK_WEBHOOK_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            text: '🚨 Security Alert',
-            attachments: [{
-              color: 'danger',
-              fields: [
-                { title: 'Event ID', value: event.eventId, short: true },
-                { title: 'Type', value: event.type, short: true },
-                { title: 'Severity', value: event.severity, short: true },
-                { title: 'Description', value: event.description, short: false },
-                { title: 'Source IP', value: event.source.ip, short: true },
-                { title: 'Risk Score', value: event.riskScore.toString(), short: true },
-                { title: 'Blocked', value: event.blocked ? 'Yes' : 'No', short: true },
-                { title: 'Action', value: event.actionTaken, short: false },
-              ],
-            }],
-          }),
-        });
-      }
-
-      // Send to email (if configured)
-      if (process.env.SECURITY_EMAIL) {
-        // This would integrate with your email service
-        this.logger.info('Security alert email sent', { eventId: event.eventId });
-      }
-    } catch (error) {
-      this.logger.error('Failed to send security alert', { error });
     }
   }
 
@@ -718,6 +707,8 @@ export class SecurityMonitor {
   public exportEvents(): SecurityEvent[] {
     return [...this.events];
   }
+  
+
 }
 
 // Export singleton instance

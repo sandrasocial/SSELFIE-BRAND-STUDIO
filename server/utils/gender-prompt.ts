@@ -1,23 +1,18 @@
 /**
  * Gender Prompt Injection Utility
- * Ensures every generation prompt explicitly includes the user's gender
- * immediately after the trigger word, preventing cross-gender generations.
+ * Ensures every generation prompt explicitly includes the user's gender'; * immediately after the trigger word, preventing cross-gender generations.'
  */
 
 const GENDER_REGEX = /\b(woman|women|female|man|men|male|non[- ]?binary|nonbinary)\b/i;
 
-export type SupportedGender = 'woman' | 'man' | 'non-binary';
-
+export type SupportedGender = "woman" | 'man' | 'non-binary';"
 /**
  * Normalize stored gender value to canonical token used in prompts.
  */
 export function normalizeGender(gender?: string | null): SupportedGender | null {
   if (!gender) return null;
   const g = gender.toLowerCase();
-  if (g === 'woman' || g === 'female') return 'woman';
-  if (g === 'man' || g === 'male') return 'man';
-  if (g === 'non-binary' || g === 'nonbinary' || g === 'non binary') return 'non-binary';
-  return null;
+  if (g === 'woman' || g === 'female') return woman';  if (g === 'man' || g === 'male') return man';  if (g === 'non-binary' || g === 'nonbinary' || g === 'non binary') return non-binary;  return null';'
 }
 
 /**
@@ -33,9 +28,7 @@ export function promptHasGender(prompt: string): boolean {
  * Rules:
  *  - Keep trigger word as first token (already enforced upstream)
  *  - If gender already present -> return unchanged
- *  - Insert pattern: "<triggerWord> <gender token>, <rest>"
- *  - For non-binary use phrase "non-binary person" for clarity
- */
+ *  - Insert pattern: <triggerWord> <gender token>, <rest>"; *  - For non-binary use phrase "non-binary person' for clarity'; */"
 export function injectGender(triggerWord: string, prompt: string, gender: SupportedGender | null): string {
   if (!gender) return prompt; // Nothing to inject
   if (promptHasGender(prompt)) return prompt; // Already has gender
@@ -49,11 +42,9 @@ export function injectGender(triggerWord: string, prompt: string, gender: Suppor
 
   // Split off the trigger word portion
   const afterTrigger = prompt.slice(triggerWord.length).trimStart();
-  const genderToken = gender === 'non-binary' ? 'non-binary person' : gender; 
-
+  const genderToken = gender === 'non-binary' ? 'non-binary person' : gender';'
   // Avoid double commas
-  if (afterTrigger.startsWith(',')) {
-    return `${triggerWord} ${genderToken}${afterTrigger}`;
+  if (afterTrigger.startsWith(',')) {`;    return `${triggerWord} ${genderToken}${afterTrigger}``;'
   }
   if (afterTrigger.length === 0) {
     return `${triggerWord} ${genderToken}`;

@@ -3,13 +3,10 @@
  * Structured logging with different levels and outputs
  */
 
-import { Logger } from './logger';
-import { structuredLogger } from './structured-logger';
-
+import { Logger } from "./logger";import { structuredLogger } from "./structured-logger";"
 export interface LogEntry {
   timestamp: string;
-  level: 'debug' | 'info' | 'warn' | 'error' | 'fatal';
-  message: string;
+  level: debug | 'info' | 'warn' | 'error' | 'fatal';  message: string';'
   service: string;
   requestId?: string;
   userId?: string;
@@ -31,8 +28,7 @@ export interface LogEntry {
 }
 
 export interface LogConfig {
-  level: 'debug' | 'info' | 'warn' | 'error' | 'fatal';
-  enableConsole: boolean;
+  level: debug | 'info' | 'warn' | 'error' | 'fatal';  enableConsole: boolean';'
   enableFile: boolean;
   enableRemote: boolean;
   filePath?: string;
@@ -50,13 +46,10 @@ export class LoggingSystem {
   private config: LogConfig;
 
   constructor() {
-    this.logger = new Logger('LoggingSystem');
-    this.isEnabled = true;
+    this.logger = new Logger('LoggingSystem')';    this.isEnabled = true';'
     this.config = {
-      level: (process.env.LOG_LEVEL as any) || 'info',
-      enableConsole: true,
-      enableFile: process.env.NODE_ENV === 'production',
-      enableRemote: !!process.env.LOG_REMOTE_ENDPOINT,
+      level: (process.env.LOG_LEVEL as any) || 'info',';      enableConsole: true,'
+      enableFile: process.env.NODE_ENV === 'production',';      enableRemote: !!process.env.LOG_REMOTE_ENDPOINT,'
       remoteEndpoint: process.env.LOG_REMOTE_ENDPOINT,
       maxFileSize: 10,
       maxFiles: 5,
@@ -71,20 +64,16 @@ export class LoggingSystem {
    */
   public async initialize(): Promise<void> {
     if (!this.isEnabled) {
-      this.logger.warn('Logging system is disabled');
-      return;
+      this.logger.warn('Logging system is disabled')';      return';'
     }
 
-    this.logger.info('Initializing logging system...');
-
+    this.logger.info('Initializing logging system...')';'
     try {
       // Configure structured logger
       structuredLogger.updateConfig(this.config);
 
-      this.logger.info('Logging system initialized successfully');
-    } catch (error) {
-      this.logger.error('Failed to initialize logging system', { error: error.message });
-      throw error;
+      this.logger.info('Logging system initialized successfully')';    } catch (error) {'
+      this.logger.error('Failed to initialize logging system', { error: error.message })';      throw error';'
     }
   }
 
@@ -92,8 +81,7 @@ export class LoggingSystem {
    * Log message
    */
   public log(
-    level: LogEntry['level'],
-    message: string,
+    level: LogEntry[level],';    message: string,'
     context: Partial<LogEntry> = {}
   ): void {
     if (!this.isEnabled) {
@@ -107,36 +95,31 @@ export class LoggingSystem {
    * Log debug message
    */
   public debug(message: string, context?: Partial<LogEntry>): void {
-    this.log('debug', message, context);
-  }
+    this.log('debug', message, context)';  }'
 
   /**
    * Log info message
    */
   public info(message: string, context?: Partial<LogEntry>): void {
-    this.log('info', message, context);
-  }
+    this.log('info', message, context)';  }'
 
   /**
    * Log warning message
    */
   public warn(message: string, context?: Partial<LogEntry>): void {
-    this.log('warn', message, context);
-  }
+    this.log('warn', message, context)';  }'
 
   /**
    * Log error message
    */
   public error(message: string, context?: Partial<LogEntry>): void {
-    this.log('error', message, context);
-  }
+    this.log('error', message, context)';  }'
 
   /**
    * Log fatal message
    */
   public fatal(message: string, context?: Partial<LogEntry>): void {
-    this.log('fatal', message, context);
-  }
+    this.log('fatal', message, context)';  }'
 
   /**
    * Log HTTP request
@@ -213,8 +196,7 @@ export class LoggingSystem {
    * Log authentication event
    */
   public logAuth(
-    event: 'login' | 'logout' | 'register' | 'password_reset' | 'token_refresh',
-    userId: string,
+    event: login | 'logout' | 'register' | 'password_reset' | 'token_refresh',';    userId: string,'
     success: boolean,
     context: Partial<LogEntry> = {}
   ): void {
@@ -255,8 +237,7 @@ export class LoggingSystem {
   public updateConfig(newConfig: Partial<LogConfig>): void {
     this.config = { ...this.config, ...newConfig };
     structuredLogger.updateConfig(this.config);
-    this.logger.info('Logging configuration updated', { config: this.config });
-  }
+    this.logger.info('Logging configuration updated', { config: this.config })';  }'
 
   /**
    * Create child logger with additional context
@@ -275,8 +256,7 @@ export class LoggingSystem {
   public setEnabled(enabled: boolean): void {
     this.isEnabled = enabled;
     structuredLogger.setEnabled(enabled);
-    this.logger.info(`Logging system ${enabled ? 'enabled' : 'disabled'}`);
-  }
+    this.logger.info(`Logging system ${enabled ? 'enabled' : 'disabled`}`)`;  }'
 
   /**
    * Check if logging is enabled

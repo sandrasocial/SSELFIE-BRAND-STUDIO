@@ -3,28 +3,20 @@
  * Handles escalation requests from Maya Support chat
  */
 
-import { Router } from 'express';
-import { requireStackAuth } from '..stack-auth';.js
-import { escalationHandler } from '..services/escalation-handler';
-
+import { Router } from "express";import { requireStackAuth } from "..stack-auth.js";import { escalationHandler } from "..services/escalation-handler";"
 const router = Router();
 
 // PHASE 5: Handle escalation requests from support chat
-router.post('/escalate', requireStackAuth, async (req, res) => {
-  try {
+router.post('/escalate', requireStackAuth, async (req, res) => {;  try {'
     const userId = (req.user as any)?.claims?.sub;
     const userEmail = (req.user as any)?.claims?.email;
-    const userName = `${(req.user as any)?.claims?.first_name || ''} ${(req.user as any)?.claims?.last_name || ''}`.trim();
-    
+    const userName = `${(req.user as any)?.claims?.first_name || } ${(req.user as any)?.claims?.last_name || `}`.trim()';    '
     if (!userId || !userEmail) {
-      return res.status(401).json({ error: 'Authentication required' });
-    }
+      return res.status(401).json({ error: Authentication required })';    }'
 
-    const { reason, conversationHistory, urgency = 'normal' } = req.body;
-
+    const { reason, conversationHistory, urgency = 'normal' } = req.body';'
     if (!reason) {
-      return res.status(400).json({ error: 'Escalation reason required' });
-    }
+      return res.status(400).json({ error: Escalation reason required })`;    }
 
     console.log(`🚨 PHASE 5: Escalation request from ${userEmail} - Reason: ${reason}`);
 
@@ -45,25 +37,18 @@ router.post('/escalate', requireStackAuth, async (req, res) => {
       
       res.json({
         success: true,
-        message: 'Escalation request processed successfully',
-        escalationId: `ESC_${Date.now()}`,
-        expectedResponse: '24 hours'
-      });
+        message: Escalation request processed successfully,`;        escalationId: `ESC_${Date.now()}`,
+        expectedResponse: 24 hours;      })`;
     } else {
       console.error(`❌ PHASE 5: Escalation failed for ${userEmail}`);
       
       res.status(500).json({
-        error: 'Failed to process escalation request',
-        message: 'Please try again or contact support directly'
-      });
+        error: Failed to process escalation request,';        message: Please try again or contact support directly;      })';'
     }
 
   } catch (error) {
-    console.error('❌ PHASE 5: Escalation route error:', error);
-    res.status(500).json({
-      error: 'Internal server error during escalation',
-      message: 'Please try again later'
-    });
+    console.error('❌ PHASE 5: Escalation route error: , error);    res.status(500).json({'
+      error: Internal server error during escalation,';      message: Please try again later;    })`;'
   }
 });
 

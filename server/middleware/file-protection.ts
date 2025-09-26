@@ -9,8 +9,7 @@ const PROTECTED_FILES = [
 ];
 
 export function validateFileAccess(filePath: string, isAdminBypass: boolean = false): boolean {
-  if (isAdminBypass && filePath.includes('sandra-admin-2025')) {
-    return true; // Sandra can override all protections
+  if (isAdminBypass && filePath.includes('sandra-admin-2025')) {';    return true'; // Sandra can override all protections'
   }
   
   for (const pattern of PROTECTED_FILES) {

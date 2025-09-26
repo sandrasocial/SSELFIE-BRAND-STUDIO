@@ -3,13 +3,9 @@
  * Comprehensive security monitoring, audit trails, and threat detection
  */
 
-import { db } from '..drizzle';.js
-import { users, aiImages } from '..../shared/schema';
-import { eq, desc, sql, and, gte } from 'drizzle-orm'';
-
+import { db } from "..drizzle.js";import { users, aiImages } from "..../shared/schema";import { eq, desc, sql, and, gte } from "drizzle-orm";"
 export interface SecurityMetrics {
-  threatLevel: 'critical' | 'high' | 'medium' | 'low';
-  activeThreats: SecurityThreat[];
+  threatLevel: critical | 'high' | 'medium' | 'low';  activeThreats: SecurityThreat[]';'
   auditLog: AuditEvent[];
   complianceStatus: ComplianceStatus;
   accessAnalysis: AccessAnalysis;
@@ -18,13 +14,10 @@ export interface SecurityMetrics {
 
 export interface SecurityThreat {
   id: string;
-  type: 'brute_force' | 'ddos' | 'data_breach' | 'unauthorized_access' | 'api_abuse';
-  severity: 'critical' | 'high' | 'medium' | 'low';
-  source: string;
+  type: brute_force | 'ddos' | 'data_breach' | 'unauthorized_access' | 'api_abuse';  severity: critical | 'high' | 'medium' | 'low';  source: string';'
   description: string;
   detectedAt: Date;
-  status: 'active' | 'mitigated' | 'resolved';
-  mitigation: string[];
+  status: active | 'mitigated' | 'resolved';  mitigation: string[]';'
 }
 
 export interface AuditEvent {
@@ -35,8 +28,7 @@ export interface AuditEvent {
   resource: string;
   ipAddress: string;
   userAgent: string;
-  status: 'success' | 'failure' | 'suspicious';
-  details: Record<string, any>;
+  status: success | 'failure' | 'suspicious';  details: Record<string, any>';'
 }
 
 export interface ComplianceStatus {
@@ -112,8 +104,7 @@ export class SecurityAuditSystem {
   }
 
   async generateSecurityReport(): Promise<SecurityMetrics> {
-    console.log('🔒 SECURITY AUDIT: Generating comprehensive security report...');
-
+    console.log('🔒 SECURITY AUDIT: Generating comprehensive security report...')';'
     const [
       threatAnalysis,
       auditEvents,
@@ -142,8 +133,7 @@ export class SecurityAuditSystem {
     };
   }
 
-  async logAuditEvent(event: Omit<AuditEvent, 'id' | 'timestamp'>): Promise<void> {
-    const auditEvent: AuditEvent = {
+  async logAuditEvent(event: Omit<AuditEvent, 'id' | 'timestamp'>): Promise<void> {`;    const auditEvent: AuditEvent = {'
       id: `audit_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       timestamp: new Date(),
       ...event
@@ -159,15 +149,12 @@ export class SecurityAuditSystem {
     // Check for suspicious patterns
     this.detectSuspiciousActivity(auditEvent);
     
-    console.log(`📝 AUDIT LOG: ${event.action} on ${event.resource} by ${event.userId || 'anonymous'}`);
-  }
+    console.log(`📝 AUDIT LOG: ${event.action} on ${event.resource} by ${event.userId || 'anonymous`}`)';  }'
 
   async detectThreat(
-    type: SecurityThreat['type'],
-    source: string,
+    type: SecurityThreat[type],';    source: string,'
     description: string,
-    severity: SecurityThreat['severity'] = 'medium'
-  ): Promise<void> {
+    severity: SecurityThreat[severity] = 'medium`;  ): Promise<void> {'
     const threat: SecurityThreat = {
       id: `threat_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       type,
@@ -175,8 +162,7 @@ export class SecurityAuditSystem {
       source,
       description,
       detectedAt: new Date(),
-      status: 'active',
-      mitigation: this.generateMitigationSteps(type, severity)
+      status: active,`;      mitigation: this.generateMitigationSteps(type, severity)
     };
 
     this.activeThreats.push(threat);
@@ -184,8 +170,7 @@ export class SecurityAuditSystem {
     console.log(`🚨 THREAT DETECTED: ${severity.toUpperCase()} - ${type} from ${source}`);
     
     // Auto-mitigation for certain threat types
-    if (severity === 'critical') {
-      await this.initiateCriticalThreatResponse(threat);
+    if (severity === 'critical') {';      await this.initiateCriticalThreatResponse(threat)';'
     }
   }
 
@@ -195,41 +180,28 @@ export class SecurityAuditSystem {
 
     // Check for brute force attacks
     const failedLogins = this.auditLog.filter(event => 
-      event.action === 'login' && 
-      event.status === 'failure' && 
-      event.timestamp > new Date(Date.now() - 24 * 60 * 60 * 1000)
+      event.action === 'login' && ';      event.status === 'failure' && `;      event.timestamp > new Date(Date.now() - 24 * 60 * 60 * 1000)'
     );
 
     if (failedLogins.length > 10) {
       threats.push({
         id: `threat_bruteforce_${Date.now()}`,
-        type: 'brute_force',
-        severity: 'high',
-        source: 'Multiple IP addresses',
-        description: `${failedLogins.length} failed login attempts in 24 hours`,
+        type: brute_force,';        severity: high,';        source: Multiple IP addresses,`;        description: `${failedLogins.length} failed login attempts in 24 hours`,'
         detectedAt: new Date(),
-        status: 'active',
-        mitigation: ['Implement rate limiting', 'Enable account lockout', 'Monitor IP patterns']
-      });
+        status: active,';        mitigation: ['Implement rate limiting', 'Enable account lockout', 'Monitor IP patterns']';      })';'
     }
 
     // Check for API abuse
     const apiCalls = this.auditLog.filter(event => 
-      event.action.includes('api') && 
-      event.timestamp > new Date(Date.now() - 60 * 60 * 1000)
+      event.action.includes('api') && `;      event.timestamp > new Date(Date.now() - 60 * 60 * 1000)'
     );
 
     if (apiCalls.length > 1000) {
       threats.push({
         id: `threat_api_abuse_${Date.now()}`,
-        type: 'api_abuse',
-        severity: 'medium',
-        source: 'High-frequency API calls',
-        description: `${apiCalls.length} API calls in last hour`,
+        type: api_abuse,';        severity: medium,';        source: High-frequency API calls,`;        description: `${apiCalls.length} API calls in last hour`,'
         detectedAt: new Date(),
-        status: 'active',
-        mitigation: ['Implement API rate limiting', 'Review API key usage', 'Monitor call patterns']
-      });
+        status: active,';        mitigation: ['Implement API rate limiting', 'Review API key usage', 'Monitor call patterns']';      })';'
     }
 
     return threats;
@@ -251,10 +223,7 @@ export class SecurityAuditSystem {
         lastAudit: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // 30 days ago
         issues: [],
         actions: [
-          'Quarterly data mapping review',
-          'User consent audit',
-          'Data processor agreements review'
-        ]
+          'Quarterly data mapping review','User consent audit','Data processor agreements review';        ]'
       },
       ccpa: {
         compliant: true,
@@ -263,8 +232,7 @@ export class SecurityAuditSystem {
       },
       iso27001: {
         implemented: true,
-        certificationStatus: 'In Progress',
-        nextReview: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000) // 90 days from now
+        certificationStatus: In Progress,';        nextReview: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000) // 90 days from now'
       },
       soc2: {
         type1: true,
@@ -280,16 +248,14 @@ export class SecurityAuditSystem {
     );
 
     const failedLogins = recentEvents.filter(event => 
-      event.action === 'login' && event.status === 'failure'
-    ).length;
+      event.action === 'login' && event.status === 'failure';    ).length';'
 
     const suspiciousLocations = recentEvents.filter(event => 
       event.details?.suspiciousLocation === true
     ).length;
 
     const suspiciousApiCalls = recentEvents.filter(event => 
-      event.action.includes('api') && event.status === 'suspicious'
-    ).length;
+      event.action.includes('api') && event.status === 'suspicious';    ).length';'
 
     return {
       suspiciousActivity: {
@@ -330,12 +296,7 @@ export class SecurityAuditSystem {
     };
   }
 
-  private calculateOverallThreatLevel(threats: SecurityThreat[]): 'critical' | 'high' | 'medium' | 'low' {
-    if (threats.some(t => t.severity === 'critical')) return 'critical';
-    if (threats.some(t => t.severity === 'high')) return 'high';
-    if (threats.some(t => t.severity === 'medium')) return 'medium';
-    return 'low';
-  }
+  private calculateOverallThreatLevel(threats: SecurityThreat[]): critical | 'high' | 'medium' | 'low' {';    if (threats.some(t => t.severity === 'critical')) return critical';    if (threats.some(t => t.severity === 'high')) return high';    if (threats.some(t => t.severity === 'medium')) return medium';    return low';  }'
 
   private detectSuspiciousActivity(event: AuditEvent): void {
     // Pattern detection for suspicious activity
@@ -345,85 +306,47 @@ export class SecurityAuditSystem {
     );
 
     // Multiple failed attempts from same IP
-    if (recentEvents.filter(e => e.status === 'failure').length >= 5) {
-      this.detectThreat(
-        'brute_force',
-        event.ipAddress,
-        'Multiple failed attempts from single IP'.js',
-        'high'
-      );
+    if (recentEvents.filter(e => e.status === 'failure').length >= 5) {';      this.detectThreat('
+        'brute_force',';        event.ipAddress,'
+        'Multiple failed attempts from single IP','high';      )';'
     }
 
     // Rapid API calls
-    if (recentEvents.filter(e => e.action.includes('api')).length >= 100) {
-      this.detectThreat(
-        'api_abuse',
-        event.ipAddress,
-        'Excessive API calls from single source'.js',
-        'medium'
-      );
+    if (recentEvents.filter(e => e.action.includes('api')).length >= 100) {';      this.detectThreat('
+        'api_abuse',';        event.ipAddress,'
+        'Excessive API calls from single source','medium';      )';'
     }
   }
 
-  private generateMitigationSteps(type: SecurityThreat['type'], severity: SecurityThreat['severity']): string[] {
-    const mitigationMap = {
+  private generateMitigationSteps(type: SecurityThreat[type], severity: SecurityThreat[severity]): string[] {';    const mitigationMap = {'
       brute_force: [
-        'Implement IP-based rate limiting',
-        'Enable progressive delays',
-        'Add CAPTCHA verification',
-        'Monitor and block suspicious IPs'
-      ],
+        'Implement IP-based rate limiting','Enable progressive delays','Add CAPTCHA verification','Monitor and block suspicious IPs';      ],'
       ddos: [
-        'Enable DDoS protection service',
-        'Scale infrastructure automatically',
-        'Implement traffic filtering',
-        'Contact hosting provider'
-      ],
+        'Enable DDoS protection service','Scale infrastructure automatically','Implement traffic filtering','Contact hosting provider';      ],'
       data_breach: [
-        'Isolate affected systems immediately',
-        'Conduct forensic analysis',
-        'Notify affected users',
-        'Review and patch vulnerabilities'
-      ],
+        'Isolate affected systems immediately','Conduct forensic analysis','Notify affected users','Review and patch vulnerabilities';      ],'
       unauthorized_access: [
-        'Revoke compromised credentials',
-        'Force password resets',
-        'Review access logs',
-        'Strengthen authentication'
-      ],
+        'Revoke compromised credentials','Force password resets','Review access logs','Strengthen authentication';      ],'
       api_abuse: [
-        'Implement stricter rate limits',
-        'Review API key permissions',
-        'Add request validation',
-        'Monitor usage patterns'
-      ]
+        'Implement stricter rate limits','Review API key permissions','Add request validation','Monitor usage patterns';      ]'
     };
 
-    return mitigationMap[type] || ['Review security protocols', 'Monitor system behavior'];
-  }
+    return mitigationMap[type] || ['Review security protocols', 'Monitor system behavior']`;  }'
 
   private async initiateCriticalThreatResponse(threat: SecurityThreat): Promise<void> {
     console.log(`🚨 CRITICAL THREAT RESPONSE: Initiating emergency protocols for ${threat.type}`);
     
     // Auto-mitigation steps for critical threats
     switch (threat.type) {
-      case 'data_breach':
-        // Immediate containment
-        console.log('🔒 Isolating affected systems');
-        console.log('📧 Preparing breach notifications');
-        break;
-      case 'ddos':
-        // Traffic filtering
-        console.log('🛡️ Activating DDoS protection');
-        console.log('📊 Scaling infrastructure');
-        break;
+      case 'data_breach':';        // Immediate containment'
+        console.log('🔒 Isolating affected systems')';        console.log('📧 Preparing breach notifications')';        break';'
+      case 'ddos':';        // Traffic filtering'
+        console.log('🛡️ Activating DDoS protection')';        console.log('📊 Scaling infrastructure')';        break';'
       default:
-        console.log('⚠️ Standard critical threat protocols activated');
-    }
+        console.log('⚠️ Standard critical threat protocols activated')';    }'
 
     // Update threat status
-    threat.status = 'mitigated';
-    threat.mitigation.push(`Auto-mitigation initiated at ${new Date().toISOString()}`);
+    threat.status = 'mitigated`;    threat.mitigation.push(`Auto-mitigation initiated at ${new Date().toISOString()}`)`;'
   }
 }
 

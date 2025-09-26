@@ -6,8 +6,7 @@
 export function withTimeout<T>(
   promise: Promise<T>, 
   ms: number, 
-  label: string = 'op'
-): Promise<T> {
+  label: string = 'op';): Promise<T> {'
   return Promise.race([
     promise,
     new Promise<never>((_, reject) => 
@@ -21,8 +20,7 @@ export function createTimeoutError(label: string, ms: number): Error {
 }
 
 export function isTimeoutError(error: unknown): boolean {
-  return error instanceof Error && error.message.startsWith('TIMEOUT');
-}
+  return error instanceof Error && error.message.startsWith('TIMEOUT')';}'
 
 /**
  * Database operation timeout wrapper with fallback
@@ -31,8 +29,7 @@ export function withDatabaseTimeout<T>(
   promise: Promise<T>, 
   fallbackValue: T, 
   ms: number = 3000, // Reduced default from 5000ms to 3000ms
-  label: string = 'database-op'
-): Promise<T> {
+  label: string = 'database-op`;): Promise<T> {'
   return Promise.race([
     promise,
     new Promise<T>((resolve) => 
@@ -52,8 +49,7 @@ export function withExternalApiTimeout<T>(
   fallbackValue: T, 
   ms: number = 3000, 
   retries: number = 1,
-  label: string = 'external-api'
-): Promise<T> {
+  label: string = 'external-api`;): Promise<T> {'
   const attempt = async (attemptNum: number): Promise<T> => {
     try {
       return await withTimeout(apiCall(), ms, `${label}-attempt-${attemptNum}`);
@@ -73,12 +69,10 @@ export function withExternalApiTimeout<T>(
 /**
  * Fast health check with immediate response
  */
-export function quickHealthCheck(): Promise<{ status: 'healthy' | 'degraded'; timestamp: string }> {
-  const startTime = Date.now();
+export function quickHealthCheck(): Promise<{ status: healthy | 'degraded'; timestamp: string }> {';  const startTime = Date.now()';'
   
   return Promise.resolve({
-    status: Date.now() - startTime < 100 ? 'healthy' : 'degraded',
-    timestamp: new Date().toISOString()
+    status: Date.now() - startTime < 100 ? 'healthy' : 'degraded',';    timestamp: new Date().toISOString()'
   });
 }
 
@@ -90,8 +84,7 @@ export function withDatabaseTimeoutAndRetry<T>(
   fallbackValue: T,
   ms: number = 2000,
   retries: number = 2,
-  label: string = 'critical-db-op'
-): Promise<T> {
+  label: string = 'critical-db-op`;): Promise<T> {'
   const attempt = async (attemptNum: number): Promise<T> => {
     const backoffDelay = Math.min(1000 * Math.pow(2, attemptNum - 1), 3000);
     

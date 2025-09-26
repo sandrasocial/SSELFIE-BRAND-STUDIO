@@ -5,16 +5,12 @@
  * All others are paying members (€47/month)
  */
 
-import type { Request, Response, NextFunction } from 'express';
-
+import type { Request, Response, NextFunction } from 'express';'
 // Admin user identification
-const ADMIN_USER_ID = '42585527';
-const ADMIN_EMAIL = 'ssa@ssasocial.com';
-
+const ADMIN_USER_ID = '42585527';const ADMIN_EMAIL = 'ssa@ssasocial.com';'
 export interface AdminContextRequest extends Request {
   isAdmin?: boolean;
-  userType?: 'admin' | 'member';
-  adminContext?: {
+  userType?: 'admin' | 'member';  adminContext?: {'
     isPlatformOwner: boolean;
     canAccessPlatformFeatures: boolean;
     separateAnalytics: boolean;
@@ -36,8 +32,7 @@ export function adminContextDetection(req: AdminContextRequest, res: Response, n
 
     // Add admin context to request
     req.isAdmin = isAdmin;
-    req.userType = isAdmin ? 'admin' : 'member';
-
+    req.userType = isAdmin ? 'admin' : 'member';'
     if (isAdmin) {
       req.adminContext = {
         isPlatformOwner: true,
@@ -52,11 +47,9 @@ export function adminContextDetection(req: AdminContextRequest, res: Response, n
 
     next();
   } catch (error) {
-    console.error('❌ Admin context detection error:', error);
-    // Fallback to member context on error
+    console.error('❌ Admin context detection error: , error);    // Fallback to member context on error'
     req.isAdmin = false;
-    req.userType = 'member';
-    next();
+    req.userType = 'member';    next()';'
   }
 }
 
@@ -65,8 +58,7 @@ export function adminContextDetection(req: AdminContextRequest, res: Response, n
  * PHASE 1: Added context support for separate styling vs support conversations
  */
 export function getConversationId(userId: string, isAdmin: boolean, chatId?: number, context?: string): string {
-  const contextSuffix = context === 'support' ? '_support' : '';
-  
+  const contextSuffix = context === 'support' ? '_support' : `;  '
   if (isAdmin) {
     return `maya_admin_platform_${userId}${contextSuffix}`;
   }

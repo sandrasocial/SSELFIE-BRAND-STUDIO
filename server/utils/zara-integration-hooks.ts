@@ -1,9 +1,7 @@
-import { zaraEnhancementSystem } from './zara-enhancement-system';
-import { claudeApiServiceSimple } from '../services/claude-api-service-simple';
-
+import { zaraEnhancementSystem } from "./zara-enhancement-system.js";
+import { claudeApiServiceSimple } from "../services/claude-api-service-simple.js";
 /**
- * Integration hooks for Zara's enhanced capabilities
- * These hooks are automatically triggered during agent operations
+ * Integration hooks for Zara's enhanced capabilities'; * These hooks are automatically triggered during agent operations'
  */
 export class ZaraIntegrationHooks {
   
@@ -19,7 +17,6 @@ export class ZaraIntegrationHooks {
     riskAssessment: string[];
   }> {
     console.log('🚀 ZARA INTEGRATION: Pre-execution analysis starting');
-    
     // Enhance task with context awareness
     const contextEnhancement = await zaraEnhancementSystem.enhanceTaskContext(task, filePath);
     
@@ -44,15 +41,13 @@ export class ZaraIntegrationHooks {
   ): Promise<{
     autoRecoveryAttempted: boolean;
     fixesApplied: string[];
-    status: 'success' | 'partial' | 'failed';
-  }> {
-    console.log('🔧 ZARA INTEGRATION: Post-execution auto-recovery starting');
-    
+    status: 'success' | 'partial' | 'failed';  }> {
+    console.log('🔧 ZARA INTEGRATION: Post-execution auto-recovery starting')';    '
     if (!filePath) {
       return {
         autoRecoveryAttempted: false,
         fixesApplied: [],
-        status: 'success.js'
+        status: 'success'
       };
     }
     
@@ -60,8 +55,7 @@ export class ZaraIntegrationHooks {
     const recovery = await zaraEnhancementSystem.performAutoRecovery(filePath);
     
     const status = recovery.success ? 'success' : 
-                  recovery.fixesApplied.length > 0 ? 'partial' : 'failed';
-    
+      recovery.fixesApplied.length > 0 ? 'partial' : 'failed';
     return {
       autoRecoveryAttempted: true,
       fixesApplied: recovery.fixesApplied,
@@ -87,13 +81,12 @@ export class ZaraIntegrationHooks {
     console.log('⚠️ ZARA INTEGRATION: Error handling hook triggered');
     console.log('Error:', error.message || error);
     console.log('Context:', context);
-    
     // Analyze the error
     const errorMessage = error.message || error.toString();
     const diagnostics = [{ message: errorMessage }];
     
     const analyses = await zaraEnhancementSystem.analyzeErrors(
-      context.filePath || 'unknown', 
+      context.filePath || 'unknown',
       diagnostics
     );
     
@@ -139,25 +132,25 @@ export class ZaraIntegrationHooks {
         frontend: 'client/',
         shared: 'shared/',
         utils: 'server/utils/',
-        services: 'server/services/.js'
+        services: 'server/services/'
       },
       commonPatterns: [
         'Use TypeScript interfaces from shared/schema.ts',
-        'Import services from server/services/'.js',
+        'Import services from server/services/',
         'Follow existing naming conventions',
-        'Match existing code style and patterns.js'
+        'Match existing code style and patterns'
       ],
       bestPractices: [
         'Always check interface compatibility',
         'Add proper error handling',
         'Include comprehensive logging',
-        'Test auto-recovery mechanisms.js'
+        'Test auto-recovery mechanisms'
       ],
       avoidancePatterns: [
         'Avoid breaking existing exports',
         'Don\'t modify core system files without context',
         'Never leave syntax errors unresolved',
-        'Avoid circular dependencies.js'
+        'Avoid circular dependencies'
       ]
     };
   }
@@ -169,7 +162,7 @@ export class ZaraIntegrationHooks {
 export function initializeZaraIntegration(): void {
   console.log('🎯 ZARA INTEGRATION: Enhanced capabilities initialized');
   console.log('✅ Auto-error fixing: ACTIVE');
-  console.log('✅ Context awareness: ACTIVE'); 
+  console.log('✅ Context awareness: ACTIVE');
   console.log('✅ Self-correction: ACTIVE');
   console.log('✅ System understanding: ACTIVE');
 }

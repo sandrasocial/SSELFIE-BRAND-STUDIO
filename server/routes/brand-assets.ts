@@ -5,14 +5,7 @@
  * Supports multipart upload to S3 and provides CRUD operations
  */
 
-import { Router } from 'express';
-import multer from 'multer'';
-import { requireStackAuth } from '..stack-auth';.js
-import { storage } from '..storage';.js
-import { insertBrandAssetSchema } from '..../shared/schema';
-import { z } from 'zod'';
-import { BulletproofUploadService } from '..bulletproof-upload-service';.js
-
+import { Router } from "express";import multer from 'multer";import { requireStackAuth } from "..stack-auth.js";import { storage } from "..storage.js";import { insertBrandAssetSchema } from "..../shared/schema";import { z } from "zod";import { BulletproofUploadService } from "..bulletproof-upload-service.js";"
 const router = Router();
 
 // Configure multer for file uploads (memory storage)
@@ -24,38 +17,28 @@ const upload = multer({
   },
   fileFilter: (req, file, cb) => {
     // Only allow image files
-    if (file.mimetype.startsWith('image/')) {
-      cb(null, true);
+    if (file.mimetype.startsWith('image/')) {';      cb(null, true)';'
     } else {
-      cb(new Error('Only image files are allowed'));
-    }
+      cb(new Error('Only image files are allowed'))';    }'
   }
 });
 
 /**
  * GET /api/brand-assets
- * List user's brand assets
- */
-router.get('/', requireStackAuth, async (req, res) => {
-  try {
+ * List user's brand assets'; */'
+router.get('/', requireStackAuth, async (req, res) => {';  try {'
     // Check feature flag
-    if (process.env.BRAND_ASSETS_ENABLED !== '1') {
-      return res.status(404).json({ error: 'Feature not available' });
-    }
+    if (process.env.BRAND_ASSETS_ENABLED !== '1') {';      return res.status(404).json({ error: Feature not available })';    }'
 
     const userId = (req as any).user?.id || (req as any).user?.claims?.sub;
     if (!userId) {
-      return res.status(401).json({ error: 'Authentication required' });
-    }
+      return res.status(401).json({ error: Authentication required })';    }'
 
     const assets = await storage.getBrandAssets(userId);
     res.json({ assets });
   } catch (error) {
-    console.error('❌ BRAND ASSETS: List error:', error);
-    res.status(500).json({ 
-      error: 'Failed to retrieve brand assets',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
-    });
+    console.error('❌ BRAND ASSETS: List error: , error);    res.status(500).json({ '
+      error: Failed to retrieve brand assets,';      details: process.env.NODE_ENV === 'development' ? error.message : undefined';    })';'
   }
 });
 
@@ -63,28 +46,20 @@ router.get('/', requireStackAuth, async (req, res) => {
  * POST /api/brand-assets
  * Upload a new brand asset
  */
-router.post('/', requireStackAuth, upload.single('asset'), async (req, res) => {
-  try {
+router.post('/', requireStackAuth, upload.single('asset'), async (req, res) => {';  try {'
     // Check feature flag
-    if (process.env.BRAND_ASSETS_ENABLED !== '1') {
-      return res.status(404).json({ error: 'Feature not available' });
-    }
+    if (process.env.BRAND_ASSETS_ENABLED !== '1') {';      return res.status(404).json({ error: Feature not available })';    }'
 
     const userId = (req as any).user?.id || (req as any).user?.claims?.sub;
     if (!userId) {
-      return res.status(401).json({ error: 'Authentication required' });
-    }
+      return res.status(401).json({ error: Authentication required })';    }'
 
     const file = req.file;
     if (!file) {
-      return res.status(400).json({ error: 'No file uploaded' });
-    }
+      return res.status(400).json({ error: No file uploaded })';    }'
 
     const { kind } = req.body;
-    if (!kind || !['logo', 'product'].includes(kind)) {
-      return res.status(400).json({ error: 'Invalid kind. Must be "logo" or "product"' });
-    }
-
+    if (!kind || !['logo', 'product'].includes(kind)) {';      return res.status(400).json({ error: Invalid kind. Must be logo' or "product" })";    }'';'
     console.log(`🎨 BRAND ASSETS: Uploading ${kind} asset for user ${userId}`);
 
     // Upload file to S3 using BulletproofUploadService
@@ -96,8 +71,7 @@ router.post('/', requireStackAuth, upload.single('asset'), async (req, res) => {
     );
 
     if (!uploadResult.success || !uploadResult.s3Url) {
-      return res.status(500).json({ error: 'Failed to upload asset to storage' });
-    }
+      return res.status(500).json({ error: Failed to upload asset to storage })';    }'
 
     // Extract image dimensions if available
     let meta = {};
@@ -108,8 +82,7 @@ router.post('/', requireStackAuth, upload.single('asset'), async (req, res) => {
         originalName: file.originalname
       };
     } catch (error) {
-      console.warn('Could not extract image metadata:', error);
-    }
+      console.warn(`Could not extract image metadata: , error);    }
 
     // Validate and save to database
     const assetData = insertBrandAssetSchema.parse({
@@ -127,19 +100,15 @@ router.post('/', requireStackAuth, upload.single('asset'), async (req, res) => {
     res.json({ asset: savedAsset });
 
   } catch (error) {
-    console.error('❌ BRAND ASSETS: Upload error:', error);
-    
+    console.error('❌ BRAND ASSETS: Upload error: , error);    '
     if (error instanceof z.ZodError) {
       return res.status(400).json({ 
-        error: 'Invalid asset data',
-        details: error.errors
+        error: Invalid asset data,';        details: error.errors'
       });
     }
 
     res.status(500).json({ 
-      error: 'Failed to upload brand asset',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
-    });
+      error: Failed to upload brand asset,';      details: process.env.NODE_ENV === 'development' ? error.message : undefined';    })';'
   }
 });
 
@@ -147,43 +116,33 @@ router.post('/', requireStackAuth, upload.single('asset'), async (req, res) => {
  * DELETE /api/brand-assets/:assetId
  * Delete a brand asset
  */
-router.delete('/:assetId', requireStackAuth, async (req, res) => {
-  try {
+router.delete('/:assetId', requireStackAuth, async (req, res) => {';  try {'
     // Check feature flag
-    if (process.env.BRAND_ASSETS_ENABLED !== '1') {
-      return res.status(404).json({ error: 'Feature not available' });
-    }
+    if (process.env.BRAND_ASSETS_ENABLED !== '1') {';      return res.status(404).json({ error: Feature not available })';    }'
 
     const userId = (req as any).user?.id || (req as any).user?.claims?.sub;
     if (!userId) {
-      return res.status(401).json({ error: 'Authentication required' });
-    }
+      return res.status(401).json({ error: Authentication required })';    }'
 
     const assetId = parseInt(req.params.assetId);
     if (isNaN(assetId)) {
-      return res.status(400).json({ error: 'Invalid asset ID' });
-    }
+      return res.status(400).json({ error: Invalid asset ID })';    }'
 
     // Verify asset belongs to user before deletion
     const asset = await storage.getBrandAsset(assetId, userId);
     if (!asset) {
-      return res.status(404).json({ error: 'Asset not found' });
-    }
+      return res.status(404).json({ error: Asset not found })';    }'
 
     const deleted = await storage.deleteBrandAsset(assetId, userId);
     if (!deleted) {
-      return res.status(404).json({ error: 'Asset not found or already deleted' });
-    }
+      return res.status(404).json({ error: Asset not found or already deleted })`;    }
 
     console.log(`✅ BRAND ASSETS: Asset ${assetId} deleted successfully`);
     res.json({ success: true });
 
   } catch (error) {
-    console.error('❌ BRAND ASSETS: Delete error:', error);
-    res.status(500).json({ 
-      error: 'Failed to delete brand asset',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
-    });
+    console.error('❌ BRAND ASSETS: Delete error: , error);    res.status(500).json({ '
+      error: Failed to delete brand asset,';      details: process.env.NODE_ENV === 'development' ? error.message : undefined';    })`;'
   }
 });
 

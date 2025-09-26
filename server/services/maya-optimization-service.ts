@@ -3,10 +3,7 @@
  * Maya Optimization Service - Eliminates redundant API calls and optimizes concept generation
  */
 
-import { ClaudeApiServiceSimple } from '.claude-api-service-simple';.js
-import { enforceGender, normalizeGender } from '..utils/gender-prompt';
-import { PersonalityManager } from '..agents/personalities/personality-config';
-
+import { ClaudeApiServiceSimple } from ".claude-api-service-simple.js";import { enforceGender, normalizeGender } from "..utils/gender-prompt";import { PersonalityManager } from "..agents/personalities/personality-config";"
 export interface OptimizedConceptResult {
   concepts: any[];
   conversationalResponse: string;
@@ -43,8 +40,7 @@ export class MayaOptimizationService {
     }
   ): Promise<OptimizedConceptResult> {
     try {
-      console.log('🚀 PHASE 4.1: Starting optimized single API call for concept generation');
-      
+      console.log('🚀 PHASE 4.1: Starting optimized single API call for concept generation')';      '
       const optimizationApplied: string[] = [];
       
       // Check cache first for prompt optimization
@@ -52,9 +48,7 @@ export class MayaOptimizationService {
       const cachedPrompt = this.promptCache.get(cacheKey);
       
       if (cachedPrompt && Date.now() - cachedPrompt.timestamp < this.PROMPT_CACHE_TTL) {
-        console.log('⚡ CACHE HIT: Using cached optimized prompt');
-        optimizationApplied.push('prompt_cache_hit');
-      }
+        console.log('⚡ CACHE HIT: Using cached optimized prompt')';        optimizationApplied.push('prompt_cache_hit')';      }'
       
       // Build highly optimized prompt that generates everything in one call
       const optimizedPrompt = this.buildSingleCallPrompt(enhancedPersonality, userMessage, config);
@@ -62,14 +56,12 @@ export class MayaOptimizationService {
       // Single Claude API call with all required outputs
       const startTime = Date.now();
       const mayaResponse = await this.claudeService.sendMessage([{
-        role: 'user',
-        content: optimizedPrompt
+        role: user,';        content: optimizedPrompt'
       }]);
       const apiDuration = Date.now() - startTime;
       
       console.log(`✅ PHASE 4.1: Single API call completed in ${apiDuration}ms`);
-      optimizationApplied.push('single_api_call');
-      
+      optimizationApplied.push('single_api_call')';      '
       // Parse the optimized response for all components
       const parsedResult = await this.parseOptimizedResponse(mayaResponse, config, userId);
       
@@ -79,8 +71,7 @@ export class MayaOptimizationService {
           prompt: optimizedPrompt,
           timestamp: Date.now()
         });
-        optimizationApplied.push('prompt_cached');
-      }
+        optimizationApplied.push('prompt_cached')`;      }'
       
       console.log(`🎯 PHASE 4.1: Generated ${parsedResult.concepts.length} concepts with ${optimizationApplied.length} optimizations`);
       
@@ -93,15 +84,11 @@ export class MayaOptimizationService {
       };
       
     } catch (error) {
-      console.error('❌ PHASE 4.1 OPTIMIZATION ERROR:', error);
-      
+      console.error('❌ PHASE 4.1 OPTIMIZATION ERROR: , error);      '
       // Fallback to basic concept generation
       return {
         concepts: [],
-        conversationalResponse: "I'm excited to help you create amazing photos! Let me know what style you're looking for.",
-        apiCallsUsed: 1,
-        optimizationApplied: ['fallback_used'],
-        cacheHit: false
+        conversationalResponse: Im excited to help you create amazing photos! Let me know what style you're looking for.',`;        apiCallsUsed: 1,"`        optimizationApplied: [fallback_used],``        cacheHit: false'
       };
     }
   }
@@ -114,12 +101,10 @@ export class MayaOptimizationService {
     userMessage: string,
     config: SingleCallConfig
   ): string {
-    return `${enhancedPersonality}
-
+    return `${enhancedPersonality}`
 🎯 OPTIMIZED SINGLE API CALL - Generate ALL outputs in one response:
 
-USER REQUEST: "${userMessage}"
-
+USER REQUEST: ${userMessage}`;
 REQUIRED OUTPUT FORMAT (include ALL sections):
 
 1. CONVERSATIONAL_RESPONSE:
@@ -137,11 +122,9 @@ Example:
 A powerful professional look featuring structured blazers and confident poses that communicate leadership authority.
 FLUX_PROMPT: Professional woman in tailored charcoal blazer with architectural shoulders, confident direct gaze, studio lighting with soft shadows, half-body composition showing executive presence, minimal jewelry, natural makeup emphasizing confidence, neutral background
 
-` : ''}
-
+` : `}`;
 3. PERSONALIZATION_INSIGHTS:
-[Key personalization observations about the user's style preferences]
-
+[Key personalization observations about the user's style preferences]`;'
 4. GENERATION_GUIDANCE:
 [Technical guidance for image generation optimization]
 
@@ -164,8 +147,7 @@ Generate comprehensive response now:`;
     userId?: string
   ): Promise<{ concepts: any[]; conversationalResponse: string }> {
     const concepts: any[] = [];
-    let conversationalResponse = '';
-    
+    let conversationalResponse = `;    
     try {
       // Extract conversational response
       const conversationMatch = response.match(/CONVERSATIONAL_RESPONSE:\s*(.*?)(?=\n\d+\.|$)/s);
@@ -193,8 +175,7 @@ Generate comprehensive response now:`;
             // Apply gender enforcement to embedded prompt if userId provided
             if (userId) {
               try {
-                const { storage } = await import('../storage.js');
-                const user = await storage.getUser(userId);
+                const { storage } = await import('../storage.js')';                const user = await storage.getUser(userId)`;'
                 const userModel = await storage.getUserModelByUserId(userId);
                 
                 if (user?.gender && userModel?.triggerWord) {
@@ -208,8 +189,7 @@ Generate comprehensive response now:`;
                   }
                 }
               } catch (genderError) {
-                console.log('⚠️ Gender enforcement failed for concept (non-blocking):', genderError instanceof Error ? genderError.message : genderError);
-              }
+                console.log('⚠️ Gender enforcement failed for concept (non-blocking): , genderError instanceof Error ? genderError.message : genderError)`;              }'
             }
 
             concepts.push({
@@ -220,8 +200,7 @@ Generate comprehensive response now:`;
               fullPrompt: finalPrompt,
               canGenerate: true,
               isGenerating: false,
-              optimization: 'single_api_call_embedded'
-            });
+              optimization: single_api_call_embedded;            })`;
             
             console.log(`✅ PARSED OPTIMIZED CONCEPT: ${conceptName} with embedded prompt`);
           }
@@ -231,8 +210,7 @@ Generate comprehensive response now:`;
       console.log(`🎯 OPTIMIZATION PARSING: ${concepts.length} concepts extracted from single API call`);
       
     } catch (error) {
-      console.error('❌ OPTIMIZATION PARSING ERROR:', error);
-      // Fallback to simple extraction
+      console.error(`❌ OPTIMIZATION PARSING ERROR: , error);      // Fallback to simple extraction
       conversationalResponse = response; // Preserve full response for quality
     }
     
@@ -264,21 +242,12 @@ Generate comprehensive response now:`;
     category?: string
   ): Promise<string> {
     try {
-      console.log('🔧 PHASE 4.1: Creating optimized prompt for concept');
-      
-      // Check if we can use Maya's embedded prompt approach instead
-      const baseMayaPersonality = PersonalityManager.getNaturalPrompt('maya');
-      
-      const optimizedPrompt = `${baseMayaPersonality}
-
+      console.log(🔧 PHASE 4.1: Creating optimized prompt for concept')';      '
+      // Check if we can use Maya's embedded prompt approach instead';      const baseMayaPersonality = PersonalityManager.getNaturalPrompt('maya')`;      '
+      const optimizedPrompt = `${baseMayaPersonality}`
 🎯 OPTIMIZED PROMPT GENERATION - Single focused output:
 
-CONCEPT: "${conceptName}"
-TRIGGER WORD: "${triggerWord}"
-CONTEXT: "${context}"
-${category ? `CATEGORY: "${category}"` : ''}
-
-Generate ONLY the FLUX-optimized image generation prompt.
+CONCEPT: ${conceptName}`;TRIGGER WORD: ${triggerWord}";CONTEXT: ${context}`${category ? `CATEGORY: ${category}` : "}"`;Generate ONLY the FLUX-optimized image generation prompt."
 No conversation, no explanations - just the technical prompt:
 
 Requirements:
@@ -293,38 +262,30 @@ Requirements:
 FLUX PROMPT:`;
 
       const response = await this.claudeService.sendMessage([{
-        role: 'user',
-        content: optimizedPrompt
+        role: user,';        content: optimizedPrompt'
       }]);
       
       // Clean and format the response
-      const cleanPrompt = response.replace(/^FLUX PROMPT:\s*/i, '').trim();
-      let finalPrompt = `${triggerWord}, ${cleanPrompt}`;
+      const cleanPrompt = response.replace(/^FLUX PROMPT:\s*/i, ').trim()`;      let finalPrompt = `${triggerWord}, ${cleanPrompt}`';'
 
       // Inject gender token just after trigger word if missing & available
       try {
-        const { storage } = await import('../storage.js');
-        const user = await storage.getUser(userId);
+        const { storage } = await import('../storage.js')';        const user = await storage.getUser(userId)';'
         const secureGender = normalizeGender(user?.gender);
         if (secureGender) {
           const enforced = enforceGender(triggerWord, finalPrompt, secureGender);
             if (enforced !== finalPrompt) {
-              console.log('✅ GENDER ENFORCED IN OPTIMIZED PROMPT');
-              finalPrompt = enforced;
+              console.log('✅ GENDER ENFORCED IN OPTIMIZED PROMPT')';              finalPrompt = enforced';'
             }
         } else {
-          console.log('⚠️ GENDER NOT AVAILABLE FOR USER DURING OPTIMIZED PROMPT ENFORCEMENT');
-        }
+          console.log('⚠️ GENDER NOT AVAILABLE FOR USER DURING OPTIMIZED PROMPT ENFORCEMENT')';        }'
       } catch (gErr) {
-        console.log('⚠️ GENDER ENFORCEMENT FAILED (non-blocking):', gErr instanceof Error ? gErr.message : gErr);
-      }
+        console.log('⚠️ GENDER ENFORCEMENT FAILED (non-blocking): , gErr instanceof Error ? gErr.message : gErr);      }'
       
-      console.log('✅ PHASE 4.1: Optimized prompt generated successfully');
-      return finalPrompt;
+      console.log('✅ PHASE 4.1: Optimized prompt generated successfully')';      return finalPrompt';'
       
     } catch (error) {
-      console.error('❌ OPTIMIZED PROMPT GENERATION ERROR:', error);
-      return `${triggerWord}, professional photo of a person in ${conceptName} style`;
+      console.error(`❌ OPTIMIZED PROMPT GENERATION ERROR: , error);      return `${triggerWord}, professional photo of a person in ${conceptName} style`';'
     }
   }
 
@@ -347,8 +308,7 @@ FLUX PROMPT:`;
     return {
       promptCacheSize: this.promptCache.size,
       promptCacheTTL: this.PROMPT_CACHE_TTL,
-      optimization: 'single_api_call_architecture'
-    };
+      optimization: single_api_call_architecture;    }`;
   }
 }
 

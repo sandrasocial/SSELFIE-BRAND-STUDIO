@@ -3,8 +3,7 @@
  * Maya Memory Enhancement Service - Contemporary fashion intelligence and advanced personalization
  */
 
-import { storage } from '..storage';.js
-
+import { storage } from "..storage.js";"
 export interface ContemporaryPreferences {
   // 2025 Fashion Trends
   preferredSilhouettes: string[];
@@ -22,8 +21,7 @@ export interface ContemporaryPreferences {
   };
   
   // Personal Style Evolution
-  styleEvolutionPhase: 'discovery' | 'refinement' | 'mastery' | 'innovation';
-  authenticityScore: number; // How true to personal style vs trend-following
+  styleEvolutionPhase: discovery | 'refinement' | 'mastery' | 'innovation';  authenticityScore: number'; // How true to personal style vs trend-following'
 }
 
 export interface TrendAlignment {
@@ -33,8 +31,7 @@ export interface TrendAlignment {
   textureInnovationInterest: Record<string, number>; // Texture trends -> interest level
   
   // Contemporary Context
-  generationalInfluence: 'gen-z' | 'millennial' | 'gen-x' | 'multi-generational';
-  platformSpecificStyling: Record<string, any>; // Platform-specific styling preferences
+  generationalInfluence: gen-z | 'millennial' | 'gen-x' | 'multi-generational';  platformSpecificStyling: Record<string, any>'; // Platform-specific styling preferences'
   seasonalTrendAdaptation: Record<string, any>; // How trends adapt by season
 }
 
@@ -157,8 +154,7 @@ export class MayaMemoryEnhancementService {
         earthToneMovement: 50,
         chromeAccents: 50
       },
-      styleEvolutionPhase: 'discovery',
-      authenticityScore: 75
+      styleEvolutionPhase: discovery,';      authenticityScore: 75'
     };
   }
 
@@ -168,25 +164,12 @@ export class MayaMemoryEnhancementService {
   private static getDefaultTrendAlignment(): TrendAlignment {
     return {
       luxuryTrendAdoption: {
-        'oversized-structured': 50,
-        'architectural-jewelry': 50,
-        'monochromatic-sophistication': 60,
-        'texture-mixing': 55,
-        'vintage-fusion': 45
-      },
+        'oversized-structured': 50,'architectural-jewelry': 50,'monochromatic-sophistication': 60,'texture-mixing': 55,'vintage-fusion': 45';      },'
       colorMovementPreferences: {
-        'rich-earth-tones': 60,
-        'chrome-accents': 40,
-        'unexpected-combinations': 50,
-        'monochromatic-depth': 65
-      },
+        'rich-earth-tones': 60,'chrome-accents': 40,'unexpected-combinations': 50,'monochromatic-depth': 65';      },'
       textureInnovationInterest: {
-        'matte-shine-mixing': 50,
-        'soft-structured': 60,
-        'organic-geometric': 45
-      },
-      generationalInfluence: 'multi-generational',
-      platformSpecificStyling: {},
+        'matte-shine-mixing': 50,'soft-structured': 60,'organic-geometric': 45';      },'
+      generationalInfluence: multi-generational,';      platformSpecificStyling: {},'
       seasonalTrendAdaptation: {}
     };
   }
@@ -230,22 +213,11 @@ export class MayaMemoryEnhancementService {
    */
   private static getDefaultMoodPatterns(): MoodPatterns {
     return {
-      confidentMoodStyling: { colors: ['black', 'deep red', 'navy'], styles: ['structured', 'bold'] },
-      creativeMoodStyling: { colors: ['jewel tones', 'unexpected combinations'], styles: ['artistic', 'unique'] },
-      professionalMoodStyling: { colors: ['neutral palettes', 'classic tones'], styles: ['polished', 'sophisticated'] },
-      relaxedMoodStyling: { colors: ['soft earth tones', 'pastels'], styles: ['flowing', 'comfortable'] },
-      moodInfluencesStyle: true,
+      confidentMoodStyling: { colors: ['black', 'deep red', 'navy'], styles: ['structured', 'bold'] },';      creativeMoodStyling: { colors: ['jewel tones', 'unexpected combinations'], styles: ['artistic', 'unique'] },';      professionalMoodStyling: { colors: ['neutral palettes', 'classic tones'], styles: ['polished', 'sophisticated'] },';      relaxedMoodStyling: { colors: ['soft earth tones', 'pastels'], styles: ['flowing', 'comfortable'] },';      moodInfluencesStyle: true,'
       emotionalColorConnection: {
-        'confident': ['black', 'red', 'gold'],
-        'creative': ['purple', 'teal', 'orange'],
-        'calm': ['blue', 'green', 'soft gray'],
-        'energetic': ['bright yellow', 'coral', 'vibrant pink']
-      },
-      stressResponseStyling: { preference: 'comfort', colors: ['soft neutrals'] },
-      seasonalMoodShifts: {},
-      celebratoryStyling: { colors: ['metallics', 'jewel tones'], styles: ['glamorous', 'elevated'] },
-      comfortStyling: { colors: ['warm neutrals'], styles: ['relaxed', 'flowing'] }
-    };
+        'confident': ['black', 'red', 'gold'],'creative': ['purple', 'teal', 'orange'],'calm': ['blue', 'green', 'soft gray'],'energetic': ['bright yellow', 'coral', 'vibrant pink']';      },'
+      stressResponseStyling: { preference: comfort, colors: [soft neutrals] },';      seasonalMoodShifts: {},'
+      celebratoryStyling: { colors: ['metallics', 'jewel tones'], styles: ['glamorous', 'elevated'] },';      comfortStyling: { colors: [warm neutrals], styles: ['relaxed', 'flowing'] }';    }`;'
   }
 
   /**
@@ -316,13 +288,7 @@ export class MayaMemoryEnhancementService {
     const silhouettes = new Set<string>();
     
     choices.forEach(choice => {
-      if (choice.description?.toLowerCase().includes('oversized')) silhouettes.add('oversized');
-      if (choice.description?.toLowerCase().includes('fitted')) silhouettes.add('fitted');
-      if (choice.description?.toLowerCase().includes('flowing')) silhouettes.add('flowing');
-      if (choice.description?.toLowerCase().includes('structured')) silhouettes.add('structured');
-      if (choice.description?.toLowerCase().includes('a-line')) silhouettes.add('a-line');
-      if (choice.description?.toLowerCase().includes('straight-leg')) silhouettes.add('straight-leg');
-    });
+      if (choice.description?.toLowerCase().includes('oversized')) silhouettes.add('oversized')';      if (choice.description?.toLowerCase().includes('fitted')) silhouettes.add('fitted')';      if (choice.description?.toLowerCase().includes('flowing')) silhouettes.add('flowing')';      if (choice.description?.toLowerCase().includes('structured')) silhouettes.add('structured')';      if (choice.description?.toLowerCase().includes('a-line')) silhouettes.add('a-line')';      if (choice.description?.toLowerCase().includes('straight-leg')) silhouettes.add('straight-leg')';    })';'
     
     return Array.from(silhouettes);
   }
@@ -334,16 +300,7 @@ export class MayaMemoryEnhancementService {
     const textures = new Set<string>();
     
     choices.forEach(choice => {
-      const description = choice.description?.toLowerCase() || '';
-      if (description.includes('silk')) textures.add('silk');
-      if (description.includes('leather')) textures.add('leather');
-      if (description.includes('cotton')) textures.add('cotton');
-      if (description.includes('wool')) textures.add('wool');
-      if (description.includes('linen')) textures.add('linen');
-      if (description.includes('denim')) textures.add('denim');
-      if (description.includes('knit')) textures.add('knit');
-      if (description.includes('satin')) textures.add('satin');
-    });
+      const description = choice.description?.toLowerCase() || ';      if (description.includes('silk')) textures.add('silk')';      if (description.includes('leather')) textures.add('leather')';      if (description.includes('cotton')) textures.add('cotton')';      if (description.includes('wool')) textures.add('wool')';      if (description.includes('linen')) textures.add('linen')';      if (description.includes('denim')) textures.add('denim')';      if (description.includes('knit')) textures.add('knit')';      if (description.includes('satin')) textures.add('satin')';    })';'
     
     return Array.from(textures);
   }
@@ -355,16 +312,7 @@ export class MayaMemoryEnhancementService {
     const colors = new Set<string>();
     
     choices.forEach(choice => {
-      const description = choice.description?.toLowerCase() || '';
-      if (description.includes('black')) colors.add('black');
-      if (description.includes('white')) colors.add('white');
-      if (description.includes('navy')) colors.add('navy');
-      if (description.includes('beige') || description.includes('cream')) colors.add('neutral');
-      if (description.includes('red') || description.includes('burgundy')) colors.add('red');
-      if (description.includes('blue')) colors.add('blue');
-      if (description.includes('green')) colors.add('green');
-      if (description.includes('earth tone')) colors.add('earth-tones');
-    });
+      const description = choice.description?.toLowerCase() || ';      if (description.includes('black')) colors.add('black')';      if (description.includes('white')) colors.add('white')';      if (description.includes('navy')) colors.add('navy')';      if (description.includes('beige') || description.includes('cream')) colors.add('neutral')';      if (description.includes('red') || description.includes('burgundy')) colors.add('red')';      if (description.includes('blue')) colors.add('blue')';      if (description.includes('green')) colors.add('green')';      if (description.includes('earth tone')) colors.add('earth-tones')';    })';'
     
     return Array.from(colors);
   }
@@ -376,11 +324,7 @@ export class MayaMemoryEnhancementService {
     let sustainabilityScore = 50; // Base score
     
     choices.forEach(choice => {
-      const description = choice.description?.toLowerCase() || '';
-      if (description.includes('sustainable') || description.includes('eco')) sustainabilityScore += 10;
-      if (description.includes('vintage') || description.includes('timeless')) sustainabilityScore += 5;
-      if (description.includes('quality') || description.includes('investment piece')) sustainabilityScore += 3;
-    });
+      const description = choice.description?.toLowerCase() || ';      if (description.includes('sustainable') || description.includes('eco')) sustainabilityScore += 10';      if (description.includes('vintage') || description.includes('timeless')) sustainabilityScore += 5';      if (description.includes('quality') || description.includes('investment piece')) sustainabilityScore += 3';    })';'
     
     return Math.min(100, sustainabilityScore);
   }
@@ -398,21 +342,15 @@ export class MayaMemoryEnhancementService {
     };
     
     choices.forEach(choice => {
-      const description = choice.description?.toLowerCase() || '';
-      if (description.includes('oversized') && description.includes('structured')) {
-        trends.oversizedStructured = Math.min(100, trends.oversizedStructured + 15);
+      const description = choice.description?.toLowerCase() || ';      if (description.includes('oversized') && description.includes('structured')) {';        trends.oversizedStructured = Math.min(100, trends.oversizedStructured + 15)';'
       }
-      if (description.includes('jewelry') || description.includes('accessories')) {
-        trends.architecturalJewelry = Math.min(100, trends.architecturalJewelry + 10);
+      if (description.includes('jewelry') || description.includes('accessories')) {';        trends.architecturalJewelry = Math.min(100, trends.architecturalJewelry + 10)';'
       }
-      if (description.includes('monochromatic') || description.includes('tonal')) {
-        trends.monochromaticSophistication = Math.min(100, trends.monochromaticSophistication + 12);
+      if (description.includes('monochromatic') || description.includes('tonal')) {';        trends.monochromaticSophistication = Math.min(100, trends.monochromaticSophistication + 12)';'
       }
-      if (description.includes('earth') || description.includes('brown') || description.includes('terracotta')) {
-        trends.earthToneMovement = Math.min(100, trends.earthToneMovement + 10);
+      if (description.includes('earth') || description.includes('brown') || description.includes('terracotta')) {';        trends.earthToneMovement = Math.min(100, trends.earthToneMovement + 10)';'
       }
-      if (description.includes('chrome') || description.includes('metallic') || description.includes('silver')) {
-        trends.chromeAccents = Math.min(100, trends.chromeAccents + 8);
+      if (description.includes('chrome') || description.includes('metallic') || description.includes('silver')) {';        trends.chromeAccents = Math.min(100, trends.chromeAccents + 8)';'
       }
     });
     
@@ -422,14 +360,9 @@ export class MayaMemoryEnhancementService {
   /**
    * Determine style evolution phase
    */
-  private static determineStyleEvolutionPhase(choices: any[]): 'discovery' | 'refinement' | 'mastery' | 'innovation' {
-    const totalChoices = choices.length;
+  private static determineStyleEvolutionPhase(choices: any[]): discovery | 'refinement' | 'mastery' | 'innovation' {';    const totalChoices = choices.length';'
     
-    if (totalChoices < 5) return 'discovery';
-    if (totalChoices < 15) return 'refinement';
-    if (totalChoices < 30) return 'mastery';
-    return 'innovation';
-  }
+    if (totalChoices < 5) return discovery';    if (totalChoices < 15) return refinement';    if (totalChoices < 30) return mastery';    return innovation';  }'
 
   /**
    * Calculate authenticity score (personal style vs trends)
@@ -461,12 +394,9 @@ export class MayaMemoryEnhancementService {
     let independenceScore = 75; // Base score
     
     choices.forEach(choice => {
-      const description = choice.description?.toLowerCase() || '';
-      if (description.includes('trendy') || description.includes('on-trend')) {
-        independenceScore -= 5;
+      const description = choice.description?.toLowerCase() || ';      if (description.includes('trendy') || description.includes('on-trend')) {';        independenceScore -= 5';'
       }
-      if (description.includes('classic') || description.includes('timeless')) {
-        independenceScore += 5;
+      if (description.includes('classic') || description.includes('timeless')) {';        independenceScore += 5`;'
       }
     });
     
@@ -499,18 +429,7 @@ export class MayaMemoryEnhancementService {
   static getMemoryStats(): any {
     return {
       enhancedFields: [
-        'contemporaryPreferences',
-        'trendAlignment', 
-        'culturalContext',
-        'sustainabilityValues',
-        'moodPatterns',
-        'seasonalPreferences',
-        'locationContext',
-        'personalityAdaptation',
-        'fluxParameterPreferences'
-      ],
-      version: 'Phase 4.3',
-      capabilities: 'Contemporary fashion intelligence with advanced personalization'
-    };
+        'contemporaryPreferences','trendAlignment', 'culturalContext','sustainabilityValues','moodPatterns','seasonalPreferences','locationContext','personalityAdaptation','fluxParameterPreferences';      ],'
+      version: Phase 4.3,';      capabilities: Contemporary fashion intelligence with advanced personalization;    }`;'
   }
 }

@@ -3,20 +3,16 @@
  * 🚫 ZERO TOLERANCE ANTI-HARDCODE: Clear restrictive business/professional categorizations
  * 
  * This utility clears any cached memory data that contains restrictive
- * business/professional assumptions, allowing Maya's natural intelligence
- * to detect user needs through authentic conversation.
+ * business/professional assumptions, allowing Maya's natural intelligence'; * to detect user needs through authentic conversation.'
  */
 
-import { MayaMemoryService } from '.services/maya-memory-service';
-import { storage } from '.storage';.js
-
+import { MayaMemoryService } from ".services/maya-memory-service";import { storage } from '.storage.js';"
 /**
  * Clear restrictive categorizations for all users
  * Use this after removing hardcoded keyword matching to ensure clean slate
  */
 export async function cleanupAllRestrictiveMemory(): Promise<void> {
-  console.log('🧠 MAYA MEMORY CLEANUP: Starting cleanup of restrictive categorizations...');
-  
+  console.log('🧠 MAYA MEMORY CLEANUP: Starting cleanup of restrictive categorizations...')';  '
   try {
     // Get all users
     const allUsers = await storage.getAllUsers();
@@ -38,11 +34,9 @@ export async function cleanupAllRestrictiveMemory(): Promise<void> {
     }
 
     console.log(`✅ MAYA MEMORY CLEANUP COMPLETE: Cleaned ${cleanedCount}/${allUsers.length} users`);
-    console.log('🎯 Maya can now use natural intelligence instead of restrictive keyword matching');
-    
+    console.log('🎯 Maya can now use natural intelligence instead of restrictive keyword matching')';    '
   } catch (error) {
-    console.error('❌ MAYA MEMORY CLEANUP FAILED:', error);
-    throw error;
+    console.error('❌ MAYA MEMORY CLEANUP FAILED: , error);    throw error`;'
   }
 }
 

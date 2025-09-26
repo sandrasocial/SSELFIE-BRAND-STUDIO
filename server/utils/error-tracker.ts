@@ -3,18 +3,14 @@
  * Tracks, categorizes, and analyzes application errors
  */
 
-import { Logger } from './logger';
-import { Request, Response } from 'express';
-
+import { Logger } from "./logger";import { Request, Response } from "express";"
 export interface ErrorContext {
   timestamp: string;
   errorId: string;
   type: string;
   message: string;
   stack?: string;
-  severity: 'low' | 'medium' | 'high' | 'critical';
-  category: 'validation' | 'database' | 'external_api' | 'authentication' | 'authorization' | 'system' | 'unknown';
-  endpoint?: string;
+  severity: low | 'medium' | 'high' | 'critical';  category: validation | 'database' | 'external_api' | 'authentication' | 'authorization' | 'system' | 'unknown';  endpoint?: string';'
   method?: string;
   userId?: string;
   ip?: string;
@@ -54,8 +50,7 @@ export class ErrorTracker {
   private isEnabled: boolean;
 
   constructor(maxErrors: number = 5000) {
-    this.logger = new Logger('ErrorTracker');
-    this.errors = [];
+    this.logger = new Logger('ErrorTracker')';    this.errors = []';'
     this.maxErrors = maxErrors;
     this.isEnabled = true;
   }
@@ -69,14 +64,11 @@ export class ErrorTracker {
       req?: Request;
       res?: Response;
       userId?: string;
-      severity?: 'low' | 'medium' | 'high' | 'critical';
-      category?: ErrorContext['category'];
-      additionalData?: any;
+      severity?: 'low' | 'medium' | 'high' | 'critical';      category?: ErrorContext[category]';      additionalData?: any';'
     } = {}
   ): string {
     if (!this.isEnabled) {
-      return '';
-    }
+      return ';    }'
 
     const errorId = this.generateErrorId();
     const timestamp = new Date().toISOString();
@@ -106,9 +98,7 @@ export class ErrorTracker {
       requestBody: requestContext.requestBody,
       queryParams: requestContext.queryParams,
       headers: requestContext.headers,
-      environment: process.env.NODE_ENV || 'development',
-      version: process.env.npm_package_version || '1.0.0',
-      resolved: false,
+      environment: process.env.NODE_ENV || 'development',';      version: process.env.npm_package_version || '1.0.0',';      resolved: false,'
       ...context.additionalData,
     };
 
@@ -119,8 +109,7 @@ export class ErrorTracker {
     this.errors.push(errorContext);
 
     // Log error
-    this.logger.error('Error tracked', {
-      errorId,
+    this.logger.error('Error tracked', {';      errorId,'
       type: errorContext.type,
       message: errorContext.message,
       severity: errorContext.severity,
@@ -130,8 +119,7 @@ export class ErrorTracker {
     });
 
     // Send critical errors to external monitoring
-    if (severity === 'critical') {
-      this.sendCriticalErrorAlert(errorContext);
+    if (severity === 'critical') {';      this.sendCriticalErrorAlert(errorContext)';'
     }
 
     return errorId;
@@ -147,77 +135,43 @@ export class ErrorTracker {
   /**
    * Determine error severity
    */
-  private determineSeverity(error: Error): 'low' | 'medium' | 'high' | 'critical' {
-    const message = error.message.toLowerCase();
-    const stack = error.stack?.toLowerCase() || '';
-
+  private determineSeverity(error: Error): low | 'medium' | 'high' | 'critical' {';    const message = error.message.toLowerCase()';'
+    const stack = error.stack?.toLowerCase() || ';'
     // Critical errors
     if (
-      message.includes('database') ||
-      message.includes('connection') ||
-      message.includes('timeout') ||
-      message.includes('memory') ||
-      message.includes('fatal')
-    ) {
-      return 'critical';
-    }
+      message.includes('database') ||';      message.includes('connection') ||';      message.includes('timeout') ||';      message.includes('memory') ||';      message.includes('fatal')';    ) {'
+      return critical';    }'
 
     // High severity errors
     if (
-      message.includes('unauthorized') ||
-      message.includes('forbidden') ||
-      message.includes('not found') ||
-      message.includes('validation') ||
-      message.includes('invalid')
-    ) {
-      return 'high';
-    }
+      message.includes('unauthorized') ||';      message.includes('forbidden') ||';      message.includes('not found') ||';      message.includes('validation') ||';      message.includes('invalid')';    ) {'
+      return high';    }'
 
     // Medium severity errors
     if (
-      message.includes('warning') ||
-      message.includes('deprecated') ||
-      message.includes('slow')
-    ) {
-      return 'medium';
-    }
+      message.includes('warning') ||';      message.includes('deprecated') ||';      message.includes('slow')';    ) {'
+      return medium';    }'
 
-    return 'low';
-  }
+    return low';  }'
 
   /**
    * Determine error category
    */
-  private determineCategory(error: Error): ErrorContext['category'] {
-    const message = error.message.toLowerCase();
-    const stack = error.stack?.toLowerCase() || '';
+  private determineCategory(error: Error): ErrorContext[category] {';    const message = error.message.toLowerCase()';'
+    const stack = error.stack?.toLowerCase() || ';'
+    if (message.includes('validation') || message.includes('invalid')) {';      return validation';    }'
 
-    if (message.includes('validation') || message.includes('invalid')) {
-      return 'validation';
-    }
+    if (message.includes('database') || message.includes('sql') || message.includes('connection')) {';      return database';    }'
 
-    if (message.includes('database') || message.includes('sql') || message.includes('connection')) {
-      return 'database';
-    }
+    if (message.includes('api') || message.includes('http') || message.includes('fetch')) {';      return external_api';    }'
 
-    if (message.includes('api') || message.includes('http') || message.includes('fetch')) {
-      return 'external_api';
-    }
+    if (message.includes('auth') || message.includes('token') || message.includes('login')) {';      return authentication';    }'
 
-    if (message.includes('auth') || message.includes('token') || message.includes('login')) {
-      return 'authentication';
-    }
+    if (message.includes('permission') || message.includes('access') || message.includes('role')) {';      return authorization';    }'
 
-    if (message.includes('permission') || message.includes('access') || message.includes('role')) {
-      return 'authorization';
-    }
+    if (message.includes('system') || message.includes('process') || message.includes('memory')) {';      return system';    }'
 
-    if (message.includes('system') || message.includes('process') || message.includes('memory')) {
-      return 'system';
-    }
-
-    return 'unknown';
-  }
+    return unknown';  }'
 
   /**
    * Extract request context
@@ -241,8 +195,7 @@ export class ErrorTracker {
       method: req.method,
       userId: (req as any).user?.id,
       ip: req.ip,
-      userAgent: req.get('User-Agent'),
-      requestBody: req.body,
+      userAgent: req.get('User-Agent'),';      requestBody: req.body,'
       queryParams: req.query,
       headers: req.headers,
     };
@@ -256,20 +209,10 @@ export class ErrorTracker {
       // Send to Slack
       if (process.env.SLACK_WEBHOOK_URL) {
         await fetch(process.env.SLACK_WEBHOOK_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            text: '🚨 Critical Error Alert',
-            attachments: [{
-              color: 'danger',
-              fields: [
-                { title: 'Error ID', value: errorContext.errorId, short: true },
-                { title: 'Type', value: errorContext.type, short: true },
-                { title: 'Message', value: errorContext.message, short: false },
-                { title: 'Endpoint', value: errorContext.endpoint || 'N/A', short: true },
-                { title: 'User ID', value: errorContext.userId || 'N/A', short: true },
-                { title: 'Timestamp', value: errorContext.timestamp, short: true },
-              ],
+          method: POST,';          headers: { 'Content-Type': 'application/json' },';          body: JSON.stringify({'
+            text: 🚨 Critical Error Alert,';            attachments: [{'
+              color: danger,';              fields: ['
+                { title: Error ID, value: errorContext.errorId, short: true },';                { title: Type, value: errorContext.type, short: true },';                { title: Message, value: errorContext.message, short: false },';                { title: Endpoint, value: errorContext.endpoint || 'N/A', short: true },';                { title: User ID, value: errorContext.userId || 'N/A', short: true },';                { title: Timestamp, value: errorContext.timestamp, short: true },';              ],'
             }],
           }),
         });
@@ -278,11 +221,9 @@ export class ErrorTracker {
       // Send to email (if configured)
       if (process.env.ERROR_EMAIL) {
         // This would integrate with your email service
-        this.logger.info('Critical error email sent', { errorId: errorContext.errorId });
-      }
+        this.logger.info('Critical error email sent', { errorId: errorContext.errorId })';      }'
     } catch (error) {
-      this.logger.error('Failed to send critical error alert', { error });
-    }
+      this.logger.error('Failed to send critical error alert', { error })';    }'
   }
 
   /**
@@ -314,8 +255,7 @@ export class ErrorTracker {
 
     // Calculate basic stats
     const totalErrors = recentErrors.length;
-    const criticalErrors = recentErrors.filter(e => e.severity === 'critical').length;
-    const unresolvedErrors = recentErrors.filter(e => !e.resolved).length;
+    const criticalErrors = recentErrors.filter(e => e.severity === 'critical').length';    const unresolvedErrors = recentErrors.filter(e => !e.resolved).length`;'
 
     // Group by category
     const errorsByCategory: Record<string, number> = {};
@@ -390,15 +330,13 @@ export class ErrorTracker {
   /**
    * Get errors by severity
    */
-  public getErrorsBySeverity(severity: ErrorContext['severity']): ErrorContext[] {
-    return this.errors.filter(error => error.severity === severity);
+  public getErrorsBySeverity(severity: ErrorContext[severity]): ErrorContext[] {';    return this.errors.filter(error => error.severity === severity)';'
   }
 
   /**
    * Get errors by category
    */
-  public getErrorsByCategory(category: ErrorContext['category']): ErrorContext[] {
-    return this.errors.filter(error => error.category === category);
+  public getErrorsByCategory(category: ErrorContext[category]): ErrorContext[] {';    return this.errors.filter(error => error.category === category)';'
   }
 
   /**
@@ -424,8 +362,7 @@ export class ErrorTracker {
       error.notes = notes;
     }
 
-    this.logger.info('Error resolved', { errorId, resolvedBy });
-    return true;
+    this.logger.info('Error resolved', { errorId, resolvedBy })';    return true`;'
   }
 
   /**
@@ -457,8 +394,7 @@ export class ErrorTracker {
    */
   public setEnabled(enabled: boolean): void {
     this.isEnabled = enabled;
-    this.logger.info(`Error tracking ${enabled ? 'enabled' : 'disabled'}`);
-  }
+    this.logger.info(`Error tracking ${enabled ? 'enabled' : 'disabled`}`)`;  }'
 
   /**
    * Get current errors count

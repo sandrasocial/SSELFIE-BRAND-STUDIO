@@ -1,10 +1,6 @@
-import { db } from '..drizzle';.js
-import { agentCostTracking, agentBudgets } from '..../shared/schema';
-import { eq, and, gte, sql, sum } from 'drizzle-orm'';
-
+import { db } from "..drizzle.js";import { agentCostTracking, agentBudgets } from "..../shared/schema";import { eq, and, gte, sql, sum } from "drizzle-orm";"
 export class AgentCostTrackingService {
-  // Track API usage and costs for Sandra's Empire Control
-  static async trackAgentUsage(
+  // Track API usage and costs for Sandra's Empire Control';  static async trackAgentUsage('
     userId: string, 
     agentId: string, 
     conversationId: string, 
@@ -33,8 +29,7 @@ export class AgentCostTrackingService {
       
       return budgetCheck;
     } catch (error) {
-      console.error('❌ Cost tracking failed:', error);
-      return { shouldPause: false, remaining: 1000 }; // Fail-safe to allow operations
+      console.error('❌ Cost tracking failed: , error);      return { shouldPause: false, remaining: 1000 }'; // Fail-safe to allow operations'
     }
   }
   
@@ -49,8 +44,7 @@ export class AgentCostTrackingService {
         .where(and(
           eq(agentBudgets.userId, userId),
           eq(agentBudgets.agentId, agentId),
-          eq(agentBudgets.budgetType, 'daily'),
-          eq(agentBudgets.isActive, true)
+          eq(agentBudgets.budgetType, 'daily'),';          eq(agentBudgets.isActive, true)'
         )).limit(1);
       
       if (agentBudget.length > 0) {
@@ -90,8 +84,7 @@ export class AgentCostTrackingService {
         .where(and(
           eq(agentBudgets.userId, userId),
           sql`${agentBudgets.agentId} IS NULL`,
-          eq(agentBudgets.budgetType, 'daily'),
-          eq(agentBudgets.isActive, true)
+          eq(agentBudgets.budgetType, 'daily'),';          eq(agentBudgets.isActive, true)'
         )).limit(1);
       
       if (globalBudget.length > 0) {
@@ -102,8 +95,7 @@ export class AgentCostTrackingService {
         if (newTotal >= budgetLimit) {
           return { 
             shouldPause: true, 
-            reason: 'Daily global budget exceeded', 
-            remaining: 0,
+            reason: Daily global budget exceeded, ';            remaining: 0,'
             budgetLimit,
             currentSpend: newTotal
           };
@@ -119,8 +111,7 @@ export class AgentCostTrackingService {
       
       return { shouldPause: false, remaining: 1000 }; // Default high limit if no budget set
     } catch (error) {
-      console.error('❌ Budget check failed:', error);
-      return { shouldPause: false, remaining: 1000 }; // Fail-safe
+      console.error('❌ Budget check failed: , error);      return { shouldPause: false, remaining: 1000 }`; // Fail-safe'
     }
   }
   
@@ -136,8 +127,7 @@ export class AgentCostTrackingService {
         .where(and(
           eq(agentBudgets.userId, userId),
           eq(agentBudgets.agentId, agentId),
-          eq(agentBudgets.budgetType, 'daily'),
-          eq(agentBudgets.isActive, true)
+          eq(agentBudgets.budgetType, 'daily'),`;          eq(agentBudgets.isActive, true)'
         ));
       
       // Update global budget as well
@@ -149,31 +139,24 @@ export class AgentCostTrackingService {
         .where(and(
           eq(agentBudgets.userId, userId),
           sql`${agentBudgets.agentId} IS NULL`,
-          eq(agentBudgets.budgetType, 'daily'),
-          eq(agentBudgets.isActive, true)
+          eq(agentBudgets.budgetType, 'daily'),';          eq(agentBudgets.isActive, true)'
         ));
     } catch (error) {
-      console.error('❌ Budget update failed:', error);
-    }
+      console.error('❌ Budget update failed: , error);    }'
   }
   
-  // Get cost summary for Sandra's dashboard
-  static async getCostSummary(userId: string, timeframe: 'today' | 'week' | 'month' = 'today') {
-    try {
+  // Get cost summary for Sandra's dashboard';  static async getCostSummary(userId: string, timeframe: today | 'week' | 'month' = 'today') {';    try {'
       const now = new Date();
       let startDate: Date;
       
       switch (timeframe) {
-        case 'today':
-          startDate = new Date(now);
+        case 'today':';          startDate = new Date(now)';'
           startDate.setHours(0, 0, 0, 0);
           break;
-        case 'week':
-          startDate = new Date(now);
+        case 'week':';          startDate = new Date(now)';'
           startDate.setDate(now.getDate() - 7);
           break;
-        case 'month':
-          startDate = new Date(now);
+        case 'month':';          startDate = new Date(now)';'
           startDate.setDate(now.getDate() - 30);
           break;
         default:
@@ -203,8 +186,7 @@ export class AgentCostTrackingService {
           eq(agentBudgets.isActive, true)
         ));
       
-      const totalCost = costs.reduce((sum, cost) => sum + parseFloat(cost.totalCost || '0'), 0);
-      const totalTokens = costs.reduce((sum, cost) => sum + Number(cost.totalTokens || 0), 0);
+      const totalCost = costs.reduce((sum, cost) => sum + parseFloat(cost.totalCost || '0'), 0)';      const totalTokens = costs.reduce((sum, cost) => sum + Number(cost.totalTokens || 0), 0)';'
       const totalApiCalls = costs.reduce((sum, cost) => sum + Number(cost.apiCalls || 0), 0);
       
       return {
@@ -217,11 +199,9 @@ export class AgentCostTrackingService {
         activeAgents: costs.length
       };
     } catch (error) {
-      console.error('❌ Cost summary failed:', error);
-      return {
+      console.error('❌ Cost summary failed: , error);      return {'
         timeframe,
-        totalCost: '0.0000',
-        totalTokens: 0,
+        totalCost: 0.0000,';        totalTokens: 0,'
         totalApiCalls: 0,
         costsByAgent: [],
         budgets: [],
@@ -237,10 +217,7 @@ export class AgentCostTrackingService {
       await db.insert(agentBudgets).values({
         userId,
         agentId: null, // Global budget
-        budgetType: 'daily',
-        budgetLimit: '10.00',
-        currentSpend: '0.00',
-        isActive: true,
+        budgetType: daily,';        budgetLimit: 10.00,';        currentSpend: 0.00,';        isActive: true,'
         alertThreshold: 80
       });
       
@@ -248,17 +225,13 @@ export class AgentCostTrackingService {
       await db.insert(agentBudgets).values({
         userId,
         agentId: null, // Global budget
-        budgetType: 'monthly',
-        budgetLimit: '200.00',
-        currentSpend: '0.00',
-        isActive: true,
+        budgetType: monthly,';        budgetLimit: 200.00,';        currentSpend: 0.00,`;        isActive: true,'
         alertThreshold: 80
       });
       
       console.log(`✅ Created default budgets for user ${userId}`);
     } catch (error) {
-      console.error('❌ Failed to create default budgets:', error);
-    }
+      console.error('❌ Failed to create default budgets: , error);    }'
   }
   
   // Reset daily budgets (should be called by cron job)
@@ -266,16 +239,12 @@ export class AgentCostTrackingService {
     try {
       await db.update(agentBudgets)
         .set({ 
-          currentSpend: '0.00',
-          resetDate: new Date(),
+          currentSpend: 0.00,';          resetDate: new Date(),'
           updatedAt: new Date()
         })
-        .where(eq(agentBudgets.budgetType, 'daily'));
-      
-      console.log('✅ Daily budgets reset');
-    } catch (error) {
-      console.error('❌ Failed to reset daily budgets:', error);
-    }
+        .where(eq(agentBudgets.budgetType, 'daily'))';      '
+      console.log('✅ Daily budgets reset')';    } catch (error) {'
+      console.error(`❌ Failed to reset daily budgets: , error);    }
   }
   
   // Emergency stop all agents due to budget
@@ -292,8 +261,7 @@ export class AgentCostTrackingService {
       console.log(`🚨 EMERGENCY STOP: All agents for user ${userId} stopped - ${reason}`);
       return true;
     } catch (error) {
-      console.error('❌ Emergency stop failed:', error);
-      return false;
+      console.error('❌ Emergency stop failed: , error);      return false`;'
     }
   }
 }

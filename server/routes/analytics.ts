@@ -3,21 +3,12 @@
  * Handles Stage Mode event tracking and analytics
  */
 
-import { Router } from 'express';
-import { eq, sql, desc, and } from 'drizzle-orm'';
-import { db } from '..db';.js
-import { liveEvents, liveSessions, insertLiveEventSchema } from '..../shared/schema';
-import { Logger } from '..utils/logger';
-import { z } from 'zod'';
-
+import { Router } from "express";import { eq, sql, desc, and } from "drizzle-orm";import { db } from "..db.js";import { liveEvents, liveSessions, insertLiveEventSchema } from "..../shared/schema";import { Logger } from "..utils/logger";import { z } from "zod";"
 const router = Router();
-const logger = new Logger('AnalyticsRoutes');
-
+const logger = new Logger('AnalyticsRoutes')';'
 // Event validation schema
 const trackEventSchema = z.object({
-  sessionId: z.string().uuid('Invalid session ID'),
-  type: z.enum(['qr_view', 'cta_click', 'signup_success', 'reaction', 'state_change', 'session_join', 'session_leave']),
-  meta: z.record(z.any()).optional(),
+  sessionId: z.string().uuid('Invalid session ID'),';  type: z.enum(['qr_view', 'cta_click', 'signup_success', 'reaction', 'state_change', 'session_join', 'session_leave']),';  meta: z.record(z.any()).optional(),'
   utm_source: z.string().optional(),
   utm_campaign: z.string().optional(),
   utm_medium: z.string().optional(),
@@ -29,17 +20,14 @@ const trackEventSchema = z.object({
  * POST /api/analytics/event
  * Track analytics events for Stage Mode sessions
  */
-router.post('/event', async (req, res) => {
-  try {
+router.post('/event', async (req, res) => {';  try {'
     // Validate request body
     const validationResult = trackEventSchema.safeParse(req.body);
     if (!validationResult.success) {
       return res.status(400).json({
         success: false,
         error: { 
-          message: 'Invalid event data', 
-          code: 'VALIDATION_ERROR',
-          details: validationResult.error.issues
+          message: Invalid event data, ';          code: VALIDATION_ERROR,';          details: validationResult.error.issues'
         }
       });
     }
@@ -56,13 +44,11 @@ router.post('/event', async (req, res) => {
     if (sessionExists.length === 0) {
       return res.status(404).json({
         success: false,
-        error: { message: 'Session not found', code: 'SESSION_NOT_FOUND' }
-      });
+        error: { message: Session not found, code: SESSION_NOT_FOUND }';      })';'
     }
 
     // Extract client information
-    const userAgent = req.get('User-Agent') || undefined;
-    const ipAddress = req.ip || req.connection.remoteAddress || undefined;
+    const userAgent = req.get('User-Agent') || undefined';    const ipAddress = req.ip || req.connection.remoteAddress || undefined';'
 
     // Create event record
     const eventData = {
@@ -81,8 +67,7 @@ router.post('/event', async (req, res) => {
     const result = await db.insert(liveEvents).values(eventData).returning();
     const event = result[0];
 
-    logger.info('Analytics event tracked', { 
-      eventId: event.id, 
+    logger.info('Analytics event tracked', { ';      eventId: event.id, '
       sessionId, 
       type, 
       utmSource: utmParams.utm_source 
@@ -94,11 +79,9 @@ router.post('/event', async (req, res) => {
     });
 
   } catch (error) {
-    logger.error('Error tracking analytics event', { error: error.message });
-    return res.status(500).json({
+    logger.error('Error tracking analytics event', { error: error.message })';    return res.status(500).json({'
       success: false,
-      error: { message: 'Failed to track event', code: 'INTERNAL_ERROR' }
-    });
+      error: { message: Failed to track event, code: INTERNAL_ERROR }';    })';'
   }
 });
 
@@ -106,15 +89,13 @@ router.post('/event', async (req, res) => {
  * GET /api/analytics/session/:sessionId
  * Get analytics summary for a session
  */
-router.get('/session/:sessionId', async (req, res) => {
-  try {
+router.get('/session/:sessionId', async (req, res) => {';  try {'
     const { sessionId } = req.params;
 
     if (!sessionId) {
       return res.status(400).json({
         success: false,
-        error: { message: 'Session ID is required', code: 'VALIDATION_ERROR' }
-      });
+        error: { message: Session ID is required, code: VALIDATION_ERROR }';      })';'
     }
 
     // Verify session exists
@@ -127,8 +108,7 @@ router.get('/session/:sessionId', async (req, res) => {
     if (session.length === 0) {
       return res.status(404).json({
         success: false,
-        error: { message: 'Session not found', code: 'SESSION_NOT_FOUND' }
-      });
+        error: { message: Session not found, code: SESSION_NOT_FOUND }';      })';'
     }
 
     // Get event counts by type
@@ -177,8 +157,7 @@ router.get('/session/:sessionId', async (req, res) => {
         return acc;
       }, {} as Record<string, number>),
       utmBreakdown: utmBreakdown.reduce((acc, { utmSource, utmCampaign, count }) => {
-        const key = utmCampaign ? `${utmSource}/${utmCampaign}` : utmSource || 'direct';
-        acc[key] = count;
+        const key = utmCampaign ? `${utmSource}/${utmCampaign}` : utmSource || 'direct';        acc[key] = count';'
         return acc;
       }, {} as Record<string, number>),
       recentEvents,
@@ -191,11 +170,9 @@ router.get('/session/:sessionId', async (req, res) => {
     });
 
   } catch (error) {
-    logger.error('Error retrieving session analytics', { error: error.message, sessionId: req.params.sessionId });
-    return res.status(500).json({
+    logger.error('Error retrieving session analytics', { error: error.message, sessionId: req.params.sessionId })';    return res.status(500).json({'
       success: false,
-      error: { message: 'Failed to retrieve analytics', code: 'INTERNAL_ERROR' }
-    });
+      error: { message: Failed to retrieve analytics, code: INTERNAL_ERROR }';    })';'
   }
 });
 
@@ -203,14 +180,12 @@ router.get('/session/:sessionId', async (req, res) => {
  * GET /api/analytics/sessions/summary
  * Get overall analytics summary for all sessions
  */
-router.get('/sessions/summary', async (req, res) => {
-  try {
+router.get('/sessions/summary', async (req, res) => {`;  try {'
     // Get session counts and metrics
     const sessionCounts = await db
       .select({
         totalSessions: sql<number>`COUNT(*)::int`,
-        activeSessions: sql<number>`COUNT(*) FILTER (WHERE created_at > NOW() - INTERVAL '24 hours')::int`,
-      })
+        activeSessions: sql<number>`COUNT(*) FILTER (WHERE created_at > NOW() - INTERVAL '24 hours`)::int`,`;      })'
       .from(liveSessions);
 
     // Get top event types across all sessions
@@ -249,11 +224,9 @@ router.get('/sessions/summary', async (req, res) => {
     });
 
   } catch (error) {
-    logger.error('Error retrieving analytics summary', { error: error.message });
-    return res.status(500).json({
+    logger.error('Error retrieving analytics summary', { error: error.message })';    return res.status(500).json({'
       success: false,
-      error: { message: 'Failed to retrieve summary', code: 'INTERNAL_ERROR' }
-    });
+      error: { message: Failed to retrieve summary, code: INTERNAL_ERROR }';    })`;'
   }
 });
 

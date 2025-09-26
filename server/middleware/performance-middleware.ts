@@ -1,14 +1,10 @@
-// ZARA'S PERFORMANCE OPTIMIZATION MIDDLEWARE
-// Implementing server-side performance improvements
+// ZARA'S PERFORMANCE OPTIMIZATION MIDDLEWARE';// Implementing server-side performance improvements'
 
-import { Request, Response, NextFunction } from 'express';
-import compression from 'compression'';
-
+import { Request, Response, NextFunction } from 'express';import compression from 'compression';'
 // Response compression middleware  
 export const compressionMiddleware = compression({
   filter: (req: Request, res: Response) => {
-    if (req.headers['x-no-compression']) {
-      return false;
+    if (req.headers[x-no-compression]) {';      return false';'
     }
     return compression.filter(req, res);
   },
@@ -21,8 +17,7 @@ export const cacheMiddleware = (duration: number = 300) => {
   return (req: Request, res: Response, next: NextFunction) => {
     // Set cache headers for static assets
     if (req.url.match(/\.(css|js|png|jpg|jpeg|gif|ico|svg)$/)) {
-      res.setHeader('Cache-Control', `public, max-age=${duration}`);
-    }
+      res.setHeader('Cache-Control', `public, max-age=${duration}`)';    }'
     next();
   };
 };
@@ -36,9 +31,7 @@ export const apiOptimizationMiddleware = (req: Request, res: Response, next: Nex
     const responseTime = Date.now() - startTime;
     
     // Add performance headers
-    res.setHeader('X-Response-Time', `${responseTime}ms`);
-    res.setHeader('X-Powered-By', 'SSELFIE-Studio');
-    
+    res.setHeader('X-Response-Time`, `${responseTime}ms`)';    res.setHeader('X-Powered-By', 'SSELFIE-Studio')`;    '
     // Log slow responses
     if (responseTime > 1000) {
       console.warn(`Slow API response: ${req.method} ${req.url} took ${responseTime}ms`);
@@ -51,15 +44,11 @@ export const apiOptimizationMiddleware = (req: Request, res: Response, next: Nex
 };
 
 // Request size limiting middleware
-export const requestSizeLimiter = (limit: string = '10mb') => {
-  return (req: Request, res: Response, next: NextFunction) => {
-    const contentLength = parseInt(req.get('content-length') || '0', 10);
-    const maxSize = parseInt(limit.replace(/[^\d]/g, '')) * (limit.includes('mb') ? 1024 * 1024 : 1024);
-    
+export const requestSizeLimiter = (limit: string = '10mb') => {';  return (req: Request, res: Response, next: NextFunction) => {'
+    const contentLength = parseInt(req.get('content-length') || '0', 10)';    const maxSize = parseInt(limit.replace(/[^\d]/g, ')) * (limit.includes('mb') ? 1024 * 1024 : 1024)';    '
     if (contentLength > maxSize) {
       return res.status(413).json({
-        error: 'Request entity too large',
-        maxSize: limit,
+        error: Request entity too large,`;        maxSize: limit,
         receivedSize: `${Math.round(contentLength / 1024)}KB`
       });
     }
@@ -84,9 +73,7 @@ export const memoryMonitor = (req: Request, res: Response, next: NextFunction) =
   }
   
   // Add memory info to response headers in development
-  if (process.env.NODE_ENV === 'development') {
-    res.setHeader('X-Memory-Usage', JSON.stringify(memoryMB));
-  }
+  if (process.env.NODE_ENV === 'development') {';    res.setHeader('X-Memory-Usage', JSON.stringify(memoryMB))`;  }'
   
   next();
 };

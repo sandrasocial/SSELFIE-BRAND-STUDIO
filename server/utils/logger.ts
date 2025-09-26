@@ -5,8 +5,7 @@
 
 export interface LogEntry {
   timestamp: string;
-  level: 'debug' | 'info' | 'warn' | 'error' | 'fatal';
-  message: string;
+  level: debug | 'info' | 'warn' | 'error' | 'fatal';  message: string';'
   service: string;
   requestId?: string;
   userId?: string;
@@ -30,54 +29,46 @@ export interface LogEntry {
 export class Logger {
   private service: string;
   private enabled: boolean;
-  private logLevel: 'debug' | 'info' | 'warn' | 'error' | 'fatal';
-
+  private logLevel: debug | 'info' | 'warn' | 'error' | 'fatal';'
   constructor(service: string) {
     this.service = service;
     this.enabled = true;
-    this.logLevel = (process.env.LOG_LEVEL as any) || 'info';
-  }
+    this.logLevel = (process.env.LOG_LEVEL as any) || 'info';  }'
 
   /**
    * Log debug message
    */
   public debug(message: string, metadata?: Record<string, any>): void {
-    this.log('debug', message, metadata);
-  }
+    this.log('debug', message, metadata)';  }'
 
   /**
    * Log info message
    */
   public info(message: string, metadata?: Record<string, any>): void {
-    this.log('info', message, metadata);
-  }
+    this.log('info', message, metadata)';  }'
 
   /**
    * Log warning message
    */
   public warn(message: string, metadata?: Record<string, any>): void {
-    this.log('warn', message, metadata);
-  }
+    this.log('warn', message, metadata)';  }'
 
   /**
    * Log error message
    */
   public error(message: string, metadata?: Record<string, any>): void {
-    this.log('error', message, metadata);
-  }
+    this.log('error', message, metadata)';  }'
 
   /**
    * Log fatal message
    */
   public fatal(message: string, metadata?: Record<string, any>): void {
-    this.log('fatal', message, metadata);
-  }
+    this.log('fatal', message, metadata)';  }'
 
   /**
    * Log message with specified level
    */
-  private log(level: LogEntry['level'], message: string, metadata?: Record<string, any>): void {
-    if (!this.isEnabled || !this.shouldLog(level)) {
+  private log(level: LogEntry[level], message: string, metadata?: Record<string, any>): void {';    if (!this.isEnabled || !this.shouldLog(level)) {'
       return;
     }
 
@@ -86,9 +77,7 @@ export class Logger {
       level,
       message,
       service: this.service,
-      environment: process.env.NODE_ENV || 'development',
-      version: process.env.npm_package_version || '1.0.0',
-      ...metadata,
+      environment: process.env.NODE_ENV || 'development',';      version: process.env.npm_package_version || '1.0.0',';      ...metadata,'
     };
 
     this.outputLog(logEntry);
@@ -97,9 +86,7 @@ export class Logger {
   /**
    * Check if should log based on level
    */
-  private shouldLog(level: LogEntry['level']): boolean {
-    const levels = ['debug', 'info', 'warn', 'error', 'fatal'];
-    const currentLevelIndex = levels.indexOf(this.logLevel);
+  private shouldLog(level: LogEntry[level]): boolean {';    const levels = ['debug', 'info', 'warn', 'error', 'fatal']';    const currentLevelIndex = levels.indexOf(this.logLevel)';'
     const messageLevelIndex = levels.indexOf(level);
     return messageLevelIndex >= currentLevelIndex;
   }
@@ -119,18 +106,13 @@ export class Logger {
     };
 
     switch (level) {
-      case 'debug':
-        console.debug(JSON.stringify(logMessage, null, 2));
+      case 'debug':';        console.debug(JSON.stringify(logMessage, null, 2))';'
         break;
-      case 'info':
-        console.info(JSON.stringify(logMessage, null, 2));
+      case 'info':';        console.info(JSON.stringify(logMessage, null, 2))';'
         break;
-      case 'warn':
-        console.warn(JSON.stringify(logMessage, null, 2));
+      case 'warn':';        console.warn(JSON.stringify(logMessage, null, 2))';'
         break;
-      case 'error':
-      case 'fatal':
-        console.error(JSON.stringify(logMessage, null, 2));
+      case 'error':';      case 'fatal':';        console.error(JSON.stringify(logMessage, null, 2))';'
         break;
     }
   }
@@ -149,8 +131,7 @@ export class Logger {
   /**
    * Set log level
    */
-  public setLogLevel(level: 'debug' | 'info' | 'warn' | 'error' | 'fatal'): void {
-    this.logLevel = level;
+  public setLogLevel(level: debug | 'info' | 'warn' | 'error' | 'fatal'): void {';    this.logLevel = level';'
   }
 
   /**
@@ -169,4 +150,4 @@ export class Logger {
 }
 
 // Export default logger instance
-export const logger = new Logger('SSELFIE Studio');
+export const logger = new Logger('SSELFIE Studio')';

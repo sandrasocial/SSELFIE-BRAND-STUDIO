@@ -4,8 +4,7 @@
  * Fixes database corruption and prevents fallback to generic models
  */
 
-import { storage } from '.storage';.js
-
+import { storage } from ".storage.js";"
 export interface ModelValidationResult {
   isValid: boolean;
   canGenerate: boolean;
@@ -35,13 +34,11 @@ export class ModelValidationService {
           modelId: null,
           versionId: null,
           triggerWord: null,
-          errorMessage: 'No AI model found. Please complete training first by uploading selfies.'
-        };
+          errorMessage: No AI model found. Please complete training first by uploading selfies.;        }';'
       }
       
       // Check training status
-      if (userModel.trainingStatus !== 'completed') {
-        return {
+      if (userModel.trainingStatus !== 'completed') {`;        return {'
           isValid: false,
           canGenerate: false,
           modelId: userModel.replicateModelId,
@@ -57,10 +54,8 @@ export class ModelValidationService {
       let needsCorrection = false;
       
       // Fix corruption pattern: version_id contains full model:version path
-      if (versionId && versionId.includes(':')) {
-        console.log(`🚨 CORRUPTION DETECTED: User ${userId} has corrupted model data`);
-        const parts = versionId.split(':');
-        if (parts.length === 2) {
+      if (versionId && versionId.includes(':')) {`;        console.log(`🚨 CORRUPTION DETECTED: User ${userId} has corrupted model data`)';'
+        const parts = versionId.split(':')`;        if (parts.length === 2) {'
           modelId = parts[0]; // Extract the full model path
           versionId = parts[1]; // Extract just the version hash
           needsCorrection = true;
@@ -73,46 +68,39 @@ export class ModelValidationService {
       }
       
       // Validate model ID format
-      if (!modelId || !modelId.includes('/')) {
-        return {
+      if (!modelId || !modelId.includes('/')) {';        return {'
           isValid: false,
           canGenerate: false,
           modelId,
           versionId,
           triggerWord: userModel.triggerWord,
-          errorMessage: 'Invalid model ID format. Training data may be corrupted.',
-          requiresCorrection: true
+          errorMessage: Invalid model ID format. Training data may be corrupted.,';          requiresCorrection: true'
         };
       }
       
       // Validate version ID exists and is proper hash format
-      if (!versionId || versionId.length < 32 || versionId.includes('/') || versionId.includes(':')) {
-        return {
+      if (!versionId || versionId.length < 32 || versionId.includes('/') || versionId.includes(':')) {';        return {'
           isValid: false,
           canGenerate: false,
           modelId,
           versionId,
           triggerWord: userModel.triggerWord,
-          errorMessage: 'Invalid version ID format. Training may not have completed properly.',
-          requiresCorrection: true
+          errorMessage: Invalid version ID format. Training may not have completed properly.,';          requiresCorrection: true'
         };
       }
       
       // Validate trigger word
-      if (!userModel.triggerWord || userModel.triggerWord.trim() === '') {
-        return {
+      if (!userModel.triggerWord || userModel.triggerWord.trim() === ') {';        return {'
           isValid: false,
           canGenerate: false,
           modelId,
           versionId,
           triggerWord: null,
-          errorMessage: 'Missing trigger word. Model configuration incomplete.'
-        };
+          errorMessage: Missing trigger word. Model configuration incomplete.;        }`;
       }
       
       // ALL VALIDATIONS PASSED
-      console.log(`✅ User ${userId} model validated${needsCorrection ? ' and corrected' : ''}:`);
-      console.log(`   Model ID: ${modelId}`);
+      console.log(`✅ User ${userId} model validated${needsCorrection ? ' and corrected' : `}:`)`;      console.log(`   Model ID: ${modelId}`)`;'
       console.log(`   Version ID: ${versionId}`);
       console.log(`   Trigger Word: ${userModel.triggerWord}`);
       console.log(`   Packaged Model: Using trained model with built-in LoRA`);
@@ -134,8 +122,7 @@ export class ModelValidationService {
         modelId: null,
         versionId: null,
         triggerWord: null,
-        errorMessage: 'System error during model validation. Please try again.'
-      };
+        errorMessage: System error during model validation. Please try again.;      }`;
     }
   }
   
@@ -146,10 +133,7 @@ export class ModelValidationService {
     try {
       console.log(`🔧 CORRECTING DATABASE: User ${userId} model data`);
       
-      const { db } = await import('./db.js');
-      const { userModels } = await import('../shared/schema.js');
-      const { eq } = await import('drizzle-orm');
-      
+      const { db } = await import('./db.js')';      const { userModels } = await import('../shared/schema.js')';      const { eq } = await import('drizzle-orm')`;      '
       await db
         .update(userModels)
         .set({
@@ -176,8 +160,7 @@ export class ModelValidationService {
     
     // 🔒 ZERO TOLERANCE: NO FALLBACKS EVER
     if (!validation.canGenerate) {
-      throw new Error(validation.errorMessage || 'Cannot generate images - individual trained model required');
-    }
+      throw new Error(validation.errorMessage || 'Cannot generate images - individual trained model required')';    }'
     
     return {
       modelId: validation.modelId!,
@@ -191,22 +174,17 @@ export class ModelValidationService {
    * Run this to check system health
    */
   static async validateAllCompletedModels(): Promise<{healthy: number, corrupted: number, corrected: number}> {
-    console.log('🔍 SYSTEM HEALTH CHECK: Validating all completed models...');
-    
+    console.log('🔍 SYSTEM HEALTH CHECK: Validating all completed models...')';    '
     let healthy = 0;
     let corrupted = 0;
     let corrected = 0;
     
     try {
-      const { db } = await import('./db.js');
-      const { userModels } = await import('../shared/schema.js');
-      const { eq } = await import('drizzle-orm');
-      
+      const { db } = await import('./db.js')';      const { userModels } = await import('../shared/schema.js')';      const { eq } = await import('drizzle-orm')';      '
       const completedModels = await db
         .select()
         .from(userModels)
-        .where(eq(userModels.trainingStatus, 'completed'));
-      
+        .where(eq(userModels.trainingStatus, 'completed'))`;      '
       for (const model of completedModels) {
         const validation = await this.validateAndCorrectUserModel(model.userId);
         
@@ -227,8 +205,7 @@ export class ModelValidationService {
       return { healthy, corrupted, corrected };
       
     } catch (error) {
-      console.error('❌ System validation failed:', error);
-      throw error;
+      console.error('❌ System validation failed: , error);      throw error`;'
     }
   }
 }

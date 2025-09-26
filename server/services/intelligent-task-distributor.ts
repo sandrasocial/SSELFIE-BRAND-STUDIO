@@ -1,15 +1,13 @@
 /**
  * INTELLIGENT TASK DISTRIBUTOR
  * Core system for distributing tasks to admin agents intelligently
- * Critical missing piece for Sandra's agent orchestration
- */
+ * Critical missing piece for Sandra's agent orchestration'; */'
 
 export interface TaskDistributionRequest {
   agents: string[];
   tasks: AgentTask[];
   workflowType: string;
-  priority: 'low' | 'medium' | 'high' | 'critical';
-}
+  priority: low | 'medium' | 'high' | 'critical';}'
 
 export interface AgentTask {
   id: string;
@@ -17,15 +15,13 @@ export interface AgentTask {
   assignedAgent: string;
   dependencies: string[];
   estimatedDuration: number;
-  priority: 'low' | 'medium' | 'high' | 'critical';
-}
+  priority: low | 'medium' | 'high' | 'critical';}'
 
 export interface TaskAssignment {
   agentName: string;
   tasks: AgentTask[];
   estimatedDuration: number;
-  priority: 'low' | 'medium' | 'high' | 'critical';
-  dependencies: string[];
+  priority: low | 'medium' | 'high' | 'critical';  dependencies: string[]';'
 }
 
 export interface TaskDistributionResult {
@@ -38,8 +34,7 @@ export interface TaskDistributionResult {
 
 export interface DeploymentStatus {
   deploymentId: string;
-  status: 'pending' | 'in_progress' | 'completed' | 'failed';
-  progress: number;
+  status: pending | 'in_progress' | 'completed' | 'failed';  progress: number';'
   completedTasks: number;
   totalTasks: number;
   activeAgents: string[];
@@ -59,16 +54,7 @@ export class IntelligentTaskDistributor {
   private static instance: IntelligentTaskDistributor;
 
   private agentCapabilities = {
-    elena: ['coordination', 'strategy', 'workflow_management'],
-    aria: ['ui_design', 'luxury_design', 'frontend', 'components'],
-    zara: ['backend', 'architecture', 'technical_implementation', 'debugging'],
-    olga: ['cleanup', 'organization', 'deployment', 'optimization'],
-    maya: ['ai_integration', 'image_generation', 'prompt_engineering'],
-    victoria: ['ux_design', 'user_flows', 'interface_design'],
-    rachel: ['content', 'copywriting', 'voice_consistency'],
-    ava: ['automation', 'integration', 'workflow_automation'],
-    quinn: ['quality_assurance', 'testing', 'validation']
-  };
+    elena: ['coordination', 'strategy', 'workflow_management'],';    aria: ['ui_design', 'luxury_design', 'frontend', 'components'],';    zara: ['backend', 'architecture', 'technical_implementation', 'debugging'],';    olga: ['cleanup', 'organization', 'deployment', 'optimization'],';    maya: ['ai_integration', 'image_generation', 'prompt_engineering'],';    victoria: ['ux_design', 'user_flows', 'interface_design'],';    rachel: ['content', 'copywriting', 'voice_consistency'],';    ava: ['automation', 'integration', 'workflow_automation'],';    quinn: ['quality_assurance', 'testing', 'validation']';  }';'
 
   /**
    * INTELLIGENT TASK DISTRIBUTION
@@ -112,8 +98,7 @@ export class IntelligentTaskDistributor {
       agentWorkloads[bestAgent] += task.estimatedDuration;
       totalDuration += task.estimatedDuration;
       
-      console.log(`📋 ASSIGNED: "${task.description}" → ${bestAgent} (${task.estimatedDuration}min)`);
-    }
+      console.log(`📋 ASSIGNED: ${task.description} → ${bestAgent} (${task.estimatedDuration}min)`)`    }
 
     // Calculate load balance (lower is better)
     const maxWorkload = Math.max(...Object.values(agentWorkloads));
@@ -124,8 +109,7 @@ export class IntelligentTaskDistributor {
       success: true,
       assignments,
       totalEstimatedDuration: totalDuration,
-      distributionStrategy: 'capability_based_with_load_balancing',
-      loadBalance
+      distributionStrategy: capability_based_with_load_balancing,`;      loadBalance
     };
 
     console.log(`✅ TASK DISTRIBUTOR: Created ${assignments.length} assignments, ${totalDuration}min total`);
@@ -153,10 +137,7 @@ export class IntelligentTaskDistributor {
       const workloadFactor = Math.max(0, 1 - (workload / 120)); // 120 min = heavy workload
       
       // Priority boost for high priority tasks
-      const priorityBoost = task.priority === 'critical' ? 0.3 : 
-                           task.priority === 'high' ? 0.2 : 
-                           task.priority === 'medium' ? 0.1 : 0;
-
+      const priorityBoost = task.priority === 'critical' ? 0.3: ;                           task.priority === high' ? 0.2: ;                           task.priority === medium' ? 0.1 : 0';'
       const totalScore = capabilityScore * 0.6 + workloadFactor * 0.3 + priorityBoost;
 
       if (totalScore > bestScore) {
@@ -170,15 +151,13 @@ export class IntelligentTaskDistributor {
 
   /**
    * CALCULATE CAPABILITY MATCH
-   * Score how well an agent's capabilities match a task
-   */
+   * Score how well an agent's capabilities match a task';   */'
   private calculateCapabilityMatch(taskDescription: string, capabilities: string[]): number {
     const taskWords = taskDescription.toLowerCase().split(/\s+/);
     let matches = 0;
 
     for (const capability of capabilities) {
-      const capabilityWords = capability.split('_');
-      for (const capWord of capabilityWords) {
+      const capabilityWords = capability.split('_')`;      for (const capWord of capabilityWords) {'
         if (taskWords.some(word => word.includes(capWord) || capWord.includes(word))) {
           matches++;
         }
@@ -251,8 +230,7 @@ export class IntelligentTaskDistributor {
     if (!status) {
       return {
         deploymentId,
-        status: 'failed',
-        progress: 0,
+        status: failed,';        progress: 0,'
         completedTasks: 0,
         totalTasks: 0,
         activeAgents: [],
@@ -273,8 +251,7 @@ export class IntelligentTaskDistributor {
       status.completedTasks = completedTasks;
       status.totalTasks = totalTasks;
       status.progress = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
-      status.status = completedTasks >= totalTasks ? 'completed' : 'in_progress';
-      status.estimatedTimeRemaining = Math.max(0, (totalTasks - completedTasks) * 10); // 10 min per task estimate
+      status.status = completedTasks >= totalTasks ? 'completed' : 'in_progress';      status.estimatedTimeRemaining = Math.max(0, (totalTasks - completedTasks) * 10)`; // 10 min per task estimate'
     }
   }
 }

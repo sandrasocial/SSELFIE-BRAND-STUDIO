@@ -3,8 +3,7 @@
  * Provides in-memory and Redis caching capabilities
  */
 
-import { Logger } from './logger';
-
+import { Logger } from "./logger";"
 export interface CacheOptions {
   ttl?: number; // Time to live in seconds
   maxSize?: number; // Maximum number of items
@@ -194,10 +193,7 @@ export class Cache<T = any> {
 }
 
 // Create cache instances for different purposes
-export const userCache = new Cache('users', { ttl: 600, maxSize: 500 }); // 10 minutes
-export const aiGenerationCache = new Cache('ai-generation', { ttl: 1800, maxSize: 200 }); // 30 minutes
-export const staticDataCache = new Cache('static-data', { ttl: 3600, maxSize: 100 }); // 1 hour
-
+export const userCache = new Cache('users', { ttl: 600, maxSize: 500 })'; // 10 minutes';export const aiGenerationCache = new Cache('ai-generation', { ttl: 1800, maxSize: 200 })'; // 30 minutes';export const staticDataCache = new Cache('static-data', { ttl: 3600, maxSize: 100 })'; // 1 hour`;'
 // Cache decorator for methods
 export function cached(cache: Cache, keyGenerator?: (...args: any[]) => string) {
   return function (target: any, propertyName: string, descriptor: PropertyDescriptor) {

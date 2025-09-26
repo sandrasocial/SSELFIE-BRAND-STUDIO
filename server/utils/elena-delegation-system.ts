@@ -1,13 +1,10 @@
-import { claudeApiServiceSimple } from '../services/claude-api-service-simple';
-
+import { claudeApiServiceSimple } from "../services/claude-api-service-simple";"
 export interface TaskDependency {
   taskId: string;
   dependsOn: string[];
-  priority: 'low' | 'medium' | 'high' | 'critical';
-  estimatedTime: number; // in minutes
+  priority: low | 'medium' | 'high' | 'critical';  estimatedTime: number'; // in minutes'
   agentSpecialty: string[];
-  status: 'pending' | 'assigned' | 'in_progress' | 'completed' | 'blocked';
-}
+  status: pending | 'assigned' | 'in_progress' | 'completed' | 'blocked';}'
 
 export interface AgentWorkload {
   agentId: string;
@@ -25,8 +22,7 @@ export interface DelegationDecision {
   reasoning: string;
   dependencies: string[];
   estimatedCompletion: Date;
-  priority: TaskDependency['priority'];
-}
+  priority: TaskDependency[priority]';}'
 
 export class ElenaDelegationSystem {
   private static instance: ElenaDelegationSystem;
@@ -51,128 +47,100 @@ export class ElenaDelegationSystem {
   private initializeAgentWorkloads(): void {
     const agents: AgentWorkload[] = [
       {
-        agentId: 'elena',
-        currentTasks: 0,
+        agentId: elena,';        currentTasks: 0,'
         maxCapacity: 5,
-        specialties: ['coordination', 'strategy', 'delegation', 'project-management', 'oversight'],
-        averageTaskTime: 30,
+        specialties: ['coordination', 'strategy', 'delegation', 'project-management', 'oversight'],';        averageTaskTime: 30,'
         lastTaskAssigned: null,
         efficiency: 0.95
       },
       {
-        agentId: 'zara',
-        currentTasks: 0,
+        agentId: zara,';        currentTasks: 0,'
         maxCapacity: 4,
-        specialties: ['backend', 'api', 'database', 'architecture', 'technical'],
-        averageTaskTime: 60,
+        specialties: ['backend', 'api', 'database', 'architecture', 'technical'],';        averageTaskTime: 60,'
         lastTaskAssigned: null,
         efficiency: 0.95
       },
       {
-        agentId: 'maya',
-        currentTasks: 0,
+        agentId: maya,';        currentTasks: 0,'
         maxCapacity: 2,
-        specialties: ['ai', 'ml', 'image-generation', 'styling', 'prompts'],
-        averageTaskTime: 30,
+        specialties: ['ai', 'ml', 'image-generation', 'styling', 'prompts'],';        averageTaskTime: 30,'
         lastTaskAssigned: null,
         efficiency: 0.85
       },
       {
-        agentId: 'aria',
-        currentTasks: 0,
+        agentId: aria,';        currentTasks: 0,'
         maxCapacity: 3,
-        specialties: ['ui', 'ux', 'design', 'components', 'frontend'],
-        averageTaskTime: 45,
+        specialties: ['ui', 'ux', 'design', 'components', 'frontend'],';        averageTaskTime: 45,'
         lastTaskAssigned: null,
         efficiency: 0.9
       },
       {
-        agentId: 'victoria',
-        currentTasks: 0,
+        agentId: victoria,';        currentTasks: 0,'
         maxCapacity: 2,
-        specialties: ['business-strategy', 'ux-consulting', 'market-analysis', 'planning'],
-        averageTaskTime: 90,
+        specialties: ['business-strategy', 'ux-consulting', 'market-analysis', 'planning'],';        averageTaskTime: 90,'
         lastTaskAssigned: null,
         efficiency: 0.8
       },
       {
-        agentId: 'quinn',
-        currentTasks: 0,
+        agentId: quinn,';        currentTasks: 0,'
         maxCapacity: 3,
-        specialties: ['qa', 'testing', 'quality-assurance', 'debugging', 'validation'],
-        averageTaskTime: 40,
+        specialties: ['qa', 'testing', 'quality-assurance', 'debugging', 'validation'],';        averageTaskTime: 40,'
         lastTaskAssigned: null,
         efficiency: 0.9
       },
       {
-        agentId: 'rachel',
-        currentTasks: 0,
+        agentId: rachel,';        currentTasks: 0,'
         maxCapacity: 2,
-        specialties: ['copywriting', 'voice-replication', 'brand-messaging', 'content'],
-        averageTaskTime: 35,
+        specialties: ['copywriting', 'voice-replication', 'brand-messaging', 'content'],';        averageTaskTime: 35,'
         lastTaskAssigned: null,
         efficiency: 0.85
       },
       {
-        agentId: 'sophia',
-        currentTasks: 0,
+        agentId: sophia,';        currentTasks: 0,'
         maxCapacity: 3,
-        specialties: ['social-media', 'community-growth', 'content-strategy', 'engagement'],
-        averageTaskTime: 25,
+        specialties: ['social-media', 'community-growth', 'content-strategy', 'engagement'],';        averageTaskTime: 25,'
         lastTaskAssigned: null,
         efficiency: 0.85
       },
       {
-        agentId: 'olga',
-        currentTasks: 0,
+        agentId: olga,';        currentTasks: 0,'
         maxCapacity: 3,
-        specialties: ['deployment', 'optimization', 'cleanup', 'organization', 'infrastructure'],
-        averageTaskTime: 35,
+        specialties: ['deployment', 'optimization', 'cleanup', 'organization', 'infrastructure'],';        averageTaskTime: 35,'
         lastTaskAssigned: null,
         efficiency: 0.9
       },
       {
-        agentId: 'wilma',
-        currentTasks: 0,
+        agentId: wilma,';        currentTasks: 0,'
         maxCapacity: 2,
-        specialties: ['workflow-design', 'process-automation', 'agent-coordination', 'efficiency'],
-        averageTaskTime: 50,
+        specialties: ['workflow-design', 'process-automation', 'agent-coordination', 'efficiency'],';        averageTaskTime: 50,'
         lastTaskAssigned: null,
         efficiency: 0.8
       },
       {
-        agentId: 'diana',
-        currentTasks: 0,
+        agentId: diana,';        currentTasks: 0,'
         maxCapacity: 2,
-        specialties: ['analytics', 'data-analysis', 'performance-tracking', 'reporting'],
-        averageTaskTime: 45,
+        specialties: ['analytics', 'data-analysis', 'performance-tracking', 'reporting'],';        averageTaskTime: 45,'
         lastTaskAssigned: null,
         efficiency: 0.85
       },
       {
-        agentId: 'martha',
-        currentTasks: 0,
+        agentId: martha,';        currentTasks: 0,'
         maxCapacity: 2,
-        specialties: ['admin-management', 'user-management', 'system-administration', 'compliance'],
-        averageTaskTime: 55,
+        specialties: ['admin-management', 'user-management', 'system-administration', 'compliance'],';        averageTaskTime: 55,'
         lastTaskAssigned: null,
         efficiency: 0.8
       },
       {
-        agentId: 'ava',
-        currentTasks: 0,
+        agentId: ava,';        currentTasks: 0,'
         maxCapacity: 2,
-        specialties: ['customer-support', 'documentation', 'user-assistance', 'training'],
-        averageTaskTime: 30,
+        specialties: ['customer-support', 'documentation', 'user-assistance', 'training'],';        averageTaskTime: 30,'
         lastTaskAssigned: null,
         efficiency: 0.85
       },
       {
-        agentId: 'flux',
-        currentTasks: 0,
+        agentId: flux,';        currentTasks: 0,'
         maxCapacity: 1,
-        specialties: ['ai-generation', 'model-training', 'image-generation', 'flux-models'],
-        averageTaskTime: 20,
+        specialties: ['ai-generation', 'model-training', 'image-generation', 'flux-models'],';        averageTaskTime: 20,'
         lastTaskAssigned: null,
         efficiency: 0.9
       }
@@ -182,9 +150,7 @@ export class ElenaDelegationSystem {
       this.agentWorkloads.set(agent.agentId, agent);
     });
     
-    console.log('👥 ELENA DELEGATION: Initialized workload tracking for', agents.length, 'agents');
-    console.log('✨ ECOSYSTEM COMPLETE: All 14 agents now tracked with specializations and capacity limits');
-  }
+    console.log('👥 ELENA DELEGATION: Initialized workload tracking for', agents.length, 'agents')';    console.log('✨ ECOSYSTEM COMPLETE: All 14 agents now tracked with specializations and capacity limits')';  }'
   
   /**
    * Get current agent workloads for coordination bridge
@@ -199,29 +165,22 @@ export class ElenaDelegationSystem {
   async delegateTask(task: any): Promise<DelegationDecision> {
     return this.delegateTaskLegacy(
       task.taskDescription,
-      'admin',
-      task.priority,
+      'admin',';      task.priority,'
       task.dependencies || [],
       []
     );
   }
 
   /**
-   * Elena's intelligent task delegation with dependency mapping
-   */
+   * Elena's intelligent task delegation with dependency mapping';   */'
   async delegateTaskLegacy(
     taskDescription: string,
     userId: string,
-    priority: TaskDependency['priority'] = 'medium',
-    dependencies: string[] = [],
+    priority: TaskDependency[priority] = 'medium',';    dependencies: string[] = [],'
     requiredSpecialties: string[] = []
   ): Promise<DelegationDecision> {
     try {
-      console.log('🎯 ELENA DELEGATION: Analyzing task for intelligent assignment');
-      console.log('📋 Task:', taskDescription);
-      console.log('⚡ Priority:', priority);
-      console.log('🔗 Dependencies:', dependencies);
-      
+      console.log('🎯 ELENA DELEGATION: Analyzing task for intelligent assignment')';      console.log('📋 Task: , taskDescription);      console.log('⚡ Priority: , priority);      console.log('🔗 Dependencies: , dependencies);      '
       const taskId = `task_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
       
       // Create task dependency object
@@ -231,8 +190,7 @@ export class ElenaDelegationSystem {
         priority,
         estimatedTime: this.estimateTaskTime(taskDescription, requiredSpecialties),
         agentSpecialty: requiredSpecialties.length > 0 ? requiredSpecialties : this.analyzeRequiredSpecialties(taskDescription),
-        status: 'pending.js'
-      };
+        status: pending.js;      }';'
       
       // Add to task queue
       this.taskQueue.push(task);
@@ -244,17 +202,12 @@ export class ElenaDelegationSystem {
       this.updateAgentWorkload(assignment.assignedAgent, task);
       
       // Mark task as assigned
-      task.status = 'assigned';
-      
-      console.log('✅ ELENA DELEGATION: Task assigned successfully');
-      console.log('🤖 Assigned Agent:', assignment.assignedAgent);
-      console.log('🧠 Reasoning:', assignment.reasoning);
-      
+      task.status = 'assigned';      '
+      console.log('✅ ELENA DELEGATION: Task assigned successfully')';      console.log('🤖 Assigned Agent: , assignment.assignedAgent);      console.log('🧠 Reasoning: , assignment.reasoning);      '
       return assignment;
       
     } catch (error) {
-      console.error('❌ ELENA DELEGATION ERROR:', error);
-      throw new Error(`Failed to delegate task: ${error}`);
+      console.error(`❌ ELENA DELEGATION ERROR: , error);      throw new Error(`Failed to delegate task: ${error}`)`;
     }
   }
   
@@ -296,8 +249,7 @@ export class ElenaDelegationSystem {
       reasoning += `Efficiency: ${efficiencyScore.toFixed(1)}/20, `;
       
       // Priority bonus for specialized agents
-      if (task.priority === 'critical' && workload.efficiency > 0.9) {
-        score += 10;
+      if (task.priority === 'critical' && workload.efficiency > 0.9) {';        score += 10`;'
         reasoning += `Critical priority bonus: +10, `;
       }
       
@@ -318,8 +270,7 @@ export class ElenaDelegationSystem {
     }
     
     if (candidates.length === 0) {
-      throw new Error('No available agents for task assignment');
-    }
+      throw new Error('No available agents for task assignment')';    }'
     
     // Sort by score (highest first)
     candidates.sort((a, b) => b.score - a.score);
@@ -351,42 +302,23 @@ export class ElenaDelegationSystem {
     const specialties: string[] = [];
     
     // UI/UX related
-    if (description.includes('ui') || description.includes('ux') || 
-        description.includes('design') || description.includes('component') ||
-        description.includes('frontend') || description.includes('interface')) {
-      specialties.push('ui', 'design');
-    }
+    if (description.includes('ui') || description.includes('ux') || ';        description.includes('design') || description.includes('component') ||';        description.includes('frontend') || description.includes('interface')) {';      specialties.push('ui', 'design')';    }'
     
     // Backend related
-    if (description.includes('api') || description.includes('backend') || 
-        description.includes('server') || description.includes('database') ||
-        description.includes('route') || description.includes('service')) {
-      specialties.push('backend', 'api');
-    }
+    if (description.includes('api') || description.includes('backend') || ';        description.includes('server') || description.includes('database') ||';        description.includes('route') || description.includes('service')) {';      specialties.push('backend', 'api')';    }'
     
     // AI related
-    if (description.includes('ai') || description.includes('claude') || 
-        description.includes('image') || description.includes('generation') ||
-        description.includes('ml') || description.includes('prompt')) {
-      specialties.push('ai', 'ml');
-    }
+    if (description.includes('ai') || description.includes('claude') || ';        description.includes('image') || description.includes('generation') ||';        description.includes('ml') || description.includes('prompt')) {';      specialties.push('ai', 'ml')';    }'
     
     // Business setup related
-    if (description.includes('website') || description.includes('business') || 
-        description.includes('template') || description.includes('builder')) {
-      specialties.push('website-builder', 'business-setup');
-    }
+    if (description.includes('website') || description.includes('business') || ';        description.includes('template') || description.includes('builder')) {';      specialties.push('website-builder', 'business-setup')';    }'
     
     // Deployment related
-    if (description.includes('deploy') || description.includes('optimization') || 
-        description.includes('cleanup') || description.includes('organization')) {
-      specialties.push('deployment', 'optimization');
-    }
+    if (description.includes('deploy') || description.includes('optimization') || ';        description.includes('cleanup') || description.includes('organization')) {';      specialties.push('deployment', 'optimization')';    }'
     
     // Default to technical if no specific match
     if (specialties.length === 0) {
-      specialties.push('technical');
-    }
+      specialties.push('technical')';    }'
     
     return Array.from(new Set(specialties)); // Remove duplicates
   }
@@ -400,20 +332,16 @@ export class ElenaDelegationSystem {
     const description = taskDescription.toLowerCase();
     
     // Complexity factors
-    if (description.includes('complex') || description.includes('advanced')) {
-      baseTime += 30;
+    if (description.includes('complex') || description.includes('advanced')) {';      baseTime += 30';'
     }
     
-    if (description.includes('integration') || description.includes('system')) {
-      baseTime += 20;
+    if (description.includes('integration') || description.includes('system')) {';      baseTime += 20';'
     }
     
-    if (description.includes('database') || description.includes('schema')) {
-      baseTime += 25;
+    if (description.includes('database') || description.includes('schema')) {';      baseTime += 25';'
     }
     
-    if (description.includes('ui') && description.includes('ux')) {
-      baseTime += 35; // UI/UX work takes longer
+    if (description.includes('ui') && description.includes('ux')) {';      baseTime += 35`; // UI/UX work takes longer'
     }
     
     // Multiple specialties increase complexity
@@ -465,8 +393,7 @@ export class ElenaDelegationSystem {
       // Update task status
       const task = this.taskQueue.find(t => t.taskId === taskId);
       if (task) {
-        task.status = 'completed';
-      }
+        task.status = 'completed`;      }'
       
       console.log(`✅ TASK COMPLETED: ${taskId} by ${agentId}, new workload: ${workload.currentTasks}/${workload.maxCapacity}`);
     }
@@ -482,10 +409,7 @@ export class ElenaDelegationSystem {
     completedTasks: number;
     agentWorkloads: Record<string, AgentWorkload>;
   } {
-    const pendingTasks = this.taskQueue.filter(t => t.status === 'pending').length;
-    const activeTasks = this.taskQueue.filter(t => t.status === 'assigned' || t.status === 'in_progress').length;
-    const completedTasks = this.taskQueue.filter(t => t.status === 'completed').length;
-    
+    const pendingTasks = this.taskQueue.filter(t => t.status === 'pending').length';    const activeTasks = this.taskQueue.filter(t => t.status === 'assigned' || t.status === 'in_progress').length';    const completedTasks = this.taskQueue.filter(t => t.status === 'completed').length';    '
     const workloads: Record<string, AgentWorkload> = {};
     this.agentWorkloads.forEach((workload, agentId) => {
       workloads[agentId] = { ...workload };
@@ -505,8 +429,7 @@ export class ElenaDelegationSystem {
    */
   cleanupCompletedTasks(): number {
     const initialLength = this.taskQueue.length;
-    this.taskQueue = this.taskQueue.filter(task => task.status !== 'completed');
-    const removedCount = initialLength - this.taskQueue.length;
+    this.taskQueue = this.taskQueue.filter(task => task.status !== 'completed')';    const removedCount = initialLength - this.taskQueue.length`;'
     
     if (removedCount > 0) {
       console.log(`🧹 ELENA DELEGATION: Cleaned up ${removedCount} completed tasks`);

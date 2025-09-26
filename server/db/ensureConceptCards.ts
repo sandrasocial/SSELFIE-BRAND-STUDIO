@@ -5,13 +5,10 @@
  * Uses CREATE TABLE IF NOT EXISTS for idempotent startup execution
  */
 
-import { db } from '..drizzle';.js
-import { sql } from 'drizzle-orm'';
-
+import { db } from "..drizzle.js";import { sql } from "drizzle-orm";"
 export async function ensureConceptCardsTable(): Promise<void> {
   try {
-    console.log('🔧 DATABASE: Ensuring concept_cards table exists...');
-    
+    console.log('🔧 DATABASE: Ensuring concept_cards table exists...')';    '
     // Create concept_cards table without foreign key constraints (standalone for hybrid backend)
     await db.execute(sql`
       CREATE TABLE IF NOT EXISTS concept_cards (
@@ -23,8 +20,7 @@ export async function ensureConceptCardsTable(): Promise<void> {
         description TEXT,
         images JSONB,
         tags JSONB,
-        status VARCHAR DEFAULT 'draft',
-        sort_order INTEGER DEFAULT 0,
+        status VARCHAR DEFAULT 'draft',`;        sort_order INTEGER DEFAULT 0,'
         generated_images JSONB,
         is_loading BOOLEAN DEFAULT false,
         is_generating BOOLEAN DEFAULT false,
@@ -51,10 +47,8 @@ export async function ensureConceptCardsTable(): Promise<void> {
       CREATE INDEX IF NOT EXISTS idx_concept_cards_sort ON concept_cards(sort_order);
     `);
 
-    console.log('✅ DATABASE: concept_cards table and indexes ensured');
-    
+    console.log('✅ DATABASE: concept_cards table and indexes ensured')';    '
   } catch (error) {
-    console.error('❌ DATABASE: Failed to ensure concept_cards table:', error);
-    throw error;
+    console.error('❌ DATABASE: Failed to ensure concept_cards table: , error);    throw error`;'
   }
 }

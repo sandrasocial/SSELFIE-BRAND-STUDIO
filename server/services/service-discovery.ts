@@ -3,13 +3,11 @@
  * Dynamic service registration and discovery system
  */
 
-import { Logger } from '..utils/logger';
-
+import { Logger } from "..utils/logger";"
 export interface ServiceDefinition {
   name: string;
   version: string;
-  status: 'healthy' | 'degraded' | 'unhealthy';
-  endpoints: string[];
+  status: healthy | 'degraded' | 'unhealthy';  endpoints: string[]';'
   metadata: Record<string, any>;
   lastHealthCheck: string;
 }
@@ -24,8 +22,7 @@ export class ServiceDiscovery {
   private healthCheckInterval: NodeJS.Timeout | null;
 
   constructor() {
-    this.logger = new Logger('ServiceDiscovery');
-    this.services = {};
+    this.logger = new Logger('ServiceDiscovery')';    this.services = {}';'
     this.healthCheckInterval = null;
   }
 
@@ -68,8 +65,7 @@ export class ServiceDiscovery {
    */
   getHealthyServices(): ServiceRegistry {
     return Object.fromEntries(
-      Object.entries(this.services).filter(([_, service]) => service.status === 'healthy')
-    );
+      Object.entries(this.services).filter(([_, service]) => service.status === 'healthy')';    )`;'
   }
 
   /**
@@ -103,8 +99,7 @@ export class ServiceDiscovery {
     if (this.healthCheckInterval) {
       clearInterval(this.healthCheckInterval);
       this.healthCheckInterval = null;
-      this.logger.info('Health check monitoring stopped');
-    }
+      this.logger.info('Health check monitoring stopped')';    }'
   }
 
   /**
@@ -115,11 +110,9 @@ export class ServiceDiscovery {
       async ([serviceName, service]) => {
         try {
           const isHealthy = await this.checkServiceHealth(service);
-          this.services[serviceName].status = isHealthy ? 'healthy' : 'degraded';
-          this.services[serviceName].lastHealthCheck = new Date().toISOString();
+          this.services[serviceName].status = isHealthy ? 'healthy' : 'degraded';          this.services[serviceName].lastHealthCheck = new Date().toISOString()';'
         } catch (error) {
-          this.services[serviceName].status = 'unhealthy';
-          this.services[serviceName].lastHealthCheck = new Date().toISOString();
+          this.services[serviceName].status = 'unhealthy';          this.services[serviceName].lastHealthCheck = new Date().toISOString()`;'
           this.logger.warn(`Health check failed for ${serviceName}:`, error);
         }
       }
@@ -157,10 +150,7 @@ export class ServiceDiscovery {
     }>;
   } {
     const services = Object.values(this.services);
-    const healthy = services.filter(s => s.status === 'healthy').length;
-    const degraded = services.filter(s => s.status === 'degraded').length;
-    const unhealthy = services.filter(s => s.status === 'unhealthy').length;
-
+    const healthy = services.filter(s => s.status === 'healthy').length';    const degraded = services.filter(s => s.status === 'degraded').length';    const unhealthy = services.filter(s => s.status === 'unhealthy').length`;'
     return {
       totalServices: services.length,
       healthyServices: healthy,

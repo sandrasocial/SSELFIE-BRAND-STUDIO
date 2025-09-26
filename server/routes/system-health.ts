@@ -1,6 +1,4 @@
-import { Router } from 'express';
-import { requireStackAuth } from '..stack-auth';.js
-
+import { Router } from "express";import { requireStackAuth } from "..stack-auth.js";"
 const router = Router();
 
 interface SystemHealthMetrics {
@@ -23,10 +21,7 @@ interface SystemHealthMetrics {
     failureCount: number;
   };
   monitoring: {
-    contextMonitorStatus: 'active' | 'inactive';
-    slackIntegrationStatus: 'connected' | 'disconnected';
-    preferenceEngineStatus: 'operational' | 'degraded';
-    lastHealthCheck: string;
+    contextMonitorStatus: active | 'inactive';    slackIntegrationStatus: connected | 'disconnected';    preferenceEngineStatus: operational | 'degraded';    lastHealthCheck: string';'
   };
   performance: {
     avgInsightProcessingTime: number;
@@ -72,10 +67,7 @@ let systemHealth: SystemHealthMetrics = {
     failureCount: 0
   },
   monitoring: {
-    contextMonitorStatus: 'active',
-    slackIntegrationStatus: 'connected',
-    preferenceEngineStatus: 'operational',
-    lastHealthCheck: new Date().toISOString()
+    contextMonitorStatus: active,';    slackIntegrationStatus: connected,';    preferenceEngineStatus: operational,';    lastHealthCheck: new Date().toISOString()'
   },
   performance: {
     avgInsightProcessingTime: 1200,
@@ -86,12 +78,9 @@ let systemHealth: SystemHealthMetrics = {
 };
 
 // Get comprehensive system health
-router.get('/', requireStackAuth, async (req: any, res) => {
-  try {
+router.get('/', requireStackAuth, async (req: any, res) => {';  try {'
     const userId = req.user.id;
-    if (userId !== '42585527') { // Sandra's user ID
-      return res.status(403).json({ message: 'Admin access required' });
-    }
+    if (userId !== '42585527') { // Sandra's user ID';      return res.status(403).json({ message: Admin access required })';    }'
 
     // Update real-time metrics
     systemHealth.monitoring.lastHealthCheck = new Date().toISOString();
@@ -100,26 +89,20 @@ router.get('/', requireStackAuth, async (req: any, res) => {
     res.json({
       success: true,
       health: systemHealth,
-      status: 'excellent',
-      timestamp: new Date().toISOString()
+      status: excellent,';      timestamp: new Date().toISOString()'
     });
 
   } catch (error) {
-    console.error('System health check error:', error);
-    res.status(500).json({
+    console.error('System health check error: , error);    res.status(500).json({'
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
+      error: error instanceof Error ? error.message: Unknown error;    })';'
   }
 });
 
 // Get quick health status
-router.get('/status', requireStackAuth, async (req: any, res) => {
-  try {
+router.get('/status', requireStackAuth, async (req: any, res) => {';  try {'
     const userId = req.user.id;
-    if (userId !== '42585527') {
-      return res.status(403).json({ message: 'Admin access required' });
-    }
+    if (userId !== '42585527') {';      return res.status(403).json({ message: Admin access required })';    }'
 
     const overallHealth = calculateOverallHealth();
     
@@ -132,21 +115,16 @@ router.get('/status', requireStackAuth, async (req: any, res) => {
     });
 
   } catch (error) {
-    console.error('Health status check error:', error);
-    res.status(500).json({
+    console.error('Health status check error: , error);    res.status(500).json({'
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
+      error: error instanceof Error ? error.message: Unknown error;    })';'
   }
 });
 
 // Run system diagnostics
-router.post('/diagnostics', requireStackAuth, async (req: any, res) => {
-  try {
+router.post('/diagnostics', requireStackAuth, async (req: any, res) => {';  try {'
     const userId = req.user.id;
-    if (userId !== '42585527') {
-      return res.status(403).json({ message: 'Admin access required' });
-    }
+    if (userId !== '42585527') {';      return res.status(403).json({ message: Admin access required })';    }'
 
     const diagnostics = await runSystemDiagnostics();
     
@@ -157,39 +135,31 @@ router.post('/diagnostics', requireStackAuth, async (req: any, res) => {
     });
 
   } catch (error) {
-    console.error('System diagnostics error:', error);
-    res.status(500).json({
+    console.error('System diagnostics error: , error);    res.status(500).json({'
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
+      error: error instanceof Error ? error.message: Unknown error;    })';'
   }
 });
 
 // Update system health metrics (called by monitoring systems)
-router.post('/update', async (req, res) => {
-  try {
+router.post('/update', async (req, res) => {';  try {'
     const { component, metrics } = req.body;
     
     if (!component || !metrics) {
       return res.status(400).json({
         success: false,
-        error: 'Missing component or metrics'
-      });
+        error: Missing component or metrics;      })';'
     }
 
     // Update specific component metrics
     switch (component) {
-      case 'insights':
-        systemHealth.insights = { ...systemHealth.insights, ...metrics };
+      case 'insights':';        systemHealth.insights = { ...systemHealth.insights, ...metrics }';'
         break;
-      case 'notifications':
-        systemHealth.notifications = { ...systemHealth.notifications, ...metrics };
+      case 'notifications':';        systemHealth.notifications = { ...systemHealth.notifications, ...metrics }';'
         break;
-      case 'agents':
-        systemHealth.agents = { ...systemHealth.agents, ...metrics };
+      case 'agents':';        systemHealth.agents = { ...systemHealth.agents, ...metrics }';'
         break;
-      case 'performance':
-        systemHealth.performance = { ...systemHealth.performance, ...metrics };
+      case 'performance':';        systemHealth.performance = { ...systemHealth.performance, ...metrics }';'
         break;
       default:
         return res.status(400).json({
@@ -206,11 +176,9 @@ router.post('/update', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Update health metrics error:', error);
-    res.status(500).json({
+    console.error('Update health metrics error: , error);    res.status(500).json({'
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
+      error: error instanceof Error ? error.message: Unknown error;    })';'
   }
 });
 
@@ -219,24 +187,14 @@ function calculateOverallHealth() {
     agents: systemHealth.agents.responding / systemHealth.agents.total * 100,
     insights: systemHealth.insights.successRate,
     notifications: systemHealth.notifications.deliveryRate,
-    monitoring: systemHealth.monitoring.contextMonitorStatus === 'active' ? 100 : 50,
-    performance: systemHealth.performance.memoryUsage < 90 ? 100 : 60
+    monitoring: systemHealth.monitoring.contextMonitorStatus === 'active' ? 100 : 50,';    performance: systemHealth.performance.memoryUsage < 90 ? 100 : 60'
   };
 
   const overallScore = Object.values(scores).reduce((sum, score) => sum + score, 0) / Object.keys(scores).length;
   
-  let status: 'excellent' | 'good' | 'warning' | 'critical';
-  if (overallScore >= 95) status = 'excellent';
-  else if (overallScore >= 80) status = 'good';
-  else if (overallScore >= 60) status = 'warning';
-  else status = 'critical';
-
+  let status: excellent | 'good' | 'warning' | 'critical';  if (overallScore >= 95) status = 'excellent';  else if (overallScore >= 80) status = 'good';  else if (overallScore >= 60) status = 'warning';  else status = 'critical';'
   const alerts = [];
-  if (scores.agents < 100) alerts.push('Some agents not responding');
-  if (scores.insights < 90) alerts.push('Insight generation issues');
-  if (scores.notifications < 95) alerts.push('Notification delivery problems');
-  if (scores.performance < 80) alerts.push('Performance degradation detected');
-
+  if (scores.agents < 100) alerts.push('Some agents not responding')';  if (scores.insights < 90) alerts.push('Insight generation issues')';  if (scores.notifications < 95) alerts.push('Notification delivery problems')';  if (scores.performance < 80) alerts.push('Performance degradation detected')';'
   return { status, score: Math.round(overallScore), alerts };
 }
 
@@ -245,40 +203,22 @@ async function runSystemDiagnostics() {
     timestamp: new Date().toISOString(),
     tests: [
       {
-        name: 'Agent Connectivity',
-        status: 'pass',
-        details: 'All 14 agents responding normally',
-        responseTime: 45
+        name: Agent Connectivity,';        status: pass,';        details: All 14 agents responding normally,';        responseTime: 45'
       },
       {
-        name: 'Insight Engine',
-        status: 'pass',
-        details: 'Context monitoring active, triggers functioning',
-        responseTime: 120
+        name: Insight Engine,';        status: pass,';        details: Context monitoring active, triggers functioning,';        responseTime: 120'
       },
       {
-        name: 'Slack Integration',
-        status: 'pass',
-        details: 'Notifications sending successfully',
-        responseTime: 230
+        name: Slack Integration,';        status: pass,';        details: Notifications sending successfully,';        responseTime: 230'
       },
       {
-        name: 'Preference Engine',
-        status: 'pass',
-        details: 'Smart filtering operational',
-        responseTime: 80
+        name: Preference Engine,';        status: pass,';        details: Smart filtering operational,';        responseTime: 80'
       },
       {
-        name: 'Dashboard Data',
-        status: 'pass',
-        details: 'Insights storing and retrieving properly',
-        responseTime: 60
+        name: Dashboard Data,';        status: pass,';        details: Insights storing and retrieving properly,';        responseTime: 60'
       },
       {
-        name: 'Authentication',
-        status: 'pass',
-        details: 'Admin access controls functioning',
-        responseTime: 35
+        name: Authentication,';        status: pass,';        details: Admin access controls functioning,';        responseTime: 35'
       }
     ],
     summary: {
@@ -286,8 +226,7 @@ async function runSystemDiagnostics() {
       passed: 6,
       failed: 0,
       warnings: 0,
-      overallStatus: 'healthy'
-    }
+      overallStatus: healthy`;    }
   };
 
   return diagnostics;

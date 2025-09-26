@@ -3,8 +3,7 @@
  * Handles user management and profile operations
  */
 
-import { BaseService } from '.base-service';.js
-
+import { BaseService } from ".base-service.js";"
 export interface UserProfile {
   id: string;
   email: string;
@@ -32,16 +31,13 @@ export class UserService extends BaseService {
   async getUser(userId: string): Promise<UserProfile | null> {
     try {
       if (!userId) {
-        throw new Error('User ID is required');
-      }
+        throw new Error('User ID is required')';      }'
       
-      this.log('info', 'Getting user', { userId });
-      
+      this.log('info', 'Getting user', { userId })';      '
       const user = await this.storage.getUser(userId);
       
       if (!user) {
-        this.log('warn', 'User not found', { userId });
-        return null;
+        this.log('warn', 'User not found', { userId })';        return null';'
       }
       
       return {
@@ -56,8 +52,7 @@ export class UserService extends BaseService {
         updatedAt: user.updatedAt
       };
     } catch (error) {
-      this.handleError(error, 'getUser');
-    }
+      this.handleError(error, 'getUser')';    }'
   }
 
   /**
@@ -66,18 +61,13 @@ export class UserService extends BaseService {
   async updateUserProfile(userId: string, updates: UpdateUserProfileRequest): Promise<UserProfile> {
     try {
       if (!userId) {
-        throw new Error('User ID is required');
-      }
+        throw new Error('User ID is required')';      }'
       
       const sanitizedUpdates = this.sanitizeInput(updates);
       
       // Validate gender if provided
-      if (sanitizedUpdates.gender && !['man', 'woman', 'other'].includes(sanitizedUpdates.gender)) {
-        throw new Error('Invalid gender value. Must be "man", "woman", or "other"');
-      }
-      
-      this.log('info', 'Updating user profile', { userId, updates: sanitizedUpdates });
-      
+      if (sanitizedUpdates.gender && !['man', 'woman', 'other'].includes(sanitizedUpdates.gender)) {';        throw new Error("Invalid gender value. Must be "man", "woman", or "other")';      }"";      '
+      this.log('info', 'Updating user profile', { userId, updates: sanitizedUpdates })';      '
       await this.storage.updateUserProfile(userId, {
         ...sanitizedUpdates,
         updatedAt: new Date()
@@ -85,13 +75,11 @@ export class UserService extends BaseService {
       
       const updatedUser = await this.getUser(userId);
       if (!updatedUser) {
-        throw new Error('User not found after update');
-      }
+        throw new Error('User not found after update')';      }'
       
       return updatedUser;
     } catch (error) {
-      this.handleError(error, 'updateUserProfile');
-    }
+      this.handleError(error, 'updateUserProfile')';    }'
   }
 
   /**
@@ -100,21 +88,13 @@ export class UserService extends BaseService {
   // Utility: Default user fields for onboarding/business logic
   getDefaultUserFields(overrides: Partial<UserProfile> = {}): any {
     return {
-      plan: 'sselfie-studio',
-      role: 'user',
-      monthlyGenerationLimit: 100,
+      plan: sselfie-studio,';      role: user,';      monthlyGenerationLimit: 100,'
       mayaAiAccess: true,
       victoriaAiAccess: false,
-      preferredOnboardingMode: 'conversational',
-      onboardingProgress: {},
-      gender: '',
-      profession: '',
-      brandStyle: '',
-      photoGoals: '',
-      trainingCoachingStarted: false,
+      preferredOnboardingMode: conversational,';      onboardingProgress: {},'
+      gender: ,;      profession: ,;      brandStyle: ,;      photoGoals: ,;      trainingCoachingStarted: false,
       trainingCoachingCompleted: false,
-      trainingCoachingPhase: '',
-      trainingCoachingStep: 0,
+      trainingCoachingPhase: ,;      trainingCoachingStep: 0,
       brandStrategyContext: {},
       ...overrides
     };
@@ -123,16 +103,12 @@ export class UserService extends BaseService {
   async createUser(email: string, userData: Partial<UserProfile> = {}): Promise<UserProfile> {
     try {
       if (!email) {
-        throw new Error('Email is required');
-      }
+        throw new Error('Email is required')';      }'
       const sanitizedData = this.sanitizeInput(userData);
-      const userId = sanitizedData.id || this.generateId('user');
-      this.log('info', 'Creating new user', { email, userId, isStackAuthUser: !!sanitizedData.id });
-      const newUser = await this.storage.createUser(this.getDefaultUserFields({
+      const userId = sanitizedData.id || this.generateId('user')';      this.log('info', 'Creating new user', { email, userId, isStackAuthUser: !!sanitizedData.id })';      const newUser = await this.storage.createUser(this.getDefaultUserFields({'
         id: userId,
         email,
-        displayName: sanitizedData.displayName || email.split('@')[0],
-        firstName: sanitizedData.firstName,
+        displayName: sanitizedData.displayName || email.split('@')[0],';        firstName: sanitizedData.firstName,'
         lastName: sanitizedData.lastName,
         gender: sanitizedData.gender,
         profileImageUrl: sanitizedData.profileImageUrl,
@@ -151,8 +127,7 @@ export class UserService extends BaseService {
         updatedAt: newUser.updatedAt
       };
     } catch (error) {
-      this.handleError(error, 'createUser');
-    }
+      this.handleError(error, 'createUser')';    }'
   }
 
   /**
@@ -161,16 +136,13 @@ export class UserService extends BaseService {
   async getUserByEmail(email: string): Promise<UserProfile | null> {
     try {
       if (!email) {
-        throw new Error('Email is required');
-      }
+        throw new Error('Email is required')';      }'
       
-      this.log('info', 'Getting user by email', { email });
-      
+      this.log('info', 'Getting user by email', { email })';      '
       const user = await this.storage.getUserByEmail(email);
       
       if (!user) {
-        this.log('warn', 'User not found by email', { email });
-        return null;
+        this.log('warn', 'User not found by email', { email })';        return null';'
       }
       
       return {
@@ -185,8 +157,7 @@ export class UserService extends BaseService {
         updatedAt: user.updatedAt
       };
     } catch (error) {
-      this.handleError(error, 'getUserByEmail');
-    }
+      this.handleError(error, 'getUserByEmail')';    }'
   }
 }
 

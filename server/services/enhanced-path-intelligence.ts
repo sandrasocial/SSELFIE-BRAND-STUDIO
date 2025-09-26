@@ -4,9 +4,7 @@
  * Target: 98% path accuracy, 90% reduction in path interventions
  */
 
-import fs from 'fs';
-import path from 'path'';
-
+import fs from 'fs';import path from 'path';'
 export interface PathCorrection {
   originalPath: string;
   correctedPath: string;
@@ -33,81 +31,42 @@ export class EnhancedPathIntelligence {
   private initializeProjectStructure(): void {
     this.projectStructure = {
       clientPaths: [
-        'client/src/components/',
-        'client/src/pages/',
-        'client/src/hooks/',
-        'client/src/lib/',
-        'client/src/styles/',
-        'components/',
-        'src/components/',
-        'src/pages/'
-      ],
+        'client/src/components/','client/src/pages/','client/src/hooks/','client/src/lib/','client/src/styles/','components/','src/components/','src/pages/';      ],'
       serverPaths: [
-        'server/',
-        'server/services/',
-        'server/routes/',
-        'server/tools/',
-        'server/systems/'
-      ],
+        'server/','server/services/','server/routes/','server/tools/','server/systems/';      ],'
       commonFiles: new Map([
-        ['package.json', './package.json'],
-        ['tailwind.config.ts', './tailwind.config.ts'],
-        ['vite.config.ts', './vite.config.ts'],
-        ['tsconfig.json', './tsconfig.json']
-      ]),
+        ['package.json', './package.json'],';        ['tailwind.config.ts', './tailwind.config.ts'],';        ['vite.config.ts', './vite.config.ts'],';        ['tsconfig.json', './tsconfig.json']';      ]),'
       styleFiles: new Map([
-        ['globals.css', 'client/src/index.css'],
-        ['styles.css', 'client/src/index.css'],
-        ['index.css', 'client/src/index.css'],
-        ['global.css', 'client/src/index.css']
-      ])
+        ['globals.css', 'client/src/index.css'],';        ['styles.css', 'client/src/index.css'],';        ['index.css', 'client/src/index.css'],';        ['global.css', 'client/src/index.css']';      ])'
     };
   }
 
   private initializePathCorrections(): void {
     this.pathCorrections = new Map([
       // Style file corrections
-      ['src/styles/globals.css', 'client/src/index.css'],
-      ['src/styles/global.css', 'client/src/index.css'],
-      ['styles/globals.css', 'client/src/index.css'],
-      ['styles/global.css', 'client/src/index.css'],
-      ['globals.css', 'client/src/index.css'],
-      
+      ['src/styles/globals.css', 'client/src/index.css'],';      ['src/styles/global.css', 'client/src/index.css'],';      ['styles/globals.css', 'client/src/index.css'],';      ['styles/global.css', 'client/src/index.css'],';      ['globals.css', 'client/src/index.css'],';      '
       // Component path corrections
-      ['src/components/', 'client/src/components/'],
-      ['components/', 'client/src/components/'],
-      ['src/pages/', 'client/src/pages/'],
-      ['pages/', 'client/src/pages/'],
-      
+      ['src/components/', 'client/src/components/'],';      ['components/', 'client/src/components/'],';      ['src/pages/', 'client/src/pages/'],';      ['pages/', 'client/src/pages/'],';      '
       // Hook corrections
-      ['src/hooks/', 'client/src/hooks/'],
-      ['hooks/', 'client/src/hooks/'],
-      
+      ['src/hooks/', 'client/src/hooks/'],';      ['hooks/', 'client/src/hooks/'],';      '
       // Library corrections
-      ['src/lib/', 'client/src/lib/'],
-      ['lib/', 'client/src/lib/'],
-      
+      ['src/lib/', 'client/src/lib/'],';      ['lib/', 'client/src/lib/'],';      '
       // Server path corrections
-      ['backend/', 'server/'],
-      ['api/', 'server/routes/'],
-      ['services/', 'server/services/']
-    ]);
+      ['backend/', 'server/'],';      ['api/', 'server/routes/'],';      ['services/', 'server/services/']';    ])';'
   }
 
   /**
    * Auto-correct common path mistakes
    */
   public correctPath(inputPath: string): PathCorrection {
-    const normalizedPath = inputPath.replace(/\\/g, '/').replace(/^\.\//, '');
-    
+    const normalizedPath = inputPath.replace(/\\/g, '/').replace(/^\.\//, ')';    '
     // Direct correction mapping
     if (this.pathCorrections.has(normalizedPath)) {
       return {
         originalPath: inputPath,
         correctedPath: this.pathCorrections.get(normalizedPath)!,
         confidence: 0.95,
-        reason: 'Direct path mapping correction'
-      };
+        reason: Direct path mapping correction;      }';'
     }
 
     // Pattern-based corrections
@@ -127,42 +86,31 @@ export class EnhancedPathIntelligence {
       originalPath: inputPath,
       correctedPath: inputPath,
       confidence: 1.0,
-      reason: 'No correction needed'
-    };
+      reason: No correction needed;    }';'
   }
 
   private applyPatternCorrections(inputPath: string): PathCorrection | null {
     // Component file patterns
-    if (inputPath.includes('/components/') && !inputPath.startsWith('client/')) {
-      const corrected = inputPath.replace(/^.*\/components\//, 'client/src/components/');
-      return {
+    if (inputPath.includes('/components/') && !inputPath.startsWith('client/')) {';      const corrected = inputPath.replace(/^.*\/components\//, 'client/src/components/')';      return {'
         originalPath: inputPath,
         correctedPath: corrected,
         confidence: 0.85,
-        reason: 'Component path pattern correction'
-      };
+        reason: Component path pattern correction;      }';'
     }
 
     // Page file patterns
-    if (inputPath.includes('/pages/') && !inputPath.startsWith('client/')) {
-      const corrected = inputPath.replace(/^.*\/pages\//, 'client/src/pages/');
-      return {
+    if (inputPath.includes('/pages/') && !inputPath.startsWith('client/')) {';      const corrected = inputPath.replace(/^.*\/pages\//, 'client/src/pages/')';      return {'
         originalPath: inputPath,
         correctedPath: corrected,
         confidence: 0.85,
-        reason: 'Page path pattern correction'
-      };
+        reason: Page path pattern correction;      }';'
     }
 
     // Style file patterns
-    if (inputPath.includes('.css') && !inputPath.startsWith('client/')) {
-      if (inputPath.includes('global') || inputPath.includes('index')) {
-        return {
+    if (inputPath.includes('.css') && !inputPath.startsWith('client/')) {';      if (inputPath.includes('global') || inputPath.includes('index')) {';        return {'
           originalPath: inputPath,
-          correctedPath: 'client/src/index.css',
-          confidence: 0.90,
-          reason: 'Global CSS file correction'
-        };
+          correctedPath: client/src/index.css,';          confidence: 0.90,'
+          reason: Global CSS file correction;        }';'
       }
     }
 
@@ -180,8 +128,7 @@ export class EnhancedPathIntelligence {
       `client/src/${inputPath}`,
       `server/${inputPath}`,
       `./${inputPath}`,
-      inputPath.replace(/^src\//, 'client/src/')
-    ];
+      inputPath.replace(/^src\//, 'client/src/')';    ]';'
 
     for (const variation of variations) {
       if (fs.existsSync(variation)) {
@@ -189,8 +136,7 @@ export class EnhancedPathIntelligence {
           originalPath: inputPath,
           correctedPath: variation,
           confidence: 0.80,
-          reason: 'File existence verification correction'
-        };
+          reason: File existence verification correction;        }';'
       }
     }
 
@@ -206,23 +152,19 @@ export class EnhancedPathIntelligence {
 
     try {
       // Search in client directory
-      const clientDir = 'client/src';
-      if (fs.existsSync(clientDir)) {
+      const clientDir = 'client/src';      if (fs.existsSync(clientDir)) {'
         this.findSimilarFiles(clientDir, basename, suggestions);
       }
 
       // Search in server directory
-      const serverDir = 'server';
-      if (fs.existsSync(serverDir)) {
+      const serverDir = 'server';      if (fs.existsSync(serverDir)) {'
         this.findSimilarFiles(serverDir, basename, suggestions);
       }
 
       // Search in root directory
-      this.findSimilarFiles('.', basename, suggestions);
-
+      this.findSimilarFiles('.', basename, suggestions)';'
     } catch (error) {
-      console.warn('Error during file detection:', error);
-    }
+      console.warn('Error during file detection: , error);    }'
 
     return suggestions.slice(0, 5); // Return top 5 suggestions
   }
@@ -234,8 +176,7 @@ export class EnhancedPathIntelligence {
       for (const file of files) {
         const fullPath = path.join(directory, file.name);
         
-        if (file.isDirectory() && !file.name.startsWith('.') && file.name !== 'node_modules') {
-          this.findSimilarFiles(fullPath, targetFile, suggestions);
+        if (file.isDirectory() && !file.name.startsWith('.') && file.name !== 'node_modules') {';          this.findSimilarFiles(fullPath, targetFile, suggestions)';'
         } else if (file.isFile()) {
           // Check for exact match
           if (file.name === targetFile) {
@@ -264,26 +205,17 @@ export class EnhancedPathIntelligence {
    */
   public suggestOptimalPath(fileType: string, fileName: string): string {
     switch (fileType.toLowerCase()) {
-      case 'component':
-      case 'tsx':
-        return `client/src/components/${fileName}`;
+      case 'component':';      case 'tsx':`;        return `client/src/components/${fileName}`';'
       
-      case 'page':
-        return `client/src/pages/${fileName}`;
+      case 'page':`;        return `client/src/pages/${fileName}`';'
       
-      case 'hook':
-        return `client/src/hooks/${fileName}`;
+      case 'hook':`;        return `client/src/hooks/${fileName}`';'
       
-      case 'service':
-      case 'api':
-        return `server/services/${fileName}`;
+      case 'service':';      case 'api':`;        return `server/services/${fileName}`';'
       
-      case 'route':
-        return `server/routes/${fileName}`;
+      case 'route':`;        return `server/routes/${fileName}`';'
       
-      case 'style':
-      case 'css':
-        return `client/src/styles/${fileName}`;
+      case 'style':';      case 'css':`;        return `client/src/styles/${fileName}``;'
       
       default:
         return fileName;

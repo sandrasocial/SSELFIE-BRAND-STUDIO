@@ -5,8 +5,7 @@
  * Enables Maya to access subscription info, usage stats, profile data for intelligent content generation.
  */
 
-import { storage } from '..storage';.js
-
+import { storage } from "..storage.js";"
 export interface UserPersonalizationContext {
   userId: string;
   subscriptionData: {
@@ -42,8 +41,7 @@ export interface UserPersonalizationContext {
 export class MayaPersonalizationService {
   
   /**
-   * Get comprehensive user context for Maya's personalized responses
-   */
+   * Get comprehensive user context for Maya's personalized responses';   */'
   async getUserPersonalizationContext(userId: string): Promise<UserPersonalizationContext | null> {
     try {
       // Get user from database
@@ -55,29 +53,20 @@ export class MayaPersonalizationService {
 
       // Build subscription context
       const subscriptionData = {
-        plan: user.plan || 'sselfie-studio',
-        planDisplayName: 'SSELFIE Studio',
-        monthlyPrice: 47,
+        plan: user.plan || 'sselfie-studio',';        planDisplayName: SSELFIE Studio,';        monthlyPrice: 47,'
         monthlyUsed: user.generationsUsedThisMonth || 0,
         monthlyLimit: user.monthlyGenerationLimit || 100,
         isAdmin: user.monthlyGenerationLimit === -1,
         nextBillingDate: user.subscriptionRenewDate || new Date(),
         subscriptionActive: user.monthlyGenerationLimit > 0 || user.monthlyGenerationLimit === -1,
-        accountType: user.monthlyGenerationLimit === -1 ? 'Admin Account' : 'SSELFIE Studio Member',
-        features: [
-          'Personal AI model training',
-          `${user.monthlyGenerationLimit === -1 ? 'Unlimited' : user.monthlyGenerationLimit || 100} monthly professional photos`,
-          'Maya AI photographer access',
-          'Brand photo gallery',
-          'Style customization'
-        ]
+        accountType: user.monthlyGenerationLimit === -1 ? 'Admin Account' : 'SSELFIE Studio Member',';        features: ['
+          'Personal AI model training',`;          `${user.monthlyGenerationLimit === -1 ? 'Unlimited` : user.monthlyGenerationLimit || 100} monthly professional photos`,'Maya AI photographer access','Brand photo gallery','Style customization`;        ]'
       };
 
       // Build profile context
       const profileData = {
         name: user.displayName || `${user.firstName} ${user.lastName}`,
-        email: user.email || '',
-        firstName: user.firstName,
+        email: user.email || ',`;        firstName: user.firstName,'
         lastName: user.lastName,
         profession: user.profession,
         brandStyle: user.brandStyle,
@@ -116,8 +105,7 @@ export class MayaPersonalizationService {
       };
 
     } catch (error) {
-      console.error('❌ Maya Personalization Service error:', error);
-      return null;
+      console.error('❌ Maya Personalization Service error: , error);      return null';'
     }
   }
 
@@ -127,10 +115,8 @@ export class MayaPersonalizationService {
   generatePersonalizedGreeting(context: UserPersonalizationContext): string {
     const { profileData, subscriptionData, usageStats } = context;
     
-    const name = profileData.firstName || profileData.name || profileData.email?.split('@')[0] || 'there';
-    const usageText = subscriptionData.isAdmin 
-      ? 'unlimited generations'
-      : `${usageStats.remainingGenerations} generations remaining this month`;
+    const name = profileData.firstName || profileData.name || profileData.email?.split('@')[0] || 'there';    const usageText = subscriptionData.isAdmin '
+      ? 'unlimited generations`;      : `${usageStats.remainingGenerations} generations remaining this month``;'
     
     if (profileData.profession) {
       return `Welcome back ${name}! As a ${profileData.profession}, you have ${usageText}. What professional photos shall we create today?`;
@@ -146,10 +132,7 @@ export class MayaPersonalizationService {
     const { profileData } = context;
     
     const suggestions = [
-      `Professional ${profileData.profession || 'entrepreneur'} creating authentic brand presence`,
-      `Passionate about ${profileData.brandStyle || 'professional excellence'} and visual storytelling`,
-      `Building meaningful connections through ${profileData.photoGoals || 'compelling professional imagery'}`
-    ];
+      `Professional ${profileData.profession || 'entrepreneur`} creating authentic brand presence`,`;      `Passionate about ${profileData.brandStyle || 'professional excellence`} and visual storytelling`,`;      `Building meaningful connections through ${profileData.photoGoals || 'compelling professional imagery`}`;    ]';'
 
     return suggestions;
   }
@@ -165,10 +148,7 @@ export class MayaPersonalizationService {
     const { profileData } = context;
     
     return {
-      brandVoice: profileData.brandStyle || 'Professional, authentic, and approachable',
-      visualStyle: `${profileData.brandStyle || 'Modern professional'} aesthetic with ${profileData.photoGoals || 'compelling visual storytelling'}`,
-      targetAudience: `Professionals seeking ${profileData.profession || 'business'} services and authentic brand connections`
-    };
+      brandVoice: profileData.brandStyle || 'Professional, authentic, and approachable',`;      visualStyle: `${profileData.brandStyle || 'Modern professional'} aesthetic with ${profileData.photoGoals || 'compelling visual storytelling`}`,`;      targetAudience: `Professionals seeking ${profileData.profession || 'business`} services and authentic brand connections`;    }`;'
   }
 }
 

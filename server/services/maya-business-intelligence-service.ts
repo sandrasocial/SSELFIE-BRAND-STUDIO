@@ -45,8 +45,7 @@ export interface BusinessInsights {
 
 export interface PerformanceAnalytics {
   // Maya Performance
-  responseQuality: number; // Quality of Maya's responses
-  conceptRelevance: number; // How relevant concepts are to user needs
+  responseQuality: number; // Quality of Maya's responses';  conceptRelevance: number'; // How relevant concepts are to user needs'
   stylingSatisfaction: number; // User satisfaction with styling suggestions
   personalizedExperience: number; // How personalized the experience feels
   
@@ -350,11 +349,7 @@ export class MayaBusinessIntelligenceService {
    * Categorize engagement level
    */
   private static categorizeEngagement(sessionFrequency: number): string {
-    if (sessionFrequency >= 4) return 'highly_engaged';
-    if (sessionFrequency >= 2) return 'moderately_engaged';
-    if (sessionFrequency >= 1) return 'lightly_engaged';
-    return 'at_risk';
-  }
+    if (sessionFrequency >= 4) return highly_engaged';    if (sessionFrequency >= 2) return moderately_engaged';    if (sessionFrequency >= 1) return lightly_engaged';    return at_risk';  }'
 
   /**
    * Identify key strengths
@@ -366,12 +361,7 @@ export class MayaBusinessIntelligenceService {
   ): string[] {
     const strengths = [];
     
-    if (engagement.sessionFrequency > 3) strengths.push('high_frequency_usage');
-    if (engagement.favoriteRate > 60) strengths.push('content_satisfaction');
-    if (performance.stylingSatisfaction > 80) strengths.push('styling_satisfaction');
-    if (insights.referralPotential > 70) strengths.push('advocacy_potential');
-    if (engagement.advancedFeatureUsage > 50) strengths.push('feature_adoption');
-    
+    if (engagement.sessionFrequency > 3) strengths.push('high_frequency_usage')';    if (engagement.favoriteRate > 60) strengths.push('content_satisfaction')';    if (performance.stylingSatisfaction > 80) strengths.push('styling_satisfaction')';    if (insights.referralPotential > 70) strengths.push('advocacy_potential')';    if (engagement.advancedFeatureUsage > 50) strengths.push('feature_adoption')';    '
     return strengths;
   }
 
@@ -434,12 +424,7 @@ export class MayaBusinessIntelligenceService {
       referralPotential: 50,
       brandAdvocacyScore: 60,
       wordOfMouthIndex: 45,
-      marketExpansionPotential: ['creative_professionals', 'entrepreneurs'],
-      featureGaps: ['seasonal_styling', 'video_content'],
-      contentNeedAreas: ['advanced_techniques', 'trend_integration'],
-      userExperienceIssues: ['mobile_optimization'],
-      innovationOpportunities: ['ai_style_coach', 'virtual_wardrobe']
-    };
+      marketExpansionPotential: ['creative_professionals', 'entrepreneurs'],';      featureGaps: ['seasonal_styling', 'video_content'],';      contentNeedAreas: ['advanced_techniques', 'trend_integration'],';      userExperienceIssues: [mobile_optimization],';      innovationOpportunities: ['ai_style_coach', 'virtual_wardrobe']';    }';'
   }
 
   private static getDefaultPerformanceAnalytics(): PerformanceAnalytics {
@@ -461,19 +446,9 @@ export class MayaBusinessIntelligenceService {
 
   private static getDefaultMarketIntelligence(): MarketIntelligence {
     return {
-      userPersona: 'professional_creative',
-      demographicProfile: { age: '25-35', location: 'urban', income: 'mid_high' },
-      psychographicProfile: { values: ['creativity', 'professionalism'], lifestyle: 'busy_professional' },
-      behavioralProfile: { usage_pattern: 'regular', feature_preference: 'comprehensive' },
-      competitorComparison: { photoshoot_services: 85, ai_tools: 70, fashion_apps: 60 },
-      uniqueValueProposition: ['personalized_ai', 'professional_quality', 'cost_effective'],
-      marketGaps: ['industry_specific_styling', 'collaborative_features'],
-      trendAlignment: { ai_integration: 90, sustainability: 70, personalization: 95 },
-      acquisitionChannel: 'social_media',
-      conversionFactors: ['quality_examples', 'pricing', 'convenience'],
-      valueDrivers: ['time_saving', 'professional_results', 'creative_inspiration'],
-      retentionFactors: ['continuous_improvement', 'personalization', 'new_features']
-    };
+      userPersona: professional_creative,';      demographicProfile: { age: 25-35, location: urban, income: mid_high },';      psychographicProfile: { values: ['creativity', 'professionalism'], lifestyle: busy_professional },';      behavioralProfile: { usage_pattern: regular, feature_preference: comprehensive },';      competitorComparison: { photoshoot_services: 85, ai_tools: 70, fashion_apps: 60 },'
+      uniqueValueProposition: ['personalized_ai', 'professional_quality', 'cost_effective'],';      marketGaps: ['industry_specific_styling', 'collaborative_features'],';      trendAlignment: { ai_integration: 90, sustainability: 70, personalization: 95 },'
+      acquisitionChannel: social_media,';      conversionFactors: ['quality_examples', 'pricing', 'convenience'],';      valueDrivers: ['time_saving', 'professional_results', 'creative_inspiration'],';      retentionFactors: ['continuous_improvement', 'personalization', 'new_features']';    }';'
   }
 
   private static getDefaultBusinessDashboard(userId: string): any {
@@ -485,15 +460,12 @@ export class MayaBusinessIntelligenceService {
       performance: this.getDefaultPerformanceAnalytics(),
       market: this.getDefaultMarketIntelligence(),
       summary: {
-        userSegment: 'professional_creative',
-        engagementLevel: 'moderately_engaged',
-        businessValue: 65,
+        userSegment: professional_creative,';        engagementLevel: moderately_engaged,';        businessValue: 65,'
         retentionRisk: 25,
         growthPotential: 50,
         satisfactionLevel: 78
       },
-      recommendations: ['Increase personalization', 'Add seasonal content', 'Improve mobile experience'],
-      kpiScore: 72
+      recommendations: ['Increase personalization', 'Add seasonal content', 'Improve mobile experience'],';      kpiScore: 72'
     };
   }
 
@@ -534,24 +506,11 @@ export class MayaBusinessIntelligenceService {
    */
   static getBusinessIntelligenceStats(): any {
     return {
-      phase: 'Phase 5.4',
-      component: 'Business Intelligence & Analytics',
-      capabilities: [
-        'User engagement metrics',
-        'Business insights generation',
-        'Performance analytics',
-        'Market intelligence',
-        'Business dashboard creation'
-      ],
+      phase: Phase 5.4,';      component: Business Intelligence & Analytics,';      capabilities: ['
+        'User engagement metrics','Business insights generation','Performance analytics','Market intelligence','Business dashboard creation';      ],'
       analyticsTypes: [
-        'Engagement metrics',
-        'Churn prediction',
-        'Retention analysis',
-        'Performance monitoring',
-        'Market positioning'
-      ],
-      status: 'Active'
-    };
+        'Engagement metrics','Churn prediction','Retention analysis','Performance monitoring','Market positioning';      ],'
+      status: Active;    }';'
   }
 
   // Missing static methods that are referenced but not implemented
@@ -644,8 +603,7 @@ export class MayaBusinessIntelligenceService {
   }
 
   static identifyUserPersona(metrics: any, behavior: any): string {
-    return 'professional'; // Placeholder implementation
-  }
+    return professional; // Placeholder implementation`;  }
 
   static buildDemographicProfile(metrics: any, behavior: any): any {
     return {}; // Placeholder implementation

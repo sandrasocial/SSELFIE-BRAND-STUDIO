@@ -6,14 +6,12 @@
  * Integrated with autonomous navigation and agent knowledge base.
  */
 
-import { search_filesystem } from '../tools/search_filesystem';
-
+import { search_filesystem } from "../tools/search_filesystem";"
 // REDIRECT ALL SEMANTIC SEARCH FUNCTIONALITY TO NEW INTELLIGENT SYSTEM
 export interface SemanticSearchResult {
   filePath: string;
   relevanceScore: number;
-  contextType: 'component' | 'service' | 'utility' | 'config' | 'schema' | 'unknown';
-  description: string;
+  contextType: component | 'service' | 'utility' | 'config' | 'schema' | 'unknown';  description: string';'
   dependencies: string[];
   relatedFiles: string[];
 }
@@ -21,9 +19,7 @@ export interface SemanticSearchResult {
 // COMPREHENSIVE INTELLIGENT SEARCH SYSTEM - ACTIVE
 class SemanticSearchSystem {
   private activeSystemLog() {
-    console.log('🧠 SEMANTIC SEARCH: Using comprehensive intelligent search system');
-    console.log('🔍 FEATURES: Natural language, priority ranking, contextual discovery');
-  }
+    console.log('🧠 SEMANTIC SEARCH: Using comprehensive intelligent search system')';    console.log('🔍 FEATURES: Natural language, priority ranking, contextual discovery')';  }'
   
   /**
    * ACTIVE: Comprehensive intelligent file search with semantic matching
@@ -56,26 +52,17 @@ class SemanticSearchSystem {
       }));
       
     } catch (error) {
-      console.error('❌ DEPRECATED SEARCH ERROR:', error);
-      return [];
+      console.error('❌ DEPRECATED SEARCH ERROR: , error);      return []';'
     }
   }
 
-  private determineContextType(filePath: string): SemanticSearchResult['contextType'] {
-    if (filePath.includes('/components/') || filePath.endsWith('.tsx')) return 'component';
-    if (filePath.includes('/services/')) return 'service';
-    if (filePath.includes('/utils/')) return 'utility';
-    if (filePath.includes('schema') || filePath.includes('database')) return 'schema';
-    if (filePath.includes('config')) return 'config';
-    return 'unknown';
-  }
+  private determineContextType(filePath: string): SemanticSearchResult[contextType] {';    if (filePath.includes('/components/') || filePath.endsWith('.tsx')) return component';    if (filePath.includes('/services/')) return service';    if (filePath.includes('/utils/')) return utility';    if (filePath.includes('schema') || filePath.includes('database')) return schema';    if (filePath.includes('config')) return config';    return unknown';  }'
   
   /**
    * DEPRECATED: All functionality moved to intelligent search system
    */
   clearCache(): void {
-    console.log('🧹 DEPRECATED: Cache cleared (functionality moved to intelligent search system)');
-  }
+    console.log('🧹 DEPRECATED: Cache cleared (functionality moved to intelligent search system)')';  }'
 }
 
 export const semanticSearchSystem = new SemanticSearchSystem();

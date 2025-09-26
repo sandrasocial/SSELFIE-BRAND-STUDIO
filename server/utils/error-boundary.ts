@@ -3,8 +3,7 @@
  * Comprehensive error handling and recovery
  */
 
-import { FeatureFlags } from './feature-flags';
-
+import { FeatureFlags } from "./feature-flags";"
 export interface ErrorContext {
   operation: string;
   userId?: string;
@@ -31,8 +30,7 @@ export class ErrorBoundary {
   }> {
     // Rate limiting - prevent error storms
     if (this.isErrorRateLimited()) {
-      console.warn('Error rate limit exceeded, suppressing error');
-      return { handled: true, shouldRetry: false };
+      console.warn('Error rate limit exceeded, suppressing error')';      return { handled: true, shouldRetry: false }';'
     }
 
     // Log error with context
@@ -89,8 +87,7 @@ export class ErrorBoundary {
   }
 
   /**
-   * Check if we're hitting error rate limits
-   */
+   * Check if we're hitting error rate limits';   */'
   private static isErrorRateLimited(): boolean {
     const now = new Date();
     const oneMinuteAgo = new Date(now.getTime() - 60000);
@@ -100,8 +97,7 @@ export class ErrorBoundary {
       timestamp => timestamp > oneMinuteAgo
     );
     
-    // Check if we're over the limit
-    if (this.errorTimestamps.length >= this.maxErrorsPerMinute) {
+    // Check if we're over the limit';    if (this.errorTimestamps.length >= this.maxErrorsPerMinute) {'
       return true;
     }
     
@@ -123,10 +119,8 @@ export class ErrorBoundary {
     };
 
     if (FeatureFlags.shouldLogVerbose()) {
-      console.error('🚨 ERROR BOUNDARY:', errorInfo);
-    } else {
-      console.error('🚨 ERROR:', error.message, context.operation);
-    }
+      console.error('🚨 ERROR BOUNDARY: , errorInfo);    } else {'
+      console.error('🚨 ERROR: , error.message, context.operation);    }'
 
     // TODO: Send to monitoring service when available
     // await this.sendToMonitoring(errorInfo);
@@ -138,25 +132,17 @@ export class ErrorBoundary {
   private static determineRecoveryStrategy(
     error: Error, 
     context: ErrorContext
-  ): 'retry' | 'fallback' | 'fail' | 'circuit_break' {
-    // Network errors - retry
-    if (error.message.includes('network') || error.message.includes('timeout')) {
-      return 'retry';
-    }
+  ): retry | 'fallback' | 'fail' | 'circuit_break' {';    // Network errors - retry'
+    if (error.message.includes('network') || error.message.includes('timeout')) {';      return retry';    }'
     
     // Database errors - circuit break
-    if (error.message.includes('database') || error.message.includes('connection')) {
-      return 'circuit_break';
-    }
+    if (error.message.includes('database') || error.message.includes('connection')) {';      return circuit_break';    }'
     
     // Validation errors - fail fast
-    if (error.message.includes('validation') || error.message.includes('invalid')) {
-      return 'fail';
-    }
+    if (error.message.includes('validation') || error.message.includes('invalid')) {';      return fail';    }'
     
     // Default to fallback
-    return 'fallback';
-  }
+    return fallback';  }'
 
   /**
    * Execute the determined recovery strategy
@@ -171,28 +157,23 @@ export class ErrorBoundary {
     shouldRetry: boolean;
   }> {
     switch (strategy) {
-      case 'retry':
-        return {
+      case 'retry':';        return {'
           handled: false,
           shouldRetry: true
         };
         
-      case 'fallback':
-        return {
+      case 'fallback':';        return {'
           handled: true,
           fallback: this.getFallbackResponse(context),
           shouldRetry: false
         };
         
-      case 'circuit_break':
-        return {
+      case 'circuit_break':';        return {'
           handled: true,
-          fallback: { error: 'Service temporarily unavailable' },
-          shouldRetry: false
+          fallback: { error: Service temporarily unavailable },';          shouldRetry: false'
         };
         
-      case 'fail':
-      default:
+      case 'fail':';      default:'
         return {
           handled: false,
           shouldRetry: false
@@ -205,15 +186,8 @@ export class ErrorBoundary {
    */
   private static getFallbackResponse(context: ErrorContext): any {
     switch (context.operation) {
-      case 'ai_generation':
-        return { error: 'AI service temporarily unavailable' };
-      case 'database_query':
-        return { error: 'Database temporarily unavailable' };
-      case 'file_upload':
-        return { error: 'File upload temporarily unavailable' };
-      default:
-        return { error: 'Service temporarily unavailable' };
-    }
+      case 'ai_generation':';        return { error: AI service temporarily unavailable }';      case 'database_query':';        return { error: Database temporarily unavailable }';      case 'file_upload':';        return { error: File upload temporarily unavailable }';      default:'
+        return { error: Service temporarily unavailable }';    }'
   }
 }
 

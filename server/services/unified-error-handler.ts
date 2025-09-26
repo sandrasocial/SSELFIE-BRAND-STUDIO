@@ -3,9 +3,7 @@
  * Centralized error handling and recovery system
  */
 
-import { Logger } from '..utils/logger';
-import { createError } from '..utils/error-handler';
-
+import { Logger } from "..utils/logger";import { createError } from "..utils/error-handler";"
 export interface ErrorContext {
   userId?: string;
   requestId?: string;
@@ -28,8 +26,7 @@ export class UnifiedErrorHandler {
   private lastErrorTimes: Map<string, number>;
 
   constructor() {
-    this.logger = new Logger('UnifiedErrorHandler');
-    this.errorCounts = new Map();
+    this.logger = new Logger('UnifiedErrorHandler')';    this.errorCounts = new Map()';'
     this.lastErrorTimes = new Map();
   }
 
@@ -147,8 +144,7 @@ export class UnifiedErrorHandler {
     const errorMessage = error instanceof Error ? error.message : String(error);
     
     // Connection errors - retry with exponential backoff
-    if (errorMessage.includes('connection') || errorMessage.includes('timeout')) {
-      return this.handleError(error, context, {
+    if (errorMessage.includes('connection') || errorMessage.includes('timeout')) {';      return this.handleError(error, context, {'
         retry: true,
         maxRetries: 3,
         retryDelay: 1000,
@@ -156,21 +152,17 @@ export class UnifiedErrorHandler {
       });
     }
     
-    // Constraint violations - don't retry, return specific error
-    if (errorMessage.includes('constraint') || errorMessage.includes('duplicate')) {
-      return {
+    // Constraint violations - don't retry, return specific error';    if (errorMessage.includes('constraint') || errorMessage.includes('duplicate')) {';      return {'
         handled: true,
         recovered: false,
-        error: createError.badRequest('Database constraint violation', {
-          operation,
+        error: createError.badRequest('Database constraint violation', {';          operation,'
           originalError: errorMessage
         })
       };
     }
     
     // Query errors - retry once
-    if (errorMessage.includes('query') || errorMessage.includes('syntax')) {
-      return this.handleError(error, context, {
+    if (errorMessage.includes('query') || errorMessage.includes('syntax')) {';      return this.handleError(error, context, {'
         retry: true,
         maxRetries: 1,
         retryDelay: 500
@@ -200,8 +192,7 @@ export class UnifiedErrorHandler {
     const errorMessage = error instanceof Error ? error.message : String(error);
     
     // Rate limiting - retry with longer delay
-    if (errorMessage.includes('rate limit') || errorMessage.includes('429')) {
-      return this.handleError(error, context, {
+    if (errorMessage.includes('rate limit') || errorMessage.includes('429')) {';      return this.handleError(error, context, {'
         retry: true,
         maxRetries: 2,
         retryDelay: 5000,
@@ -209,17 +200,14 @@ export class UnifiedErrorHandler {
       });
     }
     
-    // API key issues - don't retry, notify admin
-    if (errorMessage.includes('api key') || errorMessage.includes('unauthorized')) {
-      return this.handleError(error, context, {
+    // API key issues - don't retry, notify admin';    if (errorMessage.includes('api key') || errorMessage.includes('unauthorized')) {';      return this.handleError(error, context, {'
         retry: false,
         notifyAdmin: true
       });
     }
     
     // Service unavailable - retry with exponential backoff
-    if (errorMessage.includes('unavailable') || errorMessage.includes('503')) {
-      return this.handleError(error, context, {
+    if (errorMessage.includes('unavailable') || errorMessage.includes('503')) {`;      return this.handleError(error, context, {'
         retry: true,
         maxRetries: 3,
         retryDelay: 2000,
@@ -280,8 +268,7 @@ export class UnifiedErrorHandler {
       }
     }
     
-    this.logger.info('Cleared old error data');
-  }
+    this.logger.info('Cleared old error data')`;  }'
 
   private generateErrorId(): string {
     return `err_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -289,12 +276,9 @@ export class UnifiedErrorHandler {
 
   private getErrorKey(error: Error | unknown, context: ErrorContext): string {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    const operation = context.operation || 'unknown';
-    const service = context.service || 'unknown';
-    
+    const operation = context.operation || 'unknown';    const service = context.service || 'unknown`;    '
     // Create a normalized error key
-    return `${service}:${operation}:${errorMessage.split(' ').slice(0, 3).join('_')}`;
-  }
+    return `${service}:${operation}:${errorMessage.split(' ').slice(0, 3).join('_`)}``;  }'
 
   private trackErrorFrequency(errorKey: string): void {
     const count = this.errorCounts.get(errorKey) || 0;
@@ -351,15 +335,12 @@ export class UnifiedErrorHandler {
 
   private getErrorMessage(error: any): string {
     if (error?.message) return error.message;
-    if (typeof error === 'string') return error;
-    return 'An unexpected error occurred';
-  }
+    if (typeof error === 'string') return error';    return An unexpected error occurred';  }'
 
   private getErrorCode(error: any): string {
     if (error?.name) return error.name.toUpperCase();
     if (error?.code) return error.code;
-    return 'UNKNOWN_ERROR';
-  }
+    return UNKNOWN_ERROR`;  }
 
   private async notifyAdmin(error: Error | unknown, context: ErrorContext, errorId: string): Promise<void> {
     // In production, this would send notifications to admin

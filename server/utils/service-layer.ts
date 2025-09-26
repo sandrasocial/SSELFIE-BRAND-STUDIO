@@ -3,14 +3,14 @@
  * Business logic abstraction and data access
  */
 
-import { Logger } from './logger';
-import { errorHandler } from './error-handler';
+import { Logger } from "./logger.js";
+import { errorHandler } from "./error-handler.js";
 
 export interface ServiceResponse<T = any> {
   success: boolean;
-  data?: T;
-  error?: string;
-  message?: string;
+  data?: T | undefined;
+  error?: string | undefined;
+  message?: string | undefined;
   timestamp: string;
 }
 
@@ -148,8 +148,7 @@ export class UserService extends BaseService {
    */
   public async getUserById(userId: string): Promise<ServiceResponse<any>> {
     try {
-      this.validateInput({ userId }, ['userId']);
-
+      this.validateInput({ userId }, [userId]);
       // Mock user data - would be replaced with actual database call
       const user = {
         id: userId,
@@ -170,7 +169,7 @@ export class UserService extends BaseService {
    */
   public async getUserByEmail(email: string): Promise<ServiceResponse<any>> {
     try {
-      this.validateInput({ email }, ['email']);
+      this.validateInput({ email }, [email]);
       errorHandler.validateEmail(email);
 
       // Mock user data - would be replaced with actual database call
@@ -223,8 +222,7 @@ export class UserService extends BaseService {
     updates: Record<string, any>
   ): Promise<ServiceResponse<any>> {
     try {
-      this.validateInput({ userId }, ['userId']);
-
+      this.validateInput({ userId }, [userId]);
       // Mock user update - would be replaced with actual database call
       const user = {
         id: userId,
@@ -276,7 +274,6 @@ export class AIGenerationService extends BaseService {
   public async draftStory(userId: string, concept: string): Promise<ServiceResponse<any>> {
     try {
       this.validateInput({ userId, concept }, ['userId', 'concept']);
-
       // Mock story drafting - would be replaced with actual AI service call
       const story = {
         id: `story_${Date.now()}`,
@@ -304,7 +301,6 @@ export class AIGenerationService extends BaseService {
   ): Promise<ServiceResponse<any>> {
     try {
       this.validateInput({ userId, concept }, ['userId', 'concept']);
-
       // Mock story generation - would be replaced with actual AI service call
       const story = {
         id: `story_${Date.now()}`,
@@ -329,7 +325,6 @@ export class AIGenerationService extends BaseService {
   public async getStoryStatus(userId: string, jobId: string): Promise<ServiceResponse<any>> {
     try {
       this.validateInput({ userId, jobId }, ['userId', 'jobId']);
-
       // Mock story status - would be replaced with actual status check
       const status = {
         jobId,
@@ -361,7 +356,6 @@ export class AIGenerationService extends BaseService {
   ): Promise<ServiceResponse<any>> {
     try {
       this.validateInput({ userId, story }, ['userId', 'story']);
-
       // Mock video generation - would be replaced with actual AI service call
       const video = {
         id: `video_${Date.now()}`,
@@ -390,7 +384,6 @@ export class AIGenerationService extends BaseService {
   ): Promise<ServiceResponse<any>> {
     try {
       this.validateInput({ userId, prompt }, ['userId', 'prompt']);
-
       // Mock video generation - would be replaced with actual AI service call
       const video = {
         id: `video_${Date.now()}`,
@@ -413,8 +406,7 @@ export class AIGenerationService extends BaseService {
    */
   public async getUserVideos(userId: string): Promise<ServiceResponse<any[]>> {
     try {
-      this.validateInput({ userId }, ['userId']);
-
+      this.validateInput({ userId }, [userId]);
       // Mock videos data - would be replaced with actual database call
       const videos = Array.from({ length: 10 }, (_, i) => ({
         id: `video_${i + 1}`,
@@ -441,7 +433,6 @@ export class AIGenerationService extends BaseService {
   ): Promise<ServiceResponse<any>> {
     try {
       this.validateInput({ userId, prompt }, ['userId', 'prompt']);
-
       // Mock image generation - would be replaced with actual AI service call
       const images = {
         id: `images_${Date.now()}`,
@@ -464,8 +455,7 @@ export class AIGenerationService extends BaseService {
    */
   public async getAiImages(userId: string): Promise<ServiceResponse<any[]>> {
     try {
-      this.validateInput({ userId }, ['userId']);
-
+      this.validateInput({ userId }, [userId]);
       // Mock images data - would be replaced with actual database call
       const images = Array.from({ length: 20 }, (_, i) => ({
         id: `image_${i + 1}`,
@@ -487,8 +477,7 @@ export class AIGenerationService extends BaseService {
    */
   public async getMayaChats(userId: string): Promise<ServiceResponse<any[]>> {
     try {
-      this.validateInput({ userId }, ['userId']);
-
+      this.validateInput({ userId }, [userId]);
       // Mock chats data - would be replaced with actual database call
       const chats = Array.from({ length: 15 }, (_, i) => ({
         id: `chat_${i + 1}`,
@@ -509,8 +498,7 @@ export class AIGenerationService extends BaseService {
    */
   public async getCategorizedMayaChats(userId: string): Promise<ServiceResponse<any>> {
     try {
-      this.validateInput({ userId }, ['userId']);
-
+      this.validateInput({ userId }, [userId]);
       // Mock categorized chats data - would be replaced with actual database call
       const categorizedChats = {
         photography: [
@@ -598,8 +586,7 @@ export class AdminService extends BaseService {
    */
   public async getUserById(userId: string): Promise<ServiceResponse<any>> {
     try {
-      this.validateInput({ userId }, ['userId']);
-
+      this.validateInput({ userId }, [userId]);
       // Mock user data - would be replaced with actual database call
       const user = {
         id: userId,

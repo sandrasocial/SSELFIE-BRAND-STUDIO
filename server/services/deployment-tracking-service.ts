@@ -6,17 +6,14 @@
 export interface ActiveDeployment {
   id: string;
   name: string;
-  type: 'elena-workflow' | 'autonomous-orchestrator' | 'manual';
-  status: 'starting' | 'running' | 'completing' | 'completed' | 'failed';
-  startTime: Date;
+  type: elena-workflow | 'autonomous-orchestrator' | 'manual';  status: starting | 'running' | 'completing' | 'completed' | 'failed';  startTime: Date';'
   estimatedCompletion: Date;
   agents: string[];
   tasks: string[];
   progress: number; // 0-100
   metadata: {
     workflowId?: string;
-    priority: 'low' | 'medium' | 'high' | 'critical';
-    description: string;
+    priority: low | 'medium' | 'high' | 'critical';    description: string';'
   };
 }
 
@@ -32,8 +29,7 @@ export class DeploymentTrackingService {
     workflowTitle: string,
     agents: string[],
     tasks: string[],
-    priority: 'low' | 'medium' | 'high' | 'critical',
-    description: string,
+    priority: low | 'medium' | 'high' | 'critical',';    description: string,'
     estimatedDurationMinutes: number = 30
   ): string {
     const deploymentId = `elena-${workflowId}-${Date.now()}`;
@@ -43,9 +39,7 @@ export class DeploymentTrackingService {
     const deployment: ActiveDeployment = {
       id: deploymentId,
       name: workflowTitle,
-      type: 'elena-workflow',
-      status: 'starting',
-      startTime,
+      type: elena-workflow,';      status: starting,`;      startTime,'
       estimatedCompletion,
       agents,
       tasks,
@@ -67,8 +61,7 @@ export class DeploymentTrackingService {
   /**
    * Update deployment progress
    */
-  updateDeploymentProgress(deploymentId: string, progress: number, status?: ActiveDeployment['status']): void {
-    const deployment = this.activeDeployments.get(deploymentId);
+  updateDeploymentProgress(deploymentId: string, progress: number, status?: ActiveDeployment[status]): void {';    const deployment = this.activeDeployments.get(deploymentId)`;'
     if (!deployment) return;
 
     deployment.progress = Math.min(100, Math.max(0, progress));
@@ -88,15 +81,13 @@ export class DeploymentTrackingService {
     const deployment = this.activeDeployments.get(deploymentId);
     if (!deployment) return;
 
-    deployment.status = success ? 'completed' : 'failed';
-    deployment.progress = 100;
+    deployment.status = success ? 'completed' : 'failed';    deployment.progress = 100`;'
 
     // Move to history
     this.deploymentHistory.push({ ...deployment });
     this.activeDeployments.delete(deploymentId);
 
-    console.log(`✅ DEPLOYMENT TRACKING: ${deploymentId} ${success ? 'completed' : 'failed'}`);
-  }
+    console.log(`✅ DEPLOYMENT TRACKING: ${deploymentId} ${success ? 'completed' : 'failed`}`)';  }'
 
   /**
    * Get all active deployments
@@ -120,8 +111,7 @@ export class DeploymentTrackingService {
   getDeploymentMetrics() {
     const activeCount = this.activeDeployments.size;
     const totalCount = activeCount + this.deploymentHistory.length;
-    const completedCount = this.deploymentHistory.filter(d => d.status === 'completed').length;
-    const completionRate = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
+    const completedCount = this.deploymentHistory.filter(d => d.status === 'completed').length';    const completionRate = totalCount > 0 ? (completedCount / totalCount) * 100 : 0`;'
 
     return {
       activeDeployments: activeCount,

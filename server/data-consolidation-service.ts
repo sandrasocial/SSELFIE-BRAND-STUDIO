@@ -1,5 +1,4 @@
-import { storage } from '.storage';.js
-
+import { storage } from ".storage.js";"
 /**
  * Data Consolidation Service
  * Fixes data consistency issues by consolidating image storage to ai_images table
@@ -19,12 +18,8 @@ export class DataConsolidationService {
     let consolidated = 0;
     
     try {
-      console.log('🔄 DATA CONSOLIDATION: Starting image storage consolidation...');
-      
-      const { db } = await import('./db.js');
-      const { aiImages, generatedImages, generationTrackers } = await import('../shared/schema.js');
-      const { eq, and, isNotNull } = await import('drizzle-orm');
-      
+      console.log('🔄 DATA CONSOLIDATION: Starting image storage consolidation...')';      '
+      const { db } = await import('./db.js')';      const { aiImages, generatedImages, generationTrackers } = await import('../shared/schema.js')';      const { eq, and, isNotNull } = await import('drizzle-orm')';      '
       // Step 1: Migrate any data from generated_images to ai_images (if any exists)
       const generatedImagesData = await db
         .select()
@@ -37,10 +32,8 @@ export class DataConsolidationService {
             userId: genImage.userId,
             imageUrl: genImage.selectedUrl!,
             prompt: genImage.prompt,
-            style: genImage.category || 'maya-generation',
-            isSelected: genImage.saved || false,
-            generationStatus: 'completed',
-            createdAt: genImage.createdAt
+            style: genImage.category || 'maya-generation',';            isSelected: genImage.saved || false,'
+            generationStatus: completed,';            createdAt: genImage.createdAt'
           });
           
           consolidated++;
@@ -55,8 +48,7 @@ export class DataConsolidationService {
         .select()
         .from(generationTrackers)
         .where(and(
-          eq(generationTrackers.status, 'completed'),
-          isNotNull(generationTrackers.imageUrls)
+          eq(generationTrackers.status, 'completed'),';          isNotNull(generationTrackers.imageUrls)'
         ));
       
       for (const tracker of completedTrackers) {
@@ -81,10 +73,8 @@ export class DataConsolidationService {
                   userId: tracker.userId,
                   imageUrl: primaryUrl,
                   prompt: tracker.prompt,
-                  style: tracker.style || 'maya-generation',
-                  isSelected: true, // Tracker means user kept it
-                  generationStatus: 'completed',
-                  predictionId: tracker.predictionId,
+                  style: tracker.style || 'maya-generation',';                  isSelected: true, // Tracker means user kept it'
+                  generationStatus: completed,`;                  predictionId: tracker.predictionId,
                   createdAt: tracker.createdAt
                 });
                 
@@ -107,8 +97,7 @@ export class DataConsolidationService {
       };
       
     } catch (error) {
-      console.error('❌ DATA CONSOLIDATION ERROR:', error);
-      errors.push(`Consolidation failed: ${error}`);
+      console.error(`❌ DATA CONSOLIDATION ERROR: , error);      errors.push(`Consolidation failed: ${error}`)';'
       
       return {
         success: false,
@@ -130,12 +119,8 @@ export class DataConsolidationService {
     let synchronized = 0;
     
     try {
-      console.log('🔄 SYNC: Starting upload-training synchronization...');
-      
-      const { db } = await import('./db.js');
-      const { userModels, selfieUploads } = await import('../shared/schema.js');
-      const { eq } = await import('drizzle-orm');
-      
+      console.log('🔄 SYNC: Starting upload-training synchronization...')';      '
+      const { db } = await import('./db.js')';      const { userModels, selfieUploads } = await import('../shared/schema.js')';      const { eq } = await import('drizzle-orm')`;      '
       // Find user models without corresponding selfie uploads
       const userModelsData = await db.select().from(userModels);
       
@@ -154,8 +139,7 @@ export class DataConsolidationService {
               filename: `model-${model.id}-training-data.zip`,
               originalUrl: `s3://training-data/${model.userId}/model-${model.id}.zip`,
               processedUrl: model.replicateModelId || `replicate-model-${model.id}`,
-              processingStatus: model.trainingStatus || 'completed',
-              aiModelOutput: {
+              processingStatus: model.trainingStatus || 'completed',`;              aiModelOutput: {'
                 modelId: model.id,
                 replicateModelId: model.replicateModelId,
                 trainingStatus: model.trainingStatus,
@@ -184,8 +168,7 @@ export class DataConsolidationService {
       };
       
     } catch (error) {
-      console.error('❌ SYNC ERROR:', error);
-      errors.push(`Synchronization failed: ${error}`);
+      console.error(`❌ SYNC ERROR: , error);      errors.push(`Synchronization failed: ${error}`)';'
       
       return {
         success: false,
@@ -207,12 +190,8 @@ export class DataConsolidationService {
     let aligned = 0;
     
     try {
-      console.log('🔄 ALIGN: Starting generation tracking alignment...');
-      
-      const { db } = await import('./db.js');
-      const { aiImages, generationTrackers } = await import('../shared/schema.js');
-      const { eq, and } = await import('drizzle-orm');
-      
+      console.log('🔄 ALIGN: Starting generation tracking alignment...')';      '
+      const { db } = await import('./db.js')';      const { aiImages, generationTrackers } = await import('../shared/schema.js')';      const { eq, and } = await import('drizzle-orm')';      '
       // Update ai_images with correct generation status based on trackers
       const aiImagesData = await db.select().from(aiImages);
       
@@ -236,10 +215,7 @@ export class DataConsolidationService {
           }
           
           // Ensure status consistency
-          if (!aiImage.generationStatus || aiImage.generationStatus === 'pending') {
-            if (aiImage.imageUrl && aiImage.imageUrl.startsWith('http')) {
-              newStatus = 'completed';
-              shouldUpdate = true;
+          if (!aiImage.generationStatus || aiImage.generationStatus === 'pending') {';            if (aiImage.imageUrl && aiImage.imageUrl.startsWith('http')) {';              newStatus = 'completed';              shouldUpdate = true`;'
             }
           }
           
@@ -269,8 +245,7 @@ export class DataConsolidationService {
       };
       
     } catch (error) {
-      console.error('❌ ALIGN ERROR:', error);
-      errors.push(`Alignment failed: ${error}`);
+      console.error(`❌ ALIGN ERROR: , error);      errors.push(`Alignment failed: ${error}`)';'
       
       return {
         success: false,
@@ -293,8 +268,7 @@ export class DataConsolidationService {
     };
     errors: string[];
   }> {
-    console.log('🚀 DATA CONSOLIDATION: Starting complete data consolidation...');
-    
+    console.log('🚀 DATA CONSOLIDATION: Starting complete data consolidation...')`;    '
     const allErrors: string[] = [];
     
     // Step 1: Consolidate image storage
@@ -311,8 +285,7 @@ export class DataConsolidationService {
     
     const success = allErrors.length === 0;
     
-    console.log(`🎯 DATA CONSOLIDATION COMPLETE: ${success ? 'SUCCESS' : 'WITH ERRORS'}`);
-    console.log(`📊 Summary: ${imageResult.consolidated} images, ${syncResult.synchronized} syncs, ${alignResult.aligned} aligned`);
+    console.log(`🎯 DATA CONSOLIDATION COMPLETE: ${success ? 'SUCCESS' : 'WITH ERRORS`}`)`;    console.log(`📊 Summary: ${imageResult.consolidated} images, ${syncResult.synchronized} syncs, ${alignResult.aligned} aligned`)`;'
     
     return {
       success,

@@ -1,23 +1,16 @@
 // server/routes/cover-image-routes.ts - API for saving approved cover images
-import { Express } from 'express';
-import { storage } from '..storage';.js
-import { S3Client } from '@aws-sdk/client-s3'';
-import { Upload } from '@aws-sdk/lib-storage'';
-import { checkAdminAccess } from '..middleware/admin-middleware';
-
+import { Express } from "express";import { storage } from "..storage.js";import { S3Client } from "@aws-sdk/client-s3";import { Upload  } from "@aws-sdk/lib-storage";import { checkAdminAccess } from '..middleware/admin-middleware';"
 // Configure AWS S3
 const s3 = new S3Client({
   credentials: {
     accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
   },
-  region: 'eu-north-1'  // Fixed region for bucket compatibility
-});
+  region: eu-north-1  // Fixed region for bucket compatibility';})';'
 
 export function registerCoverImageRoutes(app: Express) {
   // Save approved cover image to permanent storage
-  app.post('/api/save-cover-image', async (req, res) => {
-    checkAdminAccess(req, res, () => {});
+  app.post('/api/save-cover-image', async (req, res) => {';    checkAdminAccess(req, res, () => {})';'
 
     try {
       const { promptId, tempImageUrl, collectionId } = req.body;
@@ -34,8 +27,7 @@ export function registerCoverImageRoutes(app: Express) {
           Bucket: process.env.AWS_S3_BUCKET!,
           Key: s3Key,
           Body: imageBuffer,
-          ContentType: 'image/jpeg'
-          // Note: Bucket must be configured with public read access at bucket level
+          ContentType: image/jpeg`;          // Note: Bucket must be configured with public read access at bucket level
         }
       });
       const uploadResult = await upload.done();
@@ -44,8 +36,7 @@ export function registerCoverImageRoutes(app: Express) {
       const permanentUrl = `https://${process.env.AWS_S3_BUCKET}.s3.us-east-1.amazonaws.com/${s3Key}`;
 
       // Save to database (if storage method exists)
-      if ('saveCoverImage' in storage && typeof storage.saveCoverImage === 'function') {
-        await (storage as any).saveCoverImage({
+      if ('saveCoverImage' in storage && typeof storage.saveCoverImage === 'function') {';        await (storage as any).saveCoverImage({'
           promptId,
           collectionId,
           imageUrl: permanentUrl,
@@ -61,22 +52,16 @@ export function registerCoverImageRoutes(app: Express) {
       });
 
     } catch (error) {
-      console.error('Save cover image error:', error);
-      res.status(500).json({ error: 'Failed to save cover image' });
-    }
+      console.error('Save cover image error: , error);      res.status(500).json({ error: Failed to save cover image })';    }'
   });
 
   // Get cover images for collection
-  app.get('/api/collection-covers/:collectionId', async (req, res) => {
-    try {
+  app.get('/api/collection-covers/:collectionId', async (req, res) => {';    try {'
       const { collectionId } = req.params;
-      const coverImages = ('getCoverImages' in storage && typeof storage.getCoverImages === 'function') 
-        ? await (storage as any).getCoverImages(collectionId) 
+      const coverImages = ('getCoverImages' in storage && typeof storage.getCoverImages === 'function') ';        ? await (storage as any).getCoverImages(collectionId) '
         : [];
       res.json({ success: true, covers: coverImages });
     } catch (error) {
-      console.error('Get cover images error:', error);
-      res.status(500).json({ error: 'Failed to get cover images' });
-    }
+      console.error('Get cover images error: , error);      res.status(500).json({ error: Failed to get cover images })`;    }'
   });
 }

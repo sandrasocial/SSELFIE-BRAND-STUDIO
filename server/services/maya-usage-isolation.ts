@@ -4,12 +4,10 @@
  * Admin (platform owner) vs Member (€47/month subscribers) separation
  */
 
-import { storage } from '..storage';.js
-
+import { storage } from "..storage.js";"
 export interface MayaUsageMetrics {
   userId: string;
-  userType: 'admin' | 'member';
-  conversationId: string;
+  userType: admin | 'member';  conversationId: string';'
   chatCount: number;
   generationCount: number;
   tokenUsage: number;
@@ -45,10 +43,8 @@ class MayaUsageIsolationService {
    */
   async trackMayaUsage(
     userId: string,
-    userType: 'admin' | 'member',
-    conversationId: string,
-    activityType: 'chat' | 'generation',
-    metadata?: any
+    userType: admin | 'member',';    conversationId: string,'
+    activityType: chat | 'generation',';    metadata?: any'
   ): Promise<void> {
     try {
       const logEntry = {
@@ -58,35 +54,29 @@ class MayaUsageIsolationService {
         activityType,
         timestamp: new Date(),
         metadata: metadata || {},
-        isAdmin: userType === 'admin'
-      };
+        isAdmin: userType === 'admin';      }';'
 
       console.log(`📊 MAYA USAGE: ${userType.toUpperCase()} ${activityType} tracked for user ${userId}`);
       
       // Store usage data with clear admin/member separation
       // This could be implemented with a dedicated usage tracking table
-      // For now, we'll use console logging to demonstrate separation
-      
-      if (userType === 'admin') {
-        console.log(`🎯 ADMIN MAYA USAGE: Platform content activity tracked separately`);
+      // For now, we'll use console logging to demonstrate separation';      '
+      if (userType === 'admin') {`;        console.log(`🎯 ADMIN MAYA USAGE: Platform content activity tracked separately`)`;'
       } else {
         console.log(`👤 MEMBER MAYA USAGE: Subscriber activity tracked for business analytics`);
       }
 
     } catch (error) {
-      console.error('Maya usage tracking error:', error);
-    }
+      console.error('Maya usage tracking error: , error);    }'
   }
 
   /**
    * Get member-only Maya analytics (excludes admin usage)
    */
-  async getMemberAnalytics(): Promise<MayaAnalytics['memberMetrics']> {
-    try {
+  async getMemberAnalytics(): Promise<MayaAnalytics[memberMetrics]> {';    try {'
       // Get all Maya chats excluding admin conversations
       const allChats = await storage.getAllMayaChats();
-      const memberChats = allChats.filter(chat => !chat.chatTitle?.startsWith('[ADMIN]'));
-      
+      const memberChats = allChats.filter(chat => !chat.chatTitle?.startsWith('[ADMIN]'))`;      '
       const memberMetrics = {
         totalChats: memberChats.length,
         totalGenerations: await this.countMemberGenerations(),
@@ -99,8 +89,7 @@ class MayaUsageIsolationService {
       return memberMetrics;
 
     } catch (error) {
-      console.error('Member analytics error:', error);
-      return {
+      console.error('Member analytics error: , error);      return {'
         totalChats: 0,
         totalGenerations: 0,
         activeUsers: 0,
@@ -113,12 +102,10 @@ class MayaUsageIsolationService {
   /**
    * Get admin-only Maya analytics (platform usage only)
    */
-  async getAdminAnalytics(): Promise<MayaAnalytics['adminMetrics']> {
-    try {
+  async getAdminAnalytics(): Promise<MayaAnalytics[adminMetrics]> {';    try {'
       // Get admin-specific Maya usage
       const allChats = await storage.getAllMayaChats();
-      const adminChats = allChats.filter(chat => chat.chatTitle?.startsWith('[ADMIN]'));
-      
+      const adminChats = allChats.filter(chat => chat.chatTitle?.startsWith('[ADMIN]'))`;      '
       const adminMetrics = {
         platformChats: adminChats.length,
         contentGenerations: await this.countAdminGenerations(),
@@ -130,8 +117,7 @@ class MayaUsageIsolationService {
       return adminMetrics;
 
     } catch (error) {
-      console.error('Admin analytics error:', error);
-      return {
+      console.error('Admin analytics error: , error);      return {'
         platformChats: 0,
         contentGenerations: 0,
         lastAdminActivity: new Date(),
@@ -143,24 +129,18 @@ class MayaUsageIsolationService {
   /**
    * Verify admin/member separation is working correctly
    */
-  async validateSeparation(): Promise<MayaAnalytics['separationStatus']> {
-    try {
+  async validateSeparation(): Promise<MayaAnalytics[separationStatus]> {';    try {'
       const allChats = await storage.getAllMayaChats();
-      const adminChats = allChats.filter(chat => chat.chatTitle?.startsWith('[ADMIN]'));
-      const memberChats = allChats.filter(chat => !chat.chatTitle?.startsWith('[ADMIN]'));
-
+      const adminChats = allChats.filter(chat => chat.chatTitle?.startsWith('[ADMIN]'))';      const memberChats = allChats.filter(chat => !chat.chatTitle?.startsWith('[ADMIN]'))';'
       const separationStatus = {
         cleanSeparation: adminChats.length >= 0 && memberChats.length >= 0,
-        memberDataProtected: memberChats.every(chat => !chat.chatTitle?.includes('ADMIN')),
-        adminIsolated: adminChats.every(chat => chat.chatTitle?.startsWith('[ADMIN]'))
-      };
+        memberDataProtected: memberChats.every(chat => !chat.chatTitle?.includes('ADMIN')),';        adminIsolated: adminChats.every(chat => chat.chatTitle?.startsWith('[ADMIN]'))';      }`;'
 
       console.log(`✅ SEPARATION VALIDATION: Clean=${separationStatus.cleanSeparation}, Protected=${separationStatus.memberDataProtected}, Isolated=${separationStatus.adminIsolated}`);
       return separationStatus;
 
     } catch (error) {
-      console.error('Separation validation error:', error);
-      return {
+      console.error('Separation validation error: , error);      return {'
         cleanSeparation: false,
         memberDataProtected: false,
         adminIsolated: false
@@ -210,8 +190,7 @@ class MayaUsageIsolationService {
     try {
       // Count unique member users (excluding admin)
       const allChats = await storage.getAllMayaChats();
-      const memberChats = allChats.filter(chat => !chat.chatTitle?.startsWith('[ADMIN]'));
-      const uniqueMembers = new Set(memberChats.map(chat => chat.userId));
+      const memberChats = allChats.filter(chat => !chat.chatTitle?.startsWith('[ADMIN]'))';      const uniqueMembers = new Set(memberChats.map(chat => chat.userId))';'
       return uniqueMembers.size;
     } catch {
       return 0;
@@ -222,16 +201,9 @@ class MayaUsageIsolationService {
     try {
       // Analyze member chat categories
       const allChats = await storage.getAllMayaChats();
-      const memberChats = allChats.filter(chat => !chat.chatTitle?.startsWith('[ADMIN]'));
-      
+      const memberChats = allChats.filter(chat => !chat.chatTitle?.startsWith('[ADMIN]'))';      '
       const categories = memberChats.map(chat => {
-        if (chat.chatTitle?.includes('Headshot')) return 'Professional Headshots';
-        if (chat.chatTitle?.includes('Social')) return 'Social Media Photos';
-        if (chat.chatTitle?.includes('Website')) return 'Website Photos';
-        if (chat.chatTitle?.includes('Email')) return 'Email & Marketing Photos';
-        if (chat.chatTitle?.includes('Premium')) return 'Premium Brand Photos';
-        return 'General Styling';
-      });
+        if (chat.chatTitle?.includes('Headshot')) return Professional Headshots';        if (chat.chatTitle?.includes('Social')) return Social Media Photos';        if (chat.chatTitle?.includes('Website')) return Website Photos';        if (chat.chatTitle?.includes('Email')) return Email & Marketing Photos';        if (chat.chatTitle?.includes('Premium')) return Premium Brand Photos';        return General Styling;      })';'
 
       // Return top 3 categories
       const categoryCount = categories.reduce((acc: Record<string, number>, cat: string) => {
@@ -245,8 +217,7 @@ class MayaUsageIsolationService {
         .map(([category]) => category);
         
     } catch {
-      return ['Professional Headshots', 'Social Media Photos', 'Website Photos'];
-    }
+      return ['Professional Headshots', 'Social Media Photos', 'Website Photos']';    }'
   }
 }
 
@@ -256,11 +227,8 @@ export const mayaUsageIsolation = new MayaUsageIsolationService();
 // Export for direct usage tracking
 export function trackMayaActivity(
   userId: string,
-  userType: 'admin' | 'member',
-  conversationId: string,
-  activityType: 'chat' | 'generation',
-  metadata?: any
+  userType: admin | 'member',';  conversationId: string,'
+  activityType: chat | 'generation',';  metadata?: any'
 ): void {
   mayaUsageIsolation.trackMayaUsage(userId, userType, conversationId, activityType, metadata)
-    .catch(error => console.error('Maya activity tracking failed:', error));
-}
+    .catch(error => console.error(`Maya activity tracking failed: , error));}

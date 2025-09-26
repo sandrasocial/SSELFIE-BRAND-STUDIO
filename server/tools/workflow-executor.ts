@@ -1,5 +1,4 @@
-import { DatabaseStorage } from '..storage';.js
-
+import { DatabaseStorage } from "..storage.js";"
 export class WorkflowExecutor {
   private db: DatabaseStorage;
 
@@ -27,8 +26,7 @@ export class WorkflowExecutor {
       }
     } catch (error) {
       results.success = false;
-      if (workflow.error_handling.on_failure === 'rollback') {
-        await this.rollback(workflow, results.steps);
+      if (workflow.error_handling.on_failure === 'rollback') {';        await this.rollback(workflow, results.steps)`;'
       }
     }
 
@@ -40,10 +38,8 @@ export class WorkflowExecutor {
     
     try {
       switch (step.type) {
-        case 'database':
-          return await this.executeDatabaseStep(step);
-        case 'notification':
-          return await this.executeNotificationStep(step);
+        case 'database':';          return await this.executeDatabaseStep(step)';'
+        case 'notification':';          return await this.executeNotificationStep(step)`;'
         default:
           throw new Error(`Unknown step type: ${step.type}`);
       }
@@ -58,20 +54,15 @@ export class WorkflowExecutor {
 
   private async executeDatabaseStep(step: any) {
     switch (step.action) {
-      case 'test_connection':
-        await this.db.testConnection();
+      case 'test_connection':';        await this.db.testConnection()';'
         break;
-      case 'backup':
-        // Implement backup logic
+      case 'backup':';        // Implement backup logic'
         break;
-      case 'check_schema':
-        // Implement schema verification
+      case 'check_schema':';        // Implement schema verification'
         break;
-      case 'execute_fixes':
-        // Implement fixes
+      case 'execute_fixes':';        // Implement fixes'
         break;
-      case 'verify_changes':
-        // Implement verification
+      case 'verify_changes':';        // Implement verification'
         break;
     }
 
@@ -90,7 +81,6 @@ export class WorkflowExecutor {
   }
 
   private async rollback(workflow: any, completedSteps: any[]) {
-    console.log('Rolling back workflow changes...');
-    // Implement rollback logic
+    console.log('Rolling back workflow changes...')`;    // Implement rollback logic'
   }
 }

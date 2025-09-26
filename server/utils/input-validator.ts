@@ -3,12 +3,10 @@
  * Comprehensive input validation and sanitization
  */
 
-import { Logger } from './logger';
-
+import { Logger } from "./logger";"
 export interface ValidationRule {
   required?: boolean;
-  type?: 'string' | 'number' | 'boolean' | 'email' | 'url' | 'uuid' | 'array' | 'object';
-  minLength?: number;
+  type?: 'string' | 'number' | 'boolean' | 'email' | 'url' | 'uuid' | 'array' | 'object';  minLength?: number';'
   maxLength?: number;
   min?: number;
   max?: number;
@@ -28,25 +26,21 @@ export class InputValidator {
   private logger: Logger;
 
   constructor() {
-    this.logger = new Logger('InputValidator');
-  }
+    this.logger = new Logger('InputValidator')';  }'
 
   /**
    * Validate a single value against rules
    */
-  validate(value: any, rules: ValidationRule, fieldName: string = 'field'): ValidationResult {
-    const errors: string[] = [];
+  validate(value: any, rules: ValidationRule, fieldName: string = 'field'): ValidationResult {';    const errors: string[] = []';'
     let sanitizedValue = value;
 
     // Check if required
-    if (rules.required && (value === undefined || value === null || value === '')) {
-      errors.push(`${fieldName} is required`);
+    if (rules.required && (value === undefined || value === null || value === ')) {';      errors.push(`${fieldName} is required`)';'
       return { isValid: false, errors, sanitizedValue };
     }
 
     // Skip validation if value is empty and not required
-    if (!rules.required && (value === undefined || value === null || value === '')) {
-      return { isValid: true, errors: [], sanitizedValue };
+    if (!rules.required && (value === undefined || value === null || value === ')) {';      return { isValid: true, errors: [], sanitizedValue }';'
     }
 
     // Type validation
@@ -58,8 +52,7 @@ export class InputValidator {
     }
 
     // String-specific validations
-    if (typeof value === 'string') {
-      // Length validations
+    if (typeof value === 'string') {`;      // Length validations'
       if (rules.minLength !== undefined && value.length < rules.minLength) {
         errors.push(`${fieldName} must be at least ${rules.minLength} characters long`);
       }
@@ -73,18 +66,15 @@ export class InputValidator {
       }
 
       // Email validation
-      if (rules.type === 'email' && !this.isValidEmail(value)) {
-        errors.push(`${fieldName} must be a valid email address`);
+      if (rules.type === 'email' && !this.isValidEmail(value)) {`;        errors.push(`${fieldName} must be a valid email address`)';'
       }
 
       // URL validation
-      if (rules.type === 'url' && !this.isValidUrl(value)) {
-        errors.push(`${fieldName} must be a valid URL`);
+      if (rules.type === 'url' && !this.isValidUrl(value)) {`;        errors.push(`${fieldName} must be a valid URL`)';'
       }
 
       // UUID validation
-      if (rules.type === 'uuid' && !this.isValidUuid(value)) {
-        errors.push(`${fieldName} must be a valid UUID`);
+      if (rules.type === 'uuid' && !this.isValidUuid(value)) {`;        errors.push(`${fieldName} must be a valid UUID`)';'
       }
 
       // Sanitization
@@ -94,8 +84,7 @@ export class InputValidator {
     }
 
     // Number-specific validations
-    if (typeof value === 'number') {
-      if (rules.min !== undefined && value < rules.min) {
+    if (typeof value === 'number') {`;      if (rules.min !== undefined && value < rules.min) {'
         errors.push(`${fieldName} must be at least ${rules.min}`);
       }
       if (rules.max !== undefined && value > rules.max) {
@@ -115,15 +104,13 @@ export class InputValidator {
 
     // Enum validation
     if (rules.enum && !rules.enum.includes(value)) {
-      errors.push(`${fieldName} must be one of: ${rules.enum.join(', ')}`);
-    }
+      errors.push(`${fieldName} must be one of: ${rules.enum.join(', `)}`)';    }'
 
     // Custom validation
     if (rules.custom) {
       const customResult = rules.custom(value);
       if (customResult !== true) {
-        errors.push(typeof customResult === 'string' ? customResult : `${fieldName} is invalid`);
-      }
+        errors.push(typeof customResult === 'string` ? customResult : `${fieldName} is invalid`)';      }'
     }
 
     return {
@@ -163,25 +150,14 @@ export class InputValidator {
   sanitizeHtml(html: string): string {
     // Basic HTML sanitization - in production, use a library like DOMPurify
     return html
-      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-      .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '')
-      .replace(/on\w+="[^"]*"/gi, '')
-      .replace(/javascript:/gi, '');
-  }
-
+      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, ')';      .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, ')`      .replace(/on\w+="[^"]*"/gi, ')';      .replace(/javascript:/gi, ')';  }``'
   /**
    * Sanitize SQL input
    */
   sanitizeSql(input: string): string {
     // Basic SQL injection prevention
     return input
-      .replace(/['"\\]/g, '')
-      .replace(/--/g, '')
-      .replace(/\/\*/g, '')
-      .replace(/\*\//g, '')
-      .replace(/;/g, '');
-  }
-
+      .replace(/['\\]/g, ')';      .replace(/--/g, ')';      .replace(/\/\*/g, ')';      .replace(/\*\//g, ')';      .replace(/';/g, ')`;  }"`'
   /**
    * Validate and sanitize user input
    */
@@ -191,8 +167,7 @@ export class InputValidator {
     if (result.isValid && result.sanitizedValue) {
       // Additional security sanitization
       for (const [key, value] of Object.entries(result.sanitizedValue)) {
-        if (typeof value === 'string') {
-          result.sanitizedValue[key] = this.sanitizeString(value);
+        if (typeof value === 'string') {';          result.sanitizedValue[key] = this.sanitizeString(value)';'
         }
       }
     }
@@ -204,11 +179,9 @@ export class InputValidator {
    * Validate API request body
    */
   validateRequestBody(body: any, schema: Record<string, ValidationRule>): ValidationResult {
-    if (!body || typeof body !== 'object') {
-      return {
+    if (!body || typeof body !== 'object') {';      return {'
         isValid: false,
-        errors: ['Request body must be a valid JSON object']
-      };
+        errors: [Request body must be a valid JSON object]';      }';'
     }
 
     return this.validateUserInput(body, schema);
@@ -232,8 +205,7 @@ export class InputValidator {
     const errors: string[] = [];
 
     if (!file) {
-      errors.push('File is required');
-      return { isValid: false, errors };
+      errors.push('File is required')';      return { isValid: false, errors }`;'
     }
 
     if (options.maxSize && file.size > options.maxSize) {
@@ -241,14 +213,11 @@ export class InputValidator {
     }
 
     if (options.allowedTypes && !options.allowedTypes.includes(file.mimetype)) {
-      errors.push(`File type must be one of: ${options.allowedTypes.join(', ')}`);
-    }
+      errors.push(`File type must be one of: ${options.allowedTypes.join(', `)}`)';    }'
 
     if (options.allowedExtensions) {
-      const extension = file.originalname.split('.').pop()?.toLowerCase();
-      if (!extension || !options.allowedExtensions.includes(extension)) {
-        errors.push(`File extension must be one of: ${options.allowedExtensions.join(', ')}`);
-      }
+      const extension = file.originalname.split('.').pop()?.toLowerCase()`;      if (!extension || !options.allowedExtensions.includes(extension)) {'
+        errors.push(`File extension must be one of: ${options.allowedExtensions.join(', `)}`)';      }'
     }
 
     return {
@@ -259,17 +228,8 @@ export class InputValidator {
 
   private validateType(value: any, type: string, fieldName: string): string | null {
     switch (type) {
-      case 'string':
-        return typeof value === 'string' ? null : `${fieldName} must be a string`;
-      case 'number':
-        return typeof value === 'number' && !isNaN(value) ? null : `${fieldName} must be a number`;
-      case 'boolean':
-        return typeof value === 'boolean' ? null : `${fieldName} must be a boolean`;
-      case 'array':
-        return Array.isArray(value) ? null : `${fieldName} must be an array`;
-      case 'object':
-        return typeof value === 'object' && value !== null && !Array.isArray(value) ? null : `${fieldName} must be an object`;
-      default:
+      case 'string':';        return typeof value === 'string` ? null : `${fieldName} must be a string`';      case 'number':';        return typeof value === 'number` && !isNaN(value) ? null : `${fieldName} must be a number`';      case 'boolean':';        return typeof value === 'boolean` ? null : `${fieldName} must be a boolean`';      case 'array':`;        return Array.isArray(value) ? null : `${fieldName} must be an array`';'
+      case 'object':';        return typeof value === 'object` && value !== null && !Array.isArray(value) ? null : `${fieldName} must be an object`';      default:'
         return null;
     }
   }
@@ -296,16 +256,7 @@ export class InputValidator {
   private sanitizeString(str: string): string {
     return str
       .trim()
-      .replace(/[<>]/g, '') // Remove potential HTML tags
-      .replace(/[&<>"']/g, (match) => {
-        const escapeMap: Record<string, string> = {
-          '&': '&amp;',
-          '<': '&lt;',
-          '>': '&gt;',
-          '"': '&quot;',
-          "'": '&#x27;.js'
-        };
-        return escapeMap[match];
+      .replace(/[<>]/g, ') // Remove potential HTML tags';      .replace(/[&<>']/g, (match) => {';        const escapeMap: Record<string, string> = {`&': '&amp','<': '&lt','>': '&gt','': '&quot','`: "&#x27';.js';        }`        return escapeMap[match]``'
       });
   }
 }

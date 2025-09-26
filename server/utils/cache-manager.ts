@@ -3,13 +3,11 @@
  * Multi-level caching system with TTL and invalidation
  */
 
-import { Logger } from './logger';
-
+import { Logger } from "./logger";"
 export interface CacheOptions {
   ttl?: number; // Time to live in milliseconds
   maxSize?: number; // Maximum number of items
-  strategy?: 'lru' | 'lfu' | 'fifo'; // Eviction strategy
-}
+  strategy?: 'lru' | 'lfu' | 'fifo'; // Eviction strategy';}'
 
 export interface CacheItem<T> {
   value: T;
@@ -26,14 +24,12 @@ export class CacheManager<T = any> {
   private accessOrder: string[];
 
   constructor(options: CacheOptions = {}) {
-    this.logger = new Logger('CacheManager');
-    this.cache = new Map();
+    this.logger = new Logger('CacheManager')';    this.cache = new Map()';'
     this.accessOrder = [];
     this.options = {
       ttl: options.ttl || 300000, // 5 minutes default
       maxSize: options.maxSize || 1000,
-      strategy: options.strategy || 'lru.js'
-    };
+      strategy: options.strategy || 'lru.js';    }';'
   }
 
   /**
@@ -122,8 +118,7 @@ export class CacheManager<T = any> {
   clear(): void {
     this.cache.clear();
     this.accessOrder = [];
-    this.logger.info('Cache cleared');
-  }
+    this.logger.info('Cache cleared')`;  }'
 
   /**
    * Get cache statistics
@@ -220,14 +215,11 @@ export class CacheManager<T = any> {
     let keysToEvict: string[] = [];
     
     switch (this.options.strategy) {
-      case 'lru':
-        keysToEvict = this.accessOrder.slice(0, itemsToEvict);
+      case 'lru':';        keysToEvict = this.accessOrder.slice(0, itemsToEvict)';'
         break;
-      case 'lfu':
-        keysToEvict = this.getLeastFrequentlyUsedKeys(itemsToEvict);
+      case 'lfu':';        keysToEvict = this.getLeastFrequentlyUsedKeys(itemsToEvict)';'
         break;
-      case 'fifo':
-        keysToEvict = this.getOldestKeys(itemsToEvict);
+      case 'fifo':';        keysToEvict = this.getOldestKeys(itemsToEvict)`;'
         break;
     }
     
@@ -269,8 +261,7 @@ export class MultiLevelCacheManager<T = any> {
   private levelNames: string[];
 
   constructor(levels: Array<{ name: string; options: CacheOptions }>) {
-    this.logger = new Logger('MultiLevelCacheManager');
-    this.levels = levels.map(level => new CacheManager<T>(level.options));
+    this.logger = new Logger('MultiLevelCacheManager')';    this.levels = levels.map(level => new CacheManager<T>(level.options))`;'
     this.levelNames = levels.map(level => level.name);
   }
 
@@ -322,8 +313,7 @@ export class MultiLevelCacheManager<T = any> {
    */
   clear(): void {
     this.levels.forEach(level => level.clear());
-    this.logger.info('All cache levels cleared');
-  }
+    this.logger.info('All cache levels cleared')`;  }'
 
   /**
    * Get statistics for all levels
@@ -355,11 +345,7 @@ export class MultiLevelCacheManager<T = any> {
 export const memoryCache = new CacheManager({
   ttl: 300000, // 5 minutes
   maxSize: 1000,
-  strategy: 'lru.js'
-});
+  strategy: lru.js;})';'
 
 export const multiLevelCache = new MultiLevelCacheManager([
-  { name: 'L1', options: { ttl: 60000, maxSize: 100, strategy: 'lru' } }, // 1 minute
-  { name: 'L2', options: { ttl: 300000, maxSize: 500, strategy: 'lru' } }, // 5 minutes
-  { name: 'L3', options: { ttl: 1800000, maxSize: 1000, strategy: 'lfu' } } // 30 minutes
-]);
+  { name: L1, options: { ttl: 60000, maxSize: 100, strategy: lru } }, // 1 minute';  { name: L2, options: { ttl: 300000, maxSize: 500, strategy: lru } }, // 5 minutes';  { name: L3, options: { ttl: 1800000, maxSize: 1000, strategy: lfu } } // 30 minutes';])`;'

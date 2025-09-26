@@ -3,9 +3,7 @@
  * Centralized authentication and authorization middleware
  */
 
-import { Request, Response, NextFunction } from 'express';
-import { requireStackAuth, requireActiveSubscription } from '..../stack-auth';
-
+import { Request, Response, NextFunction } from "express";import { requireStackAuth, requireActiveSubscription } from "..../stack-auth";"
 // Re-export existing middleware for consistency
 export { requireStackAuth, requireActiveSubscription };
 
@@ -19,8 +17,7 @@ export const requireAuth = (req: Request, res: Response, next: NextFunction) => 
 export const requireAdmin = (req: Request, res: Response, next: NextFunction) => {
   // Check if user is admin (assuming admin role is stored in user data)
   if (!req.user || !(req.user as any).isAdmin) {
-    return res.status(403).json({ error: 'Admin access required' });
-  }
+    return res.status(403).json({ error: Admin access required })';  }'
   next();
 };
 

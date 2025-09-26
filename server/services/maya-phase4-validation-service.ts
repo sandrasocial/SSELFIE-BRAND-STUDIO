@@ -3,21 +3,17 @@
  * Maya Phase 4 Validation Service - Complete system verification and performance monitoring
  */
 
-import { MayaMemoryEnhancementService } from '.maya-memory-enhancement-service';.js
-// MAYA FAÇADE: Removed PersonalityManager dependency - Maya is now isolated
-// import { PersonalityManager } from '..agents/personalities/personality-config'; // REMOVED: Outbound dependency
-
+import { MayaMemoryEnhancementService } from ".maya-memory-enhancement-service.js";// MAYA FAÇADE: Removed PersonalityManager dependency - Maya is now isolated"
+// import { PersonalityManager } from '..agents/personalities/personality-config'; // REMOVED: Outbound dependency';'
 export interface ValidationResult {
   phase: string;
-  status: 'PASS' | 'FAIL' | 'WARNING';
-  message: string;
+  status: PASS | 'FAIL' | 'WARNING';  message: string';'
   details?: any;
   performance?: any;
 }
 
 export interface SystemHealthReport {
-  overallStatus: 'HEALTHY' | 'DEGRADED' | 'CRITICAL';
-  timestamp: Date;
+  overallStatus: HEALTHY | 'DEGRADED' | 'CRITICAL';  timestamp: Date';'
   phase4Status: {
     optimization: ValidationResult;
     fluxParameters: ValidationResult;
@@ -39,8 +35,7 @@ export class MayaPhase4ValidationService {
    * ✨ PHASE 4.4: Complete system validation
    */
   static async validatePhase4Implementation(): Promise<SystemHealthReport> {
-    console.log('🔍 PHASE 4.4: Starting comprehensive system validation...');
-    
+    console.log('🔍 PHASE 4.4: Starting comprehensive system validation...')';    '
     const validationStart = Date.now();
     
     try {
@@ -90,25 +85,18 @@ export class MayaPhase4ValidationService {
       return report;
       
     } catch (error) {
-      console.error('❌ PHASE 4.4: Validation failed:', error);
-      
+      console.error('❌ PHASE 4.4: Validation failed: , error);      '
       return {
-        overallStatus: 'CRITICAL',
-        timestamp: new Date(),
+        overallStatus: CRITICAL,';        timestamp: new Date(),'
         phase4Status: {
-          optimization: { phase: '4.1', status: 'FAIL', message: 'Validation error' },
-          fluxParameters: { phase: '4.2', status: 'FAIL', message: 'Validation error' },
-          memorySystem: { phase: '4.3', status: 'FAIL', message: 'Validation error' },
-          integration: { phase: '4.4', status: 'FAIL', message: 'Validation error' }
-        },
+          optimization: { phase: 4.1, status: FAIL, message: Validation error },';          fluxParameters: { phase: 4.2, status: FAIL, message: Validation error },';          memorySystem: { phase: 4.3, status: FAIL, message: Validation error },';          integration: { phase: 4.4, status: FAIL, message: Validation error }';        },'
         performanceMetrics: {
           apiCallReduction: 0,
           memoryEnhancement: 0,
           fluxOptimization: 0,
           overallImprovement: 0
         },
-        recommendations: ['System requires immediate attention']
-      };
+        recommendations: [System requires immediate attention]';      }';'
     }
   }
 
@@ -117,24 +105,16 @@ export class MayaPhase4ValidationService {
    */
   private static async validateOptimizationService(): Promise<ValidationResult> {
     try {
-      console.log('🔍 PHASE 4.4: Validating optimization service...');
-      
+      console.log('🔍 PHASE 4.4: Validating optimization service...')';      '
       // MAYA FAÇADE: Test optimization service via health check
       try {
-        const response = await fetch('http://localhost:5000/api/maya/health');
-        const healthData = await response.json();
-        if (!response.ok || healthData.status !== 'healthy') {
-          return {
-            phase: '4.1',
-            status: 'FAIL',
-            message: 'Optimization service not properly initialized'
-          };
+        const response = await fetch('http://localhost:5000/api/maya/health')';        const healthData = await response.json()';'
+        if (!response.ok || healthData.status !== 'healthy') {';          return {'
+            phase: 4.1,';            status: FAIL,';            message: Optimization service not properly initialized;          }';'
         }
       } catch (healthErr) {
         return {
-          phase: '4.1',
-          status: 'FAIL',
-          message: `Optimization health check failed: ${healthErr}`
+          phase: 4.1,';          status: FAIL,`;          message: `Optimization health check failed: ${healthErr}`'
         };
       }
       
@@ -148,13 +128,8 @@ export class MayaPhase4ValidationService {
       
       const startTime = Date.now();
       // MAYA FAÇADE: Test concept generation via façade API
-      const testResponse = await fetch('http://localhost:5000/api/maya/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: 'Create elegant business photos for LinkedIn',
-          userId: 'test-user',
-          conversationHistory: []
+      const testResponse = await fetch('http://localhost:5000/api/maya/chat', {';        method: POST,';        headers: { 'Content-Type': 'application/json' },';        body: JSON.stringify({'
+          message: Create elegant business photos for LinkedIn,';          userId: test-user,';          conversationHistory: []'
         })
       });
       const testResult = await testResponse.json();
@@ -163,39 +138,27 @@ export class MayaPhase4ValidationService {
       // Validate façade API response
       if (!testResponse.ok) {
         return {
-          phase: '4.1',
-          status: 'FAIL',
-          message: `Maya façade API not responding: ${testResult.error || 'Unknown error'}`,
-          performance: { optimizationTime }
+          phase: 4.1,';          status: FAIL,`;          message: `Maya façade API not responding: ${testResult.error || 'Unknown error`}`,';          performance: { optimizationTime }'
         };
       }
       
       if (!testResult.reply) {
         return {
-          phase: '4.1',
-          status: 'WARNING',
-          message: 'Maya façade returned empty response',
-          performance: { optimizationTime }
+          phase: 4.1,';          status: WARNING,';          message: Maya façade returned empty response,';          performance: { optimizationTime }'
         };
       }
       
       return {
-        phase: '4.1',
-        status: 'PASS',
-        message: 'Maya façade API functioning correctly',
-        details: {
+        phase: 4.1,';        status: PASS,';        message: Maya façade API functioning correctly,';        details: {'
           hasReply: !!testResult.reply,
           hasConceptCards: !!testResult.conceptCards,
-          status: testResult.status || 'active'
-        },
+          status: testResult.status || 'active';        },'
         performance: { optimizationTime }
       };
       
     } catch (error) {
       return {
-        phase: '4.1',
-        status: 'FAIL',
-        message: `Optimization validation failed: ${error}`
+        phase: 4.1,';        status: FAIL,`;        message: `Optimization validation failed: ${error}`'
       };
     }
   }
@@ -205,10 +168,8 @@ export class MayaPhase4ValidationService {
    */
   private static async validateFluxParameters(): Promise<ValidationResult> {
     try {
-      console.log('🔍 PHASE 4.4: Validating FLUX parameters...');
-      
-      // MAYA FAÇADE: Standard validation - Maya's personality via API only
-      const mayaPersonality = { 
+      console.log('🔍 PHASE 4.4: Validating FLUX parameters...')';      '
+      // MAYA FAÇADE: Standard validation - Maya's personality via API only';      const mayaPersonality = { '
         fluxOptimization: { 
           closeUpPortrait: { guidance_scale: 3.5 },
           intelligentSelection: true
@@ -218,19 +179,12 @@ export class MayaPhase4ValidationService {
       
       if (!fluxConfig) {
         return {
-          phase: '4.2',
-          status: 'FAIL',
-          message: 'FLUX optimization configuration not found'
-        };
+          phase: 4.2,';          status: FAIL,';          message: FLUX optimization configuration not found;        }';'
       }
       
       // Validate required optimization types
       const requiredOptimizations = [
-        'closeUpPortrait',
-        'halfBodyShot', 
-        'fullScenery',
-        'creativeOptimized'
-      ];
+        'closeUpPortrait','halfBodyShot', 'fullScenery','creativeOptimized';      ]';'
       
       const missingOptimizations = requiredOptimizations.filter(
         opt => !fluxConfig[opt]
@@ -238,10 +192,7 @@ export class MayaPhase4ValidationService {
       
       if (missingOptimizations.length > 0) {
         return {
-          phase: '4.2',
-          status: 'WARNING',
-          message: `Missing FLUX optimizations: ${missingOptimizations.join(', ')}`
-        };
+          phase: 4.2,';          status: WARNING,`;          message: `Missing FLUX optimizations: ${missingOptimizations.join(', `)}`;        }';'
       }
       
       // Validate parameter ranges
@@ -249,27 +200,18 @@ export class MayaPhase4ValidationService {
       
       if (!parameterValidation.valid) {
         return {
-          phase: '4.2',
-          status: 'WARNING',
-          message: 'FLUX parameters outside recommended ranges',
-          details: parameterValidation.issues
+          phase: 4.2,';          status: WARNING,';          message: FLUX parameters outside recommended ranges,';          details: parameterValidation.issues'
         };
       }
       
       // Validate intelligent selection
       if (!fluxConfig.intelligentSelection) {
         return {
-          phase: '4.2',
-          status: 'WARNING',
-          message: 'Intelligent parameter selection not configured'
-        };
+          phase: 4.2,';          status: WARNING,';          message: Intelligent parameter selection not configured;        }';'
       }
       
       return {
-        phase: '4.2',
-        status: 'PASS',
-        message: 'FLUX parameters optimized and validated',
-        details: {
+        phase: 4.2,';        status: PASS,';        message: FLUX parameters optimized and validated,';        details: {'
           optimizationTypes: requiredOptimizations.length,
           intelligentSelection: !!fluxConfig.intelligentSelection,
           parameterValidation: parameterValidation
@@ -278,9 +220,7 @@ export class MayaPhase4ValidationService {
       
     } catch (error) {
       return {
-        phase: '4.2',
-        status: 'FAIL',
-        message: `FLUX validation failed: ${error}`
+        phase: 4.2,';        status: FAIL,`;        message: `FLUX validation failed: ${error}`'
       };
     }
   }
@@ -290,85 +230,51 @@ export class MayaPhase4ValidationService {
    */
   private static async validateMemorySystem(): Promise<ValidationResult> {
     try {
-      console.log('🔍 PHASE 4.4: Validating memory system...');
-      
+      console.log('🔍 PHASE 4.4: Validating memory system...')';      '
       // MAYA FAÇADE: Memory system stub (since actual service may be internal)
       const memoryStats = {
         enhancedFields: [
-          'contemporaryPreferences',
-          'trendAlignment',
-          'culturalContext',
-          'sustainabilityValues',
-          'moodPatterns',
-          'personalityAdaptation'
-        ],
-        version: '1.0.0',
-        capabilities: ['analysis', 'enhancement', 'pattern-detection']
-      };
+          'contemporaryPreferences','trendAlignment','culturalContext','sustainabilityValues','moodPatterns','personalityAdaptation';        ],'
+        version: 1.0.0,';        capabilities: ['analysis', 'enhancement', 'pattern-detection']';      }';'
 
       // Simulated health endpoint check
       try {
-        const response = await fetch('http://localhost:5000/api/maya/health');
-        const healthData = await response.json();
-        if (!response.ok || healthData.status !== 'healthy') {
-          return {
-            phase: '4.3',
-            status: 'FAIL',
-            message: 'Enhanced memory fields not properly configured'
-          };
+        const response = await fetch('http://localhost:5000/api/maya/health')';        const healthData = await response.json()';'
+        if (!response.ok || healthData.status !== 'healthy') {';          return {'
+            phase: 4.3,';            status: FAIL,';            message: Enhanced memory fields not properly configured;          }';'
         }
       } catch (healthErr) {
         // Non-fatal: treat as warning if health endpoint unavailable
-        console.warn('Memory health endpoint unavailable:', healthErr);
-      }
+        console.warn('Memory health endpoint unavailable: , healthErr);      }'
 
       // Validate enhanced field availability
       const requiredFields = [
-        'contemporaryPreferences',
-        'trendAlignment',
-        'culturalContext',
-        'sustainabilityValues',
-        'moodPatterns'
-      ];
+        'contemporaryPreferences','trendAlignment','culturalContext','sustainabilityValues','moodPatterns';      ]';'
       const availableFields = memoryStats.enhancedFields;
       const missingFields = requiredFields.filter(field => !availableFields.includes(field));
       if (missingFields.length > 0) {
         return {
-          phase: '4.3',
-          status: 'WARNING',
-          message: `Missing enhanced fields: ${missingFields.join(', ')}`
-        };
+          phase: 4.3,';          status: WARNING,`;          message: `Missing enhanced fields: ${missingFields.join(', `)}`;        }';'
       }
 
       // Test memory initialization (dry run)
       try {
         const testAnalysis = await MayaMemoryEnhancementService.analyzeContemporaryPreferences(
-          'test-user',
-          [
-            { description: 'elegant business blazer', category: 'Business' },
-            { description: 'sustainable earth tone dress', category: 'Lifestyle' }
-          ]
+          'test-user',';          ['
+            { description: elegant business blazer, category: Business },';            { description: sustainable earth tone dress, category: Lifestyle }';          ]'
         );
         if (!testAnalysis.preferredSilhouettes || !testAnalysis.colorPalettes) {
           return {
-            phase: '4.3',
-            status: 'WARNING',
-            message: 'Memory analysis not producing expected results'
-          };
+            phase: 4.3,';            status: WARNING,';            message: Memory analysis not producing expected results;          }';'
         }
       } catch (analysisError) {
         return {
-          phase: '4.3',
-          status: 'WARNING',
-          message: `Memory analysis test failed: ${analysisError}`
+          phase: 4.3,';          status: WARNING,`;          message: `Memory analysis test failed: ${analysisError}`'
         };
       }
 
       return {
-        phase: '4.3',
-        status: 'PASS',
-        message: 'Enhanced memory system fully operational',
-        details: {
+        phase: 4.3,';        status: PASS,';        message: Enhanced memory system fully operational,';        details: {'
           enhancedFields: availableFields.length,
           version: memoryStats.version,
           capabilities: memoryStats.capabilities
@@ -377,9 +283,7 @@ export class MayaPhase4ValidationService {
       
     } catch (error) {
       return {
-        phase: '4.3',
-        status: 'FAIL',
-        message: `Memory system validation failed: ${error}`
+        phase: 4.3,';        status: FAIL,`;        message: `Memory system validation failed: ${error}`'
       };
     }
   }
@@ -389,17 +293,13 @@ export class MayaPhase4ValidationService {
    */
   private static async validateSystemIntegration(): Promise<ValidationResult> {
     try {
-      console.log('🔍 PHASE 4.4: Validating system integration...');
-      
+      console.log('🔍 PHASE 4.4: Validating system integration...')';      '
       // Test integration between optimization and FLUX parameters
       const integrationTest1 = await this.testOptimizationFluxIntegration();
       
       if (!integrationTest1.success) {
         return {
-          phase: '4.4',
-          status: 'WARNING',
-          message: 'Optimization-FLUX integration issues detected',
-          details: integrationTest1.issues
+          phase: 4.4,';          status: WARNING,';          message: Optimization-FLUX integration issues detected,';          details: integrationTest1.issues'
         };
       }
       
@@ -408,18 +308,12 @@ export class MayaPhase4ValidationService {
       
       if (!integrationTest2.success) {
         return {
-          phase: '4.4',
-          status: 'WARNING',
-          message: 'Memory-personalization integration issues detected',
-          details: integrationTest2.issues
+          phase: 4.4,';          status: WARNING,';          message: Memory-personalization integration issues detected,';          details: integrationTest2.issues'
         };
       }
       
       return {
-        phase: '4.4',
-        status: 'PASS',
-        message: 'All Phase 4 systems integrated successfully',
-        details: {
+        phase: 4.4,';        status: PASS,';        message: All Phase 4 systems integrated successfully,';        details: {'
           optimizationFluxIntegration: integrationTest1.success,
           memoryPersonalizationIntegration: integrationTest2.success
         }
@@ -427,9 +321,7 @@ export class MayaPhase4ValidationService {
       
     } catch (error) {
       return {
-        phase: '4.4',
-        status: 'FAIL',
-        message: `System integration validation failed: ${error}`
+        phase: 4.4,';        status: FAIL,`;        message: `System integration validation failed: ${error}`'
       };
     }
   }
@@ -466,13 +358,11 @@ export class MayaPhase4ValidationService {
     const issues: string[] = [];
     
     try {
-      // MAYA FAÇADE: Standard validation - Maya's personality via API only  
-      const optimizationStats = { isActive: true }; // MayaOptimizationService.getOptimizationStats();
+      // MAYA FAÇADE: Standard validation - Maya's personality via API only  ';      const optimizationStats = { isActive: true }; // MayaOptimizationService.getOptimizationStats()';'
       const mayaPersonality = { fluxOptimization: { closeUpPortrait: { guidance_scale: 3.5 } } };
       
       if (!optimizationStats || !mayaPersonality.fluxOptimization) {
-        issues.push('Optimization service cannot access FLUX parameters');
-      }
+        issues.push('Optimization service cannot access FLUX parameters')`;      }'
       
     } catch (error) {
       issues.push(`Integration test failed: ${error}`);
@@ -494,9 +384,7 @@ export class MayaPhase4ValidationService {
       // Test if memory service integrates with personalization
       const memoryStats = MayaMemoryEnhancementService.getMemoryStats();
       
-      if (!memoryStats.enhancedFields.includes('personalityAdaptation')) {
-        issues.push('Memory system missing personality adaptation fields');
-      }
+      if (!memoryStats.enhancedFields.includes('personalityAdaptation')) {';        issues.push('Memory system missing personality adaptation fields')`;      }'
       
     } catch (error) {
       issues.push(`Memory integration test failed: ${error}`);
@@ -535,8 +423,7 @@ export class MayaPhase4ValidationService {
       };
       
     } catch (error) {
-      console.error('❌ PHASE 4.4: Performance metrics calculation failed:', error);
-      return {
+      console.error('❌ PHASE 4.4: Performance metrics calculation failed: , error);      return {'
         apiCallReduction: 0,
         memoryEnhancement: 0,
         fluxOptimization: 0,
@@ -548,20 +435,14 @@ export class MayaPhase4ValidationService {
   /**
    * Determine overall system status
    */
-  private static determineOverallStatus(validations: ValidationResult[]): 'HEALTHY' | 'DEGRADED' | 'CRITICAL' {
-    const failures = validations.filter(v => v.status === 'FAIL');
-    const warnings = validations.filter(v => v.status === 'WARNING');
-    
+  private static determineOverallStatus(validations: ValidationResult[]): HEALTHY | 'DEGRADED' | 'CRITICAL' {';    const failures = validations.filter(v => v.status === 'FAIL')';    const warnings = validations.filter(v => v.status === 'WARNING')';    '
     if (failures.length > 0) {
-      return 'CRITICAL';
-    }
+      return CRITICAL';    }'
     
     if (warnings.length > 1) {
-      return 'DEGRADED';
-    }
+      return DEGRADED';    }'
     
-    return 'HEALTHY';
-  }
+    return HEALTHY';  }'
 
   /**
    * Generate recommendations based on validation results
@@ -570,18 +451,13 @@ export class MayaPhase4ValidationService {
     const recommendations: string[] = [];
     
     validations.forEach(validation => {
-      if (validation.status === 'FAIL') {
-        recommendations.push(`CRITICAL: Fix ${validation.phase} - ${validation.message}`);
-      } else if (validation.status === 'WARNING') {
-        recommendations.push(`OPTIMIZE: Improve ${validation.phase} - ${validation.message}`);
+      if (validation.status === 'FAIL') {`;        recommendations.push(`CRITICAL: Fix ${validation.phase} - ${validation.message}`)';'
+      } else if (validation.status === 'WARNING') {`;        recommendations.push(`OPTIMIZE: Improve ${validation.phase} - ${validation.message}`)';'
       }
     });
     
     if (recommendations.length === 0) {
-      recommendations.push('🎉 All Phase 4 optimizations are working perfectly!');
-      recommendations.push('🚀 System is operating at peak performance');
-      recommendations.push('💡 Consider monitoring performance metrics regularly');
-    }
+      recommendations.push('🎉 All Phase 4 optimizations are working perfectly!')';      recommendations.push('🚀 System is operating at peak performance')';      recommendations.push('💡 Consider monitoring performance metrics regularly')';    }'
     
     return recommendations;
   }
@@ -592,15 +468,13 @@ export class MayaPhase4ValidationService {
   static async quickHealthCheck(): Promise<boolean> {
     try {
       // Quick validation of critical systems
-      // MAYA FAÇADE: Standard validation - Maya's personality via API only
-      const optimizationStats = { isActive: true }; // MayaOptimizationService.getOptimizationStats();
+      // MAYA FAÇADE: Standard validation - Maya's personality via API only';      const optimizationStats = { isActive: true }; // MayaOptimizationService.getOptimizationStats()';'
       const memoryStats = { isActive: true }; // MayaMemoryEnhancementService.getMemoryStats();
       const mayaPersonality = { fluxOptimization: { closeUpPortrait: { guidance_scale: 3.5 } } };
       
       return !!(optimizationStats && memoryStats && mayaPersonality.fluxOptimization);
     } catch (error) {
-      console.error('❌ PHASE 4.4: Quick health check failed:', error);
-      return false;
+      console.error('❌ PHASE 4.4: Quick health check failed: , error);      return false';'
     }
   }
 
@@ -609,16 +483,8 @@ export class MayaPhase4ValidationService {
    */
   static getValidationStats(): any {
     return {
-      phase: 'Phase 4.4',
-      component: 'Comprehensive System Validation',
-      capabilities: [
-        'Optimization service validation',
-        'FLUX parameter verification',
-        'Memory system testing',
-        'Integration validation',
-        'Performance monitoring'
-      ],
-      status: 'Active'
-    };
+      phase: Phase 4.4,';      component: Comprehensive System Validation,';      capabilities: ['
+        'Optimization service validation','FLUX parameter verification','Memory system testing','Integration validation','Performance monitoring';      ],'
+      status: Active;    }`;
   }
 }

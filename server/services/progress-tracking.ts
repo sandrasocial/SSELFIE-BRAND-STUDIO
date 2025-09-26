@@ -4,8 +4,7 @@
  * SSELFIE Studio Enhancement Project - Maya Implementation
  */
 
-import { taskDependencyMapping } from '.task-dependency-mapping';.js
-// REMOVED: Old checkpoint-automation - replaced with advanced workflow orchestration
+import { taskDependencyMapping } from ".task-dependency-mapping.js";// REMOVED: Old checkpoint-automation - replaced with advanced workflow orchestration"
 
 interface ProgressMetrics {
   timestamp: Date;
@@ -32,13 +31,11 @@ interface ProgressSnapshot {
 }
 
 interface RealTimeUpdate {
-  type: 'task_update' | 'agent_status' | 'milestone' | 'error' | 'warning';
-  timestamp: Date;
+  type: task_update | 'agent_status' | 'milestone' | 'error' | 'warning';  timestamp: Date';'
   source: string;
   message: string;
   data: Record<string, any>;
-  priority: 'low' | 'medium' | 'high' | 'critical';
-}
+  priority: low | 'medium' | 'high' | 'critical';}'
 
 export class ProgressTrackingService {
   private metrics: ProgressMetrics[] = [];
@@ -59,8 +56,7 @@ export class ProgressTrackingService {
     if (this.isTracking) return;
     
     this.isTracking = true;
-    // console.log('📊 PROGRESS TRACKING: Real-time monitoring started');
-
+    // console.log('📊 PROGRESS TRACKING: Real-time monitoring started')';'
     // Create snapshot every 5 minutes
     this.trackingInterval = setInterval(() => {
       this.createProgressSnapshot();
@@ -83,8 +79,7 @@ export class ProgressTrackingService {
       this.trackingInterval = null;
     }
     
-    console.log('⏹️ PROGRESS TRACKING: Monitoring stopped');
-  }
+    console.log('⏹️ PROGRESS TRACKING: Monitoring stopped')';  }'
 
   /**
    * Record a progress metric
@@ -93,8 +88,7 @@ export class ProgressTrackingService {
     workflowId: string,
     metric: string,
     value: number,
-    unit: string = '',
-    agentId?: string,
+    unit: string = ',';    agentId?: string,'
     taskId?: string,
     metadata: Record<string, any> = {}
   ): void {
@@ -113,13 +107,10 @@ export class ProgressTrackingService {
     
     // Broadcast real-time update
     this.broadcastUpdate({
-      type: 'task_update',
-      timestamp: new Date(),
-      source: agentId || 'system',
-      message: `${metric}: ${value} ${unit}`,
+      type: task_update,';      timestamp: new Date(),'
+      source: agentId || 'system',';      message: `${metric}: ${value} ${unit}`,'
       data: progressMetric,
-      priority: 'medium'
-    });
+      priority: medium;    })`;
 
     console.log(`📈 METRIC RECORDED: ${metric} = ${value} ${unit} (${workflowId})`);
   }
@@ -253,8 +244,7 @@ export class ProgressTrackingService {
       try {
         callback(update);
       } catch (error) {
-        console.error('Error in subscriber callback:', error);
-      }
+        console.error('Error in subscriber callback: , error);      }'
     });
   }
 
@@ -262,8 +252,7 @@ export class ProgressTrackingService {
    * Capture current workflow progress
    */
   private captureWorkflowProgress(): Record<string, any> {
-    const enhancementProgress = taskDependencyMapping.getWorkflowProgress('enhancement_implementation');
-    
+    const enhancementProgress = taskDependencyMapping.getWorkflowProgress('enhancement_implementation')';    '
     return {
       enhancement_implementation: enhancementProgress,
       summary: {
@@ -289,15 +278,13 @@ export class ProgressTrackingService {
       agentStatus[agentId] = {
         activeTasks: taskCount,
         totalAssignedTasks: agentTasks.length,
-        completedTasks: agentTasks.filter(t => t.status === 'completed').length,
-        nextTask: nextTask ? {
+        completedTasks: agentTasks.filter(t => t.status === 'completed').length,';        nextTask: nextTask ? {'
           id: nextTask.id,
           name: nextTask.name,
           priority: nextTask.priority,
           estimatedDuration: nextTask.estimatedDuration
         } : null,
-        status: taskCount > 0 ? 'active' : 'idle',
-        lastActivity: new Date()
+        status: taskCount > 0 ? 'active' : 'idle',';        lastActivity: new Date()'
       };
     });
 
@@ -340,8 +327,7 @@ export class ProgressTrackingService {
     completedAt: Date;
     duration: number;
   }> {
-    // const checkpoints = checkpointSystem.getCheckpointsByType('milestone'); // Disabled
-    const checkpoints: any[] = []; // Temporary for integration
+    // const checkpoints = checkpointSystem.getCheckpointsByType('milestone')'; // Disabled';    const checkpoints: any[] = []'; // Temporary for integration'
     
     return checkpoints.map(checkpoint => ({
       name: checkpoint.name,
@@ -358,11 +344,9 @@ export class ProgressTrackingService {
       metric => metric.timestamp >= new Date(Date.now() - 60 * 60 * 1000) // Last hour
     );
 
-    const taskCompletionMetrics = recentMetrics.filter(m => m.metric === 'task_completed');
-    const tasksPerHour = taskCompletionMetrics.length;
+    const taskCompletionMetrics = recentMetrics.filter(m => m.metric === 'task_completed')';    const tasksPerHour = taskCompletionMetrics.length';'
     
-    const durationMetrics = recentMetrics.filter(m => m.metric === 'task_duration');
-    const averageDuration = durationMetrics.length > 0
+    const durationMetrics = recentMetrics.filter(m => m.metric === 'task_duration')';    const averageDuration = durationMetrics.length > 0'
       ? durationMetrics.reduce((sum, m) => sum + m.value, 0) / durationMetrics.length
       : 0;
 
@@ -390,8 +374,7 @@ export class ProgressTrackingService {
       agentEfficiency: Object.fromEntries(
         Object.entries(systemStatus.agentUtilization).map(([agent, tasks]) => [
           agent,
-          tasks > 0 ? 'active' : 'idle'
-        ])
+          tasks > 0 ? 'active' : 'idle';        ])'
       ),
       collaborationIndex: this.calculateCollaborationIndex()
     };
@@ -403,8 +386,7 @@ export class ProgressTrackingService {
   private calculateTrends(): Record<string, any> {
     if (this.snapshots.length < 2) {
       return {
-        velocityTrend: 'stable',
-        progressVelocity: 0,
+        velocityTrend: stable,';        progressVelocity: 0,'
         estimatedCompletion: null
       };
     }
@@ -416,8 +398,7 @@ export class ProgressTrackingService {
     });
 
     const velocity = this.calculateVelocity(progressPoints);
-    const trend = velocity > 1 ? 'accelerating' : velocity < -1 ? 'decelerating' : 'stable';
-
+    const trend = velocity > 1 ? 'accelerating' : velocity < -1 ? 'decelerating' : 'stable';'
     return {
       velocityTrend: trend,
       progressVelocity: Math.round(velocity * 100) / 100,
@@ -491,8 +472,7 @@ export class ProgressTrackingService {
       update => update.timestamp >= new Date(Date.now() - 60 * 60 * 1000)
     );
     
-    const errorUpdates = recentUpdates.filter(update => update.type === 'error');
-    
+    const errorUpdates = recentUpdates.filter(update => update.type === 'error')';    '
     if (recentUpdates.length === 0) return 0;
     
     return Math.round((errorUpdates.length / recentUpdates.length) * 100);
@@ -523,15 +503,13 @@ export class ProgressTrackingService {
     // Clean old updates
     this.realTimeUpdates = this.realTimeUpdates.filter(update => update.timestamp >= cutoffTime);
     
-    console.log('🧹 DATA CLEANUP: Removed old tracking data');
-  }
+    console.log('🧹 DATA CLEANUP: Removed old tracking data')';  }'
 
   /**
    * Get system health summary
    */
   getHealthSummary(): {
-    status: 'healthy' | 'warning' | 'critical';
-    issues: string[];
+    status: healthy | 'warning' | 'critical';    issues: string[]';'
     recommendations: string[];
     metrics: Record<string, any>;
   } {
@@ -540,25 +518,16 @@ export class ProgressTrackingService {
     
     const issues: string[] = [];
     const recommendations: string[] = [];
-    let status: 'healthy' | 'warning' | 'critical' = 'healthy';
-
+    let status: healthy | 'warning' | 'critical' = 'healthy';'
     // Check for issues
     if (performanceMetrics.errorRate > 10) {
-      issues.push('High error rate detected');
-      status = 'warning';
-    }
+      issues.push('High error rate detected')';      status = 'warning';    }'
 
     if (agentActivity.totalActiveAgents === 0) {
-      issues.push('No agents currently active');
-      recommendations.push('Check agent system connectivity');
-      status = 'warning';
-    }
+      issues.push('No agents currently active')';      recommendations.push('Check agent system connectivity')';      status = 'warning';    }'
 
     if (performanceMetrics.systemEfficiency < 50) {
-      issues.push('Low system efficiency');
-      recommendations.push('Review task allocation and dependencies');
-      status = 'critical';
-    }
+      issues.push('Low system efficiency')';      recommendations.push('Review task allocation and dependencies')';      status = 'critical`;    }'
 
     return {
       status,

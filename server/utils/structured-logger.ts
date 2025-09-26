@@ -3,12 +3,14 @@
  * Enhanced logging with structured data and multiple outputs
  */
 
-import { Logger } from './logger';
+import { Logger } from "./logger.js";
 import fs from 'fs';
+
+type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
 export interface LogEntry {
   timestamp: string;
-  level: 'debug' | 'info' | 'warn' | 'error';
+  level: LogLevel;
   message: string;
   service: string;
   requestId?: string;
@@ -33,7 +35,7 @@ export class ConsoleLogOutput implements LogOutput {
 }
 
 export class FileLogOutput implements LogOutput {
-  private fs: any;
+  private fs: typeof fs;
   private path: string;
 
   constructor(logPath: string) {
@@ -50,8 +52,8 @@ export class FileLogOutput implements LogOutput {
 export class StructuredLogger {
   private outputs: LogOutput[];
   private service: string;
-  private requestId?: string;
-  private userId?: string;
+  private requestId: string | undefined;
+  private userId: string | undefined;
 
   constructor(service: string, outputs: LogOutput[] = []) {
     this.service = service;
@@ -86,7 +88,7 @@ export class StructuredLogger {
     });
   }
 
-  private log(level: 'debug' | 'info' | 'warn' | 'error', message: string, metadata?: Record<string, any>): void {
+  private log(level: LogLevel, message: string, metadata?: Record<string, any>): void {
     const entry: LogEntry = {
       timestamp: new Date().toISOString(),
       level,

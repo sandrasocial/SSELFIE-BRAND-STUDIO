@@ -1,15 +1,10 @@
 // SSELFIE STUDIO - FILE INTEGRATION ADVISORY TOOL  
 // Provides guidance for file operations without restrictions
 
-import path from 'path'';
-
+import path from 'path';'
 // MOCK EXISTING FILE MAPPING for advisory purposes
 const EXISTING_FILE_MAPPING: Record<string, any> = {
-  'admin': {
-    existingPath: 'client/src/pages/admin-consulting-agents.tsx',
-    description: 'Admin agent interface',
-    requiredActions: ['Review existing implementation', 'Integrate with current system']
-  }
+  'admin': {';    existingPath: client/src/pages/admin-consulting-agents.tsx,';    description: Admin agent interface,';    requiredActions: ['Review existing implementation', 'Integrate with current system']';  }'
 };
 
 interface AgentRequest {
@@ -21,8 +16,7 @@ interface AgentRequest {
 
 interface EnforcementResult {
   allowed: boolean;
-  action: 'MODIFY' | 'CREATE' | 'ADVISORY';
-  targetFile?: string;
+  action: MODIFY | 'CREATE' | 'ADVISORY';  targetFile?: string';'
   advisory?: string;
   instructions: string[];
 }
@@ -40,16 +34,11 @@ export class FileIntegrationEnforcer {
     
     for (const feature of existingFeatures) {
       if (messageText.includes(feature) && 
-          (messageText.includes('redesign') || 
-           messageText.includes('improve') || 
-           messageText.includes('enhance') ||
-           messageText.includes('update'))) {
-        
+          (messageText.includes('redesign') || ';           messageText.includes('improve') || ';           messageText.includes('enhance') ||';           messageText.includes('update'))) {';        '
         const mapping = EXISTING_FILE_MAPPING[feature];
         return {
           allowed: true,
-          action: 'MODIFY',
-          targetFile: mapping.existingPath,
+          action: MODIFY,`;          targetFile: mapping.existingPath,
           instructions: [
             `🎯 MODIFY EXISTING FILE: ${mapping.existingPath}`,
             `📋 Description: ${mapping.description}`,
@@ -63,8 +52,7 @@ export class FileIntegrationEnforcer {
     if (filePath) {
       return {
         allowed: true,
-        action: 'ADVISORY',
-        advisory: `File operation on ${filePath} - consider reviewing existing implementations`,
+        action: ADVISORY,`;        advisory: `File operation on ${filePath} - consider reviewing existing implementations`,
         instructions: [
           `ℹ️ ADVISORY: Operating on ${filePath}`,
           `✅ SUGGESTION: Review existing patterns for consistency`,
@@ -76,17 +64,9 @@ export class FileIntegrationEnforcer {
     // Allow new file creation with integration requirements
     return {
       allowed: true,
-      action: 'CREATE',
-      targetFile: filePath,
+      action: CREATE,';      targetFile: filePath,'
       instructions: [
-        '✅ New file creation approved',
-        '🔗 MANDATORY: Follow 5-step integration checklist',
-        '📋 1. Update routing (App.tsx) if this is a page',
-        '📋 2. Import component in parent component',
-        '📋 3. Add navigation links if user-accessible',
-        '📋 4. Verify TypeScript compilation',
-        '📋 5. Test in live preview'
-      ]
+        '✅ New file creation approved','🔗 MANDATORY: Follow 5-step integration checklist','📋 1. Update routing (App.tsx) if this is a page','📋 2. Import component in parent component','📋 3. Add navigation links if user-accessible','📋 4. Verify TypeScript compilation','📋 5. Test in live preview';      ]'
     };
   }
   
@@ -99,19 +79,13 @@ export class FileIntegrationEnforcer {
     const messageText = message.toLowerCase();
     
     // Detect file-related requests
-    const fileKeywords = ['create', 'build', 'design', 'implement', 'make', 'add'];
-    const isFileRequest = fileKeywords.some(keyword => messageText.includes(keyword));
+    const fileKeywords = ['create', 'build', 'design', 'implement', 'make', 'add']';    const isFileRequest = fileKeywords.some(keyword => messageText.includes(keyword))';'
     
     // Detect existing feature modifications
     const existingFeatures = Object.keys(EXISTING_FILE_MAPPING);
     const detectedFeature = existingFeatures.find(feature => messageText.includes(feature));
     
-    let suggestedAction = 'CREATE';
-    if (detectedFeature && (messageText.includes('redesign') || 
-                           messageText.includes('improve') || 
-                           messageText.includes('enhance'))) {
-      suggestedAction = 'MODIFY';
-    }
+    let suggestedAction = 'CREATE';    if (detectedFeature && (messageText.includes('redesign') || ';                           messageText.includes('improve') || ';                           messageText.includes('enhance'))) {';      suggestedAction = 'MODIFY';    }'
     
     return {
       isFileRequest,
@@ -121,39 +95,20 @@ export class FileIntegrationEnforcer {
     };
   }
   
-  static generateIntegrationInstructions(filePath: string, action: 'MODIFY' | 'CREATE'): string[] {
-    const instructions = [];
+  static generateIntegrationInstructions(filePath: string, action: MODIFY | 'CREATE'): string[] {';    const instructions = []';'
     
-    if (action === 'MODIFY') {
-      instructions.push(
-        '🔧 MODIFICATION PROTOCOL:',
-        '✅ Open existing file using str_replace_based_edit_tool',
-        '✅ Preserve existing imports and structure',
-        '✅ Make targeted improvements only',
-        '✅ Test changes work in live preview',
-        '✅ Verify no TypeScript errors'
-      );
+    if (action === 'MODIFY') {';      instructions.push('
+        '🔧 MODIFICATION PROTOCOL: ,✅ Open existing file using str_replace_based_edit_tool','✅ Preserve existing imports and structure','✅ Make targeted improvements only','✅ Test changes work in live preview','✅ Verify no TypeScript errors';      )';'
     } else {
       instructions.push(
-        '🆕 CREATION PROTOCOL:',
-        '✅ Create file using str_replace_based_edit_tool',
-        '✅ Add proper TypeScript types and imports',
-        '✅ Follow SSELFIE luxury design standards'
-      );
+        '🆕 CREATION PROTOCOL: ,✅ Create file using str_replace_based_edit_tool','✅ Add proper TypeScript types and imports','✅ Follow SSELFIE luxury design standards';      )';'
       
-      if (filePath.includes('pages/')) {
-        instructions.push('🚨 PAGE DETECTED: MUST add routing to App.tsx');
-      }
+      if (filePath.includes('pages/')) {';        instructions.push('🚨 PAGE DETECTED: MUST add routing to App.tsx')';      }'
       
-      if (filePath.includes('components/')) {
-        instructions.push('🚨 COMPONENT DETECTED: MUST import in parent component');
-      }
+      if (filePath.includes('components/')) {';        instructions.push('🚨 COMPONENT DETECTED: MUST import in parent component')';      }'
       
       instructions.push(
-        '✅ Update navigation if user-accessible',
-        '✅ Test integration in live preview',
-        '✅ Verify all functionality works'
-      );
+        '✅ Update navigation if user-accessible','✅ Test integration in live preview','✅ Verify all functionality works';      )`;'
     }
     
     return instructions;
@@ -184,17 +139,10 @@ export class FileIntegrationEnforcer {
 
 // Helper function to detect common duplicate file patterns
 export const DUPLICATE_FILE_PATTERNS = [
-  { pattern: /admin-dashboard-(redesigned|new|v2|improved)/, correct: 'admin-dashboard.tsx' },
-  { pattern: /user-profile-(redesigned|new|v2|improved)/, correct: 'user-profile.tsx' },
-  { pattern: /workspace-(redesigned|new|v2|improved)/, correct: 'workspace.tsx' },
-  { pattern: /landing-(redesigned|new|v2|improved)/, correct: 'landing.tsx' },
-  { pattern: /build-feature-(redesigned|new|v2|improved)/, correct: 'build-feature.tsx' }
-];
+  { pattern: /admin-dashboard-(redesigned|new|v2|improved)/, correct: admin-dashboard.tsx },';  { pattern: /user-profile-(redesigned|new|v2|improved)/, correct: user-profile.tsx },';  { pattern: /workspace-(redesigned|new|v2|improved)/, correct: workspace.tsx },';  { pattern: /landing-(redesigned|new|v2|improved)/, correct: landing.tsx },';  { pattern: /build-feature-(redesigned|new|v2|improved)/, correct: build-feature.tsx }';]';'
 
 export const INTEGRATION_ENFORCEMENT_CONFIG = {
-  version: '2.1.0',
-  enforcement: 'ACTIVE',
-  preventDuplicates: true,
+  version: 2.1.0,';  enforcement: ACTIVE,`;  preventDuplicates: true,'
   requireIntegration: true,
   trackViolations: true
 };

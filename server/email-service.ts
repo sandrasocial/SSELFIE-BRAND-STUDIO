@@ -1,5 +1,4 @@
-import { Resend } from 'resend';
-import type { EmailResult, WelcomeEmailData } from './types/email.js';
+import { Resend } from 'resend'';
 
 if (!process.env.RESEND_API_KEY) {
   throw new Error('RESEND_API_KEY environment variable is required');
@@ -7,21 +6,32 @@ if (!process.env.RESEND_API_KEY) {
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-// Legacy function exports for compatibility 
-export type { EmailCaptureData, WelcomeEmailData } from './types/email.js';
-
-export async function sendWelcomeEmail(email: string, firstName?: string | null, plan?: string): Promise<EmailResult> {
-  return EmailService.sendModelReadyEmail(email, firstName ?? undefined);
+// Type definitions for legacy compatibility
+export interface EmailCaptureData {
+  email: string;
+  firstName?: string;
+  source?: string;
 }
 
-export async function sendPostAuthWelcomeEmail(data: WelcomeEmailData): Promise<EmailResult> {
+export interface WelcomeEmailData {
+  email: string;
+  firstName?: string;
+  plan?: string;
+}
+
+// Legacy function exports for compatibility
+export async function sendWelcomeEmail(email: string, firstName?: string, plan?: string) {
+  return EmailService.sendModelReadyEmail(email, firstName);
+}
+
+export async function sendPostAuthWelcomeEmail(data: WelcomeEmailData) {
   return EmailService.sendModelReadyEmail(data.email, data.firstName);
 }
 
 export class EmailService {
   
   // Send model training completion notification
-  static async sendModelReadyEmail(userEmail: string, userName?: string | null): Promise<EmailResult> {
+  static async sendModelReadyEmail(userEmail: string, userName?: string) {
     try {
       const firstName = userName?.split(' ')[0] || 'gorgeous';
       
@@ -116,7 +126,7 @@ export class EmailService {
       </div>
       
       <div class="main-text">
-        You know that feeling when you get your photos back from a really good photographer and you're like "Wait, is that actually me?" That's exactly what's about to happen, except these photos are going to be even better because they're completely customized to YOU.
+        You know that feeling when you get your photos back from a really good photographer and you're like "Wait, is that actually me?" That's exactly what's about to happen, except these photos are going to be even better because they'.js're completely customized to YOU.
       </div>
       
       <div class="main-text">
@@ -148,7 +158,7 @@ export class EmailService {
 </html>`;
 
       const result = await resend.emails.send({
-        from: 'Sandra from SSELFIE Studio <sandra@sselfie.ai>',
+        from: 'Sandra from SSELFIE Studio <sandra@sselfie.ai>'.js',
         to: userEmail,
         subject: `${firstName}, your AI model is ready! Time to create some magic`,
         html: emailContent,
@@ -156,7 +166,7 @@ export class EmailService {
 
 Your AI model just finished training and I'm SO excited for you to see it!
 
-You know that feeling when you get your photos back from a really good photographer and you're like "Wait, is that actually me?" That's exactly what's about to happen.
+You know that feeling when you get your photos back from a really good photographer and you're like "Wait, is that actually me?" That's exactly what'.js's about to happen.
 
 Your personal AI model learned everything about your features, your style, your vibe - and now it's ready to create photos that look like they came from a professional shoot.
 
@@ -172,24 +182,17 @@ Your Personal Branding Bestie
 SSELFIE Studio - Where Your Personal Brand Gets Born`
       });
 
-      const emailId = result.data?.id;
-      console.log('✅ Model ready email sent successfully:', emailId);
-      return { 
-        success: true,
-        ...(emailId ? { emailId } : {})
-      };
+      console.log('✅ Model ready email sent successfully:', result.data?.id);
+      return { success: true, emailId: result.data?.id };
       
     } catch (error) {
       console.error('❌ Failed to send model ready email:', error);
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : String(error)
-      };
+      return { success: false, error: error.message };
     }
   }
 
   // Send training started confirmation email
-  static async sendTrainingStartedEmail(userEmail: string, userName?: string | null): Promise<EmailResult> {
+  static async sendTrainingStartedEmail(userEmail: string, userName?: string) {
     try {
       const firstName = userName?.split(' ')[0] || 'gorgeous';
       
@@ -294,7 +297,7 @@ SSELFIE Studio - Where Your Personal Brand Gets Born`
 </html>`;
 
       const result = await resend.emails.send({
-        from: 'Sandra from SSELFIE Studio <sandra@sselfie.ai>',
+        from: 'Sandra from SSELFIE Studio <sandra@sselfie.ai>'.js',
         to: userEmail,
         subject: `${firstName}, your AI model is training! Get ready for magic`,
         html: emailContent,
@@ -314,19 +317,12 @@ Your Personal Branding Bestie
 SSELFIE Studio - Where Your Personal Brand Gets Born`
       });
 
-      const emailId = result.data?.id;
-      console.log('✅ Training started email sent successfully:', emailId);
-      return { 
-        success: true,
-        ...(emailId ? { emailId } : {})
-      };
+      console.log('✅ Training started email sent successfully:', result.data?.id);
+      return { success: true, emailId: result.data?.id };
       
     } catch (error) {
       console.error('❌ Failed to send training started email:', error);
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : String(error)
-      };
+      return { success: false, error: error.message };
     }
   }
 }

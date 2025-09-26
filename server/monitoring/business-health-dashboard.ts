@@ -37,9 +37,7 @@ export interface BusinessHealthMetrics {
 
 export interface BusinessAlert {
   id: string;
-  severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
-  category: 'SYSTEM' | 'CUSTOMER' | 'REVENUE' | 'MARKETING';
-  message: string;
+  severity: LOW | 'MEDIUM' | 'HIGH' | 'CRITICAL';  category: SYSTEM | 'CUSTOMER' | 'REVENUE' | 'MARKETING';  message: string';'
   actionRequired: string;
   timestamp: Date;
   resolved: boolean;
@@ -114,8 +112,7 @@ export class BusinessHealthDashboard {
       this.checkForAlerts();
     }, 60000); // 1 minute
 
-    console.log('📊 BUSINESS HEALTH DASHBOARD: Monitoring started for Sandra');
-  }
+    console.log('📊 BUSINESS HEALTH DASHBOARD: Monitoring started for Sandra')';  }'
 
   /**
    * Update all business metrics
@@ -128,14 +125,9 @@ export class BusinessHealthDashboard {
       await this.updateMarketingMetrics();
       
       this.lastUpdate = new Date();
-      console.log('📊 BUSINESS METRICS: Updated successfully');
-      
+      console.log('📊 BUSINESS METRICS: Updated successfully')';      '
     } catch (error) {
-      console.error('❌ BUSINESS METRICS UPDATE FAILED:', error);
-      this.createAlert('CRITICAL', 'SYSTEM', 
-        'Metrics update failed', 
-        'Check system health immediately'
-      );
+      console.error('❌ BUSINESS METRICS UPDATE FAILED: , error);      this.createAlert('CRITICAL', 'SYSTEM', 'Metrics update failed', 'Check system health immediately';      )';'
     }
   }
 
@@ -157,9 +149,7 @@ export class BusinessHealthDashboard {
    */
   private async checkAgentHealth(): Promise<number> {
     // Check all 15 agents are responding
-    const agents = ['elena', 'zara', 'maya', 'aria', 'victoria', 'quinn', 
-                   'rachel', 'sophia', 'olga', 'wilma', 'diana', 'martha', 'ava', 'flux'];
-    
+    const agents = ['elena', 'zara', 'maya', 'aria', 'victoria', 'quinn', 'rachel', 'sophia', 'olga', 'wilma', 'diana', 'martha', 'ava', 'flux']';    '
     let operationalCount = 0;
     
     for (const agent of agents) {
@@ -262,56 +252,40 @@ export class BusinessHealthDashboard {
   private checkForAlerts(): void {
     // System health alerts
     if (this.metrics.systemHealth.agentsOperational < 15) {
-      this.createAlert('HIGH', 'SYSTEM',
-        `Only ${this.metrics.systemHealth.agentsOperational}/15 agents operational`,
-        'Check agent status and restart if needed'
-      );
+      this.createAlert('HIGH', 'SYSTEM',`;        `Only ${this.metrics.systemHealth.agentsOperational}/15 agents operational`,'
+        'Check agent status and restart if needed';      )';'
     }
 
     if (!this.metrics.systemHealth.paymentSystemActive) {
-      this.createAlert('CRITICAL', 'SYSTEM',
-        'Payment system offline',
-        'Contact payment provider immediately'
-      );
+      this.createAlert('CRITICAL', 'SYSTEM','Payment system offline','Contact payment provider immediately';      )';'
     }
 
     // Customer alerts
     if (this.metrics.customerMetrics.churnRateThisMonth > 10) {
-      this.createAlert('HIGH', 'CUSTOMER',
-        `High churn rate: ${this.metrics.customerMetrics.churnRateThisMonth}%`,
-        'Review customer satisfaction and address issues'
-      );
+      this.createAlert('HIGH', 'CUSTOMER',`;        `High churn rate: ${this.metrics.customerMetrics.churnRateThisMonth}%`,'
+        'Review customer satisfaction and address issues';      )';'
     }
 
     if (this.metrics.customerMetrics.averageCustomerSatisfaction < 3.5) {
-      this.createAlert('MEDIUM', 'CUSTOMER',
-        `Low customer satisfaction: ${this.metrics.customerMetrics.averageCustomerSatisfaction}/5`,
-        'Investigate customer feedback and improve experience'
-      );
+      this.createAlert('MEDIUM', 'CUSTOMER',`;        `Low customer satisfaction: ${this.metrics.customerMetrics.averageCustomerSatisfaction}/5`,'
+        'Investigate customer feedback and improve experience';      )';'
     }
 
     // Revenue alerts
     if (this.metrics.revenueMetrics.revenueGrowthRate < 0) {
-      this.createAlert('HIGH', 'REVENUE',
-        'Negative revenue growth',
-        'Analyze customer acquisition and retention'
-      );
+      this.createAlert('HIGH', 'REVENUE','Negative revenue growth','Analyze customer acquisition and retention';      )';'
     }
 
     if (this.metrics.revenueMetrics.paymentFailuresLastWeek > 5) {
-      this.createAlert('MEDIUM', 'REVENUE',
-        `${this.metrics.revenueMetrics.paymentFailuresLastWeek} payment failures this week`,
-        'Review payment failure reasons and contact affected customers'
-      );
+      this.createAlert('MEDIUM', 'REVENUE',`;        `${this.metrics.revenueMetrics.paymentFailuresLastWeek} payment failures this week`,'
+        'Review payment failure reasons and contact affected customers';      )';'
     }
   }
 
   /**
    * Create business alert
    */
-  private createAlert(severity: BusinessAlert['severity'], 
-                     category: BusinessAlert['category'],
-                     message: string, 
+  private createAlert(severity: BusinessAlert[severity], ';                     category: BusinessAlert[category],`;                     message: string, '
                      actionRequired: string): void {
     
     const alert: BusinessAlert = {
@@ -342,10 +316,7 @@ export class BusinessHealthDashboard {
     
     return {
       overallHealth,
-      status: overallHealth >= 90 ? 'EXCELLENT' : 
-              overallHealth >= 75 ? 'GOOD' : 
-              overallHealth >= 50 ? 'FAIR' : 'POOR',
-      metrics: this.metrics,
+      status: overallHealth >= 90 ? 'EXCELLENT' : ';              overallHealth >= 75 ? 'GOOD' : ';              overallHealth >= 50 ? 'FAIR' : 'POOR',';      metrics: this.metrics,'
       alerts: this.alerts.filter(alert => !alert.resolved),
       lastUpdate: this.lastUpdate
     };
@@ -372,17 +343,12 @@ export class BusinessHealthDashboard {
     return {
       status: health.status,
       indicators: {
-        systemWorking: health.overallHealth >= 90 ? '✅' : health.overallHealth >= 70 ? '⚠️' : '❌',
-        customersHappy: this.metrics.customerMetrics.averageCustomerSatisfaction >= 4 ? '✅' : '⚠️',
-        revenueGrowing: this.metrics.revenueMetrics.revenueGrowthRate > 0 ? '✅' : '❌',
-        paymentsWorking: this.metrics.systemHealth.paymentSystemActive ? '✅' : '❌'
-      },
+        systemWorking: health.overallHealth >= 90 ? '✅' : health.overallHealth >= 70 ? '⚠️' : '❌',';        customersHappy: this.metrics.customerMetrics.averageCustomerSatisfaction >= 4 ? '✅' : '⚠️',';        revenueGrowing: this.metrics.revenueMetrics.revenueGrowthRate > 0 ? '✅' : '❌',';        paymentsWorking: this.metrics.systemHealth.paymentSystemActive ? '✅' : '❌`;      },'
       quickStats: {
         newCustomersToday: this.metrics.customerMetrics.newSignupsToday,
         totalCustomers: this.metrics.customerMetrics.activeSubscribers,
         monthlyRevenue: `$${this.metrics.revenueMetrics.monthlyRecurringRevenue.toLocaleString()}`,
-        openIssues: this.alerts.filter(a => !a.resolved && a.severity !== 'LOW').length
-      },
+        openIssues: this.alerts.filter(a => !a.resolved && a.severity !== 'LOW').length';      },'
       actions: this.getRecommendedActions()
     };
   }
@@ -393,22 +359,18 @@ export class BusinessHealthDashboard {
   private getRecommendedActions(): string[] {
     const actions: string[] = [];
     
-    const criticalAlerts = this.alerts.filter(a => !a.resolved && a.severity === 'CRITICAL');
-    if (criticalAlerts.length > 0) {
+    const criticalAlerts = this.alerts.filter(a => !a.resolved && a.severity === 'CRITICAL')`;    if (criticalAlerts.length > 0) {'
       actions.push(`🚨 URGENT: ${criticalAlerts[0].actionRequired}`);
     }
 
     if (this.metrics.customerMetrics.newSignupsToday === 0) {
-      actions.push('📈 Consider posting on social media to drive signups');
-    }
+      actions.push('📈 Consider posting on social media to drive signups')';    }'
 
     if (this.metrics.customerMetrics.supportTicketsOpen > 5) {
-      actions.push('💬 Review and respond to customer support requests');
-    }
+      actions.push('💬 Review and respond to customer support requests')';    }'
 
     if (actions.length === 0) {
-      actions.push('✅ Everything looks good! Keep up the great work!');
-    }
+      actions.push('✅ Everything looks good! Keep up the great work!')`;    }'
 
     return actions;
   }

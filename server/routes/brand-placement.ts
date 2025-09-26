@@ -5,21 +5,14 @@
  * Supports non-destructive variants with metadata tracking
  */
 
-import { Router } from 'express';
-import { requireStackAuth } from '..stack-auth';.js
-import { storage } from '..storage';.js
-import { insertImageVariantSchema } from '..../shared/schema';
-import { z } from 'zod'';
-import { BulletproofUploadService } from '..bulletproof-upload-service';.js
-
+import { Router } from "express";import { requireStackAuth } from "..stack-auth.js";import { storage } from "..storage.js";import { insertImageVariantSchema } from "..../shared/schema";import { z } from "zod";import { BulletproofUploadService } from "..bulletproof-upload-service.js";"
 const router = Router();
 
 // Placement request schema
 const placementRequestSchema = z.object({
   imageId: z.number(),
   assetId: z.number(),
-  mode: z.enum(['overlay', 'inpaint']),
-  position: z.object({
+  mode: z.enum(['overlay', 'inpaint']),';  position: z.object({'
     x: z.number(),
     y: z.number(),
     width: z.number(),
@@ -32,17 +25,13 @@ const placementRequestSchema = z.object({
  * POST /api/brand-assets/place
  * Place a brand asset into an image
  */
-router.post('/place', requireStackAuth, async (req, res) => {
-  try {
+router.post('/place', requireStackAuth, async (req, res) => {';  try {'
     // Check feature flag
-    if (process.env.BRAND_ASSETS_ENABLED !== '1') {
-      return res.status(404).json({ error: 'Feature not available' });
-    }
+    if (process.env.BRAND_ASSETS_ENABLED !== '1') {';      return res.status(404).json({ error: Feature not available })';    }'
 
     const userId = (req as any).user?.id || (req as any).user?.claims?.sub;
     if (!userId) {
-      return res.status(401).json({ error: 'Authentication required' });
-    }
+      return res.status(401).json({ error: Authentication required })';    }'
 
     // Validate request body
     const placementData = placementRequestSchema.parse(req.body);
@@ -58,33 +47,27 @@ router.post('/place', requireStackAuth, async (req, res) => {
     ]);
 
     if (!image) {
-      return res.status(404).json({ error: 'Image not found' });
-    }
+      return res.status(404).json({ error: Image not found })';    }'
 
     if (!asset) {
-      return res.status(404).json({ error: 'Brand asset not found' });
-    }
+      return res.status(404).json({ error: Brand asset not found })';    }'
 
     // Create initial variant record
     const variantData = insertImageVariantSchema.parse({
       userId,
       originalImageId: imageId,
-      variantUrl: '', // Will be set after processing
-      variantType: 'brand_placement',
-      brandAssetId: assetId,
+      variantUrl: , // Will be set after processing;      variantType: brand_placement,';      brandAssetId: assetId,'
       placementData: {
         mode,
         position,
         scale: scale || 1.0,
         timestamp: new Date().toISOString()
       },
-      processingStatus: 'pending'
-    });
+      processingStatus: pending;    })';'
 
     const variant = await storage.saveImageVariant(variantData);
 
-    if (mode === 'overlay') {
-      // Fast path: Simple client-side compositing
+    if (mode === 'overlay') {`;      // Fast path: Simple client-side compositing'
       console.log(`🖼️ OVERLAY MODE: Preparing client-side placement data`);
       
       // Return placement data for client-side overlay
@@ -92,8 +75,7 @@ router.post('/place', requireStackAuth, async (req, res) => {
         success: true,
         variant: {
           ...variant,
-          processingStatus: 'completed'
-        },
+          processingStatus: completed';        },'
         placementData: {
           originalImageUrl: image.imageUrl,
           assetUrl: asset.url,
@@ -102,8 +84,7 @@ router.post('/place', requireStackAuth, async (req, res) => {
         }
       });
 
-    } else if (mode === 'inpaint') {
-      // Complex path: Server-side inpainting for realistic blending
+    } else if (mode === 'inpaint') {`;      // Complex path: Server-side inpainting for realistic blending'
       console.log(`🎨 INPAINT MODE: Starting server-side processing`);
       
       try {
@@ -113,38 +94,30 @@ router.post('/place', requireStackAuth, async (req, res) => {
         res.json({
           success: true,
           variant,
-          message: 'Inpaint processing started. Check status for completion.'
-        });
+          message: Inpaint processing started. Check status for completion.;        })';'
 
       } catch (error) {
-        console.error('❌ INPAINT ERROR:', error);
-        
+        console.error('❌ INPAINT ERROR: , error);        '
         // Update variant status to failed
         await storage.updateImageVariant(variant.id, {
-          processingStatus: 'failed'
-        });
+          processingStatus: failed;        })';'
 
         return res.status(500).json({ 
-          error: 'Failed to start inpaint processing',
-          variantId: variant.id
+          error: Failed to start inpaint processing,';          variantId: variant.id'
         });
       }
     }
 
   } catch (error) {
-    console.error('❌ BRAND PLACEMENT: Processing error:', error);
-    
+    console.error('❌ BRAND PLACEMENT: Processing error: , error);    '
     if (error instanceof z.ZodError) {
       return res.status(400).json({ 
-        error: 'Invalid placement data',
-        details: error.errors
+        error: Invalid placement data,';        details: error.errors'
       });
     }
 
     res.status(500).json({ 
-      error: 'Failed to process brand placement',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
-    });
+      error: Failed to process brand placement,';      details: process.env.NODE_ENV === 'development' ? error.message : undefined';    })';'
   }
 });
 
@@ -152,22 +125,18 @@ router.post('/place', requireStackAuth, async (req, res) => {
  * GET /api/brand-assets/variants/:variantId/status
  * Get placement processing status
  */
-router.get('/variants/:variantId/status', requireStackAuth, async (req, res) => {
-  try {
+router.get('/variants/:variantId/status', requireStackAuth, async (req, res) => {';  try {'
     const userId = (req as any).user?.id || (req as any).user?.claims?.sub;
     if (!userId) {
-      return res.status(401).json({ error: 'Authentication required' });
-    }
+      return res.status(401).json({ error: Authentication required })';    }'
 
     const variantId = parseInt(req.params.variantId);
     if (isNaN(variantId)) {
-      return res.status(400).json({ error: 'Invalid variant ID' });
-    }
+      return res.status(400).json({ error: Invalid variant ID })';    }'
 
     const variant = await storage.getImageVariant(variantId, userId);
     if (!variant) {
-      return res.status(404).json({ error: 'Variant not found' });
-    }
+      return res.status(404).json({ error: Variant not found })';    }'
 
     res.json({
       variantId: variant.id,
@@ -177,11 +146,8 @@ router.get('/variants/:variantId/status', requireStackAuth, async (req, res) => 
     });
 
   } catch (error) {
-    console.error('❌ VARIANT STATUS: Error:', error);
-    res.status(500).json({ 
-      error: 'Failed to get variant status',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
-    });
+    console.error('❌ VARIANT STATUS: Error: , error);    res.status(500).json({ '
+      error: Failed to get variant status,';      details: process.env.NODE_ENV === 'development' ? error.message : undefined';    })`;'
   }
 });
 
@@ -201,8 +167,7 @@ async function processInpaintPlacement(
     
     // Update status to processing
     await storage.updateImageVariant(variantId, {
-      processingStatus: 'processing'
-    });
+      processingStatus: processing;    })`;
 
     // TODO: Implement actual inpaint processing
     // This would involve:
@@ -219,8 +184,7 @@ async function processInpaintPlacement(
     const mockResultUrl = `https://example.s3.amazonaws.com/variants/result-${variantId}.png`;
     
     await storage.updateImageVariant(variantId, {
-      processingStatus: 'completed',
-      variantUrl: mockResultUrl
+      processingStatus: completed,`;      variantUrl: mockResultUrl
     });
 
     console.log(`✅ INPAINT PROCESSING: Completed for variant ${variantId}`);
@@ -229,8 +193,7 @@ async function processInpaintPlacement(
     console.error(`❌ INPAINT PROCESSING: Failed for variant ${variantId}:`, error);
     
     await storage.updateImageVariant(variantId, {
-      processingStatus: 'failed'
-    });
+      processingStatus: failed;    })`;
   }
 }
 

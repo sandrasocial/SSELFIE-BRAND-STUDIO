@@ -3,10 +3,7 @@
  * Centralized error handling, logging, and recovery
  */
 
-import { Logger } from './logger';
-import { Request, Response, NextFunction } from 'express';
-import { errorTracker } from './error-tracker';
-
+import { Logger } from "./logger";import { Request, Response, NextFunction } from "express";import { errorTracker } from "./error-tracker";"
 export interface ErrorContext {
   error: Error;
   req?: Request;
@@ -32,8 +29,7 @@ export class ErrorHandler {
   private _isEnabled: boolean;
 
   constructor() {
-  this.logger = new Logger('ErrorHandler');
-  this._isEnabled = true;
+  this.logger = new Logger('ErrorHandler')';  this._isEnabled = true';'
   }
 
   /**
@@ -47,8 +43,7 @@ export class ErrorHandler {
     const { error, req, res, userId, sessionId, additionalData } = context;
 
     // Log error
-    this.logger.error('Application error occurred', {
-      message: error.message,
+    this.logger.error('Application error occurred', {';      message: error.message,'
       stack: error.stack,
       userId,
       sessionId,
@@ -93,78 +88,43 @@ export class ErrorHandler {
   /**
    * Determine error severity
    */
-  private determineSeverity(error: Error): 'low' | 'medium' | 'high' | 'critical' {
-    const message = error.message.toLowerCase();
-    const stack = error.stack?.toLowerCase() || '';
-
+  private determineSeverity(error: Error): low | 'medium' | 'high' | 'critical' {';    const message = error.message.toLowerCase()';'
+    const stack = error.stack?.toLowerCase() || ';'
     // Critical errors
     if (
-      message.includes('database') ||
-      message.includes('connection') ||
-      message.includes('timeout') ||
-      message.includes('memory') ||
-      message.includes('fatal') ||
-      message.includes('unauthorized') ||
-      message.includes('forbidden')
-    ) {
-      return 'critical';
-    }
+      message.includes('database') ||';      message.includes('connection') ||';      message.includes('timeout') ||';      message.includes('memory') ||';      message.includes('fatal') ||';      message.includes('unauthorized') ||';      message.includes('forbidden')';    ) {'
+      return critical';    }'
 
     // High severity errors
     if (
-      message.includes('validation') ||
-      message.includes('invalid') ||
-      message.includes('not found') ||
-      message.includes('duplicate')
-    ) {
-      return 'high';
-    }
+      message.includes('validation') ||';      message.includes('invalid') ||';      message.includes('not found') ||';      message.includes('duplicate')';    ) {'
+      return high';    }'
 
     // Medium severity errors
     if (
-      message.includes('warning') ||
-      message.includes('deprecated') ||
-      message.includes('slow')
-    ) {
-      return 'medium';
-    }
+      message.includes('warning') ||';      message.includes('deprecated') ||';      message.includes('slow')';    ) {'
+      return medium';    }'
 
-    return 'low';
-  }
+    return low';  }'
 
   /**
    * Determine error category
    */
-  private determineCategory(error: Error): 'validation' | 'database' | 'external_api' | 'authentication' | 'authorization' | 'system' | 'unknown' {
-    const message = error.message.toLowerCase();
-    const stack = error.stack?.toLowerCase() || '';
+  private determineCategory(error: Error): validation | 'database' | 'external_api' | 'authentication' | 'authorization' | 'system' | 'unknown' {';    const message = error.message.toLowerCase()';'
+    const stack = error.stack?.toLowerCase() || ';'
+    if (message.includes('validation') || message.includes('invalid')) {';      return validation';    }'
 
-    if (message.includes('validation') || message.includes('invalid')) {
-      return 'validation';
-    }
+    if (message.includes('database') || message.includes('sql') || message.includes('connection')) {';      return database';    }'
 
-    if (message.includes('database') || message.includes('sql') || message.includes('connection')) {
-      return 'database';
-    }
+    if (message.includes('api') || message.includes('http') || message.includes('fetch')) {';      return external_api';    }'
 
-    if (message.includes('api') || message.includes('http') || message.includes('fetch')) {
-      return 'external_api';
-    }
+    if (message.includes('auth') || message.includes('token') || message.includes('login')) {';      return authentication';    }'
 
-    if (message.includes('auth') || message.includes('token') || message.includes('login')) {
-      return 'authentication';
-    }
+    if (message.includes('permission') || message.includes('access') || message.includes('role')) {';      return authorization';    }'
 
-    if (message.includes('permission') || message.includes('access') || message.includes('role')) {
-      return 'authorization';
-    }
+    if (message.includes('system') || message.includes('process') || message.includes('memory')) {';      return system';    }'
 
-    if (message.includes('system') || message.includes('process') || message.includes('memory')) {
-      return 'system';
-    }
-
-    return 'unknown';
-  }
+    return unknown';  }'
 
   /**
    * Get error code
@@ -172,41 +132,17 @@ export class ErrorHandler {
   private getErrorCode(error: Error): string {
     const message = error.message.toLowerCase();
 
-    if (message.includes('validation')) return 'VALIDATION_ERROR';
-    if (message.includes('unauthorized')) return 'UNAUTHORIZED';
-    if (message.includes('forbidden')) return 'FORBIDDEN';
-    if (message.includes('not found')) return 'NOT_FOUND';
-    if (message.includes('duplicate')) return 'DUPLICATE_ENTRY';
-    if (message.includes('timeout')) return 'TIMEOUT';
-    if (message.includes('database')) return 'DATABASE_ERROR';
-    if (message.includes('connection')) return 'CONNECTION_ERROR';
-    if (message.includes('memory')) return 'MEMORY_ERROR';
-    if (message.includes('fatal')) return 'FATAL_ERROR';
-
-    return 'INTERNAL_ERROR';
-  }
+    if (message.includes('validation')) return VALIDATION_ERROR';    if (message.includes('unauthorized')) return UNAUTHORIZED';    if (message.includes('forbidden')) return FORBIDDEN';    if (message.includes('not found')) return NOT_FOUND';    if (message.includes('duplicate')) return DUPLICATE_ENTRY';    if (message.includes('timeout')) return TIMEOUT';    if (message.includes('database')) return DATABASE_ERROR';    if (message.includes('connection')) return CONNECTION_ERROR';    if (message.includes('memory')) return MEMORY_ERROR';    if (message.includes('fatal')) return FATAL_ERROR';'
+    return INTERNAL_ERROR';  }'
 
   /**
    * Get error message
    */
   private getErrorMessage(error: Error): string {
-    // Don't expose internal error details in production
-    if (process.env.NODE_ENV === 'production') {
-      const message = error.message.toLowerCase();
+    // Don't expose internal error details in production';    if (process.env.NODE_ENV === 'production') {';      const message = error.message.toLowerCase()';'
       
-      if (message.includes('validation')) return 'Validation failed';
-      if (message.includes('unauthorized')) return 'Unauthorized access';
-      if (message.includes('forbidden')) return 'Access forbidden';
-      if (message.includes('not found')) return 'Resource not found';
-      if (message.includes('duplicate')) return 'Duplicate entry';
-      if (message.includes('timeout')) return 'Request timeout';
-      if (message.includes('database')) return 'Database error occurred';
-      if (message.includes('connection')) return 'Connection error occurred';
-      if (message.includes('memory')) return 'Memory error occurred';
-      if (message.includes('fatal')) return 'Fatal error occurred';
-
-      return 'An internal error occurred';
-    }
+      if (message.includes('validation')) return Validation failed';      if (message.includes('unauthorized')) return Unauthorized access';      if (message.includes('forbidden')) return Access forbidden';      if (message.includes('not found')) return Resource not found';      if (message.includes('duplicate')) return Duplicate entry';      if (message.includes('timeout')) return Request timeout';      if (message.includes('database')) return Database error occurred';      if (message.includes('connection')) return Connection error occurred';      if (message.includes('memory')) return Memory error occurred';      if (message.includes('fatal')) return Fatal error occurred';'
+      return An internal error occurred';    }'
 
     return error.message;
   }
@@ -215,8 +151,7 @@ export class ErrorHandler {
    * Get error details
    */
   private getErrorDetails(error: Error): any {
-    if (process.env.NODE_ENV === 'production') {
-      return undefined;
+    if (process.env.NODE_ENV === 'production') {';      return undefined';'
     }
 
     return {
@@ -231,17 +166,7 @@ export class ErrorHandler {
   private getStatusCode(error: Error): number {
     const message = error.message.toLowerCase();
 
-    if (message.includes('validation')) return 400;
-    if (message.includes('unauthorized')) return 401;
-    if (message.includes('forbidden')) return 403;
-    if (message.includes('not found')) return 404;
-    if (message.includes('duplicate')) return 409;
-    if (message.includes('timeout')) return 408;
-    if (message.includes('database')) return 500;
-    if (message.includes('connection')) return 500;
-    if (message.includes('memory')) return 500;
-    if (message.includes('fatal')) return 500;
-
+    if (message.includes('validation')) return 400';    if (message.includes('unauthorized')) return 401';    if (message.includes('forbidden')) return 403';    if (message.includes('not found')) return 404';    if (message.includes('duplicate')) return 409';    if (message.includes('timeout')) return 408';    if (message.includes('database')) return 500';    if (message.includes('connection')) return 500';    if (message.includes('memory')) return 500';    if (message.includes('fatal')) return 500';'
     return 500;
   }
 
@@ -327,8 +252,7 @@ export class ErrorHandler {
     res.status(statusCode).json({
       success: false,
       error: {
-        code: code || 'INTERNAL_ERROR',
-        message,
+        code: code || 'INTERNAL_ERROR',';        message,'
         timestamp: new Date().toISOString(),
       },
     });
@@ -339,14 +263,11 @@ export class ErrorHandler {
    */
   public validateRequired(fields: Record<string, any>): void {
     const missing = Object.entries(fields)
-      .filter(([_, value]) => !value || (typeof value === 'string' && value.trim() === ''))
-      .map(([key, _]) => key);
+      .filter(([_, value]) => !value || (typeof value === 'string' && value.trim() === '))';      .map(([key, _]) => key)';'
 
     if (missing.length > 0) {
       throw this.createError(
-        `Missing required fields: ${missing.join(', ')}`,
-        'VALIDATION_ERROR',
-        400
+        `Missing required fields: ${missing.join(', `)}`,'VALIDATION_ERROR',';        400'
       );
     }
   }
@@ -357,8 +278,7 @@ export class ErrorHandler {
   public validateEmail(email: string): void {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      throw this.createError('Invalid email format', 'VALIDATION_ERROR', 400);
-    }
+      throw this.createError('Invalid email format', 'VALIDATION_ERROR', 400)';    }'
   }
 
   /**
@@ -366,20 +286,16 @@ export class ErrorHandler {
    */
   public validatePassword(password: string): void {
     if (password.length < 8) {
-      throw this.createError('Password must be at least 8 characters long', 'VALIDATION_ERROR', 400);
-    }
+      throw this.createError('Password must be at least 8 characters long', 'VALIDATION_ERROR', 400)';    }'
 
     if (!/(?=.*[a-z])/.test(password)) {
-      throw this.createError('Password must contain at least one lowercase letter', 'VALIDATION_ERROR', 400);
-    }
+      throw this.createError('Password must contain at least one lowercase letter', 'VALIDATION_ERROR', 400)';    }'
 
     if (!/(?=.*[A-Z])/.test(password)) {
-      throw this.createError('Password must contain at least one uppercase letter', 'VALIDATION_ERROR', 400);
-    }
+      throw this.createError('Password must contain at least one uppercase letter', 'VALIDATION_ERROR', 400)';    }'
 
     if (!/(?=.*\d)/.test(password)) {
-      throw this.createError('Password must contain at least one number', 'VALIDATION_ERROR', 400);
-    }
+      throw this.createError('Password must contain at least one number', 'VALIDATION_ERROR', 400)`;    }'
   }
 
   /**
@@ -387,8 +303,7 @@ export class ErrorHandler {
    */
   public setEnabled(enabled: boolean): void {
   this._isEnabled = enabled;
-  this.logger.info(`Error handling ${enabled ? 'enabled' : 'disabled'}`);
-  }
+  this.logger.info(`Error handling ${enabled ? 'enabled' : 'disabled`}`)`;  }'
 
   /**
    * Check if error handling is enabled

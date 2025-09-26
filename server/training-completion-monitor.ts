@@ -16,7 +16,7 @@ import {
 export class TrainingCompletionMonitor {
   private static instance: TrainingCompletionMonitor;
   private intervalId: NodeJS.Timeout | null = null;
-  private readonly config: Required<TrainingMonitorConfig> = {
+  private readonly config: TrainingMonitorConfig = {
     checkIntervalMs: 60000, // 1 minute
     maxRetries: 3,
     retryDelayMs: 5000
@@ -29,6 +29,9 @@ export class TrainingCompletionMonitor {
     return TrainingCompletionMonitor.instance;
   }
 
+  /**
+   * Check a specific training status and update database
+   */
   /**
    * Check and update training status for a specific model
    */
@@ -361,16 +364,18 @@ export class TrainingCompletionMonitor {
         
         // Only check models that have been training for at least 8 minutes (training typically takes 10+ minutes)
         if (minutesSinceStart >= 8) {
+          let updated = false;
+          
           // Method 1: Check by training ID if available
           if (userModel.replicateModelId && userModel.replicateModelId.startsWith('rdt_')) {
             console.log(`🔍 Checking by training ID: ${userModel.replicateModelId}`);
-            await this.checkAndUpdateTraining(userModel.replicateModelId, userModel.userId);
+            updated = await this.checkAndUpdateTraining(userModel.replicateModelId, userModel.userId);
           }
           
           // Method 2: Check by model name pattern (fallback for models without stored training ID)
-          if (userModel.modelName) {
+          if (!updated && userModel.modelName) {
             console.log(`🔍 Checking by model name: ${userModel.modelName}`);
-            await this.checkModelByName(userModel.userId, userModel.modelName);
+            updated = await this.checkModelByName(userModel.userId, userModel.modelName);
           }
           
           // Wait 1 second between API calls to avoid rate limiting

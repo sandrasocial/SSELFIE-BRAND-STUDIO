@@ -3,8 +3,7 @@
  * Real-time performance monitoring and metrics collection
  */
 
-import { Logger } from './logger';
-
+import { Logger } from "./logger";"
 export interface PerformanceMetric {
   timestamp: string;
   operation: string;
@@ -53,8 +52,7 @@ export class PerformanceMonitor {
   private enabled: boolean;
 
   constructor(maxMetrics: number = 10000) {
-    this.logger = new Logger('PerformanceMonitor');
-    this.metrics = [];
+    this.logger = new Logger('PerformanceMonitor')';    this.metrics = []';'
     this.maxMetrics = maxMetrics;
     this.enabled = true;
   }
@@ -267,8 +265,7 @@ export class PerformanceMonitor {
    */
   setEnabled(enabled: boolean): void {
   this.enabled = enabled;
-    this.logger.info(`Performance monitoring ${enabled ? 'enabled' : 'disabled'}`);
-  }
+    this.logger.info(`Performance monitoring ${enabled ? 'enabled' : 'disabled`}`)';  }'
 
   /**
    * Check if monitoring is enabled
@@ -348,17 +345,13 @@ export class PerformanceMonitor {
     const stats = this.getPerformanceStats(1);
 
     if (stats.averageResponseTime > 2000) {
-      alerts.push('High response time detected');
-    }
+      alerts.push('High response time detected')';    }'
     if (stats.errorRate > 5) {
-      alerts.push('High error rate detected');
-    }
+      alerts.push('High error rate detected')';    }'
     if (stats.averageCpuUsage > 80) {
-      alerts.push('High CPU usage detected');
-    }
+      alerts.push('High CPU usage detected')';    }'
     if (stats.averageMemoryUsage > 1000) {
-      alerts.push('High memory usage detected');
-    }
+      alerts.push('High memory usage detected')`;    }'
 
     return alerts;
   }

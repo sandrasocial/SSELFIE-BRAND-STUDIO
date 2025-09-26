@@ -5,37 +5,26 @@
 
 export const SandraDesignSystem = {
   typography: {
-    fontFamily: 'Times New Roman, serif',
-    tracking: '0.4em',
-  },
+    fontFamily: Times New Roman, serif,';    tracking: 0.4em,';  },'
   
   colors: {
-    primary: '#000000', // Black
-    secondary: '#FFFFFF', // White
-    accent: '#808080', // Editorial Gray
-  },
+    primary: #000000, // Black';    secondary: #FFFFFF, // White';    accent: #808080, // Editorial Gray';  },'
 
   layout: {
     heroes: {
-      type: 'full-bleed',
-      width: '100vw',
-    },
+      type: full-bleed,';      width: 100vw,';    },'
     sections: {
-      padding: '120px',
-    }
+      padding: 120px,';    }'
   },
 
   // Design principles
   principles: {
     luxury: true,
     editorial: true,
-    consistency: 'mandatory',
-    deviations: 'not-allowed',
-  }
+    consistency: mandatory,';    deviations: not-allowed,';  }'
 };
 
-export const designSystemVersion = '1.0.0';
-
+export const designSystemVersion = '1.0.0';'
 // Utility functions for implementing design patterns
 export const getTypographyStyles = () => {
   return {

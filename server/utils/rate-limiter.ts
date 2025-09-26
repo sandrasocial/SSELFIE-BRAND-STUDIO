@@ -3,7 +3,31 @@
  * Advanced rate limiting with multiple strategies and storage backends
  */
 
-import { Logger } from './logger';
+import { Logger } from "./logger.js";
+// TypeScript interfaces
+export interface RateLimitTierResult {
+  allowed: boolean;
+  info: RateLimitInfo;
+  message?: string | undefined;
+}
+
+export interface RateLimitTierStats {
+  totalKeys: number;
+  totalRequests: number;
+  averageRequestsPerKey: number;
+  topKeys: Array<{ key: string; count: number }>;
+}
+
+export interface RateLimitAllResult {
+  allowed: boolean;
+  info: RateLimitInfo;
+  message?: string | undefined;
+  results: Record<string, RateLimitTierResult>;
+}
+
+export interface RateLimitAllStats {
+  [key: string]: RateLimitTierStats;
+}
 
 export interface RateLimitOptions {
   windowMs: number; // Time window in milliseconds
@@ -26,7 +50,7 @@ export interface RateLimitInfo {
 export interface RateLimitResult {
   allowed: boolean;
   info: RateLimitInfo;
-  message?: string;
+  message?: string | undefined;
 }
 
 export class RateLimiter {
@@ -41,7 +65,7 @@ export class RateLimiter {
       keyGenerator: (req) => req.ip || 'unknown',
       skipSuccessfulRequests: false,
       skipFailedRequests: false,
-      message: 'Too many requests, please try again later',
+      message: "Too many requests, please try again later",
       standardHeaders: true,
       legacyHeaders: false,
       ...options
@@ -71,7 +95,7 @@ export class RateLimiter {
     }
     
     // Calculate reset time
-    const reset = recentRequests.length > 0 ? recentRequests[0] + this.options.windowMs : now + this.options.windowMs;
+    const reset = recentRequests.length > 0 ? (recentRequests[0] ?? now) + this.options.windowMs : now + this.options.windowMs;
     
     const info: RateLimitInfo = {
       limit: this.options.maxRequests,
@@ -193,20 +217,15 @@ export class MultiTierRateLimiter {
   checkTier(tierName: string, key: string): RateLimitResult {
     const limiter = this.limiters.get(tierName);
     if (!limiter) {
-      throw new Error(`Rate limiter tier '${tierName}' not found`);
+      throw new Error(`Rate limiter tier ${tierName} not found`);
     }
-    
     return limiter.check(key);
   }
 
   /**
    * Check all tiers (all must pass)
    */
-  checkAll(key: string): {
-    allowed: boolean;
-    results: Record<string, RateLimitResult>;
-    message?: string;
-  } {
+  checkAll(key: string): RateLimitAllResult {
     const results: Record<string, RateLimitResult> = {};
     let allowed = true;
     let message: string | undefined;
@@ -222,14 +241,14 @@ export class MultiTierRateLimiter {
       }
     }
 
-    return { allowed, results, message };
+    return { allowed, results, message, info: { limit: 0, remaining: 0, reset: 0 } };
   }
 
   /**
    * Get statistics for all tiers
    */
-  getAllStats(): Record<string, any> {
-    const stats: Record<string, any> = {};
+  getAllStats(): RateLimitAllStats {
+    const stats: { [key: string]: ReturnType<RateLimiter['getStats']> } = {};
     
     for (const [tierName, limiter] of this.limiters.entries()) {
       stats[tierName] = limiter.getStats();
@@ -300,13 +319,13 @@ export function createRateLimitMiddleware(options: RateLimitOptions) {
 export const generalRateLimiter = new RateLimiter({
   windowMs: 15 * 60 * 1000, // 15 minutes
   maxRequests: 100,
-  message: 'Too many requests from this IP, please try again later.js'
+  message: "Too many requests from this IP, please try again later"
 });
 
 export const strictRateLimiter = new RateLimiter({
   windowMs: 15 * 60 * 1000, // 15 minutes
   maxRequests: 10,
-  message: 'Too many requests from this IP, please try again later.js'
+  message: "Too many requests from this IP, please try again later"
 });
 
 export const multiTierRateLimiter = new MultiTierRateLimiter();

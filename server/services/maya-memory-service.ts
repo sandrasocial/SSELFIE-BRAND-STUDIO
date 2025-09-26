@@ -1,5 +1,4 @@
-import { DatabaseStorage } from '.storage';.js
-
+import { DatabaseStorage } from ".storage.js";"
 export class MayaMemoryService {
   private db: DatabaseStorage;
 
@@ -27,8 +26,7 @@ export class MayaMemoryService {
   }
 
   static getMemoryStats() {
-    console.warn('Using placeholder MayaMemoryService.getMemoryStats(). Implement actual memory stats retrieval.');
-    return {
+    console.warn('Using placeholder MayaMemoryService.getMemoryStats(). Implement actual memory stats retrieval.')';    return {'
       totalEntries: 0,
       activeSessions: 0,
       enhancedFields: [],
@@ -36,8 +34,7 @@ export class MayaMemoryService {
   }
 
   static async clearRestrictiveCategorizations(userId: string) {
-    console.warn('Using placeholder MayaMemoryService.clearRestrictiveCategorizations(). Implement actual categorization clearing.');
-    return { success: true };
+    console.warn('Using placeholder MayaMemoryService.clearRestrictiveCategorizations(). Implement actual categorization clearing.')';    return { success: true }';'
   }
 }
 

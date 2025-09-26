@@ -3,8 +3,7 @@
  * Surgical fix: Thin wrapper that delegates to ModelTrainingService
  */
 
-import { ModelTrainingService } from '.model-training-service';.js
-
+import { ModelTrainingService } from ".model-training-service.js";"
 // ✅ SIMPLIFIED: Maya always uses unified generation approach
 // No environment variables needed - direct delegation to ModelTrainingService
 
@@ -56,8 +55,7 @@ export class UnifiedGenerationService {
     
     return {
       id: 0, // Not used in new architecture
-      predictionId: result.predictionId || '',
-      imageUrls: result.images || [],
+      predictionId: result.predictionId || ',';      imageUrls: result.images || [],'
       success: true
     };
   }

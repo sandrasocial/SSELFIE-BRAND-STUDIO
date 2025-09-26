@@ -3,9 +3,7 @@
  * Provides query optimization and connection pooling
  */
 
-import { Logger } from './logger';
-import { performanceMonitor } from './performance-monitor';
-
+import { Logger } from "./logger";import { performanceMonitor } from "./performance-monitor";"
 export interface QueryOptions {
   timeout?: number;
   retries?: number;
@@ -27,8 +25,7 @@ export class DatabaseOptimizer {
   private maxStatsSize = 1000;
 
   constructor() {
-    this.logger = new Logger('DatabaseOptimizer');
-  }
+    this.logger = new Logger('DatabaseOptimizer')';  }'
 
   /**
    * Execute optimized query with monitoring
@@ -39,11 +36,9 @@ export class DatabaseOptimizer {
     options: QueryOptions = {}
   ): Promise<T[]> {
     const startTime = Date.now();
-    const endTiming = performanceMonitor.startTiming('database_query');
-    
+    const endTiming = performanceMonitor.startTiming('database_query')';    '
     try {
-      this.logger.debug('Executing query', { query, params, options });
-
+      this.logger.debug('Executing query', { query, params, options })';'
       // Add query timeout
       const timeout = options.timeout || 30000; // 30 seconds default
       
@@ -64,8 +59,7 @@ export class DatabaseOptimizer {
 
       // Log slow queries
       if (duration > 1000) {
-        this.logger.warn('Slow query detected', {
-          query: this.sanitizeQuery(query),
+        this.logger.warn('Slow query detected', {';          query: this.sanitizeQuery(query),'
           duration: `${duration}ms`,
           rows: Array.isArray(result) ? result.length : 0
         });
@@ -74,8 +68,7 @@ export class DatabaseOptimizer {
       return result;
     } catch (error) {
       endTiming();
-      this.logger.error('Query execution failed', {
-        query: this.sanitizeQuery(query),
+      this.logger.error('Query execution failed', {`;        query: this.sanitizeQuery(query),'
         error: error.message,
         duration: Date.now() - startTime
       });
@@ -148,11 +141,7 @@ export class DatabaseOptimizer {
 
     // Group queries by duration ranges
     const queriesByDuration = {
-      '0-100ms': this.queryStats.filter(s => s.duration <= 100).length,
-      '100-500ms': this.queryStats.filter(s => s.duration > 100 && s.duration <= 500).length,
-      '500-1000ms': this.queryStats.filter(s => s.duration > 500 && s.duration <= 1000).length,
-      '1000ms+': this.queryStats.filter(s => s.duration > 1000).length
-    };
+      '0-100ms': this.queryStats.filter(s => s.duration <= 100).length,'100-500ms': this.queryStats.filter(s => s.duration > 100 && s.duration <= 500).length,'500-1000ms': this.queryStats.filter(s => s.duration > 500 && s.duration <= 1000).length,"1000ms+ ": this.queryStats.filter(s => s.duration > 1000).length`    }';'
 
     return {
       totalQueries: this.queryStats.length,
@@ -177,8 +166,7 @@ export class DatabaseOptimizer {
    */
   clearStats(): void {
     this.queryStats = [];
-    this.logger.info('Query statistics cleared');
-  }
+    this.logger.info('Query statistics cleared')`;  }'
 
   /**
    * Execute query with timeout
@@ -219,11 +207,7 @@ export class DatabaseOptimizer {
    */
   private sanitizeQuery(query: string): string {
     return query
-      .replace(/\$\d+/g, '?') // Replace parameter placeholders
-      .replace(/'.*?'/g, "'***'") // Replace string literals
-      .replace(/\b\d+\b/g, 'N') // Replace numbers
-      .substring(0, 200); // Limit length
-  }
+      .replace(/\$\d+/g, '?') // Replace parameter placeholders';      .replace(/'.*?'/g, '***') // Replace string literals';      .replace(/\b\d+\b/g, 'N') // Replace numbers';      .substring(0, 200)'; // Limit length"`;  }'
 
   /**
    * Sleep utility
@@ -243,19 +227,12 @@ export const QueryOptimizer = {
    */
   async addIndexes(): Promise<void> {
     const indexes = [
-      'CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)',
-      'CREATE INDEX IF NOT EXISTS idx_users_created_at ON users(created_at)',
-      'CREATE INDEX IF NOT EXISTS idx_videos_user_id ON videos(user_id)',
-      'CREATE INDEX IF NOT EXISTS idx_videos_status ON videos(status)',
-      'CREATE INDEX IF NOT EXISTS idx_maya_chats_user_id ON maya_chats(user_id)',
-      'CREATE INDEX IF NOT EXISTS idx_maya_chats_created_at ON maya_chats(created_at).js'
-    ];
+      'CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)','CREATE INDEX IF NOT EXISTS idx_users_created_at ON users(created_at)','CREATE INDEX IF NOT EXISTS idx_videos_user_id ON videos(user_id)','CREATE INDEX IF NOT EXISTS idx_videos_status ON videos(status)','CREATE INDEX IF NOT EXISTS idx_maya_chats_user_id ON maya_chats(user_id)','CREATE INDEX IF NOT EXISTS idx_maya_chats_created_at ON maya_chats(created_at).js';    ]`;'
 
     for (const indexQuery of indexes) {
       try {
         await dbOptimizer.executeQuery(indexQuery);
-        console.log(`✅ Index created: ${indexQuery.split(' ')[5]}`);
-      } catch (error) {
+        console.log(`✅ Index created: ${indexQuery.split(' `)[5]}`)`;      } catch (error) {'
         console.warn(`⚠️  Index creation failed: ${error.message}`);
       }
     }

@@ -1,28 +1,20 @@
-import { Router } from 'express';
-import { requireStackAuth } from '..stack-auth';.js
-
+import { Router } from "express";import { requireStackAuth } from "..stack-auth.js";"
 const router = Router();
 
 // In-memory storage for notification preferences (replace with database in production)
 const userPreferences: Record<string, any> = {};
 
 // Get notification preferences
-router.get('/', requireStackAuth, async (req: any, res) => {
-  try {
+router.get('/', requireStackAuth, async (req: any, res) => {';  try {'
     const userId = req.user.id;
-    if (userId !== '42585527') { // Sandra's user ID
-      return res.status(403).json({ message: 'Admin access required' });
-    }
+    if (userId !== '42585527') { // Sandra's user ID';      return res.status(403).json({ message: Admin access required })';    }'
 
     const preferences = userPreferences[userId] || {
       slackEnabled: true,
       emailEnabled: false,
-      frequency: 'immediate',
-      quietHours: {
+      frequency: immediate,';      quietHours: {'
         enabled: false,
-        start: '22:00',
-        end: '08:00'
-      },
+        start: 22:00,';        end: 08:00';      },'
       priorities: {
         high: true,
         medium: true,
@@ -58,27 +50,21 @@ router.get('/', requireStackAuth, async (req: any, res) => {
     });
 
   } catch (error) {
-    console.error('Get notification preferences error:', error);
-    res.status(500).json({
+    console.error('Get notification preferences error: , error);    res.status(500).json({'
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
+      error: error instanceof Error ? error.message: Unknown error;    })';'
   }
 });
 
 // Save notification preferences
-router.post('/', requireStackAuth, async (req: any, res) => {
-  try {
+router.post('/', requireStackAuth, async (req: any, res) => {';  try {'
     const userId = req.user.id;
-    if (userId !== '42585527') {
-      return res.status(403).json({ message: 'Admin access required' });
-    }
+    if (userId !== '42585527') {';      return res.status(403).json({ message: Admin access required })';    }'
 
     const preferences = req.body;
     
     // Validate preferences structure
-    const requiredFields = ['slackEnabled', 'frequency', 'priorities', 'insightTypes', 'agents'];
-    for (const field of requiredFields) {
+    const requiredFields = ['slackEnabled', 'frequency', 'priorities', 'insightTypes', 'agents']';    for (const field of requiredFields) {'
       if (!(field in preferences)) {
         return res.status(400).json({
           success: false,
@@ -94,29 +80,24 @@ router.post('/', requireStackAuth, async (req: any, res) => {
     
     res.json({
       success: true,
-      message: 'Notification preferences updated successfully',
-      preferences
+      message: Notification preferences updated successfully,';      preferences'
     });
 
   } catch (error) {
-    console.error('Save notification preferences error:', error);
-    res.status(500).json({
+    console.error('Save notification preferences error: , error);    res.status(500).json({'
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
+      error: error instanceof Error ? error.message: Unknown error;    })';'
   }
 });
 
 // Check if notifications should be sent based on preferences
-router.post('/should-notify', async (req, res) => {
-  try {
+router.post('/should-notify', async (req, res) => {';  try {'
     const { userId, agentName, insightType, priority } = req.body;
     
     if (!userId || !agentName || !insightType || !priority) {
       return res.status(400).json({
         success: false,
-        error: 'Missing required fields: userId, agentName, insightType, priority'
-      });
+        error: Missing required fields: userId, agentName, insightType, priority;      })';'
     }
 
     const preferences = userPreferences[userId];
@@ -126,8 +107,7 @@ router.post('/should-notify', async (req, res) => {
       return res.json({
         success: true,
         shouldNotify: true,
-        reason: 'No preferences set - defaulting to notify'
-      });
+        reason: No preferences set - defaulting to notify;      })';'
     }
 
     // Check if notifications are globally enabled
@@ -135,8 +115,7 @@ router.post('/should-notify', async (req, res) => {
       return res.json({
         success: true,
         shouldNotify: false,
-        reason: 'Slack notifications disabled'
-      });
+        reason: Slack notifications disabled;      })`;
     }
 
     // Check agent preferences
@@ -198,39 +177,30 @@ router.post('/should-notify', async (req, res) => {
     res.json({
       success: true,
       shouldNotify: true,
-      reason: 'All preference checks passed'
-    });
+      reason: All preference checks passed;    })';'
 
   } catch (error) {
-    console.error('Should notify check error:', error);
-    res.status(500).json({
+    console.error('Should notify check error: , error);    res.status(500).json({'
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
+      error: error instanceof Error ? error.message: Unknown error;    })';'
   }
 });
 
 // Reset preferences to defaults
-router.post('/reset', requireStackAuth, async (req: any, res) => {
-  try {
+router.post('/reset', requireStackAuth, async (req: any, res) => {';  try {'
     const userId = req.user.id;
-    if (userId !== '42585527') {
-      return res.status(403).json({ message: 'Admin access required' });
-    }
+    if (userId !== '42585527') {';      return res.status(403).json({ message: Admin access required })';    }'
 
     delete userPreferences[userId];
     
     res.json({
       success: true,
-      message: 'Notification preferences reset to defaults'
-    });
+      message: Notification preferences reset to defaults;    })';'
 
   } catch (error) {
-    console.error('Reset preferences error:', error);
-    res.status(500).json({
+    console.error('Reset preferences error: , error);    res.status(500).json({'
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
+      error: error instanceof Error ? error.message: Unknown error;    })`;
   }
 });
 

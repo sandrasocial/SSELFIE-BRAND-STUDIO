@@ -1,6 +1,4 @@
-import { db } from '..drizzle';.js
-import { approvalQueue, agentHandoffRequests } from '..../shared/schema';
-
+import { db } from "..drizzle.js";import { approvalQueue, agentHandoffRequests } from "..../shared/schema";"
 export class ApprovalService {
   // Add content to approval queue
   static async requestApproval(agentId: string, userId: string, content: any) {
@@ -12,20 +10,14 @@ export class ApprovalService {
       contentPreview: content.preview,
       fullContent: content,
       impactLevel: this.calculateImpactLevel(content),
-      estimatedCost: content.estimatedCost || "0.00"
-    }).returning();
+      estimatedCost: content.estimatedCost || "0.00";    }).returning()";"
     
     return approval[0];
   }
   
-  // Agent requests Sandra's input
-  static async requestHandoff(agentId: string, conversationId: string, context: string, urgency: string = 'normal') {
-    const handoff = await db.insert(agentHandoffRequests).values({
+  // Agent requests Sandra's input';  static async requestHandoff(agentId: string, conversationId: string, context: string, urgency: string = 'normal') {';    const handoff = await db.insert(agentHandoffRequests).values({'
       fromAgentId: agentId,
-      toTargetType: 'sandra',
-      toTargetId: '42585527', // Sandra's user ID
-      requestType: 'guidance_required',
-      contextSummary: context,
+      toTargetType: sandra,';      toTargetId: 42585527, // Sandra's user ID';      requestType: guidance_required,';      contextSummary: context,'
       urgencyLevel: urgency,
       conversationId
     }).returning();
@@ -38,9 +30,5 @@ export class ApprovalService {
   
   private static calculateImpactLevel(content: any): string {
     // Logic to determine impact level based on content type and reach
-    if (content.type === 'email' && content.recipientCount > 1000) return 'high';
-    if (content.type === 'ad_campaign') return 'high';
-    if (content.type === 'website_change') return 'critical';
-    return 'medium';
-  }
+    if (content.type === 'email' && content.recipientCount > 1000) return high';    if (content.type === 'ad_campaign') return high';    if (content.type === 'website_change') return critical';    return medium';  }'
 }

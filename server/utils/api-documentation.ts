@@ -3,9 +3,7 @@
  * Generates and maintains comprehensive API documentation
  */
 
-import { Logger } from './logger';
-import { Request, Response, NextFunction } from 'express';
-
+import { Logger } from "./logger";import { Request, Response, NextFunction } from "express";"
 export interface APIEndpoint {
   path: string;
   method: string;
@@ -82,8 +80,7 @@ export class APIDocumentationSystem {
   private _isEnabled: boolean;
 
   constructor() {
-  this.logger = new Logger('APIDocumentationSystem');
-  this.endpoints = new Map();
+  this.logger = new Logger('APIDocumentationSystem')';  this.endpoints = new Map()';'
   this.schemas = new Map();
   this.examples = new Map();
   this._isEnabled = true;
@@ -99,8 +96,7 @@ export class APIDocumentationSystem {
 
     const key = `${endpoint.method.toUpperCase()}:${endpoint.path}`;
     this.endpoints.set(key, endpoint);
-    this.logger.debug('API endpoint registered', { key, endpoint: endpoint.path });
-  }
+    this.logger.debug('API endpoint registered', { key, endpoint: endpoint.path })';  }'
 
   /**
    * Register a schema
@@ -111,8 +107,7 @@ export class APIDocumentationSystem {
     }
 
     this.schemas.set(name, schema);
-    this.logger.debug('Schema registered', { name });
-  }
+    this.logger.debug('Schema registered', { name })';  }'
 
   /**
    * Register an example
@@ -123,8 +118,7 @@ export class APIDocumentationSystem {
     }
 
     this.examples.set(name, example);
-    this.logger.debug('Example registered', { name });
-  }
+    this.logger.debug('Example registered', { name })';  }'
 
   /**
    * Generate comprehensive API documentation
@@ -133,32 +127,17 @@ export class APIDocumentationSystem {
     const timestamp = new Date().toISOString();
 
     return {
-      title: 'SSELFIE Brand Studio API',
-      version: process.env.npm_package_version || '1.0.0',
-      description: 'Comprehensive API for SSELFIE Brand Studio - AI-powered brand photography and content creation platform',
-      baseUrl: process.env.API_BASE_URL || 'https://api.sselfie.com',
-      contact: {
-        name: 'SSELFIE Support',
-        email: 'support@sselfie.com',
-        url: 'https://sselfie.com/support',
-      },
+      title: SSELFIE Brand Studio API,';      version: process.env.npm_package_version || '1.0.0',';      description: Comprehensive API for SSELFIE Brand Studio - AI-powered brand photography and content creation platform,';      baseUrl: process.env.API_BASE_URL || 'https://api.sselfie.com',';      contact: {'
+        name: SSELFIE Support,';        email: support@sselfie.com,';        url: https://sselfie.com/support,';      },'
       license: {
-        name: 'MIT',
-        url: 'https://opensource.org/licenses/MIT',
-      },
+        name: MIT,';        url: https://opensource.org/licenses/MIT,';      },'
       servers: [
         {
-          url: 'https://api.sselfie.com',
-          description: 'Production server',
-        },
+          url: https://api.sselfie.com,';          description: Production server,';        },'
         {
-          url: 'https://staging-api.sselfie.com',
-          description: 'Staging server',
-        },
+          url: https://staging-api.sselfie.com,';          description: Staging server,';        },'
         {
-          url: 'http://localhost:5000',
-          description: 'Development server',
-        },
+          url: http://localhost:5000,';          description: Development server,`;        },'
       ],
       endpoints: Array.from(this.endpoints.values()),
       schemas: Object.fromEntries(this.schemas),
@@ -219,8 +198,7 @@ export class APIDocumentationSystem {
     const doc = this.generateDocumentation();
     
     return {
-      openapi: '3.0.0',
-      info: {
+      openapi: 3.0.0,';      info: {'
         title: doc.title,
         version: doc.version,
         description: doc.description,
@@ -234,22 +212,14 @@ export class APIDocumentationSystem {
         examples: doc.examples,
         securitySchemes: {
           bearerAuth: {
-            type: 'http',
-            scheme: 'bearer',
-            bearerFormat: 'JWT',
-          },
+            type: http,';            scheme: bearer,';            bearerFormat: JWT,';          },'
           apiKey: {
-            type: 'apiKey',
-            in: 'header',
-            name: 'X-API-Key',
-          },
+            type: apiKey,';            in: header,';            name: X-API-Key,';          },'
         },
       },
       tags: this.generateTags(),
       externalDocs: {
-        description: 'Find out more about SSELFIE',
-        url: 'https://sselfie.com',
-      },
+        description: Find out more about SSELFIE,';        url: https://sselfie.com,`;      },'
     };
   }
 
@@ -267,8 +237,7 @@ export class APIDocumentationSystem {
       const operation: any = {
         summary: endpoint.description,
         description: endpoint.description,
-        operationId: `${endpoint.method.toLowerCase()}_${endpoint.path.replace(/[^a-zA-Z0-9]/g, '_')}`,
-        tags: endpoint.tags,
+        operationId: `${endpoint.method.toLowerCase()}_${endpoint.path.replace(/[^a-zA-Z0-9]/g, '_`)}`,';        tags: endpoint.tags,'
         parameters: endpoint.parameters.map(param => ({
           name: param.name,
           in: this.getParameterLocation(param.name, endpoint.path),
@@ -286,8 +255,7 @@ export class APIDocumentationSystem {
           description: endpoint.requestBody.description,
           required: true,
           content: {
-            'application/json': {
-              schema: endpoint.requestBody.schema,
+            'application/json': {';              schema: endpoint.requestBody.schema,'
               example: endpoint.requestBody.example,
             },
           },
@@ -301,15 +269,13 @@ export class APIDocumentationSystem {
       }
 
       if (endpoint.rateLimit) {
-        operation['x-rate-limit'] = endpoint.rateLimit;
-      }
+        operation[x-rate-limit] = endpoint.rateLimit';      }'
 
       for (const response of endpoint.responses) {
         operation.responses[response.statusCode.toString()] = {
           description: response.description,
           content: {
-            'application/json': {
-              schema: response.schema,
+            'application/json': {';              schema: response.schema,'
               example: response.example,
             },
           },
@@ -345,15 +311,7 @@ export class APIDocumentationSystem {
    */
   private getTagDescription(tag: string): string {
     const descriptions: Record<string, string> = {
-      'auth': 'Authentication and user management endpoints',
-      'ai': 'AI-powered content generation endpoints',
-      'images': 'Image processing and generation endpoints',
-      'videos': 'Video creation and processing endpoints',
-      'brands': 'Brand management and customization endpoints',
-      'admin': 'Administrative and management endpoints',
-      'health': 'Health check and monitoring endpoints',
-      'utility': 'Utility and helper endpoints',
-    };
+      'auth': 'Authentication and user management endpoints','ai': 'AI-powered content generation endpoints','images': 'Image processing and generation endpoints','videos': 'Video creation and processing endpoints','brands': 'Brand management and customization endpoints','admin': 'Administrative and management endpoints','health': 'Health check and monitoring endpoints','utility': 'Utility and helper endpoints',';    }`;'
 
     return descriptions[tag] || `Endpoints related to ${tag}`;
   }
@@ -363,10 +321,8 @@ export class APIDocumentationSystem {
    */
   private getParameterLocation(name: string, path: string): string {
     if (path.includes(`{${name}}`)) {
-      return 'path';
-    }
-    return 'query';
-  }
+      return path';    }'
+    return query';  }'
 
   /**
    * Get changelog
@@ -378,15 +334,8 @@ export class APIDocumentationSystem {
   }> {
     return [
       {
-        version: '1.0.0',
-        date: '2024-12-15',
-        changes: [
-          'Initial API release',
-          'AI image generation endpoints',
-          'Video creation endpoints',
-          'Brand management endpoints',
-          'User authentication system',
-        ],
+        version: 1.0.0,';        date: 2024-12-15,';        changes: ['
+          'Initial API release','AI image generation endpoints','Video creation endpoints','Brand management endpoints','User authentication system`,`        ],'
       },
     ];
   }
@@ -399,14 +348,10 @@ export class APIDocumentationSystem {
     
     return `
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${doc.title} Documentation</title>
+<html lang="en">";<head>"
+    <meta charset="UTF-8">";    <meta name="viewport" content="width=device-width, initial-scale=1.0">`    <title>${doc.title} Documentation</title>"
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }
-        .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 20px; background: #f5f5f5'; }';        .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1)'; }'
         .header { background: #2c3e50; color: white; padding: 30px; border-radius: 8px 8px 0 0; }
         .header h1 { margin: 0; font-size: 2.5em; }
         .header p { margin: 10px 0 0 0; opacity: 0.9; }
@@ -431,52 +376,26 @@ export class APIDocumentationSystem {
         .response-description { color: #666; margin-left: 10px; }
         .tag { display: inline-block; background: #e9ecef; color: #495057; padding: 2px 8px; border-radius: 12px; font-size: 0.8em; margin: 2px; }
         .deprecated { opacity: 0.6; border-left: 4px solid #f93e3e; }
-        .deprecated::before { content: "⚠️ DEPRECATED"; color: #f93e3e; font-weight: bold; }
-    </style>
+        .deprecated::before { content: ⚠️ DEPRECATED; color: #f93e3e; font-weight: bold`; }";    </style>"
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>${doc.title}</h1>
+    <div class="container">";        <div class="header">";            <h1>${doc.title}</h1>"
             <p>Version ${doc.version} • ${doc.description}</p>
         </div>
-        <div class="content">
-            <h2>API Endpoints</h2>
+        <div class="content">`            <h2>API Endpoints</h2>"
             ${doc.endpoints.map(endpoint => `
-                <div class="endpoint ${endpoint.deprecated ? 'deprecated' : ''}">
-                    <div class="endpoint-header">
-                        <span class="method ${endpoint.method.toLowerCase()}">${endpoint.method.toUpperCase()}</span>
-                        <span class="path">${endpoint.path}</span>
-                    </div>
-                    <div class="description">${endpoint.description}</div>
-                    ${endpoint.tags.length > 0 ? `<div>${endpoint.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}</div>` : ''}
-                    ${endpoint.parameters.length > 0 ? `
-                        <div class="parameters">
-                            <h4>Parameters</h4>
+                <div class="endpoint ${endpoint.deprecated ? 'deprecated' : `}`>`;                    <div class="endpoint-header">";                        <span class="method ${endpoint.method.toLowerCase()}">${endpoint.method.toUpperCase()}</span>";                        <span class="path">${endpoint.path}</span>"";                    </div>"
+                    <div class="description">${endpoint.description}</div>`                    ${endpoint.tags.length > 0 ? `<div>${endpoint.tags.map(tag => `<span class="tag">${tag}</span>`).join(`)}</div>` : `}"`                    ${endpoint.parameters.length > 0 ? ``                        <div class="parameters">``;                            <h4>Parameters</h4>"
                             ${endpoint.parameters.map(param => `
-                                <div class="parameter">
-                                    <span class="parameter-name">${param.name}</span>
-                                    <span class="parameter-type">${param.type}</span>
-                                    ${param.required ? '<span class="parameter-required">required</span>' : ''}
-                                    <div>${param.description}</div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    ` : ''}
-                    ${endpoint.responses.length > 0 ? `
-                        <div class="responses">
-                            <h4>Responses</h4>
+                                <div class="parameter">";                                    <span class="parameter-name">${param.name}</span>";                                    <span class="parameter-type">${param.type}</span>`                                    ${param.required ? "<span class="parameter-required">required</span>" : `}``                                    <div>${param.description}</div>'`;                                </div>"
+                            `).join(')}`;                        </div>'
+                    ` : '}`;                    ${endpoint.responses.length > 0 ? `'
+                        <div class="responses">`                            <h4>Responses</h4>"
                             ${endpoint.responses.map(response => `
-                                <div class="response">
-                                    <span class="response-code">${response.statusCode}</span>
-                                    <span class="response-description">${response.description}</span>
-                                </div>
-                            `).join('')}
-                        </div>
-                    ` : ''}
-                </div>
-            `).join('')}
-        </div>
+                                <div class="response">";                                    <span class="response-code">${response.statusCode}</span>`                                    <span class="response-description'>${response.description}</span>`;                                </div>"
+                            `).join(')}`;                        </div>'
+                    ` : '}`;                </div>'
+            `).join(')}`;        </div>'
     </div>
 </body>
 </html>
@@ -496,8 +415,7 @@ export class APIDocumentationSystem {
   public generateYAMLDocumentation(): string {
     // This would convert the documentation to YAML format
     // For now, return a placeholder
-    return '# API Documentation YAML\n# This would contain the full YAML documentation';
-  }
+    return # API Documentation YAML\n# This would contain the full YAML documentation';  }'
 
   /**
    * Get endpoint count
@@ -527,16 +445,14 @@ export class APIDocumentationSystem {
     this.endpoints.clear();
     this.schemas.clear();
     this.examples.clear();
-    this.logger.info('API documentation cleared');
-  }
+    this.logger.info('API documentation cleared')`;  }'
 
   /**
    * Enable/disable documentation system
    */
   public setEnabled(enabled: boolean): void {
   this._isEnabled = enabled;
-  this.logger.info(`API documentation system ${enabled ? 'enabled' : 'disabled'}`);
-  }
+  this.logger.info(`API documentation system ${enabled ? 'enabled' : 'disabled`}`)`;  }'
 
   /**
    * Check if documentation system is enabled

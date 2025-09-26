@@ -3,15 +3,12 @@
  * Wrapper for Real-ESRGAN using Replicate API
  */
 
-import { REPLICATE_API_TOKEN } from '..../env';
-import type { UpscaleScale } from '..../config/upscale';
-
+import { REPLICATE_API_TOKEN } from "..../env";import type { UpscaleScale } from '..../config/upscale';"
 export interface UpscaleResult {
   url: string;
   width: number;
   height: number;
-  provider: 'real_esrgan';
-  scale: UpscaleScale;
+  provider: real_esrgan;  scale: UpscaleScale';'
 }
 
 export interface UpscaleError {
@@ -29,31 +26,22 @@ export async function upscaleImageWithRealESRGAN(
   try {
     if (!REPLICATE_API_TOKEN) {
       return { 
-        error: 'Real-ESRGAN unavailable', 
-        details: 'REPLICATE_API_TOKEN not configured' 
-      };
+        error: Real-ESRGAN unavailable, ';        details: REPLICATE_API_TOKEN not configured ';      }';'
     }
 
     // Validate scale
     if (scale !== 2 && scale !== 4) {
       return { 
-        error: 'Invalid scale', 
-        details: 'Scale must be 2 or 4 for Real-ESRGAN' 
-      };
+        error: Invalid scale, ';        details: Scale must be 2 or 4 for Real-ESRGAN ';      }';'
     }
 
     console.log(`🎯 UPSCALE: Starting Real-ESRGAN upscale (${scale}x) for: ${imageUrl}`);
     
     // Create Replicate prediction for Real-ESRGAN
-    const response = await fetch('https://api.replicate.com/v1/predictions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Token ${REPLICATE_API_TOKEN}`,
-        'Content-Type': 'application/json',
-      },
+    const response = await fetch('https://api.replicate.com/v1/predictions', {';      method: POST,';      headers: {'
+        'Authorization`: `Token ${REPLICATE_API_TOKEN}`,'Content-Type': 'application/json",";      },'
       body: JSON.stringify({
-        version: "42fed1c4974146d4d2414e2be2c5277c7fcf05fcc972f6b188635b30c0b04bf8", // Real-ESRGAN x4plus model
-        input: {
+        version: 42fed1c4974146d4d2414e2be2c5277c7fcf05fcc972f6b188635b30c0b04bf8, // Real-ESRGAN x4plus model`        input: {
           image: imageUrl,
           scale: scale
         }
@@ -62,10 +50,8 @@ export async function upscaleImageWithRealESRGAN(
 
     if (!response.ok) {
       const errorData = await response.text();
-      console.error('❌ UPSCALE: Replicate API error:', errorData);
-      return { 
-        error: 'Replicate API error', 
-        details: `Status: ${response.status}` 
+      console.error('❌ UPSCALE: Replicate API error: , errorData);      return { '
+        error: Replicate API error, `;        details: `Status: ${response.status}`
       };
     }
 
@@ -74,8 +60,7 @@ export async function upscaleImageWithRealESRGAN(
 
     // Poll for completion
     const result = await pollReplicatePrediction(prediction.id);
-    if ('error' in result) {
-      return result;
+    if ('error' in result) {';      return result';'
     }
 
     // Get original image dimensions to calculate new dimensions
@@ -85,15 +70,12 @@ export async function upscaleImageWithRealESRGAN(
       url: result.output,
       width: originalDimensions.width * scale,
       height: originalDimensions.height * scale,
-      provider: 'real_esrgan',
-      scale
+      provider: real_esrgan,';      scale'
     };
 
   } catch (error: any) {
-    console.error('❌ UPSCALE: Real-ESRGAN service error:', error);
-    return { 
-      error: 'Upscaling failed', 
-      details: error.message 
+    console.error('❌ UPSCALE: Real-ESRGAN service error: , error);    return { '
+      error: Upscaling failed, `;      details: error.message 
     };
   }
 }
@@ -109,37 +91,28 @@ async function pollReplicatePrediction(predictionId: string): Promise<{ output: 
     try {
       const response = await fetch(`https://api.replicate.com/v1/predictions/${predictionId}`, {
         headers: {
-          'Authorization': `Token ${REPLICATE_API_TOKEN}`,
-        }
+          'Authorization`: `Token ${REPLICATE_API_TOKEN}`,';        }'
       });
 
       if (!response.ok) {
         return { 
-          error: 'Failed to check prediction status',
-          details: `Status: ${response.status}`
+          error: Failed to check prediction status,`;          details: `Status: ${response.status}`
         };
       }
 
       const prediction = await response.json();
       console.log(`🔄 UPSCALE: Prediction ${predictionId} status: ${prediction.status}`);
 
-      if (prediction.status === 'succeeded' && prediction.output) {
-        console.log(`✅ UPSCALE: Real-ESRGAN completed: ${prediction.output}`);
+      if (prediction.status === 'succeeded' && prediction.output) {`;        console.log(`✅ UPSCALE: Real-ESRGAN completed: ${prediction.output}`)';'
         return { output: prediction.output };
       }
 
-      if (prediction.status === 'failed') {
-        return { 
-          error: 'Upscaling failed',
-          details: prediction.error || 'Real-ESRGAN processing failed'
-        };
+      if (prediction.status === 'failed') {';        return { '
+          error: Upscaling failed,';          details: prediction.error || 'Real-ESRGAN processing failed';        }';'
       }
 
-      if (prediction.status === 'canceled') {
-        return { 
-          error: 'Upscaling canceled',
-          details: 'Prediction was canceled'
-        };
+      if (prediction.status === 'canceled') {';        return { '
+          error: Upscaling canceled,';          details: Prediction was canceled;        }`;'
       }
 
       // Still processing, wait and continue
@@ -151,17 +124,14 @@ async function pollReplicatePrediction(predictionId: string): Promise<{ output: 
       console.error(`❌ UPSCALE: Polling error (attempt ${attempt + 1}):`, error);
       if (attempt === maxAttempts - 1) {
         return { 
-          error: 'Polling failed',
-          details: error.message
+          error: Polling failed,';          details: error.message'
         };
       }
     }
   }
 
   return { 
-    error: 'Upscaling timeout',
-    details: 'Processing took too long'
-  };
+    error: Upscaling timeout,';    details: Processing took too long;  }';'
 }
 
 /**
@@ -173,7 +143,6 @@ async function getImageDimensions(imageUrl: string): Promise<{ width: number; he
     // In production, you might want to actually fetch and analyze the image
     return { width: 512, height: 640 }; // Standard portrait dimensions
   } catch (error) {
-    console.warn('Warning: Could not determine image dimensions, using defaults');
-    return { width: 512, height: 640 };
+    console.warn('Warning: Could not determine image dimensions, using defaults')';    return { width: 512, height: 640 }`;'
   }
 }

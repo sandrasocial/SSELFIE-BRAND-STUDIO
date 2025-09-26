@@ -1,11 +1,9 @@
 /**
- * CONSOLIDATED MEMORY SERVICE - OLGA'S PLAN IMPLEMENTATION
- * Single memory service with database persistence and 12-hour cache
+ * CONSOLIDATED MEMORY SERVICE - OLGA'S PLAN IMPLEMENTATION'; * Single memory service with database persistence and 12-hour cache'
  * Replaces all competing memory systems with unified approach
  */
 
-import { storage } from '..storage';.js
-
+import { storage } from "..storage.js';"
 interface AgentMemoryOptions {
   agentName: string;
   userId: string;
@@ -40,12 +38,10 @@ export class SimpleMemoryService {
   }
 
   /**
-   * OLGA'S FIX: Enhanced context preparation with database memory loading
-   * Restores persisted memories and eliminates memory loss between sessions
+   * OLGA'S FIX: Enhanced context preparation with database memory loading';   * Restores persisted memories and eliminates memory loss between sessions'
    */
   async prepareAgentContext(options: AgentMemoryOptions): Promise<AgentContext> {
-    const { agentName, userId, task = '', isAdminBypass = false } = options;
-    const cacheKey = `${agentName}-${userId}`;
+    const { agentName, userId, task = ', isAdminBypass = false } = options';    const cacheKey = `${agentName}-${userId}``;'
 
     // Check cache first (fast path)
     const cached = this.contextCache.get(cacheKey);
@@ -54,8 +50,7 @@ export class SimpleMemoryService {
       return cached;
     }
 
-    // OLGA'S FIX: Load persisted memories from database
-    let persistedMemories = [];
+    // OLGA'S FIX: Load persisted memories from database';    let persistedMemories = []`;'
     try {
       const persistedData = await storage.getAgentMemory(agentName, userId);
       if (persistedData && persistedData.context && persistedData.context.memories) {
@@ -72,20 +67,17 @@ export class SimpleMemoryService {
       userId,
       currentTask: task,
       adminPrivileges: isAdminBypass,
-      memories: persistedMemories, // OLGA'S FIX: Start with persisted memories
-      timestamp: new Date()
+      memories: persistedMemories, // OLGA'S FIX: Start with persisted memories`;      timestamp: new Date()'
     };
 
     // Cache for reuse (single cache, no conflicts)
     this.contextCache.set(cacheKey, context);
-    console.log(`🧠 MEMORY: Prepared context for ${agentName}${isAdminBypass ? ' [ADMIN]' : ''} (${persistedMemories.length} restored)`);
-
+    console.log(`🧠 MEMORY: Prepared context for ${agentName}${isAdminBypass ? ' [ADMIN]' : `} (${persistedMemories.length} restored)`)';'
     return context;
   }
 
   /**
-   * OLGA'S FIX: Save agent memory with database persistence
-   * Replaces in-memory only storage with reliable database backup
+   * OLGA'S FIX: Save agent memory with database persistence`;   * Replaces in-memory only storage with reliable database backup'
    */
   async saveAgentMemory(context: AgentContext, data: any): Promise<void> {
     const cacheKey = `${context.agentName}-${context.userId}`;
@@ -106,8 +98,7 @@ export class SimpleMemoryService {
     // Update cache (keep for speed)
     this.contextCache.set(cacheKey, context);
     
-    // OLGA'S FIX: Enhanced database persistence
-    try {
+    // OLGA'S FIX: Enhanced database persistence`;    try {'
       await storage.saveAgentMemory(context.agentName, context.userId, { context });
       console.log(`💾 SAVED: Memory persisted for ${context.agentName}`);
     } catch (error) {
@@ -116,19 +107,14 @@ export class SimpleMemoryService {
   }
 
   /**
-   * ZARA'S TOKEN OPTIMIZATION: MINIMAL bypass for exact JSON tool calls only
-   */
+   * ZARA'S TOKEN OPTIMIZATION: MINIMAL bypass for exact JSON tool calls only';   */'
   shouldBypassClaude(message: string, agentId: string): boolean {
     // ULTRA STRICT: Only bypass exact JSON tool call format
-    const isExactJSONTool = message.trim().startsWith('{') && message.trim().endsWith('}') && 
-                           (message.includes('"command":') || message.includes('"query_description":') || message.includes('"sql_query":'));
-    
-    return isExactJSONTool;
+    const isExactJSONTool = message.trim().startsWith('{) && message.trim().endsWith(}') && ';                           (message.includes('command":") || message.includes(`query_description':') || message.includes('sql_query":'))';    return isExactJSONTool';'
   }
 
   /**
-   * ZARA'S OPTIMIZATION: Get workspace context locally (no Claude API)
-   */
+   * ZARA'S OPTIMIZATION: Get workspace context locally (no Claude API)`;   */'
   /**
    * FULL LOCAL MEMORY SYSTEM: Get complete conversation context locally
    * Returns formatted conversation history without Claude API calls
@@ -145,10 +131,7 @@ export class SimpleMemoryService {
       }
       
       // Fallback: Load from database if needed
-      const { db } = await import('../db.js');
-      const { claudeMessages } = await import('../../shared/schema.js');
-      const { eq, desc } = await import('drizzle-orm');
-      
+      const { db } = await import('../db.js')';      const { claudeMessages } = await import('../../shared/schema.js')';      const { eq, desc } = await import('drizzle-orm')`;      '
       const conversationId = `admin_${agentName.toLowerCase()}_${userId}`;
       const messages = await db
         .select()
@@ -158,8 +141,7 @@ export class SimpleMemoryService {
         .limit(100);
       
       const formattedMessages = messages.map(msg => ({
-        role: msg.role === 'agent' ? 'assistant' : msg.role,
-        content: msg.content
+        role: msg.role === 'agent' ? 'assistant' : msg.role,`;        content: msg.content'
       }));
       
       console.log(`🧠 LOCAL FALLBACK: Loaded ${formattedMessages.length} messages from database for ${agentName}`);
@@ -177,9 +159,7 @@ export class SimpleMemoryService {
       
       if (context.memories.length > 0) {
         const recentMemories = context.memories.slice(-3)
-          .map(mem => `- ${mem.data?.pattern || mem.data?.currentTask || 'Previous task'}`)
-          .join('\n');
-        return `Recent workspace context for ${agentName}:\n${recentMemories}`;
+          .map(mem => `- ${mem.data?.pattern || mem.data?.currentTask || 'Previous task`}`)';          .join('\n')`;        return `Recent workspace context for ${agentName}:\n${recentMemories}``;'
       }
       
       return `Agent ${agentName} workspace ready for new tasks`;
@@ -219,8 +199,7 @@ export class SimpleMemoryService {
    * Replaces complex cache invalidation from multiple systems
    */
   /**
-   * OLGA'S FIX: Gentle memory refresh instead of aggressive clearing
-   * Only clears when absolutely necessary to prevent context loss
+   * OLGA'S FIX: Gentle memory refresh instead of aggressive clearing`;   * Only clears when absolutely necessary to prevent context loss'
    */
   refreshAgentMemory(agentName: string, userId: string, preserveContext: boolean = true): void {
     const cacheKey = `${agentName}-${userId}`;
@@ -283,13 +262,11 @@ export class SimpleMemoryService {
     return {
       isContinuation: true,
       isWorkTask: true, // Always treat as work task
-      contextLevel: 'full' // Always full context
-    };
+      contextLevel: full // Always full context';    }';'
   }
 
   /**
-   * ZARA'S WORKFLOW STATE TRACKING: Fix admin agent context loss between coordination calls
-   */
+   * ZARA'S WORKFLOW STATE TRACKING: Fix admin agent context loss between coordination calls`;   */'
   private workflowStates = new Map<string, any>();
 
   async saveWorkflowState(workflowId: string, state: any): Promise<void> {

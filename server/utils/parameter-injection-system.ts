@@ -21,7 +21,7 @@ export class ParameterInjectionSystem {
       originalCall: { ...toolCall },
       fixedCall: { ...toolCall },
       injectedParameters: [],
-      reason: 'No fixes needed.js'
+      reason: 'No fixes needed'
     };
 
     // Only fix str_replace_based_edit_tool create commands
@@ -74,7 +74,7 @@ export class ParameterInjectionSystem {
   private static generateReactTSXComponent(componentName: string, agentId: string, message: string): string {
     const agentSpecialty = this.getAgentSpecialty(agentId);
     
-    return `import React, { useState } from 'react'';
+    return `import React, { useState } from 'react';
 
 interface ${componentName}Props {
   title?: string;
@@ -104,7 +104,7 @@ const ${componentName}: React.FC<${componentName}Props> = ({
         }
         
         .luxury-headline {
-          font-family: 'Times New Roman', serif;
+          font-family: Times New Roman, serif;
           font-size: 2.5rem;
           font-weight: 400;
           color: #0a0a0a;
@@ -150,7 +150,7 @@ const ${componentName}: React.FC<${componentName}Props> = ({
       
       <h1 className="luxury-headline">{title}</h1>
       <p className="luxury-description">
-        This is a ${agentSpecialty.toLowerCase()} component created by ${agentId.toUpperCase()}, 
+        This is a {agentSpecialty.toLowerCase()} component created by {agentId.toUpperCase()}, 
         demonstrating complete autonomous implementation with luxury design standards.
       </p>
       
@@ -163,7 +163,7 @@ const ${componentName}: React.FC<${componentName}Props> = ({
       
       {isActive && (
         <div className="luxury-status">
-          ✅ Component working perfectly! ${agentId.toUpperCase()} has successfully implemented 
+          ✅ Component working perfectly! {agentId.toUpperCase()} has successfully implemented 
           complete functionality with proper state management and luxury styling.
         </div>
       )}
@@ -347,7 +347,7 @@ export default ${componentName};`;
 }
 
 .${componentName.toLowerCase()}__headline {
-  font-family: 'Times New Roman', serif;
+  font-family: Times New Roman, serif;
   font-size: 2.5rem;
   font-weight: 400;
   line-height: 1.1;
@@ -399,7 +399,7 @@ export default ${componentName};`;
       'sage': 'Strategic Planning & Business Intelligence',
       'nova': 'Innovation & Emerging Technologies',
       'iris': 'Visual Design & Brand Identity',
-      'luna': 'Analytics & Performance Optimization.js'
+      'luna': 'Analytics & Performance Optimization'
     };
     
     return specialties[agentId] || 'Specialized Implementation';

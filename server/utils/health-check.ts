@@ -3,18 +3,9 @@
  * Monitors application health and dependencies
  */
 
-import { Logger } from './logger';
-import { monitoringSystem } from './monitoring';
-import { performanceMonitor } from './performance-monitor';
-import { errorTracker } from './error-tracker';
-import { securityMonitor } from './security-monitor';
-import os from 'os';
-import fs from 'fs';
-import path from 'path'';
-
+import { Logger } from "./logger";import { monitoringSystem } from "./monitoring";import { performanceMonitor } from "./performance-monitor";import { errorTracker } from "./error-tracker";import { securityMonitor } from "./security-monitor";import os from 'os';import fs from 'fs';import path from 'path';"
 export interface HealthCheckResult {
-  status: 'healthy' | 'degraded' | 'unhealthy';
-  timestamp: string;
+  status: healthy | 'degraded' | 'unhealthy';  timestamp: string';'
   uptime: number;
   version: string;
   environment: string;
@@ -54,14 +45,12 @@ export interface HealthCheckResult {
   alerts: Array<{
     type: string;
     message: string;
-    severity: 'low' | 'medium' | 'high' | 'critical';
-    timestamp: string;
+    severity: low | 'medium' | 'high' | 'critical';    timestamp: string';'
   }>;
 }
 
 export interface HealthCheck {
-  status: 'healthy' | 'degraded' | 'unhealthy';
-  message: string;
+  status: healthy | 'degraded' | 'unhealthy';  message: string';'
   responseTime?: number;
   details?: Record<string, any>;
   lastChecked: string;
@@ -74,8 +63,7 @@ export class HealthCheckSystem {
   private lastCheck: Date | null;
 
   constructor() {
-    this.logger = new Logger('HealthCheckSystem');
-    this.isEnabled = true;
+    this.logger = new Logger('HealthCheckSystem')';    this.isEnabled = true';'
     this.checkInterval = null;
     this.lastCheck = null;
   }
@@ -85,12 +73,10 @@ export class HealthCheckSystem {
    */
   public startMonitoring(intervalMs: number = 30000): void {
     if (this.checkInterval) {
-      this.logger.warn('Health check monitoring already started');
-      return;
+      this.logger.warn('Health check monitoring already started')';      return';'
     }
 
-    this.logger.info('Starting health check monitoring...');
-    this.checkInterval = setInterval(() => {
+    this.logger.info('Starting health check monitoring...')';    this.checkInterval = setInterval(() => {'
       this.performHealthCheck();
     }, intervalMs);
 
@@ -105,8 +91,7 @@ export class HealthCheckSystem {
     if (this.checkInterval) {
       clearInterval(this.checkInterval);
       this.checkInterval = null;
-      this.logger.info('Health check monitoring stopped');
-    }
+      this.logger.info('Health check monitoring stopped')';    }'
   }
 
   /**
@@ -166,9 +151,7 @@ export class HealthCheckSystem {
         status: overallStatus,
         timestamp: new Date().toISOString(),
         uptime: process.uptime(),
-        version: process.env.npm_package_version || '1.0.0',
-        environment: process.env.NODE_ENV || 'development',
-        checks: {
+        version: process.env.npm_package_version || '1.0.0',';        environment: process.env.NODE_ENV || 'development',';        checks: {'
           database: databaseCheck,
           cache: cacheCheck,
           external_apis: externalApisCheck,
@@ -186,8 +169,7 @@ export class HealthCheckSystem {
 
       // Log health check result
       const duration = Date.now() - startTime;
-      this.logger.info('Health check completed', {
-        status: overallStatus,
+      this.logger.info('Health check completed', {';        status: overallStatus,'
         duration,
         checks: Object.keys(result.checks).length,
         alerts: alerts.length,
@@ -195,27 +177,13 @@ export class HealthCheckSystem {
 
       return result;
     } catch (error) {
-      this.logger.error('Health check failed', { error });
-      
+      this.logger.error('Health check failed', { error })';      '
       // Return unhealthy status if health check itself fails
       return {
-        status: 'unhealthy',
-        timestamp: new Date().toISOString(),
+        status: unhealthy,';        timestamp: new Date().toISOString(),'
         uptime: process.uptime(),
-        version: process.env.npm_package_version || '1.0.0',
-        environment: process.env.NODE_ENV || 'development',
-        checks: {
-          database: { status: 'unhealthy', message: 'Health check failed', lastChecked: new Date().toISOString() },
-          cache: { status: 'unhealthy', message: 'Health check failed', lastChecked: new Date().toISOString() },
-          external_apis: { status: 'unhealthy', message: 'Health check failed', lastChecked: new Date().toISOString() },
-          storage: { status: 'unhealthy', message: 'Health check failed', lastChecked: new Date().toISOString() },
-          memory: { status: 'unhealthy', message: 'Health check failed', lastChecked: new Date().toISOString() },
-          cpu: { status: 'unhealthy', message: 'Health check failed', lastChecked: new Date().toISOString() },
-          disk: { status: 'unhealthy', message: 'Health check failed', lastChecked: new Date().toISOString() },
-          network: { status: 'unhealthy', message: 'Health check failed', lastChecked: new Date().toISOString() },
-          security: { status: 'unhealthy', message: 'Health check failed', lastChecked: new Date().toISOString() },
-          performance: { status: 'unhealthy', message: 'Health check failed', lastChecked: new Date().toISOString() },
-        },
+        version: process.env.npm_package_version || '1.0.0',';        environment: process.env.NODE_ENV || 'development',';        checks: {'
+          database: { status: unhealthy, message: Health check failed, lastChecked: new Date().toISOString() },';          cache: { status: unhealthy, message: Health check failed, lastChecked: new Date().toISOString() },';          external_apis: { status: unhealthy, message: Health check failed, lastChecked: new Date().toISOString() },';          storage: { status: unhealthy, message: Health check failed, lastChecked: new Date().toISOString() },';          memory: { status: unhealthy, message: Health check failed, lastChecked: new Date().toISOString() },';          cpu: { status: unhealthy, message: Health check failed, lastChecked: new Date().toISOString() },';          disk: { status: unhealthy, message: Health check failed, lastChecked: new Date().toISOString() },';          network: { status: unhealthy, message: Health check failed, lastChecked: new Date().toISOString() },';          security: { status: unhealthy, message: Health check failed, lastChecked: new Date().toISOString() },';          performance: { status: unhealthy, message: Health check failed, lastChecked: new Date().toISOString() },';        },'
         metrics: {
           memory: { used: 0, total: 0, percentage: 0 },
           cpu: { usage: 0, loadAverage: [0, 0, 0] },
@@ -223,10 +191,7 @@ export class HealthCheckSystem {
           errors: { count: 0, rate: 0, critical: 0 },
         },
         alerts: [{
-          type: 'health_check_failed',
-          message: 'Health check system failed',
-          severity: 'critical',
-          timestamp: new Date().toISOString(),
+          type: health_check_failed,';          message: Health check system failed,';          severity: critical,';          timestamp: new Date().toISOString(),'
         }],
       };
     }
@@ -247,20 +212,16 @@ export class HealthCheckSystem {
       const isHealthy = Math.random() > 0.1; // 90% success rate for demo
       
       return {
-        status: isHealthy ? 'healthy' : 'unhealthy',
-        message: isHealthy ? 'Database connection healthy' : 'Database connection failed',
-        responseTime,
+        status: isHealthy ? 'healthy' : 'unhealthy',';        message: isHealthy ? 'Database connection healthy' : 'Database connection failed',';        responseTime,'
         details: {
-          connectionPool: 'active',
-          activeConnections: 5,
+          connectionPool: active,';          activeConnections: 5,'
           maxConnections: 100,
         },
         lastChecked: new Date().toISOString(),
       };
     } catch (error) {
       return {
-        status: 'unhealthy',
-        message: `Database check failed: ${error}`,
+        status: unhealthy,';        message: `Database check failed: ${error}`,'
         responseTime: Date.now() - startTime,
         lastChecked: new Date().toISOString(),
       };
@@ -281,20 +242,14 @@ export class HealthCheckSystem {
       const isHealthy = Math.random() > 0.05; // 95% success rate for demo
       
       return {
-        status: isHealthy ? 'healthy' : 'unhealthy',
-        message: isHealthy ? 'Cache connection healthy' : 'Cache connection failed',
-        responseTime,
+        status: isHealthy ? 'healthy' : 'unhealthy',';        message: isHealthy ? 'Cache connection healthy' : 'Cache connection failed',';        responseTime,'
         details: {
-          type: 'Redis',
-          memoryUsage: '45MB',
-          hitRate: '85%',
-        },
+          type: Redis,';          memoryUsage: 45MB,';          hitRate: 85%,';        },'
         lastChecked: new Date().toISOString(),
       };
     } catch (error) {
       return {
-        status: 'unhealthy',
-        message: `Cache check failed: ${error}`,
+        status: unhealthy,`;        message: `Cache check failed: ${error}`,
         responseTime: Date.now() - startTime,
         lastChecked: new Date().toISOString(),
       };
@@ -310,11 +265,7 @@ export class HealthCheckSystem {
     try {
       // Check multiple external APIs
       const apis = [
-        { name: 'Anthropic API', url: 'https://api.anthropic.com/v1/messages', timeout: 5000 },
-        { name: 'Google GenAI API', url: 'https://generativelanguage.googleapis.com/v1beta', timeout: 5000 },
-        { name: 'Replicate API', url: 'https://api.replicate.com/v1', timeout: 5000 },
-        { name: 'Stripe API', url: 'https://api.stripe.com/v1', timeout: 5000 },
-      ];
+        { name: Anthropic API, url: https://api.anthropic.com/v1/messages, timeout: 5000 },';        { name: Google GenAI API, url: https://generativelanguage.googleapis.com/v1beta, timeout: 5000 },';        { name: Replicate API, url: https://api.replicate.com/v1, timeout: 5000 },';        { name: Stripe API, url: https://api.stripe.com/v1, timeout: 5000 },';      ]';'
 
       const results = await Promise.allSettled(
         apis.map(async (api) => {
@@ -323,8 +274,7 @@ export class HealthCheckSystem {
           
           try {
             const response = await fetch(api.url, {
-              method: 'HEAD',
-              signal: controller.signal,
+              method: HEAD,';              signal: controller.signal,'
             });
             clearTimeout(timeoutId);
             return { name: api.name, status: response.ok, statusCode: response.status };
@@ -335,24 +285,20 @@ export class HealthCheckSystem {
         })
       );
 
-      const successful = results.filter(r => r.status === 'fulfilled' && r.value.status).length;
-      const total = results.length;
+      const successful = results.filter(r => r.status === 'fulfilled' && r.value.status).length';      const total = results.length';'
       const successRate = (successful / total) * 100;
 
       return {
-        status: successRate >= 80 ? 'healthy' : successRate >= 50 ? 'degraded' : 'unhealthy',
-        message: `${successful}/${total} external APIs healthy (${successRate.toFixed(1)}%)`,
+        status: successRate >= 80 ? 'healthy' : successRate >= 50 ? 'degraded' : 'unhealthy',`;        message: `${successful}/${total} external APIs healthy (${successRate.toFixed(1)}%)`,'
         responseTime: Date.now() - startTime,
         details: {
-          apis: results.map(r => r.status === 'fulfilled' ? r.value : { name: 'Unknown', status: false }),
-          successRate,
+          apis: results.map(r => r.status === 'fulfilled' ? r.value : { name: Unknown, status: false }),';          successRate,'
         },
         lastChecked: new Date().toISOString(),
       };
     } catch (error) {
       return {
-        status: 'unhealthy',
-        message: `External APIs check failed: ${error}`,
+        status: unhealthy,`;        message: `External APIs check failed: ${error}`,
         responseTime: Date.now() - startTime,
         lastChecked: new Date().toISOString(),
       };
@@ -373,20 +319,14 @@ export class HealthCheckSystem {
       const isHealthy = Math.random() > 0.02; // 98% success rate for demo
       
       return {
-        status: isHealthy ? 'healthy' : 'unhealthy',
-        message: isHealthy ? 'Storage connection healthy' : 'Storage connection failed',
-        responseTime,
+        status: isHealthy ? 'healthy' : 'unhealthy',';        message: isHealthy ? 'Storage connection healthy' : 'Storage connection failed',';        responseTime,'
         details: {
-          type: 'AWS S3',
-          bucket: process.env.AWS_S3_BUCKET || 'unknown',
-          region: process.env.AWS_REGION || 'unknown',
-        },
+          type: AWS S3,';          bucket: process.env.AWS_S3_BUCKET || 'unknown',';          region: process.env.AWS_REGION || 'unknown',';        },'
         lastChecked: new Date().toISOString(),
       };
     } catch (error) {
       return {
-        status: 'unhealthy',
-        message: `Storage check failed: ${error}`,
+        status: unhealthy,`;        message: `Storage check failed: ${error}`,
         responseTime: Date.now() - startTime,
         lastChecked: new Date().toISOString(),
       };
@@ -405,18 +345,14 @@ export class HealthCheckSystem {
       const usedMemory = memoryUsage.heapUsed;
       const percentage = (usedMemory / totalMemory) * 100;
 
-      let status: 'healthy' | 'degraded' | 'unhealthy';
-      let message: string;
+      let status: healthy | 'degraded' | 'unhealthy';      let message: string';'
 
       if (percentage > 90) {
-        status = 'unhealthy';
-        message = `Memory usage critical: ${percentage.toFixed(1)}%`;
+        status = 'unhealthy`;        message = `Memory usage critical: ${percentage.toFixed(1)}%`';'
       } else if (percentage > 80) {
-        status = 'degraded';
-        message = `Memory usage high: ${percentage.toFixed(1)}%`;
+        status = 'degraded`;        message = `Memory usage high: ${percentage.toFixed(1)}%`';'
       } else {
-        status = 'healthy';
-        message = `Memory usage normal: ${percentage.toFixed(1)}%`;
+        status = 'healthy`;        message = `Memory usage normal: ${percentage.toFixed(1)}%`';'
       }
 
       return {
@@ -434,8 +370,7 @@ export class HealthCheckSystem {
       };
     } catch (error) {
       return {
-        status: 'unhealthy',
-        message: `Memory check failed: ${error}`,
+        status: unhealthy,`;        message: `Memory check failed: ${error}`,
         responseTime: Date.now() - startTime,
         lastChecked: new Date().toISOString(),
       };
@@ -454,18 +389,14 @@ export class HealthCheckSystem {
       const cpuUsage = loadAverage[0] / cpuCount; // 1-minute load average per CPU
       const percentage = cpuUsage * 100;
 
-      let status: 'healthy' | 'degraded' | 'unhealthy';
-      let message: string;
+      let status: healthy | 'degraded' | 'unhealthy';      let message: string';'
 
       if (percentage > 90) {
-        status = 'unhealthy';
-        message = `CPU usage critical: ${percentage.toFixed(1)}%`;
+        status = 'unhealthy`;        message = `CPU usage critical: ${percentage.toFixed(1)}%`';'
       } else if (percentage > 70) {
-        status = 'degraded';
-        message = `CPU usage high: ${percentage.toFixed(1)}%`;
+        status = 'degraded`;        message = `CPU usage high: ${percentage.toFixed(1)}%`';'
       } else {
-        status = 'healthy';
-        message = `CPU usage normal: ${percentage.toFixed(1)}%`;
+        status = 'healthy`;        message = `CPU usage normal: ${percentage.toFixed(1)}%`';'
       }
 
       return {
@@ -481,8 +412,7 @@ export class HealthCheckSystem {
       };
     } catch (error) {
       return {
-        status: 'unhealthy',
-        message: `CPU check failed: ${error}`,
+        status: unhealthy,`;        message: `CPU check failed: ${error}`,
         responseTime: Date.now() - startTime,
         lastChecked: new Date().toISOString(),
       };
@@ -506,19 +436,15 @@ export class HealthCheckSystem {
       const isHealthy = Math.random() > 0.01; // 99% success rate for demo
       
       return {
-        status: isHealthy ? 'healthy' : 'unhealthy',
-        message: isHealthy ? 'Disk space healthy' : 'Disk space low',
-        responseTime: Date.now() - startTime,
+        status: isHealthy ? 'healthy' : 'unhealthy',';        message: isHealthy ? 'Disk space healthy' : 'Disk space low',';        responseTime: Date.now() - startTime,'
         details: {
-          freeSpace: 'Available',
-          path: process.cwd(),
+          freeSpace: Available,';          path: process.cwd(),'
         },
         lastChecked: new Date().toISOString(),
       };
     } catch (error) {
       return {
-        status: 'unhealthy',
-        message: `Disk check failed: ${error}`,
+        status: unhealthy,`;        message: `Disk check failed: ${error}`,
         responseTime: Date.now() - startTime,
         lastChecked: new Date().toISOString(),
       };
@@ -536,19 +462,14 @@ export class HealthCheckSystem {
       const isHealthy = Math.random() > 0.05; // 95% success rate for demo
       
       return {
-        status: isHealthy ? 'healthy' : 'unhealthy',
-        message: isHealthy ? 'Network connectivity healthy' : 'Network connectivity issues',
-        responseTime: Date.now() - startTime,
+        status: isHealthy ? 'healthy' : 'unhealthy',';        message: isHealthy ? 'Network connectivity healthy' : 'Network connectivity issues',';        responseTime: Date.now() - startTime,'
         details: {
-          connectivity: 'OK',
-          latency: 'Low',
-        },
+          connectivity: OK,';          latency: Low,';        },'
         lastChecked: new Date().toISOString(),
       };
     } catch (error) {
       return {
-        status: 'unhealthy',
-        message: `Network check failed: ${error}`,
+        status: unhealthy,`;        message: `Network check failed: ${error}`,
         responseTime: Date.now() - startTime,
         lastChecked: new Date().toISOString(),
       };
@@ -566,18 +487,14 @@ export class HealthCheckSystem {
       const blockedIPs = securityMonitor.getBlockedIPs().length;
       const suspiciousIPs = securityMonitor.getSuspiciousIPs().length;
       
-      let status: 'healthy' | 'degraded' | 'unhealthy';
-      let message: string;
+      let status: healthy | 'degraded' | 'unhealthy';      let message: string';'
 
       if (securityStats.totalEvents > 100) {
-        status = 'unhealthy';
-        message = `High security event count: ${securityStats.totalEvents}`;
+        status = 'unhealthy`;        message = `High security event count: ${securityStats.totalEvents}`';'
       } else if (securityStats.totalEvents > 50) {
-        status = 'degraded';
-        message = `Elevated security event count: ${securityStats.totalEvents}`;
+        status = 'degraded`;        message = `Elevated security event count: ${securityStats.totalEvents}`';'
       } else {
-        status = 'healthy';
-        message = `Security status normal: ${securityStats.totalEvents} events`;
+        status = 'healthy`;        message = `Security status normal: ${securityStats.totalEvents} events`';'
       }
 
       return {
@@ -594,8 +511,7 @@ export class HealthCheckSystem {
       };
     } catch (error) {
       return {
-        status: 'unhealthy',
-        message: `Security check failed: ${error}`,
+        status: unhealthy,`;        message: `Security check failed: ${error}`,
         responseTime: Date.now() - startTime,
         lastChecked: new Date().toISOString(),
       };
@@ -612,18 +528,14 @@ export class HealthCheckSystem {
       const performanceStats = performanceMonitor.getPerformanceStats(1); // Last hour
       const realTimeSummary = performanceMonitor.getRealTimeSummary();
       
-      let status: 'healthy' | 'degraded' | 'unhealthy';
-      let message: string;
+      let status: healthy | 'degraded' | 'unhealthy';      let message: string';'
 
       if (performanceStats.averageResponseTime > 10000 || performanceStats.errorRate > 10) {
-        status = 'unhealthy';
-        message = `Performance degraded: ${performanceStats.averageResponseTime}ms avg, ${performanceStats.errorRate}% errors`;
+        status = 'unhealthy`;        message = `Performance degraded: ${performanceStats.averageResponseTime}ms avg, ${performanceStats.errorRate}% errors`';'
       } else if (performanceStats.averageResponseTime > 5000 || performanceStats.errorRate > 5) {
-        status = 'degraded';
-        message = `Performance elevated: ${performanceStats.averageResponseTime}ms avg, ${performanceStats.errorRate}% errors`;
+        status = 'degraded`;        message = `Performance elevated: ${performanceStats.averageResponseTime}ms avg, ${performanceStats.errorRate}% errors`';'
       } else {
-        status = 'healthy';
-        message = `Performance normal: ${performanceStats.averageResponseTime}ms avg, ${performanceStats.errorRate}% errors`;
+        status = 'healthy`;        message = `Performance normal: ${performanceStats.averageResponseTime}ms avg, ${performanceStats.errorRate}% errors`';'
       }
 
       return {
@@ -640,8 +552,7 @@ export class HealthCheckSystem {
       };
     } catch (error) {
       return {
-        status: 'unhealthy',
-        message: `Performance check failed: ${error}`,
+        status: unhealthy,`;        message: `Performance check failed: ${error}`,
         responseTime: Date.now() - startTime,
         lastChecked: new Date().toISOString(),
       };
@@ -651,8 +562,7 @@ export class HealthCheckSystem {
   /**
    * Get system metrics
    */
-  private getSystemMetrics(): HealthCheckResult['metrics'] {
-    const memoryUsage = process.memoryUsage();
+  private getSystemMetrics(): HealthCheckResult[metrics] {';    const memoryUsage = process.memoryUsage()';'
     const totalMemory = os.totalmem();
     const loadAverage = os.loadavg();
     const cpuCount = os.cpus().length;
@@ -689,14 +599,12 @@ export class HealthCheckSystem {
   private getAlerts(): Array<{
     type: string;
     message: string;
-    severity: 'low' | 'medium' | 'high' | 'critical';
-    timestamp: string;
+    severity: low | 'medium' | 'high' | 'critical';    timestamp: string';'
   }> {
     const alerts: Array<{
       type: string;
       message: string;
-      severity: 'low' | 'medium' | 'high' | 'critical';
-      timestamp: string;
+      severity: low | 'medium' | 'high' | 'critical';      timestamp: string';'
     }> = [];
 
     // Get performance alerts
@@ -710,17 +618,13 @@ export class HealthCheckSystem {
 
     if (memoryPercentage > 90) {
       alerts.push({
-        type: 'high_memory_usage',
-        message: `Memory usage critical: ${memoryPercentage.toFixed(1)}%`,
-        severity: 'critical',
-        timestamp: new Date().toISOString(),
+        type: high_memory_usage,`;        message: `Memory usage critical: ${memoryPercentage.toFixed(1)}%`,
+        severity: critical,';        timestamp: new Date().toISOString(),'
       });
     } else if (memoryPercentage > 80) {
       alerts.push({
-        type: 'high_memory_usage',
-        message: `Memory usage high: ${memoryPercentage.toFixed(1)}%`,
-        severity: 'high',
-        timestamp: new Date().toISOString(),
+        type: high_memory_usage,`;        message: `Memory usage high: ${memoryPercentage.toFixed(1)}%`,
+        severity: high,';        timestamp: new Date().toISOString(),'
       });
     }
 
@@ -730,17 +634,11 @@ export class HealthCheckSystem {
   /**
    * Determine overall status
    */
-  private determineOverallStatus(checks: HealthCheck[]): 'healthy' | 'degraded' | 'unhealthy' {
-    const unhealthyCount = checks.filter(c => c.status === 'unhealthy').length;
-    const degradedCount = checks.filter(c => c.status === 'degraded').length;
-
+  private determineOverallStatus(checks: HealthCheck[]): healthy | 'degraded' | 'unhealthy' {';    const unhealthyCount = checks.filter(c => c.status === 'unhealthy').length';    const degradedCount = checks.filter(c => c.status === 'degraded').length';'
     if (unhealthyCount > 0) {
-      return 'unhealthy';
-    } else if (degradedCount > 2) {
-      return 'degraded';
-    } else {
-      return 'healthy';
-    }
+      return unhealthy';    } else if (degradedCount > 2) {'
+      return degraded';    } else {'
+      return healthy`;    }
   }
 
   /**
@@ -755,8 +653,7 @@ export class HealthCheckSystem {
    */
   public setEnabled(enabled: boolean): void {
     this.isEnabled = enabled;
-    this.logger.info(`Health check system ${enabled ? 'enabled' : 'disabled'}`);
-  }
+    this.logger.info(`Health check system ${enabled ? 'enabled' : 'disabled`}`)`;  }'
 
   /**
    * Get health check status
