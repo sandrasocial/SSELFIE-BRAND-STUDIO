@@ -18,13 +18,18 @@
         "includeFiles": [
           "api/**",
           "dist-server/**", 
+          "dist-server/server/**",
+          "dist-server/shared/**",
           "server/**",
           "shared/**", 
           "components/**",
           "drizzle/**",
           "tsconfig.json",
           "tsconfig.server.json",
-          "package.json"
+          "package.json",
+          "server/storage.ts",
+          "server/drizzle.ts",
+          "shared/schema.ts"
         ]
       }
     }
