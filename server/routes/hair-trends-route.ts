@@ -24,7 +24,7 @@ router.get('/hair-trends', requireStackAuth, async (req: any, res) => {
     console.log('📊 Hair trends requested by user:', req.user?.id);
 
     // Fetch latest trends from database
-    const trends = await db.execute(sql`
+    const result = await db.execute(sql`
       SELECT 
         id,
         week_range,
@@ -35,7 +35,8 @@ router.get('/hair-trends', requireStackAuth, async (req: any, res) => {
       FROM hair_trends 
       ORDER BY created_at DESC 
       LIMIT 4
-    `) as TrendDataResponse[];
+    `) as { rows: TrendDataResponse[] };
+    const trends = result.rows;
 
     if (!trends || trends.length === 0) {
       return res.json({
@@ -80,7 +81,7 @@ router.get('/hair-trends/:weekRange', requireStackAuth, async (req: any, res) =>
   try {
     const { weekRange } = req.params;
     
-    const trends = await db.execute(sql`
+    const result = await db.execute(sql`
       SELECT 
         id,
         week_range,
@@ -91,7 +92,8 @@ router.get('/hair-trends/:weekRange', requireStackAuth, async (req: any, res) =>
       FROM hair_trends 
       WHERE week_range = ${weekRange}
       LIMIT 1
-    `) as TrendDataResponse[];
+    `) as { rows: TrendDataResponse[] };
+    const trends = result.rows;
 
     if (!trends || trends.length === 0) {
       return res.status(404).json({
@@ -164,12 +166,13 @@ router.get('/hair-trends/status', requireStackAuth, async (req: any, res) => {
     const isProduction = process.env.NODE_ENV === 'production';
 
     // Get latest trend entry to check last update
-    const latestTrends = await db.execute(sql`
+    const result = await db.execute(sql`
       SELECT created_at 
       FROM hair_trends 
       ORDER BY created_at DESC 
       LIMIT 1
-    `) as { created_at: string }[];
+    `) as { rows: Array<{ created_at: string }> };
+    const latestTrends = result.rows;
 
     res.json({
       success: true,
