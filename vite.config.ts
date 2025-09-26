@@ -6,6 +6,19 @@ export default defineConfig(({ mode }) => {
   const plugins = [
     react({ jsxRuntime: "automatic" })
   ];
+  
+  // Validate required public environment variables
+  const requiredPublicEnvVars = [
+    'VITE_STACK_PROJECT_ID',
+    'VITE_STACK_PUBLISHABLE_CLIENT_KEY'
+  ];
+  
+  for (const envVar of requiredPublicEnvVars) {
+    if (!process.env[envVar]) {
+      throw new Error(`Missing required public environment variable: ${envVar}`);
+    }
+  }
+  
   return {
     plugins,
 
