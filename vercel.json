@@ -16,12 +16,12 @@
         "maxDuration": 40,
         "memory": 1024,
         "includeFiles": [
+          "api/**",
           "dist-server/**", 
           "server/**",
           "shared/**", 
           "components/**",
           "drizzle/**",
-          "api/_middleware/**",
           "tsconfig.json",
           "tsconfig.server.json",
           "package.json"

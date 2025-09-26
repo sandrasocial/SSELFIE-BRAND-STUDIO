@@ -180,8 +180,22 @@ export async function withAuth(
 ) {
   // Bypass auth for cron jobs
   if (req.url?.startsWith('/api/cron/')) {
-    console.log('🔓 Bypassing auth for cron job:', req.url);
-    return handler(req, res);
+    console.log('🔓 Bypassing auth for cron job:', {
+      url: req.url,
+      method: req.method,
+      headers: req.headers,
+      query: req.query
+    });
+    try {
+      return await handler(req, res);
+    } catch (error) {
+      console.error('❌ Cron job handler failed:', {
+        url: req.url,
+        method: req.method,
+        error: error instanceof Error ? { message: error.message, stack: error.stack } : error
+      });
+      throw error;
+    }
   }
 
   try {
