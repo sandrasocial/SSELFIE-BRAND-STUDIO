@@ -3,17 +3,33 @@
  * Handles story generation, video generation, Victoria AI, and Maya AI
  */
 
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import { requireStackAuth, requireActiveSubscription } from '../../stack-auth.js';
 import { storage } from '../../storage.js';
 import { ModelTrainingService } from '../../model-training-service.js';
 import { asyncHandler, createError, sendSuccess, validateRequired } from '../middleware/error-handler.js';
+import {
+  AuthenticatedRequest,
+  StoryConceptRequest,
+  StoryStatus,
+  VideoGenerationRequest,
+  VideoStatus,
+  VictoriaGenerationRequest,
+  VictoriaCustomizationRequest,
+  VictoriaDeploymentRequest,
+  VictoriaWebsite,
+  AIImageGenerationRequest,
+  AIImage,
+  MayaChat,
+  SuccessResponse,
+  ErrorResponse
+} from '../../types/ai-generation.js';
 
 const router = Router();
 
 // Story Generation Routes
-router.post('/api/story/draft', requireStackAuth, asyncHandler(async (req: any, res) => {
-  const { concept } = req.body;
+router.post('/api/story/draft', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  const { concept } = req.body as StoryConceptRequest;
   const userId = req.user.id;
 
   if (!concept) {
@@ -21,15 +37,18 @@ router.post('/api/story/draft', requireStackAuth, asyncHandler(async (req: any, 
   }
 
   // TODO: Implement story draft generation
-  sendSuccess(res, {
-    message: 'Story draft generation started',
-    jobId: `draft_${Date.now()}`,
-    concept
-  });
+  const responseData: SuccessResponse<{ jobId: string; concept: string }> = {
+    data: {
+      jobId: `draft_${Date.now()}`,
+      concept
+    },
+    message: 'Story draft generation started'
+  };
+  sendSuccess(res, responseData);
 }));
 
-router.post('/api/story/generate', requireStackAuth, asyncHandler(async (req: any, res) => {
-  const { concept, style, length } = req.body;
+router.post('/api/story/generate', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  const { concept, style, length } = req.body as StoryConceptRequest;
   const userId = req.user.id;
 
   if (!concept) {
@@ -37,31 +56,39 @@ router.post('/api/story/generate', requireStackAuth, asyncHandler(async (req: an
   }
 
   // TODO: Implement full story generation
-  sendSuccess(res, {
-    message: 'Story generation started',
-    jobId: `story_${Date.now()}`,
-    concept,
-    style,
-    length
-  });
+  const responseData: SuccessResponse<{ jobId: string; concept: string; style?: string; length?: string }> = {
+    data: {
+      jobId: `story_${Date.now()}`,
+      concept,
+      style,
+      length
+    },
+    message: 'Story generation started'
+  };
+  sendSuccess(res, responseData);
 }));
 
-router.get('/api/story/status/:jobId', requireStackAuth, asyncHandler(async (req: any, res) => {
+router.get('/api/story/status/:jobId', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const { jobId } = req.params;
   const userId = req.user.id;
 
   // TODO: Implement story status checking
-  sendSuccess(res, {
+  const status: StoryStatus = {
     jobId,
     status: 'processing',
     progress: 50,
     message: 'Story generation in progress'
-  });
+  };
+  
+  const responseData: SuccessResponse<{ status: StoryStatus }> = {
+    data: { status }
+  };
+  sendSuccess(res, responseData);
 }));
 
 // Video Generation Routes
-router.post('/api/video/generate-story', requireActiveSubscription, asyncHandler(async (req: any, res) => {
-  const { story, style, duration } = req.body;
+router.post('/api/video/generate-story', requireActiveSubscription, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  const { story, style, duration } = req.body as VideoGenerationRequest;
   const userId = req.user.id;
 
   if (!story) {
@@ -69,17 +96,20 @@ router.post('/api/video/generate-story', requireActiveSubscription, asyncHandler
   }
 
   // TODO: Implement video generation from story
-  sendSuccess(res, {
-    message: 'Video generation started',
-    jobId: `video_${Date.now()}`,
-    story,
-    style,
-    duration
-  });
+  const responseData: SuccessResponse<{ jobId: string; story: string; style?: string; duration?: number }> = {
+    data: {
+      jobId: `video_${Date.now()}`,
+      story,
+      style,
+      duration
+    },
+    message: 'Video generation started'
+  };
+  sendSuccess(res, responseData);
 }));
 
-router.post('/api/video/generate', requireActiveSubscription, asyncHandler(async (req: any, res) => {
-  const { prompt, style, duration } = req.body;
+router.post('/api/video/generate', requireActiveSubscription, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  const { prompt, style, duration } = req.body as VideoGenerationRequest;
   const userId = req.user.id;
 
   if (!prompt) {
@@ -87,28 +117,34 @@ router.post('/api/video/generate', requireActiveSubscription, asyncHandler(async
   }
 
   // TODO: Implement general video generation
-  sendSuccess(res, {
-    message: 'Video generation started',
-    jobId: `video_${Date.now()}`,
-    prompt,
-    style,
-    duration
-  });
+  const responseData: SuccessResponse<{ jobId: string; prompt: string; style?: string; duration?: number }> = {
+    data: {
+      jobId: `video_${Date.now()}`,
+      prompt,
+      style,
+      duration
+    },
+    message: 'Video generation started'
+  };
+  sendSuccess(res, responseData);
 }));
 
-router.get('/api/videos', requireStackAuth, asyncHandler(async (req: any, res) => {
+router.get('/api/videos', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const userId = req.user.id;
-  const videos = await storage.getUserVideosByStatus(userId);
+  const videos = await storage.getUserVideosByStatus(userId) as VideoStatus[];
 
-  sendSuccess(res, {
-    videos,
-    count: videos.length
-  });
+  const responseData: SuccessResponse<{ videos: VideoStatus[]; count: number }> = {
+    data: {
+      videos,
+      count: videos.length
+    }
+  };
+  sendSuccess(res, responseData);
 }));
 
 // Victoria AI Routes
-router.post('/api/victoria/generate', requireStackAuth, asyncHandler(async (req: any, res) => {
-  const { prompt, style, businessType } = req.body;
+router.post('/api/victoria/generate', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  const { prompt, style, businessType } = req.body as VictoriaGenerationRequest;
   const userId = req.user.id;
 
   if (!prompt) {
@@ -116,17 +152,20 @@ router.post('/api/victoria/generate', requireStackAuth, asyncHandler(async (req:
   }
 
   // TODO: Implement Victoria AI generation
-  sendSuccess(res, {
-    message: 'Victoria AI generation started',
-    jobId: `victoria_${Date.now()}`,
-    prompt,
-    style,
-    businessType
-  });
+  const responseData: SuccessResponse<{ jobId: string; prompt: string; style?: string; businessType?: string }> = {
+    data: {
+      jobId: `victoria_${Date.now()}`,
+      prompt,
+      style,
+      businessType
+    },
+    message: 'Victoria AI generation started'
+  };
+  sendSuccess(res, responseData);
 }));
 
-router.post('/api/victoria/customize', requireStackAuth, asyncHandler(async (req: any, res) => {
-  const { contentId, customizations } = req.body;
+router.post('/api/victoria/customize', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  const { contentId, customizations } = req.body as VictoriaCustomizationRequest;
   const userId = req.user.id;
 
   if (!contentId) {
@@ -134,15 +173,18 @@ router.post('/api/victoria/customize', requireStackAuth, asyncHandler(async (req
   }
 
   // TODO: Implement Victoria customization
-  sendSuccess(res, {
-    message: 'Victoria content customized',
-    contentId,
-    customizations
-  });
+  const responseData: SuccessResponse<{ contentId: string; customizations: Record<string, unknown> }> = {
+    data: {
+      contentId,
+      customizations
+    },
+    message: 'Victoria content customized'
+  };
+  sendSuccess(res, responseData);
 }));
 
-router.post('/api/victoria/deploy', requireStackAuth, asyncHandler(async (req: any, res) => {
-  const { contentId, deploymentOptions } = req.body;
+router.post('/api/victoria/deploy', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  const { contentId, deploymentOptions } = req.body as VictoriaDeploymentRequest;
   const userId = req.user.id;
 
   if (!contentId) {
@@ -150,26 +192,32 @@ router.post('/api/victoria/deploy', requireStackAuth, asyncHandler(async (req: a
   }
 
   // TODO: Implement Victoria deployment
-  sendSuccess(res, {
-    message: 'Victoria content deployed',
-    contentId,
-    deploymentOptions
-  });
+  const responseData: SuccessResponse<{ contentId: string; deploymentOptions: VictoriaDeploymentRequest['deploymentOptions'] }> = {
+    data: {
+      contentId,
+      deploymentOptions
+    },
+    message: 'Victoria content deployed'
+  };
+  sendSuccess(res, responseData);
 }));
 
-router.get('/api/victoria/websites', requireStackAuth, asyncHandler(async (req: any, res) => {
+router.get('/api/victoria/websites', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const userId = req.user.id;
 
   // TODO: Implement Victoria websites listing
-  sendSuccess(res, {
-    websites: [],
-    count: 0
-  });
+  const responseData: SuccessResponse<{ websites: VictoriaWebsite[]; count: number }> = {
+    data: {
+      websites: [],
+      count: 0
+    }
+  };
+  sendSuccess(res, responseData);
 }));
 
 // AI Images Routes - Real Implementation
-router.post('/api/ai-images', requireActiveSubscription, asyncHandler(async (req: any, res) => {
-  const { prompt, style, count, seed } = req.body;
+router.post('/api/ai-images', requireActiveSubscription, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  const { prompt, style, count, seed } = req.body as AIImageGenerationRequest;
   const userId = req.user.id;
 
   if (!prompt) {
@@ -192,7 +240,7 @@ router.post('/api/ai-images', requireActiveSubscription, asyncHandler(async (req
     );
 
     // Save generation to database
-    const generationId = await storage.saveAIImage({
+    const savedImage = await storage.saveAIImage({
       userId,
       prompt,
       imageUrl: result.images[0] || '',
@@ -200,13 +248,22 @@ router.post('/api/ai-images', requireActiveSubscription, asyncHandler(async (req
       predictionId: result.predictionId
     });
 
-    sendSuccess(res, {
-      jobId: result.predictionId,
-      generationId,
-      images: result.images,
-      prompt,
+    const responseData: SuccessResponse<{
+      jobId: string;
+      generatedImage: AIImage;
+      images: string[];
+      prompt: string;
+    }> = {
+      data: {
+        jobId: result.predictionId,
+        generatedImage: savedImage,
+        images: result.images,
+        prompt
+      },
       message: 'AI image generation completed successfully'
-    });
+    };
+    
+    sendSuccess(res, responseData);
 
   } catch (error) {
     console.error('❌ AI Images: Generation failed:', error);
@@ -214,32 +271,58 @@ router.post('/api/ai-images', requireActiveSubscription, asyncHandler(async (req
   }
 }));
 
-router.get('/api/ai-images', requireActiveSubscription, asyncHandler(async (req: any, res) => {
+router.get('/api/ai-images', requireActiveSubscription, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const userId = req.user.id;
-  const images = await storage.getUserAIImages(userId);
-  sendSuccess(res, { images, count: images.length });
+  const images = await storage.getUserAIImages(userId) as AIImage[];
+
+  const responseData: SuccessResponse<{
+    images: AIImage[];
+    count: number;
+  }> = {
+    data: {
+      images,
+      count: images.length
+    }
+  };
+  
+  sendSuccess(res, responseData);
 }));
 
 // Maya AI Routes
-router.get('/api/maya-chats', requireStackAuth, asyncHandler(async (req: any, res) => {
+router.get('/api/maya-chats', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const userId = req.user.id;
-  const chats = await storage.getMayaChats(userId);
+  const chats = await storage.getMayaChats(userId) as MayaChat[];
 
-  sendSuccess(res, {
-    chats,
-    count: chats.length
-  });
+  const responseData: SuccessResponse<{
+    chats: MayaChat[];
+    count: number;
+  }> = {
+    data: {
+      chats,
+      count: chats.length
+    }
+  };
+  
+  sendSuccess(res, responseData);
 }));
 
-router.get('/api/maya-chats/categorized', requireStackAuth, asyncHandler(async (req: any, res) => {
+router.get('/api/maya-chats/categorized', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const userId = req.user.id;
 
   // TODO: Implement categorized Maya chats
-  sendSuccess(res, {
-    categories: [],
-    chats: [],
-    count: 0
-  });
+  const responseData: SuccessResponse<{
+    categories: string[];
+    chats: MayaChat[];
+    count: number;
+  }> = {
+    data: {
+      categories: [],
+      chats: [],
+      count: 0
+    }
+  };
+  
+  sendSuccess(res, responseData);
 }));
 
 export default router;
