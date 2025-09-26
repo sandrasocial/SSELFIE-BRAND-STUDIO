@@ -6,8 +6,8 @@ import * as schema from '../shared/schema.js';
 // Use HTTP-based connection for drizzle operations (optimal for serverless)
 const sql = neon(DATABASE_URL!, {
   fetchOptions: {
-    priority: 'high', // Prioritize database requests
-  },
+    priority: 'high' // Prioritize database requests
+  }
 });
 
 export const db = drizzle(sql, { schema });

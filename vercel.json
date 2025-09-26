@@ -1,48 +1,54 @@
 {
-  "rewrites": [
+  "version": 2,
+  "builds": [
     {
-      "source": "/((?!api/).*)",
-      "destination": "/index.html"
+      "src": "client/index.html",
+      "use": "@vercel/static-build",
+      "config": {
+        "buildCommand": "npm run build",
+        "outputDirectory": "client/dist"
+      }
+    },
+    {
+      "src": "api/[...route].ts",
+      "use": "@vercel/node",
+      "config": {
+        "maxDuration": 40,
+        "includeFiles": [
+          "dist-server/**",
+          "server/**",
+          "shared/**",
+          "components/**"
+        ]
+      }
     }
   ],
-  "functions": {
-    "api/me.ts": {
-      "maxDuration": 20
+  "routes": [
+    {
+      "src": "/api/cron/(.*)",
+      "dest": "api/[...route].ts",
+      "methods": ["GET", "POST"],
+      "continue": true
     },
-    "api/gallery-images.ts": {
-      "maxDuration": 25
+    {
+      "src": "/api/(.*)",
+      "dest": "api/[...route].ts",
+      "headers": {
+        "Cache-Control": "no-store"
+      }
     },
-    "api/index.ts": {
-      "maxDuration": 40
+    {
+      "src": "/auth/(.*)",
+      "dest": "api/auth/[...auth].ts"
     },
-    "api/maya/chat.ts": {
-      "maxDuration": 40
-    },
-    "api/health-check.ts": {
-      "maxDuration": 5
-    },
-    "api/health-detailed.ts": {
-      "maxDuration": 8
-    },
-    "api/hair-trends.ts": {
-      "maxDuration": 20
-    },
-    "api/hair-trends/status.ts": {
-      "maxDuration": 10
-    },
-    "api/video/generate-from-image.ts": {
-      "maxDuration": 40
-    },
-    "api/video/generate-story.ts": {
-      "maxDuration": 25
-    },
-    "api/ping.ts": {
-      "maxDuration": 3
-    },
-    "api/hair-leads.ts": {
-      "maxDuration": 10
+    {
+      "src": "/(.*)",
+      "dest": "/client/dist/$1",
+      "headers": {
+        "Cache-Control": "public, max-age=0, must-revalidate"
+      }
     }
-  },
+  ],
   "crons": [
     {
       "path": "/api/cron/training-completion-monitor",
@@ -52,5 +58,16 @@
       "path": "/api/cron/generation-completion-monitor",
       "schedule": "* * * * *"
     }
-  ]
+  ],
+  "build": {
+    "env": {
+      "VERCEL_FORCE_NO_BUILD_CACHE": "1"
+    }
+  },
+  "functions": {
+    "api/[...route].ts": {
+      "memory": 1024,
+      "maxDuration": 40
+    }
+  }
 }
