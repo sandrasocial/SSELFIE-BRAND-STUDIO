@@ -12,7 +12,7 @@ export async function execute_sql_tool(params: SqlParams): Promise<string> {
     console.log(`🗄️ SQL EXECUTION: ${params.sql_query.substring(0, 100)}...`);
     
     // Execute raw SQL using Drizzle's sql template function
-    const result = await db.execute(sql.raw(params.sql_query));
+    const result = await db.execute(sql.raw(params.sql_query)) as { rows: Record<string, any>[] };
     
     console.log(`🗄️ RAW RESULT TYPE:`, typeof result);
     console.log(`🗄️ RESULT ROWS:`, result.rows);
