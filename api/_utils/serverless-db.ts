@@ -4,7 +4,7 @@
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { cleanup } from '@server/db.js';
+import { cleanup } from '../../server/db.js';
 
 export interface ServerlessContext {
   cleanup: () => Promise<void>;

@@ -5,7 +5,7 @@
  */
 
 import { db } from './drizzle';
-import { aiImages, generatedImages } from '@shared/schema';
+import { aiImages, generatedImages } from '../shared/schema';
 import { eq } from 'drizzle-orm';
 
 interface MigrationResult {

@@ -178,6 +178,12 @@ export async function withAuth(
   res: VercelResponse,
   handler: (req: VercelRequest, res: VercelResponse) => Promise<any>
 ) {
+  // Bypass auth for cron jobs
+  if (req.url?.startsWith('/api/cron/')) {
+    console.log('🔓 Bypassing auth for cron job:', req.url);
+    return handler(req, res);
+  }
+
   try {
     // Add user to request
     const user = await getAuthenticatedUser(req);

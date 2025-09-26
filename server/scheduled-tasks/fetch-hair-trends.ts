@@ -149,7 +149,7 @@ Week of: ${this.getWeekRange()}`;
           created_at TIMESTAMP DEFAULT NOW(),
           UNIQUE(week_range)
         )
-      `);
+      `) as { rows: any[] };
 
       // Insert or update trend data
       await db.execute(sql`
@@ -161,7 +161,7 @@ Week of: ${this.getWeekRange()}`;
           summary = EXCLUDED.summary,
           confidence = EXCLUDED.confidence,
           created_at = NOW()
-      `);
+      `) as { rows: any[] };
 
       console.log('✅ Hair trends stored successfully for week:', trendData.week);
       return true;
