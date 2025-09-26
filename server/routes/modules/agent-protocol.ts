@@ -21,9 +21,14 @@ import {
 const router = Router();
 
 // Register agent protocol
-router.post('/api/agent-protocol', asyncHandler(async (req: Request, res: Response) => {
-  const { protocol, version, data } = req.body as AgentProtocolRegistration;
+router.post('/api/agent-protocol', asyncHandler(async (req: Request & { body: AgentProtocolRegistration }, res: Response) => {
+  const { protocol, version, data } = req.body;
   validateRequired({ protocol, version }, ['protocol', 'version']);
+
+  // Validate protocol version format
+  if (!/^\d+\.\d+\.\d+$/.test(version)) {
+    throw createError.validation('Invalid protocol version format. Must be semver (e.g., 1.0.0)');
+  }
 
   // Mock implementation - replace with actual protocol service
   const protocolId = `protocol_${Date.now()}`;
@@ -51,21 +56,36 @@ router.get('/api/agent-protocol/:agentId', asyncHandler(async (req: Request, res
 }));
 
 // Update agent capabilities
-router.post('/api/agent-protocol/:agentId/capabilities', asyncHandler(async (req: Request, res: Response) => {
-  const { agentId, capabilities, metadata } = req.body as AgentCapabilities;
-  validateRequired({ agentId, capabilities }, ['agentId', 'capabilities']);
+router.post('/api/agent-protocol/:agentId/capabilities', asyncHandler(async (req: Request & { body: AgentCapabilities }, res: Response) => {
+  const { agentId: bodyAgentId, capabilities, metadata } = req.body;
+  const { agentId: pathAgentId } = req.params;
+  
+  validateRequired({ agentId: bodyAgentId, capabilities }, ['agentId', 'capabilities']);
+  
+  // Ensure body agentId matches path agentId
+  if (bodyAgentId !== pathAgentId) {
+    throw createError.validation('Agent ID in body must match Agent ID in path');
+  }
 
   // Mock implementation - replace with actual capability service
-  const responseData: SuccessResponse<{ message: string }> = {
-    data: { message: 'Capabilities updated successfully' }
+  const responseData: SuccessResponse<{ success: true }> = {
+    data: { success: true },
+    message: 'Capabilities updated successfully'
   };
   sendSuccess(res, responseData);
 }));
 
 // Send message to agent
-router.post('/api/agent-protocol/:agentId/message', asyncHandler(async (req: Request, res: Response) => {
-  const { agentId, message, type } = req.body as AgentMessage;
-  validateRequired({ agentId, message }, ['agentId', 'message']);
+router.post('/api/agent-protocol/:agentId/message', asyncHandler(async (req: Request & { body: AgentMessage }, res: Response) => {
+  const { agentId: bodyAgentId, message, type } = req.body;
+  const { agentId: pathAgentId } = req.params;
+  
+  validateRequired({ agentId: bodyAgentId, message }, ['agentId', 'message']);
+  
+  // Ensure body agentId matches path agentId
+  if (bodyAgentId !== pathAgentId) {
+    throw createError.validation('Agent ID in body must match Agent ID in path');
+  }
 
   // Mock implementation - replace with actual messaging service
   const messageId = `msg_${Date.now()}`;
@@ -102,13 +122,24 @@ router.get('/api/agents/:agentId', requireStackAuth, asyncHandler(async (req: Au
 }));
 
 // Update agent
-router.put('/api/agents/:agentId', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+router.put('/api/agents/:agentId', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest & { body: AgentUpdate }, res: Response) => {
   const { agentId } = req.params;
-  const { name, status, config } = req.body as AgentUpdate;
+  const { name, status, config } = req.body;
+
+  // Validate required fields based on what's being updated
+  if (name === undefined && status === undefined && config === undefined) {
+    throw createError.validation('At least one of name, status, or config must be provided');
+  }
+
+  // Validate status if provided
+  if (status && !['active', 'inactive', 'error'].includes(status)) {
+    throw createError.validation('Invalid status. Must be one of: active, inactive, error');
+  }
 
   // Mock implementation - replace with actual agent service
-  const responseData: SuccessResponse<{ message: string }> = {
-    data: { message: 'Agent updated successfully' }
+  const responseData: SuccessResponse<{ success: true }> = {
+    data: { success: true },
+    message: 'Agent updated successfully'
   };
   sendSuccess(res, responseData);
 }));
