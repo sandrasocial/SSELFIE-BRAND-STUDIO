@@ -3,7 +3,7 @@
  * Comprehensive validation and documentation of all environment variables
  */
 
-import { Logger } from './logger.js';
+import { Logger } from './logger';
 
 export interface EnvVariable {
   name: string;
@@ -164,7 +164,7 @@ export class EnvironmentAuditor {
         description: 'AWS region for S3 bucket',
         category: 'storage',
         sensitive: false,
-        example: 'us-east-1'
+        example: 'us-east-1.js'
       },
       {
         name: 'AWS_S3_BUCKET',

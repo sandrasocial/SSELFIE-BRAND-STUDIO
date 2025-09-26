@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { db } from '../drizzle';
-import { agentSessions, approvalQueue } from '../../shared/schema';
+import { db } from '../*.jsdrizzle';
+import { agentSessions, approvalQueue } from '../*.js../shared/schema';
 import { eq } from 'drizzle-orm';
 
 const emergencyRouter = Router();

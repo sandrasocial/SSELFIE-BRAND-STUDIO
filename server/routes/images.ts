@@ -4,10 +4,10 @@
  */
 
 import { Router } from 'express';
-import { requireStackAuth } from './middleware/auth.js';
-import { asyncHandler, createError, sendSuccess, validateRequired } from './middleware/error-handler.js';
-import { ImageVariationsService } from '../services/images/variations.js';
-import { storage } from '../storage.js';
+import { requireStackAuth } from '.middleware/auth';
+import { asyncHandler, createError, sendSuccess, validateRequired } from '.middleware/error-handler';
+import { ImageVariationsService } from '..services/images/variations';
+import { storage } from '..storage';.js
 
 const router = Router();
 

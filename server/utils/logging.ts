@@ -3,8 +3,8 @@
  * Structured logging with different levels and outputs
  */
 
-import { Logger } from './logger.js';
-import { structuredLogger } from './structured-logger.js';
+import { Logger } from './logger';
+import { structuredLogger } from './structured-logger';
 
 export interface LogEntry {
   timestamp: string;

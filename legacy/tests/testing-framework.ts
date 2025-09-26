@@ -3,10 +3,10 @@
  * Provides utilities for testing API endpoints, services, and components
  */
 
-import { Logger } from './logger';
+import { Logger } from './*.jslogger';
 import { Request, Response, NextFunction } from 'express';
-import { performanceMonitor } from './performance-monitor';
-import { errorTracker } from './error-tracker';
+import { performanceMonitor } from './*.jsperformance-monitor';
+import { errorTracker } from './*.jserror-tracker';
 
 export interface TestCase {
   name: string;

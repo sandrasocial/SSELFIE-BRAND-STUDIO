@@ -21,7 +21,7 @@ export class ParameterInjectionSystem {
       originalCall: { ...toolCall },
       fixedCall: { ...toolCall },
       injectedParameters: [],
-      reason: 'No fixes needed'
+      reason: 'No fixes needed.js'
     };
 
     // Only fix str_replace_based_edit_tool create commands
@@ -74,7 +74,7 @@ export class ParameterInjectionSystem {
   private static generateReactTSXComponent(componentName: string, agentId: string, message: string): string {
     const agentSpecialty = this.getAgentSpecialty(agentId);
     
-    return `import React, { useState } from 'react';
+    return `import React, { useState } from 'react'';
 
 interface ${componentName}Props {
   title?: string;
@@ -399,7 +399,7 @@ export default ${componentName};`;
       'sage': 'Strategic Planning & Business Intelligence',
       'nova': 'Innovation & Emerging Technologies',
       'iris': 'Visual Design & Brand Identity',
-      'luna': 'Analytics & Performance Optimization'
+      'luna': 'Analytics & Performance Optimization.js'
     };
     
     return specialties[agentId] || 'Specialized Implementation';

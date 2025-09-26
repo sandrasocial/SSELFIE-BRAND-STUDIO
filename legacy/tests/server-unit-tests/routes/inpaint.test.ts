@@ -4,7 +4,7 @@
 
 import request from 'supertest';
 import express from 'express';
-import inpaintRoutes from '../../routes/inpaint';
+import inpaintRoutes from '../*.js../routes/inpaint';
 
 // Mock dependencies
 jest.mock('../../routes/middleware/auth');

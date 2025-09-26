@@ -4,7 +4,7 @@
  */
 
 import express from 'express';
-import { EmailInterventionCampaign } from '../../services/email-intervention-campaign.js';
+import { EmailInterventionCampaign } from '../*.js../services/email-intervention-campaign.js';
 
 const router = express.Router();
 

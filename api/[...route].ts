@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { withAuth } from '../api/_middleware/auth.js';
+import type { AuthenticatedRequest } from './_shared/auth-types.js';
 export const config = { runtime: 'nodejs' } as const;
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -133,7 +134,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   // Wrap all other routes with auth middleware
   try {
-    return withAuth(req, res, async (req, res) => {
+    return withAuth(req, res, async (req: AuthenticatedRequest, res: VercelResponse) => {
       try {
         // Import main handler dynamically to avoid circular dependencies
         const { default: main } = await import('./index.js');

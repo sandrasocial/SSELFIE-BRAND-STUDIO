@@ -4,7 +4,7 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
-import { SecurityMiddleware } from '../middleware/security';
+import { SecurityMiddleware } from '../*.jsmiddleware/security';
 
 // Mock environment variables
 process.env.ALLOWED_EMBED_HOSTS = 'mentimeter.com,*.mentimeter.com,canva.com,*.canva.com';

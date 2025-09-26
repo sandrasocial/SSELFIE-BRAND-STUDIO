@@ -3,9 +3,9 @@
  * Tests for service layer interactions and data flow
  */
 
-import { UserService } from '../../services/user-service';
-import { aiGenerationService } from '../../services/ai-generation-service';
-import { storage } from '../../storage';
+import { UserService } from '../*.js../services/user-service';
+import { aiGenerationService } from '../*.js../services/ai-generation-service';
+import { storage } from '../*.js../storage';
 
 // Mock the storage module
 jest.mock('../../storage', () => ({

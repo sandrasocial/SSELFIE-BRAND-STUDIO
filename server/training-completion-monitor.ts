@@ -16,7 +16,7 @@ import {
 export class TrainingCompletionMonitor {
   private static instance: TrainingCompletionMonitor;
   private intervalId: NodeJS.Timeout | null = null;
-  private readonly config: TrainingMonitorConfig = {
+  private readonly config: Required<TrainingMonitorConfig> = {
     checkIntervalMs: 60000, // 1 minute
     maxRetries: 3,
     retryDelayMs: 5000
@@ -29,9 +29,6 @@ export class TrainingCompletionMonitor {
     return TrainingCompletionMonitor.instance;
   }
 
-  /**
-   * Check a specific training status and update database
-   */
   /**
    * Check and update training status for a specific model
    */
@@ -199,16 +196,24 @@ export class TrainingCompletionMonitor {
 
     } catch (error) {
       console.error(`❌ Error checking training ${replicateModelId}:`, error);
-      return false;
+      retries++;
+      if (retries < this.config.maxRetries) {
+        await new Promise(resolve => setTimeout(resolve, this.config.retryDelayMs));
+        continue;
+      }
+      return {
+        userId,
+        modelId: replicateModelId,
+        status: 'failed',
+        error: error instanceof Error ? error.message : String(error)
+      };
+    }
     }
   }
 
   /**
    * Check for completed models by directly querying Replicate API using model name pattern
    * This works even if training ID wasn't stored in database
-   */
-  /**
-   * Check model status by looking up the model name
    */
   static async checkModelByName(userId: string, modelName: string): Promise<TrainingStatusUpdate> {
     try {
@@ -356,18 +361,16 @@ export class TrainingCompletionMonitor {
         
         // Only check models that have been training for at least 8 minutes (training typically takes 10+ minutes)
         if (minutesSinceStart >= 8) {
-          let updated = false;
-          
           // Method 1: Check by training ID if available
           if (userModel.replicateModelId && userModel.replicateModelId.startsWith('rdt_')) {
             console.log(`🔍 Checking by training ID: ${userModel.replicateModelId}`);
-            updated = await this.checkAndUpdateTraining(userModel.replicateModelId, userModel.userId);
+            await this.checkAndUpdateTraining(userModel.replicateModelId, userModel.userId);
           }
           
           // Method 2: Check by model name pattern (fallback for models without stored training ID)
-          if (!updated && userModel.modelName) {
+          if (userModel.modelName) {
             console.log(`🔍 Checking by model name: ${userModel.modelName}`);
-            updated = await this.checkModelByName(userModel.userId, userModel.modelName);
+            await this.checkModelByName(userModel.userId, userModel.modelName);
           }
           
           // Wait 1 second between API calls to avoid rate limiting

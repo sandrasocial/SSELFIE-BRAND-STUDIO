@@ -120,22 +120,28 @@ class ZaraEnhancementSystem {
       };
       
       // Extract imports
-      const importRegex = /import.*?from\s+['"`]([^'"`]+)['"`]/g;
+      const importRegex = /import.*?from\s+['"`]([^'"`]+)['.js'"`]/g;
       let match;
       while ((match = importRegex.exec(content)) !== null) {
-        context.importedModules.push(match[1]);
+        if (match[1]) {
+          context.importedModules.push(match[1]);
+        }
       }
       
       // Extract exports
       const exportRegex = /export\s+(?:interface|class|function|const)\s+(\w+)/g;
       while ((match = exportRegex.exec(content)) !== null) {
-        context.exportedFunctions.push(match[1]);
+        if (match[1]) {
+          context.exportedFunctions.push(match[1]);
+        }
       }
       
       // Extract interfaces
       const interfaceRegex = /interface\s+(\w+)/g;
       while ((match = interfaceRegex.exec(content)) !== null) {
-        context.interfaces.push(match[1]);
+        if (match[1]) {
+          context.interfaces.push(match[1]);
+        }
       }
       
       // Cache the context
@@ -209,10 +215,10 @@ class ZaraEnhancementSystem {
       
       // Common import mappings for SSELFIE Studio
       const importMappings = new Map([
-        ['ContentDetector', "import ContentDetector from './content-detection.js';"],
-        ['claudeApiService', "import { claudeApiService } from '../services/claude-api-service.js';"],
-        ['search_filesystem', "import { search_filesystem } from '../tools/search_filesystem.js';"],
-        ['elenaDelegationSystem', "import { elenaDelegationSystem } from './elena-delegation-system.js';"]
+        ['ContentDetector', "import ContentDetector from './content-detection';"],
+        ['claudeApiService', "import { claudeApiService } from '../services/claude-api-service';"],
+        ['search_filesystem', "import { search_filesystem } from '../tools/search_filesystem';"],
+        ['elenaDelegationSystem', "import { elenaDelegationSystem } from './elena-delegation-system';"]
       ]);
       
       for (const missingName of missingNames) {
@@ -270,7 +276,7 @@ class ZaraEnhancementSystem {
               // Extract missing properties and fix
               const propertiesMatch = error.match(/properties from type.*?:\s*(.*)/);
               if (propertiesMatch) {
-                const missingProps = propertiesMatch[1].split(',').map(p => p.trim());
+                const missingProps = propertiesMatch && propertiesMatch[1] ? propertiesMatch[1].split(',').map(p => p.trim()) : [];
                 fixesApplied.push(`Fixed interface mismatch: ${missingProps.join(', ')}`);
               }
             } else {
@@ -278,7 +284,7 @@ class ZaraEnhancementSystem {
             }
           } else if (error.includes('Cannot find name')) {
             const nameMatch = error.match(/Cannot find name '(\w+)'/);
-            if (nameMatch) {
+            if (nameMatch && nameMatch[1]) {
               const missingName = nameMatch[1];
               const fixedContent = await this.autoFixMissingImports(filePath, [missingName]);
               if (fixedContent) {

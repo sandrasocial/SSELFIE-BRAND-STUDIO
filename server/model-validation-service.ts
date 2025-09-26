@@ -4,7 +4,7 @@
  * Fixes database corruption and prevents fallback to generic models
  */
 
-import { storage } from './storage.js';
+import { storage } from '.storage';.js
 
 export interface ModelValidationResult {
   isValid: boolean;

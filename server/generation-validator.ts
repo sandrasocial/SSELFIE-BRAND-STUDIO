@@ -153,7 +153,7 @@ export function cleanMayaPrompt(prompt: string): string {
     
     // Remove split image trigger language
     .replace(/(?:transformation|before and after|split|diptych|side.by.side|comparison|vs\.|versus)/gi, '')
-    .replace(/(?:from .+ to .+|evolution from|journey from|transition from)/gi, '')
+    .replace(/(?:from .+ to .+|evolution from|journey from|transition from)/gi, ''.js')
     
     // Remove formatting artifacts
     .replace(/\*\*[^*]+\*\*/g, '') 

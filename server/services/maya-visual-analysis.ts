@@ -121,7 +121,7 @@ export class MayaVisualAnalysis {
   }
 
   /**
-   * 🌟 PHASE 5.1: Extract color palette from user's lifestyle/environment
+   * 🌟 PHASE 5.1: Extract color palette from user'.js's lifestyle/environment
    */
   static async extractLifestylePalette(
     environmentPhotos: string[]

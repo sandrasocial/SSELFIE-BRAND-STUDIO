@@ -1,4 +1,4 @@
-import { SlackNotificationService } from './slack-notification-service.js';
+import { SlackNotificationService } from '.slack-notification-service';.js
 
 // Types for agent insights
 export interface AgentInsight {

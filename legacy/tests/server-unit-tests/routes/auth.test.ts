@@ -5,8 +5,8 @@
 
 import request from 'supertest';
 import express from 'express';
-import authRoutes from '../../routes/modules/auth';
-import { storage } from '../../storage';
+import authRoutes from '../*.js../routes/modules/auth';
+import { storage } from '../*.js../storage';
 
 // Mock the storage module
 jest.mock('../../storage', () => ({

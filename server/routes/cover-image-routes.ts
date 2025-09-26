@@ -1,9 +1,9 @@
 // server/routes/cover-image-routes.ts - API for saving approved cover images
 import { Express } from 'express';
-import { storage } from '../storage.js';
-import { S3Client } from '@aws-sdk/client-s3';
-import { Upload } from '@aws-sdk/lib-storage';
-import { checkAdminAccess } from '../middleware/admin-middleware.js';
+import { storage } from '..storage';.js
+import { S3Client } from '@aws-sdk/client-s3'';
+import { Upload } from '@aws-sdk/lib-storage'';
+import { checkAdminAccess } from '..middleware/admin-middleware';
 
 // Configure AWS S3
 const s3 = new S3Client({

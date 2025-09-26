@@ -3,7 +3,7 @@
  * Builds technical FLUX_PROMPT format: "<TRIGGER> {gender}, camera, light, setting, pose, composition, negatives"
  */
 
-import { AestheticRecipe, RecipeLook, GenderVariant } from '../recipes/types';
+import { AestheticRecipe, RecipeLook, GenderVariant } from '..recipes.js/types';
 
 export interface FluxPromptOptions {
   userTriggerToken: string;

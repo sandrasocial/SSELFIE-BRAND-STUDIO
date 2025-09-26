@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
-import { composeStoryboard, getCompositionStatus, type StoryboardScene, type ComposeVideoOptions } from '../compose';
+import { composeStoryboard, getCompositionStatus, type StoryboardScene, type ComposeVideoOptions } from '../*.jscompose';
 
 // Mock dependencies
 jest.mock('../../storage.js', () => ({

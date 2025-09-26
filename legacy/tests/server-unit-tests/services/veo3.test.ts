@@ -4,7 +4,7 @@
  */
 
 import fetch from 'node-fetch';
-import { generateVeo3Video, getVeo3Status, getQualityPreset } from '../../services/video/veo3';
+import { generateVeo3Video, getVeo3Status, getQualityPreset } from '../*.js../services/video/veo3';
 
 // Mock node-fetch
 jest.mock('node-fetch');

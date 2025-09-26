@@ -4,8 +4,8 @@
  */
 
 import { describe, test, expect, beforeEach } from '@jest/globals';
-import { MAYA_PERSONALITY } from '../agents/personalities/maya-personality';
-import { PersonalityManager } from '../agents/personalities/personality-config';
+import { MAYA_PERSONALITY } from '../*.jsagents/personalities/maya-personality';
+import { PersonalityManager } from '../*.jsagents/personalities/personality-config';
 
 describe('Maya Intelligence Validation - Fixed', () => {
   

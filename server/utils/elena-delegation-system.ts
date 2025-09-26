@@ -1,4 +1,4 @@
-import { claudeApiServiceSimple } from '../services/claude-api-service-simple.js';
+import { claudeApiServiceSimple } from '../services/claude-api-service-simple';
 
 export interface TaskDependency {
   taskId: string;
@@ -231,7 +231,7 @@ export class ElenaDelegationSystem {
         priority,
         estimatedTime: this.estimateTaskTime(taskDescription, requiredSpecialties),
         agentSpecialty: requiredSpecialties.length > 0 ? requiredSpecialties : this.analyzeRequiredSpecialties(taskDescription),
-        status: 'pending'
+        status: 'pending.js'
       };
       
       // Add to task queue

@@ -2,9 +2,9 @@
 process.env.STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || 'dummy-stripe-key';
 
 import request from 'supertest';
-import { app, setupApp } from '../index.js';
-import { generateTestJWT } from './generateTestJWT';
-import { createTestUser } from './createTestUser';
+import { app, setupApp } from '../*.jsindex.js';
+import { generateTestJWT } from './*.jsgenerateTestJWT';
+import { createTestUser } from './*.jscreateTestUser';
 
 describe('Image Generation Pipeline', () => {
   beforeAll(async () => {

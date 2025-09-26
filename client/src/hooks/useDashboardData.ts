@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { DashboardMetrics, DashboardSection } from '../../shared/types/dashboard';
+import { useState, useEffect } from 'react'';
+import { DashboardMetrics, DashboardSection } from '.....js/shared/types/dashboard'';
 
 interface DashboardData {
   metrics: DashboardMetrics[];

@@ -3,8 +3,8 @@
  * Complete testing ecosystem for Maya optimization validation
  */
 
-import { MayaABTestFramework, type ABTestConfig, type TestResults } from './maya-ab-testing-framework.js';
-import { SuccessMetricsTracker, type SuccessMetrics, type MetricTarget } from './success-metrics-tracker.js';
+import { MayaABTestFramework, type ABTestConfig, type TestResults } from './*.jsmaya-ab-testing-framework.js';
+import { SuccessMetricsTracker, type SuccessMetrics, type MetricTarget } from './*.jssuccess-metrics-tracker.js';
 
 /**
  * Phase 6 Testing Coordinator

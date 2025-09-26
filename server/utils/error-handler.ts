@@ -3,9 +3,9 @@
  * Centralized error handling, logging, and recovery
  */
 
-import { Logger } from './logger.js';
+import { Logger } from './logger';
 import { Request, Response, NextFunction } from 'express';
-import { errorTracker } from './error-tracker.js';
+import { errorTracker } from './error-tracker';
 
 export interface ErrorContext {
   error: Error;
