@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { withAuth } from './_middleware/auth';
+import { withAuth } from '../api/_middleware/auth';
 export const config = { runtime: 'nodejs' } as const;
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -132,9 +132,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   // Wrap all other routes with auth middleware
-  return withAuth(req, res, async (req, res) => {
-    // Import main handler dynamically to avoid circular dependencies
-    const { default: main } = await import('./index.js');
-    return main(req, res);
-  });
+  try {
+    return withAuth(req, res, async (req, res) => {
+      try {
+        // Import main handler dynamically to avoid circular dependencies
+        const { default: main } = await import('./index.js');
+        return main(req, res);
+      } catch (error) {
+        console.error('❌ Route handler failed:', {
+          url: req.url,
+          method: req.method,
+          error: error instanceof Error ? { message: error.message, stack: error.stack } : error
+        });
+        throw error;
+      }
+    });
+  } catch (error) {
+    console.error('❌ Auth middleware failed:', {
+      url: req.url,
+      method: req.method,
+      error: error instanceof Error ? { message: error.message, stack: error.stack } : error
+    });
+    throw error;
+  }
 }
