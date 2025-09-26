@@ -26,21 +26,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const isProduction = process.env.NODE_ENV === 'production';
 
     // Mock database check with timeout
-    const db = await withTimeout(
-      Promise.resolve({
-        execute: async () => [
-          { created_at: new Date().toISOString() }
-        ]
-      }),
-      5000,
-      'database-connection'
-    );
-
-    const latestTrends = await withTimeout(
-      db.execute(sql`SELECT created_at FROM hair_trends ORDER BY created_at DESC LIMIT 1`) as unknown as { rows: Array<{ created_at: Date }> },
+    const mockResult = [{ created_at: new Date().toISOString() }];
+    const result = await withTimeout(
+      Promise.resolve(mockResult),
       5000,
       'status-check'
-    ) as { created_at: string }[];
+    );
+
+    // Convert Date objects to ISO strings
+    const latestTrends = Array.isArray(result) ? result.map(row => ({
+      created_at: new Date(row.created_at).toISOString()
+    })) : [];
 
     res.json({
       success: true,

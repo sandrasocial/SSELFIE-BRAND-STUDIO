@@ -18,8 +18,14 @@ export interface PerformanceMetrics {
     bytesOut: number;
     connections: number;
   };
-  applicationPerformance?: any; // Added for compatibility
-  systemHealth?: any; // Added for compatibility
+  applicationPerformance: {
+    errorRate: { total: number };
+    responseTime: { average: number };
+    throughput: { requestsPerSecond: number };
+  };
+  systemHealth: {
+    cpu: { usage: number };
+  };
 }
 
 export class PerformanceMonitor {
@@ -44,6 +50,14 @@ export class PerformanceMonitor {
         bytesIn: 0,
         bytesOut: 0,
         connections: 0
+      },
+      applicationPerformance: {
+        errorRate: { total: 0 },
+        responseTime: { average: 0 },
+        throughput: { requestsPerSecond: 0 }
+      },
+      systemHealth: {
+        cpu: { usage: 0 }
       }
     };
   }

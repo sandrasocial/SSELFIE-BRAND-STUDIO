@@ -10,8 +10,8 @@
     "strict": false,
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
-    "module": "ESNext",
-    "moduleResolution": "bundler",
+    "module": "Node16",
+    "moduleResolution": "node16",
     "moduleDetection": "force",
     "resolveJsonModule": true,
     "isolatedModules": true,
@@ -25,8 +25,12 @@
       "@shared/*": ["shared/*"],
       "@assets/*": ["attached_assets/*"],
       "@server/*": ["server/*"],
-      "server/*": ["server/*"]
-    }
+      "server/*": ["server/*"],
+      "@models/*": ["shared/models/*"]
+    },
+    "types": [
+      "node"
+    ]
   },
   "include": [
     "vite.config.ts",
