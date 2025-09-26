@@ -32,6 +32,17 @@ export class TrainingCompletionMonitor {
   /**
    * Check a specific training status and update database
    */
+  /**
+   * Check and update training status for a specific model
+   */
+  static async checkAndUpdateTraining(replicateModelId: string, userId: string): Promise<TrainingStatusUpdate> {
+    const instance = TrainingCompletionMonitor.getInstance();
+    return instance.checkTrainingStatus(userId, replicateModelId);
+  }
+
+  /**
+   * Check training status from Replicate API
+   */
   async checkTrainingStatus(userId: string, replicateModelId: string): Promise<TrainingStatusUpdate> {
     let retries = 0;
     
@@ -69,123 +80,122 @@ export class TrainingCompletionMonitor {
         };
         
         if (trainingData.status === 'succeeded') {
-          console.log(`✅ Training completed! Updating database for user ${userId}`);        // Standard FLUX training completion - extract version ID
-        let versionId = null;
-        if (trainingData.version) {
-          versionId = trainingData.version;
-        }
-        
-        // ✅ RESTORED: LoRA weights extraction for personalized images
-        console.log(`🎯 LORA EXTRACTION: Training completed, extracting LoRA weights for personalization`);
-        
-        let extractedWeights = null;
-        try {
-          // Extract LoRA weights using restored extraction method
-          const { ModelTrainingService } = await import('./model-training-service.js');
-          extractedWeights = await ModelTrainingService.extractLoRAWeights(replicateModelId, userId);
-          console.log(`✅ LoRA WEIGHTS EXTRACTED: ${extractedWeights.loraWeightsUrl}`);
-        } catch (error) {
-          console.error(`❌ LoRA EXTRACTION FAILED for user ${userId}:`, error);
-          // Continue with packaged model as fallback
-          console.log(`🔄 FALLBACK: Using packaged model approach`);
-        }
-        
-        if (trainingData.output) {
-          console.log(`✅ Training output available for model completion`);
-        } else {
-          console.log(`⚠️ No training output - may need additional processing`);
-        }
-        
-        // CRITICAL: Extract and store the trigger word from existing model data
-        const existingModel = await storage.getUserModelByUserId(userId);
-        let triggerWord = existingModel?.triggerWord;
-        
-        // If no trigger word exists, generate one following the pattern
-        if (!triggerWord) {
-          triggerWord = `user${userId}`;
-          console.log(`🆔 Generated trigger word: ${triggerWord} for user ${userId}`);
-        }
-        
-        // ✅ RESTORED: Store both packaged model and extracted LoRA weights
-        await storage.updateUserModel(userId, {
-          trainingStatus: 'completed',
-          replicateModelId: replicateModelId, // Keep training ID for reference
-          replicateVersionId: versionId, // Training version
-          triggerWord: triggerWord, // CRITICAL: Ensure trigger word is stored
-          trainedModelPath: paths.getUserModelPath(userId),
-          modelType: extractedWeights ? 'flux-lora' : 'flux-packaged', // Dynamic model type
-          completedAt: new Date()
-        });
-        
-        // Store LoRA weights metadata in separate table
-        if (extractedWeights) {
+          console.log(`✅ Training completed! Updating database for user ${userId}`);
+          
+          // Standard FLUX training completion - extract version ID
+          const versionId = trainingData.version?.id || null;
+          
+          // ✅ RESTORED: LoRA weights extraction for personalized images
+          console.log(`🎯 LORA EXTRACTION: Training completed, extracting LoRA weights for personalization`);
+          
+          let extractedWeights = null;
           try {
-            await storage.storeLoRAWeights({
-              userId: userId,
-              trainingId: replicateModelId,
-              weightsUrl: extractedWeights.loraWeightsUrl,
-              checksum: extractedWeights.checksum,
-              fileSize: extractedWeights.fileSize,
-              extractedAt: new Date()
-            });
-            console.log(`✅ LoRA WEIGHTS METADATA STORED for user ${userId}`);
+            // Extract LoRA weights using restored extraction method
+            const { ModelTrainingService } = await import('./model-training-service.js');
+            extractedWeights = await ModelTrainingService.extractLoRAWeights(replicateModelId, userId);
+            console.log(`✅ LoRA WEIGHTS EXTRACTED: ${extractedWeights.loraWeightsUrl}`);
           } catch (error) {
-            console.error(`❌ Failed to store LoRA weights metadata:`, error);
+            console.error(`❌ LoRA EXTRACTION FAILED for user ${userId}:`, error);
+            // Continue with packaged model as fallback
+            console.log(`🔄 FALLBACK: Using packaged model approach`);
           }
-        }
-
-        // Send model ready email notification
-        try {
-          const user = await storage.getUser(userId);
-          if (user?.email) {
-            const { EmailService } = await import('./email-service.js');
-            const userName = user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.firstName;
-            await EmailService.sendModelReadyEmail(user.email, userName);
-            console.log('✅ Model ready email sent to:', user.email);
-          }
-        } catch (emailError) {
-          console.error('❌ Failed to send model ready email:', emailError);
-          // Don't fail the completion if email fails
-        }
-
-        // TRAINING-TIME COACHING INTEGRATION - Generate strategic first concepts
-        try {
-          const user = await storage.getUser(userId);
-          if (user?.trainingCoachingCompleted && user?.brandStrategyContext) {
-            console.log(`🎯 STRATEGIC TRAINING COMPLETION: User ${userId} completed brand strategy coaching`);
-            
-            // Parse brand strategy context
-            const strategyData = JSON.parse(user.brandStrategyContext as string);
-            const responses = strategyData.responses;
-            
-            console.log(`✨ STRATEGIC CONCEPTS: User ${userId} ready for strategy-informed photo creation`);
-            console.log(`📊 BRAND STRATEGY: Primary platform = ${responses.primaryPlatform}, Authority = ${responses.authorityLevel}`);
-            
-            // Flag that strategic concepts are ready for this user
-            console.log(`🎯 STRATEGIC COMPLETION: User ${userId} training complete with brand strategy context available`);
+          
+          if (trainingData.output) {
+            console.log(`✅ Training output available for model completion`);
           } else {
-            console.log(`📸 STANDARD COMPLETION: User ${userId} completed training without brand strategy coaching`);
+            console.log(`⚠️ No training output - may need additional processing`);
           }
-        } catch (strategyError) {
-          console.error(`⚠️ STRATEGIC CONCEPTS: Failed to process for user ${userId}:`, strategyError);
-          // Don't fail training completion if strategic concepts fail
-        }
+          
+          // CRITICAL: Extract and store the trigger word from existing model data
+          const existingModel = await storage.getUserModelByUserId(userId);
+          let triggerWord = existingModel?.triggerWord;
+          
+          // If no trigger word exists, generate one following the pattern
+          if (!triggerWord) {
+            triggerWord = `user${userId}`;
+            console.log(`🆔 Generated trigger word: ${triggerWord} for user ${userId}`);
+          }
+          
+          // ✅ RESTORED: Store both packaged model and extracted LoRA weights
+          await storage.updateUserModel(userId, {
+            trainingStatus: 'completed',
+            replicateModelId: replicateModelId, // Keep training ID for reference
+            replicateVersionId: versionId, // Training version
+            triggerWord: triggerWord, // CRITICAL: Ensure trigger word is stored
+            trainedModelPath: paths.getUserModelPath(userId),
+            modelType: extractedWeights ? 'flux-lora' : 'flux-packaged', // Dynamic model type
+            completedAt: new Date()
+          });
+          
+          // Store LoRA weights metadata in separate table
+          if (extractedWeights) {
+            try {
+              await storage.storeLoRAWeights({
+                userId: userId,
+                trainingId: replicateModelId,
+                weightsUrl: extractedWeights.loraWeightsUrl,
+                checksum: extractedWeights.checksum,
+                fileSize: extractedWeights.fileSize,
+                extractedAt: new Date()
+              });
+              console.log(`✅ LoRA WEIGHTS METADATA STORED for user ${userId}`);
+            } catch (error) {
+              console.error(`❌ Failed to store LoRA weights metadata:`, error);
+            }
+          }
 
-        console.log(`🎉 Database updated! User ${userId} training completed`);
-        return true;
-      } else if (trainingData.status === 'failed') {
-        console.log(`❌ Training failed for user ${userId}`);
+          // Send model ready email notification
+          try {
+            const user = await storage.getUser(userId);
+            if (user?.email) {
+              const { EmailService } = await import('./email-service.js');
+              const userName = user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.firstName;
+              await EmailService.sendModelReadyEmail(user.email, userName);
+              console.log('✅ Model ready email sent to:', user.email);
+            }
+          } catch (emailError) {
+            console.error('❌ Failed to send model ready email:', emailError);
+            // Don't fail the completion if email fails
+          }
+
+          // TRAINING-TIME COACHING INTEGRATION - Generate strategic first concepts
+          try {
+            const user = await storage.getUser(userId);
+            if (user?.trainingCoachingCompleted && user?.brandStrategyContext) {
+              console.log(`🎯 STRATEGIC TRAINING COMPLETION: User ${userId} completed brand strategy coaching`);
+              
+              // Parse brand strategy context
+              const strategyData = JSON.parse(user.brandStrategyContext as string);
+              const responses = strategyData.responses;
+              
+              console.log(`✨ STRATEGIC CONCEPTS: User ${userId} ready for strategy-informed photo creation`);
+              console.log(`📊 BRAND STRATEGY: Primary platform = ${responses.primaryPlatform}, Authority = ${responses.authorityLevel}`);
+              
+              // Flag that strategic concepts are ready for this user
+              console.log(`🎯 STRATEGIC COMPLETION: User ${userId} training complete with brand strategy context available`);
+            } else {
+              console.log(`📸 STANDARD COMPLETION: User ${userId} completed training without brand strategy coaching`);
+            }
+          } catch (strategyError) {
+            console.error(`⚠️ STRATEGIC CONCEPTS: Failed to process for user ${userId}:`, strategyError);
+            // Don't fail training completion if strategic concepts fail
+          }
+
+          console.log(`🎉 Database updated! User ${userId} training completed`);
+          return statusUpdate;
+          
+        } else if (trainingData.status === 'failed') {
+          console.log(`❌ Training failed for user ${userId}`);
+          
+          await storage.updateUserModel(userId, {
+            trainingStatus: 'failed',
+            updatedAt: new Date()
+          });
+          
+          return statusUpdate;
+        }
         
-        await storage.updateUserModel(userId, {
-          trainingStatus: 'failed',
-          updatedAt: new Date()
-        });
-        
-        return false;
-      } else {
-        // Training still in progress
-        return false;
-      }
+        return statusUpdate;
 
     } catch (error) {
       console.error(`❌ Error checking training ${replicateModelId}:`, error);
@@ -197,7 +207,10 @@ export class TrainingCompletionMonitor {
    * Check for completed models by directly querying Replicate API using model name pattern
    * This works even if training ID wasn't stored in database
    */
-  static async checkModelByName(userId: string, modelName: string): Promise<boolean> {
+  /**
+   * Check model status by looking up the model name
+   */
+  static async checkModelByName(userId: string, modelName: string): Promise<TrainingStatusUpdate> {
     try {
       console.log(`🔍 Checking model by name: ${process.env.REPLICATE_USERNAME || 'models'}/${modelName} for user ${userId}`);
       
@@ -210,12 +223,21 @@ export class TrainingCompletionMonitor {
 
       if (response.status === 404) {
         console.log(`⏳ Model ${process.env.REPLICATE_USERNAME || 'models'}/${modelName} not yet available`);
-        return false;
+        return {
+          userId,
+          modelId: `${process.env.REPLICATE_USERNAME || 'models'}/${modelName}`,
+          status: 'processing'
+        };
       }
 
       if (!response.ok) {
         console.error(`❌ Replicate API error for model ${modelName}: ${response.status}`);
-        return false;
+        return {
+          userId,
+          modelId: `${process.env.REPLICATE_USERNAME || 'models'}/${modelName}`,
+          status: 'failed',
+          error: `API error: ${response.status}`
+        };
       }
 
       const modelData = await response.json();
@@ -282,14 +304,30 @@ export class TrainingCompletionMonitor {
         }
 
         console.log(`🎉 Database updated! User ${userId} training completed`);
-        return true;
+        
+        return {
+          userId,
+          modelId: `${process.env.REPLICATE_USERNAME || 'models'}/${modelName}`,
+          status: 'succeeded',
+          modelVersion: modelData.latest_version.id,
+          completedAt: new Date().toISOString()
+        };
       }
 
-      return false;
+      return {
+        userId,
+        modelId: `${process.env.REPLICATE_USERNAME || 'models'}/${modelName}`,
+        status: 'processing'
+      };
 
     } catch (error) {
       console.error(`❌ Error checking model ${modelName}:`, error);
-      return false;
+      return {
+        userId,
+        modelId: `${process.env.REPLICATE_USERNAME || 'models'}/${modelName}`,
+        status: 'failed',
+        error: error instanceof Error ? error.message : String(error)
+      };
     }
   }
 
