@@ -1,7 +1,7 @@
 import type { Express } from "express";
-import { requireStackAuth } from '../stack-auth';
-import { storage } from "../storage";
-// import { sendWelcomeEmail } from "../email-service";
+import { requireStackAuth } from '../stack-auth.js';
+import { storage } from "../storage.js";
+// import { sendWelcomeEmail } from "../email-service.js";
 
 import Stripe from "stripe";
 

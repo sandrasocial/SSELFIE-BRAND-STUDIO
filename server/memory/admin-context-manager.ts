@@ -4,10 +4,10 @@
  * Connected to database with full project context awareness for safe agent work
  */
 
-import { db } from '../drizzle';
-import { agentConversations, agentSessionContexts } from '../../shared/schema';
+import { db } from '../drizzle.js';
+import { agentConversations, agentSessionContexts } from '../../shared/schema.js';
 import { eq } from 'drizzle-orm';
-import { EnhancedPathIntelligence } from '../services/enhanced-path-intelligence';
+import { EnhancedPathIntelligence } from '../services/enhanced-path-intelligence.js';
 
 interface AdminAgentContext {
   agentId: string;

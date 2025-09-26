@@ -4,9 +4,9 @@
  */
 
 import { Router } from 'express';
-import { requireStackAuth } from '../../stack-auth';
-import { asyncHandler, createError, sendSuccess, validateRequired } from '../middleware/error-handler';
-import { storage } from '../../storage';
+import { requireStackAuth } from '../../stack-auth.js';
+import { asyncHandler, createError, sendSuccess, validateRequired } from '../middleware/error-handler.js';
+import { storage } from '../../storage.js';
 
 const router = Router();
 

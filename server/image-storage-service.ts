@@ -1,6 +1,7 @@
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, S3ServiceException } from '@aws-sdk/client-s3';
 import { Upload } from '@aws-sdk/lib-storage';
-import { storage } from './storage';
+import { storage } from './storage.js';
+import { AIImage, ImageStorageError, ImageUploadResult, MigrationResult } from './types/storage.js';
 
 /**
  * Image Storage Service
@@ -17,18 +18,30 @@ export class ImageStorageService {
   });
 
   private static readonly BUCKET_NAME = process.env.AWS_S3_BUCKET;
+  private static readonly MAX_RETRIES = 3;
+  private static readonly RETRY_DELAY = 2000;
 
   /**
    * Migrate temporary URL to permanent S3 URL
    */
-  static async migrateTempUrlToS3(tempUrl: string, userId: string): Promise<string> {
+  static async migrateTempUrlToS3(tempUrl: string, userId: string): Promise<MigrationResult> {
     try {
       // Extract image ID from temp URL or generate one
       const imageId = tempUrl.split('/').pop()?.split('.')[0] || `migrated-${Date.now()}`;
-      return await this.storeImagePermanently(tempUrl, userId, imageId);
+      const permanentUrl = await this.storeImagePermanently(tempUrl, userId, imageId);
+      
+      return {
+        success: true,
+        permanentUrl,
+        originalUrl: tempUrl
+      };
     } catch (error) {
       console.error('Failed to migrate temp URL to S3:', error);
-      return tempUrl; // Return original URL if migration fails
+      return {
+        success: false,
+        error: error instanceof Error ? error : new Error(String(error)),
+        originalUrl: tempUrl
+      };
     }
   }
 
@@ -40,7 +53,11 @@ export class ImageStorageService {
       console.log(`Storing image permanently: ${replicateUrl}`);
       
       if (!this.BUCKET_NAME) {
-        throw new Error('AWS_S3_BUCKET environment variable is required');
+        const error: ImageStorageError = {
+          type: 'configuration',
+          message: 'AWS_S3_BUCKET environment variable is required'
+        };
+        throw error;
       }
       
       // Download image from Replicate with error handling and retries
@@ -67,11 +84,16 @@ export class ImageStorageService {
             continue;
           }
           
-          throw new Error(`Failed to download image after ${maxRetries} attempts: ${response.status} ${response.statusText}`);
+          const downloadError: ImageStorageError = {
+        type: 'download',
+        message: `Failed to download image after ${maxRetries} attempts: ${response.status} ${response.statusText}`,
+        url: replicateUrl
+      };
+      throw downloadError;
           
         } catch (error) {
           if (retries >= maxRetries) {
-            throw error;
+            throw error instanceof Error ? error : new Error(String(error));
           }
           retries++;
         }
@@ -83,11 +105,19 @@ export class ImageStorageService {
       
       // Validate image buffer
       if (imageBuffer.length === 0) {
-        throw new Error('Downloaded image is empty');
+        const validationError: ImageStorageError = {
+          type: 'validation',
+          message: 'Downloaded image is empty'
+        };
+        throw validationError;
       }
       
       if (imageBuffer.length < 1024) {
-        throw new Error('Downloaded image is too small (likely corrupted)');
+        const validationError: ImageStorageError = {
+          type: 'validation',
+          message: 'Downloaded image is too small (likely corrupted)'
+        };
+        throw validationError;
       }
       
       // Generate unique filename with better structure
@@ -112,11 +142,22 @@ export class ImageStorageService {
       
       // Verify upload was successful
       if (!uploadResult || !uploadResult.Location) {
-        console.error(`❌ S3 UPLOAD: Upload result missing Location field`, uploadResult);
+        const uploadError: ImageStorageError = {
+          type: 'upload',
+          message: 'Upload result missing Location field',
+          key: filename
+        };
+        throw uploadError;
       }
       
-      console.log(`✅ S3 UPLOAD SUCCESS: Image stored permanently at: ${permanentUrl}`);
-      console.log(`📊 S3 UPLOAD STATS: Size: ${imageBuffer.length} bytes, Type: ${contentType}`);
+      const result: ImageUploadResult = {
+        permanentUrl,
+        size: imageBuffer.length,
+        contentType,
+        timestamp: Date.now()
+      };
+      
+      console.log(`✅ S3 UPLOAD SUCCESS:`, result);
       return permanentUrl;
       
     } catch (error) {
@@ -129,23 +170,29 @@ export class ImageStorageService {
   /**
    * Batch process existing images to convert them to permanent storage
    */
-  static async migrateTempImagesToS3(userId: string): Promise<void> {
+  static async migrateTempImagesToS3(userId: string): Promise<MigrationResult[]> {
+    const results: MigrationResult[] = [];
     try {
       console.log(`Starting migration for user ${userId}...`);
       
-      const userImages = await storage.getAIImages(userId);
+      const userImages = await storage.getAIImages(userId) as AIImage[];
       
       for (const image of userImages) {
-        // Skip if already using S3 URL
-        if (image.imageUrl.includes('amazonaws.com') || image.imageUrl.includes('s3.')) {
-          continue;
-        }
-        
-        // Skip if URL is broken or invalid
-        if (!image.imageUrl.startsWith('http') || image.imageUrl.includes('test.com')) {
-          console.log(`Skipping invalid URL: ${image.imageUrl}`);
-          continue;
-        }
+        try {
+          // Skip if already using S3 URL
+          if (this.isPermanentUrl(image.imageUrl)) {
+            continue;
+          }
+          
+          // Skip if URL is broken or invalid
+          if (!this.isValidImageUrl(image.imageUrl)) {
+            results.push({
+              success: false,
+              error: new Error('Invalid image URL'),
+              originalUrl: image.imageUrl
+            });
+            continue;
+          }
         
         try {
           const permanentUrl = await this.storeImagePermanently(
@@ -155,8 +202,8 @@ export class ImageStorageService {
           );
           
           // Update database with permanent URL directly
-          const { db } = await import('./db');
-          const { aiImages } = await import('../shared/schema');
+          const { db } = await import('./db.js');
+          const { aiImages } = await import('../shared/schema.js');
           const { eq } = await import('drizzle-orm');
           
           await db
@@ -184,19 +231,30 @@ export class ImageStorageService {
   /**
    * Store multiple images permanently (for AI generation results)
    */
-  static async storeMultipleImages(replicateUrls: string[], userId: string, baseImageId: string): Promise<string[]> {
-    const permanentUrls: string[] = [];
+  static async storeMultipleImages(replicateUrls: string[], userId: string, baseImageId: string): Promise<ImageUploadResult[]> {
+    const results: ImageUploadResult[] = [];
     
     for (let i = 0; i < replicateUrls.length; i++) {
-      const permanentUrl = await this.storeImagePermanently(
-        replicateUrls[i], 
-        userId, 
-        `${baseImageId}_${i}`
-      );
-      permanentUrls.push(permanentUrl);
+      try {
+        const permanentUrl = await this.storeImagePermanently(
+          replicateUrls[i], 
+          userId, 
+          `${baseImageId}_${i}`
+        );
+        
+        results.push({
+          permanentUrl,
+          size: 0, // Will be updated with actual size after upload
+          contentType: 'image/jpeg', // Will be updated with actual content type
+          timestamp: Date.now()
+        });
+      } catch (error) {
+        console.error(`Failed to store image ${i}:`, error);
+        // Continue with other images even if one fails
+      }
     }
     
-    return permanentUrls;
+    return results;
   }
 
   /**
@@ -215,5 +273,12 @@ export class ImageStorageService {
     }
     
     return await this.storeImagePermanently(url, userId, imageId);
+  }
+
+  /**
+   * Validate image URL format
+   */
+  private static isValidImageUrl(url: string): boolean {
+    return url.startsWith('http') && !url.includes('test.com');
   }
 }

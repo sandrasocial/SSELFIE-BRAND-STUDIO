@@ -1,8 +1,8 @@
 // User Style Memory Service - Safe learning system for Maya preferences
 // This service tracks user patterns and preferences without affecting concept generation
 
-import { db } from '../drizzle';
-import { userStyleMemory, promptAnalysis, aiImages } from '../../shared/schema';
+import { db } from '../drizzle.js';
+import { userStyleMemory, promptAnalysis, aiImages } from '../../shared/schema.js';
 import { eq, desc, and, gte, sql } from 'drizzle-orm';
 
 export interface UserStyleMemory {
@@ -62,12 +62,12 @@ export class UserStyleMemoryService {
       }
 
       // Create new memory record
-      const newMemory = {
-        preferredCategories: [],
-        favoritePromptPatterns: [],
-        colorPreferences: [],
-        settingPreferences: [],
-        stylingKeywords: [],
+      const newMemory: UserStyleMemory = {
+        preferredCategories: [] as string[],
+        favoritePromptPatterns: [] as string[],
+        colorPreferences: [] as string[],
+        settingPreferences: [] as string[],
+        stylingKeywords: [] as string[],
         totalInteractions: 0,
         totalFavorites: 0,
         averageSessionLength: 0,

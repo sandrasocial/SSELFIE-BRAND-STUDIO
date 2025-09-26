@@ -209,10 +209,10 @@ class ZaraEnhancementSystem {
       
       // Common import mappings for SSELFIE Studio
       const importMappings = new Map([
-        ['ContentDetector', "import ContentDetector from './content-detection';"],
-        ['claudeApiService', "import { claudeApiService } from '../services/claude-api-service';"],
-        ['search_filesystem', "import { search_filesystem } from '../tools/search_filesystem';"],
-        ['elenaDelegationSystem', "import { elenaDelegationSystem } from './elena-delegation-system';"]
+        ['ContentDetector', "import ContentDetector from './content-detection.js';"],
+        ['claudeApiService', "import { claudeApiService } from '../services/claude-api-service.js';"],
+        ['search_filesystem', "import { search_filesystem } from '../tools/search_filesystem.js';"],
+        ['elenaDelegationSystem', "import { elenaDelegationSystem } from './elena-delegation-system.js';"]
       ]);
       
       for (const missingName of missingNames) {

@@ -225,8 +225,8 @@ export interface IStorage {
   // Maya chat operations
   getMayaChats(userId: string): Promise<MayaChat[]>;
   getMayaChat(chatId: string, userId: string): Promise<MayaChat | undefined>;
-  createMayaChat(userId: string, data: { title: string; initialMessage?: string }): Promise<string>;
-  saveMayaChat(userId: string, data: { message: string; response: string; conceptCards: any[]; context: any }): Promise<string>;
+  createMayaChat(userId: string, data: MayaChatCreateInput): Promise<string>;
+  saveMayaChat(userId: string, data: { message: string; response: string; conceptCards: Array<Record<string, unknown>>; context: Record<string, unknown> }): Promise<string>;
   getMayaChatMessages(chatId: string, userId: string): Promise<MayaChatMessage[]>;
   saveMayaMessage(chatId: string, userId: string, data: { message: string; role: string }): Promise<string>;
   updateMayaMessage(messageId: string, userId: string, updates: { content: string }): Promise<void>;
@@ -1550,10 +1550,10 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Get Maya chats by category for organized display
-  async getMayaChatsByCategory(userId: string): Promise<{ [key: string]: MayaChat[] }> {
+  async getMayaChatsByCategory(userId: string): Promise<Record<string, MayaChat[]>> {
     const chats = await this.getMayaChats(userId);
     
-    const categorizedChats: { [key: string]: MayaChat[] } = {
+    const categorizedChats: Record<string, MayaChat[]> = {
       "Photo Generation": [],
       "Professional & Business": [],
       "Elegant & Luxury": [],
@@ -1585,12 +1585,12 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Create new Maya chat
-  async createMayaChat(userId: string, data: { title: string; initialMessage?: string }): Promise<string> {
+  async createMayaChat(userId: string, data: MayaChatCreateInput): Promise<string> {
     const [chat] = await db
       .insert(mayaChats)
       .values({
         userId,
-        chatTitle: data.title,
+        chatTitle: data.chatTitle,
         chatCategory: 'Style Consultation',
         lastActivity: new Date()
       })

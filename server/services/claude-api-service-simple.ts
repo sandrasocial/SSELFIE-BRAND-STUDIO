@@ -240,7 +240,7 @@ export class ClaudeApiServiceSimple {
       // PERSONALITY RESTORATION: Load agent's authentic personality and context
       let agentPersonalityContext = '';
       try {
-        const { PURE_PERSONALITIES } = await import('../agents/personalities/personality-config');
+        const { PURE_PERSONALITIES } = await import('../agents/personalities/personality-config.js');
         const personality = PURE_PERSONALITIES[agentName.toLowerCase() as keyof typeof PURE_PERSONALITIES];
         if (personality) {
           // Fix property access based on actual personality structure
@@ -572,38 +572,38 @@ export class ClaudeApiServiceSimple {
       }
       
       if (toolCall.name === 'str_replace_based_edit_tool') {
-        const { str_replace_based_edit_tool } = await import('../tools/tool-exports');
+        const { str_replace_based_edit_tool } = await import('../tools/tool-exports.js');
         const result = await str_replace_based_edit_tool(toolCall.input);
         return typeof result === 'string' ? result : JSON.stringify(result);
         
       } else if (toolCall.name === 'bash') {
-        const { bash } = await import('../tools/tool-exports');
+        const { bash } = await import('../tools/tool-exports.js');
         const result = await bash(toolCall.input);
         return typeof result === 'string' ? result : JSON.stringify(result);
         
       } else if (toolCall.name === 'restart_workflow') {
-        const { restart_workflow } = await import('../tools/restart-workflow');
+        const { restart_workflow } = await import('../tools/restart-workflow.js');
         const result = await restart_workflow(toolCall.input);
         return typeof result === 'string' ? result : JSON.stringify(result);
         
       } else if (toolCall.name === 'coordinate_agent') {
-        const { coordinate_agent } = await import('../tools/coordinate_agent');
+        const { coordinate_agent } = await import('../tools/coordinate_agent.js');
         const result = await coordinate_agent(toolCall.input);
         return typeof result === 'string' ? result : JSON.stringify(result);
         
       } else if (toolCall.name === 'get_assigned_tasks') {
-        const { get_assigned_tasks } = await import('../tools/get_assigned_tasks');
+        const { get_assigned_tasks } = await import('../tools/get_assigned_tasks.js');
         const result = await get_assigned_tasks(toolCall.input);
         return typeof result === 'string' ? result : JSON.stringify(result);
         
       } else if (toolCall.name === 'get_handoff_tasks') {
-        const { get_handoff_tasks } = await import('../tools/get_handoff_tasks');
+        const { get_handoff_tasks } = await import('../tools/get_handoff_tasks.js');
         const result = await get_handoff_tasks(toolCall.input);
         return typeof result === 'string' ? result : JSON.stringify(result);
         
       } else if (toolCall.name === 'search_filesystem') {
         // Import from tool-exports (search_filesystem IS properly exported)
-        const { search_filesystem } = await import('../tools/tool-exports');
+        const { search_filesystem } = await import('../tools/tool-exports.js');
         console.log(`🔍 SEARCH_FILESYSTEM: Calling with input:`, toolCall.input);
         const result = await search_filesystem(toolCall.input);
         console.log(`🔍 SEARCH_FILESYSTEM: Result length:`, result.length);
@@ -613,12 +613,12 @@ export class ClaudeApiServiceSimple {
         return typeof result === 'string' ? result : JSON.stringify(result);
         
       } else if (toolCall.name === 'get_latest_lsp_diagnostics') {
-        const { get_latest_lsp_diagnostics } = await import('../tools/tool-exports');
+        const { get_latest_lsp_diagnostics } = await import('../tools/tool-exports.js');
         const result = await get_latest_lsp_diagnostics(toolCall.input);
         return typeof result === 'string' ? result : JSON.stringify(result);
         
       } else if (toolCall.name === 'execute_sql_tool') {
-        const { execute_sql_tool } = await import('../tools/tool-exports');
+        const { execute_sql_tool } = await import('../tools/tool-exports.js');
         console.log(`🗄️ SQL EXECUTION: ${toolCall.input.sql_query.substring(0, 100)}...`);
         const result = await execute_sql_tool(toolCall.input);
         console.log(`🗄️ SQL RESULT: Length: ${result.length}, First 200 chars:`, result.substring(0, 200));
@@ -626,7 +626,7 @@ export class ClaudeApiServiceSimple {
         
       } else if (toolCall.name === 'web_search') {
         // Import from specific tool file since it's not in tool-exports
-        const { web_search } = await import('../tools/web_search');
+        const { web_search } = await import('../tools/web_search.js');
         const result = await web_search(toolCall.input);
         return typeof result === 'string' ? result : JSON.stringify(result);
         

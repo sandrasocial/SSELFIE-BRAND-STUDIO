@@ -3,8 +3,8 @@
  * Generates close variations from existing gallery images
  */
 
-import { storage } from '../../storage';
-import { ModelTrainingService } from '../../model-training-service';
+import { storage } from '../../storage.js';
+import { ModelTrainingService } from '../../model-training-service.js';
 
 export interface VariationRequest {
   originalImageId: number;

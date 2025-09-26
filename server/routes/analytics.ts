@@ -5,9 +5,9 @@
 
 import { Router } from 'express';
 import { eq, sql, desc, and } from 'drizzle-orm';
-import { db } from '../db';
-import { liveEvents, liveSessions, insertLiveEventSchema } from '../../shared/schema';
-import { Logger } from '../utils/logger';
+import { db } from '../db.js';
+import { liveEvents, liveSessions, insertLiveEventSchema } from '../../shared/schema.js';
+import { Logger } from '../utils/logger.js';
 import { z } from 'zod';
 
 const router = Router();

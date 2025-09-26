@@ -3,13 +3,13 @@
  * Real-time monitoring of application health, performance, and errors
  */
 
-import { Logger } from './logger';
-import { monitoringSystem } from './monitoring';
-import { performanceMonitor } from './performance-monitor';
-import { errorTracker } from './error-tracker';
-import { securityMonitor } from './security-monitor';
-import { healthCheckSystem } from './health-check';
-import { dashboardSystem } from './dashboard';
+import { Logger } from './logger.js';
+import { type HealthCheck, type SecurityStats } from '../types/monitoring.js';
+import { performanceMonitor } from './performance-monitor.js';
+import { errorTracker } from './error-tracker.js';
+import { securityMonitor } from './security-monitor.js';
+import { healthCheckSystem } from './health-check.js';
+import { dashboardSystem } from './dashboard.js';
 
 export class MonitoringSystem {
   private logger: Logger;
@@ -120,13 +120,17 @@ export class MonitoringSystem {
           riskScore: securityStats.riskScoreDistribution,
         },
         system: {
-          memory: dashboardData?.system.memory.percentage || 0,
-          cpu: dashboardData?.system.cpu.usage || 0,
-        },
+          memory: dashboardData?.system?.memory?.percentage || 0,
+          cpu: dashboardData?.system?.cpu?.usage || 0,
+        } as { memory: number; cpu: number },
       });
 
       // Check for alerts
-      this.checkAlerts(healthCheck, performanceStats, errorStats, securityStats);
+      this.checkAlerts({
+        status: healthCheck.status,
+        services: healthCheck.services.map(s => ({ [s.name]: s.status === 'up' })).reduce((acc, curr) => ({ ...acc, ...curr }), {}),
+        issues: healthCheck.issues
+      }, performanceStats, errorStats, securityStats);
 
     } catch (error) {
       this.logger.error('Monitoring cycle failed', { error: error.message });
@@ -137,10 +141,18 @@ export class MonitoringSystem {
    * Check for alerts
    */
   private checkAlerts(
-    healthCheck: any,
-    performanceStats: any,
-    errorStats: any,
-    securityStats: any
+    healthCheck: HealthCheck,
+    performanceStats: {
+      averageResponseTime: number;
+      errorRate: number;
+      throughput: number;
+    },
+    errorStats: {
+      totalErrors: number;
+      errorRate: number;
+      criticalErrors: number;
+    },
+    securityStats: SecurityStats
   ): void {
     const alerts: string[] = [];
 
@@ -194,6 +206,10 @@ export class MonitoringSystem {
       security: boolean;
       health: boolean;
       dashboard: boolean;
+    },
+    metrics: {
+      memory: number;
+      cpu: number;
     };
   } {
     return {

@@ -9,7 +9,7 @@ import {
   type InlineConfig,
 } from "vite";
 import { type Server } from "node:http";
-import viteConfig from "../vite.config";
+import viteConfig from "../vite.config.js";
 import { nanoid } from "nanoid";
 
 const viteLogger = createLogger();
