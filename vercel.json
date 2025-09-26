@@ -16,10 +16,15 @@
         "maxDuration": 40,
         "memory": 1024,
         "includeFiles": [
-          "dist-server/**",
+          "dist-server/**", 
           "server/**",
-          "shared/**",
-          "components/**"
+          "shared/**", 
+          "components/**",
+          "drizzle/**",
+          "api/_middleware/**",
+          "tsconfig.json",
+          "tsconfig.server.json",
+          "package.json"
         ]
       }
     }
@@ -56,7 +61,7 @@
       "schedule": "*/2 * * * *"
     },
     {
-      "path": "/api/cron/generation-completion-monitor",
+      "path": "/api/cron/generation-completion-monitor", 
       "schedule": "* * * * *"
     }
   ],
