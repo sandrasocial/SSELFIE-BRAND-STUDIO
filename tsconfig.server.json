@@ -6,13 +6,18 @@
     "noEmitOnError": false,
     "module": "ESNext",
     "moduleResolution": "node",
+    "target": "ES2022",
     "declaration": false,
     "emitDecoratorMetadata": true,
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "types": ["node"]
   },
   "include": [
     "server/**/*",
-    "shared/**/*"
+    "shared/**/*",
+    "api/**/*"
   ],
   "exclude": [
     "node_modules",

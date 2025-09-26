@@ -428,27 +428,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(200).end();
     }
 
-    // Safe JSON responder
-    const json = (response: unknown, status: number, body: unknown) => {
-      const r = response as { status?: (code: number) => { json: (b: unknown) => unknown } };
-      if (typeof r?.status === 'function') {
-        return (response as any).status(status).json(body);
-      }
-      const NodeResponse = (globalThis as any).Response;
-      try {
-        return new NodeResponse(JSON.stringify(body), { 
-          status, 
-          headers: { 'content-type': 'application/json' } 
-        });
-      } catch {
-        return { 
-          status, 
-          headers: { 'content-type': 'application/json' }, 
-          body: JSON.stringify(body) 
-        };
-      }
-    };
-
     // Health check
     if (req.url?.includes('/api/health')) {
       return res.status(200).json({
@@ -938,6 +917,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const t = logStart('GET /api/me');
       res.setHeader('Content-Type', 'application/json');
       
+      // ✅ DIAGNOSTIC LOG 1: Function handler invoked
+      console.log('🚀 /api/me handler invoked at:', new Date().toISOString());
+      
+      // ✅ DIAGNOSTIC LOG 2: Environment variable status
+      console.log('🔍 DATABASE_URL status:', {
+        found: !!process.env.DATABASE_URL,
+        length: process.env.DATABASE_URL?.length || 0,
+        preview: process.env.DATABASE_URL?.substring(0, 20) + '...' || 'NOT_FOUND'
+      });
+      
       try {
         if (!checkCircuitBreaker()) {
           console.warn('⚠️ Circuit breaker open, returning cached user fallback');
@@ -948,8 +937,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           });
         }
 
+        // ✅ DIAGNOSTIC LOG 3: About to get authenticated user
+        console.log('🔐 About to call getAuthenticatedUser() at:', new Date().toISOString());
         const user = await getAuthenticatedUser();
+        console.log('✅ getAuthenticatedUser() completed, userId:', user.id);
+        
+        // ✅ DIAGNOSTIC LOG 4: About to import storage module
+        console.log('📦 About to import storage module at:', new Date().toISOString());
         const { storage } = await import('../server/storage');
+        console.log('✅ Storage module imported successfully');
+        
+        // ✅ DIAGNOSTIC LOG 5: About to create database connection/client
+        console.log('🗄️ About to attempt database connection for user lookup at:', new Date().toISOString());
+        console.log('🔍 Using userId for database query:', user.id);
+        
+        // ✅ DIAGNOSTIC LOG 6: About to execute database query
+        console.log('⚡ About to execute storage.getUser() query at:', new Date().toISOString());
         
         let dbUser = await withDatabaseTimeoutAndRetry(
           () => storage.getUser(user.id as string), 
@@ -959,11 +962,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           'getUser'
         );
         
+        // ✅ DIAGNOSTIC LOG 7: Database query completed
+        console.log('✅ storage.getUser() completed at:', new Date().toISOString(), 'result:', !!dbUser);
+        
         if (dbUser) {
           recordCircuitBreakerSuccess();
+          console.log('✅ Database connection established successfully');
         }
       
         if (!dbUser) {
+          // ✅ DIAGNOSTIC LOG 8: User not found, trying alternative lookups
+          console.log('🔍 User not found by ID, attempting alternative lookups at:', new Date().toISOString());
+          
           const [byStackId, byEmail] = await Promise.all([
             withDatabaseTimeout(
               storage.getUserByStackAuthId(user.id as string), 
@@ -979,8 +989,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             ) : Promise.resolve(null)
           ]);
           
+          console.log('✅ Alternative lookups completed:', { byStackId: !!byStackId, byEmail: !!byEmail });
+          
           if (byStackId) {
             dbUser = byStackId;
+            console.log('✅ Found user by Stack Auth ID');
           } else if (byEmail) {
             console.log('🔗 Linking existing paid user to Stack Auth:', byEmail.email, '→', user.id);
             dbUser = await withDatabaseTimeout(
@@ -994,7 +1007,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
       
         if (!dbUser) {
-          console.log('🆕 Creating new user account:', user.email);
+          // ✅ DIAGNOSTIC LOG 9: Creating new user
+          console.log('🆕 Creating new user account at:', new Date().toISOString(), 'for:', user.email);
           
           const fallbackUser = {
             id: user.id as string,
@@ -1045,9 +1059,85 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           }
         }
         
+        // ✅ DIAGNOSTIC LOG 10: About to fetch user model data
+        console.log('🎯 About to fetch user model data at:', new Date().toISOString(), 'for userId:', dbUser.id);
+        
+        // Strict requirement: Must also fetch user's trained model data
+        let userModel;
+        try {
+          // ✅ DIAGNOSTIC LOG 11: Executing getUserModel query
+          console.log('⚡ About to execute storage.getUserModel() query at:', new Date().toISOString());
+          
+          userModel = await withDatabaseTimeoutAndRetry(
+            () => storage.getUserModel(dbUser.id),
+            null,
+            2000,
+            1,
+            'getUserModel'
+          );
+          
+          // ✅ DIAGNOSTIC LOG 12: getUserModel query completed
+          console.log('✅ storage.getUserModel() completed at:', new Date().toISOString(), 'hasModel:', !!userModel);
+          if (userModel) {
+            console.log('📋 Model details:', {
+              id: userModel.id,
+              trainingStatus: userModel.trainingStatus,
+              hasReplicateVersionId: !!userModel.replicateVersionId,
+              triggerWord: userModel.triggerWord
+            });
+          }
+          
+        } catch (modelError) {
+          console.log('❌ Failed to fetch user model data:', (modelError as Error).message);
+          recordCircuitBreakerFailure();
+          const errorBody = {
+            message: 'We couldn\'t load your creative studio right now. Please try again in a few moments.',
+            error: 'Unable to load model data',
+            code: 'MODEL_DATA_UNAVAILABLE'
+          };
+          return res.status(503).json(errorBody);
+        }
+
+        // Ensure user has trained model with replicate version ID
+        if (!userModel || !userModel.replicateVersionId || userModel.trainingStatus !== 'completed') {
+          console.log('❌ User does not have completed trained model:', {
+            hasModel: !!userModel,
+            replicateVersionId: userModel?.replicateVersionId,
+            trainingStatus: userModel?.trainingStatus
+          });
+          
+          const errorBody = {
+            message: 'We couldn\'t load your creative studio right now. Please try again in a few moments.',
+            error: 'Trained model not available',
+            code: 'MODEL_NOT_READY',
+            trainingStatus: userModel?.trainingStatus || 'not_started'
+          };
+          return res.status(503).json(errorBody);
+        }
+
+        recordCircuitBreakerSuccess();
         res.setHeader('Cache-Control', 'no-store');
+        
+        // ✅ DIAGNOSTIC LOG 13: Final user object before response
+        console.log('🎉 About to send successful response at:', new Date().toISOString());
+        console.log('📤 Final user object summary:', {
+          userId: dbUser.id,
+          userEmail: dbUser.email,
+          modelId: userModel.id,
+          modelStatus: userModel.trainingStatus,
+          hasReplicateVersionId: !!userModel.replicateVersionId
+        });
+        
         t.end('ok');
-        return res.status(200).json({ user: dbUser });
+        return res.status(200).json({ 
+          user: dbUser,
+          model: {
+            id: userModel.id,
+            replicateVersionId: userModel.replicateVersionId,
+            trainingStatus: userModel.trainingStatus,
+            triggerWord: userModel.triggerWord
+          }
+        });
         
       } catch (error) {
         t.end('error', { error: (error as Error).message });
@@ -1059,15 +1149,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         
         if (isTimeoutError(error)) {
           const timeoutBody = { 
-            message: 'Service temporarily unavailable, please try again', 
+            message: 'We couldn\'t load your creative studio right now. Please try again in a few moments.',
             error: 'Request timeout',
             code: 'TIMEOUT'
           };
           return res.status(503).json(timeoutBody);
         }
         
-        const body = { message: 'Authentication required', error: (error as Error).message };
-        return res.status(401).json(body);
+        // For any other errors, show the user-friendly message
+        const body = { 
+          message: 'We couldn\'t load your creative studio right now. Please try again in a few moments.',
+          error: (error as Error).message,
+          code: 'SERVICE_UNAVAILABLE'
+        };
+        return res.status(503).json(body);
       }
     }
 
@@ -2002,16 +2097,27 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
     
   } catch (error) {
     console.error('❌ API Handler Error:', error);
-    const body = { error: 'Internal server error', message: (error as Error).message };
     
-    if (typeof (res as any).status === 'function') {
-      return res.status(500).json(body);
-    } else {
-      const NodeResponse = (globalThis as any).Response;
-      return new NodeResponse(JSON.stringify(body), { 
-        status: 500, 
-        headers: { 'content-type': 'application/json' } 
-      });
+    // Defensive error response - handle different response object types
+    try {
+      if (res && typeof res.status === 'function') {
+        return res.status(500).json({ 
+          error: 'Internal server error', 
+          message: (error as Error).message 
+        });
+      }
+    } catch (responseError) {
+      console.error('❌ Response object failed, using fallback:', responseError);
     }
+    
+    // Final fallback using Node Response
+    const NodeResponse = (globalThis as any).Response;
+    return new NodeResponse(JSON.stringify({ 
+      error: 'Internal server error', 
+      message: (error as Error).message 
+    }), { 
+      status: 500, 
+      headers: { 'content-type': 'application/json' } 
+    });
   }
 }
