@@ -1,5 +1,5 @@
 import cron from 'node-cron';
-import { db } from '../drizzle';
+import { db } from '../drizzle.js';
 import { sql } from 'drizzle-orm';
 
 interface HairTrendData {
@@ -251,7 +251,11 @@ const scheduleTrendAnalysis = () => {
     await sophia.runWeeklyAnalysis();
   }, {
     timezone: 'UTC',
-    scheduled: true
+    status: 'pending',
+    dependencies: [],
+    assignedAgent: 'sophia',
+    priority: 'medium',
+    metadata: {}
   });
 
   console.log('✅ Sophia weekly trend analysis scheduled (Mondays 9 AM UTC)');
@@ -262,7 +266,11 @@ const scheduleTrendAnalysis = () => {
       console.log('🔧 Development: Running Sophia trend analysis...');
       await sophia.runWeeklyAnalysis();
     }, {
-      scheduled: false // Disabled by default, enable manually for testing
+      status: 'pending',
+      dependencies: [],
+      assignedAgent: 'sophia',
+      priority: 'low', // Low priority for testing
+      metadata: {}
     });
   }
 };

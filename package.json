@@ -637,11 +637,11 @@
     "start": "cd server && npx tsx index.ts",
     "build": "vite build --config vite.config.ts",
     "build:server": "npm run build:server:ts && npm run build:server:bundle",
-    "build:server:ts": "tsc -p tsconfig.server.json --skipLibCheck",
+    "build:server:ts": "tsc -p tsconfig.server.json --skipLibCheck --incremental",
     "build:server:bundle": "esbuild server/index-launch.ts server/storage.ts server/drizzle.ts shared/schema.ts --bundle --platform=node --format=esm --outdir=dist-server --sourcemap --target=node20 --external:@google/genai --external:express --external:@aws-sdk/* --external:drizzle-orm --external:pg --external:ws --external:@react-email/render",
     "vercel-build": "npm run build && npm run build:server && npm run build:api",
     "build:api": "npm run build:api:ts && npm run build:api:bundle",
-    "build:api:ts": "tsc -p tsconfig.json --noEmit false --declaration --emitDeclarationOnly --outDir .vercel/output/functions/_types",
+    "build:api:ts": "tsc -p tsconfig.json --noEmit false --declaration --emitDeclarationOnly --skipLibCheck --outDir .vercel/output/functions/_types",
     "build:api:bundle": "esbuild api/**/*.ts --bundle --platform=node --format=esm --outdir=.vercel/output/functions --external:@google/genai --external:express --external:@aws-sdk/* --external:drizzle-orm --external:pg --external:ws --sourcemap --target=node20 --packages=external --tsconfig=tsconfig.json",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"

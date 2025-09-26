@@ -1,8 +1,8 @@
+import { requireStackAuth } from '../stack-auth.js';
+import { db } from '../drizzle.js';
+import { eq, sql } from 'drizzle-orm';
+import { sophia } from '../scheduled-tasks/fetch-hair-trends.js';
 import { Router } from 'express';
-import { requireStackAuth } from '../stack-auth';
-import { db } from '../drizzle';
-import { sql } from 'drizzle-orm';
-import { sophia } from '../scheduled-tasks/fetch-hair-trends';
 
 const router = Router();
 
@@ -35,7 +35,17 @@ router.get('/hair-trends', requireStackAuth, async (req: any, res) => {
       FROM hair_trends 
       ORDER BY created_at DESC 
       LIMIT 4
-    `) as { rows: TrendDataResponse[] };
+    `);
+    
+    // Cast the raw result to TrendDataResponse
+    const trends = (result as { rows: Record<string, unknown>[] }).rows.map(row => ({
+      id: Number(row.id),
+      week_range: String(row.week_range),
+      trend_data: row.trend_data as any,
+      summary: String(row.summary),
+      confidence: Number(row.confidence),
+      created_at: String(row.created_at)
+    }));
     const trends = result.rows;
 
     if (!trends || trends.length === 0) {
@@ -92,7 +102,17 @@ router.get('/hair-trends/:weekRange', requireStackAuth, async (req: any, res) =>
       FROM hair_trends 
       WHERE week_range = ${weekRange}
       LIMIT 1
-    `) as { rows: TrendDataResponse[] };
+    `);
+    
+    // Cast the raw result to TrendDataResponse
+    const trends = (result as { rows: Record<string, unknown>[] }).rows.map(row => ({
+      id: Number(row.id),
+      week_range: String(row.week_range),
+      trend_data: row.trend_data as any,
+      summary: String(row.summary),
+      confidence: Number(row.confidence),
+      created_at: String(row.created_at)
+    }));
     const trends = result.rows;
 
     if (!trends || trends.length === 0) {
