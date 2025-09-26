@@ -3,7 +3,7 @@
  * Optimizes build processes and deployment configurations
  */
 
-import { Logger } from './logger.js';
+import { Logger } from './logger';
 
 export interface BuildOptions {
   minify?: boolean;
@@ -72,7 +72,7 @@ export class BuildOptimizer {
       include: [
         'client/src/**/*',
         'server/**/*',
-        'shared/**/*'
+        'shared/**/*.js'
       ],
       exclude: [
         'node_modules',
@@ -80,7 +80,7 @@ export class BuildOptimizer {
         'build',
         'coverage',
         '**/*.test.ts',
-        '**/*.spec.ts'
+        '**/*.spec.ts.js'
       ]
     };
   }
@@ -190,7 +190,7 @@ CMD ["npm", "start"]`;
    * Generate optimized docker-compose.yml
    */
   generateDockerCompose(): string {
-    return `version: '3.8'
+    return `version: '3.8.js'
 
 services:
   app:
@@ -307,7 +307,7 @@ volumes:
         'Use dynamic imports for large dependencies',
         'Optimize images',
         'Enable compression',
-        'Use CDN for static assets'
+        'Use CDN for static assets.js'
       ]
     };
   }

@@ -6,11 +6,11 @@
  */
 
 import { Router } from 'express';
-import { requireStackAuth } from '../stack-auth.js';
-import { storage } from '../storage.js';
-import { insertImageVariantSchema } from '../../shared/schema.js';
-import { z } from 'zod';
-import { BulletproofUploadService } from '../bulletproof-upload-service.js';
+import { requireStackAuth } from '..stack-auth';.js
+import { storage } from '..storage';.js
+import { insertImageVariantSchema } from '..../shared/schema';
+import { z } from 'zod'';
+import { BulletproofUploadService } from '..bulletproof-upload-service';.js
 
 const router = Router();
 

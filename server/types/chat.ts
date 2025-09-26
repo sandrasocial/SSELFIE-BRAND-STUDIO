@@ -6,23 +6,30 @@ export interface MayaChatCreateInput {
   initialMessage?: string;
 }
 
-export interface MayaChatMessageInput {
+import type { BaseChatMessage } from '../../shared/types/unified-chat';
+
+export type ChatMessageRole = BaseChatMessage['role'];
+
+// Base server chat types (using numeric IDs)
+export interface ServerChatMessageInput {
   chatId: number;
   content: string;
   role: ChatMessageRole;
+  userId: string;
   imagePreview?: string | null;
   generatedPrompt?: string | null;
   conceptCards?: Record<string, unknown>[] | null;
   quickButtons?: string[] | null;
-}
-
-export type ChatMessageRole = 'user' | 'maya' | 'assistant' | 'system';
-
-export interface ChatMessage extends MayaChatMessageInput {
-  id: number;
-  createdAt: Date;
   metadata?: Record<string, unknown>;
 }
+
+export interface ServerChatMessage extends ServerChatMessageInput {
+  id: number;
+  createdAt: Date;
+}
+
+export type ServerChatMessageCreate = Omit<ServerChatMessage, 'id' | 'createdAt'>;
+export type ServerChatMessageUpdate = Partial<ServerChatMessageCreate> & { id: number };
 
 export interface GalleryImage {
   id: number;
@@ -38,7 +45,6 @@ export interface GalleryImage {
   metadata?: Record<string, unknown>;
 }
 
-export type ChatMessageInput = Omit<ChatMessage, 'id' | 'createdAt'>;
 export type GalleryImageInput = Omit<GalleryImage, 'id' | 'createdAt'>;
 
 export interface ChatPreviewError {

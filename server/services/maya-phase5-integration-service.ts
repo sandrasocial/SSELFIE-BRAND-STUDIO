@@ -3,10 +3,10 @@
  * Maya Phase 5 Integration Service - Complete personalization ecosystem orchestration
  */
 
-import { MayaBehaviorLearningService } from './maya-behavior-learning-service.js';
-import { unifiedMayaMemoryService } from './unified-maya-memory-service.js';
-import { MayaPredictiveStyleService } from './maya-predictive-styling-service.js';
-import { MayaBusinessIntelligenceService } from './maya-business-intelligence-service.js';
+import { MayaBehaviorLearningService } from '.maya-behavior-learning-service';.js
+import { unifiedMayaMemoryService } from '.unified-maya-memory-service';.js
+import { MayaPredictiveStyleService } from '.maya-predictive-styling-service';.js
+import { MayaBusinessIntelligenceService } from '.maya-business-intelligence-service';.js
 
 export interface PersonalizedMayaExperience {
   // User Intelligence Profile

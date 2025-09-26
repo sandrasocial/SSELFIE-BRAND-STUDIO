@@ -1,5 +1,5 @@
 import express from 'express';
-import { authenticateAdmin } from '../stack-auth';
+import { authenticateAdmin } from '../*.jsstack-auth';
 
 const router = express.Router();
 

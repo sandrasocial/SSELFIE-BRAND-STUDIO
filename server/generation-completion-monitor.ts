@@ -5,9 +5,9 @@
  * This service was missing - explains why Maya images weren't appearing despite successful generation
  */
 
-import { storage } from './storage.js';
+import { storage } from '.storage';.js
 // MAYA FAÇADE: Replaced Maya-specific import with façade API calls
-// import { MayaChatPreviewService } from './maya-chat-preview-service.js'; // REMOVED: Direct entanglement
+// import { MayaChatPreviewService } from '.maya-chat-preview-service'; .js// REMOVED: Direct entanglement
 
 export class GenerationCompletionMonitor {
   private static instance: GenerationCompletionMonitor;

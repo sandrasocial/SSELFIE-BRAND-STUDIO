@@ -3,7 +3,7 @@
  * Handles sending escalation emails to Sandra
  */
 
-import sgMail from '@sendgrid/mail';
+import sgMail from '@sendgrid/mail'';
 
 interface EmailRequest {
   to: string;

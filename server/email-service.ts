@@ -1,4 +1,5 @@
 import { Resend } from 'resend';
+import type { EmailResult, WelcomeEmailData } from './types/email.js';
 
 if (!process.env.RESEND_API_KEY) {
   throw new Error('RESEND_API_KEY environment variable is required');
@@ -6,32 +7,21 @@ if (!process.env.RESEND_API_KEY) {
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-// Type definitions for legacy compatibility
-export interface EmailCaptureData {
-  email: string;
-  firstName?: string;
-  source?: string;
+// Legacy function exports for compatibility 
+export type { EmailCaptureData, WelcomeEmailData } from './types/email.js';
+
+export async function sendWelcomeEmail(email: string, firstName?: string | null, plan?: string): Promise<EmailResult> {
+  return EmailService.sendModelReadyEmail(email, firstName ?? undefined);
 }
 
-export interface WelcomeEmailData {
-  email: string;
-  firstName?: string;
-  plan?: string;
-}
-
-// Legacy function exports for compatibility
-export async function sendWelcomeEmail(email: string, firstName?: string, plan?: string) {
-  return EmailService.sendModelReadyEmail(email, firstName);
-}
-
-export async function sendPostAuthWelcomeEmail(data: WelcomeEmailData) {
+export async function sendPostAuthWelcomeEmail(data: WelcomeEmailData): Promise<EmailResult> {
   return EmailService.sendModelReadyEmail(data.email, data.firstName);
 }
 
 export class EmailService {
   
   // Send model training completion notification
-  static async sendModelReadyEmail(userEmail: string, userName?: string) {
+  static async sendModelReadyEmail(userEmail: string, userName?: string | null): Promise<EmailResult> {
     try {
       const firstName = userName?.split(' ')[0] || 'gorgeous';
       
@@ -182,17 +172,24 @@ Your Personal Branding Bestie
 SSELFIE Studio - Where Your Personal Brand Gets Born`
       });
 
-      console.log('✅ Model ready email sent successfully:', result.data?.id);
-      return { success: true, emailId: result.data?.id };
+      const emailId = result.data?.id;
+      console.log('✅ Model ready email sent successfully:', emailId);
+      return { 
+        success: true,
+        ...(emailId ? { emailId } : {})
+      };
       
     } catch (error) {
       console.error('❌ Failed to send model ready email:', error);
-      return { success: false, error: error.message };
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : String(error)
+      };
     }
   }
 
   // Send training started confirmation email
-  static async sendTrainingStartedEmail(userEmail: string, userName?: string) {
+  static async sendTrainingStartedEmail(userEmail: string, userName?: string | null): Promise<EmailResult> {
     try {
       const firstName = userName?.split(' ')[0] || 'gorgeous';
       
@@ -317,12 +314,19 @@ Your Personal Branding Bestie
 SSELFIE Studio - Where Your Personal Brand Gets Born`
       });
 
-      console.log('✅ Training started email sent successfully:', result.data?.id);
-      return { success: true, emailId: result.data?.id };
+      const emailId = result.data?.id;
+      console.log('✅ Training started email sent successfully:', emailId);
+      return { 
+        success: true,
+        ...(emailId ? { emailId } : {})
+      };
       
     } catch (error) {
       console.error('❌ Failed to send training started email:', error);
-      return { success: false, error: error.message };
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : String(error)
+      };
     }
   }
 }

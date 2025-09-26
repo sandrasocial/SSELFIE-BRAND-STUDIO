@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import { requireStackAuth } from '../stack-auth';
-import { launchFocusedAgentService } from '../services/launch-focused-agent-service';
-import { SlackNotificationService } from '../services/slack-notification-service';
+import { requireStackAuth } from '../*.jsstack-auth';
+import { launchFocusedAgentService } from '../*.jsservices/launch-focused-agent-service';
+import { SlackNotificationService } from '../*.jsservices/slack-notification-service';
 
 const router = Router();
 

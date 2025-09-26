@@ -3,7 +3,7 @@
  * Builds rich, flowing prose descriptions (150-300 words) from aesthetic recipes
  */
 
-import { AestheticRecipe, RecipeLook, GenderVariant } from '../recipes/types';
+import { AestheticRecipe, RecipeLook, GenderVariant } from '..recipes.js/types';
 
 export interface ProseGenerationOptions {
   targetWordCount?: number;

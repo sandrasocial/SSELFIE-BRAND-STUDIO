@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
-import { useMemoryCleanup } from './useMemoryCleanup';
+import { useState, useEffect, useMemo, useCallback } from 'react'';
+import { useMemoryCleanup } from '.useMemoryCleanup'';.js
 
 interface VirtualizedGridConfig {
   itemHeight: number;

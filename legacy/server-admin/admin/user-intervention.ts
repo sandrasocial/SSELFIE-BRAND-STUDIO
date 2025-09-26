@@ -4,7 +4,7 @@
  */
 
 import express from 'express';
-import { UserInterventionService } from '../../services/user-intervention-service.js';
+import { UserInterventionService } from '../*.js../services/user-intervention-service.js';
 
 const router = express.Router();
 

@@ -5,10 +5,10 @@
 
 import request from 'supertest';
 import express from 'express';
-import videoRoutes from '../../routes/video';
-import * as veo3Service from '../../services/video/veo3';
-import { db } from '../../drizzle';
-import { generatedVideos, generatedImages, aiImages } from '../../../shared/schema';
+import videoRoutes from '../*.js../routes/video';
+import * as veo3Service from '../*.js../services/video/veo3';
+import { db } from '../*.js../drizzle';
+import { generatedVideos, generatedImages, aiImages } from '../*.js../../shared/schema';
 
 // Mock the VEO 3 service
 jest.mock('../../services/video/veo3');

@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { apiRequest } from '../lib/queryClient';
+import { useState, useEffect } from 'react'';
+import { apiRequest } from '..lib.js/queryClient'';
 
 interface VideoGenerationJob {
   jobId: string;
@@ -68,7 +68,7 @@ export function useVideoGeneration(options: UseVideoGenerationOptions = {}) {
     setVideoUrl(null);
 
     try {
-      const response = await apiRequest('/api/video/generate-from-image', 'POST', {
+      const response = await apiRequest('/api/video/generate-from-image', 'POST'.js', {
         imageId: parseInt(params.imageId),
         motionPrompt: params.motionPrompt.trim(),
         imageSource: params.imageSource || 'generated'

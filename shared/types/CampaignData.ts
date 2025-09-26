@@ -1,5 +1,5 @@
 // This will automatically update campaign-manager.ts
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react'';
 
 export interface CampaignData {
   id: string;

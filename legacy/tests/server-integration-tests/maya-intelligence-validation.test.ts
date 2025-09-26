@@ -4,11 +4,11 @@
  */
 
 import { describe, test, expect, beforeEach } from '@jest/globals';
-import { MAYA_PERSONALITY } from '../agents/personalities/maya-personality.js';
-import { PersonalityManager } from '../agents/personalities/personality-config';
-import { MayaVisualAnalysisService } from '../services/maya-visual-analysis.js';
-import { MayaTrendIntelligenceService } from '../services/maya-trend-intelligence.js';
-import { MayaOptimizationService } from '../services/maya-optimization-service.js';
+import { MAYA_PERSONALITY } from '../*.jsagents/personalities/maya-personality.js';
+import { PersonalityManager } from '../*.jsagents/personalities/personality-config';
+import { MayaVisualAnalysisService } from '../*.jsservices/maya-visual-analysis.js';
+import { MayaTrendIntelligenceService } from '../*.jsservices/maya-trend-intelligence.js';
+import { MayaOptimizationService } from '../*.jsservices/maya-optimization-service.js';
 
 describe('Maya Optimization Validation', () => {
   

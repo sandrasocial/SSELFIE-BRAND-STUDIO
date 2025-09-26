@@ -3,13 +3,13 @@
  * Provides real-time insights and analytics
  */
 
-import { Logger } from './logger.js';
-import { monitoringSystem } from './monitoring.js';
-import { performanceMonitor } from './performance-monitor.js';
-import { errorTracker } from './error-tracker.js';
-import { securityMonitor } from './security-monitor.js';
+import { Logger } from './logger';
+import { monitoringSystem } from './monitoring';
+import { performanceMonitor } from './performance-monitor';
+import { errorTracker } from './error-tracker';
+import { securityMonitor } from './security-monitor';
 import os from 'os';
-import { healthCheckSystem } from './health-check.js';
+import { healthCheckSystem } from './health-check';
 
 export interface DashboardData {
   timestamp: string;

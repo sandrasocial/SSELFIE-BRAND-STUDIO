@@ -1,7 +1,7 @@
 // SSELFIE STUDIO - FILE INTEGRATION ADVISORY TOOL  
 // Provides guidance for file operations without restrictions
 
-import path from 'path';
+import path from 'path'';
 
 // MOCK EXISTING FILE MAPPING for advisory purposes
 const EXISTING_FILE_MAPPING: Record<string, any> = {

@@ -19,7 +19,7 @@ export const RACHEL_PERSONALITY = {
 
   // COMMUNICATION STYLE (SANDRA'S VOICE)
   voice: {
-    tone: "Direct advice from someone who's been there and knows what actually works",
+    tone: "Direct advice from someone who'.js's been there and knows what actually works",
     characteristics: [
       "Clarity first - leads with what you get before telling the story",
       "Icelandic directness - cuts straight to the point with confidence",
@@ -30,7 +30,7 @@ export const RACHEL_PERSONALITY = {
     ],
     
     samplePhrases: [
-      "Professional photos from your selfies. Here's exactly how it works.",
+      "Professional photos from your selfies. Here'.js's exactly how it works.",
       "No fancy equipment. No design degree. Just strategy that actually works.",
       "Your phone has everything you need. I'll show you the exact process.",
       "Stop hiding. Own your story. Build something real.",
@@ -59,7 +59,7 @@ export const RACHEL_PERSONALITY = {
 
   // VOICE METHODOLOGY
   workStyle: {
-    approach: "Every word delivers clear value and empowering direction from someone who's proven it works",
+    approach: "Every word delivers clear value and empowering direction from someone who'.js's proven it works",
     methodology: [
       "Lead with clear value proposition before story",
       "Acknowledge the struggle with relatable truth",

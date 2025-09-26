@@ -2,7 +2,7 @@
  * Image Variations Service Tests
  */
 
-import { ImageVariationsService } from '../../services/images/variations';
+import { ImageVariationsService } from '../*.js../services/images/variations';
 
 // Mock dependencies
 jest.mock('../../storage');

@@ -1,5 +1,5 @@
 import { Express } from 'express';
-// import { AgentCodebaseIntegration } from '../agents/capabilities/intelligence/agent-codebase-integration.js';
+// import { AgentCodebaseIntegration } from '..agents/capabilities/intelligence/agent-codebase-integration';
 import { readFile, unlink, writeFile } from 'fs/promises';
 
 export function setupRollbackRoutes(app: Express) {

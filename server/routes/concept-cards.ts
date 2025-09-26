@@ -7,10 +7,10 @@
  */
 
 import { Router } from 'express';
-import { requireStackAuth } from '../stack-auth.js';
-import { storage } from '../storage.js';
-import { insertConceptCardSchema } from '../../shared/schema.js';
-import { z } from 'zod';
+import { requireStackAuth } from '..stack-auth';.js
+import { storage } from '..storage';.js
+import { insertConceptCardSchema } from '..../shared/schema';
+import { z } from 'zod'';
 
 const router = Router();
 

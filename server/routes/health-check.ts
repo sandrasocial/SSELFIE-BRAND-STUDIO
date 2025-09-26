@@ -4,10 +4,10 @@
  */
 
 import { Router } from 'express';
-import { performanceMonitor } from '../utils/performance-monitor.js';
-import { serviceDiscovery } from '../services/service-discovery.js';
-import { unifiedErrorHandler } from '../services/unified-error-handler.js';
-import { Logger } from '../utils/logger.js';
+import { performanceMonitor } from '..utils/performance-monitor';
+import { serviceDiscovery } from '..services/service-discovery';
+import { unifiedErrorHandler } from '..services/unified-error-handler';
+import { Logger } from '..utils/logger';
 
 const router = Router();
 const logger = new Logger('HealthCheck');

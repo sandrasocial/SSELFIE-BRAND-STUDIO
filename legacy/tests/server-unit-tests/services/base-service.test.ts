@@ -3,7 +3,7 @@
  * Tests for the BaseService class functionality
  */
 
-import { BaseService } from '../../services/base-service';
+import { BaseService } from '../*.js../services/base-service';
 
 // Mock storage for testing
 const mockStorage = {

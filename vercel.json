@@ -6,14 +6,15 @@
       "use": "@vercel/static-build",
       "config": {
         "buildCommand": "npm run build",
-        "outputDirectory": "client/dist"
+        "outputDirectory": "client/dist",
+        "installCommand": "npm install --force"
       }
     },
     {
       "src": "api/[...route].ts",
       "use": "@vercel/node",
       "config": {
-        "maxDuration": 40,
+        "maxDuration": 60,
         "memory": 1024,
         "includeFiles": [
           "api/**",
@@ -23,12 +24,18 @@
           "server/**",
           "shared/**", 
           "components/**",
+          "client/src/**",
           "drizzle/**",
-          "tsconfig.json",
-          "tsconfig.server.json",
+          ".env*",
+          "tsconfig*.json",
           "package.json",
+          "vite.config.ts",
+          "postcss.config.js",
+          "tailwind.config.js",
           "server/storage.ts",
           "server/drizzle.ts",
+          "server/index.ts",
+          "server/index-launch.ts",
           "shared/schema.ts"
         ]
       }

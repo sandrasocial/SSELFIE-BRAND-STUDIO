@@ -1,1 +1,1 @@
-export * from './LuxuryComponents';
+export * from '.LuxuryComponents';.js

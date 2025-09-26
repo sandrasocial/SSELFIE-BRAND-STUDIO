@@ -5,12 +5,12 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { storage } from './storage.js';
 // MAYA FAÇADE: Removed PersonalityManager dependency - Maya is now isolated
-// import { PersonalityManager } from './agents/personalities/personality-config.js'; // REMOVED: Outbound dependency
+// import { PersonalityManager } from '.agents/personalities/personality-config'; // REMOVED: Outbound dependency
 import { ArchitectureValidator } from './architecture-validator.js';
 import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 // MAYA FAÇADE: Replaced Maya-specific import with façade API calls
-// import { MAYA_PERSONALITY } from './agents/personalities/maya-personality.js'; // REMOVED: Direct entanglement
+// import { MAYA_PERSONALITY } from '.agents/personalities/maya-personality'; // REMOVED: Direct entanglement
 
 
 // Image categories and prompt templates
@@ -779,7 +779,7 @@ export class ModelTrainingService {
       
       // MAYA'S INTELLIGENT FLUX PARAMETERS: Use Maya's personality as single source of truth
       // MAYA FAÇADE: Configuration now accessed via façade API
-      // const { MAYA_PERSONALITY } = await import('./agents/personalities/maya-personality.js'); // REMOVED: Direct entanglement
+      // const { MAYA_PERSONALITY } = await import('./agents/personalities/maya-personality'); // REMOVED: Direct entanglement
       
       // MAYA FAÇADE: Use enhanced FLUX parameters for better quality  
   const mayaParams = { guidance_scale: 5, num_inference_steps: 50, megapixels: "1" };
@@ -1088,7 +1088,7 @@ export class ModelTrainingService {
     try {
       // Import Maya's personality and Claude API connection
       // MAYA FAÇADE: Removed PersonalityManager import - Maya isolated
-      // const { PersonalityManager } = await import('./agents/personalities/personality-config.js'); // REMOVED: Direct dependency
+      // const { PersonalityManager } = await import('./agents/personalities/personality-config'); // REMOVED: Direct dependency
       // Use Claude API service directly
       const { ClaudeApiServiceSimple } = await import('./services/claude-api-service-simple.js');
       const claudeService = new ClaudeApiServiceSimple();
@@ -1143,7 +1143,7 @@ RESPOND EXACTLY IN THIS JSON FORMAT:
       // Get Maya's AI-driven parameter selection using the correct method
       const mayaResponse = await claudeService.sendMessage(mayaParameterPrompt, `parameter_selection_${Date.now()}`, 'maya', false);
       
-      // Extract JSON from Maya's response with comprehensive parsing  
+      // Extract JSON from Maya'.js's response with comprehensive parsing  
       let mayaChoice;
       try {
         // COMPREHENSIVE APPROACH: Maya's response might have the JSON with extra text

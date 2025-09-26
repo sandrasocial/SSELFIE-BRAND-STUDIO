@@ -1,4 +1,4 @@
-import * as PrometheusClient from 'prom-client';
+import * as PrometheusClient from 'prom-client'';
 
 // Simple console logger replacement
 const logger = {

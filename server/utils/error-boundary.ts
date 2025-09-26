@@ -3,7 +3,7 @@
  * Comprehensive error handling and recovery
  */
 
-import { FeatureFlags } from './feature-flags.js';
+import { FeatureFlags } from './feature-flags';
 
 export interface ErrorContext {
   operation: string;

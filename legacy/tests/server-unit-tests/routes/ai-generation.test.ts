@@ -5,9 +5,9 @@
 
 import request from 'supertest';
 import express from 'express';
-import aiGenerationRoutes from '../../routes/modules/ai-generation';
-import { storage } from '../../storage';
-import { errorHandler } from '../../routes/middleware/error-handler';
+import aiGenerationRoutes from '../*.js../routes/modules/ai-generation';
+import { storage } from '../*.js../storage';
+import { errorHandler } from '../*.js../routes/middleware/error-handler';
 
 // Mock the storage module
 jest.mock('../../storage', () => ({

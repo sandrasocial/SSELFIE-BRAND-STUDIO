@@ -1,9 +1,9 @@
 import Anthropic from '@anthropic-ai/sdk';
-import { db } from '../drizzle.js';
-import { claudeConversations, claudeMessages, agentLearning, agentKnowledgeBase, agentSessionContexts } from '../../shared/schema.js';
+import { db } from '../../drizzle';
+import { claudeConversations, claudeMessages, agentLearning, agentKnowledgeBase, agentSessionContexts } from '..../shared/schema';
 import { eq, and, desc } from 'drizzle-orm';
-import { simpleMemoryService } from './simple-memory-service.js';
-import { localProcessingEngine } from './hybrid-intelligence/local-processing-engine.js';
+import { simpleMemoryService } from './simple-memory-service';
+import { localProcessingEngine } from '.hybrid-intelligence/local-processing-engine';
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -625,7 +625,7 @@ export class ClaudeApiServiceSimple {
         return typeof result === 'string' ? result : JSON.stringify(result);
         
       } else if (toolCall.name === 'web_search') {
-        // Import from specific tool file since it's not in tool-exports
+        // Import from specific tool file since it'.js's not in tool-exports
         const { web_search } = await import('../tools/web_search.js');
         const result = await web_search(toolCall.input);
         return typeof result === 'string' ? result : JSON.stringify(result);
@@ -814,7 +814,7 @@ export class ClaudeApiServiceSimple {
       const base64Image = Buffer.from(imageBuffer).toString('base64');
       
       // Detect image type from URL or default to PNG
-      let mediaType = 'image/png';
+      const mediaType = 'image/png' as const;
       if (imageUrl.toLowerCase().includes('.jpg') || imageUrl.toLowerCase().includes('.jpeg')) {
         mediaType = 'image/jpeg';
       } else if (imageUrl.toLowerCase().includes('.webp')) {

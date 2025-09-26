@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { requireStackAuth } from '../stack-auth';
-import { SlackNotificationService } from '../services/slack-notification-service';
+import { requireStackAuth } from '../*.jsstack-auth';
+import { SlackNotificationService } from '../*.jsservices/slack-notification-service';
 
 const router = Router();
 

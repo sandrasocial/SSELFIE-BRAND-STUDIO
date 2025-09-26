@@ -2,7 +2,7 @@
  * Inpainting Service Tests
  */
 
-import { SDInpaintService } from '../../services/inpaint/sd_inpaint';
+import { SDInpaintService } from '../*.js../services/inpaint/sd_inpaint';
 
 // Mock dependencies
 jest.mock('../../storage');

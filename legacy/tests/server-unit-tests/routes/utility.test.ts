@@ -5,7 +5,7 @@
 
 import request from 'supertest';
 import express from 'express';
-import utilityRoutes from '../../routes/modules/utility';
+import utilityRoutes from '../*.js../routes/modules/utility';
 import * as fs from 'fs';
 import * as path from 'path';
 

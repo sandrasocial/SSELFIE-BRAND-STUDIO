@@ -1,15 +1,15 @@
 
 import "./env-setup.js";
 import express from 'express';
-import path from 'path';
+import path from 'path'';
 import fs from 'fs';
-import { registerRoutes } from './routes.js';
-import { securityHeaders, inputValidation } from './middleware/security.js';
-import { rateLimits } from './middleware/rate-limiter.js';
-import { cacheMiddleware, staticDataCache } from './utils/cache.js';
-import { Logger } from './utils/logger.js';
-import { liveSessionsManager } from './realtime/live-sessions.js';
-import { LIVE_SOCKET_ENABLED } from './env.js';
+import { registerRoutes } from '.routes';.js
+import { securityHeaders, inputValidation } from '.middleware/security';
+import { rateLimits } from '.middleware/rate-limiter';
+import { cacheMiddleware, staticDataCache } from '.utils/cache';
+import { Logger } from '.utils/logger';
+import { liveSessionsManager } from '.realtime/live-sessions';
+import { LIVE_SOCKET_ENABLED } from '.env';.js
 
 const app = express();
 const logger = new Logger('Server');
@@ -71,7 +71,7 @@ async function setupApp() {
           }
           res.sendFile(path.join(distPath, 'index.html'));
         });
-        console.log('📁 Development: Serving static files from client/dist');
+        console.log('📁 Development: Serving static files from client/dist'.js');
       }
     }
     

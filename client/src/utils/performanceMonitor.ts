@@ -117,7 +117,7 @@ class PerformanceMonitor {
       
       if (navigation) {
         this.metrics.ttfb = navigation.responseStart - navigation.requestStart;
-        this.metrics.loadTime = navigation.loadEventEnd - navigation.navigationStart;
+        this.metrics.loadTime = navigation.loadEventEnd - navigation.startTime;
         
         this.logMetric('TTFB', this.metrics.ttfb);
         this.logMetric('Load Time', this.metrics.loadTime);
@@ -179,6 +179,9 @@ class PerformanceMonitor {
   private sendToAnalytics(name: string, value: number) {
     // Send to your analytics service
     // Example: Google Analytics, Mixpanel, etc.
+    // Add gtag type declaration
+    declare const gtag: (command: string, action: string, params: any) => void;
+    
     if (typeof gtag !== 'undefined') {
       gtag('event', 'web_vitals', {
         metric_name: name,

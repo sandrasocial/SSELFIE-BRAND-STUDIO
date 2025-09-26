@@ -1,5 +1,6 @@
 import { drizzle } from 'drizzle-orm/neon-http';
-import { neon, NeonHttpDatabase, NeonQueryFunction } from '@neondatabase/serverless';
+import { neon } from '@neondatabase/serverless';
+import type { QueryResult as NeonQueryResult } from '@neondatabase/serverless';
 import { DATABASE_URL } from './env.js';
 import * as schema from '../shared/schema.js';
 
@@ -32,9 +33,9 @@ export const serverlessQuery = async <T = unknown>(
     }
 
     // Execute query with proper type handling
-    const result = params?.length 
-      ? await sql.query(text, params) as QueryResult<T>
-      : await sql`${sql.unsafe(text)}` as QueryResult<T>;
+    const result = (params?.length 
+      ? await sql.query(text, params)
+      : await sql`${sql.unsafe(text)}`) as NeonQueryResult;
 
     // Ensure result structure
     if (!result || typeof result !== 'object') {
@@ -42,10 +43,10 @@ export const serverlessQuery = async <T = unknown>(
     }
 
     return {
-      rows: Array.isArray(result.rows) ? result.rows : [],
-      rowCount: typeof result.rowCount === 'number' ? result.rowCount : 0,
-      command: typeof result.command === 'string' ? result.command : ''
-    };
+      rows: Array.isArray(result) ? result : [],
+      rowCount: Array.isArray(result) ? result.length : 0,
+      command: (result as any)?.command || ''
+    } as QueryResult<T>;
   } catch (error) {
     console.error('❌ Serverless query error:', error instanceof Error ? error.message : 'Unknown error');
     throw error instanceof Error ? error : new Error('Query execution failed');

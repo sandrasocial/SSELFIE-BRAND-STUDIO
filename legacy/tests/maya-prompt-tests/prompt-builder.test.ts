@@ -2,12 +2,12 @@
  * Unit Tests for Aesthetic Recipes Prompt Builder System
  */
 
-import { PromptBuilder } from '../prompt-builder';
-import { GenderStyleSelector } from '../selectors/gender-style-selector';
-import { SentenceRealizer } from '../realizers/sentence-realizer';
-import { FluxRealizer } from '../realizers/flux-realizer';
-import { TokenBudgetManager } from '../utils/token-budget';
-import { PromptBuildRequest, GenderVariant } from '../recipes/types';
+import { PromptBuilder } from '../*.jsprompt-builder';
+import { GenderStyleSelector } from '../*.jsselectors/gender-style-selector';
+import { SentenceRealizer } from '../*.jsrealizers/sentence-realizer';
+import { FluxRealizer } from '../*.jsrealizers/flux-realizer';
+import { TokenBudgetManager } from '../*.jsutils/token-budget';
+import { PromptBuildRequest, GenderVariant } from '../*.jsrecipes/types';
 
 describe('Aesthetic Recipes System', () => {
   

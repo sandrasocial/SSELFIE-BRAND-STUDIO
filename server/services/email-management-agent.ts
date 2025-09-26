@@ -1,5 +1,5 @@
 import { SlackNotificationService } from './slack-notification-service.js';
-import { storage } from '../storage.js';
+import { storage } from '../../storage.js';
 import { AgentInsightEngine } from './agent-insight-engine.js';
 
 interface EmailAccount {
@@ -335,8 +335,8 @@ export class EmailManagementAgent {
   }
 
   private isMarketingEmail(from: string, subject: string): boolean {
-    return from.includes('noreply') || 
-           from.includes('marketing') || 
+    return from.includes('noreply') ||
+           from.includes('marketing') ||
            subject.toLowerCase().includes('unsubscribe') ||
            subject.toLowerCase().includes('newsletter');
   }

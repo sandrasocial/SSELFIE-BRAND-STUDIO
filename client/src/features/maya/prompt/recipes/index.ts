@@ -3,7 +3,7 @@
  * Based on Maya's signature looks with rich, detailed prompting capabilities
  */
 
-import { AestheticRecipe } from './types';
+import { AestheticRecipe } from '.types';.js
 
 export const AESTHETIC_RECIPES: AestheticRecipe[] = [
   {

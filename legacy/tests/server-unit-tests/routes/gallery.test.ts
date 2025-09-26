@@ -5,8 +5,8 @@
 
 import request from 'supertest';
 import express from 'express';
-import galleryRoutes from '../../routes/modules/gallery';
-import { errorHandler } from '../../routes/middleware/error-handler';
+import galleryRoutes from '../*.js../routes/modules/gallery';
+import { errorHandler } from '../*.js../routes/middleware/error-handler';
 
 // Mock the auth middleware
 jest.mock('../../routes/middleware/auth', () => ({
