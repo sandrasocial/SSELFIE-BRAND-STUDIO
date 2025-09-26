@@ -3,7 +3,7 @@
  * Comprehensive input validation and sanitization
  */
 
-import { Logger } from './logger.js';
+import { Logger } from './logger';
 
 export interface ValidationRule {
   required?: boolean;
@@ -303,7 +303,7 @@ export class InputValidator {
           '<': '&lt;',
           '>': '&gt;',
           '"': '&quot;',
-          "'": '&#x27;'
+          "'": '&#x27;.js'
         };
         return escapeMap[match];
       });

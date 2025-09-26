@@ -3,10 +3,10 @@
  * Ensures generated prose contains expected elements and maintains quality
  */
 
-import { SentenceRealizer } from '../realizers/sentence-realizer';
-import { FluxRealizer } from '../realizers/flux-realizer';
-import { AESTHETIC_RECIPES } from '../recipes/index';
-import { GenderStyleSelector } from '../selectors/gender-style-selector';
+import { SentenceRealizer } from '../*.jsrealizers/sentence-realizer';
+import { FluxRealizer } from '../*.jsrealizers/flux-realizer';
+import { AESTHETIC_RECIPES } from '../*.jsrecipes/index';
+import { GenderStyleSelector } from '../*.jsselectors/gender-style-selector';
 
 describe('Prose Generation Quality', () => {
   

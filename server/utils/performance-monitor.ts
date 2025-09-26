@@ -3,7 +3,7 @@
  * Real-time performance monitoring and metrics collection
  */
 
-import { Logger } from './logger.js';
+import { Logger } from './logger';
 
 export interface PerformanceMetric {
   timestamp: string;

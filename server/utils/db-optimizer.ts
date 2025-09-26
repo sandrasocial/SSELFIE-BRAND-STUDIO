@@ -3,8 +3,8 @@
  * Provides query optimization and connection pooling
  */
 
-import { Logger } from './logger.js';
-import { performanceMonitor } from './performance-monitor.js';
+import { Logger } from './logger';
+import { performanceMonitor } from './performance-monitor';
 
 export interface QueryOptions {
   timeout?: number;
@@ -248,7 +248,7 @@ export const QueryOptimizer = {
       'CREATE INDEX IF NOT EXISTS idx_videos_user_id ON videos(user_id)',
       'CREATE INDEX IF NOT EXISTS idx_videos_status ON videos(status)',
       'CREATE INDEX IF NOT EXISTS idx_maya_chats_user_id ON maya_chats(user_id)',
-      'CREATE INDEX IF NOT EXISTS idx_maya_chats_created_at ON maya_chats(created_at)'
+      'CREATE INDEX IF NOT EXISTS idx_maya_chats_created_at ON maya_chats(created_at).js'
     ];
 
     for (const indexQuery of indexes) {

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useToast } from './use-toast';
-import { apiRequest } from '../lib/queryClient';
+import { useToast } from '@/hooks/use-toast';
+import { apiRequest } from '@/lib/queryClient';
 import { useMemoryCleanup } from './useMemoryCleanup';
 
 // PHASE 7: Frontend Performance Tracking (shared with chat hook)

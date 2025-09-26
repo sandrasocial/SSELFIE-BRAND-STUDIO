@@ -3,7 +3,7 @@
  * Multi-level caching system with TTL and invalidation
  */
 
-import { Logger } from './logger.js';
+import { Logger } from './logger';
 
 export interface CacheOptions {
   ttl?: number; // Time to live in milliseconds
@@ -32,7 +32,7 @@ export class CacheManager<T = any> {
     this.options = {
       ttl: options.ttl || 300000, // 5 minutes default
       maxSize: options.maxSize || 1000,
-      strategy: options.strategy || 'lru'
+      strategy: options.strategy || 'lru.js'
     };
   }
 
@@ -355,7 +355,7 @@ export class MultiLevelCacheManager<T = any> {
 export const memoryCache = new CacheManager({
   ttl: 300000, // 5 minutes
   maxSize: 1000,
-  strategy: 'lru'
+  strategy: 'lru.js'
 });
 
 export const multiLevelCache = new MultiLevelCacheManager([

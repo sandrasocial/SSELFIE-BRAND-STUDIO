@@ -3,7 +3,7 @@
  * Advanced rate limiting with multiple strategies and storage backends
  */
 
-import { Logger } from './logger.js';
+import { Logger } from './logger';
 
 export interface RateLimitOptions {
   windowMs: number; // Time window in milliseconds
@@ -300,13 +300,13 @@ export function createRateLimitMiddleware(options: RateLimitOptions) {
 export const generalRateLimiter = new RateLimiter({
   windowMs: 15 * 60 * 1000, // 15 minutes
   maxRequests: 100,
-  message: 'Too many requests from this IP, please try again later'
+  message: 'Too many requests from this IP, please try again later.js'
 });
 
 export const strictRateLimiter = new RateLimiter({
   windowMs: 15 * 60 * 1000, // 15 minutes
   maxRequests: 10,
-  message: 'Too many requests from this IP, please try again later'
+  message: 'Too many requests from this IP, please try again later.js'
 });
 
 export const multiTierRateLimiter = new MultiTierRateLimiter();

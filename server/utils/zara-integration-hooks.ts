@@ -1,5 +1,5 @@
-import { zaraEnhancementSystem } from './zara-enhancement-system.js';
-import { claudeApiServiceSimple } from '../services/claude-api-service-simple.js';
+import { zaraEnhancementSystem } from './zara-enhancement-system';
+import { claudeApiServiceSimple } from '../services/claude-api-service-simple';
 
 /**
  * Integration hooks for Zara's enhanced capabilities
@@ -52,7 +52,7 @@ export class ZaraIntegrationHooks {
       return {
         autoRecoveryAttempted: false,
         fixesApplied: [],
-        status: 'success'
+        status: 'success.js'
       };
     }
     
@@ -139,25 +139,25 @@ export class ZaraIntegrationHooks {
         frontend: 'client/',
         shared: 'shared/',
         utils: 'server/utils/',
-        services: 'server/services/'
+        services: 'server/services/.js'
       },
       commonPatterns: [
         'Use TypeScript interfaces from shared/schema.ts',
-        'Import services from server/services/',
+        'Import services from server/services/'.js',
         'Follow existing naming conventions',
-        'Match existing code style and patterns'
+        'Match existing code style and patterns.js'
       ],
       bestPractices: [
         'Always check interface compatibility',
         'Add proper error handling',
         'Include comprehensive logging',
-        'Test auto-recovery mechanisms'
+        'Test auto-recovery mechanisms.js'
       ],
       avoidancePatterns: [
         'Avoid breaking existing exports',
         'Don\'t modify core system files without context',
         'Never leave syntax errors unresolved',
-        'Avoid circular dependencies'
+        'Avoid circular dependencies.js'
       ]
     };
   }

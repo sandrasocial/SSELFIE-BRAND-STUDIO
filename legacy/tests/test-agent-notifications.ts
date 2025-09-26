@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { SlackNotificationService } from '../services/slack-notification-service';
+import { SlackNotificationService } from '../*.jsservices/slack-notification-service';
 
 const router = Router();
 

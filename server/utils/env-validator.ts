@@ -3,8 +3,8 @@
  * Simple validation script for application startup
  */
 
-import { environmentAuditor } from './env-audit.js';
-import { Logger } from './logger.js';
+import { environmentAuditor } from './env-audit';
+import { Logger } from './logger';
 
 const logger = new Logger('EnvValidator');
 

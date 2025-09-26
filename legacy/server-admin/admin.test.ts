@@ -5,7 +5,7 @@
 
 import request from 'supertest';
 import express from 'express';
-import adminRoutes from '../../routes/modules/admin';
+import adminRoutes from '../*.js../routes/modules/admin';
 
 // Mock the auth middleware
 jest.mock('../../routes/middleware/auth', () => ({

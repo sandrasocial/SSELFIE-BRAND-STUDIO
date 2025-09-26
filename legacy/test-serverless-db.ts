@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { db, query, checkDatabaseHealth, cleanup, transaction } from '../server/db';
+import { db, query, checkDatabaseHealth, cleanup, transaction } from '../*.jsserver/db';
 
 export const config = { 
   runtime: 'nodejs',

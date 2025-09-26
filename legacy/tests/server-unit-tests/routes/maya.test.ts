@@ -5,8 +5,8 @@
 
 import request from 'supertest';
 import express from 'express';
-import mayaRoutes from '../../routes/modules/maya';
-import { errorHandler } from '../../routes/middleware/error-handler';
+import mayaRoutes from '../*.js../routes/modules/maya';
+import { errorHandler } from '../*.js../routes/middleware/error-handler';
 
 // Mock the auth middleware
 jest.mock('../../routes/middleware/auth', () => ({

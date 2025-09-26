@@ -3,11 +3,11 @@
  * Unit, integration, and end-to-end testing utilities
  */
 
-import { Logger } from './logger';
-import { testingFramework } from './testing-framework';
-import { userService } from './service-layer';
-import { aiGenerationService } from './service-layer';
-import { adminService } from './service-layer';
+import { Logger } from './*.jslogger';
+import { testingFramework } from './*.jstesting-framework';
+import { userService } from './*.jsservice-layer';
+import { aiGenerationService } from './*.jsservice-layer';
+import { adminService } from './*.jsservice-layer';
 
 export class TestingSystem {
   private logger: Logger;

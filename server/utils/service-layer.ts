@@ -3,8 +3,8 @@
  * Business logic abstraction and data access
  */
 
-import { Logger } from './logger.js';
-import { errorHandler } from './error-handler.js';
+import { Logger } from './logger';
+import { errorHandler } from './error-handler';
 
 export interface ServiceResponse<T = any> {
   success: boolean;

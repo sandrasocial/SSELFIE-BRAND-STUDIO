@@ -3,7 +3,7 @@
  * Monitors and alerts on security-related events and threats
  */
 
-import { Logger } from './logger.js';
+import { Logger } from './logger';
 import { Request, Response } from 'express';
 
 export interface SecurityEvent {

@@ -18,15 +18,17 @@ export interface UserModel {
   // Add any other userModel properties you need
 }
 
-export interface ChatMessage {
+import type { BaseChatMessage, MayaChatMessage } from '../../../shared/types/unified-chat';
+
+export interface ClientChatMessage extends BaseChatMessage {
   sender: 'user' | 'ai';
-  content: any; // Can be string or a concept card object
-  type: 'text' | 'concept'; // Added to distinguish message types
+  type: 'text' | 'concept';
+  content: string | Record<string, unknown>; // Can be string or a concept card object
 }
 
 export interface UseMayaChatReturn {
-  messages: ChatMessage[];
-  sendMessage: (message: string, context?: any) => void; // Corrected arguments
+  messages: ClientChatMessage[];
+  sendMessage: (message: string, context?: Record<string, unknown>) => Promise<void>;
   isLoading: boolean;
   error: string | null;
 }

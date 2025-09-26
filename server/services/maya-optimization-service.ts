@@ -3,9 +3,9 @@
  * Maya Optimization Service - Eliminates redundant API calls and optimizes concept generation
  */
 
-import { ClaudeApiServiceSimple } from './claude-api-service-simple.js';
-import { enforceGender, normalizeGender } from '../utils/gender-prompt.js';
-import { PersonalityManager } from '../agents/personalities/personality-config.js';
+import { ClaudeApiServiceSimple } from '.claude-api-service-simple';.js
+import { enforceGender, normalizeGender } from '..utils/gender-prompt';
+import { PersonalityManager } from '..agents/personalities/personality-config';
 
 export interface OptimizedConceptResult {
   concepts: any[];

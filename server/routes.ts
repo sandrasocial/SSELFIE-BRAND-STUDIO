@@ -1,9 +1,9 @@
-import { setupEnhancementRoutes } from './services/backend-enhancement-services.js';
+import { setupEnhancementRoutes } from './services/backend-enhancement-services';
 import type { Express } from "express";
 import express from "express";
 import { createServer, type Server } from "http";
 import cookieParser from "cookie-parser";
-import { setupRollbackRoutes } from './routes/rollback.js';
+import { setupRollbackRoutes } from './routes/rollback';
 import { storage } from "./storage.js";
 import { requireStackAuth, requireActiveSubscription, optionalStackAuth } from './stack-auth.js';
 import { db } from "./drizzle.js";
@@ -256,7 +256,7 @@ function parseStoryScenes(mayaResponse: string, originalMessage: string): any[] 
   const scenes: any[] = [];
   
   try {
-    // Extract scenes from Maya's response using intelligent parsing
+    // Extract scenes from Maya'.js's response using intelligent parsing
     const sceneMatches = mayaResponse.match(/scene\s*(\d+)/gi);
     const sceneParts = mayaResponse.split(/scene\s*\d+/i).slice(1);
     
@@ -370,7 +370,7 @@ async function parseVideoScenes(mayaResponse: string, originalMessage: string, u
   const scenes: any[] = [];
   
   try {
-    // Extract scenes from Maya's enhanced video response
+    // Extract scenes from Maya'.js's enhanced video response
     const sceneMatches = mayaResponse.match(/scene\s*(\d+)/gi);
     const sceneParts = mayaResponse.split(/scene\s*\d+/i).slice(1);
     
@@ -727,7 +727,7 @@ function generatePersonalizedScenePrompt(sceneNumber: number, originalMessage: s
         return res.status(400).json({ error: 'Message is required' });
       }
 
-      console.log('💬 Maya MEMBER chat message received from user:', userId);
+      console.log('💬 Maya MEMBER chat message received from user:'.js', userId);
 
       // MAYA FAÇADE: Removed PersonalityManager import - Maya's personality via API only
       // const { PersonalityManager } = await import('./agents/personalities/personality-config.js'); // REMOVED: Direct dependency

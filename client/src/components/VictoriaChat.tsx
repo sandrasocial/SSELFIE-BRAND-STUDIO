@@ -1,11 +1,9 @@
 import { useState, useEffect, useRef, KeyboardEvent } from 'react';
 import { Send, Mic, MicOff, Sparkles } from 'lucide-react';
 
-interface Message {
-  id: string;
-  content: string;
-  sender: 'user' | 'victoria';
-  timestamp: Date;
+import type { ChatMessage } from '../../../shared/types/ChatMessage';
+
+interface VictoriaChatMessage extends ChatMessage {
   typing?: boolean;
 }
 

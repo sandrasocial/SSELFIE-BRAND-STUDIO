@@ -172,73 +172,73 @@ export class ImageStorageService {
    */
   static async migrateTempImagesToS3(userId: string): Promise<MigrationResult[]> {
     const results: MigrationResult[] = [];
+    
     try {
       console.log(`Starting migration for user ${userId}...`);
       
       const userImages = await storage.getAIImages(userId) as AIImage[];
       
       for (const image of userImages) {
-        try {
-          // Skip if already using S3 URL
-          if (this.isPermanentUrl(image.imageUrl)) {
-            continue;
-          }
-          
-          // Skip if URL is broken or invalid
-          if (!this.isValidImageUrl(image.imageUrl)) {
-            results.push({
-              success: false,
-              error: new Error('Invalid image URL'),
-              originalUrl: image.imageUrl
-            });
-            continue;
-          }
-          
-          try {
-            const permanentUrl = await this.storeImagePermanently(
-              image.imageUrl, 
-              userId, 
-              image.id.toString()
-            );
-            
-            // Update database with permanent URL directly
-            const { db } = await import('./db.js');
-            const { aiImages } = await import('../shared/schema.js');
-            const { eq } = await import('drizzle-orm');
-            
-            await db
-              .update(aiImages)
-              .set({ imageUrl: permanentUrl })
-              .where(eq(aiImages.id, image.id));
-            
-            console.log(`Migrated image ${image.id} to permanent storage`);
-            
-            results.push({
-              success: true,
-              permanentUrl,
-              originalUrl: image.imageUrl
-            });
-            
-            // Small delay to avoid overwhelming S3
-            await new Promise(resolve => setTimeout(resolve, 100));
-            
-          } catch (error) {
-            console.error(`Failed to migrate image ${image.id}:`, error);
-            results.push({
-              success: false,
-              error: error instanceof Error ? error : new Error(String(error)),
-              originalUrl: image.imageUrl
-            });
-          }
+        // Skip if already using S3 URL
+        if (this.isPermanentUrl(image.imageUrl)) {
+          continue;
         }
         
-        console.log(`Migration completed for user ${userId}`);
-        return results;
+        // Skip if URL is broken or invalid
+        if (!this.isValidImageUrl(image.imageUrl)) {
+          results.push({
+            success: false,
+            error: new Error('Invalid image URL'),
+            originalUrl: image.imageUrl
+          });
+          continue;
+        }
         
-      } catch (error) {
-        console.error('Error during migration:', error);
-        throw error;
+        try {
+          const permanentUrl = await this.storeImagePermanently(
+            image.imageUrl, 
+            userId, 
+            image.id.toString()
+          );
+          
+          // Update database with permanent URL directly
+          const { db } = await import('./db.js');
+          const { aiImages } = await import('../shared/schema.js');
+          const { eq } = await import('drizzle-orm');
+          
+          await db
+            .update(aiImages)
+            .set({ imageUrl: permanentUrl })
+            .where(eq(aiImages.id, image.id));
+          
+          console.log(`Migrated image ${image.id} to permanent storage`);
+          
+          results.push({
+            success: true,
+            permanentUrl,
+            originalUrl: image.imageUrl
+          });
+          
+          // Small delay to avoid overwhelming S3
+          await new Promise(resolve => setTimeout(resolve, 100));
+          
+        } catch (error) {
+          console.error(`Failed to migrate image ${image.id}:`, error);
+          results.push({
+            success: false,
+            error: error instanceof Error ? error : new Error(String(error)),
+            originalUrl: image.imageUrl
+          });
+        }
       }
+      
+      console.log(`Migration completed for user ${userId}`);
+      return results;
+      
+    } catch (error) {
+      console.error('Error during migration:', error);
+      throw error;
+    }
   }
 
   /**

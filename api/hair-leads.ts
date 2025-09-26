@@ -47,7 +47,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Check if email already exists
     const existingLead = await db.query.hairLeads.findFirst({
-      where: (leads, { eq }) => eq(leads.epost, leadData.epost)
+      where: (leads: typeof hairLeads, { eq }: { eq: any }) => eq(leads.epost, leadData.epost)
     });
 
     if (existingLead) {

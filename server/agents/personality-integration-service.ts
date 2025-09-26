@@ -4,7 +4,7 @@
  * Replaces generic routing with personality-first admin agent architecture
  */
 
-import { PURE_PERSONALITIES, PersonalityManager } from './personalities/personality-config.js';
+import { PURE_PERSONALITIES, PersonalityManager } from '.personalities/personality-config';
 
 interface PersonalityContext {
   agentId: string;

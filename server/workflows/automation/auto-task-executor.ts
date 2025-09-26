@@ -3,9 +3,9 @@
  * Automatically triggers agents to begin working on assigned tasks without manual activation
  */
 
-import { claudeApiServiceSimple } from '../../services/claude-api-service-simple.js';
+import { claudeApiServiceSimple } from '..../services/claude-api-service-simple';
 // MAYA FAÇADE: Removed PersonalityManager dependency - Maya is now isolated
-// import { PersonalityManager } from '../../agents/personalities/personality-config.js'; // REMOVED: Outbound dependency
+// import { PersonalityManager } from '..../agents/personalities/personality-config'; // REMOVED: Outbound dependency
 
 export interface AutoExecutionConfig {
   agentId: string;
