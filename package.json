@@ -638,7 +638,7 @@
     "build": "vite build --config vite.config.ts",
     "build:server": "npm run build:server:ts && npm run build:server:bundle",
     "build:server:ts": "tsc -p tsconfig.server.json --skipLibCheck",
-    "build:server:bundle": "esbuild server/index-launch.ts --bundle --platform=node --format=esm --outdir=dist-server --sourcemap --target=node20 --external:@google/genai --external:express --external:@aws-sdk/* --external:drizzle-orm --external:pg --external:ws --external:@react-email/render",
+    "build:server:bundle": "esbuild server/index-launch.ts server/storage.ts server/drizzle.ts shared/schema.ts --bundle --platform=node --format=esm --outdir=dist-server --sourcemap --target=node20 --external:@google/genai --external:express --external:@aws-sdk/* --external:drizzle-orm --external:pg --external:ws --external:@react-email/render",
     "vercel-build": "npm run build && npm run build:server && npm run build:api",
     "build:api": "npm run build:api:ts && npm run build:api:bundle",
     "build:api:ts": "tsc -p tsconfig.json --noEmit false --declaration --emitDeclarationOnly --outDir .vercel/output/functions/_types",
