@@ -5,7 +5,7 @@ import "./index.css";
 
 // 💡 IMPORT ALL PROVIDERS HERE
 import { QueryClientProvider } from '@tanstack/react-query';
-import { StackProvider } from '@stackframe/react'; // This is the ReactStackProvider
+import { StackProvider, StackTheme } from '@stackframe/react'; // This is the ReactStackProvider
 import { Toaster } from './components/ui/toaster';
 import { TooltipProvider } from './components/ui/tooltip';
 
@@ -87,14 +87,16 @@ root.render(
   <React.StrictMode>
     {/* 1. StackProvider MUST wrap everything that uses auth hooks */}
     <StackProvider app={stackClientApp}>
-      {/* 2. QueryClientProvider wraps the entire application logic */}
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          {/* 3. App component only renders the router */}
-          <App />
-          <Toaster />
-        </TooltipProvider>
-      </QueryClientProvider>
+      <StackTheme>
+        {/* 2. QueryClientProvider wraps the entire application logic */}
+        <QueryClientProvider client={queryClient}>
+          <TooltipProvider>
+            {/* 3. App component only renders the router */}
+            <App />
+            <Toaster />
+          </TooltipProvider>
+        </QueryClientProvider>
+      </StackTheme>
     </StackProvider>
   </React.StrictMode>
 );
