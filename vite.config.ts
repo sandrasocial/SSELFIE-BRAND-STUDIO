@@ -1,6 +1,6 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import path from "node:path";
+import * as path from "path";
 
 export default defineConfig(({ mode }) => {
   const plugins = [
@@ -26,25 +26,25 @@ export default defineConfig(({ mode }) => {
     resolve: {
       alias: {
         // lock React to the root node_modules so sub-deps can’t sneak in a second copy
-        react: path.resolve(import.meta.dirname, "node_modules/react"),
-        "react-dom": path.resolve(import.meta.dirname, "node_modules/react-dom"),
+        react: path.resolve(__dirname, "node_modules/react"),
+        "react-dom": path.resolve(__dirname, "node_modules/react-dom"),
 
         // your existing aliases (unchanged)
-        "@": path.resolve(import.meta.dirname, "client", "src"),
-        "@shared": path.resolve(import.meta.dirname, "shared"),
-        "@assets": path.resolve(import.meta.dirname, "attached_assets"),
+        "@": path.resolve(__dirname, "client", "src"),
+        "@shared": path.resolve(__dirname, "shared"),
+        "@assets": path.resolve(__dirname, "attached_assets"),
       },
     },
 
     // your existing root/build/server config (unchanged)
-    root: path.resolve(import.meta.dirname, "client"),
+    root: path.resolve(__dirname, "client"),
     build: {
-      outDir: path.resolve(import.meta.dirname, "client/dist"),
+      outDir: path.resolve(__dirname, "client/dist"),
       emptyOutDir: true,
       // Optimize bundle size
       chunkSizeWarningLimit: 1000,
       rollupOptions: {
-        input: path.resolve(import.meta.dirname, "client/index.html")
+        input: path.resolve(__dirname, "client/index.html")
       },
       // Enable source maps for debugging
       sourcemap: mode === 'development',
