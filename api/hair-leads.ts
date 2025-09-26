@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { db } from '@server/db.js';
-import { hairLeads, insertHairLeadSchema } from '@shared/schema.js';
+import { db } from '../server/db.js';
+import { hairLeads, insertHairLeadSchema } from '../shared/schema.js';
 
 export const config = { runtime: 'nodejs' } as const;
 

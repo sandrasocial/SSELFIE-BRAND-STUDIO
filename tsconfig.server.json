@@ -13,8 +13,9 @@
     "noImplicitAny": false
   },
   "include": [
-    "server/**/*",
-    "shared/**/*"
+    "server/**/*.ts",
+    "shared/**/*.ts",
+    "api/**/*.ts"
   ],
   "exclude": [
     "node_modules",

@@ -33,7 +33,7 @@ router.get('/current', requireStackAuth, async (req: any, res) => {
     console.log('🎯 Current trends requested for Workshop Mode by user:', req.user?.id);
 
     // Fetch latest trends from database
-    const trends = await db.execute(sql`
+    const result = await db.execute(sql`
       SELECT 
         id,
         week_range,
@@ -44,7 +44,15 @@ router.get('/current', requireStackAuth, async (req: any, res) => {
       FROM hair_trends 
       ORDER BY created_at DESC 
       LIMIT 1
-    `);
+    `) as { rows: Array<{
+      id: number;
+      week_range: string;
+      trend_data: any;
+      summary: string;
+      confidence: number;
+      created_at: string;
+    }> };
+    const trends = result.rows;
 
     if (!trends || trends.length === 0) {
       return res.json({

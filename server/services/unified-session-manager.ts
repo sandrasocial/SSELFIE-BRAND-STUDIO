@@ -11,7 +11,7 @@
  */
 
 import { db } from '../drizzle';
-import { agentSessionContexts, sessions, users } from '@shared/schema';
+import { agentSessionContexts, sessions, users } from '../../shared/schema';
 import { eq, and, desc } from 'drizzle-orm';
 
 export interface AgentSessionContext {
