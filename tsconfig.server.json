@@ -8,7 +8,9 @@
     "moduleResolution": "node",
     "declaration": false,
     "emitDecoratorMetadata": true,
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+    "skipLibCheck": true,
+    "noImplicitAny": false
   },
   "include": [
     "server/**/*",
