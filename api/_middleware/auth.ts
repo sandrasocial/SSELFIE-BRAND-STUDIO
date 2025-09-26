@@ -1,12 +1,13 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { JWTVerifyResult, JWTPayload } from 'jose';
+import { StackAuthUserInfo } from '../_shared/stack-auth-types.js';
+import { LocalJWKSet } from '../_shared/jwks-types.js';
+import { Response } from 'node-fetch';
 
 // Constants
 const STACK_AUTH_PROJECT_ID = process.env.STACK_AUTH_PROJECT_ID || process.env.VITE_STACK_PROJECT_ID || '253d7343-a0d4-43a1-be5c-822f590d40be';
 const STACK_AUTH_API_URL = 'https://api.stack-auth.com/api/v1';
 const JWKS_URL = `${STACK_AUTH_API_URL}/projects/${STACK_AUTH_PROJECT_ID}/.well-known/jwks.json`;
-
-import { LocalJWKSet } from '../_shared/jwks-types.js';
 
 // JWKS cache
 let JWKS: LocalJWKSet | null = null;
@@ -29,13 +30,13 @@ function parseCookieHeader(cookieHeader?: string): Record<string, string> {
 }
 
 // Timed fetch helper
-async function timedFetch(url: string, ms = 3000, init?: { method?: string; headers?: Record<string, string>; body?: string }) {
+async function timedFetch(url: string, ms = 3000, init?: { method?: string; headers?: Record<string, string>; body?: string }): Promise<Response> {
   const AbortCtor = typeof AbortController !== 'undefined' ? AbortController : (globalThis as any).AbortController;
   const ac = new AbortCtor();
   const id = setTimeout(() => ac.abort(), ms);
   try {
     const f = (globalThis as any).fetch || fetch;
-    return await f(url, { ...(init || {}), signal: ac.signal });
+    return await f(url, { ...(init || {}), signal: ac.signal }) as Response;
   } finally {
     clearTimeout(id);
   }
@@ -66,7 +67,7 @@ async function getJWKS() {
 }
 
 // Verify JWT token
-async function verifyJWTToken(token: string) {
+async function verifyJWTToken(token: string): Promise<JWTPayload & StackAuthUserInfo> {
   try {
     const jose = await import('jose');
     const jwks = await getJWKS();
@@ -80,7 +81,7 @@ async function verifyJWTToken(token: string) {
       audience: STACK_AUTH_PROJECT_ID,
     });
     
-    return payload;
+    return payload as JWTPayload & StackAuthUserInfo;
   } catch (error) {
     throw new Error(`JWT verification failed: ${(error as Error).message}`);
   }
@@ -188,20 +189,22 @@ export async function getAuthenticatedUser(req: VercelRequest): Promise<Authenti
 export async function withAuth<T>(
   req: VercelRequest,
   res: VercelResponse,
-  handler: (req: VercelRequest & { user: AuthenticatedUser }, res: VercelResponse) => Promise<T>
+  handler: AuthenticatedHandler<T>,
+  options: AuthOptions = {}
 ): Promise<T> {
-  // Bypass auth for cron jobs
-  if (req.url?.startsWith('/api/cron/')) {
-    console.log('🔓 Bypassing auth for cron job:', {
+  // Handle bypass option (e.g. for cron jobs)
+  if (options.bypass || req.url?.startsWith('/api/cron/')) {
+    console.log('🔓 Bypassing auth:', {
       url: req.url,
       method: req.method,
       headers: req.headers,
-      query: req.query
+      query: req.query,
+      bypass: options.bypass
     });
     try {
-      return await handler(req, res);
+      return await handler(req as AuthenticatedRequest, res);
     } catch (error) {
-      console.error('❌ Cron job handler failed:', {
+      console.error('❌ Handler failed:', {
         url: req.url,
         method: req.method,
         error: error instanceof Error ? { message: error.message, stack: error.stack } : error
@@ -213,12 +216,18 @@ export async function withAuth<T>(
   try {
     // Add user to request
     const user = await getAuthenticatedUser(req);
-    (req as VercelRequest & { user: AuthenticatedUser }).user = user;
+    (req as AuthenticatedRequest).user = user;
 
-    // Call handler
-    return handler(req, res);
+    // Call handler with authenticated request
+    return await handler(req as AuthenticatedRequest, res);
   } catch (error) {
-    console.error('Auth failed:', error);
+    // For optional auth, allow request through without user
+    if (options.optional) {
+      console.log('📝 Optional auth failed, continuing without user');
+      return await handler(req as AuthenticatedRequest, res);
+    }
+
+    console.error('❌ Auth failed:', error);
 
     // Clear cookies on auth failure
     const expired = [
@@ -230,9 +239,12 @@ export async function withAuth<T>(
     
     res.setHeader('Set-Cookie', expired);
     
-    return res.status(401).json({ 
+    const response: AuthResponse<null> = {
+      status: 401,
       message: 'Authentication required',
-      error: (error as Error).message
-    });
+      error: error instanceof Error ? error.message : 'Unknown error'
+    };
+    
+    return res.status(401).json(response);
   }
 }
