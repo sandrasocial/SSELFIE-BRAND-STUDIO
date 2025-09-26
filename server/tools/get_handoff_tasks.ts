@@ -3,7 +3,7 @@
  * Retrieve tasks that are being handed off between agents
  */
 
-import { WorkflowPersistence } from '../workflows/active/workflow-persistence';
+import { WorkflowPersistence } from '../workflows/active/workflow-persistence.js';
 
 interface GetHandoffTasksInput {
   agent_name?: string;

@@ -3,7 +3,7 @@
  * Handles stable diffusion inpainting using Replicate API
  */
 
-import { storage } from '../../storage';
+import { storage } from '../../storage.js';
 
 export interface InpaintRequest {
   imageUrl: string;

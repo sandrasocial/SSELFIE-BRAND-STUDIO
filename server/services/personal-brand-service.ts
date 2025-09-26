@@ -1,4 +1,4 @@
-import { db } from "../drizzle";
+import { db } from "../drizzle.js";
 import { eq, and, desc } from "drizzle-orm";
 import {
   onboardingData,
@@ -10,7 +10,7 @@ import {
   type InsertOnboardingData,
   type InsertBrandOnboarding,
   type InsertUserProfile,
-} from "../../shared/schema";
+} from "../../shared/schema.js";
 
 // Enhanced personal brand data types for Maya onboarding
 export interface PersonalBrandStory {

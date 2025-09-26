@@ -4,10 +4,10 @@
  */
 
 import { Router } from 'express';
-import { requireStackAuth, requireActiveSubscription } from '../../stack-auth';
-import { storage } from '../../storage';
-import { ModelTrainingService } from '../../model-training-service';
-import { asyncHandler, createError, sendSuccess, validateRequired } from '../middleware/error-handler';
+import { requireStackAuth, requireActiveSubscription } from '../../stack-auth.js';
+import { storage } from '../../storage.js';
+import { ModelTrainingService } from '../../model-training-service.js';
+import { asyncHandler, createError, sendSuccess, validateRequired } from '../middleware/error-handler.js';
 
 const router = Router();
 

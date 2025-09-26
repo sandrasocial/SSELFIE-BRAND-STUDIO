@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { withAuth } from '../api/_middleware/auth';
+import { withAuth } from '../api/_middleware/auth.js';
 export const config = { runtime: 'nodejs' } as const;
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -39,7 +39,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   // Auto-registration and other auth endpoints
   if (req.url === '/api/auth/auto-register') {
-    const { storage } = await import('../server/storage');
+    const { storage } = await import('../server/storage.js');
     const { email, plan, source } = req.body || {};
     
     if (!email || !plan) {

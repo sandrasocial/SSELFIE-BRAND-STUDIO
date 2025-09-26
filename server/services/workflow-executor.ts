@@ -1,4 +1,4 @@
-import { db } from '../drizzle';
+import { db } from '../drizzle.js';
 import fs from 'fs';
 import path from 'path';
 import { exec } from 'child_process';
@@ -39,10 +39,12 @@ export class WorkflowExecutor {
       
       // Get current database schema
       for (const table of tables) {
-        const [tableInfo] = await db.query(
-          'SELECT column_name, data_type FROM information_schema.columns WHERE table_name = ?',
-          [table]
-        );
+        const tableInfo = await db.select({
+          columnName: 'column_name',
+          dataType: 'data_type'
+        })
+        .from('information_schema.columns')
+        .where('table_name', '=', table);
         
         // Verify against schema definition
         if (!this.validateTableSchema(tableInfo, schemaContent, table)) {
@@ -59,18 +61,13 @@ export class WorkflowExecutor {
   // Fix Execution
   async executeFixes(operations: string[]): Promise<void> {
     try {
-      // Start transaction
-      await db.query('BEGIN');
-
-      for (const operation of operations) {
-        await db.query(operation);
-      }
-
-      // Commit if all operations successful
-      await db.query('COMMIT');
+      const tx = await db.transaction(async (tx) => {
+        for (const operation of operations) {
+          await tx.execute(operation);
+        }
+      });
     } catch (error) {
-      // Rollback on error
-      await db.query('ROLLBACK');
+      // Transaction will automatically rollback on error
       throw new Error(`Fix execution failed: ${error.message}`);
     }
   }
@@ -79,7 +76,7 @@ export class WorkflowExecutor {
   async verifyFixes(checks: string[]): Promise<boolean> {
     try {
       for (const check of checks) {
-        const [result] = await db.query(check);
+        const result = await db.execute(check);
         if (result.count > 0) {
           throw new Error(`Verification failed for check: ${check}`);
         }

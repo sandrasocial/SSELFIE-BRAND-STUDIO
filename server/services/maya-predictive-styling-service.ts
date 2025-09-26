@@ -3,7 +3,7 @@
  * Maya Predictive Styling Service - Anticipate user preferences and suggest optimal styling
  */
 
-import { MayaBehaviorLearningService } from './maya-behavior-learning-service';
+import { MayaBehaviorLearningService } from './maya-behavior-learning-service.js';
 import { unifiedMayaMemoryService } from './unified-maya-memory-service.js';
 
 export interface StylePrediction {
@@ -150,8 +150,8 @@ export class MayaPredictiveStyleService {
         preferredSessionLength: this.calculatePreferredSessionLength(behaviorData),
         idealConceptComplexity: this.determineIdealComplexity(behaviorData),
         subscriptionSatisfaction: this.predictSubscriptionSatisfaction(behaviorData),
-        featureInterest: this.predictFeatureInterest(behaviorData),
-        retentionProbability: this.calculateRetentionProbability(behaviorData)
+        featureInterest: await this.predictFeatureInterest(userId, behaviorData),
+        retentionProbability: await this.calculateRetentionProbability(userId, behaviorData)
       };
       
       console.log(`✅ PHASE 5.3: Predictive insights generated - Current phase: ${currentPhase}`);
@@ -237,7 +237,7 @@ export class MayaPredictiveStyleService {
     
     // Add evolution-based predictions
     if (stylePatterns.evolutionTrend === 'expanding') {
-      predictions.alternatives = this.getExpandedStyleSuggestions(stylePatterns.dominantStyles);
+      predictions.alternatives = await this.getExpandedStyleSuggestions('default', stylePatterns.dominantStyles);
       predictions.basis.push('style_evolution');
     }
     
@@ -490,94 +490,127 @@ export class MayaPredictiveStyleService {
 
   // Missing static methods that are referenced but not implemented
   static async predictEmergingTrends(userId: string, stylePatterns: any): Promise<string[]> {
-    return []; // Placeholder implementation
+    return ['sustainable_fashion', 'mixed_textures', 'modern_minimalism']; // Improved placeholder
   }
 
   static calculateTrendAlignment(stylePatterns: any): number {
-    return 0.8; // Placeholder implementation
+    const baseAlignment = 0.75;
+    return Math.min(1.0, Math.max(0.0, baseAlignment)); // Ensure value between 0 and 1
   }
 
   static determineTrendTimeline(behaviorData: any): string {
-    return '3-6 months'; // Placeholder implementation
+    return behaviorData?.styleHistory?.length > 10 ? '1-3_months' : '3-6_months';
   }
 
   static async generateSeasonalPredictions(userId: string, contextualData: any): Promise<string[]> {
-    return []; // Placeholder implementation
+    const season = contextualData?.seasonal?.currentSeason || 'spring';
+    return this.getSeasonalStyleSuggestions(season);
   }
 
   static async generateEventPredictions(userId: string, contextualData: any): Promise<string[]> {
-    return []; // Placeholder implementation
+    return ['business_meeting', 'casual_weekend', 'special_occasion']; // Improved placeholder
   }
 
-  static async generateMoodPredictions(userId: string, contextualData: any): Promise<string[]> {
-    return []; // Placeholder implementation
+  static async generateMoodPredictions(stylePatterns: any): Promise<Record<string, string[]>> {
+    return {
+      confident: ['structured', 'bold'],
+      creative: ['artistic', 'unique'],
+      relaxed: ['flowing', 'comfortable']
+    }; // Placeholder implementation
   }
 
   static identifySkillBuildingAreas(stylePatterns: any): string[] {
     return []; // Placeholder implementation
   }
 
-  static identifyConfidenceBuilders(stylePatterns: any): string[] {
-    return []; // Placeholder implementation
+  static identifyConfidenceBuilders(behaviorData: any, stylePredictions: StylePrediction): string[] {
+    return ['classic_styles', 'signature_looks', 'proven_combinations']; // Improved placeholder
   }
 
-  static async generateCustomConceptSeeds(userId: string, stylePatterns: any): Promise<string[]> {
-    return []; // Placeholder implementation
+  static async generateCustomConceptSeeds(userId: string, predictions: StylePrediction): Promise<string[]> {
+    return ['professional_elegance', 'casual_sophistication', 'creative_expression']; // Improved placeholder
   }
 
-  static async generateRemixSuggestions(userId: string, stylePatterns: any): Promise<string[]> {
-    return []; // Placeholder implementation
+  static generateRemixSuggestions(behaviorData: any): string[] {
+    return ['Mix different textures', 'Try new color combinations', 'Experiment with layering']; // Improved placeholder
   }
 
-  static identifyUnexploredAreas(stylePatterns: any): string[] {
-    return []; // Placeholder implementation
+  static identifyUnexploredAreas(behaviorData: any): string[] {
+    return ['evening_wear', 'business_casual', 'athleisure']; // Improved placeholder
   }
 
-  static async generateComfortZoneExpanders(userId: string, stylePatterns: any): Promise<string[]> {
-    return []; // Placeholder implementation
+  static generateComfortZoneExpanders(behaviorData: any, predictions: StylePrediction): string[] {
+    return ['subtle_pattern_mixing', 'new_silhouettes', 'accent_colors']; // Improved placeholder
   }
 
-  static async predictPhaseTransition(userId: string, behaviorData: any): Promise<string> {
-    return 'stable'; // Placeholder implementation
+  static predictPhaseTransition(currentPhase: 'discovery' | 'exploration' | 'refinement' | 'mastery' | 'innovation', behaviorData: any): string {
+    return '2-3_weeks'; // Improved placeholder with proper return format
   }
 
-  static identifyPhaseTransitionSignals(behaviorData: any): string[] {
-    return []; // Placeholder implementation
+  static identifyPhaseTransitionSignals(currentPhase: 'discovery' | 'exploration' | 'refinement' | 'mastery' | 'innovation'): string[] {
+    const signals = {
+      discovery: ['consistent_preferences', 'regular_engagement', 'style_curiosity'],
+      exploration: ['increased_confidence', 'style_experimentation', 'feedback_engagement'],
+      refinement: ['style_mastery', 'personalization_requests', 'advanced_techniques'],
+      mastery: ['style_innovation', 'mentoring_others', 'trend_setting'],
+      innovation: ['style_leadership', 'industry_influence', 'pioneering_trends']
+    };
+    return signals[currentPhase] || signals.discovery;
   }
 
-  static async predictOptimalEngagementTimes(userId: string, behaviorData: any): Promise<string[]> {
-    return []; // Placeholder implementation
+  static predictOptimalEngagementTimes(behaviorData: any): string[] {
+    return ['morning', 'evening', 'weekend']; // Improved placeholder
   }
 
-  static async calculatePreferredSessionLength(userId: string, behaviorData: any): Promise<number> {
-    return 30; // Placeholder implementation
+  static calculatePreferredSessionLength(behaviorData: any): number {
+    return Math.max(15, Math.min(60, behaviorData?.averageSessionLength || 30));
   }
 
-  static async determineIdealComplexity(userId: string, behaviorData: any): Promise<string> {
-    return 'medium'; // Placeholder implementation
+  static determineIdealComplexity(behaviorData: any): 'simple' | 'moderate' | 'complex' {
+    const confidence = behaviorData?.styleConfidence || 0;
+    if (confidence < 40) return 'simple';
+    if (confidence < 70) return 'moderate';
+    return 'complex';
   }
 
-  static async predictSubscriptionSatisfaction(userId: string, behaviorData: any): Promise<number> {
-    return 0.8; // Placeholder implementation
+  static predictSubscriptionSatisfaction(behaviorData: any): number {
+    return Math.min(100, Math.max(0, behaviorData?.satisfactionScore || 75));
   }
 
-  static async predictFeatureInterest(userId: string, behaviorData: any): Promise<string[]> {
-    return []; // Placeholder implementation
+  static predictFeatureInterest(behaviorData: any): Record<string, number> {
+    return {
+      seasonal_styling: 80,
+      professional_focus: 70,
+      trend_integration: 60,
+      personalized_recommendations: 85
+    }; // Improved placeholder with proper structure
   }
 
-  static async calculateRetentionProbability(userId: string, behaviorData: any): Promise<number> {
-    return 0.8; // Placeholder implementation
+  static calculateRetentionProbability(behaviorData: any): number {
+    return Math.min(1.0, Math.max(0.0, behaviorData?.retentionScore || 0.85));
   }
 
-  static calculatePreferenceStrength(stylePatterns: any): number {
-    return 0.8; // Placeholder implementation
+  static calculatePreferenceStrength(preferences: string[]): number {
+    return preferences.length > 0 ? Math.min(1.0, preferences.length / 10) : 0.5;
   }
 
-  static analyzeEvolutionTrend(stylePatterns: any): string {
-    return 'progressive'; // Placeholder implementation
+  static analyzeEvolutionTrend(styleHistory: any[]): 'stable' | 'progressing' | 'expanding' {
+    if (!styleHistory || styleHistory.length < 2) return 'stable';
+    const recentChanges = styleHistory.slice(-5);
+    const uniqueStyles = new Set(recentChanges.map(entry => entry.style)).size;
+    if (uniqueStyles > 3) return 'expanding';
+    if (uniqueStyles > 1) return 'progressing';
+    return 'stable';
   }
 
-  static async getExpandedStyleSuggestions(userId: string, stylePatterns: any): Promise<string[]> {
-    return []; // Placeholder implementation
+  static getExpandedStyleSuggestions(baseStyle: string, currentStyles: string[]): string[] {
+    // Map base styles to expanded suggestions
+    const expansionMap = {
+      classic: ['modern_classic', 'timeless_elegance', 'refined_casual'],
+      casual: ['elevated_casual', 'smart_casual', 'relaxed_sophistication'],
+      creative: ['artistic_expression', 'avant_garde', 'eclectic_fusion'],
+      default: ['versatile_basics', 'seasonal_trends', 'signature_style']
+    };
+    return expansionMap[baseStyle] || expansionMap.default;
   }
 }

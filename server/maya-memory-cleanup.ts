@@ -7,8 +7,8 @@
  * to detect user needs through authentic conversation.
  */
 
-import { MayaMemoryService } from './services/maya-memory-service';
-import { storage } from './storage';
+import { MayaMemoryService } from './services/maya-memory-service.js';
+import { storage } from './storage.js';
 
 /**
  * Clear restrictive categorizations for all users

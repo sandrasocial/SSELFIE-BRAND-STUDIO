@@ -1,5 +1,5 @@
-import { db } from '../drizzle';
-import { ImageStorageService } from '../image-storage-service';
+import { db } from '../drizzle.js';
+import { ImageStorageService } from '../image-storage-service.js';
 
 async function migrateTempUrls() {
   const imageStorage = new ImageStorageService();

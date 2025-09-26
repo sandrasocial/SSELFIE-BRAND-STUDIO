@@ -4,8 +4,8 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
-import { Logger } from './logger';
-import { middlewareSystem } from './middleware';
+import { Logger } from './logger.js';
+import { middlewareSystem } from './middleware.js';
 
 export class MiddlewareSystem {
   private logger: Logger;

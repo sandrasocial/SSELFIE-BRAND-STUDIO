@@ -4,21 +4,21 @@
  */
 
 // MAYA FAÇADE: Removed BrandIntelligenceService dependency - Maya is now self-contained
-// import { BrandIntelligenceService } from '../../services/brand-intelligence-service'; // REMOVED: Outbound dependency
-import { MAYA_PERSONALITY } from './maya-personality';
-import { ELENA_PERSONALITY } from './elena-personality';
-import { OLGA_PERSONALITY } from './olga-personality';
-import { ZARA_PERSONALITY } from './zara-personality';
-import { VICTORIA_PERSONALITY } from './victoria-personality';
-import { ARIA_PERSONALITY } from './aria-personality';
-import { RACHEL_PERSONALITY } from './rachel-personality';
-import { DIANA_PERSONALITY } from './diana-personality';
-import { QUINN_PERSONALITY } from './quinn-personality';
-import { WILMA_PERSONALITY } from './wilma-personality';
-import { SOPHIA_PERSONALITY } from './sophia-personality';
-import { MARTHA_PERSONALITY } from './martha-personality';
-import { AVA_PERSONALITY } from './ava-personality';
-import { FLUX_PERSONALITY } from './flux-personality';
+// import { BrandIntelligenceService } from '../../services/brand-intelligence-service.js'; // REMOVED: Outbound dependency
+import { MAYA_PERSONALITY } from './maya-personality.js';
+import { ELENA_PERSONALITY } from './elena-personality.js';
+import { OLGA_PERSONALITY } from './olga-personality.js';
+import { ZARA_PERSONALITY } from './zara-personality.js';
+import { VICTORIA_PERSONALITY } from './victoria-personality.js';
+import { ARIA_PERSONALITY } from './aria-personality.js';
+import { RACHEL_PERSONALITY } from './rachel-personality.js';
+import { DIANA_PERSONALITY } from './diana-personality.js';
+import { QUINN_PERSONALITY } from './quinn-personality.js';
+import { WILMA_PERSONALITY } from './wilma-personality.js';
+import { SOPHIA_PERSONALITY } from './sophia-personality.js';
+import { MARTHA_PERSONALITY } from './martha-personality.js';
+import { AVA_PERSONALITY } from './ava-personality.js';
+import { FLUX_PERSONALITY } from './flux-personality.js';
 
 // Pure personality definitions without technical constraints
 export const PURE_PERSONALITIES = {

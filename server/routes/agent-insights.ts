@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { requireStackAuth } from '../stack-auth';
-import { AgentInsightEngine } from '../services/agent-insight-engine';
+import { requireStackAuth } from '../stack-auth.js';
+import { AgentInsightEngine } from '../services/agent-insight-engine.js';
 
 const router = Router();
 

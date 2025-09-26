@@ -4,14 +4,14 @@
  */
 
 import { Router } from 'express';
-import { requireStackAuth } from '../../stack-auth';
-import { asyncHandler, createError, sendSuccess, validateRequired } from '../middleware/error-handler';
-import { storage } from '../../storage';
-import { ModelTrainingService } from '../../model-training-service';
-import { PersonalityManager } from '../../agents/personalities/personality-config';
-import { MayaOptimizationService } from '../../services/maya-optimization-service';
-import { MayaAdaptationEngine } from '../../services/maya-adaptation-engine';
-import { ClaudeApiServiceSimple } from '../../services/claude-api-service-simple';
+import { requireStackAuth } from '../../stack-auth.js';
+import { asyncHandler, createError, sendSuccess, validateRequired } from '../middleware/error-handler.js';
+import { storage } from '../../storage.js';
+import { ModelTrainingService } from '../../model-training-service.js';
+import { PersonalityManager } from '../../agents/personalities/personality-config.js';
+import { MayaOptimizationService } from '../../services/maya-optimization-service.js';
+import { MayaAdaptationEngine } from '../../services/maya-adaptation-engine.js';
+import { ClaudeApiServiceSimple } from '../../services/claude-api-service-simple.js';
 
 const router = Router();
 

@@ -3,8 +3,8 @@
  * Centralized error handling and recovery system
  */
 
-import { Logger } from '../utils/logger';
-import { createError } from '../utils/error-handler';
+import { Logger } from '../utils/logger.js';
+import { createError } from '../utils/error-handler.js';
 
 export interface ErrorContext {
   userId?: string;

@@ -1,12 +1,15 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
+import { JWTVerifyResult, JWTPayload } from 'jose';
 
 // Constants
 const STACK_AUTH_PROJECT_ID = process.env.STACK_AUTH_PROJECT_ID || process.env.VITE_STACK_PROJECT_ID || '253d7343-a0d4-43a1-be5c-822f590d40be';
 const STACK_AUTH_API_URL = 'https://api.stack-auth.com/api/v1';
 const JWKS_URL = `${STACK_AUTH_API_URL}/projects/${STACK_AUTH_PROJECT_ID}/.well-known/jwks.json`;
 
+import { LocalJWKSet } from '../_shared/jwks-types.js';
+
 // JWKS cache
-let JWKS: any = null;
+let JWKS: LocalJWKSet | null = null;
 let JWKS_LAST_FETCH = 0;
 const JWKS_CACHE_TIME = 3600000; // 1 hour
 
@@ -83,8 +86,10 @@ async function verifyJWTToken(token: string) {
   }
 }
 
+import { AuthenticatedUser } from '../_shared/auth-types.js';
+
 // Get authenticated user helper 
-export async function getAuthenticatedUser(req: VercelRequest) {
+export async function getAuthenticatedUser(req: VercelRequest): Promise<AuthenticatedUser> {
   let accessToken: string | undefined;
   
   // Check Authorization header
@@ -161,7 +166,12 @@ export async function getAuthenticatedUser(req: VercelRequest) {
   const userEmail = String(userInfo.email || userInfo.primary_email || userInfo.primaryEmail || userInfo.email_address || userInfo.user_email || '');
   const userName = String(userInfo.displayName || userInfo.display_name || userInfo.name || userInfo.given_name || userInfo.full_name || '');
 
-  return {
+  // Ensure we have required fields
+  if (!userId || !userEmail) {
+    throw new Error('Invalid user info: missing required fields');
+  }
+
+  const user: AuthenticatedUser = {
     id: userId,
     email: userEmail,
     firstName: userName?.split(' ')[0] || null,
@@ -170,14 +180,16 @@ export async function getAuthenticatedUser(req: VercelRequest) {
     role: 'user',
     stackUser: userInfo
   };
+
+  return user;
 }
 
 // Auth middleware
-export async function withAuth(
+export async function withAuth<T>(
   req: VercelRequest,
   res: VercelResponse,
-  handler: (req: VercelRequest, res: VercelResponse) => Promise<any>
-) {
+  handler: (req: VercelRequest & { user: AuthenticatedUser }, res: VercelResponse) => Promise<T>
+): Promise<T> {
   // Bypass auth for cron jobs
   if (req.url?.startsWith('/api/cron/')) {
     console.log('🔓 Bypassing auth for cron job:', {
@@ -201,7 +213,7 @@ export async function withAuth(
   try {
     // Add user to request
     const user = await getAuthenticatedUser(req);
-    (req as any).user = user;
+    (req as VercelRequest & { user: AuthenticatedUser }).user = user;
 
     // Call handler
     return handler(req, res);

@@ -4,10 +4,10 @@
  */
 
 import { Router } from 'express';
-import { performanceMonitor } from '../utils/performance-monitor';
-import { serviceDiscovery } from '../services/service-discovery';
-import { unifiedErrorHandler } from '../services/unified-error-handler';
-import { Logger } from '../utils/logger';
+import { performanceMonitor } from '../utils/performance-monitor.js';
+import { serviceDiscovery } from '../services/service-discovery.js';
+import { unifiedErrorHandler } from '../services/unified-error-handler.js';
+import { Logger } from '../utils/logger.js';
 
 const router = Router();
 const logger = new Logger('HealthCheck');
@@ -187,7 +187,7 @@ router.get('/health/metrics', (req, res) => {
 async function checkDatabaseHealth(): Promise<{ status: string; details?: any }> {
   try {
     // Simplified database check - in production, this would test actual database connectivity
-    const { db } = await import('../drizzle');
+    const { db } = await import('../drizzle.js');
     
     // Try a simple query
     await db.execute('SELECT 1');

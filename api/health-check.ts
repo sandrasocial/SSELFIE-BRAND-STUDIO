@@ -14,7 +14,7 @@ export default async function handler(_req: VercelRequest, res: VercelResponse) 
     // Add database health check with timeout
     let dbHealth = { healthy: false, error: 'Not checked' };
     try {
-      const { checkDatabaseHealth } = await import('../server/db');
+      const { checkDatabaseHealth } = await import('../server/db.js');
       const dbPromise = checkDatabaseHealth();
       const timeoutPromise = new Promise((_, reject) => 
         setTimeout(() => reject(new Error('DB health check timeout')), 2000)

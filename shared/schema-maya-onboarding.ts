@@ -1,7 +1,7 @@
 import { pgTable, serial, varchar, text, jsonb, boolean, timestamp, integer } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
-import { users } from "./schema";
+import { users } from "./schema.js";
 
 // =============================================================================
 // MAYA ONBOARDING SCHEMA - NEW TABLES ONLY
