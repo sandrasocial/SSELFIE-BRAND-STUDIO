@@ -3,10 +3,10 @@
  * Comprehensive business intelligence, data visualization, and executive reporting
  */
 
-import { predictiveIntelligence, type PredictiveMetrics } from './predictive-intelligence';
-import { securityAudit, type SecurityMetrics } from './security-audit';
-import { PerformanceMonitor, type PerformanceMetrics } from './performance-monitor';
-import { globalExpansion, type GlobalExpansionMetrics } from './global-expansion';
+import { predictiveIntelligence, type PredictiveMetrics } from './predictive-intelligence.js';
+import { securityAudit, type SecurityMetrics } from './security-audit.js';
+import { PerformanceMonitor, type PerformanceMetrics } from './performance-monitor.js';
+import { globalExpansion, type GlobalExpansionMetrics } from './global-expansion.js';
 
 export interface EnterpriseAnalytics {
   executiveSummary: ExecutiveSummary;
@@ -274,7 +274,7 @@ export class AnalyticsReportingEngine {
     const [
       predictiveMetrics,
       securityMetrics,
-      performanceMetrics,
+      performanceReport,
       expansionMetrics
     ] = await Promise.all([
       predictiveIntelligence.generatePredictiveMetrics(),
@@ -282,6 +282,25 @@ export class AnalyticsReportingEngine {
       PerformanceMonitor.generatePerformanceReport(),
       globalExpansion.generateExpansionMetrics()
     ]);
+
+    // Transform performance metrics into required structure
+    const performanceMetrics = {
+      ...performanceReport.metrics,
+      systemHealth: {
+        cpu: {
+          usage: performanceReport.metrics.cpu.usage
+        }
+      },
+      applicationPerformance: {
+        errorRate: { total: 0 }, // Placeholder value
+        responseTime: {
+          average: 0 // Placeholder value
+        },
+        throughput: {
+          requestsPerSecond: 0 // Placeholder value
+        }
+      }
+    };
 
     const executiveSummary = this.generateExecutiveSummary(
       predictiveMetrics,
@@ -331,7 +350,17 @@ export class AnalyticsReportingEngine {
     performance: PerformanceMetrics,
     expansion: GlobalExpansionMetrics
   ): ExecutiveSummary {
-    const overallHealth = this.calculateOverallHealth(security, performance);
+    const overallHealth = this.calculateOverallHealth(
+      {threatLevel: security.threatLevel || 'low'},
+      {
+        systemHealth: {
+          cpu: { usage: performance.systemHealth?.cpu?.usage || 0 }
+        },
+        applicationPerformance: {
+          errorRate: { total: performance.applicationPerformance?.errorRate?.total || 0 }
+        }
+      }
+    );
     
     const keyAchievements: Achievement[] = [
       {
@@ -633,8 +662,15 @@ export class AnalyticsReportingEngine {
   }
 
   private calculateOverallHealth(
-    security: SecurityMetrics,
-    performance: PerformanceMetrics
+    security: {threatLevel: 'critical' | 'high' | 'medium' | 'low'},
+    performance: {
+      systemHealth: {
+        cpu: { usage: number }
+      },
+      applicationPerformance: {
+        errorRate: { total: number }
+      }
+    }
   ): 'excellent' | 'good' | 'warning' | 'critical' {
     let score = 100;
     
