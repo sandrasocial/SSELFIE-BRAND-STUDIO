@@ -637,7 +637,8 @@
     "start": "cd server && npx tsx index.ts",
     "build": "vite build --config vite.config.ts",
     "build:server": "esbuild server/index-launch.ts --bundle --platform=node --format=esm --outdir=dist-server --sourcemap --target=node20 --external:@google/genai --external:express --external:@aws-sdk/* --external:drizzle-orm --external:pg --external:ws --external:@react-email/render",
-    "vercel-build": "npm run build",
+    "vercel-build": "npm run build && npm run build:api",
+  "build:api": "esbuild api/**/*.ts --bundle --platform=node --format=esm --outdir=.vercel/output/functions --external:@google/genai --external:express --external:@aws-sdk/* --external:drizzle-orm --external:pg --external:ws --sourcemap --target=node20 --alias:../server=./server",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
   },

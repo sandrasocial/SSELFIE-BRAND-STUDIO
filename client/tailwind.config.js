@@ -4,9 +4,11 @@ module.exports = {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
     "./public/**/*.html",
-    "./**/*.{js,ts,jsx,tsx}",
-    "../server/**/*.{js,ts,jsx,tsx}",
+    "../components/**/*.{js,ts,jsx,tsx}",
+    "../pages/**/*.{js,ts,jsx,tsx}",
     "../shared/**/*.{js,ts,jsx,tsx}",
+    "../stories/**/*.{js,ts,jsx,tsx}",
+    "../server/**/*.{js,ts,jsx,tsx}",
   ],
   darkMode: ["class"],
   theme: {
