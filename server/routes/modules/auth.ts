@@ -4,10 +4,10 @@
  */
 
 import { Router } from 'express';
-import { requireStackAuth } from '../../stack-auth';
-import { storage } from '../../storage';
-import { asyncHandler, createError, sendSuccess, validateRequired } from '../middleware/error-handler';
-import { userService } from '../../services/user-service';
+import { requireStackAuth } from '../../stack-auth.js';
+import { storage } from '../../storage.js';
+import { asyncHandler, createError, sendSuccess, validateRequired } from '../middleware/error-handler.js';
+import { userService } from '../../services/user-service.js';
 
 const router = Router();
 // Me endpoint: JSON only, no cache, ensures user exists

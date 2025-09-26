@@ -5,7 +5,7 @@
  * Uses CREATE TABLE IF NOT EXISTS for idempotent startup execution
  */
 
-import { db } from '../drizzle';
+import { db } from '../drizzle.js';
 import { sql } from 'drizzle-orm';
 
 export async function ensureConceptCardsTable(): Promise<void> {

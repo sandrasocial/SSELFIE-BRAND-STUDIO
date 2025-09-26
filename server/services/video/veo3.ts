@@ -1,5 +1,6 @@
 // @ts-ignore - node-fetch types may not be available but functionality works
 import fetch from 'node-fetch';
+import { type VeoVideoResult } from './veo-api.js';
 
 export interface VeoGenerationMode {
   mode: 'preview' | 'production';
@@ -204,6 +205,7 @@ export async function getVeo3Status(jobId: string, userId: string): Promise<VeoS
     }
 
     // Generation completed
+    const result = resultData as VeoVideoResult;
     const videoUrl = result.response?.video?.uri || result.response?.uri || null;
     
     if (videoUrl) {

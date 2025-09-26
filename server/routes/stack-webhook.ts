@@ -1,6 +1,6 @@
 import type { Express } from "express";
-import { storage } from "../storage";
-import type { InsertUser } from "../../shared/schema";
+import { storage } from "../storage.js";
+import type { InsertUser } from "../../shared/schema.js";
 import crypto from "crypto";
 
 // Stack Auth webhook handler for user sync

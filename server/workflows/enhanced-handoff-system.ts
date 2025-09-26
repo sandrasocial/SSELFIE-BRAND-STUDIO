@@ -1,4 +1,5 @@
-import { db } from '../drizzle';
+import { db } from '../drizzle.js';
+import { type ClaudeConversation, type ClaudeMessage } from '../shared/types/chat.js';
 import { claudeConversations, claudeMessages } from '../shared/schema.js';
 import { eq, desc, and } from 'drizzle-orm';
 

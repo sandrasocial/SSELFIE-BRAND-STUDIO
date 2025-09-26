@@ -50,7 +50,7 @@ function getDefaultUserFields(overrides: Partial<InsertUser> = {}): InsertUser {
 
 // Ensure database user exists from Stack Auth data
 async function ensureDbUserFromStack(stackUser: StackUser) {
-  const { storage } = await import('../../server/storage');
+  const { storage } = await import('../../server/storage.js');
   
   console.log('🔍 Stack Auth: Processing user sync for:', stackUser.id, stackUser.email);
   

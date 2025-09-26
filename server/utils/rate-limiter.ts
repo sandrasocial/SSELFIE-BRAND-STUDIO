@@ -3,7 +3,7 @@
  * Advanced rate limiting with multiple strategies and storage backends
  */
 
-import { Logger } from './logger';
+import { Logger } from './logger.js';
 
 export interface RateLimitOptions {
   windowMs: number; // Time window in milliseconds

@@ -3,7 +3,7 @@
  * Unified interface for all AI services (Claude, Google GenAI, Replicate)
  */
 
-import { Logger } from '../utils/logger';
+import { Logger } from '../utils/logger.js';
 
 export interface AIServiceConfig {
   apiKey: string;

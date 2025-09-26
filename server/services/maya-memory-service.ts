@@ -1,4 +1,4 @@
-import { DatabaseStorage } from './storage';
+import { DatabaseStorage } from './storage.js';
 
 export class MayaMemoryService {
   private db: DatabaseStorage;

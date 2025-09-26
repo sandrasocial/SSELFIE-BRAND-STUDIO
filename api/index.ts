@@ -7,6 +7,8 @@ export const config = {
   maxDuration: 40
 } as const;
 
+import { StackAuthUserInfo } from './_shared/stack-auth-types.js';
+
 // Lazy-load jose at runtime to avoid bootstrap issues
 type JoseModule = typeof import('jose');
 let _jose: Pick<JoseModule, 'jwtVerify' | 'createLocalJWKSet' | 'createRemoteJWKSet'> | null = null;
@@ -20,7 +22,7 @@ async function getJose() {
 
 // Types
 // Minimal InsertUser type for local use
-type InsertUser = {
+interface InsertUser {
   id: string;
   email?: string | null;
   displayName?: string | null;
@@ -35,23 +37,32 @@ type InsertUser = {
   onboardingProgress?: string;
   preferredOnboardingMode?: string;
   lastLoginAt?: Date;
-};
+}
 
 // Minimal UserModel type for local use
-type UserModel = {
+interface UserModel {
   id: string | number;
   userId: string;
   trainingStatus?: string | null;
   createdAt?: Date | null;
   updatedAt?: Date | null;
-};
+}
 
 // Minimal AiImage type for local use
-type AiImage = {
+interface AiImage {
   id: number;
   isFavorite?: boolean;
   isSelected?: boolean;
-};
+  userId: string;
+  imageUrl?: string;
+  style?: string;
+  prompt?: string;
+  createdAt: Date;
+  imageUrls?: string;
+  selectedUrl?: string;
+  category?: string;
+}
+
 interface ConceptCard {
   id: string;
   title: string;
@@ -74,7 +85,7 @@ interface AuthenticatedUser {
   lastName: string | null;
   plan: string;
   role: string;
-  stackUser: Record<string, unknown>;
+  stackUser: StackAuthUserInfo;
 }
 
 // Stack Auth configuration
@@ -204,8 +215,8 @@ async function applyGenderContext(conceptCards: ConceptCard[], userId: string): 
   try {
     console.log('🎯 Applying gender context to concept cards for user:', userId);
     
-    const { storage } = await import('../server/storage');
-    const { enforceGender, normalizeGender } = await import('../server/utils/gender-prompt');
+    const { storage } = await import('../server/storage.js');
+    const { enforceGender, normalizeGender } = await import('../server/utils/gender-prompt.js');
     
     const [user, userModel] = await Promise.all([
       storage.getUser(userId),
@@ -336,7 +347,7 @@ function getCategoryFromTitle(title: string): string {
 }
 
 // JWT verification
-async function verifyJWTToken(token: string) {
+async function verifyJWTToken(token: string): Promise<StackAuthUserInfo> {
   try {
     const jose = await getJose();
     const { jwtVerify, createLocalJWKSet } = jose;
@@ -353,7 +364,7 @@ async function verifyJWTToken(token: string) {
       audience: STACK_AUTH_PROJECT_ID,
     });
     
-    return payload;
+    return payload as unknown as StackAuthUserInfo;
   } catch (error) {
     throw new Error(`JWT verification failed: ${(error as Error).message}`);
   }
@@ -581,7 +592,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       lastName?: string | null; 
       profileImageUrl?: string | null; 
     }) {
-      const { storage } = await import('../server/storage');
+      const { storage } = await import('../server/storage.js');
       const stackId = (stackUser.id || '') as string;
       const email = (stackUser.email || '') as string;
 
@@ -623,7 +634,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const expected = process.env.ADMIN_TOKEN || 'sandra-admin-2025';
         if (adminToken !== expected) return res.status(401).json({ error: 'Unauthorized' });
 
-        const { storage } = await import('../server/storage');
+        const { storage } = await import('../server/storage.js');
         const models = await storage.getAllCompletedTrainings();
 
         const header = [
@@ -674,7 +685,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         
         console.log('🚀 AUTO-REGISTRATION: Creating database user for:', email, 'plan:', plan);
         
-        const { storage } = await import('../server/storage');
+        const { storage } = await import('../server/storage.js');
         const existingUser = await storage.getUserByEmail(email);
         
         if (existingUser) {
@@ -821,7 +832,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const { legacyUserId, stackId } = (req.body || {}) as { legacyUserId?: string | number; stackId?: string };
       if (!legacyUserId || !stackId) return res.status(400).json({ error: 'legacyUserId and stackId required' });
       
-      const { storage } = await import('../server/storage');
+      const { storage } = await import('../server/storage.js');
       const linked = await storage.linkStackAuthId(String(legacyUserId), String(stackId));
       res.setHeader('Cache-Control', 'no-store');
       return res.status(200).json({ ok: true, linkedUserId: linked.id, email: linked.email });
@@ -833,7 +844,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const expected = process.env.ADMIN_TOKEN || 'sandra-admin-2025';
       if (adminToken !== expected) return res.status(401).json({ error: 'Unauthorized' });
       
-      const { storage } = await import('../server/storage');
+      const { storage } = await import('../server/storage.js');
       const users = await storage.getAllUsers();
       const result: Array<{ email: string | null; stackId: string | null; legacyUserId: string; triggerWord: string; modelStatus: string; modelName: string | null }> = [];
       
@@ -869,7 +880,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
 
       try {
-        const { storage } = await import('../server/storage');
+        const { storage } = await import('../server/storage.js');
         const trainedModels = await storage.getAllCompletedTrainings();
         const updated: Array<{ stackId: string; legacyUserId: string; email: string | null; ok: boolean; status: number }> = [];
         const skipped: Array<{ userId: string; reason: string }> = [];
@@ -949,7 +960,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
 
         const user = await getAuthenticatedUser();
-        const { storage } = await import('../server/storage');
+        const { storage } = await import('../server/storage.js');
         
         let dbUser = await withDatabaseTimeoutAndRetry(
           () => storage.getUser(user.id as string), 
@@ -1077,7 +1088,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       
       try {
         const user = await getAuthenticatedUser();
-        const { storage } = await import('../server/storage');
+        const { storage } = await import('../server/storage.js');
         
         console.log('🔍 Getting model for user:', user.id, user.email);
         
@@ -1349,7 +1360,7 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
           return res.status(400).json({ error: 'Prompt is required' });
         }
         
-        const { storage } = await import('../server/storage');
+        const { storage } = await import('../server/storage.js');
         const model = await storage.getUserModelByUserId(user.id as string);
         if (!model || model.trainingStatus !== 'completed') {
           return res.status(403).json({
@@ -1358,7 +1369,7 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
           });
         }
         
-        const { ModelTrainingService } = await import('../server/model-training-service');
+        const { ModelTrainingService } = await import('../server/model-training-service.js');
         
         console.log('🎨 Starting image generation for user:', user.id);
         console.log('🎯 Prompt:', trimmedPrompt);
@@ -1416,7 +1427,7 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
           return res.status(400).json({ error: 'Prediction ID is required' });
         }
         
-        const { ModelTrainingService } = await import('../server/model-training-service');
+        const { ModelTrainingService } = await import('../server/model-training-service.js');
         
         console.log('🔍 Checking generation status for prediction:', predictionId);
         
@@ -1427,7 +1438,7 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
         if (statusResult.status === 'succeeded' && statusResult.imageUrls && statusResult.imageUrls.length > 0) {
           console.log('🎉 Generation completed! Triggering completion monitor...');
           
-          const { storage } = await import('../server/storage');
+          const { storage } = await import('../server/storage.js');
           const tracker = await storage.getGenerationTrackerByPredictionId(predictionId);
           
           if (tracker) {
@@ -1499,7 +1510,7 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
         let conceptCards: ConceptCard[] = [];
         
         try {
-          const { PersonalityManager } = await import('../server/agents/personalities/personality-config');
+          const { PersonalityManager } = await import('../server/agents/personalities/personality-config.js');
           const baseMayaPersonality = PersonalityManager.getNaturalPrompt('maya');
           const structuredOutputInstruction = `\n\nSTRICT OUTPUT FORMAT:\nReturn EXACTLY 3 concepts separated by a line with three dashes (---).\nFor each concept, output 3 lines only:\n1) An emoji followed by a space and a bold title: "+emoji+ **TITLE**"\n2) One sentence description\n3) A line starting with "FLUX_PROMPT:" followed by a single line image generation prompt.\nDo not add any extra text before or after the three concepts.`;
           const systemPrompt = `${baseMayaPersonality}${structuredOutputInstruction}`;
@@ -1630,7 +1641,7 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
         // Persist conversation (non-critical)
         withDatabaseTimeout(
           (async () => {
-            const { storage } = await import('../server/storage');
+            const { storage } = await import('../server/storage.js');
             const existingConvs = await storage.getUserConversations(user.id as string, 'maya');
             const conversationId = (existingConvs && existingConvs[0]?.id) || (await storage.createConversation({ userId: user.id as string, agentName: 'maya', title: 'Maya Chat', status: 'active' })).id;
             await storage.createMessage({ conversationId, role: 'user', content: message, tokenCount: 0 });
@@ -1729,7 +1740,7 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
     if (req.url === '/api/training/status' || req.url?.startsWith('/api/training/status?')) {
       try {
         const user = await getAuthenticatedUser();
-        const { storage } = await import('../server/storage');
+        const { storage } = await import('../server/storage.js');
         const model = await storage.getUserModelByUserId(user.id as string);
         const status = model?.trainingStatus || 'not_started';
         const progress = model?.trainingProgress || (status === 'completed' ? 100 : 0);
@@ -1755,7 +1766,7 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
         if ((user.id as string) !== targetUserId) {
           return res.status(403).json({ error: 'Forbidden' });
         }
-        const { storage } = await import('../server/storage');
+        const { storage } = await import('../server/storage.js');
         const model = await storage.getUserModelByUserId(targetUserId);
         const progress = model?.trainingProgress || (model?.trainingStatus === 'completed' ? 100 : 0);
         return res.status(200).json({ progress });
@@ -1767,7 +1778,7 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
     // Cron endpoints
     if (req.url === '/api/cron/training-completion-monitor') {
       try {
-        const { TrainingCompletionMonitor } = await import('../server/training-completion-monitor');
+        const { TrainingCompletionMonitor } = await import('../server/training-completion-monitor.js');
         await TrainingCompletionMonitor.checkAllInProgressTrainings();
         return res.status(200).json({ ok: true });
       } catch (error) {
@@ -1777,7 +1788,7 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
 
     if (req.url === '/api/cron/generation-completion-monitor') {
       try {
-        const { GenerationCompletionMonitor } = await import('../server/generation-completion-monitor');
+        const { GenerationCompletionMonitor } = await import('../server/generation-completion-monitor.js');
         const monitor = new GenerationCompletionMonitor();
         await monitor.checkAllInProgressGenerations();
         return res.status(200).json({ ok: true });
@@ -1804,7 +1815,7 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
         const user = await getAuthenticatedUser();
         console.log('🔍 Getting gallery images for user:', user.id, user.email);
         
-        const { storage } = await import('../server/storage');
+        const { storage } = await import('../server/storage.js');
         
         const [aiImages, generatedImages] = await Promise.all([
           withTimeout(storage.getAIImages(user.id as string), 2500, 'getAIImages').catch(err => {
@@ -1884,7 +1895,7 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
           return res.status(400).json({ error: 'Invalid gender value' });
         }
         
-        const { storage } = await import('../server/storage');
+        const { storage } = await import('../server/storage.js');
         await storage.updateUserProfile(user.id as string, { gender });
         
         console.log(`✅ Updated gender for user ${user.id}: ${gender}`);
@@ -1907,7 +1918,7 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
     // Test database connection endpoint
     if (req.url === '/api/test-db') {
       try {
-        const { storage } = await import('../server/storage');
+        const { storage } = await import('../server/storage.js');
         const user = await getAuthenticatedUser();
         
         const dbUser = await storage.getUser(user.id as string);
@@ -1941,7 +1952,7 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
     if (req.url === '/api/images/favorites' || req.url?.startsWith('/api/images/favorites?')) {
       try {
         const user = await getAuthenticatedUser();
-        const { storage } = await import('../server/storage');
+        const { storage } = await import('../server/storage.js');
         const ai = await withTimeout(storage.getAIImages(user.id as string), 5000, 'getAIImages') as unknown as AiImage[];
         const favIds = ai
           .filter((img: AiImage) => Boolean(img.isFavorite || img.isSelected))
@@ -1964,7 +1975,7 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
         const imageId = parseInt(idStr, 10);
         if (!imageId || Number.isNaN(imageId)) return res.status(400).json({ error: 'Invalid image id' });
         
-        const { storage } = await import('../server/storage');
+        const { storage } = await import('../server/storage.js');
         const img = await withTimeout(storage.getAIImage(user.id as string, imageId), 4000, 'getAIImage') as unknown as AiImage | undefined;
         const next = !(img?.isFavorite ?? false);
         await withTimeout(storage.updateAIImage(imageId, { isFavorite: next } as Partial<AiImage>), 4000, 'updateAIImage');
@@ -1985,7 +1996,7 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
         const imageId = parseInt(idStr, 10);
         if (!imageId || Number.isNaN(imageId)) return res.status(400).json({ error: 'Invalid image id' });
         
-        const { storage } = await import('../server/storage');
+        const { storage } = await import('../server/storage.js');
         const ok = await storage.deleteAIImage(user.id as string, imageId);
         res.setHeader('Cache-Control', 'no-store');
         return res.status(200).json({ ok, id: imageId });

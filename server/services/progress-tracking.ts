@@ -4,7 +4,7 @@
  * SSELFIE Studio Enhancement Project - Maya Implementation
  */
 
-import { taskDependencyMapping } from './task-dependency-mapping';
+import { taskDependencyMapping } from './task-dependency-mapping.js';
 // REMOVED: Old checkpoint-automation - replaced with advanced workflow orchestration
 
 interface ProgressMetrics {

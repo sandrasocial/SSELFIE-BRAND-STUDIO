@@ -30,8 +30,8 @@ const JWKS = createRemoteJWKSet(new (globalThis as any).URL(JWKS_URL));
 // Helper function to apply gender context to concept cards
 async function applyGenderContext(conceptCards: ConceptCard[], userId: string): Promise<ConceptCard[]> {
   try {
-    const { storage } = await import('../../server/storage');
-    const { enforceGender, normalizeGender } = await import('../../server/utils/gender-prompt');
+    const { storage } = await import('../../server/storage.js');
+    const { enforceGender, normalizeGender } = await import('../../server/utils/gender-prompt.js');
 
     const [user, userModel] = await Promise.all([
       storage.getUser(userId),

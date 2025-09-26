@@ -6,7 +6,7 @@
  * Integrated with autonomous navigation and agent knowledge base.
  */
 
-import { search_filesystem } from '../tools/search_filesystem';
+import { search_filesystem } from '../tools/search_filesystem.js';
 
 // REDIRECT ALL SEMANTIC SEARCH FUNCTIONALITY TO NEW INTELLIGENT SYSTEM
 export interface SemanticSearchResult {

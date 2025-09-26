@@ -3,7 +3,7 @@
  * Generates and maintains comprehensive API documentation
  */
 
-import { Logger } from './logger';
+import { Logger } from './logger.js';
 import { Request, Response, NextFunction } from 'express';
 
 export interface APIEndpoint {

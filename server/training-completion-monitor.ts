@@ -4,12 +4,23 @@
  * Prevents users from getting stuck in "processing" status
  */
 
-import { storage } from './storage';
-import { paths } from './utils/paths';
+import { storage } from './storage.js';
+import { paths } from './utils/paths.js';
+import { 
+  ReplicateTrainingStatus,
+  TrainingStatusUpdate,
+  TrainingMonitorConfig,
+  TrainingError
+} from './types/training.js';
 
 export class TrainingCompletionMonitor {
   private static instance: TrainingCompletionMonitor;
   private intervalId: NodeJS.Timeout | null = null;
+  private readonly config: TrainingMonitorConfig = {
+    checkIntervalMs: 60000, // 1 minute
+    maxRetries: 3,
+    retryDelayMs: 5000
+  };
 
   static getInstance(): TrainingCompletionMonitor {
     if (!TrainingCompletionMonitor.instance) {
@@ -21,32 +32,44 @@ export class TrainingCompletionMonitor {
   /**
    * Check a specific training status and update database
    */
-  static async checkAndUpdateTraining(replicateModelId: string, userId: string): Promise<boolean> {
-    try {
-      console.log(`🔍 Checking training ${replicateModelId} for user ${userId}`);
-      
-      const response = await fetch(`https://api.replicate.com/v1/trainings/${replicateModelId}`, {
-        headers: {
-          'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
-          'Content-Type': 'application/json'
+  async checkTrainingStatus(userId: string, replicateModelId: string): Promise<TrainingStatusUpdate> {
+    let retries = 0;
+    
+    while (retries < this.config.maxRetries) {
+      try {
+        console.log(`🔍 Checking training ${replicateModelId} for user ${userId} (attempt ${retries + 1})`);
+
+        const response = await fetch(`https://api.replicate.com/v1/trainings/${replicateModelId}`, {
+          headers: {
+            'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error(`API returned status ${response.status}: ${await response.text()}`);
         }
-      });
 
-      if (!response.ok) {
-        console.error(`❌ Replicate API error for ${replicateModelId}: ${response.status}`);
-        return false;
-      }
-
-      const trainingData = await response.json();
-      console.log(`📊 Training ${replicateModelId} status: ${trainingData.status}`);
-      
-      // DEBUG: Log full training response for analysis
-      console.log(`🔍 TRAINING RESPONSE STRUCTURE:`, JSON.stringify(trainingData, null, 2));
-
-      if (trainingData.status === 'succeeded') {
-        console.log(`✅ Training completed! Updating database for user ${userId}`);
+        const trainingData = (await response.json()) as ReplicateTrainingStatus;
         
-        // Standard FLUX training completion - extract version ID
+        // Validate response structure
+        if (!trainingData || !trainingData.status) {
+          throw new Error('Invalid API response structure');
+        }
+
+        console.log(`📊 Training ${replicateModelId} status: ${trainingData.status}`);
+        
+        const statusUpdate: TrainingStatusUpdate = {
+          userId,
+          modelId: replicateModelId,
+          status: trainingData.status,
+          error: trainingData.error,
+          completedAt: trainingData.completed_at,
+          modelVersion: trainingData.version?.id
+        };
+        
+        if (trainingData.status === 'succeeded') {
+          console.log(`✅ Training completed! Updating database for user ${userId}`);        // Standard FLUX training completion - extract version ID
         let versionId = null;
         if (trainingData.version) {
           versionId = trainingData.version;
@@ -58,7 +81,7 @@ export class TrainingCompletionMonitor {
         let extractedWeights = null;
         try {
           // Extract LoRA weights using restored extraction method
-          const { ModelTrainingService } = await import('./model-training-service');
+          const { ModelTrainingService } = await import('./model-training-service.js');
           extractedWeights = await ModelTrainingService.extractLoRAWeights(replicateModelId, userId);
           console.log(`✅ LoRA WEIGHTS EXTRACTED: ${extractedWeights.loraWeightsUrl}`);
         } catch (error) {
@@ -115,7 +138,7 @@ export class TrainingCompletionMonitor {
         try {
           const user = await storage.getUser(userId);
           if (user?.email) {
-            const { EmailService } = await import('./email-service');
+            const { EmailService } = await import('./email-service.js');
             const userName = user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.firstName;
             await EmailService.sendModelReadyEmail(user.email, userName);
             console.log('✅ Model ready email sent to:', user.email);
@@ -225,7 +248,7 @@ export class TrainingCompletionMonitor {
         try {
           const user = await storage.getUser(userId);
           if (user?.email) {
-            const { EmailService } = await import('./email-service');
+            const { EmailService } = await import('./email-service.js');
             const userName = user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.firstName;
             await EmailService.sendModelReadyEmail(user.email, userName);
             console.log('✅ Model ready email sent to:', user.email);

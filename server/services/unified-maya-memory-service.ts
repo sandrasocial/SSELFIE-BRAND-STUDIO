@@ -14,6 +14,7 @@ import { personalBrandService, type PersonalBrandProfile } from './personal-bran
 import { SimpleMemoryService } from './simple-memory-service.js';
 import { storage } from '../storage.js';
 import { type MayaChat, type MayaChatMessage, type InsertMayaChat, type InsertMayaChatMessage } from '../../shared/schema.js';
+import { type ConversationMemory, type SessionMetadata } from '../../api/_shared/memory-types.js';
 import { v4 as uuidv4 } from 'uuid';
 
 // ===== UNIFIED INTERFACES =====
@@ -95,22 +96,7 @@ export interface ContextualIntelligence {
   urbanRuralContext: 'urban' | 'suburban' | 'rural';
 }
 
-export interface ConversationMemory {
-  recentPreferences: string[];
-  favoriteCategories: string[];
-  stylingEvolution: any[];
-  emotionalContext: string;
-  brandingConsistency: any;
-  technicalPreferences: any;
-}
-
-export interface SessionMetadata {
-  totalSessions: number;
-  averageSessionLength: number;
-  lastInteractionDate: Date | null;
-  preferredTimeOfDay: string;
-  adaptationTriggers: string[];
-}
+// ConversationMemory and SessionMetadata interfaces are imported from memory-types.js
 
 /**
  * 🚀 UNIFIED MAYA MEMORY MANAGER
@@ -274,7 +260,7 @@ export class UnifiedMayaMemoryService {
       }
 
       const latestChat = recentChats[0];
-      const messages = await storage.getMayaChatMessages(latestChat.id);
+      const messages = await storage.getMayaChatMessages(latestChat.id, userId);
 
       return messages
         .slice(-limit * 2) // Get last N*2 messages (user + assistant pairs)
@@ -475,7 +461,7 @@ export class UnifiedMayaMemoryService {
         totalSessions: 0,
         averageSessionLength: 0,
         lastInteractionDate: null,
-        preferredTimeOfDay: 'day',
+        preferredTimeOfDay: 'morning',
         adaptationTriggers: []
       };
     }
@@ -599,8 +585,8 @@ export class UnifiedMayaMemoryService {
       lastActivity: new Date()
     };
 
-    const newChat = await storage.createMayaChat(newChatData);
-    return newChat.id;
+    const newChatId = await storage.createMayaChat(userId, newChatData);
+    return newChatId;
   }
 
   private async updateChatActivity(chatId: number): Promise<void> {
@@ -640,7 +626,7 @@ export class UnifiedMayaMemoryService {
       .slice(0, 3);
   }
 
-  private analyzeBrandingConsistency(favorites: any[]): any {
+  private analyzeBrandingConsistency(favorites: any[]): ConversationMemory['brandingConsistency'] {
     return {
       consistentCategories: favorites.length > 0,
       brandEvolution: favorites.length > 5 ? 'developing' : 'early',
@@ -648,7 +634,7 @@ export class UnifiedMayaMemoryService {
     };
   }
 
-  private getTimeContext(): string {
+  private getTimeContext(): SessionMetadata['preferredTimeOfDay'] {
     const hour = new Date().getHours();
     if (hour < 12) return 'morning';
     if (hour < 17) return 'afternoon';
@@ -700,7 +686,11 @@ export class UnifiedMayaMemoryService {
         favoriteCategories: [],
         stylingEvolution: [],
         emotionalContext: 'neutral',
-        brandingConsistency: {},
+        brandingConsistency: {
+          consistentCategories: false,
+          brandEvolution: 'early',
+          styleMaturity: 'exploring'
+        },
         technicalPreferences: {}
       },
       sessionMetadata: {

@@ -1,0 +1,5 @@
+// Test file for import fixes
+import { something } from '../server/storage';
+import type { Thing } from './types';
+import { other } from '@external/package';
+const dynamic = await import('../utils/helper');

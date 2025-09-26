@@ -1,7 +1,7 @@
 import { pgTable, serial, varchar, text, boolean, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
-import { users } from "./schema";
+import { users } from "./schema.js";
 
 // =============================================================================
 // MAYA SIMPLIFIED ONBOARDING SCHEMA - 7 CORE FIELDS ONLY

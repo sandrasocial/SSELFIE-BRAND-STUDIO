@@ -3,9 +3,9 @@
  * Centralized configuration loading with validation
  */
 
-import { configManager } from './config-manager';
-import { validateEnvironment } from './env-validator';
-import { Logger } from './logger';
+import { configManager } from './config-manager.js';
+import { validateEnvironment } from './env-validator.js';
+import { Logger } from './logger.js';
 
 const logger = new Logger('ConfigLoader');
 
@@ -27,8 +27,7 @@ export async function loadApplicationConfig() {
     
     logger.info('Configuration loaded successfully', {
       nodeEnv: config.system.nodeEnv,
-      port: config.system.port,
-      host: config.system.host
+      port: config.system.port
     });
     
     return config;

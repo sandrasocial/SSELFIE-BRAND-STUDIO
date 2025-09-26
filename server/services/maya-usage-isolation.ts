@@ -4,7 +4,7 @@
  * Admin (platform owner) vs Member (€47/month subscribers) separation
  */
 
-import { storage } from '../storage';
+import { storage } from '../storage.js';
 
 export interface MayaUsageMetrics {
   userId: string;

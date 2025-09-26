@@ -18,8 +18,8 @@
  * TARGET: 40%+ intelligence processing time reduction
  */
 
-import { db } from '../drizzle';
-import { userStyleMemory, promptAnalysis, aiImages } from '../../shared/schema';
+import { db } from '../drizzle.js';
+import { userStyleMemory, promptAnalysis, aiImages } from '../../shared/schema.js';
 import { eq, desc, and, gte, sql } from 'drizzle-orm';
 import { unifiedMayaContextService, type UnifiedMayaContext } from './unified-maya-context-service.js';
 

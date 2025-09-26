@@ -4,7 +4,7 @@
  */
 
 import { Router } from 'express';
-import { asyncHandler, createError, sendSuccess, validateRequired } from '../middleware/error-handler';
+import { asyncHandler, createError, sendSuccess, validateRequired } from '../middleware/error-handler.js';
 
 const router = Router();
 
