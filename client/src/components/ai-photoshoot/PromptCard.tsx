@@ -1,6 +1,6 @@
 import { KeyboardEvent, memo } from 'react';
-import { PhotoshootPrompt } from '@/types/photoshoot';
-import { useToast } from '@/hooks/use-toast';
+import { PhotoshootPrompt } from '../../types/photoshoot.js';
+import { useToast } from '../../hooks/use-toast.js';
 
 interface PromptCardProps {
   prompt: PhotoshootPrompt;

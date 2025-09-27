@@ -4,7 +4,7 @@ import { Command as CommandPrimitive } from "cmdk"
 // Removed Lucide React icons to comply with Sandra's no-icons styleguide
 
 import { cn } from "../../lib/utils.js"
-import { Dialog, DialogContent } from "@/components/ui/dialog"
+import { Dialog, DialogContent } from './dialog.js'
 
 const Command = forwardRef<
   ElementRef<typeof CommandPrimitive>,

@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useAuth } from '@/hooks/use-auth';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
-import { AiImage } from '@shared/schema';
+import { useAuth } from '../hooks/use-auth.js';
+import { Button } from './ui/button.js';
+import { Card, CardContent } from './ui/card.js';
+import { Badge } from './ui/badge.js';
+import { cn } from '../lib/utils.js';
+import { AiImage } from '../../../shared/schema.js';
 
 export default function Workspace() {
   const { user, isAuthenticated } = useAuth();

@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/hooks/use-auth';
-import { apiRequest } from '@/lib/queryClient';
+import { useToast } from './use-toast.js';
+import { useAuth } from './use-auth.js';
+import { apiRequest } from '../lib/queryClient.js';
 
 interface ConceptCard {
   id: string;
