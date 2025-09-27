@@ -3,26 +3,26 @@
  * Handles user management and profile operations
  */
 
-import { BaseService } from '.base-service';.js
+import { BaseService } from './base-service.js';
 
 export interface UserProfile {
   id: string;
-  email: string;
-  displayName?: string;
-  firstName?: string;
-  lastName?: string;
-  gender?: string;
-  profileImageUrl?: string;
+  email: string | null;
+  displayName: string | null;
+  firstName: string | null;
+  lastName: string | null;
+  gender: string | null;
+  profileImageUrl: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
 
 export interface UpdateUserProfileRequest {
-  displayName?: string;
-  firstName?: string;
-  lastName?: string;
-  gender?: string;
-  profileImageUrl?: string;
+  displayName?: string | null;
+  firstName?: string | null;
+  lastName?: string | null;
+  gender?: string | null;
+  profileImageUrl?: string | null;
 }
 
 export class UserService extends BaseService {
@@ -43,27 +43,32 @@ export class UserService extends BaseService {
         this.log('warn', 'User not found', { userId });
         return null;
       }
+
+      // Type guard to ensure proper date handling
+      const createdAt = user.createdAt instanceof Date ? user.createdAt : new Date(user.createdAt);
+      const updatedAt = user.updatedAt instanceof Date ? user.updatedAt : new Date(user.updatedAt);
       
       return {
         id: user.id,
-        email: user.email,
-        displayName: user.displayName,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        gender: user.gender,
-        profileImageUrl: user.profileImageUrl,
-        createdAt: user.createdAt,
-        updatedAt: user.updatedAt
+        email: user.email ?? null,
+        displayName: user.displayName ?? null,
+        firstName: user.firstName ?? null,
+        lastName: user.lastName ?? null,
+        gender: user.gender ?? null,
+        profileImageUrl: user.profileImageUrl ?? null,
+        createdAt,
+        updatedAt
       };
     } catch (error) {
       this.handleError(error, 'getUser');
+      return null; // Explicit return for type safety
     }
   }
 
   /**
    * Update user profile
    */
-  async updateUserProfile(userId: string, updates: UpdateUserProfileRequest): Promise<UserProfile> {
+  async updateUserProfile(userId: string, updates: UpdateUserProfileRequest): Promise<UserProfile | null> {
     try {
       if (!userId) {
         throw new Error('User ID is required');
@@ -91,6 +96,7 @@ export class UserService extends BaseService {
       return updatedUser;
     } catch (error) {
       this.handleError(error, 'updateUserProfile');
+      return null; // Explicit return for type safety
     }
   }
 
@@ -120,7 +126,7 @@ export class UserService extends BaseService {
     };
   }
 
-  async createUser(email: string, userData: Partial<UserProfile> = {}): Promise<UserProfile> {
+  async createUser(email: string, userData: Partial<UserProfile> = {}): Promise<UserProfile | null> {
     try {
       if (!email) {
         throw new Error('Email is required');
@@ -128,30 +134,38 @@ export class UserService extends BaseService {
       const sanitizedData = this.sanitizeInput(userData);
       const userId = sanitizedData.id || this.generateId('user');
       this.log('info', 'Creating new user', { email, userId, isStackAuthUser: !!sanitizedData.id });
+      
+      const currentDate = new Date();
       const newUser = await this.storage.createUser(this.getDefaultUserFields({
         id: userId,
         email,
         displayName: sanitizedData.displayName || email.split('@')[0],
-        firstName: sanitizedData.firstName,
-        lastName: sanitizedData.lastName,
-        gender: sanitizedData.gender,
-        profileImageUrl: sanitizedData.profileImageUrl,
-        createdAt: new Date(),
-        updatedAt: new Date()
+        firstName: sanitizedData.firstName ?? null,
+        lastName: sanitizedData.lastName ?? null,
+        gender: sanitizedData.gender ?? null,
+        profileImageUrl: sanitizedData.profileImageUrl ?? null,
+        createdAt: currentDate,
+        updatedAt: currentDate
       }));
+      
+      // Type guard to ensure proper date handling
+      const createdAt = newUser.createdAt instanceof Date ? newUser.createdAt : new Date(newUser.createdAt);
+      const updatedAt = newUser.updatedAt instanceof Date ? newUser.updatedAt : new Date(newUser.updatedAt);
+      
       return {
         id: newUser.id,
-        email: newUser.email,
-        displayName: newUser.displayName,
-        firstName: newUser.firstName,
-        lastName: newUser.lastName,
-        gender: newUser.gender,
-        profileImageUrl: newUser.profileImageUrl,
-        createdAt: newUser.createdAt,
-        updatedAt: newUser.updatedAt
+        email: newUser.email ?? null,
+        displayName: newUser.displayName ?? null,
+        firstName: newUser.firstName ?? null,
+        lastName: newUser.lastName ?? null,
+        gender: newUser.gender ?? null,
+        profileImageUrl: newUser.profileImageUrl ?? null,
+        createdAt,
+        updatedAt
       };
     } catch (error) {
       this.handleError(error, 'createUser');
+      return null; // Explicit return for type safety
     }
   }
 
@@ -172,20 +186,25 @@ export class UserService extends BaseService {
         this.log('warn', 'User not found by email', { email });
         return null;
       }
+
+      // Type guard to ensure proper date handling
+      const createdAt = user.createdAt instanceof Date ? user.createdAt : new Date(user.createdAt);
+      const updatedAt = user.updatedAt instanceof Date ? user.updatedAt : new Date(user.updatedAt);
       
       return {
         id: user.id,
-        email: user.email,
-        displayName: user.displayName,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        gender: user.gender,
-        profileImageUrl: user.profileImageUrl,
-        createdAt: user.createdAt,
-        updatedAt: user.updatedAt
+        email: user.email ?? null,
+        displayName: user.displayName ?? null,
+        firstName: user.firstName ?? null,
+        lastName: user.lastName ?? null,
+        gender: user.gender ?? null,
+        profileImageUrl: user.profileImageUrl ?? null,
+        createdAt,
+        updatedAt
       };
     } catch (error) {
       this.handleError(error, 'getUserByEmail');
+      return null; // Explicit return for type safety
     }
   }
 }
