@@ -77,7 +77,7 @@ export class Logger {
    * Log message with specified level
    */
   private log(level: LogEntry['level'], message: string, metadata?: Record<string, any>): void {
-    if (!this.isEnabled || !this.shouldLog(level)) {
+    if (!this.enabled || !this.shouldLog(level)) {
       return;
     }
 

@@ -4,7 +4,7 @@
  */
 
 import { Logger } from './logger.js';
-import { monitoringSystem } from './monitoring.js';
+// Import other monitoring systems, avoiding circular dependency
 import { performanceMonitor } from './performance-monitor.js';
 import { errorTracker } from './error-tracker.js';
 import { securityMonitor } from './security-monitor.js';
