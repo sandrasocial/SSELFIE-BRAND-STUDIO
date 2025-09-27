@@ -5,14 +5,14 @@
  * WITHOUT consuming Claude API tokens while building shared agent intelligence
  */
 
-import { db } from '..../drizzle';
+import { db } from '..../drizzle.js';
 import { 
   agentLearning, 
   agentSessionContexts, 
   agentKnowledgeBase, 
   agentPerformanceMetrics, 
   agentTrainingSessions 
-} from '..../../shared/schema';
+} from '..../../shared/schema.js';
 import { eq, and, desc, sql } from 'drizzle-orm';
 
 export class LocalProcessingEngine {

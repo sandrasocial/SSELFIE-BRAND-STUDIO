@@ -1,5 +1,5 @@
 import { SignIn } from '@stackframe/react';
-import { stackClientApp } from '../src/stack';
+import { stackClientApp } from '../src/stack.js';
 
 export default function OAuthSignInPage() {
   return (

@@ -188,7 +188,7 @@ const LuxuryConceptCard: React.FC<LuxuryConceptCardProps> = ({
         </div>
         
         {/* Generated images preview */}
-        {concept.generatedImages?.length > 0 && (
+        {concept.generatedImages && concept.generatedImages.length > 0 && (
           <div className="mt-4 flex gap-1 overflow-x-auto">
             {concept.generatedImages.slice(0, 4).map((img, idx) => (
               <img 

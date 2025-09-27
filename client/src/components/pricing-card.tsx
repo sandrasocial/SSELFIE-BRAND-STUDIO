@@ -1,5 +1,5 @@
 import { FC, MouseEvent } from 'react';
-import { EditorialImage } from './sandra-image-library';
+import { EditorialImage } from './sandra-image-library.js';
 
 interface PricingCardProps {
   title: string;

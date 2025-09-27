@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import VideoPreview from './VideoPreview';
-import { apiRequest } from '../lib/queryClient';
+import VideoPreview from './VideoPreview.js';
+import { apiRequest } from '../lib/queryClient.js';
 
 interface StoryStudioModalProps {
   imageId: string;
@@ -30,7 +30,7 @@ const StoryStudioModal: React.FC<StoryStudioModalProps> = ({ imageId, imageUrl, 
         
         console.log('🎬 Requesting Maya\'s video direction for image:', imageUrl);
         
-        const { apiFetch } = await import('../lib/api');
+        const { apiFetch } = await import('../lib/api.js');
         const response = await apiFetch('/maya/get-video-prompt', {
           method: 'POST',
           json: { imageUrl: imageUrl }
@@ -283,7 +283,7 @@ const StoryStudioModal: React.FC<StoryStudioModalProps> = ({ imageId, imageUrl, 
         {/* Video Preview Component */}
         <div style={{ marginBottom: 16 }}>
           <VideoPreview
-            videoUrl={videoUrl || undefined}
+            {...(videoUrl && { videoUrl })}
             posterUrl={imageUrl}
             isLoading={loading || videoStatus === 'generating'}
             error={videoStatus === 'failed' ? error : null}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { EditorialHeading, EditorialText } from '../components/editorial/EditorialTypography';
+import { EditorialHeading, EditorialText } from '../components/editorial/EditorialTypography.js';
 
 export default {
   title: 'Editorial/EditorialTypography',

@@ -6,9 +6,9 @@
  */
 
 import React, { useState, useRef } from 'react';
-import { useAuth } from '../../hooks/use-auth';
+import { useAuth } from '../../hooks/use-auth.js';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiFetch } from '../../lib/api';
+import { apiFetch } from '../../lib/api.js';
 
 // Brand Asset type
 interface BrandAsset {

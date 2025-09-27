@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../hooks/use-auth';
-import { HeroFullBleed } from '../components/hero-full-bleed';
-import { SandraImages } from '../components/sandra-image-library';
-import { PreLoginNavigationUnified } from '../components/pre-login-navigation-unified';
-import { EmailCaptureModal } from '../components/email-capture-modal';
-import { GlobalFooter } from '../components/global-footer';
+import { useAuth } from '../hooks/use-auth.js';
+import { HeroFullBleed } from '../components/hero-full-bleed.js';
+import { SandraImages } from '../components/sandra-image-library.js';
+import { PreLoginNavigationUnified } from '../components/pre-login-navigation-unified.js';
+import { EmailCaptureModal } from '../components/email-capture-modal.js';
+import { GlobalFooter } from '../components/global-footer.js';
 import { Link, useLocation } from 'wouter';
-import { useToast } from '../hooks/use-toast';
+import { useToast } from '../hooks/use-toast.js';
 
 export default function Pricing() {
   const { user } = useAuth();

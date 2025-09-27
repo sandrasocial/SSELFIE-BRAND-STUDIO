@@ -3,7 +3,7 @@
  * Enhanced logging with structured data and multiple outputs
  */
 
-import { Logger } from './logger';
+import { Logger } from './logger.js';
 import fs from 'fs';
 
 export interface LogEntry {

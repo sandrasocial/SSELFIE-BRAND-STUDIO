@@ -41,7 +41,7 @@ app.get('/api/health', (req, res) => {
 // Initialize routes asynchronously
 async function loadRoutes() {
   try {
-    const { registerRoutes } = await import('./routes');
+    const { registerRoutes } = await import('./routes.js');
     await registerRoutes(app);
     console.log('✅ Routes loaded: Maya, Victoria, Training, Payments, Admin');
     return true;

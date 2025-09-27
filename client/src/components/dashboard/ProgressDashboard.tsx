@@ -6,7 +6,7 @@ import { FC, useState, useEffect } from 'react';
  */
 
 import { motion } from 'framer-motion';
-import { implementationTracker, ImplementationMetrics } from '@/services/implementation-tracker';
+import { implementationTracker, ImplementationMetrics } from '../../services/implementation-tracker.js';
 
 export interface AgentWork {
   agentId: string;

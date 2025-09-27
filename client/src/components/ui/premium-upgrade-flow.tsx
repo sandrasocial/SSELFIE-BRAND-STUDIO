@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { cn } from "../../lib/utils";
-import { LuxuryButton } from "./luxury-button";
-import { Typography } from "./typography";
-import { LuxuryLoading } from "./luxury-loading";
+import { cn } from "../../lib/utils.js";
+import { LuxuryButton } from "./luxury-button.js";
+import { Typography } from "./typography.js";
+import { LuxuryLoading } from "./luxury-loading.js";
 
 interface PremiumTier {
   id: string;

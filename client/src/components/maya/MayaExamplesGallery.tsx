@@ -1,6 +1,6 @@
 import React from 'react';
 import { Camera, CheckCircle, AlertTriangle } from 'lucide-react';
-import { SandraImages } from '../../lib/sandra-images';
+import { SandraImages } from '../../lib/sandra-images.js';
 
 interface MayaExamplesGalleryProps {
   className?: string;

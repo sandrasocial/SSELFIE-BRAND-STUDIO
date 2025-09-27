@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { MemberNavigation } from '../components/member-navigation';
-import { useAuth } from '../hooks/use-auth';
+import { MemberNavigation } from '../components/member-navigation.js';
+import { useAuth } from '../hooks/use-auth.js';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiRequest } from '../lib/queryClient';
-import { useToast } from '../hooks/use-toast';
+import { apiRequest } from '../lib/queryClient.js';
+import { useToast } from '../hooks/use-toast.js';
 
 interface Subscription {
   id: string;

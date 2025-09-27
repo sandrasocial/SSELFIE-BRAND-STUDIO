@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { MemberNavigation } from '../components/member-navigation';
-import { apiRequest } from "../lib/queryClient";
-import { useToast } from "../hooks/use-toast";
+import { MemberNavigation } from '../components/member-navigation.js';
+import { apiRequest } from "../lib/queryClient.js";
+import { useToast } from "../hooks/use-toast.js";
 import { useLocation } from 'wouter';
 
 export default function SimpleCheckout() {

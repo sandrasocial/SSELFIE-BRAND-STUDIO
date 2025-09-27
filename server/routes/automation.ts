@@ -1,5 +1,5 @@
 import type { Express } from "express";
-import { requireStackAuth } from '..stack-auth'
+import { requireStackAuth } from '..stack-auth.js'
 import { storage } from "../storage.js";
 
 export function registerAutomationRoutes(app: Express) {

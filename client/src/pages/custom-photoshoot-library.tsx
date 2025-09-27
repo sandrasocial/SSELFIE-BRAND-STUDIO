@@ -1,11 +1,11 @@
 import React, { useState, useCallback } from 'react';
-import { MemberNavigation } from '../components/member-navigation';
-import { HeroFullBleed } from '../components/hero-full-bleed';
-import { SandraImages } from '../lib/sandra-images';
+import { MemberNavigation } from '../components/member-navigation.js';
+import { HeroFullBleed } from '../components/hero-full-bleed.js';
+import { SandraImages } from '../lib/sandra-images.js';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useToast } from '../hooks/use-toast';
-import { useAuth } from '../hooks/use-auth';
-import { apiRequest } from '../lib/queryClient';
+import { useToast } from '../hooks/use-toast.js';
+import { useAuth } from '../hooks/use-auth.js';
+import { apiRequest } from '../lib/queryClient.js';
 
 interface SavedPrompt {
   id: string;

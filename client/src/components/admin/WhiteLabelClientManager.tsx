@@ -1,9 +1,9 @@
 import React from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiRequest } from '../../lib/queryClient';
-import { Button } from '../ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
-import { useToast } from '../../hooks/use-toast';
+import { apiRequest } from '../../lib/queryClient.js';
+import { Button } from '../ui/button.js';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card.js';
+import { useToast } from '../../hooks/use-toast.js';
 import { User, Settings, Eye } from 'lucide-react';
 
 interface WhiteLabelClient {

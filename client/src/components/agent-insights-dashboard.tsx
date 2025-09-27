@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Button } from './ui/button';
+import { Button } from './ui/button.js';
 import { Link } from 'wouter';
-import { Badge } from './ui/badge';
+import { Badge } from './ui/badge.js';
 
 interface AgentInsight {
   id: string;

@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../hooks/use-auth';
+import { useAuth } from '../hooks/use-auth.js';
 import { Camera, Grid, User, Settings, MessageCircle, Bell, Battery } from 'lucide-react';
 
 // Import the new app_v2 screen components
-import StudioScreen from './StudioScreen';
-import MayaScreen from './MayaScreen';
-import GalleryScreen from './GalleryScreen';
-import ProfileScreen from './ProfileScreen';
-import SettingsScreen from './SettingsScreen';
+import StudioScreen from './StudioScreen.js';
+import MayaScreen from './MayaScreen.js';
+import GalleryScreen from './GalleryScreen.js';
+import ProfileScreen from './ProfileScreen.js';
+import SettingsScreen from './SettingsScreen.js';
 
 // SSELFIE BRAND STUDIO - NEW UI LAYOUT
 // Replaces the old AppLayout/MobileTabLayout with new app_v2 components

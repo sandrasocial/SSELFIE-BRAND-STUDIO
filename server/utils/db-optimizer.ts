@@ -3,8 +3,8 @@
  * Provides query optimization and connection pooling
  */
 
-import { Logger } from './logger';
-import { performanceMonitor } from './performance-monitor';
+import { Logger } from './logger.js';
+import { performanceMonitor } from './performance-monitor.js';
 
 export interface QueryOptions {
   timeout?: number;

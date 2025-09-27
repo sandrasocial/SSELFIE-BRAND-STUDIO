@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
-import { PreLoginNavigationUnified } from '../components/pre-login-navigation-unified';
-import { useAuth } from '../hooks/use-auth';
+import { PreLoginNavigationUnified } from '../components/pre-login-navigation-unified.js';
+import { useAuth } from '../hooks/use-auth.js';
 import { Link, useLocation } from 'wouter';
-import { useToast } from '../hooks/use-toast';
-import { apiRequest } from '../lib/queryClient';
+import { useToast } from '../hooks/use-toast.js';
+import { apiRequest } from '../lib/queryClient.js';
 
 export default function PaymentSuccess() {
   const { user, isAuthenticated } = useAuth();

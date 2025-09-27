@@ -1,7 +1,7 @@
 // Comprehensive Quality Suite - Luxury Standards Testing
 // Implements the validation system from shared/types/ComprehensiveQualityReport.ts
 
-import { LuxuryPerformanceOptimizer } from './performanceOptimization';
+import { LuxuryPerformanceOptimizer } from './performanceOptimization.js';
 
 export interface ComprehensiveQualityReport {
   overallLuxuryScore: number;

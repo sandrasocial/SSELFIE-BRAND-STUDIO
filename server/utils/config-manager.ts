@@ -3,7 +3,7 @@
  * Centralized configuration loading and validation
  */
 
-import { Logger } from './logger';
+import { Logger } from './logger.js';
 
 export interface AppConfig {
   database: {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { EditorialTextarea } from '../components/editorial/EditorialTextarea';
+import { EditorialTextarea } from '../components/editorial/EditorialTextarea.js';
 
 export default {
   title: 'Editorial/EditorialTextarea',

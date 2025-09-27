@@ -5,10 +5,10 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams, useLocation } from 'wouter';
-import InteractivePresentation from './InteractivePresentation';
-import MentimeterEmbed from '../../components/MentimeterEmbed';
-import { useSocket, ReactionData } from './hooks/useSocket';
-import { useAnalytics, useUTMParams } from './hooks/useAnalytics';
+import InteractivePresentation from './InteractivePresentation.js';
+import MentimeterEmbed from '../../components/MentimeterEmbed.js';
+import { useSocket, ReactionData } from './hooks/useSocket.js';
+import { useAnalytics, useUTMParams } from './hooks/useAnalytics.js';
 
 interface SessionParams {
   sessionId: string;

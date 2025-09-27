@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useMayaChat } from '../hooks/useMayaChat';
-import { Button } from '../components/ui/button';
+import { useMayaChat } from '../hooks/useMayaChat.js';
+import { Button } from '../components/ui/button.js';
 import { Loader2, Send, Sparkles, Camera, Heart } from 'lucide-react';
 
 interface ConceptCard {

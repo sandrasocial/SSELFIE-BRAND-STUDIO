@@ -3,7 +3,7 @@
  * Provides in-memory and Redis caching capabilities
  */
 
-import { Logger } from './logger';
+import { Logger } from './logger.js';
 
 export interface CacheOptions {
   ttl?: number; // Time to live in seconds

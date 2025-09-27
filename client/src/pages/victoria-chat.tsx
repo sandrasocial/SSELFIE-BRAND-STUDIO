@@ -1,13 +1,13 @@
 import { KeyboardEvent } from 'react';
 import { useLocation } from "wouter";
-import { Button } from "../components/ui/button";
-import { Card, CardContent, CardHeader } from "../components/ui/card";
-import { Input } from "../components/ui/input";
+import { Button } from "../components/ui/button.js";
+import { Card, CardContent, CardHeader } from "../components/ui/card.js";
+import { Input } from "../components/ui/input.js";
 // ScrollArea component removed
 // Separator component removed
-import { apiRequest } from "../lib/queryClient";
-import { useAuth } from "../hooks/use-auth";
-import { useToast } from "../hooks/use-toast";
+import { apiRequest } from "../lib/queryClient.js";
+import { useAuth } from "../hooks/use-auth.js";
+import { useToast } from "../hooks/use-toast.js";
 
 interface ChatMessage {
   id: string;

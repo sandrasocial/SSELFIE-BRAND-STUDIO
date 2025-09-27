@@ -3,14 +3,14 @@ import archiver from 'archiver';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { storage } from './storage';
+import { storage } from './storage.js';
 // MAYA FAÇADE: Removed PersonalityManager dependency - Maya is now isolated
-// import { PersonalityManager } from '.agents/personalities/personality-config'; // REMOVED: Outbound dependency
-import { ArchitectureValidator } from './architecture-validator';
+// import { PersonalityManager } from '.agents/personalities/personality-config.js'; // REMOVED: Outbound dependency
+import { ArchitectureValidator } from './architecture-validator.js';
 import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 // MAYA FAÇADE: Replaced Maya-specific import with façade API calls
-// import { MAYA_PERSONALITY } from '.agents/personalities/maya-personality'; // REMOVED: Direct entanglement
+// import { MAYA_PERSONALITY } from '.agents/personalities/maya-personality.js'; // REMOVED: Direct entanglement
 
 
 // Image categories and prompt templates
@@ -705,7 +705,7 @@ export class ModelTrainingService {
       }
       
       // SECURE: Validate user gender is legitimate value (no injection possible)
-      const { enforceGender, normalizeGender, promptHasGender } = await import('./utils/gender-prompt');
+      const { enforceGender, normalizeGender, promptHasGender } = await import('./utils/gender-prompt.js');
       const secureGender = normalizeGender(user.gender);
 
       if (secureGender) {
@@ -779,7 +779,7 @@ export class ModelTrainingService {
       
       // MAYA'S INTELLIGENT FLUX PARAMETERS: Use Maya's personality as single source of truth
       // MAYA FAÇADE: Configuration now accessed via façade API
-      // const { MAYA_PERSONALITY } = await import('./agents/personalities/maya-personality'); // REMOVED: Direct entanglement
+      // const { MAYA_PERSONALITY } = await import('./agents/personalities/maya-personality.js'); // REMOVED: Direct entanglement
       
       // MAYA FAÇADE: Use enhanced FLUX parameters for better quality  
   const mayaParams = { guidance_scale: 5, num_inference_steps: 50, megapixels: "1" };
@@ -1088,9 +1088,9 @@ export class ModelTrainingService {
     try {
       // Import Maya's personality and Claude API connection
       // MAYA FAÇADE: Removed PersonalityManager import - Maya isolated
-      // const { PersonalityManager } = await import('./agents/personalities/personality-config'); // REMOVED: Direct dependency
+      // const { PersonalityManager } = await import('./agents/personalities/personality-config.js'); // REMOVED: Direct dependency
       // Use Claude API service directly
-      const { ClaudeApiServiceSimple } = await import('./services/claude-api-service-simple');
+      const { ClaudeApiServiceSimple } = await import('./services/claude-api-service-simple.js');
       const claudeService = new ClaudeApiServiceSimple();
       
       // MAYA'S PARAMETER INTELLIGENCE PROMPT WITH CATEGORY CONTEXT

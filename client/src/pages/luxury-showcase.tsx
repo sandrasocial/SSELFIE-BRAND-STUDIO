@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Typography } from "../components/ui/typography";
-import { LuxuryButton } from "../components/ui/luxury-button";
-import { LuxuryLoading, LuxuryImageSkeleton, LuxuryCardSkeleton } from "../components/ui/luxury-loading";
-import { PremiumUpgradeFlow } from "../components/ui/premium-upgrade-flow";
-import { LuxuryMetricsDashboard } from "../components/ui/luxury-metrics-dashboard";
-import { ComprehensiveQualitySuite } from "../utils/comprehensiveQualitySuite";
-import { EditorialAnimations } from "../utils/editorialAnimations";
+import { Typography } from "../components/ui/typography.js";
+import { LuxuryButton } from "../components/ui/luxury-button.js";
+import { LuxuryLoading, LuxuryImageSkeleton, LuxuryCardSkeleton } from "../components/ui/luxury-loading.js";
+import { PremiumUpgradeFlow } from "../components/ui/premium-upgrade-flow.js";
+import { LuxuryMetricsDashboard } from "../components/ui/luxury-metrics-dashboard.js";
+import { ComprehensiveQualitySuite } from "../utils/comprehensiveQualitySuite.js";
+import { EditorialAnimations } from "../utils/editorialAnimations.js";
 
 export const LuxuryShowcase: React.FC = () => {
   const [showUpgradeFlow, setShowUpgradeFlow] = useState(false);

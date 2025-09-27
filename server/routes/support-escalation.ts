@@ -4,8 +4,8 @@
  */
 
 import { Router } from 'express';
-import { requireStackAuth } from '..stack-auth'
-import { escalationHandler } from '..services/escalation-handler';
+import { requireStackAuth } from '..stack-auth.js'
+import { escalationHandler } from '..services/escalation-handler.js';
 
 const router = Router();
 

@@ -10,8 +10,8 @@
  */
 
 import { useState, useRef, useEffect } from 'react';
-import { apiRequest } from '../lib/queryClient';
-import { useToast } from '../hooks/use-toast';
+import { apiRequest } from '../lib/queryClient.js';
+import { useToast } from '../hooks/use-toast.js';
 
 interface ChatMessage {
   role: 'user' | 'assistant';

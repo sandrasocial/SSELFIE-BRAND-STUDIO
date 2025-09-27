@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { useAuth } from '../hooks/use-auth';
-import { MemberNavigation } from '../components/member-navigation';
-import { PhotoStudio } from '../components/brand-studio/PhotoStudio';
-import { StoryStudio } from '../components/brand-studio/StoryStudio';
-import { BrandStudioProvider, useBrandStudio } from '../contexts/BrandStudioContext';
+import { useAuth } from '../hooks/use-auth.js';
+import { MemberNavigation } from '../components/member-navigation.js';
+import { PhotoStudio } from '../components/brand-studio/PhotoStudio.js';
+import { StoryStudio } from '../components/brand-studio/StoryStudio.js';
+import { BrandStudioProvider, useBrandStudio } from '../contexts/BrandStudioContext.js';
 
 // Luxury flatlay background images for editorial aesthetic
 const FLATLAY_IMAGES = [

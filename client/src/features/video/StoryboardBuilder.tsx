@@ -1,11 +1,11 @@
 import React, { useState, useCallback } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
-import { Button } from '../../components/ui/button';
-import { Input } from '../../components/ui/input';
-import { Textarea } from '../../components/ui/textarea';
-import { Badge } from '../../components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card.js';
+import { Button } from '../../components/ui/button.js';
+import { Input } from '../../components/ui/input.js';
+import { Textarea } from '../../components/ui/textarea.js';
+import { Badge } from '../../components/ui/badge.js';
 import { Trash2, Play, Plus, Camera, Clock, Sparkles } from 'lucide-react';
-import { useToast } from '../../components/ui/use-toast';
+import { useToast } from '../../components/ui/use-toast.js';
 
 interface StoryboardScene {
   id: string;

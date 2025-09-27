@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 import { Link } from 'wouter';
-import { InstallButton } from './ui/install-button';
+import { InstallButton } from './ui/install-button.js';
 
 export const GlobalFooter: FC = () => {
   return (

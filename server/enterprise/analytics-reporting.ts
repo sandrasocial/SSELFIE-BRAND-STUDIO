@@ -3,10 +3,10 @@
  * Comprehensive business intelligence, data visualization, and executive reporting
  */
 
-import { predictiveIntelligence, type PredictiveMetrics } from './predictive-intelligence';
-import { securityAudit, type SecurityMetrics } from './security-audit';
-import { PerformanceMonitor, type PerformanceMetrics } from './performance-monitor';
-import { globalExpansion, type GlobalExpansionMetrics } from './global-expansion';
+import { predictiveIntelligence, type PredictiveMetrics } from './predictive-intelligence.js';
+import { securityAudit, type SecurityMetrics } from './security-audit.js';
+import { PerformanceMonitor, type PerformanceMetrics } from './performance-monitor.js';
+import { globalExpansion, type GlobalExpansionMetrics } from './global-expansion.js';
 
 export interface EnterpriseAnalytics {
   executiveSummary: ExecutiveSummary;

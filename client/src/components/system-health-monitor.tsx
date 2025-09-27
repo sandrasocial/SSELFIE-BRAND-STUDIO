@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Button } from './ui/button';
-import { Badge } from './ui/badge';
+import { Button } from './ui/button.js';
+import { Badge } from './ui/badge.js';
 
 interface SystemHealth {
   agents: {

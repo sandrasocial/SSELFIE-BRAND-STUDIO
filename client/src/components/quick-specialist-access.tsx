@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'wouter';
-import { Button } from './ui/button';
-import { Badge } from './ui/badge';
+import { Button } from './ui/button.js';
+import { Badge } from './ui/badge.js';
 
 // Agent specializations with quick access descriptions
 const AGENT_SPECIALISTS = [
