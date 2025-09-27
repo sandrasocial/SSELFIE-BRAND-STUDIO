@@ -3,7 +3,8 @@
  * Multi-scene video composition endpoint
  */
 
-import express, { Request, Response } from 'express';
+import * as express from 'express';
+import { Request, Response } from 'express';
 import { requireStackAuth } from '../stack-auth.js'
 import { GoogleGenAI, Type } from '@google/genai';
 import { StackAuthUser } from '../stack-auth.js';
@@ -27,6 +28,20 @@ interface StoryboardRequestBody {
 
 interface StoryboardParams extends Record<string, string> {
   storyboardId: string;
+}
+
+// Type for the video generation payload
+interface VideoGenerationPayload {
+  model: string;
+  prompt: string;
+  config: {
+    numberOfVideos: number;
+    aspectRatio: string;
+    durationSeconds: number;
+  };
+  image?: {
+    imageUrl: string;
+  };
 }
 
 const router = express.Router();
@@ -97,33 +112,44 @@ router.post('/storyboard', requireStackAuth, async (req: Request<{}, {}, Storybo
     const { storage } = await import('../storage.js');
 
     // Get source image if provided
-    let sourceImageUrl = null;
+    let sourceImageUrl: string | null = null;
     if (imageId) {
       try {
         const { generatedImages, aiImages } = await import('../../shared/schema.js');
         const { eq } = await import('drizzle-orm');
         
         // Try generated images first
-        let imageRecord = (await db.select().from(generatedImages).where(eq(generatedImages.id, imageId)).limit(1))[0];
+        const generatedImageResults = await db.select().from(generatedImages).where(eq(generatedImages.id, imageId)).limit(1);
+        let imageRecord = generatedImageResults[0];
         
-        // Fall back to legacy ai images
+        // Fall back to legacy ai images if not found in generated images
         if (!imageRecord) {
-          imageRecord = (await db.select().from(aiImages).where(eq(aiImages.id, imageId)).limit(1))[0];
-        }
-
-        if (imageRecord && imageRecord.userId === userId) {
-          sourceImageUrl = imageRecord.selectedUrl || imageRecord.imageUrl;
+          const aiImageResults = await db.select().from(aiImages).where(eq(aiImages.id, imageId)).limit(1);
+          const aiImageRecord = aiImageResults[0];
+          
+          if (aiImageRecord && aiImageRecord.userId === userId) {
+            // Convert aiImages record to match expected structure
+            sourceImageUrl = aiImageRecord.imageUrl || null;
+            
+            // aiImages table doesn't have imageUrls field, only imageUrl
+            // No need to parse JSON for aiImages
+          }
+        } else if (imageRecord && imageRecord.userId === userId) {
+          // Handle generatedImages record
+          sourceImageUrl = imageRecord.selectedUrl || null;
           
           // Try parsing imageUrls if no direct URL
-          if (!sourceImageUrl && imageRecord.imageUrls) {
+          if (!sourceImageUrl && typeof imageRecord.imageUrls === 'string') {
             try {
-              const urls = Array.isArray(imageRecord.imageUrls) ? imageRecord.imageUrls : JSON.parse(imageRecord.imageUrls);
-              sourceImageUrl = urls?.[0];
-            } catch {}
+              const urls = JSON.parse(imageRecord.imageUrls);
+              sourceImageUrl = Array.isArray(urls) ? urls[0] : null;
+            } catch {
+              // Ignore JSON parse errors
+            }
           }
         }
       } catch (error) {
-        console.warn('⚠️ STORYBOARD: Could not load source image, proceeding without:', error?.message);
+        console.warn('⚠️ STORYBOARD: Could not load source image, proceeding without:', error instanceof Error ? error.message : String(error));
       }
     }
 
@@ -150,7 +176,7 @@ router.post('/storyboard', requireStackAuth, async (req: Request<{}, {}, Storybo
 
       try {
         // Use the same payload structure as the existing generate-story route
-        const payload = {
+        const payload: VideoGenerationPayload = {
           model: 'veo-2.0-generate-001',
           prompt: scene.motionPrompt,
           config: {
@@ -323,7 +349,7 @@ router.get('/storyboard/:storyboardId', requireStackAuth, async (req: Request<St
       status: storyboard.status,
       progress: storyboard.progress,
       message: 'Scenes are being generated. Full composition pending implementation.',
-      scenes: JSON.parse(storyboard.scenes),
+      scenes: typeof storyboard.scenes === 'string' ? JSON.parse(storyboard.scenes) : storyboard.scenes,
       updatedAt: storyboard.updatedAt
     });
 
