@@ -27,8 +27,8 @@ export const userSimplifiedProfile = pgTable('user_simplified_profile', {
   isCompleted: boolean('is_completed').default(false),
   
   // TIMESTAMPS
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
 // =============================================================================
