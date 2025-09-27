@@ -1,8 +1,31 @@
 import { FC } from 'react';
-import { ServicesList } from '../components/editorial/ServicesList.js';
-import { PricingPackages } from '../components/editorial/PricingPackages.js';
-import { Testimonials } from '../components/editorial/Testimonials.js';
-import { BookingWidget } from '../components/editorial/BookingWidget.js';
+
+// Placeholder components to avoid import errors
+const ServicesList: FC = () => (
+  <div className="placeholder-component">
+    <h2>Services List (Placeholder)</h2>
+  </div>
+);
+
+const PricingPackages: FC = () => (
+  <div className="placeholder-component">
+    <h2>Pricing Packages (Placeholder)</h2>
+  </div>
+);
+
+const Testimonials: FC<{ style?: string }> = ({ style }) => (
+  <div className="placeholder-component">
+    <h2>Testimonials (Placeholder)</h2>
+    <p>Style: {style}</p>
+  </div>
+);
+
+const BookingWidget: FC<{ integration?: string }> = ({ integration }) => (
+  <div className="placeholder-component">
+    <h2>Booking Widget (Placeholder)</h2>
+    <p>Integration: {integration}</p>
+  </div>
+);
 
 const ServicesPage: FC = () => {
   return (
