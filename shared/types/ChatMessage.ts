@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { BaseChatMessage } from './unified-chat.js';
 
 export interface ChatMessage extends BaseChatMessage {
-  sender: 'user' | 'victoria';
+  role: 'user' | 'victoria'; // Changed from 'sender' to 'role' to match BaseChatMessage
   context?: string;
 }
 
@@ -15,7 +15,7 @@ export function useVictoriaChat() {
     const userMessage: ChatMessage = {
       id: Date.now().toString(),
       content,
-      sender: 'user',
+      role: 'user', // Changed from 'sender' to 'role'
       timestamp: new Date(),
       context
     };
@@ -30,7 +30,7 @@ export function useVictoriaChat() {
       const victoriaMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         content: response,
-        sender: 'victoria',
+        role: 'victoria', // Changed from 'sender' to 'role'
         timestamp: new Date(),
         context
       };
