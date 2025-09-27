@@ -3,9 +3,31 @@
  * Multi-scene video composition endpoint
  */
 
-import express from 'express';
+import express, { Request, Response } from 'express';
 import { requireStackAuth } from '../stack-auth.js'
 import { GoogleGenAI, Type } from '@google/genai';
+import { StackAuthUser } from '../stack-auth.js';
+
+// Define request types for type safety
+interface AuthenticatedRequest extends Request {
+  user: StackAuthUser;
+}
+
+interface StoryboardScene {
+  motionPrompt: string;
+  duration?: number;
+  useSourceImage?: boolean;
+}
+
+interface StoryboardRequestBody {
+  imageId?: number;
+  scenes: StoryboardScene[];
+  mode?: 'sequential';
+}
+
+interface StoryboardParams extends Record<string, string> {
+  storyboardId: string;
+}
 
 const router = express.Router();
 
@@ -22,7 +44,7 @@ if (process.env.GOOGLE_API_KEY) {
  * POST /api/video/storyboard
  * Create and compose multi-scene storyboard
  */
-router.post('/storyboard', requireStackAuth, async (req, res) => {
+router.post('/storyboard', requireStackAuth, async (req: Request<{}, {}, StoryboardRequestBody>, res: Response) => {
   // Check if storyboard feature is enabled
   if (!process.env.STORYBOARD_ENABLED || process.env.STORYBOARD_ENABLED !== '1') {
     return res.status(403).json({ 
@@ -36,7 +58,8 @@ router.post('/storyboard', requireStackAuth, async (req, res) => {
   }
 
   try {
-    const userId = req.user?.id;
+    const authReq = req as AuthenticatedRequest;
+    const userId = authReq.user?.id;
     const { imageId, scenes, mode = 'sequential' } = req.body;
 
     // Validation
@@ -239,7 +262,7 @@ router.post('/storyboard', requireStackAuth, async (req, res) => {
  * GET /api/video/storyboard/:storyboardId
  * Check storyboard composition status
  */
-router.get('/storyboard/:storyboardId', requireStackAuth, async (req, res) => {
+router.get('/storyboard/:storyboardId', requireStackAuth, async (req: Request<StoryboardParams>, res: Response) => {
   if (!process.env.STORYBOARD_ENABLED || process.env.STORYBOARD_ENABLED !== '1') {
     return res.status(403).json({ 
       error: 'Storyboard feature not enabled',
@@ -252,7 +275,8 @@ router.get('/storyboard/:storyboardId', requireStackAuth, async (req, res) => {
   }
 
   try {
-    const userId = req.user?.id;
+    const authReq = req as AuthenticatedRequest;
+    const userId = authReq.user?.id;
     const { storyboardId } = req.params;
 
     const { db } = await import('../drizzle.js');
