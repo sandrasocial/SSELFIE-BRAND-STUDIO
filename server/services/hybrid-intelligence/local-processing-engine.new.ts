@@ -10,21 +10,7 @@ import { db } from '../../../server/drizzle.js';
 import { 
   agentLearning, 
   agentSessionContexts, 
-   private validateCSSLocally(code: string, errors: string[], suggestions: string[]): void {
-    const brackets = this.countBrackets(code);
-    if (brackets.curly !== 0) {
-      errors.push('Mismatched CSS braces');
-      suggestions.push('Check for missing closing } in CSS rules');
-    }
-    
-    const lines = code.split('\n').filter(line => line.trim());
-    lines.forEach((line, i) => {
-      const trimmedLine = line.trim();
-      if (trimmedLine.includes(':') && !trimmedLine.endsWith(';') && !trimmedLine.endsWith('{') && !trimmedLine.endsWith('}')) {
-        suggestions.push(`Line ${i + 1}: Consider adding semicolon`);
-      }
-    });
-  }Base, 
+  agentKnowledgeBase,
   agentPerformanceMetrics
 } from '../../../shared/schema.js';
 
@@ -489,10 +475,10 @@ export class LocalProcessingEngine {
     const lines = code.split('\n').filter(line => line.trim());
     lines.forEach((line, i) => {
       const trimmedLine = line.trim();
-      if (line.includes(':') && !line.endsWith(';') && !line.endsWith('{') && !line.endsWith('}')) {
+      if (trimmedLine.includes(':') && !trimmedLine.endsWith(';') && !trimmedLine.endsWith('{') && !trimmedLine.endsWith('}')) {
         suggestions.push(`Line ${i + 1}: Consider adding semicolon`);
       }
-    }
+    });
   }
 
   /**

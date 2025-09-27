@@ -3,74 +3,101 @@
  * Enterprise-level API endpoints for predictive intelligence, security, performance, and global expansion
  */
 
-import type { Express } from 'express';import { predictiveIntelligence } from "..enterprise/predictive-intelligence";import { securityAudit } from "..enterprise/security-audit";import { PerformanceMonitor } from "..enterprise/performance-monitor";import { globalExpansion } from "..enterprise/global-expansion";import { analyticsReporting } from "..enterprise/analytics-reporting";import { requireStackAuth } from '..stack-auth.js';'
+import type { Express } from 'express';
+import { predictiveIntelligence, PredictiveIntelligenceEngine } from "../enterprise/predictive-intelligence.js";
+import { securityAudit } from "../enterprise/security-audit.js";
+import { PerformanceMonitor } from "../enterprise/performance-monitor.js";
+import { globalExpansion } from "../enterprise/global-expansion.js";
+import { analyticsReporting } from "../enterprise/analytics-reporting.js";
+import { requireStackAuth } from '../stack-auth.js';
 export function registerEnterpriseRoutes(app: Express): void {
-  console.log('🏢 Registering Enterprise Scaling API routes...')';'
+  console.log('🏢 Registering Enterprise Scaling API routes...');
+  
   // Predictive Intelligence Endpoints
-  app.get('/api/enterprise/predictive-metrics', requireStackAuth, async (req, res) => {';    try {'
-      console.log('🔮 PREDICTIVE INTELLIGENCE: Generating metrics...')';      const metrics = await predictiveIntelligence.generatePredictiveMetrics()';'
+  app.get('/api/enterprise/predictive-metrics', requireStackAuth, async (req, res) => {
+    try {
+      console.log('🔮 PREDICTIVE INTELLIGENCE: Generating metrics...');
+      const metrics = await predictiveIntelligence.generatePredictiveMetrics();
+      
       res.json({
         success: true,
         data: metrics,
         timestamp: new Date().toISOString()
       });
     } catch (error: any) {
-      console.error('❌ PREDICTIVE INTELLIGENCE ERROR: , error.message);      res.status(500).json({'
+      console.error('❌ PREDICTIVE INTELLIGENCE ERROR:', error.message);
+      res.status(500).json({
         success: false,
-        error: Failed to generate predictive metrics,';        details: error.message'
+        error: 'Failed to generate predictive metrics',
+        details: error.message
       });
     }
   });
 
   // Security Audit Endpoints
-  app.get('/api/enterprise/security-report', requireStackAuth, async (req, res) => {';    try {'
-      console.log('🔒 SECURITY AUDIT: Generating security report...')';      const report = await securityAudit.generateSecurityReport()';'
+  app.get('/api/enterprise/security-report', requireStackAuth, async (req, res) => {
+    try {
+      console.log('🔒 SECURITY AUDIT: Generating security report...');
+      const report = await securityAudit.generateSecurityReport();
+      
       res.json({
         success: true,
         data: report,
         timestamp: new Date().toISOString()
       });
     } catch (error: any) {
-      console.error('❌ SECURITY AUDIT ERROR: , error.message);      res.status(500).json({'
+      console.error('❌ SECURITY AUDIT ERROR:', error.message);
+      res.status(500).json({
         success: false,
-        error: Failed to generate security report,';        details: error.message'
+        error: 'Failed to generate security report',
+        details: error.message
       });
     }
   });
 
   // Security threat detection endpoint
-  app.post('/api/enterprise/security/detect-threat', requireStackAuth, async (req, res) => {';    try {'
+  app.post('/api/enterprise/security/detect-threat', requireStackAuth, async (req, res) => {
+    try {
       const { type, source, description, severity } = req.body;
       await securityAudit.detectThreat(type, source, description, severity);
       res.json({
         success: true,
-        message: Threat detection logged successfully;      })';'
+        message: 'Threat detection logged successfully'
+      });
     } catch (error: any) {
-      console.error('❌ THREAT DETECTION ERROR: , error.message);      res.status(500).json({'
+      console.error('❌ THREAT DETECTION ERROR:', error.message);
+      res.status(500).json({
         success: false,
-        error: Failed to log threat detection,';        details: error.message'
+        error: 'Failed to log threat detection',
+        details: error.message
       });
     }
   });
 
   // Performance Monitoring Endpoints
-  app.get('/api/enterprise/performance-report', requireStackAuth, async (req, res) => {';    try {'
-      console.log('📊 PERFORMANCE MONITOR: Generating performance report...')';      const report = await PerformanceMonitor.generatePerformanceReport()';'
+  app.get('/api/enterprise/performance-report', requireStackAuth, async (req, res) => {
+    try {
+      console.log('📊 PERFORMANCE MONITOR: Generating performance report...');
+      const report = await PerformanceMonitor.generatePerformanceReport();
+      
       res.json({
         success: true,
         data: report,
         timestamp: new Date().toISOString()
       });
     } catch (error: any) {
-      console.error('❌ PERFORMANCE MONITOR ERROR: , error.message);      res.status(500).json({'
+      console.error('❌ PERFORMANCE MONITOR ERROR:', error.message);
+      res.status(500).json({
         success: false,
-        error: Failed to generate performance report,';        details: error.message'
+        error: 'Failed to generate performance report',
+        details: error.message
       });
     }
   });
 
   // Performance alerts endpoint
-  app.get('/api/enterprise/performance/alerts', requireStackAuth, async (req, res) => {';    try {'
+  app.get('/api/enterprise/performance/alerts', requireStackAuth, async (req, res) => {
+    try {
       const alerts = await PerformanceMonitor.getSystemAlerts();
       res.json({
         success: true,
@@ -78,70 +105,87 @@ export function registerEnterpriseRoutes(app: Express): void {
         count: alerts.length
       });
     } catch (error: any) {
-      console.error('❌ PERFORMANCE ALERTS ERROR: , error.message);      res.status(500).json({'
+      console.error('❌ PERFORMANCE ALERTS ERROR:', error.message);
+      res.status(500).json({
         success: false,
-        error: Failed to retrieve performance alerts,';        details: error.message'
+        error: 'Failed to retrieve performance alerts',
+        details: error.message
       });
     }
   });
 
   // Resolve performance alert endpoint
-  app.post('/api/enterprise/performance/alerts/:alertId/resolve', requireStackAuth, async (req, res) => {';    try {'
+  app.post('/api/enterprise/performance/alerts/:alertId/resolve', requireStackAuth, async (req, res) => {
+    try {
       const { alertId } = req.params;
       const resolved = await PerformanceMonitor.resolveAlert(alertId);
       
       if (resolved) {
         res.json({
           success: true,
-          message: Alert resolved successfully;        })';'
+          message: 'Alert resolved successfully'
+        });
       } else {
         res.status(404).json({
           success: false,
-          error: Alert not found;        })';'
+          error: 'Alert not found'
+        });
       }
     } catch (error: any) {
-      console.error('❌ ALERT RESOLUTION ERROR: , error.message);      res.status(500).json({'
+      console.error('❌ ALERT RESOLUTION ERROR:', error.message);
+      res.status(500).json({
         success: false,
-        error: Failed to resolve alert,';        details: error.message'
+        error: 'Failed to resolve alert',
+        details: error.message
       });
     }
   });
 
   // Global Expansion Endpoints
-  app.get('/api/enterprise/global-expansion', requireStackAuth, async (req, res) => {';    try {'
-      console.log('🌍 GLOBAL EXPANSION: Generating expansion metrics...')';      const metrics = await globalExpansion.generateExpansionMetrics()';'
+  app.get('/api/enterprise/global-expansion', requireStackAuth, async (req, res) => {
+    try {
+      console.log('🌍 GLOBAL EXPANSION: Generating expansion metrics...');
+      const metrics = await globalExpansion.generateExpansionMetrics();
       res.json({
         success: true,
         data: metrics,
         timestamp: new Date().toISOString()
       });
     } catch (error: any) {
-      console.error('❌ GLOBAL EXPANSION ERROR: , error.message);      res.status(500).json({'
+      console.error('❌ GLOBAL EXPANSION ERROR:', error.message);
+      res.status(500).json({
         success: false,
-        error: Failed to generate global expansion metrics,';        details: error.message'
+        error: 'Failed to generate global expansion metrics',
+        details: error.message
       });
     }
   });
 
   // Advanced Analytics & Reporting Endpoints
-  app.get('/api/enterprise/analytics-report', requireStackAuth, async (req, res) => {';    try {'
-      console.log('📈 ENTERPRISE ANALYTICS: Generating comprehensive report...')';      const report = await analyticsReporting.generateEnterpriseReport()';'
+  app.get('/api/enterprise/analytics-report', requireStackAuth, async (req, res) => {
+    try {
+      console.log('📈 ENTERPRISE ANALYTICS: Generating comprehensive report...');
+      const report = await analyticsReporting.generateEnterpriseReport();
       res.json({
         success: true,
         data: report,
         timestamp: new Date().toISOString()
       });
     } catch (error: any) {
-      console.error('❌ ENTERPRISE ANALYTICS ERROR: , error.message);      res.status(500).json({'
+      console.error('❌ ENTERPRISE ANALYTICS ERROR:', error.message);
+      res.status(500).json({
         success: false,
-        error: Failed to generate enterprise analytics report,';        details: error.message'
+        error: 'Failed to generate enterprise analytics report',
+        details: error.message
       });
     }
   });
 
   // Executive Summary endpoint for quick dashboard overview
-  app.get('/api/enterprise/executive-summary', requireStackAuth, async (req, res) => {';    try {'
-      console.log('📋 EXECUTIVE SUMMARY: Generating quick overview...')';      const fullReport = await analyticsReporting.generateEnterpriseReport()';'
+  app.get('/api/enterprise/executive-summary', requireStackAuth, async (req, res) => {
+    try {
+      console.log('📋 EXECUTIVE SUMMARY: Generating quick overview...');
+      const fullReport = await analyticsReporting.generateEnterpriseReport();
       
       // Return only executive summary for faster loading
       res.json({
@@ -153,20 +197,24 @@ export function registerEnterpriseRoutes(app: Express): void {
             totalRevenue: fullReport.businessIntelligence.revenueAnalysis.totalRevenue,
             activeCustomers: fullReport.businessIntelligence.customerAnalysis.activeCustomers,
             systemUptime: fullReport.operationalMetrics.systemPerformance.uptime,
-            threatLevel: low // Default for summary';          }'
+            threatLevel: 'low' // Default for summary
+          }
         },
         timestamp: new Date().toISOString()
       });
     } catch (error: any) {
-      console.error('❌ EXECUTIVE SUMMARY ERROR: , error.message);      res.status(500).json({'
+      console.error('❌ EXECUTIVE SUMMARY ERROR:', error.message);
+      res.status(500).json({
         success: false,
-        error: Failed to generate executive summary,';        details: error.message'
+        error: 'Failed to generate executive summary',
+        details: error.message
       });
     }
   });
 
   // Enterprise health check endpoint
-  app.get('/api/enterprise/health', requireStackAuth, async (req, res) => {';    try {'
+  app.get('/api/enterprise/health', requireStackAuth, async (req, res) => {
+    try {
       const [
         predictiveHealth,
         securityHealth,
@@ -174,30 +222,39 @@ export function registerEnterpriseRoutes(app: Express): void {
         expansionHealth
       ] = await Promise.all([
         // Quick health checks
-        Promise.resolve({ status: operational, service: predictive-intelligence }),';        Promise.resolve({ status: operational, service: security-audit }),';        Promise.resolve({ status: operational, service: performance-monitor }),';        Promise.resolve({ status: operational, service: global-expansion })';      ])';'
+        Promise.resolve({ status: 'operational', service: 'predictive-intelligence' }),
+        Promise.resolve({ status: 'operational', service: 'security-audit' }),
+        Promise.resolve({ status: 'operational', service: 'performance-monitor' }),
+        Promise.resolve({ status: 'operational', service: 'global-expansion' })
+      ]);
 
       res.json({
         success: true,
         data: {
-          overall: operational,';          services: ['
+          overall: 'operational',
+          services: [
             predictiveHealth,
             securityHealth,
             performanceHealth,
             expansionHealth
           ],
           timestamp: new Date().toISOString(),
-          version: 3.0.0';        }'
+          version: '3.0.0'
+        }
       });
     } catch (error: any) {
-      console.error('❌ ENTERPRISE HEALTH CHECK ERROR: , error.message);      res.status(500).json({'
+      console.error('❌ ENTERPRISE HEALTH CHECK ERROR:', error.message);
+      res.status(500).json({
         success: false,
-        error: Health check failed,';        details: error.message'
+        error: 'Health check failed',
+        details: error.message
       });
     }
   });
 
   // Enterprise configuration endpoint
-  app.get('/api/enterprise/config', requireStackAuth, async (req, res) => {';    try {'
+  app.get('/api/enterprise/config', requireStackAuth, async (req, res) => {
+    try {
       res.json({
         success: true,
         data: {
@@ -213,15 +270,19 @@ export function registerEnterpriseRoutes(app: Express): void {
             maxAlerts: 500,
             dataRetentionDays: 365
           },
-          version: 3.0.0,';          deployedAt: new Date().toISOString()'
+          version: '3.0.0',
+          deployedAt: new Date().toISOString()
         }
       });
     } catch (error: any) {
-      console.error('❌ ENTERPRISE CONFIG ERROR: , error.message);      res.status(500).json({'
+      console.error('❌ ENTERPRISE CONFIG ERROR:', error.message);
+      res.status(500).json({
         success: false,
-        error: Failed to retrieve enterprise configuration,';        details: error.message'
+        error: 'Failed to retrieve enterprise configuration',
+        details: error.message
       });
     }
   });
 
-  console.log('✅ Enterprise Scaling API routes registered successfully')';}
+  console.log('✅ Enterprise Scaling API routes registered successfully');
+}

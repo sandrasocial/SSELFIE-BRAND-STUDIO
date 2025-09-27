@@ -3,9 +3,18 @@
  * Comprehensive security monitoring, audit trails, and threat detection
  */
 
-import { db } from "..drizzle.js";import { users, aiImages } from "..../shared/schema";import { eq, desc, sql, and, gte } from "drizzle-orm";"
+import { db } from "../db.js";
+import { users, aiImages } from "../../shared/schema";
+import { eq, desc, sql, and, gte } from "drizzle-orm";
+export type ThreatLevel = 'critical' | 'hig  private generateMitigationSteps(type: ThreatType, severity: ThreatLevel): string[] {
+    const mitigationMap: Record<ThreatType, string[]> = {' | 'medium' | 'low';
+export type ThreatType = 'brute_force' | 'ddos' | 'data_breach' | 'unauthorized_access' | 'api_abuse';
+export type ThreatStatus = 'active' | 'mitigated' | 'resolved';
+export type AuditStatus = 'success' | 'failure' | 'suspicious';
+
 export interface SecurityMetrics {
-  threatLevel: critical | 'high' | 'medium' | 'low';  activeThreats: SecurityThreat[]';'
+  threatLevel: ThreatLevel;
+  activeThreats: SecurityThreat[];
   auditLog: AuditEvent[];
   complianceStatus: ComplianceStatus;
   accessAnalysis: AccessAnalysis;
@@ -14,10 +23,13 @@ export interface SecurityMetrics {
 
 export interface SecurityThreat {
   id: string;
-  type: brute_force | 'ddos' | 'data_breach' | 'unauthorized_access' | 'api_abuse';  severity: critical | 'high' | 'medium' | 'low';  source: string';'
+  type: ThreatType;
+  severity: ThreatLevel;
+  source: string;
   description: string;
   detectedAt: Date;
-  status: active | 'mitigated' | 'resolved';  mitigation: string[]';'
+  status: ThreatStatus;
+  mitigation: string[];
 }
 
 export interface AuditEvent {
@@ -28,7 +40,8 @@ export interface AuditEvent {
   resource: string;
   ipAddress: string;
   userAgent: string;
-  status: success | 'failure' | 'suspicious';  details: Record<string, any>';'
+  status: AuditStatus;
+  details: Record<string, any>;
 }
 
 export interface ComplianceStatus {

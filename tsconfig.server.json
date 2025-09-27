@@ -13,7 +13,8 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "noImplicitAny": true,
-    "strict": false
+    "strict": true,
+    "esModuleInterop": true
   },
   "include": [
     "server/**/*.ts",

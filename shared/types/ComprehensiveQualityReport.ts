@@ -1,8 +1,7 @@
-// quality-testing/comprehensive-quality-suite.ts
-import { LuxuryBrandValidator } from '.luxury-brand-validator'';.js
-import { UserExperienceAuditor } from '.user-experience-auditor'';.js
-import { IndividualModelValidator } from '.individual-model-validator'';.js
-import { PremiumTierValidator } from '.premium-tier-validator'';.js
+import { LuxuryBrandValidator } from './quality-testing/luxury-brand-validator.js';
+import { UserExperienceAuditor } from './quality-testing/user-experience-auditor.js';
+import { IndividualModelValidator } from './quality-testing/individual-model-validator.js';
+import { PremiumTierValidator } from './quality-testing/premium-tier-validator.js';
 
 export interface ComprehensiveQualityReport {
   overallLuxuryScore: number;

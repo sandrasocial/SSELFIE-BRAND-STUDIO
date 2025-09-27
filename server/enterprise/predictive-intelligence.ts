@@ -3,7 +3,9 @@
  * Advanced AI-powered predictive analytics and decision support system
  */
 
-import { db } from "..drizzle.js";import { users, aiImages } from "..../shared/schema";import { eq, desc, sql, and, gte } from "drizzle-orm";"
+import { db } from "../drizzle.js";
+import { users, aiImages } from "../../shared/schema.js";
+import { eq, desc, sql, and, gte } from "drizzle-orm";
 export interface PredictiveMetrics {
   userEngagement: UserEngagementPrediction;
   businessGrowth: BusinessGrowthPrediction;
@@ -58,7 +60,8 @@ export interface ResourceUtilizationPrediction {
 export interface MarketTrendsPrediction {
   industryTrends: {
     trend: string;
-    impact: high | 'medium' | 'low';    timeline: string';'
+    impact: 'high' | 'medium' | 'low';
+    timeline: string;
     actionItems: string[];
   }[];
   competitorAnalysis: {
@@ -75,7 +78,8 @@ export interface MarketTrendsPrediction {
 
 export interface RiskAssessmentPrediction {
   securityRisks: {
-    level: critical | 'high' | 'medium' | 'low';    type: string';'
+    level: 'critical' | 'high' | 'medium' | 'low';
+    type: string;
     mitigation: string[];
   }[];
   businessRisks: {
@@ -105,11 +109,12 @@ export class PredictiveIntelligenceEngine {
   }
 
   async generatePredictiveMetrics(): Promise<PredictiveMetrics> {
-    console.log('🔮 PREDICTIVE INTELLIGENCE: Generating comprehensive metrics...')';    '
+    console.log('🔮 PREDICTIVE INTELLIGENCE: Generating comprehensive metrics...');
     // Cache results for 1 hour to optimize performance
     if (this.cachedMetrics && this.lastAnalysis && 
         (Date.now() - this.lastAnalysis.getTime()) < 3600000) {
-      console.log('📊 Using cached predictive metrics')';      return this.cachedMetrics';'
+      console.log('📊 Using cached predictive metrics');
+      return this.cachedMetrics;
     }
 
     const [
@@ -137,7 +142,8 @@ export class PredictiveIntelligenceEngine {
     this.cachedMetrics = metrics;
     this.lastAnalysis = new Date();
     
-    console.log('✅ PREDICTIVE INTELLIGENCE: Analysis complete')';    return metrics';'
+    console.log('✅ PREDICTIVE INTELLIGENCE: Analysis complete');
+    return metrics;
   }
 
   private async analyzeUserEngagement(): Promise<UserEngagementPrediction> {
@@ -246,14 +252,22 @@ export class PredictiveIntelligenceEngine {
         scalingRecommendations: this.generateScalingRecommendations(serverMetrics)
       },
       agentPerformance: {
-        mostEfficient: ['victoria', 'maya', 'rachel'], // Top performers';        bottlenecks: ['training_queue', 'image_generation'], // Identified bottlenecks';        optimizationSuggestions: ['
-          'Implement agent load balancing','Add predictive caching for frequent requests','Optimize database queries for agent analytics';        ]'
+        mostEfficient: ['victoria', 'maya', 'rachel'], // Top performers
+        bottlenecks: ['training_queue', 'image_generation'], // Identified bottlenecks
+        optimizationSuggestions: [
+          'Implement agent load balancing',
+          'Add predictive caching for frequent requests',
+          'Optimize database queries for agent analytics'
+        ]
       },
       costOptimization: {
         currentCosts: 1200, // Monthly operational costs
         optimizedCosts: 950, // Target optimized costs
         savingsOpportunities: [
-          'Database query optimization: €150/month','Image storage compression: €100/month','Agent response caching: €75/month';        ]'
+          'Database query optimization: €150/month',
+          'Image storage compression: €100/month',
+          'Agent response caching: €75/month'
+        ]
       }
     };
   }
@@ -262,24 +276,56 @@ export class PredictiveIntelligenceEngine {
     return {
       industryTrends: [
         {
-          trend: AI-Generated Personal Branding Growth,';          impact: high,';          timeline: 6-12 months,';          actionItems: ['
-            'Enhance AI model capabilities','Expand template library','Add video generation features';          ]'
+          trend: 'AI-Generated Personal Branding Growth',
+          impact: 'high',
+          timeline: '6-12 months',
+          actionItems: [
+            'Enhance AI model capabilities',
+            'Expand template library',
+            'Add video generation features'
+          ]
         },
         {
-          trend: Luxury Digital Services Demand,';          impact: high,';          timeline: 3-6 months,';          actionItems: ['
-            'Premium service tier expansion','White-glove onboarding','Exclusive community features';          ]'
+          trend: 'Luxury Digital Services Demand',
+          impact: 'high',
+          timeline: '3-6 months',
+          actionItems: [
+            'Premium service tier expansion',
+            'White-glove onboarding',
+            'Exclusive community features'
+          ]
         },
         {
-          trend: Social Commerce Integration,';          impact: medium,';          timeline: 12-18 months,';          actionItems: ['
-            'Instagram Shopping integration','TikTok commerce features','LinkedIn business integration';          ]'
+          trend: 'Social Commerce Integration',
+          impact: 'medium',
+          timeline: '12-18 months',
+          actionItems: [
+            'Instagram Shopping integration',
+            'TikTok commerce features',
+            'LinkedIn business integration'
+          ]
         }
       ],
       competitorAnalysis: {
-        threats: ['Generic AI photo apps with lower pricing', 'Social media platforms adding AI features'],';        opportunities: ['Luxury positioning gap', 'Business-focused AI tools market'],';        recommendations: ['
-          'Strengthen luxury brand positioning','Develop B2B enterprise solutions','Create strategic partnerships with luxury brands';        ]'
+        threats: [
+          'Generic AI photo apps with lower pricing',
+          'Social media platforms adding AI features'
+        ],
+        opportunities: [
+          'Luxury positioning gap',
+          'Business-focused AI tools market'
+        ],
+        recommendations: [
+          'Strengthen luxury brand positioning',
+          'Develop B2B enterprise solutions',
+          'Create strategic partnerships with luxury brands'
+        ]
       },
       technologyTrends: {
-        emerging: ['Real-time AI generation', 'Voice-guided AI', 'AR/VR integration'],';        declining: ['Static template systems', 'Manual design workflows'],';        adoption: ['Multi-modal AI', 'Predictive personalization', 'Edge computing']';      }'
+        emerging: ['Real-time AI generation', 'Voice-guided AI', 'AR/VR integration'],
+        declining: ['Static template systems', 'Manual design workflows'],
+        adoption: ['Multi-modal AI', 'Predictive personalization', 'Edge computing']
+      }
     };
   }
 
@@ -287,12 +333,22 @@ export class PredictiveIntelligenceEngine {
     return {
       securityRisks: [
         {
-          level: medium,';          type: Data Privacy Compliance,';          mitigation: ['
-            'GDPR compliance audit','Enhanced data encryption','User consent management system';          ]'
+          level: 'medium',
+          type: 'Data Privacy Compliance',
+          mitigation: [
+            'GDPR compliance audit',
+            'Enhanced data encryption',
+            'User consent management system'
+          ]
         },
         {
-          level: low,';          type: API Security,';          mitigation: ['
-            'Rate limiting implementation','API key rotation system','Advanced authentication';          ]'
+          level: 'low',
+          type: 'API Security',
+          mitigation: [
+            'Rate limiting implementation',
+            'API key rotation system',
+            'Advanced authentication'
+          ]
         }
       ],
       businessRisks: {
@@ -300,28 +356,40 @@ export class PredictiveIntelligenceEngine {
         operationalRisk: 0.12, // 12% risk level
         reputationalRisk: 0.08, // 8% risk level
         recommendations: [
-          'Diversify revenue streams','Build operational redundancy','Strengthen brand protection';        ]'
+          'Diversify revenue streams',
+          'Build operational redundancy',
+          'Strengthen brand protection'
+        ]
       },
       technicalRisks: {
         systemFailure: 0.05, // 5% probability
         dataLoss: 0.02, // 2% probability
         performanceDegradation: 0.18, // 18% probability
         preventiveMeasures: [
-          'Multi-region deployment','Real-time backup systems','Performance monitoring alerts';        ]'
+          'Multi-region deployment',
+          'Real-time backup systems',
+          'Performance monitoring alerts'
+        ]
       }
     };
   }
 
   private generateEngagementActions(score: number, churnCount: number): string[] {
-    const actions = [];
+    const actions: string[] = [];
     
     if (score < 50) {
-      actions.push('Launch user engagement campaign')';      actions.push('Implement personalized onboarding')';    }'
+      actions.push('Launch user engagement campaign');
+      actions.push('Implement personalized onboarding');
+    }
     
     if (churnCount > 5) {
-      actions.push('Create win-back email sequence')';      actions.push('Offer premium trial extension')';    }'
+      actions.push('Create win-back email sequence');
+      actions.push('Offer premium trial extension');
+    }
     
-    actions.push('Analyze user feedback patterns')';    actions.push('Optimize conversion funnel')';    '
+    actions.push('Analyze user feedback patterns');
+    actions.push('Optimize conversion funnel');
+    
     return actions;
   }
 
@@ -345,18 +413,27 @@ export class PredictiveIntelligenceEngine {
   }
 
   private generateScalingRecommendations(metrics: any): string[] {
-    const recommendations = [];
+    const recommendations: string[] = [];
     
     if (metrics.cpuUsage > 70) {
-      recommendations.push('Consider horizontal scaling')';    }'
+      recommendations.push('Consider horizontal scaling');
+    }
     
     if (metrics.memoryUsage > 80) {
-      recommendations.push('Implement memory optimization')';    }'
+      recommendations.push('Implement memory optimization');
+    }
     
     if (metrics.networkLatency > 120) {
-      recommendations.push('Add CDN endpoints')';    }'
+      recommendations.push('Add CDN endpoints');
+    }
     
-    return recommendations.length > 0 ? recommendations : [System operating within optimal parameters]`;  }
+    return recommendations.length > 0 ? recommendations : ['System operating within optimal parameters'];
+  }
+}
+
+// Create singleton instance
+const instance = PredictiveIntelligenceEngine.getInstance();
+export const predictiveIntelligence = instance;
 }
 
 export const predictiveIntelligence = PredictiveIntelligenceEngine.getInstance();

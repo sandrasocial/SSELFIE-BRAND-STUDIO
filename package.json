@@ -634,6 +634,7 @@
     "zwitch": "^2.0.4"
   },
   "scripts": {
+    "check-launch": "cd server && tsx check-launch-readiness.ts",
     "dev": "cd server && npx tsx index.ts",
     "dev:client": "npx vite --port 5173",
     "dev:server": "cd server && npx tsx start.ts",

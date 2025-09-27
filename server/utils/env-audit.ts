@@ -3,171 +3,331 @@
  * Comprehensive validation and documentation of all environment variables
  */
 
-import { Logger } from "./logger";"
+import { Logger } from './simple-logger.js';
+
+const logger = new Logger('EnvAudit');
+
+/**
+ * Represents an environment variable configuration
+ */
 export interface EnvVariable {
   name: string;
   required: boolean;
-  type: string | 'number' | 'boolean' | 'url' | 'email' | 'api_key';  description: string';'
-  category: database | 'ai' | 'storage' | 'auth' | 'payment' | 'email' | 'social' | 'system';  sensitive: boolean';'
+  type: 'string' | 'number' | 'boolean' | 'url' | 'email' | 'api_key';
+  description: string;
+  category: 'database' | 'ai' | 'storage' | 'auth' | 'payment' | 'email' | 'social' | 'system';
+  sensitive: boolean;
   example?: string;
   validation?: (value: string) => boolean;
 }
 
+/**
+ * Result of an environment variables audit
+ */
+export interface AuditResult {
+  valid: boolean;
+  missing: string[];
+  invalid: string[];
+  warnings: string[];
+  summary: {
+    total: number;
+    required: number;
+    present: number;
+    missing: number;
+    invalid: number;
+  };
+}
+
+/**
+ * Validates and documents environment variables
+ */
 export class EnvironmentAuditor {
-  private logger: Logger;
-  private envVariables: EnvVariable[];
+  private readonly envVariables: EnvVariable[];
 
   constructor() {
-    this.logger = new Logger('EnvironmentAuditor')';    this.envVariables = this.defineEnvironmentVariables()';'
+    this.envVariables = this.defineEnvironmentVariables();
   }
 
-  /**
-   * Define all environment variables with their specifications
-   */
   private defineEnvironmentVariables(): EnvVariable[] {
     return [
       // Database
       {
-        name: DATABASE_URL,';        required: true,'
-        type: url,';        description: PostgreSQL database connection string,';        category: database,';        sensitive: true,'
-        validation: (value) => value.startsWith('postgresql://')';      },'
-      {
-        name: PGUSER,';        required: true,'
-        type: string,';        description: PostgreSQL username,';        category: database,';        sensitive: true'
+        name: "DATABASE_URL",
+        required: true,
+        type: "url" as const,
+        description: "PostgreSQL database connection string",
+        category: "database" as const,
+        sensitive: true,
+        validation: (value: string) => value.startsWith('postgresql://')
       },
       {
-        name: PGPASSWORD,';        required: true,'
-        type: string,';        description: PostgreSQL password,';        category: database,';        sensitive: true'
+        name: "PGUSER",
+        required: true,
+        type: "string" as const,
+        description: "PostgreSQL username",
+        category: "database" as const,
+        sensitive: true
       },
       {
-        name: HOST,';        required: true,'
-        type: string,';        description: Database host,';        category: database,';        sensitive: false'
+        name: "PGPASSWORD",
+        required: true,
+        type: "string" as const,
+        description: "PostgreSQL password",
+        category: "database" as const,
+        sensitive: true
       },
       {
-        name: NEON_API_KEY,';        required: true,'
-        type: api_key,';        description: Neon database API key,';        category: database,';        sensitive: true,'
-        validation: (value) => value.startsWith('napi_')';      },'
+        name: "HOST",
+        required: true,
+        type: "string" as const,
+        description: "Database host",
+        category: "database" as const,
+        sensitive: false
+      },
+      {
+        name: "NEON_API_KEY",
+        required: true,
+        type: "api_key" as const,
+        description: "Neon database API key",
+        category: "database" as const,
+        sensitive: true,
+        validation: (value: string) => value.startsWith('napi_')
+      },
 
       // Stack Auth
       {
-        name: VITE_STACK_PROJECT_ID,';        required: true,'
-        type: string,';        description: Stack Auth project ID for client,';        category: auth,';        sensitive: false'
+        name: "VITE_STACK_PROJECT_ID",
+        required: true,
+        type: "string" as const,
+        description: "Stack Auth project ID for client",
+        category: "auth" as const,
+        sensitive: false
       },
       {
-        name: VITE_STACK_PUBLISHABLE_CLIENT_KEY,';        required: true,'
-        type: api_key,';        description: Stack Auth publishable client key,';        category: auth,';        sensitive: false,'
-        validation: (value) => value.startsWith('pck_')';      },'
+        name: "VITE_STACK_PUBLISHABLE_CLIENT_KEY",
+        required: true,
+        type: "api_key" as const,
+        description: "Stack Auth publishable client key",
+        category: "auth" as const,
+        sensitive: false,
+        validation: (value: string) => value.startsWith('pck_')
+      },
       {
-        name: STACK_SECRET_SERVER_KEY,';        required: true,'
-        type: api_key,';        description: Stack Auth secret server key,';        category: auth,';        sensitive: true,'
-        validation: (value) => value.startsWith('ssk_')';      },'
+        name: "STACK_SECRET_SERVER_KEY",
+        required: true,
+        type: "api_key" as const,
+        description: "Stack Auth secret server key",
+        category: "auth" as const,
+        sensitive: true,
+        validation: (value: string) => value.startsWith('ssk_')
+      },
 
       // AI Services
       {
-        name: ANTHROPIC_API_KEY,';        required: true,'
-        type: api_key,';        description: Anthropic Claude API key for Maya chat,';        category: ai,';        sensitive: true,'
-        validation: (value) => value.startsWith('sk-ant-')';      },'
+        name: "ANTHROPIC_API_KEY",
+        required: true,
+        type: "api_key" as const,
+        description: "Anthropic Claude API key for Maya chat",
+        category: "ai" as const,
+        sensitive: true,
+        validation: (value: string) => value.startsWith('sk-ant-')
+      },
       {
-        name: GOOGLE_API_KEY,';        required: true,'
-        type: api_key,';        description: Google Gemini API key for video generation,';        category: ai,';        sensitive: true,'
-        validation: (value) => value.startsWith('AIza')';      },'
+        name: "GOOGLE_API_KEY",
+        required: true,
+        type: "api_key" as const,
+        description: "Google Gemini API key for video generation",
+        category: "ai" as const,
+        sensitive: true,
+        validation: (value: string) => value.startsWith('AIza')
+      },
       {
-        name: REPLICATE_API_TOKEN,';        required: true,'
-        type: api_key,';        description: Replicate API token for model training,';        category: ai,';        sensitive: true,'
-        validation: (value) => value.startsWith('r8_')';      },'
+        name: "REPLICATE_API_TOKEN",
+        required: true,
+        type: "api_key" as const,
+        description: "Replicate API token for model training",
+        category: "ai" as const,
+        sensitive: true,
+        validation: (value: string) => value.startsWith('r8_')
+      },
       {
-        name: REPLICATE_USERNAME,';        required: true,'
-        type: string,';        description: Replicate username,';        category: ai,';        sensitive: false'
+        name: "REPLICATE_USERNAME",
+        required: true,
+        type: "string" as const,
+        description: "Replicate username",
+        category: "ai" as const,
+        sensitive: false
       },
 
       // AWS S3
       {
-        name: AWS_ACCESS_KEY_ID,';        required: true,'
-        type: api_key,';        description: AWS access key for S3 storage,';        category: storage,';        sensitive: true,'
-        validation: (value) => value.startsWith('AKIA')';      },'
-      {
-        name: AWS_SECRET_ACCESS_KEY,';        required: true,'
-        type: api_key,';        description: AWS secret key for S3 storage,';        category: storage,';        sensitive: true'
+        name: "AWS_ACCESS_KEY_ID",
+        required: true,
+        type: "api_key" as const,
+        description: "AWS access key for S3 storage",
+        category: "storage" as const,
+        sensitive: true,
+        validation: (value: string) => value.startsWith('AKIA')
       },
       {
-        name: AWS_REGION,';        required: true,'
-        type: string,';        description: AWS region for S3 bucket,';        category: storage,';        sensitive: false,'
-        example: us-east-1.js';      },'
+        name: "AWS_SECRET_ACCESS_KEY",
+        required: true,
+        type: "api_key" as const,
+        description: "AWS secret key for S3 storage",
+        category: "storage" as const,
+        sensitive: true
+      },
       {
-        name: AWS_S3_BUCKET,';        required: true,'
-        type: string,';        description: S3 bucket name for file storage,';        category: storage,';        sensitive: false'
+        name: "AWS_REGION",
+        required: true,
+        type: "string" as const,
+        description: "AWS region for S3 bucket",
+        category: "storage" as const,
+        sensitive: false,
+        example: "us-east-1"
+      },
+      {
+        name: "AWS_S3_BUCKET",
+        required: true,
+        type: "string" as const,
+        description: "S3 bucket name for file storage",
+        category: "storage" as const,
+        sensitive: false
       },
 
       // Payment
       {
-        name: STRIPE_SECRET_KEY,';        required: true,'
-        type: api_key,';        description: Stripe secret key for payments,';        category: payment,';        sensitive: true,'
-        validation: (value) => value.startsWith('sk_')';      },'
+        name: "STRIPE_SECRET_KEY",
+        required: true,
+        type: "api_key" as const,
+        description: "Stripe secret key for payments",
+        category: "payment" as const,
+        sensitive: true,
+        validation: (value: string) => value.startsWith('sk_')
+      },
       {
-        name: TESTING_VITE_STRIPE_PUBLIC_KEY,';        required: true,'
-        type: api_key,';        description: Stripe publishable key for client,';        category: payment,';        sensitive: false,'
-        validation: (value) => value.startsWith('pk_')';      },'
+        name: "TESTING_VITE_STRIPE_PUBLIC_KEY",
+        required: true,
+        type: "api_key" as const,
+        description: "Stripe publishable key for client",
+        category: "payment" as const,
+        sensitive: false,
+        validation: (value: string) => value.startsWith('pk_')
+      },
 
       // Email Services
       {
-        name: FLODESK_API_KEY,';        required: true,'
-        type: api_key,';        description: Flodesk API key for email marketing,';        category: email,';        sensitive: true,'
-        validation: (value) => value.startsWith('fd_key_')';      },'
+        name: "FLODESK_API_KEY",
+        required: true,
+        type: "api_key" as const,
+        description: "Flodesk API key for email marketing",
+        category: "email" as const,
+        sensitive: true,
+        validation: (value: string) => value.startsWith('fd_key_')
+      },
       {
-        name: RESEND_API_KEY,';        required: true,'
-        type: api_key,';        description: Resend API key for transactional emails,';        category: email,';        sensitive: true,'
-        validation: (value) => value.startsWith('re_')';      },'
+        name: "RESEND_API_KEY",
+        required: true,
+        type: "api_key" as const,
+        description: "Resend API key for transactional emails",
+        category: "email" as const,
+        sensitive: true,
+        validation: (value: string) => value.startsWith('re_')
+      },
 
       // Social Media
       {
-        name: INSTAGRAM_BUSINESS_ACCOUNT_ID,';        required: true,'
-        type: string,';        description: Instagram business account ID,';        category: social,';        sensitive: false'
+        name: "INSTAGRAM_BUSINESS_ACCOUNT_ID",
+        required: true,
+        type: "string" as const,
+        description: "Instagram business account ID",
+        category: "social" as const,
+        sensitive: false
       },
       {
-        name: META_ACCESS_TOKEN,';        required: true,'
-        type: api_key,';        description: Meta access token for Instagram API,';        category: social,';        sensitive: true'
+        name: "META_ACCESS_TOKEN",
+        required: true,
+        type: "api_key" as const,
+        description: "Meta access token for Instagram API",
+        category: "social" as const,
+        sensitive: true
       },
       {
-        name: MANYCHAT_API_TOKEN,';        required: true,'
-        type: api_key,';        description: ManyChat API token for automation,';        category: social,';        sensitive: true,'
-        validation: (value) => value.includes(':')';      },'
+        name: "MANYCHAT_API_TOKEN",
+        required: true,
+        type: "api_key" as const,
+        description: "ManyChat API token for automation",
+        category: "social" as const,
+        sensitive: true,
+        validation: (value: string) => value.includes(':')
+      },
 
       // Automation
       {
-        name: MAKE_API_TOKEN,';        required: true,'
-        type: api_key,';        description: Make.com API token for automation,';        category: system,';        sensitive: true,'
-        validation: (value) => value.includes('-')';      },'
+        name: "MAKE_API_TOKEN",
+        required: true,
+        type: "api_key" as const,
+        description: "Make.com API token for automation",
+        category: "system" as const,
+        sensitive: true,
+        validation: (value: string) => value.includes('-')
+      },
 
       // System
       {
-        name: NODE_ENV,';        required: true,'
-        type: string,';        description: Node.js environment (development/production),';        category: system,';        sensitive: false,'
-        validation: (value) => ['development', 'production', 'test'].includes(value)';      },'
-      {
-        name: PORT,';        required: true,'
-        type: number,';        description: Server port number,';        category: system,';        sensitive: false,'
-        validation: (value) => !isNaN(Number(value)) && Number(value) > 0
+        name: "NODE_ENV",
+        required: true,
+        type: "string" as const,
+        description: "Node.js environment (development/production)",
+        category: "system" as const,
+        sensitive: false,
+        validation: (value: string) => ['development', 'production', 'test'].includes(value)
       },
       {
-        name: REPLIT_DEV_DOMAIN,';        required: false,'
-        type: string,';        description: Replit development domain,';        category: system,';        sensitive: false'
+        name: "PORT",
+        required: true,
+        type: "number" as const,
+        description: "Server port number",
+        category: "system" as const,
+        sensitive: false,
+        validation: (value: string) => !isNaN(Number(value)) && Number(value) > 0
+      },
+      {
+        name: "REPLIT_DEV_DOMAIN",
+        required: false,
+        type: "string" as const,
+        description: "Replit development domain",
+        category: "system" as const,
+        sensitive: false
       },
 
       // Admin
       {
-        name: ADMIN_USER_ID,';        required: true,'
-        type: string,';        description: Admin user ID for system access,';        category: auth,';        sensitive: false'
+        name: "ADMIN_USER_ID",
+        required: true,
+        type: "string" as const,
+        description: "Admin user ID for system access",
+        category: "auth" as const,
+        sensitive: false
       },
       {
-        name: SHANNON_USER_ID,';        required: true,'
-        type: string,';        description: Shannon user ID for testing,';        category: auth,';        sensitive: false'
+        name: "SHANNON_USER_ID",
+        required: true,
+        type: "string" as const,
+        description: "Shannon user ID for testing",
+        category: "auth" as const,
+        sensitive: false
       },
 
       // Google Project
       {
-        name: project_number,';        required: true,'
-        type: number,';        description: Google Cloud project number,';        category: ai,';        sensitive: false,'
-        validation: (value) => !isNaN(Number(value))
+        name: "PROJECT_NUMBER",
+        required: true,
+        type: "number" as const,
+        description: "Google Cloud project number",
+        category: "ai" as const,
+        sensitive: false,
+        validation: (value: string) => !isNaN(Number(value))
       }
     ];
   }
@@ -175,20 +335,8 @@ export class EnvironmentAuditor {
   /**
    * Audit all environment variables
    */
-  async auditEnvironment(): Promise<{
-    valid: boolean;
-    missing: string[];
-    invalid: string[];
-    warnings: string[];
-    summary: {
-      total: number;
-      required: number;
-      present: number;
-      missing: number;
-      invalid: number;
-    };
-  }> {
-    this.logger.info('Starting environment variables audit...')';    '
+  async auditEnvironment(): Promise<AuditResult> {
+    logger.info('Starting environment variables audit...');
     const missing: string[] = [];
     const invalid: string[] = [];
     const warnings: string[] = [];
@@ -200,9 +348,9 @@ export class EnvironmentAuditor {
       if (!value) {
         if (envVar.required) {
           missing.push(envVar.name);
-          this.logger.error(`Missing required environment variable: ${envVar.name}`);
+          logger.error(`Missing required environment variable: ${envVar.name}`);
         } else {
-          this.logger.warn(`Optional environment variable not set: ${envVar.name}`);
+          logger.warn(`Optional environment variable not set: ${envVar.name}`);
         }
       } else {
         present++;
@@ -210,12 +358,13 @@ export class EnvironmentAuditor {
         // Validate format if validation function exists
         if (envVar.validation && !envVar.validation(value)) {
           invalid.push(envVar.name);
-          this.logger.error(`Invalid format for environment variable: ${envVar.name}`);
+          logger.error(`Invalid format for environment variable: ${envVar.name}`);
         }
 
         // Check for sensitive data exposure
-        if (envVar.sensitive && this.isExposedInLogs(envVar.name)) {
+        if (envVar.sensitive && this.checkForExposure(envVar.name)) {
           warnings.push(`${envVar.name} may be exposed in logs`);
+          logger.warn(`Sensitive variable ${envVar.name} may be exposed in logs`);
         }
       }
     }
@@ -230,7 +379,8 @@ export class EnvironmentAuditor {
       invalid: invalid.length
     };
 
-    this.logger.info('Environment audit completed', { summary })';'
+    logger.info('Environment audit completed', { summary });
+    
     return {
       valid,
       missing,
@@ -244,26 +394,39 @@ export class EnvironmentAuditor {
    * Generate environment documentation
    */
   generateDocumentation(): string {
-    const categories = this.envVariables.reduce((acc, envVar) => {
-      if (!acc[envVar.category]) {
-        acc[envVar.category] = [];
+    const categories: Record<string, EnvVariable[]> = {};
+    
+    // Group variables by category
+    for (const envVar of this.envVariables) {
+      if (!categories[envVar.category]) {
+        categories[envVar.category] = [];
       }
-      acc[envVar.category].push(envVar);
-      return acc;
-    }, {} as Record<string, EnvVariable[]>);
+      categories[envVar.category].push(envVar);
+    }
 
-    let doc = '# Environment Variables Documentation\n\n';    doc += 'This document describes all environment variables used in the SSELFIE Brand Studio application.\n\n`;'
-    for (const [category, variables] of Object.entries(categories)) {
+    let doc = "# Environment Variables Documentation\n\n";
+    doc += "This document describes all environment variables used in the SSELFIE Brand Studio application.\n\n";
+
+    // Sort categories for consistent output
+    const sortedCategories = Object.entries(categories).sort(([a], [b]) => a.localeCompare(b));
+
+    for (const [category, variables] of sortedCategories) {
       doc += `## ${category.charAt(0).toUpperCase() + category.slice(1)} Variables\n\n`;
       
+      // Sort variables by name for consistent output
+      variables.sort((a, b) => a.name.localeCompare(b.name));
+
       for (const envVar of variables) {
         doc += `### ${envVar.name}\n`;
-        doc += `- **Required**: ${envVar.required ? 'Yes' : 'No`}\n``;        doc += `- **Type**: ${envVar.type}\n``;'
-        doc += `- **Sensitive**: ${envVar.sensitive ? 'Yes' : 'No`}\n``;        doc += `- **Description**: ${envVar.description}\n``;'
+        doc += `- **Required**: ${envVar.required ? 'Yes' : 'No'}\n`;
+        doc += `- **Type**: ${envVar.type}\n`;
+        doc += `- **Sensitive**: ${envVar.sensitive ? 'Yes' : 'No'}\n`;
+        doc += `- **Description**: ${envVar.description}\n`;
         if (envVar.example) {
           doc += `- **Example**: ${envVar.example}\n`;
         }
-        doc += '\n';      }'
+        doc += '\n';
+      }
     }
 
     return doc;
@@ -272,14 +435,16 @@ export class EnvironmentAuditor {
   /**
    * Check if sensitive data might be exposed in logs
    */
-  private isExposedInLogs(envVarName: string): boolean {
-    // This is a simplified check - in production, you'd want more sophisticated detection';    const sensitivePatterns = ['
+  private checkForExposure(envVarName: string): boolean {
+    // This is a simplified check - in production, you'd want more sophisticated detection
+    const sensitivePatterns = [
       /console\.log.*process\.env\./,
       /logger\.(info|debug).*process\.env\./,
       /JSON\.stringify.*process\.env/
     ];
 
-    // For now, just return false - in a real implementation, you'd scan the codebase';    return false`;'
+    // For now, just return false - in a real implementation, you'd scan the codebase
+    return false;
   }
 
   /**

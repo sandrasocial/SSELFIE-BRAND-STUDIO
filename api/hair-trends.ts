@@ -1,6 +1,9 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';import { withTimeout } from '._utils/timing';'
+import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { withTimeout } from './_utils/timing.js';
+
 export const config = { 
-  runtime: nodejs,';  maxDuration: 30 '
+  runtime: 'nodejs',
+  maxDuration: 30
 };
 
 interface TrendDataResponse {
@@ -22,11 +25,17 @@ async function getDatabase() {
       return [
         {
           id: 1,
-          week_range: 2025-W37,';          trend_data: {'
+          week_range: "2025-W37",
+          trend_data: {
             trends: {
-              hairStyles: ['Blunt Bob', 'Curtain Bangs', 'Layered Lob'],';              colorTrends: ['Chocolate Brown', 'Honey Highlights', 'Balayage'],';              techniques: ['Texturizing', 'Blowout Styling', 'Heat Protection'],';              socialMediaInsights: ['TikTok Hair Hacks', 'Instagram Reels', 'YouTube Tutorials']';            }'
+              hairStyles: ['Blunt Bob', 'Curtain Bangs', 'Layered Lob'],
+              colorTrends: ['Chocolate Brown', 'Honey Highlights', 'Balayage'],
+              techniques: ['Texturizing', 'Blowout Styling', 'Heat Protection'],
+              socialMediaInsights: ['TikTok Hair Hacks', 'Instagram Reels', 'YouTube Tutorials']
+            }
           },
-          summary: This week shows strong trends toward classic cuts with modern twists, emphasizing natural textures and professional styling techniques.,';          confidence: 85,'
+          summary: "This week shows strong trends toward classic cuts with modern twists, emphasizing natural textures and professional styling techniques.",
+          confidence: 85,
           created_at: new Date().toISOString()
         }
       ];
@@ -37,24 +46,33 @@ async function getDatabase() {
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     // Set CORS headers
-    res.setHeader('Access-Control-Allow-Origin', '*')';    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')';    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')';'
-    if (req.method === 'OPTIONS') {';      return res.status(200).end()';'
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+    if (req.method === 'OPTIONS') {
+      return res.status(200).end();
     }
 
-    if (req.method !== 'GET') {';      return res.status(405).json({ error: Method not allowed })';    }'
+    if (req.method !== 'GET') {
+      return res.status(405).json({ error: 'Method not allowed' });
+    }
 
-    console.log('📊 Hair trends requested')';'
+    console.log('📊 Hair trends requested');
     // Get database with timeout
-    const db = await withTimeout(getDatabase(), 5000, 'database-connection')';'
+    const db = await withTimeout(getDatabase(), 5000, 'database-connection');
     // Fetch latest trends with timeout
     const trends = await withTimeout(
-      db.execute('SELECT id, trend_name, image_url, week_range FROM hair_trends ORDER BY created_at DESC LIMIT 4'),';      8000,'
-      'trends-fetch';    ) as TrendDataResponse[]';'
+      db.execute('SELECT id, trend_name, image_url, week_range FROM hair_trends ORDER BY created_at DESC LIMIT 4'),
+      8000,
+      'trends-fetch'
+    ) as TrendDataResponse[];
 
     if (!trends || trends.length === 0) {
       return res.json({
         success: true,
-        message: No trend data available yet,';        trends: [],'
+        message: 'No trend data available yet',
+        trends: [],
         lastUpdate: null
       });
     }
@@ -77,16 +95,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
 
   } catch (error) {
-    console.error('❌ Hair trends fetch error: , error);    '
-    if (error instanceof Error && error.message.includes('TIMEOUT')) {';      return res.status(504).json({'
+    console.error('❌ Hair trends fetch error:', error);
+
+    if (error instanceof Error && error.message.includes('TIMEOUT')) {
+      return res.status(504).json({
         success: false,
-        error: Request timeout - please try again,';        trends: []'
+        error: 'Request timeout - please try again',
+        trends: []
       });
     }
 
     res.status(500).json({
       success: false,
-      error: Failed to fetch hair trends,';      trends: []'
+      error: 'Failed to fetch hair trends',
+      trends: []
     });
   }
 }

@@ -39,4 +39,5 @@ export const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
 export const VEO3_MODEL = process.env.VEO3_MODEL;
 export const VEO_GOOGLE_MODEL = process.env.VEO_GOOGLE_MODEL; // Legacy compatibility
 
-
+// Topaz AI Configuration
+export const TOPAZ_API_KEY = process.env.TOPAZ_API_KEY;
