@@ -9,7 +9,8 @@ import { FluxRealizer } from './realizers/flux-realizer.js';
 import { 
   PromptBuildRequest, 
   GeneratedPrompt, 
-  GenderVariant 
+  GenderVariant,
+  MatchedRecipe
 } from './recipes/types.js';
 
 export interface TokenBudgetOptions {
@@ -151,7 +152,12 @@ export class PromptBuilder {
   /**
    * Generate a single prompt from a matched recipe
    */
-  private static async generateSinglePrompt(selectedRecipe: any, request: PromptBuildRequest): Promise<GeneratedPrompt> {
+  private static async generateSinglePrompt(selectedRecipe: MatchedRecipe, request: PromptBuildRequest): Promise<GeneratedPrompt> {
+    // Type guard to ensure selectedRecipe has required properties
+    if (!selectedRecipe.recipe || !selectedRecipe.look) {
+      throw new Error('Invalid selected recipe: missing recipe or look data');
+    }
+
     const { recipe, look } = selectedRecipe;
     
     // Generate rich prose description (150-300 words target)
