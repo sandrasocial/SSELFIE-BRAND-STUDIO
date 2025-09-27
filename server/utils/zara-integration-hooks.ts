@@ -134,11 +134,11 @@ export class ZaraIntegrationHooks {
         frontend: 'client/',
         shared: 'shared/',
         utils: 'server/utils/',
-        services: 'server/services/.js'
+        services: 'server/services/'
       },
-      commonPatterns: [
-      bestPractices: [
-      avoidancePatterns: [
+      commonPatterns: [],
+      bestPractices: [],
+      avoidancePatterns: []
     };
   }
 }

@@ -497,7 +497,7 @@ export class MayaMemoryEnhancementService {
    */
   static getMemoryStats(): any {
     return {
-      enhancedFields: [
+      enhancedFields: [],
       version: 'Phase 4.3',
       capabilities: 'Contemporary fashion intelligence with advanced personalization'
     };

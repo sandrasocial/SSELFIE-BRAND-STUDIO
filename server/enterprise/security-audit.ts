@@ -240,7 +240,7 @@ export class SecurityAuditSystem {
         compliant: true,
         lastAudit: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // 30 days ago
         issues: [],
-        actions: [
+        actions: []
       },
       ccpa: {
         compliant: true,
@@ -345,11 +345,11 @@ export class SecurityAuditSystem {
 
   private generateMitigationSteps(type: SecurityThreat['type'], severity: SecurityThreat['severity']): string[] {
     const mitigationMap = {
-      brute_force: [
-      ddos: [
-      data_breach: [
-      unauthorized_access: [
-      api_abuse: [
+      brute_force: [],
+      ddos: [],
+      data_breach: [],
+      unauthorized_access: [],
+      api_abuse: []
     };
 
     return mitigationMap[type] || ['Review security protocols', 'Monitor system behavior'];

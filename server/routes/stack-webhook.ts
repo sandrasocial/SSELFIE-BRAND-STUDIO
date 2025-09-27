@@ -65,7 +65,7 @@ async function handleUserUpsert(stackUser: any) {
       email: stackUser.primary_email || stackUser.email,
       firstName: stackUser.display_name?.split(' ')[0] || 
                  stackUser.primary_email?.split('@')[0] || '',
-      lastName: stackUser.display_name?.split(' ').slice(1).join(' ') || 
+      lastName: stackUser.display_name?.split(' ').slice(1).join(' ') || '',
       displayName: stackUser.display_name || stackUser.primary_email || '',
       profileImageUrl: stackUser.profile_image_url || stackUser.picture,
       lastLoginAt: new Date(), // Update login time on sync

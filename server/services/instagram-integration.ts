@@ -210,7 +210,7 @@ export class InstagramIntegration {
 
   // 🏷️ Categorize Instagram message
   private async categorizeInstagramMessage(message: InstagramMessage, platform: 'instagram'): Promise<ProcessedInstagramMessage> {
-    const messageText = message.message || ';
+    const messageText = message.message || '';
     const fromUsername = message.from?.username || 'unknown';
 
     return {
@@ -232,7 +232,7 @@ export class InstagramIntegration {
 
   // 🏷️ Categorize ManyChat message
   private async categorizeManyChatMessage(message: ManyChatMessage): Promise<ProcessedInstagramMessage> {
-    const messageText = message.content || ';
+    const messageText = message.content || '';
 
     return {
       id: message.id,
