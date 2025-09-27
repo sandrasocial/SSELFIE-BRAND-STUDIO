@@ -3,10 +3,10 @@ import { drizzle } from 'drizzle-orm/neon-http';
 import { drizzle as drizzleWs } from 'drizzle-orm/neon-serverless';
 import { DATABASE_URL } from './env.js'
 import * as schema from '../shared/schema.js';
-import ws from 'ws';
+import * as ws from 'ws';
 
 // Configure WebSocket for Node.js environment (required for Pool connections)
-neonConfig.webSocketConstructor = ws;
+neonConfig.webSocketConstructor = ws.WebSocket;
 
 // HTTP-based connection for single queries (faster for non-interactive transactions)
 const sql = neon(DATABASE_URL!, {
