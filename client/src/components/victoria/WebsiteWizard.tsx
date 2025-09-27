@@ -272,7 +272,7 @@ export function WebsiteWizard({ onComplete }: WebsiteWizardProps) {
                          style={{ fontFamily: 'Times New Roman, serif', color: '#0a0a0a' }}>
                     What type of Personal Brand do you have?
                   </Label>
-                  <Select onValueChange={(value) => setFormData(prev => ({ ...prev, businessType: value }))}>
+                  <Select onValueChange={(value: string) => setFormData(prev => ({ ...prev, businessType: value }))}>
                     <SelectTrigger className="mt-3 text-lg border-0 border-b-2 border-gray-200 rounded-none px-0 py-4 focus:ring-0 focus:border-black transition-colors duration-300">
                       <SelectValue placeholder="Select your Personal Brand category" />
                     </SelectTrigger>
@@ -295,7 +295,7 @@ export function WebsiteWizard({ onComplete }: WebsiteWizardProps) {
                          style={{ fontFamily: 'Times New Roman, serif', color: '#0a0a0a' }}>
                     What is your Personal Brand's personality?
                   </Label>
-                  <Select onValueChange={(value) => setFormData(prev => ({ ...prev, brandPersonality: value }))}>
+                  <Select onValueChange={(value: string) => setFormData(prev => ({ ...prev, brandPersonality: value }))}>
                     <SelectTrigger className="mt-3 text-lg border-0 border-b-2 border-gray-200 rounded-none px-0 py-4 focus:ring-0 focus:border-black transition-colors duration-300">
                       <SelectValue placeholder="How do you want to show up professionally?" />
                     </SelectTrigger>

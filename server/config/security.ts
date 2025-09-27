@@ -1,4 +1,4 @@
-import { csurf, helmet } from '.security-placeholder.js'
+import { csurf, helmet } from './security-placeholder.js'
 import rateLimit from 'express-rate-limit';
 import { Express } from 'express';
 
