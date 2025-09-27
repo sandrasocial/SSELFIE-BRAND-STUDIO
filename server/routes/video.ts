@@ -1,10 +1,10 @@
 import { Router } from 'express';
-import { requireStackAuth } from '..stack-auth';.js
+import { requireStackAuth } from '../stack-auth'
 import { generateVeo3Video, getVeo3Status, getQualityPreset } from '..services/video/veo3';
-import { storage } from '..storage';.js
+import { storage } from '../storage'
 import { generatedImages, aiImages } from '..../shared/schema';
-import { eq, and } from 'drizzle-orm'';
-import { db } from '..drizzle';.js
+import { eq, and } from 'drizzle-orm'
+import { db } from '../drizzle'
 
 const router = Router();
 

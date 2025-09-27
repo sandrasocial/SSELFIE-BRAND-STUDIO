@@ -3,7 +3,7 @@
  * Maya Optimization Service - Eliminates redundant API calls and optimizes concept generation
  */
 
-import { ClaudeApiServiceSimple } from '.claude-api-service-simple';.js
+import { ClaudeApiServiceSimple } from '.claude-api-service-simple'
 import { enforceGender, normalizeGender } from '..utils/gender-prompt';
 import { PersonalityManager } from '..agents/personalities/personality-config';
 
@@ -88,7 +88,6 @@ export class MayaOptimizationService {
         concepts: parsedResult.concepts,
         conversationalResponse: parsedResult.conversationalResponse,
         apiCallsUsed: 1,
-        optimizationApplied,
         cacheHit: !!cachedPrompt
       };
       
@@ -123,34 +122,22 @@ USER REQUEST: "${userMessage}"
 REQUIRED OUTPUT FORMAT (include ALL sections):
 
 1. CONVERSATIONAL_RESPONSE:
-[Your natural, engaging response to the user]
 
 2. STYLING_CONCEPTS: ${config.maxConcepts} concept cards
 ${config.includeConceptGeneration ? `
 Format each concept as:
-🌟 **CONCEPT NAME**
-[User-facing description of the styling concept and approach]
 FLUX_PROMPT: [Complete FLUX-optimized generation prompt]
 
 Example:
-✨ **EXECUTIVE CONFIDENCE**
-A powerful professional look featuring structured blazers and confident poses that communicate leadership authority.
 FLUX_PROMPT: Professional woman in tailored charcoal blazer with architectural shoulders, confident direct gaze, studio lighting with soft shadows, half-body composition showing executive presence, minimal jewelry, natural makeup emphasizing confidence, neutral background
 
 ` : ''}
 
 3. PERSONALIZATION_INSIGHTS:
-[Key personalization observations about the user's style preferences]
 
 4. GENERATION_GUIDANCE:
-[Technical guidance for image generation optimization]
 
 OPTIMIZATION REQUIREMENTS:
-- Natural conversational flow while including all technical components
-- Embedded FLUX prompts for zero additional API calls
-- Contemporary 2025 fashion intelligence
-- User-specific personalization
-- Complete response in single API call
 
 Generate comprehensive response now:`;
   }
@@ -164,7 +151,7 @@ Generate comprehensive response now:`;
     userId?: string
   ): Promise<{ concepts: any[]; conversationalResponse: string }> {
     const concepts: any[] = [];
-    let conversationalResponse = '';
+    let conversationalResponse = ''
     
     try {
       // Extract conversational response
@@ -278,17 +265,10 @@ TRIGGER WORD: "${triggerWord}"
 CONTEXT: "${context}"
 ${category ? `CATEGORY: "${category}"` : ''}
 
-Generate ONLY the FLUX-optimized image generation prompt.
 No conversation, no explanations - just the technical prompt:
 
 Requirements:
-- Start with trigger word
 - Natural language description (not keywords)
-- Contemporary 2025 styling intelligence
-- Rich, flowing descriptions with scene, lighting, and styling details
-- 150-300+ words encouraged for comprehensive prompts
-- Professional photography specifications
-- Include atmospheric and contextual elements for storytelling
 
 FLUX PROMPT:`;
 

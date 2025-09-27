@@ -9,7 +9,7 @@
  * - Error logs and technical context
  */
 
-import { storage } from '..storage';.js
+import { storage } from '../storage'
 
 export interface UserSupportContext {
   subscription: {

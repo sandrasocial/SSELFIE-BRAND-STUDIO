@@ -1,18 +1,20 @@
-import { toast } from '.toast'';.js
+import { toast } from './toast'
 
-export interface ApiError {
+interface ApiError {
   message: string;
   status?: number;
   code?: string;
 }
 
+/**
+ * Centralized API error handling utility
+ */
 export class ApiErrorHandler {
-  private static retryCount = 0;
   private static maxRetries = 3;
   private static retryDelay = 1000; // 1 second
 
   /**
-   * Handle API errors with user-friendly messages and retry logic
+   * Handle API errors with user-friendly messages and logging
    */
   static async handleError(error: any, context?: string): Promise<void> {
     console.error(`API Error${context ? ` in ${context}` : ''}:`, error);

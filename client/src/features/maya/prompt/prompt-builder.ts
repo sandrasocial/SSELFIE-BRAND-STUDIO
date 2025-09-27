@@ -3,13 +3,10 @@
  * Orchestrates recipe selection, prose generation, and FLUX prompt creation
  */
 
-import { GenderStyleSelector } from '.selectors.js/gender-style-selector'';
-import { SentenceRealizer } from '.realizers.js/sentence-realizer'';
-import { FluxRealizer } from '.realizers.js/flux-realizer'';
+import { GenderStyleSelector } from '.selectors.js/gender-style-selector'
+import { SentenceRealizer } from '.realizers.js/sentence-realizer'
+import { FluxRealizer } from '.realizers.js/flux-realizer'
 import { 
-  PromptBuildRequest, 
-  GeneratedPrompt, 
-  GenderVariant 
 } from '.recipes.js/types';
 
 export interface TokenBudgetOptions {
@@ -70,7 +67,6 @@ export class PromptBuilder {
         return {
           success: false,
           prompts: [],
-          errors,
           metadata: {
             recipesConsidered: 0,
             selectedRecipes: [],
@@ -101,20 +97,15 @@ export class PromptBuilder {
         recipesConsidered: selectedRecipes.length,
         selectedRecipes: selectedRecipes.map(r => r.recipe.name),
         totalProcessingTime: Date.now() - startTime,
-        budgetApplied
       };
       
       console.log('✅ Prompt building complete:', {
         promptsGenerated: prompts.length,
         errors: errors.length,
-        ...metadata
       });
       
       return {
         success: prompts.length > 0,
-        prompts,
-        errors,
-        metadata
       };
       
     } catch (error) {
@@ -177,7 +168,6 @@ export class PromptBuilder {
     return {
       prose: prose.text,
       fluxPrompt: fluxPrompt.prompt,
-      recipe,
       metadata: {
         wordCount: prose.wordCount,
         tokenCount: totalTokens,
@@ -258,7 +248,7 @@ export class PromptBuilder {
     if (resultTokens < maxTokens) {
       // Add optional sentences until budget is reached
       const remainingBudget = maxTokens - resultTokens;
-      let optionalText = '';
+      let optionalText = ''
       
       for (const sentence of optionalSentences) {
         const testText = optionalText + (optionalText ? '. ' : '') + sentence;
@@ -282,9 +272,6 @@ export class PromptBuilder {
    */
   private static isSubjectEssential(sentence: string): boolean {
     const essentialKeywords = [
-      'wearing', 'dressed', 'expression', 'pose', 'posture',
-      'woman', 'man', 'person', 'individual', 'subject',
-      'confidence', 'energy', 'presence'
     ];
     
     return essentialKeywords.some(keyword => sentence.includes(keyword));
@@ -295,9 +282,6 @@ export class PromptBuilder {
    */
   private static isSceneEssential(sentence: string): boolean {
     const essentialKeywords = [
-      'light', 'lighting', 'setting', 'environment', 'space',
-      'windows', 'walls', 'architecture', 'furniture',
-      'atmosphere', 'mood', 'composition'
     ];
     
     return essentialKeywords.some(keyword => sentence.includes(keyword));
@@ -383,7 +367,6 @@ export class PromptBuilder {
     
     for (let i = 0; i < count; i++) {
       const variationRequest = {
-        ...request,
         // Vary the intent slightly for different results
         userIntent: request.userIntent + (i > 0 ? ` variation ${i + 1}` : '')
       };
@@ -420,7 +403,6 @@ export class PromptBuilder {
     const request: PromptBuildRequest = {
       userTriggerToken: triggerToken,
       userIntent: intent,
-      styleKey,
       userGender: gender || null
     };
     

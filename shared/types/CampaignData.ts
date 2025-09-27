@@ -1,5 +1,5 @@
 // This will automatically update campaign-manager.ts
-import { useState, useEffect } from 'react'';
+import { useState, useEffect } from 'react'
 
 export interface CampaignData {
   id: string;
@@ -82,11 +82,9 @@ export class CampaignManager {
       test_id: `ab_test_${Date.now()}`,
       campaign_id: campaignId,
       variant_a: {
-        ...variants.variant_a,
         performance: { ctr: 0, conversion_rate: 0, cpc: 0 }
       },
       variant_b: {
-        ...variants.variant_b,
         performance: { ctr: 0, conversion_rate: 0, cpc: 0 }
       },
       winner: 'inconclusive',
@@ -138,8 +136,6 @@ export class CampaignManager {
     }
 
     return {
-      recommendations,
-      expected_improvement,
       implementation_priority: expected_improvement > 50 ? 'high' : expected_improvement > 25 ? 'medium' : 'low'
     };
   }
@@ -157,7 +153,7 @@ export class CampaignManager {
     const profit_margin = ((monthly_revenue - monthly_costs) / monthly_revenue) * 100;
     const ltv_projection = monthly_revenue * 12 * 0.75; // 75% annual retention
 
-    let scale_recommendation = '';
+    let scale_recommendation = ''
     if (profit_margin > 80) {
       scale_recommendation = 'Scale aggressively - excellent margins maintained';
     } else if (profit_margin > 60) {
@@ -167,10 +163,6 @@ export class CampaignManager {
     }
 
     return {
-      monthly_revenue,
-      profit_margin,
-      ltv_projection,
-      scale_recommendation
     };
   }
 

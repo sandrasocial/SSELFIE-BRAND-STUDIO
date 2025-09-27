@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'';
+import { useEffect, useRef } from 'react'
 import { EditorialAnimations } from '..utils.js/editorialAnimations';
 
 export function useEditorialAnimations() {

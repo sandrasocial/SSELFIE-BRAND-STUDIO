@@ -81,9 +81,7 @@ export class ImageVariationsService {
 
       // Use Maya's generation service to create variations
       const result = await ModelTrainingService.generateUserImages(
-        request.userId,
         variationPrompts[0], // Use first variation prompt for the prediction
-        count,
         {
           seed: Math.floor(Math.random() * 1000000), // Random seed for variation
           categoryContext: 'variations'
@@ -143,7 +141,7 @@ export class ImageVariationsService {
 
     } catch (error) {
       console.error('❌ VARIATIONS: Error deriving prompt:', error);
-      throw new Error('Failed to derive prompt from image'.js');
+      throw new Error('Failed to derive prompt from image');
     }
   }
 
@@ -155,26 +153,12 @@ export class ImageVariationsService {
     
     // Add variation modifiers to create diverse results
     const styleModifiers = [
-      'professional photo',
-      'elegant portrait',
-      'artistic photography',
-      'modern style',
-      'contemporary look'
     ];
 
     const lightingModifiers = [
-      'natural lighting',
-      'soft lighting',
-      'dramatic lighting',
-      'golden hour lighting',
-      'studio lighting'
     ];
 
     const qualityModifiers = [
-      'high quality, detailed',
-      'professional, polished',
-      'crisp, sharp focus',
-      'masterpiece quality'
     ];
 
     for (let i = 0; i < count; i++) {

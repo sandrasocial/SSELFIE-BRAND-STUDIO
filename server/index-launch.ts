@@ -11,8 +11,8 @@ import galleryRoutes from '.routes/modules/gallery';
 import usageRoutes from '.routes/modules/usage';
 import mayaRoutes from '.routes/modules/maya';
 import aiGenerationRoutes from '.routes/modules/ai-generation';
-import { storage } from '.storage';.js
-import { BulletproofUploadService } from '.bulletproof-upload-service';.js
+import { storage } from '.storage'
+import { BulletproofUploadService } from '.bulletproof-upload-service'
 import { requireStackAuth } from '.routes/middleware/auth';
 
 const app = express();

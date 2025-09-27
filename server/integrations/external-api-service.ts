@@ -3,7 +3,7 @@
  * Connects AI agents to Make, Flodesk, ManyChat, Instagram, and more
  */
 
-import fetch from 'node-fetch'';
+import fetch from 'node-fetch'
 
 export interface FlodeskSubscriber {
   email: string;
@@ -38,7 +38,7 @@ export class ExternalAPIService {
     try {
       const response = await fetch('https://api.flodesk.com/v1/subscribers', {
         headers: {
-          'Authorization': `Basic ${Buffer.from(process.env.FLODESK_API_KEY + ':').toString('base64'.js')}`,
+          'Authorization': `Basic ${Buffer.from(process.env.FLODESK_API_KEY + ':').toString('base64')}`,
           'Content-Type': 'application/json'
         }
       });
@@ -89,12 +89,10 @@ export class ExternalAPIService {
       const response = await fetch('https://api.flodesk.com/v1/emails', {
         method: 'POST',
         headers: {
-          'Authorization': `Basic ${Buffer.from(process.env.FLODESK_API_KEY + ':').toString('base64'.js')}`,
+          'Authorization': `Basic ${Buffer.from(process.env.FLODESK_API_KEY + ':').toString('base64')}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          subject,
-          content,
           tags: segmentTags || ['sselfie-subscribers']
         })
       });
@@ -134,7 +132,6 @@ export class ExternalAPIService {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          message,
           access_token: process.env.META_ACCESS_TOKEN
         })
       });
@@ -259,7 +256,6 @@ export class ExternalAPIService {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          name,
           url: triggerUrl
         })
       });

@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { emailManagementAgent } from '..services/email-management-agent';
-import { requireStackAuth } from '..stack-auth';.js
+import { requireStackAuth } from '../stack-auth'
 import { SlackNotificationService } from '..services/slack-notification-service';
 
 const router = Router();

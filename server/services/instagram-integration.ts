@@ -211,12 +211,10 @@ export class InstagramIntegration {
   // 🏷️ Categorize Instagram message
   private async categorizeInstagramMessage(message: InstagramMessage, platform: 'instagram'): Promise<ProcessedInstagramMessage> {
     const messageText = message.message || '';
-    const fromUsername = message.from?.username || 'unknown'';
+    const fromUsername = message.from?.username || 'unknown';
 
     return {
       id: message.id,
-      platform,
-      fromUsername,
       fromId: message.from?.id || '',
       message: messageText,
       messageType: this.detectMessageType(message),
@@ -408,10 +406,6 @@ export class InstagramIntegration {
     insightMessage += `• Use suggested responses for efficiency\n`;
 
     await SlackNotificationService.sendAgentInsight(
-      'ava',
-      'strategic',
-      'Instagram DM Analysis Complete',
-      insightMessage,
       urgentMessages.length > 0 ? 'high' : 'medium'
     );
   }

@@ -4,7 +4,7 @@
  */
 
 import { AestheticRecipe, GenderVariant, RecipeLook } from '..recipes.js/types';
-import { AESTHETIC_RECIPES } from '..recipes.js/index'';
+import { AESTHETIC_RECIPES } from '..recipes.js/index'
 
 export interface RecipeMatchCriteria {
   styleKey?: string;
