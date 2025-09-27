@@ -374,7 +374,7 @@ export class SecurityMonitor {
    */
   private extractPayload(requestString: string, pattern: RegExp): string {
     const match = pattern.exec(requestString);
-    return match ? match[0] : ';
+    return match ? match[0] : '';
   }
 
   /**
