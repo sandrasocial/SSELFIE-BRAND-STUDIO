@@ -18,7 +18,7 @@ export async function search_filesystem(parameters: any): Promise<string> {
       search_paths = ['.'] 
     } = parameters;
 
-    let results = ';
+    let results = '';
 
     // SHOW CURRENT WORKING DIRECTORY FOR DEBUG
     console.log('🔍 AGENT WORKING DIRECTORY:', process.cwd());
@@ -111,8 +111,8 @@ async function executeGrep(searchTerm: string, searchPaths: string[]): Promise<s
       cwd: process.cwd() // Ensure we run from the correct directory
     });
     
-    let output = ';
-    let errorOutput = ';
+    let output = '';
+    let errorOutput = '';
     
     cmd.stdout.on('data', (data) => {
       output += data.toString();
@@ -257,7 +257,7 @@ async function getBasicDirectoryListing(): Promise<string> {
     return new Promise((resolve) => {
       const cmd = spawn('ls', ['-la']);
       
-      let output = ';
+      let output = '';
       
       cmd.stdout.on('data', (data) => {
         output += data.toString();
@@ -279,7 +279,7 @@ async function getBasicDirectoryListing(): Promise<string> {
 // BUSINESS MODEL ACCESS: Read key business documentation for admin agents
 async function getBusinessModelDocumentation(): Promise<string> {
   console.log('🔍 GETTING BUSINESS DOCS...');
-  let businessInfo = ';
+  let businessInfo = '';
   
   const keyBusinessFiles = [
     'replit.md',

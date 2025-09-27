@@ -1148,7 +1148,7 @@ RESPOND EXACTLY IN THIS JSON FORMAT:
       try {
         // COMPREHENSIVE APPROACH: Maya's response might have the JSON with extra text
         // Look for the most complete JSON object in the response
-        let jsonString = ';
+        let jsonString = '';
         
         // Try multiple strategies to extract valid JSON
         const strategies = [

@@ -84,7 +84,7 @@ export class ClaudeApiServiceSimple {
         messages: claudeMessages
       });
       
-      let fullResponse = ';
+      let fullResponse = '';
       let toolCalls: any[] = [];
       
       // Process response content
@@ -212,7 +212,7 @@ export class ClaudeApiServiceSimple {
       const messages = await simpleMemoryService.getFullConversationContext(agentName, userId);
       
       // CRITICAL FIX: Generate conversation context summary for system prompt
-      let previousContext = ';
+      let previousContext = '';
       try {
         // Get recent conversation context for system prompt
         const recentContext = await simpleMemoryService.getWorkspaceContext(agentName, userId);
@@ -234,11 +234,11 @@ export class ClaudeApiServiceSimple {
         console.log(`🏗️ ENHANCED CONTEXT: System prompt includes conversation history`);
       } catch (error) {
         console.error(`Failed to load context for ${agentName}:`, error);
-        previousContext = ';
+        previousContext = '';
       }
       
       // PERSONALITY RESTORATION: Load agent's authentic personality and context
-      let agentPersonalityContext = ';
+      let agentPersonalityContext = '';
       try {
         const { PURE_PERSONALITIES } = await import('../agents/personalities/personality-config.js');
         const personality = PURE_PERSONALITIES[agentName.toLowerCase() as keyof typeof PURE_PERSONALITIES];
@@ -303,7 +303,7 @@ export class ClaudeApiServiceSimple {
       })}\n\n`);
       
       let currentMessages = [...claudeMessages]; // FIXED: Now includes full conversation history
-      let fullResponse = ';
+      let fullResponse = '';
       let conversationContinues = true;
       let iterationCount = 0;
       const maxIterations = 50; // UNRESTRICTED: Increased from 20 to allow full workflow completion
@@ -342,7 +342,7 @@ export class ClaudeApiServiceSimple {
           tool_choice: { type: "auto" }
         });
         
-        let responseText = ';
+        let responseText = '';
         let toolCalls: any[] = [];
         
         // Process response content - streaming to user
