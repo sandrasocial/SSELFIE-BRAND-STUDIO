@@ -1,5 +1,5 @@
-import { useCallback, useRef } from 'react'';
-import { useMemoryCleanup } from '.useMemoryCleanup'';.js
+import { useCallback, useRef } from 'react';
+import { useMemoryCleanup } from './useMemoryCleanup';
 
 interface ImageOptimizationOptions {
   maxWidth?: number;
