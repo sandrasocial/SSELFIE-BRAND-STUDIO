@@ -3,11 +3,39 @@
  * Handles image variations and related functionality
  */
 
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import { requireStackAuth } from './middleware/auth.js';
 import { asyncHandler, createError, sendSuccess, validateRequired } from './middleware/error-handler.js';
-import { ImageVariationsService } from '../services/images/variations.js';
-import { storage } from '../storage.js'
+import { ImageVariationsService, VariationRequest } from '../services/images/variations.js';
+import { storage } from '../storage.js';
+import { StackAuthUser } from '../stack-auth.js';
+
+// Define request types for type safety
+interface AuthenticatedRequest extends Request {
+  user: StackAuthUser;
+}
+
+interface ImageVariationParams extends Record<string, string> {
+  id: string;
+}
+
+interface VariationRequestBody {
+  count?: number;
+  imageType?: 'ai_image' | 'generated_image';
+}
+
+interface VariationStatusParams extends Record<string, string> {
+  id: string;
+  predictionId: string;
+}
+
+interface VariationStatusQuery {
+  variantIds?: string | string[];
+}
+
+interface DeleteVariantParams extends Record<string, string> {
+  variantId: string;
+}
 
 const router = Router();
 
@@ -16,22 +44,23 @@ const router = Router();
  * Generate variations of an existing image
  * Body: { count?: number (default 3) }
  */
-router.post('/api/images/:id/variations', requireStackAuth, asyncHandler(async (req: any, res) => {
-  const userId = req.user.id;
+router.post('/api/images/:id/variations', requireStackAuth, asyncHandler(async (req: Request<ImageVariationParams, {}, VariationRequestBody>, res: Response) => {
+  const authReq = req as AuthenticatedRequest;
+  const userId = authReq.user.id;
   const { id: imageId } = req.params;
   const { count = 3, imageType = 'ai_image' } = req.body;
 
   // Validate inputs
   if (!imageId || isNaN(parseInt(imageId))) {
-    throw createError.badRequest('Invalid image ID');
+    throw createError.validation('Invalid image ID');
   }
 
   if (count < 1 || count > 6) {
-    throw createError.badRequest('Count must be between 1 and 6');
+    throw createError.validation('Count must be between 1 and 6');
   }
 
   if (!['ai_image', 'generated_image'].includes(imageType)) {
-    throw createError.badRequest('imageType must be either "ai_image" or "generated_image"');
+    throw createError.validation('imageType must be either "ai_image" or "generated_image"');
   }
 
   try {
@@ -65,8 +94,9 @@ router.post('/api/images/:id/variations', requireStackAuth, asyncHandler(async (
  * GET /api/images/:id/variations/status/:predictionId
  * Check status of variation generation
  */
-router.get('/api/images/:id/variations/status/:predictionId', requireStackAuth, asyncHandler(async (req: any, res) => {
-  const userId = req.user.id;
+router.get('/api/images/:id/variations/status/:predictionId', requireStackAuth, asyncHandler(async (req: Request<VariationStatusParams, {}, {}, VariationStatusQuery>, res: Response) => {
+  const authReq = req as AuthenticatedRequest;
+  const userId = authReq.user.id;
   const { id: imageId, predictionId } = req.params;
   const { variantIds } = req.query;
 
@@ -74,7 +104,7 @@ router.get('/api/images/:id/variations/status/:predictionId', requireStackAuth, 
     console.log('🎨 VARIATIONS: Checking status for prediction:', predictionId);
 
     if (!variantIds) {
-      throw createError.badRequest('variantIds query parameter is required');
+      throw createError.validation('variantIds query parameter is required');
     }
 
     // Parse variant IDs
@@ -96,8 +126,9 @@ router.get('/api/images/:id/variations/status/:predictionId', requireStackAuth, 
  * GET /api/images/:id/variations
  * Get all variations for a specific image
  */
-router.get('/api/images/:id/variations', requireStackAuth, asyncHandler(async (req: any, res) => {
-  const userId = req.user.id;
+router.get('/api/images/:id/variations', requireStackAuth, asyncHandler(async (req: Request<ImageVariationParams, {}, {}, { imageType?: string }>, res: Response) => {
+  const authReq = req as AuthenticatedRequest;
+  const userId = authReq.user.id;
   const { id: imageId } = req.params;
   const { imageType = 'ai_image' } = req.query;
 
@@ -127,8 +158,9 @@ router.get('/api/images/:id/variations', requireStackAuth, asyncHandler(async (r
  * GET /api/images/variations/user
  * Get all variations for the current user
  */
-router.get('/api/images/variations/user', requireStackAuth, asyncHandler(async (req: any, res) => {
-  const userId = req.user.id;
+router.get('/api/images/variations/user', requireStackAuth, asyncHandler(async (req: Request, res: Response) => {
+  const authReq = req as AuthenticatedRequest;
+  const userId = authReq.user.id;
 
   try {
     console.log('🎨 VARIATIONS: Getting all user variations for:', userId);
@@ -150,22 +182,23 @@ router.get('/api/images/variations/user', requireStackAuth, asyncHandler(async (
  * DELETE /api/images/variations/:variantId
  * Delete a specific variation
  */
-router.delete('/api/images/variations/:variantId', requireStackAuth, asyncHandler(async (req: any, res) => {
-  const userId = req.user.id;
+router.delete('/api/images/variations/:variantId', requireStackAuth, asyncHandler(async (req: Request<DeleteVariantParams>, res: Response) => {
+  const authReq = req as AuthenticatedRequest;
+  const userId = authReq.user.id;
   const { variantId } = req.params;
 
   try {
     console.log('🎨 VARIATIONS: Deleting variation:', variantId, 'for user:', userId);
 
     // Get the variant to verify ownership
-    const variant = await storage.getImageVariant(parseInt(variantId));
+    const variant = await storage.getImageVariant(parseInt(variantId), userId);
     
     if (!variant) {
       throw createError.notFound('Variation not found');
     }
 
     if (variant.userId !== userId) {
-      throw createError.forbidden('Not authorized to delete this variation');
+      throw createError.authorization('Not authorized to delete this variation');
     }
 
     // Update the variant status to 'deleted'
@@ -185,26 +218,27 @@ router.delete('/api/images/variations/:variantId', requireStackAuth, asyncHandle
  * POST /api/images/:id/save-variation
  * Save a variation as a new gallery image
  */
-router.post('/api/images/:id/save-variation', requireStackAuth, asyncHandler(async (req: any, res) => {
-  const userId = req.user.id;
+router.post('/api/images/:id/save-variation', requireStackAuth, asyncHandler(async (req: Request<{ id: string }>, res: Response) => {
+  const authReq = req as AuthenticatedRequest;
+  const userId = authReq.user.id;
   const { id: variantId } = req.params;
 
   try {
     console.log('🎨 VARIATIONS: Saving variation as new image:', variantId, 'for user:', userId);
 
     // Get the variant
-    const variant = await storage.getImageVariant(parseInt(variantId));
+    const variant = await storage.getImageVariant(parseInt(variantId), userId);
     
     if (!variant) {
       throw createError.notFound('Variation not found');
     }
 
     if (variant.userId !== userId) {
-      throw createError.forbidden('Not authorized to save this variation');
+      throw createError.authorization('Not authorized to save this variation');
     }
 
     if (!variant.imageUrl) {
-      throw createError.badRequest('Variation is not completed yet');
+      throw createError.validation('Variation is not completed yet');
     }
 
     // Save as a new AI image

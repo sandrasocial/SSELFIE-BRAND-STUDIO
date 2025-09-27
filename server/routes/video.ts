@@ -1,10 +1,37 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import { requireStackAuth } from '../stack-auth.js';
 import { generateVeo3Video, getVeo3Status, getQualityPreset } from '../services/video/veo3.js';
 import { storage } from '../storage.js';
 import { generatedImages, aiImages } from '../../shared/schema.js';
 import { eq, and } from 'drizzle-orm';
 import { db } from '../drizzle.js';
+import { StackAuthUser } from '../stack-auth.js';
+
+// Define request types for type safety
+interface AuthenticatedRequest extends Request {
+  user: StackAuthUser;
+}
+
+interface VideoGenerateBody {
+  imageId?: string;
+  motionPrompt: string;
+  mode?: 'preview' | 'production';
+  audioScript?: string;
+  aspectRatio?: '16:9' | '9:16' | '1:1';
+}
+
+interface VideoStatusParams extends Record<string, string> {
+  jobId: string;
+}
+
+interface VideoHistoryQuery {
+  limit?: string;
+  offset?: string;
+}
+
+interface VideoSaveBody {
+  videoId: number;
+}
 
 const router = Router();
 
@@ -13,9 +40,10 @@ const router = Router();
  * Generate video using VEO 3 with enhanced options
  * Supports: mode (preview/production), audioScript, initImage
  */
-router.post('/generate', requireStackAuth, async (req, res) => {
+router.post('/generate', requireStackAuth, async (req: Request<{}, {}, VideoGenerateBody>, res: Response) => {
   try {
-    const userId = req.user?.id;
+    const authReq = req as AuthenticatedRequest;
+    const userId = authReq.user?.id;
     if (!userId) {
       return res.status(401).json({ error: 'User not authenticated' });
     }
@@ -155,7 +183,7 @@ router.post('/generate', requireStackAuth, async (req, res) => {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     console.error('❌ VEO 3: Generate request failed', { 
       error: errorMessage,
-      userId: req.user?.id,
+      userId: (req as AuthenticatedRequest).user?.id,
       stack: error instanceof Error ? error.stack : undefined
     });
 
@@ -170,10 +198,11 @@ router.post('/generate', requireStackAuth, async (req, res) => {
  * GET /api/video/status/:jobId
  * Check the status of a video generation job
  */
-router.get('/status/:jobId', requireStackAuth, async (req, res) => {
+router.get('/status/:jobId', requireStackAuth, async (req: Request<VideoStatusParams>, res: Response) => {
   try {
     const { jobId } = req.params;
-    const userId = req.user?.id;
+    const authReq = req as AuthenticatedRequest;
+    const userId = authReq.user?.id;
 
     if (!userId) {
       return res.status(401).json({ error: 'User not authenticated' });
@@ -229,7 +258,7 @@ router.get('/status/:jobId', requireStackAuth, async (req, res) => {
     console.error('❌ VEO 3: Status check failed', {
       jobId: req.params.jobId,
       error: errorMessage,
-      userId: req.user?.id
+      userId: (req as AuthenticatedRequest).user?.id
     });
 
     res.status(500).json({
@@ -243,9 +272,10 @@ router.get('/status/:jobId', requireStackAuth, async (req, res) => {
  * GET /api/video/history
  * Get user's video generation history
  */
-router.get('/history', requireStackAuth, async (req, res) => {
+router.get('/history', requireStackAuth, async (req: Request<{}, {}, {}, VideoHistoryQuery>, res: Response) => {
   try {
-    const userId = req.user?.id;
+    const authReq = req as AuthenticatedRequest;
+    const userId = authReq.user?.id;
     if (!userId) {
       return res.status(401).json({ error: 'User not authenticated' });
     }
@@ -287,7 +317,7 @@ router.get('/history', requireStackAuth, async (req, res) => {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     console.error('❌ VEO 3: History request failed', {
       error: errorMessage,
-      userId: req.user?.id
+      userId: (req as AuthenticatedRequest).user?.id
     });
 
     res.status(500).json({
@@ -301,9 +331,10 @@ router.get('/history', requireStackAuth, async (req, res) => {
  * POST /api/video/save
  * Save a generated video to user's favorites
  */
-router.post('/save', requireStackAuth, async (req, res) => {
+router.post('/save', requireStackAuth, async (req: Request<{}, {}, VideoSaveBody>, res: Response) => {
   try {
-    const userId = req.user?.id;
+    const authReq = req as AuthenticatedRequest;
+    const userId = authReq.user?.id;
     if (!userId) {
       return res.status(401).json({ error: 'User not authenticated' });
     }
@@ -339,7 +370,7 @@ router.post('/save', requireStackAuth, async (req, res) => {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     console.error('❌ VEO 3: Save video failed', {
       error: errorMessage,
-      userId: req.user?.id,
+      userId: (req as AuthenticatedRequest).user?.id,
       videoId: req.body.videoId
     });
 
@@ -354,7 +385,7 @@ router.post('/save', requireStackAuth, async (req, res) => {
  * GET /api/video/presets
  * Get available quality presets and their descriptions
  */
-router.get('/presets', requireStackAuth, async (req, res) => {
+router.get('/presets', requireStackAuth, async (req: Request, res: Response) => {
   try {
     const presets = {
       preview: getQualityPreset('preview'),
