@@ -489,9 +489,9 @@ export const useMayaGeneration = (
               console.log(`Maya concept "${conceptTitle}" generation complete!`);
               
               // Update the specific concept card with generated images
-              setMessages?.(prev => prev.map(msg => ({
+              setMessages?.((prev: any[]) => prev.map((msg: any) => ({
                 ...msg,
-                conceptCards: msg.conceptCards?.map(concept => 
+                conceptCards: msg.conceptCards?.map((concept: any) => 
                   concept.id === conceptId 
                     ? { 
                         ...concept, 
@@ -523,9 +523,9 @@ export const useMayaGeneration = (
             console.error(`Maya concept "${conceptTitle}" polling error:`, pollError);
             
             // Reset concept card loading state on error
-            setMessages?.(prev => prev.map(msg => ({
+            setMessages?.((prev: any[]) => prev.map((msg: any) => ({
               ...msg,
-              conceptCards: msg.conceptCards?.map(concept => 
+              conceptCards: msg.conceptCards?.map((concept: any) => 
                 concept.id === conceptId 
                   ? { ...concept, isLoading: false, isGenerating: false }
                   : concept

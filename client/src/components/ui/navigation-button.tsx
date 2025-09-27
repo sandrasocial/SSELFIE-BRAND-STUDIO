@@ -109,7 +109,7 @@ export function NavigationButton({
               .filter(s => s)
               .map(s => {
                 const [key, value] = s.split(':').map(s => s.trim());
-                return [key.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase()), value];
+                return [key?.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase()) || '', value || ''];
               })
           )
         }}
@@ -133,7 +133,7 @@ export function NavigationButton({
             .filter(s => s)
             .map(s => {
               const [key, value] = s.split(':').map(s => s.trim());
-              return [key.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase()), value];
+              return [key?.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase()) || '', value || ''];
             })
         )
       }}
