@@ -31,7 +31,6 @@ export class ZaraIntegrationHooks {
     
     return {
       enhancedTask: contextEnhancement.enhancedTask,
-      contextMap,
       riskAssessment: contextEnhancement.riskFactors
     };
   }
@@ -65,7 +64,6 @@ export class ZaraIntegrationHooks {
     return {
       autoRecoveryAttempted: true,
       fixesApplied: recovery.fixesApplied,
-      status
     };
   }
   
@@ -93,8 +91,6 @@ export class ZaraIntegrationHooks {
     const diagnostics = [{ message: errorMessage }];
     
     const analyses = await zaraEnhancementSystem.analyzeErrors(
-      context.filePath || 'unknown', 
-      diagnostics
     );
     
     const primaryAnalysis = analyses[0];
@@ -120,7 +116,6 @@ export class ZaraIntegrationHooks {
     return {
       errorAnalysis: primaryAnalysis,
       suggestedFix: primaryAnalysis?.suggestion || 'Manual investigation required',
-      autoFixAttempted
     };
   }
   
@@ -142,23 +137,8 @@ export class ZaraIntegrationHooks {
         services: 'server/services/.js'
       },
       commonPatterns: [
-        'Use TypeScript interfaces from shared/schema.ts',
-        'Import services from server/services/'.js',
-        'Follow existing naming conventions',
-        'Match existing code style and patterns.js'
-      ],
       bestPractices: [
-        'Always check interface compatibility',
-        'Add proper error handling',
-        'Include comprehensive logging',
-        'Test auto-recovery mechanisms.js'
-      ],
       avoidancePatterns: [
-        'Avoid breaking existing exports',
-        'Don\'t modify core system files without context',
-        'Never leave syntax errors unresolved',
-        'Avoid circular dependencies.js'
-      ]
     };
   }
 }

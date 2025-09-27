@@ -74,7 +74,6 @@ export function validateMayaPrompt(
   
   // Technical quality checks
   const technicalElements = [
-    'camera', 'lens', 'aperture', 'lighting', 'photography'
   ];
   const hasTechnicalSpecs = technicalElements.some(element => 
     prompt.toLowerCase().includes(element)
@@ -98,10 +97,6 @@ export function validateMayaPrompt(
   
   return {
     isValid: issues.length === 0,
-    issues,
-    suggestions,
-    wordCount,
-    hasValidTriggerWord
   };
 }
 
@@ -177,8 +172,6 @@ export function cleanMayaPrompt(prompt: string): string {
  */
 export function hasTechnicalPrefix(prompt: string): boolean {
   const technicalIndicators = [
-    'professional photography', 'shot with', 'captured with', 'photographed',
-    'Canon EOS', 'Sony A7', 'Nikon Z', 'lens', 'aperture', 'ISO'
   ];
   
   return technicalIndicators.some(indicator => 
@@ -206,13 +199,6 @@ export function addAnatomyKeywords(prompt: string): string {
  * FLUX 1.1 Pro optimal quality tags for professional photography
  */
 export const FLUX_QUALITY_TAGS = [
-  'professional photography',
-  'natural skin texture',
-  'authentic presence',
-  'sharp focus',
-  'natural expression',
-  'high resolution',
-  'DSLR quality'
 ];
 
 /**

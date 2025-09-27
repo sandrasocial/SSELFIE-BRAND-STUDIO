@@ -64,10 +64,8 @@ async function handleUserUpsert(stackUser: any) {
       id: stackUser.id, // Stack Auth user ID
       email: stackUser.primary_email || stackUser.email,
       firstName: stackUser.display_name?.split(' ')[0] || 
-                 stackUser.given_name || 
                  stackUser.primary_email?.split('@')[0] || '',
       lastName: stackUser.display_name?.split(' ').slice(1).join(' ') || 
-                stackUser.family_name || '',
       displayName: stackUser.display_name || stackUser.primary_email || '',
       profileImageUrl: stackUser.profile_image_url || stackUser.picture,
       lastLoginAt: new Date(), // Update login time on sync
@@ -93,7 +91,7 @@ async function handleUserUpsert(stackUser: any) {
 
     return user;
   } catch (error) {
-    console.error('❌ Failed to upsert user from Stack Auth:'.js', error);
+    console.error('❌ Failed to upsert user from Stack Auth:', error);
     throw error;
   }
 }

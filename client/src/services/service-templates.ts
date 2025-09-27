@@ -209,7 +209,7 @@ export class ServiceTemplateManager {
 
   generateIntegrationCode(templateId: string): string {
     const template = this.templates.get(templateId);
-    if (!template) return '
+    if (!template) return ''
 
     switch (templateId) {
       case 'stripe':
@@ -223,7 +223,7 @@ export class ServiceTemplateManager {
       case 'auth0':
         return this.generateAuth0Code();
       default:
-        return '
+        return ''
     }
   }
 
@@ -237,7 +237,6 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 export async function createPaymentIntent(amount: number, currency = 'usd') {
   return await stripe.paymentIntents.create({
     amount: amount * 100, // Convert to cents
-    currency,
     automatic_payment_methods: { enabled: true }
   });
 }
@@ -262,10 +261,7 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY!);
 
 export async function sendEmail(to: string, subject: string, html: string) {
   const msg = {
-    to,
     from: process.env.SENDGRID_FROM_EMAIL!,
-    subject,
-    html
   };
 
   return await sgMail.send(msg);
@@ -273,9 +269,7 @@ export async function sendEmail(to: string, subject: string, html: string) {
 
 export async function sendTemplateEmail(to: string, templateId: string, data: any) {
   const msg = {
-    to,
     from: process.env.SENDGRID_FROM_EMAIL!,
-    templateId,
     dynamicTemplateData: data
   };
 

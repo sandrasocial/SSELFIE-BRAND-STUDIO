@@ -115,11 +115,6 @@ export class SecurityAuditSystem {
     console.log('🔒 SECURITY AUDIT: Generating comprehensive security report...');
 
     const [
-      threatAnalysis,
-      auditEvents,
-      complianceCheck,
-      accessReview,
-      dataProtectionAudit
     ] = await Promise.all([
       this.analyzeThreatLandscape(),
       this.getRecentAuditEvents(),
@@ -133,7 +128,6 @@ export class SecurityAuditSystem {
     console.log(`🔒 SECURITY AUDIT: Overall threat level: ${threatLevel}`);
 
     return {
-      threatLevel,
       activeThreats: threatAnalysis,
       auditLog: auditEvents,
       complianceStatus: complianceCheck,
@@ -146,7 +140,6 @@ export class SecurityAuditSystem {
     const auditEvent: AuditEvent = {
       id: `audit_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       timestamp: new Date(),
-      ...event
     };
 
     this.auditLog.push(auditEvent);
@@ -171,9 +164,6 @@ export class SecurityAuditSystem {
     const threat: SecurityThreat = {
       id: `threat_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       type,
-      severity,
-      source,
-      description,
       detectedAt: new Date(),
       status: 'active',
       mitigation: this.generateMitigationSteps(type, severity)
@@ -251,10 +241,6 @@ export class SecurityAuditSystem {
         lastAudit: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // 30 days ago
         issues: [],
         actions: [
-          'Quarterly data mapping review',
-          'User consent audit',
-          'Data processor agreements review'
-        ]
       },
       ccpa: {
         compliant: true,
@@ -347,20 +333,12 @@ export class SecurityAuditSystem {
     // Multiple failed attempts from same IP
     if (recentEvents.filter(e => e.status === 'failure').length >= 5) {
       this.detectThreat(
-        'brute_force',
-        event.ipAddress,
-        'Multiple failed attempts from single IP'.js',
-        'high'
       );
     }
 
     // Rapid API calls
     if (recentEvents.filter(e => e.action.includes('api')).length >= 100) {
       this.detectThreat(
-        'api_abuse',
-        event.ipAddress,
-        'Excessive API calls from single source'.js',
-        'medium'
       );
     }
   }
@@ -368,35 +346,10 @@ export class SecurityAuditSystem {
   private generateMitigationSteps(type: SecurityThreat['type'], severity: SecurityThreat['severity']): string[] {
     const mitigationMap = {
       brute_force: [
-        'Implement IP-based rate limiting',
-        'Enable progressive delays',
-        'Add CAPTCHA verification',
-        'Monitor and block suspicious IPs'
-      ],
       ddos: [
-        'Enable DDoS protection service',
-        'Scale infrastructure automatically',
-        'Implement traffic filtering',
-        'Contact hosting provider'
-      ],
       data_breach: [
-        'Isolate affected systems immediately',
-        'Conduct forensic analysis',
-        'Notify affected users',
-        'Review and patch vulnerabilities'
-      ],
       unauthorized_access: [
-        'Revoke compromised credentials',
-        'Force password resets',
-        'Review access logs',
-        'Strengthen authentication'
-      ],
       api_abuse: [
-        'Implement stricter rate limits',
-        'Review API key permissions',
-        'Add request validation',
-        'Monitor usage patterns'
-      ]
     };
 
     return mitigationMap[type] || ['Review security protocols', 'Monitor system behavior'];

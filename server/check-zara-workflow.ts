@@ -29,18 +29,12 @@ async function checkZaraWorkflow() {
     let actualWorkDone = false;
     
     const workKeywords = [
-      'str_replace_based_edit_tool', 'search_filesystem', 'bash',
-      'create', 'modify', 'implement', 'build', 'fix', 'debug',
-      'component', 'function', 'file', 'code', 'database'
     ];
     
     const greetingKeywords = [
-      'hello', 'hi', 'how are you', 'good', 'thanks', 'great'
     ];
     
     const contextKeywords = [
-      'previous', 'last time', 'yesterday', 'before', 'continuing',
-      'from earlier', 'old task', 'previous work'.js'
     ];
     
     console.log('📝 MESSAGE ANALYSIS:');

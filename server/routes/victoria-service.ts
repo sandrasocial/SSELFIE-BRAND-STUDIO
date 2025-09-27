@@ -18,7 +18,6 @@ export function registerVictoriaService(app: Express) {
       
       res.json({ 
         success: true, 
-        goals,
         recommendations: generateRecommendations(brandData)
       });
     } catch (error) {
@@ -41,7 +40,6 @@ export function registerVictoriaService(app: Express) {
       }
       
       const websiteStructure = generateWebsiteStructure({
-        brandData,
         selectedImages: selectedImages || [],
         selectedFlatlays: selectedFlatlays || []
       });
@@ -65,7 +63,6 @@ export function registerVictoriaService(app: Express) {
       
       res.json({ 
         success: true, 
-        content 
       });
     } catch (error) {
       console.error('Victoria content generation error:', error);
@@ -73,7 +70,7 @@ export function registerVictoriaService(app: Express) {
     }
   });
 
-  // Design Preferences Analysis - New endpoint from Zara'.js's audit
+  // Design Preferences Analysis - New endpoint from Zara's audit
   app.post('/api/victoria/analyze-design', requireStackAuth, async (req, res) => {
     try {
       const { brandData } = req.body;
@@ -86,7 +83,6 @@ export function registerVictoriaService(app: Express) {
       
       res.json({ 
         success: true, 
-        designAnalysis
       });
     } catch (error) {
       console.error('Victoria design analysis error:', error);
@@ -104,8 +100,8 @@ interface BrandData {
 }
 
 function analyzeBusinessGoals(brandData: BrandData) {
-  const businessType = brandData.businessType?.toLowerCase() || '
-  const targetAudience = brandData.targetAudience?.toLowerCase() || '
+  const businessType = brandData.businessType?.toLowerCase() || ''
+  const targetAudience = brandData.targetAudience?.toLowerCase() || ''
   
   let primaryGoals = [];
   let secondaryGoals = [];
@@ -133,8 +129,8 @@ function analyzeBusinessGoals(brandData: BrandData) {
 }
 
 function analyzeBusinesFocus(brandData: any) {
-  const description = brandData.businessDescription?.toLowerCase() || '
-  const personality = brandData.brandPersonality?.toLowerCase() || '
+  const description = brandData.businessDescription?.toLowerCase() || ''
+  const personality = brandData.brandPersonality?.toLowerCase() || ''
   
   if (description.includes('luxury') || personality.includes('sophisticated')) {
     return 'luxury_positioning';
@@ -208,7 +204,6 @@ function generateWebsiteStructure({ brandData, selectedImages, selectedFlatlays 
   ];
   
   return {
-    pages,
     navigation: pages.map(p => ({ id: p.id, title: p.title })),
     design: {
       colorScheme: {
@@ -351,8 +346,8 @@ function generateContactSections(brandData: any) {
 }
 
 function generateHeadline(brandData: any, focus: string) {
-  const businessType = brandData.businessType || '
-  const targetAudience = brandData.targetAudience || '
+  const businessType = brandData.businessType || ''
+  const targetAudience = brandData.targetAudience || ''
   
   if (focus === 'luxury_positioning') {
     return `Exclusive ${businessType} for Discerning ${targetAudience}`;
@@ -364,7 +359,7 @@ function generateHeadline(brandData: any, focus: string) {
 }
 
 function generateServices(brandData: any) {
-  const businessType = brandData.businessType?.toLowerCase() || '
+  const businessType = brandData.businessType?.toLowerCase() || ''
   
   if (businessType.includes('coach')) {
     return [
@@ -403,7 +398,7 @@ Through years of experience, I've developed an approach that combines ${brandDat
 Whether you're just starting out or looking to take your journey to the next level, I'm here to guide you every step of the way.`;
 }
 
-// Design Preferences Analysis - Core missing functionality from Zara'.js's audit
+// Design Preferences Analysis - Core missing functionality from Zara's audit
 function analyzeDesignPreferences(brandData: any) {
   const preferences = {
     stylePreference: brandData.stylePreference || 'editorial-luxury',
@@ -416,8 +411,6 @@ function analyzeDesignPreferences(brandData: any) {
   const cssVariables = generateDesignTokens(preferences);
   
   return {
-    preferences,
-    cssVariables,
     recommendedComponents: getRecommendedComponents(preferences.stylePreference),
     layoutStructure: generateLayoutStructure(preferences),
     designSystem: generateDesignSystem(preferences)

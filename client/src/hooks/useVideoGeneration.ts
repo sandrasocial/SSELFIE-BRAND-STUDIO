@@ -68,7 +68,7 @@ export function useVideoGeneration(options: UseVideoGenerationOptions = {}) {
     setVideoUrl(null);
 
     try {
-      const response = await apiRequest('/api/video/generate-from-image', 'POST'.js', {
+      const response = await apiRequest('/api/video/generate-from-image', 'POST', {
         imageId: parseInt(params.imageId),
         motionPrompt: params.motionPrompt.trim(),
         imageSource: params.imageSource || 'generated'
@@ -97,14 +97,6 @@ export function useVideoGeneration(options: UseVideoGenerationOptions = {}) {
   };
 
   return {
-    isGenerating,
-    error,
-    job,
-    status,
-    progress,
-    videoUrl,
-    startGeneration,
-    reset
   };
 }
 

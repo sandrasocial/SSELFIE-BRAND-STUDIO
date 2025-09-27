@@ -105,7 +105,6 @@ export class MayaMemoryEnhancementService {
       if (!userMemory) {
         // Create new enhanced memory structure
         userMemory = await storage.createUserStyleMemory({
-          userId,
           preferredCategories: [],
           favoritePromptPatterns: [],
           colorPreferences: [],
@@ -334,7 +333,7 @@ export class MayaMemoryEnhancementService {
     const textures = new Set<string>();
     
     choices.forEach(choice => {
-      const description = choice.description?.toLowerCase() || '
+      const description = choice.description?.toLowerCase() || ''
       if (description.includes('silk')) textures.add('silk');
       if (description.includes('leather')) textures.add('leather');
       if (description.includes('cotton')) textures.add('cotton');
@@ -355,7 +354,7 @@ export class MayaMemoryEnhancementService {
     const colors = new Set<string>();
     
     choices.forEach(choice => {
-      const description = choice.description?.toLowerCase() || '
+      const description = choice.description?.toLowerCase() || ''
       if (description.includes('black')) colors.add('black');
       if (description.includes('white')) colors.add('white');
       if (description.includes('navy')) colors.add('navy');
@@ -376,7 +375,7 @@ export class MayaMemoryEnhancementService {
     let sustainabilityScore = 50; // Base score
     
     choices.forEach(choice => {
-      const description = choice.description?.toLowerCase() || '
+      const description = choice.description?.toLowerCase() || ''
       if (description.includes('sustainable') || description.includes('eco')) sustainabilityScore += 10;
       if (description.includes('vintage') || description.includes('timeless')) sustainabilityScore += 5;
       if (description.includes('quality') || description.includes('investment piece')) sustainabilityScore += 3;
@@ -398,7 +397,7 @@ export class MayaMemoryEnhancementService {
     };
     
     choices.forEach(choice => {
-      const description = choice.description?.toLowerCase() || '
+      const description = choice.description?.toLowerCase() || ''
       if (description.includes('oversized') && description.includes('structured')) {
         trends.oversizedStructured = Math.min(100, trends.oversizedStructured + 15);
       }
@@ -461,7 +460,7 @@ export class MayaMemoryEnhancementService {
     let independenceScore = 75; // Base score
     
     choices.forEach(choice => {
-      const description = choice.description?.toLowerCase() || '
+      const description = choice.description?.toLowerCase() || ''
       if (description.includes('trendy') || description.includes('on-trend')) {
         independenceScore -= 5;
       }
@@ -499,16 +498,6 @@ export class MayaMemoryEnhancementService {
   static getMemoryStats(): any {
     return {
       enhancedFields: [
-        'contemporaryPreferences',
-        'trendAlignment', 
-        'culturalContext',
-        'sustainabilityValues',
-        'moodPatterns',
-        'seasonalPreferences',
-        'locationContext',
-        'personalityAdaptation',
-        'fluxParameterPreferences'
-      ],
       version: 'Phase 4.3',
       capabilities: 'Contemporary fashion intelligence with advanced personalization'
     };

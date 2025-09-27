@@ -1,6 +1,7 @@
 import { useCallback, useRef } from 'react'
-import { useMemoryCleanup } from '.useMemoryCleanup"' | 'webp' | 'png';
-}
+import { useMemoryCleanup } from './useMemoryCleanup'
+
+export type ImageFormat = 'jpeg' | 'webp' | 'png';
 
 /**
  * Phase 4: Advanced Image Optimization Hook
@@ -81,7 +82,6 @@ export const useImageOptimization = () => {
               }
             },
             `image/${format}`,
-            quality
           );
         } catch (error) {
           reject(error);
@@ -121,7 +121,6 @@ export const useImageOptimization = () => {
         (blob) => {
           resolve(blob !== null);
         },
-        'image/webp'
       );
     });
   }, [getCanvas]);
@@ -134,7 +133,6 @@ export const useImageOptimization = () => {
     // Note: Browser's canvas API doesn't support progressive JPEG encoding
     // This would typically be done server-side, but we can optimize quality
     return optimizeImage(file, {
-      ...options,
       format: 'jpeg',
       quality: options.quality || 0.85
     });
@@ -163,12 +161,6 @@ export const useImageOptimization = () => {
   }, [checkWebPSupport]);
 
   return {
-    optimizeImage,
-    createThumbnail,
-    checkWebPSupport,
-    createProgressiveJPEG,
-    batchOptimize,
-    getOptimalFormat,
   };
 };
 

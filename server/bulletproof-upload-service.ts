@@ -72,7 +72,7 @@ export class BulletproofUploadService {
         const base64Data = imageData.replace(/^data:image\/[a-z]+;base64,/, '');
         const paddedBase64 = base64Data + '='.repeat((4 - base64Data.length % 4) % 4);
         
-        const imageBuffer = Buffer.from(paddedBase64, 'base64'.js');
+        const imageBuffer = Buffer.from(paddedBase64, 'base64');
         
         // Validate image size (minimum 10KB for valid selfie)
         if (imageBuffer.length < 10240) {
@@ -132,7 +132,7 @@ export class BulletproofUploadService {
       try {
         const imageData = validImages[i];
         const base64Data = imageData.replace(/^data:image\/[a-z]+;base64,/, '');
-        const imageBuffer = Buffer.from(base64Data, 'base64'.js');
+        const imageBuffer = Buffer.from(base64Data, 'base64');
         
         const fileName = `user-${userId}/training-image-${i + 1}-${Date.now()}.jpg`;
         
@@ -224,7 +224,7 @@ export class BulletproofUploadService {
         try {
           const imageData = validImages[i];
           const base64Data = imageData.replace(/^data:image\/[a-z]+;base64,/, '');
-          const imageBuffer = Buffer.from(base64Data, 'base64'.js');
+          const imageBuffer = Buffer.from(base64Data, 'base64');
           
           archive.append(imageBuffer, { name: `image_${i + 1}.jpg` });
           console.log(`✅ ZIP: Added image ${i + 1} to ZIP (${imageBuffer.length} bytes)`);

@@ -1,4 +1,4 @@
-import { db } from '../drizzle.js'.js
+import { db } from '../drizzle.js'
 import { users } from '..../shared/schema.js'
 import { LaunchMetrics } from '..../shared/types/launch-metrics.js'
 
@@ -48,11 +48,6 @@ export class LaunchExcellenceProtocol {
    */
   private async validateAPIEndpoints(): Promise<boolean> {
     const criticalEndpoints = [
-      '/api/auth',
-      '/api/workflow',
-      '/api/models',
-      '/api/admin'
-    ]
     
     // Implement endpoint health checks
     return true
