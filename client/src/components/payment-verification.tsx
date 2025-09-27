@@ -1,8 +1,8 @@
 import { ReactNode, useState, useEffect } from 'react';
-import { useAuth } from '@/hooks/use-auth';
+import { useAuth } from '../hooks/use-auth.js';
 import { useQuery } from '@tanstack/react-query';
 import { useLocation } from 'wouter';
-import { useToast } from '@/hooks/use-toast';
+import { useToast } from '../hooks/use-toast.js';
 
 interface PaymentVerificationProps {
   children: ReactNode;

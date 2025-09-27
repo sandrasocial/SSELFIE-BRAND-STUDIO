@@ -6,10 +6,11 @@ export * from './user-types.js';
 import type { User as SchemaUser } from './user-schema.js';
 import type { UserBase } from './user-types.js';
 
-// Unified User type that combines both schema and interface properties
-export type User = SchemaUser & UserBase;
+// Export a unified User interface that combines schema and interface types
+import type { User as SchemaUser } from './user-schema.js';
+import type { UserBase } from './user-types.js';
 
-export interface User {
+export interface User extends UserBase {
   id: string;
   email: string;
   primaryEmail?: string;
