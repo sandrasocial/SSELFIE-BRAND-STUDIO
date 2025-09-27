@@ -18,6 +18,18 @@
     "api/maya/chat.ts": {
       "maxDuration": 40
     },
+    "api/maya/draft-storyboard.ts": {
+      "maxDuration": 40
+    },
+    "api/auth/login.ts": {
+      "maxDuration": 15
+    },
+    "api/auth/signup.ts": {
+      "maxDuration": 15
+    },
+    "api/auth/callback.ts": {
+      "maxDuration": 15
+    },
     "api/health-check.ts": {
       "maxDuration": 5
     },
@@ -41,6 +53,9 @@
     },
     "api/hair-leads.ts": {
       "maxDuration": 10
+    },
+    "api/[...route].ts": {
+      "maxDuration": 30
     }
   },
   "crons": [
