@@ -7,7 +7,7 @@
 
 import { storage } from './storage.js'
 // MAYA FAÇADE: Replaced Maya-specific import with façade API calls
-// import { MayaChatPreviewService } from '.maya-chat-preview-service.js'; .js// REMOVED: Direct entanglement
+// import { MayaChatPreviewService } from './maya-chat-preview-service.js'; .js// REMOVED: Direct entanglement
 
 export class GenerationCompletionMonitor {
   private static instance: GenerationCompletionMonitor;

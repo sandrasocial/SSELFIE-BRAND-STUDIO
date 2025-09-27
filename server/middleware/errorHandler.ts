@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { logger } from '..config/monitoring.js';
-import { StackAuthUser } from '..stack-auth.js'
+import { logger } from '../config/monitoring.js';
+import { StackAuthUser } from '../stack-auth.js'
 
 // Extend Express Request type to include user property
 declare global {

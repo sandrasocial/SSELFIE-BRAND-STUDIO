@@ -1,5 +1,5 @@
-import { AgentInsightEngine } from '.agent-insight-engine.js'
-import { storage } from '..storage.js'
+import { AgentInsightEngine } from './agent-insight-engine.js'
+import { storage } from '../storage.js'
 
 // Context monitoring service that continuously analyzes system state
 export class AgentContextMonitor {

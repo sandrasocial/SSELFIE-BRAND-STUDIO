@@ -1,5 +1,5 @@
 import { SlackNotificationService } from './slack-notification-service.js';
-import { storage } from '../../storage.js';
+import { storage } from '../storage.js';
 import { AgentInsightEngine } from './agent-insight-engine.js';
 
 interface EmailAccount {
