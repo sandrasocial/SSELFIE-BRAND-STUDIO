@@ -4,12 +4,12 @@
  */
 
 import type { Express } from 'express';
-import { predictiveIntelligence } from '..enterprise/predictive-intelligence.js';
-import { securityAudit } from '..enterprise/security-audit.js';
-import { PerformanceMonitor } from '..enterprise/performance-monitor.js';
-import { globalExpansion } from '..enterprise/global-expansion.js';
-import { analyticsReporting } from '..enterprise/analytics-reporting.js';
-import { requireStackAuth } from '..stack-auth.js'
+import { predictiveIntelligence } from '../enterprise/predictive-intelligence.js';
+import { securityAudit } from '../enterprise/security-audit.js';
+import { PerformanceMonitor } from '../enterprise/performance-monitor.js';
+import { globalExpansion } from '../enterprise/global-expansion.js';
+import { analyticsReporting } from '../enterprise/analytics-reporting.js';
+import { requireStackAuth } from '../stack-auth.js'
 
 export function registerEnterpriseRoutes(app: Express): void {
   console.log('🏢 Registering Enterprise Scaling API routes...');
