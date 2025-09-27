@@ -7,7 +7,7 @@ import { apiFetch } from '../lib/api.js';
 import ErrorBoundary from '../components/ErrorBoundary.js';
 import StoryStudioModal from '../components/StoryStudioModal.js';
 import BrandAssetPlacementModal from '../components/BrandAssetPlacementModal.js';
-import { VideoGenerateDialog } from '../features/video.js';
+import { VideoGenerateDialog } from '../features/video/index.js';
 import { Camera, Grid, Search, MoreHorizontal, Heart, Download, Trash2, Play, Plus, Filter, Calendar, Star, Eye, X, Check, SortAsc, SortDesc } from 'lucide-react';
 
 // ImageDetailModal Component
