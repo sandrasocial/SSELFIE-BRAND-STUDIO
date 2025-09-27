@@ -54,9 +54,22 @@ export default defineConfig(({ mode }) => {
       outDir: path.resolve(__dirname, "client/dist"),
       emptyOutDir: true,
       // Optimize bundle size
-      chunkSizeWarningLimit: 1000,
+      chunkSizeWarningLimit: 1200,
       rollupOptions: {
-        input: path.resolve(__dirname, "client/index.html")
+        input: path.resolve(__dirname, "client/index.html"),
+        output: {
+          manualChunks(id) {
+            if (id.includes('node_modules')) {
+              if (id.includes('@stackframe') || id.includes('react')) {
+                return 'vendor';
+              }
+              return 'deps';
+            }
+            if (id.includes('components/') || id.includes('shared/ui/')) {
+              return 'ui';
+            }
+          }
+        }
       },
       // Enable source maps for debugging
       sourcemap: mode === 'development',
