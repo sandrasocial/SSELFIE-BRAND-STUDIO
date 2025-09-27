@@ -22,7 +22,7 @@ export default {
         'sans': ['Inter', 'SF Pro Display', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Helvetica Neue', 'Arial', 'sans-serif'],
       },
       fontSize: {
-        // Editorial display sizes with sophisticated letter spacing
+        // Editorial display sizes with sophisticated letter spacing - Enhanced for luxury
         'display-9xl': ['8rem', { lineHeight: '0.85', letterSpacing: '0.4em', fontWeight: '200' }],
         'display-8xl': ['6rem', { lineHeight: '0.85', letterSpacing: '0.4em', fontWeight: '200' }],
         'display-7xl': ['4.5rem', { lineHeight: '0.9', letterSpacing: '0.3em', fontWeight: '200' }],
@@ -31,22 +31,32 @@ export default {
         'display-xl': ['2.5rem', { lineHeight: '1.15', letterSpacing: '0.05em', fontWeight: '300' }],
         'display-lg': ['2rem', { lineHeight: '1.2', letterSpacing: '0.04em', fontWeight: '300' }],
         
-        // Section and spaced titles
+        // Section and spaced titles - Enhanced luxury hierarchy
+        'title-4xl': ['2.25rem', { lineHeight: '1', letterSpacing: '0.8em', fontWeight: '200' }], // New luxury title
         'title-3xl': ['1.875rem', { lineHeight: '1', letterSpacing: '0.6em', fontWeight: '200' }],
         'title-2xl': ['1.5rem', { lineHeight: '1', letterSpacing: '0.4em', fontWeight: '200' }],
         'title-xl': ['1.25rem', { lineHeight: '1.1', letterSpacing: '0.3em', fontWeight: '200' }],
         
-        // Editorial quotes
+        // Editorial quotes - Enhanced for magazine quality
+        'quote-7xl': ['4.5rem', { lineHeight: '1.1', letterSpacing: '-0.02em', fontWeight: '300' }], // New luxury quote
         'quote-6xl': ['3.75rem', { lineHeight: '1.15', letterSpacing: '-0.02em', fontWeight: '300' }],
         'quote-5xl': ['3rem', { lineHeight: '1.15', letterSpacing: '-0.02em', fontWeight: '300' }],
         
-        // Core editorial sizes
-        'heading-1': ['1.75rem', { lineHeight: '1.25', letterSpacing: '0.025em', fontWeight: '300' }],
-        'heading-2': ['1.375rem', { lineHeight: '1.3', letterSpacing: '0.025em', fontWeight: '300' }],
+        // Core editorial sizes - Refined for luxury perception
+        'heading-1': ['1.875rem', { lineHeight: '1.2', letterSpacing: '0.025em', fontWeight: '200' }], // Enhanced weight
+        'heading-2': ['1.5rem', { lineHeight: '1.25', letterSpacing: '0.025em', fontWeight: '200' }], // Enhanced weight
+        'heading-3': ['1.25rem', { lineHeight: '1.3', letterSpacing: '0.05em', fontWeight: '300' }], // New level
+        'body-xl': ['1.25rem', { lineHeight: '1.65', fontWeight: '300' }], // New luxury body size
         'body-lg': ['1.125rem', { lineHeight: '1.6', fontWeight: '300' }],
         'body': ['1rem', { lineHeight: '1.6', fontWeight: '300' }],
+        'body-sm': ['0.875rem', { lineHeight: '1.55', fontWeight: '300' }], // New refined body size
         'caption': ['0.75rem', { lineHeight: '1.4', letterSpacing: '0.05em', fontWeight: '400' }],
         'eyebrow': ['0.625rem', { lineHeight: '1.4', letterSpacing: '0.5em', fontWeight: '300' }],
+        // Luxury specific typography
+        'luxury-display': ['6rem', { lineHeight: '0.85', letterSpacing: '0.5em', fontWeight: '200' }],
+        'luxury-title': ['2.5rem', { lineHeight: '1.1', letterSpacing: '0.4em', fontWeight: '200' }],
+        'luxury-subtitle': ['1.5rem', { lineHeight: '1.3', letterSpacing: '0.2em', fontWeight: '300' }],
+        'luxury-body': ['1.125rem', { lineHeight: '1.65', fontWeight: '300' }],
       },
       letterSpacing: {
         'ultra-wide': '0.6em',
@@ -162,13 +172,21 @@ export default {
         'main-content-bottom': 'var(--main-content-bottom)',
         'floating-navigation-bottom': 'var(--floating-navigation-bottom)',
         'floating-navigation-horizontal': 'var(--floating-navigation-horizontal)',
-        // Editorial spacing
-        'editorial-xs': '0.75rem',
-        'editorial-sm': '1.25rem',
-        'editorial-md': '2rem',
-        'editorial-lg': '3rem',
-        'editorial-xl': '4rem',
-        'editorial-2xl': '6rem',
+        // Editorial spacing - Enhanced for luxury feel (24px+ margins)
+        'editorial-xs': '1rem',      // 16px minimum
+        'editorial-sm': '1.5rem',    // 24px - luxury minimum
+        'editorial-md': '2.5rem',    // 40px - enhanced premium spacing
+        'editorial-lg': '3.5rem',    // 56px - luxury spacing
+        'editorial-xl': '5rem',      // 80px - premium spacing
+        'editorial-2xl': '7rem',     // 112px - ultra luxury spacing
+        'editorial-3xl': '9rem',     // 144px - maximum luxury spacing
+        // Luxury component spacing
+        'luxury-xs': '1.5rem',       // 24px luxury minimum
+        'luxury-sm': '2rem',         // 32px
+        'luxury-md': '3rem',         // 48px
+        'luxury-lg': '4rem',         // 64px
+        'luxury-xl': '6rem',         // 96px
+        'luxury-2xl': '8rem',        // 128px
       },
       // Editorial shadow system
       boxShadow: {
@@ -209,6 +227,45 @@ export default {
         "editorial-spin": {
           to: { transform: "rotate(360deg)" },
         },
+        // Enhanced luxury animations
+        "luxury-fade-up": {
+          from: { opacity: "0", transform: "translateY(30px)" },
+          to: { opacity: "1", transform: "translateY(0)" },
+        },
+        "luxury-fade-down": {
+          from: { opacity: "0", transform: "translateY(-30px)" },
+          to: { opacity: "1", transform: "translateY(0)" },
+        },
+        "luxury-scale-in": {
+          from: { opacity: "0", transform: "scale(0.92)" },
+          to: { opacity: "1", transform: "scale(1)" },
+        },
+        "luxury-slide-left": {
+          from: { opacity: "0", transform: "translateX(40px)" },
+          to: { opacity: "1", transform: "translateX(0)" },
+        },
+        "luxury-slide-right": {
+          from: { opacity: "0", transform: "translateX(-40px)" },
+          to: { opacity: "1", transform: "translateX(0)" },
+        },
+        "luxury-glow": {
+          "0%, 100%": { opacity: "1", transform: "scale(1)" },
+          "50%": { opacity: "0.8", transform: "scale(1.02)" },
+        },
+        "luxury-pulse": {
+          "0%, 100%": { opacity: "1" },
+          "50%": { opacity: "0.7" },
+        },
+        "luxury-shimmer": {
+          "0%": { transform: "translateX(-100%)" },
+          "100%": { transform: "translateX(100%)" },
+        },
+        // Premium loading states
+        "premium-skeleton": {
+          "0%": { backgroundColor: "rgba(255, 255, 255, 0.1)" },
+          "50%": { backgroundColor: "rgba(255, 255, 255, 0.2)" },
+          "100%": { backgroundColor: "rgba(255, 255, 255, 0.1)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -216,6 +273,20 @@ export default {
         "editorial-fade-in": "editorial-fade-in 0.5s var(--ease-sophisticated) forwards",
         "editorial-scale-in": "editorial-scale-in 0.3s var(--ease-editorial) forwards",
         "editorial-spin": "editorial-spin 1s linear infinite",
+        // Enhanced luxury animations
+        "luxury-fade-up": "luxury-fade-up 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards",
+        "luxury-fade-down": "luxury-fade-down 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards",
+        "luxury-scale-in": "luxury-scale-in 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards",
+        "luxury-slide-left": "luxury-slide-left 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards",
+        "luxury-slide-right": "luxury-slide-right 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards",
+        "luxury-glow": "luxury-glow 2s ease-in-out infinite",
+        "luxury-pulse": "luxury-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+        "luxury-shimmer": "luxury-shimmer 2s ease-in-out infinite",
+        "premium-skeleton": "premium-skeleton 1.5s ease-in-out infinite",
+        // Staggered animations
+        "luxury-fade-up-delay-100": "luxury-fade-up 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.1s forwards",
+        "luxury-fade-up-delay-200": "luxury-fade-up 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.2s forwards",
+        "luxury-fade-up-delay-300": "luxury-fade-up 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.3s forwards",
       },
     },
   },
