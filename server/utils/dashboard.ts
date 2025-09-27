@@ -4,7 +4,7 @@
  */
 
 import { Logger } from './logger.js';
-import { monitoringSystem } from './monitoring.js';
+// Import other monitoring systems, avoiding circular dependency
 import { performanceMonitor } from './performance-monitor.js';
 import { errorTracker } from './error-tracker.js';
 import { securityMonitor } from './security-monitor.js';
@@ -188,11 +188,11 @@ export class DashboardSystem {
   private cachedData: DashboardData | null;
 
   constructor() {
-  this.logger = new Logger('DashboardSystem');
-  this._isEnabled = true;
-  this.updateInterval = null;
-  this.lastUpdate = null;
-  this.cachedData = null;
+    this.logger = new Logger('DashboardSystem');
+    this._isEnabled = true;
+    this.updateInterval = null;
+    this.lastUpdate = null;
+    this.cachedData = null;
   }
 
   /**
@@ -328,8 +328,6 @@ export class DashboardSystem {
             blockedIPs: securityMonitor.getBlockedIPs(),
             suspiciousIPs: securityMonitor.getSuspiciousIPs().map(ip => ({
               ip: ip.ip,
-                  p95: performanceStats.maxResponseTime ?? 0,
-                  p99: performanceStats.maxResponseTime ?? 0,
               count: ip.count,
               riskScore: ip.riskScore,
               lastSeen: ip.lastSeen.toISOString(),
@@ -520,12 +518,12 @@ export class DashboardSystem {
    * Get dashboard summary
    */
   public getDashboardSummary(): {
-  status: 'healthy' | 'degraded' | 'unhealthy';
-  uptime: string;
-  requests: number;
-  errors: number;
-  memory: number;
-  lastUpdated: string;
+    status: 'healthy' | 'degraded' | 'unhealthy';
+    uptime: string;
+    requests: number;
+    errors: number;
+    memory: number;
+    lastUpdated: string;
   } {
     if (!this.cachedData) {
       return {
@@ -546,7 +544,6 @@ export class DashboardSystem {
       requests: performance.requests.total,
       errors: performance.errors.count,
       memory: system.memory.percentage,
-  // cpu: system.cpu.usage, // Removed: system.cpu does not exist
       lastUpdated: overview.lastUpdated,
     };
   }
@@ -586,15 +583,15 @@ export class DashboardSystem {
    * Enable/disable dashboard
    */
   public setEnabled(enabled: boolean): void {
-  this._isEnabled = enabled;
-  this.logger.info(`Dashboard system ${enabled ? 'enabled' : 'disabled'}`);
+    this._isEnabled = enabled;
+    this.logger.info(`Dashboard system ${enabled ? 'enabled' : 'disabled'}`);
   }
 
   /**
    * Check if dashboard is enabled
    */
   public isEnabled(): boolean {
-  return this._isEnabled;
+    return this._isEnabled;
   }
 }
 

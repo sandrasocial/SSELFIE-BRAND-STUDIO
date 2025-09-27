@@ -20,9 +20,9 @@ export class ConfigurationSystem {
   private options: ConfigurationOptions;
 
   constructor(options: ConfigurationOptions) {
-  this.logger = new Logger('ConfigurationSystem');
-  this._isEnabled = true;
-  this.options = {
+    this.logger = new Logger('ConfigurationSystem');
+    this._isEnabled = true;
+    this.options = {
       validateOnLoad: true,
       hotReload: false,
       encryption: false,
@@ -34,7 +34,7 @@ export class ConfigurationSystem {
    * Initialize configuration system
    */
   public async initialize(): Promise<void> {
-  if (!this._isEnabled) {
+    if (!this._isEnabled) {
       this.logger.warn('Configuration system is disabled');
       return;
     }
@@ -90,7 +90,7 @@ export class ConfigurationSystem {
    * Get configuration value
    */
   public getConfigValue<T = any>(path: string): T {
-    if (!this.isEnabled) {
+    if (!this._isEnabled) {
       throw new Error('Configuration system is disabled');
     }
 
@@ -106,7 +106,7 @@ export class ConfigurationSystem {
    * Set configuration value
    */
   public setConfigValue(path: string, value: any): void {
-    if (!this.isEnabled) {
+    if (!this._isEnabled) {
       this.logger.warn('Configuration system is disabled, cannot set value');
       return;
     }
@@ -124,7 +124,7 @@ export class ConfigurationSystem {
    * Get entire configuration
    */
   public getConfiguration(): any {
-    if (!this.isEnabled) {
+    if (!this._isEnabled) {
       throw new Error('Configuration system is disabled');
     }
 
@@ -141,7 +141,7 @@ export class ConfigurationSystem {
     optionalValues: number;
     environment: string;
   } {
-    if (!this.isEnabled) {
+    if (!this._isEnabled) {
       throw new Error('Configuration system is disabled');
     }
 
@@ -152,7 +152,7 @@ export class ConfigurationSystem {
    * Export configuration
    */
   public exportConfiguration(includeSensitive: boolean = false): any {
-    if (!this.isEnabled) {
+    if (!this._isEnabled) {
       throw new Error('Configuration system is disabled');
     }
 
@@ -163,7 +163,7 @@ export class ConfigurationSystem {
    * Import configuration
    */
   public importConfiguration(config: any): void {
-    if (!this.isEnabled) {
+    if (!this._isEnabled) {
       this.logger.warn('Configuration system is disabled, cannot import');
       return;
     }
@@ -181,7 +181,7 @@ export class ConfigurationSystem {
    * Reset configuration
    */
   public resetConfiguration(): void {
-    if (!this.isEnabled) {
+    if (!this._isEnabled) {
       this.logger.warn('Configuration system is disabled, cannot reset');
       return;
     }
@@ -210,7 +210,7 @@ export class ConfigurationSystem {
    * Validate configuration
    */
   public validateConfiguration(): { valid: boolean; errors: string[] } {
-  if (!this._isEnabled) {
+    if (!this._isEnabled) {
       throw new Error('Configuration system is disabled');
     }
 
@@ -244,7 +244,7 @@ export class ConfigurationSystem {
    * Check if configuration system is enabled
    */
   public isEnabled(): boolean {
-  return this._isEnabled;
+    return this._isEnabled;
   }
 }
 
