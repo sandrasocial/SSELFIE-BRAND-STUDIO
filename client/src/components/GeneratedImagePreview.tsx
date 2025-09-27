@@ -66,7 +66,7 @@ const GeneratedImagePreview: React.FC<GeneratedImagePreviewProps> = ({
       }
     } catch (error) {
       console.error('❌ Error saving image:', error);
-      alert(`Error saving image: ${error.message}`);
+      alert(`Error saving image: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 
@@ -87,7 +87,7 @@ const GeneratedImagePreview: React.FC<GeneratedImagePreviewProps> = ({
       console.log('✅ All images saved successfully');
     } catch (error) {
       console.error('❌ Error saving all images:', error);
-      alert(`Error saving images: ${error.message}`);
+      alert(`Error saving images: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 
