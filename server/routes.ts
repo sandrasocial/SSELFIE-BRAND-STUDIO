@@ -23,7 +23,7 @@ import { setupVite } from './vite.js';
 import emailManagementRouter from './routes/email-management-routes.js';
 import { registerCheckoutRoutes } from './routes/checkout.js';
 import supportEscalationRouter from './routes/support-escalation.js';
-import adminEmpireApiRouter from './routes/admin-empire-api.js';
+// import adminEmpireApiRouter from './routes/admin-empire-api.js'; // File doesn't exist
 import memberProtectionRouter from './routes/member-protection.js';
 import systemValidationRouter from './routes/system-validation.js';
 import phase2CoordinationRouter from './routes/phase2-coordination.js';

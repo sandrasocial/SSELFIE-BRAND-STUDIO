@@ -7,7 +7,7 @@ import { useToast } from '../../hooks/use-toast.js';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { apiRequest } from '../../lib/queryClient.js';
 import ErrorBoundary from '../../components/ErrorBoundary.js';
-import { User, UserModel } from '../../types.js';
+import { User, UserModel } from '../../types/index.js';
 
 function SimpleTraining() {
   // Always call hooks in the same order

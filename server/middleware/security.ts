@@ -4,8 +4,8 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
-import { Logger } from '..utils/logger.js';
-import { ALLOWED_EMBED_HOSTS } from '..env.js'
+import { Logger } from '../utils/logger.js';
+import { ALLOWED_EMBED_HOSTS } from '../env.js'
 
 export class SecurityMiddleware {
   private logger: Logger;

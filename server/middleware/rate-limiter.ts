@@ -4,7 +4,7 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
-import { Logger } from '..utils/logger.js';
+import { Logger } from '../utils/logger.js';
 
 export interface RateLimitOptions {
   windowMs: number; // Time window in milliseconds
