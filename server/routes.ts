@@ -263,7 +263,7 @@ function parseStoryScenes(mayaResponse: string, originalMessage: string): any[] 
     if (sceneMatches && sceneParts.length > 0) {
       // Parse Maya's structured response
       for (let i = 0; i < Math.min(sceneMatches.length, sceneParts.length, 5); i++) {
-        const sceneContent = sceneParts[i]?.trim() || ';
+        const sceneContent = sceneParts[i]?.trim() || '';
         const sceneNumber = i + 1;
         
         scenes.push({
@@ -338,7 +338,7 @@ function generateDefaultScenePrompt(sceneNumber: number, originalMessage: string
 }
 
 function createFallbackScenes(message: string): any[] {
-  const messageContext = message?.toLowerCase() || ';
+  const messageContext = message?.toLowerCase() || '';
   
   return [
     {
@@ -376,7 +376,7 @@ async function parseVideoScenes(mayaResponse: string, originalMessage: string, u
     
     if (sceneMatches && sceneParts.length > 0) {
       for (let i = 0; i < Math.min(sceneMatches.length, sceneParts.length, 5); i++) {
-        const sceneContent = sceneParts[i]?.trim() || ';
+        const sceneContent = sceneParts[i]?.trim() || '';
         const sceneNumber = i + 1;
         
         // Enhanced scene with LoRA integration
@@ -420,7 +420,7 @@ async function parseVideoScenes(mayaResponse: string, originalMessage: string, u
 }
 
 async function createPersonalizedFallbackScenes(message: string, userId: string): Promise<any[]> {
-  const messageContext = message?.toLowerCase() || ';
+  const messageContext = message?.toLowerCase() || '';
   
   // Get user model for personalization
   let userModel;
@@ -787,7 +787,7 @@ Current user context:
 Remember: You are the MEMBER experience Maya - provide creative guidance and image generation support WITHOUT any file modification capabilities.`;
 
       // Call Claude API for Maya response
-      let response = ';
+      let response = '';
       let canGenerate = false;
       let generatedPrompt = null;
 

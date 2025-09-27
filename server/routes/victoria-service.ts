@@ -104,8 +104,8 @@ interface BrandData {
 }
 
 function analyzeBusinessGoals(brandData: BrandData) {
-  const businessType = brandData.businessType?.toLowerCase() || ';
-  const targetAudience = brandData.targetAudience?.toLowerCase() || ';
+  const businessType = brandData.businessType?.toLowerCase() || '';
+  const targetAudience = brandData.targetAudience?.toLowerCase() || '';
   
   let primaryGoals = [];
   let secondaryGoals = [];
@@ -133,8 +133,8 @@ function analyzeBusinessGoals(brandData: BrandData) {
 }
 
 function analyzeBusinesFocus(brandData: any) {
-  const description = brandData.businessDescription?.toLowerCase() || ';
-  const personality = brandData.brandPersonality?.toLowerCase() || ';
+  const description = brandData.businessDescription?.toLowerCase() || '';
+  const personality = brandData.brandPersonality?.toLowerCase() || '';
   
   if (description.includes('luxury') || personality.includes('sophisticated')) {
     return 'luxury_positioning';
@@ -351,8 +351,8 @@ function generateContactSections(brandData: any) {
 }
 
 function generateHeadline(brandData: any, focus: string) {
-  const businessType = brandData.businessType || ';
-  const targetAudience = brandData.targetAudience || ';
+  const businessType = brandData.businessType || '';
+  const targetAudience = brandData.targetAudience || '';
   
   if (focus === 'luxury_positioning') {
     return `Exclusive ${businessType} for Discerning ${targetAudience}`;
@@ -364,7 +364,7 @@ function generateHeadline(brandData: any, focus: string) {
 }
 
 function generateServices(brandData: any) {
-  const businessType = brandData.businessType?.toLowerCase() || ';
+  const businessType = brandData.businessType?.toLowerCase() || '';
   
   if (businessType.includes('coach')) {
     return [

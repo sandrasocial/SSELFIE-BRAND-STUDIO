@@ -73,7 +73,7 @@ async function checkWorkflowStatus(workflowName: string): Promise<string> {
   return new Promise((resolve) => {
     const ps = spawn('ps', ['aux'], { stdio: ['pipe', 'pipe', 'pipe'] });
     
-    let output = ';
+    let output = '';
     ps.stdout.on('data', (data) => {
       output += data.toString();
     });

@@ -32,7 +32,7 @@ export class ImageVariationsService {
 
       // Get the original image
       let originalImage: any = null;
-      let derivedPrompt = ';
+      let derivedPrompt = '';
       
       if (request.originalImageType === 'ai_image') {
         const aiImages = await storage.getAIImages(request.userId);
