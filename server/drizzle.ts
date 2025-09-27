@@ -33,19 +33,30 @@ export const serverlessQuery = async <T = unknown>(
     }
 
     // Execute query with proper type handling
-    const result = (params?.length 
+    const result = params?.length 
       ? await sql.query(text, params)
-      : await sql`${sql.unsafe(text)}`) as NeonQueryResult;
+      : await sql`${sql.unsafe(text)}`;
 
-    // Ensure result structure
-    if (!result || typeof result !== 'object') {
-      throw new Error('Invalid query result structure');
+    // Ensure result structure - convert array results to QueryResult format
+    if (Array.isArray(result)) {
+      return {
+        rows: result,
+        command: 'SELECT',
+        rowCount: result.length,
+        oid: 0,
+        fields: []
+      } as NeonQueryResult;
     }
 
+    // Cast to proper type if already in correct format
+    const queryResult = result as unknown as NeonQueryResult;
+
     return {
-      rows: Array.isArray(result) ? result : [],
-      rowCount: Array.isArray(result) ? result.length : 0,
-      command: (result as any)?.command || ''
+      rows: queryResult.rows || [],
+      command: queryResult.command || 'SELECT',
+      rowCount: queryResult.rowCount || 0,
+      oid: queryResult.oid || 0,
+      fields: queryResult.fields || []
     } as QueryResult<T>;
   } catch (error) {
     console.error('❌ Serverless query error:', error instanceof Error ? error.message : 'Unknown error');

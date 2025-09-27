@@ -131,6 +131,7 @@ import {
 } from "../shared/schema.js";
 import { db } from "./drizzle.js";
 import { eq, and, desc, asc, gte, lte, sql } from "drizzle-orm";
+import { type MayaChatCreateInput } from '../shared/types/chat.js';
 
 // Interface for storage operations
 export interface IStorage {
@@ -1590,7 +1591,7 @@ export class DatabaseStorage implements IStorage {
       .insert(mayaChats)
       .values({
         userId,
-        chatTitle: data.chatTitle,
+        chatTitle: data.title,
         chatCategory: 'Style Consultation',
         lastActivity: new Date()
       })
