@@ -1,9 +1,9 @@
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'';
-import { Upload } from '@aws-sdk/lib-storage'';
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { Upload } from '@aws-sdk/lib-storage';
 import fs from 'fs';
-import path from 'path'';
-import archiver from 'archiver'';
-import { storage } from '.storage';.js
+import path from 'path';
+import archiver from 'archiver';
+import { storage } from './storage';
 
 /**
  * BULLETPROOF UPLOAD SERVICE - PREVENTS CROSS-CONTAMINATION
@@ -72,7 +72,7 @@ export class BulletproofUploadService {
         const base64Data = imageData.replace(/^data:image\/[a-z]+;base64,/, '');
         const paddedBase64 = base64Data + '='.repeat((4 - base64Data.length % 4) % 4);
         
-        const imageBuffer = Buffer.from(paddedBase64, 'base64'.js');
+        const imageBuffer = Buffer.from(paddedBase64, 'base64');
         
         // Validate image size (minimum 10KB for valid selfie)
         if (imageBuffer.length < 10240) {
@@ -532,7 +532,7 @@ export class BulletproofUploadService {
     // Schedule a check for this specific training after 2 minutes
     setTimeout(async () => {
       try {
-        const { TrainingCompletionMonitor } = await import('./training-completion-monitor.js');
+        const { TrainingCompletionMonitor } = await import('./training-completion-monitor');
         console.log(`🔍 SCHEDULED CHECK: Checking training ${trainingStart.trainingId} for user ${userId}`);
         await TrainingCompletionMonitor.checkAndUpdateTraining(trainingStart.trainingId, userId);
       } catch (error) {

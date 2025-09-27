@@ -1,6 +1,6 @@
 // Re-export all types from unified files
-export * from '.unified-chat';.js
-export * from '.base';.js
+export * from './unified-chat';
+export * from './base';
 
 // Define global interfaces
 export interface ServiceResponse<T> {

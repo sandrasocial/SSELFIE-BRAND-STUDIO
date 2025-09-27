@@ -341,17 +341,17 @@ export const TOOL_SCHEMAS = {
 };
 
 // Tool function mapping for execution
-import { bash } from '.bash';.js
-import { str_replace_based_edit_tool } from '.str_replace_based_edit_tool';.js
-import { get_latest_lsp_diagnostics } from '.get_latest_lsp_diagnostics';.js
-import { execute_sql_tool } from '.execute_sql_tool';.js
-import { web_search } from '.web_search';.js
-import { restart_workflow } from '.restart-workflow';.js
-import { search_filesystem } from '.search_filesystem';.js
-import { coordinate_workflow } from '.coordinate_workflow';.js
-import { get_assigned_tasks } from '.get_assigned_tasks';.js
-import { agent_handoff, get_handoff_tasks } from '.agent_handoff';.js
-import { autonomous_workflow } from '.autonomous_workflow';.js
+import { bash } from './bash';
+import { str_replace_based_edit_tool } from './str_replace_based_edit_tool';
+import { get_latest_lsp_diagnostics } from './get_latest_lsp_diagnostics';
+import { execute_sql_tool } from './execute_sql_tool';
+import { web_search } from './web_search';
+import { restart_workflow } from './restart-workflow';
+import { search_filesystem } from './search_filesystem';
+import { coordinate_workflow } from './coordinate_workflow';
+import { get_assigned_tasks } from './get_assigned_tasks';
+import { agent_handoff, get_handoff_tasks } from './agent_handoff';
+import { autonomous_workflow } from './autonomous_workflow';
 
 export const TOOL_FUNCTIONS = {
   bash,

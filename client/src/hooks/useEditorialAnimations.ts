@@ -1,5 +1,5 @@
-import { useEffect, useRef } from 'react'';
-import { EditorialAnimations } from '..utils.js/editorialAnimations';
+import { useEffect, useRef } from 'react';
+import { EditorialAnimations } from '../utils/editorialAnimations';
 
 export function useEditorialAnimations() {
   const fadeInRef = useRef<HTMLDivElement>(null);

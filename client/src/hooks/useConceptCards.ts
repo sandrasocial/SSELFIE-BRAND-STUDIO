@@ -6,8 +6,8 @@
  * Uses server-generated ULID keys to solve React DOM duplicate key errors
  */
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'';
-import { apiRequest } from '..lib.js/queryClient'';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { apiRequest } from '../lib/queryClient';
 
 // Server-side concept card type with ULID
 export interface ConceptCard {
