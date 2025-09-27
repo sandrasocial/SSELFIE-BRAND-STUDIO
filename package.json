@@ -645,7 +645,17 @@
     "build:api:ts": "tsc -p tsconfig.json --noEmit false --declaration --emitDeclarationOnly --skipLibCheck --outDir .vercel/output/functions/_types",
     "build:api:bundle": "esbuild api/**/*.ts --bundle --platform=node --format=esm --outdir=.vercel/output/functions --external:@google/genai --external:express --external:@aws-sdk/* --external:drizzle-orm --external:pg --external:ws --sourcemap --target=node20 --packages=external --tsconfig=tsconfig.json",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "type-check": "tsc --noEmit --skipLibCheck",
+    "type-check:strict": "tsc --noEmit",
+    "type-check:server": "tsc -p tsconfig.server.json --noEmit --skipLibCheck",
+    "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
+    "lint:fix": "eslint . --ext .ts,.tsx,.js,.jsx --fix",
+    "lint:ci": "eslint . --ext .ts,.tsx,.js,.jsx --max-warnings 0",
+    "ci:all": "npm run type-check && npm run lint:ci && npm run build",
+    "test": "echo \"No test suite configured yet\" && exit 0",
+    "test:type": "npm run type-check",
+    "audit:security": "npm audit --audit-level moderate"
   },
   "keywords": [],
   "author": "",
