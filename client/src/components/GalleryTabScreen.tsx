@@ -391,8 +391,8 @@ function GalleryTabScreen() {
       {isVideoModalOpen && selectedImage && (
         <StoryStudioModal
           imageId={selectedImage.id.toString()}
-          imageUrl={selectedImage.imageUrl}
-          imageSource={selectedImage.source}
+          imageUrl={selectedImage.imageUrl || selectedImage.url || ''}
+          imageSource={selectedImage.source || 'unknown'}
           onClose={() => setIsVideoModalOpen(false)}
           onSuccess={() => {
             console.log('✅ Video generation started for image:', selectedImage.id);
@@ -425,7 +425,7 @@ function GalleryTabScreen() {
           }}
           imageId={typeof selectedImage.id === 'string' ? parseInt(selectedImage.id, 10) : selectedImage.id}
           imageUrl={selectedImage.imageUrl || selectedImage.url || ''}
-          imageTitle={selectedImage.title}
+          {...(selectedImage.title && { imageTitle: selectedImage.title })}
         />
       )}
     </div>

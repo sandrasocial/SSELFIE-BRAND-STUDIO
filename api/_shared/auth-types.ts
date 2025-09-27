@@ -36,8 +36,8 @@ export interface AuthResponse<T> {
 }
 
 // Augment VercelRequest type to include authenticated user
-declare module '@vercel/node' {
-  interface VercelRequest {
-    user?: AuthenticatedUser;
-  }
-}
+// declare module '@vercel/node' {
+//   interface VercelRequest {
+//     user?: AuthenticatedUser;
+//   }
+// }

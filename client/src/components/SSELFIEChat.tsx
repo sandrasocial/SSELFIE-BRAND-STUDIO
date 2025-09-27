@@ -118,12 +118,15 @@ export function SSELFIEChat() {
     toast({ title: "Creating Photos", description: "Maya is generating your professional photos..." });
     
     // Update card to show generating state
-    setMessages(prev => prev.map(msg => ({
-      ...msg,
-      conceptCards: msg.conceptCards?.map(c => 
-        c.id === card.id ? { ...c, isGenerating: true } : c
-      )
-    })));
+    setMessages(prev => prev.map(msg => {
+      if (!msg.conceptCards) return msg;
+      return {
+        ...msg,
+        conceptCards: msg.conceptCards.map(c => 
+          c.id === card.id ? { ...c, isGenerating: true } : c
+        )
+      };
+    }));
 
     try {
       const response = await fetch('/api/maya/generate', {
@@ -140,16 +143,19 @@ export function SSELFIEChat() {
         const data = await response.json();
         
         // Update card with generated images
-        setMessages(prev => prev.map(msg => ({
-          ...msg,
-          conceptCards: msg.conceptCards?.map(c => 
-            c.id === card.id ? { 
-              ...c, 
-              isGenerating: false, 
-              generatedImages: data.images || [] 
-            } : c
-          )
-        })));
+        setMessages(prev => prev.map(msg => {
+          if (!msg.conceptCards) return msg;
+          return {
+            ...msg,
+            conceptCards: msg.conceptCards.map(c => 
+              c.id === card.id ? { 
+                ...c, 
+                isGenerating: false, 
+                generatedImages: data.images || [] 
+              } : c
+            )
+          };
+        }));
 
         toast({ title: "Photos Ready!", description: "Your professional photos have been created." });
       } else {
@@ -159,12 +165,15 @@ export function SSELFIEChat() {
       console.error('Image generation error:', error);
       
       // Reset generating state on error
-      setMessages(prev => prev.map(msg => ({
-        ...msg,
-        conceptCards: msg.conceptCards?.map(c => 
-          c.id === card.id ? { ...c, isGenerating: false } : c
-        )
-      })));
+      setMessages(prev => prev.map(msg => {
+        if (!msg.conceptCards) return msg;
+        return {
+          ...msg,
+          conceptCards: msg.conceptCards.map(c => 
+            c.id === card.id ? { ...c, isGenerating: false } : c
+          )
+        };
+      }));
 
       toast({ 
         title: "Generation Error", 

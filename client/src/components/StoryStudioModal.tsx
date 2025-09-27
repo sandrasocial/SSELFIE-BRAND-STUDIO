@@ -283,7 +283,7 @@ const StoryStudioModal: React.FC<StoryStudioModalProps> = ({ imageId, imageUrl, 
         {/* Video Preview Component */}
         <div style={{ marginBottom: 16 }}>
           <VideoPreview
-            videoUrl={videoUrl || undefined}
+            {...(videoUrl && { videoUrl })}
             posterUrl={imageUrl}
             isLoading={loading || videoStatus === 'generating'}
             error={videoStatus === 'failed' ? error : null}
