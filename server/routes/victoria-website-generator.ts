@@ -1,5 +1,5 @@
 import { Express } from 'express';
-import { requireStackAuth } from '..stack-auth';.js
+import { requireStackAuth } from '..stack-auth'
 
 interface WebsiteGenerationRequest {
   businessName: string;
@@ -23,8 +23,8 @@ export function registerVictoriaWebsiteGenerator(app: Express) {
       const websiteStructure = generateWebsiteStructure(data);
       
       // Save to database
-      const { db } = await import('../db.js');
-      const { websites } = await import('../../shared/schema.js');
+      const { db } = await import('../db');
+      const { websites } = await import('../../shared/schema');
       
       const [newWebsite] = await db
         .insert(websites)
@@ -56,8 +56,8 @@ export function registerVictoriaWebsiteGenerator(app: Express) {
   // Get website preview
   app.get('/preview/:slug', async (req, res) => {
     try {
-      const { db } = await import('../db.js');
-      const { websites } = await import('../../shared/schema.js');
+      const { db } = await import('../db');
+      const { websites } = await import('../../shared/schema');
       const { eq } = await import('drizzle-orm');
       
       const [website] = await db
@@ -173,7 +173,7 @@ function generatePreviewHTML(title: string, content: any) {
             position: relative;
         }
         .hero::before {
-            content: '';
+            content: ';
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0,0,0,0.4);
@@ -260,7 +260,7 @@ function generatePreviewHTML(title: string, content: any) {
             margin: 5rem 0;
         }
         .editorial-break::before {
-            content: '';
+            content: ';
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0,0,0,0.3);

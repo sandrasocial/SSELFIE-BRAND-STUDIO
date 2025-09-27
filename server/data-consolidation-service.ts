@@ -1,4 +1,4 @@
-import { storage } from '.storage';.js
+import { storage } from '.storage'
 
 /**
  * Data Consolidation Service
@@ -21,8 +21,8 @@ export class DataConsolidationService {
     try {
       console.log('🔄 DATA CONSOLIDATION: Starting image storage consolidation...');
       
-      const { db } = await import('./db.js');
-      const { aiImages, generatedImages, generationTrackers } = await import('../shared/schema.js');
+      const { db } = await import('./db');
+      const { aiImages, generatedImages, generationTrackers } = await import('../shared/schema');
       const { eq, and, isNotNull } = await import('drizzle-orm');
       
       // Step 1: Migrate any data from generated_images to ai_images (if any exists)
@@ -132,8 +132,8 @@ export class DataConsolidationService {
     try {
       console.log('🔄 SYNC: Starting upload-training synchronization...');
       
-      const { db } = await import('./db.js');
-      const { userModels, selfieUploads } = await import('../shared/schema.js');
+      const { db } = await import('./db');
+      const { userModels, selfieUploads } = await import('../shared/schema');
       const { eq } = await import('drizzle-orm');
       
       // Find user models without corresponding selfie uploads
@@ -209,8 +209,8 @@ export class DataConsolidationService {
     try {
       console.log('🔄 ALIGN: Starting generation tracking alignment...');
       
-      const { db } = await import('./db.js');
-      const { aiImages, generationTrackers } = await import('../shared/schema.js');
+      const { db } = await import('./db');
+      const { aiImages, generationTrackers } = await import('../shared/schema');
       const { eq, and } = await import('drizzle-orm');
       
       // Update ai_images with correct generation status based on trackers

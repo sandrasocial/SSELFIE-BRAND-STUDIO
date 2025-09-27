@@ -4,10 +4,10 @@
  */
 
 import { Router, Request, Response } from 'express';
-import { requireStackAuth, requireActiveSubscription } from '../../stack-auth.js';
-import { storage } from '../../storage.js';
-import { ModelTrainingService } from '../../model-training-service.js';
-import { asyncHandler, createError, sendSuccess, validateRequired } from '../middleware/error-handler.js';
+import { requireStackAuth, requireActiveSubscription } from '../../stack-auth';
+import { storage } from '../../storage';
+import { ModelTrainingService } from '../../model-training-service';
+import { asyncHandler, createError, sendSuccess, validateRequired } from '../middleware/error-handler';
 import {
   AuthenticatedRequest,
   StoryConceptRequest,
@@ -23,7 +23,7 @@ import {
   MayaChat,
   SuccessResponse,
   ErrorResponse
-} from '../../types/ai-generation.js';
+} from '../../types/ai-generation';
 
 const router = Router();
 

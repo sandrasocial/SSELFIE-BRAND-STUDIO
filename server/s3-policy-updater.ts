@@ -1,4 +1,4 @@
-import { S3Client, PutBucketPolicyCommand, GetBucketPolicyCommand, ListObjectsCommand, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3'';
+import { S3Client, PutBucketPolicyCommand, GetBucketPolicyCommand, ListObjectsCommand, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import fs from 'fs';
 
 /**

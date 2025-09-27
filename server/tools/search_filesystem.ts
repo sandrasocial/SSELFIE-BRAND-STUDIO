@@ -103,7 +103,7 @@ async function executeGrep(searchTerm: string, searchPaths: string[]): Promise<s
     // Include markdown files and more file types for comprehensive search
     const cmd = spawn('grep', [
       '-r', '-n', '-i', 
-      '--include=*.ts', '--include=*.js', '--include=*.tsx', '--include=*.jsx', 
+      '--include=*.ts', '--include=*', '--include=*.tsx', '--include=*.jsx', 
       '--include=*.md', '--include=*.json',
       searchTerm, 
       ...pathArgs

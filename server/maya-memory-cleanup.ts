@@ -8,7 +8,7 @@
  */
 
 import { MayaMemoryService } from '.services/maya-memory-service';
-import { storage } from '.storage';.js
+import { storage } from '.storage'
 
 /**
  * Clear restrictive categorizations for all users

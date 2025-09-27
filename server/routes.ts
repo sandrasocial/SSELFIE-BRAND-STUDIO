@@ -5,43 +5,43 @@ import { createServer, type Server } from "http";
 import cookieParser from "cookie-parser";
 import { setupRollbackRoutes } from './routes/rollback';
 import { storage } from "./storage.js";
-import { requireStackAuth, requireActiveSubscription, optionalStackAuth } from './stack-auth.js';
+import { requireStackAuth, requireActiveSubscription, optionalStackAuth } from './stack-auth';
 import { db } from "./drizzle.js";
 import { claudeConversations, claudeMessages } from "../shared/schema.js";
 import { eq, and, desc } from "drizzle-orm";
-import emailAutomation from './routes/email-automation.js';
+import emailAutomation from './routes/email-automation';
 import victoriaWebsiteRouter from "./routes/victoria-website.js";
 import { registerVictoriaService } from "./routes/victoria-service.js";
 import { registerVictoriaWebsiteGenerator } from "./routes/victoria-website-generator.js";
-import videoRoutes from './routes/video.js';
-import { liveSessionRoutes } from './routes/live-session.js';
-import { analyticsRoutes } from './routes/analytics.js';
+import videoRoutes from './routes/video';
+import { liveSessionRoutes } from './routes/live-session';
+import { analyticsRoutes } from './routes/analytics';
 import path from 'path';
 import fs from 'fs';
-import { ModelRetrainService } from './retrain-model.js';
-import { setupVite } from './vite.js';
-import emailManagementRouter from './routes/email-management-routes.js';
-import { registerCheckoutRoutes } from './routes/checkout.js';
-import supportEscalationRouter from './routes/support-escalation.js';
-import adminEmpireApiRouter from './routes/admin-empire-api.js';
-import memberProtectionRouter from './routes/member-protection.js';
-import systemValidationRouter from './routes/system-validation.js';
-import phase2CoordinationRouter from './routes/phase2-coordination.js';
+import { ModelRetrainService } from './retrain-model';
+import { setupVite } from './vite';
+import emailManagementRouter from './routes/email-management-routes';
+import { registerCheckoutRoutes } from './routes/checkout';
+import supportEscalationRouter from './routes/support-escalation';
+import adminEmpireApiRouter from './routes/admin-empire-api';
+import memberProtectionRouter from './routes/member-protection';
+import systemValidationRouter from './routes/system-validation';
+import phase2CoordinationRouter from './routes/phase2-coordination';
 // New modular routes
-import utilityRoutes from './routes/modules/utility.js';
-import authRoutes from './routes/modules/auth.js';
-import aiGenerationRoutes from './routes/modules/ai-generation.js';
-import { setupStackWebhook } from './routes/stack-webhook.js';
-import adminRoutes from './routes/modules/admin.js';
-import agentProtocolRoutes from './routes/modules/agent-protocol.js';
-import websitesRoutes from './routes/modules/websites.js';
-import trainingRoutes from './routes/modules/training.js';
-import levelPartnerWebhook from './routes/levelpartner-webhook.js';
-import hairTrendsRoute from './routes/hair-trends-route.js';
-import trendsCurrentRoute from './routes/trends-current.js';
-import { scheduleTrendAnalysis } from './scheduled-tasks/fetch-hair-trends.js';
-import claudeRoutes from './routes/modules/claude.js';
-import usageRoutes from './routes/modules/usage.js';
+import utilityRoutes from './routes/modules/utility';
+import authRoutes from './routes/modules/auth';
+import aiGenerationRoutes from './routes/modules/ai-generation';
+import { setupStackWebhook } from './routes/stack-webhook';
+import adminRoutes from './routes/modules/admin';
+import agentProtocolRoutes from './routes/modules/agent-protocol';
+import websitesRoutes from './routes/modules/websites';
+import trainingRoutes from './routes/modules/training';
+import levelPartnerWebhook from './routes/levelpartner-webhook';
+import hairTrendsRoute from './routes/hair-trends-route';
+import trendsCurrentRoute from './routes/trends-current';
+import { scheduleTrendAnalysis } from './scheduled-tasks/fetch-hair-trends';
+import claudeRoutes from './routes/modules/claude';
+import usageRoutes from './routes/modules/usage';
 // Reconstructed wrapper function (previously removed during refactor cleanup)
 export async function registerRoutes(app: Express): Promise<Server> {
   // Create HTTP server reference (needed for later return)
@@ -256,7 +256,7 @@ function parseStoryScenes(mayaResponse: string, originalMessage: string): any[] 
   const scenes: any[] = [];
   
   try {
-    // Extract scenes from Maya'.js's response using intelligent parsing
+    // Extract scenes from Maya''s response using intelligent parsing
     const sceneMatches = mayaResponse.match(/scene\s*(\d+)/gi);
     const sceneParts = mayaResponse.split(/scene\s*\d+/i).slice(1);
     
@@ -370,7 +370,7 @@ async function parseVideoScenes(mayaResponse: string, originalMessage: string, u
   const scenes: any[] = [];
   
   try {
-    // Extract scenes from Maya'.js's enhanced video response
+    // Extract scenes from Maya''s enhanced video response
     const sceneMatches = mayaResponse.match(/scene\s*(\d+)/gi);
     const sceneParts = mayaResponse.split(/scene\s*\d+/i).slice(1);
     
@@ -591,12 +591,12 @@ function generatePersonalizedScenePrompt(sceneNumber: number, originalMessage: s
   
   // MAYA UNIFIED API: Now handled by modular routes (./routes/modules/maya)
   // Legacy maya router disabled to prevent conflicts with modular Maya routes
-  // const { default: mayaUnifiedRouter } = await import('./routes/maya.js');
+  // const { default: mayaUnifiedRouter } = await import('./routes/maya');
   // app.use('/api/maya', mayaUnifiedRouter);
   console.log('🎨 MAYA ROUTES: Active via modular system (./routes/modules/maya)');
   
   // HYBRID BACKEND: Concept Cards API for clean persistence and unique React keys
-  const { default: conceptCardsRouter } = await import('./routes/concept-cards.js');
+  const { default: conceptCardsRouter } = await import('./routes/concept-cards');
   app.use('/api/concepts', conceptCardsRouter);
   console.log('💡 CONCEPT CARDS: API active at /api/concepts/* (ULID-based unique keys)');
   
@@ -610,8 +610,8 @@ function generatePersonalizedScenePrompt(sceneNumber: number, originalMessage: s
   
   // P3-C BRAND ASSETS: Upload and placement of brand assets (logos, product shots)
   if (process.env.BRAND_ASSETS_ENABLED === '1') {
-    const { default: brandAssetsRouter } = await import('./routes/brand-assets.js');
-    const { default: brandPlacementRouter } = await import('./routes/brand-placement.js');
+    const { default: brandAssetsRouter } = await import('./routes/brand-assets');
+    const { default: brandPlacementRouter } = await import('./routes/brand-placement');
     app.use('/api/brand-assets', brandAssetsRouter);
     app.use('/api/brand-assets', brandPlacementRouter);
     console.log('🎨 BRAND ASSETS: API active at /api/brand-assets/* (Upload & Placement)');
@@ -650,19 +650,19 @@ function generatePersonalizedScenePrompt(sceneNumber: number, originalMessage: s
   app.use('/api/email-management', emailManagementRouter);
   
   // 🔐 Gmail Authentication Routes
-  // const gmailAuthRouter = await import('./routes/gmail-auth.js'); // DISABLED
+  // const gmailAuthRouter = await import('./routes/gmail-auth'); // DISABLED
   // app.use('/api/auth/gmail', gmailAuthRouter.default); // DISABLED
   
   // 📱 Instagram DM Management Routes
-  const instagramManagementRouter = await import('./routes/instagram-management.js');
+  const instagramManagementRouter = await import('./routes/instagram-management');
   app.use('/api/instagram-management', instagramManagementRouter.default);
   
   // 🧪 Slack Integration Testing Routes (DISABLED - moved to legacy)
-  // const slackTestRouter = await import('./routes/slack-test.js');
+  // const slackTestRouter = await import('./routes/slack-test');
   // app.use('/api/slack', slackTestRouter.default);
   
   // Subscriber import routes
-  // const subscriberImport = await import('./routes/subscriber-import.js'); // DISABLED
+  // const subscriberImport = await import('./routes/subscriber-import'); // DISABLED
   // app.use('/api/subscribers', subscriberImport.default); // DISABLED
   // REMOVED: Multiple conflicting admin routers - consolidated into single adminRouter
   
@@ -727,10 +727,10 @@ function generatePersonalizedScenePrompt(sceneNumber: number, originalMessage: s
         return res.status(400).json({ error: 'Message is required' });
       }
 
-      console.log('💬 Maya MEMBER chat message received from user:'.js', userId);
+      console.log('💬 Maya MEMBER chat message received from user:'', userId);
 
       // MAYA FAÇADE: Removed PersonalityManager import - Maya's personality via API only
-      // const { PersonalityManager } = await import('./agents/personalities/personality-config.js'); // REMOVED: Direct dependency
+      // const { PersonalityManager } = await import('./agents/personalities/personality-config'); // REMOVED: Direct dependency
       
       // Create member-specific system prompt using Maya's elevated personality
       // MAYA FAÇADE: Standard system prompt - Maya's personality via API only
@@ -880,7 +880,7 @@ Remember: You are the MEMBER experience Maya - provide creative guidance and ima
   app.post('/api/test-model-validation', async (req, res) => {
     try {
       const { userId } = req.body;
-      const { ModelValidationService } = await import('./model-validation-service.js');
+      const { ModelValidationService } = await import('./model-validation-service');
       
       console.log(`🔍 Testing model validation for user: ${userId}`);
       const validation = await ModelValidationService.validateAndCorrectUserModel(userId);
@@ -900,7 +900,7 @@ Remember: You are the MEMBER experience Maya - provide creative guidance and ima
   app.post('/api/test-admin-generation', async (req, res) => {
     try {
       const { prompt } = req.body;
-      const { UnifiedGenerationService } = await import('./unified-generation-service.js');
+      const { UnifiedGenerationService } = await import('./unified-generation-service');
       
       console.log(`🔍 Testing ADMIN model with OPTIMIZED parameters`);
       const result = await UnifiedGenerationService.generateImages({
@@ -1061,7 +1061,7 @@ Remember: You are the MEMBER experience Maya - provide creative guidance and ima
   // Token usage monitoring endpoint for smart routing analysis
   app.get('/api/admin/token-usage-stats', async (req: any, res) => {
     try {
-      const { tokenUsageMonitor } = await import('./monitoring/token-usage-monitor.js');
+      const { tokenUsageMonitor } = await import('./monitoring/token-usage-monitor');
       const timeWindow = parseInt(req.query.hours as string) || 24;
       const stats = tokenUsageMonitor.getUsageStats(timeWindow);
       const recentEntries = tokenUsageMonitor.getRecentEntries(20);
@@ -1139,24 +1139,24 @@ Remember: You are the MEMBER experience Maya - provide creative guidance and ima
   console.log('🚀 MONITORING: Starting background completion monitors...');
   
   // Start Training Completion Monitor
-  const { TrainingCompletionMonitor } = await import('./training-completion-monitor.js');
+  const { TrainingCompletionMonitor } = await import('./training-completion-monitor');
   TrainingCompletionMonitor.getInstance().startMonitoring();
   console.log('✅ MONITORING: Training completion monitor started');
   
   // Start Generation Completion Monitor (CRITICAL: This was missing!)
-  const { GenerationCompletionMonitor } = await import('./generation-completion-monitor.js');
+  const { GenerationCompletionMonitor } = await import('./generation-completion-monitor');
   GenerationCompletionMonitor.getInstance().startMonitoring();
   
   // CRITICAL: Start migration monitor to prevent image loss from URL expiration
-  const { migrationMonitor } = await import('./migration-monitor.js');
+  const { migrationMonitor } = await import('./migration-monitor');
   migrationMonitor.startMonitoring();
   
   // ENABLED: Real-data agent insights for launch strategy (every 30 minutes)
-  const { AgentContextMonitor } = await import('./services/agent-context-monitor.js');
+  const { AgentContextMonitor } = await import('./services/agent-context-monitor');
   AgentContextMonitor.getInstance().startMonitoring(30); // Check every 30 minutes for launch opportunities
   
   // Connect Slack Interactive System with raw body parsing for signature verification
-  // const slackInteractivityRouter = await import('./routes/slack-interactivity.js'); // DISABLED
+  // const slackInteractivityRouter = await import('./routes/slack-interactivity'); // DISABLED
   
   // Add raw body parser specifically for Slack webhooks
   app.use('/api/slack', express.raw({
@@ -1167,7 +1167,7 @@ Remember: You are the MEMBER experience Maya - provide creative guidance and ima
   console.log('✅ SLACK: Interactive agent conversation system connected');
 
   // Connect Slack Testing Routes (DISABLED - moved to legacy)
-  // const testSlackAgentsRouter = await import('./routes/test-slack-agents.js');
+  // const testSlackAgentsRouter = await import('./routes/test-slack-agents');
   // app.use('/api/test-slack-agents', testSlackAgentsRouter.default);
   // app.use('/api/test-slack', testSlackAgentsRouter.default);
   // console.log('✅ SLACK: Agent testing interface ready');

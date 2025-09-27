@@ -3,7 +3,7 @@
  * Handles user management and profile operations
  */
 
-import { BaseService } from './base-service.js';
+import { BaseService } from './base-service';
 
 export interface UserProfile {
   id: string;

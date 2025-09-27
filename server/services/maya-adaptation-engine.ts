@@ -3,10 +3,10 @@
  * Maya Adaptation Engine - Learns user preferences and adapts styling approaches
  */
 
-import { storage } from '..storage';.js
-import { ClaudeApiServiceSimple } from '.claude-api-service-simple';.js
-import { PersonalityManager } from '..agents/personalities/personality-config';
-import { db } from '..drizzle';.js
+import { storage } from '../storage';
+import { ClaudeApiServiceSimple } from './claude-api-service-simple';
+import { PersonalityManager } from '../agents/personalities/personality-config';
+import { db } from '../drizzle';
 
 export interface AdaptationResult {
   adaptedPersonality: any;

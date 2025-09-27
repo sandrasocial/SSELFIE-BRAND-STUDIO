@@ -5,8 +5,8 @@
  */
 
 import fs from 'fs';
-import path from 'path'';
-import crypto from 'crypto'';
+import path from 'path';
+import crypto from 'crypto';
 
 interface ProtectedFile {
   path: string;
@@ -122,7 +122,7 @@ export class ArchitectureGuardian {
       
       if (stats.isDirectory()) {
         await this.scanDirectory(itemPath, originalPath);
-      } else if (item.endsWith('.ts') || item.endsWith('.js') || item.endsWith('.md')) {
+      } else if (item.endsWith('.ts') || item.endsWith('') || item.endsWith('.md')) {
         await this.registerProtectedFile(itemPath, originalPath);
       }
     }

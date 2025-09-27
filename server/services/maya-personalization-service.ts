@@ -5,7 +5,7 @@
  * Enables Maya to access subscription info, usage stats, profile data for intelligent content generation.
  */
 
-import { storage } from '..storage';.js
+import { storage } from '..storage'
 
 export interface UserPersonalizationContext {
   userId: string;

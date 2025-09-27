@@ -16,9 +16,9 @@
  * - 60%+ database query reduction target
  */
 
-import { storage } from '..storage';.js
-import { personalBrandService, type PersonalBrandProfile } from '.personal-brand-service';.js
-import { type UserPersonalizationContext } from '.maya-personalization-service';.js
+import { storage } from '../storage';
+import { personalBrandService, type PersonalBrandProfile } from './personal-brand-service';
+import { type UserPersonalizationContext } from './maya-personalization-service';
 
 export interface UnifiedMayaContext {
   // Core User Data

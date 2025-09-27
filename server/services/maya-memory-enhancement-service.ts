@@ -3,7 +3,7 @@
  * Maya Memory Enhancement Service - Contemporary fashion intelligence and advanced personalization
  */
 
-import { storage } from '..storage';.js
+import { storage } from '..storage'
 
 export interface ContemporaryPreferences {
   // 2025 Fashion Trends
