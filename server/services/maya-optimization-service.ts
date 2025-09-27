@@ -164,7 +164,7 @@ Generate comprehensive response now:`;
     userId?: string
   ): Promise<{ concepts: any[]; conversationalResponse: string }> {
     const concepts: any[] = [];
-    let conversationalResponse = ';
+    let conversationalResponse = '';
     
     try {
       // Extract conversational response

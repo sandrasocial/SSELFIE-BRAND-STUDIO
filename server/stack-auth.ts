@@ -239,8 +239,8 @@ export async function verifyStackAuthToken(req: Request, res: Response, next: Ne
     
     // Extract user information with multiple field name attempts and enhanced debugging
     const userInfo = authInfo as AuthInfo;
-    const userId = userInfo?.sub || userInfo?.user_id || userInfo?.id || ';
-    const userEmail = userInfo?.email || userInfo?.primary_email || userInfo?.primaryEmail || userInfo?.email_address || userInfo?.user_email || ';
+    const userId = userInfo?.sub || userInfo?.user_id || userInfo?.id || '';
+    const userEmail = userInfo?.email || userInfo?.primary_email || userInfo?.primaryEmail || userInfo?.email_address || userInfo?.user_email || '';
     const userName = userInfo?.displayName || userInfo?.display_name || userInfo?.name || userInfo?.given_name || userInfo?.full_name || 'User';
     
     // 🔍 ENHANCED DEBUGGING: Log all available fields to identify email field
