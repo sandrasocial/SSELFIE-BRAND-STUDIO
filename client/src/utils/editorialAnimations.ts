@@ -143,4 +143,115 @@ export class EditorialAnimations {
 
     return observer;
   }
+
+  // Enhanced luxury animations - New premium methods
+  
+  // Luxury slide animations
+  static slideInFromLeft(element: HTMLElement, config: AnimationConfig = {}) {
+    const { duration = 500, easing = 'cubic-bezier(0.4, 0, 0.2, 1)', delay = 0 } = config;
+    
+    return element.animate([
+      { opacity: 0, transform: 'translateX(-40px)' },
+      { opacity: 1, transform: 'translateX(0)' }
+    ], {
+      duration,
+      easing,
+      delay,
+      fill: 'forwards'
+    });
+  }
+
+  static slideInFromRight(element: HTMLElement, config: AnimationConfig = {}) {
+    const { duration = 500, easing = 'cubic-bezier(0.4, 0, 0.2, 1)', delay = 0 } = config;
+    
+    return element.animate([
+      { opacity: 0, transform: 'translateX(40px)' },
+      { opacity: 1, transform: 'translateX(0)' }
+    ], {
+      duration,
+      easing,
+      delay,
+      fill: 'forwards'
+    });
+  }
+
+  // Luxury loading animation
+  static createLoadingAnimation(element: HTMLElement) {
+    return element.animate([
+      { opacity: 0.7, transform: 'scale(1)' },
+      { opacity: 1, transform: 'scale(1.02)' },
+      { opacity: 0.7, transform: 'scale(1)' }
+    ], {
+      duration: 1500,
+      easing: 'cubic-bezier(0.4, 0, 0.6, 1)',
+      iterations: Infinity
+    });
+  }
+
+  // Premium shimmer effect for loading states
+  static addShimmerEffect(element: HTMLElement) {
+    element.style.position = 'relative';
+    element.style.overflow = 'hidden';
+    
+    const shimmer = document.createElement('div');
+    shimmer.style.position = 'absolute';
+    shimmer.style.top = '0';
+    shimmer.style.left = '0';
+    shimmer.style.width = '100%';
+    shimmer.style.height = '100%';
+    shimmer.style.background = 'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)';
+    shimmer.style.transform = 'translateX(-100%)';
+    
+    element.appendChild(shimmer);
+    
+    return shimmer.animate([
+      { transform: 'translateX(-100%)' },
+      { transform: 'translateX(100%)' }
+    ], {
+      duration: 2000,
+      easing: 'ease-in-out',
+      iterations: Infinity
+    });
+  }
+
+  // Premium button press animation
+  static addPremiumButtonAnimation(button: HTMLElement) {
+    button.addEventListener('click', () => {
+      button.animate([
+        { transform: 'scale(1)' },
+        { transform: 'scale(0.95)' },
+        { transform: 'scale(1)' }
+      ], {
+        duration: 200,
+        easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+      });
+    });
+  }
+
+  // Luxury card reveal animation
+  static revealCard(element: HTMLElement, direction: 'up' | 'down' | 'left' | 'right' = 'up') {
+    const transforms = {
+      up: 'translateY(40px)',
+      down: 'translateY(-40px)',
+      left: 'translateX(-40px)',
+      right: 'translateX(40px)'
+    };
+    
+    return element.animate([
+      { 
+        opacity: 0, 
+        transform: `${transforms[direction]} scale(0.95)`,
+        filter: 'blur(2px)'
+      },
+      { 
+        opacity: 1, 
+        transform: 'translateY(0) translateX(0) scale(1)',
+        filter: 'blur(0px)'
+      }
+    ], {
+      duration: 800,
+      easing: 'cubic-bezier(0.23, 1, 0.32, 1)',
+      fill: 'forwards'
+    });
+  }
 }
