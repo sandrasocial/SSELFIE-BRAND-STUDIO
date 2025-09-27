@@ -3,7 +3,7 @@
  * Maya Behavior Learning Service - Smart pattern recognition and personalized intelligence
  */
 
-import { storage } from '..storage.js'
+import { storage } from '../storage.js'
 
 export interface UserBehaviorPattern {
   // Interaction Patterns

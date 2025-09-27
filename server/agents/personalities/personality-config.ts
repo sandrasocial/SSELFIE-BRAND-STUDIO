@@ -4,7 +4,7 @@
  */
 
 // MAYA FAÇADE: Removed BrandIntelligenceService dependency - Maya is now self-contained
-// import { BrandIntelligenceService } from '..../services/brand-intelligence-service.js'; // REMOVED: Outbound dependency
+// import { BrandIntelligenceService } from '../../services/brand-intelligence-service.js'; // REMOVED: Outbound dependency
 import { MAYA_PERSONALITY } from './maya-personality.js';
 import { ELENA_PERSONALITY } from './elena-personality.js';
 import { OLGA_PERSONALITY } from './olga-personality.js';

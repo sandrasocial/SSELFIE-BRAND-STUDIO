@@ -1,5 +1,5 @@
-import { db } from '..drizzle.js'
-import { approvalQueue, agentHandoffRequests } from '..../shared/schema.js';
+import { db } from '../drizzle.js'
+import { approvalQueue, agentHandoffRequests } from '../../shared/schema.js';
 
 export class ApprovalService {
   // Add content to approval queue

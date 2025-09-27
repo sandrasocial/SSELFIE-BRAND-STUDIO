@@ -13,7 +13,7 @@ import mayaRoutes from './routes/modules/maya.js';
 import aiGenerationRoutes from './routes/modules/ai-generation.js';
 import { storage } from './storage.js'
 import { BulletproofUploadService } from './bulletproof-upload-service.js'
-import { requireStackAuth } from '.routes/middleware/auth.js';
+import { requireStackAuth } from './routes/middleware/auth.js';
 
 const app = express();
 

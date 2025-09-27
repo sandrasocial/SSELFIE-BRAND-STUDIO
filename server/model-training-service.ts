@@ -5,12 +5,12 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { storage } from './storage.js';
 // MAYA FAÇADE: Removed PersonalityManager dependency - Maya is now isolated
-// import { PersonalityManager } from '.agents/personalities/personality-config.js'; // REMOVED: Outbound dependency
+// import { PersonalityManager } from './agents/personalities/personality-config.js'; // REMOVED: Outbound dependency
 import { ArchitectureValidator } from './architecture-validator.js';
 import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 // MAYA FAÇADE: Replaced Maya-specific import with façade API calls
-// import { MAYA_PERSONALITY } from '.agents/personalities/maya-personality.js'; // REMOVED: Direct entanglement
+// import { MAYA_PERSONALITY } from './agents/personalities/maya-personality.js'; // REMOVED: Direct entanglement
 
 
 // Image categories and prompt templates

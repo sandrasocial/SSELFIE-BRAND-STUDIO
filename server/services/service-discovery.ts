@@ -3,7 +3,7 @@
  * Dynamic service registration and discovery system
  */
 
-import { Logger } from '..utils/logger.js';
+import { Logger } from '../utils/logger.js';
 
 export interface ServiceDefinition {
   name: string;
