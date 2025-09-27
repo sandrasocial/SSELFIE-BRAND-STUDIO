@@ -44,8 +44,8 @@ export const userPersonalBrand = pgTable('user_personal_brand', {
   completedAt: timestamp('completed_at'),
   
   // Timestamps
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
 // User Style Profile - Comprehensive style preferences and visual identity
@@ -94,8 +94,8 @@ export const userStyleProfile = pgTable('user_style_profile', {
   brandReferences: jsonb('brand_references').$type<string[]>().default([]), // Brands they love or aspire to
   
   // Timestamps
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
 // Maya Personal Memory - Maya's personalized understanding of each user
@@ -141,12 +141,12 @@ export const mayaPersonalMemory = pgTable('maya_personal_memory', {
   }>().default({ lovedElements: [], dislikedElements: [], requestPatterns: [] }),
   
   // Memory Management
-  lastMemoryUpdate: timestamp('last_memory_update').defaultNow(),
+  lastMemoryUpdate: timestamp('last_memory_update').defaultNow().notNull(),
   memoryVersion: integer('memory_version').default(1), // For memory evolution tracking
   
   // Timestamps
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
 // =============================================================================
