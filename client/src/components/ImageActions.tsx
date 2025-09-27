@@ -73,6 +73,11 @@ const ImageActions: React.FC<ImageActionsProps> = ({
   const currentVariation = variations[currentIndex];
   const nextVariation = variations[(currentIndex + 1) % variations.length];
 
+  // Guard against undefined variations
+  if (!currentVariation) {
+    return <div className="text-center text-gray-500">No variations available</div>;
+  }
+
   return (
     <div className={`image-actions ${className}`}>
       {/* Compare Mode Toggle */}
@@ -167,25 +172,27 @@ const ImageActions: React.FC<ImageActionsProps> = ({
             </div>
 
             {/* Next Image */}
-            <div className="flex-1 flex flex-col">
-              <div className="p-4 border-b border-gray-200 bg-gray-50">
-                <div className="text-sm font-medium tracking-wider uppercase">
-                  Next ({(currentIndex + 1) % variations.length + 1})
-                </div>
-                {nextVariation.title && (
-                  <div className="text-xs text-gray-500 mt-1">
-                    {nextVariation.title}
+            {nextVariation && (
+              <div className="flex-1 flex flex-col">
+                <div className="p-4 border-b border-gray-200 bg-gray-50">
+                  <div className="text-sm font-medium tracking-wider uppercase">
+                    Next ({(currentIndex + 1) % variations.length + 1})
                   </div>
-                )}
+                  {nextVariation.title && (
+                    <div className="text-xs text-gray-500 mt-1">
+                      {nextVariation.title}
+                    </div>
+                  )}
+                </div>
+                <div className="flex-1 flex items-center justify-center p-6">
+                  <img
+                    src={nextVariation.url}
+                    alt={`Variation ${(currentIndex + 1) % variations.length + 1}`}
+                    className="max-w-full max-h-full object-contain"
+                  />
+                </div>
               </div>
-              <div className="flex-1 flex items-center justify-center p-6">
-                <img
-                  src={nextVariation.url}
-                  alt={`Variation ${(currentIndex + 1) % variations.length + 1}`}
-                  className="max-w-full max-h-full object-contain"
-                />
-              </div>
-            </div>
+            )}
           </div>
 
           {/* Navigation Controls */}
