@@ -118,10 +118,10 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
     if (messages.length > 0) {
       const lastMessage = messages[messages.length - 1];
 
-      if (lastMessage.type === 'user') {
+      if (lastMessage && lastMessage.type === 'user') {
         smartScrollToBottom(100, true);
       }
-      else if (lastMessage.type === 'maya' && !isTyping) {
+      else if (lastMessage && lastMessage.type === 'maya' && !isTyping) {
         smartScrollToBottom(500);
       }
     }
@@ -131,7 +131,7 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
   useEffect(() => {
     if (messages.length > 0) {
       const lastMessage = messages[messages.length - 1];
-      if (lastMessage.conceptCards && lastMessage.conceptCards.length > 0) {
+      if (lastMessage && lastMessage.conceptCards && lastMessage.conceptCards.length > 0) {
         scrollToNewContent();
       }
     }

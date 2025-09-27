@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { PhotoshootCollection } from '@/types/photoshoot';
+import { PhotoshootCollection } from '../../types/photoshoot.js';
 import { CollectionCard } from './CollectionCard.js';
 
 interface PhotoshootCollectionGridProps {

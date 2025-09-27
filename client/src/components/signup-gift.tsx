@@ -1,5 +1,5 @@
 import { FormEvent, useState } from 'react';
-import { SandraImages } from "@/lib/sandra-images";
+import { SandraImages } from '../lib/sandra-images.js';
 
 export default function SignupGift() {
   const [email, setEmail] = useState("");
