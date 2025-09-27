@@ -13,6 +13,14 @@ interface Customer {
   stripeCustomerId: string;
   stripeSubscriptionId: string;
   createdAt: string;
+  updatedAt: string;
+}
+
+interface CustomerInsights {
+  totalCustomers: number;
+  averageGenerationsPerMonth: number;
+  churnRate: number;
+  recentSignups: Customer[];
   lastActiveAt?: string;
   totalSpent: number;
   status: 'active' | 'inactive' | 'cancelled';
@@ -23,12 +31,12 @@ export function CustomerManagementDashboard() {
   const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'inactive' | 'cancelled'>('all');
   const [sortBy, setSortBy] = useState<'name' | 'created' | 'spent' | 'usage'>('created');
 
-  const { data: customers, isLoading } = useQuery({
+  const { data: customers, isLoading } = useQuery<Customer[]>({
     queryKey: ['/api/admin/customers', { search: searchTerm, status: filterStatus, sort: sortBy }],
     refetchInterval: 60000, // Refresh every minute
   });
 
-  const { data: customerInsights } = useQuery({
+  const { data: customerInsights } = useQuery<CustomerInsights>({
     queryKey: ['/api/admin/customer-insights'],
     refetchInterval: 300000, // Refresh every 5 minutes
   });

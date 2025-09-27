@@ -6,11 +6,26 @@ interface StyleguidePreviewProps {
   className?: string;
 }
 
+interface Styleguide {
+  imageSelections?: {
+    heroImage?: string;
+  };
+  brandPersonality?: string;
+  title?: string;
+  colorPalette?: Array<{
+    color?: string;
+    name?: string;
+  }>;
+  personalMission?: string;
+  brandVoice?: string;
+  templateId?: string;
+}
+
 export default function StyleguidePreview({ userId, className = "" }: StyleguidePreviewProps) {
   const { user } = useAuth();
   const targetUserId = userId || user?.id;
 
-  const { data: styleguide, isLoading } = useQuery({
+  const { data: styleguide, isLoading } = useQuery<Styleguide>({
     queryKey: [`/api/styleguide/${targetUserId}`],
     enabled: !!targetUserId,
   });
