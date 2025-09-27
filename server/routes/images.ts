@@ -29,7 +29,7 @@ interface VariationStatusParams extends Record<string, string> {
   predictionId: string;
 }
 
-interface VariationStatusQuery {
+interface VariationStatusQuery extends Record<string, string | string[]> {
   variantIds?: string | string[];
 }
 
@@ -203,8 +203,8 @@ router.delete('/api/images/variations/:variantId', requireStackAuth, asyncHandle
 
     // Update the variant status to 'deleted'
     await storage.updateImageVariant(parseInt(variantId), {
-      generationStatus: 'deleted'
-    });
+      processingStatus: 'deleted'
+    } as any);
 
     sendSuccess(res, { message: 'Variation deleted successfully' });
 
@@ -237,19 +237,19 @@ router.post('/api/images/:id/save-variation', requireStackAuth, asyncHandler(asy
       throw createError.authorization('Not authorized to save this variation');
     }
 
-    if (!variant.imageUrl) {
+    if (!variant.variantUrl) {
       throw createError.validation('Variation is not completed yet');
     }
 
     // Save as a new AI image
     const newImage = await storage.saveAIImage({
       userId,
-      imageUrl: variant.imageUrl,
-      prompt: variant.prompt,
+      imageUrl: variant.variantUrl,
+      prompt: 'Variation image',
       source: 'variation',
       style: 'variation',
       category: 'variation'
-    });
+    } as any);
 
     sendSuccess(res, {
       imageId: newImage.id,
