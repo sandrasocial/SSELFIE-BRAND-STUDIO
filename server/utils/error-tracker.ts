@@ -75,7 +75,7 @@ export class ErrorTracker {
     } = {}
   ): string {
     if (!this.isEnabled) {
-      return ';
+      return '';
     }
 
     const errorId = this.generateErrorId();
