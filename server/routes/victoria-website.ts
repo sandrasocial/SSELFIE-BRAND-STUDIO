@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { requireStackAuth } from '../stack-auth.js';
 import { db } from '../drizzle.js';
-import { users, websites } from '../../../shared/schema.js';
+import { users, websites } from '../../shared/schema.js';
 import { eq } from 'drizzle-orm';
 
 const router = Router();

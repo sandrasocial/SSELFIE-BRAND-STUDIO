@@ -4,8 +4,8 @@
  * Note: This is a placeholder implementation as Topaz doesn't have a public API yet
  */
 
-import { TOPAZ_API_KEY } from '..../env.js';
-import type { UpscaleScale } from '..../config/upscale.js';
+import { TOPAZ_API_KEY } from '../../env.js';
+import type { UpscaleScale } from '../../config/upscale.js';
 
 export interface UpscaleResult {
   url: string;

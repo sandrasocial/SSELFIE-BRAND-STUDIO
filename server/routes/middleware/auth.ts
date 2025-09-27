@@ -4,7 +4,7 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
-import { requireStackAuth, requireActiveSubscription } from '..../stack-auth.js';
+import { requireStackAuth, requireActiveSubscription } from '../../stack-auth.js';
 
 // Re-export existing middleware for consistency
 export { requireStackAuth, requireActiveSubscription };

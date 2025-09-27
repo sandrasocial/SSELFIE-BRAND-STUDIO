@@ -3,7 +3,7 @@
  * Safely migrates legacy aiImages to enhanced generatedImages table
  */
 
-import { migrateAiImagesToGeneratedImages, verifyMigration } from '.migration-phase-1.js'
+import { migrateAiImagesToGeneratedImages, verifyMigration } from './migration-phase-1.js'
 
 async function runMigrationPhase1() {
   console.log('🚀 PHASE 1: Starting Database Migration');

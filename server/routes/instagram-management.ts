@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import { instagramIntegration } from '..services/instagram-integration.js';
-import { requireStackAuth } from '..stack-auth.js'
-import { SlackNotificationService } from '..services/slack-notification-service.js';
+import { instagramIntegration } from '../services/instagram-integration.js';
+import { requireStackAuth } from '../stack-auth.js'
+import { SlackNotificationService } from '../services/slack-notification-service.js';
 
 const router = Router();
 
