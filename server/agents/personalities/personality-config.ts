@@ -13,12 +13,12 @@ import { VICTORIA_PERSONALITY } from './victoria-personality';
 import { ARIA_PERSONALITY } from './aria-personality';
 import { RACHEL_PERSONALITY } from './rachel-personality';
 import { DIANA_PERSONALITY } from './diana-personality';
-import { QUINN_PERSONALITY } from '.quinn-personality';.js
-import { WILMA_PERSONALITY } from '.wilma-personality';.js
-import { SOPHIA_PERSONALITY } from '.sophia-personality';.js
-import { MARTHA_PERSONALITY } from '.martha-personality';.js
-import { AVA_PERSONALITY } from '.ava-personality';.js
-import { FLUX_PERSONALITY } from '.flux-personality';.js
+import { QUINN_PERSONALITY } from './quinn-personality';
+import { WILMA_PERSONALITY } from './wilma-personality';
+import { SOPHIA_PERSONALITY } from './sophia-personality';
+import { MARTHA_PERSONALITY } from './martha-personality';
+import { AVA_PERSONALITY } from './ava-personality';
+import { FLUX_PERSONALITY } from './flux-personality';
 
 // Pure personality definitions without technical constraints
 export const PURE_PERSONALITIES = {
@@ -540,8 +540,8 @@ IMPLEMENT THESE DESIGN PRINCIPLES IN ALL UI/WEBSITE WORK
     
     // NEW: Add context enhancement rules (moved from route-level)
     knowledge += '\n🎯 CONTEXT ENHANCEMENT INTELLIGENCE:\n';
-    knowledge += '- Analyze user personal brand context from conversation history\n'';
-    knowledge += '- Extract styling reasoning from previous responses\n'';
+    knowledge += '- Analyze user personal brand context from conversation history\n';
+    knowledge += '- Extract styling reasoning from previous responses\n';
     knowledge += '- Maintain consistency across concept creation and generation\n';
     knowledge += '- Use category-specific intelligence for targeted styling\n';
     knowledge += '- Provide personalized styling expertise for subscriber transformation journey\n';
