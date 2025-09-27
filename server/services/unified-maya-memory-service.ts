@@ -10,11 +10,11 @@
  * - Eliminate memory service conflicts
  */
 
-import { personalBrandService, type PersonalBrandProfile } from './personal-brand-service.js';
-import { SimpleMemoryService } from './simple-memory-service.js';
-import { storage } from '../storage.js';
-import { type MayaChat, type MayaChatMessage, type InsertMayaChat, type InsertMayaChatMessage } from '../../shared/schema.js';
-import { type ConversationMemory, type SessionMetadata } from '../../api/_shared/memory-types.js';
+import { personalBrandService, type PersonalBrandProfile } from './personal-brand-service';
+import { SimpleMemoryService } from './simple-memory-service';
+import { storage } from '../storage';
+import { type MayaChat, type MayaChatMessage, type InsertMayaChat, type InsertMayaChatMessage } from '../../shared/schema';
+import { type ConversationMemory, type SessionMetadata } from '../../api/_shared/memory-types';
 import { v4 as uuidv4 } from 'uuid';
 
 // ===== UNIFIED INTERFACES =====

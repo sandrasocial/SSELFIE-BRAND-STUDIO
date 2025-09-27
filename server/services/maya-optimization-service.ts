@@ -3,7 +3,7 @@
  * Maya Optimization Service - Eliminates redundant API calls and optimizes concept generation
  */
 
-import { ClaudeApiServiceSimple } from '.claude-api-service-simple';.js
+import { ClaudeApiServiceSimple } from '.claude-api-service-simple'
 import { enforceGender, normalizeGender } from '..utils/gender-prompt';
 import { PersonalityManager } from '..agents/personalities/personality-config';
 
@@ -193,7 +193,7 @@ Generate comprehensive response now:`;
             // Apply gender enforcement to embedded prompt if userId provided
             if (userId) {
               try {
-                const { storage } = await import('../storage.js');
+                const { storage } = await import('../storage');
                 const user = await storage.getUser(userId);
                 const userModel = await storage.getUserModelByUserId(userId);
                 
@@ -303,7 +303,7 @@ FLUX PROMPT:`;
 
       // Inject gender token just after trigger word if missing & available
       try {
-        const { storage } = await import('../storage.js');
+        const { storage } = await import('../storage');
         const user = await storage.getUser(userId);
         const secureGender = normalizeGender(user?.gender);
         if (secureGender) {

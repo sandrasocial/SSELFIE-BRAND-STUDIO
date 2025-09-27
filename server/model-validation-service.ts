@@ -4,7 +4,7 @@
  * Fixes database corruption and prevents fallback to generic models
  */
 
-import { storage } from '.storage';.js
+import { storage } from '.storage'
 
 export interface ModelValidationResult {
   isValid: boolean;
@@ -146,8 +146,8 @@ export class ModelValidationService {
     try {
       console.log(`🔧 CORRECTING DATABASE: User ${userId} model data`);
       
-      const { db } = await import('./db.js');
-      const { userModels } = await import('../shared/schema.js');
+      const { db } = await import('./db');
+      const { userModels } = await import('../shared/schema');
       const { eq } = await import('drizzle-orm');
       
       await db
@@ -198,8 +198,8 @@ export class ModelValidationService {
     let corrected = 0;
     
     try {
-      const { db } = await import('./db.js');
-      const { userModels } = await import('../shared/schema.js');
+      const { db } = await import('./db');
+      const { userModels } = await import('../shared/schema');
       const { eq } = await import('drizzle-orm');
       
       const completedModels = await db

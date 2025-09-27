@@ -1,5 +1,5 @@
 import { Resend } from 'resend';
-import type { EmailResult, WelcomeEmailData } from './types/email.js';
+import type { EmailResult, WelcomeEmailData } from './types/email';
 
 if (!process.env.RESEND_API_KEY) {
   throw new Error('RESEND_API_KEY environment variable is required');
@@ -8,7 +8,7 @@ if (!process.env.RESEND_API_KEY) {
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Legacy function exports for compatibility 
-export type { EmailCaptureData, WelcomeEmailData } from './types/email.js';
+export type { EmailCaptureData, WelcomeEmailData } from './types/email';
 
 export async function sendWelcomeEmail(email: string, firstName?: string | null, plan?: string): Promise<EmailResult> {
   return EmailService.sendModelReadyEmail(email, firstName ?? undefined);

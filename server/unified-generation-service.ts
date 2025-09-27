@@ -3,7 +3,7 @@
  * Surgical fix: Thin wrapper that delegates to ModelTrainingService
  */
 
-import { ModelTrainingService } from '.model-training-service';.js
+import { ModelTrainingService } from './model-training-service';
 
 // ✅ SIMPLIFIED: Maya always uses unified generation approach
 // No environment variables needed - direct delegation to ModelTrainingService

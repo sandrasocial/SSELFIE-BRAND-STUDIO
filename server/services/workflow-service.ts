@@ -1,6 +1,6 @@
 import { promises as fs } from 'fs';
 import path from 'path';
-import { WorkflowExecutor } from './workflow-executor.js';
+import { WorkflowExecutor } from './workflow-executor';
 
 export class WorkflowService {
   private executor: WorkflowExecutor;

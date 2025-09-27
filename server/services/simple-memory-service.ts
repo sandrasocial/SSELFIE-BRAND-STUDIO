@@ -4,7 +4,7 @@
  * Replaces all competing memory systems with unified approach
  */
 
-import { storage } from '..storage';.js
+import { storage } from '..storage'
 
 interface AgentMemoryOptions {
   agentName: string;
@@ -145,8 +145,8 @@ export class SimpleMemoryService {
       }
       
       // Fallback: Load from database if needed
-      const { db } = await import('../db.js');
-      const { claudeMessages } = await import('../../shared/schema.js');
+      const { db } = await import('../db');
+      const { claudeMessages } = await import('../../shared/schema');
       const { eq, desc } = await import('drizzle-orm');
       
       const conversationId = `admin_${agentName.toLowerCase()}_${userId}`;

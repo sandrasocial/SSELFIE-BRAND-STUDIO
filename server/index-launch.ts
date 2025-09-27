@@ -11,8 +11,8 @@ import galleryRoutes from '.routes/modules/gallery';
 import usageRoutes from '.routes/modules/usage';
 import mayaRoutes from '.routes/modules/maya';
 import aiGenerationRoutes from '.routes/modules/ai-generation';
-import { storage } from '.storage';.js
-import { BulletproofUploadService } from '.bulletproof-upload-service';.js
+import { storage } from '.storage'
+import { BulletproofUploadService } from '.bulletproof-upload-service'
 import { requireStackAuth } from '.routes/middleware/auth';
 
 const app = express();
@@ -177,11 +177,11 @@ if (process.env.NODE_ENV !== 'production') {
 // Background monitors (training + generation + migration)
 (async () => {
   try {
-    const { TrainingCompletionMonitor } = await import('./training-completion-monitor.js');
+    const { TrainingCompletionMonitor } = await import('./training-completion-monitor');
     TrainingCompletionMonitor.getInstance().startMonitoring();
-    const { GenerationCompletionMonitor } = await import('./generation-completion-monitor.js');
+    const { GenerationCompletionMonitor } = await import('./generation-completion-monitor');
     GenerationCompletionMonitor.getInstance().startMonitoring();
-    const { migrationMonitor } = await import('./migration-monitor.js');
+    const { migrationMonitor } = await import('./migration-monitor');
     migrationMonitor.startMonitoring();
     // Agent context monitor optional: can be enabled later if desired
   } catch (error) {

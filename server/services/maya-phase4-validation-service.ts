@@ -3,7 +3,7 @@
  * Maya Phase 4 Validation Service - Complete system verification and performance monitoring
  */
 
-import { MayaMemoryEnhancementService } from '.maya-memory-enhancement-service';.js
+import { MayaMemoryEnhancementService } from '.maya-memory-enhancement-service'
 // MAYA FAÇADE: Removed PersonalityManager dependency - Maya is now isolated
 // import { PersonalityManager } from '..agents/personalities/personality-config'; // REMOVED: Outbound dependency
 

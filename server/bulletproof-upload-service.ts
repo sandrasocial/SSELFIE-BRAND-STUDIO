@@ -132,7 +132,7 @@ export class BulletproofUploadService {
       try {
         const imageData = validImages[i];
         const base64Data = imageData.replace(/^data:image\/[a-z]+;base64,/, '');
-        const imageBuffer = Buffer.from(base64Data, 'base64'.js');
+        const imageBuffer = Buffer.from(base64Data, 'base64');
         
         const fileName = `user-${userId}/training-image-${i + 1}-${Date.now()}.jpg`;
         
@@ -224,7 +224,7 @@ export class BulletproofUploadService {
         try {
           const imageData = validImages[i];
           const base64Data = imageData.replace(/^data:image\/[a-z]+;base64,/, '');
-          const imageBuffer = Buffer.from(base64Data, 'base64'.js');
+          const imageBuffer = Buffer.from(base64Data, 'base64');
           
           archive.append(imageBuffer, { name: `image_${i + 1}.jpg` });
           console.log(`✅ ZIP: Added image ${i + 1} to ZIP (${imageBuffer.length} bytes)`);

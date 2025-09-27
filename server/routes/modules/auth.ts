@@ -4,12 +4,12 @@
  */
 
 import { Router, Response } from 'express';
-import { requireStackAuth } from '../../stack-auth.js';
-import { storage } from '../../storage.js';
-import { asyncHandler, createError, sendSuccess, validateRequired } from '../middleware/error-handler.js';
-import { userService } from '../../services/user-service.js';
-import { AuthenticatedRequest } from '../../types/auth-types.js';
-import { SuccessResponse } from '../../types/ai-generation.js';
+import { requireStackAuth } from '../../stack-auth';
+import { storage } from '../../storage';
+import { asyncHandler, createError, sendSuccess, validateRequired } from '../middleware/error-handler';
+import { userService } from '../../services/user-service';
+import { AuthenticatedRequest } from '../../types/auth-types';
+import { SuccessResponse } from '../../types/ai-generation';
 
 // User types
 interface UserProfile {

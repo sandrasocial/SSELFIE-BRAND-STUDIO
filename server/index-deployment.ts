@@ -1,6 +1,6 @@
 // SSELFIE Studio - Cloud Run Compatible Server
 import express from 'express';
-import path from 'path'';
+import path from 'path';
 import fs from 'fs';
 
 const app = express();
@@ -41,7 +41,7 @@ app.get('/api/health', (req, res) => {
 // Initialize routes asynchronously
 async function loadRoutes() {
   try {
-    const { registerRoutes } = await import('./routes.js');
+    const { registerRoutes } = await import('./routes');
     await registerRoutes(app);
     console.log('✅ Routes loaded: Maya, Victoria, Training, Payments, Admin');
     return true;

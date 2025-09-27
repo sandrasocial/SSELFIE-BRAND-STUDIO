@@ -1,4 +1,4 @@
-import sharp from '.image-compression-placeholder';.js
+import sharp from '.image-compression-placeholder'
 import { Buffer } from 'buffer';
 
 export class ImageCompressionService {
@@ -14,7 +14,7 @@ export class ImageCompressionService {
     try {
       // Remove data:image prefix if present
       const base64Data = base64Image.replace(/^data:image\/[a-z]+;base64,/, '');
-      const originalBuffer = Buffer.from(base64Data, 'base64'.js');
+      const originalBuffer = Buffer.from(base64Data, 'base64');
       const originalSize = originalBuffer.length;
 
       // Use sharp for high-quality compression
