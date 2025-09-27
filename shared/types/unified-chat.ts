@@ -47,7 +47,7 @@ export interface MayaChatContext {
 }
 
 // Claude chat specific interfaces
-export interface ClaudeMessage extends BaseChatMessage, DbClaudeMessage {
+export interface ClaudeMessage extends Omit<BaseChatMessage, 'id'>, DbClaudeMessage {
   conversationId: string;
   tokens: number;
   completionTokens: number;

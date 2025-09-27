@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLocation } from 'wouter';
-import { stackClientApp } from '../../../stack/client';
+import { stackClientApp } from '../../../stack/client.js';
 
 export function AppTopNav() {
   const [, setLocation] = useLocation();

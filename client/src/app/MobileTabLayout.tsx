@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
-import { SSELFIEChat } from '../components/SSELFIEChat';
-import StudioScreen from '../app_v2/StudioScreen';
-import ProfileScreen from '../app_v2/ProfileScreen';
-import SettingsScreen from '../app_v2/SettingsScreen';
-import GalleryTabScreen from '../components/GalleryTabScreen';
-import { useAuth } from '../hooks/use-auth';
-import { ThemeToggle } from '../components/ThemeToggle';
+import { SSELFIEChat } from '../components/SSELFIEChat.js';
+import StudioScreen from '../app_v2/StudioScreen.js';
+import ProfileScreen from '../app_v2/ProfileScreen.js';
+import SettingsScreen from '../app_v2/SettingsScreen.js';
+import GalleryTabScreen from '../components/GalleryTabScreen.js';
+import { useAuth } from '../hooks/use-auth.js';
+import { ThemeToggle } from '../components/ThemeToggle.js';
 import { Camera, Grid, User, Settings, MessageCircle, Bell, Battery, Signal, Wifi } from 'lucide-react';
 
 // SSELFIE BRAND STUDIO - MOBILE-FIRST TAB NAVIGATION

@@ -4,8 +4,8 @@
  */
 
 import React from 'react';
-import { useLiveSession, LiveSession } from './hooks/useLiveSession';
-import { PageLoader } from '../../components/PageLoader';
+import { useLiveSession, LiveSession } from './hooks/useLiveSession.js';
+import { PageLoader } from '../../components/PageLoader.js';
 
 interface InteractivePresentationProps {
   sessionId: string;

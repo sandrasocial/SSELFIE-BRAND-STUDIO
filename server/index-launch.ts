@@ -2,18 +2,18 @@ import './env-setup';
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import path from 'path';
-import { securityHeaders, inputValidation } from '.middleware/security';
-import { rateLimits } from '.middleware/rate-limiter';
-import utilityRoutes from '.routes/modules/utility';
-import authRoutes from '.routes/modules/auth';
-import trainingRoutes from '.routes/modules/training';
-import galleryRoutes from '.routes/modules/gallery';
-import usageRoutes from '.routes/modules/usage';
-import mayaRoutes from '.routes/modules/maya';
-import aiGenerationRoutes from '.routes/modules/ai-generation';
-import { storage } from '.storage'
-import { BulletproofUploadService } from '.bulletproof-upload-service'
-import { requireStackAuth } from '.routes/middleware/auth';
+import { securityHeaders, inputValidation } from '.middleware/security.js';
+import { rateLimits } from '.middleware/rate-limiter.js';
+import utilityRoutes from '.routes/modules/utility.js';
+import authRoutes from '.routes/modules/auth.js';
+import trainingRoutes from '.routes/modules/training.js';
+import galleryRoutes from '.routes/modules/gallery.js';
+import usageRoutes from '.routes/modules/usage.js';
+import mayaRoutes from '.routes/modules/maya.js';
+import aiGenerationRoutes from '.routes/modules/ai-generation.js';
+import { storage } from '.storage.js'
+import { BulletproofUploadService } from '.bulletproof-upload-service.js'
+import { requireStackAuth } from '.routes/middleware/auth.js';
 
 const app = express();
 
@@ -177,11 +177,11 @@ if (process.env.NODE_ENV !== 'production') {
 // Background monitors (training + generation + migration)
 (async () => {
   try {
-    const { TrainingCompletionMonitor } = await import('./training-completion-monitor');
+    const { TrainingCompletionMonitor } = await import('./training-completion-monitor.js');
     TrainingCompletionMonitor.getInstance().startMonitoring();
-    const { GenerationCompletionMonitor } = await import('./generation-completion-monitor');
+    const { GenerationCompletionMonitor } = await import('./generation-completion-monitor.js');
     GenerationCompletionMonitor.getInstance().startMonitoring();
-    const { migrationMonitor } = await import('./migration-monitor');
+    const { migrationMonitor } = await import('./migration-monitor.js');
     migrationMonitor.startMonitoring();
     // Agent context monitor optional: can be enabled later if desired
   } catch (error) {

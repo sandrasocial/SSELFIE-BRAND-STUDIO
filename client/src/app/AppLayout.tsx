@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MobileTabLayout } from './MobileTabLayout';
+import { MobileTabLayout } from './MobileTabLayout.js';
 
 // Editorial Luxury AppLayout - Simplified Container Only
 export function AppLayout() {

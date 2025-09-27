@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Button } from './ui/button';
-import { apiRequest } from '../lib/queryClient';
-import { useToast } from '../hooks/use-toast';
+import { Button } from './ui/button.js';
+import { apiRequest } from '../lib/queryClient.js';
+import { useToast } from '../hooks/use-toast.js';
 
 interface RollbackButtonProps {
   filePath: string;

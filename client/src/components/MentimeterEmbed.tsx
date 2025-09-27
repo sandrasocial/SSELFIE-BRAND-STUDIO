@@ -1,5 +1,5 @@
 import React from 'react';
-import SecureIframe from './SecureIframe';
+import SecureIframe from './SecureIframe.js';
 
 interface MentimeterEmbedProps {
   presentationId?: string;

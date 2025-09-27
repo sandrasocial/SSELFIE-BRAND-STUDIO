@@ -3,8 +3,8 @@
  * Comprehensive security monitoring, audit trails, and threat detection
  */
 
-import { db } from '..drizzle'
-import { users, aiImages } from '..../shared/schema';
+import { db } from '..drizzle.js'
+import { users, aiImages } from '..../shared/schema.js';
 import { eq, desc, sql, and, gte } from 'drizzle-orm';
 
 export interface SecurityMetrics {

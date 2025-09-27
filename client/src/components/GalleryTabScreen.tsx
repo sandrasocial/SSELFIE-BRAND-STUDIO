@@ -1,16 +1,16 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '../hooks/use-auth';
-import { useToast } from '../hooks/use-toast';
+import { useAuth } from '../hooks/use-auth.js';
+import { useToast } from '../hooks/use-toast.js';
 import { useLocation } from 'wouter';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Button } from './ui/button';
-import { Card } from './ui/card';
-import { Input } from './ui/input';
-import { apiRequest } from '../lib/queryClient';
-import ErrorBoundary from './ErrorBoundary';
-import StoryStudioModal from './StoryStudioModal';
-import VideoGenerateDialog from '../features/video/VideoGenerateDialog';
-import BrandAssetPlacementModal from './BrandAssetPlacementModal';
+import { Button } from './ui/button.js';
+import { Card } from './ui/card.js';
+import { Input } from './ui/input.js';
+import { apiRequest } from '../lib/queryClient.js';
+import ErrorBoundary from './ErrorBoundary.js';
+import StoryStudioModal from './StoryStudioModal.js';
+import VideoGenerateDialog from '../features/video/VideoGenerateDialog.js';
+import BrandAssetPlacementModal from './BrandAssetPlacementModal.js';
 import { 
   Search, 
   Heart, 
@@ -391,8 +391,8 @@ function GalleryTabScreen() {
       {isVideoModalOpen && selectedImage && (
         <StoryStudioModal
           imageId={selectedImage.id.toString()}
-          imageUrl={selectedImage.imageUrl}
-          imageSource={selectedImage.source}
+          imageUrl={selectedImage.imageUrl || selectedImage.url || ''}
+          imageSource={selectedImage.source || 'unknown'}
           onClose={() => setIsVideoModalOpen(false)}
           onSuccess={() => {
             console.log('✅ Video generation started for image:', selectedImage.id);
@@ -425,7 +425,7 @@ function GalleryTabScreen() {
           }}
           imageId={typeof selectedImage.id === 'string' ? parseInt(selectedImage.id, 10) : selectedImage.id}
           imageUrl={selectedImage.imageUrl || selectedImage.url || ''}
-          imageTitle={selectedImage.title}
+          {...(selectedImage.title && { imageTitle: selectedImage.title })}
         />
       )}
     </div>

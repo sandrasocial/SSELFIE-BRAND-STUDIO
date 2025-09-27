@@ -1,14 +1,14 @@
 import { useState, useEffect, useRef, KeyboardEvent } from 'react';
 import { Send, Mic, MicOff, Sparkles } from 'lucide-react';
 
-import type { ChatMessage } from '../../../shared/types/ChatMessage';
+import type { ChatMessage } from '../../../shared/types/ChatMessage.js';
 
 interface VictoriaChatMessage extends ChatMessage {
   typing?: boolean;
 }
 
 export default function VictoriaChat() {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<VictoriaChatMessage[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [isListening, setIsListening] = useState(false);
@@ -24,10 +24,10 @@ export default function VictoriaChat() {
 
   // Initialize with Sandra's authentic welcome
   useEffect(() => {
-    const welcomeMessage: Message = {
+    const welcomeMessage: VictoriaChatMessage = {
       id: 'welcome',
+      role: 'victoria',
       content: "Hey gorgeous! I'm Victoria, Sandra's AI voice twin. I literally sound EXACTLY like her - same energy, same realness, same 'your mess is your message' vibe. What are you working on today? Let's build something that actually works. 💫",
-      sender: 'victoria',
       timestamp: new Date()
     };
     setMessages([welcomeMessage]);
@@ -36,10 +36,10 @@ export default function VictoriaChat() {
   const sendMessage = async () => {
     if (!inputMessage.trim()) return;
 
-    const userMessage: Message = {
+    const userMessage: VictoriaChatMessage = {
       id: Date.now().toString(),
+      role: 'user',
       content: inputMessage,
-      sender: 'user',
       timestamp: new Date()
     };
 
@@ -50,10 +50,10 @@ export default function VictoriaChat() {
     // Simulate typing delay for authenticity
     setTimeout(async () => {
       const response = await getVictoriaResponse(inputMessage);
-      const victoriaMessage: Message = {
+      const victoriaMessage: VictoriaChatMessage = {
         id: (Date.now() + 1).toString(),
+        role: 'victoria',
         content: response,
-        sender: 'victoria',
         timestamp: new Date()
       };
       
@@ -65,7 +65,7 @@ export default function VictoriaChat() {
   const getVictoriaResponse = async (input: string): Promise<string> => {
     // Sandra's authentic response patterns
     const responses = getSandraResponses(input);
-    return responses[Math.floor(Math.random() * responses.length)];
+    return responses[Math.floor(Math.random() * responses.length)] || 'I understand what you\'re saying. Let me think about that...';
   };
 
   const handleKeyPress = (e: KeyboardEvent) => {

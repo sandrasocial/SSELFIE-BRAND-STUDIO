@@ -1,6 +1,6 @@
 import React from 'react';
-import { PreLoginNavigationUnified } from '@/components/pre-login-navigation-unified';
-import { SandraImages } from '@/lib/sandra-images';
+import { PreLoginNavigationUnified } from './pre-login-navigation-unified.js';
+import { SandraImages } from '../lib/sandra-images.js';
 
 interface LoadingScreenProps {
   message?: string;

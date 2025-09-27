@@ -1,7 +1,7 @@
 import React, { ComponentType, useEffect } from 'react';
 import { useLocation } from 'wouter';
-import { useAuth } from '../hooks/use-auth';
-import { PageLoader } from './PageLoader';
+import { useAuth } from '../hooks/use-auth.js';
+import { PageLoader } from './PageLoader.js';
 
 // Enhanced ProtectedRoute with proper Stack Auth integration
 export function ProtectedRoute({ 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { EditorialButton } from '../components/editorial/EditorialButton';
+import { EditorialButton } from '../components/editorial/EditorialButton.js';
 
 export default {
   title: 'Editorial/EditorialButton',

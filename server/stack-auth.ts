@@ -260,7 +260,7 @@ export async function verifyStackAuthToken(req: Request, res: Response, next: Ne
     });
     
     // Get or create user in our database with email-based linking for existing users
-    const { storage } = await import('./storage');
+    const { storage } = await import('./storage.js');
     
     // Step 1: Try to find user by Stack Auth ID first
     let dbUser = await storage.getUserByStackAuthId(userId);
@@ -338,7 +338,7 @@ export function requireActiveSubscription(req: Request, res: Response, next: Nex
       }
       
       // Check if user has active subscription
-      const { storage } = await import('./storage');
+      const { storage } = await import('./storage.js');
       const subscription = await storage.getUserSubscription(user.id);
       
       // Allow admin users and users with active subscriptions

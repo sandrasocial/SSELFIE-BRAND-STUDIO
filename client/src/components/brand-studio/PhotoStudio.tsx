@@ -1,11 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useAuth } from '../../hooks/use-auth';
+import { useAuth } from '../../hooks/use-auth.js';
 // Removed old duplicate hooks - now using centralized BrandStudioProvider
-import { useToast } from '../../hooks/use-toast';
-import { useBrandStudio } from '../../contexts/BrandStudioContext';
-import { DirectorPanel } from './DirectorPanel';
-import { CanvasPanel, LuxuryConceptCard, type ConceptCard } from './CanvasPanel';
-import { ToolkitPanel, QuickActions, StatusDisplay } from './ToolkitPanel';
+import { useToast } from '../../hooks/use-toast.js';
+import { useBrandStudio } from '../../contexts/BrandStudioContext.js';
+import { DirectorPanel } from './DirectorPanel.js';
+import { CanvasPanel, LuxuryConceptCard, type ConceptCard } from './CanvasPanel.js';
+import { ToolkitPanel, QuickActions, StatusDisplay } from './ToolkitPanel.js';
 // REMOVED: Old Maya system components - now using centralized BrandStudioProvider
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLocation } from 'wouter';
@@ -118,10 +118,10 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
     if (messages.length > 0) {
       const lastMessage = messages[messages.length - 1];
 
-      if (lastMessage.type === 'user') {
+      if (lastMessage && lastMessage.type === 'user') {
         smartScrollToBottom(100, true);
       }
-      else if (lastMessage.type === 'maya' && !isTyping) {
+      else if (lastMessage && lastMessage.type === 'maya' && !isTyping) {
         smartScrollToBottom(500);
       }
     }
@@ -131,7 +131,7 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
   useEffect(() => {
     if (messages.length > 0) {
       const lastMessage = messages[messages.length - 1];
-      if (lastMessage.conceptCards && lastMessage.conceptCards.length > 0) {
+      if (lastMessage && lastMessage.conceptCards && lastMessage.conceptCards.length > 0) {
         scrollToNewContent();
       }
     }

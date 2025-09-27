@@ -1,5 +1,5 @@
 import React, { HTMLAttributes, forwardRef } from 'react';
-import { cn } from "../../lib/utils"
+import { cn } from "../../lib/utils.js"
 import { VariantProps, cva } from "class-variance-authority"
 
 const typographyVariants = cva("", {

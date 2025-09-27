@@ -3,13 +3,13 @@
  * Real-time monitoring of application health, performance, and errors
  */
 
-import { Logger } from './logger';
-import { type HealthCheck, type SecurityStats } from '../types/monitoring';
-import { performanceMonitor } from './performance-monitor';
-import { errorTracker } from './error-tracker';
-import { securityMonitor } from './security-monitor';
-import { healthCheckSystem } from './health-check';
-import { dashboardSystem } from './dashboard';
+import { Logger } from './logger.js';
+import { type HealthCheck, type SecurityStats } from '../types/monitoring.js';
+import { performanceMonitor } from './performance-monitor.js';
+import { errorTracker } from './error-tracker.js';
+import { securityMonitor } from './security-monitor.js';
+import { healthCheckSystem } from './health-check.js';
+import { dashboardSystem } from './dashboard.js';
 
 export class MonitoringSystem {
   private logger: Logger;

@@ -3,7 +3,7 @@
  * Multi-level caching system with TTL and invalidation
  */
 
-import { Logger } from './logger';
+import { Logger } from './logger.js';
 
 export interface CacheOptions {
   ttl?: number; // Time to live in milliseconds
