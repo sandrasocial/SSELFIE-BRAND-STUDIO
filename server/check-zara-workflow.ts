@@ -3,7 +3,7 @@
  * Check if Zara is actually working vs just having conversations
  */
 
-import { db } from '.db';.js
+import { db } from '.db'
 import { claudeMessages } from '..shared/schema';
 import { eq, desc } from 'drizzle-orm';
 
@@ -40,7 +40,7 @@ async function checkZaraWorkflow() {
     
     const contextKeywords = [
       'previous', 'last time', 'yesterday', 'before', 'continuing',
-      'from earlier', 'old task', 'previous work'.js'
+      'from earlier', 'old task', 'previous work'
     ];
     
     console.log('📝 MESSAGE ANALYSIS:');

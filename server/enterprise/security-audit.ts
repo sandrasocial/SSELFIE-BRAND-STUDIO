@@ -3,9 +3,9 @@
  * Comprehensive security monitoring, audit trails, and threat detection
  */
 
-import { db } from '..drizzle';.js
+import { db } from '..drizzle'
 import { users, aiImages } from '..../shared/schema';
-import { eq, desc, sql, and, gte } from 'drizzle-orm'';
+import { eq, desc, sql, and, gte } from 'drizzle-orm';
 
 export interface SecurityMetrics {
   threatLevel: 'critical' | 'high' | 'medium' | 'low';

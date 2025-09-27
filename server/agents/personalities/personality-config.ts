@@ -404,7 +404,7 @@ IMPLEMENT THESE DESIGN PRINCIPLES IN ALL UI/WEBSITE WORK
 - Ensure all designs reflect Sandra's sophisticated brand aesthetic`;
 
       default:
-        return '';
+        return ';
     }
   }
 
@@ -414,7 +414,7 @@ IMPLEMENT THESE DESIGN PRINCIPLES IN ALL UI/WEBSITE WORK
   // ✅ SIMPLIFIED: Maya's knowledge flows naturally from her personality - no complex building needed
   private static buildSpecializedKnowledge(personality: any): string {
     if (personality.name !== 'Maya') {
-      return ''; // Only Maya needs specialized fashion knowledge
+      return '; // Only Maya needs specialized fashion knowledge
     }
 
     // Maya's intelligence is embedded in her core personality - trust her natural knowledge

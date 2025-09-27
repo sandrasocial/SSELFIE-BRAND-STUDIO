@@ -48,8 +48,8 @@ async function checkTypeScriptErrors(filePath?: string): Promise<any[]> {
       stdio: ['pipe', 'pipe', 'pipe']
     });
     
-    let output = '';
-    let errorOutput = '';
+    let output = ';
+    let errorOutput = ';
     
     tsc.stdout.on('data', (data) => {
       output += data.toString();

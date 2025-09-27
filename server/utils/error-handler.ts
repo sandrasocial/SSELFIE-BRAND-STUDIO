@@ -95,7 +95,7 @@ export class ErrorHandler {
    */
   private determineSeverity(error: Error): 'low' | 'medium' | 'high' | 'critical' {
     const message = error.message.toLowerCase();
-    const stack = error.stack?.toLowerCase() || '';
+    const stack = error.stack?.toLowerCase() || ';
 
     // Critical errors
     if (
@@ -137,7 +137,7 @@ export class ErrorHandler {
    */
   private determineCategory(error: Error): 'validation' | 'database' | 'external_api' | 'authentication' | 'authorization' | 'system' | 'unknown' {
     const message = error.message.toLowerCase();
-    const stack = error.stack?.toLowerCase() || '';
+    const stack = error.stack?.toLowerCase() || ';
 
     if (message.includes('validation') || message.includes('invalid')) {
       return 'validation';

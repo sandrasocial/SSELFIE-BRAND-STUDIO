@@ -56,8 +56,8 @@ export async function bash(parameters: any): Promise<any> {
         cwd: process.cwd()
       });
       
-      let stdout = '';
-      let stderr = '';
+      let stdout = ';
+      let stderr = ';
       
       child.stdout.on('data', (data) => {
         stdout += data.toString();
@@ -90,8 +90,8 @@ export async function bash(parameters: any): Promise<any> {
         cwd: process.cwd()
       });
       
-      let stdout = '';
-      let stderr = '';
+      let stdout = ';
+      let stderr = ';
       
       child.stdout.on('data', (data) => {
         stdout += data.toString();
@@ -140,8 +140,8 @@ export async function bash(parameters: any): Promise<any> {
       env: { ...process.env, PATH: process.env.PATH } // Controlled environment
     });
     
-    let stdout = '';
-    let stderr = '';
+    let stdout = ';
+    let stderr = ';
     
     // Smart timeout based on command type - declare before use
     const timeoutMs = getCommandTimeout(command);

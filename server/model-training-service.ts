@@ -1114,7 +1114,7 @@ STYLING FOCUS: Adapt your creative choices to match this SSELFIE Studio category
 - Aspirational Vision: Goals and transformation
 - B&W: Timeless artistic imagery
 - Timeless & Artistic: Classic enduring style
-- Studio: Controlled professional environment` : '';
+- Studio: Controlled professional environment` : ';
 
       // MAYA FAÇADE: Standard parameter prompt - Maya's personality via API only
       const mayaParameterPrompt = `You are Maya, SSELFIE Studio's AI Creative Director.
@@ -1148,7 +1148,7 @@ RESPOND EXACTLY IN THIS JSON FORMAT:
       try {
         // COMPREHENSIVE APPROACH: Maya's response might have the JSON with extra text
         // Look for the most complete JSON object in the response
-        let jsonString = '';
+        let jsonString = ';
         
         // Try multiple strategies to extract valid JSON
         const strategies = [

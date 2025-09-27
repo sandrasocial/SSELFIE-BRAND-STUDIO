@@ -199,7 +199,7 @@ class ZaraEnhancementSystem {
       
     } catch (error) {
       console.error('❌ ZARA AUTO-FIX ERROR:', error);
-      return '';
+      return ';
     }
   }
   
@@ -244,7 +244,7 @@ class ZaraEnhancementSystem {
       
     } catch (error) {
       console.error('❌ ZARA AUTO-FIX ERROR:', error);
-      return '';
+      return ';
     }
   }
   

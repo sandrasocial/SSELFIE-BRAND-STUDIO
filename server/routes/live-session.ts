@@ -4,11 +4,11 @@
  */
 
 import { Router } from 'express';
-import { eq } from 'drizzle-orm'';
-import { db } from '..db';.js
+import { eq } from 'drizzle-orm';
+import { db } from '..db'
 import { liveSessions, insertLiveSessionSchema, LiveSession, InsertLiveSession } from '..../shared/schema';
 import { Logger } from '..utils/logger';
-import { z } from 'zod'';
+import { z } from 'zod';
 
 const router = Router();
 const logger = new Logger('LiveSessionRoutes');
