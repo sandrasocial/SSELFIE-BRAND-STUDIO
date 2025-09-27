@@ -303,7 +303,7 @@ export class InputValidator {
           '<': '&lt;',
           '>': '&gt;',
           '"': '&quot;',
-          "'": '&#x27;.js'
+          "'": '&#x27;'
         };
         return escapeMap[match];
       });

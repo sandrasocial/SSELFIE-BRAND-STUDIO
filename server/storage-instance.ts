@@ -1,4 +1,4 @@
-import { DatabaseStorage } from './storage.js';
+import { DatabaseStorage } from './storage';
 
 // Create and export a singleton instance
 export const storage = new DatabaseStorage();

@@ -4,10 +4,10 @@
  * STEP 3.2: Enhanced with performance-optimized database methods
  */
 
-import { storage } from './storage.js';
-import { personalBrandService } from './services/personal-brand-service.js';
-import { db } from './drizzle.js';
-import { userPersonalBrand, mayaPersonalMemory, mayaChats, mayaChatMessages } from '../shared/schema.js';
+import { storage } from './storage';
+import { personalBrandService } from './services/personal-brand-service';
+import { db } from './drizzle';
+import { userPersonalBrand, mayaPersonalMemory, mayaChats, mayaChatMessages } from '../shared/schema';
 import { eq, desc, and, gte, lte, count, sql } from 'drizzle-orm';
 
 interface MayaUserContext {

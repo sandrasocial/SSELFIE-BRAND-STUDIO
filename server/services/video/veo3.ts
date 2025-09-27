@@ -1,6 +1,6 @@
 // @ts-ignore - node-fetch types may not be available but functionality works
 import fetch from 'node-fetch';
-import { type VeoVideoResult } from './veo-api.js';
+import { type VeoVideoResult } from './veo-api';
 
 export interface VeoGenerationMode {
   mode: 'preview' | 'production';

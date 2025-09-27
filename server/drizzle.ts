@@ -1,8 +1,8 @@
 import { drizzle } from 'drizzle-orm/neon-http';
 import { neon } from '@neondatabase/serverless';
 import type { QueryResult as NeonQueryResult } from '@neondatabase/serverless';
-import { DATABASE_URL } from './env.js';
-import * as schema from '../shared/schema.js';
+import { DATABASE_URL } from './env';
+import * as schema from '../shared/schema';
 
 export interface QueryResult<T = unknown> {
   rows: T[];

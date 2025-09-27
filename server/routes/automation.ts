@@ -233,7 +233,7 @@ async function sendWelcomeEmail(user: any, plan: string) {
 
         👉 Your workspace is ready: ${process.env.BASE_URL || 'https://sselfie.ai'}/workspace
 
-        I'm literally cheering you on from Iceland. Let'.js's build something that makes people stop scrolling.
+        I'm literally cheering you on from Iceland. Let''s build something that makes people stop scrolling.
 
         Your biggest fan,
         Sandra 💫

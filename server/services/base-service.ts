@@ -3,7 +3,7 @@
  * Provides common functionality for all service classes
  */
 
-import { storage } from '../storage.js';
+import { storage } from '../storage';
 
 export abstract class BaseService {
   protected storage = storage;

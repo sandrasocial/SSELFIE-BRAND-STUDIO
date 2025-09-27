@@ -1,5 +1,5 @@
 import Stripe from 'stripe';
-import { logger } from '../config/monitoring.js';
+import { logger } from '../config/monitoring';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-08-27.basil'

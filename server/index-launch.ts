@@ -177,11 +177,11 @@ if (process.env.NODE_ENV !== 'production') {
 // Background monitors (training + generation + migration)
 (async () => {
   try {
-    const { TrainingCompletionMonitor } = await import('./training-completion-monitor.js');
+    const { TrainingCompletionMonitor } = await import('./training-completion-monitor');
     TrainingCompletionMonitor.getInstance().startMonitoring();
-    const { GenerationCompletionMonitor } = await import('./generation-completion-monitor.js');
+    const { GenerationCompletionMonitor } = await import('./generation-completion-monitor');
     GenerationCompletionMonitor.getInstance().startMonitoring();
-    const { migrationMonitor } = await import('./migration-monitor.js');
+    const { migrationMonitor } = await import('./migration-monitor');
     migrationMonitor.startMonitoring();
     // Agent context monitor optional: can be enabled later if desired
   } catch (error) {

@@ -32,7 +32,7 @@ export class CacheManager<T = any> {
     this.options = {
       ttl: options.ttl || 300000, // 5 minutes default
       maxSize: options.maxSize || 1000,
-      strategy: options.strategy || 'lru.js'
+      strategy: options.strategy || 'lru'
     };
   }
 
@@ -355,7 +355,7 @@ export class MultiLevelCacheManager<T = any> {
 export const memoryCache = new CacheManager({
   ttl: 300000, // 5 minutes
   maxSize: 1000,
-  strategy: 'lru.js'
+  strategy: 'lru'
 });
 
 export const multiLevelCache = new MultiLevelCacheManager([

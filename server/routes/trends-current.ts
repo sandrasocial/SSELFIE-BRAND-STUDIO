@@ -4,11 +4,11 @@
  */
 
 import { Router } from 'express';
-import { requireStackAuth } from '../stack-auth.js';
-import { db } from '../drizzle.js';
+import { requireStackAuth } from '../stack-auth';
+import { db } from '../drizzle';
 import { sql } from 'drizzle-orm';
-import type { AuthenticatedRequest } from '../types/auth.js';
-import { HairTrendSchema, CurrentTrendsResponseSchema, type CurrentTrendsResponse } from '../types/trends.js';
+import type { AuthenticatedRequest } from '../types/auth';
+import { HairTrendSchema, CurrentTrendsResponseSchema, type CurrentTrendsResponse } from '../types/trends';
 
 const router = Router();
 

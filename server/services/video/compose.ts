@@ -78,7 +78,7 @@ export async function composeStoryboard(options: ComposeVideoOptions): Promise<C
         // Get user's LoRA model if available
         let userLoraModel = null;
         try {
-          const { storage } = await import('../../storage.js');
+          const { storage } = await import('../../storage');
           const profile = await storage.getUserProfile(userId);
           userLoraModel = profile?.['replicateModelId'] || null;
         } catch (e) {

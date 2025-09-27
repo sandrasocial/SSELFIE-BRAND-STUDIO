@@ -120,7 +120,7 @@ class ZaraEnhancementSystem {
       };
       
       // Extract imports
-      const importRegex = /import.*?from\s+['"`]([^'"`]+)['.js'"`]/g;
+      const importRegex = /import.*?from\s+['"`]([^'"`]+)[''"`]/g;
       let match;
       while ((match = importRegex.exec(content)) !== null) {
         if (match[1]) {
