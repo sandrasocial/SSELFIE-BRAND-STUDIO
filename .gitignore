@@ -128,3 +128,11 @@ onboarding/
 
 *storybook.log
 storybook-static
+
+# CI/CD artifacts
+.eslintcache
+junit.xml
+coverage/
+test-results/
+.nyc_output/
+ci-temp/

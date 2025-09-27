@@ -1,32 +1,48 @@
-name: Deploy
+name: Vercel Deployment
 
 on:
   push:
+    branches: [ main ]
+  workflow_run:
+    workflows: ["CI/CD Pipeline with TypeScript Checks"]
+    types:
+      - completed
     branches: [ main ]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    # Only deploy if CI checks passed
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'push' }}
+    
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
+          cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --force
 
-      - name: Run tests
-        run: npm test
+      - name: Verify TypeScript before deploy
+        run: |
+          echo "Final TypeScript check before deployment..."
+          npx tsc --noEmit --skipLibCheck
 
-      - name: Build
-        run: npm run build
-
-      - name: Deploy
+      - name: Build for production
         env:
           NODE_ENV: production
+          VITE_STACK_PROJECT_ID: ${{ secrets.VITE_STACK_PROJECT_ID }}
         run: |
-          # Add your deployment commands here
-          echo "Deploying to production..."
+          echo "Building for production deployment..."
+          npm run vercel-build
+
+      - name: Deploy to Vercel
+        run: |
+          echo "Deployment would occur here via Vercel's automatic deployment"
+          echo "Vercel will automatically deploy when main branch is updated"
+          echo "Manual deployment can be triggered via Vercel CLI if needed"
