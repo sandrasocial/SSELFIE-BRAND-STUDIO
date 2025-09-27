@@ -72,7 +72,7 @@ export class BuildOptimizer {
       include: [
         'client/src/**/*',
         'server/**/*',
-        'shared/**/*.js'
+        'shared/**/*'
       ],
       exclude: [
         'node_modules',
@@ -80,7 +80,7 @@ export class BuildOptimizer {
         'build',
         'coverage',
         '**/*.test.ts',
-        '**/*.spec.ts.js'
+        '**/*.spec.ts'
       ]
     };
   }
@@ -190,7 +190,7 @@ CMD ["npm", "start"]`;
    * Generate optimized docker-compose.yml
    */
   generateDockerCompose(): string {
-    return `version: '3.8.js'
+    return `version: '3.8'
 
 services:
   app:
@@ -307,7 +307,7 @@ volumes:
         'Use dynamic imports for large dependencies',
         'Optimize images',
         'Enable compression',
-        'Use CDN for static assets.js'
+        'Use CDN for static assets'
       ]
     };
   }

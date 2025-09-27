@@ -4,14 +4,14 @@
  * Prevents users from getting stuck in "processing" status
  */
 
-import { storage } from './storage.js';
-import { paths } from './utils/paths.js';
+import { storage } from './storage';
+import { paths } from './utils/paths';
 import { 
   ReplicateTrainingStatus,
   TrainingStatusUpdate,
   TrainingMonitorConfig,
   TrainingError
-} from './types/training.js';
+} from './types/training';
 
 export class TrainingCompletionMonitor {
   private static instance: TrainingCompletionMonitor;
@@ -88,7 +88,7 @@ export class TrainingCompletionMonitor {
           let extractedWeights = null;
           try {
             // Extract LoRA weights using restored extraction method
-            const { ModelTrainingService } = await import('./model-training-service.js');
+            const { ModelTrainingService } = await import('./model-training-service');
             extractedWeights = await ModelTrainingService.extractLoRAWeights(replicateModelId, userId);
             console.log(`✅ LoRA WEIGHTS EXTRACTED: ${extractedWeights.loraWeightsUrl}`);
           } catch (error) {
@@ -145,7 +145,7 @@ export class TrainingCompletionMonitor {
           try {
             const user = await storage.getUser(userId);
             if (user?.email) {
-              const { EmailService } = await import('./email-service.js');
+              const { EmailService } = await import('./email-service');
               const userName = user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.firstName;
               await EmailService.sendModelReadyEmail(user.email, userName);
               console.log('✅ Model ready email sent to:', user.email);
@@ -275,7 +275,7 @@ export class TrainingCompletionMonitor {
         try {
           const user = await storage.getUser(userId);
           if (user?.email) {
-            const { EmailService } = await import('./email-service.js');
+            const { EmailService } = await import('./email-service');
             const userName = user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.firstName;
             await EmailService.sendModelReadyEmail(user.email, userName);
             console.log('✅ Model ready email sent to:', user.email);

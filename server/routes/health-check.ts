@@ -187,7 +187,7 @@ router.get('/health/metrics', (req, res) => {
 async function checkDatabaseHealth(): Promise<{ status: string; details?: any }> {
   try {
     // Simplified database check - in production, this would test actual database connectivity
-    const { db } = await import('../drizzle.js');
+    const { db } = await import('../drizzle');
     
     // Try a simple query
     await db.execute('SELECT 1');

@@ -23,8 +23,8 @@ export function registerVictoriaWebsiteGenerator(app: Express) {
       const websiteStructure = generateWebsiteStructure(data);
       
       // Save to database
-      const { db } = await import('../db.js');
-      const { websites } = await import('../../shared/schema.js');
+      const { db } = await import('../db');
+      const { websites } = await import('../../shared/schema');
       
       const [newWebsite] = await db
         .insert(websites)
@@ -56,8 +56,8 @@ export function registerVictoriaWebsiteGenerator(app: Express) {
   // Get website preview
   app.get('/preview/:slug', async (req, res) => {
     try {
-      const { db } = await import('../db.js');
-      const { websites } = await import('../../shared/schema.js');
+      const { db } = await import('../db');
+      const { websites } = await import('../../shared/schema');
       const { eq } = await import('drizzle-orm');
       
       const [website] = await db

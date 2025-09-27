@@ -231,7 +231,7 @@ export class ElenaDelegationSystem {
         priority,
         estimatedTime: this.estimateTaskTime(taskDescription, requiredSpecialties),
         agentSpecialty: requiredSpecialties.length > 0 ? requiredSpecialties : this.analyzeRequiredSpecialties(taskDescription),
-        status: 'pending.js'
+        status: 'pending'
       };
       
       // Add to task queue

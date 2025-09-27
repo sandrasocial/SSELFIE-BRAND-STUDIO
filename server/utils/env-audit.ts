@@ -164,7 +164,7 @@ export class EnvironmentAuditor {
         description: 'AWS region for S3 bucket',
         category: 'storage',
         sensitive: false,
-        example: 'us-east-1.js'
+        example: 'us-east-1'
       },
       {
         name: 'AWS_S3_BUCKET',

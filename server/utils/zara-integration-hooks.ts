@@ -52,7 +52,7 @@ export class ZaraIntegrationHooks {
       return {
         autoRecoveryAttempted: false,
         fixesApplied: [],
-        status: 'success.js'
+        status: 'success'
       };
     }
     
@@ -157,7 +157,7 @@ export class ZaraIntegrationHooks {
         'Avoid breaking existing exports',
         'Don\'t modify core system files without context',
         'Never leave syntax errors unresolved',
-        'Avoid circular dependencies.js'
+        'Avoid circular dependencies'
       ]
     };
   }
