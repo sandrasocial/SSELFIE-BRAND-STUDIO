@@ -2,8 +2,8 @@
 
 import { FC } from 'react';;
 
-import { OfferCard } from "@/components/ui/offer-card";
-import { SandraImages } from "@/lib/sandra-images";
+import { OfferCard } from './ui/offer-card.js';
+import { SandraImages } from '../lib/sandra-images.js';
 
 const offers = [
   {

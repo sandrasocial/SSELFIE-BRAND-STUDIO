@@ -1,15 +1,15 @@
 import { useMemo } from 'react';
-import { MemberNavigation } from '../components/member-navigation';
-import { HeroFullBleed } from '../components/HeroFullBleed';
-import { EditorialImageBreak } from '../components/editorial-image-break';
-import { EditorialStory } from '../components/editorial-story';
-import { Button } from '../components/ui/button';
+import { MemberNavigation } from '../components/member-navigation.js';
+import { HeroFullBleed } from '../components/HeroFullBleed.js';
+import { EditorialImageBreak } from '../components/editorial-image-break.js';
+import { EditorialStory } from '../components/editorial-story.js';
+import { Button } from '../components/ui/button.js';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'wouter';
-import { SandraImages } from '../lib/sandra-images';
-import { COMPREHENSIVE_LANDING_TEMPLATE } from '../components/comprehensive-landing-template';
-import { MULTI_PAGE_HOME_TEMPLATE, MULTI_PAGE_ABOUT_TEMPLATE, MULTI_PAGE_SERVICES_TEMPLATE, MULTI_PAGE_CONTACT_TEMPLATE, SINGLE_PAGE_TEMPLATE } from '../components/multi-page-templates';
-import { CompletionModal } from '../components/completion-modal';
+import { SandraImages } from '../lib/sandra-images.js';
+import { COMPREHENSIVE_LANDING_TEMPLATE } from '../components/comprehensive-landing-template.js';
+import { MULTI_PAGE_HOME_TEMPLATE, MULTI_PAGE_ABOUT_TEMPLATE, MULTI_PAGE_SERVICES_TEMPLATE, MULTI_PAGE_CONTACT_TEMPLATE, SINGLE_PAGE_TEMPLATE } from '../components/multi-page-templates.js';
+import { CompletionModal } from '../components/completion-modal.js';
 
 export default function VictoriaPreview() {
   const [isFullScreen, setIsFullScreen] = useState(true); // Start in full-screen mode

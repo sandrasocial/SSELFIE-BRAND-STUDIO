@@ -1,7 +1,7 @@
 import { KeyboardEvent, useState, useRef, useEffect } from 'react';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
-import { apiRequest } from '../../lib/queryClient';
+import { Button } from '../ui/button.js';
+import { Input } from '../ui/input.js';
+import { apiRequest } from '../../lib/queryClient.js';
 
 interface ChatMessage {
   id: string;

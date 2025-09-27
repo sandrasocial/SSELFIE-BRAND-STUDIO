@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useAuth } from '../hooks/use-auth';
+import { useAuth } from '../hooks/use-auth.js';
 import { CreditCard, Settings, Shield, LogOut, ExternalLink, User, Zap, Calendar, TrendingUp } from 'lucide-react';
 
 const SettingsScreen: React.FC = () => {

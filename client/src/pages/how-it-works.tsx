@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { HeroFullBleed } from '../components/hero-full-bleed';
-import { SandraImages } from '../components/sandra-image-library';
-import { PreLoginNavigationUnified } from '../components/pre-login-navigation-unified';
-import { GlobalFooter } from '../components/global-footer';
+import { HeroFullBleed } from '../components/hero-full-bleed.js';
+import { SandraImages } from '../components/sandra-image-library.js';
+import { PreLoginNavigationUnified } from '../components/pre-login-navigation-unified.js';
+import { GlobalFooter } from '../components/global-footer.js';
 import { Link } from 'wouter';
 
 const steps = [

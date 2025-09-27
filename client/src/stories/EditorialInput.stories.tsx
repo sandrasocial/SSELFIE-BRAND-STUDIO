@@ -1,5 +1,5 @@
 import React from 'react';
-import { EditorialInput } from '../components/editorial/EditorialInput';
+import { EditorialInput } from '../components/editorial/EditorialInput.js';
 
 export default {
   title: 'Editorial/EditorialInput',

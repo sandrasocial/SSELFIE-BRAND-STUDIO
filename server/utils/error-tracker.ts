@@ -3,7 +3,7 @@
  * Tracks, categorizes, and analyzes application errors
  */
 
-import { Logger } from './logger';
+import { Logger } from './logger.js';
 import { Request, Response } from 'express';
 
 export interface ErrorContext {
@@ -75,7 +75,7 @@ export class ErrorTracker {
     } = {}
   ): string {
     if (!this.isEnabled) {
-      return ';
+      return '';
     }
 
     const errorId = this.generateErrorId();

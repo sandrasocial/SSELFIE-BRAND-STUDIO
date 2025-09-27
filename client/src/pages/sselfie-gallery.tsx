@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import { useAuth } from '../hooks/use-auth';
+import { useAuth } from '../hooks/use-auth.js';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { MemberNavigation } from '../components/member-navigation';
-import { apiRequest } from '../lib/queryClient';
-import { apiFetch } from '../lib/api';
-import ErrorBoundary from '../components/ErrorBoundary';
-import StoryStudioModal from '../components/StoryStudioModal';
-import BrandAssetPlacementModal from '../components/BrandAssetPlacementModal';
-import { VideoGenerateDialog } from '../features/video';
+import { MemberNavigation } from '../components/member-navigation.js';
+import { apiRequest } from '../lib/queryClient.js';
+import { apiFetch } from '../lib/api.js';
+import ErrorBoundary from '../components/ErrorBoundary.js';
+import StoryStudioModal from '../components/StoryStudioModal.js';
+import BrandAssetPlacementModal from '../components/BrandAssetPlacementModal.js';
+import { VideoGenerateDialog } from '../features/video.js';
 import { Camera, Grid, Search, MoreHorizontal, Heart, Download, Trash2, Play, Plus, Filter, Calendar, Star, Eye, X, Check, SortAsc, SortDesc } from 'lucide-react';
 
 // ImageDetailModal Component

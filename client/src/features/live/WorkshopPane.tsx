@@ -5,7 +5,7 @@
 
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import CanvaEmbed from '../../components/CanvaEmbed';
+import CanvaEmbed from '../../components/CanvaEmbed.js';
 
 interface CurrentTrendsData {
   styles: string[];

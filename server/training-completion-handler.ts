@@ -20,18 +20,18 @@
       }); error handling
  */
 
-import { storage } from './storage';
-import { paths } from './utils/paths';
+import { storage } from './storage.js';
+import { paths } from './utils/paths.js';
 import { 
   User,
   UserModel,
   LoRAWeights,
   BrandStrategyContext,
   TrainingCompletionResult
-} from './types/training-completion';
-import { ReplicateTrainingStatus } from './types/training';
-import { EmailService } from './email-service';
-import { ModelTrainingService } from './model-training-service';
+} from './types/training-completion.js';
+import { ReplicateTrainingStatus } from './types/training.js';
+import { EmailService } from './email-service.js';
+import { ModelTrainingService } from './model-training-service.js';
 
 export class TrainingCompletionHandler {
   /**

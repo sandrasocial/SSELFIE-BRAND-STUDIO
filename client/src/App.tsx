@@ -1,51 +1,51 @@
 /* eslint-disable no-console */
 import React, { useEffect } from 'react';
 import { Route, useLocation } from "wouter";
-import { ProtectedRoute } from './components/ProtectedRoute';
+import { ProtectedRoute } from './components/ProtectedRoute.js';
 import { SignIn, SignUp } from "@stackframe/react";
-import { useAuth } from "./hooks/use-auth";
+import { useAuth } from "./hooks/use-auth.js";
 // Removed unused environment imports - using consolidated config
 import { useQuery } from "@tanstack/react-query";
-import { detectBrowserIssues, showDomainHelp } from "./utils/browserCompat";
-import { optimizeImageLoading, enableServiceWorkerCaching } from "./utils/performanceOptimizations";
-import { optimizeRuntime } from "./utils/webVitals";
-import { ErrorBoundary } from "./components/ErrorBoundary";
-import { initializeMobileOptimization } from "./utils/mobileOptimization";
-import { performanceMonitor } from "./utils/performanceMonitor";
-import { initializeRuntimeOptimization } from "./utils/runtimeOptimization";
+import { detectBrowserIssues, showDomainHelp } from "./utils/browserCompat.js";
+import { optimizeImageLoading, enableServiceWorkerCaching } from "./utils/performanceOptimizations.js";
+import { optimizeRuntime } from "./utils/webVitals.js";
+import { ErrorBoundary } from "./components/ErrorBoundary.js";
+import { initializeMobileOptimization } from "./utils/mobileOptimization.js";
+import { performanceMonitor } from "./utils/performanceMonitor.js";
+import { initializeRuntimeOptimization } from "./utils/runtimeOptimization.js";
 
 // Luxury Mobile Styling
 import "./styles/luxury-mobile.css";
 
 // Core pages (loaded immediately) - BRAND STUDIO IS PRIMARY
-import SselfieAppLayout from "./app_v2/SselfieAppLayout";
+import SselfieAppLayout from "./app_v2/SselfieAppLayout.js";
 
 // Lazy load non-critical pages for better performance
 import { lazy, Suspense } from "react";
 
-const BusinessLanding = lazy(() => import("./pages/landing/business-landing"));
-const HairLanding = lazy(() => import("./pages/landing/hair-landing"));
-const HairSignup = lazy(() => import("./pages/landing/hair-signup"));
-const SimpleTraining = lazy(() => import("./pages/onboarding/simple-training"));
-const SimpleCheckout = lazy(() => import("./pages/simple-checkout"));
-const PaymentSuccess = lazy(() => import("./pages/payment-success"));
-const ThankYou = lazy(() => import("./pages/thank-you"));
-const Terms = lazy(() => import("./pages/legal/terms"));
-const Privacy = lazy(() => import("./pages/legal/privacy"));
-const AuthSuccess = lazy(() => import("./pages/auth-success"));
-const OAuthCallback = lazy(() => import("./pages/OAuthCallback"));
+const BusinessLanding = lazy(() => import("./pages/landing/business-landing.js"));
+const HairLanding = lazy(() => import("./pages/landing/hair-landing.js"));
+const HairSignup = lazy(() => import("./pages/landing/hair-signup.js"));
+const SimpleTraining = lazy(() => import("./pages/onboarding/simple-training.js"));
+const SimpleCheckout = lazy(() => import("./pages/simple-checkout.js"));
+const PaymentSuccess = lazy(() => import("./pages/payment-success.js"));
+const ThankYou = lazy(() => import("./pages/thank-you.js"));
+const Terms = lazy(() => import("./pages/legal/terms.js"));
+const Privacy = lazy(() => import("./pages/legal/privacy.js"));
+const AuthSuccess = lazy(() => import("./pages/auth-success.js"));
+const OAuthCallback = lazy(() => import("./pages/OAuthCallback.js"));
 
 // Critical pages (marked as priority in routed-pages-priority.ts)  
-const Maya = lazy(() => import("./pages/maya"));
-const SSELFIEGallery = lazy(() => import("./pages/sselfie-gallery"));
+const Maya = lazy(() => import("./pages/maya.js"));
+const SSELFIEGallery = lazy(() => import("./pages/sselfie-gallery.js"));
 
 // Stage Mode components (lazy loaded)
-const PresenterConsole = lazy(() => import("./features/live/PresenterConsole"));
-const AudienceClient = lazy(() => import("./features/live/AudienceClient"));
-const SessionStats = lazy(() => import("./features/live/SessionStats"));
+const PresenterConsole = lazy(() => import("./features/live/PresenterConsole.js"));
+const AudienceClient = lazy(() => import("./features/live/AudienceClient.js"));
+const SessionStats = lazy(() => import("./features/live/SessionStats.js"));
 
 // Components
-import { PageLoader } from "./components/PageLoader";
+import { PageLoader } from "./components/PageLoader.js";
 
 // Smart Home component - Routes users through simplified journey
 // NEW USER JOURNEY: Authentication → Training → App Studio → Advanced Features  

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, forwardRef } from 'react';
-import { pwaManager } from '../../utils/pwa';
+import { pwaManager } from '../../utils/pwa.js';
 
 interface InstallButtonProps {
   variant?: 'default' | 'minimal';

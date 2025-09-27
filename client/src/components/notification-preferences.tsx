@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Button } from './ui/button';
-import { Badge } from './ui/badge';
+import { Button } from './ui/button.js';
+import { Badge } from './ui/badge.js';
 
 interface NotificationPreferences {
   slackEnabled: boolean;

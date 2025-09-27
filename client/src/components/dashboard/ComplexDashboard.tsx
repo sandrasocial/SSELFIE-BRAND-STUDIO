@@ -1,6 +1,6 @@
 import { FC } from 'react';
-import { useDashboardData } from '../../hooks/useDashboardData';
-// import { DashboardMetrics, DashboardSection } from '../../../shared/types/dashboard';
+import { useDashboardData } from '../../hooks/useDashboardData.js';
+// import { DashboardMetrics, DashboardSection } from '../../../shared/types/dashboard.js';
 import styled from 'styled-components';
 
 const DashboardContainer = styled.div`

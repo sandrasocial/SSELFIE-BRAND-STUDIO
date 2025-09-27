@@ -1,12 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useAuth } from '../hooks/use-auth';
-import { useMayaGeneration } from '../hooks/useMayaGeneration';
-import { useMayaPersistence } from '../hooks/useMayaPersistence';
-import { useToast } from '../hooks/use-toast';
-import { MemberNavigation } from '../components/member-navigation';
-import { MayaUploadComponent } from '../components/maya/MayaUploadComponent';
-import { MayaExamplesGallery } from '../components/maya/MayaExamplesGallery';
+import { useAuth } from '../hooks/use-auth.js';
+import { useMayaGeneration } from '../hooks/useMayaGeneration.js';
+import { useMayaPersistence } from '../hooks/useMayaPersistence.js';
+import { useToast } from '../hooks/use-toast.js';
+import { MemberNavigation } from '../components/member-navigation.js';
+import { MayaUploadComponent } from '../components/maya/MayaUploadComponent.js';
+import { MayaExamplesGallery } from '../components/maya/MayaExamplesGallery.js';
 import { useLocation } from 'wouter';
 
 // Maya luxury workspace - aligned with SSELFIE brand guidelines
@@ -334,7 +334,7 @@ export default function Maya() {
   // Send message to Maya with enhanced persistence
   const sendMessage = useMutation({
     mutationFn: async (messageContent: string) => {
-      const { apiFetch } = await import('../lib/api');
+      const { apiFetch } = await import('../lib/api.js');
       return apiFetch('/maya/chat', {
         method: 'POST',
         json: {

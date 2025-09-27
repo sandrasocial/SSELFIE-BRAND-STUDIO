@@ -1,5 +1,5 @@
-import { type AgentConversation, type AgentMessage } from '../../shared/types/agent';
-import { type User } from '../../shared/schema';
+import { type AgentConversation, type AgentMessage } from '../../shared/types/agent.js';
+import { type User } from '../../shared/schema.js';
 
 export interface UserUsageStats {
   totalGenerations: number;

@@ -1,6 +1,6 @@
 import { FC, useState } from 'react';
-import { Card } from '../ui/card';
-import { ToggleGroup, ToggleGroupItem } from '../ui/toggle-group';
+import { Card } from '../ui/card.js';
+import { ToggleGroup, ToggleGroupItem } from '../ui/toggle-group.js';
 import { Laptop, Smartphone } from 'lucide-react';
 
 interface PreviewWindowProps {

@@ -1,7 +1,7 @@
 import { Component, ErrorInfo, ReactNode } from 'react';
-import { PreLoginNavigationUnified } from '@/components/pre-login-navigation-unified';
-import { HeroFullBleed } from '@/components/hero-full-bleed';
-import { SandraImages } from '@/lib/sandra-images';
+import { PreLoginNavigationUnified } from './pre-login-navigation-unified.js';
+import { HeroFullBleed } from './hero-full-bleed.js';
+import { SandraImages } from '../lib/sandra-images.js';
 
 interface Props {
   children: ReactNode;

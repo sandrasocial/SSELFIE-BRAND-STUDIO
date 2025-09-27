@@ -1,9 +1,9 @@
 import { FC, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Card } from '../ui/card';
+import { Card } from '../ui/card.js';
 // ScrollArea component removed
 import { Check, Image, Sparkles } from 'lucide-react';
-import { cleanedFlatlayCollections } from '../../data/cleaned-flatlay-collections';
+import { cleanedFlatlayCollections } from '../../data/cleaned-flatlay-collections.js';
 
 interface RealImageSelectionProps {
   onSelectionComplete: (selected: {

@@ -1,13 +1,13 @@
 import React, { KeyboardEvent, memo, useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
-import { useAuth } from '../hooks/use-auth';
+import { useAuth } from '../hooks/use-auth.js';
 // Switch component removed - creating simple alternative
-import { MemberNavigation } from '../components/member-navigation';
-import { GlobalFooter } from '../components/global-footer';
+import { MemberNavigation } from '../components/member-navigation.js';
+import { GlobalFooter } from '../components/global-footer.js';
 // Removed Bridge System - Using only main consulting chat
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { Button } from '../components/ui/button';
+import { Button } from '../components/ui/button.js';
 
 // Agent images - CORRECTLY MAPPED to match agent specializations
 const AgentElena = "/attached_assets/out-0%20(20)_1753426218042.png";    // Elena - Strategic Best Friend & Execution Leader

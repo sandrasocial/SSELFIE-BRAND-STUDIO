@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { useMemoryCleanup } from '../hooks/useMemoryCleanup';
+import { useMemoryCleanup } from '../hooks/useMemoryCleanup.js';
 
 interface ImageItem {
   id: number;

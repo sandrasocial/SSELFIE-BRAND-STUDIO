@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { cn } from "../../lib/utils";
-import { Typography } from "./typography";
-import { LuxuryLoading } from "./luxury-loading";
+import { cn } from "../../lib/utils.js";
+import { Typography } from "./typography.js";
+import { LuxuryLoading } from "./luxury-loading.js";
 
 interface LuxuryMetrics {
   luxuryPerceptionScore: number; // Target > 7/10

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-import { BaseChatMessage } from './unified-chat';
+import { BaseChatMessage } from './unified-chat.js';
 
 export interface ChatMessage extends BaseChatMessage {
   sender: 'user' | 'victoria';

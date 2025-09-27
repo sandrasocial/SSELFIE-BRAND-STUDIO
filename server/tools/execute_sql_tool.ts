@@ -1,7 +1,7 @@
 // Execute SQL Tool - Fixed SQL execution for Neon/Drizzle
-import { db } from '../drizzle';
+import { db } from '../drizzle.js';
 import { sql } from 'drizzle-orm';
-import { QueryResult } from '../drizzle';
+import { QueryResult } from '../drizzle.js';
 
 export interface SqlParams {
   sql_query: string;

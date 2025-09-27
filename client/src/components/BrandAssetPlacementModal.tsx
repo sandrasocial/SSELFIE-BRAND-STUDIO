@@ -7,7 +7,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import BrandKit from '../features/brand/BrandKit';
+import BrandKit from '../features/brand/BrandKit.js';
 
 interface BrandAsset {
   id: number;
@@ -99,13 +99,25 @@ const BrandAssetPlacementModal: React.FC<BrandAssetPlacementModalProps> = ({
       return;
     }
 
-    const placementData = {
+    const placementData: {
+      imageId: number;
+      assetId: number;
+      mode: 'overlay' | 'inpaint';
+      position?: { x: number; y: number; width: number; height: number };
+      scale?: number;
+    } = {
       imageId,
       assetId: selectedAsset.id,
       mode: placementMode,
-      position: placementMode === 'overlay' ? position : undefined,
-      scale,
     };
+
+    if (placementMode === 'overlay' && position) {
+      placementData.position = position;
+    }
+    
+    if (scale !== 1.0) {
+      placementData.scale = scale;
+    }
 
     placementMutation.mutate(placementData);
   };
@@ -172,7 +184,7 @@ const BrandAssetPlacementModal: React.FC<BrandAssetPlacementModalProps> = ({
               <div className="max-h-96 overflow-auto border border-gray-200 rounded">
                 <BrandKit 
                   onAssetSelect={setSelectedAsset}
-                  selectedAssetId={selectedAsset?.id}
+                  {...(selectedAsset?.id && { selectedAssetId: selectedAsset.id })}
                 />
               </div>
             </div>

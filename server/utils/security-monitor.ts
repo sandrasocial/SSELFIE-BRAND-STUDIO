@@ -3,7 +3,7 @@
  * Monitors and alerts on security-related events and threats
  */
 
-import { Logger } from './logger';
+import { Logger } from './logger.js';
 import { Request, Response } from 'express';
 
 export interface SecurityEvent {
@@ -374,7 +374,7 @@ export class SecurityMonitor {
    */
   private extractPayload(requestString: string, pattern: RegExp): string {
     const match = pattern.exec(requestString);
-    return match ? match[0] : ';
+    return match ? match[0] : '';
   }
 
   /**

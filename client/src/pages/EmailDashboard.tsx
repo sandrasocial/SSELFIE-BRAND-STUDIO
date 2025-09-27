@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiRequest } from '../lib/queryClient';
-import { Button } from '../components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
-import { Badge } from '../components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
+import { apiRequest } from '../lib/queryClient.js';
+import { Button } from '../components/ui/button.js';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card.js';
+import { Badge } from '../components/ui/badge.js';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs.js';
 import { Mail, AlertCircle, Users, TrendingUp, Clock, Settings, MessageCircle, Heart } from 'lucide-react';
-import { useToast } from '../hooks/use-toast';
+import { useToast } from '../hooks/use-toast.js';
 
 interface EmailDashboard {
   totalAccounts: number;

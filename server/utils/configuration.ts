@@ -3,8 +3,8 @@
  * Manages application configuration across different environments
  */
 
-import { Logger } from './logger';
-import { configManager } from './config-manager';
+import { Logger } from './logger.js';
+import { configManager } from './config-manager.js';
 
 export interface ConfigurationOptions {
   environment: string;

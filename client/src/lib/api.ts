@@ -5,7 +5,7 @@ type FetchOpts = RequestInit & { json?: any; skipAuth?: boolean };
 export async function apiFetch(path: string, opts: FetchOpts = {}) {
   const url = `${API_BASE}${path.startsWith('/') ? path : `/${path}`}`;
 
-  const { getStackApp } = await import('../stack/stack-context');
+  const { getStackApp } = await import('../stack/stack-context.js');
   const stack = getStackApp?.();
   const token = opts.skipAuth ? null : (await (stack as any)?.getAccessToken?.());
 
