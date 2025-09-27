@@ -1,8 +1,8 @@
 import { FC } from 'react';
-import { Hero } from '../components/editorial/Hero';
-import { BrandStory } from '../components/editorial/BrandStory';
-import { ServicesOverview } from '../components/editorial/ServicesOverview';
-import { CallToAction } from '../components/editorial/CallToAction';
+import { Hero } from '../components/editorial/Hero.js';
+import { BrandStory } from '../components/editorial/BrandStory.js';
+import { ServicesOverview } from '../components/editorial/ServicesOverview.js';
+import { CallToAction } from '../components/editorial/CallToAction.js';
 
 const HomePage: FC = () => {
   return (

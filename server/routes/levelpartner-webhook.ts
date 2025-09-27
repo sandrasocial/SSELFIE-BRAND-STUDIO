@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import { optionalStackAuth } from '..stack-auth'
-import { db } from '..db'
-import { liveSessions, liveEvents } from '..../shared/schema';
+import { optionalStackAuth } from '..stack-auth.js'
+import { db } from '..db.js'
+import { liveSessions, liveEvents } from '..../shared/schema.js';
 import { eq } from 'drizzle-orm';
 
 const router = Router();

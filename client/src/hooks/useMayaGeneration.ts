@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
-import { useMemoryCleanup } from './useMemoryCleanup';
+import { useMemoryCleanup } from './useMemoryCleanup.js';
 
 // PHASE 7: Frontend Performance Tracking (shared with chat hook)
 const trackUserEvent = (event: string, data: any = {}) => {

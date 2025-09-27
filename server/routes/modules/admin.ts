@@ -4,12 +4,12 @@
  */
 
 import { Router, Response } from 'express';
-import { requireStackAuth } from '../../stack-auth';
-import { adminContextDetection } from '../../middleware/admin-context';
-import { asyncHandler, createError, sendSuccess } from '../middleware/error-handler';
-import { requireAdmin } from '../middleware/auth';
-import { AuthenticatedRequest } from '../../api/_shared/auth-types';
-import { SuccessResponse } from '../../types/ai-generation';
+import { requireStackAuth } from '../../stack-auth.js';
+import { adminContextDetection } from '../../middleware/admin-context.js';
+import { asyncHandler, createError, sendSuccess } from '../middleware/error-handler.js';
+import { requireAdmin } from '../middleware/auth.js';
+import { AuthenticatedRequest } from '../../api/_shared/auth-types.js';
+import { SuccessResponse } from '../../types/ai-generation.js';
 
 // Extended request type for admin routes
 interface AdminRequest extends AuthenticatedRequest {

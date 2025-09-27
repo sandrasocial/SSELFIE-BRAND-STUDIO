@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../components/ui/dialog';
-import { apiRequest } from '../../lib/queryClient';
-import VideoPreview from '../../components/VideoPreview';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../components/ui/dialog.js';
+import { apiRequest } from '../../lib/queryClient.js';
+import VideoPreview from '../../components/VideoPreview.js';
 
 interface VideoGenerateDialogProps {
   isOpen: boolean;

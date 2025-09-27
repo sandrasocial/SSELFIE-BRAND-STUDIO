@@ -4,8 +4,8 @@
  * Non-destructive migration - preserves original data
  */
 
-import { db } from './drizzle';
-import { aiImages, generatedImages } from '../shared/schema';
+import { db } from './drizzle.js';
+import { aiImages, generatedImages } from '../shared/schema.js';
 import { eq } from 'drizzle-orm';
 
 interface MigrationResult {

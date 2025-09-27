@@ -1,4 +1,4 @@
-import { type User } from '../../shared/types/user';
+import { type User } from '../../shared/types/user.js';
 
 export interface MayaChatCreateInput {
   userId: string;
@@ -6,7 +6,7 @@ export interface MayaChatCreateInput {
   initialMessage?: string;
 }
 
-import type { BaseChatMessage } from '../../shared/types/unified-chat';
+import type { BaseChatMessage } from '../../shared/types/unified-chat.js';
 
 export type ChatMessageRole = BaseChatMessage['role'];
 

@@ -1,8 +1,8 @@
 import React from 'react';
-import { GlobalFooter } from '../../components/global-footer';
+import { GlobalFooter } from '../../components/global-footer.js';
 import { Link } from 'wouter';
-import { HeroFullBleed } from '../../components/hero-full-bleed';
-import { SandraImages } from '../../components/sandra-image-library';
+import { HeroFullBleed } from '../../components/hero-full-bleed.js';
+import { SandraImages } from '../../components/sandra-image-library.js';
 
 export default function TermsPage() {
   return (

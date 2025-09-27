@@ -1,4 +1,4 @@
-import { app, setupApp } from './index';
+import { app, setupApp } from './index.js';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';

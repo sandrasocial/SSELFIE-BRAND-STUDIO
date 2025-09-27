@@ -4,8 +4,8 @@
  */
 
 import { Router, Request, Response } from 'express';
-import { requireStackAuth } from '../../stack-auth';
-import { asyncHandler, createError, sendSuccess, validateRequired } from '../middleware/error-handler';
+import { requireStackAuth } from '../../stack-auth.js';
+import { asyncHandler, createError, sendSuccess, validateRequired } from '../middleware/error-handler.js';
 import {
   AgentProtocolRegistration,
   AgentCapabilities,
@@ -16,7 +16,7 @@ import {
   AuthenticatedRequest,
   SuccessResponse,
   ErrorResponse
-} from '../../types/agent-protocol';
+} from '../../types/agent-protocol.js';
 
 const router = Router();
 

@@ -1,7 +1,7 @@
 import { S3Client, PutObjectCommand, S3ServiceException } from '@aws-sdk/client-s3';
 import { Upload } from '@aws-sdk/lib-storage';
-import { storage } from './storage';
-import { AIImage, ImageStorageError, ImageUploadResult, MigrationResult } from './types/storage';
+import { storage } from './storage.js';
+import { AIImage, ImageStorageError, ImageUploadResult, MigrationResult } from './types/storage.js';
 
 /**
  * Image Storage Service
@@ -202,8 +202,8 @@ export class ImageStorageService {
           );
           
           // Update database with permanent URL directly
-          const { db } = await import('./db');
-          const { aiImages } = await import('../shared/schema');
+          const { db } = await import('./db.js');
+          const { aiImages } = await import('../shared/schema.js');
           const { eq } = await import('drizzle-orm');
           
           await db

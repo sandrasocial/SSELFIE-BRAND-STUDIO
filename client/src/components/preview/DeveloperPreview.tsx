@@ -1,5 +1,5 @@
 import { FC, useState } from 'react';
-// import { ChatInterface } from './ChatInterface'; // TODO: Create ChatInterface component
+// import { ChatInterface } from './ChatInterface.js'; // TODO: Create ChatInterface component
 
 interface DeveloperPreviewProps {
   currentPage: string;

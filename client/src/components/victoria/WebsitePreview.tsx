@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Button } from '../ui/button';
-import { useWebsiteBuilder } from '../../hooks/useWebsiteBuilder';
+import { Button } from '../ui/button.js';
+import { useWebsiteBuilder } from '../../hooks/useWebsiteBuilder.js';
 
 interface WebsitePreviewProps {
   website: any;

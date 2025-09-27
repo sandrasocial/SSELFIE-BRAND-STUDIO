@@ -1,5 +1,5 @@
 import React from 'react';
-import { EditorialCard } from '../components/editorial/EditorialCard';
+import { EditorialCard } from '../components/editorial/EditorialCard.js';
 
 export default {
   title: 'Editorial/EditorialCard',

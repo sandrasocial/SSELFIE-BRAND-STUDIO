@@ -21,7 +21,7 @@ export async function apiRequest(
   // Attach Stack Auth bearer if available (unifies with apiFetch behavior)
   let authHeader: Record<string, string> = {};
   try {
-    const { getStackApp } = await import('../stack/stack-context');
+    const { getStackApp } = await import('../stack/stack-context.js');
     const stack = getStackApp?.();
     const token = await (stack as any)?.getAccessToken?.();
     if (token) authHeader = { Authorization: `Bearer ${token}` };

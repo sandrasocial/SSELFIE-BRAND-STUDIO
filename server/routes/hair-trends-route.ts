@@ -1,7 +1,7 @@
-import { requireStackAuth } from '../stack-auth';
-import { db } from '../drizzle';
+import { requireStackAuth } from '../stack-auth.js';
+import { db } from '../drizzle.js';
 import { eq, sql } from 'drizzle-orm';
-import { sophia } from '../scheduled-tasks/fetch-hair-trends';
+import { sophia } from '../scheduled-tasks/fetch-hair-trends.js';
 import { Router } from 'express';
 
 const router = Router();

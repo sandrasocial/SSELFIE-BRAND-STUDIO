@@ -3,10 +3,10 @@
  * Manages deployment processes, rollbacks, and environment management
  */
 
-import { Logger } from './logger';
-import { healthCheckSystem } from './health-check';
-import { monitoringSystem } from './monitoring';
-import { testingSystem } from './testing';
+import { Logger } from './logger.js';
+import { healthCheckSystem } from './health-check.js';
+import { monitoringSystem } from './monitoring.js';
+import { testingSystem } from './testing.js';
 
 export interface DeploymentConfig {
   environment: 'development' | 'staging' | 'production';

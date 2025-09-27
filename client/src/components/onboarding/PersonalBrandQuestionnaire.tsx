@@ -1,8 +1,8 @@
 import { FC } from 'react';
-import { Card } from '../ui/card';
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
-import { Textarea } from '../ui/textarea';
+import { Card } from '../ui/card.js';
+import { Input } from '../ui/input.js';
+import { Label } from '../ui/label.js';
+import { Textarea } from '../ui/textarea.js';
 
 export interface PersonalBrandAssessment {
   personalStory: string;

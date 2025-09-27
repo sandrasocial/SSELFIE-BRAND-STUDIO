@@ -1,7 +1,7 @@
 import React from 'react';
-import { PreLoginNavigationUnified } from '../components/pre-login-navigation-unified';
-import { HeroFullBleed } from '../components/hero-full-bleed';
-import { SandraImages } from '../components/sandra-image-library';
+import { PreLoginNavigationUnified } from '../components/pre-login-navigation-unified.js';
+import { HeroFullBleed } from '../components/hero-full-bleed.js';
+import { SandraImages } from '../components/sandra-image-library.js';
 import { Link } from 'wouter';
 
 const faqData = [

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from "wouter";
-import { GlobalFooter } from '../components/global-footer';
+import { GlobalFooter } from '../components/global-footer.js';
 // Avoid importing secondary Stack SDK on public pages
 
 export default function TeamsLanding() {

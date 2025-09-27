@@ -2,7 +2,7 @@ import { pgTable, text, timestamp, uuid, jsonb, boolean, integer, decimal } from
 import { relations } from "drizzle-orm";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
-import { users, aiImages, subscriptions } from "../schema";
+import { users, aiImages, subscriptions } from "../schema.js";
 
 // Existing tables remain unchanged...
 

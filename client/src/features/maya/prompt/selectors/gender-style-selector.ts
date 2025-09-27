@@ -3,8 +3,8 @@
  * Intelligently matches aesthetic recipes based on style preferences and user characteristics
  */
 
-import { AestheticRecipe, GenderVariant, RecipeLook } from '../recipes/types';
-import { AESTHETIC_RECIPES } from '../recipes/index';
+import { AestheticRecipe, GenderVariant, RecipeLook } from '../recipes/types.js';
+import { AESTHETIC_RECIPES } from '../recipes/index.js';
 
 export interface RecipeMatchCriteria {
   styleKey?: string;
