@@ -1,8 +1,14 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import { optionalStackAuth } from '../stack-auth.js'
 import { db } from '../db.js'
 import { liveSessions, liveEvents } from '../../shared/schema.js';
 import { eq } from 'drizzle-orm';
+import { StackAuthUser } from '../stack-auth.js';
+
+// Define request types for type safety
+interface OptionalAuthenticatedRequest extends Request {
+  user?: StackAuthUser;
+}
 
 const router = Router();
 
@@ -45,7 +51,7 @@ interface LevelPartnerApiPayload {
  * Handles signups from Hair Experience landing page and sends data to LevelPartner
  * Tracks UTM parameters for campaign attribution
  */
-router.post('/levelpartner-signup', optionalStackAuth, async (req, res) => {
+router.post('/levelpartner-signup', optionalStackAuth, async (req: Request<{}, {}, LevelPartnerSignupRequest, { [key: string]: string }>, res: Response) => {
   try {
     const { name, email, source = 'hair-landing', sessionId }: LevelPartnerSignupRequest = req.body;
     
@@ -237,7 +243,7 @@ router.post('/levelpartner-signup', optionalStackAuth, async (req, res) => {
 /**
  * Health check endpoint for LevelPartner webhook
  */
-router.get('/levelpartner-status', async (req, res) => {
+router.get('/levelpartner-status', async (req: Request, res: Response) => {
   try {
     const hasApiKey = !!process.env.LEVELPARTNER_API_KEY;
     const hasApiUrl = !!process.env.LEVELPARTNER_API_URL;
@@ -265,7 +271,7 @@ router.get('/levelpartner-status', async (req, res) => {
  * UTM Parameter Testing Endpoint (development only)
  */
 if (process.env.NODE_ENV !== 'production') {
-  router.get('/levelpartner-test-utm', (req, res) => {
+  router.get('/levelpartner-test-utm', (req: Request, res: Response) => {
     res.json({
       message: 'UTM Parameter Test Endpoint',
       query_params: req.query,
