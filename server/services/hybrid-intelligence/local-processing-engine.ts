@@ -13,7 +13,7 @@ import {
   agentPerformanceMetrics, 
   agentTrainingSessions 
 } from '..../../shared/schema';
-import { eq, and, desc, sql } from 'drizzle-orm'';
+import { eq, and, desc, sql } from 'drizzle-orm'
 
 export class LocalProcessingEngine {
   private static instance: LocalProcessingEngine;
@@ -354,7 +354,7 @@ export class LocalProcessingEngine {
       // Extract file names and paths from search results
       const files = result.match(/fileName[^}]+/g) || [];
       const fileList = files.slice(0, 15).map(f => {
-        const name = f.match(/"([^"]+)"/)?.[1] || '';
+        const name = f.match(/"([^"]+)"/)?.[1] || '
         return `- ${name}`;
       }).join('\n');
       

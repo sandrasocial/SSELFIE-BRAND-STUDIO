@@ -1,5 +1,5 @@
 // This will automatically update campaign-manager.ts
-import { useState, useEffect } from 'react'';
+import { useState, useEffect } from 'react'
 
 export interface CampaignData {
   id: string;
@@ -157,7 +157,7 @@ export class CampaignManager {
     const profit_margin = ((monthly_revenue - monthly_costs) / monthly_revenue) * 100;
     const ltv_projection = monthly_revenue * 12 * 0.75; // 75% annual retention
 
-    let scale_recommendation = '';
+    let scale_recommendation = '
     if (profit_margin > 80) {
       scale_recommendation = 'Scale aggressively - excellent margins maintained';
     } else if (profit_margin > 60) {

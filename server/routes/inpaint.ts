@@ -7,7 +7,7 @@ import { Router } from 'express';
 import { requireStackAuth } from '.middleware/auth';
 import { asyncHandler, createError, sendSuccess, validateRequired } from '.middleware/error-handler';
 import { SDInpaintService } from '..services/inpaint/sd_inpaint';
-import { storage } from '..storage';.js
+import { storage } from '../storage'
 
 const router = Router();
 

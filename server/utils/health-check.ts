@@ -10,7 +10,7 @@ import { errorTracker } from './error-tracker';
 import { securityMonitor } from './security-monitor';
 import os from 'os';
 import fs from 'fs';
-import path from 'path'';
+import path from 'path'
 
 export interface HealthCheckResult {
   status: 'healthy' | 'degraded' | 'unhealthy';

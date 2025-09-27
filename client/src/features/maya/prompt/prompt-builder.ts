@@ -3,9 +3,9 @@
  * Orchestrates recipe selection, prose generation, and FLUX prompt creation
  */
 
-import { GenderStyleSelector } from '.selectors.js/gender-style-selector'';
-import { SentenceRealizer } from '.realizers.js/sentence-realizer'';
-import { FluxRealizer } from '.realizers.js/flux-realizer'';
+import { GenderStyleSelector } from '.selectors.js/gender-style-selector'
+import { SentenceRealizer } from '.realizers.js/sentence-realizer'
+import { FluxRealizer } from '.realizers.js/flux-realizer'
 import { 
   PromptBuildRequest, 
   GeneratedPrompt, 
@@ -258,7 +258,7 @@ export class PromptBuilder {
     if (resultTokens < maxTokens) {
       // Add optional sentences until budget is reached
       const remainingBudget = maxTokens - resultTokens;
-      let optionalText = '';
+      let optionalText = '
       
       for (const sentence of optionalSentences) {
         const testText = optionalText + (optionalText ? '. ' : '') + sentence;

@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'';
-import { apiRequest } from '..lib.js/queryClient'';
+import { useState, useEffect } from 'react'
+import { apiRequest } from '..lib.js/queryClient'
 
 interface VideoGenerationJob {
   jobId: string;

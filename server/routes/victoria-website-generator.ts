@@ -1,5 +1,5 @@
 import { Express } from 'express';
-import { requireStackAuth } from '..stack-auth';.js
+import { requireStackAuth } from '../stack-auth'
 
 interface WebsiteGenerationRequest {
   businessName: string;
@@ -173,7 +173,7 @@ function generatePreviewHTML(title: string, content: any) {
             position: relative;
         }
         .hero::before {
-            content: '';
+            content: '
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0,0,0,0.4);
@@ -260,7 +260,7 @@ function generatePreviewHTML(title: string, content: any) {
             margin: 5rem 0;
         }
         .editorial-break::before {
-            content: '';
+            content: '
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0,0,0,0.3);

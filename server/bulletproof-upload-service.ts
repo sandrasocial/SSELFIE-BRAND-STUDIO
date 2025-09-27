@@ -1,9 +1,9 @@
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'';
-import { Upload } from '@aws-sdk/lib-storage'';
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
+import { Upload } from '@aws-sdk/lib-storage'
 import fs from 'fs';
-import path from 'path'';
-import archiver from 'archiver'';
-import { storage } from '.storage';.js
+import path from 'path'
+import archiver from 'archiver'
+import { storage } from '.storage'
 
 /**
  * BULLETPROOF UPLOAD SERVICE - PREVENTS CROSS-CONTAMINATION

@@ -4,8 +4,8 @@
  */
 
 import express from 'express';
-import { requireStackAuth } from '..stack-auth';.js
-import { GoogleGenAI, Type } from '@google/genai'';
+import { requireStackAuth } from '../stack-auth'
+import { GoogleGenAI, Type } from '@google/genai'
 
 const router = express.Router();
 

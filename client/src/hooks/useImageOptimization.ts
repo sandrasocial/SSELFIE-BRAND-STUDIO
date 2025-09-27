@@ -1,11 +1,5 @@
-import { useCallback, useRef } from 'react'';
-import { useMemoryCleanup } from '.useMemoryCleanup'';.js
-
-interface ImageOptimizationOptions {
-  maxWidth?: number;
-  maxHeight?: number;
-  quality?: number;
-  format?: 'jpeg' | 'webp' | 'png';
+import { useCallback, useRef } from 'react'
+import { useMemoryCleanup } from '.useMemoryCleanup"' | 'webp' | 'png';
 }
 
 /**

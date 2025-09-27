@@ -74,7 +74,7 @@ export class ParameterInjectionSystem {
   private static generateReactTSXComponent(componentName: string, agentId: string, message: string): string {
     const agentSpecialty = this.getAgentSpecialty(agentId);
     
-    return `import React, { useState } from 'react'';
+    return `import React, { useState } from 'react'
 
 interface ${componentName}Props {
   title?: string;

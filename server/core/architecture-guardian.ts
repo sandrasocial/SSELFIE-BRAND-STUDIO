@@ -5,8 +5,8 @@
  */
 
 import fs from 'fs';
-import path from 'path'';
-import crypto from 'crypto'';
+import path from 'path'
+import crypto from 'crypto'
 
 interface ProtectedFile {
   path: string;

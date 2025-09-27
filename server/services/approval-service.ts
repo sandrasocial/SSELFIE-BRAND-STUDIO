@@ -1,4 +1,4 @@
-import { db } from '..drizzle';.js
+import { db } from '../drizzle'
 import { approvalQueue, agentHandoffRequests } from '..../shared/schema';
 
 export class ApprovalService {

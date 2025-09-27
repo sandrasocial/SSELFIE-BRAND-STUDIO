@@ -1,5 +1,5 @@
 import type { Express } from "express";
-import { requireStackAuth } from '..stack-auth';.js
+import { requireStackAuth } from '../stack-auth'
 import { storage } from "../storage.js";
 // import { sendWelcomeEmail } from "../email-service.js";
 

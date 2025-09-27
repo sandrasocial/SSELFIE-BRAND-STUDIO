@@ -1,15 +1,15 @@
 
 import "./env-setup.js";
 import express from 'express';
-import path from 'path'';
+import path from 'path'
 import fs from 'fs';
-import { registerRoutes } from '.routes';.js
+import { registerRoutes } from '.routes'
 import { securityHeaders, inputValidation } from '.middleware/security';
 import { rateLimits } from '.middleware/rate-limiter';
 import { cacheMiddleware, staticDataCache } from '.utils/cache';
 import { Logger } from '.utils/logger';
 import { liveSessionsManager } from '.realtime/live-sessions';
-import { LIVE_SOCKET_ENABLED } from '.env';.js
+import { LIVE_SOCKET_ENABLED } from '.env'
 
 const app = express();
 const logger = new Logger('Server');

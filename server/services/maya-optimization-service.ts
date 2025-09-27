@@ -3,7 +3,7 @@
  * Maya Optimization Service - Eliminates redundant API calls and optimizes concept generation
  */
 
-import { ClaudeApiServiceSimple } from '.claude-api-service-simple';.js
+import { ClaudeApiServiceSimple } from '.claude-api-service-simple'
 import { enforceGender, normalizeGender } from '..utils/gender-prompt';
 import { PersonalityManager } from '..agents/personalities/personality-config';
 
@@ -164,7 +164,7 @@ Generate comprehensive response now:`;
     userId?: string
   ): Promise<{ concepts: any[]; conversationalResponse: string }> {
     const concepts: any[] = [];
-    let conversationalResponse = '';
+    let conversationalResponse = '
     
     try {
       // Extract conversational response

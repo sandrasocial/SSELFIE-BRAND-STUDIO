@@ -3,7 +3,7 @@
  * Check if Zara is actually working vs just having conversations
  */
 
-import { db } from '.db';.js
+import { db } from '.db'
 import { claudeMessages } from '..shared/schema';
 import { eq, desc } from 'drizzle-orm';
 

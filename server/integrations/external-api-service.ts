@@ -3,7 +3,7 @@
  * Connects AI agents to Make, Flodesk, ManyChat, Instagram, and more
  */
 
-import fetch from 'node-fetch'';
+import fetch from 'node-fetch'
 
 export interface FlodeskSubscriber {
   email: string;
