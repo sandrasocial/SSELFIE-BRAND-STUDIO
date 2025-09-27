@@ -1,8 +1,18 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from "wouter";
 
+interface Employee {
+  id: number;
+  name: string;
+  department: string;
+  status: string;
+  photos: number;
+  photos_remaining?: number;
+  lastGenerated: string;
+}
+
 // Mock data for demonstration
-const mockEmployees = [
+const mockEmployees: Employee[] = [
   { id: 1, name: "Sarah Johnson", department: "Marketing", status: "trained", photos: 45, lastGenerated: "2 days ago" },
   { id: 2, name: "Mike Chen", department: "Sales", status: "training", photos: 0, lastGenerated: "Training in progress" },
   { id: 3, name: "Emma Wilson", department: "C-Suite", status: "trained", photos: 67, photos_remaining: 33, lastGenerated: "1 hour ago" },
@@ -22,7 +32,7 @@ export default function CompanyDashboard() {
     ? mockEmployees 
     : mockEmployees.filter(emp => emp.department === selectedDepartment);
 
-  const handleGeneratePhotos = async (employee) => {
+  const handleGeneratePhotos = async (employee: Employee) => {
     setGeneratingPhotos(true);
     // Simulate photo generation
     setTimeout(() => {
