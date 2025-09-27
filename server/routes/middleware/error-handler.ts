@@ -61,7 +61,14 @@ export const createError = {
     new RouteError(message, 503, ErrorTypes.SERVICE_UNAVAILABLE),
   
   internal: (message: string = 'Internal server error', details?: any) => 
-    new RouteError(message, 500, ErrorTypes.INTERNAL_ERROR, details)
+    new RouteError(message, 500, ErrorTypes.INTERNAL_ERROR, details),
+  
+  // Backward compatibility aliases
+  badRequest: (message: string, details?: any) => 
+    new RouteError(message, 400, ErrorTypes.VALIDATION_ERROR, details),
+  
+  forbidden: (message: string = 'Insufficient permissions') => 
+    new RouteError(message, 403, ErrorTypes.AUTHORIZATION_ERROR)
 };
 
 // Async error wrapper for route handlers
