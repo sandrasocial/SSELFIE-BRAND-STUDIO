@@ -143,7 +143,7 @@ export class ImageVariationsService {
 
     } catch (error) {
       console.error('❌ VARIATIONS: Error deriving prompt:', error);
-      throw new Error('Failed to derive prompt from image'.js');
+      throw new Error('Failed to derive prompt from image'');
     }
   }
 

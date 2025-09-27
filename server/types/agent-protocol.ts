@@ -3,7 +3,7 @@
  */
 
 import { Request } from 'express';
-import { AuthenticatedUser } from '../../api/_shared/auth-types.js';
+import { AuthenticatedUser } from '../../api/_shared/auth-types';
 
 /** Agent protocol registration data */
 export interface AgentProtocolRegistration {

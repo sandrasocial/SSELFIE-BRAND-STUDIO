@@ -248,7 +248,7 @@ export const QueryOptimizer = {
       'CREATE INDEX IF NOT EXISTS idx_videos_user_id ON videos(user_id)',
       'CREATE INDEX IF NOT EXISTS idx_videos_status ON videos(status)',
       'CREATE INDEX IF NOT EXISTS idx_maya_chats_user_id ON maya_chats(user_id)',
-      'CREATE INDEX IF NOT EXISTS idx_maya_chats_created_at ON maya_chats(created_at).js'
+      'CREATE INDEX IF NOT EXISTS idx_maya_chats_created_at ON maya_chats(created_at)'
     ];
 
     for (const indexQuery of indexes) {

@@ -1,4 +1,4 @@
-import { storage } from './storage.js';
+import { storage } from './storage';
 
 // User usage type definition
 export interface UserUsage {

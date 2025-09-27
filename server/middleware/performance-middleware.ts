@@ -2,7 +2,7 @@
 // Implementing server-side performance improvements
 
 import { Request, Response, NextFunction } from 'express';
-import compression from 'compression'';
+import compression from 'compression';
 
 // Response compression middleware  
 export const compressionMiddleware = compression({

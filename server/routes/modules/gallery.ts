@@ -4,11 +4,11 @@
  */
 
 import { Router, Response } from 'express';
-import { requireStackAuth } from '../../stack-auth.js';
-import { asyncHandler, createError, sendSuccess, validateRequired } from '../middleware/error-handler.js';
-import { storage } from '../../storage.js';
-import { AuthenticatedRequest } from '../../api/_shared/auth-types.js';
-import { SuccessResponse } from '../../types/ai-generation.js';
+import { requireStackAuth } from '../../stack-auth';
+import { asyncHandler, createError, sendSuccess, validateRequired } from '../middleware/error-handler';
+import { storage } from '../../storage';
+import { AuthenticatedRequest } from '../../api/_shared/auth-types';
+import { SuccessResponse } from '../../types/ai-generation';
 
 interface ImageMetadata {
   width: number;

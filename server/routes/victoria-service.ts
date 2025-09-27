@@ -1,5 +1,5 @@
 import type { Express } from "express";
-import { requireStackAuth } from '..stack-auth';.js
+import { requireStackAuth } from '../stack-auth';
 
 // Victoria AI Service Layer - Missing component identified by Zara's audit
 export function registerVictoriaService(app: Express) {
@@ -73,7 +73,7 @@ export function registerVictoriaService(app: Express) {
     }
   });
 
-  // Design Preferences Analysis - New endpoint from Zara'.js's audit
+  // Design Preferences Analysis - New endpoint from Zara''s audit
   app.post('/api/victoria/analyze-design', requireStackAuth, async (req, res) => {
     try {
       const { brandData } = req.body;
@@ -403,7 +403,7 @@ Through years of experience, I've developed an approach that combines ${brandDat
 Whether you're just starting out or looking to take your journey to the next level, I'm here to guide you every step of the way.`;
 }
 
-// Design Preferences Analysis - Core missing functionality from Zara'.js's audit
+// Design Preferences Analysis - Core missing functionality from Zara''s audit
 function analyzeDesignPreferences(brandData: any) {
   const preferences = {
     stylePreference: brandData.stylePreference || 'editorial-luxury',

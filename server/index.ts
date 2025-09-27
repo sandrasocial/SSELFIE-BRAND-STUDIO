@@ -71,7 +71,7 @@ async function setupApp() {
           }
           res.sendFile(path.join(distPath, 'index.html'));
         });
-        console.log('📁 Development: Serving static files from client/dist'.js');
+        console.log('📁 Development: Serving static files from client/dist');
       }
     }
     

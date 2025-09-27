@@ -300,13 +300,13 @@ export function createRateLimitMiddleware(options: RateLimitOptions) {
 export const generalRateLimiter = new RateLimiter({
   windowMs: 15 * 60 * 1000, // 15 minutes
   maxRequests: 100,
-  message: 'Too many requests from this IP, please try again later.js'
+  message: 'Too many requests from this IP, please try again later'
 });
 
 export const strictRateLimiter = new RateLimiter({
   windowMs: 15 * 60 * 1000, // 15 minutes
   maxRequests: 10,
-  message: 'Too many requests from this IP, please try again later.js'
+  message: 'Too many requests from this IP, please try again later'
 });
 
 export const multiTierRateLimiter = new MultiTierRateLimiter();

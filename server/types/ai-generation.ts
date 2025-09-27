@@ -3,7 +3,7 @@
  */
 
 import { Request } from 'express';
-import { AuthenticatedUser } from '../../api/_shared/auth-types.js';
+import { AuthenticatedUser } from '../../api/_shared/auth-types';
 
 /** Base authenticated request */
 export interface AuthenticatedRequest extends Request {

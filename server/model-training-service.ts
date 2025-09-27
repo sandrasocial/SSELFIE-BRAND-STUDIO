@@ -3,10 +3,10 @@ import archiver from 'archiver';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { storage } from './storage.js';
+import { storage } from './storage';
 // MAYA FAÇADE: Removed PersonalityManager dependency - Maya is now isolated
 // import { PersonalityManager } from '.agents/personalities/personality-config'; // REMOVED: Outbound dependency
-import { ArchitectureValidator } from './architecture-validator.js';
+import { ArchitectureValidator } from './architecture-validator';
 import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 // MAYA FAÇADE: Replaced Maya-specific import with façade API calls
@@ -705,7 +705,7 @@ export class ModelTrainingService {
       }
       
       // SECURE: Validate user gender is legitimate value (no injection possible)
-      const { enforceGender, normalizeGender, promptHasGender } = await import('./utils/gender-prompt.js');
+      const { enforceGender, normalizeGender, promptHasGender } = await import('./utils/gender-prompt');
       const secureGender = normalizeGender(user.gender);
 
       if (secureGender) {
@@ -1090,7 +1090,7 @@ export class ModelTrainingService {
       // MAYA FAÇADE: Removed PersonalityManager import - Maya isolated
       // const { PersonalityManager } = await import('./agents/personalities/personality-config'); // REMOVED: Direct dependency
       // Use Claude API service directly
-      const { ClaudeApiServiceSimple } = await import('./services/claude-api-service-simple.js');
+      const { ClaudeApiServiceSimple } = await import('./services/claude-api-service-simple');
       const claudeService = new ClaudeApiServiceSimple();
       
       // MAYA'S PARAMETER INTELLIGENCE PROMPT WITH CATEGORY CONTEXT
@@ -1114,7 +1114,7 @@ STYLING FOCUS: Adapt your creative choices to match this SSELFIE Studio category
 - Aspirational Vision: Goals and transformation
 - B&W: Timeless artistic imagery
 - Timeless & Artistic: Classic enduring style
-- Studio: Controlled professional environment` : '';
+- Studio: Controlled professional environment` : ';
 
       // MAYA FAÇADE: Standard parameter prompt - Maya's personality via API only
       const mayaParameterPrompt = `You are Maya, SSELFIE Studio's AI Creative Director.
@@ -1143,7 +1143,7 @@ RESPOND EXACTLY IN THIS JSON FORMAT:
       // Get Maya's AI-driven parameter selection using the correct method
       const mayaResponse = await claudeService.sendMessage(mayaParameterPrompt, `parameter_selection_${Date.now()}`, 'maya', false);
       
-      // Extract JSON from Maya'.js's response with comprehensive parsing  
+      // Extract JSON from Maya''s response with comprehensive parsing  
       let mayaChoice;
       try {
         // COMPREHENSIVE APPROACH: Maya's response might have the JSON with extra text
