@@ -35,12 +35,12 @@ export const agentSessionContexts = pgTable("agent_session_contexts", {
   sessionId: varchar("session_id").notNull(),
   contextData: jsonb("context_data").notNull(), // Conversation history, memory, state
   workflowState: varchar("workflow_state").default("ready"), // ready, active, paused, completed
-  lastInteraction: timestamp("last_interaction").defaultNow(),
+  lastInteraction: timestamp("last_interaction").defaultNow().notNull(),
   memorySnapshot: jsonb("memory_snapshot"), // Consolidated memory for quick restoration
   adminBypass: boolean("admin_bypass").default(false), // Admin bypass for enhanced context access
   unlimitedContext: boolean("unlimited_context").default(false), // Unlimited memory access for admin agents
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 }, (table) => [
   index("idx_agent_session_user").on(table.userId, table.agentId),
   index("idx_agent_session_updated").on(table.updatedAt),
@@ -58,8 +58,8 @@ export const users = pgTable("users", {
   profileImageUrl: varchar("profile_image_url"),
   
   // Stack Auth managed timestamps
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
   lastLoginAt: timestamp("last_login_at"),
   
   // Business logic - preserved from existing system

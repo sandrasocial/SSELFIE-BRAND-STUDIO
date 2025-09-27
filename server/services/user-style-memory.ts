@@ -21,24 +21,28 @@ export interface UserStyleMemory {
 
 export interface PromptAnalysisData {
   originalPrompt: string;
-  generatedPrompt?: string;
-  conceptTitle?: string;
-  category?: string;
+  generatedPrompt?: string | null;
+  conceptTitle?: string | null;
+  category?: string | null;
   wasGenerated: boolean;
   wasFavorited: boolean;
   wasSaved: boolean;
-  viewDuration?: number;
+  viewDuration?: number | null;
   promptLength: number;
   keywordDensity: Record<string, number>;
   technicalSpecs: Record<string, any>;
-  generationTime?: number;
+  generationTime?: number | null;
   successScore: number;
 }
 
 export class UserStyleMemoryService {
   // Initialize or get user's style memory
-  static async initializeUserMemory(userId: string): Promise<UserStyleMemory> {
+  static async initializeUserMemory(userId: string): Promise<UserStyleMemory | null> {
     try {
+      if (!userId) {
+        throw new Error('User ID is required');
+      }
+
       const [existingMemory] = await db
         .select()
         .from(userStyleMemory)
@@ -46,47 +50,27 @@ export class UserStyleMemoryService {
         .limit(1);
 
       if (existingMemory) {
+        // Safely cast with null checking
+        const safeArray = <T>(value: any): T[] => Array.isArray(value) ? value : [];
+        const safeNumber = (value: any): number => typeof value === 'number' ? value : 0;
+
         return {
-          preferredCategories: existingMemory.preferredCategories as string[] || [],
-          favoritePromptPatterns: existingMemory.favoritePromptPatterns as string[] || [],
-          colorPreferences: existingMemory.colorPreferences as string[] || [],
-          settingPreferences: existingMemory.settingPreferences as string[] || [],
-          stylingKeywords: existingMemory.stylingKeywords as string[] || [],
-          totalInteractions: existingMemory.totalInteractions || 0,
-          totalFavorites: existingMemory.totalFavorites || 0,
-          averageSessionLength: existingMemory.averageSessionLength || 0,
-          mostActiveHours: existingMemory.mostActiveHours as number[] || [],
-          highPerformingPrompts: existingMemory.highPerformingPrompts as string[] || [],
-          rejectedPrompts: existingMemory.rejectedPrompts as string[] || [],
+          preferredCategories: safeArray<string>(existingMemory.preferredCategories),
+          favoritePromptPatterns: safeArray<string>(existingMemory.favoritePromptPatterns),
+          colorPreferences: safeArray<string>(existingMemory.colorPreferences),
+          settingPreferences: safeArray<string>(existingMemory.settingPreferences),
+          stylingKeywords: safeArray<string>(existingMemory.stylingKeywords),
+          totalInteractions: safeNumber(existingMemory.totalInteractions),
+          totalFavorites: safeNumber(existingMemory.totalFavorites),
+          averageSessionLength: safeNumber(existingMemory.averageSessionLength),
+          mostActiveHours: safeArray<number>(existingMemory.mostActiveHours),
+          highPerformingPrompts: safeArray<string>(existingMemory.highPerformingPrompts),
+          rejectedPrompts: safeArray<string>(existingMemory.rejectedPrompts),
         };
       }
 
       // Create new memory record
       const newMemory: UserStyleMemory = {
-        preferredCategories: [] as string[],
-        favoritePromptPatterns: [] as string[],
-        colorPreferences: [] as string[],
-        settingPreferences: [] as string[],
-        stylingKeywords: [] as string[],
-        totalInteractions: 0,
-        totalFavorites: 0,
-        averageSessionLength: 0,
-        mostActiveHours: [],
-        highPerformingPrompts: [],
-        rejectedPrompts: [],
-      };
-
-      await db.insert(userStyleMemory).values({
-        userId,
-        ...newMemory,
-      });
-
-      console.log(`🧠 USER MEMORY: Initialized for user ${userId}`);
-      return newMemory;
-    } catch (error) {
-      console.error('❌ USER MEMORY: Failed to initialize:', error);
-      // Return default structure if database fails
-      return {
         preferredCategories: [],
         favoritePromptPatterns: [],
         colorPreferences: [],
@@ -99,12 +83,29 @@ export class UserStyleMemoryService {
         highPerformingPrompts: [],
         rejectedPrompts: [],
       };
+
+      await db.insert(userStyleMemory).values({
+        userId,
+        ...newMemory,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+
+      console.log(`🧠 USER MEMORY: Initialized for user ${userId}`);
+      return newMemory;
+    } catch (error) {
+      console.error('❌ USER MEMORY: Failed to initialize:', error);
+      return null; // Return null instead of default structure for better error handling
     }
   }
 
   // Track prompt analysis (zero-risk logging)
   static async logPromptAnalysis(userId: string, data: PromptAnalysisData): Promise<void> {
     try {
+      if (!userId || !data.originalPrompt) {
+        throw new Error('User ID and original prompt are required');
+      }
+
       // Calculate keyword density
       const words = data.originalPrompt.toLowerCase().split(/\s+/);
       const keywordDensity: Record<string, number> = {};
@@ -123,18 +124,19 @@ export class UserStyleMemoryService {
       await db.insert(promptAnalysis).values({
         userId,
         originalPrompt: data.originalPrompt,
-        generatedPrompt: data.generatedPrompt,
-        conceptTitle: data.conceptTitle,
-        category: data.category,
+        generatedPrompt: data.generatedPrompt ?? null,
+        conceptTitle: data.conceptTitle ?? null,
+        category: data.category ?? null,
         wasGenerated: data.wasGenerated,
         wasFavorited: data.wasFavorited,
         wasSaved: data.wasSaved,
-        viewDuration: data.viewDuration,
+        viewDuration: data.viewDuration ?? null,
         promptLength: data.promptLength,
         keywordDensity,
         technicalSpecs: data.technicalSpecs,
-        generationTime: data.generationTime,
+        generationTime: data.generationTime ?? null,
         successScore,
+        createdAt: new Date(),
       });
 
       console.log(`📊 PROMPT ANALYSIS: Logged for user ${userId} - Score: ${successScore}`);
@@ -147,6 +149,10 @@ export class UserStyleMemoryService {
   // Learn from user favorites (safe pattern detection)
   static async learnFromFavorites(userId: string): Promise<void> {
     try {
+      if (!userId) {
+        throw new Error('User ID is required');
+      }
+
       // Get user's recent favorites
       const favorites = await db
         .select()
@@ -160,18 +166,18 @@ export class UserStyleMemoryService {
 
       if (favorites.length === 0) return;
 
-      // Analyze patterns
+      // Analyze patterns with null safety
       const categoryCount: Record<string, number> = {};
       const keywordCount: Record<string, number> = {};
       
       favorites.forEach(image => {
-        // Count categories
-        if (image.category) {
+        // Count categories with null check
+        if (image.category && typeof image.category === 'string') {
           categoryCount[image.category] = (categoryCount[image.category] || 0) + 1;
         }
 
-        // Extract keywords from prompts
-        if (image.prompt) {
+        // Extract keywords from prompts with null check
+        if (image.prompt && typeof image.prompt === 'string') {
           const words = image.prompt.toLowerCase().split(/\s+/);
           words.forEach(word => {
             if (word.length > 3 && !['with', 'that', 'this', 'from', 'they', 'were', 'have'].includes(word)) {
