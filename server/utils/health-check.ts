@@ -8,9 +8,9 @@ import { monitoringSystem } from './monitoring.js';
 import { performanceMonitor } from './performance-monitor.js';
 import { errorTracker } from './error-tracker.js';
 import { securityMonitor } from './security-monitor.js';
-import os from 'os';
-import fs from 'fs';
-import path from 'path';
+import * as os from 'os';
+import * as fs from 'fs';
+import * as path from 'path';
 
 export interface HealthCheckResult {
   status: 'healthy' | 'degraded' | 'unhealthy';
@@ -451,7 +451,7 @@ export class HealthCheckSystem {
     try {
       const loadAverage = os.loadavg();
       const cpuCount = os.cpus().length;
-      const cpuUsage = loadAverage[0] / cpuCount; // 1-minute load average per CPU
+      const cpuUsage = (loadAverage[0] ?? 0) / cpuCount; // 1-minute load average per CPU
       const percentage = cpuUsage * 100;
 
       let status: 'healthy' | 'degraded' | 'unhealthy';
@@ -615,15 +615,15 @@ export class HealthCheckSystem {
       let status: 'healthy' | 'degraded' | 'unhealthy';
       let message: string;
 
-      if (performanceStats.averageResponseTime > 10000 || performanceStats.errorRate > 10) {
+      if ((performanceStats.averageResponseTime ?? 0) > 10000 || (performanceStats.errorRate ?? 0) > 10) {
         status = 'unhealthy';
-        message = `Performance degraded: ${performanceStats.averageResponseTime}ms avg, ${performanceStats.errorRate}% errors`;
-      } else if (performanceStats.averageResponseTime > 5000 || performanceStats.errorRate > 5) {
+        message = `Performance degraded: ${performanceStats.averageResponseTime ?? 0}ms avg, ${performanceStats.errorRate ?? 0}% errors`;
+      } else if ((performanceStats.averageResponseTime ?? 0) > 5000 || (performanceStats.errorRate ?? 0) > 5) {
         status = 'degraded';
-        message = `Performance elevated: ${performanceStats.averageResponseTime}ms avg, ${performanceStats.errorRate}% errors`;
+        message = `Performance elevated: ${performanceStats.averageResponseTime ?? 0}ms avg, ${performanceStats.errorRate ?? 0}% errors`;
       } else {
         status = 'healthy';
-        message = `Performance normal: ${performanceStats.averageResponseTime}ms avg, ${performanceStats.errorRate}% errors`;
+        message = `Performance normal: ${performanceStats.averageResponseTime ?? 0}ms avg, ${performanceStats.errorRate ?? 0}% errors`;
       }
 
       return {
@@ -631,10 +631,10 @@ export class HealthCheckSystem {
         message,
         responseTime: Date.now() - startTime,
         details: {
-          averageResponseTime: performanceStats.averageResponseTime,
-          errorRate: performanceStats.errorRate,
-          throughput: performanceStats.throughput,
-          requestsPerMinute: realTimeSummary.requestsPerMinute,
+          averageResponseTime: performanceStats.averageResponseTime ?? 0,
+          errorRate: performanceStats.errorRate ?? 0,
+          throughput: performanceStats.throughput ?? 0,
+          requestsPerMinute: realTimeSummary.requestsPerMinute ?? 0,
         },
         lastChecked: new Date().toISOString(),
       };
@@ -667,18 +667,18 @@ export class HealthCheckSystem {
         percentage: (memoryUsage.heapUsed / totalMemory) * 100,
       },
       cpu: {
-        usage: (loadAverage[0] / cpuCount) * 100,
+        usage: (loadAverage[0] ?? 0) / cpuCount * 100,
         loadAverage: loadAverage.map(load => Math.round(load * 100) / 100),
       },
       requests: {
-        total: performanceStats.totalRequests,
-        rate: performanceStats.throughput,
-        averageResponseTime: performanceStats.averageResponseTime,
+        total: performanceStats.totalRequests ?? 0,
+        rate: performanceStats.throughput ?? 0,
+        averageResponseTime: performanceStats.averageResponseTime ?? 0,
       },
       errors: {
-        count: errorStats.totalErrors,
-        rate: errorStats.errorRate,
-        critical: errorStats.criticalErrors,
+        count: errorStats.totalErrors ?? 0,
+        rate: errorStats.errorRate ?? 0,
+        critical: errorStats.criticalErrors ?? 0,
       },
     };
   }
@@ -701,7 +701,14 @@ export class HealthCheckSystem {
 
     // Get performance alerts
     const performanceAlerts = performanceMonitor.getPerformanceAlerts();
-    alerts.push(...performanceAlerts);
+    performanceAlerts.forEach(alert => {
+      alerts.push({
+        type: 'performance',
+        message: alert,
+        severity: 'medium',
+        timestamp: new Date().toISOString(),
+      });
+    });
 
     // Add memory alerts
     const memoryUsage = process.memoryUsage();
