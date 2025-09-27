@@ -3,8 +3,8 @@
  * Advanced AI-powered predictive analytics and decision support system
  */
 
-import { db } from '..drizzle.js'
-import { users, aiImages } from '..../shared/schema.js';
+import { db } from '../drizzle.js'
+import { users, aiImages } from '../../shared/schema.js';
 import { eq, desc, sql, and, gte } from 'drizzle-orm';
 
 export interface PredictiveMetrics {

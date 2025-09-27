@@ -5,7 +5,7 @@ import { Input } from '../../components/ui/input.js';
 import { Textarea } from '../../components/ui/textarea.js';
 import { Badge } from '../../components/ui/badge.js';
 import { Trash2, Play, Plus, Camera, Clock, Sparkles } from 'lucide-react';
-import { useToast } from '../../components/ui/use-toast.js';
+import { useToast } from '../../hooks/use-toast.js';
 
 interface StoryboardScene {
   id: string;
@@ -87,10 +87,10 @@ export function StoryboardBuilder({ imageId, onGenerate, className }: Storyboard
     
     for (let i = 0; i < scenes.length; i++) {
       const scene = scenes[i];
-      if (!scene.motionPrompt.trim()) {
+      if (!scene?.motionPrompt?.trim()) {
         return `Scene ${i + 1} needs a motion description`;
       }
-      if (scene.motionPrompt.length < 8) {
+      if ((scene?.motionPrompt?.length || 0) < 8) {
         return `Scene ${i + 1} motion description is too short (min 8 characters)`;
       }
       if (scene.duration < 1 || scene.duration > 12) {
