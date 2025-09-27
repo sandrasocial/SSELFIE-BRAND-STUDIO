@@ -13,12 +13,19 @@ interface AdminAgentContext {
   agentId: string;
   userId: string;
   conversationId: string;
-  personality: any;
+  personality: AgentPersonality | null; // Make nullable for better type safety
   adminPrivileges: boolean;
   memoryContext: string[];
   lastActivity: Date;
   // PHASE 2: Project structure awareness
   projectContext: ProjectContextData;
+}
+
+interface AgentPersonality {
+  name: string;
+  capabilities: string[];
+  description?: string;
+  // Add other personality properties as needed
 }
 
 interface ProjectContextData {
@@ -169,13 +176,25 @@ export class AdminContextManager {
     agentId: string, 
     userId: string, 
     conversationId: string, 
-    personality: any
+    personality: AgentPersonality | null
   ): Promise<AdminAgentContext> {
-    console.log(`🤖 ADMIN AGENT ACTIVATION: ${personality.name || agentId} with Phase 2 project context`);
+    // Input validation with type guards
+    if (!this.isValidAgentId(agentId)) {
+      throw new Error('Invalid agent ID provided');
+    }
+    if (!this.isValidUserId(userId)) {
+      throw new Error('Invalid user ID provided');
+    }
+    if (!this.isValidConversationId(conversationId)) {
+      throw new Error('Invalid conversation ID provided');
+    }
+
+    const personalityName = personality?.name || agentId;
+    console.log(`🤖 ADMIN AGENT ACTIVATION: ${personalityName} with Phase 2 project context`);
     console.log(`🏗️ PROJECT AWARE: Agent loaded with protection rules and safe development zones`);
     
     // LOAD EXISTING CONTEXT: Create fresh context for now to avoid parsing issues
-    let existingMemory = {};
+    let existingMemory: Record<string, unknown> = {};
 
     // Generate agent-specific capabilities based on personality
     const agentCapabilities = this.generateAgentCapabilities(agentId, personality);
@@ -186,8 +205,7 @@ export class AdminContextManager {
       conversationId,
       personality,
       adminPrivileges: true,
-      memoryContext: (existingMemory as any)?.recentInteractions?.message ? 
-        [(existingMemory as any).recentInteractions.message] : [],
+      memoryContext: this.extractMemoryContext(existingMemory),
       lastActivity: new Date(),
       projectContext: {
         ...this.projectProtectionRules,
@@ -203,16 +221,55 @@ export class AdminContextManager {
     // await this.saveContextToDatabase(context);
     
     this.activeContexts.set(`${agentId}-${userId}`, context);
-    console.log(`✅ PHASE 2 CONTEXT: ${personality.name || agentId} loaded with project protection awareness`);
+    console.log(`✅ PHASE 2 CONTEXT: ${personalityName} loaded with project protection awareness`);
     console.log(`🛡️ PROTECTION: ${this.projectProtectionRules.protectedSystems.length} systems protected`);
     console.log(`✅ SAFE ZONES: ${this.projectProtectionRules.safeDevelopmentZones.length} development areas available`);
     return context;
   }
 
   /**
+   * Type guard for agent ID validation
+   */
+  private isValidAgentId(agentId: string): boolean {
+    return typeof agentId === 'string' && agentId.trim().length > 0;
+  }
+
+  /**
+   * Type guard for user ID validation
+   */
+  private isValidUserId(userId: string): boolean {
+    return typeof userId === 'string' && userId.trim().length > 0;
+  }
+
+  /**
+   * Type guard for conversation ID validation
+   */
+  private isValidConversationId(conversationId: string): boolean {
+    return typeof conversationId === 'string' && conversationId.trim().length > 0;
+  }
+
+  /**
+   * Safely extract memory context from existing memory object
+   */
+  private extractMemoryContext(existingMemory: Record<string, unknown>): string[] {
+    try {
+      const recentInteractions = existingMemory.recentInteractions as Record<string, unknown> | undefined;
+      const message = recentInteractions?.message;
+      
+      if (typeof message === 'string') {
+        return [message];
+      }
+      return [];
+    } catch (error) {
+      console.warn('⚠️ Failed to extract memory context, using empty array:', error);
+      return [];
+    }
+  }
+
+  /**
    * PHASE 2: Generate agent-specific capabilities based on personality and project context
    */
-  private generateAgentCapabilities(agentId: string, personality: any): string[] {
+  private generateAgentCapabilities(agentId: string, personality: AgentPersonality | null): string[] {
     const baseCapabilities = [
       'project_structure_awareness',
       'revenue_system_protection',
@@ -220,7 +277,7 @@ export class AdminContextManager {
     ];
 
     // Agent-specific capabilities based on established personalities
-    const agentSpecificCapabilities: { [key: string]: string[] } = {
+    const agentSpecificCapabilities: Record<string, string[]> = {
       elena: [
         'workflow_coordination',
         'strategic_planning', 
@@ -256,8 +313,11 @@ export class AdminContextManager {
       ]
     };
 
+    // Use personality capabilities if available, otherwise fall back to agent ID lookup
+    const personalityCapabilities = personality?.capabilities || [];
     const specificCapabilities = agentSpecificCapabilities[agentId] || ['general_assistance'];
-    return [...baseCapabilities, ...specificCapabilities];
+    
+    return [...baseCapabilities, ...personalityCapabilities, ...specificCapabilities];
   }
 
   /**
@@ -268,6 +328,21 @@ export class AdminContextManager {
     reason: string;
     suggestion?: string;
   } {
+    // Input validation
+    if (!this.isValidAgentId(agentId)) {
+      return {
+        allowed: false,
+        reason: 'Invalid agent ID provided'
+      };
+    }
+
+    if (!filePath || typeof filePath !== 'string' || filePath.trim().length === 0) {
+      return {
+        allowed: false,
+        reason: 'Invalid file path provided'
+      };
+    }
+
     const context = Array.from(this.activeContexts.values())
       .find(ctx => ctx.agentId === agentId);
     
@@ -280,9 +355,19 @@ export class AdminContextManager {
 
     const { conflictPrevention } = context.projectContext;
 
+    // Type guard for conflict prevention rules
+    if (!conflictPrevention || !Array.isArray(conflictPrevention.neverModifyPaths)) {
+      console.warn('⚠️ Invalid conflict prevention rules detected');
+      return {
+        allowed: false,
+        reason: 'Configuration error: invalid protection rules'
+      };
+    }
+
     // Check if path is never allowed to be modified
     const isProtected = conflictPrevention.neverModifyPaths.some(protectedPath => 
-      filePath.includes(protectedPath) || protectedPath.includes(filePath)
+      typeof protectedPath === 'string' && 
+      (filePath.includes(protectedPath) || protectedPath.includes(filePath))
     );
 
     if (isProtected) {
@@ -294,9 +379,11 @@ export class AdminContextManager {
     }
 
     // Check if path is in safe development zone
-    const isSafe = conflictPrevention.safeToModifyPaths.some(safePath =>
-      filePath.startsWith(safePath) || safePath.includes(filePath)
-    );
+    const isSafe = Array.isArray(conflictPrevention.safeToModifyPaths) &&
+      conflictPrevention.safeToModifyPaths.some(safePath =>
+        typeof safePath === 'string' &&
+        (filePath.startsWith(safePath) || safePath.includes(filePath))
+      );
 
     if (isSafe) {
       return {
@@ -306,9 +393,10 @@ export class AdminContextManager {
     }
 
     // Check if requires approval
-    const requiresApproval = conflictPrevention.requireApprovalPaths.some(approvalPath =>
-      filePath.startsWith(approvalPath)
-    );
+    const requiresApproval = Array.isArray(conflictPrevention.requireApprovalPaths) &&
+      conflictPrevention.requireApprovalPaths.some(approvalPath =>
+        typeof approvalPath === 'string' && filePath.startsWith(approvalPath)
+      );
 
     if (requiresApproval) {
       return {
@@ -318,18 +406,24 @@ export class AdminContextManager {
       };
     }
 
-    // Use path intelligence for suggestion
-    const pathCorrection = this.pathIntelligence.correctPath(filePath);
-    const isCorrectedSafe = conflictPrevention.safeToModifyPaths.some(safePath =>
-      pathCorrection.correctedPath.startsWith(safePath)
-    );
+    // Use path intelligence for suggestion with error handling
+    try {
+      const pathCorrection = this.pathIntelligence.correctPath(filePath);
+      const isCorrectedSafe = Array.isArray(conflictPrevention.safeToModifyPaths) &&
+        conflictPrevention.safeToModifyPaths.some(safePath =>
+          typeof safePath === 'string' && 
+          pathCorrection.correctedPath.startsWith(safePath)
+        );
 
-    if (isCorrectedSafe) {
-      return {
-        allowed: true,
-        reason: 'Path corrected to safe development zone',
-        suggestion: `Consider using: ${pathCorrection.correctedPath}`
-      };
+      if (isCorrectedSafe) {
+        return {
+          allowed: true,
+          reason: 'Path corrected to safe development zone',
+          suggestion: `Consider using: ${pathCorrection.correctedPath}`
+        };
+      }
+    } catch (error) {
+      console.warn('⚠️ Path intelligence correction failed:', error);
     }
 
     return {
