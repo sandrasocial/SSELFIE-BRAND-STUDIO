@@ -4,7 +4,7 @@
  * CRITICAL: ALL users use individual trained models with complete isolation
  */
 
-import { storage } from '.storage';.js
+import { storage } from '.storage'
 
 export class ArchitectureValidator {
   

@@ -1745,7 +1745,7 @@ export class DatabaseStorage implements IStorage {
         if (conceptsWithPrompts.length > 0) {
           console.log(`💾 DATABASE RETRIEVAL: Retrieved ${conceptsWithPrompts.length} concept cards with preserved fullPrompt fields`);
           conceptsWithPrompts.forEach((card, index: number) => {
-            const title = (card as { title?: string }).title || '';
+            const title = (card as { title?: string }).title || ';
             const fullPromptLen = (card as { fullPrompt?: string }).fullPrompt?.length || 0;
             console.log(`  📋 Retrieved concept ${index + 1}: "${title}" - fullPrompt: ${fullPromptLen} chars`);
           });
@@ -1768,7 +1768,7 @@ export class DatabaseStorage implements IStorage {
       if (conceptsWithPrompts.length > 0) {
         console.log(`💾 DATABASE STORAGE: Preserving ${conceptsWithPrompts.length} concept cards with embedded fullPrompt fields`);
         conceptsWithPrompts.forEach((card, index: number) => {
-          const title = (card as { title?: string }).title || '';
+          const title = (card as { title?: string }).title || ';
           const fullPromptLen = (card as { fullPrompt?: string }).fullPrompt?.length || 0;
           console.log(`  📋 Concept ${index + 1}: "${title}" - fullPrompt: ${fullPromptLen} chars`);
         });
@@ -1803,7 +1803,7 @@ export class DatabaseStorage implements IStorage {
       if (message.conceptCards && Array.isArray(message.conceptCards)) {
         const conceptCard = (message.conceptCards as Array<Record<string, unknown>>).find((card) => (card as { id?: string }).id === conceptId);
         if (conceptCard) {
-          const title = (conceptCard as { title?: string }).title || '';
+          const title = (conceptCard as { title?: string }).title || ';
           const fullPrompt = (conceptCard as { fullPrompt?: string }).fullPrompt;
           console.log(`✅ CONCEPT FOUND: "${title}" with fullPrompt: ${!!fullPrompt} (${fullPrompt?.length || 0} chars)`);
           return conceptCard as Record<string, unknown>;

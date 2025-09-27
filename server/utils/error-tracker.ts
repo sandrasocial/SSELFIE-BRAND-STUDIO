@@ -75,7 +75,7 @@ export class ErrorTracker {
     } = {}
   ): string {
     if (!this.isEnabled) {
-      return '';
+      return ';
     }
 
     const errorId = this.generateErrorId();
@@ -149,7 +149,7 @@ export class ErrorTracker {
    */
   private determineSeverity(error: Error): 'low' | 'medium' | 'high' | 'critical' {
     const message = error.message.toLowerCase();
-    const stack = error.stack?.toLowerCase() || '';
+    const stack = error.stack?.toLowerCase() || ';
 
     // Critical errors
     if (
@@ -190,7 +190,7 @@ export class ErrorTracker {
    */
   private determineCategory(error: Error): ErrorContext['category'] {
     const message = error.message.toLowerCase();
-    const stack = error.stack?.toLowerCase() || '';
+    const stack = error.stack?.toLowerCase() || ';
 
     if (message.includes('validation') || message.includes('invalid')) {
       return 'validation';

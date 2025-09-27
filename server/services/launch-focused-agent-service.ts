@@ -1,5 +1,5 @@
-import { storage } from '..storage';.js
-import { SlackNotificationService } from '.slack-notification-service';.js
+import { storage } from '..storage'
+import { SlackNotificationService } from '.slack-notification-service'
 
 // Launch-focused agent intelligence service
 export class LaunchFocusedAgentService {

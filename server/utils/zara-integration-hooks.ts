@@ -139,19 +139,19 @@ export class ZaraIntegrationHooks {
         frontend: 'client/',
         shared: 'shared/',
         utils: 'server/utils/',
-        services: 'server/services/.js'
+        services: 'server/services/'
       },
       commonPatterns: [
         'Use TypeScript interfaces from shared/schema.ts',
-        'Import services from server/services/'.js',
+        'Import services from server/services/',
         'Follow existing naming conventions',
-        'Match existing code style and patterns.js'
+        'Match existing code style and patterns'
       ],
       bestPractices: [
         'Always check interface compatibility',
         'Add proper error handling',
         'Include comprehensive logging',
-        'Test auto-recovery mechanisms.js'
+        'Test auto-recovery mechanisms'
       ],
       avoidancePatterns: [
         'Avoid breaking existing exports',

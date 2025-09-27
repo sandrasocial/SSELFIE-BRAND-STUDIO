@@ -65,7 +65,7 @@ export function adminContextDetection(req: AdminContextRequest, res: Response, n
  * PHASE 1: Added context support for separate styling vs support conversations
  */
 export function getConversationId(userId: string, isAdmin: boolean, chatId?: number, context?: string): string {
-  const contextSuffix = context === 'support' ? '_support' : '';
+  const contextSuffix = context === 'support' ? '_support' : ';
   
   if (isAdmin) {
     return `maya_admin_platform_${userId}${contextSuffix}`;
