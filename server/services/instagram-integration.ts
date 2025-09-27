@@ -1,5 +1,5 @@
-import { SlackNotificationService } from './slack-notification-service.js';
-import { emailManagementAgent } from './email-management-agent.js';
+import { SlackNotificationService } from './slack-notification-service';
+import { emailManagementAgent } from './email-management-agent';
 
 interface InstagramMessage {
   id: string;

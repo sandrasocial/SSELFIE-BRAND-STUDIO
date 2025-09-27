@@ -2,7 +2,7 @@
  * Additional types for training completion handling
  */
 
-import { ReplicateTrainingStatus } from './training.js';
+import { ReplicateTrainingStatus } from './training';
 
 export interface UserModel {
   userId: string;

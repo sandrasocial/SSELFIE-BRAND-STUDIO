@@ -3,9 +3,9 @@
  * Centralized configuration loading with validation
  */
 
-import { configManager } from './config-manager.js';
-import { validateEnvironment } from './env-validator.js';
-import { Logger } from './logger.js';
+import { configManager } from './config-manager';
+import { validateEnvironment } from './env-validator';
+import { Logger } from './logger';
 
 const logger = new Logger('ConfigLoader');
 

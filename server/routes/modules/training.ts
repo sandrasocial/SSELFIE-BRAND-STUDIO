@@ -4,10 +4,10 @@
  */
 
 import { Router, Response, Request } from 'express';
-import { requireStackAuth } from '../../stack-auth.js';
-import { asyncHandler, createError, sendSuccess, validateRequired } from '../middleware/error-handler.js';
-import { AuthenticatedRequest } from '../../types/ai-generation.js';
-import { SuccessResponse } from '../../types/ai-generation.js';
+import { requireStackAuth } from '../../stack-auth';
+import { asyncHandler, createError, sendSuccess, validateRequired } from '../middleware/error-handler';
+import { AuthenticatedRequest } from '../../types/ai-generation';
+import { SuccessResponse } from '../../types/ai-generation';
 
 interface TrainingStatus {
   userId: string;

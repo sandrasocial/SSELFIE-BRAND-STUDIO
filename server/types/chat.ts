@@ -1,4 +1,4 @@
-import { type User } from '../../shared/types/user.js';
+import { type User } from '../../shared/types/user';
 
 export interface MayaChatCreateInput {
   userId: string;

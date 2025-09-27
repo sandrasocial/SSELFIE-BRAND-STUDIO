@@ -21,7 +21,7 @@ export class ParameterInjectionSystem {
       originalCall: { ...toolCall },
       fixedCall: { ...toolCall },
       injectedParameters: [],
-      reason: 'No fixes needed.js'
+      reason: 'No fixes needed'
     };
 
     // Only fix str_replace_based_edit_tool create commands
@@ -399,7 +399,7 @@ export default ${componentName};`;
       'sage': 'Strategic Planning & Business Intelligence',
       'nova': 'Innovation & Emerging Technologies',
       'iris': 'Visual Design & Brand Identity',
-      'luna': 'Analytics & Performance Optimization.js'
+      'luna': 'Analytics & Performance Optimization'
     };
     
     return specialties[agentId] || 'Specialized Implementation';

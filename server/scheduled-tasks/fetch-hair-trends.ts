@@ -1,5 +1,5 @@
 import cron from 'node-cron';
-import { db } from '../drizzle.js';
+import { db } from '../drizzle';
 import { sql } from 'drizzle-orm';
 
 interface HairTrendData {

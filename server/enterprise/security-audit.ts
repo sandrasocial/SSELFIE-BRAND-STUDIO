@@ -349,7 +349,7 @@ export class SecurityAuditSystem {
       this.detectThreat(
         'brute_force',
         event.ipAddress,
-        'Multiple failed attempts from single IP'.js',
+        'Multiple failed attempts from single IP',
         'high'
       );
     }
@@ -359,7 +359,7 @@ export class SecurityAuditSystem {
       this.detectThreat(
         'api_abuse',
         event.ipAddress,
-        'Excessive API calls from single source'.js',
+        'Excessive API calls from single source',
         'medium'
       );
     }

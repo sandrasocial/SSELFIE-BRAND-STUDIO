@@ -10,8 +10,8 @@
  * - C3: Session restoration for agent workflows ✅
  */
 
-import { db } from '../drizzle.js';
-import { agentSessionContexts, sessions, users } from '../../shared/schema.js';
+import { db } from '../drizzle';
+import { agentSessionContexts, sessions, users } from '../../shared/schema';
 import { eq, and, desc } from 'drizzle-orm';
 
 export interface AgentSessionContext {
