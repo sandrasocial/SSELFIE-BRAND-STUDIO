@@ -4,9 +4,9 @@
  * Runs continuously to ensure no images are lost due to URL expiration
  */
 
-import { query } from '.db'
-import { storage } from '.storage'
-import { ImageStorageService } from '.image-storage-service'
+import { query } from '.db.js'
+import { storage } from '.storage.js'
+import { ImageStorageService } from '.image-storage-service.js'
 
 export class MigrationMonitor {
   private static instance: MigrationMonitor;

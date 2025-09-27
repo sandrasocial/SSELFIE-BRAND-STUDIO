@@ -1,4 +1,4 @@
-import { db } from '../drizzle';
+import { db } from '../drizzle.js';
 import fs from 'fs';
 import path from 'path';
 import { exec } from 'child_process';

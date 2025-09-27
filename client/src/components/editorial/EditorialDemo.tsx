@@ -1,5 +1,5 @@
 import React from 'react';
-import { EditorialCard, EditorialHeading, EditorialText, EditorialButton } from './index';
+import { EditorialCard, EditorialHeading, EditorialText, EditorialButton } from './index.js';
 
 // Simple demo component to test the editorial system
 export function EditorialDemo() {

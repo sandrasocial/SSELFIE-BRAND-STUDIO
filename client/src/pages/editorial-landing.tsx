@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { useStackApp } from "@stackframe/stack";
-import { SandraImages } from "../lib/sandra-images";
-import { PortfolioSection } from "../components/portfolio-section";
-import FreeTierSignup from "../components/free-tier-signup";
-import WelcomeEditorial from "../components/welcome-editorial";
-import { GlobalFooter } from "../components/global-footer";
+import { SandraImages } from "../lib/sandra-images.js";
+import { PortfolioSection } from "../components/portfolio-section.js";
+import FreeTierSignup from "../components/free-tier-signup.js";
+import WelcomeEditorial from "../components/welcome-editorial.js";
+import { GlobalFooter } from "../components/global-footer.js";
 
 export default function EditorialLanding() {
   const [selectedPlan] = useState('personal-brand-studio');

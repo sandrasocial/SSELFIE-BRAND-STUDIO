@@ -1,7 +1,7 @@
 import { FC, useState } from 'react';
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
-import { Card } from '../ui/card';
+import { Input } from '../ui/input.js';
+import { Label } from '../ui/label.js';
+import { Card } from '../ui/card.js';
 
 interface BrandCustomizationProps {
   onCustomizationChange: (customization: BrandCustomization) => void;

@@ -3,7 +3,7 @@
  * Handles all AI generation operations (stories, videos, images, etc.)
  */
 
-import { BaseService } from './base-service';
+import { BaseService } from './base-service.js';
 import {
   StoryGenerationRequest,
   VideoGenerationRequest,
@@ -12,7 +12,7 @@ import {
   GenerationResult,
   GenerationStatus,
   AIServiceError
-} from '../types/generation';
+} from '../types/generation.js';
 
 export class AIGenerationService extends BaseService {
   /**

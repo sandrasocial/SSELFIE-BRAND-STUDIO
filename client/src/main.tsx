@@ -1,17 +1,17 @@
 import React from 'react';
 import { createRoot } from "react-dom/client";
-import App from "./App";
+import App from "./App.js";
 import "./index.css";
 
 // 💡 IMPORT ALL PROVIDERS HERE
 import { QueryClientProvider } from '@tanstack/react-query';
 import { StackProvider, StackTheme } from '@stackframe/react'; // This is the ReactStackProvider
-import { Toaster } from './components/ui/toaster';
-import { TooltipProvider } from './components/ui/tooltip';
+import { Toaster } from './components/ui/toaster.js';
+import { TooltipProvider } from './components/ui/tooltip.js';
 
 // Import queryClient and stackClientApp
-import { queryClient } from "./lib/queryClient";
-import { stackClientApp } from "../../stack/client";
+import { queryClient } from "./lib/queryClient.js";
+import { stackClientApp } from "../../stack/client.js";
 
 // Debug logging for troubleshooting
 console.log('SSELFIE Studio: Main.tsx loading...');

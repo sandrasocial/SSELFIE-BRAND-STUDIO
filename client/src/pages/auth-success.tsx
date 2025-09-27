@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useLocation } from 'wouter';
-import { useAuth } from '../hooks/use-auth';
-import { apiFetch } from '../lib/api';
+import { useAuth } from '../hooks/use-auth.js';
+import { apiFetch } from '../lib/api.js';
 
 export default function AuthSuccess() {
   const { isAuthenticated } = useAuth();

@@ -5,14 +5,14 @@
 
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useParams } from 'wouter';
-import { useAuth } from '../../hooks/use-auth';
-import InteractivePresentation from './InteractivePresentation';
-import StageControls from './components/StageControls';
-import CanvaEmbed from '../../components/CanvaEmbed';
-import MentimeterEmbed from '../../components/MentimeterEmbed';
-import { useSocket } from './hooks/useSocket';
-import { useAnalytics } from './hooks/useAnalytics';
-import TabbedPresenterInterface from './components/TabbedPresenterInterface';
+import { useAuth } from '../../hooks/use-auth.js';
+import InteractivePresentation from './InteractivePresentation.js';
+import StageControls from './components/StageControls.js';
+import CanvaEmbed from '../../components/CanvaEmbed.js';
+import MentimeterEmbed from '../../components/MentimeterEmbed.js';
+import { useSocket } from './hooks/useSocket.js';
+import { useAnalytics } from './hooks/useAnalytics.js';
+import TabbedPresenterInterface from './components/TabbedPresenterInterface.js';
 
 interface SessionParams {
   sessionId: string;

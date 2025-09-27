@@ -1,9 +1,9 @@
-import { personalBrandService, type PersonalBrandProfile } from '.personal-brand-service'
+import { personalBrandService, type PersonalBrandProfile } from '.personal-brand-service.js'
 // MAYA FAÇADE: Replaced Maya-specific imports with façade API calls
-// import { unifiedMayaMemoryService } from '.unified-maya-memory-service'; .js// REMOVED: Direct entanglement
-// import { unifiedMayaContextService } from '.unified-maya-context-service'; .js// REMOVED: Direct entanglement
+// import { unifiedMayaMemoryService } from '.unified-maya-memory-service.js'; .js// REMOVED: Direct entanglement
+// import { unifiedMayaContextService } from '.unified-maya-context-service.js'; .js// REMOVED: Direct entanglement
 // MAYA FAÇADE: Removed PersonalityManager dependency - Maya is now isolated
-// import { PersonalityManager } from '..agents/personalities/personality-config'; // REMOVED: Outbound dependency
+// import { PersonalityManager } from '..agents/personalities/personality-config.js'; // REMOVED: Outbound dependency
 
 interface OnboardingStep {
   stepNumber: number;

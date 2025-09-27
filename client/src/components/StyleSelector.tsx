@@ -1,5 +1,5 @@
 import React from 'react';
-import { brandStyleCollections, BrandStyleCollection } from '../data/brand-style-collections';
+import { brandStyleCollections, BrandStyleCollection } from '../data/brand-style-collections.js';
 import { Check, Sparkles } from 'lucide-react';
 
 interface StyleSelectorProps {

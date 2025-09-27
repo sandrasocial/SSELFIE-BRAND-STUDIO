@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import ImageActions from '../ImageActions';
+import ImageActions from '../ImageActions.js';
 
 // Sample image variations for stories
 const sampleVariations = [

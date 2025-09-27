@@ -4,11 +4,11 @@
  */
 
 import React, { useState } from 'react';
-import CanvaEmbed from '../../../components/CanvaEmbed';
-import MentimeterEmbed from '../../../components/MentimeterEmbed';
-import WorkshopPane from '../WorkshopPane';
-import SessionStats from '../SessionStats';
-import { LiveSession } from '../hooks/useLiveSession';
+import CanvaEmbed from '../../../components/CanvaEmbed.js';
+import MentimeterEmbed from '../../../components/MentimeterEmbed.js';
+import WorkshopPane from '../WorkshopPane.js';
+import SessionStats from '../SessionStats.js';
+import { LiveSession } from '../hooks/useLiveSession.js';
 
 interface TabbedPresenterInterfaceProps {
   session: LiveSession;

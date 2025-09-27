@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { MemberNavigation } from '../components/member-navigation';
-import { SandraImages } from '../lib/sandra-images';
+import { MemberNavigation } from '../components/member-navigation.js';
+import { SandraImages } from '../lib/sandra-images.js';
 import { Link } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
-import { useAuth } from '../hooks/use-auth';
+import { useAuth } from '../hooks/use-auth.js';
 
 interface QuickLinkCard {
   id: string;

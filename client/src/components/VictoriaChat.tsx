@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, KeyboardEvent } from 'react';
 import { Send, Mic, MicOff, Sparkles } from 'lucide-react';
 
-import type { ChatMessage } from '../../../shared/types/ChatMessage';
+import type { ChatMessage } from '../../../shared/types/ChatMessage.js';
 
 interface VictoriaChatMessage extends ChatMessage {
   typing?: boolean;

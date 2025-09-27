@@ -1,1 +1,1 @@
-export { default as VideoGenerateDialog } from './VideoGenerateDialog';
+export { default as VideoGenerateDialog } from './VideoGenerateDialog.js';

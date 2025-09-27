@@ -2,9 +2,9 @@
 import React, { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'wouter';
-import { GlobalFooter } from '../components/global-footer';
-import { MoodboardSection } from '../components/MoodboardSection';
-import { SandraImages } from '../lib/sandra-images';
+import { GlobalFooter } from '../components/global-footer.js';
+import { MoodboardSection } from '../components/MoodboardSection.js';
+import { SandraImages } from '../lib/sandra-images.js';
 
 export default function AdminBusinessOverview() {
   // EMPIRE COMMAND CENTER STATE MANAGEMENT

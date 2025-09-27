@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../hooks/use-auth';
+import { useAuth } from '../hooks/use-auth.js';
 import { useMutation } from '@tanstack/react-query';
-import { useToast } from '../hooks/use-toast';
+import { useToast } from '../hooks/use-toast.js';
 import { Camera, Send, MessageCircle, Sparkles } from 'lucide-react';
 
 interface ChatMessage {

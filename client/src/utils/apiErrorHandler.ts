@@ -1,4 +1,4 @@
-import { toast } from './toast';
+import { toast } from './toast.js';
 
 export interface ApiError {
   message: string;

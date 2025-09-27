@@ -1,11 +1,11 @@
-import { storage } from './storage';
+import { storage } from './storage.js';
 import { 
   ChatMessage, 
   GalleryImage, 
   ChatMessageInput,
   GalleryImageInput,
   ChatPreviewError 
-} from './types/chat';
+} from './types/chat.js';
 
 /**
  * Maya Chat Preview Service

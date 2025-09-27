@@ -3,7 +3,7 @@ import { Upload } from '@aws-sdk/lib-storage';
 import fs from 'fs';
 import path from 'path';
 import archiver from 'archiver';
-import { storage } from './storage';
+import { storage } from './storage.js';
 
 /**
  * BULLETPROOF UPLOAD SERVICE - PREVENTS CROSS-CONTAMINATION
@@ -532,7 +532,7 @@ export class BulletproofUploadService {
     // Schedule a check for this specific training after 2 minutes
     setTimeout(async () => {
       try {
-        const { TrainingCompletionMonitor } = await import('./training-completion-monitor');
+        const { TrainingCompletionMonitor } = await import('./training-completion-monitor.js');
         console.log(`🔍 SCHEDULED CHECK: Checking training ${trainingStart.trainingId} for user ${userId}`);
         await TrainingCompletionMonitor.checkAndUpdateTraining(trainingStart.trainingId, userId);
       } catch (error) {

@@ -18,7 +18,7 @@ export interface UserModel {
   // Add any other userModel properties you need
 }
 
-import type { BaseChatMessage, MayaChatMessage } from '../../../shared/types/unified-chat';
+import type { BaseChatMessage, MayaChatMessage } from '../../../shared/types/unified-chat.js';
 
 export interface ClientChatMessage extends BaseChatMessage {
   sender: 'user' | 'ai';

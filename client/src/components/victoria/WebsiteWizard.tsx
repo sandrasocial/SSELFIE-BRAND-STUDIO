@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import { useWebsiteBuilder, type WebsiteGenerationRequest } from '../../hooks/useWebsiteBuilder';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
+import { useWebsiteBuilder, type WebsiteGenerationRequest } from '../../hooks/useWebsiteBuilder.js';
+import { Button } from '../ui/button.js';
+import { Input } from '../ui/input.js';
 // Label component removed
-import { Textarea } from '../ui/textarea';
+import { Textarea } from '../ui/textarea.js';
 // Select and Checkbox components removed
 import { useMutation } from '@tanstack/react-query';
-import { apiRequest } from '../../lib/queryClient';
-import { useToast } from '../../hooks/use-toast';
+import { apiRequest } from '../../lib/queryClient.js';
+import { useToast } from '../../hooks/use-toast.js';
 
 interface WebsiteWizardProps {
   onComplete: (website: any) => void;

@@ -6,8 +6,8 @@ import {
   EditorialTextarea, 
   EditorialHeading, 
   EditorialText 
-} from './index';
-import { useEditorialAnimations } from '../../hooks/useEditorialAnimations';
+} from './index.js';
+import { useEditorialAnimations } from '../../hooks/useEditorialAnimations.js';
 
 // Example showcase component demonstrating the editorial luxury system
 export function EditorialShowcase() {

@@ -3,8 +3,8 @@
  * Maya Predictive Styling Service - Anticipate user preferences and suggest optimal styling
  */
 
-import { MayaBehaviorLearningService } from './maya-behavior-learning-service';
-import { unifiedMayaMemoryService } from './unified-maya-memory-service';
+import { MayaBehaviorLearningService } from './maya-behavior-learning-service.js';
+import { unifiedMayaMemoryService } from './unified-maya-memory-service.js';
 
 export interface StylePrediction {
   // Predictive Intelligence

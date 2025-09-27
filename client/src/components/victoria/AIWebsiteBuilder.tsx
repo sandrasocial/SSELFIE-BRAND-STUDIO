@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { WebsiteWizard } from './WebsiteWizard';
-import { WebsitePreview } from './WebsitePreview';
-import { VictoriaChat } from './VictoriaChat';
-import { VictoriaEditorialBuilder } from './VictoriaEditorialBuilder';
-import { RealImageSelection } from '../onboarding/RealImageSelection';
-import { PersonalBrandQuestionnaire, type PersonalBrandAssessment } from '../onboarding/PersonalBrandQuestionnaire';
-import { useWebsiteBuilder } from '../../hooks/useWebsiteBuilder';
-import { Button } from '../ui/button';
+import { WebsiteWizard } from './WebsiteWizard.js';
+import { WebsitePreview } from './WebsitePreview.js';
+import { VictoriaChat } from './VictoriaChat.js';
+import { VictoriaEditorialBuilder } from './VictoriaEditorialBuilder.js';
+import { RealImageSelection } from '../onboarding/RealImageSelection.js';
+import { PersonalBrandQuestionnaire, type PersonalBrandAssessment } from '../onboarding/PersonalBrandQuestionnaire.js';
+import { useWebsiteBuilder } from '../../hooks/useWebsiteBuilder.js';
+import { Button } from '../ui/button.js';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useToast } from '../../hooks/use-toast';
-import { apiRequest } from '../../lib/queryClient';
+import { useToast } from '../../hooks/use-toast.js';
+import { apiRequest } from '../../lib/queryClient.js';
 
 export function AIWebsiteBuilder() {
   const [currentView, setCurrentView] = useState<'checking' | 'photo-selection' | 'brand-questionnaire' | 'mode-select' | 'wizard' | 'chat' | 'preview' | 'customize'>('checking');
