@@ -4,11 +4,11 @@ import { StackClientApp } from "@stackframe/react";
 // Get environment variables with fallbacks for production
 const STACK_PROJECT_ID = typeof window !== 'undefined' && window.location.hostname === 'sselfie.ai' 
   ? "253d7343-a0d4-43a1-be5c-822f590d40be" // Production fallback
-  : ((import.meta as any)?.env?.VITE_STACK_PROJECT_ID || "253d7343-a0d4-43a1-be5c-822f590d40be");
+  : (import.meta.env.VITE_STACK_PROJECT_ID || "253d7343-a0d4-43a1-be5c-822f590d40be");
 
 const STACK_PUBLISHABLE_CLIENT_KEY = typeof window !== 'undefined' && window.location.hostname === 'sselfie.ai'
   ? "pck_bqv6htnwq1f37nd2fn6qatxx2f8x0tnxvjj7xwgh1zmhg" // Production fallback
-  : ((import.meta as any)?.env?.VITE_STACK_PUBLISHABLE_CLIENT_KEY || "pck_bqv6htnwq1f37nd2fn6qatxx2f8x0tnxvjj7xwgh1zmhg");
+  : (import.meta.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY || "pck_bqv6htnwq1f37nd2fn6qatxx2f8x0tnxvjj7xwgh1zmhg");
 
 // Debug logging
 console.log('🔍 Stack Auth Config:', {

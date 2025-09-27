@@ -211,7 +211,7 @@ export class InstagramIntegration {
   // 🏷️ Categorize Instagram message
   private async categorizeInstagramMessage(message: InstagramMessage, platform: 'instagram'): Promise<ProcessedInstagramMessage> {
     const messageText = message.message || '';
-    const fromUsername = message.from?.username || 'unknown'';
+    const fromUsername = message.from?.username || 'unknown';
 
     return {
       id: message.id,

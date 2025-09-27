@@ -16,6 +16,7 @@ export function useVictoriaChat() {
       id: Date.now().toString(),
       content,
       sender: 'user',
+      role: 'user',
       timestamp: new Date(),
       context
     };
@@ -31,6 +32,7 @@ export function useVictoriaChat() {
         id: (Date.now() + 1).toString(),
         content: response,
         sender: 'victoria',
+        role: 'victoria',
         timestamp: new Date(),
         context
       };

@@ -3,7 +3,7 @@
  * Safely migrates legacy aiImages to enhanced generatedImages table
  */
 
-import { migrateAiImagesToGeneratedImages, verifyMigration } from '.migration-phase-1';.js
+import { migrateAiImagesToGeneratedImages, verifyMigration } from './migration-phase-1.js';
 
 async function runMigrationPhase1() {
   console.log('🚀 PHASE 1: Starting Database Migration');
@@ -46,7 +46,10 @@ async function runMigrationPhase1() {
 }
 
 // Execute if called directly
-if (import.meta.url === `file://${process.argv[1]}`) {
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+
+if (process.argv[1] === __filename) {
   runMigrationPhase1().then(() => {
     process.exit(0);
   }).catch(error => {

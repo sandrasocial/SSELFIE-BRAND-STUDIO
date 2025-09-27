@@ -10,16 +10,17 @@
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
-    "module": "Node16",
-    "moduleResolution": "node16",
-    "moduleDetection": "auto",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "moduleDetection": "force",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
     "strictNullChecks": true,
     "noImplicitAny": true,
-    "noUncheckedIndexedAccess": true,
-    "exactOptionalPropertyTypes": true,
+    "noImplicitThis": true,
+    "useUnknownInCatchVariables": true,
+    "allowImportMeta": true,
     "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
@@ -29,11 +30,13 @@
       "@shared/*": ["shared/*"],
       "@assets/*": ["attached_assets/*"],
       "@server/*": ["server/*"],
+      "@api/*": ["api/*"],
       "server/*": ["server/*"],
       "@models/*": ["shared/models/*"]
     },
     "types": [
-      "node"
+      "node",
+      "vite/client"
     ]
   },
   "include": [

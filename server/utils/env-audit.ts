@@ -3,7 +3,7 @@
  * Comprehensive validation and documentation of all environment variables
  */
 
-import { Logger } from './logger';
+import { Logger } from './logger.js';
 
 export interface EnvVariable {
   name: string;

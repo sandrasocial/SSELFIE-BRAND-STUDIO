@@ -3,6 +3,8 @@ import fs from 'fs';
 import path from 'path';
 import { exec } from 'child_process';
 import { promisify } from 'util';
+import { informationSchemaColumns } from '../shared/schemas/information-schema.js';
+import { eq } from 'drizzle-orm';
 
 const execAsync = promisify(exec);
 
@@ -39,12 +41,13 @@ export class WorkflowExecutor {
       
       // Get current database schema
       for (const table of tables) {
-        const tableInfo = await db.select({
-          columnName: 'column_name',
-          dataType: 'data_type'
-        })
-        .from('information_schema.columns')
-        .where('table_name', '=', table);
+        const tableInfo = await db
+          .select({
+            columnName: informationSchemaColumns.columnName,
+            dataType: informationSchemaColumns.dataType
+          })
+          .from(informationSchemaColumns)
+          .where(eq(informationSchemaColumns.tableName, table));
         
         // Verify against schema definition
         if (!this.validateTableSchema(tableInfo, schemaContent, table)) {

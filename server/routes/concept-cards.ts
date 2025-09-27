@@ -7,10 +7,10 @@
  */
 
 import { Router } from 'express';
-import { requireStackAuth } from '..stack-auth';.js
-import { storage } from '..storage';.js
-import { insertConceptCardSchema } from '..../shared/schema';
-import { z } from 'zod'';
+import { requireStackAuth } from '../stack-auth.js';
+import { storage } from '../storage.js';
+import { insertConceptCardSchema } from '../../shared/schema.js';
+import { z } from 'zod';
 
 const router = Router();
 
@@ -93,6 +93,9 @@ router.get('/:id', requireStackAuth, async (req, res) => {
     const userId = (req as any).user?.id || (req as any).user?.claims?.sub;
     const { id } = req.params;
 
+    if (!id) {
+      return res.status(400).json({ error: 'Missing concept card ID' });
+    }
     const conceptCard = await storage.getConceptCard(id);
     
     if (!conceptCard) {
@@ -141,10 +144,13 @@ router.patch('/:id', requireStackAuth, async (req, res) => {
     const updates = Object.keys(req.body)
       .filter(key => allowedUpdates.includes(key))
       .reduce((obj, key) => {
-        obj[key] = req.body[key];
+        (obj as Record<string, unknown>)[key] = req.body[key];
         return obj;
       }, {});
 
+    if (!id) {
+      return res.status(400).json({ error: 'Missing concept card ID' });
+    }
     const conceptCard = await storage.updateConceptCard(id, updates);
 
     console.log(`✅ CONCEPT CARD: Updated ${id} for user ${userId}`);
@@ -214,6 +220,9 @@ router.delete('/:id', requireStackAuth, async (req, res) => {
       return res.status(403).json({ error: 'Access denied' });
     }
 
+    if (!id) {
+      return res.status(400).json({ error: 'Missing concept card ID' });
+    }
     await storage.deleteConceptCard(id);
 
     console.log(`✅ CONCEPT CARD: Deleted ${id} for user ${userId}`);

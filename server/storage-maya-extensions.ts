@@ -209,17 +209,17 @@ export class MayaStorageExtensions {
       const context: MayaUserContext = {
         userId,
         personalBrand: {
-          name: personalBrandRecord?.name,
-          transformationStory: personalBrandRecord?.transformationStory,
-          currentSituation: personalBrandRecord?.currentSituation,
-          futureVision: personalBrandRecord?.futureVision,
-          businessGoals: personalBrandRecord?.businessGoals,
-          businessType: personalBrandRecord?.businessType,
-          stylePreferences: personalBrandRecord?.stylePreferences,
-          photoGoals: personalBrandRecord?.photoGoals,
+          name: personalBrandRecord?.name ?? undefined,
+          transformationStory: personalBrandRecord?.transformationStory ?? undefined,
+          currentSituation: personalBrandRecord?.currentSituation ?? undefined,
+          futureVision: personalBrandRecord?.futureVision ?? undefined,
+          businessGoals: personalBrandRecord?.businessGoals ?? undefined,
+          businessType: personalBrandRecord?.businessType ?? undefined,
+          stylePreferences: personalBrandRecord?.stylePreferences ?? undefined,
+          photoGoals: personalBrandRecord?.photoGoals ?? undefined,
           onboardingStep: personalBrandRecord?.onboardingStep || 1,
           isCompleted: personalBrandRecord?.isCompleted || false,
-          completedAt: personalBrandRecord?.completedAt,
+          completedAt: personalBrandRecord?.completedAt ?? undefined,
           updatedAt: personalBrandRecord?.updatedAt || new Date()
         }
       };
@@ -507,7 +507,7 @@ export class MayaStorageExtensions {
         preferredTopics: (memoryRecord.preferredTopics as string[]) || [],
         personalizedStylingNotes: memoryRecord.personalizedStylingNotes || '',
         successfulPromptPatterns: (memoryRecord.successfulPromptPatterns as string[]) || [],
-        lastMemoryUpdate: memoryRecord.lastMemoryUpdate,
+        lastMemoryUpdate: memoryRecord.lastMemoryUpdate ?? undefined,
         memoryVersion: memoryRecord.memoryVersion || 1
       };
       

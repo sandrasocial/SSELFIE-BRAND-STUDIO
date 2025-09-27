@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import { requireStackAuth } from '..stack-auth';.js
-import { db } from '..drizzle';.js
-import { eq, desc, and, gte } from 'drizzle-orm'';
+import { requireStackAuth } from '../stack-auth.js';
+import { db } from '../drizzle.js';
+import { eq, desc, and, gte } from 'drizzle-orm';
 
 const router = Router();
 

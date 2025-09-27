@@ -1,3 +1,5 @@
+import type { AgentCoordination, AgentCoordinationStatus } from '../types/coordination.js';
+
 /**
  * COORDINATE AGENT TOOL
  * Direct agent-to-agent coordination and task delegation
@@ -18,7 +20,7 @@ export interface CoordinateAgentResult {
   success: boolean;
   coordination_id: string;
   target_agent: string;
-  status: 'queued' | 'accepted' | 'in_progress' | 'completed' | 'failed';
+  status: AgentCoordinationStatus;
   message: string;
   estimated_completion?: string;
 }
@@ -42,7 +44,7 @@ export async function coordinate_agent(input: CoordinateAgentInput): Promise<Coo
     const coordination_id = `coord_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     
     // Create task delegation record
-    const coordination_data = {
+    const coordination_data: AgentCoordination = {
       coordination_id,
       target_agent: input.target_agent,
       task_description: input.task_description,
@@ -51,7 +53,7 @@ export async function coordinate_agent(input: CoordinateAgentInput): Promise<Coo
       expected_deliverables: input.expected_deliverables,
       deadline: input.deadline,
       dependencies: input.dependencies || [],
-      status: 'queued' as const,
+      status: 'queued',
       created_at: new Date().toISOString(),
       coordinating_agent: 'elena' // Default to Elena as coordinator
     };
@@ -109,7 +111,7 @@ export function getCoordinationStatus(coordination_id: string) {
 /**
  * Update coordination status
  */
-export function updateCoordinationStatus(coordination_id: string, status: CoordinateAgentResult['status'], message?: string) {
+export function updateCoordinationStatus(coordination_id: string, status: AgentCoordinationStatus, message?: string) {
   if (!global.agentCoordinations) return false;
   
   const coordination = global.agentCoordinations.get(coordination_id);

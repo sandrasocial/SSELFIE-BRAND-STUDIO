@@ -3,8 +3,10 @@
  * Generates close variations from existing gallery images
  */
 
-import { storage } from '..../storage';
-import { ModelTrainingService } from '..../model-training-service';
+import { storage } from '../../storage';
+import { ModelTrainingService } from '../../model-training-service';
+import { type ImageVariant } from '../../../shared/schema';
+
 
 export interface VariationRequest {
   originalImageId: number;
@@ -31,15 +33,15 @@ export class ImageVariationsService {
       const count = request.count || 3;
 
       // Get the original image
-      let originalImage: any = null;
+      let originalImage: { id: number; imageUrl?: string; selectedUrl?: string; userId: string; prompt?: string } | null = null;
       let derivedPrompt = '';
       
       if (request.originalImageType === 'ai_image') {
         const aiImages = await storage.getAIImages(request.userId);
-        originalImage = aiImages.find(img => img.id === request.originalImageId);
+        originalImage = aiImages.find((img: { id: number }) => img.id === request.originalImageId);
       } else {
         const genImages = await storage.getGeneratedImages(request.userId);
-        originalImage = genImages.find(img => img.id === request.originalImageId);
+        originalImage = genImages.find((img: { id: number }) => img.id === request.originalImageId);
       }
 
       if (!originalImage) {
@@ -82,7 +84,7 @@ export class ImageVariationsService {
       // Use Maya's generation service to create variations
       const result = await ModelTrainingService.generateUserImages(
         request.userId,
-        variationPrompts[0], // Use first variation prompt for the prediction
+        variationPrompts[0] || derivedPrompt, // Use first variation prompt or fallback to derived prompt
         count,
         {
           seed: Math.floor(Math.random() * 1000000), // Random seed for variation
@@ -114,7 +116,7 @@ export class ImageVariationsService {
       console.error('❌ VARIATIONS: Error generating variations:', error);
       return {
         success: false,
-        error: error.message
+        error: error instanceof Error ? error.message : 'Unknown error'
       };
     }
   }
@@ -143,7 +145,7 @@ export class ImageVariationsService {
 
     } catch (error) {
       console.error('❌ VARIATIONS: Error deriving prompt:', error);
-      throw new Error('Failed to derive prompt from image'.js');
+      throw new Error('Failed to derive prompt from image');
     }
   }
 
@@ -221,7 +223,8 @@ export class ImageVariationsService {
       'luxury': 'luxury portrait, elegant styling, high-end fashion'
     };
 
-    return genericPrompts[style] || genericPrompts['professional'];
+    const validStyle = style as keyof typeof genericPrompts;
+    return genericPrompts[validStyle] || genericPrompts['professional'];
   }
 
   /**
@@ -237,9 +240,13 @@ export class ImageVariationsService {
       if (result.status === 'succeeded' && result.imageUrls && result.imageUrls.length > 0) {
         // Update variant records with completed images
         for (let i = 0; i < variantIds.length && i < result.imageUrls.length; i++) {
-          await storage.updateImageVariant(variantIds[i], {
-            imageUrl: result.imageUrls[i],
-            generationStatus: 'completed'
+          const variantId = variantIds[i];
+          if (variantId === undefined) continue;
+          const variantUrl = result.imageUrls[i];
+          if (!variantUrl) continue;
+          await storage.updateImageVariant(variantId, {
+            variantUrl,
+            processingStatus: 'completed'
           });
         }
 
@@ -248,8 +255,8 @@ export class ImageVariationsService {
         // Update all variants to failed status
         for (const variantId of variantIds) {
           await storage.updateImageVariant(variantId, {
-            generationStatus: 'failed',
-            metadata: { error: 'Generation failed' }
+            processingStatus: 'failed',
+            placementData: { error: 'Generation failed' }
           });
         }
         return { status: 'failed', error: 'Variation generation failed' };
@@ -259,7 +266,7 @@ export class ImageVariationsService {
 
     } catch (error) {
       console.error('❌ VARIATIONS: Error checking status:', error);
-      return { status: 'failed', error: error.message };
+      return { status: 'failed', error: error instanceof Error ? error.message : 'Unknown error' };
     }
   }
 
@@ -272,10 +279,13 @@ export class ImageVariationsService {
     userId: string
   ): Promise<any[]> {
     try {
-      const variants = await storage.getImageVariants(originalImageId, originalImageType, 'variation');
+      const variants = await storage.getImageVariants(userId);
       
-      // Filter by user to ensure security
-      return variants.filter(variant => variant.userId === userId);
+      // Filter by user and variant type to ensure security
+      return variants.filter((variant: ImageVariant) => 
+        variant.userId === userId && 
+        variant.variantType === 'variation'
+      );
     } catch (error) {
       console.error('❌ VARIATIONS: Error getting image variations:', error);
       return [];
@@ -287,7 +297,7 @@ export class ImageVariationsService {
    */
   static async getUserVariations(userId: string): Promise<any[]> {
     try {
-      return await storage.getImageVariantsByKind(userId, 'variation');
+      return (await storage.getImageVariants(userId)).filter(v => v.variantType === 'variation');
     } catch (error) {
       console.error('❌ VARIATIONS: Error getting user variations:', error);
       return [];

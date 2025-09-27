@@ -178,6 +178,9 @@ export async function runMemorySystemsAudit() {
 }
 
 // Export for external use
-if (import.meta.url === `file://${process.argv[1]}`) {
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+
+if (process.argv[1] === __filename) {
   runMemorySystemsAudit().catch(console.error);
 }

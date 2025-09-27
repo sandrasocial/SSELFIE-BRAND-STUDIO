@@ -3,8 +3,7 @@ import { relations } from "drizzle-orm";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 import { users, aiImages, subscriptions } from "../schema";
-
-// Existing tables remain unchanged...
+import { type InferModel } from 'drizzle-orm';
 
 // User Website Onboarding Table
 export const userWebsiteOnboarding = pgTable("user_website_onboarding", {
@@ -13,13 +12,13 @@ export const userWebsiteOnboarding = pgTable("user_website_onboarding", {
   businessName: text("business_name").notNull(),
   businessType: text("business_type").notNull(),
   targetAudience: text("target_audience").notNull(),
-  businessGoals: jsonb("business_goals").notNull(), // Array of goals
+  businessGoals: jsonb("business_goals").$type<string[]>().notNull(), // Array of goals
   brandPersonality: text("brand_personality").notNull(),
-  preferredColors: jsonb("preferred_colors").notNull(), // Array of color preferences
-  contentFocus: jsonb("content_focus").notNull(), // Array of content types
+  preferredColors: jsonb("preferred_colors").$type<string[]>().notNull(), // Array of color preferences
+  contentFocus: jsonb("content_focus").$type<string[]>().notNull(), // Array of content types
   hasExistingBranding: boolean("has_existing_branding").notNull().default(false),
   existingWebsite: text("existing_website"),
-  socialMediaHandles: jsonb("social_media_handles"), // Object with platform: handle pairs
+  socialMediaHandles: jsonb("social_media_handles").$type<Record<string, string>>(), // Object with platform: handle pairs
   specialRequirements: text("special_requirements"),
   completedAt: timestamp("completed_at").defaultNow().notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -98,20 +97,17 @@ export const websiteBuilderConversationsRelations = relations(websiteBuilderConv
 }));
 
 // Zod Schemas for Website Builder Tables
-export const insertUserWebsiteOnboardingSchema = createInsertSchema(userWebsiteOnboarding);
-export const selectUserWebsiteOnboardingSchema = createSelectSchema(userWebsiteOnboarding);
-export type InsertUserWebsiteOnboarding = z.infer<typeof insertUserWebsiteOnboardingSchema>;
-export type SelectUserWebsiteOnboarding = z.infer<typeof selectUserWebsiteOnboardingSchema>;
+// Type inference using drizzle-orm
+export type InsertUserWebsiteOnboarding = InferModel<typeof userWebsiteOnboarding, 'insert'>;
+export type SelectUserWebsiteOnboarding = InferModel<typeof userWebsiteOnboarding, 'select'>;
 
-export const insertUserGeneratedWebsitesSchema = createInsertSchema(userGeneratedWebsites);
-export const selectUserGeneratedWebsitesSchema = createSelectSchema(userGeneratedWebsites);
-export type InsertUserGeneratedWebsites = z.infer<typeof insertUserGeneratedWebsitesSchema>;
-export type SelectUserGeneratedWebsites = z.infer<typeof selectUserGeneratedWebsitesSchema>;
+// Types for userGeneratedWebsites
+export type InsertUserGeneratedWebsites = InferModel<typeof userGeneratedWebsites, 'insert'>;
+export type SelectUserGeneratedWebsites = InferModel<typeof userGeneratedWebsites, 'select'>;
 
-export const insertWebsiteBuilderConversationsSchema = createInsertSchema(websiteBuilderConversations);
-export const selectWebsiteBuilderConversationsSchema = createSelectSchema(websiteBuilderConversations);
-export type InsertWebsiteBuilderConversations = z.infer<typeof insertWebsiteBuilderConversationsSchema>;
-export type SelectWebsiteBuilderConversations = z.infer<typeof selectWebsiteBuilderConversationsSchema>;
+// Types for websiteBuilderConversations
+export type InsertWebsiteBuilderConversations = InferModel<typeof websiteBuilderConversations, 'insert'>;
+export type SelectWebsiteBuilderConversations = InferModel<typeof websiteBuilderConversations, 'select'>;
 
 // Update users relations to include website builder relationships
 export const usersRelations = relations(users, ({ many }) => ({

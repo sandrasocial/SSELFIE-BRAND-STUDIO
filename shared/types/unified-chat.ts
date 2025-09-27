@@ -5,7 +5,7 @@ import type {
   ClaudeMessage as DbClaudeMessage,
   User,
   BrandOnboarding,
-  AgentMessage,
+
   AgentConversation,
 } from '../schema.js';
 
@@ -47,11 +47,19 @@ export interface MayaChatContext {
 }
 
 // Claude chat specific interfaces
-export interface ClaudeMessage extends BaseChatMessage, DbClaudeMessage {
+export interface ClaudeMessage extends Omit<BaseChatMessage, 'id'> {
+  id: number;
   conversationId: string;
+  role: BaseChatMessage['role'];
+  content: string;
+  timestamp: Date;
+  metadata?: Record<string, unknown>;
   tokens: number;
   completionTokens: number;
   promptTokens: number;
+  toolCalls?: unknown;
+  toolResults?: unknown;
+  createdAt: Date;
 }
 
 export interface ClaudeConversation extends DbClaudeConversation {

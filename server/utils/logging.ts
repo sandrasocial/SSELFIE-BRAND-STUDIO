@@ -3,8 +3,8 @@
  * Structured logging with different levels and outputs
  */
 
-import { Logger } from './logger';
-import { structuredLogger } from './structured-logger';
+import { Logger } from './logger.js';
+import { structuredLogger } from './structured-logger.js';
 
 export interface LogEntry {
   timestamp: string;
@@ -83,7 +83,7 @@ export class LoggingSystem {
 
       this.logger.info('Logging system initialized successfully');
     } catch (error) {
-      this.logger.error('Failed to initialize logging system', { error: error.message });
+      this.logger.error('Failed to initialize logging system', error as Error);
       throw error;
     }
   }

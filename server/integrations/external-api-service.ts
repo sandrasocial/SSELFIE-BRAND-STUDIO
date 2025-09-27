@@ -3,7 +3,7 @@
  * Connects AI agents to Make, Flodesk, ManyChat, Instagram, and more
  */
 
-import fetch from 'node-fetch'';
+import fetch from 'node-fetch';
 
 export interface FlodeskSubscriber {
   email: string;
@@ -38,7 +38,7 @@ export class ExternalAPIService {
     try {
       const response = await fetch('https://api.flodesk.com/v1/subscribers', {
         headers: {
-          'Authorization': `Basic ${Buffer.from(process.env.FLODESK_API_KEY + ':').toString('base64'.js')}`,
+          Authorization: `Basic ${Buffer.from(process.env.FLODESK_API_KEY + ':').toString('base64')}`,
           'Content-Type': 'application/json'
         }
       });
@@ -86,10 +86,10 @@ export class ExternalAPIService {
 
   static async createFlodeskEmailCampaign(subject: string, content: string, segmentTags?: string[]): Promise<string> {
     try {
-      const response = await fetch('https://api.flodesk.com/v1/emails', {
+      const flodeskResponse = await fetch('https://api.flodesk.com/v1/emails', {
         method: 'POST',
         headers: {
-          'Authorization': `Basic ${Buffer.from(process.env.FLODESK_API_KEY + ':').toString('base64'.js')}`,
+          'Authorization': `Basic ${Buffer.from(process.env.FLODESK_API_KEY + ':').toString('base64')}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
@@ -114,13 +114,13 @@ export class ExternalAPIService {
         ? `https://graph.facebook.com/v18.0/${mediaId}/comments`
         : `https://graph.facebook.com/v18.0/${process.env.INSTAGRAM_BUSINESS_ACCOUNT_ID}/media?fields=comments{text,username,timestamp}`;
 
-      const response = await fetch(`${endpoint}?access_token=${process.env.META_ACCESS_TOKEN}`);
+      const instagramResponse = await fetch(`${endpoint}?access_token=${process.env.META_ACCESS_TOKEN}`);
       
-      if (!response.ok) {
-        throw new Error(`Instagram API error: ${response.status}`);
+      if (!instagramResponse.ok) {
+        throw new Error(`Instagram API error: ${instagramResponse.status}`);
       }
 
-      const data = await response.json() as any;
+      const data = await instagramResponse.json() as any;
       return data.data || [];
     } catch (error) {
       console.error('Instagram API Error:', error);

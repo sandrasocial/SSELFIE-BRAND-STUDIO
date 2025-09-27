@@ -4,11 +4,11 @@
  */
 
 import { Router } from 'express';
-import { eq } from 'drizzle-orm'';
-import { db } from '..db';.js
-import { liveSessions, insertLiveSessionSchema, LiveSession, InsertLiveSession } from '..../shared/schema';
-import { Logger } from '..utils/logger';
-import { z } from 'zod'';
+import { eq } from 'drizzle-orm';
+import { db } from '../db.js';
+import { liveSessions, insertLiveSessionSchema, LiveSession, InsertLiveSession } from '../../shared/schema.js';
+import { Logger } from '../utils/logger.js';
+import { z } from 'zod';
 
 const router = Router();
 const logger = new Logger('LiveSessionRoutes');
@@ -59,9 +59,9 @@ router.post('/session', async (req, res) => {
 
     // Create the session
     const sessionData: InsertLiveSession = {
-      deckUrl: deckUrl || null,
-      mentiUrl: mentiUrl || null,
-      ctaUrl: ctaUrl || null,
+      deckUrl: deckUrl || undefined,
+      mentiUrl: mentiUrl || undefined,
+      ctaUrl: ctaUrl || undefined,
       title,
       createdBy: userId,
     };
@@ -69,7 +69,7 @@ router.post('/session', async (req, res) => {
     const result = await db.insert(liveSessions).values(sessionData).returning();
     const session = result[0];
 
-    logger.info('Live session created', { sessionId: session.id, userId, title });
+    logger.info('Live session created', { sessionId: session?.id, userId, title });
 
     return res.status(201).json({
       success: true,
@@ -77,7 +77,7 @@ router.post('/session', async (req, res) => {
     });
 
   } catch (error) {
-    logger.error('Error creating live session', { error: error.message, userId: req.user?.id });
+    logger.error('Error creating live session', { error: error instanceof Error ? error.message : String(error), userId: req.user?.id });
     return res.status(500).json({
       success: false,
       error: { message: 'Failed to create live session', code: 'INTERNAL_ERROR' }
@@ -121,7 +121,7 @@ router.get('/session/:id', async (req, res) => {
     });
 
   } catch (error) {
-    logger.error('Error retrieving live session', { error: error.message, sessionId: req.params.id });
+    logger.error('Error retrieving live session', { error: error instanceof Error ? error.message : String(error), sessionId: req.params.id });
     return res.status(500).json({
       success: false,
       error: { message: 'Failed to retrieve live session', code: 'INTERNAL_ERROR' }
@@ -179,7 +179,7 @@ router.patch('/session/:id', async (req, res) => {
       });
     }
 
-    if (existingSession[0].createdBy !== userId) {
+    if (existingSession?.[0]?.createdBy !== userId) {
       return res.status(403).json({
         success: false,
         error: { message: 'Permission denied', code: 'FORBIDDEN' }
@@ -190,9 +190,9 @@ router.patch('/session/:id', async (req, res) => {
     const updateData: Partial<InsertLiveSession> = {};
     const { deckUrl, mentiUrl, ctaUrl, title } = validationResult.data;
 
-    if (deckUrl !== undefined) updateData.deckUrl = deckUrl || null;
-    if (mentiUrl !== undefined) updateData.mentiUrl = mentiUrl || null;
-    if (ctaUrl !== undefined) updateData.ctaUrl = ctaUrl || null;
+    if (deckUrl !== undefined) updateData.deckUrl = deckUrl || undefined;
+    if (mentiUrl !== undefined) updateData.mentiUrl = mentiUrl || undefined;
+    if (ctaUrl !== undefined) updateData.ctaUrl = ctaUrl || undefined;
     if (title !== undefined) updateData.title = title;
 
     const result = await db
@@ -212,7 +212,7 @@ router.patch('/session/:id', async (req, res) => {
 
   } catch (error) {
     logger.error('Error updating live session', { 
-      error: error.message, 
+      error: error instanceof Error ? error.message : String(error), 
       sessionId: req.params.id, 
       userId: req.user?.id 
     });

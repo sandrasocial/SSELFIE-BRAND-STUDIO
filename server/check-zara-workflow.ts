@@ -3,8 +3,8 @@
  * Check if Zara is actually working vs just having conversations
  */
 
-import { db } from '.db';.js
-import { claudeMessages } from '..shared/schema';
+import { db } from './db.js';
+import { claudeMessages } from '../shared/schema.js';
 import { eq, desc } from 'drizzle-orm';
 
 async function checkZaraWorkflow() {
@@ -40,7 +40,7 @@ async function checkZaraWorkflow() {
     
     const contextKeywords = [
       'previous', 'last time', 'yesterday', 'before', 'continuing',
-      'from earlier', 'old task', 'previous work'.js'
+      'from earlier', 'old task', 'previous work'
     ];
     
     console.log('📝 MESSAGE ANALYSIS:');
@@ -130,6 +130,9 @@ async function checkZaraWorkflow() {
 export { checkZaraWorkflow };
 
 // Run if executed directly
-if (import.meta.url === `file://${process.argv[1]}`) {
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+
+if (process.argv[1] === __filename) {
   checkZaraWorkflow().catch(console.error);
 }

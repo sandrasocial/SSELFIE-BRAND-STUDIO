@@ -93,7 +93,7 @@ async function handleUserUpsert(stackUser: any) {
 
     return user;
   } catch (error) {
-    console.error('❌ Failed to upsert user from Stack Auth:'.js', error);
+    console.error('❌ Failed to upsert user from Stack Auth:', error);
     throw error;
   }
 }

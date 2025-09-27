@@ -8,8 +8,15 @@
 import { exec } from 'child_process';
 import { promises as fs } from 'fs';
 import { join } from 'path';
+import { type UserProfile } from '../../shared/schemas/user-profiles.js';
+import { toKnownError } from '../../utils/error-utils.js';
+import { generateVeo3Video, getVeo3Status } from './veo3.js';
 import { tmpdir } from 'os';
 import { ulid } from 'ulid';
+
+export type VideoCompositionStatus = 'pending' | 'processing' | 'completed' | 'failed';
+
+export type SceneJobStatus = 'pending' | 'processing' | 'completed' | 'failed';
 
 export interface StoryboardScene {
   motionPrompt: string;
@@ -29,12 +36,12 @@ export interface ComposeVideoOptions {
 
 export interface CompositionResult {
   jobId: string;
-  status: 'pending' | 'processing' | 'completed' | 'failed';
+  status: VideoCompositionStatus;
   composedVideoUrl?: string;
   sceneJobs?: Array<{
     sceneIndex: number;
     jobId: string;
-    status: string;
+    status: SceneJobStatus;
     videoUrl?: string;
   }>;
   error?: string;
@@ -68,32 +75,17 @@ export async function composeStoryboard(options: ComposeVideoOptions): Promise<C
 
       try {
         // Convert scene to VEO format - use existing VEO service patterns
-        const veoScenes = [{
-          prompt: scene.motionPrompt,
-          duration: Math.min(Math.max(scene.duration, 1), 12), // Clamp duration
-          cameraMovement: 'slow push-in',
-          imageUrl: scene.imageUrl
-        }];
-
-        // Get user's LoRA model if available
-        let userLoraModel = null;
-        try {
-          const { storage } = await import('../../storage.js');
-          const profile = await storage.getUserProfile(userId);
-          userLoraModel = profile?.['replicateModelId'] || null;
-        } catch (e) {
-          console.log('⚠️ VIDEO COMPOSER: Unable to load user profile for LoRA model (continuing)', e?.message);
-        }
+        // Get scene details for VEO3
+        const scene = scenes[i];
 
         // Start video generation using existing VEO3 service
-        const startResult = await startVeoVideo({ 
-          scenes: veoScenes, 
-          format, 
-          userLoraModel, 
-          userId 
-        });
-
-        sceneJobs.push({
+        const startResult = await generateVeo3Video({
+          motionPrompt: scene.motionPrompt,
+          mode: 'production',
+          userId,
+          aspectRatio: format as '9:16' | '16:9' | '1:1',
+          initImageUrl: scene.imageUrl
+        });        sceneJobs.push({
           sceneIndex: i,
           jobId: startResult.jobId,
           status: 'pending',
@@ -172,16 +164,16 @@ export async function getCompositionStatus(
         }
 
         try {
-          const status = await getVeoStatus(sceneJob.jobId, userId);
+          const status = await getVeo3Status(sceneJob.jobId, userId);
           return {
             ...sceneJob,
-            status: status.status === 'succeeded' ? 'completed' : 
-                   status.status === 'failed' ? 'failed' : 'processing',
-            videoUrl: status.videoUrl || undefined
+            status: (status.status === 'completed' ? 'completed' : 
+                   status.status === 'failed' ? 'failed' : 'processing') as SceneJobStatus,
+            videoUrl: status.result?.scenes[0]?.url
           };
         } catch (error) {
           console.error(`❌ VIDEO COMPOSER: Scene ${sceneJob.sceneIndex} status check failed:`, error);
-          return { ...sceneJob, status: 'failed' };
+          return { ...sceneJob, status: 'failed' as const };
         }
       })
     );

@@ -6,11 +6,11 @@
  */
 
 import { Router } from 'express';
-import { requireStackAuth } from '..stack-auth';.js
-import { storage } from '..storage';.js
-import { insertImageVariantSchema } from '..../shared/schema';
-import { z } from 'zod'';
-import { BulletproofUploadService } from '..bulletproof-upload-service';.js
+import { requireStackAuth } from '../stack-auth.js';
+import { storage } from '../storage.js';
+import { insertImageVariantSchema } from '../../shared/schema.js';
+import { z } from 'zod';
+import { BulletproofUploadService } from '../bulletproof-upload-service.js';
 
 const router = Router();
 
@@ -159,7 +159,7 @@ router.get('/variants/:variantId/status', requireStackAuth, async (req, res) => 
       return res.status(401).json({ error: 'Authentication required' });
     }
 
-    const variantId = parseInt(req.params.variantId);
+    const variantId = parseInt(req.params.variantId || '0');
     if (isNaN(variantId)) {
       return res.status(400).json({ error: 'Invalid variant ID' });
     }

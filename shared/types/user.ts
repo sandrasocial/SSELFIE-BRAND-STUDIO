@@ -1,22 +1,22 @@
-// Re-export everything from schema and typesexport interface User {
+// Re-export everything from schema and types
+export * from './user-schema.js';
+export * from './user-types.js';
 
-export * from './user-schema';  id: string;
+// Import types we need to reference
+import type { User as SchemaUser } from './user-schema.js';
+import type { UserBase as ImportedUserBase } from './user-types.js';
 
-export * from './user-types';  email: string;
-
+// Unified User type that combines both schema and interface properties
+export interface UserBase {
+  id: string;
+  email: string;
   primaryEmail?: string;
-
-// Export a unified User type that combines schema and interface types  email_address?: string;
-
-import type { User as SchemaUser } from './user-schema';  user_email?: string;
-
-import type { UserBase } from './user-types';  displayName?: string;
-
+  email_address?: string;
+  user_email?: string;
+  displayName?: string;
   display_name?: string;
-
-// Unified User type that combines both schema and interface properties  name?: string;
-
-export type User = SchemaUser & UserBase;  given_name?: string;
+  name?: string;
+  given_name?: string;
   full_name?: string;
   profileImageUrl?: string;
   profile_image_url?: string;
@@ -24,6 +24,9 @@ export type User = SchemaUser & UserBase;  given_name?: string;
   createdAt: Date;
   updatedAt: Date;
 }
+
+// Export unified type
+export type User = SchemaUser & UserBase;
 
 export interface UserProfile extends User {
   settings: Record<string, unknown>;

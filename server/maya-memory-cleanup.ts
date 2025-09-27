@@ -7,8 +7,8 @@
  * to detect user needs through authentic conversation.
  */
 
-import { MayaMemoryService } from '.services/maya-memory-service';
-import { storage } from '.storage';.js
+import { MayaMemoryService } from './services/maya-memory-service.js';
+import { storage } from './storage.js';
 
 /**
  * Clear restrictive categorizations for all users
@@ -61,5 +61,5 @@ export async function cleanupUserRestrictiveMemory(userId: string): Promise<void
   }
 }
 
-// Export for direct usage if needed
-export { mayaMemoryService };
+// Initialize memory service instance for direct usage if needed
+export const mayaMemoryService = new MayaMemoryService(storage);

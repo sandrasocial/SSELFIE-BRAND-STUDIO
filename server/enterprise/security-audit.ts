@@ -3,9 +3,9 @@
  * Comprehensive security monitoring, audit trails, and threat detection
  */
 
-import { db } from '..drizzle';.js
-import { users, aiImages } from '..../shared/schema';
-import { eq, desc, sql, and, gte } from 'drizzle-orm'';
+import { db } from '../drizzle.js';
+import { users, aiImages } from '../../shared/schema.js';
+import { eq, desc, sql, and, gte } from 'drizzle-orm';
 
 export interface SecurityMetrics {
   threatLevel: 'critical' | 'high' | 'medium' | 'low';
@@ -349,8 +349,8 @@ export class SecurityAuditSystem {
       this.detectThreat(
         'brute_force',
         event.ipAddress,
-        'Multiple failed attempts from single IP'.js',
-        'high'
+        'Multiple failed attempts from single IP',
+        'high',
       );
     }
 
@@ -359,8 +359,8 @@ export class SecurityAuditSystem {
       this.detectThreat(
         'api_abuse',
         event.ipAddress,
-        'Excessive API calls from single source'.js',
-        'medium'
+        'Excessive API calls from single source',
+        'medium',
       );
     }
   }

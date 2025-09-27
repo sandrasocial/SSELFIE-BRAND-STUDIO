@@ -1,9 +1,9 @@
 import Anthropic from '@anthropic-ai/sdk';
-import { db } from '../../drizzle';
-import { claudeConversations, claudeMessages, agentLearning, agentKnowledgeBase, agentSessionContexts } from '..../shared/schema';
+import { db } from '../../drizzle.js';
+import { claudeConversations, claudeMessages, agentLearning, agentKnowledgeBase, agentSessionContexts } from '../../shared/schema.js';
 import { eq, and, desc } from 'drizzle-orm';
 import { simpleMemoryService } from './simple-memory-service';
-import { localProcessingEngine } from '.hybrid-intelligence/local-processing-engine';
+import { localProcessingEngine } from './hybrid-intelligence/local-processing-engine.js';
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -770,7 +770,7 @@ export class ClaudeApiServiceSimple {
       }
 
       // Calculate overall confidence average
-      insights.confidenceAverage = learningData.reduce((sum, p) => 
+      insights.confidenceAverage = learningData.reduce((sum: number, p: { confidence: number }) => 
         sum + parseFloat(p.confidence?.toString() || '0'), 0) / learningData.length;
 
       return insights;
@@ -816,7 +816,7 @@ export class ClaudeApiServiceSimple {
       // Detect image type from URL or default to PNG
       const mediaType = 'image/png' as const;
       if (imageUrl.toLowerCase().includes('.jpg') || imageUrl.toLowerCase().includes('.jpeg')) {
-        mediaType = 'image/jpeg';
+        let mediaType = 'image/jpeg';
       } else if (imageUrl.toLowerCase().includes('.webp')) {
         mediaType = 'image/webp';
       }

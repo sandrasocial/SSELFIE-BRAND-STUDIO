@@ -1,4 +1,4 @@
-import { db } from '..drizzle.js'.js
+import { db } from '../drizzle';
 import { users } from '..../shared/schema.js'
 import { LaunchMetrics } from '..../shared/types/launch-metrics.js'
 

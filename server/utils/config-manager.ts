@@ -5,7 +5,11 @@
 
 import { Logger } from './logger';
 
-export interface AppConfig {
+interface ConfigSection {
+  [key: string]: string | number | boolean | ConfigSection;
+}
+
+export interface AppConfig extends ConfigSection {
   database: {
     url: string;
     user: string;
@@ -122,17 +126,21 @@ export class ConfigManager {
    */
   public getConfigValue<T = unknown>(path: string): T {
     const keys = path.split('.');
-    let value: unknown = this.config;
+    let value = this.config as ConfigSection;
 
-    for (const key of keys) {
-      if (value && typeof value === 'object' && key in value) {
-        value = value[key];
-      } else {
-        throw new Error(`Configuration path '${path}' not found`);
+    try {
+      for (const key of keys) {
+        const section = value[key];
+        if (section === undefined) {
+          throw new Error(`Configuration path '${path}' not found`);
+        }
+        value = section as ConfigSection;
       }
-    }
 
-    return value as T;
+      return value as unknown as T;
+    } catch (error) {
+      throw new Error(`Failed to get configuration value for path '${path}': ${error instanceof Error ? error.message : String(error)}`);
+    }
   }
 
   /**
@@ -298,7 +306,11 @@ export class ConfigManager {
     
     for (const key of keys) {
       if (value && typeof value === 'object' && key in value) {
-        value = value[key];
+        const section = (value as ConfigSection)[key];
+        if (section === undefined) {
+          return defaultValue as T;
+        }
+        value = section;
       } else {
         return defaultValue as T;
       }
@@ -316,7 +328,11 @@ export class ConfigManager {
     
     for (const key of keys) {
       if (value && typeof value === 'object' && key in value) {
-        value = value[key];
+        const section = (value as ConfigSection)[key];
+        if (section === undefined) {
+          return false;
+        }
+        value = section;
       } else {
         return false;
       }
@@ -348,8 +364,8 @@ export class ConfigManager {
   /**
    * Import configuration from external source
    */
-  public importConfiguration(config: Record<string, unknown>): void {
-    this.config = { ...this.config, ...config };
+  public importConfiguration(config: Partial<AppConfig>): void {
+    this.config = { ...this.config, ...config as AppConfig };
     this.logger.info('Configuration imported successfully');
   }
 

@@ -3,7 +3,7 @@
  */
 
 import { Request } from 'express';
-import { AuthenticatedUser } from '../../api/_shared/auth-types.js';
+import { StackAuthUser } from './auth.js';
 
 /** Agent protocol registration data */
 export interface AgentProtocolRegistration {
@@ -53,7 +53,7 @@ export interface AgentUpdate {
 
 /** Authenticated request with user */
 export interface AuthenticatedRequest extends Request {
-  user: AuthenticatedUser;
+  user: StackAuthUser;
 }
 
 /** Success response data */

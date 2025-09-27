@@ -3,14 +3,14 @@
  * Monitors application health and dependencies
  */
 
-import { Logger } from './logger';
-import { monitoringSystem } from './monitoring';
-import { performanceMonitor } from './performance-monitor';
-import { errorTracker } from './error-tracker';
-import { securityMonitor } from './security-monitor';
+import { Logger } from './logger.js';
+import { monitoringSystem } from './monitoring.js';
+import { performanceMonitor } from './performance-monitor.js';
+import { errorTracker } from './error-tracker.js';
+import { securityMonitor } from './security-monitor.js';
 import os from 'os';
 import fs from 'fs';
-import path from 'path'';
+import path from 'path';
 
 export interface HealthCheckResult {
   status: 'healthy' | 'degraded' | 'unhealthy';
@@ -330,7 +330,7 @@ export class HealthCheckSystem {
             return { name: api.name, status: response.ok, statusCode: response.status };
           } catch (error) {
             clearTimeout(timeoutId);
-            return { name: api.name, status: false, error: error.message };
+            return { name: api.name, status: false, error: error instanceof Error ? error.message : 'Unknown error' };
           }
         })
       );
@@ -451,7 +451,7 @@ export class HealthCheckSystem {
     try {
       const loadAverage = os.loadavg();
       const cpuCount = os.cpus().length;
-      const cpuUsage = loadAverage[0] / cpuCount; // 1-minute load average per CPU
+      const cpuUsage = (loadAverage?.[0] ?? 0) / cpuCount; // 1-minute load average per CPU
       const percentage = cpuUsage * 100;
 
       let status: 'healthy' | 'degraded' | 'unhealthy';
@@ -615,10 +615,13 @@ export class HealthCheckSystem {
       let status: 'healthy' | 'degraded' | 'unhealthy';
       let message: string;
 
-      if (performanceStats.averageResponseTime > 10000 || performanceStats.errorRate > 10) {
+      const avgResponseTime = performanceStats.averageResponseTime ?? 0;
+      const errorRate = performanceStats.errorRate ?? 0;
+      
+      if (avgResponseTime > 10000 || errorRate > 10) {
         status = 'unhealthy';
-        message = `Performance degraded: ${performanceStats.averageResponseTime}ms avg, ${performanceStats.errorRate}% errors`;
-      } else if (performanceStats.averageResponseTime > 5000 || performanceStats.errorRate > 5) {
+        message = `Performance degraded: ${avgResponseTime}ms avg, ${errorRate}% errors`;
+      } else if (avgResponseTime > 5000 || errorRate > 5) {
         status = 'degraded';
         message = `Performance elevated: ${performanceStats.averageResponseTime}ms avg, ${performanceStats.errorRate}% errors`;
       } else {
@@ -667,13 +670,13 @@ export class HealthCheckSystem {
         percentage: (memoryUsage.heapUsed / totalMemory) * 100,
       },
       cpu: {
-        usage: (loadAverage[0] / cpuCount) * 100,
-        loadAverage: loadAverage.map(load => Math.round(load * 100) / 100),
+        usage: ((loadAverage?.[0] ?? 0) / cpuCount) * 100,
+        loadAverage: loadAverage?.map(load => Math.round(load * 100) / 100) ?? [],
       },
       requests: {
-        total: performanceStats.totalRequests,
-        rate: performanceStats.throughput,
-        averageResponseTime: performanceStats.averageResponseTime,
+        total: performanceStats.totalRequests ?? 0,
+        rate: performanceStats.throughput ?? 0,
+        averageResponseTime: performanceStats.averageResponseTime ?? 0,
       },
       errors: {
         count: errorStats.totalErrors,
@@ -700,7 +703,13 @@ export class HealthCheckSystem {
     }> = [];
 
     // Get performance alerts
-    const performanceAlerts = performanceMonitor.getPerformanceAlerts();
+    const performanceAlerts = performanceMonitor.getPerformanceAlerts()
+      .map(alert => ({
+        type: 'performance',
+        message: alert,
+        severity: 'medium' as const,
+        timestamp: new Date().toISOString()
+      }));
     alerts.push(...performanceAlerts);
 
     // Add memory alerts

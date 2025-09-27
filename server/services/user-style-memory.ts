@@ -2,7 +2,8 @@
 // This service tracks user patterns and preferences without affecting concept generation
 
 import { db } from '../drizzle.js';
-import { userStyleMemory, promptAnalysis, aiImages } from '../../shared/schema.js';
+import { userStyleMemory, aiImages } from '../../shared/schema.js';
+import { promptAnalysis } from '../shared/schemas/prompt-analysis.js';
 import { eq, desc, and, gte, sql } from 'drizzle-orm';
 
 export interface UserStyleMemory {
@@ -121,6 +122,7 @@ export class UserStyleMemoryService {
       if (data.wasFavorited) successScore += 0.3;
 
       await db.insert(promptAnalysis).values({
+        successScore: sql`${successScore}::numeric`,
         userId,
         originalPrompt: data.originalPrompt,
         generatedPrompt: data.generatedPrompt,
@@ -223,7 +225,7 @@ export class UserStyleMemoryService {
         .from(promptAnalysis)
         .where(and(
           eq(promptAnalysis.userId, userId),
-          gte(promptAnalysis.successScore, 0.5)
+                    gte(promptAnalysis.successScore, sql`0.5::numeric`)
         ))
         .orderBy(desc(promptAnalysis.successScore))
         .limit(10);

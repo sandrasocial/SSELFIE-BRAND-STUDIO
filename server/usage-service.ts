@@ -9,11 +9,16 @@ export interface UserUsage {
   updatedAt: Date;
   currentPeriodStart: Date;
   currentPeriodEnd: Date;
-  monthlyGenerationsAllowed: number;
-  monthlyGenerationsUsed: number;
-  totalCostIncurred: string;
-  isLimitReached: boolean;
-  lastGenerationAt: Date;
+  monthlyGenerationsAllowed: number | null;
+  monthlyGenerationsUsed: number | null;
+  totalCostIncurred: string | null;
+  isLimitReached: boolean | null;
+  lastGenerationAt: Date | null;
+}
+
+export interface UserUsageUpdate extends Partial<UserUsage> {
+  userId: string;
+  plan: string;
 }
 
 // Plan configuration with usage limits and costs - LUXURY AI PERSONAL BRANDING PLATFORM
@@ -44,11 +49,11 @@ export const API_COSTS = {
 export interface UsageCheck {
   canGenerate: boolean;
   remainingGenerations: number;
-  totalUsed: number;
-  totalAllowed: number;
-  monthlyUsed?: number;
-  monthlyAllowed?: number;
-  resetDate?: Date;
+  totalUsed: number | null;
+  totalAllowed: number | null;
+  monthlyUsed?: number | null;
+  monthlyAllowed?: number | null;
+  resetDate?: Date | null;
   reason?: string;
 }
 
@@ -56,7 +61,7 @@ export interface UsageUpdate {
   actionType: 'generation' | 'api_call' | 'sandra_chat' | 'training';
   resourceUsed: 'replicate_ai' | 'claude_api' | 'openai_api';
   cost: number;
-  details?: any;
+  details?: Record<string, unknown>;
   generatedImageId?: number;
 }
 
@@ -74,16 +79,19 @@ export class UsageService {
       ? new Date(now.getFullYear(), now.getMonth() + 1, now.getDate())
       : null;
 
+    const now = new Date();
     return await storage.createUserUsage({
       userId,
-      plan,
-      monthlyGenerationsAllowed: planLimits.monthlyGenerations,
+      plan: userPlan,
+      monthlyGenerationsAllowed: currentPlanLimits.monthlyGenerations,
       monthlyGenerationsUsed: 0,
-      totalCostIncurred: "0.0000",
+      totalCostIncurred: '0.00',
+      lastGenerationAt: now,
+      createdAt: now,
+      updatedAt: now,
       currentPeriodStart: now,
-      currentPeriodEnd: periodEnd,
-      isLimitReached: false,
-      lastGenerationAt: null
+      currentPeriodEnd: new Date(now.getFullYear(), now.getMonth() + 1, 1),
+      isLimitReached: false
     });
   }
 
@@ -94,7 +102,12 @@ export class UsageService {
     const adminEmails = ['ssa@ssasocial.com', 'sandrajonna@gmail.com', 'sandra@sselfie.ai'];
     
     // Admin users get unlimited access
-    if (user && (adminEmails.includes(user.email) || user.role === 'admin')) {
+    const isAdmin = user && (
+      (user.email && adminEmails.includes(user.email)) || 
+      (user.role === 'admin')
+    );
+
+    if (isAdmin && user?.email) {
       console.log(`👑 Admin user detected: ${user.email} - granting unlimited access`);
       return {
         canGenerate: true,
@@ -134,7 +147,18 @@ export class UsageService {
       console.log(`Migrating legacy ai-pack user ${userId} to sselfie-studio plan`);
       await this.initializeUserUsage(userId, 'sselfie-studio');
       usage = await storage.getUserUsage(userId);
+      if (!usage) {
+        throw new Error('Failed to migrate user usage from ai-pack to sselfie-studio');
+      }
     }
+
+    // Destructure usage with defaults
+    const {
+      monthlyGenerationsUsed = 0,
+      monthlyGenerationsAllowed = planLimits.monthlyGenerations || 0,
+      currentPeriodEnd = null,
+      totalCostIncurred = '0'
+    } = usage;
 
     // For Studio plans (monthly limits)
     if (usage.monthlyGenerationsAllowed) {
@@ -171,25 +195,23 @@ export class UsageService {
     try {
       await storage.createUsageHistory({
         userId,
-        actionType: update.actionType,
-        resourceUsed: update.resourceUsed,
-        cost: update.cost.toString(),
+        action: update.actionType,
         details: update.details,
-        generatedImageId: update.generatedImageId
+        cost: update.cost
       });
     } catch (error) {
-      console.log('Usage history recording skipped (table may not exist):', error.message);
+      console.log('Usage history recording skipped (table may not exist):', error instanceof Error ? error.message : String(error));
     }
 
     // Update usage counters
     const updates: any = {
-      totalCostIncurred: (parseFloat(usage.totalCostIncurred) + update.cost).toFixed(4),
+      totalCostIncurred: (parseFloat(usage.totalCostIncurred ?? '0') + update.cost).toFixed(4),
       lastGenerationAt: new Date()
     };
 
     // Only count 'generation' actions against limits, NOT 'training'
     if (update.actionType === 'generation') {
-      updates.monthlyGenerationsUsed = usage.monthlyGenerationsUsed + 1;
+      updates.monthlyGenerationsUsed = (usage.monthlyGenerationsUsed ?? 0) + 1;
       
       if (usage.monthlyGenerationsAllowed) {
         updates.monthlyGenerationsUsed = (usage.monthlyGenerationsUsed || 0) + 1;

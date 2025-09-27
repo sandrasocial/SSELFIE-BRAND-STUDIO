@@ -1,13 +1,15 @@
 /**
- * Type definitions for AI generation routes
+ * ype definitions for AI generation routes
  */
 
-import { Request } from 'express';
+import type { Request } from 'express';
+import type { StackAuthUser } from './auth.js';
+
 import { AuthenticatedUser } from '../../api/_shared/auth-types.js';
 
 /** Base authenticated request */
 export interface AuthenticatedRequest extends Request {
-  user: AuthenticatedUser;
+  user: StackAuthUser;
 }
 
 /** Story concept request */

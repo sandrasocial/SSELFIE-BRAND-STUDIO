@@ -1,5 +1,5 @@
-import { zaraEnhancementSystem } from './zara-enhancement-system';
-import { claudeApiServiceSimple } from '../services/claude-api-service-simple';
+import { zaraEnhancementSystem } from './zara-enhancement-system.js';
+import { claudeApiServiceSimple } from '../services/claude-api-service-simple.js';
 
 /**
  * Integration hooks for Zara's enhanced capabilities
@@ -143,7 +143,7 @@ export class ZaraIntegrationHooks {
       },
       commonPatterns: [
         'Use TypeScript interfaces from shared/schema.ts',
-        'Import services from server/services/'.js',
+        'Import services from server/services/',
         'Follow existing naming conventions',
         'Match existing code style and patterns.js'
       ],

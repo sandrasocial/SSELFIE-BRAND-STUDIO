@@ -3,12 +3,12 @@
  * Enhanced logging with structured data and multiple outputs
  */
 
-import { Logger } from './logger';
+import { Logger } from './logger.js';
 import fs from 'fs';
 
 export interface LogEntry {
   timestamp: string;
-  level: 'debug' | 'info' | 'warn' | 'error';
+  level: 'debug' | 'info' | 'warn' | 'error' | 'fatal';
   message: string;
   service: string;
   requestId?: string;
@@ -27,7 +27,7 @@ export interface LogOutput {
 
 export class ConsoleLogOutput implements LogOutput {
   write(entry: LogEntry): void {
-    const logMethod = console[entry.level] || console.log;
+    const logMethod = entry.level === 'fatal' ? console.error : (console[entry.level as 'debug' | 'info' | 'warn' | 'error'] || console.log);
     logMethod(JSON.stringify(entry, null, 2));
   }
 }
@@ -47,15 +47,31 @@ export class FileLogOutput implements LogOutput {
   }
 }
 
+export interface LogConfig {
+  level: 'debug' | 'info' | 'warn' | 'error' | 'fatal';
+  service: string;
+  enabled: boolean;
+  outputs?: LogOutput[];
+}
+
 export class StructuredLogger {
   private outputs: LogOutput[];
   private service: string;
   private requestId?: string;
   private userId?: string;
 
+  private config: LogConfig;
+  private enabled: boolean = true;
+
   constructor(service: string, outputs: LogOutput[] = []) {
     this.service = service;
     this.outputs = outputs.length > 0 ? outputs : [new ConsoleLogOutput()];
+    this.config = {
+      level: 'info',
+      service,
+      enabled: true,
+      outputs
+    };
   }
 
   setContext(requestId?: string, userId?: string): void {
@@ -86,7 +102,7 @@ export class StructuredLogger {
     });
   }
 
-  private log(level: 'debug' | 'info' | 'warn' | 'error', message: string, metadata?: Record<string, any>): void {
+  log(level: 'debug' | 'info' | 'warn' | 'error' | 'fatal', message: string, metadata?: Record<string, any>): void {
     const entry: LogEntry = {
       timestamp: new Date().toISOString(),
       level,
@@ -116,7 +132,78 @@ export class StructuredLogger {
       this.outputs.splice(index, 1);
     }
   }
+
+  updateConfig(config: Partial<LogConfig>): void {
+    this.config = { ...this.config, ...config };
+  }
+
+  setEnabled(enabled: boolean): void {
+    this.enabled = enabled;
+  }
+
+  logRequest(req: any, res: any, responseTime: number): void {
+    this.info('HTTP Request', {
+      method: req.method,
+      url: req.url,
+      status: res.statusCode,
+      responseTime
+    });
+  }
+
+  logError(error: Error, context?: Record<string, any>): void {
+    this.error(error.message, error, context);
+  }
+
+  logPerformance(operation: string, duration: number, context?: Record<string, any>): void {
+    this.info('Performance Metric', {
+      operation,
+      duration,
+      ...context
+    });
+  }
+
+  logDatabase(operation: string, table: string, duration: number, context?: Record<string, any>): void {
+    this.debug('Database Operation', {
+      operation,
+      table,
+      duration,
+      ...context
+    });
+  }
+
+  logExternalApi(service: string, endpoint: string, method: string, statusCode: number, duration: number, context?: Record<string, any>): void {
+    this.info('External API Call', {
+      service,
+      endpoint,
+      method,
+      statusCode,
+      duration,
+      ...context
+    });
+  }
+
+  logAuth(event: string, userId: string, success: boolean, context?: Record<string, any>): void {
+    this.info('Authentication Event', {
+      event,
+      userId,
+      success,
+      ...context
+    });
+  }
+
+  logBusiness(event: string, entity: string, entityId: string, action: string, context?: Record<string, any>): void {
+    this.info('Business Event', {
+      event,
+      entity,
+      entityId,
+      action,
+      ...context
+    });
+  }
 }
+
+// Create and export default logger instance
+export const structuredLogger = new StructuredLogger('maya-server', [new ConsoleLogOutput()]);
 
 // Export factory function
 export function createStructuredLogger(service: string, outputs?: LogOutput[]): StructuredLogger {

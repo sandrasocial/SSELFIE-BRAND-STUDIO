@@ -3,8 +3,8 @@
  * Deep analysis of Zara's conversation patterns, context handling, and performance
  */
 
-import { db } from '.drizzle';
-import { claudeConversations, claudeMessages, agentLearning, agentSessionContexts } from '..shared/schema';
+import { db } from './drizzle.js';
+import { claudeConversations, claudeMessages, agentLearning, agentSessionContexts } from '../shared/schema.js';
 import { eq, desc, and } from 'drizzle-orm';
 
 async function trackZara() {
@@ -143,6 +143,9 @@ async function trackZara() {
 export { trackZara };
 
 // Run if executed directly
-if (import.meta.url === `file://${process.argv[1]}`) {
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+
+if (process.argv[1] === __filename) {
   trackZara().catch(console.error);
 }

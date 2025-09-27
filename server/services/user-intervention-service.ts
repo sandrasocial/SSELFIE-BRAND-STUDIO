@@ -3,9 +3,9 @@
  * Automated outreach and support for inactive paid users
  */
 
-import { db } from '..drizzle';.js
-import { users, selfieUploads, userModels } from '..../shared/schema';
-import { eq, sql } from 'drizzle-orm'';
+import { db } from '../drizzle.js';
+import { users, selfieUploads, userModels } from '../../shared/schema.js';
+import { eq, sql } from 'drizzle-orm';
 
 export class UserInterventionService {
   
@@ -108,10 +108,10 @@ export class UserInterventionService {
     const inactiveUsers = await this.getInactiveUsers();
     
     return {
-      totalPaidUsers: totalPaidUsers[0].count,
+      totalPaidUsers: totalPaidUsers?.[0]?.count ?? 0,
       inactiveUsers: inactiveUsers.length,
-      activeUsers: totalPaidUsers[0].count - inactiveUsers.length,
-      conversionRate: ((totalPaidUsers[0].count - inactiveUsers.length) / totalPaidUsers[0].count * 100).toFixed(1)
+      activeUsers: (totalPaidUsers?.[0]?.count ?? 0) - (inactiveUsers?.length ?? 0),
+      conversionRate: (((totalPaidUsers?.[0]?.count ?? 0) - (inactiveUsers?.length ?? 0)) / (totalPaidUsers?.[0]?.count ?? 1) * 100).toFixed(1)
     };
   }
 }

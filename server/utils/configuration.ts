@@ -3,8 +3,9 @@
  * Manages application configuration across different environments
  */
 
-import { Logger } from './logger';
-import { configManager } from './config-manager';
+import { Logger } from './logger.js';
+import { toKnownError } from './error-utils.js';
+import { configManager } from './config-manager.js';
 
 export interface ConfigurationOptions {
   environment: string;
@@ -57,7 +58,8 @@ export class ConfigurationSystem {
 
       this.logger.info('Configuration system initialized successfully');
     } catch (error) {
-      this.logger.error('Failed to initialize configuration system', { error: error.message });
+      const knownError = toKnownError(error);
+      this.logger.error('Failed to initialize configuration system', { error: knownError.message });
       throw error;
     }
   }
@@ -97,7 +99,8 @@ export class ConfigurationSystem {
     try {
       return configManager.getConfigValue<T>(path);
     } catch (error) {
-      this.logger.error('Failed to get configuration value', { path, error: error.message });
+      const knownError = toKnownError(error);
+      this.logger.error('Failed to get configuration value', { path, error: knownError.message });
       throw error;
     }
   }
@@ -115,7 +118,8 @@ export class ConfigurationSystem {
       configManager.setConfigValue(path, value);
       this.logger.debug('Configuration value set', { path });
     } catch (error) {
-      this.logger.error('Failed to set configuration value', { path, error: error.message });
+      const knownError = toKnownError(error);
+      this.logger.error('Failed to set configuration value', { path, error: knownError.message });
       throw error;
     }
   }
@@ -172,7 +176,8 @@ export class ConfigurationSystem {
       configManager.importConfiguration(config);
       this.logger.info('Configuration imported successfully');
     } catch (error) {
-      this.logger.error('Failed to import configuration', { error: error.message });
+      const knownError = toKnownError(error);
+      this.logger.error('Failed to import configuration', { error: knownError.message });
       throw error;
     }
   }
@@ -190,7 +195,8 @@ export class ConfigurationSystem {
       configManager.resetConfiguration();
       this.logger.info('Configuration reset successfully');
     } catch (error) {
-      this.logger.error('Failed to reset configuration', { error: error.message });
+      const knownError = toKnownError(error);
+      this.logger.error('Failed to reset configuration', { error: knownError.message });
       throw error;
     }
   }

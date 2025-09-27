@@ -1,3 +1,106 @@
+import type { InferModel } from 'drizzle-orm';
+import type { StackAuthUser } from './types/auth.js';
+import {
+  users,
+  userProfiles,
+  onboardingData,
+  aiImages,
+  generatedImages,
+  generationTrackers,
+  userModels,
+  selfieUploads,
+  subscriptions,
+  userUsage,
+  victoriaChats,
+  generatedVideos,
+  videoStoryboards,
+  photoSelections,
+  landingPages,
+  brandOnboarding,
+  userLandingPages,
+  emailCaptures,
+  mayaChats,
+  mayaChatMessages,
+  claudeConversations,
+  claudeMessages,
+  trainingRuns,
+  loraWeights,
+  conversations,
+  messages,
+  conversationSummaries,
+  conceptCards,
+  brandAssets,
+  imageVariants,
+  userStyleMemory
+} from '../shared/schema.js';
+
+
+
+// Interface definitions
+// Define types using InferModel
+export type User = InferModel<typeof users>;
+export type InsertUser = InferModel<typeof users, 'insert'>;
+export type UserProfile = InferModel<typeof userProfiles>;
+export type InsertUserProfile = InferModel<typeof userProfiles, 'insert'>;
+export type OnboardingData = InferModel<typeof onboardingData>;
+export type InsertOnboardingData = InferModel<typeof onboardingData, 'insert'>;
+export type AiImage = InferModel<typeof aiImages>;
+export type InsertAiImage = InferModel<typeof aiImages, 'insert'>;
+export type GeneratedImage = InferModel<typeof generatedImages>;
+export type InsertGeneratedImage = InferModel<typeof generatedImages, 'insert'>;
+export type GeneratedVideo = InferModel<typeof generatedVideos>;
+export type InsertGeneratedVideo = InferModel<typeof generatedVideos, 'insert'>;
+export type VideoStoryboard = InferModel<typeof videoStoryboards>;
+export type InsertVideoStoryboard = InferModel<typeof videoStoryboards, 'insert'>;
+export type GenerationTracker = InferModel<typeof generationTrackers>;
+export type InsertGenerationTracker = InferModel<typeof generationTrackers, 'insert'>;
+export type UserModel = InferModel<typeof userModels>;
+export type InsertUserModel = InferModel<typeof userModels, 'insert'>;
+export type SelfieUpload = InferModel<typeof selfieUploads>;
+export type InsertSelfieUpload = InferModel<typeof selfieUploads, 'insert'>;
+export type Subscription = InferModel<typeof subscriptions>;
+export type InsertSubscription = InferModel<typeof subscriptions, 'insert'>;
+export type UserUsage = InferModel<typeof userUsage>;
+export type InsertUserUsage = InferModel<typeof userUsage, 'insert'>;
+export type VictoriaChat = InferModel<typeof victoriaChats>;
+export type InsertVictoriaChat = InferModel<typeof victoriaChats, 'insert'>;
+export type PhotoSelection = InferModel<typeof photoSelections>;
+export type InsertPhotoSelection = InferModel<typeof photoSelections, 'insert'>;
+export type LandingPage = InferModel<typeof landingPages>;
+export type InsertLandingPage = InferModel<typeof landingPages, 'insert'>;
+export type BrandOnboarding = InferModel<typeof brandOnboarding>;
+export type InsertBrandOnboarding = InferModel<typeof brandOnboarding, 'insert'>;
+export type UserLandingPage = InferModel<typeof userLandingPages>;
+export type InsertUserLandingPage = InferModel<typeof userLandingPages, 'insert'>;
+export type EmailCapture = InferModel<typeof emailCaptures>;
+export type InsertEmailCapture = InferModel<typeof emailCaptures, 'insert'>;
+export type MayaChat = InferModel<typeof mayaChats>;
+export type InsertMayaChat = InferModel<typeof mayaChats, 'insert'>;
+export type MayaChatMessage = InferModel<typeof mayaChatMessages>;
+export type InsertMayaChatMessage = InferModel<typeof mayaChatMessages, 'insert'>;
+export type ClaudeConversation = InferModel<typeof claudeConversations>;
+export type ClaudeMessage = InferModel<typeof claudeMessages>;
+export type TrainingRun = InferModel<typeof trainingRuns>;
+export type InsertTrainingRun = InferModel<typeof trainingRuns, 'insert'>;
+export type LoraWeight = InferModel<typeof loraWeights>;
+export type InsertLoraWeight = InferModel<typeof loraWeights, 'insert'>;
+// New hybrid backend types
+export type Conversation = InferModel<typeof conversations>;
+export type InsertConversation = InferModel<typeof conversations, 'insert'>;
+export type Message = InferModel<typeof messages>;
+export type InsertMessage = InferModel<typeof messages, 'insert'>;
+export type ConversationSummary = InferModel<typeof conversationSummaries>;
+export type InsertConversationSummary = InferModel<typeof conversationSummaries, 'insert'>;
+export type ConceptCard = InferModel<typeof conceptCards>;
+export type InsertConceptCard = InferModel<typeof conceptCards, 'insert'>;
+// Brand Assets types
+export type BrandAsset = InferModel<typeof brandAssets>;
+export type InsertBrandAsset = InferModel<typeof brandAssets, 'insert'>;
+export type ImageVariant = InferModel<typeof imageVariants>;
+export type InsertImageVariant = InferModel<typeof imageVariants, 'insert'>;
+export type UserStyleMemory = InferModel<typeof userStyleMemory>;
+export type InsertUserStyleMemory = InferModel<typeof userStyleMemory, 'insert'>;
+
 // Utility: Default user fields for onboarding/business logic
 function getDefaultUserFields(overrides: Partial<InsertUser> = {}): InsertUser {
   return {
@@ -36,101 +139,29 @@ function getDefaultUserFields(overrides: Partial<InsertUser> = {}): InsertUser {
     ...overrides
   };
 }
-import {
-  users,
-  userProfiles,
-  onboardingData,
-  aiImages,
-  generatedImages,
-  generationTrackers,
-  userModels,
-  selfieUploads,
-  subscriptions,
-  userUsage,
-  victoriaChats,
-  photoSelections,
-  landingPages,
-  brandOnboarding,
-  userLandingPages,
-  emailCaptures,
-  mayaChats,
-  mayaChatMessages,
-  userStyleMemory,
-  type User,
-  type InsertUser,
-  type UserProfile,
-  type InsertUserProfile,
-  type OnboardingData,
-  type InsertOnboardingData,
-  type AiImage,
-  type InsertAiImage,
-  type GeneratedImage,
-  type InsertGeneratedImage,
-  generatedVideos,
-  type GeneratedVideo,
-  type InsertGeneratedVideo,
-  videoStoryboards,
-  type VideoStoryboard,
-  type InsertVideoStoryboard,
-  type GenerationTracker,
-  type InsertGenerationTracker,
-  type UserModel,
-  type InsertUserModel,
-  type SelfieUpload,
-  type InsertSelfieUpload,
-  type Subscription,
-  type InsertSubscription,
-  type UserUsage,
-  type InsertUserUsage,
-  type VictoriaChat,
-  type InsertVictoriaChat,
-  type PhotoSelection,
-  type InsertPhotoSelection,
-  type LandingPage,
-  type InsertLandingPage,
-  type BrandOnboarding,
-  type InsertBrandOnboarding,
-  type UserLandingPage,
-  type InsertUserLandingPage,
-  type EmailCapture,
-  type InsertEmailCapture,
-  type MayaChat,
-  type InsertMayaChat,
-  type MayaChatMessage,
-  type InsertMayaChatMessage,
-  claudeConversations,
-  claudeMessages,
-  type ClaudeConversation,
-  type ClaudeMessage,
-  trainingRuns,
-  loraWeights,
-  type TrainingRun,
-  type InsertTrainingRun,
-  type LoraWeight,
-  type InsertLoraWeight,
-  // New hybrid backend types
-  conversations,
-  messages,
-  conversationSummaries,
-  conceptCards,
-  type Conversation,
-  type InsertConversation,
-  type Message,
-  type InsertMessage,
-  type ConversationSummary,
-  type InsertConversationSummary,
-  type ConceptCard,
-  type InsertConceptCard,
-  // Brand Assets types
-  brandAssets,
-  imageVariants,
-  type BrandAsset,
-  type InsertBrandAsset,
-  type ImageVariant,
-  type InsertImageVariant,
-} from "../shared/schema.js";
 import { db } from "./drizzle.js";
 import { eq, and, desc, asc, gte, lte, sql } from "drizzle-orm";
+
+// Interface definitions
+export interface MayaChatInput {
+  userId: string;
+  chatTitle?: string;
+  chatCategory?: string;
+  lastActivity?: Date;
+  status?: string;
+  metadata?: Record<string, unknown>;
+}
+
+export interface MayaChatCreateInput {
+  chatId: string;
+  userId: string;
+  message: string;
+  role: string;
+  chatTitle?: string;
+  initialMessage?: string;
+  conceptCards?: Array<Record<string, unknown>>;
+  context?: Record<string, unknown>;
+}
 
 // Interface for storage operations
 export interface IStorage {
@@ -1589,11 +1620,11 @@ export class DatabaseStorage implements IStorage {
     const [chat] = await db
       .insert(mayaChats)
       .values({
-        userId,
-        chatTitle: data.chatTitle,
-        chatCategory: 'Style Consultation',
-        lastActivity: new Date()
-      })
+        user_id: userId,
+        chat_title: data.chatTitle || 'Style Consultation',
+        chat_category: 'Style Consultation',
+        last_activity: new Date()
+      } as any)
       .returning();
     
     if (data.initialMessage) {
@@ -1611,11 +1642,11 @@ export class DatabaseStorage implements IStorage {
     const [chat] = await db
       .insert(mayaChats)
       .values({
-        userId,
-        chatTitle: 'New Maya Chat',
-        chatCategory: 'Style Consultation',
-        lastActivity: new Date()
-      })
+        user_id: userId,
+        chat_title: 'New Maya Chat',
+        chat_category: 'Style Consultation',
+        last_activity: new Date()
+      } as any)
       .returning();
     
     // Save user message
@@ -2133,13 +2164,16 @@ export class DatabaseStorage implements IStorage {
     
     if (!targetMessage.length) return [];
     
+    const createdAt = targetMessage[0].createdAt;
+    if (!createdAt) return [];
+    
     return await db
       .select()
       .from(messages)
       .where(
         and(
           eq(messages.conversationId, conversationId),
-          gte(messages.createdAt, targetMessage[0].createdAt)
+          gte(messages.createdAt, createdAt)
         )
       )
       .orderBy(messages.createdAt);
@@ -2378,14 +2412,12 @@ export class DatabaseStorage implements IStorage {
     console.log('Usage history:', data);
   }
 
-  // Get user usage history
-  async getUserUsageHistory(): Promise<unknown[]> {
-    // This would typically query a usage_history table
+    // Get user usage history
+  async getUserUsageHistory(userId?: string, limit?: number): Promise<unknown[]> {
+    // This would typically query a usage_history table filtered by userId and limited
     // For now, return empty array
     return [];
-  }
-
-  // User style memory methods
+  }  // User style memory methods
   async getUserStyleMemory(userId: string): Promise<unknown> {
     const [memory] = await db.select().from(userStyleMemory).where(eq(userStyleMemory.userId, userId));
     return memory;

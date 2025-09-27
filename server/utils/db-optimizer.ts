@@ -3,8 +3,9 @@
  * Provides query optimization and connection pooling
  */
 
-import { Logger } from './logger';
-import { performanceMonitor } from './performance-monitor';
+import { Logger } from './logger.js';
+import { toKnownError } from './error-utils.js';
+import { performanceMonitor } from './performance-monitor.js';
 
 export interface QueryOptions {
   timeout?: number;
@@ -71,12 +72,12 @@ export class DatabaseOptimizer {
         });
       }
 
-      return result;
+      return result as T[];
     } catch (error) {
       endTiming();
       this.logger.error('Query execution failed', {
         query: this.sanitizeQuery(query),
-        error: error.message,
+        error: toKnownError(error).message,
         duration: Date.now() - startTime
       });
       throw error;
@@ -104,7 +105,7 @@ export class DatabaseOptimizer {
           const delay = Math.pow(2, attempt) * 1000; // Exponential backoff
           this.logger.warn(`Query attempt ${attempt} failed, retrying in ${delay}ms`, {
             query: this.sanitizeQuery(query),
-            error: error.message
+            error: toKnownError(error).message
           });
           
           await this.sleep(delay);
@@ -256,7 +257,7 @@ export const QueryOptimizer = {
         await dbOptimizer.executeQuery(indexQuery);
         console.log(`✅ Index created: ${indexQuery.split(' ')[5]}`);
       } catch (error) {
-        console.warn(`⚠️  Index creation failed: ${error.message}`);
+        console.warn(`⚠️  Index creation failed: ${toKnownError(error).message}`);
       }
     }
   },

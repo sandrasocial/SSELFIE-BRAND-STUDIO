@@ -3,7 +3,7 @@
  * Real-time performance monitoring and metrics collection
  */
 
-import { Logger } from './logger';
+import { Logger } from './logger.js';
 
 export interface PerformanceMetric {
   timestamp: string;
@@ -169,7 +169,7 @@ export class PerformanceMonitor {
     return operations
       .map(op => this.getStats(op, timeWindow))
       .filter((stats): stats is PerformanceStats => stats !== null)
-      .sort((a, b) => b.totalCalls - a.totalCalls);
+      .sort((a, b) => (b?.totalCalls ?? 0) - (a?.totalCalls ?? 0));
   }
 
   /**
@@ -219,13 +219,13 @@ export class PerformanceMonitor {
     // Find slow operations
     const operationStats = this.getAllStats();
     const slowOperations = operationStats
-      .filter(stats => stats.averageDuration > 1000) // > 1 second
+      .filter(stats => (stats.averageDuration ?? 0) > 1000) // > 1 second
       .map(stats => ({
-        operation: stats.operation,
-        count: stats.totalCalls,
-        averageDuration: stats.averageDuration
+        operation: stats.operation ?? 'unknown',
+        count: stats.totalCalls ?? 0,
+        averageDuration: stats.averageDuration ?? 0
       }))
-      .sort((a, b) => b.averageDuration - a.averageDuration)
+      .sort((a, b) => (b.averageDuration ?? 0) - (a.averageDuration ?? 0))
       .slice(0, 10);
 
     return {
@@ -304,18 +304,19 @@ export class PerformanceMonitor {
       };
     }
 
-    const totalResponseTime = relevantMetrics.reduce((sum, m) => sum + m.responseTime, 0);
-    const totalCpuUsage = relevantMetrics.reduce((sum, m) => sum + m.cpuUsage, 0);
-    const totalMemoryUsage = relevantMetrics.reduce((sum, m) => sum + m.memoryUsage, 0);
-    const totalErrorRate = relevantMetrics.reduce((sum, m) => sum + m.errorRate, 0);
+    const totalResponseTime = relevantMetrics.reduce((sum, m) => sum + (m.responseTime ?? 0), 0);
+    const totalCpuUsage = relevantMetrics.reduce((sum, m) => sum + (m.cpuUsage ?? 0), 0);
+    const totalMemoryUsage = relevantMetrics.reduce((sum, m) => sum + (m.memoryUsage ?? 0), 0);
+    const totalErrorRate = relevantMetrics.reduce((sum, m) => sum + (m.errorRate ?? 0), 0);
 
-    const averageResponseTime = totalResponseTime / relevantMetrics.length;
-    const averageCpuUsage = totalCpuUsage / relevantMetrics.length;
-    const averageMemoryUsage = totalMemoryUsage / relevantMetrics.length;
-    const errorRate = totalErrorRate / relevantMetrics.length;
+    const averageResponseTime = relevantMetrics.length ? totalResponseTime / relevantMetrics.length : 0;
+    const averageCpuUsage = relevantMetrics.length ? totalCpuUsage / relevantMetrics.length : 0;
+    const averageMemoryUsage = relevantMetrics.length ? totalMemoryUsage / relevantMetrics.length : 0;
+    const errorRate = relevantMetrics.length ? totalErrorRate / relevantMetrics.length : 0;
 
-    const maxResponseTime = Math.max(...relevantMetrics.map(m => m.responseTime));
-    const minResponseTime = Math.min(...relevantMetrics.map(m => m.responseTime));
+    const responseTimes = relevantMetrics.map(m => m.responseTime ?? 0);
+    const maxResponseTime = responseTimes.length ? Math.max(...responseTimes) : 0;
+    const minResponseTime = responseTimes.length ? Math.min(...responseTimes) : 0;
 
     // Calculate throughput based on the duration
     const durationInSeconds = (Date.now() - new Date(relevantMetrics[0].timestamp).getTime()) / 1000;
@@ -347,16 +348,16 @@ export class PerformanceMonitor {
     const alerts: string[] = [];
     const stats = this.getPerformanceStats(1);
 
-    if (stats.averageResponseTime > 2000) {
+    if ((stats.averageResponseTime ?? 0) > 2000) {
       alerts.push('High response time detected');
     }
-    if (stats.errorRate > 5) {
+    if ((stats.errorRate ?? 0) > 5) {
       alerts.push('High error rate detected');
     }
-    if (stats.averageCpuUsage > 80) {
+    if ((stats.averageCpuUsage ?? 0) > 80) {
       alerts.push('High CPU usage detected');
     }
-    if (stats.averageMemoryUsage > 1000) {
+    if ((stats.averageMemoryUsage ?? 0) > 1000) {
       alerts.push('High memory usage detected');
     }
 

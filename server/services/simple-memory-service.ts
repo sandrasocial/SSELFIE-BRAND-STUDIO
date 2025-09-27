@@ -4,7 +4,7 @@
  * Replaces all competing memory systems with unified approach
  */
 
-import { storage } from '..storage';.js
+import { storage } from '../storage';
 
 interface AgentMemoryOptions {
   agentName: string;

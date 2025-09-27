@@ -3,6 +3,8 @@
 import express, { type Express } from "express";
 import fs from "node:fs";
 import path from "node:path";
+import { dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 import {
   createServer as createViteServer,
   createLogger,
@@ -25,7 +27,7 @@ export function log(message: string, source = "express") {
 }
 
 export async function setupVite(app: Express, server: Server) {
-  const clientRoot = path.resolve(import.meta.dirname, "..", "client");
+  const clientRoot = path.resolve(dirname(fileURLToPath(import.meta.url)), "..", "client");
   const isProd = process.env.NODE_ENV === "production";
 
   const serverOptions = {
@@ -109,7 +111,7 @@ export async function setupVite(app: Express, server: Server) {
 
 export function serveStatic(app: Express) {
   // Serve the built client app (matches Vite outDir: client/dist)
-  const distPath = path.resolve(import.meta.dirname, "..", "client", "dist");
+  const distPath = path.resolve(dirname(fileURLToPath(import.meta.url)), "..", "client", "dist");
   const assetsPath = path.join(distPath, "assets");
 
   if (!fs.existsSync(distPath)) {

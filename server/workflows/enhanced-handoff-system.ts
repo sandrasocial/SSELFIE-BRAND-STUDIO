@@ -1,6 +1,6 @@
 import { db } from '../drizzle.js';
 import { type ClaudeConversation, type ClaudeMessage } from '../shared/types/chat.js';
-import { claudeConversations, claudeMessages } from '../shared/schema.js';
+import { claudeConversations, claudeMessages } from '../shared/schemas/claude.js';
 import { eq, desc, and } from 'drizzle-orm';
 
 export interface AgentHandoffContext {
@@ -44,8 +44,13 @@ export class EnhancedHandoffSystem {
       const convId = `enhanced_handoff_${workflowId}_${Date.now()}`;
       await db.insert(claudeConversations).values({
         userId,
-        agentName: handoffContext.fromAgent,
-        conversationId: convId,
+        contextType: 'agent_handoff',
+        contextData: {
+          fromAgent: handoffContext.fromAgent,
+          toAgent: handoffContext.toAgent,
+          taskContext: handoffContext.taskContext,
+          completedWork: handoffContext.completedWork
+        },
         title: `Enhanced handoff to ${handoffContext.toAgent}`,
         status: 'active'
       });

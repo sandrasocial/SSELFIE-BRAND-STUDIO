@@ -27,9 +27,11 @@ if (process.env.NODE_ENV === 'test') {
   remoteJwks = createRemoteJWKSet(new URL(JWKS_URL));
 }
 
+import type { AuthInfo, StackAuthUser } from './types/auth.js';
+
 // Authentication cache to improve performance
 interface CachedUser {
-  dbUser: unknown;
+  dbUser: StackAuthUser;
   timestamp: number;
   tokenHash: string;
 }
@@ -232,25 +234,25 @@ export async function verifyStackAuthToken(req: Request, res: Response, next: Ne
     }
     
     // Verify JWT token directly
-    const userInfo = await verifyJWTToken(accessToken);
+    const jwtPayload = await verifyJWTToken(accessToken);
+    const authInfo = jwtPayload as AuthInfo;
     
     console.log('✅ Stack Auth: JWT verified successfully');
-    console.log('🔍 Stack Auth: Full JWT payload:', JSON.stringify(userInfo, null, 2));
+    console.log('🔍 Stack Auth: Full JWT payload:', JSON.stringify(authInfo, null, 2));
     
     // Extract user information with multiple field name attempts and enhanced debugging
-    const userInfo = authInfo as AuthInfo;
-    const userId = userInfo?.sub || userInfo?.user_id || userInfo?.id || '';
-    const userEmail = userInfo?.email || userInfo?.primary_email || userInfo?.primaryEmail || userInfo?.email_address || userInfo?.user_email || '';
-    const userName = userInfo?.displayName || userInfo?.display_name || userInfo?.name || userInfo?.given_name || userInfo?.full_name || 'User';
+    const userId = authInfo?.sub || authInfo?.user_id || authInfo?.id || '';
+    const userEmail = authInfo?.email || authInfo?.primary_email || authInfo?.primaryEmail || authInfo?.email_address || authInfo?.user_email || '';
+    const userName = authInfo?.displayName || authInfo?.display_name || authInfo?.name || authInfo?.given_name || authInfo?.full_name || 'User';
     
     // 🔍 ENHANCED DEBUGGING: Log all available fields to identify email field
-    console.log('🔍 Stack Auth: Full JWT user info keys:', Object.keys(userInfo));
+    console.log('🔍 Stack Auth: Full JWT user info keys:', Object.keys(authInfo));
     console.log('🔍 Stack Auth: Email field search:', {
-      email: userInfo.email,
-      primary_email: userInfo.primary_email, 
-      primaryEmail: userInfo.primaryEmail,
-      email_address: userInfo.email_address,
-      user_email: userInfo.user_email
+      email: authInfo.email,
+      primary_email: authInfo.primary_email, 
+      primaryEmail: authInfo.primaryEmail,
+      email_address: authInfo.email_address,
+      user_email: authInfo.user_email
     });
     
     console.log('📊 Stack Auth: Extracted user info:', {
@@ -288,11 +290,15 @@ export async function verifyStackAuthToken(req: Request, res: Response, next: Ne
         email: userEmail || null,
         firstName: userName?.split(' ')[0] || null,
         lastName: userName?.split(' ').slice(1).join(' ') || null,
-        profileImageUrl: userInfo.profileImageUrl || userInfo.profile_image_url || userInfo.avatar_url || null,
+        profileImageUrl: authInfo.profileImageUrl || authInfo.profile_image_url || authInfo.avatar_url || null,
         plan: null, // New users have no plan until they subscribe
-        monthlyGenerationLimit: 0, // No generations until they subscribe
-        mayaAiAccess: false // No AI access until they subscribe
-      });
+        monthlyGenerationLimit: null, // No generations until they subscribe
+        mayaAiAccess: null, // No AI access until they subscribe
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        lastSignIn: new Date(),
+        displayName: userName || null
+      } as StackAuthUser);
       console.log('✅ Stack Auth: New user created (no subscription):', dbUser.email);
     } else {
       console.log('✅ Stack Auth: User authenticated successfully:', dbUser.email);

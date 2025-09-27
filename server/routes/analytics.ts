@@ -4,11 +4,11 @@
  */
 
 import { Router } from 'express';
-import { eq, sql, desc, and } from 'drizzle-orm'';
-import { db } from '..db';.js
-import { liveEvents, liveSessions, insertLiveEventSchema } from '..../shared/schema';
-import { Logger } from '..utils/logger';
-import { z } from 'zod'';
+import { eq, sql, desc, and } from 'drizzle-orm';
+import { db } from '../db.js';
+import { liveEvents, liveSessions, insertLiveEventSchema } from '../../shared/schema.js';
+import { Logger } from '../utils/logger.js';
+import { z } from 'zod';
 
 const router = Router();
 const logger = new Logger('AnalyticsRoutes');
@@ -82,7 +82,7 @@ router.post('/event', async (req, res) => {
     const event = result[0];
 
     logger.info('Analytics event tracked', { 
-      eventId: event.id, 
+      eventId: event?.id, 
       sessionId, 
       type, 
       utmSource: utmParams.utm_source 
@@ -90,11 +90,11 @@ router.post('/event', async (req, res) => {
 
     return res.status(201).json({
       success: true,
-      data: { eventId: event.id }
+      data: { eventId: event?.id }
     });
 
   } catch (error) {
-    logger.error('Error tracking analytics event', { error: error.message });
+    logger.error('Error tracking analytics event', { error: error instanceof Error ? error.message : String(error) });
     return res.status(500).json({
       success: false,
       error: { message: 'Failed to track event', code: 'INTERNAL_ERROR' }
@@ -191,7 +191,7 @@ router.get('/session/:sessionId', async (req, res) => {
     });
 
   } catch (error) {
-    logger.error('Error retrieving session analytics', { error: error.message, sessionId: req.params.sessionId });
+    logger.error('Error retrieving session analytics', { error: error instanceof Error ? error.message : String(error), sessionId: req.params.sessionId });
     return res.status(500).json({
       success: false,
       error: { message: 'Failed to retrieve analytics', code: 'INTERNAL_ERROR' }
@@ -249,7 +249,7 @@ router.get('/sessions/summary', async (req, res) => {
     });
 
   } catch (error) {
-    logger.error('Error retrieving analytics summary', { error: error.message });
+    logger.error('Error retrieving analytics summary', { error: error instanceof Error ? error.message : String(error) });
     return res.status(500).json({
       success: false,
       error: { message: 'Failed to retrieve summary', code: 'INTERNAL_ERROR' }

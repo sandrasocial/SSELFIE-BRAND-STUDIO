@@ -1,7 +1,8 @@
 // @ts-ignore - node-fetch types may not be available but functionality works
 import fetch from 'node-fetch';
-import { type VeoVideoResult } from './veo-api.js';
+import { type VeoVideoResult, type VeoStatusResult, type VeoVideoInput } from './veo3-types.js';
 
+// Local interfaces for additional functionality
 export interface VeoGenerationMode {
   mode: 'preview' | 'production';
 }
@@ -29,7 +30,7 @@ export interface VeoGenerationResult {
   audioWarning?: string;
 }
 
-export interface VeoStatusResult {
+export interface VeoStatusLocal {
   status: 'pending' | 'processing' | 'completed' | 'failed';
   progress?: number;
   videoUrl?: string | null;
@@ -181,50 +182,48 @@ export async function getVeo3Status(jobId: string, userId: string): Promise<VeoS
       return { status: 'failed', error: `Status check failed: ${response.status}` };
     }
 
-    const result = await response.json();
+    const responseData = await response.json();
     
-    if (result.error) {
-      console.error('❌ VEO 3: Generation error', result.error);
+    if ('error' in responseData) {
+      console.error('❌ VEO 3: Generation error', responseData.error);
       return { 
         status: 'failed', 
-        error: result.error.message || 'Generation failed',
-        completedAt: new Date().toISOString()
-      };
+        error: typeof responseData.error === 'string' ? responseData.error : 'Generation failed'
+      } satisfies VeoStatusResult;
     }
 
-    if (!result.done) {
-      // Still processing
-      const progress = result.metadata?.progressPercent || 0;
-      console.log('⏳ VEO 3: Still processing', { progress, jobId: jobId.slice(-20) });
-      
-      return { 
-        status: 'processing', 
-        progress,
-        estimatedTime: progress > 50 ? '1-2 minutes remaining' : '2-5 minutes remaining'
-      };
-    }
-
-    // Generation completed
-    const result = resultData as VeoVideoResult;
-    const videoUrl = result.response?.video?.uri || result.response?.uri || null;
+    const videoData = responseData as VeoVideoResult;
     
-    if (videoUrl) {
-      console.log('✅ VEO 3: Generation completed successfully', { jobId: jobId.slice(-20) });
+    if (!videoData.done) {
+      const progress = videoData.metadata?.progressPercent || 0;
+      return {
+        status: 'processing',
+        result: {
+          jobId: videoData.jobId,
+          scenes: videoData.scenes,
+          done: false,
+          metadata: {
+            progressPercent: progress,
+            estimatedTime: progress > 50 ? 90 : 300
+          }
+        }
+      } satisfies VeoStatusResult;
+    }
+
+    const hasSuccessfulScenes = videoData.scenes.some(scene => scene.status === 'completed' && scene.url);
+    
+    if (hasSuccessfulScenes) {
       return {
         status: 'completed',
-        progress: 100,
-        videoUrl,
-        completedAt: new Date().toISOString()
-      };
-    } else {
-      console.error('❌ VEO 3: No video URL in completed response', result);
-      return {
-        status: 'failed',
-        error: 'Generation completed but no video was produced',
-        completedAt: new Date().toISOString()
-      };
+        result: videoData
+      } satisfies VeoStatusResult;
     }
 
+    return {
+      status: 'failed',
+      error: 'Generation completed but no successful videos were produced', 
+      result: videoData
+    } satisfies VeoStatusResult;
   } catch (error) {
     console.error('❌ VEO 3: Status check error', error);
     return { 
