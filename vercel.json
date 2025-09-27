@@ -5,7 +5,7 @@
       "src": "package.json",
       "use": "@vercel/static-build",
       "config": {
-        "buildCommand": "npm run build",
+        "buildCommand": "npm run vercel-build",
         "outputDirectory": "client/dist",
         "installCommand": "npm install --force"
       }
@@ -81,5 +81,21 @@
     "env": {
       "VERCEL_FORCE_NO_BUILD_CACHE": "1"
     }
+  },
+  "functions": {
+    "api/[...route].ts": {
+      "maxDuration": 60
+    }
+  },
+  "git": {
+    "deploymentEnabled": {
+      "main": true,
+      "develop": false
+    }
+  },
+  "github": {
+    "autoAlias": false,
+    "enabled": true,
+    "autoJobCancelation": true
   }
 }
