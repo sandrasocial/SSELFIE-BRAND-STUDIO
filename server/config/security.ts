@@ -1,5 +1,5 @@
-import { csurf, helmet } from '.security-placeholder';.js
-import rateLimit from 'express-rate-limit'';
+import { csurf, helmet } from '.security-placeholder'
+import rateLimit from 'express-rate-limit';
 import { Express } from 'express';
 
 export const configureSecurityMiddleware = (app: Express) => {

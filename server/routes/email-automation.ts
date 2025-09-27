@@ -2,14 +2,14 @@
 // Triggers for automatic email sending
 
 import { Router } from 'express';
-import { requireStackAuth } from '..stack-auth';.js
+import { requireStackAuth } from '..stack-auth'
 import { 
   sendWelcomeEmail, 
   sendTrainingCompleteEmail, 
   sendLimitWarningEmail, 
   sendUpgradeInviteEmail 
 } from '..services/email-service';
-import { storage } from '..storage';.js
+import { storage } from '..storage'
 
 const router = Router();
 
