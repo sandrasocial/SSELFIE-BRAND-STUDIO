@@ -6,12 +6,12 @@
  */
 
 import { Router } from 'express';
-import multer from 'multer'';
-import { requireStackAuth } from '..stack-auth';.js
-import { storage } from '..storage';.js
-import { insertBrandAssetSchema } from '..../shared/schema';
-import { z } from 'zod'';
-import { BulletproofUploadService } from '..bulletproof-upload-service';.js
+import multer from 'multer';
+import { requireStackAuth } from '../stack-auth';
+import { storage } from '../storage';
+import { insertBrandAssetSchema } from '../../../shared/schema';
+import { z } from 'zod';
+import { BulletproofUploadService } from '../bulletproof-upload-service';
 
 const router = Router();
 
