@@ -139,10 +139,10 @@ export class PerformanceMonitor {
     const successRate = (successCount / totalCalls) * 100;
 
     const averageDuration = durations.reduce((sum, d) => sum + d, 0) / durations.length;
-    const minDuration = durations[0];
-    const maxDuration = durations[durations.length - 1];
-    const p95Duration = durations[Math.floor(durations.length * 0.95)];
-    const p99Duration = durations[Math.floor(durations.length * 0.99)];
+    const minDuration = durations[0] ?? 0;
+    const maxDuration = durations[durations.length - 1] ?? 0;
+    const p95Duration = durations[Math.floor(durations.length * 0.95)] ?? 0;
+    const p99Duration = durations[Math.floor(durations.length * 0.99)] ?? 0;
 
     const averageMemoryUsage = memoryUsages.reduce((sum, m) => sum + m, 0) / memoryUsages.length;
     const averageCpuUsage = cpuUsages.reduce((sum, c) => sum + c, 0) / cpuUsages.length;
@@ -165,7 +165,7 @@ export class PerformanceMonitor {
    * Get performance statistics for all operations
    */
   getAllStats(timeWindow?: number): PerformanceStats[] {
-    const operations = [...new Set(this.metrics.map(m => m.operation))];
+    const operations = Array.from(new Set(this.metrics.map(m => m.operation)));
     return operations
       .map(op => this.getStats(op, timeWindow))
       .filter((stats): stats is PerformanceStats => stats !== null)
@@ -208,7 +208,7 @@ export class PerformanceMonitor {
     const averageMemory = memoryUsages.length > 0 
       ? memoryUsages.reduce((sum, m) => sum + m, 0) / memoryUsages.length 
       : 0;
-    const peakMemory = Math.max(...memoryUsages, currentMemory);
+    const peakMemory = memoryUsages.length > 0 ? Math.max(...memoryUsages, currentMemory) : currentMemory;
 
     const cpuUsages = this.metrics.map(m => m.cpuUsage);
     const currentCpu = process.cpuUsage();
@@ -219,11 +219,11 @@ export class PerformanceMonitor {
     // Find slow operations
     const operationStats = this.getAllStats();
     const slowOperations = operationStats
-      .filter(stats => stats.averageDuration > 1000) // > 1 second
+      .filter(stats => (stats.averageDuration ?? 0) > 1000) // > 1 second
       .map(stats => ({
-        operation: stats.operation,
-        count: stats.totalCalls,
-        averageDuration: stats.averageDuration
+        operation: stats.operation ?? 'unknown',
+        count: stats.totalCalls ?? 0,
+        averageDuration: stats.averageDuration ?? 0
       }))
       .sort((a, b) => b.averageDuration - a.averageDuration)
       .slice(0, 10);
@@ -304,21 +304,36 @@ export class PerformanceMonitor {
       };
     }
 
-    const totalResponseTime = relevantMetrics.reduce((sum, m) => sum + m.responseTime, 0);
+    const totalResponseTime = relevantMetrics.reduce((sum, m) => sum + (m.responseTime ?? 0), 0);
     const totalCpuUsage = relevantMetrics.reduce((sum, m) => sum + m.cpuUsage, 0);
     const totalMemoryUsage = relevantMetrics.reduce((sum, m) => sum + m.memoryUsage, 0);
-    const totalErrorRate = relevantMetrics.reduce((sum, m) => sum + m.errorRate, 0);
+    const totalErrorRate = relevantMetrics.reduce((sum, m) => sum + (m.errorRate ?? 0), 0);
 
     const averageResponseTime = totalResponseTime / relevantMetrics.length;
     const averageCpuUsage = totalCpuUsage / relevantMetrics.length;
     const averageMemoryUsage = totalMemoryUsage / relevantMetrics.length;
     const errorRate = totalErrorRate / relevantMetrics.length;
 
-    const maxResponseTime = Math.max(...relevantMetrics.map(m => m.responseTime));
-    const minResponseTime = Math.min(...relevantMetrics.map(m => m.responseTime));
+    const responseTimesOnly = relevantMetrics.map(m => m.responseTime ?? 0).filter(rt => rt > 0);
+    const maxResponseTime = responseTimesOnly.length > 0 ? Math.max(...responseTimesOnly) : 0;
+    const minResponseTime = responseTimesOnly.length > 0 ? Math.min(...responseTimesOnly) : 0;
 
     // Calculate throughput based on the duration
-    const durationInSeconds = (Date.now() - new Date(relevantMetrics[0].timestamp).getTime()) / 1000;
+    const firstMetric = relevantMetrics[0];
+    if (!firstMetric) {
+      return {
+        averageResponseTime: 0,
+        maxResponseTime: 0,
+        minResponseTime: 0,
+        averageCpuUsage: 0,
+        averageMemoryUsage: 0,
+        errorRate: 0,
+        throughput: 0,
+        totalRequests: 0,
+      };
+    }
+    
+    const durationInSeconds = (Date.now() - new Date(firstMetric.timestamp).getTime()) / 1000;
     const throughput = relevantMetrics.length / (durationInSeconds / 3600); // requests per hour
 
     return {

@@ -8,7 +8,7 @@ import { monitoringSystem } from './monitoring.js';
 import { performanceMonitor } from './performance-monitor.js';
 import { errorTracker } from './error-tracker.js';
 import { securityMonitor } from './security-monitor.js';
-import os from 'os';
+import * as os from 'os';
 import { healthCheckSystem } from './health-check.js';
 
 export interface DashboardData {

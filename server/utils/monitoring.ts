@@ -105,19 +105,19 @@ export class MonitoringSystem {
       this.logger.info('Monitoring cycle completed', {
         health: healthCheck.status,
         performance: {
-          averageResponseTime: performanceStats.averageResponseTime,
-          errorRate: performanceStats.errorRate,
-          throughput: performanceStats.throughput,
+          averageResponseTime: performanceStats.averageResponseTime ?? 0,
+          errorRate: performanceStats.errorRate ?? 0,
+          throughput: performanceStats.throughput ?? 0,
         },
         errors: {
-          total: errorStats.totalErrors,
-          rate: errorStats.errorRate,
-          critical: errorStats.criticalErrors,
+          total: errorStats.totalErrors ?? 0,
+          rate: errorStats.errorRate ?? 0,
+          critical: errorStats.criticalErrors ?? 0,
         },
         security: {
-          events: securityStats.totalEvents,
-          blocked: securityStats.blockedRequests,
-          riskScore: securityStats.riskScoreDistribution,
+          events: securityStats.totalEvents ?? 0,
+          blocked: securityStats.blockedRequests ?? 0,
+          riskScore: securityStats.riskScoreDistribution ?? { low: 0, medium: 0, high: 0, critical: 0 },
         },
         system: {
           memory: dashboardData?.system?.memory?.percentage || 0,
@@ -127,7 +127,7 @@ export class MonitoringSystem {
 
       // Check for alerts - create a compatible HealthCheck object from HealthCheckResult
       const healthCheckForAlerts: HealthCheck = {
-        status: healthCheck.status === 'critical' ? 'unhealthy' : 
+        status: healthCheck.status === 'unhealthy' ? 'unhealthy' : 
                 healthCheck.status === 'degraded' ? 'degraded' : 'healthy',
         services: [], // HealthCheckResult doesn't have services, so empty array
         issues: [], // HealthCheckResult doesn't have issues, so empty array
@@ -136,9 +136,9 @@ export class MonitoringSystem {
       this.checkAlerts(
         healthCheckForAlerts,
         {
-          averageResponseTime: performanceStats.averageResponseTime,
-          errorRate: performanceStats.errorRate,
-          throughput: performanceStats.throughput,
+          averageResponseTime: performanceStats.averageResponseTime ?? 0,
+          errorRate: performanceStats.errorRate ?? 0,
+          throughput: performanceStats.throughput ?? 0,
         },
         errorStats,
         securityStats
@@ -299,9 +299,9 @@ export class MonitoringSystem {
         riskScore: securityStats?.riskScoreDistribution || { low: 0, medium: 0, high: 0, critical: 0 },
       },
       system: {
-        memory: dashboardData?.system.memory.percentage || 0,
-        cpu: dashboardData?.system.cpu.usage || 0,
-        uptime: dashboardData?.overview.uptime || '0m',
+        memory: dashboardData?.system?.memory?.percentage ?? 0,
+        cpu: 0, // dashboardData.system doesn't have cpu property in current type definition
+        uptime: dashboardData?.overview?.uptime ?? '0m',
       },
     };
   }
@@ -362,7 +362,7 @@ export class MonitoringSystem {
       errors: errorStats,
       security: securityStats,
       system: dashboardData,
-      monitoring: this.getStatus(), // Use getStatus instead of non-existent getHealthMetrics
+      monitoring: this.getMonitoringStatus(), // Use getMonitoringStatus instead of non-existent getStatus
     };
   }
 
