@@ -1,8 +1,8 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useLocation } from 'wouter';
-import { useAuth } from '../hooks/use-auth';
-import { apiFetch } from '../lib/api';
+import { useAuth } from '../hooks/use-auth.js';
+import { apiFetch } from '../lib/api.js';
 import { 
   Camera, 
   Zap, 

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useAuth } from '../hooks/use-auth';
-import { apiFetch } from '../lib/api';
-import VideoGenerateDialog from '../features/video/VideoGenerateDialog';
+import { useAuth } from '../hooks/use-auth.js';
+import { apiFetch } from '../lib/api.js';
+import VideoGenerateDialog from '../features/video/VideoGenerateDialog.js';
 import { 
   Grid, 
   Search, 

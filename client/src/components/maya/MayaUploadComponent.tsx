@@ -1,8 +1,8 @@
 import React, { useState, useRef, ChangeEvent } from 'react';
 import { Camera, Upload, X, CheckCircle, AlertCircle } from 'lucide-react';
 import { useMutation } from '@tanstack/react-query';
-import { useToast } from '../../hooks/use-toast';
-import { apiRequest } from '../../lib/queryClient';
+import { useToast } from '../../hooks/use-toast.js';
+import { apiRequest } from '../../lib/queryClient.js';
 
 interface MayaUploadComponentProps {
   onUploadComplete?: (success: boolean) => void;

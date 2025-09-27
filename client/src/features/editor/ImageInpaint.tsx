@@ -5,8 +5,8 @@
 
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiFetch } from '../../lib/api';
-import { useAuth } from '../../hooks/use-auth';
+import { apiFetch } from '../../lib/api.js';
+import { useAuth } from '../../hooks/use-auth.js';
 
 interface ImageInpaintProps {
   imageUrl: string;

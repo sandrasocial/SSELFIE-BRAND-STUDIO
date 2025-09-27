@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useMemoryCleanup } from '../hooks/useMemoryCleanup';
+import { useMemoryCleanup } from '../hooks/useMemoryCleanup.js';
 
 interface OptimizedImageProps {
   src: string;

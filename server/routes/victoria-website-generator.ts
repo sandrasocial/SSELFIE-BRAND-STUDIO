@@ -1,5 +1,5 @@
 import { Express } from 'express';
-import { requireStackAuth } from '..stack-auth'
+import { requireStackAuth } from '..stack-auth.js'
 
 interface WebsiteGenerationRequest {
   businessName: string;
@@ -23,8 +23,8 @@ export function registerVictoriaWebsiteGenerator(app: Express) {
       const websiteStructure = generateWebsiteStructure(data);
       
       // Save to database
-      const { db } = await import('../db');
-      const { websites } = await import('../../shared/schema');
+      const { db } = await import('../db.js');
+      const { websites } = await import('../../shared/schema.js');
       
       const [newWebsite] = await db
         .insert(websites)
@@ -56,8 +56,8 @@ export function registerVictoriaWebsiteGenerator(app: Express) {
   // Get website preview
   app.get('/preview/:slug', async (req, res) => {
     try {
-      const { db } = await import('../db');
-      const { websites } = await import('../../shared/schema');
+      const { db } = await import('../db.js');
+      const { websites } = await import('../../shared/schema.js');
       const { eq } = await import('drizzle-orm');
       
       const [website] = await db

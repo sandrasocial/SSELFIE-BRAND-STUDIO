@@ -1,6 +1,6 @@
 import { FC, FormEvent, useState } from 'react';
-import { SandraImages } from '../lib/sandra-images';
-import { useToast } from '../hooks/use-toast';
+import { SandraImages } from '../lib/sandra-images.js';
+import { useToast } from '../hooks/use-toast.js';
 
 interface EmailCaptureModalProps {
   isOpen: boolean;

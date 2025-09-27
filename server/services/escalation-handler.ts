@@ -3,7 +3,7 @@
  * Manages email handoffs and escalation triggers for Maya Support
  */
 
-import { sendEmail } from '..utils/email-service';
+import { sendEmail } from '..utils/email-service.js';
 
 export interface EscalationRequest {
   userId: string;

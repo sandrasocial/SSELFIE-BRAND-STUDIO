@@ -4,7 +4,7 @@
  */
 
 import express from 'express';
-import { requireStackAuth } from '..stack-auth'
+import { requireStackAuth } from '..stack-auth.js'
 import { GoogleGenAI, Type } from '@google/genai';
 
 const router = express.Router();
@@ -69,15 +69,15 @@ router.post('/storyboard', requireStackAuth, async (req, res) => {
       imageId: imageId || 'none'
     });
 
-    const { db } = await import('../drizzle');
-    const { videoStoryboards } = await import('../../shared/schema');
-    const { storage } = await import('../storage');
+    const { db } = await import('../drizzle.js');
+    const { videoStoryboards } = await import('../../shared/schema.js');
+    const { storage } = await import('../storage.js');
 
     // Get source image if provided
     let sourceImageUrl = null;
     if (imageId) {
       try {
-        const { generatedImages, aiImages } = await import('../../shared/schema');
+        const { generatedImages, aiImages } = await import('../../shared/schema.js');
         const { eq } = await import('drizzle-orm');
         
         // Try generated images first
@@ -255,8 +255,8 @@ router.get('/storyboard/:storyboardId', requireStackAuth, async (req, res) => {
     const userId = req.user?.id;
     const { storyboardId } = req.params;
 
-    const { db } = await import('../drizzle');
-    const { videoStoryboards } = await import('../../shared/schema');
+    const { db } = await import('../drizzle.js');
+    const { videoStoryboards } = await import('../../shared/schema.js');
     const { eq } = await import('drizzle-orm');
 
     // Get storyboard record

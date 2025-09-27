@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { PreLoginNavigationUnified } from '../components/pre-login-navigation-unified';
-import { HeroFullBleed } from '../components/hero-full-bleed';
-import { EditorialStory } from '../components/editorial-story';
-import { EditorialImageBreak } from '../components/editorial-image-break';
-import PowerQuote from '../components/power-quote';
-import EditorialTestimonials from '../components/editorial-testimonials';
-import WelcomeEditorial from '../components/welcome-editorial';
-import { EmailCaptureModal } from '../components/email-capture-modal';
-import { GlobalFooter } from '../components/global-footer';
-import { SandraImages } from '../lib/sandra-images';
+import { PreLoginNavigationUnified } from '../components/pre-login-navigation-unified.js';
+import { HeroFullBleed } from '../components/hero-full-bleed.js';
+import { EditorialStory } from '../components/editorial-story.js';
+import { EditorialImageBreak } from '../components/editorial-image-break.js';
+import PowerQuote from '../components/power-quote.js';
+import EditorialTestimonials from '../components/editorial-testimonials.js';
+import WelcomeEditorial from '../components/welcome-editorial.js';
+import { EmailCaptureModal } from '../components/email-capture-modal.js';
+import { GlobalFooter } from '../components/global-footer.js';
+import { SandraImages } from '../lib/sandra-images.js';
 
 export default function AboutPage() {
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);

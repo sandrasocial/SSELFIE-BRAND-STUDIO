@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
-import { MemberNavigation } from '../components/member-navigation';
-import { useAuth } from '../hooks/use-auth';
+import { MemberNavigation } from '../components/member-navigation.js';
+import { useAuth } from '../hooks/use-auth.js';
 import { useQuery } from '@tanstack/react-query';
 import { CreditCard, User, Settings as SettingsIcon, LogOut, ExternalLink } from 'lucide-react';
 

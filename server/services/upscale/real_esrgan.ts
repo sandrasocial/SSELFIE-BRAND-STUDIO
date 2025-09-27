@@ -3,8 +3,8 @@
  * Wrapper for Real-ESRGAN using Replicate API
  */
 
-import { REPLICATE_API_TOKEN } from '..../env';
-import type { UpscaleScale } from '..../config/upscale';
+import { REPLICATE_API_TOKEN } from '..../env.js';
+import type { UpscaleScale } from '..../config/upscale.js';
 
 export interface UpscaleResult {
   url: string;

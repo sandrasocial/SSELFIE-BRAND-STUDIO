@@ -1,6 +1,6 @@
-import { db } from '../drizzle';
-import { users } from '../../../shared/schema';
-import { LaunchMetrics } from '../../../shared/types/launch-metrics';
+import { db } from '../drizzle.js';
+import { users } from '../../../shared/schema.js';
+import { LaunchMetrics } from '../../../shared/types/launch-metrics.js';
 
 export class LaunchExcellenceProtocol {
   private db: typeof db

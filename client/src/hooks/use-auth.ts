@@ -1,6 +1,6 @@
 import { useUser } from "@stackframe/react";
 import { useQuery } from "@tanstack/react-query";
-import { apiFetch } from "../lib/api";
+import { apiFetch } from "../lib/api.js";
 
 export interface User {
   id: string;

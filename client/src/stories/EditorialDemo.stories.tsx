@@ -1,5 +1,5 @@
 import React from 'react';
-import { EditorialDemo } from '../components/editorial/EditorialDemo';
+import { EditorialDemo } from '../components/editorial/EditorialDemo.js';
 
 export default {
   title: 'Editorial/EditorialDemo',

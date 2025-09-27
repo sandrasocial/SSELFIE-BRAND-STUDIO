@@ -1,5 +1,5 @@
 import { forwardRef, ComponentPropsWithoutRef, ElementRef } from 'react';
-import { cn } from '../../lib/utils';
+import { cn } from '../../lib/utils.js';
 
 export const Separator = forwardRef<
   ElementRef<"div">,

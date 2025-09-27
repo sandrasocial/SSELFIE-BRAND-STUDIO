@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
-import { stackClientApp } from "../../../stack/client";
+import { stackClientApp } from "../../../stack/client.js";
 
 interface UnifiedLoginButtonProps {
   text: string;

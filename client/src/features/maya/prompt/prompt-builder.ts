@@ -3,14 +3,14 @@
  * Orchestrates recipe selection, prose generation, and FLUX prompt creation
  */
 
-import { GenderStyleSelector } from './selectors/gender-style-selector';
-import { SentenceRealizer } from './realizers/sentence-realizer';
-import { FluxRealizer } from './realizers/flux-realizer';
+import { GenderStyleSelector } from './selectors/gender-style-selector.js';
+import { SentenceRealizer } from './realizers/sentence-realizer.js';
+import { FluxRealizer } from './realizers/flux-realizer.js';
 import { 
   PromptBuildRequest, 
   GeneratedPrompt, 
   GenderVariant 
-} from './recipes/types';
+} from './recipes/types.js';
 
 export interface TokenBudgetOptions {
   maxTokens?: number;

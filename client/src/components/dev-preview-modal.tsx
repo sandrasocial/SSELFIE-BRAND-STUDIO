@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { X, Check, RotateCcw, Copy, Download } from 'lucide-react';
-// import { LiveComponentPreview } from './LiveComponentPreview';
+// import { LiveComponentPreview } from './LiveComponentPreview.js';
 
 interface DevPreviewModalProps {
   isOpen: boolean;

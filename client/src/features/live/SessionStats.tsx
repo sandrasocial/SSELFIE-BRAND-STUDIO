@@ -6,7 +6,7 @@
 import React from 'react';
 import { useParams } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
-import { PageLoader } from '../../components/PageLoader';
+import { PageLoader } from '../../components/PageLoader.js';
 
 interface SessionParams {
   sessionId: string;
