@@ -184,16 +184,8 @@ export async function checkNetworkConnectivity(): Promise<boolean> {
     });
     return response.ok;
   } catch {
-    // Fallback to checking if we can reach a CDN
-    try {
-      const response = await fetch('https://cdn.jsdelivr.net/npm/ping@0.1.0/package.json', {
-        method: 'HEAD',
-        signal: AbortSignal.timeout(5000)
-      });
-      return response.ok;
-    } catch {
-      return false;
-    }
+    // If the health check fails, assume no connectivity
+    return false;
   }
 }
 
