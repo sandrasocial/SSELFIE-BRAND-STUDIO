@@ -319,7 +319,7 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
 
         // Auto-save first image to gallery
         if (result.images.length > 0) {
-          await handleAutoSaveToGallery(result.images[0], card.title ?? 'Untitled');
+          await handleAutoSaveToGallery(result.images[0], card.title || 'Untitled');
         }
       } else {
         throw new Error('No images generated');
