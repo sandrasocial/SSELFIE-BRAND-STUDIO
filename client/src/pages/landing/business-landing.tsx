@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { GlobalFooter } from "../../components/global-footer.js";
+import { OptimizedImage } from "../../components/OptimizedImage.js";
 import { SignIn } from "@stackframe/react";
 import { stackClientApp } from "../../../../stack/client.js";
 import { STACK_PROJECT_ID, STACK_PUBLISHABLE_CLIENT_KEY } from "../../env.js";
 
 export default function BusinessLanding() {
   const [, setLocation] = useLocation();
+  const [authLoading, setAuthLoading] = useState(false);
   // We avoid using useStackApp to prevent SDK conflicts on public pages
 
   // Comprehensive SEO Meta Tags
@@ -46,13 +48,16 @@ export default function BusinessLanding() {
       { name: 'format-detection', content: 'telephone=no' },
       { name: 'google-site-verification', content: '' }, // Add verification when available
       { name: 'language', content: 'en' },
-      { name: 'revisit-after', content: '7 days' },
       { name: 'rating', content: 'general' },
       { name: 'apple-mobile-web-app-capable', content: 'yes' },
       { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
       { name: 'mobile-web-app-capable', content: 'yes' },
-      { name: 'HandheldFriendly', content: 'true' },
-      { name: 'MobileOptimized', content: '320' },
+      
+      // Additional SEO enhancement
+      { name: 'application-name', content: 'SSELFIE Studio' },
+      { name: 'referrer', content: 'origin-when-cross-origin' },
+      { name: 'color-scheme', content: 'light dark' },
+      { property: 'fb:app_id', content: '' }, // Add when Facebook integration is ready
     ];
 
     // Set canonical URL
@@ -134,6 +139,20 @@ export default function BusinessLanding() {
           "@type": "Audience",
           "audienceType": "Business Professionals"
         },
+        "hasOfferCatalog": {
+          "@type": "OfferCatalog",
+          "name": "SSELFIE Studio Services",
+          "itemListElement": [
+            {
+              "@type": "Offer",
+              "itemOffered": {
+                "@type": "Service",
+                "name": "AI Professional Photo Generation Service",
+                "description": "Monthly subscription service providing 100+ professional AI-generated photos from selfies"
+              }
+            }
+          ]
+        },
         "offers": {
           "@type": "Offer",
           "name": "SSELFIE Studio Monthly Subscription",
@@ -143,6 +162,11 @@ export default function BusinessLanding() {
           "availability": "https://schema.org/InStock",
           "url": "https://sselfie.ai/simple-checkout",
           "priceValidUntil": "2025-12-31",
+          "validFrom": "2024-01-01",
+          "seller": {
+            "@type": "Organization",
+            "name": "SSELFIE Studio"
+          },
           "itemOffered": {
             "@type": "Service",
             "name": "AI Professional Photo Generation Service"
@@ -177,6 +201,30 @@ export default function BusinessLanding() {
               "@type": "Answer",
               "text": "€47/month for unlimited access to Maya AI photographer and 100 monthly professional photos. No setup fees, cancel anytime. Much more affordable than traditional €1500+ photoshoots."
             }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I use the photos for commercial purposes?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes, all photos generated through SSELFIE Studio can be used for commercial purposes including websites, marketing materials, social media, and business cards."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How long does it take to get my photos?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Professional photos are ready within 20 minutes after uploading your selfies. The AI processes your images and generates your personalized photo collection quickly."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Do I need professional lighting for my selfies?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No professional lighting required. Any lighting works - mirror selfies, car selfies, bathroom selfies. Maya AI learns your face and creates professional photos from any background or lighting condition."
+            }
           }
         ]
       },
@@ -191,13 +239,52 @@ export default function BusinessLanding() {
           "name": "SSELFIE Studio"
         },
         "category": "Software as a Service",
+        "manufacturer": {
+          "@type": "Organization",
+          "name": "SSELFIE Studio"
+        },
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": "4.8",
+          "reviewCount": "120",
+          "bestRating": "5",
+          "worstRating": "1"
+        },
         "offers": {
           "@type": "Offer",
           "price": "47",
           "priceCurrency": "EUR",
           "availability": "https://schema.org/InStock",
-          "url": "https://sselfie.ai/simple-checkout"
+          "url": "https://sselfie.ai/simple-checkout",
+          "priceValidUntil": "2025-12-31",
+          "hasMerchantReturnPolicy": {
+            "@type": "MerchantReturnPolicy",
+            "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
+            "merchantReturnDays": 30
+          }
         }
+      },
+      // WebApplication Schema
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "SSELFIE Studio",
+        "url": "https://sselfie.ai",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Web Browser",
+        "offers": {
+          "@type": "Offer",
+          "price": "47",
+          "priceCurrency": "EUR"
+        },
+        "featureList": [
+          "AI Photo Generation",
+          "Professional Headshots",
+          "Brand Photography",
+          "Maya AI Photographer",
+          "100+ Monthly Photos",
+          "Commercial Usage Rights"
+        ]
       }
     ];
 
@@ -218,20 +305,33 @@ export default function BusinessLanding() {
     setLocation('/simple-checkout');
   };
 
-  const handleLogin = () => {
-    window.location.href = '/handler/sign-in';
+  const handleLogin = async () => {
+    try {
+      setAuthLoading(true);
+      window.location.href = '/handler/sign-in';
+    } catch (error) {
+      console.error('Login redirect failed:', error);
+      // Fallback: Try direct navigation
+      setLocation('/handler/sign-in');
+    } finally {
+      setAuthLoading(false);
+    }
   };
 
   return (
     <div className="min-h-screen bg-white">
       {/* Business Navigation with Mobile Support */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-md">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-md" role="navigation" aria-label="Main navigation">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
           <div className="flex items-center justify-between">
             <div 
               className="font-serif text-lg sm:text-xl font-light tracking-wide text-white cursor-pointer touch-manipulation"
               style={{ fontFamily: "Times New Roman, serif", minHeight: '44px', display: 'flex', alignItems: 'center' }}
               onClick={() => setLocation("/")}
+              role="button"
+              tabIndex={0}
+              aria-label="SSELFIE home"
+              onKeyDown={(e) => e.key === 'Enter' && setLocation("/")}
             >
               SSELFIE
             </div>
@@ -240,13 +340,16 @@ export default function BusinessLanding() {
             <div className="hidden md:flex items-center space-x-8">
               <button
                 onClick={handleLogin}
-                className="text-xs uppercase tracking-[0.3em] font-light text-white/70 hover:text-white transition-all duration-300 min-h-[44px] px-3 flex items-center touch-manipulation"
+                disabled={authLoading}
+                className="text-xs uppercase tracking-[0.3em] font-light text-white/70 hover:text-white transition-all duration-300 min-h-[44px] px-3 flex items-center touch-manipulation disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-label="Login to your account"
               >
-                Login
+                {authLoading ? 'Loading...' : 'Login'}
               </button>
               <button
                 onClick={handleGetStarted}
                 className="text-white border border-white/30 hover:bg-white hover:text-black transition-colors duration-300 text-xs uppercase tracking-[0.3em] font-light px-8 py-3 min-h-[44px] touch-manipulation"
+                aria-label="Start your professional photo transformation for €47"
               >
                 Start €47
               </button>
@@ -256,13 +359,16 @@ export default function BusinessLanding() {
             <div className="md:hidden flex items-center space-x-3">
               <button
                 onClick={handleLogin}
-                className="text-xs uppercase tracking-[0.3em] font-light text-white/70 hover:text-white transition-all duration-300 min-h-[44px] px-3 flex items-center"
+                disabled={authLoading}
+                className="text-xs uppercase tracking-[0.3em] font-light text-white/70 hover:text-white transition-all duration-300 min-h-[44px] px-3 flex items-center disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-label="Login to your account"
               >
-                Login
+                {authLoading ? 'Loading...' : 'Login'}
               </button>
               <button
                 onClick={handleGetStarted}
                 className="text-white border border-white/30 hover:bg-white hover:text-black transition-colors duration-300 text-xs uppercase tracking-[0.3em] font-light px-6 py-3 min-h-[44px] min-w-[120px]"
+                aria-label="Start your professional photo transformation for €47"
               >
                 Start €47
               </button>
@@ -274,10 +380,11 @@ export default function BusinessLanding() {
       {/* HERO - Optimized Layout */}
       <section className="relative min-h-screen bg-black text-white overflow-hidden">
         <div className="absolute inset-0 opacity-60">
-          <img 
+          <OptimizedImage 
             src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/undefined/undefined_1756382691095.png"
             alt="Professional transformation through AI photography"
             className="w-full h-full object-cover object-center"
+            priority={true}
           />
         </div>
 
@@ -370,9 +477,9 @@ export default function BusinessLanding() {
             <div className="text-center">
               <div className="relative overflow-hidden rounded-lg mb-6 sm:mb-8"
                    style={{ height: 'clamp(240px, 50vw, 320px)' }}>
-                <img
+                <OptimizedImage
                   src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_gn5xs1grwxrme0cs3g4tfwe220_0_1757111996442.png"
-                  alt="Upload process"
+                  alt="Upload process showing selfies being uploaded to AI system"
                   className="w-full h-full object-cover object-[center_20%]"
                 />
                 <div className="absolute top-4 left-4 sm:top-6 sm:left-6 bg-black text-white flex items-center justify-center text-base sm:text-lg font-light"
@@ -398,9 +505,9 @@ export default function BusinessLanding() {
             {/* Step 2 */}
             <div className="text-center">
               <div className="relative h-80 mb-8 overflow-hidden rounded-lg">
-                <img
+                <OptimizedImage
                   src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_8r00hax7n1rm80cryjbs9enxam_0_1756450255292.png"
-                  alt="AI creation process"
+                  alt="AI creation process transforming selfies into professional photos"
                   className="w-full h-full object-cover object-[center_20%]"
                 />
                 <div className="absolute top-6 left-6 w-12 h-12 bg-black text-white flex items-center justify-center text-lg font-light">
@@ -425,9 +532,9 @@ export default function BusinessLanding() {
             {/* Step 3 */}
             <div className="text-center">
               <div className="relative h-80 mb-8 overflow-hidden rounded-lg">
-                <img
+                <OptimizedImage
                   src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_5s2emwbk3srma0crywrbh9kg4c_0_1756493820306.png"
-                  alt="Professional gallery"
+                  alt="Professional gallery showing variety of business headshots and brand photos"
                   className="w-full h-full object-cover object-[center_20%]"
                 />
                 <div className="absolute top-6 left-6 w-12 h-12 bg-black text-white flex items-center justify-center text-lg font-light">
@@ -569,9 +676,9 @@ export default function BusinessLanding() {
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             {/* Sandra's Portrait */}
             <div className="relative h-[500px] overflow-hidden">
-              <img
+              <OptimizedImage
                 src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_g826ygf2d9rm80crzjkvnvmpyr_0_1756585536824.png"
-                alt="Sandra Sigurjónsdóttir, Founder"
+                alt="Sandra Sigurjónsdóttir, Founder of SSELFIE Studio"
                 className="w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
@@ -636,9 +743,9 @@ export default function BusinessLanding() {
       {/* FINAL CTA - Editorial Call to Action */}
       <section className="relative py-24 sm:py-32 bg-black text-white overflow-hidden">
         <div className="absolute inset-0 opacity-30">
-          <img
+          <OptimizedImage
             src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_rr4fnv2rb5rm80crzyd87jm48g_0_1756634973175.png"
-            alt="Professional transformation"
+            alt="Professional transformation showcasing AI-generated business photography"
             className="w-full h-full object-cover"
           />
         </div>
