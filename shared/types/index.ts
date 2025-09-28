@@ -2,6 +2,9 @@
 export * from './unified-chat.js';
 export * from './base.js';
 
+// Export all API types
+export * from './api.js';
+
 // Define global interfaces
 export interface ServiceResponse<T> {
   success: boolean;

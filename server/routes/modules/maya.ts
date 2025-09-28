@@ -12,63 +12,33 @@ import { PersonalityManager } from '../../agents/personalities/personality-confi
 import { MayaOptimizationService } from '../../services/maya-optimization-service.js';
 import { MayaAdaptationEngine } from '../../services/maya-adaptation-engine.js';
 import { ClaudeApiServiceSimple } from '../../services/claude-api-service-simple.js';
-import { AuthenticatedRequest } from '../../types/ai-generation.js';
-import { SuccessResponse } from '../../types/ai-generation.js';
+import { AuthenticatedRequest, SuccessResponse } from '../../types/ai-generation.js';
 
-interface MayaChat {
-  id: number;
-  userId: string;
-  chatTitle: string;
-  chatSummary: string;
-  chatCategory: string;
-  lastActivity: Date;
-  createdAt: Date;
-  updatedAt: Date;
-}
+// Import new type-safe API types
+import {
+  MayaChatRequest,
+  MayaGenerateRequest,
+  MayaCreateChatRequest,
+  MayaVideoPromptRequest,
+  MayaChatResponse,
+  MayaMessageResponse,
+  MayaResponse,
+  ConceptCard,
+  ApiResponse,
+  ApiError,
+  ApiErrorCode
+} from '../../../shared/types/api.js';
 
-interface MayaMessage {
-  id: number;
-  chatId: number;
-  role: 'user' | 'assistant';
-  content: string;
-  conceptCards?: MayaConceptCard[];
-  createdAt: Date;
-}
-
-interface MayaConceptCard {
-  title: string;
-  prompt: string;
-}
-
-interface MayaChatRequest {
-  message: string;
-  chatHistory?: {
-    user?: string;
-    maya?: string;
-    response?: string;
-  }[];
-  context?: Record<string, unknown>;
-}
-
-interface MayaGenerateRequest {
-  prompt: string;
-  style?: string;
-  count?: number;
-  conceptName?: string;
-  seed?: string;
-}
-
-interface MayaCreateChatRequest {
-  title?: string;
-  initialMessage?: string;
-}
+// Import validation functions
+import {
+  validateMayaChatRequest,
+  validateMayaGenerateRequest,
+  validateMayaCreateChatRequest,
+  validateMayaVideoPromptRequest
+} from '../../../shared/validation/index.js';
 
 interface MayaUpdateMessageRequest {
   content: string;
-}
-
-interface MayaVideoPromptRequest {
-  imageUrl: string;
 }
 
 interface ClaudeHistoryEntry {
@@ -119,8 +89,16 @@ router.get('/api/maya-chats/:chatId', requireStackAuth, asyncHandler(async (req:
 // Send message to Maya with full personality system
 router.post('/api/maya-chat', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest & { body: MayaChatRequest }, res: Response) => {
   const userId = req.user.id;
-  const { message, chatHistory = [], context = {} } = req.body;
-  validateRequired({ message }, ['message']);
+  
+  // Validate request body using new validation schema
+  const validation = validateMayaChatRequest(req.body);
+  if (!validation.success) {
+    throw createError.validation('Invalid request data', {
+      errors: validation.error.errors.map(err => `${err.path.join('.')}: ${err.message}`)
+    });
+  }
+  
+  const { message, chatHistory = [], context = {} } = validation.data;
 
   try {
     // Get Maya's full personality with adaptation
@@ -159,7 +137,7 @@ router.post('/api/maya-chat', requireStackAuth, asyncHandler(async (req: Authent
     );
 
     // Extract concept cards if Maya suggests photo concepts
-    let conceptCards: MayaConceptCard[] = [];
+    let conceptCards: ConceptCard[] = [];
     try {
       const conceptRegex = /(?:concept|idea|suggestion)[\s\S]*?(?:title|name):\s*["']?([^"'\n]+)["']?[\s\S]*?(?:prompt|description):\s*["']?([^"'\n]+)["']?/gi;
       let match;
@@ -181,14 +159,26 @@ router.post('/api/maya-chat', requireStackAuth, asyncHandler(async (req: Authent
       context
     });
 
-    const responseData: SuccessResponse<{
+    // Create typed response
+    const mayaResponseData: MayaResponse = {
+      response: mayaResponse,
+      conceptCards,
+      metadata: {
+        processingTime: Date.now(),
+        model: 'claude-3',
+        tokens: mayaResponse.length
+      }
+    };
+
+    const responseData: ApiResponse<{
       response: string;
-      conceptCards: MayaConceptCard[];
+      conceptCards: ConceptCard[];
       chatId: string;
       agentName: string;
       agentType: string;
       timestamp: string;
     }> = {
+      success: true,
       data: {
         response: mayaResponse,
         conceptCards,
@@ -196,14 +186,27 @@ router.post('/api/maya-chat', requireStackAuth, asyncHandler(async (req: Authent
         agentName: 'Maya - AI Creative Director',
         agentType: 'member',
         timestamp: new Date().toISOString()
-      }
+      },
+      timestamp: new Date().toISOString()
     };
 
     sendSuccess(res, responseData);
 
   } catch (error) {
     console.error('❌ MAYA: Chat failed:', error);
-    throw createError.internal('Failed to process chat message');
+    const apiError: ApiError = {
+      code: ApiErrorCode.MAYA_ERROR,
+      message: 'Failed to process chat message',
+      details: { originalError: (error as Error).message }
+    };
+    
+    const errorResponse: ApiResponse<null> = {
+      success: false,
+      error: apiError,
+      timestamp: new Date().toISOString()
+    };
+    
+    res.status(500).json(errorResponse);
   }
 }));
 
