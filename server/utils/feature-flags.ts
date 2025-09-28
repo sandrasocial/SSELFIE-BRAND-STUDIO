@@ -26,6 +26,15 @@ export class FeatureFlags {
     REAL_TIME_NOTIFICATIONS: process.env.REAL_TIME_NOTIFICATIONS === 'true' || true, // Default enabled
     NOTIFICATION_PERSISTENCE: process.env.NOTIFICATION_PERSISTENCE === 'true' || true, // Default enabled
     
+    // Storage & CDN System Features
+    STORAGE_IMAGE_OPTIMIZATION: process.env.STORAGE_IMAGE_OPTIMIZATION === 'true' || true, // Default enabled
+    STORAGE_CDN_CACHING: process.env.STORAGE_CDN_CACHING === 'true' || true, // Default enabled
+    STORAGE_UPLOAD_CHUNKING: process.env.STORAGE_UPLOAD_CHUNKING === 'true' || false, // Default disabled
+    STORAGE_VIRUS_SCANNING: process.env.STORAGE_VIRUS_SCANNING === 'true' || false, // Default disabled
+    STORAGE_METADATA_STRIPPING: process.env.STORAGE_METADATA_STRIPPING === 'true' || true, // Default enabled
+    STORAGE_PROGRESSIVE_UPLOAD: process.env.STORAGE_PROGRESSIVE_UPLOAD === 'true' || true, // Default enabled
+    STORAGE_AUTO_THUMBNAILS: process.env.STORAGE_AUTO_THUMBNAILS === 'true' || true, // Default enabled
+    
     // Development flags
     DEBUG_MODE: process.env.NODE_ENV === 'development',
     VERBOSE_LOGGING: process.env.VERBOSE_LOGGING === 'true',
