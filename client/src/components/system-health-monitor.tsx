@@ -73,7 +73,14 @@ export function SystemHealthMonitor() {
     }
   });
 
-  const health: SystemHealth = healthData?.health;
+  const health: SystemHealth = healthData?.health || { 
+    status: 'good', 
+    score: 95, 
+    alerts: [],
+    uptime: 0,
+    memory: 0,
+    cpu: 0
+  };
   const status: HealthStatus = statusData || { status: 'good', score: 95, alerts: [] };
 
   const getStatusColor = (status: string) => {
