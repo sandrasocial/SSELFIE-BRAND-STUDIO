@@ -43,6 +43,23 @@
   ],
   "routes": [
     {
+      "src": "/static/(.*)",
+      "headers": { 
+        "cache-control": "public, max-age=31536000, immutable" 
+      },
+      "continue": true
+    },
+    {
+      "src": "/(.*)",
+      "headers": {
+        "X-Frame-Options": "DENY",
+        "X-Content-Type-Options": "nosniff",
+        "Referrer-Policy": "strict-origin-when-cross-origin",
+        "Permissions-Policy": "camera=(), microphone=(), geolocation=()"
+      },
+      "continue": true
+    },
+    {
       "src": "/api/cron/(.*)",
       "dest": "api/[...route].ts",
       "methods": ["GET", "POST"],
@@ -83,7 +100,8 @@
     }
   },
   "functions": {
-    "api/[...route].ts": {
+    "api/**/*.ts": {
+      "memory": 1024,
       "maxDuration": 60
     }
   },
