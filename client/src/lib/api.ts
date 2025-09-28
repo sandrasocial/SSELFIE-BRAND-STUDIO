@@ -1,7 +1,9 @@
-const API_BASE = (import.meta as any)?.env?.VITE_API_BASE_URL?.replace(/\/+$/, "") || "/api";
+const API_BASE = import.meta.env?.VITE_API_BASE_URL?.replace(/\/+$/, "") || "/api";
 
-type FetchOpts = RequestInit & { json?: any; skipAuth?: boolean };
-
+type FetchOpts =
+  | (Omit<RequestInit, 'body'> & { json: unknown; body?: never; skipAuth?: boolean })
+  | (Omit<RequestInit, 'body'> & { body: BodyInit | null; json?: never; skipAuth?: boolean })
+  | (Omit<RequestInit, 'body'> & { skipAuth?: boolean }); // allow neither
 export async function apiFetch(path: string, opts: FetchOpts = {}) {
   const url = `${API_BASE}${path.startsWith('/') ? path : `/${path}`}`;
 
@@ -13,13 +15,15 @@ export async function apiFetch(path: string, opts: FetchOpts = {}) {
     Accept: 'application/json',
     ...(opts.json ? { 'Content-Type': 'application/json' } : {}),
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    ...(opts.headers as any),
+    ...(opts.headers as Record<string, string>),
   };
+
+  const body = opts.json ? JSON.stringify(opts.json) : opts.body;
 
   const res = await fetch(url, {
     ...opts,
     headers,
-    body: opts.json ? JSON.stringify(opts.json) : opts.body,
+    body: body || null,
     credentials: 'same-origin',
   });
 
