@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react';
 import { MemberNavigation } from '../components/member-navigation.js';
 import { CheckoutErrorBoundary } from '../components/checkout-error-boundary.js';
 import { CheckoutLoading, PaymentProgressIndicator } from '../components/ui/checkout-loading.js';
-import { PaymentConfirmationModal, PaymentConfirmationData } from '../components/ui/payment-confirmation-modal.js';
+import { PaymentConfirmationModal, PaymentConfirmationData, UserData } from '../components/ui/payment-confirmation-modal.js';
 import { useEnhancedToast } from "../hooks/enhanced-toast.js";
+import { useAuth } from '../hooks/use-auth.js';
 import { useLocation } from 'wouter';
+import { PaymentSuccessService, handlePaymentSuccess } from '../services/payment-success.js';
 import { 
   validateEmailRealtime, 
   validateCheckoutForm, 
@@ -23,18 +25,22 @@ import {
 } from '../utils/env-config.js';
 
 type ProcessingStep = 'idle' | 'validation' | 'processing' | 'complete';
+type PaymentStatus = 'pre-payment' | 'processing' | 'success' | 'error';
 
 export default function SimpleCheckout() {
   const toast = useEnhancedToast();
   const [, setLocation] = useLocation();
+  const { user, isAuthenticated } = useAuth();
   
   // State management
   const [email, setEmail] = useState('');
   const [processingStep, setProcessingStep] = useState<ProcessingStep>('idle');
+  const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>('pre-payment');
   const [emailValidation, setEmailValidation] = useState({ isValid: false, status: 'empty' as const, message: '' });
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [networkConnected, setNetworkConnected] = useState(true);
   const [configurationValid, setConfigurationValid] = useState(true);
+  const [userData, setUserData] = useState<UserData>({ isAuthenticated: false });
 
   // Configuration
   const plan = 'sselfie-studio';
@@ -60,6 +66,28 @@ export default function SimpleCheckout() {
     checkNetworkConnectivity().then(setNetworkConnected);
   }, []);
 
+  // Check for payment success from URL parameters
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const status = urlParams.get('status');
+    const planParam = urlParams.get('plan');
+    const emailParam = urlParams.get('email');
+
+    if (status === 'success') {
+      console.log('🎉 Payment success detected from URL');
+      
+      // Set modal to success state
+      setPaymentStatus('success');
+      setShowConfirmationModal(true);
+      
+      // Pre-fill form with returned data
+      if (emailParam) setEmail(emailParam);
+      
+      // Clean URL
+      window.history.replaceState({}, '', '/simple-checkout');
+    }
+  }, []);
+
   // Real-time email validation
   useEffect(() => {
     if (email) {
@@ -69,6 +97,16 @@ export default function SimpleCheckout() {
       setEmailValidation({ isValid: false, status: 'empty', message: '' });
     }
   }, [email]);
+
+  // Initialize user data for payment modal
+  useEffect(() => {
+    const initUserData = async () => {
+      const data = await PaymentSuccessService.getUserData(isAuthenticated, user);
+      setUserData(data);
+    };
+
+    initUserData();
+  }, [isAuthenticated, user]);
 
   // Enhanced form validation
   const validateForm = (): CheckoutValidationResult => {
@@ -118,9 +156,9 @@ export default function SimpleCheckout() {
     setShowConfirmationModal(true);
   };
 
-  // Confirmed checkout process
+  // Confirmed checkout process - Enhanced with modal flow
   const handleConfirmedCheckout = async () => {
-    setShowConfirmationModal(false);
+    setPaymentStatus('processing');
     setProcessingStep('validation');
     
     try {
@@ -129,28 +167,30 @@ export default function SimpleCheckout() {
       
       setProcessingStep('processing');
 
-      // Create Stripe checkout session with enhanced error handling
+      // Create Stripe checkout session with modal success URL
+      const successUrl = `${window.location.origin}/checkout?status=success&plan=${plan}&email=${encodeURIComponent(email)}`;
+      const cancelUrl = `${window.location.origin}/simple-checkout`;
+
       const data = await checkoutApiRequest("/api/create-checkout-session", "POST", {
         plan,
         customerEmail: email,
-        successUrl: `${window.location.origin}/payment-success?plan=${plan}&email=${encodeURIComponent(email)}`,
-        cancelUrl: `${window.location.origin}/simple-checkout`,
+        successUrl,
+        cancelUrl,
       });
 
       console.log('🔍 Checkout response:', data);
       
       if (data.url) {
         setProcessingStep('complete');
-        // Small delay to show completion state
-        setTimeout(() => {
-          window.location.href = data.url;
-        }, 1000);
+        // Redirect to Stripe checkout
+        window.location.href = data.url;
       } else {
         throw new Error('No checkout URL received from server');
       }
     } catch (error) {
       console.error('Checkout error:', error);
       setProcessingStep('idle');
+      setPaymentStatus('error');
       
       const classification = classifyError(error as Error);
       
@@ -195,6 +235,32 @@ export default function SimpleCheckout() {
       console.error('Test payment error:', error);
       setProcessingStep('idle');
       toast.showErrorToast('Test payment failed. Please try again.');
+    }
+  };
+
+  // Handle continue from success modal
+  const handleSuccessContinue = async () => {
+    const result = await handlePaymentSuccess({
+      plan,
+      email,
+      userId: userData.isAuthenticated ? user?.id : undefined,
+      isModal: true
+    });
+
+    if (result.success && result.redirectPath) {
+      setShowConfirmationModal(false);
+      
+      // Small delay for UX
+      setTimeout(() => {
+        if (result.redirectPath?.startsWith('http')) {
+          window.location.href = result.redirectPath;
+        } else {
+          setLocation(result.redirectPath);
+        }
+      }, 500);
+    } else {
+      // Fallback to legacy page if service fails
+      setLocation(`/payment-success?plan=${plan}&email=${encodeURIComponent(email)}`);
     }
   };
 
@@ -552,13 +618,19 @@ export default function SimpleCheckout() {
         </div>
       </main>
 
-      {/* Payment Confirmation Modal */}
+      {/* Enhanced Payment Confirmation Modal */}
       <PaymentConfirmationModal
         isOpen={showConfirmationModal}
-        onClose={() => setShowConfirmationModal(false)}
+        onClose={() => {
+          setShowConfirmationModal(false);
+          setPaymentStatus('pre-payment');
+        }}
         onConfirm={handleConfirmedCheckout}
         data={confirmationData}
-        isProcessing={false}
+        isProcessing={processingStep === 'processing'}
+        paymentStatus={paymentStatus}
+        userData={userData}
+        onContinue={handleSuccessContinue}
       />
       </div>
     </CheckoutErrorBoundary>
