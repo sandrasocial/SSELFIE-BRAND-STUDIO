@@ -324,7 +324,7 @@ export class UsageService {
       const usageCheck = await this.checkUsageLimit(userId);
       
       // Get recent usage history (Note: current implementation returns empty array)
-      const recentHistory = await storage.getUserUsageHistory();
+      const recentHistory = await storage.getUserUsageHistory(userId);
 
       return {
         plan: usage.plan,
