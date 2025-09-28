@@ -1,5 +1,9 @@
 // src/types/index.ts
 
+/**
+ * @deprecated Use the User type from './auth.js' instead
+ * This legacy interface is kept for backward compatibility
+ */
 export interface User {
   id: string;
   email: string;
@@ -32,3 +36,51 @@ export interface UseMayaChatReturn {
   isLoading: boolean;
   error: string | null;
 }
+
+/**
+ * Authentication Types - Centralized exports
+ * 
+ * This section provides all authentication-related types and utilities
+ * for use throughout the application.
+ */
+
+// Core authentication types
+export type {
+  // User and authentication state types
+  User as AuthUser, // Renamed to avoid conflict with legacy User
+  UserPlan,
+  UserRole,
+  AuthenticationState,
+  LoadingState,
+  OAuthCallbackState,
+  UseAuthReturn,
+  
+  // Error types
+  AuthError,
+  AuthErrorType,
+  NetworkAuthError,
+  ValidationAuthError,
+  SessionAuthError,
+  UnknownAuthError,
+  
+  // Session types
+  AuthSession,
+  SessionStorage,
+  
+  // Context and provider types
+  AuthContextValue,
+  AuthStateHandler,
+} from './auth.js';
+
+// Type guards
+export {
+  isAuthError,
+  isNetworkAuthError,
+  isValidationAuthError,
+  isSessionAuthError,
+  isUserPlan,
+  isUserRole,
+} from './auth.js';
+
+// Re-export for convenience
+export * from './photoshoot.js';
