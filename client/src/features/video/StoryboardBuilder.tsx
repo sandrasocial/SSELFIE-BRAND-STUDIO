@@ -46,7 +46,6 @@ export function StoryboardBuilder({ imageId, onGenerate, className }: Storyboard
       toast({
         title: 'Maximum scenes reached',
         description: 'Storyboards can have a maximum of 3 scenes',
-        variant: 'destructive'
       });
       return;
     }
@@ -64,7 +63,6 @@ export function StoryboardBuilder({ imageId, onGenerate, className }: Storyboard
       toast({
         title: 'Minimum scenes required',
         description: 'Storyboards must have at least 2 scenes',
-        variant: 'destructive'
       });
       return;
     }
@@ -106,7 +104,6 @@ export function StoryboardBuilder({ imageId, onGenerate, className }: Storyboard
       toast({
         title: 'Validation Error',
         description: validationError,
-        variant: 'destructive'
       });
       return;
     }
@@ -155,7 +152,6 @@ export function StoryboardBuilder({ imageId, onGenerate, className }: Storyboard
       toast({
         title: 'Generation Failed',
         description: error instanceof Error ? error.message : 'Something went wrong',
-        variant: 'destructive'
       });
     } finally {
       setIsGenerating(false);

@@ -6,7 +6,30 @@
 import { spawn } from 'child_process';
 import path from 'path';
 
-export async function get_latest_lsp_diagnostics(parameters: any): Promise<any> {
+// Diagnostic interfaces
+export interface DiagnosticParameters {
+  file_path?: string;
+}
+
+export interface DiagnosticResult {
+  file: string;
+  line: number;
+  column: number;
+  severity: 'error' | 'warning';
+  code: string;
+  message: string;
+}
+
+export interface LSPDiagnosticResponse {
+  diagnostics: DiagnosticResult[];
+  filesChecked: string | number;
+  errors: number;
+  warnings: number;
+  success: boolean;
+  error?: string;
+}
+
+export async function get_latest_lsp_diagnostics(parameters: DiagnosticParameters): Promise<LSPDiagnosticResponse> {
   console.log('🔍 LSP DIAGNOSTICS:', parameters);
   
   try {
@@ -36,7 +59,7 @@ export async function get_latest_lsp_diagnostics(parameters: any): Promise<any> 
 }
 
 // Check TypeScript errors using tsc
-async function checkTypeScriptErrors(filePath?: string): Promise<any[]> {
+async function checkTypeScriptErrors(filePath?: string): Promise<DiagnosticResult[]> {
   return new Promise((resolve) => {
     const args = ['--noEmit', '--pretty', 'false'];
     if (filePath) {
@@ -73,8 +96,8 @@ async function checkTypeScriptErrors(filePath?: string): Promise<any[]> {
 }
 
 // Parse TypeScript compiler output into structured diagnostics
-function parseTypeScriptErrors(output: string): any[] {
-  const diagnostics: any[] = [];
+function parseTypeScriptErrors(output: string): DiagnosticResult[] {
+  const diagnostics: DiagnosticResult[] = [];
   const lines = output.split('\n');
   
   for (const line of lines) {
@@ -86,7 +109,7 @@ function parseTypeScriptErrors(output: string): any[] {
         file: path.relative(process.cwd(), file),
         line: parseInt(lineNum),
         column: parseInt(col),
-        severity: severity,
+        severity: severity as 'error' | 'warning',
         code: `TS${code}`,
         message: message.trim()
       });
