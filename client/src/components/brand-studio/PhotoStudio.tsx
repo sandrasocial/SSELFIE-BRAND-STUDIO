@@ -26,6 +26,11 @@ interface PhotoStudioProps {
   isMobile?: boolean;
 }
 
+interface GenerationResponse {
+  images: string[];
+  message?: string;
+}
+
 export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = false }) => {
   const { user } = useAuth();
   const [location, setLocation] = useLocation();
@@ -287,7 +292,7 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
         throw new Error(`Generation failed: ${response.status} - ${error}`);
       }
 
-      const result = await response.json();
+      const result: GenerationResponse = await response.json();
       console.log('✅ Generation response:', result);
 
       if (result.images && result.images.length > 0) {
@@ -356,7 +361,7 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
   };
 
   // Handle toolkit actions
-  const handleToolkitAction = (action: string, data?: any) => {
+  const handleToolkitAction = (action: string, data?: unknown) => {
     switch (action) {
       case 'generate':
         if (selectedConceptCard) {
