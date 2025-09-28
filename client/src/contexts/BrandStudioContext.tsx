@@ -18,7 +18,7 @@ interface ConceptCard {
   isGenerating: boolean;
   hasGenerated: boolean;
   createdAt: string;
-  // Additional properties used in PhotoStudio
+  // Additional properties used for image generation across components
   category?: string;
   type?: string;
 }
