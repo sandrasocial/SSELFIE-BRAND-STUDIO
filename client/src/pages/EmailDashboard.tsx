@@ -78,7 +78,6 @@ export default function EmailDashboard() {
       toast({
         title: 'Processing Failed',
         description: 'Failed to process emails. Please try again.',
-        variant: 'destructive',
       });
     },
   });
@@ -98,7 +97,6 @@ export default function EmailDashboard() {
       toast({
         title: 'Failed to Start Monitoring',
         description: 'Please try again',
-        variant: 'destructive',
       });
     },
   });
@@ -118,7 +116,6 @@ export default function EmailDashboard() {
       toast({
         title: 'Test Failed',
         description: 'Admin access required',
-        variant: 'destructive',
       });
     },
   });
@@ -139,7 +136,6 @@ export default function EmailDashboard() {
       toast({
         title: 'Instagram Processing Failed',
         description: 'Failed to process Instagram messages. Please try again.',
-        variant: 'destructive',
       });
     },
   });
@@ -159,7 +155,6 @@ export default function EmailDashboard() {
       toast({
         title: 'Instagram Test Failed',
         description: 'Admin access required',
-        variant: 'destructive',
       });
     },
   });
@@ -414,15 +409,15 @@ export default function EmailDashboard() {
                   <div className="space-y-2 text-sm text-purple-700 dark:text-purple-300">
                     <div className="flex justify-between">
                       <span>@beauty_blogger_sarah: "Hi! I love your content! Can we collaborate?"</span>
-                      <Badge variant="destructive" size="sm">High Priority</Badge>
+                      <Badge variant="destructive">High Priority</Badge>
                     </div>
                     <div className="flex justify-between">
                       <span>@potential_customer_123: "What's the price for your photography service?"</span>
-                      <Badge variant="destructive" size="sm">Customer</Badge>
+                      <Badge variant="destructive">Customer</Badge>
                     </div>
                     <div className="flex justify-between">
                       <span>@follower_jane: "Your photos are amazing! 😍"</span>
-                      <Badge variant="secondary" size="sm">General</Badge>
+                      <Badge variant="secondary">General</Badge>
                     </div>
                   </div>
                 </div>
