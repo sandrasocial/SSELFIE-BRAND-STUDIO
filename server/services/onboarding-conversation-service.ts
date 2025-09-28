@@ -212,7 +212,7 @@ export class OnboardingConversationService {
       currentStep,
       isCompleted,
       progress,
-      personalBrand
+      ...(personalBrand && { personalBrand })
     };
   }
 
@@ -225,7 +225,7 @@ export class OnboardingConversationService {
     // MAYA FAÇADE: Context is now internal to façade API
     // Data gathering will be handled through façade API calls
     const personalBrandData = await personalBrandService.getPersonalBrandProfile(userId);
-    const conversationHistory = []; // Conversation history is now handled internally by façade
+    const conversationHistory: Array<{role: string, content: string}> = []; // Conversation history is now handled internally by façade
     
     return {
       userId,
@@ -241,6 +241,10 @@ export class OnboardingConversationService {
    */
   private buildMayaOnboardingPrompt(context: ConversationContext): string {
     const step = this.ONBOARDING_STEPS[context.currentStep];
+    if (!step) {
+      throw new Error(`Invalid onboarding step: ${context.currentStep}`);
+    }
+    
     // MAYA FAÇADE: Standard onboarding prompt - Maya's personality via API only
     const baseMayaPersonality = 'You are Maya, SSELFIE Studio\'s AI Creative Director and personal brand strategist.';
     
@@ -355,11 +359,12 @@ Remember: You're helping her see herself as the confident, successful woman she'
         const parsedResponse = JSON.parse(responseText);
         
         // Validate response structure
+        const currentStepData = this.ONBOARDING_STEPS[context.currentStep];
         return {
           message: parsedResponse.message || "I'm here to help you discover your amazing future self!",
           questions: Array.isArray(parsedResponse.questions) ? parsedResponse.questions : [],
           quickButtons: Array.isArray(parsedResponse.quickButtons) ? parsedResponse.quickButtons : [],
-          stepGuidance: parsedResponse.stepGuidance || this.ONBOARDING_STEPS[context.currentStep].description,
+          stepGuidance: parsedResponse.stepGuidance || currentStepData?.description || 'Continue with your personal brand discovery',
           nextAction: parsedResponse.nextAction || 'continue',
           currentStep: context.currentStep,
           progress: this.calculateProgress(context.currentStep, false)
@@ -383,6 +388,9 @@ Remember: You're helping her see herself as the confident, successful woman she'
    */
   private createFallbackResponse(message: string, context: ConversationContext): OnboardingResponse {
     const step = this.ONBOARDING_STEPS[context.currentStep];
+    if (!step) {
+      throw new Error(`Invalid onboarding step: ${context.currentStep}`);
+    }
     
     return {
       message: message || "I'm here to help you see your amazing future self! Tell me more about your journey.",
