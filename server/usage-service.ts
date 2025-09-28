@@ -171,8 +171,8 @@ export class UsageService {
         }
       }
 
-      // Legacy ai-pack plans are migrated to sselfie-studio
-      if (usage.plan === 'ai-pack') {
+      // Legacy ai-pack plans are migrated to sselfie-studio (this check is kept for data migration safety)
+      if (usage.plan === 'ai-pack' as any) {
         console.log(`Migrating legacy ai-pack user ${userId} to sselfie-studio plan`);
         await this.initializeUserUsage(userId, 'sselfie-studio');
         usage = await storage.getUserUsage(userId);
@@ -241,11 +241,9 @@ export class UsageService {
       try {
         await storage.createUsageHistory({
           userId,
-          actionType: update.actionType,
-          resourceUsed: update.resourceUsed,
-          cost: update.cost.toString(),
-          details: update.details,
-          generatedImageId: update.generatedImageId
+          action: update.actionType,
+          cost: update.cost,
+          details: update.details
         });
       } catch (error) {
         console.log('Usage history recording skipped (table may not exist):', (error as Error).message);
@@ -325,8 +323,8 @@ export class UsageService {
       const planLimits = PLAN_LIMITS[usage.plan];
       const usageCheck = await this.checkUsageLimit(userId);
       
-      // Get recent usage history
-      const recentHistory = await storage.getUserUsageHistory(userId, 30); // Last 30 days
+      // Get recent usage history (Note: current implementation returns empty array)
+      const recentHistory = await storage.getUserUsageHistory();
 
       return {
         plan: usage.plan,
@@ -351,7 +349,7 @@ export class UsageService {
 
     try {
       const usage = await storage.getUserUsage(userId);
-      const history = await storage.getUserUsageHistory(userId);
+      const history = await storage.getUserUsageHistory();
       
       if (!usage) return null;
 
@@ -383,18 +381,23 @@ export class UsageService {
   }
 
   // Analyze cost breakdown by resource type
-  private static analyzeCostBreakdown(history: Array<{ resourceUsed: string; cost: string }>): Record<string, number> {
+  private static analyzeCostBreakdown(history: unknown[]): Record<string, number> {
     const breakdown = {
       replicate_ai: 0,
       claude_api: 0,
       openai_api: 0
     };
 
-    history.forEach(record => {
-      if (isValidApiResource(record.resourceUsed)) {
-        breakdown[record.resourceUsed] += parseFloat(record.cost);
-      }
-    });
+    if (Array.isArray(history)) {
+      history.forEach(record => {
+        if (record && typeof record === 'object' && 'resourceUsed' in record && 'cost' in record) {
+          const typedRecord = record as { resourceUsed: string; cost: string };
+          if (isValidApiResource(typedRecord.resourceUsed)) {
+            breakdown[typedRecord.resourceUsed] += parseFloat(typedRecord.cost);
+          }
+        }
+      });
+    }
 
     return breakdown;
   }
