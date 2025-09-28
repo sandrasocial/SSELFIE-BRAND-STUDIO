@@ -4,6 +4,11 @@
  * Part of Elena's delegation system for autonomous agent workflows
  */
 
+// Global type declaration for coordination tracking
+declare global {
+  var agentCoordinations: Map<string, any> | undefined;
+}
+
 export interface CoordinateAgentInput {
   target_agent: string;
   task_description: string;
@@ -65,10 +70,10 @@ export async function coordinate_agent(input: CoordinateAgentInput): Promise<Coo
 
     // Store coordination task (in production this would go to database)
     // For now, we'll use in-memory coordination tracking
-    if (!global.agentCoordinations) {
-      global.agentCoordinations = new Map();
+    if (!globalThis.agentCoordinations) {
+      globalThis.agentCoordinations = new Map();
     }
-    global.agentCoordinations.set(coordination_id, coordination_data);
+    globalThis.agentCoordinations.set(coordination_id, coordination_data);
 
     // Estimate completion time based on priority and complexity
     const estimatedHours = input.priority === 'critical' ? 1 : 
@@ -102,23 +107,23 @@ export async function coordinate_agent(input: CoordinateAgentInput): Promise<Coo
  * Get coordination status for tracking
  */
 export function getCoordinationStatus(coordination_id: string) {
-  if (!global.agentCoordinations) return null;
-  return global.agentCoordinations.get(coordination_id);
+  if (!globalThis.agentCoordinations) return null;
+  return globalThis.agentCoordinations.get(coordination_id);
 }
 
 /**
  * Update coordination status
  */
 export function updateCoordinationStatus(coordination_id: string, status: CoordinateAgentResult['status'], message?: string) {
-  if (!global.agentCoordinations) return false;
+  if (!globalThis.agentCoordinations) return false;
   
-  const coordination = global.agentCoordinations.get(coordination_id);
+  const coordination = globalThis.agentCoordinations.get(coordination_id);
   if (!coordination) return false;
   
   coordination.status = status;
   coordination.updated_at = new Date().toISOString();
   if (message) coordination.latest_message = message;
   
-  global.agentCoordinations.set(coordination_id, coordination);
+  globalThis.agentCoordinations.set(coordination_id, coordination);
   return true;
 }
