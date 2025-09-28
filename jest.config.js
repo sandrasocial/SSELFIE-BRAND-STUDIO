@@ -11,7 +11,10 @@ export default {
   ],
   transform: {
     '^.+\\.tsx?$': ['ts-jest', {
-      useESM: true
+      useESM: true,
+      tsconfig: {
+        module: 'esnext'
+      }
     }],
   },
   collectCoverageFrom: [
@@ -35,7 +38,7 @@ export default {
   setupFilesAfterEnv: ['<rootDir>/tests/jest.setup.js'],
   extensionsToTreatAsEsm: ['.ts', '.tsx'],
   transformIgnorePatterns: [
-    'node_modules/(?!(jose|@stackframe|@tanstack|wouter)/)'
+    'node_modules/(?!(jose|@stackframe|@tanstack|wouter|@testing-library)/)'
   ],
   testTimeout: 10000,
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
