@@ -27,7 +27,7 @@ export const PaymentConfirmationModal: React.FC<PaymentConfirmationModalProps> =
   if (!isOpen) return null;
 
   const formatAmount = (amount: number, currency = 'EUR') => {
-    return new Intl.NumberFormat('en-EU', {
+    return new Intl.NumberFormat('en-GB', {
       style: 'currency',
       currency: currency
     }).format(amount);
