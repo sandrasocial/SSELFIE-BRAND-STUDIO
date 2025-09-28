@@ -66,6 +66,38 @@ export function isValidPort(port: unknown): port is number {
   return typeof port === 'number' && port > 0 && port <= 65535 && Number.isInteger(port);
 }
 
+// Safe environment variable access with type checking
+export function getEnvString(key: string, defaultValue: string = ''): string {
+  const value = process.env[key];
+  return typeof value === 'string' ? value : defaultValue;
+}
+
+export function getEnvNumber(key: string, defaultValue: number): number {
+  const value = process.env[key];
+  if (typeof value === 'string' && value !== '') {
+    const parsed = parseInt(value, 10);
+    return isNaN(parsed) ? defaultValue : parsed;
+  }
+  return defaultValue;
+}
+
+export function getEnvBoolean(key: string, defaultValue: boolean = false): boolean {
+  const value = process.env[key];
+  if (typeof value === 'string') {
+    return value.toLowerCase() === 'true' || value === '1';
+  }
+  return defaultValue;
+}
+
+export function requireEnvString(key: string, context?: string): string {
+  const value = process.env[key];
+  if (typeof value !== 'string' || value === '') {
+    const errorMsg = `Required environment variable ${key} is missing or empty`;
+    throw new Error(context ? `${errorMsg} (${context})` : errorMsg);
+  }
+  return value;
+}
+
 // Configuration path type safety
 type ConfigPath = 
   | 'database.url' | 'database.user' | 'database.password' | 'database.host' | 'database.neonApiKey'
@@ -92,78 +124,95 @@ export class ConfigManager {
    * Load configuration from environment variables with validation
    */
   private loadConfiguration(): AppConfig {
-    const port = parseInt(process.env.PORT || '5000');
-    const nodeEnv = process.env.NODE_ENV || 'development';
-    const logLevel = process.env.LOG_LEVEL || 'info';
+    try {
+      const port = getEnvNumber('PORT', 5000);
+      const nodeEnv = getEnvString('NODE_ENV', 'development');
+      const logLevel = getEnvString('LOG_LEVEL', 'info');
 
-    // Validate critical values
-    if (!isValidPort(port)) {
-      throw new Error(`Invalid port number: ${port}`);
-    }
-    
-    if (!isValidEnvironment(nodeEnv)) {
-      this.logger.warn(`Invalid NODE_ENV '${nodeEnv}', defaulting to 'development'`);
-    }
-    
-    if (!isValidLogLevel(logLevel)) {
-      this.logger.warn(`Invalid LOG_LEVEL '${logLevel}', defaulting to 'info'`);
-    }
+      // Validate critical values
+      if (!isValidPort(port)) {
+        this.logger.error(`Invalid port number: ${port}, using default 5000`);
+      }
+      
+      if (!isValidEnvironment(nodeEnv)) {
+        this.logger.warn(`Invalid NODE_ENV '${nodeEnv}', defaulting to 'development'`);
+      }
+      
+      if (!isValidLogLevel(logLevel)) {
+        this.logger.warn(`Invalid LOG_LEVEL '${logLevel}', defaulting to 'info'`);
+      }
 
-    return {
-      database: {
-        url: process.env.DATABASE_URL || '',
-        user: process.env.DATABASE_USER || '',
-        password: process.env.DATABASE_PASSWORD || '',
-        host: process.env.DATABASE_HOST || 'localhost',
-        neonApiKey: process.env.NEON_API_KEY || '',
-      },
-      auth: {
-        stackProjectId: process.env.STACK_PROJECT_ID || '',
-        stackPublishableKey: process.env.STACK_PUBLISHABLE_KEY || '',
-        stackSecretKey: process.env.STACK_SECRET_KEY || '',
-        adminUserId: process.env.ADMIN_USER_ID || '',
-        shannonUserId: process.env.SHANNON_USER_ID || '',
-      },
-      ai: {
-        anthropicApiKey: process.env.ANTHROPIC_API_KEY || '',
-        googleApiKey: process.env.GOOGLE_API_KEY || '',
-        replicateApiToken: process.env.REPLICATE_API_TOKEN || '',
-        replicateUsername: process.env.REPLICATE_USERNAME || '',
-        projectNumber: process.env.PROJECT_NUMBER || '',
-      },
-      storage: {
-        awsAccessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
-        awsSecretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
-        awsRegion: process.env.AWS_REGION || 'us-east-1',
-        s3Bucket: process.env.AWS_S3_BUCKET || '',
-      },
-      payment: {
-        stripeSecretKey: process.env.STRIPE_SECRET_KEY || '',
-        stripePublishableKey: process.env.STRIPE_PUBLISHABLE_KEY || '',
-      },
-      email: {
-        flodeskApiKey: process.env.FLODESK_API_KEY || '',
-        resendApiKey: process.env.RESEND_API_KEY || '',
-      },
-      social: {
-        instagramAccessToken: process.env.INSTAGRAM_ACCESS_TOKEN || '',
-        metaAccessToken: process.env.META_ACCESS_TOKEN || '',
-        manychatToken: process.env.MANYCHAT_TOKEN || '',
-      },
-      system: {
-        nodeEnv: isValidEnvironment(nodeEnv) ? nodeEnv : 'development',
-        port,
-        logLevel: isValidLogLevel(logLevel) ? logLevel : 'info',
-      },
-    };
+      const config: AppConfig = {
+        database: {
+          url: getEnvString('DATABASE_URL'),
+          user: getEnvString('DATABASE_USER'),
+          password: getEnvString('DATABASE_PASSWORD'),
+          host: getEnvString('DATABASE_HOST', 'localhost'),
+          neonApiKey: getEnvString('NEON_API_KEY'),
+        },
+        auth: {
+          stackProjectId: getEnvString('STACK_PROJECT_ID'),
+          stackPublishableKey: getEnvString('STACK_PUBLISHABLE_KEY'),
+          stackSecretKey: getEnvString('STACK_SECRET_KEY'),
+          adminUserId: getEnvString('ADMIN_USER_ID'),
+          shannonUserId: getEnvString('SHANNON_USER_ID'),
+        },
+        ai: {
+          anthropicApiKey: getEnvString('ANTHROPIC_API_KEY'),
+          googleApiKey: getEnvString('GOOGLE_API_KEY'),
+          replicateApiToken: getEnvString('REPLICATE_API_TOKEN'),
+          replicateUsername: getEnvString('REPLICATE_USERNAME'),
+          projectNumber: getEnvString('PROJECT_NUMBER'),
+        },
+        storage: {
+          awsAccessKeyId: getEnvString('AWS_ACCESS_KEY_ID'),
+          awsSecretAccessKey: getEnvString('AWS_SECRET_ACCESS_KEY'),
+          awsRegion: getEnvString('AWS_REGION', 'us-east-1'),
+          s3Bucket: getEnvString('AWS_S3_BUCKET'),
+        },
+        payment: {
+          stripeSecretKey: getEnvString('STRIPE_SECRET_KEY'),
+          stripePublishableKey: getEnvString('STRIPE_PUBLISHABLE_KEY'),
+        },
+        email: {
+          flodeskApiKey: getEnvString('FLODESK_API_KEY'),
+          resendApiKey: getEnvString('RESEND_API_KEY'),
+        },
+        social: {
+          instagramAccessToken: getEnvString('INSTAGRAM_ACCESS_TOKEN'),
+          metaAccessToken: getEnvString('META_ACCESS_TOKEN'),
+          manychatToken: getEnvString('MANYCHAT_TOKEN'),
+        },
+        system: {
+          nodeEnv: isValidEnvironment(nodeEnv) ? nodeEnv : 'development',
+          port: isValidPort(port) ? port : 5000,
+          logLevel: isValidLogLevel(logLevel) ? logLevel : 'info',
+        },
+      };
+
+      return config;
+    } catch (error) {
+      this.logger.error('Failed to load configuration:', error);
+      throw new Error(`Configuration loading failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
   }
 
   /**
-   * Get configuration value with type safety
+   * Get configuration value with type safety and better error handling
    */
   public getConfigValue<T = unknown>(path: ConfigPath): T | null;
   public getConfigValue<T = unknown>(path: string): T | null {
+    if (!this.enabled) {
+      this.logger.warn(`Configuration manager is disabled, cannot get '${path}'`);
+      return null;
+    }
+
     try {
+      if (!path || typeof path !== 'string') {
+        this.logger.error('Invalid configuration path provided');
+        return null;
+      }
+
       const keys = path.split('.');
       let value: unknown = this.config;
 
@@ -184,24 +233,41 @@ export class ConfigManager {
   }
 
   /**
-   * Get configuration value with default fallback
+   * Get configuration value with default fallback and better error handling
    */
   public get<T = unknown>(path: ConfigPath, defaultValue: T): T;
   public get<T = unknown>(path: string, defaultValue?: T): T | null {
-    const value = this.getConfigValue<T>(path as ConfigPath);
-    return value !== null ? value : (defaultValue ?? null);
+    try {
+      const value = this.getConfigValue<T>(path as ConfigPath);
+      return value !== null ? value : (defaultValue ?? null);
+    } catch (error) {
+      this.logger.error(`Error getting configuration '${path}':`, error);
+      return defaultValue ?? null;
+    }
   }
 
   /**
-   * Safely get required configuration value
+   * Safely get required configuration value with improved error handling
    */
   public getRequired<T = unknown>(path: ConfigPath): T;
   public getRequired<T = unknown>(path: string): T {
-    const value = this.getConfigValue<T>(path as ConfigPath);
-    if (value === null || value === undefined || value === '') {
-      throw new Error(`Required configuration path '${path}' is missing or empty`);
+    if (!this.enabled) {
+      throw new Error(`Configuration manager is disabled, cannot get required '${path}'`);
     }
-    return value;
+
+    try {
+      const value = this.getConfigValue<T>(path as ConfigPath);
+      
+      if (value === null || value === undefined || value === '') {
+        throw new Error(`Required configuration path '${path}' is missing or empty`);
+      }
+      
+      return value;
+    } catch (error) {
+      const errorMsg = `Failed to get required configuration '${path}'`;
+      this.logger.error(errorMsg, error);
+      throw new Error(`${errorMsg}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
   }
 
   /**
