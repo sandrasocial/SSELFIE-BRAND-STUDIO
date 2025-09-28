@@ -71,13 +71,13 @@ export const ToolkitPanel: React.FC<ToolkitPanelProps> = ({
         <div className="space-y-3">
           <button
             onClick={() => onItemAction?.('generate')}
-            disabled={selectedItem.isGenerating}
+            disabled={selectedItem['isGenerating'] as boolean}
             className="luxury-btn w-full text-center"
           >
-            {selectedItem.isGenerating ? 'Creating Photos...' : 'Generate Photos'}
+            {selectedItem['isGenerating'] ? 'Creating Photos...' : 'Generate Photos'}
           </button>
 
-          {selectedItem.generatedImages?.length > 0 && (
+          {(selectedItem.generatedImages as string[])?.length > 0 && (
             <>
               <button
                 onClick={() => onItemAction?.('variations')}
@@ -104,7 +104,7 @@ export const ToolkitPanel: React.FC<ToolkitPanelProps> = ({
           )}
         </div>
 
-        {selectedItem.isGenerating && (
+        {selectedItem['isGenerating'] && (
           <div className="pt-4 border-t border-gray-100">
             <div className="flex items-center text-xs text-gray-500">
               <div className="flex space-x-1 mr-3">
@@ -167,7 +167,7 @@ export const ToolkitPanel: React.FC<ToolkitPanelProps> = ({
               Selected Scene
             </h5>
             <p className="text-xs text-gray-600 leading-relaxed">
-              Scene {selectedItem.scene}: {selectedItem.prompt}
+              Scene {selectedItem['scene']}: {selectedItem['prompt']}
             </p>
           </div>
         )}
