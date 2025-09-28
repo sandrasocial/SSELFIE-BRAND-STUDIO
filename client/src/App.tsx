@@ -24,6 +24,10 @@ import DemoAppLayout from "./app_v2/DemoAppLayout.js";
 // Lazy load non-critical pages for better performance
 import { lazy, Suspense } from "react";
 
+// Auth components
+import { AuthSignIn } from "./components/AuthSignIn.js";
+import { AuthSignUp } from "./components/AuthSignUp.js";
+
 const BusinessLanding = lazy(() => import("./pages/landing/business-landing.js"));
 const HairLanding = lazy(() => import("./pages/landing/hair-landing.js"));
 const HairSignup = lazy(() => import("./pages/landing/hair-signup.js"));
@@ -47,6 +51,7 @@ const SessionStats = lazy(() => import("./features/live/SessionStats.js"));
 
 // Components
 import { PageLoader } from "./components/PageLoader.js";
+import { Auth } from "./components/Auth.js";
 
 // Smart Home component - Routes users through simplified journey
 // NEW USER JOURNEY: Authentication → Training → App Studio → Advanced Features  
@@ -100,6 +105,10 @@ function SmartHome() {
 function Router() {
   return (
     <div>
+      {/* NEW AUTH ROUTES - Premium styled auth components */}
+      <Route path="/sign-in" component={AuthSignIn} />
+      <Route path="/sign-up" component={AuthSignUp} />
+
       {/* STACK AUTH HANDLER - Explicit routes only to avoid accidental matches */}
       <Route path="/handler/sign-in" component={HandlerRoutes} />
       <Route path="/handler/sign-up" component={HandlerRoutes} />
@@ -212,11 +221,13 @@ function Router() {
         )} {...props} />
       )} />
 
-      {/* NEW TABBED UI ROUTE */}
+      {/* NEW TABBED UI ROUTE - Protected with Auth wrapper */}
       <Route path="/app" component={() => (
-        <Suspense fallback={<PageLoader />}>
-          <SselfieAppLayout />
-        </Suspense>
+        <ProtectedRoute component={() => (
+          <Suspense fallback={<PageLoader />}>
+            <SselfieAppLayout />
+          </Suspense>
+        )} />
       )} />
 
       {/* DEMO LAYOUT ROUTE - Shows premium UX without auth */}

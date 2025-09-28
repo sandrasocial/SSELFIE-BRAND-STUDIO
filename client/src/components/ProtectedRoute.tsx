@@ -2,11 +2,12 @@ import React, { ComponentType, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { useAuth } from '../hooks/use-auth.js';
 import { PageLoader } from './PageLoader.js';
+import { Auth } from './Auth.js';
 
 // Enhanced ProtectedRoute with proper Stack Auth integration
 export function ProtectedRoute({ 
   component: Component, 
-  fallbackPath = '/handler/sign-in',
+  fallbackPath = '/sign-in',
   ...props 
 }: { 
   component: ComponentType<any>;
@@ -35,6 +36,10 @@ export function ProtectedRoute({
     return <PageLoader />;
   }
 
-  // Render the protected component
-  return <Component {...props} />;
+  // Use Auth wrapper for consistent authentication experience
+  return (
+    <Auth fallbackPath={fallbackPath}>
+      <Component {...props} />
+    </Auth>
+  );
 }
