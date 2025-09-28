@@ -3,6 +3,7 @@ import { useAuth } from '../hooks/use-auth.js';
 import { MemberNavigation } from '../components/member-navigation.js';
 import { PhotoStudio } from '../components/brand-studio/PhotoStudio.js';
 import { StoryStudio } from '../components/brand-studio/StoryStudio.js';
+import { LuxuryChatInterface } from '../components/LuxuryChatInterface.js';
 import { BrandStudioProvider, useBrandStudio } from '../contexts/BrandStudioContext.js';
 
 // Luxury flatlay background images for editorial aesthetic
@@ -205,7 +206,9 @@ function BrandStudioPageContent() {
                 <p className="body-elegant text-sm mt-4">
                   {activeTab === 'photo' 
                     ? 'Create professional photos with Maya\'s strategic guidance'
-                    : 'Craft compelling video stories for your brand'
+                    : activeTab === 'story'
+                    ? 'Craft compelling video stories for your brand'
+                    : 'Chat directly with Maya for personalized creative direction'
                   }
                 </p>
               </div>
@@ -214,8 +217,12 @@ function BrandStudioPageContent() {
               <div className="px-4">
                 {activeTab === 'photo' ? (
                   <PhotoStudio />
-                ) : (
+                ) : activeTab === 'story' ? (
                   <StoryStudio />
+                ) : (
+                  <div className="min-h-[600px] bg-gradient-to-br from-neutral-900/90 to-neutral-950/90 rounded-2xl p-6 border border-neutral-700/30 backdrop-blur-sm">
+                    <LuxuryChatInterface />
+                  </div>
                 )}
               </div>
             </div>
@@ -234,6 +241,13 @@ function BrandStudioPageContent() {
                 data-testid="button-story-studio"
               >
                 🎬 Stories
+              </button>
+              <button
+                className={`mobile-tab-button ${activeTab === 'maya' ? 'active' : ''}`}
+                onClick={() => setActiveTab('maya')}
+                data-testid="button-maya-chat"
+              >
+                💬 Maya
               </button>
             </div>
           </div>
@@ -256,7 +270,7 @@ function BrandStudioPageContent() {
                 The Strategic Conversation • The Editorial Lookbook • Action & Assets
               </p>
               
-              <div className="desktop-tab-bar mt-8 max-w-md mx-auto border border-gray-200 rounded">
+              <div className="desktop-tab-bar mt-8 max-w-lg mx-auto border border-gray-200 rounded">
                 <button
                   className={`desktop-tab-button ${activeTab === 'photo' ? 'active' : ''}`}
                   onClick={() => setActiveTab('photo')}
@@ -271,6 +285,13 @@ function BrandStudioPageContent() {
                 >
                   Story Studio
                 </button>
+                <button
+                  className={`desktop-tab-button ${activeTab === 'maya' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('maya')}
+                  data-testid="button-maya-chat-desktop"
+                >
+                  Maya Chat
+                </button>
               </div>
             </div>
 
@@ -278,8 +299,12 @@ function BrandStudioPageContent() {
             <div className="p-8">
               {activeTab === 'photo' ? (
                 <PhotoStudio />
-              ) : (
+              ) : activeTab === 'story' ? (
                 <StoryStudio />
+              ) : (
+                <div className="min-h-[700px] bg-gradient-to-br from-neutral-900/90 to-neutral-950/90 rounded-2xl p-8 border border-neutral-700/30 backdrop-blur-sm">
+                  <LuxuryChatInterface />
+                </div>
               )}
             </div>
           </div>
