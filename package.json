@@ -653,7 +653,10 @@
     "lint:fix": "eslint . --ext .ts,.tsx,.js,.jsx --fix",
     "lint:ci": "eslint . --ext .ts,.tsx,.js,.jsx --max-warnings 0",
     "ci:all": "npm run type-check && npm run lint:ci && npm run build",
-    "test": "echo \"No test suite configured yet\" && exit 0",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:usage": "jest tests/unit/services/usage-service.test.ts",
     "test:type": "npm run type-check",
     "audit:security": "npm audit --audit-level moderate"
   },
