@@ -56,6 +56,10 @@ function validateThreatDetectionInput(body: any): {
     return { valid: false, error: 'Severity must be one of: low, medium, high, critical' };
   }
 
+  if (!['brute_force', 'ddos', 'data_breach', 'unauthorized_access', 'api_abuse'].includes(type)) {
+    return { valid: false, error: 'Type must be one of: brute_force, ddos, data_breach, unauthorized_access, api_abuse' };
+  }
+
   return { 
     valid: true, 
     data: { type, source, description, severity } 
@@ -139,7 +143,12 @@ export function registerEnterpriseRoutes(app: Express): void {
       }
 
       const { type, source, description, severity } = validation.data!;
-      await securityAudit.detectThreat(type, source, description, severity);
+      
+      // Type assertions to match expected security audit types
+      const threatType = type as 'brute_force' | 'ddos' | 'data_breach' | 'unauthorized_access' | 'api_abuse';
+      const threatSeverity = severity as 'critical' | 'low' | 'medium' | 'high';
+      
+      await securityAudit.detectThreat(threatType, source, description, threatSeverity);
       
       const response = createSuccessResponse(null, 'Threat detection logged successfully');
       res.json(response);

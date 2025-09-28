@@ -5,7 +5,6 @@ import type {
   ClaudeMessage as DbClaudeMessage,
   User,
   BrandOnboarding,
-  AgentMessage,
   AgentConversation,
 } from '../schema.js';
 
