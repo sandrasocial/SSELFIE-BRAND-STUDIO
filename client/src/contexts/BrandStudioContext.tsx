@@ -18,6 +18,9 @@ interface ConceptCard {
   isGenerating: boolean;
   hasGenerated: boolean;
   createdAt: string;
+  // Additional properties used in PhotoStudio
+  category?: string;
+  type?: string;
 }
 
 interface ChatMessage {
@@ -48,12 +51,12 @@ interface BrandStudioContextType extends BrandStudioState {
   sendMessage: (content: string) => void;
   selectConceptCard: (id: string | null) => void;
   setActiveTab: (tab: 'photo' | 'story') => void;
-  setHandoffData: (data: any) => void;
+  setHandoffData: (data: BrandStudioState['handoffData']) => void;
   clearHandoffData: () => void;
   startNewSession: () => void;
   // Additional properties
-  selectedItem: any;
-  setSelectedItem: (item: any) => void;
+  selectedItem: ConceptCard | null;
+  setSelectedItem: (item: ConceptCard | null) => void;
   // Status
   isLoading: boolean;
 }
@@ -69,7 +72,7 @@ type BrandStudioAction =
   | { type: 'UPDATE_CONCEPT_CARDS'; payload: ConceptCard[] }
   | { type: 'SELECT_CONCEPT_CARD'; payload: string | null }
   | { type: 'SET_ACTIVE_TAB'; payload: 'photo' | 'story' }
-  | { type: 'SET_HANDOFF_DATA'; payload: any }
+  | { type: 'SET_HANDOFF_DATA'; payload: BrandStudioState['handoffData'] }
   | { type: 'CLEAR_HANDOFF_DATA' }
   | { type: 'CLEAR_CONVERSATION' };
 
