@@ -185,7 +185,12 @@ export async function getCompositionStatus(
 
         try {
           const status = await getVeo3Status(sceneJob.jobId, userId);
-          const updatedJob: CompositionResult['sceneJobs'][number] = {
+          const updatedJob: {
+            sceneIndex: number;
+            jobId: string;
+            status: string;
+            videoUrl?: string;
+          } = {
             sceneIndex: sceneJob.sceneIndex,
             jobId: sceneJob.jobId,
             status: status.status === 'completed' ? 'completed' : 
@@ -208,9 +213,9 @@ export async function getCompositionStatus(
       })
     );
 
-    const completedScenes = updatedSceneJobs.filter(job => job.status === 'completed' && job.videoUrl);
-    const failedScenes = updatedSceneJobs.filter(job => job.status === 'failed');
-    const processingScenes = updatedSceneJobs.filter(job => job.status === 'processing' || job.status === 'pending');
+    const completedScenes = updatedSceneJobs.filter((job: any) => job.status === 'completed' && job.videoUrl);
+    const failedScenes = updatedSceneJobs.filter((job: any) => job.status === 'failed');
+    const processingScenes = updatedSceneJobs.filter((job: any) => job.status === 'processing' || job.status === 'pending');
 
     // If any scenes failed, mark composition as failed
     if (failedScenes.length > 0) {
@@ -236,7 +241,7 @@ export async function getCompositionStatus(
       console.log(`🎬 VIDEO COMPOSER: All scenes ready, composing final video`);
       
       const composedVideoUrl = await composeScenes(
-        completedScenes.map(job => job.videoUrl!),
+        completedScenes.map((job: any) => job.videoUrl!),
         crossfade
       );
 
