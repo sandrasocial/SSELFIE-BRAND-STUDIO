@@ -6,69 +6,41 @@
 import { Router, Response } from 'express';
 import { requireStackAuth } from '../../stack-auth.js';
 import { asyncHandler, createError, sendSuccess, validateRequired } from '../middleware/error-handler.js';
+import { validateBody, typedHandler } from '../middleware/validation.js';
+import { sendApiSuccess, sendMayaError, handleErrorResponse } from '../middleware/response.js';
 import { storage } from '../../storage.js';
 import { ModelTrainingService } from '../../model-training-service.js';
 import { PersonalityManager } from '../../agents/personalities/personality-config.js';
 import { MayaOptimizationService } from '../../services/maya-optimization-service.js';
 import { MayaAdaptationEngine } from '../../services/maya-adaptation-engine.js';
 import { ClaudeApiServiceSimple } from '../../services/claude-api-service-simple.js';
-import { AuthenticatedRequest } from '../../types/ai-generation.js';
-import { SuccessResponse } from '../../types/ai-generation.js';
+import { AuthenticatedRequest, SuccessResponse } from '../../types/ai-generation.js';
 
-interface MayaChat {
-  id: number;
-  userId: string;
-  chatTitle: string;
-  chatSummary: string;
-  chatCategory: string;
-  lastActivity: Date;
-  createdAt: Date;
-  updatedAt: Date;
-}
+// Import new type-safe API types
+import {
+  MayaChatRequest,
+  MayaGenerateRequest,
+  MayaCreateChatRequest,
+  MayaVideoPromptRequest,
+  MayaChatResponse,
+  MayaMessageResponse,
+  MayaResponse,
+  ConceptCard,
+  ApiResponse,
+  ApiError,
+  ApiErrorCode
+} from '../../../shared/types/api.js';
 
-interface MayaMessage {
-  id: number;
-  chatId: number;
-  role: 'user' | 'assistant';
-  content: string;
-  conceptCards?: MayaConceptCard[];
-  createdAt: Date;
-}
-
-interface MayaConceptCard {
-  title: string;
-  prompt: string;
-}
-
-interface MayaChatRequest {
-  message: string;
-  chatHistory?: {
-    user?: string;
-    maya?: string;
-    response?: string;
-  }[];
-  context?: Record<string, unknown>;
-}
-
-interface MayaGenerateRequest {
-  prompt: string;
-  style?: string;
-  count?: number;
-  conceptName?: string;
-  seed?: string;
-}
-
-interface MayaCreateChatRequest {
-  title?: string;
-  initialMessage?: string;
-}
+// Import validation functions
+import {
+  mayaChatRequestSchema,
+  mayaGenerateRequestSchema,
+  mayaCreateChatRequestSchema,
+  mayaVideoPromptRequestSchema
+} from '../../../shared/validation/index.js';
 
 interface MayaUpdateMessageRequest {
   content: string;
-}
-
-interface MayaVideoPromptRequest {
-  imageUrl: string;
 }
 
 interface ClaudeHistoryEntry {
@@ -117,95 +89,90 @@ router.get('/api/maya-chats/:chatId', requireStackAuth, asyncHandler(async (req:
 }));
 
 // Send message to Maya with full personality system
-router.post('/api/maya-chat', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest & { body: MayaChatRequest }, res: Response) => {
-  const userId = req.user.id;
-  const { message, chatHistory = [], context = {} } = req.body;
-  validateRequired({ message }, ['message']);
+router.post('/api/maya-chat', 
+  requireStackAuth,
+  validateBody(mayaChatRequestSchema),
+  typedHandler<MayaChatRequest>(async (req, res) => {
+    const userId = req.user.id;
+    const { message, chatHistory = [], context = {} } = req.body;
 
-  try {
-    // Get Maya's full personality with adaptation
-    const basePersonality = PersonalityManager.getNaturalPrompt('maya');
-    let mayaPersonality = basePersonality;
-
-    // Apply user-specific adaptation if available
     try {
-      const adaptation = await MayaAdaptationEngine.adaptStylingApproach(
-        userId, 
-        context, 
-        chatHistory
+      // Get Maya's full personality with adaptation
+      const basePersonality = PersonalityManager.getNaturalPrompt('maya');
+      let mayaPersonality = basePersonality;
+
+      // Apply user-specific adaptation if available
+      try {
+        const adaptation = await MayaAdaptationEngine.adaptStylingApproach(
+          userId, 
+          context, 
+          chatHistory
+        );
+        if (adaptation.adaptedPersonality) {
+          mayaPersonality = adaptation.adaptedPersonality;
+          console.log('🎯 MAYA: Applied personalized adaptation');
+        }
+      } catch (adaptError) {
+        console.log('⚠️ MAYA: Adaptation failed, using base personality');
+      }
+
+      // Convert chat history to Claude format
+      const claudeHistory: ClaudeHistoryEntry[] = chatHistory.map(entry => ({
+        role: entry.user ? 'user' : 'assistant',
+        content: entry.user || entry.maya || entry.response || ''
+      })).filter(msg => msg.content.trim());
+
+      // Generate response using Claude with full personality system
+      const mayaResponse = await claudeService.sendMessage(
+        message,
+        `maya-chat-${userId}`,
+        'maya',
+        false,
+        claudeHistory,
+        mayaPersonality
       );
-      if (adaptation.adaptedPersonality) {
-        mayaPersonality = adaptation.adaptedPersonality;
-        console.log('🎯 MAYA: Applied personalized adaptation');
+
+      // Extract concept cards if Maya suggests photo concepts
+      let conceptCards: ConceptCard[] = [];
+      try {
+        const conceptRegex = /(?:concept|idea|suggestion)[\s\S]*?(?:title|name):\s*["']?([^"'\n]+)["']?[\s\S]*?(?:prompt|description):\s*["']?([^"'\n]+)["']?/gi;
+        let match;
+        while ((match = conceptRegex.exec(mayaResponse)) !== null) {
+          conceptCards.push({
+            title: match[1].trim(),
+            prompt: match[2].trim()
+          });
+        }
+      } catch (parseError) {
+        console.log('No concept cards extracted from response');
       }
-    } catch (adaptError) {
-      console.log('⚠️ MAYA: Adaptation failed, using base personality');
-    }
 
-    // Convert chat history to Claude format
-    const claudeHistory: ClaudeHistoryEntry[] = chatHistory.map(entry => ({
-      role: entry.user ? 'user' : 'assistant',
-      content: entry.user || entry.maya || entry.response || ''
-    })).filter(msg => msg.content.trim());
+      // Save chat to database
+      const chatId = await storage.saveMayaChat(userId, {
+        message,
+        response: mayaResponse,
+        conceptCards,
+        context
+      });
 
-    // Generate response using Claude with full personality system
-    const mayaResponse = await claudeService.sendMessage(
-      message,
-      `maya-chat-${userId}`,
-      'maya',
-      false,
-      claudeHistory,
-      mayaPersonality
-    );
-
-    // Extract concept cards if Maya suggests photo concepts
-    let conceptCards: MayaConceptCard[] = [];
-    try {
-      const conceptRegex = /(?:concept|idea|suggestion)[\s\S]*?(?:title|name):\s*["']?([^"'\n]+)["']?[\s\S]*?(?:prompt|description):\s*["']?([^"'\n]+)["']?/gi;
-      let match;
-      while ((match = conceptRegex.exec(mayaResponse)) !== null) {
-        conceptCards.push({
-          title: match[1].trim(),
-          prompt: match[2].trim()
-        });
-      }
-    } catch (parseError) {
-      console.log('No concept cards extracted from response');
-    }
-
-    // Save chat to database
-    const chatId = await storage.saveMayaChat(userId, {
-      message,
-      response: mayaResponse,
-      conceptCards,
-      context
-    });
-
-    const responseData: SuccessResponse<{
-      response: string;
-      conceptCards: MayaConceptCard[];
-      chatId: string;
-      agentName: string;
-      agentType: string;
-      timestamp: string;
-    }> = {
-      data: {
+      // Send type-safe response
+      sendApiSuccess(res, {
         response: mayaResponse,
         conceptCards,
         chatId,
         agentName: 'Maya - AI Creative Director',
         agentType: 'member',
         timestamp: new Date().toISOString()
-      }
-    };
+      }, 'Message processed successfully');
 
-    sendSuccess(res, responseData);
-
-  } catch (error) {
-    console.error('❌ MAYA: Chat failed:', error);
-    throw createError.internal('Failed to process chat message');
-  }
-}));
+    } catch (error) {
+      console.error('❌ MAYA: Chat failed:', error);
+      sendMayaError(res, 'Failed to process chat message', {
+        originalError: (error as Error).message
+      });
+    }
+  })
+);
 
 // Alias for legacy frontend endpoint: /api/maya/chat → use same handler as /api/maya-chat
 router.post('/api/maya/chat', requireStackAuth, asyncHandler(async (req: any, res) => {
