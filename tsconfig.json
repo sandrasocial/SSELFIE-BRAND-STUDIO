@@ -33,7 +33,7 @@
       "@models/*": ["shared/models/*"]
     },
     "types": [
-      "node"
+      "@types/node"
     ]
   },
   "include": [
