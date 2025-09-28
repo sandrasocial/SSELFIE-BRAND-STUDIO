@@ -47,7 +47,7 @@ export const ProgressDashboard: FC<DashboardProps> = ({
     const interval = setInterval(updateMetrics, 2000);
 
     // Listen for real-time updates
-    const handleUpdate = (event: CustomEvent) => {
+    const handleUpdate = (event: CustomEvent<{ component: string }>) => {
       const { component } = event.detail;
       setRealTimeUpdates(prev => [
         `${new Date().toLocaleTimeString()}: ${component} completed`,
