@@ -17,6 +17,14 @@ interface TrainingStatusData {
   userId?: string;
 }
 
+interface UserModelResponse {
+  trainingStatus?: 'idle' | 'training' | 'completed' | 'failed';
+  progress?: number;
+  startedAt?: string;
+  userId?: string;
+  [key: string]: any; // Allow additional properties
+}
+
 export const useTrainingStatus = (userId: string, enabled: boolean = true) => {
   const [progressMetrics, setProgressMetrics] = useState<ProgressMetrics | null>(null);
   const [trainingStage, setTrainingStage] = useState<TrainingStage | null>(null);
@@ -26,7 +34,7 @@ export const useTrainingStatus = (userId: string, enabled: boolean = true) => {
     data: userModel, 
     refetch: refetchUserModel,
     isLoading: isUserModelLoading
-  } = useQuery({
+  } = useQuery<UserModelResponse>({
     queryKey: ['/api/user-model'],
     enabled: enabled && !!userId,
     staleTime: 30 * 1000, // 30 seconds
