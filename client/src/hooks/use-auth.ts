@@ -1,4 +1,4 @@
-import { useUser } from "@stackframe/react";
+import { useUser, type User as StackUser } from "@stackframe/react";
 import { useQuery } from "@tanstack/react-query";
 import { apiFetch } from "../lib/api.js";
 import type { 
@@ -110,10 +110,15 @@ export function useAuth(): UseAuthReturn {
   const hasStackAuthUser = !!stackUser?.id;
   
   // Create type-safe user object
-  const createUserFromData = (userData: any): User | undefined => {
+  const createUserFromData = (userData: unknown): User | undefined => {
     if (!userData && !stackUser) return undefined;
     
-    const baseUser = userData || {};
+    // Type guard for user data
+    const isValidUserData = (data: unknown): data is Record<string, unknown> => {
+      return typeof data === 'object' && data !== null;
+    };
+    
+    const baseUser = isValidUserData(userData) ? userData : {};
     const fallbackUser = {
       id: stackUser?.id || '',
       email: stackUser?.primaryEmail || '',
@@ -125,37 +130,49 @@ export function useAuth(): UseAuthReturn {
       generationsUsedThisMonth: 0,
     };
     
+    // Safely extract user data with type checking
+    const extractString = (key: string): string | undefined => {
+      const value = baseUser[key];
+      return typeof value === 'string' ? value : undefined;
+    };
+    
+    const extractNumber = (key: string): number => {
+      const value = baseUser[key];
+      return typeof value === 'number' ? value : 0;
+    };
+    
+    const extractBoolean = (key: string): boolean => {
+      const value = baseUser[key];
+      return Boolean(value);
+    };
+    
     // Validate and type-check the user data
     const user: User = {
-      id: baseUser.id || fallbackUser.id,
-      email: baseUser.email || fallbackUser.email,
-      firstName: baseUser.firstName || fallbackUser.firstName,
-      lastName: baseUser.lastName || fallbackUser.lastName,
-      displayName: baseUser.displayName || stackUser?.displayName,
-      profileImageUrl: baseUser.profileImageUrl,
-      plan: isUserPlan(baseUser.plan) ? baseUser.plan : fallbackUser.plan,
-      role: isUserRole(baseUser.role) ? baseUser.role : fallbackUser.role,
+      id: extractString('id') || fallbackUser.id,
+      email: extractString('email') || fallbackUser.email,
+      firstName: extractString('firstName') || fallbackUser.firstName || undefined,
+      lastName: extractString('lastName') || fallbackUser.lastName || undefined,
+      displayName: extractString('displayName') || stackUser?.displayName || undefined,
+      profileImageUrl: extractString('profileImageUrl') || undefined,
+      plan: isUserPlan(extractString('plan') || '') ? extractString('plan') as UserPlan : fallbackUser.plan,
+      role: isUserRole(extractString('role') || '') ? extractString('role') as UserRole : fallbackUser.role,
       
       // User preferences and profile data
-      gender: baseUser.gender,
-      profession: baseUser.profession,
-      brandStyle: baseUser.brandStyle,
-      photoGoals: baseUser.photoGoals,
-      preferredOnboardingMode: baseUser.preferredOnboardingMode,
+      gender: extractString('gender') || undefined,
+      profession: extractString('profession') || undefined,
+      brandStyle: extractString('brandStyle') || undefined,
+      photoGoals: extractString('photoGoals') || undefined,
+      preferredOnboardingMode: extractString('preferredOnboardingMode') || undefined,
       
       // Training and access flags
-      trainingCoachingCompleted: Boolean(baseUser.trainingCoachingCompleted),
-      mayaAiAccess: Boolean(baseUser.mayaAiAccess),
-      victoriaAiAccess: Boolean(baseUser.victoriaAiAccess),
-      hasRetrainingAccess: Boolean(baseUser.hasRetrainingAccess),
+      trainingCoachingCompleted: extractBoolean('trainingCoachingCompleted') || undefined,
+      mayaAiAccess: extractBoolean('mayaAiAccess') || undefined,
+      victoriaAiAccess: extractBoolean('victoriaAiAccess') || undefined,
+      hasRetrainingAccess: extractBoolean('hasRetrainingAccess') || undefined,
       
       // Usage tracking with safe defaults
-      monthlyGenerationLimit: typeof baseUser.monthlyGenerationLimit === 'number' 
-        ? baseUser.monthlyGenerationLimit 
-        : fallbackUser.monthlyGenerationLimit,
-      generationsUsedThisMonth: typeof baseUser.generationsUsedThisMonth === 'number' 
-        ? baseUser.generationsUsedThisMonth 
-        : fallbackUser.generationsUsedThisMonth,
+      monthlyGenerationLimit: extractNumber('monthlyGenerationLimit') || fallbackUser.monthlyGenerationLimit,
+      generationsUsedThisMonth: extractNumber('generationsUsedThisMonth') || fallbackUser.generationsUsedThisMonth,
     };
     
     return user;
@@ -188,7 +205,7 @@ export function useAuth(): UseAuthReturn {
     hasActiveSubscription,
     requiresPayment: isAuthenticated && !hasActiveSubscription,
     error: authError,
-    stackUser,
+    stackUser: stackUser || undefined,
     session,
     authState: getAuthState(),
     loadingState: getLoadingState(),

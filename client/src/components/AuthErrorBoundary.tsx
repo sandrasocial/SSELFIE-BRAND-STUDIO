@@ -15,7 +15,7 @@ import { sessionStorage } from '../lib/session-storage.js';
 
 interface Props {
   children: ReactNode;
-  fallback?: (error: AuthErrorType, retry: () => void) => ReactNode;
+  fallback?: ((error: AuthErrorType, retry: () => void) => ReactNode) | undefined;
   onError?: (error: AuthErrorType, errorInfo: ErrorInfo) => void;
 }
 
