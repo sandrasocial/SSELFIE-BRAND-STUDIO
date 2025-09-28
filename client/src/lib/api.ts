@@ -1,11 +1,9 @@
 const API_BASE = import.meta.env?.VITE_API_BASE_URL?.replace(/\/+$/, "") || "/api";
 
-type FetchOpts = Omit<RequestInit, 'body'> & { 
-  json?: unknown; 
-  body?: BodyInit | null;
-  skipAuth?: boolean;
-};
-
+type FetchOpts =
+  | (Omit<RequestInit, 'body'> & { json: unknown; body?: never; skipAuth?: boolean })
+  | (Omit<RequestInit, 'body'> & { body: BodyInit | null; json?: never; skipAuth?: boolean })
+  | (Omit<RequestInit, 'body'> & { skipAuth?: boolean }); // allow neither
 export async function apiFetch(path: string, opts: FetchOpts = {}) {
   const url = `${API_BASE}${path.startsWith('/') ? path : `/${path}`}`;
 
