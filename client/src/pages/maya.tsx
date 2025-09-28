@@ -4,7 +4,7 @@ import { useLocation } from 'wouter';
 import { useToast } from '../hooks/use-toast.js';
 import { PageLoader } from '../components/PageLoader.js';
 
-// Import types
+// Import types from unified definitions
 import type { MayaChatMessage, ConceptCard } from '../types/maya.js';
 
 const LazyMayaChat = lazy(() => import('../components/maya/MayaChat.js').then(module => ({ default: module.MayaChat })));
@@ -16,14 +16,21 @@ const cleanDisplayTitle = (title: string): string => {
 };
 
 export default function Maya() {
-  const { user } = useAuth();
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const [location, setLocation] = useLocation();
   const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const { toast } = useToast();
 
   // Handle online/offline status
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
-    const handleOffline = () => setIsOnline(false);
+    const handleOffline = () => {
+      setIsOnline(false);
+      toast({
+        title: "Connection Lost",
+        description: "Please check your internet connection. Maya requires an active connection.",
+      });
+    };
 
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
@@ -32,10 +39,15 @@ export default function Maya() {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
-  }, []);
+  }, [toast]);
+
+  // Show loading state during authentication
+  if (authLoading) {
+    return <PageLoader />;
+  }
 
   // User not authenticated - redirect to login
-  if (!user) {
+  if (!isAuthenticated || !user) {
     setLocation('/login');
     return null;
   }
@@ -46,7 +58,13 @@ export default function Maya() {
       <div className="fixed inset-0 flex items-center justify-center bg-white text-black">
         <div className="text-center px-4">
           <h3 className="text-lg font-medium mb-2">Connection Lost</h3>
-          <p className="text-sm text-gray-500">Please check your internet connection and try again.</p>
+          <p className="text-sm text-gray-500 mb-4">Please check your internet connection and try again.</p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-black text-white rounded-lg text-sm hover:bg-gray-800 transition-colors"
+          >
+            Retry Connection
+          </button>
         </div>
       </div>
     );

@@ -67,9 +67,16 @@ interface ConceptCard {
   id: string;
   title: string;
   description: string;
-  fluxPrompt: string;
-  category: string;
-  emoji: string;
+  fluxPrompt?: string;
+  fullPrompt?: string;
+  category?: string;
+  emoji?: string;
+  type?: 'portrait' | 'flatlay' | 'lifestyle';
+  imageUrl?: string;
+  generatedImages?: string[];
+  isGenerating?: boolean;
+  isLoading?: boolean;
+  hasGenerated?: boolean;
 }
 
 interface ConversationEntry {
@@ -86,6 +93,17 @@ interface AuthenticatedUser {
   plan: string;
   role: string;
   stackUser: StackAuthUserInfo;
+}
+
+// Maya API response interface for better error handling
+interface MayaAPIResponse {
+  response?: string;
+  reply?: string;
+  conceptCards?: ConceptCard[];
+  success?: boolean;
+  error?: string;
+  message?: string;
+  code?: string;
 }
 
 // Stack Auth configuration
@@ -1407,9 +1425,30 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
         
       } catch (error) {
         console.log('❌ Maya generate failed:', (error as Error).message);
-        return res.status(500).json({ 
-          message: 'Image generation failed',
-          error: (error as Error).message
+        
+        let statusCode = 500;
+        let errorMessage = 'Image generation failed';
+        let errorCode = 'GENERATION_ERROR';
+        
+        if ((error as Error).message?.includes('timeout')) {
+          statusCode = 503;
+          errorMessage = 'Generation service is temporarily unavailable';
+          errorCode = 'SERVICE_TIMEOUT';
+        } else if ((error as Error).message?.includes('401')) {
+          statusCode = 401;
+          errorMessage = 'Authentication required for image generation';
+          errorCode = 'AUTH_REQUIRED';
+        } else if ((error as Error).message?.includes('quota') || (error as Error).message?.includes('limit')) {
+          statusCode = 429;
+          errorMessage = 'Generation limit reached. Please try again later.';
+          errorCode = 'QUOTA_EXCEEDED';
+        }
+        
+        return res.status(statusCode).json({ 
+          success: false,
+          message: errorMessage,
+          error: (error as Error).message,
+          code: errorCode
         });
       }
     }
@@ -1474,9 +1513,30 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
         
       } catch (error) {
         console.log('❌ Maya status check failed:', (error as Error).message);
-        return res.status(500).json({ 
-          message: 'Status check failed',
-          error: (error as Error).message
+        
+        let statusCode = 500;
+        let errorMessage = 'Status check failed';
+        let errorCode = 'STATUS_ERROR';
+        
+        if ((error as Error).message?.includes('timeout')) {
+          statusCode = 503;
+          errorMessage = 'Status service temporarily unavailable';
+          errorCode = 'SERVICE_TIMEOUT';
+        } else if ((error as Error).message?.includes('401')) {
+          statusCode = 401;
+          errorMessage = 'Authentication required';
+          errorCode = 'AUTH_REQUIRED';
+        } else if ((error as Error).message?.includes('not found')) {
+          statusCode = 404;
+          errorMessage = 'Generation not found';
+          errorCode = 'NOT_FOUND';
+        }
+        
+        return res.status(statusCode).json({ 
+          success: false,
+          message: errorMessage,
+          error: (error as Error).message,
+          code: errorCode
         });
       }
     }
@@ -1681,18 +1741,54 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
         t.end('error', { error: (error as Error).message });
         console.log('❌ Maya chat failed:', (error as Error).message);
         
+        // Enhanced error handling with proper response structure
+        let statusCode = 500;
+        let errorResponse: MayaAPIResponse = {
+          success: false,
+          error: 'An unexpected error occurred',
+          message: 'Please try again later',
+          code: 'INTERNAL_ERROR'
+        };
+        
         if (isTimeoutError(error)) {
-          return res.status(503).json({ 
-            message: 'Maya is temporarily unavailable, please try again',
+          statusCode = 503;
+          errorResponse = {
+            success: false,
             error: 'Service timeout',
+            message: 'Maya is experiencing high demand. Please try again in a moment.',
             code: 'TIMEOUT'
-          });
+          };
+        } else if ((error as Error).message?.includes('401') || (error as Error).message?.includes('Authentication')) {
+          statusCode = 401;
+          errorResponse = {
+            success: false,
+            error: 'Authentication required',
+            message: 'Please sign in to chat with Maya',
+            code: 'AUTH_REQUIRED'
+          };
+        } else if ((error as Error).message?.includes('rate limit')) {
+          statusCode = 429;
+          errorResponse = {
+            success: false,
+            error: 'Rate limit exceeded',
+            message: 'You\'re chatting too quickly. Please wait a moment before sending another message.',
+            code: 'RATE_LIMITED'
+          };
+        } else if ((error as Error).message?.includes('validation')) {
+          statusCode = 400;
+          errorResponse = {
+            success: false,
+            error: 'Invalid request',
+            message: 'Please check your message and try again',
+            code: 'VALIDATION_ERROR'
+          };
+        } else if ((error as Error).message) {
+          // Preserve original error message for debugging
+          errorResponse.error = (error as Error).message;
+          errorResponse.message = 'Maya encountered an issue. Please try again.';
         }
         
-        return res.status(401).json({ 
-          message: 'Authentication required',
-          error: (error as Error).message
-        });
+        return res.status(statusCode).json(errorResponse);
       }
     }
 

@@ -1,5 +1,5 @@
-// MayaChat component for handling just the chat interface
 import React, { useRef, useState } from 'react';
+import { AlertCircle } from 'lucide-react';
 import { useAuth } from '../../hooks/use-auth.js';
 import { useLocation } from 'wouter';
 import { useToast } from '../../hooks/use-toast.js';
@@ -17,34 +17,44 @@ export function MayaChat() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  // Maya chat hooks
+  // Maya chat hooks - removed setIsTyping as it's handled internally
   const {
     messages,
     isTyping,
     sendMessage,
-    setIsTyping
+    error
   } = useMayaChat();
 
-  const handleSendMessage = async (msg: string) => {
+  // Enhanced handleSendMessage with proper error handling
+  const handleSendMessage = async (msg: string): Promise<void> => {
     if (!msg.trim()) return;
     
     try {
-      setIsTyping(true);
       await sendMessage(msg);
       setMessage('');
       setHasStartedChat(true);
     } catch (error) {
+      console.error('Failed to send message:', error);
       toast({
-        title: "Error",
-        description: "Failed to send message. Please try again.",
+        title: "Message Failed",
+        description: error instanceof Error ? error.message : "Failed to send message. Please try again.",
       });
-    } finally {
-      setIsTyping(false);
     }
   };
 
   return (
     <div className="h-full flex flex-col">
+      {/* Error display */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 m-4">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-red-600" />
+            <span className="text-sm font-medium text-red-800">Connection Issue</span>
+          </div>
+          <p className="text-sm text-red-700 mt-1">{error}</p>
+        </div>
+      )}
+      
       <div className="flex-1 overflow-y-auto py-4 px-6">
         {messages.map((msg) => (
           <div key={msg.id} className="mb-6">

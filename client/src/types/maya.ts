@@ -1,19 +1,30 @@
-// Maya module types
+// Maya module types - unified definitions for type safety
 export interface MayaChatMessage {
-  id: string;
+  id?: number | string;
   role: 'user' | 'maya' | 'system';
   content: string;
-  timestamp: number;
+  timestamp: string;
   showUpload?: boolean;
   conceptCards?: ConceptCard[];
+  isStreaming?: boolean;
+  showExamples?: boolean;
 }
 
 export interface ConceptCard {
   id: string;
   title: string;
-  prompt: string;
-  image?: string;
-  isExpanded?: boolean;
+  description: string;
+  emoji?: string;
+  creativeLook?: string;
+  fluxPrompt?: string;
+  fullPrompt?: string;
+  category?: string;
+  imageUrl?: string;
+  generatedImages?: string[];
+  isGenerating?: boolean;
+  isLoading?: boolean;
+  hasGenerated?: boolean;
+  type?: 'portrait' | 'flatlay' | 'lifestyle';
 }
 
 export interface MayaContextData {
@@ -28,4 +39,20 @@ export interface MayaChatState {
   sendMessage: (messageText: string) => Promise<void>;
   setIsTyping: (typing: boolean) => void;
   error: string | null;
+}
+
+// API response types for better error handling
+export interface MayaAPIResponse {
+  response?: string;
+  reply?: string;
+  conceptCards?: ConceptCard[];
+  success?: boolean;
+  error?: string;
+  message?: string;
+  code?: string;
+}
+
+export interface MayaAPIError extends Error {
+  code?: string;
+  status?: number;
 }

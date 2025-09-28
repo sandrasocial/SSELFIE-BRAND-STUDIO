@@ -5,6 +5,13 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-08-27.basil'
 });
 
+// Enhanced error interface for better error handling
+interface PaymentError extends Error {
+  code?: string;
+  type?: string;
+  statusCode?: number;
+}
+
 export class PaymentService {
   async createSubscription(customerId: string, priceId: string) {
     try {
@@ -16,8 +23,23 @@ export class PaymentService {
       });
       return subscription;
     } catch (error) {
-      logger.error(`Subscription creation failed: ${error.message}`);
-      throw error;
+      const paymentError = error as PaymentError;
+      logger.error(`Subscription creation failed: ${paymentError.message}`, {
+        customerId,
+        priceId,
+        errorType: paymentError.type,
+        errorCode: paymentError.code
+      });
+      
+      // Enhanced error with more context
+      const enhancedError = new Error(
+        `Failed to create subscription: ${paymentError.message}`
+      ) as PaymentError;
+      enhancedError.code = paymentError.code || 'SUBSCRIPTION_CREATION_FAILED';
+      enhancedError.type = paymentError.type || 'payment_error';
+      enhancedError.statusCode = 402; // Payment Required
+      
+      throw enhancedError;
     }
   }
 
@@ -41,8 +63,20 @@ export class PaymentService {
       
       return { status: 'success' };
     } catch (error) {
-      logger.error(`Webhook handling failed: ${error.message}`);
-      throw error;
+      const paymentError = error as PaymentError;
+      logger.error(`Webhook handling failed: ${paymentError.message}`, {
+        errorType: paymentError.type,
+        errorCode: paymentError.code
+      });
+      
+      // Enhanced error for webhook failures
+      const enhancedError = new Error(
+        `Webhook processing failed: ${paymentError.message}`
+      ) as PaymentError;
+      enhancedError.code = paymentError.code || 'WEBHOOK_PROCESSING_FAILED';
+      enhancedError.statusCode = 400;
+      
+      throw enhancedError;
     }
   }
 

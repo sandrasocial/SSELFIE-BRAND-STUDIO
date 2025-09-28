@@ -5,9 +5,22 @@ import { useToast } from '../../hooks/use-toast.js';
 import { apiRequest } from '../../lib/queryClient.js';
 
 interface MayaUploadComponentProps {
-  onUploadComplete?: (success: boolean) => void;
+  onUploadComplete?: (success: boolean, errorMessage?: string) => void;
   onTrainingStart?: () => void;
   className?: string;
+}
+
+interface UploadError {
+  file?: string;
+  message: string;
+  code?: string;
+}
+
+interface UploadResponse {
+  success: boolean;
+  message?: string;
+  uploadedCount?: number;
+  errors?: UploadError[];
 }
 
 export function MayaUploadComponent({ 
@@ -60,66 +73,128 @@ export function MayaUploadComponent({
     });
   };
 
-  // Start training mutation - extracted from simple-training
+  // Enhanced start training mutation with proper error handling
   const startTraining = useMutation({
-    mutationFn: async (images: string[]) => {
+    mutationFn: async (images: string[]): Promise<UploadResponse> => {
       setIsUploadingImages(true);
+      setUploadErrors([]); // Clear previous errors
+      
       const response = await apiRequest('/api/start-model-training', 'POST', {
         selfieImages: images
-      });
+      }) as UploadResponse;
+      
       return response;
     },
-    onSuccess: (data: any) => {
+    onSuccess: (data: UploadResponse) => {
       setIsUploadingImages(false);
+      
       if (data.success) {
         onTrainingStart?.();
         onUploadComplete?.(true);
         toast({
           title: "Training Started",
-          description: "Your AI model is now training. Maya will guide you while we wait!",
+          description: `Your AI model is now training with ${data.uploadedCount || selfieImages.length} images. Maya will guide you while we wait!`,
         });
+        setSelfieImages([]); // Clear uploaded images
       } else {
-        // Handle validation errors
-        setUploadErrors(data.errors || []);
+        // Handle validation errors with detailed messages
+        const errorMessages = data.errors?.map(err => err.message) || ['Unknown validation error'];
+        setUploadErrors(errorMessages);
+        
         toast({
           title: "Training Validation Failed",
-          description: `Please fix these issues: ${data.errors?.join(', ')}`,
+          description: `Please fix these issues: ${errorMessages.slice(0, 2).join(', ')}${errorMessages.length > 2 ? '...' : ''}`,
         });
-        onUploadComplete?.(false);
+        onUploadComplete?.(false, data.message);
       }
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       setIsUploadingImages(false);
       console.error('Maya training initiation failed:', error);
       
+      let errorMessage = "Training system error. Please try again.";
+      if (error instanceof Error) {
+        if (error.message.includes('timeout')) {
+          errorMessage = "Training request timed out. Please try again with fewer images or check your connection.";
+        } else if (error.message.includes('401')) {
+          errorMessage = "Authentication expired. Please sign in again.";
+        } else if (error.message.includes('413')) {
+          errorMessage = "Images are too large. Please reduce file sizes and try again.";
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
+      }
+      
+      setUploadErrors([errorMessage]);
       toast({
         title: "Training Failed", 
-        description: error.message || "Training system error. Please try again.",
+        description: errorMessage,
       });
-      onUploadComplete?.(false);
+      onUploadComplete?.(false, errorMessage);
     }
   });
 
-  // Handle file selection - extracted from simple-training
+  // Enhanced file selection with better validation and error handling
   const handleFileSelect = (e: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
+    const errors: string[] = [];
     
-    // Bulletproof validation: Strict requirements
-    const validFiles = files.filter(file => {
+    // Enhanced validation with detailed error messages
+    const validFiles = files.filter((file, index) => {
       const isImage = file.type.startsWith('image/');
       const isUnder10MB = file.size <= 10 * 1024 * 1024;
       const isMinSize = file.size >= 10240; // At least 10KB for quality
-      return isImage && isUnder10MB && isMinSize;
+      const hasValidExtension = /\.(jpg|jpeg|png|webp)$/i.test(file.name);
+      
+      if (!isImage || !hasValidExtension) {
+        errors.push(`File ${index + 1}: Invalid image format. Please use JPG, PNG, or WebP.`);
+        return false;
+      }
+      
+      if (!isMinSize) {
+        errors.push(`File ${index + 1}: Image too small. Please use higher quality images.`);
+        return false;
+      }
+      
+      if (!isUnder10MB) {
+        errors.push(`File ${index + 1}: Image too large (${Math.round(file.size / 1024 / 1024)}MB). Maximum 10MB per image.`);
+        return false;
+      }
+      
+      return true;
     });
     
-    if (validFiles.length !== files.length) {
+    // Update error state
+    if (errors.length > 0) {
+      setUploadErrors(errors);
       toast({
-        title: "Invalid files",
-        description: "Please upload only high-quality image files (10KB-10MB).",
+        title: "Invalid Files",
+        description: `${errors.length} file(s) rejected. Please check the requirements.`,
+      });
+    } else {
+      setUploadErrors([]); // Clear errors if all files are valid
+    }
+    
+    // Check for duplicate files
+    const newValidFiles = validFiles.filter(file => 
+      !selfieImages.some(existing => 
+        existing.name === file.name && existing.size === file.size
+      )
+    );
+    
+    if (newValidFiles.length !== validFiles.length) {
+      toast({
+        title: "Duplicate Files",
+        description: "Some files were already selected and have been skipped.",
       });
     }
     
-    setSelfieImages(prev => [...prev, ...validFiles]);
+    setSelfieImages(prev => [...prev, ...newValidFiles]);
+    
+    // Clear the input to allow re-selecting the same files if needed
+    if (e.target) {
+      e.target.value = '';
+    }
   };
 
   // Remove image from selection
