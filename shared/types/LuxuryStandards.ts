@@ -1,5 +1,4 @@
 // quality-testing/luxury-brand-validator.ts
-import { Component } from 'react';
 
 export interface LuxuryStandards {
   visualExcellence: boolean;
