@@ -58,6 +58,14 @@ export default function BusinessLanding() {
       { name: 'referrer', content: 'origin-when-cross-origin' },
       { name: 'color-scheme', content: 'light dark' },
       { property: 'fb:app_id', content: '' }, // Add when Facebook integration is ready
+      
+      // Enhanced business-focused meta tags
+      { name: 'geo.region', content: 'EU' },
+      { name: 'geo.placename', content: 'Europe' },
+      { name: 'business.contact_data.street_address', content: 'Online Service' },
+      { name: 'business.contact_data.locality', content: 'Europe' },
+      { name: 'business.contact_data.region', content: 'EU' },
+      { name: 'business.contact_data.email', content: 'hello@sselfie.ai' },
     ];
 
     // Set canonical URL
@@ -319,7 +327,7 @@ export default function BusinessLanding() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white" itemScope itemType="https://schema.org/WebPage">
       {/* Business Navigation with Mobile Support */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-md" role="navigation" aria-label="Main navigation">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
@@ -332,8 +340,11 @@ export default function BusinessLanding() {
               tabIndex={0}
               aria-label="SSELFIE home"
               onKeyDown={(e) => e.key === 'Enter' && setLocation("/")}
+              itemProp="publisher"
+              itemScope
+              itemType="https://schema.org/Organization"
             >
-              SSELFIE
+              <span itemProp="name">SSELFIE</span>
             </div>
 
             {/* Desktop Navigation */}
@@ -378,7 +389,7 @@ export default function BusinessLanding() {
       </nav>
 
       {/* HERO - Optimized Layout */}
-      <section className="relative min-h-screen bg-black text-white overflow-hidden">
+      <section className="relative min-h-screen bg-black text-white overflow-hidden" itemScope itemType="https://schema.org/Service">
         <div className="absolute inset-0 opacity-60">
           <OptimizedImage 
             src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/undefined/undefined_1756382691095.png"
@@ -401,6 +412,7 @@ export default function BusinessLanding() {
                   fontFamily: "Times New Roman, serif",
                   fontSize: 'clamp(2rem, 8vw, 4.5rem)'
                 }}
+                itemProp="name"
               >
                 Professional photos from your selfies
               </h1>
@@ -409,7 +421,8 @@ export default function BusinessLanding() {
                  style={{
                    fontSize: 'clamp(1rem, 4vw, 1.25rem)',
                    color: 'rgba(255, 255, 255, 0.8)'
-                 }}>
+                 }}
+                 itemProp="description">
                 Upload 15 selfies once. Get 100+ fresh brand photos every month.
               </p>
 
@@ -591,21 +604,23 @@ export default function BusinessLanding() {
       </section>
 
       {/* PRICING */}
-      <section className="py-20 sm:py-32 bg-gray-50">
+      <section className="py-20 sm:py-32 bg-gray-50" itemScope itemType="https://schema.org/PriceSpecification">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="space-y-8">
             {/* Individual Plan */}
-            <div className="bg-gray-50 border border-gray-200 p-8">
+            <div className="bg-gray-50 border border-gray-200 p-8" itemScope itemType="https://schema.org/Offer">
               <div className="text-center border-b border-gray-200 pb-6 mb-6">
                 <h3 
                   className="font-serif text-2xl font-light mb-2 text-black"
                   style={{ fontFamily: "Times New Roman, serif" }}
+                  itemProp="name"
                 >
                   Personal Brand Studio
                 </h3>
                 <div className="flex items-baseline justify-center">
-                  <span className="text-4xl font-light text-black">€47</span>
+                  <span className="text-4xl font-light text-black" itemProp="price" content="47">€47</span>
                   <span className="text-lg text-gray-600 ml-2">monthly</span>
+                  <meta itemProp="priceCurrency" content="EUR" />
                 </div>
                 <p className="text-sm text-gray-500 mt-2">versus €1500+ traditional photoshoots</p>
               </div>
