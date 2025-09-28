@@ -190,25 +190,30 @@ export class ErrorHandler {
    * Get error message
    */
   private getErrorMessage(error: Error): string {
-    // Don't expose internal error details in production
-    if (process.env.NODE_ENV === 'production') {
-      const message = error.message.toLowerCase();
-      
-      if (message.includes('validation')) return 'Validation failed';
-      if (message.includes('unauthorized')) return 'Unauthorized access';
-      if (message.includes('forbidden')) return 'Access forbidden';
-      if (message.includes('not found')) return 'Resource not found';
-      if (message.includes('duplicate')) return 'Duplicate entry';
-      if (message.includes('timeout')) return 'Request timeout';
-      if (message.includes('database')) return 'Database error occurred';
-      if (message.includes('connection')) return 'Connection error occurred';
-      if (message.includes('memory')) return 'Memory error occurred';
-      if (message.includes('fatal')) return 'Fatal error occurred';
+    const message = error.message.toLowerCase();
+    return this.sanitizeMessage(message);
+  }
 
-      return 'An internal error occurred';
+  private maskSensitiveData(error: Error): void {
+    if (process.env['NODE_ENV'] === 'production') {
+      // Mask sensitive data in production
+      error.message = this.sanitizeMessage(error.message.toLowerCase());
     }
+  }
 
-    return error.message;
+  private sanitizeMessage(message: string): string {
+    if (message.includes('validation')) return 'Validation failed';
+    if (message.includes('unauthorized')) return 'Unauthorized access';
+    if (message.includes('forbidden')) return 'Access forbidden';
+    if (message.includes('not found')) return 'Resource not found';
+    if (message.includes('duplicate')) return 'Duplicate entry';
+    if (message.includes('timeout')) return 'Request timeout';
+    if (message.includes('database')) return 'Database error occurred';
+    if (message.includes('connection')) return 'Connection error occurred';
+    if (message.includes('memory')) return 'Memory error occurred';
+    if (message.includes('fatal')) return 'Fatal error occurred';
+
+    return 'An internal error occurred';
   }
 
   /**

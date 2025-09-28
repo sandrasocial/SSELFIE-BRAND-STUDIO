@@ -35,7 +35,7 @@ export class Logger {
   constructor(service: string) {
     this.service = service;
     this.enabled = true;
-    this.logLevel = (process.env.LOG_LEVEL as any) || 'info';
+    this.logLevel = (process.env['LOG_LEVEL'] as any) || 'info';
   }
 
   /**
@@ -86,8 +86,8 @@ export class Logger {
       level,
       message,
       service: this.service,
-      environment: process.env.NODE_ENV || 'development',
-      version: process.env.npm_package_version || '1.0.0',
+      environment: process.env['NODE_ENV'] || 'development',
+      version: process.env['npm_package_version'] || '1.0.0',
       ...metadata,
     };
 

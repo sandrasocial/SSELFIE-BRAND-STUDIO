@@ -6,23 +6,23 @@
 export class FeatureFlags {
   private static flags: Record<string, boolean> = {
     // Phase 1: Safety and Error Handling
-    NEW_ERROR_HANDLING: process.env.NEW_ERROR_HANDLING === 'true',
-    ENHANCED_LOGGING: process.env.ENHANCED_LOGGING === 'true',
-    REQUEST_MONITORING: process.env.REQUEST_MONITORING === 'true',
+    NEW_ERROR_HANDLING: process.env['NEW_ERROR_HANDLING'] === 'true',
+    ENHANCED_LOGGING: process.env['ENHANCED_LOGGING'] === 'true',
+    REQUEST_MONITORING: process.env['REQUEST_MONITORING'] === 'true',
     
-    // Phase 2: Architecture Improvements
-    UNIFIED_AI_SERVICE: process.env.UNIFIED_AI_SERVICE === 'true',
-    ROUTE_CONSOLIDATION: process.env.ROUTE_CONSOLIDATION === 'true',
-    DATABASE_ABSTRACTION: process.env.DATABASE_ABSTRACTION === 'true',
+    // AI service configuration
+    UNIFIED_AI_SERVICE: process.env['UNIFIED_AI_SERVICE'] === 'true',
+    ROUTE_CONSOLIDATION: process.env['ROUTE_CONSOLIDATION'] === 'true',
+    DATABASE_ABSTRACTION: process.env['DATABASE_ABSTRACTION'] === 'true',
     
-    // Phase 3: Modernization
-    COMPREHENSIVE_TESTING: process.env.COMPREHENSIVE_TESTING === 'true',
-    PERFORMANCE_MONITORING: process.env.PERFORMANCE_MONITORING === 'true',
-    SECURITY_HARDENING: process.env.SECURITY_HARDENING === 'true',
+    // Testing and monitoring
+    COMPREHENSIVE_TESTING: process.env['COMPREHENSIVE_TESTING'] === 'true',
+    PERFORMANCE_MONITORING: process.env['PERFORMANCE_MONITORING'] === 'true',
+    SECURITY_HARDENING: process.env['SECURITY_HARDENING'] === 'true',
     
-    // Development flags
-    DEBUG_MODE: process.env.NODE_ENV === 'development',
-    VERBOSE_LOGGING: process.env.VERBOSE_LOGGING === 'true',
+    // Development
+    DEBUG_MODE: process.env['NODE_ENV'] === 'development',
+    VERBOSE_LOGGING: process.env['VERBOSE_LOGGING'] === 'true',
   };
 
   /**

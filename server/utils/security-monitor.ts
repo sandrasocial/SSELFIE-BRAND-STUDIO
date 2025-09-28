@@ -458,8 +458,8 @@ export class SecurityMonitor {
     const event: SecurityEvent = {
       timestamp: new Date().toISOString(),
       eventId: this.generateEventId(),
-      environment: process.env.NODE_ENV || 'development',
-      version: process.env.npm_package_version || '1.0.0',
+      environment: process.env['NODE_ENV'] || 'development',
+      version: process.env['npm_package_version'] || '1.0.0',
       ...eventData,
     };
 
@@ -499,8 +499,8 @@ export class SecurityMonitor {
   private async sendSecurityAlert(event: SecurityEvent): Promise<void> {
     try {
       // Send to Slack
-      if (process.env.SLACK_WEBHOOK_URL) {
-        await fetch(process.env.SLACK_WEBHOOK_URL, {
+      if (process.env['SLACK_WEBHOOK_URL']) {
+        await fetch(process.env['SLACK_WEBHOOK_URL'], {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -523,7 +523,7 @@ export class SecurityMonitor {
       }
 
       // Send to email (if configured)
-      if (process.env.SECURITY_EMAIL) {
+      if (process.env['SECURITY_EMAIL']) {
         // This would integrate with your email service
         this.logger.info('Security alert email sent', { eventId: event.eventId });
       }

@@ -46,39 +46,68 @@ export class ErrorHandlingSystem {
 
     const { error, req, res, userId, sessionId, additionalData } = context;
 
-    // Log error
+        // Log error
     this.logger.error('Application error occurred', {
-      message: error.message,
-      stack: error.stack,
+      error: error.message,
+      code: this.getErrorCode(error),
+      category: this.determineCategory(error),
+      severity: this.determineSeverity(error),
       userId,
       sessionId,
-      endpoint: req?.path,
-      method: req?.method,
+      timestamp: new Date().toISOString(),
+      stack: error.stack,
       additionalData,
     });
 
-    // Use error handler
-    errorHandler.handleError(context);
+    // Track error
+    const errorId = errorTracker.trackError(error, {
+      req,
+      res,
+      userId,
+      severity: this.determineSeverity(error),
+      category: this.determineCategory(error),
+      additionalData,
+    });
 
-    // Send error response if response object is available
+    // Mask sensitive data in production
+    if (process.env['NODE_ENV'] === 'production') {
+      error.message = this.sanitizeMessage(error.message);
+    }
+
+    // Send response if possible
     if (res && !res.headersSent) {
-      const errorResponse = this.createErrorResponse(error);
+      const errorResponse: ErrorResponse = {
+        success: false,
+        error: {
+          code: this.getErrorCode(error),
+          message: this.getErrorMessage(error),
+          details: this.getErrorDetails(error),
+          timestamp: new Date().toISOString(),
+          requestId: errorId,
+        },
+      };
+
       res.status(this.getStatusCode(error)).json(errorResponse);
     }
   }
 
   /**
-   * Create error response
+   * Express error handling middleware
    */
-  private createErrorResponse(error: Error): ErrorResponse {
-    return {
-      success: false,
-      error: {
-        code: this.getErrorCode(error),
-        message: this.getErrorMessage(error),
-        details: this.getErrorDetails(error),
-        timestamp: new Date().toISOString(),
-      },
+  public expressErrorHandler() {
+    return (
+      err: Error,
+      req: Request,
+      res: Response,
+      next: NextFunction
+    ): void => {
+      this.handleError({
+        error: err,
+        req,
+        res,
+        userId: (req as any).user?.id,
+        sessionId: req.session?.id,
+      });
     };
   }
 
@@ -106,9 +135,66 @@ export class ErrorHandlingSystem {
    * Get error message
    */
   private getErrorMessage(error: Error): string {
-    // Don't expose internal error details in production
-    if (process.env.NODE_ENV === 'production') {
-      const message = error.message.toLowerCase();
+    const message = error.message.toLowerCase();
+    return this.sanitizeMessage(message);
+  }
+
+  private sanitizeMessage(message: string): string {
+    if (message.includes('validation')) return 'Validation failed';
+    if (message.includes('unauthorized')) return 'Unauthorized access';
+    if (message.includes('forbidden')) return 'Access forbidden';
+    if (message.includes('not found')) return 'Resource not found';
+    if (message.includes('duplicate')) return 'Duplicate entry';
+    if (message.includes('timeout')) return 'Request timeout';
+    if (message.includes('database')) return 'Database error occurred';
+    if (message.includes('connection')) return 'Connection error occurred';
+    if (message.includes('memory')) return 'Memory error occurred';
+    if (message.includes('fatal')) return 'Fatal error occurred';
+
+    return 'An internal error occurred';
+  }
+
+  private getErrorDetails(error: Error): any {
+    if (process.env['NODE_ENV'] === 'production') {
+      return undefined;
+    }
+
+    return {
+      stack: error.stack,
+      name: error.name,
+    };
+  }
+  }
+
+    return 'INTERNAL_ERROR';
+  }
+
+  private getErrorMessage(error: Error): string {
+    const message = error.message.toLowerCase();
+    return this.sanitizeMessage(message);
+  }
+
+  private sanitizeMessage(message: string): string {
+    if (message.includes('validation')) return 'Validation failed';
+    if (message.includes('unauthorized')) return 'Unauthorized access';
+    if (message.includes('forbidden')) return 'Access forbidden';
+    if (message.includes('not found')) return 'Resource not found';
+    if (message.includes('duplicate')) return 'Duplicate entry';
+    if (message.includes('timeout')) return 'Request timeout';
+    if (message.includes('database')) return 'Database error occurred';
+    if (message.includes('connection')) return 'Connection error occurred';
+    if (message.includes('memory')) return 'Memory error occurred';
+    if (message.includes('fatal')) return 'Fatal error occurred';
+
+    return 'An internal error occurred';
+  }
+
+  /**
+   * Get error message
+   */
+  private maskSensitiveData(error: Error): void {
+    if (process.env['NODE_ENV'] === 'production') {
+      // Mask sensitive data in production
       
       if (message.includes('validation')) return 'Validation failed';
       if (message.includes('unauthorized')) return 'Unauthorized access';
