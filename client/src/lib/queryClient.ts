@@ -34,7 +34,7 @@ export async function apiRequest(
       'Cache-Control': 'no-cache',
       ...authHeader,
     },
-    body: data ? JSON.stringify(data) : undefined,
+    body: data ? JSON.stringify(data) : null,
     credentials: "include",
   });
 

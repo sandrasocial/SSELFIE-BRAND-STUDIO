@@ -18,9 +18,9 @@ console.log('SSELFIE Studio: Main.tsx loading...');
 console.log('SSELFIE Studio: Root element found:', !!document.getElementById("root"));
 
 // Disable Vite HMR to prevent WebSocket connection errors
-if ((import.meta as any).hot) {
+if (import.meta.hot) {
   console.log('Disabling HMR to prevent connection issues');
-  (import.meta as any).hot.accept(() => {
+  import.meta.hot.accept(() => {
     // Accept all hot updates without triggering WebSocket connections
   });
 }
