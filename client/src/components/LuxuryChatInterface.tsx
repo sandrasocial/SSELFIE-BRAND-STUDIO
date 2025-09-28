@@ -182,7 +182,22 @@ export function LuxuryConceptCard({ concept }: { concept: ConceptCard }) {
 }
 
 /**
- * LuxuryChatInterface Component - Clean Demo Style
+ * LuxuryChatInterface Component - Production Implementation
+ * 
+ * A clean, luxury-styled chat interface for interacting with Maya AI.
+ * Features:
+ * - Real-time chat with Maya AI Creative Director
+ * - Style selection with gender-aware context
+ * - Image generation capabilities
+ * - Responsive design for mobile and desktop
+ * - Error handling and loading states
+ * - Accessibility features
+ * 
+ * Dependencies:
+ * - useMayaChat: Chat functionality and state management
+ * - StyleSelector: Brand style selection component
+ * - GeneratedImagePreview: Image display and management
+ * - BrandStyleCollection: Type definitions for styling
  */
 export function LuxuryChatInterface() {
   const { messages, sendMessage, isTyping } = useMayaChat();
@@ -196,42 +211,54 @@ export function LuxuryChatInterface() {
   }, [messages]);
 
   const handleStyleSelect = async (style: BrandStyleCollection) => {
-    setSelectedStyle(style);
-    setShowStyleSelector(false);
-    
-    let genderContext = '';
     try {
-      const response = await fetch('/api/me', {
-        credentials: 'include'
-      });
-      if (response.ok) {
-        const userData = await response.json();
-        const userGender = userData.user?.gender;
-        if (userGender) {
-          if (userGender.toLowerCase().includes('female') || userGender === 'woman') {
-            genderContext = 'As a woman, ';
-          } else if (userGender.toLowerCase().includes('male') || userGender === 'man') {
-            genderContext = 'As a man, ';
-          } else if (userGender.toLowerCase().includes('non-binary') || userGender === 'non-binary') {
-            genderContext = 'As a non-binary person, ';
+      setSelectedStyle(style);
+      setShowStyleSelector(false);
+      
+      let genderContext = '';
+      try {
+        const response = await fetch('/api/me', {
+          credentials: 'include'
+        });
+        if (response.ok) {
+          const userData = await response.json();
+          const userGender = userData.user?.gender;
+          if (userGender) {
+            if (userGender.toLowerCase().includes('female') || userGender === 'woman') {
+              genderContext = 'As a woman, ';
+            } else if (userGender.toLowerCase().includes('male') || userGender === 'man') {
+              genderContext = 'As a man, ';
+            } else if (userGender.toLowerCase().includes('non-binary') || userGender === 'non-binary') {
+              genderContext = 'As a non-binary person, ';
+            }
           }
         }
+      } catch (error) {
+        console.warn('Could not fetch user gender context:', error);
+        // Non-blocking error - continue without gender context
       }
-    } catch {
-      // Could not fetch gender context (non-blocking)
-    }
-    
-    const styleMessage = `${genderContext}I've chosen the "${style.name}" style (styleKey: ${style.id}). ${style.description}
+      
+      const styleMessage = `${genderContext}I've chosen the "${style.name}" style (styleKey: ${style.id}). ${style.description}
 
 Please create photo concepts that match this signature look, drawing from your ${style.name} expertise with ${style.aesthetic.toLowerCase()}.`;
-    sendMessage(styleMessage);
+      
+      await sendMessage(styleMessage);
+    } catch (error) {
+      console.error('Error selecting style:', error);
+      // Could add toast notification here if needed
+    }
   };
 
-  const handleSendMessage = (e: React.FormEvent) => {
+  const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (inputValue.trim() && !isTyping) {
-      sendMessage(inputValue.trim());
-      setInputValue('');
+      try {
+        await sendMessage(inputValue.trim());
+        setInputValue('');
+      } catch (error) {
+        console.error('Error sending message:', error);
+        // Message will remain in input for retry
+      }
     }
   };
 
@@ -366,13 +393,14 @@ Please create photo concepts that match this signature look, drawing from your $
               type="text" 
               value={inputValue} 
               onChange={(e) => setInputValue(e.target.value)} 
-              placeholder="Describe your vision to Maya..." 
-              className="w-full px-4 py-3 bg-neutral-800/30 border border-neutral-700/30 rounded-lg text-neutral-200 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-neutral-600/50 pr-12"
+              placeholder={isTyping ? "Maya is typing..." : "Describe your vision to Maya..."} 
+              className="w-full px-4 py-3 bg-neutral-800/30 border border-neutral-700/30 rounded-lg text-neutral-200 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-neutral-600/50 pr-12 disabled:opacity-50"
               disabled={isTyping}
               autoComplete="off"
               autoCorrect="off"
               autoCapitalize="off"
               spellCheck="false"
+              aria-label="Message to Maya"
             />
             <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
               <Camera size={16} className="text-neutral-500" strokeWidth={1.5} />
@@ -382,6 +410,7 @@ Please create photo concepts that match this signature look, drawing from your $
             type="submit" 
             className="px-4 py-3 bg-neutral-200 text-black rounded-lg font-light transition-all duration-200 hover:bg-neutral-300 disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={isTyping || !inputValue.trim()}
+            aria-label="Send message"
           >
             <Send size={16} strokeWidth={1.5} />
           </button>
