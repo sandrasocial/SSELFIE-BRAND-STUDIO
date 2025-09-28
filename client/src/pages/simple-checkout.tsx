@@ -1,94 +1,267 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { MemberNavigation } from '../components/member-navigation.js';
-import { apiRequest } from "../lib/queryClient.js";
-import { useToast } from "../hooks/use-toast.js";
+import { CheckoutErrorBoundary } from '../components/checkout-error-boundary.js';
+import { CheckoutLoading, PaymentProgressIndicator } from '../components/ui/checkout-loading.js';
+import { PaymentConfirmationModal, PaymentConfirmationData } from '../components/ui/payment-confirmation-modal.js';
+import { useEnhancedToast } from "../hooks/enhanced-toast.js";
 import { useLocation } from 'wouter';
+import { 
+  validateEmailRealtime, 
+  validateCheckoutForm, 
+  type CheckoutFormData,
+  type CheckoutValidationResult
+} from '../utils/checkout-validation.js';
+import { 
+  checkoutApiRequest, 
+  checkNetworkConnectivity,
+  classifyError
+} from '../utils/api-client.js';
+import { 
+  getStripeConfig, 
+  logConfigurationStatus,
+  ConfigurationError
+} from '../utils/env-config.js';
+
+type ProcessingStep = 'idle' | 'validation' | 'processing' | 'complete';
 
 export default function SimpleCheckout() {
-  const { toast } = useToast();
+  const toast = useEnhancedToast();
   const [, setLocation] = useLocation();
-  const [isProcessing, setIsProcessing] = useState(false);
+  
+  // State management
   const [email, setEmail] = useState('');
+  const [processingStep, setProcessingStep] = useState<ProcessingStep>('idle');
+  const [emailValidation, setEmailValidation] = useState({ isValid: false, status: 'empty' as const, message: '' });
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+  const [networkConnected, setNetworkConnected] = useState(true);
+  const [configurationValid, setConfigurationValid] = useState(true);
 
+  // Configuration
+  const plan = 'sselfie-studio';
+  const amount = 47;
+  const isProcessing = processingStep !== 'idle';
+
+  // Initialize configuration check
+  useEffect(() => {
+    logConfigurationStatus();
+    
+    try {
+      const stripeConfig = getStripeConfig();
+      if (!stripeConfig) {
+        setConfigurationValid(false);
+        toast.showConfigurationErrorToast();
+      }
+    } catch (error) {
+      setConfigurationValid(false);
+      toast.showConfigurationErrorToast();
+    }
+
+    // Check network connectivity
+    checkNetworkConnectivity().then(setNetworkConnected);
+  }, []);
+
+  // Real-time email validation
+  useEffect(() => {
+    if (email) {
+      const validation = validateEmailRealtime(email);
+      setEmailValidation(validation);
+    } else {
+      setEmailValidation({ isValid: false, status: 'empty', message: '' });
+    }
+  }, [email]);
+
+  // Enhanced form validation
+  const validateForm = (): CheckoutValidationResult => {
+    const formData: CheckoutFormData = {
+      email: email.trim(),
+      amount,
+      plan
+    };
+    
+    return validateCheckoutForm(formData);
+  };
+
+  // Enhanced checkout handler with better error handling
   const handleStripeCheckout = async () => {
-    if (!email) {
-      toast({
-        title: "Email Required",
-        description: "Please enter your email address to continue.",
-      });
+    // Pre-validation
+    const validation = validateForm();
+    
+    if (!validation.isValid) {
+      const firstError = Object.entries(validation.errors)[0];
+      if (firstError) {
+        toast.showValidationToast(firstError[0], firstError[1]);
+      }
       return;
     }
-    setIsProcessing(true);
+
+    // Show email suggestions if any
+    if (validation.suggestions?.email) {
+      toast.showWarningToast(
+        `Did you mean ${validation.suggestions.email[0]}?`
+      );
+      return;
+    }
+
+    // Check configuration
+    if (!configurationValid) {
+      toast.showConfigurationErrorToast();
+      return;
+    }
+
+    // Check network connectivity
+    if (!networkConnected) {
+      toast.showNetworkErrorToast(() => handleStripeCheckout());
+      return;
+    }
+
+    // Show confirmation modal
+    setShowConfirmationModal(true);
+  };
+
+  // Confirmed checkout process
+  const handleConfirmedCheckout = async () => {
+    setShowConfirmationModal(false);
+    setProcessingStep('validation');
     
     try {
       // Store email for auto-registration
       localStorage.setItem('checkout-email', email);
       
-      // Create Stripe checkout session instead of payment intent
-      const data = await apiRequest("/api/create-checkout-session", "POST", {
-        plan: "sselfie-studio", // Use the correct plan name
-        customerEmail: email, // Pass email to Stripe
-        successUrl: `${window.location.origin}/payment-success?plan=sselfie-studio&email=${encodeURIComponent(email)}`,
+      setProcessingStep('processing');
+
+      // Create Stripe checkout session with enhanced error handling
+      const data = await checkoutApiRequest("/api/create-checkout-session", "POST", {
+        plan,
+        customerEmail: email,
+        successUrl: `${window.location.origin}/payment-success?plan=${plan}&email=${encodeURIComponent(email)}`,
         cancelUrl: `${window.location.origin}/simple-checkout`,
       });
 
       console.log('🔍 Checkout response:', data);
       
       if (data.url) {
-        // Redirect to Stripe hosted checkout
-        window.location.href = data.url;
+        setProcessingStep('complete');
+        // Small delay to show completion state
+        setTimeout(() => {
+          window.location.href = data.url;
+        }, 1000);
       } else {
-        throw new Error('No checkout URL received');
+        throw new Error('No checkout URL received from server');
       }
     } catch (error) {
       console.error('Checkout error:', error);
-      toast({
-        title: "Checkout Error",
-        description: "Unable to start checkout process. Please try again.",
-        
-      });
-      setIsProcessing(false);
+      setProcessingStep('idle');
+      
+      const classification = classifyError(error as Error);
+      
+      if (classification.type === 'network') {
+        toast.showNetworkErrorToast(() => handleConfirmedCheckout());
+      } else {
+        toast.showPaymentErrorToast(error as Error, () => handleConfirmedCheckout());
+      }
     }
   };
 
+  // Enhanced test payment handler
   const handleTestPayment = async () => {
-    if (!email) {
-      toast({
-        title: "Email Required",
-        description: "Please enter your email address to continue.",
-      });
+    const validation = validateForm();
+    
+    if (!validation.isValid) {
+      const firstError = Object.entries(validation.errors)[0];
+      if (firstError) {
+        toast.showValidationToast(firstError[0], firstError[1]);
+      }
       return;
     }
     
-    setIsProcessing(true);
+    setProcessingStep('validation');
     
     try {
-      // Store email for auto-registration
       localStorage.setItem('checkout-email', email);
       
-      // For testing - simulate successful payment
+      setProcessingStep('processing');
+      
+      // Simulate processing time
       await new Promise(resolve => setTimeout(resolve, 2000));
       
-      toast({
-        title: "Test Payment Successful",
-        description: "Redirecting to your workspace...",
-      });
+      setProcessingStep('complete');
       
-      // Redirect to payment success page with email
-      setLocation(`/payment-success?plan=sselfie-studio&email=${encodeURIComponent(email)}`);
+      toast.showPaymentSuccessToast();
+      
+      setTimeout(() => {
+        setLocation(`/payment-success?plan=${plan}&email=${encodeURIComponent(email)}`);
+      }, 1500);
     } catch (error) {
       console.error('Test payment error:', error);
-      setIsProcessing(false);
+      setProcessingStep('idle');
+      toast.showErrorToast('Test payment failed. Please try again.');
     }
   };
 
-  return (
-    <div className="min-h-screen" style={{ 
+  // Get email input styling based on validation state
+  const getEmailInputStyle = () => {
+    const baseStyle = {
+      width: '100%',
+      padding: '16px 20px',
+      fontSize: '16px',
+      border: '1px solid #e8e8e8',
       background: '#ffffff',
-      fontFamily: 'Helvetica Neue, -apple-system, BlinkMacSystemFont, Segoe UI, Arial, sans-serif',
+      fontFamily: 'Helvetica Neue, Arial, sans-serif',
       fontWeight: 300,
-      color: '#000000'
+      outline: 'none',
+      transition: 'border-color 300ms ease'
+    };
+
+    if (emailValidation.status === 'valid') {
+      return { ...baseStyle, borderColor: '#10b981' };
+    }
+    
+    if (emailValidation.status === 'invalid') {
+      return { ...baseStyle, borderColor: '#ef4444' };
+    }
+    
+    return baseStyle;
+  };
+
+  // Render loading state
+  if (isProcessing) {
+    return (
+      <CheckoutErrorBoundary>
+        <div className="min-h-screen" style={{ 
+          background: '#ffffff',
+          fontFamily: 'Helvetica Neue, -apple-system, BlinkMacSystemFont, Segoe UI, Arial, sans-serif',
+        }}>
+          <MemberNavigation />
+          
+          <main className="flex items-center justify-center min-h-screen p-4">
+            <div className="max-w-md w-full text-center">
+              <PaymentProgressIndicator step={processingStep === 'validation' ? 'validation' : processingStep === 'processing' ? 'processing' : 'complete'} />
+              <CheckoutLoading variant={processingStep === 'validation' ? 'validation' : 'processing'} />
+            </div>
+          </main>
+        </div>
+      </CheckoutErrorBoundary>
+    );
+  }
+
+  const confirmationData: PaymentConfirmationData = {
+    plan,
+    amount,
+    email: email.trim(),
+    currency: 'EUR'
+  };
+
+  return (
+    <CheckoutErrorBoundary onError={(error) => {
+      console.error('Checkout boundary error:', error);
+      toast.showErrorToast('A critical error occurred. The page will reload.');
     }}>
+      <div className="min-h-screen" style={{ 
+        background: '#ffffff',
+        fontFamily: 'Helvetica Neue, -apple-system, BlinkMacSystemFont, Segoe UI, Arial, sans-serif',
+        fontWeight: 300,
+        color: '#000000'
+      }}>
       <MemberNavigation />
       
       {/* Luxury Header Section - Mobile Responsive */}
@@ -173,21 +346,47 @@ export default function SimpleCheckout() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email address"
-                style={{
-                  width: '100%',
-                  padding: '16px 20px',
-                  fontSize: '16px',
-                  border: '1px solid #e8e8e8',
-                  background: '#ffffff',
-                  fontFamily: 'Helvetica Neue, Arial, sans-serif',
-                  fontWeight: 300,
-                  outline: 'none',
-                  transition: 'border-color 300ms ease'
+                style={getEmailInputStyle()}
+                onFocus={(e) => {
+                  if (emailValidation.status !== 'invalid') {
+                    (e.target as HTMLElement).style.borderColor = '#757575';
+                  }
                 }}
-                onFocus={(e) => e.target.style.borderColor = '#757575'}
-                onBlur={(e) => e.target.style.borderColor = '#e8e8e8'}
+                onBlur={(e) => {
+                  if (emailValidation.status === 'valid') {
+                    (e.target as HTMLElement).style.borderColor = '#10b981';
+                  } else if (emailValidation.status === 'invalid') {
+                    (e.target as HTMLElement).style.borderColor = '#ef4444';
+                  } else {
+                    (e.target as HTMLElement).style.borderColor = '#e8e8e8';
+                  }
+                }}
                 required
               />
+              
+              {/* Email validation feedback */}
+              {email && (
+                <div className="mt-2 text-xs">
+                  {emailValidation.status === 'valid' && (
+                    <div className="text-green-600 flex items-center">
+                      <span className="mr-1">✓</span>
+                      Valid email address
+                    </div>
+                  )}
+                  {emailValidation.status === 'invalid' && emailValidation.message && (
+                    <div className="text-red-600 flex items-center">
+                      <span className="mr-1">⚠</span>
+                      {emailValidation.message}
+                    </div>
+                  )}
+                  {emailValidation.status === 'incomplete' && (
+                    <div className="text-yellow-600 flex items-center">
+                      <span className="mr-1">⏳</span>
+                      {emailValidation.message || 'Continue typing...'}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
             
             <p style={{
@@ -289,10 +488,10 @@ export default function SimpleCheckout() {
           <div style={{ marginBottom: 'clamp(48px, 12vw, 96px)' }}>
             <button
               onClick={handleStripeCheckout}
-              disabled={isProcessing}
+              disabled={isProcessing || !emailValidation.isValid}
               style={{
                 width: '100%',
-                background: '#000000',
+                background: isProcessing || !emailValidation.isValid ? '#757575' : '#000000',
                 color: '#ffffff',
                 border: 'none',
                 padding: 'clamp(20px, 5vw, 48px) clamp(32px, 8vw, 96px)',
@@ -300,14 +499,14 @@ export default function SimpleCheckout() {
                 fontWeight: 400,
                 letterSpacing: 'clamp(0.2em, 1vw, 0.3em)',
                 textTransform: 'uppercase',
-                cursor: isProcessing ? 'not-allowed' : 'pointer',
+                cursor: isProcessing || !emailValidation.isValid ? 'not-allowed' : 'pointer',
                 transition: 'all 300ms ease',
-                opacity: isProcessing ? 0.5 : 1,
-                minHeight: '48px', // Touch-friendly minimum
-                touchAction: 'manipulation' // Prevent zoom on double-tap
+                opacity: isProcessing || !emailValidation.isValid ? 0.7 : 1,
+                minHeight: '48px',
+                touchAction: 'manipulation'
               }}
-              onMouseEnter={!isProcessing ? (e) => (e.target as HTMLElement).style.background = '#757575' : undefined}
-              onMouseLeave={!isProcessing ? (e) => (e.target as HTMLElement).style.background = '#000000' : undefined}
+              onMouseEnter={!isProcessing && emailValidation.isValid ? (e) => (e.target as HTMLElement).style.background = '#333333' : undefined}
+              onMouseLeave={!isProcessing && emailValidation.isValid ? (e) => (e.target as HTMLElement).style.background = '#000000' : undefined}
             >
               {isProcessing ? 'PROCESSING YOUR PAYMENT...' : 'SECURE PAYMENT WITH STRIPE'}
             </button>
@@ -352,6 +551,16 @@ export default function SimpleCheckout() {
           </div>
         </div>
       </main>
-    </div>
+
+      {/* Payment Confirmation Modal */}
+      <PaymentConfirmationModal
+        isOpen={showConfirmationModal}
+        onClose={() => setShowConfirmationModal(false)}
+        onConfirm={handleConfirmedCheckout}
+        data={confirmationData}
+        isProcessing={false}
+      />
+      </div>
+    </CheckoutErrorBoundary>
   );
 }
