@@ -14,8 +14,8 @@
       "src": "api/[...route].ts",
       "use": "@vercel/node",
       "config": {
-        "maxDuration": 60,
-        "memory": 1024,
+        "maxDuration": 90,
+        "memory": 2048,
         "includeFiles": [
           "api/**",
           "dist-server/**", 
@@ -78,7 +78,7 @@
     },
     {
       "src": "/(.*)",
-      "dest": "/client/dist/$1",
+      "dest": "$1",
       "headers": {
         "Cache-Control": "public, max-age=0, must-revalidate"
       }
@@ -96,7 +96,7 @@
   ],
   "build": {
     "env": {
-      "VERCEL_FORCE_NO_BUILD_CACHE": "1"
+      "NODE_OPTIONS": "--max-old-space-size=4096"
     }
   },
   "functions": {

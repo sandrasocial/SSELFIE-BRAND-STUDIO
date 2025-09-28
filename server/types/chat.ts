@@ -4,11 +4,50 @@ export interface MayaChatCreateInput {
   userId: string;
   chatTitle: string;
   initialMessage?: string;
+  metadata?: Record<string, unknown>;
 }
 
-import type { BaseChatMessage } from '../../shared/types/unified-chat.js';
+// Base chat message interface
+export interface BaseChatMessage {
+  id: string;
+  content: string;
+  role: string;
+  timestamp: Date;
+  context?: string;
+  metadata?: Record<string, unknown>;
+}
 
-export type ChatMessageRole = BaseChatMessage['role'];
+// Victoria message type
+export interface VictoriaMessage extends BaseChatMessage {
+  role: 'victoria';
+}
+
+// User message type
+export interface UserMessage extends BaseChatMessage {
+  role: 'user';
+}
+
+// Database Claude message type
+export interface DbClaudeMessage {
+  id: number;
+  role: string;
+  metadata?: unknown;
+  content: string;
+  createdAt?: Date | null;
+  conversationId: string;
+  toolCalls?: unknown;
+  toolResults?: unknown;
+  timestamp?: Date | null;
+}
+
+// Claude message type
+export interface ClaudeMessage extends Omit<BaseChatMessage, 'id'>, Omit<DbClaudeMessage, 'metadata'> {
+  role: string;
+  content: string;
+  metadata?: Record<string, unknown>;
+}
+
+export type ChatMessageRole = 'user' | 'victoria' | 'claude' | 'system';
 
 // Base server chat types (using numeric IDs)
 export interface ServerChatMessageInput {

@@ -12,7 +12,7 @@
     "noFallthroughCasesInSwitch": true,
     "noImplicitReturns": true,
     "noImplicitOverride": true,
-    "noPropertyAccessFromIndexSignature": true,
+    "noPropertyAccessFromIndexSignature": false,
     "strictFunctionTypes": true,
     "module": "Node16",
     "moduleResolution": "node16",
@@ -33,18 +33,23 @@
       "@shared/*": ["shared/*"],
       "@assets/*": ["attached_assets/*"],
       "@server/*": ["server/*"],
-      "server/*": ["server/*"],
+      "#/*": ["server/*"],
       "@models/*": ["shared/models/*"]
     },
+    "typeRoots": [
+      "./node_modules/@types",
+      "./server/types"
+    ],
     "types": [
-      "@types/node"
+      "node"
     ]
   },
   "include": [
     "vite.config.ts",
     "client/src/**/*",
     "shared/**/*",
-    "server/**/*"
+    "server/**/*",
+    "server/types/env.d.ts"
   ],
   "exclude": [
     "node_modules",

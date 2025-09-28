@@ -4,47 +4,12 @@
  */
 
 import { Logger } from './logger.js';
-
-export interface PerformanceMetric {
-  timestamp: string;
-  operation: string;
-  duration: number;
-  memoryUsage: number;
-  cpuUsage: number;
-  success: boolean;
-  responseTime?: number; // ms, for compatibility with stats calculations
-  errorRate?: number; // for compatibility with stats calculations
-  metadata?: Record<string, any>;
-}
-
-export interface PerformanceStats {
-  // Existing fields
-  operation?: string;
-  totalCalls?: number;
-  successRate?: number;
-  averageDuration?: number;
-  minDuration?: number;
-  maxDuration?: number;
-  p95Duration?: number;
-  p99Duration?: number;
-  averageMemoryUsage?: number;
-  averageCpuUsage?: number;
-
-  // Added for dashboard/health-check compatibility
-  averageResponseTime?: number;
-  maxResponseTime?: number;
-  minResponseTime?: number;
-  errorRate?: number;
-  throughput?: number;
-  totalRequests?: number;
-  requestsPerMinute?: number;
-  requestsPerHour?: number;
-  requestsPerDay?: number;
-  p95?: number;
-  p99?: number;
-  slowestEndpoints?: any;
-  activeUsers?: number;
-}
+import {
+  PerformanceMetric,
+  PerformanceStats,
+  BasePerformanceStats,
+  DetailedPerformanceStats
+} from '../types/performance-types.js';
 
 export class PerformanceMonitor {
   private logger: Logger;
@@ -114,7 +79,7 @@ export class PerformanceMonitor {
   /**
    * Get performance statistics for an operation
    */
-  getStats(operation: string, timeWindow?: number): PerformanceStats | null {
+  getStats(operation: string, timeWindow?: number): DetailedPerformanceStats | null {
     let relevantMetrics = this.metrics.filter(m => m.operation === operation);
 
     if (timeWindow) {
@@ -147,29 +112,54 @@ export class PerformanceMonitor {
     const averageMemoryUsage = memoryUsages.reduce((sum, m) => sum + m, 0) / memoryUsages.length;
     const averageCpuUsage = cpuUsages.reduce((sum, c) => sum + c, 0) / cpuUsages.length;
 
+    // Calculate request rates
+    const firstMetric = relevantMetrics[0];
+    const lastMetric = relevantMetrics[relevantMetrics.length - 1];
+    const durationInSeconds = firstMetric && lastMetric ?
+      (new Date(lastMetric.timestamp).getTime() - new Date(firstMetric.timestamp).getTime()) / 1000 :
+      3600; // Default to 1 hour if no duration can be calculated
+
+    const requestsPerMinute = (relevantMetrics.length / durationInSeconds) * 60;
+    const requestsPerHour = requestsPerMinute * 60;
+    const requestsPerDay = requestsPerHour * 24;
+
+    // Get current resource usage
+    const currentMemory = process.memoryUsage();
+    const currentCpu = process.cpuUsage();
+
     return {
       operation,
       totalCalls,
       successRate,
       averageDuration,
-      minDuration,
-      maxDuration,
-      p95Duration,
-      p99Duration,
+      totalRequests: totalCalls,
+      averageResponseTime: averageDuration,
+      maxResponseTime: maxDuration,
+      minResponseTime: minDuration,
+      p95ResponseTime: p95Duration,
+      p99ResponseTime: p99Duration,
+      memoryUsage: currentMemory.heapUsed,
+      cpuUsage: (currentCpu.user + currentCpu.system) / 1000000,
       averageMemoryUsage,
-      averageCpuUsage
+      averageCpuUsage,
+      requestsPerMinute,
+      requestsPerHour,
+      requestsPerDay,
+      errorRate: (totalCalls - successCount) / totalCalls * 100,
+      throughput: requestsPerHour,
+      activeUsers: 0 // TODO: Implement active users tracking
     };
   }
 
   /**
    * Get performance statistics for all operations
    */
-  getAllStats(timeWindow?: number): PerformanceStats[] {
+  getAllStats(timeWindow?: number): DetailedPerformanceStats[] {
     const operations = Array.from(new Set(this.metrics.map(m => m.operation)));
     return operations
       .map(op => this.getStats(op, timeWindow))
-      .filter((stats): stats is PerformanceStats => stats !== null)
-      .sort((a, b) => b.totalCalls - a.totalCalls);
+      .filter((stats): stats is DetailedPerformanceStats => stats !== null)
+      .sort((a, b) => (b.totalCalls || 0) - (a.totalCalls || 0));
   }
 
   /**
@@ -287,20 +277,32 @@ export class PerformanceMonitor {
   /**
    * Get performance statistics for a given duration (in hours)
    */
-  getPerformanceStats(hours: number = 1): PerformanceStats {
+  getPerformanceStats(hours: number = 1): DetailedPerformanceStats {
     const cutoff = new Date(Date.now() - hours * 60 * 60 * 1000).toISOString();
     const relevantMetrics = this.metrics.filter(m => m.timestamp >= cutoff);
 
     if (relevantMetrics.length === 0) {
       return {
+        totalRequests: 0,
         averageResponseTime: 0,
         maxResponseTime: 0,
         minResponseTime: 0,
-        averageCpuUsage: 0,
+        memoryUsage: 0,
+        cpuUsage: 0,
         averageMemoryUsage: 0,
+        averageCpuUsage: 0,
+        requestsPerMinute: 0,
+        requestsPerHour: 0,
+        requestsPerDay: 0,
         errorRate: 0,
         throughput: 0,
-        totalRequests: 0,
+        p95ResponseTime: 0,
+        p99ResponseTime: 0,
+        activeUsers: 0,
+        operation: '',
+        totalCalls: 0,
+        averageDuration: 0,
+        successRate: 0
       };
     }
 
@@ -318,33 +320,46 @@ export class PerformanceMonitor {
     const maxResponseTime = responseTimesOnly.length > 0 ? Math.max(...responseTimesOnly) : 0;
     const minResponseTime = responseTimesOnly.length > 0 ? Math.min(...responseTimesOnly) : 0;
 
-    // Calculate throughput based on the duration
+    // Calculate throughput and request rates
     const firstMetric = relevantMetrics[0];
-    if (!firstMetric) {
-      return {
-        averageResponseTime: 0,
-        maxResponseTime: 0,
-        minResponseTime: 0,
-        averageCpuUsage: 0,
-        averageMemoryUsage: 0,
-        errorRate: 0,
-        throughput: 0,
-        totalRequests: 0,
-      };
-    }
-    
-    const durationInSeconds = (Date.now() - new Date(firstMetric.timestamp).getTime()) / 1000;
+    const durationInSeconds = firstMetric ? 
+      (Date.now() - new Date(firstMetric.timestamp).getTime()) / 1000 :
+      3600; // Default to 1 hour if no metrics available
     const throughput = relevantMetrics.length / (durationInSeconds / 3600); // requests per hour
+    const requestsPerMinute = relevantMetrics.length / (durationInSeconds / 60);
+    const requestsPerHour = throughput;
+    const requestsPerDay = throughput * 24;
+
+    // Get current resource usage
+    const currentMetrics = process.memoryUsage();
+    const currentCpu = process.cpuUsage();
+
+    // Calculate p95 and p99 response times from the sorted response times
+    const sortedResponseTimes = responseTimesOnly.slice().sort((a, b) => a - b);
+    const p95ResponseTime = sortedResponseTimes[Math.floor(sortedResponseTimes.length * 0.95)] ?? 0;
+    const p99ResponseTime = sortedResponseTimes[Math.floor(sortedResponseTimes.length * 0.99)] ?? 0;
 
     return {
+      totalRequests: relevantMetrics.length,
       averageResponseTime,
       maxResponseTime,
       minResponseTime,
-      averageCpuUsage,
+      memoryUsage: currentMetrics.heapUsed,
+      cpuUsage: (currentCpu.user + currentCpu.system) / 1000000, // Convert to seconds
       averageMemoryUsage,
+      averageCpuUsage,
+      requestsPerMinute,
+      requestsPerHour,
+      requestsPerDay,
       errorRate,
       throughput,
-      totalRequests: relevantMetrics.length,
+      p95ResponseTime,
+      p99ResponseTime,
+      activeUsers: 0, // TODO: Implement active users tracking
+      operation: '', // No specific operation for overall stats
+      totalCalls: relevantMetrics.length,
+      averageDuration: averageResponseTime,
+      successRate: (relevantMetrics.filter(m => m.success).length / relevantMetrics.length) * 100
     };
   }
 
@@ -368,10 +383,10 @@ export class PerformanceMonitor {
     if (stats.errorRate > 5) {
       alerts.push('High error rate detected');
     }
-    if (stats.averageCpuUsage > 80) {
+    if ((stats.averageCpuUsage ?? 0) > 80) {
       alerts.push('High CPU usage detected');
     }
-    if (stats.averageMemoryUsage > 1000) {
+    if ((stats.averageMemoryUsage ?? 0) > 1000) {
       alerts.push('High memory usage detected');
     }
 
