@@ -1,11 +1,60 @@
 // Central Validation Export
 // This file exports all validation schemas and functions
 
-// Re-export all validation schemas
+// Re-export Maya API validation
 export * from './maya-api.js';
-export * from './gallery-api.js';
-export * from './profile-api.js';
-export * from './training-api.js';
+
+// Re-export Gallery API validation (avoid conflicts)
+export {
+  imageMetadataSchema,
+  getGalleryImagesRequestSchema,
+  updateImageRequestSchema,
+  deleteImageRequestSchema,
+  batchUpdateImagesRequestSchema,
+  imageResizeOptionsSchema,
+  imageFilterOptionsSchema,
+  imageProcessingRequestSchema,
+  validateGetGalleryImagesRequest,
+  validateUpdateImageRequest,
+  validateDeleteImageRequest,
+  validateBatchUpdateImagesRequest,
+  validateImageProcessingRequest
+} from './gallery-api.js';
+
+// Re-export Profile API validation (avoid conflicts)
+export {
+  subscriptionDetailsSchema,
+  updateProfileRequestSchema,
+  updatePreferencesRequestSchema,
+  changePasswordRequestSchema,
+  updateSubscriptionRequestSchema,
+  validateUpdateProfileRequest,
+  validateUpdatePreferencesRequest,
+  validateChangePasswordRequest,
+  validateUpdateSubscriptionRequest,
+  validateEmail,
+  validatePasswordStrength,
+  userPreferencesSchema as profileUserPreferencesSchema,
+  trainingStatusSchema as profileTrainingStatusSchema
+} from './profile-api.js';
+
+// Re-export Training API validation (avoid conflicts)
+export {
+  trainingConfigurationSchema,
+  trainingImageSchema,
+  startTrainingRequestSchema,
+  updateTrainingRequestSchema,
+  cancelTrainingRequestSchema,
+  validateImagesRequestSchema,
+  imageRequirementsSchema,
+  validateStartTrainingRequest,
+  validateUpdateTrainingRequest,
+  validateCancelTrainingRequest,
+  validateImagesRequest,
+  validateImageFile,
+  validateImageDimensions,
+  trainingStatusSchema as apiTrainingStatusSchema
+} from './training-api.js';
 
 // Common validation utilities
 import { z } from 'zod';

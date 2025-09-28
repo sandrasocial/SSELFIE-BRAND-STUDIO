@@ -1,11 +1,66 @@
 // Central API Types Export
 // This file exports all API-related types for consistent imports
 
-// Re-export all API types
+// Re-export Maya API types
 export * from './maya-api.js';
-export * from './gallery-api.js';
-export * from './profile-api.js';
-export * from './training-api.js';
+
+// Re-export Gallery API types (rename conflicting types)
+export {
+  ImageMetadata,
+  GalleryImage,
+  CategoryData,
+  GalleryError,
+  GetGalleryImagesRequest,
+  UpdateImageRequest,
+  DeleteImageRequest,
+  BatchUpdateImagesRequest,
+  GalleryImagesResponse,
+  ImageUploadResponse,
+  ImageProcessingResponse,
+  ImageResizeOptions,
+  ImageFilterOptions,
+  ImageProcessingRequest
+} from './gallery-api.js';
+
+// Re-export Profile API types (avoid UserPreferences conflict)
+export {
+  SubscriptionDetails,
+  UserProfile,
+  UserPreferences as ProfileUserPreferences,
+  ProfileError,
+  UpdateProfileRequest,
+  UpdatePreferencesRequest,
+  ChangePasswordRequest,
+  UpdateSubscriptionRequest,
+  ProfileResponse,
+  PreferencesResponse,
+  SubscriptionResponse,
+  UsageResponse,
+  ProfileUpdateResponse,
+  ProfileValidationResult,
+  PreferencesValidationResult
+} from './profile-api.js';
+
+// Re-export Training API types (avoid TrainingStatus conflict)
+export {
+  TrainingStatus as ApiTrainingStatus,
+  TrainingConfiguration,
+  TrainingData,
+  TrainingImage,
+  TrainingError,
+  TrainingMetrics,
+  StartTrainingRequest,
+  UpdateTrainingRequest,
+  CancelTrainingRequest,
+  ValidateImagesRequest,
+  TrainingResponse,
+  TrainingListResponse,
+  ImageValidationResponse,
+  TrainingProgressResponse,
+  ModelResponse,
+  TrainingValidationResult,
+  ImageRequirements
+} from './training-api.js';
 
 // Common API response types
 export interface ApiResponse<T> {
