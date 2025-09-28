@@ -46,7 +46,7 @@ const VideoGenerateDialog: React.FC<VideoGenerateDialogProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [warning, setWarning] = useState<string | null>(null);
   const [job, setJob] = useState<VideoGenerationJob | null>(null);
-  const [videoStatus, setVideoStatus] = useState<'idle' | 'pending' | 'processing' | 'completed' | 'failed'>('idle');
+  const [videoStatus, setVideoStatus] = useState<'idle' | 'pending' | 'generating' | 'completed' | 'failed'>('idle');
   const [progress, setProgress] = useState(0);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [presets, setPresets] = useState<Record<GenerationMode, QualityPreset> | null>(null);
@@ -71,7 +71,7 @@ const VideoGenerateDialog: React.FC<VideoGenerateDialogProps> = ({
   useEffect(() => {
     let intervalId: NodeJS.Timeout | null = null;
 
-    if (job && (videoStatus === 'pending' || videoStatus === 'processing')) {
+    if (job && (videoStatus === 'pending' || videoStatus === 'generating')) {
       intervalId = setInterval(async () => {
         try {
           const response = await apiRequest(`/api/video/status/${job.jobId}`, 'GET');
@@ -342,11 +342,11 @@ const VideoGenerateDialog: React.FC<VideoGenerateDialogProps> = ({
 
           {/* Right Column: Video Preview */}
           <div>
-            {showVideoPreview ? (
+            {showVideoPreview && videoUrl ? (
               <VideoPreview
                 videoUrl={videoUrl}
                 posterUrl={imageUrl}
-                isLoading={videoStatus === 'pending' || videoStatus === 'processing'}
+                isLoading={videoStatus === 'pending' || videoStatus === 'generating'}
                 progress={progress}
                 status={videoStatus}
                 error={videoStatus === 'failed' ? error : null}
