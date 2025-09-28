@@ -47,10 +47,25 @@ interface Job {
     sceneNum: number;
 }
 
+interface JobStatus {
+    done: boolean;
+    progressPercent?: number;
+    state?: string;
+    videoUrl?: string;
+    error?: string;
+}
+
 
 // --- React Components ---
 
-const SceneCard = ({ scene, onPromptChange, onImageAdd, isDisabled }: { scene: Scene; onPromptChange: (id: string, prompt: string) => void; onImageAdd: (id: string, file: File) => void; isDisabled: boolean; }) => {
+interface SceneCardProps {
+  scene: Scene;
+  onPromptChange: (id: string, prompt: string) => void;
+  onImageAdd: (id: string, file: File) => void;
+  isDisabled: boolean;
+}
+
+const SceneCard: React.FC<SceneCardProps> = ({ scene, onPromptChange, onImageAdd, isDisabled }) => {
     const [fileName, setFileName] = useState('');
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -90,7 +105,11 @@ const SceneCard = ({ scene, onPromptChange, onImageAdd, isDisabled }: { scene: S
     );
 };
 
-const ResultCard = ({ result }: { result: Result }) => {
+interface ResultCardProps {
+  result: Result;
+}
+
+const ResultCard: React.FC<ResultCardProps> = ({ result }) => {
     return (
         <div className="card-with-bg" style={{ backgroundImage: `url('${getNextImage()}')` }}>
             <h4 className="spaced-title">SCENE {result.sceneNum} VIDEO</h4>
@@ -150,7 +169,7 @@ export const StoryStudio = () => {
     const pollJobStatus = (jobId: string, sceneId: string, sceneNum: number) => {
         pollingIntervals.current[jobId] = setInterval(async () => {
             try {
-                const status = await getJobStatus(jobId);
+                const status: JobStatus = await getJobStatus(jobId);
                 setResults(prev => ({
                     ...prev,
                     [sceneId]: {

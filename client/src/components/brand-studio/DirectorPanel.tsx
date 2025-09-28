@@ -1,9 +1,19 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronUp } from 'lucide-react';
 
+interface ChatMessage {
+  id: string;
+  type: 'user' | 'maya';
+  content: string;
+  timestamp: string;
+  conceptCards?: any[];
+  quickButtons?: string[];
+  isStreaming?: boolean;
+}
+
 interface DirectorPanelProps {
   mode: 'photo' | 'story';
-  messages?: any[];
+  messages?: ChatMessage[];
   isTyping?: boolean;
   message: string;
   setMessage: (message: string) => void;
