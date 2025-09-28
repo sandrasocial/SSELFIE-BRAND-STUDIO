@@ -1,0 +1,51 @@
+---
+alwaysApply: toHaveAttribute
+# 🎯 USER JOURNEY FOCUS - MAYA-ONLY CORE ARCHITECTURE DIRECTIVE
+
+## 🛑 AGENT PRIORITY OVERRIDE
+The application has been consolidated into a **single, linear, and protected user journey** managed by the `SmartHome` component which redirects to the mobile-first `/app` route.
+
+Your primary directive is to **ONLY** work on files listed under 'CRITICAL ARCHITECTURE CORE' or 'ACTIVE USER JOURNEY FILES'. All other components, features, and endpoints related to legacy features MUST be considered **OUT-OF-SCOPE** for any current task unless explicitly instructed to perform cleanup (e.g., deletion).
+
+---
+
+## 🏗️ CRITICAL ARCHITECTURE CORE (MAINTAIN & PROTECT)
+
+These files define the absolute minimum application structure, routing, and authentication. Do not rename, relocate, or fundamentally change the core purpose of these files.
+
+- **Entry Point / Router:** `client/src/App.tsx`
+- **Protected Route Wrapper:** `client/src/components/ProtectedRoute.tsx`
+- **Main App Layout:** `client/src/app_v2/SselfieAppLayout.tsx` (Handles the Tabbed UI)
+- **Tab Navigation:** `client/src/app/MobileTabLayout.tsx`
+- **Global Auth/Nav:** `client/src/components/member-navigation.tsx`, `client/src/components/global-footer.tsx`
+- **Auth Components:** `Auth.tsx`, `AuthSignIn.tsx`, `AuthSignUp.tsx` (Stack Auth components)
+
+## 🚀 ACTIVE USER JOURNEY FILES (PRIMARY FOCUS AREA)
+
+This represents the entire in-production feature set. All new development should focus here.
+
+1.  **Landing:** `client/src/pages/landing/business-landing.tsx`
+2.  **Checkout:** `client/src/pages/simple-checkout.tsx`
+3.  **Success:** `client/src/pages/payment-success.tsx`
+4.  **Training:** `client/src/pages/onboarding/simple-training.tsx`
+5.  **Studio Tab (Core Feature):** `client/src/app_v2/StudioScreen.tsx` (Handles Maya Chat/Generation)
+6.  **Gallery Tab:** `client/src/app_v2/GalleryScreen.tsx`
+7.  **Core Services:**
+    - `server/model-training-service.ts`
+    - `server/routes/modules/training.ts`
+    - `server/services/maya-memory-service.ts`
+    - `client/src/lib/api.ts` (`apiRequest` helper)
+
+---
+
+## 🗑️ DEPRECATED / OUT-OF-SCOPE (IGNORE COMPLETELY)
+
+These files/paths introduce unnecessary complexity and MUST be ignored by default by the AI agent.
+
+- **Legacy Agents/Features:** Any file containing names of other agents (`Victoria`, `Zara`, `Elena`, `Rachel`, `Ava`, `Olga`, `Martha`, `Aria`).
+- **Old Navigation/Layouts:** Everything in the `legacy/` folder.
+- **Experimental/Old Pages:** Explicit routes for `/maya` (old monolithic page), `/hair`, `/live`, `/victoria`.
+- **Non-Maya Services:** All files related to **VEO 3** (video generation) should be avoided until the core photo product is stable and explicitly prioritized.
+
+**Goal:** Clean up unused imports and delete these files as a dedicated maintenance task once core stability is achieved.
+---
