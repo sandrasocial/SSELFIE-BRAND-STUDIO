@@ -221,3 +221,202 @@ export interface MayaUserContext {
   hasCompletedOnboarding: boolean;
   currentOnboardingStep: OnboardingStep;
 }
+
+// =============================================================================
+// ADDITIONAL VALIDATION SCHEMAS - Enhanced Zod Validation
+// =============================================================================
+
+// Personal brand validation with enhanced rules
+export const personalBrandValidationSchema = z.object({
+  transformationStory: z.string().min(50, "Please provide a more detailed transformation story").optional(),
+  currentSituation: z.string().min(20, "Please describe your current situation").optional(),
+  strugglesStory: z.string().min(20, "Please share your challenges").optional(),
+  dreamOutcome: z.string().min(30, "Please describe your dream outcome").optional(),
+  futureVision: z.string().min(30, "Please share your future vision").optional(),
+  businessGoals: z.string().min(20, "Please describe your business goals").optional(),
+  targetAudience: z.string().min(20, "Please describe your target audience").optional(),
+  businessType: z.string().min(1, "Please select your business type").optional(),
+  professionalGoals: z.string().min(20, "Please describe your professional goals").optional(),
+});
+
+// Style profile validation with detailed constraints
+export const styleProfileValidationSchema = z.object({
+  styleCategories: z.array(z.string()).min(1, "Please select at least one style category"),
+  colorPreferences: z.object({
+    primaryColors: z.array(z.string()).min(1, "Please select at least one primary color"),
+    accentColors: z.array(z.string()).optional(),
+    avoidColors: z.array(z.string()).optional(),
+    seasonalPalette: z.enum(['Spring', 'Summer', 'Autumn', 'Winter']).optional(),
+  }),
+  clothingPreferences: z.object({
+    preferredStyles: z.array(z.string()).min(1, "Please select preferred styles"),
+    comfortLevel: z.enum(['Conservative', 'Moderate', 'Bold']),
+    occasionTypes: z.array(z.string()).min(1, "Please select occasion types"),
+  }),
+});
+
+// Complete onboarding step validation
+export const onboardingStepValidationSchema = z.object({
+  step: z.number().min(1).max(6),
+  personalBrandData: personalBrandValidationSchema.optional(),
+  styleProfileData: styleProfileValidationSchema.optional(),
+  isCompleted: z.boolean(),
+});
+
+// =============================================================================
+// UTILITY FUNCTIONS - Helper Functions for Onboarding
+// =============================================================================
+
+// Calculate onboarding completion percentage
+export function calculateOnboardingProgress(personalBrand: UserPersonalBrand | null, styleProfile: UserStyleProfile | null): number {
+  if (!personalBrand) return 0;
+  
+  const requiredFields = [
+    'transformationStory',
+    'currentSituation', 
+    'dreamOutcome',
+    'businessGoals',
+    'targetAudience'
+  ];
+  
+  const completedFields = requiredFields.filter(field => 
+    personalBrand[field as keyof UserPersonalBrand] && 
+    (personalBrand[field as keyof UserPersonalBrand] as string).length > 0
+  );
+  
+  const baseProgress = (completedFields.length / requiredFields.length) * 70; // 70% for personal brand
+  
+  if (styleProfile && styleProfile.styleCategories && styleProfile.styleCategories.length > 0) {
+    return Math.min(100, baseProgress + 30); // Add 30% for style profile
+  }
+  
+  return Math.round(baseProgress);
+}
+
+// Determine next onboarding step
+export function getNextOnboardingStep(personalBrand: UserPersonalBrand | null, styleProfile: UserStyleProfile | null): OnboardingStep {
+  if (!personalBrand || !personalBrand.transformationStory) return 1;
+  if (!personalBrand.dreamOutcome || !personalBrand.futureVision) return 2;
+  if (!personalBrand.businessGoals || !personalBrand.targetAudience) return 3;
+  if (!styleProfile || !styleProfile.styleCategories?.length) return 4;
+  if (!styleProfile.colorPreferences?.primaryColors?.length) return 5;
+  return 6;
+}
+
+// Validate onboarding step completion
+export function validateStepCompletion(step: OnboardingStep, personalBrand: UserPersonalBrand | null, styleProfile: UserStyleProfile | null): boolean {
+  switch (step) {
+    case 1:
+      return Boolean(personalBrand?.transformationStory && personalBrand.transformationStory.length > 20);
+    case 2:
+      return Boolean(personalBrand?.dreamOutcome && personalBrand.futureVision);
+    case 3:
+      return Boolean(personalBrand?.businessGoals && personalBrand.targetAudience);
+    case 4:
+      return Boolean(styleProfile?.styleCategories && styleProfile.styleCategories.length > 0);
+    case 5:
+      return Boolean(styleProfile?.colorPreferences?.primaryColors && styleProfile.colorPreferences.primaryColors.length > 0);
+    case 6:
+      return Boolean(personalBrand?.isCompleted);
+    default:
+      return false;
+  }
+}
+
+// Generate personalized onboarding recommendations
+export function generateOnboardingRecommendations(personalBrand: UserPersonalBrand | null): string[] {
+  const recommendations: string[] = [];
+  
+  if (!personalBrand?.transformationStory) {
+    recommendations.push("Share your transformation story to help Maya understand your journey");
+  }
+  
+  if (!personalBrand?.businessGoals) {
+    recommendations.push("Define your business goals for better personalized styling");
+  }
+  
+  if (!personalBrand?.targetAudience) {
+    recommendations.push("Identify your target audience to create images that resonate");
+  }
+  
+  if (personalBrand?.businessType === 'Other' || !personalBrand?.businessType) {
+    recommendations.push("Specify your business type for industry-specific styling suggestions");
+  }
+  
+  return recommendations;
+}
+
+// =============================================================================
+// ADVANCED TYPE HELPERS - Enhanced TypeScript Types
+// =============================================================================
+
+// Partial onboarding data for step-by-step updates
+export type PartialPersonalBrand = Partial<InsertUserPersonalBrand>;
+export type PartialStyleProfile = Partial<InsertUserStyleProfile>;
+
+// Onboarding form data types
+export interface OnboardingFormData {
+  step1: {
+    transformationStory: string;
+    currentSituation: string;
+    strugglesStory?: string;
+  };
+  step2: {
+    dreamOutcome: string;
+    futureVision: string;
+    personalityTraits: string[];
+  };
+  step3: {
+    businessGoals: string;
+    targetAudience: string;
+    businessType: string;
+    professionalGoals: string;
+  };
+  step4: {
+    styleCategories: StyleCategory[];
+    settingsPreferences: string[];
+    locationVibes: string[];
+  };
+  step5: {
+    colorPreferences: ColorPalette;
+    clothingPreferences: {
+      preferredStyles: string[];
+      comfortLevel: 'Conservative' | 'Moderate' | 'Bold';
+      occasionTypes: string[];
+    };
+  };
+  step6: {
+    finalReview: boolean;
+    agreedToTerms: boolean;
+  };
+}
+
+// Maya conversation enhancement types
+export interface MayaConversationContext {
+  userContext: MayaUserContext;
+  conversationHistory: any[];
+  currentTopic: string;
+  personalityAdaptation: {
+    communicationStyle: string;
+    supportLevel: string;
+    motivationApproach: string;
+  };
+}
+
+// Enhanced error handling for onboarding
+export interface OnboardingError {
+  step: OnboardingStep;
+  field: string;
+  message: string;
+  severity: 'warning' | 'error';
+}
+
+// Progress tracking interface
+export interface OnboardingProgress {
+  currentStep: OnboardingStep;
+  completedSteps: OnboardingStep[];
+  totalSteps: number;
+  percentageComplete: number;
+  estimatedTimeRemaining: number; // in minutes
+  recommendations: string[];
+}
