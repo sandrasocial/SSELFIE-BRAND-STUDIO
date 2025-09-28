@@ -19,6 +19,7 @@ import "./styles/luxury-mobile.css";
 
 // Core pages (loaded immediately) - BRAND STUDIO IS PRIMARY
 import SselfieAppLayout from "./app_v2/SselfieAppLayout.js";
+import DemoAppLayout from "./app_v2/DemoAppLayout.js";
 
 // Lazy load non-critical pages for better performance
 import { lazy, Suspense } from "react";
@@ -215,6 +216,13 @@ function Router() {
       <Route path="/app" component={() => (
         <Suspense fallback={<PageLoader />}>
           <SselfieAppLayout />
+        </Suspense>
+      )} />
+
+      {/* DEMO LAYOUT ROUTE - Shows premium UX without auth */}
+      <Route path="/demo" component={() => (
+        <Suspense fallback={<PageLoader />}>
+          <DemoAppLayout />
         </Suspense>
       )} />
 
