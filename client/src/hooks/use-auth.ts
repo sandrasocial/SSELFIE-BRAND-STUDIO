@@ -146,8 +146,8 @@ export function useAuth(): UseAuthReturn {
       return Boolean(value);
     };
     
-    // Validate and type-check the user data
-    const user: User = {
+    // Validate and type-check the user data - use type assertion to handle exactOptionalPropertyTypes
+    const user = {
       id: extractString('id') || fallbackUser.id,
       email: extractString('email') || fallbackUser.email,
       firstName: extractString('firstName') || fallbackUser.firstName || undefined,
@@ -173,7 +173,7 @@ export function useAuth(): UseAuthReturn {
       // Usage tracking with safe defaults
       monthlyGenerationLimit: extractNumber('monthlyGenerationLimit') || fallbackUser.monthlyGenerationLimit,
       generationsUsedThisMonth: extractNumber('generationsUsedThisMonth') || fallbackUser.generationsUsedThisMonth,
-    };
+    } as User;
     
     return user;
   };
