@@ -23,6 +23,11 @@ interface ChatMessage {
 }
 
 
+interface ConversationData {
+  messages: ChatMessage[];
+  [key: string]: unknown;
+}
+
 interface ConceptCard {
   id: string;
   title: string;
@@ -200,9 +205,9 @@ export default function Maya() {
 
   // Sync database conversation with localStorage
   useEffect(() => {
-    if (conversationData && (conversationData as any).messages && messages.length === 0) {
+    if (conversationData && (conversationData as ConversationData).messages && messages.length === 0) {
       console.log('Syncing database conversation with persistent storage');
-      setMessages(() => (conversationData as any).messages.slice(-20));
+      setMessages(() => (conversationData as ConversationData).messages.slice(-20));
       setHasStartedChat(true);
     }
   }, [conversationData, messages.length, setMessages]);
