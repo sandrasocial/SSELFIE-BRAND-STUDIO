@@ -236,6 +236,8 @@ export class InstagramIntegration {
   private async categorizeManyChatMessage(message: ManyChatMessage): Promise<ProcessedInstagramMessage> {
     const messageText = message.content || '';
 
+    const suggestedResponse = message.direction === 'incoming' ? this.generateSuggestedResponse(messageText, 'manychat') : undefined;
+    
     return {
       id: message.id,
       platform: 'manychat',
@@ -251,7 +253,7 @@ export class InstagramIntegration {
       isBusinessOpportunity: this.isBusinessOpportunity(messageText),
       tags: this.generateTags(messageText, 'manychat'),
       aiSummary: messageText.length > 100 ? `${messageText.substring(0, 100)}...` : messageText,
-      suggestedResponse: message.direction === 'incoming' ? this.generateSuggestedResponse(messageText, 'manychat') : undefined
+      ...(suggestedResponse && { suggestedResponse })
     };
   }
 

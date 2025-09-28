@@ -10,6 +10,7 @@ import { promises as fs } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
 import { ulid } from 'ulid';
+import { generateVeo3Video, getVeo3Status } from './veo3.js';
 
 export interface StoryboardScene {
   motionPrompt: string;
@@ -64,34 +65,45 @@ export async function composeStoryboard(options: ComposeVideoOptions): Promise<C
     
     for (let i = 0; i < scenes.length; i++) {
       const scene = scenes[i];
+      if (!scene) {
+        console.error(`❌ VIDEO COMPOSER: Scene ${i + 1} is undefined`);
+        continue;
+      }
+      
       console.log(`🎥 VIDEO COMPOSER: Generating scene ${i + 1}/${scenes.length}`);
 
       try {
         // Convert scene to VEO format - use existing VEO service patterns
-        const veoScenes = [{
+        const veoScene = {
           prompt: scene.motionPrompt,
           duration: Math.min(Math.max(scene.duration, 1), 12), // Clamp duration
           cameraMovement: 'slow push-in',
           imageUrl: scene.imageUrl
-        }];
+        };
 
         // Get user's LoRA model if available
         let userLoraModel = null;
         try {
           const { storage } = await import('../../storage.js');
           const profile = await storage.getUserProfile(userId);
-          userLoraModel = profile?.['replicateModelId'] || null;
-        } catch (e) {
+          userLoraModel = (profile as any)?.replicateModelId || null;
+        } catch (e: any) {
           console.log('⚠️ VIDEO COMPOSER: Unable to load user profile for LoRA model (continuing)', e?.message);
         }
 
         // Start video generation using existing VEO3 service
-        const startResult = await startVeoVideo({ 
-          scenes: veoScenes, 
-          format, 
-          userLoraModel, 
-          userId 
-        });
+        const veoOptions: import('./veo3.js').VeoGenerationOptions = { 
+          motionPrompt: veoScene.prompt,
+          mode: 'production',
+          userId,
+          aspectRatio: format === '9:16' ? '9:16' : '16:9'
+        };
+        
+        if (veoScene.imageUrl) {
+          veoOptions.initImageUrl = veoScene.imageUrl;
+        }
+        
+        const startResult = await generateVeo3Video(veoOptions);
 
         sceneJobs.push({
           sceneIndex: i,
@@ -172,16 +184,26 @@ export async function getCompositionStatus(
         }
 
         try {
-          const status = await getVeoStatus(sceneJob.jobId, userId);
-          return {
-            ...sceneJob,
-            status: status.status === 'succeeded' ? 'completed' : 
-                   status.status === 'failed' ? 'failed' : 'processing',
-            videoUrl: status.videoUrl || undefined
+          const status = await getVeo3Status(sceneJob.jobId, userId);
+          const updatedJob: CompositionResult['sceneJobs'][number] = {
+            sceneIndex: sceneJob.sceneIndex,
+            jobId: sceneJob.jobId,
+            status: status.status === 'completed' ? 'completed' : 
+                   status.status === 'failed' ? 'failed' : 'processing'
           };
+          
+          if (status.videoUrl) {
+            updatedJob.videoUrl = status.videoUrl;
+          }
+          
+          return updatedJob;
         } catch (error) {
           console.error(`❌ VIDEO COMPOSER: Scene ${sceneJob.sceneIndex} status check failed:`, error);
-          return { ...sceneJob, status: 'failed' };
+          return { 
+            sceneIndex: sceneJob.sceneIndex,
+            jobId: sceneJob.jobId,
+            status: 'failed' as const
+          };
         }
       })
     );
@@ -259,12 +281,18 @@ async function composeScenes(videoUrls: string[], crossfade: boolean): Promise<s
     // Download video files to temp directory
     const tempFiles: string[] = [];
     for (let i = 0; i < videoUrls.length; i++) {
+      const videoUrl = videoUrls[i];
+      if (!videoUrl) {
+        console.error(`❌ VIDEO COMPOSER: Video URL ${i + 1} is undefined`);
+        continue;
+      }
+      
       const tempFile = join(tempDir, `scene_${i}.mp4`);
       
       // Download video (would need proper implementation with fetch/stream)
-      console.log(`📥 VIDEO COMPOSER: Downloading scene ${i + 1}: ${videoUrls[i]}`);
+      console.log(`📥 VIDEO COMPOSER: Downloading scene ${i + 1}: ${videoUrl}`);
       // For now, assume videos are accessible file paths
-      tempFiles.push(videoUrls[i]); // TODO: Implement actual download
+      tempFiles.push(videoUrl); // TODO: Implement actual download
     }
 
     // Build ffmpeg command for concatenation
