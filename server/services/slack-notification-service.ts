@@ -75,7 +75,7 @@ export class SlackNotificationService {
                 type: 'plain_text',
                 text: `Chat with ${agentName}`
               },
-              url: `https://sselfie.ai/admin-consulting-agents?agent=${agentName.toLowerCase()}`,
+              url: `https://sselfie.ai/workspace`,
               style: 'primary'
             }
           ]
@@ -138,7 +138,7 @@ export class SlackNotificationService {
                   type: 'plain_text',
                   text: `Respond to ${agentName}`
                 },
-                url: `https://sselfie.ai/admin-consulting-agents?agent=${agentName.toLowerCase()}`,
+                url: `https://sselfie.ai/workspace`,
                 style: 'danger'
               }
             ]
