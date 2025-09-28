@@ -8,6 +8,7 @@
     "lib": "lib"
   },
   "dependencies": {
+    "axios": "^1.6.7",
     "@anthropic-ai/sdk": "^0.37.0",
     "@aws-sdk/client-s3": "^3.864.0",
     "@aws-sdk/lib-storage": "^3.864.0",
@@ -632,6 +633,7 @@
     "zwitch": "^2.0.4"
   },
   "scripts": {
+    "verify:deps": "tsx scripts/verify-user-journey.ts",
     "dev": "cd server && npx tsx index.ts",
     "dev:client": "npx vite --port 5173",
     "dev:server": "cd server && npx tsx start.ts",

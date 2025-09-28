@@ -14,6 +14,14 @@ export default defineConfig(({ mode }) => {
     'VITE_STACK_PROJECT_ID',
     'VITE_STACK_PUBLISHABLE_CLIENT_KEY'
   ];
+
+  // Critical path entries - only build what we need
+  const criticalEntries = {
+    main: path.resolve(__dirname, "client/src/main.tsx"),
+    maya: path.resolve(__dirname, "client/src/pages/maya.tsx"),
+    auth: path.resolve(__dirname, "client/src/pages/auth.tsx"),
+    checkout: path.resolve(__dirname, "client/src/pages/checkout.tsx")
+  };
   
   for (const envVar of requiredPublicEnvVars) {
     if (!process.env[envVar]) {
@@ -32,6 +40,29 @@ export default defineConfig(({ mode }) => {
           autoprefixer(),
         ],
       },
+    },
+    
+    // Only build critical path entries
+    build: {
+      rollupOptions: {
+        input: criticalEntries,
+        output: {
+          manualChunks: {
+            'vendor': ['react', 'react-dom', 'wouter'],
+            'maya-core': [
+              './client/src/components/maya/MayaChat.tsx',
+              './client/src/components/maya/MayaGallery.tsx'
+            ],
+            'auth-core': ['./client/src/components/auth/SignupFlow.tsx'],
+            'payment': ['./client/src/components/checkout/PaymentForm.tsx'],
+          }
+        }
+      },
+      // Ensure tree-shaking is aggressive
+      treeshake: {
+        moduleSideEffects: false,
+        propertyReadSideEffects: false
+      }
     },
 
     // 🔒 Force a single React copy for the whole graph
