@@ -9,6 +9,18 @@ import { apiRequest } from '../../lib/queryClient.js';
 import ErrorBoundary from '../../components/ErrorBoundary.js';
 import { User, UserModel } from '../../types/index.js';
 
+// Enhanced training infrastructure
+import { useTrainingStatus } from '../../hooks/useTrainingStatus.js';
+import { useEnhancedImageOptimization } from '../../hooks/useEnhancedImageOptimization.js';
+import { TrainingProgress, TrainingAnimation } from '../../components/training/TrainingProgress.js';
+import { TrainingErrorBoundary } from '../../components/training/TrainingErrorBoundary.js';
+import { Colors, Typography, Spacing, Transitions } from '../../styles/designSystem.js';
+import { 
+  DEFAULT_VALIDATION_RULES, 
+  DEFAULT_IMAGE_PROCESSING_OPTIONS,
+  ErrorState 
+} from '../../types/training.js';
+
 function SimpleTraining() {
   // Always call hooks in the same order
   const { isAuthenticated, user } = useAuth();
@@ -23,6 +35,21 @@ function SimpleTraining() {
   const [isRetrainingMode, setIsRetrainingMode] = useState(false);
   const [uploadErrors, setUploadErrors] = useState<string[]>([]);
   const [isUploadingImages, setIsUploadingImages] = useState(false);
+  
+  // Enhanced image processing
+  const { validateImages, optimizeImage, batchOptimize } = useEnhancedImageOptimization();
+  
+  // Enhanced training status with adaptive polling
+  const {
+    userModel: enhancedUserModel,
+    progressMetrics,
+    trainingStage,
+    isTraining: isEnhancedTraining,
+    isCompleted,
+    isFailed,
+    isPolling,
+    currentPollingInterval
+  } = useTrainingStatus(user?.id || '', isAuthenticated);
   
   // Gender selection state
   const [userGender, setUserGender] = useState('');
@@ -330,66 +357,50 @@ function SimpleTraining() {
   const handleFileSelect = (e: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     
-    // 🛡️ BULLETPROOF VALIDATION: Strict requirements
-    const validFiles = files.filter(file => {
-      const isImage = file.type.startsWith('image/');
-      const isUnder10MB = file.size <= 10 * 1024 * 1024;
-      const isMinSize = file.size >= 10240; // At least 10KB for quality
-      return isImage && isUnder10MB && isMinSize;
-    });
+    // Enhanced validation using new service
+    const validationErrors = validateImages(files, DEFAULT_VALIDATION_RULES);
     
-    if (validFiles.length !== files.length) {
+    if (validationErrors.length > 0) {
+      // Show specific validation errors
+      const errorMessages = validationErrors.map(error => error.message);
+      setUploadErrors(errorMessages);
+      
       toast({
         title: "Invalid files",
-        description: "Please upload only high-quality image files (10KB-10MB).",
-        
+        description: `${errorMessages.length} issue(s) found. Please check your images.`,
       });
+      
+      // Only add files that don't have errors
+      const validFiles = files.filter((_, index) => 
+        !validationErrors.some(error => error.message.includes(`${index + 1}`))
+      );
+      setSelfieImages(prev => [...prev, ...validFiles]);
+    } else {
+      // All files are valid
+      setUploadErrors([]);
+      setSelfieImages(prev => [...prev, ...files]);
     }
-    
-    setSelfieImages(prev => [...prev, ...validFiles]);
   };
 
   const removeImage = (index: number) => {
     setSelfieImages(prev => prev.filter((_, i) => i !== index));
   };
 
-  // Compress image to prevent 413 errors - optimized for AI training
-  const compressImage = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      const img = new Image();
+  // Enhanced image compression using new service
+  const compressImageEnhanced = async (file: File, onProgress?: (progress: number) => void): Promise<string> => {
+    try {
+      const blob = await optimizeImage(file, DEFAULT_IMAGE_PROCESSING_OPTIONS, onProgress);
       
-      img.onload = () => {
-        try {
-          // Optimal dimensions for AI training (1024x1024 max)
-          const maxWidth = 1024;
-          const maxHeight = 1024;
-          
-          let { width, height } = img;
-          
-          // Calculate new dimensions maintaining aspect ratio
-          if (width > maxWidth || height > maxHeight) {
-            const ratio = Math.min(maxWidth / width, maxHeight / height);
-            width *= ratio;
-            height *= ratio;
-          }
-          
-          canvas.width = width;
-          canvas.height = height;
-          
-          // Draw and compress with high quality for AI training
-          ctx?.drawImage(img, 0, 0, width, height);
-          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.85); // 85% quality for AI training
-          resolve(compressedBase64);
-        } catch (error) {
-          reject(error);
-        }
-      };
-      
-      img.onerror = () => reject(new Error('Failed to load image'));
-      img.src = URL.createObjectURL(file);
-    });
+      // Convert blob to base64 for backwards compatibility with existing API
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    } catch (error) {
+      throw new Error(`Failed to compress image: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
   };
 
   const handleStartTraining = async () => {
@@ -418,24 +429,35 @@ function SimpleTraining() {
     });
 
     try {
-      // Compress images to prevent 413 errors while maintaining AI training quality
+      // Enhanced batch image processing with progress tracking
       toast({
         title: "Processing Images",
         description: "Compressing images for optimal training...",
       });
       
+      // Convert blobs to base64 for backwards compatibility with existing API
+      const blobs = await batchOptimize(
+        selfieImages,
+        DEFAULT_IMAGE_PROCESSING_OPTIONS,
+        (completed, total, currentFile) => {
+          const progress = Math.round((completed / total) * 100);
+          console.log(`Processing: ${progress}% (${currentFile})`);
+        }
+      );
+
+      // Convert blobs to base64 strings for API compatibility
       const compressedBase64Images = await Promise.all(
-        selfieImages.map(async (file) => {
-          try {
-            return await compressImage(file);
-          } catch (error) {
-            console.error('Failed to compress image:', error);
-            throw new Error(`Failed to process image: ${file.name}`);
-          }
+        blobs.map(async (blob) => {
+          return new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+          });
         })
       );
 
-      console.log(`✅ Compressed ${compressedBase64Images.length} images successfully`);
+      console.log(`✅ Enhanced: Compressed ${compressedBase64Images.length} images successfully`);
       startTraining.mutate(compressedBase64Images);
     } catch (error) {
       toast({
@@ -529,88 +551,77 @@ function SimpleTraining() {
                 You'll get an email when it's complete.
               </p>
               
-              {/* LUXURY TRAINING ANIMATION */}
-              <div style={{
-                position: 'relative',
-                width: '100px',
-                height: '100px',
-                margin: '0 auto 40px auto'
-              }}>
-                <div style={{
-                  position: 'absolute',
-                  inset: 0,
-                  border: '2px solid rgba(255, 255, 255, 0.1)',
-                  borderRadius: '50%'
-                }}></div>
-                <div style={{
-                  position: 'absolute',
-                  inset: 0,
-                  border: '2px solid #ffffff',
-                  borderTop: '2px solid transparent',
-                  borderRadius: '50%',
-                  animation: 'spin 2s linear infinite'
-                }}></div>
-                <div style={{
-                  position: 'absolute',
-                  inset: '12px',
-                  border: '1px solid rgba(255, 255, 255, 0.3)',
-                  borderRadius: '50%',
-                  animation: 'pulse 2s ease-in-out infinite'
-                }}></div>
-                <div style={{
-                  position: 'absolute',
-                  inset: '24px',
-                  background: 'rgba(255, 255, 255, 0.05)',
-                  borderRadius: '50%'
-                }}></div>
-              </div>
+              {/* Enhanced Training Animation */}
+              <TrainingAnimation size={100} />
               
-              {/* LUXURY PROGRESS BAR */}
-              <div style={{
-                maxWidth: '500px',
-                margin: '0 auto 30px auto',
-                background: 'rgba(255, 255, 255, 0.08)',
-                borderRadius: '16px',
-                overflow: 'hidden',
-                height: '12px',
-                boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.1)'
-              }}>
-                <div style={{
-                  width: `${Math.max(5, trainingProgress)}%`,
-                  height: '100%',
-                  background: 'linear-gradient(90deg, #ffffff 0%, rgba(255, 255, 255, 0.9) 50%, #ffffff 100%)',
-                  transition: 'width 0.5s ease-out',
-                  borderRadius: '16px'
-                }}></div>
-              </div>
-              
-              {/* LUXURY PROGRESS STATS */}
-              <div style={{
-                display: 'flex',
-                justifyContent: 'center',
-                gap: 'clamp(30px, 5vw, 60px)',
-                fontSize: 'clamp(13px, 3vw, 16px)',
-                marginBottom: '30px',
-                flexWrap: 'wrap',
-                padding: '0 20px'
-              }}>
-                <div style={{
-                  opacity: 0.9,
-                  fontWeight: 300,
-                  letterSpacing: '0.05em'
-                }}>
-                  Progress: {Math.max(5, trainingProgress)}%
-                </div>
-                {estimatedTimeRemaining && (
+              {/* Enhanced Training Progress */}
+              {(progressMetrics && trainingStage) ? (
+                <TrainingProgress
+                  stage={trainingStage}
+                  progress={progressMetrics.progress}
+                  timeRemaining={progressMetrics.timeRemaining}
+                />
+              ) : (
+                // Fallback to legacy progress display
+                <div style={{ marginBottom: '40px' }}>
                   <div style={{
-                    opacity: 0.9,
-                    fontWeight: 300,
-                    letterSpacing: '0.05em'
+                    maxWidth: '500px',
+                    margin: '0 auto 30px auto',
+                    background: 'rgba(255, 255, 255, 0.08)',
+                    borderRadius: '16px',
+                    overflow: 'hidden',
+                    height: '12px',
+                    boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.1)'
                   }}>
-                    Time Remaining: {estimatedTimeRemaining}
+                    <div style={{
+                      width: `${Math.max(5, trainingProgress)}%`,
+                      height: '100%',
+                      background: 'linear-gradient(90deg, #ffffff 0%, rgba(255, 255, 255, 0.9) 50%, #ffffff 100%)',
+                      transition: 'width 0.5s ease-out',
+                      borderRadius: '16px'
+                    }}></div>
                   </div>
-                )}
-              </div>
+                  
+                  <div style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    gap: 'clamp(30px, 5vw, 60px)',
+                    fontSize: 'clamp(13px, 3vw, 16px)',
+                    marginBottom: '30px',
+                    flexWrap: 'wrap',
+                    padding: '0 20px'
+                  }}>
+                    <div style={{
+                      opacity: 0.9,
+                      fontWeight: 300,
+                      letterSpacing: '0.05em'
+                    }}>
+                      Progress: {Math.max(5, trainingProgress)}%
+                    </div>
+                    {estimatedTimeRemaining && (
+                      <div style={{
+                        opacity: 0.9,
+                        fontWeight: 300,
+                        letterSpacing: '0.05em'
+                      }}>
+                        Time Remaining: {estimatedTimeRemaining}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+              
+              {/* Polling Status Indicator */}
+              {isPolling && (
+                <div style={{
+                  fontSize: '11px',
+                  color: 'rgba(255, 255, 255, 0.6)',
+                  marginBottom: '20px',
+                  letterSpacing: '0.1em'
+                }}>
+                  Checking progress every {Math.round(currentPollingInterval / 1000)}s
+                </div>
+              )}
               
               {/* LUXURY VALUE MESSAGING */}
               <div style={{
@@ -1862,8 +1873,10 @@ function SimpleTraining() {
 
 export default function SimpleTrainingWithErrorBoundary() {
   return (
-    <ErrorBoundary>
-      <SimpleTraining />
-    </ErrorBoundary>
+    <TrainingErrorBoundary>
+      <ErrorBoundary>
+        <SimpleTraining />
+      </ErrorBoundary>
+    </TrainingErrorBoundary>
   );
 }
