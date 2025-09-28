@@ -236,13 +236,14 @@ export class InstagramIntegration {
   private async categorizeManyChatMessage(message: ManyChatMessage): Promise<ProcessedInstagramMessage> {
     const messageText = message.content || '';
 
-    return {
+    const result: ProcessedInstagramMessage = {
       id: message.id,
       platform: 'manychat',
       fromUsername: message.subscriber_id,
       fromId: message.subscriber_id,
       message: messageText,
-      messageType: message.type as any || 'text',
+      messageType: ['text', 'image', 'video'].includes(message.type) ? 
+        message.type as 'text' | 'image' | 'video' : 'text',
       receivedAt: new Date(message.sent_at),
       category: this.categorizeInstagramContent(messageText, message.subscriber_id),
       priority: this.determinePriority(messageText, message.subscriber_id),
@@ -250,9 +251,18 @@ export class InstagramIntegration {
       needsResponse: message.direction === 'incoming' && this.needsResponse(messageText),
       isBusinessOpportunity: this.isBusinessOpportunity(messageText),
       tags: this.generateTags(messageText, 'manychat'),
-      aiSummary: messageText.length > 100 ? `${messageText.substring(0, 100)}...` : messageText,
-      suggestedResponse: message.direction === 'incoming' ? this.generateSuggestedResponse(messageText, 'manychat') : undefined
     };
+    
+    // Only add optional properties if they have valid values
+    if (messageText.length > 100) {
+      result.aiSummary = `${messageText.substring(0, 100)}...`;
+    }
+    
+    if (message.direction === 'incoming') {
+      result.suggestedResponse = this.generateSuggestedResponse(messageText, 'manychat');
+    }
+    
+    return result;
   }
 
   // 🎯 Categorization logic for Instagram content

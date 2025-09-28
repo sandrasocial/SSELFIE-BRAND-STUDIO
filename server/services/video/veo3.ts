@@ -181,20 +181,20 @@ export async function getVeo3Status(jobId: string, userId: string): Promise<VeoS
       return { status: 'failed', error: `Status check failed: ${response.status}` };
     }
 
-    const result = await response.json();
+    const statusResult = await response.json();
     
-    if (result.error) {
-      console.error('❌ VEO 3: Generation error', result.error);
+    if (statusResult.error) {
+      console.error('❌ VEO 3: Generation error', statusResult.error);
       return { 
         status: 'failed', 
-        error: result.error.message || 'Generation failed',
+        error: statusResult.error.message || 'Generation failed',
         completedAt: new Date().toISOString()
       };
     }
 
-    if (!result.done) {
+    if (!statusResult.done) {
       // Still processing
-      const progress = result.metadata?.progressPercent || 0;
+      const progress = statusResult.metadata?.progressPercent || 0;
       console.log('⏳ VEO 3: Still processing', { progress, jobId: jobId.slice(-20) });
       
       return { 
@@ -205,8 +205,8 @@ export async function getVeo3Status(jobId: string, userId: string): Promise<VeoS
     }
 
     // Generation completed
-    const result = resultData as VeoVideoResult;
-    const videoUrl = result.response?.video?.uri || result.response?.uri || null;
+    const resultData = statusResult as VeoVideoResult;
+    const videoUrl = resultData.response?.video?.uri || resultData.response?.uri || null;
     
     if (videoUrl) {
       console.log('✅ VEO 3: Generation completed successfully', { jobId: jobId.slice(-20) });
@@ -217,7 +217,7 @@ export async function getVeo3Status(jobId: string, userId: string): Promise<VeoS
         completedAt: new Date().toISOString()
       };
     } else {
-      console.error('❌ VEO 3: No video URL in completed response', result);
+      console.error('❌ VEO 3: No video URL in completed response', resultData);
       return {
         status: 'failed',
         error: 'Generation completed but no video was produced',

@@ -10,6 +10,7 @@ import { promises as fs } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
 import { ulid } from 'ulid';
+import { startVeoVideo, getVeoStatus, type VeoVideoInput } from './veo-api.js';
 
 export interface StoryboardScene {
   motionPrompt: string;
@@ -31,14 +32,16 @@ export interface CompositionResult {
   jobId: string;
   status: 'pending' | 'processing' | 'completed' | 'failed';
   composedVideoUrl?: string;
-  sceneJobs?: Array<{
-    sceneIndex: number;
-    jobId: string;
-    status: string;
-    videoUrl?: string;
-  }>;
+  sceneJobs?: SceneJob[];
   error?: string;
 }
+
+type SceneJob = {
+  sceneIndex: number;
+  jobId: string;
+  status: string;
+  videoUrl?: string;
+};
 
 /**
  * Compose multi-scene video by generating individual scenes and stitching them together
@@ -64,6 +67,10 @@ export async function composeStoryboard(options: ComposeVideoOptions): Promise<C
     
     for (let i = 0; i < scenes.length; i++) {
       const scene = scenes[i];
+      if (!scene) {
+        throw new Error(`Scene ${i + 1} is undefined`);
+      }
+      
       console.log(`🎥 VIDEO COMPOSER: Generating scene ${i + 1}/${scenes.length}`);
 
       try {
@@ -76,30 +83,34 @@ export async function composeStoryboard(options: ComposeVideoOptions): Promise<C
         }];
 
         // Get user's LoRA model if available
-        let userLoraModel = null;
+        let userLoraModel: string | null = null;
         try {
           const { storage } = await import('../../storage.js');
           const profile = await storage.getUserProfile(userId);
-          userLoraModel = profile?.['replicateModelId'] || null;
+          userLoraModel = (profile as any)?.replicateModelId || null;
         } catch (e) {
-          console.log('⚠️ VIDEO COMPOSER: Unable to load user profile for LoRA model (continuing)', e?.message);
+          console.log('⚠️ VIDEO COMPOSER: Unable to load user profile for LoRA model (continuing)', (e as Error)?.message);
         }
 
         // Start video generation using existing VEO3 service
-        const startResult = await startVeoVideo({ 
-          scenes: veoScenes, 
-          format, 
-          userLoraModel, 
-          userId 
-        });
+        const veoInput: VeoVideoInput = {
+          prompt: scene.motionPrompt,
+          duration: Math.min(Math.max(scene.duration, 1), 12),
+        };
+        
+        if (userLoraModel) {
+          veoInput.modelId = userLoraModel;
+        }
+        
+        const startResult = await startVeoVideo(veoInput);
 
         sceneJobs.push({
           sceneIndex: i,
-          jobId: startResult.jobId,
+          jobId: startResult.id || startResult.operationId || `job_${ulid()}`,
           status: 'pending',
         });
 
-        console.log(`✅ VIDEO COMPOSER: Scene ${i + 1} job started`, { jobId: startResult.jobId });
+        console.log(`✅ VIDEO COMPOSER: Scene ${i + 1} job started`, { jobId: startResult.id || startResult.operationId });
 
       } catch (error) {
         const errMsg = error instanceof Error ? error.message : String(error);
@@ -173,15 +184,32 @@ export async function getCompositionStatus(
 
         try {
           const status = await getVeoStatus(sceneJob.jobId, userId);
-          return {
-            ...sceneJob,
-            status: status.status === 'succeeded' ? 'completed' : 
-                   status.status === 'failed' ? 'failed' : 'processing',
-            videoUrl: status.videoUrl || undefined
+          const updatedJob: SceneJob = {
+            sceneIndex: sceneJob.sceneIndex,
+            jobId: sceneJob.jobId,
+            status: status.done ? 'completed' : 
+                   status.error ? 'failed' : 'processing'
           };
+          
+          const videoUri = status.response?.video?.uri;
+          if (videoUri) {
+            updatedJob.videoUrl = videoUri;
+          }
+          
+          return updatedJob;
         } catch (error) {
           console.error(`❌ VIDEO COMPOSER: Scene ${sceneJob.sceneIndex} status check failed:`, error);
-          return { ...sceneJob, status: 'failed' };
+          const failedJob: SceneJob = { 
+            sceneIndex: sceneJob.sceneIndex,
+            jobId: sceneJob.jobId,
+            status: 'failed' as const
+          };
+          
+          if (sceneJob.videoUrl) {
+            failedJob.videoUrl = sceneJob.videoUrl;
+          }
+          
+          return failedJob;
         }
       })
     );
@@ -259,12 +287,17 @@ async function composeScenes(videoUrls: string[], crossfade: boolean): Promise<s
     // Download video files to temp directory
     const tempFiles: string[] = [];
     for (let i = 0; i < videoUrls.length; i++) {
+      const videoUrl = videoUrls[i];
+      if (!videoUrl) {
+        throw new Error(`Video URL for scene ${i + 1} is undefined`);
+      }
+      
       const tempFile = join(tempDir, `scene_${i}.mp4`);
       
       // Download video (would need proper implementation with fetch/stream)
-      console.log(`📥 VIDEO COMPOSER: Downloading scene ${i + 1}: ${videoUrls[i]}`);
+      console.log(`📥 VIDEO COMPOSER: Downloading scene ${i + 1}: ${videoUrl}`);
       // For now, assume videos are accessible file paths
-      tempFiles.push(videoUrls[i]); // TODO: Implement actual download
+      tempFiles.push(videoUrl); // TODO: Implement actual download
     }
 
     // Build ffmpeg command for concatenation
