@@ -4,6 +4,16 @@ import { useMutation } from '@tanstack/react-query';
 import { useToast } from '../../hooks/use-toast.js';
 import { apiRequest } from '../../lib/queryClient.js';
 
+// Enhanced training infrastructure
+import { useEnhancedImageOptimization } from '../../hooks/useEnhancedImageOptimization.js';
+import { TrainingErrorBoundary } from '../training/TrainingErrorBoundary.js';
+import { 
+  DEFAULT_VALIDATION_RULES, 
+  DEFAULT_IMAGE_PROCESSING_OPTIONS,
+  ErrorState 
+} from '../../types/training.js';
+import { Colors, Typography, Spacing } from '../../styles/designSystem.js';
+
 interface MayaUploadComponentProps {
   onUploadComplete?: (success: boolean) => void;
   onTrainingStart?: () => void;
@@ -17,50 +27,14 @@ export function MayaUploadComponent({
 }: MayaUploadComponentProps) {
   const [selfieImages, setSelfieImages] = useState<File[]>([]);
   const [isUploadingImages, setIsUploadingImages] = useState(false);
-  const [uploadErrors, setUploadErrors] = useState<string[]>([]);
+  const [uploadErrors, setUploadErrors] = useState<ErrorState[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
-  // Compress image for AI training - extracted from simple-training
-  const compressImage = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      const img = new Image();
-      
-      img.onload = () => {
-        try {
-          // Optimal dimensions for AI training (1024x1024 max)
-          const maxWidth = 1024;
-          const maxHeight = 1024;
-          
-          let { width, height } = img;
-          
-          // Calculate new dimensions maintaining aspect ratio
-          if (width > maxWidth || height > maxHeight) {
-            const ratio = Math.min(maxWidth / width, maxHeight / height);
-            width *= ratio;
-            height *= ratio;
-          }
-          
-          canvas.width = width;
-          canvas.height = height;
-          
-          // Draw and compress with high quality for AI training
-          ctx?.drawImage(img, 0, 0, width, height);
-          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.85); // 85% quality for AI training
-          resolve(compressedBase64);
-        } catch (error) {
-          reject(error);
-        }
-      };
-      
-      img.onerror = () => reject(new Error('Failed to load image'));
-      img.src = URL.createObjectURL(file);
-    });
-  };
+  // Enhanced image processing
+  const { validateImages, batchOptimize } = useEnhancedImageOptimization();
 
-  // Start training mutation - extracted from simple-training
+  // Start training mutation - enhanced
   const startTraining = useMutation({
     mutationFn: async (images: string[]) => {
       setIsUploadingImages(true);
@@ -100,26 +74,32 @@ export function MayaUploadComponent({
     }
   });
 
-  // Handle file selection - extracted from simple-training
+  // Handle file selection - Enhanced with comprehensive validation
   const handleFileSelect = (e: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     
-    // Bulletproof validation: Strict requirements
-    const validFiles = files.filter(file => {
-      const isImage = file.type.startsWith('image/');
-      const isUnder10MB = file.size <= 10 * 1024 * 1024;
-      const isMinSize = file.size >= 10240; // At least 10KB for quality
-      return isImage && isUnder10MB && isMinSize;
-    });
+    // Enhanced validation using new service
+    const validationErrors = validateImages(files, DEFAULT_VALIDATION_RULES);
     
-    if (validFiles.length !== files.length) {
+    if (validationErrors.length > 0) {
+      // Show specific validation errors
+      setUploadErrors(validationErrors);
+      
       toast({
         title: "Invalid files",
-        description: "Please upload only high-quality image files (10KB-10MB).",
+        description: `${validationErrors.length} issue(s) found. Please check your images.`,
       });
+      
+      // Only add files that don't have errors
+      const validFiles = files.filter((_, index) => 
+        !validationErrors.some(error => error.message.includes(`${index + 1}`))
+      );
+      setSelfieImages(prev => [...prev, ...validFiles]);
+    } else {
+      // All files are valid
+      setUploadErrors([]);
+      setSelfieImages(prev => [...prev, ...files]);
     }
-    
-    setSelfieImages(prev => [...prev, ...validFiles]);
   };
 
   // Remove image from selection
@@ -148,26 +128,36 @@ export function MayaUploadComponent({
     setUploadErrors([]);
     
     try {
-      // Compress images to prevent 413 errors while maintaining AI training quality
+      // Enhanced batch image processing with progress tracking
+      const blobs = await batchOptimize(
+        selfieImages,
+        DEFAULT_IMAGE_PROCESSING_OPTIONS,
+        (completed, total, currentFile) => {
+          const progress = Math.round((completed / total) * 100);
+          console.log(`Maya processing: ${progress}% (${currentFile})`);
+        }
+      );
+
+      // Convert blobs to base64 strings for API compatibility
       const compressedBase64Images = await Promise.all(
-        selfieImages.map(async (file) => {
-          try {
-            return await compressImage(file);
-          } catch (error) {
-            console.error('Failed to compress image:', error);
-            throw new Error(`Failed to process image: ${file.name}`);
-          }
+        blobs.map(async (blob) => {
+          return new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+          });
         })
       );
 
-      console.log(`✅ Maya: Compressed ${compressedBase64Images.length} images successfully`);
+      console.log(`✅ Maya Enhanced: Compressed ${compressedBase64Images.length} images successfully`);
       startTraining.mutate(compressedBase64Images);
     } catch (error) {
       toast({
         title: "Upload Failed",
         description: "Failed to process images. Please try again with different photos.",
       });
-      console.error('Maya image processing failed:', error);
+      console.error('Maya enhanced image processing failed:', error);
     }
   };
 
@@ -201,7 +191,7 @@ export function MayaUploadComponent({
         </div>
       </div>
 
-      {/* Error Messages */}
+      {/* Enhanced Error Messages */}
       {uploadErrors.length > 0 && (
         <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded">
           <div className="flex items-center gap-2 mb-2">
@@ -210,7 +200,20 @@ export function MayaUploadComponent({
           </div>
           <ul className="text-sm text-red-700 space-y-1">
             {uploadErrors.map((error, index) => (
-              <li key={index}>• {error}</li>
+              <li key={index} className="flex items-start gap-2">
+                <span>•</span>
+                <div>
+                  <span className="font-medium">{error.type.toUpperCase()}:</span> {error.message}
+                  {error.recoverable && error.action && (
+                    <button
+                      onClick={() => error.action?.()}
+                      className="ml-2 text-xs underline hover:no-underline"
+                    >
+                      Try Again
+                    </button>
+                  )}
+                </div>
+              </li>
             ))}
           </ul>
         </div>
@@ -278,5 +281,14 @@ export function MayaUploadComponent({
         </div>
       )}
     </div>
+  );
+}
+
+// Enhanced wrapper with error boundary
+export function MayaUploadComponentEnhanced(props: MayaUploadComponentProps) {
+  return (
+    <TrainingErrorBoundary>
+      <MayaUploadComponent {...props} />
+    </TrainingErrorBoundary>
   );
 }
