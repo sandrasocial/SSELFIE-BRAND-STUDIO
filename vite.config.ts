@@ -48,43 +48,67 @@ export default defineConfig(({ mode }) => {
       },
     },
 
-    // your existing root/build/server config (unchanged)
+    // Optimized build configuration for performance
     root: path.resolve(__dirname, "client"),
     build: {
       outDir: path.resolve(__dirname, "client/dist"),
       emptyOutDir: true,
-      // Optimize bundle size
-      chunkSizeWarningLimit: 1200,
+      // Enhanced chunk optimization
+      chunkSizeWarningLimit: 1000,
       rollupOptions: {
         input: path.resolve(__dirname, "client/index.html"),
         output: {
           manualChunks(id) {
+            // Core vendor dependencies
             if (id.includes('node_modules')) {
-              if (id.includes('@stackframe') || id.includes('react')) {
-                return 'vendor';
+              if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
+                return 'core-vendor';
+              }
+              if (id.includes('@stackframe') || id.includes('@tanstack')) {
+                return 'app-vendor';
               }
               return 'deps';
             }
-            if (id.includes('components/') || id.includes('shared/ui/')) {
+            // UI components
+            if (id.includes('components/ui/') || id.includes('shared/ui/')) {
               return 'ui';
             }
+            // Maya-specific code
+            if (id.includes('/maya/') || id.includes('MayaComponents/')) {
+              return 'maya';
+            }
+            // Feature modules
+            if (id.includes('features/')) {
+              const parts = id.split('features/');
+              if (parts[1]) {
+                const feature = parts[1].split('/')[0];
+                return `feature-${feature}`;
+              }
+            }
+            return null;
           }
         }
       },
-      // Enable source maps for debugging
+      // Production optimizations
+      target: 'esnext',
+      minify: mode === 'production' ? 'terser' : false,
       sourcemap: mode === 'development',
-      // Optimize minification - use esbuild (faster, no extra deps)
-      minify: 'esbuild',
     },
     server: {
       host: "0.0.0.0",
-      port: parseInt(process.env.PORT || "8080"),
+      port: parseInt(process.env['PORT'] || "8080"),
       fs: { strict: false },
     },
 
-    // helpful nudges for prebundling and SSR
+    // Optimized dependency handling
     optimizeDeps: {
-      include: ["react", "react-dom"],
+      include: [
+        "react",
+        "react-dom",
+        "react-router-dom",
+        "@tanstack/react-query"
+      ],
+      exclude: ['@ffmpeg/core']
     },
     ssr: {
       noExternal: ["@stackframe/react"],
