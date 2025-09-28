@@ -188,7 +188,7 @@ export class ConfigManager {
    */
   public get<T = unknown>(path: ConfigPath, defaultValue: T): T;
   public get<T = unknown>(path: string, defaultValue?: T): T | null {
-    const value = this.getConfigValue<T>(path);
+    const value = this.getConfigValue<T>(path as ConfigPath);
     return value !== null ? value : (defaultValue ?? null);
   }
 
@@ -197,7 +197,7 @@ export class ConfigManager {
    */
   public getRequired<T = unknown>(path: ConfigPath): T;
   public getRequired<T = unknown>(path: string): T {
-    const value = this.getConfigValue<T>(path);
+    const value = this.getConfigValue<T>(path as ConfigPath);
     if (value === null || value === undefined || value === '') {
       throw new Error(`Required configuration path '${path}' is missing or empty`);
     }
