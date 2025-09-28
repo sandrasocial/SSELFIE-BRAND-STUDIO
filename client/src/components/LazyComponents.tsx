@@ -2,7 +2,7 @@
 import { lazy } from 'react';
 
 // Large components that can be loaded on-demand (using existing pages)
-export const AdminConsultingAgents = lazy(() => import('../pages/admin-consulting-agents.js'));
+// REMOVED: AdminConsultingAgents - admin components removed for Maya journey focus
 export const MayaPhotoshoot = lazy(() => import('../pages/maya.js'));
 export const VictoriaChat = lazy(() => import('../pages/victoria-chat.js'));
 

@@ -108,25 +108,20 @@ const SettingsScreen: React.FC = () => {
                       </div>
                       <div>
                         <h3 className="font-medium text-stone-900">
-                          {user.plan === 'admin' ? 'Admin Plan' : 'SSELFIE Studio'}
+                          SSELFIE Studio
                         </h3>
                         <p className="text-sm text-stone-600">
-                          {user.plan === 'admin' 
-                            ? 'Unlimited access to all features' 
-                            : '€47/month • 100 images per month'
-                          }
+                          €47/month • 100 images per month
                         </p>
                       </div>
                     </div>
-                    {user.plan !== 'admin' && (
-                      <button
-                        onClick={openCustomerPortal}
-                        className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-stone-700 bg-white border border-stone-300 rounded-lg hover:bg-stone-50 transition-colors"
-                      >
+                    <button
+                      onClick={openCustomerPortal}
+                      className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-stone-700 bg-white border border-stone-300 rounded-lg hover:bg-stone-50 transition-colors"
+                    >
                         <ExternalLink className="h-4 w-4" />
                         Manage Billing
                       </button>
-                    )}
                   </div>
                 </div>
 

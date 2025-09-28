@@ -128,14 +128,11 @@ export function MemberNavigation({ transparent = true, darkText = false }: Membe
                         'x-admin-token': 'sandra-admin-2025'
                       }
                     });
-                    if (response.ok) {
-                      window.location.href = '/admin-dashboard';
-                    }
                   } catch (error) {
                     console.error('Failed to stop impersonation:', error);
                   }
                 }}
-                aria-label="Stop impersonation and return to admin dashboard"
+                aria-label="Stop impersonation and return to workspace"
                 className={`editorial-headline text-xs tracking-wide font-light ${darkText ? 'text-neutral-600 hover:text-neutral-900' : 'text-neutral-400 hover:text-neutral-200'} hover:tracking-extra-wide transition-all duration-300 ease-sophisticated flex items-center gap-2`}
               >
                 <Shield size={16} strokeWidth={1.2} />
@@ -218,7 +215,7 @@ export function MemberNavigation({ transparent = true, darkText = false }: Membe
                       }
                     });
                     if (response.ok) {
-                      window.location.href = '/admin-dashboard';
+                      window.location.href = '/workspace';
                     }
                   } catch (error) {
                     console.error('Failed to stop impersonation:', error);

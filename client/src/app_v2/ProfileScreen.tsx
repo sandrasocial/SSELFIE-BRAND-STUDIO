@@ -58,13 +58,8 @@ const ProfileScreen: React.FC = () => {
               <p className="text-stone-600 mt-1">{user.email}</p>
               <div className="flex items-center gap-4 mt-2">
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-stone-100 text-stone-800">
-                  {user.plan === 'admin' ? 'Admin' : 'Studio Member'}
+                  Studio Member
                 </span>
-                {user.role === 'admin' && (
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
-                    Admin Access
-                  </span>
-                )}
               </div>
             </div>
 

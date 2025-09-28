@@ -5,11 +5,7 @@ import path from 'path';
 
 // MOCK EXISTING FILE MAPPING for advisory purposes
 const EXISTING_FILE_MAPPING: Record<string, any> = {
-  'admin': {
-    existingPath: 'client/src/pages/admin-consulting-agents.tsx',
-    description: 'Admin agent interface',
-    requiredActions: ['Review existing implementation', 'Integrate with current system']
-  }
+  // Admin files removed - Maya journey focus
 };
 
 interface AgentRequest {
@@ -184,7 +180,6 @@ export class FileIntegrationEnforcer {
 
 // Helper function to detect common duplicate file patterns
 export const DUPLICATE_FILE_PATTERNS = [
-  { pattern: /admin-dashboard-(redesigned|new|v2|improved)/, correct: 'admin-dashboard.tsx' },
   { pattern: /user-profile-(redesigned|new|v2|improved)/, correct: 'user-profile.tsx' },
   { pattern: /workspace-(redesigned|new|v2|improved)/, correct: 'workspace.tsx' },
   { pattern: /landing-(redesigned|new|v2|improved)/, correct: 'landing.tsx' },

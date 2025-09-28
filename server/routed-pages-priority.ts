@@ -26,18 +26,12 @@ export const ROUTED_PAGES_MAPPING = {
     'flatlay-library.tsx': { route: '/flatlay-library', priority: 8, description: 'Flatlay image library' }
   },
   
-  // ADMIN PAGES
-  admin: {
-    'admin-dashboard.tsx': { route: '/admin', priority: 10, description: 'Sandra admin dashboard' },
-    'admin-consulting-agents.tsx': { route: '/admin/consulting-agents', priority: 10, description: 'Agent management' }
-  }
 };
 
 // Flattened list of all routed pages for quick reference
 export const ALL_ROUTED_PAGES = [
   ...Object.keys(ROUTED_PAGES_MAPPING.preLogin),
-  ...Object.keys(ROUTED_PAGES_MAPPING.postLogin),
-  ...Object.keys(ROUTED_PAGES_MAPPING.admin)
+  ...Object.keys(ROUTED_PAGES_MAPPING.postLogin)
 ];
 
 // Priority search suggestions for agents based on user request context
@@ -47,7 +41,6 @@ export const SEARCH_PRIORITY_GUIDE = {
   'workspace flow': ['workspace.tsx', 'ai-training.tsx', 'maya.tsx', 'build.tsx'],
   'landing experience': ['editorial-landing.tsx', 'about.tsx', 'pricing.tsx'],
   'member experience': ['workspace.tsx', 'ai-training.tsx', 'maya.tsx', 'gallery.tsx'],
-  'admin functionality': ['admin-dashboard.tsx', 'admin-consulting-agents.tsx'],
   'authentication': ['login.tsx', 'auth-form.tsx', 'BrandedLoginButton.tsx'],
   'ai features': ['maya.tsx', 'ai-training.tsx'],
   'business building': ['build.tsx', 'workspace.tsx', 'pricing.tsx']
@@ -65,7 +58,7 @@ export function getPriorityPages(context: string): string[] {
   }
   
   // Default to most important user journey pages
-  return ['editorial-landing.tsx', 'workspace.tsx', 'ai-training.tsx', 'maya.tsx', 'admin-dashboard.tsx'];
+  return ['editorial-landing.tsx', 'workspace.tsx', 'ai-training.tsx', 'maya.tsx'];
 }
 
 // Check if a page is routed (should be prioritized by agents)
