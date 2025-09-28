@@ -362,7 +362,7 @@ Please create photo concepts that match this signature look, drawing from your $
                 </div>
                 <StyleSelector 
                   onStyleSelect={handleStyleSelect} 
-                  selectedStyleId={selectedStyle?.id}
+                  selectedStyleId={selectedStyle?.id || undefined}
                 />
               </div>
             </div>

@@ -111,7 +111,7 @@ function ImageDetailModal({
               CREATE VIDEO
             </button>
 
-            {process.env.REACT_APP_BRAND_ASSETS_ENABLED === '1' && (
+            {process.env['REACT_APP_BRAND_ASSETS_ENABLED'] === '1' && (
               <button 
                 onClick={onPlaceBrandAsset}
                 className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-neutral-800/40 text-neutral-300 border border-neutral-700/30 hover:bg-neutral-700/40 rounded-lg transition-colors"

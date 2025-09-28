@@ -19,7 +19,6 @@ interface Styleguide {
   }>;
   personalMission?: string;
   brandVoice?: string;
-  templateId?: string;
 }
 
 export default function StyleguidePreview({ userId, className = "" }: StyleguidePreviewProps) {

@@ -47,6 +47,8 @@ const ImageActions: React.FC<ImageActionsProps> = ({
       document.addEventListener('keydown', handleKeyPress);
       return () => document.removeEventListener('keydown', handleKeyPress);
     }
+    
+    return () => {}; // Return empty cleanup function when not in compare mode
   }, [compareMode, currentIndex, variations.length, onSelect]);
 
   // Update current index when selectedIndex prop changes
