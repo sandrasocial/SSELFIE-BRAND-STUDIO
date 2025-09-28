@@ -135,7 +135,7 @@ export class UserStyleMemoryService {
         keywordDensity,
         technicalSpecs: data.technicalSpecs,
         generationTime: data.generationTime ?? null,
-        successScore,
+        successScore: successScore.toString(),
         createdAt: new Date(),
       });
 
@@ -229,7 +229,7 @@ export class UserStyleMemoryService {
         .from(promptAnalysis)
         .where(and(
           eq(promptAnalysis.userId, userId),
-          gte(promptAnalysis.successScore, 0.5)
+          gte(promptAnalysis.successScore, "0.5")
         ))
         .orderBy(desc(promptAnalysis.successScore))
         .limit(10);
@@ -249,8 +249,8 @@ export class UserStyleMemoryService {
 
       return {
         topPrompts: topPrompts.map(p => p.originalPrompt),
-        preferredCategories: memory.preferredCategories,
-        stylingKeywords: memory.stylingKeywords,
+        preferredCategories: memory?.preferredCategories || [],
+        stylingKeywords: memory?.stylingKeywords || [],
         averageSuccessScore,
       };
     } catch (error) {
