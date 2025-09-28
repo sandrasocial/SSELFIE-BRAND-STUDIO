@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useWebsiteBuilder, type WebsiteGenerationRequest } from '../../hooks/useWebsiteBuilder.js';
 import { Button } from '../ui/button.js';
 import { Input } from '../ui/input.js';
-// Label component removed
+import { Label } from '../ui/label.js';
 import { Textarea } from '../ui/textarea.js';
 // Select and Checkbox components removed
 import { useMutation } from '@tanstack/react-query';
