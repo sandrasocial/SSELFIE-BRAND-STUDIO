@@ -22,8 +22,13 @@ export interface ProjectStructure {
 }
 
 export class EnhancedPathIntelligence {
-  private projectStructure: ProjectStructure;
-  private pathCorrections: Map<string, string>;
+  private projectStructure: ProjectStructure = {
+    clientPaths: [],
+    serverPaths: [],
+    commonFiles: new Map(),
+    styleFiles: new Map()
+  };
+  private pathCorrections: Map<string, string> = new Map();
 
   constructor() {
     this.initializeProjectStructure();

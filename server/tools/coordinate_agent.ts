@@ -4,6 +4,11 @@
  * Part of Elena's delegation system for autonomous agent workflows
  */
 
+// Global state types for agent coordination
+declare global {
+  var agentCoordinations: Map<string, any> | undefined;
+}
+
 export interface CoordinateAgentInput {
   target_agent: string;
   task_description: string;

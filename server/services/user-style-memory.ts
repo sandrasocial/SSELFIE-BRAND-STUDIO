@@ -2,7 +2,7 @@
 // This service tracks user patterns and preferences without affecting concept generation
 
 import { db } from '../drizzle.js';
-import { userStyleMemory, promptAnalysis, aiImages } from '../../shared/schema.js';
+import { userStyleMemory, promptAnalysis, aiImages, type InsertPromptAnalysis } from '../../shared/schema.js';
 import { eq, desc, and, gte, sql } from 'drizzle-orm';
 
 export interface UserStyleMemory {
@@ -132,12 +132,11 @@ export class UserStyleMemoryService {
         wasSaved: data.wasSaved,
         viewDuration: data.viewDuration ?? null,
         promptLength: data.promptLength,
-        keywordDensity,
+        keywordDensity: keywordDensity,
         technicalSpecs: data.technicalSpecs,
         generationTime: data.generationTime ?? null,
-        successScore,
-        createdAt: new Date(),
-      });
+        successScore: successScore.toString(),
+      } satisfies InsertPromptAnalysis);
 
       console.log(`📊 PROMPT ANALYSIS: Logged for user ${userId} - Score: ${successScore}`);
     } catch (error) {
@@ -229,7 +228,7 @@ export class UserStyleMemoryService {
         .from(promptAnalysis)
         .where(and(
           eq(promptAnalysis.userId, userId),
-          gte(promptAnalysis.successScore, 0.5)
+          gte(promptAnalysis.successScore, "0.5")
         ))
         .orderBy(desc(promptAnalysis.successScore))
         .limit(10);
@@ -249,8 +248,8 @@ export class UserStyleMemoryService {
 
       return {
         topPrompts: topPrompts.map(p => p.originalPrompt),
-        preferredCategories: memory.preferredCategories,
-        stylingKeywords: memory.stylingKeywords,
+        preferredCategories: memory?.preferredCategories || [],
+        stylingKeywords: memory?.stylingKeywords || [],
         averageSuccessScore,
       };
     } catch (error) {
