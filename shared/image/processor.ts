@@ -3,7 +3,7 @@
  * SSELFIE Platform - Image Processing
  */
 
-import sharp from 'sharp';
+import * as sharp from 'sharp';
 import type {
   ImageProcessingOptions,
   ResizeOptions,

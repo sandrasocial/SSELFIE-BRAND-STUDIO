@@ -129,7 +129,7 @@ export class S3StorageClient implements IStorageClient {
 
       const uploadResult: UploadResult = {
         key,
-        url: this.getPublicUrl(key),
+        url: this.buildPublicUrl(key),
         size: buffer.length,
         contentType,
         etag: result.ETag || '',
@@ -442,18 +442,19 @@ export class S3StorageClient implements IStorageClient {
   }
 
   /**
-   * Get public URL for object
+   * Get public URL for object (public method)
    */
-  private getPublicUrl(key: string): string {
+  getPublicUrl(key: string): string {
     const endpoint = this.config.endpoint || `https://s3.${this.config.region}.amazonaws.com`;
     return `${endpoint}/${this.config.bucket}/${key}`;
   }
 
   /**
-   * Get public URL for object (public method)
+   * Get public URL for object (private helper)
    */
-  getPublicUrl(key: string): string {
-    return this.getPublicUrl(key);
+  private buildPublicUrl(key: string): string {
+    const endpoint = this.config.endpoint || `https://s3.${this.config.region}.amazonaws.com`;
+    return `${endpoint}/${this.config.bucket}/${key}`;
   }
 
   /**

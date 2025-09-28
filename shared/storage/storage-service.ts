@@ -52,10 +52,10 @@ export class StorageService {
     } = {} as any
   ): Promise<UploadResult & { thumbnailUrl?: string; cdnUrl?: string }> {
     const startTime = Date.now();
+    let originalSize: number = 0;
 
     try {
       let uploadBuffer: Buffer;
-      let originalSize: number;
 
       // Convert File to Buffer if needed
       if (file instanceof File) {

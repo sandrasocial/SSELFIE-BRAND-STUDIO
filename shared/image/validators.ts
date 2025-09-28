@@ -3,7 +3,7 @@
  * SSELFIE Platform - Image Validation
  */
 
-import sharp from 'sharp';
+import * as sharp from 'sharp';
 import type {
   ImageValidationOptions,
   ValidationResult,

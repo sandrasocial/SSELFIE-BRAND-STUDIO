@@ -22,7 +22,11 @@ export class OptimizationManager {
   private static strategies: Map<string, OptimizationStrategy> = new Map();
 
   static {
-    // Register built-in strategies
+    // Register built-in strategies after they are defined
+    this.initializeStrategies();
+  }
+  
+  private static initializeStrategies() {
     this.registerStrategy('web-optimized', WEB_OPTIMIZED_STRATEGY);
     this.registerStrategy('high-quality', HIGH_QUALITY_STRATEGY);
     this.registerStrategy('fast-loading', FAST_LOADING_STRATEGY);
@@ -572,3 +576,10 @@ export class AdaptiveOptimizer {
     };
   }
 }
+
+// ============================================================================
+// Initialize strategies after they are defined
+// ============================================================================
+
+// Call initialization after all strategies are defined
+OptimizationManager['initializeStrategies']();
