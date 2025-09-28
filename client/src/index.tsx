@@ -137,10 +137,10 @@ function trapFocus(e: KeyboardEvent) {
 	const last = focusables[focusables.length - 1];
 	if (e.shiftKey && document.activeElement === first) {
 		e.preventDefault();
-		last.focus();
+		last?.focus();
 	} else if (!e.shiftKey && document.activeElement === last) {
 		e.preventDefault();
-		first.focus();
+		first?.focus();
 	}
 }
 

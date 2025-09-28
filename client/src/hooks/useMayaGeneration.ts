@@ -272,7 +272,7 @@ export const useMayaGeneration = (
                     return {
                       ...msg,
                       conceptCards: msg.conceptCards.map(concept => 
-                        concept.title === conceptName || concept.title.includes(conceptName.split(' ')[0])
+                        conceptName && (concept.title === conceptName || concept.title.includes(conceptName.split(' ')[0] || ''))
                           ? { 
                               ...concept, 
                               generatedImages: statusResponse.imageUrls,
