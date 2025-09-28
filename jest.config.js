@@ -1,11 +1,12 @@
 export default {
   preset: 'ts-jest/presets/default-esm',
   testEnvironment: 'jsdom',
-  roots: ['<rootDir>/tests', '<rootDir>/server', '<rootDir>/shared', '<rootDir>/client'],
+  roots: ['<rootDir>/tests', '<rootDir>/server', '<rootDir>/shared', '<rootDir>/client', '<rootDir>/__tests__'],
   testMatch: [
     '**/tests/**/*.test.ts',
     '**/tests/**/*.test.tsx',
-    '**/__tests__/**/*.ts',
+    '**/__tests__/**/*.test.ts',
+    '**/__tests__/**/*.test.tsx',
     '**/?(*.)+(spec|test).ts'
   ],
   transform: {
