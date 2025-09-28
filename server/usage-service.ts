@@ -349,7 +349,7 @@ export class UsageService {
 
     try {
       const usage = await storage.getUserUsage(userId);
-      const history = await storage.getUserUsageHistory();
+      const history = await storage.getUserUsageHistory(userId);
       
       if (!usage) return null;
 
