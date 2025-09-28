@@ -8,15 +8,15 @@ import { Request, Response, NextFunction } from 'express';
 export interface ApiError extends Error {
   statusCode?: number;
   code?: string;
-  details?: any;
+  details?: unknown;
 }
 
 export class RouteError extends Error implements ApiError {
   statusCode: number;
   code: string;
-  details?: any;
+  details?: unknown;
 
-  constructor(message: string, statusCode: number = 500, code?: string, details?: any) {
+  constructor(message: string, statusCode: number = 500, code?: string, details?: unknown) {
     super(message);
     this.name = 'RouteError';
     this.statusCode = statusCode;
@@ -39,7 +39,7 @@ export const ErrorTypes = {
 
 // Error factory functions
 export const createError = {
-  validation: (message: string, details?: any) => 
+  validation: (message: string, details?: unknown) => 
     new RouteError(message, 400, ErrorTypes.VALIDATION_ERROR, details),
   
   authentication: (message: string = 'Authentication required') => 
@@ -51,7 +51,7 @@ export const createError = {
   notFound: (message: string = 'Resource not found') => 
     new RouteError(message, 404, ErrorTypes.NOT_FOUND),
   
-  conflict: (message: string, details?: any) => 
+  conflict: (message: string, details?: unknown) => 
     new RouteError(message, 409, ErrorTypes.CONFLICT, details),
   
   rateLimit: (message: string = 'Rate limit exceeded') => 
@@ -60,11 +60,11 @@ export const createError = {
   serviceUnavailable: (message: string = 'Service temporarily unavailable') => 
     new RouteError(message, 503, ErrorTypes.SERVICE_UNAVAILABLE),
   
-  internal: (message: string = 'Internal server error', details?: any) => 
+  internal: (message: string = 'Internal server error', details?: unknown) => 
     new RouteError(message, 500, ErrorTypes.INTERNAL_ERROR, details),
   
   // Backward compatibility aliases
-  badRequest: (message: string, details?: any) => 
+  badRequest: (message: string, details?: unknown) => 
     new RouteError(message, 400, ErrorTypes.VALIDATION_ERROR, details),
   
   forbidden: (message: string = 'Insufficient permissions') => 
@@ -72,7 +72,9 @@ export const createError = {
 };
 
 // Async error wrapper for route handlers
-export const asyncHandler = (fn: Function) => {
+type RouteHandler = (req: Request, res: Response, next: NextFunction) => Promise<void> | void;
+
+export const asyncHandler = (fn: RouteHandler) => {
   return (req: Request, res: Response, next: NextFunction) => {
     Promise.resolve(fn(req, res, next)).catch(next);
   };
