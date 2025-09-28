@@ -206,7 +206,7 @@ export async function getVeo3Status(jobId: string, userId: string): Promise<VeoS
 
     // Generation completed
     const veoResult = result as VeoVideoResult;
-    const videoUrl = veoResult.response?.video?.uri || veoResult.response?.uri || result.response?.uri || null;
+    const videoUrl = veoResult.response?.video?.uri || veoResult.response?.uri || null;
     
     if (videoUrl) {
       console.log('✅ VEO 3: Generation completed successfully', { jobId: jobId.slice(-20) });
