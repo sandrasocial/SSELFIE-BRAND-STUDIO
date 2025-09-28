@@ -3,11 +3,11 @@ import { useState, useEffect } from 'react';
 import { BaseChatMessage } from './unified-chat.js';
 
 export interface ChatMessage extends BaseChatMessage {
-  role: 'user' | 'victoria'; // Changed from 'sender' to 'role' to match BaseChatMessage
-  context?: string;
+  role: 'user' | 'maya'; // Role can be either user or maya
+  context: string | null;
 }
 
-export function useVictoriaChat() {
+export function useMayaChat() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isTyping, setIsTyping] = useState(false);
 
@@ -15,27 +15,27 @@ export function useVictoriaChat() {
     const userMessage: ChatMessage = {
       id: Date.now().toString(),
       content,
-      role: 'user', // Changed from 'sender' to 'role'
+      role: 'user',
       timestamp: new Date(),
-      context
+      context: context || null
     };
 
     setMessages(prev => [...prev, userMessage]);
     setIsTyping(true);
 
-    // Get Victoria's authentic Sandra response
+    // Get Maya's response
     const response = await getContextualResponse(content, context);
     
     setTimeout(() => {
-      const victoriaMessage: ChatMessage = {
+      const mayaMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         content: response,
-        role: 'victoria', // Changed from 'sender' to 'role'
+        role: 'maya',
         timestamp: new Date(),
-        context
+        context: context || null
       };
       
-      setMessages(prev => [...prev, victoriaMessage]);
+      setMessages(prev => [...prev, mayaMessage]);
       setIsTyping(false);
     }, 1500);
   };
@@ -51,7 +51,11 @@ export function useVictoriaChat() {
 async function getContextualResponse(input: string, context?: string): Promise<string> {
   // Enhanced Sandra voice responses with context awareness
   const contextResponses = getContextualSandraResponses(input, context);
-  return contextResponses[Math.floor(Math.random() * contextResponses.length)];
+  if (!contextResponses || !contextResponses.length) {
+    return "I understand. Please tell me more.";
+  }
+  const index = Math.floor(Math.random() * contextResponses.length);
+  return contextResponses[index] ?? "I understand. Please tell me more.";
 }
 
 function getContextualSandraResponses(input: string, context?: string): string[] {

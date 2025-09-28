@@ -15,7 +15,6 @@ function getDefaultUserFields(overrides: Partial<InsertUser> = {}): InsertUser {
     role: 'user',
     monthlyGenerationLimit: 100,
     mayaAiAccess: true,
-    victoriaAiAccess: false,
     preferredOnboardingMode: 'conversational',
     onboardingProgress: {},
     gender: '',
@@ -47,7 +46,6 @@ import {
   selfieUploads,
   subscriptions,
   userUsage,
-  victoriaChats,
   photoSelections,
   landingPages,
   brandOnboarding,
@@ -82,8 +80,6 @@ import {
   type InsertSubscription,
   type UserUsage,
   type InsertUserUsage,
-  type VictoriaChat,
-  type InsertVictoriaChat,
   type PhotoSelection,
   type InsertPhotoSelection,
   type LandingPage,
@@ -217,11 +213,6 @@ export interface IStorage {
   updateUserUsage(userId: string, data: Partial<UserUsage>): Promise<UserUsage>;
 
 
-
-  // Victoria chat operations
-  createVictoriaChat(data: InsertVictoriaChat): Promise<VictoriaChat>;
-  getVictoriaChats(userId: string): Promise<VictoriaChat[]>;
-  getVictoriaChatsBySession(userId: string, sessionId: string): Promise<VictoriaChat[]>;
 
   // Maya chat operations
   getMayaChats(userId: string): Promise<MayaChat[]>;
@@ -372,8 +363,11 @@ export class DatabaseStorage implements IStorage {
         updatedAt: new Date()
       })
       .where(eq(users.id, existingUserId))
-      .returning();
+      .returning() as [User];
     
+    if (!linkedUser) {
+      throw new Error(`Failed to link user ${existingUserId} to Stack Auth ID ${stackAuthId}`);
+    }
     console.log(`✅ Successfully linked user to Stack Auth ID: ${linkedUser.email}`);
     return linkedUser;
   }
@@ -404,6 +398,9 @@ export class DatabaseStorage implements IStorage {
         updatedAt: new Date(),
       })
       .returning();
+    if (!user) {
+      throw new Error('Failed to create user');
+    }
     console.log('✅ Created new user:', user.id, user.email);
     return user;
   }
@@ -1104,14 +1101,6 @@ export class DatabaseStorage implements IStorage {
     return hasTrainedModel || user?.role === 'admin' || false;
   }
 
-  async hasVictoriaAIAccess(userId: string): Promise<boolean> {
-    // Victoria AI requires full-access tier + trained model
-    const user = await this.getUser(userId);
-    const userModel = await this.getUserModel(userId);
-    const hasTrainedModel = userModel?.trainingStatus === 'completed';
-    const hasFullAccess = user?.plan === 'full-access' || user?.role === 'admin';
-    return hasFullAccess && (hasTrainedModel || user?.role === 'admin');
-  }
 
   async hasSandraAIAccess(userId: string): Promise<boolean> {
     const usage = await this.getUserUsage(userId);
@@ -1154,30 +1143,6 @@ export class DatabaseStorage implements IStorage {
 
 
 
-  // Victoria chat operations
-  async createVictoriaChat(data: InsertVictoriaChat): Promise<VictoriaChat> {
-    const [chat] = await db
-      .insert(victoriaChats)
-      .values([data])
-      .returning();
-    return chat;
-  }
-
-  async getVictoriaChats(userId: string): Promise<VictoriaChat[]> {
-    return await db
-      .select()
-      .from(victoriaChats)
-      .where(eq(victoriaChats.userId, userId))
-      .orderBy(desc(victoriaChats.createdAt));
-  }
-
-  async getVictoriaChatsBySession(userId: string, sessionId: string): Promise<VictoriaChat[]> {
-    return await db
-      .select()
-      .from(victoriaChats)
-      .where(and(eq(victoriaChats.userId, userId), eq(victoriaChats.sessionId, sessionId)))
-      .orderBy(victoriaChats.createdAt);
-  }
 
   // Photo selections operations
   async savePhotoSelections(data: InsertPhotoSelection): Promise<PhotoSelection> {

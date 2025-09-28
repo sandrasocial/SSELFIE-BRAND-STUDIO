@@ -5,14 +5,13 @@ import type {
   ClaudeMessage as DbClaudeMessage,
   User,
   BrandOnboarding,
-  AgentMessage,
   AgentConversation,
 } from '../schema.js';
 
 // Base chat message interface
 export interface BaseChatMessage {
   id: string;
-  role: 'user' | 'assistant' | 'system' | 'maya' | 'victoria';
+  role: 'user' | 'assistant' | 'system' | 'maya' | 'ai';
   content: string;
   timestamp: Date;
   metadata?: Record<string, unknown>;
@@ -47,11 +46,18 @@ export interface MayaChatContext {
 }
 
 // Claude chat specific interfaces
-export interface ClaudeMessage extends Omit<BaseChatMessage, 'id'>, DbClaudeMessage {
+export interface ClaudeMessage {
+  id: number;
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+  timestamp: Date;
   conversationId: string;
   tokens: number;
   completionTokens: number;
   promptTokens: number;
+  metadata: Record<string, unknown>;
+  toolCalls?: unknown;
+  toolResults?: unknown;
 }
 
 export interface ClaudeConversation extends DbClaudeConversation {
@@ -92,7 +98,7 @@ export interface ChatAPIResponse {
 export interface ChatSession {
   id: string;
   userId: string;
-  agent: 'maya' | 'victoria' | 'claude';
+  agent: 'maya' | 'claude';
   startedAt: Date;
   endedAt?: Date;
   metadata?: Record<string, unknown>;
@@ -106,7 +112,7 @@ export const isChatMessage = (obj: unknown): obj is BaseChatMessage => {
     'role' in obj &&
     'content' in obj &&
     typeof (obj as BaseChatMessage).content === 'string' &&
-    ['user', 'assistant', 'system', 'maya', 'victoria'].includes((obj as BaseChatMessage).role)
+    ['user', 'assistant', 'system', 'maya'].includes((obj as BaseChatMessage).role)
   );
 };
 

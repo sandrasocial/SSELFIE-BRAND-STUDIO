@@ -1,4 +1,4 @@
-import { db } from '../drizzle.js';
+import { db, sql } from '../drizzle.js';
 import fs from 'fs';
 import path from 'path';
 import { exec } from 'child_process';
@@ -55,7 +55,12 @@ export class WorkflowExecutor {
           ORDER BY ordinal_position
         `;
         
-        const tableInfo = await db.execute(tableInfoQuery, [table]);
+        const tableInfo = await sql`
+          SELECT column_name, data_type, is_nullable, column_default
+          FROM information_schema.columns 
+          WHERE table_name = ${table}
+          ORDER BY ordinal_position
+        `;
         
         // Verify against schema definition
         if (!this.validateTableSchema(tableInfo, schemaContent, table)) {

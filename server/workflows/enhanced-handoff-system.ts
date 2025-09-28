@@ -1,5 +1,5 @@
 import { db } from '../drizzle.js';
-import { type ClaudeConversation, type ClaudeMessage } from '../../shared/types/chat.js';
+import { type ClaudeConversation, type ClaudeMessage } from '../../shared/types/claude-chat.js';
 import { claudeConversations, claudeMessages } from '../../shared/schema.js';
 import { eq, desc, and } from 'drizzle-orm';
 
@@ -181,7 +181,7 @@ export class EnhancedHandoffSystem {
       role: 'system',
       content: JSON.stringify({
         type: 'batch_completion',
-        completedTasks: results,
+        completedTasks: completed,
         timestamp: new Date().toISOString()
       }),
       metadata: { type: 'batch_completion' }

@@ -9,7 +9,6 @@ import { MAYA_PERSONALITY } from './maya-personality.js';
 import { ELENA_PERSONALITY } from './elena-personality.js';
 import { OLGA_PERSONALITY } from './olga-personality.js';
 import { ZARA_PERSONALITY } from './zara-personality.js';
-import { VICTORIA_PERSONALITY } from './victoria-personality.js';
 import { ARIA_PERSONALITY } from './aria-personality.js';
 import { RACHEL_PERSONALITY } from './rachel-personality.js';
 import { DIANA_PERSONALITY } from './diana-personality.js';
@@ -26,7 +25,6 @@ export const PURE_PERSONALITIES = {
   elena: ELENA_PERSONALITY,
   olga: OLGA_PERSONALITY,
   zara: ZARA_PERSONALITY,
-  victoria: VICTORIA_PERSONALITY,
   aria: ARIA_PERSONALITY,
   rachel: RACHEL_PERSONALITY,
   diana: DIANA_PERSONALITY,

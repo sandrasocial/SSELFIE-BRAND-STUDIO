@@ -1,7 +1,16 @@
 /**
  * Maya Personalization Service
  * 
- * Connects Maya AI to real user data for personalized responses instead of generic templates.
+ * Connects Maya AI to real user dat      const profileData: UserPersonalizationContext['profileData'] = {
+        name: user.displayName || 'Anonymous',
+        email: user.email ?? '',
+        firstName: undefined,
+        lastName: undefined,
+        profession: undefined,
+        brandStyle: undefined,
+        photoGoals: undefined,
+        joinedDate: user.createdAt
+      };onalized responses instead of generic templates.
  * Enables Maya to access subscription info, usage stats, profile data for intelligent content generation.
  */
 
@@ -55,15 +64,15 @@ export class MayaPersonalizationService {
 
       // Build subscription context
       const subscriptionData = {
-        plan: user.plan || 'sselfie-studio',
+        plan: user.plan ?? 'sselfie-studio',
         planDisplayName: 'SSELFIE Studio',
         monthlyPrice: 47,
-        monthlyUsed: user.generationsUsedThisMonth || 0,
-        monthlyLimit: user.monthlyGenerationLimit || 100,
-        isAdmin: user.monthlyGenerationLimit === -1,
-        nextBillingDate: user.subscriptionRenewDate || new Date(),
-        subscriptionActive: user.monthlyGenerationLimit > 0 || user.monthlyGenerationLimit === -1,
-        accountType: user.monthlyGenerationLimit === -1 ? 'Admin Account' : 'SSELFIE Studio Member',
+        monthlyUsed: (user as any).generationsUsedThisMonth ?? 0,
+        monthlyLimit: (user as any).monthlyGenerationLimit ?? 100,
+        isAdmin: (user as any).monthlyGenerationLimit === -1,
+        nextBillingDate: new Date(),
+        subscriptionActive: (user as any).monthlyGenerationLimit === -1 || ((user as any).monthlyGenerationLimit ?? 0) > 0,
+        accountType: (user as any).monthlyGenerationLimit === -1 ? 'Admin Account' : 'SSELFIE Studio Member',
         features: [
           'Personal AI model training',
           `${user.monthlyGenerationLimit === -1 ? 'Unlimited' : user.monthlyGenerationLimit || 100} monthly professional photos`,
@@ -75,7 +84,7 @@ export class MayaPersonalizationService {
 
       // Build profile context
       const profileData = {
-        name: user.displayName || `${user.firstName} ${user.lastName}`,
+        name: user.displayName ?? ([user.firstName, user.lastName].filter(Boolean).join(' ') || 'Anonymous'),
         email: user.email || '',
         firstName: user.firstName,
         lastName: user.lastName,
@@ -86,13 +95,16 @@ export class MayaPersonalizationService {
       };
 
       // Build usage context
-      const remainingGenerations = user.monthlyGenerationLimit === -1 
+      const monthlyLimit = user.monthlyGenerationLimit === null ? 100 : user.monthlyGenerationLimit;
+      const monthlyUsed = user.generationsUsedThisMonth ?? 0;
+
+      const remainingGenerations = monthlyLimit === -1 
         ? -1 
-        : (user.monthlyGenerationLimit || 100) - (user.generationsUsedThisMonth || 0);
+        : monthlyLimit - monthlyUsed;
         
-      const usagePercentage = user.monthlyGenerationLimit === -1 
+      const usagePercentage = monthlyLimit === -1 
         ? 0 
-        : ((user.generationsUsedThisMonth || 0) / (user.monthlyGenerationLimit || 100)) * 100;
+        : (monthlyUsed / monthlyLimit) * 100;
 
       const usageStats = {
         generationsThisMonth: user.generationsUsedThisMonth || 0,

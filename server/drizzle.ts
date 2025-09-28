@@ -13,7 +13,7 @@ export interface QueryResult<T = unknown> {
 export type QueryParams = string | number | boolean | null | Buffer | Date | QueryParams[];
 
 // Use HTTP-based connection for drizzle operations (optimal for serverless)
-const sql = neon(DATABASE_URL!, {
+export const sql = neon(DATABASE_URL!, {
   fetchOptions: {
     priority: 'high' // Prioritize database requests
   }

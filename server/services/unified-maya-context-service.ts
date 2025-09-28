@@ -78,7 +78,13 @@ interface ContextCache {
   };
 }
 
+interface CacheEntry {
+  timestamp: number;
+  context: UnifiedMayaContext;
+}
+
 export class UnifiedMayaContextService {
+  private contextCache: Record<string, CacheEntry> = {};
   private contextCache: ContextCache = {};
   private readonly CACHE_DURATION_MS = 5 * 60 * 1000; // 5 minutes
   
@@ -95,7 +101,7 @@ export class UnifiedMayaContextService {
     const cached = this.contextCache[cacheKey];
     if (cached && (Date.now() - cached.timestamp) < this.CACHE_DURATION_MS) {
       console.log(`⚡ UNIFIED CONTEXT: Cache hit for user ${userId}`);
-      return cached.data;
+      return cached.context;
     }
     
     console.log(`🔄 UNIFIED CONTEXT: Loading fresh context for user ${userId}`);
@@ -124,7 +130,7 @@ export class UnifiedMayaContextService {
       
       // Cache the result
       this.contextCache[cacheKey] = {
-        data: unifiedContext,
+        context: unifiedContext,
         timestamp: Date.now()
       };
       
@@ -306,9 +312,11 @@ export class UnifiedMayaContextService {
    */
   cleanupCache(): void {
     const now = Date.now();
-    const expiredKeys = Object.keys(this.contextCache).filter(
-      key => (now - this.contextCache[key].timestamp) > this.CACHE_DURATION_MS
-    );
+    const expiredKeys = Object.keys(this.contextCache).filter(key => {
+      const entry = this.contextCache[key];
+      if (!entry?.timestamp) return true; // Remove invalid entries
+      return (now - entry.timestamp) > this.CACHE_DURATION_MS;
+    });
     
     expiredKeys.forEach(key => delete this.contextCache[key]);
     

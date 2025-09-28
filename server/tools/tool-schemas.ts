@@ -185,7 +185,7 @@ export const TOOL_SCHEMAS = {
       properties: {
         target_agent: {
           type: "string",
-          enum: ["elena", "victoria", "zara", "aria", "maya", "olga", "rachel", "diana", "quinn", "wilma", "sophia", "martha", "ava", "flux"],
+          enum: ["elena", "zara", "aria", "maya", "olga", "rachel", "diana", "quinn", "wilma", "sophia", "martha", "ava", "flux"],
           description: "The agent to coordinate with"
         },
         task_description: {

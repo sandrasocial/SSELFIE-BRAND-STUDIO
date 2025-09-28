@@ -38,6 +38,10 @@ export function registerVictoriaWebsiteGenerator(app: Express) {
         })
         .returning();
 
+      if (!newWebsite || !newWebsite.slug) {
+        throw new Error('Failed to create website - no slug generated');
+      }
+
       res.json({
         success: true,
         website: newWebsite,

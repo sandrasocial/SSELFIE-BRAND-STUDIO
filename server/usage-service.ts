@@ -1,4 +1,5 @@
 import { storage } from './storage.js';
+import type { UserUsage } from '../shared/types/usage.js';
 
 // User usage type definition
 export interface UserUsage {
@@ -74,17 +75,21 @@ export class UsageService {
       ? new Date(now.getFullYear(), now.getMonth() + 1, now.getDate())
       : null;
 
-    return await storage.createUserUsage({
+    const newUsage: Omit<UserUsage, 'id'> = {
+      createdAt: now,
+      updatedAt: now,
       userId,
       plan,
       monthlyGenerationsAllowed: planLimits.monthlyGenerations,
       monthlyGenerationsUsed: 0,
-      totalCostIncurred: "0.0000",
+      totalCostIncurred: "0.00",
       currentPeriodStart: now,
-      currentPeriodEnd: periodEnd,
+      currentPeriodEnd: periodEnd ?? now,
       isLimitReached: false,
-      lastGenerationAt: null
-    });
+      lastGenerationAt: now
+    };
+    
+    return await storage.createUserUsage(newUsage);
   }
 
   // Check if user can generate images
@@ -94,7 +99,7 @@ export class UsageService {
     const adminEmails = ['ssa@ssasocial.com', 'sandrajonna@gmail.com', 'sandra@sselfie.ai'];
     
     // Admin users get unlimited access
-    if (user && (adminEmails.includes(user.email) || user.role === 'admin')) {
+    if (user?.email && (adminEmails.includes(user.email) || user.role === 'admin')) {
       console.log(`👑 Admin user detected: ${user.email} - granting unlimited access`);
       return {
         canGenerate: true,

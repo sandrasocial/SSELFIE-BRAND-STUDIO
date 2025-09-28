@@ -173,7 +173,7 @@ Generate comprehensive response now:`;
       
       if (config.includeConceptGeneration) {
         // Extract concepts with embedded prompts using optimized parsing
-        const conceptPattern = /([\p{Emoji_Presentation}\p{Extended_Pictographic}])\s*\*\*([^*\n]{8,50})\*\*\n(.*?)(?=FLUX_PROMPT:\s*(.*?)(?=\n[\p{Emoji_Presentation}\p{Extended_Pictographic}]|\n\n|$))/gsu;
+        const conceptPattern = /([\u{1F300}-\u{1F9FF}])\s*\*\*([^*\n]{8,50})\*\*\n(.*?)(?=FLUX_PROMPT:\s*(.*?)(?=\n[\u{1F300}-\u{1F9FF}]|\n\n|$))/gsu;
         
         let match;
         let conceptNumber = 1;
@@ -184,7 +184,7 @@ Generate comprehensive response now:`;
           const description = match[3].trim();
           
           // Extract FLUX prompt that follows this concept
-          const fluxPromptMatch = response.substring(match.index + match[0].length).match(/FLUX_PROMPT:\s*(.*?)(?=\n[\p{Emoji_Presentation}\p{Extended_Pictographic}]|\n\n|$)/s);
+          const fluxPromptMatch = response.substring(match.index + match[0].length).match(/FLUX_PROMPT:\s*(.*?)(?=\n[\u{1F300}-\u{1F9FF}]|\n\n|$)/su);
           const embeddedPrompt = fluxPromptMatch ? fluxPromptMatch[1].trim() : null;
           
           if (embeddedPrompt) {

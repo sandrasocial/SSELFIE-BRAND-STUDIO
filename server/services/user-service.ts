@@ -110,7 +110,6 @@ export class UserService extends BaseService {
       role: 'user',
       monthlyGenerationLimit: 100,
       mayaAiAccess: true,
-      victoriaAiAccess: false,
       preferredOnboardingMode: 'conversational',
       onboardingProgress: {},
       gender: '',

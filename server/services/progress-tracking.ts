@@ -10,8 +10,8 @@ import { taskDependencyMapping } from './task-dependency-mapping.js'
 interface ProgressMetrics {
   timestamp: Date;
   workflowId: string;
-  agentId?: string;
-  taskId?: string;
+  agentId: string | undefined;
+  taskId: string | undefined;
   metric: string;
   value: number;
   unit: string;
@@ -433,7 +433,7 @@ export class ProgressTrackingService {
     if (progressPoints.length < 2) return 0;
     
     const differences = progressPoints.slice(1).map((point, index) => 
-      point - progressPoints[index]
+      point - (progressPoints[index] ?? 0)
     );
     
     return differences.reduce((sum, diff) => sum + diff, 0) / differences.length;
@@ -446,7 +446,7 @@ export class ProgressTrackingService {
     if (velocity <= 0) return null;
     
     const currentProgress = progressPoints[progressPoints.length - 1];
-    const remainingProgress = 100 - currentProgress;
+    const remainingProgress = 100 - (currentProgress ?? 0);
     
     if (remainingProgress <= 0) return new Date();
     
@@ -468,7 +468,10 @@ export class ProgressTrackingService {
     
     if (totalTasks === 0) return 100;
     
-    const efficiency = ((completedTasks - failedTasks) / totalTasks) * 100;
+    const completed = completedTasks ?? 0;
+    const failed = failedTasks ?? 0;
+    const total = totalTasks || 1; // Avoid division by zero
+    const efficiency = ((completed - failed) / total) * 100;
     return Math.max(0, Math.min(100, Math.round(efficiency)));
   }
 

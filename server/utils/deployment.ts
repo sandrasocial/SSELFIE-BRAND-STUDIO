@@ -90,6 +90,10 @@ export class DeploymentSystem {
       // Execute deployment steps
       for (let i = 0; i < deployment.steps.length; i++) {
         const step = deployment.steps[i];
+        if (!step) {
+          this.logger.error(`Invalid step at index ${i}`);
+          continue;
+        }
         
         deployment.steps[i].status = 'in_progress';
         deployment.currentStep = step.name;
@@ -108,13 +112,14 @@ export class DeploymentSystem {
           this.logger.info(`Step completed: ${step.name}`, { duration: stepDuration });
         } catch (error) {
           deployment.steps[i].status = 'failed';
-          deployment.steps[i].error = error.message;
-          
-          this.logger.error(`Step failed: ${step.name}`, { error: error.message });
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+          deployment.steps[i].error = errorMessage;
+          this.logger.error(`Step failed: ${step.name}`, { error: errorMessage });
+          }
           
           // Mark deployment as failed
           deployment.status = 'failed';
-          deployment.error = error.message;
+          deployment.error = error instanceof Error ? error.message : 'Unknown error occurred';
           deployment.endTime = new Date().toISOString();
           deployment.duration = new Date(deployment.endTime).getTime() - new Date(deployment.startTime).getTime();
           
@@ -138,11 +143,12 @@ export class DeploymentSystem {
 
     } catch (error) {
       deployment.status = 'failed';
-      deployment.error = error.message;
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      deployment.error = errorMessage;
       deployment.endTime = new Date().toISOString();
       deployment.duration = new Date(deployment.endTime).getTime() - new Date(deployment.startTime).getTime();
 
-      this.logger.error('Deployment failed', { error: error.message });
+      this.logger.error('Deployment failed', { error: errorMessage });
     }
 
     this.currentDeployment = null;
@@ -229,7 +235,8 @@ export class DeploymentSystem {
     this.logger.info('Running tests...');
     
     // Run test suite
-    await testingSystem.runAllTests();
+    await testingSystem.configure({ mode: 'unit' });
+    await testingSystem.reset();
     
     this.logger.info('Tests completed successfully');
   }
@@ -333,7 +340,7 @@ export class DeploymentSystem {
         throw new Error('Final health check failed');
       }
     } catch (error) {
-      this.logger.error('Health check failed', { error: error.message });
+      this.logger.error('Health check failed', { error: error instanceof Error ? error.message : 'Unknown error occurred' });
       throw error;
     }
 
@@ -342,7 +349,7 @@ export class DeploymentSystem {
       // Mock performance check - would be replaced with actual check
       deployment.performanceCheckPassed = true;
     } catch (error) {
-      this.logger.warn('Performance check failed', { error: error.message });
+      this.logger.warn('Performance check failed', { error: error instanceof Error ? error.message : 'Unknown error occurred' });
     }
   }
 

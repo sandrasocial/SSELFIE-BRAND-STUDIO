@@ -18,27 +18,27 @@ export interface UserSupportContext {
     generationsUsed: number;
     generationsTotal: number;
     billingStatus: string;
-    nextBilling?: Date;
+    nextBilling?: Date | undefined;
   };
   training: {
     hasModel: boolean;
     trainingStatus: string;
-    lastTrainingDate?: Date;
-    trainingProgress?: string;
-    modelQuality?: string;
+    lastTrainingDate?: Date | undefined;
+    trainingProgress?: string | undefined;
+    modelQuality?: string | undefined;
   };
   usage: {
     recentGenerations: number;
     totalGenerations: number;
-    lastActivity?: Date;
+    lastActivity?: Date | undefined;
     favoriteStyles: string[];
     commonIssues: string[];
   };
   technical: {
     recentErrors: string[];
-    browserInfo?: string;
-    lastSuccessfulAction?: string;
-    connectionIssues?: boolean;
+    browserInfo?: string | undefined;
+    lastSuccessfulAction?: string | undefined;
+    connectionIssues?: boolean | undefined;
   };
 }
 
@@ -142,7 +142,7 @@ export class SupportIntelligenceService {
       
       if (hasModel && userModel) {
         trainingStatus = userModel.trainingStatus || 'completed';
-        lastTrainingDate = new Date(userModel.createdAt);
+        lastTrainingDate = userModel.createdAt ? new Date(userModel.createdAt) : undefined;
         modelQuality = userModel.trainingStatus === 'completed' ? 'good' : 'unknown';
         
         // Check training status more specifically
@@ -183,7 +183,8 @@ export class SupportIntelligenceService {
       
       // Get last activity from Maya chats
       const mayaChats = await storage.getMayaChats(userId);
-      const lastActivity = mayaChats.length > 0 ? mayaChats[0].lastActivity || mayaChats[0].createdAt : undefined;
+      const firstChat = mayaChats.length > 0 ? mayaChats[0] : undefined;
+      const lastActivity = firstChat ? firstChat.lastActivity || firstChat.createdAt : undefined;
       
       // Analyze usage patterns (simplified)
       const favoriteStyles = await this.analyzeFavoriteStyles(userId);

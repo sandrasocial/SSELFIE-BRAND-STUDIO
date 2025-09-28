@@ -12,9 +12,9 @@ export interface PerformanceMetric {
   memoryUsage: number;
   cpuUsage: number;
   success: boolean;
-  responseTime?: number; // ms, for compatibility with stats calculations
-  errorRate?: number; // for compatibility with stats calculations
-  metadata?: Record<string, any>;
+  responseTime?: number | undefined; // ms, for compatibility with stats calculations
+  errorRate?: number | undefined; // for compatibility with stats calculations
+  metadata: Record<string, any>;
 }
 
 export interface PerformanceStats {
@@ -85,7 +85,7 @@ export class PerformanceMonitor {
         memoryUsage,
         cpuUsage,
         success,
-        metadata
+        metadata: metadata ?? {}
       };
 
       this.addMetric(metric);
@@ -169,7 +169,7 @@ export class PerformanceMonitor {
     return operations
       .map(op => this.getStats(op, timeWindow))
       .filter((stats): stats is PerformanceStats => stats !== null)
-      .sort((a, b) => b.totalCalls - a.totalCalls);
+      .sort((a, b) => (b.totalCalls ?? 0) - (a.totalCalls ?? 0));
   }
 
   /**
@@ -362,16 +362,16 @@ export class PerformanceMonitor {
     const alerts: string[] = [];
     const stats = this.getPerformanceStats(1);
 
-    if (stats.averageResponseTime > 2000) {
+    if ((stats.averageResponseTime ?? 0) > 2000) {
       alerts.push('High response time detected');
     }
-    if (stats.errorRate > 5) {
+    if ((stats.errorRate ?? 0) > 5) {
       alerts.push('High error rate detected');
     }
-    if (stats.averageCpuUsage > 80) {
+    if ((stats.averageCpuUsage ?? 0) > 80) {
       alerts.push('High CPU usage detected');
     }
-    if (stats.averageMemoryUsage > 1000) {
+    if ((stats.averageMemoryUsage ?? 0) > 1000) {
       alerts.push('High memory usage detected');
     }
 

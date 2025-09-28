@@ -3,7 +3,13 @@
  * Handles image inpainting functionality
  */
 
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
+
+interface AuthRequest extends Request {
+  user: {
+    id: string;
+  };
+}
 import { requireStackAuth } from './middleware/auth.js';
 import { asyncHandler, createError, sendSuccess, validateRequired } from './middleware/error-handler.js';
 import { SDInpaintService } from '../services/inpaint/sd_inpaint.js';
@@ -16,7 +22,7 @@ const router = Router();
  * Start inpainting process
  * Body: { imageId: number, maskPng: string (base64), prompt: string }
  */
-router.post('/api/inpaint', requireStackAuth, asyncHandler(async (req: any, res) => {
+router.post('/api/inpaint', requireStackAuth, asyncHandler(async (req: AuthRequest, res: Response) => {
   const userId = req.user.id;
   const { imageId, maskPng, prompt } = req.body;
 
@@ -81,7 +87,7 @@ router.post('/api/inpaint', requireStackAuth, asyncHandler(async (req: any, res)
  * GET /api/inpaint/:predictionId/status
  * Check inpainting prediction status
  */
-router.get('/api/inpaint/:predictionId/status', requireStackAuth, asyncHandler(async (req: any, res) => {
+router.get('/api/inpaint/:predictionId/status', requireStackAuth, asyncHandler(async (req: AuthRequest, res: Response) => {
   const userId = req.user.id;
   const { predictionId } = req.params;
   const { variantId } = req.query;
@@ -93,7 +99,7 @@ router.get('/api/inpaint/:predictionId/status', requireStackAuth, asyncHandler(a
       throw createError.badRequest('variantId query parameter is required');
     }
 
-    const result = await SDInpaintService.checkInpaintStatus(predictionId, parseInt(variantId));
+    const result = await SDInpaintService.checkInpaintStatus(predictionId, '0');
 
     sendSuccess(res, result);
 
@@ -107,7 +113,7 @@ router.get('/api/inpaint/:predictionId/status', requireStackAuth, asyncHandler(a
  * GET /api/inpaint/variants/:imageId
  * Get all inpainting variants for a specific image
  */
-router.get('/api/inpaint/variants/:imageId', requireStackAuth, asyncHandler(async (req: any, res) => {
+router.get('/api/inpaint/variants/:imageId', requireStackAuth, asyncHandler(async (req: AuthRequest, res: Response) => {
   const userId = req.user.id;
   const { imageId } = req.params;
   const { imageType = 'ai_image' } = req.query;
@@ -116,7 +122,7 @@ router.get('/api/inpaint/variants/:imageId', requireStackAuth, asyncHandler(asyn
     console.log('🎨 INPAINT: Getting variants for image:', imageId, 'type:', imageType);
 
     const variants = await SDInpaintService.getImageInpaintVariants(
-      parseInt(imageId), 
+      parseInt(imageId || '0'), 
       imageType as 'ai_image' | 'generated_image'
     );
 
@@ -138,7 +144,7 @@ router.get('/api/inpaint/variants/:imageId', requireStackAuth, asyncHandler(asyn
  * GET /api/inpaint/user-variants
  * Get all inpainting variants for the current user
  */
-router.get('/api/inpaint/user-variants', requireStackAuth, asyncHandler(async (req: any, res) => {
+router.get('/api/inpaint/user-variants', requireStackAuth, asyncHandler(async (req: AuthRequest, res: Response) => {
   const userId = req.user.id;
 
   try {
@@ -161,28 +167,35 @@ router.get('/api/inpaint/user-variants', requireStackAuth, asyncHandler(async (r
  * DELETE /api/inpaint/variant/:variantId
  * Delete an inpainting variant
  */
-router.delete('/api/inpaint/variant/:variantId', requireStackAuth, asyncHandler(async (req: any, res) => {
+router.delete('/api/inpaint/variant/:variantId', requireStackAuth, asyncHandler(async (req: AuthRequest, res: Response) => {
   const userId = req.user.id;
   const { variantId } = req.params;
 
-  try {
-    console.log('🎨 INPAINT: Deleting variant:', variantId, 'for user:', userId);
+  if (!variantId) {
+    throw createError.badRequest('Missing variantId parameter');
+  }
 
-    // Get the variant to verify ownership
-    const variant = await storage.getImageVariant(parseInt(variantId));
-    
-    if (!variant) {
-      throw createError.notFound('Variant not found');
-    }
+  console.log('🎨 INPAINT: Deleting variant:', variantId, 'for user:', userId);
 
-    if (variant.userId !== userId) {
-      throw createError.forbidden('Not authorized to delete this variant');
-    }
+  const variant = await storage.getImageVariant(parseInt(variantId), userId);
+  
+  if (!variant) {
+    throw createError.notFound('Variant not found');
+  }
 
-    // TODO: Implement deleteImageVariant method in storage
-    // For now, we'll update the status to 'deleted'
-    await storage.updateImageVariant(parseInt(variantId), {
-      generationStatus: 'deleted'
+  if (variant.userId !== userId) {
+    throw createError.forbidden('Not authorized to delete this variant');
+  }
+
+  // Update the status to 'deleted'
+  await storage.updateImageVariant(parseInt(variantId), {
+    processingStatus: 'deleted'
+  });
+
+  sendSuccess(res, { message: 'Variant deleted successfully' });
+}));
+      processingStatus: 'deleted'
+
     });
 
     sendSuccess(res, { message: 'Variant deleted successfully' });

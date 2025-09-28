@@ -539,17 +539,7 @@ export const videoStoryboards = pgTable("video_storyboards", {
   index("video_storyboards_status_idx").on(table.status),
 ]);
 
-// Victoria AI chat conversations
-export const victoriaChats = pgTable("victoria_chats", {
-  id: serial("id").primaryKey(),
-  userId: varchar("user_id").references(() => users.id).notNull(),
-  sessionId: varchar("session_id").notNull(), // Group related messages
-  message: text("message").notNull(),
-  sender: varchar("sender").notNull(), // 'user' or 'victoria'
-  messageType: varchar("message_type").default("text"), // text, template_suggestion, photo_selection
-  metadata: jsonb("metadata"), // Store template data, photo selections, etc.
-  createdAt: timestamp("created_at").defaultNow(),
-});
+// Victoria chat functionality moved to legacy
 
 // Photo selections for landing page builder
 export const photoSelections = pgTable("photo_selections", {
@@ -886,7 +876,7 @@ export const insertOnboardingDataSchema = createInsertSchema(onboardingData).omi
 export const insertSelfieUploadSchema = createInsertSchema(selfieUploads).omit({ id: true, createdAt: true });
 export const insertUserModelSchema = createInsertSchema(userModels).omit({ id: true, createdAt: true });
 export const insertGeneratedImageSchema = createInsertSchema(generatedImages).omit({ id: true, createdAt: true });
-export const insertVictoriaChatSchema = createInsertSchema(victoriaChats).omit({ id: true, createdAt: true });
+// Victoria chat schema moved to legacy
 export const insertPhotoSelectionSchema = createInsertSchema(photoSelections).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertLandingPageSchema = createInsertSchema(landingPages).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertBrandOnboardingSchema = createInsertSchema(brandOnboarding).omit({ id: true, createdAt: true, updatedAt: true });
@@ -996,8 +986,7 @@ export type InsertGeneratedVideo = typeof generatedVideos.$inferInsert;
 export type GeneratedVideo = typeof generatedVideos.$inferSelect;
 export type InsertVideoStoryboard = typeof videoStoryboards.$inferInsert;
 export type VideoStoryboard = typeof videoStoryboards.$inferSelect;
-export type InsertVictoriaChat = typeof victoriaChats.$inferInsert;
-export type VictoriaChat = typeof victoriaChats.$inferSelect;
+
 export type InsertPhotoSelection = typeof photoSelections.$inferInsert;
 export type PhotoSelection = typeof photoSelections.$inferSelect;
 export type InsertLandingPage = typeof landingPages.$inferInsert;

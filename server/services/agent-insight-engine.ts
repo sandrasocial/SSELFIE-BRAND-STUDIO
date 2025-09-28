@@ -47,12 +47,6 @@ const AGENT_SPECIALIZATIONS = {
     triggers: ['styling_trend', 'user_preference_shift', 'ai_enhancement', 'generation_insight'],
     emoji: '✨'
   },
-  victoria: {
-    role: 'UX Strategist',
-    insightTypes: ['strategic', 'technical'],
-    triggers: ['user_experience_gap', 'conversion_optimization', 'usability_issue', 'feature_request'],
-    emoji: '📊'
-  },
   rachel: {
     role: 'Brand Copywriter',
     insightTypes: ['strategic', 'operational'],
@@ -200,7 +194,7 @@ export class AgentInsightEngine {
       cooldownMinutes: 180
     });
 
-    // Victoria - UX Optimization Insights
+
     this.addTrigger({
       agentName: 'victoria',
       triggerType: 'conversion_funnel_analysis',

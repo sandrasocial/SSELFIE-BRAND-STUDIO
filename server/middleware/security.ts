@@ -79,7 +79,8 @@ export class SecurityMiddleware {
 
         next();
       } catch (error) {
-        this.logger.error('Input validation error', { error: error.message });
+        const message = error instanceof Error ? error.message : 'Unknown error occurred';
+        this.logger.error('Input validation error', { error: error instanceof Error ? error.message : 'Unknown error occurred' });
         return res.status(400).json({
           success: false,
           error: { message: 'Input validation failed', code: 'VALIDATION_ERROR' }

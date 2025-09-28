@@ -10,9 +10,7 @@ import { db } from "./drizzle.js";
 import { claudeConversations, claudeMessages } from "../shared/schema.js";
 import { eq, and, desc } from "drizzle-orm";
 import emailAutomation from './routes/email-automation.js';
-import victoriaWebsiteRouter from "./routes/victoria-website.js";
-import { registerVictoriaService } from "./routes/victoria-service.js";
-import { registerVictoriaWebsiteGenerator } from "./routes/victoria-website-generator.js";
+// Victoria routes moved to legacy
 import videoRoutes from './routes/video.js';
 import { liveSessionRoutes } from './routes/live-session.js';
 import { analyticsRoutes } from './routes/analytics.js';
@@ -579,13 +577,7 @@ function generatePersonalizedScenePrompt(sceneNumber: number, originalMessage: s
   // Setup rollback routes
   setupRollbackRoutes(app);
   
-  // Register Victoria AI service layer
-  registerVictoriaService(app);
-  
-  // Register Victoria website generator
-  registerVictoriaWebsiteGenerator(app);
-  
-  // PHASE 4: OLD MAYA ROUTES DISABLED (Fragmented system archived)
+  // Victoria services moved to legacy  // PHASE 4: OLD MAYA ROUTES DISABLED (Fragmented system archived)
   // registerMayaAIRoutes(app);
   // app.use('/api/maya-onboarding', mayaOnboardingRoutes);
   

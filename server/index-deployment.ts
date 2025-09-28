@@ -43,7 +43,7 @@ async function loadRoutes() {
   try {
     const { registerRoutes } = await import('./routes.js');
     await registerRoutes(app);
-    console.log('✅ Routes loaded: Maya, Victoria, Training, Payments, Admin');
+    console.log('✅ Routes loaded: Maya, Training, Payments, Admin');
     return true;
   } catch (error) {
     console.warn('⚠️ Routes loading failed:', error.message);

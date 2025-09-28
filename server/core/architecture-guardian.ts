@@ -196,7 +196,7 @@ export class ArchitectureGuardian {
     }
 
     const requiredAgents = [
-      'elena', 'zara', 'maya', 'aria', 'victoria', 'quinn', 
+      'elena', 'zara', 'maya', 'aria', 'quinn', 
       'rachel', 'sophia', 'olga', 'wilma', 'diana', 'martha', 'ava', 'flux'
     ];
 
