@@ -39,7 +39,7 @@ interface BrandStudioState {
   selectedConceptCardId: string | null;
   isTyping: boolean;
   pendingMessageIds: string[];
-  activeTab: 'photo' | 'story';
+  activeTab: 'photo' | 'story' | 'maya';
   handoffData: {
     conceptCard?: ConceptCard;
     fromPhoto?: boolean;
@@ -50,7 +50,7 @@ interface BrandStudioContextType extends BrandStudioState {
   // Actions
   sendMessage: (content: string) => void;
   selectConceptCard: (id: string | null) => void;
-  setActiveTab: (tab: 'photo' | 'story') => void;
+  setActiveTab: (tab: 'photo' | 'story' | 'maya') => void;
   setHandoffData: (data: BrandStudioState['handoffData']) => void;
   clearHandoffData: () => void;
   startNewSession: () => void;
@@ -266,7 +266,7 @@ export function BrandStudioProvider({ children }: { children: React.ReactNode })
     dispatch({ type: 'SELECT_CONCEPT_CARD', payload: id });
   }, []);
 
-  const setActiveTab = useCallback((tab: 'photo' | 'story') => {
+  const setActiveTab = useCallback((tab: 'photo' | 'story' | 'maya') => {
     dispatch({ type: 'SET_ACTIVE_TAB', payload: tab });
   }, []);
 
