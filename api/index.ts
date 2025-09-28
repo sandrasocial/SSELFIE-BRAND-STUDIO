@@ -67,9 +67,16 @@ interface ConceptCard {
   id: string;
   title: string;
   description: string;
-  fluxPrompt: string;
-  category: string;
-  emoji: string;
+  fluxPrompt?: string;
+  fullPrompt?: string;
+  category?: string;
+  emoji?: string;
+  type?: 'portrait' | 'flatlay' | 'lifestyle';
+  imageUrl?: string;
+  generatedImages?: string[];
+  isGenerating?: boolean;
+  isLoading?: boolean;
+  hasGenerated?: boolean;
 }
 
 interface ConversationEntry {
@@ -86,6 +93,17 @@ interface AuthenticatedUser {
   plan: string;
   role: string;
   stackUser: StackAuthUserInfo;
+}
+
+// Maya API response interface for better error handling
+interface MayaAPIResponse {
+  response?: string;
+  reply?: string;
+  conceptCards?: ConceptCard[];
+  success?: boolean;
+  error?: string;
+  message?: string;
+  code?: string;
 }
 
 // Stack Auth configuration
