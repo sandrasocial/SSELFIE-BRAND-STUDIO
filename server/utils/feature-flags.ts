@@ -20,6 +20,12 @@ export class FeatureFlags {
     PERFORMANCE_MONITORING: process.env.PERFORMANCE_MONITORING === 'true',
     SECURITY_HARDENING: process.env.SECURITY_HARDENING === 'true',
     
+    // Notification System Features
+    NOTIFICATIONS_ENABLED: process.env.NOTIFICATIONS_ENABLED === 'true' || true, // Default enabled
+    EMAIL_NOTIFICATIONS: process.env.EMAIL_NOTIFICATIONS === 'true' || true, // Default enabled
+    REAL_TIME_NOTIFICATIONS: process.env.REAL_TIME_NOTIFICATIONS === 'true' || true, // Default enabled
+    NOTIFICATION_PERSISTENCE: process.env.NOTIFICATION_PERSISTENCE === 'true' || true, // Default enabled
+    
     // Development flags
     DEBUG_MODE: process.env.NODE_ENV === 'development',
     VERBOSE_LOGGING: process.env.VERBOSE_LOGGING === 'true',

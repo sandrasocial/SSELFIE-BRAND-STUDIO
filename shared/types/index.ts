@@ -5,6 +5,9 @@ export * from './base.js';
 // Export all API types
 export * from './api.js';
 
+// Export notification system types
+export * from './notification-types.js';
+
 // Define global interfaces
 export interface ServiceResponse<T> {
   success: boolean;

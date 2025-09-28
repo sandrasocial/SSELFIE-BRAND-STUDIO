@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Model Training Complete - SSELFIE Studio</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #ffffff;">
+    <div style="text-align: center; margin-bottom: 30px;">
+        <h1 style="color: #0a0a0a; font-size: 28px; margin: 0;">🎉 Training Complete!</h1>
+    </div>
+    
+    <div style="background-color: #f8f9fa; padding: 25px; border-radius: 10px; margin-bottom: 25px;">
+        <h2 style="color: #333; font-size: 20px; margin-bottom: 15px;">Hi {{userName}},</h2>
+        <p style="color: #666; font-size: 16px; line-height: 1.6; margin-bottom: 15px;">
+            Great news! Your AI model <strong>"{{modelName}}"</strong> has finished training successfully.
+        </p>
+        <p style="color: #666; font-size: 16px; line-height: 1.6;">
+            Training completed in {{trainingDuration}} minutes. Your model is now ready to generate personalized content.
+        </p>
+        
+        {{#if accuracy}}
+        <div style="background-color: white; padding: 15px; border-radius: 5px; margin: 15px 0;">
+            <p style="margin: 5px 0;"><strong>Model Accuracy:</strong> {{accuracy}}%</p>
+        </div>
+        {{/if}}
+    </div>
+    
+    <div style="text-align: center; margin: 30px 0;">
+        <a href="https://sselfie.ai/studio?model={{modelId}}" 
+           style="background: #0a0a0a; color: white; padding: 15px 30px; text-decoration: none; font-size: 16px; border-radius: 5px; display: inline-block;">
+            Start Creating
+        </a>
+    </div>
+    
+    <div style="background-color: #f0f8ff; padding: 20px; border-radius: 8px; margin: 25px 0;">
+        <h3 style="color: #0066cc; margin-top: 0;">What's Next?</h3>
+        <ul style="color: #666; padding-left: 20px;">
+            <li>Generate your first personalized content</li>
+            <li>Experiment with different styles and tones</li>
+            <li>Share your creations with your audience</li>
+        </ul>
+    </div>
+    
+    <div style="border-top: 1px solid #ddd; padding-top: 20px; margin-top: 40px; text-align: center;">
+        <p style="color: #666; font-size: 14px;">
+            Questions? Simply reply to this email.<br>
+            Sandra & the SSELFIE Studio team
+        </p>
+        <p style="color: #999; font-size: 12px; margin-top: 15px;">
+            You received this email because you have an active SSELFIE Studio account.<br>
+            <a href="https://sselfie.ai/unsubscribe?token={{unsubscribeToken}}" style="color: #999;">Unsubscribe</a>
+        </p>
+    </div>
+</body>
+</html>

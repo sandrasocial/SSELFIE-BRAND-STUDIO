@@ -1,6 +1,8 @@
 // Jest setup file for all tests
 // This file is run before each test file
 
+require('@testing-library/jest-dom');
+
 // Mock console methods to avoid noise in test output
 global.console = {
   ...console,

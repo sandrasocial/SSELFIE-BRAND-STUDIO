@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Onboarding Update - SSELFIE Studio</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #ffffff;">
+    <div style="text-align: center; margin-bottom: 30px;">
+        <h1 style="color: #0a0a0a; font-size: 28px; margin: 0;">
+            {{#if completed}}🎯{{else}}👋{{/if}} Onboarding Update
+        </h1>
+    </div>
+    
+    <div style="background-color: #f8f9fa; padding: 25px; border-radius: 10px; margin-bottom: 25px;">
+        <h2 style="color: #333; font-size: 20px; margin-bottom: 15px;">Hi {{userName}},</h2>
+        
+        {{#if completed}}
+        <p style="color: #666; font-size: 16px; line-height: 1.6; margin-bottom: 15px;">
+            Great progress! You've completed the <strong>"{{step}}"</strong> step.
+        </p>
+        <div style="background-color: #d4edda; padding: 15px; border-radius: 8px; border-left: 4px solid #28a745; margin: 15px 0;">
+            <p style="color: #155724; margin: 0; font-weight: bold;">✓ Step Completed</p>
+        </div>
+        {{else}}
+        <p style="color: #666; font-size: 16px; line-height: 1.6; margin-bottom: 15px;">
+            Let's continue with your onboarding. The next step is <strong>"{{step}}"</strong>.
+        </p>
+        <div style="background-color: #cce7ff; padding: 15px; border-radius: 8px; border-left: 4px solid #007bff; margin: 15px 0;">
+            <p style="color: #004085; margin: 0; font-weight: bold;">→ Next Step</p>
+        </div>
+        {{/if}}
+        
+        {{#if nextAction}}
+        <div style="background-color: white; padding: 15px; border-radius: 8px; margin: 15px 0;">
+            <p style="margin: 0;"><strong>Next action:</strong> {{nextAction}}</p>
+        </div>
+        {{/if}}
+    </div>
+    
+    <!-- Progress indicator -->
+    <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 25px 0;">
+        <h3 style="color: #333; margin-top: 0; text-align: center;">Your Progress</h3>
+        <div style="background-color: #e9ecef; height: 8px; border-radius: 4px; overflow: hidden;">
+            <div style="background-color: #28a745; height: 100%; width: {{progressPercentage}}%; transition: width 0.3s ease;"></div>
+        </div>
+        <p style="text-align: center; color: #666; font-size: 14px; margin: 8px 0 0 0;">
+            {{progressPercentage}}% Complete
+        </p>
+    </div>
+    
+    <div style="text-align: center; margin: 30px 0;">
+        <a href="https://sselfie.ai/onboarding{{#if stepUrl}}?step={{stepUrl}}{{/if}}" 
+           style="background: #0a0a0a; color: white; padding: 15px 30px; text-decoration: none; font-size: 16px; border-radius: 5px; display: inline-block;">
+            {{#if completed}}Continue Setup{{else}}Complete This Step{{/if}}
+        </a>
+    </div>
+    
+    <!-- Onboarding steps overview -->
+    <div style="background-color: #f0f8ff; padding: 20px; border-radius: 8px; margin: 25px 0;">
+        <h3 style="color: #0066cc; margin-top: 0;">Onboarding Steps</h3>
+        <ol style="color: #666; padding-left: 20px; margin: 10px 0;">
+            <li style="margin: 8px 0; {{#if (eq currentStep 1)}}font-weight: bold; color: #333;{{/if}}">
+                Account Setup {{#if (gte currentStep 1)}}✅{{/if}}
+            </li>
+            <li style="margin: 8px 0; {{#if (eq currentStep 2)}}font-weight: bold; color: #333;{{/if}}">
+                Profile Configuration {{#if (gte currentStep 2)}}✅{{/if}}
+            </li>
+            <li style="margin: 8px 0; {{#if (eq currentStep 3)}}font-weight: bold; color: #333;{{/if}}">
+                First Model Training {{#if (gte currentStep 3)}}✅{{/if}}
+            </li>
+            <li style="margin: 8px 0; {{#if (eq currentStep 4)}}font-weight: bold; color: #333;{{/if}}">
+                Content Generation {{#if (gte currentStep 4)}}✅{{/if}}
+            </li>
+        </ol>
+    </div>
+    
+    <div style="border-top: 1px solid #ddd; padding-top: 20px; margin-top: 40px; text-align: center;">
+        <p style="color: #666; font-size: 14px;">
+            Need help? Simply reply to this email or visit our 
+            <a href="https://sselfie.ai/help" style="color: #0066cc;">help center</a>.<br>
+            Sandra & the SSELFIE Studio team
+        </p>
+        <p style="color: #999; font-size: 12px; margin-top: 15px;">
+            You received this email to help you get started with SSELFIE Studio.<br>
+            <a href="https://sselfie.ai/unsubscribe?token={{unsubscribeToken}}" style="color: #999;">Unsubscribe</a>
+        </p>
+    </div>
+</body>
+</html>

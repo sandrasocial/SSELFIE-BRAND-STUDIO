@@ -219,10 +219,165 @@ export async function sendUpgradeInviteEmail(userEmail: string, userName: string
   });
 }
 
+// Notification-specific email functions
+export async function sendModelTrainingCompleteEmail(
+  userEmail: string, 
+  userName: string, 
+  modelName: string, 
+  trainingDuration: number
+): Promise<boolean> {
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #ffffff;">
+      <div style="text-align: center; margin-bottom: 30px;">
+        <h1 style="color: #0a0a0a; font-size: 28px; margin: 0;">🎉 Training Complete!</h1>
+      </div>
+      
+      <div style="background-color: #f8f9fa; padding: 25px; border-radius: 10px; margin-bottom: 25px;">
+        <h2 style="color: #333; font-size: 20px; margin-bottom: 15px;">Hi ${userName},</h2>
+        <p style="color: #666; font-size: 16px; line-height: 1.6; margin-bottom: 15px;">
+          Great news! Your AI model <strong>"${modelName}"</strong> has finished training successfully.
+        </p>
+        <p style="color: #666; font-size: 16px; line-height: 1.6;">
+          Training completed in ${Math.round(trainingDuration)} minutes. Your model is now ready to generate personalized content.
+        </p>
+      </div>
+      
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="https://sselfie.ai/studio" style="background: #0a0a0a; color: white; padding: 15px 30px; text-decoration: none; font-size: 16px; border-radius: 5px;">
+          Start Creating
+        </a>
+      </div>
+      
+      <div style="border-top: 1px solid #ddd; padding-top: 20px; margin-top: 40px; text-align: center;">
+        <p style="color: #666; font-size: 14px;">
+          Questions? Simply reply to this email.<br>
+          Sandra & the SSELFIE Studio team
+        </p>
+      </div>
+    </div>
+  `;
+
+  return await sendEmail({
+    to: userEmail,
+    subject: `🎉 ${modelName} is ready for creation!`,
+    html,
+    tags: ['model-training', 'completion', 'notification']
+  });
+}
+
+export async function sendPaymentConfirmationEmail(
+  userEmail: string,
+  userName: string,
+  transactionId: string,
+  amount: number,
+  currency: string,
+  planType: string
+): Promise<boolean> {
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #ffffff;">
+      <div style="text-align: center; margin-bottom: 30px;">
+        <h1 style="color: #0a0a0a; font-size: 28px; margin: 0;">✅ Payment Confirmed</h1>
+      </div>
+      
+      <div style="background-color: #f8f9fa; padding: 25px; border-radius: 10px; margin-bottom: 25px;">
+        <h2 style="color: #333; font-size: 20px; margin-bottom: 15px;">Hi ${userName},</h2>
+        <p style="color: #666; font-size: 16px; line-height: 1.6; margin-bottom: 15px;">
+          Your payment has been successfully processed!
+        </p>
+        <div style="background-color: white; padding: 15px; border-radius: 5px; margin: 15px 0;">
+          <p style="margin: 5px 0;"><strong>Plan:</strong> ${planType}</p>
+          <p style="margin: 5px 0;"><strong>Amount:</strong> ${currency}${amount}</p>
+          <p style="margin: 5px 0;"><strong>Transaction ID:</strong> ${transactionId}</p>
+        </div>
+        <p style="color: #666; font-size: 16px; line-height: 1.6;">
+          You now have full access to all premium features. Start creating amazing content!
+        </p>
+      </div>
+      
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="https://sselfie.ai/workspace" style="background: #0a0a0a; color: white; padding: 15px 30px; text-decoration: none; font-size: 16px; border-radius: 5px;">
+          Access Your Studio
+        </a>
+      </div>
+      
+      <div style="border-top: 1px solid #ddd; padding-top: 20px; margin-top: 40px; text-align: center;">
+        <p style="color: #666; font-size: 14px;">
+          Questions about billing? Reply to this email.<br>
+          Sandra & the SSELFIE Studio team
+        </p>
+      </div>
+    </div>
+  `;
+
+  return await sendEmail({
+    to: userEmail,
+    subject: 'Payment Confirmed - Welcome to Premium!',
+    html,
+    tags: ['payment', 'confirmation', 'notification']
+  });
+}
+
+export async function sendOnboardingStatusEmail(
+  userEmail: string,
+  userName: string,
+  step: string,
+  completed: boolean,
+  nextAction?: string
+): Promise<boolean> {
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #ffffff;">
+      <div style="text-align: center; margin-bottom: 30px;">
+        <h1 style="color: #0a0a0a; font-size: 28px; margin: 0;">
+          ${completed ? '🎯' : '👋'} Onboarding Update
+        </h1>
+      </div>
+      
+      <div style="background-color: #f8f9fa; padding: 25px; border-radius: 10px; margin-bottom: 25px;">
+        <h2 style="color: #333; font-size: 20px; margin-bottom: 15px;">Hi ${userName},</h2>
+        <p style="color: #666; font-size: 16px; line-height: 1.6; margin-bottom: 15px;">
+          ${completed 
+            ? `Great progress! You've completed the "${step}" step.`
+            : `Let's continue with your onboarding. The next step is "${step}".`
+          }
+        </p>
+        ${nextAction ? `
+          <p style="color: #666; font-size: 16px; line-height: 1.6;">
+            <strong>Next action:</strong> ${nextAction}
+          </p>
+        ` : ''}
+      </div>
+      
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="https://sselfie.ai/onboarding" style="background: #0a0a0a; color: white; padding: 15px 30px; text-decoration: none; font-size: 16px; border-radius: 5px;">
+          Continue Setup
+        </a>
+      </div>
+      
+      <div style="border-top: 1px solid #ddd; padding-top: 20px; margin-top: 40px; text-align: center;">
+        <p style="color: #666; font-size: 14px;">
+          Need help? Simply reply to this email.<br>
+          Sandra & the SSELFIE Studio team
+        </p>
+      </div>
+    </div>
+  `;
+
+  return await sendEmail({
+    to: userEmail,
+    subject: `${completed ? 'Step Complete' : 'Next Step'}: ${step}`,
+    html,
+    tags: ['onboarding', 'status', 'notification']
+  });
+}
+
 export default {
   sendEmail,
   sendWelcomeEmail,
   sendTrainingCompleteEmail,
   sendLimitWarningEmail,
-  sendUpgradeInviteEmail
+  sendUpgradeInviteEmail,
+  // New notification-specific functions
+  sendModelTrainingCompleteEmail,
+  sendPaymentConfirmationEmail,
+  sendOnboardingStatusEmail
 };

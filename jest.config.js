@@ -1,16 +1,20 @@
 export default {
   preset: 'ts-jest/presets/default-esm',
   testEnvironment: 'jsdom',
-  roots: ['<rootDir>/tests', '<rootDir>/server', '<rootDir>/shared', '<rootDir>/client'],
+  roots: ['<rootDir>/tests', '<rootDir>/server', '<rootDir>/shared', '<rootDir>/client', '<rootDir>/__tests__'],
   testMatch: [
     '**/tests/**/*.test.ts',
     '**/tests/**/*.test.tsx',
-    '**/__tests__/**/*.ts',
+    '**/__tests__/**/*.test.ts',
+    '**/__tests__/**/*.test.tsx',
     '**/?(*.)+(spec|test).ts'
   ],
   transform: {
     '^.+\\.tsx?$': ['ts-jest', {
-      useESM: true
+      useESM: true,
+      tsconfig: {
+        module: 'esnext'
+      }
     }],
   },
   collectCoverageFrom: [
@@ -34,7 +38,7 @@ export default {
   setupFilesAfterEnv: ['<rootDir>/tests/jest.setup.js'],
   extensionsToTreatAsEsm: ['.ts', '.tsx'],
   transformIgnorePatterns: [
-    'node_modules/(?!(jose|@stackframe|@tanstack|wouter)/)'
+    'node_modules/(?!(jose|@stackframe|@tanstack|wouter|@testing-library)/)'
   ],
   testTimeout: 10000,
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
