@@ -26,6 +26,13 @@ interface TicketResponse {
   createdAt: string;
 }
 
+interface SupportStats {
+  openTickets: number;
+  averageResponseTime: number;
+  resolvedToday: number;
+  satisfactionScore: number;
+}
+
 export function SupportManagementDashboard() {
   const [filterStatus, setFilterStatus] = useState<'all' | 'open' | 'in_progress' | 'resolved' | 'closed'>('open');
   const [filterPriority, setFilterPriority] = useState<'all' | 'low' | 'medium' | 'high' | 'urgent'>('all');
@@ -34,17 +41,17 @@ export function SupportManagementDashboard() {
 
   const queryClient = useQueryClient();
 
-  const { data: tickets, isLoading } = useQuery({
+  const { data: tickets, isLoading } = useQuery<SupportTicket[]>({
     queryKey: ['/api/admin/support-tickets', { status: filterStatus, priority: filterPriority }],
     refetchInterval: 30000, // Refresh every 30 seconds
   });
 
-  const { data: supportStats } = useQuery({
+  const { data: supportStats } = useQuery<SupportStats>({
     queryKey: ['/api/admin/support-stats'],
     refetchInterval: 60000,
   });
 
-  const { data: selectedTicketData } = useQuery({
+  const { data: selectedTicketData } = useQuery<SupportTicket>({
     queryKey: ['/api/admin/support-tickets', selectedTicket],
     enabled: !!selectedTicket,
   });

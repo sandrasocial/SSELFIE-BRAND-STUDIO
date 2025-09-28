@@ -97,11 +97,11 @@ export function NotificationPreferences() {
     setHasChanges(true);
   };
 
-  const updateNestedPreference = (section: string, key: string, value: any) => {
+  const updateNestedPreference = (section: string, key: string, value: unknown) => {
     setPreferences(prev => ({
       ...prev,
       [section]: {
-        ...prev[section as keyof NotificationPreferences],
+        ...(prev[section as keyof NotificationPreferences] || {}),
         [key]: value
       }
     }));

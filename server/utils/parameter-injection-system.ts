@@ -5,10 +5,25 @@
  */
 
 export interface ToolCallFix {
-  originalCall: any;
-  fixedCall: any;
+  originalCall: Record<string, unknown>;
+  fixedCall: Record<string, unknown>;
   injectedParameters: string[];
   reason: string;
+}
+
+export interface ToolCall {
+  name: string;
+  input?: {
+    command?: string;
+    path?: string;
+    file_text?: string;
+  };
+}
+
+export interface FileGenerationContext {
+  filePath: string;
+  message: string;
+  agentId: string;
 }
 
 export class ParameterInjectionSystem {
@@ -16,7 +31,7 @@ export class ParameterInjectionSystem {
   /**
    * Fix missing file_text parameter for create commands
    */
-  static fixMissingFileText(toolCall: any, message: string, agentId: string): ToolCallFix {
+  static fixMissingFileText(toolCall: ToolCall, message: string, agentId: string): ToolCallFix {
     const result: ToolCallFix = {
       originalCall: { ...toolCall },
       fixedCall: { ...toolCall },
@@ -193,7 +208,7 @@ export interface ${componentName}Config {
 
 export interface ${componentName}Result {
   success: boolean;
-  data?: any;
+  data?: unknown;
   error?: string;
   timestamp: Date;
 }
@@ -209,15 +224,15 @@ export class ${componentName} {
       ...config
     };
     
-    console.log(\`🚀 \${componentName}: Initialized by \${agentId.toUpperCase()} with autonomous capabilities\`);
+    console.log(\`🚀 ${componentName}: Initialized by ${agentId.toUpperCase()} with autonomous capabilities\`);
   }
   
   /**
    * Execute ${agentSpecialty.toLowerCase()} operation
    */
-  async execute(input: any): Promise<${componentName}Result> {
+  async execute(input: unknown): Promise<${componentName}Result> {
     try {
-      console.log(\`⚡ \${componentName}: Executing \${this.config.mode} operation\`);
+      console.log(\`⚡ ${componentName}: Executing \${this.config.mode} operation\`);
       
       // Simulate ${agentSpecialty.toLowerCase()} processing
       const result = await this.process(input);
@@ -228,7 +243,7 @@ export class ${componentName} {
         timestamp: new Date()
       };
     } catch (error) {
-      console.error(\`❌ \${componentName}: Operation failed\`, error);
+      console.error(\`❌ ${componentName}: Operation failed\`, error);
       
       return {
         success: false,
@@ -241,7 +256,7 @@ export class ${componentName} {
   /**
    * Process input with ${agentSpecialty.toLowerCase()} logic
    */
-  private async process(input: any): Promise<any> {
+  private async process(input: unknown): Promise<unknown> {
     // ${agentSpecialty} processing logic
     const processed = {
       input,

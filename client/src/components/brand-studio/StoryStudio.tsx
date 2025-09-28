@@ -41,6 +41,14 @@ interface Result {
     videoUrl?: string;
 }
 
+interface JobStatus {
+    progressPercent?: number;
+    state?: string;
+    done?: boolean;
+    videoUrl?: string;
+    error?: string;
+}
+
 interface Job {
     jobId: string;
     sceneId: string;
@@ -186,7 +194,13 @@ export const StoryStudio = () => {
                     if (status.videoUrl) {
                         setResults(prev => ({
                             ...prev,
-                            [sceneId]: { status: 'done', sceneNum, progress: 100, videoUrl: status.videoUrl, message: 'Ready!' },
+                            [sceneId]: { 
+                                status: 'done' as const, 
+                                sceneNum, 
+                                progress: 100, 
+                                videoUrl: status.videoUrl, 
+                                message: 'Ready!' 
+                            } satisfies Result,
                         }));
                     } else {
                         throw new Error(status.error || 'Video generation failed.');
@@ -277,9 +291,12 @@ export const StoryStudio = () => {
 
             {Object.keys(results).length > 0 && (
                 <div id="results-container" className="results-container">
-                    {scenes.map(scene => results[scene.id] && (
-                         <ResultCard key={scene.id} result={results[scene.id]} />
-                    ))}
+                    {scenes.map(scene => {
+                        const result = results[scene.id];
+                        return result && (
+                         <ResultCard key={scene.id} result={result} />
+                        );
+                    })}
                 </div>
             )}
         </div>
