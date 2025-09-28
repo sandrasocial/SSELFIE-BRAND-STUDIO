@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Simple Checkout - Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Helvetica Neue', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: #ffffff;
+            color: #000000;
+            font-weight: 300;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 80px 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        .tagline {
+            font-size: 11px;
+            font-weight: 400;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: #757575;
+            margin-bottom: 32px;
+        }
+        
+        .title {
+            font-family: 'Times New Roman', serif;
+            font-weight: 200;
+            font-size: 3rem;
+            line-height: 0.95;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            margin-bottom: 48px;
+        }
+        
+        .description {
+            font-size: 17px;
+            line-height: 1.7;
+            color: #757575;
+            max-width: 55ch;
+            margin: 0 auto;
+        }
+        
+        .form-card {
+            background: #fafafa;
+            padding: 48px 32px;
+            border: 1px solid #e8e8e8;
+            margin-bottom: 48px;
+        }
+        
+        .form-title {
+            font-family: 'Times New Roman', serif;
+            font-weight: 200;
+            font-size: 24px;
+            text-align: center;
+            margin-bottom: 32px;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+        }
+        
+        .input-group {
+            margin-bottom: 24px;
+        }
+        
+        .input {
+            width: 100%;
+            padding: 16px 20px;
+            font-size: 16px;
+            border: 1px solid #e8e8e8;
+            background: #ffffff;
+            font-family: inherit;
+            font-weight: 300;
+            outline: none;
+            transition: border-color 300ms ease;
+        }
+        
+        .input:focus {
+            border-color: #757575;
+        }
+        
+        .input.valid {
+            border-color: #10b981;
+        }
+        
+        .input.invalid {
+            border-color: #ef4444;
+        }
+        
+        .validation-message {
+            margin-top: 8px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .validation-message.valid {
+            color: #10b981;
+        }
+        
+        .validation-message.invalid {
+            color: #ef4444;
+        }
+        
+        .validation-message.incomplete {
+            color: #eab308;
+        }
+        
+        .order-summary {
+            background: #ffffff;
+            border: 1px solid #e8e8e8;
+            padding: 64px 48px;
+            margin-bottom: 48px;
+        }
+        
+        .summary-title {
+            font-family: 'Times New Roman', serif;
+            font-weight: 200;
+            font-size: 24px;
+            text-align: center;
+            margin-bottom: 48px;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+        }
+        
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+        }
+        
+        .summary-item.total {
+            border-top: 1px solid #f0f0f0;
+            margin-top: 16px;
+            padding-top: 24px;
+        }
+        
+        .summary-price {
+            font-family: 'Times New Roman', serif;
+            font-size: 24px;
+            font-weight: 200;
+        }
+        
+        .checkout-button {
+            width: 100%;
+            background: #000000;
+            color: #ffffff;
+            border: none;
+            padding: 24px 48px;
+            font-size: 11px;
+            font-weight: 400;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 300ms ease;
+            min-height: 48px;
+        }
+        
+        .checkout-button:hover:not(:disabled) {
+            background: #333333;
+        }
+        
+        .checkout-button:disabled {
+            background: #757575;
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        
+        .security-info {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 13px;
+            color: #757575;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #e8e8e8;
+            border-radius: 50%;
+            border-top-color: #000000;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .progress-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin: 32px 0;
+        }
+        
+        .progress-step {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .step-number {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 500;
+            background: #e8e8e8;
+            color: #757575;
+        }
+        
+        .step-number.active {
+            background: #000000;
+            color: #ffffff;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        .step-number.complete {
+            background: #10b981;
+            color: #ffffff;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .step-label {
+            font-size: 14px;
+            font-weight: 300;
+            color: #757575;
+        }
+        
+        .step-label.active {
+            color: #000000;
+        }
+        
+        .divider {
+            width: 24px;
+            height: 2px;
+            background: #e8e8e8;
+        }
+        
+        .divider.complete {
+            background: #000000;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .demo-controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #ffffff;
+            border: 1px solid #e8e8e8;
+            padding: 16px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .demo-button {
+            display: block;
+            width: 100%;
+            margin-bottom: 8px;
+            padding: 8px 12px;
+            background: #f8f9fa;
+            border: 1px solid #e8e8e8;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .demo-button:hover {
+            background: #e9ecef;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-controls">
+        <h4>Demo Controls</h4>
+        <button class="demo-button" onclick="showValidState()">Show Valid Email</button>
+        <button class="demo-button" onclick="showInvalidState()">Show Invalid Email</button>
+        <button class="demo-button" onclick="showLoadingState()">Show Loading</button>
+        <button class="demo-button" onclick="showProgressState()">Show Progress</button>
+        <button class="demo-button" onclick="resetState()">Reset</button>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <div class="tagline">SECURE CHECKOUT</div>
+            <h1 class="title">COMPLETE YOUR<br />TRANSFORMATION</h1>
+            <p class="description">
+                You're moments away from accessing Maya, your AI personal brand strategist, 
+                and creating professional photos that represent exactly who you are.
+            </p>
+        </div>
+
+        <div id="main-form">
+            <div class="form-card">
+                <h3 class="form-title">Your Email Address</h3>
+                
+                <div class="input-group">
+                    <input 
+                        type="email" 
+                        id="email-input"
+                        class="input" 
+                        placeholder="Enter your email address"
+                        oninput="validateEmail()"
+                    />
+                    <div id="validation-message" class="validation-message hidden"></div>
+                </div>
+                
+                <p style="font-size: 15px; color: #757575; text-align: center; margin-top: 24px;">
+                    We'll create your account automatically after payment and send you a welcome email with next steps.
+                </p>
+            </div>
+
+            <div class="order-summary">
+                <h2 class="summary-title">Your Investment</h2>
+                
+                <div class="summary-item">
+                    <div>
+                        <div style="font-weight: 300; margin-bottom: 8px;">SSELFIE STUDIO</div>
+                        <div style="font-size: 15px; color: #757575;">
+                            Personal AI model training + Maya AI photographer + 100 monthly professional photos
+                        </div>
+                    </div>
+                    <div class="summary-price">€47/month</div>
+                </div>
+                
+                <div class="summary-item total">
+                    <div style="font-weight: 300;">Total Today</div>
+                    <div class="summary-price" style="font-size: 30px;">€47</div>
+                </div>
+            </div>
+
+            <div>
+                <button id="checkout-button" class="checkout-button" onclick="startCheckout()" disabled>
+                    SECURE PAYMENT WITH STRIPE
+                </button>
+
+                <div class="security-info">
+                    <span>🔒</span>
+                    <span>256-bit SSL encryption • Secure payment powered by Stripe</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="loading-state" class="hidden">
+            <div class="progress-indicator">
+                <div class="progress-step">
+                    <div id="step1" class="step-number">1</div>
+                    <span id="label1" class="step-label">Validating</span>
+                </div>
+                <div id="divider1" class="divider"></div>
+                <div class="progress-step">
+                    <div id="step2" class="step-number">2</div>
+                    <span id="label2" class="step-label">Processing</span>
+                </div>
+                <div id="divider2" class="divider"></div>
+                <div class="progress-step">
+                    <div id="step3" class="step-number">3</div>
+                    <span id="label3" class="step-label">Complete</span>
+                </div>
+            </div>
+            
+            <div style="text-align: center;">
+                <div class="loading-spinner"></div>
+                <p style="margin-top: 16px; font-size: 14px; color: #757575;">
+                    Processing your payment...
+                </p>
+                <p style="margin-top: 8px; font-size: 12px; color: #757575;">
+                    This may take a few moments. Please don't close this window.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 'idle';
+        
+        function validateEmail() {
+            const input = document.getElementById('email-input');
+            const message = document.getElementById('validation-message');
+            const button = document.getElementById('checkout-button');
+            const email = input.value.trim();
+            
+            if (!email) {
+                input.className = 'input';
+                message.className = 'validation-message hidden';
+                button.disabled = true;
+                return;
+            }
+            
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            const isValid = emailRegex.test(email);
+            
+            if (isValid) {
+                input.className = 'input valid';
+                message.className = 'validation-message valid';
+                message.innerHTML = '<span style="margin-right: 4px;">✓</span>Valid email address';
+                button.disabled = false;
+            } else if (email.includes('@')) {
+                input.className = 'input invalid';
+                message.className = 'validation-message invalid';
+                message.innerHTML = '<span style="margin-right: 4px;">⚠</span>Please enter a valid email address';
+                button.disabled = true;
+            } else {
+                input.className = 'input';
+                message.className = 'validation-message incomplete';
+                message.innerHTML = '<span style="margin-right: 4px;">⏳</span>Include an @ symbol';
+                button.disabled = true;
+            }
+            
+            message.classList.remove('hidden');
+        }
+        
+        function startCheckout() {
+            document.getElementById('main-form').classList.add('hidden');
+            document.getElementById('loading-state').classList.remove('hidden');
+            
+            // Simulate progress
+            setTimeout(() => {
+                document.getElementById('step1').classList.add('active');
+                document.getElementById('label1').classList.add('active');
+            }, 500);
+            
+            setTimeout(() => {
+                document.getElementById('step1').classList.remove('active');
+                document.getElementById('step1').classList.add('complete');
+                document.getElementById('divider1').classList.add('complete');
+                document.getElementById('step2').classList.add('active');
+                document.getElementById('label2').classList.add('active');
+            }, 2000);
+            
+            setTimeout(() => {
+                document.getElementById('step2').classList.remove('active');
+                document.getElementById('step2').classList.add('complete');
+                document.getElementById('divider2').classList.add('complete');
+                document.getElementById('step3').classList.add('active');
+                document.getElementById('label3').classList.add('active');
+            }, 4000);
+        }
+        
+        // Demo functions
+        function showValidState() {
+            const input = document.getElementById('email-input');
+            input.value = 'user@example.com';
+            validateEmail();
+        }
+        
+        function showInvalidState() {
+            const input = document.getElementById('email-input');
+            input.value = 'invalid-email';
+            validateEmail();
+        }
+        
+        function showLoadingState() {
+            if (document.getElementById('email-input').value) {
+                startCheckout();
+            } else {
+                showValidState();
+                setTimeout(startCheckout, 500);
+            }
+        }
+        
+        function showProgressState() {
+            showLoadingState();
+        }
+        
+        function resetState() {
+            document.getElementById('main-form').classList.remove('hidden');
+            document.getElementById('loading-state').classList.add('hidden');
+            document.getElementById('email-input').value = '';
+            validateEmail();
+            
+            // Reset progress indicators
+            ['step1', 'step2', 'step3'].forEach(id => {
+                document.getElementById(id).className = 'step-number';
+            });
+            ['label1', 'label2', 'label3'].forEach(id => {
+                document.getElementById(id).className = 'step-label';
+            });
+            ['divider1', 'divider2'].forEach(id => {
+                document.getElementById(id).className = 'divider';
+            });
+        }
+    </script>
+</body>
+</html>
