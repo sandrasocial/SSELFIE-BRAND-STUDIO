@@ -14,6 +14,9 @@ interface Customer {
   stripeSubscriptionId: string;
   createdAt: string;
   updatedAt: string;
+  status?: 'active' | 'inactive' | 'cancelled';
+  lastActiveAt?: string;
+  totalSpent?: number;
 }
 
 interface CustomerInsights {
@@ -21,9 +24,6 @@ interface CustomerInsights {
   averageGenerationsPerMonth: number;
   churnRate: number;
   recentSignups: Customer[];
-  lastActiveAt?: string;
-  totalSpent: number;
-  status: 'active' | 'inactive' | 'cancelled';
 }
 
 export function CustomerManagementDashboard() {

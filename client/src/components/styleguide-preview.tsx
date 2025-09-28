@@ -12,6 +12,7 @@ interface Styleguide {
   };
   brandPersonality?: string;
   title?: string;
+  templateId?: string;
   colorPalette?: Array<{
     color?: string;
     name?: string;
@@ -76,7 +77,7 @@ export default function StyleguidePreview({ userId, className = "" }: Styleguide
         <div className="relative z-10 h-full flex items-center justify-center text-center p-4">
           <div>
             <div className="text-[8px] uppercase tracking-widest text-white/60 mb-2">
-              {styleguide.brandPersonality?.vibe || "Personal Brand"}
+              {styleguide.brandPersonality || "Personal Brand"}
             </div>
             <div className="font-times text-lg uppercase font-light tracking-wide">
               {styleguide.title}
@@ -90,11 +91,11 @@ export default function StyleguidePreview({ userId, className = "" }: Styleguide
         {/* Color Palette Preview */}
         {styleguide.colorPalette && (
           <div className="flex gap-1 mb-3">
-            {Object.values(styleguide.colorPalette).slice(0, 4).map((color, index) => (
+            {Object.values(styleguide.colorPalette).slice(0, 4).map((colorItem, index) => (
               <div 
                 key={index}
                 className="w-4 h-4 border border-gray-200"
-                style={{ backgroundColor: color }}
+                style={{ backgroundColor: (colorItem as { color?: string })?.color || '#ccc' }}
               ></div>
             ))}
           </div>
@@ -124,7 +125,8 @@ export default function StyleguidePreview({ userId, className = "" }: Styleguide
   );
 }
 
-function getTemplateName(templateId: string): string {
+function getTemplateName(templateId?: string): string {
+  if (!templateId) return 'Default Template';
   const names: Record<string, string> = {
     'refined-minimal': 'Refined Minimal',
     'luxe-feminine': 'Luxe Feminine',
