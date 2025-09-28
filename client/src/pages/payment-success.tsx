@@ -11,6 +11,18 @@ export default function PaymentSuccess() {
   const [, setLocation] = useLocation();
 
   useEffect(() => {
+    // Track legacy page usage for migration metrics
+    console.warn('🚨 DEPRECATION: Using legacy payment-success page. Migrate to enhanced modal system.');
+    
+    // Track usage analytics (if available)
+    if (typeof window !== 'undefined' && (window as any).analytics) {
+      (window as any).analytics.track('legacy_success_page_used', {
+        timestamp: new Date(),
+        userAgent: navigator.userAgent,
+        plan: new URLSearchParams(window.location.search).get('plan') || 'unknown'
+      });
+    }
+
     // Get plan and type from URL params
     const urlParams = new URLSearchParams(window.location.search);
     const plan = urlParams.get('plan');
