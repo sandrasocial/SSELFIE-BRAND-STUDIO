@@ -1,6 +1,15 @@
 import { useCallback, useRef } from 'react';
 import { useMemoryCleanup } from './useMemoryCleanup.js';
+import { imageProcessingService } from '../services/imageProcessing.js';
+import { 
+  ImageProcessingOptions, 
+  ValidationRules, 
+  DEFAULT_IMAGE_PROCESSING_OPTIONS,
+  DEFAULT_VALIDATION_RULES,
+  ErrorState
+} from '../types/training.js';
 
+// Legacy interface for backwards compatibility
 interface ImageOptimizationOptions {
   maxWidth?: number;
   maxHeight?: number;
@@ -9,8 +18,9 @@ interface ImageOptimizationOptions {
 }
 
 /**
- * Phase 4: Advanced Image Optimization Hook
- * Features: Client-side compression, format conversion, progressive loading
+ * Enhanced Image Optimization Hook
+ * Features: Client-side compression, format conversion, progressive loading, validation
+ * Integrates with the new ImageProcessingService for consistent behavior
  */
 export const useImageOptimization = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
