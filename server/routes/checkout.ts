@@ -104,7 +104,8 @@ export function registerCheckoutRoutes(app: Express) {
         success_url: successUrl,
         cancel_url: cancelUrl,
         metadata: {
-          plan: plan
+          plan: plan,
+          flow: successUrl.includes('/checkout?status=success') ? 'modal' : 'page'
         }
       });
 
@@ -292,7 +293,9 @@ export function registerCheckoutRoutes(app: Express) {
     // Handle successful payments via checkout.session.completed
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object;
-      const { plan, userId, type } = session.metadata || {};
+      const { plan, userId, type, flow } = session.metadata || {};
+      
+      console.log(`💰 PAYMENT SUCCESS: Flow=${flow || 'legacy'}, Plan=${plan}, Session=${session.id}`);
       
       // Handle retraining payments specifically
       if (plan === 'retraining-session' && type === 'retrain' && userId) {
@@ -311,10 +314,10 @@ export function registerCheckoutRoutes(app: Express) {
       // Handle regular subscription payments (sselfie-studio plan)
       else if (plan === 'sselfie-studio' || !plan) {
         try {
-          console.log(`💰 SUBSCRIPTION PAYMENT: Successful payment - session ${session.id}`);
+          console.log(`💰 SUBSCRIPTION PAYMENT: Flow=${flow || 'legacy'}, Session=${session.id}`);
           
           // Create or update user with subscription access
-          await handleSubscriptionPayment(session);
+          await handleSubscriptionPayment(session, flow);
           
           console.log(`✅ SUBSCRIPTION ACCESS: Granted for session ${session.id}`);
         } catch (error) {
@@ -345,7 +348,7 @@ async function grantRetrainingAccess(userId: string, sessionId: string) {
 }
 
 // Handle successful subscription payment and user creation/upgrade
-async function handleSubscriptionPayment(session: any) {
+async function handleSubscriptionPayment(session: any, flow?: string) {
   try {
     const customerEmail = session.customer_email || session.customer_details?.email;
     
@@ -354,14 +357,14 @@ async function handleSubscriptionPayment(session: any) {
       return;
     }
     
-    console.log(`📧 Processing subscription for email: ${customerEmail}`);
+    console.log(`📧 Processing subscription for email: ${customerEmail} (flow: ${flow || 'legacy'})`);
     
     // Check if user already exists
     let user = await storage.getUserByEmail(customerEmail);
     
     if (user) {
       // Update existing user with subscription details
-      console.log(`👤 Updating existing user: ${user.id}`);
+      console.log(`👤 Updating existing user: ${user.id} (flow: ${flow || 'legacy'})`);
       
       await storage.updateUserProfile(user.id, {
         plan: 'sselfie-studio',
@@ -375,7 +378,7 @@ async function handleSubscriptionPayment(session: any) {
       console.log(`✅ User ${user.id} upgraded to SSELFIE STUDIO plan`);
     } else {
       // Create new user with subscription
-      console.log(`👤 Creating new user for email: ${customerEmail}`);
+      console.log(`👤 Creating new user for email: ${customerEmail} (flow: ${flow || 'legacy'})`);
       
       const newUserId = generateUserId(); // Generate unique user ID
       
@@ -395,6 +398,13 @@ async function handleSubscriptionPayment(session: any) {
       });
       
       console.log(`✅ New user ${newUserId} created with SSELFIE STUDIO plan`);
+    }
+
+    // Enhanced logging for modal vs page flow
+    if (flow === 'modal') {
+      console.log('🎯 MODAL FLOW: Payment processed for enhanced modal system');
+    } else {
+      console.log('📄 LEGACY FLOW: Payment processed for legacy page system');
     }
   } catch (error) {
     console.error('Error handling subscription payment:', error);
