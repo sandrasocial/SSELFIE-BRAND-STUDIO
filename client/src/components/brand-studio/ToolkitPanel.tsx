@@ -1,9 +1,17 @@
 import React, { useState } from 'react';
 
+interface ConceptCard {
+  id: string;
+  title: string;
+  description: string;
+  generatedImages?: string[];
+  [key: string]: unknown;
+}
+
 interface ToolkitPanelProps {
   mode: 'photo' | 'story';
-  selectedItem?: any;
-  onItemAction?: (action: string, data?: any) => void;
+  selectedItem?: ConceptCard | null;
+  onItemAction?: (action: string, data?: unknown) => void;
   className?: string;
   children?: React.ReactNode;
 }

@@ -84,20 +84,22 @@ export const useMayaChat = () => {
 
       setMessages(prev => [...prev, mayaMessage]);
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('❌ Maya chat error:', error);
       
       // Handle different types of errors more gracefully
       let errorMsg = 'Failed to connect to Maya';
       
-      if (error.message?.includes('502')) {
-        errorMsg = 'Maya service is temporarily unavailable. Please try again in a moment.';
-      } else if (error.message?.includes('401')) {
-        errorMsg = 'Please sign in to chat with Maya';
-      } else if (error.message?.includes('500')) {
-        errorMsg = 'Maya encountered an internal error. Please try again.';
-      } else if (error.message) {
-        errorMsg = error.message;
+      if (error instanceof Error) {
+        if (error.message?.includes('502')) {
+          errorMsg = 'Maya service is temporarily unavailable. Please try again in a moment.';
+        } else if (error.message?.includes('401')) {
+          errorMsg = 'Please sign in to chat with Maya';
+        } else if (error.message?.includes('500')) {
+          errorMsg = 'Maya encountered an internal error. Please try again.';
+        } else if (error.message) {
+          errorMsg = error.message;
+        }
       }
       
       setError(errorMsg);
