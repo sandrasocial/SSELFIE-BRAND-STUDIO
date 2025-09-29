@@ -18,8 +18,8 @@ import { storage } from './storage.js';
 export class BulletproofUploadService {
   private static s3 = new S3Client({
     credentials: {
-      accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+      accessKeyId: process.env['AWS_ACCESS_KEY_ID']!,
+      secretAccessKey: process.env['AWS_SECRET_ACCESS_KEY']!,
     },
     region: 'eu-north-1'  // Fixed region for bucket compatibility
   });
@@ -121,7 +121,7 @@ export class BulletproofUploadService {
     
     const errors: string[] = [];
     const s3Urls: string[] = [];
-    const bucketName = process.env.AWS_S3_BUCKET;
+    const bucketName = process.env['AWS_S3_BUCKET'];
     
     if (!bucketName) {
       errors.push('❌ CRITICAL: AWS_S3_BUCKET environment variable is required');
@@ -340,7 +340,7 @@ export class BulletproofUploadService {
       const createModelResponse = await fetch('https://api.replicate.com/v1/models', {
         method: 'POST',
         headers: {
-          'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
+          'Authorization': `Token ${process.env['REPLICATE_API_TOKEN']}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -371,7 +371,7 @@ export class BulletproofUploadService {
       const trainingResponse = await fetch('https://api.replicate.com/v1/models/ostris/flux-dev-lora-trainer/versions/26dce37af90b9d997eeb970d92e47de3064d46c300504ae376c75bef6a9022d2/trainings', {
         method: 'POST',
         headers: {
-          'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
+          'Authorization': `Token ${process.env['REPLICATE_API_TOKEN']}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -407,7 +407,7 @@ export class BulletproofUploadService {
       
     } catch (error) {
       console.error(`❌ REPLICATE TRAINING: Failed for user ${userId}:`, error);
-      console.error(`❌ REPLICATE API TOKEN:`, process.env.REPLICATE_API_TOKEN ? 'Present' : 'MISSING');
+      console.error(`❌ REPLICATE API TOKEN:`, process.env['REPLICATE_API_TOKEN'] ? 'Present' : 'MISSING');
       errors.push(`Training start failed: ${error.message || error}`);
       return { success: false, errors, trainingId: null, modelName: null };
     }

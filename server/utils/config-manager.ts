@@ -92,9 +92,9 @@ export class ConfigManager {
    * Load configuration from environment variables with validation
    */
   private loadConfiguration(): AppConfig {
-    const port = parseInt(process.env.PORT || '5000');
-    const nodeEnv = process.env.NODE_ENV || 'development';
-    const logLevel = process.env.LOG_LEVEL || 'info';
+    const port = parseInt(process.env['PORT'] || '5000');
+    const nodeEnv = process.env['NODE_ENV'] || 'development';
+    const logLevel = process.env['LOG_LEVEL'] || 'info';
 
     // Validate critical values
     if (!isValidPort(port)) {
@@ -111,44 +111,44 @@ export class ConfigManager {
 
     return {
       database: {
-        url: process.env.DATABASE_URL || '',
-        user: process.env.DATABASE_USER || '',
-        password: process.env.DATABASE_PASSWORD || '',
-        host: process.env.DATABASE_HOST || 'localhost',
-        neonApiKey: process.env.NEON_API_KEY || '',
+        url: process.env['DATABASE_URL'] || '',
+        user: process.env['DATABASE_USER'] || '',
+        password: process.env['DATABASE_PASSWORD'] || '',
+        host: process.env['DATABASE_HOST'] || 'localhost',
+        neonApiKey: process.env['NEON_API_KEY'] || '',
       },
       auth: {
-        stackProjectId: process.env.STACK_PROJECT_ID || '',
-        stackPublishableKey: process.env.STACK_PUBLISHABLE_KEY || '',
-        stackSecretKey: process.env.STACK_SECRET_KEY || '',
-        adminUserId: process.env.ADMIN_USER_ID || '',
-        shannonUserId: process.env.SHANNON_USER_ID || '',
+        stackProjectId: process.env['STACK_PROJECT_ID'] || '',
+        stackPublishableKey: process.env['STACK_PUBLISHABLE_KEY'] || '',
+        stackSecretKey: process.env['STACK_SECRET_KEY'] || '',
+        adminUserId: process.env['ADMIN_USER_ID'] || '',
+        shannonUserId: process.env['SHANNON_USER_ID'] || '',
       },
       ai: {
-        anthropicApiKey: process.env.ANTHROPIC_API_KEY || '',
-        googleApiKey: process.env.GOOGLE_API_KEY || '',
-        replicateApiToken: process.env.REPLICATE_API_TOKEN || '',
-        replicateUsername: process.env.REPLICATE_USERNAME || '',
-        projectNumber: process.env.PROJECT_NUMBER || '',
+        anthropicApiKey: process.env['ANTHROPIC_API_KEY'] || '',
+        googleApiKey: process.env['GOOGLE_API_KEY'] || '',
+        replicateApiToken: process.env['REPLICATE_API_TOKEN'] || '',
+        replicateUsername: process.env['REPLICATE_USERNAME'] || '',
+        projectNumber: process.env['PROJECT_NUMBER'] || '',
       },
       storage: {
-        awsAccessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
-        awsSecretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
-        awsRegion: process.env.AWS_REGION || 'us-east-1',
-        s3Bucket: process.env.AWS_S3_BUCKET || '',
+        awsAccessKeyId: process.env['AWS_ACCESS_KEY_ID'] || '',
+        awsSecretAccessKey: process.env['AWS_SECRET_ACCESS_KEY'] || '',
+        awsRegion: process.env['AWS_REGION'] || 'us-east-1',
+        s3Bucket: process.env['AWS_S3_BUCKET'] || '',
       },
       payment: {
-        stripeSecretKey: process.env.STRIPE_SECRET_KEY || '',
-        stripePublishableKey: process.env.STRIPE_PUBLISHABLE_KEY || '',
+        stripeSecretKey: process.env['STRIPE_SECRET_KEY'] || '',
+        stripePublishableKey: process.env['STRIPE_PUBLISHABLE_KEY'] || '',
       },
       email: {
-        flodeskApiKey: process.env.FLODESK_API_KEY || '',
-        resendApiKey: process.env.RESEND_API_KEY || '',
+        flodeskApiKey: process.env['FLODESK_API_KEY'] || '',
+        resendApiKey: process.env['RESEND_API_KEY'] || '',
       },
       social: {
-        instagramAccessToken: process.env.INSTAGRAM_ACCESS_TOKEN || '',
-        metaAccessToken: process.env.META_ACCESS_TOKEN || '',
-        manychatToken: process.env.MANYCHAT_TOKEN || '',
+        instagramAccessToken: process.env['INSTAGRAM_ACCESS_TOKEN'] || '',
+        metaAccessToken: process.env['META_ACCESS_TOKEN'] || '',
+        manychatToken: process.env['MANYCHAT_TOKEN'] || '',
       },
       system: {
         nodeEnv: isValidEnvironment(nodeEnv) ? nodeEnv : 'development',
