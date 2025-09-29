@@ -42,12 +42,15 @@ export class ParameterInjectionSystem {
     // Only fix str_replace_based_edit_tool create commands
     if (toolCall.name === 'str_replace_based_edit_tool' && 
         toolCall.input?.command === 'create' && 
-        !toolCall.input?.file_text) {
+        !toolCall.input?.file_text &&
+        toolCall.input?.path) {
       
-      const filePath = toolCall.input.path;
+      const filePath = toolCall.input.path as string;
       const generatedContent = this.generateFileContent(filePath, message, agentId);
       
-      result.fixedCall.input.file_text = generatedContent;
+      if (result.fixedCall.input && typeof result.fixedCall.input === 'object') {
+        (result.fixedCall.input as any)['file_text'] = generatedContent;
+      }
       result.injectedParameters.push('file_text');
       result.reason = `Generated complete file content for ${filePath}`;
       

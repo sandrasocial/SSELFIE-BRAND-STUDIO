@@ -59,8 +59,8 @@ export class StructuredLogger {
   }
 
   setContext(requestId?: string, userId?: string): void {
-    this.requestId = requestId;
-    this.userId = userId;
+    this.requestId = requestId || undefined;
+    this.userId = userId || undefined;
   }
 
   debug(message: string, metadata?: Record<string, any>): void {
@@ -92,9 +92,9 @@ export class StructuredLogger {
       level,
       message,
       service: this.service,
-      requestId: this.requestId,
-      userId: this.userId,
-      metadata
+      requestId: this.requestId || undefined,
+      userId: this.userId || undefined,
+      metadata: metadata || undefined
     };
 
     this.outputs.forEach(output => {
