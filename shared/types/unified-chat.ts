@@ -46,12 +46,13 @@ export interface MayaChatContext {
 }
 
 // Claude chat specific interfaces
-export interface ClaudeMessage extends Omit<BaseChatMessage, 'id' | 'metadata'>, Omit<DbClaudeMessage, 'metadata'> {
+export interface ClaudeMessage extends Omit<BaseChatMessage, 'id' | 'metadata' | 'role'>, Omit<DbClaudeMessage, 'metadata' | 'role'> {
   conversationId: string;
   tokens: number;  
   completionTokens: number;
   promptTokens: number;
   metadata?: Record<string, unknown>;
+  role: BaseChatMessage['role']; // Use BaseChatMessage role type explicitly
 }
 
 export interface ClaudeConversation extends DbClaudeConversation {

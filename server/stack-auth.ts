@@ -238,19 +238,18 @@ export async function verifyStackAuthToken(req: Request, res: Response, next: Ne
     console.log('🔍 Stack Auth: Full JWT payload:', JSON.stringify(userInfo, null, 2));
     
     // Extract user information with multiple field name attempts and enhanced debugging
-    const userInfo = authInfo as AuthInfo;
-    const userId = userInfo?.sub || userInfo?.user_id || userInfo?.id || '';
-    const userEmail = userInfo?.email || userInfo?.primary_email || userInfo?.primaryEmail || userInfo?.email_address || userInfo?.user_email || '';
-    const userName = userInfo?.displayName || userInfo?.display_name || userInfo?.name || userInfo?.given_name || userInfo?.full_name || 'User';
+    const userId = (userInfo as any)?.sub || (userInfo as any)?.user_id || (userInfo as any)?.id || '';
+    const userEmail = (userInfo as any)?.email || (userInfo as any)?.primary_email || (userInfo as any)?.primaryEmail || (userInfo as any)?.email_address || (userInfo as any)?.user_email || '';
+    const userName = (userInfo as any)?.displayName || (userInfo as any)?.display_name || (userInfo as any)?.name || (userInfo as any)?.given_name || (userInfo as any)?.full_name || 'User';
     
     // 🔍 ENHANCED DEBUGGING: Log all available fields to identify email field
     console.log('🔍 Stack Auth: Full JWT user info keys:', Object.keys(userInfo));
     console.log('🔍 Stack Auth: Email field search:', {
-      email: userInfo.email,
-      primary_email: userInfo.primary_email, 
-      primaryEmail: userInfo.primaryEmail,
-      email_address: userInfo.email_address,
-      user_email: userInfo.user_email
+      email: (userInfo as any).email,
+      primary_email: (userInfo as any).primary_email, 
+      primaryEmail: (userInfo as any).primaryEmail,
+      email_address: (userInfo as any).email_address,
+      user_email: (userInfo as any).user_email
     });
     
     console.log('📊 Stack Auth: Extracted user info:', {
@@ -288,7 +287,7 @@ export async function verifyStackAuthToken(req: Request, res: Response, next: Ne
         email: userEmail || null,
         firstName: userName?.split(' ')[0] || null,
         lastName: userName?.split(' ').slice(1).join(' ') || null,
-        profileImageUrl: userInfo.profileImageUrl || userInfo.profile_image_url || userInfo.avatar_url || null,
+        profileImageUrl: (userInfo as any).profileImageUrl || (userInfo as any).profile_image_url || (userInfo as any).avatar_url || null,
         plan: null, // New users have no plan until they subscribe
         monthlyGenerationLimit: 0, // No generations until they subscribe
         mayaAiAccess: false // No AI access until they subscribe
