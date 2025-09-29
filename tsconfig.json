@@ -47,7 +47,8 @@
     "vite.config.ts",
     "client/src/**/*",
     "shared/**/*",
-    "server/**/*"
+    "server/**/*",
+    "server/types/global.d.ts"
   ],
   "exclude": [
     "node_modules",
