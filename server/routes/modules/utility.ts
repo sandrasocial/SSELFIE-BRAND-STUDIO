@@ -23,7 +23,7 @@ router.get('/api/health', (req, res) => {
   sendSuccess(res, {
     status: 'healthy',
     timestamp: new Date().toISOString(),
-    env: process.env.NODE_ENV || 'development'
+    env: process.env['NODE_ENV'] || 'development'
   });
 });
 

@@ -150,7 +150,7 @@ router.get('/hair-trends/:weekRange', requireStackAuth, async (req: any, res) =>
  */
 router.post('/hair-trends/analyze', requireStackAuth, async (req: any, res) => {
   try {
-    if (process.env.NODE_ENV === 'production') {
+    if (process.env['NODE_ENV'] === 'production') {
       return res.status(403).json({
         success: false,
         error: 'Manual analysis not available in production'
@@ -182,8 +182,8 @@ router.post('/hair-trends/analyze', requireStackAuth, async (req: any, res) => {
  */
 router.get('/hair-trends/status', requireStackAuth, async (req: any, res) => {
   try {
-    const hasApiKey = !!process.env.ANTHROPIC_API_KEY;
-    const isProduction = process.env.NODE_ENV === 'production';
+    const hasApiKey = !!process.env['ANTHROPIC_API_KEY'];
+    const isProduction = process.env['NODE_ENV'] === 'production';
 
     // Get latest trend entry to check last update
     const result = await db.execute(sql`

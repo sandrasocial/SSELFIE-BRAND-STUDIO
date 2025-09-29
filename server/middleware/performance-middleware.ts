@@ -84,7 +84,7 @@ export const memoryMonitor = (req: Request, res: Response, next: NextFunction) =
   }
   
   // Add memory info to response headers in development
-  if (process.env.NODE_ENV === 'development') {
+  if (process.env['NODE_ENV'] === 'development') {
     res.setHeader('X-Memory-Usage', JSON.stringify(memoryMB));
   }
   

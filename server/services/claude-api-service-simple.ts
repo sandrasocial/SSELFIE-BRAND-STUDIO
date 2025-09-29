@@ -6,7 +6,7 @@ import { simpleMemoryService } from './simple-memory-service.js';
 import { localProcessingEngine } from './hybrid-intelligence/local-processing-engine.js';
 
 const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
+  apiKey: process.env['ANTHROPIC_API_KEY'],
 });
 
 const DEFAULT_MODEL_STR = 'claude-3-5-sonnet-20241022';

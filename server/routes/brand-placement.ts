@@ -143,7 +143,7 @@ router.post('/place', requireStackAuth, async (req, res) => {
 
     res.status(500).json({ 
       error: 'Failed to process brand placement',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      details: process.env['NODE_ENV'] === 'development' ? error.message : undefined
     });
   }
 });
@@ -180,7 +180,7 @@ router.get('/variants/:variantId/status', requireStackAuth, async (req, res) => 
     console.error('❌ VARIANT STATUS: Error:', error);
     res.status(500).json({ 
       error: 'Failed to get variant status',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      details: process.env['NODE_ENV'] === 'development' ? error.message : undefined
     });
   }
 });
