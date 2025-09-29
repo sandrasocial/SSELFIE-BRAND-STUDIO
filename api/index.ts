@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { withTimeout, withDatabaseTimeout, withDatabaseTimeoutAndRetry, withExternalApiTimeout, isTimeoutError } from './_utils/timing.js';
+import type { ConceptCard } from '../shared/types/concept-card.js';
 
 export const config = { 
   runtime: 'nodejs',
@@ -63,14 +64,6 @@ interface AiImage {
   category?: string;
 }
 
-interface ConceptCard {
-  id: string;
-  title: string;
-  description: string;
-  fluxPrompt: string;
-  category: string;
-  emoji: string;
-}
 
 interface ConversationEntry {
   role: 'user' | 'assistant';
