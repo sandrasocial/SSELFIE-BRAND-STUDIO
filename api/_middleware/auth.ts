@@ -173,13 +173,42 @@ export async function getAuthenticatedUser(req: VercelRequest): Promise<Authenti
     throw new Error('Invalid user info: missing required fields');
   }
 
+  // Get full user from database (similar to server auth flow)
+  // For now, create a minimal user that matches the schema structure
+  // TODO: In production, this should fetch from the database like server/stack-auth.ts does
   const user: AuthenticatedUser = {
     id: userId,
+    stackAuthId: userId,
     email: userEmail,
     firstName: userName?.split(' ')[0] || null,
     lastName: userName?.split(' ').slice(1).join(' ') || null,
+    displayName: userName || null,
+    profileImageUrl: userInfo.profileImageUrl || userInfo.profile_image_url || userInfo.avatar_url || null,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    lastLoginAt: new Date(),
+    stripeCustomerId: null,
+    stripeSubscriptionId: null,
     plan: 'sselfie-studio',
     role: 'user',
+    monthlyGenerationLimit: 100,
+    generationsUsedThisMonth: 0,
+    mayaAiAccess: true,
+    victoriaAiAccess: false,
+    hasRetrainingAccess: false,
+    retrainingSessionId: null,
+    retrainingPaidAt: null,
+    preferredOnboardingMode: 'conversational',
+    onboardingProgress: null,
+    gender: null,
+    profession: null,
+    brandStyle: null,
+    photoGoals: null,
+    trainingCoachingStarted: false,
+    trainingCoachingCompleted: false,
+    trainingCoachingPhase: null,
+    trainingCoachingStep: 0,
+    brandStrategyContext: null,
     stackUser: userInfo
   };
 
