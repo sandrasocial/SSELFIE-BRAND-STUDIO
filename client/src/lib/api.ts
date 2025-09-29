@@ -1,4 +1,4 @@
-const API_BASE = import.meta.env?.VITE_API_BASE_URL?.replace(/\/+$/, "") || "/api";
+const API_BASE = import.meta.env?.['VITE_API_BASE_URL']?.replace(/\/+$/, "") || "/api";
 
 type FetchOpts =
   | (Omit<RequestInit, 'body'> & { json: unknown; body?: never; skipAuth?: boolean })

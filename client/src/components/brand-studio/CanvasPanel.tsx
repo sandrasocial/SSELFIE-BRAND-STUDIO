@@ -36,6 +36,13 @@ export type ConceptCard = {
   isGenerating?: boolean;
   category?: string;
   type?: 'portrait' | 'flatlay' | 'lifestyle'; // 80/20 rule categorization
+  // Add compatibility with server-side ConceptCard
+  userId?: string;
+  status?: string;
+  sortOrder?: number;
+  isLoading?: boolean;
+  updatedAt?: string;
+  [key: string]: unknown; // Allow additional properties
 };
 
 interface LuxuryConceptCardProps {

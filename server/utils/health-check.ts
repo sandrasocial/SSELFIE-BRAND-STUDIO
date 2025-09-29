@@ -167,7 +167,7 @@ export class HealthCheckSystem {
         timestamp: new Date().toISOString(),
         uptime: process.uptime(),
         version: process.env.npm_package_version || '1.0.0',
-        environment: process.env.NODE_ENV || 'development',
+        environment: process.env['NODE_ENV'] || 'development',
         checks: {
           database: databaseCheck,
           cache: cacheCheck,
@@ -203,7 +203,7 @@ export class HealthCheckSystem {
         timestamp: new Date().toISOString(),
         uptime: process.uptime(),
         version: process.env.npm_package_version || '1.0.0',
-        environment: process.env.NODE_ENV || 'development',
+        environment: process.env['NODE_ENV'] || 'development',
         checks: {
           database: { status: 'unhealthy', message: 'Health check failed', lastChecked: new Date().toISOString() },
           cache: { status: 'unhealthy', message: 'Health check failed', lastChecked: new Date().toISOString() },

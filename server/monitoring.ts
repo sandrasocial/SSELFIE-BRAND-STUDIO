@@ -35,19 +35,19 @@ interface MonitoringConfig {
 const config: MonitoringConfig = {
   sentry: {
     dsn: process.env.SENTRY_DSN,
-    environment: process.env.NODE_ENV || 'development',
-    debug: process.env.NODE_ENV === 'development',
-    tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
-    profilesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
+    environment: process.env['NODE_ENV'] || 'development',
+    debug: process.env['NODE_ENV'] === 'development',
+    tracesSampleRate: process.env['NODE_ENV'] === 'production' ? 0.1 : 1.0,
+    profilesSampleRate: process.env['NODE_ENV'] === 'production' ? 0.1 : 1.0,
   },
   analytics: {
-    enabled: process.env.NODE_ENV === 'production',
+    enabled: process.env['NODE_ENV'] === 'production',
     id: process.env.ANALYTICS_ID,
   },
   logging: {
     level: (process.env.LOG_LEVEL as any) || 'info',
     structured: true,
-    includeStackTrace: process.env.NODE_ENV !== 'production',
+    includeStackTrace: process.env['NODE_ENV'] !== 'production',
   },
   performance: {
     enabled: true,
@@ -55,7 +55,7 @@ const config: MonitoringConfig = {
     memoryThreshold: parseInt(process.env.MEMORY_THRESHOLD || '80', 10),
   },
   alerts: {
-    enabled: process.env.NODE_ENV === 'production',
+    enabled: process.env['NODE_ENV'] === 'production',
     webhookUrl: process.env.ALERT_WEBHOOK_URL,
     channels: (process.env.ALERT_CHANNELS || '').split(',').filter(Boolean),
   },

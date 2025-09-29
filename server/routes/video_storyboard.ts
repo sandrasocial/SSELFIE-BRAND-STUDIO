@@ -48,8 +48,8 @@ const router = express.Router();
 
 // Initialize the Google GenAI client (following existing video route pattern)
 let ai: any;
-if (process.env.GOOGLE_API_KEY) {
-  ai = new GoogleGenAI({ apiKey: process.env.GOOGLE_API_KEY });
+if (process.env['GOOGLE_API_KEY']) {
+  ai = new GoogleGenAI({ apiKey: process.env['GOOGLE_API_KEY'] });
   console.log('🎬 STORYBOARD: Google Gemini AI initialized for storyboard generation');
 } else {
   console.error('❌ STORYBOARD: GOOGLE_API_KEY environment variable not set. Storyboard routes will fail.');

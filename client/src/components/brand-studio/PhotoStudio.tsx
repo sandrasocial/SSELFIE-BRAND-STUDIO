@@ -20,8 +20,11 @@ const convertToCanvasConceptCard = (hookCard: HookConceptCard): CanvasConceptCar
     description: hookCard.description ?? '',
     generatedImages: hookCard.generatedImages ?? [], // Ensure it's always an array
     isGenerating: hookCard.isGenerating,
-    type: 'portrait' as const, // Default type since hook doesn't specify
-    // Map other properties as needed
+    type: (hookCard.tags?.includes('portrait') ? 'portrait' : 
+           hookCard.tags?.includes('flatlay') ? 'flatlay' : 
+           hookCard.tags?.includes('lifestyle') ? 'lifestyle' : 'portrait') as 'portrait' | 'flatlay' | 'lifestyle',
+    // Optional properties - only include if they have values
+    ...(hookCard.images?.[0] && { imageUrl: hookCard.images[0] }),
   };
 };
 
@@ -318,7 +321,7 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
         });
 
         // Auto-save first image to gallery
-        if (result.images.length > 0) {
+        if (result.images.length > 0 && result.images[0]) {
           await handleAutoSaveToGallery(result.images[0], card.title || 'Untitled');
         }
       } else {

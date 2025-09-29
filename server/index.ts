@@ -36,7 +36,7 @@ app.get('/api/health', cacheMiddleware(staticDataCache, 30), (req, res) => {
   res.status(200).json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
-    env: process.env.NODE_ENV || 'development'
+    env: process.env['NODE_ENV'] || 'development'
   });
 });
 app.get('/', (req, res) => {
@@ -49,7 +49,7 @@ async function setupApp() {
     console.log('🚀 Setting up SSELFIE Studio server...');
     
     // Setup static file serving based on environment
-    const isProduction = process.env.NODE_ENV === 'production';
+    const isProduction = process.env['NODE_ENV'] === 'production';
     
     if (isProduction) {
       // In production, Vercel handles static files via vercel.json routes
@@ -94,7 +94,7 @@ async function setupApp() {
 }
 
 // Only auto-run if not in test
-if (process.env.NODE_ENV !== 'test') {
+if (process.env['NODE_ENV'] !== 'test') {
   setupApp();
 }
 
