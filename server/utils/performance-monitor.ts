@@ -85,7 +85,7 @@ export class PerformanceMonitor {
         memoryUsage,
         cpuUsage,
         success,
-        metadata
+        metadata: metadata || undefined
       };
 
       this.addMetric(metric);

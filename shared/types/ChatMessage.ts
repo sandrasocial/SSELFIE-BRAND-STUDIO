@@ -17,7 +17,7 @@ export function useVictoriaChat() {
       content,
       role: 'user', // Changed from 'sender' to 'role'
       timestamp: new Date(),
-      context
+      context: context || undefined
     };
 
     setMessages(prev => [...prev, userMessage]);
@@ -32,7 +32,7 @@ export function useVictoriaChat() {
         content: response,
         role: 'victoria', // Changed from 'sender' to 'role'
         timestamp: new Date(),
-        context
+        context: context || undefined
       };
       
       setMessages(prev => [...prev, victoriaMessage]);

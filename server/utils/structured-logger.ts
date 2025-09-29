@@ -4,7 +4,7 @@
  */
 
 import { Logger } from './logger.js';
-import fs from 'fs';
+import * as fs from 'fs';
 
 export interface LogEntry {
   timestamp: string;
