@@ -1,0 +1,34 @@
+// client/src/services/imageGeneration.ts - Packaged models only
+interface GenerateImageParams {
+  prompt: string;
+  guidance_scale: number;
+  num_inference_steps: number;
+  // REMOVED: lora_scale - packaged models have LoRA built-in
+  model_id: string;
+  aspect_ratio: string;
+  user_id?: string;
+}
+
+export async function generateImage(params: GenerateImageParams) {
+  try {
+    const response = await fetch('/api/generate-image', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(params), // Clean parameters only - no Flux corruption
+    });
+
+    if (!response.ok) {
+      throw new Error(`Generation failed: ${response.status}`);
+    }
+
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    console.error('Image generation error:', error);
+    throw error;
+  }
+}
+
+export type { GenerateImageParams };

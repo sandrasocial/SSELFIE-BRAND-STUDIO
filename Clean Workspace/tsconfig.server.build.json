@@ -1,0 +1,50 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "moduleResolution": "node16",
+    "module": "Node16",
+    "outDir": "dist-server",
+    "noEmit": false,
+    "declaration": false,
+    "emitDeclarationOnly": false,
+    "isolatedModules": true,
+    "allowJs": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "paths": {
+      "@server/*": ["server/*"],
+      "@shared/*": ["shared/*"]
+    }
+  },
+  "include": [
+    "server/**/*",
+    "shared/**/*",
+    "api/**/*"
+  ],
+  "exclude": [
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "**/*.spec.tsx",
+    "legacy/**/*",
+    "dist-server/**/*",
+    "tsconfig.*.json",
+    // Excluding non-core features while keeping core auth and gallery
+    "server/migration-monitor.ts",
+    "server/routes/brand-assets.ts",
+    "server/routes/hair-trends-route.ts",
+    "server/routes/live-session.ts",
+    "server/routes/trends-current.ts",
+    "server/routes/modules/admin.ts",
+    "server/routes/modules/claude.ts",
+    "server/routes/modules/training.ts",
+    "server/scheduled-tasks/**/*",
+    "server/services/claude-api-service-simple.ts",
+    "server/services/hybrid-intelligence/**/*",
+  "server/services/images/variations.ts",
+  "server/services/maya-*",
+  "server/services/workflow-executor.ts",
+  "server/services/maya-predictive-styling-service.ts",
+  "server/services/unified-maya-memory-service.ts"
+  ]
+}

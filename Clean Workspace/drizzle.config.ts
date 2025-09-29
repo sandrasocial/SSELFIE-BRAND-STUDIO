@@ -1,0 +1,14 @@
+import { defineConfig } from 'drizzle-kit';
+
+export default defineConfig({
+  schema: [
+    './shared/schema-maya.ts'
+  ],
+  out: './drizzle',
+  dialect: 'postgresql',
+  dbCredentials: {
+    url: process.env.DATABASE_URL!
+  },
+  // Neon serverless driver doesn't need special configuration for schema operations
+  // The connection will use whatever driver is configured in the app
+});

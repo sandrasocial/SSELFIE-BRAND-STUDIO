@@ -1,0 +1,37 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "moduleResolution": "node16",
+    "module": "Node16",
+    "outDir": "dist-server",
+    "noEmit": false,
+    "declaration": false,
+    "emitDeclarationOnly": false,
+    "isolatedModules": true,
+    "allowJs": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "paths": {
+      "@server/*": ["server/*"],
+      "@shared/*": ["shared/*"]
+    }
+  },
+  "include": [
+    "server/routes/modules/auth.ts",
+    "server/routes/modules/gallery.ts",
+    "api/server/storage.ts",
+    "shared/types/chat.ts",
+    "shared/types/auth.ts",
+    "api/_shared/auth-types.ts",
+    "api/_shared/auth-middleware-types.ts"
+  ],
+  "exclude": [
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "**/*.spec.tsx",
+    "legacy/**/*",
+    "dist-server/**/*",
+    "tsconfig.*.json"
+  ]
+}
