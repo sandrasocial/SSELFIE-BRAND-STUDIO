@@ -89,13 +89,13 @@ router.post('/', requireStackAuth, upload.single('asset'), async (req, res) => {
 
     // Upload file to S3 using BulletproofUploadService
     const s3Key = `brand-assets/${userId}/${Date.now()}-${file.originalname}`;
-    const uploadResult = await BulletproofUploadService.uploadToS3(
+    const s3Url = await BulletproofUploadService.uploadToS3(
       file.buffer,
       s3Key,
       file.mimetype
     );
 
-    if (!uploadResult.success || !uploadResult.s3Url) {
+    if (!s3Url) {
       return res.status(500).json({ error: 'Failed to upload asset to storage' });
     }
 
@@ -115,7 +115,7 @@ router.post('/', requireStackAuth, upload.single('asset'), async (req, res) => {
     const assetData = insertBrandAssetSchema.parse({
       userId,
       kind,
-      url: uploadResult.s3Url,
+      url: s3Url,
       filename: file.originalname,
       fileSize: file.size,
       meta

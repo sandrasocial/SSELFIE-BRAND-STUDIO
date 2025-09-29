@@ -337,7 +337,7 @@ router.post('/api/maya-generate', requireStackAuth, asyncHandler(async (req: Aut
     }> = {
       data: {
         jobId: result.predictionId,
-        generationId,
+        generationId: generationId.toString(),
         images: result.images,
         prompt: finalPrompt
       },
@@ -383,7 +383,7 @@ router.post('/api/maya-chats/:chatId/messages', requireStackAuth, asyncHandler(a
     role: 'user'
   });
 
-  const responseData: SuccessResponse<{ messageId: number }> = {
+  const responseData: SuccessResponse<{ messageId: string }> = {
     data: { messageId },
     message: 'Message sent successfully'
   };
