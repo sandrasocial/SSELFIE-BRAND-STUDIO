@@ -1,15 +1,6 @@
 import React, { useState } from 'react';
 
-interface ConceptCard {
-  id: string;
-  title: string;
-  description: string;
-  generatedImages?: string[];
-  isGenerating?: boolean;
-  scene?: number | string;
-  prompt?: string;
-  [key: string]: unknown;
-}
+import type { ConceptCard } from '../../../../shared/types/concept-card.js';
 
 interface ToolkitPanelProps {
   mode: 'photo' | 'story';
@@ -170,7 +161,7 @@ export const ToolkitPanel: React.FC<ToolkitPanelProps> = ({
               Selected Scene
             </h5>
             <p className="text-xs text-gray-600 leading-relaxed">
-              Scene {selectedItem.scene}: {selectedItem.prompt}
+              Scene {selectedItem['scene'] ?? 'Unknown'}: {selectedItem['prompt'] ?? 'No prompt'}
             </p>
           </div>
         )}

@@ -9,38 +9,18 @@ import { MayaUploadComponent } from '../components/maya/MayaUploadComponent.js';
 import { MayaExamplesGallery } from '../components/maya/MayaExamplesGallery.js';
 import { useLocation } from 'wouter';
 
-// Maya luxury workspace - aligned with SSELFIE brand guidelines
+// Type imports
+import type { ChatMessage } from '../../../shared/types/chat-message.js';
+import type { ConversationData } from '../../../shared/types/conversation.js';
+import type { ConceptCard } from '../../../shared/types/concept-card.js';
 
-interface ChatMessage {
-  id: string;
-  type: 'user' | 'maya' | 'upload' | 'examples';
-  content: string;
-  timestamp: string;
-  conceptCards?: ConceptCard[];
-  isStreaming?: boolean;
+// Type extensions for component props
+interface ExtendedChatMessage extends ChatMessage {
   showUpload?: boolean;
   showExamples?: boolean;
 }
 
-
-interface ConversationData {
-  messages: ChatMessage[];
-  [key: string]: unknown;
-}
-
-interface ConceptCard {
-  id: string;
-  title: string;
-  description: string;
-  fluxPrompt?: string;
-  fullPrompt?: string;
-  category?: string;
-  imageUrl?: string;
-  generatedImages?: string[];
-  isGenerating?: boolean;
-  isLoading?: boolean;
-  hasGenerated?: boolean;
-}
+// Maya luxury workspace - aligned with SSELFIE brand guidelines
 
 // Clean display formatter - strips emojis for professional appearance while preserving backend intelligence
 const cleanDisplayTitle = (title: string): string => {
@@ -198,16 +178,16 @@ export default function Maya() {
   };
 
   // Enhanced loading with database sync
-  const { data: conversationData } = useQuery({
+  const { data: conversationData } = useQuery<{ messages: ChatMessage[] }>({
     queryKey: ['/api/maya/conversation'],
     enabled: !!user?.id && !isPersistenceLoading
   });
 
   // Sync database conversation with localStorage
   useEffect(() => {
-    if (conversationData && (conversationData as ConversationData).messages && messages.length === 0) {
+    if (conversationData?.messages && messages.length === 0) {
       console.log('Syncing database conversation with persistent storage');
-      setMessages(() => (conversationData as ConversationData).messages.slice(-20));
+      setMessages(() => conversationData.messages.map(msg => msg as ExtendedChatMessage).slice(-20));
       setHasStartedChat(true);
     }
   }, [conversationData, messages.length, setMessages]);
@@ -287,7 +267,7 @@ export default function Maya() {
   useEffect(() => {
     if (messages.length > 0) {
       const lastMessage = messages[messages.length - 1];
-      if (lastMessage.conceptCards && lastMessage.conceptCards.length > 0) {
+      if (lastMessage?.conceptCards && lastMessage.conceptCards.length > 0) {
         scrollToNewContent();
       }
     }
@@ -550,7 +530,7 @@ export default function Maya() {
                       </div>
                     </div>
                   </div>
-                ) : msg.type === 'upload' ? (
+                ) : (msg.type as string) === 'upload' ? (
                   // Upload Message - Luxury Editorial
                   <div className="flex justify-start">
                     <div className="max-w-2xl">
@@ -568,7 +548,7 @@ export default function Maya() {
                       >
                         <p className="text-gray-800 whitespace-pre-wrap">{msg.content}</p>
                       </div>
-                      {msg.showUpload && (
+                      {(msg as ExtendedChatMessage).type === 'upload' && (msg as ExtendedChatMessage).showUpload && (
                         <div className="border-t border-gray-100 pt-8">
                           <MayaUploadComponent
                             onUploadComplete={(success) => {
@@ -587,7 +567,7 @@ export default function Maya() {
                       )}
                     </div>
                   </div>
-                ) : msg.type === 'examples' ? (
+                ) : (msg.type as string) === 'examples' ? (
                   // Examples Message - Editorial Layout
                   <div className="flex justify-start">
                     <div className="max-w-2xl">
@@ -605,7 +585,7 @@ export default function Maya() {
                       >
                         <p className="text-gray-800 whitespace-pre-wrap">{msg.content}</p>
                       </div>
-                      {msg.showExamples && (
+                      {(msg as ExtendedChatMessage).type === 'examples' && (msg as ExtendedChatMessage).showExamples && (
                         <div className="border-t border-gray-100 pt-8">
                           <MayaExamplesGallery className="luxury-examples" />
                         </div>
@@ -698,7 +678,7 @@ export default function Maya() {
                                         {isExpanded ? 'Show Less' : 'View Details'}
                                       </button>
                                       <button
-                                        onClick={() => handleGenerateImage(card)}
+                                        onClick={() => handleGenerateImage(card as ConceptCard)}
                                         disabled={card.isGenerating}
                                         className="bg-black text-white px-6 py-2 text-xs tracking-wider uppercase hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                         style={{ letterSpacing: '0.2em' }}

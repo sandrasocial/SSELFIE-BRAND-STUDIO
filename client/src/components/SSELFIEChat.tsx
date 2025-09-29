@@ -12,13 +12,7 @@ interface ChatMessage {
   conceptCards?: ConceptCard[];
 }
 
-interface ConceptCard {
-  id: string;
-  title: string;
-  description: string;
-  isGenerating?: boolean;
-  generatedImages?: string[];
-}
+import type { ConceptCard } from '../../../shared/types/concept-card.js';
 
 // SSELFIE Chat Component - Mobile Optimized for Tab Layout  
 export function SSELFIEChat() {
