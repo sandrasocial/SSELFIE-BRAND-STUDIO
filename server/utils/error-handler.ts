@@ -58,14 +58,16 @@ export class ErrorHandler {
     });
 
     // Track error
-    const errorId = errorTracker.trackError(error, {
-      req,
-      res,
-      userId,
+    const errorContext = {
+      req: req ?? undefined,
+      res: res ?? undefined,
+      userId: userId ?? undefined,
       severity: this.determineSeverity(error),
       category: this.determineCategory(error),
-      additionalData,
-    });
+      additionalData: additionalData ?? undefined,
+    } as const;
+    
+    const errorId = errorTracker.trackError(error, errorContext);
 
     // Send error response if response object is available
     if (res && !res.headersSent) {

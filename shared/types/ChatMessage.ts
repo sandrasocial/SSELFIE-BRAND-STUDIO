@@ -4,7 +4,10 @@ import { BaseChatMessage } from './unified-chat.js';
 
 export interface ChatMessage extends BaseChatMessage {
   role: 'user' | 'victoria'; // Changed from 'sender' to 'role' to match BaseChatMessage
-  context?: string;
+  context?: string | undefined;
+  id: string;
+  content: string;
+  timestamp: Date;
 }
 
 export function useVictoriaChat() {
@@ -51,7 +54,7 @@ export function useVictoriaChat() {
 async function getContextualResponse(input: string, context?: string): Promise<string> {
   // Enhanced Sandra voice responses with context awareness
   const contextResponses = getContextualSandraResponses(input, context);
-  return contextResponses[Math.floor(Math.random() * contextResponses.length)];
+  return contextResponses[Math.floor(Math.random() * contextResponses.length)] ?? 'Default response';
 }
 
 function getContextualSandraResponses(input: string, context?: string): string[] {

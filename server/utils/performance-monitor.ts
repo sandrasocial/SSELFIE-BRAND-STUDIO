@@ -362,10 +362,10 @@ export class PerformanceMonitor {
     const alerts: string[] = [];
     const stats = this.getPerformanceStats(1);
 
-    if (stats.averageResponseTime > 2000) {
+    if ((stats.averageResponseTime ?? 0) > 2000) {
       alerts.push('High response time detected');
     }
-    if (stats.errorRate > 5) {
+    if ((stats.errorRate ?? 0) > 5) {
       alerts.push('High error rate detected');
     }
     if (stats.averageCpuUsage > 80) {

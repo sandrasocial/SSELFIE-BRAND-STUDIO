@@ -37,14 +37,14 @@ export const errorHandler = (
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error';
 
-  // Log error
+  // Log error with proper type handling
   logger.error({
-    error: err.message,
-    stack: err.stack,
-    url: req.originalUrl,
-    method: req.method,
-    body: req.body,
-    user: req.user,
+    error: err.message ?? 'Unknown error',
+    stack: err.stack ?? undefined,
+    url: req.originalUrl ?? undefined,
+    method: req.method ?? undefined,
+    body: req.body ?? undefined,
+    user: req.user ?? undefined,
   });
 
   // Log server errors for monitoring

@@ -7,27 +7,35 @@ import { Logger } from './logger.js';
 import { Request, Response } from 'express';
 
 export interface ErrorContext {
-  timestamp: string;
-  errorId: string;
+  timestamp: strin    return {
+      endpoint: req.path ?? undefined,
+      method: req.method ?? undefined,
+      userId: req.user?.id ?? undefined,
+      ip: req.ip ?? undefined,
+      userAgent: req.headers['user-agent'] ?? undefined,
+      requestBody: req.body ?? undefined,
+      queryParams: req.query ?? undefined,
+      headers: req.headers ?? undefined
+    };Id: string;
   type: string;
   message: string;
-  stack?: string;
+  stack?: string | undefined;
   severity: 'low' | 'medium' | 'high' | 'critical';
   category: 'validation' | 'database' | 'external_api' | 'authentication' | 'authorization' | 'system' | 'unknown';
-  endpoint?: string;
-  method?: string;
-  userId?: string;
-  ip?: string;
-  userAgent?: string;
-  requestBody?: any;
-  queryParams?: any;
-  headers?: any;
+  endpoint?: string | undefined;
+  method?: string | undefined;
+  userId?: string | undefined;
+  ip?: string | undefined;
+  userAgent?: string | undefined;
+  requestBody?: any | undefined;
+  queryParams?: any | undefined;
+  headers?: any | undefined;
   environment: string;
   version: string;
   resolved: boolean;
-  resolvedAt?: string;
-  resolvedBy?: string;
-  notes?: string;
+  resolvedAt?: string | undefined;
+  resolvedBy?: string | undefined;
+  notes?: string | undefined;
 }
 
 export interface ErrorStats {
@@ -107,7 +115,7 @@ export class ErrorTracker {
       queryParams: requestContext.queryParams,
       headers: requestContext.headers,
       environment: process.env['NODE_ENV'] || 'development',
-      version: process.env.npm_package_version || '1.0.0',
+      version: process.env['npm_package_version'] || '1.0.0',
       resolved: false,
       ...context.additionalData,
     };
@@ -254,8 +262,8 @@ export class ErrorTracker {
   private async sendCriticalErrorAlert(errorContext: ErrorContext): Promise<void> {
     try {
       // Send to Slack
-      if (process.env.SLACK_WEBHOOK_URL) {
-        await fetch(process.env.SLACK_WEBHOOK_URL, {
+      if (process.env['SLACK_WEBHOOK_URL']) {
+        await fetch(process.env['SLACK_WEBHOOK_URL'], {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -276,7 +284,7 @@ export class ErrorTracker {
       }
 
       // Send to email (if configured)
-      if (process.env.ERROR_EMAIL) {
+      if (process.env['ERROR_EMAIL']) {
         // This would integrate with your email service
         this.logger.info('Critical error email sent', { errorId: errorContext.errorId });
       }

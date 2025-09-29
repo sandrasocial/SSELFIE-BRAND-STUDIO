@@ -1,6 +1,6 @@
 import { db } from '../drizzle.js';
-import { type ClaudeConversation, type ClaudeMessage } from '../../shared/types/chat.js';
-import { claudeConversations, claudeMessages } from '../../shared/schema.js';
+import { type MayaChatMessage } from '../../shared/types/chat.js';
+import { mayaConversations, mayaMessages } from '../../shared/schema-maya.js';
 import { eq, desc, and } from 'drizzle-orm';
 
 export interface AgentHandoffContext {
@@ -42,12 +42,13 @@ export class EnhancedHandoffSystem {
     try {
       // Store handoff with enhanced tracking
       const convId = `enhanced_handoff_${workflowId}_${Date.now()}`;
-      await db.insert(claudeConversations).values({
+      await db.insert(mayaConversations).values({
         userId,
-        agentName: handoffContext.fromAgent,
+        agentId: handoffContext.fromAgent,
         conversationId: convId,
         title: `Enhanced handoff to ${handoffContext.toAgent}`,
-        status: 'active'
+        status: 'active',
+        context: handoffContext
       });
       await db.insert(claudeMessages).values({
         conversationId: convId,

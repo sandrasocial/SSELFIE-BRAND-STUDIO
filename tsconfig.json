@@ -15,8 +15,8 @@
     "noPropertyAccessFromIndexSignature": true,
     "strictFunctionTypes": true,
     "module": "Node16",
-    "moduleResolution": "node16",
-    "moduleDetection": "auto",
+    "moduleResolution": "NodeNext",
+    "moduleDetection": "force",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
@@ -25,16 +25,18 @@
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
     "jsx": "react-jsx",
+    "incremental": true,
+    "tsBuildInfoFile": "./node_modules/.cache/.tsbuildinfo",
     "baseUrl": ".",
     "paths": {
       "@/*": ["client/src/*"],
-      "@components/*": ["client/src/components/*"],
-      "@lib/*": ["client/src/lib/*"],
-      "@shared/*": ["shared/*"],
-      "@assets/*": ["attached_assets/*"],
+      "@api/*": ["api/*"],
       "@server/*": ["server/*"],
-      "server/*": ["server/*"],
-      "@models/*": ["shared/models/*"]
+      "@shared/*": ["shared/*"],
+      "@utils/*": ["server/utils/*"],
+      "@types/*": ["shared/types/*"],
+      "@components/*": ["client/src/components/*"],
+      "@lib/*": ["client/src/lib/*"]
     },
     "types": [
       "@types/node"

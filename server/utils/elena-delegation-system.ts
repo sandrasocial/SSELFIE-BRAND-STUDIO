@@ -327,16 +327,20 @@ export class ElenaDelegationSystem {
     
     // Calculate estimated completion time
     const estimatedCompletion = new Date();
+    if (!bestCandidate) {
+      throw new Error('No suitable agent found for task');
+    }
+
     estimatedCompletion.setMinutes(
       estimatedCompletion.getMinutes() + 
       task.estimatedTime + 
-      (bestCandidate.agent.currentTasks * 15) // Queue delay
+      ((bestCandidate?.agent?.currentTasks ?? 0) * 15) // Queue delay
     );
     
     return {
       taskId: task.taskId,
       assignedAgent: bestCandidate.agent.agentId,
-      reasoning: bestCandidate.reasoning,
+      reasoning: bestCandidate.reasoning ?? 'No specific reasoning provided',
       dependencies: task.dependsOn,
       estimatedCompletion,
       priority: task.priority

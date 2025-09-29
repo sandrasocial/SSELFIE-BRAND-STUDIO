@@ -1,9 +1,11 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "moduleResolution": "node16",
+    "moduleResolution": "NodeNext",
     "module": "Node16",
     "outDir": "dist-server",
+    "incremental": true,
+    "tsBuildInfoFile": "./dist-server/.tsbuildinfo",
     "noEmit": false,
     "declaration": false,
     "emitDeclarationOnly": false,
@@ -11,6 +13,8 @@
     "allowJs": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
+    "sourceMap": true,
+    "removeComments": true,
     "paths": {
       "@server/*": ["server/*"],
       "@shared/*": ["shared/*"]

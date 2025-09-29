@@ -114,7 +114,7 @@ export class DeploymentSystem {
           
           // Mark deployment as failed
           deployment.status = 'failed';
-          deployment.error = error.message;
+          deployment.error = error instanceof Error ? error.message : String(error);
           deployment.endTime = new Date().toISOString();
           deployment.duration = new Date(deployment.endTime).getTime() - new Date(deployment.startTime).getTime();
           
@@ -138,11 +138,11 @@ export class DeploymentSystem {
 
     } catch (error) {
       deployment.status = 'failed';
-      deployment.error = error.message;
+      deployment.error = error instanceof Error ? error.message : String(error);
       deployment.endTime = new Date().toISOString();
       deployment.duration = new Date(deployment.endTime).getTime() - new Date(deployment.startTime).getTime();
 
-      this.logger.error('Deployment failed', { error: error.message });
+      this.logger.error('Deployment failed', { error: error instanceof Error ? error.message : String(error) });
     }
 
     this.currentDeployment = null;
@@ -333,7 +333,7 @@ export class DeploymentSystem {
         throw new Error('Final health check failed');
       }
     } catch (error) {
-      this.logger.error('Health check failed', { error: error.message });
+      this.logger.error('Health check failed', { error: error instanceof Error ? error.message : String(error) });
       throw error;
     }
 
@@ -342,7 +342,7 @@ export class DeploymentSystem {
       // Mock performance check - would be replaced with actual check
       deployment.performanceCheckPassed = true;
     } catch (error) {
-      this.logger.warn('Performance check failed', { error: error.message });
+      this.logger.warn('Performance check failed', { error: error instanceof Error ? error.message : String(error) });
     }
   }
 
