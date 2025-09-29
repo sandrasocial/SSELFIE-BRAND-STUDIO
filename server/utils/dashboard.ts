@@ -266,8 +266,8 @@ export class DashboardSystem {
         overview: {
           status: healthData.status,
           uptime: this.formatUptime(process.uptime()),
-          version: process.env.npm_package_version || '1.0.0',
-          environment: process.env.NODE_ENV || 'development',
+          version: process.env['npm_package_version'] || '1.0.0',
+          environment: process.env['NODE_ENV'] || 'development',
           lastUpdated: timestamp,
         },
         health: {
@@ -282,20 +282,20 @@ export class DashboardSystem {
         },
         performance: {
           requests: {
-            total: performanceStats.totalRequests,
-            rate: performanceStats.throughput,
-            averageResponseTime: performanceStats.averageResponseTime,
+            total: performanceStats?.totalRequests ?? 0,
+            rate: performanceStats?.throughput ?? 0,
+            averageResponseTime: performanceStats?.averageResponseTime ?? 0,
             p95ResponseTime: performanceStats.maxResponseTime ?? 0,
             p99ResponseTime: performanceStats.maxResponseTime ?? 0,
           },
           throughput: {
-            requestsPerMinute: realTimeSummary.requestsPerMinute,
-            requestsPerHour: Math.round(realTimeSummary.requestsPerMinute * 60),
-            requestsPerDay: Math.round(realTimeSummary.requestsPerMinute * 60 * 24),
+            requestsPerMinute: realTimeSummary?.requestsPerMinute ?? 0,
+            requestsPerHour: Math.round((realTimeSummary?.requestsPerMinute ?? 0) * 60),
+            requestsPerDay: Math.round((realTimeSummary?.requestsPerMinute ?? 0) * 60 * 24),
           },
           responseTime: {
-            average: performanceStats.averageResponseTime,
-            median: performanceStats.averageResponseTime, // Simplified
+            average: performanceStats?.averageResponseTime ?? 0,
+            median: performanceStats?.averageResponseTime ?? 0, // Simplified
             p95: performanceStats.maxResponseTime ?? 0,
             p99: performanceStats.maxResponseTime ?? 0,
           },
@@ -563,9 +563,9 @@ export class DashboardSystem {
     const systemMetrics = this.getSystemMetrics();
 
     return {
-      requestsPerMinute: realTimeSummary.requestsPerMinute,
-      averageResponseTime: realTimeSummary.averageResponseTime,
-      errorRate: realTimeSummary.errorRate,
+      requestsPerMinute: realTimeSummary?.requestsPerMinute ?? 0,
+      averageResponseTime: realTimeSummary?.averageResponseTime ?? 0,
+      errorRate: realTimeSummary?.errorRate ?? 0,
       memoryUsage: systemMetrics.memory.percentage,
       cpuUsage: systemMetrics.cpu.usage,
       activeUsers: realTimeSummary.activeUsers,

@@ -4,7 +4,9 @@
  */
 
 import { Logger } from './logger.js';
-import { structuredLogger } from './structured-logger.js';
+import { StructuredLogger } from './structured-logger.js';
+
+const structuredLogger = new StructuredLogger('app-service');
 
 export interface LogEntry {
   timestamp: string;
@@ -53,11 +55,11 @@ export class LoggingSystem {
     this.logger = new Logger('LoggingSystem');
     this.isEnabled = true;
     this.config = {
-      level: (process.env.LOG_LEVEL as any) || 'info',
+      level: (process.env['LOG_LEVEL'] as 'debug' | 'info' | 'warn' | 'error' | 'fatal') || 'info',
       enableConsole: true,
-      enableFile: process.env.NODE_ENV === 'production',
-      enableRemote: !!process.env.LOG_REMOTE_ENDPOINT,
-      remoteEndpoint: process.env.LOG_REMOTE_ENDPOINT,
+      enableFile: process.env['NODE_ENV'] === 'production',
+      enableRemote: !!process.env['LOG_REMOTE_ENDPOINT'],
+      remoteEndpoint: process.env['LOG_REMOTE_ENDPOINT'],
       maxFileSize: 10,
       maxFiles: 5,
       enableRequestLogging: true,

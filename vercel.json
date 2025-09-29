@@ -1,46 +1,8 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "buildCommand": "npm run vercel-build",
-        "outputDirectory": "client/dist",
-        "installCommand": "npm install --force"
-      }
-    },
-    {
-      "src": "api/[...route].ts",
-      "use": "@vercel/node",
-      "config": {
-        "maxDuration": 60,
-        "memory": 1024,
-        "includeFiles": [
-          "api/**",
-          "dist-server/**", 
-          "dist-server/server/**",
-          "dist-server/shared/**",
-          "server/**",
-          "shared/**", 
-          "components/**",
-          "client/src/**",
-          "drizzle/**",
-          ".env*",
-          "tsconfig*.json",
-          "package.json",
-          "vite.config.ts",
-          "postcss.config.js",
-          "tailwind.config.js",
-          "server/storage.ts",
-          "server/drizzle.ts",
-          "server/index.ts",
-          "server/index-launch.ts",
-          "shared/schema.ts"
-        ]
-      }
-    }
-  ],
+  "buildCommand": "npm run vercel-build",
+  "outputDirectory": "client/dist",
+  "installCommand": "npm install --force",
   "routes": [
     {
       "src": "/static/(.*)",

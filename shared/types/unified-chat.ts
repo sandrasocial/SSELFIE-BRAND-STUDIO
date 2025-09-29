@@ -12,10 +12,10 @@ import type {
 // Base chat message interface
 export interface BaseChatMessage {
   id: string;
-  role: 'user' | 'assistant' | 'system' | 'maya' | 'victoria';
+  role: string;
   content: string;
-  timestamp: Date;
-  metadata?: Record<string, unknown>;
+  timestamp: Date | null;
+  metadata: unknown;
 }
 
 // Maya chat specific interfaces

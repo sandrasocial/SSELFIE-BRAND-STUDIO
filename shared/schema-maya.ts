@@ -1,7 +1,7 @@
 import { pgTable, serial, varchar, text, jsonb, boolean, timestamp, integer, decimal } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
-import { users } from "./schema";
+import { users } from './schema.js';
 
 // =============================================================================
 // MAYA CORE SCHEMA - Complete Database Structure

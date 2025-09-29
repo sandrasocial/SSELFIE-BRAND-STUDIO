@@ -23,7 +23,7 @@
     "strictNullChecks": true,
     "noImplicitAny": true,
     "noUncheckedIndexedAccess": true,
-    "exactOptionalPropertyTypes": true,
+    "exactOptionalPropertyTypes": false,
     "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {

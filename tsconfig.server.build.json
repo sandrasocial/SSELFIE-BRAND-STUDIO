@@ -11,6 +11,7 @@
     "allowJs": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
+    "exactOptionalPropertyTypes": false,
     "paths": {
       "@server/*": ["server/*"],
       "@shared/*": ["shared/*"]

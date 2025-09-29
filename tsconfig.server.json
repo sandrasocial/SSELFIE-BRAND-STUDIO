@@ -13,7 +13,8 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "noImplicitAny": true,
-    "strict": false
+    "strict": false,
+    "exactOptionalPropertyTypes": false
   },
   "include": [
     "server/**/*.ts",

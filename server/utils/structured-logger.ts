@@ -86,7 +86,18 @@ export class StructuredLogger {
     });
   }
 
-  private log(level: 'debug' | 'info' | 'warn' | 'error', message: string, metadata?: Record<string, any>): void {
+  fatal(message: string, error?: Error, metadata?: Record<string, any>): void {
+    this.log('error', message, {
+      ...metadata,
+      error: error ? {
+        name: error.name,
+        message: error.message,
+        stack: error.stack
+      } : undefined
+    });
+  }
+
+  log(level: 'debug' | 'info' | 'warn' | 'error', message: string, metadata?: Record<string, any>): void {
     const entry: LogEntry = {
       timestamp: new Date().toISOString(),
       level,
@@ -104,6 +115,38 @@ export class StructuredLogger {
         console.error('Failed to write log entry:', error);
       }
     });
+  }
+
+  logRequest(req: any, res: any, responseTime: number): void {
+    this.info('Request completed', { req, res, responseTime });
+  }
+
+  logError(error: Error, context?: Record<string, any>): void {
+    this.error('Error occurred', error, context);
+  }
+
+  logPerformance(operation: string, duration: number, context?: Record<string, any>): void {
+    this.info(`Performance: ${operation}`, { duration, ...context });
+  }
+
+  logDatabase(operation: string, table: string, duration: number, context?: Record<string, any>): void {
+    this.info(`Database: ${operation} on ${table}`, { duration, ...context });
+  }
+
+  logExternalApi(service: string, endpoint: string, method: string, statusCode: number, duration: number, context?: Record<string, any>): void {
+    this.info(`External API: ${method} ${service} ${endpoint}`, { statusCode, duration, ...context });
+  }
+
+  logAuth(event: string, userId: string, success: boolean, context?: Record<string, any>): void {
+    this.info(`Auth: ${event}`, { userId, success, ...context });
+  }
+
+  logBusiness(event: string, entity: string, entityId: string, action: string, context?: Record<string, any>): void {
+    this.info(`Business: ${event}`, { entity, entityId, action, ...context });
+  }
+
+  updateConfig(config: Record<string, any>): void {
+    this.info('Configuration updated', config);
   }
 
   addOutput(output: LogOutput): void {
