@@ -87,7 +87,10 @@ START WORKING NOW. Use your specialized tools and expertise to execute your task
     const failed: string[] = [];
     
     results.forEach((result, index) => {
-      const agentId = configs[index].agentId;
+      const config = configs[index];
+      if (!config) return;
+      
+      const agentId = config.agentId;
       if (result.status === 'fulfilled' && result.value) {
         successful.push(agentId);
       } else {
