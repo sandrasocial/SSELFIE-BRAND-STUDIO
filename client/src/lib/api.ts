@@ -13,12 +13,13 @@ export async function apiFetch(path: string, opts: FetchOpts = {}) {
 
   const headers: Record<string, string> = {
     Accept: 'application/json',
-    ...(opts.json ? { 'Content-Type': 'application/json' } : {}),
+    ...('json' in opts && opts.json ? { 'Content-Type': 'application/json' } : {}),
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...(opts.headers as Record<string, string>),
   };
 
-  const body = opts.json ? JSON.stringify(opts.json) : opts.body;
+  const body = 'json' in opts && opts.json ? JSON.stringify(opts.json) : 
+               'body' in opts ? opts.body : null;
 
   const res = await fetch(url, {
     ...opts,
