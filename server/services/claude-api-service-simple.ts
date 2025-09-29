@@ -497,9 +497,10 @@ export class ClaudeApiServiceSimple {
         message, 
         response: fullResponse, 
         toolsUsed: allToolCalls,
-        taskType: localProcessingEngine.identifyTaskTypeLocally(message),
-        intent: localProcessingEngine.extractIntentLocally(message),
-        responseType: localProcessingEngine.extractResponseTypeLocally(fullResponse)
+        // TODO: Fix private method access
+        // taskType: localProcessingEngine.identifyTaskTypeLocally(message),
+        // intent: localProcessingEngine.extractIntentLocally(message),
+        // responseType: localProcessingEngine.extractResponseTypeLocally(fullResponse)
       });
       
       // Send completion
@@ -593,7 +594,7 @@ export class ClaudeApiServiceSimple {
         
       } else if (toolCall.name === 'get_assigned_tasks') {
         const { get_assigned_tasks } = await import('../tools/get_assigned_tasks.js');
-        const result = await get_assigned_tasks(toolCall.input);
+        const result = await get_assigned_tasks();
         return typeof result === 'string' ? result : JSON.stringify(result);
         
       } else if (toolCall.name === 'get_handoff_tasks') {
@@ -814,7 +815,7 @@ export class ClaudeApiServiceSimple {
       const base64Image = Buffer.from(imageBuffer).toString('base64');
       
       // Detect image type from URL or default to PNG
-      const mediaType = 'image/png' as const;
+      let mediaType = 'image/png' as const;
       if (imageUrl.toLowerCase().includes('.jpg') || imageUrl.toLowerCase().includes('.jpeg')) {
         mediaType = 'image/jpeg';
       } else if (imageUrl.toLowerCase().includes('.webp')) {

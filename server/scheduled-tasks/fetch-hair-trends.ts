@@ -250,12 +250,7 @@ const scheduleTrendAnalysis = () => {
     console.log('⏰ Scheduled Sophia trend analysis triggered');
     await sophia.runWeeklyAnalysis();
   }, {
-    timezone: 'UTC',
-    status: 'pending',
-    dependencies: [],
-    assignedAgent: 'sophia',
-    priority: 'medium',
-    metadata: {}
+    timezone: 'UTC'
   });
 
   console.log('✅ Sophia weekly trend analysis scheduled (Mondays 9 AM UTC)');
@@ -266,11 +261,7 @@ const scheduleTrendAnalysis = () => {
       console.log('🔧 Development: Running Sophia trend analysis...');
       await sophia.runWeeklyAnalysis();
     }, {
-      status: 'pending',
-      dependencies: [],
-      assignedAgent: 'sophia',
-      priority: 'low', // Low priority for testing
-      metadata: {}
+      timezone: 'UTC'
     });
   }
 };
