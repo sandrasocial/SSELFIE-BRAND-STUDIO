@@ -61,6 +61,11 @@ export class BulletproofUploadService {
     for (let i = 0; i < imageFiles.length; i++) {
       const imageData = imageFiles[i];
       
+      if (!imageData) {
+        errors.push(`Image ${i + 1}: No image data provided.`);
+        continue;
+      }
+      
       try {
         // Validate base64 format
         if (!imageData.includes('data:image/')) {
@@ -131,6 +136,9 @@ export class BulletproofUploadService {
     for (let i = 0; i < validImages.length; i++) {
       try {
         const imageData = validImages[i];
+        if (!imageData) {
+          throw new Error(`Missing image data for image ${i + 1}`);
+        }
         const base64Data = imageData.replace(/^data:image\/[a-z]+;base64,/, '');
         const imageBuffer = Buffer.from(base64Data, 'base64');
         
@@ -163,7 +171,8 @@ export class BulletproofUploadService {
         
       } catch (error) {
         console.error(`❌ S3 UPLOAD: Failed to upload image ${i + 1}:`, error);
-        errors.push(`Failed to upload image ${i + 1}: ${error.message}`);
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        errors.push(`Failed to upload image ${i + 1}: ${errorMessage}`);
       }
     }
     
@@ -223,6 +232,9 @@ export class BulletproofUploadService {
       for (let i = 0; i < validImages.length; i++) {
         try {
           const imageData = validImages[i];
+          if (!imageData) {
+            throw new Error(`Missing image data for image ${i + 1}`);
+          }
           const base64Data = imageData.replace(/^data:image\/[a-z]+;base64,/, '');
           const imageBuffer = Buffer.from(base64Data, 'base64');
           
@@ -231,7 +243,8 @@ export class BulletproofUploadService {
           
         } catch (error) {
           console.error(`❌ ZIP: Failed to add image ${i + 1}:`, error);
-          errors.push(`Failed to add image ${i + 1} to ZIP: ${error.message}`);
+          const errorMessage = error instanceof Error ? error.message : String(error);
+          errors.push(`Failed to add image ${i + 1} to ZIP: ${errorMessage}`);
         }
       }
       
@@ -313,7 +326,8 @@ export class BulletproofUploadService {
       
     } catch (error) {
       console.error(`❌ ZIP CREATION: Failed for user ${userId}:`, error);
-      errors.push(`ZIP creation failed: ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      errors.push(`ZIP creation failed: ${errorMessage}`);
       return { success: false, errors, zipUrl: null };
     }
   }
@@ -469,7 +483,8 @@ export class BulletproofUploadService {
       
     } catch (error) {
       console.error(`❌ DATABASE UPDATE: Failed for user ${userId}:`, error);
-      errors.push(`Database update failed: ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      errors.push(`Database update failed: ${errorMessage}`);
       return { success: false, errors };
     }
   }

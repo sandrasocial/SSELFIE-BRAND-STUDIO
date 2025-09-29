@@ -68,6 +68,7 @@ export default defineConfig(({ mode }) => {
             if (id.includes('components/') || id.includes('shared/ui/')) {
               return 'ui';
             }
+            return undefined;
           }
         }
       },
@@ -78,7 +79,7 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       host: "0.0.0.0",
-      port: parseInt(process.env.PORT || "8080"),
+      port: parseInt(process.env['PORT'] || "8080"),
       fs: { strict: false },
     },
 

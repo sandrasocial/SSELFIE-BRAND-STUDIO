@@ -4,36 +4,22 @@ import { useAuth } from '../../hooks/use-auth.js';
 import { useToast } from '../../hooks/use-toast.js';
 import { useBrandStudio } from '../../contexts/BrandStudioContext.js';
 import { DirectorPanel } from './DirectorPanel.js';
-import { CanvasPanel, LuxuryConceptCard, type ConceptCard as CanvasConceptCard } from './CanvasPanel.js';
+import { CanvasPanel, LuxuryConceptCard } from './CanvasPanel.js';
 import { ToolkitPanel, QuickActions, StatusDisplay } from './ToolkitPanel.js';
 // REMOVED: Old Maya system components - now using centralized BrandStudioProvider
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLocation } from 'wouter';
-import { type ConceptCard as HookConceptCard } from '../../hooks/useConceptCards.js';
+import { type ConceptCard } from '../../../../shared/types/concept-card.js';
 // REMOVED: Old useConceptCards hook - now using centralized BrandStudioProvider concept management
 
-// Type conversion utility to convert between different ConceptCard types
-const convertToCanvasConceptCard = (hookCard: HookConceptCard): CanvasConceptCard => {
-  return {
-    id: hookCard.id,
-    title: hookCard.title,
-    description: hookCard.description ?? '',
-    generatedImages: hookCard.generatedImages ?? [], // Ensure it's always an array
-    isGenerating: hookCard.isGenerating,
-    type: (hookCard.tags?.includes('portrait') ? 'portrait' : 
-           hookCard.tags?.includes('flatlay') ? 'flatlay' : 
-           hookCard.tags?.includes('lifestyle') ? 'lifestyle' : 'portrait') as 'portrait' | 'flatlay' | 'lifestyle',
-    // Optional properties - only include if they have values
-    ...(hookCard.images?.[0] && { imageUrl: hookCard.images[0] }),
-  };
-};
+// Using unified ConceptCard type from shared/types/concept-card.js
 
 interface ChatMessage {
   id: string;
   type: 'user' | 'maya';
   content: string;
   timestamp: string;
-  conceptCards?: CanvasConceptCard[];
+  conceptCards?: ConceptCard[];
   quickButtons?: string[];
   isStreaming?: boolean;
 }
@@ -278,7 +264,7 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
   };
 
   // Image generation using provider's mutation system
-  const handleGenerateImage = async (card: CanvasConceptCard) => {
+  const handleGenerateImage = async (card: ConceptCard) => {
     try {
       console.log('🎯 Starting image generation for:', card.title);
       toast({ title: "Generating Images", description: `Creating visuals for "${card.title}"...` });
@@ -382,12 +368,12 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
     switch (action) {
       case 'generate':
         if (selectedConceptCard) {
-          handleGenerateImage(convertToCanvasConceptCard(selectedConceptCard));
+          handleGenerateImage(selectedConceptCard);
         }
         break;
       case 'variations':
         if (selectedConceptCard) {
-          handleGenerateImage(convertToCanvasConceptCard(selectedConceptCard));
+          handleGenerateImage(selectedConceptCard);
         }
         break;
       case 'save-all':
@@ -565,7 +551,7 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
         <div className="flex-1 overflow-y-auto">
           <CanvasPanel 
             mode="photo" 
-            conceptCards={Object.values(conceptCardsById).map(convertToCanvasConceptCard)}
+            conceptCards={Object.values(conceptCardsById)}
             selectedConceptId={selectedConceptCardId}
             onConceptSelect={selectConceptCard}
             onConceptGenerate={handleGenerateImage}
@@ -715,7 +701,7 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
           <div className="w-1/3 border-r">
             <CanvasPanel 
             mode="photo" 
-            conceptCards={Object.values(conceptCardsById).map(convertToCanvasConceptCard)}
+            conceptCards={Object.values(conceptCardsById)}
             selectedConceptId={selectedConceptCardId}
             onConceptSelect={selectConceptCard}
             onConceptGenerate={handleGenerateImage}

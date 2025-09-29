@@ -98,13 +98,17 @@ export function NotificationPreferences() {
   };
 
   const updateNestedPreference = (section: string, key: string, value: unknown) => {
-    setPreferences(prev => ({
-      ...prev,
-      [section]: {
-        ...(typeof prev[section as keyof NotificationPreferences] === 'object' ? prev[section as keyof NotificationPreferences] : {}),
-        [key]: value
-      }
-    }));
+    setPreferences(prev => {
+      const currentSection = prev[section as keyof NotificationPreferences];
+      const sectionValue = typeof currentSection === 'object' && currentSection !== null ? currentSection : {};
+      return {
+        ...prev,
+        [section]: {
+          ...sectionValue,
+          [key]: value
+        }
+      };
+    });
     setHasChanges(true);
   };
 
