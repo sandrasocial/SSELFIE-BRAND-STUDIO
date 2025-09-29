@@ -47,13 +47,13 @@ export function SystemHealthMonitor() {
   const queryClient = useQueryClient();
 
   // Get system health data
-  const { data: healthData, isLoading } = useQuery({
+  const { data: healthData, isLoading } = useQuery<{ health: SystemHealth }>({
     queryKey: ['/api/system-health'],
     refetchInterval: 30000, // Refresh every 30 seconds
   });
 
   // Get quick health status
-  const { data: statusData } = useQuery({
+  const { data: statusData } = useQuery<HealthStatus>({
     queryKey: ['/api/system-health/status'],
     refetchInterval: 10000, // Refresh every 10 seconds
   });
@@ -85,7 +85,9 @@ export function SystemHealthMonitor() {
     },
     performance: { avgInsightProcessingTime: 0, memoryUsage: 0, activeConnections: 0, uptime: 0 }
   };
-  const status: HealthStatus = statusData || { status: 'good', score: 95, alerts: [] };
+  
+  const defaultStatus: HealthStatus = { status: 'good', score: 95, alerts: [] };
+  const status: HealthStatus = statusData || defaultStatus;
 
   const getStatusColor = (status: string) => {
     switch (status) {

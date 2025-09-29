@@ -55,7 +55,7 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
   } = useBrandStudio();
   
   const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
-  const selectedConceptCard = selectedConceptCardId ? conceptCardsById[selectedConceptCardId] : null;
+  const selectedConceptCard = (selectedConceptCardId && conceptCardsById[selectedConceptCardId]) || null;
   const hasStartedChat = messages.length > 0;
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [isNearBottom, setIsNearBottom] = useState(true);
@@ -274,7 +274,7 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
         subcategory: card.creativeLook || card.title,
         prompt: card.fluxPrompt || card.description,
         conceptId: card.id,
-        type: card.type || 'portrait',
+        type: (card.type as 'portrait' | 'flatlay' | 'lifestyle') || 'portrait',
         emoji: card.emoji
       };
       

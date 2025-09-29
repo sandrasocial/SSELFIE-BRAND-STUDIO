@@ -159,12 +159,18 @@ export const LuxuryImageSkeleton: React.FC<LuxuryImageSkeletonProps> = ({
 };
 
 // Luxury card skeleton for complex layouts
-export const LuxuryCardSkeleton: React.FC<{ className?: string }> = ({ className }) => {
+export const LuxuryCardSkeleton: React.FC<{ 
+  className?: string; 
+  style?: React.CSSProperties;
+}> = ({ className, style }) => {
   return (
-    <div className={cn(
-      "bg-white dark:bg-neutral-900 rounded-editorial-lg shadow-luxury p-luxury-md space-y-luxury-sm",
-      className
-    )}>
+    <div 
+      className={cn(
+        "bg-white dark:bg-neutral-900 rounded-editorial-lg shadow-luxury p-luxury-md space-y-luxury-sm",
+        className
+      )}
+      style={style}
+    >
       <LuxuryImageSkeleton aspectRatio="landscape" className="mb-luxury-sm" />
       <LuxurySkeleton lines={2} />
       <div className="flex justify-between items-center pt-luxury-xs">

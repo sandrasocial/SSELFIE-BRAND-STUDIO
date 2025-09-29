@@ -4,7 +4,7 @@ import { Button } from '../ui/button.js';
 import { Input } from '../ui/input.js';
 import { Label } from '../ui/label.js';
 import { Textarea } from '../ui/textarea.js';
-// Select and Checkbox components removed
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select.js';
 import { useMutation } from '@tanstack/react-query';
 import { apiRequest } from '../../lib/queryClient.js';
 import { useToast } from '../../hooks/use-toast.js';
