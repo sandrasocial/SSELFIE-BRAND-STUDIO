@@ -142,7 +142,7 @@ export class ErrorTracker {
    */
   private generateErrorId(): string {
     return `err_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    }
+  }
 
   /**
    * Determine error severity

@@ -55,14 +55,6 @@ interface Job {
     sceneNum: number;
 }
 
-interface JobStatus {
-    done?: boolean;  // Made optional to be consistent
-    progressPercent?: number;
-    state?: string;
-    videoUrl?: string;
-    error?: string;
-}
-
 
 // --- React Components ---
 
@@ -192,15 +184,16 @@ export const StoryStudio = () => {
                     delete pollingIntervals.current[jobId];
 
                     if (status.videoUrl) {
+                        const newResult: Result = { 
+                            status: 'done' as const, 
+                            sceneNum, 
+                            progress: 100,
+                            videoUrl: status.videoUrl, 
+                            message: 'Ready!' 
+                        };
                         setResults(prev => ({
                             ...prev,
-                            [sceneId]: { 
-                                status: 'done' as const, 
-                                sceneNum, 
-                                progress: 100, 
-                                videoUrl: status.videoUrl, 
-                                message: 'Ready!' 
-                            }
+                            [sceneId]: newResult
                         }));
                     } else {
                         throw new Error(status.error || 'Video generation failed.');

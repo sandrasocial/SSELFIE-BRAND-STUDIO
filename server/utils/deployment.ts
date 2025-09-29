@@ -45,10 +45,10 @@ export class DeploymentSystem {
   private _isEnabled: boolean;
 
   constructor() {
-  this.logger = new Logger('DeploymentSystem');
-  this.currentDeployment = null;
-  this.deploymentHistory = [];
-  this._isEnabled = true;
+    this.logger = new Logger('DeploymentSystem');
+    this.currentDeployment = null;
+    this.deploymentHistory = [];
+    this._isEnabled = true;
   }
 
   /**
@@ -364,22 +364,22 @@ export class DeploymentSystem {
    * Get deployment by ID
    */
   public getDeploymentById(deploymentId: string): DeploymentStatus | null {
-  return this.deploymentHistory.find(d => (d as any).deploymentId === deploymentId) || null;
+    return this.deploymentHistory.find(d => (d as any).deploymentId === deploymentId) || null;
   }
 
   /**
    * Enable/disable deployment system
    */
   public setEnabled(enabled: boolean): void {
-  this._isEnabled = enabled;
-  this.logger.info(`Deployment system ${enabled ? 'enabled' : 'disabled'}`);
+    this._isEnabled = enabled;
+    this.logger.info(`Deployment system ${enabled ? 'enabled' : 'disabled'}`);
   }
 
   /**
    * Check if deployment system is enabled
    */
   public isEnabled(): boolean {
-  return this._isEnabled;
+    return this._isEnabled;
   }
 }
 
