@@ -8,46 +8,10 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '../lib/queryClient.js';
+import type { ConceptCard, CreateConceptCardData, UpdateConceptCardData } from '../../../shared/types/concept-card.js';
 
-// Server-side concept card type with ULID
-export interface ConceptCard {
-  id: string; // Server-generated ULID - guaranteed unique
-  userId: string;
-  conversationId?: string;
-  clientId?: string; // For idempotency
-  title: string;
-  description?: string;
-  images?: string[];
-  tags?: string[];
-  status: 'draft' | 'final';
-  sortOrder: number;
-  generatedImages?: string[];
-  isLoading: boolean;
-  isGenerating: boolean;
-  hasGenerated: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface CreateConceptCardData {
-  title: string;
-  description?: string;
-  conversationId?: string;
-  clientId?: string; // For idempotency
-  images?: string[];
-  tags?: string[];
-  status?: 'draft' | 'final';
-  sortOrder?: number;
-}
-
-export interface UpdateConceptCardData {
-  title?: string;
-  description?: string;
-  images?: string[];
-  tags?: string[];
-  status?: 'draft' | 'final';
-  sortOrder?: number;
-}
+// Re-export the unified types
+export type { ConceptCard, CreateConceptCardData, UpdateConceptCardData } from '../../../shared/types/concept-card.js';
 
 /**
  * Get user's concept cards with optional conversation filter

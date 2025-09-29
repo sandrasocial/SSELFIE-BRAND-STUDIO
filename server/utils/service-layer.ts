@@ -62,7 +62,7 @@ export abstract class BaseService {
     return {
       success: false,
       error,
-      message,
+      message: message || undefined,
       timestamp: new Date().toISOString(),
     };
   }

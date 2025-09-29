@@ -73,13 +73,17 @@ export function SystemHealthMonitor() {
     }
   });
 
-  const health: SystemHealth = healthData?.health || { 
-    status: 'good', 
-    score: 95, 
-    alerts: [],
-    uptime: 0,
-    memory: 0,
-    cpu: 0
+  const health: SystemHealth = healthData?.health || {
+    agents: { total: 0, active: 0, responding: 0, lastActivity: {} },
+    insights: { totalGenerated: 0, todayCount: 0, avgResponseTime: 0, successRate: 0 },
+    notifications: { totalSent: 0, deliveryRate: 0, preferencesRespected: 0, failureCount: 0 },
+    monitoring: { 
+      contextMonitorStatus: 'inactive' as const, 
+      slackIntegrationStatus: 'disconnected' as const, 
+      preferenceEngineStatus: 'operational' as const, 
+      lastHealthCheck: new Date().toISOString() 
+    },
+    performance: { avgInsightProcessingTime: 0, memoryUsage: 0, activeConnections: 0, uptime: 0 }
   };
   const status: HealthStatus = statusData || { status: 'good', score: 95, alerts: [] };
 
