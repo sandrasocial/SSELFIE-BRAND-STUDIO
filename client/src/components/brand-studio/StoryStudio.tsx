@@ -200,7 +200,7 @@ export const StoryStudio = () => {
                                 progress: 100, 
                                 videoUrl: status.videoUrl, 
                                 message: 'Ready!' 
-                            } satisfies Result,
+                            }
                         }));
                     } else {
                         throw new Error(status.error || 'Video generation failed.');

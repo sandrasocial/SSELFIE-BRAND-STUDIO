@@ -107,7 +107,7 @@ export class ErrorHandlingSystem {
    */
   private getErrorMessage(error: Error): string {
     // Don't expose internal error details in production
-    if (process.env.NODE_ENV === 'production') {
+    if (process.env['NODE_ENV'] === 'production') {
       const message = error.message.toLowerCase();
       
       if (message.includes('validation')) return 'Validation failed';
@@ -131,7 +131,7 @@ export class ErrorHandlingSystem {
    * Get error details
    */
   private getErrorDetails(error: Error): any {
-    if (process.env.NODE_ENV === 'production') {
+    if (process.env['NODE_ENV'] === 'production') {
       return undefined;
     }
 

@@ -609,7 +609,7 @@ function generatePersonalizedScenePrompt(sceneNumber: number, originalMessage: s
   console.log('📊 ANALYTICS: Stage Mode analytics API active at /api/analytics/* (Event tracking)');
   
   // P3-C BRAND ASSETS: Upload and placement of brand assets (logos, product shots)
-  if (process.env.BRAND_ASSETS_ENABLED === '1') {
+  if (process.env['BRAND_ASSETS_ENABLED'] === '1') {
     const { default: brandAssetsRouter } = await import('./routes/brand-assets.js');
     const { default: brandPlacementRouter } = await import('./routes/brand-placement.js');
     app.use('/api/brand-assets', brandAssetsRouter);
@@ -622,8 +622,8 @@ function generatePersonalizedScenePrompt(sceneNumber: number, originalMessage: s
   let geminiAI: any = null;
   try {
     const { GoogleGenAI } = await import('@google/genai');
-    if (process.env.GOOGLE_API_KEY) {
-      geminiAI = new GoogleGenAI({ apiKey: process.env.GOOGLE_API_KEY });
+    if (process.env['GOOGLE_API_KEY']) {
+      geminiAI = new GoogleGenAI({ apiKey: process.env['GOOGLE_API_KEY'] });
       console.log('🔑 STORY STUDIO: Gemini AI initialized server-side');
     } else {
       console.warn('⚠️ STORY STUDIO: GOOGLE_API_KEY not configured');
@@ -796,7 +796,7 @@ Remember: You are the MEMBER experience Maya - provide creative guidance and ima
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'x-api-key': process.env.ANTHROPIC_API_KEY!,
+            'x-api-key': process.env['ANTHROPIC_API_KEY']!,
             'anthropic-version': '2023-06-01'
           },
           body: JSON.stringify({
@@ -963,7 +963,7 @@ Remember: You are the MEMBER experience Maya - provide creative guidance and ima
       const replicateResponse = await fetch('https://api.replicate.com/v1/predictions', {
         method: 'POST',
         headers: {
-          'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
+          'Authorization': `Token ${process.env['REPLICATE_API_TOKEN']}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(requestBody),

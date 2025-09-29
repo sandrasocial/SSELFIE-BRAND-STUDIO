@@ -30,7 +30,7 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'healthy', service: 'SSELFIE Studio', ts: new Date().toISOString() });
 });
 app.get('/api/health', (req, res) => {
-  res.status(200).json({ status: 'healthy', ts: new Date().toISOString(), env: process.env.NODE_ENV || 'development' });
+  res.status(200).json({ status: 'healthy', ts: new Date().toISOString(), env: process.env['NODE_ENV'] || 'development' });
 });
 
 // Core routes required for the Sacred Path
@@ -168,7 +168,7 @@ app.get('/api/training/check/:trainingId', requireStackAuth, async (req, res) =>
 });
 
 // Static (dev)
-if (process.env.NODE_ENV !== 'production') {
+if (process.env['NODE_ENV'] !== 'production') {
   const distPath = path.join(process.cwd(), 'client', 'dist');
   app.use(express.static(distPath));
   app.use('/assets', express.static(path.join(distPath, 'assets')));

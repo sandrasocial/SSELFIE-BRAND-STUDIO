@@ -5,13 +5,13 @@ import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const port = Number(process.env.PORT) || Number(process.env.REPLIT_DEV_DOMAIN) || 5000;
+const port = Number(process.env['PORT']) || Number(process.env['REPLIT_DEV_DOMAIN']) || 5000;
 
 async function startServer() {
   await setupApp();
 
   // Serve static files in production
-  if (process.env.NODE_ENV === 'production') {
+  if (process.env['NODE_ENV'] === 'production') {
     const possibleDistPaths = [
       path.join(__dirname, '../dist/public'),
       path.join(__dirname, '../client/dist'),
@@ -46,7 +46,7 @@ async function startServer() {
 
   const server = app.listen(port, '0.0.0.0', () => {
     console.log(`🚀 SSELFIE Studio LIVE on port ${port}`);
-    console.log(`🔧 Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`🔧 Environment: ${process.env['NODE_ENV'] || 'development'}`);
     console.log(`🌐 Server accessible at: http://0.0.0.0:${port}`);
   });
 

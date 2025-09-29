@@ -31,7 +31,7 @@ class SophiaTrendAnalyzer {
   private isRunning: boolean = false;
 
   constructor() {
-    this.apiKey = process.env.ANTHROPIC_API_KEY!;
+    this.apiKey = process.env['ANTHROPIC_API_KEY']!;
     if (!this.apiKey) {
       console.error('❌ ANTHROPIC_API_KEY not configured for Sophia trends');
     }
@@ -225,7 +225,7 @@ Week of: ${this.getWeekRange()}`;
    * Manual trigger for testing (development only)
    */
   async runManualAnalysis(): Promise<void> {
-    if (process.env.NODE_ENV === 'production') {
+    if (process.env['NODE_ENV'] === 'production') {
       console.log('❌ Manual analysis not available in production');
       return;
     }
@@ -240,7 +240,7 @@ const sophia = new SophiaTrendAnalyzer();
 
 // Schedule weekly trend analysis (every Monday at 9 AM UTC)
 const scheduleTrendAnalysis = () => {
-  if (!process.env.ANTHROPIC_API_KEY) {
+  if (!process.env['ANTHROPIC_API_KEY']) {
     console.log('⚠️ Skipping Sophia trend scheduling - API key not configured');
     return;
   }
@@ -261,7 +261,7 @@ const scheduleTrendAnalysis = () => {
   console.log('✅ Sophia weekly trend analysis scheduled (Mondays 9 AM UTC)');
 
   // Development schedule: Every 5 minutes for testing
-  if (process.env.NODE_ENV === 'development') {
+  if (process.env['NODE_ENV'] === 'development') {
     cron.schedule('*/5 * * * *', async () => {
       console.log('🔧 Development: Running Sophia trend analysis...');
       await sophia.runWeeklyAnalysis();

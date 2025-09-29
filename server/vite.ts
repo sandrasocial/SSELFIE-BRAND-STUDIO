@@ -26,13 +26,13 @@ export function log(message: string, source = "express") {
 
 export async function setupVite(app: Express, server: Server) {
   const clientRoot = path.resolve(import.meta.dirname, "..", "client");
-  const isProd = process.env.NODE_ENV === "production";
+  const isProd = process.env['NODE_ENV'] === "production";
 
   const serverOptions = {
     middlewareMode: true,
     hmr: {
       server,
-      port: parseInt(process.env.PORT || "5000", 10),
+      port: parseInt(process.env['PORT'] || "5000", 10),
       host: "0.0.0.0",
     },
     allowedHosts: true as const,

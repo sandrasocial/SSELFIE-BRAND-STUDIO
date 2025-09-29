@@ -54,7 +54,7 @@ router.get('/', requireStackAuth, async (req, res) => {
     console.error('❌ BRAND ASSETS: List error:', error);
     res.status(500).json({ 
       error: 'Failed to retrieve brand assets',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      details: process.env['NODE_ENV'] === 'development' ? error.message : undefined
     });
   }
 });
@@ -138,7 +138,7 @@ router.post('/', requireStackAuth, upload.single('asset'), async (req, res) => {
 
     res.status(500).json({ 
       error: 'Failed to upload brand asset',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      details: process.env['NODE_ENV'] === 'development' ? error.message : undefined
     });
   }
 });
@@ -182,7 +182,7 @@ router.delete('/:assetId', requireStackAuth, async (req, res) => {
     console.error('❌ BRAND ASSETS: Delete error:', error);
     res.status(500).json({ 
       error: 'Failed to delete brand asset',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      details: process.env['NODE_ENV'] === 'development' ? error.message : undefined
     });
   }
 });

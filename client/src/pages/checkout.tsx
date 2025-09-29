@@ -6,7 +6,7 @@ import { useToast } from "../hooks/use-toast.js";
 
 // Initialize Stripe with comprehensive error handling
 const getStripePromise = () => {
-  const stripeKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
+  const stripeKey = import.meta.env['VITE_STRIPE_PUBLIC_KEY'];
   console.log('🔐 Stripe Key Check:', {
     hasKey: !!stripeKey,
     keyLength: stripeKey?.length || 0,

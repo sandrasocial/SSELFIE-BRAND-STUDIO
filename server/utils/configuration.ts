@@ -250,7 +250,7 @@ export class ConfigurationSystem {
 
 // Export singleton instance
 export const configurationSystem = new ConfigurationSystem({
-  environment: process.env.NODE_ENV || 'development',
+  environment: process.env['NODE_ENV'] || 'development',
   validateOnLoad: true,
   hotReload: false,
   encryption: false,

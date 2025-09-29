@@ -270,7 +270,7 @@ router.get('/levelpartner-status', async (req: Request, res: Response) => {
 /**
  * UTM Parameter Testing Endpoint (development only)
  */
-if (process.env.NODE_ENV !== 'production') {
+if (process.env['NODE_ENV'] !== 'production') {
   router.get('/levelpartner-test-utm', (req: Request, res: Response) => {
     res.json({
       message: 'UTM Parameter Test Endpoint',
