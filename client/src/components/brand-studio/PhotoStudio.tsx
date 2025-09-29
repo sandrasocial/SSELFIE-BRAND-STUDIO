@@ -19,7 +19,7 @@ interface ChatMessage {
   type: 'user' | 'maya';
   content: string;
   timestamp: string;
-  conceptCards?: CanvasConceptCard[];
+  conceptCards?: ConceptCard[];
   quickButtons?: string[];
   isStreaming?: boolean;
 }
@@ -264,7 +264,7 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
   };
 
   // Image generation using provider's mutation system
-  const handleGenerateImage = async (card: CanvasConceptCard) => {
+  const handleGenerateImage = async (card: ConceptCard) => {
     try {
       console.log('🎯 Starting image generation for:', card.title);
       toast({ title: "Generating Images", description: `Creating visuals for "${card.title}"...` });
