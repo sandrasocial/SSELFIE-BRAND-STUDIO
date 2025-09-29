@@ -88,6 +88,7 @@ async function verifyJWTToken(token: string): Promise<JWTPayload & StackAuthUser
 }
 
 import { AuthenticatedUser } from '../_shared/auth-types.js';
+import { AuthenticatedHandler, AuthOptions, AuthResponse, AuthenticatedRequest } from '../_shared/auth-middleware-types.js';
 
 // Get authenticated user helper 
 export async function getAuthenticatedUser(req: VercelRequest): Promise<AuthenticatedUser> {
@@ -245,6 +246,7 @@ export async function withAuth<T>(
       error: error instanceof Error ? error.message : 'Unknown error'
     };
     
-    return res.status(401).json(response);
+    res.status(401).json(response);
+    return null as any; // Return value to satisfy TypeScript
   }
 }
