@@ -379,7 +379,7 @@ export class HealthCheckSystem {
         details: {
           type: 'AWS S3',
           bucket: process.env.AWS_S3_BUCKET || 'unknown',
-          region: process.env.AWS_REGION || 'unknown',
+          region: process.env["AWS_REGION"] || 'unknown',
         },
         lastChecked: new Date().toISOString(),
       };
