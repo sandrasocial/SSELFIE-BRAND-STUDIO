@@ -55,7 +55,7 @@ type BrandStudioAction =
   | { type: 'REMOVE_PENDING_MESSAGE'; payload: string }
   | { type: 'UPDATE_CONCEPT_CARDS'; payload: ConceptCard[] }
   | { type: 'SELECT_CONCEPT_CARD'; payload: string | null }
-  | { type: 'SET_ACTIVE_TAB'; payload: 'photo' | 'story' }
+  | { type: 'SET_ACTIVE_TAB'; payload: 'photo' | 'story' | 'maya' }
   | { type: 'SET_HANDOFF_DATA'; payload: BrandStudioState['handoffData'] }
   | { type: 'CLEAR_HANDOFF_DATA' }
   | { type: 'CLEAR_CONVERSATION' };
