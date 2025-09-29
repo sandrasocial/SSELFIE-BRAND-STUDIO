@@ -1,27 +1,18 @@
-/**
- * Rate Limiting Middleware
- * Provides rate limiting for API endpoints
- */
-import { Logger } from '../utils/logger';
+import { Logger } from '../utils/logger.js';
 class RateLimiter {
     requests = new Map();
     logger;
     constructor() {
         this.logger = new Logger('RateLimiter');
-        // Clean up expired entries every minute
         setInterval(() => {
             this.cleanup();
         }, 60000);
     }
-    /**
-     * Create rate limiting middleware
-     */
     create(options) {
         return (req, res, next) => {
             const key = options.keyGenerator ? options.keyGenerator(req) : this.getDefaultKey(req);
             const now = Date.now();
             const windowStart = now - options.windowMs;
-            // Get or create request record
             let record = this.requests.get(key);
             if (!record || record.resetTime < now) {
                 record = {
@@ -30,7 +21,6 @@ class RateLimiter {
                 };
                 this.requests.set(key, record);
             }
-            // Check if limit exceeded
             if (record.count >= options.maxRequests) {
                 const retryAfter = Math.ceil((record.resetTime - now) / 1000);
                 this.logger.warn('Rate limit exceeded', {
@@ -54,16 +44,13 @@ class RateLimiter {
                     }
                 });
             }
-            // Increment counter
             record.count++;
-            // Set rate limit headers
             const remaining = Math.max(0, options.maxRequests - record.count);
             res.set({
                 'X-RateLimit-Limit': options.maxRequests.toString(),
                 'X-RateLimit-Remaining': remaining.toString(),
                 'X-RateLimit-Reset': new Date(record.resetTime).toISOString()
             });
-            // Track successful/failed requests if needed
             if (options.skipSuccessfulRequests || options.skipFailedRequests) {
                 const originalSend = res.send;
                 res.send = function (body) {
@@ -78,17 +65,11 @@ class RateLimiter {
             next();
         };
     }
-    /**
-     * Get default key for rate limiting
-     */
     getDefaultKey(req) {
         const ip = req.ip || req.connection.remoteAddress || 'unknown';
         const userAgent = req.get('User-Agent') || 'unknown';
         return `${ip}:${userAgent}`;
     }
-    /**
-     * Clean up expired entries
-     */
     cleanup() {
         const now = Date.now();
         let cleaned = 0;
@@ -102,30 +83,21 @@ class RateLimiter {
             this.logger.debug(`Cleaned up ${cleaned} expired rate limit entries`);
         }
     }
-    /**
-     * Get rate limit info for a key
-     */
     getInfo(key) {
         const record = this.requests.get(key);
         if (!record)
             return null;
         return {
-            limit: 0, // Will be set by middleware
-            remaining: 0, // Will be set by middleware
+            limit: 0,
+            remaining: 0,
             reset: record.resetTime,
             retryAfter: record.resetTime > Date.now() ?
                 Math.ceil((record.resetTime - Date.now()) / 1000) : undefined
         };
     }
-    /**
-     * Reset rate limit for a key
-     */
     reset(key) {
         return this.requests.delete(key);
     }
-    /**
-     * Get all active rate limits
-     */
     getAllInfo() {
         const results = [];
         for (const [key, record] of this.requests.entries()) {
@@ -137,48 +109,39 @@ class RateLimiter {
         return results;
     }
 }
-// Create global rate limiter instance
 export const rateLimiter = new RateLimiter();
-// Predefined rate limit configurations
 export const rateLimits = {
-    // General API rate limiting
     general: rateLimiter.create({
-        windowMs: 15 * 60 * 1000, // 15 minutes
+        windowMs: 15 * 60 * 1000,
         maxRequests: 100,
         message: 'Too many requests, please try again later'
     }),
-    // Strict rate limiting for auth endpoints
     auth: rateLimiter.create({
-        windowMs: 15 * 60 * 1000, // 15 minutes
+        windowMs: 15 * 60 * 1000,
         maxRequests: 5,
         message: 'Too many authentication attempts, please try again later'
     }),
-    // AI generation rate limiting
     aiGeneration: rateLimiter.create({
-        windowMs: 60 * 60 * 1000, // 1 hour
+        windowMs: 60 * 60 * 1000,
         maxRequests: 10,
         message: 'AI generation rate limit exceeded, please try again later'
     }),
-    // File upload rate limiting
     upload: rateLimiter.create({
-        windowMs: 60 * 60 * 1000, // 1 hour
+        windowMs: 60 * 60 * 1000,
         maxRequests: 20,
         message: 'File upload rate limit exceeded, please try again later'
     }),
-    // Admin endpoints rate limiting
     admin: rateLimiter.create({
-        windowMs: 5 * 60 * 1000, // 5 minutes
+        windowMs: 5 * 60 * 1000,
         maxRequests: 50,
         message: 'Admin rate limit exceeded'
     }),
-    // Very strict rate limiting for sensitive operations
     strict: rateLimiter.create({
-        windowMs: 60 * 60 * 1000, // 1 hour
+        windowMs: 60 * 60 * 1000,
         maxRequests: 3,
         message: 'Rate limit exceeded for sensitive operation'
     })
 };
-// Rate limit by user ID
 export const rateLimitByUser = (options) => {
     return rateLimiter.create({
         ...options,
@@ -188,10 +151,10 @@ export const rateLimitByUser = (options) => {
         }
     });
 };
-// Rate limit by IP
 export const rateLimitByIP = (options) => {
     return rateLimiter.create({
         ...options,
         keyGenerator: (req) => `ip:${req.ip || req.connection.remoteAddress}`
     });
 };
+//# sourceMappingURL=rate-limiter.js.map

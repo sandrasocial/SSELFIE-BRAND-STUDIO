@@ -1,9 +1,5 @@
-/**
- * Database Query Optimizer
- * Provides query optimization and connection pooling
- */
-import { Logger } from './logger';
-import { performanceMonitor } from './performance-monitor';
+import { Logger } from './logger.js';
+import { performanceMonitor } from './performance-monitor.js';
 export class DatabaseOptimizer {
     logger;
     queryStats = [];
@@ -11,21 +7,15 @@ export class DatabaseOptimizer {
     constructor() {
         this.logger = new Logger('DatabaseOptimizer');
     }
-    /**
-     * Execute optimized query with monitoring
-     */
     async executeQuery(query, params = [], options = {}) {
         const startTime = Date.now();
         const endTiming = performanceMonitor.startTiming('database_query');
         try {
             this.logger.debug('Executing query', { query, params, options });
-            // Add query timeout
-            const timeout = options.timeout || 30000; // 30 seconds default
-            // Execute query with timeout
+            const timeout = options.timeout || 30000;
             const result = await this.executeWithTimeout(query, params, timeout);
             const duration = Date.now() - startTime;
             endTiming();
-            // Record query stats
             this.recordQueryStats({
                 query: this.sanitizeQuery(query),
                 duration,
@@ -33,7 +23,6 @@ export class DatabaseOptimizer {
                 cached: false,
                 timestamp: new Date()
             });
-            // Log slow queries
             if (duration > 1000) {
                 this.logger.warn('Slow query detected', {
                     query: this.sanitizeQuery(query),
@@ -53,9 +42,6 @@ export class DatabaseOptimizer {
             throw error;
         }
     }
-    /**
-     * Execute query with retries
-     */
     async executeWithRetries(query, params = [], options = {}) {
         const maxRetries = options.retries || 3;
         let lastError;
@@ -66,7 +52,7 @@ export class DatabaseOptimizer {
             catch (error) {
                 lastError = error;
                 if (attempt < maxRetries) {
-                    const delay = Math.pow(2, attempt) * 1000; // Exponential backoff
+                    const delay = Math.pow(2, attempt) * 1000;
                     this.logger.warn(`Query attempt ${attempt} failed, retrying in ${delay}ms`, {
                         query: this.sanitizeQuery(query),
                         error: error.message
@@ -77,9 +63,6 @@ export class DatabaseOptimizer {
         }
         throw lastError;
     }
-    /**
-     * Get query performance statistics
-     */
     getQueryStats() {
         if (this.queryStats.length === 0) {
             return {
@@ -94,7 +77,6 @@ export class DatabaseOptimizer {
         const averageDuration = durations.reduce((sum, d) => sum + d, 0) / durations.length;
         const slowestQuery = this.queryStats.reduce((max, current) => current.duration > max.duration ? current : max);
         const fastestQuery = this.queryStats.reduce((min, current) => current.duration < min.duration ? current : min);
-        // Group queries by duration ranges
         const queriesByDuration = {
             '0-100ms': this.queryStats.filter(s => s.duration <= 100).length,
             '100-500ms': this.queryStats.filter(s => s.duration > 100 && s.duration <= 500).length,
@@ -109,71 +91,45 @@ export class DatabaseOptimizer {
             queriesByDuration
         };
     }
-    /**
-     * Get slow queries for analysis
-     */
     getSlowQueries(threshold = 1000) {
         return this.queryStats
             .filter(s => s.duration > threshold)
             .sort((a, b) => b.duration - a.duration);
     }
-    /**
-     * Clear query statistics
-     */
     clearStats() {
         this.queryStats = [];
         this.logger.info('Query statistics cleared');
     }
-    /**
-     * Execute query with timeout
-     */
     async executeWithTimeout(query, params, timeout) {
         return new Promise((resolve, reject) => {
             const timer = setTimeout(() => {
                 reject(new Error(`Query timeout after ${timeout}ms`));
             }, timeout);
-            // This would be replaced with actual database execution
-            // For now, simulate a database call
             setTimeout(() => {
                 clearTimeout(timer);
                 resolve([]);
-            }, Math.random() * 100); // Simulate random query time
+            }, Math.random() * 100);
         });
     }
-    /**
-     * Record query statistics
-     */
     recordQueryStats(stats) {
         this.queryStats.push(stats);
-        // Keep only recent stats
         if (this.queryStats.length > this.maxStatsSize) {
             this.queryStats = this.queryStats.slice(-this.maxStatsSize);
         }
     }
-    /**
-     * Sanitize query for logging (remove sensitive data)
-     */
     sanitizeQuery(query) {
         return query
-            .replace(/\$\d+/g, '?') // Replace parameter placeholders
-            .replace(/'.*?'/g, "'***'") // Replace string literals
-            .replace(/\b\d+\b/g, 'N') // Replace numbers
-            .substring(0, 200); // Limit length
+            .replace(/\$\d+/g, '?')
+            .replace(/'.*?'/g, "'***'")
+            .replace(/\b\d+\b/g, 'N')
+            .substring(0, 200);
     }
-    /**
-     * Sleep utility
-     */
     sleep(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 }
-// Create global database optimizer instance
 export const dbOptimizer = new DatabaseOptimizer();
-// Query optimization utilities
 export const QueryOptimizer = {
-    /**
-     * Add indexes for common queries
-     */
     async addIndexes() {
         const indexes = [
             'CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)',
@@ -193,16 +149,10 @@ export const QueryOptimizer = {
             }
         }
     },
-    /**
-     * Analyze query performance
-     */
     async analyzeQuery(query) {
         const explainQuery = `EXPLAIN ANALYZE ${query}`;
         return await dbOptimizer.executeQuery(explainQuery);
     },
-    /**
-     * Get table statistics
-     */
     async getTableStats(tableName) {
         const statsQuery = `
       SELECT 
@@ -217,3 +167,4 @@ export const QueryOptimizer = {
         return await dbOptimizer.executeQuery(statsQuery, [tableName]);
     }
 };
+//# sourceMappingURL=db-optimizer.js.map

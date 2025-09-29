@@ -1,17 +1,11 @@
-import sharp from './image-compression-placeholder';
+import sharp from './image-compression-placeholder.js';
 import { Buffer } from 'buffer';
 export class ImageCompressionService {
-    /**
-     * Compress image from base64 to optimized format for training
-     * Reduces file size while maintaining quality needed for AI training
-     */
     static async compressImageForTraining(base64Image) {
         try {
-            // Remove data:image prefix if present
             const base64Data = base64Image.replace(/^data:image\/[a-z]+;base64,/, '');
             const originalBuffer = Buffer.from(base64Data, 'base64');
             const originalSize = originalBuffer.length;
-            // Use sharp for high-quality compression
             const compressedBuffer = await sharp(originalBuffer)
                 .resize(1024, 1024)
                 .jpeg()
@@ -29,9 +23,6 @@ export class ImageCompressionService {
             throw new Error('Failed to compress image');
         }
     }
-    /**
-     * Compress multiple images in batch
-     */
     static async compressImagesForTraining(base64Images) {
         const results = await Promise.all(base64Images.map(img => this.compressImageForTraining(img)));
         const compressedImages = results.map(r => r.compressedBase64);
@@ -50,3 +41,4 @@ export class ImageCompressionService {
         };
     }
 }
+//# sourceMappingURL=image-compression-service.js.map

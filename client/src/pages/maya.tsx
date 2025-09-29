@@ -11,42 +11,7 @@ import { useLocation } from 'wouter';
 
 // Maya luxury workspace - aligned with SSELFIE brand guidelines
 
-interface ChatMessage {
-  id: string;
-  type: 'user' | 'maya' | 'upload' | 'examples';
-  content: string;
-  timestamp: string;
-  conceptCards?: ConceptCard[];
-  isStreaming?: boolean;
-  showUpload?: boolean;
-  showExamples?: boolean;
-}
-
-
-interface ConversationData {
-  messages: ChatMessage[];
-  [key: string]: unknown;
-}
-
-interface ConceptCard {
-  id: string;
-  title: string;
-  description: string;
-  fluxPrompt?: string;
-  fullPrompt?: string;
-  category?: string;
-  imageUrl?: string;
-  generatedImages?: string[];
-  isGenerating?: boolean;
-  isLoading?: boolean;
-  hasGenerated?: boolean;
-}
-
-// Clean display formatter - strips emojis for professional appearance while preserving backend intelligence
-const cleanDisplayTitle = (title: string): string => {
-  // Remove Maya's styling emojis but keep the concept name for clean display
-  return title.replace(/[✨💫🔥🌟💎🌅🏢💼🌊👑💃📸🎬♦️🚖]/g, '').trim();
-};
+import { ChatMessage, ConversationData, ConceptCard, cleanDisplayTitle } from '../types/chat.js';
 
 export default function Maya() {
   const { user } = useAuth();
@@ -876,7 +841,7 @@ export default function Maya() {
         )}
       </div>
 
-      <style jsx>{`
+      <style type="text/css">{`
         .fade-in {
           animation: fadeIn 0.6s ease-out;
         }

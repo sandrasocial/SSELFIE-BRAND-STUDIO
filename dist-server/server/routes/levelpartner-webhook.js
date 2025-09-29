@@ -1,18 +1,12 @@
 import { Router } from 'express';
-import { optionalStackAuth } from '../stack-auth';
-import { db } from '../db';
-import { liveSessions, liveEvents } from '../../shared/schema';
+import { optionalStackAuth } from '../stack-auth.js';
+import { db } from '../db.js';
+import { liveSessions, liveEvents } from '../../shared/schema.js';
 import { eq } from 'drizzle-orm';
 const router = Router();
-/**
- * LevelPartner Webhook Endpoint
- * Handles signups from Hair Experience landing page and sends data to LevelPartner
- * Tracks UTM parameters for campaign attribution
- */
 router.post('/levelpartner-signup', optionalStackAuth, async (req, res) => {
     try {
         const { name, email, source = 'hair-landing', sessionId } = req.body;
-        // Extract UTM parameters from query string and body
         const utm_source = req.query.utm_source || req.body.utm_source || 'organic';
         const utm_medium = req.query.utm_medium || req.body.utm_medium || 'direct';
         const utm_campaign = req.query.utm_campaign || req.body.utm_campaign || 'hair-experience';
@@ -29,7 +23,6 @@ router.post('/levelpartner-signup', optionalStackAuth, async (req, res) => {
             utm_term,
             utm_content
         });
-        // Fetch Stage Mode session data if sessionId is provided
         let sessionData = null;
         if (sessionId) {
             try {
@@ -49,17 +42,14 @@ router.post('/levelpartner-signup', optionalStackAuth, async (req, res) => {
             }
             catch (error) {
                 console.warn('⚠️ Failed to fetch session data:', error.message);
-                // Continue without session data - don't break the signup process
             }
         }
-        // Validate required fields
         if (!name || !email) {
             return res.status(400).json({
                 error: 'Name and email are required',
                 code: 'MISSING_REQUIRED_FIELDS'
             });
         }
-        // Validate email format
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
             return res.status(400).json({
@@ -67,7 +57,6 @@ router.post('/levelpartner-signup', optionalStackAuth, async (req, res) => {
                 code: 'INVALID_EMAIL'
             });
         }
-        // Prepare payload for LevelPartner API
         const levelPartnerPayload = {
             name,
             email,
@@ -81,7 +70,6 @@ router.post('/levelpartner-signup', optionalStackAuth, async (req, res) => {
                 referrer_url: req.headers.referer || req.headers.referrer,
                 landing_page: source === 'hair-landing' ? '/hair' : '/business',
                 signup_timestamp: new Date().toISOString(),
-                // Include Stage Mode session data if available
                 ...(sessionData && {
                     stage_mode: {
                         session_id: sessionData.id,
@@ -92,7 +80,6 @@ router.post('/levelpartner-signup', optionalStackAuth, async (req, res) => {
             }
         };
         console.log('📤 Sending to LevelPartner:', levelPartnerPayload);
-        // Send to LevelPartner API
         const levelPartnerResponse = await fetch(process.env.LEVELPARTNER_API_URL || 'https://api.levelpartner.com/v1/subscriptions', {
             method: 'POST',
             headers: {
@@ -107,7 +94,6 @@ router.post('/levelpartner-signup', optionalStackAuth, async (req, res) => {
                 status: levelPartnerResponse.status,
                 statusText: levelPartnerResponse.statusText
             });
-            // Try to get error details
             let errorDetails = 'Unknown error';
             try {
                 const errorResponse = await levelPartnerResponse.json();
@@ -116,7 +102,6 @@ router.post('/levelpartner-signup', optionalStackAuth, async (req, res) => {
             catch (parseError) {
                 errorDetails = levelPartnerResponse.statusText;
             }
-            // Still return success to user but log the error
             console.error('⚠️ LevelPartner integration failed, but proceeding with signup:', errorDetails);
             return res.status(200).json({
                 success: true,
@@ -127,7 +112,6 @@ router.post('/levelpartner-signup', optionalStackAuth, async (req, res) => {
         }
         const levelPartnerResult = await levelPartnerResponse.json();
         console.log('✅ LevelPartner success:', levelPartnerResult);
-        // Track signup success event if sessionId is provided
         if (sessionId) {
             try {
                 await db.insert(liveEvents).values({
@@ -151,10 +135,8 @@ router.post('/levelpartner-signup', optionalStackAuth, async (req, res) => {
             }
             catch (error) {
                 console.warn('⚠️ Failed to track signup success event:', error.message);
-                // Don't break the response - analytics tracking is optional
             }
         }
-        // Return success response
         res.status(200).json({
             success: true,
             message: 'Hair Experience signup successful',
@@ -175,7 +157,6 @@ router.post('/levelpartner-signup', optionalStackAuth, async (req, res) => {
     }
     catch (error) {
         console.error('💥 LevelPartner webhook error:', error);
-        // Return error but don't break user experience
         res.status(500).json({
             error: 'Signup processing failed',
             code: 'INTERNAL_ERROR',
@@ -183,9 +164,6 @@ router.post('/levelpartner-signup', optionalStackAuth, async (req, res) => {
         });
     }
 });
-/**
- * Health check endpoint for LevelPartner webhook
- */
 router.get('/levelpartner-status', async (req, res) => {
     try {
         const hasApiKey = !!process.env.LEVELPARTNER_API_KEY;
@@ -209,10 +187,7 @@ router.get('/levelpartner-status', async (req, res) => {
         });
     }
 });
-/**
- * UTM Parameter Testing Endpoint (development only)
- */
-if (process.env.NODE_ENV !== 'production') {
+if (process.env['NODE_ENV'] !== 'production') {
     router.get('/levelpartner-test-utm', (req, res) => {
         res.json({
             message: 'UTM Parameter Test Endpoint',
@@ -226,3 +201,4 @@ if (process.env.NODE_ENV !== 'production') {
     });
 }
 export default router;
+//# sourceMappingURL=levelpartner-webhook.js.map

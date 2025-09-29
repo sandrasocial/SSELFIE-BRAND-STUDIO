@@ -1,11 +1,7 @@
-/**
- * PHASE 3: ENTERPRISE SCALING - ADVANCED ANALYTICS & REPORTING
- * Comprehensive business intelligence, data visualization, and executive reporting
- */
-import { predictiveIntelligence } from './predictive-intelligence';
-import { securityAudit } from './security-audit';
-import { PerformanceMonitor } from './performance-monitor';
-import { globalExpansion } from './global-expansion';
+import { predictiveIntelligence } from './predictive-intelligence.js';
+import { securityAudit } from './security-audit.js';
+import { PerformanceMonitor } from './performance-monitor.js';
+import { globalExpansion } from './global-expansion.js';
 export class AnalyticsReportingEngine {
     static instance;
     static getInstance() {
@@ -16,12 +12,29 @@ export class AnalyticsReportingEngine {
     }
     async generateEnterpriseReport() {
         console.log('📈 ENTERPRISE ANALYTICS: Generating comprehensive analytics report...');
-        const [predictiveMetrics, securityMetrics, performanceMetrics, expansionMetrics] = await Promise.all([
+        const [predictiveMetrics, securityMetrics, performanceReport, expansionMetrics] = await Promise.all([
             predictiveIntelligence.generatePredictiveMetrics(),
             securityAudit.generateSecurityReport(),
             PerformanceMonitor.generatePerformanceReport(),
             globalExpansion.generateExpansionMetrics()
         ]);
+        const performanceMetrics = {
+            ...performanceReport.metrics,
+            systemHealth: {
+                cpu: {
+                    usage: performanceReport.metrics.cpu.usage
+                }
+            },
+            applicationPerformance: {
+                errorRate: { total: 0 },
+                responseTime: {
+                    average: 0
+                },
+                throughput: {
+                    requestsPerSecond: 0
+                }
+            }
+        };
         const executiveSummary = this.generateExecutiveSummary(predictiveMetrics, securityMetrics, performanceMetrics, expansionMetrics);
         const businessIntelligence = this.generateBusinessIntelligence(predictiveMetrics);
         const operationalMetrics = this.generateOperationalMetrics(performanceMetrics);
@@ -30,12 +43,12 @@ export class AnalyticsReportingEngine {
         const reportMetadata = {
             generatedAt: new Date(),
             reportPeriod: {
-                start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // 30 days ago
+                start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
                 end: new Date()
             },
-            dataQuality: 0.94, // 94% data quality
-            coverage: 0.97, // 97% coverage
-            nextUpdate: new Date(Date.now() + 24 * 60 * 60 * 1000), // Tomorrow
+            dataQuality: 0.94,
+            coverage: 0.97,
+            nextUpdate: new Date(Date.now() + 24 * 60 * 60 * 1000),
             version: '3.0.0'
         };
         console.log('✅ ENTERPRISE ANALYTICS: Report generation complete');
@@ -49,28 +62,35 @@ export class AnalyticsReportingEngine {
         };
     }
     generateExecutiveSummary(predictive, security, performance, expansion) {
-        const overallHealth = this.calculateOverallHealth(security, performance);
+        const overallHealth = this.calculateOverallHealth({ threatLevel: security.threatLevel || 'low' }, {
+            systemHealth: {
+                cpu: { usage: performance.systemHealth?.cpu?.usage || 0 }
+            },
+            applicationPerformance: {
+                errorRate: { total: performance.applicationPerformance?.errorRate?.total || 0 }
+            }
+        });
         const keyAchievements = [
             {
                 category: 'revenue',
                 description: 'Monthly Recurring Revenue Growth',
                 impact: 'high',
                 value: predictive.businessGrowth.projectedRevenue.nextMonth,
-                change: 15.2 // 15.2% growth
+                change: 15.2
             },
             {
                 category: 'users',
                 description: 'User Engagement Score',
                 impact: 'high',
                 value: predictive.userEngagement.engagementScore,
-                change: 8.5 // 8.5% improvement
+                change: 8.5
             },
             {
                 category: 'performance',
                 description: 'System Response Time',
                 impact: 'medium',
                 value: performance.applicationPerformance.responseTime.average,
-                change: -12.3 // 12.3% improvement (negative is better)
+                change: -12.3
             }
         ];
         const criticalAlerts = [];
@@ -80,7 +100,7 @@ export class AnalyticsReportingEngine {
                 category: 'security',
                 message: `${security.threatLevel.toUpperCase()} security threat level detected`,
                 actionRequired: 'Review security threats and implement mitigation measures',
-                deadline: new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
+                deadline: new Date(Date.now() + 24 * 60 * 60 * 1000)
             });
         }
         if (performance.systemHealth.cpu.usage > 80) {
@@ -89,17 +109,17 @@ export class AnalyticsReportingEngine {
                 category: 'performance',
                 message: 'High CPU usage detected',
                 actionRequired: 'Consider scaling infrastructure',
-                deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
+                deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
             });
         }
         const financialSnapshot = {
-            currentMRR: predictive.businessGrowth.projectedRevenue.nextMonth / 1.15, // Current MRR
+            currentMRR: predictive.businessGrowth.projectedRevenue.nextMonth / 1.15,
             projectedMRR: predictive.businessGrowth.projectedRevenue.nextMonth,
-            growthRate: 0.152, // 15.2% monthly growth
-            churnRate: 0.05, // 5% monthly churn
-            customerAcquisitionCost: 45, // €45 CAC
-            lifetimeValue: 850, // €850 LTV
-            profitMargin: 0.87 // 87% profit margin
+            growthRate: 0.152,
+            churnRate: 0.05,
+            customerAcquisitionCost: 45,
+            lifetimeValue: 850,
+            profitMargin: 0.87
         };
         return {
             period: 'Last 30 Days',
@@ -119,9 +139,9 @@ export class AnalyticsReportingEngine {
             totalRevenue: predictive.businessGrowth.projectedRevenue.nextMonth / 1.15,
             recurringRevenue: predictive.businessGrowth.projectedRevenue.nextMonth / 1.15 * 0.95,
             revenueGrowth: {
-                monthly: 0.152, // 15.2%
-                quarterly: 0.55, // 55%
-                yearly: 3.2 // 320%
+                monthly: 0.152,
+                quarterly: 0.55,
+                yearly: 3.2
             },
             revenueBySegment: [
                 { segment: 'Premium Subscriptions', revenue: 45000, percentage: 85, growth: 18.2 },
@@ -146,7 +166,7 @@ export class AnalyticsReportingEngine {
                 { cohort: 'Q1 2024', initialSize: 200, currentSize: 180, retentionRate: 0.90, revenueContribution: 8460 },
                 { cohort: 'Q2 2024', initialSize: 350, currentSize: 310, retentionRate: 0.89, revenueContribution: 14570 }
             ],
-            npsScore: 72 // Net Promoter Score
+            npsScore: 72
         };
         const productAnalysis = {
             featureUsage: [
@@ -168,7 +188,7 @@ export class AnalyticsReportingEngine {
                         { name: 'First Use', visitors: 2975, conversions: 2142, conversionRate: 0.72 },
                         { name: 'Premium Upgrade', visitors: 2142, conversions: 321, conversionRate: 0.15 }
                     ],
-                    overallConversion: 0.032, // 3.2%
+                    overallConversion: 0.032,
                     valuePerConversion: 47
                 }
             ],
@@ -183,10 +203,10 @@ export class AnalyticsReportingEngine {
             customerAnalysis,
             productAnalysis,
             marketAnalysis: {
-                marketSize: 2500000000, // €2.5B
-                marketGrowth: 0.28, // 28% annual growth
-                marketShare: 0.002, // 0.2% market share
-                opportunitySize: 67000000, // €67M obtainable market
+                marketSize: 2500000000,
+                marketGrowth: 0.28,
+                marketShare: 0.002,
+                opportunitySize: 67000000,
                 trends: [
                     { trend: 'AI Personal Branding Growth', impact: 'positive', timeline: '6-12 months', actionItems: ['Enhance AI capabilities', 'Expand templates'] }
                 ]
@@ -203,11 +223,11 @@ export class AnalyticsReportingEngine {
     generateOperationalMetrics(performance) {
         return {
             systemPerformance: {
-                uptime: 0.999, // 99.9% uptime
+                uptime: 0.999,
                 responseTime: performance.applicationPerformance.responseTime.average,
                 errorRate: performance.applicationPerformance.errorRate.total / 100,
                 throughput: performance.applicationPerformance.throughput.requestsPerSecond,
-                scalingEfficiency: 0.87 // 87% scaling efficiency
+                scalingEfficiency: 0.87
             },
             teamProductivity: {
                 agentEfficiency: [
@@ -215,21 +235,21 @@ export class AnalyticsReportingEngine {
                     { agentId: 'maya', tasksCompleted: 132, averageResponseTime: 1.8, qualityScore: 0.96, utilizationRate: 0.92 },
                     { agentId: 'rachel', tasksCompleted: 128, averageResponseTime: 2.1, qualityScore: 0.93, utilizationRate: 0.85 }
                 ],
-                workflowCompletion: 0.91, // 91% workflow completion rate
-                qualityScore: 0.94, // 94% quality score
-                customerSatisfaction: 0.89 // 89% customer satisfaction
+                workflowCompletion: 0.91,
+                qualityScore: 0.94,
+                customerSatisfaction: 0.89
             },
             processEfficiency: {
-                automationRate: 0.78, // 78% automation rate
-                manualProcessTime: 1250, // 1250 minutes saved per month
-                errorReduction: 0.65, // 65% error reduction
-                costSavings: 8500 // €8,500 monthly savings
+                automationRate: 0.78,
+                manualProcessTime: 1250,
+                errorReduction: 0.65,
+                costSavings: 8500
             },
             qualityMetrics: {
-                overallQuality: 0.92, // 92% overall quality
-                customerSatisfaction: 0.89, // 89% satisfaction
-                defectRate: 0.02, // 2% defect rate
-                firstTimeRight: 0.88 // 88% first time right
+                overallQuality: 0.92,
+                customerSatisfaction: 0.89,
+                defectRate: 0.02,
+                firstTimeRight: 0.88
             }
         };
     }
@@ -332,14 +352,12 @@ export class AnalyticsReportingEngine {
     }
     calculateOverallHealth(security, performance) {
         let score = 100;
-        // Security impact
         if (security.threatLevel === 'critical')
             score -= 40;
         else if (security.threatLevel === 'high')
             score -= 25;
         else if (security.threatLevel === 'medium')
             score -= 10;
-        // Performance impact
         if (performance.systemHealth.cpu.usage > 90)
             score -= 30;
         else if (performance.systemHealth.cpu.usage > 80)
@@ -358,3 +376,4 @@ export class AnalyticsReportingEngine {
     }
 }
 export const analyticsReporting = AnalyticsReportingEngine.getInstance();
+//# sourceMappingURL=analytics-reporting.js.map

@@ -14,8 +14,6 @@ export default function handler(req, res) {
                 timestamp: new Date().toISOString()
             });
         }
-        // Fallback if res is not Node-style
-        // @ts-ignore
         return new Response(JSON.stringify({
             ok: true,
             route: 'api/ping',
@@ -37,7 +35,7 @@ export default function handler(req, res) {
             res.setHeader('Content-Type', 'application/json');
             return res.status(500).end(body);
         }
-        // @ts-ignore
         return new Response(body, { status: 500, headers: { 'content-type': 'application/json' } });
     }
 }
+//# sourceMappingURL=ping.js.map

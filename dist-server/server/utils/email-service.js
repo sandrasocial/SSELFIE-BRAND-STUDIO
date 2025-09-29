@@ -1,14 +1,5 @@
-/**
- * PHASE 5: Email Service for Support Escalations
- * Handles sending escalation emails to Sandra
- */
-/**
- * Send email using available email service
- * In production, this would use SendGrid or similar
- */
 export async function sendEmail(request) {
     try {
-        // For development: Log email instead of sending
         console.log('📧 EMAIL ESCALATION:', {
             to: request.to,
             subject: request.subject,
@@ -18,19 +9,6 @@ export async function sendEmail(request) {
         console.log('📧 EMAIL CONTENT:');
         console.log(request.content);
         console.log('📧 EMAIL END');
-        // In production, replace with actual email service:
-        /*
-        if (process.env.SENDGRID_API_KEY) {
-          sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-          
-          await sgMail.send({
-            to: request.to,
-            from: 'support@sselfie.ai',
-            subject: request.subject,
-            text: request.content,
-          });
-        }
-        */
         return true;
     }
     catch (error) {
@@ -38,3 +16,4 @@ export async function sendEmail(request) {
         return false;
     }
 }
+//# sourceMappingURL=email-service.js.map

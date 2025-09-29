@@ -1,13 +1,10 @@
-import { db } from '../drizzle';
-import { users } from '../../shared/schema';
+import { db } from '../drizzle.js';
+import { users } from '../../shared/schema.js';
 export class LaunchExcellenceProtocol {
     db;
     constructor() {
         this.db = db;
     }
-    /**
-     * Validates platform readiness across all critical systems
-     */
     async validateLaunchReadiness() {
         const metrics = {
             systemStatus: 'optimal',
@@ -23,12 +20,8 @@ export class LaunchExcellenceProtocol {
         };
         return metrics;
     }
-    /**
-     * Validates database connectivity and health
-     */
     async validateDatabase() {
         try {
-            // Test database connection with a simple query
             await this.db.select().from(users).limit(1);
             return true;
         }
@@ -37,9 +30,6 @@ export class LaunchExcellenceProtocol {
             return false;
         }
     }
-    /**
-     * Validates all critical API endpoints
-     */
     async validateAPIEndpoints() {
         const criticalEndpoints = [
             '/api/auth',
@@ -47,35 +37,22 @@ export class LaunchExcellenceProtocol {
             '/api/models',
             '/api/admin'
         ];
-        // Implement endpoint health checks
         return true;
     }
-    /**
-     * Validates security protocols and configurations
-     */
     async validateSecurityProtocols() {
-        // Implement security validation checks
         return true;
     }
-    /**
-     * Validates performance metrics meet luxury standards
-     */
     async validatePerformanceMetrics() {
         const performanceThresholds = {
-            apiLatency: 100, // ms
-            pageLoad: 1000, // ms
-            imageProcessing: 2000 // ms
+            apiLatency: 100,
+            pageLoad: 1000,
+            imageProcessing: 2000
         };
-        // Implement performance validation
         return true;
     }
-    /**
-     * Executes pre-launch checklist
-     */
     async executeLaunchChecklist() {
         try {
             const metrics = await this.validateLaunchReadiness();
-            // Store launch validation results (placeholder)
             console.log('Launch validation completed:', metrics);
             return true;
         }
@@ -85,3 +62,4 @@ export class LaunchExcellenceProtocol {
         }
     }
 }
+//# sourceMappingURL=launch-excellence-protocol.js.map

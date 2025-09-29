@@ -1,7 +1,3 @@
-/**
- * ZARA WORKFLOW ANALYSIS
- * Check if Zara is actually working vs just having conversations
- */
 import { db } from './db.js';
 import { claudeMessages } from '../shared/schema.js';
 import { eq, desc } from 'drizzle-orm';
@@ -9,7 +5,6 @@ async function checkZaraWorkflow() {
     console.log('🔧 ZARA WORKFLOW & PRODUCTIVITY ANALYSIS');
     console.log('='.repeat(60));
     try {
-        // Get Zara's latest conversation messages
         const messages = await db
             .select()
             .from(claudeMessages)
@@ -40,29 +35,24 @@ async function checkZaraWorkflow() {
             const content = msg.content.toLowerCase();
             console.log(`\n${msg.role.toUpperCase()} (${msg.createdAt?.toLocaleTimeString()}):`);
             console.log(`${msg.content.substring(0, 150)}...`);
-            // Check for tool usage
             if (msg.toolCalls && Array.isArray(msg.toolCalls) && msg.toolCalls.length > 0) {
                 toolUsageCount++;
                 actualWorkDone = true;
                 console.log(`🔧 TOOLS USED: ${msg.toolCalls.length} tools`);
             }
-            // Check for work indicators
             if (workKeywords.some(keyword => content.includes(keyword))) {
                 workIndicators++;
                 if (content.includes('str_replace') || content.includes('search_filesystem') || content.includes('bash')) {
                     actualWorkDone = true;
                 }
             }
-            // Check for greeting responses
             if (greetingKeywords.some(keyword => content.includes(keyword))) {
                 greetingResponses++;
             }
-            // Check for context references
             if (contextKeywords.some(keyword => content.includes(keyword))) {
                 contextReferenceCount++;
                 console.log(`⚠️ CONTEXT REFERENCE: References old context`);
             }
-            // Check for specific issues
             if (content.includes('looking for') && content.length > 1000) {
                 console.log(`🔍 SEARCH BEHAVIOR: Long response about searching`);
             }
@@ -105,9 +95,8 @@ async function checkZaraWorkflow() {
         console.error('❌ Error checking Zara workflow:', error);
     }
 }
-// Export for external use
 export { checkZaraWorkflow };
-// Run if executed directly
 if (import.meta.url === `file://${process.argv[1]}`) {
     checkZaraWorkflow().catch(console.error);
 }
+//# sourceMappingURL=check-zara-workflow.js.map

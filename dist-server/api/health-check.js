@@ -5,12 +5,10 @@ export const config = {
 };
 export default async function handler(_req, res) {
     try {
-        // Fast health check without database dependency
         const healthResult = await quickHealthCheck();
-        // Add database health check with timeout
         let dbHealth = { healthy: false, error: 'Not checked' };
         try {
-            const { checkDatabaseHealth } = await import('../server/db');
+            const { checkDatabaseHealth } = await import('../server/db.js');
             const dbPromise = checkDatabaseHealth();
             const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('DB health check timeout')), 2000));
             dbHealth = await Promise.race([dbPromise, timeoutPromise]);
@@ -53,7 +51,6 @@ export default async function handler(_req, res) {
         });
     }
     catch (error) {
-        // Fast-fail error response
         const errorBody = {
             ok: false,
             status: 'error',
@@ -74,3 +71,4 @@ export default async function handler(_req, res) {
         });
     }
 }
+//# sourceMappingURL=health-check.js.map

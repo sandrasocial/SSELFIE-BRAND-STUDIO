@@ -1,13 +1,9 @@
-/**
- * Comprehensive Health Check System
- * Monitors application health and dependencies
- */
-import { Logger } from './logger';
-import { performanceMonitor } from './performance-monitor';
-import { errorTracker } from './error-tracker';
-import { securityMonitor } from './security-monitor';
-import os from 'os';
-import fs from 'fs';
+import { Logger } from './logger.js';
+import { performanceMonitor } from './performance-monitor.js';
+import { errorTracker } from './error-tracker.js';
+import { securityMonitor } from './security-monitor.js';
+import * as os from 'os';
+import * as fs from 'fs';
 export class HealthCheckSystem {
     logger;
     isEnabled;
@@ -19,9 +15,6 @@ export class HealthCheckSystem {
         this.checkInterval = null;
         this.lastCheck = null;
     }
-    /**
-     * Start health check monitoring
-     */
     startMonitoring(intervalMs = 30000) {
         if (this.checkInterval) {
             this.logger.warn('Health check monitoring already started');
@@ -31,12 +24,8 @@ export class HealthCheckSystem {
         this.checkInterval = setInterval(() => {
             this.performHealthCheck();
         }, intervalMs);
-        // Initial check
         this.performHealthCheck();
     }
-    /**
-     * Stop health check monitoring
-     */
     stopMonitoring() {
         if (this.checkInterval) {
             clearInterval(this.checkInterval);
@@ -44,14 +33,10 @@ export class HealthCheckSystem {
             this.logger.info('Health check monitoring stopped');
         }
     }
-    /**
-     * Perform comprehensive health check
-     */
     async performHealthCheck() {
         const startTime = Date.now();
         this.lastCheck = new Date();
         try {
-            // Run all health checks in parallel
             const [databaseCheck, cacheCheck, externalApisCheck, storageCheck, memoryCheck, cpuCheck, diskCheck, networkCheck, securityCheck, performanceCheck,] = await Promise.all([
                 this.checkDatabase(),
                 this.checkCache(),
@@ -64,11 +49,8 @@ export class HealthCheckSystem {
                 this.checkSecurity(),
                 this.checkPerformance(),
             ]);
-            // Get system metrics
             const metrics = this.getSystemMetrics();
-            // Get alerts
             const alerts = this.getAlerts();
-            // Determine overall status
             const overallStatus = this.determineOverallStatus([
                 databaseCheck,
                 cacheCheck,
@@ -86,7 +68,7 @@ export class HealthCheckSystem {
                 timestamp: new Date().toISOString(),
                 uptime: process.uptime(),
                 version: process.env.npm_package_version || '1.0.0',
-                environment: process.env.NODE_ENV || 'development',
+                environment: process.env['NODE_ENV'] || 'development',
                 checks: {
                     database: databaseCheck,
                     cache: cacheCheck,
@@ -102,7 +84,6 @@ export class HealthCheckSystem {
                 metrics,
                 alerts,
             };
-            // Log health check result
             const duration = Date.now() - startTime;
             this.logger.info('Health check completed', {
                 status: overallStatus,
@@ -114,13 +95,12 @@ export class HealthCheckSystem {
         }
         catch (error) {
             this.logger.error('Health check failed', { error });
-            // Return unhealthy status if health check itself fails
             return {
                 status: 'unhealthy',
                 timestamp: new Date().toISOString(),
                 uptime: process.uptime(),
                 version: process.env.npm_package_version || '1.0.0',
-                environment: process.env.NODE_ENV || 'development',
+                environment: process.env['NODE_ENV'] || 'development',
                 checks: {
                     database: { status: 'unhealthy', message: 'Health check failed', lastChecked: new Date().toISOString() },
                     cache: { status: 'unhealthy', message: 'Health check failed', lastChecked: new Date().toISOString() },
@@ -148,17 +128,11 @@ export class HealthCheckSystem {
             };
         }
     }
-    /**
-     * Check database health
-     */
     async checkDatabase() {
         const startTime = Date.now();
         try {
-            // This would be replaced with actual database health check
-            // For now, simulate a check
             const responseTime = Date.now() - startTime;
-            // Simulate database check
-            const isHealthy = Math.random() > 0.1; // 90% success rate for demo
+            const isHealthy = Math.random() > 0.1;
             return {
                 status: isHealthy ? 'healthy' : 'unhealthy',
                 message: isHealthy ? 'Database connection healthy' : 'Database connection failed',
@@ -180,16 +154,11 @@ export class HealthCheckSystem {
             };
         }
     }
-    /**
-     * Check cache health
-     */
     async checkCache() {
         const startTime = Date.now();
         try {
-            // This would be replaced with actual cache health check
             const responseTime = Date.now() - startTime;
-            // Simulate cache check
-            const isHealthy = Math.random() > 0.05; // 95% success rate for demo
+            const isHealthy = Math.random() > 0.05;
             return {
                 status: isHealthy ? 'healthy' : 'unhealthy',
                 message: isHealthy ? 'Cache connection healthy' : 'Cache connection failed',
@@ -211,13 +180,9 @@ export class HealthCheckSystem {
             };
         }
     }
-    /**
-     * Check external APIs health
-     */
     async checkExternalApis() {
         const startTime = Date.now();
         try {
-            // Check multiple external APIs
             const apis = [
                 { name: 'Anthropic API', url: 'https://api.anthropic.com/v1/messages', timeout: 5000 },
                 { name: 'Google GenAI API', url: 'https://generativelanguage.googleapis.com/v1beta', timeout: 5000 },
@@ -263,16 +228,11 @@ export class HealthCheckSystem {
             };
         }
     }
-    /**
-     * Check storage health
-     */
     async checkStorage() {
         const startTime = Date.now();
         try {
-            // Check S3 storage
             const responseTime = Date.now() - startTime;
-            // Simulate storage check
-            const isHealthy = Math.random() > 0.02; // 98% success rate for demo
+            const isHealthy = Math.random() > 0.02;
             return {
                 status: isHealthy ? 'healthy' : 'unhealthy',
                 message: isHealthy ? 'Storage connection healthy' : 'Storage connection failed',
@@ -280,7 +240,7 @@ export class HealthCheckSystem {
                 details: {
                     type: 'AWS S3',
                     bucket: process.env.AWS_S3_BUCKET || 'unknown',
-                    region: process.env.AWS_REGION || 'unknown',
+                    region: process.env["AWS_REGION"] || 'unknown',
                 },
                 lastChecked: new Date().toISOString(),
             };
@@ -294,9 +254,6 @@ export class HealthCheckSystem {
             };
         }
     }
-    /**
-     * Check memory health
-     */
     async checkMemory() {
         const startTime = Date.now();
         try {
@@ -323,11 +280,11 @@ export class HealthCheckSystem {
                 message,
                 responseTime: Date.now() - startTime,
                 details: {
-                    used: Math.round(usedMemory / 1024 / 1024), // MB
-                    total: Math.round(totalMemory / 1024 / 1024), // MB
+                    used: Math.round(usedMemory / 1024 / 1024),
+                    total: Math.round(totalMemory / 1024 / 1024),
                     percentage: Math.round(percentage * 100) / 100,
-                    heapUsed: Math.round(memoryUsage.heapUsed / 1024 / 1024), // MB
-                    heapTotal: Math.round(memoryUsage.heapTotal / 1024 / 1024), // MB
+                    heapUsed: Math.round(memoryUsage.heapUsed / 1024 / 1024),
+                    heapTotal: Math.round(memoryUsage.heapTotal / 1024 / 1024),
                 },
                 lastChecked: new Date().toISOString(),
             };
@@ -341,15 +298,12 @@ export class HealthCheckSystem {
             };
         }
     }
-    /**
-     * Check CPU health
-     */
     async checkCpu() {
         const startTime = Date.now();
         try {
             const loadAverage = os.loadavg();
             const cpuCount = os.cpus().length;
-            const cpuUsage = loadAverage[0] / cpuCount; // 1-minute load average per CPU
+            const cpuUsage = (loadAverage[0] ?? 0) / cpuCount;
             const percentage = cpuUsage * 100;
             let status;
             let message;
@@ -386,18 +340,12 @@ export class HealthCheckSystem {
             };
         }
     }
-    /**
-     * Check disk health
-     */
     async checkDisk() {
         const startTime = Date.now();
         try {
-            // fs and path already imported
-            // Check disk space
             const stats = fs.statSync(process.cwd());
-            const freeSpace = stats.size; // This is a simplified check
-            // Simulate disk check
-            const isHealthy = Math.random() > 0.01; // 99% success rate for demo
+            const freeSpace = stats.size;
+            const isHealthy = Math.random() > 0.01;
             return {
                 status: isHealthy ? 'healthy' : 'unhealthy',
                 message: isHealthy ? 'Disk space healthy' : 'Disk space low',
@@ -418,14 +366,10 @@ export class HealthCheckSystem {
             };
         }
     }
-    /**
-     * Check network health
-     */
     async checkNetwork() {
         const startTime = Date.now();
         try {
-            // Simulate network check
-            const isHealthy = Math.random() > 0.05; // 95% success rate for demo
+            const isHealthy = Math.random() > 0.05;
             return {
                 status: isHealthy ? 'healthy' : 'unhealthy',
                 message: isHealthy ? 'Network connectivity healthy' : 'Network connectivity issues',
@@ -446,13 +390,10 @@ export class HealthCheckSystem {
             };
         }
     }
-    /**
-     * Check security health
-     */
     async checkSecurity() {
         const startTime = Date.now();
         try {
-            const securityStats = securityMonitor.getSecurityStats(1); // Last hour
+            const securityStats = securityMonitor.getSecurityStats(1);
             const blockedIPs = securityMonitor.getBlockedIPs().length;
             const suspiciousIPs = securityMonitor.getSuspiciousIPs().length;
             let status;
@@ -491,37 +432,34 @@ export class HealthCheckSystem {
             };
         }
     }
-    /**
-     * Check performance health
-     */
     async checkPerformance() {
         const startTime = Date.now();
         try {
-            const performanceStats = performanceMonitor.getPerformanceStats(1); // Last hour
+            const performanceStats = performanceMonitor.getPerformanceStats(1);
             const realTimeSummary = performanceMonitor.getRealTimeSummary();
             let status;
             let message;
-            if (performanceStats.averageResponseTime > 10000 || performanceStats.errorRate > 10) {
+            if ((performanceStats.averageResponseTime ?? 0) > 10000 || (performanceStats.errorRate ?? 0) > 10) {
                 status = 'unhealthy';
-                message = `Performance degraded: ${performanceStats.averageResponseTime}ms avg, ${performanceStats.errorRate}% errors`;
+                message = `Performance degraded: ${performanceStats.averageResponseTime ?? 0}ms avg, ${performanceStats.errorRate ?? 0}% errors`;
             }
-            else if (performanceStats.averageResponseTime > 5000 || performanceStats.errorRate > 5) {
+            else if ((performanceStats.averageResponseTime ?? 0) > 5000 || (performanceStats.errorRate ?? 0) > 5) {
                 status = 'degraded';
-                message = `Performance elevated: ${performanceStats.averageResponseTime}ms avg, ${performanceStats.errorRate}% errors`;
+                message = `Performance elevated: ${performanceStats.averageResponseTime ?? 0}ms avg, ${performanceStats.errorRate ?? 0}% errors`;
             }
             else {
                 status = 'healthy';
-                message = `Performance normal: ${performanceStats.averageResponseTime}ms avg, ${performanceStats.errorRate}% errors`;
+                message = `Performance normal: ${performanceStats.averageResponseTime ?? 0}ms avg, ${performanceStats.errorRate ?? 0}% errors`;
             }
             return {
                 status,
                 message,
                 responseTime: Date.now() - startTime,
                 details: {
-                    averageResponseTime: performanceStats.averageResponseTime,
-                    errorRate: performanceStats.errorRate,
-                    throughput: performanceStats.throughput,
-                    requestsPerMinute: realTimeSummary.requestsPerMinute,
+                    averageResponseTime: performanceStats.averageResponseTime ?? 0,
+                    errorRate: performanceStats.errorRate ?? 0,
+                    throughput: performanceStats.throughput ?? 0,
+                    requestsPerMinute: realTimeSummary.requestsPerMinute ?? 0,
                 },
                 lastChecked: new Date().toISOString(),
             };
@@ -535,9 +473,6 @@ export class HealthCheckSystem {
             };
         }
     }
-    /**
-     * Get system metrics
-     */
     getSystemMetrics() {
         const memoryUsage = process.memoryUsage();
         const totalMemory = os.totalmem();
@@ -552,30 +487,32 @@ export class HealthCheckSystem {
                 percentage: (memoryUsage.heapUsed / totalMemory) * 100,
             },
             cpu: {
-                usage: (loadAverage[0] / cpuCount) * 100,
+                usage: (loadAverage[0] ?? 0) / cpuCount * 100,
                 loadAverage: loadAverage.map(load => Math.round(load * 100) / 100),
             },
             requests: {
-                total: performanceStats.totalRequests,
-                rate: performanceStats.throughput,
-                averageResponseTime: performanceStats.averageResponseTime,
+                total: performanceStats.totalRequests ?? 0,
+                rate: performanceStats.throughput ?? 0,
+                averageResponseTime: performanceStats.averageResponseTime ?? 0,
             },
             errors: {
-                count: errorStats.totalErrors,
-                rate: errorStats.errorRate,
-                critical: errorStats.criticalErrors,
+                count: errorStats.totalErrors ?? 0,
+                rate: errorStats.errorRate ?? 0,
+                critical: errorStats.criticalErrors ?? 0,
             },
         };
     }
-    /**
-     * Get alerts
-     */
     getAlerts() {
         const alerts = [];
-        // Get performance alerts
         const performanceAlerts = performanceMonitor.getPerformanceAlerts();
-        alerts.push(...performanceAlerts);
-        // Add memory alerts
+        performanceAlerts.forEach(alert => {
+            alerts.push({
+                type: 'performance',
+                message: alert,
+                severity: 'medium',
+                timestamp: new Date().toISOString(),
+            });
+        });
         const memoryUsage = process.memoryUsage();
         const totalMemory = os.totalmem();
         const memoryPercentage = (memoryUsage.heapUsed / totalMemory) * 100;
@@ -597,9 +534,6 @@ export class HealthCheckSystem {
         }
         return alerts;
     }
-    /**
-     * Determine overall status
-     */
     determineOverallStatus(checks) {
         const unhealthyCount = checks.filter(c => c.status === 'unhealthy').length;
         const degradedCount = checks.filter(c => c.status === 'degraded').length;
@@ -613,25 +547,16 @@ export class HealthCheckSystem {
             return 'healthy';
         }
     }
-    /**
-     * Get last check time
-     */
     getLastCheckTime() {
         return this.lastCheck;
     }
-    /**
-     * Enable/disable health checks
-     */
     setEnabled(enabled) {
         this.isEnabled = enabled;
         this.logger.info(`Health check system ${enabled ? 'enabled' : 'disabled'}`);
     }
-    /**
-     * Get health check status
-     */
     getEnabled() {
         return this.isEnabled;
     }
 }
-// Export singleton instance
 export const healthCheckSystem = new HealthCheckSystem();
+//# sourceMappingURL=health-check.js.map

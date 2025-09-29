@@ -2,23 +2,22 @@ export const boldTemplate = {
     id: "bold",
     name: "Bold Femme",
     description: "Strong, confident design with earthy sophistication. Perfect for business leaders, fitness coaches, and women who command attention while staying grounded.",
-    // Design System
     colors: {
         primary: "#1a1a1a",
-        secondary: "#8fae8b", // Sage green
-        accent: "#c8a882", // Clay
+        secondary: "#8fae8b",
+        accent: "#c8a882",
         text: "#ffffff",
         background: "#000000",
-        neutral: "#f5f1eb" // Stone
+        neutral: "#f5f1eb"
     },
     typography: {
         headline: "Impact, sans-serif",
         body: "Impact, sans-serif",
         accent: "Impact, sans-serif",
         weights: {
-            headline: "900", // Black
-            body: "600", // Semi-bold  
-            accent: "900" // Black
+            headline: "900",
+            body: "600",
+            accent: "900"
         },
         sizes: {
             hero: "clamp(5rem, 12vw, 12rem)",
@@ -33,7 +32,6 @@ export const boldTemplate = {
         },
         transform: "uppercase"
     },
-    // Brand Voice & Messaging  
     voiceProfile: {
         tone: ["powerful", "confident", "grounded", "authentic"],
         personality: "The strong friend who's been through it all and isn't afraid to speak truth. Direct, warm, and unapologetically herself.",
@@ -51,7 +49,6 @@ export const boldTemplate = {
             tone: "direct but encouraging"
         }
     },
-    // Visual Style Guide
     visualElements: {
         logoStyle: "bold",
         imageStyle: "lifestyle",
@@ -62,7 +59,6 @@ export const boldTemplate = {
         shadows: "subtle glow effects on text",
         corners: "sharp edges only"
     },
-    // AI Prompt Instructions for SANDRA
     aiInstructions: {
         brandAdjectives: [
             "powerful", "grounded", "confident", "earthy", "authentic",
@@ -88,7 +84,6 @@ export const boldTemplate = {
             "earth tones with black base"
         ]
     },
-    // Implementation Details
     implementation: {
         heroFormat: {
             background: "full-bleed image with 30% dark overlay",
@@ -103,3 +98,4 @@ export const boldTemplate = {
         specialEffects: ["text glow", "accent borders", "strong contrasts"]
     }
 };
+//# sourceMappingURL=template-bold.js.map

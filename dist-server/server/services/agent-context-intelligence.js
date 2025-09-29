@@ -1,8 +1,3 @@
-/**
- * AGENT CONTEXT INTELLIGENCE - PHASE 4.5
- * Gives agents the ability to distinguish between conversation and workflow execution modes
- * Integrates with personalities to provide natural context switching
- */
 export class AgentContextIntelligence {
     static instance;
     constructor() {
@@ -15,24 +10,18 @@ export class AgentContextIntelligence {
         }
         return AgentContextIntelligence.instance;
     }
-    /**
-     * MAIN INTELLIGENCE: Determine how agent should respond to user input
-     */
     analyzeUserInput(userInput, agentId, conversationContext) {
         const input = userInput.toLowerCase().trim();
-        // 1. WORKFLOW EXECUTION SIGNALS
         const workflowTriggers = [
             'execute', 'implement', 'build', 'create', 'deploy', 'setup', 'configure',
             'fix this', 'add this', 'update this', 'make this', 'coordinate',
             'please do', 'go ahead and', 'start working on', 'can you implement'
         ];
-        // 2. CONVERSATION SIGNALS  
         const conversationTriggers = [
             'what do you think', 'how are you', 'explain to me', 'tell me about',
             'what is your opinion', 'how does this work', 'why', 'what would you',
             'i need advice', 'thoughts on', 'help me understand', 'what are your'
         ];
-        // 3. QUESTION PATTERNS
         const isQuestion = input.includes('?') ||
             input.startsWith('what') ||
             input.startsWith('how') ||
@@ -41,47 +30,39 @@ export class AgentContextIntelligence {
             input.startsWith('where') ||
             input.startsWith('can you explain') ||
             input.startsWith('tell me');
-        // 4. ACTION INDICATORS
         const hasActionWords = ['please', 'go ahead', 'do this', 'start', 'begin', 'now'].some(word => input.includes(word));
         const hasUrgencyWords = ['urgent', 'asap', 'immediately', 'quickly', 'right now'].some(word => input.includes(word));
-        // 5. ANALYZE PATTERNS
         const workflowScore = workflowTriggers.filter(trigger => input.includes(trigger)).length;
         const conversationScore = conversationTriggers.filter(trigger => input.includes(trigger)).length;
-        // 6. DECISION LOGIC
         let mode;
         let confidence;
         let reasoning;
         let nextAction;
         if (workflowScore > 0 && hasActionWords && !isQuestion) {
-            // Clear execution request
             mode = 'workflow_execution';
             confidence = Math.min(0.9, 0.6 + (workflowScore * 0.1) + (hasUrgencyWords ? 0.2 : 0));
             reasoning = `Detected ${workflowScore} workflow triggers with action words. User wants task execution.`;
             nextAction = 'Start autonomous workflow execution with agent coordination';
         }
         else if (isQuestion && conversationScore > 0) {
-            // Clear conversation request
             mode = 'conversation';
             confidence = Math.min(0.9, 0.7 + (conversationScore * 0.1));
             reasoning = `Question format with ${conversationScore} conversation signals. User wants discussion.`;
             nextAction = 'Engage in personality-driven conversation';
         }
         else if (workflowScore > 0 && isQuestion) {
-            // Mixed signals - asking about implementation
             mode = 'clarification_needed';
             confidence = 0.6;
             reasoning = 'Mixed signals: workflow triggers with question format. Need clarification.';
             nextAction = 'Ask user to clarify if they want explanation or implementation';
         }
         else if (input.length < 10 && !isQuestion) {
-            // Short commands might be execution
             mode = 'workflow_execution';
             confidence = 0.5;
             reasoning = 'Short command-like input. Assuming execution intent.';
             nextAction = 'Proceed with cautious execution or ask for details';
         }
         else {
-            // Default to conversation for safety
             mode = 'conversation';
             confidence = 0.7;
             reasoning = 'No clear execution signals. Defaulting to conversation mode.';
@@ -95,11 +76,7 @@ export class AgentContextIntelligence {
             nextAction
         };
     }
-    /**
-     * PERSONALITY INTEGRATION: Get agent's natural response based on their personality
-     */
     getPersonalityResponse(agentId, mode, userInput) {
-        // Agent-specific personality responses
         const personalityResponses = {
             elena: {
                 conversation: [
@@ -151,9 +128,6 @@ export class AgentContextIntelligence {
         const modeResponses = responses[mode] || responses['conversation'];
         return modeResponses[Math.floor(Math.random() * modeResponses.length)];
     }
-    /**
-     * CONTEXT SWITCHING INTELLIGENCE: Help agents know when to switch modes during conversation
-     */
     detectModeSwitch(previousMode, currentInput, agentId) {
         const analysis = this.analyzeUserInput(currentInput, agentId);
         const shouldSwitch = previousMode !== analysis.mode && analysis.confidence > 0.7;
@@ -166,9 +140,6 @@ export class AgentContextIntelligence {
                 'No mode switch needed'
         };
     }
-    /**
-     * SMART WORKFLOW EXECUTION: Determine if user really wants execution
-     */
     confirmExecutionIntent(userInput, agentId) {
         const analysis = this.analyzeUserInput(userInput, agentId);
         if (analysis.mode === 'workflow_execution' && analysis.confidence > 0.8) {
@@ -193,5 +164,5 @@ export class AgentContextIntelligence {
         };
     }
 }
-// Export singleton instance
 export const agentContextIntelligence = AgentContextIntelligence.getInstance();
+//# sourceMappingURL=agent-context-intelligence.js.map

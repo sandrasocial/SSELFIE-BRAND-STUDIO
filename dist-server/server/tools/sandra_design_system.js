@@ -1,10 +1,4 @@
-/**
- * SANDRA'S OFFICIAL DESIGN SYSTEM
- * Complete editorial luxury aesthetic for SSELFIE Studio
- * ALL AGENTS MUST USE THESE EXACT PATTERNS
- */
 export const SANDRA_DESIGN_SYSTEM = {
-    // COLORS - EXACT HEX VALUES
     colors: {
         black: '#0a0a0a',
         white: '#ffffff',
@@ -13,12 +7,9 @@ export const SANDRA_DESIGN_SYSTEM = {
         softGray: '#666666',
         accentLine: '#e5e5e5'
     },
-    // TYPOGRAPHY - EXACT SPECIFICATIONS
     typography: {
-        // Primary font stack
         serif: "'Times New Roman', serif",
         sans: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-        // Headlines (always uppercase, Times New Roman)
         h1: {
             fontFamily: "'Times New Roman', serif",
             fontSize: 'clamp(4rem, 8vw, 8rem)',
@@ -46,7 +37,6 @@ export const SANDRA_DESIGN_SYSTEM = {
             textTransform: 'uppercase',
             marginBottom: '24px'
         },
-        // Hero Typography (full-bleed sections)
         heroMain: {
             fontFamily: "'Times New Roman', serif",
             fontSize: 'clamp(5rem, 12vw, 12rem)',
@@ -64,7 +54,6 @@ export const SANDRA_DESIGN_SYSTEM = {
             textTransform: 'uppercase',
             opacity: '0.8'
         },
-        // Eyebrow text (small labels)
         eyebrow: {
             fontSize: '11px',
             fontWeight: '400',
@@ -72,7 +61,6 @@ export const SANDRA_DESIGN_SYSTEM = {
             textTransform: 'uppercase',
             color: '#666666'
         },
-        // Editorial quotes (large italic text)
         editorialQuote: {
             fontFamily: "'Times New Roman', serif",
             fontSize: 'clamp(2rem, 5vw, 4rem)',
@@ -81,14 +69,12 @@ export const SANDRA_DESIGN_SYSTEM = {
             lineHeight: '1.2',
             fontWeight: '300'
         },
-        // Body text
         body: {
             fontSize: '16px',
             lineHeight: '1.6',
             fontWeight: '300',
             maxWidth: '600px'
         },
-        // Navigation
         nav: {
             fontSize: '11px',
             fontWeight: '400',
@@ -96,24 +82,17 @@ export const SANDRA_DESIGN_SYSTEM = {
             textTransform: 'uppercase'
         }
     },
-    // LAYOUT PATTERNS
     layout: {
-        // Section spacing
         sectionPadding: '120px 0',
         containerMaxWidth: '1400px',
         containerPadding: '0 40px',
-        // Grid system
         grid: 'repeat(12, 1fr)',
         gridGap: '30px',
-        // Hero sections (full viewport)
         heroMinHeight: '100vh',
         heroAlignment: 'center',
-        // Card padding
         cardPadding: '60px'
     },
-    // COMPONENT PATTERNS
     components: {
-        // Navigation bar
         nav: {
             position: 'fixed',
             top: '0',
@@ -123,7 +102,6 @@ export const SANDRA_DESIGN_SYSTEM = {
             padding: '20px 0',
             zIndex: '1000'
         },
-        // Buttons
         button: {
             padding: '16px 32px',
             fontSize: '11px',
@@ -134,14 +112,12 @@ export const SANDRA_DESIGN_SYSTEM = {
             background: 'transparent',
             transition: 'all 300ms ease'
         },
-        // Image containers
         imageContainer: {
             position: 'relative',
             overflow: 'hidden',
             background: '#f5f5f5',
             transition: 'transform 1000ms cubic-bezier(0.4, 0, 0.2, 1)'
         },
-        // Aspect ratios
         aspectRatios: {
             portrait: '4/5',
             square: '1/1',
@@ -149,42 +125,33 @@ export const SANDRA_DESIGN_SYSTEM = {
             editorial: '3/4'
         }
     },
-    // RESPONSIVE BREAKPOINTS
     breakpoints: {
         tablet: '1024px',
         mobile: '768px'
     },
-    // ANIMATION TIMING
     animations: {
         fast: '300ms ease',
         medium: '500ms ease',
         slow: '1000ms cubic-bezier(0.4, 0, 0.2, 1)'
     }
 };
-// TAILWIND CSS CLASSES - EXACT MAPPINGS
 export const SANDRA_TAILWIND_CLASSES = {
-    // Typography classes
     heroTitle: "font-serif text-6xl sm:text-8xl md:text-9xl xl:text-[12rem] font-extralight tracking-[0.3em] uppercase leading-none",
     heroSubtitle: "font-serif text-2xl sm:text-4xl font-extralight tracking-[0.5em] uppercase opacity-80",
     eyebrow: "text-[11px] font-normal tracking-[0.4em] uppercase text-gray-600",
     navLink: "text-[11px] font-normal tracking-[0.3em] uppercase",
-    // Layout classes
     section: "py-[120px]",
     container: "max-w-[1400px] mx-auto px-10",
     fullBleedHero: "min-h-screen flex items-center justify-center bg-black text-white relative overflow-hidden",
-    // Component classes
     editorialCard: "bg-white hover:bg-black hover:text-white transition-all duration-500",
     imageHover: "transform transition-transform duration-1000 hover:scale-105",
     button: "inline-block py-4 px-8 text-[11px] font-normal tracking-[0.3em] uppercase border border-black hover:bg-black hover:text-white transition-all duration-300",
-    // Color classes
     primaryBg: "bg-[#0a0a0a]",
     primaryText: "text-[#0a0a0a]",
     editorialBg: "bg-[#f5f5f5]",
     accentBorder: "border-[#e5e5e5]"
 };
-// USAGE EXAMPLES FOR AGENTS
 export const DESIGN_PATTERNS = {
-    // Hero section pattern
     heroSection: `
     <section className="min-h-screen flex items-center justify-center bg-black text-white relative overflow-hidden">
       <div className="absolute inset-0 opacity-40">
@@ -203,7 +170,6 @@ export const DESIGN_PATTERNS = {
       </div>
     </section>
   `,
-    // Navigation pattern
     navigation: `
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200 py-5">
       <div className="max-w-[1400px] mx-auto px-10 flex justify-between items-center">
@@ -215,7 +181,6 @@ export const DESIGN_PATTERNS = {
       </div>
     </nav>
   `,
-    // Editorial card pattern
     editorialCard: `
     <div className="bg-white hover:bg-black hover:text-white transition-all duration-500 group">
       <div className="p-15">
@@ -255,3 +220,4 @@ EXACT TAILWIND CLASSES TO USE:
 NEVER deviate from these patterns. Match existing components exactly.
   `;
 }
+//# sourceMappingURL=sandra_design_system.js.map

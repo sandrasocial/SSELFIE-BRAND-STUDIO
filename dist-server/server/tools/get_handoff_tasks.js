@@ -1,13 +1,8 @@
-/**
- * GET HANDOFF TASKS TOOL
- * Retrieve tasks that are being handed off between agents
- */
-import { WorkflowPersistence } from '../workflows/active/workflow-persistence';
+import { WorkflowPersistence } from '../workflows/active/workflow-persistence.js';
 export async function get_handoff_tasks(input = {}) {
     try {
         const { agent_name, include_completed = false } = input;
         console.log(`🤝 HANDOFF RETRIEVAL: Getting handoff tasks${agent_name ? ` for ${agent_name}` : ''}`);
-        // Get all handoff tasks
         const handoffTasks = WorkflowPersistence.getHandoffTasks(agent_name);
         if (handoffTasks.length === 0) {
             return `🤝 HANDOFF STATUS: No active handoffs${agent_name ? ` for ${agent_name}` : ''}
@@ -58,3 +53,4 @@ export async function get_handoff_tasks(input = {}) {
 - Contact system administrator if error persists`;
     }
 }
+//# sourceMappingURL=get_handoff_tasks.js.map

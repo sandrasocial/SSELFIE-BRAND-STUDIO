@@ -1,31 +1,29 @@
-/**
- * Admin Routes Module
- * Handles administrative functions and system management
- */
 import { Router } from 'express';
-import { requireStackAuth } from '../../stack-auth';
-import { adminContextDetection } from '../../middleware/admin-context';
-import { asyncHandler, sendSuccess } from '../middleware/error-handler';
-import { requireAdmin } from '../middleware/auth';
+import { requireStackAuth } from '../../stack-auth.js';
+import { adminContextDetection } from '../../middleware/admin-context.js';
+import { asyncHandler, sendSuccess } from '../middleware/error-handler.js';
+import { requireAdmin } from '../middleware/auth.js';
 const router = Router();
-// Admin dashboard/validation routes
 router.get('/api/admin/validate-all-models', requireStackAuth, adminContextDetection, asyncHandler(async (req, res) => {
-    // Logic for validating all models
-    sendSuccess(res, {
+    const responseData = {
+        data: { success: true },
         message: 'Admin validate all models endpoint (placeholder)'
-    });
+    };
+    sendSuccess(res, responseData);
 }));
-// Admin consulting chat routes
 router.post('/api/consulting-agents/admin/consulting-chat', requireAdmin, asyncHandler(async (req, res) => {
-    // Logic for admin consulting chat
-    sendSuccess(res, {
+    const responseData = {
+        data: { success: true },
         message: 'Admin consulting chat endpoint (placeholder)'
-    });
+    };
+    sendSuccess(res, responseData);
 }));
 router.post('/api/admin/consulting-chat', requireAdmin, asyncHandler(async (req, res) => {
-    // Logic for admin consulting chat (alternative path)
-    sendSuccess(res, {
+    const responseData = {
+        data: { success: true },
         message: 'Admin consulting chat endpoint (alternative path, placeholder)'
-    });
+    };
+    sendSuccess(res, responseData);
 }));
 export default router;
+//# sourceMappingURL=admin.js.map

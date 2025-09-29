@@ -1,57 +1,85 @@
-import { type User } from '../../shared/types/user.js';
-
-export interface MayaChatCreateInput {
+export interface ChatMessage {
+  id: string;
+  chatId: string;
   userId: string;
-  chatTitle: string;
-  initialMessage?: string;
+  content: string;
+  role: 'user' | 'assistant' | 'system';
+  imagePreview?: string | null;
+  generatedPrompt?: string | null;
+  createdAt: Date;
 }
 
-import type { BaseChatMessage } from '../../shared/types/unified-chat.js';
+export interface GalleryImage {
+  id: string;
+  userId: string;
+  createdAt: Date;
+  imageUrl: string;
+  prompt: string;
+  style: string;
+  predictionId: string;
+  generationStatus: 'completed' | 'pending' | 'processing' | 'failed';
+  isSelected?: boolean;
+  isFavorite?: boolean;
+  metadata?: Record<string, unknown>;
+}
 
-export type ChatMessageRole = BaseChatMessage['role'];
-
-// Base server chat types (using numeric IDs)
-export interface ServerChatMessageInput {
+export interface ChatMessageInput {
   chatId: number;
   content: string;
-  role: ChatMessageRole;
+  role: 'user' | 'assistant' | 'system';
   userId: string;
   imagePreview?: string | null;
   generatedPrompt?: string | null;
+}
+
+export interface GalleryImageInput {
+  userId: string;
+  generatedPrompt: string;
+  imageUrl: string;
+  prompt: string;
+  style: string;
+  category: string;
+  source: string;
+  predictionId: string;
+  generationStatus: 'completed' | 'pending' | 'processing' | 'failed';
+  isSelected?: boolean;
+  isFavorite?: boolean;
+}
+
+export interface ChatPreviewError {
+  code: string;
+  message: string;
+  details?: Record<string, unknown>;
   conceptCards?: Record<string, unknown>[] | null;
   quickButtons?: string[] | null;
   metadata?: Record<string, unknown>;
 }
 
-export interface ServerChatMessage extends ServerChatMessageInput {
-  id: number;
-  createdAt: Date;
-}
-
-export type ServerChatMessageCreate = Omit<ServerChatMessage, 'id' | 'createdAt'>;
-export type ServerChatMessageUpdate = Partial<ServerChatMessageCreate> & { id: number };
-
-export interface GalleryImage {
-  id: number;
+export interface GalleryImageInput {
   userId: string;
   imageUrl: string;
   prompt: string;
   style: string;
   generationStatus: 'pending' | 'processing' | 'completed' | 'failed';
   predictionId: string;
-  isSelected: boolean;
-  isFavorite: boolean;
-  createdAt?: Date;
+  isSelected?: boolean;
+  isFavorite?: boolean;
   metadata?: Record<string, unknown>;
 }
 
-export type GalleryImageInput = Omit<GalleryImage, 'id' | 'createdAt'>;
-
-export interface ChatPreviewError {
-  type: 'save_preview' | 'heart_image';
-  message: string;
-  chatId?: number;
-  userId?: string;
-  imageUrl?: string;
-  error?: Error;
+export interface ServerChatMessage {
+  id: number;
+  chatId: number;
+  userId: string;
+  content: string;
+  role: 'user' | 'assistant' | 'system';
+  createdAt: Date;
 }
+
+export type ServerChatMessageCreate = Omit<ServerChatMessage, 'id' | 'createdAt'>;
+export type ServerChatMessageUpdate = Partial<ServerChatMessageCreate> & { id: number };
+
+
+
+
+

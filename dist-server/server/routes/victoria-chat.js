@@ -1,12 +1,10 @@
 import { Router } from 'express';
-import { requireStackAuth } from '../stack-auth';
+import { requireStackAuth } from '../stack-auth.js';
 const router = Router();
-// Victoria website chat endpoint - integrates with member agent system
 router.post('/api/victoria-website-chat', requireStackAuth, async (req, res) => {
     try {
         const { message, conversationHistory, selectedImages = [], selectedFlatlays = [] } = req.body;
         const userId = req.user.id;
-        // Enhanced prompt for Victoria website generation
         const websiteGenerationPrompt = `
 You are Victoria, a luxury website designer and business strategist specializing in creating elegant, professional websites for entrepreneurs and coaches using editorial components.
 
@@ -43,7 +41,6 @@ When you have sufficient information (business name, type, target audience, key 
 
 Maintain Victoria's personality: professional, warm, design-focused, and luxury-minded. Use Times New Roman aesthetic references and editorial design language.
 `;
-        // Call Victoria member agent with enhanced prompt
         const response = await fetch('http://localhost:5000/api/victoria-website-chat-internal', {
             method: 'POST',
             headers: {
@@ -58,14 +55,12 @@ Maintain Victoria's personality: professional, warm, design-focused, and luxury-
             })
         });
         const victoriaResponse = await response.json();
-        // Check if Victoria wants to generate a website
         let generatedWebsite = null;
         if (victoriaResponse.response.includes('GENERATE_WEBSITE:')) {
             const jsonMatch = victoriaResponse.response.match(/GENERATE_WEBSITE:\s*({.*})/s);
             if (jsonMatch) {
                 try {
                     const websiteData = JSON.parse(jsonMatch[1]);
-                    // Generate website using Victoria's website generation API
                     const websiteResponse = await fetch('http://localhost:5000/api/victoria/generate', {
                         method: 'POST',
                         headers: {
@@ -84,7 +79,6 @@ Maintain Victoria's personality: professional, warm, design-focused, and luxury-
                 }
             }
         }
-        // Clean response for user (remove generation command)
         const cleanResponse = victoriaResponse.response.replace(/GENERATE_WEBSITE:.*$/s, '').trim();
         res.json({
             success: true,
@@ -101,3 +95,4 @@ Maintain Victoria's personality: professional, warm, design-focused, and luxury-
     }
 });
 export default router;
+//# sourceMappingURL=victoria-chat.js.map

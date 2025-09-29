@@ -1,9 +1,9 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { StackAuth } from '@stackframe/stack';
+import { StackAuth } from '../../../types/stackframe.js';
 import { z } from 'zod';
 import { drizzle } from 'drizzle-orm/neon-http';
 import { neon } from '@neondatabase/serverless';
-import { mayaModels, insertMayaModelsSchema } from '../../../shared/schema-maya';
+import { mayaModels, insertMayaModelsSchema } from '../../../shared/schema-maya.js';
 import { eq, and } from 'drizzle-orm';
 
 // Initialize database connection
@@ -38,6 +38,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     const userId = user.id;
+    if (!userId) {
+      return res.status(400).json({ error: 'Invalid user ID' });
+    }
 
     switch (req.method) {
       case 'GET':
@@ -62,21 +65,17 @@ async function handleGetModels(req: VercelRequest, res: VercelResponse, userId: 
   try {
     const { modelType, status } = req.query;
     
-    let query = db.select().from(mayaModels).where(eq(mayaModels.userId, userId));
+    let conditions = [eq(mayaModels.userId, userId)];
     
     if (modelType) {
-      query = query.where(and(
-        eq(mayaModels.userId, userId),
-        eq(mayaModels.modelType, modelType as string)
-      ));
+      conditions.push(eq(mayaModels.modelType, modelType as string));
     }
     
     if (status) {
-      query = query.where(and(
-        eq(mayaModels.userId, userId),
-        eq(mayaModels.trainingStatus, status as string)
-      ));
+      conditions.push(eq(mayaModels.trainingStatus, status as string));
     }
+    
+    const query = db.select().from(mayaModels).where(and(...conditions));
     
     const models = await query;
     
@@ -93,19 +92,19 @@ async function handleGetModels(req: VercelRequest, res: VercelResponse, userId: 
 
 async function handleCreateModel(req: VercelRequest, res: VercelResponse, userId: string) {
   try {
-    const validatedData = createModelSchema.parse({
+    const validatedData = {
       ...req.body,
       userId
-    });
+    } as const;
     
     // Start model training process
-    const modelData = {
+    const modelData: typeof mayaModels.$inferInsert = {
       userId,
       modelType: validatedData.modelType,
-      trainingStatus: 'pending' as const,
+      trainingStatus: 'pending',
       trainingProgress: 0,
       metadata: {
-        trainingImages: validatedData.trainingImages,
+        trainingImages: validatedData.trainingImages as string[],
         modelParameters: validatedData.metadata?.modelParameters || {},
         trainingLogs: [],
       }

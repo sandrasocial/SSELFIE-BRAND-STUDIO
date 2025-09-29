@@ -1,16 +1,5 @@
-/**
- * UNIFIED SESSION MANAGER
- *
- * Consolidates session management between Replit Auth and Agent persistence
- * Fixes schema conflicts and session restoration failures
- *
- * FIXES IMPLEMENTED:
- * - C1: Replit Auth integration with agent persistence ✅
- * - C2: Database schema conflicts resolved ✅
- * - C3: Session restoration for agent workflows ✅
- */
-import { db } from '../drizzle';
-import { agentSessionContexts, sessions, users } from '@shared/schema';
+import { db } from '../drizzle.js';
+import { agentSessionContexts, sessions, users } from '../../shared/schema.js';
 import { eq, and, desc } from 'drizzle-orm';
 export class UnifiedSessionManager {
     static instance;
@@ -22,32 +11,21 @@ export class UnifiedSessionManager {
         }
         return UnifiedSessionManager.instance;
     }
-    /**
-     * UNIFIED SESSION RESTORATION with transaction safety
-     * PHASE 5: Enhanced with database consistency
-     */
     async restoreUserSession(userId, replitSessionId) {
         console.log(`🔄 RESTORING SESSION: User ${userId}, Replit session: ${replitSessionId ? 'active' : 'none'}`);
         try {
-            // Validate input
             if (!userId || typeof userId !== 'string') {
                 throw new Error('Invalid userId for session restoration');
             }
-            // Check cache first
             const cacheKey = `${userId}-${replitSessionId || 'no-replit'}`;
             if (this.sessionCache.has(cacheKey)) {
                 console.log('✅ SESSION CACHE: Using cached session data');
                 return this.sessionCache.get(cacheKey);
             }
-            // STEP 1: Wrap session restoration in transaction for consistency
             const sessionData = await db.transaction(async (tx) => {
-                // Validate Replit session
                 const replitSessionValid = await this.validateReplitSession(replitSessionId);
-                // Get user profile with transaction
                 const userProfile = await this.getUserProfile(userId, tx);
-                // Restore agent session contexts with transaction
                 const agentContexts = await this.restoreAgentContexts(userId, tx);
-                // Get last activity
                 const lastActivity = await this.getLastUserActivity(userId, tx);
                 return {
                     replitSessionValid,
@@ -56,14 +34,12 @@ export class UnifiedSessionManager {
                     lastActivity
                 };
             });
-            // Cache the session data
             this.sessionCache.set(cacheKey, sessionData);
             console.log(`✅ SESSION RESTORED: ${sessionData.agentContexts.length} agent contexts, Replit: ${sessionData.replitSessionValid ? 'valid' : 'invalid'}`);
             return sessionData;
         }
         catch (error) {
             console.error('❌ Session restoration failed:', error);
-            // Return minimal session data on error
             return {
                 replitSessionValid: false,
                 agentContexts: [],
@@ -72,13 +48,9 @@ export class UnifiedSessionManager {
             };
         }
     }
-    /**
-     * SAVE AGENT SESSION CONTEXT: Persist agent state for session restoration
-     */
     async saveAgentSessionContext(context) {
         try {
             console.log(`💾 SAVING AGENT CONTEXT: ${context.agentId} for user ${context.userId}`);
-            // Create memory snapshot
             const memorySnapshot = await this.retrieveAgentMemory(context.agentId, context.userId);
             await db.insert(agentSessionContexts).values({
                 userId: context.userId,
@@ -99,7 +71,6 @@ export class UnifiedSessionManager {
                     updatedAt: new Date()
                 }
             });
-            // Clear cache for this user
             this.clearUserSessionCache(context.userId);
             console.log(`✅ AGENT CONTEXT SAVED: ${context.agentId}`);
         }
@@ -107,9 +78,6 @@ export class UnifiedSessionManager {
             console.error('❌ Failed to save agent session context:', error);
         }
     }
-    /**
-     * RESTORE AGENT CONTEXTS: Get all agent session data for user
-     */
     async restoreAgentContexts(userId, tx) {
         try {
             const query = tx ? tx.select() : db.select();
@@ -117,7 +85,7 @@ export class UnifiedSessionManager {
                 .from(agentSessionContexts)
                 .where(eq(agentSessionContexts.userId, userId))
                 .orderBy(desc(agentSessionContexts.lastInteraction))
-                .limit(10); // Limit to recent contexts
+                .limit(10);
             return contexts.map(ctx => ({
                 userId: ctx.userId,
                 agentId: ctx.agentId,
@@ -132,9 +100,6 @@ export class UnifiedSessionManager {
             return [];
         }
     }
-    /**
-     * VALIDATE REPLIT SESSION: Check if Replit OAuth session is valid
-     */
     async validateReplitSession(sessionId) {
         if (!sessionId)
             return false;
@@ -145,7 +110,6 @@ export class UnifiedSessionManager {
                 .limit(1);
             if (!session.length)
                 return false;
-            // Check expiration
             const sessionData = session[0];
             const now = new Date();
             if (sessionData.expire < now) {
@@ -159,9 +123,6 @@ export class UnifiedSessionManager {
             return false;
         }
     }
-    /**
-     * GET USER PROFILE: Fetch user data for session
-     */
     async getUserProfile(userId, tx) {
         try {
             const query = tx ? tx.select() : db.select();
@@ -176,9 +137,6 @@ export class UnifiedSessionManager {
             return null;
         }
     }
-    /**
-     * GET LAST USER ACTIVITY: Find most recent activity timestamp
-     */
     async getLastUserActivity(userId, tx) {
         try {
             const query = tx ? tx.select() : db.select();
@@ -197,9 +155,6 @@ export class UnifiedSessionManager {
             return new Date();
         }
     }
-    /**
-     * CLEAR SESSION CACHE: Remove cached session data for user
-     */
     clearUserSessionCache(userId) {
         for (const [key] of this.sessionCache) {
             if (key.startsWith(`${userId}-`)) {
@@ -207,9 +162,6 @@ export class UnifiedSessionManager {
             }
         }
     }
-    /**
-     * CLEANUP OLD SESSIONS: Remove expired agent session contexts
-     */
     async cleanupOldSessions() {
         try {
             console.log('🧹 CLEANING UP: Old agent session contexts');
@@ -222,9 +174,6 @@ export class UnifiedSessionManager {
             console.error('❌ Session cleanup failed:', error);
         }
     }
-    /**
-     * GET ACTIVE AGENT SESSIONS: Get currently active agent sessions for monitoring
-     */
     async getActiveAgentSessions() {
         try {
             const activeSessions = await db.select()
@@ -245,12 +194,8 @@ export class UnifiedSessionManager {
             return [];
         }
     }
-    /**
-     * RETRIEVE AGENT MEMORY: Get agent memory for context
-     */
     async retrieveAgentMemory(agentId, userId) {
         try {
-            // Placeholder implementation
             return {
                 agentId,
                 userId,
@@ -264,5 +209,5 @@ export class UnifiedSessionManager {
         }
     }
 }
-// Export singleton instance
 export const unifiedSessionManager = UnifiedSessionManager.getInstance();
+//# sourceMappingURL=unified-session-manager.js.map

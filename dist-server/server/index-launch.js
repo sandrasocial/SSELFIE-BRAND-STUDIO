@@ -1,19 +1,19 @@
-import './env-setup.js';
+import './env-setup';
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import path from 'path';
-import { securityHeaders, inputValidation } from './middleware/security';
-import { rateLimits } from './middleware/rate-limiter';
-import utilityRoutes from './routes/modules/utility';
-import authRoutes from './routes/modules/auth';
-import trainingRoutes from './routes/modules/training';
-import galleryRoutes from './routes/modules/gallery';
-import usageRoutes from './routes/modules/usage';
-import mayaRoutes from './routes/modules/maya';
-import aiGenerationRoutes from './routes/modules/ai-generation';
-import { storage } from './storage';
-import { BulletproofUploadService } from './bulletproof-upload-service';
-import { requireStackAuth } from './routes/middleware/auth';
+import { securityHeaders, inputValidation } from './middleware/security.js';
+import { rateLimits } from './middleware/rate-limiter.js';
+import utilityRoutes from './routes/modules/utility.js';
+import authRoutes from './routes/modules/auth.js';
+import trainingRoutes from './routes/modules/training.js';
+import galleryRoutes from './routes/modules/gallery.js';
+import usageRoutes from './routes/modules/usage.js';
+import mayaRoutes from './routes/modules/maya.js';
+import aiGenerationRoutes from './routes/modules/ai-generation.js';
+import { storage } from './storage.js';
+import { BulletproofUploadService } from './bulletproof-upload-service.js';
+import { requireStackAuth } from './routes/middleware/auth.js';
 const app = express();
 app.set('trust proxy', true);
 app.use(securityHeaders);
@@ -22,14 +22,12 @@ app.use(rateLimits.general);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
-// Health
 app.get('/health', (req, res) => {
     res.status(200).json({ status: 'healthy', service: 'SSELFIE Studio', ts: new Date().toISOString() });
 });
 app.get('/api/health', (req, res) => {
-    res.status(200).json({ status: 'healthy', ts: new Date().toISOString(), env: process.env.NODE_ENV || 'development' });
+    res.status(200).json({ status: 'healthy', ts: new Date().toISOString(), env: process.env['NODE_ENV'] || 'development' });
 });
-// Core routes required for the Sacred Path
 app.use('/', utilityRoutes);
 app.use('/', authRoutes);
 app.use('/', trainingRoutes);
@@ -37,7 +35,6 @@ app.use('/', galleryRoutes);
 app.use('/', usageRoutes);
 app.use('/', mayaRoutes);
 app.use('/', aiGenerationRoutes);
-// Training pipeline endpoints (real implementations)
 app.post('/api/training/upload-selfies', requireStackAuth, async (req, res) => {
     try {
         const userId = req.user?.id || req.body.userId;
@@ -55,7 +52,6 @@ app.post('/api/training/upload-selfies', requireStackAuth, async (req, res) => {
         return res.status(500).json({ success: false, message: 'Upload pipeline failed', error: error.message });
     }
 });
-// Simple-training client aliases
 app.post('/api/start-model-training', requireStackAuth, async (req, res) => {
     try {
         const userId = req.user.id;
@@ -106,7 +102,6 @@ app.post('/api/restart-training', requireStackAuth, async (req, res) => {
 app.get('/api/training-progress/:userId', requireStackAuth, async (req, res) => {
     try {
         const { userId } = req.params;
-        // Auth: only allow self or admin in future; for now, allow self
         if (userId !== req.user.id) {
             return res.status(403).json({ message: 'Forbidden' });
         }
@@ -130,7 +125,6 @@ app.post('/api/user/update-gender', requireStackAuth, async (req, res) => {
         return res.status(500).json({ success: false, message: 'Failed to update gender' });
     }
 });
-// Training status (live from DB)
 app.get('/api/training/status', requireStackAuth, async (req, res) => {
     try {
         const userId = req.user.id;
@@ -148,11 +142,9 @@ app.get('/api/training/status', requireStackAuth, async (req, res) => {
         return res.status(500).json({ message: 'Failed to get training status' });
     }
 });
-// Expose a simple endpoint to poll a specific prediction/training id if needed
 app.get('/api/training/check/:trainingId', requireStackAuth, async (req, res) => {
     try {
         const { trainingId } = req.params;
-        // Simple status check - return basic status
         return res.json({
             trainingId,
             status: 'checking',
@@ -163,26 +155,23 @@ app.get('/api/training/check/:trainingId', requireStackAuth, async (req, res) =>
         return res.status(500).json({ message: 'Failed to check training id' });
     }
 });
-// Static (dev)
-if (process.env.NODE_ENV !== 'production') {
+if (process.env['NODE_ENV'] !== 'production') {
     const distPath = path.join(process.cwd(), 'client', 'dist');
     app.use(express.static(distPath));
     app.use('/assets', express.static(path.join(distPath, 'assets')));
 }
-// Background monitors (training + generation + migration)
 (async () => {
     try {
-        const { TrainingCompletionMonitor } = await import('./training-completion-monitor');
+        const { TrainingCompletionMonitor } = await import('./training-completion-monitor.js');
         TrainingCompletionMonitor.getInstance().startMonitoring();
-        const { GenerationCompletionMonitor } = await import('./generation-completion-monitor');
+        const { GenerationCompletionMonitor } = await import('./generation-completion-monitor.js');
         GenerationCompletionMonitor.getInstance().startMonitoring();
-        const { migrationMonitor } = await import('./migration-monitor');
+        const { migrationMonitor } = await import('./migration-monitor.js');
         migrationMonitor.startMonitoring();
-        // Agent context monitor optional: can be enabled later if desired
     }
     catch (error) {
         console.warn('⚠️ Monitors failed to start:', error.message);
     }
 })();
-// Export for server runner
 export { app };
+//# sourceMappingURL=index-launch.js.map

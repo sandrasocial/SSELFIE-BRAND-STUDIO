@@ -1,9 +1,19 @@
 /**
  * AI Service Abstractor
- * Unified interface for all AI services (Claude, Google GenAI, Replicate)
+ * Provides a unified interface for interacting with various AI services
  */
 
+import { GoogleGenAI } from '@google/genai';
 import { Logger } from '../utils/logger.js';
+
+export interface AIServiceConfig {
+  apiKey: string;
+  model?: string;
+  maxOutputTokens?: number;
+  temperature?: number;
+  organization?: string;
+  serviceType?: 'gemini' | 'anthropic' | 'replicate';
+}
 
 export interface AIServiceConfig {
   apiKey: string;
@@ -137,20 +147,20 @@ export class GoogleGenAIService extends AIService {
 
   async generateText(prompt: string, systemPrompt?: string): Promise<AIResponse> {
     try {
-      const { GoogleGenAI } = await import('@google/genai');
       const genAI = new GoogleGenAI({ apiKey: this.config.apiKey });
-      const model = genAI.getGenerativeModel({ 
-        model: this.config.model || 'gemini-pro',
-        generationConfig: {
-          maxOutputTokens: this.config.maxTokens || 4000,
-          temperature: this.config.temperature || 0.7
-        }
-      });
+      const model = this.config.model || 'gemini-pro';
+      const generationConfig = {
+        maxOutputTokens: this.config.maxTokens || 4000,
+        temperature: this.config.temperature || 0.7
+      };
 
       const fullPrompt = systemPrompt ? `${systemPrompt}\n\n${prompt}` : prompt;
-      const result = await model.generateContent(fullPrompt);
-      const response = await result.response;
-      const text = response.text();
+      const result = await genAI.models.generateContent({
+        model,
+        contents: [{ text: fullPrompt }]
+      });
+
+      const text = result.text || '';
 
       return {
         success: true,
@@ -172,15 +182,14 @@ export class GoogleGenAIService extends AIService {
 
   async generateImages(request: ImageGenerationRequest): Promise<ImageGenerationResponse> {
     try {
-      const { GoogleGenAI } = await import('@google/genai');
       const genAI = new GoogleGenAI({ apiKey: this.config.apiKey });
-      const model = genAI.getGenerativeModel({ 
-        model: this.config.model || 'gemini-pro-vision'
+      const model = this.config.model || 'gemini-pro-vision';
+      const result = await genAI.models.generateContent({
+        model,
+        contents: [{ text: request.prompt }]
       });
-
-      const result = await model.generateContent(request.prompt);
-      const response = await result.response;
-      const text = response.text();
+      
+      const text = result.text || '';
 
       // For now, return the text as a single "image" - in production, this would generate actual images
       return {

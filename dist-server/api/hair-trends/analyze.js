@@ -1,11 +1,10 @@
 import { withTimeout } from '../_utils/timing.js';
 export const config = {
     runtime: 'nodejs',
-    maxDuration: 300 // 5 minutes for trend analysis
+    maxDuration: 300
 };
 export default async function handler(req, res) {
     try {
-        // Verify cron secret for security
         const authHeader = req.headers.authorization;
         const cronSecret = process.env.CRON_SECRET;
         if (!cronSecret) {
@@ -17,12 +16,10 @@ export default async function handler(req, res) {
             return res.status(401).json({ error: 'Unauthorized' });
         }
         console.log('🔍 Sophia starting weekly hair & beauty trend analysis...');
-        // Get current week range
         const now = new Date();
         const year = now.getFullYear();
         const week = getWeekNumber(now);
         const weekRange = `${year}-W${week.toString().padStart(2, '0')}`;
-        // Mock trend analysis (replace with actual AI analysis)
         const trendData = {
             week: weekRange,
             trends: {
@@ -58,11 +55,7 @@ export default async function handler(req, res) {
             summary: `Week ${weekRange} shows strong trends toward classic cuts with modern twists, emphasizing natural textures and professional styling techniques. Social media is driving interest in DIY styling and maintenance routines.`,
             confidence: 85
         };
-        // Simulate AI analysis with timeout
-        await withTimeout(new Promise(resolve => setTimeout(resolve, 2000)), // 2 second delay
-        10000, // 10 second timeout
-        'trend-analysis');
-        // Store results (mock database operation)
+        await withTimeout(new Promise(resolve => setTimeout(resolve, 2000)), 10000, 'trend-analysis');
         console.log('✅ Hair trends analysis completed for week:', weekRange);
         console.log('📊 Trends found:', Object.keys(trendData.trends).length, 'categories');
         console.log('🎯 Confidence score:', trendData.confidence + '%');
@@ -89,7 +82,6 @@ export default async function handler(req, res) {
         });
     }
 }
-// Helper function to get week number
 function getWeekNumber(date) {
     const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
     const dayNum = d.getUTCDay() || 7;
@@ -97,3 +89,4 @@ function getWeekNumber(date) {
     const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
     return Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
 }
+//# sourceMappingURL=analyze.js.map

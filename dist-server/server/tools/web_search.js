@@ -2,7 +2,6 @@ export async function web_search(input) {
     try {
         const { query, max_results = 5 } = input;
         console.log(`🔍 WEB SEARCH: Searching for: ${query}`);
-        // REAL WEB SEARCH: Use DuckDuckGo HTML scraping for authentic results
         const searchResults = await performDuckDuckGoSearch(query, max_results);
         return {
             results: searchResults,
@@ -21,18 +20,14 @@ export async function web_search(input) {
         };
     }
 }
-// ENHANCED WEB SEARCH: Multiple data sources for comprehensive results
 async function performDuckDuckGoSearch(query, maxResults) {
     try {
         console.log(`🔍 ENHANCED SEARCH: Processing query: ${query}`);
-        // Enhanced DuckDuckGo search with multiple fallbacks
         const results = await performDuckDuckGoInstantAnswer(query, maxResults);
-        // If we have good results, return them
         if (results.length > 0) {
             console.log(`🔍 SEARCH COMPLETE: Found ${results.length} results for "${query}"`);
             return results.slice(0, maxResults);
         }
-        // Fallback: provide search URL and helpful message
         return getBackupResults(query, maxResults);
     }
     catch (error) {
@@ -40,7 +35,6 @@ async function performDuckDuckGoSearch(query, maxResults) {
         return getBackupResults(query, maxResults);
     }
 }
-// Backup results when search fails
 function getBackupResults(query, maxResults) {
     const encodedQuery = encodeURIComponent(query);
     return [{
@@ -49,7 +43,6 @@ function getBackupResults(query, maxResults) {
             snippet: `I can provide a search URL for "${query}". For live web results, the admin agents currently have access to DuckDuckGo instant answers, which provide limited but authentic search data. For comprehensive web research, you can visit the search link provided.`
         }].slice(0, maxResults);
 }
-// DuckDuckGo instant answer API
 async function performDuckDuckGoInstantAnswer(query, maxResults = 5) {
     try {
         const encodedQuery = encodeURIComponent(query);
@@ -59,7 +52,6 @@ async function performDuckDuckGoInstantAnswer(query, maxResults = 5) {
         }
         const data = await response.json();
         const results = [];
-        // Process instant answer
         if (data.Abstract && data.AbstractURL) {
             results.push({
                 title: data.Heading || query,
@@ -67,7 +59,6 @@ async function performDuckDuckGoInstantAnswer(query, maxResults = 5) {
                 snippet: truncateSnippet(data.Abstract)
             });
         }
-        // Process related topics
         if (data.RelatedTopics && Array.isArray(data.RelatedTopics)) {
             for (const topic of data.RelatedTopics.slice(0, 3)) {
                 if (topic.FirstURL && topic.Text) {
@@ -79,7 +70,6 @@ async function performDuckDuckGoInstantAnswer(query, maxResults = 5) {
                 }
             }
         }
-        // If no results from API, return informative message
         if (results.length === 0) {
             results.push({
                 title: `Search: ${query}`,
@@ -91,7 +81,6 @@ async function performDuckDuckGoInstantAnswer(query, maxResults = 5) {
     }
     catch (error) {
         console.error('DuckDuckGo search error:', error);
-        // Fallback: Provide search URL
         return [{
                 title: `Search: ${query}`,
                 url: `https://duckduckgo.com/?q=${encodeURIComponent(query)}`,
@@ -99,13 +88,12 @@ async function performDuckDuckGoInstantAnswer(query, maxResults = 5) {
             }];
     }
 }
-// Extract title from text (first sentence or up to 60 chars)
 function extractTitle(text) {
     const firstSentence = text.split('.')[0];
     return firstSentence.length > 60 ? firstSentence.substring(0, 60) + '...' : firstSentence;
 }
-// Truncate snippet to prevent token waste
 function truncateSnippet(text) {
     const maxLength = 200;
     return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
 }
+//# sourceMappingURL=web_search.js.map

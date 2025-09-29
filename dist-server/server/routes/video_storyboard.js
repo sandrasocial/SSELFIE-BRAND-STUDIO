@@ -1,26 +1,16 @@
-/**
- * Video Storyboard API Routes
- * Multi-scene video composition endpoint
- */
-import express from 'express';
+import * as express from 'express';
 import { requireStackAuth } from '../stack-auth.js';
 import { GoogleGenAI } from '@google/genai';
 const router = express.Router();
-// Initialize the Google GenAI client (following existing video route pattern)
 let ai;
-if (process.env.GOOGLE_API_KEY) {
-    ai = new GoogleGenAI({ apiKey: process.env.GOOGLE_API_KEY });
+if (process.env['GOOGLE_API_KEY']) {
+    ai = new GoogleGenAI({ apiKey: process.env['GOOGLE_API_KEY'] });
     console.log('🎬 STORYBOARD: Google Gemini AI initialized for storyboard generation');
 }
 else {
     console.error('❌ STORYBOARD: GOOGLE_API_KEY environment variable not set. Storyboard routes will fail.');
 }
-/**
- * POST /api/video/storyboard
- * Create and compose multi-scene storyboard
- */
 router.post('/storyboard', requireStackAuth, async (req, res) => {
-    // Check if storyboard feature is enabled
     if (!process.env.STORYBOARD_ENABLED || process.env.STORYBOARD_ENABLED !== '1') {
         return res.status(403).json({
             error: 'Storyboard feature not enabled',
@@ -31,16 +21,15 @@ router.post('/storyboard', requireStackAuth, async (req, res) => {
         return res.status(503).json({ error: 'AI service not available' });
     }
     try {
-        const userId = req.user?.id;
+        const authReq = req;
+        const userId = authReq.user?.id;
         const { imageId, scenes, mode = 'sequential' } = req.body;
-        // Validation
         if (!scenes || !Array.isArray(scenes)) {
             return res.status(400).json({ error: 'scenes array is required' });
         }
         if (scenes.length < 2 || scenes.length > 3) {
             return res.status(400).json({ error: 'Must have 2-3 scenes' });
         }
-        // Validate each scene
         for (let i = 0; i < scenes.length; i++) {
             const scene = scenes[i];
             if (!scene.motionPrompt || typeof scene.motionPrompt !== 'string') {
@@ -59,38 +48,39 @@ router.post('/storyboard', requireStackAuth, async (req, res) => {
             mode,
             imageId: imageId || 'none'
         });
-        const { db } = await import('../drizzle');
-        const { videoStoryboards } = await import('../../shared/schema');
-        const { storage } = await import('../storage');
-        // Get source image if provided
+        const { db } = await import('../drizzle.js');
+        const { videoStoryboards } = await import('../../shared/schema.js');
+        const { storage } = await import('../storage.js');
         let sourceImageUrl = null;
         if (imageId) {
             try {
-                const { generatedImages, aiImages } = await import('../../shared/schema');
+                const { generatedImages, aiImages } = await import('../../shared/schema.js');
                 const { eq } = await import('drizzle-orm');
-                // Try generated images first
-                let imageRecord = (await db.select().from(generatedImages).where(eq(generatedImages.id, imageId)).limit(1))[0];
-                // Fall back to legacy ai images
+                const generatedImageResults = await db.select().from(generatedImages).where(eq(generatedImages.id, imageId)).limit(1);
+                let imageRecord = generatedImageResults[0];
                 if (!imageRecord) {
-                    imageRecord = (await db.select().from(aiImages).where(eq(aiImages.id, imageId)).limit(1))[0];
+                    const aiImageResults = await db.select().from(aiImages).where(eq(aiImages.id, imageId)).limit(1);
+                    const aiImageRecord = aiImageResults[0];
+                    if (aiImageRecord && aiImageRecord.userId === userId) {
+                        sourceImageUrl = aiImageRecord.imageUrl || null;
+                    }
                 }
-                if (imageRecord && imageRecord.userId === userId) {
-                    sourceImageUrl = imageRecord.selectedUrl || imageRecord.imageUrl;
-                    // Try parsing imageUrls if no direct URL
-                    if (!sourceImageUrl && imageRecord.imageUrls) {
+                else if (imageRecord && imageRecord.userId === userId) {
+                    sourceImageUrl = imageRecord.selectedUrl || null;
+                    if (!sourceImageUrl && typeof imageRecord.imageUrls === 'string') {
                         try {
-                            const urls = Array.isArray(imageRecord.imageUrls) ? imageRecord.imageUrls : JSON.parse(imageRecord.imageUrls);
-                            sourceImageUrl = urls?.[0];
+                            const urls = JSON.parse(imageRecord.imageUrls);
+                            sourceImageUrl = Array.isArray(urls) ? urls[0] : null;
                         }
-                        catch { }
+                        catch {
+                        }
                     }
                 }
             }
             catch (error) {
-                console.warn('⚠️ STORYBOARD: Could not load source image, proceeding without:', error?.message);
+                console.warn('⚠️ STORYBOARD: Could not load source image, proceeding without:', error instanceof Error ? error.message : String(error));
             }
         }
-        // Get user's LoRA model for personalization
         let userLoraModel = null;
         try {
             const profile = await storage.getUserProfile(userId);
@@ -99,27 +89,24 @@ router.post('/storyboard', requireStackAuth, async (req, res) => {
         catch (error) {
             console.log('⚠️ STORYBOARD: Unable to load user profile for LoRA model (continuing)', error?.message);
         }
-        // Generate videos for each scene sequentially using existing VEO infrastructure
         const sceneJobs = [];
         for (let i = 0; i < scenes.length; i++) {
             const scene = scenes[i];
-            const duration = scene.duration || 5; // Default 5 seconds
+            const duration = scene.duration || 5;
             console.log(`🎥 STORYBOARD: Starting scene ${i + 1}/${scenes.length}`, {
                 motionPrompt: scene.motionPrompt.slice(0, 50) + '...',
                 duration
             });
             try {
-                // Use the same payload structure as the existing generate-story route
                 const payload = {
                     model: 'veo-2.0-generate-001',
                     prompt: scene.motionPrompt,
                     config: {
                         numberOfVideos: 1,
-                        aspectRatio: '9:16', // Standard format for mobile
+                        aspectRatio: '9:16',
                         durationSeconds: duration
                     }
                 };
-                // Add source image if available (for first scene or if specified per scene)
                 if (sourceImageUrl && (i === 0 || scene.useSourceImage)) {
                     payload.image = {
                         imageUrl: sourceImageUrl
@@ -133,7 +120,7 @@ router.post('/storyboard', requireStackAuth, async (req, res) => {
                 const operation = await ai.models.generateVideos(payload);
                 sceneJobs.push({
                     sceneIndex: i,
-                    scenePrompt: scene.motionPrompt.slice(0, 100), // For tracking
+                    scenePrompt: scene.motionPrompt.slice(0, 100),
                     jobId: operation.name,
                     status: 'pending',
                     duration
@@ -142,7 +129,6 @@ router.post('/storyboard', requireStackAuth, async (req, res) => {
             }
             catch (sceneError) {
                 console.error(`❌ STORYBOARD: Scene ${i + 1} generation failed:`, sceneError);
-                // Add failed job for tracking
                 sceneJobs.push({
                     sceneIndex: i,
                     scenePrompt: scene.motionPrompt.slice(0, 100),
@@ -153,18 +139,16 @@ router.post('/storyboard', requireStackAuth, async (req, res) => {
                 });
             }
         }
-        // Create storyboard record in database
         const storyboardJobId = `storyboard_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
         const storyboardRecord = {
             userId,
-            scenes: JSON.stringify(scenes), // Store original scene definitions
+            scenes: JSON.stringify(scenes),
             mode,
             status: sceneJobs.some(job => job.status === 'failed') ? 'failed' : 'pending',
             progress: 0,
             jobId: storyboardJobId
         };
         await db.insert(videoStoryboards).values(storyboardRecord);
-        // Prepare response
         const failedScenes = sceneJobs.filter(job => job.status === 'failed');
         const response = {
             success: true,
@@ -204,10 +188,6 @@ router.post('/storyboard', requireStackAuth, async (req, res) => {
         });
     }
 });
-/**
- * GET /api/video/storyboard/:storyboardId
- * Check storyboard composition status
- */
 router.get('/storyboard/:storyboardId', requireStackAuth, async (req, res) => {
     if (!process.env.STORYBOARD_ENABLED || process.env.STORYBOARD_ENABLED !== '1') {
         return res.status(403).json({
@@ -219,12 +199,12 @@ router.get('/storyboard/:storyboardId', requireStackAuth, async (req, res) => {
         return res.status(503).json({ error: 'AI service not available' });
     }
     try {
-        const userId = req.user?.id;
+        const authReq = req;
+        const userId = authReq.user?.id;
         const { storyboardId } = req.params;
-        const { db } = await import('../drizzle');
-        const { videoStoryboards } = await import('../../shared/schema');
+        const { db } = await import('../drizzle.js');
+        const { videoStoryboards } = await import('../../shared/schema.js');
         const { eq } = await import('drizzle-orm');
-        // Get storyboard record
         const storyboard = (await db
             .select()
             .from(videoStoryboards)
@@ -236,7 +216,6 @@ router.get('/storyboard/:storyboardId', requireStackAuth, async (req, res) => {
         if (storyboard.userId !== userId) {
             return res.status(403).json({ error: 'Access denied' });
         }
-        // If already completed or failed, return cached result
         if (storyboard.status === 'completed' || storyboard.status === 'failed') {
             return res.json({
                 storyboardId,
@@ -247,18 +226,13 @@ router.get('/storyboard/:storyboardId', requireStackAuth, async (req, res) => {
                 updatedAt: storyboard.updatedAt
             });
         }
-        // For pending/processing storyboards, we would need to:
-        // 1. Check status of individual scene jobs
-        // 2. If all scenes are complete, compose them with ffmpeg
-        // 3. Update database with final result
-        // For now, return processing status
         console.log(`🔍 STORYBOARD: Status check for ${storyboardId} (${storyboard.status})`);
         res.json({
             storyboardId,
             status: storyboard.status,
             progress: storyboard.progress,
             message: 'Scenes are being generated. Full composition pending implementation.',
-            scenes: JSON.parse(storyboard.scenes),
+            scenes: typeof storyboard.scenes === 'string' ? JSON.parse(storyboard.scenes) : storyboard.scenes,
             updatedAt: storyboard.updatedAt
         });
     }
@@ -272,3 +246,4 @@ router.get('/storyboard/:storyboardId', requireStackAuth, async (req, res) => {
     }
 });
 export default router;
+//# sourceMappingURL=video_storyboard.js.map

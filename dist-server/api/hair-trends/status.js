@@ -1,12 +1,10 @@
 import { withTimeout } from '../_utils/timing.js';
-import { sql } from 'drizzle-orm';
 export const config = {
     runtime: 'nodejs',
     maxDuration: 20
 };
 export default async function handler(req, res) {
     try {
-        // Set CORS headers
         res.setHeader('Access-Control-Allow-Origin', '*');
         res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
         res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -18,13 +16,11 @@ export default async function handler(req, res) {
         }
         const hasApiKey = !!process.env.ANTHROPIC_API_KEY;
         const isProduction = process.env.NODE_ENV === 'production';
-        // Mock database check with timeout
-        const db = await withTimeout(Promise.resolve({
-            execute: async () => [
-                { created_at: new Date().toISOString() }
-            ]
-        }), 5000, 'database-connection');
-        const latestTrends = await withTimeout(db.execute(sql `SELECT created_at FROM hair_trends ORDER BY created_at DESC LIMIT 1`), 5000, 'status-check');
+        const mockResult = [{ created_at: new Date().toISOString() }];
+        const result = await withTimeout(Promise.resolve(mockResult), 5000, 'status-check');
+        const latestTrends = Array.isArray(result) ? result.map(row => ({
+            created_at: new Date(row.created_at).toISOString()
+        })) : [];
         res.json({
             success: true,
             status: {
@@ -56,3 +52,4 @@ export default async function handler(req, res) {
         });
     }
 }
+//# sourceMappingURL=status.js.map

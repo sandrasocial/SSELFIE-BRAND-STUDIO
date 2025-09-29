@@ -1,13 +1,6 @@
-/**
- * Deployment Tracking Service
- * Tracks active deployments from Elena workflows and autonomous orchestrator
- */
 export class DeploymentTrackingService {
     activeDeployments = new Map();
     deploymentHistory = [];
-    /**
-     * Create a new deployment tracking entry for Elena workflows
-     */
     startElenaWorkflowDeployment(workflowId, workflowTitle, agents, tasks, priority, description, estimatedDurationMinutes = 30) {
         const deploymentId = `elena-${workflowId}-${Date.now()}`;
         const startTime = new Date();
@@ -32,9 +25,6 @@ export class DeploymentTrackingService {
         console.log(`🚀 DEPLOYMENT TRACKING: Started deployment ${deploymentId} with ${agents.length} agents`);
         return deploymentId;
     }
-    /**
-     * Update deployment progress
-     */
     updateDeploymentProgress(deploymentId, progress, status) {
         const deployment = this.activeDeployments.get(deploymentId);
         if (!deployment)
@@ -46,37 +36,24 @@ export class DeploymentTrackingService {
         this.activeDeployments.set(deploymentId, deployment);
         console.log(`📈 DEPLOYMENT TRACKING: ${deploymentId} progress: ${progress}% (${status || deployment.status})`);
     }
-    /**
-     * Complete deployment
-     */
     completeDeployment(deploymentId, success) {
         const deployment = this.activeDeployments.get(deploymentId);
         if (!deployment)
             return;
         deployment.status = success ? 'completed' : 'failed';
         deployment.progress = 100;
-        // Move to history
         this.deploymentHistory.push({ ...deployment });
         this.activeDeployments.delete(deploymentId);
         console.log(`✅ DEPLOYMENT TRACKING: ${deploymentId} ${success ? 'completed' : 'failed'}`);
     }
-    /**
-     * Get all active deployments
-     */
     getActiveDeployments() {
         return Array.from(this.activeDeployments.values())
             .sort((a, b) => b.startTime.getTime() - a.startTime.getTime());
     }
-    /**
-     * Get deployment by ID
-     */
     getDeployment(deploymentId) {
         return this.activeDeployments.get(deploymentId) ||
             this.deploymentHistory.find(d => d.id === deploymentId);
     }
-    /**
-     * Get deployment metrics for dashboard
-     */
     getDeploymentMetrics() {
         const activeCount = this.activeDeployments.size;
         const totalCount = activeCount + this.deploymentHistory.length;
@@ -88,21 +65,15 @@ export class DeploymentTrackingService {
             completionRate: Math.round(completionRate)
         };
     }
-    /**
-     * Get deployment history
-     */
     getDeploymentHistory() {
-        return this.deploymentHistory.slice(-50) // Return last 50 deployments
+        return this.deploymentHistory.slice(-50)
             .sort((a, b) => b.startTime.getTime() - a.startTime.getTime());
     }
-    /**
-     * Clean up old completed deployments (older than 24 hours)
-     */
     cleanupOldDeployments() {
-        const cutoffTime = new Date(Date.now() - 24 * 60 * 60 * 1000); // 24 hours ago
+        const cutoffTime = new Date(Date.now() - 24 * 60 * 60 * 1000);
         this.deploymentHistory = this.deploymentHistory.filter(deployment => deployment.startTime > cutoffTime);
         console.log(`🧹 DEPLOYMENT TRACKING: Cleaned up old deployments, ${this.deploymentHistory.length} remaining`);
     }
 }
-// Export singleton instance
 export const deploymentTracker = new DeploymentTrackingService();
+//# sourceMappingURL=deployment-tracking-service.js.map

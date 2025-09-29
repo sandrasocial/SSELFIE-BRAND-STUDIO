@@ -1,8 +1,4 @@
-/**
- * Caching System
- * Provides in-memory and Redis caching capabilities
- */
-import { Logger } from './logger';
+import { Logger } from './logger.js';
 export class Cache {
     name;
     cache = new Map();
@@ -12,41 +8,31 @@ export class Cache {
         this.name = name;
         this.logger = new Logger(`Cache:${name}`);
         this.options = {
-            ttl: options.ttl || 300, // 5 minutes default
+            ttl: options.ttl || 300,
             maxSize: options.maxSize || 1000,
-            refreshThreshold: options.refreshThreshold || 60 // 1 minute
+            refreshThreshold: options.refreshThreshold || 60
         };
-        // Start cleanup interval
         this.startCleanup();
     }
-    /**
-     * Get value from cache
-     */
     get(key) {
         const item = this.cache.get(key);
         if (!item) {
             this.logger.debug(`Cache miss: ${key}`);
             return null;
         }
-        // Check if expired
         if (Date.now() > item.expires) {
             this.cache.delete(key);
             this.logger.debug(`Cache expired: ${key}`);
             return null;
         }
-        // Update access statistics
         item.accessCount++;
         item.lastAccessed = Date.now();
         this.logger.debug(`Cache hit: ${key} (access count: ${item.accessCount})`);
         return item.value;
     }
-    /**
-     * Set value in cache
-     */
     set(key, value, ttl) {
         const now = Date.now();
         const expires = now + ((ttl || this.options.ttl) * 1000);
-        // Check if we need to evict items
         if (this.cache.size >= this.options.maxSize) {
             this.evictLeastRecentlyUsed();
         }
@@ -59,9 +45,6 @@ export class Cache {
         });
         this.logger.debug(`Cache set: ${key} (TTL: ${ttl || this.options.ttl}s)`);
     }
-    /**
-     * Delete value from cache
-     */
     delete(key) {
         const deleted = this.cache.delete(key);
         if (deleted) {
@@ -69,16 +52,10 @@ export class Cache {
         }
         return deleted;
     }
-    /**
-     * Clear all cache entries
-     */
     clear() {
         this.cache.clear();
         this.logger.info(`Cache cleared: ${this.name}`);
     }
-    /**
-     * Get cache statistics
-     */
     getStats() {
         const items = Array.from(this.cache.values());
         const totalAccesses = items.reduce((sum, item) => sum + item.accessCount, 0);
@@ -93,43 +70,27 @@ export class Cache {
             newestItem: timestamps.length > 0 ? Math.max(...timestamps) : 0
         };
     }
-    /**
-     * Check if key exists and is not expired
-     */
     has(key) {
         const item = this.cache.get(key);
         return item ? Date.now() <= item.expires : false;
     }
-    /**
-     * Get all keys
-     */
     keys() {
         return Array.from(this.cache.keys());
     }
-    /**
-     * Evict least recently used items
-     */
     evictLeastRecentlyUsed() {
         const items = Array.from(this.cache.entries());
         items.sort((a, b) => a[1].lastAccessed - b[1].lastAccessed);
-        // Remove 10% of items
         const toRemove = Math.ceil(items.length * 0.1);
         for (let i = 0; i < toRemove; i++) {
             this.cache.delete(items[i][0]);
         }
         this.logger.debug(`Evicted ${toRemove} LRU items from cache`);
     }
-    /**
-     * Start cleanup interval
-     */
     startCleanup() {
         setInterval(() => {
             this.cleanup();
-        }, 60000); // Run every minute
+        }, 60000);
     }
-    /**
-     * Clean up expired items
-     */
     cleanup() {
         const now = Date.now();
         let cleaned = 0;
@@ -144,29 +105,24 @@ export class Cache {
         }
     }
 }
-// Create cache instances for different purposes
-export const userCache = new Cache('users', { ttl: 600, maxSize: 500 }); // 10 minutes
-export const aiGenerationCache = new Cache('ai-generation', { ttl: 1800, maxSize: 200 }); // 30 minutes
-export const staticDataCache = new Cache('static-data', { ttl: 3600, maxSize: 100 }); // 1 hour
-// Cache decorator for methods
+export const userCache = new Cache('users', { ttl: 600, maxSize: 500 });
+export const aiGenerationCache = new Cache('ai-generation', { ttl: 1800, maxSize: 200 });
+export const staticDataCache = new Cache('static-data', { ttl: 3600, maxSize: 100 });
 export function cached(cache, keyGenerator) {
     return function (target, propertyName, descriptor) {
         const method = descriptor.value;
         descriptor.value = async function (...args) {
             const key = keyGenerator ? keyGenerator(...args) : `${propertyName}:${JSON.stringify(args)}`;
-            // Try to get from cache
             const cached = cache.get(key);
             if (cached !== null) {
                 return cached;
             }
-            // Execute method and cache result
             const result = await method.apply(this, args);
             cache.set(key, result);
             return result;
         };
     };
 }
-// Cache middleware for Express routes
 export const cacheMiddleware = (cache, ttl) => {
     return (req, res, next) => {
         const key = `${req.method}:${req.originalUrl}:${JSON.stringify(req.query)}`;
@@ -174,10 +130,8 @@ export const cacheMiddleware = (cache, ttl) => {
         if (cached) {
             return res.json(cached);
         }
-        // Store original res.json
         const originalJson = res.json;
         res.json = function (data) {
-            // Cache successful responses
             if (res.statusCode >= 200 && res.statusCode < 300) {
                 cache.set(key, data, ttl);
             }
@@ -186,3 +140,4 @@ export const cacheMiddleware = (cache, ttl) => {
         next();
     };
 };
+//# sourceMappingURL=cache.js.map

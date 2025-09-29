@@ -1,38 +1,12 @@
-/**
- * ✨ PHASE 3: UNIFIED MAYA INTELLIGENCE SERVICE
- *
- * CRITICAL INTELLIGENCE CONSOLIDATION: Combines all Maya styling intelligence into single optimized system
- *
- * BEFORE: 4 separate intelligence services causing processing overhead
- * - user-style-memory.ts (276 lines) -> User preference tracking & learning
- * - maya-predictive-styling-service.ts (490 lines) -> Style predictions & forecasting
- * - brand-intelligence-service.ts (61 lines) -> Brand guidelines & voice
- * - maya-trend-intelligence.ts (557 lines) -> Trend analysis & forecasting
- *
- * AFTER: Single unified intelligence engine
- * - Consolidated user learning and style prediction
- * - Integrated brand voice with trend intelligence
- * - Optimized database queries for style data
- * - Unified interface for all Maya styling decisions
- *
- * TARGET: 40%+ intelligence processing time reduction
- */
-import { db } from '../drizzle';
-import { userStyleMemory, promptAnalysis } from '../../shared/schema';
+import { db } from '../drizzle.js';
+import { userStyleMemory, promptAnalysis } from '../../shared/schema.js';
 import { eq, desc } from 'drizzle-orm';
 import { unifiedMayaContextService } from './unified-maya-context-service.js';
-// ===== UNIFIED MAYA INTELLIGENCE SERVICE =====
 export class UnifiedMayaIntelligenceService {
     intelligenceCache = new Map();
-    CACHE_DURATION = 10 * 60 * 1000; // 10 minutes
-    /**
-     * 🎯 PHASE 3: Get complete Maya intelligence with single call
-     *
-     * Consolidates all style intelligence services into optimized unified response
-     */
+    CACHE_DURATION = 10 * 60 * 1000;
     async getUnifiedStyleIntelligence(userId, context, requestType) {
         const cacheKey = `${userId}_${requestType || 'default'}`;
-        // Check intelligence cache
         const cached = this.intelligenceCache.get(cacheKey);
         if (cached && (Date.now() - cached.timestamp) < this.CACHE_DURATION) {
             console.log(`⚡ UNIFIED INTELLIGENCE: Cache hit for user ${userId}`);
@@ -41,15 +15,12 @@ export class UnifiedMayaIntelligenceService {
         console.log(`🧠 UNIFIED INTELLIGENCE: Building comprehensive intelligence for user ${userId}`);
         const startTime = Date.now();
         try {
-            // Get unified context if not provided (optimization: avoid duplicate calls)
             const userContext = context || await unifiedMayaContextService.getUnifiedMayaContext(userId);
-            // PHASE 3: Single parallel intelligence gathering (replaces 4 separate service calls)
             const [userProfile, stylePredictions, brandAlignment] = await Promise.all([
                 this.buildUserStyleProfile(userId, userContext),
                 this.generateStylePredictions(userId, userContext),
                 this.getBrandAlignment(userContext)
             ]);
-            // Build unified intelligence object
             const unifiedIntelligence = {
                 userProfile,
                 stylePreferences: this.extractStylePreferences(userProfile),
@@ -64,7 +35,6 @@ export class UnifiedMayaIntelligenceService {
                 processingTime: Date.now() - startTime,
                 cacheStatus: 'miss'
             };
-            // Cache for performance
             this.intelligenceCache.set(cacheKey, {
                 data: unifiedIntelligence,
                 timestamp: Date.now()
@@ -77,19 +47,13 @@ export class UnifiedMayaIntelligenceService {
             return this.createFallbackIntelligence(userId);
         }
     }
-    /**
-     * 🎯 PHASE 3: Build comprehensive user style profile
-     * Consolidates user-style-memory.ts functionality
-     */
     async buildUserStyleProfile(userId, context) {
         try {
-            // Get existing style memory from database
             const [styleMemory] = await db
                 .select()
                 .from(userStyleMemory)
                 .where(eq(userStyleMemory.userId, userId))
                 .limit(1);
-            // Get recent prompt analysis for success scoring
             const recentAnalysis = await db
                 .select()
                 .from(promptAnalysis)
@@ -99,7 +63,6 @@ export class UnifiedMayaIntelligenceService {
             const averageSuccessScore = recentAnalysis.length > 0
                 ? recentAnalysis.reduce((sum, a) => sum + (parseFloat(a.successScore) || 0), 0) / recentAnalysis.length
                 : 0;
-            // Determine style evolution phase based on data
             const styleEvolutionPhase = this.determineStylePhase(styleMemory?.totalInteractions || 0, styleMemory?.totalFavorites || 0, averageSuccessScore);
             return {
                 preferredCategories: styleMemory?.preferredCategories || [],
@@ -121,16 +84,10 @@ export class UnifiedMayaIntelligenceService {
             return this.getDefaultStyleProfile();
         }
     }
-    /**
-     * 🎯 PHASE 3: Generate style predictions
-     * Consolidates maya-predictive-styling-service.ts functionality
-     */
     async generateStylePredictions(userId, context) {
         try {
-            // Use context data for intelligent predictions
             const personalBrand = context.personalBrand;
             const profile = context.profile;
-            // Generate predictions based on personal brand and context
             const predictedStyles = this.predictStylesFromContext(personalBrand, profile);
             const personalizedTrends = this.getPersonalizedTrends(predictedStyles);
             return {
@@ -150,12 +107,7 @@ export class UnifiedMayaIntelligenceService {
             return this.getDefaultStylePredictions();
         }
     }
-    /**
-     * 🎯 PHASE 3: Get brand alignment
-     * Consolidates brand-intelligence-service.ts functionality
-     */
     getBrandAlignment(context) {
-        // Sandra's brand intelligence integration
         return {
             brandVoice: 'empowering',
             messagingStyle: [
@@ -179,7 +131,6 @@ export class UnifiedMayaIntelligenceService {
             typographyGuidance: ['Times New Roman headers', 'Clean sans-serif body', 'Generous white space']
         };
     }
-    // ===== HELPER METHODS =====
     determineStylePhase(interactions, favorites, successScore) {
         if (interactions < 10)
             return 'discovery';
@@ -204,7 +155,7 @@ export class UnifiedMayaIntelligenceService {
         if (profile?.profession) {
             styles.push(`${profile.profession} Authority`);
         }
-        return styles.slice(0, 5); // Top 5 predictions
+        return styles.slice(0, 5);
     }
     getPersonalizedTrends(predictedStyles) {
         return [
@@ -216,7 +167,7 @@ export class UnifiedMayaIntelligenceService {
     }
     calculateStyleConfidence(styles) {
         return styles.reduce((acc, style, index) => {
-            acc[style] = Math.round(85 - (index * 5)); // Decreasing confidence
+            acc[style] = Math.round(85 - (index * 5));
             return acc;
         }, {});
     }
@@ -266,7 +217,6 @@ export class UnifiedMayaIntelligenceService {
             'Plan seasonal style evolution'
         ];
     }
-    // ===== SUPPORTING INTELLIGENCE METHODS =====
     extractStylePreferences(profile) {
         return {
             weights: profile.preferredCategories.reduce((acc, cat, i) => {
@@ -362,7 +312,6 @@ export class UnifiedMayaIntelligenceService {
         const predictionWeight = predictions.predictedStyles.length * 10;
         return Math.min(100, Math.round((dataPoints * 0.5) + (successWeight * 0.3) + (predictionWeight * 0.2)));
     }
-    // ===== FALLBACK METHODS =====
     createFallbackIntelligence(userId) {
         return {
             userProfile: this.getDefaultStyleProfile(),
@@ -408,26 +357,19 @@ export class UnifiedMayaIntelligenceService {
             expertRecommendations: ['Focus on building confidence']
         };
     }
-    /**
-     * 🎯 PHASE 3: Clear intelligence cache for user
-     */
     clearUserIntelligenceCache(userId) {
         const keysToDelete = Array.from(this.intelligenceCache.keys()).filter(key => key.startsWith(userId));
         keysToDelete.forEach(key => this.intelligenceCache.delete(key));
         console.log(`🗑️ UNIFIED INTELLIGENCE: Cleared cache for user ${userId}`);
     }
-    /**
-     * 🎯 PHASE 3: Get intelligence cache statistics
-     */
     getIntelligenceCacheStats() {
         const totalCached = this.intelligenceCache.size;
-        // TODO: Implement hit rate and processing time tracking
         return {
             totalCached,
-            hitRate: 0, // Will be implemented with usage tracking
-            avgProcessingTime: 0 // Will be implemented with performance tracking
+            hitRate: 0,
+            avgProcessingTime: 0
         };
     }
 }
-// Export singleton instance
 export const unifiedMayaIntelligenceService = new UnifiedMayaIntelligenceService();
+//# sourceMappingURL=unified-maya-intelligence-service.js.map

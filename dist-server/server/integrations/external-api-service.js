@@ -1,10 +1,5 @@
-/**
- * EXTERNAL API SERVICE - SANDRA'S INTEGRATION HUB
- * Connects AI agents to Make, Flodesk, ManyChat, Instagram, and more
- */
 import fetch from 'node-fetch';
 export class ExternalAPIService {
-    // FLODESK EMAIL MARKETING
     static async getFlodeskSubscribers() {
         try {
             const response = await fetch('https://api.flodesk.com/v1/subscribers', {
@@ -28,7 +23,6 @@ export class ExternalAPIService {
         let imported = 0;
         for (const subscriber of subscribers) {
             try {
-                // Add to SSELFIE email capture system
                 const response = await fetch('http://localhost:5000/api/email-capture', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -72,7 +66,6 @@ export class ExternalAPIService {
             throw new Error('Failed to create email campaign');
         }
     }
-    // INSTAGRAM / META INTEGRATION
     static async getInstagramComments(mediaId) {
         try {
             const endpoint = mediaId
@@ -125,7 +118,6 @@ export class ExternalAPIService {
             return {};
         }
     }
-    // MANYCHAT AUTOMATION
     static async getManychatSubscribers() {
         try {
             const response = await fetch('https://api.manychat.com/fb/subscriber/findBySystemField', {
@@ -136,7 +128,7 @@ export class ExternalAPIService {
                 },
                 body: JSON.stringify({
                     field_name: 'email',
-                    field_value: '*' // Get all subscribers
+                    field_value: '*'
                 })
             });
             const data = await response.json();
@@ -167,7 +159,6 @@ export class ExternalAPIService {
             return false;
         }
     }
-    // MAKE AUTOMATION PLATFORM
     static async getMakeScenarios() {
         try {
             const response = await fetch('https://www.make.com/api/v2/scenarios', {
@@ -225,10 +216,8 @@ export class ExternalAPIService {
             return null;
         }
     }
-    // COMPREHENSIVE HEALTH CHECK
     static async checkAllIntegrations() {
         const health = {};
-        // Test Flodesk
         try {
             await this.getFlodeskSubscribers();
             health.flodesk = true;
@@ -236,7 +225,6 @@ export class ExternalAPIService {
         catch {
             health.flodesk = false;
         }
-        // Test Instagram
         try {
             await this.getInstagramAnalytics();
             health.instagram = true;
@@ -244,7 +232,6 @@ export class ExternalAPIService {
         catch {
             health.instagram = false;
         }
-        // Test ManyChat
         try {
             await this.getManychatSubscribers();
             health.manychat = true;
@@ -252,7 +239,6 @@ export class ExternalAPIService {
         catch {
             health.manychat = false;
         }
-        // Test Make
         try {
             await this.getMakeScenarios();
             health.make = true;
@@ -263,3 +249,4 @@ export class ExternalAPIService {
         return health;
     }
 }
+//# sourceMappingURL=external-api-service.js.map

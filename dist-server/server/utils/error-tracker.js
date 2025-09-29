@@ -1,8 +1,4 @@
-/**
- * Comprehensive Error Tracking System
- * Tracks, categorizes, and analyzes application errors
- */
-import { Logger } from './logger';
+import { Logger } from './logger.js';
 export class ErrorTracker {
     logger;
     errors;
@@ -14,20 +10,14 @@ export class ErrorTracker {
         this.maxErrors = maxErrors;
         this.isEnabled = true;
     }
-    /**
-     * Track an error
-     */
     trackError(error, context = {}) {
         if (!this.isEnabled) {
             return '';
         }
         const errorId = this.generateErrorId();
         const timestamp = new Date().toISOString();
-        // Determine severity if not provided
         const severity = context.severity || this.determineSeverity(error);
-        // Determine category if not provided
         const category = context.category || this.determineCategory(error);
-        // Extract request context
         const requestContext = this.extractRequestContext(context.req);
         const errorContext = {
             timestamp,
@@ -45,17 +35,15 @@ export class ErrorTracker {
             requestBody: requestContext.requestBody,
             queryParams: requestContext.queryParams,
             headers: requestContext.headers,
-            environment: process.env.NODE_ENV || 'development',
+            environment: process.env['NODE_ENV'] || 'development',
             version: process.env.npm_package_version || '1.0.0',
             resolved: false,
             ...context.additionalData,
         };
-        // Add to errors array (with size limit)
         if (this.errors.length >= this.maxErrors) {
-            this.errors.shift(); // Remove oldest error
+            this.errors.shift();
         }
         this.errors.push(errorContext);
-        // Log error
         this.logger.error('Error tracked', {
             errorId,
             type: errorContext.type,
@@ -65,25 +53,17 @@ export class ErrorTracker {
             endpoint: errorContext.endpoint,
             userId: errorContext.userId,
         });
-        // Send critical errors to external monitoring
         if (severity === 'critical') {
             this.sendCriticalErrorAlert(errorContext);
         }
         return errorId;
     }
-    /**
-     * Generate unique error ID
-     */
     generateErrorId() {
         return `err_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     }
-    /**
-     * Determine error severity
-     */
     determineSeverity(error) {
         const message = error.message.toLowerCase();
         const stack = error.stack?.toLowerCase() || '';
-        // Critical errors
         if (message.includes('database') ||
             message.includes('connection') ||
             message.includes('timeout') ||
@@ -91,7 +71,6 @@ export class ErrorTracker {
             message.includes('fatal')) {
             return 'critical';
         }
-        // High severity errors
         if (message.includes('unauthorized') ||
             message.includes('forbidden') ||
             message.includes('not found') ||
@@ -99,7 +78,6 @@ export class ErrorTracker {
             message.includes('invalid')) {
             return 'high';
         }
-        // Medium severity errors
         if (message.includes('warning') ||
             message.includes('deprecated') ||
             message.includes('slow')) {
@@ -107,9 +85,6 @@ export class ErrorTracker {
         }
         return 'low';
     }
-    /**
-     * Determine error category
-     */
     determineCategory(error) {
         const message = error.message.toLowerCase();
         const stack = error.stack?.toLowerCase() || '';
@@ -133,9 +108,6 @@ export class ErrorTracker {
         }
         return 'unknown';
     }
-    /**
-     * Extract request context
-     */
     extractRequestContext(req) {
         if (!req) {
             return {};
@@ -151,12 +123,8 @@ export class ErrorTracker {
             headers: req.headers,
         };
     }
-    /**
-     * Send critical error alert
-     */
     async sendCriticalErrorAlert(errorContext) {
         try {
-            // Send to Slack
             if (process.env.SLACK_WEBHOOK_URL) {
                 await fetch(process.env.SLACK_WEBHOOK_URL, {
                     method: 'POST',
@@ -177,9 +145,7 @@ export class ErrorTracker {
                     }),
                 });
             }
-            // Send to email (if configured)
             if (process.env.ERROR_EMAIL) {
-                // This would integrate with your email service
                 this.logger.info('Critical error email sent', { errorId: errorContext.errorId });
             }
         }
@@ -187,14 +153,10 @@ export class ErrorTracker {
             this.logger.error('Failed to send critical error alert', { error });
         }
     }
-    /**
-     * Get error statistics
-     */
     getErrorStats(timeWindow) {
         const now = Date.now();
-        const windowMs = timeWindow ? timeWindow * 60 * 60 * 1000 : 24 * 60 * 60 * 1000; // Default 24 hours
+        const windowMs = timeWindow ? timeWindow * 60 * 60 * 1000 : 24 * 60 * 60 * 1000;
         const cutoffTime = now - windowMs;
-        // Filter errors within time window
         const recentErrors = this.errors.filter(error => new Date(error.timestamp).getTime() > cutoffTime);
         if (recentErrors.length === 0) {
             return {
@@ -209,21 +171,17 @@ export class ErrorTracker {
                 topErrors: [],
             };
         }
-        // Calculate basic stats
         const totalErrors = recentErrors.length;
         const criticalErrors = recentErrors.filter(e => e.severity === 'critical').length;
         const unresolvedErrors = recentErrors.filter(e => !e.resolved).length;
-        // Group by category
         const errorsByCategory = {};
         recentErrors.forEach(error => {
             errorsByCategory[error.category] = (errorsByCategory[error.category] || 0) + 1;
         });
-        // Group by severity
         const errorsBySeverity = {};
         recentErrors.forEach(error => {
             errorsBySeverity[error.severity] = (errorsBySeverity[error.severity] || 0) + 1;
         });
-        // Group by endpoint
         const errorsByEndpoint = {};
         recentErrors.forEach(error => {
             if (error.endpoint) {
@@ -231,19 +189,16 @@ export class ErrorTracker {
                 errorsByEndpoint[key] = (errorsByEndpoint[key] || 0) + 1;
             }
         });
-        // Calculate error rate (errors per hour)
         const timeWindowHours = windowMs / (60 * 60 * 1000);
         const errorRate = totalErrors / timeWindowHours;
-        // Calculate average resolution time
         const resolvedErrors = recentErrors.filter(e => e.resolved && e.resolvedAt);
         const averageResolutionTime = resolvedErrors.length > 0
             ? resolvedErrors.reduce((sum, error) => {
                 const resolvedAt = new Date(error.resolvedAt).getTime();
                 const createdAt = new Date(error.timestamp).getTime();
-                return sum + (resolvedAt - createdAt) / (1000 * 60 * 60); // Convert to hours
+                return sum + (resolvedAt - createdAt) / (1000 * 60 * 60);
             }, 0) / resolvedErrors.length
             : 0;
-        // Find top errors
         const errorCounts = new Map();
         recentErrors.forEach(error => {
             const key = error.message;
@@ -275,27 +230,15 @@ export class ErrorTracker {
             topErrors,
         };
     }
-    /**
-     * Get errors by severity
-     */
     getErrorsBySeverity(severity) {
         return this.errors.filter(error => error.severity === severity);
     }
-    /**
-     * Get errors by category
-     */
     getErrorsByCategory(category) {
         return this.errors.filter(error => error.category === category);
     }
-    /**
-     * Get unresolved errors
-     */
     getUnresolvedErrors() {
         return this.errors.filter(error => !error.resolved);
     }
-    /**
-     * Mark error as resolved
-     */
     resolveError(errorId, resolvedBy, notes) {
         const error = this.errors.find(e => e.errorId === errorId);
         if (!error) {
@@ -310,15 +253,9 @@ export class ErrorTracker {
         this.logger.info('Error resolved', { errorId, resolvedBy });
         return true;
     }
-    /**
-     * Get error by ID
-     */
     getErrorById(errorId) {
         return this.errors.find(error => error.errorId === errorId);
     }
-    /**
-     * Clear old errors
-     */
     clearOldErrors(olderThanHours = 168) {
         const cutoffTime = Date.now() - (olderThanHours * 60 * 60 * 1000);
         const initialLength = this.errors.length;
@@ -328,25 +265,16 @@ export class ErrorTracker {
             this.logger.info(`Cleared ${removedCount} old errors`);
         }
     }
-    /**
-     * Enable/disable error tracking
-     */
     setEnabled(enabled) {
         this.isEnabled = enabled;
         this.logger.info(`Error tracking ${enabled ? 'enabled' : 'disabled'}`);
     }
-    /**
-     * Get current errors count
-     */
     getErrorsCount() {
         return this.errors.length;
     }
-    /**
-     * Export errors for external analysis
-     */
     exportErrors() {
         return [...this.errors];
     }
 }
-// Export singleton instance
 export const errorTracker = new ErrorTracker();
+//# sourceMappingURL=error-tracker.js.map

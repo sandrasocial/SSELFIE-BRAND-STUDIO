@@ -1,19 +1,10 @@
-/**
- * PHASE 5: Smart Escalation Handler
- * Manages email handoffs and escalation triggers for Maya Support
- */
-import { sendEmail } from '../utils/email-service';
+import { sendEmail } from '../utils/email-service.js';
 export class EscalationHandler {
-    /**
-     * Process escalation request and send email to Sandra
-     */
     async handleEscalation(request) {
         try {
-            // Format conversation history for email
             const conversationText = request.conversationHistory
                 .map(msg => `${msg.role.toUpperCase()}: ${msg.content}`)
                 .join('\n\n');
-            // Email content for Sandra
             const emailContent = `
 MAYA SUPPORT ESCALATION REQUEST
 
@@ -31,15 +22,13 @@ ${conversationText}
 Please follow up with this user within 24 hours.
 Login to admin panel for full user details: ${process.env.APP_URL}/admin
 `;
-            // Send escalation email to Sandra
             const emailSent = await sendEmail({
-                to: 'ssa@ssasocial.com', // Sandra's email
+                to: 'ssa@ssasocial.com',
                 subject: `🚨 Maya Support Escalation: ${request.reason}`,
                 content: emailContent,
                 priority: 'high'
             });
             if (emailSent) {
-                // Log escalation for analytics
                 await this.logEscalation(request);
                 return true;
             }
@@ -50,28 +39,18 @@ Login to admin panel for full user details: ${process.env.APP_URL}/admin
             return false;
         }
     }
-    /**
-     * Log escalation for support analytics
-     */
     async logEscalation(request) {
         try {
-            // Simple logging to console for now
-            // In production, this would go to analytics service
             console.log('📊 SUPPORT ESCALATION LOGGED:', {
                 userId: request.userId,
                 reason: request.reason,
                 timestamp: new Date().toISOString()
             });
-            // Future: Send to analytics service
-            // await analyticsService.track('support_escalation', { ... });
         }
         catch (error) {
             console.error('Failed to log escalation:', error);
         }
     }
-    /**
-     * Check if message contains escalation triggers
-     */
     static detectEscalationTriggers(message) {
         const triggers = [
             { pattern: /refund|money back|cancel subscription|billing issue/i, reason: 'Billing Issue' },
@@ -88,3 +67,4 @@ Login to admin panel for full user details: ${process.env.APP_URL}/admin
     }
 }
 export const escalationHandler = new EscalationHandler();
+//# sourceMappingURL=escalation-handler.js.map

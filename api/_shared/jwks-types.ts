@@ -1,3 +1,3 @@
-import type { KeyLike } from 'jose';
+import type { JWK } from 'jose';
 
-export type LocalJWKSet = (protectedHeader?: Record<string, unknown>) => Promise<KeyLike>;
+export type LocalJWKSet = (protectedHeader?: Record<string, unknown>) => Promise<CryptoKey | JWK>;

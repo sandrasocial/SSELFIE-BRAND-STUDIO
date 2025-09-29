@@ -1,11 +1,6 @@
-/**
- * MEMORY SYSTEMS AUDIT
- * Comprehensive analysis of all memory/cache systems to identify conflicts and optimize integration
- */
 export class MemorySystemsAudit {
     static async auditAllMemorySystems() {
         const systems = [];
-        // 1. Context Preservation System
         systems.push({
             file: 'server/agents/context-preservation-system.ts',
             systemName: 'ContextPreservationSystem',
@@ -15,7 +10,6 @@ export class MemorySystemsAudit {
             purpose: 'Agent context and workspace preparation',
             status: 'active'
         });
-        // 2. Advanced Memory System
         systems.push({
             file: 'server/services/advanced-memory-system.ts',
             systemName: 'AdvancedMemorySystem',
@@ -25,7 +19,6 @@ export class MemorySystemsAudit {
             purpose: 'Cross-agent learning and intelligence optimization',
             status: 'active'
         });
-        // 3. Token Optimization Engine
         systems.push({
             file: 'server/services/token-optimization-engine.ts',
             systemName: 'TokenOptimizationEngine',
@@ -35,7 +28,6 @@ export class MemorySystemsAudit {
             purpose: 'API token cost reduction and context optimization',
             status: 'active'
         });
-        // 4. Zara Enhancement System
         systems.push({
             file: 'server/utils/zara-enhancement-system.ts',
             systemName: 'ZaraEnhancementSystem',
@@ -139,7 +131,7 @@ export async function runMemorySystemsAudit() {
     console.log('='.repeat(50));
     return { systems, conflicts, recommendations, plan };
 }
-// Export for external use
 if (import.meta.url === `file://${process.argv[1]}`) {
     runMemorySystemsAudit().catch(console.error);
 }
+//# sourceMappingURL=memory-systems-audit.js.map

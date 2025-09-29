@@ -1,43 +1,45 @@
-/**
- * Maya Routes - Real Implementation
- * Handles Maya AI chat, personality system, and image generation
- */
 import { Router } from 'express';
-import { requireStackAuth } from '../../stack-auth';
-import { asyncHandler, createError, sendSuccess, validateRequired } from '../middleware/error-handler';
-import { storage } from '../../storage';
-import { ModelTrainingService } from '../../model-training-service';
-import { PersonalityManager } from '../../agents/personalities/personality-config';
-import { MayaAdaptationEngine } from '../../services/maya-adaptation-engine';
-import { ClaudeApiServiceSimple } from '../../services/claude-api-service-simple';
+import { requireStackAuth } from '../../stack-auth.js';
+import { asyncHandler, createError, sendSuccess, validateRequired } from '../middleware/error-handler.js';
+import { storage } from '../../storage.js';
+import { ModelTrainingService } from '../../model-training-service.js';
+import { PersonalityManager } from '../../agents/personalities/personality-config.js';
+import { MayaAdaptationEngine } from '../../services/maya-adaptation-engine.js';
+import { ClaudeApiServiceSimple } from '../../services/claude-api-service-simple.js';
 const router = Router();
-// Initialize Claude AI service
 const claudeService = new ClaudeApiServiceSimple();
-// Get Maya chats
 router.get('/api/maya-chats', requireStackAuth, asyncHandler(async (req, res) => {
     const userId = req.user.id;
     const chats = await storage.getMayaChats(userId);
-    sendSuccess(res, { chats, count: chats.length });
+    const responseData = {
+        data: {
+            chats,
+            count: chats.length
+        }
+    };
+    sendSuccess(res, responseData);
 }));
-// Get Maya chat by ID
 router.get('/api/maya-chats/:chatId', requireStackAuth, asyncHandler(async (req, res) => {
     const userId = req.user.id;
     const { chatId } = req.params;
     const chat = await storage.getMayaChat(chatId, userId);
-    sendSuccess(res, { chat });
+    if (!chat) {
+        throw createError.notFound('Chat not found');
+    }
+    const responseData = {
+        data: { chat }
+    };
+    sendSuccess(res, responseData);
 }));
-// Send message to Maya with full personality system
 router.post('/api/maya-chat', requireStackAuth, asyncHandler(async (req, res) => {
     const userId = req.user.id;
-    const { message, chatHistory, context } = req.body;
+    const { message, chatHistory = [], context = {} } = req.body;
     validateRequired({ message }, ['message']);
     try {
-        // Get Maya's full personality with adaptation
         const basePersonality = PersonalityManager.getNaturalPrompt('maya');
         let mayaPersonality = basePersonality;
-        // Apply user-specific adaptation if available
         try {
-            const adaptation = await MayaAdaptationEngine.adaptStylingApproach(userId, context || {}, chatHistory || []);
+            const adaptation = await MayaAdaptationEngine.adaptStylingApproach(userId, context, chatHistory);
             if (adaptation.adaptedPersonality) {
                 mayaPersonality = adaptation.adaptedPersonality;
                 console.log('🎯 MAYA: Applied personalized adaptation');
@@ -46,14 +48,11 @@ router.post('/api/maya-chat', requireStackAuth, asyncHandler(async (req, res) =>
         catch (adaptError) {
             console.log('⚠️ MAYA: Adaptation failed, using base personality');
         }
-        // Convert chat history to Claude format
-        const claudeHistory = (chatHistory || []).map((entry) => ({
+        const claudeHistory = chatHistory.map(entry => ({
             role: entry.user ? 'user' : 'assistant',
             content: entry.user || entry.maya || entry.response || ''
-        })).filter((msg) => msg.content.trim());
-        // Generate response using Claude with full personality system
+        })).filter(msg => msg.content.trim());
         const mayaResponse = await claudeService.sendMessage(message, `maya-chat-${userId}`, 'maya', false, claudeHistory, mayaPersonality);
-        // Extract concept cards if Maya suggests photo concepts
         let conceptCards = [];
         try {
             const conceptRegex = /(?:concept|idea|suggestion)[\s\S]*?(?:title|name):\s*["']?([^"'\n]+)["']?[\s\S]*?(?:prompt|description):\s*["']?([^"'\n]+)["']?/gi;
@@ -68,28 +67,29 @@ router.post('/api/maya-chat', requireStackAuth, asyncHandler(async (req, res) =>
         catch (parseError) {
             console.log('No concept cards extracted from response');
         }
-        // Save chat to database
         const chatId = await storage.saveMayaChat(userId, {
             message,
             response: mayaResponse,
             conceptCards,
-            context: context || {}
+            context
         });
-        sendSuccess(res, {
-            response: mayaResponse,
-            conceptCards,
-            chatId,
-            agentName: 'Maya - AI Creative Director',
-            agentType: 'member',
-            timestamp: new Date().toISOString()
-        });
+        const responseData = {
+            data: {
+                response: mayaResponse,
+                conceptCards,
+                chatId,
+                agentName: 'Maya - AI Creative Director',
+                agentType: 'member',
+                timestamp: new Date().toISOString()
+            }
+        };
+        sendSuccess(res, responseData);
     }
     catch (error) {
         console.error('❌ MAYA: Chat failed:', error);
         throw createError.internal('Failed to process chat message');
     }
 }));
-// Alias for legacy frontend endpoint: /api/maya/chat → use same handler as /api/maya-chat
 router.post('/api/maya/chat', requireStackAuth, asyncHandler(async (req, res) => {
     const userId = req.user.id;
     const { message, chatHistory, context } = req.body;
@@ -146,37 +146,27 @@ router.post('/api/maya/chat', requireStackAuth, asyncHandler(async (req, res) =>
         throw createError.internal('Failed to process chat message');
     }
 }));
-// Generate images with Maya's full pipeline
 router.post('/api/maya-generate', requireStackAuth, asyncHandler(async (req, res) => {
     const userId = req.user.id;
     const { prompt, style, count, conceptName, seed } = req.body;
     validateRequired({ prompt }, ['prompt']);
     try {
-        // Get user's model and LoRA weights
         const userModel = await storage.getUserModelByUserId(userId);
         if (!userModel || userModel.trainingStatus !== 'completed') {
             throw createError.validation('User model not ready. Please complete training first.');
         }
-        // Get user's LoRA weights
         const loraWeights = await storage.getUserActiveLoraWeight(userId);
         if (!loraWeights) {
             throw createError.validation('User LoRA weights not available. Please retrain your model.');
         }
-        // Use Maya's optimization service for prompt enhancement only
-        // Maya does NOT change parameters - only enhances prompts
         let finalPrompt = prompt;
         if (conceptName) {
-            // For concept-based generation, use the concept name as the base
             finalPrompt = `${conceptName}: ${prompt}`;
         }
         else {
-            // For custom prompts, enhance with Maya's intelligence
             finalPrompt = `Professional photography, ${userModel.triggerWord || 'sandra'}, ${prompt}`;
         }
-        // Generate images using ModelTrainingService with standard parameters
-        // Maya does not modify generation parameters - only prompt enhancement
         const result = await ModelTrainingService.generateUserImages(userId, finalPrompt, count || 2, { seed, categoryContext: style });
-        // Save generation to database
         const generationId = await storage.saveAIImage({
             userId,
             prompt: finalPrompt,
@@ -184,27 +174,34 @@ router.post('/api/maya-generate', requireStackAuth, asyncHandler(async (req, res
             style: style || 'maya-styled',
             predictionId: result.predictionId
         });
-        sendSuccess(res, {
-            jobId: result.predictionId,
-            generationId,
-            images: result.images,
-            prompt: finalPrompt,
+        const responseData = {
+            data: {
+                jobId: result.predictionId,
+                generationId: generationId.toString(),
+                images: result.images,
+                prompt: finalPrompt
+            },
             message: 'Maya generation completed successfully'
-        });
+        };
+        sendSuccess(res, responseData);
     }
     catch (error) {
         console.error('❌ MAYA: Generation failed:', error);
         throw createError.internal('Image generation failed');
     }
 }));
-// Get Maya chat history
 router.get('/api/maya-chats/:chatId/messages', requireStackAuth, asyncHandler(async (req, res) => {
     const userId = req.user.id;
     const { chatId } = req.params;
     const messages = await storage.getMayaChatMessages(chatId, userId);
-    sendSuccess(res, { messages, count: messages.length });
+    const responseData = {
+        data: {
+            messages,
+            count: messages.length
+        }
+    };
+    sendSuccess(res, responseData);
 }));
-// Send message to specific chat
 router.post('/api/maya-chats/:chatId/messages', requireStackAuth, asyncHandler(async (req, res) => {
     const userId = req.user.id;
     const { chatId } = req.params;
@@ -214,17 +211,24 @@ router.post('/api/maya-chats/:chatId/messages', requireStackAuth, asyncHandler(a
         message,
         role: 'user'
     });
-    sendSuccess(res, { messageId, message: 'Message sent successfully' }, 'Message sent successfully', 201);
+    const responseData = {
+        data: { messageId: parseInt(messageId) },
+        message: 'Message sent successfully'
+    };
+    sendSuccess(res, responseData, 'Message sent successfully', 201);
 }));
-// Update message
 router.patch('/api/maya-chats/:chatId/messages/:messageId', requireStackAuth, asyncHandler(async (req, res) => {
     const userId = req.user.id;
     const { chatId, messageId } = req.params;
     const { content } = req.body;
+    validateRequired({ content }, ['content']);
     await storage.updateMayaMessage(messageId, userId, { content });
-    sendSuccess(res, { message: 'Message updated successfully' });
+    const responseData = {
+        data: { success: true },
+        message: 'Message updated successfully'
+    };
+    sendSuccess(res, responseData);
 }));
-// Create new Maya chat
 router.post('/api/maya-chats', requireStackAuth, asyncHandler(async (req, res) => {
     const userId = req.user.id;
     const { title, initialMessage } = req.body;
@@ -232,27 +236,36 @@ router.post('/api/maya-chats', requireStackAuth, asyncHandler(async (req, res) =
         title: title || 'New Maya Chat',
         initialMessage
     });
-    sendSuccess(res, { chatId, message: 'New Maya chat created' }, 'New Maya chat created', 201);
+    const responseData = {
+        data: { chatId },
+        message: 'New Maya chat created'
+    };
+    sendSuccess(res, responseData, 'New Maya chat created', 201);
 }));
-// Get user's generated images
 router.get('/api/maya-images', requireStackAuth, asyncHandler(async (req, res) => {
     const userId = req.user.id;
     const images = await storage.getUserAIImages(userId);
-    sendSuccess(res, { images, count: images.length });
+    const responseData = {
+        data: {
+            images,
+            count: images.length
+        }
+    };
+    sendSuccess(res, responseData);
 }));
-// Get Maya's personality info
 router.get('/api/maya/personality', requireStackAuth, asyncHandler(async (req, res) => {
     const personality = PersonalityManager.getNaturalPrompt('maya');
-    sendSuccess(res, { personality });
+    const responseData = {
+        data: { personality }
+    };
+    sendSuccess(res, responseData);
 }));
-// Maya Video Prompt Endpoint - Migrated from disabled file
 router.post('/api/maya/get-video-prompt', requireStackAuth, asyncHandler(async (req, res) => {
     const userId = req.user.id;
     const { imageUrl } = req.body;
     validateRequired({ imageUrl }, ['imageUrl']);
     try {
         console.log(`🎬 MAYA VIDEO DIRECTION: Creating motion prompt for user ${userId}`);
-        // Maya's video director system prompt
         const videoDirectorPrompt = `You are Maya, SSELFIE Studio's AI Creative Director and Video Director. 
 
 🎬 VIDEO DIRECTION MODE: You are analyzing the actual image provided to create the perfect motion prompt for VEO 3 video generation.
@@ -280,16 +293,18 @@ MOTION PROMPT GUIDELINES:
 - Be specific to what you observe in the image
 
 Analyze the image and respond with ONLY the motion prompt that perfectly captures and enhances what you see - no explanation, no additional text.`;
-        // Use Claude API service for image analysis
         const claudeService = new ClaudeApiServiceSimple();
         const videoConversationId = `video_direction_${userId}_${Date.now()}`;
         const mayaVideoPrompt = await claudeService.sendMessageWithImage(videoDirectorPrompt, imageUrl, videoConversationId, 'maya');
         console.log(`✅ MAYA VIDEO DIRECTION: Generated motion prompt for user ${userId}`);
-        sendSuccess(res, {
-            videoPrompt: mayaVideoPrompt,
-            director: 'Maya - AI Creative Director',
-            timestamp: new Date().toISOString()
-        });
+        const responseData = {
+            data: {
+                videoPrompt: mayaVideoPrompt,
+                director: 'Maya - AI Creative Director',
+                timestamp: new Date().toISOString()
+            }
+        };
+        sendSuccess(res, responseData);
     }
     catch (error) {
         console.error('❌ MAYA VIDEO DIRECTION ERROR:', error);
@@ -297,3 +312,4 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
     }
 }));
 export default router;
+//# sourceMappingURL=maya.js.map

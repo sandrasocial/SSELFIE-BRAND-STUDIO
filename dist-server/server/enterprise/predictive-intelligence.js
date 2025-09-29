@@ -1,9 +1,5 @@
-/**
- * PHASE 3: ENTERPRISE SCALING - PREDICTIVE INTELLIGENCE ENGINE
- * Advanced AI-powered predictive analytics and decision support system
- */
-import { db } from '../drizzle';
-import { users, aiImages } from '../../shared/schema';
+import { db } from '../drizzle.js';
+import { users, aiImages } from '../../shared/schema.js';
 import { eq, desc, sql, gte } from 'drizzle-orm';
 export class PredictiveIntelligenceEngine {
     static instance;
@@ -17,7 +13,6 @@ export class PredictiveIntelligenceEngine {
     }
     async generatePredictiveMetrics() {
         console.log('🔮 PREDICTIVE INTELLIGENCE: Generating comprehensive metrics...');
-        // Cache results for 1 hour to optimize performance
         if (this.cachedMetrics && this.lastAnalysis &&
             (Date.now() - this.lastAnalysis.getTime()) < 3600000) {
             console.log('📊 Using cached predictive metrics');
@@ -44,7 +39,6 @@ export class PredictiveIntelligenceEngine {
     }
     async analyzeUserEngagement() {
         const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-        // Get active users and their image generation patterns
         const activeUsers = await db
             .select({
             userId: users.id,
@@ -58,10 +52,8 @@ export class PredictiveIntelligenceEngine {
             .where(gte(users.createdAt, thirtyDaysAgo))
             .groupBy(users.id, users.email, users.createdAt)
             .orderBy(desc(sql `COUNT(${aiImages.id})`));
-        // Predictive algorithms based on usage patterns
         const totalUsers = activeUsers.length;
         const avgImagesPerUser = activeUsers.reduce((sum, user) => sum + Number(user.imageCount), 0) / totalUsers || 0;
-        // Identify churn risk (users with decreasing activity)
         const churnRiskUsers = activeUsers
             .filter(user => {
             const daysSinceLastActivity = user.lastActivity ?
@@ -70,16 +62,13 @@ export class PredictiveIntelligenceEngine {
         })
             .map(user => user.userId)
             .slice(0, 10);
-        // Identify high-value prospects (high engagement, recent signups)
         const highValueProspects = activeUsers
             .filter(user => Number(user.imageCount) > avgImagesPerUser * 1.5)
             .map(user => user.userId)
             .slice(0, 15);
-        // Calculate engagement score (0-100)
         const engagementScore = Math.min(100, Math.round((avgImagesPerUser * 10) +
             (totalUsers * 0.5) +
             ((totalUsers - churnRiskUsers.length) / totalUsers * 30)));
-        // Predictive growth calculation
         const growthRate = Math.max(0.05, Math.min(0.25, totalUsers * 0.001 + avgImagesPerUser * 0.01));
         const nextMonthActiveUsers = Math.round(totalUsers * (1 + growthRate));
         return {
@@ -91,17 +80,14 @@ export class PredictiveIntelligenceEngine {
         };
     }
     async predictBusinessGrowth() {
-        // Get current subscription data and revenue patterns
         const totalUsers = await db.select({ count: sql `COUNT(*)` }).from(users);
         const currentUserCount = Number(totalUsers[0]?.count) || 0;
-        // Business intelligence calculations
-        const currentMRR = currentUserCount * 47; // €67 per user
-        const conversionRate = 0.12; // 12% conversion rate assumption
-        const optimizedConversionRate = 0.18; // Target 18% conversion
-        // Predictive revenue modeling
-        const monthlyGrowthRate = 0.15; // 15% monthly growth target
-        const quarterlyGrowthRate = 0.55; // Compound quarterly growth
-        const yearlyGrowthRate = 3.2; // Annual scaling projection
+        const currentMRR = currentUserCount * 47;
+        const conversionRate = 0.12;
+        const optimizedConversionRate = 0.18;
+        const monthlyGrowthRate = 0.15;
+        const quarterlyGrowthRate = 0.55;
+        const yearlyGrowthRate = 3.2;
         const projectedRevenue = {
             nextMonth: Math.round(currentMRR * (1 + monthlyGrowthRate)),
             nextQuarter: Math.round(currentMRR * (1 + quarterlyGrowthRate)),
@@ -122,18 +108,17 @@ export class PredictiveIntelligenceEngine {
         };
     }
     async analyzeResourceUtilization() {
-        // Analyze system performance and agent efficiency
         const serverMetrics = await this.getServerMetrics();
         const agentMetrics = await this.getAgentPerformanceMetrics();
         return {
             serverCapacity: {
                 currentUtilization: serverMetrics.cpuUsage,
-                predictedPeak: serverMetrics.cpuUsage * 1.8, // Peak load estimation
+                predictedPeak: serverMetrics.cpuUsage * 1.8,
                 scalingRecommendations: this.generateScalingRecommendations(serverMetrics)
             },
             agentPerformance: {
-                mostEfficient: ['victoria', 'maya', 'rachel'], // Top performers
-                bottlenecks: ['training_queue', 'image_generation'], // Identified bottlenecks
+                mostEfficient: ['victoria', 'maya', 'rachel'],
+                bottlenecks: ['training_queue', 'image_generation'],
                 optimizationSuggestions: [
                     'Implement agent load balancing',
                     'Add predictive caching for frequent requests',
@@ -141,8 +126,8 @@ export class PredictiveIntelligenceEngine {
                 ]
             },
             costOptimization: {
-                currentCosts: 1200, // Monthly operational costs
-                optimizedCosts: 950, // Target optimized costs
+                currentCosts: 1200,
+                optimizedCosts: 950,
                 savingsOpportunities: [
                     'Database query optimization: €150/month',
                     'Image storage compression: €100/month',
@@ -224,9 +209,9 @@ export class PredictiveIntelligenceEngine {
                 }
             ],
             businessRisks: {
-                financialRisk: 0.15, // 15% risk level
-                operationalRisk: 0.12, // 12% risk level
-                reputationalRisk: 0.08, // 8% risk level
+                financialRisk: 0.15,
+                operationalRisk: 0.12,
+                reputationalRisk: 0.08,
                 recommendations: [
                     'Diversify revenue streams',
                     'Build operational redundancy',
@@ -234,9 +219,9 @@ export class PredictiveIntelligenceEngine {
                 ]
             },
             technicalRisks: {
-                systemFailure: 0.05, // 5% probability
-                dataLoss: 0.02, // 2% probability
-                performanceDegradation: 0.18, // 18% probability
+                systemFailure: 0.05,
+                dataLoss: 0.02,
+                performanceDegradation: 0.18,
                 preventiveMeasures: [
                     'Multi-region deployment',
                     'Real-time backup systems',
@@ -260,20 +245,18 @@ export class PredictiveIntelligenceEngine {
         return actions;
     }
     async getServerMetrics() {
-        // Simulate server metrics - in production, integrate with actual monitoring
         return {
-            cpuUsage: Math.random() * 60 + 20, // 20-80% usage
-            memoryUsage: Math.random() * 70 + 15, // 15-85% usage
-            diskUsage: Math.random() * 40 + 10, // 10-50% usage
-            networkLatency: Math.random() * 100 + 50 // 50-150ms
+            cpuUsage: Math.random() * 60 + 20,
+            memoryUsage: Math.random() * 70 + 15,
+            diskUsage: Math.random() * 40 + 10,
+            networkLatency: Math.random() * 100 + 50
         };
     }
     async getAgentPerformanceMetrics() {
-        // Agent performance analysis
         return {
-            responseTime: Math.random() * 2000 + 500, // 500-2500ms
-            successRate: 0.92 + Math.random() * 0.07, // 92-99%
-            userSatisfaction: 0.85 + Math.random() * 0.14 // 85-99%
+            responseTime: Math.random() * 2000 + 500,
+            successRate: 0.92 + Math.random() * 0.07,
+            userSatisfaction: 0.85 + Math.random() * 0.14
         };
     }
     generateScalingRecommendations(metrics) {
@@ -291,3 +274,4 @@ export class PredictiveIntelligenceEngine {
     }
 }
 export const predictiveIntelligence = PredictiveIntelligenceEngine.getInstance();
+//# sourceMappingURL=predictive-intelligence.js.map

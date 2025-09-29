@@ -1,5 +1,3 @@
-// SSELFIE Studio ManyChat Subscriber Import Service
-// Invisible Empire Data Integration for Messenger Subscribers
 export class ManyChatImportService {
     apiKey;
     baseUrl = 'https://api.manychat.com/fb';
@@ -9,8 +7,6 @@ export class ManyChatImportService {
         }
         this.apiKey = process.env.MANYCHAT_API_KEY;
     }
-    // ManyChat API doesn't support bulk subscriber fetching
-    // This method requires pre-exported subscriber IDs from ManyChat UI
     async fetchAllSubscribers() {
         throw new Error(`
       ManyChat API Limitation: No bulk subscriber endpoint available.
@@ -23,7 +19,6 @@ export class ManyChatImportService {
       ManyChat requires manual export first, then individual API calls per subscriber.
     `);
     }
-    // Fetch individual subscriber details by ID
     async fetchSubscriberDetails(subscriberId) {
         try {
             const response = await fetch(`${this.baseUrl}/subscriber/getInfo?subscriber_id=${subscriberId}`, {
@@ -48,7 +43,6 @@ export class ManyChatImportService {
             return null;
         }
     }
-    // Import subscribers from pre-exported PSID list
     async importFromPSIDList(psidList) {
         console.log(`🔍 Importing ${psidList.length} ManyChat subscribers from PSID list...`);
         const subscribers = [];
@@ -59,7 +53,6 @@ export class ManyChatImportService {
             if (subscriber) {
                 subscribers.push(subscriber);
             }
-            // Rate limiting: 2 requests per second
             if (i < psidList.length - 1) {
                 await new Promise(resolve => setTimeout(resolve, 500));
             }
@@ -67,19 +60,15 @@ export class ManyChatImportService {
         console.log(`✅ ManyChat import complete: ${subscribers.length} subscribers imported`);
         return subscribers;
     }
-    // Transform ManyChat data to our format
     transformSubscribers(manychatSubscribers) {
         return manychatSubscribers.map(subscriber => {
-            // Extract custom fields
             const customFields = {};
             if (subscriber.custom_fields) {
                 subscriber.custom_fields.forEach(field => {
                     customFields[field.name] = field.value;
                 });
             }
-            // Extract email from custom fields if available
             const email = customFields.email || customFields.Email || undefined;
-            // Extract tags
             const tags = subscriber.tags?.map(tag => tag.name) || [];
             return {
                 email,
@@ -100,8 +89,8 @@ export class ManyChatImportService {
             };
         });
     }
-    // Rate limiting helper
     delay(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 }
+//# sourceMappingURL=manychat-import.js.map

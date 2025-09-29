@@ -2,23 +2,22 @@ export const moodyTemplate = {
     id: "moody",
     name: "Executive Essence",
     description: "Deep, mysterious design with rich dark tones and sophisticated typography. Perfect for photographers, artists, creative professionals, and luxury service providers.",
-    // Design System
     colors: {
-        primary: "#d4c5b0", // Parchment  
-        secondary: "#8b7355", // Bronze
-        accent: "#2a2a2a", // Charcoal
+        primary: "#d4c5b0",
+        secondary: "#8b7355",
+        accent: "#2a2a2a",
         text: "#d4c5b0",
-        background: "#1c1c1c", // Midnight
-        border: "#3a3a3a" // Dark border
+        background: "#1c1c1c",
+        border: "#3a3a3a"
     },
     typography: {
         headline: "Georgia, serif",
         body: "Georgia, serif",
         accent: "Georgia, serif",
         weights: {
-            headline: "300", // Light
-            body: "300", // Light
-            accent: "300" // Light
+            headline: "300",
+            body: "300",
+            accent: "300"
         },
         sizes: {
             hero: "clamp(4rem, 10vw, 10rem)",
@@ -33,7 +32,6 @@ export const moodyTemplate = {
         },
         transform: "uppercase headlines"
     },
-    // Brand Voice & Messaging
     voiceProfile: {
         tone: ["mysterious", "sophisticated", "deep", "artistic"],
         personality: "The intriguing friend who sees beauty in shadows and speaks in profound truths. Deep, artistic, and unapologetically authentic.",
@@ -51,7 +49,6 @@ export const moodyTemplate = {
             tone: "introspective and profound"
         }
     },
-    // Visual Style Guide
     visualElements: {
         logoStyle: "artistic",
         imageStyle: "creative",
@@ -62,7 +59,6 @@ export const moodyTemplate = {
         shadows: "deep, atmospheric shadows",
         corners: "sharp edges only"
     },
-    // AI Prompt Instructions for SANDRA
     aiInstructions: {
         brandAdjectives: [
             "mysterious", "sophisticated", "deep", "artistic", "moody",
@@ -88,7 +84,6 @@ export const moodyTemplate = {
             "dramatic visual hierarchy"
         ]
     },
-    // Implementation Details
     implementation: {
         heroFormat: {
             background: "full-bleed image with 30% dark overlay",
@@ -103,3 +98,4 @@ export const moodyTemplate = {
         specialEffects: ["bronze accent glows", "deep shadows", "atmospheric overlays"]
     }
 };
+//# sourceMappingURL=template-moody.js.map

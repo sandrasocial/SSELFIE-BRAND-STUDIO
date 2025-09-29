@@ -1,37 +1,31 @@
 import { Router } from 'express';
-import { requireStackAuth } from '../stack-auth';
-import { generateVeo3Video, getVeo3Status, getQualityPreset } from '../services/video/veo3';
-import { storage } from '../storage';
-import { generatedImages, aiImages } from '../../shared/schema';
+import { requireStackAuth } from '../stack-auth.js';
+import { generateVeo3Video, getVeo3Status, getQualityPreset } from '../services/video/veo3.js';
+import { storage } from '../storage.js';
+import { generatedImages, aiImages } from '../../shared/schema.js';
 import { eq, and } from 'drizzle-orm';
-import { db } from '../drizzle';
+import { db } from '../drizzle.js';
 const router = Router();
-/**
- * POST /api/video/generate
- * Generate video using VEO 3 with enhanced options
- * Supports: mode (preview/production), audioScript, initImage
- */
 router.post('/generate', requireStackAuth, async (req, res) => {
     try {
-        const userId = req.user?.id;
+        const authReq = req;
+        const userId = authReq.user?.id;
         if (!userId) {
             return res.status(401).json({ error: 'User not authenticated' });
         }
-        // Check if VEO3 is enabled
         if (!process.env.VEO3_ENABLED || process.env.VEO3_ENABLED !== '1') {
             return res.status(503).json({
                 error: 'VEO 3 video generation is not enabled',
                 details: 'Contact support for access to video generation features'
             });
         }
-        if (!process.env.GOOGLE_API_KEY) {
+        if (!process.env['GOOGLE_API_KEY']) {
             return res.status(503).json({
                 error: 'Video generation service not configured',
                 details: 'Google API key not available'
             });
         }
         const { imageId, motionPrompt, mode = 'preview', audioScript, aspectRatio = '9:16' } = req.body;
-        // Validate required parameters
         if (!motionPrompt || typeof motionPrompt !== 'string') {
             return res.status(400).json({ error: 'motionPrompt is required and must be a string' });
         }
@@ -46,17 +40,14 @@ router.post('/generate', requireStackAuth, async (req, res) => {
         }
         let initImageUrl;
         let imageRecord = null;
-        // If imageId provided, resolve to URL for init image
         if (imageId) {
             const parsedImageId = parseInt(imageId);
             if (Number.isNaN(parsedImageId)) {
                 return res.status(400).json({ error: 'imageId must be a valid number' });
             }
-            // Try generated images first
             imageRecord = await db.select().from(generatedImages)
                 .where(and(eq(generatedImages.id, parsedImageId), eq(generatedImages.userId, userId))).limit(1);
             if (imageRecord.length === 0) {
-                // Try legacy images  
                 imageRecord = await db.select().from(aiImages)
                     .where(and(eq(aiImages.id, parsedImageId), eq(aiImages.userId, userId))).limit(1);
             }
@@ -65,7 +56,6 @@ router.post('/generate', requireStackAuth, async (req, res) => {
             }
             const record = imageRecord[0];
             initImageUrl = record.selectedUrl || record.imageUrl;
-            // Handle JSON array of URLs if needed
             if (!initImageUrl && record.imageUrls) {
                 try {
                     const urls = Array.isArray(record.imageUrls) ? record.imageUrls : JSON.parse(record.imageUrls);
@@ -88,7 +78,6 @@ router.post('/generate', requireStackAuth, async (req, res) => {
             motionPromptLength: motionPrompt.length,
             aspectRatio
         });
-        // Start VEO 3 generation
         const result = await generateVeo3Video({
             motionPrompt,
             mode,
@@ -97,7 +86,6 @@ router.post('/generate', requireStackAuth, async (req, res) => {
             userId,
             aspectRatio
         });
-        // Save job to database using storage service
         const videoRecord = await storage.saveGeneratedVideo({
             userId,
             imageId: imageId ? parseInt(imageId) : null,
@@ -137,28 +125,22 @@ router.post('/generate', requireStackAuth, async (req, res) => {
         });
     }
 });
-/**
- * GET /api/video/status/:jobId
- * Check the status of a video generation job
- */
 router.get('/status/:jobId', requireStackAuth, async (req, res) => {
     try {
         const { jobId } = req.params;
-        const userId = req.user?.id;
+        const authReq = req;
+        const userId = authReq.user?.id;
         if (!userId) {
             return res.status(401).json({ error: 'User not authenticated' });
         }
         if (!jobId) {
             return res.status(400).json({ error: 'Job ID is required' });
         }
-        // Verify the job belongs to the user using storage service
         const videoRecord = await storage.getGeneratedVideoByJobId(jobId);
         if (!videoRecord || videoRecord.userId !== userId) {
             return res.status(404).json({ error: 'Video job not found or access denied' });
         }
-        // Get status from VEO 3 API
         const status = await getVeo3Status(jobId, userId);
-        // Update database record if needed
         const needsUpdate = videoRecord.status !== status.status ||
             videoRecord.progress !== status.progress ||
             (status.videoUrl && !videoRecord.videoUrl);
@@ -198,13 +180,10 @@ router.get('/status/:jobId', requireStackAuth, async (req, res) => {
         });
     }
 });
-/**
- * GET /api/video/history
- * Get user's video generation history
- */
 router.get('/history', requireStackAuth, async (req, res) => {
     try {
-        const userId = req.user?.id;
+        const authReq = req;
+        const userId = authReq.user?.id;
         if (!userId) {
             return res.status(401).json({ error: 'User not authenticated' });
         }
@@ -250,13 +229,10 @@ router.get('/history', requireStackAuth, async (req, res) => {
         });
     }
 });
-/**
- * POST /api/video/save
- * Save a generated video to user's favorites
- */
 router.post('/save', requireStackAuth, async (req, res) => {
     try {
-        const userId = req.user?.id;
+        const authReq = req;
+        const userId = authReq.user?.id;
         if (!userId) {
             return res.status(401).json({ error: 'User not authenticated' });
         }
@@ -264,7 +240,6 @@ router.post('/save', requireStackAuth, async (req, res) => {
         if (!videoId) {
             return res.status(400).json({ error: 'Video ID is required' });
         }
-        // Verify video exists and belongs to user using storage service
         const allUserVideos = await storage.getGeneratedVideos(userId);
         const video = allUserVideos.find(v => v.id === videoId);
         if (!video) {
@@ -273,7 +248,6 @@ router.post('/save', requireStackAuth, async (req, res) => {
         if (video.status !== 'completed' || !video.videoUrl) {
             return res.status(400).json({ error: 'Video is not ready to be saved' });
         }
-        // Mark as saved using storage service
         await storage.updateGeneratedVideo(videoId, { saved: true });
         console.log('💾 VEO 3: Video saved', { videoId, userId });
         res.json({
@@ -294,10 +268,6 @@ router.post('/save', requireStackAuth, async (req, res) => {
         });
     }
 });
-/**
- * GET /api/video/presets
- * Get available quality presets and their descriptions
- */
 router.get('/presets', requireStackAuth, async (req, res) => {
     try {
         const presets = {
@@ -312,3 +282,4 @@ router.get('/presets', requireStackAuth, async (req, res) => {
     }
 });
 export default router;
+//# sourceMappingURL=video.js.map

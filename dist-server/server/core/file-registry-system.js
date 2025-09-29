@@ -47,3 +47,4 @@ export class FileRegistrySystem {
         return new Map(this.registryMap);
     }
 }
+//# sourceMappingURL=file-registry-system.js.map

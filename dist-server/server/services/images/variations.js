@@ -1,18 +1,10 @@
-/**
- * Image Variations Service
- * Generates close variations from existing gallery images
- */
-import { storage } from '../../storage';
-import { ModelTrainingService } from '../../model-training-service';
+import { storage } from '../../storage.js';
+import { ModelTrainingService } from '../../model-training-service.js';
 export class ImageVariationsService {
-    /**
-     * Generate variations of an existing image
-     */
     static async generateVariations(request) {
         try {
             console.log('🎨 VARIATIONS: Starting variations for user', request.userId, 'image', request.originalImageId);
             const count = request.count || 3;
-            // Get the original image
             let originalImage = null;
             let derivedPrompt = '';
             if (request.originalImageType === 'ai_image') {
@@ -26,48 +18,44 @@ export class ImageVariationsService {
             if (!originalImage) {
                 throw new Error('Original image not found or not owned by user');
             }
-            // Extract or derive prompt
             derivedPrompt = await this.derivePromptFromImage(originalImage, request.originalImageType);
             if (!derivedPrompt) {
                 throw new Error('Could not derive prompt for variations');
             }
             console.log('🎨 VARIATIONS: Using derived prompt:', derivedPrompt);
-            // Create initial variant records
             const variantIds = [];
             for (let i = 0; i < count; i++) {
-                const variantId = await storage.createImageVariant({
+                const variant = await storage.saveImageVariant({
                     userId: request.userId,
                     originalImageId: request.originalImageId,
-                    originalImageType: request.originalImageType,
-                    imageUrl: '', // Will be filled when generation completes
-                    kind: 'variation',
-                    prompt: derivedPrompt,
-                    generationStatus: 'pending',
-                    metadata: {
+                    variantUrl: '',
+                    variantType: 'variation',
+                    brandAssetId: 0,
+                    placementData: {
+                        prompt: derivedPrompt,
+                        processingStatus: 'pending',
                         originalImageUrl: originalImage.imageUrl || originalImage.selectedUrl,
                         variationIndex: i + 1,
                         totalVariations: count,
                         createdAt: new Date().toISOString()
                     }
                 });
-                variantIds.push(variantId);
+                variantIds.push(variant.id);
             }
-            // Add some variation to the prompt for diversity
             const variationPrompts = this.generateVariationPrompts(derivedPrompt, count);
-            // Use Maya's generation service to create variations
-            const result = await ModelTrainingService.generateUserImages(request.userId, variationPrompts[0], // Use first variation prompt for the prediction
-            count, {
-                seed: Math.floor(Math.random() * 1000000), // Random seed for variation
+            const result = await ModelTrainingService.generateUserImages(request.userId, variationPrompts[0], count, {
+                seed: Math.floor(Math.random() * 1000000),
                 categoryContext: 'variations'
             });
             if (!result.predictionId) {
                 throw new Error('Failed to start variation generation');
             }
-            // Update variant records with prediction ID
             for (const variantId of variantIds) {
                 await storage.updateImageVariant(variantId, {
-                    predictionId: result.predictionId,
-                    generationStatus: 'processing'
+                    processingStatus: 'processing',
+                    placementData: {
+                        predictionId: result.predictionId
+                    }
                 });
             }
             console.log('✅ VARIATIONS: Started successfully with prediction ID:', result.predictionId);
@@ -85,21 +73,14 @@ export class ImageVariationsService {
             };
         }
     }
-    /**
-     * Derive prompt from original image metadata
-     */
     static async derivePromptFromImage(originalImage, imageType) {
         try {
-            // First, try to use existing metadata
             if (originalImage.prompt) {
                 return originalImage.prompt;
             }
             if (originalImage.generatedPrompt) {
                 return originalImage.generatedPrompt;
             }
-            // Fallback: Use Maya's captioning/analysis
-            // This is a placeholder - in a real implementation, you might use
-            // GPT-4 Vision, BLIP, or another image captioning service
             return await this.generatePromptFromImageAnalysis(originalImage);
         }
         catch (error) {
@@ -107,12 +88,8 @@ export class ImageVariationsService {
             throw new Error('Failed to derive prompt from image');
         }
     }
-    /**
-     * Generate multiple variation prompts from a base prompt
-     */
     static generateVariationPrompts(basePrompt, count) {
         const variations = [];
-        // Add variation modifiers to create diverse results
         const styleModifiers = [
             'professional photo',
             'elegant portrait',
@@ -138,7 +115,6 @@ export class ImageVariationsService {
             const lightingModifier = lightingModifiers[i % lightingModifiers.length];
             const qualityModifier = qualityModifiers[i % qualityModifiers.length];
             let variationPrompt = basePrompt;
-            // Add modifiers to create variations
             if (!variationPrompt.includes('professional') && !variationPrompt.includes('photo')) {
                 variationPrompt = `${styleModifier}, ${variationPrompt}`;
             }
@@ -152,13 +128,7 @@ export class ImageVariationsService {
         }
         return variations;
     }
-    /**
-     * Generate prompt from image analysis (fallback method)
-     */
     static async generatePromptFromImageAnalysis(originalImage) {
-        // This is a fallback method when no metadata is available
-        // In a production system, this would use image captioning AI
-        // For now, create a generic prompt based on image metadata
         const style = originalImage.style || 'professional';
         const category = originalImage.category || 'portrait';
         const genericPrompts = {
@@ -169,28 +139,26 @@ export class ImageVariationsService {
         };
         return genericPrompts[style] || genericPrompts['professional'];
     }
-    /**
-     * Check variation generation status
-     */
     static async checkVariationStatus(predictionId, variantIds) {
         try {
             const result = await ModelTrainingService.checkGenerationStatus(predictionId);
             if (result.status === 'succeeded' && result.imageUrls && result.imageUrls.length > 0) {
-                // Update variant records with completed images
                 for (let i = 0; i < variantIds.length && i < result.imageUrls.length; i++) {
                     await storage.updateImageVariant(variantIds[i], {
-                        imageUrl: result.imageUrls[i],
-                        generationStatus: 'completed'
+                        variantUrl: result.imageUrls[i],
+                        processingStatus: 'completed'
                     });
                 }
                 return { status: 'completed', imageUrls: result.imageUrls };
             }
             else if (result.status === 'failed') {
-                // Update all variants to failed status
                 for (const variantId of variantIds) {
                     await storage.updateImageVariant(variantId, {
-                        generationStatus: 'failed',
-                        metadata: { error: 'Generation failed' }
+                        processingStatus: 'failed',
+                        placementData: {
+                            status: 'failed',
+                            error: 'Generation failed'
+                        }
                     });
                 }
                 return { status: 'failed', error: 'Variation generation failed' };
@@ -204,26 +172,21 @@ export class ImageVariationsService {
             return { status: 'failed', error: error.message };
         }
     }
-    /**
-     * Get all variations for a specific image
-     */
     static async getImageVariations(originalImageId, originalImageType, userId) {
         try {
-            const variants = await storage.getImageVariants(originalImageId, originalImageType, 'variation');
-            // Filter by user to ensure security
-            return variants.filter(variant => variant.userId === userId);
+            const allVariants = await storage.getImageVariants(userId);
+            return allVariants.filter(variant => variant.originalImageId === originalImageId &&
+                variant.variantType === 'variation');
         }
         catch (error) {
             console.error('❌ VARIATIONS: Error getting image variations:', error);
             return [];
         }
     }
-    /**
-     * Get all variations for a user
-     */
     static async getUserVariations(userId) {
         try {
-            return await storage.getImageVariantsByKind(userId, 'variation');
+            const variants = await storage.getImageVariants(userId);
+            return variants.filter(v => v.variantType === 'variation');
         }
         catch (error) {
             console.error('❌ VARIATIONS: Error getting user variations:', error);
@@ -231,3 +194,4 @@ export class ImageVariationsService {
         }
     }
 }
+//# sourceMappingURL=variations.js.map

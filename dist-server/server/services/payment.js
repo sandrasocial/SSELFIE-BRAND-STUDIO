@@ -1,6 +1,6 @@
 import Stripe from 'stripe';
-import { logger } from '../config/monitoring';
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+import { logger } from '../config/monitoring.js';
+const stripe = new Stripe(process.env['STRIPE_SECRET_KEY'], {
     apiVersion: '2025-08-27.basil'
 });
 export class PaymentService {
@@ -15,7 +15,7 @@ export class PaymentService {
             return subscription;
         }
         catch (error) {
-            logger.error('Subscription creation failed', { error: error.message });
+            logger.error(`Subscription creation failed: ${error.message}`);
             throw error;
         }
     }
@@ -29,22 +29,19 @@ export class PaymentService {
                 case 'customer.subscription.deleted':
                     await this.handleSubscriptionCanceled(event.data.object);
                     break;
-                // Add other webhook handlers as needed
             }
             return { status: 'success' };
         }
         catch (error) {
-            logger.error('Webhook handling failed', { error: error.message });
+            logger.error(`Webhook handling failed: ${error.message}`);
             throw error;
         }
     }
     async handleInvoicePaid(invoice) {
-        // Implement invoice paid logic
-        logger.info('Invoice paid', { invoiceId: invoice.id });
+        logger.info(`Invoice paid: ${invoice.id}`);
     }
     async handleSubscriptionCanceled(subscription) {
-        // Implement subscription cancellation logic
-        logger.info('Subscription canceled', { subscriptionId: subscription.id });
+        logger.info(`Subscription canceled: ${subscription.id}`);
     }
     async generateInvoice(customerId, amount) {
         try {
@@ -62,8 +59,9 @@ export class PaymentService {
             return invoice;
         }
         catch (error) {
-            logger.error('Invoice generation failed', { error: error.message });
+            logger.error(`Invoice generation failed: ${error.message}`);
             throw error;
         }
     }
 }
+//# sourceMappingURL=payment.js.map

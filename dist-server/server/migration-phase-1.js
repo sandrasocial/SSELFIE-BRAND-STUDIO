@@ -1,10 +1,5 @@
-/**
- * PHASE 1: Database Migration - aiImages to generatedImages
- * Migrates legacy aiImages table data to enhanced generatedImages table
- * Non-destructive migration - preserves original data
- */
-import { db } from './drizzle';
-import { aiImages, generatedImages } from '@shared/schema';
+import { db } from './drizzle.js';
+import { aiImages, generatedImages } from '../shared/schema.js';
 import { eq } from 'drizzle-orm';
 export async function migrateAiImagesToGeneratedImages() {
     const result = {
@@ -15,29 +10,25 @@ export async function migrateAiImagesToGeneratedImages() {
     };
     try {
         console.log('🔄 Starting Phase 1 Database Migration: aiImages → generatedImages');
-        // Get all aiImages that haven't been migrated yet
         const allAiImages = await db.select().from(aiImages);
         console.log(`📊 Found ${allAiImages.length} records in aiImages table`);
         for (const aiImage of allAiImages) {
             try {
-                // Check if this image already exists in generatedImages
                 const existing = await db
                     .select()
                     .from(generatedImages)
                     .where(eq(generatedImages.userId, aiImage.userId))
                     .limit(1);
-                // Map aiImages fields to generatedImages structure
                 const migrationData = {
                     userId: aiImage.userId,
-                    category: aiImage.style || 'Editorial', // Map style to category
-                    subcategory: 'Professional', // Default subcategory for legacy data
+                    category: aiImage.style || 'Editorial',
+                    subcategory: 'Professional',
                     prompt: aiImage.prompt || 'Legacy migrated image',
-                    imageUrls: JSON.stringify([aiImage.imageUrl]), // Wrap single URL in array
+                    imageUrls: JSON.stringify([aiImage.imageUrl]),
                     selectedUrl: aiImage.isSelected ? aiImage.imageUrl : null,
                     saved: aiImage.isFavorite || aiImage.isSelected || false,
                     createdAt: aiImage.createdAt
                 };
-                // Insert into generatedImages
                 await db.insert(generatedImages).values(migrationData);
                 result.migratedCount++;
                 console.log(`✅ Migrated aiImage ${aiImage.id} for user ${aiImage.userId}`);
@@ -81,3 +72,4 @@ export async function verifyMigration() {
         };
     }
 }
+//# sourceMappingURL=migration-phase-1.js.map

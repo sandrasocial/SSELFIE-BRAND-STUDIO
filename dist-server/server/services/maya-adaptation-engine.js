@@ -1,25 +1,14 @@
-/**
- * PHASE 3: DYNAMIC PERSONALIZATION ENGINE
- * Maya Adaptation Engine - Learns user preferences and adapts styling approaches
- */
-import { ClaudeApiServiceSimple } from './claude-api-service-simple';
-import { PersonalityManager } from '../agents/personalities/personality-config';
-import { db } from '../drizzle';
+import { ClaudeApiServiceSimple } from './claude-api-service-simple.js';
+import { PersonalityManager } from '../agents/personalities/personality-config.js';
+import { db } from '../drizzle.js';
 export class MayaAdaptationEngine {
     static claudeService = new ClaudeApiServiceSimple();
-    /**
-     * Real-time personalization based on user interaction patterns
-     */
     static async adaptStylingApproach(userId, currentContext, conversationHistory = []) {
         try {
             console.log(`🎯 ADAPTATION ENGINE: Learning user ${userId} preferences...`);
-            // Get user's style evolution data
             const userProfile = await MayaAdaptationEngine.getUserStyleProfile(userId);
-            // Analyze conversation patterns for styling preferences  
             const contextAnalysis = { patterns: [], preferences: [] };
-            // Get Maya's base personality for adaptation
             const baseMayaPersonality = PersonalityManager.getNaturalPrompt('maya');
-            // Generate adapted styling approach
             const adaptationPrompt = `
 🎯 MAYA ADAPTATION ENGINE - PERSONALIZED STYLING INTELLIGENCE
 
@@ -53,14 +42,12 @@ Respond with JSON:
 `;
             const adaptationResponse = await this.claudeService.sendMessage(adaptationPrompt, 'adaptation-' + userId, 'maya');
             const adaptationResult = JSON.parse(adaptationResponse);
-            // Store adaptation learning
             await this.recordAdaptation(userId, adaptationResult, currentContext);
             console.log(`✅ ADAPTATION ENGINE: Generated personalized styling approach (confidence: ${adaptationResult.confidenceScore})`);
             return adaptationResult;
         }
         catch (error) {
             console.error('❌ ADAPTATION ENGINE ERROR:', error);
-            // Fallback to base Maya personality
             return {
                 adaptedPersonality: PersonalityManager.getNaturalPrompt('maya'),
                 confidenceScore: 0.5,
@@ -71,12 +58,8 @@ Respond with JSON:
             };
         }
     }
-    /**
-     * Get comprehensive user style profile from evolution tracking
-     */
     static async getUserStyleProfile(userId) {
         try {
-            // Get user's style evolution data
             const evolutionQuery = `
         SELECT * FROM user_style_evolution 
         WHERE user_id = $1 
@@ -84,7 +67,6 @@ Respond with JSON:
         LIMIT 1
       `;
             const evolutionData = await db.execute(evolutionQuery.replace('$1', `'${userId}'`));
-            // Get recent gallery favorites for style preferences
             const favoritesQuery = `
         SELECT prompt, category, created_at 
         FROM ai_images 
@@ -94,7 +76,6 @@ Respond with JSON:
       `;
             const favorites = await db.execute(favoritesQuery.replace('$1', `'${userId}'`));
             if (Array.isArray(evolutionData) && evolutionData.length === 0) {
-                // New user - create initial profile
                 const initialProfile = {
                     userId,
                     stylePreferences: {},
@@ -127,11 +108,8 @@ Respond with JSON:
             };
         }
     }
-    /**
-     * Analyze current conversation for contextual styling cues
-     */
     static async analyzeContextualCues(currentContext, conversationHistory) {
-        const recentMessages = conversationHistory.slice(-5); // Last 5 messages
+        const recentMessages = conversationHistory.slice(-5);
         return {
             conversationMood: this.detectMood(recentMessages),
             stylingKeywords: this.extractStylingKeywords(recentMessages),
@@ -140,9 +118,6 @@ Respond with JSON:
             timeContext: this.getTimeContext()
         };
     }
-    /**
-     * Initialize style evolution tracking for new user
-     */
     static async initializeUserEvolution(userId) {
         try {
             const insertQuery = `
@@ -159,9 +134,6 @@ Respond with JSON:
             console.error('❌ STYLE EVOLUTION INIT ERROR:', error);
         }
     }
-    /**
-     * Record successful adaptation for learning
-     */
     static async recordAdaptation(userId, result, context) {
         try {
             const updateQuery = `
@@ -188,7 +160,6 @@ Respond with JSON:
             console.error('❌ ADAPTATION RECORDING ERROR:', error);
         }
     }
-    // Helper methods for analysis
     static extractPreferredCategories(favorites) {
         const categoryCount = {};
         favorites.forEach(fav => {
@@ -198,7 +169,7 @@ Respond with JSON:
         });
         return Object.keys(categoryCount)
             .sort((a, b) => categoryCount[b] - categoryCount[a])
-            .slice(0, 3); // Top 3 categories
+            .slice(0, 3);
     }
     static detectMood(messages) {
         const text = messages.map(m => m.content || '').join(' ').toLowerCase();
@@ -240,3 +211,4 @@ Respond with JSON:
         return 'night';
     }
 }
+//# sourceMappingURL=maya-adaptation-engine.js.map

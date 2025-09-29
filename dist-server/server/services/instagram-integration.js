@@ -1,4 +1,4 @@
-import { SlackNotificationService } from './slack-notification-service';
+import { SlackNotificationService } from './slack-notification-service.js';
 export class InstagramIntegration {
     baseUrl = 'https://graph.facebook.com/v18.0';
     manyChatBaseUrl = 'https://api.manychat.com/fb';
@@ -10,16 +10,12 @@ export class InstagramIntegration {
             console.warn('⚠️ ManyChat credentials not configured. ManyChat processing will be limited.');
         }
     }
-    // 📱 Fetch Instagram DMs via Instagram Basic Display API
     async fetchInstagramMessages(limit = 50) {
         if (!process.env.INSTAGRAM_ACCESS_TOKEN) {
             throw new Error('Instagram access token not configured');
         }
         try {
-            // Note: Instagram Basic Display API has limited DM access
-            // For production, you'd need Instagram Business API with proper permissions
             console.log('📱 Fetching Instagram messages...');
-            // This is a simplified implementation - actual Instagram Business API would be more complex
             const response = await fetch(`${this.baseUrl}/me/conversations?access_token=${process.env.INSTAGRAM_ACCESS_TOKEN}&limit=${limit}`, {
                 method: 'GET',
                 headers: {
@@ -38,7 +34,6 @@ export class InstagramIntegration {
             return [];
         }
     }
-    // 🤖 Fetch ManyChat conversations
     async fetchManyChatMessages(limit = 100) {
         if (!process.env.MANYCHAT_API_TOKEN) {
             throw new Error('ManyChat API token not configured');
@@ -61,10 +56,9 @@ export class InstagramIntegration {
             }
             const data = await response.json();
             console.log(`🤖 ManyChat: Found ${data.data?.length || 0} subscribers`);
-            // Fetch recent messages for each subscriber
             const messages = [];
             if (data.data) {
-                for (const subscriber of data.data.slice(0, 10)) { // Limit to avoid rate limits
+                for (const subscriber of data.data.slice(0, 10)) {
                     try {
                         const messagesResponse = await this.fetchSubscriberMessages(subscriber.id);
                         messages.push(...messagesResponse);
@@ -81,7 +75,6 @@ export class InstagramIntegration {
             return [];
         }
     }
-    // 📨 Fetch messages for specific ManyChat subscriber
     async fetchSubscriberMessages(subscriberId) {
         try {
             const response = await fetch(`${this.manyChatBaseUrl}/subscriber/getMessages`, {
@@ -92,7 +85,7 @@ export class InstagramIntegration {
                 },
                 body: JSON.stringify({
                     subscriber_id: subscriberId,
-                    count: 10 // Last 10 messages per subscriber
+                    count: 10
                 })
             });
             if (!response.ok) {
@@ -106,27 +99,22 @@ export class InstagramIntegration {
             return [];
         }
     }
-    // 🧠 Process and categorize Instagram messages with AI
     async processInstagramMessages(userId) {
         try {
             console.log('🧠 Starting Instagram message processing for user:', userId);
-            // Fetch messages from both platforms
             const [instagramMessages, manyChatMessages] = await Promise.all([
                 this.fetchInstagramMessages(50),
                 this.fetchManyChatMessages(100)
             ]);
             const allMessages = [];
-            // Process Instagram messages
             for (const msg of instagramMessages) {
                 const processed = await this.categorizeInstagramMessage(msg, 'instagram');
                 allMessages.push(processed);
             }
-            // Process ManyChat messages
             for (const msg of manyChatMessages) {
                 const processed = await this.categorizeManyChatMessage(msg);
                 allMessages.push(processed);
             }
-            // Generate insights
             await this.generateInstagramInsights(allMessages, userId);
             console.log(`🧠 Processed ${allMessages.length} Instagram/ManyChat messages`);
             return allMessages;
@@ -136,7 +124,6 @@ export class InstagramIntegration {
             return [];
         }
     }
-    // 🏷️ Categorize Instagram message
     async categorizeInstagramMessage(message, platform) {
         const messageText = message.message || '';
         const fromUsername = message.from?.username || 'unknown';
@@ -158,9 +145,9 @@ export class InstagramIntegration {
             suggestedResponse: this.generateSuggestedResponse(messageText, 'instagram')
         };
     }
-    // 🏷️ Categorize ManyChat message
     async categorizeManyChatMessage(message) {
         const messageText = message.content || '';
+        const suggestedResponse = message.direction === 'incoming' ? this.generateSuggestedResponse(messageText, 'manychat') : undefined;
         return {
             id: message.id,
             platform: 'manychat',
@@ -176,44 +163,35 @@ export class InstagramIntegration {
             isBusinessOpportunity: this.isBusinessOpportunity(messageText),
             tags: this.generateTags(messageText, 'manychat'),
             aiSummary: messageText.length > 100 ? `${messageText.substring(0, 100)}...` : messageText,
-            suggestedResponse: message.direction === 'incoming' ? this.generateSuggestedResponse(messageText, 'manychat') : undefined
+            ...(suggestedResponse && { suggestedResponse })
         };
     }
-    // 🎯 Categorization logic for Instagram content
     categorizeInstagramContent(message, username) {
         const lowerMessage = message.toLowerCase();
-        // Customer inquiry keywords
         if (this.containsKeywords(lowerMessage, ['price', 'cost', 'buy', 'purchase', 'order', 'available', 'question', 'help', 'support'])) {
             return 'customer_inquiry';
         }
-        // Collaboration keywords
         if (this.containsKeywords(lowerMessage, ['collab', 'collaboration', 'partnership', 'sponsor', 'brand', 'pr', 'influencer'])) {
             return 'collaboration';
         }
-        // Urgent keywords
         if (this.containsKeywords(lowerMessage, ['urgent', 'asap', 'important', 'emergency', 'deadline'])) {
             return 'urgent';
         }
-        // Spam detection
         if (this.containsKeywords(lowerMessage, ['follow back', 'follow for follow', 'like for like', 'free money', 'click here'])) {
             return 'spam';
         }
         return 'general';
     }
-    // 🔥 Priority determination
     determinePriority(message, username) {
         const lowerMessage = message.toLowerCase();
-        // High priority conditions
         if (this.containsKeywords(lowerMessage, ['urgent', 'asap', 'important', 'buy', 'purchase', 'collaboration', 'sponsor'])) {
             return 'high';
         }
-        // Medium priority for questions and inquiries
         if (this.containsKeywords(lowerMessage, ['?', 'question', 'help', 'how', 'when', 'what', 'price', 'available'])) {
             return 'medium';
         }
         return 'low';
     }
-    // 💭 Sentiment analysis
     analyzeSentiment(message) {
         const lowerMessage = message.toLowerCase();
         const positiveWords = ['love', 'amazing', 'great', 'awesome', 'beautiful', 'perfect', 'thanks', 'thank you'];
@@ -226,17 +204,14 @@ export class InstagramIntegration {
             return 'positive';
         return 'neutral';
     }
-    // ❓ Determine if message needs response
     needsResponse(message) {
         const lowerMessage = message.toLowerCase();
         return this.containsKeywords(lowerMessage, ['?', 'question', 'help', 'how', 'when', 'what', 'where', 'why', 'price', 'available', 'can you']);
     }
-    // 💼 Detect business opportunities
     isBusinessOpportunity(message) {
         const lowerMessage = message.toLowerCase();
         return this.containsKeywords(lowerMessage, ['buy', 'purchase', 'order', 'collab', 'collaboration', 'sponsor', 'partnership', 'brand', 'price', 'cost']);
     }
-    // 🏷️ Generate message tags
     generateTags(message, platform) {
         const tags = [platform];
         const lowerMessage = message.toLowerCase();
@@ -252,7 +227,6 @@ export class InstagramIntegration {
             tags.push('question');
         return tags;
     }
-    // 💬 Generate suggested response
     generateSuggestedResponse(message, platform) {
         const lowerMessage = message.toLowerCase();
         if (this.containsKeywords(lowerMessage, ['price', 'cost'])) {
@@ -266,11 +240,9 @@ export class InstagramIntegration {
         }
         return "Thanks for your message! I'll get back to you soon 💕";
     }
-    // 🔍 Helper method to check for keywords
     containsKeywords(text, keywords) {
         return keywords.some(keyword => text.includes(keyword));
     }
-    // 📊 Detect message type
     detectMessageType(message) {
         if (message.attachments?.some(att => att.type === 'image'))
             return 'image';
@@ -278,7 +250,6 @@ export class InstagramIntegration {
             return 'video';
         return 'text';
     }
-    // 💡 Generate insights for Slack
     async generateInstagramInsights(messages, userId) {
         const customerInquiries = messages.filter(m => m.category === 'customer_inquiry');
         const businessOpportunities = messages.filter(m => m.isBusinessOpportunity);
@@ -311,11 +282,8 @@ export class InstagramIntegration {
         insightMessage += `• Use suggested responses for efficiency\n`;
         await SlackNotificationService.sendAgentInsight('ava', 'strategic', 'Instagram DM Analysis Complete', insightMessage, urgentMessages.length > 0 ? 'high' : 'medium');
     }
-    // 📱 Get processed messages for user (for dashboard)
     async getProcessedMessages(userId) {
         try {
-            // In a real implementation, this would fetch from database
-            // For now, return empty array to prevent errors
             console.log(`📱 Getting processed Instagram messages for user ${userId}`);
             return [];
         }
@@ -324,11 +292,8 @@ export class InstagramIntegration {
             return [];
         }
     }
-    // 💬 Get ManyChat messages for user (for dashboard)
     async getManyChatMessages(userId) {
         try {
-            // In a real implementation, this would fetch from database
-            // For now, return empty array to prevent errors
             console.log(`💬 Getting ManyChat messages for user ${userId}`);
             return [];
         }
@@ -339,3 +304,4 @@ export class InstagramIntegration {
     }
 }
 export const instagramIntegration = new InstagramIntegration();
+//# sourceMappingURL=instagram-integration.js.map

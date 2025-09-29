@@ -1,6 +1,6 @@
 import { promises as fs } from 'fs';
 import path from 'path';
-import { WorkflowExecutor } from './workflow-executor';
+import { WorkflowExecutor } from './workflow-executor.js';
 export class WorkflowService {
     executor;
     workflowsPath = '../../workflows';
@@ -10,19 +10,15 @@ export class WorkflowService {
     async executeWorkflow(workflowName, userId) {
         let workflow = null;
         try {
-            // Load workflow definition
             workflow = await this.loadWorkflow(workflowName);
-            // Verify user permissions
             if (!await this.verifyPermissions(userId, workflow.requiredRole)) {
                 throw new Error('Insufficient permissions');
             }
-            // Execute workflow steps
             for (const step of workflow.steps) {
                 await this.executeStep(step);
             }
         }
         catch (error) {
-            // Handle errors according to workflow definition
             await this.handleError(error, workflow);
         }
     }
@@ -32,9 +28,7 @@ export class WorkflowService {
         return JSON.parse(content);
     }
     async verifyPermissions(userId, requiredRoles) {
-        // Implement permission verification logic
-        // This should check against your auth system
-        return true; // Placeholder - implement actual verification
+        return true;
     }
     async executeStep(step) {
         switch (step.type) {
@@ -56,12 +50,9 @@ export class WorkflowService {
     }
     async handleError(error, workflow) {
         if (workflow.errorHandling.onFailure === 'rollback') {
-            // Implement rollback logic
-            // You'll need to track the backup file from the backup step
             await this.executor.rollback('last_backup_file.sql');
         }
-        // Implement notification logic
         console.error(`Workflow error: ${error.message}`);
-        // Send notifications to specified users
     }
 }
+//# sourceMappingURL=workflow-service.js.map

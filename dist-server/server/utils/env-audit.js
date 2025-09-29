@@ -1,8 +1,4 @@
-/**
- * Environment Variables Audit
- * Comprehensive validation and documentation of all environment variables
- */
-import { Logger } from './logger';
+import { Logger } from './logger.js';
 export class EnvironmentAuditor {
     logger;
     envVariables;
@@ -10,12 +6,8 @@ export class EnvironmentAuditor {
         this.logger = new Logger('EnvironmentAuditor');
         this.envVariables = this.defineEnvironmentVariables();
     }
-    /**
-     * Define all environment variables with their specifications
-     */
     defineEnvironmentVariables() {
         return [
-            // Database
             {
                 name: 'DATABASE_URL',
                 required: true,
@@ -58,7 +50,6 @@ export class EnvironmentAuditor {
                 sensitive: true,
                 validation: (value) => value.startsWith('napi_')
             },
-            // Stack Auth
             {
                 name: 'VITE_STACK_PROJECT_ID',
                 required: true,
@@ -85,7 +76,6 @@ export class EnvironmentAuditor {
                 sensitive: true,
                 validation: (value) => value.startsWith('ssk_')
             },
-            // AI Services
             {
                 name: 'ANTHROPIC_API_KEY',
                 required: true,
@@ -121,7 +111,6 @@ export class EnvironmentAuditor {
                 category: 'ai',
                 sensitive: false
             },
-            // AWS S3
             {
                 name: 'AWS_ACCESS_KEY_ID',
                 required: true,
@@ -156,7 +145,6 @@ export class EnvironmentAuditor {
                 category: 'storage',
                 sensitive: false
             },
-            // Payment
             {
                 name: 'STRIPE_SECRET_KEY',
                 required: true,
@@ -175,7 +163,6 @@ export class EnvironmentAuditor {
                 sensitive: false,
                 validation: (value) => value.startsWith('pk_')
             },
-            // Email Services
             {
                 name: 'FLODESK_API_KEY',
                 required: true,
@@ -194,7 +181,6 @@ export class EnvironmentAuditor {
                 sensitive: true,
                 validation: (value) => value.startsWith('re_')
             },
-            // Social Media
             {
                 name: 'INSTAGRAM_BUSINESS_ACCOUNT_ID',
                 required: true,
@@ -220,7 +206,6 @@ export class EnvironmentAuditor {
                 sensitive: true,
                 validation: (value) => value.includes(':')
             },
-            // Automation
             {
                 name: 'MAKE_API_TOKEN',
                 required: true,
@@ -230,7 +215,6 @@ export class EnvironmentAuditor {
                 sensitive: true,
                 validation: (value) => value.includes('-')
             },
-            // System
             {
                 name: 'NODE_ENV',
                 required: true,
@@ -257,7 +241,6 @@ export class EnvironmentAuditor {
                 category: 'system',
                 sensitive: false
             },
-            // Admin
             {
                 name: 'ADMIN_USER_ID',
                 required: true,
@@ -274,7 +257,6 @@ export class EnvironmentAuditor {
                 category: 'auth',
                 sensitive: false
             },
-            // Google Project
             {
                 name: 'project_number',
                 required: true,
@@ -286,9 +268,6 @@ export class EnvironmentAuditor {
             }
         ];
     }
-    /**
-     * Audit all environment variables
-     */
     async auditEnvironment() {
         this.logger.info('Starting environment variables audit...');
         const missing = [];
@@ -308,12 +287,10 @@ export class EnvironmentAuditor {
             }
             else {
                 present++;
-                // Validate format if validation function exists
                 if (envVar.validation && !envVar.validation(value)) {
                     invalid.push(envVar.name);
                     this.logger.error(`Invalid format for environment variable: ${envVar.name}`);
                 }
-                // Check for sensitive data exposure
                 if (envVar.sensitive && this.isExposedInLogs(envVar.name)) {
                     warnings.push(`${envVar.name} may be exposed in logs`);
                 }
@@ -336,9 +313,6 @@ export class EnvironmentAuditor {
             summary
         };
     }
-    /**
-     * Generate environment documentation
-     */
     generateDocumentation() {
         const categories = this.envVariables.reduce((acc, envVar) => {
             if (!acc[envVar.category]) {
@@ -365,37 +339,23 @@ export class EnvironmentAuditor {
         }
         return doc;
     }
-    /**
-     * Check if sensitive data might be exposed in logs
-     */
     isExposedInLogs(envVarName) {
-        // This is a simplified check - in production, you'd want more sophisticated detection
         const sensitivePatterns = [
             /console\.log.*process\.env\./,
             /logger\.(info|debug).*process\.env\./,
             /JSON\.stringify.*process\.env/
         ];
-        // For now, just return false - in a real implementation, you'd scan the codebase
         return false;
     }
-    /**
-     * Get environment variables by category
-     */
     getVariablesByCategory(category) {
         return this.envVariables.filter(v => v.category === category);
     }
-    /**
-     * Get all required environment variables
-     */
     getRequiredVariables() {
         return this.envVariables.filter(v => v.required);
     }
-    /**
-     * Get all sensitive environment variables
-     */
     getSensitiveVariables() {
         return this.envVariables.filter(v => v.sensitive);
     }
 }
-// Create global instance
 export const environmentAuditor = new EnvironmentAuditor();
+//# sourceMappingURL=env-audit.js.map

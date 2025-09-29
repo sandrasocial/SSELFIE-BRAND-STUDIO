@@ -1,11 +1,8 @@
-// SSELFIE Studio Email Automation Routes
-// Triggers for automatic email sending
 import { Router } from 'express';
-import { requireStackAuth } from '../stack-auth';
-import { sendWelcomeEmail, sendTrainingCompleteEmail, sendLimitWarningEmail, sendUpgradeInviteEmail } from '../services/email-service';
-import { storage } from '../storage';
+import { requireStackAuth } from '../stack-auth.js';
+import { sendWelcomeEmail, sendTrainingCompleteEmail, sendLimitWarningEmail, sendUpgradeInviteEmail } from '../services/email-service.js';
+import { storage } from '../storage.js';
 const router = Router();
-// Send welcome email (triggered on subscription)
 router.post('/welcome', requireStackAuth, async (req, res) => {
     try {
         const { userEmail, userName } = req.body;
@@ -23,7 +20,6 @@ router.post('/welcome', requireStackAuth, async (req, res) => {
         res.status(500).json({ error: 'Failed to send welcome email' });
     }
 });
-// Send training completion email
 router.post('/training-complete', requireStackAuth, async (req, res) => {
     try {
         const { userEmail, userName } = req.body;
@@ -41,7 +37,6 @@ router.post('/training-complete', requireStackAuth, async (req, res) => {
         res.status(500).json({ error: 'Failed to send training completion email' });
     }
 });
-// Send generation limit warning
 router.post('/limit-warning', requireStackAuth, async (req, res) => {
     try {
         const { userEmail, userName, percentage, planType } = req.body;
@@ -59,7 +54,6 @@ router.post('/limit-warning', requireStackAuth, async (req, res) => {
         res.status(500).json({ error: 'Failed to send limit warning email' });
     }
 });
-// Send upgrade invitation
 router.post('/upgrade-invite', requireStackAuth, async (req, res) => {
     try {
         const { userEmail, userName } = req.body;
@@ -77,7 +71,6 @@ router.post('/upgrade-invite', requireStackAuth, async (req, res) => {
         res.status(500).json({ error: 'Failed to send upgrade invitation' });
     }
 });
-// Automatic trigger for user signup
 router.post('/trigger/user-signup', async (req, res) => {
     try {
         const { userId } = req.body;
@@ -85,7 +78,6 @@ router.post('/trigger/user-signup', async (req, res) => {
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
         }
-        // Send welcome email
         const success = await sendWelcomeEmail(user.email || '', user.firstName || 'there');
         res.json({
             success,
@@ -97,7 +89,6 @@ router.post('/trigger/user-signup', async (req, res) => {
         res.status(500).json({ error: 'Failed to trigger signup email' });
     }
 });
-// Automatic trigger for training completion
 router.post('/trigger/training-complete', async (req, res) => {
     try {
         const { userId } = req.body;
@@ -105,7 +96,6 @@ router.post('/trigger/training-complete', async (req, res) => {
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
         }
-        // Send training completion email
         const success = await sendTrainingCompleteEmail(user.email || '', user.firstName || 'there');
         res.json({
             success,
@@ -118,3 +108,4 @@ router.post('/trigger/training-complete', async (req, res) => {
     }
 });
 export default router;
+//# sourceMappingURL=email-automation.js.map

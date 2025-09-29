@@ -1,15 +1,11 @@
-import { db } from '../drizzle';
-import { claudeConversations, claudeMessages } from '../shared/schema.js';
+import { db } from '../drizzle.js';
+import { claudeConversations, claudeMessages } from '../../shared/schema.js';
 import { eq, desc } from 'drizzle-orm';
 export class EnhancedHandoffSystem {
-    /**
-     * Enhanced Multi-Agent Handoff with Speed Optimization
-     */
     static async executeEnhancedHandoff(workflowId, userId, handoffContext) {
         console.log(`🚀 ENHANCED HANDOFF: ${handoffContext.fromAgent} → ${handoffContext.toAgent}`);
         console.log(`⚡ Priority: ${handoffContext.priority} | Time: ${handoffContext.estimatedTime}`);
         try {
-            // Store handoff with enhanced tracking
             const convId = `enhanced_handoff_${workflowId}_${Date.now()}`;
             await db.insert(claudeConversations).values({
                 userId,
@@ -40,7 +36,6 @@ export class EnhancedHandoffSystem {
                 }),
                 metadata: { type: 'enhanced_handoff_response' }
             });
-            // Create next step for receiving agent
             const nextStep = {
                 stepId: `step_${Date.now()}_${handoffContext.toAgent}`,
                 agentId: handoffContext.toAgent,
@@ -48,7 +43,6 @@ export class EnhancedHandoffSystem {
                 status: 'pending',
                 context: handoffContext
             };
-            // Log optimization metrics
             console.log(`✅ HANDOFF COMPLETED: ${handoffContext.fromAgent} → ${handoffContext.toAgent}`);
             console.log(`📋 Context Size: ${JSON.stringify(handoffContext).length} bytes`);
             console.log(`🎯 Next Actions: ${handoffContext.nextActions.join(', ')}`);
@@ -59,26 +53,20 @@ export class EnhancedHandoffSystem {
             return { success: false };
         }
     }
-    /**
-     * Parallel Agent Execution for Efficiency
-     */
     static async executeParallelAgentTasks(workflowId, userId, tasks) {
         console.log(`⚡ PARALLEL EXECUTION: ${tasks.length} tasks starting`);
         const startTime = Date.now();
         const completed = [];
         const failed = [];
-        // Execute tasks in parallel where possible
         const taskPromises = tasks.map(async (task) => {
             try {
                 task.status = 'in-progress';
                 task.startTime = new Date();
-                // Simulate enhanced agent processing
                 const processingTime = this.calculateOptimizedProcessingTime(task);
                 await new Promise(resolve => setTimeout(resolve, processingTime));
                 task.status = 'completed';
                 task.completionTime = new Date();
                 task.result = `${task.agentName} completed: ${task.context.taskContext}`;
-                // Store completion
                 const taskConvId = `parallel_task_${task.stepId}_${Date.now()}`;
                 await db.insert(claudeConversations).values({
                     userId,
@@ -107,9 +95,6 @@ export class EnhancedHandoffSystem {
         console.log(`⚡ PARALLEL EXECUTION COMPLETED: ${completed.length}/${tasks.length} in ${totalTime}ms`);
         return { completed, failed };
     }
-    /**
-     * Smart Context Preservation for Faster Handoffs
-     */
     static async preserveWorkflowContext(workflowId, userId, contextData) {
         const contextKey = `workflow_${workflowId}_context`;
         const batchConvId = `batch_${Date.now()}`;
@@ -125,31 +110,24 @@ export class EnhancedHandoffSystem {
             role: 'system',
             content: JSON.stringify({
                 type: 'batch_completion',
-                completedTasks: results,
+                completedTasks: contextData,
                 timestamp: new Date().toISOString()
             }),
             metadata: { type: 'batch_completion' }
         });
         console.log(`💾 CONTEXT PRESERVED: ${contextKey} (${JSON.stringify(contextData).length} bytes)`);
     }
-    /**
-     * Optimized Processing Time Calculation
-     */
     static calculateOptimizedProcessingTime(task) {
-        const baseTime = 1000; // 1 second base
+        const baseTime = 1000;
         const priorityMultiplier = {
-            'high': 0.5, // High priority = faster processing
-            'medium': 1.0, // Normal speed
-            'low': 1.5 // Lower priority = slower
+            'high': 0.5,
+            'medium': 1.0,
+            'low': 1.5
         };
         const complexityMultiplier = task.context.dependencies.length > 2 ? 1.5 : 1.0;
         return Math.round(baseTime * priorityMultiplier[task.context.priority] * complexityMultiplier);
     }
-    /**
-     * Agent Utilization Optimizer
-     */
     static async optimizeAgentUtilization(userId) {
-        // Get recent agent activity
         const recentActivity = await db
             .select()
             .from(claudeConversations)
@@ -157,21 +135,20 @@ export class EnhancedHandoffSystem {
             .where(eq(claudeConversations.userId, userId))
             .orderBy(desc(claudeMessages.timestamp))
             .limit(50);
-        // Analyze agent workload distribution
-        const agentWorkload = recentActivity.reduce((acc, conv) => {
-            acc[conv.agentName] = (acc[conv.agentName] || 0) + 1;
+        const agentWorkload = recentActivity.reduce((acc, row) => {
+            const agentName = row.claude_conversations?.agentName;
+            if (agentName) {
+                acc[agentName] = (acc[agentName] || 0) + 1;
+            }
             return acc;
         }, {});
-        // Calculate efficiency metrics
         const totalTasks = recentActivity.length;
         const uniqueAgents = Object.keys(agentWorkload).length;
         const avgTasksPerAgent = totalTasks / Math.max(1, uniqueAgents);
-        const efficiency = Math.min(100, Math.round((uniqueAgents / 10) * 100)); // Based on 10 total agents
-        // Identify bottlenecks (overloaded agents)
+        const efficiency = Math.min(100, Math.round((uniqueAgents / 10) * 100));
         const bottlenecks = Object.entries(agentWorkload)
             .filter(([_, tasks]) => tasks > avgTasksPerAgent * 1.5)
             .map(([agent, _]) => agent);
-        // Generate optimization recommendations
         const recommendations = [
             `Current efficiency: ${efficiency}% (${uniqueAgents}/10 agents active)`,
             `Task distribution: ${Math.round(avgTasksPerAgent)} tasks per agent average`,
@@ -188,3 +165,4 @@ export class EnhancedHandoffSystem {
         return agentId.charAt(0).toUpperCase() + agentId.slice(1);
     }
 }
+//# sourceMappingURL=enhanced-handoff-system.js.map

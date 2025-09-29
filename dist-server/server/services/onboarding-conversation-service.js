@@ -1,10 +1,5 @@
-import { personalBrandService } from './personal-brand-service';
-/**
- * Onboarding Conversation Service
- * Manages the 6-step Maya onboarding flow with conversation intelligence
- */
+import { personalBrandService } from './personal-brand-service.js';
 export class OnboardingConversationService {
-    // Define the 6-step onboarding flow
     ONBOARDING_STEPS = {
         1: {
             stepNumber: 1,
@@ -16,7 +11,7 @@ export class OnboardingConversationService {
                 "Tell me about where you are in your journey right now?",
                 "What's your biggest challenge when it comes to feeling confident?"
             ],
-            quickButtons: [] // Maya AI now generates intelligent, contextual quick actions
+            quickButtons: []
         },
         2: {
             stepNumber: 2,
@@ -28,7 +23,7 @@ export class OnboardingConversationService {
                 "What challenges are you facing right now?",
                 "What's working well for you, and what isn't?"
             ],
-            quickButtons: [] // Maya AI now generates intelligent, contextual quick actions
+            quickButtons: []
         },
         3: {
             stepNumber: 3,
@@ -40,7 +35,7 @@ export class OnboardingConversationService {
                 "What would your life look like if you achieved your biggest dreams?",
                 "Who is the woman you're becoming?"
             ],
-            quickButtons: [] // Maya AI now generates intelligent, contextual quick actions
+            quickButtons: []
         },
         4: {
             stepNumber: 4,
@@ -52,7 +47,7 @@ export class OnboardingConversationService {
                 "Who do you serve or want to serve?",
                 "What's your mission or what impact do you want to make?"
             ],
-            quickButtons: [] // Maya AI now generates intelligent, contextual quick actions
+            quickButtons: []
         },
         5: {
             stepNumber: 5,
@@ -64,7 +59,7 @@ export class OnboardingConversationService {
                 "What styles or aesthetics speak to you?",
                 "When you imagine your future self, what is she wearing?"
             ],
-            quickButtons: [] // Maya AI now generates intelligent, contextual quick actions
+            quickButtons: []
         },
         6: {
             stepNumber: 6,
@@ -76,20 +71,13 @@ export class OnboardingConversationService {
                 "What story do you want your images to tell?",
                 "How do you want people to feel when they see your photos?"
             ],
-            quickButtons: [] // Maya AI now generates intelligent, contextual quick actions
+            quickButtons: []
         }
     };
-    /**
-     * Process onboarding conversation message
-     */
     async processOnboardingMessage(userId, message, currentStep = 1) {
-        // Load current context
         const context = await this.loadConversationContext(userId, currentStep);
-        // Get Maya's onboarding personality
         const mayaPersonality = this.buildMayaOnboardingPrompt(context);
-        // Call Maya's intelligence for response
         const mayaResponse = await this.getMayaResponse(mayaPersonality, message, context);
-        // MAYA FAÇADE: Save conversation through façade API (for memory persistence)
         try {
             await fetch('http://localhost:5000/api/maya/chat', {
                 method: 'POST',
@@ -97,7 +85,7 @@ export class OnboardingConversationService {
                 body: JSON.stringify({
                     message,
                     userId,
-                    conversationHistory: [] // Memory handling is now internal to façade
+                    conversationHistory: []
                 })
             });
             console.log('✅ FAÇADE: Onboarding message saved to Maya memory');
@@ -105,21 +93,14 @@ export class OnboardingConversationService {
         catch (error) {
             console.log('⚠️ FAÇADE: Memory persistence failed, continuing with onboarding');
         }
-        // Update personal brand data based on response
         await this.updatePersonalBrandData(userId, currentStep, message, mayaResponse);
         return mayaResponse;
     }
-    /**
-     * Complete current onboarding step and move to next
-     */
     async completeOnboardingStep(userId, stepNumber, stepData) {
-        // Save step data to personal brand service
         await this.saveStepData(userId, stepNumber, stepData);
-        // Update onboarding progress
         await personalBrandService.updateOnboardingProgress(userId, stepNumber + 1);
         const isCompleted = stepNumber >= 6;
         if (isCompleted) {
-            // Complete the entire onboarding
             await personalBrandService.completePersonalBrandOnboarding(userId);
         }
         return {
@@ -127,35 +108,24 @@ export class OnboardingConversationService {
             isCompleted
         };
     }
-    /**
-     * Get current onboarding status
-     */
     async getOnboardingStatus(userId) {
         const isCompleted = await personalBrandService.hasCompletedPersonalBrandOnboarding(userId);
         const currentStep = await personalBrandService.getOnboardingProgress(userId);
         const progress = this.calculateProgress(currentStep, isCompleted);
         let personalBrand;
         if (isCompleted) {
-            // MAYA FAÇADE: Context is now internal to façade
-            // Personal brand data will be handled through the façade API
             personalBrand = await personalBrandService.getPersonalBrandProfile(userId);
         }
         return {
             currentStep,
             isCompleted,
             progress,
-            personalBrand
+            ...(personalBrand && { personalBrand })
         };
     }
-    // ===== PRIVATE METHODS =====
-    /**
-     * Load conversation context for Maya
-     */
     async loadConversationContext(userId, currentStep) {
-        // MAYA FAÇADE: Context is now internal to façade API
-        // Data gathering will be handled through façade API calls
         const personalBrandData = await personalBrandService.getPersonalBrandProfile(userId);
-        const conversationHistory = []; // Conversation history is now handled internally by façade
+        const conversationHistory = [];
         return {
             userId,
             currentStep,
@@ -164,12 +134,11 @@ export class OnboardingConversationService {
             personalBrandData
         };
     }
-    /**
-     * Build Maya's onboarding personality prompt
-     */
     buildMayaOnboardingPrompt(context) {
         const step = this.ONBOARDING_STEPS[context.currentStep];
-        // MAYA FAÇADE: Standard onboarding prompt - Maya's personality via API only
+        if (!step) {
+            throw new Error(`Invalid onboarding step: ${context.currentStep}`);
+        }
         const baseMayaPersonality = 'You are Maya, SSELFIE Studio\'s AI Creative Director and personal brand strategist.';
         return `${baseMayaPersonality}
 
@@ -238,16 +207,13 @@ Examples of BAD quick actions (never use these):
 
 Remember: You're helping her see herself as the confident, successful woman she's becoming. Every conversation should leave her feeling more empowered and excited about her transformation journey.`;
     }
-    /**
-     * Get Maya's response using Claude API
-     */
     async getMayaResponse(systemPrompt, userMessage, context) {
         try {
             const response = await fetch('https://api.anthropic.com/v1/messages', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'x-api-key': process.env.ANTHROPIC_API_KEY || '',
+                    'x-api-key': process.env['ANTHROPIC_API_KEY'] || '',
                     'anthropic-version': '2023-06-01'
                 },
                 body: JSON.stringify({
@@ -268,15 +234,14 @@ Remember: You're helping her see herself as the confident, successful woman she'
             }
             const data = await response.json();
             const responseText = data.content[0].text;
-            // Parse JSON response
             try {
                 const parsedResponse = JSON.parse(responseText);
-                // Validate response structure
+                const currentStepData = this.ONBOARDING_STEPS[context.currentStep];
                 return {
                     message: parsedResponse.message || "I'm here to help you discover your amazing future self!",
                     questions: Array.isArray(parsedResponse.questions) ? parsedResponse.questions : [],
                     quickButtons: Array.isArray(parsedResponse.quickButtons) ? parsedResponse.quickButtons : [],
-                    stepGuidance: parsedResponse.stepGuidance || this.ONBOARDING_STEPS[context.currentStep].description,
+                    stepGuidance: parsedResponse.stepGuidance || currentStepData?.description || 'Continue with your personal brand discovery',
                     nextAction: parsedResponse.nextAction || 'continue',
                     currentStep: context.currentStep,
                     progress: this.calculateProgress(context.currentStep, false)
@@ -284,7 +249,6 @@ Remember: You're helping her see herself as the confident, successful woman she'
             }
             catch (parseError) {
                 console.error('Maya JSON parsing error:', parseError);
-                // Fallback response if JSON parsing fails
                 return this.createFallbackResponse(responseText, context);
             }
         }
@@ -293,34 +257,28 @@ Remember: You're helping her see herself as the confident, successful woman she'
             return this.createFallbackResponse("I'm having trouble connecting right now, but I'm so excited to help you discover your future self!", context);
         }
     }
-    /**
-     * Create fallback response when API fails
-     */
     createFallbackResponse(message, context) {
         const step = this.ONBOARDING_STEPS[context.currentStep];
+        if (!step) {
+            throw new Error(`Invalid onboarding step: ${context.currentStep}`);
+        }
         return {
             message: message || "I'm here to help you see your amazing future self! Tell me more about your journey.",
             questions: step.questions.slice(0, 2),
-            quickButtons: [], // No fallback templates - Maya should generate her own intelligent suggestions
+            quickButtons: [],
             stepGuidance: step.description,
             nextAction: 'continue',
             currentStep: context.currentStep,
             progress: this.calculateProgress(context.currentStep, false)
         };
     }
-    /**
-     * Update personal brand data based on conversation
-     */
     async updatePersonalBrandData(userId, currentStep, userMessage, mayaResponse) {
-        // Extract insights from the conversation based on current step
         const insights = this.extractStepInsights(currentStep, userMessage);
         if (Object.keys(insights).length === 0)
             return;
-        // Save insights based on step
         switch (currentStep) {
             case 1:
             case 2:
-                // Story and current situation
                 if (insights.transformationJourney || insights.currentSituation || insights.strugglesStory) {
                     await personalBrandService.savePersonalBrandStory(userId, {
                         currentSituation: insights.currentSituation || '',
@@ -331,7 +289,6 @@ Remember: You're helping her see herself as the confident, successful woman she'
                 }
                 break;
             case 3:
-                // Future vision and dream outcome
                 if (insights.dreamOutcome || insights.futureVision) {
                     await personalBrandService.savePersonalBrandStory(userId, {
                         currentSituation: '',
@@ -342,7 +299,6 @@ Remember: You're helping her see herself as the confident, successful woman she'
                 }
                 break;
             case 4:
-                // Business context and goals
                 if (insights.businessGoals || insights.targetAudience || insights.businessType) {
                     await personalBrandService.saveBusinessContext(userId, {
                         businessType: insights.businessType || '',
@@ -357,7 +313,6 @@ Remember: You're helping her see herself as the confident, successful woman she'
                 }
                 break;
             case 5:
-                // Style preferences
                 if (insights.styleCategories || insights.brandPersonality) {
                     await personalBrandService.saveStylePreferences(userId, {
                         styleCategories: insights.styleCategories || [],
@@ -372,13 +327,8 @@ Remember: You're helping her see herself as the confident, successful woman she'
                 break;
         }
     }
-    /**
-     * Save step data to appropriate service
-     */
     async saveStepData(userId, stepNumber, data) {
-        // Update onboarding progress
         await personalBrandService.updateOnboardingProgress(userId, stepNumber);
-        // Save step-specific data
         switch (stepNumber) {
             case 1:
             case 2:
@@ -398,23 +348,16 @@ Remember: You're helping her see herself as the confident, successful woman she'
                 }
                 break;
             case 6:
-                // Complete onboarding
                 await personalBrandService.completePersonalBrandOnboarding(userId);
                 break;
         }
     }
-    /**
-     * Extract insights from user message based on current step
-     * NOTE: This analyzes USER INPUT only - not for image generation prompts
-     * Maya's AI intelligence handles all prompt generation through Claude API
-     */
     extractStepInsights(stepNumber, message) {
         const insights = {};
         const lowerMessage = message.toLowerCase();
         switch (stepNumber) {
             case 1:
             case 2:
-                // Extract story elements
                 if (lowerMessage.includes('single mom') || lowerMessage.includes('divorce')) {
                     insights.currentSituation = 'Single mom rebuilding life after major life change';
                     insights.strugglesStory = 'Navigating single motherhood and personal transformation';
@@ -427,7 +370,6 @@ Remember: You're helping her see herself as the confident, successful woman she'
                 }
                 break;
             case 3:
-                // Extract future vision
                 if (lowerMessage.includes('ceo') || lowerMessage.includes('leader')) {
                     insights.dreamOutcome = 'Becoming a confident CEO and business leader';
                 }
@@ -439,7 +381,6 @@ Remember: You're helping her see herself as the confident, successful woman she'
                 }
                 break;
             case 4:
-                // Extract business context
                 if (lowerMessage.includes('coach') || lowerMessage.includes('coaching')) {
                     insights.businessType = 'Coaching';
                     insights.businessGoals = 'Help others through coaching services';
@@ -452,7 +393,6 @@ Remember: You're helping her see herself as the confident, successful woman she'
                 }
                 break;
             case 5:
-                // Extract style preferences
                 if (lowerMessage.includes('professional') || lowerMessage.includes('polished')) {
                     insights.styleCategories = ['professional', 'polished'];
                     insights.brandPersonality = 'professional';
@@ -469,9 +409,6 @@ Remember: You're helping her see herself as the confident, successful woman she'
         }
         return insights;
     }
-    /**
-     * Format personal brand context for Maya
-     */
     formatPersonalBrandContext(personalBrand) {
         const context = [];
         if (personalBrand.personalStory?.transformationJourney) {
@@ -494,9 +431,6 @@ Remember: You're helping her see herself as the confident, successful woman she'
         }
         return context.length > 0 ? context.join('\n') : 'No personal brand context discovered yet - this is the beginning of their journey.';
     }
-    /**
-     * Get completed steps from personal brand data
-     */
     getCompletedSteps(personalBrand) {
         const completed = [];
         if (personalBrand.personalStory?.transformationJourney)
@@ -513,21 +447,14 @@ Remember: You're helping her see herself as the confident, successful woman she'
             completed.push(6);
         return completed;
     }
-    /**
-     * Extract previous responses from conversation history
-     */
     extractPreviousResponses(history) {
-        // Simple extraction - could be enhanced with more sophisticated parsing
         return {};
     }
-    /**
-     * Calculate onboarding progress percentage
-     */
     calculateProgress(currentStep, isCompleted) {
         if (isCompleted)
             return 100;
-        return Math.min((currentStep - 1) * 16.67, 83.33); // Each step is ~16.67%, max 83.33% until completed
+        return Math.min((currentStep - 1) * 16.67, 83.33);
     }
 }
-// Export singleton instance
 export const onboardingConversationService = new OnboardingConversationService();
+//# sourceMappingURL=onboarding-conversation-service.js.map

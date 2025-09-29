@@ -1,7 +1,6 @@
-import { db } from '../drizzle';
-import { approvalQueue, agentHandoffRequests } from '../../shared/schema';
+import { db } from '../drizzle.js';
+import { approvalQueue, agentHandoffRequests } from '../../shared/schema.js';
 export class ApprovalService {
-    // Add content to approval queue
     static async requestApproval(agentId, userId, content) {
         const approval = await db.insert(approvalQueue).values({
             userId,
@@ -15,23 +14,19 @@ export class ApprovalService {
         }).returning();
         return approval[0];
     }
-    // Agent requests Sandra's input
     static async requestHandoff(agentId, conversationId, context, urgency = 'normal') {
         const handoff = await db.insert(agentHandoffRequests).values({
             fromAgentId: agentId,
             toTargetType: 'sandra',
-            toTargetId: '42585527', // Sandra's user ID
+            toTargetId: '42585527',
             requestType: 'guidance_required',
             contextSummary: context,
             urgencyLevel: urgency,
             conversationId
         }).returning();
-        // Send notification to Sandra (implement notification system)
-        // await NotificationService.notifySandra(handoff[0]);
         return handoff[0];
     }
     static calculateImpactLevel(content) {
-        // Logic to determine impact level based on content type and reach
         if (content.type === 'email' && content.recipientCount > 1000)
             return 'high';
         if (content.type === 'ad_campaign')
@@ -41,3 +36,4 @@ export class ApprovalService {
         return 'medium';
     }
 }
+//# sourceMappingURL=approval-service.js.map

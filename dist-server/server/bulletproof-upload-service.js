@@ -3,68 +3,49 @@ import { Upload } from '@aws-sdk/lib-storage';
 import fs from 'fs';
 import path from 'path';
 import archiver from 'archiver';
-import { storage } from './storage';
-/**
- * BULLETPROOF UPLOAD SERVICE - PREVENTS CROSS-CONTAMINATION
- *
- * CRITICAL SAFEGUARDS:
- * 1. Every upload verified before training
- * 2. User isolation guaranteed at every step
- * 3. No training starts unless ALL validation passes
- * 4. Complete error handling with user feedback
- * 5. Photo permission notifications
- */
+import { storage } from './storage.js';
 export class BulletproofUploadService {
     static s3 = new S3Client({
         credentials: {
-            accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-            secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+            accessKeyId: process.env['AWS_ACCESS_KEY_ID'],
+            secretAccessKey: process.env['AWS_SECRET_ACCESS_KEY'],
         },
-        region: 'eu-north-1' // Fixed region for bucket compatibility
+        region: 'eu-north-1'
     });
-    /**
-     * STEP 1: VALIDATE UPLOADED IMAGES
-     * - Check file types and sizes
-     * - Verify image content
-     * - Ensure minimum count (10-20 images) - CRITICAL REQUIREMENT
-     */
     static async validateUploadedImages(userId, imageFiles) {
         console.log(`🔍 VALIDATION: Starting image validation for user ${userId}`);
         const errors = [];
         const validImages = [];
-        // 🛡️ CRITICAL CHECK 1: No images at all
         if (!imageFiles || imageFiles.length === 0) {
             errors.push('❌ CRITICAL: No images provided. Upload at least 10 selfies before training.');
             return { success: false, errors, validImages };
         }
-        // 🛡️ CRITICAL CHECK 2: Less than minimum required
         if (imageFiles.length < 10) {
             errors.push(`❌ CRITICAL: Only ${imageFiles.length} images provided. MINIMUM 10 selfies required - no exceptions.`);
             return { success: false, errors, validImages };
         }
         console.log(`🛡️ VALIDATION GATE 1 PASSED: ${imageFiles.length} images provided (meets minimum 10)`);
-        // 🛡️ CRITICAL CHECK 3: Recommended minimum for quality
         if (imageFiles.length < 15) {
             console.log(`⚠️  WARNING: Only ${imageFiles.length} images - recommend 15-20 for best results`);
         }
         for (let i = 0; i < imageFiles.length; i++) {
             const imageData = imageFiles[i];
+            if (!imageData) {
+                errors.push(`Image ${i + 1}: No image data provided.`);
+                continue;
+            }
             try {
-                // Validate base64 format
                 if (!imageData.includes('data:image/')) {
                     errors.push(`Image ${i + 1}: Invalid format. Must be a valid image file.`);
                     continue;
                 }
-                // Extract and validate base64 data
                 const base64Data = imageData.replace(/^data:image\/[a-z]+;base64,/, '');
                 const paddedBase64 = base64Data + '='.repeat((4 - base64Data.length % 4) % 4);
                 const imageBuffer = Buffer.from(paddedBase64, 'base64');
-                // Validate image size (minimum 10KB for valid selfie)
                 if (imageBuffer.length < 10240) {
                     errors.push(`Image ${i + 1}: File too small. Please use higher quality photos.`);
                     continue;
                 }
-                // Validate maximum size (10MB)
                 if (imageBuffer.length > 10 * 1024 * 1024) {
                     errors.push(`Image ${i + 1}: File too large. Maximum 10MB per image.`);
                     continue;
@@ -75,7 +56,6 @@ export class BulletproofUploadService {
                 errors.push(`Image ${i + 1}: Corrupted or invalid image file.`);
             }
         }
-        // 🛡️ CRITICAL CHECK 4: Final validation after processing
         if (validImages.length < 10) {
             errors.push(`❌ CRITICAL: Only ${validImages.length} valid images after processing. Need minimum 10 valid images.`);
             console.log(`❌ VALIDATION FAILED: Insufficient valid images (${validImages.length}/10 minimum)`);
@@ -85,17 +65,11 @@ export class BulletproofUploadService {
         console.log(`✅ VALIDATION GATE 2 PASSED: ${validImages.length} valid images, ${errors.length} errors`);
         return { success, errors, validImages };
     }
-    /**
-     * STEP 2: UPLOAD TO S3 WITH VERIFICATION
-     * - Upload each image individually
-     * - Verify S3 storage success
-     * - Create user-specific folder structure
-     */
     static async uploadImagesToS3(userId, validImages) {
         console.log(`📤 S3 UPLOAD: Starting upload for user ${userId}`);
         const errors = [];
         const s3Urls = [];
-        const bucketName = process.env.AWS_S3_BUCKET;
+        const bucketName = process.env['AWS_S3_BUCKET'];
         if (!bucketName) {
             errors.push('❌ CRITICAL: AWS_S3_BUCKET environment variable is required');
             return { success: false, errors, s3Urls };
@@ -103,10 +77,12 @@ export class BulletproofUploadService {
         for (let i = 0; i < validImages.length; i++) {
             try {
                 const imageData = validImages[i];
+                if (!imageData) {
+                    throw new Error(`Missing image data for image ${i + 1}`);
+                }
                 const base64Data = imageData.replace(/^data:image\/[a-z]+;base64,/, '');
                 const imageBuffer = Buffer.from(base64Data, 'base64');
                 const fileName = `user-${userId}/training-image-${i + 1}-${Date.now()}.jpg`;
-                // Upload to S3 with public read access for Replicate training
                 const upload = new Upload({
                     client: this.s3,
                     params: {
@@ -114,11 +90,9 @@ export class BulletproofUploadService {
                         Key: fileName,
                         Body: imageBuffer,
                         ContentType: 'image/jpeg'
-                        // No ACL specified - bucket policy handles permissions
                     }
                 });
                 const uploadResult = await upload.done();
-                // Verify upload success
                 if (!uploadResult || !uploadResult.Key) {
                     errors.push(`Failed to upload image ${i + 1} to S3`);
                     continue;
@@ -129,10 +103,10 @@ export class BulletproofUploadService {
             }
             catch (error) {
                 console.error(`❌ S3 UPLOAD: Failed to upload image ${i + 1}:`, error);
-                errors.push(`Failed to upload image ${i + 1}: ${error.message}`);
+                const errorMessage = error instanceof Error ? error.message : String(error);
+                errors.push(`Failed to upload image ${i + 1}: ${errorMessage}`);
             }
         }
-        // 🛡️ CRITICAL GATE 2: Final S3 validation
         if (s3Urls.length < 10) {
             errors.push(`❌ CRITICAL: Only ${s3Urls.length} images uploaded to S3. Need minimum 10.`);
             console.log(`❌ S3 UPLOAD FAILED: Insufficient uploads (${s3Urls.length}/10 minimum)`);
@@ -142,16 +116,9 @@ export class BulletproofUploadService {
         console.log(`✅ S3 GATE 2 PASSED: ${s3Urls.length} images uploaded, ${errors.length} errors`);
         return { success, errors, s3Urls };
     }
-    /**
-     * STEP 3: CREATE TRAINING ZIP WITH VERIFICATION
-     * - Use original image data to avoid S3 download issues
-     * - Create ZIP file with proper structure
-     * - CRITICAL: NEVER create ZIP with less than 10 images
-     */
     static async createTrainingZip(userId, validImages, s3Urls) {
         console.log(`📦 ZIP CREATION: Starting for user ${userId}`);
         const errors = [];
-        // 🛡️ CRITICAL GATE 3: Check image count before ANY ZIP operations
         if (!validImages || validImages.length < 10) {
             errors.push(`❌ CRITICAL: Cannot create ZIP - only ${validImages?.length || 0} images. Need minimum 10.`);
             console.log(`❌ ZIP CREATION BLOCKED: Insufficient images (${validImages?.length || 0}/10 minimum)`);
@@ -167,10 +134,12 @@ export class BulletproofUploadService {
             const output = fs.createWriteStream(zipPath);
             const archive = archiver('zip', { zlib: { level: 9 } });
             archive.pipe(output);
-            // Add each image directly from base64 data (avoiding S3 download)
             for (let i = 0; i < validImages.length; i++) {
                 try {
                     const imageData = validImages[i];
+                    if (!imageData) {
+                        throw new Error(`Missing image data for image ${i + 1}`);
+                    }
                     const base64Data = imageData.replace(/^data:image\/[a-z]+;base64,/, '');
                     const imageBuffer = Buffer.from(base64Data, 'base64');
                     archive.append(imageBuffer, { name: `image_${i + 1}.jpg` });
@@ -178,28 +147,25 @@ export class BulletproofUploadService {
                 }
                 catch (error) {
                     console.error(`❌ ZIP: Failed to add image ${i + 1}:`, error);
-                    errors.push(`Failed to add image ${i + 1} to ZIP: ${error.message}`);
+                    const errorMessage = error instanceof Error ? error.message : String(error);
+                    errors.push(`Failed to add image ${i + 1} to ZIP: ${errorMessage}`);
                 }
             }
             await archive.finalize();
-            // Wait for ZIP creation to complete
             await new Promise((resolve, reject) => {
                 output.on('close', () => resolve());
                 output.on('error', reject);
             });
-            // 🛡️ CRITICAL GATE 4: Verify ZIP has enough content
             const zipStats = fs.statSync(zipPath);
-            const minZipSize = 50 * 1024; // At least 50KB for 10+ images
+            const minZipSize = 50 * 1024;
             if (zipStats.size < minZipSize) {
                 errors.push(`❌ CRITICAL: ZIP file too small (${zipStats.size} bytes). Expected at least ${minZipSize} bytes for 10+ images.`);
                 console.log(`❌ ZIP VALIDATION FAILED: File too small (${zipStats.size}/${minZipSize} bytes minimum)`);
                 return { success: false, errors, zipUrl: null };
             }
             console.log(`🛡️ ZIP GATE 4 PASSED: ZIP file ${zipStats.size} bytes (meets minimum ${minZipSize})`);
-            // 🛡️ CRITICAL GATE 5: Count actual files in ZIP
             let actualFileCount = 0;
             for (let i = 0; i < validImages.length; i++) {
-                // Count successful additions (errors would have been logged above)
                 if (!errors.some(e => e.includes(`image ${i + 1}`))) {
                     actualFileCount++;
                 }
@@ -210,11 +176,10 @@ export class BulletproofUploadService {
                 return { success: false, errors, zipUrl: null };
             }
             console.log(`🛡️ ZIP GATE 5 PASSED: ${actualFileCount} files in ZIP (meets minimum 10)`);
-            if (zipStats.size < 1024) { // ZIP must be at least 1KB (legacy check)
+            if (zipStats.size < 1024) {
                 errors.push('ZIP file creation failed - file too small');
                 return { success: false, errors, zipUrl: null };
             }
-            // Upload ZIP to S3 for Replicate access (Replicate can't access local URLs)
             const zipBuffer = fs.readFileSync(zipPath);
             const s3Key = `training_${userId}_${Date.now()}.zip`;
             const upload = new Upload({
@@ -233,7 +198,6 @@ export class BulletproofUploadService {
             }
             const s3ZipUrl = `https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/${s3Key}`;
             console.log(`✅ ZIP CREATION: Created ${zipStats.size} bytes and uploaded to S3: ${s3ZipUrl}`);
-            // Clean up local file
             try {
                 fs.unlinkSync(zipPath);
             }
@@ -244,27 +208,21 @@ export class BulletproofUploadService {
         }
         catch (error) {
             console.error(`❌ ZIP CREATION: Failed for user ${userId}:`, error);
-            errors.push(`ZIP creation failed: ${error.message}`);
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            errors.push(`ZIP creation failed: ${errorMessage}`);
             return { success: false, errors, zipUrl: null };
         }
     }
-    /**
-     * STEP 4: START REPLICATE TRAINING WITH VERIFICATION
-     * - Verify ZIP URL is accessible
-     * - Start training with user-specific model
-     * - Verify training started successfully
-     */
     static async startReplicateTraining(userId, zipUrl, triggerWord) {
         console.log(`🚀 REPLICATE TRAINING: Starting for user ${userId}`);
         const errors = [];
         const timestamp = Date.now();
         const modelName = `${userId}-selfie-lora-${timestamp}`;
         try {
-            // Create user-specific model first
             const createModelResponse = await fetch('https://api.replicate.com/v1/models', {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
+                    'Authorization': `Token ${process.env['REPLICATE_API_TOKEN']}`,
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
@@ -275,11 +233,9 @@ export class BulletproofUploadService {
                     hardware: "gpu-t4"
                 })
             });
-            // Handle existing model scenarios
             if (!createModelResponse.ok) {
                 if (createModelResponse.status === 422 || createModelResponse.status === 409) {
                     console.log(`⚠️ Model ${modelName} already exists (status ${createModelResponse.status}) - will use existing model for training`);
-                    // Model already exists, which is fine - we can still train to it
                 }
                 else {
                     const errorData = await createModelResponse.json();
@@ -291,26 +247,25 @@ export class BulletproofUploadService {
             else {
                 console.log(`✅ Model ${modelName} created successfully`);
             }
-            // Start training
             const trainingResponse = await fetch('https://api.replicate.com/v1/models/ostris/flux-dev-lora-trainer/versions/26dce37af90b9d997eeb970d92e47de3064d46c300504ae376c75bef6a9022d2/trainings', {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
+                    'Authorization': `Token ${process.env['REPLICATE_API_TOKEN']}`,
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
                     input: {
                         input_images: zipUrl,
                         trigger_word: triggerWord,
-                        steps: 1200, // OPTIMIZED: 1200 steps for identity vs styling balance
-                        learning_rate: 0.0002, // OPTIMIZED: 0.0002 = balanced training speed vs stability
+                        steps: 1200,
+                        learning_rate: 0.0002,
                         batch_size: 1,
-                        lora_rank: 32, // OPTIMIZED: 32 for complex facial features
-                        resolution: "1024", // OPTIMIZED: 1024x1024 ideal resolution
+                        lora_rank: 32,
+                        resolution: "1024",
                         optimizer: "adamw8bit",
-                        autocaption: true, // OPTIMIZED: FLUX works better with contextual captions
-                        cache_latents_to_disk: false, // Memory optimization
-                        caption_dropout_rate: 0.1 // OPTIMIZED: 0.1 = better generalization
+                        autocaption: true,
+                        cache_latents_to_disk: false,
+                        caption_dropout_rate: 0.1
                     },
                     destination: `sandrasocial/${modelName}`
                 })
@@ -327,25 +282,17 @@ export class BulletproofUploadService {
         }
         catch (error) {
             console.error(`❌ REPLICATE TRAINING: Failed for user ${userId}:`, error);
-            console.error(`❌ REPLICATE API TOKEN:`, process.env.REPLICATE_API_TOKEN ? 'Present' : 'MISSING');
+            console.error(`❌ REPLICATE API TOKEN:`, process.env['REPLICATE_API_TOKEN'] ? 'Present' : 'MISSING');
             errors.push(`Training start failed: ${error.message || error}`);
             return { success: false, errors, trainingId: null, modelName: null };
         }
     }
-    /**
-     * STEP 5: UPDATE DATABASE WITH VERIFICATION
-     * - Store training information in database
-     * - Verify database update success
-     * - Link user to their specific model
-     */
     static async updateDatabaseWithTraining(userId, trainingId, triggerWord, modelName) {
         console.log(`💾 DATABASE UPDATE: Storing training for user ${userId}`);
         const errors = [];
         try {
-            // Check if user model exists, create if not
             let existingModel = await storage.getUserModelByUserId(userId);
             if (!existingModel) {
-                // Create new user model
                 await storage.createUserModel({
                     userId: userId,
                     replicateModelId: trainingId,
@@ -357,7 +304,6 @@ export class BulletproofUploadService {
                 });
             }
             else {
-                // Update existing user model
                 await storage.updateUserModel(userId, {
                     replicateModelId: trainingId,
                     modelName: modelName,
@@ -367,7 +313,6 @@ export class BulletproofUploadService {
                     startedAt: new Date()
                 });
             }
-            // Verify database update
             const updatedModel = await storage.getUserModelByUserId(userId);
             if (!updatedModel || updatedModel.replicateModelId !== trainingId) {
                 errors.push('Database update verification failed');
@@ -378,60 +323,47 @@ export class BulletproofUploadService {
         }
         catch (error) {
             console.error(`❌ DATABASE UPDATE: Failed for user ${userId}:`, error);
-            errors.push(`Database update failed: ${error.message}`);
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            errors.push(`Database update failed: ${errorMessage}`);
             return { success: false, errors };
         }
     }
-    /**
-     * COMPLETE BULLETPROOF UPLOAD WORKFLOW
-     * - All steps must succeed or complete restart required
-     * - No training starts unless everything verified
-     * - Complete error handling and user feedback
-     */
     static async completeBulletproofUpload(userId, imageFiles) {
         console.log(`🛡️ BULLETPROOF UPLOAD: Starting complete workflow for user ${userId}`);
         const allErrors = [];
         let trainingId = null;
-        // Generate trigger word
         const triggerWord = `user${userId}`;
-        // STEP 1: Validate images
         const validation = await this.validateUploadedImages(userId, imageFiles);
         if (!validation.success) {
             allErrors.push(...validation.errors);
             return { success: false, errors: allErrors, trainingId: null, requiresRestart: true };
         }
-        // STEP 2: Upload to S3
         const s3Upload = await this.uploadImagesToS3(userId, validation.validImages);
         if (!s3Upload.success) {
             allErrors.push(...s3Upload.errors);
             return { success: false, errors: allErrors, trainingId: null, requiresRestart: true };
         }
-        // STEP 3: Create ZIP
         const zipCreation = await this.createTrainingZip(userId, validation.validImages, s3Upload.s3Urls);
         if (!zipCreation.success || !zipCreation.zipUrl) {
             allErrors.push(...zipCreation.errors);
             return { success: false, errors: allErrors, trainingId: null, requiresRestart: true };
         }
-        // STEP 4: Start training
         const trainingStart = await this.startReplicateTraining(userId, zipCreation.zipUrl, triggerWord);
         if (!trainingStart.success || !trainingStart.trainingId) {
             allErrors.push(...trainingStart.errors);
             return { success: false, errors: allErrors, trainingId: null, requiresRestart: true };
         }
-        // STEP 5: Update database
         const dbUpdate = await this.updateDatabaseWithTraining(userId, trainingStart.trainingId, triggerWord, trainingStart.modelName);
-        // STEP 6: Set up immediate monitoring for this training
-        // Schedule a check for this specific training after 2 minutes
         setTimeout(async () => {
             try {
-                const { TrainingCompletionMonitor } = await import('./training-completion-monitor');
+                const { TrainingCompletionMonitor } = await import('./training-completion-monitor.js');
                 console.log(`🔍 SCHEDULED CHECK: Checking training ${trainingStart.trainingId} for user ${userId}`);
                 await TrainingCompletionMonitor.checkAndUpdateTraining(trainingStart.trainingId, userId);
             }
             catch (error) {
                 console.error(`❌ SCHEDULED CHECK FAILED for training ${trainingStart.trainingId}:`, error);
             }
-        }, 2 * 60 * 1000); // 2 minutes
+        }, 2 * 60 * 1000);
         if (!dbUpdate.success) {
             allErrors.push(...dbUpdate.errors);
             return { success: false, errors: allErrors, trainingId: null, requiresRestart: true };
@@ -445,3 +377,4 @@ export class BulletproofUploadService {
         };
     }
 }
+//# sourceMappingURL=bulletproof-upload-service.js.map

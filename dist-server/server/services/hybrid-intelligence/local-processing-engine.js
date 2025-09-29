@@ -1,9 +1,3 @@
-/**
- * LOCAL PROCESSING ENGINE - PHASE 3: CROSS-AGENT LEARNING ACTIVATION
- * Connects with agent learning database for cross-agent intelligence sharing
- * Handles pattern extraction, validation, and knowledge persistence locally
- * WITHOUT consuming Claude API tokens while building shared agent intelligence
- */
 import { db } from '../../drizzle.js';
 import { agentLearning, agentSessionContexts, agentKnowledgeBase, agentPerformanceMetrics } from '../../../shared/schema.js';
 import { eq, and, desc, sql } from 'drizzle-orm';
@@ -21,18 +15,13 @@ export class LocalProcessingEngine {
         }
         return LocalProcessingEngine.instance;
     }
-    /**
-     * PHASE 3: Initialize cross-agent learning system
-     */
     async initializeCrossAgentLearning() {
         try {
-            // Load existing learning patterns for cross-agent sharing
             const existingLearning = await db
                 .select()
                 .from(agentLearning)
                 .orderBy(desc(agentLearning.confidence))
                 .limit(100);
-            // Cache high-confidence patterns for quick access
             for (const learning of existingLearning) {
                 if (parseFloat(learning.confidence || '0') > 0.7) {
                     const cacheKey = `${learning.agentName}-${learning.category}`;
@@ -46,15 +35,10 @@ export class LocalProcessingEngine {
             console.error('⚠️ PHASE 3: Learning initialization error:', error);
         }
     }
-    // ================== PATTERN EXTRACTION (LOCAL) ==================
-    /**
-     * Extract conversation patterns locally without Claude API
-     */
     extractPatternsLocally(userMessage, assistantMessage) {
         const patterns = [];
         const userLower = userMessage.toLowerCase();
         const assistantLower = assistantMessage.toLowerCase();
-        // 1. CONVERSATION PATTERN ANALYSIS (LOCAL)
         patterns.push({
             type: 'pattern',
             category: 'conversation',
@@ -65,7 +49,6 @@ export class LocalProcessingEngine {
                 timestamp: new Date().toISOString()
             }
         });
-        // 2. TASK COMPLETION PATTERNS (LOCAL)
         if (assistantMessage.includes('✅') || assistantMessage.includes('completed') || assistantMessage.includes('success')) {
             patterns.push({
                 type: 'task_completion',
@@ -77,7 +60,6 @@ export class LocalProcessingEngine {
                 }
             });
         }
-        // 3. TOOL USAGE PATTERNS (LOCAL)
         if (assistantMessage.includes('str_replace_based_edit_tool') || assistantMessage.includes('bash')) {
             patterns.push({
                 type: 'tool_usage',
@@ -89,7 +71,6 @@ export class LocalProcessingEngine {
                 }
             });
         }
-        // 4. COMMUNICATION PREFERENCES (LOCAL)
         if (userLower.includes('please') || userLower.includes('can you') || userLower.includes('help')) {
             patterns.push({
                 type: 'communication_style',
@@ -103,9 +84,6 @@ export class LocalProcessingEngine {
         }
         return patterns;
     }
-    /**
-     * SAVE LEARNING DATA to agent_learning table
-     */
     async saveLearningData(agentName, learningType, category, data) {
         try {
             console.log(`💾 SAVING LEARNING: ${agentName} - ${category}`);
@@ -114,8 +92,9 @@ export class LocalProcessingEngine {
                 learningType,
                 category,
                 data: JSON.stringify(data),
-                confidence: 0.8,
-                frequency: 1
+                confidence: "0.8",
+                frequency: 1,
+                lastSeen: new Date()
             });
             console.log(`✅ LEARNING SAVED: ${agentName} pattern stored in database`);
         }
@@ -123,9 +102,6 @@ export class LocalProcessingEngine {
             console.error(`❌ LEARNING SAVE FAILED:`, error);
         }
     }
-    /**
-     * Extract intent locally without API calls
-     */
     extractIntentLocally(userMessage) {
         const message = userMessage.toLowerCase();
         if (message.includes('fix') || message.includes('error') || message.includes('bug')) {
@@ -144,9 +120,6 @@ export class LocalProcessingEngine {
             return 'general';
         }
     }
-    /**
-     * Extract response type locally
-     */
     extractResponseTypeLocally(assistantMessage) {
         const message = assistantMessage.toLowerCase();
         if (message.includes('tool_calls') || message.includes('str_replace')) {
@@ -162,9 +135,6 @@ export class LocalProcessingEngine {
             return 'conversational';
         }
     }
-    /**
-     * Identify task type locally
-     */
     identifyTaskTypeLocally(userMessage) {
         const message = userMessage.toLowerCase();
         if (message.includes('database') || message.includes('sql')) {
@@ -183,9 +153,6 @@ export class LocalProcessingEngine {
             return 'general';
         }
     }
-    /**
-     * Extract tools used locally
-     */
     extractToolsUsedLocally(assistantMessage) {
         const tools = [];
         if (assistantMessage.includes('str_replace_based_edit_tool')) {
@@ -202,7 +169,6 @@ export class LocalProcessingEngine {
         }
         return tools;
     }
-    // Continue with remaining methods...
     extractCommunicationPatternsLocally(userMessage) {
         const patterns = [];
         const message = userMessage.toLowerCase();
@@ -217,7 +183,6 @@ export class LocalProcessingEngine {
                 }
             });
         }
-        // 5. DESIGN PATTERN RECOGNITION (LOCAL)
         if (message.includes('design') || message.includes('ui') || message.includes('component')) {
             patterns.push({
                 type: 'design_request',
@@ -231,17 +196,10 @@ export class LocalProcessingEngine {
         }
         return patterns;
     }
-    // ================== INTENT ANALYSIS (LOCAL) ==================
-    // ================== TOOL RESULT PROCESSING (LOCAL) ==================
-    /**
-     * Process tool results locally without Claude API
-     */
     processToolResultLocally(toolResult, toolName) {
-        // Fast path for small results
         if (toolResult.length <= 2000) {
             return toolResult;
         }
-        // Tool-specific local processing
         if (toolName === 'str_replace_based_edit_tool') {
             return this.processFileEditResultLocally(toolResult);
         }
@@ -251,18 +209,12 @@ export class LocalProcessingEngine {
         if (toolName === 'search_filesystem') {
             return this.processSearchResultLocally(toolResult);
         }
-        // Default local processing
         return this.processGenericResultLocally(toolResult);
     }
-    /**
-     * Process file edit results locally
-     */
     processFileEditResultLocally(result) {
-        // Preserve file editing results completely (they're usually important)
         if (result.length <= 8000) {
             return result;
         }
-        // Extract key information from file operations
         const lines = result.split('\n');
         const importantLines = lines.filter(line => line.includes('successfully') ||
             line.includes('created') ||
@@ -277,14 +229,10 @@ export class LocalProcessingEngine {
         }
         return `${result.substring(0, 4000)}\n\n[File content truncated - ${result.length} total characters]`;
     }
-    /**
-     * Process command output locally
-     */
     processCommandResultLocally(result) {
         if (result.length <= 5000) {
             return result;
         }
-        // Extract meaningful command output
         const lines = result.split('\n');
         const importantLines = lines.filter(line => line.includes('error') ||
             line.includes('warning') ||
@@ -300,12 +248,8 @@ export class LocalProcessingEngine {
         }
         return `${result.substring(0, 2500)}\n\n[Output truncated - ${result.length} total characters]`;
     }
-    /**
-     * Process search results locally
-     */
     processSearchResultLocally(result) {
         try {
-            // Extract file names and paths from search results
             const files = result.match(/fileName[^}]+/g) || [];
             const fileList = files.slice(0, 15).map(f => {
                 const name = f.match(/"([^"]+)"/)?.[1] || '';
@@ -317,9 +261,6 @@ export class LocalProcessingEngine {
             return this.processGenericResultLocally(result);
         }
     }
-    /**
-     * Generic result processing
-     */
     processGenericResultLocally(result) {
         const lines = result.split('\n');
         const importantLines = lines.filter(line => line.includes('successfully') ||
@@ -332,14 +273,9 @@ export class LocalProcessingEngine {
         const summary = importantLines.join('\n') || lines.slice(0, 30).join('\n');
         return `${summary}\n\n[${result.length} chars total - showing key results]`;
     }
-    // ================== ERROR VALIDATION (LOCAL) ==================
-    /**
-     * Validate code locally without Claude API
-     */
     validateCodeLocally(code, filePath) {
         const errors = [];
         const suggestions = [];
-        // Basic syntax validation
         if (filePath.endsWith('.ts') || filePath.endsWith('.tsx')) {
             this.validateTypeScriptLocally(code, errors, suggestions);
         }
@@ -355,11 +291,7 @@ export class LocalProcessingEngine {
             suggestions
         };
     }
-    /**
-     * Basic TypeScript validation
-     */
     validateTypeScriptLocally(code, errors, suggestions) {
-        // Check for common syntax issues
         const brackets = this.countBrackets(code);
         if (brackets.curly !== 0) {
             errors.push('Mismatched curly braces');
@@ -373,7 +305,6 @@ export class LocalProcessingEngine {
             errors.push('Mismatched square brackets');
             suggestions.push('Check for missing or extra [ ] brackets');
         }
-        // Check for unterminated strings
         const stringQuotes = (code.match(/"/g) || []).length;
         const templateLiterals = (code.match(/`/g) || []).length;
         if (stringQuotes % 2 !== 0) {
@@ -385,16 +316,12 @@ export class LocalProcessingEngine {
             suggestions.push('Check for missing closing backtick');
         }
     }
-    /**
-     * Basic CSS validation
-     */
     validateCSSLocally(code, errors, suggestions) {
         const brackets = this.countBrackets(code);
         if (brackets.curly !== 0) {
             errors.push('Mismatched CSS braces');
             suggestions.push('Check for missing closing } in CSS rules');
         }
-        // Check for missing semicolons
         const lines = code.split('\n').filter(line => line.trim());
         for (let i = 0; i < lines.length; i++) {
             const line = lines[i].trim();
@@ -403,9 +330,6 @@ export class LocalProcessingEngine {
             }
         }
     }
-    /**
-     * Basic JSON validation
-     */
     validateJSONLocally(code, errors, suggestions) {
         try {
             JSON.parse(code);
@@ -415,9 +339,6 @@ export class LocalProcessingEngine {
             suggestions.push('Check for trailing commas, missing quotes, or malformed structure');
         }
     }
-    /**
-     * Count bracket pairs for validation
-     */
     countBrackets(code) {
         let curly = 0, round = 0, square = 0;
         for (const char of code) {
@@ -444,10 +365,6 @@ export class LocalProcessingEngine {
         }
         return { curly, round, square };
     }
-    // ================== DATABASE OPERATIONS (LOCAL) ==================
-    /**
-     * Update agent learning locally (database operations only)
-     */
     async updateAgentLearningLocally(userId, agentName, userMessage, assistantMessage) {
         try {
             const normalizedAgentName = agentName.toLowerCase();
@@ -489,9 +406,6 @@ export class LocalProcessingEngine {
             console.error('Failed to update agent learning locally:', error);
         }
     }
-    /**
-     * Update session context locally (database operations only)
-     */
     async updateSessionContextLocally(userId, agentName, conversationId, context) {
         try {
             const normalizedAgentName = agentName.toLowerCase();
@@ -534,11 +448,7 @@ export class LocalProcessingEngine {
             console.error('Failed to update session context locally:', error);
         }
     }
-    // ================== HELPER FUNCTIONS (LOCAL) ==================
-    /**
-     * Extract tools used from response text
-     */
-    extractToolsUsedLocally(response) {
+    extractToolsFromResponse(response) {
         const tools = [];
         if (response.includes('str_replace_based_edit_tool'))
             tools.push('str_replace_based_edit_tool');
@@ -552,9 +462,6 @@ export class LocalProcessingEngine {
             tools.push('coordinate_agent');
         return tools;
     }
-    /**
-     * Identify design type from message
-     */
     identifyDesignTypeLocally(message) {
         const lower = message.toLowerCase();
         if (lower.includes('dashboard') || lower.includes('admin'))
@@ -573,9 +480,6 @@ export class LocalProcessingEngine {
             return 'data_display';
         return 'general_ui';
     }
-    /**
-     * Extract color preferences from message
-     */
     extractColorPreferencesLocally(message) {
         const colors = [];
         const lower = message.toLowerCase();
@@ -597,9 +501,6 @@ export class LocalProcessingEngine {
             colors.push('neutral');
         return colors;
     }
-    /**
-     * Generate error fix suggestions locally
-     */
     generateFixSuggestionsLocally(errorMessage) {
         const suggestions = [];
         const lower = errorMessage.toLowerCase();
@@ -623,20 +524,14 @@ export class LocalProcessingEngine {
         }
         return suggestions.length > 0 ? suggestions : ['Review error details and check documentation'];
     }
-    // ================== PHASE 3: CROSS-AGENT LEARNING ==================
-    /**
-     * PHASE 3: Save agent learning pattern to database for cross-agent sharing
-     */
     async saveAgentLearning(agentName, userId, learningType, category, data, confidence = 0.5) {
         try {
-            // Check if similar learning pattern already exists
             const existing = await db
                 .select()
                 .from(agentLearning)
                 .where(and(eq(agentLearning.agentName, agentName), eq(agentLearning.category, category), eq(agentLearning.learningType, learningType)))
                 .limit(1);
             if (existing.length > 0) {
-                // Update existing pattern with increased frequency and confidence
                 const updatedConfidence = Math.min(1.0, confidence + 0.1);
                 const updatedFrequency = (existing[0].frequency || 1) + 1;
                 await db
@@ -652,7 +547,6 @@ export class LocalProcessingEngine {
                 console.log(`🧠 PHASE 3: Updated learning pattern for ${agentName}/${category} (confidence: ${updatedConfidence})`);
             }
             else {
-                // Create new learning pattern
                 await db
                     .insert(agentLearning)
                     .values({
@@ -669,10 +563,8 @@ export class LocalProcessingEngine {
                 });
                 console.log(`🧠 PHASE 3: Created new learning pattern for ${agentName}/${category}`);
             }
-            // Update learning cache for quick access
             const cacheKey = `${agentName}-${category}`;
             this.learningCache.set(cacheKey, { agentName, category, data, confidence });
-            // Share learning with other agents if confidence is high
             if (confidence > 0.8) {
                 await this.shareLearningAcrossAgents(agentName, category, data, confidence);
             }
@@ -681,15 +573,11 @@ export class LocalProcessingEngine {
             console.error(`❌ PHASE 3: Failed to save learning for ${agentName}:`, error);
         }
     }
-    /**
-     * PHASE 3: Share high-confidence learning patterns across agents
-     */
     async shareLearningAcrossAgents(sourceAgent, category, data, confidence) {
         const targetAgents = ['elena', 'zara', 'aria', 'maya', 'victoria'];
         const relevantAgents = targetAgents.filter(agent => agent !== sourceAgent);
         console.log(`🌐 PHASE 3: Sharing learning from ${sourceAgent} to ${relevantAgents.length} agents`);
         for (const targetAgent of relevantAgents) {
-            // Create knowledge base entry for cross-agent learning
             try {
                 await db
                     .insert(agentKnowledgeBase)
@@ -703,7 +591,7 @@ export class LocalProcessingEngine {
                         originalConfidence: confidence
                     }),
                     source: 'cross_agent_learning',
-                    confidence: (confidence * 0.8).toString(), // Reduce confidence for shared learning
+                    confidence: (confidence * 0.8).toString(),
                     lastUpdated: new Date(),
                     tags: [category, 'cross_agent', sourceAgent]
                 });
@@ -714,32 +602,30 @@ export class LocalProcessingEngine {
             }
         }
     }
-    /**
-     * PHASE 3: Get cross-agent learning insights for an agent
-     */
     async getCrossAgentLearning(agentName, category) {
         try {
-            // Get agent's own learning patterns
             let ownLearningQuery = db
                 .select()
                 .from(agentLearning)
-                .where(eq(agentLearning.agentName, agentName))
-                .orderBy(desc(agentLearning.confidence));
+                .where(category
+                ? and(eq(agentLearning.agentName, agentName), eq(agentLearning.category, category))
+                : eq(agentLearning.agentName, agentName))
+                .orderBy(desc(agentLearning.confidence))
+                .limit(20);
+            const ownLearning = await ownLearningQuery;
+            const sharedLearningConditions = [
+                eq(agentKnowledgeBase.agentId, agentName),
+                eq(agentKnowledgeBase.source, 'cross_agent_learning')
+            ];
             if (category) {
-                ownLearningQuery = ownLearningQuery.where(eq(agentLearning.category, category));
+                sharedLearningConditions.push(and(like(agentKnowledgeBase.topic, `%${category}%`), sql `${agentKnowledgeBase.tags} @> ARRAY[${category}]::text[]`));
             }
-            const ownLearning = await ownLearningQuery.limit(20);
-            // Get shared learning from other agents
-            let sharedLearningQuery = db
+            const sharedLearningQuery = await db
                 .select()
                 .from(agentKnowledgeBase)
-                .where(and(eq(agentKnowledgeBase.agentId, agentName), eq(agentKnowledgeBase.source, 'cross_agent_learning')))
+                .where(and(...sharedLearningConditions))
                 .orderBy(desc(agentKnowledgeBase.confidence));
-            if (category) {
-                sharedLearningQuery = sharedLearningQuery.where(sql `${agentKnowledgeBase.tags} @> ARRAY[${category}]`);
-            }
             const sharedLearning = await sharedLearningQuery.limit(10);
-            // Get performance metrics
             const performanceMetrics = await db
                 .select()
                 .from(agentPerformanceMetrics)
@@ -761,19 +647,14 @@ export class LocalProcessingEngine {
             };
         }
     }
-    /**
-     * PHASE 3: Record agent performance for learning optimization
-     */
     async recordAgentPerformance(agentId, taskType, success, duration, userSatisfaction) {
         try {
-            // Get existing metrics
             const existing = await db
                 .select()
                 .from(agentPerformanceMetrics)
                 .where(and(eq(agentPerformanceMetrics.agentId, agentId), eq(agentPerformanceMetrics.taskType, taskType)))
                 .limit(1);
             if (existing.length > 0) {
-                // Update existing metrics
                 const current = existing[0];
                 const totalTasks = (current.totalTasks || 0) + 1;
                 const currentSuccessRate = parseFloat(current.successRate || '0');
@@ -795,7 +676,6 @@ export class LocalProcessingEngine {
                 console.log(`📊 PHASE 3: Updated performance for ${agentId}/${taskType}: ${(newSuccessRate * 100).toFixed(1)}% success rate`);
             }
             else {
-                // Create new metrics
                 await db
                     .insert(agentPerformanceMetrics)
                     .values({
@@ -815,12 +695,8 @@ export class LocalProcessingEngine {
             console.error(`❌ PHASE 3: Failed to record performance for ${agentId}:`, error);
         }
     }
-    /**
-     * PHASE 3: Get learning recommendations for agent based on cross-agent patterns
-     */
     async getLearningRecommendations(agentId) {
         try {
-            // Analyze performance to identify improvement areas
             const performance = await db
                 .select()
                 .from(agentPerformanceMetrics)
@@ -829,7 +705,6 @@ export class LocalProcessingEngine {
             const skillsToImprove = performance
                 .filter(p => parseFloat(p.successRate || '0') < 0.8)
                 .map(p => p.taskType);
-            // Find successful patterns from other agents for those skills
             const learningFromOthers = await db
                 .select()
                 .from(agentLearning)
@@ -858,3 +733,4 @@ export class LocalProcessingEngine {
     }
 }
 export const localProcessingEngine = LocalProcessingEngine.getInstance();
+//# sourceMappingURL=local-processing-engine.js.map

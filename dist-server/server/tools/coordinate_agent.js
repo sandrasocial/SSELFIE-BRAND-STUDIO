@@ -1,14 +1,5 @@
-/**
- * COORDINATE AGENT TOOL
- * Direct agent-to-agent coordination and task delegation
- * Part of Elena's delegation system for autonomous agent workflows
- */
-/**
- * Coordinate with another agent by delegating a specific task
- */
 export async function coordinate_agent(input) {
     try {
-        // Validate target agent exists
         const validAgents = [
             'elena', 'zara', 'maya', 'aria', 'quinn', 'rachel', 'victoria',
             'sophia', 'olga', 'flux', 'wilma', 'diana', 'martha', 'ava'
@@ -16,9 +7,7 @@ export async function coordinate_agent(input) {
         if (!validAgents.includes(input.target_agent)) {
             throw new Error(`Invalid target agent: ${input.target_agent}. Must be one of: ${validAgents.join(', ')}`);
         }
-        // Generate coordination ID
         const coordination_id = `coord_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-        // Create task delegation record
         const coordination_data = {
             coordination_id,
             target_agent: input.target_agent,
@@ -30,21 +19,17 @@ export async function coordinate_agent(input) {
             dependencies: input.dependencies || [],
             status: 'queued',
             created_at: new Date().toISOString(),
-            coordinating_agent: 'elena' // Default to Elena as coordinator
+            coordinating_agent: 'elena'
         };
-        // Log coordination attempt
         console.log(`🤝 AGENT COORDINATION: ${coordination_data.coordinating_agent} → ${input.target_agent}`, {
             task: input.task_description.substring(0, 100) + '...',
             priority: input.priority,
             deliverables: input.expected_deliverables.length
         });
-        // Store coordination task (in production this would go to database)
-        // For now, we'll use in-memory coordination tracking
-        if (!global.agentCoordinations) {
-            global.agentCoordinations = new Map();
+        if (!globalThis.agentCoordinations) {
+            globalThis.agentCoordinations = new Map();
         }
-        global.agentCoordinations.set(coordination_id, coordination_data);
-        // Estimate completion time based on priority and complexity
+        globalThis.agentCoordinations.set(coordination_id, coordination_data);
         const estimatedHours = input.priority === 'critical' ? 1 :
             input.priority === 'high' ? 2 :
                 input.priority === 'medium' ? 4 : 8;
@@ -69,27 +54,22 @@ export async function coordinate_agent(input) {
         };
     }
 }
-/**
- * Get coordination status for tracking
- */
 export function getCoordinationStatus(coordination_id) {
-    if (!global.agentCoordinations)
+    if (!globalThis.agentCoordinations)
         return null;
-    return global.agentCoordinations.get(coordination_id);
+    return globalThis.agentCoordinations.get(coordination_id);
 }
-/**
- * Update coordination status
- */
 export function updateCoordinationStatus(coordination_id, status, message) {
-    if (!global.agentCoordinations)
+    if (!globalThis.agentCoordinations)
         return false;
-    const coordination = global.agentCoordinations.get(coordination_id);
+    const coordination = globalThis.agentCoordinations.get(coordination_id);
     if (!coordination)
         return false;
     coordination.status = status;
     coordination.updated_at = new Date().toISOString();
     if (message)
         coordination.latest_message = message;
-    global.agentCoordinations.set(coordination_id, coordination);
+    globalThis.agentCoordinations.set(coordination_id, coordination);
     return true;
 }
+//# sourceMappingURL=coordinate_agent.js.map

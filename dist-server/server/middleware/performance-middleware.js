@@ -1,7 +1,4 @@
-// ZARA'S PERFORMANCE OPTIMIZATION MIDDLEWARE
-// Implementing server-side performance improvements
 import compression from 'compression';
-// Response compression middleware  
 export const compressionMiddleware = compression({
     filter: (req, res) => {
         if (req.headers['x-no-compression']) {
@@ -9,29 +6,24 @@ export const compressionMiddleware = compression({
         }
         return compression.filter(req, res);
     },
-    level: 6, // Good balance between compression ratio and speed
-    threshold: 1024 // Only compress responses larger than 1KB
+    level: 6,
+    threshold: 1024
 });
-// Response caching middleware
 export const cacheMiddleware = (duration = 300) => {
     return (req, res, next) => {
-        // Set cache headers for static assets
         if (req.url.match(/\.(css|js|png|jpg|jpeg|gif|ico|svg)$/)) {
             res.setHeader('Cache-Control', `public, max-age=${duration}`);
         }
         next();
     };
 };
-// API response optimization middleware
 export const apiOptimizationMiddleware = (req, res, next) => {
     const originalSend = res.send;
     const startTime = Date.now();
     res.send = function (data) {
         const responseTime = Date.now() - startTime;
-        // Add performance headers
         res.setHeader('X-Response-Time', `${responseTime}ms`);
         res.setHeader('X-Powered-By', 'SSELFIE-Studio');
-        // Log slow responses
         if (responseTime > 1000) {
             console.warn(`Slow API response: ${req.method} ${req.url} took ${responseTime}ms`);
         }
@@ -39,7 +31,6 @@ export const apiOptimizationMiddleware = (req, res, next) => {
     };
     next();
 };
-// Request size limiting middleware
 export const requestSizeLimiter = (limit = '10mb') => {
     return (req, res, next) => {
         const contentLength = parseInt(req.get('content-length') || '0', 10);
@@ -54,7 +45,6 @@ export const requestSizeLimiter = (limit = '10mb') => {
         next();
     };
 };
-// Memory usage monitoring
 export const memoryMonitor = (req, res, next) => {
     const memUsage = process.memoryUsage();
     const memoryMB = {
@@ -63,13 +53,12 @@ export const memoryMonitor = (req, res, next) => {
         heapUsed: Math.round(memUsage.heapUsed / 1024 / 1024),
         external: Math.round(memUsage.external / 1024 / 1024)
     };
-    // Log high memory usage
-    if (memoryMB.heapUsed > 512) { // Alert if heap usage > 512MB
+    if (memoryMB.heapUsed > 512) {
         console.warn(`High memory usage detected: ${memoryMB.heapUsed}MB heap used`);
     }
-    // Add memory info to response headers in development
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env['NODE_ENV'] === 'development') {
         res.setHeader('X-Memory-Usage', JSON.stringify(memoryMB));
     }
     next();
 };
+//# sourceMappingURL=performance-middleware.js.map

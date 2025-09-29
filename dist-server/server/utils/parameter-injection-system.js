@@ -1,12 +1,4 @@
-/**
- * PARAMETER INJECTION SYSTEM
- * Critical fix for missing file_text parameters in agent tool calls
- * Ensures ALL agents provide complete implementations
- */
 export class ParameterInjectionSystem {
-    /**
-     * Fix missing file_text parameter for create commands
-     */
     static fixMissingFileText(toolCall, message, agentId) {
         const result = {
             originalCall: { ...toolCall },
@@ -14,26 +6,24 @@ export class ParameterInjectionSystem {
             injectedParameters: [],
             reason: 'No fixes needed'
         };
-        // Only fix str_replace_based_edit_tool create commands
         if (toolCall.name === 'str_replace_based_edit_tool' &&
             toolCall.input?.command === 'create' &&
-            !toolCall.input?.file_text) {
+            !toolCall.input?.file_text &&
+            toolCall.input?.path) {
             const filePath = toolCall.input.path;
             const generatedContent = this.generateFileContent(filePath, message, agentId);
-            result.fixedCall.input.file_text = generatedContent;
+            if (result.fixedCall.input && typeof result.fixedCall.input === 'object') {
+                result.fixedCall.input['file_text'] = generatedContent;
+            }
             result.injectedParameters.push('file_text');
             result.reason = `Generated complete file content for ${filePath}`;
             console.log(`🔧 PARAMETER INJECTION: Fixed missing file_text for ${agentId} - ${filePath}`);
         }
         return result;
     }
-    /**
-     * Generate appropriate file content based on file path and context
-     */
     static generateFileContent(filePath, message, agentId) {
         const fileName = filePath.split('/').pop() || 'Unknown';
         const fileExtension = fileName.split('.').pop()?.toLowerCase();
-        // Extract component name from file path
         const componentName = fileName.replace(/\.(tsx|ts|jsx|js)$/, '');
         switch (fileExtension) {
             case 'tsx':
@@ -50,9 +40,6 @@ export class ParameterInjectionSystem {
                 return this.generateGenericFile(componentName, agentId, message);
         }
     }
-    /**
-     * Generate React TSX component with luxury design system
-     */
     static generateReactTSXComponent(componentName, agentId, message) {
         const agentSpecialty = this.getAgentSpecialty(agentId);
         return `import React, { useState } from 'react';
@@ -154,9 +141,6 @@ const ${componentName}: React.FC<${componentName}Props> = ({
 
 export default ${componentName};`;
     }
-    /**
-     * Generate TypeScript service/utility file
-     */
     static generateTypeScriptFile(componentName, agentId, message) {
         const agentSpecialty = this.getAgentSpecialty(agentId);
         return `/**
@@ -172,7 +156,7 @@ export interface ${componentName}Config {
 
 export interface ${componentName}Result {
   success: boolean;
-  data?: any;
+  data?: unknown;
   error?: string;
   timestamp: Date;
 }
@@ -188,15 +172,15 @@ export class ${componentName} {
       ...config
     };
     
-    console.log(\`🚀 \${componentName}: Initialized by \${agentId.toUpperCase()} with autonomous capabilities\`);
+    console.log(\`🚀 ${componentName}: Initialized by ${agentId.toUpperCase()} with autonomous capabilities\`);
   }
   
   /**
    * Execute ${agentSpecialty.toLowerCase()} operation
    */
-  async execute(input: any): Promise<${componentName}Result> {
+  async execute(input: unknown): Promise<${componentName}Result> {
     try {
-      console.log(\`⚡ \${componentName}: Executing \${this.config.mode} operation\`);
+      console.log(\`⚡ ${componentName}: Executing \${this.config.mode} operation\`);
       
       // Simulate ${agentSpecialty.toLowerCase()} processing
       const result = await this.process(input);
@@ -207,7 +191,7 @@ export class ${componentName} {
         timestamp: new Date()
       };
     } catch (error) {
-      console.error(\`❌ \${componentName}: Operation failed\`, error);
+      console.error(\`❌ ${componentName}: Operation failed\`, error);
       
       return {
         success: false,
@@ -220,7 +204,7 @@ export class ${componentName} {
   /**
    * Process input with ${agentSpecialty.toLowerCase()} logic
    */
-  private async process(input: any): Promise<any> {
+  private async process(input: unknown): Promise<unknown> {
     // ${agentSpecialty} processing logic
     const processed = {
       input,
@@ -245,9 +229,6 @@ export class ${componentName} {
 export const ${componentName.toLowerCase()} = new ${componentName}();
 export default ${componentName};`;
     }
-    /**
-     * Generate generic file content
-     */
     static generateGenericFile(componentName, agentId, message) {
         const agentSpecialty = this.getAgentSpecialty(agentId);
         return `/**
@@ -280,9 +261,6 @@ export const ${componentName} = {
 
 export default ${componentName};`;
     }
-    /**
-     * Generate React JSX component
-     */
     static generateReactJSXComponent(componentName, agentId, message) {
         return this.generateReactTSXComponent(componentName, agentId, message)
             .replace(/interface.*?Props.*?\n.*?\n}/g, '')
@@ -291,9 +269,6 @@ export default ${componentName};`;
             .replace(/: \(\) => void/g, '')
             .replace(/\?\?/g, '||');
     }
-    /**
-     * Generate JavaScript file
-     */
     static generateJavaScriptFile(componentName, agentId, message) {
         return this.generateTypeScriptFile(componentName, agentId, message)
             .replace(/interface.*?\n.*?\n}/g, '')
@@ -302,9 +277,6 @@ export default ${componentName};`;
             .replace(/: string/g, '')
             .replace(/export interface.*?\n.*?\n}/g, '');
     }
-    /**
-     * Generate CSS file
-     */
     static generateCSSFile(componentName, agentId) {
         return `/**
  * ${componentName} Styles
@@ -355,9 +327,6 @@ export default ${componentName};`;
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }`;
     }
-    /**
-     * Get agent specialty for content generation
-     */
     static getAgentSpecialty(agentId) {
         const specialties = {
             'aria': 'UX/UI Design & Conversion Optimization',
@@ -378,3 +347,4 @@ export default ${componentName};`;
     }
 }
 export const parameterInjectionSystem = new ParameterInjectionSystem();
+//# sourceMappingURL=parameter-injection-system.js.map

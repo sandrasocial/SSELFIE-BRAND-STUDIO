@@ -1,8 +1,4 @@
-/**
- * Comprehensive Middleware System
- * Security, performance, and utility middleware
- */
-import { Logger } from './logger';
+import { Logger } from './logger.js';
 export class MiddlewareSystem {
     logger;
     isEnabled;
@@ -10,21 +6,16 @@ export class MiddlewareSystem {
         this.logger = new Logger('MiddlewareSystem');
         this.isEnabled = true;
     }
-    /**
-     * Security headers middleware
-     */
     securityHeaders() {
         return (req, res, next) => {
             if (!this.isEnabled) {
                 return next();
             }
-            // Set security headers
             res.setHeader('X-Content-Type-Options', 'nosniff');
             res.setHeader('X-Frame-Options', 'DENY');
             res.setHeader('X-XSS-Protection', '1; mode=block');
             res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
             res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
-            // Content Security Policy
             res.setHeader('Content-Security-Policy', "default-src 'self'; " +
                 "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
                 "style-src 'self' 'unsafe-inline'; " +
@@ -32,24 +23,19 @@ export class MiddlewareSystem {
                 "font-src 'self' data:; " +
                 "connect-src 'self' https:; " +
                 "frame-ancestors 'none';");
-            // HSTS for HTTPS
             if (req.secure || req.headers['x-forwarded-proto'] === 'https') {
                 res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
             }
             next();
         };
     }
-    /**
-     * Input validation middleware
-     */
     inputValidation() {
         return (req, res, next) => {
             if (!this.isEnabled) {
                 return next();
             }
-            // Validate request size
             const contentLength = parseInt(req.headers['content-length'] || '0');
-            const maxSize = 10 * 1024 * 1024; // 10MB
+            const maxSize = 10 * 1024 * 1024;
             if (contentLength > maxSize) {
                 return res.status(413).json({
                     success: false,
@@ -60,7 +46,6 @@ export class MiddlewareSystem {
                     },
                 });
             }
-            // Validate content type for POST/PUT requests
             if (['POST', 'PUT', 'PATCH'].includes(req.method)) {
                 const contentType = req.headers['content-type'];
                 if (!contentType || !contentType.includes('application/json')) {
@@ -77,9 +62,6 @@ export class MiddlewareSystem {
             next();
         };
     }
-    /**
-     * Rate limiting middleware
-     */
     rateLimiter(requests = 100, windowMs = 60000) {
         const requestCounts = new Map();
         return (req, res, next) => {
@@ -89,13 +71,11 @@ export class MiddlewareSystem {
             const ip = req.ip || 'unknown';
             const now = Date.now();
             const windowStart = now - windowMs;
-            // Clean up old entries
             for (const [key, value] of requestCounts.entries()) {
                 if (value.resetTime < now) {
                     requestCounts.delete(key);
                 }
             }
-            // Check current request count
             const current = requestCounts.get(ip);
             if (!current) {
                 requestCounts.set(ip, { count: 1, resetTime: now + windowMs });
@@ -115,9 +95,6 @@ export class MiddlewareSystem {
             next();
         };
     }
-    /**
-     * CORS middleware
-     */
     cors() {
         return (req, res, next) => {
             if (!this.isEnabled) {
@@ -144,9 +121,6 @@ export class MiddlewareSystem {
             next();
         };
     }
-    /**
-     * Request logging middleware
-     */
     requestLogger() {
         return (req, res, next) => {
             if (!this.isEnabled) {
@@ -154,9 +128,7 @@ export class MiddlewareSystem {
             }
             const startTime = Date.now();
             const requestId = this.generateRequestId();
-            // Add request ID to request object
             req.requestId = requestId;
-            // Log request
             this.logger.info('Request received', {
                 requestId,
                 method: req.method,
@@ -165,12 +137,11 @@ export class MiddlewareSystem {
                 userAgent: req.get('User-Agent'),
                 userId: req.user?.id,
             });
-            // Override res.end to log response
             const originalEnd = res.end;
+            const logger = this.logger;
             res.end = function (chunk, encoding) {
                 const duration = Date.now() - startTime;
-                // Log response
-                this.logger.info('Request completed', {
+                logger.info('Request completed', {
                     requestId,
                     method: req.method,
                     path: req.path,
@@ -178,15 +149,11 @@ export class MiddlewareSystem {
                     duration,
                     userId: req.user?.id,
                 });
-                // Call original end method
-                originalEnd.call(this, chunk, encoding);
-            }.bind(this);
+                return originalEnd.call(this, chunk, encoding);
+            };
             next();
         };
     }
-    /**
-     * Authentication middleware
-     */
     requireAuth() {
         return (req, res, next) => {
             if (!this.isEnabled) {
@@ -203,15 +170,10 @@ export class MiddlewareSystem {
                     },
                 });
             }
-            // This would validate the token
-            // For now, just add a mock user
             req.user = { id: 'user_123', email: 'user@example.com' };
             next();
         };
     }
-    /**
-     * Admin authorization middleware
-     */
     requireAdmin() {
         return (req, res, next) => {
             if (!this.isEnabled) {
@@ -231,9 +193,6 @@ export class MiddlewareSystem {
             next();
         };
     }
-    /**
-     * Subscription validation middleware
-     */
     requireSubscription() {
         return (req, res, next) => {
             if (!this.isEnabled) {
@@ -253,17 +212,12 @@ export class MiddlewareSystem {
             next();
         };
     }
-    /**
-     * Request validation middleware
-     */
     validateRequest(schema) {
         return (req, res, next) => {
             if (!this.isEnabled) {
                 return next();
             }
             try {
-                // This would validate the request against the schema
-                // For now, just pass through
                 next();
             }
             catch (error) {
@@ -272,16 +226,13 @@ export class MiddlewareSystem {
                     error: {
                         code: 'VALIDATION_ERROR',
                         message: 'Request validation failed',
-                        details: error.message,
+                        details: error instanceof Error ? error.message : String(error),
                         timestamp: new Date().toISOString(),
                     },
                 });
             }
         };
     }
-    /**
-     * Request timeout middleware
-     */
     timeout(timeoutMs = 30000) {
         return (req, res, next) => {
             if (!this.isEnabled) {
@@ -299,31 +250,21 @@ export class MiddlewareSystem {
                     });
                 }
             }, timeoutMs);
-            // Clear timeout when response is sent
             res.on('finish', () => clearTimeout(timeout));
             res.on('close', () => clearTimeout(timeout));
             next();
         };
     }
-    /**
-     * Generate unique request ID
-     */
     generateRequestId() {
         return `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     }
-    /**
-     * Enable/disable middleware system
-     */
     setEnabled(enabled) {
         this.isEnabled = enabled;
         this.logger.info(`Middleware system ${enabled ? 'enabled' : 'disabled'}`);
     }
-    /**
-     * Check if middleware system is enabled
-     */
     getEnabled() {
         return this.isEnabled;
     }
 }
-// Export singleton instance
 export const middlewareSystem = new MiddlewareSystem();
+//# sourceMappingURL=middleware.js.map

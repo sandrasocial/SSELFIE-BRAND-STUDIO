@@ -1,17 +1,10 @@
-/**
- * PHASE 4.1: SINGLE API CALL ARCHITECTURE OPTIMIZATION
- * Maya Optimization Service - Eliminates redundant API calls and optimizes concept generation
- */
-import { ClaudeApiServiceSimple } from './claude-api-service-simple';
-import { enforceGender, normalizeGender } from '../utils/gender-prompt';
-import { PersonalityManager } from '../agents/personalities/personality-config';
+import { ClaudeApiServiceSimple } from './claude-api-service-simple.js';
+import { enforceGender, normalizeGender } from '../utils/gender-prompt.js';
+import { PersonalityManager } from '../agents/personalities/personality-config.js';
 export class MayaOptimizationService {
     static claudeService = new ClaudeApiServiceSimple();
     static promptCache = new Map();
-    static PROMPT_CACHE_TTL = 15 * 60 * 1000; // 15 minutes
-    /**
-     * PHASE 4.1: Optimized single API call for concept generation with embedded prompts
-     */
+    static PROMPT_CACHE_TTL = 15 * 60 * 1000;
     static async generateOptimizedConcepts(userMessage, enhancedPersonality, userId, conversationId, config = {
         includeEmbeddedPrompts: true,
         includeConceptGeneration: true,
@@ -21,16 +14,13 @@ export class MayaOptimizationService {
         try {
             console.log('🚀 PHASE 4.1: Starting optimized single API call for concept generation');
             const optimizationApplied = [];
-            // Check cache first for prompt optimization
             const cacheKey = this.generatePromptCacheKey(userMessage, userId);
             const cachedPrompt = this.promptCache.get(cacheKey);
             if (cachedPrompt && Date.now() - cachedPrompt.timestamp < this.PROMPT_CACHE_TTL) {
                 console.log('⚡ CACHE HIT: Using cached optimized prompt');
                 optimizationApplied.push('prompt_cache_hit');
             }
-            // Build highly optimized prompt that generates everything in one call
             const optimizedPrompt = this.buildSingleCallPrompt(enhancedPersonality, userMessage, config);
-            // Single Claude API call with all required outputs
             const startTime = Date.now();
             const mayaResponse = await this.claudeService.sendMessage([{
                     role: 'user',
@@ -39,9 +29,7 @@ export class MayaOptimizationService {
             const apiDuration = Date.now() - startTime;
             console.log(`✅ PHASE 4.1: Single API call completed in ${apiDuration}ms`);
             optimizationApplied.push('single_api_call');
-            // Parse the optimized response for all components
             const parsedResult = await this.parseOptimizedResponse(mayaResponse, config, userId);
-            // Cache successful prompts for future optimization
             if (parsedResult.concepts.length > 0) {
                 this.promptCache.set(cacheKey, {
                     prompt: optimizedPrompt,
@@ -60,7 +48,6 @@ export class MayaOptimizationService {
         }
         catch (error) {
             console.error('❌ PHASE 4.1 OPTIMIZATION ERROR:', error);
-            // Fallback to basic concept generation
             return {
                 concepts: [],
                 conversationalResponse: "I'm excited to help you create amazing photos! Let me know what style you're looking for.",
@@ -70,9 +57,6 @@ export class MayaOptimizationService {
             };
         }
     }
-    /**
-     * Build optimized prompt that includes all required outputs in single call
-     */
     static buildSingleCallPrompt(enhancedPersonality, userMessage, config) {
         return `${enhancedPersonality}
 
@@ -114,18 +98,13 @@ OPTIMIZATION REQUIREMENTS:
 
 Generate comprehensive response now:`;
     }
-    /**
-     * Parse optimized response to extract all components
-     */
     static async parseOptimizedResponse(response, config, userId) {
         const concepts = [];
         let conversationalResponse = '';
         try {
-            // Extract conversational response
             const conversationMatch = response.match(/CONVERSATIONAL_RESPONSE:\s*(.*?)(?=\n\d+\.|$)/s);
-            conversationalResponse = conversationMatch ? conversationMatch[1].trim() : response; // Preserve full response
+            conversationalResponse = conversationMatch ? conversationMatch[1].trim() : response;
             if (config.includeConceptGeneration) {
-                // Extract concepts with embedded prompts using optimized parsing
                 const conceptPattern = /([\p{Emoji_Presentation}\p{Extended_Pictographic}])\s*\*\*([^*\n]{8,50})\*\*\n(.*?)(?=FLUX_PROMPT:\s*(.*?)(?=\n[\p{Emoji_Presentation}\p{Extended_Pictographic}]|\n\n|$))/gsu;
                 let match;
                 let conceptNumber = 1;
@@ -133,15 +112,13 @@ Generate comprehensive response now:`;
                     const emoji = match[1];
                     const conceptName = `${emoji} ${match[2].trim()}`;
                     const description = match[3].trim();
-                    // Extract FLUX prompt that follows this concept
                     const fluxPromptMatch = response.substring(match.index + match[0].length).match(/FLUX_PROMPT:\s*(.*?)(?=\n[\p{Emoji_Presentation}\p{Extended_Pictographic}]|\n\n|$)/s);
                     const embeddedPrompt = fluxPromptMatch ? fluxPromptMatch[1].trim() : null;
                     if (embeddedPrompt) {
                         let finalPrompt = embeddedPrompt;
-                        // Apply gender enforcement to embedded prompt if userId provided
                         if (userId) {
                             try {
-                                const { storage } = await import('../storage');
+                                const { storage } = await import('../storage.js');
                                 const user = await storage.getUser(userId);
                                 const userModel = await storage.getUserModelByUserId(userId);
                                 if (user?.gender && userModel?.triggerWord) {
@@ -162,7 +139,7 @@ Generate comprehensive response now:`;
                         concepts.push({
                             id: `optimized_concept_${conceptNumber++}`,
                             title: conceptName,
-                            description: description, // Preserve full description - let UI handle display truncation
+                            description: description,
                             originalContext: description,
                             fullPrompt: finalPrompt,
                             canGenerate: true,
@@ -177,14 +154,10 @@ Generate comprehensive response now:`;
         }
         catch (error) {
             console.error('❌ OPTIMIZATION PARSING ERROR:', error);
-            // Fallback to simple extraction
-            conversationalResponse = response; // Preserve full response for quality
+            conversationalResponse = response;
         }
         return { concepts, conversationalResponse };
     }
-    /**
-     * Generate cache key for prompt optimization
-     */
     static generatePromptCacheKey(userMessage, userId) {
         const content = `${userMessage}_${userId}`;
         let hash = 0;
@@ -195,13 +168,9 @@ Generate comprehensive response now:`;
         }
         return `opt_${Math.abs(hash).toString(36)}`;
     }
-    /**
-     * Enhanced fallback prompt generation with optimization
-     */
     static async createOptimizedPromptFromConcept(conceptName, triggerWord, userId, context, category) {
         try {
             console.log('🔧 PHASE 4.1: Creating optimized prompt for concept');
-            // Check if we can use Maya's embedded prompt approach instead
             const baseMayaPersonality = PersonalityManager.getNaturalPrompt('maya');
             const optimizedPrompt = `${baseMayaPersonality}
 
@@ -229,12 +198,10 @@ FLUX PROMPT:`;
                     role: 'user',
                     content: optimizedPrompt
                 }]);
-            // Clean and format the response
             const cleanPrompt = response.replace(/^FLUX PROMPT:\s*/i, '').trim();
             let finalPrompt = `${triggerWord}, ${cleanPrompt}`;
-            // Inject gender token just after trigger word if missing & available
             try {
-                const { storage } = await import('../storage');
+                const { storage } = await import('../storage.js');
                 const user = await storage.getUser(userId);
                 const secureGender = normalizeGender(user?.gender);
                 if (secureGender) {
@@ -259,9 +226,6 @@ FLUX PROMPT:`;
             return `${triggerWord}, professional photo of a person in ${conceptName} style`;
         }
     }
-    /**
-     * Cache cleanup for prompt optimization
-     */
     static cleanupOptimizationCaches() {
         const now = Date.now();
         for (const [key, value] of this.promptCache.entries()) {
@@ -270,9 +234,6 @@ FLUX PROMPT:`;
             }
         }
     }
-    /**
-     * Get optimization statistics
-     */
     static getOptimizationStats() {
         return {
             promptCacheSize: this.promptCache.size,
@@ -281,7 +242,7 @@ FLUX PROMPT:`;
         };
     }
 }
-// Setup cleanup interval for optimization caches
 setInterval(() => {
     MayaOptimizationService.cleanupOptimizationCaches();
-}, 5 * 60 * 1000); // Every 5 minutes
+}, 5 * 60 * 1000);
+//# sourceMappingURL=maya-optimization-service.js.map

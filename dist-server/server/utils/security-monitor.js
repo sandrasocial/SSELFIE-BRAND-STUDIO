@@ -1,8 +1,4 @@
-/**
- * Security Monitoring System
- * Monitors and alerts on security-related events and threats
- */
-import { Logger } from './logger';
+import { Logger } from './logger.js';
 export class SecurityMonitor {
     logger;
     events;
@@ -20,9 +16,6 @@ export class SecurityMonitor {
         this.suspiciousIPs = new Map();
         this.rateLimitTracker = new Map();
     }
-    /**
-     * Monitor HTTP request for security threats
-     */
     monitorRequest(req, res) {
         if (!this.isEnabled) {
             return;
@@ -31,7 +24,6 @@ export class SecurityMonitor {
         const userAgent = req.get('User-Agent') || 'unknown';
         const userId = req.user?.id;
         const sessionId = req.sessionID;
-        // Check if IP is blocked
         if (this.blockedIPs.has(ip)) {
             this.logSecurityEvent({
                 type: 'unauthorized_access',
@@ -53,7 +45,6 @@ export class SecurityMonitor {
             });
             return;
         }
-        // Check for suspicious patterns
         const threats = this.detectThreats(req);
         if (threats.length > 0) {
             const highestThreat = threats.reduce((prev, current) => current.riskScore > prev.riskScore ? current : prev);
@@ -76,21 +67,15 @@ export class SecurityMonitor {
                 blocked: highestThreat.blocked,
                 actionTaken: highestThreat.actionTaken,
             });
-            // Update suspicious IP tracking
             this.updateSuspiciousIP(ip, highestThreat.riskScore);
         }
-        // Check rate limiting
         this.checkRateLimit(ip, req.path);
     }
-    /**
-     * Detect security threats in request
-     */
     detectThreats(req) {
         const threats = [];
         const { path, method, body, query, headers } = req;
         const requestString = JSON.stringify({ path, method, body, query, headers }).toLowerCase();
         const userAgent = req.get('User-Agent') || 'unknown';
-        // SQL Injection detection
         const sqlPatterns = [
             /union\s+select/i,
             /drop\s+table/i,
@@ -117,7 +102,6 @@ export class SecurityMonitor {
                 });
             }
         }
-        // XSS detection
         const xssPatterns = [
             /<script[^>]*>.*?<\/script>/i,
             /javascript:/i,
@@ -142,7 +126,6 @@ export class SecurityMonitor {
                 });
             }
         }
-        // Path traversal detection
         const pathTraversalPatterns = [
             /\.\.\//g,
             /\.\.\\/g,
@@ -163,7 +146,6 @@ export class SecurityMonitor {
                 });
             }
         }
-        // Command injection detection
         const commandPatterns = [
             /;\s*rm\s+-rf/i,
             /;\s*cat\s+\/etc\/passwd/i,
@@ -188,7 +170,6 @@ export class SecurityMonitor {
                 });
             }
         }
-        // Suspicious user agent
         const suspiciousUserAgents = [
             /sqlmap/i,
             /nikto/i,
@@ -214,7 +195,6 @@ export class SecurityMonitor {
                 });
             }
         }
-        // Unusual request patterns
         if (this.isUnusualRequest(req)) {
             threats.push({
                 type: 'suspicious_activity',
@@ -228,12 +208,8 @@ export class SecurityMonitor {
         }
         return threats;
     }
-    /**
-     * Check if request is unusual
-     */
     isUnusualRequest(req) {
         const { path, method, headers } = req;
-        // Check for unusual headers
         const unusualHeaders = [
             'x-forwarded-for',
             'x-real-ip',
@@ -242,7 +218,6 @@ export class SecurityMonitor {
             'x-remote-addr',
         ];
         const hasUnusualHeaders = unusualHeaders.some(header => headers[header] && headers[header] !== req.ip);
-        // Check for unusual paths
         const unusualPaths = [
             /\.\./,
             /\/admin/,
@@ -254,39 +229,29 @@ export class SecurityMonitor {
             /\/backup/,
         ];
         const hasUnusualPath = unusualPaths.some(pattern => pattern.test(path));
-        // Check for unusual methods
         const unusualMethods = ['TRACE', 'OPTIONS', 'CONNECT'];
         const hasUnusualMethod = unusualMethods.includes(method);
         return hasUnusualHeaders || hasUnusualPath || hasUnusualMethod;
     }
-    /**
-     * Extract payload from request string
-     */
     extractPayload(requestString, pattern) {
         const match = pattern.exec(requestString);
         return match ? match[0] : '';
     }
-    /**
-     * Check rate limiting
-     */
     checkRateLimit(ip, endpoint) {
         const key = `${ip}:${endpoint}`;
         const now = Date.now();
-        const windowMs = 60 * 1000; // 1 minute
-        const maxRequests = 100; // Max requests per minute per endpoint
+        const windowMs = 60 * 1000;
+        const maxRequests = 100;
         const current = this.rateLimitTracker.get(key);
         if (!current) {
             this.rateLimitTracker.set(key, { count: 1, resetTime: now + windowMs });
             return;
         }
-        // Reset if window expired
         if (now > current.resetTime) {
             this.rateLimitTracker.set(key, { count: 1, resetTime: now + windowMs });
             return;
         }
-        // Increment count
         current.count++;
-        // Check if limit exceeded
         if (current.count > maxRequests) {
             this.logSecurityEvent({
                 type: 'rate_limit_exceeded',
@@ -301,16 +266,12 @@ export class SecurityMonitor {
                 blocked: true,
                 actionTaken: 'Request blocked - Rate limit exceeded',
             });
-            // Temporarily block IP
             this.blockedIPs.add(ip);
             setTimeout(() => {
                 this.blockedIPs.delete(ip);
-            }, 15 * 60 * 1000); // 15 minutes
+            }, 15 * 60 * 1000);
         }
     }
-    /**
-     * Update suspicious IP tracking
-     */
     updateSuspiciousIP(ip, riskScore) {
         const current = this.suspiciousIPs.get(ip);
         if (current) {
@@ -325,29 +286,23 @@ export class SecurityMonitor {
                 riskScore,
             });
         }
-        // Block IP if risk score is too high
         if (riskScore > 80) {
             this.blockedIPs.add(ip);
             this.logger.warn('IP blocked due to high risk score', { ip, riskScore });
         }
     }
-    /**
-     * Log security event
-     */
     logSecurityEvent(eventData) {
         const event = {
             timestamp: new Date().toISOString(),
             eventId: this.generateEventId(),
-            environment: process.env.NODE_ENV || 'development',
+            environment: process.env['NODE_ENV'] || 'development',
             version: process.env.npm_package_version || '1.0.0',
             ...eventData,
         };
-        // Add to events array (with size limit)
         if (this.events.length >= this.maxEvents) {
-            this.events.shift(); // Remove oldest event
+            this.events.shift();
         }
         this.events.push(event);
-        // Log event
         this.logger.warn('Security event detected', {
             eventId: event.eventId,
             type: event.type,
@@ -357,23 +312,15 @@ export class SecurityMonitor {
             riskScore: event.riskScore,
             blocked: event.blocked,
         });
-        // Send critical alerts
         if (event.severity === 'critical' || event.riskScore > 90) {
             this.sendSecurityAlert(event);
         }
     }
-    /**
-     * Generate unique event ID
-     */
     generateEventId() {
         return `sec_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     }
-    /**
-     * Send security alert
-     */
     async sendSecurityAlert(event) {
         try {
-            // Send to Slack
             if (process.env.SLACK_WEBHOOK_URL) {
                 await fetch(process.env.SLACK_WEBHOOK_URL, {
                     method: 'POST',
@@ -396,9 +343,7 @@ export class SecurityMonitor {
                     }),
                 });
             }
-            // Send to email (if configured)
             if (process.env.SECURITY_EMAIL) {
-                // This would integrate with your email service
                 this.logger.info('Security alert email sent', { eventId: event.eventId });
             }
         }
@@ -406,14 +351,10 @@ export class SecurityMonitor {
             this.logger.error('Failed to send security alert', { error });
         }
     }
-    /**
-     * Get security statistics
-     */
     getSecurityStats(timeWindow) {
         const now = Date.now();
-        const windowMs = timeWindow ? timeWindow * 60 * 60 * 1000 : 24 * 60 * 60 * 1000; // Default 24 hours
+        const windowMs = timeWindow ? timeWindow * 60 * 60 * 1000 : 24 * 60 * 60 * 1000;
         const cutoffTime = now - windowMs;
-        // Filter events within time window
         const recentEvents = this.events.filter(event => new Date(event.timestamp).getTime() > cutoffTime);
         if (recentEvents.length === 0) {
             return {
@@ -427,32 +368,26 @@ export class SecurityMonitor {
                 topSourceIPs: [],
             };
         }
-        // Calculate basic stats
         const totalEvents = recentEvents.length;
         const blockedRequests = recentEvents.filter(e => e.blocked).length;
-        // Group by type
         const eventsByType = {};
         recentEvents.forEach(event => {
             eventsByType[event.type] = (eventsByType[event.type] || 0) + 1;
         });
-        // Group by severity
         const eventsBySeverity = {};
         recentEvents.forEach(event => {
             eventsBySeverity[event.severity] = (eventsBySeverity[event.severity] || 0) + 1;
         });
-        // Group by source IP
         const eventsBySource = {};
         recentEvents.forEach(event => {
             eventsBySource[event.source.ip] = (eventsBySource[event.source.ip] || 0) + 1;
         });
-        // Risk score distribution
         const riskScoreDistribution = {
             low: recentEvents.filter(e => e.riskScore <= 25).length,
             medium: recentEvents.filter(e => e.riskScore > 25 && e.riskScore <= 50).length,
             high: recentEvents.filter(e => e.riskScore > 50 && e.riskScore <= 75).length,
             critical: recentEvents.filter(e => e.riskScore > 75).length,
         };
-        // Top attack vectors
         const attackVectorCounts = new Map();
         recentEvents.forEach(event => {
             if (event.details.attackVector) {
@@ -471,7 +406,6 @@ export class SecurityMonitor {
         }))
             .sort((a, b) => b.count - a.count)
             .slice(0, 10);
-        // Top source IPs
         const sourceIPCounts = new Map();
         recentEvents.forEach(event => {
             const existing = sourceIPCounts.get(event.source.ip) || { count: 0, riskScore: 0, lastSeen: event.timestamp };
@@ -501,38 +435,23 @@ export class SecurityMonitor {
             topSourceIPs,
         };
     }
-    /**
-     * Get blocked IPs
-     */
     getBlockedIPs() {
         return Array.from(this.blockedIPs);
     }
-    /**
-     * Get suspicious IPs
-     */
     getSuspiciousIPs() {
         return Array.from(this.suspiciousIPs.entries()).map(([ip, data]) => ({
             ip,
             ...data,
         }));
     }
-    /**
-     * Block IP
-     */
     blockIP(ip, reason) {
         this.blockedIPs.add(ip);
         this.logger.warn('IP blocked manually', { ip, reason });
     }
-    /**
-     * Unblock IP
-     */
     unblockIP(ip) {
         this.blockedIPs.delete(ip);
         this.logger.info('IP unblocked manually', { ip });
     }
-    /**
-     * Clear old events
-     */
     clearOldEvents(olderThanHours = 168) {
         const cutoffTime = Date.now() - (olderThanHours * 60 * 60 * 1000);
         const initialLength = this.events.length;
@@ -542,25 +461,16 @@ export class SecurityMonitor {
             this.logger.info(`Cleared ${removedCount} old security events`);
         }
     }
-    /**
-     * Enable/disable security monitoring
-     */
     setEnabled(enabled) {
         this.isEnabled = enabled;
         this.logger.info(`Security monitoring ${enabled ? 'enabled' : 'disabled'}`);
     }
-    /**
-     * Get current events count
-     */
     getEventsCount() {
         return this.events.length;
     }
-    /**
-     * Export events for external analysis
-     */
     exportEvents() {
         return [...this.events];
     }
 }
-// Export singleton instance
 export const securityMonitor = new SecurityMonitor();
+//# sourceMappingURL=security-monitor.js.map

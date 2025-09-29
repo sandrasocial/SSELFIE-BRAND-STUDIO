@@ -6,9 +6,11 @@ import { VercelRequest, VercelResponse } from '@vercel/node';
 import { AuthenticatedUser } from './auth-types.js';
 
 /** Request with authenticated user */
-export interface AuthenticatedRequest extends VercelRequest {
+export type AuthenticatedRequest = VercelRequest & {
   user: AuthenticatedUser;
-  cookies?: Record<string, string>;
+  cookies: Record<string, string>;
+  query: { [key: string]: string | string[] };
+  body: any;
 }
 
 /** Request handler that requires authentication */

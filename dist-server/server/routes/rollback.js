@@ -1,21 +1,15 @@
-// import { AgentCodebaseIntegration } from '../agents/capabilities/intelligence/agent-codebase-integration.js';
 import { readFile, unlink, writeFile } from 'fs/promises';
 export function setupRollbackRoutes(app) {
-    // Rollback a file to its backup version
     app.post('/api/admin/rollback-file', async (req, res) => {
         try {
             const { filePath } = req.body;
-            // Verify admin token (unified pattern - header or body)
             const adminToken = req.headers['x-admin-token'] || req.body.adminToken;
             if (adminToken !== 'sandra-admin-2025') {
                 return res.status(401).json({ error: 'Unauthorized' });
             }
             const backupPath = filePath.replace('.tsx', '.backup.tsx');
-            // Read backup content
             const backupContent = await readFile(backupPath, 'utf8');
-            // Restore original file
             await writeFile(filePath, backupContent, 'utf8');
-            // Remove backup file
             await unlink(backupPath);
             console.log(`🔄 Rolled back file: ${filePath}`);
             res.json({
@@ -33,7 +27,6 @@ export function setupRollbackRoutes(app) {
             });
         }
     });
-    // List available backups
     app.get('/api/admin/backups', async (req, res) => {
         try {
             const { glob } = await import('glob');
@@ -51,3 +44,4 @@ export function setupRollbackRoutes(app) {
         }
     });
 }
+//# sourceMappingURL=rollback.js.map

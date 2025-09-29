@@ -4,7 +4,6 @@ export const config = {
 };
 export default async function handler(req, res) {
     try {
-        // Verify cron secret for security
         const authHeader = req.headers.authorization;
         const cronSecret = process.env.CRON_SECRET;
         if (!cronSecret) {
@@ -16,8 +15,6 @@ export default async function handler(req, res) {
             return res.status(401).json({ error: 'Unauthorized' });
         }
         console.log('🕐 Cron job executed at:', new Date().toISOString());
-        // This is a simple test cron job
-        // In production, this would trigger various maintenance tasks
         res.json({
             success: true,
             message: 'Cron job executed successfully',
@@ -33,3 +30,4 @@ export default async function handler(req, res) {
         });
     }
 }
+//# sourceMappingURL=cron.js.map

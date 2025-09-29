@@ -1,13 +1,11 @@
 import { Router } from 'express';
-import { requireStackAuth } from '../stack-auth';
+import { requireStackAuth } from '../stack-auth.js';
 const router = Router();
-// In-memory storage for notification preferences (replace with database in production)
 const userPreferences = {};
-// Get notification preferences
 router.get('/', requireStackAuth, async (req, res) => {
     try {
         const userId = req.user.id;
-        if (userId !== '42585527') { // Sandra's user ID
+        if (userId !== '42585527') {
             return res.status(403).json({ message: 'Admin access required' });
         }
         const preferences = userPreferences[userId] || {
@@ -60,7 +58,6 @@ router.get('/', requireStackAuth, async (req, res) => {
         });
     }
 });
-// Save notification preferences
 router.post('/', requireStackAuth, async (req, res) => {
     try {
         const userId = req.user.id;
@@ -68,7 +65,6 @@ router.post('/', requireStackAuth, async (req, res) => {
             return res.status(403).json({ message: 'Admin access required' });
         }
         const preferences = req.body;
-        // Validate preferences structure
         const requiredFields = ['slackEnabled', 'frequency', 'priorities', 'insightTypes', 'agents'];
         for (const field of requiredFields) {
             if (!(field in preferences)) {
@@ -78,7 +74,6 @@ router.post('/', requireStackAuth, async (req, res) => {
                 });
             }
         }
-        // Store preferences
         userPreferences[userId] = preferences;
         console.log(`✅ PREFERENCES: Updated notification preferences for user ${userId}`);
         res.json({
@@ -95,7 +90,6 @@ router.post('/', requireStackAuth, async (req, res) => {
         });
     }
 });
-// Check if notifications should be sent based on preferences
 router.post('/should-notify', async (req, res) => {
     try {
         const { userId, agentName, insightType, priority } = req.body;
@@ -107,14 +101,12 @@ router.post('/should-notify', async (req, res) => {
         }
         const preferences = userPreferences[userId];
         if (!preferences) {
-            // Default to sending if no preferences set
             return res.json({
                 success: true,
                 shouldNotify: true,
                 reason: 'No preferences set - defaulting to notify'
             });
         }
-        // Check if notifications are globally enabled
         if (!preferences.slackEnabled) {
             return res.json({
                 success: true,
@@ -122,7 +114,6 @@ router.post('/should-notify', async (req, res) => {
                 reason: 'Slack notifications disabled'
             });
         }
-        // Check agent preferences
         if (!preferences.agents[agentName]) {
             return res.json({
                 success: true,
@@ -130,7 +121,6 @@ router.post('/should-notify', async (req, res) => {
                 reason: `Notifications disabled for agent: ${agentName}`
             });
         }
-        // Check insight type preferences
         if (!preferences.insightTypes[insightType]) {
             return res.json({
                 success: true,
@@ -138,7 +128,6 @@ router.post('/should-notify', async (req, res) => {
                 reason: `Notifications disabled for insight type: ${insightType}`
             });
         }
-        // Check priority preferences
         if (!preferences.priorities[priority]) {
             return res.json({
                 success: true,
@@ -146,13 +135,11 @@ router.post('/should-notify', async (req, res) => {
                 reason: `Notifications disabled for priority: ${priority}`
             });
         }
-        // Check quiet hours
         if (preferences.quietHours?.enabled) {
             const now = new Date();
-            const currentTime = now.toTimeString().slice(0, 5); // HH:MM format
+            const currentTime = now.toTimeString().slice(0, 5);
             const startTime = preferences.quietHours.start;
             const endTime = preferences.quietHours.end;
-            // Handle overnight quiet hours (e.g., 22:00 to 08:00)
             if (startTime > endTime) {
                 if (currentTime >= startTime || currentTime <= endTime) {
                     return res.json({
@@ -163,7 +150,6 @@ router.post('/should-notify', async (req, res) => {
                 }
             }
             else {
-                // Same day quiet hours (e.g., 13:00 to 17:00)
                 if (currentTime >= startTime && currentTime <= endTime) {
                     return res.json({
                         success: true,
@@ -173,7 +159,6 @@ router.post('/should-notify', async (req, res) => {
                 }
             }
         }
-        // All checks passed
         res.json({
             success: true,
             shouldNotify: true,
@@ -188,7 +173,6 @@ router.post('/should-notify', async (req, res) => {
         });
     }
 });
-// Reset preferences to defaults
 router.post('/reset', requireStackAuth, async (req, res) => {
     try {
         const userId = req.user.id;
@@ -210,3 +194,4 @@ router.post('/reset', requireStackAuth, async (req, res) => {
     }
 });
 export default router;
+//# sourceMappingURL=notification-preferences.js.map

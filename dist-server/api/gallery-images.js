@@ -6,3 +6,4 @@ import main from './index.js';
 export default async function handler(req, res) {
     return main(req, res);
 }
+//# sourceMappingURL=gallery-images.js.map

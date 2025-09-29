@@ -3,9 +3,9 @@
  * Handles Claude AI interactions
  */
 
-import { Router, Request, Response } from 'express';
+import { Router, Response } from 'express';
 import { asyncHandler, createError, sendSuccess, validateRequired } from '../middleware/error-handler.js';
-import { AuthenticatedRequest } from '../../../api/_shared/auth-types.js';
+import { AuthenticatedRequest, AuthenticatedRequestWithBody } from '../../../api/_shared/request-types.js';
 import { SuccessResponse } from '../../types/ai-generation.js';
 
 interface ClaudeMessage {
@@ -40,7 +40,7 @@ interface ClaudeEndConversation {
 const router = Router();
 
 // Send message to Claude
-router.post('/api/claude/chat', asyncHandler(async (req: AuthenticatedRequest & { body: ClaudeMessage }, res: Response) => {
+router.post('/api/claude/chat', asyncHandler(async (req: AuthenticatedRequestWithBody<ClaudeMessage>, res: Response) => {
   const { message, conversationId, agentId } = req.body;
   validateRequired({ message }, ['message']);
 
@@ -104,7 +104,7 @@ router.get('/api/claude/conversation/:conversationId', asyncHandler(async (req: 
 }));
 
 // Create new conversation
-router.post('/api/claude/conversation', asyncHandler(async (req: AuthenticatedRequest & { body: ClaudeCreateConversation }, res: Response) => {
+router.post('/api/claude/conversation', asyncHandler(async (req: AuthenticatedRequestWithBody<ClaudeCreateConversation>, res: Response) => {
   const { agentId, title } = req.body;
   validateRequired({ agentId }, ['agentId']);
 
@@ -122,7 +122,7 @@ router.post('/api/claude/conversation', asyncHandler(async (req: AuthenticatedRe
 }));
 
 // End conversation
-router.post('/api/claude/conversation/end', asyncHandler(async (req: AuthenticatedRequest & { body: ClaudeEndConversation }, res: Response) => {
+router.post('/api/claude/conversation/end', asyncHandler(async (req: AuthenticatedRequestWithBody<ClaudeEndConversation>, res: Response) => {
   const { conversationId } = req.body;
   validateRequired({ conversationId }, ['conversationId']);
 

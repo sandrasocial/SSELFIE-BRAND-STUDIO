@@ -1,12 +1,11 @@
 import { Router } from 'express';
-import { requireStackAuth } from '../stack-auth';
-import { AgentInsightEngine } from '../services/agent-insight-engine';
+import { requireStackAuth } from '../stack-auth.js';
+import { AgentInsightEngine } from '../services/agent-insight-engine.js';
 const router = Router();
-// Trigger manual insight from specific agent (for testing)
 router.post('/trigger-manual/:agentName', requireStackAuth, async (req, res) => {
     try {
         const userId = req.user.id;
-        if (userId !== '42585527') { // Sandra's user ID
+        if (userId !== '42585527') {
             return res.status(403).json({ message: 'Admin access required' });
         }
         const { agentName } = req.params;
@@ -26,7 +25,6 @@ router.post('/trigger-manual/:agentName', requireStackAuth, async (req, res) => 
         });
     }
 });
-// Process context data and check for triggered insights
 router.post('/process-context', async (req, res) => {
     try {
         const context = req.body;
@@ -59,7 +57,6 @@ router.post('/process-context', async (req, res) => {
         });
     }
 });
-// Get agent engine statistics
 router.get('/stats', requireStackAuth, async (req, res) => {
     try {
         const userId = req.user.id;
@@ -80,14 +77,12 @@ router.get('/stats', requireStackAuth, async (req, res) => {
         });
     }
 });
-// Test multiple agent insights
 router.post('/test-multi-agent', requireStackAuth, async (req, res) => {
     try {
         const userId = req.user.id;
         if (userId !== '42585527') {
             return res.status(403).json({ message: 'Admin access required' });
         }
-        // Simulate context that would trigger multiple agents
         const testContext = {
             revenue_growth_percent: 25,
             page_load_time: 3500,
@@ -124,3 +119,4 @@ router.post('/test-multi-agent', requireStackAuth, async (req, res) => {
     }
 });
 export default router;
+//# sourceMappingURL=agent-insights.js.map

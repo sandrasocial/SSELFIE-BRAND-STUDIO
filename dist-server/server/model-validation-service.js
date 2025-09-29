@@ -1,14 +1,5 @@
-/**
- * MODEL VALIDATION SERVICE
- * ZERO TOLERANCE for generic models - ensures ALL users only use their trained models
- * Fixes database corruption and prevents fallback to generic models
- */
-import { storage } from './storage';
+import { storage } from './storage.js';
 export class ModelValidationService {
-    /**
-     * CRITICAL: Validates and corrects user model data
-     * Prevents ANY fallback to generic models
-     */
     static async validateAndCorrectUserModel(userId) {
         console.log(`🔍 CRITICAL MODEL VALIDATION: Checking user ${userId}`);
         try {
@@ -23,7 +14,6 @@ export class ModelValidationService {
                     errorMessage: 'No AI model found. Please complete training first by uploading selfies.'
                 };
             }
-            // Check training status
             if (userModel.trainingStatus !== 'completed') {
                 return {
                     isValid: false,
@@ -34,24 +24,20 @@ export class ModelValidationService {
                     errorMessage: `Training not complete. Status: ${userModel.trainingStatus}. Please wait for training to finish.`
                 };
             }
-            // CRITICAL: Check for database corruption and fix it
             let modelId = userModel.replicateModelId;
             let versionId = userModel.replicateVersionId;
             let needsCorrection = false;
-            // Fix corruption pattern: version_id contains full model:version path
             if (versionId && versionId.includes(':')) {
                 console.log(`🚨 CORRUPTION DETECTED: User ${userId} has corrupted model data`);
                 const parts = versionId.split(':');
                 if (parts.length === 2) {
-                    modelId = parts[0]; // Extract the full model path
-                    versionId = parts[1]; // Extract just the version hash
+                    modelId = parts[0];
+                    versionId = parts[1];
                     needsCorrection = true;
                     console.log(`🔧 CORRECTING: Model: ${modelId}, Version: ${versionId}`);
-                    // Update database immediately
                     await this.correctDatabaseModel(userId, modelId, versionId);
                 }
             }
-            // Validate model ID format
             if (!modelId || !modelId.includes('/')) {
                 return {
                     isValid: false,
@@ -63,7 +49,6 @@ export class ModelValidationService {
                     requiresCorrection: true
                 };
             }
-            // Validate version ID exists and is proper hash format
             if (!versionId || versionId.length < 32 || versionId.includes('/') || versionId.includes(':')) {
                 return {
                     isValid: false,
@@ -75,7 +60,6 @@ export class ModelValidationService {
                     requiresCorrection: true
                 };
             }
-            // Validate trigger word
             if (!userModel.triggerWord || userModel.triggerWord.trim() === '') {
                 return {
                     isValid: false,
@@ -86,7 +70,6 @@ export class ModelValidationService {
                     errorMessage: 'Missing trigger word. Model configuration incomplete.'
                 };
             }
-            // ALL VALIDATIONS PASSED
             console.log(`✅ User ${userId} model validated${needsCorrection ? ' and corrected' : ''}:`);
             console.log(`   Model ID: ${modelId}`);
             console.log(`   Version ID: ${versionId}`);
@@ -98,7 +81,6 @@ export class ModelValidationService {
                 modelId,
                 versionId,
                 triggerWord: userModel.triggerWord
-                // REMOVED: loraWeightsUrl - packaged models have LoRA built-in
             };
         }
         catch (error) {
@@ -113,14 +95,11 @@ export class ModelValidationService {
             };
         }
     }
-    /**
-     * CRITICAL: Fixes corrupted database model entries
-     */
     static async correctDatabaseModel(userId, modelId, versionId) {
         try {
             console.log(`🔧 CORRECTING DATABASE: User ${userId} model data`);
-            const { db } = await import('./db');
-            const { userModels } = await import('../shared/schema');
+            const { db } = await import('./db.js');
+            const { userModels } = await import('../shared/schema.js');
             const { eq } = await import('drizzle-orm');
             await db
                 .update(userModels)
@@ -137,13 +116,8 @@ export class ModelValidationService {
             throw error;
         }
     }
-    /**
-     * CRITICAL: Enforces that user can generate - throws error if not valid
-     * ZERO TOLERANCE for fallbacks - Users MUST train before generating
-     */
     static async enforceUserModelRequirements(userId) {
         const validation = await this.validateAndCorrectUserModel(userId);
-        // 🔒 ZERO TOLERANCE: NO FALLBACKS EVER
         if (!validation.canGenerate) {
             throw new Error(validation.errorMessage || 'Cannot generate images - individual trained model required');
         }
@@ -153,18 +127,14 @@ export class ModelValidationService {
             triggerWord: validation.triggerWord
         };
     }
-    /**
-     * CRITICAL: Validates all completed user models for corruption
-     * Run this to check system health
-     */
     static async validateAllCompletedModels() {
         console.log('🔍 SYSTEM HEALTH CHECK: Validating all completed models...');
         let healthy = 0;
         let corrupted = 0;
         let corrected = 0;
         try {
-            const { db } = await import('./db');
-            const { userModels } = await import('../shared/schema');
+            const { db } = await import('./db.js');
+            const { userModels } = await import('../shared/schema.js');
             const { eq } = await import('drizzle-orm');
             const completedModels = await db
                 .select()
@@ -194,3 +164,4 @@ export class ModelValidationService {
         }
     }
 }
+//# sourceMappingURL=model-validation-service.js.map

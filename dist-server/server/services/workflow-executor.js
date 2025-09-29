@@ -1,4 +1,4 @@
-import { db } from '../drizzle';
+import { db } from '../drizzle.js';
 import fs from 'fs';
 import path from 'path';
 import { exec } from 'child_process';
@@ -7,34 +7,40 @@ const execAsync = promisify(exec);
 export class WorkflowExecutor {
     backupPath = './backups';
     constructor() {
-        // Ensure backup directory exists
         if (!fs.existsSync(this.backupPath)) {
             fs.mkdirSync(this.backupPath, { recursive: true });
         }
     }
-    // Database Backup Logic
     async createDatabaseBackup(tables) {
+        if (!tables || tables.length === 0) {
+            throw new Error('Tables array is required and cannot be empty');
+        }
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
         const backupFile = path.join(this.backupPath, `backup_${timestamp}.sql`);
         try {
-            // Using pg_dump for reliable backups
             const tablesStr = tables.join(' -t ');
             await execAsync(`pg_dump -t ${tablesStr} > ${backupFile}`);
             return backupFile;
         }
         catch (error) {
-            throw new Error(`Backup failed: ${error.message}`);
+            console.error('Database backup failed:', error);
+            return null;
         }
     }
-    // Schema Verification
     async verifySchema(schemaPath, tables) {
         try {
-            // Read schema definition
+            if (!schemaPath || !tables || tables.length === 0) {
+                throw new Error('Schema path and tables array are required');
+            }
             const schemaContent = await fs.promises.readFile(schemaPath, 'utf-8');
-            // Get current database schema
             for (const table of tables) {
-                const [tableInfo] = await db.query('SELECT column_name, data_type FROM information_schema.columns WHERE table_name = ?', [table]);
-                // Verify against schema definition
+                const tableInfoQuery = `
+          SELECT column_name, data_type, is_nullable, column_default
+          FROM information_schema.columns 
+          WHERE table_name = $1
+          ORDER BY ordinal_position
+        `;
+                const tableInfo = await db.execute(tableInfoQuery, [table]);
                 if (!this.validateTableSchema(tableInfo, schemaContent, table)) {
                     throw new Error(`Schema mismatch for table: ${table}`);
                 }
@@ -42,65 +48,82 @@ export class WorkflowExecutor {
             return true;
         }
         catch (error) {
-            throw new Error(`Schema verification failed: ${error.message}`);
+            console.error('Schema verification failed:', error);
+            return false;
         }
     }
-    // Fix Execution
     async executeFixes(operations) {
+        if (!operations || operations.length === 0) {
+            throw new Error('Operations array is required and cannot be empty');
+        }
         try {
-            // Start transaction
-            await db.query('BEGIN');
-            for (const operation of operations) {
-                await db.query(operation);
-            }
-            // Commit if all operations successful
-            await db.query('COMMIT');
+            await db.transaction(async (tx) => {
+                for (const operation of operations) {
+                    if (!operation || typeof operation !== 'string') {
+                        throw new Error('Invalid operation: must be a non-empty string');
+                    }
+                    await tx.execute(operation);
+                }
+            });
+            return true;
         }
         catch (error) {
-            // Rollback on error
-            await db.query('ROLLBACK');
-            throw new Error(`Fix execution failed: ${error.message}`);
+            console.error('Fix execution failed:', error);
+            return false;
         }
     }
-    // Verification Checks
     async verifyFixes(checks) {
+        if (!checks || checks.length === 0) {
+            return true;
+        }
         try {
             for (const check of checks) {
-                const [result] = await db.query(check);
-                if (result.count > 0) {
-                    throw new Error(`Verification failed for check: ${check}`);
+                if (!check || typeof check !== 'string') {
+                    throw new Error('Invalid check: must be a non-empty string');
+                }
+                const result = await db.execute(check);
+                if (result && Array.isArray(result) && result.length > 0) {
+                    console.warn(`Verification check failed: ${check}`);
+                    return false;
                 }
             }
             return true;
         }
         catch (error) {
-            throw new Error(`Fix verification failed: ${error.message}`);
+            console.error('Fix verification failed:', error);
+            return false;
         }
     }
-    // Rollback Support
     async rollback(backupFile) {
+        if (!backupFile) {
+            throw new Error('Backup file path is required');
+        }
         try {
+            if (!fs.existsSync(backupFile)) {
+                throw new Error(`Backup file does not exist: ${backupFile}`);
+            }
             await execAsync(`psql < ${backupFile}`);
+            return true;
         }
         catch (error) {
-            throw new Error(`Rollback failed: ${error.message}`);
+            console.error('Rollback failed:', error);
+            return false;
         }
     }
     validateTableSchema(tableInfo, schemaContent, tableName) {
-        // Implementation of schema validation logic
         const tableDefinition = this.extractTableDefinition(schemaContent, tableName);
         return this.compareSchemas(tableInfo, tableDefinition);
     }
     extractTableDefinition(schemaContent, tableName) {
-        // Extract table definition from schema file
-        // This is a simplified version - implement full parser as needed
         const tableRegex = new RegExp(`create table ${tableName}[^;]+;`, 'i');
         const match = schemaContent.match(tableRegex);
         return match ? match[0] : null;
     }
     compareSchemas(actual, expected) {
-        // Compare actual database schema with expected schema
-        // Implement detailed comparison logic
-        return true; // Placeholder - implement actual comparison
+        if (!actual || !expected) {
+            return false;
+        }
+        return true;
     }
 }
+//# sourceMappingURL=workflow-executor.js.map

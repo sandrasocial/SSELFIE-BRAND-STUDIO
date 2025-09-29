@@ -1,15 +1,12 @@
-import { requireStackAuth } from '../stack-auth';
+import { requireStackAuth } from '../stack-auth.js';
 export function registerVictoriaWebsiteGenerator(app) {
-    // Generate complete website using Victoria's AI
     app.post('/api/victoria/generate-website', requireStackAuth, async (req, res) => {
         try {
             const userId = req.user.id;
             const data = req.body;
-            // Generate website structure based on input
             const websiteStructure = generateWebsiteStructure(data);
-            // Save to database
-            const { db } = await import('../db');
-            const { websites } = await import('../../shared/schema');
+            const { db } = await import('../db.js');
+            const { websites } = await import('../../shared/schema.js');
             const [newWebsite] = await db
                 .insert(websites)
                 .values({
@@ -35,11 +32,10 @@ export function registerVictoriaWebsiteGenerator(app) {
             });
         }
     });
-    // Get website preview
     app.get('/preview/:slug', async (req, res) => {
         try {
-            const { db } = await import('../db');
-            const { websites } = await import('../../shared/schema');
+            const { db } = await import('../db.js');
+            const { websites } = await import('../../shared/schema.js');
             const { eq } = await import('drizzle-orm');
             const [website] = await db
                 .select()
@@ -150,7 +146,7 @@ function generatePreviewHTML(title, content) {
             position: relative;
         }
         .hero::before {
-            content: '';
+            content: ';
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0,0,0,0.4);
@@ -237,7 +233,7 @@ function generatePreviewHTML(title, content) {
             margin: 5rem 0;
         }
         .editorial-break::before {
-            content: '';
+            content: ';
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0,0,0,0.3);
@@ -263,7 +259,6 @@ function generatePreviewHTML(title, content) {
 </head>
 <body>
 `;
-    // Generate sections based on content
     content.pages?.[0]?.sections?.forEach((section) => {
         switch (section.type) {
             case 'hero':
@@ -311,3 +306,4 @@ function generatePreviewHTML(title, content) {
 </body>
 </html>`;
 }
+//# sourceMappingURL=victoria-website-generator.js.map

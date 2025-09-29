@@ -1,20 +1,13 @@
 import { S3Client, PutBucketPolicyCommand, GetBucketPolicyCommand, ListObjectsCommand, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
-/**
- * S3 Policy Updater - Fix Critical S3 Permissions Issue
- * Updates the bucket policy to allow sselfie-s3-user proper access
- */
 export class S3PolicyUpdater {
     static s3 = new S3Client({
         credentials: {
-            accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-            secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+            accessKeyId: process.env["AWS_ACCESS_KEY_ID"],
+            secretAccessKey: process.env["AWS_SECRET_ACCESS_KEY"],
         },
-        region: 'eu-north-1' // Fixed region for bucket compatibility
+        region: 'eu-north-1'
     });
     static BUCKET_NAME = 'sselfie-training-zips';
-    /**
-     * Fixed bucket policy that allows both IAM user and public access
-     */
     static FIXED_POLICY = {
         "Version": "2012-10-17",
         "Statement": [
@@ -44,9 +37,6 @@ export class S3PolicyUpdater {
             }
         ]
     };
-    /**
-     * Apply the fixed bucket policy to resolve user upload issues
-     */
     static async applyFixedBucketPolicy() {
         try {
             console.log('🔧 S3 POLICY FIX: Applying corrected bucket policy...');
@@ -70,9 +60,6 @@ export class S3PolicyUpdater {
             };
         }
     }
-    /**
-     * Get current bucket policy for debugging
-     */
     static async getCurrentBucketPolicy() {
         try {
             console.log('🔍 S3 POLICY CHECK: Getting current bucket policy...');
@@ -97,20 +84,15 @@ export class S3PolicyUpdater {
             };
         }
     }
-    /**
-     * Test S3 access after policy update
-     */
     static async testS3Access() {
         try {
             console.log('🧪 S3 ACCESS TEST: Testing bucket access...');
-            // Test listing bucket contents
             const listCommand = new ListObjectsCommand({
                 Bucket: this.BUCKET_NAME,
                 MaxKeys: 5
             });
             const listResult = await this.s3.send(listCommand);
             console.log(`✅ S3 ACCESS TEST: Can list bucket - found ${listResult.Contents?.length || 0} objects`);
-            // Test upload (small test file)
             const testKey = `test-access-${Date.now()}.txt`;
             const putCommand = new PutObjectCommand({
                 Bucket: this.BUCKET_NAME,
@@ -120,7 +102,6 @@ export class S3PolicyUpdater {
             });
             await this.s3.send(putCommand);
             console.log('✅ S3 ACCESS TEST: Upload test successful');
-            // Clean up test file
             const deleteCommand = new DeleteObjectCommand({
                 Bucket: this.BUCKET_NAME,
                 Key: testKey
@@ -141,3 +122,4 @@ export class S3PolicyUpdater {
         }
     }
 }
+//# sourceMappingURL=s3-policy-updater.js.map

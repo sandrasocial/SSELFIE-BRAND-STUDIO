@@ -1,24 +1,17 @@
-/**
- * PERSONALITY CONFIGURATION SYSTEM
- * Clean separation between personalities and technical implementation
- */
-// MAYA FAÇADE: Removed BrandIntelligenceService dependency - Maya is now self-contained
-// import { BrandIntelligenceService } from '../../services/brand-intelligence-service'; // REMOVED: Outbound dependency
-import { MAYA_PERSONALITY } from './maya-personality';
-import { ELENA_PERSONALITY } from './elena-personality';
-import { OLGA_PERSONALITY } from './olga-personality';
-import { ZARA_PERSONALITY } from './zara-personality';
-import { VICTORIA_PERSONALITY } from './victoria-personality';
-import { ARIA_PERSONALITY } from './aria-personality';
-import { RACHEL_PERSONALITY } from './rachel-personality';
-import { DIANA_PERSONALITY } from './diana-personality';
-import { QUINN_PERSONALITY } from './quinn-personality';
-import { WILMA_PERSONALITY } from './wilma-personality';
-import { SOPHIA_PERSONALITY } from './sophia-personality';
-import { MARTHA_PERSONALITY } from './martha-personality';
-import { AVA_PERSONALITY } from './ava-personality';
-import { FLUX_PERSONALITY } from './flux-personality';
-// Pure personality definitions without technical constraints
+import { MAYA_PERSONALITY } from './maya-personality.js';
+import { ELENA_PERSONALITY } from './elena-personality.js';
+import { OLGA_PERSONALITY } from './olga-personality.js';
+import { ZARA_PERSONALITY } from './zara-personality.js';
+import { VICTORIA_PERSONALITY } from './victoria-personality.js';
+import { ARIA_PERSONALITY } from './aria-personality.js';
+import { RACHEL_PERSONALITY } from './rachel-personality.js';
+import { DIANA_PERSONALITY } from './diana-personality.js';
+import { QUINN_PERSONALITY } from './quinn-personality.js';
+import { WILMA_PERSONALITY } from './wilma-personality.js';
+import { SOPHIA_PERSONALITY } from './sophia-personality.js';
+import { MARTHA_PERSONALITY } from './martha-personality.js';
+import { AVA_PERSONALITY } from './ava-personality.js';
+import { FLUX_PERSONALITY } from './flux-personality.js';
 export const PURE_PERSONALITIES = {
     maya: MAYA_PERSONALITY,
     elena: ELENA_PERSONALITY,
@@ -35,11 +28,7 @@ export const PURE_PERSONALITIES = {
     ava: AVA_PERSONALITY,
     flux: FLUX_PERSONALITY
 };
-// Personality enhancement utilities
 export class PersonalityManager {
-    /**
-     * Get natural conversation prompt for an agent
-     */
     static getNaturalPrompt(agentId) {
         const personality = PURE_PERSONALITIES[agentId];
         if (!personality) {
@@ -47,30 +36,21 @@ export class PersonalityManager {
         }
         return this.buildNaturalPrompt(personality);
     }
-    /**
-     * Get context-specific prompt for Maya (styling vs support)
-     */
     static getContextPrompt(agentId, context) {
         const personality = PURE_PERSONALITIES[agentId];
         if (!personality) {
             return `You are a helpful AI assistant named ${agentId}.`;
         }
-        // For Maya, provide different prompts based on context
         if (agentId === 'maya') {
             if (context === 'support') {
                 return this.buildSupportPrompt(personality);
             }
             else {
-                // Default to styling context
                 return this.buildNaturalPrompt(personality);
             }
         }
-        // For other agents, use default natural prompt
         return this.buildNaturalPrompt(personality);
     }
-    /**
-     * Build Maya's support mode prompt
-     */
     static buildSupportPrompt(personality) {
         return `You are ${personality.name}, SSELFIE Studio's AI Support Assistant.
 
@@ -116,15 +96,10 @@ When escalating, say: "This needs Sandra's direct attention. Reach her at hello@
 
 🎭 VOICE EXAMPLE: "Here's exactly what's happening with your training and how to fix it. Checking your account status now to get you back on track."`;
     }
-    /**
-     * Build prompt using the new clean Maya personality structure
-     */
     static buildNaturalPrompt(personality) {
-        // Handle Maya with the new clean structure - detect by corePhilosophy property
         if (personality.corePhilosophy && personality.aestheticDNA && personality.creativeLookbook) {
             return this.buildMayaPrompt(personality);
         }
-        // Fallback for other agents using old structure
         const identityType = personality.identity?.type || personality.role || 'specialist';
         let prompt = `You are ${personality.name}, ${identityType}.
 
@@ -163,14 +138,9 @@ AUTONOMOUS WORK STYLE: You are a specialized expert who takes initiative. When g
 IMPORTANT: Always respond in your natural personality style using the voice patterns and phrases above. Maintain your character consistently throughout the conversation.
 
 🎭 VOICE EXAMPLE: When analyzing, use phrases like the Analysis Mode patterns. When executing tasks, use Execution Mode patterns. Be authentic to your personality while working autonomously.`;
-        // Maya concept generation training is now handled in buildMayaPrompt
-        // BRAND INTELLIGENCE INTEGRATION - Sandra's authentic voice and style
         prompt += this.addBrandIntelligence(personality.name);
         return prompt;
     }
-    /**
-     * Build Maya's prompt using the new clean personality structure
-     */
     static buildMayaPrompt(personality) {
         const { corePhilosophy, aestheticDNA, creativeLookbook } = personality;
         let prompt = `You are Maya, SSELFIE Studio's AI Art Director, Brand Stylist, and Location Scout.
@@ -188,7 +158,6 @@ AESTHETIC DNA - The SSELFIE Studio Style:
 • FOCUS ON LIGHT: ${aestheticDNA.focusOnLight}
 
 CREATIVE EXPERTISE - Your 12 Signature Looks:`;
-        // Add each creative look from the lookbook
         creativeLookbook.forEach((look, index) => {
             if (look.type !== 'user-directed') {
                 prompt += `
@@ -203,7 +172,6 @@ Detail Styling (The "20%"): ${look.detailPropStyling}
 Location Intelligence: ${look.locationIntelligence}`;
             }
         });
-        // Add concept card generation training
         prompt += `
 
 🎯 CRITICAL: CONCEPT CARD GENERATION TRAINING
@@ -253,9 +221,6 @@ EXAMPLE PHRASES:
 "I'm excited to see..."`;
         return prompt;
     }
-    /**
-     * Add Sandra's brand intelligence to specific agents
-     */
     static addBrandIntelligence(agentName) {
         switch (agentName) {
             case 'Elena':
@@ -381,17 +346,11 @@ IMPLEMENT THESE DESIGN PRINCIPLES IN ALL UI/WEBSITE WORK
                 return '';
         }
     }
-    /**
-     * MAYA SPECIALIZED KNOWLEDGE LOADER - Load her complete styling intelligence from actual properties
-     */
-    // ✅ SIMPLIFIED: Maya's knowledge flows naturally from her personality - no complex building needed
     static buildSpecializedKnowledge(personality) {
         if (personality.name !== 'Maya') {
-            return ''; // Only Maya needs specialized fashion knowledge
+            return '';
         }
-        // Maya's intelligence is embedded in her core personality - trust her natural knowledge
         let knowledge = '\n🎨 MAYA\'S NATURAL STYLING INTELLIGENCE:\n';
-        // Load Maya's ACTUAL outfit formulas (effortlessGlam, businessBabe, etc.)
         if (personality.outfitFormulas) {
             knowledge += '\nOUTFIT FORMULAS - Maya\'s Professional Styling Combinations:\n';
             Object.entries(personality.outfitFormulas).forEach(([category, formulas]) => {
@@ -399,7 +358,6 @@ IMPLEMENT THESE DESIGN PRINCIPLES IN ALL UI/WEBSITE WORK
                 formulas.forEach((formula) => knowledge += `- ${formula}\n`);
             });
         }
-        // Load Maya's hair & beauty expertise
         if (personality.hairAndBeauty) {
             knowledge += '\nHAIR & BEAUTY EXPERTISE - Editorial Styling Knowledge:\n';
             Object.entries(personality.hairAndBeauty).forEach(([category, techniques]) => {
@@ -407,7 +365,6 @@ IMPLEMENT THESE DESIGN PRINCIPLES IN ALL UI/WEBSITE WORK
                 techniques.forEach((technique) => knowledge += `- ${technique}\n`);
             });
         }
-        // Load Maya's sophisticated photo locations
         if (personality.photoLocations) {
             knowledge += '\nSOPHISTICATED PHOTO LOCATIONS - Editorial Quality Spaces:\n';
             Object.entries(personality.photoLocations).forEach(([category, locations]) => {
@@ -415,7 +372,6 @@ IMPLEMENT THESE DESIGN PRINCIPLES IN ALL UI/WEBSITE WORK
                 locations.forEach((location) => knowledge += `- ${location}\n`);
             });
         }
-        // Load Maya's color intelligence
         if (personality.colorIntelligence) {
             knowledge += '\nCOLOR INTELLIGENCE - Editorial Palettes & Combinations:\n';
             Object.entries(personality.colorIntelligence).forEach(([category, colors]) => {
@@ -423,7 +379,6 @@ IMPLEMENT THESE DESIGN PRINCIPLES IN ALL UI/WEBSITE WORK
                 colors.forEach((color) => knowledge += `- ${color}\n`);
             });
         }
-        // Load Maya's photography expertise
         if (personality.photographyExpertise) {
             knowledge += '\nPHOTOGRAPHY EXPERTISE - Technical & Creative Mastery:\n';
             Object.entries(personality.photographyExpertise).forEach(([category, expertise]) => {
@@ -441,7 +396,6 @@ IMPLEMENT THESE DESIGN PRINCIPLES IN ALL UI/WEBSITE WORK
                 }
             });
         }
-        // Load Maya's technical expertise for advanced prompt creation
         if (personality.technicalExpertise) {
             knowledge += '\nTECHNICAL EXPERTISE - Camera & Lighting Mastery:\n';
             Object.entries(personality.technicalExpertise).forEach(([category, expertise]) => {
@@ -459,7 +413,6 @@ IMPLEMENT THESE DESIGN PRINCIPLES IN ALL UI/WEBSITE WORK
                 }
             });
         }
-        // Load Maya's professional background for styling context
         if (personality.professionalBackground) {
             knowledge += '\nPROFESSIONAL BACKGROUND - Real Industry Experience:\n';
             Object.entries(personality.professionalBackground).forEach(([category, experience]) => {
@@ -467,17 +420,14 @@ IMPLEMENT THESE DESIGN PRINCIPLES IN ALL UI/WEBSITE WORK
                 experience.forEach((exp) => knowledge += `- ${exp}\n`);
             });
         }
-        // Load Maya's natural styling intuition
         if (personality.fluxOptimization?.stylingIntuition) {
             knowledge += '\n✨ MAYA\'S NATURAL STYLING INTUITION:\n';
             personality.fluxOptimization.stylingIntuition.forEach((intuition) => knowledge += `- ${intuition}\n`);
         }
-        // Load Maya's natural styling flow
         if (personality.brandMission?.naturalStylingFlow) {
             knowledge += '\n🎨 NATURAL STYLING FLOW:\n';
             knowledge += `- ${personality.brandMission.naturalStylingFlow}\n`;
         }
-        // Load Maya's category-specific styling approaches
         if (personality.categories) {
             const categoryCount = Object.keys(personality.categories).length;
             console.log(`🎨 MAYA CATEGORIES LOADING: Found ${categoryCount} categories`);
@@ -496,7 +446,6 @@ IMPLEMENT THESE DESIGN PRINCIPLES IN ALL UI/WEBSITE WORK
             console.error(`❌ MAYA CATEGORIES MISSING: personality.categories not found`);
         }
         knowledge += '\n⚡ CRITICAL: Use this COMPLETE styling intelligence when creating prompts. You have Maya\'s actual outfit formulas, editorial color palettes, sophisticated locations, hair/beauty expertise, photography mastery, professional background, AND category-specific styling approaches. Apply this knowledge creatively to generate diverse, professional styling concepts.\n';
-        // NEW: Add context enhancement rules (moved from route-level)
         knowledge += '\n🎯 CONTEXT ENHANCEMENT INTELLIGENCE:\n';
         knowledge += '- Analyze user personal brand context from conversation history\n';
         knowledge += '- Extract styling reasoning from previous responses\n';
@@ -504,21 +453,17 @@ IMPLEMENT THESE DESIGN PRINCIPLES IN ALL UI/WEBSITE WORK
         knowledge += '- Use category-specific intelligence for targeted styling\n';
         knowledge += '- Provide personalized styling expertise for subscriber transformation journey\n';
         knowledge += '- Help users achieve their business transformation goals through visual branding\n';
-        // Single API call efficiency
         knowledge += '\n⚡ UNIFIED STYLING RESPONSE:\n';
         knowledge += '- Maya provides complete styling intelligence in cohesive responses\n';
         knowledge += '- Integrated concept creation with technical implementation\n';
-        // Maya's natural concept generation approach
         knowledge += '\n🎯 MAYA\'S CONCEPT CREATION:\n';
         knowledge += '- Maya creates intelligent styling concepts based on user needs and context\n';
         knowledge += '- Uses complete fashion expertise to generate appropriate styling solutions\n';
         knowledge += '- Provides rich, detailed styling visions that inspire and guide\n';
-        // Maya's natural FLUX optimization intelligence
         knowledge += '\n🎨 MAYA\'S FLUX INTELLIGENCE:\n';
         knowledge += 'Maya naturally creates rich, detailed prompts using her complete styling expertise\n';
         knowledge += 'Technical elements flow organically within natural styling descriptions\n';
         knowledge += 'Photography specifications enhance rather than constrain creative vision\n';
-        // CRITICAL: Add single API call system instructions for Maya
         if (personality.singleApiCallSystem) {
             knowledge += '\n🚨 CRITICAL: SINGLE API CALL SYSTEM REQUIREMENTS\n';
             knowledge += personality.singleApiCallSystem.mandatoryFormat;
@@ -528,9 +473,6 @@ IMPLEMENT THESE DESIGN PRINCIPLES IN ALL UI/WEBSITE WORK
         }
         return knowledge;
     }
-    /**
-     * Format voice examples for natural conversation
-     */
     static formatVoiceExamples(voice) {
         if (voice?.examples) {
             return voice.examples.map((example) => `- "${example}"`).join('\n');
@@ -542,13 +484,9 @@ EXECUTION MODE: ${voice.executionMode.patterns?.map((p) => `"${p}"`).join(', ') 
         }
         return 'Natural, authentic communication style';
     }
-    /**
-     * Format natural approach without technical constraints
-     */
     static formatNaturalApproach(personality) {
         if (!personality)
             return 'Focus on helpful, authentic assistance';
-        // Try different personality structure patterns
         if (personality.expertise?.trends) {
             return `Focus on: ${personality.expertise.trends.slice(0, 3).join(', ')}`;
         }
@@ -560,13 +498,9 @@ EXECUTION MODE: ${voice.executionMode.patterns?.map((p) => `"${p}"`).join(', ') 
         }
         return 'Professional expertise and authentic assistance';
     }
-    /**
-     * Format expertise areas for autonomous work guidance
-     */
     static formatExpertise(personality) {
         if (!personality)
             return 'General assistance and support';
-        // Get specializations or tools
         if (personality.expertise?.specializations) {
             return personality.expertise.specializations.slice(0, 3).join('\n- ');
         }
@@ -578,18 +512,9 @@ EXECUTION MODE: ${voice.executionMode.patterns?.map((p) => `"${p}"`).join(', ') 
         }
         return 'Specialized expertise in your domain';
     }
-    /**
-     * Check if conversation should preserve personality context
-     */
     static shouldPreserveContext(message) {
-        // Always preserve context for natural conversation flow
-        // Remove artificial restrictions that interrupt personality
-        return message.length > 10; // Simple check - preserve for real conversations
+        return message.length > 10;
     }
-    /**
-     * Get FLUX parameters for Maya from her personality configuration
-     * Centralizes parameter selection to eliminate service-level duplication
-     */
     static getFluxParameters(agentId, shotType = 'halfBodyShot') {
         if (agentId !== 'maya') {
             throw new Error('FLUX parameters only available for Maya');
@@ -598,15 +523,10 @@ EXECUTION MODE: ${voice.executionMode.patterns?.map((p) => `"${p}"`).join(', ') 
         if (!personality?.fluxOptimization) {
             throw new Error('Maya FLUX optimization configuration missing');
         }
-        // Return the specific shot type parameters from Maya's intelligence
         const validShotTypes = ['closeUpPortrait', 'halfBodyShot', 'fullScenery'];
         const normalizedShotType = validShotTypes.includes(shotType) ? shotType : 'halfBodyShot';
         return personality.fluxOptimization[normalizedShotType];
     }
-    /**
-     * Get coaching configuration for Maya
-     * Centralizes coaching config access to eliminate service-level duplication
-     */
     static getCoachingConfig(agentId) {
         if (agentId !== 'maya') {
             throw new Error('Coaching configuration only available for Maya');
@@ -618,3 +538,4 @@ EXECUTION MODE: ${voice.executionMode.patterns?.map((p) => `"${p}"`).join(', ') 
         return personality.trainingTimeCoaching;
     }
 }
+//# sourceMappingURL=personality-config.js.map

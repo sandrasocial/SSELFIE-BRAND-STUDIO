@@ -1,12 +1,8 @@
-import { db } from "../drizzle";
+import { db } from "../drizzle.js";
 import { eq } from "drizzle-orm";
-import { onboardingData, brandOnboarding, userProfiles, } from "../../shared/schema";
+import { onboardingData, brandOnboarding, userProfiles, } from "../../shared/schema.js";
 export class PersonalBrandService {
-    /**
-     * Create comprehensive personal brand profile from onboarding responses
-     */
     async createPersonalBrandProfile(userId, brandData) {
-        // Update existing onboarding data with story elements
         if (brandData.personalStory || brandData.businessContext) {
             const existingOnboarding = await this.getExistingOnboardingData(userId);
             const onboardingUpdate = {
@@ -23,7 +19,6 @@ export class PersonalBrandService {
             };
             await this.updateOnboardingData(userId, onboardingUpdate);
         }
-        // Update/create brand onboarding with detailed information
         if (brandData.businessContext || brandData.contactInfo) {
             const brandOnboardingData = {
                 businessName: brandData.businessContext?.businessType || "Personal Brand",
@@ -48,7 +43,6 @@ export class PersonalBrandService {
             };
             await this.saveBrandOnboarding(userId, brandOnboardingData);
         }
-        // Update user profile with contact information
         if (brandData.contactInfo) {
             const profileUpdate = {
                 instagramHandle: brandData.contactInfo.instagramHandle,
@@ -62,9 +56,6 @@ export class PersonalBrandService {
         }
         return this.getPersonalBrandProfile(userId);
     }
-    /**
-     * Retrieve complete personal brand profile
-     */
     async getPersonalBrandProfile(userId) {
         const [onboarding, brandOnboarding, profile] = await Promise.all([
             this.getExistingOnboardingData(userId),
@@ -111,9 +102,6 @@ export class PersonalBrandService {
             currentStep: onboarding?.currentStep || 1
         };
     }
-    /**
-     * Save personal brand story from onboarding conversation
-     */
     async savePersonalBrandStory(userId, story) {
         const onboardingUpdate = {
             brandStory: story.transformationJourney,
@@ -121,7 +109,6 @@ export class PersonalBrandService {
             updatedAt: new Date()
         };
         await this.updateOnboardingData(userId, onboardingUpdate);
-        // Also update brand onboarding for detailed storage
         const brandUpdate = {
             personalStory: story.transformationJourney,
             tagline: story.dreamOutcome,
@@ -130,9 +117,6 @@ export class PersonalBrandService {
         };
         await this.saveBrandOnboarding(userId, brandUpdate);
     }
-    /**
-     * Save business context from onboarding conversation
-     */
     async saveBusinessContext(userId, business) {
         const onboardingUpdate = {
             businessGoals: business.businessGoals,
@@ -141,7 +125,6 @@ export class PersonalBrandService {
             updatedAt: new Date()
         };
         await this.updateOnboardingData(userId, onboardingUpdate);
-        // Detailed business context in brand onboarding
         const brandUpdate = {
             businessName: business.businessType,
             targetClient: business.targetAudience,
@@ -154,9 +137,6 @@ export class PersonalBrandService {
         };
         await this.saveBrandOnboarding(userId, brandUpdate);
     }
-    /**
-     * Save style preferences from onboarding conversation
-     */
     async saveStylePreferences(userId, style) {
         const onboardingUpdate = {
             stylePreferences: style.styleCategories.join(", "),
@@ -164,7 +144,6 @@ export class PersonalBrandService {
             updatedAt: new Date()
         };
         await this.updateOnboardingData(userId, onboardingUpdate);
-        // Detailed style preferences in brand onboarding
         const brandUpdate = {
             brandPersonality: style.brandPersonality || "sophisticated",
             stylePreference: style.stylePreference || "editorial-luxury",
@@ -172,43 +151,30 @@ export class PersonalBrandService {
             updatedAt: new Date()
         };
         await this.saveBrandOnboarding(userId, brandUpdate);
-        // Update user profile brand vibe
         const profileUpdate = {
             brandVibe: style.brandPersonality,
             updatedAt: new Date()
         };
         await this.updateUserProfile(userId, profileUpdate);
     }
-    /**
-     * Mark onboarding as completed
-     */
     async completePersonalBrandOnboarding(userId) {
         const onboardingUpdate = {
             completed: true,
             completedAt: new Date(),
-            currentStep: 6, // Final step
+            currentStep: 6,
             updatedAt: new Date()
         };
         await this.updateOnboardingData(userId, onboardingUpdate);
         return this.getPersonalBrandProfile(userId);
     }
-    /**
-     * Check if user has completed personal brand onboarding
-     */
     async hasCompletedPersonalBrandOnboarding(userId) {
         const onboarding = await this.getExistingOnboardingData(userId);
         return onboarding?.completed || false;
     }
-    /**
-     * Get onboarding progress (1-6 steps)
-     */
     async getOnboardingProgress(userId) {
         const onboarding = await this.getExistingOnboardingData(userId);
         return onboarding?.currentStep || 1;
     }
-    /**
-     * Update onboarding step progress
-     */
     async updateOnboardingProgress(userId, step) {
         const onboardingUpdate = {
             currentStep: step,
@@ -216,7 +182,6 @@ export class PersonalBrandService {
         };
         await this.updateOnboardingData(userId, onboardingUpdate);
     }
-    // ===== PRIVATE DATABASE HELPER METHODS =====
     async getExistingOnboardingData(userId) {
         const [data] = await db
             .select()
@@ -225,7 +190,6 @@ export class PersonalBrandService {
         return data;
     }
     async updateOnboardingData(userId, data) {
-        // Check if onboarding data exists
         const existing = await this.getExistingOnboardingData(userId);
         if (existing) {
             const [updated] = await db
@@ -236,7 +200,6 @@ export class PersonalBrandService {
             return updated;
         }
         else {
-            // Create new onboarding data
             const [created] = await db
                 .insert(onboardingData)
                 .values({
@@ -315,9 +278,7 @@ export class PersonalBrandService {
             return created;
         }
     }
-    // ===== PRIVATE UTILITY METHODS =====
     extractCurrentSituation(onboarding, brandData) {
-        // Combine available data to understand current situation
         const business = onboarding?.businessType || brandData?.businessName || "";
         const struggles = brandData?.problemYouSolve || "";
         return `${business}${struggles ? ` - ${struggles}` : ""}`.trim();
@@ -333,7 +294,6 @@ export class PersonalBrandService {
     extractColorPreferences(brandData) {
         if (!brandData?.colorScheme)
             return [];
-        // Parse color scheme into individual preferences
         const scheme = brandData.colorScheme.toLowerCase();
         if (scheme.includes("black") && scheme.includes("white")) {
             return ["black", "white", "monochrome"];
@@ -347,5 +307,5 @@ export class PersonalBrandService {
         return [brandData.colorScheme];
     }
 }
-// Export singleton instance
 export const personalBrandService = new PersonalBrandService();
+//# sourceMappingURL=personal-brand-service.js.map

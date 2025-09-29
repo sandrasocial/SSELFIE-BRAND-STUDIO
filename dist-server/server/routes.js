@@ -3,40 +3,35 @@ import { createServer } from "http";
 import cookieParser from "cookie-parser";
 import { setupRollbackRoutes } from './routes/rollback.js';
 import { storage } from "./storage.js";
-import { requireStackAuth } from './stack-auth';
-import emailAutomation from './routes/email-automation';
-import { registerVictoriaService } from "./routes/victoria-service";
-import { registerVictoriaWebsiteGenerator } from "./routes/victoria-website-generator";
-import videoRoutes from './routes/video';
-import { liveSessionRoutes } from './routes/live-session';
-import { analyticsRoutes } from './routes/analytics';
+import { requireStackAuth } from './stack-auth.js';
+import emailAutomation from './routes/email-automation.js';
+import { registerVictoriaService } from "./routes/victoria-service.js";
+import { registerVictoriaWebsiteGenerator } from "./routes/victoria-website-generator.js";
+import videoRoutes from './routes/video.js';
+import { liveSessionRoutes } from './routes/live-session.js';
+import { analyticsRoutes } from './routes/analytics.js';
 import path from 'path';
 import fs from 'fs';
-import emailManagementRouter from './routes/email-management-routes';
-// New modular routes
-import utilityRoutes from './routes/modules/utility';
-import authRoutes from './routes/modules/auth';
-import aiGenerationRoutes from './routes/modules/ai-generation';
-import adminRoutes from './routes/modules/admin';
-import agentProtocolRoutes from './routes/modules/agent-protocol';
-import websitesRoutes from './routes/modules/websites';
-import trainingRoutes from './routes/modules/training';
-import levelPartnerWebhook from './routes/levelpartner-webhook';
-import hairTrendsRoute from './routes/hair-trends-route';
-import trendsCurrentRoute from './routes/trends-current';
-import { scheduleTrendAnalysis } from './scheduled-tasks/fetch-hair-trends';
-import claudeRoutes from './routes/modules/claude';
-import usageRoutes from './routes/modules/usage';
-// Reconstructed wrapper function (previously removed during refactor cleanup)
+import emailManagementRouter from './routes/email-management-routes.js';
+import utilityRoutes from './routes/modules/utility.js';
+import authRoutes from './routes/modules/auth.js';
+import aiGenerationRoutes from './routes/modules/ai-generation.js';
+import adminRoutes from './routes/modules/admin.js';
+import agentProtocolRoutes from './routes/modules/agent-protocol.js';
+import websitesRoutes from './routes/modules/websites.js';
+import trainingRoutes from './routes/modules/training.js';
+import levelPartnerWebhook from './routes/levelpartner-webhook.js';
+import hairTrendsRoute from './routes/hair-trends-route.js';
+import trendsCurrentRoute from './routes/trends-current.js';
+import { scheduleTrendAnalysis } from './scheduled-tasks/fetch-hair-trends.js';
+import claudeRoutes from './routes/modules/claude.js';
+import usageRoutes from './routes/modules/usage.js';
 export async function registerRoutes(app) {
-    // Create HTTP server reference (needed for later return)
     const server = createServer(app);
-    // Core middleware setup formerly at top-level now inside wrapper
     app.use(express.json({ limit: '10mb' }));
     app.use(express.urlencoded({ extended: true, limit: '10mb' }));
     app.use(cookieParser());
     console.log('✅ Cookie parser middleware initialized');
-    // Register new modular routes
     app.use('/', utilityRoutes);
     app.use('/', authRoutes);
     app.use('/', aiGenerationRoutes);
@@ -50,11 +45,6 @@ export async function registerRoutes(app) {
     app.use('/', claudeRoutes);
     app.use('/', usageRoutes);
     console.log('✅ Modular routes registered (including LevelPartner webhook and Hair Trends)');
-    // NOTE: The remainder of the file already assumes an existing `app` context.
-    // Imports consolidated above wrapper during refactor.
-    // REMOVED: All competing streaming and orchestration systems that were intercepting tools
-    // REMOVED: registerAdminConversationRoutes - using unified consulting-agents-routes only
-    // Generate Victoria website HTML content
     function generateWebsiteHTML_Legacy(websiteData, onboardingData) {
         const businessName = websiteData.businessName || 'Your Business';
         const businessDescription = websiteData.businessDescription || onboardingData?.brandStory || 'Professional services';
@@ -227,15 +217,12 @@ export async function registerRoutes(app) {
 </body>
 </html>`;
     }
-    // 🎬 STORY STUDIO HELPER FUNCTIONS
     function parseStoryScenes(mayaResponse, originalMessage) {
         const scenes = [];
         try {
-            // Extract scenes from Maya's response using intelligent parsing
             const sceneMatches = mayaResponse.match(/scene\s*(\d+)/gi);
             const sceneParts = mayaResponse.split(/scene\s*\d+/i).slice(1);
             if (sceneMatches && sceneParts.length > 0) {
-                // Parse Maya's structured response
                 for (let i = 0; i < Math.min(sceneMatches.length, sceneParts.length, 5); i++) {
                     const sceneContent = sceneParts[i]?.trim() || '';
                     const sceneNumber = i + 1;
@@ -250,11 +237,9 @@ export async function registerRoutes(app) {
         catch (error) {
             console.log('📝 Story: Using fallback scene parsing');
         }
-        // If parsing failed or no scenes found, create intelligent defaults
         if (scenes.length === 0) {
             return createFallbackScenes(originalMessage);
         }
-        // Ensure we have at least 3 scenes
         while (scenes.length < 3) {
             const sceneNumber = scenes.length + 1;
             scenes.push({
@@ -266,13 +251,11 @@ export async function registerRoutes(app) {
         return scenes;
     }
     function extractScenePrompt(sceneContent, sceneNumber, originalMessage) {
-        // Extract the most relevant part of Maya's response for each scene
         const lines = sceneContent.split('\n').filter(line => line.trim());
         const relevantLines = lines.slice(0, 3).join(' ').trim();
         if (relevantLines.length > 10) {
             return relevantLines.length > 200 ? relevantLines.substring(0, 197) + '...' : relevantLines;
         }
-        // Fallback to generated prompt
         return generateDefaultScenePrompt(sceneNumber, originalMessage);
     }
     function generateDefaultScenePrompt(sceneNumber, originalMessage) {
@@ -323,18 +306,15 @@ export async function registerRoutes(app) {
             }
         ];
     }
-    // 🎬 ENHANCED VIDEO PROCESSING FUNCTIONS FOR VEO INTEGRATION
     async function parseVideoScenes(mayaResponse, originalMessage, userModel, keyframes) {
         const scenes = [];
         try {
-            // Extract scenes from Maya's enhanced video response
             const sceneMatches = mayaResponse.match(/scene\s*(\d+)/gi);
             const sceneParts = mayaResponse.split(/scene\s*\d+/i).slice(1);
             if (sceneMatches && sceneParts.length > 0) {
                 for (let i = 0; i < Math.min(sceneMatches.length, sceneParts.length, 5); i++) {
                     const sceneContent = sceneParts[i]?.trim() || '';
                     const sceneNumber = i + 1;
-                    // Enhanced scene with LoRA integration
                     scenes.push({
                         id: `scene_${sceneNumber}`,
                         scene: sceneNumber,
@@ -342,7 +322,7 @@ export async function registerRoutes(app) {
                         originalPrompt: sceneContent,
                         userLoraModel: userModel.replicateModelId,
                         keyframeIndex: keyframes[i] ? i : null,
-                        duration: extractDuration(sceneContent) || (3 + sceneNumber * 2), // 5-13 second range
+                        duration: extractDuration(sceneContent) || (3 + sceneNumber * 2),
                         cameraMovement: extractCameraMovement(sceneContent),
                         textOverlay: extractTextOverlay(sceneContent)
                     });
@@ -353,11 +333,9 @@ export async function registerRoutes(app) {
         catch (error) {
             console.error('Video scene parsing error:', error);
         }
-        // If parsing failed, create personalized defaults
         if (scenes.length === 0) {
             return await createPersonalizedFallbackScenes(originalMessage, userModel.userId);
         }
-        // Ensure minimum 3 scenes
         while (scenes.length < 3) {
             const sceneNumber = scenes.length + 1;
             scenes.push({
@@ -372,7 +350,6 @@ export async function registerRoutes(app) {
     }
     async function createPersonalizedFallbackScenes(message, userId) {
         const messageContext = message?.toLowerCase() || '';
-        // Get user model for personalization
         let userModel;
         try {
             userModel = await storage.getUserModel(userId);
@@ -406,9 +383,7 @@ export async function registerRoutes(app) {
         ];
     }
     function enhanceSceneWithLoRA(sceneContent, userModel) {
-        // Enhance scene prompts with LoRA model integration
         const loraReference = userModel?.replicateModelId ? `${userModel.replicateModelId} (professional trained model)` : 'user';
-        // Add LoRA reference if not already present
         if (!sceneContent.toLowerCase().includes('lora') && !sceneContent.toLowerCase().includes(userModel?.replicateModelId?.toLowerCase() || '')) {
             return `${sceneContent} Featuring ${loraReference} with consistent appearance and professional branding.`;
         }
@@ -442,11 +417,6 @@ export async function registerRoutes(app) {
                 return `Continuation scene ${loraRef}: Advancing brand narrative with engaging visual storytelling and personal touch.`;
         }
     }
-    // 🎬 VEO VIDEO GENERATION INTEGRATION (Supports Google Veo (veo 3) or legacy Replicate)
-    // (VEO generation & status logic moved to services/veo-service.ts)
-    // (Removed obsolete duplicate inline status handling block)
-    // (Static file serving and Vite dev server setup moved to server/start.ts)
-    // 🚨 CRITICAL FIX: Register admin consulting route BEFORE session middleware
     console.log('🤖 REGISTERING FIXED AGENT ROUTES: Clean conversation system');
     app.get('/api/test-auth', requireStackAuth, async (req, res) => {
         try {
@@ -459,7 +429,6 @@ export async function registerRoutes(app) {
                     details: { user: stackUser }
                 });
             }
-            // Try to find user in database
             const dbUser = await storage.getUser(stackUser.id);
             console.log('🧪 STACK AUTH TEST - User from database:', dbUser ? 'FOUND' : 'NOT FOUND');
             res.json({
@@ -492,58 +461,40 @@ export async function registerRoutes(app) {
             });
         }
     });
-    // 🚀 AUTO-REGISTRATION: Create accounts for paying users automatically
     app.get("/training-zip/:filename", (req, res) => {
         const filename = req.params.filename;
         const filePath = path.join(process.cwd(), 'temp_training', filename);
         if (!fs.existsSync(filePath)) {
             return res.status(404).json({ error: 'Training ZIP file not found' });
         }
-        // Set correct content type for ZIP files
         res.setHeader('Content-Type', 'application/zip');
         res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
         console.log(`📦 Serving training ZIP: ${filename} (${fs.statSync(filePath).size} bytes)`);
         res.sendFile(filePath);
     });
-    // Setup rollback routes
     setupRollbackRoutes(app);
-    // Register Victoria AI service layer
     registerVictoriaService(app);
-    // Register Victoria website generator
     registerVictoriaWebsiteGenerator(app);
-    // PHASE 4: OLD MAYA ROUTES DISABLED (Fragmented system archived)
-    // registerMayaAIRoutes(app);
-    // app.use('/api/maya-onboarding', mayaOnboardingRoutes);
-    // MAYA UNIFIED API: Now handled by modular routes (./routes/modules/maya)
-    // Legacy maya router disabled to prevent conflicts with modular Maya routes
-    // const { default: mayaUnifiedRouter } = await import('./routes/maya');
-    // app.use('/api/maya', mayaUnifiedRouter);
     console.log('🎨 MAYA ROUTES: Active via modular system (./routes/modules/maya)');
-    // HYBRID BACKEND: Concept Cards API for clean persistence and unique React keys
-    const { default: conceptCardsRouter } = await import('./routes/concept-cards');
+    const { default: conceptCardsRouter } = await import('./routes/concept-cards.js');
     app.use('/api/concepts', conceptCardsRouter);
     console.log('💡 CONCEPT CARDS: API active at /api/concepts/* (ULID-based unique keys)');
-    // Stage Mode Live Session Routes  
     app.use('/api/live', liveSessionRoutes);
     console.log('🎪 LIVE SESSIONS: Stage Mode API active at /api/live/* (Interactive presentations)');
-    // Stage Mode Analytics Routes
     app.use('/api/analytics', analyticsRoutes);
     console.log('📊 ANALYTICS: Stage Mode analytics API active at /api/analytics/* (Event tracking)');
-    // P3-C BRAND ASSETS: Upload and placement of brand assets (logos, product shots)
-    if (process.env.BRAND_ASSETS_ENABLED === '1') {
-        const { default: brandAssetsRouter } = await import('./routes/brand-assets');
-        const { default: brandPlacementRouter } = await import('./routes/brand-placement');
+    if (process.env['BRAND_ASSETS_ENABLED'] === '1') {
+        const { default: brandAssetsRouter } = await import('./routes/brand-assets.js');
+        const { default: brandPlacementRouter } = await import('./routes/brand-placement.js');
         app.use('/api/brand-assets', brandAssetsRouter);
         app.use('/api/brand-assets', brandPlacementRouter);
         console.log('🎨 BRAND ASSETS: API active at /api/brand-assets/* (Upload & Placement)');
     }
-    // 🎥 STORY STUDIO API - Server-side AI video story generation
-    // Initialize Gemini AI client for server-side operations
     let geminiAI = null;
     try {
         const { GoogleGenAI } = await import('@google/genai');
-        if (process.env.GOOGLE_API_KEY) {
-            geminiAI = new GoogleGenAI({ apiKey: process.env.GOOGLE_API_KEY });
+        if (process.env['GOOGLE_API_KEY']) {
+            geminiAI = new GoogleGenAI({ apiKey: process.env['GOOGLE_API_KEY'] });
             console.log('🔑 STORY STUDIO: Gemini AI initialized server-side');
         }
         else {
@@ -553,42 +504,21 @@ export async function registerRoutes(app) {
     catch (error) {
         console.error('❌ STORY STUDIO: Failed to initialize Gemini AI:', error);
     }
-    // POST /api/story/draft - Draft storyboard using Gemini
     app.get('/api/health', (req, res) => {
         res.json({ status: 'ok', timestamp: new Date().toISOString() });
     });
-    // Removed: agent-search-cache-test moved to backup
-    // Email automation routes
     app.use('/api/email', emailAutomation);
-    // 🎬 VEO 3 Video generation routes
     app.use('/api/video', videoRoutes);
     console.log('🎬 VEO 3: Video generation API active at /api/video/*');
-    // 📧 AVA Email Management Agent Routes
     app.use('/api/email-management', emailManagementRouter);
-    // 🔐 Gmail Authentication Routes
-    // const gmailAuthRouter = await import('./routes/gmail-auth'); // DISABLED
-    // app.use('/api/auth/gmail', gmailAuthRouter.default); // DISABLED
-    // 📱 Instagram DM Management Routes
-    const instagramManagementRouter = await import('./routes/instagram-management');
+    const instagramManagementRouter = await import('./routes/instagram-management.js');
     app.use('/api/instagram-management', instagramManagementRouter.default);
-    // 🧪 Slack Integration Testing Routes (DISABLED - moved to legacy)
-    // const slackTestRouter = await import('./routes/slack-test');
-    // app.use('/api/slack', slackTestRouter.default);
-    // Subscriber import routes
-    // const subscriberImport = await import('./routes/subscriber-import'); // DISABLED
-    // app.use('/api/subscribers', subscriberImport.default); // DISABLED
-    // REMOVED: Multiple conflicting admin routers - consolidated into single adminRouter
-    // Register white-label client setup endpoints
-    // app.use(whitelabelRoutes); // DISABLED
-    // RESTORED: Sandra's admin user management system active
-    // Image proxy endpoint to bypass CORS issues with S3
     app.get('/api/proxy-image', requireStackAuth, async (req, res) => {
         try {
             const { url } = req.query;
             if (!url || typeof url !== 'string') {
                 return res.status(400).json({ error: 'Image URL required' });
             }
-            // Only allow our S3 bucket URLs for security
             if (!url.includes('sselfie-training-zips.s3.') && !url.includes('replicate.delivery')) {
                 return res.status(403).json({ error: 'Unauthorized image source' });
             }
@@ -601,7 +531,6 @@ export async function registerRoutes(app) {
             if (!response.ok) {
                 throw new Error(`Failed to fetch image: ${response.status}`);
             }
-            // Set appropriate headers
             res.set({
                 'Content-Type': response.headers.get('content-type') || 'image/png',
                 'Cache-Control': 'public, max-age=3600',
@@ -609,7 +538,6 @@ export async function registerRoutes(app) {
                 'Access-Control-Allow-Methods': 'GET',
                 'Access-Control-Allow-Headers': 'Content-Type'
             });
-            // Stream the image
             const buffer = await response.arrayBuffer();
             res.send(Buffer.from(buffer));
         }
@@ -618,170 +546,10 @@ export async function registerRoutes(app) {
             res.status(500).json({ error: 'Failed to proxy image' });
         }
     });
-    /*
-    // Maya Chat endpoint - MEMBER AGENT (Personal Brand Photography Guide)
-    app.post('/api/maya-chat', requireStackAuth, async (req: any, res) => {
-      try {
-        const { message, chatHistory } = req.body;
-        const userId = req.user.id;
-        
-        if (!message) {
-          return res.status(400).json({ error: 'Message is required' });
-        }
-  
-        console.log('💬 Maya MEMBER chat message received from user:', userId);
-  
-        // MAYA FAÇADE: Removed PersonalityManager import - Maya's personality via API only
-        // const { PersonalityManager } = await import('./agents/personalities/personality-config'); // REMOVED: Direct dependency
-        
-        // Create member-specific system prompt using Maya's elevated personality
-        // MAYA FAÇADE: Standard system prompt - Maya's personality via API only
-        const mayaSystemPrompt = `You are Maya, SSELFIE Studio's AI Creative Director and personal brand strategist.
-  
-  🎯 MEMBER CONTEXT: You are helping a paying customer create stunning personal brand photos using SSELFIE Studio. Focus purely on fashion expertise and photo creation with your A-list celebrity stylist experience.
-  
-  CUSTOMER INTERACTION GOALS:
-  - Help them style amazing photos using your 15+ years A-list experience
-  - Use current 2025 trends: Dark Academia Winter, Soft Power Dressing, European Minimalism
-  - Create authentic moments with your celebrity-level technical expertise
-  - Make them feel confident and excited about their photos
-  - Generate specific styling prompts when they're ready
-  
-  RESPONSE FORMAT:
-  1. Give a warm, conversational response using your authentic celebrity stylist personality and A-list expertise
-  2. When ready to generate images, include exactly 2 hidden prompts in this format:
-  \`\`\`prompt
-  [detailed poetic generation prompt with technical excellence 1]
-  \`\`\`
-  \`\`\`prompt
-  [detailed poetic generation prompt with technical excellence 2]
-  \`\`\`
-  
-  PROMPT CREATION RULES (Celebrity stylist level):
-  - Use your A-list experience: "Canon EOS R5 with 85mm lens for executive portrait compression"
-  - Include current 2025 trends: Dark Academia Winter, European Minimalism, Athletic Luxury
-  - Technical lighting mastery: "Morning golden hour when light is crisp but warm"
-  - Celebrity-level direction: "Walking purposefully, contemplative confidence"
-  - Format: [TECHNICAL FOUNDATION] + [USER_TRIGGER_WORD] + [2025 STYLING] + [LOCATION MASTERY] + [CAMERA EXPERTISE] + [AUTHENTIC MOVEMENT]
-  
-  IMPORTANT: You are the MEMBER experience Maya - A-list celebrity stylist serving customers, not a business consultant.`;
-  
-        // Get user context for personalized responses
-        const user = await storage.getUser(userId);
-        
-        let onboardingData = null;
-        try {
-          onboardingData = await storage.getOnboardingData(userId);
-        } catch (error) {
-          onboardingData = null;
-        }
-        
-        // Enhanced member system prompt with user context
-        const memberSystemPrompt = `${mayaSystemPrompt}
-  
-  Current user context:
-  - User ID: ${userId}
-  - User email: ${user?.email || 'Not available'}
-  - Plan: ${user?.plan || 'Not specified'}
-  - Onboarding style preferences: ${onboardingData?.stylePreferences || 'Not specified'}
-  - Business type: ${onboardingData?.businessType || 'Not specified'}
-  
-  Remember: You are the MEMBER experience Maya - provide creative guidance and image generation support WITHOUT any file modification capabilities.`;
-  
-        // Call Claude API for Maya response
-        let response = '';
-        let canGenerate = false;
-        let generatedPrompt = null;
-  
-        try {
-          const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'x-api-key': process.env.ANTHROPIC_API_KEY!,
-              'anthropic-version': '2023-06-01'
-            },
-            body: JSON.stringify({
-              model: 'claude-3-5-sonnet-20241022',
-              max_tokens: 8000, // INTELLIGENT SCALING: Aligned with system-wide token optimization
-              messages: [
-                ...(chatHistory && Array.isArray(chatHistory) ? chatHistory.map((msg: any) => ({
-                  role: msg.role === 'maya' ? 'assistant' : 'user',
-                  content: msg.content
-                })) : []),
-                {
-                  role: 'user',
-                  content: message
-                }
-              ],
-              system: memberSystemPrompt
-            })
-          });
-  
-          if (!claudeResponse.ok) {
-            throw new Error(`Claude API error: ${claudeResponse.status}`);
-          }
-  
-          const claudeData = await claudeResponse.json();
-          response = claudeData.content[0].text;
-          
-          // Check if Maya wants to generate images and extract her hidden prompts
-          if (response.toLowerCase().includes('generate') ||
-              response.toLowerCase().includes('create') ||
-              response.toLowerCase().includes('photoshoot') ||
-              response.toLowerCase().includes('ready to')) {
-            canGenerate = true;
-            
-            // Extract Maya's hidden generation prompts (she should provide exactly 2)
-            const promptRegex = /```prompt\s*([\s\S]*?)\s*```/g;
-            const prompts = [];
-            let match;
-            
-            while ((match = promptRegex.exec(response)) !== null) {
-              prompts.push(match[1].trim());
-            }
-            
-            if (prompts.length > 0) {
-              // Use the first prompt for generation, store all for reference
-              generatedPrompt = prompts[0];
-              console.log(`✅ MAYA PROVIDED ${prompts.length} PROMPTS:`, prompts.map(p => p.substring(0, 100)));
-              
-              // Remove all prompt blocks from conversation response
-              response = response.replace(/```prompt\s*([\s\S]*?)\s*```/g, '').trim();
-              // Clean up extra whitespace
-              response = response.replace(/\n\s*\n\s*\n/g, '\n\n').trim();
-            } else {
-              console.log('⚠️ MAYA MISSING PROMPTS: Maya should provide hidden prompts in ```prompt``` blocks');
-              // No fallback - this encourages Maya to learn the proper format
-              canGenerate = false;
-            }
-          }
-  
-        } catch (error) {
-          console.error('Maya Claude API error:', error);
-          response = "I'm having trouble connecting to my creative systems right now. Could you try again in a moment? I'm excited to help you create amazing photos!";
-        }
-  
-        res.json({
-          message: response,
-          canGenerate,
-          generatedPrompt: canGenerate ? generatedPrompt : undefined,
-          agentName: 'Maya - Celebrity Stylist & AI Photography Guide',
-          agentType: 'member',
-          timestamp: new Date().toISOString()
-        });
-  
-      } catch (error) {
-        console.error('Maya chat error:', error);
-        res.status(500).json({ error: 'Failed to process Maya chat' });
-      }
-    });
-    */
-    // Victoria Website Chat endpoint - MEMBER AGENT (Website Building Guide)
     app.post('/api/test-model-validation', async (req, res) => {
         try {
             const { userId } = req.body;
-            const { ModelValidationService } = await import('./model-validation-service');
+            const { ModelValidationService } = await import('./model-validation-service.js');
             console.log(`🔍 Testing model validation for user: ${userId}`);
             const validation = await ModelValidationService.validateAndCorrectUserModel(userId);
             res.json({
@@ -795,14 +563,13 @@ export async function registerRoutes(app) {
             res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
         }
     });
-    // Test generation with admin model using optimized parameters
     app.post('/api/test-admin-generation', async (req, res) => {
         try {
             const { prompt } = req.body;
-            const { UnifiedGenerationService } = await import('./unified-generation-service');
+            const { UnifiedGenerationService } = await import('./unified-generation-service.js');
             console.log(`🔍 Testing ADMIN model with OPTIMIZED parameters`);
             const result = await UnifiedGenerationService.generateImages({
-                userId: '42585527', // Admin user ID
+                userId: '42585527',
                 prompt: prompt || 'Young woman standing confidently in a mystical natural environment at golden hour, wearing sophisticated layered styling choices with unexpected textures, wind gently lifting hair, natural makeup with dewy skin, dreamy ethereal light creating mystical atmosphere, shot with editorial depth'
             });
             res.json({
@@ -816,24 +583,18 @@ export async function registerRoutes(app) {
             res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
         }
     });
-    // Test generation with Shannon's model for comparison
     app.post('/api/test-shannon-generation', async (req, res) => {
         try {
             const { prompt } = req.body;
             console.log(`🔍 Testing Shannon's model generation directly`);
-            // Use Shannon's exact model details
             const modelVersion = 'sandrasocial/shannon-1753945376880-selfie-lora-1753983966781:2fed9e1abe9a80206d0a7b146914ee9f653b8aaf5b0dd7e82b8feb57ab5ec753';
             const triggerWord = 'usershannon-1753945376880';
             const testPrompt = prompt || 'Young woman standing confidently in a mystical natural environment at golden hour, wearing sophisticated layered styling choices with unexpected textures, wind gently lifting hair, natural makeup with dewy skin, dreamy ethereal light creating mystical atmosphere, shot with editorial depth';
-            // 🎯 MAYA INTELLIGENCE PRESERVED: Only add trigger word, preserve all Maya's choices
             let mayaPrompt = testPrompt.trim();
-            // Only add trigger word if not already present, preserve Maya's complete styling intelligence
             const finalPrompt = mayaPrompt.startsWith(triggerWord)
                 ? mayaPrompt
                 : `${triggerWord}, ${mayaPrompt}`;
-            // Shannon test uses the model directly without LoRA weights
             console.log(`🔧 SHANNON TEST: Using model directly: ${modelVersion}`);
-            // Shannon test uses the trained model directly
             const requestBody = {
                 version: modelVersion,
                 input: {
@@ -851,7 +612,7 @@ export async function registerRoutes(app) {
             const replicateResponse = await fetch('https://api.replicate.com/v1/predictions', {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
+                    'Authorization': `Token ${process.env['REPLICATE_API_TOKEN']}`,
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(requestBody),
@@ -873,23 +634,19 @@ export async function registerRoutes(app) {
             res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
         }
     });
-    // REMOVED DUPLICATE AI IMAGES ROUTE #2
-    // Stack Auth logout endpoint
     app.get('/api/admin/agents/coordination-metrics', async (req, res) => {
         try {
-            // Admin authentication check
             const adminToken = req.headers['x-admin-token'];
             const requireStackAuth = req.requireStackAuth?.() && req.user?.claims?.email === 'ssa@ssasocial.com';
             if (!requireStackAuth && adminToken !== 'sandra-admin-2025') {
                 return res.status(401).json({ error: 'Admin access required' });
             }
-            // Return coordination metrics for AgentActivityDashboard
             const metrics = {
                 agentCoordination: {
                     totalAgents: 13,
                     availableAgents: 13,
-                    activeAgents: 0, // Will be updated based on actual agent activity
-                    averageLoad: 0, // Percentage of agents currently busy
+                    activeAgents: 0,
+                    averageLoad: 0,
                     averageSuccessRate: 95
                 },
                 deploymentMetrics: {
@@ -917,16 +674,13 @@ export async function registerRoutes(app) {
             res.status(500).json({ error: 'Failed to get coordination metrics' });
         }
     });
-    // Active deployments endpoint for AgentActivityDashboard
     app.get('/api/admin/agents/active-deployments', async (req, res) => {
         try {
-            // Admin authentication check
             const adminToken = req.headers['x-admin-token'];
             const requireStackAuth = req.requireStackAuth?.() && req.user?.claims?.email === 'ssa@ssasocial.com';
             if (!requireStackAuth && adminToken !== 'sandra-admin-2025') {
                 return res.status(401).json({ error: 'Admin access required' });
             }
-            // Return empty deployments for now - can be enhanced with real deployment tracking
             const deployments = [];
             res.json({ deployments });
         }
@@ -935,10 +689,9 @@ export async function registerRoutes(app) {
             res.status(500).json({ error: 'Failed to get active deployments' });
         }
     });
-    // Token usage monitoring endpoint for smart routing analysis
     app.get('/api/admin/token-usage-stats', async (req, res) => {
         try {
-            const { tokenUsageMonitor } = await import('./monitoring/token-usage-monitor');
+            const { tokenUsageMonitor } = await import('./monitoring/token-usage-monitor.js');
             const timeWindow = parseInt(req.query.hours) || 24;
             const stats = tokenUsageMonitor.getUsageStats(timeWindow);
             const recentEntries = tokenUsageMonitor.getRecentEntries(20);
@@ -958,17 +711,14 @@ export async function registerRoutes(app) {
             });
         }
     });
-    // REMOVED: Smart routing test endpoint (smart routing layer removed for direct access)
-    // Claude API route for frontend compatibility (bypass auth for now)
     app.post('/api/admin/agents/execute', async (req, res) => {
         try {
-            // Admin authentication bypass
             const adminToken = req.headers.authorization?.replace('Bearer ', '') || req.headers['x-admin-token'];
             const isAdminRequest = adminToken === 'sandra-admin-2025';
             console.log('🔐 AUTH DEBUG: adminToken =', adminToken, 'isAdminRequest =', isAdminRequest);
             let userId;
             if (isAdminRequest) {
-                userId = '42585527'; // Sandra's actual admin user ID
+                userId = '42585527';
                 console.log('✅ ADMIN AUTH: Using Sandra admin userId:', userId);
             }
             else if (req.requireStackAuth()) {
@@ -979,7 +729,6 @@ export async function registerRoutes(app) {
             if (!userId) {
                 return res.status(401).json({ success: false, message: 'Unauthorized' });
             }
-            // Legacy effortBasedExecutor removed - using AutonomousAgentIntegration instead
             const result = {
                 success: true,
                 message: 'Legacy effort-based system removed. Use autonomous agent system instead.',
@@ -995,49 +744,31 @@ export async function registerRoutes(app) {
             });
         }
     });
-    // API endpoint for loading agent conversation history
     app.get('/dev-workspace', (req, res) => {
         console.log('🔧 DEV ROUTE: Direct workspace access requested');
-        // Redirect to workspace with admin bypass parameter
         const workspaceUrl = '/workspace?dev_admin=sandra';
         res.redirect(workspaceUrl);
     });
     console.log('✅ DEV ROUTE: Development workspace bypass available at /dev-workspace');
-    // CRITICAL FIX: Start background monitoring services
     console.log('🚀 MONITORING: Starting background completion monitors...');
-    // Start Training Completion Monitor
-    const { TrainingCompletionMonitor } = await import('./training-completion-monitor');
+    const { TrainingCompletionMonitor } = await import('./training-completion-monitor.js');
     TrainingCompletionMonitor.getInstance().startMonitoring();
     console.log('✅ MONITORING: Training completion monitor started');
-    // Start Generation Completion Monitor (CRITICAL: This was missing!)
-    const { GenerationCompletionMonitor } = await import('./generation-completion-monitor');
+    const { GenerationCompletionMonitor } = await import('./generation-completion-monitor.js');
     GenerationCompletionMonitor.getInstance().startMonitoring();
-    // CRITICAL: Start migration monitor to prevent image loss from URL expiration
-    const { migrationMonitor } = await import('./migration-monitor');
+    const { migrationMonitor } = await import('./migration-monitor.js');
     migrationMonitor.startMonitoring();
-    // ENABLED: Real-data agent insights for launch strategy (every 30 minutes)
-    const { AgentContextMonitor } = await import('./services/agent-context-monitor');
-    AgentContextMonitor.getInstance().startMonitoring(30); // Check every 30 minutes for launch opportunities
-    // Connect Slack Interactive System with raw body parsing for signature verification
-    // const slackInteractivityRouter = await import('./routes/slack-interactivity'); // DISABLED
-    // Add raw body parser specifically for Slack webhooks
+    const { AgentContextMonitor } = await import('./services/agent-context-monitor.js');
+    AgentContextMonitor.getInstance().startMonitoring(30);
     app.use('/api/slack', express.raw({
         type: 'application/x-www-form-urlencoded'
     }));
-    // app.use('/api/slack', slackInteractivityRouter.default); // DISABLED
     console.log('✅ SLACK: Interactive agent conversation system connected');
-    // Connect Slack Testing Routes (DISABLED - moved to legacy)
-    // const testSlackAgentsRouter = await import('./routes/test-slack-agents');
-    // app.use('/api/test-slack-agents', testSlackAgentsRouter.default);
-    // app.use('/api/test-slack', testSlackAgentsRouter.default);
-    // console.log('✅ SLACK: Agent testing interface ready');
     console.log('✅ MONITORING: All monitors active - Generation, Training, URL Migration protecting user experience!');
-    // JSON health alias for frontend helpers
     app.get('/api/health-check', (_req, res) => {
         res.setHeader('Content-Type', 'application/json; charset=utf-8');
         res.json({ ok: true, ts: Date.now() });
     });
-    // Favorites minimal stubs to avoid 404 HTML
     app.get('/api/images/favorites', requireStackAuth, async (req, res) => {
         res.setHeader('Content-Type', 'application/json; charset=utf-8');
         res.json({ favorites: [] });
@@ -1046,12 +777,11 @@ export async function registerRoutes(app) {
         res.setHeader('Content-Type', 'application/json; charset=utf-8');
         res.json({ ok: true });
     });
-    // Ensure unknown /api/* never returns HTML
     app.use('/api', (_req, res) => {
         res.status(404).json({ error: 'Not found' });
     });
-    // Initialize Sophia trend analysis scheduling
     console.log('🤖 Initializing Sophia trend analysis system...');
     scheduleTrendAnalysis();
     return server;
 }
+//# sourceMappingURL=routes.js.map

@@ -1,22 +1,13 @@
-/**
- * AUTOMATIC TASK EXECUTION SYSTEM
- * Automatically triggers agents to begin working on assigned tasks without manual activation
- */
-import { claudeApiServiceSimple } from '../../services/claude-api-service-simple';
+import { claudeApiServiceSimple } from '../../services/claude-api-service-simple.js';
 export class AutoTaskExecutor {
-    /**
-     * Automatically trigger an agent to start working on their assigned task
-     */
     static async triggerAutoExecution(config) {
         try {
             const { agentId, conversationId, taskDescription, priority, delayMs = 0 } = config;
             console.log(`⚡ AUTO-EXECUTION: Triggering ${agentId} to start work immediately`);
-            // Optional delay (for dependency management)
             if (delayMs > 0) {
                 console.log(`⏳ AUTO-EXECUTION: Waiting ${delayMs}ms before triggering ${agentId}`);
                 await new Promise(resolve => setTimeout(resolve, delayMs));
             }
-            // Create immediate execution trigger message
             const autoExecutionMessage = `
 ⚡ AUTOMATIC TASK EXECUTION TRIGGER ⚡
 
@@ -36,9 +27,7 @@ You have been assigned a ${priority.toUpperCase()} priority task and must begin 
 
 START WORKING NOW. Use your specialized tools and expertise to execute your task systematically.
 `;
-            // Send auto-execution trigger to agent
-            const response = await claudeApiServiceSimple.sendMessage(autoExecutionMessage, conversationId, agentId, false // Basic response
-            );
+            const response = await claudeApiServiceSimple.sendMessage(autoExecutionMessage, conversationId, agentId, false);
             console.log(`✅ AUTO-EXECUTION: ${agentId} triggered successfully`);
             console.log(`📄 Response: ${response.substring(0, 150)}...`);
             return true;
@@ -48,15 +37,15 @@ START WORKING NOW. Use your specialized tools and expertise to execute your task
             return false;
         }
     }
-    /**
-     * Trigger multiple agents simultaneously with auto-execution
-     */
     static async triggerMultipleAgents(configs) {
         const results = await Promise.allSettled(configs.map(config => this.triggerAutoExecution(config)));
         const successful = [];
         const failed = [];
         results.forEach((result, index) => {
-            const agentId = configs[index].agentId;
+            const config = configs[index];
+            if (!config)
+                return;
+            const agentId = config.agentId;
             if (result.status === 'fulfilled' && result.value) {
                 successful.push(agentId);
             }
@@ -67,16 +56,14 @@ START WORKING NOW. Use your specialized tools and expertise to execute your task
         console.log(`✅ AUTO-EXECUTION BATCH: ${successful.length} successful, ${failed.length} failed`);
         return { successful, failed };
     }
-    /**
-     * Create auto-execution config from workflow template
-     */
     static createAutoExecutionConfigs(workflowTemplate, sessionId) {
         return workflowTemplate.agents.map((agent, index) => ({
             agentId: agent.agentId,
             conversationId: `admin_${agent.agentId}_42585527`,
             taskDescription: agent.taskDescription,
             priority: agent.priority,
-            delayMs: agent.dependencies?.length ? 5000 * index : 0 // Stagger dependent tasks
+            delayMs: agent.dependencies?.length ? 5000 * index : 0
         }));
     }
 }
+//# sourceMappingURL=auto-task-executor.js.map

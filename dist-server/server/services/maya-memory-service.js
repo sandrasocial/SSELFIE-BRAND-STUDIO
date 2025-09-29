@@ -1,11 +1,10 @@
-import { DatabaseStorage } from './storage';
+import { DatabaseStorage } from '../storage.js';
 export class MayaMemoryService {
     db;
     constructor(db) {
         this.db = db;
     }
     async getUserMemory(userId) {
-        // Placeholder implementation
         return {
             userId,
             memories: [],
@@ -13,11 +12,9 @@ export class MayaMemoryService {
         };
     }
     async saveUserMemory(userId, memory) {
-        // Placeholder implementation
         return { success: true };
     }
     async updateUserMemory(userId, memory) {
-        // Placeholder implementation
         return { success: true };
     }
     static getMemoryStats() {
@@ -33,5 +30,5 @@ export class MayaMemoryService {
         return { success: true };
     }
 }
-// Export singleton instance
 export const mayaMemoryService = new MayaMemoryService(new DatabaseStorage());
+//# sourceMappingURL=maya-memory-service.js.map

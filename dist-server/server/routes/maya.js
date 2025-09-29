@@ -1,15 +1,6 @@
-/**
- * @license
- * Copyright 2025 Google LLC
- * SPDX-License-Identifier: Apache-2.0
- */
-// Secure Maya Chat Routes
-// All AI operations performed server-side with Google Gemini API
 import express from 'express';
-// Gemini AI will be imported from the existing server setup
 import { requireStackAuth } from '../stack-auth.js';
 const router = express.Router();
-// Initialize Gemini AI client server-side using existing pattern
 let geminiAI = null;
 async function initGeminiAI() {
     if (process.env.GOOGLE_API_KEY && !geminiAI) {
@@ -23,10 +14,6 @@ async function initGeminiAI() {
         }
     }
 }
-/**
- * POST /api/maya/chat
- * Secure Maya chat endpoint with server-side Gemini integration
- */
 router.post('/chat', requireStackAuth, async (req, res) => {
     try {
         const { message, history } = req.body;
@@ -38,11 +25,8 @@ router.post('/chat', requireStackAuth, async (req, res) => {
             return res.status(503).json({ error: 'AI service not available' });
         }
         console.log('🎨 MAYA: Chat request from user:', userId, 'Message:', message.substring(0, 100) + '...');
-        // Initialize Gemini AI if needed
         await initGeminiAI();
-        // Use Gemini for Maya's personality and responses
         const model = geminiAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
-        // Maya's core personality prompt
         const systemPrompt = `You are Maya, SSELFIE Studio's AI Creative Director and Personal Brand Strategist. You are sophisticated, intuitive, and deeply understand luxury personal branding.
 
 Your expertise includes:
@@ -65,7 +49,6 @@ When users ask for photo concepts, provide specific, actionable suggestions with
 4. Brand positioning insights
 
 Always respond with both conversational text and structured concept cards when appropriate.`;
-        // Build conversation context
         let conversationContext = systemPrompt + '\n\n';
         if (history && Array.isArray(history)) {
             history.forEach(entry => {
@@ -79,10 +62,8 @@ Always respond with both conversational text and structured concept cards when a
         const result = await model.generateContent(conversationContext);
         const response = result.response;
         const mayaResponse = response.text();
-        // Extract concept cards if Maya suggests photo concepts
         let conceptCards = [];
         try {
-            // Look for structured suggestions in Maya's response
             const conceptRegex = /(?:concept|idea|suggestion)[\s\S]*?(?:title|name):\s*["']?([^"'\n]+)["']?[\s\S]*?(?:prompt|description):\s*["']?([^"'\n]+)["']?/gi;
             let match;
             while ((match = conceptRegex.exec(mayaResponse)) !== null) {
@@ -111,3 +92,4 @@ Always respond with both conversational text and structured concept cards when a
     }
 });
 export default router;
+//# sourceMappingURL=maya.js.map

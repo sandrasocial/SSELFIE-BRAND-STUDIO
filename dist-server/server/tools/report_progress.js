@@ -1,4 +1,3 @@
-// REAL PROGRESS REPORTING: Intelligent task tracking and coordination
 import fs from 'fs/promises';
 import path from 'path';
 export async function report_progress(params) {
@@ -10,7 +9,6 @@ export async function report_progress(params) {
             timestamp: timestamp,
             completed_items: extractCompletedItems(params.summary)
         };
-        // Log progress to file for persistence
         const progressLogged = await logProgressToFile(progressData);
         return {
             success: true,
@@ -31,7 +29,6 @@ export async function report_progress(params) {
         };
     }
 }
-// Extract completed items from summary (look for ✅ markers)
 function extractCompletedItems(summary) {
     const lines = summary.split('\n');
     const completedItems = [];
@@ -45,7 +42,6 @@ function extractCompletedItems(summary) {
     }
     return completedItems;
 }
-// Log progress to file for persistence
 async function logProgressToFile(progressData) {
     try {
         const logsDir = path.join(process.cwd(), 'logs');
@@ -60,3 +56,4 @@ async function logProgressToFile(progressData) {
         return false;
     }
 }
+//# sourceMappingURL=report_progress.js.map

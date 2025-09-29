@@ -1,13 +1,6 @@
-/**
- * PERFORMANCE MONITOR
- * Tracks performance metrics for memory and context operations
- */
 export class PerformanceMonitor {
     static metrics = new Map();
     static MAX_METRICS_PER_KEY = 1000;
-    /**
-     * Start timing an operation
-     */
     static startTimer(key) {
         if (!this.metrics.has(key)) {
             this.metrics.set(key, []);
@@ -16,14 +9,10 @@ export class PerformanceMonitor {
         metrics.push({
             startTime: performance.now()
         });
-        // Cleanup old metrics if needed
         if (metrics.length > this.MAX_METRICS_PER_KEY) {
             metrics.shift();
         }
     }
-    /**
-     * End timing an operation
-     */
     static endTimer(key) {
         const metrics = this.metrics.get(key);
         if (!metrics || metrics.length === 0) {
@@ -33,14 +22,10 @@ export class PerformanceMonitor {
         const currentMetric = metrics[metrics.length - 1];
         currentMetric.endTime = performance.now();
         currentMetric.duration = currentMetric.endTime - currentMetric.startTime;
-        // Alert if operation took too long
-        if (currentMetric.duration > 1000) { // 1 second threshold
+        if (currentMetric.duration > 1000) {
             console.warn(`Operation ${key} took ${currentMetric.duration}ms to complete`);
         }
     }
-    /**
-     * Get average duration for an operation
-     */
     static getAverageDuration(key) {
         const metrics = this.metrics.get(key);
         if (!metrics || metrics.length === 0)
@@ -51,9 +36,6 @@ export class PerformanceMonitor {
         const total = completedMetrics.reduce((sum, metric) => sum + (metric.duration || 0), 0);
         return total / completedMetrics.length;
     }
-    /**
-     * Get performance report for all operations
-     */
     static getPerformanceReport() {
         const report = {};
         for (const [key, metrics] of this.metrics.entries()) {
@@ -70,10 +52,8 @@ export class PerformanceMonitor {
         }
         return report;
     }
-    /**
-     * Clear all metrics
-     */
     static clearMetrics() {
         this.metrics.clear();
     }
 }
+//# sourceMappingURL=PerformanceMonitor.js.map

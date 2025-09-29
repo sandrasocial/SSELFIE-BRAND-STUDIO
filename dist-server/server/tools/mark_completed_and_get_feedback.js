@@ -1,4 +1,3 @@
-// REAL COMPLETION FEEDBACK: Task verification and status reporting
 import { spawn } from 'child_process';
 export async function mark_completed_and_get_feedback(params) {
     try {
@@ -11,7 +10,6 @@ export async function mark_completed_and_get_feedback(params) {
             workflow_status: 'completed',
             screenshot_available: false
         };
-        // Check workflow status if workflow_name provided
         if (params.workflow_name) {
             const workflowStatus = await checkWorkflowStatus(params.workflow_name);
             feedback.workflow_status = workflowStatus;
@@ -28,7 +26,6 @@ export async function mark_completed_and_get_feedback(params) {
         };
     }
 }
-// Generate intelligent completion summary based on query
 function generateCompletionSummary(query) {
     const queryLower = query.toLowerCase();
     if (queryLower.includes('created') || queryLower.includes('built') || queryLower.includes('added')) {
@@ -45,7 +42,6 @@ function generateCompletionSummary(query) {
     }
     return "✅ Task completed successfully. The requested work has been finished and is ready for review.";
 }
-// Check workflow status using process monitoring
 async function checkWorkflowStatus(workflowName) {
     return new Promise((resolve) => {
         const ps = spawn('ps', ['aux'], { stdio: ['pipe', 'pipe', 'pipe'] });
@@ -61,10 +57,10 @@ async function checkWorkflowStatus(workflowName) {
                 resolve('stopped');
             }
         });
-        // Timeout after 3 seconds
         setTimeout(() => {
             ps.kill('SIGTERM');
             resolve('unknown');
         }, 3000);
     });
 }
+//# sourceMappingURL=mark_completed_and_get_feedback.js.map

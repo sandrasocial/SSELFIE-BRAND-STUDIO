@@ -1,9 +1,8 @@
 import { Router } from 'express';
-import { emailManagementAgent } from '../services/email-management-agent';
-import { requireStackAuth } from '../stack-auth';
-import { SlackNotificationService } from '../services/slack-notification-service';
+import { emailManagementAgent } from '../services/email-management-agent.js';
+import { requireStackAuth } from '../stack-auth.js';
+import { SlackNotificationService } from '../services/slack-notification-service.js';
 const router = Router();
-// 📧 Add email account (personal or business)
 router.post('/accounts', requireStackAuth, async (req, res) => {
     try {
         const userId = req.user.id;
@@ -39,7 +38,6 @@ router.post('/accounts', requireStackAuth, async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 });
-// 🔍 Process unread emails
 router.post('/process', requireStackAuth, async (req, res) => {
     try {
         const userId = req.user.id;
@@ -56,7 +54,6 @@ router.post('/process', requireStackAuth, async (req, res) => {
         res.status(500).json({ error: 'Failed to process emails' });
     }
 });
-// 🚀 Start automated monitoring
 router.post('/monitor/start', requireStackAuth, async (req, res) => {
     try {
         const userId = req.user.id;
@@ -74,15 +71,12 @@ router.post('/monitor/start', requireStackAuth, async (req, res) => {
         res.status(500).json({ error: 'Failed to start email monitoring' });
     }
 });
-// 📊 Get email summary dashboard  
 router.get('/dashboard', requireStackAuth, async (req, res) => {
     try {
         const userId = req.user.id;
         console.log(`📊 Loading REAL email dashboard for user ${userId}`);
-        // Try to get real email data from Gmail integration
         const emailAccounts = await emailManagementAgent.getUserEmailAccounts(userId);
         const recentInsights = await emailManagementAgent.getRecentEmailInsights(userId);
-        // Build dashboard with real data if available, fallback to smart estimates
         const dashboard = {
             totalAccounts: emailAccounts.length || 2,
             unreadEmails: emailAccounts.reduce((sum, acc) => sum + (acc.unreadCount || 0), 0) || 1247,
@@ -112,7 +106,6 @@ router.get('/dashboard', requireStackAuth, async (req, res) => {
     }
     catch (error) {
         console.error('❌ Email dashboard error:', error);
-        // Return fallback data if real data fails
         res.json({
             totalAccounts: 0,
             unreadEmails: 0,
@@ -125,11 +118,9 @@ router.get('/dashboard', requireStackAuth, async (req, res) => {
         });
     }
 });
-// 🎯 Test email processing (available for all users)
 router.post('/test-processing', requireStackAuth, async (req, res) => {
     try {
         const userId = req.user.id;
-        // Simulate email processing with mock data
         await SlackNotificationService.sendAgentInsight('ava', 'strategic', 'Email Processing Test Complete', `🧪 **Test Results:**\n\n` +
             `📧 **Mock Processing Summary:**\n` +
             `• Found 1247 unread emails across 2 accounts\n` +
@@ -165,3 +156,4 @@ router.post('/test-processing', requireStackAuth, async (req, res) => {
     }
 });
 export default router;
+//# sourceMappingURL=email-management-routes.js.map

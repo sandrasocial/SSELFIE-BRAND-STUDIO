@@ -1,6 +1,3 @@
-/**
- * Plan B Status API - Monitor backup execution system
- */
 import { planBExecutor } from '../agent-tool-execution-fix.js';
 export async function getPlanBStatus(req, res) {
     try {
@@ -59,3 +56,4 @@ export async function forcePlanBExecution(req, res) {
         });
     }
 }
+//# sourceMappingURL=plan-b-status.js.map

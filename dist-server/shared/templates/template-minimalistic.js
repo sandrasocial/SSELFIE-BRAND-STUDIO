@@ -2,7 +2,6 @@ export const minimalisticTemplate = {
     id: "minimalistic",
     name: "Refined Minimalist",
     description: "Clean, sophisticated design with generous white space and subtle elegance. Perfect for wellness coaches, lifestyle brands, and professionals who value simplicity.",
-    // Design System
     colors: {
         primary: "#1a1a1a",
         secondary: "#666666",
@@ -16,9 +15,9 @@ export const minimalisticTemplate = {
         body: "Helvetica Neue, sans-serif",
         accent: "Helvetica Neue, sans-serif",
         weights: {
-            headline: "100", // Ultra light
-            body: "300", // Light
-            accent: "300" // Light
+            headline: "100",
+            body: "300",
+            accent: "300"
         },
         sizes: {
             hero: "clamp(4rem, 10vw, 8rem)",
@@ -32,7 +31,6 @@ export const minimalisticTemplate = {
             small: "0.3em"
         }
     },
-    // Brand Voice & Messaging
     voiceProfile: {
         tone: ["calm", "sophisticated", "authentic", "gentle"],
         personality: "The wise friend who always knows the right thing to say. Speaks with quiet confidence and genuine warmth.",
@@ -49,7 +47,6 @@ export const minimalisticTemplate = {
             tone: "conversational but refined"
         }
     },
-    // Visual Style Guide
     visualElements: {
         logoStyle: "minimalist",
         imageStyle: "editorial",
@@ -60,7 +57,6 @@ export const minimalisticTemplate = {
         shadows: "none",
         corners: "sharp edges only"
     },
-    // AI Prompt Instructions for SANDRA
     aiInstructions: {
         brandAdjectives: [
             "serene", "refined", "authentic", "calm", "sophisticated",
@@ -86,7 +82,6 @@ export const minimalisticTemplate = {
             "prioritize readability over decoration"
         ]
     },
-    // Implementation Details
     implementation: {
         heroFormat: {
             background: "full-bleed image with 15% opacity",
@@ -100,3 +95,4 @@ export const minimalisticTemplate = {
         maxContentWidth: "1000px"
     }
 };
+//# sourceMappingURL=template-minimalistic.js.map

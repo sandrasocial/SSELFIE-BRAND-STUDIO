@@ -1,20 +1,9 @@
-/**
- * CONCEPT CARDS API ROUTES
- *
- * Hybrid backend architecture for concept card management
- * Provides CRUD operations with ULID keys for unique React rendering
- * Includes idempotency support for reliable client-side operations
- */
 import { Router } from 'express';
-import { requireStackAuth } from '../stack-auth';
-import { storage } from '../storage';
-import { insertConceptCardSchema } from '../../shared/schema';
+import { requireStackAuth } from '../stack-auth.js';
+import { storage } from '../storage.js';
+import { insertConceptCardSchema } from '../../shared/schema.js';
 import { z } from 'zod';
 const router = Router();
-/**
- * GET /api/concepts
- * Get user's concept cards, optionally filtered by conversation
- */
 router.get('/', requireStackAuth, async (req, res) => {
     try {
         const userId = req.user?.id || req.user?.claims?.sub;
@@ -29,29 +18,23 @@ router.get('/', requireStackAuth, async (req, res) => {
         console.error('❌ CONCEPT CARDS: Get error:', error);
         res.status(500).json({
             error: 'Failed to retrieve concept cards',
-            details: process.env.NODE_ENV === 'development' ? error.message : undefined
+            details: process.env['NODE_ENV'] === 'development' ? error.message : undefined
         });
     }
 });
-/**
- * POST /api/concepts
- * Create new concept card with idempotency support
- */
 router.post('/', requireStackAuth, async (req, res) => {
     try {
         const userId = req.user?.id || req.user?.claims?.sub;
         if (!userId) {
             return res.status(401).json({ error: 'Authentication required' });
         }
-        // Validate request body
         const validationSchema = insertConceptCardSchema.extend({
-            clientId: z.string().optional() // For idempotency
+            clientId: z.string().optional()
         });
         const validatedData = validationSchema.parse({
             ...req.body,
-            userId // Ensure userId matches authenticated user
+            userId
         });
-        // Create concept card (with idempotency check in storage)
         const conceptCard = await storage.createConceptCard(validatedData);
         console.log(`✅ CONCEPT CARD: Created ${conceptCard.id} for user ${userId}`);
         res.status(201).json({ conceptCard });
@@ -66,14 +49,10 @@ router.post('/', requireStackAuth, async (req, res) => {
         }
         res.status(500).json({
             error: 'Failed to create concept card',
-            details: process.env.NODE_ENV === 'development' ? error.message : undefined
+            details: process.env['NODE_ENV'] === 'development' ? error.message : undefined
         });
     }
 });
-/**
- * GET /api/concepts/:id
- * Get specific concept card by ID
- */
 router.get('/:id', requireStackAuth, async (req, res) => {
     try {
         const userId = req.user?.id || req.user?.claims?.sub;
@@ -82,7 +61,6 @@ router.get('/:id', requireStackAuth, async (req, res) => {
         if (!conceptCard) {
             return res.status(404).json({ error: 'Concept card not found' });
         }
-        // Ensure user owns the concept card
         if (conceptCard.userId !== userId) {
             return res.status(403).json({ error: 'Access denied' });
         }
@@ -92,19 +70,14 @@ router.get('/:id', requireStackAuth, async (req, res) => {
         console.error('❌ CONCEPT CARDS: Get by ID error:', error);
         res.status(500).json({
             error: 'Failed to retrieve concept card',
-            details: process.env.NODE_ENV === 'development' ? error.message : undefined
+            details: process.env['NODE_ENV'] === 'development' ? error.message : undefined
         });
     }
 });
-/**
- * PATCH /api/concepts/:id
- * Update concept card (including generation status)
- */
 router.patch('/:id', requireStackAuth, async (req, res) => {
     try {
         const userId = req.user?.id || req.user?.claims?.sub;
         const { id } = req.params;
-        // Check ownership
         const existingCard = await storage.getConceptCard(id);
         if (!existingCard) {
             return res.status(404).json({ error: 'Concept card not found' });
@@ -112,7 +85,6 @@ router.patch('/:id', requireStackAuth, async (req, res) => {
         if (existingCard.userId !== userId) {
             return res.status(403).json({ error: 'Access denied' });
         }
-        // Validate updates
         const allowedUpdates = [
             'title', 'description', 'images', 'tags', 'status', 'sortOrder',
             'generatedImages', 'isLoading', 'isGenerating', 'hasGenerated'
@@ -131,20 +103,15 @@ router.patch('/:id', requireStackAuth, async (req, res) => {
         console.error('❌ CONCEPT CARDS: Update error:', error);
         res.status(500).json({
             error: 'Failed to update concept card',
-            details: process.env.NODE_ENV === 'development' ? error.message : undefined
+            details: process.env['NODE_ENV'] === 'development' ? error.message : undefined
         });
     }
 });
-/**
- * PATCH /api/concepts/:id/generation
- * Update concept card generation status (for image generation workflow)
- */
 router.patch('/:id/generation', requireStackAuth, async (req, res) => {
     try {
         const userId = req.user?.id || req.user?.claims?.sub;
         const { id } = req.params;
         const { generatedImages, isLoading, isGenerating, hasGenerated } = req.body;
-        // Check ownership
         const existingCard = await storage.getConceptCard(id);
         if (!existingCard) {
             return res.status(404).json({ error: 'Concept card not found' });
@@ -160,19 +127,14 @@ router.patch('/:id/generation', requireStackAuth, async (req, res) => {
         console.error('❌ CONCEPT CARDS: Update generation error:', error);
         res.status(500).json({
             error: 'Failed to update concept card generation',
-            details: process.env.NODE_ENV === 'development' ? error.message : undefined
+            details: process.env['NODE_ENV'] === 'development' ? error.message : undefined
         });
     }
 });
-/**
- * DELETE /api/concepts/:id
- * Delete concept card
- */
 router.delete('/:id', requireStackAuth, async (req, res) => {
     try {
         const userId = req.user?.id || req.user?.claims?.sub;
         const { id } = req.params;
-        // Check ownership
         const existingCard = await storage.getConceptCard(id);
         if (!existingCard) {
             return res.status(404).json({ error: 'Concept card not found' });
@@ -188,8 +150,9 @@ router.delete('/:id', requireStackAuth, async (req, res) => {
         console.error('❌ CONCEPT CARDS: Delete error:', error);
         res.status(500).json({
             error: 'Failed to delete concept card',
-            details: process.env.NODE_ENV === 'development' ? error.message : undefined
+            details: process.env['NODE_ENV'] === 'development' ? error.message : undefined
         });
     }
 });
 export default router;
+//# sourceMappingURL=concept-cards.js.map

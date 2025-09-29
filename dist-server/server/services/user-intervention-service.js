@@ -1,14 +1,7 @@
-/**
- * USER INTERVENTION SERVICE
- * Automated outreach and support for inactive paid users
- */
 import { db } from '../drizzle.js';
 import { users, selfieUploads, userModels } from '../../shared/schema.js';
 import { eq, sql } from 'drizzle-orm';
 export class UserInterventionService {
-    /**
-     * Get paid users who need intervention (no uploads or models)
-     */
     static async getInactiveUsers() {
         const result = await db
             .select({
@@ -29,9 +22,6 @@ export class UserInterventionService {
             .having(sql `COUNT(${selfieUploads.id}) = 0`);
         return result;
     }
-    /**
-     * Generate personalized outreach email content
-     */
     static generatePersonalizedEmail(user) {
         const name = user.firstName || user.email.split('@')[0];
         const planName = user.plan === 'sselfie-studio' ? 'SSELFIE Studio' :
@@ -81,16 +71,9 @@ export class UserInterventionService {
       `
         };
     }
-    /**
-     * Create intervention campaign tracking
-     */
     static async trackInterventionSent(userId, campaignType) {
-        // Log intervention in database (could create intervention_logs table)
         console.log(`📧 INTERVENTION: ${campaignType} sent to user ${userId}`);
     }
-    /**
-     * Get intervention statistics
-     */
     static async getInterventionStats() {
         const totalPaidUsers = await db
             .select({ count: sql `COUNT(*)` })
@@ -105,3 +88,4 @@ export class UserInterventionService {
         };
     }
 }
+//# sourceMappingURL=user-intervention-service.js.map

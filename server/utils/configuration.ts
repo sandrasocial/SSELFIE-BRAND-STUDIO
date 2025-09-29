@@ -4,7 +4,7 @@
  */
 
 import { Logger } from './logger.js';
-import { configManager } from './config-manager.js';
+import { configManager, type ConfigPath } from './config-manager.js';
 
 export interface ConfigurationOptions {
   environment: string;
@@ -89,7 +89,7 @@ export class ConfigurationSystem {
   /**
    * Get configuration value
    */
-  public getConfigValue<T = any>(path: string): T {
+  public getConfigValue<T = any>(path: ConfigPath): T {
     if (!this._isEnabled) {
       throw new Error('Configuration system is disabled');
     }
@@ -112,7 +112,7 @@ export class ConfigurationSystem {
     }
 
     try {
-      configManager.setConfigValue(path, value);
+      configManager.set(path, value);
       this.logger.debug('Configuration value set', { path });
     } catch (error) {
       this.logger.error('Failed to set configuration value', { path, error: error.message });
@@ -145,7 +145,14 @@ export class ConfigurationSystem {
       throw new Error('Configuration system is disabled');
     }
 
-    return configManager.getConfigurationSummary();
+    const summary = configManager.getConfigurationSummary();
+    return {
+      totalSections: summary.totalSections,
+      totalValues: summary.totalValues,
+      requiredValues: summary.configuredValues,
+      optionalValues: summary.totalValues - summary.configuredValues,
+      environment: summary.environment
+    };
   }
 
   /**
@@ -169,7 +176,9 @@ export class ConfigurationSystem {
     }
 
     try {
-      configManager.importConfiguration(config);
+      Object.entries(config).forEach(([key, value]) => {
+        configManager.set(key as ConfigPath, value);
+      });
       this.logger.info('Configuration imported successfully');
     } catch (error) {
       this.logger.error('Failed to import configuration', { error: error.message });

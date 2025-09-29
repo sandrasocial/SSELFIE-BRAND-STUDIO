@@ -3,82 +3,71 @@ import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { ulid } from "ulid";
 import { randomUUID } from 'node:crypto';
-// Session storage table for Stack Auth (Stack Auth manages sessions automatically)
 export const sessions = pgTable("sessions", {
     sid: varchar("sid").primaryKey(),
     sess: jsonb("sess").notNull(),
     expire: timestamp("expire").notNull(),
 }, (table) => [index("IDX_session_expire").on(table.expire)]);
-// Agent session contexts for persistent memory between user sessions
 export const agentSessionContexts = pgTable("agent_session_contexts", {
     id: serial("id").primaryKey(),
     userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
     agentId: varchar("agent_id").notNull(),
     sessionId: varchar("session_id").notNull(),
-    contextData: jsonb("context_data").notNull(), // Conversation history, memory, state
-    workflowState: varchar("workflow_state").default("ready"), // ready, active, paused, completed
-    lastInteraction: timestamp("last_interaction").defaultNow(),
-    memorySnapshot: jsonb("memory_snapshot"), // Consolidated memory for quick restoration
-    adminBypass: boolean("admin_bypass").default(false), // Admin bypass for enhanced context access
-    unlimitedContext: boolean("unlimited_context").default(false), // Unlimited memory access for admin agents
-    createdAt: timestamp("created_at").defaultNow(),
-    updatedAt: timestamp("updated_at").defaultNow(),
+    contextData: jsonb("context_data").notNull(),
+    workflowState: varchar("workflow_state").default("ready"),
+    lastInteraction: timestamp("last_interaction").defaultNow().notNull(),
+    memorySnapshot: jsonb("memory_snapshot"),
+    adminBypass: boolean("admin_bypass").default(false),
+    unlimitedContext: boolean("unlimited_context").default(false),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
 }, (table) => [
     index("idx_agent_session_user").on(table.userId, table.agentId),
     index("idx_agent_session_updated").on(table.updatedAt),
 ]);
-// User storage table for Stack Auth integration
 export const users = pgTable("users", {
-    // Core user fields - Stack Auth compatible
-    id: varchar("id").primaryKey().notNull(), // Stack Auth uses string IDs
-    stackAuthId: varchar("stack_auth_id").unique(), // For linking existing users to Stack Auth
+    id: varchar("id").primaryKey().notNull(),
+    stackAuthId: varchar("stack_auth_id").unique(),
     email: varchar("email").unique(),
     firstName: varchar("first_name"),
     lastName: varchar("last_name"),
     displayName: varchar("display_name"),
     profileImageUrl: varchar("profile_image_url"),
-    // Stack Auth managed timestamps
-    createdAt: timestamp("created_at").defaultNow(),
-    updatedAt: timestamp("updated_at").defaultNow(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
     lastLoginAt: timestamp("last_login_at"),
-    // Business logic - preserved from existing system
     stripeCustomerId: varchar("stripe_customer_id"),
     stripeSubscriptionId: varchar("stripe_subscription_id"),
-    plan: varchar("plan").default("sselfie-studio"), // sselfie-studio for €47/month, admin for unlimited
-    role: varchar("role").default("user"), // user, admin
-    monthlyGenerationLimit: integer("monthly_generation_limit").default(100), // 100 for sselfie-studio plan, unlimited (-1) for admin
+    plan: varchar("plan").default("sselfie-studio"),
+    role: varchar("role").default("user"),
+    monthlyGenerationLimit: integer("monthly_generation_limit").default(100),
     generationsUsedThisMonth: integer("generations_used_this_month").default(0),
-    mayaAiAccess: boolean("maya_ai_access").default(true), // Available on both tiers
-    victoriaAiAccess: boolean("victoria_ai_access").default(false), // Only for full-access tier
-    // 🔄 PHASE 3: Retraining access tracking
+    mayaAiAccess: boolean("maya_ai_access").default(true),
+    victoriaAiAccess: boolean("victoria_ai_access").default(false),
     hasRetrainingAccess: boolean("has_retraining_access").default(false),
     retrainingSessionId: varchar("retraining_session_id"),
     retrainingPaidAt: timestamp("retraining_paid_at"),
-    // Conversational onboarding tracking - Maya handles incomplete profiles gracefully
-    onboardingProgress: jsonb("onboarding_progress").default('{}'), // Store conversational progress without blocking
-    preferredOnboardingMode: varchar("preferred_onboarding_mode").default("conversational"), // conversational, guided, completed
-    // Essential profile data for Maya personalization
-    gender: varchar("gender"), // "man" | "woman" | "non-binary" - CRITICAL for image generation
-    profession: varchar("profession"), // User's business/profession
-    brandStyle: varchar("brand_style"), // "professional" | "creative" | "lifestyle" | "luxury"
-    photoGoals: text("photo_goals"), // What they want photos for (business use case)
-    // Training-time coaching system for brand strategy discovery
+    onboardingProgress: jsonb("onboarding_progress").default('{}'),
+    preferredOnboardingMode: varchar("preferred_onboarding_mode").default("conversational"),
+    gender: varchar("gender"),
+    profession: varchar("profession"),
+    brandStyle: varchar("brand_style"),
+    photoGoals: text("photo_goals"),
     trainingCoachingStarted: boolean("training_coaching_started").default(false),
     trainingCoachingCompleted: boolean("training_coaching_completed").default(false),
-    trainingCoachingPhase: varchar("training_coaching_phase"), // businessGoals, platformStrategy, brandPositioning, completed
+    trainingCoachingPhase: varchar("training_coaching_phase"),
     trainingCoachingStep: integer("training_coaching_step").default(0),
-    brandStrategyContext: jsonb("brand_strategy_context"), // Stores coaching responses and brand strategy insights
+    brandStrategyContext: jsonb("brand_strategy_context"),
 });
-// Email management for Ava agent
 export const emailAccounts = pgTable("email_accounts", {
     id: serial("id").primaryKey(),
     userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
-    accountType: varchar("account_type").notNull(), // 'personal' or 'business'
+    accountType: varchar("account_type").notNull(),
     email: varchar("email").notNull(),
-    provider: varchar("provider").notNull(), // 'gmail', 'outlook', 'other'
+    provider: varchar("provider").notNull(),
     displayName: varchar("display_name"),
-    accessToken: text("access_token"), // Encrypted
-    refreshToken: text("refresh_token"), // Encrypted
+    accessToken: text("access_token"),
+    refreshToken: text("refresh_token"),
     isActive: boolean("is_active").default(true),
     lastSyncAt: timestamp("last_sync_at"),
     createdAt: timestamp("created_at").defaultNow(),
@@ -88,18 +77,18 @@ export const processedEmails = pgTable("processed_emails", {
     id: serial("id").primaryKey(),
     userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
     accountId: integer("account_id").references(() => emailAccounts.id, { onDelete: "cascade" }).notNull(),
-    externalId: varchar("external_id").notNull(), // Email ID from provider
+    externalId: varchar("external_id").notNull(),
     fromAddress: varchar("from_address").notNull(),
     toAddresses: jsonb("to_addresses").notNull(),
     subject: text("subject").notNull(),
     bodyPreview: text("body_preview"),
     receivedAt: timestamp("received_at").notNull(),
-    category: varchar("category").notNull(), // 'urgent', 'customer', 'business', 'personal', 'marketing', 'spam'
-    priority: varchar("priority").notNull(), // 'high', 'medium', 'low'
+    category: varchar("category").notNull(),
+    priority: varchar("priority").notNull(),
     needsResponse: boolean("needs_response").default(false),
     hasResponse: boolean("has_response").default(false),
-    sentiment: varchar("sentiment").notNull(), // 'positive', 'neutral', 'negative'
-    tags: jsonb("tags"), // Array of tags
+    sentiment: varchar("sentiment").notNull(),
+    tags: jsonb("tags"),
     aiSummary: text("ai_summary"),
     suggestedResponse: text("suggested_response"),
     isArchived: boolean("is_archived").default(false),
@@ -111,24 +100,23 @@ export const processedEmails = pgTable("processed_emails", {
     index("idx_processed_emails_category").on(table.category),
     index("idx_processed_emails_priority").on(table.priority),
 ]);
-// Instagram/ManyChat message management for Ava agent
 export const instagramMessages = pgTable("instagram_messages", {
     id: serial("id").primaryKey(),
     userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
-    platform: varchar("platform").notNull(), // 'instagram' or 'manychat'
-    externalId: varchar("external_id").notNull(), // Message ID from platform
+    platform: varchar("platform").notNull(),
+    externalId: varchar("external_id").notNull(),
     fromUsername: varchar("from_username").notNull(),
     fromId: varchar("from_id").notNull(),
     message: text("message").notNull(),
-    messageType: varchar("message_type").notNull(), // 'text', 'image', 'video', 'story_reply'
+    messageType: varchar("message_type").notNull(),
     receivedAt: timestamp("received_at").notNull(),
-    category: varchar("category").notNull(), // 'customer_inquiry', 'general', 'collaboration', 'spam', 'urgent'
-    priority: varchar("priority").notNull(), // 'high', 'medium', 'low'
-    sentiment: varchar("sentiment").notNull(), // 'positive', 'neutral', 'negative'
+    category: varchar("category").notNull(),
+    priority: varchar("priority").notNull(),
+    sentiment: varchar("sentiment").notNull(),
     needsResponse: boolean("needs_response").default(false),
     hasResponse: boolean("has_response").default(false),
     isBusinessOpportunity: boolean("is_business_opportunity").default(false),
-    tags: jsonb("tags"), // Array of tags
+    tags: jsonb("tags"),
     aiSummary: text("ai_summary"),
     suggestedResponse: text("suggested_response"),
     isArchived: boolean("is_archived").default(false),
@@ -140,22 +128,20 @@ export const instagramMessages = pgTable("instagram_messages", {
     index("idx_instagram_messages_category").on(table.category),
     index("idx_instagram_messages_priority").on(table.priority),
 ]);
-// Website schema for Victoria website builder
 export const websites = pgTable("websites", {
     id: serial("id").primaryKey(),
     userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
     title: varchar("title").notNull(),
-    slug: varchar("slug").notNull().unique(), // URL slug for preview
-    url: varchar("url"), // Generated URL
-    status: varchar("status").notNull().default("draft"), // draft, published, archived
-    content: jsonb("content").notNull(), // Website content data
+    slug: varchar("slug").notNull().unique(),
+    url: varchar("url"),
+    status: varchar("status").notNull().default("draft"),
+    content: jsonb("content").notNull(),
     templateId: varchar("template_id").default("victoria-editorial"),
-    screenshotUrl: varchar("screenshot_url"), // Screenshot for preview
+    screenshotUrl: varchar("screenshot_url"),
     isPublished: boolean("is_published").default(false),
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").defaultNow(),
 });
-// User profile table for additional profile information
 export const userProfiles = pgTable("user_profiles", {
     id: serial("id").primaryKey(),
     userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
@@ -170,18 +156,17 @@ export const userProfiles = pgTable("user_profiles", {
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").defaultNow(),
 });
-// Hair leads table for QR code signups (Norwegian market)
 export const hairLeads = pgTable("hair_leads", {
     id: serial("id").primaryKey(),
-    navn: varchar("navn").notNull(), // Name in Norwegian
-    epost: varchar("epost").notNull(), // Email in Norwegian
-    telefon: varchar("telefon"), // Phone number (optional)
-    kilde: varchar("kilde").default("qr-code"), // Source: qr-code, landing-page, etc
-    interesse: text("interesse"), // Interest/comments (optional)
-    levelpartnerSynced: boolean("levelpartner_synced").default(false), // For future LevelPartner integration
+    navn: varchar("navn").notNull(),
+    epost: varchar("epost").notNull(),
+    telefon: varchar("telefon"),
+    kilde: varchar("kilde").default("qr-code"),
+    interesse: text("interesse"),
+    levelpartnerSynced: boolean("levelpartner_synced").default(false),
     levelpartnerSyncedAt: timestamp("levelpartner_synced_at"),
-    status: varchar("status").default("new"), // new, contacted, converted, unsubscribed
-    notater: text("notater"), // Notes in Norwegian
+    status: varchar("status").default("new"),
+    notater: text("notater"),
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").defaultNow(),
 }, (table) => [
@@ -189,13 +174,12 @@ export const hairLeads = pgTable("hair_leads", {
     index("idx_hair_leads_created").on(table.createdAt),
     index("idx_hair_leads_kilde").on(table.kilde),
 ]);
-// User projects/brands table
 export const projects = pgTable("projects", {
     id: serial("id").primaryKey(),
     userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
     name: varchar("name").notNull(),
     description: text("description"),
-    status: varchar("status").default("draft"), // draft, published, archived
+    status: varchar("status").default("draft"),
     templateId: varchar("template_id"),
     customDomain: varchar("custom_domain"),
     aiImagesGenerated: boolean("ai_images_generated").default(false),
@@ -204,100 +188,92 @@ export const projects = pgTable("projects", {
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").defaultNow(),
 });
-// Generation tracking table - for temp preview ONLY (not gallery)
 export const generationTrackers = pgTable("generation_trackers", {
     id: serial("id").primaryKey(),
     userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
     predictionId: varchar("prediction_id"),
     prompt: text("prompt"),
     style: varchar("style"),
-    status: varchar("status").default("pending"), // pending, processing, completed, failed, canceled, timeout
-    imageUrls: text("image_urls"), // JSON array of temp URLs for preview only
+    status: varchar("status").default("pending"),
+    imageUrls: text("image_urls"),
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").defaultNow(),
 });
-// AI generated images table - GALLERY ONLY (permanent S3 URLs)
 export const aiImages = pgTable("ai_images", {
     id: serial("id").primaryKey(),
     userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
     imageUrl: varchar("image_url").notNull(),
     prompt: text("prompt"),
-    generatedPrompt: text("generated_prompt"), // The actual FLUX prompt used for generation
-    style: varchar("style"), // editorial, business, lifestyle, luxury
-    category: varchar("category"), // Business, Fashion, Lifestyle, Travel - NEW FIELD
-    source: varchar("source").default("workspace"), // maya-chat, workspace, gallery-edit
-    predictionId: varchar("prediction_id"), // FLUX model prediction tracking
-    generationStatus: varchar("generation_status").default("pending"), // pending, processing, completed, failed
+    generatedPrompt: text("generated_prompt"),
+    style: varchar("style"),
+    category: varchar("category"),
+    source: varchar("source").default("workspace"),
+    predictionId: varchar("prediction_id"),
+    generationStatus: varchar("generation_status").default("pending"),
     isSelected: boolean("is_selected").default(false),
     isFavorite: boolean("is_favorite").default(false),
     createdAt: timestamp("created_at").defaultNow(),
 });
-// Templates table
 export const templates = pgTable("templates", {
     id: serial("id").primaryKey(),
     name: varchar("name").notNull(),
     description: text("description"),
-    category: varchar("category"), // luxury, minimal, editorial, etc.
+    category: varchar("category"),
     previewImageUrl: varchar("preview_image_url"),
-    templateData: jsonb("template_data"), // JSON structure of the template
+    templateData: jsonb("template_data"),
     isActive: boolean("is_active").default(true),
     createdAt: timestamp("created_at").defaultNow(),
 });
-// Claude API agent memory and learning tables
 export const claudeConversations = pgTable("claude_conversations", {
     id: serial("id").primaryKey(),
     userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
-    agentName: varchar("agent_name").notNull(), // elena, aria, maya, etc
-    conversationId: varchar("conversation_id").notNull().unique(), // unique session identifier
+    agentName: varchar("agent_name").notNull(),
+    conversationId: varchar("conversation_id").notNull().unique(),
     title: varchar("title"),
-    status: varchar("status").default("active"), // active, archived
+    status: varchar("status").default("active"),
     lastMessageAt: timestamp("last_message_at").defaultNow(),
     messageCount: integer("message_count").default(0),
-    context: jsonb("context"), // conversation context and preferences
-    adminBypassEnabled: boolean("admin_bypass_enabled").default(false), // Admin token bypass for native tools
+    context: jsonb("context"),
+    adminBypassEnabled: boolean("admin_bypass_enabled").default(false),
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").defaultNow(),
 });
-// Claude API messages table for detailed conversation history
 export const claudeMessages = pgTable("claude_messages", {
     id: serial("id").primaryKey(),
     conversationId: varchar("conversation_id").references(() => claudeConversations.conversationId, { onDelete: "cascade" }).notNull(),
-    role: varchar("role").notNull(), // user, assistant, system
+    role: varchar("role").notNull(),
     content: text("content").notNull(),
-    metadata: jsonb("metadata"), // tool calls, attachments, etc
-    toolCalls: jsonb("tool_calls"), // Claude tool execution data
-    toolResults: jsonb("tool_results"), // Tool execution results
+    metadata: jsonb("metadata"),
+    toolCalls: jsonb("tool_calls"),
+    toolResults: jsonb("tool_results"),
     timestamp: timestamp("timestamp").defaultNow(),
     createdAt: timestamp("created_at").defaultNow(),
 });
-// Agent learning data table for continuous improvement
 export const agentLearning = pgTable("agent_learning", {
     id: serial("id").primaryKey(),
     agentName: varchar("agent_name").notNull(),
     userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }),
-    learningType: varchar("learning_type").notNull(), // preference, pattern, skill, context
-    category: varchar("category"), // design, technical, communication, etc
-    data: jsonb("data").notNull(), // learning content
-    confidence: decimal("confidence", { precision: 3, scale: 2 }).default("0.5"), // 0.0 to 1.0
-    frequency: integer("frequency").default(1), // how often this pattern occurs
+    learningType: varchar("learning_type").notNull(),
+    category: varchar("category"),
+    data: jsonb("data").notNull(),
+    confidence: decimal("confidence", { precision: 3, scale: 2 }).default("0.5"),
+    frequency: integer("frequency").default(1),
     lastSeen: timestamp("last_seen").defaultNow(),
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").defaultNow(),
 });
-// Agent capabilities and tools table
 export const agentCapabilities = pgTable("agent_capabilities", {
     id: serial("id").primaryKey(),
     agentName: varchar("agent_name").notNull(),
-    capabilityType: varchar("capability_type").notNull(), // tool, knowledge, skill
+    capabilityType: varchar("capability_type").notNull(),
     name: varchar("name").notNull(),
     description: text("description"),
     enabled: boolean("enabled").default(true),
-    config: jsonb("config"), // capability configuration
+    config: jsonb("config"),
     version: varchar("version").default("1.0"),
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").defaultNow(),
 });
-// Agent conversations table for chat persistence with threading support
 export const agentConversations = pgTable("agent_conversations", {
     id: serial("id").primaryKey(),
     agentId: varchar("agent_id").notNull(),
@@ -306,118 +282,97 @@ export const agentConversations = pgTable("agent_conversations", {
     agentResponse: text("agent_response").notNull(),
     devPreview: jsonb("dev_preview"),
     timestamp: timestamp("timestamp").defaultNow(),
-    // Enhanced conversation threading and management fields
     conversationTitle: varchar("conversation_title"),
-    conversationData: jsonb("conversation_data"), // Store full conversation history
+    conversationData: jsonb("conversation_data"),
     messageCount: integer("message_count").default(0),
     lastAgentResponse: text("last_agent_response"),
     isActive: boolean("is_active").default(true),
     isStarred: boolean("is_starred").default(false),
     isArchived: boolean("is_archived").default(false),
-    tags: jsonb("tags").default('[]'), // Array of string tags
-    // Threading support
+    tags: jsonb("tags").default('[]'),
     parentThreadId: integer("parent_thread_id"),
     branchedFromMessageId: varchar("branched_from_message_id"),
-    // Enhanced timestamps
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").defaultNow(),
 });
-// User subscriptions table
 export const subscriptions = pgTable("subscriptions", {
     id: serial("id").primaryKey(),
     userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
-    plan: varchar("plan").notNull(), // "free" or "sselfie-studio"
-    status: varchar("status").notNull(), // active, cancelled, expired
+    plan: varchar("plan").notNull(),
+    status: varchar("status").notNull(),
     stripeSubscriptionId: varchar("stripe_subscription_id"),
     currentPeriodStart: timestamp("current_period_start"),
     currentPeriodEnd: timestamp("current_period_end"),
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").defaultNow(),
 });
-// User usage tracking table
 export const userUsage = pgTable("user_usage", {
     id: serial("id").primaryKey(),
     userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
-    plan: varchar("plan").notNull(), // "free" or "sselfie-studio"
-    // AI Generation limits and usage
-    monthlyGenerationsAllowed: integer("monthly_generations_allowed").notNull(), // 5 for free, 100 for paid
+    plan: varchar("plan").notNull(),
+    monthlyGenerationsAllowed: integer("monthly_generations_allowed").notNull(),
     monthlyGenerationsUsed: integer("monthly_generations_used").default(0),
-    // Access controls removed - handled by plan type instead
-    // Cost tracking
-    totalCostIncurred: decimal("total_cost_incurred", { precision: 10, scale: 4 }).default("0.0000"), // Track actual API costs
-    // Period tracking for monthly limits
+    totalCostIncurred: decimal("total_cost_incurred", { precision: 10, scale: 4 }).default("0.0000"),
     currentPeriodStart: timestamp("current_period_start"),
     currentPeriodEnd: timestamp("current_period_end"),
-    // Status tracking
     isLimitReached: boolean("is_limit_reached").default(false),
     lastGenerationAt: timestamp("last_generation_at"),
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").defaultNow(),
 });
-// Usage history for detailed tracking
 export const usageHistory = pgTable("usage_history", {
     id: serial("id").primaryKey(),
     userId: varchar("user_id").references(() => users.id).notNull(),
-    actionType: varchar("action_type").notNull(), // 'generation', 'api_call', 'sandra_chat'
-    resourceUsed: varchar("resource_used").notNull(), // 'replicate_ai', 'claude_api', 'openai_api'
-    cost: decimal("cost", { precision: 6, scale: 4 }).notNull(), // Actual cost in USD
-    details: jsonb("details"), // Store generation params, prompts, etc.
+    actionType: varchar("action_type").notNull(),
+    resourceUsed: varchar("resource_used").notNull(),
+    cost: decimal("cost", { precision: 6, scale: 4 }).notNull(),
+    details: jsonb("details"),
     generatedImageId: integer("generated_image_id").references(() => generatedImages.id),
     createdAt: timestamp("created_at").defaultNow(),
 });
-// Onboarding data table - simplified for streamlined vision
 export const onboardingData = pgTable("onboarding_data", {
     id: serial("id").primaryKey(),
     userId: varchar("user_id").references(() => users.id).notNull(),
-    // Step 1: Brand Story
     brandStory: text("brand_story"),
     personalMission: text("personal_mission"),
-    // Step 2: Business Goals
     businessGoals: text("business_goals"),
     targetAudience: text("target_audience"),
     businessType: varchar("business_type"),
-    // Step 3: Voice & Style
     brandVoice: text("brand_voice"),
     stylePreferences: varchar("style_preferences"),
-    // Step 4: AI Training
-    selfieUploadStatus: varchar("selfie_upload_status").default("pending"), // pending, processing, completed
-    aiTrainingStatus: varchar("ai_training_status").default("not_started"), // not_started, in_progress, completed
-    // Progress tracking
+    selfieUploadStatus: varchar("selfie_upload_status").default("pending"),
+    aiTrainingStatus: varchar("ai_training_status").default("not_started"),
     currentStep: integer("current_step").default(1),
     completed: boolean("completed").default(false),
     completedAt: timestamp("completed_at"),
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").defaultNow(),
 });
-// Selfie uploads table
 export const selfieUploads = pgTable("selfie_uploads", {
     id: serial("id").primaryKey(),
     userId: varchar("user_id").references(() => users.id).notNull(),
     filename: varchar("filename").notNull(),
     originalUrl: varchar("original_url").notNull(),
     processedUrl: varchar("processed_url"),
-    processingStatus: varchar("processing_status").default("pending"), // pending, processing, completed, failed
+    processingStatus: varchar("processing_status").default("pending"),
     aiModelOutput: jsonb("ai_model_output"),
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").defaultNow(),
 });
-// User AI Models table for individual trained models - Enhanced for FLUX Pro
 export const userModels = pgTable("user_models", {
     id: serial("id").primaryKey(),
-    userId: varchar("user_id").references(() => users.id).notNull().unique(), // One model per user
-    trainingId: varchar("training_id"), // Replicate training ID (separate from model path)
-    replicateModelId: varchar("replicate_model_id"), // Final model path only (e.g., sandrasocial/user123-selfie-lora)
-    replicateVersionId: varchar("replicate_version_id"), // The actual trained model version to use
-    trainedModelPath: varchar("trained_model_path"), // sandrasocial/{modelName}
-    // REMOVED: loraWeightsUrl - packaged models have LoRA built-in
+    userId: varchar("user_id").references(() => users.id).notNull().unique(),
+    trainingId: varchar("training_id"),
+    replicateModelId: varchar("replicate_model_id"),
+    replicateVersionId: varchar("replicate_version_id"),
+    trainedModelPath: varchar("trained_model_path"),
     triggerWord: varchar("trigger_word").notNull().unique(),
-    trainingStatus: varchar("training_status").default('pending'), // pending, training, completed, failed, luxury_training, luxury_completed
+    trainingStatus: varchar("training_status").default('pending'),
     modelName: varchar("model_name"),
-    // FLUX Pro luxury fields for premium users
-    isLuxury: boolean("is_luxury").default(false), // Premium FLUX Pro model
-    finetuneId: varchar("finetune_id"), // FLUX Pro finetune ID for ultra-realistic generation
-    modelType: varchar("model_type").default('flux-dev'), // flux-dev or flux-pro
-    trainingProgress: integer("training_progress").default(0), // 0-100%
+    isLuxury: boolean("is_luxury").default(false),
+    finetuneId: varchar("finetune_id"),
+    modelType: varchar("model_type").default('flux-dev'),
+    trainingProgress: integer("training_progress").default(0),
     estimatedCompletionTime: timestamp("estimated_completion_time"),
     failureReason: text("failure_reason"),
     startedAt: timestamp("started_at"),
@@ -425,33 +380,31 @@ export const userModels = pgTable("user_models", {
     updatedAt: timestamp("updated_at").defaultNow(),
     completedAt: timestamp("completed_at")
 });
-// Image categories and generation tracking
 export const generatedImages = pgTable("generated_images", {
     id: serial("id").primaryKey(),
     userId: varchar("user_id").references(() => users.id).notNull(),
     modelId: integer("model_id").references(() => userModels.id),
-    category: varchar("category").notNull(), // Lifestyle, Editorial, Portrait, etc.
-    subcategory: varchar("subcategory").notNull(), // Working, Travel, etc.
+    category: varchar("category").notNull(),
+    subcategory: varchar("subcategory").notNull(),
     prompt: text("prompt").notNull(),
-    imageUrls: text("image_urls").notNull(), // JSON array of 4 URLs
-    selectedUrl: text("selected_url"), // User's choice
+    imageUrls: text("image_urls").notNull(),
+    selectedUrl: text("selected_url"),
     saved: boolean("saved").default(false),
     createdAt: timestamp("created_at").defaultNow()
 });
-// Generated Videos table (for VEO 3 video generation)
 export const generatedVideos = pgTable("generated_videos", {
     id: serial("id").primaryKey(),
     userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
-    imageId: integer("image_id"), // Source image for video generation
-    imageSource: varchar("image_source").default("generated"), // 'generated' or 'legacy'
+    imageId: integer("image_id"),
+    imageSource: varchar("image_source").default("generated"),
     motionPrompt: text("motion_prompt").notNull(),
-    videoUrl: varchar("video_url"), // Final video URL when completed
-    jobId: varchar("job_id").notNull(), // VEO generation job ID
-    status: varchar("status").default("pending"), // pending, processing, completed, failed
-    estimatedTime: varchar("estimated_time"), // e.g., "2-5 minutes"
-    progress: integer("progress").default(0), // 0-100
+    videoUrl: varchar("video_url"),
+    jobId: varchar("job_id").notNull(),
+    status: varchar("status").default("pending"),
+    estimatedTime: varchar("estimated_time"),
+    progress: integer("progress").default(0),
     errorMessage: text("error_message"),
-    saved: boolean("saved").default(false), // User saved to favorites
+    saved: boolean("saved").default(false),
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").defaultNow(),
     completedAt: timestamp("completed_at"),
@@ -460,16 +413,15 @@ export const generatedVideos = pgTable("generated_videos", {
     index("generated_videos_job_id_idx").on(table.jobId),
     index("generated_videos_status_idx").on(table.status),
 ]);
-// Video Storyboards table (for multi-scene video composition)
 export const videoStoryboards = pgTable("video_storyboards", {
     id: serial("id").primaryKey(),
     userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
-    scenes: jsonb("scenes").notNull(), // Array of {motionPrompt, duration, style?, imageId?}
-    mode: varchar("mode").default("sequential"), // sequential, parallel
-    composedVideoUrl: varchar("composed_video_url"), // Final composed video URL
-    status: varchar("status").default("pending"), // pending, processing, completed, failed
-    progress: integer("progress").default(0), // 0-100
-    jobId: varchar("job_id"), // Composition job ID for tracking
+    scenes: jsonb("scenes").notNull(),
+    mode: varchar("mode").default("sequential"),
+    composedVideoUrl: varchar("composed_video_url"),
+    status: varchar("status").default("pending"),
+    progress: integer("progress").default(0),
+    jobId: varchar("job_id"),
     errorMessage: text("error_message"),
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").defaultNow(),
@@ -478,67 +430,57 @@ export const videoStoryboards = pgTable("video_storyboards", {
     index("video_storyboards_user_id_idx").on(table.userId),
     index("video_storyboards_status_idx").on(table.status),
 ]);
-// Victoria AI chat conversations
 export const victoriaChats = pgTable("victoria_chats", {
     id: serial("id").primaryKey(),
     userId: varchar("user_id").references(() => users.id).notNull(),
-    sessionId: varchar("session_id").notNull(), // Group related messages
+    sessionId: varchar("session_id").notNull(),
     message: text("message").notNull(),
-    sender: varchar("sender").notNull(), // 'user' or 'victoria'
-    messageType: varchar("message_type").default("text"), // text, template_suggestion, photo_selection
-    metadata: jsonb("metadata"), // Store template data, photo selections, etc.
+    sender: varchar("sender").notNull(),
+    messageType: varchar("message_type").default("text"),
+    metadata: jsonb("metadata"),
     createdAt: timestamp("created_at").defaultNow(),
 });
-// Photo selections for landing page builder
 export const photoSelections = pgTable("photo_selections", {
     id: serial("id").primaryKey(),
     userId: varchar("user_id").references(() => users.id).notNull(),
-    selectedSelfieIds: jsonb("selected_selfie_ids").notNull(), // Array of AI image IDs
-    selectedFlatlayCollection: varchar("selected_flatlay_collection").notNull(), // Collection name
+    selectedSelfieIds: jsonb("selected_selfie_ids").notNull(),
+    selectedFlatlayCollection: varchar("selected_flatlay_collection").notNull(),
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").defaultNow(),
 });
-// Landing page templates and user customizations
 export const landingPages = pgTable("landing_pages", {
     id: serial("id").primaryKey(),
     userId: varchar("user_id").references(() => users.id).notNull(),
     templateName: varchar("template_name").notNull(),
-    customizations: jsonb("customizations"), // Colors, fonts, layout changes
-    content: jsonb("content"), // Text content, headlines, descriptions
-    photoSelections: jsonb("photo_selections"), // Selected photos for each section
+    customizations: jsonb("customizations"),
+    content: jsonb("content"),
+    photoSelections: jsonb("photo_selections"),
     isPublished: boolean("is_published").default(false),
     publishedUrl: varchar("published_url"),
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").defaultNow(),
 });
-// Brand onboarding data for template auto-population
 export const brandOnboarding = pgTable("brand_onboarding", {
     id: serial("id").primaryKey(),
-    userId: varchar("user_id").references(() => users.id).notNull().unique(), // One per user
-    // Personal Brand Story
+    userId: varchar("user_id").references(() => users.id).notNull().unique(),
     businessName: varchar("business_name").notNull(),
     tagline: text("tagline").notNull(),
     personalStory: text("personal_story").notNull(),
     whyStarted: text("why_started"),
-    // Target Client & Positioning
     targetClient: text("target_client").notNull(),
     problemYouSolve: text("problem_you_solve").notNull(),
     uniqueApproach: text("unique_approach").notNull(),
-    // Offers & Services
     primaryOffer: varchar("primary_offer").notNull(),
     primaryOfferPrice: varchar("primary_offer_price").notNull(),
     secondaryOffer: varchar("secondary_offer"),
     secondaryOfferPrice: varchar("secondary_offer_price"),
     freeResource: text("free_resource"),
-    // Contact & Links
     instagramHandle: varchar("instagram_handle"),
     websiteUrl: varchar("website_url"),
     email: varchar("email").notNull(),
     location: varchar("location"),
-    // Brand Personality
     brandPersonality: varchar("brand_personality").notNull(),
     brandValues: text("brand_values"),
-    // Design Preferences (from Zara's audit)
     stylePreference: varchar("style_preference").default("editorial-luxury"),
     colorScheme: varchar("color_scheme").default("black-white-editorial"),
     typographyStyle: varchar("typography_style").default("times-editorial"),
@@ -546,11 +488,10 @@ export const brandOnboarding = pgTable("brand_onboarding", {
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").defaultNow(),
 });
-// User landing pages table for live hosting
 export const userLandingPages = pgTable("user_landing_pages", {
     id: serial("id").primaryKey(),
     userId: varchar("user_id").references(() => users.id).notNull(),
-    slug: varchar("slug").notNull().unique(), // username or custom slug
+    slug: varchar("slug").notNull().unique(),
     title: varchar("title").notNull(),
     description: text("description"),
     htmlContent: text("html_content").notNull(),
@@ -563,11 +504,9 @@ export const userLandingPages = pgTable("user_landing_pages", {
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").defaultNow(),
 });
-// Maya Personal Brand data for onboarding - SIMPLIFIED 8 FIELDS
 export const userPersonalBrand = pgTable("user_personal_brand", {
     id: serial("id").primaryKey(),
     userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
-    // Personal details - 8 core fields only
     name: text("name"),
     transformationStory: text("transformation_story"),
     currentSituation: text("current_situation"),
@@ -576,14 +515,12 @@ export const userPersonalBrand = pgTable("user_personal_brand", {
     businessType: varchar("business_type"),
     stylePreferences: text("style_preferences"),
     photoGoals: text("photo_goals"),
-    // System fields
     onboardingStep: integer("onboarding_step").default(1),
     isCompleted: boolean("is_completed").default(false),
     completedAt: timestamp("completed_at"),
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").defaultNow(),
 });
-// Maya Personal Memory data for personalized interactions
 export const mayaPersonalMemory = pgTable("maya_personal_memory", {
     id: serial("id").primaryKey(),
     userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
@@ -599,52 +536,41 @@ export const mayaPersonalMemory = pgTable("maya_personal_memory", {
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").defaultNow(),
 });
-// User Style Memory for learning preferences and patterns - ✨ PHASE 4.3 ENHANCED
 export const userStyleMemory = pgTable("user_style_memory", {
     id: serial("id").primaryKey(),
     userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
-    // Preference tracking
-    preferredCategories: jsonb("preferred_categories").default('[]'), // ["Business", "Lifestyle", etc.]
-    favoritePromptPatterns: jsonb("favorite_prompt_patterns").default('[]'), // Successful prompt structures
-    colorPreferences: jsonb("color_preferences").default('[]'), // Preferred color palettes
-    settingPreferences: jsonb("setting_preferences").default('[]'), // Indoor, outdoor, urban, etc.
-    stylingKeywords: jsonb("styling_keywords").default('[]'), // Words that resonate with user
-    // Learning metrics
+    preferredCategories: jsonb("preferred_categories").default('[]'),
+    favoritePromptPatterns: jsonb("favorite_prompt_patterns").default('[]'),
+    colorPreferences: jsonb("color_preferences").default('[]'),
+    settingPreferences: jsonb("setting_preferences").default('[]'),
+    stylingKeywords: jsonb("styling_keywords").default('[]'),
     totalInteractions: integer("total_interactions").default(0),
     totalFavorites: integer("total_favorites").default(0),
-    averageSessionLength: integer("average_session_length").default(0), // in minutes
-    mostActiveHours: jsonb("most_active_hours").default('[]'), // Time patterns
-    // Success patterns
-    highPerformingPrompts: jsonb("high_performing_prompts").default('[]'), // Prompts that got favorited
-    rejectedPrompts: jsonb("rejected_prompts").default('[]'), // Prompts user didn't like
-    // PHASE 4.3: Enhanced fields temporarily disabled for database compatibility
+    averageSessionLength: integer("average_session_length").default(0),
+    mostActiveHours: jsonb("most_active_hours").default('[]'),
+    highPerformingPrompts: jsonb("high_performing_prompts").default('[]'),
+    rejectedPrompts: jsonb("rejected_prompts").default('[]'),
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").defaultNow(),
 });
-// Prompt Analysis for tracking successful patterns (zero risk - just logging)
 export const promptAnalysis = pgTable("prompt_analysis", {
     id: serial("id").primaryKey(),
     userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
-    // Prompt details
     originalPrompt: text("original_prompt").notNull(),
-    generatedPrompt: text("generated_prompt"), // The FLUX prompt used
+    generatedPrompt: text("generated_prompt"),
     conceptTitle: text("concept_title"),
-    category: varchar("category"), // Business, Lifestyle, etc.
-    // User interaction data
+    category: varchar("category"),
     wasGenerated: boolean("was_generated").default(false),
     wasFavorited: boolean("was_favorited").default(false),
     wasSaved: boolean("was_saved").default(false),
-    viewDuration: integer("view_duration"), // How long user looked at result
-    // Technical analysis
+    viewDuration: integer("view_duration"),
     promptLength: integer("prompt_length"),
-    keywordDensity: jsonb("keyword_density").default('{}'), // Word frequency analysis
-    technicalSpecs: jsonb("technical_specs").default('{}'), // Camera, lighting, etc.
-    // Performance metrics
-    generationTime: integer("generation_time"), // How long it took to generate
-    successScore: decimal("success_score", { precision: 3, scale: 2 }).default("0.0"), // 0.0 to 1.0 based on user actions
+    keywordDensity: jsonb("keyword_density").default('{}'),
+    technicalSpecs: jsonb("technical_specs").default('{}'),
+    generationTime: integer("generation_time"),
+    successScore: decimal("success_score", { precision: 3, scale: 2 }).default("0.0"),
     createdAt: timestamp("created_at").defaultNow(),
 });
-// Maya Chat History tables - STEP 3.1: Performance Optimized
 export const mayaChats = pgTable("maya_chats", {
     id: serial("id").primaryKey(),
     userId: varchar("user_id").notNull(),
@@ -655,7 +581,6 @@ export const mayaChats = pgTable("maya_chats", {
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").defaultNow(),
 }, (table) => ({
-    // STEP 3.1: Performance indexes for optimal query performance
     userIdIdx: index("maya_chats_user_id_idx").on(table.userId),
     lastActivityIdx: index("maya_chats_last_activity_idx").on(table.lastActivity),
     categoryIdx: index("maya_chats_category_idx").on(table.chatCategory),
@@ -664,37 +589,34 @@ export const mayaChats = pgTable("maya_chats", {
 export const mayaChatMessages = pgTable("maya_chat_messages", {
     id: serial("id").primaryKey(),
     chatId: integer("chat_id").references(() => mayaChats.id).notNull(),
-    role: varchar("role").notNull(), // 'user' or 'maya'
+    role: varchar("role").notNull(),
     content: text("content").notNull(),
-    imagePreview: text("image_preview"), // JSON array of image URLs
+    imagePreview: text("image_preview"),
     generatedPrompt: text("generated_prompt"),
-    conceptCards: jsonb("concept_cards"), // ENHANCED: JSON array of concept cards with enhanced context
-    quickButtons: text("quick_buttons"), // JSON array of quick action buttons
-    canGenerate: boolean("can_generate").default(false), // Whether this message can generate images
+    conceptCards: jsonb("concept_cards"),
+    quickButtons: text("quick_buttons"),
+    canGenerate: boolean("can_generate").default(false),
     createdAt: timestamp("created_at").defaultNow(),
 }, (table) => ({
-    // STEP 3.1: Performance indexes for optimal message retrieval
     chatIdIdx: index("maya_chat_messages_chat_id_idx").on(table.chatId),
     createdAtIdx: index("maya_chat_messages_created_at_idx").on(table.createdAt),
     roleIdx: index("maya_chat_messages_role_idx").on(table.role),
     chatRoleIdx: index("maya_chat_messages_chat_role_idx").on(table.chatId, table.role),
     canGenerateIdx: index("maya_chat_messages_can_generate_idx").on(table.canGenerate),
 }));
-// LoRA Training & Weights Storage Tables
-// Tracks individual training runs and their extracted LoRA weights
 export const trainingRuns = pgTable("training_runs", {
     id: serial("id").primaryKey(),
     userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
-    trainingId: varchar("training_id").notNull(), // Replicate training ID
-    status: varchar("status").notNull(), // 'started', 'training', 'completed', 'failed'
-    progress: integer("progress").default(0), // 0-100
+    trainingId: varchar("training_id").notNull(),
+    status: varchar("status").notNull(),
+    progress: integer("progress").default(0),
     baseModel: varchar("base_model").default("flux-dev"),
-    parameters: jsonb("parameters"), // Training params: steps, lr, rank, resolution, etc.
+    parameters: jsonb("parameters"),
     startedAt: timestamp("started_at").defaultNow(),
     completedAt: timestamp("completed_at"),
-    datasetZipUrl: text("dataset_zip_url"), // S3 URL of training images
-    outputArtifactUrl: text("output_artifact_url"), // Replicate output URL
-    error: text("error"), // Error message if failed
+    datasetZipUrl: text("dataset_zip_url"),
+    outputArtifactUrl: text("output_artifact_url"),
+    error: text("error"),
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").defaultNow(),
 }, (table) => ({
@@ -708,18 +630,15 @@ export const loraWeights = pgTable("lora_weights", {
     trainingRunId: integer("training_run_id").references(() => trainingRuns.id, { onDelete: "cascade" }).notNull(),
     triggerWord: varchar("trigger_word").notNull(),
     baseModel: varchar("base_model").notNull().default("flux-dev"),
-    // Object Storage Details for .safetensors file
     s3Bucket: varchar("s3_bucket"),
-    s3Key: varchar("s3_key"), // Path to .safetensors file in object storage
-    fileSize: integer("file_size"), // File size in bytes
-    checksum: varchar("checksum"), // File integrity verification
-    // LoRA Technical Details
-    rank: integer("rank").default(32), // LoRA rank used in training
-    networkType: varchar("network_type").default("lora"), // "lora", "locon", etc.
-    status: varchar("status").default("available"), // 'available', 'archived', 'failed'
-    // Maya's Intelligent Scaling Defaults per shot type
-    defaultScales: jsonb("default_scales"), // { closeUpPortrait: 1.0, halfBodyShot: 0.9, fullScenery: 0.85 }
-    metadata: jsonb("metadata"), // Additional LoRA metadata
+    s3Key: varchar("s3_key"),
+    fileSize: integer("file_size"),
+    checksum: varchar("checksum"),
+    rank: integer("rank").default(32),
+    networkType: varchar("network_type").default("lora"),
+    status: varchar("status").default("available"),
+    defaultScales: jsonb("default_scales"),
+    metadata: jsonb("metadata"),
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").defaultNow(),
 }, (table) => ({
@@ -728,7 +647,6 @@ export const loraWeights = pgTable("lora_weights", {
     trainingRunIdx: index("lora_weights_training_run_idx").on(table.trainingRunId),
     triggerWordIdx: index("lora_weights_trigger_word_idx").on(table.triggerWord),
 }));
-// Live Sessions - For Stage Mode interactive presentations
 export const liveSessions = pgTable("live_sessions", {
     id: uuid("id").primaryKey().defaultRandom(),
     deckUrl: text("deck_url"),
@@ -743,14 +661,13 @@ export const liveSessions = pgTable("live_sessions", {
     createdAtIdx: index("idx_live_sessions_created_at").on(table.createdAt),
     titleIdx: index("idx_live_sessions_title").on(table.title),
 }));
-// Live Events - For Stage Mode analytics and tracking
 export const liveEvents = pgTable("live_events", {
     id: uuid("id").primaryKey().defaultRandom(),
     sessionId: uuid("session_id").references(() => liveSessions.id, { onDelete: "cascade" }).notNull(),
-    eventType: varchar("event_type").notNull(), // 'qr_view', 'cta_click', 'signup_success', 'reaction', 'state_change'
+    eventType: varchar("event_type").notNull(),
     meta: jsonb("meta").default({}),
     userAgent: text("user_agent"),
-    ipAddress: text("ip_address"), // Using text instead of inet for broader compatibility
+    ipAddress: text("ip_address"),
     utmSource: varchar("utm_source"),
     utmCampaign: varchar("utm_campaign"),
     utmMedium: varchar("utm_medium"),
@@ -765,7 +682,6 @@ export const liveEvents = pgTable("live_events", {
     utmSourceIdx: index("idx_live_events_utm_source").on(table.utmSource),
     analyticsIdx: index("idx_live_events_analytics").on(table.sessionId, table.eventType, table.createdAt),
 }));
-// Schema exports
 export const upsertUserSchema = createInsertSchema(users);
 export const insertUserSchema = createInsertSchema(users).omit({ createdAt: true, updatedAt: true });
 export const insertUserProfileSchema = createInsertSchema(userProfiles).omit({ id: true, createdAt: true, updatedAt: true });
@@ -823,12 +739,10 @@ export const insertTrainingRunSchema = createInsertSchema(trainingRuns).omit({ i
 export const insertLoraWeightSchema = createInsertSchema(loraWeights).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertAgentConversationSchema = createInsertSchema(agentConversations).omit({ id: true, timestamp: true });
 export const insertWebsiteSchema = createInsertSchema(websites).omit({ id: true, createdAt: true, updatedAt: true });
-// Claude API schemas
 export const insertClaudeConversationSchema = createInsertSchema(claudeConversations).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertClaudeMessageSchema = createInsertSchema(claudeMessages).omit({ id: true, createdAt: true, timestamp: true });
 export const insertAgentLearningSchema = createInsertSchema(agentLearning).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertAgentCapabilitySchema = createInsertSchema(agentCapabilities).omit({ id: true, createdAt: true, updatedAt: true });
-// Email capture table for lead generation
 export const emailCaptures = pgTable('email_captures', {
     id: serial('id').primaryKey(),
     email: varchar('email', { length: 255 }).notNull(),
@@ -836,75 +750,69 @@ export const emailCaptures = pgTable('email_captures', {
     source: varchar('source', { length: 100 }).notNull().default('landing_page'),
     captured: timestamp('captured').defaultNow(),
     converted: boolean('converted').default(false),
-    userId: varchar('user_id').references(() => users.id), // Added missing field from database
+    userId: varchar('user_id').references(() => users.id),
 });
-// Domain management table
 export const domains = pgTable("domains", {
     id: serial("id").primaryKey(),
     userId: varchar("user_id").references(() => users.id).notNull(),
-    domain: varchar("domain").notNull().unique(), // user's custom domain
-    subdomain: varchar("subdomain").unique(), // username.sselfie.com
+    domain: varchar("domain").notNull().unique(),
+    subdomain: varchar("subdomain").unique(),
     isVerified: boolean("is_verified").default(false),
-    dnsRecords: jsonb("dns_records"), // Required DNS settings
-    sslStatus: varchar("ssl_status").default("pending"), // pending, active, failed
-    connectedTo: varchar("connected_to"), // 'styleguide', 'landing-page'
-    resourceId: integer("resource_id"), // ID of connected resource
+    dnsRecords: jsonb("dns_records"),
+    sslStatus: varchar("ssl_status").default("pending"),
+    connectedTo: varchar("connected_to"),
+    resourceId: integer("resource_id"),
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").defaultNow(),
 });
-// BUILD FEATURE TABLES
-// User Website Onboarding - stores user preferences for website generation
 export const userWebsiteOnboarding = pgTable('user_website_onboarding', {
     id: serial('id').primaryKey(),
     userId: varchar('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
-    personalBrandName: varchar('personal_brand_name'), // Personal brand name
-    story: text('story'), // User's personal/business story
-    businessType: varchar('business_type'), // Type of business (coach, consultant, etc.)
-    colorPreferences: jsonb('color_preferences').default({}), // Color scheme preferences
-    targetAudience: text('target_audience'), // Who they serve
-    brandKeywords: jsonb('brand_keywords').default([]), // Key brand terms
-    goals: text('goals'), // What they want to achieve
-    currentStep: varchar('current_step').default('story'), // Onboarding progress
+    personalBrandName: varchar('personal_brand_name'),
+    story: text('story'),
+    businessType: varchar('business_type'),
+    colorPreferences: jsonb('color_preferences').default({}),
+    targetAudience: text('target_audience'),
+    brandKeywords: jsonb('brand_keywords').default([]),
+    goals: text('goals'),
+    currentStep: varchar('current_step').default('story'),
     isCompleted: boolean('is_completed').default(false),
     createdAt: timestamp('created_at').defaultNow(),
     updatedAt: timestamp('updated_at').defaultNow(),
 });
-// User Generated Websites - stores the actual generated websites
 export const userGeneratedWebsites = pgTable('user_generated_websites', {
     id: serial('id').primaryKey(),
     userId: varchar('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
     onboardingId: integer('onboarding_id').references(() => userWebsiteOnboarding.id, { onDelete: 'cascade' }),
-    title: varchar('title').notNull(), // Website title
-    subdomain: varchar('subdomain', { length: 63 }).unique(), // Unique subdomain (max 63 chars)
-    htmlContent: text('html_content').notNull(), // Generated HTML
-    cssContent: text('css_content').notNull(), // Generated CSS
-    jsContent: text('js_content').default(''), // Optional JavaScript
-    metadata: jsonb('metadata').default({}), // SEO metadata, social tags, etc.
+    title: varchar('title').notNull(),
+    subdomain: varchar('subdomain', { length: 63 }).unique(),
+    htmlContent: text('html_content').notNull(),
+    cssContent: text('css_content').notNull(),
+    jsContent: text('js_content').default(''),
+    metadata: jsonb('metadata').default({}),
     isPublished: boolean('is_published').default(false),
-    status: varchar('status').default('draft'), // draft, published, archived
-    templateUsed: varchar('template_used'), // Which template was used as base
-    customizations: jsonb('customizations').default({}), // User customizations
-    analytics: jsonb('analytics').default({}), // Visit stats, etc.
-    seoScore: integer('seo_score').default(0), // SEO optimization score
+    status: varchar('status').default('draft'),
+    templateUsed: varchar('template_used'),
+    customizations: jsonb('customizations').default({}),
+    analytics: jsonb('analytics').default({}),
+    seoScore: integer('seo_score').default(0),
     createdAt: timestamp('created_at').defaultNow(),
     updatedAt: timestamp('updated_at').defaultNow(),
     publishedAt: timestamp('published_at'),
 });
-// Website Builder Conversations - stores BUILD Victoria chat conversations
 export const websiteBuilderConversations = pgTable('website_builder_conversations', {
     id: serial('id').primaryKey(),
     userId: varchar('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
     websiteId: integer('website_id').references(() => userGeneratedWebsites.id, { onDelete: 'cascade' }),
     onboardingId: integer('onboarding_id').references(() => userWebsiteOnboarding.id, { onDelete: 'cascade' }),
-    messages: jsonb('messages').notNull().default([]), // Chat message history
-    context: jsonb('context').default({}), // Conversation context (current step, user preferences, etc.)
+    messages: jsonb('messages').notNull().default([]),
+    context: jsonb('context').default({}),
     lastActivity: timestamp('last_activity').defaultNow(),
     isActive: boolean('is_active').default(true),
-    conversationType: varchar('conversation_type').default('onboarding'), // onboarding, editing, support
+    conversationType: varchar('conversation_type').default('onboarding'),
     createdAt: timestamp('created_at').defaultNow(),
     updatedAt: timestamp('updated_at').defaultNow(),
 });
-// BUILD feature insert schemas
 export const insertUserWebsiteOnboardingSchema = z.object({
     userId: z.string(),
     personalBrandName: z.string().optional(),
@@ -942,15 +850,14 @@ export const insertWebsiteBuilderConversationsSchema = z.object({
     isActive: z.boolean().default(true),
     conversationType: z.string().default('onboarding')
 });
-// Imported subscribers table for email list migration
 export const importedSubscribers = pgTable("imported_subscribers", {
     id: varchar("id").primaryKey().$defaultFn(() => randomUUID()),
     email: varchar("email"),
     firstName: varchar("first_name"),
     lastName: varchar("last_name"),
-    source: varchar("source").notNull(), // 'flodesk' | 'manychat'
+    source: varchar("source").notNull(),
     originalId: varchar("original_id").notNull(),
-    status: varchar("status").notNull(), // 'active' | 'unsubscribed'
+    status: varchar("status").notNull(),
     tags: jsonb("tags").$type().default([]),
     customFields: jsonb("custom_fields").$type().default({}),
     messengerData: jsonb("messenger_data"),
@@ -958,8 +865,6 @@ export const importedSubscribers = pgTable("imported_subscribers", {
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").defaultNow()
 });
-// AGENT BRIDGE SYSTEM TABLES
-// Luxury agent-to-agent communication and task execution tracking
 export const agentTasks = pgTable('agent_tasks', {
     taskId: uuid('task_id').primaryKey().defaultRandom(),
     agentName: text('agent_name').notNull(),
@@ -968,7 +873,7 @@ export const agentTasks = pgTable('agent_tasks', {
     priority: text('priority').$type().default('medium'),
     completionCriteria: jsonb('completion_criteria').$type(),
     qualityGates: jsonb('quality_gates').$type(),
-    estimatedDuration: integer('estimated_duration').notNull(), // in minutes
+    estimatedDuration: integer('estimated_duration').notNull(),
     status: text('status').default('received'),
     progress: integer('progress').default(0),
     implementations: jsonb('implementations'),
@@ -982,34 +887,32 @@ export const agentKnowledgeBase = pgTable("agent_knowledge_base", {
     agentId: varchar("agent_id").notNull(),
     topic: varchar("topic").notNull(),
     content: text("content").notNull(),
-    source: varchar("source").notNull(), // 'conversation', 'training', 'documentation', 'experience'
-    confidence: decimal("confidence").notNull(), // 0.0 to 1.0
+    source: varchar("source").notNull(),
+    confidence: decimal("confidence").notNull(),
     lastUpdated: timestamp("last_updated").defaultNow().notNull(),
-    tags: text("tags").array(), // For categorization
+    tags: text("tags").array(),
 });
 export const agentPerformanceMetrics = pgTable("agent_performance_metrics", {
     id: serial("id").primaryKey(),
     agentId: varchar("agent_id").notNull(),
     taskType: varchar("task_type").notNull(),
     successRate: decimal("success_rate").notNull(),
-    averageTime: integer("average_time").default(0), // in milliseconds
+    averageTime: integer("average_time").default(0),
     userSatisfactionScore: decimal("user_satisfaction_score").default("0"),
     totalTasks: integer("total_tasks").default(0),
-    improvementTrend: varchar("improvement_trend").default('stable'), // 'improving', 'stable', 'declining'
+    improvementTrend: varchar("improvement_trend").default('stable'),
     lastUpdated: timestamp("last_updated").defaultNow().notNull(),
 });
 export const agentTrainingSessions = pgTable("agent_training_sessions", {
     id: serial("id").primaryKey(),
     agentId: varchar("agent_id").notNull(),
-    sessionType: varchar("session_type").notNull(), // 'manual', 'automatic', 'feedback'
+    sessionType: varchar("session_type").notNull(),
     trainingData: jsonb("training_data").notNull(),
     improvements: text("improvements"),
     performanceGain: decimal("performance_gain"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
-    trainedBy: varchar("trained_by"), // User ID who initiated training
+    trainedBy: varchar("trained_by"),
 });
-// PHASE 1: COST CONTROL & MONITORING SYSTEM
-// Agent cost tracking and budgets for Sandra's Empire Control
 export const agentCostTracking = pgTable("agent_cost_tracking", {
     id: serial("id").primaryKey(),
     userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
@@ -1019,26 +922,24 @@ export const agentCostTracking = pgTable("agent_cost_tracking", {
     tokensUsed: integer("tokens_used").default(0),
     estimatedCost: decimal("estimated_cost", { precision: 10, scale: 4 }).default("0.0000"),
     date: timestamp("date").defaultNow(),
-    taskType: varchar("task_type"), // "chat", "file_edit", "analysis", etc.
+    taskType: varchar("task_type"),
     createdAt: timestamp("created_at").defaultNow(),
 }, (table) => [
     index("idx_cost_tracking_user_agent_date").on(table.userId, table.agentId, table.date),
 ]);
-// Daily/monthly budget controls
 export const agentBudgets = pgTable("agent_budgets", {
     id: serial("id").primaryKey(),
     userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
     agentId: varchar("agent_id"),
-    budgetType: varchar("budget_type").notNull(), // "daily", "monthly"
+    budgetType: varchar("budget_type").notNull(),
     budgetLimit: decimal("budget_limit", { precision: 10, scale: 2 }).notNull(),
     currentSpend: decimal("current_spend", { precision: 10, scale: 2 }).default("0.00"),
     isActive: boolean("is_active").default(true),
     resetDate: timestamp("reset_date"),
-    alertThreshold: integer("alert_threshold").default(80), // Alert at 80% of budget
+    alertThreshold: integer("alert_threshold").default(80),
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").defaultNow(),
 });
-// Additional Agent Learning Schemas
 export const insertAgentKnowledgeBaseSchema = z.object({
     agentId: z.string(),
     topic: z.string(),
@@ -1064,7 +965,6 @@ export const insertAgentTrainingSessionsSchema = z.object({
     performanceGain: z.number().optional(),
     trainedBy: z.string().optional()
 });
-// Cost tracking type exports
 export const insertAgentCostTrackingSchema = z.object({
     userId: z.string(),
     agentId: z.string(),
@@ -1084,20 +984,18 @@ export const insertAgentBudgetsSchema = z.object({
     resetDate: z.date().optional(),
     alertThreshold: z.number().default(80)
 });
-// PHASE 2: APPROVAL WORKFLOW SYSTEM - Sandra's Content Control
-// Approval queue for customer-facing content
 export const approvalQueue = pgTable("approval_queue", {
     id: serial("id").primaryKey(),
     userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
     agentId: varchar("agent_id").notNull(),
-    contentType: varchar("content_type").notNull(), // "email", "social_post", "ad_campaign", "website_change"
+    contentType: varchar("content_type").notNull(),
     contentTitle: varchar("content_title").notNull(),
     contentPreview: text("content_preview").notNull(),
     fullContent: jsonb("full_content").notNull(),
     targetAudience: varchar("target_audience"),
-    impactLevel: varchar("impact_level").default("medium"), // "low", "medium", "high", "critical"
+    impactLevel: varchar("impact_level").default("medium"),
     estimatedCost: decimal("estimated_cost", { precision: 10, scale: 2 }),
-    status: varchar("status").default("pending"), // "pending", "approved", "rejected", "modified"
+    status: varchar("status").default("pending"),
     adminComments: text("admin_comments"),
     originalConversationId: varchar("original_conversation_id"),
     createdAt: timestamp("created_at").defaultNow(),
@@ -1107,35 +1005,32 @@ export const approvalQueue = pgTable("approval_queue", {
     index("idx_approval_queue_status").on(table.status, table.createdAt),
     index("idx_approval_queue_user").on(table.userId, table.status),
 ]);
-// Agent pause/handoff requests
 export const agentHandoffRequests = pgTable("agent_handoff_requests", {
     id: serial("id").primaryKey(),
     fromAgentId: varchar("from_agent_id").notNull(),
-    toTargetType: varchar("to_target_type").notNull(), // "sandra", "agent", "approval_queue"
-    toTargetId: varchar("to_target_id"), // Sandra's ID or another agent ID
-    requestType: varchar("request_type").notNull(), // "approval_needed", "guidance_required", "decision_needed"
+    toTargetType: varchar("to_target_type").notNull(),
+    toTargetId: varchar("to_target_id"),
+    requestType: varchar("request_type").notNull(),
     contextSummary: text("context_summary").notNull(),
-    urgencyLevel: varchar("urgency_level").default("normal"), // "low", "normal", "high", "urgent"
+    urgencyLevel: varchar("urgency_level").default("normal"),
     conversationId: varchar("conversation_id"),
     originalTask: text("original_task"),
     currentProgress: jsonb("current_progress"),
-    status: varchar("status").default("pending"), // "pending", "assigned", "completed", "escalated"
+    status: varchar("status").default("pending"),
     responseRequired: boolean("response_required").default(true),
     createdAt: timestamp("created_at").defaultNow(),
     respondedAt: timestamp("responded_at"),
 });
-// Agent sessions tracking table for emergency controls
 export const agentSessions = pgTable("agent_sessions", {
     id: serial("id").primaryKey(),
     agentId: varchar("agent_id").notNull(),
     userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
     conversationId: varchar("conversation_id"),
-    status: varchar("status").default("active"), // "active", "paused", "emergency_paused", "completed"
+    status: varchar("status").default("active"),
     startedAt: timestamp("started_at").defaultNow(),
     updatedAt: timestamp("updated_at").defaultNow(),
     endedAt: timestamp("ended_at"),
 });
-// Approval workflow type exports
 export const insertApprovalQueueSchema = z.object({
     userId: z.string(),
     agentId: z.string(),
@@ -1173,41 +1068,35 @@ export const insertAgentSessionsSchema = z.object({
     status: z.string().default("active"),
     endedAt: z.date().optional()
 });
-// Brand Assets table for P3-C feature
 export const brandAssets = pgTable("brand_assets", {
     id: serial("id").primaryKey(),
     userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
-    kind: varchar("kind").notNull(), // 'logo' | 'product'
-    url: varchar("url").notNull(), // S3 URL of the uploaded asset
+    kind: varchar("kind").notNull(),
+    url: varchar("url").notNull(),
     filename: varchar("filename").notNull(),
-    fileSize: integer("file_size"), // File size in bytes
-    meta: jsonb("meta"), // Additional metadata (dimensions, etc.)
+    fileSize: integer("file_size"),
+    meta: jsonb("meta"),
     createdAt: timestamp("created_at").defaultNow(),
 }, (table) => [
     index("idx_brand_assets_user").on(table.userId),
     index("idx_brand_assets_kind").on(table.kind),
 ]);
-// Image Variants table for non-destructive brand asset placement
 export const imageVariants = pgTable("image_variants", {
     id: serial("id").primaryKey(),
     userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
     originalImageId: integer("original_image_id").references(() => aiImages.id, { onDelete: "cascade" }).notNull(),
-    variantUrl: varchar("variant_url").notNull(), // S3 URL of the variant image
-    variantType: varchar("variant_type").notNull(), // 'brand_placement', 'inpaint', 'overlay'
+    variantUrl: varchar("variant_url").notNull(),
+    variantType: varchar("variant_type").notNull(),
     brandAssetId: integer("brand_asset_id").references(() => brandAssets.id),
-    placementData: jsonb("placement_data"), // Position, scale, etc.
-    processingStatus: varchar("processing_status").default("pending"), // pending, processing, completed, failed
+    placementData: jsonb("placement_data"),
+    processingStatus: varchar("processing_status").default("pending"),
     createdAt: timestamp("created_at").defaultNow(),
 }, (table) => [
     index("idx_image_variants_user").on(table.userId),
     index("idx_image_variants_original").on(table.originalImageId),
     index("idx_image_variants_asset").on(table.brandAssetId),
 ]);
-// Export styleguide tables and types  
 export { userStyleguides, styleguideTemplates } from "./styleguide-schema.js";
-// Website management schema types
-// MISSING TABLE DEFINITIONS - Adding to resolve database schema mismatches
-// Architecture audit tracking table
 export const architectureAuditLog = pgTable("architecture_audit_log", {
     id: serial("id").primaryKey(),
     auditDate: timestamp("audit_date").defaultNow(),
@@ -1217,7 +1106,6 @@ export const architectureAuditLog = pgTable("architecture_audit_log", {
     violationsFixed: text("violations_fixed").array(),
     auditStatus: varchar("audit_status"),
 });
-// Brand identity management table
 export const brandbooks = pgTable("brandbooks", {
     id: serial("id").primaryKey(),
     userId: varchar("user_id").references(() => users.id).notNull(),
@@ -1244,7 +1132,6 @@ export const brandbooks = pgTable("brandbooks", {
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").defaultNow(),
 });
-// User dashboard configurations table
 export const dashboards = pgTable("dashboards", {
     id: serial("id").primaryKey(),
     userId: varchar("user_id").references(() => users.id).notNull(),
@@ -1260,7 +1147,6 @@ export const dashboards = pgTable("dashboards", {
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").defaultNow(),
 });
-// User photo inspiration table
 export const inspirationPhotos = pgTable("inspiration_photos", {
     id: serial("id").primaryKey(),
     userId: varchar("user_id").references(() => users.id).notNull(),
@@ -1271,7 +1157,6 @@ export const inspirationPhotos = pgTable("inspiration_photos", {
     isActive: boolean("is_active").default(true),
     createdAt: timestamp("created_at").defaultNow(),
 });
-// AI model recovery tracking table
 export const modelRecoveryLog = pgTable("model_recovery_log", {
     id: serial("id").primaryKey(),
     userId: varchar("user_id").references(() => users.id).notNull(),
@@ -1280,7 +1165,6 @@ export const modelRecoveryLog = pgTable("model_recovery_log", {
     recoveryStatus: varchar("recovery_status"),
     createdAt: timestamp("created_at").defaultNow(),
 });
-// Sandra admin chat history table
 export const sandraConversations = pgTable("sandra_conversations", {
     id: serial("id").primaryKey(),
     userId: varchar("user_id").references(() => users.id).notNull(),
@@ -1290,7 +1174,6 @@ export const sandraConversations = pgTable("sandra_conversations", {
     suggestedPrompt: text("suggested_prompt"),
     createdAt: timestamp("created_at").defaultNow(),
 });
-// User saved prompts table  
 export const savedPrompts = pgTable("saved_prompts", {
     id: serial("id").primaryKey(),
     userId: varchar("user_id").references(() => users.id).notNull(),
@@ -1302,28 +1185,23 @@ export const savedPrompts = pgTable("saved_prompts", {
     collection: varchar("collection"),
     createdAt: timestamp("created_at").defaultNow(),
 });
-// PHASE 3: DYNAMIC PERSONALIZATION ENGINE - User Style Evolution Tracking
 export const userStyleEvolution = pgTable("user_style_evolution", {
     id: serial("id").primaryKey(),
     userId: varchar("user_id").references(() => users.id).notNull(),
-    // Adaptation tracking
     learningProgress: jsonb("learning_progress").default('{}'),
     styleEvolutionPath: jsonb("style_evolution_path").default('[]'),
     feedbackPatterns: jsonb("feedback_patterns").default('{}'),
     contextualPreferences: jsonb("contextual_preferences").default('{}'),
-    // Contemporary elements
     trendAdaptation: jsonb("trend_adaptation").default('{}'),
     culturalContext: jsonb("cultural_context").default('{}'),
     sustainabilityPreferences: jsonb("sustainability_preferences").default('{}'),
     lastAdaptation: timestamp("last_adaptation").defaultNow(),
     createdAt: timestamp("created_at").defaultNow()
 });
-// Real-time Context Tracking  
 export const mayaContextSessions = pgTable("maya_context_sessions", {
     id: serial("id").primaryKey(),
     userId: varchar("user_id").references(() => users.id).notNull(),
     sessionId: varchar("session_id").notNull(),
-    // Session context
     currentMood: varchar("current_mood"),
     stylingGoals: jsonb("styling_goals").default('[]'),
     contextualCues: jsonb("contextual_cues").default('{}'),
@@ -1331,34 +1209,30 @@ export const mayaContextSessions = pgTable("maya_context_sessions", {
     sessionStarted: timestamp("session_started").defaultNow(),
     lastInteraction: timestamp("last_interaction").defaultNow()
 });
-// HYBRID BACKEND ARCHITECTURE: Maya Conversations and Concept Cards
-// New conversation system for Maya context preservation
 export const conversations = pgTable("conversations", {
-    id: varchar("id").primaryKey().$defaultFn(() => ulid()), // ULID for stable React keys
+    id: varchar("id").primaryKey().$defaultFn(() => ulid()),
     userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
-    agentName: varchar("agent_name").notNull().default("maya"), // maya, victoria, etc.
+    agentName: varchar("agent_name").notNull().default("maya"),
     title: varchar("title"),
-    status: varchar("status").default("active"), // active, archived
+    status: varchar("status").default("active"),
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").defaultNow(),
 }, (table) => [
     index("idx_conversations_user_agent").on(table.userId, table.agentName),
     index("idx_conversations_updated").on(table.updatedAt),
 ]);
-// Messages for detailed conversation history  
 export const messages = pgTable("messages", {
-    id: varchar("id").primaryKey().$defaultFn(() => ulid()), // ULID for React keys
+    id: varchar("id").primaryKey().$defaultFn(() => ulid()),
     conversationId: varchar("conversation_id").references(() => conversations.id, { onDelete: "cascade" }).notNull(),
-    role: varchar("role").notNull(), // 'user', 'assistant', 'system'
+    role: varchar("role").notNull(),
     content: text("content").notNull(),
-    meta: jsonb("meta"), // attachments, tool calls, etc.
+    meta: jsonb("meta"),
     tokenCount: integer("token_count").default(0),
     createdAt: timestamp("created_at").defaultNow(),
 }, (table) => [
     index("idx_messages_conversation_time").on(table.conversationId, table.createdAt),
     index("idx_messages_role").on(table.role),
 ]);
-// Conversation summaries for performance (rolling summaries)
 export const conversationSummaries = pgTable("conversation_summaries", {
     id: varchar("id").primaryKey().$defaultFn(() => ulid()),
     conversationId: varchar("conversation_id").references(() => conversations.id, { onDelete: "cascade" }).notNull().unique(),
@@ -1369,19 +1243,18 @@ export const conversationSummaries = pgTable("conversation_summaries", {
 }, (table) => [
     index("idx_summaries_updated").on(table.updatedAt),
 ]);
-// Concept cards with proper backend persistence
 export const conceptCards = pgTable("concept_cards", {
-    id: varchar("id").primaryKey().$defaultFn(() => ulid()), // ULID ensures unique React keys
+    id: varchar("id").primaryKey().$defaultFn(() => ulid()),
     userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
     conversationId: varchar("conversation_id").references(() => conversations.id, { onDelete: "cascade" }),
-    clientId: varchar("client_id"), // For idempotency on create
+    clientId: varchar("client_id"),
     title: varchar("title").notNull(),
     description: text("description"),
-    images: jsonb("images").default('[]'), // Array of image URLs
-    tags: text("tags").array().default([]), // String array for tags
-    status: varchar("status").default("draft"), // draft, final
+    images: jsonb("images").default('[]'),
+    tags: text("tags").array().default([]),
+    status: varchar("status").default("draft"),
     sortOrder: integer("sort_order").default(0),
-    generatedImages: jsonb("generated_images"), // Generated image URLs
+    generatedImages: jsonb("generated_images"),
     isLoading: boolean("is_loading").default(false),
     isGenerating: boolean("is_generating").default(false),
     hasGenerated: boolean("has_generated").default(false),
@@ -1390,10 +1263,9 @@ export const conceptCards = pgTable("concept_cards", {
 }, (table) => [
     index("idx_concept_cards_user").on(table.userId),
     index("idx_concept_cards_conversation").on(table.conversationId),
-    index("idx_concept_cards_client_id").on(table.userId, table.clientId), // For idempotency
+    index("idx_concept_cards_client_id").on(table.userId, table.clientId),
     index("idx_concept_cards_sort").on(table.sortOrder),
 ]);
-// Insert schemas for missing tables
 export const insertArchitectureAuditLogSchema = z.object({
     totalUsers: z.number().optional(),
     compliantUsers: z.number().optional(),
@@ -1484,7 +1356,6 @@ export const insertMayaContextSessionSchema = z.object({
     contextualCues: z.record(z.any()).default({}),
     adaptationTriggers: z.array(z.any()).default([])
 });
-// New hybrid backend insert schemas
 export const insertConversationSchema = z.object({
     userId: z.string(),
     agentName: z.string().default("maya"),
@@ -1519,7 +1390,6 @@ export const insertConceptCardSchema = z.object({
     isGenerating: z.boolean().default(false),
     hasGenerated: z.boolean().default(false)
 });
-// Brand Assets schemas
 export const insertBrandAssetSchema = z.object({
     userId: z.string(),
     kind: z.enum(['logo', 'product']),
@@ -1537,6 +1407,4 @@ export const insertImageVariantSchema = z.object({
     placementData: z.record(z.any()).optional(),
     processingStatus: z.string().default("pending")
 });
-// Note: Website type already defined above at line 502
-// Note: styleguide_templates and user_styleguides are imported from styleguide-schema.ts
-// Note: agentTasks, emailCaptures, and userWebsiteOnboarding are already defined earlier in this file
+//# sourceMappingURL=schema.js.map

@@ -1,10 +1,5 @@
-/**
- * CRITICAL MIGRATION MONITOR - PREVENTS IMAGE LOSS
- * Automatically detects and migrates Replicate temp URLs to permanent S3 storage
- * Runs continuously to ensure no images are lost due to URL expiration
- */
-import { query } from './db';
-import { ImageStorageService } from './image-storage-service';
+import { query } from './db.js';
+import { ImageStorageService } from './image-storage-service.js';
 export class MigrationMonitor {
     static instance;
     isRunning = false;
@@ -15,25 +10,17 @@ export class MigrationMonitor {
         }
         return MigrationMonitor.instance;
     }
-    /**
-     * Start monitoring for images that need migration
-     */
     startMonitoring() {
         if (this.isRunning) {
             return;
         }
         this.isRunning = true;
         console.log('🚀 MIGRATION MONITOR: Starting automatic URL migration service');
-        // Check every 5 minutes for images that need migration
         this.intervalId = setInterval(async () => {
             await this.scanAndMigrateImages();
-        }, 5 * 60 * 1000); // 5 minutes
-        // Run initial scan immediately
+        }, 5 * 60 * 1000);
         this.scanAndMigrateImages();
     }
-    /**
-     * Stop monitoring
-     */
     stopMonitoring() {
         if (this.intervalId) {
             clearInterval(this.intervalId);
@@ -42,13 +29,9 @@ export class MigrationMonitor {
         this.isRunning = false;
         console.log('⏹️ MIGRATION MONITOR: Stopped');
     }
-    /**
-     * Scan database for Replicate URLs and migrate them to S3
-     */
     async scanAndMigrateImages() {
         try {
             console.log('🔍 MIGRATION MONITOR: Scanning for temp URLs that need migration...');
-            // Get all images with Replicate URLs from the last 24 hours
             const recentImages = await this.getReplicateImages();
             if (recentImages === null) {
                 console.log('⚠️ MIGRATION MONITOR: Database schema issue, skipping migration');
@@ -65,11 +48,9 @@ export class MigrationMonitor {
                 try {
                     const imageId = `migration_${image.id}_${Date.now()}`;
                     const permanentUrl = await ImageStorageService.ensurePermanentStorage(image.image_url, image.user_id, imageId);
-                    // Update database with permanent URL
                     await this.updateImageUrl(image.id, permanentUrl);
                     successCount++;
                     console.log(`✅ MIGRATION SUCCESS: Image ${image.id} migrated to permanent storage`);
-                    // Small delay to avoid overwhelming S3
                     await new Promise(resolve => setTimeout(resolve, 200));
                 }
                 catch (error) {
@@ -83,9 +64,6 @@ export class MigrationMonitor {
             console.error('❌ MIGRATION MONITOR: Error during scan:', error);
         }
     }
-    /**
-     * Get images with Replicate URLs that need migration
-     */
     async getReplicateImages(limit = 20) {
         try {
             const sql = "SELECT id, user_id, image_url, created_at FROM ai_images WHERE image_url LIKE 'https://replicate.delivery%' AND created_at > NOW() - INTERVAL '24 hours' LIMIT $1";
@@ -93,7 +71,6 @@ export class MigrationMonitor {
             return result.rows;
         }
         catch (error) {
-            // Handle schema mismatches gracefully
             if (error.message?.includes('column') && error.message?.includes('does not exist')) {
                 console.log('⚠️ MIGRATION MONITOR: Database schema mismatch, migration paused until schema is updated');
                 return null;
@@ -102,9 +79,6 @@ export class MigrationMonitor {
             return [];
         }
     }
-    /**
-     * Update image URL in database
-     */
     async updateImageUrl(imageId, permanentUrl) {
         try {
             const sql = "UPDATE ai_images SET image_url = $1 WHERE id = $2";
@@ -115,9 +89,6 @@ export class MigrationMonitor {
             throw error;
         }
     }
-    /**
-     * Manually trigger migration for specific user
-     */
     static async migrateUserImages(userId) {
         try {
             console.log(`🔄 MANUAL MIGRATION: Starting for user ${userId}`);
@@ -148,5 +119,5 @@ export class MigrationMonitor {
         }
     }
 }
-// Export singleton instance
 export const migrationMonitor = MigrationMonitor.getInstance();
+//# sourceMappingURL=migration-monitor.js.map

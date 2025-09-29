@@ -1,45 +1,72 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import path from "node:path";
+import * as path from "path";
+import tailwindcss from 'tailwindcss';
+import autoprefixer from 'autoprefixer';
 export default defineConfig(({ mode }) => {
     const plugins = [
         react({ jsxRuntime: "automatic" })
     ];
+    const requiredPublicEnvVars = [
+        'VITE_STACK_PROJECT_ID',
+        'VITE_STACK_PUBLISHABLE_CLIENT_KEY'
+    ];
+    for (const envVar of requiredPublicEnvVars) {
+        if (!process.env[envVar]) {
+            throw new Error(`Missing required public environment variable: ${envVar}`);
+        }
+    }
     return {
         plugins,
-        // 🔒 Force a single React copy for the whole graph
-        resolve: {
-            alias: {
-                // lock React to the root node_modules so sub-deps can’t sneak in a second copy
-                react: path.resolve(import.meta.dirname, "node_modules/react"),
-                "react-dom": path.resolve(import.meta.dirname, "node_modules/react-dom"),
-                // your existing aliases (unchanged)
-                "@": path.resolve(import.meta.dirname, "client", "src"),
-                "@shared": path.resolve(import.meta.dirname, "shared"),
-                "@assets": path.resolve(import.meta.dirname, "attached_assets"),
+        css: {
+            postcss: {
+                plugins: [
+                    tailwindcss({
+                        config: './client/tailwind.config.ts'
+                    }),
+                    autoprefixer(),
+                ],
             },
         },
-        // your existing root/build/server config (unchanged)
-        root: path.resolve(import.meta.dirname, "client"),
-        build: {
-            outDir: path.resolve(import.meta.dirname, "client/dist"),
-            emptyOutDir: true,
-            // Optimize bundle size
-            chunkSizeWarningLimit: 1000,
-            rollupOptions: {
-                input: path.resolve(import.meta.dirname, "client/index.html")
+        resolve: {
+            alias: {
+                react: path.resolve(__dirname, "node_modules/react"),
+                "react-dom": path.resolve(__dirname, "node_modules/react-dom"),
+                "@": path.resolve(__dirname, "client", "src"),
+                "@shared": path.resolve(__dirname, "shared"),
+                "@assets": path.resolve(__dirname, "attached_assets"),
             },
-            // Enable source maps for debugging
+        },
+        root: path.resolve(__dirname, "client"),
+        build: {
+            outDir: path.resolve(__dirname, "client/dist"),
+            emptyOutDir: true,
+            chunkSizeWarningLimit: 1200,
+            rollupOptions: {
+                input: path.resolve(__dirname, "client/index.html"),
+                output: {
+                    manualChunks(id) {
+                        if (id.includes('node_modules')) {
+                            if (id.includes('@stackframe') || id.includes('react')) {
+                                return 'vendor';
+                            }
+                            return 'deps';
+                        }
+                        if (id.includes('components/') || id.includes('shared/ui/')) {
+                            return 'ui';
+                        }
+                        return undefined;
+                    }
+                }
+            },
             sourcemap: mode === 'development',
-            // Optimize minification - use esbuild (faster, no extra deps)
             minify: 'esbuild',
         },
         server: {
             host: "0.0.0.0",
-            port: parseInt(process.env.PORT || "8080"),
+            port: parseInt(process.env['PORT'] || "8080"),
             fs: { strict: false },
         },
-        // helpful nudges for prebundling and SSR
         optimizeDeps: {
             include: ["react", "react-dom"],
         },
@@ -48,3 +75,4 @@ export default defineConfig(({ mode }) => {
         },
     };
 });
+//# sourceMappingURL=vite.config.js.map

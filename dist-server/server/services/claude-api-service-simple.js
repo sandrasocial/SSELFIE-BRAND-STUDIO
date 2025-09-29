@@ -5,30 +5,22 @@ import { eq, and, desc } from 'drizzle-orm';
 import { simpleMemoryService } from './simple-memory-service.js';
 import { localProcessingEngine } from './hybrid-intelligence/local-processing-engine.js';
 const anthropic = new Anthropic({
-    apiKey: process.env.ANTHROPIC_API_KEY,
+    apiKey: process.env['ANTHROPIC_API_KEY'],
 });
 const DEFAULT_MODEL_STR = 'claude-3-5-sonnet-20241022';
 export class ClaudeApiServiceSimple {
-    /**
-     * REAL AGENT-TO-AGENT COMMUNICATION METHOD
-     * Used by MultiAgentCoordinator for actual agent delegation
-     */
     async sendMessage(message, conversationId, agentName, returnFullResponse = false, conversationHistory, systemPrompt) {
         console.log(`🚀 AGENT COMMUNICATION: ${agentName} processing message`);
         try {
-            // Load agent configuration from authentic personality system
             const { PersonalityManager, PURE_PERSONALITIES } = await import('../agents/personalities/personality-config.js');
             const agentConfig = PURE_PERSONALITIES[agentName];
             if (!agentConfig) {
                 throw new Error(`Agent ${agentName} not found`);
             }
-            // Create conversation if needed - use actual authenticated user
-            const userId = '42585527'; // Your existing admin account
+            const userId = '42585527';
             await this.createConversationIfNotExists(userId, agentName, conversationId);
-            // Use provided conversation history or load from database
             let validMessages = [];
             if (conversationHistory && conversationHistory.length > 0) {
-                // Use provided conversation history (already in proper Claude API format)
                 validMessages = conversationHistory
                     .filter((msg) => msg.content && msg.content.trim())
                     .map((msg) => ({
@@ -38,7 +30,6 @@ export class ClaudeApiServiceSimple {
                 console.log(`🧠 MEMORY: Using provided conversation history (${validMessages.length} messages)`);
             }
             else {
-                // Fallback to loading from database
                 const messages = await this.loadConversationMessages(conversationId);
                 validMessages = messages
                     .filter((msg) => msg.content && msg.content.trim())
@@ -52,7 +43,6 @@ export class ClaudeApiServiceSimple {
                 ...validMessages,
                 { role: 'user', content: message }
             ];
-            // Use provided system prompt or load from PersonalityManager
             const finalSystemPrompt = systemPrompt || PersonalityManager.getNaturalPrompt(agentName);
             if (systemPrompt) {
                 console.log(`🎯 PERSONALITY: Using provided enhanced system prompt (${systemPrompt.length} chars)`);
@@ -60,17 +50,15 @@ export class ClaudeApiServiceSimple {
             else {
                 console.log(`🎯 PERSONALITY: Using default PersonalityManager prompt for ${agentName}`);
             }
-            // Execute Claude API call (without tools - handled at route level)
             const response = await anthropic.messages.create({
                 model: DEFAULT_MODEL_STR,
-                max_tokens: 8192, // UNRESTRICTED: Increased from 4000 to allow full autonomous workflows
+                max_tokens: 8192,
                 temperature: 0.7,
                 system: finalSystemPrompt,
                 messages: claudeMessages
             });
             let fullResponse = '';
             let toolCalls = [];
-            // Process response content
             for (const contentBlock of response.content) {
                 if (contentBlock.type === 'text') {
                     fullResponse += contentBlock.text;
@@ -85,13 +73,11 @@ export class ClaudeApiServiceSimple {
                     toolCalls.push(toolCallData);
                 }
             }
-            // Execute tools if present
             if (toolCalls.length > 0) {
                 for (const toolCall of toolCalls) {
                     try {
-                        const toolResult = await this.executeToolCall(toolCall, agentName, '42585527'); // Your existing admin account
+                        const toolResult = await this.executeToolCall(toolCall, agentName, '42585527');
                         console.log(`✅ ${agentName}: Tool ${toolCall.name} completed`);
-                        // Continue conversation with tool result
                         const toolResultMessage = {
                             role: 'user',
                             content: [{
@@ -100,10 +86,9 @@ export class ClaudeApiServiceSimple {
                                     content: toolResult
                                 }]
                         };
-                        // Get agent's response to tool result
                         const followUpResponse = await anthropic.messages.create({
                             model: DEFAULT_MODEL_STR,
-                            max_tokens: 8192, // UNRESTRICTED: Increased for full workflow completion
+                            max_tokens: 8192,
                             temperature: 0.7,
                             system: PersonalityManager.getNaturalPrompt(agentName),
                             messages: [...claudeMessages,
@@ -111,7 +96,6 @@ export class ClaudeApiServiceSimple {
                                 toolResultMessage
                             ]
                         });
-                        // Add follow-up response to full response
                         for (const block of followUpResponse.content) {
                             if (block.type === 'text') {
                                 fullResponse += '\n\n' + block.text;
@@ -124,17 +108,14 @@ export class ClaudeApiServiceSimple {
                     }
                 }
             }
-            // Save conversation AND update local memory system
             await this.saveMessage(conversationId, 'user', message);
             await this.saveMessage(conversationId, 'agent', fullResponse);
-            // FIXED MEMORY UPDATE: Use existing agent context with memory preservation
             try {
                 const existingContext = await simpleMemoryService.prepareAgentContext({
                     agentName,
                     userId,
                     isAdminBypass: true
                 });
-                // Add this conversation to memory
                 await simpleMemoryService.saveAgentMemory(existingContext, {
                     data: {
                         userMessage: message,
@@ -161,25 +142,17 @@ export class ClaudeApiServiceSimple {
     async sendStreamingMessage(userId, agentName, conversationId, message, systemPrompt, tools, res) {
         try {
             console.log(`🚀 ${agentName.toUpperCase()}: Starting specialized agent with tools`);
-            // ZARA'S OPTIMIZATION: Use local memory service for context analysis (no Claude API)
             const contextRequirement = simpleMemoryService.analyzeMessage(message);
             console.log(`🔍 LOCAL CONTEXT ANALYSIS: ${contextRequirement.contextLevel.toUpperCase()} level context for "${message.substring(0, 30)}..."`);
-            // ZARA'S OPTIMIZATION: Local system health checks (no Claude API tokens)
             console.log(`🔍 LOCAL HEALTH CHECK: Starting conversation for ${agentName}`);
-            // FULL LOCAL MEMORY SYSTEM: Use local processing instead of database queries
             await this.createConversationIfNotExists(userId, agentName, conversationId);
-            // ADMIN AUTHENTICATION: Proper admin agent detection and context loading
             const isAdminAgent = userId === '42585527' || conversationId.includes('admin_') || conversationId.includes('sandra');
-            // LOCAL MEMORY: Get full conversation context from local memory systems
             const messages = await simpleMemoryService.getFullConversationContext(agentName, userId);
-            // CRITICAL FIX: Generate conversation context summary for system prompt
             let previousContext = '';
             try {
-                // Get recent conversation context for system prompt
                 const recentContext = await simpleMemoryService.getWorkspaceContext(agentName, userId);
-                // FIXED: Include conversation continuity in system prompt
                 if (messages && messages.length > 0) {
-                    const recentMessages = messages.slice(-5); // Last 5 messages for context
+                    const recentMessages = messages.slice(-5);
                     const contextSummary = recentMessages
                         .filter(msg => msg.content && msg.content.trim())
                         .map(msg => `${msg.role}: ${msg.content.substring(0, 100)}...`)
@@ -196,13 +169,11 @@ export class ClaudeApiServiceSimple {
                 console.error(`Failed to load context for ${agentName}:`, error);
                 previousContext = '';
             }
-            // PERSONALITY RESTORATION: Load agent's authentic personality and context
             let agentPersonalityContext = '';
             try {
-                const { PURE_PERSONALITIES } = await import('../agents/personalities/personality-config');
+                const { PURE_PERSONALITIES } = await import('../agents/personalities/personality-config.js');
                 const personality = PURE_PERSONALITIES[agentName.toLowerCase()];
                 if (personality) {
-                    // Fix property access based on actual personality structure
                     const personalityInfo = typeof personality === 'object' && personality !== null && 'name' in personality ? personality : null;
                     if (personalityInfo && 'name' in personalityInfo) {
                         const voiceExample = 'voice' in personalityInfo && personalityInfo.voice &&
@@ -216,68 +187,53 @@ export class ClaudeApiServiceSimple {
             catch (error) {
                 console.error(`Failed to load personality for ${agentName}:`, error);
             }
-            // MEMORY RESTORATION: Full context for admin agents, substantial context for regular agents
             let optimizedMessages = messages;
             if (isAdminAgent) {
-                // Admin agents get full conversation context for proper continuity
-                optimizedMessages = messages; // FIXED: No truncation for admin agents
+                optimizedMessages = messages;
                 console.log(`🧠 ADMIN CONTEXT: ${optimizedMessages.length}/${messages.length} messages loaded for ${agentName} with personality restoration`);
             }
             else {
-                // Regular agents get last 20 messages for proper context
-                optimizedMessages = messages.slice(-20); // FIXED: Increased from 3 to 20
+                optimizedMessages = messages.slice(-20);
                 console.log(`🧠 REGULAR CONTEXT: ${optimizedMessages.length}/${messages.length} messages loaded for ${agentName}`);
             }
             const estimatedTokens = this.estimateTokens(systemPrompt + JSON.stringify(optimizedMessages));
             console.log(`📊 TOKEN TRACKING: ${estimatedTokens} tokens (${isAdminAgent ? 'optimized admin' : 'standard'} mode)`);
-            // ZARA'S OPTIMIZATION: Local cache system for direct filesystem access  
             console.log(`🚀 ${agentName}: Local cache system - direct filesystem access enabled`);
-            // MEMORY RESTORATION: Send proper conversation context to Claude
-            // Full context is needed for agent continuity and memory
             const recentMessages = optimizedMessages
                 .filter((msg) => msg.content && msg.content.trim())
                 .map((msg) => ({
                 role: msg.role === 'agent' ? 'assistant' : msg.role,
-                content: msg.content // FIXED: No content truncation - agents need full context
+                content: msg.content
             }));
-            // FIXED: Build conversation with FULL message history
             const claudeMessages = [
-                ...recentMessages, // This includes ALL previous context/messages
+                ...recentMessages,
                 { role: 'user', content: message }
             ];
             console.log(`🧠 MEMORY FIX: Sending ${claudeMessages.length} messages to Claude (${recentMessages.length} history + 1 new)`);
             console.log(`🔍 MEMORY DEBUG: Recent messages sample:`, recentMessages.slice(-3).map(m => ({ role: m.role, preview: m.content?.substring(0, 50) + '...' })));
             console.log(`🔍 SYSTEM PROMPT CONTEXT SAMPLE:`, previousContext?.substring(0, 200) + '...');
-            // NO INITIAL TEMPLATE: Let Claude API generate the authentic personality response
-            // This eliminates generic "analyzing the request" - agents start with real intelligence
             res.write(`data: ${JSON.stringify({
                 type: 'message_start',
                 agentName,
-                message: '' // No template - Claude will provide the first authentic response
+                message: ''
             })}\n\n`);
-            let currentMessages = [...claudeMessages]; // FIXED: Now includes full conversation history
+            let currentMessages = [...claudeMessages];
             let fullResponse = '';
             let conversationContinues = true;
             let iterationCount = 0;
-            const maxIterations = 50; // UNRESTRICTED: Increased from 20 to allow full workflow completion
+            const maxIterations = 50;
             let allToolCalls = [];
-            // ENHANCED SYSTEM PROMPT: Include previous context AND personality restoration
             const memoryInstruction = `\n\nIMPORTANT: You have access to your full conversation history above. Reference previous interactions and maintain conversation continuity. Remember details shared by the user across messages.`;
             const enhancedSystemPrompt = systemPrompt + (previousContext || '') + (agentPersonalityContext || '') + memoryInstruction;
-            // Continue conversation until task is complete - UNRESTRICTED for autonomous workflow completion
             while (conversationContinues && iterationCount < maxIterations) {
                 iterationCount++;
                 console.log(`🔄 ${agentName}: Conversation iteration ${iterationCount}/${maxIterations} - Tools allowed: ${tools.length}`);
-                // Call Claude API
                 console.log(`🔧 ${agentName}: Calling Claude API with ${tools.length} tools available`);
                 console.log(`🔧 TOOLS:`, tools.map(t => t.name));
                 console.log(`🔧 MODEL:`, DEFAULT_MODEL_STR);
                 console.log(`🔧 SYSTEM PROMPT LENGTH:`, enhancedSystemPrompt.length);
-                // SIMPLIFIED TOKEN BUDGETING: Fixed limits based on admin status
                 const taskComplexity = isAdminAgent ? 'unlimited' : 'moderate';
                 const tokenBudget = { maxPerCall: isAdminAgent ? 8192 : 4096 };
-                // Clean execution with proper tool handling
-                // RESTORED: Full Claude API call with proper schemas
                 const response = await anthropic.messages.create({
                     model: DEFAULT_MODEL_STR,
                     max_tokens: tokenBudget.maxPerCall,
@@ -288,19 +244,16 @@ export class ClaudeApiServiceSimple {
                 });
                 let responseText = '';
                 let toolCalls = [];
-                // Process response content - streaming to user
                 for (const contentBlock of response.content) {
                     if (contentBlock.type === 'text') {
                         responseText += contentBlock.text;
                         fullResponse += contentBlock.text;
-                        // Stream text content
                         res.write(`data: ${JSON.stringify({
                             type: 'text_delta',
                             content: contentBlock.text
                         })}\n\n`);
                     }
                     else if (contentBlock.type === 'tool_use') {
-                        // Agent is using a tool - show user the action
                         res.write(`data: ${JSON.stringify({
                             type: 'tool_start',
                             toolName: contentBlock.name,
@@ -315,21 +268,16 @@ export class ClaudeApiServiceSimple {
                         allToolCalls.push(toolCallData);
                     }
                 }
-                // Add assistant response to conversation
                 currentMessages.push({
                     role: 'assistant',
                     content: response.content
                 });
-                // Execute tools if present
                 if (toolCalls.length > 0) {
                     for (const toolCall of toolCalls) {
                         try {
-                            // SIMPLIFIED TOOL EXECUTION: Direct execution without complex caching
                             let toolResult;
                             toolResult = await this.executeToolCall(toolCall, agentName, userId);
-                            // INTELLIGENT RESULT PROCESSING: Preserve high-priority search results
                             const summarizedResult = await this.intelligentResultSummary(toolResult, toolCall.name);
-                            // Add tool result to conversation
                             currentMessages.push({
                                 role: 'user',
                                 content: [{
@@ -342,10 +290,10 @@ export class ClaudeApiServiceSimple {
                                 type: 'tool_complete',
                                 toolName: toolCall.name,
                                 result: toolCall.name === 'search_filesystem'
-                                    ? toolResult.substring(0, 2000) + (toolResult.length > 2000 ? '...' : '') // Search needs more space
+                                    ? toolResult.substring(0, 2000) + (toolResult.length > 2000 ? '...' : '')
                                     : toolCall.name === 'execute_sql_tool'
-                                        ? toolResult.substring(0, 1500) + (toolResult.length > 1500 ? '...' : '') // SQL needs space for table data
-                                        : toolResult.substring(0, 500) + (toolResult.length > 500 ? '...' : ''), // Other tools get 500 chars
+                                        ? toolResult.substring(0, 1500) + (toolResult.length > 1500 ? '...' : '')
+                                        : toolResult.substring(0, 500) + (toolResult.length > 500 ? '...' : ''),
                                 message: `${agentName} completed ${toolCall.name}`
                             })}\n\n`);
                         }
@@ -367,40 +315,32 @@ export class ClaudeApiServiceSimple {
                             })}\n\n`);
                         }
                     }
-                    // Continue after tool execution - FIXED: Allow agents to respond after tool completion
                     res.write(`data: ${JSON.stringify({
                         type: 'continuing',
                         message: `🔄 ${agentName} is continuing after tool execution...`
                     })}\n\n`);
-                    // CRITICAL FIX: Force conversation to continue after tool execution
                     conversationContinues = true;
                     console.log(`🔄 ${agentName}: FORCING CONTINUATION after tool execution - iteration ${iterationCount}/${maxIterations}`);
                 }
                 else {
-                    // No tools used - agents might still need to continue autonomous workflow
-                    // Check if this is just a greeting or if agent needs to continue working
                     const isSimpleGreeting = message.toLowerCase().includes('are you there') ||
                         message.toLowerCase().includes('hello') ||
                         message.toLowerCase().includes('hi ') ||
                         responseText.length < 100;
                     if (isSimpleGreeting && iterationCount === 1) {
-                        // Simple greeting exchange - conversation can complete
                         console.log(`✅ ${agentName}: Simple greeting exchange completed`);
                         conversationContinues = false;
                     }
                     else if (responseText.includes('What can I') || responseText.includes('What would you like')) {
-                        // Agent is waiting for instructions - conversation can complete
                         console.log(`✅ ${agentName}: Agent ready and waiting for instructions`);
                         conversationContinues = false;
                     }
                     else {
-                        // Agent might be working on something - allow continuation
                         console.log(`🔄 ${agentName}: Allowing agent to continue autonomous workflow (iteration ${iterationCount})`);
-                        conversationContinues = iterationCount < 3; // Allow up to 3 iterations for autonomous work
+                        conversationContinues = iterationCount < 3;
                     }
                 }
             }
-            // Simple verification status logging (no blocking)
             const toolNamesUsed = allToolCalls.map(tc => tc.name);
             if (toolNamesUsed.length > 0) {
                 console.log(`✅ ${agentName}: Used tools: ${toolNamesUsed.join(', ')}`);
@@ -408,9 +348,7 @@ export class ClaudeApiServiceSimple {
             else {
                 console.log(`✅ ${agentName}: Conversational response completed`);
             }
-            // Save conversation with tool execution data
             await this.saveMessage(conversationId, 'user', message);
-            // Collect tool execution data for assistant message
             const assistantToolCalls = allToolCalls.length > 0 ? allToolCalls : null;
             const assistantToolResults = allToolCalls.length > 0 ? allToolCalls.map(tc => ({
                 tool_name: tc.name,
@@ -418,7 +356,6 @@ export class ClaudeApiServiceSimple {
                 result: 'executed'
             })) : null;
             await this.saveMessage(conversationId, 'assistant', fullResponse, assistantToolCalls, assistantToolResults);
-            // ZARA'S TOKEN OPTIMIZATION: Use local processing for learning and context
             await localProcessingEngine.updateAgentLearningLocally(userId, agentName, message, fullResponse);
             await localProcessingEngine.updateSessionContextLocally(userId, agentName, conversationId, {
                 message,
@@ -428,7 +365,6 @@ export class ClaudeApiServiceSimple {
                 intent: localProcessingEngine.extractIntentLocally(message),
                 responseType: localProcessingEngine.extractResponseTypeLocally(fullResponse)
             });
-            // Send completion
             res.write(`data: ${JSON.stringify({
                 type: 'completion',
                 agentId: agentName,
@@ -449,73 +385,57 @@ export class ClaudeApiServiceSimple {
             res.end();
         }
     }
-    // ================== EMERGENCY TOKEN MONITORING ==================
-    /**
-     * Estimate token count to prevent explosion (rough approximation)
-     */
     estimateTokens(text) {
-        // Rough approximation: 4 characters = 1 token (conservative estimate)
         return Math.ceil(text.length / 4);
     }
-    // ================== INTELLIGENT RESULT PROCESSING ==================
-    /**
-     * ZARA'S TOKEN OPTIMIZATION: Local tool result processing
-     * Processes results locally without consuming Claude API tokens
-     */
     async intelligentResultSummary(toolResult, toolName) {
-        // Use local processing engine instead of Claude API
         return localProcessingEngine.processToolResultLocally(toolResult, toolName);
-        // REMOVED: All token-heavy processing moved to local engine
     }
     async executeToolCall(toolCall, agentName, userId) {
         console.log(`🔧 EXECUTING: ${toolCall.name}`, toolCall.input);
         try {
-            // ZARA'S TOKEN OPTIMIZATION: Use local validation instead of Claude API
             if (toolCall.name === 'str_replace_based_edit_tool' && toolCall.input.command === 'str_replace') {
-                // Pre-validate file modifications locally
                 if (toolCall.input.new_str) {
                     const validation = localProcessingEngine.validateCodeLocally(toolCall.input.new_str, toolCall.input.path || '');
                     if (!validation.valid) {
                         console.warn(`⚠️ LOCAL VALIDATION WARNINGS for ${agentName}:`, validation.errors);
-                        // Add suggestions to help agent fix issues
                         const suggestions = validation.suggestions.join('\n');
                         console.log(`💡 LOCAL SUGGESTIONS: ${suggestions}`);
                     }
                 }
             }
             if (toolCall.name === 'str_replace_based_edit_tool') {
-                const { str_replace_based_edit_tool } = await import('../tools/tool-exports');
+                const { str_replace_based_edit_tool } = await import('../tools/tool-exports.js');
                 const result = await str_replace_based_edit_tool(toolCall.input);
                 return typeof result === 'string' ? result : JSON.stringify(result);
             }
             else if (toolCall.name === 'bash') {
-                const { bash } = await import('../tools/tool-exports');
+                const { bash } = await import('../tools/tool-exports.js');
                 const result = await bash(toolCall.input);
                 return typeof result === 'string' ? result : JSON.stringify(result);
             }
             else if (toolCall.name === 'restart_workflow') {
-                const { restart_workflow } = await import('../tools/restart-workflow');
+                const { restart_workflow } = await import('../tools/restart-workflow.js');
                 const result = await restart_workflow(toolCall.input);
                 return typeof result === 'string' ? result : JSON.stringify(result);
             }
             else if (toolCall.name === 'coordinate_agent') {
-                const { coordinate_agent } = await import('../tools/coordinate_agent');
+                const { coordinate_agent } = await import('../tools/coordinate_agent.js');
                 const result = await coordinate_agent(toolCall.input);
                 return typeof result === 'string' ? result : JSON.stringify(result);
             }
             else if (toolCall.name === 'get_assigned_tasks') {
-                const { get_assigned_tasks } = await import('../tools/get_assigned_tasks');
+                const { get_assigned_tasks } = await import('../tools/get_assigned_tasks.js');
                 const result = await get_assigned_tasks(toolCall.input);
                 return typeof result === 'string' ? result : JSON.stringify(result);
             }
             else if (toolCall.name === 'get_handoff_tasks') {
-                const { get_handoff_tasks } = await import('../tools/get_handoff_tasks');
+                const { get_handoff_tasks } = await import('../tools/get_handoff_tasks.js');
                 const result = await get_handoff_tasks(toolCall.input);
                 return typeof result === 'string' ? result : JSON.stringify(result);
             }
             else if (toolCall.name === 'search_filesystem') {
-                // Import from tool-exports (search_filesystem IS properly exported)
-                const { search_filesystem } = await import('../tools/tool-exports');
+                const { search_filesystem } = await import('../tools/tool-exports.js');
                 console.log(`🔍 SEARCH_FILESYSTEM: Calling with input:`, toolCall.input);
                 const result = await search_filesystem(toolCall.input);
                 console.log(`🔍 SEARCH_FILESYSTEM: Result length:`, result.length);
@@ -525,20 +445,19 @@ export class ClaudeApiServiceSimple {
                 return typeof result === 'string' ? result : JSON.stringify(result);
             }
             else if (toolCall.name === 'get_latest_lsp_diagnostics') {
-                const { get_latest_lsp_diagnostics } = await import('../tools/tool-exports');
+                const { get_latest_lsp_diagnostics } = await import('../tools/tool-exports.js');
                 const result = await get_latest_lsp_diagnostics(toolCall.input);
                 return typeof result === 'string' ? result : JSON.stringify(result);
             }
             else if (toolCall.name === 'execute_sql_tool') {
-                const { execute_sql_tool } = await import('../tools/tool-exports');
+                const { execute_sql_tool } = await import('../tools/tool-exports.js');
                 console.log(`🗄️ SQL EXECUTION: ${toolCall.input.sql_query.substring(0, 100)}...`);
                 const result = await execute_sql_tool(toolCall.input);
                 console.log(`🗄️ SQL RESULT: Length: ${result.length}, First 200 chars:`, result.substring(0, 200));
                 return typeof result === 'string' ? result : JSON.stringify(result);
             }
             else if (toolCall.name === 'web_search') {
-                // Import from specific tool file since it's not in tool-exports
-                const { web_search } = await import('../tools/web_search');
+                const { web_search } = await import('../tools/web_search.js');
                 const result = await web_search(toolCall.input);
                 return typeof result === 'string' ? result : JSON.stringify(result);
             }
@@ -548,7 +467,6 @@ export class ClaudeApiServiceSimple {
             }
         }
         catch (error) {
-            // ZARA'S TOKEN OPTIMIZATION: Local error handling
             const errorMsg = error instanceof Error ? error.message : 'Unknown error';
             const suggestions = localProcessingEngine.generateFixSuggestionsLocally(errorMsg);
             console.error(`❌ ${toolCall.name} failed:`, errorMsg);
@@ -559,7 +477,6 @@ export class ClaudeApiServiceSimple {
         }
     }
     async createConversationIfNotExists(userId, agentName, conversationId) {
-        // CRITICAL FIX: Normalize agent name to lowercase to prevent case fragmentation
         const normalizedAgentName = agentName.toLowerCase();
         const [conversation] = await db
             .select()
@@ -569,7 +486,7 @@ export class ClaudeApiServiceSimple {
         if (!conversation) {
             await db.insert(claudeConversations).values({
                 userId: userId,
-                agentName: normalizedAgentName, // Use normalized name
+                agentName: normalizedAgentName,
                 conversationId: conversationId,
                 status: "active",
                 messageCount: 0,
@@ -581,20 +498,17 @@ export class ClaudeApiServiceSimple {
         }
     }
     async loadConversationMessages(conversationId, adminBypass = false) {
-        // MEMORY RESTORATION: Load full conversation history for agent continuity
-        // Admins and specialized agents need complete context to function properly
-        const messageLimit = adminBypass ? 100 : 50; // FIXED: Proper message limits for continuity
+        const messageLimit = adminBypass ? 100 : 50;
         const messages = await db
             .select()
             .from(claudeMessages)
             .where(eq(claudeMessages.conversationId, conversationId))
-            .orderBy(claudeMessages.createdAt) // Proper chronological order
+            .orderBy(claudeMessages.createdAt)
             .limit(messageLimit);
         console.log(`📜 CONVERSATION LOADED: ${messages.length} messages for ${conversationId} (admin: ${adminBypass})`);
         return messages;
     }
     async saveMessage(conversationId, role, content, toolCalls, toolResults) {
-        // Save message with tool data
         await db.insert(claudeMessages).values({
             conversationId,
             role,
@@ -605,7 +519,6 @@ export class ClaudeApiServiceSimple {
             timestamp: new Date(),
             createdAt: new Date(),
         });
-        // Update conversation metadata and message count
         const [conversation] = await db
             .select()
             .from(claudeConversations)
@@ -623,19 +536,15 @@ export class ClaudeApiServiceSimple {
             console.log(`✅ Updated conversation ${conversationId}: messageCount=${(conversation.messageCount || 0) + 1}`);
         }
     }
-    // REMOVED: All token-heavy processing methods moved to local processing engine for optimization
-    // ENHANCED LEARNING RETRIEVAL METHODS
     async getAgentLearningInsights(agentName, userId) {
         try {
             const normalizedAgentName = agentName.toLowerCase();
-            // Get learning patterns grouped by category
             const learningData = await db
                 .select()
                 .from(agentLearning)
                 .where(and(eq(agentLearning.agentName, normalizedAgentName), eq(agentLearning.userId, userId)))
                 .orderBy(desc(agentLearning.lastSeen))
                 .limit(100);
-            // Analyze patterns by category
             const insights = {
                 totalPatterns: learningData.length,
                 categories: {},
@@ -643,7 +552,6 @@ export class ClaudeApiServiceSimple {
                 confidenceAverage: 0,
                 topPatterns: []
             };
-            // Group by category and calculate insights
             for (const pattern of learningData) {
                 const category = pattern.category || 'general';
                 if (!insights.categories[category]) {
@@ -658,7 +566,6 @@ export class ClaudeApiServiceSimple {
                 insights.categories[category].avgConfidence =
                     insights.categories[category].patterns.reduce((sum, p) => sum + parseFloat(p.confidence?.toString() || '0'), 0) / insights.categories[category].patterns.length;
             }
-            // Calculate overall confidence average
             insights.confidenceAverage = learningData.reduce((sum, p) => sum + parseFloat(p.confidence?.toString() || '0'), 0) / learningData.length;
             return insights;
         }
@@ -667,20 +574,14 @@ export class ClaudeApiServiceSimple {
             return null;
         }
     }
-    /**
-     * VISION ANALYSIS METHOD - For analyzing images with Claude Vision
-     * Used specifically for Maya's video direction service
-     */
     async sendMessageWithImage(message, imageUrl, conversationId, agentName, systemPrompt) {
         console.log(`🎨 VISION ANALYSIS: ${agentName} analyzing image from URL: ${imageUrl.substring(0, 50)}...`);
         try {
-            // Load agent configuration
             const { PersonalityManager, PURE_PERSONALITIES } = await import('../agents/personalities/personality-config.js');
             const agentConfig = PURE_PERSONALITIES[agentName];
             if (!agentConfig) {
                 throw new Error(`Agent ${agentName} not found`);
             }
-            // Fetch the image and convert to base64
             console.log(`🖼️ VISION: Fetching image from URL: ${imageUrl}`);
             const imageResponse = await fetch(imageUrl);
             if (!imageResponse.ok) {
@@ -688,8 +589,7 @@ export class ClaudeApiServiceSimple {
             }
             const imageBuffer = await imageResponse.arrayBuffer();
             const base64Image = Buffer.from(imageBuffer).toString('base64');
-            // Detect image type from URL or default to PNG
-            let mediaType = 'image/png';
+            const mediaType = 'image/png';
             if (imageUrl.toLowerCase().includes('.jpg') || imageUrl.toLowerCase().includes('.jpeg')) {
                 mediaType = 'image/jpeg';
             }
@@ -697,7 +597,6 @@ export class ClaudeApiServiceSimple {
                 mediaType = 'image/webp';
             }
             console.log(`🖼️ VISION: Image converted to base64 (${mediaType}, ${Math.round(base64Image.length / 1024)}KB)`);
-            // Use Claude Vision API with proper image format
             const response = await anthropic.messages.create({
                 model: DEFAULT_MODEL_STR,
                 max_tokens: 1000,
@@ -734,7 +633,6 @@ export class ClaudeApiServiceSimple {
         }
         catch (error) {
             console.error(`❌ VISION ANALYSIS ERROR (${agentName}):`, error);
-            // Provide a professional fallback response if image analysis fails
             const fallbackPrompt = "Slow zoom in on the subject with subtle depth-of-field transitions, highlighting natural expression and professional lighting while maintaining elegant composition.";
             console.log(`🔄 VISION FALLBACK: Using professional default prompt`);
             return fallbackPrompt;
@@ -742,3 +640,4 @@ export class ClaudeApiServiceSimple {
     }
 }
 export const claudeApiServiceSimple = new ClaudeApiServiceSimple();
+//# sourceMappingURL=claude-api-service-simple.js.map

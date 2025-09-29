@@ -137,8 +137,9 @@ export class LocalProcessingEngine {
         learningType,
         category,
         data: JSON.stringify(data),
-        confidence: 0.8,
-        frequency: 1
+        confidence: "0.8",
+        frequency: 1,
+        lastSeen: new Date()
       });
       
       console.log(`✅ LEARNING SAVED: ${agentName} pattern stored in database`);
@@ -619,7 +620,7 @@ export class LocalProcessingEngine {
   /**
    * Extract tools used from response text
    */
-  private extractToolsUsedLocally(response: string): string[] {
+  private extractToolsFromResponse(response: string): string[] {
     const tools = [];
     if (response.includes('str_replace_based_edit_tool')) tools.push('str_replace_based_edit_tool');
     if (response.includes('bash')) tools.push('bash');
@@ -829,32 +830,39 @@ export class LocalProcessingEngine {
       let ownLearningQuery = db
         .select()
         .from(agentLearning)
-        .where(eq(agentLearning.agentName, agentName))
-        .orderBy(desc(agentLearning.confidence));
+        .where(
+          category 
+            ? and(
+                eq(agentLearning.agentName, agentName),
+                eq(agentLearning.category, category)
+              )
+            : eq(agentLearning.agentName, agentName)
+        )
+        .orderBy(desc(agentLearning.confidence))
+        .limit(20);
 
-      if (category) {
-        ownLearningQuery = ownLearningQuery.where(eq(agentLearning.category, category));
-      }
-
-      const ownLearning = await ownLearningQuery.limit(20);
+      const ownLearning = await ownLearningQuery;
 
       // Get shared learning from other agents
-      let sharedLearningQuery = db
-        .select()
-        .from(agentKnowledgeBase)
-        .where(
-          and(
-            eq(agentKnowledgeBase.agentId, agentName),
-            eq(agentKnowledgeBase.source, 'cross_agent_learning')
-          )
-        )
-        .orderBy(desc(agentKnowledgeBase.confidence));
+      const sharedLearningConditions = [
+        eq(agentKnowledgeBase.agentId, agentName),
+        eq(agentKnowledgeBase.source, 'cross_agent_learning')
+      ];
 
       if (category) {
-        sharedLearningQuery = sharedLearningQuery.where(
-          sql`${agentKnowledgeBase.tags} @> ARRAY[${category}]`
+        sharedLearningConditions.push(
+          and(
+            like(agentKnowledgeBase.topic, `%${category}%`),
+            sql`${agentKnowledgeBase.tags} @> ARRAY[${category}]::text[]`
+          )
         );
       }
+
+      const sharedLearningQuery = await db
+        .select()
+        .from(agentKnowledgeBase)
+        .where(and(...sharedLearningConditions))
+        .orderBy(desc(agentKnowledgeBase.confidence));
 
       const sharedLearning = await sharedLearningQuery.limit(10);
 

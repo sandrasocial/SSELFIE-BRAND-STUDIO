@@ -2,23 +2,22 @@ export const sophisticatedTemplate = {
     id: "sophisticated",
     name: "Coastal Luxury",
     description: "Elegant coastal sophistication with refined typography and serene color palette. Perfect for luxury brands, consultants, and premium service providers.",
-    // Design System
     colors: {
-        primary: "#2c3e50", // Deep ocean
-        secondary: "#a8b8c8", // Misty blue
-        accent: "#d4c5b0", // Driftwood
+        primary: "#2c3e50",
+        secondary: "#a8b8c8",
+        accent: "#d4c5b0",
         text: "#2c3e50",
         background: "#ffffff",
-        neutral: "#f8f6f0" // Sea salt
+        neutral: "#f8f6f0"
     },
     typography: {
         headline: "Playfair Display, serif",
         body: "Playfair Display, serif",
         accent: "Playfair Display, serif",
         weights: {
-            headline: "300", // Light
-            body: "300", // Light
-            accent: "300" // Light  
+            headline: "300",
+            body: "300",
+            accent: "300"
         },
         sizes: {
             hero: "clamp(4rem, 10vw, 10rem)",
@@ -34,7 +33,6 @@ export const sophisticatedTemplate = {
         style: "italic accents",
         transform: "uppercase headlines"
     },
-    // Brand Voice & Messaging
     voiceProfile: {
         tone: ["sophisticated", "serene", "elegant", "refined"],
         personality: "The cultured friend who's traveled the world and speaks in poetry. Elegant, wise, and effortlessly sophisticated.",
@@ -52,7 +50,6 @@ export const sophisticatedTemplate = {
             tone: "poetic but accessible"
         }
     },
-    // Visual Style Guide
     visualElements: {
         logoStyle: "elegant",
         imageStyle: "editorial",
@@ -63,7 +60,6 @@ export const sophisticatedTemplate = {
         shadows: "none, clean lines only",
         corners: "sharp edges only"
     },
-    // AI Prompt Instructions for SANDRA
     aiInstructions: {
         brandAdjectives: [
             "sophisticated", "coastal", "elegant", "serene", "refined",
@@ -89,7 +85,6 @@ export const sophisticatedTemplate = {
             "clean, uncluttered compositions"
         ]
     },
-    // Implementation Details
     implementation: {
         heroFormat: {
             background: "full-bleed image with 8% opacity",
@@ -104,3 +99,4 @@ export const sophisticatedTemplate = {
         specialEffects: ["coastal color accents", "italic typography", "editorial spacing"]
     }
 };
+//# sourceMappingURL=template-sophisticated.js.map

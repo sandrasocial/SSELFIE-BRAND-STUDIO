@@ -1,7 +1,6 @@
 import { Router } from 'express';
-import { requireStackAuth } from '../stack-auth';
+import { requireStackAuth } from '../stack-auth.js';
 const router = Router();
-// Import flatlay collections data
 const flatlayCollections = [
     {
         id: 'luxury-minimal',
@@ -64,7 +63,6 @@ const flatlayCollections = [
         ]
     }
 ];
-// Get all flatlay collections
 router.get('/api/flatlay-collections', requireStackAuth, async (req, res) => {
     try {
         res.json({
@@ -80,10 +78,8 @@ router.get('/api/flatlay-collections', requireStackAuth, async (req, res) => {
         });
     }
 });
-// Get all flatlay images as a simple array (for Victoria builder)
 router.get('/api/flatlay-library', requireStackAuth, async (req, res) => {
     try {
-        // Flatten all images from all collections into a single array
         const allImages = [];
         flatlayCollections.forEach(collection => {
             allImages.push(...collection.images);
@@ -98,7 +94,6 @@ router.get('/api/flatlay-library', requireStackAuth, async (req, res) => {
         });
     }
 });
-// Get specific collection
 router.get('/api/flatlay-collections/:id', requireStackAuth, async (req, res) => {
     try {
         const { id } = req.params;
@@ -123,3 +118,4 @@ router.get('/api/flatlay-collections/:id', requireStackAuth, async (req, res) =>
     }
 });
 export default router;
+//# sourceMappingURL=flatlay-library.js.map

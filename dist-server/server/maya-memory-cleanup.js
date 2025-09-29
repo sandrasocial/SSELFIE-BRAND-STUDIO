@@ -1,21 +1,8 @@
-/**
- * Maya Memory Cleanup Utility
- * 🚫 ZERO TOLERANCE ANTI-HARDCODE: Clear restrictive business/professional categorizations
- *
- * This utility clears any cached memory data that contains restrictive
- * business/professional assumptions, allowing Maya's natural intelligence
- * to detect user needs through authentic conversation.
- */
-import { MayaMemoryService } from './services/maya-memory-service';
-import { storage } from './storage';
-/**
- * Clear restrictive categorizations for all users
- * Use this after removing hardcoded keyword matching to ensure clean slate
- */
+import { MayaMemoryService } from './services/maya-memory-service.js';
+import { storage } from './storage.js';
 export async function cleanupAllRestrictiveMemory() {
     console.log('🧠 MAYA MEMORY CLEANUP: Starting cleanup of restrictive categorizations...');
     try {
-        // Get all users
         const allUsers = await storage.getAllUsers();
         console.log(`🔍 Found ${allUsers.length} users to clean up`);
         let cleanedCount = 0;
@@ -39,11 +26,7 @@ export async function cleanupAllRestrictiveMemory() {
         throw error;
     }
 }
-/**
- * Clear restrictive categorizations for a specific user
- */
 export async function cleanupUserRestrictiveMemory(userId) {
-    console.log(`🧠 MAYA MEMORY CLEANUP: Cleaning restrictive categorizations for user ${userId}`);
     try {
         await MayaMemoryService.clearRestrictiveCategorizations(userId);
         console.log(`✅ Successfully cleaned restrictive memory for user ${userId}`);
@@ -53,5 +36,4 @@ export async function cleanupUserRestrictiveMemory(userId) {
         throw error;
     }
 }
-// Export for direct usage if needed
-export { mayaMemoryService };
+//# sourceMappingURL=maya-memory-cleanup.js.map

@@ -1,9 +1,5 @@
-/**
- * Comprehensive Service Layer
- * Business logic abstraction and data access
- */
-import { Logger } from './logger';
-import { errorHandler } from './error-handler';
+import { Logger } from './logger.js';
+import { errorHandler } from './error-handler.js';
 export class BaseService {
     logger;
     serviceName;
@@ -13,9 +9,6 @@ export class BaseService {
         this.logger = new Logger(serviceName);
         this.isEnabled = true;
     }
-    /**
-     * Create success response
-     */
     createSuccessResponse(data, message) {
         return {
             success: true,
@@ -24,20 +17,14 @@ export class BaseService {
             timestamp: new Date().toISOString(),
         };
     }
-    /**
-     * Create error response
-     */
     createErrorResponse(error, message) {
         return {
             success: false,
             error,
-            message,
+            message: message || undefined,
             timestamp: new Date().toISOString(),
         };
     }
-    /**
-     * Handle service error
-     */
     handleError(error, context) {
         this.logger.error(`Service error in ${this.serviceName}`, {
             error: error.message,
@@ -46,18 +33,12 @@ export class BaseService {
         });
         return this.createErrorResponse(error.message, `An error occurred in ${this.serviceName}`);
     }
-    /**
-     * Validate input data
-     */
     validateInput(data, requiredFields) {
         const missing = requiredFields.filter(field => !data[field]);
         if (missing.length > 0) {
             throw errorHandler.createError(`Missing required fields: ${missing.join(', ')}`, 'VALIDATION_ERROR', 400);
         }
     }
-    /**
-     * Create paginated response
-     */
     createPaginatedResponse(data, pagination, total) {
         const totalPages = Math.ceil(total / pagination.limit);
         return {
@@ -74,16 +55,10 @@ export class BaseService {
             timestamp: new Date().toISOString(),
         };
     }
-    /**
-     * Enable/disable service
-     */
     setEnabled(enabled) {
         this.isEnabled = enabled;
         this.logger.info(`Service ${this.serviceName} ${enabled ? 'enabled' : 'disabled'}`);
     }
-    /**
-     * Check if service is enabled
-     */
     getEnabled() {
         return this.isEnabled;
     }
@@ -92,13 +67,9 @@ export class UserService extends BaseService {
     constructor() {
         super('UserService');
     }
-    /**
-     * Get user by ID
-     */
     async getUserById(userId) {
         try {
             this.validateInput({ userId }, ['userId']);
-            // Mock user data - would be replaced with actual database call
             const user = {
                 id: userId,
                 email: 'user@example.com',
@@ -112,14 +83,10 @@ export class UserService extends BaseService {
             return this.handleError(error, 'getUserById');
         }
     }
-    /**
-     * Get user by email
-     */
     async getUserByEmail(email) {
         try {
             this.validateInput({ email }, ['email']);
             errorHandler.validateEmail(email);
-            // Mock user data - would be replaced with actual database call
             const user = {
                 id: 'user_123',
                 email,
@@ -133,14 +100,10 @@ export class UserService extends BaseService {
             return this.handleError(error, 'getUserByEmail');
         }
     }
-    /**
-     * Create user
-     */
     async createUser(userData) {
         try {
             this.validateInput(userData, ['email', 'displayName']);
             errorHandler.validateEmail(userData.email);
-            // Mock user creation - would be replaced with actual database call
             const user = {
                 id: `user_${Date.now()}`,
                 ...userData,
@@ -153,13 +116,9 @@ export class UserService extends BaseService {
             return this.handleError(error, 'createUser');
         }
     }
-    /**
-     * Update user profile
-     */
     async updateUserProfile(userId, updates) {
         try {
             this.validateInput({ userId }, ['userId']);
-            // Mock user update - would be replaced with actual database call
             const user = {
                 id: userId,
                 ...updates,
@@ -171,12 +130,8 @@ export class UserService extends BaseService {
             return this.handleError(error, 'updateUserProfile');
         }
     }
-    /**
-     * Get all users with pagination
-     */
     async getAllUsers(pagination) {
         try {
-            // Mock users data - would be replaced with actual database call
             const users = Array.from({ length: 50 }, (_, i) => ({
                 id: `user_${i + 1}`,
                 email: `user${i + 1}@example.com`,
@@ -198,13 +153,9 @@ export class AIGenerationService extends BaseService {
     constructor() {
         super('AIGenerationService');
     }
-    /**
-     * Draft story
-     */
     async draftStory(userId, concept) {
         try {
             this.validateInput({ userId, concept }, ['userId', 'concept']);
-            // Mock story drafting - would be replaced with actual AI service call
             const story = {
                 id: `story_${Date.now()}`,
                 userId,
@@ -219,13 +170,9 @@ export class AIGenerationService extends BaseService {
             return this.handleError(error, 'draftStory');
         }
     }
-    /**
-     * Generate story
-     */
     async generateStory(userId, concept, style, length) {
         try {
             this.validateInput({ userId, concept }, ['userId', 'concept']);
-            // Mock story generation - would be replaced with actual AI service call
             const story = {
                 id: `story_${Date.now()}`,
                 userId,
@@ -242,13 +189,9 @@ export class AIGenerationService extends BaseService {
             return this.handleError(error, 'generateStory');
         }
     }
-    /**
-     * Get story status
-     */
     async getStoryStatus(userId, jobId) {
         try {
             this.validateInput({ userId, jobId }, ['userId', 'jobId']);
-            // Mock story status - would be replaced with actual status check
             const status = {
                 jobId,
                 userId,
@@ -267,13 +210,9 @@ export class AIGenerationService extends BaseService {
             return this.handleError(error, 'getStoryStatus');
         }
     }
-    /**
-     * Generate video from story
-     */
     async generateVideoFromStory(userId, story, style, duration) {
         try {
             this.validateInput({ userId, story }, ['userId', 'story']);
-            // Mock video generation - would be replaced with actual AI service call
             const video = {
                 id: `video_${Date.now()}`,
                 userId,
@@ -289,13 +228,9 @@ export class AIGenerationService extends BaseService {
             return this.handleError(error, 'generateVideoFromStory');
         }
     }
-    /**
-     * Generate video
-     */
     async generateVideo(userId, prompt, style, duration) {
         try {
             this.validateInput({ userId, prompt }, ['userId', 'prompt']);
-            // Mock video generation - would be replaced with actual AI service call
             const video = {
                 id: `video_${Date.now()}`,
                 userId,
@@ -311,13 +246,9 @@ export class AIGenerationService extends BaseService {
             return this.handleError(error, 'generateVideo');
         }
     }
-    /**
-     * Get user videos
-     */
     async getUserVideos(userId) {
         try {
             this.validateInput({ userId }, ['userId']);
-            // Mock videos data - would be replaced with actual database call
             const videos = Array.from({ length: 10 }, (_, i) => ({
                 id: `video_${i + 1}`,
                 userId,
@@ -331,13 +262,9 @@ export class AIGenerationService extends BaseService {
             return this.handleError(error, 'getUserVideos');
         }
     }
-    /**
-     * Generate AI images
-     */
     async generateAiImages(userId, prompt, style, count) {
         try {
             this.validateInput({ userId, prompt }, ['userId', 'prompt']);
-            // Mock image generation - would be replaced with actual AI service call
             const images = {
                 id: `images_${Date.now()}`,
                 userId,
@@ -353,13 +280,9 @@ export class AIGenerationService extends BaseService {
             return this.handleError(error, 'generateAiImages');
         }
     }
-    /**
-     * Get AI images
-     */
     async getAiImages(userId) {
         try {
             this.validateInput({ userId }, ['userId']);
-            // Mock images data - would be replaced with actual database call
             const images = Array.from({ length: 20 }, (_, i) => ({
                 id: `image_${i + 1}`,
                 userId,
@@ -374,13 +297,9 @@ export class AIGenerationService extends BaseService {
             return this.handleError(error, 'getAiImages');
         }
     }
-    /**
-     * Get Maya chats
-     */
     async getMayaChats(userId) {
         try {
             this.validateInput({ userId }, ['userId']);
-            // Mock chats data - would be replaced with actual database call
             const chats = Array.from({ length: 15 }, (_, i) => ({
                 id: `chat_${i + 1}`,
                 userId,
@@ -394,13 +313,9 @@ export class AIGenerationService extends BaseService {
             return this.handleError(error, 'getMayaChats');
         }
     }
-    /**
-     * Get categorized Maya chats
-     */
     async getCategorizedMayaChats(userId) {
         try {
             this.validateInput({ userId }, ['userId']);
-            // Mock categorized chats data - would be replaced with actual database call
             const categorizedChats = {
                 photography: [
                     { id: 'chat_1', message: 'Photography question 1', response: 'Photography answer 1' },
@@ -426,12 +341,8 @@ export class AdminService extends BaseService {
     constructor() {
         super('AdminService');
     }
-    /**
-     * Get dashboard data
-     */
     async getDashboardData() {
         try {
-            // Mock dashboard data - would be replaced with actual database calls
             const dashboardData = {
                 users: {
                     total: 1250,
@@ -459,12 +370,8 @@ export class AdminService extends BaseService {
             return this.handleError(error, 'getDashboardData');
         }
     }
-    /**
-     * Get all users
-     */
     async getAllUsers() {
         try {
-            // Mock users data - would be replaced with actual database call
             const users = Array.from({ length: 100 }, (_, i) => ({
                 id: `user_${i + 1}`,
                 email: `user${i + 1}@example.com`,
@@ -478,13 +385,9 @@ export class AdminService extends BaseService {
             return this.handleError(error, 'getAllUsers');
         }
     }
-    /**
-     * Get user by ID
-     */
     async getUserById(userId) {
         try {
             this.validateInput({ userId }, ['userId']);
-            // Mock user data - would be replaced with actual database call
             const user = {
                 id: userId,
                 email: 'user@example.com',
@@ -505,7 +408,7 @@ export class AdminService extends BaseService {
         }
     }
 }
-// Export service instances
 export const userService = new UserService();
 export const aiGenerationService = new AIGenerationService();
 export const adminService = new AdminService();
+//# sourceMappingURL=service-layer.js.map

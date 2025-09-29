@@ -2,18 +2,12 @@ import { exec } from 'child_process';
 import { promisify } from 'util';
 import fs from 'fs/promises';
 const execAsync = promisify(exec);
-/**
- * Enhanced system for Zara's auto-error fixing and context awareness
- */
 class ZaraEnhancementSystem {
-    zaraContextCache = new Map(); // Renamed to avoid conflicts with ContextPreservationSystem
+    zaraContextCache = new Map();
     errorPatterns = new Map();
     constructor() {
         this.initializeErrorPatterns();
     }
-    /**
-     * Initialize common error patterns and their fixes
-     */
     initializeErrorPatterns() {
         this.errorPatterns.set('missing properties from type', {
             errorType: 'interface',
@@ -44,9 +38,6 @@ class ZaraEnhancementSystem {
             contextNeeded: ['type definition', 'object structure']
         });
     }
-    /**
-     * Analyze LSP diagnostic errors for Zara
-     */
     async analyzeErrors(filePath, diagnostics) {
         const analyses = [];
         for (const diagnostic of diagnostics) {
@@ -56,9 +47,6 @@ class ZaraEnhancementSystem {
         console.log(`🔍 ZARA ERROR ANALYSIS: Found ${analyses.length} errors in ${filePath}`);
         return analyses;
     }
-    /**
-     * Classify error type and provide auto-fix suggestions
-     */
     classifyError(errorMessage) {
         for (const [pattern, analysis] of this.errorPatterns) {
             if (errorMessage.includes(pattern)) {
@@ -66,7 +54,6 @@ class ZaraEnhancementSystem {
                 return analysis;
             }
         }
-        // Unknown error - provide general guidance
         return {
             errorType: 'unknown',
             severity: 'medium',
@@ -75,9 +62,6 @@ class ZaraEnhancementSystem {
             contextNeeded: ['full error context', 'surrounding code']
         };
     }
-    /**
-     * Build comprehensive context map for a file
-     */
     async buildFileContext(filePath) {
         try {
             const content = await fs.readFile(filePath, 'utf-8');
@@ -88,23 +72,25 @@ class ZaraEnhancementSystem {
                 exportedFunctions: [],
                 importedModules: []
             };
-            // Extract imports
-            const importRegex = /import.*?from\s+['"`]([^'"`]+)['"`]/g;
+            const importRegex = /import.*?from\s+['"`]([^'"`]+)[''"`]/g;
             let match;
             while ((match = importRegex.exec(content)) !== null) {
-                context.importedModules.push(match[1]);
+                if (match[1]) {
+                    context.importedModules.push(match[1]);
+                }
             }
-            // Extract exports
             const exportRegex = /export\s+(?:interface|class|function|const)\s+(\w+)/g;
             while ((match = exportRegex.exec(content)) !== null) {
-                context.exportedFunctions.push(match[1]);
+                if (match[1]) {
+                    context.exportedFunctions.push(match[1]);
+                }
             }
-            // Extract interfaces
             const interfaceRegex = /interface\s+(\w+)/g;
             while ((match = interfaceRegex.exec(content)) !== null) {
-                context.interfaces.push(match[1]);
+                if (match[1]) {
+                    context.interfaces.push(match[1]);
+                }
             }
-            // Cache the context
             this.zaraContextCache.set(filePath, context);
             console.log(`📊 ZARA CONTEXT: Built context map for ${filePath}`);
             console.log(`   - Imports: ${context.importedModules.length}`);
@@ -123,9 +109,6 @@ class ZaraEnhancementSystem {
             };
         }
     }
-    /**
-     * Auto-fix TypeScript interface mismatches
-     */
     async autoFixInterfaceMismatch(filePath, interfaceName, missingProperties) {
         try {
             console.log(`🔧 ZARA AUTO-FIX: Fixing interface mismatch in ${filePath}`);
@@ -133,7 +116,6 @@ class ZaraEnhancementSystem {
             console.log(`   Missing: ${missingProperties.join(', ')}`);
             const content = await fs.readFile(filePath, 'utf-8');
             let fixedContent = content;
-            // Find interface definition and add missing properties
             const interfaceRegex = new RegExp(`interface\\s+${interfaceName}\\s*{([^}]+)}`, 'g');
             const match = interfaceRegex.exec(content);
             if (match) {
@@ -150,25 +132,20 @@ class ZaraEnhancementSystem {
             return '';
         }
     }
-    /**
-     * Auto-fix missing imports
-     */
     async autoFixMissingImports(filePath, missingNames) {
         try {
             console.log(`🔧 ZARA AUTO-FIX: Adding missing imports to ${filePath}`);
             const content = await fs.readFile(filePath, 'utf-8');
             let fixedContent = content;
-            // Common import mappings for SSELFIE Studio
             const importMappings = new Map([
-                ['ContentDetector', "import ContentDetector from './content-detection';"],
-                ['claudeApiService', "import { claudeApiService } from '../services/claude-api-service';"],
-                ['search_filesystem', "import { search_filesystem } from '../tools/search_filesystem';"],
-                ['elenaDelegationSystem', "import { elenaDelegationSystem } from './elena-delegation-system';"]
+                ['ContentDetector', "import ContentDetector from './content-detection.js';"],
+                ['claudeApiService', "import { claudeApiService } from '../services/claude-api-service.js';"],
+                ['search_filesystem', "import { search_filesystem } from '../tools/search_filesystem.js';"],
+                ['elenaDelegationSystem', "import { elenaDelegationSystem } from './elena-delegation-system.js';"]
             ]);
             for (const missingName of missingNames) {
                 if (importMappings.has(missingName)) {
                     const importStatement = importMappings.get(missingName);
-                    // Add import at the top of the file
                     const lines = fixedContent.split('\n');
                     const firstImportIndex = lines.findIndex(line => line.startsWith('import'));
                     if (firstImportIndex >= 0) {
@@ -188,27 +165,21 @@ class ZaraEnhancementSystem {
             return '';
         }
     }
-    /**
-     * Comprehensive error recovery system for Zara
-     */
     async performAutoRecovery(filePath) {
         const fixesApplied = [];
         const remainingErrors = [];
         try {
-            // Check TypeScript errors
             const { stdout: tscOutput } = await execAsync(`npx tsc --noEmit --project . 2>&1 || true`);
             if (tscOutput.includes(filePath)) {
                 console.log('🔍 ZARA RECOVERY: TypeScript errors detected, analyzing...');
-                // Parse TypeScript errors
                 const errors = tscOutput.split('\n').filter(line => line.includes(filePath));
                 for (const error of errors) {
                     if (error.includes('missing the following properties')) {
                         const analysis = this.classifyError(error);
                         if (analysis.autoFixable) {
-                            // Extract missing properties and fix
                             const propertiesMatch = error.match(/properties from type.*?:\s*(.*)/);
                             if (propertiesMatch) {
-                                const missingProps = propertiesMatch[1].split(',').map(p => p.trim());
+                                const missingProps = propertiesMatch && propertiesMatch[1] ? propertiesMatch[1].split(',').map(p => p.trim()) : [];
                                 fixesApplied.push(`Fixed interface mismatch: ${missingProps.join(', ')}`);
                             }
                         }
@@ -218,7 +189,7 @@ class ZaraEnhancementSystem {
                     }
                     else if (error.includes('Cannot find name')) {
                         const nameMatch = error.match(/Cannot find name '(\w+)'/);
-                        if (nameMatch) {
+                        if (nameMatch && nameMatch[1]) {
                             const missingName = nameMatch[1];
                             const fixedContent = await this.autoFixMissingImports(filePath, [missingName]);
                             if (fixedContent) {
@@ -249,15 +220,11 @@ class ZaraEnhancementSystem {
             };
         }
     }
-    /**
-     * Context-aware task understanding system
-     */
     async enhanceTaskContext(task, filePath) {
         console.log('🧠 ZARA CONTEXT ENHANCEMENT: Analyzing task requirements');
         const requiredContext = [];
         const dependencies = [];
         const riskFactors = [];
-        // Analyze task complexity
         if (task.includes('interface') || task.includes('type')) {
             requiredContext.push('TypeScript interface definitions');
             dependencies.push('shared/schema.ts');
@@ -291,9 +258,6 @@ RISK FACTORS:
             riskFactors
         };
     }
-    /**
-     * Get Zara's current capability status
-     */
     getCapabilityStatus() {
         return {
             autoErrorFixing: true,
@@ -304,3 +268,4 @@ RISK FACTORS:
     }
 }
 export const zaraEnhancementSystem = new ZaraEnhancementSystem();
+//# sourceMappingURL=zara-enhancement-system.js.map

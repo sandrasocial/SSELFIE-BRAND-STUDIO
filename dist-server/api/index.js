@@ -11,23 +11,16 @@ async function getJose() {
     _jose = { jwtVerify: mod.jwtVerify, createLocalJWKSet: mod.createLocalJWKSet, createRemoteJWKSet: mod.createRemoteJWKSet };
     return _jose;
 }
-// Stack Auth configuration - use environment variables
-const STACK_AUTH_PROJECT_ID = process.env.STACK_AUTH_PROJECT_ID || process.env.VITE_STACK_PROJECT_ID || '253d7343-a0d4-43a1-be5c-822f590d40be';
+const STACK_AUTH_PROJECT_ID = process.env['STACK_AUTH_PROJECT_ID'] || process.env['VITE_STACK_PROJECT_ID'] || '253d7343-a0d4-43a1-be5c-822f590d40be';
 const STACK_AUTH_API_URL = 'https://api.stack-auth.com/api/v1';
 const JWKS_URL = `${STACK_AUTH_API_URL}/projects/${STACK_AUTH_PROJECT_ID}/.well-known/jwks.json`;
-// Create JWKS resolver
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let JWKS; // JWKS type from jose library - complex type that's not worth importing
+let JWKS;
 async function timedFetch(url, ms = 3000, init) {
-    // Use the enhanced external API timeout utility
     return withExternalApiTimeout(async () => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const AbortCtor = typeof AbortController !== 'undefined' ? AbortController : globalThis.AbortController;
         const ac = new AbortCtor();
         const id = setTimeout(() => ac.abort(), ms);
         try {
-            // Use global fetch; if types are missing, fall back to any
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const f = globalThis.fetch || fetch;
             return await f(url, { ...(init || {}), signal: ac.signal });
         }
@@ -36,7 +29,6 @@ async function timedFetch(url, ms = 3000, init) {
         }
     }, new Response(JSON.stringify({ error: 'Network timeout' }), { status: 408 }), ms, 1, `fetch-${url}`);
 }
-// Remove duplicate withTimeout function - using the one from timing utils instead
 function setLogoutCookies(res) {
     const expired = [
         'stack-access',
@@ -60,12 +52,11 @@ const circuitBreaker = {
     lastFailure: 0,
     isOpen: false
 };
-const CIRCUIT_BREAKER_THRESHOLD = 5; // Open after 5 failures
-const CIRCUIT_BREAKER_TIMEOUT = 30000; // 30 seconds
-const CIRCUIT_BREAKER_RESET_TIME = 60000; // Reset after 1 minute
+const CIRCUIT_BREAKER_THRESHOLD = 5;
+const CIRCUIT_BREAKER_TIMEOUT = 30000;
+const CIRCUIT_BREAKER_RESET_TIME = 60000;
 function checkCircuitBreaker() {
     const now = Date.now();
-    // Reset if enough time has passed
     if (circuitBreaker.isOpen && now - circuitBreaker.lastFailure > CIRCUIT_BREAKER_RESET_TIME) {
         circuitBreaker.isOpen = false;
         circuitBreaker.failures = 0;
@@ -97,7 +88,6 @@ function logStart(route, meta) {
         console.log(`▶️ ${route} start`, meta || {});
     }
     catch {
-        // Ignore logging errors
     }
     return {
         end: (outcome, extra) => {
@@ -106,20 +96,16 @@ function logStart(route, meta) {
                 console.log(`⏱️ ${route} ${outcome}`, { elapsedMs: elapsed, ...(extra || {}) });
             }
             catch {
-                // Ignore logging errors
             }
             return elapsed;
         }
     };
 }
-// Helper function to apply gender context to concept cards
 async function applyGenderContext(conceptCards, userId) {
     try {
         console.log('🎯 Applying gender context to concept cards for user:', userId);
-        // Import required utilities
-        const { storage } = await import('../server/storage');
-        const { enforceGender, normalizeGender } = await import('../server/utils/gender-prompt');
-        // Get user data
+        const { storage } = await import('../server/storage.js');
+        const { enforceGender, normalizeGender } = await import('../server/utils/gender-prompt.js');
         const [user, userModel] = await Promise.all([
             storage.getUser(userId),
             storage.getUserModelByUserId(userId)
@@ -134,11 +120,9 @@ async function applyGenderContext(conceptCards, userId) {
             return conceptCards;
         }
         console.log(`✅ Applying gender context: ${secureGender} with trigger: ${userModel.triggerWord}`);
-        // Apply gender enforcement to each concept card
         return conceptCards.map((concept, index) => {
             let updatedPrompt = concept.fluxPrompt;
             let updatedDescription = concept.description;
-            // Enforce gender in FLUX prompt
             if (updatedPrompt) {
                 const enforcedPrompt = enforceGender(userModel.triggerWord, updatedPrompt, secureGender);
                 if (enforcedPrompt !== updatedPrompt) {
@@ -146,10 +130,8 @@ async function applyGenderContext(conceptCards, userId) {
                     updatedPrompt = enforcedPrompt;
                 }
             }
-            // Apply pronoun corrections to description based on gender
             if (updatedDescription) {
                 if (secureGender === 'man') {
-                    // Replace female pronouns with male equivalents
                     updatedDescription = updatedDescription
                         .replace(/\bshe\b/gi, 'he')
                         .replace(/\bher\b/gi, 'his')
@@ -157,7 +139,6 @@ async function applyGenderContext(conceptCards, userId) {
                         .replace(/\bwomen\b/gi, 'men');
                 }
                 else if (secureGender === 'woman') {
-                    // Replace male pronouns with female equivalents (less common but for safety)
                     updatedDescription = updatedDescription
                         .replace(/\bhe\b/gi, 'she')
                         .replace(/\bhis\b/gi, 'her')
@@ -165,7 +146,6 @@ async function applyGenderContext(conceptCards, userId) {
                         .replace(/\bmen\b/gi, 'women');
                 }
                 else if (secureGender === 'non-binary') {
-                    // Replace gendered pronouns with neutral alternatives
                     updatedDescription = updatedDescription
                         .replace(/\b(he|she)\b/gi, 'they')
                         .replace(/\b(his|her)\b/gi, 'their')
@@ -182,27 +162,22 @@ async function applyGenderContext(conceptCards, userId) {
     }
     catch (error) {
         console.log('❌ Gender context application failed (non-blocking):', error instanceof Error ? error.message : error);
-        return conceptCards; // Return original cards if gender enforcement fails
+        return conceptCards;
     }
 }
-// Helper function to extract concept cards from Maya's response
 function extractConceptCards(response) {
     const conceptCards = [];
     try {
-        // Split response by concept separators
         const conceptSections = response.split('---').filter(section => section.trim());
         conceptSections.forEach((section, index) => {
             const lines = section.trim().split('\n').filter(line => line.trim());
             if (lines.length >= 2) {
-                // Extract emoji and title from first line
                 const titleLine = lines[0];
                 const emojiMatch = titleLine.match(/^([🎯✨💼🌟💫🏆📸🎬])/u);
                 const titleMatch = titleLine.match(/\*\*(.*?)\*\*/);
                 const emoji = emojiMatch ? emojiMatch[1] : '🎯';
                 const title = titleMatch ? titleMatch[1].trim() : `Concept ${index + 1}`;
-                // Extract description (second line)
                 const description = lines[1] || '';
-                // Find FLUX_PROMPT
                 let fluxPrompt = '';
                 const fluxPromptLine = lines.find(line => line.includes('FLUX_PROMPT:'));
                 if (fluxPromptLine) {
@@ -226,7 +201,6 @@ function extractConceptCards(response) {
     }
     return conceptCards;
 }
-// Helper function to categorize concepts
 function getCategoryFromTitle(title) {
     const titleLower = title.toLowerCase();
     if (titleLower.includes('professional') || titleLower.includes('headshot') || titleLower.includes('business')) {
@@ -238,7 +212,7 @@ function getCategoryFromTitle(title) {
     else if (titleLower.includes('executive') || titleLower.includes('authority') || titleLower.includes('commanding')) {
         return 'Executive';
     }
-    else if (titleLower.includes('creative') || titleLower.includes('artistic') || titleLower.includes('artistic')) {
+    else if (titleLower.includes('creative') || titleLower.includes('artistic')) {
         return 'Creative';
     }
     else if (titleLower.includes('editorial') || titleLower.includes('fashion') || titleLower.includes('street')) {
@@ -248,13 +222,11 @@ function getCategoryFromTitle(title) {
         return 'General';
     }
 }
-// Verify JWT token directly using Stack Auth JWKS (local JWKS with fetch timeout)
 async function verifyJWTToken(token) {
     try {
         const jose = await getJose();
         const { jwtVerify, createLocalJWKSet } = jose;
         if (!JWKS) {
-            // Fetch JWKS with timeout and create a local JWK set to avoid remote hangs
             const resp = await timedFetch(JWKS_URL, 3000);
             if (!resp.ok)
                 throw new Error(`JWKS HTTP ${resp.status}`);
@@ -271,17 +243,45 @@ async function verifyJWTToken(token) {
         throw new Error(`JWT verification failed: ${error.message}`);
     }
 }
+function getDefaultUserFields(overrides = {}) {
+    return {
+        id: overrides.id ?? '',
+        email: overrides.email ?? null,
+        displayName: overrides.displayName ?? null,
+        firstName: overrides.firstName ?? null,
+        lastName: overrides.lastName ?? null,
+        profileImageUrl: overrides.profileImageUrl ?? null,
+        plan: overrides.plan ?? 'sselfie-studio',
+        role: overrides.role ?? 'user',
+        monthlyGenerationLimit: overrides.monthlyGenerationLimit ?? 100,
+        mayaAiAccess: overrides.mayaAiAccess ?? true,
+        victoriaAiAccess: overrides.victoriaAiAccess ?? false,
+        onboardingProgress: overrides.onboardingProgress ?? JSON.stringify({ source: 'direct-signup' }),
+        preferredOnboardingMode: overrides.preferredOnboardingMode ?? 'conversational',
+        lastLoginAt: overrides.lastLoginAt ?? new Date(),
+    };
+}
+function parseCookieHeader(cookieHeader) {
+    if (!cookieHeader)
+        return {};
+    const out = {};
+    for (const part of cookieHeader.split(';')) {
+        const idx = part.indexOf('=');
+        if (idx > -1) {
+            const k = part.slice(0, idx).trim();
+            const v = decodeURIComponent(part.slice(idx + 1).trim());
+            out[k] = v;
+        }
+    }
+    return out;
+}
 export default async function handler(req, res) {
     try {
         console.log('🔍 API Handler: Request received', req.url);
         console.log('🔍 Method:', req.method);
-        console.log('🔍 Headers:', JSON.stringify(req.headers, null, 2));
-        console.log('🔍 Cookies:', JSON.stringify(req.cookies, null, 2));
-        // Vercel Skew Protection: pin requests to this deployment via cookie
-        if (process.env.VERCEL_SKEW_PROTECTION_ENABLED === '1' &&
-            process.env.VERCEL_DEPLOYMENT_ID) {
+        if (process.env['VERCEL_SKEW_PROTECTION_ENABLED'] === '1' && process.env['VERCEL_DEPLOYMENT_ID']) {
             try {
-                const cookieValue = `__vdpl=${process.env.VERCEL_DEPLOYMENT_ID}; Path=/; HttpOnly; Secure; SameSite=Lax`;
+                const cookieValue = `__vdpl=${process.env['VERCEL_DEPLOYMENT_ID']}; Path=/; HttpOnly; Secure; SameSite=Lax`;
                 const existing = res.getHeader('Set-Cookie');
                 if (Array.isArray(existing)) {
                     res.setHeader('Set-Cookie', [...existing, cookieValue]);
@@ -297,25 +297,162 @@ export default async function handler(req, res) {
                 console.log('⚠️ Failed to set __vdpl cookie:', e.message);
             }
         }
-        // Set CORS headers for authentication
         res.setHeader('Access-Control-Allow-Origin', '*');
         res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
         res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-stack-access-token');
         res.setHeader('Access-Control-Allow-Credentials', 'true');
-        // Handle preflight requests
         if (req.method === 'OPTIONS') {
             return res.status(200).end();
         }
-        // Admin export: Markdown document of trained users for manual Stack updates
+        const json = (response, status, body) => {
+            const r = response;
+            if (typeof r?.status === 'function') {
+                return response.status(status).json(body);
+            }
+            const NodeResponse = globalThis.Response;
+            try {
+                return new NodeResponse(JSON.stringify(body), {
+                    status,
+                    headers: { 'content-type': 'application/json' }
+                });
+            }
+            catch {
+                return {
+                    status,
+                    headers: { 'content-type': 'application/json' },
+                    body: JSON.stringify(body)
+                };
+            }
+        };
+        if (req.url?.includes('/api/health')) {
+            return res.status(200).json({
+                status: 'healthy',
+                service: 'SSELFIE Studio API',
+                timestamp: new Date().toISOString(),
+            });
+        }
+        if (req.url === '/api/logout') {
+            setLogoutCookies(res);
+            res.setHeader('Cache-Control', 'no-store');
+            return res.status(200).json({ ok: true, loggedOut: true });
+        }
+        async function getAuthenticatedUser() {
+            let accessToken;
+            const authHeader = req.headers.authorization;
+            if (authHeader?.startsWith('Bearer ')) {
+                accessToken = authHeader.substring(7);
+                console.log('🔐 Found Bearer token in Authorization header');
+            }
+            const cookiesSource = req.cookies || parseCookieHeader(req.headers.cookie);
+            if (!accessToken && cookiesSource) {
+                console.log('🍪 All cookies received:', Object.keys(cookiesSource));
+                const cookiesToTry = [
+                    'stack-access',
+                    'stack-access-token',
+                    'stack_session',
+                    '__Secure-next-auth.session-token',
+                ];
+                for (const cookieName of cookiesToTry) {
+                    const cookieValue = cookiesSource[cookieName];
+                    if (cookieValue) {
+                        console.log(`🍪 Found cookie: ${cookieName}`);
+                        try {
+                            if (cookieValue.startsWith('[')) {
+                                const stackAccessArray = JSON.parse(cookieValue);
+                                if (Array.isArray(stackAccessArray) && stackAccessArray.length >= 2) {
+                                    accessToken = stackAccessArray[1];
+                                    console.log('🔐 Found access token in JSON array format');
+                                    break;
+                                }
+                            }
+                            if (cookieValue.startsWith('{')) {
+                                const stackAccessObj = JSON.parse(cookieValue);
+                                if (stackAccessObj.accessToken || stackAccessObj.token || stackAccessObj.jwt) {
+                                    accessToken = stackAccessObj.accessToken || stackAccessObj.token || stackAccessObj.jwt;
+                                    console.log('🔐 Found access token in JSON object format');
+                                    break;
+                                }
+                            }
+                            if (cookieValue.length > 20 && cookieValue.includes('.')) {
+                                accessToken = cookieValue;
+                                console.log('🔐 Found access token in direct string format');
+                                break;
+                            }
+                        }
+                        catch (parseError) {
+                            console.log(`⚠️ Failed to parse ${cookieName} cookie:`, parseError.message);
+                            if (cookieValue.length > 20) {
+                                accessToken = cookieValue;
+                                console.log('🔐 Using raw cookie value as token');
+                                break;
+                            }
+                        }
+                    }
+                }
+                if (!accessToken) {
+                    console.log('🔍 No valid access token found in cookies');
+                }
+            }
+            if (!accessToken) {
+                throw new Error('No access token found');
+            }
+            console.log('🔐 Verifying JWT token...');
+            const userInfo = await verifyJWTToken(accessToken);
+            console.log('✅ JWT verified successfully');
+            const userId = String(userInfo.sub || userInfo.user_id || userInfo.id || '');
+            const userEmail = String(userInfo.email || userInfo.primary_email || userInfo.primaryEmail || userInfo.email_address || userInfo.user_email || '');
+            const userName = String(userInfo.displayName || userInfo.display_name || userInfo.name || userInfo.given_name || userInfo.full_name || '');
+            console.log('📊 Extracted user info:', {
+                id: userId,
+                email: userEmail,
+                name: userName
+            });
+            return {
+                id: userId,
+                email: userEmail,
+                firstName: userName?.split(' ')[0] || null,
+                lastName: userName?.split(' ').slice(1).join(' ') || null,
+                plan: 'sselfie-studio',
+                role: 'user',
+                stackUser: userInfo
+            };
+        }
+        async function ensureDbUserFromStack(stackUser) {
+            const { storage } = await import('../server/storage.js');
+            const stackId = (stackUser.id || '');
+            const email = (stackUser.email || '');
+            let dbUser = stackId ? await storage.getUser(stackId) : undefined;
+            if (dbUser)
+                return dbUser;
+            if (!dbUser && stackId) {
+                dbUser = await storage.getUserByStackAuthId(stackId);
+                if (dbUser)
+                    return dbUser;
+            }
+            if (!dbUser && email) {
+                const byEmail = await storage.getUserByEmail(email);
+                if (byEmail) {
+                    return await storage.linkStackAuthId(byEmail.id, stackId || byEmail.id);
+                }
+            }
+            return await storage.upsertUser(getDefaultUserFields({
+                id: stackId || email || `user_${Date.now()}`,
+                email: email || null,
+                displayName: stackUser.displayName || null,
+                firstName: stackUser.firstName || (stackUser.displayName ? stackUser.displayName.split(' ')[0] : null),
+                lastName: stackUser.lastName || (stackUser.displayName ? stackUser.displayName.split(' ').slice(1).join(' ') : null),
+                profileImageUrl: stackUser.profileImageUrl || null,
+            }));
+        }
         if (req.url === '/api/admin/export-trained-users-doc') {
             if (req.method !== 'GET')
                 return res.status(405).json({ error: 'Method not allowed' });
             try {
                 const adminToken = req.headers['x-admin-token'];
-                const expected = process.env.ADMIN_TOKEN || 'sandra-admin-2025';
+                const expected = process.env['ADMIN_TOKEN'] || 'sandra-admin-2025';
                 if (adminToken !== expected)
                     return res.status(401).json({ error: 'Unauthorized' });
-                const { storage } = await import('../server/storage');
+                const { storage } = await import('../server/storage.js');
                 const models = await storage.getAllCompletedTrainings();
                 const header = [
                     '# Trained Users Export',
@@ -348,210 +485,6 @@ export default async function handler(req, res) {
                 return res.status(500).json({ error: 'Failed to export trained users', message: error.message });
             }
         }
-        // Safe JSON responder that works with both Node res and Web Response
-        const json = (response, status, body) => {
-            const r = response;
-            if (typeof r?.status === 'function') {
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                return response.status(status).json(body);
-            }
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const NodeResponse = globalThis.Response;
-            try {
-                // @ts-ignore
-                return new NodeResponse(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } });
-            }
-            catch {
-                // Final fallback for unknown environments
-                // @ts-ignore
-                return { status, headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) };
-            }
-        };
-        // Shim Response surface if platform provides Web-standard Response instead of VercelResponse
-        const resAny = res;
-        if (typeof resAny.status !== 'function') {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const NodeResponse = globalThis.Response;
-            resAny.setHeader = resAny.setHeader || (() => { });
-            resAny.getHeader = resAny.getHeader || (() => undefined);
-            resAny.status = (code) => ({
-                json: (body) => new NodeResponse(JSON.stringify(body), { status: code, headers: { 'content-type': 'application/json' } }),
-                send: (text) => new NodeResponse(text, { status: code }),
-                end: () => new NodeResponse(null, { status: code }),
-            });
-        }
-        // Simple health check
-        if (req.url?.includes('/api/health')) {
-            return res.status(200).json({
-                status: 'healthy',
-                service: 'SSELFIE Studio API',
-                timestamp: new Date().toISOString(),
-            });
-        }
-        // Logout: clear auth cookies to break loops
-        if (req.url === '/api/logout') {
-            setLogoutCookies(res);
-            res.setHeader('Cache-Control', 'no-store');
-            return res.status(200).json({ ok: true, loggedOut: true });
-        }
-        // Helper function to parse cookie header when req.cookies is unavailable
-        function parseCookieHeader(cookieHeader) {
-            if (!cookieHeader)
-                return {};
-            const out = {};
-            for (const part of cookieHeader.split(';')) {
-                const idx = part.indexOf('=');
-                if (idx > -1) {
-                    const k = part.slice(0, idx).trim();
-                    const v = decodeURIComponent(part.slice(idx + 1).trim());
-                    out[k] = v;
-                }
-            }
-            return out;
-        }
-        // Helper function to get authenticated user
-        async function getAuthenticatedUser() {
-            let accessToken;
-            // Check Authorization header for Bearer token
-            const authHeader = req.headers.authorization;
-            if (authHeader?.startsWith('Bearer ')) {
-                accessToken = authHeader.substring(7);
-                console.log('🔐 Found Bearer token in Authorization header');
-            }
-            // Check cookies for stored access token - handle both req.cookies and header cookies
-            const cookiesSource = req.cookies || parseCookieHeader(req.headers.cookie);
-            if (!accessToken && cookiesSource) {
-                try {
-                    console.log('🍪 All cookies received:', Object.keys(cookiesSource));
-                }
-                catch {
-                    // Ignore logging errors
-                }
-                // Try all possible Stack Auth cookie formats
-                const cookiesToTry = [
-                    'stack-access', // Current format
-                    'stack-access-token', // Legacy format
-                    'stack_session', // Alternative format
-                    '__Secure-next-auth.session-token', // NextAuth format if used
-                ];
-                for (const cookieName of cookiesToTry) {
-                    const cookieValue = cookiesSource[cookieName];
-                    if (cookieValue) {
-                        console.log(`🍪 Found cookie: ${cookieName}`);
-                        try {
-                            // Try parsing as JSON array first
-                            if (cookieValue.startsWith('[')) {
-                                const stackAccessArray = JSON.parse(cookieValue);
-                                if (Array.isArray(stackAccessArray) && stackAccessArray.length >= 2) {
-                                    accessToken = stackAccessArray[1]; // JWT is the second element
-                                    console.log('🔐 Found access token in JSON array format');
-                                    break;
-                                }
-                            }
-                            // Try parsing as JSON object
-                            if (cookieValue.startsWith('{')) {
-                                const stackAccessObj = JSON.parse(cookieValue);
-                                if (stackAccessObj.accessToken || stackAccessObj.token || stackAccessObj.jwt) {
-                                    accessToken = stackAccessObj.accessToken || stackAccessObj.token || stackAccessObj.jwt;
-                                    console.log('🔐 Found access token in JSON object format');
-                                    break;
-                                }
-                            }
-                            // Try as direct token (string format)
-                            if (cookieValue.length > 20 && cookieValue.includes('.')) {
-                                // Looks like a JWT token
-                                accessToken = cookieValue;
-                                console.log('🔐 Found access token in direct string format');
-                                break;
-                            }
-                        }
-                        catch (parseError) {
-                            console.log(`⚠️ Failed to parse ${cookieName} cookie:`, parseError.message);
-                            // If parsing fails, try as direct token
-                            if (cookieValue.length > 20) {
-                                accessToken = cookieValue;
-                                console.log('🔐 Using raw cookie value as token');
-                                break;
-                            }
-                        }
-                    }
-                }
-                if (!accessToken) {
-                    try {
-                        console.log('🔍 No valid access token found in cookies');
-                    }
-                    catch {
-                        // Ignore logging errors
-                    }
-                    try {
-                        console.log('🔍 Available cookies:', Object.keys(cookiesSource));
-                    }
-                    catch {
-                        // Ignore logging errors
-                    }
-                }
-            }
-            if (!accessToken) {
-                throw new Error('No access token found');
-            }
-            console.log('🔐 Verifying JWT token...');
-            console.log('🔍 Token preview:', accessToken.substring(0, 20) + '...');
-            // Verify JWT token
-            const userInfo = await verifyJWTToken(accessToken);
-            console.log('✅ JWT verified successfully');
-            console.log('🔍 JWT payload:', JSON.stringify(userInfo, null, 2));
-            // Extract user information
-            const userId = String(userInfo.sub || userInfo.user_id || userInfo.id || '');
-            const userEmail = String(userInfo.email || userInfo.primary_email || userInfo.primaryEmail || userInfo.email_address || userInfo.user_email || '');
-            const userName = String(userInfo.displayName || userInfo.display_name || userInfo.name || userInfo.given_name || userInfo.full_name || '');
-            console.log('📊 Extracted user info:', {
-                id: userId,
-                email: userEmail,
-                name: userName
-            });
-            return {
-                id: userId,
-                email: userEmail,
-                firstName: userName?.split(' ')[0] || null,
-                lastName: userName?.split(' ').slice(1).join(' ') || null,
-                plan: 'sselfie-studio', // Default plan
-                role: 'user', // Default role
-                stackUser: userInfo // Include raw Stack Auth user data
-            };
-        }
-        // Helper: ensure DB user exists/linked from Stack user fields
-        async function ensureDbUserFromStack(stackUser) {
-            const { storage } = await import('../server/storage');
-            const stackId = (stackUser.id || '');
-            const email = (stackUser.email || '');
-            // Try by ID
-            let dbUser = stackId ? await storage.getUser(stackId) : undefined;
-            if (dbUser)
-                return dbUser;
-            // Try by linked stack auth id
-            if (!dbUser && stackId) {
-                dbUser = await storage.getUserByStackAuthId(stackId);
-                if (dbUser)
-                    return dbUser;
-            }
-            // Try by email, then link
-            if (!dbUser && email) {
-                const byEmail = await storage.getUserByEmail(email);
-                if (byEmail) {
-                    return await storage.linkStackAuthId(byEmail.id, stackId || byEmail.id);
-                }
-            }
-            // Create new
-            return await storage.upsertUser({
-                id: stackId || email || `user_${Date.now()}`,
-                email: email || null,
-                displayName: stackUser.displayName || null,
-                firstName: stackUser.firstName || (stackUser.displayName ? stackUser.displayName.split(' ')[0] : null),
-                lastName: stackUser.lastName || (stackUser.displayName ? stackUser.displayName.split(' ').slice(1).join(' ') : null),
-                profileImageUrl: stackUser.profileImageUrl || null,
-            });
-        }
-        // Handle auto-registration for new paying customers
         if (req.url === '/api/auth/auto-register') {
             if (req.method !== 'POST') {
                 return res.status(405).json({ error: 'Method not allowed' });
@@ -562,13 +495,10 @@ export default async function handler(req, res) {
                     return res.status(400).json({ error: 'Email and plan are required' });
                 }
                 console.log('🚀 AUTO-REGISTRATION: Creating database user for:', email, 'plan:', plan);
-                // Import storage to create database user
-                const { storage } = await import('../server/storage');
-                // Check if user already exists by email
+                const { storage } = await import('../server/storage.js');
                 const existingUser = await storage.getUserByEmail(email);
                 if (existingUser) {
                     console.log('✅ AUTO-REGISTRATION: User already exists, updating plan:', existingUser.id);
-                    // Update existing user's plan
                     const updatedUser = await storage.updateUserProfile(existingUser.id, {
                         plan: plan,
                         monthlyGenerationLimit: plan === 'sselfie-studio' ? 100 : -1,
@@ -583,22 +513,18 @@ export default async function handler(req, res) {
                         action: 'updated'
                     });
                 }
-                // Create new database user (pre-registration for payment)
                 const newUserId = `user_${Date.now()}_${email.split('@')[0]}`;
-                const newUser = await storage.upsertUser({
+                const newUser = await storage.upsertUser(getDefaultUserFields({
                     id: newUserId,
                     email: email,
-                    displayName: email.split('@')[0], // Use email prefix as default name
+                    displayName: email.split('@')[0],
                     firstName: null,
                     lastName: null,
                     profileImageUrl: null,
                     plan: plan,
-                    role: 'user',
                     monthlyGenerationLimit: plan === 'sselfie-studio' ? 100 : -1,
-                    mayaAiAccess: true,
-                    victoriaAiAccess: false,
                     onboardingProgress: JSON.stringify({ source: source || 'payment-success' })
-                });
+                }));
                 console.log('✅ AUTO-REGISTRATION: Database user created successfully:', newUser.id);
                 res.setHeader('Cache-Control', 'no-store');
                 return res.status(201).json({
@@ -619,11 +545,9 @@ export default async function handler(req, res) {
                 });
             }
         }
-        // Handle Stack Auth API proxy endpoints
         if (req.url?.startsWith('/api/auth/') && !req.url.includes('auto-register')) {
             console.log('🔍 Stack Auth API proxy called:', req.url);
             try {
-                // Proxy to Stack Auth API
                 const stackAuthPath = req.url.replace('/api/auth', '');
                 const stackAuthUrl = `https://api.stack-auth.com/api/v1/projects/${STACK_AUTH_PROJECT_ID}${stackAuthPath}`;
                 console.log('🔄 Proxying to Stack Auth:', stackAuthUrl);
@@ -650,7 +574,6 @@ export default async function handler(req, res) {
                 });
             }
         }
-        // Handle authentication user endpoint (legacy)
         if (req.url?.includes('/api/auth/user')) {
             console.log('🔍 Auth user endpoint called');
             try {
@@ -666,14 +589,11 @@ export default async function handler(req, res) {
                 });
             }
         }
-        // Stack webhook is now handled by dedicated /api/webhooks/stack.ts endpoint
-        // This allows proper Vercel serverless function routing
-        // Admin backfill: POST /api/admin/backfill-stack-users { users: [{id,email,displayName,firstName,lastName,profileImageUrl}] }
         if (req.url === '/api/admin/backfill-stack-users') {
             if (req.method !== 'POST')
                 return res.status(405).json({ error: 'Method not allowed' });
             const adminToken = req.headers['x-admin-token'];
-            const expected = process.env.ADMIN_TOKEN || 'sandra-admin-2025';
+            const expected = process.env['ADMIN_TOKEN'] || 'sandra-admin-2025';
             if (adminToken !== expected)
                 return res.status(401).json({ error: 'Unauthorized' });
             const users = (req.body && req.body.users) || [];
@@ -694,33 +614,29 @@ export default async function handler(req, res) {
             res.setHeader('Cache-Control', 'no-store');
             return res.status(200).json({ ok: true, count: results.length, users: results });
         }
-        // Admin: link legacy numeric user ID to Stack Auth ID
-        // Body: { legacyUserId: string | number, stackId: string }
         if (req.url === '/api/admin/link-legacy-user') {
             if (req.method !== 'POST')
                 return res.status(405).json({ error: 'Method not allowed' });
             const adminToken = req.headers['x-admin-token'];
-            const expected = process.env.ADMIN_TOKEN || 'sandra-admin-2025';
+            const expected = process.env['ADMIN_TOKEN'] || 'sandra-admin-2025';
             if (adminToken !== expected)
                 return res.status(401).json({ error: 'Unauthorized' });
             const { legacyUserId, stackId } = (req.body || {});
             if (!legacyUserId || !stackId)
                 return res.status(400).json({ error: 'legacyUserId and stackId required' });
-            const { storage } = await import('../server/storage');
+            const { storage } = await import('../server/storage.js');
             const linked = await storage.linkStackAuthId(String(legacyUserId), String(stackId));
             res.setHeader('Cache-Control', 'no-store');
             return res.status(200).json({ ok: true, linkedUserId: linked.id, email: linked.email });
         }
-        // Admin export: Get metadata for all users to update in Stack dashboard manually
-        // Returns: [{ email, stackId, legacyUserId, triggerWord, modelStatus, modelName }]
         if (req.url === '/api/admin/export-user-metadata') {
             if (req.method !== 'GET')
                 return res.status(405).json({ error: 'Method not allowed' });
             const adminToken = req.headers['x-admin-token'];
-            const expected = process.env.ADMIN_TOKEN || 'sandra-admin-2025';
+            const expected = process.env['ADMIN_TOKEN'] || 'sandra-admin-2025';
             if (adminToken !== expected)
                 return res.status(401).json({ error: 'Unauthorized' });
-            const { storage } = await import('../server/storage');
+            const { storage } = await import('../server/storage.js');
             const users = await storage.getAllUsers();
             const result = [];
             for (const u of users) {
@@ -740,21 +656,20 @@ export default async function handler(req, res) {
             res.setHeader('Cache-Control', 'no-store');
             return res.status(200).json({ count: result.length, users: result });
         }
-        // Admin: push trained users' metadata to Stack Auth
         if (req.url === '/api/admin/push-stack-metadata') {
             if (req.method !== 'POST')
                 return res.status(405).json({ error: 'Method not allowed' });
             const adminToken = req.headers['x-admin-token'];
-            const expected = process.env.ADMIN_TOKEN || 'sandra-admin-2025';
+            const expected = process.env['ADMIN_TOKEN'] || 'sandra-admin-2025';
             if (adminToken !== expected)
                 return res.status(401).json({ error: 'Unauthorized' });
-            const PROJECT_ID = process.env.STACK_AUTH_PROJECT_ID || process.env.VITE_STACK_PROJECT_ID;
-            const STACK_KEY = process.env.STACK_ADMIN_KEY || process.env.STACK_SERVER_KEY || '';
+            const PROJECT_ID = process.env['STACK_AUTH_PROJECT_ID'] || process.env['VITE_STACK_PROJECT_ID'];
+            const STACK_KEY = process.env['STACK_ADMIN_KEY'] || process.env['STACK_SERVER_KEY'] || '';
             if (!PROJECT_ID || !STACK_KEY) {
                 return res.status(500).json({ error: 'Missing STACK_AUTH_PROJECT_ID or STACK_ADMIN_KEY on server' });
             }
             try {
-                const { storage } = await import('../server/storage');
+                const { storage } = await import('../server/storage.js');
                 const trainedModels = await storage.getAllCompletedTrainings();
                 const updated = [];
                 const skipped = [];
@@ -813,13 +728,10 @@ export default async function handler(req, res) {
                 return res.status(500).json({ error: 'Push to Stack failed', message: error.message });
             }
         }
-        // /api/me: ensure DB user and return JSON
         if (req.url === '/api/me' || req.url?.startsWith('/api/me?')) {
             const t = logStart('GET /api/me');
-            // Ensure we return JSON content type
             res.setHeader('Content-Type', 'application/json');
             try {
-                // Check circuit breaker before attempting database operations
                 if (!checkCircuitBreaker()) {
                     console.warn('⚠️ Circuit breaker open, returning cached user fallback');
                     return res.status(503).json({
@@ -829,56 +741,68 @@ export default async function handler(req, res) {
                     });
                 }
                 const user = await getAuthenticatedUser();
-                const { storage } = await import('../server/storage');
-                // OPTIMIZED: Use faster database timeouts with retry for critical user operations
-                let dbUser = await withDatabaseTimeoutAndRetry(() => storage.getUser(user.id), null, 2000, // Reduced from 3000ms
-                1, // 1 retry
-                'getUser');
-                // Record success if we got this far
+                const { storage } = await import('../server/storage.js');
+                let dbUser = await withDatabaseTimeoutAndRetry(() => storage.getUser(user.id), null, 2000, 1, 'getUser');
                 if (dbUser) {
                     recordCircuitBreakerSuccess();
                 }
                 if (!dbUser) {
-                    // Try to find user by Stack Auth ID or email in parallel with shorter timeouts
                     const [byStackId, byEmail] = await Promise.all([
-                        withDatabaseTimeout(storage.getUserByStackAuthId(user.id), null, 2000, // Reduced from 2500ms
-                        'getUserByStackAuthId'),
-                        user.email ? withDatabaseTimeout(storage.getUserByEmail(user.email), null, 2000, // Reduced from 2500ms
-                        'getUserByEmail') : Promise.resolve(null)
+                        withDatabaseTimeout(storage.getUserByStackAuthId(user.id), null, 2000, 'getUserByStackAuthId'),
+                        user.email ? withDatabaseTimeout(storage.getUserByEmail(user.email), null, 2000, 'getUserByEmail') : Promise.resolve(null)
                     ]);
                     if (byStackId) {
                         dbUser = byStackId;
                     }
                     else if (byEmail) {
                         console.log('🔗 Linking existing paid user to Stack Auth:', byEmail.email, '→', user.id);
-                        dbUser = await withDatabaseTimeout(storage.linkStackAuthId(byEmail.id, user.id), byEmail, // Use existing user as fallback if linking fails
-                        2500, // Reduced from 3000ms
-                        'linkStackAuthId');
+                        dbUser = await withDatabaseTimeout(storage.linkStackAuthId(byEmail.id, user.id), byEmail, 2500, 'linkStackAuthId');
                         console.log('✅ Successfully linked paid user to Stack Auth account');
                     }
                 }
                 if (!dbUser) {
-                    // Create completely new user (no prior payment) with timeout fallback
                     console.log('🆕 Creating new user account:', user.email);
-                    // Create a minimal user object as fallback
                     const fallbackUser = {
                         id: user.id,
+                        stackAuthId: user.id,
                         email: user.email || null,
-                        displayName: `${user.firstName || ''} ${user.lastName || ''}`.trim() || null,
                         firstName: user.firstName || null,
                         lastName: user.lastName || null,
+                        displayName: `${user.firstName || ''} ${user.lastName || ''}`.trim() || null,
                         profileImageUrl: null,
+                        createdAt: new Date(),
+                        updatedAt: new Date(),
+                        lastLoginAt: new Date(),
                         plan: 'sselfie-studio',
                         role: 'user',
                         monthlyGenerationLimit: 100,
                         mayaAiAccess: true,
                         victoriaAiAccess: false,
-                        onboardingProgress: JSON.stringify({ source: 'direct-signup' })
+                        onboardingProgress: JSON.stringify({ source: 'direct-signup' }),
+                        preferredOnboardingMode: 'conversational',
+                        stripeCustomerId: '',
+                        stripeSubscriptionId: '',
+                        generationsUsedThisMonth: 0,
+                        hasRetrainingAccess: false,
+                        retrainingSessionId: '',
+                        retrainingPaidAt: null,
+                        gender: '',
+                        profession: '',
+                        brandStyle: '',
+                        photoGoals: '',
+                        trainingCoachingStarted: false,
+                        trainingCoachingCompleted: false,
+                        trainingCoachingPhase: '',
+                        trainingCoachingStep: 0,
+                        brandStrategyContext: {},
                     };
-                    dbUser = await withDatabaseTimeout(storage.upsertUser(fallbackUser), fallbackUser, // Use fallback if DB operation times out
-                    3000, // Reduced from 4000ms
-                    'upsertUser');
-                    console.log('✅ Created new user account:', dbUser.id);
+                    dbUser = await withDatabaseTimeout(storage.upsertUser(fallbackUser), fallbackUser, 3000, 'upsertUser');
+                    if (dbUser) {
+                        console.log('✅ Created new user account:', dbUser.id);
+                    }
+                    else {
+                        console.log('✅ Created new user account: <null>');
+                    }
                 }
                 res.setHeader('Cache-Control', 'no-store');
                 t.end('ok');
@@ -887,11 +811,9 @@ export default async function handler(req, res) {
             catch (error) {
                 t.end('error', { error: error.message });
                 console.log('❌ /api/me failed:', error.message);
-                // Record circuit breaker failure for database-related errors
                 if (isTimeoutError(error) || error.message.includes('database')) {
                     recordCircuitBreakerFailure();
                 }
-                // Enhanced error handling for timeout scenarios
                 if (isTimeoutError(error)) {
                     const timeoutBody = {
                         message: 'Service temporarily unavailable, please try again',
@@ -901,31 +823,18 @@ export default async function handler(req, res) {
                     return res.status(503).json(timeoutBody);
                 }
                 const body = { message: 'Authentication required', error: error.message };
-                // Support both Node and Web-standard surfaces
-                if (typeof res.status === 'function') {
-                    return res.status(401).json(body);
-                }
-                else {
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    const NodeResponse = globalThis.Response;
-                    return new NodeResponse(JSON.stringify(body), { status: 401, headers: { 'content-type': 'application/json' } });
-                }
+                return res.status(401).json(body);
             }
         }
-        // Handle user model endpoint - CRITICAL for new user flow
         if (req.url?.includes('/api/user-model')) {
             const t = logStart('GET /api/user-model');
             try {
                 const user = await getAuthenticatedUser();
-                const { storage } = await import('../server/storage');
+                const { storage } = await import('../server/storage.js');
                 console.log('🔍 Getting model for user:', user.id, user.email);
-                // Get user from database to check training status with faster timeouts
-                let dbUser = await withDatabaseTimeoutAndRetry(() => storage.getUser(user.id), null, 2000, // Reduced from 3000ms
-                1, // 1 retry
-                'getUser');
+                let dbUser = await withDatabaseTimeoutAndRetry(() => storage.getUser(user.id), null, 2000, 1, 'getUser');
                 if (!dbUser && user.email) {
-                    dbUser = await withDatabaseTimeout(storage.getUserByEmail(user.email), null, 2000, // Reduced from 3000ms
-                    'getUserByEmail');
+                    dbUser = await withDatabaseTimeout(storage.getUserByEmail(user.email), null, 2000, 'getUserByEmail');
                 }
                 if (!dbUser) {
                     console.log('❌ No database user found for:', user.id);
@@ -934,26 +843,22 @@ export default async function handler(req, res) {
                         error: 'Database user not found'
                     });
                 }
-                // Check if user has a trained model with fallback and reduced timeout
                 let userModel = null;
                 try {
-                    userModel = await withDatabaseTimeout(storage.getUserModel(dbUser.id), null, // Fallback to null if timeout occurs
-                    3000, // Reduced from 4000ms
-                    'getUserModel');
+                    const result = await withDatabaseTimeout(storage.getUserModel(dbUser.id), null, 3000, 'getUserModel');
+                    userModel = result ?? null;
                 }
                 catch (error) {
                     console.log('📊 Model fetch failed or timed out for:', dbUser.id, error.message);
                     userModel = null;
                 }
-                // Determine training status based on actual data
                 let trainingStatus = 'not_started';
                 let needsTraining = true;
                 let canRetrain = false;
                 if (userModel) {
-                    // User has a model - check its status
                     trainingStatus = userModel.trainingStatus || 'not_started';
                     needsTraining = trainingStatus !== 'completed';
-                    canRetrain = true; // Users with models can retrain
+                    canRetrain = true;
                     console.log('📊 Existing user model found:', {
                         id: userModel.id,
                         status: trainingStatus,
@@ -962,15 +867,12 @@ export default async function handler(req, res) {
                     });
                 }
                 else {
-                    // New user - no model exists
                     console.log('🆕 New user detected - no model exists');
                     needsTraining = true;
                     canRetrain = false;
                 }
-                // Safely read onboarding source from jsonb or string
                 let onboardingSourceSafe = 'unknown';
                 try {
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     const op = dbUser.onboardingProgress;
                     if (op) {
                         const obj = typeof op === 'string' ? JSON.parse(op) : op;
@@ -978,7 +880,6 @@ export default async function handler(req, res) {
                     }
                 }
                 catch {
-                    // Ignore parsing errors
                 }
                 const modelStatus = {
                     id: userModel?.id || null,
@@ -989,12 +890,11 @@ export default async function handler(req, res) {
                     modelType: 'sselfie-studio',
                     createdAt: userModel?.createdAt || null,
                     updatedAt: userModel?.updatedAt || null,
-                    // User context for training decisions
                     userPlan: dbUser.plan,
                     hasActiveSubscription: (dbUser.monthlyGenerationLimit === -1 || (dbUser.monthlyGenerationLimit && dbUser.monthlyGenerationLimit > 0)),
                     onboardingSource: onboardingSourceSafe
                 };
-                console.log('📊 Returning REAL model status for new user flow:', {
+                console.log('📊 Returning model status:', {
                     trainingStatus,
                     needsTraining,
                     canRetrain,
@@ -1008,7 +908,6 @@ export default async function handler(req, res) {
             catch (error) {
                 const elapsed = t.end('error', { error: error.message });
                 console.log('❌ User model fetch failed:', error.message, { elapsedMs: elapsed });
-                // Enhanced error handling for timeout scenarios
                 if (isTimeoutError(error)) {
                     return json(res, 503, {
                         message: 'Service temporarily unavailable, please try again',
@@ -1022,7 +921,6 @@ export default async function handler(req, res) {
                 });
             }
         }
-        // Handle Maya video prompt endpoint
         if (req.url?.includes('/api/maya/get-video-prompt')) {
             const t = logStart('POST /api/maya/get-video-prompt');
             try {
@@ -1035,7 +933,6 @@ export default async function handler(req, res) {
                     return res.status(400).json({ error: 'Image URL is required' });
                 }
                 console.log('🎬 MAYA VIDEO DIRECTION: Creating motion prompt for user:', user.id);
-                // Maya's video director system prompt
                 const videoDirectorPrompt = `You are Maya, SSELFIE Studio's AI Creative Director and Video Director. 
 
 🎬 VIDEO DIRECTION MODE: You are analyzing the actual image provided to create the perfect motion prompt for VEO 3 video generation.
@@ -1064,12 +961,11 @@ MOTION PROMPT GUIDELINES:
 
 Analyze the image and respond with ONLY the motion prompt that perfectly captures and enhances what you see - no explanation, no additional text.`;
                 try {
-                    // Call Claude Vision API for real image analysis
                     const claudeResponse = await timedFetch('https://api.anthropic.com/v1/messages', 15000, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'x-api-key': process.env.ANTHROPIC_API_KEY || '',
+                            'x-api-key': process.env['ANTHROPIC_API_KEY'] || '',
                             'anthropic-version': '2023-06-01'
                         },
                         body: JSON.stringify({
@@ -1122,7 +1018,6 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
                     });
                 }
                 catch {
-                    // Fallback to a good default prompt
                     const fallbackPrompt = 'Gentle zoom in with soft natural lighting, creating an elegant and professional atmosphere.';
                     res.setHeader('Cache-Control', 'no-store');
                     t.end('fallback');
@@ -1142,13 +1037,11 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
                 });
             }
         }
-        // Handle Maya generate endpoint
         if (req.url?.includes('/api/maya/generate')) {
             console.log('🔍 Maya generate endpoint called:', req.url);
             try {
                 const user = await getAuthenticatedUser();
                 console.log('🔍 Maya generate for user:', user.id);
-                // Get request body
                 const body = req.body || {};
                 console.log('🔍 Maya generate request body:', JSON.stringify(body, null, 2));
                 const { prompt, conceptName, count = 2 } = body;
@@ -1157,8 +1050,7 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
                 if (!trimmedPrompt) {
                     return res.status(400).json({ error: 'Prompt is required' });
                 }
-                // Access gating: require trained model and plan access
-                const { storage } = await import('../server/storage');
+                const { storage } = await import('../server/storage.js');
                 const model = await storage.getUserModelByUserId(user.id);
                 if (!model || model.trainingStatus !== 'completed') {
                     return res.status(403).json({
@@ -1166,15 +1058,12 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
                         message: 'Please complete training first. Redirecting to training...'
                     });
                 }
-                // Import the generation service
-                const { ModelTrainingService } = await import('../server/model-training-service');
+                const { ModelTrainingService } = await import('../server/model-training-service.js');
                 console.log('🎨 Starting image generation for user:', user.id);
                 console.log('🎯 Prompt:', trimmedPrompt);
                 console.log('🎯 Count:', safeCount);
-                // Generate images using the ModelTrainingService
                 const generationResult = await ModelTrainingService.generateUserImages(user.id, trimmedPrompt, safeCount, { categoryContext: conceptName || 'Maya Generation' });
                 console.log('✅ Generation result:', generationResult);
-                // Create generation tracker for monitoring (reuse storage from gating import)
                 const tracker = await storage.createGenerationTracker({
                     userId: user.id,
                     predictionId: generationResult.predictionId,
@@ -1184,7 +1073,6 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
                     updatedAt: new Date()
                 });
                 console.log('📝 Created generation tracker:', tracker.id);
-                // Return the generation result with prediction ID for polling
                 res.setHeader('Cache-Control', 'no-store');
                 return res.status(200).json({
                     success: true,
@@ -1203,40 +1091,30 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
                 });
             }
         }
-        // Handle Maya generation status endpoint (for polling)
         if (req.url?.includes('/api/maya/status')) {
             console.log('🔍 Maya status endpoint called:', req.url);
             try {
                 await getAuthenticatedUser();
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const url = new globalThis.URL(req.url || '', `http://${req.headers.host}`);
                 const predictionId = url.searchParams.get('predictionId');
                 if (!predictionId) {
                     return res.status(400).json({ error: 'Prediction ID is required' });
                 }
-                // Import the generation service
-                const { ModelTrainingService } = await import('../server/model-training-service');
+                const { ModelTrainingService } = await import('../server/model-training-service.js');
                 console.log('🔍 Checking generation status for prediction:', predictionId);
-                // Check generation status
                 const statusResult = await ModelTrainingService.checkGenerationStatus(predictionId);
                 console.log('📊 Generation status result:', statusResult);
-                // If generation is completed, trigger the completion monitor
                 if (statusResult.status === 'succeeded' && statusResult.imageUrls && statusResult.imageUrls.length > 0) {
                     console.log('🎉 Generation completed! Triggering completion monitor...');
-                    // Import and trigger the generation completion monitor
-                    // const { GenerationCompletionMonitor } = await import('../server/generation-completion-monitor');
-                    // Find the generation tracker for this prediction
-                    const { storage } = await import('../server/storage');
+                    const { storage } = await import('../server/storage.js');
                     const tracker = await storage.getGenerationTrackerByPredictionId(predictionId);
                     if (tracker) {
                         console.log('📝 Found generation tracker:', tracker.id);
-                        // Update the tracker with completed images
                         await storage.updateGenerationTracker(tracker.id, {
                             status: 'completed',
                             imageUrls: JSON.stringify(statusResult.imageUrls),
                             updatedAt: new Date()
                         });
-                        // Save images to gallery
                         for (const imageUrl of statusResult.imageUrls) {
                             await storage.saveGeneratedImage({
                                 userId: tracker.userId,
@@ -1265,7 +1143,6 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
                 });
             }
         }
-        // Handle Maya chat endpoints
         if (req.url?.includes('/api/maya/chat') || req.url?.includes('/api/maya-chat') || req.url?.includes('/api/maya-generate')) {
             const t = logStart('POST /api/maya/chat');
             if (req.method !== 'POST') {
@@ -1274,31 +1151,26 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
             try {
                 const user = await getAuthenticatedUser();
                 console.log('🔍 Maya chat for user:', user.id, user.email);
-                // Get request body
                 const body = req.body || {};
                 console.log('🔍 Maya chat request body:', JSON.stringify(body, null, 2));
-                // Real Maya response with Google Gemini AI
                 const { message, context = 'styling', conversationHistory = [] } = body;
                 if (!message) {
                     return res.status(400).json({ error: 'Message is required' });
                 }
-                // Connect to REAL Maya system using Claude API with timeout protection
                 let mayaResponse = '';
                 let conceptCards = [];
                 try {
-                    // Use the real Maya personality system
-                    const { PersonalityManager } = await import('../server/agents/personalities/personality-config');
+                    const { PersonalityManager } = await import('../server/agents/personalities/personality-config.js');
                     const baseMayaPersonality = PersonalityManager.getNaturalPrompt('maya');
                     const structuredOutputInstruction = `\n\nSTRICT OUTPUT FORMAT:\nReturn EXACTLY 3 concepts separated by a line with three dashes (---).\nFor each concept, output 3 lines only:\n1) An emoji followed by a space and a bold title: "+emoji+ **TITLE**"\n2) One sentence description\n3) A line starting with "FLUX_PROMPT:" followed by a single line image generation prompt.\nDo not add any extra text before or after the three concepts.`;
                     const systemPrompt = `${baseMayaPersonality}${structuredOutputInstruction}`;
                     console.log('🎨 MAYA: Using real personality system with Claude API');
-                    // Call Claude API with Maya's real personality using enhanced timeout
                     const claudeResponse = await withExternalApiTimeout(async () => {
                         return timedFetch('https://api.anthropic.com/v1/messages', 12000, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
-                                'x-api-key': process.env.ANTHROPIC_API_KEY || '',
+                                'x-api-key': process.env['ANTHROPIC_API_KEY'] || '',
                                 'anthropic-version': '2023-06-01'
                             },
                             body: JSON.stringify({
@@ -1317,19 +1189,12 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
                                 ]
                             })
                         });
-                    }, null, // No fallback response from this level
-                    12000, // Reduced from 15s to 12s timeout
-                    0, // No retries for chat to keep it fast
-                    'claude-api-maya-chat');
+                    }, null, 12000, 0, 'claude-api-maya-chat');
                     if (claudeResponse && claudeResponse.ok) {
                         const data = await claudeResponse.json();
                         mayaResponse = data.content[0].text;
-                        // Extract concept cards from Maya's response
                         conceptCards = extractConceptCards(mayaResponse);
-                        // Apply gender context to concept cards with timeout
-                        conceptCards = await withDatabaseTimeout(applyGenderContext(conceptCards, user.id), conceptCards, // Fallback to original cards if timeout
-                        2500, // Reduced from 3000ms
-                        'applyGenderContext');
+                        conceptCards = await withDatabaseTimeout(applyGenderContext(conceptCards, user.id), conceptCards, 2500, 'applyGenderContext');
                         console.log('✅ MAYA: Generated response with', conceptCards.length, 'concept cards using Claude API');
                     }
                     else {
@@ -1338,7 +1203,6 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
                 }
                 catch (claudeError) {
                     console.log('❌ MAYA: Claude API failed:', claudeError.message);
-                    // Fallback to creative storytelling concepts aligned with Maya's signature looks
                     mayaResponse = `I understand you're looking for styling concepts! Let me create some personalized photo concepts that tell your unique brand story.
 
 Here are 3 concept cards inspired by my signature editorial looks:
@@ -1387,9 +1251,7 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
                             emoji: '🎬'
                         }
                     ];
-                    // Apply gender context to fallback concept cards with timeout
-                    conceptCards = await withDatabaseTimeout(applyGenderContext(conceptCards, user.id), conceptCards, // Fallback to original cards if timeout
-                    2000, 'applyGenderContext-fallback');
+                    conceptCards = await withDatabaseTimeout(applyGenderContext(conceptCards, user.id), conceptCards, 2000, 'applyGenderContext-fallback');
                 }
                 const response = {
                     id: `maya_${Date.now()}`,
@@ -1400,10 +1262,8 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
                     timestamp: new Date().toISOString(),
                     context: context
                 };
-                // Persist conversation and messages + concept cards for continuity with timeout
-                // This is non-critical, so if it times out we'll still return the response
                 withDatabaseTimeout((async () => {
-                    const { storage } = await import('../server/storage');
+                    const { storage } = await import('../server/storage.js');
                     const existingConvs = await storage.getUserConversations(user.id, 'maya');
                     const conversationId = (existingConvs && existingConvs[0]?.id) || (await storage.createConversation({ userId: user.id, agentName: 'maya', title: 'Maya Chat', status: 'active' })).id;
                     await storage.createMessage({ conversationId, role: 'user', content: message, tokenCount: 0 });
@@ -1426,8 +1286,7 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
                             generatedImages: {},
                         });
                     }
-                })(), null, // No fallback needed for persistence
-                5000, 'maya-conversation-persistence').catch((persistError) => {
+                })(), null, 5000, 'maya-conversation-persistence').catch((persistError) => {
                     console.log('⚠️ Maya persistence failed (non-critical):', persistError.message);
                 });
                 console.log('📊 Returning Maya response:', JSON.stringify(response, null, 2));
@@ -1438,7 +1297,6 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
             catch (error) {
                 t.end('error', { error: error.message });
                 console.log('❌ Maya chat failed:', error.message);
-                // Enhanced error handling for timeout scenarios
                 if (isTimeoutError(error)) {
                     return res.status(503).json({
                         message: 'Maya is temporarily unavailable, please try again',
@@ -1452,20 +1310,18 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
                 });
             }
         }
-        // Handle Maya chats list endpoint
         if (req.url?.includes('/api/maya-chats')) {
             console.log('🔍 Maya chats list endpoint called');
             try {
                 const user = await getAuthenticatedUser();
                 console.log('🔍 Getting Maya chats for user:', user.id);
-                // Mock list of Maya chats
                 const chats = [
                     {
                         id: `chat_1_${user.id}`,
                         userId: user.id,
                         title: 'Professional Headshots',
                         lastMessage: 'I\'ve generated some professional headshot concepts for you.',
-                        createdAt: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
+                        createdAt: new Date(Date.now() - 86400000).toISOString(),
                         updatedAt: new Date().toISOString()
                     },
                     {
@@ -1473,8 +1329,8 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
                         userId: user.id,
                         title: 'Creative Portraits',
                         lastMessage: 'Here are some creative portrait ideas to explore.',
-                        createdAt: new Date(Date.now() - 172800000).toISOString(), // 2 days ago
-                        updatedAt: new Date(Date.now() - 3600000).toISOString() // 1 hour ago
+                        createdAt: new Date(Date.now() - 172800000).toISOString(),
+                        updatedAt: new Date(Date.now() - 3600000).toISOString()
                     }
                 ];
                 console.log('📊 Returning Maya chats:', chats.length, 'chats');
@@ -1489,11 +1345,10 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
                 });
             }
         }
-        // Training status for authenticated user (polled by frontend during training)
         if (req.url === '/api/training/status' || req.url?.startsWith('/api/training/status?')) {
             try {
                 const user = await getAuthenticatedUser();
-                const { storage } = await import('../server/storage');
+                const { storage } = await import('../server/storage.js');
                 const model = await storage.getUserModelByUserId(user.id);
                 const status = model?.trainingStatus || 'not_started';
                 const progress = model?.trainingProgress || (status === 'completed' ? 100 : 0);
@@ -1505,15 +1360,10 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
                 return res.status(401).json({ error: 'Authentication required', message: error.message });
             }
         }
-        // Alias: support legacy hyphen path /api/training-status
         if (req.url === '/api/training-status' || req.url?.startsWith('/api/training-status?')) {
-            // Delegate to the canonical handler
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             req.url = '/api/training/status';
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             return handler(req, res);
         }
-        // Training progress endpoint used by simple-training.tsx
         if (req.url?.startsWith('/api/training-progress/')) {
             try {
                 const user = await getAuthenticatedUser();
@@ -1521,7 +1371,7 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
                 if (user.id !== targetUserId) {
                     return res.status(403).json({ error: 'Forbidden' });
                 }
-                const { storage } = await import('../server/storage');
+                const { storage } = await import('../server/storage.js');
                 const model = await storage.getUserModelByUserId(targetUserId);
                 const progress = model?.trainingProgress || (model?.trainingStatus === 'completed' ? 100 : 0);
                 return res.status(200).json({ progress });
@@ -1530,10 +1380,9 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
                 return res.status(401).json({ error: 'Authentication required' });
             }
         }
-        // Cron: training completion monitor (to be scheduled in Vercel Cron)
         if (req.url === '/api/cron/training-completion-monitor') {
             try {
-                const { TrainingCompletionMonitor } = await import('../server/training-completion-monitor');
+                const { TrainingCompletionMonitor } = await import('../server/training-completion-monitor.js');
                 await TrainingCompletionMonitor.checkAllInProgressTrainings();
                 return res.status(200).json({ ok: true });
             }
@@ -1541,10 +1390,9 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
                 return res.status(500).json({ ok: false, error: error.message });
             }
         }
-        // Cron: generation completion monitor (to be scheduled in Vercel Cron)
         if (req.url === '/api/cron/generation-completion-monitor') {
             try {
-                const { GenerationCompletionMonitor } = await import('../server/generation-completion-monitor');
+                const { GenerationCompletionMonitor } = await import('../server/generation-completion-monitor.js');
                 const monitor = new GenerationCompletionMonitor();
                 await monitor.checkAllInProgressGenerations();
                 return res.status(200).json({ ok: true });
@@ -1553,24 +1401,39 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
                 return res.status(500).json({ ok: false, error: error.message });
             }
         }
-        // Handle gallery images endpoint
-        if (req.url === '/api/gallery' || req.url?.startsWith('/api/gallery?')) {
-            const t = logStart('GET /api/gallery');
+        if (req.url === '/api/gallery' || req.url?.startsWith('/api/gallery?') || req.url === '/api/gallery-images' || req.url?.startsWith('/api/gallery-images?')) {
+            const t = logStart('GET /api/gallery-images');
             try {
+                if (!checkCircuitBreaker()) {
+                    console.warn('⚠️ Circuit breaker open for gallery-images');
+                    return res.status(503).json({
+                        images: [],
+                        total: 0,
+                        message: 'Service temporarily unavailable',
+                        code: 'CIRCUIT_BREAKER_OPEN'
+                    });
+                }
                 const user = await getAuthenticatedUser();
                 console.log('🔍 Getting gallery images for user:', user.id, user.email);
-                // Import storage service to fetch real images
-                const { storage } = await import('../server/storage');
-                // Fetch images from both tables
+                const { storage } = await import('../server/storage.js');
                 const [aiImages, generatedImages] = await Promise.all([
-                    withTimeout(storage.getAIImages(user.id), 5000, 'getAIImages'),
-                    withTimeout(storage.getGeneratedImages(user.id), 5000, 'getGeneratedImages')
+                    withTimeout(storage.getAIImages(user.id), 2500, 'getAIImages').catch(err => {
+                        console.warn('⚠️ AI images fetch failed:', err.message);
+                        recordCircuitBreakerFailure();
+                        return [];
+                    }),
+                    withTimeout(storage.getGeneratedImages(user.id), 2500, 'getGeneratedImages').catch(err => {
+                        console.warn('⚠️ Generated images fetch failed:', err.message);
+                        recordCircuitBreakerFailure();
+                        return [];
+                    })
                 ]);
+                if (aiImages.length > 0 || generatedImages.length > 0) {
+                    recordCircuitBreakerSuccess();
+                }
                 console.log('📊 Found AI images:', aiImages.length);
                 console.log('📊 Found generated images:', generatedImages.length);
-                // Combine and format images for gallery
                 const galleryImages = [
-                    // Format AI images (legacy table)
                     ...aiImages.map(img => ({
                         id: img.id.toString(),
                         userId: img.userId,
@@ -1581,7 +1444,6 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
                         createdAt: (img.createdAt || new Date()).toISOString(),
                         tags: img.style ? [img.style] : ['ai-generated']
                     })),
-                    // Format generated images (new table)
                     ...generatedImages.map(img => ({
                         id: `gen_${img.id}`,
                         userId: img.userId,
@@ -1593,23 +1455,21 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
                         tags: [img.category || 'generated']
                     }))
                 ];
-                // Sort by creation date (newest first)
                 galleryImages.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
                 console.log('📊 Returning gallery images:', galleryImages.length, 'total images');
                 res.setHeader('Cache-Control', 'no-store');
                 t.end('ok', { count: galleryImages.length });
-                return json(res, 200, galleryImages);
+                return res.status(200).json(galleryImages);
             }
             catch (error) {
                 t.end('error', { error: error.message });
                 console.log('❌ Gallery fetch failed:', error.message);
-                return json(res, 500, {
+                return res.status(500).json({
                     message: 'Failed to fetch gallery images',
                     error: error.message
                 });
             }
         }
-        // Handle user gender update endpoint
         if (req.url === '/api/user/update-gender') {
             if (req.method !== 'POST') {
                 return res.status(405).json({ error: 'Method not allowed' });
@@ -1623,8 +1483,7 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
                 if (!['man', 'woman', 'female', 'male', 'non-binary', 'other'].includes(gender.toLowerCase())) {
                     return res.status(400).json({ error: 'Invalid gender value' });
                 }
-                // Update user gender in database
-                const { storage } = await import('../server/storage');
+                const { storage } = await import('../server/storage.js');
                 await storage.updateUserProfile(user.id, { gender });
                 console.log(`✅ Updated gender for user ${user.id}: ${gender}`);
                 res.setHeader('Cache-Control', 'no-store');
@@ -1641,90 +1500,10 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
                 });
             }
         }
-        // Handle gallery-images endpoint (alternative)
-        if (req.url === '/api/gallery-images' || req.url?.startsWith('/api/gallery-images?')) {
-            const t = logStart('GET /api/gallery-images');
-            try {
-                // Check circuit breaker before database operations
-                if (!checkCircuitBreaker()) {
-                    console.warn('⚠️ Circuit breaker open for gallery-images');
-                    return res.status(503).json({
-                        images: [],
-                        total: 0,
-                        message: 'Service temporarily unavailable',
-                        code: 'CIRCUIT_BREAKER_OPEN'
-                    });
-                }
-                const user = await getAuthenticatedUser();
-                console.log('🔍 Getting gallery images for user:', user.id, user.email);
-                // Import storage service to fetch real images
-                const { storage } = await import('../server/storage');
-                // OPTIMIZED: Reduced timeout and better error handling
-                const [aiImages, generatedImages] = await Promise.all([
-                    withTimeout(storage.getAIImages(user.id), 2500, 'getAIImages').catch(err => {
-                        console.warn('⚠️ AI images fetch failed:', err.message);
-                        recordCircuitBreakerFailure();
-                        return [];
-                    }),
-                    withTimeout(storage.getGeneratedImages(user.id), 2500, 'getGeneratedImages').catch(err => {
-                        console.warn('⚠️ Generated images fetch failed:', err.message);
-                        recordCircuitBreakerFailure();
-                        return [];
-                    })
-                ]);
-                // Record success if we got data
-                if (aiImages.length > 0 || generatedImages.length > 0) {
-                    recordCircuitBreakerSuccess();
-                }
-                console.log('📊 Found AI images:', aiImages.length);
-                console.log('📊 Found generated images:', generatedImages.length);
-                // Combine and format images for gallery
-                const galleryImages = [
-                    // Format AI images (legacy table)
-                    ...aiImages.map(img => ({
-                        id: img.id.toString(),
-                        userId: img.userId,
-                        type: 'ai_generated',
-                        title: img.style || 'AI Generated Image',
-                        description: img.prompt || 'AI-generated image',
-                        imageUrl: img.imageUrl,
-                        createdAt: (img.createdAt || new Date()).toISOString(),
-                        tags: img.style ? [img.style] : ['ai-generated']
-                    })),
-                    // Format generated images (new table)
-                    ...generatedImages.map(img => ({
-                        id: `gen_${img.id}`,
-                        userId: img.userId,
-                        type: 'generated',
-                        title: 'Generated Image',
-                        description: img.prompt || 'Generated image',
-                        imageUrl: img.selectedUrl || (img.imageUrls ? JSON.parse(img.imageUrls)[0] : null),
-                        createdAt: (img.createdAt || new Date()).toISOString(),
-                        tags: [img.category || 'generated']
-                    }))
-                ];
-                // Sort by creation date (newest first)
-                galleryImages.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-                console.log('📊 Returning gallery-images:', galleryImages.length, 'total images');
-                res.setHeader('Cache-Control', 'no-store');
-                t.end('ok', { count: galleryImages.length });
-                return res.status(200).json(galleryImages);
-            }
-            catch (error) {
-                t.end('error', { error: error.message });
-                console.log('❌ Gallery-images fetch failed:', error.message);
-                return res.status(500).json({
-                    message: 'Failed to fetch gallery images',
-                    error: error.message
-                });
-            }
-        }
-        // Test database connection endpoint
         if (req.url === '/api/test-db') {
             try {
-                const { storage } = await import('../server/storage');
+                const { storage } = await import('../server/storage.js');
                 const user = await getAuthenticatedUser();
-                // Test basic database operations
                 const dbUser = await storage.getUser(user.id);
                 const aiImages = await storage.getAIImages(user.id);
                 const generatedImages = await storage.getGeneratedImages(user.id);
@@ -1751,11 +1530,10 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
                 });
             }
         }
-        // Favorites: list favorite image ids for current user
         if (req.url === '/api/images/favorites' || req.url?.startsWith('/api/images/favorites?')) {
             try {
                 const user = await getAuthenticatedUser();
-                const { storage } = await import('../server/storage');
+                const { storage } = await import('../server/storage.js');
                 const ai = await withTimeout(storage.getAIImages(user.id), 5000, 'getAIImages');
                 const favIds = ai
                     .filter((img) => Boolean(img.isFavorite || img.isSelected))
@@ -1767,22 +1545,18 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
                 return res.status(200).json({ favorites: [] });
             }
         }
-        // Favorites: toggle favorite for an image by id
         if (req.url?.startsWith('/api/images/') && req.url?.endsWith('/favorite')) {
             if (req.method !== 'POST')
                 return res.status(405).json({ error: 'Method not allowed' });
             try {
                 const user = await getAuthenticatedUser();
-                // Parse image id from URL: /api/images/:id/favorite
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const url = new globalThis.URL(req.url || '', `http://${req.headers.host}`);
                 const parts = url.pathname.split('/');
                 const idStr = parts[3];
                 const imageId = parseInt(idStr, 10);
                 if (!imageId || Number.isNaN(imageId))
                     return res.status(400).json({ error: 'Invalid image id' });
-                const { storage } = await import('../server/storage');
-                // Fetch image to read current favorite state (from legacy ai_images)
+                const { storage } = await import('../server/storage.js');
                 const img = await withTimeout(storage.getAIImage(user.id, imageId), 4000, 'getAIImage');
                 const next = !(img?.isFavorite ?? false);
                 await withTimeout(storage.updateAIImage(imageId, { isFavorite: next }), 4000, 'updateAIImage');
@@ -1793,18 +1567,16 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
                 return res.status(500).json({ error: 'Failed to toggle favorite', message: error.message });
             }
         }
-        // Delete legacy AI image
         if (req.method === 'DELETE' && req.url?.startsWith('/api/ai-images/')) {
             try {
                 const user = await getAuthenticatedUser();
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const url = new globalThis.URL(req.url || '', `http://${req.headers.host}`);
                 const parts = url.pathname.split('/');
                 const idStr = parts[3];
                 const imageId = parseInt(idStr, 10);
                 if (!imageId || Number.isNaN(imageId))
                     return res.status(400).json({ error: 'Invalid image id' });
-                const { storage } = await import('../server/storage');
+                const { storage } = await import('../server/storage.js');
                 const ok = await storage.deleteAIImage(user.id, imageId);
                 res.setHeader('Cache-Control', 'no-store');
                 return res.status(200).json({ ok, id: imageId });
@@ -1813,7 +1585,6 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
                 return res.status(500).json({ error: 'Failed to delete image', message: error.message });
             }
         }
-        // Default response
         return res.status(200).json({
             message: 'SSELFIE Studio API',
             endpoint: req.url
@@ -1822,16 +1593,16 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
     catch (error) {
         console.error('❌ API Handler Error:', error);
         const body = { error: 'Internal server error', message: error.message };
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         if (typeof res.status === 'function') {
             return res.status(500).json(body);
         }
         else {
-            // @ts-ignore
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const NodeResponse = globalThis.Response;
-            // @ts-ignore
-            return new NodeResponse(JSON.stringify(body), { status: 500, headers: { 'content-type': 'application/json' } });
+            return new NodeResponse(JSON.stringify(body), {
+                status: 500,
+                headers: { 'content-type': 'application/json' }
+            });
         }
     }
 }
+//# sourceMappingURL=index.js.map

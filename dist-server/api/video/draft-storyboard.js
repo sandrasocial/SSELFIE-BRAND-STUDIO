@@ -1,4 +1,11 @@
-import { GoogleGenAI, Type } from '@google/genai';
+import { GoogleGenAI } from '@google/genai';
+var Type;
+(function (Type) {
+    Type["OBJECT"] = "object";
+    Type["ARRAY"] = "array";
+    Type["INTEGER"] = "integer";
+    Type["STRING"] = "string";
+})(Type || (Type = {}));
 const ai = process.env.GOOGLE_API_KEY
     ? new GoogleGenAI({ apiKey: process.env.GOOGLE_API_KEY })
     : null;
@@ -43,3 +50,4 @@ export default async function handler(req, res) {
         res.status(500).json({ error: 'Failed to draft storyboard' });
     }
 }
+//# sourceMappingURL=draft-storyboard.js.map

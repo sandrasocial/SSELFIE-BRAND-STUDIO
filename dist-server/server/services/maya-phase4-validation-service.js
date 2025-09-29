@@ -1,31 +1,20 @@
-/**
- * ✨ PHASE 4.4: COMPREHENSIVE SYSTEM VALIDATION
- * Maya Phase 4 Validation Service - Complete system verification and performance monitoring
- */
-import { MayaMemoryEnhancementService } from './maya-memory-enhancement-service';
+import { MayaMemoryEnhancementService } from './maya-memory-enhancement-service.js';
 export class MayaPhase4ValidationService {
-    /**
-     * ✨ PHASE 4.4: Complete system validation
-     */
     static async validatePhase4Implementation() {
         console.log('🔍 PHASE 4.4: Starting comprehensive system validation...');
         const validationStart = Date.now();
         try {
-            // Validate each Phase 4 component
             const optimizationValidation = await this.validateOptimizationService();
             const fluxValidation = await this.validateFluxParameters();
             const memoryValidation = await this.validateMemorySystem();
             const integrationValidation = await this.validateSystemIntegration();
-            // Calculate performance metrics
             const performanceMetrics = await this.calculatePerformanceMetrics();
-            // Determine overall health
             const overallStatus = this.determineOverallStatus([
                 optimizationValidation,
                 fluxValidation,
                 memoryValidation,
                 integrationValidation
             ]);
-            // Generate recommendations
             const recommendations = this.generateRecommendations([
                 optimizationValidation,
                 fluxValidation,
@@ -70,13 +59,9 @@ export class MayaPhase4ValidationService {
             };
         }
     }
-    /**
-     * Validate Phase 4.1: Optimization Service
-     */
     static async validateOptimizationService() {
         try {
             console.log('🔍 PHASE 4.4: Validating optimization service...');
-            // MAYA FAÇADE: Test optimization service via health check
             try {
                 const response = await fetch('http://localhost:5000/api/maya/health');
                 const healthData = await response.json();
@@ -95,7 +80,6 @@ export class MayaPhase4ValidationService {
                     message: `Optimization health check failed: ${healthErr}`
                 };
             }
-            // Test single API call architecture
             const testConfig = {
                 includeEmbeddedPrompts: true,
                 includeConceptGeneration: true,
@@ -103,7 +87,6 @@ export class MayaPhase4ValidationService {
                 maxConcepts: 3
             };
             const startTime = Date.now();
-            // MAYA FAÇADE: Test concept generation via façade API
             const testResponse = await fetch('http://localhost:5000/api/maya/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -115,7 +98,6 @@ export class MayaPhase4ValidationService {
             });
             const testResult = await testResponse.json();
             const optimizationTime = Date.now() - startTime;
-            // Validate façade API response
             if (!testResponse.ok) {
                 return {
                     phase: '4.1',
@@ -152,13 +134,9 @@ export class MayaPhase4ValidationService {
             };
         }
     }
-    /**
-     * Validate Phase 4.2: FLUX Parameters
-     */
     static async validateFluxParameters() {
         try {
             console.log('🔍 PHASE 4.4: Validating FLUX parameters...');
-            // MAYA FAÇADE: Standard validation - Maya's personality via API only
             const mayaPersonality = {
                 fluxOptimization: {
                     closeUpPortrait: { guidance_scale: 3.5 },
@@ -173,7 +151,6 @@ export class MayaPhase4ValidationService {
                     message: 'FLUX optimization configuration not found'
                 };
             }
-            // Validate required optimization types
             const requiredOptimizations = [
                 'closeUpPortrait',
                 'halfBodyShot',
@@ -188,7 +165,6 @@ export class MayaPhase4ValidationService {
                     message: `Missing FLUX optimizations: ${missingOptimizations.join(', ')}`
                 };
             }
-            // Validate parameter ranges
             const parameterValidation = this.validateFluxParameterRanges(fluxConfig);
             if (!parameterValidation.valid) {
                 return {
@@ -198,7 +174,6 @@ export class MayaPhase4ValidationService {
                     details: parameterValidation.issues
                 };
             }
-            // Validate intelligent selection
             if (!fluxConfig.intelligentSelection) {
                 return {
                     phase: '4.2',
@@ -225,13 +200,9 @@ export class MayaPhase4ValidationService {
             };
         }
     }
-    /**
-     * Validate Phase 4.3: Memory System
-     */
     static async validateMemorySystem() {
         try {
             console.log('🔍 PHASE 4.4: Validating memory system...');
-            // MAYA FAÇADE: Memory system stub (since actual service may be internal)
             const memoryStats = {
                 enhancedFields: [
                     'contemporaryPreferences',
@@ -244,7 +215,6 @@ export class MayaPhase4ValidationService {
                 version: '1.0.0',
                 capabilities: ['analysis', 'enhancement', 'pattern-detection']
             };
-            // Simulated health endpoint check
             try {
                 const response = await fetch('http://localhost:5000/api/maya/health');
                 const healthData = await response.json();
@@ -257,10 +227,8 @@ export class MayaPhase4ValidationService {
                 }
             }
             catch (healthErr) {
-                // Non-fatal: treat as warning if health endpoint unavailable
                 console.warn('Memory health endpoint unavailable:', healthErr);
             }
-            // Validate enhanced field availability
             const requiredFields = [
                 'contemporaryPreferences',
                 'trendAlignment',
@@ -277,7 +245,6 @@ export class MayaPhase4ValidationService {
                     message: `Missing enhanced fields: ${missingFields.join(', ')}`
                 };
             }
-            // Test memory initialization (dry run)
             try {
                 const testAnalysis = await MayaMemoryEnhancementService.analyzeContemporaryPreferences('test-user', [
                     { description: 'elegant business blazer', category: 'Business' },
@@ -317,13 +284,9 @@ export class MayaPhase4ValidationService {
             };
         }
     }
-    /**
-     * Validate Phase 4.4: System Integration
-     */
     static async validateSystemIntegration() {
         try {
             console.log('🔍 PHASE 4.4: Validating system integration...');
-            // Test integration between optimization and FLUX parameters
             const integrationTest1 = await this.testOptimizationFluxIntegration();
             if (!integrationTest1.success) {
                 return {
@@ -333,7 +296,6 @@ export class MayaPhase4ValidationService {
                     details: integrationTest1.issues
                 };
             }
-            // Test memory and personalization integration
             const integrationTest2 = await this.testMemoryPersonalizationIntegration();
             if (!integrationTest2.success) {
                 return {
@@ -361,18 +323,13 @@ export class MayaPhase4ValidationService {
             };
         }
     }
-    /**
-     * Validate FLUX parameter ranges
-     */
     static validateFluxParameterRanges(fluxConfig) {
         const issues = [];
-        // Check guidance_scale ranges (should be 1.0-10.0)
         Object.keys(fluxConfig).forEach(key => {
             const config = fluxConfig[key];
             if (config.guidance_scale && (config.guidance_scale < 1.0 || config.guidance_scale > 10.0)) {
                 issues.push(`${key}: guidance_scale ${config.guidance_scale} outside recommended range (1.0-10.0)`);
             }
-            // Check num_inference_steps ranges (should be 20-60)
             if (config.num_inference_steps && (config.num_inference_steps < 20 || config.num_inference_steps > 60)) {
                 issues.push(`${key}: num_inference_steps ${config.num_inference_steps} outside recommended range (20-60)`);
             }
@@ -382,14 +339,10 @@ export class MayaPhase4ValidationService {
             issues
         };
     }
-    /**
-     * Test optimization-FLUX integration
-     */
     static async testOptimizationFluxIntegration() {
         const issues = [];
         try {
-            // MAYA FAÇADE: Standard validation - Maya's personality via API only  
-            const optimizationStats = { isActive: true }; // MayaOptimizationService.getOptimizationStats();
+            const optimizationStats = { isActive: true };
             const mayaPersonality = { fluxOptimization: { closeUpPortrait: { guidance_scale: 3.5 } } };
             if (!optimizationStats || !mayaPersonality.fluxOptimization) {
                 issues.push('Optimization service cannot access FLUX parameters');
@@ -403,13 +356,9 @@ export class MayaPhase4ValidationService {
             issues
         };
     }
-    /**
-     * Test memory-personalization integration
-     */
     static async testMemoryPersonalizationIntegration() {
         const issues = [];
         try {
-            // Test if memory service integrates with personalization
             const memoryStats = MayaMemoryEnhancementService.getMemoryStats();
             if (!memoryStats.enhancedFields.includes('personalityAdaptation')) {
                 issues.push('Memory system missing personality adaptation fields');
@@ -423,18 +372,11 @@ export class MayaPhase4ValidationService {
             issues
         };
     }
-    /**
-     * Calculate performance metrics
-     */
     static async calculatePerformanceMetrics() {
         try {
-            // Calculate API call reduction (estimated)
-            const apiCallReduction = 65; // Phase 4.1 optimizations
-            // Calculate memory enhancement (estimated)
-            const memoryEnhancement = 85; // Phase 4.3 enhancements
-            // Calculate FLUX optimization (estimated)
-            const fluxOptimization = 75; // Phase 4.2 improvements
-            // Overall improvement calculation
+            const apiCallReduction = 65;
+            const memoryEnhancement = 85;
+            const fluxOptimization = 75;
             const overallImprovement = Math.round((apiCallReduction + memoryEnhancement + fluxOptimization) / 3);
             return {
                 apiCallReduction,
@@ -453,9 +395,6 @@ export class MayaPhase4ValidationService {
             };
         }
     }
-    /**
-     * Determine overall system status
-     */
     static determineOverallStatus(validations) {
         const failures = validations.filter(v => v.status === 'FAIL');
         const warnings = validations.filter(v => v.status === 'WARNING');
@@ -467,9 +406,6 @@ export class MayaPhase4ValidationService {
         }
         return 'HEALTHY';
     }
-    /**
-     * Generate recommendations based on validation results
-     */
     static generateRecommendations(validations) {
         const recommendations = [];
         validations.forEach(validation => {
@@ -487,15 +423,10 @@ export class MayaPhase4ValidationService {
         }
         return recommendations;
     }
-    /**
-     * Quick health check for monitoring
-     */
     static async quickHealthCheck() {
         try {
-            // Quick validation of critical systems
-            // MAYA FAÇADE: Standard validation - Maya's personality via API only
-            const optimizationStats = { isActive: true }; // MayaOptimizationService.getOptimizationStats();
-            const memoryStats = { isActive: true }; // MayaMemoryEnhancementService.getMemoryStats();
+            const optimizationStats = { isActive: true };
+            const memoryStats = { isActive: true };
             const mayaPersonality = { fluxOptimization: { closeUpPortrait: { guidance_scale: 3.5 } } };
             return !!(optimizationStats && memoryStats && mayaPersonality.fluxOptimization);
         }
@@ -504,9 +435,6 @@ export class MayaPhase4ValidationService {
             return false;
         }
     }
-    /**
-     * Get validation service status
-     */
     static getValidationStats() {
         return {
             phase: 'Phase 4.4',
@@ -522,3 +450,4 @@ export class MayaPhase4ValidationService {
         };
     }
 }
+//# sourceMappingURL=maya-phase4-validation-service.js.map

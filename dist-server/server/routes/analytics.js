@@ -1,16 +1,11 @@
-/**
- * Analytics Routes
- * Handles Stage Mode event tracking and analytics
- */
 import { Router } from 'express';
 import { eq, sql, desc, and } from 'drizzle-orm';
-import { db } from '../db';
-import { liveEvents, liveSessions } from '../../shared/schema';
-import { Logger } from '../utils/logger';
+import { db } from '../db.js';
+import { liveEvents, liveSessions } from '../../shared/schema.js';
+import { Logger } from '../utils/logger.js';
 import { z } from 'zod';
 const router = Router();
 const logger = new Logger('AnalyticsRoutes');
-// Event validation schema
 const trackEventSchema = z.object({
     sessionId: z.string().uuid('Invalid session ID'),
     type: z.enum(['qr_view', 'cta_click', 'signup_success', 'reaction', 'state_change', 'session_join', 'session_leave']),
@@ -21,13 +16,8 @@ const trackEventSchema = z.object({
     utm_content: z.string().optional(),
     utm_term: z.string().optional(),
 });
-/**
- * POST /api/analytics/event
- * Track analytics events for Stage Mode sessions
- */
 router.post('/event', async (req, res) => {
     try {
-        // Validate request body
         const validationResult = trackEventSchema.safeParse(req.body);
         if (!validationResult.success) {
             return res.status(400).json({
@@ -40,7 +30,6 @@ router.post('/event', async (req, res) => {
             });
         }
         const { sessionId, type, meta = {}, ...utmParams } = validationResult.data;
-        // Verify session exists
         const sessionExists = await db
             .select({ id: liveSessions.id })
             .from(liveSessions)
@@ -52,10 +41,8 @@ router.post('/event', async (req, res) => {
                 error: { message: 'Session not found', code: 'SESSION_NOT_FOUND' }
             });
         }
-        // Extract client information
         const userAgent = req.get('User-Agent') || undefined;
         const ipAddress = req.ip || req.connection.remoteAddress || undefined;
-        // Create event record
         const eventData = {
             sessionId,
             eventType: type,
@@ -89,10 +76,6 @@ router.post('/event', async (req, res) => {
         });
     }
 });
-/**
- * GET /api/analytics/session/:sessionId
- * Get analytics summary for a session
- */
 router.get('/session/:sessionId', async (req, res) => {
     try {
         const { sessionId } = req.params;
@@ -102,7 +85,6 @@ router.get('/session/:sessionId', async (req, res) => {
                 error: { message: 'Session ID is required', code: 'VALIDATION_ERROR' }
             });
         }
-        // Verify session exists
         const session = await db
             .select()
             .from(liveSessions)
@@ -114,7 +96,6 @@ router.get('/session/:sessionId', async (req, res) => {
                 error: { message: 'Session not found', code: 'SESSION_NOT_FOUND' }
             });
         }
-        // Get event counts by type
         const eventCounts = await db
             .select({
             eventType: liveEvents.eventType,
@@ -123,7 +104,6 @@ router.get('/session/:sessionId', async (req, res) => {
             .from(liveEvents)
             .where(eq(liveEvents.sessionId, sessionId))
             .groupBy(liveEvents.eventType);
-        // Get recent events
         const recentEvents = await db
             .select({
             id: liveEvents.id,
@@ -136,7 +116,6 @@ router.get('/session/:sessionId', async (req, res) => {
             .where(eq(liveEvents.sessionId, sessionId))
             .orderBy(desc(liveEvents.createdAt))
             .limit(50);
-        // Get UTM source breakdown
         const utmBreakdown = await db
             .select({
             utmSource: liveEvents.utmSource,
@@ -146,7 +125,6 @@ router.get('/session/:sessionId', async (req, res) => {
             .from(liveEvents)
             .where(and(eq(liveEvents.sessionId, sessionId), sql `${liveEvents.utmSource} IS NOT NULL`))
             .groupBy(liveEvents.utmSource, liveEvents.utmCampaign);
-        // Calculate session metrics
         const sessionStats = {
             totalEvents: recentEvents.length,
             eventBreakdown: eventCounts.reduce((acc, { eventType, count }) => {
@@ -174,20 +152,14 @@ router.get('/session/:sessionId', async (req, res) => {
         });
     }
 });
-/**
- * GET /api/analytics/sessions/summary
- * Get overall analytics summary for all sessions
- */
 router.get('/sessions/summary', async (req, res) => {
     try {
-        // Get session counts and metrics
         const sessionCounts = await db
             .select({
             totalSessions: sql `COUNT(*)::int`,
             activeSessions: sql `COUNT(*) FILTER (WHERE created_at > NOW() - INTERVAL '24 hours')::int`,
         })
             .from(liveSessions);
-        // Get top event types across all sessions
         const topEventTypes = await db
             .select({
             eventType: liveEvents.eventType,
@@ -197,7 +169,6 @@ router.get('/sessions/summary', async (req, res) => {
             .groupBy(liveEvents.eventType)
             .orderBy(desc(sql `COUNT(*)`))
             .limit(10);
-        // Get UTM source performance
         const utmPerformance = await db
             .select({
             utmSource: liveEvents.utmSource,
@@ -228,3 +199,4 @@ router.get('/sessions/summary', async (req, res) => {
     }
 });
 export { router as analyticsRoutes };
+//# sourceMappingURL=analytics.js.map

@@ -1,19 +1,11 @@
-/**
- * Task Dependency Mapping Service
- * Enhanced coordination between agents on complex multi-step tasks
- * SSELFIE Studio Enhancement Project - Maya Implementation
- */
 export class TaskDependencyMappingService {
     activeTasks = new Map();
     workflows = new Map();
-    agentAssignments = new Map(); // agent -> task IDs
+    agentAssignments = new Map();
     taskExecutionHistory = [];
     constructor() {
         this.initializeWorkflowTemplates();
     }
-    /**
-     * Initialize predefined workflow templates
-     */
     initializeWorkflowTemplates() {
         const enhancementWorkflow = {
             id: 'enhancement_implementation',
@@ -134,15 +126,10 @@ export class TaskDependencyMappingService {
             ]
         };
         this.workflows.set(enhancementWorkflow.id, enhancementWorkflow);
-        // Add tasks to active tasks map
         enhancementWorkflow.tasks.forEach(task => {
             this.activeTasks.set(task.id, task);
         });
-        // console.log('📋 TASK MAPPING: Workflow templates initialized');
     }
-    /**
-     * Create a new task
-     */
     createTask(id, name, description, assignedAgent, dependencies = [], estimatedDuration = 30, priority = 'medium') {
         const task = {
             id,
@@ -156,7 +143,6 @@ export class TaskDependencyMappingService {
             priority,
             metadata: {}
         };
-        // Update dependents for dependency tasks
         dependencies.forEach(depId => {
             const depTask = this.activeTasks.get(depId);
             if (depTask && !depTask.dependents.includes(id)) {
@@ -168,9 +154,6 @@ export class TaskDependencyMappingService {
         console.log(`📝 TASK CREATED: ${name} assigned to ${assignedAgent}`);
         return task;
     }
-    /**
-     * Update task status
-     */
     updateTaskStatus(taskId, status, metadata) {
         const task = this.activeTasks.get(taskId);
         if (!task)
@@ -180,7 +163,6 @@ export class TaskDependencyMappingService {
         if (metadata) {
             task.metadata = { ...task.metadata, ...metadata };
         }
-        // Handle status transitions
         switch (status) {
             case 'in_progress':
                 task.startTime = new Date();
@@ -200,24 +182,16 @@ export class TaskDependencyMappingService {
         console.log(`🔄 TASK STATUS: ${task.name} changed from ${oldStatus} to ${status}`);
         return true;
     }
-    /**
-     * Get tasks assigned to specific agent
-     */
     getAgentTasks(agentId) {
         const taskIds = this.agentAssignments.get(agentId) || [];
         return taskIds.map(id => this.activeTasks.get(id)).filter(task => task);
     }
-    /**
-     * Get next available task for agent
-     */
     getNextTask(agentId) {
         const agentTasks = this.getAgentTasks(agentId);
-        // Find highest priority pending task with no unmet dependencies
         const availableTasks = agentTasks.filter(task => task.status === 'pending' &&
             this.areAllDependenciesCompleted(task.id));
         if (availableTasks.length === 0)
             return undefined;
-        // Sort by priority, then by estimated duration
         availableTasks.sort((a, b) => {
             const priorityOrder = { critical: 4, high: 3, medium: 2, low: 1 };
             const priorityDiff = priorityOrder[b.priority] - priorityOrder[a.priority];
@@ -227,9 +201,6 @@ export class TaskDependencyMappingService {
         });
         return availableTasks[0];
     }
-    /**
-     * Get dependency graph for visualization
-     */
     getDependencyGraph() {
         const nodes = Array.from(this.activeTasks.values()).map(task => ({
             id: task.id,
@@ -250,9 +221,6 @@ export class TaskDependencyMappingService {
         });
         return { nodes, edges };
     }
-    /**
-     * Get workflow progress
-     */
     getWorkflowProgress(workflowId) {
         const workflow = this.workflows.get(workflowId);
         if (!workflow) {
@@ -287,9 +255,6 @@ export class TaskDependencyMappingService {
             criticalPath
         };
     }
-    /**
-     * Check if all dependencies are completed
-     */
     areAllDependenciesCompleted(taskId) {
         const task = this.activeTasks.get(taskId);
         if (!task)
@@ -299,9 +264,6 @@ export class TaskDependencyMappingService {
             return depTask && depTask.status === 'completed';
         });
     }
-    /**
-     * Unblock dependent tasks when a task is completed
-     */
     unblockDependentTasks(completedTaskId) {
         const completedTask = this.activeTasks.get(completedTaskId);
         if (!completedTask)
@@ -316,14 +278,10 @@ export class TaskDependencyMappingService {
             }
         });
     }
-    /**
-     * Handle task failure and update dependents
-     */
     handleTaskFailure(failedTaskId) {
         const failedTask = this.activeTasks.get(failedTaskId);
         if (!failedTask)
             return;
-        // Mark all dependent tasks as blocked
         const affectedTasks = this.getRecursiveDependents(failedTaskId);
         affectedTasks.forEach(taskId => {
             const task = this.activeTasks.get(taskId);
@@ -333,9 +291,6 @@ export class TaskDependencyMappingService {
             }
         });
     }
-    /**
-     * Get all tasks that depend on a given task (recursively)
-     */
     getRecursiveDependents(taskId) {
         const result = new Set();
         const visited = new Set();
@@ -354,15 +309,10 @@ export class TaskDependencyMappingService {
         traverse(taskId);
         return Array.from(result);
     }
-    /**
-     * Calculate critical path for workflow
-     */
     calculateCriticalPath(workflowId) {
         const workflow = this.workflows.get(workflowId);
         if (!workflow)
             return [];
-        // Simplified critical path calculation
-        // In practice, this would use more sophisticated algorithms
         const longestPath = [];
         let maxDuration = 0;
         const findLongestPath = (taskId, currentPath, currentDuration) => {
@@ -372,7 +322,6 @@ export class TaskDependencyMappingService {
             const newPath = [...currentPath, taskId];
             const newDuration = currentDuration + task.estimatedDuration;
             if (task.dependents.length === 0) {
-                // End of path
                 if (newDuration > maxDuration) {
                     maxDuration = newDuration;
                     longestPath.splice(0, longestPath.length, ...newPath);
@@ -384,15 +333,11 @@ export class TaskDependencyMappingService {
                 });
             }
         };
-        // Start from tasks with no dependencies
         workflow.tasks
             .filter(task => task.dependencies.length === 0)
             .forEach(task => findLongestPath(task.id, [], 0));
         return longestPath;
     }
-    /**
-     * Calculate estimated completion time
-     */
     calculateEstimatedCompletion(workflowId) {
         const workflow = this.workflows.get(workflowId);
         if (!workflow)
@@ -406,13 +351,10 @@ export class TaskDependencyMappingService {
             }
         });
         if (totalRemainingTime === 0)
-            return new Date(); // Already completed
+            return new Date();
         const now = new Date();
         return new Date(now.getTime() + totalRemainingTime * 60 * 1000);
     }
-    /**
-     * Update agent assignments
-     */
     updateAgentAssignments(agentId, taskId) {
         if (!this.agentAssignments.has(agentId)) {
             this.agentAssignments.set(agentId, []);
@@ -422,9 +364,6 @@ export class TaskDependencyMappingService {
             assignments.push(taskId);
         }
     }
-    /**
-     * Get comprehensive system status
-     */
     getSystemStatus() {
         const allTasks = Array.from(this.activeTasks.values());
         const tasksByStatus = {
@@ -459,3 +398,4 @@ export class TaskDependencyMappingService {
     }
 }
 export const taskDependencyMapping = new TaskDependencyMappingService();
+//# sourceMappingURL=task-dependency-mapping.js.map

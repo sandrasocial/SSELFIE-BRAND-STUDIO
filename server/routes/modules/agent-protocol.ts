@@ -3,25 +3,24 @@
  * Handles agent communication and protocol management
  */
 
-import { Router, Request, Response } from 'express';
+import { Router, Response } from 'express';
+import { AuthenticatedRequest, AuthenticatedRequestWithBody, AuthenticatedRequestWithParams } from '../../../api/_shared/request-types.js';
 import { requireStackAuth } from '../../stack-auth.js';
 import { asyncHandler, createError, sendSuccess, validateRequired } from '../middleware/error-handler.js';
-import {
+import type { SuccessResponse } from '../../types/responses.js';
+import type {
   AgentProtocolRegistration,
   AgentCapabilities,
   AgentMessage,
   Agent,
   AgentStatus,
-  AgentUpdate,
-  AuthenticatedRequest,
-  SuccessResponse,
-  ErrorResponse
+  AgentUpdate
 } from '../../types/agent-protocol.js';
 
 const router = Router();
 
 // Register agent protocol
-router.post('/api/agent-protocol', asyncHandler(async (req: Request & { body: AgentProtocolRegistration }, res: Response) => {
+router.post('/api/agent-protocol', asyncHandler(async (req: AuthenticatedRequestWithBody<AgentProtocolRegistration>, res: Response) => {
   const { protocol, version, data } = req.body;
   validateRequired({ protocol, version }, ['protocol', 'version']);
 
@@ -40,7 +39,7 @@ router.post('/api/agent-protocol', asyncHandler(async (req: Request & { body: Ag
 }));
 
 // Get agent status
-router.get('/api/agent-protocol/:agentId', asyncHandler(async (req: Request, res: Response) => {
+router.get('/api/agent-protocol/:agentId', asyncHandler(async (req: AuthenticatedRequestWithParams<{agentId: string}>, res: Response) => {
   const { agentId } = req.params;
 
   // Mock implementation - replace with actual agent service
@@ -56,7 +55,7 @@ router.get('/api/agent-protocol/:agentId', asyncHandler(async (req: Request, res
 }));
 
 // Update agent capabilities
-router.post('/api/agent-protocol/:agentId/capabilities', asyncHandler(async (req: Request & { body: AgentCapabilities }, res: Response) => {
+router.post('/api/agent-protocol/:agentId/capabilities', asyncHandler(async (req: AuthenticatedRequestWithBody<AgentCapabilities> & AuthenticatedRequestWithParams<{agentId: string}>, res: Response) => {
   const { agentId: bodyAgentId, capabilities, metadata } = req.body;
   const { agentId: pathAgentId } = req.params;
   
@@ -76,7 +75,7 @@ router.post('/api/agent-protocol/:agentId/capabilities', asyncHandler(async (req
 }));
 
 // Send message to agent
-router.post('/api/agent-protocol/:agentId/message', asyncHandler(async (req: Request & { body: AgentMessage }, res: Response) => {
+router.post('/api/agent-protocol/:agentId/message', asyncHandler(async (req: AuthenticatedRequestWithBody<AgentMessage> & AuthenticatedRequestWithParams<{agentId: string}>, res: Response) => {
   const { agentId: bodyAgentId, message, type } = req.body;
   const { agentId: pathAgentId } = req.params;
   
@@ -106,7 +105,7 @@ router.get('/api/agents', requireStackAuth, asyncHandler(async (req: Authenticat
 }));
 
 // Get agent details
-router.get('/api/agents/:agentId', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+router.get('/api/agents/:agentId', requireStackAuth, asyncHandler(async (req: AuthenticatedRequestWithParams<{agentId: string}>, res: Response) => {
   const { agentId } = req.params;
 
   // Mock implementation - replace with actual agent service
@@ -122,7 +121,7 @@ router.get('/api/agents/:agentId', requireStackAuth, asyncHandler(async (req: Au
 }));
 
 // Update agent
-router.put('/api/agents/:agentId', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest & { body: AgentUpdate }, res: Response) => {
+router.put('/api/agents/:agentId', requireStackAuth, asyncHandler(async (req: AuthenticatedRequestWithBody<AgentUpdate> & AuthenticatedRequestWithParams<{agentId: string}>, res: Response) => {
   const { agentId } = req.params;
   const { name, status, config } = req.body;
 

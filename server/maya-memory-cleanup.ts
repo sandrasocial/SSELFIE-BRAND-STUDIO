@@ -1,6 +1,6 @@
 /**
  * Maya Memory Cleanup Utility
- * 🚫 ZERO TOLERANCE ANTI-HARDCODE: Clear restrictive business/professional categorizations
+ * 🚫 ZERO TOLERANCE ANTI-CODE: Clear restrictive business/professional categorizations
  * 
  * This utility clears any cached memory data that contains restrictive
  * business/professional assumptions, allowing Maya's natural intelligence
@@ -50,10 +50,8 @@ export async function cleanupAllRestrictiveMemory(): Promise<void> {
  * Clear restrictive categorizations for a specific user
  */
 export async function cleanupUserRestrictiveMemory(userId: string): Promise<void> {
-  console.log(`🧠 MAYA MEMORY CLEANUP: Cleaning restrictive categorizations for user ${userId}`);
-  
   try {
-      await MayaMemoryService.clearRestrictiveCategorizations(userId);
+    await MayaMemoryService.clearRestrictiveCategorizations(userId);
     console.log(`✅ Successfully cleaned restrictive memory for user ${userId}`);
   } catch (error) {
     console.error(`❌ Failed to clean memory for user ${userId}:`, error);
@@ -61,5 +59,5 @@ export async function cleanupUserRestrictiveMemory(userId: string): Promise<void
   }
 }
 
-// Export for direct usage if needed
-export { mayaMemoryService };
+// Export class definition
+// Use imported MayaMemoryService from services/maya-memory-service.js

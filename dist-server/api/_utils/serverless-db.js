@@ -1,29 +1,18 @@
-/**
- * Serverless Database Middleware for Vercel Functions
- * Ensures proper connection management and cleanup for Neon serverless driver
- */
-import { cleanup } from '@server/db.js';
-/**
- * Middleware to wrap Vercel API handlers with proper serverless database management
- */
+import { cleanup } from '../../server/db.js';
 export function withServerlessDb(handler) {
     return async (req, res) => {
         const connectionStartTime = Date.now();
         try {
-            // Create context for the handler
             const ctx = {
                 cleanup: cleanup,
                 connectionStartTime
             };
-            // Execute the handler
             const result = await handler(req, res, ctx);
-            // Ensure cleanup before returning
             await cleanup();
             return result;
         }
         catch (error) {
             console.error('❌ Serverless handler error:', error);
-            // Ensure cleanup on error
             try {
                 await cleanup();
             }
@@ -34,13 +23,9 @@ export function withServerlessDb(handler) {
         }
     };
 }
-/**
- * Simple wrapper for quick migration of existing handlers
- */
 export function withNeonServerless(handler) {
     return withServerlessDb(async (req, res, ctx) => {
         const result = await handler(req, res);
-        // Log connection time for monitoring
         const connectionTime = Date.now() - ctx.connectionStartTime;
         if (connectionTime > 3000) {
             console.warn(`⚠️ Long-running connection: ${connectionTime}ms`);
@@ -48,15 +33,11 @@ export function withNeonServerless(handler) {
         return result;
     });
 }
-/**
- * Database health check middleware - adds health info to response headers
- */
 export function withHealthHeaders(handler) {
     return async (req, res) => {
         const startTime = Date.now();
         try {
             const result = await handler(req, res);
-            // Add performance headers
             const duration = Date.now() - startTime;
             res.setHeader('X-Database-Duration', `${duration}ms`);
             res.setHeader('X-Database-Driver', 'neon-serverless');
@@ -64,10 +45,10 @@ export function withHealthHeaders(handler) {
             return result;
         }
         catch (error) {
-            // Add error info to headers
             res.setHeader('X-Database-Error', 'true');
             res.setHeader('X-Database-Driver', 'neon-serverless');
             throw error;
         }
     };
 }
+//# sourceMappingURL=serverless-db.js.map

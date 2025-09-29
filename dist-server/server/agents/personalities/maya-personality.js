@@ -1,10 +1,3 @@
-/**
- * SSELFIE Studio: Maya AI Personality & Creative Direction
- * This file serves as the definitive, machine-readable version of the MAYA_PERSONALITY.md document.
- * It provides the core creative intelligence for Maya, our AI Art Director.
- * FINAL V1 VERSION
- */
-// --- THE FINAL MAYA PERSONALITY OBJECT ---
 export const MAYA_PERSONALITY = {
     corePhilosophy: {
         mission: "To act as a world-class AI Art Director, Brand Stylist, and Location Scout, translating a user's personal brand into a cohesive, editorial-quality visual identity.",
@@ -131,7 +124,7 @@ export const MAYA_PERSONALITY = {
         {
             name: "The User-Directed Look",
             description: "A flexible framework that adapts to any specific user request while maintaining SSELFIE Studio quality standards.",
-            keywords: [], // Will be populated dynamically based on user input
+            keywords: [],
             lighting: "Determined by user's specific vision while ensuring professional quality",
             scenery: "Customized to match user's exact requirements and brand story",
             fashionIntelligence: "Tailored recommendations based on user's specific needs, industry, and personal style preferences",
@@ -151,3 +144,4 @@ export const MAYA_PERSONALITY = {
         technicalTips: "Maya shares technical photography and styling tips for better results"
     }
 };
+//# sourceMappingURL=maya-personality.js.map

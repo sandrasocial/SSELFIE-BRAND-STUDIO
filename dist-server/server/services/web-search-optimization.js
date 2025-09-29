@@ -1,8 +1,3 @@
-/**
- * Web Search Optimization Service
- * Enhanced real-time information retrieval with documentation caching
- * SSELFIE Studio Enhancement Project - Maya Implementation
- */
 import { promises as fs } from 'fs';
 import path from 'path';
 export class WebSearchOptimizationService {
@@ -10,46 +5,31 @@ export class WebSearchOptimizationService {
     documentCache = new Map();
     cacheDirectory = './server/cache/web-search';
     maxCacheSize = 1000;
-    cacheDuration = 24 * 60 * 60 * 1000; // 24 hours
+    cacheDuration = 24 * 60 * 60 * 1000;
     constructor() {
         this.initializeCache();
     }
-    /**
-     * Initialize cache directory and load existing cache
-     */
     async initializeCache() {
         try {
             await fs.mkdir(this.cacheDirectory, { recursive: true });
             await this.loadPersistedCache();
-            // console.log('🔍 WEB SEARCH OPTIMIZATION: Cache initialized');
         }
         catch (error) {
             console.error('Failed to initialize web search cache:', error);
         }
     }
-    /**
-     * Enhanced search with intelligent caching
-     */
     async optimizedSearch(query, options = {}) {
         const { useCache = true, category = 'technical', maxResults = 10, realTime = false } = options;
         const queryKey = this.generateQueryKey(query, category);
-        // CACHE DISABLED FOR AGENTS: Always perform live search for agent requests
         console.log('🚀 WEB SEARCH: Cache disabled - performing direct search for:', query);
-        // Perform live search
         const searchResult = await this.performLiveSearch(query, category, maxResults);
-        // Cache the result
         if (useCache) {
             this.cacheSearchResult(queryKey, searchResult);
         }
         return searchResult;
     }
-    /**
-     * Perform live web search
-     */
     async performLiveSearch(query, category, maxResults) {
         console.log('🌐 WEB SEARCH: Performing live search for:', query);
-        // This would integrate with actual web search APIs
-        // For now, returning structured placeholder that matches expected format
         const searchResult = {
             id: `search_${Date.now()}`,
             query,
@@ -60,11 +40,7 @@ export class WebSearchOptimizationService {
         };
         return searchResult;
     }
-    /**
-     * Mock search results for development
-     */
     async mockSearchResults(query, category, maxResults) {
-        // Return realistic search results structure
         const results = [];
         for (let i = 0; i < Math.min(maxResults, 5); i++) {
             results.push({
@@ -78,9 +54,6 @@ export class WebSearchOptimizationService {
         }
         return results;
     }
-    /**
-     * Cache frequently accessed documentation
-     */
     async cacheDocument(url, title, content, category) {
         const document = {
             url,
@@ -90,7 +63,6 @@ export class WebSearchOptimizationService {
             accessCount: 1,
             category
         };
-        // Check cache size limit
         if (this.documentCache.size >= this.maxCacheSize) {
             await this.pruneDocumentCache();
         }
@@ -98,22 +70,15 @@ export class WebSearchOptimizationService {
         await this.persistDocumentCache(url, document);
         console.log('📄 DOCUMENTATION CACHE: Cached document:', title);
     }
-    /**
-     * Retrieve cached document
-     */
     getCachedDocument(url) {
         const document = this.documentCache.get(url);
         if (document) {
-            // Update access count
             document.accessCount++;
             document.lastUpdated = new Date();
             console.log('📄 DOCUMENTATION CACHE: Retrieved cached document:', document.title);
         }
         return document;
     }
-    /**
-     * Search within cached documents
-     */
     searchCachedDocuments(query, category) {
         const results = [];
         const queryLower = query.toLowerCase();
@@ -126,12 +91,8 @@ export class WebSearchOptimizationService {
                 results.push(document);
             }
         }
-        // Sort by access count and relevance
         return results.sort((a, b) => b.accessCount - a.accessCount);
     }
-    /**
-     * Get search analytics
-     */
     getSearchAnalytics() {
         const totalSearches = this.searchCache.size;
         const cacheHits = Array.from(this.searchCache.values())
@@ -149,32 +110,18 @@ export class WebSearchOptimizationService {
             cacheSize: this.calculateCacheSize()
         };
     }
-    /**
-     * Generate cache key for query
-     */
     generateQueryKey(query, category) {
         return `${category}:${query.toLowerCase().replace(/\s+/g, '_')}`;
     }
-    /**
-     * Check if cache is still valid
-     */
     isCacheValid(timestamp) {
         return Date.now() - timestamp.getTime() < this.cacheDuration;
     }
-    /**
-     * Cache search result
-     */
     cacheSearchResult(queryKey, result) {
         this.searchCache.set(queryKey, { ...result, source: 'cache' });
-        // Persist to disk for long-term caching
         this.persistSearchCache(queryKey, result);
     }
-    /**
-     * Prune document cache when size limit reached
-     */
     async pruneDocumentCache() {
         const documents = Array.from(this.documentCache.entries());
-        // Remove least accessed documents (bottom 25%)
         documents.sort((a, b) => a[1].accessCount - b[1].accessCount);
         const toRemove = documents.slice(0, Math.floor(documents.length * 0.25));
         for (const [url] of toRemove) {
@@ -183,13 +130,10 @@ export class WebSearchOptimizationService {
         }
         console.log(`🧹 CACHE CLEANUP: Removed ${toRemove.length} documents from cache`);
     }
-    /**
-     * Calculate total cache size
-     */
     calculateCacheSize() {
         let totalSize = 0;
         for (const document of Array.from(this.documentCache.values())) {
-            totalSize += document.content.length * 2; // Rough estimate in bytes
+            totalSize += document.content.length * 2;
         }
         if (totalSize < 1024)
             return `${totalSize} B`;
@@ -197,9 +141,6 @@ export class WebSearchOptimizationService {
             return `${Math.round(totalSize / 1024)} KB`;
         return `${Math.round(totalSize / (1024 * 1024))} MB`;
     }
-    /**
-     * Persist search cache to disk
-     */
     async persistSearchCache(queryKey, result) {
         try {
             const filePath = path.join(this.cacheDirectory, `search_${queryKey.replace(/[^a-zA-Z0-9]/g, '_')}.json`);
@@ -209,9 +150,6 @@ export class WebSearchOptimizationService {
             console.error('Failed to persist search cache:', error);
         }
     }
-    /**
-     * Persist document cache to disk
-     */
     async persistDocumentCache(url, document) {
         try {
             const fileName = `doc_${Buffer.from(url).toString('base64').replace(/[^a-zA-Z0-9]/g, '_')}.json`;
@@ -222,9 +160,6 @@ export class WebSearchOptimizationService {
             console.error('Failed to persist document cache:', error);
         }
     }
-    /**
-     * Load persisted cache on startup
-     */
     async loadPersistedCache() {
         try {
             const files = await fs.readdir(this.cacheDirectory);
@@ -253,15 +188,11 @@ export class WebSearchOptimizationService {
                     }
                 }
             }
-            // console.log('📂 CACHE LOADED: Restored cached search results and documents');
         }
         catch (error) {
             console.error('Failed to load persisted cache:', error);
         }
     }
-    /**
-     * Remove persisted document
-     */
     async removePersistedDocument(url) {
         try {
             const fileName = `doc_${Buffer.from(url).toString('base64').replace(/[^a-zA-Z0-9]/g, '_')}.json`;
@@ -269,8 +200,8 @@ export class WebSearchOptimizationService {
             await fs.unlink(filePath);
         }
         catch (error) {
-            // File might not exist, ignore error
         }
     }
 }
 export const webSearchOptimization = new WebSearchOptimizationService();
+//# sourceMappingURL=web-search-optimization.js.map

@@ -1,9 +1,9 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { StackAuth } from '@stackframe/stack';
+import { StackAuth } from '../../../types/stackframe.js';
 import { z } from 'zod';
 import { drizzle } from 'drizzle-orm/neon-http';
 import { neon } from '@neondatabase/serverless';
-import { mayaPayments, insertMayaPaymentsSchema } from '../../../shared/schema-maya';
+import { mayaPayments, insertMayaPaymentsSchema } from '../../../shared/schema-maya.js';
 import { eq, and, desc } from 'drizzle-orm';
 import Stripe from 'stripe';
 
@@ -20,7 +20,7 @@ const stackAuth = new StackAuth({
 
 // Initialize Stripe
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-06-20',
+  apiVersion: '2025-08-27.basil' as const,
 });
 
 // Request validation schemas
@@ -54,6 +54,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     const userId = user.id;
+    if (!userId) {
+      return res.status(400).json({ error: 'Invalid user ID' });
+    }
 
     switch (req.method) {
       case 'GET':
@@ -163,8 +166,12 @@ async function handleCreatePaymentSession(req: VercelRequest, res: VercelRespons
       amount,
       currency: 'usd',
       metadata: {
-        sessionUrl: session.url,
-        created: new Date().toISOString(),
+        paymentMethod: 'stripe',
+        lastPaymentDate: new Date().toISOString(),
+        nextBillingDate: undefined,
+        invoiceId: undefined,
+        discountCode: undefined,
+        refundDetails: undefined
       },
       isActive: false,
     };

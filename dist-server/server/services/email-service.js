@@ -5,12 +5,10 @@ function getResendInstance() {
     }
     return new Resend(process.env.RESEND_API_KEY);
 }
-// Email configuration
 const SSELFIE_CONFIG = {
     from: 'SSELFIE Studio <studio@sselfie.ai>',
     replyTo: 'support@sselfie.ai',
 };
-// Core email sending function
 export async function sendEmail(params) {
     try {
         const resend = getResendInstance();
@@ -30,7 +28,6 @@ export async function sendEmail(params) {
         return false;
     }
 }
-// Welcome sequence emails
 export async function sendWelcomeEmail(userEmail, userName) {
     const html = `
     <div style="font-family: Times New Roman, serif; max-width: 600px; margin: 0 auto; padding: 40px 20px;">
@@ -75,7 +72,6 @@ export async function sendWelcomeEmail(userEmail, userName) {
         tags: ['welcome', 'onboarding']
     });
 }
-// AI training completion notification
 export async function sendTrainingCompleteEmail(userEmail, userName) {
     const html = `
     <div style="font-family: Times New Roman, serif; max-width: 600px; margin: 0 auto; padding: 40px 20px;">
@@ -110,7 +106,6 @@ export async function sendTrainingCompleteEmail(userEmail, userName) {
         tags: ['training-complete', 'ai-ready']
     });
 }
-// Generation limit warning
 export async function sendLimitWarningEmail(userEmail, userName, percentage, planType) {
     const isUpgrade = planType === 'basic';
     const html = `
@@ -157,7 +152,6 @@ export async function sendLimitWarningEmail(userEmail, userName, percentage, pla
         tags: ['limit-warning', planType]
     });
 }
-// Upgrade invitation email
 export async function sendUpgradeInviteEmail(userEmail, userName) {
     const html = `
     <div style="font-family: Times New Roman, serif; max-width: 600px; margin: 0 auto; padding: 40px 20px;">
@@ -202,3 +196,4 @@ export default {
     sendLimitWarningEmail,
     sendUpgradeInviteEmail
 };
+//# sourceMappingURL=email-service.js.map

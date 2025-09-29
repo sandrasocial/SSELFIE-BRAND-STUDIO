@@ -6,7 +6,7 @@
 import * as express from 'express';
 import { Request, Response } from 'express';
 import { requireStackAuth } from '../stack-auth.js'
-import { GoogleGenAI, Type } from '@google/genai';
+import { GoogleGenAI } from '@google/genai';
 import { StackAuthUser } from '../stack-auth.js';
 
 // Define request types for type safety

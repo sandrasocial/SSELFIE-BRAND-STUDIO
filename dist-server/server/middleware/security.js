@@ -1,33 +1,21 @@
-/**
- * Security Middleware
- * Provides security headers and input validation
- */
-import { Logger } from '../utils/logger';
-import { ALLOWED_EMBED_HOSTS } from '../env';
+import { Logger } from '../utils/logger.js';
+import { ALLOWED_EMBED_HOSTS } from '../env.js';
 export class SecurityMiddleware {
     logger;
     constructor() {
         this.logger = new Logger('SecurityMiddleware');
     }
-    /**
-     * Security headers middleware
-     */
     securityHeaders() {
         return (req, res, next) => {
-            // CORS headers
             res.set('Access-Control-Allow-Origin', '*');
             res.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
             res.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
             res.set('Access-Control-Max-Age', '86400');
-            // Security headers
             res.set('X-Content-Type-Options', 'nosniff');
             res.set('X-XSS-Protection', '1; mode=block');
             res.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-            // For Stage Mode routes, use SAMEORIGIN for iframe compatibility
-            // For other routes, use DENY for maximum security
             const isStageRoute = req.path.startsWith('/hair/live') || req.path.startsWith('/hair/guest');
             res.set('X-Frame-Options', isStageRoute ? 'SAMEORIGIN' : 'DENY');
-            // Enhanced Content Security Policy for Stage Mode
             const allowedHosts = ALLOWED_EMBED_HOSTS.split(',').map(host => host.trim());
             const mentimeterHosts = allowedHosts.filter(host => host.includes('mentimeter')).map(host => `https://${host.replace(/^\*\./, '')}`);
             const canvaHosts = allowedHosts.filter(host => host.includes('canva')).map(host => `https://${host.replace(/^\*\./, '')}`);
@@ -44,22 +32,17 @@ export class SecurityMiddleware {
             next();
         };
     }
-    /**
-     * Input validation middleware
-     */
     inputValidation() {
         return (req, res, next) => {
             try {
-                // Validate request body size
                 const contentLength = parseInt(req.get('Content-Length') || '0');
-                const maxSize = 10 * 1024 * 1024; // 10MB
+                const maxSize = 10 * 1024 * 1024;
                 if (contentLength > maxSize) {
                     return res.status(413).json({
                         success: false,
                         error: { message: 'Request entity too large', code: 'PAYLOAD_TOO_LARGE' }
                     });
                 }
-                // Sanitize request body
                 if (req.body && typeof req.body === 'object') {
                     req.body = this.sanitizeObject(req.body);
                 }
@@ -74,9 +57,6 @@ export class SecurityMiddleware {
             }
         };
     }
-    /**
-     * Sanitize object recursively
-     */
     sanitizeObject(obj) {
         if (obj === null || obj === undefined)
             return obj;
@@ -93,9 +73,6 @@ export class SecurityMiddleware {
         }
         return obj;
     }
-    /**
-     * Sanitize string
-     */
     sanitizeString(str) {
         return str
             .replace(/[<>]/g, '')
@@ -104,7 +81,7 @@ export class SecurityMiddleware {
             .trim();
     }
 }
-// Create global security middleware instance
 export const securityMiddleware = new SecurityMiddleware();
 export const securityHeaders = securityMiddleware.securityHeaders();
 export const inputValidation = securityMiddleware.inputValidation();
+//# sourceMappingURL=security.js.map

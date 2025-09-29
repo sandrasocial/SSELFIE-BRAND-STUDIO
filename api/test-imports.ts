@@ -1,7 +1,7 @@
 // Test file for import fixes
-import { getUser } from '../server/storage.js';
+import { storage } from '../server/storage.js';
 import type { Thing } from './types.js';
-import { ExternalConfig } from '@external/package';
+import type { ExternalConfig } from '@vercel/node';
 
 // Dynamic import example
-const helper = await import('../utils/helper.js');
+const helper = await import('./test-helper.js');

@@ -1,17 +1,10 @@
-/**
- * Health Check Routes
- * Comprehensive health monitoring endpoints
- */
 import { Router } from 'express';
-import { performanceMonitor } from '../utils/performance-monitor';
-import { serviceDiscovery } from '../services/service-discovery';
-import { unifiedErrorHandler } from '../services/unified-error-handler';
-import { Logger } from '../utils/logger';
+import { performanceMonitor } from '../utils/performance-monitor.js';
+import { serviceDiscovery } from '../services/service-discovery.js';
+import { unifiedErrorHandler } from '../services/unified-error-handler.js';
+import { Logger } from '../utils/logger.js';
 const router = Router();
 const logger = new Logger('HealthCheck');
-/**
- * Basic health check
- */
 router.get('/health', (req, res) => {
     res.status(200).json({
         status: 'healthy',
@@ -20,21 +13,13 @@ router.get('/health', (req, res) => {
         version: '1.0.0'
     });
 });
-/**
- * Detailed health check
- */
 router.get('/health/detailed', async (req, res) => {
     try {
         const startTime = Date.now();
-        // Check system performance
         const performanceSummary = performanceMonitor.getSystemSummary();
-        // Check service status
         const serviceStats = serviceDiscovery.getServiceStatistics();
-        // Check error rates
         const errorStats = unifiedErrorHandler.getErrorStatistics();
-        // Check database connectivity (simplified)
         const databaseStatus = await checkDatabaseHealth();
-        // Check external services
         const externalServicesStatus = await checkExternalServices();
         const responseTime = Date.now() - startTime;
         const healthStatus = {
@@ -77,7 +62,6 @@ router.get('/health/detailed', async (req, res) => {
                 }
             }
         };
-        // Determine overall status
         const overallStatus = determineOverallStatus(healthStatus);
         healthStatus.status = overallStatus;
         const statusCode = overallStatus === 'healthy' ? 200 : 503;
@@ -92,9 +76,6 @@ router.get('/health/detailed', async (req, res) => {
         });
     }
 });
-/**
- * Readiness check
- */
 router.get('/health/ready', async (req, res) => {
     try {
         const checks = await Promise.allSettled([
@@ -130,9 +111,6 @@ router.get('/health/ready', async (req, res) => {
         });
     }
 });
-/**
- * Liveness check
- */
 router.get('/health/live', (req, res) => {
     res.status(200).json({
         status: 'alive',
@@ -140,9 +118,6 @@ router.get('/health/live', (req, res) => {
         uptime: process.uptime()
     });
 });
-/**
- * Metrics endpoint
- */
 router.get('/health/metrics', (req, res) => {
     try {
         const performanceSummary = performanceMonitor.getSystemSummary();
@@ -162,14 +137,9 @@ router.get('/health/metrics', (req, res) => {
         });
     }
 });
-/**
- * Check database health
- */
 async function checkDatabaseHealth() {
     try {
-        // Simplified database check - in production, this would test actual database connectivity
-        const { db } = await import('../drizzle');
-        // Try a simple query
+        const { db } = await import('../drizzle.js');
         await db.execute('SELECT 1');
         return {
             status: 'healthy',
@@ -189,9 +159,6 @@ async function checkDatabaseHealth() {
         };
     }
 }
-/**
- * Check external services health
- */
 async function checkExternalServices() {
     try {
         const services = [
@@ -245,9 +212,6 @@ async function checkExternalServices() {
         };
     }
 }
-/**
- * Check service health
- */
 async function checkServiceHealth() {
     try {
         const serviceStats = serviceDiscovery.getServiceStatistics();
@@ -271,18 +235,13 @@ async function checkServiceHealth() {
         };
     }
 }
-/**
- * Determine overall health status
- */
 function determineOverallStatus(healthStatus) {
     const checks = healthStatus.checks;
-    // Check if any critical component is unhealthy
     if (checks.database.status === 'unhealthy' ||
         checks.externalServices.status === 'unhealthy' ||
         checks.services.status === 'unhealthy') {
         return 'unhealthy';
     }
-    // Check if any component is degraded
     if (checks.database.status === 'degraded' ||
         checks.externalServices.status === 'degraded' ||
         checks.services.status === 'degraded' ||
@@ -293,3 +252,4 @@ function determineOverallStatus(healthStatus) {
     return 'healthy';
 }
 export default router;
+//# sourceMappingURL=health-check.js.map

@@ -1,18 +1,15 @@
 import { Router } from 'express';
-import { requireStackAuth } from '../stack-auth';
+import { requireStackAuth } from '../stack-auth.js';
 const router = Router();
-// In-memory storage for insights (replace with database table in production)
 const insights = [];
-// Get recent agent insights for dashboard
 router.get('/recent', requireStackAuth, async (req, res) => {
     try {
         const userId = req.user.id;
-        if (userId !== '42585527') { // Sandra's user ID
+        if (userId !== '42585527') {
             return res.status(403).json({ message: 'Admin access required' });
         }
         const { limit = 20, type, agent, priority } = req.query;
         let filteredInsights = [...insights];
-        // Apply filters
         if (type) {
             filteredInsights = filteredInsights.filter(i => i.insightType === type);
         }
@@ -22,7 +19,6 @@ router.get('/recent', requireStackAuth, async (req, res) => {
         if (priority) {
             filteredInsights = filteredInsights.filter(i => i.priority === priority);
         }
-        // Sort by timestamp (newest first) and limit
         const recentInsights = filteredInsights
             .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
             .slice(0, parseInt(limit));
@@ -41,7 +37,6 @@ router.get('/recent', requireStackAuth, async (req, res) => {
         });
     }
 });
-// Mark insight as read
 router.patch('/mark-read/:id', requireStackAuth, async (req, res) => {
     try {
         const userId = req.user.id;
@@ -67,7 +62,6 @@ router.patch('/mark-read/:id', requireStackAuth, async (req, res) => {
         });
     }
 });
-// Add action taken to insight
 router.patch('/action-taken/:id', requireStackAuth, async (req, res) => {
     try {
         const userId = req.user.id;
@@ -96,14 +90,12 @@ router.patch('/action-taken/:id', requireStackAuth, async (req, res) => {
         });
     }
 });
-// Get insight statistics for dashboard
 router.get('/stats', requireStackAuth, async (req, res) => {
     try {
         const userId = req.user.id;
         if (userId !== '42585527') {
             return res.status(403).json({ message: 'Admin access required' });
         }
-        // Calculate stats from stored insights
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         const todayInsights = insights.filter(i => i.timestamp >= today);
@@ -149,7 +141,6 @@ router.get('/stats', requireStackAuth, async (req, res) => {
         });
     }
 });
-// Store new insight (called by insight engine)
 router.post('/store', async (req, res) => {
     try {
         const { agentName, insightType, title, message, priority, context, triggerReason } = req.body;
@@ -166,7 +157,6 @@ router.post('/store', async (req, res) => {
             isRead: false
         };
         insights.push(newInsight);
-        // Keep only last 200 insights to prevent memory issues
         if (insights.length > 200) {
             insights.splice(0, insights.length - 200);
         }
@@ -184,7 +174,6 @@ router.post('/store', async (req, res) => {
         });
     }
 });
-// Delete insight
 router.delete('/:id', requireStackAuth, async (req, res) => {
     try {
         const userId = req.user.id;
@@ -211,3 +200,4 @@ router.delete('/:id', requireStackAuth, async (req, res) => {
     }
 });
 export default router;
+//# sourceMappingURL=agent-insights-data.js.map

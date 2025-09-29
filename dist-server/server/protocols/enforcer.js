@@ -1,7 +1,3 @@
-/**
- * Protocol Enforcement System
- * Primary protocol handler following consolidation plan
- */
 class ProtocolEnforcer {
     constructor() {
         this.activeProtocols = new Set();
@@ -9,7 +5,6 @@ class ProtocolEnforcer {
         this.violationHandlers = new Map();
     }
     async initialize(config) {
-        // Load protocol configurations
         this.loadProtocolRules(config.rules || {});
         this.setupViolationHandlers();
     }
@@ -20,7 +15,6 @@ class ProtocolEnforcer {
         }
     }
     setupViolationHandlers() {
-        // Define default violation handlers
         this.violationHandlers.set('default', async (violation) => {
             console.error('Protocol violation:', violation);
             throw new Error(`Protocol violation: ${violation.message}`);
@@ -28,7 +22,6 @@ class ProtocolEnforcer {
     }
     async enforce(message) {
         const violations = [];
-        // Check each active protocol
         for (const protocol of this.activeProtocols) {
             const rule = this.protocolRules.get(protocol);
             if (rule) {
@@ -38,14 +31,12 @@ class ProtocolEnforcer {
                 }
             }
         }
-        // Handle any violations
         if (violations.length > 0) {
             await this.handleViolations(violations);
         }
         return violations.length === 0;
     }
     async checkProtocolCompliance(message, rule) {
-        // Will implement specific protocol checking logic
         return null;
     }
     async handleViolations(violations) {
@@ -56,7 +47,6 @@ class ProtocolEnforcer {
         }
     }
     async disconnect() {
-        // Cleanup protocol enforcement system
         this.activeProtocols.clear();
         this.protocolRules.clear();
         this.violationHandlers.clear();
@@ -64,3 +54,4 @@ class ProtocolEnforcer {
 }
 module.exports = ProtocolEnforcer;
 export {};
+//# sourceMappingURL=enforcer.js.map

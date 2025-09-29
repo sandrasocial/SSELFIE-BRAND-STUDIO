@@ -1,7 +1,6 @@
-import { requireStackAuth } from '../stack-auth';
-import { storage } from "../storage";
+import { requireStackAuth } from '../stack-auth.js';
+import { storage } from "../storage.js";
 export function registerAutomationRoutes(app) {
-    // Welcome email automation
     app.post('/api/automation/welcome-email', requireStackAuth, async (req, res) => {
         try {
             const { plan } = req.body;
@@ -18,12 +17,10 @@ export function registerAutomationRoutes(app) {
             res.status(500).json({ message: 'Failed to send welcome email' });
         }
     });
-    // Setup onboarding automation
     app.post('/api/automation/setup-onboarding', requireStackAuth, async (req, res) => {
         try {
             const { plan } = req.body;
             const userId = req.user?.claims?.sub;
-            // Check if onboarding data already exists
             const existingOnboarding = await storage.getOnboardingData(userId);
             if (!existingOnboarding) {
                 await storage.saveOnboardingData({
@@ -42,16 +39,13 @@ export function registerAutomationRoutes(app) {
             res.status(500).json({ message: 'Failed to setup onboarding' });
         }
     });
-    // Update subscription automation (FIXED: Works both with auth and email)
     app.post('/api/automation/update-subscription', async (req, res) => {
         try {
             const { plan, email, userId } = req.body;
             let targetUserId = userId;
-            // If no userId provided, try to get from authentication
             if (!targetUserId && req.requireStackAuth()) {
                 targetUserId = req.user?.claims?.sub;
             }
-            // If still no userId, try to find user by email
             if (!targetUserId && email) {
                 const user = await storage.getUserByEmail(email);
                 if (user) {
@@ -63,7 +57,6 @@ export function registerAutomationRoutes(app) {
                     message: 'User identification required. Provide userId, email, or authenticate.'
                 });
             }
-            // Use the new upgrade method
             await storage.upgradeUserToPremium(targetUserId, plan);
             res.json({
                 message: 'User upgraded successfully',
@@ -76,7 +69,6 @@ export function registerAutomationRoutes(app) {
             res.status(500).json({ message: 'Failed to update subscription' });
         }
     });
-    // NEW: Direct user upgrade endpoint for post-payment processing
     app.post('/api/upgrade-user', async (req, res) => {
         try {
             const { email, plan } = req.body;
@@ -85,14 +77,12 @@ export function registerAutomationRoutes(app) {
                     message: 'Email and plan are required'
                 });
             }
-            // Find user by email
             const user = await storage.getUserByEmail(email);
             if (!user) {
                 return res.status(404).json({
                     message: 'User not found with this email'
                 });
             }
-            // Upgrade user to premium
             const upgradedUser = await storage.upgradeUserToPremium(user.id, plan);
             res.json({
                 message: 'User upgraded successfully',
@@ -113,13 +103,10 @@ export function registerAutomationRoutes(app) {
             res.status(500).json({ message: 'Failed to upgrade user' });
         }
     });
-    // Email sequence automation (for future implementation)
     app.post('/api/automation/email-sequence', requireStackAuth, async (req, res) => {
         try {
             const { sequenceType, step } = req.body;
             const userId = req.user?.claims?.sub;
-            // In production, integrate with email automation service
-            // For now, just log the automation trigger
             console.log(`Email sequence triggered: ${sequenceType}, step ${step} for user ${userId}`);
             res.json({ message: 'Email sequence triggered' });
         }
@@ -128,7 +115,6 @@ export function registerAutomationRoutes(app) {
             res.status(500).json({ message: 'Failed to trigger email sequence' });
         }
     });
-    // AI generation automation (for bulk processing)
     app.post('/api/automation/bulk-ai-generation', requireStackAuth, async (req, res) => {
         try {
             const { prompts } = req.body;
@@ -136,21 +122,18 @@ export function registerAutomationRoutes(app) {
             if (!Array.isArray(prompts) || prompts.length === 0) {
                 return res.status(400).json({ message: 'Prompts array is required' });
             }
-            // Check if user has uploaded selfies
             const selfieUploads = await storage.getSelfieUploads(userId);
             if (selfieUploads.length === 0) {
                 return res.status(400).json({ message: 'Please upload selfies first' });
             }
-            // Create AI image records for bulk processing
             const aiImagePromises = prompts.map(async (prompt) => {
                 return storage.saveAIImage({
                     userId,
                     prompt,
-                    imageUrl: '', // Will be updated when processing completes
+                    imageUrl: '',
                 });
             });
             const aiImages = await Promise.all(aiImagePromises);
-            // In production, queue these for background processing
             console.log(`Bulk AI generation queued: ${prompts.length} images for user ${userId}`);
             res.json({
                 message: 'Bulk AI generation started',
@@ -164,7 +147,6 @@ export function registerAutomationRoutes(app) {
     });
 }
 async function sendWelcomeEmail(user, plan) {
-    // Email templates based on plan - Sandra's warm bestfriend voice
     const templates = {
         'free': {
             subject: 'Hey gorgeous! Welcome to SSELFIE 💫',
@@ -208,7 +190,7 @@ async function sendWelcomeEmail(user, plan) {
 
         👉 Your workspace is ready: ${process.env.BASE_URL || 'https://sselfie.ai'}/workspace
 
-        I'm literally cheering you on from Iceland. Let's build something that makes people stop scrolling.
+        I'm literally cheering you on from Iceland. Let''s build something that makes people stop scrolling.
 
         Your biggest fan,
         Sandra 💫
@@ -244,10 +226,9 @@ async function sendWelcomeEmail(user, plan) {
         }
     };
     const template = templates[plan] || templates['free'];
-    // In production, integrate with email service (SendGrid, Mailchimp, etc.)
     console.log(`Sending email to ${user.email}:`);
     console.log(`Subject: ${template.subject}`);
     console.log(`Body: ${template.body}`);
-    // Log automation event
     console.log(`Welcome email automation completed for user ${user.id}, plan ${plan}`);
 }
+//# sourceMappingURL=automation.js.map

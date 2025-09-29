@@ -1,7 +1,6 @@
 import { Router } from 'express';
-import { requireStackAuth } from '../stack-auth';
+import { requireStackAuth } from '../stack-auth.js';
 const router = Router();
-// Member Feature Health Check - Critical for protecting revenue
 router.get('/health/member-features', async (req, res) => {
     try {
         const healthStatus = {
@@ -30,11 +29,9 @@ router.get('/health/member-features', async (req, res) => {
         });
     }
 });
-// Pre-deployment validation for admin changes
 router.get('/validate/pre-admin-changes', requireStackAuth, async (req, res) => {
     try {
         const userId = req.user.id;
-        // Test critical member APIs
         const validationResults = {
             timestamp: new Date().toISOString(),
             preChangeValidation: true,
@@ -59,3 +56,4 @@ router.get('/validate/pre-admin-changes', requireStackAuth, async (req, res) => 
     }
 });
 export default router;
+//# sourceMappingURL=member-protection.js.map

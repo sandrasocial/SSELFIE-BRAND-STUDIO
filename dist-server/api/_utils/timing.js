@@ -1,7 +1,3 @@
-/**
- * Timing utilities for Vercel API routes
- * Prevents 504s with hard timeouts and fast failures
- */
 export function withTimeout(promise, ms, label = 'op') {
     return Promise.race([
         promise,
@@ -14,11 +10,7 @@ export function createTimeoutError(label, ms) {
 export function isTimeoutError(error) {
     return error instanceof Error && error.message.startsWith('TIMEOUT');
 }
-/**
- * Database operation timeout wrapper with fallback
- */
-export function withDatabaseTimeout(promise, fallbackValue, ms = 3000, // Reduced default from 5000ms to 3000ms
-label = 'database-op') {
+export function withDatabaseTimeout(promise, fallbackValue, ms = 3000, label = 'database-op') {
     return Promise.race([
         promise,
         new Promise((resolve) => setTimeout(() => {
@@ -27,9 +19,6 @@ label = 'database-op') {
         }, ms))
     ]);
 }
-/**
- * External API call timeout wrapper with retry
- */
 export function withExternalApiTimeout(apiCall, fallbackValue, ms = 3000, retries = 1, label = 'external-api') {
     const attempt = async (attemptNum) => {
         try {
@@ -46,9 +35,6 @@ export function withExternalApiTimeout(apiCall, fallbackValue, ms = 3000, retrie
     };
     return attempt(1);
 }
-/**
- * Fast health check with immediate response
- */
 export function quickHealthCheck() {
     const startTime = Date.now();
     return Promise.resolve({
@@ -56,9 +42,6 @@ export function quickHealthCheck() {
         timestamp: new Date().toISOString()
     });
 }
-/**
- * Database operation with retry and exponential backoff for critical operations
- */
 export function withDatabaseTimeoutAndRetry(promiseFactory, fallbackValue, ms = 2000, retries = 2, label = 'critical-db-op') {
     const attempt = async (attemptNum) => {
         const backoffDelay = Math.min(1000 * Math.pow(2, attemptNum - 1), 3000);
@@ -80,3 +63,4 @@ export function withDatabaseTimeoutAndRetry(promiseFactory, fallbackValue, ms = 
     };
     return attempt(1);
 }
+//# sourceMappingURL=timing.js.map

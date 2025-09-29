@@ -6,21 +6,20 @@ export function useVictoriaChat() {
         const userMessage = {
             id: Date.now().toString(),
             content,
-            sender: 'user',
+            role: 'user',
             timestamp: new Date(),
-            context
+            context: context || undefined
         };
         setMessages(prev => [...prev, userMessage]);
         setIsTyping(true);
-        // Get Victoria's authentic Sandra response
         const response = await getContextualResponse(content, context);
         setTimeout(() => {
             const victoriaMessage = {
                 id: (Date.now() + 1).toString(),
                 content: response,
-                sender: 'victoria',
+                role: 'victoria',
                 timestamp: new Date(),
-                context
+                context: context || undefined
             };
             setMessages(prev => [...prev, victoriaMessage]);
             setIsTyping(false);
@@ -34,13 +33,11 @@ export function useVictoriaChat() {
     };
 }
 async function getContextualResponse(input, context) {
-    // Enhanced Sandra voice responses with context awareness
     const contextResponses = getContextualSandraResponses(input, context);
     return contextResponses[Math.floor(Math.random() * contextResponses.length)];
 }
 function getContextualSandraResponses(input, context) {
     const lowerInput = input.toLowerCase();
-    // Context-aware responses
     if (context === 'visual-editor') {
         return [
             "YES! The visual editor is literally game-changing. I remember when I had to figure out Canva and it felt so overwhelming. This makes creating content that looks expensive so much simpler. What kind of content are you wanting to create?",
@@ -53,15 +50,13 @@ function getContextualSandraResponses(input, context) {
             "Planning doesn't have to be complicated. I plan my content around my real life - my struggles, wins, lessons learned. That authenticity combined with strategy? That's the magic formula right there."
         ];
     }
-    // Return to general Sandra responses if no context match
     return getSandraResponses(input);
 }
-// Import the previous getSandraResponses function here
 function getSandraResponses(input) {
-    // ... (same as above)
     return [
         "Tell me more about what you're working on. I want to help you figure this out.",
         "You're asking the right questions. Let's dig deeper into what you need.",
         "Your phone + my strategy = your empire. What's holding you back?"
     ];
 }
+//# sourceMappingURL=ChatMessage.js.map

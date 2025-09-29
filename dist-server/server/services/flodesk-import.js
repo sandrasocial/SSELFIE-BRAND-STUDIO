@@ -1,5 +1,3 @@
-// SSELFIE Studio Flodesk Subscriber Import Service
-// Invisible Empire Data Integration for Email List Migration
 export class FlodeskImportService {
     apiKey;
     baseUrl = 'https://api.flodesk.com/v1';
@@ -9,7 +7,6 @@ export class FlodeskImportService {
         }
         this.apiKey = process.env.FLODESK_API_KEY;
     }
-    // Fetch all subscribers from Flodesk
     async fetchAllSubscribers() {
         try {
             console.log('🔍 Fetching subscribers from Flodesk...');
@@ -23,7 +20,6 @@ export class FlodeskImportService {
             let page = 1;
             let hasMore = true;
             while (hasMore) {
-                // Use Basic Auth as per Flodesk API documentation
                 const basicAuth = Buffer.from(`${this.apiKey}:`).toString('base64');
                 const response = await fetch(`${this.baseUrl}/subscribers?page=${page}&per_page=100`, {
                     headers: {
@@ -46,12 +42,11 @@ export class FlodeskImportService {
                 if (data.data && data.data.length > 0) {
                     subscribers.push(...data.data);
                     page++;
-                    hasMore = data.data.length === 100; // Continue if we got a full page
+                    hasMore = data.data.length === 100;
                 }
                 else {
                     hasMore = false;
                 }
-                // Rate limiting - Flodesk allows 120 requests per minute
                 await this.delay(500);
             }
             console.log(`✅ Fetched ${subscribers.length} subscribers from Flodesk`);
@@ -62,7 +57,6 @@ export class FlodeskImportService {
             throw error;
         }
     }
-    // Transform Flodesk data to our format
     transformSubscribers(flodeskSubscribers) {
         return flodeskSubscribers.map(subscriber => ({
             email: subscriber.email,
@@ -76,7 +70,6 @@ export class FlodeskImportService {
             customFields: subscriber.custom_fields || {}
         }));
     }
-    // Get subscriber segments/tags
     async fetchSegments() {
         try {
             const response = await fetch(`${this.baseUrl}/segments`, {
@@ -96,13 +89,11 @@ export class FlodeskImportService {
             return [];
         }
     }
-    // Import subscribers with progress tracking
     async importSubscribers(onProgress) {
         try {
             console.log('🚀 Starting Flodesk subscriber import...');
             const flodeskSubscribers = await this.fetchAllSubscribers();
             const transformedSubscribers = this.transformSubscribers(flodeskSubscribers);
-            // Report progress
             if (onProgress) {
                 onProgress(transformedSubscribers.length, transformedSubscribers.length);
             }
@@ -119,3 +110,4 @@ export class FlodeskImportService {
     }
 }
 export default FlodeskImportService;
+//# sourceMappingURL=flodesk-import.js.map

@@ -1,13 +1,9 @@
-import { storage } from "../storage";
-// Stack Auth webhook handler for user sync
+import { storage } from "../storage.js";
 export function setupStackWebhook(app) {
     console.log('🔧 Setting up Stack Auth webhook...');
-    // Stack Auth webhook endpoint for user sync
     app.post('/api/webhooks/stack', async (req, res) => {
         try {
             console.log('📥 Stack Auth webhook received:', req.body?.event_type);
-            // Verify webhook signature (if Stack Auth provides one)
-            // TODO: Add signature verification when Stack Auth documentation is available
             const event = req.body;
             const eventType = event.event_type;
             const userData = event.data;
@@ -27,7 +23,6 @@ export function setupStackWebhook(app) {
                 default:
                     console.log(`⚠️ Unhandled Stack Auth event type: ${eventType}`);
             }
-            // Acknowledge successful processing
             res.status(200).json({ success: true, processed: eventType });
         }
         catch (error) {
@@ -40,13 +35,11 @@ export function setupStackWebhook(app) {
     });
     console.log('✅ Stack Auth webhook handler setup complete at /api/webhooks/stack');
 }
-// Handle user creation and updates from Stack Auth
 async function handleUserUpsert(stackUser) {
     try {
         console.log('🔄 Processing user upsert for:', stackUser.id);
-        // Map Stack Auth user data to your user schema
         const userData = {
-            id: stackUser.id, // Stack Auth user ID
+            id: stackUser.id,
             email: stackUser.primary_email || stackUser.email,
             firstName: stackUser.display_name?.split(' ')[0] ||
                 stackUser.given_name ||
@@ -55,8 +48,7 @@ async function handleUserUpsert(stackUser) {
                 stackUser.family_name || '',
             displayName: stackUser.display_name || stackUser.primary_email || '',
             profileImageUrl: stackUser.profile_image_url || stackUser.picture,
-            lastLoginAt: new Date(), // Update login time on sync
-            // Business logic defaults for new users
+            lastLoginAt: new Date(),
             plan: "sselfie-studio",
             role: stackUser.primary_email === 'sandra@sselfie.ai' ? 'admin' : 'user',
             monthlyGenerationLimit: stackUser.primary_email === 'sandra@sselfie.ai' ? -1 : 100,
@@ -65,7 +57,6 @@ async function handleUserUpsert(stackUser) {
             preferredOnboardingMode: "conversational",
             onboardingProgress: JSON.stringify({}),
         };
-        // Upsert user to database
         const user = await storage.upsertUser(userData);
         console.log('✅ User synced successfully:', {
             id: user.id,
@@ -79,18 +70,14 @@ async function handleUserUpsert(stackUser) {
         throw error;
     }
 }
-// Handle user deletion from Stack Auth
 async function handleUserDeletion(stackUser) {
     try {
         console.log('🗑️ Processing user deletion for:', stackUser.id);
-        // Note: You may want to soft-delete or archive user data instead
-        // For now, we'll log it but not actually delete to preserve user content
         console.log('⚠️ User deletion received - implement based on business requirements');
-        // TODO: Implement user deletion logic based on business requirements
-        // Consider: soft delete, data retention policies, cascade deletes
     }
     catch (error) {
         console.error('❌ Failed to process user deletion:', error);
         throw error;
     }
 }
+//# sourceMappingURL=stack-webhook.js.map

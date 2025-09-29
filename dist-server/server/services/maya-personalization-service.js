@@ -1,23 +1,12 @@
-/**
- * Maya Personalization Service
- *
- * Connects Maya AI to real user data for personalized responses instead of generic templates.
- * Enables Maya to access subscription info, usage stats, profile data for intelligent content generation.
- */
-import { storage } from '../storage';
+import { storage } from '../storage.js';
 export class MayaPersonalizationService {
-    /**
-     * Get comprehensive user context for Maya's personalized responses
-     */
     async getUserPersonalizationContext(userId) {
         try {
-            // Get user from database
             const user = await storage.getUser(userId);
             if (!user) {
                 console.warn(`🔍 Maya Personalization: User ${userId} not found`);
                 return null;
             }
-            // Build subscription context
             const subscriptionData = {
                 plan: user.plan || 'sselfie-studio',
                 planDisplayName: 'SSELFIE Studio',
@@ -36,7 +25,6 @@ export class MayaPersonalizationService {
                     'Style customization'
                 ]
             };
-            // Build profile context
             const profileData = {
                 name: user.displayName || `${user.firstName} ${user.lastName}`,
                 email: user.email || '',
@@ -47,7 +35,6 @@ export class MayaPersonalizationService {
                 photoGoals: user.photoGoals,
                 joinedDate: user.createdAt
             };
-            // Build usage context
             const remainingGenerations = user.monthlyGenerationLimit === -1
                 ? -1
                 : (user.monthlyGenerationLimit || 100) - (user.generationsUsedThisMonth || 0);
@@ -78,9 +65,6 @@ export class MayaPersonalizationService {
             return null;
         }
     }
-    /**
-     * Generate personalized greeting based on user context
-     */
     generatePersonalizedGreeting(context) {
         const { profileData, subscriptionData, usageStats } = context;
         const name = profileData.firstName || profileData.name || profileData.email?.split('@')[0] || 'there';
@@ -92,9 +76,6 @@ export class MayaPersonalizationService {
         }
         return `Hi ${name}! You have ${usageText}. Ready to create some stunning professional photos?`;
     }
-    /**
-     * Generate personalized bio content suggestions
-     */
     generateBioSuggestions(context) {
         const { profileData } = context;
         const suggestions = [
@@ -104,9 +85,6 @@ export class MayaPersonalizationService {
         ];
         return suggestions;
     }
-    /**
-     * Generate personalized branding content
-     */
     generateBrandingContent(context) {
         const { profileData } = context;
         return {
@@ -116,5 +94,5 @@ export class MayaPersonalizationService {
         };
     }
 }
-// Export singleton instance
 export const mayaPersonalizationService = new MayaPersonalizationService();
+//# sourceMappingURL=maya-personalization-service.js.map

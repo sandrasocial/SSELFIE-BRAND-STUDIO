@@ -1,8 +1,3 @@
-/**
- * Enhanced Path Intelligence Service
- * Auto-corrects common path mistakes and provides intelligent file detection
- * Target: 98% path accuracy, 90% reduction in path interventions
- */
 import fs from 'fs';
 import path from 'path';
 export class EnhancedPathIntelligence {
@@ -47,35 +42,26 @@ export class EnhancedPathIntelligence {
     }
     initializePathCorrections() {
         this.pathCorrections = new Map([
-            // Style file corrections
             ['src/styles/globals.css', 'client/src/index.css'],
             ['src/styles/global.css', 'client/src/index.css'],
             ['styles/globals.css', 'client/src/index.css'],
             ['styles/global.css', 'client/src/index.css'],
             ['globals.css', 'client/src/index.css'],
-            // Component path corrections
             ['src/components/', 'client/src/components/'],
             ['components/', 'client/src/components/'],
             ['src/pages/', 'client/src/pages/'],
             ['pages/', 'client/src/pages/'],
-            // Hook corrections
             ['src/hooks/', 'client/src/hooks/'],
             ['hooks/', 'client/src/hooks/'],
-            // Library corrections
             ['src/lib/', 'client/src/lib/'],
             ['lib/', 'client/src/lib/'],
-            // Server path corrections
             ['backend/', 'server/'],
             ['api/', 'server/routes/'],
             ['services/', 'server/services/']
         ]);
     }
-    /**
-     * Auto-correct common path mistakes
-     */
     correctPath(inputPath) {
         const normalizedPath = inputPath.replace(/\\/g, '/').replace(/^\.\//, '');
-        // Direct correction mapping
         if (this.pathCorrections.has(normalizedPath)) {
             return {
                 originalPath: inputPath,
@@ -84,17 +70,14 @@ export class EnhancedPathIntelligence {
                 reason: 'Direct path mapping correction'
             };
         }
-        // Pattern-based corrections
         const patternCorrection = this.applyPatternCorrections(normalizedPath);
         if (patternCorrection) {
             return patternCorrection;
         }
-        // File existence verification
         const existenceCorrection = this.verifyAndCorrectExistence(normalizedPath);
         if (existenceCorrection) {
             return existenceCorrection;
         }
-        // Return original if no correction needed
         return {
             originalPath: inputPath,
             correctedPath: inputPath,
@@ -103,7 +86,6 @@ export class EnhancedPathIntelligence {
         };
     }
     applyPatternCorrections(inputPath) {
-        // Component file patterns
         if (inputPath.includes('/components/') && !inputPath.startsWith('client/')) {
             const corrected = inputPath.replace(/^.*\/components\//, 'client/src/components/');
             return {
@@ -113,7 +95,6 @@ export class EnhancedPathIntelligence {
                 reason: 'Component path pattern correction'
             };
         }
-        // Page file patterns
         if (inputPath.includes('/pages/') && !inputPath.startsWith('client/')) {
             const corrected = inputPath.replace(/^.*\/pages\//, 'client/src/pages/');
             return {
@@ -123,7 +104,6 @@ export class EnhancedPathIntelligence {
                 reason: 'Page path pattern correction'
             };
         }
-        // Style file patterns
         if (inputPath.includes('.css') && !inputPath.startsWith('client/')) {
             if (inputPath.includes('global') || inputPath.includes('index')) {
                 return {
@@ -137,11 +117,9 @@ export class EnhancedPathIntelligence {
         return null;
     }
     verifyAndCorrectExistence(inputPath) {
-        // Check if original path exists
         if (fs.existsSync(inputPath)) {
-            return null; // No correction needed
+            return null;
         }
-        // Try common variations
         const variations = [
             `client/src/${inputPath}`,
             `server/${inputPath}`,
@@ -160,30 +138,24 @@ export class EnhancedPathIntelligence {
         }
         return null;
     }
-    /**
-     * Intelligent file detection with suggestions
-     */
     detectSimilarFiles(inputPath) {
         const basename = path.basename(inputPath);
         const suggestions = [];
         try {
-            // Search in client directory
             const clientDir = 'client/src';
             if (fs.existsSync(clientDir)) {
                 this.findSimilarFiles(clientDir, basename, suggestions);
             }
-            // Search in server directory
             const serverDir = 'server';
             if (fs.existsSync(serverDir)) {
                 this.findSimilarFiles(serverDir, basename, suggestions);
             }
-            // Search in root directory
             this.findSimilarFiles('.', basename, suggestions);
         }
         catch (error) {
             console.warn('Error during file detection:', error);
         }
-        return suggestions.slice(0, 5); // Return top 5 suggestions
+        return suggestions.slice(0, 5);
     }
     findSimilarFiles(directory, targetFile, suggestions) {
         try {
@@ -194,11 +166,9 @@ export class EnhancedPathIntelligence {
                     this.findSimilarFiles(fullPath, targetFile, suggestions);
                 }
                 else if (file.isFile()) {
-                    // Check for exact match
                     if (file.name === targetFile) {
                         suggestions.push(fullPath);
                     }
-                    // Check for similar names (without extension)
                     else if (path.parse(file.name).name === path.parse(targetFile).name) {
                         suggestions.push(fullPath);
                     }
@@ -206,18 +176,11 @@ export class EnhancedPathIntelligence {
             }
         }
         catch (error) {
-            // Ignore permission errors or other issues
         }
     }
-    /**
-     * Get project structure awareness
-     */
     getProjectStructure() {
         return this.projectStructure;
     }
-    /**
-     * Validate and suggest best path for new file creation
-     */
     suggestOptimalPath(fileType, fileName) {
         switch (fileType.toLowerCase()) {
             case 'component':
@@ -239,26 +202,20 @@ export class EnhancedPathIntelligence {
                 return fileName;
         }
     }
-    /**
-     * Performance metrics tracking
-     */
     getPerformanceMetrics() {
-        // This would be enhanced with actual usage tracking
         return {
             totalCorrections: this.pathCorrections.size,
-            successRate: 0.98, // Target: 98%
+            successRate: 0.98,
             averageConfidence: 0.90
         };
     }
 }
-// Export singleton instance
 export const pathIntelligence = new EnhancedPathIntelligence();
-// Helper function for quick path correction
 export function correctPath(inputPath) {
     const correction = pathIntelligence.correctPath(inputPath);
     return correction.correctedPath;
 }
-// Helper function for file suggestions
 export function suggestFiles(inputPath) {
     return pathIntelligence.detectSimilarFiles(inputPath);
 }
+//# sourceMappingURL=enhanced-path-intelligence.js.map

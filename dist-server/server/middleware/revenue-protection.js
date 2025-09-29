@@ -1,5 +1,3 @@
-// Revenue Protection Middleware
-// Ensures member-facing APIs are never broken by admin operations
 const PROTECTED_MEMBER_ROUTES = [
     '/api/subscription',
     '/api/usage/status',
@@ -20,7 +18,6 @@ const PROTECTED_MEMBER_PAGES = [
 ];
 export function revenueProtectionMiddleware(req, res, next) {
     const path = req.path;
-    // Log access to protected routes for monitoring
     if (PROTECTED_MEMBER_ROUTES.includes(path) || PROTECTED_MEMBER_PAGES.includes(path)) {
         console.log(`🛡️ PROTECTED ROUTE ACCESS: ${req.method} ${path} by ${req.user ? 'authenticated' : 'anonymous'} user`);
     }
@@ -28,12 +25,9 @@ export function revenueProtectionMiddleware(req, res, next) {
 }
 export function validateMemberApiHealth() {
     return async (req, res, next) => {
-        // This middleware can be used to validate that member APIs are healthy
-        // before allowing admin operations to proceed
         next();
     };
 }
-// Route protection checker - prevents accidental modification of member routes
 export function isMemberRoute(path) {
     return PROTECTED_MEMBER_ROUTES.includes(path) ||
         PROTECTED_MEMBER_PAGES.includes(path) ||
@@ -47,3 +41,4 @@ export function isAdminRoute(path) {
         path.startsWith('/api/claude') ||
         path.startsWith('/admin');
 }
+//# sourceMappingURL=revenue-protection.js.map

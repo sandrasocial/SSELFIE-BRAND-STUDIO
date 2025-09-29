@@ -1,8 +1,4 @@
-/**
- * Rate Limiter
- * Advanced rate limiting with multiple strategies and storage backends
- */
-import { Logger } from './logger';
+import { Logger } from './logger.js';
 export class RateLimiter {
     logger;
     requests;
@@ -20,29 +16,21 @@ export class RateLimiter {
             ...options
         };
     }
-    /**
-     * Check if request is allowed
-     */
     check(key) {
         const now = Date.now();
         const windowStart = now - this.options.windowMs;
-        // Get existing requests for this key
         const keyRequests = this.requests.get(key) || [];
-        // Filter out old requests
         const recentRequests = keyRequests.filter(timestamp => timestamp > windowStart);
-        // Check if limit is exceeded
         const isAllowed = recentRequests.length < this.options.maxRequests;
         if (isAllowed) {
-            // Add current request
             recentRequests.push(now);
             this.requests.set(key, recentRequests);
         }
-        // Calculate reset time
         const reset = recentRequests.length > 0 ? recentRequests[0] + this.options.windowMs : now + this.options.windowMs;
         const info = {
             limit: this.options.maxRequests,
             remaining: Math.max(0, this.options.maxRequests - recentRequests.length - (isAllowed ? 1 : 0)),
-            reset: Math.ceil(reset / 1000) // Convert to seconds
+            reset: Math.ceil(reset / 1000)
         };
         if (!isAllowed) {
             info.retryAfter = Math.ceil((reset - now) / 1000);
@@ -53,9 +41,6 @@ export class RateLimiter {
             message: isAllowed ? undefined : this.options.message
         };
     }
-    /**
-     * Clean up old entries
-     */
     cleanup() {
         const now = Date.now();
         const windowStart = now - this.options.windowMs;
@@ -75,9 +60,6 @@ export class RateLimiter {
         }
         return cleanedCount;
     }
-    /**
-     * Get rate limit statistics
-     */
     getStats() {
         const now = Date.now();
         const windowStart = now - this.options.windowMs;
@@ -99,23 +81,14 @@ export class RateLimiter {
             topKeys: keyStats.slice(0, 10)
         };
     }
-    /**
-     * Reset rate limit for a key
-     */
     reset(key) {
         return this.requests.delete(key);
     }
-    /**
-     * Reset all rate limits
-     */
     resetAll() {
         this.requests.clear();
         this.logger.info('All rate limits reset');
     }
 }
-/**
- * Multi-tier rate limiter
- */
 export class MultiTierRateLimiter {
     logger;
     limiters;
@@ -123,16 +96,10 @@ export class MultiTierRateLimiter {
         this.logger = new Logger('MultiTierRateLimiter');
         this.limiters = new Map();
     }
-    /**
-     * Add a rate limiter for a specific tier
-     */
     addTier(name, options) {
         this.limiters.set(name, new RateLimiter(options));
         this.logger.info(`Added rate limiter tier: ${name}`);
     }
-    /**
-     * Check rate limit for a specific tier
-     */
     checkTier(tierName, key) {
         const limiter = this.limiters.get(tierName);
         if (!limiter) {
@@ -140,9 +107,6 @@ export class MultiTierRateLimiter {
         }
         return limiter.check(key);
     }
-    /**
-     * Check all tiers (all must pass)
-     */
     checkAll(key) {
         const results = {};
         let allowed = true;
@@ -158,9 +122,6 @@ export class MultiTierRateLimiter {
         }
         return { allowed, results, message };
     }
-    /**
-     * Get statistics for all tiers
-     */
     getAllStats() {
         const stats = {};
         for (const [tierName, limiter] of this.limiters.entries()) {
@@ -168,9 +129,6 @@ export class MultiTierRateLimiter {
         }
         return stats;
     }
-    /**
-     * Cleanup all tiers
-     */
     cleanupAll() {
         let totalCleaned = 0;
         for (const limiter of this.limiters.values()) {
@@ -179,15 +137,11 @@ export class MultiTierRateLimiter {
         return totalCleaned;
     }
 }
-/**
- * Express middleware factory
- */
 export function createRateLimitMiddleware(options) {
     const limiter = new RateLimiter(options);
     return (req, res, next) => {
         const key = options.keyGenerator ? options.keyGenerator(req) : req.ip || 'unknown';
         const result = limiter.check(key);
-        // Add rate limit headers
         if (options.standardHeaders) {
             res.set({
                 'RateLimit-Limit': result.info.limit.toString(),
@@ -216,28 +170,27 @@ export function createRateLimitMiddleware(options) {
         next();
     };
 }
-// Export singleton instances
 export const generalRateLimiter = new RateLimiter({
-    windowMs: 15 * 60 * 1000, // 15 minutes
+    windowMs: 15 * 60 * 1000,
     maxRequests: 100,
     message: 'Too many requests from this IP, please try again later'
 });
 export const strictRateLimiter = new RateLimiter({
-    windowMs: 15 * 60 * 1000, // 15 minutes
+    windowMs: 15 * 60 * 1000,
     maxRequests: 10,
     message: 'Too many requests from this IP, please try again later'
 });
 export const multiTierRateLimiter = new MultiTierRateLimiter();
-// Add common tiers
 multiTierRateLimiter.addTier('general', {
-    windowMs: 15 * 60 * 1000, // 15 minutes
+    windowMs: 15 * 60 * 1000,
     maxRequests: 100
 });
 multiTierRateLimiter.addTier('strict', {
-    windowMs: 15 * 60 * 1000, // 15 minutes
+    windowMs: 15 * 60 * 1000,
     maxRequests: 10
 });
 multiTierRateLimiter.addTier('auth', {
-    windowMs: 15 * 60 * 1000, // 15 minutes
+    windowMs: 15 * 60 * 1000,
     maxRequests: 5
 });
+//# sourceMappingURL=rate-limiter.js.map

@@ -1,15 +1,8 @@
-/**
- * STARTUP GUARD: Ensure concept_cards table exists
- *
- * Bypasses drizzle-kit interactive prompt by creating the table programmatically
- * Uses CREATE TABLE IF NOT EXISTS for idempotent startup execution
- */
-import { db } from '../drizzle';
+import { db } from '../drizzle.js';
 import { sql } from 'drizzle-orm';
 export async function ensureConceptCardsTable() {
     try {
         console.log('🔧 DATABASE: Ensuring concept_cards table exists...');
-        // Create concept_cards table without foreign key constraints (standalone for hybrid backend)
         await db.execute(sql `
       CREATE TABLE IF NOT EXISTS concept_cards (
         id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -30,7 +23,6 @@ export async function ensureConceptCardsTable() {
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
       );
     `);
-        // Create indexes for performance (idempotent)
         await db.execute(sql `
       CREATE INDEX IF NOT EXISTS idx_concept_cards_user ON concept_cards(user_id);
     `);
@@ -50,3 +42,4 @@ export async function ensureConceptCardsTable() {
         throw error;
     }
 }
+//# sourceMappingURL=ensureConceptCards.js.map

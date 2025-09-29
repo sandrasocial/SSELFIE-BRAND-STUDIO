@@ -1,33 +1,27 @@
-import { db } from '@server/db.js';
-import { hairLeads, insertHairLeadSchema } from '@shared/schema.js';
+import { db } from '../server/db.js';
+import { hairLeads, insertHairLeadSchema } from '../shared/schema.js';
 export const config = { runtime: 'nodejs' };
 export default async function handler(req, res) {
-    // Set CORS headers
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
     res.setHeader('Access-Control-Allow-Credentials', 'true');
-    // Handle preflight requests
     if (req.method === 'OPTIONS') {
         return res.status(200).end();
     }
-    // Only allow POST requests for creating leads
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method not allowed' });
     }
     try {
         console.log('📧 Hair leads API: Handling lead creation');
         console.log('📧 Request body:', JSON.stringify(req.body, null, 2));
-        // Validate the request body
         const leadData = insertHairLeadSchema.parse(req.body);
-        // Additional validation for required Norwegian fields
         if (!leadData.navn || !leadData.epost) {
             return res.status(400).json({
                 error: 'Navn og epost er påkrevd',
                 message: 'Name and email are required'
             });
         }
-        // Simple email validation
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(leadData.epost)) {
             return res.status(400).json({
@@ -35,7 +29,6 @@ export default async function handler(req, res) {
                 message: 'Invalid email address'
             });
         }
-        // Check if email already exists
         const existingLead = await db.query.hairLeads.findFirst({
             where: (leads, { eq }) => eq(leads.epost, leadData.epost)
         });
@@ -46,7 +39,6 @@ export default async function handler(req, res) {
                 message: 'This email is already registered'
             });
         }
-        // Insert the new lead
         const newLead = await db.insert(hairLeads).values({
             navn: leadData.navn,
             epost: leadData.epost,
@@ -65,7 +57,6 @@ export default async function handler(req, res) {
     }
     catch (error) {
         console.error('❌ Hair leads API error:', error);
-        // Handle Zod validation errors
         if (error.name === 'ZodError') {
             return res.status(400).json({
                 error: 'Ugyldig data',
@@ -73,8 +64,7 @@ export default async function handler(req, res) {
                 details: error.errors
             });
         }
-        // Handle database errors
-        if (error.code === '23505') { // PostgreSQL unique constraint violation
+        if (error.code === '23505') {
             return res.status(400).json({
                 error: 'Denne epost-adressen er allerede registrert',
                 message: 'This email is already registered'
@@ -86,3 +76,4 @@ export default async function handler(req, res) {
         });
     }
 }
+//# sourceMappingURL=hair-leads.js.map

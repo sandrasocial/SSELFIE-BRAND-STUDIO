@@ -1,5 +1,4 @@
-import { SlackNotificationService } from './slack-notification-service';
-// Agent specialization and insight patterns
+import { SlackNotificationService } from './slack-notification-service.js';
 const AGENT_SPECIALIZATIONS = {
     elena: {
         role: 'Strategic Leader',
@@ -89,9 +88,8 @@ const AGENT_SPECIALIZATIONS = {
 export class AgentInsightEngine {
     static triggers = [];
     static isInitialized = false;
-    // Track last sent insights to prevent spam
     static lastSentInsights = new Map();
-    static COOLDOWN_HOURS = 6; // 6 hour cooldown between same insights
+    static COOLDOWN_HOURS = 6;
     static initialize() {
         if (this.isInitialized)
             return;
@@ -100,9 +98,7 @@ export class AgentInsightEngine {
         this.isInitialized = true;
         console.log(`✅ AGENT INSIGHTS: Engine active with ${this.triggers.length} intelligent triggers`);
     }
-    // Set up intelligent triggers for each agent
     static setupAgentTriggers() {
-        // Elena - Strategic Leadership Insights
         this.addTrigger({
             agentName: 'elena',
             triggerType: 'revenue_milestone',
@@ -119,7 +115,6 @@ export class AgentInsightEngine {
             }),
             cooldownMinutes: 60
         });
-        // Aria - Brand Design Insights
         this.addTrigger({
             agentName: 'aria',
             triggerType: 'visual_consistency_check',
@@ -136,7 +131,6 @@ export class AgentInsightEngine {
             }),
             cooldownMinutes: 120
         });
-        // Zara - Technical Performance Insights
         this.addTrigger({
             agentName: 'zara',
             triggerType: 'performance_optimization',
@@ -153,7 +147,6 @@ export class AgentInsightEngine {
             }),
             cooldownMinutes: 30
         });
-        // Maya - AI Styling Insights
         this.addTrigger({
             agentName: 'maya',
             triggerType: 'styling_trend_analysis',
@@ -170,7 +163,6 @@ export class AgentInsightEngine {
             }),
             cooldownMinutes: 180
         });
-        // Victoria - UX Optimization Insights
         this.addTrigger({
             agentName: 'victoria',
             triggerType: 'conversion_funnel_analysis',
@@ -187,11 +179,9 @@ export class AgentInsightEngine {
             }),
             cooldownMinutes: 45
         });
-        // Add more intelligent triggers for remaining agents...
         this.setupRemainingAgentTriggers();
     }
     static setupRemainingAgentTriggers() {
-        // Rachel - Content Performance Insights
         this.addTrigger({
             agentName: 'rachel',
             triggerType: 'content_performance_analysis',
@@ -208,7 +198,6 @@ export class AgentInsightEngine {
             }),
             cooldownMinutes: 240
         });
-        // Ava - Automation Opportunity Insights
         this.addTrigger({
             agentName: 'ava',
             triggerType: 'manual_task_detection',
@@ -225,7 +214,6 @@ export class AgentInsightEngine {
             }),
             cooldownMinutes: 360
         });
-        // Martha - Market Opportunity Insights
         this.addTrigger({
             agentName: 'martha',
             triggerType: 'market_opportunity_scan',
@@ -243,22 +231,18 @@ export class AgentInsightEngine {
             cooldownMinutes: 480
         });
     }
-    // Add a new trigger
     static addTrigger(trigger) {
         this.triggers.push(trigger);
     }
-    // Process context and check for triggered insights
     static async processContext(context) {
         const triggeredInsights = [];
         for (const trigger of this.triggers) {
-            // Check cooldown
             if (trigger.lastTriggered && trigger.cooldownMinutes) {
                 const cooldownMs = trigger.cooldownMinutes * 60 * 1000;
                 if (Date.now() - trigger.lastTriggered.getTime() < cooldownMs) {
                     continue;
                 }
             }
-            // Check trigger condition
             try {
                 if (trigger.condition(context)) {
                     const insight = trigger.generateInsight(context);
@@ -273,31 +257,23 @@ export class AgentInsightEngine {
         }
         return triggeredInsights;
     }
-    // Send insights via Slack and store in dashboard (with spam prevention)
     static async sendInsights(insights) {
         for (const insight of insights) {
             try {
-                // Create unique key for this insight type to prevent duplicates
                 const insightKey = `${insight.agentName}-${insight.insightType}-${insight.title}`;
                 const lastSent = this.lastSentInsights.get(insightKey);
                 const now = new Date();
-                // Check if this insight was sent recently (within cooldown period)
                 if (lastSent) {
                     const hoursSinceLastSent = (now.getTime() - lastSent.getTime()) / (1000 * 60 * 60);
                     if (hoursSinceLastSent < this.COOLDOWN_HOURS) {
                         console.log(`🔇 SKIPPING: ${insight.agentName} - ${insight.title} (sent ${hoursSinceLastSent.toFixed(1)}h ago)`);
-                        continue; // Skip this insight - too recent
+                        continue;
                     }
                 }
-                // Store insight in dashboard
                 await this.storeInsightInDashboard(insight);
-                // Check notification preferences before sending to Slack
-                const shouldNotify = await this.checkNotificationPreferences('42585527', // Sandra's user ID
-                insight.agentName, insight.insightType, insight.priority);
+                const shouldNotify = await this.checkNotificationPreferences('42585527', insight.agentName, insight.insightType, insight.priority);
                 if (shouldNotify) {
-                    // Send to Slack
                     await SlackNotificationService.sendAgentInsight(insight.agentName, insight.insightType, insight.title, insight.message, insight.priority);
-                    // Track that we sent this insight
                     this.lastSentInsights.set(insightKey, now);
                     console.log(`✅ INSIGHT SENT: ${insight.agentName} - ${insight.title}`);
                 }
@@ -310,7 +286,6 @@ export class AgentInsightEngine {
             }
         }
     }
-    // Check notification preferences
     static async checkNotificationPreferences(userId, agentName, insightType, priority) {
         try {
             const response = await fetch('http://localhost:5000/api/admin/notification-preferences/should-notify', {
@@ -337,7 +312,6 @@ export class AgentInsightEngine {
             return true;
         }
     }
-    // Store insight in dashboard data store
     static async storeInsightInDashboard(insight) {
         try {
             const response = await fetch('http://localhost:5000/api/agent-insights-data/store', {
@@ -364,7 +338,6 @@ export class AgentInsightEngine {
             console.error(`❌ Failed to store insight in dashboard:`, error);
         }
     }
-    // Manual insight trigger (for testing)
     static async triggerManualInsight(agentName, context = {}) {
         const specialization = AGENT_SPECIALIZATIONS[agentName];
         if (!specialization) {
@@ -383,7 +356,6 @@ export class AgentInsightEngine {
         };
         await this.sendInsights([insight]);
     }
-    // Get agent statistics
     static getAgentStats() {
         return {
             totalAgents: Object.keys(AGENT_SPECIALIZATIONS).length,
@@ -393,5 +365,5 @@ export class AgentInsightEngine {
         };
     }
 }
-// Initialize the engine
 AgentInsightEngine.initialize();
+//# sourceMappingURL=agent-insight-engine.js.map

@@ -1,4 +1,5 @@
-import { storage } from './storage';
+import { storage } from './storage.js';
+import type { ChatMessage, GalleryImage, ChatPreviewError } from './types/chat.js';
 
 /**
  * Maya Chat Preview Service
@@ -9,15 +10,32 @@ export class MayaChatPreviewService {
   /**
    * Save generated images as chat previews (not gallery items)
    */
-  static async saveChatPreview(chatId: number, imageUrls: string[], prompt: string, predictionId: string) {
+  static async saveChatPreview(chatId: number, imageUrls: string[], prompt: string, predictionId: string): Promise<ChatMessage> {
     try {
-      // Save as Maya chat message with image previews
-      const previewMessage = await storage.saveMayaChatMessage({
-        chatId,
-        role: 'maya',
-        content: `🎬 **YOUR IMAGES ARE READY!** 
+      // Validate input
+      if (!Array.isArray(imageUrls) || imageUrls.length === 0) {
+        const error: ChatPreviewError = {
+          type: 'save_preview',
+          message: 'No image URLs provided',
+          chatId
+        };
+        throw error;
+      }
 
-Here are your stunning photos! Click the heart ♡ on any image you love to save it to your gallery.
+      // Save as Maya chat message with image previews
+      try {
+      // Get chat details first
+      const chat = await storage.getMayaChat(chatId);
+      if (!chat) {
+        throw new Error(`Chat ${chatId} not found`);
+      }
+
+      // Create chat message record
+      const message = await storage.saveMayaChatMessage({
+        chatId,
+        userId: chat.userId,
+        role: 'assistant', 
+        content: `Here are your stunning photos! Click the heart ♡ on any image you love to save it to your gallery.
 
 Generated with your personal AI model using Sandra's proven settings
 📸 ${imageUrls.length} professional-quality images created`,
@@ -25,38 +43,110 @@ Generated with your personal AI model using Sandra's proven settings
         generatedPrompt: prompt
       });
 
+      console.log(`✅ MAYA CHAT PREVIEW: Saved ${imageUrls.length} images to chat ${chatId} as message ${message.id}`);
+      return message;
+
+      const previewMessage = await storage.saveMayaChatMessage(messageInput);
+
       console.log(`✅ MAYA CHAT PREVIEW: Saved ${imageUrls.length} images to chat ${chatId} as message ${previewMessage.id}`);
-      return previewMessage;
+      return {
+        ...previewMessage,
+        userId: chat.userId
+      } as ChatMessage;
       
     } catch (error) {
       console.error('❌ MAYA CHAT PREVIEW: Failed to save chat preview:', error);
-      throw error;
+      const previewError: ChatPreviewError = {
+        type: 'save_preview',
+        message: error instanceof Error ? error.message : 'Failed to save chat preview',
+        chatId,
+        error: error instanceof Error ? error : new Error(String(error))
+      };
+      throw previewError;
     }
   }
   
   /**
    * Heart/Save image from Maya chat to user's gallery
    */
-  static async heartImageToGallery(userId: string, imageUrl: string, prompt: string, category: string = 'Maya AI') {
+  static async heartImageToGallery(userId: string, imageUrl: string, prompt: string, category: string = 'Maya AI'): Promise<GalleryImage> {
     try {
-      // Create permanent gallery entry when user hearts the image  
-      const galleryImage = await storage.saveAIImage({
+      // Validate inputs
+      if (!userId?.trim() || !imageUrl?.trim()) {
+        const error: ChatPreviewError = {
+          type: 'heart_image',
+          message: 'Missing required user ID or image URL',
+          userId,
+          imageUrl
+        };
+        throw error;
+      }
+
+      // Save to gallery
+      const galleryImage = await MayaGalleryService.saveImage({
         userId,
         imageUrl,
         prompt,
+        category
+      });
+
+      return galleryImage;
+    } catch (error) {
+      const previewError: ChatPreviewError = {
+        type: 'heart_image',
+        message: error instanceof Error ? error.message : 'Failed to save image to gallery',
+        userId,
+        imageUrl
+      };
+      throw previewError;
+        };
+        throw error;
+      }
+
+      // Create permanent gallery entry when user hearts the image
+      const imageInput: GalleryImageInput = {
+        userId,
+        imageUrl,
+        prompt: prompt || 'Hearted from Maya chat',
         style: category, // Use 'style' field instead of 'category'
         generationStatus: 'completed',
         predictionId: '', // Not needed for hearted images
         isSelected: true, // CRITICAL FIX: Mark as selected so it appears in gallery
         isFavorite: true, // CRITICAL FIX: Mark as favorite so it appears in gallery
-      });
+        metadata: {
+          source: 'maya_chat',
+          heartedAt: new Date().toISOString(),
+          originalCategory: category
+        }
+      };
+
+      const galleryImage = await storage.saveAIImage(imageInput);
 
       console.log(`💖 MAYA HEART: Saved image ${galleryImage.id} to gallery for user ${userId} with selected/favorite flags`);
-      return galleryImage;
+      return {
+        ...galleryImage,
+        generationStatus: galleryImage.generationStatus as 'completed' | 'pending' | 'processing' | 'failed'
+      };
       
     } catch (error) {
       console.error('❌ MAYA HEART: Failed to save to gallery:', error);
-      throw error;
+      const heartError: ChatPreviewError = {
+        code: 'heart_image_error',
+        message: error instanceof Error ? error.message : 'Failed to save image to gallery',
+        details: {
+          userId,
+          imageUrl,
+          error: error instanceof Error ? error.message : String(error)
+        }
+      };
+      throw heartError;
     }
+  }
+
+  /**
+   * Validate if the provided image URL is from a chat preview
+   */
+  private static isValidChatPreviewUrl(imageUrl: string): boolean {
+    return Boolean(imageUrl?.trim() && !imageUrl.includes('test.com'));
   }
 }

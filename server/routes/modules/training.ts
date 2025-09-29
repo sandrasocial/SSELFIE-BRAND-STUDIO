@@ -3,10 +3,10 @@
  * Handles model training and data management
  */
 
-import { Router, Response, Request } from 'express';
+import { Router, Response } from 'express';
 import { requireStackAuth } from '../../stack-auth.js';
 import { asyncHandler, createError, sendSuccess, validateRequired } from '../middleware/error-handler.js';
-import { AuthenticatedRequest } from '../../types/ai-generation.js';
+import { AuthenticatedRequest, AuthenticatedRequestWithBody, AuthenticatedRequestWithParams } from '../../../api/_shared/request-types.js';
 import { SuccessResponse } from '../../types/ai-generation.js';
 
 interface TrainingStatus {
@@ -86,7 +86,7 @@ router.get('/api/training/request/:requestId', requireStackAuth, asyncHandler(as
 }));
 
 // Start training
-router.post('/api/training/start', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest & { body: TrainingStartRequest }, res: Response) => {
+router.post('/api/training/start', requireStackAuth, asyncHandler(async (req: AuthenticatedRequestWithBody<TrainingStartRequest>, res: Response) => {
   const userId = req.user.id;
   const { modelType, data } = req.body;
   validateRequired({ modelType, data }, ['modelType', 'data']);
@@ -103,7 +103,7 @@ router.post('/api/training/start', requireStackAuth, asyncHandler(async (req: Au
 }));
 
 // Stop training
-router.post('/api/training/stop', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest & { body: TrainingStopRequest }, res: Response) => {
+router.post('/api/training/stop', requireStackAuth, asyncHandler(async (req: AuthenticatedRequestWithBody<TrainingStopRequest>, res: Response) => {
   const userId = req.user.id;
   const { trainingId } = req.body;
   validateRequired({ trainingId }, ['trainingId']);
@@ -118,7 +118,7 @@ router.post('/api/training/stop', requireStackAuth, asyncHandler(async (req: Aut
 }));
 
 // Validate training data
-router.post('/api/training/validate', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest & { body: TrainingValidateRequest }, res: Response) => {
+router.post('/api/training/validate', requireStackAuth, asyncHandler(async (req: AuthenticatedRequestWithBody<TrainingValidateRequest>, res: Response) => {
   const userId = req.user.id;
   const { data } = req.body;
   validateRequired({ data }, ['data']);
@@ -134,7 +134,7 @@ router.post('/api/training/validate', requireStackAuth, asyncHandler(async (req:
 }));
 
 // Get training metrics
-router.post('/api/training/metrics', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest & { body: TrainingMetricsRequest }, res: Response) => {
+router.post('/api/training/metrics', requireStackAuth, asyncHandler(async (req: AuthenticatedRequestWithBody<TrainingMetricsRequest>, res: Response) => {
   const userId = req.user.id;
   const { trainingId } = req.body;
   validateRequired({ trainingId }, ['trainingId']);
@@ -150,7 +150,7 @@ router.post('/api/training/metrics', requireStackAuth, asyncHandler(async (req: 
 }));
 
 // Consolidate data
-router.post('/api/training/consolidate/:userId', asyncHandler(async (req: { params: { userId: string } }, res: Response) => {
+router.post('/api/training/consolidate/:userId', asyncHandler(async (req: AuthenticatedRequestWithParams<{ userId: string }>, res: Response) => {
   const { userId } = req.params;
   validateRequired({ userId }, ['userId']);
 
@@ -164,7 +164,7 @@ router.post('/api/training/consolidate/:userId', asyncHandler(async (req: { para
 }));
 
 // Get consolidation status
-router.get('/api/training/consolidation/status', asyncHandler(async (_req: Request, res: Response) => {
+router.get('/api/training/consolidation/status', asyncHandler(async (_req: AuthenticatedRequest, res: Response) => {
   // Mock implementation - replace with actual consolidation service
   const responseData: SuccessResponse<{
     status: 'healthy' | 'unhealthy';
@@ -180,7 +180,7 @@ router.get('/api/training/consolidation/status', asyncHandler(async (_req: Reque
 }));
 
 // Get memory audit
-router.get('/api/training/memory/audit', asyncHandler(async (_req: Request, res: Response) => {
+router.get('/api/training/memory/audit', asyncHandler(async (_req: AuthenticatedRequest, res: Response) => {
   // Mock implementation - replace with actual audit service
   const audit: MemoryAudit = {
     totalMemory: '1GB',
@@ -196,7 +196,7 @@ router.get('/api/training/memory/audit', asyncHandler(async (_req: Request, res:
 }));
 
 // Cleanup memory
-router.post('/api/training/memory/cleanup/:userId', asyncHandler(async (req: { params: { userId: string } }, res: Response) => {
+router.post('/api/training/memory/cleanup/:userId', asyncHandler(async (req: AuthenticatedRequestWithParams<{ userId: string }>, res: Response) => {
   const { userId } = req.params;
   validateRequired({ userId }, ['userId']);
 

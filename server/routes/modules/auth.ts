@@ -8,6 +8,7 @@ import { requireStackAuth } from '../../stack-auth.js';
 import { storage } from '../../storage.js';
 import { asyncHandler, createError, sendSuccess, validateRequired } from '../middleware/error-handler.js';
 import { userService } from '../../services/user-service.js';
+import { AuthenticatedRequestWithBody } from '../../../api/_shared/request-types.js';
 import { AuthenticatedRequest } from '../../../api/_shared/auth-types.js';
 import { SuccessResponse } from '../../types/ai-generation.js';
 
@@ -102,7 +103,7 @@ interface AutoRegisterRequest {
 }
 
 // Auto-register user
-router.post('/api/auth/auto-register', asyncHandler(async (req: AuthenticatedRequest & { body: AutoRegisterRequest }, res: Response) => {
+router.post('/api/auth/auto-register', asyncHandler(async (req: AuthenticatedRequestWithBody<AutoRegisterRequest>, res: Response) => {
   const { email, name } = req.body;
   validateRequired({ email }, ['email']);
 
@@ -125,7 +126,7 @@ router.post('/api/auth/auto-register', asyncHandler(async (req: AuthenticatedReq
     message: 'User created successfully'
   };
 
-  sendSuccess(res, responseData, 201);
+  sendSuccess(res, responseData, '201');
 }));
 
 interface UpdateGenderRequest {
@@ -133,7 +134,7 @@ interface UpdateGenderRequest {
 }
 
 // Update user gender
-router.post('/api/user/update-gender', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest & { body: UpdateGenderRequest }, res: Response) => {
+router.post('/api/user/update-gender', requireStackAuth, asyncHandler(async (req: AuthenticatedRequestWithBody<UpdateGenderRequest>, res: Response) => {
   const userId = req.user.id;
   const { gender } = req.body;
   validateRequired({ gender }, ['gender']);
@@ -191,7 +192,7 @@ interface UpdateProfileRequest {
 }
 
 // Update user profile
-router.put('/api/profile', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest & { body: UpdateProfileRequest }, res: Response) => {
+router.put('/api/profile', requireStackAuth, asyncHandler(async (req: AuthenticatedRequestWithBody<UpdateProfileRequest>, res: Response) => {
   const userId = req.user.id;
   const { displayName, firstName, lastName, profileImageUrl, gender } = req.body;
 

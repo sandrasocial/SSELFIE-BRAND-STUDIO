@@ -1,16 +1,9 @@
-/**
- * Build Optimizer
- * Optimizes build processes and deployment configurations
- */
-import { Logger } from './logger';
+import { Logger } from './logger.js';
 export class BuildOptimizer {
     logger;
     constructor() {
         this.logger = new Logger('BuildOptimizer');
     }
-    /**
-     * Optimize TypeScript configuration
-     */
     optimizeTypeScriptConfig() {
         return {
             compilerOptions: {
@@ -20,7 +13,7 @@ export class BuildOptimizer {
                 allowSyntheticDefaultImports: true,
                 esModuleInterop: true,
                 allowJs: true,
-                strict: true, // Enable strict mode for better type safety
+                strict: true,
                 noImplicitAny: true,
                 strictNullChecks: true,
                 strictFunctionTypes: true,
@@ -71,9 +64,6 @@ export class BuildOptimizer {
             ]
         };
     }
-    /**
-     * Optimize Vite configuration
-     */
     optimizeViteConfig() {
         return {
             build: {
@@ -100,9 +90,6 @@ export class BuildOptimizer {
             }
         };
     }
-    /**
-     * Optimize package.json scripts
-     */
     optimizePackageScripts() {
         return {
             scripts: {
@@ -125,9 +112,6 @@ export class BuildOptimizer {
             }
         };
     }
-    /**
-     * Generate optimized Dockerfile
-     */
     generateDockerfile() {
         return `# Multi-stage build for optimization
 FROM node:18-alpine AS base
@@ -169,9 +153,6 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \\
 # Start application
 CMD ["npm", "start"]`;
     }
-    /**
-     * Generate optimized docker-compose.yml
-     */
     generateDockerCompose() {
         return `version: '3.8'
 
@@ -224,9 +205,6 @@ volumes:
   postgres_data:
   redis_data:`;
     }
-    /**
-     * Generate optimized Vercel configuration
-     */
     generateVercelConfig() {
         return {
             version: 2,
@@ -260,23 +238,12 @@ volumes:
             }
         };
     }
-    /**
-     * Analyze bundle size
-     */
     analyzeBundle() {
         this.logger.info('Bundle analysis would be performed here');
-        // In a real implementation, this would use webpack-bundle-analyzer or similar
     }
-    /**
-     * Optimize images
-     */
     optimizeImages() {
         this.logger.info('Image optimization would be performed here');
-        // In a real implementation, this would use sharp or similar
     }
-    /**
-     * Generate performance report
-     */
     generatePerformanceReport() {
         return {
             buildTime: Date.now(),
@@ -291,5 +258,5 @@ volumes:
         };
     }
 }
-// Create global build optimizer instance
 export const buildOptimizer = new BuildOptimizer();
+//# sourceMappingURL=build-optimizer.js.map

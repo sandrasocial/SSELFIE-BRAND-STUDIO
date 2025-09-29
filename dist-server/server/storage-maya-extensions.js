@@ -1,30 +1,17 @@
-/**
- * Maya Storage Extensions
- * Specialized storage functions for Maya's onboarding and personal brand data
- * STEP 3.2: Enhanced with performance-optimized database methods
- */
-import { db } from './drizzle';
-import { userPersonalBrand, mayaPersonalMemory, mayaChats, mayaChatMessages } from '@shared/schema';
+import { db } from './drizzle.js';
+import { userPersonalBrand, mayaPersonalMemory, mayaChats, mayaChatMessages } from '../shared/schema.js';
 import { eq, desc, lte, count, sql } from 'drizzle-orm';
 export class MayaStorageExtensions {
-    /**
-     * PHASE 5: Data validation for personal brand data
-     * STEP 3: Validate required fields and prevent orphaned records
-     */
     static validatePersonalBrandData(data) {
-        // Required field validation
         if (!data.userId || typeof data.userId !== 'string' || data.userId.trim().length === 0) {
             console.error('❌ Maya: Invalid userId in personal brand data');
             return false;
         }
-        // Maya handles onboarding progress conversationally without rigid step validation
-        // Validate required completion data
         if (data.isCompleted && (!data.transformationStory || !data.futureVision)) {
             console.error('❌ Maya: Cannot mark as completed without transformation story and vision');
             return false;
         }
-        // Validate JSON field lengths to prevent database errors
-        const maxLength = 2000; // Database text field limit
+        const maxLength = 2000;
         if (data.transformationStory && data.transformationStory.length > maxLength) {
             console.error('❌ Maya: Transformation story too long');
             return false;
@@ -36,15 +23,11 @@ export class MayaStorageExtensions {
         console.log('✅ Maya: Personal brand data validation passed');
         return true;
     }
-    /**
-     * PHASE 5: Validate Maya personal memory data structure
-     */
     static validateMayaMemoryData(data) {
         if (!data.userId || typeof data.userId !== 'string') {
             console.error('❌ Maya: Invalid userId in memory data');
             return false;
         }
-        // Validate required nested objects
         if (!data.personalInsights || typeof data.personalInsights !== 'object') {
             console.error('❌ Maya: Missing or invalid personalInsights');
             return false;
@@ -60,13 +43,9 @@ export class MayaStorageExtensions {
         console.log('✅ Maya: Memory data validation passed');
         return true;
     }
-    /**
-     * Get comprehensive Maya user context for personalized responses
-     */
     static async getMayaUserContext(userId) {
         try {
             console.log(`🔍 Maya: Getting user context for ${userId}`);
-            // Get personal brand data from simplified user_personal_brand table
             const [personalBrandRecord] = await db
                 .select()
                 .from(userPersonalBrand)
@@ -97,12 +76,7 @@ export class MayaStorageExtensions {
             return null;
         }
     }
-    /**
-     * Save user's personal brand data during onboarding with transaction safety
-     * PHASE 5: Transaction wrapping and data validation
-     */
     static async saveUserPersonalBrand(data) {
-        // STEP 3: Data validation before save
         if (!this.validatePersonalBrandData(data)) {
             console.error('❌ Maya: Personal brand data validation failed:', data);
             return false;
@@ -114,9 +88,7 @@ export class MayaStorageExtensions {
                 hasVision: !!data.futureVision,
                 isCompleted: data.isCompleted
             });
-            // STEP 1: Wrap in transaction for consistency
             const result = await db.transaction(async (tx) => {
-                // Prepare validated data
                 const saveData = {
                     userId: data.userId,
                     transformationStory: data.transformationStory || null,
@@ -128,14 +100,12 @@ export class MayaStorageExtensions {
                     completedAt: data.isCompleted ? new Date() : null,
                     updatedAt: new Date()
                 };
-                // Check if record exists within transaction
                 const [existing] = await tx
                     .select()
                     .from(userPersonalBrand)
                     .where(eq(userPersonalBrand.userId, data.userId))
                     .limit(1);
                 if (existing) {
-                    // Update existing record
                     await tx
                         .update(userPersonalBrand)
                         .set(saveData)
@@ -144,7 +114,6 @@ export class MayaStorageExtensions {
                     return 'updated';
                 }
                 else {
-                    // Insert new record
                     await tx
                         .insert(userPersonalBrand)
                         .values(saveData);
@@ -156,10 +125,8 @@ export class MayaStorageExtensions {
             return true;
         }
         catch (error) {
-            // STEP 2: Comprehensive error recovery
             console.error('❌ Maya: Personal brand save transaction failed:', error);
             console.error('❌ Maya: Failed data:', JSON.stringify(data, null, 2));
-            // Attempt rollback validation
             try {
                 const [existing] = await db
                     .select()
@@ -173,16 +140,10 @@ export class MayaStorageExtensions {
             catch (rollbackError) {
                 console.error('🚨 Maya: Critical error - rollback verification failed:', rollbackError);
             }
-            // Don't fail silently - return false to indicate failure
             return false;
         }
     }
-    /**
-     * Save user's onboarding data during discovery flow with transaction safety
-     * PHASE 5: Enhanced with transaction wrapping and validation
-     */
     static async saveOnboardingData(userId, stepData, step) {
-        // STEP 3: Validate input data
         if (!userId || typeof userId !== 'string' || userId.trim().length === 0) {
             console.error('❌ Maya: Invalid userId for onboarding data');
             return false;
@@ -193,9 +154,7 @@ export class MayaStorageExtensions {
         }
         try {
             console.log(`💾 Maya: Saving onboarding data for user ${userId}, step ${step}`);
-            // STEP 1: Wrap in transaction for consistency
             const result = await db.transaction(async (tx) => {
-                // Prepare validated onboarding data
                 const personalBrandData = {
                     userId,
                     transformationStory: stepData.transformationStory || null,
@@ -207,14 +166,12 @@ export class MayaStorageExtensions {
                     completedAt: step === 6 ? new Date() : null,
                     updatedAt: new Date()
                 };
-                // Check if user record exists within transaction
                 const [existing] = await tx
                     .select()
                     .from(userPersonalBrand)
                     .where(eq(userPersonalBrand.userId, userId))
                     .limit(1);
                 if (existing) {
-                    // Update existing record
                     await tx
                         .update(userPersonalBrand)
                         .set({
@@ -232,7 +189,6 @@ export class MayaStorageExtensions {
                     return 'updated';
                 }
                 else {
-                    // Insert new record
                     await tx
                         .insert(userPersonalBrand)
                         .values(personalBrandData);
@@ -244,10 +200,8 @@ export class MayaStorageExtensions {
             return true;
         }
         catch (error) {
-            // STEP 2: Comprehensive error recovery
             console.error('❌ Maya: Onboarding save transaction failed:', error);
             console.error('❌ Maya: Failed step data:', JSON.stringify(stepData, null, 2));
-            // Attempt rollback validation  
             try {
                 const [existing] = await db
                     .select()
@@ -259,16 +213,10 @@ export class MayaStorageExtensions {
             catch (rollbackError) {
                 console.error('🚨 Maya: Critical error - onboarding rollback verification failed:', rollbackError);
             }
-            // Don't fail silently
             return false;
         }
     }
-    /**
-     * Save user's style profile data with transaction safety
-     * PHASE 5: Enhanced with validation and transaction wrapping
-     */
     static async saveUserStyleProfile(data) {
-        // STEP 3: Validate style profile data
         if (!data.userId || typeof data.userId !== 'string') {
             console.error('❌ Maya: Invalid userId in style profile data');
             return false;
@@ -279,7 +227,6 @@ export class MayaStorageExtensions {
                 colors: data.colorPreferences?.length || 0,
                 personality: data.brandPersonality
             });
-            // STEP 1: Transaction wrapping for style profile consistency
             const result = await db.transaction(async (tx) => {
                 const styleData = {
                     userId: data.userId,
@@ -289,8 +236,6 @@ export class MayaStorageExtensions {
                     brandPersonality: data.brandPersonality || null,
                     updatedAt: data.updatedAt || new Date()
                 };
-                // Note: Style profiles are typically stored in user_personal_brand
-                // or a separate style table depending on schema design
                 console.log(`✅ Maya: Style profile prepared for user ${data.userId}`);
                 return 'prepared';
             });
@@ -298,14 +243,10 @@ export class MayaStorageExtensions {
             return true;
         }
         catch (error) {
-            // STEP 2: Error recovery for style profiles
             console.error('❌ Maya: Style profile save transaction failed:', error);
             return false;
         }
     }
-    /**
-     * Get Maya's personal memory for this user
-     */
     static async getMayaPersonalMemory(userId) {
         try {
             console.log(`🧠 Maya: Getting personal memory for user ${userId}`);
@@ -359,12 +300,7 @@ export class MayaStorageExtensions {
             return null;
         }
     }
-    /**
-     * Save Maya's personal memory for this user with transaction safety
-     * PHASE 5: Enhanced with validation, transaction wrapping, and error recovery
-     */
     static async saveMayaPersonalMemory(data) {
-        // STEP 3: Data validation before save
         if (!this.validateMayaMemoryData(data)) {
             console.error('❌ Maya: Memory data validation failed');
             return null;
@@ -375,7 +311,6 @@ export class MayaStorageExtensions {
                 goals: Object.keys(data.ongoingGoals || {}).length,
                 topics: data.preferredTopics?.length || 0
             });
-            // STEP 1: Wrap in transaction for consistency
             const result = await db.transaction(async (tx) => {
                 const saveData = {
                     userId: data.userId,
@@ -390,14 +325,12 @@ export class MayaStorageExtensions {
                     memoryVersion: (data.memoryVersion || 0) + 1,
                     updatedAt: new Date()
                 };
-                // Check if record exists within transaction
                 const [existing] = await tx
                     .select()
                     .from(mayaPersonalMemory)
                     .where(eq(mayaPersonalMemory.userId, data.userId))
                     .limit(1);
                 if (existing) {
-                    // Update existing memory record
                     await tx
                         .update(mayaPersonalMemory)
                         .set(saveData)
@@ -406,7 +339,6 @@ export class MayaStorageExtensions {
                     return { ...data, memoryVersion: saveData.memoryVersion, lastMemoryUpdate: saveData.lastMemoryUpdate };
                 }
                 else {
-                    // Insert new memory record
                     await tx
                         .insert(mayaPersonalMemory)
                         .values(saveData);
@@ -418,9 +350,7 @@ export class MayaStorageExtensions {
             return result;
         }
         catch (error) {
-            // STEP 2: Comprehensive error recovery
             console.error('❌ Maya: Personal memory save transaction failed:', error);
-            // Attempt rollback validation
             try {
                 const [existing] = await db
                     .select()
@@ -432,22 +362,15 @@ export class MayaStorageExtensions {
             catch (rollbackError) {
                 console.error('🚨 Maya: Critical memory rollback verification failed:', rollbackError);
             }
-            // Don't fail silently
             return null;
         }
     }
-    /**
-     * PHASE 5: Multi-table atomic save operation
-     * Save personal brand and memory data together with complete transaction safety
-     */
     static async saveCompleteUserProfile(userId, personalBrand, memory) {
         try {
             console.log(`🎯 Maya: Saving complete user profile atomically for ${userId}`);
-            // Multi-table transaction for atomic updates
             const result = await db.transaction(async (tx) => {
                 let brandResult = 'skipped';
                 let memoryResult = 'skipped';
-                // Save personal brand data
                 if (personalBrand && this.validatePersonalBrandData(personalBrand)) {
                     const brandData = {
                         userId: personalBrand.userId,
@@ -484,11 +407,6 @@ export class MayaStorageExtensions {
             return false;
         }
     }
-    // STEP 3.2: Performance-Optimized Database Methods
-    /**
-     * Bulk retrieve recent chats for a user with optimized query
-     * Uses indexes: maya_chats_user_activity_idx for optimal performance
-     */
     static async getRecentChats(userId, limit = 10) {
         try {
             const chats = await db
@@ -505,10 +423,6 @@ export class MayaStorageExtensions {
             return [];
         }
     }
-    /**
-     * Bulk retrieve chat messages with pagination
-     * Uses indexes: maya_chat_messages_chat_id_idx for optimal performance
-     */
     static async getChatMessages(chatId, limit = 50, offset = 0) {
         try {
             const messages = await db
@@ -519,23 +433,18 @@ export class MayaStorageExtensions {
                 .limit(limit)
                 .offset(offset);
             console.log(`📊 STEP 3.2: Retrieved ${messages.length} messages for chat ${chatId}`);
-            return messages.reverse(); // Return in chronological order
+            return messages.reverse();
         }
         catch (error) {
             console.error('❌ STEP 3.2: Failed to get chat messages:', error);
             return [];
         }
     }
-    /**
-     * Efficient conversation cleanup utility
-     * Removes old conversations beyond retention period
-     */
     static async cleanupOldConversations(retentionDays = 30) {
         try {
             const cutoffDate = new Date();
             cutoffDate.setDate(cutoffDate.getDate() - retentionDays);
             const result = await db.transaction(async (tx) => {
-                // Get chat IDs to delete
                 const oldChats = await tx
                     .select({ id: mayaChats.id })
                     .from(mayaChats)
@@ -544,9 +453,7 @@ export class MayaStorageExtensions {
                 if (chatIds.length === 0) {
                     return 0;
                 }
-                // Delete messages first (foreign key constraint)
                 await tx.delete(mayaChatMessages).where(sql `chat_id IN (${chatIds.join(',')})`);
-                // Delete chats
                 const deleteResult = await tx.delete(mayaChats).where(lte(mayaChats.lastActivity, cutoffDate));
                 return chatIds.length;
             });
@@ -558,10 +465,6 @@ export class MayaStorageExtensions {
             return 0;
         }
     }
-    /**
-     * Database performance monitoring - get chat statistics
-     * Uses all performance indexes for optimal analytics
-     */
     static async getChatStatistics(userId) {
         try {
             const baseQuery = userId ?
@@ -589,3 +492,4 @@ export class MayaStorageExtensions {
         }
     }
 }
+//# sourceMappingURL=storage-maya-extensions.js.map

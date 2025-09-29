@@ -45,20 +45,22 @@ export class SDInpaintService {
         : `data:image/png;base64,${request.maskPngBase64}`;
 
       // Create initial database record for the variant
-      const variantId = await storage.createImageVariant({
+      const variant = await storage.saveImageVariant({
         userId: request.userId,
         originalImageId: request.originalImageId,
-        originalImageType: request.originalImageType,
-        imageUrl: '', // Will be filled when generation completes
-        kind: 'inpaint',
-        prompt: request.prompt,
-        maskData: request.maskPngBase64,
-        generationStatus: 'pending',
-        metadata: {
+        variantUrl: '',
+        variantType: 'inpaint',
+        processingStatus: 'pending',
+        placementData: { 
+          prompt: request.prompt,
+          originalImageType: request.originalImageType,
+          maskData: request.maskPngBase64,
           originalImageUrl: request.imageUrl,
           createdAt: new Date().toISOString()
         }
       });
+
+      const variantId = variant.id;
 
       // Prepare Replicate request for SD inpainting
       // Using stability-ai/stable-diffusion-inpainting model
@@ -92,8 +94,10 @@ export class SDInpaintService {
         
         // Update variant status to failed
         await storage.updateImageVariant(variantId, {
-          generationStatus: 'failed',
-          metadata: { error: `Replicate API error: ${response.status}` }
+          processingStatus: 'failed',
+          placementData: {
+            error: `Replicate API error: ${response.status}`
+          }
         });
         
         throw new Error(`Replicate API error (${response.status}): ${errorText}`);
@@ -107,8 +111,10 @@ export class SDInpaintService {
 
       // Update variant record with prediction ID
       await storage.updateImageVariant(variantId, {
-        predictionId: prediction.id,
-        generationStatus: 'processing'
+        processingStatus: 'processing',
+        placementData: {
+          predictionId: prediction.id
+        }
       });
 
       console.log('✅ INPAINT: Started successfully with prediction ID:', prediction.id);
@@ -157,15 +163,17 @@ export class SDInpaintService {
         const imageUrl = Array.isArray(prediction.output) ? prediction.output[0] : prediction.output;
         
         await storage.updateImageVariant(variantId, {
-          imageUrl,
-          generationStatus: 'completed'
+          variantUrl: imageUrl,
+          processingStatus: 'completed'
         });
 
         return { status: 'completed', imageUrl };
       } else if (status === 'failed' || status === 'canceled') {
         await storage.updateImageVariant(variantId, {
-          generationStatus: 'failed',
-          metadata: { error: prediction.error || 'Generation failed' }
+          processingStatus: 'failed',
+          placementData: {
+            error: prediction.error || 'Generation failed'
+          } as Record<string, any>
         });
 
         return { status: 'failed', error: prediction.error || 'Generation failed' };
@@ -183,9 +191,11 @@ export class SDInpaintService {
   /**
    * Get all inpainting variants for a user
    */
-  static async getUserInpaintVariants(userId: string): Promise<any[]> {
+  static async getUserInpaintVariants(userId?: string): Promise<any[]> {
     try {
-      return await storage.getImageVariantsByKind(userId, 'inpaint');
+      if (!userId) return [];
+      const variants = await storage.getImageVariants(userId);
+      return variants.filter(v => v.variantType === 'inpaint');
     } catch (error) {
       console.error('❌ INPAINT: Error fetching user variants:', error);
       return [];
@@ -200,7 +210,9 @@ export class SDInpaintService {
     originalImageType: 'ai_image' | 'generated_image'
   ): Promise<any[]> {
     try {
-      return await storage.getImageVariants(originalImageId, originalImageType, 'inpaint');
+      const variants = await storage.getImageVariants(userId);
+      const matchingVariants = variants.filter(v => v.originalImageId === originalImageId && v.variantType === 'inpaint');
+      return variants.filter(v => v.variantType === 'inpaint');
     } catch (error) {
       console.error('❌ INPAINT: Error fetching image variants:', error);
       return [];

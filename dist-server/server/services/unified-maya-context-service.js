@@ -1,34 +1,10 @@
-/**
- * ✨ PHASE 2: UNIFIED MAYA CONTEXT SERVICE
- *
- * CRITICAL PERFORMANCE OPTIMIZATION: Eliminates 3-5 database queries per Maya interaction
- * by consolidating all user context data into a single optimized query.
- *
- * BEFORE: Multiple separate queries
- * - getUserPersonalizationContext() -> storage.getUser()
- * - getPersonalBrandProfile() -> complex joins for onboarding data
- * - getUnifiedMayaContext() -> memory queries
- * - Various other context calls
- *
- * AFTER: Single unified query with comprehensive user context
- * - All subscription, profile, brand, memory, and usage data in one call
- * - In-memory caching for same-session optimization
- * - 60%+ database query reduction target
- */
-import { storage } from '../storage';
-import { personalBrandService } from './personal-brand-service';
+import { storage } from '../storage.js';
+import { personalBrandService } from './personal-brand-service.js';
 export class UnifiedMayaContextService {
     contextCache = {};
-    CACHE_DURATION_MS = 5 * 60 * 1000; // 5 minutes
-    /**
-     * 🎯 PHASE 2: Get complete Maya context in single optimized call
-     *
-     * Eliminates multiple database queries by consolidating all user context data.
-     * Includes in-memory caching for same-session optimization.
-     */
+    CACHE_DURATION_MS = 5 * 60 * 1000;
     async getUnifiedMayaContext(userId, sessionId) {
         const cacheKey = `${userId}_${sessionId || 'default'}`;
-        // Check cache first for performance
         const cached = this.contextCache[cacheKey];
         if (cached && (Date.now() - cached.timestamp) < this.CACHE_DURATION_MS) {
             console.log(`⚡ UNIFIED CONTEXT: Cache hit for user ${userId}`);
@@ -37,7 +13,6 @@ export class UnifiedMayaContextService {
         console.log(`🔄 UNIFIED CONTEXT: Loading fresh context for user ${userId}`);
         const startTime = Date.now();
         try {
-            // OPTIMIZATION: Single database call instead of multiple separate queries
             const [user, personalBrandData] = await Promise.all([
                 storage.getUser(userId),
                 this.getPersonalBrandDataOptimized(userId)
@@ -46,9 +21,7 @@ export class UnifiedMayaContextService {
                 console.warn(`⚠️ UNIFIED CONTEXT: User ${userId} not found`);
                 return this.createEmptyContext(userId, cacheKey);
             }
-            // Build comprehensive context object
             const unifiedContext = await this.buildUnifiedContext(userId, user, personalBrandData, sessionId, cacheKey);
-            // Cache the result
             this.contextCache[cacheKey] = {
                 data: unifiedContext,
                 timestamp: Date.now()
@@ -62,12 +35,8 @@ export class UnifiedMayaContextService {
             return this.createEmptyContext(userId, cacheKey);
         }
     }
-    /**
-     * 🎯 PHASE 2: Optimized personal brand data loading
-     */
     async getPersonalBrandDataOptimized(userId) {
         try {
-            // Use existing service but optimize by avoiding multiple calls
             return await personalBrandService.getPersonalBrandProfile(userId);
         }
         catch (error) {
@@ -75,11 +44,7 @@ export class UnifiedMayaContextService {
             return null;
         }
     }
-    /**
-     * 🎯 PHASE 2: Build comprehensive context from user data
-     */
     async buildUnifiedContext(userId, user, personalBrandData, sessionId, cacheKey) {
-        // Build subscription context
         const remainingGenerations = user.monthlyGenerationLimit === -1
             ? -1
             : Math.max((user.monthlyGenerationLimit || 100) - (user.monthlyGenerationsUsed || 0), 0);
@@ -107,7 +72,6 @@ export class UnifiedMayaContextService {
             remainingGenerations: remainingGenerations === -1 ? 999999 : remainingGenerations,
             usagePercentage
         };
-        // Build profile context
         const profile = {
             name: user.name,
             email: user.email || '',
@@ -118,7 +82,6 @@ export class UnifiedMayaContextService {
             photoGoals: user.photoGoals,
             joinedDate: user.createdAt
         };
-        // Quick access helpers
         const displayName = user.firstName || user.name || user.email?.split('@')[0] || 'there';
         const isNewUser = !personalBrandData?.completedAt;
         const needsOnboarding = !personalBrandData?.completedAt || (personalBrandData?.currentStep || 0) < 6;
@@ -128,8 +91,8 @@ export class UnifiedMayaContextService {
             subscription,
             profile,
             personalBrand: personalBrandData,
-            conversationHistory: [], // Will be populated by memory service when needed
-            contextualIntelligence: null, // Will be populated when needed
+            conversationHistory: [],
+            contextualIntelligence: null,
             displayName,
             isNewUser,
             needsOnboarding,
@@ -137,9 +100,6 @@ export class UnifiedMayaContextService {
             cacheKey: cacheKey || `${userId}_default`
         };
     }
-    /**
-     * 🎯 PHASE 2: Create empty context for missing users
-     */
     createEmptyContext(userId, cacheKey) {
         return {
             userId,
@@ -172,43 +132,27 @@ export class UnifiedMayaContextService {
             cacheKey
         };
     }
-    /**
-     * 🎯 PHASE 2: Get subscription context only (lightweight)
-     */
     async getSubscriptionContext(userId) {
         const context = await this.getUnifiedMayaContext(userId);
         return context.userExists ? context.subscription : null;
     }
-    /**
-     * 🎯 PHASE 2: Get profile context only (lightweight)
-     */
     async getProfileContext(userId) {
         const context = await this.getUnifiedMayaContext(userId);
         return context.userExists ? context.profile : null;
     }
-    /**
-     * 🎯 PHASE 2: Clear cache for user (force refresh)
-     */
     clearUserCache(userId) {
         const keysToDelete = Object.keys(this.contextCache).filter(key => key.startsWith(userId));
         keysToDelete.forEach(key => delete this.contextCache[key]);
         console.log(`🗑️ UNIFIED CONTEXT: Cleared cache for user ${userId}`);
     }
-    /**
-     * 🎯 PHASE 2: Get cache statistics for monitoring
-     */
     getCacheStats() {
         const totalCached = Object.keys(this.contextCache).length;
-        // TODO: Implement hit rate and load time tracking
         return {
             totalCached,
-            cacheHitRate: 0, // Will be implemented with usage tracking
-            avgLoadTime: 0 // Will be implemented with performance tracking
+            cacheHitRate: 0,
+            avgLoadTime: 0
         };
     }
-    /**
-     * 🎯 PHASE 2: Cleanup expired cache entries
-     */
     cleanupCache() {
         const now = Date.now();
         const expiredKeys = Object.keys(this.contextCache).filter(key => (now - this.contextCache[key].timestamp) > this.CACHE_DURATION_MS);
@@ -218,9 +162,8 @@ export class UnifiedMayaContextService {
         }
     }
 }
-// Export singleton instance
 export const unifiedMayaContextService = new UnifiedMayaContextService();
-// Automatic cache cleanup every 10 minutes
 setInterval(() => {
     unifiedMayaContextService.cleanupCache();
 }, 10 * 60 * 1000);
+//# sourceMappingURL=unified-maya-context-service.js.map

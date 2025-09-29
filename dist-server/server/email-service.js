@@ -3,15 +3,13 @@ if (!process.env.RESEND_API_KEY) {
     throw new Error('RESEND_API_KEY environment variable is required');
 }
 const resend = new Resend(process.env.RESEND_API_KEY);
-// Legacy function exports for compatibility
 export async function sendWelcomeEmail(email, firstName, plan) {
-    return EmailService.sendModelReadyEmail(email, firstName);
+    return EmailService.sendModelReadyEmail(email, firstName ?? undefined);
 }
 export async function sendPostAuthWelcomeEmail(data) {
     return EmailService.sendModelReadyEmail(data.email, data.firstName);
 }
 export class EmailService {
-    // Send model training completion notification
     static async sendModelReadyEmail(userEmail, userName) {
         try {
             const firstName = userName?.split(' ')[0] || 'gorgeous';
@@ -160,15 +158,21 @@ Your Personal Branding Bestie
 
 SSELFIE Studio - Where Your Personal Brand Gets Born`
             });
-            console.log('✅ Model ready email sent successfully:', result.data?.id);
-            return { success: true, emailId: result.data?.id };
+            const emailId = result.data?.id;
+            console.log('✅ Model ready email sent successfully:', emailId);
+            return {
+                success: true,
+                ...(emailId ? { emailId } : {})
+            };
         }
         catch (error) {
             console.error('❌ Failed to send model ready email:', error);
-            return { success: false, error: error.message };
+            return {
+                success: false,
+                error: error instanceof Error ? error.message : String(error)
+            };
         }
     }
-    // Send training started confirmation email
     static async sendTrainingStartedEmail(userEmail, userName) {
         try {
             const firstName = userName?.split(' ')[0] || 'gorgeous';
@@ -291,12 +295,20 @@ Your Personal Branding Bestie
 
 SSELFIE Studio - Where Your Personal Brand Gets Born`
             });
-            console.log('✅ Training started email sent successfully:', result.data?.id);
-            return { success: true, emailId: result.data?.id };
+            const emailId = result.data?.id;
+            console.log('✅ Training started email sent successfully:', emailId);
+            return {
+                success: true,
+                ...(emailId ? { emailId } : {})
+            };
         }
         catch (error) {
             console.error('❌ Failed to send training started email:', error);
-            return { success: false, error: error.message };
+            return {
+                success: false,
+                error: error instanceof Error ? error.message : String(error)
+            };
         }
     }
 }
+//# sourceMappingURL=email-service.js.map

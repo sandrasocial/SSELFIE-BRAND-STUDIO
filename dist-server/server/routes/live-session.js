@@ -1,16 +1,11 @@
-/**
- * Live Session Routes
- * Handles Stage Mode interactive presentation sessions
- */
 import { Router } from 'express';
 import { eq } from 'drizzle-orm';
-import { db } from '../db';
-import { liveSessions } from '../../shared/schema';
-import { Logger } from '../utils/logger';
+import { db } from '../db.js';
+import { liveSessions } from '../../shared/schema.js';
+import { Logger } from '../utils/logger.js';
 import { z } from 'zod';
 const router = Router();
 const logger = new Logger('LiveSessionRoutes');
-// Validation schemas
 const createLiveSessionSchema = z.object({
     deckUrl: z.string().url().optional().or(z.literal('')),
     mentiUrl: z.string().url().optional().or(z.literal('')),
@@ -23,10 +18,6 @@ const updateLiveSessionSchema = z.object({
     ctaUrl: z.string().url().optional().or(z.literal('')),
     title: z.string().min(1).optional(),
 });
-/**
- * POST /api/live/session
- * Create a new live session
- */
 router.post('/session', async (req, res) => {
     try {
         const userId = req.user?.id;
@@ -36,7 +27,6 @@ router.post('/session', async (req, res) => {
                 error: { message: 'Authentication required', code: 'UNAUTHORIZED' }
             });
         }
-        // Validate request body
         const validationResult = createLiveSessionSchema.safeParse(req.body);
         if (!validationResult.success) {
             return res.status(400).json({
@@ -49,7 +39,6 @@ router.post('/session', async (req, res) => {
             });
         }
         const { deckUrl, mentiUrl, ctaUrl, title } = validationResult.data;
-        // Create the session
         const sessionData = {
             deckUrl: deckUrl || null,
             mentiUrl: mentiUrl || null,
@@ -73,10 +62,6 @@ router.post('/session', async (req, res) => {
         });
     }
 });
-/**
- * GET /api/live/session/:id
- * Get a live session by ID
- */
 router.get('/session/:id', async (req, res) => {
     try {
         const { id } = req.params;
@@ -111,10 +96,6 @@ router.get('/session/:id', async (req, res) => {
         });
     }
 });
-/**
- * PATCH /api/live/session/:id
- * Update a live session
- */
 router.patch('/session/:id', async (req, res) => {
     try {
         const userId = req.user?.id;
@@ -131,7 +112,6 @@ router.patch('/session/:id', async (req, res) => {
                 error: { message: 'Session ID is required', code: 'VALIDATION_ERROR' }
             });
         }
-        // Validate request body
         const validationResult = updateLiveSessionSchema.safeParse(req.body);
         if (!validationResult.success) {
             return res.status(400).json({
@@ -143,7 +123,6 @@ router.patch('/session/:id', async (req, res) => {
                 }
             });
         }
-        // Check if session exists and user has permission to update
         const existingSession = await db
             .select()
             .from(liveSessions)
@@ -161,7 +140,6 @@ router.patch('/session/:id', async (req, res) => {
                 error: { message: 'Permission denied', code: 'FORBIDDEN' }
             });
         }
-        // Update the session
         const updateData = {};
         const { deckUrl, mentiUrl, ctaUrl, title } = validationResult.data;
         if (deckUrl !== undefined)
@@ -197,3 +175,4 @@ router.patch('/session/:id', async (req, res) => {
     }
 });
 export { router as liveSessionRoutes };
+//# sourceMappingURL=live-session.js.map

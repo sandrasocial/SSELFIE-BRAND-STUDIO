@@ -1,8 +1,3 @@
-/**
- * ARCHITECTURE GUARDIAN
- * Automated protection system for SSELFIE Studio's multi-agent architecture
- * Prevents accidental modifications to critical systems worth $100M+
- */
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
@@ -11,7 +6,6 @@ export class ArchitectureGuardian {
     protectedFiles = new Map();
     architectureState;
     monitoringActive = false;
-    // Critical files that should NEVER be modified without explicit approval
     CRITICAL_PROTECTED_FILES = [
         'server/agents/personalities/',
         'server/utils/elena-delegation-system.ts',
@@ -22,7 +16,6 @@ export class ArchitectureGuardian {
         'server/memory/',
         'server/core/',
     ];
-    // High-priority files that require backup before modification
     HIGH_PRIORITY_FILES = [
         'server/routes/consulting-agents.ts',
         'server/middleware/agent-middleware.ts',
@@ -45,9 +38,6 @@ export class ArchitectureGuardian {
         };
         this.initializeProtection();
     }
-    /**
-     * Initialize architecture protection system
-     */
     async initializeProtection() {
         console.log('🛡️ ARCHITECTURE GUARDIAN: Initializing protection for $100M+ system...');
         try {
@@ -62,9 +52,6 @@ export class ArchitectureGuardian {
             this.triggerEmergencyProtocol('INITIALIZATION_FAILED', error);
         }
     }
-    /**
-     * Scan and register all protected files with their current hashes
-     */
     async scanProtectedFiles() {
         const allProtectedPaths = [...this.CRITICAL_PROTECTED_FILES, ...this.HIGH_PRIORITY_FILES];
         for (const protectedPath of allProtectedPaths) {
@@ -80,9 +67,6 @@ export class ArchitectureGuardian {
             }
         }
     }
-    /**
-     * Recursively scan directory for protected files
-     */
     async scanDirectory(dirPath, originalPath) {
         const items = fs.readdirSync(dirPath);
         for (const item of items) {
@@ -91,14 +75,11 @@ export class ArchitectureGuardian {
             if (stats.isDirectory()) {
                 await this.scanDirectory(itemPath, originalPath);
             }
-            else if (item.endsWith('.ts') || item.endsWith('.js') || item.endsWith('.md')) {
+            else if (item.endsWith('.ts') || item.endsWith('') || item.endsWith('.md')) {
                 await this.registerProtectedFile(itemPath, originalPath);
             }
         }
     }
-    /**
-     * Register a file for protection monitoring
-     */
     async registerProtectedFile(filePath, originalPath) {
         try {
             const content = fs.readFileSync(filePath, 'utf8');
@@ -119,9 +100,6 @@ export class ArchitectureGuardian {
             console.error(`❌ Failed to register protected file: ${filePath}`, error);
         }
     }
-    /**
-     * Validate that all critical architecture components are intact
-     */
     async validateArchitectureIntegrity() {
         console.log('🔍 ARCHITECTURE GUARDIAN: Validating system integrity...');
         const validationResults = {
@@ -145,9 +123,6 @@ export class ArchitectureGuardian {
         this.architectureState.lastHealthCheck = new Date();
         return allValid;
     }
-    /**
-     * Validate agent personality system
-     */
     validateAgentPersonalities() {
         const personalitiesPath = path.resolve('server/agents/personalities');
         if (!fs.existsSync(personalitiesPath)) {
@@ -166,16 +141,12 @@ export class ArchitectureGuardian {
         }
         return true;
     }
-    /**
-     * Validate Elena delegation system
-     */
     validateDelegationSystem() {
         const delegationPath = path.resolve('server/utils/elena-delegation-system.ts');
         if (!fs.existsSync(delegationPath)) {
             return false;
         }
         const content = fs.readFileSync(delegationPath, 'utf8');
-        // Check for critical components
         const requiredComponents = [
             'ElenaDelegationSystem',
             'initializeAgentWorkloads',
@@ -184,16 +155,10 @@ export class ArchitectureGuardian {
         ];
         return requiredComponents.every(component => content.includes(component));
     }
-    /**
-     * Validate coordination bridge system
-     */
     validateCoordinationBridge() {
         const bridgePath = path.resolve('server/services/agent-coordination-bridge.ts');
         return fs.existsSync(bridgePath);
     }
-    /**
-     * Validate workflow templates
-     */
     validateWorkflowTemplates() {
         const templatesPath = path.resolve('server/workflows/templates');
         if (!fs.existsSync(templatesPath)) {
@@ -206,33 +171,22 @@ export class ArchitectureGuardian {
         ];
         return requiredTemplates.every(template => fs.existsSync(path.join(templatesPath, template)));
     }
-    /**
-     * Validate ecosystem documentation
-     */
     validateEcosystemDocumentation() {
         const ecosystemPath = path.resolve('server/agents/ECOSYSTEM_MAP.md');
         return fs.existsSync(ecosystemPath);
     }
-    /**
-     * Start continuous monitoring of protected files
-     */
     startContinuousMonitoring() {
         if (this.monitoringActive)
             return;
         this.monitoringActive = true;
-        // Check every 30 seconds for file changes
         setInterval(() => {
             this.performHealthCheck();
         }, 30000);
-        // Full integrity check every 5 minutes
         setInterval(() => {
             this.validateArchitectureIntegrity();
         }, 300000);
         console.log('🔄 ARCHITECTURE GUARDIAN: Continuous monitoring started');
     }
-    /**
-     * Perform quick health check on protected files
-     */
     performHealthCheck() {
         let changedFiles = 0;
         for (const [filePath, protectedFile] of this.protectedFiles) {
@@ -251,34 +205,23 @@ export class ArchitectureGuardian {
             console.log(`⚠️ ARCHITECTURE GUARDIAN: ${changedFiles} protected files changed`);
         }
     }
-    /**
-     * Handle detected file change
-     */
     handleFileChange(filePath, protectedFile) {
         console.log(`🚨 FILE CHANGED: ${filePath} (${protectedFile.protectionLevel})`);
         if (protectedFile.protectionLevel === 'CRITICAL') {
             console.warn('⚠️ CRITICAL ARCHITECTURE FILE MODIFIED!');
             this.createEmergencyBackup(filePath);
-            // Optionally: Trigger alerts or require approval for critical changes
             this.triggerEmergencyProtocol('CRITICAL_FILE_MODIFIED', { filePath, protectedFile });
         }
-        // Update the file hash and timestamp
         const content = fs.readFileSync(filePath, 'utf8');
         const newHash = crypto.createHash('sha256').update(content).digest('hex');
         const stats = fs.statSync(filePath);
         protectedFile.hash = newHash;
         protectedFile.lastModified = stats.mtime;
     }
-    /**
-     * Handle detected file deletion
-     */
     handleFileDeleted(filePath, protectedFile) {
         console.error(`🚨 PROTECTED FILE DELETED: ${filePath}`);
         this.triggerEmergencyProtocol('PROTECTED_FILE_DELETED', { filePath, protectedFile });
     }
-    /**
-     * Create emergency backup of critical file
-     */
     createEmergencyBackup(filePath) {
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
         const backupPath = `${filePath}.backup.${timestamp}`;
@@ -292,9 +235,6 @@ export class ArchitectureGuardian {
             throw error;
         }
     }
-    /**
-     * Trigger emergency protection protocol
-     */
     triggerEmergencyProtocol(eventType, details) {
         const emergencyEvent = {
             timestamp: new Date().toISOString(),
@@ -304,7 +244,6 @@ export class ArchitectureGuardian {
             protectedFileCount: this.protectedFiles.size
         };
         console.error('🚨 EMERGENCY PROTOCOL TRIGGERED:', emergencyEvent);
-        // Log to file for investigation
         const logPath = path.resolve('server/logs/architecture-guardian.log');
         const logEntry = JSON.stringify(emergencyEvent, null, 2) + '\n\n';
         try {
@@ -313,11 +252,7 @@ export class ArchitectureGuardian {
         catch (error) {
             console.error('❌ Failed to log emergency event:', error);
         }
-        // In production: Send alerts, notifications, etc.
     }
-    /**
-     * Get current protection status
-     */
     getProtectionStatus() {
         return {
             protectedFilesCount: this.protectedFiles.size,
@@ -326,9 +261,6 @@ export class ArchitectureGuardian {
             lastHealthCheck: this.architectureState.lastHealthCheck
         };
     }
-    /**
-     * Generate protection report
-     */
     generateProtectionReport() {
         const report = {
             timestamp: new Date().toISOString(),
@@ -346,5 +278,5 @@ export class ArchitectureGuardian {
         return JSON.stringify(report, null, 2);
     }
 }
-// Initialize protection system
 export const architectureGuardian = ArchitectureGuardian.getInstance();
+//# sourceMappingURL=architecture-guardian.js.map

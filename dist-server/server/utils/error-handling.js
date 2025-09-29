@@ -1,9 +1,5 @@
-/**
- * Comprehensive Error Handling System
- * Centralized error handling, logging, and recovery
- */
-import { Logger } from './logger';
-import { errorHandler } from './error-handler';
+import { Logger } from './logger.js';
+import { errorHandler } from './error-handler.js';
 export class ErrorHandlingSystem {
     logger;
     _isEnabled;
@@ -11,15 +7,11 @@ export class ErrorHandlingSystem {
         this.logger = new Logger('ErrorHandlingSystem');
         this._isEnabled = true;
     }
-    /**
-     * Handle application errors
-     */
     handleError(context) {
         if (!this._isEnabled) {
             return;
         }
         const { error, req, res, userId, sessionId, additionalData } = context;
-        // Log error
         this.logger.error('Application error occurred', {
             message: error.message,
             stack: error.stack,
@@ -29,17 +21,12 @@ export class ErrorHandlingSystem {
             method: req?.method,
             additionalData,
         });
-        // Use error handler
         errorHandler.handleError(context);
-        // Send error response if response object is available
         if (res && !res.headersSent) {
             const errorResponse = this.createErrorResponse(error);
             res.status(this.getStatusCode(error)).json(errorResponse);
         }
     }
-    /**
-     * Create error response
-     */
     createErrorResponse(error) {
         return {
             success: false,
@@ -51,9 +38,6 @@ export class ErrorHandlingSystem {
             },
         };
     }
-    /**
-     * Get error code
-     */
     getErrorCode(error) {
         const message = error.message.toLowerCase();
         if (message.includes('validation'))
@@ -78,12 +62,8 @@ export class ErrorHandlingSystem {
             return 'FATAL_ERROR';
         return 'INTERNAL_ERROR';
     }
-    /**
-     * Get error message
-     */
     getErrorMessage(error) {
-        // Don't expose internal error details in production
-        if (process.env.NODE_ENV === 'production') {
+        if (process.env['NODE_ENV'] === 'production') {
             const message = error.message.toLowerCase();
             if (message.includes('validation'))
                 return 'Validation failed';
@@ -109,11 +89,8 @@ export class ErrorHandlingSystem {
         }
         return error.message;
     }
-    /**
-     * Get error details
-     */
     getErrorDetails(error) {
-        if (process.env.NODE_ENV === 'production') {
+        if (process.env['NODE_ENV'] === 'production') {
             return undefined;
         }
         return {
@@ -121,9 +98,6 @@ export class ErrorHandlingSystem {
             name: error.name,
         };
     }
-    /**
-     * Get HTTP status code
-     */
     getStatusCode(error) {
         const message = error.message.toLowerCase();
         if (message.includes('validation'))
@@ -148,9 +122,6 @@ export class ErrorHandlingSystem {
             return 500;
         return 500;
     }
-    /**
-     * Express error handling middleware
-     */
     expressErrorHandler() {
         return (error, req, res, next) => {
             this.handleError({
@@ -162,9 +133,6 @@ export class ErrorHandlingSystem {
             });
         };
     }
-    /**
-     * Async error wrapper
-     */
     asyncHandler(fn) {
         return (req, res, next) => {
             Promise.resolve(fn(req, res, next)).catch((error) => {
@@ -178,18 +146,12 @@ export class ErrorHandlingSystem {
             });
         };
     }
-    /**
-     * Create error
-     */
     createError(message, code, statusCode) {
         const error = new Error(message);
         error.code = code;
         error.statusCode = statusCode;
         return error;
     }
-    /**
-     * Create error with context
-     */
     createErrorWithContext(message, context) {
         const error = new Error(message);
         error.code = context.code;
@@ -199,9 +161,6 @@ export class ErrorHandlingSystem {
         error.sessionId = context.sessionId;
         return error;
     }
-    /**
-     * Send success response
-     */
     sendSuccess(res, data, statusCode = 200) {
         res.status(statusCode).json({
             success: true,
@@ -209,9 +168,6 @@ export class ErrorHandlingSystem {
             timestamp: new Date().toISOString(),
         });
     }
-    /**
-     * Send error response
-     */
     sendError(res, message, statusCode = 500, code) {
         res.status(statusCode).json({
             success: false,
@@ -222,9 +178,6 @@ export class ErrorHandlingSystem {
             },
         });
     }
-    /**
-     * Validate required fields
-     */
     validateRequired(fields) {
         const missing = Object.entries(fields)
             .filter(([_, value]) => !value || (typeof value === 'string' && value.trim() === ''))
@@ -233,18 +186,12 @@ export class ErrorHandlingSystem {
             throw this.createError(`Missing required fields: ${missing.join(', ')}`, 'VALIDATION_ERROR', 400);
         }
     }
-    /**
-     * Validate email format
-     */
     validateEmail(email) {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
             throw this.createError('Invalid email format', 'VALIDATION_ERROR', 400);
         }
     }
-    /**
-     * Validate password strength
-     */
     validatePassword(password) {
         if (password.length < 8) {
             throw this.createError('Password must be at least 8 characters long', 'VALIDATION_ERROR', 400);
@@ -259,23 +206,15 @@ export class ErrorHandlingSystem {
             throw this.createError('Password must contain at least one number', 'VALIDATION_ERROR', 400);
         }
     }
-    /**
-     * Enable/disable error handling
-     */
     setEnabled(enabled) {
         this._isEnabled = enabled;
         this.logger.info(`Error handling system ${enabled ? 'enabled' : 'disabled'}`);
     }
-    /**
-     * Check if error handling is enabled
-     */
     isEnabled() {
         return this._isEnabled;
     }
 }
-// Export singleton instance
 export const errorHandlingSystem = new ErrorHandlingSystem();
-// Export convenience functions
 export const asyncHandler = errorHandlingSystem.asyncHandler.bind(errorHandlingSystem);
 export const createError = errorHandlingSystem.createError.bind(errorHandlingSystem);
 export const sendSuccess = errorHandlingSystem.sendSuccess.bind(errorHandlingSystem);
@@ -283,3 +222,4 @@ export const sendError = errorHandlingSystem.sendError.bind(errorHandlingSystem)
 export const validateRequired = errorHandlingSystem.validateRequired.bind(errorHandlingSystem);
 export const validateEmail = errorHandlingSystem.validateEmail.bind(errorHandlingSystem);
 export const validatePassword = errorHandlingSystem.validatePassword.bind(errorHandlingSystem);
+//# sourceMappingURL=error-handling.js.map

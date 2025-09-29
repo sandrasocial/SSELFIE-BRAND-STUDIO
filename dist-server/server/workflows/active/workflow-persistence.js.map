@@ -1,0 +1,1 @@
+{"version":3,"file":"workflow-persistence.js","sourceRoot":"","sources":["../../../../server/workflows/active/workflow-persistence.ts"],"names":[],"mappings":"AACA,MAAM,OAAO,mBAAmB;IAC9B,MAAM,CAAC,IAAI,KAAK,OAAO,IAAI,CAAC,CAAC,CAAC;IAC9B,MAAM,CAAC,IAAI,KAAK,OAAO,EAAE,CAAC,CAAC,CAAC;IAC5B,MAAM,CAAC,eAAe,CAAC,SAAiB,IAAI,OAAO,EAAE,CAAC,CAAC,CAAC;CACzD"}

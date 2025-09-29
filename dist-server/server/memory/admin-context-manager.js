@@ -1,11 +1,6 @@
-/**
- * ADMIN CONTEXT MANAGER - PROJECT STRUCTURE AWARE (PHASE 2)
- * Integrates with existing project protection system and enhanced path intelligence
- * Connected to database with full project context awareness for safe agent work
- */
-import { db } from '../drizzle';
-import { agentSessionContexts } from '../../shared/schema';
-import { EnhancedPathIntelligence } from '../services/enhanced-path-intelligence';
+import { db } from '../drizzle.js';
+import { agentSessionContexts } from '../../shared/schema.js';
+import { EnhancedPathIntelligence } from '../services/enhanced-path-intelligence.js';
 export class AdminContextManager {
     static instance;
     activeContexts = new Map();
@@ -21,9 +16,6 @@ export class AdminContextManager {
         }
         return AdminContextManager.instance;
     }
-    /**
-     * PHASE 2: Initialize project structure protection rules
-     */
     initializeProjectContext() {
         this.projectProtectionRules = {
             protectedSystems: [
@@ -105,15 +97,20 @@ export class AdminContextManager {
         };
         console.log('🏗️ PROJECT CONTEXT: Initialized protection rules for Phase 2');
     }
-    /**
-     * PHASE 2: Create project-aware agent context with protection rules
-     */
     async createAdminAgentContext(agentId, userId, conversationId, personality) {
-        console.log(`🤖 ADMIN AGENT ACTIVATION: ${personality.name || agentId} with Phase 2 project context`);
+        if (!this.isValidAgentId(agentId)) {
+            throw new Error('Invalid agent ID provided');
+        }
+        if (!this.isValidUserId(userId)) {
+            throw new Error('Invalid user ID provided');
+        }
+        if (!this.isValidConversationId(conversationId)) {
+            throw new Error('Invalid conversation ID provided');
+        }
+        const personalityName = personality?.name || agentId;
+        console.log(`🤖 ADMIN AGENT ACTIVATION: ${personalityName} with Phase 2 project context`);
         console.log(`🏗️ PROJECT AWARE: Agent loaded with protection rules and safe development zones`);
-        // LOAD EXISTING CONTEXT: Create fresh context for now to avoid parsing issues
         let existingMemory = {};
-        // Generate agent-specific capabilities based on personality
         const agentCapabilities = this.generateAgentCapabilities(agentId, personality);
         const context = {
             agentId,
@@ -121,8 +118,7 @@ export class AdminContextManager {
             conversationId,
             personality,
             adminPrivileges: true,
-            memoryContext: existingMemory?.recentInteractions?.message ?
-                [existingMemory.recentInteractions.message] : [],
+            memoryContext: this.extractMemoryContext(existingMemory),
             lastActivity: new Date(),
             projectContext: {
                 ...this.projectProtectionRules,
@@ -133,24 +129,41 @@ export class AdminContextManager {
                 }
             }
         };
-        // SAVE TO DATABASE: Temporarily disabled to fix JSON parsing issue
-        // await this.saveContextToDatabase(context);
         this.activeContexts.set(`${agentId}-${userId}`, context);
-        console.log(`✅ PHASE 2 CONTEXT: ${personality.name || agentId} loaded with project protection awareness`);
+        console.log(`✅ PHASE 2 CONTEXT: ${personalityName} loaded with project protection awareness`);
         console.log(`🛡️ PROTECTION: ${this.projectProtectionRules.protectedSystems.length} systems protected`);
         console.log(`✅ SAFE ZONES: ${this.projectProtectionRules.safeDevelopmentZones.length} development areas available`);
         return context;
     }
-    /**
-     * PHASE 2: Generate agent-specific capabilities based on personality and project context
-     */
+    isValidAgentId(agentId) {
+        return typeof agentId === 'string' && agentId.trim().length > 0;
+    }
+    isValidUserId(userId) {
+        return typeof userId === 'string' && userId.trim().length > 0;
+    }
+    isValidConversationId(conversationId) {
+        return typeof conversationId === 'string' && conversationId.trim().length > 0;
+    }
+    extractMemoryContext(existingMemory) {
+        try {
+            const recentInteractions = existingMemory.recentInteractions;
+            const message = recentInteractions?.message;
+            if (typeof message === 'string') {
+                return [message];
+            }
+            return [];
+        }
+        catch (error) {
+            console.warn('⚠️ Failed to extract memory context, using empty array:', error);
+            return [];
+        }
+    }
     generateAgentCapabilities(agentId, personality) {
         const baseCapabilities = [
             'project_structure_awareness',
             'revenue_system_protection',
             'safe_development_zone_access'
         ];
-        // Agent-specific capabilities based on established personalities
         const agentSpecificCapabilities = {
             elena: [
                 'workflow_coordination',
@@ -186,13 +199,23 @@ export class AdminContextManager {
                 'user_onboarding'
             ]
         };
+        const personalityCapabilities = personality?.capabilities || [];
         const specificCapabilities = agentSpecificCapabilities[agentId] || ['general_assistance'];
-        return [...baseCapabilities, ...specificCapabilities];
+        return [...baseCapabilities, ...personalityCapabilities, ...specificCapabilities];
     }
-    /**
-     * PHASE 2: Check if agent can safely modify a given path
-     */
     canAgentModifyPath(agentId, filePath) {
+        if (!this.isValidAgentId(agentId)) {
+            return {
+                allowed: false,
+                reason: 'Invalid agent ID provided'
+            };
+        }
+        if (!filePath || typeof filePath !== 'string' || filePath.trim().length === 0) {
+            return {
+                allowed: false,
+                reason: 'Invalid file path provided'
+            };
+        }
         const context = Array.from(this.activeContexts.values())
             .find(ctx => ctx.agentId === agentId);
         if (!context) {
@@ -202,8 +225,15 @@ export class AdminContextManager {
             };
         }
         const { conflictPrevention } = context.projectContext;
-        // Check if path is never allowed to be modified
-        const isProtected = conflictPrevention.neverModifyPaths.some(protectedPath => filePath.includes(protectedPath) || protectedPath.includes(filePath));
+        if (!conflictPrevention || !Array.isArray(conflictPrevention.neverModifyPaths)) {
+            console.warn('⚠️ Invalid conflict prevention rules detected');
+            return {
+                allowed: false,
+                reason: 'Configuration error: invalid protection rules'
+            };
+        }
+        const isProtected = conflictPrevention.neverModifyPaths.some(protectedPath => typeof protectedPath === 'string' &&
+            (filePath.includes(protectedPath) || protectedPath.includes(filePath)));
         if (isProtected) {
             return {
                 allowed: false,
@@ -211,16 +241,17 @@ export class AdminContextManager {
                 suggestion: 'Work in safe development zones instead'
             };
         }
-        // Check if path is in safe development zone
-        const isSafe = conflictPrevention.safeToModifyPaths.some(safePath => filePath.startsWith(safePath) || safePath.includes(filePath));
+        const isSafe = Array.isArray(conflictPrevention.safeToModifyPaths) &&
+            conflictPrevention.safeToModifyPaths.some(safePath => typeof safePath === 'string' &&
+                (filePath.startsWith(safePath) || safePath.includes(filePath)));
         if (isSafe) {
             return {
                 allowed: true,
                 reason: 'Path is in safe development zone'
             };
         }
-        // Check if requires approval
-        const requiresApproval = conflictPrevention.requireApprovalPaths.some(approvalPath => filePath.startsWith(approvalPath));
+        const requiresApproval = Array.isArray(conflictPrevention.requireApprovalPaths) &&
+            conflictPrevention.requireApprovalPaths.some(approvalPath => typeof approvalPath === 'string' && filePath.startsWith(approvalPath));
         if (requiresApproval) {
             return {
                 allowed: false,
@@ -228,15 +259,21 @@ export class AdminContextManager {
                 suggestion: 'Use protected system modification tools or work in safe zones'
             };
         }
-        // Use path intelligence for suggestion
-        const pathCorrection = this.pathIntelligence.correctPath(filePath);
-        const isCorrectedSafe = conflictPrevention.safeToModifyPaths.some(safePath => pathCorrection.correctedPath.startsWith(safePath));
-        if (isCorrectedSafe) {
-            return {
-                allowed: true,
-                reason: 'Path corrected to safe development zone',
-                suggestion: `Consider using: ${pathCorrection.correctedPath}`
-            };
+        try {
+            const pathCorrection = this.pathIntelligence.correctPath(filePath);
+            const isCorrectedSafe = Array.isArray(conflictPrevention.safeToModifyPaths) &&
+                conflictPrevention.safeToModifyPaths.some(safePath => typeof safePath === 'string' &&
+                    pathCorrection.correctedPath.startsWith(safePath));
+            if (isCorrectedSafe) {
+                return {
+                    allowed: true,
+                    reason: 'Path corrected to safe development zone',
+                    suggestion: `Consider using: ${pathCorrection.correctedPath}`
+                };
+            }
+        }
+        catch (error) {
+            console.warn('⚠️ Path intelligence correction failed:', error);
         }
         return {
             allowed: false,
@@ -244,9 +281,6 @@ export class AdminContextManager {
             suggestion: 'Work in designated safe zones for agent development'
         };
     }
-    /**
-     * PHASE 2: Get project context for agent
-     */
     getProjectContextForAgent(agentId) {
         const contextKey = Array.from(this.activeContexts.keys())
             .find(key => key.startsWith(agentId));
@@ -255,9 +289,6 @@ export class AdminContextManager {
         const context = this.activeContexts.get(contextKey);
         return context?.projectContext || null;
     }
-    /**
-     * PHASE 2: Update agent's project understanding based on completed work
-     */
     async updateAgentProjectLearning(agentId, workCompleted) {
         const contextKey = Array.from(this.activeContexts.keys())
             .find(key => key.startsWith(agentId));
@@ -266,17 +297,12 @@ export class AdminContextManager {
         const context = this.activeContexts.get(contextKey);
         if (!context)
             return;
-        // Update project state with agent's learning
         context.projectContext.currentProjectState.lastStructureUpdate = new Date();
-        // Log learning for cross-agent sharing
         console.log(`🧠 PHASE 2 LEARNING: ${agentId} completed work safely`);
         console.log(`📁 FILES: ${workCompleted.filesModified.join(', ')}`);
         console.log(`✅ TASKS: ${workCompleted.tasksCompleted.join(', ')}`);
         console.log(`🛡️ CONFLICTS AVOIDED: ${workCompleted.conflictsAvoided.join(', ')}`);
     }
-    /**
-     * SAVE CONTEXT TO DATABASE: Persist admin agent context
-     */
     async saveContextToDatabase(context) {
         try {
             const contextData = {
@@ -310,24 +336,18 @@ export class AdminContextManager {
             console.error('❌ DATABASE ERROR: Failed to save admin context:', error);
         }
     }
-    /**
-     * UPDATE CONTEXT: Maintain agent memory and personality state
-     */
     async updateContext(contextKey, message) {
         const context = this.activeContexts.get(contextKey);
         if (context) {
             context.memoryContext.push(message);
             context.lastActivity = new Date();
-            // Keep last 50 messages for context
             if (context.memoryContext.length > 50) {
                 context.memoryContext = context.memoryContext.slice(-50);
             }
         }
     }
-    /**
-     * GET AGENT CONTEXT: Retrieve full personality and memory context
-     */
     getAgentContext(agentId, userId) {
         return this.activeContexts.get(`${agentId}-${userId}`);
     }
 }
+//# sourceMappingURL=admin-context-manager.js.map

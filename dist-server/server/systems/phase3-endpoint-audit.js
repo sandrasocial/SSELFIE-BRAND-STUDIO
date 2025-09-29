@@ -1,11 +1,4 @@
-/**
- * PHASE 3.1: ENDPOINT AUDIT & IMPLEMENTATION-AWARE ROUTING ENFORCEMENT
- * Systematically audit and redirect all agent routes through implementation detection
- */
 export class Phase3EndpointAudit {
-    /**
-     * Phase 3.1: Complete audit of all agent endpoints
-     */
     static getAgentEndpointAudit() {
         return [
             {
@@ -80,9 +73,6 @@ export class Phase3EndpointAudit {
             }
         ];
     }
-    /**
-     * Phase 3.1: Generate redirection implementation for consulting agents
-     */
     static generateConsultingRedirection() {
         return `
 // PHASE 3.1: CONSULTING AGENT REDIRECTION TO IMPLEMENTATION-AWARE ROUTING
@@ -123,9 +113,6 @@ router.post('/admin/consulting-chat', async (req, res) => {
 });
 `;
     }
-    /**
-     * Phase 3.1: Generate Claude API blocking for admin agents
-     */
     static generateClaudeAPIBlocking() {
         return `
 // PHASE 3.1: CLAUDE API BLOCKING FOR SANDRA'S ADMIN AGENTS
@@ -156,9 +143,6 @@ router.post('/send-message', async (req, res) => {
 `;
     }
 }
-/**
- * Phase 3.2: Tool Enforcement Loophole Detection
- */
 export class Phase3ToolEnforcementAudit {
     static getToolEnforcementLoopholes() {
         return [
@@ -181,3 +165,4 @@ export const phase3AuditResults = {
     Phase3EndpointAudit,
     Phase3ToolEnforcementAudit
 };
+//# sourceMappingURL=phase3-endpoint-audit.js.map

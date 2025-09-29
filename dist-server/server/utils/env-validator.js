@@ -1,13 +1,6 @@
-/**
- * Environment Validator
- * Simple validation script for application startup
- */
-import { environmentAuditor } from './env-audit';
-import { Logger } from './logger';
+import { environmentAuditor } from './env-audit.js';
+import { Logger } from './logger.js';
 const logger = new Logger('EnvValidator');
-/**
- * Validate environment variables at startup
- */
 export async function validateEnvironment() {
     try {
         logger.info('Validating environment variables...');
@@ -32,9 +25,6 @@ export async function validateEnvironment() {
         return false;
     }
 }
-/**
- * Validate environment variables and exit if invalid
- */
 export async function validateEnvironmentOrExit() {
     const isValid = await validateEnvironment();
     if (!isValid) {
@@ -42,5 +32,5 @@ export async function validateEnvironmentOrExit() {
         process.exit(1);
     }
 }
-// Export for use in other modules
 export { environmentAuditor };
+//# sourceMappingURL=env-validator.js.map

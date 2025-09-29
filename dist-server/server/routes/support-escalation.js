@@ -1,12 +1,7 @@
-/**
- * PHASE 5: Support Escalation Routes
- * Handles escalation requests from Maya Support chat
- */
 import { Router } from 'express';
-import { requireStackAuth } from '../stack-auth';
-import { escalationHandler } from '../services/escalation-handler';
+import { requireStackAuth } from '../stack-auth.js';
+import { escalationHandler } from '../services/escalation-handler.js';
 const router = Router();
-// PHASE 5: Handle escalation requests from support chat
 router.post('/escalate', requireStackAuth, async (req, res) => {
     try {
         const userId = req.user?.claims?.sub;
@@ -20,7 +15,6 @@ router.post('/escalate', requireStackAuth, async (req, res) => {
             return res.status(400).json({ error: 'Escalation reason required' });
         }
         console.log(`🚨 PHASE 5: Escalation request from ${userEmail} - Reason: ${reason}`);
-        // Process escalation
         const escalationRequest = {
             userId,
             userEmail,
@@ -56,3 +50,4 @@ router.post('/escalate', requireStackAuth, async (req, res) => {
     }
 });
 export default router;
+//# sourceMappingURL=support-escalation.js.map

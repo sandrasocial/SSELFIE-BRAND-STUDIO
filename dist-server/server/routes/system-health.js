@@ -1,7 +1,6 @@
 import { Router } from 'express';
-import { requireStackAuth } from '../stack-auth';
+import { requireStackAuth } from '../stack-auth.js';
 const router = Router();
-// Mock health data (in production, this would query actual system metrics)
 let systemHealth = {
     agents: {
         total: 14,
@@ -49,14 +48,12 @@ let systemHealth = {
         uptime: Date.now()
     }
 };
-// Get comprehensive system health
 router.get('/', requireStackAuth, async (req, res) => {
     try {
         const userId = req.user.id;
-        if (userId !== '42585527') { // Sandra's user ID
+        if (userId !== '42585527') {
             return res.status(403).json({ message: 'Admin access required' });
         }
-        // Update real-time metrics
         systemHealth.monitoring.lastHealthCheck = new Date().toISOString();
         systemHealth.performance.uptime = Date.now() - systemHealth.performance.uptime;
         res.json({
@@ -74,7 +71,6 @@ router.get('/', requireStackAuth, async (req, res) => {
         });
     }
 });
-// Get quick health status
 router.get('/status', requireStackAuth, async (req, res) => {
     try {
         const userId = req.user.id;
@@ -98,7 +94,6 @@ router.get('/status', requireStackAuth, async (req, res) => {
         });
     }
 });
-// Run system diagnostics
 router.post('/diagnostics', requireStackAuth, async (req, res) => {
     try {
         const userId = req.user.id;
@@ -120,7 +115,6 @@ router.post('/diagnostics', requireStackAuth, async (req, res) => {
         });
     }
 });
-// Update system health metrics (called by monitoring systems)
 router.post('/update', async (req, res) => {
     try {
         const { component, metrics } = req.body;
@@ -130,7 +124,6 @@ router.post('/update', async (req, res) => {
                 error: 'Missing component or metrics'
             });
         }
-        // Update specific component metrics
         switch (component) {
             case 'insights':
                 systemHealth.insights = { ...systemHealth.insights, ...metrics };
@@ -245,3 +238,4 @@ async function runSystemDiagnostics() {
     return diagnostics;
 }
 export default router;
+//# sourceMappingURL=system-health.js.map

@@ -1,5 +1,12 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { GoogleGenAI, Type } from '@google/genai';
+import { GoogleGenAI } from '@google/genai';
+
+enum Type {
+  OBJECT = 'object',
+  ARRAY = 'array',
+  INTEGER = 'integer',
+  STRING = 'string'
+}
 
 const ai = process.env.GOOGLE_API_KEY
   ? new GoogleGenAI({ apiKey: process.env.GOOGLE_API_KEY })

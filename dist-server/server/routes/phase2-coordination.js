@@ -1,7 +1,6 @@
 import { Router } from 'express';
-import { requireStackAuth } from '../stack-auth';
+import { requireStackAuth } from '../stack-auth.js';
 const router = Router();
-// Phase 2 coordination endpoint for agent workflow execution
 router.post('/execute-phase2-workflow', requireStackAuth, async (req, res) => {
     try {
         const { workflow_type, priority = 'HIGH' } = req.body;
@@ -82,7 +81,6 @@ router.post('/execute-phase2-workflow', requireStackAuth, async (req, res) => {
                 hour_3: 'Payment testing and final validation'
             }
         };
-        // Log the workflow initiation
         console.log('🚀 PHASE 2 WORKFLOW INITIATED:', workflowExecution.workflow_id);
         console.log('📋 TASKS ASSIGNED:', Object.keys(workflowExecution.tasks));
         res.json({
@@ -106,10 +104,8 @@ router.post('/execute-phase2-workflow', requireStackAuth, async (req, res) => {
         });
     }
 });
-// Get workflow status and progress
 router.get('/phase2-status', requireStackAuth, async (req, res) => {
     try {
-        // This would integrate with the actual agent coordination system
         const status = {
             overall_progress: '15%',
             current_phase: 'Training System Fixes',
@@ -132,3 +128,4 @@ router.get('/phase2-status', requireStackAuth, async (req, res) => {
     }
 });
 export default router;
+//# sourceMappingURL=phase2-coordination.js.map

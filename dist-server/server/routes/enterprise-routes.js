@@ -1,16 +1,11 @@
-/**
- * PHASE 3: ENTERPRISE SCALING - API ROUTES
- * Enterprise-level API endpoints for predictive intelligence, security, performance, and global expansion
- */
-import { predictiveIntelligence } from '../enterprise/predictive-intelligence';
-import { securityAudit } from '../enterprise/security-audit';
-import { PerformanceMonitor } from '../enterprise/performance-monitor';
-import { globalExpansion } from '../enterprise/global-expansion';
-import { analyticsReporting } from '../enterprise/analytics-reporting';
-import { requireStackAuth } from '../stack-auth';
+import { predictiveIntelligence } from '../enterprise/predictive-intelligence.js';
+import { securityAudit } from '../enterprise/security-audit.js';
+import { PerformanceMonitor } from '../enterprise/performance-monitor.js';
+import { globalExpansion } from '../enterprise/global-expansion.js';
+import { analyticsReporting } from '../enterprise/analytics-reporting.js';
+import { requireStackAuth } from '../stack-auth.js';
 export function registerEnterpriseRoutes(app) {
     console.log('🏢 Registering Enterprise Scaling API routes...');
-    // Predictive Intelligence Endpoints
     app.get('/api/enterprise/predictive-metrics', requireStackAuth, async (req, res) => {
         try {
             console.log('🔮 PREDICTIVE INTELLIGENCE: Generating metrics...');
@@ -30,7 +25,6 @@ export function registerEnterpriseRoutes(app) {
             });
         }
     });
-    // Security Audit Endpoints
     app.get('/api/enterprise/security-report', requireStackAuth, async (req, res) => {
         try {
             console.log('🔒 SECURITY AUDIT: Generating security report...');
@@ -50,7 +44,6 @@ export function registerEnterpriseRoutes(app) {
             });
         }
     });
-    // Security threat detection endpoint
     app.post('/api/enterprise/security/detect-threat', requireStackAuth, async (req, res) => {
         try {
             const { type, source, description, severity } = req.body;
@@ -69,7 +62,6 @@ export function registerEnterpriseRoutes(app) {
             });
         }
     });
-    // Performance Monitoring Endpoints
     app.get('/api/enterprise/performance-report', requireStackAuth, async (req, res) => {
         try {
             console.log('📊 PERFORMANCE MONITOR: Generating performance report...');
@@ -89,7 +81,6 @@ export function registerEnterpriseRoutes(app) {
             });
         }
     });
-    // Performance alerts endpoint
     app.get('/api/enterprise/performance/alerts', requireStackAuth, async (req, res) => {
         try {
             const alerts = await PerformanceMonitor.getSystemAlerts();
@@ -108,7 +99,6 @@ export function registerEnterpriseRoutes(app) {
             });
         }
     });
-    // Resolve performance alert endpoint
     app.post('/api/enterprise/performance/alerts/:alertId/resolve', requireStackAuth, async (req, res) => {
         try {
             const { alertId } = req.params;
@@ -135,7 +125,6 @@ export function registerEnterpriseRoutes(app) {
             });
         }
     });
-    // Global Expansion Endpoints
     app.get('/api/enterprise/global-expansion', requireStackAuth, async (req, res) => {
         try {
             console.log('🌍 GLOBAL EXPANSION: Generating expansion metrics...');
@@ -155,7 +144,6 @@ export function registerEnterpriseRoutes(app) {
             });
         }
     });
-    // Advanced Analytics & Reporting Endpoints
     app.get('/api/enterprise/analytics-report', requireStackAuth, async (req, res) => {
         try {
             console.log('📈 ENTERPRISE ANALYTICS: Generating comprehensive report...');
@@ -175,12 +163,10 @@ export function registerEnterpriseRoutes(app) {
             });
         }
     });
-    // Executive Summary endpoint for quick dashboard overview
     app.get('/api/enterprise/executive-summary', requireStackAuth, async (req, res) => {
         try {
             console.log('📋 EXECUTIVE SUMMARY: Generating quick overview...');
             const fullReport = await analyticsReporting.generateEnterpriseReport();
-            // Return only executive summary for faster loading
             res.json({
                 success: true,
                 data: {
@@ -190,7 +176,7 @@ export function registerEnterpriseRoutes(app) {
                         totalRevenue: fullReport.businessIntelligence.revenueAnalysis.totalRevenue,
                         activeCustomers: fullReport.businessIntelligence.customerAnalysis.activeCustomers,
                         systemUptime: fullReport.operationalMetrics.systemPerformance.uptime,
-                        threatLevel: 'low' // Default for summary
+                        threatLevel: 'low'
                     }
                 },
                 timestamp: new Date().toISOString()
@@ -205,11 +191,9 @@ export function registerEnterpriseRoutes(app) {
             });
         }
     });
-    // Enterprise health check endpoint
     app.get('/api/enterprise/health', requireStackAuth, async (req, res) => {
         try {
             const [predictiveHealth, securityHealth, performanceHealth, expansionHealth] = await Promise.all([
-                // Quick health checks
                 Promise.resolve({ status: 'operational', service: 'predictive-intelligence' }),
                 Promise.resolve({ status: 'operational', service: 'security-audit' }),
                 Promise.resolve({ status: 'operational', service: 'performance-monitor' }),
@@ -239,7 +223,6 @@ export function registerEnterpriseRoutes(app) {
             });
         }
     });
-    // Enterprise configuration endpoint
     app.get('/api/enterprise/config', requireStackAuth, async (req, res) => {
         try {
             res.json({
@@ -273,3 +256,4 @@ export function registerEnterpriseRoutes(app) {
     });
     console.log('✅ Enterprise Scaling API routes registered successfully');
 }
+//# sourceMappingURL=enterprise-routes.js.map

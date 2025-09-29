@@ -1,37 +1,17 @@
-/**
- * ✨ PHASE 1: UNIFIED MAYA MEMORY SERVICE
- * Consolidates maya-memory-service.ts, maya-contextual-memory-service.ts, and maya-context-session-manager.ts
- * into a single, high-performance Maya memory management system
- *
- * 🎯 Performance Goals:
- * - Single database query for complete Maya user context
- * - Unified memory persistence and retrieval
- * - 40%+ Maya response time improvement
- * - Eliminate memory service conflicts
- */
 import { personalBrandService } from './personal-brand-service.js';
 import { SimpleMemoryService } from './simple-memory-service.js';
 import { storage } from '../storage.js';
 import { v4 as uuidv4 } from 'uuid';
-/**
- * 🚀 UNIFIED MAYA MEMORY MANAGER
- * Single source of truth for all Maya memory, context, and session management
- */
 export class UnifiedMayaMemoryService {
     simpleMemory;
     contextCache = new Map();
-    CACHE_TTL = 15 * 60 * 1000; // 15 minutes
+    CACHE_TTL = 15 * 60 * 1000;
     constructor() {
         this.simpleMemory = SimpleMemoryService.getInstance();
         console.log('🧠 UNIFIED MAYA MEMORY: Service initialized');
     }
-    /**
-     * 🎯 SINGLE QUERY: Get complete Maya context with one database call
-     * Replaces: getMayaMemoryContext + initializeSessionContext + getConversationMemory
-     */
     async getUnifiedMayaContext(userId, sessionId, initialMessage) {
         const cacheKey = `${userId}:${sessionId || 'current'}`;
-        // Check cache first for performance
         if (this.contextCache.has(cacheKey)) {
             const cached = this.contextCache.get(cacheKey);
             if (Date.now() - cached.lastUpdated.getTime() < this.CACHE_TTL) {
@@ -41,19 +21,15 @@ export class UnifiedMayaMemoryService {
         }
         console.log(`🔍 UNIFIED MAYA MEMORY: Building comprehensive context for user ${userId}`);
         try {
-            // Single comprehensive database query combining all Maya data needs
             const [conversationHistory, personalBrandData, personalInsights, onboardingProgress, conversationMemory, sessionMetadata] = await Promise.all([
                 this.getConversationHistory(userId, 15),
-                // Personal brand data will be provided by unified context service
                 this.getPersonalInsights(userId),
                 this.getOnboardingProgress(userId),
                 this.getConversationMemory(userId),
                 this.getSessionMetadata(userId)
             ]);
-            // Initialize or get session context
             const actualSessionId = sessionId || uuidv4();
             const sessionContext = await this.initializeSessionContext(userId, actualSessionId, initialMessage);
-            // Build contextual intelligence
             const contextualIntelligence = await this.buildContextualIntelligence(userId);
             const unifiedContext = {
                 userId,
@@ -69,7 +45,6 @@ export class UnifiedMayaMemoryService {
                 lastUpdated: new Date(),
                 cacheVersion: '1.0'
             };
-            // Cache for performance
             this.contextCache.set(cacheKey, unifiedContext);
             console.log(`✅ UNIFIED MAYA MEMORY: Complete context built for user ${userId} (${conversationHistory.length} messages, ${Object.keys(personalBrandData).length} brand fields)`);
             return unifiedContext;
@@ -79,16 +54,10 @@ export class UnifiedMayaMemoryService {
             return this.getDefaultContext(userId, sessionId || uuidv4());
         }
     }
-    /**
-     * 🚀 UNIFIED SAVE: Single method to save all Maya conversation data
-     * Replaces: saveMayaConversation + updateConversationContext + updateSessionContext
-     */
     async saveUnifiedConversation(userId, userMessage, mayaResponse, sessionId, hasImageGeneration = false, conceptCards = []) {
         console.log(`💾 UNIFIED MAYA MEMORY: Saving conversation for user ${userId}, session ${sessionId}`);
         try {
-            // Get or create Maya chat session
             const chatId = await this.getOrCreateMayaChatSession(userId);
-            // Save conversation messages
             const userMsgData = {
                 chatId,
                 role: 'user',
@@ -103,14 +72,12 @@ export class UnifiedMayaMemoryService {
                 createdAt: new Date()
             };
             const mayaMessage_saved = await storage.createMayaChatMessage(mayaResponseData);
-            // Update unified context in parallel
             await Promise.all([
                 this.updateChatActivity(chatId),
                 this.extractAndSaveUnifiedInsights(userId, userMessage, mayaResponse, conceptCards),
                 this.updateSessionContext(userId, sessionId, userMessage, mayaResponse),
                 this.updateSimpleMemoryContext(userId, sessionId)
             ]);
-            // Invalidate cache to ensure fresh data on next request
             this.invalidateCache(userId, sessionId);
             console.log(`✅ UNIFIED MAYA MEMORY: Conversation saved successfully for user ${userId}`);
             return {
@@ -124,9 +91,6 @@ export class UnifiedMayaMemoryService {
             throw error;
         }
     }
-    /**
-     * 🎯 PERFORMANCE: Get conversation history efficiently
-     */
     async getConversationHistory(userId, limit = 15) {
         try {
             const recentChats = await storage.getMayaChats(userId);
@@ -134,9 +98,9 @@ export class UnifiedMayaMemoryService {
                 return [];
             }
             const latestChat = recentChats[0];
-            const messages = await storage.getMayaChatMessages(latestChat.id);
+            const messages = await storage.getMayaChatMessages(latestChat.id, userId);
             return messages
-                .slice(-limit * 2) // Get last N*2 messages (user + assistant pairs)
+                .slice(-limit * 2)
                 .map(msg => ({
                 role: msg.role,
                 content: msg.content,
@@ -152,20 +116,12 @@ export class UnifiedMayaMemoryService {
             return [];
         }
     }
-    /**
-     * 🎯 UNIFIED INSIGHTS: Extract and save insights from all contexts
-     */
     async extractAndSaveUnifiedInsights(userId, userMessage, mayaResponse, conceptCards = []) {
         try {
-            // Extract insights from user message (for memory)
             const messageInsights = this.extractInsightsFromMessage(userMessage);
-            // Extract insights from Maya response (for style learning)
             const responseInsights = this.extractInsightsFromResponse(mayaResponse, conceptCards);
-            // Extract session insights (mood, goals, preferences)
             const sessionInsights = this.extractSessionInsights(userMessage, mayaResponse);
-            // Merge all insights
             const unifiedInsights = this.mergeInsights(messageInsights, responseInsights, sessionInsights);
-            // Save to unified storage
             if (this.hasSignificantInsights(unifiedInsights)) {
                 await this.savePersonalInsights(userId, unifiedInsights);
             }
@@ -175,9 +131,6 @@ export class UnifiedMayaMemoryService {
             console.error(`❌ UNIFIED MAYA MEMORY: Failed to extract insights for ${userId}:`, error);
         }
     }
-    /**
-     * 🎯 SESSION CONTEXT: Initialize comprehensive session context
-     */
     async initializeSessionContext(userId, sessionId, initialMessage) {
         try {
             const sessionGoals = initialMessage ? this.extractSessionGoals(initialMessage) : ['general_styling'];
@@ -199,9 +152,6 @@ export class UnifiedMayaMemoryService {
             return this.getDefaultSessionContext(sessionId);
         }
     }
-    /**
-     * 🎯 CONTEXTUAL INTELLIGENCE: Build comprehensive contextual intelligence
-     */
     async buildContextualIntelligence(userId) {
         try {
             const currentDate = new Date();
@@ -216,17 +166,14 @@ export class UnifiedMayaMemoryService {
             else
                 currentSeason = 'winter';
             return {
-                // Seasonal Intelligence
                 currentSeason,
                 seasonalShift: [2, 5, 8, 11].includes(month),
                 holidayContext: this.getUpcomingHolidays(month),
                 weatherConsiderations: this.getSeasonalWeatherConsiderations(currentSeason),
-                // Business Intelligence (could be enhanced with user data)
                 industryContext: 'general',
                 careerStage: 'mid',
                 professionalGoals: [],
                 brandPersonality: [],
-                // Location Intelligence (could be enhanced with user data)
                 region: 'general',
                 culturalNorms: [],
                 regionalTrends: [],
@@ -238,7 +185,6 @@ export class UnifiedMayaMemoryService {
             return this.getDefaultContextualIntelligence();
         }
     }
-    // ===== PRIVATE HELPER METHODS =====
     async getOnboardingProgress(userId) {
         try {
             const currentStep = await personalBrandService.getOnboardingProgress(userId);
@@ -269,7 +215,6 @@ export class UnifiedMayaMemoryService {
     }
     async getConversationMemory(userId) {
         try {
-            // Get recent favorites for style analysis
             const favoritesQuery = await storage.getAIImages(userId);
             const favorites = favoritesQuery.filter(img => img.isSelected || img.isFavorite).slice(0, 15);
             return {
@@ -308,12 +253,11 @@ export class UnifiedMayaMemoryService {
                 totalSessions: 0,
                 averageSessionLength: 0,
                 lastInteractionDate: null,
-                preferredTimeOfDay: 'day',
+                preferredTimeOfDay: 'morning',
                 adaptationTriggers: []
             };
         }
     }
-    // Additional helper methods from original services...
     extractSessionGoals(message) {
         const goals = [];
         const lowerMessage = message.toLowerCase();
@@ -349,7 +293,6 @@ export class UnifiedMayaMemoryService {
             styleHints: [],
             progressMarkers: []
         };
-        // Emotional state detection
         if (lowerMessage.includes('confident') || lowerMessage.includes('empowered')) {
             insights.emotionalState.push('confident');
         }
@@ -420,14 +363,13 @@ export class UnifiedMayaMemoryService {
             createdAt: new Date(),
             lastActivity: new Date()
         };
-        const newChat = await storage.createMayaChat(newChatData);
-        return newChat.id;
+        const newChatId = await storage.createMayaChat(userId, newChatData);
+        return newChatId;
     }
     async updateChatActivity(chatId) {
         console.log(`💬 UNIFIED MAYA MEMORY: Updated activity for chat ${chatId}`);
     }
     async updateSessionContext(userId, sessionId, userMessage, mayaResponse) {
-        // Update session context logic here
         console.log(`🔄 UNIFIED MAYA MEMORY: Updated session context for ${userId}, session ${sessionId}`);
     }
     async updateSimpleMemoryContext(userId, sessionId) {
@@ -490,7 +432,6 @@ export class UnifiedMayaMemoryService {
         };
         return considerations[season] || [];
     }
-    // Default context methods
     getDefaultContext(userId, sessionId) {
         return {
             userId,
@@ -512,7 +453,11 @@ export class UnifiedMayaMemoryService {
                 favoriteCategories: [],
                 stylingEvolution: [],
                 emotionalContext: 'neutral',
-                brandingConsistency: {},
+                brandingConsistency: {
+                    consistentCategories: false,
+                    brandEvolution: 'early',
+                    styleMaturity: 'exploring'
+                },
                 technicalPreferences: {}
             },
             sessionMetadata: {
@@ -555,9 +500,6 @@ export class UnifiedMayaMemoryService {
             urbanRuralContext: 'urban'
         };
     }
-    /**
-     * 🧹 CLEANUP: Clear restrictive categorizations that limit Maya's intelligence
-     */
     async clearRestrictiveCategorizations(userId) {
         try {
             await storage.saveAgentMemory('maya', userId, {
@@ -578,9 +520,6 @@ export class UnifiedMayaMemoryService {
             console.error('Failed to clear restrictive Maya categorizations:', error);
         }
     }
-    /**
-     * 📊 STATS: Get comprehensive Maya system statistics
-     */
     async getMayaSystemStats(userId) {
         try {
             const context = await this.getUnifiedMayaContext(userId);
@@ -624,6 +563,6 @@ export class UnifiedMayaMemoryService {
         return `${completeness}%`;
     }
 }
-// Export singleton instance
 export const unifiedMayaMemoryService = new UnifiedMayaMemoryService();
 console.log('🚀 UNIFIED MAYA MEMORY: Service loaded and ready for Phase 1 optimization');
+//# sourceMappingURL=unified-maya-memory-service.js.map

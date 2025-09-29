@@ -1,21 +1,12 @@
-/**
- * ✨ PHASE 5: ADVANCED PERSONALIZATION & USER INTELLIGENCE
- * Maya Phase 5 Integration Service - Complete personalization ecosystem orchestration
- */
-import { MayaBehaviorLearningService } from './maya-behavior-learning-service';
+import { MayaBehaviorLearningService } from './maya-behavior-learning-service.js';
 import { unifiedMayaMemoryService } from './unified-maya-memory-service.js';
-import { MayaPredictiveStyleService } from './maya-predictive-styling-service';
-import { MayaBusinessIntelligenceService } from './maya-business-intelligence-service';
+import { MayaPredictiveStyleService } from './maya-predictive-styling-service.js';
+import { MayaBusinessIntelligenceService } from './maya-business-intelligence-service.js';
 export class MayaPhase5IntegrationService {
-    /**
-     * ✨ PHASE 5: Generate complete personalized Maya experience
-     */
     static async generatePersonalizedExperience(userId, sessionId, requestContext) {
         try {
             console.log(`🎯 PHASE 5: Generating personalized Maya experience for user ${userId}`);
-            // Initialize all Phase 5 components
             await this.initializePhase5Components(userId, sessionId);
-            // Gather intelligence from all services using unified memory
             const unifiedContext = await unifiedMayaMemoryService.getUnifiedMayaContext(userId, sessionId);
             const [behaviorProfile, stylePredictions, businessInsights] = await Promise.all([
                 this.gatherBehaviorIntelligence(userId),
@@ -23,12 +14,10 @@ export class MayaPhase5IntegrationService {
                 this.gatherBusinessIntelligence(userId)
             ]);
             const contextualIntelligence = unifiedContext.contextualIntelligence;
-            // Generate integrated personalization
             const personalizedResponseStyle = await this.generatePersonalizedResponseStyle(behaviorProfile, contextualIntelligence, stylePredictions);
             const smartSuggestions = await MayaPredictiveStyleService.generateSmartSuggestions(userId, sessionId);
             const predictiveRecommendations = await this.generatePredictiveRecommendations(stylePredictions, contextualIntelligence);
             const businessOptimizations = await this.generateBusinessOptimizations(businessInsights, behaviorProfile);
-            // Generate experience optimizations
             const experienceOptimizations = await this.generateExperienceOptimizations(behaviorProfile, contextualIntelligence, stylePredictions, businessInsights);
             const personalizedExperience = {
                 behaviorProfile,
@@ -49,14 +38,9 @@ export class MayaPhase5IntegrationService {
             return this.getDefaultPersonalizedExperience();
         }
     }
-    /**
-     * Initialize all Phase 5 components for user
-     */
     static async initializePhase5Components(userId, sessionId) {
         try {
-            // Initialize behavior tracking (Phase 5.1)
             await MayaBehaviorLearningService.initializeBehaviorTracking(userId);
-            // Initialize session context (Phase 5.2) - handled by unified memory service
             await unifiedMayaMemoryService.getUnifiedMayaContext(userId, sessionId);
             console.log(`🚀 PHASE 5: All components initialized for user ${userId}`);
         }
@@ -64,9 +48,6 @@ export class MayaPhase5IntegrationService {
             console.error(`❌ PHASE 5: Component initialization failed:`, error);
         }
     }
-    /**
-     * Gather behavior intelligence from Phase 5.1
-     */
     static async gatherBehaviorIntelligence(userId) {
         try {
             return await MayaBehaviorLearningService.getPersonalizedResponseStyle(userId);
@@ -76,9 +57,6 @@ export class MayaPhase5IntegrationService {
             return null;
         }
     }
-    /**
-     * Gather business intelligence from Phase 5.4
-     */
     static async gatherBusinessIntelligence(userId) {
         try {
             return await MayaBusinessIntelligenceService.generateBusinessInsights(userId);
@@ -88,31 +66,21 @@ export class MayaPhase5IntegrationService {
             return null;
         }
     }
-    /**
-     * Generate personalized Maya response style
-     */
     static async generatePersonalizedResponseStyle(behaviorProfile, contextualIntelligence, stylePredictions) {
         const adaptations = {
-            // Base personality adaptations
             tonePreference: behaviorProfile?.tonePreference || 'friendly',
             detailLevel: behaviorProfile?.detailLevel || 'moderate',
             guidanceLevel: behaviorProfile?.guidanceLevel || 'some_help',
-            // Context-aware adaptations
             sessionMoodAdaptation: contextualIntelligence?.session?.sessionMood || 'exploratory',
             conversationDepthAdaptation: contextualIntelligence?.session?.conversationDepth || 1,
-            // Predictive adaptations
             styleEmphasis: stylePredictions?.predictedPreferences?.[0] || 'exploring',
             confidenceBasedGuidance: stylePredictions?.confidenceScore > 70 ? 'confident' : 'exploratory',
-            // Intelligent concept generation
             conceptCount: this.determineOptimalConceptCount(behaviorProfile, stylePredictions),
             conceptComplexity: this.determineOptimalComplexity(behaviorProfile, contextualIntelligence),
             conceptPersonalization: this.generateConceptPersonalization(stylePredictions)
         };
         return adaptations;
     }
-    /**
-     * Generate predictive recommendations
-     */
     static async generatePredictiveRecommendations(stylePredictions, contextualIntelligence) {
         return {
             immediateRecommendations: stylePredictions?.predictedPreferences?.slice(0, 3) || [],
@@ -122,9 +90,6 @@ export class MayaPhase5IntegrationService {
             timeBasedRecommendations: this.generateTimeBasedRecommendations(stylePredictions)
         };
     }
-    /**
-     * Generate business optimizations
-     */
     static async generateBusinessOptimizations(businessInsights, behaviorProfile) {
         return {
             engagementOptimizations: this.generateEngagementOptimizations(businessInsights),
@@ -133,9 +98,6 @@ export class MayaPhase5IntegrationService {
             growthOptimizations: this.generateGrowthOptimizations(businessInsights)
         };
     }
-    /**
-     * Generate experience optimizations
-     */
     static async generateExperienceOptimizations(behaviorProfile, contextualIntelligence, stylePredictions, businessInsights) {
         return {
             sessionOptimization: {
@@ -160,11 +122,8 @@ export class MayaPhase5IntegrationService {
             }
         };
     }
-    /**
-     * Determine optimal concept count for user
-     */
     static determineOptimalConceptCount(behaviorProfile, stylePredictions) {
-        let conceptCount = 3; // Default
+        let conceptCount = 3;
         if (behaviorProfile?.experimentationLevel > 80)
             conceptCount = 4;
         if (stylePredictions?.confidenceScore > 80)
@@ -173,9 +132,6 @@ export class MayaPhase5IntegrationService {
             conceptCount = 2;
         return conceptCount;
     }
-    /**
-     * Determine optimal concept complexity
-     */
     static determineOptimalComplexity(behaviorProfile, contextualIntelligence) {
         if (contextualIntelligence?.session?.sessionMood === 'urgent')
             return 'simple';
@@ -185,9 +141,6 @@ export class MayaPhase5IntegrationService {
             return 'moderate';
         return 'moderate';
     }
-    /**
-     * Generate concept personalization parameters
-     */
     static generateConceptPersonalization(stylePredictions) {
         return {
             styleEmphasis: stylePredictions?.predictedPreferences || [],
@@ -196,17 +149,12 @@ export class MayaPhase5IntegrationService {
             confidenceBasedStyling: stylePredictions?.confidenceScore > 70
         };
     }
-    /**
-     * ✨ PHASE 5: Real-time learning from user interactions
-     */
     static async learnFromUserInteraction(userId, sessionId, interactionType, interactionData) {
         try {
             console.log(`🧠 PHASE 5: Learning from ${interactionType} interaction for user ${userId}`);
-            // Update behavior learning (Phase 5.1)
             if (interactionType === 'generation' || interactionType === 'favorite') {
                 await MayaBehaviorLearningService.learnFromConceptCardInteraction(userId, interactionData, interactionType === 'favorite' ? 'favorited' : 'generated');
             }
-            // Update contextual memory (Phase 5.2) using unified memory service
             if (interactionType === 'message') {
                 await unifiedMayaMemoryService.saveUnifiedConversation(userId, interactionData.userMessage, interactionData.mayaResponse, sessionId, false);
             }
@@ -216,32 +164,22 @@ export class MayaPhase5IntegrationService {
             console.error(`❌ PHASE 5: Learning integration failed for ${userId}:`, error);
         }
     }
-    /**
-     * ✨ PHASE 5: Get Phase 5 capabilities status
-     */
     static getPhase5Capabilities() {
         return {
-            // Learning & Memory
             behaviorLearning: true,
             contextualMemory: true,
             crossSessionIntelligence: true,
-            // Prediction & Intelligence
             stylePredictin: true,
             trendAnticipation: true,
             userJourneyForecasting: true,
-            // Business Intelligence
             engagementAnalytics: true,
             churnPrediction: true,
             growthOptimization: true,
-            // Integration Features
             realTimePersonalization: true,
             intelligentConceptGeneration: true,
             adaptiveMayaPersonality: true
         };
     }
-    /**
-     * ✨ PHASE 5: Generate comprehensive system status
-     */
     static async generatePhase5SystemStatus() {
         const capabilities = this.getPhase5Capabilities();
         const serviceStats = {
@@ -260,9 +198,6 @@ export class MayaPhase5IntegrationService {
             timestamp: new Date()
         };
     }
-    /**
-     * Helper methods for optimizations
-     */
     static generateContextualRecommendations(contextualIntelligence) {
         if (!contextualIntelligence)
             return [];
@@ -314,8 +249,7 @@ export class MayaPhase5IntegrationService {
         return optimizations;
     }
     static calculateOptimalSessionDuration(behaviorProfile, businessInsights) {
-        // Calculate based on engagement patterns
-        let duration = 15; // Default 15 minutes
+        let duration = 15;
         if (behaviorProfile?.experimentationLevel > 80)
             duration += 5;
         if (businessInsights?.subscriptionValue > 80)
@@ -343,9 +277,6 @@ export class MayaPhase5IntegrationService {
         }
         return boosts;
     }
-    /**
-     * Default personalized experience
-     */
     static getDefaultPersonalizedExperience() {
         return {
             behaviorProfile: null,
@@ -385,3 +316,4 @@ export class MayaPhase5IntegrationService {
         };
     }
 }
+//# sourceMappingURL=maya-phase5-integration-service.js.map

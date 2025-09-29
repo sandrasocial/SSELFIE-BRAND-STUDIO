@@ -20,11 +20,9 @@ function validateSyntax(content, filePath) {
         for (let i = 0; i < lines.length; i++) {
             const line = lines[i];
             const lineNum = i + 1;
-            // Check for template literal issues
             if (line.includes('\\`') && line.includes('$')) {
                 errors.push(`Line ${lineNum}: Template literal escaping issue detected`);
             }
-            // Basic quote matching
             const singleQuotes = (line.match(/'/g) || []).length;
             const doubleQuotes = (line.match(/"/g) || []).length;
             const backticks = (line.match(/`/g) || []).length;
@@ -84,13 +82,11 @@ export async function performSafetyCheck(filePath, newContent, config = {}) {
         }
         if (newContent.length > safetyConfig.maxFileSize) {
             result.warnings.push(`Large file: ${newContent.length} bytes (advisory limit: ${safetyConfig.maxFileSize})`);
-            // Keep isValid true - no blocking for large files
         }
         if (safetyConfig.enableSyntaxCheck && /\.(ts|tsx|js|jsx)$/.test(filePath)) {
             const syntaxCheck = validateSyntax(newContent, filePath);
             if (!syntaxCheck.isValid) {
                 result.warnings.push(`Syntax advisory: ${syntaxCheck.error}`);
-                // Keep isValid true - no blocking for syntax issues
             }
         }
         if (safetyConfig.enableBackup && isCritical && fs.existsSync(filePath)) {
@@ -108,10 +104,8 @@ export async function safeFileModification(filePath, newContent, config = {}) {
     let backupPath;
     try {
         const safetyCheck = await performSafetyCheck(filePath, newContent, config);
-        // UNRESTRICTED ACCESS: Never block operations, provide warnings only
         if (!safetyCheck.isValid) {
             console.warn(`⚠️ SAFETY ADVISORY: ${safetyCheck.errors.join(', ')}`);
-            // Continue with operation despite warnings
         }
         if (fs.existsSync(filePath)) {
             backupPath = await createBackup(filePath);
@@ -150,3 +144,4 @@ export async function safeFileModification(filePath, newContent, config = {}) {
     }
 }
 export { DEFAULT_SAFETY_CONFIG };
+//# sourceMappingURL=file_safety_guard.js.map

@@ -1,7 +1,6 @@
 export class CampaignManager {
     campaigns = [];
     abTests = [];
-    // Core Campaign Management
     async createCampaign(campaignData) {
         const campaign = {
             id: `campaign_${Date.now()}`,
@@ -22,7 +21,6 @@ export class CampaignManager {
         this.campaigns.push(campaign);
         return campaign.id;
     }
-    // A/B Testing Engine
     async startABTest(campaignId, variants) {
         const test = {
             test_id: `ab_test_${Date.now()}`,
@@ -42,18 +40,15 @@ export class CampaignManager {
         this.abTests.push(test);
         return test.test_id;
     }
-    // Conversion Optimization
     optimizeConversions(campaignId) {
         const campaign = this.campaigns.find(c => c.id === campaignId);
         if (!campaign)
             throw new Error('Campaign not found');
         const recommendations = [];
         let expected_improvement = 0;
-        // Analyze current performance
         const current_conversion_rate = campaign.conversions / campaign.clicks;
         const current_cpc = campaign.spent / campaign.clicks;
-        const current_roas = (campaign.conversions * 47) / campaign.spent; // €67 premium price
-        // Optimization recommendations based on performance
+        const current_roas = (campaign.conversions * 47) / campaign.spent;
         if (current_conversion_rate < 0.02) {
             recommendations.push("Optimize landing page with Sandra's authentic story");
             recommendations.push("Add social proof from real SSELFIE transformations");
@@ -78,13 +73,12 @@ export class CampaignManager {
             implementation_priority: expected_improvement > 50 ? 'high' : expected_improvement > 25 ? 'medium' : 'low'
         };
     }
-    // Revenue Optimization
     calculateRevenuePotential(campaignData) {
         const monthly_conversions = campaignData.conversions;
-        const monthly_revenue = monthly_conversions * 47; // €67 premium price
-        const monthly_costs = campaignData.spent + (monthly_conversions * 8); // €8 cost per user
+        const monthly_revenue = monthly_conversions * 47;
+        const monthly_costs = campaignData.spent + (monthly_conversions * 8);
         const profit_margin = ((monthly_revenue - monthly_costs) / monthly_revenue) * 100;
-        const ltv_projection = monthly_revenue * 12 * 0.75; // 75% annual retention
+        const ltv_projection = monthly_revenue * 12 * 0.75;
         let scale_recommendation = '';
         if (profit_margin > 80) {
             scale_recommendation = 'Scale aggressively - excellent margins maintained';
@@ -102,7 +96,6 @@ export class CampaignManager {
             scale_recommendation
         };
     }
-    // Campaign Performance Analytics
     getPerformanceMetrics(campaignId) {
         const campaign = this.campaigns.find(c => c.id === campaignId);
         if (!campaign)
@@ -134,3 +127,4 @@ export class CampaignManager {
     }
 }
 export const campaignManager = new CampaignManager();
+//# sourceMappingURL=CampaignData.js.map

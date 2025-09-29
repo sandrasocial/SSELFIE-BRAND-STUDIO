@@ -1,7 +1,3 @@
-/**
- * ZARA TRACKING & ANALYSIS TOOL
- * Deep analysis of Zara's conversation patterns, context handling, and performance
- */
 import { db } from './drizzle.js';
 import { claudeConversations, claudeMessages, agentLearning, agentSessionContexts } from '../shared/schema.js';
 import { eq, desc, and } from 'drizzle-orm';
@@ -9,7 +5,6 @@ async function trackZara() {
     console.log('🔍 ZARA TRACKING & ANALYSIS');
     console.log('='.repeat(60));
     try {
-        // Get Zara's recent conversations
         const conversations = await db
             .select()
             .from(claudeConversations)
@@ -25,7 +20,6 @@ async function trackZara() {
             console.log(`   Last Activity: ${conv.lastMessageAt?.toLocaleString() || 'Never'}`);
             console.log(`   Duration: ${conv.lastMessageAt && conv.createdAt ?
                 Math.round((conv.lastMessageAt.getTime() - conv.createdAt.getTime()) / 1000) + 's' : 'Unknown'}`);
-            // Get messages for this conversation
             const messages = await db
                 .select()
                 .from(claudeMessages)
@@ -38,21 +32,18 @@ async function trackZara() {
             for (const msg of messages.reverse()) {
                 const preview = msg.content.substring(0, 80).replace(/\n/g, ' ');
                 console.log(`      ${msg.role}: ${preview}... (${msg.createdAt?.toLocaleString()})`);
-                // Check for context issues
                 if (msg.content.includes('previous') ||
                     msg.content.includes('continuing') ||
                     msg.content.includes('last task') ||
                     msg.content.includes('from yesterday')) {
                     contextIssues++;
                 }
-                // Check tool usage
                 if (msg.toolCalls) {
                     toolUsage++;
                 }
             }
             console.log(`   🔍 ANALYSIS: ${contextIssues} context issues, ${toolUsage} tool uses\n`);
         }
-        // Check Zara's memory and learning patterns
         console.log('🧠 ZARA MEMORY ANALYSIS');
         console.log('-'.repeat(40));
         const learningPatterns = await db
@@ -65,7 +56,6 @@ async function trackZara() {
         for (const pattern of learningPatterns) {
             console.log(`   - ${pattern.category}: ${pattern.learningType} (freq: ${pattern.frequency}, conf: ${pattern.confidence})`);
         }
-        // Check context preservation
         console.log('\n🏗️ CONTEXT PRESERVATION ANALYSIS');
         console.log('-'.repeat(40));
         const contextData = await db
@@ -83,7 +73,6 @@ async function trackZara() {
             console.log(`     Admin Bypass: ${contextObj?.adminBypass || false}`);
             console.log(`     Updated: ${ctx.updatedAt?.toLocaleString()}`);
         }
-        // Performance Analysis
         console.log('\n⚡ PERFORMANCE ANALYSIS');
         console.log('-'.repeat(40));
         const recentConv = conversations[0];
@@ -109,9 +98,8 @@ async function trackZara() {
         console.error('❌ Error tracking Zara:', error);
     }
 }
-// Export for external use
 export { trackZara };
-// Run if executed directly
 if (import.meta.url === `file://${process.argv[1]}`) {
     trackZara().catch(console.error);
 }
+//# sourceMappingURL=track-zara.js.map

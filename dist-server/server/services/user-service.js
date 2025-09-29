@@ -1,12 +1,5 @@
-/**
- * User Service
- * Handles user management and profile operations
- */
-import { BaseService } from './base-service';
+import { BaseService } from './base-service.js';
 export class UserService extends BaseService {
-    /**
-     * Get user by ID
-     */
     async getUser(userId) {
         try {
             if (!userId) {
@@ -18,32 +11,31 @@ export class UserService extends BaseService {
                 this.log('warn', 'User not found', { userId });
                 return null;
             }
+            const createdAt = user.createdAt instanceof Date ? user.createdAt : new Date(user.createdAt);
+            const updatedAt = user.updatedAt instanceof Date ? user.updatedAt : new Date(user.updatedAt);
             return {
                 id: user.id,
-                email: user.email,
-                displayName: user.displayName,
-                firstName: user.firstName,
-                lastName: user.lastName,
-                gender: user.gender,
-                profileImageUrl: user.profileImageUrl,
-                createdAt: user.createdAt,
-                updatedAt: user.updatedAt
+                email: user.email ?? null,
+                displayName: user.displayName ?? null,
+                firstName: user.firstName ?? null,
+                lastName: user.lastName ?? null,
+                gender: user.gender ?? null,
+                profileImageUrl: user.profileImageUrl ?? null,
+                createdAt,
+                updatedAt
             };
         }
         catch (error) {
             this.handleError(error, 'getUser');
+            return null;
         }
     }
-    /**
-     * Update user profile
-     */
     async updateUserProfile(userId, updates) {
         try {
             if (!userId) {
                 throw new Error('User ID is required');
             }
             const sanitizedUpdates = this.sanitizeInput(updates);
-            // Validate gender if provided
             if (sanitizedUpdates.gender && !['man', 'woman', 'other'].includes(sanitizedUpdates.gender)) {
                 throw new Error('Invalid gender value. Must be "man", "woman", or "other"');
             }
@@ -60,55 +52,69 @@ export class UserService extends BaseService {
         }
         catch (error) {
             this.handleError(error, 'updateUserProfile');
+            return null;
         }
     }
-    /**
-     * Create new user
-     */
+    getDefaultUserFields(overrides = {}) {
+        return {
+            plan: 'sselfie-studio',
+            role: 'user',
+            monthlyGenerationLimit: 100,
+            mayaAiAccess: true,
+            victoriaAiAccess: false,
+            preferredOnboardingMode: 'conversational',
+            onboardingProgress: {},
+            gender: '',
+            profession: '',
+            brandStyle: '',
+            photoGoals: '',
+            trainingCoachingStarted: false,
+            trainingCoachingCompleted: false,
+            trainingCoachingPhase: '',
+            trainingCoachingStep: 0,
+            brandStrategyContext: {},
+            ...overrides
+        };
+    }
     async createUser(email, userData = {}) {
         try {
             if (!email) {
                 throw new Error('Email is required');
             }
             const sanitizedData = this.sanitizeInput(userData);
-            // Use provided ID (for Stack Auth users) or generate new one
             const userId = sanitizedData.id || this.generateId('user');
             this.log('info', 'Creating new user', { email, userId, isStackAuthUser: !!sanitizedData.id });
-            const newUser = await this.storage.createUser({
+            const currentDate = new Date();
+            const newUser = await this.storage.createUser(this.getDefaultUserFields({
                 id: userId,
                 email,
                 displayName: sanitizedData.displayName || email.split('@')[0],
-                firstName: sanitizedData.firstName,
-                lastName: sanitizedData.lastName,
-                gender: sanitizedData.gender,
-                profileImageUrl: sanitizedData.profileImageUrl,
-                // Stack Auth users get basic plan by default
-                plan: sanitizedData.id ? 'sselfie-studio' : null,
-                role: sanitizedData.id ? 'user' : null,
-                monthlyGenerationLimit: sanitizedData.id ? 100 : 0,
-                mayaAiAccess: sanitizedData.id ? true : false,
-                createdAt: new Date(),
-                updatedAt: new Date()
-            });
+                firstName: sanitizedData.firstName ?? null,
+                lastName: sanitizedData.lastName ?? null,
+                gender: sanitizedData.gender ?? null,
+                profileImageUrl: sanitizedData.profileImageUrl ?? null,
+                createdAt: currentDate,
+                updatedAt: currentDate
+            }));
+            const createdAt = newUser.createdAt instanceof Date ? newUser.createdAt : new Date(newUser.createdAt);
+            const updatedAt = newUser.updatedAt instanceof Date ? newUser.updatedAt : new Date(newUser.updatedAt);
             return {
                 id: newUser.id,
-                email: newUser.email,
-                displayName: newUser.displayName,
-                firstName: newUser.firstName,
-                lastName: newUser.lastName,
-                gender: newUser.gender,
-                profileImageUrl: newUser.profileImageUrl,
-                createdAt: newUser.createdAt,
-                updatedAt: newUser.updatedAt
+                email: newUser.email ?? null,
+                displayName: newUser.displayName ?? null,
+                firstName: newUser.firstName ?? null,
+                lastName: newUser.lastName ?? null,
+                gender: newUser.gender ?? null,
+                profileImageUrl: newUser.profileImageUrl ?? null,
+                createdAt,
+                updatedAt
             };
         }
         catch (error) {
             this.handleError(error, 'createUser');
+            return null;
         }
     }
-    /**
-     * Get user by email
-     */
     async getUserByEmail(email) {
         try {
             if (!email) {
@@ -120,22 +126,25 @@ export class UserService extends BaseService {
                 this.log('warn', 'User not found by email', { email });
                 return null;
             }
+            const createdAt = user.createdAt instanceof Date ? user.createdAt : new Date(user.createdAt);
+            const updatedAt = user.updatedAt instanceof Date ? user.updatedAt : new Date(user.updatedAt);
             return {
                 id: user.id,
-                email: user.email,
-                displayName: user.displayName,
-                firstName: user.firstName,
-                lastName: user.lastName,
-                gender: user.gender,
-                profileImageUrl: user.profileImageUrl,
-                createdAt: user.createdAt,
-                updatedAt: user.updatedAt
+                email: user.email ?? null,
+                displayName: user.displayName ?? null,
+                firstName: user.firstName ?? null,
+                lastName: user.lastName ?? null,
+                gender: user.gender ?? null,
+                profileImageUrl: user.profileImageUrl ?? null,
+                createdAt,
+                updatedAt
             };
         }
         catch (error) {
             this.handleError(error, 'getUserByEmail');
+            return null;
         }
     }
 }
-// Export singleton instance
 export const userService = new UserService();
+//# sourceMappingURL=user-service.js.map

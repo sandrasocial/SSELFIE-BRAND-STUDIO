@@ -1,5 +1,4 @@
-import { SlackNotificationService } from './slack-notification-service';
-// 🤖 AVA - Your Intelligent Email Management Agent
+import { SlackNotificationService } from './slack-notification-service.js';
 export class EmailManagementAgent {
     static instance;
     isProcessing = false;
@@ -10,12 +9,9 @@ export class EmailManagementAgent {
         }
         return this.instance;
     }
-    // 📧 Get user email accounts (for dashboard)
     async getUserEmailAccounts(userId) {
         try {
             console.log(`📧 Getting email accounts for user ${userId}`);
-            // In a real implementation, this would fetch from database
-            // For now, return empty array to prevent errors
             return [];
         }
         catch (error) {
@@ -23,12 +19,9 @@ export class EmailManagementAgent {
             return [];
         }
     }
-    // 📊 Get recent email insights (for dashboard)
     async getRecentEmailInsights(userId) {
         try {
             console.log(`📊 Getting recent email insights for user ${userId}`);
-            // In a real implementation, this would fetch from database
-            // For now, return empty array to prevent errors
             return [];
         }
         catch (error) {
@@ -36,15 +29,11 @@ export class EmailManagementAgent {
             return [];
         }
     }
-    // 📧 Initialize with both personal and business accounts
     async addEmailAccount(userId, account) {
         try {
             console.log(`📧 AVA: Adding ${account.type} email account: ${account.email}`);
-            // Store account configuration
             this.accounts.set(account.id, account);
-            // Save to agent context for persistence
             await this.saveAccountContext(userId, account);
-            // Send Slack notification
             await SlackNotificationService.sendAgentInsight('ava', 'operational', 'New Email Account Connected', `Successfully connected ${account.type} email account: ${account.email}. Ready to process incoming messages.`, 'medium');
             return true;
         }
@@ -53,7 +42,6 @@ export class EmailManagementAgent {
             return false;
         }
     }
-    // 🔍 Process all unread emails across accounts
     async processUnreadEmails(userId) {
         if (this.isProcessing) {
             console.log('📧 AVA: Email processing already in progress');
@@ -65,21 +53,16 @@ export class EmailManagementAgent {
             console.log('📧 AVA: Starting comprehensive email analysis...');
             for (const [accountId, account] of this.accounts) {
                 console.log(`📧 AVA: Processing ${account.type} account: ${account.email}`);
-                // Fetch unread emails from provider
                 const unreadEmails = await this.fetchUnreadEmails(account);
                 if (unreadEmails.length === 0) {
                     console.log(`✅ AVA: No unread emails in ${account.email}`);
                     continue;
                 }
-                // Categorize and analyze emails
                 const processedEmails = await this.categorizeEmails(unreadEmails, account.type);
-                // Generate insights
                 const accountInsights = await this.generateEmailInsights(processedEmails, account);
                 insights.push(...accountInsights);
-                // Store processed emails for future reference
                 await this.storeProcessedEmails(userId, accountId, processedEmails);
             }
-            // Send comprehensive summary to Slack
             await this.sendEmailSummaryToSlack(insights);
             console.log(`📧 AVA: Processed emails from ${this.accounts.size} accounts, generated ${insights.length} insights`);
         }
@@ -91,7 +74,6 @@ export class EmailManagementAgent {
         }
         return insights;
     }
-    // 🏷️ Intelligent email categorization (different logic for personal vs business)
     async categorizeEmails(emails, accountType) {
         const processed = [];
         for (const email of emails) {
@@ -99,7 +81,6 @@ export class EmailManagementAgent {
             const priority = await this.determinePriority(email, category, accountType);
             const sentiment = await this.analyzeSentiment(email.body);
             const needsResponse = await this.determineResponseNeeded(email, accountType);
-            // Generate AI summary for important emails
             let aiSummary;
             let suggestedResponse;
             if (priority === 'high' || needsResponse) {
@@ -128,12 +109,10 @@ export class EmailManagementAgent {
         }
         return processed;
     }
-    // 🎯 Smart categorization logic
     async categorizeEmail(email, accountType) {
         const subject = email.subject.toLowerCase();
         const from = email.from.toLowerCase();
         const body = email.body.toLowerCase();
-        // Business account categorization
         if (accountType === 'business') {
             if (this.containsUrgentKeywords(subject, body))
                 return 'urgent';
@@ -145,7 +124,6 @@ export class EmailManagementAgent {
                 return 'marketing';
             return 'business';
         }
-        // Personal account categorization
         if (this.containsUrgentKeywords(subject, body))
             return 'urgent';
         if (this.isMarketingEmail(from, subject))
@@ -154,7 +132,6 @@ export class EmailManagementAgent {
             return 'spam';
         return 'personal';
     }
-    // 🔥 Priority determination
     async determinePriority(email, category, accountType) {
         if (category === 'urgent')
             return 'high';
@@ -166,10 +143,8 @@ export class EmailManagementAgent {
             return 'low';
         return 'medium';
     }
-    // 💡 Generate actionable insights
     async generateEmailInsights(emails, account) {
         const insights = [];
-        // Urgent emails that need immediate attention
         const urgentEmails = emails.filter(e => e.category === 'urgent' || e.priority === 'high');
         if (urgentEmails.length > 0) {
             insights.push({
@@ -181,7 +156,6 @@ export class EmailManagementAgent {
                 emailIds: urgentEmails.map(e => e.id)
             });
         }
-        // Customer opportunities (business accounts only)
         if (account.type === 'business') {
             const customerEmails = emails.filter(e => e.category === 'customer');
             if (customerEmails.length > 0) {
@@ -195,7 +169,6 @@ export class EmailManagementAgent {
                 });
             }
         }
-        // Daily summary
         insights.push({
             type: 'unread_summary',
             priority: 'medium',
@@ -211,7 +184,6 @@ export class EmailManagementAgent {
         });
         return insights;
     }
-    // 📊 Send comprehensive summary to Slack
     async sendEmailSummaryToSlack(insights) {
         if (insights.length === 0)
             return;
@@ -236,7 +208,6 @@ export class EmailManagementAgent {
         message += `• Check customer opportunities for potential sales\n`;
         await SlackNotificationService.sendAgentInsight('ava', 'strategic', 'Email Management Summary', message, urgentInsights.length > 0 ? 'high' : 'medium');
     }
-    // 🔗 Helper methods for email analysis
     containsUrgentKeywords(subject, body) {
         const urgentKeywords = ['urgent', 'asap', 'emergency', 'immediate', 'deadline', 'time sensitive'];
         const text = `${subject} ${body}`.toLowerCase();
@@ -265,12 +236,10 @@ export class EmailManagementAgent {
         return spamKeywords.some(keyword => text.includes(keyword));
     }
     isVIPSender(from) {
-        // Customize this list based on important contacts
         const vipDomains = ['sselfie.ai', 'clients', 'partners'];
         return vipDomains.some(domain => from.includes(domain));
     }
     async analyzeSentiment(body) {
-        // Simple sentiment analysis - can be enhanced with AI
         const positiveWords = ['thank', 'great', 'excellent', 'love', 'amazing'];
         const negativeWords = ['problem', 'issue', 'angry', 'disappointed', 'terrible'];
         const text = body.toLowerCase();
@@ -283,13 +252,11 @@ export class EmailManagementAgent {
         return 'neutral';
     }
     async determineResponseNeeded(email, accountType) {
-        // Business emails with questions usually need responses
         if (accountType === 'business') {
             const questionKeywords = ['?', 'question', 'how', 'when', 'what', 'why', 'please let me know'];
             const text = `${email.subject} ${email.body}`.toLowerCase();
             return questionKeywords.some(keyword => text.includes(keyword));
         }
-        // Personal emails from real people (not automated) usually need responses
         return !email.from.includes('noreply') && !this.isMarketingEmail(email.from, email.subject);
     }
     async generateTags(email, accountType) {
@@ -305,12 +272,10 @@ export class EmailManagementAgent {
         return tags;
     }
     async generateEmailSummary(email) {
-        // AI-powered email summary (placeholder for now)
         const bodyPreview = email.body.substring(0, 200) + '...';
         return `Summary: Email from ${email.from} regarding ${email.subject}. ${bodyPreview}`;
     }
     async generateSuggestedResponse(email, accountType) {
-        // AI-powered response suggestion (placeholder for now)
         if (accountType === 'business') {
             return `Thank you for your email. I'll review your message and get back to you within 24 hours. Best regards, Sandra`;
         }
@@ -318,28 +283,19 @@ export class EmailManagementAgent {
             return `Thanks for reaching out! I'll get back to you soon.`;
         }
     }
-    // 💾 Storage methods
     async saveAccountContext(userId, account) {
-        // Save to agent session context for persistence
         const contextData = {
             emailAccounts: Array.from(this.accounts.values())
         };
-        // This would integrate with your existing agent context system
         console.log(`💾 AVA: Saved email account context for user ${userId}`);
     }
     async storeProcessedEmails(userId, accountId, emails) {
-        // Store processed emails for reference and learning
         console.log(`💾 AVA: Stored ${emails.length} processed emails for account ${accountId}`);
     }
-    // 📱 Mock email fetching (to be replaced with real Gmail/Outlook API)
     async fetchUnreadEmails(account) {
-        // This is where you'd integrate with Gmail API, Outlook API, etc.
-        // For now, returning mock data to demonstrate the system
         console.log(`📱 AVA: Fetching emails from ${account.provider} for ${account.email}`);
-        // In production, this would connect to Gmail/Outlook APIs
-        return []; // Return actual emails from API
+        return [];
     }
-    // 🚀 Start automated email monitoring
     startEmailMonitoring(userId, intervalMinutes = 60) {
         console.log(`🚀 AVA: Starting automated email monitoring (every ${intervalMinutes} minutes)`);
         setInterval(async () => {
@@ -347,5 +303,5 @@ export class EmailManagementAgent {
         }, intervalMinutes * 60 * 1000);
     }
 }
-// Export singleton instance
 export const emailManagementAgent = EmailManagementAgent.getInstance();
+//# sourceMappingURL=email-management-agent.js.map

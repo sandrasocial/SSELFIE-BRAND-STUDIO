@@ -1,10 +1,9 @@
 import { pgTable, text, varchar, timestamp, jsonb, integer, boolean } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
-// User styleguides created by SANDRA AI
 export const userStyleguides = pgTable("user_styleguides", {
     id: integer("id").primaryKey().generatedByDefaultAsIdentity(),
     userId: varchar("user_id").notNull(),
-    templateId: varchar("template_id").notNull(), // refined-minimal, luxe-feminine, bold-femme, executive-essence, creative-bold
+    templateId: varchar("template_id").notNull(),
     title: varchar("title").notNull(),
     subtitle: varchar("subtitle"),
     personalMission: text("personal_mission"),
@@ -21,9 +20,8 @@ export const userStyleguides = pgTable("user_styleguides", {
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").defaultNow(),
 });
-// Styleguide templates for SANDRA AI to use as starting points
 export const styleguideTemplates = pgTable("styleguide_templates", {
-    id: varchar("id").primaryKey(), // refined-minimal, luxe-feminine, etc.
+    id: varchar("id").primaryKey(),
     name: varchar("name").notNull(),
     description: text("description"),
     colorScheme: jsonb("color_scheme").$type(),
@@ -34,3 +32,4 @@ export const styleguideTemplates = pgTable("styleguide_templates", {
 });
 export const insertUserStyleguideSchema = createInsertSchema(userStyleguides);
 export const insertStyleguideTemplateSchema = createInsertSchema(styleguideTemplates);
+//# sourceMappingURL=styleguide-schema.js.map

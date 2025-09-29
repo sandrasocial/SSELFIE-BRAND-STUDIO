@@ -1,9 +1,5 @@
-/**
- * Unified Error Handling Service
- * Centralized error handling and recovery system
- */
-import { Logger } from '../utils/logger';
-import { createError } from '../utils/error-handler';
+import { Logger } from '../utils/logger.js';
+import { createError } from '../utils/error-handler.js';
 export class UnifiedErrorHandler {
     logger;
     errorCounts;
@@ -13,17 +9,11 @@ export class UnifiedErrorHandler {
         this.errorCounts = new Map();
         this.lastErrorTimes = new Map();
     }
-    /**
-     * Handle and process errors with context and recovery options
-     */
     async handleError(error, context = {}, options = {}) {
         const errorId = this.generateErrorId();
         const errorKey = this.getErrorKey(error, context);
-        // Track error frequency
         this.trackErrorFrequency(errorKey);
-        // Log error with context
         this.logError(error, context, errorId);
-        // Check if we should retry
         const shouldRetry = this.shouldRetry(error, errorKey, options);
         if (shouldRetry) {
             const retryAfter = this.calculateRetryDelay(errorKey, options);
@@ -35,7 +25,6 @@ export class UnifiedErrorHandler {
                 retryAfter
             };
         }
-        // Try fallback action if available
         if (options.fallbackAction) {
             try {
                 this.logger.info(`Attempting fallback action for error ${errorId}`);
@@ -51,7 +40,6 @@ export class UnifiedErrorHandler {
                 this.logger.error(`Fallback action failed for error ${errorId}:`, fallbackError);
             }
         }
-        // Notify admin if requested
         if (options.notifyAdmin) {
             await this.notifyAdmin(error, context, errorId);
         }
@@ -62,9 +50,6 @@ export class UnifiedErrorHandler {
             retryAfter: undefined
         };
     }
-    /**
-     * Handle API errors with standardized responses
-     */
     handleAPIError(error, context = {}, statusCode = 500) {
         const errorId = this.generateErrorId();
         const sanitizedError = this.sanitizeError(error);
@@ -79,12 +64,8 @@ export class UnifiedErrorHandler {
             }
         };
     }
-    /**
-     * Handle database errors with specific recovery strategies
-     */
     async handleDatabaseError(error, context = {}, operation) {
         const errorMessage = error instanceof Error ? error.message : String(error);
-        // Connection errors - retry with exponential backoff
         if (errorMessage.includes('connection') || errorMessage.includes('timeout')) {
             return this.handleError(error, context, {
                 retry: true,
@@ -93,7 +74,6 @@ export class UnifiedErrorHandler {
                 notifyAdmin: true
             });
         }
-        // Constraint violations - don't retry, return specific error
         if (errorMessage.includes('constraint') || errorMessage.includes('duplicate')) {
             return {
                 handled: true,
@@ -104,7 +84,6 @@ export class UnifiedErrorHandler {
                 })
             };
         }
-        // Query errors - retry once
         if (errorMessage.includes('query') || errorMessage.includes('syntax')) {
             return this.handleError(error, context, {
                 retry: true,
@@ -112,18 +91,13 @@ export class UnifiedErrorHandler {
                 retryDelay: 500
             });
         }
-        // Default handling
         return this.handleError(error, context, {
             retry: false,
             notifyAdmin: true
         });
     }
-    /**
-     * Handle AI service errors with fallback strategies
-     */
     async handleAIServiceError(error, context = {}, service) {
         const errorMessage = error instanceof Error ? error.message : String(error);
-        // Rate limiting - retry with longer delay
         if (errorMessage.includes('rate limit') || errorMessage.includes('429')) {
             return this.handleError(error, context, {
                 retry: true,
@@ -132,36 +106,29 @@ export class UnifiedErrorHandler {
                 notifyAdmin: true
             });
         }
-        // API key issues - don't retry, notify admin
         if (errorMessage.includes('api key') || errorMessage.includes('unauthorized')) {
             return this.handleError(error, context, {
                 retry: false,
                 notifyAdmin: true
             });
         }
-        // Service unavailable - retry with exponential backoff
         if (errorMessage.includes('unavailable') || errorMessage.includes('503')) {
             return this.handleError(error, context, {
                 retry: true,
                 maxRetries: 3,
                 retryDelay: 2000,
                 fallbackAction: async () => {
-                    // Try alternative AI service
                     this.logger.info(`Attempting fallback to alternative AI service for ${service}`);
                     return { fallback: true, service };
                 }
             });
         }
-        // Default handling
         return this.handleError(error, context, {
             retry: true,
             maxRetries: 2,
             retryDelay: 1000
         });
     }
-    /**
-     * Get error statistics for monitoring
-     */
     getErrorStatistics() {
         const recentErrors = Array.from(this.errorCounts.entries())
             .map(([errorKey, count]) => ({
@@ -177,9 +144,6 @@ export class UnifiedErrorHandler {
             recentErrors
         };
     }
-    /**
-     * Clear old error data
-     */
     clearOldErrors(maxAge = 24 * 60 * 60 * 1000) {
         const cutoff = Date.now() - maxAge;
         for (const [errorKey, lastTime] of this.lastErrorTimes.entries()) {
@@ -197,7 +161,6 @@ export class UnifiedErrorHandler {
         const errorMessage = error instanceof Error ? error.message : String(error);
         const operation = context.operation || 'unknown';
         const service = context.service || 'unknown';
-        // Create a normalized error key
         return `${service}:${operation}:${errorMessage.split(' ').slice(0, 3).join('_')}`;
     }
     trackErrorFrequency(errorKey) {
@@ -215,10 +178,9 @@ export class UnifiedErrorHandler {
     calculateRetryDelay(errorKey, options) {
         const count = this.errorCounts.get(errorKey) || 0;
         const baseDelay = options.retryDelay || 1000;
-        // Exponential backoff with jitter
         const delay = baseDelay * Math.pow(2, count - 1);
         const jitter = Math.random() * 0.1 * delay;
-        return Math.min(delay + jitter, 30000); // Max 30 seconds
+        return Math.min(delay + jitter, 30000);
     }
     logError(error, context, errorId) {
         const errorMessage = error instanceof Error ? error.message : String(error);
@@ -258,7 +220,6 @@ export class UnifiedErrorHandler {
         return 'UNKNOWN_ERROR';
     }
     async notifyAdmin(error, context, errorId) {
-        // In production, this would send notifications to admin
         this.logger.warn(`Admin notification for error ${errorId}:`, {
             error: this.sanitizeError(error),
             context,
@@ -266,5 +227,5 @@ export class UnifiedErrorHandler {
         });
     }
 }
-// Export singleton instance
 export const unifiedErrorHandler = new UnifiedErrorHandler();
+//# sourceMappingURL=unified-error-handler.js.map

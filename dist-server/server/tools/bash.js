@@ -1,7 +1,3 @@
-/**
- * BASH COMMAND TOOL
- * Direct bash command execution for agent orchestration
- */
 import { spawn } from 'child_process';
 export async function bash(parameters) {
     console.log('⚡ BASH TOOL:', parameters);
@@ -14,17 +10,14 @@ export async function bash(parameters) {
         throw new Error('Command parameter is required');
     }
     console.log(`🔧 EXECUTING BASH: ${command}`);
-    // SECURITY: Validate command before execution
     if (!command || typeof command !== 'string') {
         throw new Error('Invalid command format');
     }
-    // SECURITY FIX: Enhanced command validation and safe execution
     const dangerousPatterns = [/[;`$()]/g, /\brm\s+-rf\b/, /\bsudo\b/, /\bsu\b/, />/g];
     const hasDangerousChars = dangerousPatterns.some(pattern => pattern.test(command));
     if (hasDangerousChars) {
         throw new Error('Command contains unsafe characters or patterns');
     }
-    // Whitelist approach for allowed commands
     const allowedCommands = [
         /^ls\b/, /^cat\b/, /^grep\b/, /^find\b/, /^echo\b/,
         /^npm\s+/, /^node\b/, /^curl\s+/, /^ps\b/, /^pwd/, /^whoami$/,
@@ -35,9 +28,7 @@ export async function bash(parameters) {
     if (!isCommandAllowed) {
         throw new Error('Command not in allowed list for security');
     }
-    // Handle compound commands safely
     if (command.includes('&&')) {
-        // Allow safe compound commands like "pwd && ls -la" using shell
         return new Promise((resolve, reject) => {
             const child = spawn('sh', ['-c', command], {
                 stdio: ['pipe', 'pipe', 'pipe'],
@@ -63,9 +54,7 @@ export async function bash(parameters) {
             });
         });
     }
-    // Handle pipe commands safely  
     if (command.includes('|')) {
-        // Allow safe pipes like "ps aux | grep node" using shell
         return new Promise((resolve, reject) => {
             const child = spawn('sh', ['-c', command], {
                 stdio: ['pipe', 'pipe', 'pipe'],
@@ -92,11 +81,9 @@ export async function bash(parameters) {
         });
     }
     return new Promise((resolve, reject) => {
-        // Split command safely to prevent injection
         const commandParts = command.trim().split(/\s+/);
         const baseCommand = commandParts[0];
         const args = commandParts.slice(1).filter(arg => arg.length < 200 && !/[;`$()]/.test(arg));
-        // AGENT NAVIGATION FIX: Auto-navigate to project root for file operations
         const isFileOperation = ['ls', 'find', 'cat', 'grep', 'head', 'tail'].includes(baseCommand);
         const workingDir = isFileOperation && process.cwd().includes('/server')
             ? process.cwd().replace('/server', '')
@@ -107,11 +94,10 @@ export async function bash(parameters) {
         const child = spawn(baseCommand, args, {
             stdio: ['pipe', 'pipe', 'pipe'],
             cwd: workingDir,
-            env: { ...process.env, PATH: process.env.PATH } // Controlled environment
+            env: { ...process.env, PATH: process.env.PATH }
         });
         let stdout = '';
         let stderr = '';
-        // Smart timeout based on command type - declare before use
         const timeoutMs = getCommandTimeout(command);
         const timeoutId = setTimeout(() => {
             child.kill('SIGTERM');
@@ -125,7 +111,6 @@ export async function bash(parameters) {
         });
         child.on('close', (code) => {
             clearTimeout(timeoutId);
-            // ENHANCED ERROR HANDLING: Provide context and suggestions
             if (code !== 0) {
                 const errorOutput = stderr || 'Command failed with no error output';
                 const suggestion = getErrorSuggestion(command, code, errorOutput);
@@ -133,7 +118,6 @@ export async function bash(parameters) {
                 reject(new Error(`Command failed (exit code ${code}): ${errorOutput}\n\nSuggestion: ${suggestion}`));
                 return;
             }
-            // SMART OUTPUT TRUNCATION: Prevent massive token usage from large outputs
             const output = stdout || stderr || 'Command completed';
             const truncatedOutput = truncateOutput(output, command);
             console.log(`✅ BASH COMPLETED: Exit code ${code}`);
@@ -146,75 +130,57 @@ export async function bash(parameters) {
         });
     });
 }
-// SMART OUTPUT TRUNCATION: Prevent massive token usage from command outputs
 function truncateOutput(output, command) {
     const maxLength = getOutputLimit(command);
     if (output.length <= maxLength) {
         return output;
     }
-    // For long output, show beginning and end with context
     const beginLength = Math.ceil(maxLength * 0.7);
-    const endLength = maxLength - beginLength - 100; // Reserve space for truncation message
+    const endLength = maxLength - beginLength - 100;
     const beginning = output.substring(0, beginLength);
     const ending = output.substring(output.length - endLength);
     return `${beginning}\n\n... [Output truncated - ${output.length} total characters] ...\n\n${ending}`;
 }
-// Get appropriate output limits based on command type
 function getOutputLimit(command) {
-    // Large output commands get smaller limits
     if (command.includes('find') || command.includes('grep') || command.includes('ls -la')) {
         return 2000;
     }
-    // Log files and data commands
     if (command.includes('cat') || command.includes('head') || command.includes('tail')) {
         return 3000;
     }
-    // Build and install commands can be verbose
     if (command.includes('npm') || command.includes('build') || command.includes('install')) {
         return 1500;
     }
-    // Default limit for other commands
     return 4000;
 }
-// SMART TIMEOUT: Different commands need different timeout periods
 function getCommandTimeout(command) {
-    // Long-running operations
     if (command.includes('npm install') || command.includes('git clone') || command.includes('download')) {
-        return 120000; // 2 minutes
+        return 120000;
     }
-    // Database operations
     if (command.includes('psql') || command.includes('database') || command.includes('migration')) {
-        return 60000; // 1 minute
+        return 60000;
     }
-    // Search operations
     if (command.includes('find') && command.includes('-exec')) {
-        return 45000; // 45 seconds
+        return 45000;
     }
-    // Quick commands
-    return 30000; // 30 seconds default
+    return 30000;
 }
-// ERROR SUGGESTIONS: Help agents understand and fix common issues
 function getErrorSuggestion(command, exitCode, errorOutput) {
-    // Permission issues
     if (errorOutput.includes('Permission denied') || exitCode === 126) {
         return 'Try using relative paths or check file permissions. Avoid operations requiring sudo.';
     }
-    // File not found
     if (errorOutput.includes('No such file') || exitCode === 127) {
         return 'Check if the file/command exists. Use `ls` to verify paths or `which` to check if commands are available.';
     }
-    // Network issues
     if (errorOutput.includes('Connection refused') || errorOutput.includes('timeout')) {
         return 'Network issue detected. Check if services are running or try again later.';
     }
-    // Syntax errors
     if (errorOutput.includes('syntax error') || exitCode === 2) {
         return 'Command syntax issue. Check command format and escape special characters.';
     }
-    // Resource issues
     if (errorOutput.includes('No space left') || errorOutput.includes('out of memory')) {
         return 'Resource constraint detected. Try cleaning up temporary files or simplifying the operation.';
     }
-    // Default suggestion
     return 'Try breaking the command into smaller parts or use an alternative approach. Check the error output for specific details.';
 }
+//# sourceMappingURL=bash.js.map

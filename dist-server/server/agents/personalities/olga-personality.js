@@ -1,7 +1,3 @@
-/**
- * OLGA PERSONALITY DEFINITION
- * Organization and Infrastructure Expert
- */
 export const OLGA_PERSONALITY = {
     name: "Olga",
     identity: {
@@ -29,3 +25,4 @@ export const OLGA_PERSONALITY = {
         ]
     }
 };
+//# sourceMappingURL=olga-personality.js.map

@@ -5,16 +5,18 @@ export const config = {
 export default async function handler(req, res) {
     const startTime = Date.now();
     try {
-        // Test database connection
-        const { storage } = await import('../server/storage');
+        const { storage } = await import('../server/storage.js');
         const dbStart = Date.now();
-        // Quick database health check
         const dbHealth = await Promise.race([
-            storage.getUserCount().then(count => ({ status: 'healthy', count, latency: Date.now() - dbStart })),
+            storage.getUserCount().then(count => ({
+                status: 'healthy',
+                count,
+                latency: Date.now() - dbStart
+            })),
             new Promise((_, reject) => setTimeout(() => reject(new Error('Database timeout')), 5000))
         ]);
         const totalTime = Date.now() - startTime;
-        return res.status(200).json({
+        const response = {
             status: 'healthy',
             service: 'SSELFIE Studio API',
             timestamp: new Date().toISOString(),
@@ -30,18 +32,21 @@ export default async function handler(req, res) {
                 memoryUsage: process.memoryUsage(),
                 uptime: process.uptime()
             }
-        });
+        };
+        return res.status(200).json(response);
     }
     catch (error) {
         const totalTime = Date.now() - startTime;
-        return res.status(500).json({
+        const response = {
             status: 'unhealthy',
             service: 'SSELFIE Studio API',
             timestamp: new Date().toISOString(),
-            error: error.message,
+            error: error instanceof Error ? error.message : String(error),
             performance: {
                 totalLatency: totalTime
             }
-        });
+        };
+        return res.status(500).json(response);
     }
 }
+//# sourceMappingURL=health-detailed.js.map

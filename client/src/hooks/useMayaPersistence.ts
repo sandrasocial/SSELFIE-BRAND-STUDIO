@@ -3,34 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 // PHASE 2.1: Enhanced Frontend Persistence
 // Comprehensive localStorage system for Maya conversations with concept cards and image previews
 
-interface ConceptCard {
-  id: string;
-  title: string;
-  description: string;
-  fluxPrompt?: string;
-  fullPrompt?: string;
-  category?: string;
-  imageUrl?: string;
-  generatedImages?: string[];
-  isGenerating?: boolean;
-  isLoading?: boolean;
-  hasGenerated?: boolean;
-  originalContext?: string;
-}
-
-interface ChatMessage {
-  id: string;
-  type: 'user' | 'maya';
-  content: string;
-  timestamp: string;
-  conceptCards?: ConceptCard[];
-  isStreaming?: boolean;
-  imagePreview?: string[];
-  quickButtons?: string[];
-  generationId?: string;
-  canGenerate?: boolean;
-  generatedPrompt?: string;
-}
+import { ChatMessage, ConceptCard } from '../types/chat.js';
 
 interface PersistedConversation {
   messages: ChatMessage[];

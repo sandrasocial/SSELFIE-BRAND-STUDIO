@@ -3,11 +3,9 @@ export const config = {
     runtime: 'nodejs',
     maxDuration: 30
 };
-// Mock database connection for Vercel
 async function getDatabase() {
     return {
         execute: async (sql, weekRange) => {
-            // Mock specific week data
             return [
                 {
                     id: 1,
@@ -30,7 +28,6 @@ async function getDatabase() {
 }
 export default async function handler(req, res) {
     try {
-        // Set CORS headers
         res.setHeader('Access-Control-Allow-Origin', '*');
         res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
         res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -48,9 +45,7 @@ export default async function handler(req, res) {
             });
         }
         console.log('📊 Specific hair trend requested for week:', weekRange);
-        // Get database with timeout
         const db = await withTimeout(getDatabase(), 5000, 'database-connection');
-        // Fetch specific week trends with timeout
         const trends = await withTimeout(db.execute('SELECT * FROM hair_trends WHERE week_range = ?', weekRange), 8000, 'trends-fetch');
         if (!trends || trends.length === 0) {
             return res.status(404).json({
@@ -86,3 +81,4 @@ export default async function handler(req, res) {
         });
     }
 }
+//# sourceMappingURL=%5BweekRange%5D.js.map

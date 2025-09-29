@@ -1,12 +1,10 @@
 import { Router } from 'express';
-import { requireStackAuth } from '../stack-auth';
-import { storage } from '../storage';
+import { requireStackAuth } from '../stack-auth.js';
+import { storage } from '../storage.js';
 const router = Router();
-// Comprehensive system validation for Phase 1 verification
 router.get('/phase1-validation', requireStackAuth, async (req, res) => {
     try {
         const userId = req.user.id;
-        // Test all critical Phase 1 components
         const validationResults = {
             timestamp: new Date().toISOString(),
             phase: 'Phase 1: Authentication & Database',
@@ -59,7 +57,6 @@ router.get('/phase1-validation', requireStackAuth, async (req, res) => {
         });
     }
 });
-// Quick authentication test endpoint
 router.get('/auth-test', requireStackAuth, async (req, res) => {
     try {
         const user = req.user;
@@ -78,7 +75,6 @@ router.get('/auth-test', requireStackAuth, async (req, res) => {
         });
     }
 });
-// Database connectivity test
 router.get('/database-test', requireStackAuth, async (req, res) => {
     try {
         const userId = req.user.id;
@@ -100,3 +96,4 @@ router.get('/database-test', requireStackAuth, async (req, res) => {
     }
 });
 export default router;
+//# sourceMappingURL=system-validation.js.map

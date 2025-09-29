@@ -1,8 +1,4 @@
-/**
- * Service Discovery Pattern
- * Dynamic service registration and discovery system
- */
-import { Logger } from '../utils/logger';
+import { Logger } from '../utils/logger.js';
 export class ServiceDiscovery {
     logger;
     services;
@@ -12,9 +8,6 @@ export class ServiceDiscovery {
         this.services = {};
         this.healthCheckInterval = null;
     }
-    /**
-     * Register a service
-     */
     registerService(service) {
         this.services[service.name] = {
             ...service,
@@ -22,40 +15,22 @@ export class ServiceDiscovery {
         };
         this.logger.info(`Service registered: ${service.name} v${service.version}`);
     }
-    /**
-     * Unregister a service
-     */
     unregisterService(serviceName) {
         delete this.services[serviceName];
         this.logger.info(`Service unregistered: ${serviceName}`);
     }
-    /**
-     * Get a service by name
-     */
     getService(serviceName) {
         return this.services[serviceName];
     }
-    /**
-     * Get all services
-     */
     getAllServices() {
         return { ...this.services };
     }
-    /**
-     * Get healthy services only
-     */
     getHealthyServices() {
         return Object.fromEntries(Object.entries(this.services).filter(([_, service]) => service.status === 'healthy'));
     }
-    /**
-     * Find services by metadata
-     */
     findServicesByMetadata(key, value) {
         return Object.values(this.services).filter(service => service.metadata[key] === value);
     }
-    /**
-     * Start health check monitoring
-     */
     startHealthCheckMonitoring(intervalMs = 30000) {
         if (this.healthCheckInterval) {
             clearInterval(this.healthCheckInterval);
@@ -65,9 +40,6 @@ export class ServiceDiscovery {
         }, intervalMs);
         this.logger.info(`Health check monitoring started (${intervalMs}ms interval)`);
     }
-    /**
-     * Stop health check monitoring
-     */
     stopHealthCheckMonitoring() {
         if (this.healthCheckInterval) {
             clearInterval(this.healthCheckInterval);
@@ -75,9 +47,6 @@ export class ServiceDiscovery {
             this.logger.info('Health check monitoring stopped');
         }
     }
-    /**
-     * Perform health checks on all services
-     */
     async performHealthChecks() {
         const healthCheckPromises = Object.entries(this.services).map(async ([serviceName, service]) => {
             try {
@@ -93,21 +62,12 @@ export class ServiceDiscovery {
         });
         await Promise.all(healthCheckPromises);
     }
-    /**
-     * Check if a service is healthy
-     */
     async checkServiceHealth(service) {
-        // Simple health check - in production, this would make actual HTTP requests
-        // For now, just check if the service has been registered recently
         const lastCheck = new Date(service.lastHealthCheck);
         const now = new Date();
         const timeDiff = now.getTime() - lastCheck.getTime();
-        // Consider service healthy if it was checked within the last 5 minutes
         return timeDiff < 5 * 60 * 1000;
     }
-    /**
-     * Get service statistics
-     */
     getServiceStatistics() {
         const services = Object.values(this.services);
         const healthy = services.filter(s => s.status === 'healthy').length;
@@ -126,5 +86,5 @@ export class ServiceDiscovery {
         };
     }
 }
-// Export singleton instance
 export const serviceDiscovery = new ServiceDiscovery();
+//# sourceMappingURL=service-discovery.js.map

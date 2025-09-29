@@ -1,6 +1,21 @@
 /**
  * Image Variations Service
- * Generates close variations from existing gallery images
+ * Generates close variation        const variant = await storage.saveImageVariant({
+          userId: request.userId,
+          originalImageId: request.originalImageId,
+          variantUrl: '', // Will be filled when generation completes
+          variantType: 'variation',
+          brandAssetId: 0,
+          placementData: {
+            prompt: derivedPrompt,
+            processingStatus: 'pending',
+            originalImageUrl: originalImage.imageUrl || originalImage.selectedUrl,
+            variationIndex: i + 1,
+            totalVariations: count,
+            createdAt: new Date().toISOString(),
+            predictionId: null
+          }
+        }); from existing gallery images
  */
 
 import { storage } from '../../storage.js';
@@ -58,22 +73,22 @@ export class ImageVariationsService {
       // Create initial variant records
       const variantIds: number[] = [];
       for (let i = 0; i < count; i++) {
-        const variantId = await storage.createImageVariant({
+        const variant = await storage.saveImageVariant({
           userId: request.userId,
           originalImageId: request.originalImageId,
-          originalImageType: request.originalImageType,
-          imageUrl: '', // Will be filled when generation completes
-          kind: 'variation',
-          prompt: derivedPrompt,
-          generationStatus: 'pending',
-          metadata: {
+          variantUrl: '', // Will be filled when generation completes
+          variantType: 'variation',
+          brandAssetId: 0,
+          placementData: {
+            prompt: derivedPrompt,
+            processingStatus: 'pending',
             originalImageUrl: originalImage.imageUrl || originalImage.selectedUrl,
             variationIndex: i + 1,
             totalVariations: count,
             createdAt: new Date().toISOString()
           }
         });
-        variantIds.push(variantId);
+        variantIds.push(variant.id);
       }
 
       // Add some variation to the prompt for diversity
@@ -97,8 +112,10 @@ export class ImageVariationsService {
       // Update variant records with prediction ID
       for (const variantId of variantIds) {
         await storage.updateImageVariant(variantId, {
-          predictionId: result.predictionId,
-          generationStatus: 'processing'
+          processingStatus: 'processing',
+          placementData: {
+            predictionId: result.predictionId
+          }
         });
       }
 
@@ -235,21 +252,24 @@ export class ImageVariationsService {
       const result = await ModelTrainingService.checkGenerationStatus(predictionId);
       
       if (result.status === 'succeeded' && result.imageUrls && result.imageUrls.length > 0) {
-        // Update variant records with completed images
+                // Update variant records with completed images
         for (let i = 0; i < variantIds.length && i < result.imageUrls.length; i++) {
           await storage.updateImageVariant(variantIds[i], {
-            imageUrl: result.imageUrls[i],
-            generationStatus: 'completed'
+            variantUrl: result.imageUrls[i],
+            processingStatus: 'completed'
           });
         }
 
         return { status: 'completed', imageUrls: result.imageUrls };
       } else if (result.status === 'failed') {
-        // Update all variants to failed status
+                // Update all variants to failed status
         for (const variantId of variantIds) {
           await storage.updateImageVariant(variantId, {
-            generationStatus: 'failed',
-            metadata: { error: 'Generation failed' }
+            processingStatus: 'failed',
+            placementData: {
+              status: 'failed',
+              error: 'Generation failed'
+            }
           });
         }
         return { status: 'failed', error: 'Variation generation failed' };
@@ -272,10 +292,12 @@ export class ImageVariationsService {
     userId: string
   ): Promise<any[]> {
     try {
-      const variants = await storage.getImageVariants(originalImageId, originalImageType, 'variation');
+      const allVariants = await storage.getImageVariants(userId);
       
-      // Filter by user to ensure security
-      return variants.filter(variant => variant.userId === userId);
+      // Filter by original image ID and type
+      return allVariants.filter(variant => 
+        variant.originalImageId === originalImageId && 
+        variant.variantType === 'variation');
     } catch (error) {
       console.error('❌ VARIATIONS: Error getting image variations:', error);
       return [];
@@ -287,7 +309,8 @@ export class ImageVariationsService {
    */
   static async getUserVariations(userId: string): Promise<any[]> {
     try {
-      return await storage.getImageVariantsByKind(userId, 'variation');
+      const variants = await storage.getImageVariants(userId);
+      return variants.filter(v => v.variantType === 'variation');
     } catch (error) {
       console.error('❌ VARIATIONS: Error getting user variations:', error);
       return [];

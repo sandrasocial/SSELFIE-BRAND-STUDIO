@@ -1,11 +1,4 @@
-/**
- * REAL-ESRGAN UPSCALING SERVICE
- * Wrapper for Real-ESRGAN using Replicate API
- */
-import { REPLICATE_API_TOKEN } from '../../env';
-/**
- * Upscale an image using Real-ESRGAN via Replicate
- */
+import { REPLICATE_API_TOKEN } from '../../env.js';
 export async function upscaleImageWithRealESRGAN(imageUrl, scale = 2) {
     try {
         if (!REPLICATE_API_TOKEN) {
@@ -14,7 +7,6 @@ export async function upscaleImageWithRealESRGAN(imageUrl, scale = 2) {
                 details: 'REPLICATE_API_TOKEN not configured'
             };
         }
-        // Validate scale
         if (scale !== 2 && scale !== 4) {
             return {
                 error: 'Invalid scale',
@@ -22,7 +14,6 @@ export async function upscaleImageWithRealESRGAN(imageUrl, scale = 2) {
             };
         }
         console.log(`🎯 UPSCALE: Starting Real-ESRGAN upscale (${scale}x) for: ${imageUrl}`);
-        // Create Replicate prediction for Real-ESRGAN
         const response = await fetch('https://api.replicate.com/v1/predictions', {
             method: 'POST',
             headers: {
@@ -30,7 +21,7 @@ export async function upscaleImageWithRealESRGAN(imageUrl, scale = 2) {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                version: "42fed1c4974146d4d2414e2be2c5277c7fcf05fcc972f6b188635b30c0b04bf8", // Real-ESRGAN x4plus model
+                version: "42fed1c4974146d4d2414e2be2c5277c7fcf05fcc972f6b188635b30c0b04bf8",
                 input: {
                     image: imageUrl,
                     scale: scale
@@ -47,12 +38,10 @@ export async function upscaleImageWithRealESRGAN(imageUrl, scale = 2) {
         }
         const prediction = await response.json();
         console.log(`🔄 UPSCALE: Real-ESRGAN prediction created: ${prediction.id}`);
-        // Poll for completion
         const result = await pollReplicatePrediction(prediction.id);
         if ('error' in result) {
             return result;
         }
-        // Get original image dimensions to calculate new dimensions
         const originalDimensions = await getImageDimensions(imageUrl);
         return {
             url: result.output,
@@ -70,12 +59,9 @@ export async function upscaleImageWithRealESRGAN(imageUrl, scale = 2) {
         };
     }
 }
-/**
- * Poll Replicate prediction until complete
- */
 async function pollReplicatePrediction(predictionId) {
-    const maxAttempts = 30; // 5 minutes max (10s intervals)
-    const pollInterval = 10000; // 10 seconds
+    const maxAttempts = 30;
+    const pollInterval = 10000;
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
         try {
             const response = await fetch(`https://api.replicate.com/v1/predictions/${predictionId}`, {
@@ -107,7 +93,6 @@ async function pollReplicatePrediction(predictionId) {
                     details: 'Prediction was canceled'
                 };
             }
-            // Still processing, wait and continue
             if (attempt < maxAttempts - 1) {
                 await new Promise(resolve => setTimeout(resolve, pollInterval));
             }
@@ -127,17 +112,13 @@ async function pollReplicatePrediction(predictionId) {
         details: 'Processing took too long'
     };
 }
-/**
- * Get image dimensions from URL
- */
 async function getImageDimensions(imageUrl) {
     try {
-        // For now, return sensible defaults
-        // In production, you might want to actually fetch and analyze the image
-        return { width: 512, height: 640 }; // Standard portrait dimensions
+        return { width: 512, height: 640 };
     }
     catch (error) {
         console.warn('Warning: Could not determine image dimensions, using defaults');
         return { width: 512, height: 640 };
     }
 }
+//# sourceMappingURL=real_esrgan.js.map

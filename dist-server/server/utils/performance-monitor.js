@@ -1,8 +1,4 @@
-/**
- * Performance Monitor
- * Real-time performance monitoring and metrics collection
- */
-import { Logger } from './logger';
+import { Logger } from './logger.js';
 export class PerformanceMonitor {
     logger;
     metrics;
@@ -14,9 +10,6 @@ export class PerformanceMonitor {
         this.maxMetrics = maxMetrics;
         this.enabled = true;
     }
-    /**
-     * Start timing an operation
-     */
     startTiming(operation) {
         const startTime = process.hrtime.bigint();
         const startMemory = process.memoryUsage();
@@ -27,9 +20,9 @@ export class PerformanceMonitor {
             const endTime = process.hrtime.bigint();
             const endMemory = process.memoryUsage();
             const endCpu = process.cpuUsage();
-            const duration = Number(endTime - startTime) / 1000000; // Convert to milliseconds
+            const duration = Number(endTime - startTime) / 1000000;
             const memoryUsage = endMemory.heapUsed - startMemory.heapUsed;
-            const cpuUsage = (endCpu.user + endCpu.system) / 1000000; // Convert to seconds
+            const cpuUsage = (endCpu.user + endCpu.system) / 1000000;
             const metric = {
                 timestamp: new Date().toISOString(),
                 operation,
@@ -37,30 +30,22 @@ export class PerformanceMonitor {
                 memoryUsage,
                 cpuUsage,
                 success,
-                metadata
+                metadata: metadata || undefined
             };
             this.addMetric(metric);
         };
     }
-    /**
-     * Add a performance metric
-     */
     addMetric(metric) {
         if (!this.isEnabled)
             return;
         this.metrics.push(metric);
-        // Keep only the most recent metrics
         if (this.metrics.length > this.maxMetrics) {
             this.metrics = this.metrics.slice(-this.maxMetrics);
         }
-        // Log slow operations
-        if (metric.duration > 5000) { // 5 seconds
+        if (metric.duration > 5000) {
             this.logger.warn(`Slow operation detected: ${metric.operation} took ${metric.duration}ms`);
         }
     }
-    /**
-     * Get performance statistics for an operation
-     */
     getStats(operation, timeWindow) {
         let relevantMetrics = this.metrics.filter(m => m.operation === operation);
         if (timeWindow) {
@@ -78,10 +63,10 @@ export class PerformanceMonitor {
         const successCount = relevantMetrics.filter(m => m.success).length;
         const successRate = (successCount / totalCalls) * 100;
         const averageDuration = durations.reduce((sum, d) => sum + d, 0) / durations.length;
-        const minDuration = durations[0];
-        const maxDuration = durations[durations.length - 1];
-        const p95Duration = durations[Math.floor(durations.length * 0.95)];
-        const p99Duration = durations[Math.floor(durations.length * 0.99)];
+        const minDuration = durations[0] ?? 0;
+        const maxDuration = durations[durations.length - 1] ?? 0;
+        const p95Duration = durations[Math.floor(durations.length * 0.95)] ?? 0;
+        const p99Duration = durations[Math.floor(durations.length * 0.99)] ?? 0;
         const averageMemoryUsage = memoryUsages.reduce((sum, m) => sum + m, 0) / memoryUsages.length;
         const averageCpuUsage = cpuUsages.reduce((sum, c) => sum + c, 0) / cpuUsages.length;
         return {
@@ -97,19 +82,13 @@ export class PerformanceMonitor {
             averageCpuUsage
         };
     }
-    /**
-     * Get performance statistics for all operations
-     */
     getAllStats(timeWindow) {
-        const operations = [...new Set(this.metrics.map(m => m.operation))];
+        const operations = Array.from(new Set(this.metrics.map(m => m.operation)));
         return operations
             .map(op => this.getStats(op, timeWindow))
             .filter((stats) => stats !== null)
             .sort((a, b) => b.totalCalls - a.totalCalls);
     }
-    /**
-     * Get system performance summary
-     */
     getSystemSummary() {
         const totalOperations = this.metrics.length;
         const successfulOperations = this.metrics.filter(m => m.success).length;
@@ -123,20 +102,19 @@ export class PerformanceMonitor {
         const averageMemory = memoryUsages.length > 0
             ? memoryUsages.reduce((sum, m) => sum + m, 0) / memoryUsages.length
             : 0;
-        const peakMemory = Math.max(...memoryUsages, currentMemory);
+        const peakMemory = memoryUsages.length > 0 ? Math.max(...memoryUsages, currentMemory) : currentMemory;
         const cpuUsages = this.metrics.map(m => m.cpuUsage);
         const currentCpu = process.cpuUsage();
         const averageCpu = cpuUsages.length > 0
             ? cpuUsages.reduce((sum, c) => sum + c, 0) / cpuUsages.length
             : 0;
-        // Find slow operations
         const operationStats = this.getAllStats();
         const slowOperations = operationStats
-            .filter(stats => stats.averageDuration > 1000) // > 1 second
+            .filter(stats => (stats.averageDuration ?? 0) > 1000)
             .map(stats => ({
-            operation: stats.operation,
-            count: stats.totalCalls,
-            averageDuration: stats.averageDuration
+            operation: stats.operation ?? 'unknown',
+            count: stats.totalCalls ?? 0,
+            averageDuration: stats.averageDuration ?? 0
         }))
             .sort((a, b) => b.averageDuration - a.averageDuration)
             .slice(0, 10);
@@ -156,9 +134,6 @@ export class PerformanceMonitor {
             slowOperations
         };
     }
-    /**
-     * Clear old metrics
-     */
     clearOldMetrics(maxAge = 24 * 60 * 60 * 1000) {
         const cutoff = Date.now() - maxAge;
         const initialLength = this.metrics.length;
@@ -168,28 +143,16 @@ export class PerformanceMonitor {
             this.logger.info(`Cleared ${removedCount} old performance metrics`);
         }
     }
-    /**
-     * Enable/disable monitoring
-     */
     setEnabled(enabled) {
         this.enabled = enabled;
         this.logger.info(`Performance monitoring ${enabled ? 'enabled' : 'disabled'}`);
     }
-    /**
-     * Check if monitoring is enabled
-     */
     isEnabled() {
         return this.enabled;
     }
-    /**
-     * Get current metrics count
-     */
     getMetricsCount() {
         return this.metrics.length;
     }
-    /**
-     * Get performance statistics for a given duration (in hours)
-     */
     getPerformanceStats(hours = 1) {
         const cutoff = new Date(Date.now() - hours * 60 * 60 * 1000).toISOString();
         const relevantMetrics = this.metrics.filter(m => m.timestamp >= cutoff);
@@ -205,19 +168,32 @@ export class PerformanceMonitor {
                 totalRequests: 0,
             };
         }
-        const totalResponseTime = relevantMetrics.reduce((sum, m) => sum + m.responseTime, 0);
+        const totalResponseTime = relevantMetrics.reduce((sum, m) => sum + (m.responseTime ?? 0), 0);
         const totalCpuUsage = relevantMetrics.reduce((sum, m) => sum + m.cpuUsage, 0);
         const totalMemoryUsage = relevantMetrics.reduce((sum, m) => sum + m.memoryUsage, 0);
-        const totalErrorRate = relevantMetrics.reduce((sum, m) => sum + m.errorRate, 0);
+        const totalErrorRate = relevantMetrics.reduce((sum, m) => sum + (m.errorRate ?? 0), 0);
         const averageResponseTime = totalResponseTime / relevantMetrics.length;
         const averageCpuUsage = totalCpuUsage / relevantMetrics.length;
         const averageMemoryUsage = totalMemoryUsage / relevantMetrics.length;
         const errorRate = totalErrorRate / relevantMetrics.length;
-        const maxResponseTime = Math.max(...relevantMetrics.map(m => m.responseTime));
-        const minResponseTime = Math.min(...relevantMetrics.map(m => m.responseTime));
-        // Calculate throughput based on the duration
-        const durationInSeconds = (Date.now() - new Date(relevantMetrics[0].timestamp).getTime()) / 1000;
-        const throughput = relevantMetrics.length / (durationInSeconds / 3600); // requests per hour
+        const responseTimesOnly = relevantMetrics.map(m => m.responseTime ?? 0).filter(rt => rt > 0);
+        const maxResponseTime = responseTimesOnly.length > 0 ? Math.max(...responseTimesOnly) : 0;
+        const minResponseTime = responseTimesOnly.length > 0 ? Math.min(...responseTimesOnly) : 0;
+        const firstMetric = relevantMetrics[0];
+        if (!firstMetric) {
+            return {
+                averageResponseTime: 0,
+                maxResponseTime: 0,
+                minResponseTime: 0,
+                averageCpuUsage: 0,
+                averageMemoryUsage: 0,
+                errorRate: 0,
+                throughput: 0,
+                totalRequests: 0,
+            };
+        }
+        const durationInSeconds = (Date.now() - new Date(firstMetric.timestamp).getTime()) / 1000;
+        const throughput = relevantMetrics.length / (durationInSeconds / 3600);
         return {
             averageResponseTime,
             maxResponseTime,
@@ -229,15 +205,9 @@ export class PerformanceMonitor {
             totalRequests: relevantMetrics.length,
         };
     }
-    /**
-     * Get real-time summary of current performance
-     */
     getRealTimeSummary() {
-        return this.getPerformanceStats(1); // Last hour
+        return this.getPerformanceStats(1);
     }
-    /**
-     * Get performance alerts based on thresholds
-     */
     getPerformanceAlerts() {
         const alerts = [];
         const stats = this.getPerformanceStats(1);
@@ -256,5 +226,5 @@ export class PerformanceMonitor {
         return alerts;
     }
 }
-// Export singleton instance
 export const performanceMonitor = new PerformanceMonitor();
+//# sourceMappingURL=performance-monitor.js.map

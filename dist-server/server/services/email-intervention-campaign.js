@@ -1,9 +1,4 @@
-/**
- * EMAIL INTERVENTION CAMPAIGN
- * Immediate outreach to 8 inactive paid users
- */
 export class EmailInterventionCampaign {
-    // The 8 inactive users from the API response
     static inactiveUsers = [
         {
             id: "43782722",
@@ -70,9 +65,6 @@ export class EmailInterventionCampaign {
             createdAt: "2025-07-17T16:51:51.257Z"
         }
     ];
-    /**
-     * Generate personalized email for each user segment
-     */
     static generatePersonalizedCampaign() {
         const campaigns = this.inactiveUsers.map(user => {
             const name = user.firstName || user.email.split('@')[0];
@@ -191,9 +183,6 @@ export class EmailInterventionCampaign {
         };
         return benefits[plan] || benefits.basic;
     }
-    /**
-     * Get campaign execution summary
-     */
     static getCampaignSummary() {
         const campaigns = this.generatePersonalizedCampaign();
         const urgencyBreakdown = campaigns.reduce((acc, campaign) => {
@@ -213,3 +202,4 @@ export class EmailInterventionCampaign {
         };
     }
 }
+//# sourceMappingURL=email-intervention-campaign.js.map

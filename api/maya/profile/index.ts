@@ -1,9 +1,9 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { StackAuth } from '@stackframe/stack';
+import { StackAuth } from '../../../types/stackframe.js';
 import { z } from 'zod';
 import { drizzle } from 'drizzle-orm/neon-http';
 import { neon } from '@neondatabase/serverless';
-import { mayaProfile, insertMayaProfileSchema, userPreferencesSchema } from '../../../shared/schema-maya';
+import { mayaProfile, type MayaProfile, insertMayaProfileSchema } from '../../../shared/schema-maya.js';
 import { eq } from 'drizzle-orm';
 
 // Initialize database connection
@@ -17,30 +17,19 @@ const stackAuth = new StackAuth({
   secretServerKey: process.env.STACK_SECRET_SERVER_KEY!,
 });
 
-// Request validation schemas
+// Profile validation schemas
 const updateProfileSchema = z.object({
-  onboardingStatus: z.enum(['pending', 'in_progress', 'completed']).optional(),
-  onboardingStep: z.number().min(1).max(6).optional(),
+  onboardingStatus: z.enum(['pending', 'completed', 'in_progress']).optional(),
+  onboardingStep: z.number().optional(),
   completedSteps: z.array(z.number()).optional(),
-  preferences: userPreferencesSchema.optional(),
-  billingInfo: z.object({
-    company: z.string().optional(),
-    vatNumber: z.string().optional(),
-    billingAddress: z.object({
-      street: z.string().optional(),
-      city: z.string().optional(),
-      state: z.string().optional(),
-      postalCode: z.string().optional(),
-      country: z.string().optional(),
-    }).optional(),
-  }).optional(),
-  featureAccess: z.object({
-    advancedPrompts: z.boolean().optional(),
-    priorityGeneration: z.boolean().optional(),
-    customModels: z.boolean().optional(),
-    apiAccess: z.boolean().optional(),
-    whiteLabel: z.boolean().optional(),
-  }).optional(),
+  monthlyGenerations: z.number().optional(),
+  lastResetDate: z.date().optional(),
+  preferences: z.object({
+    communicationStyle: z.enum(['casual', 'professional', 'technical']).optional(),
+    generationSettings: z.record(z.any()).optional(),
+    privacySettings: z.record(z.boolean()).optional(),
+    notifications: z.record(z.boolean()).optional()
+  }).optional()
 });
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -52,6 +41,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     const userId = user.id;
+    if (!userId) {
+      return res.status(400).json({ error: 'Invalid user ID' });
+    }
 
     switch (req.method) {
       case 'GET':
@@ -76,6 +68,7 @@ async function handleGetProfile(req: VercelRequest, res: VercelResponse, userId:
       .from(mayaProfile)
       .where(eq(mayaProfile.userId, userId))
       .limit(1);
+    
     
     if (profile.length === 0) {
       // Create default profile if none exists
@@ -121,10 +114,17 @@ async function handleCreateProfile(req: VercelRequest, res: VercelResponse, user
       return res.status(409).json({ error: 'Profile already exists' });
     }
     
-    const validatedData = insertMayaProfileSchema.parse({
-      ...req.body,
-      userId
-    });
+    const validatedData = {
+      userId,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      onboardingStep: req.body.onboardingStep || 1,
+      onboardingStatus: req.body.onboardingStatus || 'started',
+      completedSteps: req.body.completedSteps || [],
+      preferences: req.body.preferences || {},
+      billingInfo: req.body.billingInfo || {},
+      featureAccess: req.body.featureAccess || {}
+    } as const;
     
     const [newProfile] = await db.insert(mayaProfile).values(validatedData).returning();
     

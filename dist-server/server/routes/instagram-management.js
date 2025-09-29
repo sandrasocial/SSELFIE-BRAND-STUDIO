@@ -1,9 +1,8 @@
 import { Router } from 'express';
-import { instagramIntegration } from '../services/instagram-integration';
-import { requireStackAuth } from '../stack-auth';
-import { SlackNotificationService } from '../services/slack-notification-service';
+import { instagramIntegration } from '../services/instagram-integration.js';
+import { requireStackAuth } from '../stack-auth.js';
+import { SlackNotificationService } from '../services/slack-notification-service.js';
 const router = Router();
-// 📱 Process Instagram DMs and ManyChat messages
 router.post('/process', requireStackAuth, async (req, res) => {
     try {
         const userId = req.user.id;
@@ -16,7 +15,7 @@ router.post('/process', requireStackAuth, async (req, res) => {
             businessOpportunities: processedMessages.filter(m => m.isBusinessOpportunity).length,
             urgentMessages: processedMessages.filter(m => m.priority === 'high').length,
             needResponse: processedMessages.filter(m => m.needsResponse).length,
-            data: processedMessages.slice(0, 10) // Return first 10 for preview
+            data: processedMessages.slice(0, 10)
         });
     }
     catch (error) {
@@ -24,18 +23,15 @@ router.post('/process', requireStackAuth, async (req, res) => {
         res.status(500).json({ error: 'Failed to process Instagram messages' });
     }
 });
-// 📊 Get Instagram message dashboard
 router.get('/dashboard', requireStackAuth, async (req, res) => {
     try {
         const userId = req.user.id;
         console.log(`📱 Loading REAL Instagram dashboard for user ${userId}`);
-        // Try to get real Instagram data from integration
         const processedMessages = await instagramIntegration.getProcessedMessages(userId);
         const manyChatMessages = await instagramIntegration.getManyChatMessages(userId);
         const totalMessages = processedMessages.length + manyChatMessages.length;
-        // Build dashboard with real data if available
         const dashboard = {
-            totalMessages: totalMessages || 947, // Use real count or fallback
+            totalMessages: totalMessages || 947,
             platforms: {
                 instagram: processedMessages.length || 623,
                 manychat: manyChatMessages.length || 324
@@ -74,7 +70,6 @@ router.get('/dashboard', requireStackAuth, async (req, res) => {
     }
     catch (error) {
         console.error('❌ Instagram dashboard error:', error);
-        // Return fallback data if real data fails
         res.json({
             totalMessages: 0,
             platforms: { instagram: 0, manychat: 0 },
@@ -87,11 +82,9 @@ router.get('/dashboard', requireStackAuth, async (req, res) => {
         });
     }
 });
-// 🧪 Test Instagram processing (available for all users)
 router.post('/test-processing', requireStackAuth, async (req, res) => {
     try {
         const userId = req.user.id;
-        // Simulate Instagram processing with realistic data
         await SlackNotificationService.sendAgentInsight('ava', 'strategic', 'Instagram DM Test Processing Complete', `📱 **Instagram/ManyChat Analysis Results:**\n\n` +
             `📊 **Overview:**\n` +
             `• Processed 947 Instagram messages total\n` +
@@ -135,7 +128,6 @@ router.post('/test-processing', requireStackAuth, async (req, res) => {
         res.status(500).json({ error: 'Test processing failed' });
     }
 });
-// 🏷️ Get message categories breakdown
 router.get('/categories', requireStackAuth, async (req, res) => {
     try {
         const categories = {
@@ -172,7 +164,6 @@ router.get('/categories', requireStackAuth, async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch message categories' });
     }
 });
-// 📊 Get platform statistics
 router.get('/stats', requireStackAuth, async (req, res) => {
     try {
         const stats = {
@@ -217,3 +208,4 @@ router.get('/stats', requireStackAuth, async (req, res) => {
     }
 });
 export default router;
+//# sourceMappingURL=instagram-management.js.map

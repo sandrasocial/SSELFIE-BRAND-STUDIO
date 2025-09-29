@@ -1,12 +1,4 @@
-/**
- * CRITICAL PRODUCTION FIX: Generation Completion Monitor
- * Automatically detects and updates completed generations from Replicate API
- * Saves images to Maya chat previews when generation completes
- * This service was missing - explains why Maya images weren't appearing despite successful generation
- */
-import { storage } from './storage';
-// MAYA FAÇADE: Replaced Maya-specific import with façade API calls
-// import { MayaChatPreviewService } from './maya-chat-preview-service'; // REMOVED: Direct entanglement
+import { storage } from './storage.js';
 export class GenerationCompletionMonitor {
     static instance;
     intervalId = null;
@@ -16,15 +8,12 @@ export class GenerationCompletionMonitor {
         }
         return GenerationCompletionMonitor.instance;
     }
-    /**
-     * Check a specific generation status and update database + Maya chat
-     */
     static async checkAndUpdateGeneration(predictionId, trackerId) {
         try {
             console.log(`🎬 GENERATION MONITOR: Checking prediction ${predictionId} for tracker ${trackerId}`);
             const response = await fetch(`https://api.replicate.com/v1/predictions/${predictionId}`, {
                 headers: {
-                    'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
+                    'Authorization': `Token ${process.env["REPLICATE_API_TOKEN"]}`,
                     'Content-Type': 'application/json'
                 }
             });
@@ -42,13 +31,11 @@ export class GenerationCompletionMonitor {
             if (predictionData.status === 'succeeded' && predictionData.output) {
                 console.log(`✅ GENERATION MONITOR: Generation completed! Updating tracker ${trackerId}`);
                 const imageUrls = Array.isArray(predictionData.output) ? predictionData.output : [predictionData.output];
-                // Update tracker with completed images
                 await storage.updateGenerationTracker(trackerId, {
                     status: 'completed',
                     imageUrls: JSON.stringify(imageUrls),
                     updatedAt: new Date()
                 });
-                // MAYA FAÇADE: Save to gallery through standard API instead of Maya-specific service
                 try {
                     for (const imageUrl of imageUrls) {
                         await storage.saveGeneratedImage({
@@ -63,7 +50,6 @@ export class GenerationCompletionMonitor {
                 }
                 catch (saveError) {
                     console.log(`⚠️ GENERATION MONITOR: Gallery save failed for user ${tracker.userId}:`, saveError);
-                    // Don't fail the whole operation if gallery saving fails
                 }
                 return true;
             }
@@ -77,7 +63,6 @@ export class GenerationCompletionMonitor {
                 });
                 return true;
             }
-            // Still processing
             return false;
         }
         catch (error) {
@@ -85,24 +70,18 @@ export class GenerationCompletionMonitor {
             return false;
         }
     }
-    /**
-     * Check all in-progress generations and update them
-     */
     async checkAllInProgressGenerations() {
         try {
             console.log('🔍 GENERATION MONITOR: Checking all in-progress generations...');
-            // Get all processing generation trackers
             const processingTrackers = await storage.getProcessingGenerationTrackers();
             if (processingTrackers.length === 0) {
                 console.log('✅ GENERATION MONITOR: No in-progress generations found');
                 return;
             }
             console.log(`📊 GENERATION MONITOR: Found ${processingTrackers.length} in-progress generations to check`);
-            // Check each tracker
             for (const tracker of processingTrackers) {
                 if (tracker.predictionId) {
                     await GenerationCompletionMonitor.checkAndUpdateGeneration(tracker.predictionId, tracker.id);
-                    // Add small delay to avoid rate limiting
                     await new Promise(resolve => setTimeout(resolve, 100));
                 }
             }
@@ -111,25 +90,17 @@ export class GenerationCompletionMonitor {
             console.error('❌ GENERATION MONITOR: Error in checkAllInProgressGenerations:', error);
         }
     }
-    /**
-     * Start automatic monitoring of generations
-     */
     startMonitoring() {
         if (this.intervalId) {
             console.log('⚠️ GENERATION MONITOR: Monitoring already running');
             return;
         }
         console.log('🚀 GENERATION MONITOR: Starting automatic generation monitoring...');
-        // Check every 30 seconds (same as training monitor)
         this.intervalId = setInterval(() => {
             this.checkAllInProgressGenerations();
         }, 30000);
-        // Run initial check
         this.checkAllInProgressGenerations();
     }
-    /**
-     * Stop automatic monitoring
-     */
     stopMonitoring() {
         if (this.intervalId) {
             clearInterval(this.intervalId);
@@ -138,3 +109,4 @@ export class GenerationCompletionMonitor {
         }
     }
 }
+//# sourceMappingURL=generation-completion-monitor.js.map

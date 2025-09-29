@@ -1,22 +1,15 @@
 import cron from 'node-cron';
-import { db } from '../drizzle';
+import { db } from '../drizzle.js';
 import { sql } from 'drizzle-orm';
-/**
- * Sophia AI Agent for Hair & Beauty Trend Analysis
- * Runs weekly to collect and analyze current hair/beauty trends
- */
 class SophiaTrendAnalyzer {
     apiKey;
     isRunning = false;
     constructor() {
-        this.apiKey = process.env.ANTHROPIC_API_KEY;
+        this.apiKey = process.env['ANTHROPIC_API_KEY'];
         if (!this.apiKey) {
             console.error('❌ ANTHROPIC_API_KEY not configured for Sophia trends');
         }
     }
-    /**
-     * Fetch and analyze current hair and beauty trends
-     */
     async analyzeTrends() {
         try {
             console.log('🔍 Sophia analyzing hair & beauty trends...');
@@ -75,7 +68,6 @@ Week of: ${this.getWeekRange()}`;
             }
             const claudeData = await claudeResponse.json();
             const responseText = claudeData.content[0].text;
-            // Extract JSON from Sophia's response
             const jsonMatch = responseText.match(/\{[\s\S]*\}/);
             if (!jsonMatch) {
                 throw new Error('No valid JSON found in Sophia response');
@@ -93,9 +85,6 @@ Week of: ${this.getWeekRange()}`;
             return null;
         }
     }
-    /**
-     * Store trend data in database
-     */
     async storeTrends(analysisData) {
         try {
             const trendData = {
@@ -105,7 +94,6 @@ Week of: ${this.getWeekRange()}`;
                 confidence: analysisData.confidence,
                 sources: ['Claude AI Analysis', 'Social Media Monitoring', 'Industry Research']
             };
-            // Create hair_trends table if it doesn't exist
             await db.execute(sql `
         CREATE TABLE IF NOT EXISTS hair_trends (
           id SERIAL PRIMARY KEY,
@@ -117,7 +105,6 @@ Week of: ${this.getWeekRange()}`;
           UNIQUE(week_range)
         )
       `);
-            // Insert or update trend data
             await db.execute(sql `
         INSERT INTO hair_trends (week_range, trend_data, summary, confidence)
         VALUES (${trendData.week}, ${JSON.stringify(trendData)}, ${trendData.summary}, ${trendData.confidence})
@@ -136,9 +123,6 @@ Week of: ${this.getWeekRange()}`;
             return false;
         }
     }
-    /**
-     * Run complete trend analysis and storage
-     */
     async runWeeklyAnalysis() {
         if (this.isRunning) {
             console.log('⚠️ Sophia trend analysis already running, skipping...');
@@ -164,23 +148,17 @@ Week of: ${this.getWeekRange()}`;
             this.isRunning = false;
         }
     }
-    /**
-     * Get current week range string
-     */
     getWeekRange() {
         const now = new Date();
         const startOfWeek = new Date(now);
-        startOfWeek.setDate(now.getDate() - now.getDay() + 1); // Monday
+        startOfWeek.setDate(now.getDate() - now.getDay() + 1);
         const endOfWeek = new Date(startOfWeek);
-        endOfWeek.setDate(startOfWeek.getDate() + 6); // Sunday
+        endOfWeek.setDate(startOfWeek.getDate() + 6);
         const formatDate = (date) => date.toISOString().split('T')[0];
         return `${formatDate(startOfWeek)} to ${formatDate(endOfWeek)}`;
     }
-    /**
-     * Manual trigger for testing (development only)
-     */
     async runManualAnalysis() {
-        if (process.env.NODE_ENV === 'production') {
+        if (process.env['NODE_ENV'] === 'production') {
             console.log('❌ Manual analysis not available in production');
             return;
         }
@@ -188,32 +166,37 @@ Week of: ${this.getWeekRange()}`;
         await this.runWeeklyAnalysis();
     }
 }
-// Initialize Sophia Trend Analyzer
 const sophia = new SophiaTrendAnalyzer();
-// Schedule weekly trend analysis (every Monday at 9 AM UTC)
 const scheduleTrendAnalysis = () => {
-    if (!process.env.ANTHROPIC_API_KEY) {
+    if (!process.env['ANTHROPIC_API_KEY']) {
         console.log('⚠️ Skipping Sophia trend scheduling - API key not configured');
         return;
     }
-    // Production schedule: Every Monday at 9 AM UTC
     cron.schedule('0 9 * * 1', async () => {
         console.log('⏰ Scheduled Sophia trend analysis triggered');
         await sophia.runWeeklyAnalysis();
     }, {
         timezone: 'UTC',
-        scheduled: true
+        status: 'pending',
+        dependencies: [],
+        assignedAgent: 'sophia',
+        priority: 'medium',
+        metadata: {}
     });
     console.log('✅ Sophia weekly trend analysis scheduled (Mondays 9 AM UTC)');
-    // Development schedule: Every 5 minutes for testing
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env['NODE_ENV'] === 'development') {
         cron.schedule('*/5 * * * *', async () => {
             console.log('🔧 Development: Running Sophia trend analysis...');
             await sophia.runWeeklyAnalysis();
         }, {
-            scheduled: false // Disabled by default, enable manually for testing
+            status: 'pending',
+            dependencies: [],
+            assignedAgent: 'sophia',
+            priority: 'low',
+            metadata: {}
         });
     }
 };
 export { sophia, scheduleTrendAnalysis };
 export default sophia;
+//# sourceMappingURL=fetch-hair-trends.js.map

@@ -1,7 +1,3 @@
-/**
- * PHASE 3: ENTERPRISE SCALING - ADVANCED SECURITY & AUDIT SYSTEM
- * Comprehensive security monitoring, audit trails, and threat detection
- */
 export class SecurityAuditSystem {
     static instance;
     auditLog = [];
@@ -39,11 +35,9 @@ export class SecurityAuditSystem {
             ...event
         };
         this.auditLog.push(auditEvent);
-        // Keep only last 1000 events in memory
         if (this.auditLog.length > 1000) {
             this.auditLog = this.auditLog.slice(-1000);
         }
-        // Check for suspicious patterns
         this.detectSuspiciousActivity(auditEvent);
         console.log(`📝 AUDIT LOG: ${event.action} on ${event.resource} by ${event.userId || 'anonymous'}`);
     }
@@ -60,15 +54,12 @@ export class SecurityAuditSystem {
         };
         this.activeThreats.push(threat);
         console.log(`🚨 THREAT DETECTED: ${severity.toUpperCase()} - ${type} from ${source}`);
-        // Auto-mitigation for certain threat types
         if (severity === 'critical') {
             await this.initiateCriticalThreatResponse(threat);
         }
     }
     async analyzeThreatLandscape() {
-        // Simulate threat detection based on system patterns
         const threats = [];
-        // Check for brute force attacks
         const failedLogins = this.auditLog.filter(event => event.action === 'login' &&
             event.status === 'failure' &&
             event.timestamp > new Date(Date.now() - 24 * 60 * 60 * 1000));
@@ -84,7 +75,6 @@ export class SecurityAuditSystem {
                 mitigation: ['Implement rate limiting', 'Enable account lockout', 'Monitor IP patterns']
             });
         }
-        // Check for API abuse
         const apiCalls = this.auditLog.filter(event => event.action.includes('api') &&
             event.timestamp > new Date(Date.now() - 60 * 60 * 1000));
         if (apiCalls.length > 1000) {
@@ -102,7 +92,6 @@ export class SecurityAuditSystem {
         return threats;
     }
     async getRecentAuditEvents() {
-        // Return recent audit events from memory
         const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
         return this.auditLog
             .filter(event => event.timestamp > twentyFourHoursAgo)
@@ -113,7 +102,7 @@ export class SecurityAuditSystem {
         return {
             gdpr: {
                 compliant: true,
-                lastAudit: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // 30 days ago
+                lastAudit: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
                 issues: [],
                 actions: [
                     'Quarterly data mapping review',
@@ -129,12 +118,12 @@ export class SecurityAuditSystem {
             iso27001: {
                 implemented: true,
                 certificationStatus: 'In Progress',
-                nextReview: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000) // 90 days from now
+                nextReview: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000)
             },
             soc2: {
                 type1: true,
                 type2: false,
-                lastReport: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000) // 60 days ago
+                lastReport: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000)
             }
         };
     }
@@ -150,14 +139,14 @@ export class SecurityAuditSystem {
                 suspiciousApiCalls: suspiciousApiCalls
             },
             privilegedAccess: {
-                adminUsers: 1, // Only Sandra has admin access
+                adminUsers: 1,
                 lastPrivilegedAction: new Date(),
                 accessReviewDue: false
             },
             sessionSecurity: {
-                activeSessions: Math.floor(Math.random() * 50) + 20, // 20-70 active sessions
-                expiredSessions: Math.floor(Math.random() * 100) + 50, // 50-150 expired
-                averageSessionDuration: 45 // 45 minutes average
+                activeSessions: Math.floor(Math.random() * 50) + 20,
+                expiredSessions: Math.floor(Math.random() * 100) + 50,
+                averageSessionDuration: 45
             }
         };
     }
@@ -166,12 +155,12 @@ export class SecurityAuditSystem {
             encryption: {
                 dataAtRest: true,
                 dataInTransit: true,
-                keyRotation: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000) // 15 days ago
+                keyRotation: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000)
             },
             backup: {
-                lastBackup: new Date(Date.now() - 24 * 60 * 60 * 1000), // 24 hours ago
+                lastBackup: new Date(Date.now() - 24 * 60 * 60 * 1000),
                 backupIntegrity: true,
-                recoveryTested: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) // 7 days ago
+                recoveryTested: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
             },
             retention: {
                 policyCompliant: true,
@@ -190,14 +179,11 @@ export class SecurityAuditSystem {
         return 'low';
     }
     detectSuspiciousActivity(event) {
-        // Pattern detection for suspicious activity
         const recentEvents = this.auditLog.filter(e => e.timestamp > new Date(Date.now() - 60 * 60 * 1000) &&
             e.ipAddress === event.ipAddress);
-        // Multiple failed attempts from same IP
         if (recentEvents.filter(e => e.status === 'failure').length >= 5) {
             this.detectThreat('brute_force', event.ipAddress, 'Multiple failed attempts from single IP', 'high');
         }
-        // Rapid API calls
         if (recentEvents.filter(e => e.action.includes('api')).length >= 100) {
             this.detectThreat('api_abuse', event.ipAddress, 'Excessive API calls from single source', 'medium');
         }
@@ -239,24 +225,21 @@ export class SecurityAuditSystem {
     }
     async initiateCriticalThreatResponse(threat) {
         console.log(`🚨 CRITICAL THREAT RESPONSE: Initiating emergency protocols for ${threat.type}`);
-        // Auto-mitigation steps for critical threats
         switch (threat.type) {
             case 'data_breach':
-                // Immediate containment
                 console.log('🔒 Isolating affected systems');
                 console.log('📧 Preparing breach notifications');
                 break;
             case 'ddos':
-                // Traffic filtering
                 console.log('🛡️ Activating DDoS protection');
                 console.log('📊 Scaling infrastructure');
                 break;
             default:
                 console.log('⚠️ Standard critical threat protocols activated');
         }
-        // Update threat status
         threat.status = 'mitigated';
         threat.mitigation.push(`Auto-mitigation initiated at ${new Date().toISOString()}`);
     }
 }
 export const securityAudit = SecurityAuditSystem.getInstance();
+//# sourceMappingURL=security-audit.js.map

@@ -2,23 +2,22 @@ export const warmBeigeTemplate = {
     id: "warm-beige",
     name: "Cozy Comfort",
     description: "Warm, inviting design with soft beige tones and approachable typography. Perfect for lifestyle coaches, home brands, and nurturing service providers.",
-    // Design System
     colors: {
-        primary: "#8b6f47", // Cocoa
-        secondary: "#c4a484", // Camel  
-        accent: "#ede4db", // Sand
+        primary: "#8b6f47",
+        secondary: "#c4a484",
+        accent: "#ede4db",
         text: "#8b6f47",
-        background: "#f7f3f0", // Cream
-        border: "#e6d7c9" // Soft border
+        background: "#f7f3f0",
+        border: "#e6d7c9"
     },
     typography: {
         headline: "Georgia, serif",
         body: "Georgia, serif",
         accent: "Georgia, serif",
         weights: {
-            headline: "400", // Regular
-            body: "300", // Light
-            accent: "400" // Regular
+            headline: "400",
+            body: "300",
+            accent: "400"
         },
         sizes: {
             hero: "clamp(4rem, 10vw, 9rem)",
@@ -33,7 +32,6 @@ export const warmBeigeTemplate = {
         },
         transform: "uppercase headlines"
     },
-    // Brand Voice & Messaging
     voiceProfile: {
         tone: ["warm", "nurturing", "approachable", "cozy"],
         personality: "The supportive friend who always has tea ready and makes everyone feel at home. Warm, caring, and genuinely invested in your wellbeing.",
@@ -51,7 +49,6 @@ export const warmBeigeTemplate = {
             tone: "nurturing and supportive"
         }
     },
-    // Visual Style Guide
     visualElements: {
         logoStyle: "approachable",
         imageStyle: "lifestyle",
@@ -62,7 +59,6 @@ export const warmBeigeTemplate = {
         shadows: "none, soft edges preferred",
         corners: "sharp edges only"
     },
-    // AI Prompt Instructions for SANDRA
     aiInstructions: {
         brandAdjectives: [
             "warm", "cozy", "nurturing", "approachable", "comfortable",
@@ -88,7 +84,6 @@ export const warmBeigeTemplate = {
             "inviting, homey feel"
         ]
     },
-    // Implementation Details  
     implementation: {
         heroFormat: {
             background: "full-bleed image with 20% warm overlay",
@@ -103,3 +98,4 @@ export const warmBeigeTemplate = {
         specialEffects: ["warm color washes", "soft transitions", "cozy proportions"]
     }
 };
+//# sourceMappingURL=template-warm-beige.js.map

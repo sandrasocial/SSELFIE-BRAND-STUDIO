@@ -1,14 +1,44 @@
-import { users, userProfiles, onboardingData, aiImages, generatedImages, generationTrackers, userModels, selfieUploads, subscriptions, userUsage, victoriaChats, photoSelections, landingPages, brandOnboarding, userLandingPages, emailCaptures, mayaChats, mayaChatMessages, userStyleMemory, generatedVideos, claudeConversations, claudeMessages, trainingRuns, loraWeights, 
-// New hybrid backend types
-conversations, messages, conversationSummaries, conceptCards, 
-// Brand Assets types
-brandAssets, imageVariants, } from "../shared/schema.js";
+function getDefaultUserFields(overrides = {}) {
+    return {
+        id: overrides.id ?? '',
+        stackAuthId: overrides.stackAuthId ?? '',
+        email: overrides.email ?? '',
+        firstName: overrides.firstName ?? '',
+        lastName: overrides.lastName ?? '',
+        displayName: overrides.displayName ?? '',
+        profileImageUrl: overrides.profileImageUrl ?? '',
+        createdAt: overrides.createdAt ?? new Date(),
+        updatedAt: overrides.updatedAt ?? new Date(),
+        lastLoginAt: overrides.lastLoginAt ?? new Date(),
+        plan: 'sselfie-studio',
+        role: 'user',
+        monthlyGenerationLimit: 100,
+        mayaAiAccess: true,
+        victoriaAiAccess: false,
+        preferredOnboardingMode: 'conversational',
+        onboardingProgress: {},
+        gender: '',
+        profession: '',
+        brandStyle: '',
+        photoGoals: '',
+        trainingCoachingStarted: false,
+        trainingCoachingCompleted: false,
+        trainingCoachingPhase: '',
+        trainingCoachingStep: 0,
+        brandStrategyContext: {},
+        generationsUsedThisMonth: 0,
+        hasRetrainingAccess: false,
+        retrainingSessionId: '',
+        retrainingPaidAt: null,
+        stripeCustomerId: '',
+        stripeSubscriptionId: '',
+        ...overrides
+    };
+}
+import { users, userProfiles, onboardingData, aiImages, generatedImages, generationTrackers, userModels, selfieUploads, subscriptions, userUsage, victoriaChats, photoSelections, landingPages, brandOnboarding, userLandingPages, emailCaptures, mayaChats, mayaChatMessages, userStyleMemory, generatedVideos, claudeConversations, claudeMessages, trainingRuns, loraWeights, conversations, messages, conversationSummaries, conceptCards, brandAssets, imageVariants, } from "../shared/schema.js";
 import { db } from "./drizzle.js";
 import { eq, and, desc, asc, gte, lte, sql } from "drizzle-orm";
-/* eslint-disable no-console */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 export class DatabaseStorage {
-    // User operations (required for Replit Auth)
     async getUser(id) {
         const [user] = await db.select().from(users).where(eq(users.id, id));
         return user;
@@ -17,14 +47,12 @@ export class DatabaseStorage {
         const [user] = await db.select().from(users).where(eq(users.email, email));
         return user;
     }
-    // Link existing user account to Stack Auth ID (safer approach - preserve original ID)
     async linkStackAuthId(existingUserId, stackAuthId) {
         console.log(`🔗 Linking existing user ${existingUserId} to Stack Auth ID ${stackAuthId}`);
-        // Add Stack Auth ID to existing user while preserving original ID and all relationships
         const [linkedUser] = await db
             .update(users)
             .set({
-            stackAuthId: stackAuthId, // Store Stack Auth ID in separate column
+            stackAuthId: stackAuthId,
             updatedAt: new Date()
         })
             .where(eq(users.id, existingUserId))
@@ -32,26 +60,25 @@ export class DatabaseStorage {
         console.log(`✅ Successfully linked user to Stack Auth ID: ${linkedUser.email}`);
         return linkedUser;
     }
-    // Get user by Stack Auth ID (for linked accounts)
     async getUserByStackAuthId(stackAuthId) {
         const [user] = await db.select().from(users).where(eq(users.stackAuthId, stackAuthId));
         return user;
     }
     async createUser(userData) {
         console.log('🔄 Creating new user:', userData.email);
-        // Special admin setup for ssa@ssasocial.com
-        if (userData.email === 'ssa@ssasocial.com') {
-            userData.role = 'admin';
-            userData.monthlyGenerationLimit = -1; // Unlimited
-            userData.plan = 'sselfie-studio';
-            userData.mayaAiAccess = true;
-            userData.victoriaAiAccess = true;
+        let finalUserData = getDefaultUserFields(userData);
+        if (finalUserData.email === 'ssa@ssasocial.com') {
+            finalUserData.role = 'admin';
+            finalUserData.monthlyGenerationLimit = -1;
+            finalUserData.plan = 'sselfie-studio';
+            finalUserData.mayaAiAccess = true;
+            finalUserData.victoriaAiAccess = true;
             console.log('👑 Setting admin privileges for ssa@ssasocial.com');
         }
         const [user] = await db
             .insert(users)
             .values({
-            ...userData,
+            ...finalUserData,
             createdAt: new Date(),
             updatedAt: new Date(),
         })
@@ -65,90 +92,63 @@ export class DatabaseStorage {
     }
     async upsertUser(userData) {
         console.log('🔄 Upserting user:', userData.id, userData.email);
-        // Special admin setup for ssa@ssasocial.com
-        if (userData.email === 'ssa@ssasocial.com') {
-            userData.role = 'admin';
-            userData.monthlyGenerationLimit = -1; // Unlimited
-            userData.plan = 'sselfie-studio';
-            userData.mayaAiAccess = true;
-            userData.victoriaAiAccess = true;
+        let finalUserData = getDefaultUserFields(userData);
+        if (finalUserData.email === 'ssa@ssasocial.com') {
+            finalUserData.role = 'admin';
+            finalUserData.monthlyGenerationLimit = -1;
+            finalUserData.plan = 'sselfie-studio';
+            finalUserData.mayaAiAccess = true;
+            finalUserData.victoriaAiAccess = true;
             console.log('👑 Setting admin privileges for ssa@ssasocial.com');
         }
-        // First try to find existing user by ID
-        const existingUser = await this.getUser(userData.id);
+        const existingUser = await this.getUser(finalUserData.id);
         if (existingUser) {
             console.log('✅ Found existing user by ID, updating...');
             const [user] = await db
                 .update(users)
                 .set({
-                firstName: userData.firstName,
-                lastName: userData.lastName,
-                profileImageUrl: userData.profileImageUrl,
-                // Stack Auth integration - no extra fields needed
-                displayName: userData.displayName,
-                lastLoginAt: userData.lastLoginAt,
-                // Business logic fields
-                role: userData.role,
-                monthlyGenerationLimit: userData.monthlyGenerationLimit,
-                plan: userData.plan,
-                mayaAiAccess: userData.mayaAiAccess,
-                victoriaAiAccess: userData.victoriaAiAccess,
+                ...finalUserData,
                 updatedAt: new Date(),
             })
-                .where(eq(users.id, userData.id))
+                .where(eq(users.id, finalUserData.id))
                 .returning();
             return user;
         }
-        // If not found by ID, check by email and update that record with new ID
-        if (userData.email) {
+        if (finalUserData.email) {
             const [userByEmail] = await db
                 .select()
                 .from(users)
-                .where(eq(users.email, userData.email));
+                .where(eq(users.email, finalUserData.email));
             if (userByEmail) {
-                console.log('✅ Found existing user by email, updating with new Replit ID...');
-                // Update the existing user record with the new Replit ID
+                console.log('✅ Found existing user by email, updating with new Stack Auth ID...');
                 const [updatedUser] = await db
                     .update(users)
                     .set({
-                    id: userData.id, // Update to new Stack Auth user ID
-                    firstName: userData.firstName,
-                    lastName: userData.lastName,
-                    profileImageUrl: userData.profileImageUrl,
-                    // Stack Auth integration - no extra fields needed
-                    displayName: userData.displayName,
-                    lastLoginAt: userData.lastLoginAt,
-                    // Business logic fields
-                    role: userData.role,
-                    monthlyGenerationLimit: userData.monthlyGenerationLimit,
-                    plan: userData.plan,
-                    mayaAiAccess: userData.mayaAiAccess,
-                    victoriaAiAccess: userData.victoriaAiAccess,
+                    ...finalUserData,
+                    id: finalUserData.id,
                     updatedAt: new Date(),
                 })
-                    .where(eq(users.email, userData.email))
+                    .where(eq(users.email, finalUserData.email))
                     .returning();
                 return updatedUser;
             }
         }
-        // User doesn't exist by ID or email, create new one
         console.log('🆕 Creating new user...');
         try {
             const [user] = await db
                 .insert(users)
-                .values(userData)
+                .values(finalUserData)
                 .returning();
             return user;
         }
         catch (error) {
-            // If duplicate key error on email, try to return existing user
             const e = error;
             if (e?.code === '23505' && e?.constraint === 'users_email_unique') {
                 console.log('🔄 Duplicate email constraint, fetching existing user...');
                 const [existingUser] = await db
                     .select()
                     .from(users)
-                    .where(eq(users.email, userData.email || ''));
+                    .where(eq(users.email, finalUserData.email || ''));
                 if (existingUser) {
                     return existingUser;
                 }
@@ -164,7 +164,6 @@ export class DatabaseStorage {
             .returning();
         return updatedUser;
     }
-    // Stack Auth user synchronization
     async syncStackAuthUser(stackUser) {
         const userData = {
             id: stackUser.id,
@@ -177,7 +176,6 @@ export class DatabaseStorage {
         console.log('🔄 Syncing Stack Auth user:', userData.id, userData.email);
         return this.upsertUser(userData);
     }
-    // 🔄 PHASE 3: Update user retraining access after payment
     async updateUserRetrainingAccess(userId, retrainingData) {
         const [updatedUser] = await db
             .update(users)
@@ -191,7 +189,6 @@ export class DatabaseStorage {
             .returning();
         return updatedUser;
     }
-    // User Profile operations
     async getUserProfile(userId) {
         const [profile] = await db
             .select()
@@ -200,10 +197,8 @@ export class DatabaseStorage {
         return profile;
     }
     async upsertUserProfile(data) {
-        // Check if profile exists
         const existingProfile = await this.getUserProfile(data.userId);
         if (existingProfile) {
-            // Update existing profile
             const [profile] = await db
                 .update(userProfiles)
                 .set({ ...data, updatedAt: new Date() })
@@ -212,7 +207,6 @@ export class DatabaseStorage {
             return profile;
         }
         else {
-            // Insert new profile
             const [profile] = await db
                 .insert(userProfiles)
                 .values(data)
@@ -220,7 +214,6 @@ export class DatabaseStorage {
             return profile;
         }
     }
-    // Onboarding operations
     async getOnboardingData(userId) {
         const [data] = await db
             .select()
@@ -240,16 +233,13 @@ export class DatabaseStorage {
             .returning();
         return updated;
     }
-    // AI Image operations
     async getAIImages(userId) {
-        // Direct lookup first
         let images = await db
             .select()
             .from(aiImages)
             .where(eq(aiImages.userId, userId))
             .orderBy(desc(aiImages.createdAt));
         if (images.length === 0) {
-            // For Stack Auth users, check by linked original user ID
             const linkedUser = await this.getUserByStackAuthId(userId);
             if (linkedUser) {
                 images = await db
@@ -265,7 +255,6 @@ export class DatabaseStorage {
         return this.getAIImages(userId);
     }
     async saveAIImage(data) {
-        // Remove project_id from data since we're not using projects table
         const imageData = { ...data };
         delete imageData['projectId'];
         const [saved] = await db.insert(aiImages).values(imageData).returning();
@@ -282,7 +271,6 @@ export class DatabaseStorage {
         const result = await db
             .delete(aiImages)
             .where(and(eq(aiImages.id, imageId), eq(aiImages.userId, userId)));
-        // drizzle returns object; presence of a result is enough
         return Boolean(result.rowCount ?? true);
     }
     async updateAIImage(id, data) {
@@ -293,16 +281,13 @@ export class DatabaseStorage {
             .returning();
         return updated;
     }
-    // Generated Images operations (NEW ENHANCED GALLERY - primary table)
     async getGeneratedImages(userId) {
-        // Direct lookup first
         let images = await db
             .select()
             .from(generatedImages)
             .where(eq(generatedImages.userId, userId))
             .orderBy(desc(generatedImages.createdAt));
         if (images.length === 0) {
-            // For Stack Auth users, check by linked original user ID
             const linkedUser = await this.getUserByStackAuthId(userId);
             if (linkedUser) {
                 images = await db
@@ -326,16 +311,13 @@ export class DatabaseStorage {
             .returning();
         return updated;
     }
-    // Generated Videos operations (VEO 3 video generation)
     async getGeneratedVideos(userId) {
-        // Direct lookup first
         let videos = await db
             .select()
             .from(generatedVideos)
             .where(eq(generatedVideos.userId, userId))
             .orderBy(desc(generatedVideos.createdAt));
         if (videos.length === 0) {
-            // For Stack Auth users, check by linked original user ID
             const linkedUser = await this.getUserByStackAuthId(userId);
             if (linkedUser) {
                 videos = await db
@@ -380,7 +362,6 @@ export class DatabaseStorage {
             .where(eq(generatedVideos.userId, userId))
             .orderBy(desc(generatedVideos.createdAt));
     }
-    // 🔑 Generation Tracker Methods - for temp preview workflow ONLY
     async createGenerationTracker(data) {
         const [tracker] = await db
             .insert(generationTrackers)
@@ -435,15 +416,12 @@ export class DatabaseStorage {
             .where(eq(generationTrackers.status, 'processing'))
             .orderBy(desc(generationTrackers.createdAt));
     }
-    // User Model operations - with dual ID support for Stack Auth migration
     async getUserModel(userId) {
-        // Direct lookup first
         let [model] = await db
             .select()
             .from(userModels)
             .where(eq(userModels.userId, userId));
         if (!model) {
-            // For Stack Auth users, also check by linked original user ID
             const linkedUser = await this.getUserByStackAuthId(userId);
             if (linkedUser) {
                 [model] = await db
@@ -455,7 +433,6 @@ export class DatabaseStorage {
         return model;
     }
     async getUserModelByUserId(userId) {
-        // Alias for getUserModel - same functionality with dual ID support
         return this.getUserModel(userId);
     }
     async getUserModelById(modelId) {
@@ -471,14 +448,12 @@ export class DatabaseStorage {
         return model;
     }
     async updateUserModel(userId, data) {
-        // Try direct update first
         let [updated] = await db
             .update(userModels)
             .set({ ...data, updatedAt: new Date() })
             .where(eq(userModels.userId, userId))
             .returning();
         if (!updated) {
-            // For Stack Auth users, try updating by linked original user ID
             const linkedUser = await this.getUserByStackAuthId(userId);
             if (linkedUser) {
                 [updated] = await db
@@ -493,20 +468,15 @@ export class DatabaseStorage {
         }
         return updated;
     }
-    // 🚨 CRITICAL: Clean up failed training data completely
     async deleteFailedTrainingData(userId) {
         console.log(`🗑️ CLEANUP: Deleting all failed training data for user ${userId}`);
-        // Delete in correct order to avoid foreign key constraints
         await db.delete(generationTrackers).where(eq(generationTrackers.userId, userId));
         await db.delete(aiImages).where(eq(aiImages.userId, userId));
         await db.delete(userModels).where(eq(userModels.userId, userId));
         console.log(`✅ CLEANUP: All training data deleted for user ${userId} - ready for fresh start`);
     }
-    // 🔍 Check if user needs to restart training due to failure
     async checkTrainingStatus(userId) {
         const model = await this.getUserModel(userId);
-        // 🔧 FIX: Only show restart UI if there's actually FAILED training data
-        // New users with no model should go through normal training flow
         if (!model) {
             return { needsRestart: false, reason: 'Ready to start training' };
         }
@@ -514,7 +484,6 @@ export class DatabaseStorage {
             return { needsRestart: true, reason: 'Training failed - please restart with new images' };
         }
         if (model.trainingStatus === 'training' && model.startedAt) {
-            // Check if training has been stuck for more than 2 hours
             const hoursAgo = (Date.now() - new Date(model.startedAt).getTime()) / (1000 * 60 * 60);
             if (hoursAgo > 2) {
                 return { needsRestart: true, reason: 'Training appears stuck - please restart' };
@@ -523,23 +492,20 @@ export class DatabaseStorage {
         return { needsRestart: false, reason: 'Training is proceeding normally' };
     }
     async ensureUserModel(userId) {
-        // Check if user model already exists (with dual ID support)
         const existingModel = await this.getUserModel(userId);
         if (existingModel) {
             console.log('✅ User model already exists for user:', userId);
             return existingModel;
         }
-        // For new user models, use the original user ID (not Stack Auth ID)
         const user = await this.getUser(userId);
         const actualUserId = user?.id || userId;
-        // Create new user model that requires actual training
         console.log('🔄 Creating new user model for user:', actualUserId);
         const triggerWord = `user${actualUserId}`;
         const modelData = {
             userId: actualUserId,
             triggerWord,
-            trainingStatus: 'not_started', // User must complete training
-            modelName: `${actualUserId}-selfie-lora`, // Consistent with training service
+            trainingStatus: 'not_started',
+            modelName: `${actualUserId}-selfie-lora`,
         };
         return await this.createUserModel(modelData);
     }
@@ -561,7 +527,6 @@ export class DatabaseStorage {
             .where(eq(userModels.trainingStatus, 'training'))
             .orderBy(desc(userModels.createdAt));
     }
-    // ✅ LORA MIGRATION: Get all users with completed training for LoRA extraction
     async getAllCompletedTrainings() {
         return await db
             .select()
@@ -570,22 +535,18 @@ export class DatabaseStorage {
             .orderBy(desc(userModels.createdAt));
     }
     async getMonthlyRetrainCount(userId, month, year) {
-        // Get start and end dates for the month
         const startDate = new Date(year, month, 1);
         const endDate = new Date(year, month + 1, 0);
-        // Count models created this month (retraining creates new models)
         const models = await db
             .select()
             .from(userModels)
             .where(and(eq(userModels.userId, userId), gte(userModels.createdAt, startDate), lte(userModels.createdAt, endDate)));
         return models.length;
     }
-    // Add methods to work with actual database columns
     async getUserModelByDatabaseUserId(userId) {
         const result = await db.select().from(userModels).where(eq(userModels.userId, userId));
         return result[0];
     }
-    // Selfie Upload operations
     async getSelfieUploads(userId) {
         return await db
             .select()
@@ -597,7 +558,6 @@ export class DatabaseStorage {
         const [saved] = await db.insert(selfieUploads).values([data]).returning();
         return saved;
     }
-    // Subscription operations
     async getSubscription(userId) {
         const [subscription] = await db
             .select()
@@ -612,15 +572,11 @@ export class DatabaseStorage {
             .where(eq(subscriptions.userId, userId));
         return subscription;
     }
-    // Flatlay Collections - NEVER USE STOCK PHOTOS
     async getFlatlayCollections() {
-        // Return curated flatlay collections from actual flatlay gallery
-        // This should pull from a real flatlay gallery, not stock photos
         return [
             {
                 name: 'Luxury Minimal',
                 images: [
-                    // These would be actual flatlay gallery URLs from your library
                     '/api/flatlay-gallery/luxury-minimal-1.jpg',
                     '/api/flatlay-gallery/luxury-minimal-2.jpg',
                     '/api/flatlay-gallery/luxury-minimal-3.jpg'
@@ -648,7 +604,6 @@ export class DatabaseStorage {
         const [subscription] = await db.insert(subscriptions).values([data]).returning();
         return subscription;
     }
-    // Usage operations
     async getUserUsage(userId) {
         const [usage] = await db
             .select()
@@ -668,20 +623,17 @@ export class DatabaseStorage {
             .returning();
         return updated;
     }
-    // Plan-based access control methods
     async getUserPlan(userId) {
         const user = await this.getUser(userId);
-        return user?.plan || 'basic'; // Default to basic plan
+        return user?.plan || 'basic';
     }
     async hasMayaAIAccess(userId) {
-        // Maya AI requires trained model on both basic and full-access tiers
         const user = await this.getUser(userId);
         const userModel = await this.getUserModel(userId);
         const hasTrainedModel = userModel?.trainingStatus === 'completed';
         return hasTrainedModel || user?.role === 'admin' || false;
     }
     async hasVictoriaAIAccess(userId) {
-        // Victoria AI requires full-access tier + trained model
         const user = await this.getUser(userId);
         const userModel = await this.getUserModel(userId);
         const hasTrainedModel = userModel?.trainingStatus === 'completed';
@@ -694,15 +646,13 @@ export class DatabaseStorage {
     }
     async getGenerationLimits(userId) {
         const user = await this.getUser(userId);
-        // Admin users get unlimited access
         if (user?.role === 'admin') {
             return {
                 allowed: 999999,
                 used: user?.generationsUsedThisMonth || 0
             };
         }
-        // Generation limits based on plan
-        const monthlyLimit = user?.monthlyGenerationLimit || 30; // Default to basic plan
+        const monthlyLimit = user?.monthlyGenerationLimit || 30;
         return {
             allowed: monthlyLimit,
             used: user?.generationsUsedThisMonth || 0
@@ -716,9 +666,6 @@ export class DatabaseStorage {
         const plan = await this.getUserPlan(userId);
         return plan === 'admin';
     }
-    // Photoshoot sessions removed - not implemented in schema
-    // Removed session methods - use existing getAIImages() instead
-    // Victoria chat operations
     async createVictoriaChat(data) {
         const [chat] = await db
             .insert(victoriaChats)
@@ -740,7 +687,6 @@ export class DatabaseStorage {
             .where(and(eq(victoriaChats.userId, userId), eq(victoriaChats.sessionId, sessionId)))
             .orderBy(victoriaChats.createdAt);
     }
-    // Photo selections operations
     async savePhotoSelections(data) {
         const [selection] = await db
             .insert(photoSelections)
@@ -764,13 +710,10 @@ export class DatabaseStorage {
         return selection;
     }
     async getInspirationPhotos(userId) {
-        // Get user's selected photos from photo selections
         const photoSelections = await this.getPhotoSelections(userId);
-        // selectedSelfieIds is JSON array in schema; guard at runtime
         if (!photoSelections || !Array.isArray(photoSelections.selectedSelfieIds) || !photoSelections.selectedSelfieIds?.length) {
             return [];
         }
-        // Get the actual images from AI images table
         const userImages = await this.getAIImages(userId);
         const selectedIds = photoSelections.selectedSelfieIds;
         const selectedImages = userImages.filter(img => selectedIds.includes(img.id));
@@ -780,7 +723,6 @@ export class DatabaseStorage {
             description: img.prompt || 'Selected inspiration photo'
         }));
     }
-    // Landing page operations
     async createLandingPage(data) {
         const [page] = await db
             .insert(landingPages)
@@ -795,7 +737,6 @@ export class DatabaseStorage {
             .where(eq(landingPages.userId, userId))
             .orderBy(desc(landingPages.createdAt));
     }
-    // Landing pages operations
     async createUserLandingPage(data) {
         const [page] = await db
             .insert(userLandingPages)
@@ -825,8 +766,6 @@ export class DatabaseStorage {
             .returning();
         return updated;
     }
-    // Email Capture operations
-    // Brand onboarding operations
     async saveBrandOnboarding(data) {
         const [saved] = await db
             .insert(brandOnboarding)
@@ -848,9 +787,7 @@ export class DatabaseStorage {
             .where(eq(brandOnboarding.userId, userId));
         return data;
     }
-    // Agent Conversations (unified with claudeConversations/claudeMessages)
     async saveAgentConversation(agentId, userId, userMessage, agentResponse, fileOperations, conversationId) {
-        // Create or get conversation - USE STABLE ID per agent per user
         const convId = conversationId || `admin_${agentId}_${userId}`;
         let conversation = await db.query.claudeConversations.findFirst({
             where: eq(claudeConversations.conversationId, convId)
@@ -865,21 +802,18 @@ export class DatabaseStorage {
                 messageCount: 0
             }).returning();
         }
-        // Save user message
         await db.insert(claudeMessages).values({
             conversationId: convId,
             role: 'user',
             content: userMessage,
             metadata: fileOperations ? { fileOperations } : null
         });
-        // Save agent response  
         await db.insert(claudeMessages).values({
             conversationId: convId,
             role: 'assistant',
             content: agentResponse,
             metadata: fileOperations ? { fileOperations } : null
         });
-        // Update conversation metadata
         await db.update(claudeConversations)
             .set({
             lastMessageAt: new Date(),
@@ -889,14 +823,12 @@ export class DatabaseStorage {
         return conversation;
     }
     async getAgentConversations(agentId, userId) {
-        // Get all conversations for this agent and user
         const conversations = await db.select()
             .from(claudeConversations)
             .where(and(eq(claudeConversations.agentName, agentId), eq(claudeConversations.userId, userId)))
             .orderBy(desc(claudeConversations.lastMessageAt));
         if (conversations.length === 0)
             return [];
-        // Get messages from the most recent conversation
         const messages = await db.select()
             .from(claudeMessages)
             .where(eq(claudeMessages.conversationId, conversations[0].conversationId))
@@ -905,7 +837,6 @@ export class DatabaseStorage {
     }
     async getAgentConversationHistory(agentId, userId, conversationId) {
         if (conversationId) {
-            // Get specific conversation
             const messages = await db.select()
                 .from(claudeMessages)
                 .where(eq(claudeMessages.conversationId, conversationId))
@@ -915,14 +846,12 @@ export class DatabaseStorage {
                 content: msg.content
             }));
         }
-        // Get all conversations for this agent and user
         const conversations = await db.select()
             .from(claudeConversations)
             .where(and(eq(claudeConversations.agentName, agentId), eq(claudeConversations.userId, userId)))
             .orderBy(desc(claudeConversations.lastMessageAt));
         if (conversations.length === 0)
             return [];
-        // Get messages from most recent conversation
         const messages = await db.select()
             .from(claudeMessages)
             .where(eq(claudeMessages.conversationId, conversations[0].conversationId))
@@ -933,14 +862,12 @@ export class DatabaseStorage {
         }));
     }
     async getAllAgentConversations(userId) {
-        // Get all agent conversations for this user
         const conversations = await db.select()
             .from(claudeConversations)
             .where(eq(claudeConversations.userId, userId))
             .orderBy(desc(claudeConversations.lastMessageAt));
         if (conversations.length === 0)
             return [];
-        // Get messages from all conversations
         const conversationIds = conversations.map(c => c.conversationId);
         const messages = await db.select()
             .from(claudeMessages)
@@ -948,19 +875,14 @@ export class DatabaseStorage {
             .orderBy(claudeMessages.timestamp);
         return messages;
     }
-    // Sandra AI conversation operations (minimal implementation)
     async getSandraConversations() {
-        // For now, return empty array - could implement full conversation storage later
         return [];
     }
     async saveSandraConversation(data) {
-        // For now, just return the data - could implement full conversation storage later
         return data;
     }
-    // Agent memory operations - Complete implementation
     async saveAgentMemory(agentId, userId, memoryData) {
         try {
-            // ENHANCED: Include full conversation history in memory data
             const base = (typeof memoryData === 'object' && memoryData !== null) ? memoryData : {};
             const conversationHistory = Array.isArray(base.conversationHistory) ? base.conversationHistory : [];
             const enhancedMemoryData = {
@@ -968,7 +890,6 @@ export class DatabaseStorage {
                 conversationHistory,
                 lastSaved: new Date().toISOString()
             };
-            // Save memory as special conversation entry
             await this.saveAgentConversation(agentId, userId, '**CONVERSATION_MEMORY**', JSON.stringify(enhancedMemoryData), []);
             console.log(`💾 Agent memory saved for ${agentId} with ${enhancedMemoryData.conversationHistory?.length || 0} conversation messages`);
         }
@@ -980,7 +901,6 @@ export class DatabaseStorage {
     async getAgentMemory(agentId, userId) {
         try {
             const conversations = await this.getAgentConversations(agentId, userId);
-            // Find the most recent memory entry (user message was '**CONVERSATION_MEMORY**')
             const memoryEntry = conversations
                 .filter(msg => msg.role === 'user' && msg.content === '**CONVERSATION_MEMORY**')
                 .sort((a, b) => {
@@ -989,7 +909,6 @@ export class DatabaseStorage {
                 return dateB - dateA;
             })[0];
             if (memoryEntry) {
-                // Find the corresponding assistant response
                 const memoryResponse = conversations.find(msg => msg.role === 'assistant' &&
                     Math.abs((msg.timestamp ? new Date(msg.timestamp).getTime() : 0) -
                         (memoryEntry.timestamp ? new Date(memoryEntry.timestamp).getTime() : 0)) < 1000);
@@ -1006,12 +925,10 @@ export class DatabaseStorage {
     }
     async clearAgentMemory(agentId, userId) {
         try {
-            // Find memory conversation
             const conversation = await db.query.claudeConversations.findFirst({
                 where: and(eq(claudeConversations.agentName, agentId), eq(claudeConversations.userId, userId))
             });
             if (conversation) {
-                // Delete memory messages (where content is '**CONVERSATION_MEMORY**')
                 await db.delete(claudeMessages)
                     .where(and(eq(claudeMessages.conversationId, conversation.conversationId), eq(claudeMessages.content, '**CONVERSATION_MEMORY**')));
             }
@@ -1022,7 +939,6 @@ export class DatabaseStorage {
             throw error;
         }
     }
-    // Email Capture operations
     async captureEmail(data) {
         const [capture] = await db
             .insert(emailCaptures)
@@ -1030,7 +946,6 @@ export class DatabaseStorage {
             .returning();
         return capture;
     }
-    // Maya chat operations
     async getMayaChats(userId) {
         return await db
             .select()
@@ -1038,14 +953,12 @@ export class DatabaseStorage {
             .where(eq(mayaChats.userId, userId))
             .orderBy(desc(mayaChats.lastActivity || mayaChats.createdAt));
     }
-    // Get all Maya chats (for analytics)
     async getAllMayaChats() {
         return await db
             .select()
             .from(mayaChats)
             .orderBy(desc(mayaChats.lastActivity || mayaChats.createdAt));
     }
-    // Get Maya chats by category for organized display
     async getMayaChatsByCategory(userId) {
         const chats = await this.getMayaChats(userId);
         const categorizedChats = {
@@ -1068,7 +981,6 @@ export class DatabaseStorage {
         });
         return categorizedChats;
     }
-    // Get specific Maya chat
     async getMayaChat(chatId, userId) {
         const [chat] = await db
             .select()
@@ -1076,7 +988,6 @@ export class DatabaseStorage {
             .where(and(eq(mayaChats.id, parseInt(chatId)), eq(mayaChats.userId, userId)));
         return chat;
     }
-    // Create new Maya chat
     async createMayaChat(userId, data) {
         const [chat] = await db
             .insert(mayaChats)
@@ -1095,7 +1006,6 @@ export class DatabaseStorage {
         }
         return chat.id.toString();
     }
-    // Save Maya chat with message and response
     async saveMayaChat(userId, data) {
         const [chat] = await db
             .insert(mayaChats)
@@ -1106,19 +1016,16 @@ export class DatabaseStorage {
             lastActivity: new Date()
         })
             .returning();
-        // Save user message
         await this.saveMayaMessage(chat.id.toString(), userId, {
             message: data.message,
             role: 'user'
         });
-        // Save Maya response
         await this.saveMayaMessage(chat.id.toString(), userId, {
             message: data.response,
             role: 'assistant'
         });
         return chat.id.toString();
     }
-    // Get Maya chat messages
     async getMayaChatMessages(chatId, userId) {
         return await db
             .select()
@@ -1126,7 +1033,6 @@ export class DatabaseStorage {
             .where(eq(mayaChatMessages.chatId, parseInt(chatId)))
             .orderBy(asc(mayaChatMessages.createdAt));
     }
-    // Save Maya message
     async saveMayaMessage(chatId, userId, data) {
         const [message] = await db
             .insert(mayaChatMessages)
@@ -1139,14 +1045,12 @@ export class DatabaseStorage {
             .returning();
         return message.id.toString();
     }
-    // Update Maya message
     async updateMayaMessage(messageId, userId, updates) {
         await db
             .update(mayaChatMessages)
             .set({ content: updates.content })
             .where(eq(mayaChatMessages.id, parseInt(messageId)));
     }
-    // Legacy method - use createMayaChat(userId, data) instead
     async createMayaChatLegacy(data) {
         const [chat] = await db
             .insert(mayaChats)
@@ -1154,12 +1058,10 @@ export class DatabaseStorage {
             .returning();
         return chat;
     }
-    // User plan upgrade operations
     async upgradeUserToPremium(userId, plan) {
         return this.upgradeUserPlan(userId, plan);
     }
     async upgradeUserPlan(userId, plan) {
-        // Determine the plan settings based on new pricing structure
         let planSettings;
         if (plan === 'basic') {
             planSettings = {
@@ -1167,7 +1069,6 @@ export class DatabaseStorage {
                 monthlyGenerationLimit: 30,
                 mayaAiAccess: true,
                 victoriaAiAccess: false,
-                // flatlayLibraryAccess and websiteBuilderAccess removed - not in schema
             };
         }
         else if (plan === 'full-access') {
@@ -1176,17 +1077,14 @@ export class DatabaseStorage {
                 monthlyGenerationLimit: 100,
                 mayaAiAccess: true,
                 victoriaAiAccess: true,
-                // flatlayLibraryAccess and websiteBuilderAccess removed - not in schema
             };
         }
         else {
-            // Legacy support for old plans
             planSettings = {
                 plan: plan,
                 monthlyGenerationLimit: plan === 'images-only' ? 30 : 100,
                 mayaAiAccess: true,
                 victoriaAiAccess: plan !== 'images-only',
-                // flatlayLibraryAccess and websiteBuilderAccess removed - not in schema
             };
         }
         const [updatedUser] = await db
@@ -1199,22 +1097,19 @@ export class DatabaseStorage {
             .returning();
         return updatedUser;
     }
-    // Legacy method - use getMayaChatMessages(chatId, userId) instead
     async getMayaChatMessagesLegacy(chatId) {
         const messages = await db
             .select()
             .from(mayaChatMessages)
             .where(eq(mayaChatMessages.chatId, chatId))
             .orderBy(mayaChatMessages.createdAt);
-        // Parse JSON fields for frontend compatibility and verify fullPrompt preservation
         return messages.map(msg => {
             const processedMsg = {
                 ...msg,
                 imagePreview: msg.imagePreview ? JSON.parse(msg.imagePreview) : null,
-                conceptCards: msg.conceptCards ? msg.conceptCards : null, // ENHANCED: conceptCards stored as JSONB with fullPrompt preserved
+                conceptCards: msg.conceptCards ? msg.conceptCards : null,
                 quickButtons: msg.quickButtons ? JSON.parse(msg.quickButtons) : null,
             };
-            // CRITICAL: Verify fullPrompt field preservation in retrieved concept cards
             if (processedMsg.conceptCards && Array.isArray(processedMsg.conceptCards)) {
                 const conceptsWithPrompts = processedMsg.conceptCards.filter((card) => 'fullPrompt' in card && card.fullPrompt);
                 if (conceptsWithPrompts.length > 0) {
@@ -1229,11 +1124,8 @@ export class DatabaseStorage {
             return processedMsg;
         });
     }
-    // REMOVED: getAllMayaChatMessages method to prevent session mixing
-    // Use getMayaChatMessages(chatId) for session-specific loading
     async createMayaChatMessage(data) {
         console.log(`📝 MAYA MESSAGE: Saving ${data.role} message with concept cards: ${data.conceptCards ? 'YES' : 'NO'}`);
-        // CRITICAL: Ensure fullPrompt field is preserved in concept cards
         if (data.conceptCards && Array.isArray(data.conceptCards)) {
             const conceptsWithPrompts = data.conceptCards.filter((card) => 'fullPrompt' in card && card.fullPrompt);
             if (conceptsWithPrompts.length > 0) {
@@ -1251,20 +1143,16 @@ export class DatabaseStorage {
             .returning();
         return message;
     }
-    // CRITICAL FIX: Missing saveMayaChatMessage method causing GenerationCompletionMonitor failure
     async saveMayaChatMessage(data) {
         return this.createMayaChatMessage(data);
     }
-    // CRITICAL FIX: Add missing getMayaConceptById method for generation system
     async getMayaConceptById(conceptId) {
         console.log(`🔍 CONCEPT RETRIEVAL: Searching for concept ID "${conceptId}"`);
-        // Search through Maya chat messages for concept cards with matching ID
         const messages = await db
             .select()
             .from(mayaChatMessages)
             .where(eq(mayaChatMessages.role, 'maya'))
             .orderBy(desc(mayaChatMessages.createdAt));
-        // Look through each message's conceptCards for the matching conceptId
         for (const message of messages) {
             if (message.conceptCards && Array.isArray(message.conceptCards)) {
                 const conceptCard = message.conceptCards.find((card) => card.id === conceptId);
@@ -1285,7 +1173,6 @@ export class DatabaseStorage {
             .set(data)
             .where(eq(mayaChatMessages.id, messageId));
     }
-    // Get generation tracker by prediction ID for website generator
     async getGenerationTrackerByPredictionId(predictionId) {
         const [tracker] = await db
             .select()
@@ -1293,14 +1180,13 @@ export class DatabaseStorage {
             .where(eq(generationTrackers.predictionId, predictionId));
         return tracker;
     }
-    // Admin operations
     async setUserAsAdmin(email) {
         try {
             const [user] = await db
                 .update(users)
                 .set({
                 role: 'admin',
-                monthlyGenerationLimit: -1, // Unlimited
+                monthlyGenerationLimit: -1,
                 plan: 'sselfie-studio',
                 mayaAiAccess: true,
                 victoriaAiAccess: true,
@@ -1352,7 +1238,6 @@ export class DatabaseStorage {
             .returning();
         return subscription;
     }
-    // LoRA Training and Weights Management
     async createTrainingRun(trainingRun) {
         const [run] = await db.insert(trainingRuns).values(trainingRun).returning();
         return run;
@@ -1381,7 +1266,6 @@ export class DatabaseStorage {
         return weight;
     }
     async getUserActiveLoraWeight(userId) {
-        // Get the most recent available LoRA weight for the user
         const [weight] = await db.select().from(loraWeights)
             .where(and(eq(loraWeights.userId, userId), eq(loraWeights.status, 'available')))
             .orderBy(desc(loraWeights.createdAt))
@@ -1396,19 +1280,14 @@ export class DatabaseStorage {
         return weight;
     }
     async setActiveLoraWeight(userId, weightId) {
-        // Mark all user's weights as archived, then set the selected one as available
         await db.update(loraWeights).set({ status: 'archived' }).where(eq(loraWeights.userId, userId));
         await db.update(loraWeights).set({ status: 'available' }).where(eq(loraWeights.id, weightId));
     }
-    // ✅ RESTORED: Simple LoRA weights storage method
     async storeLoRAWeights(data) {
-        // Extract S3 bucket and key from URL for proper storage
         const urlParts = data.weightsUrl.replace('https://', '').split('/');
         const s3Bucket = urlParts[0].split('.s3.amazonaws.com')[0];
         const s3Key = urlParts.slice(1).join('/');
-        // Generate trigger word for this user
         const triggerWord = `user${data.userId.replace(/[^a-zA-Z0-9]/g, '')}`;
-        // Find or create training run record
         let trainingRun = await this.getTrainingRunByTrainingId(data.trainingId);
         if (!trainingRun) {
             trainingRun = await this.createTrainingRun({
@@ -1419,12 +1298,11 @@ export class DatabaseStorage {
                 completedAt: data.extractedAt
             });
         }
-        // Create LoRA weight record with Maya's intelligent scaling defaults
         const mayaScales = {
-            closeUpPortrait: 0.9, // From Maya personality
-            halfBodyShot: 1.0, // From Maya personality  
-            fullScenery: 0.85, // From Maya personality
-            creativeOptimized: 1.1 // From Maya personality - the key 1.1 value!
+            closeUpPortrait: 0.9,
+            halfBodyShot: 1.0,
+            fullScenery: 0.85,
+            creativeOptimized: 1.1
         };
         await this.createLoraWeight({
             userId: data.userId,
@@ -1435,10 +1313,10 @@ export class DatabaseStorage {
             s3Key: s3Key,
             fileSize: data.fileSize,
             checksum: data.checksum,
-            rank: 32, // Standard LoRA rank
+            rank: 32,
             networkType: 'lora',
             status: 'available',
-            defaultScales: mayaScales, // Maya's intelligent scaling per shot type
+            defaultScales: mayaScales,
             metadata: {
                 extractedAt: data.extractedAt,
                 originalUrl: data.weightsUrl
@@ -1452,8 +1330,6 @@ export class DatabaseStorage {
             return undefined;
         return { s3Bucket: weight.s3Bucket, s3Key: weight.s3Key };
     }
-    // Additional storage methods can be added here as needed
-    // Admin dashboard count operations
     async getUserCount() {
         const result = await db.select({ count: sql `count(*)` }).from(users);
         return Number(result[0]?.count || 0);
@@ -1466,8 +1342,6 @@ export class DatabaseStorage {
         const result = await db.select({ count: sql `count(*)` }).from(claudeMessages);
         return Number(result[0]?.count || 0);
     }
-    // HYBRID BACKEND ARCHITECTURE: Implementation of conversation and concept card operations
-    // Conversation operations
     async createConversation(data) {
         const [conversation] = await db
             .insert(conversations)
@@ -1510,7 +1384,6 @@ export class DatabaseStorage {
     async archiveConversation(id) {
         return this.updateConversation(id, { status: 'archived' });
     }
-    // Message operations
     async createMessage(data) {
         const [message] = await db
             .insert(messages)
@@ -1555,7 +1428,6 @@ export class DatabaseStorage {
             .where(and(eq(messages.conversationId, conversationId), gte(messages.createdAt, targetMessage[0].createdAt)))
             .orderBy(messages.createdAt);
     }
-    // Conversation summary operations
     async upsertConversationSummary(data) {
         const existing = await this.getConversationSummary(data.conversationId);
         if (existing) {
@@ -1602,9 +1474,7 @@ export class DatabaseStorage {
             .returning();
         return updated;
     }
-    // Concept card operations (with idempotency)
     async createConceptCard(data) {
-        // Check for idempotency using clientId
         if (data.clientId && data.userId) {
             const existing = await this.getConceptCardByClientId(data.userId, data.clientId);
             if (existing) {
@@ -1667,7 +1537,6 @@ export class DatabaseStorage {
             .delete(conceptCards)
             .where(eq(conceptCards.id, id));
     }
-    // Brand Assets operations (P3-C feature)
     async getBrandAssets(userId) {
         return await db
             .select()
@@ -1676,7 +1545,6 @@ export class DatabaseStorage {
             .orderBy(desc(brandAssets.createdAt));
     }
     async saveBrandAsset(data) {
-        // Ensure required fields are present
         if (!data.url || !data.userId || !data.filename) {
             throw new Error('Missing required fields: url, userId, filename');
         }
@@ -1699,9 +1567,7 @@ export class DatabaseStorage {
             .where(and(eq(brandAssets.id, assetId), eq(brandAssets.userId, userId)));
         return asset;
     }
-    // Image Variants operations (for non-destructive placement)
     async saveImageVariant(data) {
-        // Ensure required fields are present
         if (!data.userId || !data.originalImageId || !data.variantUrl) {
             throw new Error('Missing required fields: userId, originalImageId, variantUrl');
         }
@@ -1737,7 +1603,6 @@ export class DatabaseStorage {
             .returning();
         return variant;
     }
-    // Test database connection
     async testConnection() {
         try {
             await db.execute(sql `SELECT 1`);
@@ -1748,25 +1613,17 @@ export class DatabaseStorage {
             return false;
         }
     }
-    // Create usage history record
     async createUsageHistory(data) {
-        // This would typically insert into a usage_history table
-        // For now, we'll just log it
         console.log('Usage history:', data);
     }
-    // Get user usage history
     async getUserUsageHistory() {
-        // This would typically query a usage_history table
-        // For now, return empty array
         return [];
     }
-    // User style memory methods
     async getUserStyleMemory(userId) {
         const [memory] = await db.select().from(userStyleMemory).where(eq(userStyleMemory.userId, userId));
         return memory;
     }
     async createUserStyleMemory(data) {
-        // Ensure required fields exist
         const payload = data;
         const [memory] = await db.insert(userStyleMemory).values(payload).returning();
         return memory;
@@ -1781,3 +1638,4 @@ export class DatabaseStorage {
     }
 }
 export const storage = new DatabaseStorage();
+//# sourceMappingURL=storage.js.map

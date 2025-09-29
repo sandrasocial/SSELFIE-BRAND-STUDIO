@@ -3,13 +3,9 @@ export const config = {
     runtime: 'nodejs',
     maxDuration: 30
 };
-// Mock database connection for Vercel
 async function getDatabase() {
-    // This would be replaced with actual database connection
-    // For now, return mock data to preserve functionality
     return {
         execute: async (sql) => {
-            // Mock trend data
             return [
                 {
                     id: 1,
@@ -32,7 +28,6 @@ async function getDatabase() {
 }
 export default async function handler(req, res) {
     try {
-        // Set CORS headers
         res.setHeader('Access-Control-Allow-Origin', '*');
         res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
         res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -43,10 +38,8 @@ export default async function handler(req, res) {
             return res.status(405).json({ error: 'Method not allowed' });
         }
         console.log('📊 Hair trends requested');
-        // Get database with timeout
         const db = await withTimeout(getDatabase(), 5000, 'database-connection');
-        // Fetch latest trends with timeout
-        const trends = await withTimeout(db.execute('SELECT * FROM hair_trends ORDER BY created_at DESC LIMIT 4'), 8000, 'trends-fetch');
+        const trends = await withTimeout(db.execute('SELECT id, trend_name, image_url, week_range FROM hair_trends ORDER BY created_at DESC LIMIT 4'), 8000, 'trends-fetch');
         if (!trends || trends.length === 0) {
             return res.json({
                 success: true,
@@ -55,7 +48,6 @@ export default async function handler(req, res) {
                 lastUpdate: null
             });
         }
-        // Format response data
         const formattedTrends = trends.map(trend => ({
             id: trend.id,
             weekRange: trend.week_range,
@@ -87,3 +79,4 @@ export default async function handler(req, res) {
         });
     }
 }
+//# sourceMappingURL=hair-trends.js.map

@@ -1,0 +1,1 @@
+{"version":3,"file":"veo-api.js","sourceRoot":"","sources":["../../../../server/services/video/veo-api.ts"],"names":[],"mappings":"AAkCA,MAAM,CAAC,KAAK,UAAU,aAAa,CAAC,KAAoB;IAEtD,MAAM,IAAI,KAAK,CAAC,iBAAiB,CAAC,CAAC;AACrC,CAAC;AAED,MAAM,CAAC,KAAK,UAAU,YAAY,CAAC,KAAa,EAAE,MAAc;IAE9D,MAAM,IAAI,KAAK,CAAC,iBAAiB,CAAC,CAAC;AACrC,CAAC"}

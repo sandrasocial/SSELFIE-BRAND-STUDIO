@@ -1,11 +1,10 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import { requireStackAuth } from '../stack-auth';
-import { db } from '../drizzle';
-import { websites } from '../../shared/schema';
+import { requireStackAuth } from '../stack-auth.js';
+import { db } from '../drizzle.js';
+import { websites } from '../../shared/schema.js';
 import { eq } from 'drizzle-orm';
 const router = Router();
-// Validation schemas
 const WebsiteGenerationSchema = z.object({
     businessType: z.string().min(1),
     brandPersonality: z.string().min(1),
@@ -31,16 +30,12 @@ const CustomizationSchema = z.object({
         content: z.record(z.string()).optional()
     })
 });
-// POST /api/victoria/generate - Main website generation endpoint
 router.post('/generate', requireStackAuth, async (req, res) => {
     try {
         const validatedData = WebsiteGenerationSchema.parse(req.body);
         const userId = req.user.id;
-        // Generate website ID
         const websiteId = `site_${userId}_${Date.now()}`;
-        // Core website generation logic
         const generatedWebsite = await generateWebsiteFromRequirements(validatedData, websiteId);
-        // Save to database with correct schema mapping
         const [website] = await db.insert(websites).values({
             userId,
             title: validatedData.businessName,
@@ -78,7 +73,6 @@ router.post('/generate', requireStackAuth, async (req, res) => {
         });
     }
 });
-// GET /api/victoria/templates - Fetch available templates
 router.get('/templates', requireStackAuth, async (req, res) => {
     try {
         const { industry, style, complexity } = req.query;
@@ -100,12 +94,10 @@ router.get('/templates', requireStackAuth, async (req, res) => {
         });
     }
 });
-// POST /api/victoria/customize - Real-time website customization
 router.post('/customize', requireStackAuth, async (req, res) => {
     try {
         const validatedData = CustomizationSchema.parse(req.body);
         const userId = req.user.id;
-        // Verify ownership
         const [existingWebsite] = await db
             .select()
             .from(websites)
@@ -117,9 +109,7 @@ router.post('/customize', requireStackAuth, async (req, res) => {
                 error: 'Website not found'
             });
         }
-        // Apply customizations
         const updatedWebsite = await applyCustomizations(existingWebsite, validatedData.modifications);
-        // Update database with correct schema
         await db
             .update(websites)
             .set({
@@ -141,12 +131,10 @@ router.post('/customize', requireStackAuth, async (req, res) => {
         });
     }
 });
-// POST /api/victoria/deploy - Deploy generated website
 router.post('/deploy', requireStackAuth, async (req, res) => {
     try {
         const { siteId, domainPreferences } = req.body;
         const userId = req.user.id;
-        // Verify ownership
         const [website] = await db
             .select()
             .from(websites)
@@ -158,9 +146,7 @@ router.post('/deploy', requireStackAuth, async (req, res) => {
                 error: 'Website not found'
             });
         }
-        // Deploy website
         const deployment = await deployWebsite(website, domainPreferences);
-        // Update database with deployment info using correct schema
         await db
             .update(websites)
             .set({
@@ -191,9 +177,7 @@ router.post('/deploy', requireStackAuth, async (req, res) => {
         });
     }
 });
-// Helper functions
 async function generateWebsiteFromRequirements(requirements, websiteId) {
-    // Core website generation logic
     const template = await selectOptimalTemplate(requirements);
     const content = await generateBusinessContent(requirements);
     const design = await customizeDesign(requirements);
@@ -202,11 +186,10 @@ async function generateWebsiteFromRequirements(requirements, websiteId) {
         content,
         design,
         preview: generatePreviewHTML(template, content, design),
-        estimatedTime: 25 // seconds
+        estimatedTime: 25
     };
 }
 async function selectOptimalTemplate(requirements) {
-    // Template selection logic based on business type and preferences
     const templates = {
         'consulting': 'luxury-professional',
         'ecommerce': 'modern-store',
@@ -217,7 +200,6 @@ async function selectOptimalTemplate(requirements) {
     return templates[requirements.businessType] || templates.default;
 }
 async function generateBusinessContent(requirements) {
-    // AI-driven content generation
     return {
         hero: {
             headline: `Transform Your Business with ${requirements.businessName}`,
@@ -239,7 +221,6 @@ async function generateBusinessContent(requirements) {
     };
 }
 async function customizeDesign(requirements) {
-    // Design customization based on brand personality
     const designThemes = {
         'professional': {
             colors: { primary: '#1a1a1a', secondary: '#f5f5f5', accent: '#666666' },
@@ -254,7 +235,7 @@ async function customizeDesign(requirements) {
             typography: { heading: 'Times New Roman', body: 'Times New Roman' }
         }
     };
-    const theme = designThemes['elegant']; // Default to elegant theme
+    const theme = designThemes['elegant'];
     return {
         ...theme,
         layout: 'single-page',
@@ -263,7 +244,6 @@ async function customizeDesign(requirements) {
     };
 }
 function generatePreviewHTML(template, content, design) {
-    // Generate HTML preview for the website
     return `
     <!DOCTYPE html>
     <html lang="en">
@@ -302,7 +282,6 @@ function generatePreviewHTML(template, content, design) {
   `;
 }
 async function getFilteredTemplates(filters) {
-    // Return filtered template list
     return [
         {
             id: 'luxury-professional',
@@ -321,7 +300,6 @@ async function getFilteredTemplates(filters) {
     ];
 }
 async function applyCustomizations(website, modifications) {
-    // Apply customization changes
     const updatedDesign = { ...website.design, ...modifications.colors, ...modifications.typography };
     const updatedContent = { ...website.content, ...modifications.content };
     return {
@@ -331,14 +309,13 @@ async function applyCustomizations(website, modifications) {
     };
 }
 async function deployWebsite(website, domainPreferences) {
-    // Website deployment logic
     const deploymentId = `deploy_${Date.now()}`;
     const url = domainPreferences?.customDomain || `${website.id}.sselfie.app`;
-    // Simulate deployment process
     return {
         id: deploymentId,
         url: `https://${url}`,
-        duration: 45 // seconds
+        duration: 45
     };
 }
 export default router;
+//# sourceMappingURL=victoria-website.js.map

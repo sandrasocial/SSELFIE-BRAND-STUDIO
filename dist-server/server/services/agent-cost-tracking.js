@@ -1,12 +1,9 @@
-import { db } from '../drizzle';
-import { agentCostTracking, agentBudgets } from '../../shared/schema';
+import { db } from '../drizzle.js';
+import { agentCostTracking, agentBudgets } from '../../shared/schema.js';
 import { eq, and, gte, sql, sum } from 'drizzle-orm';
 export class AgentCostTrackingService {
-    // Track API usage and costs for Sandra's Empire Control
     static async trackAgentUsage(userId, agentId, conversationId, tokensUsed, taskType) {
-        // Estimate cost based on Claude API pricing (rough calculation)
-        // Input tokens: ~$0.015 per 1K tokens, Output tokens: ~$0.075 per 1K tokens
-        const estimatedCost = (tokensUsed * 0.000025); // Conservative estimate
+        const estimatedCost = (tokensUsed * 0.000025);
         try {
             await db.insert(agentCostTracking).values({
                 userId,
@@ -16,23 +13,19 @@ export class AgentCostTrackingService {
                 estimatedCost: estimatedCost.toFixed(4),
                 taskType
             });
-            // Check budget limits and update current spend
             const budgetCheck = await this.checkBudgetLimits(userId, agentId, estimatedCost);
-            // Update current spend in budget if exists
             await this.updateBudgetSpend(userId, agentId, estimatedCost);
             return budgetCheck;
         }
         catch (error) {
             console.error('❌ Cost tracking failed:', error);
-            return { shouldPause: false, remaining: 1000 }; // Fail-safe to allow operations
+            return { shouldPause: false, remaining: 1000 };
         }
     }
-    // Check if agent should be paused due to budget limits
     static async checkBudgetLimits(userId, agentId, newCost) {
         try {
             const today = new Date();
             today.setHours(0, 0, 0, 0);
-            // Check daily budget for specific agent
             const agentBudget = await db.select().from(agentBudgets)
                 .where(and(eq(agentBudgets.userId, userId), eq(agentBudgets.agentId, agentId), eq(agentBudgets.budgetType, 'daily'), eq(agentBudgets.isActive, true))).limit(1);
             if (agentBudget.length > 0) {
@@ -65,7 +58,6 @@ export class AgentCostTrackingService {
                     currentSpend: newTotal
                 };
             }
-            // Check global daily budget if no agent-specific budget
             const globalBudget = await db.select().from(agentBudgets)
                 .where(and(eq(agentBudgets.userId, userId), sql `${agentBudgets.agentId} IS NULL`, eq(agentBudgets.budgetType, 'daily'), eq(agentBudgets.isActive, true))).limit(1);
             if (globalBudget.length > 0) {
@@ -88,24 +80,21 @@ export class AgentCostTrackingService {
                     currentSpend: newTotal
                 };
             }
-            return { shouldPause: false, remaining: 1000 }; // Default high limit if no budget set
+            return { shouldPause: false, remaining: 1000 };
         }
         catch (error) {
             console.error('❌ Budget check failed:', error);
-            return { shouldPause: false, remaining: 1000 }; // Fail-safe
+            return { shouldPause: false, remaining: 1000 };
         }
     }
-    // Update budget spend after tracking
     static async updateBudgetSpend(userId, agentId, cost) {
         try {
-            // Update agent-specific budget
             await db.update(agentBudgets)
                 .set({
                 currentSpend: sql `${agentBudgets.currentSpend} + ${cost}`,
                 updatedAt: new Date()
             })
                 .where(and(eq(agentBudgets.userId, userId), eq(agentBudgets.agentId, agentId), eq(agentBudgets.budgetType, 'daily'), eq(agentBudgets.isActive, true)));
-            // Update global budget as well
             await db.update(agentBudgets)
                 .set({
                 currentSpend: sql `${agentBudgets.currentSpend} + ${cost}`,
@@ -117,7 +106,6 @@ export class AgentCostTrackingService {
             console.error('❌ Budget update failed:', error);
         }
     }
-    // Get cost summary for Sandra's dashboard
     static async getCostSummary(userId, timeframe = 'today') {
         try {
             const now = new Date();
@@ -139,7 +127,6 @@ export class AgentCostTrackingService {
                     startDate = new Date(now);
                     startDate.setHours(0, 0, 0, 0);
             }
-            // Get total costs by agent
             const costs = await db
                 .select({
                 agentId: agentCostTracking.agentId,
@@ -150,7 +137,6 @@ export class AgentCostTrackingService {
                 .from(agentCostTracking)
                 .where(and(eq(agentCostTracking.userId, userId), gte(agentCostTracking.date, startDate)))
                 .groupBy(agentCostTracking.agentId);
-            // Get budget information
             const budgets = await db.select().from(agentBudgets)
                 .where(and(eq(agentBudgets.userId, userId), eq(agentBudgets.isActive, true)));
             const totalCost = costs.reduce((sum, cost) => sum + parseFloat(cost.totalCost || '0'), 0);
@@ -179,23 +165,20 @@ export class AgentCostTrackingService {
             };
         }
     }
-    // Create default budgets for new admin users
     static async createDefaultBudgets(userId) {
         try {
-            // Create daily global budget: €10 per day (reasonable for AI operations)
             await db.insert(agentBudgets).values({
                 userId,
-                agentId: null, // Global budget
+                agentId: null,
                 budgetType: 'daily',
                 budgetLimit: '10.00',
                 currentSpend: '0.00',
                 isActive: true,
                 alertThreshold: 80
             });
-            // Create monthly global budget: €200 per month
             await db.insert(agentBudgets).values({
                 userId,
-                agentId: null, // Global budget
+                agentId: null,
                 budgetType: 'monthly',
                 budgetLimit: '200.00',
                 currentSpend: '0.00',
@@ -208,7 +191,6 @@ export class AgentCostTrackingService {
             console.error('❌ Failed to create default budgets:', error);
         }
     }
-    // Reset daily budgets (should be called by cron job)
     static async resetDailyBudgets() {
         try {
             await db.update(agentBudgets)
@@ -224,10 +206,8 @@ export class AgentCostTrackingService {
             console.error('❌ Failed to reset daily budgets:', error);
         }
     }
-    // Emergency stop all agents due to budget
     static async emergencyStopAllAgents(userId, reason) {
         try {
-            // Deactivate all budgets to force stop
             await db.update(agentBudgets)
                 .set({
                 isActive: false,
@@ -243,3 +223,4 @@ export class AgentCostTrackingService {
         }
     }
 }
+//# sourceMappingURL=agent-cost-tracking.js.map

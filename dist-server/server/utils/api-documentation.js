@@ -1,8 +1,4 @@
-/**
- * API Documentation System
- * Generates and maintains comprehensive API documentation
- */
-import { Logger } from './logger';
+import { Logger } from './logger.js';
 export class APIDocumentationSystem {
     logger;
     endpoints;
@@ -16,9 +12,6 @@ export class APIDocumentationSystem {
         this.examples = new Map();
         this._isEnabled = true;
     }
-    /**
-     * Register an API endpoint
-     */
     registerEndpoint(endpoint) {
         if (!this._isEnabled) {
             return;
@@ -27,9 +20,6 @@ export class APIDocumentationSystem {
         this.endpoints.set(key, endpoint);
         this.logger.debug('API endpoint registered', { key, endpoint: endpoint.path });
     }
-    /**
-     * Register a schema
-     */
     registerSchema(name, schema) {
         if (!this._isEnabled) {
             return;
@@ -37,9 +27,6 @@ export class APIDocumentationSystem {
         this.schemas.set(name, schema);
         this.logger.debug('Schema registered', { name });
     }
-    /**
-     * Register an example
-     */
     registerExample(name, example) {
         if (!this._isEnabled) {
             return;
@@ -47,9 +34,6 @@ export class APIDocumentationSystem {
         this.examples.set(name, example);
         this.logger.debug('Example registered', { name });
     }
-    /**
-     * Generate comprehensive API documentation
-     */
     generateDocumentation() {
         const timestamp = new Date().toISOString();
         return {
@@ -87,40 +71,22 @@ export class APIDocumentationSystem {
             lastGenerated: timestamp,
         };
     }
-    /**
-     * Get endpoint documentation
-     */
     getEndpointDocumentation(method, path) {
         const key = `${method.toUpperCase()}:${path}`;
         return this.endpoints.get(key) || null;
     }
-    /**
-     * Get all endpoints by tag
-     */
     getEndpointsByTag(tag) {
         return Array.from(this.endpoints.values()).filter(endpoint => endpoint.tags.includes(tag));
     }
-    /**
-     * Get all endpoints by method
-     */
     getEndpointsByMethod(method) {
         return Array.from(this.endpoints.values()).filter(endpoint => endpoint.method.toUpperCase() === method.toUpperCase());
     }
-    /**
-     * Get all endpoints by version
-     */
     getEndpointsByVersion(version) {
         return Array.from(this.endpoints.values()).filter(endpoint => endpoint.version === version);
     }
-    /**
-     * Get deprecated endpoints
-     */
     getDeprecatedEndpoints() {
         return Array.from(this.endpoints.values()).filter(endpoint => endpoint.deprecated);
     }
-    /**
-     * Generate OpenAPI specification
-     */
     generateOpenAPISpec() {
         const doc = this.generateDocumentation();
         return {
@@ -157,9 +123,6 @@ export class APIDocumentationSystem {
             },
         };
     }
-    /**
-     * Generate paths for OpenAPI spec
-     */
     generatePaths() {
         const paths = {};
         for (const endpoint of this.endpoints.values()) {
@@ -217,9 +180,6 @@ export class APIDocumentationSystem {
         }
         return paths;
     }
-    /**
-     * Generate tags for OpenAPI spec
-     */
     generateTags() {
         const tagSet = new Set();
         for (const endpoint of this.endpoints.values()) {
@@ -232,9 +192,6 @@ export class APIDocumentationSystem {
             description: this.getTagDescription(tag),
         }));
     }
-    /**
-     * Get tag description
-     */
     getTagDescription(tag) {
         const descriptions = {
             'auth': 'Authentication and user management endpoints',
@@ -248,18 +205,12 @@ export class APIDocumentationSystem {
         };
         return descriptions[tag] || `Endpoints related to ${tag}`;
     }
-    /**
-     * Get parameter location
-     */
     getParameterLocation(name, path) {
         if (path.includes(`{${name}}`)) {
             return 'path';
         }
         return 'query';
     }
-    /**
-     * Get changelog
-     */
     getChangelog() {
         return [
             {
@@ -275,9 +226,6 @@ export class APIDocumentationSystem {
             },
         ];
     }
-    /**
-     * Generate API documentation HTML
-     */
     generateHTMLDocumentation() {
         const doc = this.generateDocumentation();
         return `
@@ -365,60 +313,34 @@ export class APIDocumentationSystem {
 </html>
     `;
     }
-    /**
-     * Generate API documentation JSON
-     */
     generateJSONDocumentation() {
         return JSON.stringify(this.generateDocumentation(), null, 2);
     }
-    /**
-     * Generate API documentation YAML
-     */
     generateYAMLDocumentation() {
-        // This would convert the documentation to YAML format
-        // For now, return a placeholder
         return '# API Documentation YAML\n# This would contain the full YAML documentation';
     }
-    /**
-     * Get endpoint count
-     */
     getEndpointCount() {
         return this.endpoints.size;
     }
-    /**
-     * Get schema count
-     */
     getSchemaCount() {
         return this.schemas.size;
     }
-    /**
-     * Get example count
-     */
     getExampleCount() {
         return this.examples.size;
     }
-    /**
-     * Clear all documentation
-     */
     clearDocumentation() {
         this.endpoints.clear();
         this.schemas.clear();
         this.examples.clear();
         this.logger.info('API documentation cleared');
     }
-    /**
-     * Enable/disable documentation system
-     */
     setEnabled(enabled) {
         this._isEnabled = enabled;
         this.logger.info(`API documentation system ${enabled ? 'enabled' : 'disabled'}`);
     }
-    /**
-     * Check if documentation system is enabled
-     */
     isEnabled() {
         return this._isEnabled;
     }
 }
-// Export singleton instance
 export const apiDocumentationSystem = new APIDocumentationSystem();
+//# sourceMappingURL=api-documentation.js.map

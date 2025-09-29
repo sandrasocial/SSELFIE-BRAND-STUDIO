@@ -1,66 +1,48 @@
-/**
- * Input Validator
- * Comprehensive input validation and sanitization
- */
-import { Logger } from './logger';
+import { Logger } from './logger.js';
 export class InputValidator {
     logger;
     constructor() {
         this.logger = new Logger('InputValidator');
     }
-    /**
-     * Validate a single value against rules
-     */
     validate(value, rules, fieldName = 'field') {
         const errors = [];
         let sanitizedValue = value;
-        // Check if required
         if (rules.required && (value === undefined || value === null || value === '')) {
             errors.push(`${fieldName} is required`);
             return { isValid: false, errors, sanitizedValue };
         }
-        // Skip validation if value is empty and not required
         if (!rules.required && (value === undefined || value === null || value === '')) {
             return { isValid: true, errors: [], sanitizedValue };
         }
-        // Type validation
         if (rules.type) {
             const typeError = this.validateType(value, rules.type, fieldName);
             if (typeError) {
                 errors.push(typeError);
             }
         }
-        // String-specific validations
         if (typeof value === 'string') {
-            // Length validations
             if (rules.minLength !== undefined && value.length < rules.minLength) {
                 errors.push(`${fieldName} must be at least ${rules.minLength} characters long`);
             }
             if (rules.maxLength !== undefined && value.length > rules.maxLength) {
                 errors.push(`${fieldName} must be no more than ${rules.maxLength} characters long`);
             }
-            // Pattern validation
             if (rules.pattern && !rules.pattern.test(value)) {
                 errors.push(`${fieldName} format is invalid`);
             }
-            // Email validation
             if (rules.type === 'email' && !this.isValidEmail(value)) {
                 errors.push(`${fieldName} must be a valid email address`);
             }
-            // URL validation
             if (rules.type === 'url' && !this.isValidUrl(value)) {
                 errors.push(`${fieldName} must be a valid URL`);
             }
-            // UUID validation
             if (rules.type === 'uuid' && !this.isValidUuid(value)) {
                 errors.push(`${fieldName} must be a valid UUID`);
             }
-            // Sanitization
             if (rules.sanitize) {
                 sanitizedValue = this.sanitizeString(value);
             }
         }
-        // Number-specific validations
         if (typeof value === 'number') {
             if (rules.min !== undefined && value < rules.min) {
                 errors.push(`${fieldName} must be at least ${rules.min}`);
@@ -69,7 +51,6 @@ export class InputValidator {
                 errors.push(`${fieldName} must be no more than ${rules.max}`);
             }
         }
-        // Array-specific validations
         if (Array.isArray(value)) {
             if (rules.minLength !== undefined && value.length < rules.minLength) {
                 errors.push(`${fieldName} must have at least ${rules.minLength} items`);
@@ -78,11 +59,9 @@ export class InputValidator {
                 errors.push(`${fieldName} must have no more than ${rules.maxLength} items`);
             }
         }
-        // Enum validation
         if (rules.enum && !rules.enum.includes(value)) {
             errors.push(`${fieldName} must be one of: ${rules.enum.join(', ')}`);
         }
-        // Custom validation
         if (rules.custom) {
             const customResult = rules.custom(value);
             if (customResult !== true) {
@@ -95,9 +74,6 @@ export class InputValidator {
             sanitizedValue
         };
     }
-    /**
-     * Validate an object against a schema
-     */
     validateObject(obj, schema) {
         const errors = [];
         const sanitizedObj = {};
@@ -114,22 +90,14 @@ export class InputValidator {
             sanitizedValue: sanitizedObj
         };
     }
-    /**
-     * Sanitize HTML content
-     */
     sanitizeHtml(html) {
-        // Basic HTML sanitization - in production, use a library like DOMPurify
         return html
             .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
             .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '')
             .replace(/on\w+="[^"]*"/gi, '')
             .replace(/javascript:/gi, '');
     }
-    /**
-     * Sanitize SQL input
-     */
     sanitizeSql(input) {
-        // Basic SQL injection prevention
         return input
             .replace(/['"\\]/g, '')
             .replace(/--/g, '')
@@ -137,13 +105,9 @@ export class InputValidator {
             .replace(/\*\//g, '')
             .replace(/;/g, '');
     }
-    /**
-     * Validate and sanitize user input
-     */
     validateUserInput(input, schema) {
         const result = this.validateObject(input, schema);
         if (result.isValid && result.sanitizedValue) {
-            // Additional security sanitization
             for (const [key, value] of Object.entries(result.sanitizedValue)) {
                 if (typeof value === 'string') {
                     result.sanitizedValue[key] = this.sanitizeString(value);
@@ -152,9 +116,6 @@ export class InputValidator {
         }
         return result;
     }
-    /**
-     * Validate API request body
-     */
     validateRequestBody(body, schema) {
         if (!body || typeof body !== 'object') {
             return {
@@ -164,15 +125,9 @@ export class InputValidator {
         }
         return this.validateUserInput(body, schema);
     }
-    /**
-     * Validate query parameters
-     */
     validateQueryParams(params, schema) {
         return this.validateUserInput(params, schema);
     }
-    /**
-     * Validate file upload
-     */
     validateFileUpload(file, options = {}) {
         const errors = [];
         if (!file) {
@@ -232,7 +187,7 @@ export class InputValidator {
     sanitizeString(str) {
         return str
             .trim()
-            .replace(/[<>]/g, '') // Remove potential HTML tags
+            .replace(/[<>]/g, '')
             .replace(/[&<>"']/g, (match) => {
             const escapeMap = {
                 '&': '&amp;',
@@ -245,5 +200,5 @@ export class InputValidator {
         });
     }
 }
-// Export singleton instance
 export const inputValidator = new InputValidator();
+//# sourceMappingURL=input-validator.js.map

@@ -3,7 +3,7 @@ export class InstagramGrowthStrategy {
     targetFollowers = 1000000;
     timeframe = "2026";
     calculateMonthlyGrowthNeeded() {
-        const monthsRemaining = 24; // Assuming 2-year timeline
+        const monthsRemaining = 24;
         const followersNeeded = this.targetFollowers - this.currentFollowers;
         return Math.ceil(followersNeeded / monthsRemaining);
     }
@@ -33,3 +33,4 @@ export class InstagramGrowthStrategy {
         };
     }
 }
+//# sourceMappingURL=SocialMediaStrategy.js.map

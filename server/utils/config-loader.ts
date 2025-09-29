@@ -3,7 +3,7 @@
  * Centralized configuration loading with validation
  */
 
-import { configManager } from './config-manager.js';
+import { configManager, type ConfigPath } from './config-manager.js';
 import { validateEnvironment } from './env-validator.js';
 import { Logger } from './logger.js';
 
@@ -40,14 +40,14 @@ export async function loadApplicationConfig() {
 /**
  * Get configuration value with fallback
  */
-export function getConfigValue<T>(path: string, defaultValue?: T): T {
+export function getConfigValue<T>(path: ConfigPath, defaultValue?: T): T {
   return configManager.get(path, defaultValue);
 }
 
 /**
  * Check if configuration value exists
  */
-export function hasConfigValue(path: string): boolean {
+export function hasConfigValue(path: ConfigPath): boolean {
   return configManager.has(path);
 }
 

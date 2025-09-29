@@ -1,9 +1,9 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { StackAuth } from '@stackframe/stack';
+import { StackAuth } from '../../../types/stackframe.js';
 import { z } from 'zod';
 import { drizzle } from 'drizzle-orm/neon-http';
 import { neon } from '@neondatabase/serverless';
-import { mayaImages, insertMayaImagesSchema } from '../../../shared/schema-maya';
+import { mayaImages } from '../../../shared/schema-maya.js';
 import { eq, and, desc, asc } from 'drizzle-orm';
 
 // Initialize database connection
@@ -18,7 +18,12 @@ const stackAuth = new StackAuth({
 });
 
 // Request validation schemas
-const createImageSchema = insertMayaImagesSchema;
+import { createInsertSchema } from 'drizzle-zod';
+
+const createImageSchema = createInsertSchema(mayaImages).required({
+  userId: true,
+  url: true
+});
 
 const updateImageSchema = z.object({
   category: z.string().optional(),
@@ -27,6 +32,7 @@ const updateImageSchema = z.object({
   isArchived: z.boolean().optional(),
   rating: z.number().min(1).max(5).optional(),
   metadata: z.record(z.any()).optional(),
+  viewCount: z.number().optional(),
 });
 
 const imageQuerySchema = z.object({
@@ -48,6 +54,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     const userId = user.id;
+    if (!userId) {
+      return res.status(400).json({ error: 'Invalid user ID' });
+    }
 
     switch (req.method) {
       case 'GET':
@@ -73,40 +82,32 @@ async function handleGetImages(req: VercelRequest, res: VercelResponse, userId: 
     const queryParams = imageQuerySchema.parse(req.query);
     const { category, isFavorite, isArchived, page, limit, sortBy, sortOrder } = queryParams;
     
-    let query = db.select().from(mayaImages).where(eq(mayaImages.userId, userId));
+    let conditions = [eq(mayaImages.userId, userId)];
     
     // Apply filters
     if (category) {
-      query = query.where(and(
-        eq(mayaImages.userId, userId),
-        eq(mayaImages.category, category)
-      ));
+      conditions.push(eq(mayaImages.category, category));
     }
     
     if (isFavorite !== undefined) {
-      query = query.where(and(
-        eq(mayaImages.userId, userId),
-        eq(mayaImages.isFavorite, isFavorite)
-      ));
+      conditions.push(eq(mayaImages.isFavorite, isFavorite));
     }
     
     if (isArchived !== undefined) {
-      query = query.where(and(
-        eq(mayaImages.userId, userId),
-        eq(mayaImages.isArchived, isArchived)
-      ));
+      conditions.push(eq(mayaImages.isArchived, isArchived));
     }
+    
+    let query = db.select().from(mayaImages).where(and(...conditions));
     
     // Apply sorting
     const sortColumn = sortBy === 'created' ? mayaImages.createdAt :
                       sortBy === 'rating' ? mayaImages.rating :
                       mayaImages.viewCount;
     
-    query = query.orderBy(sortOrder === 'desc' ? desc(sortColumn) : asc(sortColumn));
-    
-    // Apply pagination
-    const offset = (page - 1) * limit;
-    query = query.limit(limit).offset(offset);
+    const finalQuery = query
+      .orderBy(sortOrder === 'desc' ? desc(sortColumn) : asc(sortColumn))
+      .limit(limit)
+      .offset((page - 1) * limit);
     
     const images = await query;
     

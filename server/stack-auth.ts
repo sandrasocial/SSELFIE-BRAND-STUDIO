@@ -67,6 +67,32 @@ function hashToken(token: string): string {
   return hash.toString();
 }
 
+export interface AuthInfo {
+  // Core JWT claims
+  sub?: string;
+  id?: string;
+  user_id?: string;
+
+  // Email fields
+  email?: string;
+  primary_email?: string;
+  primaryEmail?: string;
+  email_address?: string;
+  user_email?: string;
+
+  // Name fields
+  name?: string;
+  displayName?: string;
+  display_name?: string;
+  given_name?: string;
+  full_name?: string;
+
+  // Image fields
+  profileImageUrl?: string;
+  profile_image_url?: string;
+  avatar_url?: string;
+}
+
 export interface StackAuthUser {
   id: string;
   primaryEmail?: string;
@@ -238,19 +264,19 @@ export async function verifyStackAuthToken(req: Request, res: Response, next: Ne
     console.log('🔍 Stack Auth: Full JWT payload:', JSON.stringify(userInfo, null, 2));
     
     // Extract user information with multiple field name attempts and enhanced debugging
-    const userInfo = authInfo as AuthInfo;
-    const userId = userInfo?.sub || userInfo?.user_id || userInfo?.id || '';
-    const userEmail = userInfo?.email || userInfo?.primary_email || userInfo?.primaryEmail || userInfo?.email_address || userInfo?.user_email || '';
-    const userName = userInfo?.displayName || userInfo?.display_name || userInfo?.name || userInfo?.given_name || userInfo?.full_name || 'User';
+    const jwtUserInfo = userInfo as AuthInfo;
+    const userId = jwtUserInfo?.sub || jwtUserInfo?.user_id || jwtUserInfo?.id || '';
+    const userEmail = jwtUserInfo?.email || jwtUserInfo?.primary_email || jwtUserInfo?.primaryEmail || jwtUserInfo?.email_address || jwtUserInfo?.user_email || '';
+    const userName = jwtUserInfo?.displayName || jwtUserInfo?.display_name || jwtUserInfo?.name || jwtUserInfo?.given_name || jwtUserInfo?.full_name || 'User';
     
     // 🔍 ENHANCED DEBUGGING: Log all available fields to identify email field
     console.log('🔍 Stack Auth: Full JWT user info keys:', Object.keys(userInfo));
     console.log('🔍 Stack Auth: Email field search:', {
-      email: userInfo.email,
-      primary_email: userInfo.primary_email, 
-      primaryEmail: userInfo.primaryEmail,
-      email_address: userInfo.email_address,
-      user_email: userInfo.user_email
+      email: jwtUserInfo.email,
+      primary_email: jwtUserInfo.primary_email, 
+      primaryEmail: jwtUserInfo.primaryEmail,
+      email_address: jwtUserInfo.email_address,
+      user_email: jwtUserInfo.user_email
     });
     
     console.log('📊 Stack Auth: Extracted user info:', {
@@ -288,7 +314,7 @@ export async function verifyStackAuthToken(req: Request, res: Response, next: Ne
         email: userEmail || null,
         firstName: userName?.split(' ')[0] || null,
         lastName: userName?.split(' ').slice(1).join(' ') || null,
-        profileImageUrl: userInfo.profileImageUrl || userInfo.profile_image_url || userInfo.avatar_url || null,
+        profileImageUrl: jwtUserInfo.profileImageUrl || jwtUserInfo.profile_image_url || jwtUserInfo.avatar_url || null,
         plan: null, // New users have no plan until they subscribe
         monthlyGenerationLimit: 0, // No generations until they subscribe
         mayaAiAccess: false // No AI access until they subscribe

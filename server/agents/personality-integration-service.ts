@@ -5,14 +5,23 @@
  */
 
 import { PURE_PERSONALITIES, PersonalityManager } from './personalities/personality-config.js';
+import { MayaPersonality } from './personalities/personality-types.js';
 
-interface PersonalityContext {
+export interface PersonalityContext {
   agentId: string;
   name: string;
   mission: string;
   capabilities: string[];
   adminPrivileges: boolean;
   enhancedPrompt: string;
+}
+
+export interface VoicePatterns {
+  analysisMode: string[];
+  executionMode: string[];
+  samplePhrases: string[];
+  characteristics: string[];
+  approach: string;
 }
 
 export class PersonalityIntegrationService {
@@ -31,9 +40,9 @@ export class PersonalityIntegrationService {
    * ELIMINATE GENERIC ROUTING: Create personality-first agent context
    */
   createPersonalityContext(agentId: string, isAdminRequest: boolean = false): PersonalityContext {
-    const agentPersonality = PURE_PERSONALITIES[agentId as keyof typeof PURE_PERSONALITIES];
+    const agentPersonality = PURE_PERSONALITIES[agentId as keyof typeof PURE_PERSONALITIES] as MayaPersonality;
     const agentName = agentPersonality?.name || agentId;
-    const mission = (agentPersonality as any)?.identity?.mission || (agentPersonality as any)?.mission || (agentPersonality as any)?.description || 'Expert assistance';
+    const mission = agentPersonality?.identity?.mission || agentPersonality?.description || 'Expert assistance';
 
     console.log(`🤖 PERSONALITY ACTIVATION: ${agentName.toUpperCase()}`);
     console.log(`🎯 Mission: ${mission}`);
@@ -103,9 +112,14 @@ export class PersonalityIntegrationService {
    * VALIDATE AGENT PERSONALITY: Ensure personality is properly loaded
    */
   validatePersonality(agentId: string): boolean {
-    const personality = PURE_PERSONALITIES[agentId as keyof typeof PURE_PERSONALITIES];
+    const personality = PURE_PERSONALITIES[agentId as keyof typeof PURE_PERSONALITIES] as MayaPersonality;
     if (!personality) {
       console.error(`❌ PERSONALITY ERROR: Agent ${agentId} has no personality definition`);
+      return false;
+    }
+    
+    if (!personality.name) {
+      console.error(`❌ PERSONALITY ERROR: Agent ${agentId} has no name defined`);
       return false;
     }
     
@@ -116,21 +130,16 @@ export class PersonalityIntegrationService {
   /**
    * GET AGENT VOICE PATTERNS: Extract natural communication patterns for personality consistency
    */
-  getAgentVoicePatterns(agentId: string): any {
-    const personality = PURE_PERSONALITIES[agentId as keyof typeof PURE_PERSONALITIES];
+  getAgentVoicePatterns(agentId: string): VoicePatterns | null {
+    const personality = PURE_PERSONALITIES[agentId as keyof typeof PURE_PERSONALITIES] as MayaPersonality;
     if (!personality) return null;
     
-    // Handle different personality structures safely
-    const voice = personality.voice as any;
-    const traits = (personality as any).traits;
-    const workStyle = (personality as any).workStyle;
-    
     return {
-      analysisMode: voice?.analysisMode?.patterns || [],
-      executionMode: voice?.executionMode?.patterns || [],
-      samplePhrases: voice?.samplePhrases || voice?.examples || [],
-      characteristics: voice?.characteristics || [],
-      approach: traits?.approach || workStyle?.approach || 'Professional and direct'
+      analysisMode: personality.voice?.analysisMode?.patterns || [],
+      executionMode: personality.voice?.executionMode?.patterns || [],
+      samplePhrases: personality.voice?.samplePhrases || personality.voice?.examples || [],
+      characteristics: personality.voice?.characteristics || [],
+      approach: personality.traits?.approach || personality.workStyle?.approach || 'Professional and direct'
     };
   }
 }

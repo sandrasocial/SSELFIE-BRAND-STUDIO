@@ -1,14 +1,11 @@
-import { requireStackAuth } from '../stack-auth';
-// Victoria AI Service Layer - Missing component identified by Zara's audit
+import { requireStackAuth } from '../stack-auth.js';
 export function registerVictoriaService(app) {
-    // Goal Analysis Algorithm - Generate website goals from brand data
     app.post('/api/victoria/analyze-goals', requireStackAuth, async (req, res) => {
         try {
             const { brandData } = req.body;
             if (!brandData) {
                 return res.status(400).json({ error: 'Brand data required' });
             }
-            // Goal analysis algorithm based on business type and target audience
             const goals = analyzeBusinessGoals(brandData);
             res.json({
                 success: true,
@@ -21,7 +18,6 @@ export function registerVictoriaService(app) {
             res.status(500).json({ error: 'Failed to analyze goals' });
         }
     });
-    // Website Structure Generation - Create page structure from brand data
     app.post('/api/victoria/generate-structure', requireStackAuth, async (req, res) => {
         try {
             const { brandData, selectedImages, selectedFlatlays } = req.body;
@@ -46,7 +42,6 @@ export function registerVictoriaService(app) {
             res.status(500).json({ error: 'Failed to generate structure' });
         }
     });
-    // Content Generation - Generate page content using brand voice
     app.post('/api/victoria/generate-content', requireStackAuth, async (req, res) => {
         try {
             const { brandData, pageType, sectionType } = req.body;
@@ -61,7 +56,6 @@ export function registerVictoriaService(app) {
             res.status(500).json({ error: 'Failed to generate content' });
         }
     });
-    // Design Preferences Analysis - New endpoint from Zara's audit
     app.post('/api/victoria/analyze-design', requireStackAuth, async (req, res) => {
         try {
             const { brandData } = req.body;
@@ -85,7 +79,6 @@ function analyzeBusinessGoals(brandData) {
     const targetAudience = brandData.targetAudience?.toLowerCase() || '';
     let primaryGoals = [];
     let secondaryGoals = [];
-    // Business type analysis
     if (businessType.includes('coach') || businessType.includes('consultant')) {
         primaryGoals = ['lead_generation', 'credibility_building', 'service_showcase'];
         secondaryGoals = ['testimonial_collection', 'content_marketing', 'booking_system'];
@@ -199,7 +192,6 @@ function generateWebsiteStructure({ brandData, selectedImages, selectedFlatlays 
 }
 function generateHomeSections(brandData, selectedImages, selectedFlatlays, focus) {
     const sections = [];
-    // Hero section with primary image
     if (selectedImages.length > 0) {
         sections.push({
             type: 'hero',
@@ -212,7 +204,6 @@ function generateHomeSections(brandData, selectedImages, selectedFlatlays, focus
             }
         });
     }
-    // Editorial break with flatlay
     if (selectedFlatlays.length > 0) {
         sections.push({
             type: 'editorial-break',
@@ -221,7 +212,6 @@ function generateHomeSections(brandData, selectedImages, selectedFlatlays, focus
             }
         });
     }
-    // Services overview
     sections.push({
         type: 'services',
         content: {
@@ -229,7 +219,6 @@ function generateHomeSections(brandData, selectedImages, selectedFlatlays, focus
             services: generateServices(brandData)
         }
     });
-    // About preview with image
     if (selectedImages.length > 1) {
         sections.push({
             type: 'about-me',
@@ -245,7 +234,6 @@ function generateHomeSections(brandData, selectedImages, selectedFlatlays, focus
 }
 function generateAboutSections(brandData, selectedImages, focus) {
     const sections = [];
-    // Hero image
     if (selectedImages.length > 0) {
         sections.push({
             type: 'hero',
@@ -256,7 +244,6 @@ function generateAboutSections(brandData, selectedImages, focus) {
             }
         });
     }
-    // Story content
     sections.push({
         type: 'text-content',
         content: {
@@ -264,7 +251,6 @@ function generateAboutSections(brandData, selectedImages, focus) {
             content: generateAboutStory(brandData)
         }
     });
-    // Editorial spread with multiple images
     if (selectedImages.length > 2) {
         sections.push({
             type: 'editorial-spread',
@@ -358,7 +344,6 @@ Through years of experience, I've developed an approach that combines ${brandDat
 
 Whether you're just starting out or looking to take your journey to the next level, I'm here to guide you every step of the way.`;
 }
-// Design Preferences Analysis - Core missing functionality from Zara's audit
 function analyzeDesignPreferences(brandData) {
     const preferences = {
         stylePreference: brandData.stylePreference || 'editorial-luxury',
@@ -366,7 +351,6 @@ function analyzeDesignPreferences(brandData) {
         typographyStyle: brandData.typographyStyle || 'times-editorial',
         designPersonality: brandData.designPersonality || 'sophisticated'
     };
-    // Generate CSS variables based on preferences
     const cssVariables = generateDesignTokens(preferences);
     return {
         preferences,
@@ -378,7 +362,6 @@ function analyzeDesignPreferences(brandData) {
 }
 function generateDesignTokens(preferences) {
     const tokens = {};
-    // Typography tokens
     switch (preferences.typographyStyle) {
         case 'times-editorial':
             tokens.primaryFont = '"Times New Roman", Times, serif';
@@ -405,7 +388,6 @@ function generateDesignTokens(preferences) {
             tokens.bodyWeight = '400';
             break;
     }
-    // Color tokens
     switch (preferences.colorScheme) {
         case 'black-white-editorial':
             tokens.primaryColor = '#0a0a0a';
@@ -436,7 +418,6 @@ function generateDesignTokens(preferences) {
             tokens.textSecondary = '#666666';
             break;
     }
-    // Spacing tokens based on style preference
     if (preferences.stylePreference === 'editorial-luxury') {
         tokens.spacingUnit = '2rem';
         tokens.sectionPadding = '6rem';
@@ -524,9 +505,9 @@ function generateDesignPrinciples(preferences) {
     return principles;
 }
 function generatePageContent(brandData, pageType, sectionType) {
-    // This would be enhanced with AI content generation
     return {
         title: `Generated ${sectionType} for ${pageType}`,
         content: `Content generated based on brand data for ${brandData.businessName || 'your business'}`
     };
 }
+//# sourceMappingURL=victoria-service.js.map

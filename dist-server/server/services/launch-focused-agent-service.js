@@ -1,6 +1,5 @@
-import { storage } from '../storage';
-import { SlackNotificationService } from './slack-notification-service';
-// Launch-focused agent intelligence service
+import { storage } from '../storage.js';
+import { SlackNotificationService } from './slack-notification-service.js';
 export class LaunchFocusedAgentService {
     static instance;
     static getInstance() {
@@ -9,15 +8,12 @@ export class LaunchFocusedAgentService {
         }
         return this.instance;
     }
-    // Get real SSELFIE Studio launch metrics
     async getLaunchMetrics() {
         try {
             const users = await storage.getAllUsers();
             const activeSubscriptions = users.filter(u => u.plan && u.plan !== 'free' && u.plan !== 'admin').length;
             const testUsers = users.filter(u => u.plan === 'admin' || u.email?.includes('admin')).length;
-            // Real revenue calculation
-            const monthlyRevenue = activeSubscriptions * 47; // €47 per subscription
-            // Calculate growth metrics
+            const monthlyRevenue = activeSubscriptions * 47;
             const totalUsers = users.length;
             const conversionRate = totalUsers > 0 ? (activeSubscriptions / totalUsers) * 100 : 0;
             return {
@@ -26,10 +22,8 @@ export class LaunchFocusedAgentService {
                 testUsers,
                 monthlyRevenue,
                 conversionRate,
-                // Real generation metrics (you can connect to actual generation data)
                 generationSuccessRate: 96,
                 dailyGenerations: this.estimateDailyGenerations(activeSubscriptions),
-                // Launch readiness metrics
                 launchReadiness: this.calculateLaunchReadiness(totalUsers, activeSubscriptions),
                 nextMilestone: this.getNextMilestone(activeSubscriptions, monthlyRevenue)
             };
@@ -39,17 +33,13 @@ export class LaunchFocusedAgentService {
             return this.getDefaultMetrics();
         }
     }
-    // Estimate daily generations based on active users
     estimateDailyGenerations(activeUsers) {
-        // Average 3-5 generations per active user per day
         return activeUsers * 4;
     }
-    // Calculate launch readiness score
     calculateLaunchReadiness(totalUsers, activeSubscriptions) {
         let score = 0;
         const factors = [];
         const nextSteps = [];
-        // User base evaluation
         if (totalUsers >= 10) {
             score += 20;
             factors.push('✅ Sufficient test user base');
@@ -57,7 +47,6 @@ export class LaunchFocusedAgentService {
         else {
             nextSteps.push('Expand test user base to 10+ users');
         }
-        // Subscription validation
         if (activeSubscriptions > 0) {
             score += 30;
             factors.push('✅ Proven subscription model');
@@ -65,13 +54,10 @@ export class LaunchFocusedAgentService {
         else {
             nextSteps.push('Convert test users to paid subscriptions');
         }
-        // Platform stability (always high for SSELFIE)
         score += 25;
         factors.push('✅ Platform stable and operational');
-        // Content quality (Maya AI system)
         score += 20;
         factors.push('✅ High-quality AI generation system');
-        // Marketing readiness
         if (totalUsers >= 8) {
             score += 5;
             factors.push('✅ Ready for launch marketing');
@@ -81,7 +67,6 @@ export class LaunchFocusedAgentService {
         }
         return { score, factors, nextSteps };
     }
-    // Get next milestone based on current progress
     getNextMilestone(activeSubscriptions, monthlyRevenue) {
         if (activeSubscriptions === 0) {
             return {
@@ -97,7 +82,7 @@ export class LaunchFocusedAgentService {
                 priority: 'high'
             };
         }
-        if (monthlyRevenue < 2350) { // €2,350 = 50 customers
+        if (monthlyRevenue < 2350) {
             return {
                 target: '€2,350 Monthly Revenue',
                 description: '50 customers for strong launch foundation',
@@ -110,7 +95,6 @@ export class LaunchFocusedAgentService {
             priority: 'medium'
         };
     }
-    // Default metrics for error cases
     getDefaultMetrics() {
         return {
             totalUsers: 8,
@@ -132,7 +116,6 @@ export class LaunchFocusedAgentService {
             }
         };
     }
-    // Strategic insight for specific agent
     async getAgentInsight(agentName) {
         const metrics = await this.getLaunchMetrics();
         switch (agentName) {
@@ -154,7 +137,6 @@ export class LaunchFocusedAgentService {
                 };
         }
     }
-    // Elena - Strategic Revenue Insights
     getElenaInsight(metrics) {
         if (metrics.activeSubscriptions === 0) {
             return {
@@ -176,7 +158,6 @@ export class LaunchFocusedAgentService {
             priority: 'medium'
         };
     }
-    // Maya - AI Quality Insights
     getMayaInsight(metrics) {
         return {
             insight: `${metrics.generationSuccessRate}% generation success rate is excellent! Quality is ready for launch.`,
@@ -184,7 +165,6 @@ export class LaunchFocusedAgentService {
             priority: 'medium'
         };
     }
-    // Victoria - Conversion Insights
     getVictoriaInsight(metrics) {
         const conversionRate = metrics.conversionRate;
         if (conversionRate === 0) {
@@ -200,7 +180,6 @@ export class LaunchFocusedAgentService {
             priority: 'medium'
         };
     }
-    // Aria - Brand Insights
     getAriaInsight(metrics) {
         return {
             insight: 'Brand consistency ready for launch. Focus on scaling visual identity.',
@@ -208,7 +187,6 @@ export class LaunchFocusedAgentService {
             priority: 'medium'
         };
     }
-    // Rachel - Messaging Insights
     getRachelInsight(metrics) {
         if (metrics.activeSubscriptions === 0) {
             return {
@@ -223,7 +201,6 @@ export class LaunchFocusedAgentService {
             priority: 'medium'
         };
     }
-    // Send strategic update to Slack (replacing spam with valuable insights)
     async sendStrategicUpdate(agentName) {
         try {
             const insight = await this.getAgentInsight(agentName);
@@ -239,3 +216,4 @@ export class LaunchFocusedAgentService {
     }
 }
 export const launchFocusedAgentService = LaunchFocusedAgentService.getInstance();
+//# sourceMappingURL=launch-focused-agent-service.js.map

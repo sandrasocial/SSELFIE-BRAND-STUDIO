@@ -1,6 +1,4 @@
-// @ts-ignore - node-fetch types may not be available but functionality works
 import fetch from 'node-fetch';
-// Quality presets for different modes
 const QUALITY_PRESETS = {
     preview: {
         maxDurationSeconds: 5,
@@ -15,12 +13,9 @@ const QUALITY_PRESETS = {
         description: 'High-quality production video (30s max, full quality)'
     }
 };
-/**
- * Generate video using Google VEO 3 with enhanced options
- */
 export async function generateVeo3Video(options) {
     const { motionPrompt, mode, audioScript, initImageUrl, userId, aspectRatio = '9:16' } = options;
-    if (!process.env.GOOGLE_API_KEY) {
+    if (!process.env['GOOGLE_API_KEY']) {
         throw new Error('Google VEO 3 not configured: missing GOOGLE_API_KEY');
     }
     const preset = QUALITY_PRESETS[mode];
@@ -31,40 +26,33 @@ export async function generateVeo3Video(options) {
         hasInitImage: !!initImageUrl,
         preset: preset.description
     });
-    // Prepare audio warning if audio script provided but not supported
     let audioWarning;
     if (audioScript) {
         audioWarning = 'Audio script provided but VEO 3 does not currently support direct audio generation. The script has been saved for future reference.';
         console.log('⚠️ VEO 3: Audio script provided but not supported by API', { audioScriptLength: audioScript.length });
     }
-    // Get available VEO 3 models
     const candidateModels = await getAvailableVeo3Models();
-    // Map aspect ratio to Google's expected format
     const aspectMap = {
         '9:16': 'PORTRAIT',
         '16:9': 'LANDSCAPE',
         '1:1': 'SQUARE'
     };
     const mappedAspect = aspectMap[aspectRatio] || aspectRatio;
-    // Prepare the request payload
     const requestPayload = {
-        prompt: { text: motionPrompt.slice(0, 800) }, // Limit prompt length
+        prompt: { text: motionPrompt.slice(0, 800) },
         config: {
             aspectRatio: mappedAspect,
             durationSeconds: preset.maxDurationSeconds,
             ...(mode === 'production' && {
-                // Production-specific settings
                 quality: 'HIGH',
                 frameRate: 30
             }),
             ...(mode === 'preview' && {
-                // Preview-specific settings for faster generation
                 quality: 'MEDIUM',
                 frameRate: 24
             })
         }
     };
-    // Add init image if provided
     if (initImageUrl) {
         requestPayload.config.imageUrl = initImageUrl;
         console.log('🖼️ VEO 3: Using init image for image-to-video generation');
@@ -73,7 +61,6 @@ export async function generateVeo3Video(options) {
         promptPreview: motionPrompt.slice(0, 100) + '...',
         config: requestPayload.config
     });
-    // Try each model until one succeeds
     let lastError = null;
     for (const modelVersion of candidateModels) {
         try {
@@ -94,26 +81,21 @@ export async function generateVeo3Video(options) {
         catch (error) {
             console.error('❌ VEO 3: Model failed', { modelVersion, error: error instanceof Error ? error.message : error });
             lastError = error instanceof Error ? error : new Error(String(error));
-            // If it's a 404 (model not found), try the next model
             if (error instanceof Error && error.message.includes('404')) {
                 continue;
             }
-            // For other errors, fail immediately
             throw error;
         }
     }
     throw new Error(`All VEO 3 models failed. Last error: ${lastError?.message}. Available models: ${candidateModels.join(', ')}`);
 }
-/**
- * Get status of VEO 3 video generation job
- */
 export async function getVeo3Status(jobId, userId) {
-    if (!process.env.GOOGLE_API_KEY) {
+    if (!process.env['GOOGLE_API_KEY']) {
         return { status: 'failed', error: 'Google VEO 3 not configured' };
     }
     try {
         const opName = jobId.startsWith('operations/') ? jobId : `operations/${jobId}`;
-        const url = `https://generativelanguage.googleapis.com/v1beta/${opName}?key=${process.env.GOOGLE_API_KEY}`;
+        const url = `https://generativelanguage.googleapis.com/v1beta/${opName}?key=${process.env['GOOGLE_API_KEY']}`;
         console.log('🔍 VEO 3: Checking status', { jobId: jobId.slice(-20), userId });
         const response = await fetch(url);
         if (!response.ok) {
@@ -131,7 +113,6 @@ export async function getVeo3Status(jobId, userId) {
             };
         }
         if (!result.done) {
-            // Still processing
             const progress = result.metadata?.progressPercent || 0;
             console.log('⏳ VEO 3: Still processing', { progress, jobId: jobId.slice(-20) });
             return {
@@ -140,8 +121,8 @@ export async function getVeo3Status(jobId, userId) {
                 estimatedTime: progress > 50 ? '1-2 minutes remaining' : '2-5 minutes remaining'
             };
         }
-        // Generation completed
-        const videoUrl = result.response?.video?.uri || result.response?.uri || null;
+        const veoResult = result;
+        const videoUrl = veoResult.response?.video?.uri || veoResult.response?.uri || null;
         if (videoUrl) {
             console.log('✅ VEO 3: Generation completed successfully', { jobId: jobId.slice(-20) });
             return {
@@ -152,7 +133,7 @@ export async function getVeo3Status(jobId, userId) {
             };
         }
         else {
-            console.error('❌ VEO 3: No video URL in completed response', result);
+            console.error('❌ VEO 3: No video URL in completed response', veoResult);
             return {
                 status: 'failed',
                 error: 'Generation completed but no video was produced',
@@ -168,25 +149,19 @@ export async function getVeo3Status(jobId, userId) {
         };
     }
 }
-/**
- * Get available VEO 3 model versions
- */
 async function getAvailableVeo3Models() {
-    // Start with explicitly configured model if available
     const candidateModels = [];
     if (process.env.VEO3_MODEL) {
         candidateModels.push(process.env.VEO3_MODEL);
     }
     try {
-        // Try to discover available models
-        const listUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${process.env.GOOGLE_API_KEY}`;
+        const listUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${process.env['GOOGLE_API_KEY']}`;
         const response = await fetch(listUrl);
         if (response.ok) {
             const data = await response.json();
             const veo3Models = (data.models || [])
                 .map((model) => model.name?.split('/').pop())
                 .filter((name) => name && /veo.*3/i.test(name));
-            // Add discovered models that aren't already in the list
             for (const model of veo3Models) {
                 if (!candidateModels.includes(model)) {
                     candidateModels.push(model);
@@ -201,18 +176,13 @@ async function getAvailableVeo3Models() {
     catch (error) {
         console.log('⚠️ VEO 3: Model discovery failed', error instanceof Error ? error.message : error);
     }
-    // Fallback to known VEO 3 model names if discovery fails
     if (candidateModels.length === 0) {
-        candidateModels.push('veo-3.0-generate-001', 'veo-3.0-beta', 'veo-3.0-001', 'veo-2.0-generate-001' // Fallback to VEO 2 if VEO 3 not available
-        );
+        candidateModels.push('veo-3.0-generate-001', 'veo-3.0-beta', 'veo-3.0-001', 'veo-2.0-generate-001');
     }
     return candidateModels;
 }
-/**
- * Start VEO 3 generation with specific model
- */
 async function startVeo3Generation(modelVersion, payload) {
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelVersion}:generateVideo?key=${process.env.GOOGLE_API_KEY}`;
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelVersion}:generateVideo?key=${process.env['GOOGLE_API_KEY']}`;
     const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -226,9 +196,6 @@ async function startVeo3Generation(modelVersion, payload) {
     const jobId = result.name || result.operationId || result.id || `veo3_${Date.now()}`;
     return jobId;
 }
-/**
- * Get estimated completion time based on mode
- */
 function getEstimatedTime(mode) {
     switch (mode) {
         case 'preview':
@@ -239,9 +206,7 @@ function getEstimatedTime(mode) {
             return '2-5 minutes';
     }
 }
-/**
- * Get quality preset information
- */
 export function getQualityPreset(mode) {
     return QUALITY_PRESETS[mode];
 }
+//# sourceMappingURL=veo3.js.map

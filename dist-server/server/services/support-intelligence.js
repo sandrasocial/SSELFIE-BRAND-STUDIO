@@ -1,33 +1,15 @@
-/**
- * SUPPORT INTELLIGENCE SERVICE
- * Phase 2: Give Support Maya access to user data for intelligent assistance
- *
- * Provides user context for support conversations:
- * - Subscription details and plan information
- * - Training status and model availability
- * - Generation history and usage patterns
- * - Error logs and technical context
- */
-import { storage } from '../storage';
+import { storage } from '../storage.js';
 export class SupportIntelligenceService {
-    /**
-     * Get comprehensive user context for support assistance
-     */
     static async getUserSupportContext(userId) {
         try {
             console.log(`🧠 PHASE 2: Gathering support intelligence for user ${userId}`);
-            // Get user basic info
             const user = await storage.getUser(userId);
             if (!user) {
                 throw new Error('User not found');
             }
-            // Get subscription context
             const subscription = await this.getSubscriptionContext(userId, user);
-            // Get training context
             const training = await this.getTrainingContext(userId);
-            // Get usage context
             const usage = await this.getUsageContext(userId);
-            // Get technical context
             const technical = await this.getTechnicalContext(userId);
             const context = {
                 subscription,
@@ -40,25 +22,18 @@ export class SupportIntelligenceService {
         }
         catch (error) {
             console.error('❌ PHASE 2: Error gathering support context:', error);
-            // Return basic context even if there are errors
             return this.getBasicSupportContext();
         }
     }
-    /**
-     * Get subscription and billing context
-     */
     static async getSubscriptionContext(userId, user) {
         try {
-            // Get current subscription plan
             const plan = user.subscriptionPlan || 'sselfie-studio';
             const status = user.subscriptionStatus || 'active';
-            // Get usage information
             const usageInfo = await storage.getUserUsage(userId);
             const generationsUsed = usageInfo?.monthlyGenerationsUsed || 0;
-            // Plan limits (standardized to sselfie-studio)
-            let generationsTotal = 100; // Default sselfie-studio plan
+            let generationsTotal = 100;
             if (user.subscriptionPlan === 'admin' || generationsUsed === -1) {
-                generationsTotal = -1; // Unlimited for admin
+                generationsTotal = -1;
             }
             return {
                 plan: plan,
@@ -80,12 +55,8 @@ export class SupportIntelligenceService {
             };
         }
     }
-    /**
-     * Get training model context
-     */
     static async getTrainingContext(userId) {
         try {
-            // Check if user has a trained model
             const userModel = await storage.getUserModel(userId);
             const hasModel = !!userModel;
             let trainingStatus = 'no_model';
@@ -95,7 +66,6 @@ export class SupportIntelligenceService {
                 trainingStatus = userModel.trainingStatus || 'completed';
                 lastTrainingDate = new Date(userModel.createdAt);
                 modelQuality = userModel.trainingStatus === 'completed' ? 'good' : 'unknown';
-                // Check training status more specifically
                 if (userModel.trainingStatus === 'training') {
                     trainingStatus = 'in_progress';
                 }
@@ -121,19 +91,13 @@ export class SupportIntelligenceService {
             };
         }
     }
-    /**
-     * Get usage patterns and history
-     */
     static async getUsageContext(userId) {
         try {
-            // Get generation history (simplified - use what's available)
             const usageInfo = await storage.getUserUsage(userId);
             const recentGenerations = usageInfo?.monthlyGenerationsUsed || 0;
-            const totalGenerations = usageInfo?.monthlyGenerationsUsed || 0; // Simplified
-            // Get last activity from Maya chats
+            const totalGenerations = usageInfo?.monthlyGenerationsUsed || 0;
             const mayaChats = await storage.getMayaChats(userId);
             const lastActivity = mayaChats.length > 0 ? mayaChats[0].lastActivity || mayaChats[0].createdAt : undefined;
-            // Analyze usage patterns (simplified)
             const favoriteStyles = await this.analyzeFavoriteStyles(userId);
             const commonIssues = await this.analyzeCommonIssues(userId);
             return {
@@ -154,25 +118,19 @@ export class SupportIntelligenceService {
             };
         }
     }
-    /**
-     * Get technical context and error history
-     */
     static async getTechnicalContext(userId) {
         try {
-            // Get training status for error context
             const trainingStatus = await storage.checkTrainingStatus(userId);
             const recentErrors = [];
-            // Add training errors if any
             if (trainingStatus.needsRestart) {
                 recentErrors.push(trainingStatus.reason);
             }
-            // Get last successful action (simplified)
             const usageInfo = await storage.getUserUsage(userId);
             const lastSuccessful = usageInfo?.lastGenerationAt ? 'image_generation' : undefined;
             return {
                 recentErrors: recentErrors,
                 lastSuccessfulAction: lastSuccessful,
-                connectionIssues: false // Could be enhanced with connection monitoring
+                connectionIssues: false
             };
         }
         catch (error) {
@@ -184,33 +142,22 @@ export class SupportIntelligenceService {
             };
         }
     }
-    /**
-     * Analyze user's favorite styling patterns
-     */
     static async analyzeFavoriteStyles(userId) {
         try {
-            // This could be enhanced with actual style analysis
             return ['Business Professional', 'Lifestyle Casual'];
         }
         catch (error) {
             return [];
         }
     }
-    /**
-     * Analyze common user issues
-     */
     static async analyzeCommonIssues(userId) {
         try {
-            // This could be enhanced with actual issue pattern analysis
             return [];
         }
         catch (error) {
             return [];
         }
     }
-    /**
-     * Fallback basic context when detailed context fails
-     */
     static getBasicSupportContext() {
         return {
             subscription: {
@@ -236,17 +183,12 @@ export class SupportIntelligenceService {
             }
         };
     }
-    /**
-     * Format support context for Maya's understanding
-     */
     static formatSupportContextForMaya(context) {
         const { subscription, training, usage, technical } = context;
         let contextText = `USER ACCOUNT CONTEXT:\n`;
-        // Subscription info
         contextText += `Subscription: ${subscription.plan} plan (${subscription.status})\n`;
         contextText += `Usage: ${subscription.generationsUsed}/${subscription.generationsTotal === -1 ? 'unlimited' : subscription.generationsTotal} images this month\n`;
         contextText += `Billing: ${subscription.billingStatus}\n\n`;
-        // Training info
         contextText += `TRAINING STATUS:\n`;
         if (training.hasModel) {
             contextText += `✅ Personal AI model: ${training.trainingStatus} (${training.modelQuality || 'good'} quality)\n`;
@@ -257,7 +199,6 @@ export class SupportIntelligenceService {
         else {
             contextText += `❌ No personal AI model yet (${training.trainingStatus})\n`;
         }
-        // Usage patterns
         contextText += `\nUSAGE PATTERNS:\n`;
         contextText += `Recent activity: ${usage.recentGenerations} generations, total: ${usage.totalGenerations}\n`;
         if (usage.lastActivity) {
@@ -266,7 +207,6 @@ export class SupportIntelligenceService {
         if (usage.favoriteStyles.length > 0) {
             contextText += `Favorite styles: ${usage.favoriteStyles.join(', ')}\n`;
         }
-        // Technical issues
         if (technical.recentErrors.length > 0) {
             contextText += `\nRECENT ISSUES:\n`;
             technical.recentErrors.slice(0, 3).forEach(error => {
@@ -275,9 +215,6 @@ export class SupportIntelligenceService {
         }
         return contextText;
     }
-    /**
-     * PHASE 5: Get Maya system context with escalation intelligence
-     */
     static getMayaSupportSystemContext(userContext) {
         return `You are Maya, the intelligent support assistant for SSELFIE Studio, a premium AI personal branding platform.
 
@@ -311,3 +248,4 @@ When escalating, format response as:
 Keep responses concise but comprehensive, and always aim to resolve the user's question completely first before escalating.`;
     }
 }
+//# sourceMappingURL=support-intelligence.js.map

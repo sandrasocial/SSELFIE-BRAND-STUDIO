@@ -1,13 +1,9 @@
-/**
- * Comprehensive Dashboard System
- * Provides real-time insights and analytics
- */
-import { Logger } from './logger';
-import { performanceMonitor } from './performance-monitor';
-import { errorTracker } from './error-tracker';
-import { securityMonitor } from './security-monitor';
-import os from 'os';
-import { healthCheckSystem } from './health-check';
+import { Logger } from './logger.js';
+import { performanceMonitor } from './performance-monitor.js';
+import { errorTracker } from './error-tracker.js';
+import { securityMonitor } from './security-monitor.js';
+import * as os from 'os';
+import { healthCheckSystem } from './health-check.js';
 export class DashboardSystem {
     logger;
     _isEnabled;
@@ -21,9 +17,6 @@ export class DashboardSystem {
         this.lastUpdate = null;
         this.cachedData = null;
     }
-    /**
-     * Start dashboard monitoring
-     */
     startMonitoring(intervalMs = 30000) {
         if (this.updateInterval) {
             this.logger.warn('Dashboard monitoring already started');
@@ -33,12 +26,8 @@ export class DashboardSystem {
         this.updateInterval = setInterval(() => {
             this.updateDashboardData();
         }, intervalMs);
-        // Initial update
         this.updateDashboardData();
     }
-    /**
-     * Stop dashboard monitoring
-     */
     stopMonitoring() {
         if (this.updateInterval) {
             clearInterval(this.updateInterval);
@@ -46,33 +35,20 @@ export class DashboardSystem {
             this.logger.info('Dashboard monitoring stopped');
         }
     }
-    /**
-     * Get dashboard data
-     */
     getDashboardData() {
         return this.cachedData;
     }
-    /**
-     * Update dashboard data
-     */
     async updateDashboardData() {
         try {
             const timestamp = new Date().toISOString();
             this.lastUpdate = new Date();
-            // Get health data
             const healthData = await healthCheckSystem.performHealthCheck();
-            // Get performance data
-            const performanceStats = performanceMonitor.getPerformanceStats(24); // Last 24 hours
+            const performanceStats = performanceMonitor.getPerformanceStats(24);
             const realTimeSummary = performanceMonitor.getRealTimeSummary();
-            // Get error data
-            const errorStats = errorTracker.getErrorStats(24); // Last 24 hours
-            // Get security data
-            const securityStats = securityMonitor.getSecurityStats(24); // Last 24 hours
-            // Get system metrics
+            const errorStats = errorTracker.getErrorStats(24);
+            const securityStats = securityMonitor.getSecurityStats(24);
             const systemMetrics = this.getSystemMetrics();
-            // Get business metrics
             const businessMetrics = await this.getBusinessMetrics();
-            // Get trend data
             const trendData = this.getTrendData();
             const dashboardData = {
                 timestamp,
@@ -80,7 +56,7 @@ export class DashboardSystem {
                     status: healthData.status,
                     uptime: this.formatUptime(process.uptime()),
                     version: process.env.npm_package_version || '1.0.0',
-                    environment: process.env.NODE_ENV || 'development',
+                    environment: process.env['NODE_ENV'] || 'development',
                     lastUpdated: timestamp,
                 },
                 health: {
@@ -108,7 +84,7 @@ export class DashboardSystem {
                     },
                     responseTime: {
                         average: performanceStats.averageResponseTime,
-                        median: performanceStats.averageResponseTime, // Simplified
+                        median: performanceStats.averageResponseTime,
                         p95: performanceStats.maxResponseTime ?? 0,
                         p99: performanceStats.maxResponseTime ?? 0,
                     },
@@ -141,8 +117,6 @@ export class DashboardSystem {
                         blockedIPs: securityMonitor.getBlockedIPs(),
                         suspiciousIPs: securityMonitor.getSuspiciousIPs().map(ip => ({
                             ip: ip.ip,
-                            p95: performanceStats.maxResponseTime ?? 0,
-                            p99: performanceStats.maxResponseTime ?? 0,
                             count: ip.count,
                             riskScore: ip.riskScore,
                             lastSeen: ip.lastSeen.toISOString(),
@@ -159,7 +133,6 @@ export class DashboardSystem {
                         loadAverage: systemMetrics.memory.loadAverage ?? [],
                         trend: this.calculateTrend('memory', systemMetrics.memory.percentage),
                     },
-                    // cpu property removed; not part of expected type
                     disk: {
                         used: systemMetrics.disk.used,
                         total: systemMetrics.disk.total,
@@ -184,9 +157,6 @@ export class DashboardSystem {
             throw error;
         }
     }
-    /**
-     * Get system metrics
-     */
     getSystemMetrics() {
         const memoryUsage = process.memoryUsage();
         const totalMemory = os.totalmem();
@@ -205,23 +175,18 @@ export class DashboardSystem {
                 loadAverage: loadAverage.map(load => Math.round(load * 100) / 100),
             },
             disk: {
-                used: 0, // This would be calculated from actual disk usage
+                used: 0,
                 total: 0,
                 percentage: 0,
             },
             network: {
-                inbound: 0, // This would be calculated from network stats
+                inbound: 0,
                 outbound: 0,
                 connections: 0,
             },
         };
     }
-    /**
-     * Get business metrics
-     */
     async getBusinessMetrics() {
-        // This would integrate with your business logic
-        // For now, return mock data
         return {
             users: {
                 total: 1250,
@@ -247,15 +212,10 @@ export class DashboardSystem {
             },
         };
     }
-    /**
-     * Get trend data
-     */
     getTrendData() {
-        // This would calculate actual trends from historical data
-        // For now, return mock data
         const now = Date.now();
         const hours = 24;
-        const interval = 60 * 60 * 1000; // 1 hour
+        const interval = 60 * 60 * 1000;
         return {
             performance: Array.from({ length: hours }, (_, i) => ({
                 timestamp: new Date(now - (hours - i) * interval).toISOString(),
@@ -277,25 +237,12 @@ export class DashboardSystem {
             })),
         };
     }
-    /**
-     * Calculate trend for a metric
-     */
     calculateTrend(metric, currentValue) {
-        // This would compare with historical values
-        // For now, return stable
         return 'stable';
     }
-    /**
-     * Get security alerts
-     */
     getSecurityAlerts() {
-        // This would get actual security alerts
-        // For now, return empty array
         return [];
     }
-    /**
-     * Format uptime
-     */
     formatUptime(seconds) {
         const days = Math.floor(seconds / 86400);
         const hours = Math.floor((seconds % 86400) / 3600);
@@ -310,9 +257,6 @@ export class DashboardSystem {
             return `${minutes}m`;
         }
     }
-    /**
-     * Get dashboard summary
-     */
     getDashboardSummary() {
         if (!this.cachedData) {
             return {
@@ -331,13 +275,9 @@ export class DashboardSystem {
             requests: performance.requests.total,
             errors: performance.errors.count,
             memory: system.memory.percentage,
-            // cpu: system.cpu.usage, // Removed: system.cpu does not exist
             lastUpdated: overview.lastUpdated,
         };
     }
-    /**
-     * Get real-time metrics
-     */
     getRealTimeMetrics() {
         const realTimeSummary = performanceMonitor.getRealTimeSummary();
         const systemMetrics = this.getSystemMetrics();
@@ -350,25 +290,16 @@ export class DashboardSystem {
             activeUsers: realTimeSummary.activeUsers,
         };
     }
-    /**
-     * Get last update time
-     */
     getLastUpdateTime() {
         return this.lastUpdate;
     }
-    /**
-     * Enable/disable dashboard
-     */
     setEnabled(enabled) {
         this._isEnabled = enabled;
         this.logger.info(`Dashboard system ${enabled ? 'enabled' : 'disabled'}`);
     }
-    /**
-     * Check if dashboard is enabled
-     */
     isEnabled() {
         return this._isEnabled;
     }
 }
-// Export singleton instance
 export const dashboardSystem = new DashboardSystem();
+//# sourceMappingURL=dashboard.js.map

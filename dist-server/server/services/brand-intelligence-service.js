@@ -1,4 +1,3 @@
-// SSELFIE Studio Brand Intelligence for AI Agents
 export class BrandIntelligenceService {
     static getSandrasBrandPrompt() {
         return `
@@ -58,3 +57,4 @@ USE THIS BRAND INTELLIGENCE IN ALL AGENT RESPONSES - ESPECIALLY FOR CUSTOMER-FAC
 IMPLEMENT THESE DESIGN PRINCIPLES IN ALL UI/WEBSITE WORK`;
     }
 }
+//# sourceMappingURL=brand-intelligence-service.js.map

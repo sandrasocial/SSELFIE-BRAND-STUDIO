@@ -1,19 +1,10 @@
-/**
- * ✨ PHASE 4.3: MEMORY SYSTEM ENHANCEMENT
- * Maya Memory Enhancement Service - Contemporary fashion intelligence and advanced personalization
- */
-import { storage } from '../storage';
+import { storage } from '../storage.js';
 export class MayaMemoryEnhancementService {
-    /**
-     * ✨ PHASE 4.3: Enhanced memory initialization with contemporary intelligence
-     */
     static async initializeEnhancedMemory(userId) {
         try {
             console.log(`🧠 PHASE 4.3: Initializing enhanced memory for user ${userId}`);
-            // Get or create existing style memory
             let userMemory = await storage.getUserStyleMemory(userId);
             if (!userMemory) {
-                // Create new enhanced memory structure
                 userMemory = await storage.createUserStyleMemory({
                     userId,
                     preferredCategories: [],
@@ -27,7 +18,6 @@ export class MayaMemoryEnhancementService {
                     mostActiveHours: [],
                     highPerformingPrompts: [],
                     rejectedPrompts: [],
-                    // ✨ PHASE 4.3: Enhanced memory fields
                     contemporaryPreferences: this.getDefaultContemporaryPreferences(),
                     trendAlignment: this.getDefaultTrendAlignment(),
                     culturalContext: this.getDefaultCulturalContext(),
@@ -41,7 +31,6 @@ export class MayaMemoryEnhancementService {
                 console.log(`✅ PHASE 4.3: Enhanced memory created for user ${userId}`);
             }
             else {
-                // Update existing memory with enhanced fields if missing
                 await this.upgradeExistingMemory(userId, userMemory);
             }
         }
@@ -49,9 +38,6 @@ export class MayaMemoryEnhancementService {
             console.error(`❌ PHASE 4.3: Enhanced memory initialization failed for ${userId}:`, error);
         }
     }
-    /**
-     * Contemporary preference defaults for 2025 fashion intelligence
-     */
     static getDefaultContemporaryPreferences() {
         return {
             preferredSilhouettes: [],
@@ -69,9 +55,6 @@ export class MayaMemoryEnhancementService {
             authenticityScore: 75
         };
     }
-    /**
-     * Default trend alignment for modern fashion awareness
-     */
     static getDefaultTrendAlignment() {
         return {
             luxuryTrendAdoption: {
@@ -97,9 +80,6 @@ export class MayaMemoryEnhancementService {
             seasonalTrendAdaptation: {}
         };
     }
-    /**
-     * Default cultural context for inclusive styling
-     */
     static getDefaultCulturalContext() {
         return {
             culturalBackground: [],
@@ -113,9 +93,6 @@ export class MayaMemoryEnhancementService {
             diversityAwareness: 85
         };
     }
-    /**
-     * Default sustainability values for conscious fashion
-     */
     static getDefaultSustainabilityValues() {
         return {
             sustainableFashionInterest: 60,
@@ -129,9 +106,6 @@ export class MayaMemoryEnhancementService {
             minimalistApproach: false
         };
     }
-    /**
-     * Default mood patterns for emotional styling intelligence
-     */
     static getDefaultMoodPatterns() {
         return {
             confidentMoodStyling: { colors: ['black', 'deep red', 'navy'], styles: ['structured', 'bold'] },
@@ -151,13 +125,9 @@ export class MayaMemoryEnhancementService {
             comfortStyling: { colors: ['warm neutrals'], styles: ['relaxed', 'flowing'] }
         };
     }
-    /**
-     * Upgrade existing memory with Phase 4.3 enhancements
-     */
     static async upgradeExistingMemory(userId, existingMemory) {
         try {
             const enhancedFields = {};
-            // Add missing enhanced fields
             if (!existingMemory.contemporaryPreferences) {
                 enhancedFields.contemporaryPreferences = this.getDefaultContemporaryPreferences();
             }
@@ -173,7 +143,6 @@ export class MayaMemoryEnhancementService {
             if (!existingMemory.moodPatterns) {
                 enhancedFields.moodPatterns = this.getDefaultMoodPatterns();
             }
-            // Update memory with enhanced fields
             if (Object.keys(enhancedFields).length > 0) {
                 await storage.updateUserStyleMemory(userId, enhancedFields);
                 console.log(`✅ PHASE 4.3: Upgraded existing memory for user ${userId} with ${Object.keys(enhancedFields).length} enhanced fields`);
@@ -183,9 +152,6 @@ export class MayaMemoryEnhancementService {
             console.error(`❌ PHASE 4.3: Memory upgrade failed for ${userId}:`, error);
         }
     }
-    /**
-     * Analyze user behavior for contemporary preferences
-     */
     static async analyzeContemporaryPreferences(userId, stylingChoices) {
         try {
             console.log(`🧠 PHASE 4.3: Analyzing contemporary preferences for user ${userId}`);
@@ -206,9 +172,6 @@ export class MayaMemoryEnhancementService {
             return this.getDefaultContemporaryPreferences();
         }
     }
-    /**
-     * Extract silhouette preferences from styling choices
-     */
     static extractSilhouettePreferences(choices) {
         const silhouettes = new Set();
         choices.forEach(choice => {
@@ -227,9 +190,6 @@ export class MayaMemoryEnhancementService {
         });
         return Array.from(silhouettes);
     }
-    /**
-     * Extract texture preferences from styling choices
-     */
     static extractTexturePreferences(choices) {
         const textures = new Set();
         choices.forEach(choice => {
@@ -253,9 +213,6 @@ export class MayaMemoryEnhancementService {
         });
         return Array.from(textures);
     }
-    /**
-     * Extract color preferences from styling choices
-     */
     static extractColorPreferences(choices) {
         const colors = new Set();
         choices.forEach(choice => {
@@ -279,11 +236,8 @@ export class MayaMemoryEnhancementService {
         });
         return Array.from(colors);
     }
-    /**
-     * Calculate sustainability focus score
-     */
     static calculateSustainabilityFocus(choices) {
-        let sustainabilityScore = 50; // Base score
+        let sustainabilityScore = 50;
         choices.forEach(choice => {
             const description = choice.description?.toLowerCase() || '';
             if (description.includes('sustainable') || description.includes('eco'))
@@ -295,9 +249,6 @@ export class MayaMemoryEnhancementService {
         });
         return Math.min(100, sustainabilityScore);
     }
-    /**
-     * Analyze trend alignment from choices
-     */
     static analyzeTrendAlignment(choices) {
         const trends = {
             oversizedStructured: 50,
@@ -326,9 +277,6 @@ export class MayaMemoryEnhancementService {
         });
         return trends;
     }
-    /**
-     * Determine style evolution phase
-     */
     static determineStyleEvolutionPhase(choices) {
         const totalChoices = choices.length;
         if (totalChoices < 5)
@@ -339,30 +287,18 @@ export class MayaMemoryEnhancementService {
             return 'mastery';
         return 'innovation';
     }
-    /**
-     * Calculate authenticity score (personal style vs trends)
-     */
     static calculateAuthenticityScore(choices) {
-        // Analyze consistency in style choices
         const styleConsistency = this.calculateStyleConsistency(choices);
         const trendIndependence = this.calculateTrendIndependence(choices);
         return Math.round((styleConsistency + trendIndependence) / 2);
     }
-    /**
-     * Calculate style consistency score
-     */
     static calculateStyleConsistency(choices) {
-        // Simplified consistency calculation
         const categories = new Set(choices.map(c => c.category));
         const categoryConsistency = Math.max(0, 100 - (categories.size * 10));
         return Math.min(100, categoryConsistency);
     }
-    /**
-     * Calculate trend independence score
-     */
     static calculateTrendIndependence(choices) {
-        // Simplified trend independence calculation
-        let independenceScore = 75; // Base score
+        let independenceScore = 75;
         choices.forEach(choice => {
             const description = choice.description?.toLowerCase() || '';
             if (description.includes('trendy') || description.includes('on-trend')) {
@@ -374,9 +310,6 @@ export class MayaMemoryEnhancementService {
         });
         return Math.max(0, Math.min(100, independenceScore));
     }
-    /**
-     * Update user memory with enhanced insights
-     */
     static async updateEnhancedMemory(userId, insights) {
         try {
             await storage.updateUserStyleMemory(userId, {
@@ -393,9 +326,6 @@ export class MayaMemoryEnhancementService {
             console.error(`❌ PHASE 4.3: Enhanced memory update failed for ${userId}:`, error);
         }
     }
-    /**
-     * Get optimization statistics for Phase 4.3
-     */
     static getMemoryStats() {
         return {
             enhancedFields: [
@@ -414,3 +344,4 @@ export class MayaMemoryEnhancementService {
         };
     }
 }
+//# sourceMappingURL=maya-memory-enhancement-service.js.map

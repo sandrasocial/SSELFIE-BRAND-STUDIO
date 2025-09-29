@@ -1,8 +1,4 @@
-/**
- * Cache Manager
- * Multi-level caching system with TTL and invalidation
- */
-import { Logger } from './logger';
+import { Logger } from './logger.js';
 export class CacheManager {
     logger;
     cache;
@@ -13,14 +9,11 @@ export class CacheManager {
         this.cache = new Map();
         this.accessOrder = [];
         this.options = {
-            ttl: options.ttl || 300000, // 5 minutes default
+            ttl: options.ttl || 300000,
             maxSize: options.maxSize || 1000,
             strategy: options.strategy || 'lru'
         };
     }
-    /**
-     * Set a cache item
-     */
     set(key, value, ttl) {
         const now = Date.now();
         const expiresAt = now + (ttl || this.options.ttl);
@@ -33,40 +26,30 @@ export class CacheManager {
         };
         this.cache.set(key, item);
         this.updateAccessOrder(key);
-        // Check if we need to evict items
         if (this.cache.size > this.options.maxSize) {
             this.evictItems();
         }
         this.logger.debug(`Cache set: ${key} (TTL: ${ttl || this.options.ttl}ms)`);
     }
-    /**
-     * Get a cache item
-     */
     get(key) {
         const item = this.cache.get(key);
         if (!item) {
             return null;
         }
-        // Check if item has expired
         if (Date.now() > item.expiresAt) {
             this.cache.delete(key);
             this.removeFromAccessOrder(key);
             return null;
         }
-        // Update access statistics
         item.accessCount++;
         item.lastAccessed = Date.now();
         this.updateAccessOrder(key);
         return item.value;
     }
-    /**
-     * Check if a key exists in cache
-     */
     has(key) {
         const item = this.cache.get(key);
         if (!item)
             return false;
-        // Check if item has expired
         if (Date.now() > item.expiresAt) {
             this.cache.delete(key);
             this.removeFromAccessOrder(key);
@@ -74,9 +57,6 @@ export class CacheManager {
         }
         return true;
     }
-    /**
-     * Delete a cache item
-     */
     delete(key) {
         const deleted = this.cache.delete(key);
         if (deleted) {
@@ -85,17 +65,11 @@ export class CacheManager {
         }
         return deleted;
     }
-    /**
-     * Clear all cache items
-     */
     clear() {
         this.cache.clear();
         this.accessOrder = [];
         this.logger.info('Cache cleared');
     }
-    /**
-     * Get cache statistics
-     */
     getStats() {
         const now = Date.now();
         let expiredItems = 0;
@@ -110,8 +84,7 @@ export class CacheManager {
         const totalAccesses = totalHits + totalMisses;
         const hitRate = totalAccesses > 0 ? (totalHits / totalAccesses) * 100 : 0;
         const missRate = 100 - hitRate;
-        // Estimate memory usage (rough calculation)
-        const memoryUsage = this.cache.size * 1000; // Rough estimate
+        const memoryUsage = this.cache.size * 1000;
         return {
             size: this.cache.size,
             maxSize: this.options.maxSize,
@@ -123,9 +96,6 @@ export class CacheManager {
             expiredItems
         };
     }
-    /**
-     * Clean up expired items
-     */
     cleanup() {
         const now = Date.now();
         let cleanedCount = 0;
@@ -141,25 +111,16 @@ export class CacheManager {
         }
         return cleanedCount;
     }
-    /**
-     * Update access order for LRU strategy
-     */
     updateAccessOrder(key) {
         this.removeFromAccessOrder(key);
         this.accessOrder.push(key);
     }
-    /**
-     * Remove key from access order
-     */
     removeFromAccessOrder(key) {
         const index = this.accessOrder.indexOf(key);
         if (index > -1) {
             this.accessOrder.splice(index, 1);
         }
     }
-    /**
-     * Evict items based on strategy
-     */
     evictItems() {
         const itemsToEvict = this.cache.size - this.options.maxSize;
         if (itemsToEvict <= 0)
@@ -182,18 +143,12 @@ export class CacheManager {
         });
         this.logger.debug(`Evicted ${keysToEvict.length} cache items using ${this.options.strategy} strategy`);
     }
-    /**
-     * Get least frequently used keys
-     */
     getLeastFrequentlyUsedKeys(count) {
         return Array.from(this.cache.entries())
             .sort((a, b) => a[1].accessCount - b[1].accessCount)
             .slice(0, count)
             .map(([key]) => key);
     }
-    /**
-     * Get oldest keys
-     */
     getOldestKeys(count) {
         return Array.from(this.cache.entries())
             .sort((a, b) => a[1].createdAt - b[1].createdAt)
@@ -201,9 +156,6 @@ export class CacheManager {
             .map(([key]) => key);
     }
 }
-/**
- * Multi-level cache manager
- */
 export class MultiLevelCacheManager {
     logger;
     levels;
@@ -213,14 +165,10 @@ export class MultiLevelCacheManager {
         this.levels = levels.map(level => new CacheManager(level.options));
         this.levelNames = levels.map(level => level.name);
     }
-    /**
-     * Get value from cache (check all levels)
-     */
     get(key) {
         for (let i = 0; i < this.levels.length; i++) {
             const value = this.levels[i].get(key);
             if (value !== null) {
-                // Promote to higher levels
                 for (let j = 0; j < i; j++) {
                     this.levels[j].set(key, value);
                 }
@@ -231,18 +179,12 @@ export class MultiLevelCacheManager {
         this.logger.debug(`Cache miss for key: ${key}`);
         return null;
     }
-    /**
-     * Set value in all cache levels
-     */
     set(key, value, ttl) {
         this.levels.forEach((level, index) => {
             level.set(key, value, ttl);
         });
         this.logger.debug(`Cache set in all ${this.levels.length} levels`);
     }
-    /**
-     * Delete value from all cache levels
-     */
     delete(key) {
         let deleted = false;
         this.levels.forEach(level => {
@@ -252,25 +194,16 @@ export class MultiLevelCacheManager {
         });
         return deleted;
     }
-    /**
-     * Clear all cache levels
-     */
     clear() {
         this.levels.forEach(level => level.clear());
         this.logger.info('All cache levels cleared');
     }
-    /**
-     * Get statistics for all levels
-     */
     getStats() {
         return this.levels.map((level, index) => ({
             level: this.levelNames[index],
             stats: level.getStats()
         }));
     }
-    /**
-     * Cleanup all levels
-     */
     cleanup() {
         let totalCleaned = 0;
         this.levels.forEach((level, index) => {
@@ -283,14 +216,14 @@ export class MultiLevelCacheManager {
         return totalCleaned;
     }
 }
-// Export singleton instances
 export const memoryCache = new CacheManager({
-    ttl: 300000, // 5 minutes
+    ttl: 300000,
     maxSize: 1000,
     strategy: 'lru'
 });
 export const multiLevelCache = new MultiLevelCacheManager([
-    { name: 'L1', options: { ttl: 60000, maxSize: 100, strategy: 'lru' } }, // 1 minute
-    { name: 'L2', options: { ttl: 300000, maxSize: 500, strategy: 'lru' } }, // 5 minutes
-    { name: 'L3', options: { ttl: 1800000, maxSize: 1000, strategy: 'lfu' } } // 30 minutes
+    { name: 'L1', options: { ttl: 60000, maxSize: 100, strategy: 'lru' } },
+    { name: 'L2', options: { ttl: 300000, maxSize: 500, strategy: 'lru' } },
+    { name: 'L3', options: { ttl: 1800000, maxSize: 1000, strategy: 'lfu' } }
 ]);
+//# sourceMappingURL=cache-manager.js.map

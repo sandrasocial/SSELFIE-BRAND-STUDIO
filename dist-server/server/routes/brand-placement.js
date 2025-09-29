@@ -1,16 +1,9 @@
-/**
- * BRAND PLACEMENT API ROUTES - P3-C Feature
- *
- * Handles placement of brand assets into images via overlay or inpaint
- * Supports non-destructive variants with metadata tracking
- */
 import { Router } from 'express';
-import { requireStackAuth } from '../stack-auth';
-import { storage } from '../storage';
-import { insertImageVariantSchema } from '../../shared/schema';
+import { requireStackAuth } from '../stack-auth.js';
+import { storage } from '../storage.js';
+import { insertImageVariantSchema } from '../../shared/schema.js';
 import { z } from 'zod';
 const router = Router();
-// Placement request schema
 const placementRequestSchema = z.object({
     imageId: z.number(),
     assetId: z.number(),
@@ -23,13 +16,8 @@ const placementRequestSchema = z.object({
     }).optional(),
     scale: z.number().min(0.1).max(2.0).optional()
 });
-/**
- * POST /api/brand-assets/place
- * Place a brand asset into an image
- */
 router.post('/place', requireStackAuth, async (req, res) => {
     try {
-        // Check feature flag
         if (process.env.BRAND_ASSETS_ENABLED !== '1') {
             return res.status(404).json({ error: 'Feature not available' });
         }
@@ -37,14 +25,12 @@ router.post('/place', requireStackAuth, async (req, res) => {
         if (!userId) {
             return res.status(401).json({ error: 'Authentication required' });
         }
-        // Validate request body
         const placementData = placementRequestSchema.parse(req.body);
         const { imageId, assetId, mode, position, scale } = placementData;
         console.log(`🎨 BRAND PLACEMENT: Processing ${mode} placement for user ${userId}`);
         console.log(`   Image ID: ${imageId}, Asset ID: ${assetId}`);
-        // Verify user owns both the image and the asset
         const [image, asset] = await Promise.all([
-            storage.getAIImage(userId, imageId), // Assuming this method exists or needs to be added
+            storage.getAIImage(userId, imageId),
             storage.getBrandAsset(assetId, userId)
         ]);
         if (!image) {
@@ -53,11 +39,10 @@ router.post('/place', requireStackAuth, async (req, res) => {
         if (!asset) {
             return res.status(404).json({ error: 'Brand asset not found' });
         }
-        // Create initial variant record
         const variantData = insertImageVariantSchema.parse({
             userId,
             originalImageId: imageId,
-            variantUrl: '', // Will be set after processing
+            variantUrl: '',
             variantType: 'brand_placement',
             brandAssetId: assetId,
             placementData: {
@@ -70,9 +55,7 @@ router.post('/place', requireStackAuth, async (req, res) => {
         });
         const variant = await storage.saveImageVariant(variantData);
         if (mode === 'overlay') {
-            // Fast path: Simple client-side compositing
             console.log(`🖼️ OVERLAY MODE: Preparing client-side placement data`);
-            // Return placement data for client-side overlay
             res.json({
                 success: true,
                 variant: {
@@ -88,10 +71,8 @@ router.post('/place', requireStackAuth, async (req, res) => {
             });
         }
         else if (mode === 'inpaint') {
-            // Complex path: Server-side inpainting for realistic blending
             console.log(`🎨 INPAINT MODE: Starting server-side processing`);
             try {
-                // Start background processing for inpaint
                 processInpaintPlacement(variant.id, image.imageUrl, asset.url, position, scale);
                 res.json({
                     success: true,
@@ -101,7 +82,6 @@ router.post('/place', requireStackAuth, async (req, res) => {
             }
             catch (error) {
                 console.error('❌ INPAINT ERROR:', error);
-                // Update variant status to failed
                 await storage.updateImageVariant(variant.id, {
                     processingStatus: 'failed'
                 });
@@ -122,14 +102,10 @@ router.post('/place', requireStackAuth, async (req, res) => {
         }
         res.status(500).json({
             error: 'Failed to process brand placement',
-            details: process.env.NODE_ENV === 'development' ? error.message : undefined
+            details: process.env['NODE_ENV'] === 'development' ? error.message : undefined
         });
     }
 });
-/**
- * GET /api/brand-assets/variants/:variantId/status
- * Get placement processing status
- */
 router.get('/variants/:variantId/status', requireStackAuth, async (req, res) => {
     try {
         const userId = req.user?.id || req.user?.claims?.sub;
@@ -155,31 +131,17 @@ router.get('/variants/:variantId/status', requireStackAuth, async (req, res) => 
         console.error('❌ VARIANT STATUS: Error:', error);
         res.status(500).json({
             error: 'Failed to get variant status',
-            details: process.env.NODE_ENV === 'development' ? error.message : undefined
+            details: process.env['NODE_ENV'] === 'development' ? error.message : undefined
         });
     }
 });
-/**
- * Background processing function for inpaint placement
- * This would integrate with existing image processing services
- */
 async function processInpaintPlacement(variantId, originalImageUrl, assetUrl, position, scale) {
     try {
         console.log(`🔄 INPAINT PROCESSING: Starting for variant ${variantId}`);
-        // Update status to processing
         await storage.updateImageVariant(variantId, {
             processingStatus: 'processing'
         });
-        // TODO: Implement actual inpaint processing
-        // This would involve:
-        // 1. Download original image and asset
-        // 2. Create mask for placement area
-        // 3. Use inpainting model (Replicate or similar) to blend asset into image
-        // 4. Upload result to S3
-        // 5. Update variant with final URL
-        // For now, simulate processing time
         await new Promise(resolve => setTimeout(resolve, 2000));
-        // Simulate success - in real implementation, this would be the final S3 URL
         const mockResultUrl = `https://example.s3.amazonaws.com/variants/result-${variantId}.png`;
         await storage.updateImageVariant(variantId, {
             processingStatus: 'completed',
@@ -195,3 +157,4 @@ async function processInpaintPlacement(variantId, originalImageUrl, assetUrl, po
     }
 }
 export default router;
+//# sourceMappingURL=brand-placement.js.map

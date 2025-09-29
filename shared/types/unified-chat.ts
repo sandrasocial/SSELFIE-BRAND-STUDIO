@@ -46,11 +46,14 @@ export interface MayaChatContext {
 }
 
 // Claude chat specific interfaces
-export interface ClaudeMessage extends Omit<BaseChatMessage, 'id' | 'metadata'>, Omit<DbClaudeMessage, 'metadata'> {
+export interface ClaudeMessage extends Omit<DbClaudeMessage, 'metadata'> {
   conversationId: string;
+  role: 'user' | 'assistant' | 'system' | 'maya' | 'victoria';
+  content: string;
   tokens: number;  
   completionTokens: number;
   promptTokens: number;
+  timestamp: Date;
   metadata?: Record<string, unknown>;
 }
 

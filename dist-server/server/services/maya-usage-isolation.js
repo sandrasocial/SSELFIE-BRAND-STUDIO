@@ -1,13 +1,5 @@
-/**
- * MAYA USAGE ISOLATION SERVICE
- * Separates admin and member Maya usage for analytics and tracking
- * Admin (platform owner) vs Member (€47/month subscribers) separation
- */
-import { storage } from '../storage';
+import { storage } from '../storage.js';
 class MayaUsageIsolationService {
-    /**
-     * Track Maya usage with admin/member context
-     */
     async trackMayaUsage(userId, userType, conversationId, activityType, metadata) {
         try {
             const logEntry = {
@@ -20,9 +12,6 @@ class MayaUsageIsolationService {
                 isAdmin: userType === 'admin'
             };
             console.log(`📊 MAYA USAGE: ${userType.toUpperCase()} ${activityType} tracked for user ${userId}`);
-            // Store usage data with clear admin/member separation
-            // This could be implemented with a dedicated usage tracking table
-            // For now, we'll use console logging to demonstrate separation
             if (userType === 'admin') {
                 console.log(`🎯 ADMIN MAYA USAGE: Platform content activity tracked separately`);
             }
@@ -34,12 +23,8 @@ class MayaUsageIsolationService {
             console.error('Maya usage tracking error:', error);
         }
     }
-    /**
-     * Get member-only Maya analytics (excludes admin usage)
-     */
     async getMemberAnalytics() {
         try {
-            // Get all Maya chats excluding admin conversations
             const allChats = await storage.getAllMayaChats();
             const memberChats = allChats.filter(chat => !chat.chatTitle?.startsWith('[ADMIN]'));
             const memberMetrics = {
@@ -63,18 +48,14 @@ class MayaUsageIsolationService {
             };
         }
     }
-    /**
-     * Get admin-only Maya analytics (platform usage only)
-     */
     async getAdminAnalytics() {
         try {
-            // Get admin-specific Maya usage
             const allChats = await storage.getAllMayaChats();
             const adminChats = allChats.filter(chat => chat.chatTitle?.startsWith('[ADMIN]'));
             const adminMetrics = {
                 platformChats: adminChats.length,
                 contentGenerations: await this.countAdminGenerations(),
-                lastAdminActivity: new Date(), // Would be calculated from actual usage
+                lastAdminActivity: new Date(),
                 adminConversationThreads: adminChats.map(chat => `maya_admin_platform_${chat.userId}`)
             };
             console.log(`🎯 ADMIN ANALYTICS: ${adminMetrics.platformChats} platform content chats tracked`);
@@ -90,9 +71,6 @@ class MayaUsageIsolationService {
             };
         }
     }
-    /**
-     * Verify admin/member separation is working correctly
-     */
     async validateSeparation() {
         try {
             const allChats = await storage.getAllMayaChats();
@@ -115,9 +93,6 @@ class MayaUsageIsolationService {
             };
         }
     }
-    /**
-     * Get complete Maya analytics with admin/member separation
-     */
     async getCompleteMayaAnalytics() {
         const [memberMetrics, adminMetrics, separationStatus] = await Promise.all([
             this.getMemberAnalytics(),
@@ -130,12 +105,9 @@ class MayaUsageIsolationService {
             separationStatus
         };
     }
-    // Helper methods for analytics calculations
     async countMemberGenerations() {
         try {
-            // Count generations from non-admin conversations
-            // This would query actual generation records
-            return 0; // Placeholder
+            return 0;
         }
         catch {
             return 0;
@@ -143,9 +115,7 @@ class MayaUsageIsolationService {
     }
     async countAdminGenerations() {
         try {
-            // Count generations from admin conversations
-            // This would query actual generation records
-            return 0; // Placeholder
+            return 0;
         }
         catch {
             return 0;
@@ -153,7 +123,6 @@ class MayaUsageIsolationService {
     }
     async getActiveMemberCount() {
         try {
-            // Count unique member users (excluding admin)
             const allChats = await storage.getAllMayaChats();
             const memberChats = allChats.filter(chat => !chat.chatTitle?.startsWith('[ADMIN]'));
             const uniqueMembers = new Set(memberChats.map(chat => chat.userId));
@@ -165,7 +134,6 @@ class MayaUsageIsolationService {
     }
     async getPopularMemberCategories() {
         try {
-            // Analyze member chat categories
             const allChats = await storage.getAllMayaChats();
             const memberChats = allChats.filter(chat => !chat.chatTitle?.startsWith('[ADMIN]'));
             const categories = memberChats.map(chat => {
@@ -181,7 +149,6 @@ class MayaUsageIsolationService {
                     return 'Premium Brand Photos';
                 return 'General Styling';
             });
-            // Return top 3 categories
             const categoryCount = categories.reduce((acc, cat) => {
                 acc[cat] = (acc[cat] || 0) + 1;
                 return acc;
@@ -196,10 +163,9 @@ class MayaUsageIsolationService {
         }
     }
 }
-// Export singleton instance
 export const mayaUsageIsolation = new MayaUsageIsolationService();
-// Export for direct usage tracking
 export function trackMayaActivity(userId, userType, conversationId, activityType, metadata) {
     mayaUsageIsolation.trackMayaUsage(userId, userType, conversationId, activityType, metadata)
         .catch(error => console.error('Maya activity tracking failed:', error));
 }
+//# sourceMappingURL=maya-usage-isolation.js.map

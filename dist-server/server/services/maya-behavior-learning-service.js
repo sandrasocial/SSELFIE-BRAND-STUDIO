@@ -1,18 +1,9 @@
-/**
- * ✨ PHASE 5.1: ADVANCED USER BEHAVIOR LEARNING
- * Maya Behavior Learning Service - Smart pattern recognition and personalized intelligence
- */
 export class MayaBehaviorLearningService {
-    /**
-     * ✨ PHASE 5.1: Initialize advanced behavior tracking for user
-     */
     static async initializeBehaviorTracking(userId) {
         try {
             console.log(`🧠 PHASE 5.1: Initializing behavior tracking for user ${userId}`);
-            // Check if behavior tracking already exists
             const existingData = await this.getBehaviorData(userId);
             if (!existingData) {
-                // Create initial behavior profile
                 const initialProfile = {
                     userId,
                     behaviorPatterns: this.getDefaultBehaviorPatterns(),
@@ -22,7 +13,6 @@ export class MayaBehaviorLearningService {
                     createdAt: new Date(),
                     updatedAt: new Date()
                 };
-                // Store initial profile
                 await this.storeBehaviorData(userId, initialProfile);
                 console.log(`✅ PHASE 5.1: Behavior tracking initialized for user ${userId}`);
             }
@@ -35,9 +25,6 @@ export class MayaBehaviorLearningService {
             console.error(`❌ PHASE 5.1: Behavior tracking initialization failed for ${userId}:`, error);
         }
     }
-    /**
-     * Default behavior patterns for new users
-     */
     static getDefaultBehaviorPatterns() {
         return {
             preferredRequestStyles: [],
@@ -58,9 +45,6 @@ export class MayaBehaviorLearningService {
             contextualTriggers: {}
         };
     }
-    /**
-     * Default engagement metrics for new users
-     */
     static getDefaultEngagementMetrics() {
         return {
             averageResponseRating: 0.0,
@@ -77,9 +61,6 @@ export class MayaBehaviorLearningService {
             referralPotential: 25.0
         };
     }
-    /**
-     * Default personalized insights for new users
-     */
     static getDefaultPersonalizedInsights() {
         return {
             dominantAesthetic: 'discovering',
@@ -96,9 +77,6 @@ export class MayaBehaviorLearningService {
             targetAudience: []
         };
     }
-    /**
-     * ✨ PHASE 5.1: Learn from user interaction with concept cards
-     */
     static async learnFromConceptCardInteraction(userId, conceptCard, interactionType) {
         try {
             console.log(`🧠 PHASE 5.1: Learning from ${interactionType} interaction for user ${userId}`);
@@ -107,13 +85,9 @@ export class MayaBehaviorLearningService {
                 await this.initializeBehaviorTracking(userId);
                 return;
             }
-            // Extract learning insights from interaction
             const insights = await this.analyzeConceptCardInteraction(conceptCard, interactionType);
-            // Update behavior patterns
             await this.updateBehaviorPatterns(userId, behaviorData, insights);
-            // Update engagement metrics
             await this.updateEngagementMetrics(userId, behaviorData, interactionType);
-            // Generate personalized insights
             await this.updatePersonalizedInsights(userId, behaviorData, insights);
             console.log(`✅ PHASE 5.1: Learning complete for ${interactionType} interaction`);
         }
@@ -121,9 +95,6 @@ export class MayaBehaviorLearningService {
             console.error(`❌ PHASE 5.1: Learning from interaction failed for ${userId}:`, error);
         }
     }
-    /**
-     * Analyze concept card interaction for insights
-     */
     static async analyzeConceptCardInteraction(conceptCard, interactionType) {
         return {
             styleElements: this.extractStyleElements(conceptCard),
@@ -135,13 +106,9 @@ export class MayaBehaviorLearningService {
             preferenceSignal: this.calculatePreferenceSignal(interactionType)
         };
     }
-    /**
-     * Extract style elements from concept card
-     */
     static extractStyleElements(conceptCard) {
         const elements = new Set();
         const description = (conceptCard.description || '').toLowerCase();
-        // Color analysis
         if (description.includes('neutral') || description.includes('beige') || description.includes('cream')) {
             elements.add('neutral-colors');
         }
@@ -151,7 +118,6 @@ export class MayaBehaviorLearningService {
         if (description.includes('monochromatic') || description.includes('black') || description.includes('white')) {
             elements.add('monochromatic');
         }
-        // Style analysis
         if (description.includes('minimalist') || description.includes('clean') || description.includes('simple')) {
             elements.add('minimalist');
         }
@@ -164,7 +130,6 @@ export class MayaBehaviorLearningService {
         if (description.includes('edgy') || description.includes('bold') || description.includes('dramatic')) {
             elements.add('edgy');
         }
-        // Setting analysis
         if (description.includes('natural light') || description.includes('outdoor') || description.includes('garden')) {
             elements.add('natural-setting');
         }
@@ -176,9 +141,6 @@ export class MayaBehaviorLearningService {
         }
         return Array.from(elements);
     }
-    /**
-     * Analyze complexity level of concept
-     */
     static analyzeComplexity(conceptCard) {
         const description = (conceptCard.description || '').toLowerCase();
         const promptLength = (conceptCard.prompt || '').length;
@@ -190,9 +152,6 @@ export class MayaBehaviorLearningService {
         }
         return 'simple';
     }
-    /**
-     * Analyze emotional tone of concept
-     */
     static analyzeEmotionalTone(conceptCard) {
         const description = (conceptCard.description || '').toLowerCase();
         if (description.includes('confident') || description.includes('powerful') || description.includes('strong')) {
@@ -209,9 +168,6 @@ export class MayaBehaviorLearningService {
         }
         return 'neutral';
     }
-    /**
-     * Analyze professional level of concept
-     */
     static analyzeProfessionalLevel(conceptCard) {
         const description = (conceptCard.description || '').toLowerCase();
         const category = (conceptCard.category || '').toLowerCase();
@@ -230,9 +186,6 @@ export class MayaBehaviorLearningService {
         }
         return Math.min(100, professionalScore);
     }
-    /**
-     * Calculate interaction value score
-     */
     static calculateInteractionValue(interactionType) {
         const valueMap = {
             'favorited': 100,
@@ -242,9 +195,6 @@ export class MayaBehaviorLearningService {
         };
         return valueMap[interactionType] || 0;
     }
-    /**
-     * Calculate preference signal strength
-     */
     static calculatePreferenceSignal(interactionType) {
         const signalMap = {
             'favorited': 1.0,
@@ -254,9 +204,6 @@ export class MayaBehaviorLearningService {
         };
         return signalMap[interactionType] || 0;
     }
-    /**
-     * ✨ PHASE 5.1: Get personalized Maya response style for user
-     */
     static async getPersonalizedResponseStyle(userId) {
         try {
             const behaviorData = await this.getBehaviorData(userId);
@@ -280,23 +227,17 @@ export class MayaBehaviorLearningService {
             return this.getDefaultResponseStyle();
         }
     }
-    /**
-     * Get optimal number of concept cards for user
-     */
     static getOptimalConceptCount(behaviorData) {
         const engagement = behaviorData.engagementMetrics.conceptCardEngagement;
         const experimentationLevel = behaviorData.personalizedInsights.experimentationLevel;
         if (experimentationLevel > 80)
-            return 4; // High experimentation - more options
+            return 4;
         if (engagement > 70)
-            return 3; // High engagement - standard options
+            return 3;
         if (engagement > 40)
-            return 2; // Moderate engagement - fewer options
-        return 3; // Default
+            return 2;
+        return 3;
     }
-    /**
-     * Get personality adaptations for Maya
-     */
     static getPersonalityAdaptations(insights) {
         return {
             emphasisLevel: insights.mayaPersonalityFit > 80 ? 'high' : 'moderate',
@@ -305,9 +246,6 @@ export class MayaBehaviorLearningService {
             brandingEmphasis: insights.brandingAwareness > 50 ? 'moderate' : 'subtle'
         };
     }
-    /**
-     * Default response style for new users
-     */
     static getDefaultResponseStyle() {
         return {
             detailLevel: 'moderate',
@@ -324,24 +262,18 @@ export class MayaBehaviorLearningService {
             }
         };
     }
-    /**
-     * Update behavior patterns based on new insights
-     */
     static async updateBehaviorPatterns(userId, behaviorData, insights) {
-        // Add style elements to preferences
         insights.styleElements.forEach(element => {
             if (!behaviorData.behaviorPatterns.conceptPreferences.includes(element)) {
                 behaviorData.behaviorPatterns.conceptPreferences.push(element);
             }
         });
-        // Update style journey
         if (insights.preferenceSignal > 0.5) {
             behaviorData.behaviorPatterns.styleJourney.progression.push({
                 date: new Date(),
                 dominant_style: insights.styleElements[0] || 'exploring',
                 confidence_score: insights.preferenceSignal
             });
-            // Keep only last 10 progression points
             if (behaviorData.behaviorPatterns.styleJourney.progression.length > 10) {
                 behaviorData.behaviorPatterns.styleJourney.progression =
                     behaviorData.behaviorPatterns.styleJourney.progression.slice(-10);
@@ -349,12 +281,8 @@ export class MayaBehaviorLearningService {
         }
         await this.storeBehaviorData(userId, behaviorData);
     }
-    /**
-     * Update engagement metrics based on interaction
-     */
     static async updateEngagementMetrics(userId, behaviorData, interactionType) {
         const metrics = behaviorData.engagementMetrics;
-        // Update concept card engagement
         if (interactionType === 'generated') {
             metrics.conceptCardEngagement = Math.min(100, metrics.conceptCardEngagement + 2);
             metrics.generationSuccessRate = Math.min(100, metrics.generationSuccessRate + 1);
@@ -368,68 +296,45 @@ export class MayaBehaviorLearningService {
         }
         await this.storeBehaviorData(userId, behaviorData);
     }
-    /**
-     * Update personalized insights based on new data
-     */
     static async updatePersonalizedInsights(userId, behaviorData, insights) {
         const personalizedInsights = behaviorData.personalizedInsights;
-        // Update style confidence based on consistent choices
         if (insights.preferenceSignal > 0.7) {
             personalizedInsights.styleConfidence = Math.min(100, personalizedInsights.styleConfidence + 1);
         }
-        // Update dominant aesthetic if strong preference signal
         if (insights.preferenceSignal > 0.8 && insights.styleElements.length > 0) {
             personalizedInsights.dominantAesthetic = insights.styleElements[0];
         }
-        // Update professional needs level
         if (insights.professionalLevel > 50) {
             personalizedInsights.professionalNeedsLevel = Math.min(100, personalizedInsights.professionalNeedsLevel + 2);
         }
         await this.storeBehaviorData(userId, behaviorData);
     }
-    /**
-     * Get behavior data from storage
-     */
     static async getBehaviorData(userId) {
         try {
-            // For now, use simple storage - will integrate with database later
-            return null; // Placeholder for actual storage implementation
+            return null;
         }
         catch (error) {
             console.error(`❌ PHASE 5.1: Failed to get behavior data for ${userId}:`, error);
             return null;
         }
     }
-    /**
-     * Store behavior data to storage
-     */
     static async storeBehaviorData(userId, data) {
         try {
-            // For now, use simple storage - will integrate with database later
             console.log(`💾 PHASE 5.1: Behavior data updated for user ${userId}`);
         }
         catch (error) {
             console.error(`❌ PHASE 5.1: Failed to store behavior data for ${userId}:`, error);
         }
     }
-    /**
-     * Upgrade existing behavior tracking to latest version
-     */
     static async upgradeBehaviorTracking(userId, existingData) {
-        // Add any missing fields from latest version
         const currentVersion = existingData.learningVersion || '1.0';
         if (currentVersion < '5.1') {
-            // Upgrade to Phase 5.1 structure
             console.log(`🔄 PHASE 5.1: Upgrading behavior tracking for user ${userId} from ${currentVersion} to 5.1`);
-            // Add any new fields introduced in Phase 5.1
             existingData.learningVersion = '5.1';
             existingData.updatedAt = new Date();
             await this.storeBehaviorData(userId, existingData);
         }
     }
-    /**
-     * Get learning service statistics
-     */
     static getLearningStats() {
         return {
             phase: 'Phase 5.1',
@@ -451,3 +356,4 @@ export class MayaBehaviorLearningService {
         };
     }
 }
+//# sourceMappingURL=maya-behavior-learning-service.js.map

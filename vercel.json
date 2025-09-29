@@ -1,42 +1,25 @@
 {
   "version": 2,
+  "buildCommand": "npm run vercel-build",
+  "outputDirectory": "client/dist",
+  "installCommand": "npm install --force",
+  "framework": "vite",
   "builds": [
     {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "buildCommand": "npm run vercel-build",
-        "outputDirectory": "client/dist",
-        "installCommand": "npm install --force"
-      }
-    },
-    {
-      "src": "api/[...route].ts",
+      "src": "api/**/*.ts",
       "use": "@vercel/node",
       "config": {
         "maxDuration": 60,
         "memory": 1024,
         "includeFiles": [
           "api/**",
-          "dist-server/**", 
-          "dist-server/server/**",
-          "dist-server/shared/**",
           "server/**",
-          "shared/**", 
+          "shared/**",
           "components/**",
-          "client/src/**",
           "drizzle/**",
           ".env*",
           "tsconfig*.json",
-          "package.json",
-          "vite.config.ts",
-          "postcss.config.js",
-          "tailwind.config.js",
-          "server/storage.ts",
-          "server/drizzle.ts",
-          "server/index.ts",
-          "server/index-launch.ts",
-          "shared/schema.ts"
+          "package.json"
         ]
       }
     }
@@ -44,76 +27,18 @@
   "routes": [
     {
       "src": "/static/(.*)",
-      "headers": { 
-        "cache-control": "public, max-age=31536000, immutable" 
-      },
-      "continue": true
-    },
-    {
-      "src": "/(.*)",
       "headers": {
-        "X-Frame-Options": "DENY",
-        "X-Content-Type-Options": "nosniff",
-        "Referrer-Policy": "strict-origin-when-cross-origin",
-        "Permissions-Policy": "camera=(), microphone=(), geolocation=()"
+        "cache-control": "public,max-age=31536000,immutable"
       },
-      "continue": true
-    },
-    {
-      "src": "/api/cron/(.*)",
-      "dest": "api/[...route].ts",
-      "methods": ["GET", "POST"],
-      "continue": true
+      "dest": "/static/$1"
     },
     {
       "src": "/api/(.*)",
-      "dest": "api/[...route].ts",
-      "headers": {
-        "Cache-Control": "no-store"
-      }
-    },
-    {
-      "src": "/auth/(.*)",
-      "dest": "api/auth/[...auth].ts"
+      "dest": "/api/$1"
     },
     {
       "src": "/(.*)",
-      "dest": "/client/dist/$1",
-      "headers": {
-        "Cache-Control": "public, max-age=0, must-revalidate"
-      }
+      "dest": "/index.html"
     }
-  ],
-  "crons": [
-    {
-      "path": "/api/cron/training-completion-monitor",
-      "schedule": "*/2 * * * *"
-    },
-    {
-      "path": "/api/cron/generation-completion-monitor", 
-      "schedule": "* * * * *"
-    }
-  ],
-  "build": {
-    "env": {
-      "VERCEL_FORCE_NO_BUILD_CACHE": "1"
-    }
-  },
-  "functions": {
-    "api/**/*.ts": {
-      "memory": 1024,
-      "maxDuration": 60
-    }
-  },
-  "git": {
-    "deploymentEnabled": {
-      "main": true,
-      "develop": false
-    }
-  },
-  "github": {
-    "autoAlias": false,
-    "enabled": true,
-    "autoJobCancelation": true
-  }
+  ]
 }

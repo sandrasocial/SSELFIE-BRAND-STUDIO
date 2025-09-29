@@ -1,5 +1,4 @@
 import { WebClient } from '@slack/web-api';
-// Slack notification service for agent-to-admin communication
 export class SlackNotificationService {
     static client = null;
     static channelId;
@@ -17,7 +16,6 @@ export class SlackNotificationService {
         console.log('✅ SLACK: Agent notification service initialized');
         return true;
     }
-    // Send agent insight notification to Sandra
     static async sendAgentInsight(agentName, insightType, title, message, priority = 'medium') {
         if (!this.client) {
             console.log('📧 SLACK: Service not initialized, logging insight locally');
@@ -70,7 +68,7 @@ export class SlackNotificationService {
             await this.client.chat.postMessage({
                 channel: this.channelId,
                 blocks,
-                text: `${agentName}: ${title}` // Fallback text for notifications
+                text: `${agentName}: ${title}`
             });
             console.log(`✅ SLACK: Sent ${insightType} insight from ${agentName}`);
             return true;
@@ -80,7 +78,6 @@ export class SlackNotificationService {
             return false;
         }
     }
-    // Quick notification for urgent agent requests
     static async sendUrgentRequest(agentName, requestType, context) {
         if (!this.client) {
             console.log(`🚨 URGENT: ${agentName} - ${requestType}: ${context}`);
@@ -130,27 +127,25 @@ export class SlackNotificationService {
             return false;
         }
     }
-    // Get agent-specific emoji
     static getAgentEmoji(agentName) {
         const emojiMap = {
-            'elena': '👑', // Strategic Leader
-            'aria': '🎨', // Designer
-            'zara': '⚡', // Technical
-            'maya': '✨', // AI Stylist
-            'victoria': '📊', // UX Strategist
-            'rachel': '✍️', // Copywriter
-            'ava': '📧', // Email Management Agent
-            'quinn': '🔍', // QA
-            'sophia': '📱', // Social Media
-            'martha': '📈', // Marketing
-            'diana': '📋', // Coordinator
-            'wilma': '⚙️', // Workflow
-            'olga': '🗂️', // Organization
-            'flux': '🎯' // Image Generation
+            'elena': '👑',
+            'aria': '🎨',
+            'zara': '⚡',
+            'maya': '✨',
+            'victoria': '📊',
+            'rachel': '✍️',
+            'ava': '📧',
+            'quinn': '🔍',
+            'sophia': '📱',
+            'martha': '📈',
+            'diana': '📋',
+            'wilma': '⚙️',
+            'olga': '🗂️',
+            'flux': '🎯'
         };
         return emojiMap[agentName.toLowerCase()] || '🤖';
     }
-    // Get insight type emoji
     static getInsightTypeEmoji(type) {
         const typeMap = {
             'strategic': '🧠',
@@ -160,7 +155,6 @@ export class SlackNotificationService {
         };
         return typeMap[type] || '💡';
     }
-    // Test connection
     static async testConnection() {
         if (!this.client) {
             return false;
@@ -176,5 +170,5 @@ export class SlackNotificationService {
         }
     }
 }
-// Initialize service on import
 SlackNotificationService.initialize();
+//# sourceMappingURL=slack-notification-service.js.map

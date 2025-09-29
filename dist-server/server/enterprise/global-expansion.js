@@ -1,7 +1,3 @@
-/**
- * PHASE 3: ENTERPRISE SCALING - GLOBAL EXPANSION PREPARATION
- * Multi-region deployment, localization, and international scaling infrastructure
- */
 export class GlobalExpansionEngine {
     static instance;
     static getInstance() {
@@ -33,35 +29,35 @@ export class GlobalExpansionEngine {
             {
                 region: 'German-speaking Europe',
                 countries: ['Germany', 'Austria', 'Switzerland'],
-                marketSize: 82_000_000, // 82M potential users
-                penetrationRate: 0.15, // 15% market penetration opportunity
-                revenueOpportunity: 58_000_000, // €58M annual opportunity
+                marketSize: 82_000_000,
+                penetrationRate: 0.15,
+                revenueOpportunity: 58_000_000,
                 entryBarriers: ['Language localization', 'GDPR compliance', 'Local payment methods'],
                 successFactors: ['High purchasing power', 'Quality appreciation', 'Digital adoption'],
                 timelineToEntry: '6-9 months',
-                investmentRequired: 450_000 // €450K investment
+                investmentRequired: 450_000
             },
             {
                 region: 'Scandinavia',
                 countries: ['Sweden', 'Norway', 'Denmark', 'Finland'],
-                marketSize: 27_000_000, // 27M potential users
-                penetrationRate: 0.22, // 22% market penetration opportunity
-                revenueOpportunity: 42_000_000, // €42M annual opportunity
+                marketSize: 27_000_000,
+                penetrationRate: 0.22,
+                revenueOpportunity: 42_000_000,
                 entryBarriers: ['Multiple languages', 'High competition', 'Regulatory requirements'],
                 successFactors: ['Premium market', 'Tech-savvy users', 'Sustainability focus'],
                 timelineToEntry: '8-12 months',
-                investmentRequired: 320_000 // €320K investment
+                investmentRequired: 320_000
             },
             {
                 region: 'North America',
                 countries: ['United States', 'Canada'],
-                marketSize: 370_000_000, // 370M potential users
-                penetrationRate: 0.08, // 8% market penetration opportunity
-                revenueOpportunity: 156_000_000, // €156M annual opportunity
+                marketSize: 370_000_000,
+                penetrationRate: 0.08,
+                revenueOpportunity: 156_000_000,
                 entryBarriers: ['High competition', 'Marketing costs', 'Different business culture'],
                 successFactors: ['Large market size', 'Premium willingness', 'Innovation adoption'],
                 timelineToEntry: '12-18 months',
-                investmentRequired: 1_200_000 // €1.2M investment
+                investmentRequired: 1_200_000
             }
         ];
         const competitiveAnalysis = {
@@ -93,10 +89,10 @@ export class GlobalExpansionEngine {
             opportunities: ['AI adoption acceleration', 'Remote work personal branding needs']
         };
         const marketSizing = {
-            totalAddressableMarket: 2_500_000_000, // €2.5B global market
-            serviceableAddressableMarket: 450_000_000, // €450M serviceable market
-            serviceableObtainableMarket: 67_000_000, // €67M obtainable market
-            growthRate: 0.28, // 28% annual growth rate
+            totalAddressableMarket: 2_500_000_000,
+            serviceableAddressableMarket: 450_000_000,
+            serviceableObtainableMarket: 67_000_000,
+            growthRate: 0.28,
             marketTrends: [
                 'AI-generated content mainstream adoption',
                 'Personal branding importance growth',
@@ -247,38 +243,38 @@ export class GlobalExpansionEngine {
         const regions = [
             {
                 region: 'Europe',
-                averageLatency: 45, // ms
+                averageLatency: 45,
                 uptime: 0.999,
                 userCount: 1200,
-                revenueContribution: 0.85, // 85% of revenue
-                growthRate: 0.15, // 15% monthly growth
-                satisfactionScore: 0.92 // 92% satisfaction
+                revenueContribution: 0.85,
+                growthRate: 0.15,
+                satisfactionScore: 0.92
             },
             {
                 region: 'North America',
-                averageLatency: 120, // ms
+                averageLatency: 120,
                 uptime: 0.995,
                 userCount: 180,
-                revenueContribution: 0.12, // 12% of revenue
-                growthRate: 0.08, // 8% monthly growth
-                satisfactionScore: 0.88 // 88% satisfaction
+                revenueContribution: 0.12,
+                growthRate: 0.08,
+                satisfactionScore: 0.88
             },
             {
                 region: 'Asia Pacific',
-                averageLatency: 180, // ms
+                averageLatency: 180,
                 uptime: 0.992,
                 userCount: 45,
-                revenueContribution: 0.03, // 3% of revenue
-                growthRate: 0.25, // 25% monthly growth
-                satisfactionScore: 0.85 // 85% satisfaction
+                revenueContribution: 0.03,
+                growthRate: 0.25,
+                satisfactionScore: 0.85
             }
         ];
         const globalCDN = {
             provider: 'Cloudflare',
             coverage: ['Europe', 'North America', 'Asia Pacific'],
-            hitRate: 0.87, // 87% cache hit rate
-            averageLatency: 35, // ms
-            bandwidthSavings: 0.65 // 65% bandwidth savings
+            hitRate: 0.87,
+            averageLatency: 35,
+            bandwidthSavings: 0.65
         };
         const serverDistribution = {
             totalServers: 12,
@@ -385,7 +381,7 @@ export class GlobalExpansionEngine {
                 priority: 'high',
                 timeframe: '6-9 months',
                 investmentRequired: 450_000,
-                expectedROI: 2.8, // 280% ROI over 2 years
+                expectedROI: 2.8,
                 prerequisites: [
                     'German language localization',
                     'SEPA payment integration',
@@ -449,7 +445,7 @@ export class GlobalExpansionEngine {
                 priority: 'medium',
                 timeframe: '8-12 months',
                 investmentRequired: 320_000,
-                expectedROI: 2.2, // 220% ROI over 2 years
+                expectedROI: 2.2,
                 prerequisites: [
                     'Multi-language support (Swedish, Norwegian, Danish)',
                     'Klarna payment integration',
@@ -512,3 +508,4 @@ export class GlobalExpansionEngine {
     }
 }
 export const globalExpansion = GlobalExpansionEngine.getInstance();
+//# sourceMappingURL=global-expansion.js.map

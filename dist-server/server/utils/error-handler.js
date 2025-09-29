@@ -1,9 +1,5 @@
-/**
- * Comprehensive Error Handling System
- * Centralized error handling, logging, and recovery
- */
-import { Logger } from './logger';
-import { errorTracker } from './error-tracker';
+import { Logger } from './logger.js';
+import { errorTracker } from './error-tracker.js';
 export class ErrorHandler {
     logger;
     _isEnabled;
@@ -11,15 +7,11 @@ export class ErrorHandler {
         this.logger = new Logger('ErrorHandler');
         this._isEnabled = true;
     }
-    /**
-     * Handle application errors
-     */
     handleError(context) {
         if (!this._isEnabled) {
             return;
         }
         const { error, req, res, userId, sessionId, additionalData } = context;
-        // Log error
         this.logger.error('Application error occurred', {
             message: error.message,
             stack: error.stack,
@@ -29,7 +21,6 @@ export class ErrorHandler {
             method: req?.method,
             additionalData,
         });
-        // Track error
         const errorId = errorTracker.trackError(error, {
             req,
             res,
@@ -38,15 +29,11 @@ export class ErrorHandler {
             category: this.determineCategory(error),
             additionalData,
         });
-        // Send error response if response object is available
         if (res && !res.headersSent) {
             const errorResponse = this.createErrorResponse(error, errorId);
             res.status(this.getStatusCode(error)).json(errorResponse);
         }
     }
-    /**
-     * Create error response
-     */
     createErrorResponse(error, errorId) {
         return {
             success: false,
@@ -59,13 +46,9 @@ export class ErrorHandler {
             },
         };
     }
-    /**
-     * Determine error severity
-     */
     determineSeverity(error) {
         const message = error.message.toLowerCase();
         const stack = error.stack?.toLowerCase() || '';
-        // Critical errors
         if (message.includes('database') ||
             message.includes('connection') ||
             message.includes('timeout') ||
@@ -75,14 +58,12 @@ export class ErrorHandler {
             message.includes('forbidden')) {
             return 'critical';
         }
-        // High severity errors
         if (message.includes('validation') ||
             message.includes('invalid') ||
             message.includes('not found') ||
             message.includes('duplicate')) {
             return 'high';
         }
-        // Medium severity errors
         if (message.includes('warning') ||
             message.includes('deprecated') ||
             message.includes('slow')) {
@@ -90,9 +71,6 @@ export class ErrorHandler {
         }
         return 'low';
     }
-    /**
-     * Determine error category
-     */
     determineCategory(error) {
         const message = error.message.toLowerCase();
         const stack = error.stack?.toLowerCase() || '';
@@ -116,9 +94,6 @@ export class ErrorHandler {
         }
         return 'unknown';
     }
-    /**
-     * Get error code
-     */
     getErrorCode(error) {
         const message = error.message.toLowerCase();
         if (message.includes('validation'))
@@ -143,12 +118,8 @@ export class ErrorHandler {
             return 'FATAL_ERROR';
         return 'INTERNAL_ERROR';
     }
-    /**
-     * Get error message
-     */
     getErrorMessage(error) {
-        // Don't expose internal error details in production
-        if (process.env.NODE_ENV === 'production') {
+        if (process.env['NODE_ENV'] === 'production') {
             const message = error.message.toLowerCase();
             if (message.includes('validation'))
                 return 'Validation failed';
@@ -174,11 +145,8 @@ export class ErrorHandler {
         }
         return error.message;
     }
-    /**
-     * Get error details
-     */
     getErrorDetails(error) {
-        if (process.env.NODE_ENV === 'production') {
+        if (process.env['NODE_ENV'] === 'production') {
             return undefined;
         }
         return {
@@ -186,9 +154,6 @@ export class ErrorHandler {
             name: error.name,
         };
     }
-    /**
-     * Get HTTP status code
-     */
     getStatusCode(error) {
         const message = error.message.toLowerCase();
         if (message.includes('validation'))
@@ -213,9 +178,6 @@ export class ErrorHandler {
             return 500;
         return 500;
     }
-    /**
-     * Express error handling middleware
-     */
     expressErrorHandler() {
         return (error, req, res, next) => {
             this.handleError({
@@ -227,9 +189,6 @@ export class ErrorHandler {
             });
         };
     }
-    /**
-     * Async error wrapper
-     */
     asyncHandler(fn) {
         return (req, res, next) => {
             Promise.resolve(fn(req, res, next)).catch((error) => {
@@ -243,18 +202,12 @@ export class ErrorHandler {
             });
         };
     }
-    /**
-     * Create error
-     */
     createError(message, code, statusCode) {
         const error = new Error(message);
         error.code = code;
         error.statusCode = statusCode;
         return error;
     }
-    /**
-     * Create error with context
-     */
     createErrorWithContext(message, context) {
         const error = new Error(message);
         error.code = context.code;
@@ -264,9 +217,6 @@ export class ErrorHandler {
         error.sessionId = context.sessionId;
         return error;
     }
-    /**
-     * Send success response
-     */
     sendSuccess(res, data, statusCode = 200) {
         res.status(statusCode).json({
             success: true,
@@ -274,9 +224,6 @@ export class ErrorHandler {
             timestamp: new Date().toISOString(),
         });
     }
-    /**
-     * Send error response
-     */
     sendError(res, message, statusCode = 500, code) {
         res.status(statusCode).json({
             success: false,
@@ -287,9 +234,6 @@ export class ErrorHandler {
             },
         });
     }
-    /**
-     * Validate required fields
-     */
     validateRequired(fields) {
         const missing = Object.entries(fields)
             .filter(([_, value]) => !value || (typeof value === 'string' && value.trim() === ''))
@@ -298,18 +242,12 @@ export class ErrorHandler {
             throw this.createError(`Missing required fields: ${missing.join(', ')}`, 'VALIDATION_ERROR', 400);
         }
     }
-    /**
-     * Validate email format
-     */
     validateEmail(email) {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
             throw this.createError('Invalid email format', 'VALIDATION_ERROR', 400);
         }
     }
-    /**
-     * Validate password strength
-     */
     validatePassword(password) {
         if (password.length < 8) {
             throw this.createError('Password must be at least 8 characters long', 'VALIDATION_ERROR', 400);
@@ -324,23 +262,15 @@ export class ErrorHandler {
             throw this.createError('Password must contain at least one number', 'VALIDATION_ERROR', 400);
         }
     }
-    /**
-     * Enable/disable error handling
-     */
     setEnabled(enabled) {
         this._isEnabled = enabled;
         this.logger.info(`Error handling ${enabled ? 'enabled' : 'disabled'}`);
     }
-    /**
-     * Check if error handling is enabled
-     */
     isEnabled() {
         return this._isEnabled;
     }
 }
-// Export singleton instance
 export const errorHandler = new ErrorHandler();
-// Export convenience functions
 export const asyncHandler = errorHandler.asyncHandler.bind(errorHandler);
 export const createError = errorHandler.createError.bind(errorHandler);
 export const sendSuccess = errorHandler.sendSuccess.bind(errorHandler);
@@ -348,3 +278,4 @@ export const sendError = errorHandler.sendError.bind(errorHandler);
 export const validateRequired = errorHandler.validateRequired.bind(errorHandler);
 export const validateEmail = errorHandler.validateEmail.bind(errorHandler);
 export const validatePassword = errorHandler.validatePassword.bind(errorHandler);
+//# sourceMappingURL=error-handler.js.map

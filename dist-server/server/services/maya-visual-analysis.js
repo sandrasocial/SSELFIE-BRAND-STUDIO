@@ -1,21 +1,10 @@
-/**
- * 🌟 PHASE 5.1: MULTI-MODAL INTELLIGENCE INTEGRATION
- * Maya Visual Analysis Service - Visual wardrobe analysis and lifestyle intelligence
- */
 export class MayaVisualAnalysis {
-    /**
-     * 🌟 PHASE 5.1: Analyze user's existing wardrobe from photos
-     */
     static async analyzeWardrobePhotos(userId, photos) {
         try {
             console.log(`👁️ PHASE 5.1: Analyzing wardrobe photos for user ${userId} - ${photos.length} images`);
-            // Color Analysis from wardrobe photos
             const colorAnalysis = await this.performColorAnalysis(photos);
-            // Style Pattern Recognition
             const stylePatterns = await this.recognizeStylePatterns(photos);
-            // Gap Analysis
             const gapAnalysis = await this.performGapAnalysis(colorAnalysis, stylePatterns);
-            // Quality and Versatility Assessment
             const qualityAssessment = await this.assessWardrobeQuality(stylePatterns);
             const analysis = {
                 dominantColors: colorAnalysis.dominantColors,
@@ -42,17 +31,11 @@ export class MayaVisualAnalysis {
             return this.getDefaultWardrobeAnalysis();
         }
     }
-    /**
-     * 🌟 PHASE 5.1: Extract color palette from user's lifestyle/environment
-     */
     static async extractLifestylePalette(environmentPhotos) {
         try {
             console.log(`🎨 PHASE 5.1: Extracting lifestyle palette from ${environmentPhotos.length} environment photos`);
-            // Analyze environmental colors
             const environmentColors = await this.analyzeEnvironmentalColors(environmentPhotos);
-            // Extract lifestyle indicators
             const lifestyleIndicators = await this.extractLifestyleIndicators(environmentPhotos);
-            // Generate styling recommendations
             const stylingRecommendations = await this.generateColorRecommendations(environmentColors, lifestyleIndicators);
             const palette = {
                 primaryEnvironment: environmentColors.primary,
@@ -74,9 +57,6 @@ export class MayaVisualAnalysis {
             return this.getDefaultColorPalette();
         }
     }
-    /**
-     * 🌟 PHASE 5.1: Generate comprehensive visual style profile
-     */
     static async generateVisualStyleProfile(userId, wardrobePhotos, environmentPhotos) {
         try {
             console.log(`📸 PHASE 5.1: Generating visual style profile for user ${userId}`);
@@ -84,7 +64,6 @@ export class MayaVisualAnalysis {
                 this.analyzeWardrobePhotos(userId, wardrobePhotos),
                 this.extractLifestylePalette(environmentPhotos)
             ]);
-            // Synthesize visual intelligence
             const visualIntelligence = await this.synthesizeVisualIntelligence(wardrobeAnalysis, lifestylePalette);
             const profile = {
                 dominantAesthetic: visualIntelligence.aesthetic,
@@ -107,12 +86,7 @@ export class MayaVisualAnalysis {
             return this.getDefaultVisualStyleProfile();
         }
     }
-    /**
-     * Perform color analysis on wardrobe photos
-     */
     static async performColorAnalysis(photos) {
-        // Simulate advanced color analysis
-        // In production, this would use computer vision APIs
         const simulatedColors = {
             dominantColors: ['navy', 'white', 'cream', 'black', 'camel'],
             palette: {
@@ -124,12 +98,7 @@ export class MayaVisualAnalysis {
         };
         return simulatedColors;
     }
-    /**
-     * Recognize style patterns from wardrobe photos
-     */
     static async recognizeStylePatterns(photos) {
-        // Simulate style pattern recognition
-        // In production, this would use ML models for garment recognition
         const simulatedPatterns = {
             signatures: ['minimalist', 'professional', 'contemporary'],
             silhouettes: ['tailored', 'structured', 'flowing'],
@@ -143,9 +112,6 @@ export class MayaVisualAnalysis {
         };
         return simulatedPatterns;
     }
-    /**
-     * Perform wardrobe gap analysis
-     */
     static async performGapAnalysis(colorAnalysis, stylePatterns) {
         return {
             essentials: ['versatile blazer', 'quality white shirt', 'statement accessories'],
@@ -159,9 +125,6 @@ export class MayaVisualAnalysis {
             }
         };
     }
-    /**
-     * Assess wardrobe quality and versatility
-     */
     static async assessWardrobeQuality(stylePatterns) {
         return {
             luxury: 75,
@@ -170,20 +133,13 @@ export class MayaVisualAnalysis {
             casual: 70
         };
     }
-    /**
-     * Analyze environmental colors from photos
-     */
     static async analyzeEnvironmentalColors(photos) {
-        // Simulate environmental color analysis
         return {
             primary: ['warm-white', 'soft-gray', 'natural-wood', 'sage-green'],
             accents: ['gold', 'terracotta', 'deep-blue'],
             lighting: ['warm', 'natural', 'soft']
         };
     }
-    /**
-     * Extract lifestyle indicators from environment photos
-     */
     static async extractLifestyleIndicators(photos) {
         return {
             homeDecor: ['modern', 'minimalist', 'natural-elements'],
@@ -191,9 +147,6 @@ export class MayaVisualAnalysis {
             personality: ['calm', 'professional', 'creative']
         };
     }
-    /**
-     * Generate color recommendations based on analysis
-     */
     static async generateColorRecommendations(environmentColors, lifestyleIndicators) {
         return {
             complementary: ['sage-green', 'warm-terracotta', 'deep-navy', 'cream'],
@@ -211,9 +164,6 @@ export class MayaVisualAnalysis {
             }
         };
     }
-    /**
-     * Synthesize visual intelligence from all analyses
-     */
     static async synthesizeVisualIntelligence(wardrobeAnalysis, lifestylePalette) {
         return {
             aesthetic: 'contemporary-professional',
@@ -229,9 +179,6 @@ export class MayaVisualAnalysis {
             cultural: ['globally-aware', 'respectfully-modern']
         };
     }
-    /**
-     * Default wardrobe analysis for fallback
-     */
     static getDefaultWardrobeAnalysis() {
         return {
             dominantColors: ['navy', 'white', 'black', 'gray'],
@@ -260,9 +207,6 @@ export class MayaVisualAnalysis {
             casualComfort: 60
         };
     }
-    /**
-     * Default color palette for fallback
-     */
     static getDefaultColorPalette() {
         return {
             primaryEnvironment: ['warm-white', 'soft-gray', 'natural-wood'],
@@ -286,9 +230,6 @@ export class MayaVisualAnalysis {
             }
         };
     }
-    /**
-     * Default visual style profile for fallback
-     */
     static getDefaultVisualStyleProfile() {
         return {
             dominantAesthetic: 'contemporary-professional',
@@ -304,9 +245,6 @@ export class MayaVisualAnalysis {
             culturalSensitivity: ['globally-aware', 'respectfully-contemporary']
         };
     }
-    /**
-     * Get visual analysis service statistics
-     */
     static getVisualAnalysisStats() {
         return {
             phase: 'Phase 5.1',
@@ -329,3 +267,4 @@ export class MayaVisualAnalysis {
         };
     }
 }
+//# sourceMappingURL=maya-visual-analysis.js.map

@@ -1,21 +1,12 @@
-/**
- * Data Consolidation Service
- * Fixes data consistency issues by consolidating image storage to ai_images table
- * and ensuring upload tracking matches training records
- */
 export class DataConsolidationService {
-    /**
-     * Consolidate all image data to ai_images as the primary table
-     */
     static async consolidateImageStorage() {
         const errors = [];
         let consolidated = 0;
         try {
             console.log('🔄 DATA CONSOLIDATION: Starting image storage consolidation...');
-            const { db } = await import('./db');
-            const { aiImages, generatedImages, generationTrackers } = await import('../shared/schema');
+            const { db } = await import('./db.js');
+            const { aiImages, generatedImages, generationTrackers } = await import('../shared/schema.js');
             const { eq, and, isNotNull } = await import('drizzle-orm');
-            // Step 1: Migrate any data from generated_images to ai_images (if any exists)
             const generatedImagesData = await db
                 .select()
                 .from(generatedImages)
@@ -38,7 +29,6 @@ export class DataConsolidationService {
                     errors.push(`Failed to migrate generated_image ${genImage.id}: ${error}`);
                 }
             }
-            // Step 2: Clean up completed generation_trackers by moving to ai_images
             const completedTrackers = await db
                 .select()
                 .from(generationTrackers)
@@ -49,7 +39,6 @@ export class DataConsolidationService {
                         const urls = JSON.parse(tracker.imageUrls);
                         const primaryUrl = Array.isArray(urls) ? urls[0] : urls;
                         if (primaryUrl) {
-                            // Check if this image already exists in ai_images
                             const existing = await db
                                 .select()
                                 .from(aiImages)
@@ -61,7 +50,7 @@ export class DataConsolidationService {
                                     imageUrl: primaryUrl,
                                     prompt: tracker.prompt,
                                     style: tracker.style || 'maya-generation',
-                                    isSelected: true, // Tracker means user kept it
+                                    isSelected: true,
                                     generationStatus: 'completed',
                                     predictionId: tracker.predictionId,
                                     createdAt: tracker.createdAt
@@ -93,28 +82,22 @@ export class DataConsolidationService {
             };
         }
     }
-    /**
-     * Ensure upload tracking matches training records
-     */
     static async synchronizeUploadTraining() {
         const errors = [];
         let synchronized = 0;
         try {
             console.log('🔄 SYNC: Starting upload-training synchronization...');
-            const { db } = await import('./db');
-            const { userModels, selfieUploads } = await import('../shared/schema');
+            const { db } = await import('./db.js');
+            const { userModels, selfieUploads } = await import('../shared/schema.js');
             const { eq } = await import('drizzle-orm');
-            // Find user models without corresponding selfie uploads
             const userModelsData = await db.select().from(userModels);
             for (const model of userModelsData) {
                 try {
-                    // Check if user has selfie uploads
                     const uploads = await db
                         .select()
                         .from(selfieUploads)
                         .where(eq(selfieUploads.userId, model.userId));
                     if (uploads.length === 0) {
-                        // Create a tracking record to indicate training occurred
                         await db.insert(selfieUploads).values({
                             userId: model.userId,
                             filename: `model-${model.id}-training-data.zip`,
@@ -157,24 +140,19 @@ export class DataConsolidationService {
             };
         }
     }
-    /**
-     * Align generation success tracking across all tables
-     */
     static async alignGenerationTracking() {
         const errors = [];
         let aligned = 0;
         try {
             console.log('🔄 ALIGN: Starting generation tracking alignment...');
-            const { db } = await import('./db');
-            const { aiImages, generationTrackers } = await import('../shared/schema');
+            const { db } = await import('./db.js');
+            const { aiImages, generationTrackers } = await import('../shared/schema.js');
             const { eq, and } = await import('drizzle-orm');
-            // Update ai_images with correct generation status based on trackers
             const aiImagesData = await db.select().from(aiImages);
             for (const aiImage of aiImagesData) {
                 try {
                     let shouldUpdate = false;
                     let newStatus = aiImage.generationStatus;
-                    // Find corresponding tracker if exists
                     if (aiImage.predictionId) {
                         const tracker = await db
                             .select()
@@ -186,7 +164,6 @@ export class DataConsolidationService {
                             shouldUpdate = true;
                         }
                     }
-                    // Ensure status consistency
                     if (!aiImage.generationStatus || aiImage.generationStatus === 'pending') {
                         if (aiImage.imageUrl && aiImage.imageUrl.startsWith('http')) {
                             newStatus = 'completed';
@@ -225,19 +202,13 @@ export class DataConsolidationService {
             };
         }
     }
-    /**
-     * Run complete data consolidation process
-     */
     static async runCompleteConsolidation() {
         console.log('🚀 DATA CONSOLIDATION: Starting complete data consolidation...');
         const allErrors = [];
-        // Step 1: Consolidate image storage
         const imageResult = await this.consolidateImageStorage();
         allErrors.push(...imageResult.errors);
-        // Step 2: Synchronize upload tracking
         const syncResult = await this.synchronizeUploadTraining();
         allErrors.push(...syncResult.errors);
-        // Step 3: Align generation tracking
         const alignResult = await this.alignGenerationTracking();
         allErrors.push(...alignResult.errors);
         const success = allErrors.length === 0;
@@ -255,3 +226,4 @@ export class DataConsolidationService {
         };
     }
 }
+//# sourceMappingURL=data-consolidation-service.js.map

@@ -1,15 +1,13 @@
-import { requireStackAuth } from '../stack-auth';
-import { storage } from "../storage";
-// import { sendWelcomeEmail } from "../email-service";
+import { requireStackAuth } from '../stack-auth.js';
+import { storage } from "../storage.js";
 import Stripe from "stripe";
 export function registerCheckoutRoutes(app) {
-    if (!process.env.STRIPE_SECRET_KEY) {
+    if (!process.env['STRIPE_SECRET_KEY']) {
         throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
     }
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+    const stripe = new Stripe(process.env['STRIPE_SECRET_KEY'], {
         apiVersion: "2025-08-27.basil",
     });
-    // 🔄 PHASE 3: Create Retraining Checkout Session
     app.post("/api/create-retrain-checkout-session", requireStackAuth, async (req, res) => {
         try {
             const { successUrl, cancelUrl } = req.body;
@@ -17,16 +15,14 @@ export function registerCheckoutRoutes(app) {
             if (!userId) {
                 return res.status(401).json({ message: 'User authentication required for retraining' });
             }
-            // Check if user has existing trained model
             const user = await storage.getUser(userId);
             if (!user) {
                 return res.status(404).json({ message: 'User not found' });
             }
-            // Retraining configuration - $10 one-time fee
             const retrainingConfig = {
                 name: 'AI Model Retraining',
                 description: 'One-time retraining session for your personal AI model',
-                amount: 1000, // $10.00 in cents
+                amount: 1000,
             };
             const session = await stripe.checkout.sessions.create({
                 payment_method_types: ['card'],
@@ -61,19 +57,17 @@ export function registerCheckoutRoutes(app) {
             res.status(500).json({ message: "Error creating retraining checkout session: " + error.message });
         }
     });
-    // Create Stripe Checkout Session (simpler and more reliable)
     app.post("/api/create-checkout-session", async (req, res) => {
         try {
             const { successUrl, cancelUrl, plan = 'sselfie-studio' } = req.body;
-            // Single pricing plan - SIMPLIFIED FOR LAUNCH
             const planConfig = {
                 'sselfie-studio': {
                     name: 'SSELFIE STUDIO',
                     description: 'Personal AI model + 100 monthly photos + Maya AI photographer',
-                    amount: 4700, // €47.00 in cents
+                    amount: 4700,
                 }
             };
-            const selectedPlan = planConfig['sselfie-studio']; // Only one plan available
+            const selectedPlan = planConfig['sselfie-studio'];
             const session = await stripe.checkout.sessions.create({
                 payment_method_types: ['card'],
                 line_items: [
@@ -93,7 +87,8 @@ export function registerCheckoutRoutes(app) {
                 success_url: successUrl,
                 cancel_url: cancelUrl,
                 metadata: {
-                    plan: plan
+                    plan: plan,
+                    flow: successUrl.includes('/checkout?status=success') ? 'modal' : 'page'
                 }
             });
             res.json({ url: session.url });
@@ -103,8 +98,6 @@ export function registerCheckoutRoutes(app) {
             res.status(500).json({ message: "Error creating checkout session: " + error.message });
         }
     });
-    // Subscription Management Routes
-    // Get user's subscription details
     app.get("/api/subscription", requireStackAuth, async (req, res) => {
         try {
             const userId = req.user.id;
@@ -115,7 +108,6 @@ export function registerCheckoutRoutes(app) {
             if (!user || !user.stripeCustomerId) {
                 return res.status(404).json({ message: 'No subscription found' });
             }
-            // Get the customer's subscriptions
             const subscriptions = await stripe.subscriptions.list({
                 customer: user.stripeCustomerId,
                 status: 'all',
@@ -131,7 +123,6 @@ export function registerCheckoutRoutes(app) {
             res.status(500).json({ message: "Error fetching subscription: " + error.message });
         }
     });
-    // Get user's invoices
     app.get("/api/invoices", requireStackAuth, async (req, res) => {
         try {
             const userId = req.user.id;
@@ -142,7 +133,6 @@ export function registerCheckoutRoutes(app) {
             if (!user || !user.stripeCustomerId) {
                 return res.status(404).json({ message: 'No customer found' });
             }
-            // Get the customer's invoices
             const invoices = await stripe.invoices.list({
                 customer: user.stripeCustomerId,
                 limit: 10,
@@ -154,7 +144,6 @@ export function registerCheckoutRoutes(app) {
             res.status(500).json({ message: "Error fetching invoices: " + error.message });
         }
     });
-    // Cancel subscription (at period end)
     app.post("/api/subscription/cancel", requireStackAuth, async (req, res) => {
         try {
             const userId = req.user.id;
@@ -165,7 +154,6 @@ export function registerCheckoutRoutes(app) {
             if (!user || !user.stripeSubscriptionId) {
                 return res.status(404).json({ message: 'No subscription found' });
             }
-            // Cancel subscription at period end (not immediately)
             const subscription = await stripe.subscriptions.update(user.stripeSubscriptionId, {
                 cancel_at_period_end: true,
             });
@@ -176,7 +164,6 @@ export function registerCheckoutRoutes(app) {
             res.status(500).json({ message: "Error canceling subscription: " + error.message });
         }
     });
-    // Reactivate subscription (remove cancel_at_period_end)
     app.post("/api/subscription/reactivate", requireStackAuth, async (req, res) => {
         try {
             const userId = req.user.id;
@@ -187,7 +174,6 @@ export function registerCheckoutRoutes(app) {
             if (!user || !user.stripeSubscriptionId) {
                 return res.status(404).json({ message: 'No subscription found' });
             }
-            // Remove the cancellation (reactivate)
             const subscription = await stripe.subscriptions.update(user.stripeSubscriptionId, {
                 cancel_at_period_end: false,
             });
@@ -198,7 +184,6 @@ export function registerCheckoutRoutes(app) {
             res.status(500).json({ message: "Error reactivating subscription: " + error.message });
         }
     });
-    // Keep the old payment intent endpoint for backward compatibility
     app.post("/api/create-payment-intent", async (req, res) => {
         try {
             const { amount, plan, currency = 'eur' } = req.body;
@@ -206,14 +191,13 @@ export function registerCheckoutRoutes(app) {
                 return res.status(400).json({ message: 'Amount and plan are required' });
             }
             const paymentIntent = await stripe.paymentIntents.create({
-                amount: Math.round(amount * 100), // Convert to cents
+                amount: Math.round(amount * 100),
                 currency,
                 automatic_payment_methods: {
                     enabled: true,
                 },
                 metadata: {
                     plan,
-                    // userId will be added later during onboarding after successful payment
                 },
                 description: `SSELFIE ${plan} subscription`,
             });
@@ -224,11 +208,9 @@ export function registerCheckoutRoutes(app) {
             res.status(500).json({ message: "Error creating payment intent: " + error.message });
         }
     });
-    // Webhook for successful payments
     app.post('/api/webhook/stripe', async (req, res) => {
         const sig = req.headers['stripe-signature'];
         let event;
-        // Verify webhook signature for security
         if (!process.env.STRIPE_WEBHOOK_SECRET) {
             console.error('Missing STRIPE_WEBHOOK_SECRET environment variable');
             return res.status(500).send('Webhook configuration error');
@@ -240,31 +222,23 @@ export function registerCheckoutRoutes(app) {
             console.error('Webhook signature verification failed:', err.message);
             return res.status(400).send(`Webhook Error: ${err.message}`);
         }
-        // Handle successful payment
         if (event.type === 'payment_intent.succeeded') {
             const paymentIntent = event.data.object;
             const plan = paymentIntent.metadata.plan;
-            // For pre-login purchases, we'll store the payment intent ID and plan
-            // The user will be linked to this payment during onboarding after they log in
             try {
-                // Store payment record without userId for now
                 console.log(`Payment succeeded for plan ${plan}, payment intent: ${paymentIntent.id}`);
-                // The subscription will be created during onboarding when user logs in
-                // For now, just log the successful payment
             }
             catch (error) {
                 console.error('Post-payment processing error:', error);
             }
         }
-        // Handle successful payments via checkout.session.completed
         if (event.type === 'checkout.session.completed') {
             const session = event.data.object;
-            const { plan, userId, type } = session.metadata || {};
-            // Handle retraining payments specifically
+            const { plan, userId, type, flow } = session.metadata || {};
+            console.log(`💰 PAYMENT SUCCESS: Flow=${flow || 'legacy'}, Plan=${plan}, Session=${session.id}`);
             if (plan === 'retraining-session' && type === 'retrain' && userId) {
                 try {
                     console.log(`🔄 RETRAINING PAYMENT: Successful payment for user ${userId} - session ${session.id}`);
-                    // Grant retraining access to user
                     await grantRetrainingAccess(userId, session.id);
                     console.log(`✅ RETRAINING ACCESS: Granted to user ${userId}`);
                 }
@@ -272,12 +246,10 @@ export function registerCheckoutRoutes(app) {
                     console.error('Retraining payment processing error:', error);
                 }
             }
-            // Handle regular subscription payments (sselfie-studio plan)
             else if (plan === 'sselfie-studio' || !plan) {
                 try {
-                    console.log(`💰 SUBSCRIPTION PAYMENT: Successful payment - session ${session.id}`);
-                    // Create or update user with subscription access
-                    await handleSubscriptionPayment(session);
+                    console.log(`💰 SUBSCRIPTION PAYMENT: Flow=${flow || 'legacy'}, Session=${session.id}`);
+                    await handleSubscriptionPayment(session, flow);
                     console.log(`✅ SUBSCRIPTION ACCESS: Granted for session ${session.id}`);
                 }
                 catch (error) {
@@ -288,10 +260,8 @@ export function registerCheckoutRoutes(app) {
         res.json({ received: true });
     });
 }
-// Grant retraining access to user
 async function grantRetrainingAccess(userId, sessionId) {
     try {
-        // Update user with retraining access
         await storage.updateUserRetrainingAccess(userId, {
             hasRetrainingAccess: true,
             retrainingSessionId: sessionId,
@@ -304,20 +274,17 @@ async function grantRetrainingAccess(userId, sessionId) {
         throw error;
     }
 }
-// Handle successful subscription payment and user creation/upgrade
-async function handleSubscriptionPayment(session) {
+async function handleSubscriptionPayment(session, flow) {
     try {
         const customerEmail = session.customer_email || session.customer_details?.email;
         if (!customerEmail) {
             console.log('No customer email found in session, skipping user creation');
             return;
         }
-        console.log(`📧 Processing subscription for email: ${customerEmail}`);
-        // Check if user already exists
+        console.log(`📧 Processing subscription for email: ${customerEmail} (flow: ${flow || 'legacy'})`);
         let user = await storage.getUserByEmail(customerEmail);
         if (user) {
-            // Update existing user with subscription details
-            console.log(`👤 Updating existing user: ${user.id}`);
+            console.log(`👤 Updating existing user: ${user.id} (flow: ${flow || 'legacy'})`);
             await storage.updateUserProfile(user.id, {
                 plan: 'sselfie-studio',
                 monthlyGenerationLimit: 100,
@@ -329,9 +296,8 @@ async function handleSubscriptionPayment(session) {
             console.log(`✅ User ${user.id} upgraded to SSELFIE STUDIO plan`);
         }
         else {
-            // Create new user with subscription
-            console.log(`👤 Creating new user for email: ${customerEmail}`);
-            const newUserId = generateUserId(); // Generate unique user ID
+            console.log(`👤 Creating new user for email: ${customerEmail} (flow: ${flow || 'legacy'})`);
+            const newUserId = generateUserId();
             await storage.createUser({
                 id: newUserId,
                 email: customerEmail,
@@ -348,25 +314,26 @@ async function handleSubscriptionPayment(session) {
             });
             console.log(`✅ New user ${newUserId} created with SSELFIE STUDIO plan`);
         }
+        if (flow === 'modal') {
+            console.log('🎯 MODAL FLOW: Payment processed for enhanced modal system');
+        }
+        else {
+            console.log('📄 LEGACY FLOW: Payment processed for legacy page system');
+        }
     }
     catch (error) {
         console.error('Error handling subscription payment:', error);
         throw error;
     }
 }
-// Generate unique user ID
 function generateUserId() {
     return `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 }
 async function triggerPostPurchaseAutomation(userId, plan) {
     try {
-        // Get user details
         const user = await storage.getUser(userId);
         if (!user)
             return;
-        // Send welcome email (in production, integrate with email service)
-        // await sendWelcomeEmail(user, plan);
-        // Setup onboarding data
         const existingOnboarding = await storage.getOnboardingData(userId);
         if (!existingOnboarding) {
             await storage.saveOnboardingData({
@@ -383,13 +350,4 @@ async function triggerPostPurchaseAutomation(userId, plan) {
         console.error('Automation error:', error);
     }
 }
-// Email service disabled for now
-// async function sendWelcomeEmail(user: any, plan: string) {
-//   try {
-//     await EmailService.sendWelcomeEmail(user.email, user.firstName || 'Beautiful', plan);
-//     console.log(`Welcome email sent successfully to ${user.email} for ${plan}`);
-//   } catch (error) {
-//     console.error('Failed to send welcome email:', error);
-//     // Don't throw error - payment should still process even if email fails
-//   }
-// }
+//# sourceMappingURL=checkout.js.map

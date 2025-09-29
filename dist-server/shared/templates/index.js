@@ -1,21 +1,17 @@
-// Export all styleguide templates
-export { minimalisticTemplate } from './template-minimalistic';
-export { boldTemplate } from './template-bold';
-export { sophisticatedTemplate } from './template-sophisticated';
-export { warmBeigeTemplate } from './template-warm-beige';
-export { moodyTemplate } from './template-moody';
-export { goldenTemplate } from './template-golden';
-// Template registry for easy access
+export { minimalisticTemplate } from './template-minimalistic.js';
+export { boldTemplate } from './template-bold.js';
+export { sophisticatedTemplate } from './template-sophisticated.js';
+export { warmBeigeTemplate } from './template-warm-beige.js';
+export { moodyTemplate } from './template-moody.js';
+export { goldenTemplate } from './template-golden.js';
 export const STYLEGUIDE_TEMPLATES = {
-    minimalistic: () => import('./template-minimalistic').then(m => m.minimalisticTemplate),
-    bold: () => import('./template-bold').then(m => m.boldTemplate),
-    sophisticated: () => import('./template-sophisticated').then(m => m.sophisticatedTemplate),
-    warmBeige: () => import('./template-warm-beige').then(m => m.warmBeigeTemplate),
-    moody: () => import('./template-moody').then(m => m.moodyTemplate),
-    golden: () => import('./template-golden').then(m => m.goldenTemplate),
-    // Add more templates as they are created
+    minimalistic: () => import('./template-minimalistic.js').then(m => m.minimalisticTemplate),
+    bold: () => import('./template-bold.js').then(m => m.boldTemplate),
+    sophisticated: () => import('./template-sophisticated.js').then(m => m.sophisticatedTemplate),
+    warmBeige: () => import('./template-warm-beige.js').then(m => m.warmBeigeTemplate),
+    moody: () => import('./template-moody.js').then(m => m.moodyTemplate),
+    golden: () => import('./template-golden.js').then(m => m.goldenTemplate),
 };
-// Template metadata for selection UI
 export const TEMPLATE_METADATA = [
     {
         id: "minimalistic",
@@ -65,5 +61,5 @@ export const TEMPLATE_METADATA = [
         previewImage: "/images/templates/golden-preview.jpg",
         bestFor: ["sunset lovers", "travel bloggers", "luxury lifestyle brands", "feminine entrepreneurs"]
     }
-    // Add more template metadata as they are created
 ];
+//# sourceMappingURL=index.js.map

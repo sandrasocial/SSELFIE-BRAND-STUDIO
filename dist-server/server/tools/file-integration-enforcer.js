@@ -1,6 +1,3 @@
-// SSELFIE STUDIO - FILE INTEGRATION ADVISORY TOOL  
-// Provides guidance for file operations without restrictions
-// MOCK EXISTING FILE MAPPING for advisory purposes
 const EXISTING_FILE_MAPPING = {
     'admin': {
         existingPath: 'client/src/pages/admin-consulting-agents.tsx',
@@ -13,7 +10,6 @@ export class FileIntegrationEnforcer {
         console.log(`🔗 INTEGRATION ENFORCER: Checking ${request.agentId} request for compliance`);
         const { agentId, message, requestType, filePath } = request;
         const messageText = message.toLowerCase();
-        // Detect existing feature modification patterns
         const existingFeatures = Object.keys(EXISTING_FILE_MAPPING);
         for (const feature of existingFeatures) {
             if (messageText.includes(feature) &&
@@ -34,7 +30,6 @@ export class FileIntegrationEnforcer {
                 };
             }
         }
-        // Provide advisory for file operations (no blocking)
         if (filePath) {
             return {
                 allowed: true,
@@ -47,7 +42,6 @@ export class FileIntegrationEnforcer {
                 ]
             };
         }
-        // Allow new file creation with integration requirements
         return {
             allowed: true,
             action: 'CREATE',
@@ -65,10 +59,8 @@ export class FileIntegrationEnforcer {
     }
     static analyzeRequestPatterns(message) {
         const messageText = message.toLowerCase();
-        // Detect file-related requests
         const fileKeywords = ['create', 'build', 'design', 'implement', 'make', 'add'];
         const isFileRequest = fileKeywords.some(keyword => messageText.includes(keyword));
-        // Detect existing feature modifications
         const existingFeatures = Object.keys(EXISTING_FILE_MAPPING);
         const detectedFeature = existingFeatures.find(feature => messageText.includes(feature));
         let suggestedAction = 'CREATE';
@@ -103,10 +95,8 @@ export class FileIntegrationEnforcer {
     }
     static trackViolations(agentId, violation) {
         console.log(`🚨 INTEGRATION VIOLATION: Agent ${agentId} - ${violation}`);
-        // Could be extended to track metrics for optimization
     }
     static generateComplianceReport() {
-        // Basic reporting structure - could be enhanced with real tracking
         return {
             totalRequests: 0,
             blockedRequests: 0,
@@ -116,7 +106,6 @@ export class FileIntegrationEnforcer {
         };
     }
 }
-// Helper function to detect common duplicate file patterns
 export const DUPLICATE_FILE_PATTERNS = [
     { pattern: /admin-dashboard-(redesigned|new|v2|improved)/, correct: 'admin-dashboard.tsx' },
     { pattern: /user-profile-(redesigned|new|v2|improved)/, correct: 'user-profile.tsx' },
@@ -131,3 +120,4 @@ export const INTEGRATION_ENFORCEMENT_CONFIG = {
     requireIntegration: true,
     trackViolations: true
 };
+//# sourceMappingURL=file-integration-enforcer.js.map

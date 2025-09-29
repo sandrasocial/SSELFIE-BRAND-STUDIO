@@ -12,9 +12,6 @@ export class ElenaDelegationSystem {
     constructor() {
         this.initializeAgentWorkloads();
     }
-    /**
-     * Initialize agent workload tracking
-     */
     initializeAgentWorkloads() {
         const agents = [
             {
@@ -150,21 +147,12 @@ export class ElenaDelegationSystem {
         console.log('👥 ELENA DELEGATION: Initialized workload tracking for', agents.length, 'agents');
         console.log('✨ ECOSYSTEM COMPLETE: All 14 agents now tracked with specializations and capacity limits');
     }
-    /**
-     * Get current agent workloads for coordination bridge
-     */
     getAgentWorkloads() {
         return this.agentWorkloads;
     }
-    /**
-     * Delegate task with ActiveTask interface for coordination bridge
-     */
     async delegateTask(task) {
         return this.delegateTaskLegacy(task.taskDescription, 'admin', task.priority, task.dependencies || [], []);
     }
-    /**
-     * Elena's intelligent task delegation with dependency mapping
-     */
     async delegateTaskLegacy(taskDescription, userId, priority = 'medium', dependencies = [], requiredSpecialties = []) {
         try {
             console.log('🎯 ELENA DELEGATION: Analyzing task for intelligent assignment');
@@ -172,7 +160,6 @@ export class ElenaDelegationSystem {
             console.log('⚡ Priority:', priority);
             console.log('🔗 Dependencies:', dependencies);
             const taskId = `task_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
-            // Create task dependency object
             const task = {
                 taskId,
                 dependsOn: dependencies,
@@ -181,13 +168,9 @@ export class ElenaDelegationSystem {
                 agentSpecialty: requiredSpecialties.length > 0 ? requiredSpecialties : this.analyzeRequiredSpecialties(taskDescription),
                 status: 'pending'
             };
-            // Add to task queue
             this.taskQueue.push(task);
-            // Find optimal agent assignment
             const assignment = await this.findOptimalAgent(task);
-            // Update agent workload
             this.updateAgentWorkload(assignment.assignedAgent, task);
-            // Mark task as assigned
             task.status = 'assigned';
             console.log('✅ ELENA DELEGATION: Task assigned successfully');
             console.log('🤖 Assigned Agent:', assignment.assignedAgent);
@@ -199,42 +182,34 @@ export class ElenaDelegationSystem {
             throw new Error(`Failed to delegate task: ${error}`);
         }
     }
-    /**
-     * Find optimal agent for task assignment
-     */
     async findOptimalAgent(task) {
         const candidates = [];
         for (const [agentId, workload] of Array.from(this.agentWorkloads.entries())) {
             if (workload.currentTasks >= workload.maxCapacity) {
-                continue; // Agent at capacity
+                continue;
             }
             let score = 0;
             let reasoning = `Agent ${agentId} evaluation: `;
-            // Specialty match scoring
             const specialtyMatches = task.agentSpecialty.filter(specialty => workload.specialties.some((agentSpecialty) => agentSpecialty.includes(specialty.toLowerCase()) ||
                 specialty.toLowerCase().includes(agentSpecialty)));
             const specialtyScore = (specialtyMatches.length / task.agentSpecialty.length) * 40;
             score += specialtyScore;
             reasoning += `Specialty match: ${specialtyScore.toFixed(1)}/40, `;
-            // Workload balancing
             const workloadRatio = workload.currentTasks / workload.maxCapacity;
             const workloadScore = (1 - workloadRatio) * 25;
             score += workloadScore;
             reasoning += `Workload: ${workloadScore.toFixed(1)}/25, `;
-            // Efficiency scoring
             const efficiencyScore = workload.efficiency * 20;
             score += efficiencyScore;
             reasoning += `Efficiency: ${efficiencyScore.toFixed(1)}/20, `;
-            // Priority bonus for specialized agents
             if (task.priority === 'critical' && workload.efficiency > 0.9) {
                 score += 10;
                 reasoning += `Critical priority bonus: +10, `;
             }
-            // Time since last assignment (load balancing)
             const timeSinceLastTask = workload.lastTaskAssigned ?
                 Date.now() - workload.lastTaskAssigned.getTime() :
-                24 * 60 * 60 * 1000; // 24 hours if never assigned
-            const timeBonus = Math.min(timeSinceLastTask / (60 * 60 * 1000), 5); // Max 5 points for 5+ hours
+                24 * 60 * 60 * 1000;
+            const timeBonus = Math.min(timeSinceLastTask / (60 * 60 * 1000), 5);
             score += timeBonus;
             reasoning += `Time bonus: ${timeBonus.toFixed(1)}/5`;
             candidates.push({
@@ -246,15 +221,12 @@ export class ElenaDelegationSystem {
         if (candidates.length === 0) {
             throw new Error('No available agents for task assignment');
         }
-        // Sort by score (highest first)
         candidates.sort((a, b) => b.score - a.score);
         const bestCandidate = candidates[0];
-        // Calculate estimated completion time
         const estimatedCompletion = new Date();
         estimatedCompletion.setMinutes(estimatedCompletion.getMinutes() +
             task.estimatedTime +
-            (bestCandidate.agent.currentTasks * 15) // Queue delay
-        );
+            (bestCandidate.agent.currentTasks * 15));
         return {
             taskId: task.taskId,
             assignedAgent: bestCandidate.agent.agentId,
@@ -264,53 +236,40 @@ export class ElenaDelegationSystem {
             priority: task.priority
         };
     }
-    /**
-     * Analyze task description to determine required specialties
-     */
     analyzeRequiredSpecialties(taskDescription) {
         const description = taskDescription.toLowerCase();
         const specialties = [];
-        // UI/UX related
         if (description.includes('ui') || description.includes('ux') ||
             description.includes('design') || description.includes('component') ||
             description.includes('frontend') || description.includes('interface')) {
             specialties.push('ui', 'design');
         }
-        // Backend related
         if (description.includes('api') || description.includes('backend') ||
             description.includes('server') || description.includes('database') ||
             description.includes('route') || description.includes('service')) {
             specialties.push('backend', 'api');
         }
-        // AI related
         if (description.includes('ai') || description.includes('claude') ||
             description.includes('image') || description.includes('generation') ||
             description.includes('ml') || description.includes('prompt')) {
             specialties.push('ai', 'ml');
         }
-        // Business setup related
         if (description.includes('website') || description.includes('business') ||
             description.includes('template') || description.includes('builder')) {
             specialties.push('website-builder', 'business-setup');
         }
-        // Deployment related
         if (description.includes('deploy') || description.includes('optimization') ||
             description.includes('cleanup') || description.includes('organization')) {
             specialties.push('deployment', 'optimization');
         }
-        // Default to technical if no specific match
         if (specialties.length === 0) {
             specialties.push('technical');
         }
-        return Array.from(new Set(specialties)); // Remove duplicates
+        return Array.from(new Set(specialties));
     }
-    /**
-     * Estimate task completion time based on description and specialties
-     */
     estimateTaskTime(taskDescription, specialties) {
-        let baseTime = 30; // 30 minutes base
+        let baseTime = 30;
         const description = taskDescription.toLowerCase();
-        // Complexity factors
         if (description.includes('complex') || description.includes('advanced')) {
             baseTime += 30;
         }
@@ -321,21 +280,16 @@ export class ElenaDelegationSystem {
             baseTime += 25;
         }
         if (description.includes('ui') && description.includes('ux')) {
-            baseTime += 35; // UI/UX work takes longer
+            baseTime += 35;
         }
-        // Multiple specialties increase complexity
         baseTime += (specialties.length - 1) * 10;
-        return Math.min(baseTime, 120); // Cap at 2 hours
+        return Math.min(baseTime, 120);
     }
-    /**
-     * Update agent workload after task assignment
-     */
     updateAgentWorkload(agentId, task) {
         const workload = this.agentWorkloads.get(agentId);
         if (workload) {
             workload.currentTasks += 1;
             workload.lastTaskAssigned = new Date();
-            // Update task history
             const history = this.taskHistory.get(agentId) || [];
             history.push({
                 taskId: task.taskId,
@@ -347,22 +301,17 @@ export class ElenaDelegationSystem {
             console.log(`📊 WORKLOAD UPDATE: ${agentId} now has ${workload.currentTasks}/${workload.maxCapacity} tasks`);
         }
     }
-    /**
-     * Mark task as completed and update agent availability
-     */
     async taskCompleted(taskId, agentId, actualTime) {
         const workload = this.agentWorkloads.get(agentId);
         if (workload && workload.currentTasks > 0) {
             workload.currentTasks -= 1;
-            // Update efficiency based on actual vs estimated time
             if (actualTime) {
                 const task = this.taskQueue.find(t => t.taskId === taskId);
                 if (task) {
                     const efficiency = Math.min(task.estimatedTime / actualTime, 1.0);
-                    workload.efficiency = (workload.efficiency * 0.8) + (efficiency * 0.2); // Weighted average
+                    workload.efficiency = (workload.efficiency * 0.8) + (efficiency * 0.2);
                 }
             }
-            // Update task status
             const task = this.taskQueue.find(t => t.taskId === taskId);
             if (task) {
                 task.status = 'completed';
@@ -370,9 +319,6 @@ export class ElenaDelegationSystem {
             console.log(`✅ TASK COMPLETED: ${taskId} by ${agentId}, new workload: ${workload.currentTasks}/${workload.maxCapacity}`);
         }
     }
-    /**
-     * Get current delegation status
-     */
     getDelegationStatus() {
         const pendingTasks = this.taskQueue.filter(t => t.status === 'pending').length;
         const activeTasks = this.taskQueue.filter(t => t.status === 'assigned' || t.status === 'in_progress').length;
@@ -389,9 +335,6 @@ export class ElenaDelegationSystem {
             agentWorkloads: workloads
         };
     }
-    /**
-     * Clear completed tasks from queue (cleanup)
-     */
     cleanupCompletedTasks() {
         const initialLength = this.taskQueue.length;
         this.taskQueue = this.taskQueue.filter(task => task.status !== 'completed');
@@ -403,3 +346,4 @@ export class ElenaDelegationSystem {
     }
 }
 export const elenaDelegationSystem = new ElenaDelegationSystem();
+//# sourceMappingURL=elena-delegation-system.js.map
