@@ -101,7 +101,7 @@ export function NotificationPreferences() {
     setPreferences(prev => ({
       ...prev,
       [section]: {
-        ...(prev[section as keyof NotificationPreferences] || {}),
+        ...(typeof prev[section as keyof NotificationPreferences] === 'object' ? prev[section as keyof NotificationPreferences] : {}),
         [key]: value
       }
     }));

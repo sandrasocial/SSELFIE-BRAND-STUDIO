@@ -8,7 +8,6 @@ import styled from 'styled-components';
 
 // Known issue: styled-components has type resolution issues with Node16 module resolution
 // @ts-expect-error TS2339: Property 'div' does not exist on styled-components type
-// @ts-expect-error TS2339: Property 'div' does not exist on styled-components type
 const DashboardContainer = styled.div`
   padding: 40px;
   background: #ffffff;
