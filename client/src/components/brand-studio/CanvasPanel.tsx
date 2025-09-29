@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Camera, Video, Sparkles, Heart, RefreshCw } from 'lucide-react';
+import type { ConceptCard } from '../../../../shared/types/concept-card.js';
 
 // Flatlay image collection for luxury visual backgrounds
 const FLATLAY_IMAGES = [
@@ -23,27 +24,8 @@ const FLATLAY_IMAGES = [
   'https://i.postimg.cc/wj68NxJV/114.png'
 ];
 
-export type ConceptCard = {
-  id: string;
-  title: string;
-  description: string;
-  emoji?: string;
-  creativeLook?: string;
-  creativeLookDescription?: string;
-  fluxPrompt?: string;
-  imageUrl?: string;
-  generatedImages?: string[];
-  isGenerating?: boolean;
-  category?: string;
-  type?: 'portrait' | 'flatlay' | 'lifestyle'; // 80/20 rule categorization
-  // Add compatibility with server-side ConceptCard
-  userId?: string;
-  status?: string;
-  sortOrder?: number;
-  isLoading?: boolean;
-  updatedAt?: string;
-  [key: string]: unknown; // Allow additional properties
-};
+// Remove the duplicate ConceptCard type definition since we're importing it
+// export type ConceptCard = { ... } - REMOVED
 
 interface LuxuryConceptCardProps {
   concept: ConceptCard;
