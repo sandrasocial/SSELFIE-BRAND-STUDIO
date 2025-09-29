@@ -316,7 +316,7 @@ export class TrainingErrorBoundary extends Component<
             </div>
 
             {/* Development Error Details */}
-            {process.env.NODE_ENV === 'development' && this.state.errorInfo && (
+            {process.env['NODE_ENV'] === 'development' && this.state.errorInfo && (
               <details style={{
                 marginTop: Spacing[8],
                 textAlign: 'left',

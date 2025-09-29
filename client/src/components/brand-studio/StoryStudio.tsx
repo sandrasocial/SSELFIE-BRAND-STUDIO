@@ -56,7 +56,7 @@ interface Job {
 }
 
 interface JobStatus {
-    done: boolean;
+    done?: boolean;  // Made optional to be consistent
     progressPercent?: number;
     state?: string;
     videoUrl?: string;
