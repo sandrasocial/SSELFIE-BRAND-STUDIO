@@ -150,7 +150,7 @@ router.post('/api/training/metrics', requireStackAuth, asyncHandler(async (req: 
 }));
 
 // Consolidate data
-router.post('/api/training/consolidate/:userId', asyncHandler(async (req: { params: { userId: string } }, res: Response) => {
+router.post('/api/training/consolidate/:userId', asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const { userId } = req.params;
   validateRequired({ userId }, ['userId']);
 
@@ -196,7 +196,7 @@ router.get('/api/training/memory/audit', asyncHandler(async (_req: Request, res:
 }));
 
 // Cleanup memory
-router.post('/api/training/memory/cleanup/:userId', asyncHandler(async (req: { params: { userId: string } }, res: Response) => {
+router.post('/api/training/memory/cleanup/:userId', asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const { userId } = req.params;
   validateRequired({ userId }, ['userId']);
 

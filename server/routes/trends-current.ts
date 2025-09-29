@@ -7,7 +7,7 @@ import { Router } from 'express';
 import { requireStackAuth } from '../stack-auth.js';
 import { db } from '../drizzle.js';
 import { sql } from 'drizzle-orm';
-import type { AuthenticatedRequest } from '../../api/_shared/auth-types.js';
+import type { AuthenticatedRequest } from '../types/ai-generation.js';
 import { HairTrendSchema, CurrentTrendsResponseSchema, type CurrentTrendsResponse } from '../types/trends.js';
 
 const router = Router();
