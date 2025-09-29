@@ -55,7 +55,7 @@ export class LoggingSystem {
     this.config = {
       level: (process.env.LOG_LEVEL as any) || 'info',
       enableConsole: true,
-      enableFile: process.env.NODE_ENV === 'production',
+      enableFile: process.env['NODE_ENV'] === 'production',
       enableRemote: !!process.env.LOG_REMOTE_ENDPOINT,
       remoteEndpoint: process.env.LOG_REMOTE_ENDPOINT,
       maxFileSize: 10,

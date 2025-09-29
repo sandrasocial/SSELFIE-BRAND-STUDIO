@@ -56,7 +56,7 @@ router.post('/generate', requireStackAuth, async (req: Request<{}, {}, VideoGene
       });
     }
 
-    if (!process.env.GOOGLE_API_KEY) {
+    if (!process.env['GOOGLE_API_KEY']) {
       return res.status(503).json({
         error: 'Video generation service not configured',
         details: 'Google API key not available'

@@ -21,7 +21,7 @@ export class FeatureFlags {
     SECURITY_HARDENING: process.env.SECURITY_HARDENING === 'true',
     
     // Development flags
-    DEBUG_MODE: process.env.NODE_ENV === 'development',
+    DEBUG_MODE: process.env['NODE_ENV'] === 'development',
     VERBOSE_LOGGING: process.env.VERBOSE_LOGGING === 'true',
   };
 

@@ -36,7 +36,7 @@ router.get('/', requireStackAuth, async (req, res) => {
     console.error('❌ CONCEPT CARDS: Get error:', error);
     res.status(500).json({ 
       error: 'Failed to retrieve concept cards',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      details: process.env['NODE_ENV'] === 'development' ? error.message : undefined
     });
   }
 });
@@ -79,7 +79,7 @@ router.post('/', requireStackAuth, async (req, res) => {
 
     res.status(500).json({ 
       error: 'Failed to create concept card',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      details: process.env['NODE_ENV'] === 'development' ? error.message : undefined
     });
   }
 });
@@ -109,7 +109,7 @@ router.get('/:id', requireStackAuth, async (req, res) => {
     console.error('❌ CONCEPT CARDS: Get by ID error:', error);
     res.status(500).json({ 
       error: 'Failed to retrieve concept card',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      details: process.env['NODE_ENV'] === 'development' ? error.message : undefined
     });
   }
 });
@@ -153,7 +153,7 @@ router.patch('/:id', requireStackAuth, async (req, res) => {
     console.error('❌ CONCEPT CARDS: Update error:', error);
     res.status(500).json({ 
       error: 'Failed to update concept card',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      details: process.env['NODE_ENV'] === 'development' ? error.message : undefined
     });
   }
 });
@@ -191,7 +191,7 @@ router.patch('/:id/generation', requireStackAuth, async (req, res) => {
     console.error('❌ CONCEPT CARDS: Update generation error:', error);
     res.status(500).json({ 
       error: 'Failed to update concept card generation',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      details: process.env['NODE_ENV'] === 'development' ? error.message : undefined
     });
   }
 });
@@ -222,7 +222,7 @@ router.delete('/:id', requireStackAuth, async (req, res) => {
     console.error('❌ CONCEPT CARDS: Delete error:', error);
     res.status(500).json({ 
       error: 'Failed to delete concept card',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      details: process.env['NODE_ENV'] === 'development' ? error.message : undefined
     });
   }
 });
