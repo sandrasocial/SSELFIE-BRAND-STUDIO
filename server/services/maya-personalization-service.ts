@@ -61,7 +61,7 @@ export class MayaPersonalizationService {
         monthlyUsed: user.generationsUsedThisMonth || 0,
         monthlyLimit: user.monthlyGenerationLimit || 100,
         isAdmin: user.monthlyGenerationLimit === -1,
-        nextBillingDate: user.subscriptionRenewDate || new Date(),
+        nextBillingDate: (user as any).subscriptionRenewDate || new Date(),
         subscriptionActive: user.monthlyGenerationLimit > 0 || user.monthlyGenerationLimit === -1,
         accountType: user.monthlyGenerationLimit === -1 ? 'Admin Account' : 'SSELFIE Studio Member',
         features: [

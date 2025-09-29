@@ -1,29 +1,18 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "lib": ["dom", "dom.iterable", "esnext", "ES2022"],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "allowImportingTsExtensions": false,
+    "lib": ["ES2022", "DOM"],
+    "module": "Node16",
+    "moduleResolution": "node16",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "strict": false,
-    "forceConsistentCasingInFileNames": true,
-    "noFallthroughCasesInSwitch": true,
-    "noImplicitReturns": false,
-    "noImplicitOverride": false,
-    "noPropertyAccessFromIndexSignature": false,
-    "strictFunctionTypes": false,
-    "module": "Node16",
-    "moduleResolution": "node16",
-    "moduleDetection": "auto",
+    "skipLibCheck": true,
+    "noEmit": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true,
-    "strictNullChecks": false,
-    "noImplicitAny": false,
-    "noUncheckedIndexedAccess": false,
-    "exactOptionalPropertyTypes": false,
+    "allowJs": true,
+    "forceConsistentCasingInFileNames": true,
     "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
@@ -35,24 +24,23 @@
       "@server/*": ["server/*"],
       "server/*": ["server/*"],
       "@models/*": ["shared/models/*"]
-    },
-    "types": [
-      "@types/node",
-      "jest",
-      "@testing-library/jest-dom"
-    ]
+    }
   },
   "include": [
-    "vite.config.ts",
-    "client/src/**/*",
-    "shared/**/*",
-    "server/**/*"
+    "api/**/*",
+    "server/**/*",
+    "shared/**/*"
   ],
   "exclude": [
     "node_modules",
     "dist",
+    "client",
+    "tests",
+    "**/*.test.ts",
+    "**/*.spec.ts",
+    // Exclude non-critical files
     "server/routes/consulting-agents-routes.ts",
-    "server/routes/admin.ts",
+    "server/routes/admin.ts", 
     "server/routes/admin-cache-management.ts",
     "server/routes/gmail-auth.ts",
     "server/routes/subscriber-import.ts",
