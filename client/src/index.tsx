@@ -207,7 +207,7 @@ function ensureInit() {
 					// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 					// @ts-ignore
 					if ((window as any).__videoPreview?.lastOriginalSrc) {
-						detail.originalSrc = (window as any).__videoPreview.lastOriginalSrc;
+						detail['originalSrc'] = (window as any).__videoPreview.lastOriginalSrc;
 					}
 					// Fire a custom save event so React layer can handle persistence
 					window.dispatchEvent(new CustomEvent('video:preview:save', { detail }));
