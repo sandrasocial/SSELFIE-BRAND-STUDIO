@@ -291,7 +291,7 @@ export class UnifiedAIService {
     });
 
     this.replicate = new ReplicateService({
-      apiKey: process.env.REPLICATE_API_TOKEN || ''
+      apiKey: process.env["REPLICATE_API_TOKEN"] || ''
     });
   }
 

@@ -49,7 +49,7 @@ export class TrainingCompletionMonitor {
 
         const response = await fetch(`https://api.replicate.com/v1/trainings/${replicateModelId}`, {
           headers: {
-            'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
+            'Authorization': `Token ${process.env["REPLICATE_API_TOKEN"]}`,
             'Content-Type': 'application/json'
           }
         });
@@ -221,7 +221,7 @@ export class TrainingCompletionMonitor {
       
       const response = await fetch(`https://api.replicate.com/v1/models/${process.env.REPLICATE_USERNAME || 'models'}/${modelName}`, {
         headers: {
-          'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
+          'Authorization': `Token ${process.env["REPLICATE_API_TOKEN"]}`,
           'Content-Type': 'application/json'
         }
       });
