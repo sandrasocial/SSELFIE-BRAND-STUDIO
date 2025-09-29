@@ -141,10 +141,10 @@ Respond with JSON:
       if (Array.isArray(evolutionData) && evolutionData.length === 0) {
         // New user - create initial profile
         const initialProfile: UserStyleProfile = {
-          userId,
-          stylePreferences: {},
-          colorPalette: [],
-          fashionStyle: 'classic',
+          preferredCategories: [],
+          colorPreferences: [],
+          styleEvolution: [],
+          feedbackPatterns: {},
           culturalContext: {},
           sustainabilityPreferences: {}
         };
