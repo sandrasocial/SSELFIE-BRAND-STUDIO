@@ -4,7 +4,7 @@
  */
 
 import { Logger } from './logger.js';
-import { structuredLogger } from './structured-logger.js';
+import { StructuredLogger } from './structured-logger.js';
 
 export interface LogEntry {
   timestamp: string;
@@ -48,16 +48,18 @@ export class LoggingSystem {
   private logger: Logger;
   private isEnabled: boolean;
   private config: LogConfig;
+  private structuredLogger: StructuredLogger;
 
   constructor() {
     this.logger = new Logger('LoggingSystem');
     this.isEnabled = true;
+    this.structuredLogger = new StructuredLogger('LoggingSystem');
     this.config = {
-      level: (process.env.LOG_LEVEL as any) || 'info',
+      level: (process.env['LOG_LEVEL'] as any) || 'info',
       enableConsole: true,
       enableFile: process.env['NODE_ENV'] === 'production',
-      enableRemote: !!process.env.LOG_REMOTE_ENDPOINT,
-      remoteEndpoint: process.env.LOG_REMOTE_ENDPOINT,
+      enableRemote: !!process.env['LOG_REMOTE_ENDPOINT'],
+      remoteEndpoint: process.env['LOG_REMOTE_ENDPOINT'] || undefined,
       maxFileSize: 10,
       maxFiles: 5,
       enableRequestLogging: true,
@@ -79,7 +81,7 @@ export class LoggingSystem {
 
     try {
       // Configure structured logger
-      structuredLogger.updateConfig(this.config);
+      this.structuredLogger.updateConfig(this.config);
 
       this.logger.info('Logging system initialized successfully');
     } catch (error) {
@@ -100,7 +102,7 @@ export class LoggingSystem {
       return;
     }
 
-    structuredLogger.log(level, message, context);
+    this.structuredLogger.log(level, message, context);
   }
 
   /**
@@ -146,7 +148,7 @@ export class LoggingSystem {
       return;
     }
 
-    structuredLogger.logRequest(req, res, responseTime);
+    this.structuredLogger.logRequest(req, res, responseTime);
   }
 
   /**
@@ -157,7 +159,7 @@ export class LoggingSystem {
       return;
     }
 
-    structuredLogger.logError(error, context);
+    this.structuredLogger.logError(error, context);
   }
 
   /**
@@ -172,7 +174,7 @@ export class LoggingSystem {
       return;
     }
 
-    structuredLogger.logPerformance(operation, duration, context);
+    this.structuredLogger.logPerformance(operation, duration, context);
   }
 
   /**
@@ -188,7 +190,7 @@ export class LoggingSystem {
       return;
     }
 
-    structuredLogger.logDatabase(operation, table, duration, context);
+    this.structuredLogger.logDatabase(operation, table, duration, context);
   }
 
   /**
@@ -206,7 +208,7 @@ export class LoggingSystem {
       return;
     }
 
-    structuredLogger.logExternalApi(service, endpoint, method, statusCode, duration, context);
+    this.structuredLogger.logExternalApi(service, endpoint, method, statusCode, duration, context);
   }
 
   /**
@@ -222,7 +224,7 @@ export class LoggingSystem {
       return;
     }
 
-    structuredLogger.logAuth(event, userId, success, context);
+    this.structuredLogger.logAuth(event, userId, success, context);
   }
 
   /**
@@ -239,7 +241,7 @@ export class LoggingSystem {
       return;
     }
 
-    structuredLogger.logBusiness(event, entity, entityId, action, context);
+    this.structuredLogger.logBusiness(event, entity, entityId, action, context);
   }
 
   /**
@@ -254,7 +256,7 @@ export class LoggingSystem {
    */
   public updateConfig(newConfig: Partial<LogConfig>): void {
     this.config = { ...this.config, ...newConfig };
-    structuredLogger.updateConfig(this.config);
+    this.structuredLogger.updateConfig(this.config);
     this.logger.info('Logging configuration updated', { config: this.config });
   }
 
@@ -274,7 +276,7 @@ export class LoggingSystem {
    */
   public setEnabled(enabled: boolean): void {
     this.isEnabled = enabled;
-    structuredLogger.setEnabled(enabled);
+    this.structuredLogger.setEnabled(enabled);
     this.logger.info(`Logging system ${enabled ? 'enabled' : 'disabled'}`);
   }
 
