@@ -15,6 +15,10 @@
     "forceConsistentCasingInFileNames": true,
     "jsx": "react-jsx",
     "baseUrl": ".",
+    "types": [
+      "@types/node",
+      "@vercel/node"
+    ],
     "paths": {
       "@/*": ["client/src/*"],
       "@components/*": ["client/src/components/*"],
