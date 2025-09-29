@@ -1,4 +1,4 @@
-import { stackClientApp } from '../../../stack/client.js';
+import { stackClientApp } from '../../../stack/client.ts';
 
 export function getStackApp() {
   return stackClientApp;

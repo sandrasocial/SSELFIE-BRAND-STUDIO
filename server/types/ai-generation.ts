@@ -3,11 +3,17 @@
  */
 
 import { Request } from 'express';
-import { AuthenticatedUser } from '../../api/_shared/auth-types.js';
+import { DatabaseUser } from '../../api/_shared/auth-types.js';
 
-/** Base authenticated request */
+/** Server-side authenticated user (without stackUser requirement) */
+export interface ServerAuthenticatedUser extends DatabaseUser {
+  // All properties from DatabaseUser are available
+}
+
+/** Base authenticated request for server routes */
 export interface AuthenticatedRequest extends Request {
-  user: AuthenticatedUser;
+  user: ServerAuthenticatedUser;
+  params: any;  // Express params are available
 }
 
 /** Story concept request */

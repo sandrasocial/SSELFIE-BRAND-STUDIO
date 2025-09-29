@@ -113,6 +113,39 @@ export class BulletproofUploadService {
   }
   
   /**
+   * Upload a single file to S3
+   */
+  static async uploadToS3(
+    buffer: Buffer,
+    key: string,
+    contentType: string = 'application/octet-stream'
+  ): Promise<string> {
+    const bucketName = process.env['AWS_S3_BUCKET'];
+    
+    if (!bucketName) {
+      throw new Error('AWS_S3_BUCKET environment variable is required');
+    }
+    
+    const upload = new Upload({
+      client: this.s3,
+      params: {
+        Bucket: bucketName,
+        Key: key,
+        Body: buffer,
+        ContentType: contentType
+      }
+    });
+    
+    const uploadResult = await upload.done();
+    
+    if (!uploadResult || !uploadResult.Key) {
+      throw new Error('Failed to upload file to S3');
+    }
+    
+    return `https://${bucketName}.s3.amazonaws.com/${key}`;
+  }
+  
+  /**
    * STEP 2: UPLOAD TO S3 WITH VERIFICATION
    * - Upload each image individually
    * - Verify S3 storage success
