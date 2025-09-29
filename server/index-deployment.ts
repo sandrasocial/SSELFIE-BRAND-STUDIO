@@ -5,10 +5,10 @@ import fs from 'fs';
 
 const app = express();
 // CRITICAL: Use PORT from environment (Cloud Run assigns this dynamically)
-const port = Number(process.env.PORT) || 5000;
+const port = Number(process.env['PORT']) || 5000;
 
 console.log(`🚀 Starting SSELFIE Studio on port ${port}`);
-console.log(`🔧 Environment: ${process.env.NODE_ENV || 'development'}`);
+console.log(`🔧 Environment: ${process.env['NODE_ENV'] || 'development'}`);
 
 // Essential middleware
 app.use(express.json({ limit: '10mb' }));
@@ -34,7 +34,7 @@ app.get('/api/health', (req, res) => {
     status: 'healthy', 
     timestamp: new Date().toISOString(),
     port: port,
-    env: process.env.NODE_ENV || 'development'
+    env: process.env['NODE_ENV'] || 'development'
   });
 });
 

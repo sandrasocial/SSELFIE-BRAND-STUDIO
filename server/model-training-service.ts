@@ -34,7 +34,7 @@ export class ModelTrainingService {
     try {
       const response = await fetch(`https://api.replicate.com/v1/predictions/${predictionId}`, {
         headers: {
-          'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
+          'Authorization': `Token ${process.env['REPLICATE_API_TOKEN']}`,
           'Content-Type': 'application/json',
         },
       });
@@ -46,7 +46,7 @@ export class ModelTrainingService {
       if (data.status === 'succeeded' && Array.isArray(data.output)) {
         // Download each Replicate image and upload to S3 for permanent URL
         const s3 = this.s3;
-        const bucket = process.env.AWS_S3_BUCKET || 'sselfie-studio-assets';
+        const bucket = process.env['AWS_S3_BUCKET'] || 'sselfie-studio-assets';
         const uploadedUrls: string[] = [];
         for (const imageUrl of data.output) {
           try {
@@ -82,8 +82,8 @@ export class ModelTrainingService {
   // Configure AWS S3 (use eu-north-1 for sselfie-training-zips bucket)
   private static s3 = new S3Client({
     credentials: {
-      accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+      accessKeyId: process.env['AWS_ACCESS_KEY_ID']!,
+      secretAccessKey: process.env['AWS_SECRET_ACCESS_KEY']!,
     },
     region: 'eu-north-1'  // Fixed region for bucket compatibility
   });
@@ -189,7 +189,7 @@ export class ModelTrainingService {
       const trainingResponse = await fetch('https://api.replicate.com/v1/models/ostris/flux-dev-lora-trainer/versions/26dce37af90b9d997eeb970d92e47de3064d46c300504ae376c75bef6a9022d2/trainings', {
         method: 'POST',
         headers: {
-          'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
+          'Authorization': `Token ${process.env['REPLICATE_API_TOKEN']}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -268,7 +268,7 @@ export class ModelTrainingService {
       // Check REAL Replicate API training status
       const trainingStatusResponse = await fetch(`https://api.replicate.com/v1/trainings/${trainingId}`, {
         headers: {
-          'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
+          'Authorization': `Token ${process.env['REPLICATE_API_TOKEN']}`,
           'Content-Type': 'application/json'
         }
       });
@@ -407,7 +407,7 @@ export class ModelTrainingService {
       // Get training data from Replicate
       const trainingResponse = await fetch(`https://api.replicate.com/v1/trainings/${userModel.trainingId}`, {
         headers: {
-          'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
+          'Authorization': `Token ${process.env['REPLICATE_API_TOKEN']}`,
           'Content-Type': 'application/json'
         }
       });
@@ -597,7 +597,7 @@ export class ModelTrainingService {
       
       const versionResponse = await fetch(`https://api.replicate.com/v1/models/${modelId}/versions/${versionId}`, {
         headers: {
-          'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
+          'Authorization': `Token ${process.env['REPLICATE_API_TOKEN']}`,
           'Content-Type': 'application/json'
         }
       });
@@ -868,7 +868,7 @@ export class ModelTrainingService {
       const response = await fetch('https://api.replicate.com/v1/predictions', {
         method: 'POST',
         headers: {
-          'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
+          'Authorization': `Token ${process.env['REPLICATE_API_TOKEN']}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(requestBody)
@@ -928,7 +928,7 @@ export class ModelTrainingService {
       // Get training details from Replicate
       const response = await fetch(`https://api.replicate.com/v1/trainings/${trainingId}`, {
         headers: {
-          'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
+          'Authorization': `Token ${process.env['REPLICATE_API_TOKEN']}`,
           'Content-Type': 'application/json'
         }
       });
@@ -979,7 +979,7 @@ export class ModelTrainingService {
       const s3Key = `lora-weights/${userId}/${trainingId}-${Date.now()}.safetensors`;
       
       const uploadCommand = new PutObjectCommand({
-        Bucket: process.env.AWS_S3_BUCKET || 'sselfie-studio-assets',
+        Bucket: process.env['AWS_S3_BUCKET'] || 'sselfie-studio-assets',
         Key: s3Key,
         Body: Buffer.from(weightsBuffer),
         ContentType: 'application/octet-stream',
@@ -996,7 +996,7 @@ export class ModelTrainingService {
       await this.s3.send(uploadCommand);
 
       // 🔒 SECURITY FIX: Store S3 coordinates for presigned URL generation, not direct URL
-      const bucketName = process.env.AWS_S3_BUCKET || 'sselfie-studio-assets';
+      const bucketName = process.env['AWS_S3_BUCKET'] || 'sselfie-studio-assets';
       
       console.log(`✅ LoRA WEIGHTS EXTRACTED: Stored securely in bucket ${bucketName}/${s3Key}`);
 

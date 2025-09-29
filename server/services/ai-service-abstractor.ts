@@ -279,13 +279,13 @@ export class UnifiedAIService {
     this.logger = new Logger('UnifiedAIService');
     
     this.claude = new ClaudeService({
-      apiKey: process.env.ANTHROPIC_API_KEY || '',
+      apiKey: process.env['ANTHROPIC_API_KEY'] || '',
       model: 'claude-3-5-sonnet-20241022',
       maxTokens: 4000
     });
 
     this.googleGenAI = new GoogleGenAIService({
-      apiKey: process.env.GOOGLE_API_KEY || '',
+      apiKey: process.env['GOOGLE_API_KEY'] || '',
       model: 'gemini-pro',
       maxTokens: 4000
     });

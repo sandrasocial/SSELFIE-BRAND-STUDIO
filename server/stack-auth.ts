@@ -18,7 +18,7 @@ const JWKS_URL = `${STACK_AUTH_API_URL}/projects/${STACK_AUTH_PROJECT_ID}/.well-
 import { createPublicKey, KeyObject } from 'crypto';
 let testPublicKey: KeyObject | undefined;
 let remoteJwks: ReturnType<typeof createRemoteJWKSet> | undefined;
-if (process.env.NODE_ENV === 'test') {
+if (process.env['NODE_ENV'] === 'test') {
   // Use test public key for JWT verification as a KeyObject
   const testPubKeyPath = path.join(__dirname, '__tests__', 'test-public.key');
   const testPublicKeyPem = fs.readFileSync(testPubKeyPath, 'utf8');
@@ -95,7 +95,7 @@ async function verifyJWTToken(token: string) {
     const verificationPromise = new Promise(async (resolve, reject) => {
       try {
         let payload;
-        if (process.env.NODE_ENV === 'test' && testPublicKey) {
+        if (process.env['NODE_ENV'] === 'test' && testPublicKey) {
           // Use test public key and RS256
           const { payload: testPayload } = await jwtVerify(token, testPublicKey, {
             algorithms: ['RS256'],
@@ -319,7 +319,7 @@ export async function verifyStackAuthToken(req: Request, res: Response, next: Ne
     }
     return res.status(401).json({ 
       message: 'Invalid or expired token',
-      error: process.env.NODE_ENV === 'development' && error instanceof Error ? error.message : undefined
+      error: process.env['NODE_ENV'] === 'development' && error instanceof Error ? error.message : undefined
     });
   }
 }

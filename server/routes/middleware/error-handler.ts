@@ -113,12 +113,12 @@ export const errorHandler = (
   };
 
   // Add details in development
-  if (process.env.NODE_ENV === 'development' && error.details) {
+  if (process.env['NODE_ENV'] === 'development' && error.details) {
     errorResponse.error.details = error.details;
   }
 
   // Add stack trace in development
-  if (process.env.NODE_ENV === 'development' && error.stack) {
+  if (process.env['NODE_ENV'] === 'development' && error.stack) {
     errorResponse.error.stack = error.stack;
   }
 
