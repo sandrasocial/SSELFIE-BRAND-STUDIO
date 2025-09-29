@@ -53,7 +53,7 @@ export const errorHandler = (
   }
 
   // Development error response
-  if (process.env.NODE_ENV === 'development') {
+  if (process.env['NODE_ENV'] === 'development') {
     return res.status(err.statusCode).json({
       status: err.status,
       error: err,

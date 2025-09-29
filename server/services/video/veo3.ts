@@ -61,7 +61,7 @@ const QUALITY_PRESETS: Record<VeoGenerationOptions['mode'], VeoQualityPreset> = 
 export async function generateVeo3Video(options: VeoGenerationOptions): Promise<VeoGenerationResult> {
   const { motionPrompt, mode, audioScript, initImageUrl, userId, aspectRatio = '9:16' } = options;
 
-  if (!process.env.GOOGLE_API_KEY) {
+  if (!process.env['GOOGLE_API_KEY']) {
     throw new Error('Google VEO 3 not configured: missing GOOGLE_API_KEY');
   }
 
@@ -164,13 +164,13 @@ export async function generateVeo3Video(options: VeoGenerationOptions): Promise<
  * Get status of VEO 3 video generation job
  */
 export async function getVeo3Status(jobId: string, userId: string): Promise<VeoStatusResult> {
-  if (!process.env.GOOGLE_API_KEY) {
+  if (!process.env['GOOGLE_API_KEY']) {
     return { status: 'failed', error: 'Google VEO 3 not configured' };
   }
 
   try {
     const opName = jobId.startsWith('operations/') ? jobId : `operations/${jobId}`;
-    const url = `https://generativelanguage.googleapis.com/v1beta/${opName}?key=${process.env.GOOGLE_API_KEY}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/${opName}?key=${process.env['GOOGLE_API_KEY']}`;
     
     console.log('🔍 VEO 3: Checking status', { jobId: jobId.slice(-20), userId });
     
@@ -246,7 +246,7 @@ async function getAvailableVeo3Models(): Promise<string[]> {
 
   try {
     // Try to discover available models
-    const listUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${process.env.GOOGLE_API_KEY}`;
+    const listUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${process.env['GOOGLE_API_KEY']}`;
     const response = await fetch(listUrl);
     
     if (response.ok) {
@@ -287,7 +287,7 @@ async function getAvailableVeo3Models(): Promise<string[]> {
  * Start VEO 3 generation with specific model
  */
 async function startVeo3Generation(modelVersion: string, payload: any): Promise<string> {
-  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelVersion}:generateVideo?key=${process.env.GOOGLE_API_KEY}`;
+  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelVersion}:generateVideo?key=${process.env['GOOGLE_API_KEY']}`;
   
   const response = await fetch(endpoint, {
     method: 'POST',

@@ -32,8 +32,8 @@ export async function sendEmail(request: EmailRequest): Promise<boolean> {
 
     // In production, replace with actual email service:
     /*
-    if (process.env.SENDGRID_API_KEY) {
-      sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+    if (process.env['SENDGRID_API_KEY']) {
+      sgMail.setApiKey(process.env['SENDGRID_API_KEY']);
       
       await sgMail.send({
         to: request.to,

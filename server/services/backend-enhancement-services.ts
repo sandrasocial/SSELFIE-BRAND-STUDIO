@@ -60,7 +60,7 @@ export class BackendEnhancementServices {
   private async checkStripeHealth(): Promise<boolean> {
     try {
       // Implement actual Stripe health check
-      return process.env.STRIPE_SECRET_KEY !== undefined;
+      return process.env['STRIPE_SECRET_KEY'] !== undefined;
     } catch {
       return false;
     }
@@ -69,7 +69,7 @@ export class BackendEnhancementServices {
   private async checkSendGridHealth(): Promise<boolean> {
     try {
       // Implement actual SendGrid health check
-      return process.env.SENDGRID_API_KEY !== undefined;
+      return process.env['SENDGRID_API_KEY'] !== undefined;
     } catch {
       return false;
     }

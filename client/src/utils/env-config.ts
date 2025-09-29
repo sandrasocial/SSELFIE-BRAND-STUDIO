@@ -24,7 +24,7 @@ function validateStripeConfig(): {
   const errors: string[] = [];
   const warnings: string[] = [];
 
-  const publicKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
+  const publicKey = import.meta.env['VITE_STRIPE_PUBLIC_KEY'];
   const testingKey = import.meta.env.TESTING_VITE_STRIPE_PUBLIC_KEY;
 
   if (!publicKey && !testingKey) {

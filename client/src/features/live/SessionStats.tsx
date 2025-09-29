@@ -122,7 +122,7 @@ export default function SessionStats() {
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">QR Views</p>
-                <p className="text-2xl font-bold text-gray-900">{eventBreakdown.qr_view || 0}</p>
+                <p className="text-2xl font-bold text-gray-900">{eventBreakdown['qr_view'] || 0}</p>
               </div>
             </div>
           </div>
@@ -136,7 +136,7 @@ export default function SessionStats() {
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">CTA Clicks</p>
-                <p className="text-2xl font-bold text-gray-900">{eventBreakdown.cta_click || 0}</p>
+                <p className="text-2xl font-bold text-gray-900">{eventBreakdown['cta_click'] || 0}</p>
               </div>
             </div>
           </div>
@@ -150,7 +150,7 @@ export default function SessionStats() {
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Reactions</p>
-                <p className="text-2xl font-bold text-gray-900">{eventBreakdown.reaction || 0}</p>
+                <p className="text-2xl font-bold text-gray-900">{eventBreakdown['reaction'] || 0}</p>
               </div>
             </div>
           </div>
