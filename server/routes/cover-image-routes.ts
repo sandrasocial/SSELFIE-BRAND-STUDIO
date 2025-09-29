@@ -8,8 +8,8 @@ import { checkAdminAccess } from '../middleware/admin-middleware.js';
 // Configure AWS S3
 const s3 = new S3Client({
   credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+    accessKeyId: process.env["AWS_ACCESS_KEY_ID"]!,
+    secretAccessKey: process.env["AWS_SECRET_ACCESS_KEY"]!,
   },
   region: 'eu-north-1'  // Fixed region for bucket compatibility
 });

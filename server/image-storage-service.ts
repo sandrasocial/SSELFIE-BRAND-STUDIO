@@ -11,8 +11,8 @@ import { AIImage, ImageStorageError, ImageUploadResult, MigrationResult } from '
 export class ImageStorageService {
   private static s3 = new S3Client({
     credentials: {
-      accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+      accessKeyId: process.env["AWS_ACCESS_KEY_ID"]!,
+      secretAccessKey: process.env["AWS_SECRET_ACCESS_KEY"]!,
     },
     region: 'eu-north-1'  // Fixed region for bucket compatibility
   });
@@ -138,7 +138,7 @@ export class ImageStorageService {
       });
       
       const uploadResult = await upload.done();
-      const permanentUrl = `https://${this.BUCKET_NAME}.s3.${process.env.AWS_REGION || 'us-east-1'}.amazonaws.com/${filename}`;
+      const permanentUrl = `https://${this.BUCKET_NAME}.s3.${process.env["AWS_REGION"] || 'us-east-1'}.amazonaws.com/${filename}`;
       
       // Verify upload was successful
       if (!uploadResult || !uploadResult.Location) {

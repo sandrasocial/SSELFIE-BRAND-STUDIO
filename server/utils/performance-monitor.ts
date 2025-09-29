@@ -85,7 +85,7 @@ export class PerformanceMonitor {
         memoryUsage,
         cpuUsage,
         success,
-        metadata
+        metadata: metadata || undefined
       };
 
       this.addMetric(metric);
@@ -266,7 +266,7 @@ export class PerformanceMonitor {
    * Enable/disable monitoring
    */
   setEnabled(enabled: boolean): void {
-  this.enabled = enabled;
+    this.enabled = enabled;
     this.logger.info(`Performance monitoring ${enabled ? 'enabled' : 'disabled'}`);
   }
 

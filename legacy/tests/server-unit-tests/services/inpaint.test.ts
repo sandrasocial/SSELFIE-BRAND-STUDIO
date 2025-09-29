@@ -13,7 +13,7 @@ describe('SDInpaintService', () => {
     jest.clearAllMocks();
     // Mock environment variables
     process.env.INPAINT_ENABLED = '1';
-    process.env.REPLICATE_API_TOKEN = 'test-token';
+    process.env["REPLICATE_API_TOKEN"] = 'test-token';
   });
 
   describe('startInpainting', () => {

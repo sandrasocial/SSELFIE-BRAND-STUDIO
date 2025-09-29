@@ -5,7 +5,6 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { Logger } from './logger.js';
-import { middlewareSystem } from './middleware.js';
 
 export class MiddlewareSystem {
   private logger: Logger;
@@ -202,11 +201,12 @@ export class MiddlewareSystem {
 
       // Override res.end to log response
       const originalEnd = res.end;
-      res.end = function(chunk?: any, encoding?: any) {
+      const logger = this.logger; // Capture logger in closure
+      res.end = function(chunk?: any, encoding?: any): Response<any, Record<string, any>> {
         const duration = Date.now() - startTime;
         
         // Log response
-        this.logger.info('Request completed', {
+        logger.info('Request completed', {
           requestId,
           method: req.method,
           path: req.path,
@@ -216,8 +216,8 @@ export class MiddlewareSystem {
         });
 
         // Call original end method
-        originalEnd.call(this, chunk, encoding);
-      }.bind(this);
+        return originalEnd.call(this, chunk, encoding);
+      };
 
       next();
     };
@@ -323,7 +323,7 @@ export class MiddlewareSystem {
           error: {
             code: 'VALIDATION_ERROR',
             message: 'Request validation failed',
-            details: error.message,
+            details: error instanceof Error ? error.message : String(error),
             timestamp: new Date().toISOString(),
           },
         });

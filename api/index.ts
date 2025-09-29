@@ -89,7 +89,7 @@ interface AuthenticatedUser {
 }
 
 // Stack Auth configuration
-const STACK_AUTH_PROJECT_ID = process.env.STACK_AUTH_PROJECT_ID || process.env.VITE_STACK_PROJECT_ID || '253d7343-a0d4-43a1-be5c-822f590d40be';
+const STACK_AUTH_PROJECT_ID = process.env['STACK_AUTH_PROJECT_ID'] || process.env['VITE_STACK_PROJECT_ID'] || '253d7343-a0d4-43a1-be5c-822f590d40be';
 const STACK_AUTH_API_URL = 'https://api.stack-auth.com/api/v1';
 const JWKS_URL = `${STACK_AUTH_API_URL}/projects/${STACK_AUTH_PROJECT_ID}/.well-known/jwks.json`;
 
@@ -412,9 +412,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     console.log('🔍 Method:', req.method);
 
     // Vercel Skew Protection
-    if (process.env.VERCEL_SKEW_PROTECTION_ENABLED === '1' && process.env.VERCEL_DEPLOYMENT_ID) {
+    if (process.env['VERCEL_SKEW_PROTECTION_ENABLED'] === '1' && process.env['VERCEL_DEPLOYMENT_ID']) {
       try {
-        const cookieValue = `__vdpl=${process.env.VERCEL_DEPLOYMENT_ID}; Path=/; HttpOnly; Secure; SameSite=Lax`;
+        const cookieValue = `__vdpl=${process.env['VERCEL_DEPLOYMENT_ID']}; Path=/; HttpOnly; Secure; SameSite=Lax`;
         const existing = res.getHeader('Set-Cookie');
         if (Array.isArray(existing)) {
           res.setHeader('Set-Cookie', [...existing, cookieValue]);
@@ -631,7 +631,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       
       try {
         const adminToken = req.headers['x-admin-token'] as string;
-        const expected = process.env.ADMIN_TOKEN || 'sandra-admin-2025';
+        const expected = process.env['ADMIN_TOKEN'] || 'sandra-admin-2025';
         if (adminToken !== expected) return res.status(401).json({ error: 'Unauthorized' });
 
         const { storage } = await import('../server/storage.js');
@@ -800,7 +800,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (req.url === '/api/admin/backfill-stack-users') {
       if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
       const adminToken = req.headers['x-admin-token'] as string;
-      const expected = process.env.ADMIN_TOKEN || 'sandra-admin-2025';
+      const expected = process.env['ADMIN_TOKEN'] || 'sandra-admin-2025';
       if (adminToken !== expected) return res.status(401).json({ error: 'Unauthorized' });
       
       const users = (req.body && (req.body as { users?: Array<{ id: string; email?: string | null; displayName?: string | null; firstName?: string | null; lastName?: string | null; profileImageUrl?: string | null }> }).users) || [];
@@ -826,7 +826,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (req.url === '/api/admin/link-legacy-user') {
       if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
       const adminToken = req.headers['x-admin-token'] as string;
-      const expected = process.env.ADMIN_TOKEN || 'sandra-admin-2025';
+      const expected = process.env['ADMIN_TOKEN'] || 'sandra-admin-2025';
       if (adminToken !== expected) return res.status(401).json({ error: 'Unauthorized' });
       
       const { legacyUserId, stackId } = (req.body || {}) as { legacyUserId?: string | number; stackId?: string };
@@ -841,7 +841,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (req.url === '/api/admin/export-user-metadata') {
       if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
       const adminToken = req.headers['x-admin-token'] as string;
-      const expected = process.env.ADMIN_TOKEN || 'sandra-admin-2025';
+      const expected = process.env['ADMIN_TOKEN'] || 'sandra-admin-2025';
       if (adminToken !== expected) return res.status(401).json({ error: 'Unauthorized' });
       
       const { storage } = await import('../server/storage.js');
@@ -870,11 +870,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (req.url === '/api/admin/push-stack-metadata') {
       if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
       const adminToken = req.headers['x-admin-token'] as string;
-      const expected = process.env.ADMIN_TOKEN || 'sandra-admin-2025';
+      const expected = process.env['ADMIN_TOKEN'] || 'sandra-admin-2025';
       if (adminToken !== expected) return res.status(401).json({ error: 'Unauthorized' });
 
-      const PROJECT_ID = process.env.STACK_AUTH_PROJECT_ID || process.env.VITE_STACK_PROJECT_ID;
-      const STACK_KEY = process.env.STACK_ADMIN_KEY || process.env.STACK_SERVER_KEY || '';
+      const PROJECT_ID = process.env['STACK_AUTH_PROJECT_ID'] || process.env['VITE_STACK_PROJECT_ID'];
+      const STACK_KEY = process.env['STACK_ADMIN_KEY'] || process.env['STACK_SERVER_KEY'] || '';
       if (!PROJECT_ID || !STACK_KEY) {
         return res.status(500).json({ error: 'Missing STACK_AUTH_PROJECT_ID or STACK_ADMIN_KEY on server' });
       }
@@ -1260,7 +1260,7 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'x-api-key': process.env.ANTHROPIC_API_KEY || '',
+              'x-api-key': process.env['ANTHROPIC_API_KEY'] || '',
               'anthropic-version': '2023-06-01'
             },
             body: JSON.stringify({
@@ -1523,7 +1523,7 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
-                  'x-api-key': process.env.ANTHROPIC_API_KEY || '',
+                  'x-api-key': process.env['ANTHROPIC_API_KEY'] || '',
                   'anthropic-version': '2023-06-01'
                 },
                 body: JSON.stringify({
