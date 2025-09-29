@@ -54,23 +54,23 @@ export function UserProgressTracker() {
       id: 'payment',
       title: 'Subscription',
       description: 'Access granted',
-      completed: subscription?.status === 'active'
+      completed: (subscription as any)?.status === 'active'
     },
     {
       id: 'onboarding',
       title: 'Brand Foundation',
       description: 'Vision defined',
-      completed: onboarding?.currentStep === 'completed' || onboarding?.brandVibe,
+      completed: (onboarding as any)?.currentStep === 'completed' || !!(onboarding as any)?.brandVibe,
       href: '/onboarding'
     },
     {
       id: 'photos',
       title: 'Visual Assets',
       description: 'Images prepared',
-      completed: onboarding?.photoSourceType && (
-        onboarding.photoSourceType === 'ai-model' ? userModel?.status === 'completed' :
-        onboarding.photoSourceType === 'own-photos' ? onboarding.ownPhotosUploaded?.length > 0 :
-        onboarding.brandedPhotosDetails
+      completed: !!(onboarding as any)?.photoSourceType && (
+        (onboarding as any).photoSourceType === 'ai-model' ? (userModel as any)?.status === 'completed' :
+        (onboarding as any).photoSourceType === 'own-photos' ? ((onboarding as any).ownPhotosUploaded?.length || 0) > 0 :
+        !!(onboarding as any).brandedPhotosDetails
       ),
       href: '/onboarding'
     },
@@ -78,7 +78,7 @@ export function UserProgressTracker() {
       id: 'ai-training',
       title: 'AI Creation',
       description: 'Model trained',
-      completed: userModel?.status === 'completed' || aiImages.length > 0,
+      completed: (userModel as any)?.status === 'completed' || (Array.isArray(aiImages) ? aiImages.length > 0 : false),
       href: '/ai-generator'
     },
     {

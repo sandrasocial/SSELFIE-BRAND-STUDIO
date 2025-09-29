@@ -37,7 +37,9 @@
       "@models/*": ["shared/models/*"]
     },
     "types": [
-      "@types/node"
+      "@types/node",
+      "jest",
+      "@testing-library/jest-dom"
     ]
   },
   "include": [

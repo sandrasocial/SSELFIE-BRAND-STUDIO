@@ -3,25 +3,9 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '../lib/queryClient.js';
 import { useAuth } from '../hooks/use-auth.js';
 import { useToast } from '../hooks/use-toast.js';
+import type { ConceptCard } from '../../../shared/types/concept-card.js';
 
 // Types
-interface ConceptCard {
-  id: string; // Server-generated ULID
-  title: string;
-  description: string; // Made required to match UI usage
-  fullPrompt?: string;
-  fluxPrompt?: string; // Embedded FLUX-optimized prompt from Maya
-  emoji?: string; // Maya's styling emoji (🎯✨💼🌟💫🏆📸🎬)
-  creativeLook?: string; // One of Maya's 12 Creative Looks
-  creativeLookDescription?: string; // Brief description of the Creative Look
-  generatedImages?: string[];
-  isGenerating: boolean;
-  hasGenerated: boolean;
-  createdAt: string;
-  // Additional properties used for image generation across components
-  category?: string;
-  type?: string;
-}
 
 interface ChatMessage {
   id: string;
@@ -71,7 +55,7 @@ type BrandStudioAction =
   | { type: 'REMOVE_PENDING_MESSAGE'; payload: string }
   | { type: 'UPDATE_CONCEPT_CARDS'; payload: ConceptCard[] }
   | { type: 'SELECT_CONCEPT_CARD'; payload: string | null }
-  | { type: 'SET_ACTIVE_TAB'; payload: 'photo' | 'story' }
+  | { type: 'SET_ACTIVE_TAB'; payload: 'photo' | 'story' | 'maya' }
   | { type: 'SET_HANDOFF_DATA'; payload: BrandStudioState['handoffData'] }
   | { type: 'CLEAR_HANDOFF_DATA' }
   | { type: 'CLEAR_CONVERSATION' };
