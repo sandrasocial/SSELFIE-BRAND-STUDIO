@@ -22,6 +22,8 @@ declare global {
     info(...args: any[]): void;
   };
 
+  var require: (module: string) => any;
+
   namespace NodeJS {
     interface ProcessEnv {
       NODE_ENV?: string;
@@ -220,6 +222,37 @@ declare module 'node-fetch' {
   }
 
   export default function fetch(url: string, init?: any): Promise<Response>;
+}
+
+// Express.js module declarations
+declare module 'express' {
+  export interface Request {
+    body: any;
+    params: any;
+    query: any;
+    headers: any;
+    method: string;
+    url: string;
+    user?: any;
+  }
+
+  export interface Response {
+    status: (code: number) => Response;
+    json: (object: any) => Response;
+    send: (body: any) => Response;
+    setHeader: (name: string, value: string) => Response;
+    end: () => void;
+  }
+
+  export interface Router {
+    get: (path: string, ...handlers: any[]) => void;
+    post: (path: string, ...handlers: any[]) => void;
+    put: (path: string, ...handlers: any[]) => void;
+    delete: (path: string, ...handlers: any[]) => void;
+    use: (path: string | any, ...handlers: any[]) => void;
+  }
+
+  export function Router(): Router;
 }
 
 export {};
