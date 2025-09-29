@@ -1,3 +1,4 @@
+/// <reference path="../server/types/global.d.ts" />
 import {
   pgTable,
   text,
