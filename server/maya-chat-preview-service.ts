@@ -1,8 +1,8 @@
 import { storage } from './storage.js';
 import { 
-  ChatMessage, 
+  ServerChatMessage as ChatMessage, 
   GalleryImage, 
-  ChatMessageInput,
+  ServerChatMessageInput as ChatMessageInput,
   GalleryImageInput,
   ChatPreviewError 
 } from './types/chat.js';
@@ -16,7 +16,7 @@ export class MayaChatPreviewService {
   /**
    * Save generated images as chat previews (not gallery items)
    */
-  static async saveChatPreview(chatId: number, imageUrls: string[], prompt: string, predictionId: string): Promise<ChatMessage> {
+  static async saveChatPreview(chatId: number, imageUrls: string[], prompt: string, predictionId: string, userId: string): Promise<ChatMessage> {
     try {
       // Validate input
       if (!Array.isArray(imageUrls) || imageUrls.length === 0) {
@@ -31,6 +31,7 @@ export class MayaChatPreviewService {
       // Save as Maya chat message with image previews
       const messageInput: ChatMessageInput = {
         chatId,
+        userId,
         role: 'maya',
         content: `🎬 **YOUR IMAGES ARE READY!** 
 
@@ -47,10 +48,10 @@ Generated with your personal AI model using Sandra's proven settings
         }
       };
 
-      const previewMessage = await storage.saveMayaChatMessage(messageInput);
+      const previewMessage = await storage.saveMayaChatMessage(messageInput as any);
 
       console.log(`✅ MAYA CHAT PREVIEW: Saved ${imageUrls.length} images to chat ${chatId} as message ${previewMessage.id}`);
-      return previewMessage;
+      return previewMessage as unknown as ChatMessage;
       
     } catch (error) {
       console.error('❌ MAYA CHAT PREVIEW: Failed to save chat preview:', error);
@@ -86,7 +87,7 @@ Generated with your personal AI model using Sandra's proven settings
         imageUrl,
         prompt: prompt || 'Hearted from Maya chat',
         style: category, // Use 'style' field instead of 'category'
-        generationStatus: 'completed',
+        generationStatus: 'completed' as const,
         predictionId: '', // Not needed for hearted images
         isSelected: true, // CRITICAL FIX: Mark as selected so it appears in gallery
         isFavorite: true, // CRITICAL FIX: Mark as favorite so it appears in gallery
@@ -100,7 +101,7 @@ Generated with your personal AI model using Sandra's proven settings
       const galleryImage = await storage.saveAIImage(imageInput);
 
       console.log(`💖 MAYA HEART: Saved image ${galleryImage.id} to gallery for user ${userId} with selected/favorite flags`);
-      return galleryImage;
+      return galleryImage as GalleryImage;
       
     } catch (error) {
       console.error('❌ MAYA HEART: Failed to save to gallery:', error);
