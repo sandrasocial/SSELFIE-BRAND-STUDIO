@@ -114,8 +114,8 @@ export class MigrationMonitor {
   private async getReplicateImages(limit: number = 20): Promise<any[] | null> {
     try {
       const sql = "SELECT id, user_id, image_url, created_at FROM ai_images WHERE image_url LIKE 'https://replicate.delivery%' AND created_at > NOW() - INTERVAL '24 hours' LIMIT $1";
-      const result = await query(sql, [limit]);
-      return result.rows;
+      const result = await query(sql, [limit]) as any;
+      return result.rows || result;
     } catch (error) {
       // Handle schema mismatches gracefully
       if (error.message?.includes('column') && error.message?.includes('does not exist')) {
@@ -150,8 +150,8 @@ export class MigrationMonitor {
       console.log(`🔄 MANUAL MIGRATION: Starting for user ${userId}`);
       
       const selectSql = "SELECT * FROM ai_images WHERE user_id = $1 AND image_url LIKE 'https://replicate.delivery%'";
-      const result = await query(selectSql, [userId]);
-      const userImages = result.rows;
+      const result = await query(selectSql, [userId]) as any;
+      const userImages = result.rows || result;
 
       if (userImages.length === 0) {
         console.log(`✅ MANUAL MIGRATION: No temp URLs found for user ${userId}`);

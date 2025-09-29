@@ -1,2 +1,2 @@
 // Re-export the storage instance for api routes
-export { storage } from '../../server/storage-instance';
+export { storage } from '../../server/storage-instance.js';
