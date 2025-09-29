@@ -58,11 +58,11 @@ router.post('/session', async (req, res) => {
     const { deckUrl, mentiUrl, ctaUrl, title } = validationResult.data;
 
     // Create the session
-    const sessionData: InsertLiveSession = {
+    const sessionData = {
       deckUrl: deckUrl || null,
       mentiUrl: mentiUrl || null,
       ctaUrl: ctaUrl || null,
-      title,
+      title: title!,  // title is guaranteed by validation
       createdBy: userId,
     };
 

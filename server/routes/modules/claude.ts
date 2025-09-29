@@ -5,7 +5,7 @@
 
 import { Router, Request, Response } from 'express';
 import { asyncHandler, createError, sendSuccess, validateRequired } from '../middleware/error-handler.js';
-import { AuthenticatedRequest } from '../../../api/_shared/auth-types.js';
+import { AuthenticatedRequest } from '../../types/ai-generation.js';
 import { SuccessResponse } from '../../types/ai-generation.js';
 
 interface ClaudeMessage {

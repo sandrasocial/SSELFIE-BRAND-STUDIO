@@ -46,7 +46,6 @@ router.get('/hair-trends', requireStackAuth, async (req: any, res) => {
       confidence: Number(row.confidence),
       created_at: String(row.created_at)
     }));
-    const trends = result.rows;
 
     if (!trends || trends.length === 0) {
       return res.json({
@@ -113,7 +112,6 @@ router.get('/hair-trends/:weekRange', requireStackAuth, async (req: any, res) =>
       confidence: Number(row.confidence),
       created_at: String(row.created_at)
     }));
-    const trends = result.rows;
 
     if (!trends || trends.length === 0) {
       return res.status(404).json({
