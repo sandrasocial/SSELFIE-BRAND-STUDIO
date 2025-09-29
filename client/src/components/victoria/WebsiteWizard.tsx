@@ -336,11 +336,12 @@ export function WebsiteWizard({ onComplete }: WebsiteWizardProps) {
                   <div className="grid grid-cols-2 gap-6 mt-6">
                     {availableFeatures.map((feature) => (
                       <div key={feature} className="flex items-center space-x-3">
-                        <Checkbox
+                        <input
+                          type="checkbox"
                           id={feature}
                           checked={formData.keyFeatures?.includes(feature) || false}
                           onChange={() => handleFeatureToggle(feature)}
-                          className="border-2 border-gray-300"
+                          className="h-4 w-4 rounded border-2 border-gray-300"
                         />
                         <Label htmlFor={feature} className="text-base font-light" 
                                style={{ fontFamily: 'Times New Roman, serif' }}>
