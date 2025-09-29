@@ -58,22 +58,21 @@ export class ImageVariationsService {
       // Create initial variant records
       const variantIds: number[] = [];
       for (let i = 0; i < count; i++) {
-        const variantId = await storage.createImageVariant({
+        const variant = await storage.saveImageVariant({
           userId: request.userId,
           originalImageId: request.originalImageId,
-          originalImageType: request.originalImageType,
-          imageUrl: '', // Will be filled when generation completes
-          kind: 'variation',
-          prompt: derivedPrompt,
-          generationStatus: 'pending',
-          metadata: {
+          variantUrl: '', // Will be filled when generation completes
+          variantType: 'variation',
+          processingStatus: 'pending',
+          placementData: {
             originalImageUrl: originalImage.imageUrl || originalImage.selectedUrl,
             variationIndex: i + 1,
             totalVariations: count,
+            derivedPrompt,
             createdAt: new Date().toISOString()
           }
         });
-        variantIds.push(variantId);
+        variantIds.push(variant.id);
       }
 
       // Add some variation to the prompt for diversity
@@ -238,8 +237,8 @@ export class ImageVariationsService {
         // Update variant records with completed images
         for (let i = 0; i < variantIds.length && i < result.imageUrls.length; i++) {
           await storage.updateImageVariant(variantIds[i], {
-            imageUrl: result.imageUrls[i],
-            generationStatus: 'completed'
+            variantUrl: result.imageUrls[i],
+            processingStatus: 'completed'
           });
         }
 
@@ -248,8 +247,8 @@ export class ImageVariationsService {
         // Update all variants to failed status
         for (const variantId of variantIds) {
           await storage.updateImageVariant(variantId, {
-            generationStatus: 'failed',
-            metadata: { error: 'Generation failed' }
+            processingStatus: 'failed',
+            placementData: { error: 'Generation failed' }
           });
         }
         return { status: 'failed', error: 'Variation generation failed' };
@@ -287,7 +286,7 @@ export class ImageVariationsService {
    */
   static async getUserVariations(userId: string): Promise<any[]> {
     try {
-      return await storage.getImageVariantsByKind(userId, 'variation');
+      return await storage.getImageVariants(userId);
     } catch (error) {
       console.error('❌ VARIATIONS: Error getting user variations:', error);
       return [];

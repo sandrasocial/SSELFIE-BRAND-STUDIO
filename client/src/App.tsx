@@ -34,7 +34,7 @@ const HairSignup = lazy(() => import("./pages/landing/hair-signup.js"));
 const SimpleTraining = lazy(() => import("./pages/onboarding/simple-training.js"));
 const SimpleCheckout = lazy(() => import("./pages/simple-checkout.js"));
 const PaymentSuccess = lazy(() => import("./pages/payment-success.js"));
-const ThankYou = lazy(() => import("./pages/thank-you.js"));
+const ThankYou = lazy(() => import("./pages/thank-you.tsx"));
 const Terms = lazy(() => import("./pages/legal/terms.js"));
 const Privacy = lazy(() => import("./pages/legal/privacy.js"));
 const AuthSuccess = lazy(() => import("./pages/auth-success.js"));

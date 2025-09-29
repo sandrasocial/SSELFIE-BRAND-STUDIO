@@ -8,7 +8,7 @@ import { requireStackAuth } from '../../stack-auth.js';
 import { storage } from '../../storage.js';
 import { asyncHandler, createError, sendSuccess, validateRequired } from '../middleware/error-handler.js';
 import { userService } from '../../services/user-service.js';
-import { AuthenticatedRequest } from '../../../api/_shared/auth-types.js';
+import { AuthenticatedRequest } from '../../types/ai-generation.js';
 import { SuccessResponse } from '../../types/ai-generation.js';
 
 // User types
@@ -125,7 +125,7 @@ router.post('/api/auth/auto-register', asyncHandler(async (req: AuthenticatedReq
     message: 'User created successfully'
   };
 
-  sendSuccess(res, responseData, 201);
+  sendSuccess(res, responseData, 'User created successfully', 201);
 }));
 
 interface UpdateGenderRequest {
