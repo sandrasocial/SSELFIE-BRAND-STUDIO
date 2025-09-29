@@ -20,7 +20,7 @@ export interface UserModel {
 
 import type { BaseChatMessage, MayaChatMessage } from '../../../shared/types/unified-chat.js';
 
-export interface ClientChatMessage extends BaseChatMessage {
+export interface ClientChatMessage extends Omit<BaseChatMessage, 'content'> {
   sender: 'user' | 'ai';
   type: 'text' | 'concept';
   content: string | Record<string, unknown>; // Can be string or a concept card object
