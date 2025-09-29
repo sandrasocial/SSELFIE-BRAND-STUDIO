@@ -36,7 +36,11 @@ export default function SimpleCheckout() {
   const [email, setEmail] = useState('');
   const [processingStep, setProcessingStep] = useState<ProcessingStep>('idle');
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>('pre-payment');
-  const [emailValidation, setEmailValidation] = useState({ isValid: false, status: 'empty' as const, message: '' });
+  const [emailValidation, setEmailValidation] = useState<{
+    isValid: boolean;
+    status: 'valid' | 'invalid' | 'empty' | 'incomplete';
+    message?: string;
+  }>({ isValid: false, status: 'empty', message: '' });
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [networkConnected, setNetworkConnected] = useState(true);
   const [configurationValid, setConfigurationValid] = useState(true);
@@ -627,7 +631,7 @@ export default function SimpleCheckout() {
         }}
         onConfirm={handleConfirmedCheckout}
         data={confirmationData}
-        isProcessing={processingStep === 'processing'}
+        isProcessing={isProcessing}
         paymentStatus={paymentStatus}
         userData={userData}
         onContinue={handleSuccessContinue}

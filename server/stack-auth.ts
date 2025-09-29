@@ -67,15 +67,11 @@ function hashToken(token: string): string {
   return hash.toString();
 }
 
-export interface StackAuthUser {
-  id: string;
-  primaryEmail?: string;
-  displayName?: string;
-  isAdmin?: boolean; // Added for compatibility
-  // Add other Stack Auth user properties as needed
-  email?: string | null;
-  role?: string | null;
-  monthlyGenerationLimit?: number | null;
+// Import the proper User type from auth types to maintain consistency
+import type { DatabaseUser } from '../api/_shared/auth-types.js';
+
+export interface StackAuthUser extends DatabaseUser {
+  isAdmin?: boolean; // Added for compatibility - derived from role
 }
 
 declare global {
