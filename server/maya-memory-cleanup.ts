@@ -62,4 +62,4 @@ export async function cleanupUserRestrictiveMemory(userId: string): Promise<void
 }
 
 // Export for direct usage if needed
-export { mayaMemoryService };
+export { MayaMemoryService };
