@@ -13,12 +13,14 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "noImplicitAny": false,
-    "strict": false
+    "strict": false,
+    "types": []
   },
   "include": [
     "server/**/*.ts",
     "shared/**/*.ts",
-    "api/**/*.ts"
+    "api/**/*.ts",
+    "server/types/global.d.ts"
   ],
   "exclude": [
     "node_modules",
@@ -66,7 +68,7 @@
     "server/routes/trends-current.ts",
     "server/routes/video_storyboard.ts",
     "server/scheduled-tasks/**",
-    "server/services/ai-service-abstractor.ts",
+
     "server/services/images/variations.ts",
     "server/services/inpaint/sd_inpaint.ts",
     "server/services/maya-adaptation-engine.ts",

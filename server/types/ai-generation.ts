@@ -2,7 +2,7 @@
  * Type definitions for AI generation routes
  */
 
-import { Request } from 'express';
+/// <reference path="global.d.ts" />
 import { DatabaseUser } from '../../api/_shared/auth-types.js';
 
 /** Server-side authenticated user (without stackUser requirement) */
@@ -11,9 +11,14 @@ export interface ServerAuthenticatedUser extends DatabaseUser {
 }
 
 /** Base authenticated request for server routes */
-export interface AuthenticatedRequest extends Request {
+export interface AuthenticatedRequest {
   user: ServerAuthenticatedUser;
   params: any;  // Express params are available
+  body: any;    // Express body is available through middleware
+  headers: any; // Express headers
+  method: string; // HTTP method
+  url: string;  // Request URL
+  query: any;   // Query parameters
 }
 
 /** Story concept request */
