@@ -138,7 +138,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
   }
 
-  // Wrap all other routes with auth middleware
+  // Check if route requires authentication
+  const isProtectedRoute = req.url && (
+    req.url.includes('/api/me') ||
+    req.url.includes('/api/maya') ||
+    req.url.includes('/api/video') ||
+    req.url.includes('/api/ai-images') ||
+    req.url.includes('/api/story') ||
+    req.url.includes('/api/admin') ||
+    req.url.includes('/api/victoria') ||
+    req.url.includes('/api/training') ||
+    req.url.includes('/api/user-model')
+  );
+
+  // Use optional auth for most routes, required auth only for protected routes
   try {
     return withAuth(req, res, async (req: AuthenticatedRequest, res: VercelResponse) => {
       try {
@@ -153,6 +166,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         });
         throw error;
       }
+    }, { 
+      optional: !isProtectedRoute 
     });
   } catch (error) {
     console.error('❌ Auth middleware failed:', {

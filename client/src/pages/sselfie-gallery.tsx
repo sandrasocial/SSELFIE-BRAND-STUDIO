@@ -44,17 +44,17 @@ function ImageDetailModal({
       onClick={onClose}
     >
       <div 
-        className="editorial-modal max-w-6xl max-h-[95vh] w-full flex flex-col bg-neutral-950/95 backdrop-blur-2xl"
+        className="editorial-modal max-w-6xl max-h-[95vh] w-full flex flex-col bg-stone-950/95 backdrop-blur-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-neutral-800/30">
+        <div className="flex items-center justify-between p-6 border-b border-stone-800/30">
           <div className="flex items-center gap-4">
-            <div className="p-3 bg-neutral-800/40 rounded-editorial-md border border-neutral-700/30">
-              <Camera size={20} className="text-neutral-300" strokeWidth={1.5} />
+            <div className="p-3 bg-stone-800/40 rounded-editorial-md border border-stone-700/30">
+              <Camera size={20} strokeWidth={1.2} className="text-stone-400" />
             </div>
             <div>
-              <h3 className="editorial-heading-2 text-neutral-200">IMAGE DETAILS</h3>
+              <h3 className="editorial-heading-2 text-stone-200" style={{fontFamily: 'Times New Roman, serif'}}>IMAGE DETAILS</h3>
               <p className="editorial-text-caption text-neutral-500">Professional Portrait</p>
             </div>
           </div>
@@ -69,7 +69,7 @@ function ImageDetailModal({
         </div>
         
         {/* Image */}
-        <div className="flex-1 flex items-center justify-center p-8 bg-gradient-to-br from-neutral-900/50 to-neutral-800/30">
+        <div className="flex-1 flex items-center justify-center p-8 bg-gradient-to-br from-stone-900/50 to-stone-800/30">
           <img 
             src={selectedImage.imageUrl || selectedImage.url || ''} 
             alt={selectedImage.title || 'Gallery image'} 
@@ -78,7 +78,7 @@ function ImageDetailModal({
         </div>
         
         {/* Actions */}
-        <div className="p-6 border-t border-neutral-800/30 bg-gradient-to-r from-neutral-900/50 to-neutral-800/30">
+        <div className="p-6 border-t border-stone-800/30 bg-gradient-to-r from-stone-900/50 to-stone-800/30">
           <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
             <button 
               onClick={onToggleFavorite}
@@ -354,7 +354,7 @@ function SSELFIEGallery({ hideMemberNav = false }: { hideMemberNav?: boolean }) 
   return (
     <div className="min-h-screen bg-black relative overflow-hidden">
       {/* Luxury Background with Parallax Effect */}
-      <div className="absolute inset-0 bg-gradient-to-br from-black via-neutral-950 to-neutral-900">
+      <div className="absolute inset-0 bg-gradient-to-br from-black via-stone-950 to-stone-900">
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-15"
           style={{
@@ -363,7 +363,7 @@ function SSELFIEGallery({ hideMemberNav = false }: { hideMemberNav?: boolean }) 
             backgroundPosition: 'center center'
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-black/85 via-neutral-950/70 to-black/85" />
+        <div className="absolute inset-0 bg-gradient-to-br from-black/85 via-stone-950/70 to-black/85" />
       </div>
       
       {!hideMemberNav && <MemberNavigation />}
@@ -375,7 +375,7 @@ function SSELFIEGallery({ hideMemberNav = false }: { hideMemberNav?: boolean }) 
           {/* Main Header */}
           <div className="flex justify-between items-start">
             <div className="space-y-2">
-              <h2 className="editorial-heading-1 text-neutral-200">GALLERY</h2>
+              <h2 className="editorial-heading-1 text-stone-200" style={{fontFamily: 'Times New Roman, serif', letterSpacing: '0.3em'}}>GALLERY</h2>
               <p className="editorial-text-caption text-neutral-500">Curated Collection</p>
               
               {/* Gallery Stats */}
@@ -413,7 +413,7 @@ function SSELFIEGallery({ hideMemberNav = false }: { hideMemberNav?: boolean }) 
                   placeholder="Search photos..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 pr-4 py-2 bg-neutral-800/40 border border-neutral-700/30 rounded-lg text-neutral-200 text-sm placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-neutral-600/50 w-48"
+                  className="pl-10 pr-4 py-2 bg-stone-800/40 border border-stone-700/30 rounded-lg text-stone-200 text-sm placeholder-stone-500 focus:outline-none focus:ring-2 focus:ring-stone-600/50 w-48"
                 />
               </div>
               
@@ -423,7 +423,7 @@ function SSELFIEGallery({ hideMemberNav = false }: { hideMemberNav?: boolean }) 
                 className={`p-3 rounded-lg border transition-all duration-200 ${
                   showFilters 
                     ? 'bg-neutral-700/40 border-neutral-600/50' 
-                    : 'bg-neutral-800/40 border-neutral-700/30 hover:bg-neutral-700/40'
+                    : 'bg-stone-800/40 border-stone-700/30 hover:bg-stone-700/40'
                 }`}
               >
                 <Filter size={18} className="text-neutral-400" strokeWidth={1.5} />

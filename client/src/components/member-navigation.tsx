@@ -197,8 +197,8 @@ export function MemberNavigation({ transparent = true, darkText = false }: Membe
                 aria-label={`Navigate to ${item.label}`}
                 className={`editorial-headline text-sm tracking-extra-wide transition-all duration-300 ease-sophisticated flex items-center gap-3 ${
                   isActive(item.path)
-                    ? 'text-neutral-200'
-                    : 'text-neutral-400 hover:text-neutral-200'
+                    ? 'text-stone-200'
+                    : 'text-stone-400 hover:text-stone-200'
                 }`}
               >
                 <item.icon size={18} strokeWidth={1.2} />
