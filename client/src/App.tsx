@@ -38,7 +38,6 @@ const ThankYou = lazy(() => import("./pages/thank-you.js"));
 const Terms = lazy(() => import("./pages/legal/terms.js"));
 const Privacy = lazy(() => import("./pages/legal/privacy.js"));
 const AuthSuccess = lazy(() => import("./pages/auth-success.js"));
-const OAuthCallback = lazy(() => import("./pages/OAuthCallback.js"));
 const NotFound = lazy(() => import("./pages/not-found.js"));
 
 // Critical pages (marked as priority in routed-pages-priority.ts)  
@@ -116,9 +115,6 @@ function Router() {
       <Route path="/handler" component={HandlerRoutes} />
       {/* Guard against accidental /handler/app by redirecting to /app */}
       <Route path="/handler/app" component={() => { window.location.href = '/app'; return null; }} />
-      
-      {/* OAuth callback handler - single source of truth, no extra fallback */}
-      <Route path="/handler/oauth-callback" component={OAuthCallback} />
 
       {/* Post-auth success handoff */}
       <Route path="/auth-success" component={() => (
@@ -300,16 +296,6 @@ function HandlerRoutes() {
   console.log('🔍 HandlerRoutes: handlerPath =', handlerPath);
   console.log('🔍 HandlerRoutes: isAuthenticated =', isAuthenticated);
   
-  // Check for OAuth outer cookies (callback state)
-  const oauthOuterCookies = document.cookie.split(';').filter(cookie => cookie.includes('stack-oauth-outer'));
-  
-  // If we're in OAuth callback state, redirect to callback handler
-  if (oauthOuterCookies.length > 0) {
-    console.log('🔄 HandlerRoutes: OAuth callback detected, redirecting to callback...');
-    window.location.replace('/handler/oauth-callback');
-    return <div>Redirecting...</div>;
-  }
-
   // If user is already authenticated, redirect to app
   if (isAuthenticated) {
     console.log('🔍 HandlerRoutes: User is authenticated, redirecting to /app');
