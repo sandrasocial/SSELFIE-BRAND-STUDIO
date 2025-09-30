@@ -86,6 +86,13 @@ async function setupApp() {
       console.log('⚡ Socket.IO disabled via LIVE_SOCKET_ENABLED environment variable');
     }
     
+    // Start the server
+    const port = Number(process.env['PORT']) || 5000;
+    server.listen(port, '0.0.0.0', () => {
+      console.log(`✅ SSELFIE Studio server running on port ${port}`);
+      console.log(`🔗 API available at: http://localhost:${port}/api`);
+    });
+    
     console.log('✅ Server setup completed successfully');
   } catch (error) {
     console.error('❌ Server setup failed:', error);

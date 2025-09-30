@@ -7,14 +7,11 @@ type FetchOpts =
 export async function apiFetch(path: string, opts: FetchOpts = {}) {
   const url = `${API_BASE}${path.startsWith('/') ? path : `/${path}`}`;
 
-  const { getStackApp } = await import('../stack/stack-context.js');
-  const stack = getStackApp?.();
-  const token = opts.skipAuth ? null : (await (stack as any)?.getAccessToken?.());
-
+  // Stack Auth handles authentication via cookies automatically
+  // We don't need to manually extract and add tokens to headers
   const headers: Record<string, string> = {
     Accept: 'application/json',
     ...('json' in opts && opts.json ? { 'Content-Type': 'application/json' } : {}),
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...(opts.headers as Record<string, string>),
   };
 
