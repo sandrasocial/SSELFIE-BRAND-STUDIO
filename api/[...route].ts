@@ -15,7 +15,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(200).end();
   }
 
-  // Health check and other non-auth routes
+  // Public routes that don't require authentication - handle BEFORE auth middleware
+  
+  // Health check endpoints
   if (req.url?.includes('/api/health') || req.url?.includes('/api/health-check')) {
     return res.status(200).json({
       status: 'healthy',
@@ -24,10 +26,31 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
   }
 
+  // Ping endpoint - public
+  if (req.url === '/api/ping') {
+    return res.status(200).json({
+      status: 'ok',
+      message: 'SSELFIE Studio API is running',
+      timestamp: new Date().toISOString(),
+    });
+  }
+
   // Sandra Images API - Public access for image serving
   if (req.url?.startsWith('/api/sandra-images/')) {
     const sandraImagesHandler = await import('./sandra-images.js');
     return sandraImagesHandler.default(req, res);
+  }
+
+  // Gallery Images API - Public access
+  if (req.url?.startsWith('/api/gallery-images')) {
+    const galleryImagesHandler = await import('./gallery-images.js');
+    return galleryImagesHandler.default(req, res);
+  }
+
+  // Hair Trends API - Public access
+  if (req.url?.startsWith('/api/hair-trends')) {
+    const hairTrendsHandler = await import('./hair-trends.js');
+    return hairTrendsHandler.default(req, res);
   }
 
   // Handle logout
@@ -187,7 +210,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
   }
 
-  // Check if route requires authentication
+  // Define public routes that should never require authentication
+  const isPublicRoute = req.url && (
+    req.url.startsWith('/api/health') ||
+    req.url === '/api/ping' ||
+    req.url.startsWith('/api/sandra-images/') ||
+    req.url.startsWith('/api/gallery-images') ||
+    req.url.startsWith('/api/hair-trends') ||
+    req.url.startsWith('/api/auth/') ||
+    req.url === '/api/logout'
+  );
+
+  // Define protected routes that require authentication
   const isProtectedRoute = req.url && (
     req.url.includes('/api/me') ||
     req.url.includes('/api/maya') ||
@@ -199,6 +233,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     req.url.includes('/api/training') ||
     req.url.includes('/api/user-model')
   );
+
+  // Skip auth middleware entirely for public routes
+  if (isPublicRoute) {
+    try {
+      const { default: main } = await import('./index.js');
+      return main(req, res);
+    } catch (error) {
+      console.error('❌ Public route handler failed:', {
+        url: req.url,
+        method: req.method,
+        error: error instanceof Error ? { message: error.message, stack: error.stack } : error
+      });
+      throw error;
+    }
+  }
 
   // Use optional auth for most routes, required auth only for protected routes
   try {

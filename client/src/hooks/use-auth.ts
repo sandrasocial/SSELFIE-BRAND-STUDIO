@@ -63,7 +63,34 @@ export function useAuth() {
         return data?.user ?? null;
       } catch (error: any) {
         console.error('❌ Failed to fetch user data:', error);
-        // For 401 errors, don't treat as error - user is just not authenticated
+        
+        // CRITICAL: If server returns 401, the Stack Auth session is invalid
+        // Clear the session and force reauthentication
+        if (error?.status === 401 && stackUser) {
+          console.log('🔄 Server returned 401, clearing Stack Auth session for reauthentication...');
+          try {
+            // Get Stack Auth instance and sign out
+            const { getStackApp } = await import('../stack/stack-context.js');
+            const stackApp = getStackApp?.();
+            if (stackApp && stackUser) {
+              await stackUser.signOut();
+              console.log('✅ Stack Auth session cleared, user will be redirected to sign in');
+            }
+          } catch (signOutError) {
+            console.error('❌ Failed to clear Stack Auth session:', signOutError);
+            // Fallback: clear cookies manually and reload page
+            document.cookie.split(";").forEach(c => {
+              const eqPos = c.indexOf("=");
+              const name = eqPos > -1 ? c.substr(0, eqPos).trim() : c.trim();
+              if (name.includes('stack')) {
+                document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+              }
+            });
+            window.location.reload();
+          }
+        }
+        
+        // For 401 errors, return null (user not authenticated)
         if (error?.status === 401) {
           return null;
         }
