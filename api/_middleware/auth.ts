@@ -147,32 +147,63 @@ export async function getAuthenticatedUser(req: VercelRequest): Promise<Authenti
     console.log('✅ Token found in x-stack-access-token header');
   }
 
-  // 3. Check cookies as fallback
+  // 3. Check cookies for Stack Auth tokens (using the correct format)
   if (!accessToken) {
     const cookieHeader = req.headers.cookie;
     if (cookieHeader) {
       const cookies = parseCookieHeader(cookieHeader);
       
-      // Try Stack Auth cookie names in priority order
-      const cookieNames = [
-        'stack-access-token',  // Primary Stack Auth token
-        'stack-access',        // Alternative Stack Auth token
-        'stack_session'        // Session cookie
-      ];
+      // Helper function to extract JWT from Stack Auth cookie format
+      const tryParseAccessFromCookieValue = (val: unknown): string | undefined => {
+        if (!val || typeof val !== 'string') return undefined;
+        try {
+          // New format: JSON array ["token_id", "jwt"]
+          const parsed = JSON.parse(val);
+          if (Array.isArray(parsed) && parsed.length >= 2 && typeof parsed[1] === 'string') {
+            return parsed[1] as string;
+          }
+        } catch {
+          // Some environments may store the raw JWT as a string
+          if (val.split('.').length === 3) return val; // looks like a JWT
+        }
+        return undefined;
+      };
       
-      for (const cookieName of cookieNames) {
-        const cookieValue = cookies[cookieName];
-        
-        if (cookieValue && 
-            cookieValue !== 'undefined' && 
-            cookieValue !== 'null' && 
-            cookieValue.length > 20) {
-          
-          // Verify it looks like a JWT (has 3 parts separated by dots)
-          const parts = cookieValue.split('.');
-          if (parts.length === 3) {
+      // 1) Check exact 'stack-access' cookie first
+      const stackAccess = cookies['stack-access'];
+      if (stackAccess) {
+        const token = tryParseAccessFromCookieValue(stackAccess);
+        if (token) {
+          accessToken = token;
+          console.log('✅ Token found in stack-access cookie (JSON format)');
+        }
+      }
+
+      // 2) Check any cookie whose name starts with 'stack-access'
+      if (!accessToken) {
+        const matchingKeys = Object.keys(cookies).filter(k => k.startsWith('stack-access'));
+        for (const key of matchingKeys) {
+          const token = tryParseAccessFromCookieValue(cookies[key]);
+          if (token) {
+            accessToken = token;
+            console.log(`✅ Token found in cookie '${key}' (JSON format)`);
+            break;
+          }
+        }
+      }
+
+      // 3) Legacy fallback for simple string tokens
+      if (!accessToken) {
+        const legacyNames = ['stack-access-token', 'stack_session'];
+        for (const cookieName of legacyNames) {
+          const cookieValue = cookies[cookieName];
+          if (cookieValue && 
+              cookieValue !== 'undefined' && 
+              cookieValue !== 'null' && 
+              cookieValue.length > 20 &&
+              cookieValue.split('.').length === 3) {
             accessToken = cookieValue;
-            console.log(`✅ Token found in cookie: ${cookieName}`);
+            console.log(`✅ Token found in legacy cookie: ${cookieName}`);
             break;
           }
         }
