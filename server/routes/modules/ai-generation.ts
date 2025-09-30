@@ -3,7 +3,9 @@
  * Handles story generation, video generation, Victoria AI, and Maya AI
  */
 
-import { Router, Request, Response } from 'express';
+/// <reference path="../../types/global.d.ts" />
+const express = require('express');
+const { Router, Request, Response } = express;
 import { requireStackAuth, requireActiveSubscription } from '../../stack-auth.js';
 import { storage } from '../../storage.js';
 import { ModelTrainingService } from '../../model-training-service.js';

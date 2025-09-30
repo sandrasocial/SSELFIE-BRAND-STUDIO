@@ -3,6 +3,7 @@
  * Handles all AI generation operations (stories, videos, images, etc.)
  */
 
+/// <reference path="../types/global.d.ts" />
 import { BaseService } from './base-service.js';
 import {
   StoryGenerationRequest,

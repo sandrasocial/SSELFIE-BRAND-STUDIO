@@ -3,6 +3,8 @@
  * Structured logging with different levels and outputs
  */
 
+/// <reference path="../types/global.d.ts" />
+
 export interface LogEntry {
   timestamp: string;
   level: 'debug' | 'info' | 'warn' | 'error' | 'fatal';

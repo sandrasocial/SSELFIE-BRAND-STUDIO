@@ -3,6 +3,7 @@
  * Unified interface for all AI services (Claude, Google GenAI, Replicate)
  */
 
+/// <reference path="../types/global.d.ts" />
 import { Logger } from '../utils/logger.js';
 
 export interface AIServiceConfig {
@@ -137,7 +138,7 @@ export class GoogleGenAIService extends AIService {
 
   async generateText(prompt: string, systemPrompt?: string): Promise<AIResponse> {
     try {
-      const { GoogleGenAI } = await import('@google/genai');
+      const { GoogleGenAI } = await import('@google/genai' as any);
       const genAI = new GoogleGenAI({ apiKey: this.config.apiKey });
       const model = genAI.getGenerativeModel({ 
         model: this.config.model || 'gemini-pro',
@@ -172,7 +173,7 @@ export class GoogleGenAIService extends AIService {
 
   async generateImages(request: ImageGenerationRequest): Promise<ImageGenerationResponse> {
     try {
-      const { GoogleGenAI } = await import('@google/genai');
+      const { GoogleGenAI } = await import('@google/genai' as any);
       const genAI = new GoogleGenAI({ apiKey: this.config.apiKey });
       const model = genAI.getGenerativeModel({ 
         model: this.config.model || 'gemini-pro-vision'
