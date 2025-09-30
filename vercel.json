@@ -2,15 +2,6 @@
   "version": 2,
   "builds": [
     {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "buildCommand": "npm run build && npm run build:server:safe && npm run build:api",
-        "outputDirectory": "client/dist",
-        "installCommand": "npm install --force"
-      }
-    },
-    {
       "src": "api/[...route].ts",
       "use": "@vercel/node",
       "config": {
@@ -39,6 +30,15 @@
           "shared/schema.ts"
         ]
       }
+    },
+    {
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "buildCommand": "npm run vercel-build:safe",
+        "outputDirectory": "client/dist",
+        "installCommand": "npm install --force"
+      }
     }
   ],
   "routes": [
@@ -49,21 +49,11 @@
       },
       "continue": true
     },
-    {
-      "src": "/(.*)",
-      "headers": {
-        "X-Frame-Options": "DENY",
-        "X-Content-Type-Options": "nosniff",
-        "Referrer-Policy": "strict-origin-when-cross-origin",
-        "Permissions-Policy": "camera=(), microphone=(), geolocation=()"
-      },
-      "continue": true
-    },
+
     {
       "src": "/api/cron/(.*)",
       "dest": "api/[...route].ts",
-      "methods": ["GET", "POST"],
-      "continue": true
+      "methods": ["GET", "POST"]
     },
     {
       "src": "/api/(.*)",
@@ -73,10 +63,6 @@
       }
     },
     {
-      "src": "/auth/(.*)",
-      "dest": "api/auth/[...auth].ts"
-    },
-    {
       "src": "/assets/(.*)",
       "dest": "/client/dist/assets/$1",
       "headers": {
@@ -84,7 +70,7 @@
       }
     },
     {
-      "src": "/(favicon\\.ico|robots\\.txt|sitemap\\.xml)",
+      "src": "/(favicon\\.ico|robots\\.txt|sitemap\\.xml|manifest\\.json)",
       "dest": "/client/dist/$1"
     },
     {
@@ -95,10 +81,14 @@
       }
     },
     {
-      "src": "/(.*)",
-      "dest": "/client/dist/index.html",
+      "src": "/((?!api).)*",
+      "dest": "/index.html",
       "headers": {
-        "Cache-Control": "public, max-age=0, must-revalidate"
+        "Cache-Control": "public, max-age=0, must-revalidate",
+        "X-Frame-Options": "DENY",
+        "X-Content-Type-Options": "nosniff",
+        "Referrer-Policy": "strict-origin-when-cross-origin",
+        "Permissions-Policy": "camera=(), microphone=(), geolocation=()"
       }
     }
   ],

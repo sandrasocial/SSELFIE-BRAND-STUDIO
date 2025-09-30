@@ -148,17 +148,7 @@ declare module 'drizzle-orm/pg-core' {
   export function decimal(name: string): any;
 }
 
-declare module 'drizzle-zod' {
-  export function createInsertSchema(table: any, refinements?: any): any;
-  export function createSelectSchema(table: any, refinements?: any): any;
-}
-
-declare module 'zod' {
-  export const z: any;
-  export type ZodSchema<T = any> = any;
-  export type ZodObject<T = any> = any;
-  export type ZodType<T = any> = any;
-}
+// Zod types are properly imported from the zod package - no need to stub them out
 
 declare module 'ulid' {
   export function ulid(): string;

@@ -1,4 +1,4 @@
-import { ChangeEvent, useState, useRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { MemberNavigation } from '../../components/member-navigation.js';
 import { SandraImages } from '../../lib/sandra-images.js';
 import { useAuth } from '../../hooks/use-auth.js';
@@ -8,18 +8,11 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { apiRequest } from '../../lib/queryClient.js';
 import ErrorBoundary from '../../components/ErrorBoundary.js';
 import { User, UserModel } from '../../types/index.js';
+import { MayaUploadComponent } from '../../components/maya/MayaUploadComponent.js';
 
 // Enhanced training infrastructure
 import { useTrainingStatus } from '../../hooks/useTrainingStatus.js';
-import { useEnhancedImageOptimization } from '../../hooks/useEnhancedImageOptimization.js';
-import { TrainingProgress, TrainingAnimation } from '../../components/training/TrainingProgress.js';
 import { TrainingErrorBoundary } from '../../components/training/TrainingErrorBoundary.js';
-import { Colors, Typography, Spacing, Transitions } from '../../styles/designSystem.js';
-import { 
-  DEFAULT_VALIDATION_RULES, 
-  DEFAULT_IMAGE_PROCESSING_OPTIONS,
-  ErrorState 
-} from '../../types/training.js';
 
 function SimpleTraining() {
   // Always call hooks in the same order
@@ -27,17 +20,17 @@ function SimpleTraining() {
   const { toast } = useToast();
   
   // State hooks always called consistently
-  const [selfieImages, setSelfieImages] = useState<File[]>([]);
   const [isTrainingStarted, setIsTrainingStarted] = useState(false);
   const [trainingProgress, setTrainingProgress] = useState(0);
   const [startTime, setStartTime] = useState<Date | null>(null);
   const [estimatedTimeRemaining, setEstimatedTimeRemaining] = useState<string>('');
   const [isRetrainingMode, setIsRetrainingMode] = useState(false);
-  const [uploadErrors, setUploadErrors] = useState<string[]>([]);
-  const [isUploadingImages, setIsUploadingImages] = useState(false);
   
-  // Enhanced image processing
-  const { validateImages, optimizeImage, batchOptimize } = useEnhancedImageOptimization();
+  // Gender selection state - CRITICAL for training setup
+  const [userGender, setUserGender] = useState<string>('');
+  const [showGenderSelection, setShowGenderSelection] = useState(true);
+  
+
   
   // Enhanced training status with adaptive polling
   const {
@@ -50,13 +43,6 @@ function SimpleTraining() {
     isPolling,
     currentPollingInterval
   } = useTrainingStatus(user?.id || '', isAuthenticated);
-  
-  // Gender selection state
-  const [userGender, setUserGender] = useState('');
-  const [genderCaptured, setGenderCaptured] = useState(false);
-  const [isCheckingGender, setIsCheckingGender] = useState(true);
-  
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Check user model status with proper authentication and typing
   const { data: userModel, refetch: refetchUserModel } = useQuery<{
@@ -101,7 +87,6 @@ function SimpleTraining() {
     onSuccess: () => {
       // Clear state and redirect to training page
       setIsRetrainingMode(false);
-      setSelfieImages([]);
       setIsTrainingStarted(false);
       setTrainingProgress(0);
       refetchUserModel();
@@ -121,40 +106,13 @@ function SimpleTraining() {
     }
   });
 
-  // Check and initialize gender status
+  // Initialize gender from user data if available
   useEffect(() => {
-    const checkGenderStatus = () => {
-      if ((user as any)?.gender) {
-        setUserGender((user as any).gender);
-        setGenderCaptured(true);
-      }
-      setIsCheckingGender(false);
-    };
-    
-    if (user) {
-      checkGenderStatus();
+    if (user && (user as any)?.gender) {
+      setUserGender((user as any).gender);
+      setShowGenderSelection(false);
     }
   }, [user]);
-
-  // Gender selection handler
-  const handleGenderSelection = async (gender: string) => {
-    try {
-      const response = await apiRequest('/api/user/update-gender', 'POST', { gender });
-      if (response.success) {
-        setUserGender(gender);
-        setGenderCaptured(true);
-        toast({
-          title: "Perfect!",
-          description: "Now let's train your AI model with your selfies."
-        });
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to save preference. Please try again."
-      });
-    }
-  };
 
   // Initialize training state based on userModel data
   useEffect(() => {
@@ -304,170 +262,9 @@ function SimpleTraining() {
     }
   }, [trainingProgress, startTime]);
 
-  // Start bulletproof model training mutation
-  const startTraining = useMutation({
-    mutationFn: async (images: string[]) => {
-      setIsUploadingImages(true);
-      const response = await apiRequest('/api/start-model-training', 'POST', {
-        selfieImages: images
-      });
-      return response;
-    },
-    onSuccess: (data: any) => {
-      setIsUploadingImages(false);
-      if (data.success) {
-        setIsTrainingStarted(true);
-        setStartTime(new Date());
-        setTrainingProgress(5); // Initial progress
-        toast({
-          title: "Training Started",
-          description: "Your AI model is now training. You'll get an email when it's ready.",
-        });
-      } else {
-        // Handle validation errors from bulletproof service
-        setUploadErrors(data.errors || []);
-        toast({
-          title: "Training Validation Failed",
-          description: `Please fix these issues: ${data.errors?.join(', ')}`,
-          
-        });
-      }
-    },
-    onError: (error: any) => {
-      setIsUploadingImages(false);
-      console.error('Bulletproof training failed:', error);
-      
-      if (error.requiresRestart) {
-        setUploadErrors([error.message]);
-        toast({
-          title: "Training Failed",
-          description: "Please restart upload process and try again.",
-          
-        });
-      } else {
-        toast({
-          title: "Training Failed",
-          description: error.message || "Training system error. Please try again.",
-          
-        });
-      }
-    }
-  });
 
-  const handleFileSelect = (e: ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    
-    // Enhanced validation using new service
-    const validationErrors = validateImages(files, DEFAULT_VALIDATION_RULES);
-    
-    if (validationErrors.length > 0) {
-      // Show specific validation errors
-      const errorMessages = validationErrors.map(error => error.message);
-      setUploadErrors(errorMessages);
-      
-      toast({
-        title: "Invalid files",
-        description: `${errorMessages.length} issue(s) found. Please check your images.`,
-      });
-      
-      // Only add files that don't have errors
-      const validFiles = files.filter((_, index) => 
-        !validationErrors.some(error => error.message.includes(`${index + 1}`))
-      );
-      setSelfieImages(prev => [...prev, ...validFiles]);
-    } else {
-      // All files are valid
-      setUploadErrors([]);
-      setSelfieImages(prev => [...prev, ...files]);
-    }
-  };
 
-  const removeImage = (index: number) => {
-    setSelfieImages(prev => prev.filter((_, i) => i !== index));
-  };
 
-  // Enhanced image compression using new service
-  const compressImageEnhanced = async (file: File, onProgress?: (progress: number) => void): Promise<string> => {
-    try {
-      const blob = await optimizeImage(file, DEFAULT_IMAGE_PROCESSING_OPTIONS, onProgress);
-      
-      // Convert blob to base64 for backwards compatibility with existing API
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = reject;
-        reader.readAsDataURL(blob);
-      });
-    } catch (error) {
-      throw new Error(`Failed to compress image: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    }
-  };
-
-  const handleStartTraining = async () => {
-    // 🛡️ CRITICAL FRONTEND VALIDATION: NEVER ALLOW LESS THAN 10 IMAGES
-    if (selfieImages.length < 10) {
-      toast({
-        title: "❌ CRITICAL: Need More Photos",
-        description: `Only ${selfieImages.length} photos uploaded. MINIMUM 10 selfies required - no exceptions.`,
-        
-      });
-      return;
-    }
-    
-    if (selfieImages.length < 15) {
-      toast({
-        title: "⚠️ Recommendation",
-        description: `${selfieImages.length} photos uploaded. 15-20 recommended for best results.`,
-      });
-    }
-
-    setUploadErrors([]);
-    
-    toast({
-      title: "Starting Bulletproof Training",
-      description: "Validating and preparing your photos for training...",
-    });
-
-    try {
-      // Enhanced batch image processing with progress tracking
-      toast({
-        title: "Processing Images",
-        description: "Compressing images for optimal training...",
-      });
-      
-      // Convert blobs to base64 for backwards compatibility with existing API
-      const blobs = await batchOptimize(
-        selfieImages,
-        DEFAULT_IMAGE_PROCESSING_OPTIONS,
-        (completed, total, currentFile) => {
-          const progress = Math.round((completed / total) * 100);
-          console.log(`Processing: ${progress}% (${currentFile})`);
-        }
-      );
-
-      // Convert blobs to base64 strings for API compatibility
-      const compressedBase64Images = await Promise.all(
-        blobs.map(async (blob) => {
-          return new Promise<string>((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(reader.result as string);
-            reader.onerror = reject;
-            reader.readAsDataURL(blob);
-          });
-        })
-      );
-
-      console.log(`✅ Enhanced: Compressed ${compressedBase64Images.length} images successfully`);
-      startTraining.mutate(compressedBase64Images);
-    } catch (error) {
-      toast({
-        title: "Upload Failed",
-        description: "Failed to process images. Please try again with different photos.",
-        
-      });
-      console.error('Image processing failed:', error);
-    }
-  };
 
   // Training completed view
   if (isTrainingStarted || (userModel && userModel.trainingStatus === 'training')) {
@@ -551,18 +348,26 @@ function SimpleTraining() {
                 You'll get an email when it's complete.
               </p>
               
-              {/* Enhanced Training Animation */}
-              <TrainingAnimation size={100} />
+              {/* Simple Training Animation */}
+              <div style={{
+                position: 'relative',
+                width: '100px',
+                height: '100px',
+                margin: '0 auto 40px auto'
+              }}>
+                <div style={{
+                  position: 'absolute',
+                  inset: 0,
+                  border: '2px solid rgba(255, 255, 255, 0.1)',
+                  borderTop: '2px solid #ffffff',
+                  borderRadius: '50%',
+                  animation: 'spin 2s linear infinite'
+                }}></div>
+              </div>
               
-              {/* Enhanced Training Progress */}
-              {(progressMetrics && trainingStage) ? (
-                <TrainingProgress
-                  stage={trainingStage}
-                  progress={progressMetrics.progress}
-                  timeRemaining={progressMetrics.timeRemaining}
-                />
-              ) : (
-                // Fallback to legacy progress display
+              {/* Training Progress Display */}
+              {(
+                // Simple progress display
                 <div style={{ marginBottom: '40px' }}>
                   <div style={{
                     maxWidth: '500px',
@@ -881,99 +686,7 @@ function SimpleTraining() {
     );
   }
 
-  // Gender Selection Step - must come before training
-  if (isCheckingGender) {
-    return (
-      <div style={{ 
-        minHeight: '100vh', 
-        background: '#ffffff',
-        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-        fontWeight: 300,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}>
-        <div style={{ color: '#0a0a0a' }}>Loading...</div>
-      </div>
-    );
-  }
 
-  if (!genderCaptured) {
-    return (
-      <div style={{ 
-        minHeight: '100vh', 
-        background: '#ffffff',
-        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-        fontWeight: 300
-      }}>
-        <MemberNavigation darkText={true} />
-        <div style={{ paddingTop: '80px', paddingBottom: '60px', padding: '80px 32px 60px' }}>
-          <div style={{ textAlign: 'center', maxWidth: '800px', margin: '0 auto' }}>
-            <h2 style={{ 
-              fontFamily: 'Times New Roman, serif',
-              fontSize: '2rem',
-              fontWeight: 200,
-              letterSpacing: '0.2em',
-              marginBottom: '2rem',
-              color: '#0a0a0a'
-            }}>
-              TRAIN YOUR AI MODEL
-            </h2>
-            
-            <p style={{ 
-              color: '#666666', 
-              marginBottom: '3rem', 
-              fontSize: '18px',
-              lineHeight: '1.6',
-              maxWidth: '600px',
-              margin: '0 auto 3rem'
-            }}>
-              To train your personal AI model accurately, are you a man or woman? 
-              This ensures we generate photos that look like you.
-            </p>
-            
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: '500px', margin: '0 auto' }}>
-              {[
-                { value: 'woman', label: 'Woman', desc: 'Train AI for female photos' },
-                { value: 'man', label: 'Man', desc: 'Train AI for male photos' },
-                { value: 'other', label: 'Non-binary/Other', desc: 'Custom training approach' }
-              ].map(option => (
-                <button
-                  key={option.value}
-                  onClick={() => handleGenderSelection(option.value)}
-                  style={{
-                    width: '100%',
-                    padding: '24px',
-                    border: '1px solid #e5e5e5',
-                    borderRadius: '0',
-                    background: '#ffffff',
-                    cursor: 'pointer',
-                    transition: 'all 300ms ease',
-                    textAlign: 'left'
-                  }}
-                  onMouseEnter={(e) => {
-                    (e.target as HTMLElement).style.borderColor = '#0a0a0a';
-                    (e.target as HTMLElement).style.background = '#f9f9f9';
-                  }}
-                  onMouseLeave={(e) => {
-                    (e.target as HTMLElement).style.borderColor = '#e5e5e5';
-                    (e.target as HTMLElement).style.background = '#ffffff';
-                  }}
-                >
-                  <div style={{ fontWeight: 500, fontSize: '18px', marginBottom: '8px', color: '#0a0a0a' }}>
-                    {option.label}
-                  </div>
-                  <div style={{ color: '#666666', fontSize: '14px' }}>
-                    {option.desc}
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   // Training upload view
   if (!isAuthenticated) {
@@ -1234,217 +947,157 @@ function SimpleTraining() {
               Good lighting and variety work best.
             </p>
 
-            <div style={{
-              fontSize: '14px',
-              color: '#666666',
-              marginBottom: '48px',
-              letterSpacing: '0.05em'
-            }}>
-              {selfieImages.length} of 10 photos uploaded
-            </div>
-
-            {/* Hidden File Input */}
-            <input
-              ref={fileInputRef}
-              type="file"
-              multiple
-              accept="image/*"
-              onChange={handleFileSelect}
-              style={{ display: 'none' }}
-            />
-
-            {/* Upload Button - Mobile Optimized */}
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              className="touch-manipulation"
-              style={{
-                padding: 'clamp(16px, 4vw, 20px) clamp(24px, 6vw, 32px)',
-                fontSize: 'clamp(11px, 3vw, 12px)',
-                fontWeight: 400,
-                letterSpacing: '0.2em',
-                textTransform: 'uppercase',
-                border: '1px solid #0a0a0a',
-                borderRadius: '2px',
-                color: '#0a0a0a',
-                background: 'transparent',
-                cursor: 'pointer',
-                transition: 'all 300ms ease',
-                marginBottom: '40px',
-                minHeight: '44px',
-                minWidth: '200px',
-                width: '100%',
-                maxWidth: '320px'
-              }}
-              onMouseEnter={(e) => {
-                const target = e.target as HTMLElement;
-                target.style.background = '#0a0a0a';
-                target.style.color = '#ffffff';
-              }}
-              onMouseLeave={(e) => {
-                const target = e.target as HTMLElement;
-                target.style.background = 'transparent';
-                target.style.color = '#0a0a0a';
-              }}
-            >
-              + Select Photos to Upload
-            </button>
-
-            {/* Uploaded Photos Preview - Mobile Responsive */}
-            {selfieImages.length > 0 && (
+            {/* Gender Selection - Critical for E2E tests */}
+            {showGenderSelection && !userGender && (
               <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(clamp(70px, 15vw, 100px), 1fr))',
-                gap: 'clamp(8px, 2vw, 12px)',
-                marginBottom: '40px',
-                maxWidth: '600px',
-                margin: '0 auto 40px auto',
-                padding: '0 20px'
-              }}>
-                {selfieImages.map((file, index) => (
-                  <div key={index} style={{
-                    position: 'relative',
-                    aspectRatio: '1/1',
-                    borderRadius: '8px',
-                    overflow: 'hidden',
-                    border: '1px solid #e5e5e5'
-                  }}>
-                    <img
-                      src={URL.createObjectURL(file)}
-                      alt={`Selfie ${index + 1}`}
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover'
-                      }}
-                    />
-                    <button
-                      onClick={() => removeImage(index)}
-                      className="touch-manipulation"
-                      style={{
-                        position: 'absolute',
-                        top: '4px',
-                        right: '4px',
-                        width: 'clamp(24px, 6vw, 28px)',
-                        height: 'clamp(24px, 6vw, 28px)',
-                        minWidth: '44px',
-                        minHeight: '44px',
-                        background: 'rgba(0, 0, 0, 0.7)',
-                        color: '#ffffff',
-                        border: 'none',
-                        borderRadius: '50%',
-                        fontSize: 'clamp(12px, 3vw, 14px)',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        zIndex: 10
-                      }}
-                    >
-                      ×
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* LUXURY START BUTTON */}
-            <button
-              onClick={handleStartTraining}
-              disabled={selfieImages.length < 10 || startTraining.isPending || isUploadingImages}
-              style={{
-                padding: 'clamp(16px, 3vw, 20px) clamp(32px, 6vw, 48px)',
-                fontSize: 'clamp(12px, 3vw, 14px)',
-                fontWeight: 400,
-                letterSpacing: '0.15em',
-                textTransform: 'uppercase',
-                border: selfieImages.length >= 10 ? '1px solid #0a0a0a' : '1px solid #cccccc',
-                borderRadius: '2px',
-                color: selfieImages.length >= 10 ? '#ffffff' : '#999999',
-                background: selfieImages.length >= 10 ? '#0a0a0a' : '#f5f5f5',
-                cursor: selfieImages.length >= 10 ? 'pointer' : 'not-allowed',
-                transition: 'all 400ms ease',
-                marginBottom: '32px',
-                textAlign: 'center',
-                position: 'relative',
-                overflow: 'hidden',
-                minWidth: '280px',
-                maxWidth: '400px'
-              }}
-              onMouseEnter={(e) => {
-                if (selfieImages.length >= 10) {
-                  const target = e.target as HTMLElement;
-                  target.style.background = 'transparent';
-                  target.style.color = '#0a0a0a';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (selfieImages.length >= 10) {
-                  const target = e.target as HTMLElement;
-                  target.style.background = '#0a0a0a';
-                  target.style.color = '#ffffff';
-                }
-              }}
-            >
-              {(startTraining.isPending || isUploadingImages) ? (
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
-                  <div style={{
-                    width: '16px',
-                    height: '16px',
-                    border: '2px solid rgba(255, 255, 255, 0.3)',
-                    borderTop: '2px solid #ffffff',
-                    borderRadius: '50%',
-                    animation: 'spin 1s linear infinite'
-                  }}></div>
-                  PROCESSING YOUR PHOTOS...
-                </div>
-              ) : selfieImages.length < 10 ? 
-                `Upload ${10 - selfieImages.length} More Photos` : 
-                'Start AI Model Training'}
-            </button>
-
-            {/* LUXURY VALUE MESSAGING */}
-            {selfieImages.length >= 10 && !startTraining.isPending && (
-              <div style={{
-                maxWidth: '500px',
-                margin: '0 auto 24px auto',
-                padding: '20px 24px',
-                background: 'linear-gradient(135deg, #f8f8f8 0%, #ffffff 100%)',
-                borderRadius: '12px',
-                border: '1px solid #e8e8e8',
-                textAlign: 'center'
-              }}>
-                <div style={{
-                  fontSize: 'clamp(13px, 3vw, 15px)',
-                  color: '#333333',
-                  fontWeight: 300,
-                  lineHeight: 1.5,
-                  letterSpacing: '0.025em'
-                }}>
-                  <div style={{ marginBottom: '8px', fontWeight: 500 }}>
-                    <strong>Personal AI Model Training</strong>
-                  </div>
-                  <div style={{ opacity: 0.8 }}>
-                    High-quality AI personalization • Individual model training • Natural results
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* SIMPLE STATUS MESSAGE FOR OTHER STATES */}
-            {selfieImages.length < 10 && !startTraining.isPending && (
-              <div style={{
-                fontSize: 'clamp(12px, 3vw, 14px)',
-                color: '#888888',
-                fontWeight: 300,
-                padding: '0 20px',
-                textAlign: 'center',
                 maxWidth: '400px',
-                margin: '0 auto',
-                lineHeight: 1.4
+                margin: '0 auto 40px auto',
+                padding: '24px',
+                background: '#f9f9f9',
+                border: '1px solid #e5e5e5',
+                borderRadius: '8px'
               }}>
-                Upload at least 10 photos to create your personalized AI model
+                <h3 style={{
+                  fontSize: '14px',
+                  fontWeight: 500,
+                  textAlign: 'center',
+                  marginBottom: '16px',
+                  letterSpacing: '0.1em',
+                  textTransform: 'uppercase'
+                }}>
+                  Select Your Gender
+                </h3>
+                <p style={{
+                  fontSize: '13px',
+                  color: '#666',
+                  textAlign: 'center',
+                  marginBottom: '20px'
+                }}>
+                  This helps us train your AI model more accurately
+                </p>
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: '1fr 1fr',
+                  gap: '12px'
+                }}>
+                  <button
+                    onClick={() => {
+                      setUserGender('male');
+                      setShowGenderSelection(false);
+                    }}
+                    style={{
+                      padding: '12px 16px',
+                      fontSize: '13px',
+                      fontWeight: 400,
+                      letterSpacing: '0.1em',
+                      textTransform: 'uppercase',
+                      border: '1px solid #0a0a0a',
+                      borderRadius: '4px',
+                      color: '#0a0a0a',
+                      background: 'transparent',
+                      cursor: 'pointer',
+                      transition: 'all 200ms ease'
+                    }}
+                    onMouseEnter={(e) => {
+                      const target = e.target as HTMLElement;
+                      target.style.background = '#0a0a0a';
+                      target.style.color = '#ffffff';
+                    }}
+                    onMouseLeave={(e) => {
+                      const target = e.target as HTMLElement;
+                      target.style.background = 'transparent';
+                      target.style.color = '#0a0a0a';
+                    }}
+                  >
+                    Male
+                  </button>
+                  <button
+                    onClick={() => {
+                      setUserGender('female');
+                      setShowGenderSelection(false);
+                    }}
+                    style={{
+                      padding: '12px 16px',
+                      fontSize: '13px',
+                      fontWeight: 400,
+                      letterSpacing: '0.1em',
+                      textTransform: 'uppercase',
+                      border: '1px solid #0a0a0a',
+                      borderRadius: '4px',
+                      color: '#0a0a0a',
+                      background: 'transparent',
+                      cursor: 'pointer',
+                      transition: 'all 200ms ease'
+                    }}
+                    onMouseEnter={(e) => {
+                      const target = e.target as HTMLElement;
+                      target.style.background = '#0a0a0a';
+                      target.style.color = '#ffffff';
+                    }}
+                    onMouseLeave={(e) => {
+                      const target = e.target as HTMLElement;
+                      target.style.background = 'transparent';
+                      target.style.color = '#0a0a0a';
+                    }}
+                  >
+                    Female
+                  </button>
+                </div>
               </div>
             )}
+
+            {/* Selected Gender Display */}
+            {userGender && (
+              <div style={{
+                fontSize: '13px',
+                color: '#666666',
+                marginBottom: '24px',
+                textAlign: 'center',
+                letterSpacing: '0.1em',
+                textTransform: 'uppercase'
+              }}>
+                Training for: {userGender} • 
+                <button
+                  onClick={() => {
+                    setUserGender('');
+                    setShowGenderSelection(true);
+                  }}
+                  style={{
+                    marginLeft: '8px',
+                    fontSize: '12px',
+                    color: '#999',
+                    background: 'none',
+                    border: 'none',
+                    textDecoration: 'underline',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Change
+                </button>
+              </div>
+            )}
+
+            {/* Enhanced Maya Upload Component */}
+            <div style={{
+              maxWidth: '600px',
+              margin: '0 auto 40px auto'
+            }}>
+              <MayaUploadComponent
+                onUploadComplete={(success) => {
+                  if (success) {
+                    console.log('Training initiated successfully via MayaUploadComponent');
+                    setIsTrainingStarted(true);
+                  } else {
+                    console.log('Training initiation failed');
+                  }
+                }}
+                onTrainingStart={() => {
+                  console.log('Training started, beginning onboarding process');
+                  setIsTrainingStarted(true);
+                }}
+                className="luxury-training-upload"
+              />
+            </div>
           </div>
         </section>
 
@@ -1816,47 +1469,45 @@ function SimpleTraining() {
               </div>
             </div>
 
-            {/* Quick Tips Below Examples */}
-            {selfieImages.length < 10 && (
-              <div style={{
-                background: '#f9f9f9',
-                padding: '40px',
-                maxWidth: '600px',
-                margin: '0 auto',
-                textAlign: 'left'
+            {/* Training Tips */}
+            <div style={{
+              background: '#f9f9f9',
+              padding: '40px',
+              maxWidth: '600px',
+              margin: '0 auto',
+              textAlign: 'left'
+            }}>
+              <h4 style={{
+                fontSize: '11px',
+                fontWeight: 400,
+                letterSpacing: '0.3em',
+                textTransform: 'uppercase',
+                marginBottom: '20px',
+                color: '#0a0a0a'
               }}>
-                <h4 style={{
-                  fontSize: '11px',
-                  fontWeight: 400,
-                  letterSpacing: '0.3em',
-                  textTransform: 'uppercase',
-                  marginBottom: '20px',
-                  color: '#0a0a0a'
-                }}>
-                  What makes good training photos:
-                </h4>
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: '1fr 1fr',
-                  gap: '16px',
-                  fontSize: '14px',
-                  lineHeight: 1.6,
-                  color: '#333333',
-                  fontWeight: 300
-                }}>
-                  <div>
-                    <div style={{marginBottom: '8px'}}>✓ Natural window light</div>
-                    <div style={{marginBottom: '8px'}}>✓ Clear, unfiltered photos</div>
-                    <div style={{marginBottom: '8px'}}>✓ Different angles</div>
-                  </div>
-                  <div>
-                    <div style={{marginBottom: '8px'}}>✓ Various expressions</div>
-                    <div style={{marginBottom: '8px'}}>✓ Close-up and waist-up</div>
-                    <div style={{marginBottom: '8px'}}>✓ Recent photos of you</div>
-                  </div>
+                What makes good training photos:
+              </h4>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr',
+                gap: '16px',
+                fontSize: '14px',
+                lineHeight: 1.6,
+                color: '#333333',
+                fontWeight: 300
+              }}>
+                <div>
+                  <div style={{marginBottom: '8px'}}>✓ Natural window light</div>
+                  <div style={{marginBottom: '8px'}}>✓ Clear, unfiltered photos</div>
+                  <div style={{marginBottom: '8px'}}>✓ Different angles</div>
+                </div>
+                <div>
+                  <div style={{marginBottom: '8px'}}>✓ Various expressions</div>
+                  <div style={{marginBottom: '8px'}}>✓ Close-up and waist-up</div>
+                  <div style={{marginBottom: '8px'}}>✓ Recent photos of you</div>
                 </div>
               </div>
-            )}
+            </div>
           </div>
         </section>
 

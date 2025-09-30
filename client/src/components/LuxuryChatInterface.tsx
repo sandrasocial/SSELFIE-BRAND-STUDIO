@@ -110,7 +110,7 @@ export function LuxuryConceptCard({ concept }: { concept: ConceptCard }) {
           <Sparkles size={14} className="text-neutral-400" strokeWidth={1.5} />
         </div>
         <div className="space-y-2">
-          <h4 className="text-lg font-light text-neutral-200 tracking-wide">{stripEmojisForDisplay(concept.title)}</h4>
+          <h4 className="text-lg font-light text-stone-200 tracking-wide" style={{fontFamily: 'Times New Roman, serif'}}>{stripEmojisForDisplay(concept.title)}</h4>
           <p className="text-sm text-neutral-400 leading-relaxed">{concept.description}</p>
         </div>
       </div>
@@ -119,7 +119,7 @@ export function LuxuryConceptCard({ concept }: { concept: ConceptCard }) {
         <div className="mt-6">
           <button 
             onClick={handleGenerate}
-            className="w-full bg-neutral-200 text-black px-6 py-4 rounded-xl font-light tracking-wide transition-all duration-200 hover:bg-neutral-300 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2"
+            className="w-full bg-stone-950 text-stone-50 px-6 py-4 rounded-xl font-light tracking-wide transition-all duration-200 hover:bg-stone-900 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2"
           >
             <Camera size={18} strokeWidth={1.5} />
             GENERATE PHOTOS
@@ -151,7 +151,7 @@ export function LuxuryConceptCard({ concept }: { concept: ConceptCard }) {
         <div className="mt-6 flex flex-col items-center justify-center py-8 space-y-4">
           <div className="w-8 h-8 border-2 border-neutral-300 border-t-transparent rounded-full animate-spin"></div>
           <span className="text-sm text-neutral-400 tracking-wide">GENERATING YOUR VISION</span>
-          <div className="w-48 h-1 bg-neutral-800 rounded-full overflow-hidden">
+          <div className="w-48 h-1 bg-stone-800 rounded-full overflow-hidden">
             <div className="w-full h-full bg-gradient-to-r from-transparent via-neutral-300 to-transparent animate-pulse"></div>
           </div>
         </div>
@@ -266,18 +266,18 @@ Please create photo concepts that match this signature look, drawing from your $
     <div className="h-full flex flex-col">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-4">
-          <div className="p-2 bg-neutral-800/40 rounded-lg border border-neutral-700/30">
+          <div className="p-2 bg-stone-800/40 rounded-lg border border-stone-700/30">
             <MessageCircle size={18} className="text-neutral-300" strokeWidth={1.5} />
           </div>
           <div>
-            <h3 className="text-lg font-light text-neutral-200 tracking-wide">Maya Studio</h3>
+            <h3 className="text-lg font-light text-stone-200 tracking-wide" style={{fontFamily: 'Times New Roman, serif'}}>Maya Studio</h3>
             <p className="text-xs text-neutral-500 tracking-wide">AI Creative Director</p>
           </div>
         </div>
         
         <button
           onClick={() => setShowStyleSelector(true)}
-          className="px-4 py-2 bg-neutral-800/40 text-neutral-200 border border-neutral-700/30 rounded-lg text-sm font-light tracking-wide transition-all duration-200 hover:bg-neutral-800/60"
+          className="px-4 py-2 bg-stone-800/40 text-stone-200 border border-stone-700/30 rounded-lg text-sm font-light tracking-wide transition-all duration-200 hover:bg-stone-800/60"
         >
           <Sparkles size={14} strokeWidth={1.5} className="inline mr-2" />
           {selectedStyle ? selectedStyle.name : 'Choose Style'}
@@ -285,7 +285,7 @@ Please create photo concepts that match this signature look, drawing from your $
       </div>
 
       {selectedStyle && (
-        <div className="mb-4 p-4 bg-neutral-800/20 rounded-lg border border-neutral-700/20">
+        <div className="mb-4 p-4 bg-stone-800/20 rounded-lg border border-stone-700/20">
           <div className="flex items-start gap-3">
             <div className="w-2 h-2 bg-neutral-400 rounded-full mt-2"></div>
             <div>
@@ -302,7 +302,7 @@ Please create photo concepts that match this signature look, drawing from your $
         {messages.length === 0 && (
           <div className="flex items-center justify-center py-12">
             <div className="text-center space-y-3">
-              <div className="w-12 h-12 bg-neutral-800/40 rounded-full flex items-center justify-center mx-auto">
+              <div className="w-12 h-12 bg-stone-800/40 rounded-full flex items-center justify-center mx-auto">
                 <MessageCircle size={24} className="text-neutral-400" strokeWidth={1.5} />
               </div>
               <div className="space-y-1">
@@ -321,10 +321,10 @@ Please create photo concepts that match this signature look, drawing from your $
               <div className={`p-4 rounded-lg ${
                 msg.role === 'user' 
                   ? 'bg-neutral-700/30 border border-neutral-600/30' 
-                  : 'bg-neutral-800/30 border border-neutral-700/30'
+                  : 'bg-stone-800/30 border border-stone-700/30'
               }`}>
                 <div className="space-y-2">
-                  <p className="text-sm text-neutral-200 leading-relaxed">{msg.content}</p>
+                  <p className="text-sm text-stone-200 leading-relaxed">{msg.content}</p>
                   
                   <div className="text-xs text-neutral-500">
                     {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -390,6 +390,7 @@ Please create photo concepts that match this signature look, drawing from your $
         <form onSubmit={handleSendMessage} className="flex gap-3">
           <div className="flex-1 relative">
             <input 
+              data-testid="maya-chat-input"
               type="text" 
               value={inputValue} 
               onChange={(e) => setInputValue(e.target.value)} 
@@ -407,6 +408,7 @@ Please create photo concepts that match this signature look, drawing from your $
             </div>
           </div>
           <button 
+            data-testid="maya-chat-send"
             type="submit" 
             className="px-4 py-3 bg-neutral-200 text-black rounded-lg font-light transition-all duration-200 hover:bg-neutral-300 disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={isTyping || !inputValue.trim()}

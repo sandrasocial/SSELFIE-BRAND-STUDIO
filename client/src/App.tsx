@@ -196,13 +196,16 @@ function Router() {
 
       {/* PROTECTED ROUTES */}
       
-      {/* AI TRAINING WORKFLOW */}
-      <Route path="/simple-training" component={(props) => (
-        <ProtectedRoute component={() => (
-          <Suspense fallback={<PageLoader />}>
-            <SimpleTraining />
-          </Suspense>
-        )} {...props} />
+      {/* AI TRAINING WORKFLOW - Public access for post-payment users */}
+      <Route path="/simple-training" component={() => (
+        <Suspense fallback={<PageLoader />}>
+          <SimpleTraining />
+        </Suspense>
+      )} />
+      <Route path="/training" component={() => (
+        <Suspense fallback={<PageLoader />}>
+          <SimpleTraining />
+        </Suspense>
       )} />
 
       {/* CRITICAL WORKFLOW PAGES */}
@@ -223,13 +226,24 @@ function Router() {
       )} />
 
       {/* NEW TABBED UI ROUTE - Protected with Auth wrapper */}
+      {/* PROTECTED APP ROUTE - Main Studio Interface */}
       <Route path="/app" component={() => (
         <ProtectedRoute component={() => (
           <Suspense fallback={<PageLoader />}>
-            <SselfieAppLayout />
+            <DemoAppLayout />
           </Suspense>
         )} />
-      )} />
+      )} />      {/* STUDIO ROUTE ALIAS - Redirects to /app for E2E test compatibility */}
+      <Route path="/studio" component={() => {
+        window.location.replace('/app');
+        return <PageLoader />;
+      }} />
+
+      {/* WORKSPACE ROUTE ALIAS - Redirects to /app for compatibility */}
+      <Route path="/workspace" component={() => {
+        window.location.replace('/app');
+        return <PageLoader />;
+      }} />
 
       {/* DEMO LAYOUT ROUTE - Shows premium UX without auth */}
       <Route path="/demo" component={() => (

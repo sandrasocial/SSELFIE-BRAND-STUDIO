@@ -4,8 +4,7 @@
  */
 
 /// <reference path="../../types/global.d.ts" />
-const express = require('express');
-const { Router, Request, Response } = express;
+import express, { Router, Request, Response } from 'express';
 import { requireStackAuth, requireActiveSubscription } from '../../stack-auth.js';
 import { storage } from '../../storage.js';
 import { ModelTrainingService } from '../../model-training-service.js';
