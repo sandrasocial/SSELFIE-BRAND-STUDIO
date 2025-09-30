@@ -1083,6 +1083,7 @@ function SimpleTraining() {
               margin: '0 auto 40px auto'
             }}>
               <MayaUploadComponent
+                data-test-id="training-upload-component"
                 onUploadComplete={(success) => {
                   if (success) {
                     console.log('Training initiated successfully via MayaUploadComponent');

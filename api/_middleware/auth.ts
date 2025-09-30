@@ -150,8 +150,20 @@ export async function getAuthenticatedUser(req: VercelRequest): Promise<Authenti
   // 3. Check cookies for Stack Auth tokens (using the correct format)
   if (!accessToken) {
     const cookieHeader = req.headers.cookie;
+    console.log('🔍 Full request headers:', JSON.stringify({
+      cookie: cookieHeader,
+      authorization: req.headers.authorization,
+      'x-stack-access-token': req.headers['x-stack-access-token'],
+      host: req.headers.host,
+      origin: req.headers.origin
+    }, null, 2));
+    
     if (cookieHeader) {
       const cookies = parseCookieHeader(cookieHeader);
+      console.log('🔍 Parsed cookies:', Object.keys(cookies));
+      console.log('🔍 Cookie values (first 50 chars):', Object.fromEntries(
+        Object.entries(cookies).map(([k, v]) => [k, v.substring(0, 50) + (v.length > 50 ? '...' : '')])
+      ));
       
       // Helper function to extract JWT from Stack Auth cookie format
       const tryParseAccessFromCookieValue = (val: unknown): string | undefined => {
@@ -160,11 +172,15 @@ export async function getAuthenticatedUser(req: VercelRequest): Promise<Authenti
           // New format: JSON array ["token_id", "jwt"]
           const parsed = JSON.parse(val);
           if (Array.isArray(parsed) && parsed.length >= 2 && typeof parsed[1] === 'string') {
+            console.log('✅ Successfully parsed JSON array cookie format');
             return parsed[1] as string;
           }
         } catch {
           // Some environments may store the raw JWT as a string
-          if (val.split('.').length === 3) return val; // looks like a JWT
+          if (val.split('.').length === 3) {
+            console.log('✅ Found raw JWT in cookie');
+            return val; // looks like a JWT
+          }
         }
         return undefined;
       };
@@ -172,6 +188,7 @@ export async function getAuthenticatedUser(req: VercelRequest): Promise<Authenti
       // 1) Check exact 'stack-access' cookie first
       const stackAccess = cookies['stack-access'];
       if (stackAccess) {
+        console.log('🔍 Found stack-access cookie, length:', stackAccess.length);
         const token = tryParseAccessFromCookieValue(stackAccess);
         if (token) {
           accessToken = token;
@@ -182,6 +199,7 @@ export async function getAuthenticatedUser(req: VercelRequest): Promise<Authenti
       // 2) Check any cookie whose name starts with 'stack-access'
       if (!accessToken) {
         const matchingKeys = Object.keys(cookies).filter(k => k.startsWith('stack-access'));
+        console.log('🔍 Stack-access cookies found:', matchingKeys);
         for (const key of matchingKeys) {
           const token = tryParseAccessFromCookieValue(cookies[key]);
           if (token) {
@@ -375,13 +393,29 @@ export async function withAuth<T>(
 
     console.error('❌ Auth failed:', error);
 
-    // Clear cookies on auth failure
+    // Clear cookies on auth failure with proper domain configuration
+    const domain = process.env.VERCEL_ENV === 'production' 
+                   ? '.sselfie.ai' // Use root domain for production cookie setting
+                   : undefined;   // Use default for development/preview environments
+    
+    const cookieOptions = {
+      domain: domain,
+      secure: true,
+      sameSite: 'Lax' as const, // Must be Lax or Strict for security
+      path: '/',
+      httpOnly: true,
+      maxAge: 0
+    };
+    
     const expired = [
       'stack-access',
       'stack-access-token',
       'stack_session',
       '__Secure-next-auth.session-token' 
-    ].map(name => `${name}=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0`);
+    ].map(name => {
+      const cookieString = `${name}=; Path=${cookieOptions.path}; HttpOnly; Secure; SameSite=${cookieOptions.sameSite}; Max-Age=${cookieOptions.maxAge}`;
+      return domain ? `${cookieString}; Domain=${domain}` : cookieString;
+    });
     
     res.setHeader('Set-Cookie', expired);
     
