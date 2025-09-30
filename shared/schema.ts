@@ -18,15 +18,11 @@ import { ulid } from "ulid";
 import { randomUUID } from 'node:crypto';
 
 // Session storage table for Stack Auth (Stack Auth manages sessions automatically)
-export const sessions = pgTable(
-  "sessions",
-  {
-    sid: varchar("sid").primaryKey(),
-    sess: jsonb("sess").notNull(),
-    expire: timestamp("expire").notNull(),
-  },
-  (table) => [index("IDX_session_expire").on(table.expire)],
-);
+export const sessions = pgTable("sessions", {
+  sid: varchar("sid").primaryKey(),
+  sess: jsonb("sess").notNull(),
+  expire: timestamp("expire").notNull(),
+});
 
 // Agent session contexts for persistent memory between user sessions
 export const agentSessionContexts = pgTable("agent_session_contexts", {
@@ -42,10 +38,7 @@ export const agentSessionContexts = pgTable("agent_session_contexts", {
   unlimitedContext: boolean("unlimited_context").default(false), // Unlimited memory access for admin agents
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
-}, (table) => [
-  index("idx_agent_session_user").on(table.userId, table.agentId),
-  index("idx_agent_session_updated").on(table.updatedAt),
-]);
+});
 
 // User storage table for Stack Auth integration
 export const users = pgTable("users", {
@@ -133,12 +126,7 @@ export const processedEmails = pgTable("processed_emails", {
   isArchived: boolean("is_archived").default(false),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
-}, (table) => [
-  index("idx_processed_emails_user").on(table.userId),
-  index("idx_processed_emails_account").on(table.accountId),
-  index("idx_processed_emails_category").on(table.category),
-  index("idx_processed_emails_priority").on(table.priority),
-]);
+});
 
 // Instagram/ManyChat message management for Ava agent
 export const instagramMessages = pgTable("instagram_messages", {
@@ -163,12 +151,7 @@ export const instagramMessages = pgTable("instagram_messages", {
   isArchived: boolean("is_archived").default(false),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
-}, (table) => [
-  index("idx_instagram_messages_user").on(table.userId),
-  index("idx_instagram_messages_platform").on(table.platform),
-  index("idx_instagram_messages_category").on(table.category),
-  index("idx_instagram_messages_priority").on(table.priority),
-]);
+});
 
 // Website schema for Victoria website builder
 export const websites = pgTable("websites", {
@@ -216,11 +199,7 @@ export const hairLeads = pgTable("hair_leads", {
   notater: text("notater"), // Notes in Norwegian
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
-}, (table) => [
-  index("idx_hair_leads_epost").on(table.epost),
-  index("idx_hair_leads_created").on(table.createdAt),
-  index("idx_hair_leads_kilde").on(table.kilde),
-]);
+});
 
 // User projects/brands table
 export const projects = pgTable("projects", {
@@ -317,7 +296,7 @@ export const agentLearning = pgTable("agent_learning", {
   learningType: varchar("learning_type").notNull(), // preference, pattern, skill, context
   category: varchar("category"), // design, technical, communication, etc
   data: jsonb("data").notNull(), // learning content
-  confidence: decimal("confidence", { precision: 3, scale: 2 }).default("0.5"), // 0.0 to 1.0
+  confidence: decimal("confidence").default("0.5"), // 0.0 to 1.0
   frequency: integer("frequency").default(1), // how often this pattern occurs
   lastSeen: timestamp("last_seen").defaultNow(),
   createdAt: timestamp("created_at").defaultNow(),
@@ -392,7 +371,7 @@ export const userUsage = pgTable("user_usage", {
   monthlyGenerationsUsed: integer("monthly_generations_used").default(0),
   // Access controls removed - handled by plan type instead
   // Cost tracking
-  totalCostIncurred: decimal("total_cost_incurred", { precision: 10, scale: 4 }).default("0.0000"), // Track actual API costs
+  totalCostIncurred: decimal("total_cost_incurred").default("0.0000"), // Track actual API costs
   // Period tracking for monthly limits
   currentPeriodStart: timestamp("current_period_start"),
   currentPeriodEnd: timestamp("current_period_end"),
@@ -409,7 +388,7 @@ export const usageHistory = pgTable("usage_history", {
   userId: varchar("user_id").references(() => users.id).notNull(),
   actionType: varchar("action_type").notNull(), // 'generation', 'api_call', 'sandra_chat'
   resourceUsed: varchar("resource_used").notNull(), // 'replicate_ai', 'claude_api', 'openai_api'
-  cost: decimal("cost", { precision: 6, scale: 4 }).notNull(), // Actual cost in USD
+  cost: decimal("cost").notNull(), // Actual cost in USD
   details: jsonb("details"), // Store generation params, prompts, etc.
   generatedImageId: integer("generated_image_id").references(() => generatedImages.id),
   createdAt: timestamp("created_at").defaultNow(),
@@ -515,11 +494,7 @@ export const generatedVideos = pgTable("generated_videos", {
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
   completedAt: timestamp("completed_at"),
-}, (table) => [
-  index("generated_videos_user_id_idx").on(table.userId),
-  index("generated_videos_job_id_idx").on(table.jobId),
-  index("generated_videos_status_idx").on(table.status),
-]);
+});
 
 // Video Storyboards table (for multi-scene video composition)
 export const videoStoryboards = pgTable("video_storyboards", {
@@ -535,10 +510,7 @@ export const videoStoryboards = pgTable("video_storyboards", {
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
   completedAt: timestamp("completed_at"),
-}, (table) => [
-  index("video_storyboards_user_id_idx").on(table.userId),
-  index("video_storyboards_status_idx").on(table.status),
-]);
+});
 
 // Victoria AI chat conversations
 export const victoriaChats = pgTable("victoria_chats", {
@@ -724,7 +696,7 @@ export const promptAnalysis = pgTable("prompt_analysis", {
   
   // Performance metrics
   generationTime: integer("generation_time"), // How long it took to generate
-  successScore: decimal("success_score", { precision: 3, scale: 2 }).default("0.0"), // 0.0 to 1.0 based on user actions
+  successScore: decimal("success_score").default("0.0"), // 0.0 to 1.0 based on user actions
   
   createdAt: timestamp("created_at").defaultNow(),
 });
@@ -739,13 +711,7 @@ export const mayaChats = pgTable("maya_chats", {
   lastActivity: timestamp("last_activity").defaultNow(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
-}, (table) => ({
-  // STEP 3.1: Performance indexes for optimal query performance
-  userIdIdx: index("maya_chats_user_id_idx").on(table.userId),
-  lastActivityIdx: index("maya_chats_last_activity_idx").on(table.lastActivity),
-  categoryIdx: index("maya_chats_category_idx").on(table.chatCategory),
-  userActivityIdx: index("maya_chats_user_activity_idx").on(table.userId, table.lastActivity),
-}));
+});
 
 export const mayaChatMessages = pgTable("maya_chat_messages", {
   id: serial("id").primaryKey(),
@@ -758,14 +724,7 @@ export const mayaChatMessages = pgTable("maya_chat_messages", {
   quickButtons: text("quick_buttons"), // JSON array of quick action buttons
   canGenerate: boolean("can_generate").default(false), // Whether this message can generate images
   createdAt: timestamp("created_at").defaultNow(),
-}, (table) => ({
-  // STEP 3.1: Performance indexes for optimal message retrieval
-  chatIdIdx: index("maya_chat_messages_chat_id_idx").on(table.chatId),
-  createdAtIdx: index("maya_chat_messages_created_at_idx").on(table.createdAt),
-  roleIdx: index("maya_chat_messages_role_idx").on(table.role),
-  chatRoleIdx: index("maya_chat_messages_chat_role_idx").on(table.chatId, table.role),
-  canGenerateIdx: index("maya_chat_messages_can_generate_idx").on(table.canGenerate),
-}));
+});
 
 // LoRA Training & Weights Storage Tables
 // Tracks individual training runs and their extracted LoRA weights
@@ -784,11 +743,7 @@ export const trainingRuns = pgTable("training_runs", {
   error: text("error"), // Error message if failed
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
-}, (table) => ({
-  userIdIdx: index("training_runs_user_id_idx").on(table.userId),
-  statusIdx: index("training_runs_status_idx").on(table.status),
-  trainingIdIdx: index("training_runs_training_id_idx").on(table.trainingId),
-}));
+});
 
 export const loraWeights = pgTable("lora_weights", {
   id: serial("id").primaryKey(),
@@ -814,12 +769,7 @@ export const loraWeights = pgTable("lora_weights", {
   
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
-}, (table) => ({
-  userIdIdx: index("lora_weights_user_id_idx").on(table.userId),
-  statusIdx: index("lora_weights_status_idx").on(table.status),
-  trainingRunIdx: index("lora_weights_training_run_idx").on(table.trainingRunId),
-  triggerWordIdx: index("lora_weights_trigger_word_idx").on(table.triggerWord),
-}));
+});
 
 
 
@@ -835,11 +785,7 @@ export const liveSessions = pgTable("live_sessions", {
   createdBy: uuid("created_by").references(() => users.id, { onDelete: "cascade" }).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
-}, (table) => ({
-  createdByIdx: index("idx_live_sessions_created_by").on(table.createdBy),
-  createdAtIdx: index("idx_live_sessions_created_at").on(table.createdAt),
-  titleIdx: index("idx_live_sessions_title").on(table.title),
-}));
+});
 
 // Live Events - For Stage Mode analytics and tracking
 export const liveEvents = pgTable("live_events", {
@@ -855,14 +801,7 @@ export const liveEvents = pgTable("live_events", {
   utmContent: varchar("utm_content"),
   utmTerm: varchar("utm_term"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-}, (table) => ({
-  sessionIdIdx: index("idx_live_events_session_id").on(table.sessionId),
-  eventTypeIdx: index("idx_live_events_type").on(table.eventType),
-  createdAtIdx: index("idx_live_events_created_at").on(table.createdAt),
-  sessionTypeIdx: index("idx_live_events_session_type").on(table.sessionId, table.eventType),
-  utmSourceIdx: index("idx_live_events_utm_source").on(table.utmSource),
-  analyticsIdx: index("idx_live_events_analytics").on(table.sessionId, table.eventType, table.createdAt),
-}));
+});
 
 // Schema exports
 export const upsertUserSchema = createInsertSchema(users);
@@ -1153,7 +1092,7 @@ export const insertWebsiteBuilderConversationsSchema = z.object({
 
 // BUILD feature type exports
 export type UserWebsiteOnboarding = typeof userWebsiteOnboarding.$inferSelect;
-export type InsertUserWebsiteOnboarding = z.infer<typeof insertUserWebsiteOnboardingSchema>;
+// export type InsertUserWebsiteOnboarding = z.infer<typeof insertUserWebsiteOnboardingSchema>;
 export type UserGeneratedWebsite = typeof userGeneratedWebsites.$inferSelect;
 
 // Imported subscribers table for email list migration
@@ -1165,8 +1104,8 @@ export const importedSubscribers = pgTable("imported_subscribers", {
   source: varchar("source").notNull(), // 'flodesk' | 'manychat'
   originalId: varchar("original_id").notNull(),
   status: varchar("status").notNull(), // 'active' | 'unsubscribed'
-  tags: jsonb("tags").$type<string[]>().default([]),
-  customFields: jsonb("custom_fields").$type<Record<string, unknown>>().default({}),
+  tags: jsonb("tags").default([]),
+  customFields: jsonb("custom_fields").default({}),
   messengerData: jsonb("messenger_data"),
   importedAt: timestamp("imported_at").defaultNow(),
   createdAt: timestamp("created_at").defaultNow(),
@@ -1175,9 +1114,9 @@ export const importedSubscribers = pgTable("imported_subscribers", {
 
 export type ImportedSubscriber = typeof importedSubscribers.$inferSelect;
 export type InsertImportedSubscriber = typeof importedSubscribers.$inferInsert;
-export type InsertUserGeneratedWebsite = z.infer<typeof insertUserGeneratedWebsitesSchema>;
+// export type InsertUserGeneratedWebsite = z.infer<typeof insertUserGeneratedWebsitesSchema>;
 export type WebsiteBuilderConversation = typeof websiteBuilderConversations.$inferSelect;
-export type InsertWebsiteBuilderConversation = z.infer<typeof insertWebsiteBuilderConversationsSchema>;
+// export type InsertWebsiteBuilderConversation = z.infer<typeof insertWebsiteBuilderConversationsSchema>;
 
 
 
@@ -1188,15 +1127,15 @@ export const agentTasks = pgTable('agent_tasks', {
   taskId: uuid('task_id').primaryKey().defaultRandom(),
   agentName: text('agent_name').notNull(),
   instruction: text('instruction').notNull(),
-  conversationContext: jsonb('conversation_context').$type<string[]>(),
-  priority: text('priority').$type<'high' | 'medium' | 'low'>().default('medium'),
-  completionCriteria: jsonb('completion_criteria').$type<string[]>(),
-  qualityGates: jsonb('quality_gates').$type<string[]>(),
+  conversationContext: jsonb('conversation_context'),
+  priority: text('priority').default('medium'),
+  completionCriteria: jsonb('completion_criteria'),
+  qualityGates: jsonb('quality_gates'),
   estimatedDuration: integer('estimated_duration').notNull(), // in minutes
   status: text('status').default('received'),
   progress: integer('progress').default(0),
   implementations: jsonb('implementations'),
-  rollbackPlan: jsonb('rollback_plan').$type<string[]>(),
+  rollbackPlan: jsonb('rollback_plan'),
   validationResults: jsonb('validation_results'),
   createdAt: timestamp('created_at').defaultNow(),
   completedAt: timestamp('completed_at')
@@ -1249,13 +1188,11 @@ export const agentCostTracking = pgTable("agent_cost_tracking", {
   conversationId: varchar("conversation_id"),
   apiCalls: integer("api_calls").default(0),
   tokensUsed: integer("tokens_used").default(0),
-  estimatedCost: decimal("estimated_cost", { precision: 10, scale: 4 }).default("0.0000"),
+  estimatedCost: decimal("estimated_cost").default("0.0000"),
   date: timestamp("date").defaultNow(),
   taskType: varchar("task_type"), // "chat", "file_edit", "analysis", etc.
   createdAt: timestamp("created_at").defaultNow(),
-}, (table) => [
-  index("idx_cost_tracking_user_agent_date").on(table.userId, table.agentId, table.date),
-]);
+});
 
 // Daily/monthly budget controls
 export const agentBudgets = pgTable("agent_budgets", {
@@ -1263,8 +1200,8 @@ export const agentBudgets = pgTable("agent_budgets", {
   userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
   agentId: varchar("agent_id"),
   budgetType: varchar("budget_type").notNull(), // "daily", "monthly"
-  budgetLimit: decimal("budget_limit", { precision: 10, scale: 2 }).notNull(),
-  currentSpend: decimal("current_spend", { precision: 10, scale: 2 }).default("0.00"),
+  budgetLimit: decimal("budget_limit").notNull(),
+  currentSpend: decimal("current_spend").default("0.00"),
   isActive: boolean("is_active").default(true),
   resetDate: timestamp("reset_date"),
   alertThreshold: integer("alert_threshold").default(80), // Alert at 80% of budget
@@ -1301,11 +1238,11 @@ export const insertAgentTrainingSessionsSchema = z.object({
   trainedBy: z.string().optional()
 });
 
-export type InsertAgentKnowledgeBase = z.infer<typeof insertAgentKnowledgeBaseSchema>;
+// export type InsertAgentKnowledgeBase = z.infer<typeof insertAgentKnowledgeBaseSchema>;
 export type AgentKnowledgeBase = typeof agentKnowledgeBase.$inferSelect;
-export type InsertAgentPerformanceMetrics = z.infer<typeof insertAgentPerformanceMetricsSchema>;
+// export type InsertAgentPerformanceMetrics = z.infer<typeof insertAgentPerformanceMetricsSchema>;
 export type AgentPerformanceMetrics = typeof agentPerformanceMetrics.$inferSelect;
-export type InsertAgentTrainingSession = z.infer<typeof insertAgentTrainingSessionsSchema>;
+// export type InsertAgentTrainingSession = z.infer<typeof insertAgentTrainingSessionsSchema>;
 export type AgentTrainingSession = typeof agentTrainingSessions.$inferSelect;
 
 // Cost tracking type exports
@@ -1330,9 +1267,9 @@ export const insertAgentBudgetsSchema = z.object({
   alertThreshold: z.number().default(80)
 });
 
-export type InsertAgentCostTracking = z.infer<typeof insertAgentCostTrackingSchema>;
+// export type InsertAgentCostTracking = z.infer<typeof insertAgentCostTrackingSchema>;
 export type AgentCostTracking = typeof agentCostTracking.$inferSelect;
-export type InsertAgentBudgets = z.infer<typeof insertAgentBudgetsSchema>;
+// export type InsertAgentBudgets = z.infer<typeof insertAgentBudgetsSchema>;
 export type AgentBudgets = typeof agentBudgets.$inferSelect;
 
 // PHASE 2: APPROVAL WORKFLOW SYSTEM - Sandra's Content Control
@@ -1348,17 +1285,14 @@ export const approvalQueue = pgTable("approval_queue", {
   fullContent: jsonb("full_content").notNull(),
   targetAudience: varchar("target_audience"),
   impactLevel: varchar("impact_level").default("medium"), // "low", "medium", "high", "critical"
-  estimatedCost: decimal("estimated_cost", { precision: 10, scale: 2 }),
+  estimatedCost: decimal("estimated_cost"),
   status: varchar("status").default("pending"), // "pending", "approved", "rejected", "modified"
   adminComments: text("admin_comments"),
   originalConversationId: varchar("original_conversation_id"),
   createdAt: timestamp("created_at").defaultNow(),
   reviewedAt: timestamp("reviewed_at"),
   approvedBy: varchar("approved_by"),
-}, (table) => [
-  index("idx_approval_queue_status").on(table.status, table.createdAt),
-  index("idx_approval_queue_user").on(table.userId, table.status),
-]);
+});
 
 // Agent pause/handoff requests
 export const agentHandoffRequests = pgTable("agent_handoff_requests", {
@@ -1431,11 +1365,11 @@ export const insertAgentSessionsSchema = z.object({
   endedAt: z.date().optional()
 });
 
-export type InsertApprovalQueue = z.infer<typeof insertApprovalQueueSchema>;
+// export type InsertApprovalQueue = z.infer<typeof insertApprovalQueueSchema>;
 export type ApprovalQueue = typeof approvalQueue.$inferSelect;
-export type InsertAgentHandoffRequests = z.infer<typeof insertAgentHandoffRequestsSchema>;
+// export type InsertAgentHandoffRequests = z.infer<typeof insertAgentHandoffRequestsSchema>;
 export type AgentHandoffRequests = typeof agentHandoffRequests.$inferSelect;
-export type InsertAgentSessions = z.infer<typeof insertAgentSessionsSchema>;
+// export type InsertAgentSessions = z.infer<typeof insertAgentSessionsSchema>;
 export type AgentSessions = typeof agentSessions.$inferSelect;
 
 export type InsertUsageHistory = typeof usageHistory.$inferInsert;
@@ -1450,10 +1384,7 @@ export const brandAssets = pgTable("brand_assets", {
   fileSize: integer("file_size"), // File size in bytes
   meta: jsonb("meta"), // Additional metadata (dimensions, etc.)
   createdAt: timestamp("created_at").defaultNow(),
-}, (table) => [
-  index("idx_brand_assets_user").on(table.userId),
-  index("idx_brand_assets_kind").on(table.kind),
-]);
+});
 
 // Image Variants table for non-destructive brand asset placement
 export const imageVariants = pgTable("image_variants", {
@@ -1466,11 +1397,7 @@ export const imageVariants = pgTable("image_variants", {
   placementData: jsonb("placement_data"), // Position, scale, etc.
   processingStatus: varchar("processing_status").default("pending"), // pending, processing, completed, failed
   createdAt: timestamp("created_at").defaultNow(),
-}, (table) => [
-  index("idx_image_variants_user").on(table.userId),
-  index("idx_image_variants_original").on(table.originalImageId),
-  index("idx_image_variants_asset").on(table.brandAssetId),
-]);
+});
 
 // Export styleguide tables and types  
 export { userStyleguides, styleguideTemplates } from "./styleguide-schema.js";
@@ -1627,10 +1554,7 @@ export const conversations = pgTable("conversations", {
   status: varchar("status").default("active"), // active, archived
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
-}, (table) => [
-  index("idx_conversations_user_agent").on(table.userId, table.agentName),
-  index("idx_conversations_updated").on(table.updatedAt),
-]);
+});
 
 // Messages for detailed conversation history  
 export const messages = pgTable("messages", {
@@ -1641,10 +1565,7 @@ export const messages = pgTable("messages", {
   meta: jsonb("meta"), // attachments, tool calls, etc.
   tokenCount: integer("token_count").default(0),
   createdAt: timestamp("created_at").defaultNow(),
-}, (table) => [
-  index("idx_messages_conversation_time").on(table.conversationId, table.createdAt),
-  index("idx_messages_role").on(table.role),
-]);
+});
 
 // Conversation summaries for performance (rolling summaries)
 export const conversationSummaries = pgTable("conversation_summaries", {
@@ -1654,9 +1575,7 @@ export const conversationSummaries = pgTable("conversation_summaries", {
   lastMessageId: varchar("last_message_id").references(() => messages.id),
   messageCount: integer("message_count").default(0),
   updatedAt: timestamp("updated_at").defaultNow(),
-}, (table) => [
-  index("idx_summaries_updated").on(table.updatedAt),
-]);
+});
 
 // Concept cards with proper backend persistence
 export const conceptCards = pgTable("concept_cards", {
@@ -1676,12 +1595,7 @@ export const conceptCards = pgTable("concept_cards", {
   hasGenerated: boolean("has_generated").default(false),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
-}, (table) => [
-  index("idx_concept_cards_user").on(table.userId),
-  index("idx_concept_cards_conversation").on(table.conversationId),
-  index("idx_concept_cards_client_id").on(table.userId, table.clientId), // For idempotency
-  index("idx_concept_cards_sort").on(table.sortOrder),
-]);
+});
 
 // Insert schemas for missing tables
 export const insertArchitectureAuditLogSchema = z.object({
@@ -1844,51 +1758,51 @@ export const insertImageVariantSchema = z.object({
 
 // Type exports for missing tables
 export type ArchitectureAuditLog = typeof architectureAuditLog.$inferSelect;
-export type InsertArchitectureAuditLog = z.infer<typeof insertArchitectureAuditLogSchema>;
+// export type InsertArchitectureAuditLog = z.infer<typeof insertArchitectureAuditLogSchema>;
 export type Brandbook = typeof brandbooks.$inferSelect;
-export type InsertBrandbook = z.infer<typeof insertBrandbookSchema>;
+// export type InsertBrandbook = z.infer<typeof insertBrandbookSchema>;
 export type Dashboard = typeof dashboards.$inferSelect;
-export type InsertDashboard = z.infer<typeof insertDashboardSchema>;
+// export type InsertDashboard = z.infer<typeof insertDashboardSchema>;
 export type InspirationPhoto = typeof inspirationPhotos.$inferSelect;
-export type InsertInspirationPhoto = z.infer<typeof insertInspirationPhotoSchema>;
+// export type InsertInspirationPhoto = z.infer<typeof insertInspirationPhotoSchema>;
 export type ModelRecoveryLog = typeof modelRecoveryLog.$inferSelect;
-export type InsertModelRecoveryLog = z.infer<typeof insertModelRecoveryLogSchema>;
+// export type InsertModelRecoveryLog = z.infer<typeof insertModelRecoveryLogSchema>;
 export type SandraConversation = typeof sandraConversations.$inferSelect;
-export type InsertSandraConversation = z.infer<typeof insertSandraConversationSchema>;
+// export type InsertSandraConversation = z.infer<typeof insertSandraConversationSchema>;
 export type SavedPrompt = typeof savedPrompts.$inferSelect;
-export type InsertSavedPrompt = z.infer<typeof insertSavedPromptSchema>;
+// export type InsertSavedPrompt = z.infer<typeof insertSavedPromptSchema>;
 export type UserStyleEvolution = typeof userStyleEvolution.$inferSelect;
-export type InsertUserStyleEvolution = z.infer<typeof insertUserStyleEvolutionSchema>;
+// export type InsertUserStyleEvolution = z.infer<typeof insertUserStyleEvolutionSchema>;
 export type MayaContextSession = typeof mayaContextSessions.$inferSelect;
-export type InsertMayaContextSession = z.infer<typeof insertMayaContextSessionSchema>;
+// export type InsertMayaContextSession = z.infer<typeof insertMayaContextSessionSchema>;
 
 // New hybrid backend types
 export type Conversation = typeof conversations.$inferSelect;
-export type InsertConversation = z.infer<typeof insertConversationSchema>;
+// export type InsertConversation = z.infer<typeof insertConversationSchema>;
 export type Message = typeof messages.$inferSelect;
-export type InsertMessage = z.infer<typeof insertMessageSchema>;
+// export type InsertMessage = z.infer<typeof insertMessageSchema>;
 export type ConversationSummary = typeof conversationSummaries.$inferSelect;
-export type InsertConversationSummary = z.infer<typeof insertConversationSummarySchema>;
+// export type InsertConversationSummary = z.infer<typeof insertConversationSummarySchema>;
 export type ConceptCard = typeof conceptCards.$inferSelect;
-export type InsertConceptCard = z.infer<typeof insertConceptCardSchema>;
+// export type InsertConceptCard = z.infer<typeof insertConceptCardSchema>;
 
 // Brand Assets types
 export type BrandAsset = typeof brandAssets.$inferSelect;
-export type InsertBrandAsset = z.infer<typeof insertBrandAssetSchema>;
+// export type InsertBrandAsset = z.infer<typeof insertBrandAssetSchema>;
 export type ImageVariant = typeof imageVariants.$inferSelect;
-export type InsertImageVariant = z.infer<typeof insertImageVariantSchema>;
+// export type InsertImageVariant = z.infer<typeof insertImageVariantSchema>;
 
 // Live Sessions types
 export type LiveSession = typeof liveSessions.$inferSelect;
-export type InsertLiveSession = z.infer<typeof insertLiveSessionSchema>;
+// export type InsertLiveSession = z.infer<typeof insertLiveSessionSchema>;
 
 // Live Events types
 export type LiveEvent = typeof liveEvents.$inferSelect;
-export type InsertLiveEvent = z.infer<typeof insertLiveEventSchema>;
+// export type InsertLiveEvent = z.infer<typeof insertLiveEventSchema>;
 
 // Hair Leads types
 export type HairLead = typeof hairLeads.$inferSelect;
-export type InsertHairLead = z.infer<typeof insertHairLeadSchema>;
+// export type InsertHairLead = z.infer<typeof insertHairLeadSchema>;
 // Note: Website type already defined above at line 502
 // Note: styleguide_templates and user_styleguides are imported from styleguide-schema.ts
 // Note: agentTasks, emailCaptures, and userWebsiteOnboarding are already defined earlier in this file

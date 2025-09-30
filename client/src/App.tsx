@@ -34,11 +34,12 @@ const HairSignup = lazy(() => import("./pages/landing/hair-signup.js"));
 const SimpleTraining = lazy(() => import("./pages/onboarding/simple-training.js"));
 const SimpleCheckout = lazy(() => import("./pages/simple-checkout.js"));
 const PaymentSuccess = lazy(() => import("./pages/payment-success.js"));
-const ThankYou = lazy(() => import("./pages/thank-you.tsx"));
+const ThankYou = lazy(() => import("./pages/thank-you.js"));
 const Terms = lazy(() => import("./pages/legal/terms.js"));
 const Privacy = lazy(() => import("./pages/legal/privacy.js"));
 const AuthSuccess = lazy(() => import("./pages/auth-success.js"));
 const OAuthCallback = lazy(() => import("./pages/OAuthCallback.js"));
+const NotFound = lazy(() => import("./pages/not-found.js"));
 
 // Critical pages (marked as priority in routed-pages-priority.ts)  
 const Maya = lazy(() => import("./pages/maya.js"));
@@ -258,6 +259,20 @@ function Router() {
             <SessionStats />
           </Suspense>
         )} />
+      )} />
+
+      {/* ROUTE ALIASES & REDIRECTS */}
+      <Route path="/gallery" component={() => {
+        // Redirect /gallery to /sselfie-gallery for compatibility
+        window.location.replace('/sselfie-gallery');
+        return <PageLoader />;
+      }} />
+
+      {/* CATCH-ALL 404 ROUTE - Must be last */}
+      <Route component={() => (
+        <Suspense fallback={<PageLoader />}>
+          <NotFound />
+        </Suspense>
       )} />
     </div>
   );

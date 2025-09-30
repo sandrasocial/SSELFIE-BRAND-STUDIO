@@ -53,24 +53,27 @@ export default defineConfig(({ mode }) => {
     build: {
       outDir: path.resolve(__dirname, "client/dist"),
       emptyOutDir: true,
+      // Better CommonJS support
+      commonjsOptions: {
+        include: [/node_modules/],
+        transformMixedEsModules: true
+      },
       // Optimize bundle size
       chunkSizeWarningLimit: 1200,
       rollupOptions: {
         input: path.resolve(__dirname, "client/index.html"),
         output: {
-          manualChunks(id) {
-            if (id.includes('node_modules')) {
-              if (id.includes('@stackframe') || id.includes('react')) {
-                return 'vendor';
-              }
-              return 'deps';
-            }
-            if (id.includes('components/') || id.includes('shared/ui/')) {
-              return 'ui';
-            }
-            return undefined;
-          }
-        }
+          format: 'es',
+          manualChunks: {
+            // Minimal chunking - only separate the most problematic dependencies
+            'vendor': ['react', 'react-dom'],
+            'stackauth': ['@stackframe/react', '@stackframe/stack']
+          },
+          // Conservative interop settings
+          interop: 'compat',
+          exports: 'named'
+        },
+        external: [],
       },
       // Enable source maps for debugging
       sourcemap: mode === 'development',
@@ -85,10 +88,23 @@ export default defineConfig(({ mode }) => {
 
     // helpful nudges for prebundling and SSR
     optimizeDeps: {
-      include: ["react", "react-dom"],
+      include: [
+        "react", 
+        "react-dom", 
+        "react/jsx-runtime",
+        "@tanstack/react-query",
+        "wouter",
+        "@stackframe/react"
+      ],
+      force: true
     },
     ssr: {
       noExternal: ["@stackframe/react"],
+    },
+    define: {
+      global: 'globalThis',
+      __STACK_PROJECT_ID__: JSON.stringify(process.env.VITE_STACK_PROJECT_ID || "253d7343-a0d4-43a1-be5c-822f590d40be"),
+      __STACK_PUBLISHABLE_CLIENT_KEY__: JSON.stringify(process.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY || "pck_bqv6htnwq1f37nd2fn6qatxx2f8x0tnxvjj7xwgh1zmhg"),
     },
   };
 });

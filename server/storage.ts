@@ -114,20 +114,20 @@ import {
   conversationSummaries,
   conceptCards,
   type Conversation,
-  type InsertConversation,
+  // type InsertConversation,
   type Message,
-  type InsertMessage,
+  // type InsertMessage,
   type ConversationSummary,
-  type InsertConversationSummary,
+  // type InsertConversationSummary,
   type ConceptCard,
-  type InsertConceptCard,
+  // type InsertConceptCard,
   // Brand Assets types
   brandAssets,
   imageVariants,
   type BrandAsset,
-  type InsertBrandAsset,
+  // type InsertBrandAsset,
   type ImageVariant,
-  type InsertImageVariant,
+  // type InsertImageVariant,
 } from "../shared/schema.js";
 import { db } from "./drizzle.js";
 /// <reference path="types/global.d.ts" />
@@ -308,25 +308,25 @@ export interface IStorage {
 
   // HYBRID BACKEND ARCHITECTURE: New conversation and concept card operations
   // Conversation operations
-  createConversation(data: InsertConversation): Promise<Conversation>;
+  createConversation(data: typeof conversations.$inferInsert): Promise<Conversation>;
   getConversation(id: string): Promise<Conversation | undefined>;
   getUserConversations(userId: string, agentName?: string): Promise<Conversation[]>;
   updateConversation(id: string, updates: Partial<Conversation>): Promise<Conversation>;
   archiveConversation(id: string): Promise<Conversation>;
 
   // Message operations
-  createMessage(data: InsertMessage): Promise<Message>;
+  createMessage(data: typeof messages.$inferInsert): Promise<Message>;
   getConversationMessages(conversationId: string, limit?: number): Promise<Message[]>;
   getLastMessages(conversationId: string, count: number): Promise<Message[]>;
   getMessagesAfter(conversationId: string, messageId: string): Promise<Message[]>;
 
   // Conversation summary operations
-  upsertConversationSummary(data: InsertConversationSummary): Promise<ConversationSummary>;
+  upsertConversationSummary(data: typeof conversationSummaries.$inferInsert): Promise<ConversationSummary>;
   getConversationSummary(conversationId: string): Promise<ConversationSummary | undefined>;
   updateConversationSummary(conversationId: string, summary: string, lastMessageId: string, messageCount: number): Promise<ConversationSummary>;
 
   // Concept card operations (with idempotency)
-  createConceptCard(data: InsertConceptCard): Promise<ConceptCard>;
+  createConceptCard(data: typeof conceptCards.$inferInsert): Promise<ConceptCard>;
   getConceptCard(id: string): Promise<ConceptCard | undefined>;
   getConceptCardByClientId(userId: string, clientId: string): Promise<ConceptCard | undefined>;
   getUserConceptCards(userId: string, conversationId?: string): Promise<ConceptCard[]>;
@@ -336,12 +336,12 @@ export interface IStorage {
 
   // Brand Assets operations (P3-C feature)
   getBrandAssets(userId: string): Promise<BrandAsset[]>;
-  saveBrandAsset(data: InsertBrandAsset): Promise<BrandAsset>;
+  saveBrandAsset(data: typeof brandAssets.$inferInsert): Promise<BrandAsset>;
   deleteBrandAsset(assetId: number, userId: string): Promise<boolean>;
   getBrandAsset(assetId: number, userId: string): Promise<BrandAsset | undefined>;
 
   // Image Variants operations (for non-destructive placement)
-  saveImageVariant(data: InsertImageVariant): Promise<ImageVariant>;
+  saveImageVariant(data: typeof imageVariants.$inferInsert): Promise<ImageVariant>;
   getImageVariants(userId: string, originalImageId?: number): Promise<ImageVariant[]>;
   getImageVariant(variantId: number, userId: string): Promise<ImageVariant | undefined>;
   updateImageVariant(variantId: number, updates: Partial<ImageVariant>): Promise<ImageVariant>;
@@ -2042,7 +2042,7 @@ export class DatabaseStorage implements IStorage {
   // HYBRID BACKEND ARCHITECTURE: Implementation of conversation and concept card operations
   
   // Conversation operations
-  async createConversation(data: InsertConversation): Promise<Conversation> {
+  async createConversation(data: typeof conversations.$inferInsert): Promise<Conversation> {
     const [conversation] = await db
       .insert(conversations)
       .values({
@@ -2091,7 +2091,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Message operations
-  async createMessage(data: InsertMessage): Promise<Message> {
+  async createMessage(data: typeof messages.$inferInsert): Promise<Message> {
     const [message] = await db
       .insert(messages)
       .values({
@@ -2148,7 +2148,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Conversation summary operations
-  async upsertConversationSummary(data: InsertConversationSummary): Promise<ConversationSummary> {
+  async upsertConversationSummary(data: typeof conversationSummaries.$inferInsert): Promise<ConversationSummary> {
     const existing = await this.getConversationSummary(data.conversationId);
     
     if (existing) {
@@ -2198,7 +2198,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Concept card operations (with idempotency)
-  async createConceptCard(data: InsertConceptCard): Promise<ConceptCard> {
+  async createConceptCard(data: typeof conceptCards.$inferInsert): Promise<ConceptCard> {
     // Check for idempotency using clientId
     if (data.clientId && data.userId) {
       const existing = await this.getConceptCardByClientId(data.userId, data.clientId);
@@ -2285,7 +2285,7 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(brandAssets.createdAt));
   }
 
-  async saveBrandAsset(data: InsertBrandAsset): Promise<BrandAsset> {
+  async saveBrandAsset(data: typeof brandAssets.$inferInsert): Promise<BrandAsset> {
     // Ensure required fields are present
     if (!data.url || !data.userId || !data.filename) {
       throw new Error('Missing required fields: url, userId, filename');
@@ -2314,7 +2314,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Image Variants operations (for non-destructive placement)
-  async saveImageVariant(data: InsertImageVariant): Promise<ImageVariant> {
+  async saveImageVariant(data: typeof imageVariants.$inferInsert): Promise<ImageVariant> {
     // Ensure required fields are present
     if (!data.userId || !data.originalImageId || !data.variantUrl) {
       throw new Error('Missing required fields: userId, originalImageId, variantUrl');

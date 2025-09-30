@@ -23,14 +23,7 @@ export const mayaModels = pgTable('maya_models', {
   trainingProgress: integer('training_progress').default(0), // 0-100 percentage
   
   // Model Metadata
-  metadata: jsonb('metadata').$type<{
-    trainingImages?: string[];
-    modelParameters?: Record<string, any>;
-    trainingLogs?: string[];
-    errorDetails?: string;
-    modelVersion?: string;
-    capabilities?: string[];
-  }>().default({}),
+  metadata: jsonb('metadata').default({}),
   
   // Model Performance
   qualityScore: integer('quality_score'), // 1-100 quality rating
@@ -59,16 +52,7 @@ export const mayaImages = pgTable('maya_images', {
   subcategory: varchar('subcategory'), // More specific categorization
   
   // Image Metadata
-  metadata: jsonb('metadata').$type<{
-    dimensions?: { width: number; height: number };
-    fileSize?: number;
-    format?: string;
-    prompt?: string;
-    model?: string;
-    generationParams?: Record<string, any>;
-    tags?: string[];
-    colorPalette?: string[];
-  }>().default({}),
+  metadata: jsonb('metadata').default({}),
   
   // User Interaction
   isFavorite: boolean('is_favorite').default(false),
@@ -100,25 +84,16 @@ export const mayaConcepts = pgTable('maya_concepts', {
   type: varchar('type'), // 'portrait', 'flatlay', 'lifestyle', 'brand'
   
   // Concept Details
-  metadata: jsonb('metadata').$type<{
-    styleElements?: string[];
-    colorScheme?: string[];
-    mood?: string;
-    settings?: string[];
-    props?: string[];
-    lighting?: string;
-    composition?: string;
-    inspirationSources?: string[];
-  }>().default({}),
+  metadata: jsonb('metadata').default({}),
   
   // Performance Tracking
   usageCount: integer('usage_count').default(0),
   successRate: integer('success_rate'), // Percentage of successful generations
-  avgRating: decimal('avg_rating', { precision: 3, scale: 2 }), // Average user rating
+  avgRating: decimal('avg_rating'), // Average user rating
   
   // Status and Organization
   status: varchar('status').default('active'), // 'active', 'archived', 'draft'
-  tags: jsonb('tags').$type<string[]>().default([]),
+  tags: jsonb('tags').default([]),
   isTemplate: boolean('is_template').default(false),
   
   // Timestamps
@@ -149,14 +124,7 @@ export const mayaPayments = pgTable('maya_payments', {
   currency: varchar('currency').default('usd'),
   
   // Payment Metadata
-  metadata: jsonb('metadata').$type<{
-    paymentMethod?: string;
-    lastPaymentDate?: string;
-    nextBillingDate?: string;
-    invoiceId?: string;
-    discountCode?: string;
-    refundDetails?: Record<string, any>;
-  }>().default({}),
+  metadata: jsonb('metadata').default({}),
   
   // Status Tracking
   isActive: boolean('is_active').default(true),
@@ -179,58 +147,19 @@ export const mayaProfile = pgTable('maya_profile', {
   // Onboarding Status
   onboardingStatus: varchar('onboarding_status').default('pending'), // 'pending', 'in_progress', 'completed'
   onboardingStep: integer('onboarding_step').default(1),
-  completedSteps: jsonb('completed_steps').$type<number[]>().default([]),
+  completedSteps: jsonb('completed_steps').default([]),
   
   // User Preferences
-  preferences: jsonb('preferences').$type<{
-    communicationStyle?: string; // 'casual', 'professional', 'friendly'
-    generationSettings?: {
-      defaultQuality?: string;
-      preferredAspectRatio?: string;
-      autoSave?: boolean;
-    };
-    privacySettings?: {
-      shareGenerations?: boolean;
-      allowDataCollection?: boolean;
-    };
-    notificationSettings?: {
-      emailUpdates?: boolean;
-      trainingComplete?: boolean;
-      newFeatures?: boolean;
-    };
-  }>().default({}),
+  preferences: jsonb('preferences').default({}),
   
   // Billing Information
-  billingInfo: jsonb('billing_info').$type<{
-    company?: string;
-    vatNumber?: string;
-    billingAddress?: {
-      street?: string;
-      city?: string;
-      state?: string;
-      postalCode?: string;
-      country?: string;
-    };
-    paymentMethod?: {
-      type?: string;
-      last4?: string;
-      brand?: string;
-    };
-  }>().default({}),
-  
-  // Usage Statistics
+  billingInfo: jsonb('billing_info').default({}),  // Usage Statistics
   totalGenerations: integer('total_generations').default(0),
   monthlyGenerations: integer('monthly_generations').default(0),
   lastResetDate: timestamp('last_reset_date').defaultNow(),
   
   // Feature Access
-  featureAccess: jsonb('feature_access').$type<{
-    advancedPrompts?: boolean;
-    priorityGeneration?: boolean;
-    customModels?: boolean;
-    apiAccess?: boolean;
-    whiteLabel?: boolean;
-  }>().default({}),
+  featureAccess: jsonb('feature_access').default({}),
   
   // Timestamps
   createdAt: timestamp('created_at').defaultNow().notNull(),
