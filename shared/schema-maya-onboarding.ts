@@ -18,7 +18,7 @@ export const userPersonalBrand = pgTable('user_personal_brand', {
   transformationStory: text('transformation_story'), // User's complete story of where they are now
   currentSituation: text('current_situation'), // Current challenges and starting point
   strugglesStory: text('struggles_story'), // What they're overcoming/have overcome
-  personalityTraits: jsonb('personality_traits').$type<string[]>().default([]), // Core personality characteristics
+  personalityTraits: jsonb('personality_traits').default([]), // Core personality characteristics
   
   // Future Self Visioning (Steps 3-4)
   dreamOutcome: text('dream_outcome'), // Clear vision of future successful self
@@ -34,7 +34,7 @@ export const userPersonalBrand = pgTable('user_personal_brand', {
   professionalGoals: text('professional_goals'), // Career/business objectives
   
   // Photo Usage & Intent (Step 6)
-  photoUsageGoals: jsonb('photo_usage_goals').$type<string[]>().default([]), // Social media, website, marketing, etc.
+  photoUsageGoals: jsonb('photo_usage_goals').default([]), // Social media, website, marketing, etc.
   contentCreationGoals: text('content_creation_goals'), // What content they'll create
   professionalImageGoals: text('professional_image_goals'), // How photos support their goals
   
@@ -55,43 +55,27 @@ export const userStyleProfile = pgTable('user_style_profile', {
   personalBrandId: integer('personal_brand_id').references(() => userPersonalBrand.id, { onDelete: 'cascade' }),
   
   // Style Categories & Preferences
-  styleCategories: jsonb('style_categories').$type<string[]>().default([]), // Editorial, Minimalist, Boho, Corporate, etc.
-  colorPreferences: jsonb('color_preferences').$type<{
-    primaryColors: string[];
-    accentColors: string[];
-    avoidColors: string[];
-    seasonalPalette?: string;
-  }>().default({ primaryColors: [], accentColors: [], avoidColors: [] }),
+  styleCategories: jsonb('style_categories').default([]), // Editorial, Minimalist, Boho, Corporate, etc.
+  colorPreferences: jsonb('color_preferences').default({ primaryColors: [], accentColors: [], avoidColors: [] }),
   
   // Settings & Environments
-  settingsPreferences: jsonb('settings_preferences').$type<string[]>().default([]), // Office, home, outdoor, studio, etc.
-  locationVibes: jsonb('location_vibes').$type<string[]>().default([]), // Luxury, natural, urban, cozy, etc.
+  settingsPreferences: jsonb('settings_preferences').default([]), // Office, home, outdoor, studio, etc.
+  locationVibes: jsonb('location_vibes').default([]), // Luxury, natural, urban, cozy, etc.
   
   // Clothing & Fashion Preferences
-  clothingPreferences: jsonb('clothing_preferences').$type<{
-    preferredStyles: string[];
-    favoriteItems: string[];
-    bodyTypeConsiderations: string[];
-    comfortLevel: string; // Conservative, moderate, bold
-    occasionTypes: string[]; // Business, casual, formal, creative
-  }>().default({ preferredStyles: [], favoriteItems: [], bodyTypeConsiderations: [], comfortLevel: 'moderate', occasionTypes: [] }),
+  clothingPreferences: jsonb('clothing_preferences').default({ preferredStyles: [], favoriteItems: [], bodyTypeConsiderations: [], comfortLevel: 'moderate', occasionTypes: [] }),
   
   // Beauty & Grooming Preferences
-  beautyPreferences: jsonb('beauty_preferences').$type<{
-    makeupStyle: string; // Natural, polished, glamorous, minimal
-    hairPreferences: string[];
-    skinToneConsiderations: string;
-    beautyComfortLevel: string;
-  }>().default({ makeupStyle: 'natural', hairPreferences: [], skinToneConsiderations: '', beautyComfortLevel: 'moderate' }),
+  beautyPreferences: jsonb('beauty_preferences').default({ makeupStyle: 'natural', hairPreferences: [], skinToneConsiderations: '', beautyComfortLevel: 'moderate' }),
   
   // Avoidances & Boundaries
-  styleAvoidances: jsonb('style_avoidances').$type<string[]>().default([]), // What they absolutely don't want
+  styleAvoidances: jsonb('style_avoidances').default([]), // What they absolutely don't want
   boundariesAndLimits: text('boundaries_and_limits'), // Personal or cultural considerations
   
   // Inspiration & References
-  inspirationImages: jsonb('inspiration_images').$type<string[]>().default([]), // URLs or descriptions of inspiring looks
-  styleIcons: jsonb('style_icons').$type<string[]>().default([]), // People whose style they admire
-  brandReferences: jsonb('brand_references').$type<string[]>().default([]), // Brands they love or aspire to
+  inspirationImages: jsonb('inspiration_images').default([]), // URLs or descriptions of inspiring looks
+  styleIcons: jsonb('style_icons').default([]), // People whose style they admire
+  brandReferences: jsonb('brand_references').default([]), // Brands they love or aspire to
   
   // Timestamps
   createdAt: timestamp('created_at').defaultNow().notNull(),
@@ -105,40 +89,19 @@ export const mayaPersonalMemory = pgTable('maya_personal_memory', {
   personalBrandId: integer('personal_brand_id').references(() => userPersonalBrand.id, { onDelete: 'cascade' }),
   
   // Maya's Personal Insights About User
-  personalInsights: jsonb('personal_insights').$type<{
-    coreMotivations: string[];
-    transformationJourney: string;
-    strengthsIdentified: string[];
-    growthAreas: string[];
-    personalityNotes: string;
-    communicationStyle: string;
-  }>().default({ coreMotivations: [], transformationJourney: '', strengthsIdentified: [], growthAreas: [], personalityNotes: '', communicationStyle: '' }),
+  personalInsights: jsonb('personal_insights').default({ coreMotivations: [], transformationJourney: '', strengthsIdentified: [], growthAreas: [], personalityNotes: '', communicationStyle: '' }),
   
   // Ongoing Goals & Progress
-  ongoingGoals: jsonb('ongoing_goals').$type<{
-    shortTermGoals: string[];
-    longTermVision: string[];
-    milestonesToCelebrate: string[];
-    challengesToSupport: string[];
-  }>().default({ shortTermGoals: [], longTermVision: [], milestonesToCelebrate: [], challengesToSupport: [] }),
+  ongoingGoals: jsonb('ongoing_goals').default({ shortTermGoals: [], longTermVision: [], milestonesToCelebrate: [], challengesToSupport: [] }),
   
   // Conversation Preferences
-  preferredTopics: jsonb('preferred_topics').$type<string[]>().default([]), // Business, style, personal growth, etc.
-  conversationStyle: jsonb('conversation_style').$type<{
-    energyLevel: string; // High-energy, calm, balanced
-    supportType: string; // Cheerleader, strategist, friend
-    communicationTone: string; // Direct, gentle, encouraging
-    motivationApproach: string; // Push, support, collaborate
-  }>().default({ energyLevel: 'balanced', supportType: 'friend', communicationTone: 'encouraging', motivationApproach: 'support' }),
+  preferredTopics: jsonb('preferred_topics').default([]), // Business, style, personal growth, etc.
+  conversationStyle: jsonb('conversation_style').default({ energyLevel: 'balanced', supportType: 'friend', communicationTone: 'encouraging', motivationApproach: 'support' }),
   
   // Maya's Style Intelligence for This User
   personalizedStylingNotes: text('personalized_styling_notes'), // Maya's notes on what works for this user
-  successfulPromptPatterns: jsonb('successful_prompt_patterns').$type<string[]>().default([]), // Prompts that generated great results
-  userFeedbackPatterns: jsonb('user_feedback_patterns').$type<{
-    lovedElements: string[];
-    dislikedElements: string[];
-    requestPatterns: string[];
-  }>().default({ lovedElements: [], dislikedElements: [], requestPatterns: [] }),
+  successfulPromptPatterns: jsonb('successful_prompt_patterns').default([]), // Prompts that generated great results
+  userFeedbackPatterns: jsonb('user_feedback_patterns').default({ lovedElements: [], dislikedElements: [], requestPatterns: [] }),
   
   // Memory Management
   lastMemoryUpdate: timestamp('last_memory_update').defaultNow().notNull(),

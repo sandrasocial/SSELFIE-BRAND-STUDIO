@@ -150,8 +150,8 @@ export class MayaPredictiveStyleService {
         preferredSessionLength: this.calculatePreferredSessionLength(behaviorData),
         idealConceptComplexity: this.determineIdealComplexity(behaviorData),
         subscriptionSatisfaction: this.predictSubscriptionSatisfaction(behaviorData),
-        featureInterest: await this.predictFeatureInterest(userId, behaviorData),
-        retentionProbability: await this.calculateRetentionProbability(userId, behaviorData)
+        featureInterest: MayaPredictiveStyleService.predictFeatureInterest(behaviorData),
+        retentionProbability: MayaPredictiveStyleService.calculateRetentionProbability(behaviorData)
       };
       
       console.log(`✅ PHASE 5.3: Predictive insights generated - Current phase: ${currentPhase}`);
