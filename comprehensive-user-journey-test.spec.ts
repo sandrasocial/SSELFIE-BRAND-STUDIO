@@ -18,7 +18,7 @@ import { test, expect, Page, BrowserContext } from '@playwright/test';
  */
 
 // Test configuration - Using deployed URL
-const DEPLOYED_URL = 'https://sselfie-brand-studio-dsemse6d4-sselfie-studio.vercel.app';
+const DEPLOYED_URL = 'https://sselfie-brand-studio-iedh4zm98-sselfie-studio.vercel.app';
 const TEST_USER_EMAIL = `test-e2e-${Date.now()}@example.com`;
 const TEST_USER_NAME = 'E2E Test User';
 
