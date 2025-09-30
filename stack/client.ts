@@ -45,7 +45,6 @@ try {
       afterSignIn: "/auth-success",
       afterSignUp: "/auth-success",
       afterSignOut: "/",
-      oauthCallback: "/handler/oauth-callback",
     },
     // Enhanced configuration for production stability
   });
