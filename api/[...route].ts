@@ -107,33 +107,82 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
   }
 
-  // Stack Auth API proxy
+  // Stack Auth API proxy - Enhanced with better error handling and logging
   if (req.url?.startsWith('/api/auth/') && !req.url.includes('auto-register')) {
     const stackAuthPath = req.url.replace('/api/auth', '');
     const stackAuthUrl = `https://api.stack-auth.com/api/v1/projects/${process.env.STACK_AUTH_PROJECT_ID}${stackAuthPath}`;
     
+    console.log('🔄 Stack Auth proxy:', {
+      path: stackAuthPath,
+      method: req.method,
+      hasAuth: !!req.headers.authorization,
+      projectId: process.env.STACK_AUTH_PROJECT_ID?.substring(0, 8) + '...'
+    });
+
     try {
-      const response = await fetch(stackAuthUrl, {
-        method: req.method,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': req.headers.authorization || '',
-          'x-stack-project-id': process.env.STACK_AUTH_PROJECT_ID || '',
-          ...(req.body ? {} : {})
-        },
-        body: req.body ? JSON.stringify(req.body) : undefined
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+        'x-stack-project-id': process.env.STACK_AUTH_PROJECT_ID || '',
+        'x-stack-publishable-client-key': process.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY || '',
+      };
+
+      // Forward authorization header if present
+      if (req.headers.authorization) {
+        headers['Authorization'] = req.headers.authorization;
+      }
+
+      // Forward Stack Auth specific headers
+      const stackHeaders = ['x-stack-access-token', 'x-stack-refresh-token', 'x-stack-admin-access-token'];
+      stackHeaders.forEach(header => {
+        if (req.headers[header]) {
+          headers[header] = req.headers[header] as string;
+        }
       });
 
-      const data = await response.text();
-      res.setHeader('Content-Type', response.headers.get('content-type') || 'application/json');
+      const response = await fetch(stackAuthUrl, {
+        method: req.method,
+        headers,
+        body: req.method !== 'GET' && req.body ? JSON.stringify(req.body) : undefined
+      });
+
+      const contentType = response.headers.get('content-type') || 'application/json';
+      let data: string;
+
+      // Handle different content types
+      if (contentType.includes('application/json')) {
+        data = await response.text();
+      } else {
+        data = await response.text();
+      }
+
+      // Forward response headers
+      res.setHeader('Content-Type', contentType);
       res.setHeader('Cache-Control', 'no-store');
+      
+      // Forward Set-Cookie headers for auth state
+      const setCookie = response.headers.get('set-cookie');
+      if (setCookie) {
+        res.setHeader('Set-Cookie', setCookie);
+      }
+
+      console.log('✅ Stack Auth proxy success:', {
+        status: response.status,
+        contentType,
+        hasSetCookie: !!setCookie
+      });
+
       return res.status(response.status).send(data);
 
     } catch (error) {
-      console.error('Stack Auth proxy failed:', error);
+      console.error('❌ Stack Auth proxy failed:', {
+        error: error instanceof Error ? error.message : error,
+        url: stackAuthUrl,
+        method: req.method
+      });
+      
       return res.status(500).json({
         error: 'Stack Auth proxy failed',
-        message: (error as Error).message
+        message: error instanceof Error ? error.message : 'Unknown error'
       });
     }
   }

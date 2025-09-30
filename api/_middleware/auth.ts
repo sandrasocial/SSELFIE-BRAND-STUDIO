@@ -42,47 +42,85 @@ async function timedFetch(url: string, ms = 3000, init?: { method?: string; head
   }
 }
 
-// Get JWKS with caching
+// Get JWKS with improved caching and error handling
 async function getJWKS() {
   const now = Date.now();
   
   // Use cached JWKS if available and not expired
   if (JWKS && (now - JWKS_LAST_FETCH) < JWKS_CACHE_TIME) {
+    console.log('✅ Using cached JWKS');
     return JWKS;
   }
+
+  console.log('🔄 Fetching fresh JWKS from Stack Auth...');
 
   try {
     const jose = await import('jose');
-    const resp = await timedFetch(JWKS_URL, 3000);
-    if (!resp.ok) throw new Error(`JWKS HTTP ${resp.status}`);
-    const jwks = await resp.json();
-    JWKS = jose.createLocalJWKSet(jwks);
+    const resp = await timedFetch(JWKS_URL, 5000); // Increased timeout
+    
+    if (!resp.ok) {
+      throw new Error(`JWKS fetch failed: HTTP ${resp.status} ${resp.statusText}`);
+    }
+    
+    const jwksData = await resp.json();
+    
+    if (!jwksData || !jwksData.keys || !Array.isArray(jwksData.keys)) {
+      throw new Error('Invalid JWKS response format');
+    }
+
+    JWKS = jose.createLocalJWKSet(jwksData);
     JWKS_LAST_FETCH = now;
+    
+    console.log('✅ JWKS fetched and cached successfully');
     return JWKS;
+    
   } catch (error) {
-    console.error('Failed to fetch JWKS:', error);
+    console.error('❌ Failed to fetch JWKS:', {
+      error: error instanceof Error ? error.message : error,
+      url: JWKS_URL,
+      cacheAge: JWKS_LAST_FETCH ? now - JWKS_LAST_FETCH : 'never'
+    });
+    
     // Return cached JWKS even if expired, as fallback
-    return JWKS;
+    if (JWKS) {
+      console.log('⚠️ Using expired JWKS as fallback');
+      return JWKS;
+    }
+    
+    throw new Error('No JWKS available and cache is empty');
   }
 }
 
-// Verify JWT token
+// Verify JWT token with improved error handling
 async function verifyJWTToken(token: string): Promise<JWTPayload & StackAuthUserInfo> {
+  console.log('🔍 Verifying JWT token...');
+  
   try {
     const jose = await import('jose');
     const jwks = await getJWKS();
     
     if (!jwks) {
-      throw new Error('No JWKS available');
+      throw new Error('JWKS not available - authentication service unreachable');
     }
+
+    console.log('🔍 Using JWKS for verification');
 
     const { payload } = await jose.jwtVerify(token, jwks, {
       issuer: `${STACK_AUTH_API_URL}/projects/${STACK_AUTH_PROJECT_ID}`,
       audience: STACK_AUTH_PROJECT_ID,
+      clockTolerance: 30, // Allow 30 seconds clock skew
     });
+
+    console.log('✅ JWT verification successful');
     
     return payload as JWTPayload & StackAuthUserInfo;
   } catch (error) {
+    console.error('❌ JWT verification failed:', {
+      error: error instanceof Error ? error.message : error,
+      tokenLength: token.length,
+      tokenPrefix: token.substring(0, 20) + '...'
+    });
+    
     throw new Error(`JWT verification failed: ${(error as Error).message}`);
   }
 }
@@ -90,66 +128,52 @@ async function verifyJWTToken(token: string): Promise<JWTPayload & StackAuthUser
 import { AuthenticatedUser } from '../_shared/auth-types.js';
 import { AuthenticatedHandler, AuthOptions, AuthResponse, AuthenticatedRequest } from '../_shared/auth-middleware-types.js';
 
-// Get authenticated user helper 
+// Get authenticated user helper with improved token extraction
 export async function getAuthenticatedUser(req: VercelRequest): Promise<AuthenticatedUser> {
   let accessToken: string | undefined;
   
-  // Check Authorization header
+  console.log('🔍 Auth: Extracting token from request...');
+  
+  // 1. Check Authorization header (preferred method)
   const authHeader = req.headers.authorization;
   if (authHeader?.startsWith('Bearer ')) {
     accessToken = authHeader.substring(7);
-    console.log('🔐 Found Bearer token in Authorization header');
+    console.log('✅ Token found in Authorization header');
   }
-  
-  // Check cookies if no auth header
-  if (!accessToken) {
-    const cookiesSource = (req as unknown as { cookies?: Record<string, string> }).cookies || 
-                         parseCookieHeader(req.headers.cookie as string);
-    
-    if (cookiesSource) {
-      // Try common auth cookie names
-      const cookiesToTry = [
-        'stack-access',
-        'stack-access-token', 
-        'stack_session',
-        '__Secure-next-auth.session-token',
-      ];
 
-      for (const cookieName of cookiesToTry) {
-        const cookieValue = cookiesSource[cookieName];
+  // 2. Check Stack Auth specific headers
+  if (!accessToken && req.headers['x-stack-access-token']) {
+    accessToken = req.headers['x-stack-access-token'] as string;
+    console.log('✅ Token found in x-stack-access-token header');
+  }
+
+  // 3. Check cookies as fallback
+  if (!accessToken) {
+    const cookieHeader = req.headers.cookie;
+    if (cookieHeader) {
+      const cookies = parseCookieHeader(cookieHeader);
+      
+      // Try Stack Auth cookie names in priority order
+      const cookieNames = [
+        'stack-access-token',  // Primary Stack Auth token
+        'stack-access',        // Alternative Stack Auth token
+        'stack_session'        // Session cookie
+      ];
+      
+      for (const cookieName of cookieNames) {
+        const cookieValue = cookies[cookieName];
         
-        if (cookieValue) {
-          try {
-            // Try JSON array format
-            if (cookieValue.startsWith('[')) {
-              const stackAccessArray = JSON.parse(cookieValue);
-              if (Array.isArray(stackAccessArray) && stackAccessArray.length >= 2) {
-                accessToken = stackAccessArray[1];
-                break;
-              }
-            }
-            
-            // Try JSON object format
-            if (cookieValue.startsWith('{')) {
-              const stackAccessObj = JSON.parse(cookieValue);
-              if (stackAccessObj.accessToken || stackAccessObj.token || stackAccessObj.jwt) {
-                accessToken = stackAccessObj.accessToken || stackAccessObj.token || stackAccessObj.jwt;
-                break;
-              }
-            }
-            
-            // Try direct token format
-            if (cookieValue.length > 20 && cookieValue.includes('.')) {
-              accessToken = cookieValue;
-              break;
-            }
-            
-          } catch {
-            // If parse fails but value looks like a token, use it directly
-            if (cookieValue.length > 20 && cookieValue.includes('.')) {
-              accessToken = cookieValue;
-              break;
-            }
+        if (cookieValue && 
+            cookieValue !== 'undefined' && 
+            cookieValue !== 'null' && 
+            cookieValue.length > 20) {
+          
+          // Verify it looks like a JWT (has 3 parts separated by dots)
+          const parts = cookieValue.split('.');
+          if (parts.length === 3) {
+            accessToken = cookieValue;
+            console.log(`✅ Token found in cookie: ${cookieName}`);
+            break;
           }
         }
       }
@@ -157,62 +181,123 @@ export async function getAuthenticatedUser(req: VercelRequest): Promise<Authenti
   }
 
   if (!accessToken) {
+    console.log('❌ No valid access token found in request');
     throw new Error('No access token found');
   }
+
+  console.log('🔍 Token extracted, length:', accessToken.length);
 
   // Verify JWT token
   const userInfo = await verifyJWTToken(accessToken);
 
-  // Extract user info
-  const userId = String(userInfo.sub || userInfo.user_id || userInfo.id || '');
+  // Extract user info from JWT
+  const stackAuthId = String(userInfo.sub || userInfo.user_id || userInfo.id || '');
   const userEmail = String(userInfo.email || userInfo.primary_email || userInfo.primaryEmail || userInfo.email_address || userInfo.user_email || '');
   const userName = String(userInfo.displayName || userInfo.display_name || userInfo.name || userInfo.given_name || userInfo.full_name || '');
 
   // Ensure we have required fields
-  if (!userId || !userEmail) {
+  if (!stackAuthId || !userEmail) {
     throw new Error('Invalid user info: missing required fields');
   }
 
-  // Get full user from database (similar to server auth flow)
-  // For now, create a minimal user that matches the schema structure
-  // TODO: In production, this should fetch from the database like server/stack-auth.ts does
-  const user: AuthenticatedUser = {
-    id: userId,
-    stackAuthId: userId,
+  console.log('🔍 Auth middleware: Stack user info:', {
+    stackAuthId: stackAuthId.substring(0, 8) + '...',
     email: userEmail,
-    firstName: userName?.split(' ')[0] || null,
-    lastName: userName?.split(' ').slice(1).join(' ') || null,
-    displayName: userName || null,
-    profileImageUrl: userInfo.profileImageUrl || userInfo.profile_image_url || userInfo.avatar_url || null,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    lastLoginAt: new Date(),
-    stripeCustomerId: null,
-    stripeSubscriptionId: null,
-    plan: 'sselfie-studio',
-    role: 'user',
-    monthlyGenerationLimit: 100,
-    generationsUsedThisMonth: 0,
-    mayaAiAccess: true,
-    victoriaAiAccess: false,
-    hasRetrainingAccess: false,
-    retrainingSessionId: null,
-    retrainingPaidAt: null,
-    preferredOnboardingMode: 'conversational',
-    onboardingProgress: null,
-    gender: null,
-    profession: null,
-    brandStyle: null,
-    photoGoals: null,
-    trainingCoachingStarted: false,
-    trainingCoachingCompleted: false,
-    trainingCoachingPhase: null,
-    trainingCoachingStep: 0,
-    brandStrategyContext: null,
-    stackUser: userInfo
-  };
+    displayName: userName
+  });
 
-  return user;
+  // Sync with database - get or create user
+  try {
+    const { storage } = await import('../../server/storage.js');
+    
+    // Try to get existing user by Stack Auth ID first
+    let dbUser = await storage.getUserByStackAuthId(stackAuthId);
+    
+    if (!dbUser) {
+      // Try to find by email (for legacy users)
+      const existingUser = await storage.getUserByEmail(userEmail);
+      
+      if (existingUser && !existingUser.stackAuthId) {
+        // Link existing user to Stack Auth
+        console.log('🔗 Linking existing user to Stack Auth:', existingUser.id);
+        dbUser = await storage.linkStackAuthId(existingUser.id, stackAuthId);
+      } else {
+        // Create new user with Stack Auth integration
+        console.log('👤 Creating new user from Stack Auth');
+        dbUser = await storage.syncStackAuthUser({
+          id: stackAuthId,
+          primaryEmail: userEmail,
+          displayName: userName,
+          profileImageUrl: (userInfo.profileImageUrl || userInfo.profile_image_url || userInfo.avatar_url) || undefined
+        });
+      }
+    } else {
+      // Update last login time for existing user
+      dbUser = await storage.updateUserProfile(dbUser.id, {
+        lastLoginAt: new Date(),
+        // Update profile info from Stack Auth if changed
+        displayName: userName || dbUser.displayName,
+        profileImageUrl: (userInfo.profileImageUrl || userInfo.profile_image_url || userInfo.avatar_url) || dbUser.profileImageUrl
+      });
+    }
+
+    console.log('✅ Database user synced:', {
+      id: dbUser.id,
+      email: dbUser.email,
+      plan: dbUser.plan,
+      hasStackAuthId: !!dbUser.stackAuthId
+    });
+
+    // Return the complete user object with Stack Auth info
+    const user: AuthenticatedUser = {
+      ...dbUser,
+      stackUser: userInfo
+    };
+
+    return user;
+
+  } catch (dbError) {
+    console.error('❌ Database sync failed, using fallback user:', dbError);
+    
+    // Fallback: create minimal user object if database sync fails
+    const fallbackUser: AuthenticatedUser = {
+      id: stackAuthId,
+      stackAuthId: stackAuthId,
+      email: userEmail,
+      firstName: userName?.split(' ')[0] || null,
+      lastName: userName?.split(' ').slice(1).join(' ') || null,
+      displayName: userName || null,
+      profileImageUrl: (userInfo.profileImageUrl || userInfo.profile_image_url || userInfo.avatar_url) || null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      lastLoginAt: new Date(),
+      stripeCustomerId: null,
+      stripeSubscriptionId: null,
+      plan: 'sselfie-studio',
+      role: 'user',
+      monthlyGenerationLimit: 100,
+      generationsUsedThisMonth: 0,
+      mayaAiAccess: true,
+      victoriaAiAccess: false,
+      hasRetrainingAccess: false,
+      retrainingSessionId: null,
+      retrainingPaidAt: null,
+      preferredOnboardingMode: 'conversational',
+      onboardingProgress: null,
+      gender: null,
+      profession: null,
+      brandStyle: null,
+      photoGoals: null,
+      trainingCoachingStarted: false,
+      trainingCoachingCompleted: false,
+      trainingCoachingPhase: null,
+      trainingCoachingStep: 0,
+      brandStrategyContext: null,
+      stackUser: userInfo
+    };
+
+    return fallbackUser;
+  }
 }
 
 // Auth middleware
