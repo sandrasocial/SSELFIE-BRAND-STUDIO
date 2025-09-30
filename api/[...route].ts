@@ -215,7 +215,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     req.url.startsWith('/api/health') ||
     req.url === '/api/ping' ||
     req.url.startsWith('/api/sandra-images/') ||
-    req.url.startsWith('/api/gallery-images') ||
     req.url.startsWith('/api/hair-trends') ||
     req.url.startsWith('/api/auth/') ||
     req.url === '/api/logout'
@@ -227,6 +226,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     req.url.includes('/api/maya') ||
     req.url.includes('/api/video') ||
     req.url.includes('/api/ai-images') ||
+    req.url.includes('/api/gallery-images') ||
     req.url.includes('/api/story') ||
     req.url.includes('/api/admin') ||
     req.url.includes('/api/victoria') ||
