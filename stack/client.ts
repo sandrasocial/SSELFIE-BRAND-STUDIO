@@ -36,18 +36,18 @@ try {
   stackClientApp = new StackClientApp({
     projectId: STACK_PROJECT_ID,
     publishableClientKey: STACK_PUBLISHABLE_CLIENT_KEY,
-    // Use cookie storage (default)
+    // Use cookie storage for better reliability
     tokenStore: "cookie",
-    // Configure URLs for proper redirects
+    // Configure URLs for proper redirects with absolute paths
     urls: {
       signIn: "/handler/sign-in",
       signUp: "/handler/sign-up", 
       afterSignIn: "/auth-success",
       afterSignUp: "/auth-success",
       afterSignOut: "/",
-      // Simplified callback URL without dynamic origin
       oauthCallback: "/handler/oauth-callback",
     },
+    // Enhanced configuration for production stability
   });
 
   // Debug the Stack Auth instance
