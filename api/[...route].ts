@@ -24,6 +24,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
   }
 
+  // Sandra Images API - Public access for image serving
+  if (req.url?.startsWith('/api/sandra-images/')) {
+    const sandraImagesHandler = await import('./sandra-images.js');
+    return sandraImagesHandler.default(req, res);
+  }
+
   // Handle logout
   if (req.url === '/api/logout') {
     const expired = [
