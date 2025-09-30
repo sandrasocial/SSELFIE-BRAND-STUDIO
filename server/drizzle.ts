@@ -1,3 +1,4 @@
+/// <reference path="types/global.d.ts" />
 import { drizzle } from 'drizzle-orm/neon-http';
 import { neon } from '@neondatabase/serverless';
 import type { QueryResult as NeonQueryResult } from '@neondatabase/serverless';

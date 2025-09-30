@@ -130,6 +130,7 @@ import {
   type InsertImageVariant,
 } from "../shared/schema.js";
 import { db } from "./drizzle.js";
+/// <reference path="types/global.d.ts" />
 import { eq, and, desc, asc, gte, lte, sql } from "drizzle-orm";
 import { type MayaChatCreateInput } from '../shared/types/chat.js';
 
