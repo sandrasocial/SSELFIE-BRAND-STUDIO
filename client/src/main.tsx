@@ -79,24 +79,55 @@ window.addEventListener('video:preview:save', async (e: Event) => {
   }
 });
 
-const container = document.getElementById("root");
-if (!container) throw new Error("Failed to find the root element");
-const root = createRoot(container);
+try {
+  console.log('SSELFIE Studio: Checking for root element...');
+  const container = document.getElementById("root");
+  if (!container) {
+    console.error('❌ Root element not found!');
+    throw new Error("Failed to find the root element");
+  }
 
-root.render(
-  <React.StrictMode>
-    {/* 1. StackProvider MUST wrap everything that uses auth hooks */}
-    <StackProvider app={stackClientApp}>
-      <StackTheme>
-        {/* 2. QueryClientProvider wraps the entire application logic */}
-        <QueryClientProvider client={queryClient}>
-          <TooltipProvider>
-            {/* 3. App component only renders the router */}
-            <App />
-            <Toaster />
-          </TooltipProvider>
-        </QueryClientProvider>
-      </StackTheme>
-    </StackProvider>
-  </React.StrictMode>
-);
+  console.log('SSELFIE Studio: Creating React root...');
+  const root = createRoot(container);
+
+  console.log('SSELFIE Studio: Rendering app with Stack Auth...');
+  root.render(
+    <React.StrictMode>
+      {/* 1. StackProvider MUST wrap everything that uses auth hooks */}
+      <StackProvider app={stackClientApp}>
+        <StackTheme>
+          {/* 2. QueryClientProvider wraps the entire application logic */}
+          <QueryClientProvider client={queryClient}>
+            <TooltipProvider>
+              {/* 3. App component only renders the router */}
+              <App />
+              <Toaster />
+            </TooltipProvider>
+          </QueryClientProvider>
+        </StackTheme>
+      </StackProvider>
+    </React.StrictMode>
+  );
+
+  console.log('✅ SSELFIE Studio: App rendered successfully!');
+} catch (error) {
+  console.error('❌ SSELFIE Studio: Fatal error during app initialization:', error);
+  
+  // Fallback error display
+  const container = document.getElementById("root");
+  if (container) {
+    container.innerHTML = `
+      <div style="padding: 20px; text-align: center; font-family: -apple-system, sans-serif;">
+        <h1 style="color: #dc2626;">SSELFIE Studio - Loading Error</h1>
+        <p style="color: #666;">There was an error loading the application.</p>
+        <details style="margin-top: 20px; text-align: left; max-width: 600px; margin-left: auto; margin-right: auto;">
+          <summary style="cursor: pointer; font-weight: bold;">Technical Details</summary>
+          <pre style="background: #f5f5f5; padding: 10px; overflow-x: auto; margin-top: 10px;">${error}</pre>
+        </details>
+        <p style="margin-top: 20px;">
+          <a href="/" style="color: #2563eb; text-decoration: none;">← Try Again</a>
+        </p>
+      </div>
+    `;
+  }
+}

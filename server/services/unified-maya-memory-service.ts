@@ -138,19 +138,20 @@ export class UnifiedMayaMemoryService {
       // Single comprehensive database query combining all Maya data needs
       const [
         conversationHistory,
-        personalBrandData,
         personalInsights,
         onboardingProgress,
         conversationMemory,
         sessionMetadata
       ] = await Promise.all([
         this.getConversationHistory(userId, 15),
-        // Personal brand data will be provided by unified context service
         this.getPersonalInsights(userId),
         this.getOnboardingProgress(userId),
         this.getConversationMemory(userId),
         this.getSessionMetadata(userId)
       ]);
+      
+      // Personal brand data will be provided by unified context service
+      const personalBrandData = {};
 
       // Initialize or get session context
       const actualSessionId = sessionId || uuidv4();
@@ -438,7 +439,11 @@ export class UnifiedMayaMemoryService {
         favoriteCategories: [],
         stylingEvolution: [],
         emotionalContext: 'neutral',
-        brandingConsistency: {},
+        brandingConsistency: {
+          consistentCategories: false,
+          brandEvolution: 'early' as const,
+          styleMaturity: 'exploring' as const
+        },
         technicalPreferences: {}
       };
     }
@@ -586,7 +591,7 @@ export class UnifiedMayaMemoryService {
     };
 
     const newChatId = await storage.createMayaChat(userId, newChatData);
-    return newChatId;
+    return parseInt(String(newChatId));
   }
 
   private async updateChatActivity(chatId: number): Promise<void> {
@@ -697,7 +702,7 @@ export class UnifiedMayaMemoryService {
         totalSessions: 0,
         averageSessionLength: 0,
         lastInteractionDate: null,
-        preferredTimeOfDay: 'day',
+        preferredTimeOfDay: 'afternoon' as const,
         adaptationTriggers: []
       },
       lastUpdated: new Date(),
