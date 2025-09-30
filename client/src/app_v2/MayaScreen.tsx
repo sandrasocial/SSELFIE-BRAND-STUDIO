@@ -141,7 +141,7 @@ const MayaScreen: React.FC = () => {
       <div className="flex gap-3">
         <div className="flex-1 relative">
           <textarea
-            data-testid="maya-chat-input"
+            data-test-id="chat-input"
             value={messageInput}
             onChange={(e) => setMessageInput(e.target.value)}
             onKeyPress={handleKeyPress}

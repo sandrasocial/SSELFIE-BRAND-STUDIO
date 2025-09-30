@@ -2,42 +2,42 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 export const config = { 
   runtime: 'nodejs',
-  maxDuration: 25
+  maxDuration: 60
 } as const;
 
 // Map of image names to URLs from SandraImages library
 const sandraImageMap: Record<string, string> = {
   // Hero images frequently used
-  'hero-editorial.jpg': "https://i.postimg.cc/rwTG02cZ/out-1-23.png", // homepage hero
-  'brand-essence.jpg': "https://i.postimg.cc/bNF14sGc/out-1-4.png", // about hero
-  'pricing-hero.jpg': "https://i.postimg.cc/nrKdm7Vj/out-2-4.webp", // pricing hero
-  'method-hero.jpg': "https://i.postimg.cc/HkNwfjh8/out-2-14.jpg", // method hero
-  'contact-hero.jpg': "https://i.postimg.cc/HsrPfn0G/out-2-26.png", // contact hero
-  'ai-hero.jpg': "https://i.postimg.cc/4NG0n2wN/out-1-12.png", // AI page hero
-  'dashboard-hero.jpg': "https://i.postimg.cc/htszBH6F/file-47.png", // dashboard hero
+  'hero-editorial.jpg': "https://i.postimg.cc/pdwJdNV3/out-0-6.png", // homepage hero
+  'brand-essence.jpg': "https://i.postimg.cc/bNF14sGc/out-1_(4).png", // about hero
+  'pricing-hero.jpg': "https://i.postimg.cc/wMpwy3Xb/out-0-9.png", // pricing hero
+  'method-hero.jpg': "https://i.postimg.cc/VLK9C0Lq/proxy-image-2.png", // method hero
+  'contact-hero.jpg': "https://i.postimg.cc/KYnsXZPW/out-0-30.png", // contact hero
+  'ai-hero.jpg': "https://i.postimg.cc/sf9430k0/out-2.png", // AI page hero
+  'dashboard-hero.jpg': "https://i.postimg.cc/28kFy7mj/proxy-image-1.png", // dashboard hero
   
   // Editorial shots
-  'laptop1.jpg': "https://i.postimg.cc/brm1yv3n/out-0_(3).png", // working shot
-  'laptop2.jpg': "https://i.postimg.cc/3wFLgvhG/out-1-19.png", // engaged with work
-  'phone1.jpg': "https://i.postimg.cc/9Q0P8yJj/story_2.jpg", // creating content
-  'phone2.jpg': "https://i.postimg.cc/Vk6M70XM/out-1_(20).jpg", // taking selfie
-  'thinking.jpg': "https://i.postimg.cc/6QPS39bD/out-1_(13).png", // contemplative
-  'laughing.jpg': "https://i.postimg.cc/7hcLgCB4/out-1-25.webp", // joy moment
-  'mirror.jpg': "https://i.postimg.cc/nrKdm7Vj/out-2_(4).webp", // transformation
-  'ai-success.jpg': "https://i.postimg.cc/76vVdbWY/out-0-7.png", // AI success
+  'laptop1.jpg': "https://i.postimg.cc/MTTwZqXz/out-0-23.png", // working shot
+  'laptop2.jpg': "https://i.postimg.cc/9MnhrKq3/out-0-25.png", // engaged with work
+  'phone1.jpg': "https://i.postimg.cc/ZKD3mwcb/proxy-image_(3).png", // creating content
+  'phone2.jpg': "https://i.postimg.cc/0ymXy4Hc/out-1-20.png", // taking selfie
+  'thinking.jpg': "https://i.postimg.cc/6QPS39bD/out-1_(13).png", // contemplative (keeping existing)
+  'laughing.jpg': "https://i.postimg.cc/jqDWZrcz/out-1-11.png", // joy moment
+  'mirror.jpg': "https://i.postimg.cc/J0qNKG3W/out-0.webp", // transformation
+  'ai-success.jpg': "https://i.postimg.cc/28kFy7mj/proxy-image-1.png", // AI success
   
   // Journey/transformation
-  'rock-bottom.jpg': "https://i.postimg.cc/BQMcBm5g/story1.jpg", // honest before
-  'building.jpg': "https://i.postimg.cc/0j0cpxZ5/out-0-10.png", // work phase
-  'success.jpg': "https://i.postimg.cc/76vVdbWY/out-0-7.png", // achievement
-  'today.jpg': "https://i.postimg.cc/76vVdbWY/out-0-7.png", // current Sandra
+  'rock-bottom.jpg': "https://i.postimg.cc/KYnsXZPW/out-0-30.png", // honest before
+  'building.jpg': "https://i.postimg.cc/sf9430k0/out-2.png", // work phase
+  'success.jpg': "https://i.postimg.cc/VLK9C0Lq/proxy-image-2.png", // achievement
+  'today.jpg': "https://i.postimg.cc/28kFy7mj/proxy-image-1.png", // current Sandra
   
   // Flatlays
-  'workspace1.jpg': "https://i.postimg.cc/VkVddttn/67.png",
-  'workspace2.jpg': "https://i.postimg.cc/kMRbbY68/file-44.png",
-  'beauty.jpg': "https://i.postimg.cc/PfCmMrcC/file-33.png",
-  'planning.jpg': "https://i.postimg.cc/kXrtFNKH/file-45.png",
-  'luxury.jpg': "https://i.postimg.cc/KcqNJk7s/30.png"
+  'workspace1.jpg': "https://i.postimg.cc/HLCysdHg/175.png",
+  'workspace2.jpg': "https://i.postimg.cc/yYBXnm2K/33.png",
+  'beauty.jpg': "https://i.postimg.cc/cCtNYhQF/out-1-4.png",
+  'planning.jpg': "https://i.postimg.cc/MGzDTybt/2.png",
+  'luxury.jpg': "https://i.postimg.cc/25CmJ4fJ/out-0-15.png"
 };
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -64,13 +64,70 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
     }
     
-    // Fetch the image from external URL
-    const response = await fetch(imageUrl);
-    if (!response.ok) {
-      console.error(`❌ Failed to fetch image from ${imageUrl}: ${response.status}`);
-      return res.status(502).json({ 
-        error: `Failed to fetch image: ${response.statusText}`,
-        sourceUrl: imageUrl
+    // Fetch the image from external URL with extended timeout
+    // Use dynamic import for node-fetch to get proper timeout control
+    let response: Response;
+    let finalImageUrl = imageUrl; // Declare in broader scope
+    
+    try {
+      // TEMPORARY FIX: Check if images are migrated to S3/CDN first
+      
+      // Try S3/CDN URL first (if migrated)
+      if (imageUrl.includes('postimg.cc')) {
+        // Check if we have S3 equivalent
+        const imagePath = imageName.replace(/\.(jpg|png|webp|jpeg)$/i, '');
+        const s3Url = `https://${process.env.AWS_S3_BUCKET_NAME}.s3.${process.env.AWS_S3_REGION}.amazonaws.com/sandra-images/${imagePath}`;
+        
+        try {
+          const s3Response = await fetch(s3Url, { 
+            method: 'HEAD',
+            signal: AbortSignal.timeout(5000) // Quick check
+          });
+          if (s3Response.ok) {
+            console.log(`✅ Using S3 image: ${s3Url}`);
+            finalImageUrl = s3Url;
+          }
+        } catch {
+          console.log(`⚠️ S3 image not available, using original: ${imageUrl}`);
+        }
+      }
+      
+      // Fetch with extended timeout using AbortController
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => {
+        console.log(`⏱️ Image fetch timeout triggered for ${finalImageUrl}`);
+        controller.abort();
+      }, 45000); // 45 second timeout (within 60s function limit)
+      
+      response = await fetch(finalImageUrl, {
+        signal: controller.signal,
+        headers: {
+          'User-Agent': 'SSELFIE-Image-Proxy/1.0'
+        }
+      });
+      
+      clearTimeout(timeoutId);
+      
+      if (!response.ok) {
+        console.error(`❌ Failed to fetch image from ${imageUrl}: ${response.status}`);
+        return res.status(502).json({ 
+          error: `Failed to fetch image: ${response.statusText}`,
+          sourceUrl: imageUrl
+        });
+      }
+    } catch (fetchError) {
+      const errorMessage = fetchError instanceof Error ? fetchError.message : String(fetchError);
+      const isTimeout = errorMessage.includes('timeout') || errorMessage.includes('TimeoutError') || 
+                       errorMessage.includes('AbortError');
+      
+      console.error(`❌ Image fetch failed for ${finalImageUrl || imageUrl}:`, fetchError);
+      
+      // STABILIZATION: Return 404 instead of crashing to prevent deployment instability
+      return res.status(404).json({ 
+        error: 'Image temporarily unavailable',
+        message: 'The requested image could not be loaded at this time',
+        imageName: imageName,
+        available: Object.keys(sandraImageMap)
       });
     }
     
