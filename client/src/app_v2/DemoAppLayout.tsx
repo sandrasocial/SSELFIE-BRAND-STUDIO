@@ -208,13 +208,13 @@ const DemoAppLayout: React.FC = () => {
   };
 
   return (
-    <div className="h-screen bg-stone-50 relative overflow-hidden">
+    <div className="min-h-screen bg-stone-50 relative">
       {/* Enhanced gradient backdrop */}
       <div className="absolute inset-0 bg-gradient-to-br from-stone-50 via-stone-100/50 to-stone-50"></div>
       
       {/* Main container with premium styling */}
-      <div className="relative h-full mx-1 sm:mx-2 pt-1 pb-36 sm:pb-28">
-        <div className="h-full bg-stone-100/60 backdrop-blur-3xl rounded-[1.5rem] sm:rounded-[2.5rem] border border-stone-200/80 overflow-hidden shadow-lg">
+      <div className="relative min-h-screen mx-1 sm:mx-2 pt-1 pb-36 sm:pb-28">
+        <div className="min-h-full bg-stone-100/60 backdrop-blur-3xl rounded-[1.5rem] sm:rounded-[2.5rem] border border-stone-200/80 shadow-lg">
           {/* Premium status bar */}
           <StatusBar currentTime={currentTime} />
           

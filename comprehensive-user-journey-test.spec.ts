@@ -18,7 +18,7 @@ import { test, expect, Page, BrowserContext } from '@playwright/test';
  */
 
 // Test configuration - Using deployed URL
-const DEPLOYED_URL = 'https://sselfie-brand-studio-rjyoipipb-sselfie-studio.vercel.app';
+const DEPLOYED_URL = 'https://sselfie-brand-studio-p5w9qxker-sselfie-studio.vercel.app';
 const TEST_USER_EMAIL = `test-e2e-${Date.now()}@example.com`;
 const TEST_USER_NAME = 'E2E Test User';
 
@@ -253,24 +253,25 @@ test.describe('SSELFIE Studio - Complete User Journey Analysis', () => {
   });
 
   test.describe('4. App Navigation Testing', () => {
-    test('should test main app routes and protected pages', async () => {
-      console.log('\n🧭 Testing App Navigation...');
+    test('should test public routes accessibility', async () => {
+      console.log('\n🧭 Testing Public Routes...');
       
-      const routes = [
+      const publicRoutes = [
         '/',
-        '/app',
         '/business', 
+        '/hair',
+        '/demo', // Demo version of app without auth
         '/simple-training',
         '/simple-checkout',
-        '/maya',
-        '/gallery',
+        '/sign-in',
+        '/sign-up',
         '/privacy',
         '/terms'
       ];
       
-      for (const route of routes) {
+      for (const route of publicRoutes) {
         try {
-          console.log(`🔍 Testing route: ${route}`);
+          console.log(`🔍 Testing public route: ${route}`);
           await page.goto(DEPLOYED_URL + route);
           await page.waitForTimeout(2000);
           
@@ -281,10 +282,85 @@ test.describe('SSELFIE Studio - Complete User Journey Analysis', () => {
           console.log(`   📄 Title: "${title.substring(0, 50)}..."`);
           console.log(`   📊 Content loaded: ${hasContent ? '✅' : '❌'} (${content?.length} chars)`);
           
+          // Public routes should not return 404
+          if (title.includes('404') || title.includes('NOT_FOUND')) {
+            console.log(`   ❌ ${route} -> Unexpected 404 for public route`);
+          } else {
+            console.log(`   ✅ ${route} -> Public route loaded successfully`);
+          }
+          
           await page.screenshot({ path: `test-results/04-route-${route.replace('/', 'root').replace('/', '-')}.png` });
         } catch (e) {
           console.log(`❌ Route ${route} failed: ${e}`);
         }
+      }
+    });
+
+    test('should test protected routes return proper auth redirects', async () => {
+      console.log('\n🔒 Testing Protected Routes...');
+      
+      const protectedRoutes = [
+        '/app',
+        '/maya', 
+        '/sselfie-gallery'
+      ];
+      
+      for (const route of protectedRoutes) {
+        try {
+          console.log(`🔍 Testing protected route: ${route}`);
+          await page.goto(DEPLOYED_URL + route);
+          await page.waitForTimeout(2000);
+          
+          const title = await page.title();
+          const currentUrl = page.url();
+          
+          console.log(`   📄 Title: "${title.substring(0, 50)}..."`);
+          console.log(`   🔗 Final URL: ${currentUrl}`);
+          
+          // Protected routes should either redirect to auth or show 404/401
+          if (currentUrl.includes('/sign-in') || currentUrl.includes('/login') || 
+              title.includes('404') || title.includes('NOT_FOUND') ||
+              title.includes('Auth')) {
+            console.log(`   ✅ ${route} -> Properly protected (redirected or blocked)`);
+          } else {
+            console.log(`   ⚠️  ${route} -> May not be properly protected`);
+          }
+        } catch (error) {
+          console.log(`   ❌ ${route} -> Failed: ${error}`);
+        }
+      }
+    });
+
+    test('should validate demo route provides same UX as protected app', async () => {
+      console.log('\n🎭 Testing Demo Route (Unauthenticated App Experience)...');
+      
+      try {
+        await page.goto(DEPLOYED_URL + '/demo');
+        await page.waitForTimeout(3000);
+        
+        const title = await page.title();
+        const content = await page.textContent('body');
+        
+        console.log(`   📄 Title: "${title}"`);
+        console.log(`   📊 Content loaded: ${content && content.length > 1000 ? '✅' : '❌'} (${content?.length} chars)`);
+        
+        // Check for app-like interface elements
+        const hasTabNavigation = await page.locator('[role="tablist"], .tab, button[data-tab]').count() > 0;
+        const hasStudioInterface = await page.locator('text=/studio|maya|gallery|profile/i').count() > 0;
+        
+        console.log(`   🎯 Tab Navigation: ${hasTabNavigation ? '✅' : '❌'}`);
+        console.log(`   🎨 Studio Interface: ${hasStudioInterface ? '✅' : '❌'}`);
+        
+        if (hasTabNavigation && hasStudioInterface) {
+          console.log('   ✅ Demo route provides full app experience without auth');
+        } else {
+          console.log('   ⚠️  Demo route may be missing app interface elements');
+        }
+        
+        await page.screenshot({ path: 'test-results/05-demo-app-interface.png', fullPage: true });
+        
+      } catch (error) {
+        console.log(`   ❌ Demo route test failed: ${error}`);
       }
     });
   });

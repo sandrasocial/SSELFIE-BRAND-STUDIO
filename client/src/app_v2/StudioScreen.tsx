@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useLocation } from 'wouter';
 import { useAuth } from '../hooks/use-auth.js';
+import { useToast } from '../hooks/use-toast.js';
 import { apiFetch } from '../lib/api.js';
 import { 
   Camera, 
@@ -222,8 +223,12 @@ const StudioScreen: React.FC = () => {
           </div>
         </div>
 
-        {/* Features Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* AI Generation Interface - Only show when model is ready */}
+        {userModel?.trainingStatus === 'completed' ? (
+          <StudioGenerationInterface />
+        ) : (
+          // Features Grid for training setup
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Photo Studio */}
           <div className="bg-white rounded-lg border border-stone-200 p-6">
             <div className="flex items-center gap-3 mb-4">
@@ -236,11 +241,11 @@ const StudioScreen: React.FC = () => {
               </div>
             </div>
             <button
-              onClick={userModel?.trainingStatus === 'completed' ? handleStartGenerating : handleTrainModel}
+              onClick={handleTrainModel}
               disabled={userModel?.trainingStatus === 'training' || userModel?.trainingStatus === 'pending'}
               className="w-full px-4 py-2 text-sm font-medium text-stone-700 bg-stone-50 border border-stone-200 rounded-lg hover:bg-stone-100 transition-colors disabled:opacity-50"
             >
-              {userModel?.trainingStatus === 'completed' ? 'Generate Photos' : 'Train Model First'}
+              Train Model First
             </button>
           </div>
 
@@ -301,7 +306,141 @@ const StudioScreen: React.FC = () => {
             </button>
           </div>
         </div>
+        )}
       </div>
+    </div>
+  );
+};
+
+// AI Generation Interface Component
+const StudioGenerationInterface: React.FC = () => {
+  const [selectedPrompt, setSelectedPrompt] = useState<string>('');
+  const [generatedImages, setGeneratedImages] = useState<string[]>([]);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const { toast } = useToast();
+
+  // Sample prompts for AI generation
+  const prompts = [
+    { 
+      id: 'professional', 
+      title: 'Professional Headshot',
+      description: 'Clean, business-ready portraits',
+      prompt: 'professional corporate headshot, business attire, clean background'
+    },
+    { 
+      id: 'editorial', 
+      title: 'Editorial Style',
+      description: 'Magazine-quality fashion shots',
+      prompt: 'editorial fashion portrait, dramatic lighting, artistic composition'
+    },
+    { 
+      id: 'lifestyle', 
+      title: 'Lifestyle Portrait',
+      description: 'Natural, authentic moments',
+      prompt: 'lifestyle portrait, natural lighting, authentic expression'
+    },
+    { 
+      id: 'creative', 
+      title: 'Creative Portrait',
+      description: 'Artistic and unique angles',
+      prompt: 'creative portrait, artistic lighting, unique composition'
+    }
+  ];
+
+  const handleGenerate = async (prompt: string) => {
+    setIsGenerating(true);
+    setSelectedPrompt(prompt);
+    
+    try {
+      // Simulated API call - replace with actual API
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      
+      // Mock generated images
+      const mockImages = [
+        'https://picsum.photos/400/400?random=1',
+        'https://picsum.photos/400/400?random=2',
+        'https://picsum.photos/400/400?random=3',
+        'https://picsum.photos/400/400?random=4'
+      ];
+      
+      setGeneratedImages(mockImages);
+      toast({
+        title: "Images Generated",
+        description: "Your AI photoshoot is complete!"
+      });
+    } catch (error) {
+      toast({
+        title: "Generation Failed",
+        description: "Please try again later."
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  return (
+    <div className="space-y-8">
+      {/* Style Selection */}
+      <div className="bg-white rounded-lg border border-stone-200 p-6">
+        <h3 className="text-lg font-medium text-stone-900 mb-4">Choose Your Style</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {prompts.map((promptOption) => (
+            <button
+              key={promptOption.id}
+              onClick={() => handleGenerate(promptOption.prompt)}
+              disabled={isGenerating}
+              className="p-4 text-left border border-stone-200 rounded-lg hover:border-stone-400 hover:bg-stone-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <h4 className="font-medium text-stone-900 mb-1">{promptOption.title}</h4>
+              <p className="text-sm text-stone-600">{promptOption.description}</p>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Generation Status */}
+      {isGenerating && (
+        <div className="bg-white rounded-lg border border-stone-200 p-6 text-center">
+          <div className="flex items-center justify-center mb-4">
+            <RefreshCw className="h-8 w-8 text-stone-600 animate-spin" />
+          </div>
+          <h3 className="text-lg font-medium text-stone-900 mb-2">Generating Your Photos</h3>
+          <p className="text-stone-600">Creating professional AI images with your selected style...</p>
+          <div className="mt-4">
+            <div className="w-full bg-stone-200 rounded-full h-2">
+              <div className="bg-stone-600 h-2 rounded-full animate-pulse" style={{ width: '60%' }}></div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Generated Images */}
+      {generatedImages.length > 0 && (
+        <div className="bg-white rounded-lg border border-stone-200 p-6">
+          <h3 className="text-lg font-medium text-stone-900 mb-4">Your Generated Photos</h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {generatedImages.map((imageUrl, index) => (
+              <div key={index} className="aspect-square rounded-lg overflow-hidden border border-stone-200">
+                <img 
+                  src={imageUrl}
+                  alt={`Generated image ${index + 1}`}
+                  className="w-full h-full object-cover hover:scale-105 transition-transform cursor-pointer"
+                />
+              </div>
+            ))}
+          </div>
+          <div className="mt-4 flex gap-3">
+            <button className="flex items-center gap-2 px-4 py-2 bg-stone-900 text-white rounded-lg hover:bg-stone-800 transition-colors">
+              <ArrowRight className="h-4 w-4" />
+              Save to Gallery
+            </button>
+            <button className="flex items-center gap-2 px-4 py-2 text-stone-700 bg-stone-100 border border-stone-200 rounded-lg hover:bg-stone-200 transition-colors">
+              <RefreshCw className="h-4 w-4" />
+              Generate More
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

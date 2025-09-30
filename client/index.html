@@ -73,6 +73,48 @@
     <link rel="preconnect" href="https://i.postimg.cc" />
     <link rel="dns-prefetch" href="https://api.replicate.com" />
     
+    <!-- Editorial Typography - Times New Roman Font Loading -->
+    <link rel="preload" as="font" type="font/truetype" href="data:font/truetype;charset=utf-8;base64," crossorigin />
+    
+    <!-- Editorial Typography CSS -->
+    <style>
+      /* Times New Roman with fallback fonts */
+      .editorial-heading-1,
+      .editorial-heading-2,
+      .editorial-title,
+      [style*="Times New Roman"] {
+        font-family: "Times New Roman", "Times", serif !important;
+        font-optical-sizing: auto;
+        font-feature-settings: "liga" 1, "kern" 1;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+      
+      /* Editorial Typography Classes */
+      .editorial-heading-1 {
+        font-family: "Times New Roman", "Times", serif;
+        font-weight: 200;
+        letter-spacing: 0.4em;
+        text-transform: uppercase;
+        line-height: 1.1;
+      }
+      
+      .editorial-heading-2 {
+        font-family: "Times New Roman", "Times", serif;
+        font-weight: 200;
+        letter-spacing: 0.3em;
+        text-transform: uppercase;
+        line-height: 1.2;
+      }
+      
+      .editorial-title {
+        font-family: "Times New Roman", "Times", serif;
+        font-weight: 200;
+        letter-spacing: 0.2em;
+        line-height: 1.3;
+      }
+    </style>
+    
     <!-- Structured Data -->
     <script type="application/ld+json">
     {

@@ -70,7 +70,7 @@ const MayaScreen: React.FC = () => {
     <div className="max-w-4xl mx-auto p-6 h-full flex flex-col">
       <div className="mb-6">
         <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+          <div className="w-10 h-10 bg-gradient-to-br from-stone-800 to-stone-900 rounded-full flex items-center justify-center">
             <Sparkles className="w-5 h-5 text-white" />
           </div>
           <h1 className="text-3xl font-bold text-gray-900">
@@ -92,8 +92,8 @@ const MayaScreen: React.FC = () => {
             <div
               className={`max-w-3xl ${
                 message.role === 'user'
-                  ? 'bg-purple-600 text-white'
-                  : 'bg-gray-100 text-gray-900'
+                  ? 'bg-stone-900 text-stone-50'
+                  : 'bg-stone-100 text-stone-900'
               } rounded-2xl px-6 py-4`}
             >
               <div className="whitespace-pre-wrap">{message.content}</div>
@@ -141,19 +141,21 @@ const MayaScreen: React.FC = () => {
       <div className="flex gap-3">
         <div className="flex-1 relative">
           <textarea
+            data-testid="maya-chat-input"
             value={messageInput}
             onChange={(e) => setMessageInput(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder="Ask Maya for styling concepts, photo ideas, or brand direction..."
-            className="w-full resize-none rounded-lg border border-gray-300 px-4 py-3 pr-12 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            className="w-full resize-none rounded-lg border border-stone-300 px-4 py-3 pr-12 focus:ring-2 focus:ring-stone-500 focus:border-transparent bg-stone-50 text-stone-900"
             rows={3}
             disabled={isTyping}
           />
         </div>
         <Button
+          data-testid="maya-chat-send"
           onClick={handleSendMessage}
           disabled={!messageInput.trim() || isTyping}
-          className="self-end bg-purple-600 hover:bg-purple-700"
+          className="self-end bg-stone-900 hover:bg-stone-800"
         >
           {isTyping ? (
             <Loader2 className="w-4 h-4 animate-spin" />
