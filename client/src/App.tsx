@@ -112,10 +112,6 @@ function Router() {
       {/* STACK AUTH HANDLER - Explicit routes only to avoid accidental matches */}
       <Route path="/handler/sign-in" component={HandlerRoutes} />
       <Route path="/handler/sign-up" component={HandlerRoutes} />
-      
-      {/* 🎯 FIX: ADD MISSING OAUTH CALLBACK ROUTE */}
-      <Route path="/handler/oauth-callback" component={HandlerRoutes} />
-      
       <Route path="/handler" component={HandlerRoutes} />
       {/* Guard against accidental /handler/app by redirecting to /app */}
       <Route path="/handler/app" component={() => { window.location.href = '/app'; return null; }} />
