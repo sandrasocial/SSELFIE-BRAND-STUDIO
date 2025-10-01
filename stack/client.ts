@@ -49,12 +49,12 @@ try {
     publishableClientKey: STACK_PUBLISHABLE_CLIENT_KEY,
     // Use cookie storage for better reliability and cross-domain functionality
     tokenStore: "cookie",
-    // Configure URLs for proper redirects with relative paths (Stack Auth security requirement)
+    // 🔥 CRITICAL FIX: Configure URLs for automatic redirects to prevent "already signed in" stuck state
     urls: {
       signIn: "/handler/sign-in",
       signUp: "/handler/sign-up", 
-      afterSignIn: "/auth-success",  // ✅ RESTORED: Working configuration
-      afterSignUp: "/auth-success",  // ✅ RESTORED: Working configuration
+      afterSignIn: "/",              // 🔥 FIX: Direct to home - SmartHome will handle routing
+      afterSignUp: "/",              // 🔥 FIX: Direct to home - SmartHome will handle routing  
       afterSignOut: "/",             // ✅ RESTORED: Working configuration
       // 🔥 CRITICAL FIX: Must match the route in App.tsx exactly
       oauthCallback: "/handler/oauth-callback",  // ✅ RESTORED: Stack Auth calls this after OAuth
