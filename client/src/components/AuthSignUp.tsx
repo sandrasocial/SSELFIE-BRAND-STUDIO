@@ -1,62 +1,26 @@
 import React from 'react';
 import * as stackAuth from '@stackframe/react';
 // @ts-ignore - Stack Auth has broken ESM exports, using workaround
-const { SignUp } = (stackAuth as any).default || stackAuth;
+const { SignUp, useStackApp } = (stackAuth as any).default || stackAuth;
 
 export const AuthSignUp: React.FC = () => {
-  // Add loading and error states for Stack Auth configuration issues
-  const [isLoading, setIsLoading] = React.useState(true);
+  // Use Stack Auth's built-in app hook to check initialization state
+  const stackApp = useStackApp();
+  
   const [hasError, setHasError] = React.useState(false);
 
-  React.useEffect(() => {
-    let mounted = true;
-    
-    const checkStackAuth = async () => {
-      try {
-        console.log('🔍 Initializing Stack Auth SignUp configuration...');
-        
-        let attempts = 0;
-        const maxAttempts = 10;
-        
-        while (attempts < maxAttempts && mounted) {
-          try {
-            if (typeof SignUp !== 'undefined') {
-              console.log('✅ Stack Auth SignUp component available');
-              await new Promise(resolve => setTimeout(resolve, 500));
-              
-              if (mounted) {
-                setIsLoading(false);
-                console.log('✅ Stack Auth SignUp configuration ready');
-              }
-              return;
-            }
-          } catch (error) {
-            console.log(`🔄 Stack Auth SignUp not ready, attempt ${attempts + 1}/${maxAttempts}`);
-          }
-          
-          attempts++;
-          await new Promise(resolve => setTimeout(resolve, 1000));
-        }
-        
-        throw new Error('Stack Auth SignUp failed to initialize');
-        
-      } catch (error: any) {
-        console.error('❌ Stack Auth SignUp configuration error:', error);
-        if (mounted) {
-          setHasError(true);
-          setIsLoading(false);
-        }
-      }
-    };
+  // Check if Stack Auth app is ready (this waits for project configuration to load)
+  const isStackAuthReady = React.useMemo(() => {
+    try {
+      return !!(stackApp && stackApp.projectId);
+    } catch (error) {
+      console.error('❌ Stack Auth SignUp app check failed:', error);
+      setHasError(true);
+      return false;
+    }
+  }, [stackApp]);
 
-    checkStackAuth();
-    
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  if (isLoading) {
+  if (!isStackAuthReady && !hasError) {
     return (
       <div className="min-h-screen bg-stone-50 flex items-center justify-center px-4">
         <div className="w-full max-w-md space-y-8">
