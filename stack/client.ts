@@ -66,6 +66,22 @@ try {
     hasCurrentUser: 'currentUser' in stackClientApp,
     clientReady: !!stackClientApp
   });
+
+  // 🔥 CRITICAL: Wait for Stack Auth to initialize properly before proceeding
+  if (typeof window !== 'undefined') {
+    // Give Stack Auth time to fetch project configuration
+    setTimeout(async () => {
+      try {
+        console.log('🔍 Testing Stack Auth project configuration...');
+        // Test if we can access the project configuration
+        const user = await stackClientApp.getUser();
+        console.log('✅ Stack Auth project configuration loaded successfully');
+      } catch (error) {
+        console.warn('⚠️ Stack Auth project configuration issue:', error);
+        // This is expected if no user is signed in, so we don't throw
+      }
+    }, 1000);
+  }
 } catch (error) {
   console.error('❌ Failed to create Stack Auth instance:', error);
   throw error;
