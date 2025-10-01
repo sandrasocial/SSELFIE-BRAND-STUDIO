@@ -39,6 +39,8 @@ const HairLanding = lazy(() => import("./pages/landing/hair-landing.js"));
 const HairSignup = lazy(() => import("./pages/landing/hair-signup.js"));
 const SimpleTraining = lazy(() => import("./pages/onboarding/simple-training.js"));
 const SimpleCheckout = lazy(() => import("./pages/simple-checkout.js"));
+// 🔥 NEW: Embedded checkout page with SSELFIE style guide
+const EmbeddedCheckout = lazy(() => import("./pages/embedded-checkout.js"));
 const PaymentSuccess = lazy(() => import("./pages/payment-success.js"));
 const ThankYou = lazy(() => import("./pages/thank-you.js"));
 const Terms = lazy(() => import("./pages/legal/terms.js"));
@@ -263,6 +265,12 @@ function Router() {
       <Route path="/simple-checkout" component={() => (
         <Suspense fallback={<PageLoader />}>
           <SimpleCheckout />
+        </Suspense>
+      )} />
+      {/* 🔥 NEW: Embedded checkout with SSELFIE style guide - fixes scrollability & email duplication */}
+      <Route path="/embedded-checkout" component={() => (
+        <Suspense fallback={<PageLoader />}>
+          <EmbeddedCheckout />
         </Suspense>
       )} />
       <Route path="/thank-you" component={() => (

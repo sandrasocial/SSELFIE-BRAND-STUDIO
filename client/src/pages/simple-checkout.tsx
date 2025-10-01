@@ -160,7 +160,7 @@ export default function SimpleCheckout() {
     setShowConfirmationModal(true);
   };
 
-  // Confirmed checkout process - Enhanced with modal flow
+  // 🔥 NEW: Redirect to embedded checkout with SSELFIE style guide
   const handleConfirmedCheckout = async () => {
     setPaymentStatus('processing');
     setProcessingStep('validation');
@@ -171,28 +171,21 @@ export default function SimpleCheckout() {
       
       setProcessingStep('processing');
 
-      // Create Stripe checkout session with modal success URL
-      const successUrl = `${window.location.origin}/checkout?status=success&plan=${plan}&email=${encodeURIComponent(email)}`;
-      const cancelUrl = `${window.location.origin}/simple-checkout`;
-
-      const data = await checkoutApiRequest("/api/create-checkout-session", "POST", {
-        plan,
-        customerEmail: email,
-        successUrl,
-        cancelUrl,
-      });
-
-      console.log('🔍 Checkout response:', data);
+      // 🔥 REDIRECT to embedded checkout instead of external Stripe
+      // This fixes: multiple email collection, scrollability, style consistency
+      const embeddedCheckoutUrl = `/embedded-checkout?email=${encodeURIComponent(email)}&plan=${plan}`;
       
-      if (data.url) {
-        setProcessingStep('complete');
-        // Redirect to Stripe checkout
-        window.location.href = data.url;
-      } else {
-        throw new Error('No checkout URL received from server');
-      }
+      console.log('� Redirecting to embedded checkout:', embeddedCheckoutUrl);
+      
+      setProcessingStep('complete');
+      
+      // Small delay for UX, then redirect to our styled embedded checkout
+      setTimeout(() => {
+        setLocation(embeddedCheckoutUrl);
+      }, 1000);
+      
     } catch (error) {
-      console.error('Checkout error:', error);
+      console.error('Checkout redirect error:', error);
       setProcessingStep('idle');
       setPaymentStatus('error');
       
