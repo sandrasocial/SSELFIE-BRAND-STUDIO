@@ -45,9 +45,12 @@ try {
       afterSignIn: "/auth-success",  // ✅ RESTORED: Working configuration
       afterSignUp: "/auth-success",  // ✅ RESTORED: Working configuration
       afterSignOut: "/",             // ✅ RESTORED: Working configuration
+      // 🔥 CRITICAL FIX: Must match the route in App.tsx exactly
       oauthCallback: "/handler/oauth-callback",  // ✅ RESTORED: Stack Auth calls this after OAuth
     },
     // Enhanced configuration for production stability
+    // 🔥 NEW: Add baseUrl to ensure proper OAuth redirect URL construction
+    baseUrl: typeof window !== 'undefined' ? window.location.origin : undefined,
   });
 
   // Debug the Stack Auth instance

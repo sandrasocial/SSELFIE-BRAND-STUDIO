@@ -185,15 +185,22 @@ function Router() {
       )} />
 
       {/* ✅ CRITICAL FIX: OAuth callback handler MUST come before wildcard routes to preserve query parameters */}
-      <Route path="/handler/oauth-callback" component={() => (
-        <Suspense fallback={<PageLoader />}>
-          <StackHandler 
-            app={stackClientApp} 
-            location={window.location.pathname + window.location.search + window.location.hash}
-            fullPage={true}
-          />
-        </Suspense>
-      )} />
+      <Route path="/handler/oauth-callback" component={() => {
+        // 🔥 ENHANCED: Log OAuth callback invocation for debugging
+        console.log('🔍 OAuth callback route invoked');
+        console.log('🔍 URL:', window.location.href);
+        console.log('🔍 Cookies before handler:', document.cookie.substring(0, 200));
+        
+        return (
+          <Suspense fallback={<PageLoader />}>
+            <StackHandler 
+              app={stackClientApp} 
+              location={window.location.pathname + window.location.search + window.location.hash}
+              fullPage={true}
+            />
+          </Suspense>
+        );
+      }} />
       
       {/* STACK AUTH HANDLER - Consolidated wildcard route for ALL other Stack redirects/callbacks */}
       <Route path="/handler/:rest*" component={HandlerRoutes} />
