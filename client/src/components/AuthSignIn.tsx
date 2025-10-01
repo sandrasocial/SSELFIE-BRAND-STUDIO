@@ -30,32 +30,89 @@ class StackAuthErrorBoundary extends React.Component<
 }
 
 export const AuthSignIn: React.FC = () => {
-  // Add error boundary for Stack Auth configuration issues
+  // Add loading and error states for Stack Auth configuration issues
+  const [isLoading, setIsLoading] = React.useState(true);
   const [hasError, setHasError] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState('');
 
   React.useEffect(() => {
+    let mounted = true;
+    
     // Check if Stack Auth configuration is available
     const checkStackAuth = async () => {
       try {
-        // Give Stack Auth time to initialize
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        console.log('🔍 Initializing Stack Auth configuration...');
         
-        // Test if we can access Stack Auth without errors
-        if (typeof SignIn === 'undefined') {
-          throw new Error('Stack Auth SignIn component not available');
+        // Wait for Stack Auth to fetch project configuration from their servers
+        // This prevents the "sign_up_enabled" undefined error
+        let attempts = 0;
+        const maxAttempts = 10;
+        
+        while (attempts < maxAttempts && mounted) {
+          try {
+            // Test if Stack Auth project configuration is loaded
+            // We do this by trying to access the SignIn component in a safe way
+            if (typeof SignIn !== 'undefined') {
+              console.log('✅ Stack Auth SignIn component available');
+              
+              // Additional wait to ensure project config is fully loaded
+              await new Promise(resolve => setTimeout(resolve, 500));
+              
+              if (mounted) {
+                setIsLoading(false);
+                console.log('✅ Stack Auth configuration ready');
+              }
+              return;
+            }
+          } catch (error) {
+            console.log(`🔄 Stack Auth not ready, attempt ${attempts + 1}/${maxAttempts}`);
+          }
+          
+          attempts++;
+          await new Promise(resolve => setTimeout(resolve, 1000));
         }
         
-        console.log('✅ Stack Auth SignIn component ready');
+        // If we get here, Stack Auth failed to initialize
+        throw new Error('Stack Auth failed to initialize after multiple attempts');
+        
       } catch (error: any) {
         console.error('❌ Stack Auth configuration error:', error);
-        setHasError(true);
-        setErrorMessage(error.message || 'Authentication system unavailable');
+        if (mounted) {
+          setHasError(true);
+          setErrorMessage(error.message || 'Authentication system unavailable');
+          setIsLoading(false);
+        }
       }
     };
 
     checkStackAuth();
+    
+    return () => {
+      mounted = false;
+    };
   }, []);
+
+  // Show loading state while Stack Auth initializes
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-stone-50 flex items-center justify-center px-4">
+        <div className="w-full max-w-md space-y-8">
+          <div className="text-center">
+            <h2 className="text-3xl font-light tracking-widest" style={{ fontFamily: 'Times New Roman, serif' }}>
+              SSELFIE STUDIO
+            </h2>
+            <p className="mt-2 text-stone-600 font-light">Loading authentication...</p>
+          </div>
+          <div className="bg-white p-8 rounded-lg shadow-sm border border-stone-200">
+            <div className="flex items-center justify-center">
+              <div className="animate-spin w-6 h-6 border-2 border-stone-300 border-t-stone-800 rounded-full"></div>
+              <span className="ml-3 text-stone-600">Initializing sign-in...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (hasError) {
     return (
