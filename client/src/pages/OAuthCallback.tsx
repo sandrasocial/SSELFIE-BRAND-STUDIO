@@ -16,6 +16,7 @@ export default function OAuthCallback() {
   const [, setLocation] = useLocation();
   const ranRef = useRef(false);
   const [status, setStatus] = useState<'idle' | 'working' | 'done' | 'error'>('idle');
+  const [errorMessage, setErrorMessage] = useState<string>('');
 
   useEffect(() => {
     if (ranRef.current) return;
@@ -27,14 +28,26 @@ export default function OAuthCallback() {
     ranRef.current = true;
 
     console.log('🔄 OAuthCallback: Processing OAuth callback...');
+    console.log('🔍 URL params:', window.location.search);
+    console.log('🔍 Current cookies before callback:', document.cookie.substring(0, 200));
     
     (async () => {
       try {
         setStatus('working');
         console.log('🔄 OAuthCallback: Calling app.callOAuthCallback()...');
+        
+        // 🔥 CRITICAL: Call Stack Auth's OAuth callback handler
+        // This exchanges the authorization code for access tokens
         const hasRedirected = await app.callOAuthCallback();
+        
         console.log('🔄 OAuthCallback: callOAuthCallback result:', hasRedirected);
+        console.log('🔍 Current cookies after callback:', document.cookie.substring(0, 200));
+        
         setStatus('done');
+        
+        // 🔥 NEW: Wait a moment for tokens to be fully set before redirecting
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
         if (!hasRedirected) {
           console.log('🔄 OAuthCallback: No automatic redirect, manually redirecting to /auth-success');
           setLocation('/auth-success');
@@ -43,8 +56,22 @@ export default function OAuthCallback() {
         }
       } catch (err) {
         console.error('❌ OAuth callback failed:', err);
+        const errorMsg = err instanceof Error ? err.message : 'Unknown error';
+        console.error('❌ Error details:', {
+          message: errorMsg,
+          stack: err instanceof Error ? err.stack : undefined,
+          url: window.location.href,
+          cookies: document.cookie.substring(0, 200)
+        });
+        
+        setErrorMessage(errorMsg);
         setStatus('error');
-        setLocation('/handler/sign-in');
+        
+        // 🔥 NEW: More graceful error handling
+        // Wait a bit and try to redirect to sign-in with error message
+        setTimeout(() => {
+          setLocation('/handler/sign-in?error=oauth_callback_failed');
+        }, 2000);
       }
     })();
   }, [app, setLocation]);
@@ -54,8 +81,15 @@ export default function OAuthCallback() {
       <div className="text-center">
         <PageLoader />
         <p className="text-gray-600 mt-4">
-          {status === 'error' ? 'Authentication failed…' : 'Completing authentication…'}
+          {status === 'error' 
+            ? `Authentication failed: ${errorMessage || 'Please try again'}` 
+            : 'Completing authentication…'}
         </p>
+        {status === 'error' && (
+          <p className="text-sm text-gray-500 mt-2">
+            Redirecting to sign-in page...
+          </p>
+        )}
       </div>
     </div>
   );
