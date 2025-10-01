@@ -142,6 +142,23 @@ After configuration, verify:
 - [ ] User redirected to `/app` or `/simple-training` based on training status
 - [ ] User can refresh page and remain authenticated
 
+### Diagnostic Endpoint
+
+A diagnostic endpoint is available at `/api/auth-diagnostic` to check authentication configuration:
+
+```bash
+curl https://www.sselfie.ai/api/auth-diagnostic
+```
+
+This will return:
+- Stack Auth configuration status
+- Stack Auth API connectivity
+- Cookie presence and format
+- Token validation status
+- Database connectivity
+
+Use this endpoint to quickly identify configuration issues.
+
 ## Code References
 
 ### Client-Side OAuth Configuration
