@@ -1,5 +1,7 @@
-import { SignIn } from '@stackframe/react';
-import { stackClientApp } from '../src/stack.js';
+import * as stackAuth from '@stackframe/react';
+// @ts-ignore - Stack Auth has broken ESM exports, using workaround
+const { SignIn } = (stackAuth as any).default || stackAuth;
+import { stackClientApp } from '../../stack/client.js';
 
 export default function OAuthSignInPage() {
   return (

@@ -46,6 +46,7 @@ const Terms = lazy(() => import("./pages/legal/terms.js"));
 const Privacy = lazy(() => import("./pages/legal/privacy.js"));
 // Import AuthSuccess directly instead of lazy loading to fix OAuth callback 404 issue
 import AuthSuccessComponent from "./pages/auth-success.js";
+const OAuthCallback = lazy(() => import("./pages/OAuthCallback.js"));
 const NotFound = lazy(() => import("./pages/not-found.js"));
 
 // Critical pages (marked as priority in routed-pages-priority.ts)  
@@ -186,6 +187,17 @@ function Router() {
       {/* STACK AUTH HANDLER - Consolidated wildcard route for ALL Stack redirects/callbacks */}
       <Route path="/handler/:rest*" component={HandlerRoutes} />
       <Route path="/handler" component={HandlerRoutes} />
+      
+      {/* OAuth callback handler - Use Stack Auth's StackHandler */}
+      <Route path="/handler/oauth-callback" component={() => (
+        <Suspense fallback={<PageLoader />}>
+          <StackHandler 
+            app={stackClientApp} 
+            location={window.location.pathname + window.location.search + window.location.hash}
+            fullPage={true}
+          />
+        </Suspense>
+      )} />
       
       {/* Guard against accidental /handler/app by redirecting to /app */}
       <Route path="/handler/app" component={() => { window.location.href = '/app'; return null; }} />
@@ -356,6 +368,16 @@ function HandlerRoutes() {
   
   console.log('🔍 HandlerRoutes: handlerPath =', handlerPath);
   console.log('🔍 HandlerRoutes: full location =', window.location.href);
+  
+  // ✅ RESTORED: Check for OAuth outer cookies (callback state)
+  const oauthOuterCookies = document.cookie.split(';').filter(cookie => cookie.includes('stack-oauth-outer'));
+  
+  // If we're in OAuth callback state, redirect to callback handler
+  if (oauthOuterCookies.length > 0 && !handlerPath.includes('oauth-callback')) {
+    console.log('🔄 HandlerRoutes: OAuth callback detected, redirecting to callback...');
+    window.location.replace('/handler/oauth-callback');
+    return <div>Redirecting...</div>;
+  }
 
   // Check if this is an OAuth callback or other Stack Auth handler path
   const isOAuthCallback = handlerPath.includes('oauth-callback');
