@@ -164,9 +164,17 @@ function Router() {
         <AuthSuccessComponent />
       )} />
 
-      {/* NEW AUTH ROUTES - Primary Sign-In/Sign-Up pages */}
-      <Route path="/sign-in" component={AuthSignIn} />
-      <Route path="/sign-up" component={AuthSignUp} />
+      {/* NEW AUTH ROUTES - Primary Sign-In/Sign-Up pages using Stack Auth */}
+      <Route path="/sign-in" component={() => (
+        <Suspense fallback={<PageLoader />}>
+          <AuthSignIn />
+        </Suspense>
+      )} />
+      <Route path="/sign-up" component={() => (
+        <Suspense fallback={<PageLoader />}>
+          <AuthSignUp />
+        </Suspense>
+      )} />
 
       {/* ✅ ADDED: Primary non-OAuth sign-in flows for users without Google */}
       <Route path="/magic-link" component={() => (
