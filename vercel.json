@@ -2,6 +2,14 @@
   "version": 2,
   "builds": [
     {
+      "src": "api/me.ts",
+      "use": "@vercel/node",
+      "config": {
+        "maxDuration": 25,
+        "memory": 512
+      }
+    },
+    {
       "src": "api/[...route].ts",
       "use": "@vercel/node",
       "config": {
@@ -42,6 +50,10 @@
     }
   ],
   "rewrites": [
+    {
+      "source": "/api/me",
+      "destination": "/api/me.ts"
+    },
     {
       "source": "/api/cron/(.*)",
       "destination": "/api/[...route].ts"

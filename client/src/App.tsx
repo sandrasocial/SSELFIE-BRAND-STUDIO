@@ -2,7 +2,8 @@
 import React, { useEffect } from 'react';
 import { Route, useLocation } from "wouter";
 import { ProtectedRoute } from './components/ProtectedRoute.js';
-import { SignIn, SignUp } from "@stackframe/react";
+import { SignIn, SignUp, StackHandler } from "@stackframe/react"; 
+import { stackClientApp } from '../../stack/client.js';
 import { useAuth } from "./hooks/use-auth.js";
 // Removed unused environment imports - using consolidated config
 import { useQuery } from "@tanstack/react-query";
@@ -17,9 +18,8 @@ import { initializeRuntimeOptimization } from "./utils/runtimeOptimization.js";
 // Luxury Mobile Styling
 import "./styles/luxury-mobile.css";
 
-// Core pages (loaded immediately) - BRAND STUDIO IS PRIMARY
+// Core pages (loaded immediately) - PAID AUTHENTICATED USERS ONLY
 import SselfieAppLayout from "./app_v2/SselfieAppLayout.js";
-import DemoAppLayout from "./app_v2/DemoAppLayout.js";
 
 // Lazy load non-critical pages for better performance
 import { lazy, Suspense } from "react";
@@ -79,28 +79,36 @@ function SmartHome() {
     // 1. Check for authenticated state and completion/error of the model fetch
     if (!isLoading && isAuthenticated) {
       
-      // 🎯 FIX: If the model fetch failed (isModelError) or successfully loaded but 
-      // the model data is not present/valid (i.e., server issue or new user), 
-      // we must redirect to the onboarding/training page as a fallback.
-      if (isModelError || 
-          (!isModelLoading && (!userModel || (userModel as { trainingStatus?: string }).trainingStatus !== 'completed'))
-      ) {
-        if (isModelError) {
-          console.error('🛑 User Model fetch failed (isModelError=true). Forcing onboarding fallback.');
-        } else {
-          console.log('🎯 User model loaded but needs training or is incomplete. Redirecting.');
-        }
-        setLocation('/simple-training', { replace: true });
-        
-      } else if (!isModelLoading && userModel && (userModel as { trainingStatus?: string }).trainingStatus === 'completed') {
-        // 2. Only redirect to /app if data is loaded successfully AND training is complete
-        console.log('✅ User trained and model loaded → /app');
+      // 🔥 CRITICAL FIX: Handle model API errors gracefully for existing users
+      if (isModelError) {
+        console.error('🛑 User Model fetch failed (isModelError=true)');
+        console.log('🔄 API error detected - allowing authenticated user to access /app as fallback');
+        // For authenticated users with API errors, send them to /app instead of training
+        // This handles cases where existing users can authenticate but model API fails
         setLocation('/app', { replace: true });
+        return;
       }
+      
+      // 🎯 If model successfully loaded, check training status
+      if (!isModelLoading && userModel) {
+        if ((userModel as { trainingStatus?: string }).trainingStatus === 'completed') {
+          console.log('✅ User trained and model loaded → /app');
+          setLocation('/app', { replace: true });
+        } else {
+          console.log('🎯 User model loaded but needs training → /simple-training');
+          setLocation('/simple-training', { replace: true });
+        }
+      } else if (!isModelLoading && !userModel) {
+        // Model loaded but no data - likely new user
+        console.log('🆕 No user model found → /simple-training (new user)');
+        setLocation('/simple-training', { replace: true });
+      }
+      // If still loading model, wait for it to complete
+      
     } else if (!isLoading && !isAuthenticated) {
       console.log('🔍 User not authenticated → staying on landing page');
     }
-    // Add isModelError to dependency array so it triggers on fetch failure
+    
   }, [isAuthenticated, isLoading, isModelLoading, isModelError, userModel, setLocation]);
 
   // RENDER: Show loader only while actively loading, otherwise the useEffect handles the redirect
@@ -122,6 +130,13 @@ function SmartHome() {
 function Router() {
   return (
     <div>
+      {/* Post-auth success handoff - MOVED TO TOP for priority matching */}
+      <Route path="/auth-success" component={() => (
+        <Suspense fallback={<PageLoader />}>
+          <AuthSuccess />
+        </Suspense>
+      )} />
+
       {/* NEW AUTH ROUTES - Primary Sign-In/Sign-Up pages */}
       <Route path="/sign-in" component={AuthSignIn} />
       <Route path="/sign-up" component={AuthSignUp} />
@@ -149,13 +164,6 @@ function Router() {
       
       {/* Guard against accidental /handler/app by redirecting to /app */}
       <Route path="/handler/app" component={() => { window.location.href = '/app'; return null; }} />
-
-      {/* Post-auth success handoff */}
-      <Route path="/auth-success" component={() => (
-        <Suspense fallback={<PageLoader />}>
-          <AuthSuccess />
-        </Suspense>
-      )} />
       
       {/* HOME ROUTE - Smart routing based on authentication and training status */}
       <Route path="/" component={() => {
@@ -255,12 +263,11 @@ function Router() {
         )} {...props} />
       )} />
 
-      {/* NEW TABBED UI ROUTE - Protected with Auth wrapper */}
-      {/* PROTECTED APP ROUTE - Main Studio Interface */}
+      {/* PAID USERS ONLY - Main Studio Interface */}
       <Route path="/app" component={() => (
         <ProtectedRoute component={() => (
           <Suspense fallback={<PageLoader />}>
-            {/* ✅ CORRECTED: Using SselfieAppLayout for production app instead of DemoAppLayout */}
+            {/* SSELFIE Brand Studio - Authenticated Paid Users Only */}
             <SselfieAppLayout />
           </Suspense>
         )} />
@@ -276,12 +283,7 @@ function Router() {
         return <PageLoader />;
       }} />
 
-      {/* DEMO LAYOUT ROUTE - Shows premium UX without auth */}
-      <Route path="/demo" component={() => (
-        <Suspense fallback={<PageLoader />}>
-          <DemoAppLayout />
-        </Suspense>
-      )} />
+
 
       {/* STAGE MODE ROUTES */}
       <Route path="/hair/live/:sessionId" component={() => (
@@ -327,33 +329,49 @@ function Router() {
 function HandlerRoutes() {
   const handlerPath = window.location.pathname.replace('/handler/', '') || '';
   
-  // 🛑 CRITICAL FIX: The useAuth check and manual redirect below are removed 
-  // to avoid a race condition. The <SignIn /> / <SignUp /> components handle 
-  // reading the URL and performing the redirect to /auth-success internally.
-  /*
-  const { isAuthenticated } = useAuth();
-  console.log('🔍 HandlerRoutes: isAuthenticated =', isAuthenticated);
-
-  if (isAuthenticated) {
-    console.log('🔍 HandlerRoutes: User is authenticated, redirecting to /app');
-    window.location.replace('/app');
-    return <div>Redirecting to app...</div>;
-  }
-  */
-
   console.log('🔍 HandlerRoutes: handlerPath =', handlerPath);
+  console.log('🔍 HandlerRoutes: full location =', window.location.href);
 
-  // Determine which form to show based on the path
-  // Use .includes to safely catch things like /handler/oauth-callback
+  // Check if this is an OAuth callback or other Stack Auth handler path
+  const isOAuthCallback = handlerPath.includes('oauth-callback');
+  const isStackAuthHandler = isOAuthCallback || 
+                             handlerPath.includes('magic-link-verify') || 
+                             handlerPath.includes('password-reset') ||
+                             handlerPath.includes('email-verification');
+
+  // ✅ CRITICAL FIX: Use StackHandler for OAuth callbacks and other Stack Auth handlers
+  if (isStackAuthHandler) {
+    console.log('🔍 HandlerRoutes: Using StackHandler for =', handlerPath);
+    console.log('🔍 Current cookies before StackHandler:', document.cookie);
+    
+    // Add a timeout to force completion if StackHandler doesn't redirect
+    React.useEffect(() => {
+      if (isOAuthCallback) {
+        const timeout = setTimeout(() => {
+          console.log('⚠️ OAuth callback timeout - forcing redirect to auth-success');
+          const hasOAuthCookies = document.cookie.includes('stack-oauth-');
+          if (hasOAuthCookies) {
+            console.log('✅ OAuth cookies detected, redirecting to complete flow');
+            window.location.href = '/auth-success';
+          }
+        }, 5000); // Wait 5 seconds for StackHandler to complete
+        
+        return () => clearTimeout(timeout);
+      }
+    }, [isOAuthCallback]);
+    
+    return (
+      <StackHandler 
+        app={stackClientApp} 
+        location={window.location.pathname + window.location.search + window.location.hash}
+        fullPage={true}
+      />
+    );
+  }
+
+  // For regular sign-in and sign-up, use the traditional components with custom UI
   const isSignUp = handlerPath.includes('sign-up');
-  // Check for password reset or magic link paths to use SignIn as the default handler
-  const isAuthFlow = handlerPath.includes('sign-in') || 
-                     handlerPath.includes('oauth-callback') || 
-                     handlerPath.includes('magic-link-verify') || 
-                     handlerPath.includes('password-reset') ||
-                     handlerPath === ''; // Default /handler
-
-  // Render the appropriate Stack Auth form to handle the logic based on the URL
+  
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="max-w-md w-full bg-white shadow-lg rounded-lg p-8">
@@ -366,13 +384,10 @@ function HandlerRoutes() {
           </p>
         </div>
 
-        {/* RENDER STACK COMPONENT: This component is responsible for reading the code/token
-            in the URL (e.g., /handler/oauth-callback?code=...) and performing the redirect
-            to /auth-success after setting the session cookie. */}
+        {/* Render the appropriate Stack Auth form for sign-in/sign-up */}
         {isSignUp ? (
           <SignUp />
         ) : (
-          // Use SignIn as the catch-all handler for sign-in, OAuth, Magic Link, and Password Reset callbacks
           <SignIn />
         )}
 

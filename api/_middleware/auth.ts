@@ -134,6 +134,11 @@ export async function getAuthenticatedUser(req: VercelRequest): Promise<Authenti
   
   console.log('🔍 Auth: Extracting token from request...');
   
+  // 🔍 ENHANCED DEBUG: Log all request details
+  console.log('🔍 Request URL:', req.url);
+  console.log('🔍 Request Method:', req.method);
+  console.log('🔍 All Headers:', JSON.stringify(req.headers, null, 2));
+  
   // 1. Check Authorization header (preferred method)
   const authHeader = req.headers.authorization;
   if (authHeader?.startsWith('Bearer ')) {
@@ -205,6 +210,20 @@ export async function getAuthenticatedUser(req: VercelRequest): Promise<Authenti
           if (token) {
             accessToken = token;
             console.log(`✅ Token found in cookie '${key}' (JSON format)`);
+            break;
+          }
+        }
+      }
+
+      // 2.5) Check OAuth cookies as fallback (these might contain temporary tokens)
+      if (!accessToken) {
+        const oauthKeys = Object.keys(cookies).filter(k => k.startsWith('stack-oauth-outer-'));
+        console.log('🔍 OAuth outer cookies found:', oauthKeys);
+        for (const key of oauthKeys) {
+          const token = tryParseAccessFromCookieValue(cookies[key]);
+          if (token) {
+            accessToken = token;
+            console.log(`⚠️ Using OAuth cookie as fallback: ${key}`);
             break;
           }
         }

@@ -42,6 +42,18 @@ export function useAuth() {
   const isAuthenticated = !!stackUser?.id;
   const isStackAuthLoading = stackUser === undefined; // undefined = loading, null = not auth'd
   
+  // 🔍 DEBUG: Log Stack Auth state
+  console.log('🔍 Stack Auth State:', {
+    stackUser: stackUser ? {
+      id: stackUser.id,
+      email: stackUser.primaryEmail,
+      hasId: !!stackUser.id
+    } : stackUser,
+    isAuthenticated,
+    isStackAuthLoading,
+    cookies: document.cookie.substring(0, 200) + (document.cookie.length > 200 ? '...' : '')
+  });
+  
   // Only fetch database user if Stack Auth user exists and is loaded
   const { 
     data: dbUser, 
