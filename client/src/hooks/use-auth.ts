@@ -44,16 +44,22 @@ export function useAuth() {
   const isAuthenticated = !!stackUser?.id;
   const isStackAuthLoading = stackUser === undefined; // undefined = loading, null = not auth'd
   
-  // 🔍 DEBUG: Log Stack Auth state
+  // 🔍 ENHANCED DEBUG: Log Stack Auth state with timing
+  console.log('🔍 useAuth() execution at:', new Date().toISOString());
   console.log('🔍 Stack Auth State:', {
     stackUser: stackUser ? {
       id: stackUser.id,
       email: stackUser.primaryEmail,
-      hasId: !!stackUser.id
+      hasId: !!stackUser.id,
+      displayName: stackUser.displayName
     } : stackUser,
     isAuthenticated,
     isStackAuthLoading,
-    cookies: document.cookie.substring(0, 200) + (document.cookie.length > 200 ? '...' : '')
+    currentPath: window.location.pathname,
+    cookies: document.cookie.substring(0, 200) + (document.cookie.length > 200 ? '...' : ''),
+    hasStackCookies: document.cookie.includes('stack-') || document.cookie.includes('auth'),
+    localStorageKeys: Object.keys(localStorage).filter(k => k.includes('stack') || k.includes('auth')),
+    sessionStorageKeys: Object.keys(sessionStorage).filter(k => k.includes('stack') || k.includes('auth'))
   });
   
   // Only fetch database user if Stack Auth user exists and is loaded

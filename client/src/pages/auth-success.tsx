@@ -8,21 +8,54 @@ export default function AuthSuccess() {
   const [, setLocation] = useLocation();
 
   useEffect(() => {
-    // 🔍 DEBUG: Check what cookies are actually set after Stack Auth callback
-    console.log('🔍 Auth success page loaded');
-    console.log('🔍 Current cookies:', document.cookie);
+    // 🔍 ENHANCED DEBUG: Check Stack Auth state and cookies
+    console.log('🔍 Auth success page loaded at:', new Date().toISOString());
     console.log('🔍 Current URL:', window.location.href);
+    console.log('🔍 Current cookies:', document.cookie);
+    console.log('🔍 LocalStorage keys:', Object.keys(localStorage));
+    console.log('🔍 SessionStorage keys:', Object.keys(sessionStorage));
     
-    // Wait a moment to allow Stack Auth to set cookies
-    setTimeout(() => {
-      console.log('🔍 Cookies after delay:', document.cookie);
+    // Check if Stack Auth is available
+    let stackAuthReady = false;
+    try {
+      // Try to access Stack Auth instance
+      const stackAuth = (window as any).stackAuth || (globalThis as any).stackAuth;
+      stackAuthReady = !!stackAuth;
+      console.log('🔍 Stack Auth instance available:', stackAuthReady);
+    } catch (error) {
+      console.log('🔍 Stack Auth check failed:', error);
+    }
+    
+    // 🔧 CRITICAL FIX: Increased timeout from 1s to 4s for better OAuth stability
+    let attempts = 0;
+    const maxAttempts = 8; // Check every 500ms for 4 seconds
+    
+    const checkAuthAndRedirect = () => {
+      attempts++;
+      console.log(`🔄 Auth check attempt ${attempts}/${maxAttempts}`);
+      console.log('🔍 Cookies now:', document.cookie);
       
-      // Navigate to the main app entry point.
-      // The SmartHome component (at the root '/') will handle the final redirect 
-      // to /simple-training or /app after checking the user model.
-      console.log('✅ Auth successful, redirecting to application root');
-      setLocation('/', { replace: true });
-    }, 1000); // Wait 1 second for cookie setting
+      // Check for Stack Auth cookies specifically
+      const hasStackCookie = document.cookie.includes('stack-') || 
+                           document.cookie.includes('auth') ||
+                           localStorage.getItem('stack-auth') ||
+                           sessionStorage.getItem('stack-auth');
+      
+      console.log('🔍 Has Stack Auth data:', hasStackCookie);
+      
+      if (hasStackCookie || attempts >= maxAttempts) {
+        console.log('✅ Auth state ready or timeout reached, redirecting to application root');
+        console.log('🎯 Final redirect - SmartHome will handle user routing');
+        setLocation('/', { replace: true });
+      } else {
+        console.log('⏳ Waiting for Stack Auth cookies, retrying in 500ms...');
+        setTimeout(checkAuthAndRedirect, 500);
+      }
+    };
+    
+    // Start checking after initial 500ms delay
+    setTimeout(checkAuthAndRedirect, 500);
+    
   }, [setLocation]);
   
   return <PageLoader />; // Show loading while waiting for the redirect

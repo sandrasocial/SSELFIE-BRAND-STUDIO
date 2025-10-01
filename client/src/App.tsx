@@ -78,13 +78,26 @@ function SmartHome() {
   });
 
   useEffect(() => {
+    console.log('🎯 SmartHome routing decision at:', new Date().toISOString());
+    console.log('🎯 SmartHome state:', {
+      isLoading,
+      isAuthenticated,
+      isModelLoading,
+      isModelError,
+      hasUserModel: !!userModel,
+      currentPath: window.location.pathname,
+      userModelStatus: userModel ? (userModel as any).trainingStatus : 'no-model'
+    });
+
     // 1. Check for authenticated state and completion/error of the model fetch
     if (!isLoading && isAuthenticated) {
+      console.log('✅ User is authenticated, checking model status...');
       
       // 🔥 CRITICAL FIX: Handle model API errors gracefully for existing users
       if (isModelError) {
         console.error('🛑 User Model fetch failed (isModelError=true)');
         console.log('🔄 API error detected - allowing authenticated user to access /app as fallback');
+        console.log('📍 ROUTING DECISION: /api/user-model failed → /app (fallback for existing users)');
         // For authenticated users with API errors, send them to /app instead of training
         // This handles cases where existing users can authenticate but model API fails
         setLocation('/app', { replace: true });
@@ -93,22 +106,33 @@ function SmartHome() {
       
       // 🎯 If model successfully loaded, check training status
       if (!isModelLoading && userModel) {
-        if ((userModel as { trainingStatus?: string }).trainingStatus === 'completed') {
+        const trainingStatus = (userModel as { trainingStatus?: string }).trainingStatus;
+        console.log('📊 Model loaded, training status:', trainingStatus);
+        
+        if (trainingStatus === 'completed') {
           console.log('✅ User trained and model loaded → /app');
+          console.log('📍 ROUTING DECISION: Trained user → /app');
           setLocation('/app', { replace: true });
         } else {
           console.log('🎯 User model loaded but needs training → /simple-training');
+          console.log('📍 ROUTING DECISION: Untrained user → /simple-training');
           setLocation('/simple-training', { replace: true });
         }
       } else if (!isModelLoading && !userModel) {
         // Model loaded but no data - likely new user
         console.log('🆕 No user model found → /simple-training (new user)');
+        console.log('📍 ROUTING DECISION: New user → /simple-training');
         setLocation('/simple-training', { replace: true });
+      } else {
+        console.log('⏳ Still loading user model, waiting...');
       }
       // If still loading model, wait for it to complete
       
     } else if (!isLoading && !isAuthenticated) {
       console.log('🔍 User not authenticated → staying on landing page');
+      console.log('📍 ROUTING DECISION: Not authenticated → stay on landing');
+    } else {
+      console.log('⏳ Still loading authentication state...');
     }
     
   }, [isAuthenticated, isLoading, isModelLoading, isModelError, userModel, setLocation]);
