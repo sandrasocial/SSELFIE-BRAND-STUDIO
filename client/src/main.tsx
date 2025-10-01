@@ -5,7 +5,9 @@ import "./index.css";
 
 // 💡 IMPORT ALL PROVIDERS HERE
 import { QueryClientProvider } from '@tanstack/react-query';
-import { StackProvider, StackTheme } from '@stackframe/react'; // This is the ReactStackProvider
+import * as stackAuth from '@stackframe/react';
+// @ts-ignore - Stack Auth has broken ESM exports, using workaround
+const { StackProvider, StackTheme } = (stackAuth as any).default || stackAuth;
 import { Toaster } from './components/ui/toaster.js';
 import { TooltipProvider } from './components/ui/tooltip.js';
 

@@ -42,9 +42,10 @@ try {
     urls: {
       signIn: "/handler/sign-in",
       signUp: "/handler/sign-up", 
-      afterSignIn: "/auth-success",  // ✅ FIXED: Must be relative for Stack Auth security
-      afterSignUp: "/auth-success",  // ✅ FIXED: Must be relative for Stack Auth security
-      afterSignOut: "/",             // ✅ FIXED: Must be relative for Stack Auth security
+      afterSignIn: "/auth-success",  // ✅ RESTORED: Working configuration
+      afterSignUp: "/auth-success",  // ✅ RESTORED: Working configuration
+      afterSignOut: "/",             // ✅ RESTORED: Working configuration
+      oauthCallback: "/handler/oauth-callback",  // ✅ RESTORED: Stack Auth calls this after OAuth
     },
     // Enhanced configuration for production stability
   });

@@ -1,5 +1,7 @@
 import React from 'react';
-import { SignUp } from '@stackframe/react';
+import * as stackAuth from '@stackframe/react';
+// @ts-ignore - Stack Auth has broken ESM exports, using workaround
+const { SignUp } = (stackAuth as any).default || stackAuth;
 
 export const AuthSignUp: React.FC = () => {
   return (
@@ -31,7 +33,7 @@ export const AuthSignUp: React.FC = () => {
           <p className="text-sm text-stone-600">
             Already have an account?{' '}
             <a
-              href="/sign-in"
+              href="/handler/sign-in"
               className="text-stone-800 hover:text-black font-medium underline decoration-stone-300 hover:decoration-stone-600 transition-colors"
             >
               Sign in

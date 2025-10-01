@@ -10,7 +10,7 @@ interface AuthProps {
 
 export const Auth: React.FC<AuthProps> = ({ 
   children, 
-  fallbackPath = '/sign-in' 
+  fallbackPath = '/handler/sign-in' 
 }) => {
   const { isAuthenticated, isLoading } = useAuth();
   const [, setLocation] = useLocation();
