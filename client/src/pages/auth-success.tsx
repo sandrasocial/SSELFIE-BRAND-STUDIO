@@ -8,11 +8,21 @@ export default function AuthSuccess() {
   const [, setLocation] = useLocation();
 
   useEffect(() => {
-    // Navigate to the main app entry point.
-    // The SmartHome component (at the root '/') will handle the final redirect 
-    // to /simple-training or /app after checking the user model.
-    console.log('✅ Auth successful, redirecting to application root');
-    setLocation('/', { replace: true });
+    // 🔍 DEBUG: Check what cookies are actually set after Stack Auth callback
+    console.log('🔍 Auth success page loaded');
+    console.log('🔍 Current cookies:', document.cookie);
+    console.log('🔍 Current URL:', window.location.href);
+    
+    // Wait a moment to allow Stack Auth to set cookies
+    setTimeout(() => {
+      console.log('🔍 Cookies after delay:', document.cookie);
+      
+      // Navigate to the main app entry point.
+      // The SmartHome component (at the root '/') will handle the final redirect 
+      // to /simple-training or /app after checking the user model.
+      console.log('✅ Auth successful, redirecting to application root');
+      setLocation('/', { replace: true });
+    }, 1000); // Wait 1 second for cookie setting
   }, [setLocation]);
   
   return <PageLoader />; // Show loading while waiting for the redirect

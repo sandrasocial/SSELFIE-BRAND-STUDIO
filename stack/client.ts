@@ -47,7 +47,6 @@ try {
       afterSignOut: "/",             // ✅ FIXED: Must be relative for Stack Auth security
     },
     // Enhanced configuration for production stability
-    baseUrl: process.env.NODE_ENV === 'production' ? 'https://www.sselfie.ai' : undefined,
   });
 
   // Debug the Stack Auth instance
@@ -55,6 +54,13 @@ try {
     projectId: stackClientApp.projectId,
     urls: stackClientApp.urls,
     tokenStore: 'cookie'
+  });
+
+  // 🔍 DEBUG: Check if Stack Auth is working properly
+  console.log('🔍 Stack Auth Client Methods Available:', {
+    hasGetUser: typeof stackClientApp.getUser === 'function',
+    hasCurrentUser: 'currentUser' in stackClientApp,
+    clientReady: !!stackClientApp
   });
 } catch (error) {
   console.error('❌ Failed to create Stack Auth instance:', error);
