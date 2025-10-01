@@ -2,7 +2,9 @@
 import React, { useEffect } from 'react';
 import { Route, useLocation } from "wouter";
 import { ProtectedRoute } from './components/ProtectedRoute.js';
-import { SignIn, SignUp, StackHandler } from "@stackframe/react"; 
+import * as stackAuth from "@stackframe/react";
+// @ts-ignore - Stack Auth has broken ESM exports, using workaround
+const { SignIn, SignUp, StackHandler } = (stackAuth as any).default || stackAuth; 
 import { stackClientApp } from '../../stack/client.js';
 import { useAuth } from "./hooks/use-auth.js";
 // Removed unused environment imports - using consolidated config

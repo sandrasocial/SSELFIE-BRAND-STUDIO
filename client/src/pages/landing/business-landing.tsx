@@ -2,7 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { GlobalFooter } from "../../components/global-footer.js";
 import { OptimizedImage } from "../../components/OptimizedImage.js";
-import { SignIn } from "@stackframe/react";
+import * as stackAuth from "@stackframe/react";
+// @ts-ignore - Stack Auth has broken ESM exports, using workaround
+const { SignIn } = (stackAuth as any).default || stackAuth;
 import { stackClientApp } from "../../../../stack/client.js";
 import { STACK_PROJECT_ID, STACK_PUBLISHABLE_CLIENT_KEY } from "../../env.js";
 
