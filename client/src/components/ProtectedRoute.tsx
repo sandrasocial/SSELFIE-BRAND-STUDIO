@@ -7,7 +7,7 @@ import { Auth } from './Auth.js';
 // Enhanced ProtectedRoute with proper Stack Auth integration
 export function ProtectedRoute({ 
   component: Component, 
-  fallbackPath = '/sign-in',
+  fallbackPath = '/handler/sign-in',
   ...props 
 }: { 
   component: ComponentType<any>;
