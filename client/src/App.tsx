@@ -26,9 +26,8 @@ import SselfieAppLayout from "./app_v2/SselfieAppLayout.js";
 // Lazy load non-critical pages for better performance
 import { lazy, Suspense } from "react";
 
-// Auth components
-import { AuthSignIn } from "./components/AuthSignIn.js";
-import { AuthSignUp } from "./components/AuthSignUp.js";
+// Auth components - Using Stack Auth handlers only for consistency
+// AuthSignIn and AuthSignUp removed - redirecting to /handler/ routes
 
 // Auth components (Lazy loaded for better performance)
 const MagicLinkSignInPage = lazy(() => import("../features/MagicLinkSignInPage.js").then(module => ({ default: module.MagicLinkSignInPage })));
@@ -164,17 +163,15 @@ function Router() {
         <AuthSuccessComponent />
       )} />
 
-      {/* NEW AUTH ROUTES - Primary Sign-In/Sign-Up pages using Stack Auth */}
-      <Route path="/sign-in" component={() => (
-        <Suspense fallback={<PageLoader />}>
-          <AuthSignIn />
-        </Suspense>
-      )} />
-      <Route path="/sign-up" component={() => (
-        <Suspense fallback={<PageLoader />}>
-          <AuthSignUp />
-        </Suspense>
-      )} />
+      {/* ✅ CLEANED UP: Redirect to Stack Auth handlers for consistency */}
+      <Route path="/sign-in" component={() => {
+        window.location.replace('/handler/sign-in');
+        return <PageLoader />;
+      }} />
+      <Route path="/sign-up" component={() => {
+        window.location.replace('/handler/sign-up');
+        return <PageLoader />;
+      }} />
 
       {/* ✅ ADDED: Primary non-OAuth sign-in flows for users without Google */}
       <Route path="/magic-link" component={() => (
@@ -372,72 +369,25 @@ function Router() {
   );
 }
 
-// Stack Auth Handler component for authentication routes - SIMPLIFIED FIX
+// 🔥 CLEANED UP: Stack Auth Handler - Single source of truth for authentication
 function HandlerRoutes() {
   const handlerPath = window.location.pathname.replace('/handler/', '') || '';
   
   console.log('🔍 HandlerRoutes: handlerPath =', handlerPath);
   console.log('🔍 HandlerRoutes: full location =', window.location.href);
   
-  // ✅ CRITICAL FIX: Removed OAuth callback handling from here - now handled by dedicated route
-  // This prevents route conflicts and preserves OAuth query parameters
-  
-  // Check if this is a Stack Auth handler path (excluding OAuth callback which has its own route)
-  const isStackAuthHandler = handlerPath.includes('magic-link-verify') || 
-                             handlerPath.includes('password-reset') ||
-                             handlerPath.includes('email-verification');
-
-  // Use StackHandler for other Stack Auth handlers (not OAuth callback)
-  if (isStackAuthHandler) {
-    console.log('🔍 HandlerRoutes: Using StackHandler for =', handlerPath);
-    
-    return (
-      <StackHandler 
-        app={stackClientApp} 
-        location={window.location.pathname + window.location.search + window.location.hash}
-        fullPage={true}
-      />
-    );
-  }
-
-  // For regular sign-in and sign-up, use the traditional components with custom UI
-  const isSignUp = handlerPath.includes('sign-up');
+  // ✅ Use StackHandler for ALL Stack Auth operations to ensure consistency
+  // This includes sign-in, sign-up, magic-link, password-reset, email-verification
+  console.log('🔍 HandlerRoutes: Using StackHandler for =', handlerPath);
   
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full bg-white shadow-lg rounded-lg p-8">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-light text-gray-900 mb-2" style={{ fontFamily: "Times New Roman, serif" }}>
-            SSELFIE
-          </h1>
-          <p className="text-gray-600">
-            {isSignUp ? 'Create your account' : 'Welcome back'}
-          </p>
-        </div>
-
-        {/* Render the appropriate Stack Auth form for sign-in/sign-up */}
-        {isSignUp ? (
-          <SignUp />
-        ) : (
-          <SignIn />
-        )}
-
-        <div className="mt-6 text-center">
-          <p className="text-sm text-gray-600">
-            {!isSignUp ? "Don't have an account? " : "Already have an account? "}
-            <button
-              onClick={() => {
-                const newPath = !isSignUp ? '/handler/sign-up' : '/handler/sign-in';
-                window.location.href = newPath;
-              }}
-              className="text-blue-600 hover:text-blue-700 font-medium"
-            >
-              {!isSignUp ? 'Sign up' : 'Sign in'}
-            </button>
-          </p>
-        </div>
-      </div>
-    </div>
+    <StackHandler 
+      app={stackClientApp} 
+      location={window.location.pathname + window.location.search + window.location.hash}
+      fullPage={true}
+      // 🔥 CRITICAL FIX: Enable automatic redirects to prevent "already signed in" stuck state
+      automaticRedirect={true}
+    />
   );
 }
 
