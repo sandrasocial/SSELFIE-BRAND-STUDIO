@@ -184,11 +184,7 @@ function Router() {
         </Suspense>
       )} />
 
-      {/* STACK AUTH HANDLER - Consolidated wildcard route for ALL Stack redirects/callbacks */}
-      <Route path="/handler/:rest*" component={HandlerRoutes} />
-      <Route path="/handler" component={HandlerRoutes} />
-      
-      {/* OAuth callback handler - Use Stack Auth's StackHandler */}
+      {/* ✅ CRITICAL FIX: OAuth callback handler MUST come before wildcard routes to preserve query parameters */}
       <Route path="/handler/oauth-callback" component={() => (
         <Suspense fallback={<PageLoader />}>
           <StackHandler 
@@ -198,6 +194,10 @@ function Router() {
           />
         </Suspense>
       )} />
+      
+      {/* STACK AUTH HANDLER - Consolidated wildcard route for ALL other Stack redirects/callbacks */}
+      <Route path="/handler/:rest*" component={HandlerRoutes} />
+      <Route path="/handler" component={HandlerRoutes} />
       
       {/* Guard against accidental /handler/app by redirecting to /app */}
       <Route path="/handler/app" component={() => { window.location.href = '/app'; return null; }} />
@@ -369,43 +369,17 @@ function HandlerRoutes() {
   console.log('🔍 HandlerRoutes: handlerPath =', handlerPath);
   console.log('🔍 HandlerRoutes: full location =', window.location.href);
   
-  // ✅ RESTORED: Check for OAuth outer cookies (callback state)
-  const oauthOuterCookies = document.cookie.split(';').filter(cookie => cookie.includes('stack-oauth-outer'));
+  // ✅ CRITICAL FIX: Removed OAuth callback handling from here - now handled by dedicated route
+  // This prevents route conflicts and preserves OAuth query parameters
   
-  // If we're in OAuth callback state, redirect to callback handler
-  if (oauthOuterCookies.length > 0 && !handlerPath.includes('oauth-callback')) {
-    console.log('🔄 HandlerRoutes: OAuth callback detected, redirecting to callback...');
-    window.location.replace('/handler/oauth-callback');
-    return <div>Redirecting...</div>;
-  }
-
-  // Check if this is an OAuth callback or other Stack Auth handler path
-  const isOAuthCallback = handlerPath.includes('oauth-callback');
-  const isStackAuthHandler = isOAuthCallback || 
-                             handlerPath.includes('magic-link-verify') || 
+  // Check if this is a Stack Auth handler path (excluding OAuth callback which has its own route)
+  const isStackAuthHandler = handlerPath.includes('magic-link-verify') || 
                              handlerPath.includes('password-reset') ||
                              handlerPath.includes('email-verification');
 
-  // ✅ CRITICAL FIX: Use StackHandler for OAuth callbacks and other Stack Auth handlers
+  // Use StackHandler for other Stack Auth handlers (not OAuth callback)
   if (isStackAuthHandler) {
     console.log('🔍 HandlerRoutes: Using StackHandler for =', handlerPath);
-    console.log('🔍 Current cookies before StackHandler:', document.cookie);
-    
-    // Add a timeout to force completion if StackHandler doesn't redirect
-    React.useEffect(() => {
-      if (isOAuthCallback) {
-        const timeout = setTimeout(() => {
-          console.log('⚠️ OAuth callback timeout - forcing redirect to auth-success');
-          const hasOAuthCookies = document.cookie.includes('stack-oauth-');
-          if (hasOAuthCookies) {
-            console.log('✅ OAuth cookies detected, redirecting to complete flow');
-            window.location.href = '/auth-success';
-          }
-        }, 5000); // Wait 5 seconds for StackHandler to complete
-        
-        return () => clearTimeout(timeout);
-      }
-    }, [isOAuthCallback]);
     
     return (
       <StackHandler 
