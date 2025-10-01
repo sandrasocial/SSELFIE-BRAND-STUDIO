@@ -28,6 +28,11 @@ import { lazy, Suspense } from "react";
 import { AuthSignIn } from "./components/AuthSignIn.js";
 import { AuthSignUp } from "./components/AuthSignUp.js";
 
+// Auth components (Lazy loaded for better performance)
+const MagicLinkSignInPage = lazy(() => import("../features/MagicLinkSignInPage.js").then(module => ({ default: module.MagicLinkSignInPage })));
+const MyForgotPassword = lazy(() => import("../features/MyForgotPassword.js").then(module => ({ default: module.MyForgotPassword })));
+const PasswordResetPage = lazy(() => import("../features/ResetPasswordPage.js").then(module => ({ default: module.ResetPasswordPage })));
+
 const BusinessLanding = lazy(() => import("./pages/landing/business-landing.js"));
 const HairLanding = lazy(() => import("./pages/landing/hair-landing.js"));
 const HairSignup = lazy(() => import("./pages/landing/hair-signup.js"));
@@ -62,27 +67,30 @@ function SmartHome() {
   // Fetch user model status to determine training completion
   const { data: userModel, isLoading: isModelLoading } = useQuery({
     queryKey: ['/api/user-model'],
-    enabled: isAuthenticated, // we consider Stack user sufficient to fetch
+    enabled: isAuthenticated, 
     retry: false,
     staleTime: 30 * 1000
   });
 
   useEffect(() => {
-    if (!isLoading && isAuthenticated) {
+    // 🛑 CRITICAL: This now only runs when both auth state and user model are known.
+    if (isAuthenticated && !isLoading && !isModelLoading && userModel) { 
       // SIMPLIFIED JOURNEY: Training → App Studio (no old workspace/build flow)
-      if (userModel && (userModel as { trainingStatus?: string }).trainingStatus !== 'completed') {
+      if ((userModel as { trainingStatus?: string }).trainingStatus !== 'completed') {
         console.log('🎯 User needs training → /simple-training (onboarding)');
-        setLocation('/simple-training');
+        setLocation('/simple-training', { replace: true });
       } else {
         console.log('✅ User trained → /app (mobile-first studio tabs)');
-        setLocation('/app');
+        setLocation('/app', { replace: true });
       }
     } else if (!isLoading && !isAuthenticated) {
       console.log('🔍 User not authenticated → staying on landing page');
+      // No redirect needed here, implicitly shows landing page at '/'
     }
-  }, [isAuthenticated, isLoading, userModel, setLocation]);
+  }, [isAuthenticated, isLoading, isModelLoading, userModel, setLocation]);
 
-  // Show loading while determining auth state and training status
+  // ✅ FIX: Show a loader if still loading *any* auth state or user data.
+  // This prevents the unstable return null from letting the route fall through to 404 or Demo.
   if (isLoading || (isAuthenticated && isModelLoading)) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -91,12 +99,9 @@ function SmartHome() {
     );
   }
 
-  // For unauthenticated users, show landing page content
-  if (!isAuthenticated) {
-    return null; // Let the route system handle showing BusinessLanding
-  }
-
-  // For authenticated users, redirect will happen in useEffect
+  // If authenticated but the redirect hasn't fired yet (should be extremely brief), return null 
+  // to allow the top-level Router to manage the rendering while the useEffect handles the redirect.
+  // We explicitly handle the loading state above, making this safe.
   return null;
 }
 
@@ -105,14 +110,31 @@ function SmartHome() {
 function Router() {
   return (
     <div>
-      {/* NEW AUTH ROUTES - Premium styled auth components */}
+      {/* NEW AUTH ROUTES - Primary Sign-In/Sign-Up pages */}
       <Route path="/sign-in" component={AuthSignIn} />
       <Route path="/sign-up" component={AuthSignUp} />
 
-      {/* STACK AUTH HANDLER - Explicit routes only to avoid accidental matches */}
-      <Route path="/handler/sign-in" component={HandlerRoutes} />
-      <Route path="/handler/sign-up" component={HandlerRoutes} />
+      {/* ✅ ADDED: Primary non-OAuth sign-in flows for users without Google */}
+      <Route path="/magic-link" component={() => (
+        <Suspense fallback={<PageLoader />}>
+          <MagicLinkSignInPage />
+        </Suspense>
+      )} />
+      <Route path="/forgot-password" component={() => (
+        <Suspense fallback={<PageLoader />}>
+          <MyForgotPassword />
+        </Suspense>
+      )} />
+      <Route path="/password-reset" component={() => (
+        <Suspense fallback={<PageLoader />}>
+          <PasswordResetPage searchParams={Object.fromEntries(new URLSearchParams(window.location.search))} />
+        </Suspense>
+      )} />
+
+      {/* STACK AUTH HANDLER - Consolidated wildcard route for ALL Stack redirects/callbacks */}
+      <Route path="/handler/:rest*" component={HandlerRoutes} />
       <Route path="/handler" component={HandlerRoutes} />
+      
       {/* Guard against accidental /handler/app by redirecting to /app */}
       <Route path="/handler/app" component={() => { window.location.href = '/app'; return null; }} />
 
@@ -226,7 +248,8 @@ function Router() {
       <Route path="/app" component={() => (
         <ProtectedRoute component={() => (
           <Suspense fallback={<PageLoader />}>
-            <DemoAppLayout />
+            {/* ✅ CORRECTED: Using SselfieAppLayout for production app instead of DemoAppLayout */}
+            <SselfieAppLayout />
           </Suspense>
         )} />
       )} />      {/* STUDIO ROUTE ALIAS - Redirects to /app for E2E test compatibility */}
@@ -288,24 +311,37 @@ function Router() {
   );
 }
 
-// Stack Auth Handler component for authentication routes - SIMPLIFIED
+// Stack Auth Handler component for authentication routes - SIMPLIFIED FIX
 function HandlerRoutes() {
   const handlerPath = window.location.pathname.replace('/handler/', '') || '';
-  const { isAuthenticated } = useAuth();
-
-  console.log('🔍 HandlerRoutes: handlerPath =', handlerPath);
-  console.log('🔍 HandlerRoutes: isAuthenticated =', isAuthenticated);
   
-  // If user is already authenticated, redirect to app
+  // 🛑 CRITICAL FIX: The useAuth check and manual redirect below are removed 
+  // to avoid a race condition. The <SignIn /> / <SignUp /> components handle 
+  // reading the URL and performing the redirect to /auth-success internally.
+  /*
+  const { isAuthenticated } = useAuth();
+  console.log('🔍 HandlerRoutes: isAuthenticated =', isAuthenticated);
+
   if (isAuthenticated) {
     console.log('🔍 HandlerRoutes: User is authenticated, redirecting to /app');
     window.location.replace('/app');
     return <div>Redirecting to app...</div>;
   }
+  */
+
+  console.log('🔍 HandlerRoutes: handlerPath =', handlerPath);
 
   // Determine which form to show based on the path
-  const isSignUp = handlerPath === 'sign-up';
+  // Use .includes to safely catch things like /handler/oauth-callback
+  const isSignUp = handlerPath.includes('sign-up');
+  // Check for password reset or magic link paths to use SignIn as the default handler
+  const isAuthFlow = handlerPath.includes('sign-in') || 
+                     handlerPath.includes('oauth-callback') || 
+                     handlerPath.includes('magic-link-verify') || 
+                     handlerPath.includes('password-reset') ||
+                     handlerPath === ''; // Default /handler
 
+  // Render the appropriate Stack Auth form to handle the logic based on the URL
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="max-w-md w-full bg-white shadow-lg rounded-lg p-8">
@@ -318,9 +354,13 @@ function HandlerRoutes() {
           </p>
         </div>
 
+        {/* RENDER STACK COMPONENT: This component is responsible for reading the code/token
+            in the URL (e.g., /handler/oauth-callback?code=...) and performing the redirect
+            to /auth-success after setting the session cookie. */}
         {isSignUp ? (
           <SignUp />
         ) : (
+          // Use SignIn as the catch-all handler for sign-in, OAuth, Magic Link, and Password Reset callbacks
           <SignIn />
         )}
 
