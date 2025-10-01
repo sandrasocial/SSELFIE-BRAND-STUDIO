@@ -757,6 +757,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             'Content-Type': 'application/json',
             'Authorization': req.headers.authorization || '',
             'x-stack-project-id': STACK_AUTH_PROJECT_ID,
+            'x-stack-access-type': 'client', // 🔥 CRITICAL FIX: Required header for Stack Auth API
+            'x-stack-publishable-client-key': process.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY || '',
             ...(req.body ? {} : {})
           },
           body: req.body ? JSON.stringify(req.body) : undefined
@@ -1931,7 +1933,72 @@ FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus
       }
     }
 
-    // Default response
+    // 🔥 CRITICAL FIX: Stack Auth API Proxy for /api/v1/ requests
+    if (req.url?.startsWith('/api/v1/')) {
+      console.log('🔍 Stack Auth API Proxy:', {
+        url: req.url,
+        method: req.method,
+        headers: {
+          'x-stack-access-type': req.headers['x-stack-access-type'],
+          'x-stack-project-id': req.headers['x-stack-project-id'],
+          'x-stack-publishable-client-key': req.headers['x-stack-publishable-client-key']?.toString().substring(0, 20) + '...'
+        }
+      });
+
+      try {
+        // Forward request to Stack Auth API
+        const stackAuthUrl = `https://api.stack-auth.com${req.url}`;
+        const stackAuthHeaders: Record<string, string> = {
+          'Content-Type': 'application/json',
+        };
+
+        // Forward all Stack Auth headers
+        const stackHeaders = [
+          'x-stack-access-type',
+          'x-stack-project-id', 
+          'x-stack-publishable-client-key',
+          'x-stack-random-nonce',
+          'x-stack-allow-anonymous-user',
+          'x-stack-override-error-status',
+          'x-stack-client-version'
+        ];
+
+        stackHeaders.forEach(header => {
+          if (req.headers[header]) {
+            stackAuthHeaders[header] = req.headers[header] as string;
+          }
+        });
+
+        console.log('🌐 Forwarding to Stack Auth:', stackAuthUrl);
+
+        const stackAuthResponse = await fetch(stackAuthUrl, {
+          method: req.method,
+          headers: stackAuthHeaders,
+          body: req.method !== 'GET' && req.method !== 'HEAD' ? JSON.stringify(req.body) : undefined
+        });
+
+        const responseData = await stackAuthResponse.json();
+
+        console.log('✅ Stack Auth Response:', {
+          status: stackAuthResponse.status,
+          hasConfig: !!responseData.config,
+          hasSignUpEnabled: responseData.config?.sign_up_enabled !== undefined
+        });
+
+        // Return Stack Auth response with proper headers
+        res.setHeader('Content-Type', 'application/json');
+        return res.status(stackAuthResponse.status).json(responseData);
+
+      } catch (error) {
+        console.error('❌ Stack Auth API Proxy Error:', error);
+        return res.status(500).json({
+          error: 'Stack Auth API proxy failed',
+          message: (error as Error).message
+        });
+      }
+    }
+
+    // Default response for non-Stack Auth requests
     return res.status(200).json({
       message: 'SSELFIE Studio API',
       endpoint: req.url

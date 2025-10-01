@@ -52,11 +52,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       'Content-Type': 'application/json',
       'x-stack-project-id': STACK_AUTH_PROJECT_ID,
       'User-Agent': req.headers['user-agent'] || 'SSELFIE-Studio/1.0',
+      'x-stack-access-type': 'client', // 🔥 CRITICAL FIX: Required header for Stack Auth API
     };
 
     // Add publishable client key if available
     if (process.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY) {
       headers['x-stack-publishable-client-key'] = process.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY;
+    }
+
+    // 🔥 ENHANCED: Use server-side authentication if secret key is available and request requires it
+    if (process.env.STACK_AUTH_SECRET_KEY && (req.method === 'POST' || req.method === 'PUT' || req.method === 'DELETE')) {
+      headers['x-stack-access-type'] = 'server';
+      headers['x-stack-secret-server-key'] = process.env.STACK_AUTH_SECRET_KEY;
     }
 
     // Forward relevant headers

@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import { StackClientApp } from "@stackframe/react";
 
-// Use build-time constants with fallbacks
+// 🔥 CRITICAL FIX: Use build-time constants with proper fallback chain
 const STACK_PROJECT_ID = (globalThis as any).__STACK_PROJECT_ID__ || 
   import.meta.env?.VITE_STACK_PROJECT_ID || 
   "253d7343-a0d4-43a1-be5c-822f590d40be";
@@ -9,6 +9,17 @@ const STACK_PROJECT_ID = (globalThis as any).__STACK_PROJECT_ID__ ||
 const STACK_PUBLISHABLE_CLIENT_KEY = (globalThis as any).__STACK_PUBLISHABLE_CLIENT_KEY__ || 
   import.meta.env?.VITE_STACK_PUBLISHABLE_CLIENT_KEY || 
   "pck_bqv6htnwq1f37nd2fn6qatxx2f8x0tnxvjj7xwgh1zmhg";
+
+// 🔍 Enhanced debug logging to trace environment variable injection
+console.log('🔍 Stack Auth Environment Variable Analysis:', {
+  globalsProjectId: (globalThis as any).__STACK_PROJECT_ID__,
+  globalsKey: (globalThis as any).__STACK_PUBLISHABLE_CLIENT_KEY__?.substring(0, 20) + '...',
+  importMetaProjectId: import.meta.env?.VITE_STACK_PROJECT_ID,
+  importMetaKey: import.meta.env?.VITE_STACK_PUBLISHABLE_CLIENT_KEY?.substring(0, 20) + '...',
+  finalProjectId: STACK_PROJECT_ID,
+  finalKey: STACK_PUBLISHABLE_CLIENT_KEY?.substring(0, 20) + '...',
+  globalThisKeys: Object.keys(globalThis).filter(k => k.includes('STACK')),
+});
 
 // Debug logging
 console.log('🔍 Stack Auth Config:', {

@@ -31,6 +31,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const method = req.method || 'GET';
     const headers = filterHeaders(req.headers);
 
+    // 🔥 CRITICAL FIX: Add required Stack Auth API headers
+    headers['x-stack-project-id'] = STACK_AUTH_PROJECT_ID;
+    headers['x-stack-access-type'] = 'client';
+    if (process.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY) {
+      headers['x-stack-publishable-client-key'] = process.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY;
+    }
+
+    // 🔥 ENHANCED: Use server-side authentication if secret key is available and request requires it
+    if (process.env.STACK_AUTH_SECRET_KEY && ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
+      headers['x-stack-access-type'] = 'server';
+      headers['x-stack-secret-server-key'] = process.env.STACK_AUTH_SECRET_KEY;
+    }
+
     // Forward cookies for session continuity
     if (req.headers.cookie) {
       headers['cookie'] = req.headers.cookie;
