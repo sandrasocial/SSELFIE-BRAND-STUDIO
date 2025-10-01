@@ -26,10 +26,6 @@ import SselfieAppLayout from "./app_v2/SselfieAppLayout.js";
 // Lazy load non-critical pages for better performance
 import { lazy, Suspense } from "react";
 
-// Auth components
-import { AuthSignIn } from "./components/AuthSignIn.js";
-import { AuthSignUp } from "./components/AuthSignUp.js";
-
 // Auth components (Lazy loaded for better performance)
 const MagicLinkSignInPage = lazy(() => import("../features/MagicLinkSignInPage.js").then(module => ({ default: module.MagicLinkSignInPage })));
 const MyForgotPassword = lazy(() => import("../features/MyForgotPassword.js").then(module => ({ default: module.MyForgotPassword })));
@@ -164,17 +160,15 @@ function Router() {
         <AuthSuccessComponent />
       )} />
 
-      {/* NEW AUTH ROUTES - Primary Sign-In/Sign-Up pages using Stack Auth */}
-      <Route path="/sign-in" component={() => (
-        <Suspense fallback={<PageLoader />}>
-          <AuthSignIn />
-        </Suspense>
-      )} />
-      <Route path="/sign-up" component={() => (
-        <Suspense fallback={<PageLoader />}>
-          <AuthSignUp />
-        </Suspense>
-      )} />
+      {/* AUTH ROUTES - Redirect to Stack Auth handler routes */}
+      <Route path="/sign-in" component={() => {
+        window.location.replace('/handler/sign-in');
+        return <PageLoader />;
+      }} />
+      <Route path="/sign-up" component={() => {
+        window.location.replace('/handler/sign-up');
+        return <PageLoader />;
+      }} />
 
       {/* ✅ ADDED: Primary non-OAuth sign-in flows for users without Google */}
       <Route path="/magic-link" component={() => (
