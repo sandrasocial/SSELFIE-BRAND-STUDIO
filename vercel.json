@@ -61,6 +61,10 @@
     {
       "source": "/simple-training",
       "destination": "/index.html"
+    },
+    {
+      "source": "/auth-success",
+      "destination": "/index.html"
     }
   ],
   "headers": [

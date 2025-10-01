@@ -643,7 +643,7 @@
     "vercel-build:safe": "npm run type-check:critical && npm run build && npm run build:server:safe && npm run build:api",
     "build:api": "npm run build:api:ts && npm run build:api:bundle",
     "build:api:ts": "echo 'Skipping API TypeScript compilation - using runtime compilation'",
-    "build:api:bundle": "esbuild 'api/[...route].ts' api/_middleware/auth.ts api/_shared/main.ts api/_utils/serverless-db.ts api/auth/*.ts api/me.ts api/health.ts api/ping.ts api/index.ts --bundle --platform=node --format=esm --outdir=.vercel/output/functions --external:@google/genai --external:express --external:@aws-sdk/* --external:drizzle-orm --external:pg --external:ws --sourcemap --target=node20 --packages=external --log-level=warning || echo 'API bundle completed with warnings'",
+    "build:api:bundle": "esbuild 'api/[...route].ts' api/_middleware/auth.ts api/_shared/main.ts api/_utils/serverless-db.ts api/auth/*.ts api/me.ts api/health.ts api/ping.ts api/index.ts stack/server.ts --bundle --platform=node --format=esm --outdir=.vercel/output/functions --external:@google/genai --external:express --external:@aws-sdk/* --external:drizzle-orm --external:pg --external:ws --sourcemap --target=node20 --packages=external --log-level=warning || echo 'API bundle completed with warnings'",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "type-check": "tsc --noEmit --project tsconfig.deploy.json",

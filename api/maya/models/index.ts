@@ -1,5 +1,5 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { StackAuth } from '@stackframe/stack';
+import { stackServerApp } from '../../../stack/server.js';
 import { z } from 'zod';
 import { drizzle } from 'drizzle-orm/neon-http';
 import { neon } from '@neondatabase/serverless';
@@ -9,13 +9,6 @@ import { eq, and } from 'drizzle-orm';
 // Initialize database connection
 const sql = neon(process.env.DATABASE_URL!);
 const db = drizzle(sql);
-
-// Initialize Stack Auth
-const stackAuth = new StackAuth({
-  projectId: process.env.NEXT_PUBLIC_STACK_PROJECT_ID!,
-  publishableClientKey: process.env.NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY!,
-  secretServerKey: process.env.STACK_SECRET_SERVER_KEY!,
-});
 
 // Request validation schemas
 const createModelSchema = insertMayaModelsSchema.extend({
@@ -32,7 +25,7 @@ const updateModelSchema = z.object({
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     // Authentication
-    const user = await stackAuth.getUser({ request: req });
+    const user = await stackServerApp.getUser({ tokenStore: req });
     if (!user) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
