@@ -44,7 +44,8 @@ const PaymentSuccess = lazy(() => import("./pages/payment-success.js"));
 const ThankYou = lazy(() => import("./pages/thank-you.js"));
 const Terms = lazy(() => import("./pages/legal/terms.js"));
 const Privacy = lazy(() => import("./pages/legal/privacy.js"));
-const AuthSuccess = lazy(() => import("./pages/auth-success.js"));
+// Import AuthSuccess directly instead of lazy loading to fix OAuth callback 404 issue
+import AuthSuccessComponent from "./pages/auth-success.js";
 const NotFound = lazy(() => import("./pages/not-found.js"));
 
 // Critical pages (marked as priority in routed-pages-priority.ts)  
@@ -158,9 +159,7 @@ function Router() {
     <div>
       {/* Post-auth success handoff - MOVED TO TOP for priority matching */}
       <Route path="/auth-success" component={() => (
-        <Suspense fallback={<PageLoader />}>
-          <AuthSuccess />
-        </Suspense>
+        <AuthSuccessComponent />
       )} />
 
       {/* NEW AUTH ROUTES - Primary Sign-In/Sign-Up pages */}
