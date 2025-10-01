@@ -1081,7 +1081,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     }
 
-    // User model endpoint
+    // User model endpoint - Enhanced with robust error handling and fallback logic
     if (req.url?.includes('/api/user-model')) {
       const t = logStart('GET /api/user-model');
       
@@ -1091,43 +1091,96 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         
         console.log('🔍 Getting model for user:', user.id, user.email);
         
-        let dbUser = await withDatabaseTimeoutAndRetry(
-          () => storage.getUser(user.id as string), 
-          null, 
-          2000,
-          1,
-          'getUser'
-        );
-        
-        if (!dbUser && user.email) {
-          dbUser = await withDatabaseTimeout(
-            storage.getUserByEmail(user.email as string), 
-            null, 
-            2000,
-            'getUserByEmail'
-          );
-        }
-        
-        if (!dbUser) {
-          console.log('❌ No database user found for:', user.id);
-          return res.status(404).json({ 
-            message: 'User not found in database',
-            error: 'Database user not found'
-          });
-        }
-        
+        let dbUser = null;
         let userModel: UserModel | null = null;
+        
+        // � BULLETPROOF: Use aggressive Stack Auth ID and email linking
         try {
-          const result = await withDatabaseTimeout(
-            storage.getUserModel(dbUser.id), 
-            null,
+          const result = await withDatabaseTimeoutAndRetry(
+            () => storage.getUserModelByStackAuthAndEmail(user.id as string, user.email as string || ''), 
+            { user: null, model: null }, 
             3000,
-            'getUserModel'
+            1,
+            'getUserModelByStackAuthAndEmail'
           );
-          userModel = result ?? null;
-        } catch (error) {
-          console.log('📊 Model fetch failed or timed out for:', dbUser.id, (error as Error).message);
-          userModel = null;
+          
+          dbUser = result?.user || null;
+          userModel = result?.model || null;
+          
+          console.log('✅ Bulletproof lookup result:', {
+            foundUser: !!dbUser,
+            foundModel: !!userModel,
+            trainingStatus: userModel?.trainingStatus || 'not_started',
+            userEmail: dbUser?.email
+          });
+          
+        } catch (dbError) {
+          console.error('❌ Bulletproof user lookup failed:', {
+            userId: user.id,
+            email: user.email,
+            error: (dbError as Error).message
+          });
+          
+          // Fallback to traditional lookup
+          try {
+            dbUser = await withDatabaseTimeout(
+              storage.getUser(user.id as string), 
+              null, 
+              2000,
+              'getUser'
+            );
+            
+            if (!dbUser && user.email) {
+              dbUser = await withDatabaseTimeout(
+                storage.getUserByEmail(user.email as string), 
+                null, 
+                2000,
+                'getUserByEmail'
+              );
+            }
+          } catch (fallbackError) {
+            console.error('❌ Fallback user lookup also failed:', (fallbackError as Error).message);
+          }
+        }
+        
+        // 🎯 FIX: If no database user found, create minimal fallback model for new users
+        if (!dbUser) {
+          console.warn(`❌ User ${user.id} authenticated but missing DB record. Creating minimal fallback model.`);
+          
+          const minimalModel = {
+            id: null,
+            userId: user.id,
+            trainingStatus: 'not_started' as const,
+            needsTraining: true,
+            canRetrain: false,
+            modelType: 'sselfie-studio',
+            createdAt: null,
+            updatedAt: null,
+            userPlan: 'sselfie-studio',
+            hasActiveSubscription: false,
+            onboardingSource: 'unknown'
+          };
+          
+          res.setHeader('Cache-Control', 'no-store');
+          t.end('fallback');
+          return json(res, 200, minimalModel);
+        }
+        
+        // Fetch user model if not already obtained from bulletproof lookup
+        if (dbUser && !userModel) {
+          try {
+            const result = await withDatabaseTimeout(
+              storage.getUserModel(dbUser.id), 
+              null,
+              3000,
+              'getUserModel'
+            );
+            userModel = result ?? null;
+          } catch (error) {
+            console.warn('📊 Model fetch failed or timed out for:', dbUser.id, (error as Error).message);
+            // Continue with null model - will be handled as new user
+            userModel = null;
+          }
         }
         
         let trainingStatus = 'not_started';
@@ -1190,19 +1243,29 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         
       } catch (error) {
         const elapsed = t.end('error', { error: (error as Error).message });
-        console.log('❌ User model fetch failed:', (error as Error).message, { elapsedMs: elapsed });
+        console.error('❌ Critical Error in /api/user-model:', {
+          error: (error as Error).message,
+          stack: (error as Error).stack,
+          elapsedMs: elapsed
+        });
+        
+        // 🛑 Server-side error reporting - log to unified error handler
+        // TODO: Add Slack/Sentry notification here
+        // await notifyError('Critical /api/user-model failure', error);
         
         if (isTimeoutError(error)) {
-          return json(res, 503, { 
-            message: 'Service temporarily unavailable, please try again',
-            error: 'Request timeout',
+          return json(res, 500, { 
+            error: 'Database timeout - please try again',
+            message: 'Service temporarily unavailable',
             code: 'TIMEOUT'
           });
         }
         
-        return json(res, 401, { 
-          message: 'Authentication required',
-          error: (error as Error).message
+        // Return clean 500 error for any other failures
+        return json(res, 500, { 
+          error: 'Failed to retrieve user data',
+          message: 'Internal server error',
+          code: 'INTERNAL_ERROR'
         });
       }
     }

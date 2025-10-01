@@ -249,46 +249,50 @@ export async function getAuthenticatedUser(req: VercelRequest): Promise<Authenti
     throw new Error('Invalid user info: missing required fields');
   }
 
-  console.log('🔍 Auth middleware: Stack user info:', {
+  console.log('🔍 Auth middleware: Stack user info received:', {
     stackAuthId: stackAuthId.substring(0, 8) + '...',
     email: userEmail,
-    displayName: userName
+    displayName: userName,
+    hasProfileImage: !!(userInfo.profileImageUrl || userInfo.profile_image_url || userInfo.avatar_url)
   });
 
-  // Sync with database - get or create user
+  // 🔥 HARDENED: Database lookup with bulletproof Stack Auth ID and email linking
   try {
-    const { storage } = await import('../../server/storage.js');
+    console.log('🔍 Starting hardened database user lookup...');
     
-    // Try to get existing user by Stack Auth ID first
-    let dbUser = await storage.getUserByStackAuthId(stackAuthId);
+    const { userService } = await import('../../server/services/user-service.js');
+    
+    // Call hardened getOrCreateUser function with three-step lookup strategy
+    const dbUserProfile = await userService.getOrCreateUser(
+      stackAuthId,
+      userEmail,
+      userName,
+      (userInfo.profileImageUrl || userInfo.profile_image_url || userInfo.avatar_url) || null
+    );
+
+    console.log('✅ User service returned profile:', {
+      userId: dbUserProfile.id,
+      email: dbUserProfile.email,
+      displayName: dbUserProfile.displayName
+    });
+
+    // Get the full database user record to ensure complete data
+    const { storage } = await import('../../server/storage.js');
+    const dbUser = await storage.getUserByStackAuthId(stackAuthId);
     
     if (!dbUser) {
-      // Try to find by email (for legacy users)
-      const existingUser = await storage.getUserByEmail(userEmail);
-      
-      if (existingUser && !existingUser.stackAuthId) {
-        // Link existing user to Stack Auth
-        console.log('🔗 Linking existing user to Stack Auth:', existingUser.id);
-        dbUser = await storage.linkStackAuthId(existingUser.id, stackAuthId);
-      } else {
-        // Create new user with Stack Auth integration
-        console.log('👤 Creating new user from Stack Auth');
-        dbUser = await storage.syncStackAuthUser({
-          id: stackAuthId,
-          primaryEmail: userEmail,
-          displayName: userName,
-          profileImageUrl: (userInfo.profileImageUrl || userInfo.profile_image_url || userInfo.avatar_url) || undefined
-        });
-      }
-    } else {
-      // Update last login time for existing user
-      dbUser = await storage.updateUserProfile(dbUser.id, {
-        lastLoginAt: new Date(),
-        // Update profile info from Stack Auth if changed
-        displayName: userName || dbUser.displayName,
-        profileImageUrl: (userInfo.profileImageUrl || userInfo.profile_image_url || userInfo.avatar_url) || dbUser.profileImageUrl
-      });
+      // This should not happen after hardened getOrCreateUser, but handle gracefully
+      console.error('❌ Critical: User not found by Stack Auth ID after hardened sync');
+      throw new Error(`Failed to retrieve user by Stack Auth ID ${stackAuthId.substring(0, 8)}... after successful user service call`);
     }
+
+    console.log('✅ Full database user retrieved after hardened lookup:', {
+      id: dbUser.id,
+      email: dbUser.email,
+      stackAuthId: dbUser.stackAuthId?.substring(0, 8) + '...',
+      plan: dbUser.plan,
+      role: dbUser.role
+    });
 
     console.log('✅ Database user synced:', {
       id: dbUser.id,
