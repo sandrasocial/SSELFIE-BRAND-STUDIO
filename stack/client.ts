@@ -42,9 +42,9 @@ try {
     urls: {
       signIn: "/handler/sign-in",
       signUp: "/handler/sign-up", 
-      afterSignIn: "/auth-success",
-      afterSignUp: "/auth-success",
-      afterSignOut: "/",
+      afterSignIn: "https://www.sselfie.ai/auth-success",
+      afterSignUp: "https://www.sselfie.ai/auth-success",
+      afterSignOut: "https://www.sselfie.ai/",
     },
     // Enhanced configuration for production stability
   });
