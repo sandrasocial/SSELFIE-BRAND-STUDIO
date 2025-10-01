@@ -225,6 +225,68 @@ export function registerCheckoutRoutes(app: Express) {
     }
   });
 
+  // 🔥 NEW: Create Embedded Checkout Session for SSELFIE Style Guide Payment Page
+  app.post("/api/create-embedded-checkout-session", async (req: any, res) => {
+    try {
+      const { plan = 'sselfie-studio', customerEmail, successUrl, cancelUrl } = req.body;
+      
+      if (!customerEmail) {
+        return res.status(400).json({ message: 'Customer email is required for embedded checkout' });
+      }
+
+      // Single pricing plan - SSELFIE Studio
+      const planConfig = {
+        'sselfie-studio': {
+          name: 'SSELFIE STUDIO',
+          description: 'Personal AI model training + Maya AI photographer + 100 monthly professional photos',
+          amount: 4700, // €47.00 in cents
+        }
+      };
+
+      const selectedPlan = planConfig['sselfie-studio']; // Only one plan available
+
+      // Create Stripe Embedded Checkout Session
+      const session = await stripe.checkout.sessions.create({
+        ui_mode: 'embedded', // 🔥 CRITICAL: This enables embedded checkout
+        payment_method_types: ['card'],
+        line_items: [
+          {
+            price_data: {
+              currency: 'eur',
+              product_data: {
+                name: selectedPlan.name,
+                description: selectedPlan.description,
+              },
+              unit_amount: selectedPlan.amount,
+            },
+            quantity: 1,
+          },
+        ],
+        mode: 'payment', // One-time payment (can be changed to 'subscription' later)
+        return_url: successUrl, // For embedded checkout, use return_url instead of success_url
+        metadata: {
+          plan,
+          customerEmail,
+          flow: 'embedded'
+        },
+        customer_email: customerEmail,
+        // Optional: Pre-fill customer information to avoid duplicate entry
+        custom_fields: [],
+      });
+
+      console.log(`🔄 EMBEDDED CHECKOUT: Created session for ${customerEmail} - ${session.id}`);
+      
+      // Return client_secret for embedded checkout initialization
+      res.json({ 
+        client_secret: session.client_secret,
+        session_id: session.id
+      });
+    } catch (error: any) {
+      console.error('Embedded checkout session creation error:', error);
+      res.status(500).json({ message: "Error creating embedded checkout session: " + error.message });
+    }
+  });
+
   // Keep the old payment intent endpoint for backward compatibility
   app.post("/api/create-payment-intent", async (req: any, res) => {
     try {
