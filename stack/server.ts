@@ -9,7 +9,7 @@ const STACK_PROJECT_ID = process.env.STACK_AUTH_PROJECT_ID ||
 const STACK_PUBLISHABLE_CLIENT_KEY = process.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY || 
   "pck_bqv6htnwq1f37nd2fn6qatxx2f8x0tnxvjj7xwgh1zmhg";
 
-const STACK_SECRET_SERVER_KEY = process.env.STACK_SECRET_SERVER_KEY;
+const STACK_SECRET_SERVER_KEY = process.env.STACK_AUTH_SECRET_KEY;
 
 // Validate server configuration
 if (!STACK_PROJECT_ID || !STACK_PUBLISHABLE_CLIENT_KEY || !STACK_SECRET_SERVER_KEY) {
@@ -34,13 +34,13 @@ try {
     secretServerKey: STACK_SECRET_SERVER_KEY,
     // Use appropriate token store for server-side
     tokenStore: "cookie",
-    // Configure URLs to match client configuration
+    // Configure URLs to match client configuration (MUST be relative for Stack Auth security)
     urls: {
       signIn: "/handler/sign-in",
       signUp: "/handler/sign-up", 
-      afterSignIn: "https://www.sselfie.ai/auth-success",
-      afterSignUp: "https://www.sselfie.ai/auth-success",
-      afterSignOut: "https://www.sselfie.ai/",
+      afterSignIn: "/auth-success",  // ✅ FIXED: Must be relative like client
+      afterSignUp: "/auth-success",  // ✅ FIXED: Must be relative like client
+      afterSignOut: "/",             // ✅ FIXED: Must be relative like client
     },
   });
 
