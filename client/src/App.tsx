@@ -46,7 +46,8 @@ const Terms = lazy(() => import("./pages/legal/terms.js"));
 const Privacy = lazy(() => import("./pages/legal/privacy.js"));
 // Import AuthSuccess directly instead of lazy loading to fix OAuth callback 404 issue
 import AuthSuccessComponent from "./pages/auth-success.js";
-const OAuthCallback = lazy(() => import("./pages/OAuthCallback.js"));
+// 🔥 CRITICAL: Import OAuthCallback directly (not lazy) to ensure it's always available
+import OAuthCallback from "./pages/OAuthCallback.js";
 const NotFound = lazy(() => import("./pages/not-found.js"));
 
 // Critical pages (marked as priority in routed-pages-priority.ts)  
@@ -186,20 +187,14 @@ function Router() {
 
       {/* ✅ CRITICAL FIX: OAuth callback handler MUST come before wildcard routes to preserve query parameters */}
       <Route path="/handler/oauth-callback" component={() => {
-        // 🔥 ENHANCED: Log OAuth callback invocation for debugging
+        // 🔥 CRITICAL: Use dedicated OAuthCallback component that properly handles token exchange
+        // StackHandler is for UI pages (sign-in, sign-up), NOT for OAuth callbacks
         console.log('🔍 OAuth callback route invoked');
         console.log('🔍 URL:', window.location.href);
         console.log('🔍 Cookies before handler:', document.cookie.substring(0, 200));
         
-        return (
-          <Suspense fallback={<PageLoader />}>
-            <StackHandler 
-              app={stackClientApp} 
-              location={window.location.pathname + window.location.search + window.location.hash}
-              fullPage={true}
-            />
-          </Suspense>
-        );
+        // No Suspense needed since OAuthCallback is not lazy-loaded
+        return <OAuthCallback />;
       }} />
       
       {/* STACK AUTH HANDLER - Consolidated wildcard route for ALL other Stack redirects/callbacks */}
