@@ -72,7 +72,7 @@ export function registerCheckoutRoutes(app: Express) {
   // Create Stripe Checkout Session (simpler and more reliable)
   app.post("/api/create-checkout-session", async (req: any, res) => {
     try {
-      const { successUrl, cancelUrl, plan = 'sselfie-studio' } = req.body;
+      const { successUrl, cancelUrl, plan = 'sselfie-studio', customerEmail } = req.body;
       
       // Single pricing plan - SIMPLIFIED FOR LAUNCH
       const planConfig = {
@@ -85,7 +85,8 @@ export function registerCheckoutRoutes(app: Express) {
 
       const selectedPlan = planConfig['sselfie-studio']; // Only one plan available
       
-      const session = await stripe.checkout.sessions.create({
+      // 🔥 FIX: Build session config with optional customer email
+      const sessionConfig: any = {
         payment_method_types: ['card'],
         line_items: [
           {
@@ -107,7 +108,15 @@ export function registerCheckoutRoutes(app: Express) {
           plan: plan,
           flow: successUrl.includes('/checkout?status=success') ? 'modal' : 'page'
         }
-      });
+      };
+
+      // 🔥 KEY FIX: Pre-fill email to avoid duplicate collection
+      if (customerEmail) {
+        sessionConfig.customer_email = customerEmail;
+        console.log('🔍 Pre-filling checkout with email:', customerEmail);
+      }
+      
+      const session = await stripe.checkout.sessions.create(sessionConfig);
 
       res.json({ url: session.url });
     } catch (error: any) {
