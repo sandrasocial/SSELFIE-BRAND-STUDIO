@@ -57,6 +57,8 @@ export function useAuth() {
     isStackAuthLoading,
     currentPath: window.location.pathname,
     cookies: document.cookie.substring(0, 200) + (document.cookie.length > 200 ? '...' : ''),
+    hasStackAccessToken: document.cookie.includes('stack-access'),
+    hasOAuthCookies: document.cookie.includes('stack-oauth-outer') || document.cookie.includes('stack-oauth-inner'),
     hasStackCookies: document.cookie.includes('stack-') || document.cookie.includes('auth'),
     localStorageKeys: Object.keys(localStorage).filter(k => k.includes('stack') || k.includes('auth')),
     sessionStorageKeys: Object.keys(sessionStorage).filter(k => k.includes('stack') || k.includes('auth'))
