@@ -1,5 +1,6 @@
 import { useUser } from "@stackframe/react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useRef } from "react";
 import { apiFetch } from "../lib/api.js";
 
 export interface User {
@@ -30,6 +31,12 @@ export interface User {
 // ✅ IMPROVED: Stack Auth integration with race condition fixes
 export function useAuth() {
   const stackUser = useUser();
+  const queryClient = useQueryClient();
+  
+  // Track previous authentication state to detect login events
+  const prevAuthStateRef = useRef<{ wasAuthenticated: boolean; userId?: string }>({ 
+    wasAuthenticated: false 
+  });
   
   // Determine authentication state first
   const isAuthenticated = !!stackUser?.id;
@@ -98,6 +105,41 @@ export function useAuth() {
       }
     }
   });
+
+  // 🔥 CRITICAL FIX: Force cache invalidation on authentication state changes
+  useEffect(() => {
+    const currentAuthState = {
+      wasAuthenticated: isAuthenticated,
+      userId: stackUser?.id
+    };
+
+    // Detect when user transitions from unauthenticated to authenticated (login event)
+    const justLoggedIn = !prevAuthStateRef.current.wasAuthenticated && isAuthenticated;
+    // Detect when user changes (different user logged in)
+    const userChanged = prevAuthStateRef.current.userId && 
+                       stackUser?.id && 
+                       prevAuthStateRef.current.userId !== stackUser.id;
+
+    if (justLoggedIn || userChanged) {
+      console.log('✅ Stack Auth session established. Invalidating user data cache.', {
+        justLoggedIn,
+        userChanged,
+        newUserId: stackUser?.id,
+        prevUserId: prevAuthStateRef.current.userId
+      });
+      
+      // 💡 CRITICAL FIX: Force refetch on login to ensure immediate backend sync
+      // This prevents stale cache from showing empty/incorrect user data
+      queryClient.invalidateQueries({ queryKey: ["/api/me"] });
+      queryClient.invalidateQueries({ queryKey: ['/api/user-model'] }); // Also invalidate user-model queries
+      
+      // Ensure SmartHome gets fresh data, not stale/empty cache
+      queryClient.refetchQueries({ queryKey: ["/api/me", stackUser?.id] });
+    }
+
+    // Update previous state for next comparison
+    prevAuthStateRef.current = currentAuthState;
+  }, [isAuthenticated, stackUser?.id, queryClient]);
 
   // Determine overall loading state
   const isLoading = isStackAuthLoading || (isAuthenticated && isDbLoading && !dbUser);

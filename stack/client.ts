@@ -36,17 +36,18 @@ try {
   stackClientApp = new StackClientApp({
     projectId: STACK_PROJECT_ID,
     publishableClientKey: STACK_PUBLISHABLE_CLIENT_KEY,
-    // Use cookie storage for better reliability
+    // Use cookie storage for better reliability and cross-domain functionality
     tokenStore: "cookie",
-    // Configure URLs for proper redirects with absolute paths
+    // Configure URLs for proper redirects with relative paths (Stack Auth security requirement)
     urls: {
       signIn: "/handler/sign-in",
       signUp: "/handler/sign-up", 
-      afterSignIn: "https://www.sselfie.ai/auth-success",
-      afterSignUp: "https://www.sselfie.ai/auth-success",
-      afterSignOut: "https://www.sselfie.ai/",
+      afterSignIn: "/auth-success",  // ✅ FIXED: Must be relative for Stack Auth security
+      afterSignUp: "/auth-success",  // ✅ FIXED: Must be relative for Stack Auth security
+      afterSignOut: "/",             // ✅ FIXED: Must be relative for Stack Auth security
     },
     // Enhanced configuration for production stability
+    baseUrl: process.env.NODE_ENV === 'production' ? 'https://www.sselfie.ai' : undefined,
   });
 
   // Debug the Stack Auth instance

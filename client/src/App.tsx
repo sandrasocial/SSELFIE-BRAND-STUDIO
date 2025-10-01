@@ -64,34 +64,47 @@ function SmartHome() {
   const [, setLocation] = useLocation();
   const { isAuthenticated, isLoading } = useAuth();
 
-  // Fetch user model status to determine training completion
-  const { data: userModel, isLoading: isModelLoading } = useQuery({
+  const { 
+    data: userModel, 
+    isLoading: isModelLoading, 
+    isError: isModelError // 💡 CRITICAL: Get the error status
+  } = useQuery({
     queryKey: ['/api/user-model'],
-    enabled: isAuthenticated, 
-    retry: false,
+    enabled: isAuthenticated,
+    retry: false, // Prevents endless re-fetching on permanent errors
     staleTime: 30 * 1000
   });
 
   useEffect(() => {
-    // 🛑 CRITICAL: This now only runs when both auth state and user model are known.
-    if (isAuthenticated && !isLoading && !isModelLoading && userModel) { 
-      // SIMPLIFIED JOURNEY: Training → App Studio (no old workspace/build flow)
-      if ((userModel as { trainingStatus?: string }).trainingStatus !== 'completed') {
-        console.log('🎯 User needs training → /simple-training (onboarding)');
+    // 1. Check for authenticated state and completion/error of the model fetch
+    if (!isLoading && isAuthenticated) {
+      
+      // 🎯 FIX: If the model fetch failed (isModelError) or successfully loaded but 
+      // the model data is not present/valid (i.e., server issue or new user), 
+      // we must redirect to the onboarding/training page as a fallback.
+      if (isModelError || 
+          (!isModelLoading && (!userModel || (userModel as { trainingStatus?: string }).trainingStatus !== 'completed'))
+      ) {
+        if (isModelError) {
+          console.error('🛑 User Model fetch failed (isModelError=true). Forcing onboarding fallback.');
+        } else {
+          console.log('🎯 User model loaded but needs training or is incomplete. Redirecting.');
+        }
         setLocation('/simple-training', { replace: true });
-      } else {
-        console.log('✅ User trained → /app (mobile-first studio tabs)');
+        
+      } else if (!isModelLoading && userModel && (userModel as { trainingStatus?: string }).trainingStatus === 'completed') {
+        // 2. Only redirect to /app if data is loaded successfully AND training is complete
+        console.log('✅ User trained and model loaded → /app');
         setLocation('/app', { replace: true });
       }
     } else if (!isLoading && !isAuthenticated) {
       console.log('🔍 User not authenticated → staying on landing page');
-      // No redirect needed here, implicitly shows landing page at '/'
     }
-  }, [isAuthenticated, isLoading, isModelLoading, userModel, setLocation]);
+    // Add isModelError to dependency array so it triggers on fetch failure
+  }, [isAuthenticated, isLoading, isModelLoading, isModelError, userModel, setLocation]);
 
-  // ✅ FIX: Show a loader if still loading *any* auth state or user data.
-  // This prevents the unstable return null from letting the route fall through to 404 or Demo.
-  if (isLoading || (isAuthenticated && isModelLoading)) {
+  // RENDER: Show loader only while actively loading, otherwise the useEffect handles the redirect
+  if (isLoading || isModelLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full" />
@@ -99,9 +112,8 @@ function SmartHome() {
     );
   }
 
-  // If authenticated but the redirect hasn't fired yet (should be extremely brief), return null 
-  // to allow the top-level Router to manage the rendering while the useEffect handles the redirect.
-  // We explicitly handle the loading state above, making this safe.
+  // Fallthrough case: if authenticated and model check finished (no redirect triggered yet), 
+  // or if unauthenticated and showing the landing page.
   return null;
 }
 
