@@ -131,7 +131,7 @@ import {
 } from "../shared/schema.js";
 import { db } from "./drizzle.js";
 /// <reference path="types/global.d.ts" />
-import { eq, and, desc, asc, gte, lte, sql } from "drizzle-orm";
+import { eq, and, or, desc, asc, gte, lte, sql } from "drizzle-orm";
 import { type MayaChatCreateInput } from '../shared/types/chat.js';
 
 // Interface for storage operations
@@ -188,6 +188,8 @@ export interface IStorage {
   getUserModel(userId: string): Promise<UserModel | undefined>;
   getUserModelByUserId(userId: string): Promise<UserModel | undefined>;
   getUserModelById(modelId: number): Promise<UserModel | undefined>;
+  // 🔥 BULLETPROOF: Get user model with aggressive Stack Auth ID and email linking
+  getUserModelByStackAuthAndEmail(stackAuthId: string, email: string): Promise<{ user: User | undefined; model: UserModel | undefined }>;
   createUserModel(data: InsertUserModel): Promise<UserModel>;
   updateUserModel(userId: string, data: Partial<UserModel>): Promise<UserModel>;
   ensureUserModel(userId: string): Promise<UserModel>;
@@ -848,6 +850,78 @@ export class DatabaseStorage implements IStorage {
       .from(userModels)
       .where(eq(userModels.id, modelId));
     return model;
+  }
+
+  // 🔥 BULLETPROOF: Get user model with aggressive Stack Auth ID and email linking
+  async getUserModelByStackAuthAndEmail(stackAuthId: string, email: string): Promise<{ user: User | undefined; model: UserModel | undefined }> {
+    console.log('🔍 Bulletproof user lookup:', {
+      stackAuthId: stackAuthId.substring(0, 8) + '...',
+      email
+    });
+
+    try {
+      // Find existing user by Stack Auth ID (primary) OR by Email (for new Stack logins)
+      let userRecord = await db.query.users.findFirst({
+        where: or(
+          eq(users.stackAuthId, stackAuthId), 
+          eq(users.email, email) 
+        )
+      });
+
+      if (userRecord && !userRecord.stackAuthId) {
+        // Found existing user by email, but they are unlinked. Link them now.
+        console.log('🔗 Found user by email but unlinked. Linking to Stack Auth ID now.', {
+          userId: userRecord.id,
+          email: userRecord.email
+        });
+        
+        userRecord = await db.update(users)
+          .set({ 
+            stackAuthId: stackAuthId,
+            updatedAt: new Date(),
+            lastLoginAt: new Date()
+          })
+          .where(eq(users.id, userRecord.id))
+          .returning().then(res => res[0]);
+          
+        console.log('✅ Successfully linked user to Stack Auth ID');
+      } else if (userRecord && userRecord.stackAuthId) {
+        // Update last login for existing linked user
+        userRecord = await db.update(users)
+          .set({ 
+            lastLoginAt: new Date(),
+            updatedAt: new Date()
+          })
+          .where(eq(users.id, userRecord.id))
+          .returning().then(res => res[0]);
+      }
+
+      if (!userRecord) {
+        console.log('❌ No user found by Stack Auth ID or email');
+        return { user: undefined, model: undefined };
+      }
+
+      // Now get the user model for this user
+      let userModel = await db.query.userModels.findFirst({
+        where: eq(userModels.userId, userRecord.id)
+      });
+
+      console.log('✅ Bulletproof lookup result:', {
+        foundUser: !!userRecord,
+        foundModel: !!userModel,
+        trainingStatus: userModel?.trainingStatus || 'none',
+        userEmail: userRecord.email
+      });
+
+      return { 
+        user: userRecord, 
+        model: userModel 
+      };
+
+    } catch (error) {
+      console.error('❌ Bulletproof user lookup failed:', error);
+      return { user: undefined, model: undefined };
+    }
   }
 
   async createUserModel(data: InsertUserModel): Promise<UserModel> {
