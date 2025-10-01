@@ -1,7 +1,7 @@
 import React from 'react';
 import * as stackAuth from '@stackframe/react';
 // @ts-ignore - Stack Auth has broken ESM exports, using workaround
-const { SignIn } = (stackAuth as any).default || stackAuth;
+const { SignIn, useStackApp } = (stackAuth as any).default || stackAuth;
 
 // Simple error boundary component for Stack Auth issues
 class StackAuthErrorBoundary extends React.Component<
@@ -30,70 +30,27 @@ class StackAuthErrorBoundary extends React.Component<
 }
 
 export const AuthSignIn: React.FC = () => {
-  // Add loading and error states for Stack Auth configuration issues
-  const [isLoading, setIsLoading] = React.useState(true);
+  // Use Stack Auth's built-in app hook to check initialization state
+  const stackApp = useStackApp();
+  
   const [hasError, setHasError] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState('');
 
-  React.useEffect(() => {
-    let mounted = true;
-    
-    // Check if Stack Auth configuration is available
-    const checkStackAuth = async () => {
-      try {
-        console.log('🔍 Initializing Stack Auth configuration...');
-        
-        // Wait for Stack Auth to fetch project configuration from their servers
-        // This prevents the "sign_up_enabled" undefined error
-        let attempts = 0;
-        const maxAttempts = 10;
-        
-        while (attempts < maxAttempts && mounted) {
-          try {
-            // Test if Stack Auth project configuration is loaded
-            // We do this by trying to access the SignIn component in a safe way
-            if (typeof SignIn !== 'undefined') {
-              console.log('✅ Stack Auth SignIn component available');
-              
-              // Additional wait to ensure project config is fully loaded
-              await new Promise(resolve => setTimeout(resolve, 500));
-              
-              if (mounted) {
-                setIsLoading(false);
-                console.log('✅ Stack Auth configuration ready');
-              }
-              return;
-            }
-          } catch (error) {
-            console.log(`🔄 Stack Auth not ready, attempt ${attempts + 1}/${maxAttempts}`);
-          }
-          
-          attempts++;
-          await new Promise(resolve => setTimeout(resolve, 1000));
-        }
-        
-        // If we get here, Stack Auth failed to initialize
-        throw new Error('Stack Auth failed to initialize after multiple attempts');
-        
-      } catch (error: any) {
-        console.error('❌ Stack Auth configuration error:', error);
-        if (mounted) {
-          setHasError(true);
-          setErrorMessage(error.message || 'Authentication system unavailable');
-          setIsLoading(false);
-        }
-      }
-    };
-
-    checkStackAuth();
-    
-    return () => {
-      mounted = false;
-    };
-  }, []);
+  // Check if Stack Auth app is ready (this waits for project configuration to load)
+  const isStackAuthReady = React.useMemo(() => {
+    try {
+      // Stack Auth app should be fully initialized when useStackApp returns a valid app
+      return !!(stackApp && stackApp.projectId);
+    } catch (error) {
+      console.error('❌ Stack Auth app check failed:', error);
+      setHasError(true);
+      setErrorMessage('Authentication system initialization failed');
+      return false;
+    }
+  }, [stackApp]);
 
   // Show loading state while Stack Auth initializes
-  if (isLoading) {
+  if (!isStackAuthReady && !hasError) {
     return (
       <div className="min-h-screen bg-stone-50 flex items-center justify-center px-4">
         <div className="w-full max-w-md space-y-8">
