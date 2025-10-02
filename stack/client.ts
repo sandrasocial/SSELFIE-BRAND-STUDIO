@@ -66,6 +66,35 @@ try {
     baseUrl: typeof window !== 'undefined' ? window.location.origin : undefined,
   });
 
+  // 🔥 CRITICAL FIX: Override token store methods to prevent "undefined" tokens
+  const originalTokenStore = (stackClientApp as any).tokenStore;
+  if (originalTokenStore) {
+    const originalGetItem = originalTokenStore.getItem?.bind(originalTokenStore);
+    const originalSetItem = originalTokenStore.setItem?.bind(originalTokenStore);
+
+    if (originalGetItem) {
+      originalTokenStore.getItem = (key: string) => {
+        const value = originalGetItem(key);
+        if (value === 'undefined' || value === undefined || value === null) {
+          console.warn(`🚨 Detected invalid token value for key "${key}": ${value}. Clearing.`);
+          originalTokenStore.removeItem?.(key);
+          return null;
+        }
+        return value;
+      };
+    }
+
+    if (originalSetItem) {
+      originalTokenStore.setItem = (key: string, value: string) => {
+        if (value === 'undefined' || value === undefined || value === null) {
+          console.error(`🚨 Attempted to set invalid token value for key "${key}": ${value}. Ignoring.`);
+          return;
+        }
+        originalSetItem(key, value);
+      };
+    }
+  }
+
   // Debug the Stack Auth instance
   console.log('🔍 Stack Auth Instance Created Successfully:', {
     projectId: stackClientApp.projectId,
