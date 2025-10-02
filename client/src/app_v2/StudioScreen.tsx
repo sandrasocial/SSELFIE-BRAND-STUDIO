@@ -32,7 +32,11 @@ interface UserModel {
   onboardingSource: string;
 }
 
-const StudioScreen: React.FC = () => {
+interface StudioScreenProps {
+  onTabChange?: (tabId: string) => void;
+}
+
+const StudioScreen: React.FC<StudioScreenProps> = ({ onTabChange }) => {
   const { user, isLoading: authLoading, isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
   const [selectedStyle, setSelectedStyle] = useState<any>(null);
@@ -175,7 +179,7 @@ const StudioScreen: React.FC = () => {
 
       {/* QuickAccessPanel Component */}
       <div>
-        <QuickAccessPanel />
+        <QuickAccessPanel onTabChange={onTabChange} />
       </div>
 
       {/* Main Session Panel */}
