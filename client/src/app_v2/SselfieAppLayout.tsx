@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/use-auth.js';
+import { useLocation } from 'wouter';
 import { Camera, Grid, User, Settings, MessageCircle } from 'lucide-react';
 
 // Import screen components
@@ -106,15 +107,17 @@ const TabBar: React.FC<TabBarProps> = ({ activeTab, onTabChange }) => {
 interface MainContentProps {
   activeTab: string;
   onTabChange: (tabId: string) => void;
+  initialPrompt: string | null;
+  onPromptUsed: () => void;
 }
 
-const MainContent: React.FC<MainContentProps> = ({ activeTab, onTabChange }) => {
+const MainContent: React.FC<MainContentProps> = ({ activeTab, onTabChange, initialPrompt, onPromptUsed }) => {
   const renderContent = () => {
     switch (activeTab) {
       case 'studio':
         return <StudioScreen onTabChange={onTabChange} />;
       case 'maya':
-        return <MayaScreen />;
+        return <MayaScreen initialPrompt={initialPrompt} onPromptUsed={onPromptUsed} />;
       case 'gallery':
         return <GalleryScreen />;
       case 'profile':
@@ -138,12 +141,32 @@ const SselfieAppLayout: React.FC = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [activeTab, setActiveTab] = useState('studio');
   const [isLoading, setIsLoading] = useState(true);
+  const [initialPrompt, setInitialPrompt] = useState<string | null>(null);
   const { user, isLoading: authLoading } = useAuth();
+  const [location] = useLocation();
 
   useEffect(() => {
     const clockTimer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(clockTimer);
   }, []);
+
+  // Handle URL parameters for tab navigation and initial prompts
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const tabParam = urlParams.get('tab');
+    const promptParam = urlParams.get('prompt');
+    
+    if (tabParam && ['studio', 'maya', 'gallery', 'profile', 'more'].includes(tabParam)) {
+      setActiveTab(tabParam);
+    }
+    
+    if (promptParam) {
+      setInitialPrompt(decodeURIComponent(promptParam));
+      // Clear the URL parameters after capturing them
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, '', newUrl);
+    }
+  }, [location]);
 
   // Show loading screen while auth is loading or for minimum 1.5 seconds for smooth experience
   useEffect(() => {
@@ -182,7 +205,12 @@ const SselfieAppLayout: React.FC = () => {
           
           <StatusBar currentTime={currentTime} />
 
-          <MainContent activeTab={activeTab} onTabChange={handleTabChange} />
+          <MainContent 
+            activeTab={activeTab} 
+            onTabChange={handleTabChange} 
+            initialPrompt={initialPrompt}
+            onPromptUsed={() => setInitialPrompt(null)}
+          />
         </div>
       </div>
 
