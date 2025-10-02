@@ -1,22 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useLocation } from 'wouter';
 import { useAuth } from '../hooks/use-auth.js';
 import { apiFetch } from '../lib/api.js';
+import { WelcomeHeader } from '../components/WelcomeHeader.js';
+import { StyleSelector } from '../components/StyleSelector.js';
+import QuickAccessPanel from '../components/QuickAccessPanel.js';
+import GeneratedImagePreview from '../components/GeneratedImagePreview.js';
 import { 
-  Camera, 
   Zap, 
   Clock, 
   CheckCircle, 
   AlertCircle, 
   Play, 
   Settings,
-  Sparkles,
-  ArrowRight,
   RefreshCw,
-  Plus,
-  Grid as GridIcon,
-  ChevronRight
+  Plus
 } from 'lucide-react';
 
 interface UserModel {
@@ -36,6 +35,9 @@ interface UserModel {
 const StudioScreen: React.FC = () => {
   const { user, isLoading: authLoading, isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
+  const [selectedStyle, setSelectedStyle] = useState<any>(null);
+  const [generatedImages, setGeneratedImages] = useState<string[]>([]);
+  const [showStyleSelector, setShowStyleSelector] = useState(false);
 
   const { data: userModel, isLoading: modelLoading, error } = useQuery<UserModel>({
     queryKey: ['/api/user-model'],
@@ -135,14 +137,9 @@ const StudioScreen: React.FC = () => {
 
   return (
     <div className="space-y-8 pb-4">
-      {/* Header */}
-      <div className="pt-4 sm:pt-6 text-center">
-        <h1 className="text-3xl sm:text-5xl font-serif font-extralight tracking-[0.3em] text-stone-950 uppercase leading-none mb-3">
-          STUDIO
-        </h1>
-        <p className="text-xs tracking-[0.2em] uppercase font-light text-stone-500">
-          Creative Control Center
-        </p>
+      {/* WelcomeHeader Component */}
+      <div className="pt-4 sm:pt-6">
+        <WelcomeHeader />
       </div>
 
       {/* Stats Grid */}
@@ -174,6 +171,11 @@ const StudioScreen: React.FC = () => {
             <div className="text-xs font-light text-stone-600">Per Month</div>
           </div>
         </div>
+      </div>
+
+      {/* QuickAccessPanel Component */}
+      <div>
+        <QuickAccessPanel />
       </div>
 
       {/* Main Session Panel */}
@@ -219,7 +221,7 @@ const StudioScreen: React.FC = () => {
         {userModel?.trainingStatus === 'completed' && (
           <div className="space-y-3">
             <button
-              onClick={() => setLocation('/ai-generator')}
+              onClick={() => setShowStyleSelector(true)}
               className="w-full bg-stone-950 text-stone-50 py-4 sm:py-5 rounded-2xl font-light tracking-[0.15em] uppercase text-sm transition-all duration-200 hover:bg-stone-800 hover:transform hover:translate-y-[-1px] min-h-[52px] focus:outline-none focus:ring-2 focus:ring-stone-600/40 flex items-center justify-center gap-2"
             >
               <Play size={18} strokeWidth={1.5} />
@@ -239,40 +241,7 @@ const StudioScreen: React.FC = () => {
         )}
       </div>
 
-      {/* Action Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-        <button 
-          onClick={() => setLocation('/maya')}
-          className="bg-stone-100/50 border border-stone-200/40 rounded-2xl p-6 text-left hover:bg-stone-100/70 hover:border-stone-300/50 transition-all duration-200 group min-h-[110px] flex flex-col justify-between"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-10 h-10 bg-stone-500/10 rounded-xl flex items-center justify-center border border-stone-400/20">
-              <Sparkles size={18} className="text-stone-600" strokeWidth={1.5} />
-            </div>
-            <ChevronRight size={16} className="text-stone-400 group-hover:text-stone-600 transition-colors" strokeWidth={1.5} />
-          </div>
-          <div>
-            <h4 className="text-base font-light text-stone-950 mb-2">Chat with Maya</h4>
-            <p className="text-xs font-light text-stone-500">AI styling consultant</p>
-          </div>
-        </button>
 
-        <button 
-          onClick={() => setLocation('/sselfie-gallery')}
-          className="bg-stone-100/50 border border-stone-200/40 rounded-2xl p-6 text-left hover:bg-stone-100/70 hover:border-stone-300/50 transition-all duration-200 group min-h-[110px] flex flex-col justify-between"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-10 h-10 bg-stone-500/10 rounded-xl flex items-center justify-center border border-stone-400/20">
-              <GridIcon size={18} className="text-stone-600" strokeWidth={1.5} />
-            </div>
-            <ChevronRight size={16} className="text-stone-400 group-hover:text-stone-600 transition-colors" strokeWidth={1.5} />
-          </div>
-          <div>
-            <h4 className="text-base font-light text-stone-950 mb-2">Browse Gallery</h4>
-            <p className="text-xs font-light text-stone-500">View completed work</p>
-          </div>
-        </button>
-      </div>
 
       {/* Activity Log */}
       <div className="space-y-6">
@@ -313,6 +282,61 @@ const StudioScreen: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* Generated Images Section */}
+      {generatedImages.length > 0 && (
+        <div className="bg-stone-100/50 border border-stone-200/40 rounded-3xl p-6 sm:p-8">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-lg font-serif font-extralight tracking-[0.1em] text-stone-950 uppercase">
+              Generated Images
+            </h3>
+            <span className="text-xs tracking-[0.15em] uppercase font-light text-stone-500">
+              {generatedImages.length} Images
+            </span>
+          </div>
+          <GeneratedImagePreview
+            imageUrls={generatedImages}
+            isLoading={false}
+            concept={{
+              title: "Studio Generated Images",
+              description: "Images generated through the studio interface"
+            }}
+            onSave={(urls) => console.log('Saving images:', urls)}
+          />
+        </div>
+      )}
+
+      {/* StyleSelector Modal */}
+      {showStyleSelector && (
+        <div className="fixed inset-0 bg-stone-950/95 backdrop-blur-sm z-50 flex items-center justify-center p-4 sm:p-8">
+          <div className="max-w-4xl w-full max-h-[90vh] overflow-y-auto bg-white rounded-3xl p-6 sm:p-8 shadow-2xl">
+            <div className="flex items-center justify-between mb-8">
+              <div>
+                <h2 className="text-2xl font-serif font-extralight tracking-[0.2em] uppercase text-stone-950 mb-2">
+                  Choose Your Style
+                </h2>
+                <p className="text-stone-600 font-light">Select a photography style for your professional photos</p>
+              </div>
+              <button
+                onClick={() => setShowStyleSelector(false)}
+                className="p-3 hover:bg-stone-100 rounded-2xl transition-colors"
+              >
+                <Plus size={20} className="text-stone-600 rotate-45" strokeWidth={1.5} />
+              </button>
+            </div>
+            
+            <StyleSelector
+              onStyleSelect={(style) => {
+                setSelectedStyle(style);
+                setShowStyleSelector(false);
+                // Navigate to generation page with selected style
+                setLocation(`/ai-generator?style=${style.id}`);
+              }}
+              selectedStyleId={selectedStyle?.id}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
