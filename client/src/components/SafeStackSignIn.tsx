@@ -3,6 +3,13 @@ import { SignIn as StackSignIn, useStackApp } from '@stackframe/react';
 
 // Custom Stack Auth SignIn wrapper that handles project configuration errors gracefully
 export const SafeStackSignIn: React.FC = () => {
+  // Redirect to '/' after successful authentication
+  const { isAuthenticated } = require('../hooks/use-auth');
+  React.useEffect(() => {
+    if (isAuthenticated && window.location.pathname !== "/") {
+      window.location.replace("/");
+    }
+  }, [isAuthenticated]);
   const [hasProjectError, setHasProjectError] = React.useState(false);
   
   React.useEffect(() => {
@@ -105,6 +112,7 @@ export const SafeStackSignIn: React.FC = () => {
                 WELCOME TO SSELFIE
               </h2>
             </div>
+            {/* Remove invalid prop: successRedirectUrl is not supported by StackSignIn */}
             <StackSignIn />
           </div>
         </div>
