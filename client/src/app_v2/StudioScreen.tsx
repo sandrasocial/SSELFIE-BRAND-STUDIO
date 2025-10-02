@@ -14,7 +14,8 @@ import {
   AlertCircle, 
   Settings,
   RefreshCw,
-  Camera
+  Camera,
+  Plus
 } from 'lucide-react';
 
 interface UserModel {
