@@ -7,10 +7,14 @@ interface QuickAction {
   description: string;
   icon: React.ElementType;
   imageUrl?: string;
-  onClick: () => void;
+  tabId: string;
 }
 
-export default function QuickAccessPanel() {
+interface QuickAccessPanelProps {
+  onTabChange?: (tabId: string) => void;
+}
+
+export default function QuickAccessPanel({ onTabChange }: QuickAccessPanelProps) {
   const quickActions: QuickAction[] = [
     {
       id: 'new-shoot',
@@ -18,7 +22,7 @@ export default function QuickAccessPanel() {
       description: 'Start creating',
       icon: Camera,
       imageUrl: 'https://i.postimg.cc/Y9xDCmzs/Lovephotography.jpg',
-      onClick: () => window.location.href = '/studio'
+      tabId: 'studio'
     },
     {
       id: 'chat-maya',
@@ -26,7 +30,7 @@ export default function QuickAccessPanel() {
       description: 'Get styling advice',
       icon: MessageCircle,
       imageUrl: 'https://i.postimg.cc/mD464SCd/42.jpg',
-      onClick: () => window.location.href = '/maya'
+      tabId: 'maya'
     },
     {
       id: 'browse-gallery',
@@ -34,7 +38,7 @@ export default function QuickAccessPanel() {
       description: 'View your photos',
       icon: Grid,
       imageUrl: 'https://i.postimg.cc/NMtPtxmS/45.jpg',
-      onClick: () => window.location.href = '/sselfie-gallery'
+      tabId: 'gallery'
     },
     {
       id: 'view-profile',
@@ -42,7 +46,7 @@ export default function QuickAccessPanel() {
       description: 'Manage account',
       icon: User,
       imageUrl: 'https://i.postimg.cc/bJPFPRkM/47.jpg',
-      onClick: () => window.location.href = '/profile'
+      tabId: 'profile'
     }
   ];
 
@@ -67,7 +71,7 @@ export default function QuickAccessPanel() {
             return (
               <button
                 key={action.id}
-                onClick={action.onClick}
+                onClick={() => onTabChange?.(action.tabId)}
                 className="group relative overflow-hidden rounded-2xl border border-stone-200/40 hover:border-stone-300/60 transition-all duration-200 hover:scale-[1.02] flex-shrink-0"
                 style={{ width: '160px' }}
               >

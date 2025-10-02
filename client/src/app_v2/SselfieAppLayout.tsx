@@ -105,13 +105,14 @@ const TabBar: React.FC<TabBarProps> = ({ activeTab, onTabChange }) => {
 // Main Content Component
 interface MainContentProps {
   activeTab: string;
+  onTabChange: (tabId: string) => void;
 }
 
-const MainContent: React.FC<MainContentProps> = ({ activeTab }) => {
+const MainContent: React.FC<MainContentProps> = ({ activeTab, onTabChange }) => {
   const renderContent = () => {
     switch (activeTab) {
       case 'studio':
-        return <StudioScreen />;
+        return <StudioScreen onTabChange={onTabChange} />;
       case 'maya':
         return <MayaScreen />;
       case 'gallery':
@@ -121,7 +122,7 @@ const MainContent: React.FC<MainContentProps> = ({ activeTab }) => {
       case 'more':
         return <SettingsScreen />;
       default:
-        return <StudioScreen />;
+        return <StudioScreen onTabChange={onTabChange} />;
     }
   };
 
@@ -181,7 +182,7 @@ const SselfieAppLayout: React.FC = () => {
           
           <StatusBar currentTime={currentTime} />
 
-          <MainContent activeTab={activeTab} />
+          <MainContent activeTab={activeTab} onTabChange={handleTabChange} />
         </div>
       </div>
 
