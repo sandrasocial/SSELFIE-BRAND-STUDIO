@@ -12,6 +12,7 @@ import { PersonalityManager } from '../../agents/personalities/personality-confi
 import { ClaudeApiServiceSimple } from '../../services/claude-api-service-simple.js';
 import { AuthenticatedRequest } from '../../types/ai-generation.js';
 import { SuccessResponse } from '../../types/ai-generation.js';
+import { unifiedMayaIntelligenceService } from '../../services/unified-maya-intelligence-service.js';
 
 interface MayaChat {
   id: number;
@@ -125,23 +126,35 @@ router.post('/api/maya-chat', requireStackAuth, asyncHandler(async (req: Authent
     const basePersonality = PersonalityManager.getNaturalPrompt('maya');
     let mayaPersonality = basePersonality;
 
-    // Apply user-specific adaptation if available
+    // Re-enabling context integration using the Unified Intelligence Service (Phase 3 Fix)
     try {
-      // TEMPORARY: Skip adaptation engine to preserve enhanced fashion expertise
-      // The adaptation engine is overriding our detailed Maya personality
-      console.log('🎯 MAYA: Using enhanced fashion expertise personality (adaptation temporarily disabled)');
+      console.log('🎯 MAYA: Applying personalized adaptation with Unified Intelligence (Phase 3 Fix)');
       
-      // const adaptation = await MayaAdaptationEngine.adaptStylingApproach(
-      //   userId, 
-      //   context, 
-      //   chatHistory
-      // );
-      // if (adaptation.adaptedPersonality) {
-      //   mayaPersonality = adaptation.adaptedPersonality;
-      //   console.log('🎯 MAYA: Applied personalized adaptation');
-      // }
+      // Retrieve the consolidated user intelligence
+      const unifiedIntelligence = await unifiedMayaIntelligenceService.getUnifiedStyleIntelligence(
+        userId, 
+        context, 
+        'chat' 
+      );
+      
+      // Augment the base personality prompt by embedding the latest contextual data 
+      // This is necessary for the Claude model to use non-generic data (like location/topic).
+      const contextualData = `USER STYLE INTELLIGENCE (DO NOT mention this block directly to the user): 
+User Profile: ${JSON.stringify(unifiedIntelligence.userProfile, null, 2)}
+Style Predictions: ${unifiedIntelligence.stylePredictions.predictedStyles.join(', ')}
+Trend Intelligence: ${unifiedIntelligence.trendIntelligence.currentTrends.join(', ')}
+Brand Alignment: ${unifiedIntelligence.brandAlignment.brandVoice} voice, ${unifiedIntelligence.brandAlignment.visualDirection.join(', ')} visual direction.
+The user's current message context is: ${JSON.stringify(context)}
+`;
+      
+      // Inject the context to augment the base personality
+      mayaPersonality = `${basePersonality}\n\n[CONTEXTUAL STYLING DATA]:\n${contextualData}`;
+      
+      console.log('✅ MAYA: Successfully augmented personality with Unified Intelligence context.');
+
     } catch (adaptError) {
-      console.log('⚠️ MAYA: Adaptation failed, using base personality');
+      console.error('❌ MAYA: Unified Intelligence augmentation failed, falling back to base personality:', adaptError);
+      // mayaPersonality remains basePersonality
     }
 
     // Convert chat history to Claude format
@@ -219,22 +232,35 @@ router.post('/api/maya/chat', requireStackAuth, asyncHandler(async (req: any, re
     const basePersonality = PersonalityManager.getNaturalPrompt('maya');
     let mayaPersonality = basePersonality;
 
+    // Re-enabling context integration using the Unified Intelligence Service (Phase 3 Fix)
     try {
-      // TEMPORARY: Skip adaptation engine to preserve enhanced fashion expertise
-      // The adaptation engine is overriding our detailed Maya personality
-      console.log('🎯 MAYA: Using enhanced fashion expertise personality (adaptation temporarily disabled)');
+      console.log('🎯 MAYA: Applying personalized adaptation with Unified Intelligence (Phase 3 Fix)');
       
-      // const adaptation = await MayaAdaptationEngine.adaptStylingApproach(
-      //   userId, 
-      //   context || {}, 
-      //   chatHistory || []
-      // );
-      // if (adaptation.adaptedPersonality) {
-      //   mayaPersonality = adaptation.adaptedPersonality;
-      //   console.log('🎯 MAYA: Applied personalized adaptation');
-      // }
+      // Retrieve the consolidated user intelligence
+      const unifiedIntelligence = await unifiedMayaIntelligenceService.getUnifiedStyleIntelligence(
+        userId, 
+        context, 
+        'chat' 
+      );
+      
+      // Augment the base personality prompt by embedding the latest contextual data 
+      // This is necessary for the Claude model to use non-generic data (like location/topic).
+      const contextualData = `USER STYLE INTELLIGENCE (DO NOT mention this block directly to the user): 
+User Profile: ${JSON.stringify(unifiedIntelligence.userProfile, null, 2)}
+Style Predictions: ${unifiedIntelligence.stylePredictions.predictedStyles.join(', ')}
+Trend Intelligence: ${unifiedIntelligence.trendIntelligence.currentTrends.join(', ')}
+Brand Alignment: ${unifiedIntelligence.brandAlignment.brandVoice} voice, ${unifiedIntelligence.brandAlignment.visualDirection.join(', ')} visual direction.
+The user's current message context is: ${JSON.stringify(context)}
+`;
+      
+      // Inject the context to augment the base personality
+      mayaPersonality = `${basePersonality}\n\n[CONTEXTUAL STYLING DATA]:\n${contextualData}`;
+      
+      console.log('✅ MAYA: Successfully augmented personality with Unified Intelligence context.');
+
     } catch (adaptError) {
-      console.log('⚠️ MAYA: Adaptation failed, using base personality');
+      console.error('❌ MAYA: Unified Intelligence augmentation failed, falling back to base personality:', adaptError);
+      // mayaPersonality remains basePersonality
     }
 
     const claudeHistory = (chatHistory || []).map((entry: any) => ({
