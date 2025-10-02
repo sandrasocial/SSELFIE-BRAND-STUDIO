@@ -1,113 +1,332 @@
 import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../hooks/use-auth.js';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { apiRequest } from '../lib/queryClient.js';
 import { apiFetch } from '../lib/api.js';
-import VideoGenerateDialog from '../features/video/VideoGenerateDialog.js';
-import { 
-  Grid, 
-  Search, 
-  Download, 
-  Share2, 
-  Play, 
-  MoreHorizontal,
-  Eye,
-  X,
-  AlertCircle,
-  RefreshCw,
-  Heart,
-  Plus
-} from 'lucide-react';
+import ErrorBoundary from '../components/ErrorBoundary.js';
+import StoryStudioModal from '../components/StoryStudioModal.js';
+import BrandAssetPlacementModal from '../components/BrandAssetPlacementModal.js';
+import { VideoGenerateDialog } from '../features/video/index.js';
+import { Camera, Grid, Search, MoreHorizontal, Heart, Download, Trash2, Play, Plus, Filter, Calendar, Star, Eye, X, Check, SortAsc, SortDesc } from 'lucide-react';
 
+// ImageDetailModal Component
 interface GalleryImage {
-  id: string;
-  userId: string;
-  type: 'ai_generated' | 'generated';
-  title: string;
-  description: string;
-  imageUrl: string;
-  createdAt: string;
-  tags: string[];
+  id: string | number;
+  imageUrl?: string;
+  url?: string;
+  title?: string;
+  source?: string;
+}
+
+function ImageDetailModal({ 
+  selectedImage, 
+  onClose, 
+  onToggleFavorite, 
+  onDownload, 
+  onDelete, 
+  onCreateVideo,
+  onPlaceBrandAsset,
+  isFavorite 
+}: {
+  selectedImage: GalleryImage;
+  onClose: () => void;
+  onToggleFavorite: () => void;
+  onDownload: () => void;
+  onDelete: () => void;
+  onCreateVideo: () => void;
+  onPlaceBrandAsset: () => void;
+  isFavorite: boolean;
+}) {
+  return (
+    <div 
+      className="fixed inset-0 bg-stone-950/95 backdrop-blur-sm z-50 flex items-center justify-center p-4 sm:p-8"
+      onClick={onClose}
+    >
+      <div 
+        className="max-w-6xl max-h-[95vh] w-full flex flex-col bg-white rounded-3xl overflow-hidden shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 sm:p-8 border-b border-stone-200/40 bg-stone-50">
+          <div className="flex items-center gap-4 sm:gap-6">
+            <div className="p-3 bg-stone-100 rounded-2xl border border-stone-200/60">
+              <Camera size={20} strokeWidth={1.5} className="text-stone-600" />
+            </div>
+            <div>
+              <h3 className="text-lg font-serif font-extralight tracking-[0.2em] uppercase text-stone-950">Image Details</h3>
+              <p className="text-xs tracking-[0.15em] uppercase text-stone-500 font-light">Professional Portrait</p>
+            </div>
+          </div>
+          
+        <button
+          onClick={onClose}
+            className="p-3 hover:bg-stone-200/60 rounded-2xl transition-colors"
+          aria-label="Close modal"
+        >
+            <X size={20} className="text-stone-600" strokeWidth={1.5} />
+        </button>
+        </div>
+        
+        {/* Image */}
+        <div className="flex-1 flex items-center justify-center p-8 bg-stone-50 overflow-auto">
+          <img 
+            src={selectedImage.imageUrl || selectedImage.url || ''} 
+            alt={selectedImage.title || 'Gallery image'} 
+            className="max-w-full max-h-[70vh] object-contain rounded-2xl shadow-2xl"
+          />
+        </div>
+        
+        {/* Actions */}
+        <div className="p-6 sm:p-8 border-t border-stone-200/40 bg-white">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+            <button 
+              onClick={onToggleFavorite}
+              className="flex items-center justify-center gap-2 py-3 px-4 bg-stone-100 hover:bg-stone-200 rounded-2xl transition-colors text-xs tracking-[0.15em] uppercase font-light"
+            >
+              <Heart size={16} className={isFavorite ? 'text-red-500 fill-current' : 'text-stone-600'} strokeWidth={1.5} />
+              {isFavorite ? 'Unfavorite' : 'Favorite'}
+            </button>
+            
+            <button 
+              onClick={onCreateVideo}
+              className="flex items-center justify-center gap-2 py-3 px-4 bg-stone-100 hover:bg-stone-200 rounded-2xl transition-colors text-xs tracking-[0.15em] uppercase font-light text-stone-600"
+            >
+              <Play size={16} className="text-stone-600" strokeWidth={1.5} />
+              Make Video
+            </button>
+            
+            {/* P3-C: Brand Asset Placement Feature */}
+            {process.env.REACT_APP_BRAND_ASSETS_ENABLED === '1' && (
+              <button 
+                onClick={onPlaceBrandAsset}
+                className="flex items-center justify-center gap-2 py-3 px-4 bg-stone-100 hover:bg-stone-200 rounded-2xl transition-colors text-xs tracking-[0.15em] uppercase font-light text-stone-600"
+              >
+                <Plus size={16} className="text-stone-600" strokeWidth={1.5} />
+                Brand Asset
+              </button>
+            )}
+            
+            <button 
+              onClick={onDownload}
+              className="flex items-center justify-center gap-2 py-3 px-4 bg-stone-100 hover:bg-stone-200 rounded-2xl transition-colors text-xs tracking-[0.15em] uppercase font-light text-stone-600"
+            >
+              <Download size={16} className="text-stone-600" strokeWidth={1.5} />
+              Download
+            </button>
+            
+            <button 
+              onClick={onDelete}
+              className="flex items-center justify-center gap-2 py-3 px-4 bg-red-50 hover:bg-red-100 rounded-2xl transition-colors text-xs tracking-[0.15em] uppercase font-light text-red-600"
+            >
+              <Trash2 size={16} className="text-red-600" strokeWidth={1.5} />
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 const GalleryScreen: React.FC = () => {
-  const { user, isLoading: authLoading, isAuthenticated } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
+  const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
+  const [isVideoDialogOpen, setIsVideoDialogOpen] = useState(false);
+  const [isBrandPlacementModalOpen, setIsBrandPlacementModalOpen] = useState(false);
+  const [selectedImages, setSelectedImages] = useState<Set<string | number>>(new Set());
+  const [viewMode, setViewMode] = useState<'grid' | 'masonry'>('grid');
+  const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'favorites'>('newest');
+  const [filterBy, setFilterBy] = useState<'all' | 'favorites' | 'recent'>('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [filterTag, setFilterTag] = useState<string>('all');
-  const [showVideoDialog, setShowVideoDialog] = useState(false);
-  const [videoImageId, setVideoImageId] = useState<string>('');
-  const [videoImageUrl, setVideoImageUrl] = useState<string>('');
+  const [showFilters, setShowFilters] = useState(false);
+  const queryClient = useQueryClient();
 
-  // Fetch gallery images
-  const { data: images = [], isLoading: imagesLoading, error, refetch } = useQuery<GalleryImage[]>({
+  // Fetch user's gallery images
+  const { data: aiImagesData, isLoading } = useQuery<GalleryImage[]>({
     queryKey: ['/api/gallery-images'],
-    enabled: !!user && isAuthenticated,
-    retry: false,
-    staleTime: 60 * 1000,
-    queryFn: () => apiFetch('/gallery-images')
+    enabled: isAuthenticated && !!user,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    queryFn: async () => {
+      // Force correct API base and JSON handling
+      const data = await apiFetch('/gallery-images');
+      return Array.isArray(data) ? data : (data?.images || []);
+    }
   });
 
-  const handleDownload = async (image: GalleryImage) => {
-    try {
-      const response = await fetch(image.imageUrl);
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `sselfie-${image.id}.jpg`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-    } catch (error) {
-      console.error('Download failed:', error);
+  // Defensive check: ensure aiImages is always an array
+  const aiImages = Array.isArray(aiImagesData) ? aiImagesData : [];
+
+  // Fetch user's favorites
+  const { data: favoritesData } = useQuery<{ favorites: number[] }>({
+    queryKey: ['/api/images/favorites'],
+    enabled: isAuthenticated && !!user,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
+
+  const favorites: number[] = favoritesData?.favorites || [];
+
+  // Filter and sort images
+  const filteredImages = React.useMemo(() => {
+    let filtered = aiImages;
+
+    // Apply search filter
+    if (searchQuery) {
+      filtered = filtered.filter(image => 
+        (image.title || '').toLowerCase().includes(searchQuery.toLowerCase())
+      );
     }
+
+    // Apply category filter
+    if (filterBy === 'favorites') {
+      filtered = filtered.filter(image => 
+        favorites.includes(typeof image.id === 'string' ? parseInt(image.id, 10) : image.id)
+      );
+    } else if (filterBy === 'recent') {
+      // Filter for images created in last 7 days (mock implementation)
+      filtered = filtered.slice(0, 10);
+    }
+
+    // Apply sorting
+    if (sortBy === 'newest') {
+      filtered = [...filtered].reverse();
+    } else if (sortBy === 'oldest') {
+      filtered = [...filtered];
+    } else if (sortBy === 'favorites') {
+      filtered = filtered.sort((a, b) => {
+        const bIsFavorite = favorites.includes(typeof b.id === 'string' ? parseInt(b.id, 10) : b.id);
+        const aIsFavorite = favorites.includes(typeof a.id === 'string' ? parseInt(a.id, 10) : a.id);
+        return bIsFavorite ? 1 : -1;
+      });
+    }
+
+    return filtered;
+  }, [aiImages, searchQuery, filterBy, sortBy, favorites]);
+
+  // Gallery statistics
+  const galleryStats = React.useMemo(() => ({
+    total: aiImages.length,
+    favorites: favorites.length,
+    recent: Math.min(aiImages.length, 10),
+    selected: selectedImages.size
+  }), [aiImages.length, favorites.length, selectedImages.size]);
+
+  // Toggle favorite mutation
+  const toggleFavoriteMutation = useMutation({
+    mutationFn: async (imageId: number) => {
+      return await apiRequest(`/api/images/${imageId}/favorite`, 'POST');
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/images/favorites'] });
+    },
+  });
+
+  // Delete image mutation
+  const deleteImageMutation = useMutation({
+    mutationFn: async (imageId: number) => {
+      return await apiRequest(`/api/ai-images/${imageId}`, 'DELETE');
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/gallery-images'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/images/favorites'] });
+      setSelectedImage(null); // Close modal after deletion
+    }
+  });
+
+  const downloadImage = (imageUrl: string, filename?: string) => {
+    try {
+      const link = document.createElement('a');
+      link.href = imageUrl;
+      link.download = filename || 'sselfie-image';
+      link.target = '_blank';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('Error downloading image:', error);
+    }
+  };
+
+  const toggleFavorite = (imageId: string | number) => {
+    const numericId = typeof imageId === 'string' ? parseInt(imageId, 10) : imageId;
+    toggleFavoriteMutation.mutate(numericId);
+  };
+
+  const deleteImage = (imageId: string | number) => {
+    if (window.confirm('Are you sure you want to delete this photo?')) {
+      const numericId = typeof imageId === 'string' ? parseInt(imageId, 10) : imageId;
+      deleteImageMutation.mutate(numericId);
+    }
+  };
+
+  const handleOpenVideoDialog = () => {
+    setIsVideoDialogOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedImage(null);
+  };
+
+  const handleDownload = () => {
+    if (selectedImage) {
+      const src = selectedImage.imageUrl || selectedImage.url || '';
+      downloadImage(src, selectedImage.title || 'sselfie-image');
+    }
+  };
+
+  const handleDelete = () => {
+    if (selectedImage) {
+      deleteImage(selectedImage.id);
+    }
+  };
+
+  const handleToggleFavorite = () => {
+    if (selectedImage) {
+      toggleFavorite(selectedImage.id);
+    }
+  };
+
+  const handleCreateVideo = () => {
+    handleOpenVideoDialog();
+  };
+
+  const handlePlaceBrandAsset = () => {
+    // Keep the selected image but close the detail modal and open brand placement modal
+    setIsBrandPlacementModalOpen(true);
+  };
+
+  // Keep old handlers for compatibility
+  const handleDownloadOld = async (image: GalleryImage) => {
+    const src = image.imageUrl || image.url || '';
+    downloadImage(src, image.title || 'sselfie-image');
   };
 
   const handleShare = async (image: GalleryImage) => {
+    const src = image.imageUrl || image.url || '';
     if (navigator.share) {
       try {
         await navigator.share({
-          title: image.title,
-          text: image.description,
-          url: image.imageUrl,
+          title: image.title || 'SSELFIE Image',
+          url: src,
         });
       } catch (error) {
         // Fallback to clipboard
-        handleCopyLink(image);
+        await navigator.clipboard.writeText(src);
       }
     } else {
-      handleCopyLink(image);
+      await navigator.clipboard.writeText(src);
     }
   };
 
-  const handleCopyLink = async (image: GalleryImage) => {
-    try {
-      await navigator.clipboard.writeText(image.imageUrl);
-      // You could add a toast notification here
-    } catch (error) {
-      console.error('Copy to clipboard failed:', error);
-    }
+  const handleCreateVideoOld = (image: GalleryImage) => {
+    setSelectedImage(image);
+    setIsVideoDialogOpen(true);
   };
 
-  const handleCreateVideo = (image: GalleryImage) => {
-    setVideoImageId(image.id);
-    setVideoImageUrl(image.imageUrl);
-    setShowVideoDialog(true);
-  };
-
-  // Filter images based on search and tag
-  const filteredImages = images.filter(image => {
-    const matchesSearch = image.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         image.description.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesTag = filterTag === 'all' || image.tags.includes(filterTag);
-    return matchesSearch && matchesTag;
-  });
-
-  // Get unique tags for filter
-  const uniqueTags = ['all', ...Array.from(new Set(images.flatMap(img => img.tags)))];
-
-  if (authLoading || imagesLoading) {
+  if (isLoading) {
     return (
       <div className="space-y-8 pb-4 pt-4 sm:pt-6">
         <div className="text-center">
@@ -133,88 +352,109 @@ const GalleryScreen: React.FC = () => {
     );
   }
 
-  if (error) {
-    return (
-      <div className="space-y-8 pb-4 pt-4 sm:pt-6">
-        <div className="text-center">
-          <AlertCircle className="h-16 w-16 text-red-500 mx-auto mb-6" strokeWidth={1} />
-          <h2 className="text-2xl font-serif font-extralight tracking-[0.3em] text-stone-950 uppercase mb-2">Unable to Load Gallery</h2>
-          <p className="text-stone-600 mb-4 font-light">We're having trouble loading your images.</p>
-          <button 
-            onClick={() => refetch()}
-            className="px-6 py-3 bg-stone-950 text-stone-50 rounded-2xl font-light tracking-[0.15em] uppercase text-sm transition-all duration-200 hover:bg-stone-800 inline-flex items-center gap-2"
-          >
-            <RefreshCw size={16} strokeWidth={1.5} />
-            Try Again
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   return (
+    <ErrorBoundary>
     <div className="space-y-8 pb-4">
       {/* Gallery header */}
       <div className="flex justify-between items-start pt-4">
         <div className="space-y-4 flex-1 min-w-0">
           <h2 className="text-3xl sm:text-5xl font-serif font-extralight tracking-[0.3em] text-stone-950 uppercase leading-none">Gallery</h2>
-          <p className="text-xs tracking-[0.2em] uppercase font-light text-stone-500">Your Beautiful Photos</p>
+          <p className="text-xs tracking-[0.2em] uppercase font-light text-stone-500">
+            {galleryStats.total} Photos • {galleryStats.favorites} Favorites
+            {galleryStats.selected > 0 && ` • ${galleryStats.selected} Selected`}
+          </p>
         </div>
         <div className="flex space-x-3 ml-6 flex-shrink-0">
-          <button className="p-4 bg-stone-100/50 rounded-2xl border border-stone-200/40 transition-all duration-200 hover:scale-[1.02] hover:bg-stone-100/70">
-            <Search size={18} strokeWidth={1.5} className="text-stone-600" />
+          <button 
+            onClick={() => setShowFilters(!showFilters)}
+            className={`p-4 rounded-2xl border transition-all duration-200 hover:scale-[1.02] ${
+              showFilters 
+                ? 'bg-stone-200/70 border-stone-300/60' 
+                : 'bg-stone-100/50 border-stone-200/40 hover:bg-stone-100/70'
+            }`}
+          >
+            <Filter size={18} strokeWidth={1.5} className="text-stone-600" />
           </button>
-          <button className="p-4 bg-stone-100/50 rounded-2xl border border-stone-200/40 hover:bg-stone-100/70 hover:border-stone-300/50 transition-all duration-200 hover:scale-[1.02]">
-            <MoreHorizontal size={18} className="text-stone-600 hover:text-stone-800 transition-colors" strokeWidth={1.5} />
+          <button 
+            onClick={() => setViewMode(viewMode === 'grid' ? 'masonry' : 'grid')}
+            className="p-4 bg-stone-100/50 rounded-2xl border border-stone-200/40 hover:bg-stone-100/70 hover:border-stone-300/50 transition-all duration-200 hover:scale-[1.02]"
+          >
+            <Grid size={18} className="text-stone-600 hover:text-stone-800 transition-colors" strokeWidth={1.5} />
           </button>
         </div>
       </div>
 
-      {/* Search and Filter */}
-      {images.length > 0 && (
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-stone-400" strokeWidth={1.5} />
-            <input
-              type="text"
-              placeholder="Search your images..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 pr-4 py-3 border border-stone-200/60 rounded-2xl focus:outline-none focus:ring-2 focus:ring-stone-600/40 focus:border-stone-600/60 bg-stone-100/40 w-full font-light text-sm"
-            />
+      {/* Enhanced Search and Filter */}
+      {showFilters && (
+        <div className="p-6 sm:p-8 bg-stone-100/40 border border-stone-200/50 rounded-2xl sm:rounded-3xl space-y-6">
+          <div className="flex items-center gap-4 sm:gap-6">
+            <div className="p-3 bg-stone-100 rounded-2xl border border-stone-200/60">
+              <Search size={20} strokeWidth={1.5} className="text-stone-600" />
+            </div>
+            <div>
+              <h3 className="text-lg font-serif font-extralight tracking-[0.15em] uppercase text-stone-950">Search & Filter</h3>
+              <p className="text-xs tracking-[0.1em] uppercase text-stone-500 font-light">Find Your Perfect Shot</p>
+            </div>
           </div>
-          <div>
-            <select
-              value={filterTag}
-              onChange={(e) => setFilterTag(e.target.value)}
-              className="px-4 py-3 border border-stone-200/60 rounded-2xl focus:outline-none focus:ring-2 focus:ring-stone-600/40 focus:border-stone-600/60 bg-stone-100/40 font-light text-sm min-w-[150px]"
-            >
-              {uniqueTags.map(tag => (
-                <option key={tag} value={tag}>
-                  {tag === 'all' ? 'All Images' : tag.charAt(0).toUpperCase() + tag.slice(1)}
-                </option>
-              ))}
-            </select>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Search Input */}
+            <div className="relative lg:col-span-2">
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-stone-400" strokeWidth={1.5} />
+              <input
+                type="text"
+                placeholder="Search photos..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-12 pr-4 py-4 border border-stone-200/60 rounded-2xl focus:outline-none focus:ring-2 focus:ring-stone-600/40 focus:border-stone-600/60 bg-white/60 w-full font-light text-sm"
+              />
+            </div>
+            
+            {/* Filter Dropdown */}
+            <div>
+              <select
+                value={filterBy}
+                onChange={(e) => setFilterBy(e.target.value as any)}
+                className="px-4 py-4 border border-stone-200/60 rounded-2xl focus:outline-none focus:ring-2 focus:ring-stone-600/40 focus:border-stone-600/60 bg-white/60 font-light text-sm w-full"
+              >
+                <option value="all">All Photos</option>
+                <option value="favorites">Favorites</option>
+                <option value="recent">Recent</option>
+              </select>
+            </div>
+            
+            {/* Sort Dropdown */}
+            <div>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as any)}
+                className="px-4 py-4 border border-stone-200/60 rounded-2xl focus:outline-none focus:ring-2 focus:ring-stone-600/40 focus:border-stone-600/60 bg-white/60 font-light text-sm w-full"
+              >
+                <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option>
+                <option value="favorites">Favorites First</option>
+              </select>
+            </div>
           </div>
         </div>
       )}
 
-      {/* Gallery Grid */}
+      {/* Enhanced Gallery Grid */}
       {filteredImages.length === 0 ? (
         <div className="text-center py-16">
           <Grid className="h-16 w-16 text-stone-300 mx-auto mb-4" strokeWidth={1} />
           <h3 className="text-lg font-serif font-extralight text-stone-900 mb-2 tracking-[0.15em] uppercase">
-            {searchQuery || filterTag !== 'all' ? 'No matching images' : 'No images yet'}
+            {searchQuery || filterBy !== 'all' ? 'No matching images' : 'No images yet'}
           </h3>
           <p className="text-stone-600 font-light mb-6">
-            {searchQuery || filterTag !== 'all' 
+            {searchQuery || filterBy !== 'all' 
               ? 'Try adjusting your search or filter'
               : 'Start generating images to build your gallery'
             }
           </p>
-          {!searchQuery && filterTag === 'all' && (
+          {!searchQuery && filterBy === 'all' && (
             <button
-              onClick={() => window.location.href = '/ai-generator'}
+              onClick={() => window.location.href = '/studio'}
               className="px-6 py-3 bg-stone-950 text-stone-50 rounded-2xl font-light tracking-[0.15em] uppercase text-sm transition-all duration-200 hover:bg-stone-800 inline-flex items-center gap-2"
             >
               Generate Your First Image
@@ -222,159 +462,179 @@ const GalleryScreen: React.FC = () => {
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-4 sm:gap-6">
-          {filteredImages.map((image) => (
-            <div
-              key={image.id}
-              className="relative group cursor-pointer overflow-hidden rounded-2xl sm:rounded-3xl"
-            >
-              <div className="aspect-square relative">
-                <img 
-                  src={image.imageUrl} 
-                  alt={image.title}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-stone-950/0 group-hover:bg-stone-950/30 transition-all duration-300"></div>
-                
-                <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 bg-gradient-to-t from-stone-950/80 via-stone-950/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300">
-                  <div className="flex justify-between items-end">
-                    <div className="space-y-2 flex-1 min-w-0">
-                      <span className="text-stone-50 text-xs tracking-[0.15em] uppercase font-light block truncate">{image.title}</span>
-                      <div className="flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 bg-stone-50 rounded-full"></div>
-                        <span className="text-xs font-light text-stone-200">Ready</span>
+        <div className={viewMode === 'masonry' ? 'columns-2 sm:columns-3 lg:columns-4 gap-4 sm:gap-6' : 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6'}>
+          {filteredImages.map((image) => {
+            const isFavorite = favorites.includes(typeof image.id === 'string' ? parseInt(image.id, 10) : image.id);
+            const imageId = typeof image.id === 'string' ? image.id : image.id.toString();
+            const isSelected = selectedImages.has(image.id);
+            
+            return (
+              <div
+                key={imageId}
+                className={`relative group cursor-pointer overflow-hidden rounded-2xl sm:rounded-3xl ${viewMode === 'masonry' ? 'mb-4 sm:mb-6 break-inside-avoid' : 'aspect-square'} ${isSelected ? 'ring-4 ring-stone-600/40' : ''}`}
+                onClick={() => setSelectedImage(image)}
+              >
+                <div className={viewMode === 'masonry' ? 'relative' : 'aspect-square relative'}>
+                  <img 
+                    src={image.imageUrl || image.url || ''} 
+                    alt={image.title || 'Gallery image'}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    loading="lazy"
+                  />
+                  
+                  {/* Video indicator overlay */}
+                  {(image.source === 'video' || image.title?.toLowerCase().includes('video')) && (
+                    <div className="absolute top-3 left-3">
+                      <div className="bg-stone-950/80 backdrop-blur-sm rounded-xl px-2 py-1 flex items-center gap-1">
+                        <Play size={12} className="text-stone-50" strokeWidth={1.5} />
+                        <span className="text-xs font-light text-stone-50 tracking-[0.1em] uppercase">Video</span>
                       </div>
                     </div>
-                    <div className="flex space-x-2 ml-4 flex-shrink-0">
-                      <button 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDownload(image);
-                        }}
-                        className="w-9 h-9 bg-stone-50/20 backdrop-blur-sm rounded-xl flex items-center justify-center hover:bg-stone-50/30 transition-colors duration-200"
-                      >
-                        <Download size={14} className="text-stone-50" strokeWidth={1.5} />
-                      </button>
-                      <button 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleShare(image);
-                        }}
-                        className="w-9 h-9 bg-stone-50/20 backdrop-blur-sm rounded-xl flex items-center justify-center hover:bg-stone-50/30 transition-colors duration-200"
-                      >
-                        <Share2 size={14} className="text-stone-50" strokeWidth={1.5} />
-                      </button>
-                      <button 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedImage(image);
-                        }}
-                        className="w-9 h-9 bg-stone-50/20 backdrop-blur-sm rounded-xl flex items-center justify-center hover:bg-stone-50/30 transition-colors duration-200"
-                      >
-                        <Eye size={14} className="text-stone-50" strokeWidth={1.5} />
-                      </button>
+                  )}
+                  
+                  {/* Heart favorite indicator */}
+                  <div className="absolute top-3 right-3">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleFavorite(image.id);
+                      }}
+                      className={`p-2 rounded-xl backdrop-blur-sm transition-all duration-200 ${
+                        isFavorite 
+                          ? 'bg-red-500/90 hover:bg-red-600/90' 
+                          : 'bg-stone-950/60 hover:bg-stone-950/80'
+                      }`}
+                    >
+                      <Heart 
+                        size={14} 
+                        className={isFavorite ? 'text-stone-50 fill-current' : 'text-stone-50'} 
+                        strokeWidth={1.5} 
+                      />
+                    </button>
+                  </div>
+                  
+                  <div className="absolute inset-0 bg-stone-950/0 group-hover:bg-stone-950/30 transition-all duration-300"></div>
+                  
+                  <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 bg-gradient-to-t from-stone-950/80 via-stone-950/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300">
+                    <div className="flex justify-between items-end">
+                      <div className="space-y-2 flex-1 min-w-0">
+                        <span className="text-stone-50 text-xs tracking-[0.15em] uppercase font-light block truncate">
+                          {image.title || 'Untitled'}
+                        </span>
+                        <div className="flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 bg-stone-50 rounded-full"></div>
+                          <span className="text-xs font-light text-stone-200">Ready</span>
+                        </div>
+                      </div>
+                      <div className="flex space-x-2 ml-4 flex-shrink-0">
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDownloadOld(image);
+                          }}
+                          className="w-9 h-9 bg-stone-50/20 backdrop-blur-sm rounded-xl flex items-center justify-center hover:bg-stone-50/30 transition-colors duration-200"
+                        >
+                          <Download size={14} className="text-stone-50" strokeWidth={1.5} />
+                        </button>
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleCreateVideoOld(image);
+                          }}
+                          className="w-9 h-9 bg-stone-50/20 backdrop-blur-sm rounded-xl flex items-center justify-center hover:bg-stone-50/30 transition-colors duration-200"
+                        >
+                          <Play size={14} className="text-stone-50" strokeWidth={1.5} />
+                        </button>
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            deleteImage(image.id);
+                          }}
+                          className="w-9 h-9 bg-red-500/20 backdrop-blur-sm rounded-xl flex items-center justify-center hover:bg-red-500/30 transition-colors duration-200"
+                        >
+                          <Trash2 size={14} className="text-red-400" strokeWidth={1.5} />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
       {/* Load more */}
-      {filteredImages.length > 0 && (
+      {filteredImages.length > 12 && (
         <div className="text-center pt-6">
           <button className="text-sm tracking-[0.2em] uppercase font-light border-b pb-2 flex items-center gap-2 mx-auto transition-colors duration-200 text-stone-600 border-stone-300/40 hover:text-stone-800 hover:border-stone-400/60">
             <Plus size={14} />
-            See More Photos
+            See More Photos ({filteredImages.length - 12} remaining)
           </button>
         </div>
       )}
 
-      {/* Image Detail Modal */}
+      {/* Enhanced Image Detail Modal */}
       {selectedImage && (
-        <div 
-          className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-          onClick={() => setSelectedImage(null)}
-        >
-          <div 
-            className="max-w-4xl max-h-[95vh] w-full flex flex-col bg-stone-100/95 backdrop-blur-xl rounded-3xl overflow-hidden border border-stone-200/60"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Modal Header */}
-            <div className="flex items-center justify-between p-6 border-b border-stone-200/40">
-              <div>
-                <h3 className="text-lg font-serif font-extralight tracking-[0.15em] text-stone-950 uppercase">{selectedImage.title}</h3>
-                <p className="text-sm text-stone-600 font-light">
-                  {new Date(selectedImage.createdAt).toLocaleDateString()}
-                </p>
-              </div>
-              <button
-                onClick={() => setSelectedImage(null)}
-                className="p-2 hover:bg-stone-200/50 rounded-xl transition-colors"
-              >
-                <X className="h-5 w-5 text-stone-600" strokeWidth={1.5} />
-              </button>
-            </div>
-            
-            {/* Modal Image */}
-            <div className="flex-1 flex items-center justify-center p-8 bg-stone-50/50">
-              <img 
-                src={selectedImage.imageUrl} 
-                alt={selectedImage.title} 
-                className="max-w-full max-h-[60vh] object-contain rounded-2xl shadow-lg"
-              />
-            </div>
-            
-            {/* Modal Actions */}
-            <div className="p-6 border-t border-stone-200/40 bg-stone-100/60">
-              <div className="flex items-center gap-3">
-                <button 
-                  onClick={() => handleDownload(selectedImage)}
-                  className="flex items-center gap-2 px-6 py-3 bg-stone-950 text-stone-50 rounded-2xl hover:bg-stone-800 transition-colors font-light tracking-[0.1em] uppercase text-sm"
-                >
-                  <Download size={16} strokeWidth={1.5} />
-                  Download
-                </button>
-                <button 
-                  onClick={() => handleShare(selectedImage)}
-                  className="flex items-center gap-2 px-6 py-3 text-stone-700 bg-stone-100/50 border border-stone-200/40 rounded-2xl hover:bg-stone-100/70 transition-colors font-light tracking-[0.1em] uppercase text-sm"
-                >
-                  <Share2 size={16} strokeWidth={1.5} />
-                  Share
-                </button>
-                <button 
-                  onClick={() => {
-                    handleCreateVideo(selectedImage);
-                    setSelectedImage(null);
-                  }}
-                  className="flex items-center gap-2 px-6 py-3 text-stone-700 bg-stone-100/50 border border-stone-200/40 rounded-2xl hover:bg-stone-100/70 transition-colors font-light tracking-[0.1em] uppercase text-sm"
-                >
-                  <Play size={16} strokeWidth={1.5} />
-                  Create Video
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <ImageDetailModal
+          selectedImage={selectedImage}
+          onClose={handleCloseModal}
+          onToggleFavorite={handleToggleFavorite}
+          onDownload={handleDownload}
+          onDelete={handleDelete}
+          onCreateVideo={handleCreateVideo}
+          onPlaceBrandAsset={handlePlaceBrandAsset}
+          isFavorite={favorites.includes(typeof selectedImage.id === 'string' ? parseInt(selectedImage.id, 10) : selectedImage.id)}
+        />
+      )}
+
+      {/* Story Studio Modal */}
+      {isVideoModalOpen && selectedImage && (
+        <StoryStudioModal
+          isOpen={isVideoModalOpen}
+          onClose={() => {
+            setIsVideoModalOpen(false);
+            setSelectedImage(null);
+          }}
+          image={{
+            id: selectedImage.id.toString(),
+            url: selectedImage.imageUrl || selectedImage.url || '',
+            title: selectedImage.title || 'Gallery Image'
+          }}
+        />
+      )}
+
+      {/* Brand Asset Placement Modal */}
+      {isBrandPlacementModalOpen && selectedImage && (
+        <BrandAssetPlacementModal
+          isOpen={isBrandPlacementModalOpen}
+          onClose={() => {
+            setIsBrandPlacementModalOpen(false);
+            setSelectedImage(null);
+          }}
+          backgroundImage={{
+            id: selectedImage.id.toString(),
+            url: selectedImage.imageUrl || selectedImage.url || '',
+            title: selectedImage.title || 'Gallery Image'
+          }}
+        />
       )}
 
       {/* Video Generation Dialog */}
       <VideoGenerateDialog
-        isOpen={showVideoDialog}
+        isOpen={isVideoDialogOpen}
         onClose={() => {
-          setShowVideoDialog(false);
-          setVideoImageId('');
-          setVideoImageUrl('');
+          setIsVideoDialogOpen(false);
+          setSelectedImage(null);
         }}
-        imageId={videoImageId}
-        imageUrl={videoImageUrl}
+        imageId={selectedImage?.id.toString() || ''}
+        imageUrl={selectedImage?.imageUrl || selectedImage?.url || ''}
         onSuccess={() => {
-          setShowVideoDialog(false);
+          setIsVideoDialogOpen(false);
         }}
       />
     </div>
+    </ErrorBoundary>
   );
 };
 
