@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useLocation } from 'wouter';
 import { useAuth } from '../hooks/use-auth.js';
-import { useToast } from '../hooks/use-toast.js';
 import { apiFetch } from '../lib/api.js';
 import { 
   Camera, 
@@ -14,7 +13,10 @@ import {
   Settings,
   Sparkles,
   ArrowRight,
-  RefreshCw
+  RefreshCw,
+  Plus,
+  Grid as GridIcon,
+  ChevronRight
 } from 'lucide-react';
 
 interface UserModel {
@@ -35,7 +37,6 @@ const StudioScreen: React.FC = () => {
   const { user, isLoading: authLoading, isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
 
-  // Fetch user model status
   const { data: userModel, isLoading: modelLoading, error } = useQuery<UserModel>({
     queryKey: ['/api/user-model'],
     enabled: !!user && isAuthenticated,
@@ -44,23 +45,15 @@ const StudioScreen: React.FC = () => {
     queryFn: () => apiFetch('/user-model')
   });
 
-  const handleTrainModel = () => {
-    setLocation('/onboarding/simple-training');
-  };
-
-  const handleStartGenerating = () => {
-    setLocation('/ai-generator');
-  };
-
   if (authLoading || modelLoading) {
     return (
-      <div className="min-h-screen bg-stone-50 flex items-center justify-center">
+      <div className="space-y-8 pb-4 pt-4 sm:pt-6">
         <div className="text-center">
-          <div className="w-20 h-20 border border-stone-300 rounded-full animate-spin mx-auto mb-8 flex items-center justify-center">
-            <div className="w-3 h-3 bg-stone-600 rounded-full animate-pulse"></div>
+          <div className="w-16 h-16 border border-stone-300 rounded-full animate-spin mx-auto mb-8 flex items-center justify-center">
+            <div className="w-2 h-2 bg-stone-600 rounded-full"></div>
           </div>
-          <h1 className="text-stone-900 text-4xl font-serif font-thin tracking-[0.5em] mb-6 leading-none">SSELFIE</h1>
-          <p className="text-xs font-light tracking-[0.4em] uppercase text-stone-500 opacity-70">Loading Studio</p>
+          <h1 className="text-stone-950 text-4xl font-serif font-extralight tracking-[0.4em] mb-4 leading-none">SSELFIE</h1>
+          <p className="text-xs font-light tracking-[0.3em] uppercase text-stone-500">Loading Studio</p>
         </div>
       </div>
     );
@@ -68,10 +61,10 @@ const StudioScreen: React.FC = () => {
 
   if (!isAuthenticated || !user) {
     return (
-      <div className="min-h-screen bg-stone-50 flex items-center justify-center">
+      <div className="space-y-8 pb-4 pt-4 sm:pt-6">
         <div className="text-center">
           <Camera className="h-16 w-16 text-stone-400 mx-auto mb-6" strokeWidth={1} />
-          <h2 className="text-2xl font-serif font-thin text-stone-900 mb-2 tracking-[0.3em] uppercase">Authentication Required</h2>
+          <h2 className="text-2xl font-serif font-extralight tracking-[0.3em] text-stone-950 uppercase mb-2">Authentication Required</h2>
           <p className="text-stone-600 font-light">Please sign in to access your studio</p>
         </div>
       </div>
@@ -80,14 +73,14 @@ const StudioScreen: React.FC = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-stone-50 flex items-center justify-center">
-        <div className="text-center max-w-md mx-auto px-6">
+      <div className="space-y-8 pb-4 pt-4 sm:pt-6">
+        <div className="text-center">
           <AlertCircle className="h-16 w-16 text-red-500 mx-auto mb-6" strokeWidth={1} />
-          <h2 className="text-2xl font-serif font-thin text-stone-900 mb-2 tracking-[0.3em] uppercase">Unable to Load Studio</h2>
+          <h2 className="text-2xl font-serif font-extralight tracking-[0.3em] text-stone-950 uppercase mb-2">Unable to Load Studio</h2>
           <p className="text-stone-600 mb-4 font-light">We're having trouble connecting to your studio data.</p>
           <button 
             onClick={() => window.location.reload()}
-            className="btn-primary"
+            className="px-6 py-3 bg-stone-950 text-stone-50 rounded-2xl font-light tracking-[0.15em] uppercase text-sm transition-all duration-200 hover:bg-stone-800"
           >
             Try Again
           </button>
@@ -99,14 +92,14 @@ const StudioScreen: React.FC = () => {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'completed':
-        return <CheckCircle className="h-6 w-6 text-green-500" strokeWidth={1} />;
+        return <CheckCircle className="h-6 w-6 text-stone-900" strokeWidth={1.5} />;
       case 'training':
       case 'pending':
-        return <Clock className="h-6 w-6 text-amber-500" />;
+        return <Clock className="h-6 w-6 text-stone-600 animate-pulse" strokeWidth={1.5} />;
       case 'failed':
-        return <AlertCircle className="h-6 w-6 text-red-500" />;
+        return <AlertCircle className="h-6 w-6 text-red-500" strokeWidth={1.5} />;
       default:
-        return <Settings className="h-6 w-6 text-stone-400" />;
+        return <Settings className="h-6 w-6 text-stone-400" strokeWidth={1.5} />;
     }
   };
 
@@ -141,306 +134,185 @@ const StudioScreen: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-stone-50">
+    <div className="space-y-8 pb-4">
       {/* Header */}
-      <div className="bg-white border-b border-stone-200">
-        <div className="max-w-4xl mx-auto px-6 py-8">
-          <div className="flex items-center gap-4 mb-2">
-            <div className="w-12 h-12 bg-stone-900 rounded-lg flex items-center justify-center">
-              <Camera className="h-6 w-6 text-white" />
+      <div className="pt-4 sm:pt-6 text-center">
+        <h1 className="text-3xl sm:text-5xl font-serif font-extralight tracking-[0.3em] text-stone-950 uppercase leading-none mb-3">
+          STUDIO
+        </h1>
+        <p className="text-xs tracking-[0.2em] uppercase font-light text-stone-500">
+          Creative Control Center
+        </p>
+      </div>
+
+      {/* Stats Grid */}
+      <div className="grid grid-cols-3 gap-4 sm:gap-6">
+        <div className="relative overflow-hidden bg-stone-100/60 border border-stone-200/40 rounded-2xl p-4 sm:p-6 hover:bg-stone-100/80 transition-all duration-200 min-h-[90px] sm:min-h-[110px] flex flex-col justify-center">
+          <div className="relative z-10">
+            <div className="text-xs tracking-[0.15em] uppercase font-light mb-2 text-stone-500">Status</div>
+            <div className="text-2xl sm:text-3xl font-serif font-extralight text-stone-950 mb-1">
+              {userModel?.trainingStatus === 'completed' ? '✓' : '○'}
             </div>
-            <div>
-              <h1 className="text-2xl font-light text-stone-900">Creative Studio</h1>
-              <p className="text-stone-600">Your personal AI photography studio</p>
+            <div className="text-xs font-light text-stone-600">{getStatusText(userModel?.trainingStatus || 'not_started')}</div>
+          </div>
+        </div>
+        <div className="relative overflow-hidden bg-stone-100/60 border border-stone-200/40 rounded-2xl p-4 sm:p-6 hover:bg-stone-100/80 transition-all duration-200 min-h-[90px] sm:min-h-[110px] flex flex-col justify-center">
+          <div className="relative z-10">
+            <div className="text-xs tracking-[0.15em] uppercase font-light mb-2 text-stone-500">Used</div>
+            <div className="text-2xl sm:text-3xl font-serif font-extralight text-stone-950 mb-1">
+              {user.generationsUsedThisMonth || 0}
             </div>
+            <div className="text-xs font-light text-stone-600">This Month</div>
+          </div>
+        </div>
+        <div className="relative overflow-hidden bg-stone-100/60 border border-stone-200/40 rounded-2xl p-4 sm:p-6 hover:bg-stone-100/80 transition-all duration-200 min-h-[90px] sm:min-h-[110px] flex flex-col justify-center">
+          <div className="relative z-10">
+            <div className="text-xs tracking-[0.15em] uppercase font-light mb-2 text-stone-500">Limit</div>
+            <div className="text-2xl sm:text-3xl font-serif font-extralight text-stone-950 mb-1">
+              {user.monthlyGenerationLimit === -1 ? '∞' : user.monthlyGenerationLimit || 100}
+            </div>
+            <div className="text-xs font-light text-stone-600">Per Month</div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-6 py-8">
-        {/* Model Status Card */}
-        <div className="bg-white rounded-lg border border-stone-200 p-6 mb-8">
-          <div className="flex items-center gap-4 mb-4">
+      {/* Main Session Panel */}
+      <div className="bg-stone-100/50 border border-stone-200/40 rounded-3xl p-6 sm:p-8">
+        <div className="flex justify-between items-start mb-6 sm:mb-8">
+          <div className="flex-1 min-w-0">
+            <div className="text-xs tracking-[0.15em] uppercase font-light mb-3 text-stone-500">Current Status</div>
+            <h3 className="text-xl sm:text-2xl font-serif font-extralight tracking-[0.1em] text-stone-950 uppercase mb-3">
+              {getStatusText(userModel?.trainingStatus || 'not_started')}
+            </h3>
+            <p className="text-sm font-light text-stone-600">{getStatusDescription(userModel?.trainingStatus || 'not_started')}</p>
+          </div>
+          <div className="ml-4 flex-shrink-0">
             {getStatusIcon(userModel?.trainingStatus || 'not_started')}
-            <div>
-              <h2 className="text-lg font-medium text-stone-900">
-                {getStatusText(userModel?.trainingStatus || 'not_started')}
-              </h2>
-              <p className="text-stone-600 text-sm">
-                {getStatusDescription(userModel?.trainingStatus || 'not_started')}
-              </p>
+          </div>
+        </div>
+
+        {/* Progress indicator for training status */}
+        {(userModel?.trainingStatus === 'training' || userModel?.trainingStatus === 'pending') && (
+          <div className="mb-6">
+            <div className="flex justify-between text-xs mb-2">
+              <span className="tracking-[0.1em] uppercase font-light text-stone-500">Progress</span>
+              <span className="font-light text-stone-600">Processing...</span>
+            </div>
+            <div className="w-full h-1.5 bg-stone-200 rounded-full overflow-hidden">
+              <div className="w-3/5 h-full bg-stone-700 rounded-full animate-pulse"></div>
             </div>
           </div>
+        )}
 
-          {/* Progress indicator for training status */}
-          {(userModel?.trainingStatus === 'training' || userModel?.trainingStatus === 'pending') && (
-            <div className="mb-4">
-              <div className="flex items-center gap-2 mb-2">
-                <RefreshCw className="h-4 w-4 text-amber-500 animate-spin" />
-                <span className="text-sm font-medium text-stone-700">
-                  {userModel.trainingStatus === 'training' ? 'Training...' : 'In Queue...'}
-                </span>
-              </div>
-              <div className="w-full bg-stone-200 rounded-full h-2">
-                <div className="bg-amber-500 h-2 rounded-full animate-pulse" style={{ width: '60%' }}></div>
-              </div>
-            </div>
-          )}
+        {/* Action Buttons */}
+        {userModel?.needsTraining && (
+          <button
+            onClick={() => setLocation('/simple-training')}
+            disabled={userModel.trainingStatus === 'training' || userModel.trainingStatus === 'pending'}
+            className="w-full bg-stone-950 text-stone-50 py-4 sm:py-5 rounded-2xl font-light tracking-[0.15em] uppercase text-sm transition-all duration-200 hover:bg-stone-800 hover:transform hover:translate-y-[-1px] min-h-[52px] focus:outline-none focus:ring-2 focus:ring-stone-600/40 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          >
+            <Zap size={18} strokeWidth={1.5} />
+            {userModel.trainingStatus === 'failed' ? 'Retry Training' : 'Train Your Model'}
+          </button>
+        )}
 
-          {/* Action Buttons */}
-          <div className="flex gap-3">
-            {userModel?.needsTraining && (
+        {userModel?.trainingStatus === 'completed' && (
+          <div className="space-y-3">
+            <button
+              onClick={() => setLocation('/ai-generator')}
+              className="w-full bg-stone-950 text-stone-50 py-4 sm:py-5 rounded-2xl font-light tracking-[0.15em] uppercase text-sm transition-all duration-200 hover:bg-stone-800 hover:transform hover:translate-y-[-1px] min-h-[52px] focus:outline-none focus:ring-2 focus:ring-stone-600/40 flex items-center justify-center gap-2"
+            >
+              <Play size={18} strokeWidth={1.5} />
+              Start Generating
+            </button>
+
+            {userModel?.canRetrain && (
               <button
-                onClick={handleTrainModel}
-                disabled={userModel.trainingStatus === 'training' || userModel.trainingStatus === 'pending'}
-                className="flex items-center gap-2 px-6 py-3 bg-stone-900 text-white rounded-lg hover:bg-stone-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={() => setLocation('/simple-training')}
+                className="w-full bg-stone-100/50 text-stone-950 py-4 sm:py-5 rounded-2xl font-light tracking-[0.15em] uppercase text-sm border border-stone-200/40 transition-all duration-200 hover:bg-stone-100/70 hover:border-stone-300/50 min-h-[52px] flex items-center justify-center gap-2"
               >
-                <Zap className="h-4 w-4" />
-                {userModel.trainingStatus === 'failed' ? 'Retry Training' : 'Train Your Model'}
-              </button>
-            )}
-
-            {userModel?.trainingStatus === 'completed' && (
-              <button
-                onClick={handleStartGenerating}
-                className="flex items-center gap-2 px-6 py-3 bg-stone-900 text-white rounded-lg hover:bg-stone-800 transition-colors"
-              >
-                <Play className="h-4 w-4" />
-                Start Generating
-                <ArrowRight className="h-4 w-4" />
-              </button>
-            )}
-
-            {userModel?.canRetrain && userModel?.trainingStatus === 'completed' && (
-              <button
-                onClick={handleTrainModel}
-                className="flex items-center gap-2 px-4 py-3 text-stone-700 bg-stone-100 border border-stone-200 rounded-lg hover:bg-stone-200 transition-colors"
-              >
-                <RefreshCw className="h-4 w-4" />
+                <RefreshCw size={18} strokeWidth={1.5} />
                 Retrain Model
               </button>
             )}
           </div>
-        </div>
-
-        {/* AI Generation Interface - Only show when model is ready */}
-        {userModel?.trainingStatus === 'completed' ? (
-          <StudioGenerationInterface />
-        ) : (
-          // Features Grid for training setup
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Photo Studio */}
-          <div className="bg-white rounded-lg border border-stone-200 p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-stone-100 rounded-lg flex items-center justify-center">
-                <Camera className="h-5 w-5 text-stone-700" />
-              </div>
-              <div>
-                <h3 className="font-medium text-stone-900">Photo Studio</h3>
-                <p className="text-sm text-stone-600">Professional headshots & lifestyle images</p>
-              </div>
-            </div>
-            <button
-              onClick={handleTrainModel}
-              disabled={userModel?.trainingStatus === 'training' || userModel?.trainingStatus === 'pending'}
-              className="w-full px-4 py-2 text-sm font-medium text-stone-700 bg-stone-50 border border-stone-200 rounded-lg hover:bg-stone-100 transition-colors disabled:opacity-50"
-            >
-              Train Model First
-            </button>
-          </div>
-
-          {/* Video Studio */}
-          <div className="bg-white rounded-lg border border-stone-200 p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-stone-100 rounded-lg flex items-center justify-center">
-                <Play className="h-5 w-5 text-stone-700" />
-              </div>
-              <div>
-                <h3 className="font-medium text-stone-900">Video Studio</h3>
-                <p className="text-sm text-stone-600">Cinematic video content (Coming Soon)</p>
-              </div>
-            </div>
-            <button
-              disabled
-              className="w-full px-4 py-2 text-sm font-medium text-stone-400 bg-stone-50 border border-stone-200 rounded-lg cursor-not-allowed"
-            >
-              Coming Soon
-            </button>
-          </div>
-
-          {/* AI Coaching */}
-          <div className="bg-white rounded-lg border border-stone-200 p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-stone-100 rounded-lg flex items-center justify-center">
-                <Sparkles className="h-5 w-5 text-stone-700" />
-              </div>
-              <div>
-                <h3 className="font-medium text-stone-900">Maya AI</h3>
-                <p className="text-sm text-stone-600">Personal brand strategist</p>
-              </div>
-            </div>
-            <button
-              onClick={() => setLocation('/maya')}
-              className="w-full px-4 py-2 text-sm font-medium text-stone-700 bg-stone-50 border border-stone-200 rounded-lg hover:bg-stone-100 transition-colors"
-            >
-              Chat with Maya
-            </button>
-          </div>
-
-          {/* Account & Usage */}
-          <div className="bg-white rounded-lg border border-stone-200 p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-stone-100 rounded-lg flex items-center justify-center">
-                <Settings className="h-5 w-5 text-stone-700" />
-              </div>
-              <div>
-                <h3 className="font-medium text-stone-900">Account</h3>
-                <p className="text-sm text-stone-600">Usage: {user.generationsUsedThisMonth || 0}/{user.monthlyGenerationLimit === -1 ? '∞' : user.monthlyGenerationLimit || 100}</p>
-              </div>
-            </div>
-            <button
-              onClick={() => setLocation('/account-settings')}
-              className="w-full px-4 py-2 text-sm font-medium text-stone-700 bg-stone-50 border border-stone-200 rounded-lg hover:bg-stone-100 transition-colors"
-            >
-              Manage Account
-            </button>
-          </div>
-        </div>
         )}
       </div>
-    </div>
-  );
-};
 
-// AI Generation Interface Component
-const StudioGenerationInterface: React.FC = () => {
-  const [selectedPrompt, setSelectedPrompt] = useState<string>('');
-  const [generatedImages, setGeneratedImages] = useState<string[]>([]);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const { toast } = useToast();
+      {/* Action Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+        <button 
+          onClick={() => setLocation('/maya')}
+          className="bg-stone-100/50 border border-stone-200/40 rounded-2xl p-6 text-left hover:bg-stone-100/70 hover:border-stone-300/50 transition-all duration-200 group min-h-[110px] flex flex-col justify-between"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-10 h-10 bg-stone-500/10 rounded-xl flex items-center justify-center border border-stone-400/20">
+              <Sparkles size={18} className="text-stone-600" strokeWidth={1.5} />
+            </div>
+            <ChevronRight size={16} className="text-stone-400 group-hover:text-stone-600 transition-colors" strokeWidth={1.5} />
+          </div>
+          <div>
+            <h4 className="text-base font-light text-stone-950 mb-2">Chat with Maya</h4>
+            <p className="text-xs font-light text-stone-500">AI styling consultant</p>
+          </div>
+        </button>
 
-  // Sample prompts for AI generation
-  const prompts = [
-    { 
-      id: 'professional', 
-      title: 'Professional Headshot',
-      description: 'Clean, business-ready portraits',
-      prompt: 'professional corporate headshot, business attire, clean background'
-    },
-    { 
-      id: 'editorial', 
-      title: 'Editorial Style',
-      description: 'Magazine-quality fashion shots',
-      prompt: 'editorial fashion portrait, dramatic lighting, artistic composition'
-    },
-    { 
-      id: 'lifestyle', 
-      title: 'Lifestyle Portrait',
-      description: 'Natural, authentic moments',
-      prompt: 'lifestyle portrait, natural lighting, authentic expression'
-    },
-    { 
-      id: 'creative', 
-      title: 'Creative Portrait',
-      description: 'Artistic and unique angles',
-      prompt: 'creative portrait, artistic lighting, unique composition'
-    }
-  ];
-
-  const handleGenerate = async (prompt: string) => {
-    setIsGenerating(true);
-    setSelectedPrompt(prompt);
-    
-    try {
-      // Simulated API call - replace with actual API
-      await new Promise(resolve => setTimeout(resolve, 3000));
-      
-      // Mock generated images
-      const mockImages = [
-        'https://picsum.photos/400/400?random=1',
-        'https://picsum.photos/400/400?random=2',
-        'https://picsum.photos/400/400?random=3',
-        'https://picsum.photos/400/400?random=4'
-      ];
-      
-      setGeneratedImages(mockImages);
-      toast({
-        title: "Images Generated",
-        description: "Your AI photoshoot is complete!"
-      });
-    } catch (error) {
-      toast({
-        title: "Generation Failed",
-        description: "Please try again later."
-      });
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
-  return (
-    <div className="space-y-8">
-      {/* Style Selection */}
-      <div className="bg-white rounded-lg border border-stone-200 p-6">
-        <h3 className="text-lg font-medium text-stone-900 mb-4">Choose Your Style</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {prompts.map((promptOption) => (
-            <button
-              key={promptOption.id}
-              onClick={() => handleGenerate(promptOption.prompt)}
-              disabled={isGenerating}
-              className="p-4 text-left border border-stone-200 rounded-lg hover:border-stone-400 hover:bg-stone-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <h4 className="font-medium text-stone-900 mb-1">{promptOption.title}</h4>
-              <p className="text-sm text-stone-600">{promptOption.description}</p>
-            </button>
-          ))}
-        </div>
+        <button 
+          onClick={() => setLocation('/sselfie-gallery')}
+          className="bg-stone-100/50 border border-stone-200/40 rounded-2xl p-6 text-left hover:bg-stone-100/70 hover:border-stone-300/50 transition-all duration-200 group min-h-[110px] flex flex-col justify-between"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-10 h-10 bg-stone-500/10 rounded-xl flex items-center justify-center border border-stone-400/20">
+              <GridIcon size={18} className="text-stone-600" strokeWidth={1.5} />
+            </div>
+            <ChevronRight size={16} className="text-stone-400 group-hover:text-stone-600 transition-colors" strokeWidth={1.5} />
+          </div>
+          <div>
+            <h4 className="text-base font-light text-stone-950 mb-2">Browse Gallery</h4>
+            <p className="text-xs font-light text-stone-500">View completed work</p>
+          </div>
+        </button>
       </div>
 
-      {/* Generation Status */}
-      {isGenerating && (
-        <div className="bg-white rounded-lg border border-stone-200 p-6 text-center">
-          <div className="flex items-center justify-center mb-4">
-            <RefreshCw className="h-8 w-8 text-stone-600 animate-spin" />
-          </div>
-          <h3 className="text-lg font-medium text-stone-900 mb-2">Generating Your Photos</h3>
-          <p className="text-stone-600">Creating professional AI images with your selected style...</p>
-          <div className="mt-4">
-            <div className="w-full bg-stone-200 rounded-full h-2">
-              <div className="bg-stone-600 h-2 rounded-full animate-pulse" style={{ width: '60%' }}></div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Generated Images */}
-      {generatedImages.length > 0 && (
-        <div className="bg-white rounded-lg border border-stone-200 p-6">
-          <h3 className="text-lg font-medium text-stone-900 mb-4">Your Generated Photos</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {generatedImages.map((imageUrl, index) => (
-              <div key={index} className="aspect-square rounded-lg overflow-hidden border border-stone-200">
-                <img 
-                  src={imageUrl}
-                  alt={`Generated image ${index + 1}`}
-                  className="w-full h-full object-cover hover:scale-105 transition-transform cursor-pointer"
-                />
+      {/* Activity Log */}
+      <div className="space-y-6">
+        <h3 className="text-lg font-serif font-extralight tracking-[0.15em] text-stone-950 uppercase">Model Information</h3>
+        <div className="space-y-1">
+          {userModel && (
+            <>
+              <div className="flex items-center justify-between py-4 border-b border-stone-200/30 last:border-b-0 hover:bg-stone-100/30 transition-colors duration-200 px-4 -mx-4 rounded-xl">
+                <div className="flex items-center gap-4 flex-1 min-w-0">
+                  <div className="w-1.5 h-1.5 bg-stone-600 rounded-full flex-shrink-0"></div>
+                  <span className="text-sm font-light text-stone-950 truncate">Training Status</span>
+                </div>
+                <span className="text-xs tracking-[0.1em] uppercase font-light text-stone-500 ml-4 flex-shrink-0">
+                  {getStatusText(userModel.trainingStatus)}
+                </span>
               </div>
-            ))}
-          </div>
-          <div className="mt-4 flex gap-3">
-            <button className="flex items-center gap-2 px-4 py-2 bg-stone-900 text-white rounded-lg hover:bg-stone-800 transition-colors">
-              <ArrowRight className="h-4 w-4" />
-              Save to Gallery
-            </button>
-            <button className="flex items-center gap-2 px-4 py-2 text-stone-700 bg-stone-100 border border-stone-200 rounded-lg hover:bg-stone-200 transition-colors">
-              <RefreshCw className="h-4 w-4" />
-              Generate More
-            </button>
-          </div>
+              <div className="flex items-center justify-between py-4 border-b border-stone-200/30 last:border-b-0 hover:bg-stone-100/30 transition-colors duration-200 px-4 -mx-4 rounded-xl">
+                <div className="flex items-center gap-4 flex-1 min-w-0">
+                  <div className="w-1.5 h-1.5 bg-stone-600 rounded-full flex-shrink-0"></div>
+                  <span className="text-sm font-light text-stone-950 truncate">Model Type</span>
+                </div>
+                <span className="text-xs tracking-[0.1em] uppercase font-light text-stone-500 ml-4 flex-shrink-0">
+                  {userModel.modelType || 'Standard'}
+                </span>
+              </div>
+              {userModel.createdAt && (
+                <div className="flex items-center justify-between py-4 border-b border-stone-200/30 last:border-b-0 hover:bg-stone-100/30 transition-colors duration-200 px-4 -mx-4 rounded-xl">
+                  <div className="flex items-center gap-4 flex-1 min-w-0">
+                    <div className="w-1.5 h-1.5 bg-stone-600 rounded-full flex-shrink-0"></div>
+                    <span className="text-sm font-light text-stone-950 truncate">Created</span>
+                  </div>
+                  <span className="text-xs tracking-[0.1em] uppercase font-light text-stone-500 ml-4 flex-shrink-0">
+                    {new Date(userModel.createdAt).toLocaleDateString()}
+                  </span>
+                </div>
+              )}
+            </>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 };

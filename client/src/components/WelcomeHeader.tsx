@@ -1,42 +1,86 @@
 import React from 'react';
 import { useAuth } from '../hooks/use-auth.js';
+import { Sparkles } from 'lucide-react';
 
 export function WelcomeHeader() {
   const { user } = useAuth();
-  // TODO: Fetch a dynamic tip from Maya
+  
+  // Get time-based greeting
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good Morning';
+    if (hour < 17) return 'Good Afternoon';
+    return 'Good Evening';
+  };
+
+  // Calculate remaining generations
+  const monthlyGenerationLimit = (user && 'monthlyGenerationLimit' in user && typeof (user as any).monthlyGenerationLimit === 'number') 
+    ? (user as any).monthlyGenerationLimit 
+    : 100;
+  const generationsUsedThisMonth = (user && 'generationsUsedThisMonth' in user && typeof (user as any).generationsUsedThisMonth === 'number') 
+    ? (user as any).generationsUsedThisMonth 
+    : 0;
+  const generationsRemaining = monthlyGenerationLimit === -1 ? '∞' : monthlyGenerationLimit - generationsUsedThisMonth;
+
+  // Maya's tip (TODO: Make this dynamic from backend)
   const mayaTip = "Try a 'Golden Hour' concept for a warmer, more approachable feel.";
 
-  // Calculate remaining generations with safe fallbacks
-  const monthlyGenerationLimit = (user && 'monthlyGenerationLimit' in user && typeof (user as any).monthlyGenerationLimit === 'number') ? (user as any).monthlyGenerationLimit : 0;
-  const generationsUsedThisMonth = (user && 'generationsUsedThisMonth' in user && typeof (user as any).generationsUsedThisMonth === 'number') ? (user as any).generationsUsedThisMonth : 0;
-  const generationsRemaining = monthlyGenerationLimit - generationsUsedThisMonth;
-
   return (
-    <div style={{
-      padding: 'var(--space-xl) var(--space-lg)',
-      borderBottom: '1px solid var(--accent-line)',
-      marginBottom: 'var(--space-xl)',
-    }}>
-      <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 'var(--space-xl)',
-      }}>
-        <div>
-          <p className="body-large" style={{ margin: 0 }}>
-            Welcome, {user?.firstName || 'Creator'}.
+    <div className="relative overflow-hidden rounded-3xl mb-8">
+      {/* Background Image - You'll provide this */}
+      <div className="absolute inset-0">
+        <div className="absolute inset-0 bg-gradient-to-br from-stone-100 via-stone-50 to-stone-100"></div>
+        {/* Optional: Add background image here when provided */}
+        {/* <img src="/path/to/hero-image.jpg" className="w-full h-full object-cover opacity-30" alt="" /> */}
+      </div>
+
+      {/* Gradient Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-stone-50/50 to-stone-50"></div>
+
+      {/* Content */}
+      <div className="relative z-10 px-6 sm:px-8 py-12 sm:py-16">
+        {/* Main Greeting */}
+        <div className="mb-8">
+          <h1 className="text-4xl sm:text-5xl font-serif font-extralight tracking-[0.3em] text-stone-950 uppercase leading-tight mb-4">
+            {getGreeting()}
+          </h1>
+          <p className="text-xl sm:text-2xl font-serif font-extralight tracking-[0.2em] text-stone-950 uppercase">
+            {user?.firstName || 'Creator'}
           </p>
-          <p className="body-elegant" style={{ color: 'var(--body-gray)', margin: 0, fontSize: 'var(--text-sm)' }}>
-            You have <strong>{generationsRemaining} photos</strong> remaining this month.
+          <p className="text-sm font-light tracking-[0.15em] text-stone-600 mt-3">
+            Ready to create something beautiful?
           </p>
         </div>
-        <div>
-          <p className="luxury-eyebrow" style={{ margin: 0, marginBottom: 'var(--space-xs)' }}>
-            MAYA'S TIP OF THE DAY
-          </p>
-          <p className="body-elegant" style={{ margin: 0 }}>
-            {mayaTip}
-          </p>
+
+        {/* Stats & Tips Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* Generations Remaining */}
+          <div className="bg-stone-100/60 backdrop-blur-sm border border-stone-200/40 rounded-2xl p-5">
+            <div className="text-xs tracking-[0.15em] uppercase font-light mb-2 text-stone-500">
+              Available
+            </div>
+            <div className="text-3xl font-serif font-extralight text-stone-950 mb-1">
+              {generationsRemaining}
+            </div>
+            <div className="text-xs font-light text-stone-600">
+              {monthlyGenerationLimit === -1 ? 'Unlimited photos' : 'Photos this month'}
+            </div>
+          </div>
+
+          {/* Maya's Tip */}
+          <div className="bg-stone-100/60 backdrop-blur-sm border border-stone-200/40 rounded-2xl p-5">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-6 h-6 rounded-full bg-stone-500/10 flex items-center justify-center">
+                <Sparkles size={12} className="text-stone-600" strokeWidth={1.5} />
+              </div>
+              <div className="text-xs tracking-[0.15em] uppercase font-light text-stone-500">
+                Maya's Tip
+              </div>
+            </div>
+            <p className="text-sm font-light leading-relaxed text-stone-950">
+              {mayaTip}
+            </p>
+          </div>
         </div>
       </div>
     </div>

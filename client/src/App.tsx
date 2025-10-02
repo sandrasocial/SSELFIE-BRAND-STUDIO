@@ -361,12 +361,33 @@ function Router() {
         return <PageLoader />;
       }} />
 
-      {/* CATCH-ALL 404 ROUTE - Must be last */}
-      <Route component={() => (
-        <Suspense fallback={<PageLoader />}>
-          <NotFound />
-        </Suspense>
-      )} />
+      {/* CATCH-ALL 404 ROUTE - Must be ABSOLUTE last, use proper syntax */}
+      <Route path="/:rest*">
+        {(params) => {
+          // Only show 404 if we're not on a valid route
+          const validPaths = [
+            '/', '/app', '/studio', '/workspace', '/maya', '/sselfie-gallery', 
+            '/business', '/hair', '/terms', '/privacy', '/simple-checkout', 
+            '/embedded-checkout', '/payment-success', '/thank-you', '/simple-training', 
+            '/training', '/magic-link', '/forgot-password', '/password-reset', 
+            '/auth-success', '/sign-in', '/sign-up'
+          ];
+          const currentPath = window.location.pathname;
+          
+          // Don't show 404 for valid paths or handler routes
+          if (validPaths.some(path => currentPath === path || currentPath.startsWith(path + '/')) || 
+              currentPath.startsWith('/handler/') || 
+              currentPath.startsWith('/hair/')) {
+            return null;
+          }
+          
+          return (
+            <Suspense fallback={<PageLoader />}>
+              <NotFound />
+            </Suspense>
+          );
+        }}
+      </Route>
     </div>
   );
 }
