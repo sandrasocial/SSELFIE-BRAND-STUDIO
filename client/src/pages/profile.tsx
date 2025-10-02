@@ -59,14 +59,8 @@ export default function Profile() {
           <div className="text-right">
             <p className="text-sm text-gray-500">Next billing date</p>
             <p className="font-medium text-black">
-              {user?.subscriptionRenewDate 
-                ? new Date(user.subscriptionRenewDate).toLocaleDateString('en-GB', { 
-                    year: 'numeric', 
-                    month: 'long', 
-                    day: 'numeric' 
-                  })
-                : 'Updating...'
-              }
+              {/* TODO: Add subscriptionRenewDate to User interface */}
+              {'Monthly billing active'}
             </p>
           </div>
         </div>
@@ -79,7 +73,7 @@ export default function Profile() {
           <div className="flex items-center justify-between">
             <span className="text-sm text-gray-600">Images Generated</span>
             <span className="font-medium text-black">
-              {user?.monthlyGenerationsUsed || 0} / {user?.monthlyGenerationLimit === -1 ? '∞' : user?.monthlyGenerationLimit || 100}
+              {user?.generationsUsedThisMonth || 0} / {user?.monthlyGenerationLimit === -1 ? '∞' : user?.monthlyGenerationLimit || 100}
             </span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2">
@@ -88,7 +82,7 @@ export default function Profile() {
               style={{ 
                 width: user?.monthlyGenerationLimit === -1 
                   ? '0%' 
-                  : `${Math.min(((user?.monthlyGenerationsUsed || 0) / (user?.monthlyGenerationLimit || 100)) * 100, 100)}%`
+                  : `${Math.min(((user?.generationsUsedThisMonth || 0) / (user?.monthlyGenerationLimit || 100)) * 100, 100)}%`
               }}
             ></div>
           </div>
@@ -165,10 +159,10 @@ export default function Profile() {
             fullPage={false}
             extraItems={[
               {
+                id: 'billing',
                 title: 'Subscription & Billing',
                 icon: <CreditCard className="h-5 w-5" />,
-                content: <SubscriptionManagement />,
-                subpath: '/billing'
+                content: <SubscriptionManagement />
               }
             ]}
           />
@@ -176,7 +170,7 @@ export default function Profile() {
       </div>
 
       {/* Custom CSS to style Stack Auth components with Maya's design */}
-      <style jsx global>{`
+      <style>{`
         /* Override Stack Auth default styling to match Maya's luxury design */
         [data-stack-auth] {
           --stack-bg-primary: white !important;

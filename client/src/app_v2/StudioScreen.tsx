@@ -195,7 +195,7 @@ const StudioScreen: React.FC<StudioScreenProps> = ({ onTabChange }) => {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
             {(() => {
               // Maya's rotating daily tips - changes based on day of year
-              const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24));
+              const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / (1000 * 60 * 60 * 24));
               const tipRotation = [
                 { 
                   title: 'Golden Hour Glow', 
