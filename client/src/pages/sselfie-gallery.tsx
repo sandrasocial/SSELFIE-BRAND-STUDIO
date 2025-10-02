@@ -40,87 +40,87 @@ function ImageDetailModal({
 }) {
   return (
     <div 
-      className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 bg-stone-950/95 backdrop-blur-sm z-50 flex items-center justify-center p-4 sm:p-8"
       onClick={onClose}
     >
       <div 
-        className="editorial-modal max-w-6xl max-h-[95vh] w-full flex flex-col bg-stone-950/95 backdrop-blur-2xl"
+        className="max-w-6xl max-h-[95vh] w-full flex flex-col bg-white rounded-3xl overflow-hidden shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-stone-800/30">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-stone-800/40 rounded-editorial-md border border-stone-700/30">
-              <Camera size={20} strokeWidth={1.2} className="text-stone-400" />
+        <div className="flex items-center justify-between p-6 sm:p-8 border-b border-stone-200/40 bg-stone-50">
+          <div className="flex items-center gap-4 sm:gap-6">
+            <div className="p-3 bg-stone-100 rounded-2xl border border-stone-200/60">
+              <Camera size={20} strokeWidth={1.5} className="text-stone-600" />
             </div>
             <div>
-              <h3 className="editorial-heading-2 text-stone-200" style={{fontFamily: 'Times New Roman, serif'}}>IMAGE DETAILS</h3>
-              <p className="editorial-text-caption text-neutral-500">Professional Portrait</p>
+              <h3 className="text-lg font-serif font-extralight tracking-[0.2em] uppercase text-stone-950">Image Details</h3>
+              <p className="text-xs tracking-[0.15em] uppercase text-stone-500 font-light">Professional Portrait</p>
             </div>
           </div>
           
         <button
           onClick={onClose}
-            className="p-2 hover:bg-neutral-800/40 rounded-editorial-md transition-colors"
+            className="p-3 hover:bg-stone-200/60 rounded-2xl transition-colors"
           aria-label="Close modal"
         >
-            <MoreHorizontal size={20} className="text-neutral-400" strokeWidth={1.5} />
+            <X size={20} className="text-stone-600" strokeWidth={1.5} />
         </button>
         </div>
         
         {/* Image */}
-        <div className="flex-1 flex items-center justify-center p-8 bg-gradient-to-br from-stone-900/50 to-stone-800/30">
+        <div className="flex-1 flex items-center justify-center p-8 bg-stone-50">
           <img 
             src={selectedImage.imageUrl || selectedImage.url || ''} 
             alt={selectedImage.title || 'Gallery image'} 
-            className="max-w-full max-h-[60vh] object-contain rounded-editorial-lg shadow-editorial-xl"
+            className="max-w-full max-h-[60vh] object-contain rounded-2xl shadow-2xl"
           />
         </div>
         
         {/* Actions */}
-        <div className="p-6 border-t border-stone-800/30 bg-gradient-to-r from-stone-900/50 to-stone-800/30">
+        <div className="p-6 sm:p-8 border-t border-stone-200/40 bg-white">
           <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
             <button 
               onClick={onToggleFavorite}
-              className="editorial-button-secondary flex items-center justify-center gap-2 py-3"
+              className="flex items-center justify-center gap-2 py-3 px-4 bg-stone-100 hover:bg-stone-200 rounded-2xl transition-colors text-xs tracking-[0.15em] uppercase font-light"
             >
-              <Heart size={16} className={isFavorite ? 'text-red-400 fill-current' : 'text-neutral-400'} strokeWidth={1.5} />
-              {isFavorite ? 'UNFAVORITE' : 'FAVORITE'}
+              <Heart size={16} className={isFavorite ? 'text-red-500 fill-current' : 'text-stone-600'} strokeWidth={1.5} />
+              {isFavorite ? 'Unfavorite' : 'Favorite'}
             </button>
             
             <button 
               onClick={onCreateVideo}
-              className="editorial-button-secondary flex items-center justify-center gap-2 py-3"
+              className="flex items-center justify-center gap-2 py-3 px-4 bg-stone-100 hover:bg-stone-200 rounded-2xl transition-colors text-xs tracking-[0.15em] uppercase font-light text-stone-600"
             >
-              <Play size={16} className="text-neutral-400" strokeWidth={1.5} />
-              MAKE VIDEO
+              <Play size={16} className="text-stone-600" strokeWidth={1.5} />
+              Make Video
             </button>
             
             {/* P3-C: Brand Asset Placement Feature */}
             {process.env.REACT_APP_BRAND_ASSETS_ENABLED === '1' && (
               <button 
                 onClick={onPlaceBrandAsset}
-                className="editorial-button-secondary flex items-center justify-center gap-2 py-3"
+                className="flex items-center justify-center gap-2 py-3 px-4 bg-stone-100 hover:bg-stone-200 rounded-2xl transition-colors text-xs tracking-[0.15em] uppercase font-light text-stone-600"
               >
-                <Plus size={16} className="text-neutral-400" strokeWidth={1.5} />
-                BRAND ASSET
+                <Plus size={16} className="text-stone-600" strokeWidth={1.5} />
+                Brand Asset
               </button>
             )}
             
             <button 
               onClick={onDownload}
-              className="editorial-button-secondary flex items-center justify-center gap-2 py-3"
+              className="flex items-center justify-center gap-2 py-3 px-4 bg-stone-100 hover:bg-stone-200 rounded-2xl transition-colors text-xs tracking-[0.15em] uppercase font-light text-stone-600"
             >
-              <Download size={16} className="text-neutral-400" strokeWidth={1.5} />
-              DOWNLOAD
+              <Download size={16} className="text-stone-600" strokeWidth={1.5} />
+              Download
             </button>
             
             <button 
               onClick={onDelete}
-              className="editorial-button-secondary flex items-center justify-center gap-2 py-3 text-red-400 hover:text-red-300 hover:bg-red-900/20"
+              className="flex items-center justify-center gap-2 py-3 px-4 bg-red-50 hover:bg-red-100 rounded-2xl transition-colors text-xs tracking-[0.15em] uppercase font-light text-red-600"
             >
-              <Trash2 size={16} className="text-red-400" strokeWidth={1.5} />
-              DELETE
+              <Trash2 size={16} className="text-red-600" strokeWidth={1.5} />
+              Delete
             </button>
           </div>
         </div>
@@ -336,15 +336,15 @@ function SSELFIEGallery({ hideMemberNav = false }: { hideMemberNav?: boolean }) 
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-black">
+      <div className="min-h-screen bg-stone-50">
         {!hideMemberNav && <MemberNavigation />}
-        <div className="flex items-center justify-center min-h-screen p-6">
-          <div className="text-center">
-            <div className="p-6 bg-neutral-800/40 rounded-editorial-xl border border-neutral-700/30 mb-6 inline-block">
-              <Camera size={48} className="text-neutral-400 mx-auto" strokeWidth={1.5} />
+        <div className="flex items-center justify-center min-h-screen p-6" style={{ paddingTop: '120px' }}>
+          <div className="text-center max-w-md mx-auto">
+            <div className="p-8 bg-white rounded-3xl border border-stone-200/60 mb-8 inline-block shadow-lg">
+              <Camera size={48} className="text-stone-600 mx-auto" strokeWidth={1.5} />
             </div>
-            <h1 className="editorial-heading-1 text-neutral-200 mb-4">AUTHENTICATION REQUIRED</h1>
-            <p className="editorial-text-body text-neutral-400">Please sign in to access your luxury gallery.</p>
+            <h1 className="text-3xl font-serif font-extralight tracking-[0.25em] uppercase text-stone-950 mb-6">Authentication Required</h1>
+            <p className="text-stone-600 leading-relaxed font-light">Please sign in to access your professional gallery.</p>
           </div>
         </div>
       </div>
@@ -352,51 +352,42 @@ function SSELFIEGallery({ hideMemberNav = false }: { hideMemberNav?: boolean }) 
   }
 
   return (
-    <div className="min-h-screen bg-black relative overflow-hidden">
-      {/* Luxury Background with Parallax Effect */}
-      <div className="absolute inset-0 bg-gradient-to-br from-black via-stone-950 to-stone-900">
-        <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-15"
-          style={{
-            backgroundImage: 'url(/flatlay-luxury-planning.jpg)',
-            backgroundAttachment: 'fixed',
-            backgroundPosition: 'center center'
-          }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-br from-black/85 via-stone-950/70 to-black/85" />
-      </div>
-      
+    <div className="min-h-screen bg-stone-50">
       {!hideMemberNav && <MemberNavigation />}
       
-      {/* Luxury Gallery Container */}
-      <div className="relative z-10 p-6">
-        {/* Enhanced Gallery Header */}
-        <div className="space-y-6">
+      {/* Gallery Container */}
+      <div className="px-6 sm:px-8" style={{ paddingTop: '100px' }}>
+        {/* Gallery Header */}
+        <div className="space-y-8 py-8 sm:py-12">
           {/* Main Header */}
           <div className="flex justify-between items-start">
-            <div className="space-y-2">
-              <h2 className="editorial-heading-1 text-stone-200" style={{fontFamily: 'Times New Roman, serif', letterSpacing: '0.3em'}}>GALLERY</h2>
-              <p className="editorial-text-caption text-neutral-500">Curated Collection</p>
+            <div className="space-y-6">
+              <div>
+                <div className="text-xs tracking-[0.3em] uppercase text-stone-500 font-light mb-4">
+                  Professional Collection
+                </div>
+                <h2 className="text-4xl sm:text-5xl font-serif font-extralight tracking-[0.25em] text-stone-950 uppercase">Gallery</h2>
+              </div>
               
               {/* Gallery Stats */}
-              <div className="flex items-center gap-6 pt-2">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-neutral-400 rounded-full"></div>
-                  <span className="text-xs text-neutral-400 tracking-wide">
-                    {galleryStats.total} PHOTOS
+              <div className="flex items-center gap-8">
+                <div className="flex items-center gap-3">
+                  <div className="w-2 h-2 bg-stone-600 rounded-full"></div>
+                  <span className="text-xs text-stone-600 tracking-[0.2em] uppercase font-light">
+                    {galleryStats.total} Photos
                   </span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Star size={12} className="text-neutral-400" strokeWidth={1.5} />
-                  <span className="text-xs text-neutral-400 tracking-wide">
-                    {galleryStats.favorites} FAVORITES
+                <div className="flex items-center gap-3">
+                  <Star size={12} className="text-stone-600" strokeWidth={1.5} />
+                  <span className="text-xs text-stone-600 tracking-[0.2em] uppercase font-light">
+                    {galleryStats.favorites} Favorites
                   </span>
                 </div>
                 {selectedImages.size > 0 && (
-                  <div className="flex items-center gap-2">
-                    <Check size={12} className="text-neutral-300" strokeWidth={1.5} />
-                    <span className="text-xs text-neutral-300 tracking-wide">
-                      {selectedImages.size} SELECTED
+                  <div className="flex items-center gap-3">
+                    <Check size={12} className="text-stone-950" strokeWidth={1.5} />
+                    <span className="text-xs text-stone-950 tracking-[0.2em] uppercase font-light">
+                      {selectedImages.size} Selected
                     </span>
                   </div>
                 )}
@@ -404,48 +395,48 @@ function SSELFIEGallery({ hideMemberNav = false }: { hideMemberNav?: boolean }) 
             </div>
             
             {/* Action Buttons */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4">
               {/* Search */}
               <div className="relative">
-                <Search size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400" strokeWidth={1.5} />
+                <Search size={16} className="absolute left-4 top-1/2 transform -translate-y-1/2 text-stone-500" strokeWidth={1.5} />
                 <input
                   type="text"
                   placeholder="Search photos..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 pr-4 py-2 bg-stone-800/40 border border-stone-700/30 rounded-lg text-stone-200 text-sm placeholder-stone-500 focus:outline-none focus:ring-2 focus:ring-stone-600/50 w-48"
+                  className="pl-12 pr-4 py-3 bg-white border border-stone-200/60 rounded-2xl text-stone-950 text-sm placeholder-stone-500 focus:outline-none focus:ring-2 focus:ring-stone-600/40 focus:border-stone-600/60 w-64 font-light"
                 />
               </div>
               
               {/* Filter Toggle */}
               <button 
                 onClick={() => setShowFilters(!showFilters)}
-                className={`p-3 rounded-lg border transition-all duration-200 ${
+                className={`p-3 rounded-2xl border transition-all duration-200 ${
                   showFilters 
-                    ? 'bg-neutral-700/40 border-neutral-600/50' 
-                    : 'bg-stone-800/40 border-stone-700/30 hover:bg-stone-700/40'
+                    ? 'bg-stone-950 border-stone-950 text-stone-50' 
+                    : 'bg-white border-stone-200/60 hover:border-stone-300 text-stone-600'
                 }`}
               >
-                <Filter size={18} className="text-neutral-400" strokeWidth={1.5} />
+                <Filter size={16} className={showFilters ? 'text-stone-50' : 'text-stone-600'} strokeWidth={1.5} />
               </button>
               
               {/* View Mode */}
-              <div className="flex bg-neutral-800/40 rounded-lg border border-neutral-700/30 p-1">
+              <div className="flex bg-white rounded-2xl border border-stone-200/60 p-1">
                 <button
                   onClick={() => setViewMode('grid')}
-                  className={`p-2 rounded-md transition-all duration-200 ${
-                    viewMode === 'grid' ? 'bg-neutral-700/60' : 'hover:bg-neutral-700/40'
+                  className={`p-2 rounded-xl transition-all duration-200 ${
+                    viewMode === 'grid' ? 'bg-stone-100 text-stone-950' : 'hover:bg-stone-50 text-stone-600'
                   }`}
                 >
-                  <Grid size={16} className="text-neutral-400" strokeWidth={1.5} />
+                  <Grid size={16} strokeWidth={1.5} />
                 </button>
                 <button
                   onClick={() => setViewMode('masonry')}
-                  className={`p-2 rounded-md transition-all duration-200 ${
-                    viewMode === 'masonry' ? 'bg-neutral-700/60' : 'hover:bg-neutral-700/40'
+                  className={`p-2 rounded-xl transition-all duration-200 ${
+                    viewMode === 'masonry' ? 'bg-stone-100 text-stone-950' : 'hover:bg-stone-50 text-stone-600'
                   }`}
                 >
-                  <Eye size={16} className="text-neutral-400" strokeWidth={1.5} />
+                  <Eye size={16} strokeWidth={1.5} />
                 </button>
               </div>
             </div>
@@ -453,12 +444,12 @@ function SSELFIEGallery({ hideMemberNav = false }: { hideMemberNav?: boolean }) 
 
           {/* Filters Panel */}
           {showFilters && (
-            <div className="bg-neutral-800/20 backdrop-blur-sm rounded-editorial-lg border border-neutral-700/30 p-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-white backdrop-blur-sm rounded-3xl border border-stone-200/60 p-6 sm:p-8 shadow-lg">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {/* Sort By */}
-                <div className="space-y-3">
-                  <label className="text-xs text-neutral-400 tracking-wide uppercase">Sort By</label>
-                  <div className="flex flex-col space-y-2">
+                <div className="space-y-4">
+                  <label className="text-xs text-stone-500 tracking-[0.2em] uppercase font-light">Sort By</label>
+                  <div className="flex flex-col space-y-3">
                     {[
                       { value: 'newest', label: 'Newest First', icon: SortDesc },
                       { value: 'oldest', label: 'Oldest First', icon: SortAsc },
@@ -469,14 +460,14 @@ function SSELFIEGallery({ hideMemberNav = false }: { hideMemberNav?: boolean }) 
                         <button
                           key={option.value}
                           onClick={() => setSortBy(option.value as 'newest' | 'oldest' | 'favorites')}
-                          className={`flex items-center gap-3 p-3 rounded-lg transition-all duration-200 ${
+                          className={`flex items-center gap-4 p-4 rounded-2xl transition-all duration-200 text-left ${
                             sortBy === option.value
-                              ? 'bg-neutral-700/40 border border-neutral-600/50'
-                              : 'hover:bg-neutral-700/20'
+                              ? 'bg-stone-100 border border-stone-200/60 text-stone-950'
+                              : 'hover:bg-stone-50 text-stone-600'
                           }`}
                         >
-                          <Icon size={16} className="text-neutral-400" strokeWidth={1.5} />
-                          <span className="text-sm text-neutral-300">{option.label}</span>
+                          <Icon size={16} className={sortBy === option.value ? 'text-stone-950' : 'text-stone-500'} strokeWidth={1.5} />
+                          <span className="text-sm font-light">{option.label}</span>
                         </button>
                       );
                     })}
@@ -484,9 +475,9 @@ function SSELFIEGallery({ hideMemberNav = false }: { hideMemberNav?: boolean }) 
                 </div>
 
                 {/* Filter By */}
-                <div className="space-y-3">
-                  <label className="text-xs text-neutral-400 tracking-wide uppercase">Filter By</label>
-                  <div className="flex flex-col space-y-2">
+                <div className="space-y-4">
+                  <label className="text-xs text-stone-500 tracking-[0.2em] uppercase font-light">Filter By</label>
+                  <div className="flex flex-col space-y-3">
                     {[
                       { value: 'all', label: 'All Photos', icon: Grid },
                       { value: 'favorites', label: 'Favorites Only', icon: Star },
@@ -497,14 +488,14 @@ function SSELFIEGallery({ hideMemberNav = false }: { hideMemberNav?: boolean }) 
                         <button
                           key={option.value}
                           onClick={() => setFilterBy(option.value as 'all' | 'favorites' | 'recent')}
-                          className={`flex items-center gap-3 p-3 rounded-lg transition-all duration-200 ${
+                          className={`flex items-center gap-4 p-4 rounded-2xl transition-all duration-200 text-left ${
                             filterBy === option.value
-                              ? 'bg-neutral-700/40 border border-neutral-600/50'
-                              : 'hover:bg-neutral-700/20'
+                              ? 'bg-stone-100 border border-stone-200/60 text-stone-950'
+                              : 'hover:bg-stone-50 text-stone-600'
                           }`}
                         >
-                          <Icon size={16} className="text-neutral-400" strokeWidth={1.5} />
-                          <span className="text-sm text-neutral-300">{option.label}</span>
+                          <Icon size={16} className={filterBy === option.value ? 'text-stone-950' : 'text-stone-500'} strokeWidth={1.5} />
+                          <span className="text-sm font-light">{option.label}</span>
                         </button>
                       );
                     })}
@@ -513,29 +504,29 @@ function SSELFIEGallery({ hideMemberNav = false }: { hideMemberNav?: boolean }) 
 
                 {/* Bulk Actions */}
                 {selectedImages.size > 0 && (
-                  <div className="space-y-3">
-                    <label className="text-xs text-neutral-400 tracking-wide uppercase">Bulk Actions</label>
-                    <div className="flex flex-col space-y-2">
+                  <div className="space-y-4">
+                    <label className="text-xs text-stone-500 tracking-[0.2em] uppercase font-light">Bulk Actions</label>
+                    <div className="flex flex-col space-y-3">
                       <button
                         onClick={handleBulkDownload}
-                        className="flex items-center gap-3 p-3 rounded-lg hover:bg-neutral-700/20 transition-all duration-200"
+                        className="flex items-center gap-4 p-4 rounded-2xl hover:bg-stone-50 transition-all duration-200 text-left text-stone-600"
                       >
-                        <Download size={16} className="text-neutral-400" strokeWidth={1.5} />
-                        <span className="text-sm text-neutral-300">Download Selected</span>
+                        <Download size={16} className="text-stone-500" strokeWidth={1.5} />
+                        <span className="text-sm font-light">Download Selected</span>
                       </button>
                       <button
                         onClick={handleBulkDelete}
-                        className="flex items-center gap-3 p-3 rounded-lg hover:bg-red-900/20 transition-all duration-200"
+                        className="flex items-center gap-4 p-4 rounded-2xl hover:bg-red-50 transition-all duration-200 text-left text-red-600"
                       >
-                        <Trash2 size={16} className="text-red-400" strokeWidth={1.5} />
-                        <span className="text-sm text-red-300">Delete Selected</span>
+                        <Trash2 size={16} className="text-red-500" strokeWidth={1.5} />
+                        <span className="text-sm font-light">Delete Selected</span>
                       </button>
                       <button
                         onClick={clearSelection}
-                        className="flex items-center gap-3 p-3 rounded-lg hover:bg-neutral-700/20 transition-all duration-200"
+                        className="flex items-center gap-4 p-4 rounded-2xl hover:bg-stone-50 transition-all duration-200 text-left text-stone-600"
                       >
-                        <X size={16} className="text-neutral-400" strokeWidth={1.5} />
-                        <span className="text-sm text-neutral-300">Clear Selection</span>
+                        <X size={16} className="text-stone-500" strokeWidth={1.5} />
+                        <span className="text-sm font-light">Clear Selection</span>
                       </button>
                     </div>
                   </div>
@@ -545,32 +536,35 @@ function SSELFIEGallery({ hideMemberNav = false }: { hideMemberNav?: boolean }) 
           )}
         </div>
         
-        {/* Enhanced Gallery Grid */}
-        <div className={`mt-8 ${viewMode === 'masonry' ? 'columns-2 gap-3' : 'grid grid-cols-2 gap-3'}`}>
+        {/* Gallery Grid */}
+        <div className={`mt-12 ${viewMode === 'masonry' ? 'columns-2 sm:columns-3 gap-4 sm:gap-6' : 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6'}`}>
         {isLoading ? (
-            Array.from({ length: 6 }).map((_, i) => (
+            Array.from({ length: 8 }).map((_, i) => (
               <div 
                 key={i} 
-                className={`${viewMode === 'masonry' ? 'break-inside-avoid mb-3' : ''} aspect-square bg-neutral-800/30 rounded-editorial-lg animate-pulse border border-neutral-700/20`} 
+                className={`${viewMode === 'masonry' ? 'break-inside-avoid mb-4' : ''} aspect-square bg-stone-200 rounded-2xl animate-pulse`} 
               />
             ))
           ) : filteredImages.length === 0 ? (
-            <div className="col-span-2 text-center py-20">
-              <div className="p-8 bg-neutral-800/20 rounded-editorial-xl border border-neutral-700/20 mb-6 inline-block">
-                <Camera size={48} className="text-neutral-600" strokeWidth={1.5} />
+            <div className="col-span-full text-center py-24">
+              <div className="p-8 bg-white rounded-3xl border border-stone-200/60 mb-8 inline-block shadow-lg">
+                <Camera size={48} className="text-stone-600" strokeWidth={1.5} />
           </div>
-              <h3 className="editorial-heading-2 text-neutral-300 mb-2">
-                {searchQuery ? 'NO RESULTS FOUND' : 'NO PHOTOS YET'}
+              <h3 className="text-2xl font-serif font-extralight tracking-[0.2em] uppercase text-stone-950 mb-4">
+                {searchQuery ? 'No Results Found' : 'No Photos Yet'}
               </h3>
-              <p className="editorial-text-body text-neutral-500 mb-6">
+              <p className="text-stone-600 leading-relaxed font-light mb-8 max-w-md mx-auto">
                 {searchQuery 
                   ? `No photos match "${searchQuery}"` 
                   : 'Start creating professional portraits with Maya'
                 }
               </p>
-              <button className="editorial-button">
-                <Plus className="mr-2 inline" size={18} strokeWidth={1.5} />
-                {searchQuery ? 'CLEAR SEARCH' : 'CREATE FIRST PHOTO'}
+              <button 
+                onClick={() => searchQuery ? setSearchQuery('') : window.location.href = '/maya'}
+                className="bg-stone-950 text-stone-50 px-8 py-4 text-xs tracking-[0.15em] uppercase font-light rounded-2xl hover:bg-stone-800 transition-colors flex items-center gap-3 mx-auto"
+              >
+                <Plus size={16} strokeWidth={1.5} />
+                {searchQuery ? 'Clear Search' : 'Create First Photo'}
               </button>
           </div>
         ) : (
@@ -581,12 +575,12 @@ function SSELFIEGallery({ hideMemberNav = false }: { hideMemberNav?: boolean }) 
               return (
               <div 
                 key={image.id} 
-                  className={`${viewMode === 'masonry' ? 'break-inside-avoid mb-3' : ''} relative group cursor-pointer`}
+                  className={`${viewMode === 'masonry' ? 'break-inside-avoid mb-4 sm:mb-6' : ''} relative group cursor-pointer`}
               >
-                  <div className={`${viewMode === 'masonry' ? 'aspect-[4/5]' : 'aspect-square'} relative overflow-hidden rounded-editorial-lg border-2 transition-all duration-300 ${
+                  <div className={`${viewMode === 'masonry' ? 'aspect-[4/5]' : 'aspect-square'} relative overflow-hidden rounded-2xl border-2 transition-all duration-300 ${
                     isSelected 
-                      ? 'border-neutral-300 shadow-editorial-lg' 
-                      : 'border-neutral-700/20 hover:border-neutral-600/40'
+                      ? 'border-stone-950 shadow-xl' 
+                      : 'border-stone-200/60 hover:border-stone-300/80 hover:shadow-lg'
                   }`}>
                 <img 
                   src={image.imageUrl || image.url || ''} 
@@ -597,15 +591,15 @@ function SSELFIEGallery({ hideMemberNav = false }: { hideMemberNav?: boolean }) 
                     
                     {/* Selection Overlay */}
                     {isSelected && (
-                      <div className="absolute inset-0 bg-neutral-300/20 backdrop-blur-sm flex items-center justify-center">
-                        <div className="w-8 h-8 bg-neutral-200 rounded-full flex items-center justify-center shadow-lg">
-                          <Check size={16} className="text-black" strokeWidth={2} />
+                      <div className="absolute inset-0 bg-stone-950/20 backdrop-blur-sm flex items-center justify-center">
+                        <div className="w-10 h-10 bg-stone-50 rounded-full flex items-center justify-center shadow-xl">
+                          <Check size={18} className="text-stone-950" strokeWidth={2} />
                         </div>
                       </div>
                     )}
                     
                     {/* Hover Overlay */}
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300"></div>
+                    <div className="absolute inset-0 bg-stone-950/0 group-hover:bg-stone-950/20 transition-all duration-300"></div>
                     
                     {/* Selection Checkbox */}
                     <div className="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -614,34 +608,34 @@ function SSELFIEGallery({ hideMemberNav = false }: { hideMemberNav?: boolean }) 
                           e.stopPropagation();
                           toggleImageSelection(image.id);
                         }}
-                        className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${
+                        className={`w-7 h-7 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${
                           isSelected
-                            ? 'bg-neutral-200 border-neutral-200'
-                            : 'bg-black/50 border-white/50 hover:bg-black/70'
+                            ? 'bg-stone-50 border-stone-50'
+                            : 'bg-stone-950/50 border-stone-50/50 hover:bg-stone-950/70'
                         }`}
                       >
-                        {isSelected && <Check size={12} className="text-black" strokeWidth={2} />}
+                        {isSelected && <Check size={14} className="text-stone-950" strokeWidth={2} />}
                       </button>
                     </div>
                     
                     {/* Favorite Indicator */}
                     {isFavorite && (
                       <div className="absolute top-3 right-3">
-                        <div className="w-6 h-6 bg-red-500/90 rounded-full flex items-center justify-center backdrop-blur-sm">
-                          <Heart size={12} className="text-white fill-current" strokeWidth={1.5} />
+                        <div className="w-7 h-7 bg-red-500/90 rounded-full flex items-center justify-center backdrop-blur-sm">
+                          <Heart size={14} className="text-white fill-current" strokeWidth={1.5} />
                         </div>
                       </div>
                     )}
                     
                     {/* Action Overlay */}
-                    <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-stone-950/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                       <div className="flex justify-between items-center">
                         <div className="space-y-1">
-                          <span className="text-white text-xs tracking-wide font-light">
+                          <span className="text-stone-50 text-xs tracking-[0.15em] uppercase font-light">
                             IMG_{String(index + 1).padStart(3, '0')}
                           </span>
                           {image.title && (
-                            <p className="text-white/80 text-xs truncate max-w-24">
+                            <p className="text-stone-200 text-xs truncate max-w-24 font-light">
                               {image.title}
                             </p>
                           )}
@@ -652,11 +646,11 @@ function SSELFIEGallery({ hideMemberNav = false }: { hideMemberNav?: boolean }) 
                               e.stopPropagation();
                               toggleFavorite(image.id);
                             }}
-                            className="p-1.5 bg-white/20 backdrop-blur-sm rounded-editorial-md hover:bg-white/30 transition-colors"
+                            className="p-2 bg-stone-50/20 backdrop-blur-sm rounded-xl hover:bg-stone-50/30 transition-colors"
                           >
                             <Heart 
                               size={14} 
-                              className={`${isFavorite ? 'text-red-400 fill-current' : 'text-white'}`} 
+                              className={`${isFavorite ? 'text-red-400 fill-current' : 'text-stone-50'}`} 
                               strokeWidth={1.5} 
                             />
                           </button>
@@ -665,9 +659,9 @@ function SSELFIEGallery({ hideMemberNav = false }: { hideMemberNav?: boolean }) 
                               e.stopPropagation();
                               setSelectedImage(image);
                             }}
-                            className="p-1.5 bg-white/20 backdrop-blur-sm rounded-editorial-md hover:bg-white/30 transition-colors"
+                            className="p-2 bg-stone-50/20 backdrop-blur-sm rounded-xl hover:bg-stone-50/30 transition-colors"
                           >
-                            <Eye size={14} className="text-white" strokeWidth={1.5} />
+                            <Eye size={14} className="text-stone-50" strokeWidth={1.5} />
                           </button>
                         </div>
                       </div>
@@ -679,11 +673,11 @@ function SSELFIEGallery({ hideMemberNav = false }: { hideMemberNav?: boolean }) 
           )}
         </div>
 
-        {/* Load more - enhanced */}
+        {/* Load more */}
         {filteredImages.length > 0 && (
-          <div className="text-center pt-8">
-            <button className="text-neutral-400 text-sm tracking-wide hover:text-neutral-300 transition-colors px-6 py-3 rounded-editorial-lg hover:bg-neutral-800/20">
-              LOAD MORE
+          <div className="text-center pt-12">
+            <button className="text-stone-600 text-sm tracking-[0.15em] uppercase font-light hover:text-stone-950 transition-colors px-8 py-4 rounded-2xl hover:bg-stone-100">
+              Load More Photos
             </button>
           </div>
         )}
@@ -691,40 +685,40 @@ function SSELFIEGallery({ hideMemberNav = false }: { hideMemberNav?: boolean }) 
         {/* Floating Bulk Actions Bar */}
         {selectedImages.size > 0 && (
           <div className="fixed bottom-24 left-1/2 transform -translate-x-1/2 z-40">
-            <div className="bg-neutral-900/95 backdrop-blur-2xl rounded-editorial-xl border border-neutral-700/30 px-6 py-4 shadow-editorial-xl">
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <Check size={16} className="text-neutral-300" strokeWidth={1.5} />
-                  <span className="text-sm text-neutral-300 font-light">
-                    {selectedImages.size} SELECTED
+            <div className="bg-stone-50/95 backdrop-blur-2xl rounded-3xl border border-stone-200/60 px-8 py-6 shadow-2xl">
+              <div className="flex items-center gap-6">
+                <div className="flex items-center gap-3">
+                  <Check size={16} className="text-stone-950" strokeWidth={1.5} />
+                  <span className="text-sm text-stone-950 font-light tracking-[0.1em] uppercase">
+                    {selectedImages.size} Selected
                   </span>
                 </div>
                 
-                <div className="w-px h-6 bg-neutral-700/50"></div>
+                <div className="w-px h-6 bg-stone-200"></div>
                 
                 <div className="flex items-center gap-3">
                   <button
                     onClick={handleBulkDownload}
-                    className="flex items-center gap-2 px-4 py-2 bg-neutral-800/40 rounded-editorial-md hover:bg-neutral-700/40 transition-colors"
+                    className="flex items-center gap-2 px-6 py-3 bg-stone-100 rounded-2xl hover:bg-stone-200 transition-colors"
                   >
-                    <Download size={14} className="text-neutral-400" strokeWidth={1.5} />
-                    <span className="text-xs text-neutral-300 tracking-wide">DOWNLOAD</span>
+                    <Download size={14} className="text-stone-600" strokeWidth={1.5} />
+                    <span className="text-xs text-stone-600 tracking-[0.1em] uppercase font-light">Download</span>
                   </button>
                   
                   <button
                     onClick={handleBulkDelete}
-                    className="flex items-center gap-2 px-4 py-2 bg-red-900/20 rounded-editorial-md hover:bg-red-900/30 transition-colors"
+                    className="flex items-center gap-2 px-6 py-3 bg-red-50 rounded-2xl hover:bg-red-100 transition-colors"
                   >
-                    <Trash2 size={14} className="text-red-400" strokeWidth={1.5} />
-                    <span className="text-xs text-red-300 tracking-wide">DELETE</span>
+                    <Trash2 size={14} className="text-red-600" strokeWidth={1.5} />
+                    <span className="text-xs text-red-600 tracking-[0.1em] uppercase font-light">Delete</span>
                   </button>
                   
                   <button
                     onClick={clearSelection}
-                    className="flex items-center gap-2 px-4 py-2 bg-neutral-800/40 rounded-editorial-md hover:bg-neutral-700/40 transition-colors"
+                    className="flex items-center gap-2 px-6 py-3 bg-stone-100 rounded-2xl hover:bg-stone-200 transition-colors"
                   >
-                    <X size={14} className="text-neutral-400" strokeWidth={1.5} />
-                    <span className="text-xs text-neutral-300 tracking-wide">CLEAR</span>
+                    <X size={14} className="text-stone-600" strokeWidth={1.5} />
+                    <span className="text-xs text-stone-600 tracking-[0.1em] uppercase font-light">Clear</span>
                   </button>
                 </div>
               </div>
