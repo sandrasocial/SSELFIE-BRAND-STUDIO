@@ -50,8 +50,7 @@ declare global {
       FACEBOOK_PAGE_ID?: string;
       FACEBOOK_ACCESS_TOKEN?: string;
       GOOGLE_MERCHANT_ID?: string;
-      GOOGLE_CLIENT_ID?: string;
-      GOOGLE_CLIENT_SECRET?: string;
+      // GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET removed - Stack Auth handles all OAuth
       GOOGLE_REFRESH_TOKEN?: string;
       SENDGRID_API_KEY?: string;
       STRIPE_SECRET_KEY?: string;

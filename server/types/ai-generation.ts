@@ -3,6 +3,7 @@
  */
 
 /// <reference path="global.d.ts" />
+import { Request } from 'express';
 import { DatabaseUser } from '../../api/_shared/auth-types.js';
 
 /** Server-side authenticated user (without stackUser requirement) */
@@ -11,14 +12,8 @@ export interface ServerAuthenticatedUser extends DatabaseUser {
 }
 
 /** Base authenticated request for server routes */
-export interface AuthenticatedRequest {
+export interface AuthenticatedRequest extends Request {
   user: ServerAuthenticatedUser;
-  params: any;  // Express params are available
-  body: any;    // Express body is available through middleware
-  headers: any; // Express headers
-  method: string; // HTTP method
-  url: string;  // Request URL
-  query: any;   // Query parameters
 }
 
 /** Story concept request */
