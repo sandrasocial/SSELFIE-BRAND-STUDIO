@@ -3,7 +3,12 @@ import { useBrandStudio, BrandStudioProvider } from '../contexts/BrandStudioCont
 import { Send, Camera } from 'lucide-react';
 import type { ConceptCard } from '../../../shared/types/concept-card.js';
 
-const MayaChatContent: React.FC = () => {
+interface MayaChatContentProps {
+  initialPrompt?: string | null;
+  onPromptUsed?: () => void;
+}
+
+const MayaChatContent: React.FC<MayaChatContentProps> = ({ initialPrompt, onPromptUsed }) => {
   const [messageInput, setMessageInput] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
@@ -36,6 +41,16 @@ const MayaChatContent: React.FC = () => {
   useEffect(() => {
     scrollToBottom();
   }, [allMessages, isTyping]);
+
+  // Handle initial prompt from style selection
+  useEffect(() => {
+    if (initialPrompt && !isTyping && messages.length === 0) {
+      // Send the initial prompt automatically
+      sendMessage(initialPrompt);
+      // Mark the prompt as used
+      onPromptUsed?.();
+    }
+  }, [initialPrompt, sendMessage, onPromptUsed, isTyping, messages.length]);
 
   const handleSendMessage = async () => {
     if (!messageInput.trim() || isTyping) return;
@@ -201,10 +216,15 @@ const MayaChatContent: React.FC = () => {
 };
 
 // Wrapper component with BrandStudioProvider
-const MayaScreen: React.FC = () => {
+interface MayaScreenProps {
+  initialPrompt?: string | null;
+  onPromptUsed?: () => void;
+}
+
+const MayaScreen: React.FC<MayaScreenProps> = ({ initialPrompt, onPromptUsed }) => {
   return (
     <BrandStudioProvider>
-      <MayaChatContent />
+      <MayaChatContent initialPrompt={initialPrompt} onPromptUsed={onPromptUsed} />
     </BrandStudioProvider>
   );
 };

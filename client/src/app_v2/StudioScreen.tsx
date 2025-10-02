@@ -4,7 +4,7 @@ import { useLocation } from 'wouter';
 import { useAuth } from '../hooks/use-auth.js';
 import { apiFetch } from '../lib/api.js';
 import { WelcomeHeader } from '../components/WelcomeHeader.js';
-import { StyleSelector } from '../components/StyleSelector.js';
+
 import QuickAccessPanel from '../components/QuickAccessPanel.js';
 import GeneratedImagePreview from '../components/GeneratedImagePreview.js';
 import { 
@@ -12,10 +12,8 @@ import {
   Clock, 
   CheckCircle, 
   AlertCircle, 
-  Play, 
   Settings,
   RefreshCw,
-  Plus,
   Camera
 } from 'lucide-react';
 
@@ -42,7 +40,7 @@ const StudioScreen: React.FC<StudioScreenProps> = ({ onTabChange }) => {
   const [, setLocation] = useLocation();
   const [selectedStyle, setSelectedStyle] = useState<any>(null);
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
-  const [showStyleSelector, setShowStyleSelector] = useState(false);
+
 
   const { data: userModel, isLoading: modelLoading, error } = useQuery<UserModel>({
     queryKey: ['/api/user-model'],
@@ -194,29 +192,68 @@ const StudioScreen: React.FC<StudioScreenProps> = ({ onTabChange }) => {
           </div>
           
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-            {[
-              { title: 'Professional', image: 'https://i.postimg.cc/Y9xDCmzs/Lovephotography.jpg' },
-              { title: 'Creative', image: 'https://i.postimg.cc/mD464SCd/42.jpg' },
-              { title: 'Lifestyle', image: 'https://i.postimg.cc/NMtPtxmS/45.jpg' },
-              { title: 'Editorial', image: 'https://i.postimg.cc/bJPFPRkM/47.jpg' }
-            ].map((inspiration, index) => (
-              <div 
-                key={index}
-                className="group relative aspect-[4/5] overflow-hidden rounded-2xl border border-stone-200/40 bg-stone-100/40 cursor-pointer hover:border-stone-300/60 transition-all duration-200"
-              >
-                <img 
-                  src={inspiration.image} 
-                  alt={inspiration.title}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-stone-950/20 to-stone-950/80"></div>
-                <div className="absolute bottom-3 left-3 right-3">
-                  <h4 className="text-sm font-serif font-extralight tracking-[0.1em] text-stone-50 uppercase">
-                    {inspiration.title}
-                  </h4>
-                </div>
-              </div>
-            ))}
+            {(() => {
+              // Maya's rotating daily tips - changes based on day of year
+              const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24));
+              const tipRotation = [
+                { 
+                  title: 'Golden Hour Glow', 
+                  image: 'https://i.postimg.cc/Y9xDCmzs/Lovephotography.jpg',
+                  tip: 'Create warm, golden hour portraits with soft natural lighting that makes your skin glow beautifully.'
+                },
+                { 
+                  title: 'Bold Creative', 
+                  image: 'https://i.postimg.cc/mD464SCd/42.jpg',
+                  tip: 'Express your artistic side with dramatic angles, creative compositions, and unique perspectives.'
+                },
+                { 
+                  title: 'Authentic Moments', 
+                  image: 'https://i.postimg.cc/NMtPtxmS/45.jpg',
+                  tip: 'Capture genuine, candid moments that show your true personality in natural settings.'
+                },
+                { 
+                  title: 'Fashion Forward', 
+                  image: 'https://i.postimg.cc/bJPFPRkM/47.jpg',
+                  tip: 'Strike a pose with high-fashion editorial styling, dramatic lighting, and model-worthy compositions.'
+                }
+              ];
+              
+              // Rotate tips based on day, ensuring different combination each day
+              const shuffledTips = [...tipRotation].sort(() => (dayOfYear % 7) - 3.5);
+              
+              return shuffledTips.map((inspiration, index) => (
+                <button 
+                  key={index}
+                  onClick={() => {
+                    // Navigate to Maya chat with the daily tip
+                    const tipPrompt = `Maya, I love your daily tip: "${inspiration.tip}" Can you help me create these kinds of photos?`;
+                    onTabChange?.('maya');
+                    setLocation(`/sselfie-app?tab=maya&prompt=${encodeURIComponent(tipPrompt)}`);
+                  }}
+                  className="group relative aspect-[4/5] overflow-hidden rounded-2xl border border-stone-200/40 bg-stone-100/40 cursor-pointer hover:border-stone-300/60 transition-all duration-200 hover:scale-[1.02]"
+                >
+                  <img 
+                    src={inspiration.image} 
+                    alt={inspiration.title}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-b from-transparent via-stone-950/20 to-stone-950/80"></div>
+                  <div className="absolute bottom-3 left-3 right-3">
+                    <h4 className="text-sm font-serif font-extralight tracking-[0.1em] text-stone-50 uppercase mb-1">
+                      {inspiration.title}
+                    </h4>
+                    <p className="text-xs text-stone-200 font-light opacity-90 leading-tight">
+                      Maya's Tip
+                    </p>
+                  </div>
+                  <div className="absolute top-3 right-3">
+                    <div className="w-6 h-6 bg-stone-50/20 backdrop-blur-sm rounded-full flex items-center justify-center">
+                      <Camera size={12} className="text-stone-50" strokeWidth={1.5} />
+                    </div>
+                  </div>
+                </button>
+              ));
+            })()}
           </div>
         </div>
       )}
@@ -251,7 +288,7 @@ const StudioScreen: React.FC<StudioScreenProps> = ({ onTabChange }) => {
               <h4 className="text-base font-serif font-extralight tracking-[0.15em] text-stone-950 uppercase mb-4">
                 Choose Your Style
               </h4>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              <div className="h-48 overflow-y-auto space-y-3 pr-2">
                 {[
                   { id: 'professional', title: '1. Professional', description: 'Clean, business-ready' },
                   { id: 'creative', title: '2. Creative', description: 'Artistic, unique angles' },
@@ -264,9 +301,12 @@ const StudioScreen: React.FC<StudioScreenProps> = ({ onTabChange }) => {
                     key={style.id}
                     onClick={() => {
                       setSelectedStyle(style);
-                      setLocation(`/ai-generator?style=${style.id}`);
+                      // Navigate to Maya chat with the selected style
+                      const stylePrompt = `I'd like to create ${style.title.toLowerCase()} style images. ${style.description}. Can you help me generate some amazing photos in this style?`;
+                      onTabChange?.('maya');
+                      setLocation(`/sselfie-app?tab=maya&prompt=${encodeURIComponent(stylePrompt)}`);
                     }}
-                    className={`p-4 rounded-2xl border transition-all duration-200 text-left ${
+                    className={`w-full p-4 rounded-2xl border transition-all duration-200 text-left ${
                       selectedStyle?.id === style.id
                         ? 'bg-stone-200/60 border-stone-300/60'
                         : 'bg-stone-100/40 border-stone-200/40 hover:bg-stone-100/60 hover:border-stone-300/50'
@@ -283,19 +323,7 @@ const StudioScreen: React.FC<StudioScreenProps> = ({ onTabChange }) => {
               </div>
             </div>
 
-            <button
-              onClick={() => {
-                if (selectedStyle) {
-                  setLocation(`/ai-generator?style=${selectedStyle.id}`);
-                } else {
-                  setShowStyleSelector(true);
-                }
-              }}
-              className="w-full bg-stone-950 text-stone-50 py-4 sm:py-5 rounded-2xl font-light tracking-[0.15em] uppercase text-sm transition-all duration-200 hover:bg-stone-800 hover:transform hover:translate-y-[-1px] min-h-[52px] focus:outline-none focus:ring-2 focus:ring-stone-600/40 flex items-center justify-center gap-2"
-            >
-              <Play size={18} strokeWidth={1.5} />
-              {selectedStyle ? `Generate ${selectedStyle.title.split('.')[1]} Style` : 'Start Generating'}
-            </button>
+
 
             {userModel?.canRetrain && (
               <button
@@ -412,37 +440,7 @@ const StudioScreen: React.FC<StudioScreenProps> = ({ onTabChange }) => {
         </div>
       )}
 
-      {/* StyleSelector Modal */}
-      {showStyleSelector && (
-        <div className="fixed inset-0 bg-stone-950/95 backdrop-blur-sm z-50 flex items-center justify-center p-4 sm:p-8">
-          <div className="max-w-4xl w-full max-h-[90vh] overflow-y-auto bg-white rounded-3xl p-6 sm:p-8 shadow-2xl">
-            <div className="flex items-center justify-between mb-8">
-              <div>
-                <h2 className="text-2xl font-serif font-extralight tracking-[0.2em] uppercase text-stone-950 mb-2">
-                  Choose Your Style
-                </h2>
-                <p className="text-stone-600 font-light">Select a photography style for your professional photos</p>
-              </div>
-              <button
-                onClick={() => setShowStyleSelector(false)}
-                className="p-3 hover:bg-stone-100 rounded-2xl transition-colors"
-              >
-                <Plus size={20} className="text-stone-600 rotate-45" strokeWidth={1.5} />
-              </button>
-            </div>
-            
-            <StyleSelector
-              onStyleSelect={(style) => {
-                setSelectedStyle(style);
-                setShowStyleSelector(false);
-                // Navigate to generation page with selected style
-                setLocation(`/ai-generator?style=${style.id}`);
-              }}
-              selectedStyleId={selectedStyle?.id}
-            />
-          </div>
-        </div>
-      )}
+
     </div>
   );
 };
