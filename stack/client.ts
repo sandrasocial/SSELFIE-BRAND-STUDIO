@@ -62,8 +62,8 @@ try {
       error: "/handler/sign-in?error=auth_failed",
     },
     // Enhanced configuration for production stability
-    // 🔥 NEW: Add baseUrl to ensure proper OAuth redirect URL construction
-    baseUrl: typeof window !== 'undefined' ? window.location.origin : undefined,
+  // 🔥 CRITICAL FIX: Use correct domain (sselfie.ai) instead of www.sselfie.ai
+    baseUrl: typeof window !== 'undefined' ? 'https://sselfie.ai' : undefined,
   });
 
   // 🔥 CRITICAL FIX: Override token store methods to prevent "undefined" tokens
@@ -99,8 +99,23 @@ try {
   console.log('🔍 Stack Auth Instance Created Successfully:', {
     projectId: stackClientApp.projectId,
     urls: stackClientApp.urls,
-    tokenStore: 'cookie'
+    tokenStore: 'cookie',
+    currentOrigin: typeof window !== 'undefined' ? window.location.origin : 'server-side'
   });
+
+  // 🔥 CRITICAL FIX: Override URLs to use correct domain (sselfie.ai) if they don't match
+  if (typeof window !== 'undefined') {
+    const correctDomain = 'https://sselfie.ai';
+    const urlKeys = ['signIn', 'signUp', 'afterSignIn', 'afterSignUp', 'afterSignOut', 'oauthCallback', 'error'] as const;
+
+    urlKeys.forEach(key => {
+      const currentUrl = (stackClientApp.urls as any)[key];
+      if (currentUrl && (currentUrl.startsWith('https://www.sselfie.ai') || !currentUrl.startsWith(correctDomain))) {
+        (stackClientApp.urls as any)[key] = currentUrl.replace('https://www.sselfie.ai', correctDomain);
+        console.log(`🔧 Fixed URL ${key}: ${currentUrl} → ${(stackClientApp.urls as any)[key]}`);
+      }
+    });
+  }
 
   // 🔍 DEBUG: Check if Stack Auth is working properly
   console.log('🔍 Stack Auth Client Methods Available:', {
