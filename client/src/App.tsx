@@ -2,10 +2,7 @@
 import React, { useEffect } from 'react';
 import { Route, useLocation } from "wouter";
 import { ProtectedRoute } from './components/ProtectedRoute.js';
-import * as stackAuth from "@stackframe/react";
-// @ts-ignore - Stack Auth has broken ESM exports, using workaround
-const stackComponents = (stackAuth as any).default || stackAuth || {};
-const { SignIn, SignUp, StackHandler } = stackComponents; 
+import { SignIn, SignUp, StackHandler } from "@stackframe/react"; 
 import { stackClientApp } from '../../stack/client.js';
 import { useAuth } from "./hooks/use-auth.js";
 // Removed unused environment imports - using consolidated config
@@ -405,8 +402,6 @@ function HandlerRoutes() {
       app={stackClientApp} 
       location={window.location.pathname + window.location.search + window.location.hash}
       fullPage={true}
-      // 🔥 CRITICAL FIX: Enable automatic redirects to prevent "already signed in" stuck state
-      automaticRedirect={true}
     />
   );
 }

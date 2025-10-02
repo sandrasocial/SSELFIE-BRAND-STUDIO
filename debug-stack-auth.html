@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stack Auth Debug</title>
+</head>
+<body>
+    <h1>Stack Auth Debug</h1>
+    <div id="debug-info"></div>
+    
+    <script type="module">
+        try {
+            // Test Stack Auth import
+            const stackAuth = await import('@stackframe/react');
+            console.log('Stack Auth imported successfully:', stackAuth);
+            
+            const debugInfo = document.getElementById('debug-info');
+            debugInfo.innerHTML = `
+                <h2>Stack Auth Import Results:</h2>
+                <p>Default export: ${!!stackAuth.default}</p>
+                <p>Has StackHandler: ${!!(stackAuth.StackHandler || stackAuth.default?.StackHandler)}</p>
+                <p>Has SignIn: ${!!(stackAuth.SignIn || stackAuth.default?.SignIn)}</p>
+                <p>All exports: ${Object.keys(stackAuth).join(', ')}</p>
+                <p>Default exports: ${stackAuth.default ? Object.keys(stackAuth.default).join(', ') : 'No default'}</p>
+            `;
+            
+            // Test Stack Client App
+            const { stackClientApp } = await import('./stack/client.js');
+            console.log('Stack Client App:', stackClientApp);
+            
+            debugInfo.innerHTML += `
+                <h2>Stack Client App:</h2>
+                <p>App exists: ${!!stackClientApp}</p>
+                <p>Project ID: ${stackClientApp?.projectId}</p>
+                <p>URLs: ${JSON.stringify(stackClientApp?.urls, null, 2)}</p>
+            `;
+            
+        } catch (error) {
+            console.error('Stack Auth import error:', error);
+            document.getElementById('debug-info').innerHTML = `
+                <h2>Error:</h2>
+                <pre>${error.message}\n${error.stack}</pre>
+            `;
+        }
+    </script>
+</body>
+</html>
