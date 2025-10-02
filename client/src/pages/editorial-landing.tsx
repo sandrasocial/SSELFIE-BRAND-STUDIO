@@ -8,6 +8,7 @@ import WelcomeEditorial from "../components/welcome-editorial.js";
 import { GlobalFooter } from "../components/global-footer.js";
 
 export default function EditorialLanding() {
+  const [, setLocation] = useLocation();
   const [selectedPlan] = useState('personal-brand-studio');
   const [, setLocation] = useLocation();
   const app = useStackApp();
@@ -104,10 +105,13 @@ export default function EditorialLanding() {
 
   const handleLogin = async () => {
     try {
-      // ✅ FIXED: Use proper Stack Auth SDK method
-      await app.signInWithOAuth('google');
+      // ✅ FIXED: Use consistent Stack Auth UI flow (same as business-landing.tsx)
+      // This prevents double OAuth flows by using single Stack Auth handler
+      window.location.href = '/handler/sign-in';
     } catch (error) {
-      console.error('❌ Stack Auth: OAuth login failed:', error);
+      console.error('❌ Login redirect failed:', error);
+      // Fallback: Try direct navigation
+      setLocation('/handler/sign-in');
     }
   };
 
