@@ -112,7 +112,6 @@ export const SafeStackSignIn: React.FC = () => {
                 WELCOME TO SSELFIE
               </h2>
             </div>
-            {/* Remove invalid prop: successRedirectUrl is not supported by StackSignIn */}
             <StackSignIn />
           </div>
         </div>
