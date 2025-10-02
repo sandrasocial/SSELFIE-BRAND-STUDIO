@@ -9,6 +9,8 @@ export interface QueryResult<T = unknown> {
   rows: T[];
   rowCount: number;
   command: string;
+  oid?: number;
+  fields?: any[];
 }
 
 export type QueryParams = string | number | boolean | null | Buffer | Date | QueryParams[];
@@ -46,7 +48,7 @@ export const serverlessQuery = async <T = unknown>(
         rowCount: result.length,
         oid: 0,
         fields: []
-      } as NeonQueryResult;
+      } as QueryResult<T>;
     }
 
     // Cast to proper type if already in correct format

@@ -615,19 +615,7 @@ export class LocalProcessingEngine {
   }
 
   // ================== HELPER FUNCTIONS (LOCAL) ==================
-  
-  /**
-   * Extract tools used from response text
-   */
-  private extractToolsUsedLocally(response: string): string[] {
-    const tools = [];
-    if (response.includes('str_replace_based_edit_tool')) tools.push('str_replace_based_edit_tool');
-    if (response.includes('bash')) tools.push('bash');
-    if (response.includes('execute_sql_tool')) tools.push('execute_sql_tool');
-    if (response.includes('search_filesystem')) tools.push('search_filesystem');
-    if (response.includes('coordinate_agent')) tools.push('coordinate_agent');
-    return tools;
-  }
+
 
   /**
    * Identify design type from message

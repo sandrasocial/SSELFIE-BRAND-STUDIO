@@ -828,7 +828,7 @@ export class ClaudeApiServiceSimple {
       const response = await anthropic.messages.create({
         model: DEFAULT_MODEL_STR,
         max_tokens: 1000,
-        system: systemPrompt || `You are ${agentConfig.name || agentName}, an AI assistant.`,
+        system: systemPrompt || `You are ${(agentConfig as any)?.name || agentName}, an AI assistant.`,
         messages: [
           {
             role: 'user',

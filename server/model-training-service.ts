@@ -1,7 +1,7 @@
-import FormData from 'form-data';
+import * as FormData from 'form-data';
 import archiver from 'archiver';
-import fs from 'fs';
-import path from 'path';
+import * as fs from 'fs';
+import * as path from 'path';
 import { fileURLToPath } from 'url';
 import { storage } from './storage.js';
 // MAYA FAÇADE: Removed PersonalityManager dependency - Maya is now isolated
