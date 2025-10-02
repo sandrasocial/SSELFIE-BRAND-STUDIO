@@ -220,9 +220,46 @@ Lighting: ${look.lighting}
 Scenery: ${look.scenery}
 Fashion Intelligence: ${look.fashionIntelligence}
 Detail Styling (The "20%"): ${look.detailPropStyling}
-Location Intelligence: ${look.locationIntelligence}`;
+Location Intelligence: ${look.locationIntelligence}${look.locationDetails ? `
+  • Primary Locations: ${look.locationDetails.primary.join(', ')}
+  • Secondary Locations: ${look.locationDetails.secondary.join(', ')}
+  • Optimal Timing: ${look.locationDetails.timeOfDay.join(', ')}` : ''}`;
       }
     });
+
+    // Add enhanced fashion expertise section
+    if (personality.fashionExpertise) {
+      const { fabrics, colorTheory, accessories, hairMakeup } = personality.fashionExpertise;
+      
+      prompt += `
+
+🧵 FASHION EXPERTISE - Advanced Styling Intelligence:
+
+LUXURY FABRIC SELECTION:
+• Premium Materials: ${fabrics.luxury.join(', ')}
+• Seasonal Fabrics: ${fabrics.seasonal.join(', ')}
+• Texture Combinations: ${fabrics.texturePlay.join(', ')}
+
+COLOR THEORY MASTERY:
+• Sophisticated Approaches: ${colorTheory.sophisticated.join(', ')}
+• Seasonal Palettes:
+  - Spring: ${colorTheory.seasonalPalettes.spring.join(', ')}
+  - Summer: ${colorTheory.seasonalPalettes.summer.join(', ')}
+  - Autumn: ${colorTheory.seasonalPalettes.autumn.join(', ')}
+  - Winter: ${colorTheory.seasonalPalettes.winter.join(', ')}
+• Complementary Pairs: ${colorTheory.complementaryPairs.join(', ')}
+
+ACCESSORIES STYLING:
+• Jewelry: ${accessories.jewelry.join(', ')}
+• Bags: ${accessories.bags.join(', ')}
+• Shoes: ${accessories.shoes.join(', ')}
+• Styling Rules: ${accessories.styling.join(', ')}
+
+HAIR & MAKEUP EXPERTISE:
+• Hair Styles: ${hairMakeup.hair.join(', ')}
+• Makeup Philosophy: ${hairMakeup.makeup.join(', ')}
+• Editorial Guidelines: ${hairMakeup.editorial.join(', ')}`;
+    }
 
     // Add concept card generation training
     prompt += `
@@ -243,8 +280,9 @@ Your FLUX_PROMPT should be a flowing narrative that includes:
 1. **Setting & Environment**: Specific location details (marble countertops, floor-to-ceiling windows, Persian rugs)
 2. **Lighting Quality**: Describe the light source and mood (warm morning light streaming, dramatic side lighting, soft diffused glow)
 3. **Subject & Pose**: Natural positioning that tells a story (leaning against weathered brick wall, seated at ornate writing desk)
-4. **Styling & Attire**: Specific clothing textures and details (cashmere turtleneck, tailored wool blazer, flowing silk dress)
-5. **Props & Atmosphere**: Environmental elements that enhance the mood (steaming ceramic mug, vintage leather journal, architectural shadows)
+4. **Fashion & Styling**: Leverage your Fashion Expertise above - specify luxury fabrics (Italian cashmere, silk charmeuse), sophisticated color palettes (monochromatic with tonal depth, complementary pairs), and refined accessories (delicate gold layering, structured leather tote)
+5. **Hair & Makeup**: Reference your Hair & Makeup Expertise - specify editorial styling (effortless waves, glowing healthy skin, defined brows)
+6. **Props & Atmosphere**: Environmental elements that enhance the mood (steaming ceramic mug, vintage leather journal, architectural shadows)
 
 REQUIREMENTS FOR EVERY RESPONSE:
 • Always create 3-5 different concept variations
