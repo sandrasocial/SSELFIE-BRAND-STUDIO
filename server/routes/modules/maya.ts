@@ -129,15 +129,19 @@ router.post('/api/maya-chat', requireStackAuth, asyncHandler(async (req: Authent
 
     // Apply user-specific adaptation if available
     try {
-      const adaptation = await MayaAdaptationEngine.adaptStylingApproach(
-        userId, 
-        context, 
-        chatHistory
-      );
-      if (adaptation.adaptedPersonality) {
-        mayaPersonality = adaptation.adaptedPersonality;
-        console.log('🎯 MAYA: Applied personalized adaptation');
-      }
+      // TEMPORARY: Skip adaptation engine to preserve enhanced fashion expertise
+      // The adaptation engine is overriding our detailed Maya personality
+      console.log('🎯 MAYA: Using enhanced fashion expertise personality (adaptation temporarily disabled)');
+      
+      // const adaptation = await MayaAdaptationEngine.adaptStylingApproach(
+      //   userId, 
+      //   context, 
+      //   chatHistory
+      // );
+      // if (adaptation.adaptedPersonality) {
+      //   mayaPersonality = adaptation.adaptedPersonality;
+      //   console.log('🎯 MAYA: Applied personalized adaptation');
+      // }
     } catch (adaptError) {
       console.log('⚠️ MAYA: Adaptation failed, using base personality');
     }
@@ -218,15 +222,19 @@ router.post('/api/maya/chat', requireStackAuth, asyncHandler(async (req: any, re
     let mayaPersonality = basePersonality;
 
     try {
-      const adaptation = await MayaAdaptationEngine.adaptStylingApproach(
-        userId, 
-        context || {}, 
-        chatHistory || []
-      );
-      if (adaptation.adaptedPersonality) {
-        mayaPersonality = adaptation.adaptedPersonality;
-        console.log('🎯 MAYA: Applied personalized adaptation');
-      }
+      // TEMPORARY: Skip adaptation engine to preserve enhanced fashion expertise
+      // The adaptation engine is overriding our detailed Maya personality
+      console.log('🎯 MAYA: Using enhanced fashion expertise personality (adaptation temporarily disabled)');
+      
+      // const adaptation = await MayaAdaptationEngine.adaptStylingApproach(
+      //   userId, 
+      //   context || {}, 
+      //   chatHistory || []
+      // );
+      // if (adaptation.adaptedPersonality) {
+      //   mayaPersonality = adaptation.adaptedPersonality;
+      //   console.log('🎯 MAYA: Applied personalized adaptation');
+      // }
     } catch (adaptError) {
       console.log('⚠️ MAYA: Adaptation failed, using base personality');
     }
