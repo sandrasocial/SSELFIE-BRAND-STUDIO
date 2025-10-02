@@ -103,5 +103,18 @@ export default [js.configs.recommended, {
     'build/',
     'coverage/',
     '*.config.js',
+    '.eslintrc.js',
+    // Vercel build output
+    '.vercel/',
+    // Archive and backup directories
+    'archive/',
+    'tools/debug/',
+    // Debug and test files
+    '*.spec.ts',
+    '*-debug.*',
+    '*-diagnostic.spec.*',
+    'debug-*',
+    // Legacy files
+    'legacy/',
   ],
 }, ...storybook.configs["flat/recommended"], ...storybook.configs["flat/recommended"], ...storybook.configs["flat/recommended"]];
