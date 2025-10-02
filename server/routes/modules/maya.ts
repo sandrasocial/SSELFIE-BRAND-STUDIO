@@ -9,8 +9,6 @@ import { asyncHandler, createError, sendSuccess, validateRequired } from '../mid
 import { storage } from '../../storage.js';
 import { ModelTrainingService } from '../../model-training-service.js';
 import { PersonalityManager } from '../../agents/personalities/personality-config.js';
-import { MayaOptimizationService } from '../../services/maya-optimization-service.js';
-import { MayaAdaptationEngine } from '../../services/maya-adaptation-engine.js';
 import { ClaudeApiServiceSimple } from '../../services/claude-api-service-simple.js';
 import { AuthenticatedRequest } from '../../types/ai-generation.js';
 import { SuccessResponse } from '../../types/ai-generation.js';
