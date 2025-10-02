@@ -49,8 +49,8 @@ export default function AuthSuccess() {
       // ✅ SUCCESS: Access token created
       if (hasStackAccessToken) {
         console.log('✅ Stack Access Token detected! Auth complete.');
-        console.log('🎯 Redirecting to app - avoiding home route to prevent loops');
-        setLocation('/app', { replace: true });
+        console.log('🎯 Redirecting to home - let SmartHome handle proper routing');
+        setLocation('/', { replace: true });
       } 
       // ⏳ WAITING: OAuth in progress
       else if (hasOAuthCookies && attempts < maxAttempts) {
@@ -60,8 +60,8 @@ export default function AuthSuccess() {
       // ⚠️ TIMEOUT: Redirect anyway after max attempts
       else if (attempts >= maxAttempts) {
         console.warn('⚠️ Timeout reached, redirecting without access token confirmation');
-        console.log('🔍 This may indicate OAuth token exchange failed - redirecting to app anyway');
-        setLocation('/app', { replace: true });
+        console.log('🔍 This may indicate OAuth token exchange failed - redirecting to home anyway');
+        setLocation('/', { replace: true });
       }
       // 🔄 RETRY: Keep waiting
       else {

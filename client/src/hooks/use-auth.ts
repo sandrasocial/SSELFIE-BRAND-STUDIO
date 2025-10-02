@@ -209,7 +209,6 @@ export function useAuth() {
     user,
     isLoading,
     isAuthenticated,
-    hasStackAuthUser: !!stackUser, // For OAuth callback handling
     hasActiveSubscription,
     requiresPayment: isAuthenticated && !hasActiveSubscription && !isLoading,
     error,

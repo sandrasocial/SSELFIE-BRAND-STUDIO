@@ -1,78 +1,48 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/use-auth.js';
-import { Camera, Grid, User, Settings, MessageCircle, Bell, Battery, Wifi, Signal } from 'lucide-react';
+import { Camera, Grid, User, Settings, MessageCircle } from 'lucide-react';
 
-// Import the new app_v2 screen components
+// Import screen components
 import StudioScreen from './StudioScreen.js';
 import MayaScreen from './MayaScreen.js';
 import GalleryScreen from './GalleryScreen.js';
 import ProfileScreen from './ProfileScreen.js';
 import SettingsScreen from './SettingsScreen.js';
 
-// SSELFIE BRAND STUDIO - PREMIUM UX LAYOUT
-// Enhanced with luxury design system while preserving backend logic
-
-// Typography System
-export const Typography = {
-  heading: {
-    fontFamily: 'var(--font-luxury, "Times New Roman", serif)',
-    fontWeight: 300,
-    letterSpacing: {
-      tight: '-0.02em',
-      wide: '0.2em',
-      wider: '0.4em'
-    }
-  },
-  body: {
-    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif',
-    fontSize: {
-      xs: '0.75rem',
-      sm: '0.875rem',
-      base: '1rem'
-    }
-  }
-};
-
-// Premium animations
-export const animations = {
-  tabTransition: 'transition-all duration-300 ease-in-out',
-  fadeIn: 'animate-fadeIn duration-500',
-  slideUp: 'animate-slideUp duration-300',
-  pulse: 'animate-pulse duration-2000'
-};
+// Loading Screen Component
+const LoadingScreen: React.FC = () => (
+  <div className="h-screen bg-stone-50 flex items-center justify-center relative overflow-hidden">
+    <div className="absolute inset-0 bg-gradient-to-br from-stone-50 via-stone-100 to-stone-50"></div>
+    <div className="relative z-10 text-center px-8">
+      <div className="w-16 h-16 border border-stone-300 rounded-full animate-spin mx-auto mb-12 flex items-center justify-center">
+        <div className="w-2 h-2 bg-stone-600 rounded-full"></div>
+      </div>
+      <h1 className="text-stone-950 text-4xl font-serif font-extralight tracking-[0.4em] mb-4 leading-none">SSELFIE</h1>
+      <p className="text-xs font-light tracking-[0.3em] uppercase text-stone-500">Creating Excellence</p>
+    </div>
+  </div>
+);
 
 // Premium Indicators Component
 const PremiumIndicators: React.FC = () => (
-  <div className="flex items-center gap-3">
-    <div className="flex items-center gap-1">
-      <div className="w-1 h-3 bg-stone-800 rounded-full" />
-      <div className="w-1 h-3 bg-stone-400 rounded-full" />
-      <div className="w-1 h-3 bg-stone-300 rounded-full" />
-    </div>
-    <div className="flex items-center gap-1">
-      <Wifi size={12} className="text-stone-600" />
-      <Signal size={12} className="text-stone-600" />
+  <div className="flex items-center gap-2">
+    <div className="flex gap-1">
+      <div className="w-6 h-2 sm:w-7 sm:h-2.5 bg-stone-900 rounded-full"></div>
+      <div className="w-6 h-2 sm:w-7 sm:h-2.5 bg-stone-400 rounded-full"></div>
+      <div className="w-6 h-2 sm:w-7 sm:h-2.5 bg-stone-300 rounded-full"></div>
     </div>
   </div>
 );
 
 // Status Bar Component
 const StatusBar: React.FC<{ currentTime: Date }> = ({ currentTime }) => {
-  const { user, isAuthenticated } = useAuth();
-  
   return (
-    <div className="flex justify-between items-center px-4 sm:px-8 py-4 sm:py-6 pb-3 sm:pb-4">
+    <div className="flex justify-between items-center px-6 sm:px-8 py-5 sm:py-6">
       <div className="text-stone-900 font-light tracking-wide text-sm sm:text-base">
         {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
       </div>
-      <div className="flex items-center gap-3">
+      <div className="flex items-center space-x-1.5">
         <PremiumIndicators />
-        {isAuthenticated && user && (
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
-            <span className="text-xs tracking-[0.3em] uppercase font-light text-stone-600">Online</span>
-          </div>
-        )}
       </div>
     </div>
   );
@@ -84,55 +54,53 @@ interface TabBarProps {
   onTabChange: (tabId: string) => void;
 }
 
-const TabNavigation: React.FC<TabBarProps> = ({ activeTab, onTabChange }) => {
-  const { user } = useAuth();
-  const tabs = createTabs(user || {});
+const TabBar: React.FC<TabBarProps> = ({ activeTab, onTabChange }) => {
+  const tabs = [
+    { id: 'studio', label: 'Studio', icon: Camera },
+    { id: 'maya', label: 'Maya', icon: MessageCircle },
+    { id: 'gallery', label: 'Gallery', icon: Grid },
+    { id: 'profile', label: 'Profile', icon: User },
+    { id: 'more', label: 'More', icon: Settings }
+  ];
   
   return (
-    <div className="flex justify-around">
-      {tabs.map((tab) => {
-        const Icon = tab.icon;
-        const isActive = activeTab === tab.id;
-        
-        return (
-          <button
-            key={tab.id}
-            onClick={() => onTabChange(tab.id)}
-            className={`flex-1 flex flex-col items-center justify-center p-3 sm:p-4 rounded-xl sm:rounded-2xl ${animations.tabTransition} min-h-[56px] sm:min-h-[64px] ${
-              isActive 
-                ? 'bg-stone-200/70 transform scale-105' 
-                : 'text-stone-500 hover:text-stone-900 hover:bg-stone-200/40 hover:scale-102'
-            }`}
-            style={{ 
-              WebkitTapHighlightColor: 'transparent',
-              touchAction: 'manipulation'
-            }}
-            title={tab.description}
-            aria-label={`Switch to ${tab.label}`}
-          >
-            <Icon
-              size={20}
-              strokeWidth={1}
-              className={`transition-all duration-300 mb-1 ${isActive ? 'text-stone-900' : 'text-stone-500'}`}
-            />
-            <span className={`text-xs tracking-wide uppercase font-light transition-all duration-300 ${isActive ? 'text-stone-900' : 'text-stone-500'}`}>
-              {tab.label}
-            </span>
-          </button>
-        );
-      })}
+    <div className="absolute bottom-4 sm:bottom-5 left-3 sm:left-4 right-3 sm:right-4">
+      <div className="bg-stone-100/90 backdrop-blur-xl rounded-2xl sm:rounded-3xl border border-stone-200/50 px-2 sm:px-3 py-2 sm:py-3 shadow-sm">
+        <div className="flex justify-around items-center">
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.id;
+            
+            return (
+              <button
+                key={tab.id}
+                onClick={() => onTabChange(tab.id)}
+                className={`flex flex-col items-center space-y-1.5 sm:space-y-2 px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl transition-all duration-300 ease-out min-w-[65px] sm:min-w-[75px] ${
+                  isActive 
+                    ? 'bg-stone-200/60 transform scale-[1.02]' 
+                    : 'hover:bg-stone-200/30 hover:scale-[1.01]'
+                }`}
+              >
+                <Icon 
+                  size={18} 
+                  strokeWidth={1.5}
+                  className={`sm:w-5 sm:h-5 transition-all duration-300 ${
+                    isActive ? 'text-stone-950' : 'text-stone-500'
+                  }`}
+                />
+                <span className={`text-[10px] sm:text-xs font-light tracking-[0.15em] uppercase transition-all duration-300 ${
+                  isActive ? 'text-stone-950' : 'text-stone-500'
+                }`}>
+                  {tab.label}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 };
-
-// Premium Tab Bar Component
-const PremiumTabBar: React.FC<TabBarProps> = ({ activeTab, onTabChange }) => (
-  <div className="absolute bottom-4 sm:bottom-4 left-2 sm:left-3 right-2 sm:right-3">
-    <div className="bg-stone-100/95 backdrop-blur-3xl rounded-2xl sm:rounded-3xl border border-stone-200/60 px-1 sm:px-2 py-1 sm:py-2 shadow-lg">
-      <TabNavigation activeTab={activeTab} onTabChange={onTabChange} />
-    </div>
-  </div>
-);
 
 // Main Content Component
 interface MainContentProps {
@@ -140,104 +108,86 @@ interface MainContentProps {
 }
 
 const MainContent: React.FC<MainContentProps> = ({ activeTab }) => {
-  const { user } = useAuth();
-  const tabs = createTabs(user || {});
-  const currentTab = tabs.find(tab => tab.id === activeTab);
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'studio':
+        return <StudioScreen />;
+      case 'maya':
+        return <MayaScreen />;
+      case 'gallery':
+        return <GalleryScreen />;
+      case 'profile':
+        return <ProfileScreen />;
+      case 'more':
+        return <SettingsScreen />;
+      default:
+        return <StudioScreen />;
+    }
+  };
 
   return (
-    <div className="flex-1 px-4 sm:px-8 py-6 sm:py-8 pb-40 sm:pb-32 overflow-y-auto">
-      {currentTab?.component || (
-        <div className="text-center py-12">
-          <p className="text-stone-500 text-sm">Tab content loading...</p>
-        </div>
-      )}
+    <div className="flex-1 px-6 sm:px-8 pb-6 sm:pb-8 pt-0 h-full overflow-y-auto">
+      {renderContent()}
     </div>
   );
 };
 
-// Preserve existing tab creation logic
-const createTabs = (user: { name?: string; email?: string; image?: string }) => [
-  {
-    id: 'studio',
-    label: 'Studio',
-    icon: Camera,
-    description: 'Create with SSELFIE AI',
-    component: <StudioScreen />
-  },
-  {
-    id: 'maya',
-    label: 'Maya',
-    icon: MessageCircle,
-    description: 'AI Photo Stylist',
-    component: <MayaScreen />
-  },
-  {
-    id: 'gallery',
-    label: 'Gallery',
-    icon: Grid,
-    description: 'Your photo collection',
-    component: <GalleryScreen />
-  },
-  {
-    id: 'profile',
-    label: 'Profile',
-    icon: User,
-    description: 'Your aesthetic feed',
-    component: <ProfileScreen />
-  },
-  {
-    id: 'more',
-    label: 'More',
-    icon: Settings,
-    description: 'Advanced tools & settings',
-    component: <SettingsScreen />
-  }
-];
-
-// Premium App Layout Component
-const AppLayout: React.FC = () => {
+// Main App Layout Component
+const SselfieAppLayout: React.FC = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
-  
-  // Preserve existing auth and state management
-  const { user, isAuthenticated } = useAuth();
   const [activeTab, setActiveTab] = useState('studio');
+  const [isLoading, setIsLoading] = useState(true);
+  const { user, isLoading: authLoading } = useAuth();
 
-  // Preserve existing timer logic
   useEffect(() => {
     const clockTimer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(clockTimer);
   }, []);
 
+  // Show loading screen while auth is loading or for minimum 1.5 seconds for smooth experience
+  useEffect(() => {
+    const minLoadTime = setTimeout(() => {
+      if (!authLoading) {
+        setIsLoading(false);
+      }
+    }, 1500);
+
+    return () => clearTimeout(minLoadTime);
+  }, [authLoading]);
+
+  // Also hide loading when auth completes
+  useEffect(() => {
+    if (!authLoading && user) {
+      setIsLoading(false);
+    }
+  }, [authLoading, user]);
+
   const handleTabChange = (tabId: string) => {
     setActiveTab(tabId);
   };
 
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
+
   return (
-    <div className="h-screen bg-stone-50 relative overflow-hidden">
-      {/* Enhanced gradient backdrop */}
-      <div className="absolute inset-0 bg-gradient-to-br from-stone-50 via-stone-100/50 to-stone-50"></div>
+    <div className="h-screen bg-stone-50 relative overflow-hidden" style={{ 
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+    }}>
+      <div className="absolute inset-0 bg-gradient-to-br from-stone-50 via-stone-100/30 to-stone-50"></div>
       
-      {/* Main container with premium styling */}
-      <div className="relative h-full mx-1 sm:mx-2 pt-1 pb-36 sm:pb-28">
-        <div className="h-full bg-stone-100/60 backdrop-blur-3xl rounded-[1.5rem] sm:rounded-[2.5rem] border border-stone-200/80 overflow-hidden shadow-lg">
-          {/* Premium status bar */}
-          <StatusBar currentTime={currentTime} />
+      <div className="relative h-full mx-2 sm:mx-3 pt-2 pb-32 sm:pb-28">
+        <div className="h-full bg-stone-100/40 backdrop-blur-xl rounded-3xl sm:rounded-[2rem] border border-stone-200/60 overflow-hidden shadow-sm">
           
-          {/* Content area with preserved routing */}
+          <StatusBar currentTime={currentTime} />
+
           <MainContent activeTab={activeTab} />
         </div>
       </div>
 
-      {/* Premium floating tab bar */}
-      <PremiumTabBar activeTab={activeTab} onTabChange={handleTabChange} />
+      <TabBar activeTab={activeTab} onTabChange={handleTabChange} />
     </div>
   );
 };
 
-// Main SselfieAppLayout Component - preserved for compatibility
-function SselfieAppLayout() {
-  return <AppLayout />;
-}
-
 export default SselfieAppLayout;
-export { SselfieAppLayout, AppLayout };
