@@ -5,12 +5,22 @@ import { Sparkles } from 'lucide-react';
 export function WelcomeHeader() {
   const { user } = useAuth();
   
-  // Get time-based greeting
+  // Get time-based greeting using user's local time
   const getGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return 'Good Morning';
-    if (hour < 17) return 'Good Afternoon';
-    return 'Good Evening';
+    const now = new Date();
+    const hour = now.getHours();
+    
+    // More specific time ranges for better greeting accuracy
+    if (hour >= 5 && hour < 12) {
+      return 'Good Morning';
+    } else if (hour >= 12 && hour < 17) {
+      return 'Good Afternoon';  
+    } else if (hour >= 17 && hour < 22) {
+      return 'Good Evening';
+    } else {
+      // Late night/very early morning - use neutral greeting
+      return 'Welcome';
+    }
   };
 
   // Calculate remaining generations
