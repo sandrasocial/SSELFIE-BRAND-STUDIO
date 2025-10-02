@@ -589,17 +589,19 @@ const GalleryScreen: React.FC = () => {
       )}
 
       {/* Story Studio Modal */}
+            {/* Story Studio Modal */}
       {isVideoModalOpen && selectedImage && (
         <StoryStudioModal
-          isOpen={isVideoModalOpen}
+          imageId={selectedImage.id.toString()}
+          imageUrl={selectedImage.url}
+          imageSource={selectedImage.source}
           onClose={() => {
             setIsVideoModalOpen(false);
             setSelectedImage(null);
           }}
-          image={{
-            id: selectedImage.id.toString(),
-            url: selectedImage.imageUrl || selectedImage.url || '',
-            title: selectedImage.title || 'Gallery Image'
+          onSuccess={() => {
+            setIsVideoModalOpen(false);
+            setSelectedImage(null);
           }}
         />
       )}
@@ -612,11 +614,9 @@ const GalleryScreen: React.FC = () => {
             setIsBrandPlacementModalOpen(false);
             setSelectedImage(null);
           }}
-          backgroundImage={{
-            id: selectedImage.id.toString(),
-            url: selectedImage.imageUrl || selectedImage.url || '',
-            title: selectedImage.title || 'Gallery Image'
-          }}
+          imageId={typeof selectedImage.id === 'string' ? parseInt(selectedImage.id) : selectedImage.id}
+          imageUrl={selectedImage.imageUrl || selectedImage.url || ''}
+          imageTitle={selectedImage.title || 'Gallery Image'}
         />
       )}
 
