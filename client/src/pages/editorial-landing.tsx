@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "wouter";
-import { useStackApp } from "@stackframe/stack";
+import * as stackAuth from "@stackframe/react";
+// @ts-ignore - Stack Auth has broken ESM exports, using workaround
+const stackComponents = (stackAuth as any).default || stackAuth || {};
+const { useStackApp } = stackComponents;
 import { SandraImages } from "../lib/sandra-images.js";
 import { PortfolioSection } from "../components/portfolio-section.js";
 import FreeTierSignup from "../components/free-tier-signup.js";
@@ -10,7 +13,6 @@ import { GlobalFooter } from "../components/global-footer.js";
 export default function EditorialLanding() {
   const [, setLocation] = useLocation();
   const [selectedPlan] = useState('personal-brand-studio');
-  const [, setLocation] = useLocation();
   const app = useStackApp();
 
   // SEO Meta Tags and Performance Optimization

@@ -3,7 +3,8 @@ import { useLocation } from "wouter";
 import { GlobalFooter } from "../../components/global-footer.js";
 import * as stackAuth from "@stackframe/react";
 // @ts-ignore - Stack Auth has broken ESM exports, using workaround
-const { SignIn } = (stackAuth as any).default || stackAuth;
+const stackComponents = (stackAuth as any).default || stackAuth || {};
+const { SignIn } = stackComponents;
 import { stackClientApp } from "../../../../stack/client.js";
 
 export default function HairLanding() {

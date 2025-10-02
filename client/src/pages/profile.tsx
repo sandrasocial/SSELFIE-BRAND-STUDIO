@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import * as stackAuth from '@stackframe/react';
 // @ts-ignore - Stack Auth has broken ESM exports, using workaround
-const { AccountSettings } = (stackAuth as any).default || stackAuth;
+const stackComponents = (stackAuth as any).default || stackAuth || {};
+const { AccountSettings } = stackComponents;
 import { MemberNavigation } from '../components/member-navigation.js';
 import { useAuth } from '../hooks/use-auth.js';
 import { Settings, CreditCard, User, Shield, Bell } from 'lucide-react';
@@ -23,7 +24,7 @@ export default function Profile() {
 
   // Redirect if not authenticated
   if (!isLoading && !user) {
-    setLocation('/auth/signin');
+    setLocation('/handler/sign-in');
     return null;
   }
 

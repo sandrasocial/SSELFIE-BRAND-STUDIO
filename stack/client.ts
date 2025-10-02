@@ -58,6 +58,8 @@ try {
       afterSignOut: "/",             // ✅ RESTORED: Working configuration
       // 🔥 CRITICAL FIX: Must match the route in App.tsx exactly
       oauthCallback: "/handler/oauth-callback",  // ✅ RESTORED: Stack Auth calls this after OAuth
+      // 🔧 LOOP PREVENTION: Explicit error handling
+      error: "/handler/sign-in?error=auth_failed",
     },
     // Enhanced configuration for production stability
     // 🔥 NEW: Add baseUrl to ensure proper OAuth redirect URL construction

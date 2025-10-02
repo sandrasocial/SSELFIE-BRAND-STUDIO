@@ -53,7 +53,7 @@ export default function AccountSettingsPage() {
 
   // Redirect if not authenticated
   if (!isLoading && !user) {
-    setLocation('/auth/signin');
+    setLocation('/handler/sign-in');
     return null;
   }
 

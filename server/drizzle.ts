@@ -56,10 +56,10 @@ export const serverlessQuery = async <T = unknown>(
 
     return {
       rows: queryResult.rows || [],
-      command: queryResult.command || 'SELECT',
+      command: (queryResult as any).command || 'SELECT',
       rowCount: queryResult.rowCount || 0,
-      oid: queryResult.oid || 0,
-      fields: queryResult.fields || []
+      oid: (queryResult as any).oid || 0,
+      fields: (queryResult as any).fields || []
     } as QueryResult<T>;
   } catch (error) {
     console.error('❌ Serverless query error:', error instanceof Error ? error.message : 'Unknown error');
