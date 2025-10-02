@@ -1,34 +1,27 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useMayaChat } from '../hooks/useMayaChat.js';
+import { useBrandStudio, BrandStudioProvider } from '../contexts/BrandStudioContext.js';
 import { Send, Camera } from 'lucide-react';
+import type { ConceptCard } from '../../../shared/types/concept-card.js';
 
-interface ConceptCard {
-  id: string;
-  title: string;
-  description: string;
-  emoji?: string;
-  creativeLook?: string;
-  fluxPrompt?: string;
-  type?: 'portrait' | 'flatlay' | 'lifestyle';
-}
-
-interface MayaChatMessage {
-  id?: number;
-  role: 'user' | 'maya';
-  content: string;
-  timestamp: string;
-  conceptCards?: ConceptCard[];
-}
-
-const MayaScreen: React.FC = () => {
+const MayaChatContent: React.FC = () => {
   const [messageInput, setMessageInput] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { messages, sendMessage, isTyping, error } = useMayaChat();
+  
+  // Use BrandStudioProvider for full brand studio integration
+  const {
+    messages,
+    conceptCardsById,
+    selectedConceptCardId,
+    isTyping,
+    sendMessage,
+    selectConceptCard,
+    isLoading
+  } = useBrandStudio();
 
   const [showWelcome] = useState(true);
-  const welcomeMessage: MayaChatMessage = {
-    id: 0,
-    role: 'maya',
+  const welcomeMessage = {
+    id: 'welcome-maya',
+    type: 'maya' as const,
     content: "I help people get amazing photos that actually look like them.\n\nI create 5 different shots every time - some close-ups, some full body, and some lifestyle scenes that work together like a perfect feed. What kind of photos are you dreaming of?",
     timestamp: new Date().toISOString()
   };
@@ -50,11 +43,8 @@ const MayaScreen: React.FC = () => {
     const messageText = messageInput.trim();
     setMessageInput('');
 
-    try {
-      await sendMessage(messageText);
-    } catch (err) {
-      console.error('Failed to send message:', err);
-    }
+    // Use BrandStudioProvider's sendMessage (handles full workflow)
+    sendMessage(messageText);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -93,11 +83,11 @@ const MayaScreen: React.FC = () => {
         {allMessages.map((message, index) => (
           <div
             key={message.id || index}
-            className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+            className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
           >
-            <div className={`max-w-[90%] ${message.role === 'user' ? 'order-2' : 'order-1'}`}>
+            <div className={`max-w-[90%] ${message.type === 'user' ? 'order-2' : 'order-1'}`}>
               <div className={`p-4 sm:p-5 rounded-2xl sm:rounded-3xl border ${
-                message.role === 'user' 
+                message.type === 'user' 
                   ? 'bg-stone-200/40 border-stone-300/40' 
                   : 'bg-stone-100/40 border-stone-200/40'
               }`}>
@@ -110,7 +100,7 @@ const MayaScreen: React.FC = () => {
               </div>
               
               {/* Concept Cards */}
-              {message.role === 'maya' && message.conceptCards && message.conceptCards.length > 0 && (
+              {message.type === 'maya' && message.conceptCards && message.conceptCards.length > 0 && (
                 <div className="mt-4 space-y-3">
                   <div className="flex items-center gap-3">
                     <div className="w-1 h-1 rounded-full bg-stone-600"></div>
@@ -119,13 +109,16 @@ const MayaScreen: React.FC = () => {
                   {message.conceptCards.map((card, cardIndex) => (
                     <div
                       key={card.id || cardIndex}
-                      className="bg-stone-100/40 border border-stone-200/50 rounded-2xl p-5 transition-all duration-200 hover:bg-stone-100/60 hover:border-stone-300/60"
+                      onClick={() => selectConceptCard(card.id)}
+                      className={`bg-stone-100/40 border border-stone-200/50 rounded-2xl p-5 transition-all duration-200 hover:bg-stone-100/60 hover:border-stone-300/60 cursor-pointer ${
+                        selectedConceptCardId === card.id ? 'ring-2 ring-stone-600/40 bg-stone-100/60' : ''
+                      }`}
                     >
                       <div className="space-y-5">
                         <div className="flex items-center justify-between">
                           <div className="px-3 py-1.5 bg-stone-500/10 rounded-full border border-stone-400/20">
                             <span className="text-xs tracking-[0.1em] uppercase font-light text-stone-600">
-                              {card.type || 'Concept'}
+                              {card.creativeLook || card.category || 'Concept'}
                             </span>
                           </div>
                           {card.emoji && <span className="text-2xl">{card.emoji}</span>}
@@ -138,6 +131,11 @@ const MayaScreen: React.FC = () => {
                           <p className="text-sm font-light leading-relaxed text-stone-600">
                             {card.description}
                           </p>
+                          {selectedConceptCardId === card.id && (
+                            <div className="mt-3 pt-3 border-t border-stone-300/30">
+                              <p className="text-xs font-light text-stone-500">Selected for generation</p>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -167,11 +165,7 @@ const MayaScreen: React.FC = () => {
         <div ref={messagesEndRef} />
       </div>
 
-      {error && (
-        <div className="px-4 py-3 bg-red-50/50 border border-red-200/50 rounded-2xl">
-          <p className="text-red-700 text-sm font-light">{error}</p>
-        </div>
-      )}
+      {/* Error handling through BrandStudioProvider now */}
 
       {/* Chat Input */}
       <div className="border-t border-stone-200/30 pt-4 mt-auto flex-shrink-0">
@@ -203,6 +197,15 @@ const MayaScreen: React.FC = () => {
         </div>
       </div>
     </div>
+  );
+};
+
+// Wrapper component with BrandStudioProvider
+const MayaScreen: React.FC = () => {
+  return (
+    <BrandStudioProvider>
+      <MayaChatContent />
+    </BrandStudioProvider>
   );
 };
 
