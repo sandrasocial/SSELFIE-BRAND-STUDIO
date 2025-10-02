@@ -45,7 +45,7 @@ export class ModelTrainingService {
       // Replicate returns status: 'starting', 'processing', 'succeeded', 'failed', 'canceled'
       if (data.status === 'succeeded' && Array.isArray(data.output)) {
         // Download each Replicate image and upload to S3 for permanent URL
-        const s3 = this.s3;
+        const s3 = ModelTrainingService.s3;
         const bucket = process.env['AWS_S3_BUCKET'] || 'sselfie-studio-assets';
         const uploadedUrls: string[] = [];
         for (const imageUrl of data.output) {
@@ -993,7 +993,7 @@ export class ModelTrainingService {
         }
       });
 
-      await this.s3.send(uploadCommand);
+      await ModelTrainingService.s3.send(uploadCommand);
 
       // 🔒 SECURITY FIX: Store S3 coordinates for presigned URL generation, not direct URL
       const bucketName = process.env['AWS_S3_BUCKET'] || 'sselfie-studio-assets';
