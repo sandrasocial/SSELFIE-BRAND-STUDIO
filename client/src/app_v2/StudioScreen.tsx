@@ -15,7 +15,8 @@ import {
   Play, 
   Settings,
   RefreshCw,
-  Plus
+  Plus,
+  Camera
 } from 'lucide-react';
 
 interface UserModel {
@@ -141,74 +142,95 @@ const StudioScreen: React.FC<StudioScreenProps> = ({ onTabChange }) => {
 
   return (
     <div className="space-y-8 pb-4">
-      {/* WelcomeHeader Component */}
+      {/* Hero Section - WelcomeHeader + Status */}
       <div className="pt-4 sm:pt-6">
         <WelcomeHeader />
+        
+        {/* Status Indicator - Prominently displayed */}
+        <div className="mt-6 bg-stone-100/50 border border-stone-200/40 rounded-2xl p-6 sm:p-8">
+          <div className="flex items-center justify-between">
+            <div className="flex-1 min-w-0">
+              <div className="text-xs tracking-[0.15em] uppercase font-light mb-3 text-stone-500">Current Status</div>
+              <h3 className="text-xl sm:text-2xl font-serif font-extralight tracking-[0.1em] text-stone-950 uppercase mb-3">
+                {getStatusText(userModel?.trainingStatus || 'not_started')}
+              </h3>
+              <p className="text-sm font-light text-stone-600">{getStatusDescription(userModel?.trainingStatus || 'not_started')}</p>
+            </div>
+            <div className="ml-4 flex-shrink-0">
+              {getStatusIcon(userModel?.trainingStatus || 'not_started')}
+            </div>
+          </div>
+
+          {/* Progress indicator for training status */}
+          {(userModel?.trainingStatus === 'training' || userModel?.trainingStatus === 'pending') && (
+            <div className="mt-6">
+              <div className="flex justify-between text-xs mb-2">
+                <span className="tracking-[0.1em] uppercase font-light text-stone-500">Progress</span>
+                <span className="font-light text-stone-600">Processing...</span>
+              </div>
+              <div className="w-full h-1.5 bg-stone-200 rounded-full overflow-hidden">
+                <div className="w-3/5 h-full bg-stone-700 rounded-full animate-pulse"></div>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-3 gap-4 sm:gap-6">
-        <div className="relative overflow-hidden bg-stone-100/60 border border-stone-200/40 rounded-2xl p-4 sm:p-6 hover:bg-stone-100/80 transition-all duration-200 min-h-[90px] sm:min-h-[110px] flex flex-col justify-center">
-          <div className="relative z-10">
-            <div className="text-xs tracking-[0.15em] uppercase font-light mb-2 text-stone-500">Status</div>
-            <div className="text-2xl sm:text-3xl font-serif font-extralight text-stone-950 mb-1">
-              {userModel?.trainingStatus === 'completed' ? '✓' : '○'}
-            </div>
-            <div className="text-xs font-light text-stone-600">{getStatusText(userModel?.trainingStatus || 'not_started')}</div>
-          </div>
-        </div>
-        <div className="relative overflow-hidden bg-stone-100/60 border border-stone-200/40 rounded-2xl p-4 sm:p-6 hover:bg-stone-100/80 transition-all duration-200 min-h-[90px] sm:min-h-[110px] flex flex-col justify-center">
-          <div className="relative z-10">
-            <div className="text-xs tracking-[0.15em] uppercase font-light mb-2 text-stone-500">Used</div>
-            <div className="text-2xl sm:text-3xl font-serif font-extralight text-stone-950 mb-1">
-              {user.generationsUsedThisMonth || 0}
-            </div>
-            <div className="text-xs font-light text-stone-600">This Month</div>
-          </div>
-        </div>
-        <div className="relative overflow-hidden bg-stone-100/60 border border-stone-200/40 rounded-2xl p-4 sm:p-6 hover:bg-stone-100/80 transition-all duration-200 min-h-[90px] sm:min-h-[110px] flex flex-col justify-center">
-          <div className="relative z-10">
-            <div className="text-xs tracking-[0.15em] uppercase font-light mb-2 text-stone-500">Limit</div>
-            <div className="text-2xl sm:text-3xl font-serif font-extralight text-stone-950 mb-1">
-              {user.monthlyGenerationLimit === -1 ? '∞' : user.monthlyGenerationLimit || 100}
-            </div>
-            <div className="text-xs font-light text-stone-600">Per Month</div>
-          </div>
-        </div>
-      </div>
-
-      {/* QuickAccessPanel Component */}
+      {/* Quick Start Guide - Numbered Steps */}
       <div>
         <QuickAccessPanel onTabChange={onTabChange} />
       </div>
 
-      {/* Main Session Panel */}
-      <div className="bg-stone-100/50 border border-stone-200/40 rounded-3xl p-6 sm:p-8">
-        <div className="flex justify-between items-start mb-6 sm:mb-8">
-          <div className="flex-1 min-w-0">
-            <div className="text-xs tracking-[0.15em] uppercase font-light mb-3 text-stone-500">Current Status</div>
-            <h3 className="text-xl sm:text-2xl font-serif font-extralight tracking-[0.1em] text-stone-950 uppercase mb-3">
-              {getStatusText(userModel?.trainingStatus || 'not_started')}
-            </h3>
-            <p className="text-sm font-light text-stone-600">{getStatusDescription(userModel?.trainingStatus || 'not_started')}</p>
+      {/* Moodboard Inspiration Section */}
+      {userModel?.trainingStatus === 'completed' && (
+        <div className="space-y-6">
+          <div>
+            <h2 className="text-xl sm:text-2xl font-serif font-extralight tracking-[0.2em] text-stone-950 uppercase mb-2">
+              Get Inspired
+            </h2>
+            <p className="text-sm font-light text-stone-600">
+              Explore styles and see what's possible with your AI model
+            </p>
           </div>
-          <div className="ml-4 flex-shrink-0">
-            {getStatusIcon(userModel?.trainingStatus || 'not_started')}
+          
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+            {[
+              { title: 'Professional', image: 'https://i.postimg.cc/Y9xDCmzs/Lovephotography.jpg' },
+              { title: 'Creative', image: 'https://i.postimg.cc/mD464SCd/42.jpg' },
+              { title: 'Lifestyle', image: 'https://i.postimg.cc/NMtPtxmS/45.jpg' },
+              { title: 'Editorial', image: 'https://i.postimg.cc/bJPFPRkM/47.jpg' }
+            ].map((inspiration, index) => (
+              <div 
+                key={index}
+                className="group relative aspect-[4/5] overflow-hidden rounded-2xl border border-stone-200/40 bg-stone-100/40 cursor-pointer hover:border-stone-300/60 transition-all duration-200"
+              >
+                <img 
+                  src={inspiration.image} 
+                  alt={inspiration.title}
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-stone-950/20 to-stone-950/80"></div>
+                <div className="absolute bottom-3 left-3 right-3">
+                  <h4 className="text-sm font-serif font-extralight tracking-[0.1em] text-stone-50 uppercase">
+                    {inspiration.title}
+                  </h4>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
+      )}
 
-        {/* Progress indicator for training status */}
-        {(userModel?.trainingStatus === 'training' || userModel?.trainingStatus === 'pending') && (
-          <div className="mb-6">
-            <div className="flex justify-between text-xs mb-2">
-              <span className="tracking-[0.1em] uppercase font-light text-stone-500">Progress</span>
-              <span className="font-light text-stone-600">Processing...</span>
-            </div>
-            <div className="w-full h-1.5 bg-stone-200 rounded-full overflow-hidden">
-              <div className="w-3/5 h-full bg-stone-700 rounded-full animate-pulse"></div>
-            </div>
-          </div>
-        )}
+      {/* Action Buttons Section */}
+      <div className="bg-stone-100/50 border border-stone-200/40 rounded-3xl p-6 sm:p-8">
+        <div className="mb-6">
+          <h3 className="text-lg font-serif font-extralight tracking-[0.15em] text-stone-950 uppercase mb-2">
+            Ready to Create
+          </h3>
+          <p className="text-sm font-light text-stone-600">
+            {userModel?.trainingStatus === 'completed' ? 'Your AI model is ready to generate beautiful images' : 'Complete training to start generating'}
+          </p>
+        </div>
 
         {/* Action Buttons */}
         {userModel?.needsTraining && (
@@ -223,13 +245,56 @@ const StudioScreen: React.FC<StudioScreenProps> = ({ onTabChange }) => {
         )}
 
         {userModel?.trainingStatus === 'completed' && (
-          <div className="space-y-3">
+          <div className="space-y-6">
+            {/* Inline Style Selector */}
+            <div>
+              <h4 className="text-base font-serif font-extralight tracking-[0.15em] text-stone-950 uppercase mb-4">
+                Choose Your Style
+              </h4>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {[
+                  { id: 'professional', title: '1. Professional', description: 'Clean, business-ready' },
+                  { id: 'creative', title: '2. Creative', description: 'Artistic, unique angles' },
+                  { id: 'lifestyle', title: '3. Lifestyle', description: 'Natural, everyday moments' },
+                  { id: 'editorial', title: '4. Editorial', description: 'Fashion-forward' },
+                  { id: 'headshot', title: '5. Headshot', description: 'Classic portraits' },
+                  { id: 'casual', title: '6. Casual', description: 'Relaxed, authentic' }
+                ].map((style) => (
+                  <button
+                    key={style.id}
+                    onClick={() => {
+                      setSelectedStyle(style);
+                      setLocation(`/ai-generator?style=${style.id}`);
+                    }}
+                    className={`p-4 rounded-2xl border transition-all duration-200 text-left ${
+                      selectedStyle?.id === style.id
+                        ? 'bg-stone-200/60 border-stone-300/60'
+                        : 'bg-stone-100/40 border-stone-200/40 hover:bg-stone-100/60 hover:border-stone-300/50'
+                    }`}
+                  >
+                    <div className="text-sm font-serif font-extralight tracking-[0.1em] text-stone-950 uppercase mb-1">
+                      {style.title}
+                    </div>
+                    <div className="text-xs font-light text-stone-600">
+                      {style.description}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <button
-              onClick={() => setShowStyleSelector(true)}
+              onClick={() => {
+                if (selectedStyle) {
+                  setLocation(`/ai-generator?style=${selectedStyle.id}`);
+                } else {
+                  setShowStyleSelector(true);
+                }
+              }}
               className="w-full bg-stone-950 text-stone-50 py-4 sm:py-5 rounded-2xl font-light tracking-[0.15em] uppercase text-sm transition-all duration-200 hover:bg-stone-800 hover:transform hover:translate-y-[-1px] min-h-[52px] focus:outline-none focus:ring-2 focus:ring-stone-600/40 flex items-center justify-center gap-2"
             >
               <Play size={18} strokeWidth={1.5} />
-              Start Generating
+              {selectedStyle ? `Generate ${selectedStyle.title.split('.')[1]} Style` : 'Start Generating'}
             </button>
 
             {userModel?.canRetrain && (
@@ -247,44 +312,81 @@ const StudioScreen: React.FC<StudioScreenProps> = ({ onTabChange }) => {
 
 
 
-      {/* Activity Log */}
-      <div className="space-y-6">
-        <h3 className="text-lg font-serif font-extralight tracking-[0.15em] text-stone-950 uppercase">Model Information</h3>
-        <div className="space-y-1">
-          {userModel && (
-            <>
-              <div className="flex items-center justify-between py-4 border-b border-stone-200/30 last:border-b-0 hover:bg-stone-100/30 transition-colors duration-200 px-4 -mx-4 rounded-xl">
-                <div className="flex items-center gap-4 flex-1 min-w-0">
-                  <div className="w-1.5 h-1.5 bg-stone-600 rounded-full flex-shrink-0"></div>
-                  <span className="text-sm font-light text-stone-950 truncate">Training Status</span>
+      {/* Collapsible Stats & Model Information */}
+      <div className="bg-stone-100/40 border border-stone-200/40 rounded-2xl p-6">
+        <details className="group">
+          <summary className="cursor-pointer flex items-center justify-between">
+            <div>
+              <h3 className="text-lg font-serif font-extralight tracking-[0.15em] text-stone-950 uppercase">
+                Statistics & Details
+              </h3>
+              <p className="text-sm font-light text-stone-600 mt-1">
+                View usage stats and model information
+              </p>
+            </div>
+            <div className="ml-4 transition-transform duration-200 group-open:rotate-180">
+              <Plus size={20} className="text-stone-600" strokeWidth={1.5} />
+            </div>
+          </summary>
+          
+          <div className="mt-6 space-y-6">
+            {/* Stats Grid */}
+            <div className="grid grid-cols-3 gap-4">
+              <div className="text-center p-4 bg-stone-100/60 rounded-2xl border border-stone-200/40">
+                <div className="text-xs tracking-[0.15em] uppercase font-light mb-2 text-stone-500">Status</div>
+                <div className="text-2xl font-serif font-extralight text-stone-950 mb-1">
+                  {userModel?.trainingStatus === 'completed' ? '✓' : '○'}
                 </div>
-                <span className="text-xs tracking-[0.1em] uppercase font-light text-stone-500 ml-4 flex-shrink-0">
-                  {getStatusText(userModel.trainingStatus)}
-                </span>
+                <div className="text-xs font-light text-stone-600">{getStatusText(userModel?.trainingStatus || 'not_started')}</div>
               </div>
-              <div className="flex items-center justify-between py-4 border-b border-stone-200/30 last:border-b-0 hover:bg-stone-100/30 transition-colors duration-200 px-4 -mx-4 rounded-xl">
-                <div className="flex items-center gap-4 flex-1 min-w-0">
-                  <div className="w-1.5 h-1.5 bg-stone-600 rounded-full flex-shrink-0"></div>
-                  <span className="text-sm font-light text-stone-950 truncate">Model Type</span>
+              <div className="text-center p-4 bg-stone-100/60 rounded-2xl border border-stone-200/40">
+                <div className="text-xs tracking-[0.15em] uppercase font-light mb-2 text-stone-500">Used</div>
+                <div className="text-2xl font-serif font-extralight text-stone-950 mb-1">
+                  {user.generationsUsedThisMonth || 0}
                 </div>
-                <span className="text-xs tracking-[0.1em] uppercase font-light text-stone-500 ml-4 flex-shrink-0">
-                  {userModel.modelType || 'Standard'}
-                </span>
+                <div className="text-xs font-light text-stone-600">This Month</div>
               </div>
-              {userModel.createdAt && (
-                <div className="flex items-center justify-between py-4 border-b border-stone-200/30 last:border-b-0 hover:bg-stone-100/30 transition-colors duration-200 px-4 -mx-4 rounded-xl">
-                  <div className="flex items-center gap-4 flex-1 min-w-0">
-                    <div className="w-1.5 h-1.5 bg-stone-600 rounded-full flex-shrink-0"></div>
-                    <span className="text-sm font-light text-stone-950 truncate">Created</span>
-                  </div>
-                  <span className="text-xs tracking-[0.1em] uppercase font-light text-stone-500 ml-4 flex-shrink-0">
-                    {new Date(userModel.createdAt).toLocaleDateString()}
-                  </span>
+              <div className="text-center p-4 bg-stone-100/60 rounded-2xl border border-stone-200/40">
+                <div className="text-xs tracking-[0.15em] uppercase font-light mb-2 text-stone-500">Limit</div>
+                <div className="text-2xl font-serif font-extralight text-stone-950 mb-1">
+                  {user.monthlyGenerationLimit === -1 ? '∞' : user.monthlyGenerationLimit || 100}
                 </div>
-              )}
-            </>
-          )}
-        </div>
+                <div className="text-xs font-light text-stone-600">Per Month</div>
+              </div>
+            </div>
+
+            {/* Model Information */}
+            <div>
+              <h4 className="text-base font-serif font-extralight tracking-[0.15em] text-stone-950 uppercase mb-4">Model Information</h4>
+              <div className="space-y-1">
+                {userModel && (
+                  <>
+                    <div className="flex items-center justify-between py-3 border-b border-stone-200/30 last:border-b-0">
+                      <span className="text-sm font-light text-stone-950">Training Status</span>
+                      <span className="text-xs tracking-[0.1em] uppercase font-light text-stone-500">
+                        {getStatusText(userModel.trainingStatus)}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between py-3 border-b border-stone-200/30 last:border-b-0">
+                      <span className="text-sm font-light text-stone-950">Model Type</span>
+                      <span className="text-xs tracking-[0.1em] uppercase font-light text-stone-500">
+                        {userModel.modelType || 'Standard'}
+                      </span>
+                    </div>
+                    {userModel.createdAt && (
+                      <div className="flex items-center justify-between py-3 border-b border-stone-200/30 last:border-b-0">
+                        <span className="text-sm font-light text-stone-950">Created</span>
+                        <span className="text-xs tracking-[0.1em] uppercase font-light text-stone-500">
+                          {new Date(userModel.createdAt).toLocaleDateString()}
+                        </span>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        </details>
       </div>
 
       {/* Generated Images Section */}
