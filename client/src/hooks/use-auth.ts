@@ -61,6 +61,47 @@ export function useAuth() {
     localStorageKeys: Object.keys(localStorage).filter(k => k.includes('stack') || k.includes('auth')),
     sessionStorageKeys: Object.keys(sessionStorage).filter(k => k.includes('stack') || k.includes('auth'))
   });
+
+  // 🚨 DEFENSIVE CHECK: If refresh token is 'undefined', force sign-out and reload
+  try {
+    // Check cookies and localStorage for bad refresh token
+    const cookies = document.cookie.split(';');
+    const hasBadRefreshToken = cookies.some(c => c.includes('refresh') && c.includes('undefined')) ||
+      Object.keys(localStorage).some(k => k.toLowerCase().includes('refresh') && localStorage.getItem(k) === 'undefined') ||
+      Object.keys(sessionStorage).some(k => k.toLowerCase().includes('refresh') && sessionStorage.getItem(k) === 'undefined');
+    if (hasBadRefreshToken) {
+      console.error('🚨 Detected bad refresh token ("undefined"). Forcing sign-out and reload.');
+      // Attempt sign-out via Stack Auth
+      import('../stack/stack-context.js').then(({ getStackApp }) => {
+        const stackApp = getStackApp?.();
+        if (stackApp && stackUser) {
+          stackUser.signOut().finally(() => {
+            // Clear cookies and reload
+            cookies.forEach(c => {
+              const eqPos = c.indexOf("=");
+              const name = eqPos > -1 ? c.substr(0, eqPos).trim() : c.trim();
+              if (name.includes('stack') || name.includes('refresh')) {
+                document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+              }
+            });
+            window.location.reload();
+          });
+        } else {
+          // Fallback: clear cookies and reload
+          cookies.forEach(c => {
+            const eqPos = c.indexOf("=");
+            const name = eqPos > -1 ? c.substr(0, eqPos).trim() : c.trim();
+            if (name.includes('stack') || name.includes('refresh')) {
+              document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+            }
+          });
+          window.location.reload();
+        }
+      });
+    }
+  } catch (e) {
+    console.error('🚨 Error during refresh token defensive check:', e);
+  }
   
   // Only fetch database user if Stack Auth user exists and is loaded
   const { 
