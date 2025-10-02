@@ -1092,7 +1092,7 @@ export const insertWebsiteBuilderConversationsSchema = z.object({
 
 // BUILD feature type exports
 export type UserWebsiteOnboarding = typeof userWebsiteOnboarding.$inferSelect;
-// export type InsertUserWebsiteOnboarding = z.infer<typeof insertUserWebsiteOnboardingSchema>;
+export type InsertUserWebsiteOnboarding = typeof userWebsiteOnboarding.$inferInsert;
 export type UserGeneratedWebsite = typeof userGeneratedWebsites.$inferSelect;
 
 // Imported subscribers table for email list migration
@@ -1114,9 +1114,9 @@ export const importedSubscribers = pgTable("imported_subscribers", {
 
 export type ImportedSubscriber = typeof importedSubscribers.$inferSelect;
 export type InsertImportedSubscriber = typeof importedSubscribers.$inferInsert;
-// export type InsertUserGeneratedWebsite = z.infer<typeof insertUserGeneratedWebsitesSchema>;
+export type InsertUserGeneratedWebsite = typeof userGeneratedWebsites.$inferInsert;
 export type WebsiteBuilderConversation = typeof websiteBuilderConversations.$inferSelect;
-// export type InsertWebsiteBuilderConversation = z.infer<typeof insertWebsiteBuilderConversationsSchema>;
+export type InsertWebsiteBuilderConversation = typeof websiteBuilderConversations.$inferInsert;
 
 
 
@@ -1778,19 +1778,19 @@ export type MayaContextSession = typeof mayaContextSessions.$inferSelect;
 
 // New hybrid backend types
 export type Conversation = typeof conversations.$inferSelect;
-// export type InsertConversation = z.infer<typeof insertConversationSchema>;
+export type InsertConversation = typeof conversations.$inferInsert;
 export type Message = typeof messages.$inferSelect;
-// export type InsertMessage = z.infer<typeof insertMessageSchema>;
+export type InsertMessage = typeof messages.$inferInsert;
 export type ConversationSummary = typeof conversationSummaries.$inferSelect;
-// export type InsertConversationSummary = z.infer<typeof insertConversationSummarySchema>;
+export type InsertConversationSummary = typeof conversationSummaries.$inferInsert;
 export type ConceptCard = typeof conceptCards.$inferSelect;
-// export type InsertConceptCard = z.infer<typeof insertConceptCardSchema>;
+export type InsertConceptCard = typeof conceptCards.$inferInsert;
 
 // Brand Assets types
 export type BrandAsset = typeof brandAssets.$inferSelect;
-// export type InsertBrandAsset = z.infer<typeof insertBrandAssetSchema>;
+export type InsertBrandAsset = typeof brandAssets.$inferInsert;
 export type ImageVariant = typeof imageVariants.$inferSelect;
-// export type InsertImageVariant = z.infer<typeof insertImageVariantSchema>;
+export type InsertImageVariant = typeof imageVariants.$inferInsert;
 
 // Live Sessions types
 export type LiveSession = typeof liveSessions.$inferSelect;

@@ -7,11 +7,20 @@ import { GenderStyleSelector } from './selectors/gender-style-selector.js';
 import { SentenceRealizer } from './realizers/sentence-realizer.js';
 import { FluxRealizer } from './realizers/flux-realizer.js';
 import { 
+  AestheticRecipe, 
   PromptBuildRequest, 
   GeneratedPrompt, 
   GenderVariant,
-  MatchedRecipe
+  RecipeLook
 } from './recipes/types.js';
+
+// Define the MatchedRecipe type based on the selector's return structure
+interface MatchedRecipe {
+  recipe: AestheticRecipe;
+  look: RecipeLook;
+  matchScore: number;
+  matchReasons: string[];
+}
 
 export interface TokenBudgetOptions {
   maxTokens?: number;

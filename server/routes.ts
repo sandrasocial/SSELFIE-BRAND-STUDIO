@@ -626,7 +626,7 @@ function generatePersonalizedScenePrompt(sceneNumber: number, originalMessage: s
       geminiAI = new GoogleGenAI({ apiKey: process.env['GOOGLE_API_KEY'] });
       console.log('🔑 STORY STUDIO: Gemini AI initialized server-side');
     } else {
-      console.warn('⚠️ STORY STUDIO: GOOGLE_API_KEY not configured');
+      console.log('ℹ️ STORY STUDIO: GOOGLE_API_KEY not configured - Story features will be limited');
     }
   } catch (error) {
     console.error('❌ STORY STUDIO: Failed to initialize Gemini AI:', error);
@@ -1151,9 +1151,10 @@ Remember: You are the MEMBER experience Maya - provide creative guidance and ima
   const { migrationMonitor } = await import('./migration-monitor.js');
   migrationMonitor.startMonitoring();
   
-  // ENABLED: Real-data agent insights for launch strategy (every 30 minutes)
-  const { AgentContextMonitor } = await import('./services/agent-context-monitor.js');
-  AgentContextMonitor.getInstance().startMonitoring(30); // Check every 30 minutes for launch opportunities
+  // DISABLED: Agent insights causing runtime errors due to missing API endpoints
+  // const { AgentContextMonitor } = await import('./services/agent-context-monitor.js');
+  // AgentContextMonitor.getInstance().startMonitoring(30); // Check every 30 minutes for launch opportunities
+  console.log('🧠 AGENT INSIGHTS: Disabled until API endpoints implemented');
   
   // Connect Slack Interactive System with raw body parsing for signature verification
   // const slackInteractivityRouter = await import('./routes/slack-interactivity.js'); // DISABLED

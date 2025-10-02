@@ -33,7 +33,7 @@ class SophiaTrendAnalyzer {
   constructor() {
     this.apiKey = process.env['ANTHROPIC_API_KEY']!;
     if (!this.apiKey) {
-      console.error('❌ ANTHROPIC_API_KEY not configured for Sophia trends');
+      console.log('ℹ️ ANTHROPIC_API_KEY not configured - Sophia trends will be disabled');
     }
   }
 

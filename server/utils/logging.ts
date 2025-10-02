@@ -80,8 +80,8 @@ export class LoggingSystem {
     this.logger.info('Initializing logging system...');
 
     try {
-      // Configure structured logger
-      this.structuredLogger.updateConfig(this.config);
+      // Note: StructuredLogger doesn't have updateConfig method, using basic initialization
+      this.structuredLogger.info('Structured logger initialized with basic configuration');
 
       this.logger.info('Logging system initialized successfully');
     } catch (error) {
@@ -102,7 +102,22 @@ export class LoggingSystem {
       return;
     }
 
-    this.structuredLogger.log(level, message, context);
+    // Use public methods instead of private log method
+    switch (level) {
+      case 'debug':
+        this.structuredLogger.debug(message, context);
+        break;
+      case 'info':
+        this.structuredLogger.info(message, context);
+        break;
+      case 'warn':
+        this.structuredLogger.warn(message, context);
+        break;
+      case 'error':
+      case 'fatal': // treat fatal as error since StructuredLogger doesn't support fatal
+        this.structuredLogger.error(message, context?.error, context);
+        break;
+    }
   }
 
   /**
@@ -148,7 +163,14 @@ export class LoggingSystem {
       return;
     }
 
-    this.structuredLogger.logRequest(req, res, responseTime);
+    this.structuredLogger.info('HTTP Request', {
+      method: req.method,
+      url: req.url,
+      statusCode: res.statusCode,
+      responseTime: responseTime,
+      userAgent: req.get('User-Agent'),
+      ip: req.ip
+    });
   }
 
   /**
@@ -159,7 +181,7 @@ export class LoggingSystem {
       return;
     }
 
-    this.structuredLogger.logError(error, context);
+    this.structuredLogger.error('Error occurred', error, context);
   }
 
   /**
@@ -174,7 +196,11 @@ export class LoggingSystem {
       return;
     }
 
-    this.structuredLogger.logPerformance(operation, duration, context);
+    this.structuredLogger.info('Performance metric', {
+      operation,
+      duration,
+      ...context
+    });
   }
 
   /**
@@ -190,7 +216,12 @@ export class LoggingSystem {
       return;
     }
 
-    this.structuredLogger.logDatabase(operation, table, duration, context);
+    this.structuredLogger.info('Database operation', {
+      operation,
+      table,
+      duration,
+      ...context
+    });
   }
 
   /**
@@ -208,7 +239,14 @@ export class LoggingSystem {
       return;
     }
 
-    this.structuredLogger.logExternalApi(service, endpoint, method, statusCode, duration, context);
+    this.structuredLogger.info('External API call', {
+      service,
+      endpoint,
+      method,
+      statusCode,
+      duration,
+      ...context
+    });
   }
 
   /**
@@ -224,7 +262,12 @@ export class LoggingSystem {
       return;
     }
 
-    this.structuredLogger.logAuth(event, userId, success, context);
+    this.structuredLogger.info('Authentication event', {
+      event,
+      userId,
+      success,
+      ...context
+    });
   }
 
   /**
@@ -241,7 +284,13 @@ export class LoggingSystem {
       return;
     }
 
-    this.structuredLogger.logBusiness(event, entity, entityId, action, context);
+    this.structuredLogger.info('Business event', {
+      event,
+      entity,
+      entityId,
+      action,
+      ...context
+    });
   }
 
   /**
@@ -256,7 +305,8 @@ export class LoggingSystem {
    */
   public updateConfig(newConfig: Partial<LogConfig>): void {
     this.config = { ...this.config, ...newConfig };
-    this.structuredLogger.updateConfig(this.config);
+    // Note: StructuredLogger doesn't have updateConfig method
+    this.structuredLogger.info('Configuration updated', { config: this.config });
     this.logger.info('Logging configuration updated', { config: this.config });
   }
 
@@ -276,7 +326,8 @@ export class LoggingSystem {
    */
   public setEnabled(enabled: boolean): void {
     this.isEnabled = enabled;
-    this.structuredLogger.setEnabled(enabled);
+    // Note: StructuredLogger doesn't have setEnabled method
+    this.structuredLogger.info('Logging state changed', { enabled });
     this.logger.info(`Logging system ${enabled ? 'enabled' : 'disabled'}`);
   }
 
