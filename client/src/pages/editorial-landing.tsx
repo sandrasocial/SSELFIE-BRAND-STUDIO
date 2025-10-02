@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "wouter";
-import * as stackAuth from "@stackframe/react";
-// @ts-ignore - Stack Auth has broken ESM exports, using workaround
-const stackComponents = (stackAuth as any).default || stackAuth || {};
-const { useStackApp } = stackComponents;
+import { useStackApp } from "@stackframe/react";
 import { SandraImages } from "../lib/sandra-images.js";
 import { PortfolioSection } from "../components/portfolio-section.js";
 import FreeTierSignup from "../components/free-tier-signup.js";

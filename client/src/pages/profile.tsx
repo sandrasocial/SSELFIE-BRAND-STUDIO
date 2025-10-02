@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
-import * as stackAuth from '@stackframe/react';
-// @ts-ignore - Stack Auth has broken ESM exports, using workaround
-const stackComponents = (stackAuth as any).default || stackAuth || {};
-const { AccountSettings } = stackComponents;
+import { AccountSettings } from '@stackframe/react';
 import { MemberNavigation } from '../components/member-navigation.js';
 import { useAuth } from '../hooks/use-auth.js';
 import { Settings, CreditCard, User, Shield, Bell } from 'lucide-react';
