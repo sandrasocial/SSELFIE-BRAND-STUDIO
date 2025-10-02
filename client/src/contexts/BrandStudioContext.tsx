@@ -176,17 +176,27 @@ export function BrandStudioProvider({ children }: { children: React.ReactNode })
     refetchOnWindowFocus: false, // Prevent duplicate loading on focus
   });
 
-  // Send message mutation (with duplicate prevention)
+  // Send message mutation with full Maya personality system
   const sendMessageMutation = useMutation({
     mutationFn: async (messageContent: string) => {
+      // Build conversation history for Maya's context
+      const chatHistory = state.messages.map(msg => ({
+        [msg.type]: msg.content
+      }));
+
       const response = await fetch('/api/maya/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({
           message: messageContent,
-          context: 'styling',
-          conversationId: state.conversationId
+          chatHistory: chatHistory,
+          context: {
+            styling: true,
+            conversationId: state.conversationId,
+            userIntent: 'creative_direction',
+            sessionType: 'brand_studio'
+          }
         })
       });
 
@@ -198,7 +208,9 @@ export function BrandStudioProvider({ children }: { children: React.ReactNode })
       return response.json();
     },
     onSuccess: (data) => {
-      // Add Maya's response
+      // Handle Maya's intelligent response with proper concept card extraction
+      console.log('✅ MAYA: Received response with', data.conceptCards?.length || 0, 'concept cards');
+      
       if (data.response || data.content || data.message) {
         const mayaMessage: ChatMessage = {
           id: `maya_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -211,9 +223,15 @@ export function BrandStudioProvider({ children }: { children: React.ReactNode })
         
         dispatch({ type: 'ADD_MESSAGE', payload: mayaMessage });
         
-        // Update concept cards
+        // Update concept cards with proper IDs for selection
         if (data.conceptCards?.length > 0) {
-          dispatch({ type: 'UPDATE_CONCEPT_CARDS', payload: data.conceptCards });
+          const processedConceptCards = data.conceptCards.map((card: any, index: number) => ({
+            ...card,
+            id: card.id || `concept_${Date.now()}_${index}`,
+            canGenerate: true,
+            isGenerating: false
+          }));
+          dispatch({ type: 'UPDATE_CONCEPT_CARDS', payload: processedConceptCards });
         }
       }
       dispatch({ type: 'SET_TYPING', payload: false });
