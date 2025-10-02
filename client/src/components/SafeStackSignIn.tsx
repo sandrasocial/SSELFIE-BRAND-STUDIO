@@ -2,20 +2,23 @@ import React from 'react';
 import * as stackAuth from '@stackframe/react';
 
 // @ts-ignore - Stack Auth has broken ESM exports, using workaround
-const { SignIn: StackSignIn, useStackApp } = (stackAuth as any).default || stackAuth;
+const stackComponents = (stackAuth as any).default || stackAuth || {};
+const { SignIn: StackSignIn, useStackApp } = stackComponents;
 
 // Custom Stack Auth SignIn wrapper that handles project configuration errors gracefully
 export const SafeStackSignIn: React.FC = () => {
   const [hasProjectError, setHasProjectError] = React.useState(false);
   
   React.useEffect(() => {
-    // Set up global error handler for Stack Auth project errors
+    // Set up global error handler for Stack Auth project errors - more specific targeting
     const handleError = (error: ErrorEvent) => {
-      if (error.message.includes('sign_up_enabled') || error.message.includes('_clientProjectFromCrud')) {
+      // Only catch very specific Stack Auth project configuration errors
+      if (error.message.includes('_clientProjectFromCrud') && error.message.includes('404')) {
         console.error('🛑 Stack Auth project configuration error detected:', error.message);
         setHasProjectError(true);
         error.preventDefault(); // Prevent the error from bubbling up
       }
+      // Don't catch sign_up_enabled errors as they might be recoverable
     };
     
     window.addEventListener('error', handleError);

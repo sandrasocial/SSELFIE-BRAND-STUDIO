@@ -4,7 +4,8 @@ import { Route, useLocation } from "wouter";
 import { ProtectedRoute } from './components/ProtectedRoute.js';
 import * as stackAuth from "@stackframe/react";
 // @ts-ignore - Stack Auth has broken ESM exports, using workaround
-const { SignIn, SignUp, StackHandler } = (stackAuth as any).default || stackAuth; 
+const stackComponents = (stackAuth as any).default || stackAuth || {};
+const { SignIn, SignUp, StackHandler } = stackComponents; 
 import { stackClientApp } from '../../stack/client.js';
 import { useAuth } from "./hooks/use-auth.js";
 // Removed unused environment imports - using consolidated config
@@ -90,6 +91,13 @@ function SmartHome() {
       currentPath: window.location.pathname,
       userModelStatus: userModel ? (userModel as any).trainingStatus : 'no-model'
     });
+
+    // 🔥 LOOP PREVENTION: Don't redirect if we're already where we should be
+    const currentPath = window.location.pathname;
+    if (currentPath === '/app' || currentPath === '/simple-training') {
+      console.log('🛑 Already on target route, preventing redirect loop');
+      return;
+    }
 
     // 1. Check for authenticated state and completion/error of the model fetch
     if (!isLoading && isAuthenticated) {
