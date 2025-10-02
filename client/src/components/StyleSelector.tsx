@@ -1,140 +1,144 @@
-import React from 'react';
-import { brandStyleCollections, BrandStyleCollection } from '../data/brand-style-collections.js';
-import { Check, Sparkles } from 'lucide-react';
+import React, { useState } from 'react';
+import { Check } from 'lucide-react';
+
+interface Style {
+  id: string;
+  title: string;
+  description: string;
+  imageUrl: string;
+  prompt: string;
+}
 
 interface StyleSelectorProps {
-  onStyleSelect: (style: BrandStyleCollection) => void;
+  onStyleSelect?: (style: Style) => void;
   selectedStyleId?: string;
 }
 
-export const StyleSelector: React.FC<StyleSelectorProps> = ({
-  onStyleSelect,
-  selectedStyleId
-}) => {
+export function StyleSelector({ onStyleSelect, selectedStyleId }: StyleSelectorProps) {
+  const [selectedStyle, setSelectedStyle] = useState<string | null>(selectedStyleId || null);
+
+  const styles: Style[] = [
+    {
+      id: 'professional',
+      title: 'Professional Headshot',
+      description: 'Clean, business-ready portraits',
+      imageUrl: 'https://i.postimg.cc/TPLcG2xr/out-0.png',
+      prompt: 'professional corporate headshot, business attire, clean background, confident expression'
+    },
+    {
+      id: 'editorial',
+      title: 'Editorial Style',
+      description: 'Magazine-quality fashion shots',
+      imageUrl: 'https://i.postimg.cc/pdwJdNV3/out-0-6.png',
+      prompt: 'editorial fashion portrait, dramatic lighting, artistic composition, high fashion'
+    },
+    {
+      id: 'lifestyle',
+      title: 'Lifestyle Portrait',
+      description: 'Natural, authentic moments',
+      imageUrl: 'https://i.postimg.cc/P5FMBpgX/out-0-1.png',
+      prompt: 'lifestyle portrait, natural lighting, authentic expression, candid moment'
+    },
+    {
+      id: 'creative',
+      title: 'Creative Portrait',
+      description: 'Artistic and unique angles',
+      imageUrl: 'https://i.postimg.cc/nLY7W4ZM/sselfie-7.jpg',
+      prompt: 'creative portrait, artistic lighting, unique composition, expressive'
+    }
+  ];
+
+  const handleStyleClick = (style: Style) => {
+    setSelectedStyle(style.id);
+    if (onStyleSelect) {
+      onStyleSelect(style);
+    }
+  };
+
   return (
-    <div className="space-y-8">
-      {/* Luxury Header */}
-      <div className="text-center space-y-4">
-        <div className="flex items-center justify-center gap-3 mb-4">
-          <div className="p-3 bg-neutral-800/40 rounded-editorial-xl border border-neutral-700/30">
-            <Sparkles size={20} className="text-neutral-300" strokeWidth={1.5} />
-          </div>
-          <h2 className="text-2xl font-light text-neutral-200 tracking-wide">
-            CHOOSE YOUR STYLE
-          </h2>
-        </div>
-        <p className="text-neutral-400 text-sm tracking-wide max-w-md mx-auto">
-          Select the aesthetic that best represents your vision
+    <div className="space-y-6">
+      {/* Header */}
+      <div>
+        <h2 className="text-2xl sm:text-3xl font-serif font-extralight tracking-[0.2em] text-stone-950 uppercase mb-2">
+          Choose Your Style
+        </h2>
+        <p className="text-sm font-light text-stone-600">
+          Select a photography style for your shoot
         </p>
       </div>
 
-      {/* Luxury Style Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {brandStyleCollections.map((style) => (
-          <div
-            key={style.id}
-            onClick={() => onStyleSelect(style)}
-            className={`
-              relative group cursor-pointer rounded-editorial-xl overflow-hidden
-              transform transition-all duration-500 hover:scale-[1.02] hover:shadow-editorial-xl
-              border border-neutral-700/20 bg-neutral-800/20 backdrop-blur-sm
-              ${selectedStyleId === style.id 
-                ? 'ring-2 ring-neutral-300 shadow-editorial-lg bg-neutral-800/40' 
-                : 'hover:bg-neutral-800/30'
-              }
-            `}
-          >
-            {/* Style Image */}
-            <div className="aspect-square relative overflow-hidden">
-              <img
-                src={style.heroImage}
-                alt={style.name}
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-              />
-              
-              {/* Sophisticated Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500" />
-              
-              {/* Selection Indicator */}
-              {selectedStyleId === style.id && (
-                <div className="absolute top-4 right-4 w-8 h-8 bg-neutral-200 rounded-full flex items-center justify-center shadow-lg">
-                  <Check size={16} className="text-black" strokeWidth={2} />
-                </div>
-              )}
-              
-              {/* Style Name Overlay */}
-              <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                <h3 className="text-white text-lg font-light tracking-wide mb-1">
-                  {style.name}
-                </h3>
-                <p className="text-neutral-300 text-xs tracking-wide">
-                  {style.mood}
-                </p>
-              </div>
-            </div>
-
-            {/* Style Info - Minimal */}
-            <div className="p-6">
-              <div className="space-y-4">
-                <div>
-                  <h3 className="text-lg font-light text-neutral-200 tracking-wide mb-2">
-                    {style.name}
+      {/* Style Grid */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        {styles.map((style) => {
+          const isSelected = selectedStyle === style.id;
+          
+          return (
+            <button
+              key={style.id}
+              onClick={() => handleStyleClick(style)}
+              className={`group relative overflow-hidden rounded-2xl sm:rounded-3xl transition-all duration-300 ${
+                isSelected 
+                  ? 'ring-2 ring-stone-950 scale-[1.02]' 
+                  : 'hover:scale-[1.02] ring-1 ring-stone-200/40'
+              }`}
+            >
+              {/* Image Container */}
+              <div className="aspect-[4/3] relative">
+                {/* Style Image */}
+                <img 
+                  src={style.imageUrl}
+                  alt={style.title}
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  onError={(e) => {
+                    // Fallback to gradient if image fails to load
+                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.parentElement?.classList.add('bg-gradient-to-br', 'from-stone-200', 'to-stone-300');
+                  }}
+                />
+                
+                {/* Gradient Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-stone-950/80 via-stone-950/20 to-transparent"></div>
+                
+                {/* Selection Indicator */}
+                {isSelected && (
+                  <div className="absolute top-3 right-3 w-8 h-8 bg-stone-50 rounded-full flex items-center justify-center shadow-lg">
+                    <Check size={16} className="text-stone-950" strokeWidth={2.5} />
+                  </div>
+                )}
+                
+                {/* Content Overlay */}
+                <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-5">
+                  <h3 className="text-sm sm:text-base font-serif font-extralight tracking-[0.1em] text-stone-50 uppercase mb-1 leading-tight">
+                    {style.title}
                   </h3>
-                  <p className="text-sm text-neutral-400 leading-relaxed line-clamp-2">
+                  <p className="text-xs font-light text-stone-200 leading-relaxed">
                     {style.description}
                   </p>
                 </div>
-                
-                {/* Target Audience */}
-                <div className="space-y-2">
-                  <span className="text-xs text-neutral-500 tracking-wide uppercase">Perfect For</span>
-                  <p className="text-xs text-neutral-300 leading-relaxed">
-                    {style.targetAudience}
-                  </p>
-                </div>
-                
-                {/* Color Palette - Simplified */}
-                <div className="space-y-3">
-                  <span className="text-xs text-neutral-500 tracking-wide uppercase">Color Palette</span>
-                  <div className="flex space-x-3">
-                    <div className="flex flex-col items-center space-y-1">
-                      <div
-                        className="w-6 h-6 rounded-full border border-neutral-600/30 shadow-sm"
-                        style={{ backgroundColor: style.primaryColor }}
-                      />
-                      <span className="text-xs text-neutral-400">Primary</span>
-                    </div>
-                    <div className="flex flex-col items-center space-y-1">
-                      <div
-                        className="w-6 h-6 rounded-full border border-neutral-600/30 shadow-sm"
-                        style={{ backgroundColor: style.secondaryColor }}
-                      />
-                      <span className="text-xs text-neutral-400">Secondary</span>
-                    </div>
-                    <div className="flex flex-col items-center space-y-1">
-                      <div
-                        className="w-6 h-6 rounded-full border border-neutral-600/30 shadow-sm"
-                        style={{ backgroundColor: style.accentColor }}
-                      />
-                      <span className="text-xs text-neutral-400">Accent</span>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Font */}
-                <div className="space-y-2">
-                  <span className="text-xs text-neutral-500 tracking-wide uppercase">Typography</span>
-                  <p className="text-xs text-neutral-300 font-light" style={{ fontFamily: style.primaryFont }}>
-                    {style.primaryFont}
-                  </p>
-                </div>
               </div>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Selected Style Info */}
+      {selectedStyle && (
+        <div className="bg-stone-100/50 border border-stone-200/40 rounded-2xl p-5 sm:p-6">
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 bg-stone-500/10 rounded-xl flex items-center justify-center flex-shrink-0">
+              <Check size={18} className="text-stone-600" strokeWidth={1.5} />
+            </div>
+            <div>
+              <h4 className="text-sm font-light text-stone-950 mb-1">
+                Style Selected
+              </h4>
+              <p className="text-xs font-light text-stone-600 leading-relaxed">
+                {styles.find(s => s.id === selectedStyle)?.title} - Ready to generate
+              </p>
             </div>
           </div>
-        ))}
-      </div>
+        </div>
+      )}
     </div>
   );
-};
-
-export default StyleSelector;
+}

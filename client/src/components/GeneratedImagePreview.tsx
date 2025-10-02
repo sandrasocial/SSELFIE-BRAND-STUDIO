@@ -56,17 +56,12 @@ const GeneratedImagePreview: React.FC<GeneratedImagePreviewProps> = ({
         console.log('✅ Save response:', result);
         setSavedImages(prev => new Set([...prev, imageUrl]));
         console.log('✅ Image saved to gallery successfully');
-        
-        // Show success feedback
-        alert('Image saved to gallery!');
       } else {
         const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
         console.error('❌ Failed to save image:', response.status, errorData);
-        alert(`Failed to save image: ${errorData.error || 'Unknown error'}`);
       }
     } catch (error) {
       console.error('❌ Error saving image:', error);
-      alert(`Error saving image: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 
@@ -74,12 +69,10 @@ const GeneratedImagePreview: React.FC<GeneratedImagePreviewProps> = ({
     console.log('🔄 Attempting to save all images:', imageUrls);
     
     try {
-      // Save each image individually 
       for (const imageUrl of imageUrls) {
         await handleSaveImage(imageUrl);
       }
       
-      // Also call the onSave callback if provided
       if (onSave && imageUrls.length > 0) {
         onSave(imageUrls);
       }
@@ -87,7 +80,6 @@ const GeneratedImagePreview: React.FC<GeneratedImagePreviewProps> = ({
       console.log('✅ All images saved successfully');
     } catch (error) {
       console.error('❌ Error saving all images:', error);
-      alert(`Error saving images: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 
@@ -97,10 +89,10 @@ const GeneratedImagePreview: React.FC<GeneratedImagePreviewProps> = ({
         {isLoading ? (
           <div className="space-y-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-neutral-800/40 rounded-editorial-md border border-neutral-700/30">
-                <Sparkles size={16} className="text-neutral-400" strokeWidth={1.5} />
+              <div className="p-2 bg-stone-500/10 rounded-xl border border-stone-400/20">
+                <Sparkles size={16} className="text-stone-600" strokeWidth={1.5} />
               </div>
-              <p className="text-neutral-400 text-sm tracking-wide uppercase">
+              <p className="text-stone-600 text-xs tracking-[0.15em] uppercase font-light">
                 Generating your vision...
               </p>
             </div>
@@ -108,7 +100,7 @@ const GeneratedImagePreview: React.FC<GeneratedImagePreviewProps> = ({
               {skeletons.map((_, i) => (
                 <div 
                   key={i} 
-                  className="aspect-square bg-neutral-800/30 rounded-editorial-lg border border-neutral-700/20 animate-pulse"
+                  className="aspect-square bg-stone-200/40 rounded-2xl border border-stone-300/30 animate-pulse"
                 />
               ))}
             </div>
@@ -118,16 +110,16 @@ const GeneratedImagePreview: React.FC<GeneratedImagePreviewProps> = ({
             {/* Header */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-neutral-800/40 rounded-editorial-md border border-neutral-700/30">
-                  <Sparkles size={16} className="text-neutral-300" strokeWidth={1.5} />
+                <div className="p-2 bg-stone-500/10 rounded-xl border border-stone-400/20">
+                  <Sparkles size={16} className="text-stone-600" strokeWidth={1.5} />
                 </div>
-                <p className="text-neutral-300 text-sm tracking-wide uppercase">
+                <p className="text-stone-950 text-xs tracking-[0.15em] uppercase font-light">
                   Generated Images
                 </p>
               </div>
               <button
                 onClick={handleSaveAll}
-                className="text-neutral-400 text-xs tracking-wide uppercase hover:text-neutral-300 transition-colors flex items-center gap-2"
+                className="text-stone-600 text-xs tracking-[0.15em] uppercase font-light hover:text-stone-950 transition-colors flex items-center gap-2"
               >
                 <Save size={14} strokeWidth={1.5} />
                 Save All
@@ -138,7 +130,7 @@ const GeneratedImagePreview: React.FC<GeneratedImagePreviewProps> = ({
             <div className="grid grid-cols-2 gap-4">
               {imageUrls.map((url, index) => (
                 <div key={index} className="group relative cursor-pointer">
-                  <div className="aspect-square relative overflow-hidden rounded-editorial-lg border border-neutral-700/20 bg-neutral-800/20">
+                  <div className="aspect-square relative overflow-hidden rounded-2xl border border-stone-200/40 bg-stone-100/40">
                     <img
                       src={url}
                       alt={`Generated ${index + 1}`}
@@ -146,20 +138,20 @@ const GeneratedImagePreview: React.FC<GeneratedImagePreviewProps> = ({
                       onClick={() => setSelectedImage(url)}
                     />
                     
-                    {/* Sophisticated Overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    {/* Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-stone-950/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                     
-                    {/* Action Buttons */}
+                    {/* Action Button */}
                     <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           handleSaveImage(url);
                         }}
-                        className={`p-2 rounded-full backdrop-blur-sm transition-all duration-200 ${
+                        className={`p-2 rounded-xl backdrop-blur-sm transition-all duration-200 ${
                           savedImages.has(url) 
-                            ? 'bg-red-500/90 text-white' 
-                            : 'bg-white/20 text-white hover:bg-white/30'
+                            ? 'bg-stone-900/90 text-stone-50' 
+                            : 'bg-stone-50/20 text-stone-50 hover:bg-stone-50/30'
                         }`}
                         title={savedImages.has(url) ? 'Saved to gallery' : 'Save to gallery'}
                       >
@@ -173,8 +165,8 @@ const GeneratedImagePreview: React.FC<GeneratedImagePreviewProps> = ({
                     
                     {/* Image Number */}
                     <div className="absolute bottom-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <span className="text-white text-xs tracking-wide font-light">
-                        IMG_{String(index + 1).padStart(2, '0')}
+                      <span className="text-stone-50 text-xs tracking-[0.15em] uppercase font-light">
+                        Image {String(index + 1).padStart(2, '0')}
                       </span>
                     </div>
                   </div>
@@ -185,44 +177,44 @@ const GeneratedImagePreview: React.FC<GeneratedImagePreviewProps> = ({
         ) : null}
       </div>
 
-      {/* Luxury Full-screen preview modal */}
+      {/* Full-screen preview modal */}
       {selectedImage && (
-        <div className="fixed inset-0 bg-black/95 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="editorial-modal max-w-4xl w-full max-h-[90vh] flex flex-col">
+        <div className="fixed inset-0 bg-stone-950/95 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-stone-100/95 backdrop-blur-xl rounded-3xl border border-stone-200/60 max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden">
             {/* Header */}
-            <div className="flex items-center justify-between p-6 border-b border-neutral-800/30">
+            <div className="flex items-center justify-between p-6 border-b border-stone-200/40">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-neutral-800/40 rounded-editorial-md border border-neutral-700/30">
-                  <Sparkles size={16} className="text-neutral-300" strokeWidth={1.5} />
+                <div className="p-2 bg-stone-500/10 rounded-xl border border-stone-400/20">
+                  <Sparkles size={16} className="text-stone-600" strokeWidth={1.5} />
                 </div>
-                <h3 className="text-lg font-light text-neutral-200 tracking-wide">IMAGE PREVIEW</h3>
+                <h3 className="text-base font-serif font-extralight text-stone-950 tracking-[0.15em] uppercase">Image Preview</h3>
               </div>
               <button
                 onClick={() => setSelectedImage(null)}
-                className="p-2 hover:bg-neutral-800/40 rounded-editorial-md transition-colors"
+                className="p-2 hover:bg-stone-200/50 rounded-xl transition-colors"
               >
-                <X size={20} className="text-neutral-400" strokeWidth={1.5} />
+                <X size={20} className="text-stone-600" strokeWidth={1.5} />
               </button>
             </div>
             
             {/* Image */}
-            <div className="flex-1 flex items-center justify-center p-8 bg-gradient-to-br from-neutral-900/50 to-neutral-800/30">
+            <div className="flex-1 flex items-center justify-center p-8 bg-stone-50/50 overflow-auto">
               <img
                 src={selectedImage}
                 alt="Full preview"
-                className="max-w-full max-h-[60vh] object-contain rounded-editorial-lg shadow-editorial-xl"
+                className="max-w-full max-h-[60vh] object-contain rounded-2xl shadow-lg"
               />
             </div>
             
             {/* Actions */}
-            <div className="p-6 border-t border-neutral-800/30 bg-gradient-to-r from-neutral-900/50 to-neutral-800/30">
+            <div className="p-6 border-t border-stone-200/40 bg-stone-100/60">
               <div className="flex items-center justify-center gap-4">
                 <button
                   onClick={() => handleSaveImage(selectedImage)}
-                  className={`editorial-button-secondary flex items-center gap-2 px-6 py-3 ${
-                    savedImages.has(selectedImage) 
-                      ? 'bg-red-900/20 text-red-300 border-red-800/30' 
-                      : ''
+                  className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-light tracking-[0.1em] uppercase text-sm transition-all duration-200 ${
+                    savedImages.has(selectedImage)
+                      ? 'bg-stone-900 text-stone-50'
+                      : 'bg-stone-100/50 text-stone-950 border border-stone-200/40 hover:bg-stone-100/70'
                   }`}
                 >
                   <Heart 
@@ -230,15 +222,15 @@ const GeneratedImagePreview: React.FC<GeneratedImagePreviewProps> = ({
                     strokeWidth={1.5} 
                     className={savedImages.has(selectedImage) ? 'fill-current' : ''}
                   />
-                  {savedImages.has(selectedImage) ? 'SAVED' : 'SAVE TO GALLERY'}
+                  {savedImages.has(selectedImage) ? 'Saved' : 'Save to Gallery'}
                 </button>
                 
                 <button
-                  onClick={() => downloadImage(selectedImage, `maya-generation-${Date.now()}.png`)}
-                  className="editorial-button-secondary flex items-center gap-2 px-6 py-3"
+                  onClick={() => downloadImage(selectedImage, `sselfie-generation-${Date.now()}.png`)}
+                  className="flex items-center gap-2 px-6 py-3 bg-stone-100/50 text-stone-950 border border-stone-200/40 rounded-2xl hover:bg-stone-100/70 transition-colors font-light tracking-[0.1em] uppercase text-sm"
                 >
                   <Download size={16} strokeWidth={1.5} />
-                  DOWNLOAD
+                  Download
                 </button>
               </div>
             </div>
