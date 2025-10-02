@@ -25,10 +25,3 @@ export interface ClientChatMessage extends Omit<BaseChatMessage, 'content'> {
   type: 'text' | 'concept';
   content: string | Record<string, unknown>; // Can be string or a concept card object
 }
-
-export interface UseMayaChatReturn {
-  messages: ClientChatMessage[];
-  sendMessage: (message: string, context?: Record<string, unknown>) => Promise<void>;
-  isLoading: boolean;
-  error: string | null;
-}

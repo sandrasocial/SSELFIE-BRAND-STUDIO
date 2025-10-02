@@ -51,7 +51,6 @@ import AuthSuccessComponent from "./pages/auth-success.js";
 const NotFound = lazy(() => import("./pages/not-found.js"));
 
 // Critical pages (marked as priority in routed-pages-priority.ts)  
-const Maya = lazy(() => import("./pages/maya.js"));
 const SSELFIEGallery = lazy(() => import("./pages/sselfie-gallery.js"));
 
 // Stage Mode components (lazy loaded)
@@ -293,13 +292,11 @@ function Router() {
       )} />
 
       {/* CRITICAL WORKFLOW PAGES */}
-      <Route path="/maya" component={(props) => (
-        <ProtectedRoute component={() => (
-          <Suspense fallback={<PageLoader />}>
-            <Maya />
-          </Suspense>
-        )} {...props} />
-      )} />
+      {/* OLD MAYA ROUTE - Redirect to enhanced Maya in main app */}
+      <Route path="/maya" component={() => {
+        window.location.replace('/app');
+        return <PageLoader />;
+      }} />
       
       <Route path="/sselfie-gallery" component={(props) => (
         <ProtectedRoute component={() => (
