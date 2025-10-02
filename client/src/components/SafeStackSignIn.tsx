@@ -1,9 +1,5 @@
 import React from 'react';
-import * as stackAuth from '@stackframe/react';
-
-// @ts-ignore - Stack Auth has broken ESM exports, using workaround
-const stackComponents = (stackAuth as any).default || stackAuth || {};
-const { SignIn: StackSignIn, useStackApp } = stackComponents;
+import { SignIn as StackSignIn, useStackApp } from '@stackframe/react';
 
 // Custom Stack Auth SignIn wrapper that handles project configuration errors gracefully
 export const SafeStackSignIn: React.FC = () => {

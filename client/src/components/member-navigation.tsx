@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { useAuth } from '../hooks/use-auth.js';
-import * as stackAuth from '@stackframe/react';
-// @ts-ignore - Stack Auth has broken ESM exports, using workaround
-const stackComponents = (stackAuth as any).default || stackAuth || {};
-const { UserButton } = stackComponents;
+import { UserButton } from '@stackframe/react';
 import { Menu, X, Home, Camera, User, CreditCard, LogOut, Shield } from 'lucide-react';
 
 interface MemberNavigationProps {

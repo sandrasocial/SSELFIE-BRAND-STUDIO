@@ -1,7 +1,4 @@
-import * as stackAuth from "@stackframe/react";
-// @ts-ignore - Stack Auth has broken ESM exports, using workaround
-const stackComponents = (stackAuth as any).default || stackAuth || {};
-const { useUser } = stackComponents;
+import { useUser } from "@stackframe/react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
 import { apiFetch } from "../lib/api.js";

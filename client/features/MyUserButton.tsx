@@ -1,6 +1,4 @@
-import * as stackAuth from "@stackframe/react";
-// @ts-ignore - Stack Auth has broken ESM exports, using workaround
-const { UserButton } = (stackAuth as any).default || stackAuth;
+import { UserButton } from "@stackframe/react";
 
 // Replace with your actual icon component
 function CustomIcon() {
