@@ -126,35 +126,31 @@ export function useAuth() {
     }
   });
 
-  // 🔥 CRITICAL FIX: Force cache invalidation on authentication state changes
+  // 🔥 CRITICAL FIX: Aggressively invalidate all relevant queries on authentication state changes
   useEffect(() => {
     const currentAuthState = {
       wasAuthenticated: isAuthenticated,
       userId: stackUser?.id
     };
 
-    // Detect when user transitions from unauthenticated to authenticated (login event)
-    const justLoggedIn = !prevAuthStateRef.current.wasAuthenticated && isAuthenticated;
-    // Detect when user changes (different user logged in)
-    const userChanged = prevAuthStateRef.current.userId && 
-                       stackUser?.id && 
-                       prevAuthStateRef.current.userId !== stackUser.id;
+    // Detect when authentication state *changes*
+    const authStateChanged = prevAuthStateRef.current.wasAuthenticated !== isAuthenticated ||
+                             prevAuthStateRef.current.userId !== stackUser?.id;
 
-    if (justLoggedIn || userChanged) {
-      console.log('✅ Stack Auth session established. Invalidating user data cache.', {
-        justLoggedIn,
-        userChanged,
-        newUserId: stackUser?.id,
-        prevUserId: prevAuthStateRef.current.userId
-      });
-      
-      // 💡 CRITICAL FIX: Force refetch on login to ensure immediate backend sync
-      // This prevents stale cache from showing empty/incorrect user data
+    if (authStateChanged) {
+      console.log('🔄 Auth state transition detected. Invalidating all core queries to prevent stale data/loading issues.');
+      // CRITICAL FIX: Aggressively invalidate core queries
       queryClient.invalidateQueries({ queryKey: ["/api/me"] });
-      queryClient.invalidateQueries({ queryKey: ['/api/user-model'] }); // Also invalidate user-model queries
-      
-      // Ensure SmartHome gets fresh data, not stale/empty cache
-      queryClient.refetchQueries({ queryKey: ["/api/me", stackUser?.id] });
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/user-model"] }); 
+      queryClient.invalidateQueries({ queryKey: ["/api/maya-chats"] }); 
+      queryClient.invalidateQueries({ queryKey: ["/api/maya-images"] }); 
+      // Add other top-level queries that could hold stale data upon login/logout here.
+
+      // Force refetch the user data immediately if authenticated to get the new profile
+      if (isAuthenticated && stackUser?.id) {
+          queryClient.refetchQueries({ queryKey: ["/api/me", stackUser.id], exact: true });
+      }
     }
 
     // Update previous state for next comparison
