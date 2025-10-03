@@ -1,5 +1,6 @@
 import React from 'react';
 import { SignIn as StackSignIn, useStackApp } from '@stackframe/react';
+import { useAuth } from '../hooks/use-auth.js';
 
 // Custom Stack Auth SignIn wrapper that handles project configuration errors gracefully
 export const SafeStackSignIn: React.FC = () => {
@@ -22,7 +23,7 @@ export const SafeStackSignIn: React.FC = () => {
     };
   }, []);
   // Only redirect from sign-in pages after successful authentication
-  const { isAuthenticated } = require('../hooks/use-auth');
+  const { isAuthenticated } = useAuth();
   React.useEffect(() => {
     // Only redirect if we're on a sign-in page and authentication is complete
     const isOnSignInPage = window.location.pathname.includes('/sign-in') ||
