@@ -61,9 +61,7 @@ try {
       // 🔧 LOOP PREVENTION: Explicit error handling
       error: "/handler/sign-in?error=auth_failed",
     },
-    // 🔥 CRITICAL FIX: Use consistent domain configuration
-  // The deployed app uses www.sselfie.ai, so Stack Auth must use the same domain
-  baseUrl: 'https://www.sselfie.ai',
+    // 🔥 REMOVED: baseUrl should not be set to app domain - let Stack Auth use its default API
   });
 
   // 🔥 CRITICAL FIX: Override token store methods to prevent "undefined" tokens
@@ -120,7 +118,7 @@ try {
       const currentUrl = (stackClientApp.urls as any)[key];
       if (currentUrl) {
         let newUrl = currentUrl;
-        // Always use www.sselfie.ai for deployed app
+        // Always use www.sselfie.ai for deployed app OAuth URLs
         if (currentUrl.includes('sselfie.ai') && !currentUrl.includes('www.sselfie.ai')) {
           newUrl = currentUrl.replace(/https:\/\/sselfie\.ai/g, 'https://www.sselfie.ai');
         }
@@ -136,7 +134,7 @@ try {
       }
     });
 
-    console.log('🔧 Final URLs after override:', stackClientApp.urls);
+    console.log('🔧 Final OAuth URLs after override:', stackClientApp.urls);
 
     // Expose URLs for debugging
     (window as any).__stackAuthUrls = stackClientApp.urls;
