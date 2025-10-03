@@ -3,13 +3,56 @@ import { SignIn as StackSignIn, useStackApp } from '@stackframe/react';
 
 // Custom Stack Auth SignIn wrapper that handles project configuration errors gracefully
 export const SafeStackSignIn: React.FC = () => {
-  // Redirect to '/' after successful authentication
+  console.log('🔍 SafeStackSignIn: Component is rendering');
+  console.log('🔍 SafeStackSignIn: Stack app available =', !!useStackApp());
+  console.log('🔍 SafeStackSignIn: Current location =', window.location.href);
+  
+  // Add visible debug indicator
+  React.useEffect(() => {
+    console.log('🔍 SafeStackSignIn: useEffect triggered');
+    const debugDiv = document.createElement('div');
+    debugDiv.id = 'sselfie-debug';
+    debugDiv.style.cssText = 'position:fixed;top:10px;right:10px;background:red;color:white;padding:5px;z-index:9999;font-size:12px;';
+    debugDiv.textContent = 'SafeStackSignIn Loaded';
+    document.body.appendChild(debugDiv);
+    
+    return () => {
+      const existing = document.getElementById('sselfie-debug');
+      if (existing) existing.remove();
+    };
+  }, []);
+  // Only redirect from sign-in pages after successful authentication
   const { isAuthenticated } = require('../hooks/use-auth');
   React.useEffect(() => {
-    if (isAuthenticated && window.location.pathname !== "/") {
-      window.location.replace("/");
+    // Only redirect if we're on a sign-in page and authentication is complete
+    const isOnSignInPage = window.location.pathname.includes('/sign-in') ||
+                          window.location.pathname.includes('/handler/sign-in') ||
+                          window.location.pathname.includes('/auth');
+    if (isAuthenticated && isOnSignInPage && window.location.pathname !== "/") {
+      // Add small delay to prevent redirect loops during OAuth completion
+      setTimeout(() => {
+        console.log('🔄 Redirecting authenticated user from sign-in page to home');
+        window.location.replace("/");
+      }, 1000);
     }
   }, [isAuthenticated]);
+
+  // Debug OAuth button clicks (only in development)
+  React.useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      const handleClick = (e: MouseEvent) => {
+        const target = e.target as HTMLElement;
+        if (target.closest('[data-provider="google"]') || target.textContent?.toLowerCase().includes('google')) {
+          console.log('🔍 Google OAuth button clicked at:', new Date().toISOString());
+          console.log('🔍 Current location:', window.location.href);
+          console.log('🔍 Stack Auth URLs:', (window as any).__stackAuthUrls);
+        }
+      };
+
+      document.addEventListener('click', handleClick);
+      return () => document.removeEventListener('click', handleClick);
+    }
+  }, []);
   const [hasProjectError, setHasProjectError] = React.useState(false);
   
   React.useEffect(() => {
