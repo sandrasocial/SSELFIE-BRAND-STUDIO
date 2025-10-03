@@ -11,11 +11,19 @@ import { TooltipProvider } from './components/ui/tooltip.js';
 
 // Import queryClient and stackClientApp
 import { queryClient } from "./lib/queryClient.js";
+// Re-enable Stack Auth import
 import { stackClientApp } from "../../stack/client.js";
 
 // Debug logging for troubleshooting
 console.log('SSELFIE Studio: Main.tsx loading...');
 console.log('SSELFIE Studio: Root element found:', !!document.getElementById("root"));
+
+// Add visible debug indicator
+const debugDiv = document.createElement('div');
+debugDiv.id = 'main-debug';
+debugDiv.style.cssText = 'position:fixed;top:10px;left:10px;background:purple;color:white;padding:5px;z-index:9999;font-size:12px;';
+debugDiv.textContent = 'Main.tsx Loaded';
+document.body.appendChild(debugDiv);
 
 // Disable Vite HMR to prevent WebSocket connection errors
 if (import.meta.hot) {
@@ -90,10 +98,10 @@ try {
   console.log('SSELFIE Studio: Creating React root...');
   const root = createRoot(container);
 
-  console.log('SSELFIE Studio: Rendering app with Stack Auth...');
+  console.log('SSELFIE Studio: Rendering app WITH Stack Auth...');
   root.render(
     <React.StrictMode>
-      {/* 1. StackProvider MUST wrap everything that uses auth hooks */}
+      {/* Re-enable Stack Auth provider */}
       <StackProvider app={stackClientApp}>
         <StackTheme>
           {/* 2. QueryClientProvider wraps the entire application logic */}
@@ -109,7 +117,7 @@ try {
     </React.StrictMode>
   );
 
-  console.log('✅ SSELFIE Studio: App rendered successfully!');
+  console.log('✅ SSELFIE Studio: App rendered successfully WITH Stack Auth!');
 } catch (error) {
   console.error('❌ SSELFIE Studio: Fatal error during app initialization:', error);
   

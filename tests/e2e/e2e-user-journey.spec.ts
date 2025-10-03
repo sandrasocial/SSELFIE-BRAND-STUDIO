@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test('Critical User Journey (E2E): New user signup, payment, training, Maya chat, and image generation', async ({ page }) => {
     // Step 1: New User Signup and Authentication
-  await page.goto('https://sselfie-brand-studio-309ymihe5-sselfie-studio.vercel.app/handler/sign-in');
+  await page.goto('https://sselfie-brand-studio-loba4mmfj-sselfie-studio.vercel.app/handler/sign-in');
   // Click the login button by visible text
   await page.getByText('Login', { exact: true }).click();
     const email = `testuser-${Date.now()}@example.com`;

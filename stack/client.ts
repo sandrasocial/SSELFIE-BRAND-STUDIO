@@ -61,9 +61,9 @@ try {
       // 🔧 LOOP PREVENTION: Explicit error handling
       error: "/handler/sign-in?error=auth_failed",
     },
-    // Enhanced configuration for production stability
-  // 🔥 CRITICAL FIX: Use correct domain (sselfie.ai) instead of www.sselfie.ai
-    baseUrl: typeof window !== 'undefined' ? 'https://sselfie.ai' : undefined,
+    // 🔥 CRITICAL FIX: Use consistent domain configuration
+  // The deployed app uses www.sselfie.ai, so Stack Auth must use the same domain
+  baseUrl: 'https://www.sselfie.ai',
   });
 
   // 🔥 CRITICAL FIX: Override token store methods to prevent "undefined" tokens
@@ -103,18 +103,43 @@ try {
     currentOrigin: typeof window !== 'undefined' ? window.location.origin : 'server-side'
   });
 
-  // 🔥 CRITICAL FIX: Override URLs to use correct domain (sselfie.ai) if they don't match
+  // 🔥 CRITICAL FIX: Override URLs to use correct domain (www.sselfie.ai for deployed app)
   if (typeof window !== 'undefined') {
-    const correctDomain = 'https://sselfie.ai';
+    const currentOrigin = window.location.origin;
+    const preferredDomain = 'https://www.sselfie.ai'; // Use www.sselfie.ai to match deployed domain
     const urlKeys = ['signIn', 'signUp', 'afterSignIn', 'afterSignUp', 'afterSignOut', 'oauthCallback', 'error'] as const;
+
+    console.log('🔧 URL Override Debug:', {
+      currentOrigin,
+      preferredDomain,
+      currentHostname: window.location.hostname,
+      originalUrls: stackClientApp.urls
+    });
 
     urlKeys.forEach(key => {
       const currentUrl = (stackClientApp.urls as any)[key];
-      if (currentUrl && (currentUrl.startsWith('https://www.sselfie.ai') || !currentUrl.startsWith(correctDomain))) {
-        (stackClientApp.urls as any)[key] = currentUrl.replace('https://www.sselfie.ai', correctDomain);
-        console.log(`🔧 Fixed URL ${key}: ${currentUrl} → ${(stackClientApp.urls as any)[key]}`);
+      if (currentUrl) {
+        let newUrl = currentUrl;
+        // Always use www.sselfie.ai for deployed app
+        if (currentUrl.includes('sselfie.ai') && !currentUrl.includes('www.sselfie.ai')) {
+          newUrl = currentUrl.replace(/https:\/\/sselfie\.ai/g, 'https://www.sselfie.ai');
+        }
+        // If URL doesn't match current domain, update it
+        else if (!currentUrl.startsWith(currentOrigin) && !currentUrl.startsWith(preferredDomain)) {
+          newUrl = currentUrl.replace(/^https:\/\/[^\/]+/, preferredDomain);
+        }
+
+        if (newUrl !== currentUrl) {
+          (stackClientApp.urls as any)[key] = newUrl;
+          console.log(`🔧 Fixed URL ${key}: ${currentUrl} → ${newUrl}`);
+        }
       }
     });
+
+    console.log('🔧 Final URLs after override:', stackClientApp.urls);
+
+    // Expose URLs for debugging
+    (window as any).__stackAuthUrls = stackClientApp.urls;
   }
 
   // 🔍 DEBUG: Check if Stack Auth is working properly

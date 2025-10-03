@@ -31,6 +31,8 @@ import { lazy, Suspense } from "react";
 const MagicLinkSignInPage = lazy(() => import("../features/MagicLinkSignInPage.js").then(module => ({ default: module.MagicLinkSignInPage })));
 const MyForgotPassword = lazy(() => import("../features/MyForgotPassword.js").then(module => ({ default: module.MyForgotPassword })));
 const PasswordResetPage = lazy(() => import("../features/ResetPasswordPage.js").then(module => ({ default: module.ResetPasswordPage })));
+// Temporarily import SignInHandler directly to test if lazy loading is the issue
+import SignInHandler from "./pages/handler/sign-in.js";
 
 const BusinessLanding = lazy(() => import("./pages/landing/business-landing.js"));
 const HairLanding = lazy(() => import("./pages/landing/hair-landing.js"));
@@ -63,7 +65,10 @@ import { Auth } from "./components/Auth.js";
 // NEW USER JOURNEY: Authentication → Training → App Studio → Advanced Features  
 function SmartHome() {
   const [, setLocation] = useLocation();
-  const { isAuthenticated, isLoading } = useAuth();
+  // Temporarily disable auth for testing
+  // const { isAuthenticated, isLoading } = useAuth();
+  const isAuthenticated = false; // Mock for testing
+  const isLoading = false; // Mock for testing
 
   const { 
     data: userModel, 
@@ -160,6 +165,9 @@ function SmartHome() {
 // Protected wrapper component that handles Stack Auth authentication
 
 function Router() {
+  console.log('🔍 Router: Rendering with pathname =', window.location.pathname);
+  console.log('🔍 Router: Full URL =', window.location.href);
+  
   return (
     <div>
       {/* Post-auth success handoff - MOVED TO TOP for priority matching */}
@@ -195,15 +203,32 @@ function Router() {
       )} />
 
       {/* STACK AUTH HANDLER - Consolidated wildcard route for ALL Stack redirects/callbacks including OAuth */}
-      <Route path="/handler/:rest*" component={HandlerRoutes} />
-      <Route path="/handler" component={HandlerRoutes} />
+      <Route path="/handler/sign-in" component={() => {
+        console.log('🔍 Route matched: /handler/sign-in');
+        return <SignInHandler />;
+      }} />
+      <Route path="/handler/sign-up" component={() => {
+        console.log('🔍 Route matched: /handler/sign-up');
+        return <SignInHandler />;
+      }} />
+      <Route path="/handler/:rest*" component={() => {
+        console.log('🔍 Route matched: /handler/:rest* with rest =', window.location.pathname.replace('/handler/', ''));
+        return <HandlerRoutes />;
+      }} />
+      <Route path="/handler" component={() => {
+        console.log('🔍 Route matched: /handler');
+        return <HandlerRoutes />;
+      }} />
       
       {/* Guard against accidental /handler/app by redirecting to /app */}
       <Route path="/handler/app" component={() => { window.location.href = '/app'; return null; }} />
       
       {/* HOME ROUTE - Smart routing based on authentication and training status */}
       <Route path="/" component={() => {
-        const { isAuthenticated, isLoading } = useAuth();
+        // Temporarily disable auth for testing
+        // const { isAuthenticated, isLoading } = useAuth();
+        const isAuthenticated = false; // Mock for testing
+        const isLoading = false; // Mock for testing
         
         if (isLoading) {
           return <PageLoader />;
@@ -389,21 +414,50 @@ function Router() {
 // 🔥 CLEANED UP: Stack Auth Handler - Single source of truth for authentication
 function HandlerRoutes() {
   const handlerPath = window.location.pathname.replace('/handler/', '') || '';
-  
+
   console.log('🔍 HandlerRoutes: handlerPath =', handlerPath);
   console.log('🔍 HandlerRoutes: full location =', window.location.href);
-  
+  console.log('🔍 HandlerRoutes: Stack client app exists =', !!stackClientApp);
+  console.log('🔍 HandlerRoutes: Stack client app urls =', stackClientApp?.urls);
+
   // ✅ Use StackHandler for ALL Stack Auth operations to ensure consistency
   // This includes sign-in, sign-up, magic-link, password-reset, email-verification
   console.log('🔍 HandlerRoutes: Using StackHandler for =', handlerPath);
-  
-  return (
-    <StackHandler 
-      app={stackClientApp} 
-      location={window.location.pathname + window.location.search + window.location.hash}
-      fullPage={true}
-    />
-  );
+
+  try {
+    return (
+      <StackHandler
+        app={stackClientApp}
+        location={window.location.pathname + window.location.search + window.location.hash}
+        fullPage={true}
+      />
+    );
+  } catch (error) {
+    console.error('❌ HandlerRoutes: Error rendering StackHandler:', error);
+    return (
+      <div className="min-h-screen bg-stone-50 flex items-center justify-center px-4">
+        <div className="w-full max-w-md space-y-8">
+          <div className="text-center">
+            <h2 className="text-3xl font-light tracking-widest mb-8" style={{ fontFamily: 'Times New Roman, serif' }}>
+              SSELFIE STUDIO
+            </h2>
+            <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+              <h3 className="text-lg font-medium text-red-800 mb-4">Authentication Error</h3>
+              <p className="text-red-700 mb-6">
+                Stack Auth handler failed to load. Please try refreshing the page.
+              </p>
+              <button
+                onClick={() => window.location.reload()}
+                className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-3 px-6 rounded-lg transition-colors"
+              >
+                Refresh Page
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 }
 
 function App() {
