@@ -65,10 +65,11 @@ import { Auth } from "./components/Auth.js";
 // NEW USER JOURNEY: Authentication → Training → App Studio → Advanced Features  
 function SmartHome() {
   const [, setLocation] = useLocation();
-  // Temporarily disable auth for testing
-  // const { isAuthenticated, isLoading } = useAuth();
-  const isAuthenticated = false; // Mock for testing
-  const isLoading = false; // Mock for testing
+  const { 
+    isAuthenticated, 
+    isLoading,
+    user 
+  } = useAuth();
 
   const { 
     data: userModel, 
@@ -225,10 +226,7 @@ function Router() {
       
       {/* HOME ROUTE - Smart routing based on authentication and training status */}
       <Route path="/" component={() => {
-        // Temporarily disable auth for testing
-        // const { isAuthenticated, isLoading } = useAuth();
-        const isAuthenticated = false; // Mock for testing
-        const isLoading = false; // Mock for testing
+        const { isAuthenticated, isLoading } = useAuth();
         
         if (isLoading) {
           return <PageLoader />;
