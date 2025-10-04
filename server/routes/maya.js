@@ -78,69 +78,93 @@ router.post('/chat', requireStackAuth, async (req, res) => {
         // Extract concept cards using improved regex patterns
         let conceptCards = [];
         try {
-            const responseText = mayaResponse.toLowerCase();
+            // Look for Maya's emoji-based concept card format first
+            const emojiConceptPattern = /(\p{Emoji})\s*\*\*([^*]+)\*\*\s*\n([^*]+?)\s*\n\s*FLUX_PROMPT:\s*\[([^\]]+)\]/gu;
+            let emojiMatch;
+            while ((emojiMatch = emojiConceptPattern.exec(mayaResponse)) !== null) {
+                const emoji = emojiMatch[1];
+                const title = emojiMatch[2].trim();
+                const description = emojiMatch[3].trim();
+                const fluxPrompt = emojiMatch[4].trim();
 
-            // Look for concept suggestions in various formats
-            const conceptPatterns = [
-                // Format: **Concept Title**: Description
-                /\*\*([^*\n]+)\*\*:\s*([^\n*]+)/g,
-                // Format: ### Concept Title\nDescription
-                /###\s*([^\n]+)\n([^\n#]+)/g,
-                // Format: - **Title**: Description
-                /-\s*\*\*([^*\n]+)\*\*:\s*([^\n-]+)/g,
-                // Format: 1. Title: Description
-                /(\d+)\.\s*([^\n:]+):\s*([^\n\d]+)/g,
-                // Format: Concept: Title\nDescription: desc
-                /concept:\s*([^\n]+)\ndescription:\s*([^\n]+)/gi,
-                // Format: Title: something\nPrompt: something
-                /title:\s*([^\n]+)\nprompt:\s*([^\n]+)/gi
-            ];
+                if (title && description && title.length > 3 && description.length > 10) {
+                    conceptCards.push({
+                        id: `concept_${Date.now()}_${conceptCards.length}`,
+                        title: title,
+                        description: description,
+                        fluxPrompt: fluxPrompt,
+                        creativeLook: 'Professional',
+                        emoji: emoji
+                    });
+                }
+            }
 
-            for (const pattern of conceptPatterns) {
-                let match;
-                while ((match = pattern.exec(mayaResponse)) !== null) {
-                    let title = '', description = '';
+            // If no emoji-based concepts found, try legacy patterns
+            if (conceptCards.length === 0) {
+                const conceptPatterns = [
+                    // Format: **Concept Title**: Description
+                    /\*\*([^*\n]+)\*\*:\s*([^\n*]+)/g,
+                    // Format: ### Concept Title\nDescription
+                    /###\s*([^\n]+)\n([^\n#]+)/g,
+                    // Format: - **Title**: Description
+                    /-\s*\*\*([^*\n]+)\*\*:\s*([^\n-]+)/g,
+                    // Format: 1. Title: Description
+                    /(\d+)\.\s*([^\n:]+):\s*([^\n\d]+)/g,
+                    // Format: Concept: Title\nDescription: desc
+                    /concept:\s*([^\n]+)\ndescription:\s*([^\n]+)/gi,
+                    // Format: Title: something\nPrompt: something
+                    /title:\s*([^\n]+)\nprompt:\s*([^\n]+)/gi
+                ];
 
-                    if (match[1] && match[2]) {
-                        title = match[1].trim();
-                        description = match[2].trim();
-                    } else if (match[2] && match[3]) {
-                        title = match[2].trim();
-                        description = match[3].trim();
-                    }
+                for (const pattern of conceptPatterns) {
+                    let match;
+                    while ((match = pattern.exec(mayaResponse)) !== null) {
+                        let title = '', description = '';
 
-                    if (title && description && title.length > 3 && description.length > 10) {
-                        conceptCards.push({
-                            id: `concept_${Date.now()}_${conceptCards.length}`,
-                            title: title,
-                            description: description,
-                            creativeLook: 'Professional',
-                            emoji: '📸'
-                        });
+                        if (match[1] && match[2]) {
+                            title = match[1].trim();
+                            description = match[2].trim();
+                        } else if (match[2] && match[3]) {
+                            title = match[2].trim();
+                            description = match[3].trim();
+                        }
+
+                        if (title && description && title.length > 3 && description.length > 10) {
+                            conceptCards.push({
+                                id: `concept_${Date.now()}_${conceptCards.length}`,
+                                title: title,
+                                description: description,
+                                creativeLook: 'Professional',
+                                emoji: '📸'
+                            });
+                        }
                     }
                 }
             }
 
             // Fallback: if no structured concepts found, try to extract from general suggestions
-            if (conceptCards.length === 0 && responseText.includes('concept') || responseText.includes('idea')) {
-                const sentences = mayaResponse.split(/[.!?]+/).filter(s =>
-                    s.toLowerCase().includes('concept') ||
-                    s.toLowerCase().includes('idea') ||
-                    s.toLowerCase().includes('photo')
-                );
+            if (conceptCards.length === 0) {
+                const responseText = mayaResponse.toLowerCase();
+                if (responseText.includes('concept') || responseText.includes('idea')) {
+                    const sentences = mayaResponse.split(/[.!?]+/).filter(s =>
+                        s.toLowerCase().includes('concept') ||
+                        s.toLowerCase().includes('idea') ||
+                        s.toLowerCase().includes('photo')
+                    );
 
-                sentences.slice(0, 3).forEach((sentence, index) => {
-                    const cleanSentence = sentence.trim();
-                    if (cleanSentence.length > 20) {
-                        conceptCards.push({
-                            id: `fallback_concept_${Date.now()}_${index}`,
-                            title: `Photo Concept ${index + 1}`,
-                            description: cleanSentence,
-                            creativeLook: 'Creative',
-                            emoji: '💡'
-                        });
-                    }
-                });
+                    sentences.slice(0, 3).forEach((sentence, index) => {
+                        const cleanSentence = sentence.trim();
+                        if (cleanSentence.length > 20) {
+                            conceptCards.push({
+                                id: `fallback_concept_${Date.now()}_${index}`,
+                                title: `Photo Concept ${index + 1}`,
+                                description: cleanSentence,
+                                creativeLook: 'Creative',
+                                emoji: '💡'
+                            });
+                        }
+                    });
+                }
             }
         } catch (parseError) {
             console.log('Concept card extraction failed:', parseError.message);
