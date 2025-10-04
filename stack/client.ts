@@ -124,7 +124,7 @@ try {
         }
         // If URL doesn't match current domain, update it
         else if (!currentUrl.startsWith(currentOrigin) && !currentUrl.startsWith(preferredDomain)) {
-          newUrl = currentUrl.replace(/^https:\/\/[^\/]+/, preferredDomain);
+          newUrl = currentUrl.replace(/^https:\/\/[^/]+/, preferredDomain);
         }
 
         if (newUrl !== currentUrl) {

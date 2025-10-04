@@ -20,6 +20,7 @@ const MayaChatContent: React.FC<MayaChatContentProps> = ({ initialPrompt, onProm
     isTyping,
     sendMessage,
     selectConceptCard,
+    generateImage,
     isLoading
   } = useBrandStudio();
 
@@ -28,7 +29,9 @@ const MayaChatContent: React.FC<MayaChatContentProps> = ({ initialPrompt, onProm
     id: 'welcome-maya',
     type: 'maya' as const,
     content: "I help people get amazing photos that actually look like them.\n\nI create 5 different shots every time - some close-ups, some full body, and some lifestyle scenes that work together like a perfect feed. What kind of photos are you dreaming of?",
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    conceptCards: [],
+    generatedImages: []
   };
 
   // Combine welcome message with actual messages
@@ -124,7 +127,10 @@ const MayaChatContent: React.FC<MayaChatContentProps> = ({ initialPrompt, onProm
                   {message.conceptCards.map((card, cardIndex) => (
                     <div
                       key={card.id || cardIndex}
-                      onClick={() => selectConceptCard(card.id)}
+                      onClick={() => {
+                        selectConceptCard(card.id);
+                        generateImage(card.id);
+                      }}
                       className={`bg-stone-100/40 border border-stone-200/50 rounded-2xl p-5 transition-all duration-200 hover:bg-stone-100/60 hover:border-stone-300/60 cursor-pointer ${
                         selectedConceptCardId === card.id ? 'ring-2 ring-stone-600/40 bg-stone-100/60' : ''
                       }`}
@@ -155,6 +161,34 @@ const MayaChatContent: React.FC<MayaChatContentProps> = ({ initialPrompt, onProm
                       </div>
                     </div>
                   ))}
+                </div>
+              )}
+
+              {/* Generated Images */}
+              {message.type === 'maya' && message.generatedImages && message.generatedImages.length > 0 && (
+                <div className="mt-4 space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-1 h-1 rounded-full bg-stone-600"></div>
+                    <span className="text-xs tracking-[0.15em] uppercase font-light text-stone-600">Generated Photos</span>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {message.generatedImages.map((image: any, imageIndex: number) => (
+                      <div key={imageIndex} className="relative group">
+                        <div className="aspect-square rounded-2xl overflow-hidden bg-stone-100/40 border border-stone-200/50">
+                          <img 
+                            src={image.url || image} 
+                            alt={`Generated photo ${imageIndex + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-200 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100">
+                          <button className="bg-stone-900/80 text-stone-50 px-3 py-1.5 rounded-full text-xs font-light">
+                            View Full Size
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>

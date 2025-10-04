@@ -58,13 +58,19 @@ export const PremiumTypography = {
 
 // Typography utility classes
 export const TypographyClasses = {
-  // Headings
+  // Headings - Editorial Luxury Scale
   h1: `font-serif text-5xl sm:text-6xl font-light leading-tight tracking-wider text-stone-900`,
   h2: `font-serif text-3xl sm:text-4xl font-light leading-tight tracking-wide text-stone-900`,
   h3: `font-serif text-2xl sm:text-3xl font-light leading-snug tracking-wide text-stone-900`,
   h4: `font-serif text-xl sm:text-2xl font-light leading-snug tracking-normal text-stone-900`,
   h5: `font-serif text-lg sm:text-xl font-light leading-snug tracking-normal text-stone-900`,
   h6: `font-serif text-base sm:text-lg font-light leading-snug tracking-normal text-stone-900`,
+
+  // Editorial Headline - Standardized tracking
+  editorialHeadline: `font-serif font-light leading-tight tracking-wide text-stone-900`,
+  editorialHeadlineLarge: `font-serif text-5xl sm:text-6xl font-light leading-tight tracking-wide text-stone-900`,
+  editorialHeadlineMedium: `font-serif text-3xl sm:text-4xl font-light leading-tight tracking-wide text-stone-900`,
+  editorialHeadlineSmall: `font-serif text-xl sm:text-2xl font-light leading-snug tracking-wide text-stone-900`,
 
   // Body text
   body: `font-sans text-base font-light leading-relaxed text-stone-700`,
@@ -74,7 +80,7 @@ export const TypographyClasses = {
   // Captions and labels
   caption: `font-sans text-xs font-light leading-normal tracking-wide uppercase text-stone-500`,
   label: `font-sans text-sm font-medium leading-normal tracking-normal text-stone-700`,
-  
+
   // Interactive elements
   button: `font-sans text-sm font-medium leading-none tracking-wide uppercase`,
   link: `font-sans text-base font-medium leading-normal text-stone-900 hover:text-stone-700`,
