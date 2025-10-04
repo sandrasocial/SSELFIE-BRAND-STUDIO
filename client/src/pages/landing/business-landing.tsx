@@ -5,6 +5,7 @@ import { OptimizedImage } from "../../components/OptimizedImage.js";
 import { SignIn } from "@stackframe/react";
 import { stackClientApp } from "../../../../stack/client.js";
 import { STACK_PROJECT_ID, STACK_PUBLISHABLE_CLIENT_KEY } from "../../env.js";
+import { UnifiedNavigation } from "../../components/unified-navigation.js";
 
 export default function BusinessLanding() {
   const [, setLocation] = useLocation();
@@ -328,65 +329,8 @@ export default function BusinessLanding() {
 
   return (
     <div className="min-h-screen bg-white" itemScope itemType="https://schema.org/WebPage">
-      {/* Business Navigation with Mobile Support */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-md" role="navigation" aria-label="Main navigation">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
-          <div className="flex items-center justify-between">
-            <div 
-              className="font-serif text-lg sm:text-xl font-light tracking-wide text-white cursor-pointer touch-manipulation"
-              style={{ fontFamily: "Times New Roman, serif", minHeight: '44px', display: 'flex', alignItems: 'center' }}
-              onClick={() => setLocation("/")}
-              role="button"
-              tabIndex={0}
-              aria-label="SSELFIE home"
-              onKeyDown={(e) => e.key === 'Enter' && setLocation("/")}
-              itemProp="publisher"
-              itemScope
-              itemType="https://schema.org/Organization"
-            >
-              <span itemProp="name">SSELFIE</span>
-            </div>
-
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-8">
-              <button
-                onClick={handleLogin}
-                disabled={authLoading}
-                className="text-xs uppercase tracking-[0.3em] font-light text-white/70 hover:text-white transition-all duration-300 min-h-[44px] px-3 flex items-center touch-manipulation disabled:opacity-50 disabled:cursor-not-allowed"
-                aria-label="Login to your account"
-              >
-                {authLoading ? 'Loading...' : 'Login'}
-              </button>
-              <button
-                onClick={handleGetStarted}
-                className="text-white border border-white/30 hover:bg-white hover:text-black transition-colors duration-300 text-xs uppercase tracking-[0.3em] font-light px-8 py-3 min-h-[44px] touch-manipulation"
-                aria-label="Start your professional photo transformation for €47"
-              >
-                Start €47
-              </button>
-            </div>
-
-            {/* Mobile Navigation - Optimized touch targets */}
-            <div className="md:hidden flex items-center space-x-3">
-              <button
-                onClick={handleLogin}
-                disabled={authLoading}
-                className="text-xs uppercase tracking-[0.3em] font-light text-white/70 hover:text-white transition-all duration-300 min-h-[44px] px-3 flex items-center disabled:opacity-50 disabled:cursor-not-allowed"
-                aria-label="Login to your account"
-              >
-                {authLoading ? 'Loading...' : 'Login'}
-              </button>
-              <button
-                onClick={handleGetStarted}
-                className="text-white border border-white/30 hover:bg-white hover:text-black transition-colors duration-300 text-xs uppercase tracking-[0.3em] font-light px-6 py-3 min-h-[44px] min-w-[120px]"
-                aria-label="Start your professional photo transformation for €47"
-              >
-                Start €47
-              </button>
-            </div>
-          </div>
-        </div>
-      </nav>
+      {/* Unified Navigation */}
+      <UnifiedNavigation />
 
       {/* HERO - Optimized Layout */}
       <section className="relative min-h-screen bg-black text-white overflow-hidden" itemScope itemType="https://schema.org/Service">

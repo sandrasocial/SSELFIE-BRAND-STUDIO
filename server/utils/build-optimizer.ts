@@ -43,7 +43,6 @@ export class BuildOptimizer {
         exactOptionalPropertyTypes: true,
         noImplicitOverride: true,
         noPropertyAccessFromIndexSignature: true,
-        noUncheckedIndexedAccess: true,
         skipLibCheck: true,
         forceConsistentCasingInFileNames: true,
         resolveJsonModule: true,
