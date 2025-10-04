@@ -116,13 +116,13 @@ export function SSELFIEChat() {
 
   const handleGenerateImage = async (card: ConceptCard) => {
     toast({ title: "Creating Photos", description: "Maya is generating your professional photos..." });
-    
+
     // Update card to show generating state
     setMessages(prev => prev.map(msg => {
       if (!msg.conceptCards) return msg;
       return {
         ...msg,
-        conceptCards: msg.conceptCards.map(c => 
+        conceptCards: msg.conceptCards.map(c =>
           c.id === card.id ? { ...c, isGenerating: true } : c
         )
       };
@@ -141,43 +141,70 @@ export function SSELFIEChat() {
 
       if (response.ok) {
         const data = await response.json();
-        
-        // Update card with generated images
-        setMessages(prev => prev.map(msg => {
-          if (!msg.conceptCards) return msg;
-          return {
-            ...msg,
-            conceptCards: msg.conceptCards.map(c => 
-              c.id === card.id ? { 
-                ...c, 
-                isGenerating: false, 
-                generatedImages: data.images || [] 
-              } : c
-            )
-          };
-        }));
+        const predictionId = data.predictionId;
 
-        toast({ title: "Photos Ready!", description: "Your professional photos have been created." });
+        if (!predictionId) {
+          throw new Error('No prediction ID received');
+        }
+
+        // Start polling for generation status
+        const pollForCompletion = async () => {
+          try {
+            const statusResponse = await fetch(`/api/maya/status?predictionId=${predictionId}`);
+            const statusData = await statusResponse.json();
+
+            if (statusData.status === 'succeeded' && statusData.images && statusData.images.length > 0) {
+              // Generation completed successfully
+              setMessages(prev => prev.map(msg => {
+                if (!msg.conceptCards) return msg;
+                return {
+                  ...msg,
+                  conceptCards: msg.conceptCards.map(c =>
+                    c.id === card.id ? {
+                      ...c,
+                      isGenerating: false,
+                      generatedImages: statusData.images
+                    } : c
+                  )
+                };
+              }));
+
+              toast({ title: "Photos Ready!", description: "Your professional photos have been created." });
+            } else if (statusData.status === 'failed') {
+              throw new Error('Generation failed');
+            } else {
+              // Still processing, continue polling
+              setTimeout(pollForCompletion, 3000); // Poll every 3 seconds
+            }
+          } catch (pollError) {
+            console.error('Polling error:', pollError);
+            throw pollError;
+          }
+        };
+
+        // Start polling after a brief delay
+        setTimeout(pollForCompletion, 2000);
+
       } else {
         throw new Error('Generation failed');
       }
     } catch (error) {
       console.error('Image generation error:', error);
-      
+
       // Reset generating state on error
       setMessages(prev => prev.map(msg => {
         if (!msg.conceptCards) return msg;
         return {
           ...msg,
-          conceptCards: msg.conceptCards.map(c => 
+          conceptCards: msg.conceptCards.map(c =>
             c.id === card.id ? { ...c, isGenerating: false } : c
           )
         };
       }));
 
-      toast({ 
-        title: "Generation Error", 
-        description: "Unable to generate photos right now. Please try again." 
+      toast({
+        title: "Generation Error",
+        description: "Unable to generate photos right now. Please try again."
       });
     }
   };
