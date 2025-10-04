@@ -14,6 +14,7 @@ interface ChatMessage {
   timestamp: string;
   conceptCards?: ConceptCard[];
   quickButtons?: string[];
+  generatedImages?: any[];
 }
 
 interface BrandStudioState {
@@ -34,6 +35,7 @@ interface BrandStudioContextType extends BrandStudioState {
   // Actions
   sendMessage: (content: string) => void;
   selectConceptCard: (id: string | null) => void;
+  generateImage: (cardId: string) => void;
   setActiveTab: (tab: 'photo' | 'story' | 'maya') => void;
   setHandoffData: (data: BrandStudioState['handoffData']) => void;
   clearHandoffData: () => void;
@@ -245,9 +247,98 @@ export function BrandStudioProvider({ children }: { children: React.ReactNode })
     }
   });
 
-  // Actions (with duplicate prevention)
+  // Generate image mutation
+  const generateImageMutation = useMutation({
+    mutationFn: async (cardId: string) => {
+      const conceptCard = state.conceptCardsById[cardId];
+      if (!conceptCard) throw new Error('Concept card not found');
+
+      const response = await fetch('/api/maya/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          conceptCard: conceptCard,
+          conversationId: state.conversationId
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to generate image');
+      }
+
+      return response.json();
+    },
+    onSuccess: (data) => {
+      // Start polling for generation status
+      if (data.generationId) {
+        pollGenerationStatus(data.generationId);
+      }
+    },
+    onError: (error) => {
+      toast({ 
+        title: "Generation Error", 
+        description: error.message || "Failed to generate image. Please try again." 
+      });
+    }
+  });
+
+  // Poll generation status
+  const pollGenerationStatus = useCallback(async (generationId: string) => {
+    const pollInterval = setInterval(async () => {
+      try {
+        const response = await fetch(`/api/maya/status/${generationId}`, {
+          credentials: 'include'
+        });
+
+        if (!response.ok) {
+          clearInterval(pollInterval);
+          return;
+        }
+
+        const status = await response.json();
+
+        if (status.status === 'completed' && status.images) {
+          clearInterval(pollInterval);
+          
+          // Add generated images to the conversation
+          const imageMessage: ChatMessage = {
+            id: `images_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            type: 'maya',
+            content: `Here are your generated photos based on the selected concept:`,
+            timestamp: new Date().toISOString(),
+            generatedImages: status.images
+          };
+          
+          dispatch({ type: 'ADD_MESSAGE', payload: imageMessage });
+          
+          toast({ 
+            title: "Images Generated!", 
+            description: "Your photos are ready to view." 
+          });
+        } else if (status.status === 'failed') {
+          clearInterval(pollInterval);
+          toast({ 
+            title: "Generation Failed", 
+            description: "Image generation failed. Please try again." 
+          });
+        }
+        // Continue polling if still processing
+      } catch (error) {
+        clearInterval(pollInterval);
+        console.error('Polling error:', error);
+      }
+    }, 2000); // Poll every 2 seconds
+
+    // Stop polling after 5 minutes
+    setTimeout(() => {
+      clearInterval(pollInterval);
+    }, 300000);
+  }, [toast]);
+
   const sendMessage = useCallback((content: string) => {
-    if (!content.trim() || state.isTyping || sendMessageMutation.isPending) return;
+    if (!content.trim() || sendMessageMutation.isPending) return;
 
     // Add user message immediately
     const userMessage: ChatMessage = {
@@ -256,13 +347,18 @@ export function BrandStudioProvider({ children }: { children: React.ReactNode })
       content: content.trim(),
       timestamp: new Date().toISOString()
     };
-    
+
     dispatch({ type: 'ADD_MESSAGE', payload: userMessage });
     dispatch({ type: 'SET_TYPING', payload: true });
-    
+
     // Send to Maya
     sendMessageMutation.mutate(content.trim());
-  }, [state.isTyping, sendMessageMutation]);
+  }, [sendMessageMutation]);
+
+  const generateImage = useCallback((cardId: string) => {
+    if (!cardId || generateImageMutation.isPending) return;
+    generateImageMutation.mutate(cardId);
+  }, [generateImageMutation]);
 
   const selectConceptCard = useCallback((id: string | null) => {
     dispatch({ type: 'SELECT_CONCEPT_CARD', payload: id });
@@ -290,6 +386,7 @@ export function BrandStudioProvider({ children }: { children: React.ReactNode })
     ...state,
     sendMessage,
     selectConceptCard,
+    generateImage,
     setActiveTab,
     setHandoffData,
     clearHandoffData,

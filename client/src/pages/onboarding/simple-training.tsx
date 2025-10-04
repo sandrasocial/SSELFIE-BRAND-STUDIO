@@ -9,6 +9,7 @@ import { apiRequest } from '../../lib/queryClient.js';
 import ErrorBoundary from '../../components/ErrorBoundary.js';
 import { User, UserModel } from '../../types/index.js';
 import { MayaUploadComponent } from '../../components/maya/MayaUploadComponent.js';
+import { TypographyClasses } from '../../styles/premium-typography.js';
 
 // Enhanced training infrastructure
 import { useTrainingStatus } from '../../hooks/useTrainingStatus.js';
@@ -492,80 +493,29 @@ function SimpleTraining() {
   // Training failure restart view - LUXURY EDITORIAL DESIGN
   if (isRetrainingMode || (trainingStatus?.needsRestart && userModel?.trainingStatus !== 'completed')) {
     return (
-      <div style={{ 
-        minHeight: '100vh', 
-        background: '#ffffff',
-        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-        fontWeight: 300,
-        color: '#0a0a0a'
-      }}>
+      <div className="min-h-screen bg-white">
         <MemberNavigation />
         
         {/* Editorial Training Restart Section */}
-        <section style={{
-          minHeight: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: '#0a0a0a',
-          color: '#ffffff',
-          position: 'relative',
-          overflow: 'hidden'
-        }}>
-          <div style={{
-            position: 'absolute',
-            inset: 0,
-            opacity: 0.3
-          }}>
+        <section className="min-h-screen flex items-center justify-center bg-black text-white relative overflow-hidden">
+          <div className="absolute inset-0 opacity-30">
             <img 
               src={SandraImages.editorial.thinking}
               alt="Decorative illustration"
-              style={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover'
-              }}
+              className="w-full h-full object-cover"
             />
           </div>
           
-          <div style={{
-            position: 'relative',
-            zIndex: 2,
-            textAlign: 'center',
-            maxWidth: '900px',
-            padding: '0 40px'
-          }}>
-            <div style={{
-              fontSize: '11px',
-              letterSpacing: '0.4em',
-              textTransform: 'uppercase',
-              color: 'rgba(255, 255, 255, 0.7)',
-              marginBottom: '40px',
-              fontWeight: 300
-            }}>
+          <div className="relative z-2 text-center max-w-900 px-10">
+            <div className={TypographyClasses.editorialHeadline}>
               AI MODEL TRAINING SYSTEM
             </div>
             
-            <h1 style={{
-              fontFamily: 'Times New Roman, serif',
-              fontSize: 'clamp(3rem, 8vw, 8rem)',
-              lineHeight: 0.9,
-              fontWeight: 200,
-              letterSpacing: '-0.02em',
-              textTransform: 'uppercase',
-              marginBottom: '32px'
-            }}>
+            <h1 className={TypographyClasses.editorialHeadlineLarge}>
               FRESH START
             </h1>
             
-            <p style={{
-              fontSize: 'clamp(18px, 4vw, 24px)',
-              lineHeight: 1.4,
-              fontWeight: 300,
-              maxWidth: '700px',
-              margin: '0 auto 48px auto',
-              opacity: 0.9
-            }}>
+            <p className={TypographyClasses.bodyLarge}>
               {trainingStatus?.reason === 'No training data found - please start training' 
                 ? 'Ready to create your personal AI model with fresh images'
                 : 'Your previous training requires a fresh start with new images'
@@ -573,38 +523,19 @@ function SimpleTraining() {
             </p>
             
             {/* Editorial Message Box */}
-            <div style={{
-              maxWidth: '800px',
-              margin: '0 auto 48px auto',
-              padding: '32px 40px',
-              background: 'rgba(255, 255, 255, 0.05)',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
-              textAlign: 'left'
-            }}>
-              <div style={{
-                fontSize: '13px',
-                letterSpacing: '0.05em',
-                textTransform: 'uppercase',
-                fontWeight: 400,
-                marginBottom: '16px',
-                opacity: 0.8
-              }}>
+            <div className="max-w-800 mx-auto mb-12 p-8 bg-white/5 border border-white/2">
+              <div className={TypographyClasses.caption}>
                 Training Process
               </div>
               
-              <div style={{
-                fontSize: '16px',
-                lineHeight: 1.6,
-                fontWeight: 300,
-                opacity: 0.9
-              }}>
-                <div style={{ marginBottom: '12px' }}>
+              <div className={TypographyClasses.body}>
+                <div className="mb-3">
                   • Upload 10-20 high-quality selfie images
                 </div>
-                <div style={{ marginBottom: '12px' }}>
+                <div className="mb-3">
                   • AI creates your personal model (30-45 minutes)
                 </div>
-                <div style={{ marginBottom: '12px' }}>
+                <div className="mb-3">
                   • Generate unlimited editorial-quality images
                 </div>
                 <div>
@@ -623,59 +554,13 @@ function SimpleTraining() {
               <button
                 onClick={() => restartTrainingMutation.mutate()}
                 disabled={restartTrainingMutation.isPending}
-                style={{
-                  padding: '20px 40px',
-                  fontSize: '11px',
-                  fontWeight: 400,
-                  letterSpacing: '0.3em',
-                  textTransform: 'uppercase',
-                  background: '#ffffff',
-                  color: '#0a0a0a',
-                  border: 'none',
-                  cursor: 'pointer',
-                  transition: 'all 300ms ease',
-                  opacity: restartTrainingMutation.isPending ? 0.6 : 1
-                }}
-                onMouseEnter={(e) => {
-                  if (!restartTrainingMutation.isPending) {
-                    (e.target as HTMLElement).style.background = '#f5f5f5';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!restartTrainingMutation.isPending) {
-                    (e.target as HTMLElement).style.background = '#ffffff';
-                  }
-                }}
+                className={`px-10 py-5 text-xs font-medium tracking-wide uppercase bg-white text-black border-none cursor-pointer transition-all duration-300 ${restartTrainingMutation.isPending ? 'opacity-60' : 'hover:bg-gray-100'}`}
               >
                 {restartTrainingMutation.isPending ? 'CLEARING...' : 'START FRESH TRAINING'}
               </button>
               
               <Link href="/workspace">
-                <div style={{
-                  padding: '20px 40px',
-                  fontSize: '11px',
-                  fontWeight: 400,
-                  letterSpacing: '0.3em',
-                  textTransform: 'uppercase',
-                  textDecoration: 'none',
-                  border: '1px solid rgba(255, 255, 255, 0.4)',
-                  color: 'rgba(255, 255, 255, 0.8)',
-                  background: 'transparent',
-                  transition: 'all 300ms ease',
-                  cursor: 'pointer',
-                  display: 'inline-block'
-                }}
-                onMouseEnter={(e) => {
-                  const target = e.target as HTMLElement;
-                  target.style.borderColor = 'rgba(255, 255, 255, 0.8)';
-                  target.style.color = '#ffffff';
-                }}
-                onMouseLeave={(e) => {
-                  const target = e.target as HTMLElement;
-                  target.style.borderColor = 'rgba(255, 255, 255, 0.4)';
-                  target.style.color = 'rgba(255, 255, 255, 0.8)';
-                }}
-                >
+                <div className="px-10 py-5 text-xs font-medium tracking-wide uppercase text-decoration-none border border-white/4 bg-transparent text-white/8 hover:border-white/8 hover:text-white transition-all duration-300 cursor-pointer inline-block">
                   RETURN TO WORKSPACE
                 </div>
               </Link>
@@ -691,29 +576,10 @@ function SimpleTraining() {
   // Training upload view
   if (!isAuthenticated) {
     return (
-      <div style={{ 
-        minHeight: '100vh', 
-        background: '#ffffff',
-        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-        fontWeight: 300,
-        color: '#0a0a0a'
-      }}>
+      <div className="min-h-screen bg-white">
         <MemberNavigation />
-        <div style={{
-          maxWidth: '1400px',
-          margin: '0 auto',
-          padding: '120px 40px',
-          textAlign: 'center'
-        }}>
-          <h1 style={{
-            fontFamily: 'Times New Roman, serif',
-            fontSize: 'clamp(3rem, 6vw, 6rem)',
-            fontWeight: 200,
-            letterSpacing: '-0.01em',
-            textTransform: 'uppercase',
-            marginBottom: '24px',
-            lineHeight: 1
-          }}>
+        <div className="max-w-1400 mx-auto px-10 py-30 text-center">
+          <h1 className={TypographyClasses.editorialHeadlineLarge}>
             Please Sign In
           </h1>
         </div>
@@ -724,80 +590,29 @@ function SimpleTraining() {
   // Show model completed view with retrain option
   if (userModel && userModel.trainingStatus === 'completed' && !isRetrainingMode) {
     return (
-        <div style={{ 
-          minHeight: '100vh', 
-          background: '#ffffff',
-          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-          fontWeight: 300,
-          color: '#0a0a0a'
-        }}>
+        <div className="min-h-screen bg-white">
           <MemberNavigation />
           
           {/* Hero Section */}
-          <section style={{
-            minHeight: '100vh',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            background: '#0a0a0a',
-            color: '#ffffff',
-            position: 'relative',
-            overflow: 'hidden'
-          }}>
-            <div style={{
-              position: 'absolute',
-              inset: 0,
-              opacity: 0.4
-            }}>
+          <section className="min-h-screen flex items-center justify-center bg-black text-white relative overflow-hidden">
+            <div className="absolute inset-0 opacity-40">
               <img 
                 src={SandraImages.editorial.aiSuccess}
                 alt="Decorative illustration"
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover'
-                }}
+                className="w-full h-full object-cover"
               />
             </div>
             
-            <div style={{
-              position: 'relative',
-              zIndex: 2,
-              textAlign: 'center',
-              maxWidth: '800px',
-              padding: '0 40px'
-            }}>
-              <div style={{
-                fontSize: '11px',
-                letterSpacing: '0.4em',
-                textTransform: 'uppercase',
-                color: 'rgba(255, 255, 255, 0.7)',
-                marginBottom: '40px',
-                fontWeight: 300
-              }}>
+            <div className="relative z-2 text-center max-w-800 px-10">
+              <div className={TypographyClasses.editorialHeadline}>
                 AI MODEL READY
               </div>
               
-              <h1 style={{
-                fontFamily: 'Times New Roman, serif',
-                fontSize: 'clamp(4rem, 8vw, 8rem)',
-                lineHeight: 0.9,
-                fontWeight: 200,
-                letterSpacing: '-0.01em',
-                textTransform: 'uppercase',
-                marginBottom: '32px'
-              }}>
+              <h1 className={TypographyClasses.editorialHeadlineLarge}>
                 YOUR AI IS READY
               </h1>
               
-              <p style={{
-                fontSize: '20px',
-                lineHeight: 1.5,
-                fontWeight: 300,
-                maxWidth: '600px',
-                margin: '0 auto 40px auto',
-                opacity: 0.9
-              }}>
+              <p className={TypographyClasses.bodyLarge}>
                 Your AI is officially trained and ready to create professional photos that capture your unique style. Let's start creating.
               </p>
 
@@ -888,126 +703,41 @@ function SimpleTraining() {
   }
 
   return (
-      <div style={{ 
-        minHeight: '100vh', 
-        background: '#ffffff',
-        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-        fontWeight: 300,
-        color: '#0a0a0a'
-      }}>
+      <div className="min-h-screen bg-white">
         <MemberNavigation />
         
         {/* Hero Section - Simplified */}
-        <section style={{
-          minHeight: '80vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: '#f5f5f5',
-          position: 'relative',
-          padding: '60px 20px'
-        }}>
-          <div style={{
-            textAlign: 'center',
-            maxWidth: '800px'
-          }}>
-            <div style={{
-              fontSize: '11px',
-              letterSpacing: '0.4em',
-              textTransform: 'uppercase',
-              color: 'rgba(0, 0, 0, 0.5)',
-              marginBottom: '40px',
-              fontWeight: 300
-            }}>
+        <section className="min-h-80vh flex items-center justify-center bg-gray-50 relative px-5 py-15">
+          <div className="text-center max-w-800">
+            <div className={TypographyClasses.editorialHeadline}>
               Step One • 2 minutes
             </div>
             
-            <h1 style={{
-              fontFamily: 'Times New Roman, serif',
-              fontSize: 'clamp(2.5rem, 10vw, 8rem)',
-              lineHeight: 0.85,
-              fontWeight: 200,
-              marginBottom: '24px',
-              color: '#0a0a0a',
-              letterSpacing: '-0.02em'
-            }}>
+            <h1 className={TypographyClasses.editorialHeadlineLarge}>
               Upload Your Selfies
             </h1>
             
-            <p style={{
-              fontSize: 'clamp(16px, 4vw, 18px)',
-              lineHeight: 1.6,
-              fontWeight: 300,
-              maxWidth: '500px',
-              margin: '0 auto 40px auto',
-              color: '#333333',
-              padding: '0 20px'
-            }}>
+            <p className={TypographyClasses.bodyLarge}>
               Upload 10 selfies so your AI can create photos that actually look like you. 
               Good lighting and variety work best.
             </p>
 
             {/* Gender Selection - Critical for E2E tests */}
             {showGenderSelection && !userGender && (
-              <div style={{
-                maxWidth: '400px',
-                margin: '0 auto 40px auto',
-                padding: '24px',
-                background: '#f9f9f9',
-                border: '1px solid #e5e5e5',
-                borderRadius: '8px'
-              }}>
-                <h3 style={{
-                  fontSize: '14px',
-                  fontWeight: 500,
-                  textAlign: 'center',
-                  marginBottom: '16px',
-                  letterSpacing: '0.1em',
-                  textTransform: 'uppercase'
-                }}>
+              <div className="max-w-400 mx-auto mb-10 p-6 bg-gray-50 border border-gray-2 border-radius-4">
+                <h3 className={TypographyClasses.label}>
                   Select Your Gender
                 </h3>
-                <p style={{
-                  fontSize: '13px',
-                  color: '#666',
-                  textAlign: 'center',
-                  marginBottom: '20px'
-                }}>
+                <p className={TypographyClasses.bodySmall}>
                   This helps us train your AI model more accurately
                 </p>
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: '1fr 1fr',
-                  gap: '12px'
-                }}>
+                <div className="grid grid-cols-2 gap-3">
                   <button
                     onClick={() => {
                       setUserGender('male');
                       setShowGenderSelection(false);
                     }}
-                    style={{
-                      padding: '12px 16px',
-                      fontSize: '13px',
-                      fontWeight: 400,
-                      letterSpacing: '0.1em',
-                      textTransform: 'uppercase',
-                      border: '1px solid #0a0a0a',
-                      borderRadius: '4px',
-                      color: '#0a0a0a',
-                      background: 'transparent',
-                      cursor: 'pointer',
-                      transition: 'all 200ms ease'
-                    }}
-                    onMouseEnter={(e) => {
-                      const target = e.target as HTMLElement;
-                      target.style.background = '#0a0a0a';
-                      target.style.color = '#ffffff';
-                    }}
-                    onMouseLeave={(e) => {
-                      const target = e.target as HTMLElement;
-                      target.style.background = 'transparent';
-                      target.style.color = '#0a0a0a';
-                    }}
+                    className="px-4 py-3 text-sm font-medium tracking-normal uppercase border border-black text-black bg-transparent cursor-pointer transition-all duration-200 hover:bg-black hover:text-white"
                   >
                     Male
                   </button>
@@ -1016,29 +746,7 @@ function SimpleTraining() {
                       setUserGender('female');
                       setShowGenderSelection(false);
                     }}
-                    style={{
-                      padding: '12px 16px',
-                      fontSize: '13px',
-                      fontWeight: 400,
-                      letterSpacing: '0.1em',
-                      textTransform: 'uppercase',
-                      border: '1px solid #0a0a0a',
-                      borderRadius: '4px',
-                      color: '#0a0a0a',
-                      background: 'transparent',
-                      cursor: 'pointer',
-                      transition: 'all 200ms ease'
-                    }}
-                    onMouseEnter={(e) => {
-                      const target = e.target as HTMLElement;
-                      target.style.background = '#0a0a0a';
-                      target.style.color = '#ffffff';
-                    }}
-                    onMouseLeave={(e) => {
-                      const target = e.target as HTMLElement;
-                      target.style.background = 'transparent';
-                      target.style.color = '#0a0a0a';
-                    }}
+                    className="px-4 py-3 text-sm font-medium tracking-normal uppercase border border-black text-black bg-transparent cursor-pointer transition-all duration-200 hover:bg-black hover:text-white"
                   >
                     Female
                   </button>
@@ -1048,29 +756,14 @@ function SimpleTraining() {
 
             {/* Selected Gender Display */}
             {userGender && (
-              <div style={{
-                fontSize: '13px',
-                color: '#666666',
-                marginBottom: '24px',
-                textAlign: 'center',
-                letterSpacing: '0.1em',
-                textTransform: 'uppercase'
-              }}>
+              <div className={TypographyClasses.caption}>
                 Training for: {userGender} • 
                 <button
                   onClick={() => {
                     setUserGender('');
                     setShowGenderSelection(true);
                   }}
-                  style={{
-                    marginLeft: '8px',
-                    fontSize: '12px',
-                    color: '#999',
-                    background: 'none',
-                    border: 'none',
-                    textDecoration: 'underline',
-                    cursor: 'pointer'
-                  }}
+                  className="ml-2 text-sm color-gray-500 bg-none border-none text-decoration-underline cursor-pointer"
                 >
                   Change
                 </button>
@@ -1103,48 +796,17 @@ function SimpleTraining() {
         </section>
 
         {/* Example Photos Section */}
-        <section style={{ 
-          padding: 'clamp(60px, 10vw, 100px) 0', 
-          background: '#ffffff',
-          borderTop: '1px solid #f0f0f0'
-        }}>
-          <div style={{
-            maxWidth: '1200px',
-            margin: '0 auto',
-            padding: '0 20px',
-            textAlign: 'center'
-          }}>
-            <div style={{
-              fontSize: '11px',
-              letterSpacing: '0.4em',
-              textTransform: 'uppercase',
-              color: 'rgba(0, 0, 0, 0.5)',
-              marginBottom: '32px',
-              fontWeight: 300
-            }}>
+        <section className="py-15 sm:py-25 bg-white border-t border-gray-1">
+          <div className="max-w-1200 mx-auto px-5 text-center">
+            <div className={TypographyClasses.editorialHeadline}>
               Training Examples
             </div>
             
-            <h2 style={{
-              fontFamily: 'Times New Roman, serif',
-              fontSize: 'clamp(2rem, 6vw, 4rem)',
-              lineHeight: 0.9,
-              fontWeight: 200,
-              marginBottom: '24px',
-              color: '#0a0a0a',
-              letterSpacing: '-0.02em'
-            }}>
+            <h2 className={TypographyClasses.editorialHeadlineMedium}>
               This Is How I Trained My AI
             </h2>
             
-            <p style={{
-              fontSize: '16px',
-              lineHeight: 1.6,
-              fontWeight: 300,
-              maxWidth: '600px',
-              margin: '0 auto 60px auto',
-              color: '#666666'
-            }}>
+            <p className={TypographyClasses.bodyLarge}>
               Here are actual examples from my training set. Notice the variety in lighting, 
               angles, and expressions. This is what creates professional results.
             </p>
@@ -1471,41 +1133,20 @@ function SimpleTraining() {
             </div>
 
             {/* Training Tips */}
-            <div style={{
-              background: '#f9f9f9',
-              padding: '40px',
-              maxWidth: '600px',
-              margin: '0 auto',
-              textAlign: 'left'
-            }}>
-              <h4 style={{
-                fontSize: '11px',
-                fontWeight: 400,
-                letterSpacing: '0.3em',
-                textTransform: 'uppercase',
-                marginBottom: '20px',
-                color: '#0a0a0a'
-              }}>
+            <div className="bg-gray-50 p-10 max-w-600 mx-auto text-left">
+              <h4 className={TypographyClasses.button}>
                 What makes good training photos:
               </h4>
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: '1fr 1fr',
-                gap: '16px',
-                fontSize: '14px',
-                lineHeight: 1.6,
-                color: '#333333',
-                fontWeight: 300
-              }}>
+              <div className="grid grid-cols-2 gap-4 text-base leading-1-6 color-stone-700 font-light">
                 <div>
-                  <div style={{marginBottom: '8px'}}>✓ Natural window light</div>
-                  <div style={{marginBottom: '8px'}}>✓ Clear, unfiltered photos</div>
-                  <div style={{marginBottom: '8px'}}>✓ Different angles</div>
+                  <div className="mb-2">✓ Natural window light</div>
+                  <div className="mb-2">✓ Clear, unfiltered photos</div>
+                  <div className="mb-2">✓ Different angles</div>
                 </div>
                 <div>
-                  <div style={{marginBottom: '8px'}}>✓ Various expressions</div>
-                  <div style={{marginBottom: '8px'}}>✓ Close-up and waist-up</div>
-                  <div style={{marginBottom: '8px'}}>✓ Recent photos of you</div>
+                  <div className="mb-2">✓ Various expressions</div>
+                  <div className="mb-2">✓ Close-up and waist-up</div>
+                  <div className="mb-2">✓ Recent photos of you</div>
                 </div>
               </div>
             </div>

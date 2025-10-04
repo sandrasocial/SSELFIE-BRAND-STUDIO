@@ -1,5 +1,5 @@
 // Test production authentication flow
-const puppeteer = require('puppeteer');
+import puppeteer from 'puppeteer';
 
 async function testProductionAuth() {
   const browser = await puppeteer.launch({
