@@ -34,6 +34,7 @@ const PasswordResetPage = lazy(() => import("../features/ResetPasswordPage.js").
 // Temporarily import SignInHandler directly to test if lazy loading is the issue
 import SignInHandler from "./pages/handler/sign-in.js";
 
+
 const BusinessLanding = lazy(() => import("./pages/landing/business-landing.js"));
 const HairLanding = lazy(() => import("./pages/landing/hair-landing.js"));
 const HairSignup = lazy(() => import("./pages/landing/hair-signup.js"));
@@ -211,6 +212,17 @@ function Router() {
       <Route path="/handler/sign-up" component={() => {
         console.log('🔍 Route matched: /handler/sign-up');
         return <SignInHandler />;
+      }} />
+      {/* ✅ CRITICAL FIX: OAuth callback handler MUST come before wildcard routes to preserve query parameters */}
+      <Route path="/handler/oauth-callback" component={() => {
+        console.log('🔍 Route matched: /handler/oauth-callback');
+        return (
+          <StackHandler
+            app={stackClientApp}
+            location={window.location.pathname + window.location.search + window.location.hash}
+            fullPage={true}
+          />
+        );
       }} />
       <Route path="/handler/:rest*" component={() => {
         console.log('🔍 Route matched: /handler/:rest* with rest =', window.location.pathname.replace('/handler/', ''));
