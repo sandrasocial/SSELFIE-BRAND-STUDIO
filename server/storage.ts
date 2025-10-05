@@ -1,41 +1,3 @@
-// Utility: Default user fields for onboarding/business logic
-function getDefaultUserFields(overrides: Partial<InsertUser> = {}): InsertUser {
-  return {
-    id: overrides.id ?? '',
-    stackAuthId: overrides.stackAuthId ?? '',
-    email: overrides.email ?? '',
-    firstName: overrides.firstName ?? '',
-    lastName: overrides.lastName ?? '',
-    displayName: overrides.displayName ?? '',
-    profileImageUrl: overrides.profileImageUrl ?? '',
-    createdAt: overrides.createdAt ?? new Date(),
-    updatedAt: overrides.updatedAt ?? new Date(),
-    lastLoginAt: overrides.lastLoginAt ?? new Date(),
-    plan: 'sselfie-studio',
-    role: 'user',
-    monthlyGenerationLimit: 100,
-    mayaAiAccess: true,
-    victoriaAiAccess: false,
-    preferredOnboardingMode: 'conversational',
-    onboardingProgress: {},
-    gender: '',
-    profession: '',
-    brandStyle: '',
-    photoGoals: '',
-    trainingCoachingStarted: false,
-    trainingCoachingCompleted: false,
-    trainingCoachingPhase: '',
-    trainingCoachingStep: 0,
-    brandStrategyContext: {},
-    generationsUsedThisMonth: 0,
-    hasRetrainingAccess: false,
-    retrainingSessionId: '',
-    retrainingPaidAt: null,
-    stripeCustomerId: '',
-    stripeSubscriptionId: '',
-    ...overrides
-  };
-}
 import {
   users,
   userProfiles,
@@ -129,7 +91,7 @@ import {
   type ImageVariant,
   // type InsertImageVariant,
 } from "../shared/schema.js";
-import { 
+import {
   mayaProfile,
   mayaImages,
   type MayaProfile,
@@ -141,6 +103,45 @@ import { db } from "./drizzle.js";
 /// <reference path="types/global.d.ts" />
 import { eq, and, or, desc, asc, gte, lte, sql } from "drizzle-orm";
 import { type MayaChatCreateInput } from '../shared/types/chat.js';
+
+// Utility: Default user fields for onboarding/business logic
+function getDefaultUserFields(overrides: Partial<InsertUser> = {}): InsertUser {
+  return {
+    id: overrides.id ?? '',
+    stackAuthId: overrides.stackAuthId ?? '',
+    email: overrides.email ?? '',
+    firstName: overrides.firstName ?? '',
+    lastName: overrides.lastName ?? '',
+    displayName: overrides.displayName ?? '',
+    profileImageUrl: overrides.profileImageUrl ?? '',
+    createdAt: overrides.createdAt ?? new Date(),
+    updatedAt: overrides.updatedAt ?? new Date(),
+    lastLoginAt: overrides.lastLoginAt ?? new Date(),
+    plan: 'sselfie-studio',
+    role: 'user',
+    monthlyGenerationLimit: 100,
+    mayaAiAccess: true,
+    victoriaAiAccess: false,
+    preferredOnboardingMode: 'conversational',
+    onboardingProgress: {},
+    gender: '',
+    profession: '',
+    brandStyle: '',
+    photoGoals: '',
+    trainingCoachingStarted: false,
+    trainingCoachingCompleted: false,
+    trainingCoachingPhase: '',
+    trainingCoachingStep: 0,
+    brandStrategyContext: {},
+    generationsUsedThisMonth: 0,
+    hasRetrainingAccess: false,
+    retrainingSessionId: '',
+    retrainingPaidAt: null,
+    stripeCustomerId: '',
+    stripeSubscriptionId: '',
+    ...overrides
+  };
+}
 
 // Interface for storage operations
 export interface IStorage {
