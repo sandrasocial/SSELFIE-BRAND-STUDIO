@@ -96,9 +96,7 @@ export const ProgressDashboard: FC<DashboardProps> = ({
 
         {/* Metrics Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+          <div
             className="bg-[#111] border border-[#333] p-6"
           >
             <h3 className="text-sm uppercase tracking-wider text-[#f5f5f5] mb-2">
@@ -110,12 +108,9 @@ export const ProgressDashboard: FC<DashboardProps> = ({
             <div className="text-xs text-[#f5f5f5]">
               System-wide operations
             </div>
-          </motion.div>
+          </div>
 
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
+          <div 
             className="bg-[#111] border border-[#333] p-6"
           >
             <h3 className="text-sm uppercase tracking-wider text-[#f5f5f5] mb-2">
@@ -127,12 +122,9 @@ export const ProgressDashboard: FC<DashboardProps> = ({
             <div className="text-xs text-[#f5f5f5]">
               Successfully finished
             </div>
-          </motion.div>
+          </div>
 
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
+          <div 
             className="bg-[#111] border border-[#333] p-6"
           >
             <h3 className="text-sm uppercase tracking-wider text-[#f5f5f5] mb-2">
@@ -144,12 +136,9 @@ export const ProgressDashboard: FC<DashboardProps> = ({
             <div className="text-xs text-[#f5f5f5]">
               Currently processing
             </div>
-          </motion.div>
+          </div>
 
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
+          <div 
             className="bg-[#111] border border-[#333] p-6"
           >
             <h3 className="text-sm uppercase tracking-wider text-[#f5f5f5] mb-2">
@@ -161,14 +150,12 @@ export const ProgressDashboard: FC<DashboardProps> = ({
             <div className="text-xs text-[#f5f5f5]">
               Overall performance
             </div>
-          </motion.div>
+          </div>
         </div>
 
         {/* Implementation Progress */}
         {implementationMetrics && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+          <div 
             className="bg-[#111] border border-[#333] p-8 mb-8"
           >
             <h2 className="font-serif text-2xl text-white mb-6">
@@ -183,11 +170,9 @@ export const ProgressDashboard: FC<DashboardProps> = ({
                 </span>
               </div>
               <div className="w-full bg-[#1a1a1a] h-2">
-                <motion.div 
-                  initial={{ width: 0 }}
-                  animate={{ width: `${implementationMetrics.progressPercentage}%` }}
+                <div 
                   className="bg-white h-full"
-                  transition={{ duration: 0.5 }}
+                  style={{ width: `${implementationMetrics.progressPercentage}%` }}
                 />
               </div>
             </div>
@@ -212,14 +197,12 @@ export const ProgressDashboard: FC<DashboardProps> = ({
                 </div>
               </div>
             </div>
-          </motion.div>
+          </div>
         )}
 
         {/* Agent Activity */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+          <div 
             className="bg-[#111] border border-[#333] p-8"
           >
             <h2 className="font-serif text-2xl text-white mb-6">
@@ -247,11 +230,9 @@ export const ProgressDashboard: FC<DashboardProps> = ({
                 </div>
               ))}
             </div>
-          </motion.div>
+          </div>
 
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+          <div 
             className="bg-[#111] border border-[#333] p-8"
           >
             <h2 className="font-serif text-2xl text-white mb-6">
@@ -260,14 +241,12 @@ export const ProgressDashboard: FC<DashboardProps> = ({
             
             <div className="space-y-2 max-h-96 overflow-y-auto">
               {realTimeUpdates.map((update, index) => (
-                <motion.div
+                <div
                   key={index}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
                   className="text-sm text-[#f5f5f5] p-2 bg-[#1a1a1a] border-l-2 border-white"
                 >
                   {update}
-                </motion.div>
+                </div>
               ))}
               {realTimeUpdates.length === 0 && (
                 <div className="text-sm text-[#f5f5f5] italic">
@@ -275,7 +254,7 @@ export const ProgressDashboard: FC<DashboardProps> = ({
                 </div>
               )}
             </div>
-          </motion.div>
+          </div>
         </div>
       </div>
     </div>

@@ -1275,62 +1275,38 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
         const body = req.body || {};
         console.log('🔍 Maya generate request body:', JSON.stringify(body, null, 2));
         
-        const { prompt, conceptName, count = 2 } = body as {
-          prompt?: string;
-          conceptName?: string;
-          count?: number;
+        const { conceptCard } = body as {
+          conceptCard?: {
+            id: string;
+            title: string;
+            description?: string;
+            fluxPrompt: string;
+          };
         };
         
-        const trimmedPrompt = (prompt || '').toString().trim().slice(0, 2000);
-        const safeCount = Math.max(1, Math.min(Number(count) || 1, 4));
-        
-        if (!trimmedPrompt) {
-          return res.status(400).json({ error: 'Prompt is required' });
+        if (!conceptCard || !conceptCard.fluxPrompt) {
+          return res.status(400).json({ error: 'Concept card with fluxPrompt is required' });
         }
         
-        const { storage } = await import('../server/storage.js');
-        const model = await storage.getUserModelByUserId(user.id as string);
-        if (!model || model.trainingStatus !== 'completed') {
-          return res.status(403).json({
-            error: 'Model training required',
-            message: 'Please complete training first. Redirecting to training...'
-          });
-        }
+        // Use the new MayaService instead of old ModelTrainingService
+        const { mayaService } = await import('../server/services/maya-service.js');
         
-        const { ModelTrainingService } = await import('../server/model-training-service.js');
+        console.log('🎨 MAYA: Starting image generation for user:', user.id);
+        console.log('🎯 Concept:', conceptCard.title);
+        console.log('🎯 Prompt:', conceptCard.fluxPrompt);
         
-        console.log('🎨 Starting image generation for user:', user.id);
-        console.log('🎯 Prompt:', trimmedPrompt);
-        console.log('🎯 Count:', safeCount);
-        
-        const generationResult = await ModelTrainingService.generateUserImages(
-          user.id as string,
-          trimmedPrompt,
-          safeCount,
-          { categoryContext: (conceptName as string) || 'Maya Generation' }
-        );
-        
-        console.log('✅ Generation result:', generationResult);
-        
-        const tracker = await storage.createGenerationTracker({
-          userId: user.id as string,
-          predictionId: generationResult.predictionId as string,
-          prompt: prompt as string,
-          status: 'processing',
-          createdAt: new Date(),
-          updatedAt: new Date()
+        const generationResult = await mayaService.generateImages(user.id as string, {
+          conceptCard
         });
         
-        console.log('📝 Created generation tracker:', tracker.id);
+        console.log('✅ Generation result:', generationResult);
         
         res.setHeader('Cache-Control', 'no-store');
         return res.status(200).json({
           success: true,
-          predictionId: generationResult.predictionId,
-          generatedImageId: generationResult.generatedImageId,
-          trackerId: tracker.id,
-          message: 'Image generation started successfully',
-          images: generationResult.images || []
+          generationId: generationResult.generationId,
+          status: generationResult.status,
+          message: generationResult.message
         });
         
       } catch (error) {
@@ -1347,58 +1323,25 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
       console.log('🔍 Maya status endpoint called:', req.url);
       
       try {
-        await getAuthenticatedUser();
+        const user = await getAuthenticatedUser();
         const url = new (globalThis as any).URL(req.url || '', `http://${req.headers.host}`);
-        const predictionId = url.searchParams.get('predictionId');
+        const generationId = url.searchParams.get('generationId') || url.searchParams.get('predictionId');
         
-        if (!predictionId) {
-          return res.status(400).json({ error: 'Prediction ID is required' });
+        if (!generationId) {
+          return res.status(400).json({ error: 'Generation ID is required' });
         }
         
-        const { ModelTrainingService } = await import('../server/model-training-service.js');
+        // Use the new MayaService instead of old ModelTrainingService
+        const { mayaService } = await import('../server/services/maya-service.js');
         
-        console.log('🔍 Checking generation status for prediction:', predictionId);
+        console.log('🔍 Checking generation status for generation:', generationId);
         
-        const statusResult = await ModelTrainingService.checkGenerationStatus(predictionId);
+        const statusResult = await mayaService.getGenerationStatus(user.id as string, generationId);
         
-        console.log('📊 Generation status result:', statusResult);
-        
-        if (statusResult.status === 'succeeded' && statusResult.imageUrls && statusResult.imageUrls.length > 0) {
-          console.log('🎉 Generation completed! Triggering completion monitor...');
-          
-          const { storage } = await import('../server/storage.js');
-          const tracker = await storage.getGenerationTrackerByPredictionId(predictionId);
-          
-          if (tracker) {
-            console.log('📝 Found generation tracker:', tracker.id);
-            
-            await storage.updateGenerationTracker(tracker.id, {
-              status: 'completed',
-              imageUrls: JSON.stringify(statusResult.imageUrls),
-              updatedAt: new Date()
-            });
-            
-            for (const imageUrl of statusResult.imageUrls) {
-              await storage.saveGeneratedImage({
-                userId: tracker.userId,
-                imageUrls: JSON.stringify([imageUrl]),
-                prompt: tracker.prompt || 'Maya Editorial Photoshoot',
-                category: 'Maya Editorial',
-                subcategory: 'Professional'
-              });
-            }
-            
-            console.log('✅ Saved images to gallery for user:', tracker.userId);
-          }
-        }
+        console.log('� Generation status result:', statusResult);
         
         res.setHeader('Cache-Control', 'no-store');
-        return res.status(200).json({
-          success: true,
-          status: statusResult.status,
-          images: statusResult.imageUrls || [],
-          predictionId: predictionId
-        });
+        return res.status(200).json(statusResult);
         
       } catch (error) {
         console.log('❌ Maya status check failed:', (error as Error).message);
@@ -1434,171 +1377,28 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
           return res.status(400).json({ error: 'Message is required' });
         }
         
-        let mayaResponse = '';
-        let conceptCards: ConceptCard[] = [];
+        // Use the new MayaService instead of direct Claude API calls
+        const { mayaService } = await import('../server/services/maya-service.js');
         
-        try {
-          const { PersonalityManager } = await import('../server/agents/personalities/personality-config.js');
-          const baseMayaPersonality = PersonalityManager.getNaturalPrompt('maya');
-          const structuredOutputInstruction = `\n\nSTRICT OUTPUT FORMAT:\nReturn EXACTLY 3 concepts separated by a line with three dashes (---).\nFor each concept, output 3 lines only:\n1) An emoji followed by a space and a bold title: "+emoji+ **TITLE**"\n2) One sentence description\n3) A line starting with "FLUX_PROMPT:" followed by a single line image generation prompt.\nDo not add any extra text before or after the three concepts.`;
-          const systemPrompt = `${baseMayaPersonality}${structuredOutputInstruction}`;
-          
-          console.log('🎨 MAYA: Using real personality system with Claude API');
-          
-          const claudeResponse = await withExternalApiTimeout(
-            async () => {
-              return timedFetch('https://api.anthropic.com/v1/messages', 12000, {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  'x-api-key': process.env['ANTHROPIC_API_KEY'] || '',
-                  'anthropic-version': '2023-06-01'
-                },
-                body: JSON.stringify({
-                  model: 'claude-3-5-sonnet-20241022',
-                  max_tokens: 4000,
-                  system: systemPrompt,
-                  messages: [
-                    ...(conversationHistory || []).map((entry: ConversationEntry) => ({
-                      role: entry.role === 'user' ? 'user' : 'assistant',
-                      content: entry.content || entry.message || ''
-                    })),
-                    {
-                      role: 'user',
-                      content: message
-                    }
-                  ]
-                })
-              });
-            },
-            null,
-            12000,
-            0,
-            'claude-api-maya-chat'
-          );
-
-          if (claudeResponse && claudeResponse.ok) {
-            const data = await claudeResponse.json();
-            mayaResponse = data.content[0].text;
-            
-            conceptCards = extractConceptCards(mayaResponse);
-            
-            conceptCards = await withDatabaseTimeout(
-              applyGenderContext(conceptCards, user.id as string),
-              conceptCards,
-              2500,
-              'applyGenderContext'
-            );
-            
-            console.log('✅ MAYA: Generated response with', conceptCards.length, 'concept cards using Claude API');
-          } else {
-            throw new Error('Claude API not available');
-          }
-          
-        } catch (claudeError) {
-          console.log('❌ MAYA: Claude API failed:', (claudeError as Error).message);
-          
-          mayaResponse = `I understand you're looking for styling concepts! Let me create some personalized photo concepts that tell your unique brand story.
-
-Here are 3 concept cards inspired by my signature editorial looks:
-
-🌟 **THE GOLDEN HOUR STORYTELLER**
-Capture your authentic warmth and approachability with the magic of golden hour light. This concept positions you as someone who brings light and positivity to their work, perfect for coaches, consultants, and creative entrepreneurs.
-
-FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus, film grain, visible skin pores, warm golden hour lighting streaming through large windows, person in soft knit sweater in neutral tones, authentic genuine smile, seated at a modern wooden table with soft shadows, warm backlit hair, natural makeup emphasizing warmth, cozy sophisticated environment with plants
-
----
-
-✨ **THE SCANDINAVIAN MINIMALIST VISION**  
-A clean, intentional aesthetic that speaks to your clarity of thought and sophisticated approach. This concept communicates reliability and premium quality through understated elegance.
-
-FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus, film grain, visible skin pores, bright airy minimalist interior with white walls and light wood floors, person in high-quality neutral clothing - cream cashmere sweater, natural lighting from large windows with sheer curtains, serene confident expression, clean architectural lines, hygge atmosphere
-
----
-
-🎬 **THE URBAN CREATIVE MUSE**
-For the innovative thinker who thrives in dynamic environments. This concept captures your creative edge and forward-thinking approach through sophisticated urban aesthetics and moody lighting.
-
-FLUX_PROMPT: raw photo, editorial quality, professional photography, sharp focus, film grain, visible skin pores, atmospheric urban setting with soft industrial elements, dramatic side lighting creating interesting shadows, person in elevated casual wear - structured blazer over quality basics, thoughtful contemplative expression, modern art gallery or loft space background, cinematic depth of field`;
-          
-          conceptCards = [
-            {
-              id: `concept_${Date.now()}_1`,
-              title: 'The Golden Hour Storyteller',
-              description: 'Capture your authentic warmth and approachability with the magic of golden hour light.',
-              fluxPrompt: 'raw photo, editorial quality, professional photography, sharp focus, film grain, visible skin pores, warm golden hour lighting streaming through large windows, person in soft knit sweater in neutral tones, authentic genuine smile, seated at a modern wooden table with soft shadows, warm backlit hair, natural makeup emphasizing warmth, cozy sophisticated environment with plants',
-              category: 'Editorial',
-              emoji: '🌟'
-            },
-            {
-              id: `concept_${Date.now()}_2`, 
-              title: 'The Scandinavian Minimalist Vision',
-              description: 'A clean, intentional aesthetic that speaks to your clarity of thought and sophisticated approach.',
-              fluxPrompt: 'raw photo, editorial quality, professional photography, sharp focus, film grain, visible skin pores, bright airy minimalist interior with white walls and light wood floors, person in high-quality neutral clothing - cream cashmere sweater, natural lighting from large windows with sheer curtains, serene confident expression, clean architectural lines, hygge atmosphere',
-              category: 'Editorial',
-              emoji: '✨'
-            },
-            {
-              id: `concept_${Date.now()}_3`,
-              title: 'The Urban Creative Muse', 
-              description: 'For the innovative thinker who thrives in dynamic environments with creative edge.',
-              fluxPrompt: 'raw photo, editorial quality, professional photography, sharp focus, film grain, visible skin pores, atmospheric urban setting with soft industrial elements, dramatic side lighting creating interesting shadows, person in elevated casual wear - structured blazer over quality basics, thoughtful contemplative expression, modern art gallery or loft space background, cinematic depth of field',
-              category: 'Editorial',
-              emoji: '🎬'
-            }
-          ];
-          
-          conceptCards = await withDatabaseTimeout(
-            applyGenderContext(conceptCards, user.id as string),
-            conceptCards,
-            2000,
-            'applyGenderContext-fallback'
-          );
-        }
+        console.log('🎨 MAYA: Using MayaService for chat processing');
+        
+        const chatResult = await mayaService.processChat(user.id as string, {
+          message,
+          history: conversationHistory.map(entry => ({
+            user: entry.role === 'user' ? (entry.content || entry.message || '') : undefined,
+            maya: entry.role === 'assistant' ? (entry.content || entry.message || '') : undefined
+          })).filter(entry => entry.user || entry.maya)
+        });
         
         const response = {
           id: `maya_${Date.now()}`,
           userId: user.id,
           message: message,
-          response: mayaResponse,
-          conceptCards: conceptCards,
+          response: chatResult.response,
+          conceptCards: chatResult.conceptCards,
           timestamp: new Date().toISOString(),
           context: context
         };
-        
-        // Persist conversation (non-critical)
-        withDatabaseTimeout(
-          (async () => {
-            const { storage } = await import('../server/storage.js');
-            const existingConvs = await storage.getUserConversations(user.id as string, 'maya');
-            const conversationId = (existingConvs && existingConvs[0]?.id) || (await storage.createConversation({ userId: user.id as string, agentName: 'maya', title: 'Maya Chat', status: 'active' })).id;
-            await storage.createMessage({ conversationId, role: 'user', content: message, tokenCount: 0 });
-            await storage.createMessage({ conversationId, role: 'assistant', content: mayaResponse, tokenCount: 0 });
-            for (let i = 0; i < (conceptCards?.length || 0); i++) {
-              const c = conceptCards[i];
-              await storage.createConceptCard({
-                userId: user.id as string,
-                conversationId,
-                clientId: `maya_${Date.now()}_${i + 1}`,
-                title: c.title,
-                description: c.description,
-                status: 'draft',
-                images: [],
-                tags: [c.category],
-                sortOrder: 0,
-                isLoading: false,
-                isGenerating: false,
-                hasGenerated: false,
-                generatedImages: {},
-              });
-            }
-          })(),
-          null,
-          5000,
-          'maya-conversation-persistence'
-        ).catch((persistError) => {
-          console.log('⚠️ Maya persistence failed (non-critical):', (persistError as Error).message);
-        });
         
         console.log('📊 Returning Maya response:', JSON.stringify(response, null, 2));
         res.setHeader('Cache-Control', 'no-store');

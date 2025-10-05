@@ -400,12 +400,12 @@ export default function CustomPhotoshootLibrary() {
                       transition: 'all 300ms ease'
                     }}
                     onMouseEnter={(e) => {
-                      if (!generatingImages) {
+                      if (!generatingImages && e.target instanceof HTMLElement) {
                         e.target.style.background = '#333333';
                       }
                     }}
                     onMouseLeave={(e) => {
-                      if (!generatingImages) {
+                      if (!generatingImages && e.target instanceof HTMLElement) {
                         e.target.style.background = '#0a0a0a';
                       }
                     }}
@@ -453,10 +453,10 @@ export default function CustomPhotoshootLibrary() {
                 transition: 'all 300ms ease'
               }}
               onMouseEnter={(e) => {
-                e.target.style.background = '#333333';
+                (e.target as HTMLElement).style.background = '#333333';
               }}
               onMouseLeave={(e) => {
-                e.target.style.background = '#0a0a0a';
+                (e.target as HTMLElement).style.background = '#0a0a0a';
               }}
             >
               Start Creating Prompts

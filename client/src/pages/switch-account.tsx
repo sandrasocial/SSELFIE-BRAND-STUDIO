@@ -24,7 +24,7 @@ export default function SwitchAccount() {
         tagline="Switch to different account"
         title="CHOOSE ACCOUNT"
         ctaText="Select Different Email"
-        onCtaClick={handleSwitchAccount}
+        onCta={handleSwitchAccount}
         fullHeight={false}
       />
 
