@@ -58,7 +58,7 @@ export default function MarketingAutomation() {
     revenue: 0,
     roi: 0,
     activeSubscribers: 0
-  } } = useQuery({
+  } } = useQuery<MarketingMetrics>({
     queryKey: ['/api/marketing/metrics'],
     retry: false
   });

@@ -15,7 +15,8 @@ export const LuxuryShowcase: React.FC = () => {
 
   useEffect(() => {
     // Initialize luxury animations
-    const observer = EditorialAnimations.observeScrollAnimations('.animate-on-scroll');
+    const elements = document.querySelectorAll('.animate-on-scroll');
+    const observer = EditorialAnimations.observeInView(Array.from(elements) as HTMLElement[]);
     
     return () => observer.disconnect();
   }, []);

@@ -116,54 +116,7 @@ function SSELFIEEmbeddedCheckout({ clientSecret }: EmbeddedCheckoutPageProps) {
         stripe={stripePromise}
         options={{ 
           clientSecret,
-          onComplete: handleComplete,
-          // Customize Stripe's embedded checkout styling
-          appearance: {
-            theme: 'stripe',
-            variables: {
-              colorPrimary: STYLE_GUIDE.colors.stone[900],
-              colorBackground: STYLE_GUIDE.colors.stone[50],
-              colorText: STYLE_GUIDE.colors.stone[900], 
-              colorDanger: '#dc2626',
-              fontFamily: STYLE_GUIDE.typography.sans,
-              spacingUnit: '4px',
-              borderRadius: STYLE_GUIDE.borderRadius.md,
-              fontSizeBase: '16px'
-            },
-            rules: {
-              '.Input': {
-                border: `1px solid ${STYLE_GUIDE.colors.stone[200]}`,
-                boxShadow: 'none',
-                backgroundColor: '#ffffff',
-                fontSize: '16px',
-                padding: '12px 16px'
-              },
-              '.Input:focus': {
-                border: `1px solid ${STYLE_GUIDE.colors.stone[400]}`,
-                boxShadow: `0 0 0 2px ${STYLE_GUIDE.colors.stone[100]}`
-              },
-              '.Tab': {
-                border: `1px solid ${STYLE_GUIDE.colors.stone[200]}`,
-                backgroundColor: STYLE_GUIDE.colors.stone[50]
-              },
-              '.Tab--selected': {
-                backgroundColor: '#ffffff',
-                border: `1px solid ${STYLE_GUIDE.colors.stone[300]}`
-              },
-              '.Button': {
-                backgroundColor: STYLE_GUIDE.colors.stone[900],
-                fontSize: '14px',
-                fontWeight: '400',
-                letterSpacing: '0.1em',
-                textTransform: 'uppercase',
-                padding: '16px 24px',
-                borderRadius: STYLE_GUIDE.borderRadius.md
-              },
-              '.Button:hover': {
-                backgroundColor: STYLE_GUIDE.colors.stone[800]
-              }
-            }
-          }
+          onComplete: handleComplete
         }}
       >
         <EmbeddedCheckout />
@@ -186,7 +139,7 @@ export default function EmbeddedCheckoutPage() {
   const emailFromUrl = urlParams.get('email');
   const planFromUrl = urlParams.get('plan') || 'sselfie-studio';
   
-  const customerEmail = isAuthenticated ? user?.primaryEmail : emailFromUrl;
+  const customerEmail = isAuthenticated ? user?.email : emailFromUrl;
 
   useEffect(() => {
     if (!customerEmail) {
