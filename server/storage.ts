@@ -129,6 +129,14 @@ import {
   type ImageVariant,
   // type InsertImageVariant,
 } from "../shared/schema.js";
+import { 
+  mayaProfile,
+  mayaImages,
+  type MayaProfile,
+  type InsertMayaProfile,
+  type MayaImage,
+  type InsertMayaImage
+} from "../shared/schema-maya.js";
 import { db } from "./drizzle.js";
 /// <reference path="types/global.d.ts" />
 import { eq, and, or, desc, asc, gte, lte, sql } from "drizzle-orm";
@@ -347,6 +355,14 @@ export interface IStorage {
   getImageVariants(userId: string, originalImageId?: number): Promise<ImageVariant[]>;
   getImageVariant(variantId: number, userId: string): Promise<ImageVariant | undefined>;
   updateImageVariant(variantId: number, updates: Partial<ImageVariant>): Promise<ImageVariant>;
+
+  // Maya Profile operations
+  getMayaProfile(userId: string): Promise<MayaProfile | undefined>;
+  insertMayaProfile(data: InsertMayaProfile): Promise<MayaProfile>;
+  updateMayaProfile(userId: string, updates: Partial<MayaProfile>): Promise<MayaProfile>;
+
+  // Maya Images operations
+  insertMayaImage(data: InsertMayaImage): Promise<MayaImage>;
 }
 
 /* eslint-disable no-console */
@@ -2481,6 +2497,41 @@ export class DatabaseStorage implements IStorage {
       .where(eq(userStyleMemory.userId, userId))
       .returning();
     return memory;
+  }
+
+  // Maya Profile operations
+  async getMayaProfile(userId: string): Promise<MayaProfile | undefined> {
+    const [profile] = await db
+      .select()
+      .from(mayaProfile)
+      .where(eq(mayaProfile.userId, userId));
+    return profile;
+  }
+
+  async insertMayaProfile(data: InsertMayaProfile): Promise<MayaProfile> {
+    const [profile] = await db
+      .insert(mayaProfile)
+      .values(data)
+      .returning();
+    return profile;
+  }
+
+  async updateMayaProfile(userId: string, updates: Partial<MayaProfile>): Promise<MayaProfile> {
+    const [profile] = await db
+      .update(mayaProfile)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(mayaProfile.userId, userId))
+      .returning();
+    return profile;
+  }
+
+  // Maya Images operations
+  async insertMayaImage(data: InsertMayaImage): Promise<MayaImage> {
+    const [image] = await db
+      .insert(mayaImages)
+      .values(data)
+      .returning();
+    return image;
   }
 }
 
