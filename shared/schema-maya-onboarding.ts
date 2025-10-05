@@ -249,7 +249,7 @@ export function calculateOnboardingProgress(personalBrand: UserPersonalBrand | n
   
   const baseProgress = (completedFields.length / requiredFields.length) * 70; // 70% for personal brand
   
-  if (styleProfile && styleProfile.styleCategories && styleProfile.styleCategories.length > 0) {
+  if (styleProfile && (styleProfile.styleCategories as any[]) && (styleProfile.styleCategories as any[]).length > 0) {
     return Math.min(100, baseProgress + 30); // Add 30% for style profile
   }
   
@@ -261,8 +261,8 @@ export function getNextOnboardingStep(personalBrand: UserPersonalBrand | null, s
   if (!personalBrand || !personalBrand.transformationStory) return 1;
   if (!personalBrand.dreamOutcome || !personalBrand.futureVision) return 2;
   if (!personalBrand.businessGoals || !personalBrand.targetAudience) return 3;
-  if (!styleProfile || !styleProfile.styleCategories?.length) return 4;
-  if (!styleProfile.colorPreferences?.primaryColors?.length) return 5;
+  if (!styleProfile || !(styleProfile.styleCategories as any[])?.length) return 4;
+  if (!(styleProfile.colorPreferences as any)?.primaryColors?.length) return 5;
   return 6;
 }
 
@@ -276,9 +276,9 @@ export function validateStepCompletion(step: OnboardingStep, personalBrand: User
     case 3:
       return Boolean(personalBrand?.businessGoals && personalBrand.targetAudience);
     case 4:
-      return Boolean(styleProfile?.styleCategories && styleProfile.styleCategories.length > 0);
+      return Boolean(styleProfile?.styleCategories && (styleProfile.styleCategories as any[]).length > 0);
     case 5:
-      return Boolean(styleProfile?.colorPreferences?.primaryColors && styleProfile.colorPreferences.primaryColors.length > 0);
+      return Boolean((styleProfile?.colorPreferences as any)?.primaryColors && (styleProfile.colorPreferences as any).primaryColors.length > 0);
     case 6:
       return Boolean(personalBrand?.isCompleted);
     default:

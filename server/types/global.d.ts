@@ -8,13 +8,7 @@ declare global {
   var process: {
     env: Record<string, string | undefined>;
   };
-  
-  var Buffer: {
-    from(data: any, encoding?: string): any;
-    alloc(size: number): any;
-    isBuffer(obj: any): boolean;
-  };
-  
+
   var console: {
     log(...args: any[]): void;
     error(...args: any[]): void;
@@ -105,60 +99,19 @@ declare module 'replicate' {
   }
 }
 
-// Drizzle ORM module declarations
-declare module 'drizzle-orm/neon-http' {
-  export function drizzle(client: any, config?: any): any;
-  export * from 'drizzle-orm';
-}
-
-declare module '@neondatabase/serverless' {
-  export function neon(connectionString: string): any;
-  export interface QueryResult<T = any> {
-    rows: T[];
-    rowCount: number;
-    fields: any[];
-  }
-}
-
-declare module 'drizzle-orm' {
-  export function eq(column: any, value: any): any;
-  export function and(...conditions: any[]): any;
-  export function desc(column: any): any;
-  export function asc(column: any): any;
-  export function gte(column: any, value: any): any;
-  export function lte(column: any, value: any): any;
-  export function sql(template: TemplateStringsArray, ...values: any[]): any;
-  export function relations(table: any, callback: (helpers: any) => any): any;
-}
-
-declare module 'drizzle-orm/pg-core' {
-  export function pgTable(name: string, columns: any): any;
-  export function text(name?: string): any;
-  export function varchar(name: string, config?: { length: number }): any;
-  export function timestamp(name: string, config?: any): any;
-  export function jsonb(name: string): any;
-  export function integer(name: string): any;
-  export function boolean(name: string): any;
-  export function uuid(name: string): any;
-  export function serial(name: string): any;
-  export function index(name: string): any;
-  export function primaryKey(...columns: any[]): any;
-  export function unique(...columns: any[]): any;
-  export function decimal(name: string): any;
-}
-
-// Zod types are properly imported from the zod package - no need to stub them out
-
+// ULID types
 declare module 'ulid' {
   export function ulid(): string;
 }
 
+// Node crypto types
 declare module 'node:crypto' {
   export function randomUUID(): string;
   export function createHash(algorithm: string): any;
   export function createHmac(algorithm: string, key: string): any;
 }
 
+// Dotenv types
 declare module 'dotenv' {
   export function config(options?: any): any;
   const dotenv: {
@@ -187,6 +140,7 @@ declare module '@vercel/node' {
   }
 }
 
+// JOSE types
 declare module 'jose' {
   export interface JWTPayload {
     [key: string]: any;
@@ -201,6 +155,7 @@ declare module 'jose' {
   export function createRemoteJWKSet(url: URL): any;
 }
 
+// Node fetch types
 declare module 'node-fetch' {
   export interface Response {
     ok: boolean;
@@ -211,37 +166,6 @@ declare module 'node-fetch' {
   }
 
   export default function fetch(url: string, init?: any): Promise<Response>;
-}
-
-// Express.js module declarations
-declare module 'express' {
-  export interface Request {
-    body: any;
-    params: any;
-    query: any;
-    headers: any;
-    method: string;
-    url: string;
-    user?: any;
-  }
-
-  export interface Response {
-    status: (code: number) => Response;
-    json: (object: any) => Response;
-    send: (body: any) => Response;
-    setHeader: (name: string, value: string) => Response;
-    end: () => void;
-  }
-
-  export interface Router {
-    get: (path: string, ...handlers: any[]) => void;
-    post: (path: string, ...handlers: any[]) => void;
-    put: (path: string, ...handlers: any[]) => void;
-    delete: (path: string, ...handlers: any[]) => void;
-    use: (path: string | any, ...handlers: any[]) => void;
-  }
-
-  export function Router(): Router;
 }
 
 export {};
