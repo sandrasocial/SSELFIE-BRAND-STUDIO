@@ -185,4 +185,93 @@ router.post('/chat', requireStackAuth, async (req, res) => {
             conceptCards: []
         });
     }
-});export default router;
+});
+
+/**
+ * POST /api/maya/generate
+ * Generate images from Maya's concept cards using FLUX
+ */
+router.post('/generate', requireStackAuth, async (req, res) => {
+    try {
+        const { conceptCard, conversationId } = req.body;
+        const userId = req.user?.id;
+
+        if (!conceptCard || !conceptCard.fluxPrompt) {
+            return res.status(400).json({ error: 'Concept card with FLUX prompt is required' });
+        }
+
+        console.log('🎨 MAYA: Starting image generation for user:', userId, 'concept:', conceptCard.title);
+
+        // For now, simulate image generation with mock URLs
+        // TODO: Integrate with actual FLUX/Replicate API
+        const mockImages = [
+            `https://picsum.photos/1024/1024?random=${Date.now()}_1`,
+            `https://picsum.photos/1024/1024?random=${Date.now()}_2`,
+            `https://picsum.photos/1024/1024?random=${Date.now()}_3`,
+            `https://picsum.photos/1024/1024?random=${Date.now()}_4`
+        ];
+
+        const generationId = `gen_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+        // Simulate async processing - in real implementation, this would queue the job
+        setTimeout(async () => {
+            try {
+                // TODO: Save generated images to storage and update concept card
+                console.log('✅ MAYA: Images generated for generation ID:', generationId);
+            } catch (error) {
+                console.error('❌ MAYA: Failed to save generated images:', error);
+            }
+        }, 1000);
+
+        res.json({
+            generationId,
+            status: 'processing',
+            message: 'Image generation started'
+        });
+
+    } catch (error) {
+        console.error('❌ MAYA: Generation failed:', error);
+        res.status(500).json({
+            error: 'Failed to start image generation',
+            details: process.env['NODE_ENV'] === 'development' ? error.message : undefined
+        });
+    }
+});
+
+/**
+ * GET /api/maya/status/:generationId
+ * Check status of image generation
+ */
+router.get('/status/:generationId', requireStackAuth, async (req, res) => {
+    try {
+        const { generationId } = req.params;
+        const userId = req.user?.id;
+
+        console.log('🎨 MAYA: Checking generation status:', generationId, 'for user:', userId);
+
+        // For now, simulate completed status with mock images
+        // TODO: Check actual generation status from queue/storage
+        const mockImages = [
+            `https://picsum.photos/1024/1024?random=${generationId}_1`,
+            `https://picsum.photos/1024/1024?random=${generationId}_2`,
+            `https://picsum.photos/1024/1024?random=${generationId}_3`,
+            `https://picsum.photos/1024/1024?random=${generationId}_4`
+        ];
+
+        res.json({
+            generationId,
+            status: 'completed',
+            images: mockImages,
+            completedAt: new Date().toISOString()
+        });
+
+    } catch (error) {
+        console.error('❌ MAYA: Status check failed:', error);
+        res.status(500).json({
+            error: 'Failed to check generation status',
+            details: process.env['NODE_ENV'] === 'development' ? error.message : undefined
+        });
+    }
+});
+
+export default router;

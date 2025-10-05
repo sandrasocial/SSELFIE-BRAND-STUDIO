@@ -141,7 +141,7 @@ export class CacheManager<T = any> {
     const now = Date.now();
     let expiredItems = 0;
     let totalHits = 0;
-    let totalMisses = 0;
+    const totalMisses = 0;
     
     for (const [key, item] of this.cache.entries()) {
       if (now > item.expiresAt) {
