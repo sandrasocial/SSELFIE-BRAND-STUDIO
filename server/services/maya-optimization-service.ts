@@ -61,10 +61,11 @@ export class MayaOptimizationService {
       
       // Single Claude API call with all required outputs
       const startTime = Date.now();
-      const mayaResponse = await this.claudeService.sendMessage([{
-        role: 'user',
-        content: optimizedPrompt
-      }]);
+      const mayaResponse = await this.claudeService.sendMessage(
+        optimizedPrompt,
+        'optimization-' + Date.now(),
+        'maya'
+      );
       const apiDuration = Date.now() - startTime;
       
       console.log(`✅ PHASE 4.1: Single API call completed in ${apiDuration}ms`);
@@ -184,7 +185,7 @@ Generate comprehensive response now:`;
           const description = match[3].trim();
           
           // Extract FLUX prompt that follows this concept
-          const fluxPromptMatch = response.substring(match.index + match[0].length).match(/FLUX_PROMPT:\s*(.*?)(?=\n[\p{Emoji_Presentation}\p{Extended_Pictographic}]|\n\n|$)/s);
+          const fluxPromptMatch = response.substring(match.index + match[0].length).match(/FLUX_PROMPT:\s*(.*?)(?=\n[\p{Emoji_Presentation}\p{Extended_Pictographic}]|\n\n|$)/su);
           const embeddedPrompt = fluxPromptMatch ? fluxPromptMatch[1].trim() : null;
           
           if (embeddedPrompt) {
@@ -292,10 +293,11 @@ Requirements:
 
 FLUX PROMPT:`;
 
-      const response = await this.claudeService.sendMessage([{
-        role: 'user',
-        content: optimizedPrompt
-      }]);
+      const response = await this.claudeService.sendMessage(
+        optimizedPrompt,
+        'optimization-' + Date.now(),
+        'maya'
+      );
       
       // Clean and format the response
       const cleanPrompt = response.replace(/^FLUX PROMPT:\s*/i, '').trim();

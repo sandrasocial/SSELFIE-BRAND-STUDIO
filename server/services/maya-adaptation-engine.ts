@@ -155,10 +155,10 @@ Respond with JSON:
       const evolution = evolutionData[0];
       
       return {
-        userId,
-        stylePreferences: evolution.contextual_preferences || {},
-        colorPalette: evolution.contextual_preferences?.colors || [],
-        fashionStyle: evolution.fashion_style || 'classic',
+        preferredCategories: this.extractPreferredCategories(favorites),
+        colorPreferences: evolution.contextual_preferences?.colors || [],
+        styleEvolution: evolution.style_evolution_path || [],
+        feedbackPatterns: evolution.feedback_patterns || {},
         culturalContext: evolution.cultural_context || {},
         sustainabilityPreferences: evolution.sustainability_preferences || {}
       };
@@ -166,10 +166,10 @@ Respond with JSON:
     } catch (error) {
       console.error('❌ USER STYLE PROFILE ERROR:', error);
       return {
-        userId,
-        stylePreferences: {},
-        colorPalette: [],
-        fashionStyle: 'classic',
+        preferredCategories: [],
+        colorPreferences: [],
+        styleEvolution: [],
+        feedbackPatterns: {},
         culturalContext: {},
         sustainabilityPreferences: {}
       };
@@ -191,11 +191,14 @@ Respond with JSON:
     };
   }
 
-  /**
-   * Initialize style evolution tracking for new user
-   */
   private static async initializeUserEvolution(userId: string): Promise<void> {
     try {
+      const initialProfile = {
+        initialized: true,
+        startDate: new Date().toISOString(),
+        version: '1.0'
+      };
+      
       const insertQuery = `
         INSERT INTO user_style_evolution (
           user_id, learning_progress, style_evolution_path, 
