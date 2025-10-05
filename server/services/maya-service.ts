@@ -278,8 +278,8 @@ export class MayaService {
       console.log('🎨 MAYA: Starting image generation for user:', userId);
 
       // Validate user has access
-      const userProfile = await this.getOrCreateUserProfile(userId);
-      if (!userProfile.featureAccess?.basicGeneration) {
+      const userProfile: MayaProfile = await this.getOrCreateUserProfile(userId);
+      if (!(userProfile.featureAccess as any)?.basicGeneration) {
         throw new Error('User does not have generation access');
       }
 
