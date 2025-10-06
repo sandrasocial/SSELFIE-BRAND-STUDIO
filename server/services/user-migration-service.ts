@@ -9,6 +9,16 @@
 
 import { storage } from '../storage.js';
 
+interface User {
+  id: string;
+  email?: string | null;
+  displayName?: string | null;
+  profileImageUrl?: string | null;
+  stackAuthId?: string | null;
+  createdAt: Date;
+  [key: string]: unknown;
+}
+
 export class UserMigrationService {
 
   /**
@@ -21,10 +31,6 @@ export class UserMigrationService {
     displayName: string | null,
     profileImageUrl: string | null
   ) {
-      stackAuthId: stackAuthId.substring(0, 8) + '...',
-      email,
-      displayName
-    });
 
     // Step 1: Try Stack Auth ID first (normal case)
     let user = await storage.getUserByStackAuthId(stackAuthId);
@@ -131,7 +137,7 @@ export class UserMigrationService {
   /**
    * Determine if a user should be considered for migration
    */
-  shouldMigrateUser(user: any): boolean {
+  shouldMigrateUser(user: User): boolean {
     // Don't migrate test users or users with suspicious data
     if (user.email?.includes('test') || user.email?.includes('example')) {
       return false;
@@ -150,7 +156,7 @@ export class UserMigrationService {
    * Migrate an existing user to Stack Auth
    */
   async migrateUserToStackAuth(
-    existingUser: any,
+    existingUser: User,
     stackAuthId: string,
     email: string | null,
     displayName: string | null,
@@ -180,7 +186,7 @@ export class UserMigrationService {
   /**
    * Update user profile information
    */
-  async updateUserProfile(user: any, displayName: string | null, profileImageUrl: string | null) {
+  async updateUserProfile(user: User, displayName: string | null, profileImageUrl: string | null) {
     return await storage.updateUserProfile(user.id, {
       displayName: displayName || user.displayName,
       profileImageUrl: profileImageUrl || user.profileImageUrl,

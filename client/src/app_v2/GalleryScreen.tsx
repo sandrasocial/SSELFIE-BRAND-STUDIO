@@ -6,8 +6,7 @@ import { apiFetch } from '../lib/api.js';
 import ErrorBoundary from '../components/ErrorBoundary.js';
 import StoryStudioModal from '../components/StoryStudioModal.js';
 import BrandAssetPlacementModal from '../components/BrandAssetPlacementModal.js';
-import { VideoGenerateDialog } from '../features/video/index.js';
-import { Camera, Grid, Search, Heart, Download, Trash2, Play, Plus, Filter, X, SortAsc, SortDesc } from 'lucide-react';
+import { Camera, Grid, Search, Heart, Download, Trash2, Plus, Filter, X, SortAsc, SortDesc } from 'lucide-react';
 
 // ImageDetailModal Component
 interface GalleryImage {
@@ -24,7 +23,6 @@ function ImageDetailModal({
   onToggleFavorite, 
   onDownload, 
   onDelete, 
-  onCreateVideo,
   onPlaceBrandAsset,
   isFavorite 
 }: {
@@ -33,7 +31,6 @@ function ImageDetailModal({
   onToggleFavorite: () => void;
   onDownload: () => void;
   onDelete: () => void;
-  onCreateVideo: () => void;
   onPlaceBrandAsset: () => void;
   isFavorite: boolean;
 }) {
@@ -87,14 +84,6 @@ function ImageDetailModal({
               {isFavorite ? 'Unfavorite' : 'Favorite'}
             </button>
             
-            <button 
-              onClick={onCreateVideo}
-              className="flex items-center justify-center gap-2 py-3 px-4 bg-stone-100 hover:bg-stone-200 rounded-2xl transition-colors text-xs tracking-[0.15em] uppercase font-light text-stone-600"
-            >
-              <Play size={16} className="text-stone-600" strokeWidth={1.5} />
-              Make Video
-            </button>
-            
             {/* P3-C: Brand Asset Placement Feature */}
             {process.env.REACT_APP_BRAND_ASSETS_ENABLED === '1' && (
               <button 
@@ -131,8 +120,6 @@ function ImageDetailModal({
 const GalleryScreen: React.FC = () => {
   const { user, isAuthenticated } = useAuth();
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
-  const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
-  const [isVideoDialogOpen, setIsVideoDialogOpen] = useState(false);
   const [isBrandPlacementModalOpen, setIsBrandPlacementModalOpen] = useState(false);
   const [selectedImages, setSelectedImages] = useState<Set<string | number>>(new Set());
   const [viewMode, setViewMode] = useState<'grid' | 'masonry'>('grid');
@@ -262,10 +249,6 @@ const GalleryScreen: React.FC = () => {
     }
   };
 
-  const handleOpenVideoDialog = () => {
-    setIsVideoDialogOpen(true);
-  };
-
   const handleCloseModal = () => {
     setSelectedImage(null);
   };
@@ -287,10 +270,6 @@ const GalleryScreen: React.FC = () => {
     if (selectedImage) {
       toggleFavorite(selectedImage.id);
     }
-  };
-
-  const handleCreateVideo = () => {
-    handleOpenVideoDialog();
   };
 
   const handlePlaceBrandAsset = () => {
@@ -319,11 +298,6 @@ const GalleryScreen: React.FC = () => {
     } else {
       await navigator.clipboard.writeText(src);
     }
-  };
-
-  const handleCreateVideoOld = (image: GalleryImage) => {
-    setSelectedImage(image);
-    setIsVideoDialogOpen(true);
   };
 
   if (isLoading) {
@@ -482,16 +456,6 @@ const GalleryScreen: React.FC = () => {
                     loading="lazy"
                   />
                   
-                  {/* Video indicator overlay */}
-                  {(image.source === 'video' || image.title?.toLowerCase().includes('video')) && (
-                    <div className="absolute top-3 left-3">
-                      <div className="bg-stone-950/80 backdrop-blur-sm rounded-xl px-2 py-1 flex items-center gap-1">
-                        <Play size={12} className="text-stone-50" strokeWidth={1.5} />
-                        <span className="text-xs font-light text-stone-50 tracking-[0.1em] uppercase">Video</span>
-                      </div>
-                    </div>
-                  )}
-                  
                   {/* Heart favorite indicator */}
                   <div className="absolute top-3 right-3">
                     <button
@@ -539,15 +503,6 @@ const GalleryScreen: React.FC = () => {
                         <button 
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleCreateVideoOld(image);
-                          }}
-                          className="w-9 h-9 bg-stone-50/20 backdrop-blur-sm rounded-xl flex items-center justify-center hover:bg-stone-50/30 transition-colors duration-200"
-                        >
-                          <Play size={14} className="text-stone-50" strokeWidth={1.5} />
-                        </button>
-                        <button 
-                          onClick={(e) => {
-                            e.stopPropagation();
                             deleteImage(image.id);
                           }}
                           className="w-9 h-9 bg-red-500/20 backdrop-blur-sm rounded-xl flex items-center justify-center hover:bg-red-500/30 transition-colors duration-200"
@@ -582,27 +537,8 @@ const GalleryScreen: React.FC = () => {
           onToggleFavorite={handleToggleFavorite}
           onDownload={handleDownload}
           onDelete={handleDelete}
-          onCreateVideo={handleCreateVideo}
           onPlaceBrandAsset={handlePlaceBrandAsset}
           isFavorite={favorites.includes(typeof selectedImage.id === 'string' ? parseInt(selectedImage.id, 10) : selectedImage.id)}
-        />
-      )}
-
-      {/* Story Studio Modal */}
-            {/* Story Studio Modal */}
-      {isVideoModalOpen && selectedImage && (
-        <StoryStudioModal
-          imageId={selectedImage.id.toString()}
-          imageUrl={selectedImage.url}
-          imageSource={selectedImage.source}
-          onClose={() => {
-            setIsVideoModalOpen(false);
-            setSelectedImage(null);
-          }}
-          onSuccess={() => {
-            setIsVideoModalOpen(false);
-            setSelectedImage(null);
-          }}
         />
       )}
 
@@ -619,20 +555,6 @@ const GalleryScreen: React.FC = () => {
           imageTitle={selectedImage.title || 'Gallery Image'}
         />
       )}
-
-      {/* Video Generation Dialog */}
-      <VideoGenerateDialog
-        isOpen={isVideoDialogOpen}
-        onClose={() => {
-          setIsVideoDialogOpen(false);
-          setSelectedImage(null);
-        }}
-        imageId={selectedImage?.id.toString() || ''}
-        imageUrl={selectedImage?.imageUrl || selectedImage?.url || ''}
-        onSuccess={() => {
-          setIsVideoDialogOpen(false);
-        }}
-      />
     </div>
     </ErrorBoundary>
   );

@@ -3,7 +3,7 @@
  * Handles website management and operations
  */
 
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import { requireStackAuth } from '../../stack-auth.js';
 import { storage } from '../../storage.js';
 import { asyncHandler, createError, sendSuccess, validateRequired } from '../middleware/error-handler.js';
@@ -11,8 +11,8 @@ import { asyncHandler, createError, sendSuccess, validateRequired } from '../mid
 const router = Router();
 
 // Website Management Routes
-router.get('/api/websites', requireStackAuth, asyncHandler(async (req: any, res) => {
-  const userId = req.user.id;
+router.get('/api/websites', requireStackAuth, asyncHandler(async (req: Request, res: Response) => {
+  const userId = req.user!.id;
   
   // TODO: Implement website listing
   sendSuccess(res, {
@@ -21,8 +21,8 @@ router.get('/api/websites', requireStackAuth, asyncHandler(async (req: any, res)
   });
 }));
 
-router.post('/api/websites', requireStackAuth, asyncHandler(async (req: any, res) => {
-  const userId = req.user.id;
+router.post('/api/websites', requireStackAuth, asyncHandler(async (req: Request, res: Response) => {
+  const userId = req.user!.id;
   const { name, url, description } = req.body;
 
   if (!name || !url) {
@@ -42,9 +42,9 @@ router.post('/api/websites', requireStackAuth, asyncHandler(async (req: any, res
   });
 }));
 
-router.put('/api/websites/:id', requireStackAuth, asyncHandler(async (req: any, res) => {
+router.put('/api/websites/:id', requireStackAuth, asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const userId = req.user.id;
+  const userId = req.user!.id;
   const updates = req.body;
 
   // TODO: Implement website updates
@@ -54,9 +54,9 @@ router.put('/api/websites/:id', requireStackAuth, asyncHandler(async (req: any, 
   });
 }));
 
-router.delete('/api/websites/:id', requireStackAuth, asyncHandler(async (req: any, res) => {
+router.delete('/api/websites/:id', requireStackAuth, asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const userId = req.user.id;
+  const userId = req.user!.id;
 
   // TODO: Implement website deletion
   sendSuccess(res, {
@@ -65,9 +65,9 @@ router.delete('/api/websites/:id', requireStackAuth, asyncHandler(async (req: an
   });
 }));
 
-router.post('/api/websites/:id/refresh-screenshot', requireStackAuth, asyncHandler(async (req: any, res) => {
+router.post('/api/websites/:id/refresh-screenshot', requireStackAuth, asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const userId = req.user.id;
+  const userId = req.user!.id;
 
   // TODO: Implement screenshot refresh
   sendSuccess(res, {
@@ -77,8 +77,8 @@ router.post('/api/websites/:id/refresh-screenshot', requireStackAuth, asyncHandl
 }));
 
 // Brand Assessment Routes
-router.post('/api/save-brand-assessment', requireStackAuth, asyncHandler(async (req: any, res) => {
-  const userId = req.user.id;
+router.post('/api/save-brand-assessment', requireStackAuth, asyncHandler(async (req: Request, res: Response) => {
+  const userId = req.user!.id;
   const assessmentData = req.body;
 
   // TODO: Implement brand assessment saving

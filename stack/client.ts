@@ -11,6 +11,7 @@ const STACK_PUBLISHABLE_CLIENT_KEY = (globalThis as any).__STACK_PUBLISHABLE_CLI
   "pck_bqv6htnwq1f37nd2fn6qatxx2f8x0tnxvjj7xwgh1zmhg";
 
 // 🔍 Enhanced debug logging to trace environment variable injection
+console.log('🔍 Stack Auth Environment Variables:', {
   globalsProjectId: (globalThis as any).__STACK_PROJECT_ID__,
   globalsKey: (globalThis as any).__STACK_PUBLISHABLE_CLIENT_KEY__?.substring(0, 20) + '...',
   importMetaProjectId: import.meta.env?.VITE_STACK_PROJECT_ID,
@@ -21,6 +22,7 @@ const STACK_PUBLISHABLE_CLIENT_KEY = (globalThis as any).__STACK_PUBLISHABLE_CLI
 });
 
 // Debug logging
+console.log('🔍 Stack Auth Configuration:', {
   projectId: STACK_PROJECT_ID,
   publishableClientKey: STACK_PUBLISHABLE_CLIENT_KEY?.substring(0, 20) + '...',
   projectIdPresent: !!STACK_PROJECT_ID,
@@ -92,6 +94,7 @@ try {
   }
 
   // Debug the Stack Auth instance
+  console.log('🔍 Stack Auth Instance Created:', {
     projectId: stackClientApp.projectId,
     urls: stackClientApp.urls,
     tokenStore: 'cookie',
@@ -104,6 +107,7 @@ try {
     const preferredDomain = 'https://www.sselfie.ai'; // Use www.sselfie.ai to match deployed domain
     const urlKeys = ['signIn', 'signUp', 'afterSignIn', 'afterSignUp', 'afterSignOut', 'oauthCallback', 'error'] as const;
 
+    console.log('🔍 Stack Auth URL Override Debug:', {
       currentOrigin,
       preferredDomain,
       currentHostname: window.location.hostname,
@@ -135,6 +139,7 @@ try {
   }
 
   // 🔍 DEBUG: Check if Stack Auth is working properly
+  console.log('🔍 Stack Auth Readiness Check:', {
     hasGetUser: typeof stackClientApp.getUser === 'function',
     hasCurrentUser: 'currentUser' in stackClientApp,
     clientReady: !!stackClientApp

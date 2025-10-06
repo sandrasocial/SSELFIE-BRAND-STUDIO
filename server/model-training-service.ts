@@ -4,11 +4,12 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
 import { storage } from './storage.js';
-// MAYA FAÇADE: Removed PersonalityManager dependency - Maya is now isolated
-// import { PersonalityManager } from './agents/personalities/personality-config.js'; // REMOVED: Outbound dependency
+// MAYA FAÇADE: Removed PersonalityManager dependency - Maya isolated
+// import { PersonalityManager } = await import('./agents/personalities/personality-config.js'); // REMOVED: Outbound dependency
 import { ArchitectureValidator } from './architecture-validator.js';
 import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { createHash } from 'crypto';
 // MAYA FAÇADE: Replaced Maya-specific import with façade API calls
 // import { MAYA_PERSONALITY } from './agents/personalities/maya-personality.js'; // REMOVED: Direct entanglement
 
@@ -942,12 +943,11 @@ export class ModelTrainingService {
         throw new Error(`Failed to download LoRA weights: ${weightsResponse.status}`);
       }
 
-      const weightsBuffer = await weightsResponse.arrayBuffer();
+      const weightsBuffer = await weightsResponse.arrayBuffer() as ArrayBuffer;
       const fileSize = weightsBuffer.byteLength;
       
       // Generate checksum for integrity verification
-      const crypto = await import('crypto');
-      const checksum = crypto.createHash('sha256').update(Buffer.from(weightsBuffer)).digest('hex');
+      const checksum = (createHash('sha256') as any).update(Buffer.from(weightsBuffer)).digest('hex');
 
 
       // Upload to S3 for permanent storage

@@ -295,7 +295,7 @@ export async function verifyStackAuthToken(req: Request, res: Response, next: Ne
     }
     
     // Set user information in request from database user
-    req.user = dbUser;
+    req.user = dbUser as StackAuthUser;
     
     // Cache the authenticated user for performance
     authCache.set(tokenHash, {

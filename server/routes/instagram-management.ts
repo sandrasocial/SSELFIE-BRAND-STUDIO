@@ -1,24 +1,37 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import { instagramIntegration } from '../services/instagram-integration.js';
 import { requireStackAuth } from '../stack-auth.js'
 import { SlackNotificationService } from '../services/slack-notification-service.js';
 
 const router = Router();
 
-// 📱 Process Instagram DMs and ManyChat messages
-router.post('/process', requireStackAuth, async (req: any, res) => {
-  try {
-    const userId = req.user.id;
+interface InstagramMessage {
+  category?: string;
+  isBusinessOpportunity?: boolean;
+  priority?: string;
+  needsResponse?: boolean;
+  sentiment?: string;
+  platform?: string;
+  fromUsername?: string;
+  message?: string;
+  receivedAt?: Date;
+  [key: string]: unknown; // For additional properties
+}
 
-    const processedMessages = await instagramIntegration.processInstagramMessages(userId);
+// 📱 Process Instagram DMs and ManyChat messages
+router.post('/process', requireStackAuth, async (req: Request, res: Response) => {
+  try {
+    const userId = req.user!.id;
+
+    const processedMessages: InstagramMessage[] = await instagramIntegration.processInstagramMessages(userId);
 
     res.json({
       message: 'Instagram message processing completed',
       totalMessages: processedMessages.length,
-      customerInquiries: processedMessages.filter(m => m.category === 'customer_inquiry').length,
-      businessOpportunities: processedMessages.filter(m => m.isBusinessOpportunity).length,
-      urgentMessages: processedMessages.filter(m => m.priority === 'high').length,
-      needResponse: processedMessages.filter(m => m.needsResponse).length,
+      customerInquiries: processedMessages.filter((m: InstagramMessage) => m.category === 'customer_inquiry').length,
+      businessOpportunities: processedMessages.filter((m: InstagramMessage) => m.isBusinessOpportunity).length,
+      urgentMessages: processedMessages.filter((m: InstagramMessage) => m.priority === 'high').length,
+      needResponse: processedMessages.filter((m: InstagramMessage) => m.needsResponse).length,
       data: processedMessages.slice(0, 10) // Return first 10 for preview
     });
   } catch (error) {
@@ -28,13 +41,13 @@ router.post('/process', requireStackAuth, async (req: any, res) => {
 });
 
 // 📊 Get Instagram message dashboard
-router.get('/dashboard', requireStackAuth, async (req: any, res) => {
+router.get('/dashboard', requireStackAuth, async (req: Request, res: Response) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user!.id;
     
     // Try to get real Instagram data from integration
-    const processedMessages = await instagramIntegration.getProcessedMessages(userId);
-    const manyChatMessages = await instagramIntegration.getManyChatMessages(userId);
+    const processedMessages: InstagramMessage[] = await instagramIntegration.getProcessedMessages(userId);
+    const manyChatMessages: InstagramMessage[] = await instagramIntegration.getManyChatMessages(userId);
     
     const totalMessages = processedMessages.length + manyChatMessages.length;
     
@@ -45,18 +58,18 @@ router.get('/dashboard', requireStackAuth, async (req: any, res) => {
         instagram: processedMessages.length || 623,
         manychat: manyChatMessages.length || 324
       },
-      customerInquiries: processedMessages.filter(m => m.category === 'customer_inquiry').length || 156,
-      businessOpportunities: processedMessages.filter(m => m.isBusinessOpportunity).length || 89,
-      urgentMessages: processedMessages.filter(m => m.priority === 'high').length || 23,
-      needResponse: processedMessages.filter(m => m.needsResponse).length || 234,
+      customerInquiries: processedMessages.filter((m: InstagramMessage) => m.category === 'customer_inquiry').length || 156,
+      businessOpportunities: processedMessages.filter((m: InstagramMessage) => m.isBusinessOpportunity).length || 89,
+      urgentMessages: processedMessages.filter((m: InstagramMessage) => m.priority === 'high').length || 23,
+      needResponse: processedMessages.filter((m: InstagramMessage) => m.needsResponse).length || 234,
       topEngagementHours: ['10:00', '14:00', '19:00'],
       sentimentBreakdown: {
-        positive: processedMessages.filter(m => m.sentiment === 'positive').length || 687,
-        neutral: processedMessages.filter(m => m.sentiment === 'neutral').length || 198,
-        negative: processedMessages.filter(m => m.sentiment === 'negative').length || 62
+        positive: processedMessages.filter((m: InstagramMessage) => m.sentiment === 'positive').length || 687,
+        neutral: processedMessages.filter((m: InstagramMessage) => m.sentiment === 'neutral').length || 198,
+        negative: processedMessages.filter((m: InstagramMessage) => m.sentiment === 'negative').length || 62
       },
       lastProcessed: new Date(),
-      recentMessages: processedMessages.slice(0, 5).map(m => ({
+      recentMessages: processedMessages.slice(0, 5).map((m: InstagramMessage) => ({
         platform: m.platform,
         username: m.fromUsername,
         message: m.message,
@@ -93,9 +106,9 @@ router.get('/dashboard', requireStackAuth, async (req: any, res) => {
 });
 
 // 🧪 Test Instagram processing (available for all users)
-router.post('/test-processing', requireStackAuth, async (req: any, res) => {
+router.post('/test-processing', requireStackAuth, async (req: Request, res: Response) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user!.id;
 
     // Simulate Instagram processing with realistic data
     await SlackNotificationService.sendAgentInsight(
@@ -149,7 +162,7 @@ router.post('/test-processing', requireStackAuth, async (req: any, res) => {
 });
 
 // 🏷️ Get message categories breakdown
-router.get('/categories', requireStackAuth, async (req: any, res) => {
+router.get('/categories', requireStackAuth, async (req: Request, res: Response) => {
   try {
     const categories = {
       customer_inquiry: {
@@ -187,7 +200,7 @@ router.get('/categories', requireStackAuth, async (req: any, res) => {
 });
 
 // 📊 Get platform statistics
-router.get('/stats', requireStackAuth, async (req: any, res) => {
+router.get('/stats', requireStackAuth, async (req: Request, res: Response) => {
   try {
     const stats = {
       platforms: {

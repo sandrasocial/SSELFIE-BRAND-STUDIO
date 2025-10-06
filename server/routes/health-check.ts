@@ -3,7 +3,7 @@
  * Comprehensive health monitoring endpoints
  */
 
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import { performanceMonitor } from '../utils/performance-monitor.js';
 import { serviceDiscovery } from '../services/service-discovery.js';
 import { unifiedErrorHandler } from '../services/unified-error-handler.js';
@@ -12,10 +12,54 @@ import { Logger } from '../utils/logger.js';
 const router = Router();
 const logger = new Logger('HealthCheck');
 
+interface DatabaseHealthDetails {
+  connection?: string;
+  responseTime?: string;
+  error?: string;
+}
+
+interface ExternalServiceStatus {
+  name: string;
+  status: string;
+  required: boolean;
+  error?: string;
+}
+
+interface ExternalServicesHealthDetails {
+  services?: ExternalServiceStatus[];
+  error?: string;
+}
+
+interface ServiceHealthDetails {
+  totalServices?: number;
+  healthyServices?: number;
+  unhealthyServices?: number;
+  error?: string;
+}
+
+interface HealthStatus {
+  status: string;
+  timestamp: string;
+  service: string;
+  version: string;
+  responseTime?: string;
+  checks?: {
+    database: { status: string; details?: DatabaseHealthDetails };
+    externalServices: { status: string; details?: ExternalServicesHealthDetails };
+    performance: { status: string; averageResponseTime: string; successRate: string; totalOperations: number };
+    services: { status: string; total: number; healthy: number; degraded: number; unhealthy: number };
+    errors: { status: string; totalErrors: number; recentErrors: number };
+  };
+  system?: {
+    memory: { used: string; average: string; peak: string };
+    cpu: { current: string; average: string };
+  };
+}
+
 /**
  * Basic health check
  */
-router.get('/health', (req, res) => {
+router.get('/health', (req: Request, res: Response) => {
   res.status(200).json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
@@ -27,7 +71,7 @@ router.get('/health', (req, res) => {
 /**
  * Detailed health check
  */
-router.get('/health/detailed', async (req, res) => {
+router.get('/health/detailed', async (req: Request, res: Response) => {
   try {
     const startTime = Date.now();
     
@@ -109,7 +153,7 @@ router.get('/health/detailed', async (req, res) => {
 /**
  * Readiness check
  */
-router.get('/health/ready', async (req, res) => {
+router.get('/health/ready', async (req: Request, res: Response) => {
   try {
     const checks = await Promise.allSettled([
       checkDatabaseHealth(),
@@ -150,7 +194,7 @@ router.get('/health/ready', async (req, res) => {
 /**
  * Liveness check
  */
-router.get('/health/live', (req, res) => {
+router.get('/health/live', (req: Request, res: Response) => {
   res.status(200).json({
     status: 'alive',
     timestamp: new Date().toISOString(),
@@ -161,7 +205,7 @@ router.get('/health/live', (req, res) => {
 /**
  * Metrics endpoint
  */
-router.get('/health/metrics', (req, res) => {
+router.get('/health/metrics', (req: Request, res: Response) => {
   try {
     const performanceSummary = performanceMonitor.getSystemSummary();
     const serviceStats = serviceDiscovery.getServiceStatistics();
@@ -184,7 +228,7 @@ router.get('/health/metrics', (req, res) => {
 /**
  * Check database health
  */
-async function checkDatabaseHealth(): Promise<{ status: string; details?: any }> {
+async function checkDatabaseHealth(): Promise<{ status: string; details?: DatabaseHealthDetails }> {
   try {
     // Simplified database check - in production, this would test actual database connectivity
     const { db } = await import('../drizzle.js');
@@ -213,7 +257,7 @@ async function checkDatabaseHealth(): Promise<{ status: string; details?: any }>
 /**
  * Check external services health
  */
-async function checkExternalServices(): Promise<{ status: string; details?: any }> {
+async function checkExternalServices(): Promise<{ status: string; details?: ExternalServicesHealthDetails }> {
   try {
     const services = [
       { name: 'Anthropic Claude', url: 'https://api.anthropic.com', required: true },
@@ -276,7 +320,7 @@ async function checkExternalServices(): Promise<{ status: string; details?: any 
 /**
  * Check service health
  */
-async function checkServiceHealth(): Promise<{ status: string; details?: any }> {
+async function checkServiceHealth(): Promise<{ status: string; details?: ServiceHealthDetails }> {
   try {
     const serviceStats = serviceDiscovery.getServiceStatistics();
     const unhealthyServices = serviceStats.unhealthyServices;
@@ -303,7 +347,7 @@ async function checkServiceHealth(): Promise<{ status: string; details?: any }> 
 /**
  * Determine overall health status
  */
-function determineOverallStatus(healthStatus: any): string {
+function determineOverallStatus(healthStatus: HealthStatus): string {
   const checks = healthStatus.checks;
   
   // Check if any critical component is unhealthy

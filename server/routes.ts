@@ -3,19 +3,13 @@ import type { Express, Request, Response } from "express";
 import express from "express";
 import { createServer, type Server } from "http";
 import cookieParser from "cookie-parser";
-import { setupRollbackRoutes } from './routes/rollback.js';
 import { storage } from "./storage.js";
 import { requireStackAuth, requireActiveSubscription, optionalStackAuth } from './stack-auth.js';
 import { db } from "./drizzle.js";
 import { claudeConversations, claudeMessages } from "../shared/schema.js";
 import { eq, and, desc } from "drizzle-orm";
 import emailAutomation from './routes/email-automation.js';
-import victoriaWebsiteRouter from "./routes/victoria-website.js";
-import { registerVictoriaService } from "./routes/victoria-service.js";
-import { registerVictoriaWebsiteGenerator } from "./routes/victoria-website-generator.js";
 import videoRoutes from './routes/video.js';
-import { liveSessionRoutes } from './routes/live-session.js';
-import { analyticsRoutes } from './routes/analytics.js';
 import path from 'path';
 import fs from 'fs';
 import { ModelRetrainService } from './retrain-model.js';
@@ -31,13 +25,10 @@ import { registerCheckoutRoutes } from './routes/checkout.js';
 import utilityRoutes from './routes/modules/utility.js';
 import authRoutes from './routes/modules/auth.js';
 import aiGenerationRoutes from './routes/modules/ai-generation.js';
-import { setupStackWebhook } from './routes/stack-webhook.js';
 import adminRoutes from './routes/modules/admin.js';
 import agentProtocolRoutes from './routes/modules/agent-protocol.js';
 import websitesRoutes from './routes/modules/websites.js';
 import trainingRoutes from './routes/modules/training.js';
-import levelPartnerWebhook from './routes/levelpartner-webhook.js';
-import trendsCurrentRoute from './routes/trends-current.js';
 import claudeRoutes from './routes/modules/claude.js';
 import usageRoutes from './routes/modules/usage.js';
 // Reconstructed wrapper function (previously removed during refactor cleanup)
@@ -59,8 +50,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/', agentProtocolRoutes);
   app.use('/', websitesRoutes);
   app.use('/', trainingRoutes);
-  app.use('/', levelPartnerWebhook);
-  app.use('/api/trends', trendsCurrentRoute);
   app.use('/', claudeRoutes);
   app.use('/', usageRoutes);
 
@@ -624,15 +613,6 @@ function generatePersonalizedScenePrompt(sceneNumber: number, originalMessage: s
     res.sendFile(filePath);
   });
   
-  // Setup rollback routes
-  setupRollbackRoutes(app);
-  
-  // Register Victoria AI service layer
-  registerVictoriaService(app);
-  
-  // Register Victoria website generator
-  registerVictoriaWebsiteGenerator(app);
-  
   // PHASE 4: OLD MAYA ROUTES DISABLED (Fragmented system archived)
   // registerMayaAIRoutes(app);
   // app.use('/api/maya-onboarding', mayaOnboardingRoutes);
@@ -645,20 +625,6 @@ function generatePersonalizedScenePrompt(sceneNumber: number, originalMessage: s
   // HYBRID BACKEND: Concept Cards API for clean persistence and unique React keys
   const { default: conceptCardsRouter } = await import('./routes/concept-cards.js');
   app.use('/api/concepts', conceptCardsRouter);
-  
-  // Stage Mode Live Session Routes  
-  app.use('/api/live', liveSessionRoutes);
-  
-  // Stage Mode Analytics Routes
-  app.use('/api/analytics', analyticsRoutes);
-  
-  // P3-C BRAND ASSETS: Upload and placement of brand assets (logos, product shots)
-  if (process.env['BRAND_ASSETS_ENABLED'] === '1') {
-    const { default: brandAssetsRouter } = await import('./routes/brand-assets.js');
-    const { default: brandPlacementRouter } = await import('./routes/brand-placement.js');
-    app.use('/api/brand-assets', brandAssetsRouter);
-    app.use('/api/brand-assets', brandPlacementRouter);
-  }
   
   // 🎥 STORY STUDIO API - Server-side AI video story generation
   // Initialize Gemini AI client for server-side operations
@@ -683,19 +649,13 @@ function generatePersonalizedScenePrompt(sceneNumber: number, originalMessage: s
   // Email automation routes
   app.use('/api/email', emailAutomation);
   
-  // 🎬 VEO 3 Video generation routes
-  app.use('/api/video', videoRoutes);
-  
-  // 📧 AVA Email Management Agent Routes
-  app.use('/api/email-management', emailManagementRouter);
-  
   // 🔐 Gmail Authentication Routes
   // const gmailAuthRouter = await import('./routes/gmail-auth.js'); // DISABLED
   // app.use('/api/auth/gmail', gmailAuthRouter.default); // DISABLED
   
   // 📱 Instagram DM Management Routes
-  const instagramManagementRouter = await import('./routes/instagram-management.js');
-  app.use('/api/instagram-management', instagramManagementRouter.default);
+  // const instagramManagementRouter = await import('./routes/instagram-management.js'); // DISABLED - Non-core feature
+  // app.use('/api/instagram-management', instagramManagementRouter.default); // DISABLED - Non-core feature
   
   // 🧪 Slack Integration Testing Routes (DISABLED - moved to legacy)
   // const slackTestRouter = await import('./routes/slack-test.js');
@@ -1020,136 +980,15 @@ Remember: You are the MEMBER experience Maya - provide creative guidance and ima
 
   // REMOVED DUPLICATE AI IMAGES ROUTE #2
 
-  // Stack Auth logout endpoint
-  app.get('/api/admin/agents/coordination-metrics', async (req: Request, res: Response) => {
-    try {
-      // Admin authentication check
-      const adminToken = req.headers['x-admin-token'];
-      const requireStackAuth = req.requireStackAuth?.() && (req.user as any)?.claims?.email === 'ssa@ssasocial.com';
-      
-      if (!requireStackAuth && adminToken !== 'sandra-admin-2025') {
-        return res.status(401).json({ error: 'Admin access required' });
-      }
-
-      // Return coordination metrics for AgentActivityDashboard
-      const metrics = {
-        agentCoordination: {
-          totalAgents: 13,
-          availableAgents: 13,
-          activeAgents: 0, // Will be updated based on actual agent activity
-          averageLoad: 0,  // Percentage of agents currently busy
-          averageSuccessRate: 95
-        },
-        deploymentMetrics: {
-          activeDeployments: 0,
-          totalDeployments: 0,
-          completionRate: 0
-        },
-        knowledgeSharing: {
-          totalInsights: 0,
-          totalStrategies: 4,
-          avgEffectiveness: 85,
-          knowledgeConnections: 0
-        },
-        systemHealth: {
-          orchestratorStatus: 'operational',
-          taskDistributorStatus: 'operational', 
-          knowledgeSharingStatus: 'operational',
-          lastHealthCheck: new Date().toISOString()
-        }
-      };
-
-      res.json(metrics);
-    } catch (error) {
-      console.error('❌ Coordination metrics error:', error);
-      res.status(500).json({ error: 'Failed to get coordination metrics' });
-    }
-  });
-
-  // Active deployments endpoint for AgentActivityDashboard
-  app.get('/api/admin/agents/active-deployments', async (req: Request, res: Response) => {
-    try {
-      // Admin authentication check
-      const adminToken = req.headers['x-admin-token'];
-      const requireStackAuth = req.requireStackAuth?.() && (req.user as any)?.claims?.email === 'ssa@ssasocial.com';
-      
-      if (!requireStackAuth && adminToken !== 'sandra-admin-2025') {
-        return res.status(401).json({ error: 'Admin access required' });
-      }
-
-      // Return empty deployments for now - can be enhanced with real deployment tracking
-      const deployments: any[] = [];
-
-      res.json({ deployments });
-    } catch (error) {
-      console.error('❌ Active deployments error:', error);
-      res.status(500).json({ error: 'Failed to get active deployments' });
-    }
-  });
-
-  // Token usage monitoring endpoint for smart routing analysis
-  app.get('/api/admin/token-usage-stats', async (req: Request, res: Response) => {
-    try {
-      // const { tokenUsageMonitor } = await import('./monitoring/token-usage-monitor.js'); // FILE MISSING
-      const timeWindow = parseInt(req.query.hours as string) || 24;
-      // const stats = tokenUsageMonitor.getUsageStats(timeWindow);
-      // const recentEntries = tokenUsageMonitor.getRecentEntries(20);
-      const stats = { totalTokens: 0, averageTokensPerRequest: 0 };
-      const recentEntries: any[] = [];
-
-      res.json({
-        success: true,
-        stats,
-        recentEntries,
-        message: `Token usage stats for last ${timeWindow} hours (monitoring disabled)`,
-        smartRoutingActive: false
-      });
-    } catch (error) {
-      console.error('Token usage stats error:', error);
-      res.status(500).json({
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
-  });
-
+  // REMOVED: Admin agent coordination metrics endpoint (non-core feature)
+  
+  // REMOVED: Active deployments endpoint (non-core feature)
+  
+  // REMOVED: Token usage monitoring endpoint (non-core feature)
+  
   // REMOVED: Smart routing test endpoint (smart routing layer removed for direct access)
   
-  // Claude API route for frontend compatibility (bypass auth for now)
-  app.post('/api/admin/agents/execute', async (req: Request, res: Response) => {
-    try {
-      // Admin authentication bypass
-      const adminToken = req.headers.authorization?.replace('Bearer ', '') || req.headers['x-admin-token'];
-      const isAdminRequest = adminToken === 'sandra-admin-2025';
-      
-      
-      let userId;
-      if (isAdminRequest) {
-        userId = '42585527'; // Sandra's actual admin user ID
-      } else if (req.requireStackAuth()) {
-        userId = req.user.id;
-      }
-
-
-      if (!userId) {
-        return res.status(401).json({ success: false, message: 'Unauthorized' });
-      }
-
-      // Legacy effortBasedExecutor removed - using AutonomousAgentIntegration instead
-      const result = {
-        success: true,
-        message: 'Legacy effort-based system removed. Use autonomous agent system instead.',
-        costOptimized: true
-      };
-      res.json({ success: true, result });
-    } catch (error) {
-      console.error('Effort-based execution error:', error);
-      res.status(500).json({ 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Unknown error' 
-      });
-    }
-  });
+  // REMOVED: Claude API route for frontend compatibility (non-core feature)
 
   // API endpoint for loading agent conversation history
   app.get('/dev-workspace', (req, res) => {

@@ -62,6 +62,7 @@ router.post('/levelpartner-signup', optionalStackAuth, async (req: Request<{}, {
     const utm_term = req.query.utm_term as string || req.body.utm_term;
     const utm_content = req.query.utm_content as string || req.body.utm_content;
     
+    console.log('🔍 LevelPartner Signup Debug:', {
       name,
       email,
       source,
@@ -85,10 +86,6 @@ router.post('/levelpartner-signup', optionalStackAuth, async (req: Request<{}, {
         
         if (sessionResult.length > 0) {
           sessionData = sessionResult[0];
-            id: sessionData.id,
-            title: sessionData.title,
-            createdAt: sessionData.createdAt
-          });
         }
       } catch (error) {
         console.warn('⚠️ Failed to fetch session data:', error.message);

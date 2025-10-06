@@ -55,6 +55,7 @@ window.addEventListener('unhandledrejection', (event) => {
 
 // React sanity check for debugging
 if (import.meta.env.DEV) {
+  console.log('🔍 React Debug Info:', {
     version: React.version, 
     hasUse: typeof (React as any).use === "function" 
   });
