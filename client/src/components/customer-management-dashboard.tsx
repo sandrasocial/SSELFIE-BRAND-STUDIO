@@ -24,6 +24,8 @@ interface CustomerInsights {
   averageGenerationsPerMonth: number;
   churnRate: number;
   recentSignups: Customer[];
+  newThisMonth: number;
+  averageLifetimeValue: number;
 }
 
 export function CustomerManagementDashboard() {
@@ -57,7 +59,7 @@ export function CustomerManagementDashboard() {
       <div className="grid grid-cols-4 gap-6">
         <div className="border border-gray-200 p-6 text-center">
           <div className="text-3xl font-serif font-light mb-2">
-            {(customerInsights as any)?.newThisMonth || 0}
+            {customerInsights?.newThisMonth || 0}
           </div>
           <div className="text-xs uppercase tracking-[0.3em] text-gray-600">
             New This Month
@@ -65,7 +67,7 @@ export function CustomerManagementDashboard() {
         </div>
         <div className="border border-gray-200 p-6 text-center">
           <div className="text-3xl font-serif font-light mb-2 text-green-600">
-            €{(customerInsights as any)?.averageLifetimeValue || 0}
+            €{customerInsights?.averageLifetimeValue || 0}
           </div>
           <div className="text-xs uppercase tracking-[0.3em] text-gray-600">
             Avg Lifetime Value
@@ -105,7 +107,7 @@ export function CustomerManagementDashboard() {
           
           <select
             value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value as any)}
+            onChange={(e) => setFilterStatus(e.target.value as 'all' | 'active' | 'inactive' | 'cancelled')}
             className="px-4 py-2 border border-gray-300 text-sm focus:outline-none focus:border-black"
           >
             <option value="all">All Status</option>
@@ -116,7 +118,7 @@ export function CustomerManagementDashboard() {
 
           <select
             value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as any)}
+            onChange={(e) => setSortBy(e.target.value as 'name' | 'created' | 'spent' | 'usage')}
             className="px-4 py-2 border border-gray-300 text-sm focus:outline-none focus:border-black"
           >
             <option value="created">Sort by Created</option>

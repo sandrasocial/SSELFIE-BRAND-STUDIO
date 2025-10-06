@@ -1,11 +1,16 @@
 import React from 'react';
 import { SandraImages } from '../lib/sandra-images.js';
 
+interface ExtendedWindow extends Window {
+  handleGetStarted?: () => void;
+}
+
 export const PortfolioSection = () => {
   const handleGetStarted = () => {
     // Check if handleGetStarted is available on window (from parent)
-    if (typeof window !== 'undefined' && (window as any).handleGetStarted) {
-      (window as any).handleGetStarted();
+    const extendedWindow = window as ExtendedWindow;
+    if (typeof window !== 'undefined' && extendedWindow.handleGetStarted) {
+      extendedWindow.handleGetStarted();
     } else {
       // Fallback to Maya page
       window.location.href = '/maya';

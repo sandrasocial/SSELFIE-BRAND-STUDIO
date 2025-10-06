@@ -1,9 +1,52 @@
-import type { Express } from "express";
+import type { Express, Request, Response } from "express";
 import { requireStackAuth } from '../stack-auth.js';
 import { storage } from "../storage.js";
 // import { sendWelcomeEmail } from "../email-service.js";
 
 import Stripe from "stripe";
+
+// Type definitions for checkout routes
+interface RetrainCheckoutRequest {
+  successUrl: string;
+  cancelUrl: string;
+}
+
+interface CheckoutSessionRequest {
+  successUrl: string;
+  cancelUrl: string;
+  plan?: string;
+  customerEmail?: string;
+}
+
+interface EmbeddedCheckoutRequest {
+  plan?: string;
+  customerEmail: string;
+  successUrl: string;
+  cancelUrl: string;
+}
+
+interface PaymentIntentRequest {
+  amount: number;
+  plan: string;
+  currency?: string;
+}
+
+interface StripeCheckoutSession {
+  id: string;
+  client_secret?: string | null;
+  customer: string;
+  customer_email?: string;
+  customer_details?: {
+    email?: string;
+  };
+  metadata?: {
+    plan?: string;
+    userId?: string;
+    type?: string;
+    flow?: string;
+    customerEmail?: string;
+  };
+}
 
 export function registerCheckoutRoutes(app: Express) {
   if (!process.env['STRIPE_SECRET_KEY']) {
@@ -13,7 +56,7 @@ export function registerCheckoutRoutes(app: Express) {
     apiVersion: "2025-08-27.basil",
   });
   // 🔄 PHASE 3: Create Retraining Checkout Session
-  app.post("/api/create-retrain-checkout-session", requireStackAuth, async (req: any, res) => {
+  app.post("/api/create-retrain-checkout-session", requireStackAuth, async (req: Request & { body: RetrainCheckoutRequest }, res: Response) => {
     try {
       const { successUrl, cancelUrl } = req.body;
       const userId = req.user.id;
@@ -62,14 +105,15 @@ export function registerCheckoutRoutes(app: Express) {
       });
 
       res.json({ url: session.url });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Retraining checkout session creation error:', error);
-      res.status(500).json({ message: "Error creating retraining checkout session: " + error.message });
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      res.status(500).json({ message: "Error creating retraining checkout session: " + errorMessage });
     }
   });
 
   // Create Stripe Checkout Session (simpler and more reliable)
-  app.post("/api/create-checkout-session", async (req: any, res) => {
+  app.post("/api/create-checkout-session", async (req: Request & { body: CheckoutSessionRequest }, res: Response) => {
     try {
       const { successUrl, cancelUrl, plan = 'sselfie-studio', customerEmail } = req.body;
       
@@ -85,7 +129,7 @@ export function registerCheckoutRoutes(app: Express) {
       const selectedPlan = planConfig['sselfie-studio']; // Only one plan available
       
       // 🔥 FIX: Build session config with optional customer email
-      const sessionConfig: any = {
+      const sessionConfig: Stripe.Checkout.SessionCreateParams = {
         payment_method_types: ['card'],
         line_items: [
           {
@@ -117,16 +161,17 @@ export function registerCheckoutRoutes(app: Express) {
       const session = await stripe.checkout.sessions.create(sessionConfig);
 
       res.json({ url: session.url });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Checkout session creation error:', error);
-      res.status(500).json({ message: "Error creating checkout session: " + error.message });
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      res.status(500).json({ message: "Error creating checkout session: " + errorMessage });
     }
   });
 
   // Subscription Management Routes
   
   // Get user's subscription details
-  app.get("/api/subscription", requireStackAuth, async (req: any, res) => {
+  app.get("/api/subscription", requireStackAuth, async (req: Request, res: Response) => {
     try {
       const userId = req.user.id;
       if (!userId) {
@@ -150,14 +195,15 @@ export function registerCheckoutRoutes(app: Express) {
       }
 
       res.json(subscriptions.data[0]);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching subscription:', error);
-      res.status(500).json({ message: "Error fetching subscription: " + error.message });
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      res.status(500).json({ message: "Error fetching subscription: " + errorMessage });
     }
   });
 
   // Get user's invoices
-  app.get("/api/invoices", requireStackAuth, async (req: any, res) => {
+  app.get("/api/invoices", requireStackAuth, async (req: Request, res: Response) => {
     try {
       const userId = req.user.id;
       if (!userId) {
@@ -176,14 +222,15 @@ export function registerCheckoutRoutes(app: Express) {
       });
 
       res.json(invoices.data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching invoices:', error);
-      res.status(500).json({ message: "Error fetching invoices: " + error.message });
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      res.status(500).json({ message: "Error fetching invoices: " + errorMessage });
     }
   });
 
   // Cancel subscription (at period end)
-  app.post("/api/subscription/cancel", requireStackAuth, async (req: any, res) => {
+  app.post("/api/subscription/cancel", requireStackAuth, async (req: Request, res: Response) => {
     try {
       const userId = req.user.id;
       if (!userId) {
@@ -201,14 +248,15 @@ export function registerCheckoutRoutes(app: Express) {
       });
 
       res.json(subscription);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error canceling subscription:', error);
-      res.status(500).json({ message: "Error canceling subscription: " + error.message });
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      res.status(500).json({ message: "Error canceling subscription: " + errorMessage });
     }
   });
 
   // Reactivate subscription (remove cancel_at_period_end)
-  app.post("/api/subscription/reactivate", requireStackAuth, async (req: any, res) => {
+  app.post("/api/subscription/reactivate", requireStackAuth, async (req: Request, res: Response) => {
     try {
       const userId = req.user.id;
       if (!userId) {
@@ -226,14 +274,15 @@ export function registerCheckoutRoutes(app: Express) {
       });
 
       res.json(subscription);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error reactivating subscription:', error);
-      res.status(500).json({ message: "Error reactivating subscription: " + error.message });
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      res.status(500).json({ message: "Error reactivating subscription: " + errorMessage });
     }
   });
 
   // 🔥 NEW: Create Embedded Checkout Session for SSELFIE Style Guide Payment Page
-  app.post("/api/create-embedded-checkout-session", async (req: any, res) => {
+  app.post("/api/create-embedded-checkout-session", async (req: Request & { body: EmbeddedCheckoutRequest }, res: Response) => {
     try {
       const { plan = 'sselfie-studio', customerEmail, successUrl, cancelUrl } = req.body;
       
@@ -287,14 +336,15 @@ export function registerCheckoutRoutes(app: Express) {
         client_secret: session.client_secret,
         session_id: session.id
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Embedded checkout session creation error:', error);
-      res.status(500).json({ message: "Error creating embedded checkout session: " + error.message });
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      res.status(500).json({ message: "Error creating embedded checkout session: " + errorMessage });
     }
   });
 
   // Keep the old payment intent endpoint for backward compatibility
-  app.post("/api/create-payment-intent", async (req: any, res) => {
+  app.post("/api/create-payment-intent", async (req: Request & { body: PaymentIntentRequest }, res: Response) => {
     try {
       const { amount, plan, currency = 'eur' } = req.body;
       
@@ -316,9 +366,10 @@ export function registerCheckoutRoutes(app: Express) {
       });
 
       res.json({ clientSecret: paymentIntent.client_secret });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Payment intent creation error:', error);
-      res.status(500).json({ message: "Error creating payment intent: " + error.message });
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      res.status(500).json({ message: "Error creating payment intent: " + errorMessage });
     }
   });
 
@@ -335,9 +386,10 @@ export function registerCheckoutRoutes(app: Express) {
 
     try {
       event = stripe.webhooks.constructEvent(req.body, sig!, process.env.STRIPE_WEBHOOK_SECRET);
-    } catch (err: any) {
-      console.error('Webhook signature verification failed:', err.message);
-      return res.status(400).send(`Webhook Error: ${err.message}`);
+    } catch (err: unknown) {
+      console.error('Webhook signature verification failed:', err instanceof Error ? err.message : 'Unknown error');
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      return res.status(400).send(`Webhook Error: ${errorMessage}`);
     }
 
     // Handle successful payment
@@ -409,9 +461,10 @@ async function grantRetrainingAccess(userId: string, sessionId: string) {
 }
 
 // Handle successful subscription payment and user creation/upgrade
-async function handleSubscriptionPayment(session: any, flow?: string) {
+async function handleSubscriptionPayment(session: Stripe.Checkout.Session, flow?: string) {
   try {
     const customerEmail = session.customer_email || session.customer_details?.email;
+    const customerId = typeof session.customer === 'string' ? session.customer : session.customer?.id;
     
     if (!customerEmail) {
       return;
@@ -428,7 +481,7 @@ async function handleSubscriptionPayment(session: any, flow?: string) {
         plan: 'sselfie-studio',
         monthlyGenerationLimit: 100,
         generationsUsedThisMonth: 0,
-        stripeCustomerId: session.customer,
+        stripeCustomerId: customerId,
         mayaAiAccess: true,
         updatedAt: new Date(),
       });
@@ -444,7 +497,7 @@ async function handleSubscriptionPayment(session: any, flow?: string) {
         plan: 'sselfie-studio',
         monthlyGenerationLimit: 100,
         generationsUsedThisMonth: 0,
-        stripeCustomerId: session.customer,
+        stripeCustomerId: customerId,
         mayaAiAccess: true,
         victoriaAiAccess: false,
         role: 'user',
@@ -497,7 +550,7 @@ async function triggerPostPurchaseAutomation(userId: string, plan: string) {
 }
 
 // Email service disabled for now
-// async function sendWelcomeEmail(user: any, plan: string) {
+// async function sendWelcomeEmail(user: unknown, plan: string) {
 //   try {
 //     await EmailService.sendWelcomeEmail(user.email, user.firstName || 'Beautiful', plan);
 //   } catch (error) {

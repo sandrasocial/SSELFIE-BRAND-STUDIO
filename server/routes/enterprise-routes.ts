@@ -11,6 +11,14 @@ import { globalExpansion } from '../enterprise/global-expansion.js';
 import { analyticsReporting } from '../enterprise/analytics-reporting.js';
 import { requireStackAuth } from '../stack-auth.js'
 
+// Helper function to safely extract getErrorMessage(error)
+function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) {
+    return getErrorMessage(error);
+  }
+  return String(error);
+}
+
 export function registerEnterpriseRoutes(app: Express): void {
 
   // Predictive Intelligence Endpoints
@@ -22,12 +30,12 @@ export function registerEnterpriseRoutes(app: Express): void {
         data: metrics,
         timestamp: new Date().toISOString()
       });
-    } catch (error: any) {
-      console.error('❌ PREDICTIVE INTELLIGENCE ERROR:', error.message);
+    } catch (error: unknown) {
+      console.error('❌ PREDICTIVE INTELLIGENCE ERROR:', getErrorMessage(error));
       res.status(500).json({
         success: false,
         error: 'Failed to generate predictive metrics',
-        details: error.message
+        details: getErrorMessage(error)
       });
     }
   });
@@ -41,12 +49,12 @@ export function registerEnterpriseRoutes(app: Express): void {
         data: report,
         timestamp: new Date().toISOString()
       });
-    } catch (error: any) {
-      console.error('❌ SECURITY AUDIT ERROR:', error.message);
+    } catch (error: unknown) {
+      console.error('❌ SECURITY AUDIT ERROR:', getErrorMessage(error));
       res.status(500).json({
         success: false,
         error: 'Failed to generate security report',
-        details: error.message
+        details: getErrorMessage(error)
       });
     }
   });
@@ -60,12 +68,12 @@ export function registerEnterpriseRoutes(app: Express): void {
         success: true,
         message: 'Threat detection logged successfully'
       });
-    } catch (error: any) {
-      console.error('❌ THREAT DETECTION ERROR:', error.message);
+    } catch (error: unknown) {
+      console.error('❌ THREAT DETECTION ERROR:', getErrorMessage(error));
       res.status(500).json({
         success: false,
         error: 'Failed to log threat detection',
-        details: error.message
+        details: getErrorMessage(error)
       });
     }
   });
@@ -79,12 +87,12 @@ export function registerEnterpriseRoutes(app: Express): void {
         data: report,
         timestamp: new Date().toISOString()
       });
-    } catch (error: any) {
-      console.error('❌ PERFORMANCE MONITOR ERROR:', error.message);
+    } catch (error: unknown) {
+      console.error('❌ PERFORMANCE MONITOR ERROR:', getErrorMessage(error));
       res.status(500).json({
         success: false,
         error: 'Failed to generate performance report',
-        details: error.message
+        details: getErrorMessage(error)
       });
     }
   });
@@ -98,12 +106,12 @@ export function registerEnterpriseRoutes(app: Express): void {
         data: alerts,
         count: alerts.length
       });
-    } catch (error: any) {
-      console.error('❌ PERFORMANCE ALERTS ERROR:', error.message);
+    } catch (error: unknown) {
+      console.error('❌ PERFORMANCE ALERTS ERROR:', getErrorMessage(error));
       res.status(500).json({
         success: false,
         error: 'Failed to retrieve performance alerts',
-        details: error.message
+        details: getErrorMessage(error)
       });
     }
   });
@@ -125,12 +133,12 @@ export function registerEnterpriseRoutes(app: Express): void {
           error: 'Alert not found'
         });
       }
-    } catch (error: any) {
-      console.error('❌ ALERT RESOLUTION ERROR:', error.message);
+    } catch (error: unknown) {
+      console.error('❌ ALERT RESOLUTION ERROR:', getErrorMessage(error));
       res.status(500).json({
         success: false,
         error: 'Failed to resolve alert',
-        details: error.message
+        details: getErrorMessage(error)
       });
     }
   });
@@ -144,12 +152,12 @@ export function registerEnterpriseRoutes(app: Express): void {
         data: metrics,
         timestamp: new Date().toISOString()
       });
-    } catch (error: any) {
-      console.error('❌ GLOBAL EXPANSION ERROR:', error.message);
+    } catch (error: unknown) {
+      console.error('❌ GLOBAL EXPANSION ERROR:', getErrorMessage(error));
       res.status(500).json({
         success: false,
         error: 'Failed to generate global expansion metrics',
-        details: error.message
+        details: getErrorMessage(error)
       });
     }
   });
@@ -163,12 +171,12 @@ export function registerEnterpriseRoutes(app: Express): void {
         data: report,
         timestamp: new Date().toISOString()
       });
-    } catch (error: any) {
-      console.error('❌ ENTERPRISE ANALYTICS ERROR:', error.message);
+    } catch (error: unknown) {
+      console.error('❌ ENTERPRISE ANALYTICS ERROR:', getErrorMessage(error));
       res.status(500).json({
         success: false,
         error: 'Failed to generate enterprise analytics report',
-        details: error.message
+        details: getErrorMessage(error)
       });
     }
   });
@@ -193,12 +201,12 @@ export function registerEnterpriseRoutes(app: Express): void {
         },
         timestamp: new Date().toISOString()
       });
-    } catch (error: any) {
-      console.error('❌ EXECUTIVE SUMMARY ERROR:', error.message);
+    } catch (error: unknown) {
+      console.error('❌ EXECUTIVE SUMMARY ERROR:', getErrorMessage(error));
       res.status(500).json({
         success: false,
         error: 'Failed to generate executive summary',
-        details: error.message
+        details: getErrorMessage(error)
       });
     }
   });
@@ -233,12 +241,12 @@ export function registerEnterpriseRoutes(app: Express): void {
           version: '3.0.0'
         }
       });
-    } catch (error: any) {
-      console.error('❌ ENTERPRISE HEALTH CHECK ERROR:', error.message);
+    } catch (error: unknown) {
+      console.error('❌ ENTERPRISE HEALTH CHECK ERROR:', getErrorMessage(error));
       res.status(500).json({
         success: false,
         error: 'Health check failed',
-        details: error.message
+        details: getErrorMessage(error)
       });
     }
   });
@@ -265,12 +273,12 @@ export function registerEnterpriseRoutes(app: Express): void {
           deployedAt: new Date().toISOString()
         }
       });
-    } catch (error: any) {
-      console.error('❌ ENTERPRISE CONFIG ERROR:', error.message);
+    } catch (error: unknown) {
+      console.error('❌ ENTERPRISE CONFIG ERROR:', getErrorMessage(error));
       res.status(500).json({
         success: false,
         error: 'Failed to retrieve enterprise configuration',
-        details: error.message
+        details: getErrorMessage(error)
       });
     }
   });

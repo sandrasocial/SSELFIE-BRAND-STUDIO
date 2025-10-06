@@ -10,11 +10,18 @@ interface ContentItem {
   status: 'pending' | 'approved' | 'rejected' | 'flagged';
   imageUrl?: string;
   content?: string;
-  metadata?: any;
+  metadata?: Record<string, unknown>;
   submittedAt: string;
   reviewedAt?: string;
   reviewedBy?: string;
   priority: 'low' | 'medium' | 'high';
+}
+
+interface ModerationStats {
+  pendingReview: number;
+  approvedToday: number;
+  rejectedToday: number;
+  averageReviewTime: number;
 }
 
 export function ContentModerationDashboard() {
@@ -24,12 +31,12 @@ export function ContentModerationDashboard() {
 
   const queryClient = useQueryClient();
 
-  const { data: contentItems, isLoading } = useQuery({
+  const { data: contentItems, isLoading } = useQuery<ContentItem[]>({
     queryKey: ['/api/admin/content-moderation', { status: filterStatus, type: filterType }],
     refetchInterval: 30000, // Refresh every 30 seconds
   });
 
-  const { data: moderationStats } = useQuery({
+  const { data: moderationStats } = useQuery<ModerationStats>({
     queryKey: ['/api/admin/moderation-stats'],
     refetchInterval: 60000,
   });
@@ -66,7 +73,7 @@ export function ContentModerationDashboard() {
       <div className="grid grid-cols-4 gap-6">
         <div className="border border-gray-200 p-6 text-center">
           <div className="text-3xl font-serif font-light mb-2 text-orange-600">
-            {(moderationStats as any)?.pendingReview || 0}
+            {moderationStats?.pendingReview || 0}
           </div>
           <div className="text-xs uppercase tracking-[0.3em] text-gray-600">
             Pending Review
@@ -74,7 +81,7 @@ export function ContentModerationDashboard() {
         </div>
         <div className="border border-gray-200 p-6 text-center">
           <div className="text-3xl font-serif font-light mb-2 text-green-600">
-            {(moderationStats as any)?.approvedToday || 0}
+            {moderationStats?.approvedToday || 0}
           </div>
           <div className="text-xs uppercase tracking-[0.3em] text-gray-600">
             Approved Today
@@ -82,7 +89,7 @@ export function ContentModerationDashboard() {
         </div>
         <div className="border border-gray-200 p-6 text-center">
           <div className="text-3xl font-serif font-light mb-2 text-red-600">
-            {(moderationStats as any)?.rejectedToday || 0}
+            {moderationStats?.rejectedToday || 0}
           </div>
           <div className="text-xs uppercase tracking-[0.3em] text-gray-600">
             Rejected Today
@@ -90,7 +97,7 @@ export function ContentModerationDashboard() {
         </div>
         <div className="border border-gray-200 p-6 text-center">
           <div className="text-3xl font-serif font-light mb-2">
-            {(moderationStats as any)?.averageReviewTime || 0}m
+            {moderationStats?.averageReviewTime || 0}m
           </div>
           <div className="text-xs uppercase tracking-[0.3em] text-gray-600">
             Avg Review Time
@@ -103,7 +110,7 @@ export function ContentModerationDashboard() {
         <div className="flex items-center gap-4">
           <select
             value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value as any)}
+            onChange={(e) => setFilterStatus(e.target.value as 'all' | 'pending' | 'approved' | 'rejected' | 'flagged')}
             className="px-4 py-2 border border-gray-300 text-sm focus:outline-none focus:border-black"
           >
             <option value="all">All Status</option>
@@ -115,7 +122,7 @@ export function ContentModerationDashboard() {
 
           <select
             value={filterType}
-            onChange={(e) => setFilterType(e.target.value as any)}
+            onChange={(e) => setFilterType(e.target.value as 'all' | 'training_image' | 'generated_image' | 'profile_update' | 'custom_content')}
             className="px-4 py-2 border border-gray-300 text-sm focus:outline-none focus:border-black"
           >
             <option value="all">All Types</option>
@@ -127,13 +134,13 @@ export function ContentModerationDashboard() {
         </div>
 
         <div className="text-sm text-gray-600">
-          {(contentItems as any)?.length || 0} items found
+          {contentItems?.length || 0} items found
         </div>
       </div>
 
       {/* Content Items */}
       <div className="space-y-4">
-        {(contentItems as any)?.map((item: ContentItem) => (
+        {contentItems?.map((item: ContentItem) => (
           <div key={item.id} className="border border-gray-200 hover:border-black transition-colors">
             <div className="p-6">
               <div className="flex items-start justify-between mb-4">
@@ -247,7 +254,7 @@ export function ContentModerationDashboard() {
         ))}
       </div>
 
-      {(!contentItems || (contentItems as any).length === 0) && (
+      {(!contentItems || contentItems.length === 0) && (
         <div className="text-center py-12">
           <ImageIcon size={48} className="mx-auto text-gray-400 mb-4" />
           <div className="text-gray-500 mb-2">No content items found</div>

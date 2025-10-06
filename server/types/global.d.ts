@@ -10,13 +10,13 @@ declare global {
   };
 
   var console: {
-    log(...args: any[]): void;
-    error(...args: any[]): void;
-    warn(...args: any[]): void;
-    info(...args: any[]): void;
+    log(...args: unknown[]): void;
+    error(...args: unknown[]): void;
+    warn(...args: unknown[]): void;
+    info(...args: unknown[]): void;
   };
 
-  var require: (module: string) => any;
+  var require: (module: string) => unknown;
 
   namespace NodeJS {
     interface ProcessEnv {
@@ -91,10 +91,10 @@ declare module '@google/genai' {
 declare module 'replicate' {
   export default class Replicate {
     constructor(config: { auth: string });
-    run(model: string, options: { input: any }): Promise<any>;
+    run(model: string, options: { input: Record<string, unknown> }): Promise<unknown>;
     predictions: {
-      create: (options: { version: string; input: any }) => Promise<any>;
-      get: (id: string) => Promise<any>;
+      create: (options: { version: string; input: Record<string, unknown> }) => Promise<unknown>;
+      get: (id: string) => Promise<unknown>;
     };
   }
 }
@@ -107,15 +107,15 @@ declare module 'ulid' {
 // Node crypto types
 declare module 'node:crypto' {
   export function randomUUID(): string;
-  export function createHash(algorithm: string): any;
-  export function createHmac(algorithm: string, key: string): any;
+  export function createHash(algorithm: string): unknown;
+  export function createHmac(algorithm: string, key: string): unknown;
 }
 
 // Dotenv types
 declare module 'dotenv' {
-  export function config(options?: any): any;
+  export function config(options?: { path?: string; encoding?: string; debug?: boolean; override?: boolean }): { parsed?: Record<string, string>; error?: Error };
   const dotenv: {
-    config: (options?: any) => any;
+    config: (options?: { path?: string; encoding?: string; debug?: boolean; override?: boolean }) => { parsed?: Record<string, string>; error?: Error };
   };
   export default dotenv;
 }
@@ -124,7 +124,7 @@ declare module 'dotenv' {
 declare module '@vercel/node' {
   export interface VercelRequest {
     query: { [key: string]: string | string[] };
-    body: any;
+    body: unknown;
     cookies: { [key: string]: string };
     headers: { [key: string]: string };
     method: string;
@@ -133,8 +133,8 @@ declare module '@vercel/node' {
 
   export interface VercelResponse {
     status: (code: number) => VercelResponse;
-    json: (object: any) => VercelResponse;
-    send: (body: any) => VercelResponse;
+    json: (object: unknown) => VercelResponse;
+    send: (body: unknown) => VercelResponse;
     setHeader: (name: string, value: string) => VercelResponse;
     end: () => void;
   }
@@ -143,16 +143,16 @@ declare module '@vercel/node' {
 // JOSE types
 declare module 'jose' {
   export interface JWTPayload {
-    [key: string]: any;
+    [key: string]: unknown;
   }
 
   export interface JWTVerifyResult {
     payload: JWTPayload;
-    protectedHeader: any;
+    protectedHeader: unknown;
   }
 
-  export function jwtVerify(token: string, secret: any): Promise<JWTVerifyResult>;
-  export function createRemoteJWKSet(url: URL): any;
+  export function jwtVerify(token: string, secret: unknown): Promise<JWTVerifyResult>;
+  export function createRemoteJWKSet(url: URL): unknown;
 }
 
 // Node fetch types
@@ -161,11 +161,16 @@ declare module 'node-fetch' {
     ok: boolean;
     status: number;
     statusText: string;
-    json(): Promise<any>;
+    json(): Promise<unknown>;
     text(): Promise<string>;
   }
 
-  export default function fetch(url: string, init?: any): Promise<Response>;
+  export default function fetch(url: string, init?: {
+    method?: string;
+    headers?: Record<string, string>;
+    body?: string;
+    timeout?: number;
+  }): Promise<Response>;
 }
 
 export {};

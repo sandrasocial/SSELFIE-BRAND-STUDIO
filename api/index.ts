@@ -437,6 +437,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const userEmail = String(userInfo.email || userInfo.primary_email || userInfo.primaryEmail || userInfo.email_address || userInfo.user_email || '');
       const userName = String(userInfo.displayName || userInfo.display_name || userInfo.name || userInfo.given_name || userInfo.full_name || '');
       
+      console.log('🔍 ENHANCED DEBUG: User info extracted:', {
         id: userId,
         email: userEmail,
         name: userName
@@ -835,6 +836,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           dbUser = result?.user || null;
           userModel = result?.model || null;
           
+          console.log('🔍 ENHANCED DEBUG: Bulletproof lookup result:', {
             foundUser: !!dbUser,
             foundModel: !!userModel,
             trainingStatus: userModel?.trainingStatus || 'not_started',
@@ -919,6 +921,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           needsTraining = trainingStatus !== 'completed';
           canRetrain = true;
           
+          console.log('🔍 ENHANCED DEBUG: Model status:', {
             id: userModel.id,
             status: trainingStatus,
             needsTraining,
@@ -954,6 +957,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           onboardingSource: onboardingSourceSafe
         };
         
+        console.log('🔍 ENHANCED DEBUG: Final model status:', {
           trainingStatus,
           needsTraining,
           canRetrain,
@@ -1550,6 +1554,7 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
 
     // 🔥 CRITICAL FIX: Stack Auth API Proxy for /api/v1/ requests
     if (req.url?.startsWith('/api/v1/')) {
+      console.log('🔍 ENHANCED DEBUG: Stack Auth API Proxy request:', {
         url: req.url,
         method: req.method,
         headers: {
@@ -1592,6 +1597,7 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
 
         const responseData = await stackAuthResponse.json();
 
+        console.log('🔍 ENHANCED DEBUG: Stack Auth response:', {
           status: stackAuthResponse.status,
           hasConfig: !!responseData.config,
           hasSignUpEnabled: responseData.config?.sign_up_enabled !== undefined

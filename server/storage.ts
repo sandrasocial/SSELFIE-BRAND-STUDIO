@@ -859,6 +859,7 @@ export class DatabaseStorage implements IStorage {
 
   // 🔥 BULLETPROOF: Get user model with aggressive Stack Auth ID and email linking
   async getUserModelByStackAuthAndEmail(stackAuthId: string, email: string): Promise<{ user: User | undefined; model: UserModel | undefined }> {
+    console.log('🔥 BULLETPROOF: Attempting user lookup with:', {
       stackAuthId: stackAuthId.substring(0, 8) + '...',
       email
     });
@@ -874,6 +875,7 @@ export class DatabaseStorage implements IStorage {
 
       if (userRecord && !userRecord.stackAuthId) {
         // Found existing user by email, but they are unlinked. Link them now.
+        console.log('🔗 Linking existing user to Stack Auth:', {
           userId: userRecord.id,
           email: userRecord.email
         });
@@ -907,6 +909,7 @@ export class DatabaseStorage implements IStorage {
         where: eq(userModels.userId, userRecord.id)
       });
 
+      console.log('✅ User lookup result:', {
         foundUser: !!userRecord,
         foundModel: !!userModel,
         trainingStatus: userModel?.trainingStatus || 'none',
@@ -2252,252 +2255,6 @@ export class DatabaseStorage implements IStorage {
       .where(eq(conversationSummaries.conversationId, conversationId))
       .returning();
     return updated;
-  }
-
-  // Concept card operations (with idempotency)
-  async createConceptCard(data: typeof conceptCards.$inferInsert): Promise<ConceptCard> {
-    // Check for idempotency using clientId
-    if (data.clientId && data.userId) {
-      const existing = await this.getConceptCardByClientId(data.userId, data.clientId);
-      if (existing) {
-        return existing;
-      }
-    }
-
-    const [conceptCard] = await db
-      .insert(conceptCards)
-      .values({
-        ...data,
-        userId: data.userId || '',
-        title: data.title || 'Untitled Concept'
-      })
-      .returning();
-    return conceptCard;
-  }
-
-  async getConceptCard(id: string): Promise<ConceptCard | undefined> {
-    const [conceptCard] = await db
-      .select()
-      .from(conceptCards)
-      .where(eq(conceptCards.id, id));
-    return conceptCard;
-  }
-
-  async getConceptCardByClientId(userId: string, clientId: string): Promise<ConceptCard | undefined> {
-    const [conceptCard] = await db
-      .select()
-      .from(conceptCards)
-      .where(
-        and(
-          eq(conceptCards.userId, userId),
-          eq(conceptCards.clientId, clientId)
-        )
-      );
-    return conceptCard;
-  }
-
-  async getUserConceptCards(userId: string, conversationId?: string): Promise<ConceptCard[]> {
-    const conditions = [eq(conceptCards.userId, userId)];
-    if (conversationId) {
-      conditions.push(eq(conceptCards.conversationId, conversationId));
-    }
-    
-    return await db
-      .select()
-      .from(conceptCards)
-      .where(and(...conditions))
-      .orderBy(conceptCards.sortOrder, desc(conceptCards.createdAt));
-  }
-
-  async updateConceptCard(id: string, updates: Partial<ConceptCard>): Promise<ConceptCard> {
-    const [conceptCard] = await db
-      .update(conceptCards)
-      .set({ ...updates, updatedAt: new Date() })
-      .where(eq(conceptCards.id, id))
-      .returning();
-    return conceptCard;
-  }
-
-  async updateConceptCardGeneration(id: string, generatedImages: unknown[], isLoading: boolean, isGenerating: boolean, hasGenerated: boolean): Promise<ConceptCard> {
-    return this.updateConceptCard(id, {
-      generatedImages,
-      isLoading,
-      isGenerating,
-      hasGenerated
-    });
-  }
-
-  async deleteConceptCard(id: string): Promise<void> {
-    await db
-      .delete(conceptCards)
-      .where(eq(conceptCards.id, id));
-  }
-
-  // Brand Assets operations (P3-C feature)
-  async getBrandAssets(userId: string): Promise<BrandAsset[]> {
-    return await db
-      .select()
-      .from(brandAssets)
-      .where(eq(brandAssets.userId, userId))
-      .orderBy(desc(brandAssets.createdAt));
-  }
-
-  async saveBrandAsset(data: typeof brandAssets.$inferInsert): Promise<BrandAsset> {
-    // Ensure required fields are present
-    if (!data.url || !data.userId || !data.filename) {
-      throw new Error('Missing required fields: url, userId, filename');
-    }
-    
-    const [asset] = await db
-      .insert(brandAssets)
-      .values(data as any)
-      .returning();
-    return asset;
-  }
-
-  async deleteBrandAsset(assetId: number, userId: string): Promise<boolean> {
-    const result = await db
-      .delete(brandAssets)
-      .where(and(eq(brandAssets.id, assetId), eq(brandAssets.userId, userId)));
-    return (result as any).rowCount > 0;
-  }
-
-  async getBrandAsset(assetId: number, userId: string): Promise<BrandAsset | undefined> {
-    const [asset] = await db
-      .select()
-      .from(brandAssets)
-      .where(and(eq(brandAssets.id, assetId), eq(brandAssets.userId, userId)));
-    return asset;
-  }
-
-  // Image Variants operations (for non-destructive placement)
-  async saveImageVariant(data: typeof imageVariants.$inferInsert): Promise<ImageVariant> {
-    // Ensure required fields are present
-    if (!data.userId || !data.originalImageId || !data.variantUrl) {
-      throw new Error('Missing required fields: userId, originalImageId, variantUrl');
-    }
-    
-    const [variant] = await db
-      .insert(imageVariants)
-      .values(data as any)
-      .returning();
-    return variant;
-  }
-
-  async getImageVariants(userId: string, originalImageId?: number): Promise<ImageVariant[]> {
-    const conditions = [eq(imageVariants.userId, userId)];
-    if (originalImageId) {
-      conditions.push(eq(imageVariants.originalImageId, originalImageId));
-    }
-    
-    return await db
-      .select()
-      .from(imageVariants)
-      .where(and(...conditions))
-      .orderBy(desc(imageVariants.createdAt));
-  }
-
-  async getImageVariant(variantId: number, userId: string): Promise<ImageVariant | undefined> {
-    const [variant] = await db
-      .select()
-      .from(imageVariants)
-      .where(and(eq(imageVariants.id, variantId), eq(imageVariants.userId, userId)));
-    return variant;
-  }
-
-  async updateImageVariant(variantId: number, updates: Partial<ImageVariant>): Promise<ImageVariant> {
-    const [variant] = await db
-      .update(imageVariants)
-      .set(updates)
-      .where(eq(imageVariants.id, variantId))
-      .returning();
-    return variant;
-  }
-
-  // Test database connection
-  async testConnection(): Promise<boolean> {
-    try {
-      await db.execute(sql`SELECT 1`);
-      return true;
-    } catch (error) {
-      console.error('Database connection test failed:', error);
-      return false;
-    }
-  }
-
-  // Create usage history record
-  async createUsageHistory(data: {
-    userId: string;
-    action: string;
-    details?: Record<string, unknown>;
-    cost?: number;
-  }): Promise<void> {
-    // This would typically insert into a usage_history table
-    // For now, we'll just log it
-  }
-
-  // Get user usage history
-  async getUserUsageHistory(): Promise<unknown[]> {
-    // This would typically query a usage_history table
-    // For now, return empty array
-    return [];
-  }
-
-  // User style memory methods
-  async getUserStyleMemory(userId: string): Promise<unknown> {
-    const [memory] = await db.select().from(userStyleMemory).where(eq(userStyleMemory.userId, userId));
-    return memory;
-  }
-
-  async createUserStyleMemory(data: Record<string, unknown>): Promise<unknown> {
-    // Ensure required fields exist
-    const payload = data as Partial<typeof userStyleMemory.$inferInsert>;
-    const [memory] = await db.insert(userStyleMemory).values(payload as typeof userStyleMemory.$inferInsert).returning();
-    return memory;
-  }
-
-  async updateUserStyleMemory(userId: string, data: Record<string, unknown>): Promise<unknown> {
-    const [memory] = await db
-      .update(userStyleMemory)
-      .set({ ...data, updatedAt: new Date() })
-      .where(eq(userStyleMemory.userId, userId))
-      .returning();
-    return memory;
-  }
-
-  // Maya Profile operations
-  async getMayaProfile(userId: string): Promise<MayaProfile | undefined> {
-    const [profile] = await db
-      .select()
-      .from(mayaProfile)
-      .where(eq(mayaProfile.userId, userId));
-    return profile;
-  }
-
-  async insertMayaProfile(data: InsertMayaProfile): Promise<MayaProfile> {
-    const [profile] = await db
-      .insert(mayaProfile)
-      .values(data)
-      .returning();
-    return profile;
-  }
-
-  async updateMayaProfile(userId: string, updates: Partial<MayaProfile>): Promise<MayaProfile> {
-    const [profile] = await db
-      .update(mayaProfile)
-      .set({ ...updates, updatedAt: new Date() })
-      .where(eq(mayaProfile.userId, userId))
-      .returning();
-    return profile;
-  }
-
-  // Maya Images operations
-  async insertMayaImage(data: InsertMayaImage): Promise<MayaImage> {
-    const [image] = await db
-      .insert(mayaImages)
-      .values(data)
-      .returning();
-    return image;
   }
 }
 

@@ -143,7 +143,7 @@ export function SupportManagementDashboard() {
           <div className="flex items-center gap-4 mb-6 p-4 bg-gray-50">
             <select
               value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value as any)}
+              onChange={(e) => setFilterStatus(e.target.value as 'all' | 'open' | 'in_progress' | 'resolved' | 'closed')}
               className="px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:border-black"
             >
               <option value="all">All Status</option>
@@ -155,7 +155,7 @@ export function SupportManagementDashboard() {
 
             <select
               value={filterPriority}
-              onChange={(e) => setFilterPriority(e.target.value as any)}
+              onChange={(e) => setFilterPriority(e.target.value as 'all' | 'low' | 'medium' | 'high' | 'urgent')}
               className="px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:border-black"
             >
               <option value="all">All Priority</option>

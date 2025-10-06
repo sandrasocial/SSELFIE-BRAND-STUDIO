@@ -41,9 +41,9 @@ export function useVideoGeneration(options: UseVideoGenerationOptions = {}) {
             setError(errorMsg);
             options.onError?.(errorMsg);
           }
-        } catch (error: any) {
+        } catch (error: unknown) {
           console.error('Status check failed:', error);
-          const errorMsg = 'Failed to check video status';
+          const errorMsg = error instanceof Error ? error.message : 'Failed to check video status';
           setError(errorMsg);
           options.onError?.(errorMsg);
         }
@@ -78,8 +78,8 @@ export function useVideoGeneration(options: UseVideoGenerationOptions = {}) {
       setStatus('pending');
       setProgress(10);
 
-    } catch (error: any) {
-      const errorMsg = error.message || 'Failed to start video generation';
+    } catch (error: unknown) {
+      const errorMsg = error instanceof Error ? error.message : 'Failed to start video generation';
       setError(errorMsg);
       setStatus('failed');
       options.onError?.(errorMsg);

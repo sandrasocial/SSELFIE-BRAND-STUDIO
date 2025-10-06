@@ -3,6 +3,16 @@
  * Optimizes memory usage, rendering, and user interactions
  */
 
+interface PerformanceMemory {
+  usedJSHeapSize: number;
+  totalJSHeapSize: number;
+  jsHeapSizeLimit: number;
+}
+
+interface PerformanceWithMemory extends Performance {
+  memory?: PerformanceMemory;
+}
+
 // Memory management
 export class MemoryManager {
   private static instance: MemoryManager;
@@ -33,14 +43,17 @@ export class MemoryManager {
 
   checkMemoryUsage() {
     if ('memory' in performance) {
-      const memory = (performance as any).memory;
-      const usedMB = memory.usedJSHeapSize / 1024 / 1024;
-      const totalMB = memory.totalJSHeapSize / 1024 / 1024;
-      
-      
-      if (usedMB > this.memoryThreshold / 1024 / 1024) {
-        console.warn('⚠️ High memory usage detected, running cleanup');
-        this.cleanup();
+      const perfWithMemory = performance as PerformanceWithMemory;
+      if (perfWithMemory.memory) {
+        const memory = perfWithMemory.memory;
+        const usedMB = memory.usedJSHeapSize / 1024 / 1024;
+        const totalMB = memory.totalJSHeapSize / 1024 / 1024;
+        
+        
+        if (usedMB > this.memoryThreshold / 1024 / 1024) {
+          console.warn('⚠️ High memory usage detected, running cleanup');
+          this.cleanup();
+        }
       }
     }
   }
@@ -227,8 +240,8 @@ export class ComponentProfiler {
 
 // Request optimization
 export class RequestOptimizer {
-  private static pendingRequests: Map<string, Promise<any>> = new Map();
-  private static requestCache: Map<string, { data: any; timestamp: number }> = new Map();
+  private static pendingRequests: Map<string, Promise<unknown>> = new Map();
+  private static requestCache: Map<string, { data: unknown; timestamp: number }> = new Map();
   private static cacheTimeout = 5 * 60 * 1000; // 5 minutes
 
   static async request<T>(
@@ -240,13 +253,13 @@ export class RequestOptimizer {
     if (useCache) {
       const cached = this.requestCache.get(key);
       if (cached && Date.now() - cached.timestamp < this.cacheTimeout) {
-        return cached.data;
+        return cached.data as T;
       }
     }
 
     // Check if request is already pending
     if (this.pendingRequests.has(key)) {
-      return this.pendingRequests.get(key)!;
+      return this.pendingRequests.get(key)! as Promise<T>;
     }
 
     // Make new request

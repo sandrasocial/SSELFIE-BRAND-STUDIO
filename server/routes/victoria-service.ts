@@ -1,6 +1,38 @@
 import type { Express } from "express";
 import { requireStackAuth } from '../stack-auth.js';
 
+// Type definitions for Victoria service
+interface BrandData {
+  businessType?: string;
+  targetAudience?: string;
+  brandVoice?: string;
+  goals?: string[];
+  businessDescription?: string;
+  brandPersonality?: string;
+  ownerName?: string;
+  businessName?: string;
+  email?: string;
+  instagramHandle?: string;
+  location?: string;
+  stylePreference?: string;
+  colorScheme?: string;
+  typographyStyle?: string;
+  designPersonality?: string;
+}
+
+interface DesignPreferences {
+  stylePreference: string;
+  colorScheme: string;
+  typographyStyle: string;
+  designPersonality: string;
+}
+
+interface WebsiteStructureInput {
+  brandData: BrandData;
+  selectedImages: string[];
+  selectedFlatlays: string[];
+}
+
 // Victoria AI Service Layer - Missing component identified by Zara's audit
 export function registerVictoriaService(app: Express) {
   
@@ -96,14 +128,14 @@ export function registerVictoriaService(app: Express) {
 }
 
 // Goal Analysis Algorithm
-interface BrandData {
+interface BrandDataBasic {
   businessType?: string;
   targetAudience?: string;
   brandVoice?: string;
   goals?: string[];
 }
 
-function analyzeBusinessGoals(brandData: BrandData) {
+function analyzeBusinessGoals(brandData: BrandDataBasic) {
   const businessType = brandData.businessType?.toLowerCase() || '';
   const targetAudience = brandData.targetAudience?.toLowerCase() || '';
   
@@ -132,7 +164,7 @@ function analyzeBusinessGoals(brandData: BrandData) {
   };
 }
 
-function analyzeBusinesFocus(brandData: any) {
+function analyzeBusinesFocus(brandData: BrandData) {
   const description = brandData.businessDescription?.toLowerCase() || '';
   const personality = brandData.brandPersonality?.toLowerCase() || '';
   
@@ -147,7 +179,7 @@ function analyzeBusinesFocus(brandData: any) {
   }
 }
 
-function generateRecommendations(brandData: any) {
+function generateRecommendations(brandData: BrandData) {
   const focus = analyzeBusinesFocus(brandData);
   
   const recommendations = {
@@ -180,7 +212,7 @@ function generateRecommendations(brandData: any) {
   return recommendations[focus] || recommendations.general_business;
 }
 
-function generateWebsiteStructure({ brandData, selectedImages, selectedFlatlays }: any) {
+function generateWebsiteStructure({ brandData, selectedImages, selectedFlatlays }: WebsiteStructureInput) {
   const goals = analyzeBusinessGoals(brandData);
   const focus = analyzeBusinesFocus(brandData);
   
@@ -226,7 +258,7 @@ function generateWebsiteStructure({ brandData, selectedImages, selectedFlatlays 
   };
 }
 
-function generateHomeSections(brandData: any, selectedImages: string[], selectedFlatlays: string[], focus: string) {
+function generateHomeSections(brandData: BrandData, selectedImages: string[], selectedFlatlays: string[], focus: string) {
   const sections = [];
   
   // Hero section with primary image
@@ -278,7 +310,7 @@ function generateHomeSections(brandData: any, selectedImages: string[], selected
   return sections;
 }
 
-function generateAboutSections(brandData: any, selectedImages: string[], focus: string) {
+function generateAboutSections(brandData: BrandData, selectedImages: string[], focus: string) {
   const sections = [];
   
   // Hero image
@@ -316,7 +348,7 @@ function generateAboutSections(brandData: any, selectedImages: string[], focus: 
   return sections;
 }
 
-function generateServicesSections(brandData: any, focus: string) {
+function generateServicesSections(brandData: BrandData, focus: string) {
   return [
     {
       type: 'text-content',
@@ -335,7 +367,7 @@ function generateServicesSections(brandData: any, focus: string) {
   ];
 }
 
-function generateContactSections(brandData: any) {
+function generateContactSections(brandData: BrandData) {
   return [
     {
       type: 'contact',
@@ -350,7 +382,7 @@ function generateContactSections(brandData: any) {
   ];
 }
 
-function generateHeadline(brandData: any, focus: string) {
+function generateHeadline(brandData: BrandData, focus: string) {
   const businessType = brandData.businessType || '';
   const targetAudience = brandData.targetAudience || '';
   
@@ -363,7 +395,7 @@ function generateHeadline(brandData: any, focus: string) {
   }
 }
 
-function generateServices(brandData: any) {
+function generateServices(brandData: BrandData) {
   const businessType = brandData.businessType?.toLowerCase() || '';
   
   if (businessType.includes('coach')) {
@@ -387,15 +419,15 @@ function generateServices(brandData: any) {
   }
 }
 
-function generateAboutPreview(brandData: any) {
+function generateAboutPreview(brandData: BrandData) {
   return `I'm passionate about helping ${brandData.targetAudience} achieve their goals through ${brandData.businessType}. My approach combines expertise with authentic connection.`;
 }
 
-function generateAboutSubheadline(brandData: any) {
+function generateAboutSubheadline(brandData: BrandData) {
   return `${brandData.businessType} specializing in ${brandData.targetAudience} transformation`;
 }
 
-function generateAboutStory(brandData: any) {
+function generateAboutStory(brandData: BrandData) {
   return `My journey began with a simple belief: that every ${brandData.targetAudience} deserves access to quality ${brandData.businessType}. 
 
 Through years of experience, I've developed an approach that combines ${brandData.brandPersonality} with practical results. My mission is to help you achieve your goals while staying true to your authentic self.
@@ -404,7 +436,7 @@ Whether you're just starting out or looking to take your journey to the next lev
 }
 
 // Design Preferences Analysis - Core missing functionality from Zara''s audit
-function analyzeDesignPreferences(brandData: any) {
+function analyzeDesignPreferences(brandData: BrandData) {
   const preferences = {
     stylePreference: brandData.stylePreference || 'editorial-luxury',
     colorScheme: brandData.colorScheme || 'black-white-editorial',
@@ -424,8 +456,8 @@ function analyzeDesignPreferences(brandData: any) {
   };
 }
 
-function generateDesignTokens(preferences: any) {
-  const tokens: any = {};
+function generateDesignTokens(preferences: DesignPreferences) {
+  const tokens: Record<string, string> = {};
   
   // Typography tokens
   switch (preferences.typographyStyle) {
@@ -520,7 +552,7 @@ function getRecommendedComponents(stylePreference: string) {
   }
 }
 
-function generateLayoutStructure(preferences: any) {
+function generateLayoutStructure(preferences: DesignPreferences) {
   if (preferences.stylePreference === 'editorial-luxury') {
     return {
       gridSystem: '12-column',
@@ -548,7 +580,7 @@ function generateLayoutStructure(preferences: any) {
   }
 }
 
-function generateDesignSystem(preferences: any) {
+function generateDesignSystem(preferences: DesignPreferences) {
   return {
     name: `${preferences.stylePreference}-${preferences.colorScheme}`,
     description: `Design system based on ${preferences.stylePreference} style with ${preferences.colorScheme} colors`,
@@ -558,7 +590,7 @@ function generateDesignSystem(preferences: any) {
   };
 }
 
-function generateDesignPrinciples(preferences: any) {
+function generateDesignPrinciples(preferences: DesignPreferences) {
   const principles = [];
   
   if (preferences.stylePreference === 'editorial-luxury') {
@@ -580,7 +612,7 @@ function generateDesignPrinciples(preferences: any) {
   return principles;
 }
 
-function generatePageContent(brandData: any, pageType: string, sectionType: string) {
+function generatePageContent(brandData: BrandData, pageType: string, sectionType: string) {
   // This would be enhanced with AI content generation
   return {
     title: `Generated ${sectionType} for ${pageType}`,

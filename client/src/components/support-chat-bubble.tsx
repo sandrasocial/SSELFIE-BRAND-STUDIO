@@ -19,6 +19,11 @@ interface ChatMessage {
   timestamp: Date;
 }
 
+interface EscalationData {
+  reason: string;
+  urgency?: string;
+}
+
 interface SupportChatBubbleProps {
   isOpen: boolean;
   onToggle: () => void;
@@ -38,7 +43,11 @@ export function SupportChatBubble({ isOpen, onToggle }: SupportChatBubbleProps) 
     const savedMessages = localStorage.getItem('maya-support-chat');
     if (savedMessages) {
       try {
-        const parsedMessages = JSON.parse(savedMessages).map((msg: any) => ({
+        const parsedMessages = JSON.parse(savedMessages).map((msg: {
+          role: 'user' | 'assistant';
+          content: string;
+          timestamp: string;
+        }) => ({
           ...msg,
           timestamp: new Date(msg.timestamp)
         }));
@@ -152,7 +161,7 @@ export function SupportChatBubble({ isOpen, onToggle }: SupportChatBubbleProps) 
   };
 
   // PHASE 5: Handle escalation requests
-  const handleEscalation = async (escalationData: any) => {
+  const handleEscalation = async (escalationData: EscalationData) => {
     try {
       
       // Send escalation request to backend

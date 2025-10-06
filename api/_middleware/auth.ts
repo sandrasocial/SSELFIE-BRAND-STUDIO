@@ -142,6 +142,7 @@ export async function getAuthenticatedUser(req: VercelRequest): Promise<Authenti
   // 3. Check cookies for Stack Auth tokens (using the correct format)
   if (!accessToken) {
     const cookieHeader = req.headers.cookie;
+    console.log('🔍 ENHANCED DEBUG: Request details:', JSON.stringify({
       cookie: cookieHeader,
       authorization: req.headers.authorization,
       'x-stack-access-token': req.headers['x-stack-access-token'],
@@ -151,6 +152,7 @@ export async function getAuthenticatedUser(req: VercelRequest): Promise<Authenti
     
     if (cookieHeader) {
       const cookies = parseCookieHeader(cookieHeader);
+      console.log('🔍 ENHANCED DEBUG: Parsed cookies:', JSON.stringify(
         Object.entries(cookies).map(([k, v]) => [k, v.substring(0, 50) + (v.length > 50 ? '...' : '')])
       ));
       
@@ -241,6 +243,7 @@ export async function getAuthenticatedUser(req: VercelRequest): Promise<Authenti
     throw new Error('Invalid user info: missing required fields');
   }
 
+  console.log('🔍 ENHANCED DEBUG: User info extracted:', {
     stackAuthId: stackAuthId.substring(0, 8) + '...',
     email: userEmail,
     displayName: userName,
@@ -287,6 +290,7 @@ export async function getAuthenticatedUser(req: VercelRequest): Promise<Authenti
       }
     }
 
+    console.log('🔍 ENHANCED DEBUG: User profile found/created:', {
       userId: dbUserProfile.id,
       email: dbUserProfile.email,
       displayName: dbUserProfile.displayName
@@ -302,6 +306,7 @@ export async function getAuthenticatedUser(req: VercelRequest): Promise<Authenti
       throw new Error(`Failed to retrieve user by Stack Auth ID ${stackAuthId.substring(0, 8)}... after successful user service call`);
     }
 
+    console.log('🔍 ENHANCED DEBUG: Database user retrieved:', {
       id: dbUser.id,
       email: dbUser.email,
       stackAuthId: dbUser.stackAuthId?.substring(0, 8) + '...',
@@ -309,6 +314,7 @@ export async function getAuthenticatedUser(req: VercelRequest): Promise<Authenti
       role: dbUser.role
     });
 
+    console.log('🔍 ENHANCED DEBUG: User object created:', {
       id: dbUser.id,
       email: dbUser.email,
       plan: dbUser.plan,
@@ -376,6 +382,7 @@ export async function withAuth<T>(
 ): Promise<T> {
   // Handle bypass option (e.g. for cron jobs)
   if (options.bypass || req.url?.startsWith('/api/cron/')) {
+    console.log('🔍 ENHANCED DEBUG: Bypass auth for cron job:', {
       url: req.url,
       method: req.method,
       headers: req.headers,

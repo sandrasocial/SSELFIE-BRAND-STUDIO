@@ -1,4 +1,4 @@
-import { toast } from '../components/ui/toast.js';
+import { useToast } from '../hooks/use-toast.js';
 
 export interface ApiError {
   message: string;
@@ -6,15 +6,39 @@ export interface ApiError {
   code?: string;
 }
 
+export type ApiErrorInput = {
+  response?: {
+    data?: {
+      message?: string;
+      error?: string;
+      code?: string;
+    };
+    status?: number;
+  };
+  message?: string;
+  status?: number;
+  code?: string;
+} | string | Error | unknown;
+
+export type ToastFunction = (message: { title?: string; description?: string; variant?: 'default' | 'destructive' }) => void;
+
 export class ApiErrorHandler {
   private static retryCount = 0;
   private static maxRetries = 3;
   private static retryDelay = 1000; // 1 second
+  private static toastFunction: ToastFunction | null = null;
+
+  /**
+   * Set the toast function for error notifications
+   */
+  static setToastFunction(toastFn: ToastFunction): void {
+    this.toastFunction = toastFn;
+  }
 
   /**
    * Handle API errors with user-friendly messages and retry logic
    */
-  static async handleError(error: any, context?: string): Promise<void> {
+  static async handleError(error: ApiErrorInput, context?: string): Promise<void> {
     console.error(`API Error${context ? ` in ${context}` : ''}:`, error);
 
     const apiError = this.parseError(error);
@@ -29,27 +53,29 @@ export class ApiErrorHandler {
   /**
    * Parse different types of errors into a consistent format
    */
-  private static parseError(error: any): ApiError {
-    if (error?.response?.data) {
-      // Axios error
+  private static parseError(error: ApiErrorInput): ApiError {
+    // Check if it's an object with response property (Axios-like error)
+    if (error && typeof error === 'object' && 'response' in error && error.response) {
+      const axiosError = error as { response: { data?: { message?: string; error?: string; code?: string }; status?: number } };
       return {
-        message: error.response.data.message || error.response.data.error || 'An error occurred',
-        status: error.response.status,
-        code: error.response.data.code
+        message: axiosError.response.data?.message || axiosError.response.data?.error || 'An error occurred',
+        status: axiosError.response.status,
+        code: axiosError.response.data?.code
       };
     }
 
-    if (error?.message) {
-      // Standard Error object
+    // Check if it's an object with message property (standard Error)
+    if (error && typeof error === 'object' && 'message' in error && typeof error.message === 'string') {
+      const stdError = error as { message: string; status?: number; code?: string };
       return {
-        message: error.message,
-        status: error.status,
-        code: error.code
+        message: stdError.message,
+        status: stdError.status,
+        code: stdError.code
       };
     }
 
+    // Check if it's a string
     if (typeof error === 'string') {
-      // String error
       return {
         message: error
       };
@@ -97,12 +123,14 @@ export class ApiErrorHandler {
       message = `${context}: ${message}`;
     }
 
-    // Show toast notification
-    toast({
-      title: 'Error',
-      description: message,
-      variant: 'destructive'
-    });
+    // Show toast notification if toast function is available
+    if (this.toastFunction) {
+      this.toastFunction({
+        title: 'Error',
+        description: message,
+        variant: 'destructive'
+      });
+    }
   }
 
   /**
@@ -127,15 +155,12 @@ export class ApiErrorHandler {
     }
   }
 
-  /**
-   * Retry a failed API call with exponential backoff
-   */
   static async retry<T>(
     apiCall: () => Promise<T>,
     context?: string,
     maxRetries: number = this.maxRetries
   ): Promise<T> {
-    let lastError: any;
+    let lastError: ApiErrorInput;
 
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
@@ -156,29 +181,33 @@ export class ApiErrorHandler {
       }
     }
 
-    throw lastError;
+    throw lastError!;
   }
 
   /**
    * Handle network connectivity issues
    */
   static handleNetworkError(): void {
-    toast({
-      title: 'Connection Error',
-      description: 'Please check your internet connection and try again.',
-      variant: 'destructive'
-    });
+    if (this.toastFunction) {
+      this.toastFunction({
+        title: 'Connection Error',
+        description: 'Please check your internet connection and try again.',
+        variant: 'destructive'
+      });
+    }
   }
 
   /**
    * Handle authentication errors
    */
   static handleAuthError(): void {
-    toast({
-      title: 'Authentication Required',
-      description: 'Please sign in to continue.',
-      variant: 'destructive'
-    });
+    if (this.toastFunction) {
+      this.toastFunction({
+        title: 'Authentication Required',
+        description: 'Please sign in to continue.',
+        variant: 'destructive'
+      });
+    }
 
     // Redirect to login after a short delay
     setTimeout(() => {
@@ -194,11 +223,13 @@ export class ApiErrorHandler {
       ? `Too many requests. Please wait ${retryAfter} seconds before trying again.`
       : 'Too many requests. Please wait a moment before trying again.';
 
-    toast({
-      title: 'Rate Limited',
-      description: message,
-      variant: 'destructive'
-    });
+    if (this.toastFunction) {
+      this.toastFunction({
+        title: 'Rate Limited',
+        description: message,
+        variant: 'destructive'
+      });
+    }
   }
 }
 
@@ -206,7 +237,12 @@ export class ApiErrorHandler {
  * Hook for handling API errors in React components
  */
 export function useApiErrorHandler() {
-  const handleError = (error: any, context?: string) => {
+  const { toast } = useToast();
+  
+  // Set the toast function for the static class
+  ApiErrorHandler.setToastFunction(toast);
+
+  const handleError = (error: ApiErrorInput, context?: string) => {
     ApiErrorHandler.handleError(error, context);
   };
 

@@ -9,6 +9,18 @@ export interface PerformanceMetrics {
   cumulativeLayoutShift: number;
 }
 
+export interface ImageGenerationData {
+  prompt?: string;
+  conceptId?: string;
+  modelType?: string;
+  quality?: string;
+  dimensions?: {
+    width: number;
+    height: number;
+  };
+  parameters?: Record<string, unknown>;
+}
+
 export class LuxuryPerformanceOptimizer {
   private static instance: LuxuryPerformanceOptimizer;
   private performanceObserver: PerformanceObserver | null = null;
@@ -49,7 +61,8 @@ export class LuxuryPerformanceOptimizer {
               this.metrics.largestContentfulPaint = entry.startTime;
               break;
             case 'layout-shift':
-              this.metrics.cumulativeLayoutShift += (entry as any).value;
+              const layoutShiftEntry = entry as PerformanceEntry & { value: number };
+              this.metrics.cumulativeLayoutShift += layoutShiftEntry.value;
               break;
           }
         }
@@ -151,7 +164,7 @@ export class LuxuryPerformanceOptimizer {
   }
 
   // Optimize image generation requests for luxury performance
-  static optimizeImageGeneration(imageData: any): Promise<string> {
+  static optimizeImageGeneration(imageData: ImageGenerationData): Promise<string> {
     return new Promise((resolve, reject) => {
       const startTime = performance.now();
       

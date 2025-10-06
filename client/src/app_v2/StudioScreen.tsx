@@ -32,6 +32,12 @@ interface UserModel {
   onboardingSource: string;
 }
 
+interface StyleOption {
+  id: string;
+  title: string;
+  description: string;
+}
+
 interface StudioScreenProps {
   onTabChange?: (tabId: string) => void;
 }
@@ -39,7 +45,7 @@ interface StudioScreenProps {
 const StudioScreen: React.FC<StudioScreenProps> = ({ onTabChange }) => {
   const { user, isLoading: authLoading, isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
-  const [selectedStyle, setSelectedStyle] = useState<any>(null);
+  const [selectedStyle, setSelectedStyle] = useState<StyleOption | null>(null);
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
 
 
