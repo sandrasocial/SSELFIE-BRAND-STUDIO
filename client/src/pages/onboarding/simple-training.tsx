@@ -117,6 +117,7 @@ function SimpleTraining() {
 
   // Initialize training state based on userModel data
   useEffect(() => {
+  console.log('🔍 SimpleTraining useEffect Debug:', {
       userModel,
       isAuthenticated,
       trainingStatus: userModel?.trainingStatus,

@@ -47,12 +47,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return galleryImagesHandler.default(req, res);
   }
 
-  // Hair Trends API - Public access
-  if (req.url?.startsWith('/api/hair-trends')) {
-    const hairTrendsHandler = await import('./hair-trends.js');
-    return hairTrendsHandler.default(req, res);
-  }
-
   // Handle logout
   if (req.url === '/api/logout') {
     const expired = [

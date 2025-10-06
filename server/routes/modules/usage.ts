@@ -3,15 +3,15 @@
  * Handles usage tracking and analytics
  */
 
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import { requireStackAuth } from '../../stack-auth.js';
 import { asyncHandler, createError, sendSuccess, validateRequired } from '../middleware/error-handler.js';
 
 const router = Router();
 
 // Get user usage stats
-router.get('/api/usage/stats', requireStackAuth, asyncHandler(async (req: any, res) => {
-  const userId = req.user.id;
+router.get('/api/usage/stats', requireStackAuth, asyncHandler(async (req: Request, res: Response) => {
+  const userId = req.user!.id;
 
   // Mock implementation - replace with actual usage service
   const stats = { userId, requests: 0, tokens: 0, images: 0 };
@@ -19,18 +19,18 @@ router.get('/api/usage/stats', requireStackAuth, asyncHandler(async (req: any, r
 }));
 
 // Get usage history
-router.get('/api/usage/history', requireStackAuth, asyncHandler(async (req: any, res) => {
-  const userId = req.user.id;
+router.get('/api/usage/history', requireStackAuth, asyncHandler(async (req: Request, res: Response) => {
+  const userId = req.user!.id;
   const { period = '30d' } = req.query;
 
   // Mock implementation - replace with actual usage service
-  const history = [];
+  const history: unknown[] = [];
   sendSuccess(res, { history, period });
 }));
 
 // Get usage limits
-router.get('/api/usage/limits', requireStackAuth, asyncHandler(async (req: any, res) => {
-  const userId = req.user.id;
+router.get('/api/usage/limits', requireStackAuth, asyncHandler(async (req: Request, res: Response) => {
+  const userId = req.user!.id;
 
   // Mock implementation - replace with actual usage service
   const limits = { 
@@ -43,8 +43,8 @@ router.get('/api/usage/limits', requireStackAuth, asyncHandler(async (req: any, 
 }));
 
 // Get usage analytics
-router.get('/api/usage/analytics', requireStackAuth, asyncHandler(async (req: any, res) => {
-  const userId = req.user.id;
+router.get('/api/usage/analytics', requireStackAuth, asyncHandler(async (req: Request, res: Response) => {
+  const userId = req.user!.id;
   const { startDate, endDate } = req.query;
 
   // Mock implementation - replace with actual analytics service
@@ -58,8 +58,8 @@ router.get('/api/usage/analytics', requireStackAuth, asyncHandler(async (req: an
 }));
 
 // Get usage breakdown
-router.get('/api/usage/breakdown', requireStackAuth, asyncHandler(async (req: any, res) => {
-  const userId = req.user.id;
+router.get('/api/usage/breakdown', requireStackAuth, asyncHandler(async (req: Request, res: Response) => {
+  const userId = req.user!.id;
 
   // Mock implementation - replace with actual usage service
   const breakdown = { 

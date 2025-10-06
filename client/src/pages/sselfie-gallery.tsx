@@ -5,10 +5,8 @@ import { MemberNavigation } from '../components/member-navigation.js';
 import { apiRequest } from '../lib/queryClient.js';
 import { apiFetch } from '../lib/api.js';
 import ErrorBoundary from '../components/ErrorBoundary.js';
-import StoryStudioModal from '../components/StoryStudioModal.js';
 import BrandAssetPlacementModal from '../components/BrandAssetPlacementModal.js';
-import { VideoGenerateDialog } from '../features/video/index.js';
-import { Camera, Grid, Search, Heart, Download, Trash2, Play, Plus, Filter, Calendar, Star, Eye, X, Check, SortAsc, SortDesc } from 'lucide-react';
+import { Camera, Grid, Search, Heart, Download, Trash2, Plus, Filter, Calendar, Star, Eye, X, Check, SortAsc, SortDesc } from 'lucide-react';
 
 // ImageDetailModal Component
 interface GalleryImage {
@@ -25,7 +23,6 @@ function ImageDetailModal({
   onToggleFavorite, 
   onDownload, 
   onDelete, 
-  onCreateVideo,
   onPlaceBrandAsset,
   isFavorite 
 }: {
@@ -34,7 +31,6 @@ function ImageDetailModal({
   onToggleFavorite: () => void;
   onDownload: () => void;
   onDelete: () => void;
-  onCreateVideo: () => void;
   onPlaceBrandAsset: () => void;
   isFavorite: boolean;
 }) {
@@ -88,14 +84,6 @@ function ImageDetailModal({
               {isFavorite ? 'Unfavorite' : 'Favorite'}
             </button>
             
-            <button 
-              onClick={onCreateVideo}
-              className="flex items-center justify-center gap-2 py-3 px-4 bg-stone-100 hover:bg-stone-200 rounded-2xl transition-colors text-xs tracking-[0.15em] uppercase font-light text-stone-600"
-            >
-              <Play size={16} className="text-stone-600" strokeWidth={1.5} />
-              Make Video
-            </button>
-            
             {/* P3-C: Brand Asset Placement Feature */}
             {process.env.REACT_APP_BRAND_ASSETS_ENABLED === '1' && (
               <button 
@@ -132,8 +120,6 @@ function ImageDetailModal({
 function SSELFIEGallery({ hideMemberNav = false }: { hideMemberNav?: boolean }) {
   const { user, isAuthenticated } = useAuth();
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
-  const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
-  const [isVideoDialogOpen, setIsVideoDialogOpen] = useState(false);
   const [isBrandPlacementModalOpen, setIsBrandPlacementModalOpen] = useState(false);
   const [selectedImages, setSelectedImages] = useState<Set<string | number>>(new Set());
   const [viewMode, setViewMode] = useState<'grid' | 'masonry'>('grid');
@@ -262,10 +248,6 @@ function SSELFIEGallery({ hideMemberNav = false }: { hideMemberNav?: boolean }) 
     }
   };
 
-  const handleOpenVideoDialog = () => {
-    setIsVideoDialogOpen(true);
-  };
-
   const handleCloseModal = () => {
     setSelectedImage(null);
   };
@@ -287,10 +269,6 @@ function SSELFIEGallery({ hideMemberNav = false }: { hideMemberNav?: boolean }) 
     if (selectedImage) {
       toggleFavorite(selectedImage.id);
     }
-  };
-
-  const handleCreateVideo = () => {
-    handleOpenVideoDialog();
   };
 
   const handlePlaceBrandAsset = () => {
@@ -728,49 +706,18 @@ function SSELFIEGallery({ hideMemberNav = false }: { hideMemberNav?: boolean }) 
       </div>
 
       {/* Image Detail Modal */}
-      {selectedImage && !isVideoModalOpen && !isVideoDialogOpen && (
+      {selectedImage && (
         <ImageDetailModal
           selectedImage={selectedImage}
           onClose={handleCloseModal}
           onToggleFavorite={handleToggleFavorite}
           onDownload={handleDownload}
           onDelete={handleDelete}
-          onCreateVideo={handleCreateVideo}
           onPlaceBrandAsset={handlePlaceBrandAsset}
           isFavorite={favorites.includes(typeof selectedImage.id === 'string' ? parseInt(selectedImage.id, 10) : selectedImage.id)}
         />
       )}
 
-      {/* Story Studio Modal */}
-      {isVideoModalOpen && selectedImage && (
-        <StoryStudioModal
-          imageId={selectedImage.id.toString()}
-          imageUrl={selectedImage.imageUrl}
-          imageSource={selectedImage.source}
-          onClose={() => setIsVideoModalOpen(false)}
-          onSuccess={() => {
-            // eslint-disable-next-line no-console
-            queryClient.invalidateQueries({ queryKey: ['/api/gallery-images'] });
-          }}
-        />
-      )}
-
-      {/* VideoGenerateDialog */}
-      {isVideoDialogOpen && selectedImage && (
-        <VideoGenerateDialog
-          isOpen={isVideoDialogOpen}
-          onClose={() => {
-            setIsVideoDialogOpen(false);
-            setSelectedImage(null);
-          }}
-          imageId={selectedImage.id.toString()}
-          imageUrl={selectedImage.imageUrl || selectedImage.url || ''}
-          onSuccess={() => {
-            // Video generation completed
-            queryClient.invalidateQueries({ queryKey: ['/api/gallery-images'] });
-          }}
-        />
-      )}
       {/* P3-C: Brand Asset Placement Modal */}
       {isBrandPlacementModalOpen && selectedImage && (
         <BrandAssetPlacementModal

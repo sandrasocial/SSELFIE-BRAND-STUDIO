@@ -44,8 +44,6 @@ import SignInHandler from "./pages/handler/sign-in.js";
 
 
 const BusinessLanding = lazy(() => import("./pages/landing/business-landing.js"));
-const HairLanding = lazy(() => import("./pages/landing/hair-landing.js"));
-const HairSignup = lazy(() => import("./pages/landing/hair-signup.js"));
 const SimpleTraining = lazy(() => import("./pages/onboarding/simple-training.js"));
 const SimpleCheckout = lazy(() => import("./pages/simple-checkout.js"));
 // 🔥 NEW: Embedded checkout page with SSELFIE style guide
@@ -85,6 +83,7 @@ function SmartHome() {
   });
 
   useEffect(() => {
+    console.log('🔍 SmartHome Debug:', {
       isLoading,
       isAuthenticated,
       isModelLoading,
@@ -241,13 +240,13 @@ function Router() {
       
       <Route path="/hair" component={() => (
         <Suspense fallback={<PageLoader />}>
-          <HairLanding />
+          <BusinessLanding />
         </Suspense>
       )} />
       
       <Route path="/hair/signup" component={() => (
         <Suspense fallback={<PageLoader />}>
-          <HairSignup />
+          <BusinessLanding />
         </Suspense>
       )} />
 
