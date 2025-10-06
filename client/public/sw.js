@@ -22,12 +22,10 @@ const CACHE_STRATEGIES = {
 
 // Install event - cache static assets
 self.addEventListener('install', (event) => {
-  console.log('🔧 Service Worker: Installing...');
   
   event.waitUntil(
     caches.open(STATIC_CACHE)
       .then((cache) => {
-        console.log('📦 Service Worker: Caching static assets');
         return cache.addAll([
           '/',
           '/manifest.json',
@@ -37,7 +35,6 @@ self.addEventListener('install', (event) => {
         ]);
       })
       .then(() => {
-        console.log('✅ Service Worker: Static assets cached');
         return self.skipWaiting();
       })
       .catch((error) => {
@@ -48,7 +45,6 @@ self.addEventListener('install', (event) => {
 
 // Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
-  console.log('🚀 Service Worker: Activating...');
   
   event.waitUntil(
     caches.keys()
@@ -58,14 +54,12 @@ self.addEventListener('activate', (event) => {
             if (cacheName !== STATIC_CACHE && 
                 cacheName !== DYNAMIC_CACHE && 
                 cacheName !== IMAGE_CACHE) {
-              console.log('🗑️ Service Worker: Deleting old cache', cacheName);
               return caches.delete(cacheName);
             }
           })
         );
       })
       .then(() => {
-        console.log('✅ Service Worker: Activated and old caches cleaned');
         return self.clients.claim();
       })
   );
@@ -117,7 +111,6 @@ async function cacheFirst(request, cacheName) {
   const cachedResponse = await caches.match(request);
   
   if (cachedResponse) {
-    console.log('📦 Service Worker: Serving from cache', request.url);
     return cachedResponse;
   }
   
@@ -126,7 +119,6 @@ async function cacheFirst(request, cacheName) {
   if (networkResponse.ok) {
     const cache = await caches.open(cacheName);
     cache.put(request, networkResponse.clone());
-    console.log('💾 Service Worker: Cached new resource', request.url);
   }
   
   return networkResponse;
@@ -137,7 +129,6 @@ async function cacheFirstWithFallback(request, cacheName) {
   const cachedResponse = await caches.match(request);
   
   if (cachedResponse) {
-    console.log('🖼️ Service Worker: Serving image from cache', request.url);
     return cachedResponse;
   }
   
@@ -147,7 +138,6 @@ async function cacheFirstWithFallback(request, cacheName) {
     if (networkResponse.ok) {
       const cache = await caches.open(cacheName);
       cache.put(request, networkResponse.clone());
-      console.log('💾 Service Worker: Cached new image', request.url);
     }
     
     return networkResponse;
@@ -168,17 +158,14 @@ async function networkFirstWithCache(request, cacheName) {
     if (networkResponse.ok) {
       const cache = await caches.open(cacheName);
       cache.put(request, networkResponse.clone());
-      console.log('🌐 Service Worker: Network response cached', request.url);
     }
     
     return networkResponse;
   } catch (error) {
-    console.log('📦 Service Worker: Network failed, trying cache', request.url);
     
     const cachedResponse = await caches.match(request);
     
     if (cachedResponse) {
-      console.log('✅ Service Worker: Serving from cache fallback', request.url);
       return cachedResponse;
     }
     
@@ -217,21 +204,18 @@ function getCacheStrategy(url) {
 // Background sync for offline actions
 self.addEventListener('sync', (event) => {
   if (event.tag === 'background-sync') {
-    console.log('🔄 Service Worker: Background sync triggered');
     event.waitUntil(doBackgroundSync());
   }
 });
 
 async function doBackgroundSync() {
   // Implement background sync logic here
-  console.log('🔄 Service Worker: Performing background sync');
 }
 
 // Push notifications
 self.addEventListener('push', (event) => {
   if (event.data) {
     const data = event.data.json();
-    console.log('📱 Service Worker: Push notification received', data);
     
     const options = {
       body: data.body,
@@ -250,7 +234,6 @@ self.addEventListener('push', (event) => {
 
 // Notification click
 self.addEventListener('notificationclick', (event) => {
-  console.log('📱 Service Worker: Notification clicked');
   event.notification.close();
   
   event.waitUntil(
@@ -258,4 +241,3 @@ self.addEventListener('notificationclick', (event) => {
   );
 });
 
-console.log('🔧 Service Worker: Script loaded');

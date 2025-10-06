@@ -55,7 +55,6 @@ export class EmailManagementAgent {
   // 📧 Get user email accounts (for dashboard)
   async getUserEmailAccounts(userId: string): Promise<any[]> {
     try {
-      console.log(`📧 Getting email accounts for user ${userId}`);
       // In a real implementation, this would fetch from database
       // For now, return empty array to prevent errors
       return [];
@@ -68,7 +67,6 @@ export class EmailManagementAgent {
   // 📊 Get recent email insights (for dashboard)
   async getRecentEmailInsights(userId: string): Promise<any[]> {
     try {
-      console.log(`📊 Getting recent email insights for user ${userId}`);
       // In a real implementation, this would fetch from database
       // For now, return empty array to prevent errors
       return [];
@@ -81,14 +79,13 @@ export class EmailManagementAgent {
   // 📧 Initialize with both personal and business accounts
   async addEmailAccount(userId: string, account: EmailAccount): Promise<boolean> {
     try {
-      console.log(`📧 AVA: Adding ${account.type} email account: ${account.email}`);
-      
+
       // Store account configuration
       this.accounts.set(account.id, account);
-      
+
       // Save to agent context for persistence
       await this.saveAccountContext(userId, account);
-      
+
       // Send Slack notification
       await SlackNotificationService.sendAgentInsight(
         'ava',
@@ -108,7 +105,6 @@ export class EmailManagementAgent {
   // 🔍 Process all unread emails across accounts
   async processUnreadEmails(userId: string): Promise<EmailInsight[]> {
     if (this.isProcessing) {
-      console.log('📧 AVA: Email processing already in progress');
       return [];
     }
 
@@ -116,22 +112,19 @@ export class EmailManagementAgent {
     const insights: EmailInsight[] = [];
 
     try {
-      console.log('📧 AVA: Starting comprehensive email analysis...');
 
       for (const [accountId, account] of this.accounts) {
-        console.log(`📧 AVA: Processing ${account.type} account: ${account.email}`);
-        
+
         // Fetch unread emails from provider
         const unreadEmails = await this.fetchUnreadEmails(account);
-        
+
         if (unreadEmails.length === 0) {
-          console.log(`✅ AVA: No unread emails in ${account.email}`);
           continue;
         }
 
         // Categorize and analyze emails
         const processedEmails = await this.categorizeEmails(unreadEmails, account.type);
-        
+
         // Generate insights
         const accountInsights = await this.generateEmailInsights(processedEmails, account);
         insights.push(...accountInsights);
@@ -143,8 +136,6 @@ export class EmailManagementAgent {
       // Send comprehensive summary to Slack
       await this.sendEmailSummaryToSlack(insights);
 
-      console.log(`📧 AVA: Processed emails from ${this.accounts.size} accounts, generated ${insights.length} insights`);
-      
     } catch (error) {
       console.error('❌ AVA: Email processing failed:', error);
     } finally {
@@ -324,7 +315,7 @@ export class EmailManagementAgent {
   private isCustomerEmail(from: string, subject: string, body: string): boolean {
     const customerKeywords = ['question', 'help', 'support', 'issue', 'problem', 'order', 'purchase', 'pricing'];
     const text = `${subject} ${body}`.toLowerCase();
-    return customerKeywords.some(keyword => text.includes(keyword)) || 
+    return customerKeywords.some(keyword => text.includes(keyword)) ||
            !from.includes('noreply') && !from.includes('notification');
   }
 
@@ -357,11 +348,11 @@ export class EmailManagementAgent {
     // Simple sentiment analysis - can be enhanced with AI
     const positiveWords = ['thank', 'great', 'excellent', 'love', 'amazing'];
     const negativeWords = ['problem', 'issue', 'angry', 'disappointed', 'terrible'];
-    
+
     const text = body.toLowerCase();
     const positiveCount = positiveWords.filter(word => text.includes(word)).length;
     const negativeCount = negativeWords.filter(word => text.includes(word)).length;
-    
+
     if (negativeCount > positiveCount) return 'negative';
     if (positiveCount > negativeCount) return 'positive';
     return 'neutral';
@@ -374,19 +365,19 @@ export class EmailManagementAgent {
       const text = `${email.subject} ${email.body}`.toLowerCase();
       return questionKeywords.some(keyword => text.includes(keyword));
     }
-    
+
     // Personal emails from real people (not automated) usually need responses
     return !email.from.includes('noreply') && !this.isMarketingEmail(email.from, email.subject);
   }
 
   private async generateTags(email: any, accountType: 'personal' | 'business'): Promise<string[]> {
     const tags: string[] = [accountType];
-    
+
     if (this.containsUrgentKeywords(email.subject, email.body)) tags.push('urgent');
     if (this.isCustomerEmail(email.from, email.subject, email.body)) tags.push('customer');
     if (email.subject.toLowerCase().includes('meeting')) tags.push('meeting');
     if (email.subject.toLowerCase().includes('payment')) tags.push('payment');
-    
+
     return tags;
   }
 
@@ -411,30 +402,26 @@ export class EmailManagementAgent {
     const contextData = {
       emailAccounts: Array.from(this.accounts.values())
     };
-    
+
     // This would integrate with your existing agent context system
-    console.log(`💾 AVA: Saved email account context for user ${userId}`);
   }
 
   private async storeProcessedEmails(userId: string, accountId: string, emails: EmailMessage[]): Promise<void> {
     // Store processed emails for reference and learning
-    console.log(`💾 AVA: Stored ${emails.length} processed emails for account ${accountId}`);
   }
 
   // 📱 Mock email fetching (to be replaced with real Gmail/Outlook API)
   private async fetchUnreadEmails(account: EmailAccount): Promise<any[]> {
     // This is where you'd integrate with Gmail API, Outlook API, etc.
     // For now, returning mock data to demonstrate the system
-    console.log(`📱 AVA: Fetching emails from ${account.provider} for ${account.email}`);
-    
+
     // In production, this would connect to Gmail/Outlook APIs
     return []; // Return actual emails from API
   }
 
   // 🚀 Start automated email monitoring
   startEmailMonitoring(userId: string, intervalMinutes: number = 60): void {
-    console.log(`🚀 AVA: Starting automated email monitoring (every ${intervalMinutes} minutes)`);
-    
+
     setInterval(async () => {
       await this.processUnreadEmails(userId);
     }, intervalMinutes * 60 * 1000);

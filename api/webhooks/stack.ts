@@ -52,13 +52,11 @@ function getDefaultUserFields(overrides: Partial<InsertUser> = {}): InsertUser {
 async function ensureDbUserFromStack(stackUser: StackUser) {
   const { storage } = await import('../../server/storage.js');
   
-  console.log('🔍 Stack Auth: Processing user sync for:', stackUser.id, stackUser.email);
   
   // Try to find user by Stack Auth ID first
   let dbUser = await storage.getUserByStackAuthId(stackUser.id);
   
   if (dbUser) {
-    console.log('✅ Stack Auth: User found by Stack Auth ID:', dbUser.id);
     return dbUser;
   }
   
@@ -67,15 +65,12 @@ async function ensureDbUserFromStack(stackUser: StackUser) {
     dbUser = await storage.getUserByEmail(stackUser.email);
     
     if (dbUser) {
-      console.log(`🔗 Stack Auth: Linking existing user ${dbUser.email} (ID: ${dbUser.id}) to Stack Auth ID: ${stackUser.id}`);
       dbUser = await storage.linkStackAuthId(dbUser.id, stackUser.id);
-      console.log('✅ Stack Auth: Existing user successfully linked to Stack Auth');
       return dbUser;
     }
   }
   
   // Create new user if not found
-  console.log('🔄 Stack Auth: Creating new user in database...');
   
   const newUserData = getDefaultUserFields({
     id: stackUser.id,
@@ -87,15 +82,11 @@ async function ensureDbUserFromStack(stackUser: StackUser) {
   });
   
   dbUser = await storage.upsertUser(newUserData);
-  console.log('✅ Stack Auth: Created new user account:', dbUser.id);
   
   return dbUser;
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  console.log('📥 Stack Auth webhook received');
-  console.log('🔍 Method:', req.method);
-  console.log('🔍 Headers:', Object.keys(req.headers).filter(h => h.toLowerCase().includes('stack')));
   
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -111,7 +102,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
   
-  console.log('📊 Webhook payload:', JSON.stringify(req.body, null, 2));
   
   // Verify webhook secret
   const providedSecret = (req.headers['x-stack-webhook-secret'] as string) || 
@@ -122,13 +112,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                    process.env.STACK_WEBHOOK_VERIFICATION_SECRET || 
                    'whsec_7WGUrgkt9xr/owfaNByhs9LjnxyX4Wa3';
   
-  console.log('🔐 Webhook secret verification:', {
     provided: providedSecret ? '***' + providedSecret.slice(-4) : 'none',
     expected: expected ? '***' + expected.slice(-4) : 'none',
   });
   
   if (!expected || providedSecret !== expected) {
-    console.log('❌ Webhook secret mismatch - allowing for development/testing');
     // In production, you may want to uncomment the line below:
     // return res.status(401).json({ error: 'Invalid webhook secret' });
   }
@@ -144,7 +132,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                       body.eventType || 
                       'unknown';
     
-    console.log('📥 Stack Auth webhook event type:', eventType);
     
     // Extract user data from various possible formats
     const userData = body.data?.user || 
@@ -163,7 +150,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       profileImageUrl: userData.profileImageUrl || userData.avatar_url || userData.picture || null,
     };
     
-    console.log('📊 Processed Stack user data:', {
       type: eventType,
       userId: stackUser.id,
       email: stackUser.email,
@@ -172,7 +158,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     
     // Validate required fields
     if (!stackUser.id) {
-      console.log('❌ Stack Auth webhook: Missing user ID');
       return res.status(400).json({ 
         error: 'Missing required user ID',
         received: userData 
@@ -182,7 +167,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Process the user sync
     const dbUser = await ensureDbUserFromStack(stackUser);
     
-    console.log('✅ Stack Auth webhook processed successfully:', {
       eventType,
       stackUserId: stackUser.id,
       dbUserId: dbUser.id,

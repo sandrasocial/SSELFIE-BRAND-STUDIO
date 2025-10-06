@@ -61,7 +61,6 @@ export function registerCheckoutRoutes(app: Express) {
         customer_email: user.email || undefined,
       });
 
-      console.log(`🔄 RETRAINING SESSION: Created checkout for user ${userId} - ${session.id}`);
       res.json({ url: session.url });
     } catch (error: any) {
       console.error('Retraining checkout session creation error:', error);
@@ -113,7 +112,6 @@ export function registerCheckoutRoutes(app: Express) {
       // 🔥 KEY FIX: Pre-fill email to avoid duplicate collection
       if (customerEmail) {
         sessionConfig.customer_email = customerEmail;
-        console.log('🔍 Pre-filling checkout with email:', customerEmail);
       }
       
       const session = await stripe.checkout.sessions.create(sessionConfig);
@@ -283,7 +281,6 @@ export function registerCheckoutRoutes(app: Express) {
         custom_fields: [],
       });
 
-      console.log(`🔄 EMBEDDED CHECKOUT: Created session for ${customerEmail} - ${session.id}`);
       
       // Return client_secret for embedded checkout initialization
       res.json({ 
@@ -352,7 +349,6 @@ export function registerCheckoutRoutes(app: Express) {
       // The user will be linked to this payment during onboarding after they log in
       try {
         // Store payment record without userId for now
-        console.log(`Payment succeeded for plan ${plan}, payment intent: ${paymentIntent.id}`);
         
         // The subscription will be created during onboarding when user logs in
         // For now, just log the successful payment
@@ -366,17 +362,14 @@ export function registerCheckoutRoutes(app: Express) {
       const session = event.data.object;
       const { plan, userId, type, flow } = session.metadata || {};
       
-      console.log(`💰 PAYMENT SUCCESS: Flow=${flow || 'legacy'}, Plan=${plan}, Session=${session.id}`);
       
       // Handle retraining payments specifically
       if (plan === 'retraining-session' && type === 'retrain' && userId) {
         try {
-          console.log(`🔄 RETRAINING PAYMENT: Successful payment for user ${userId} - session ${session.id}`);
           
           // Grant retraining access to user
           await grantRetrainingAccess(userId, session.id);
           
-          console.log(`✅ RETRAINING ACCESS: Granted to user ${userId}`);
         } catch (error) {
           console.error('Retraining payment processing error:', error);
         }
@@ -385,12 +378,10 @@ export function registerCheckoutRoutes(app: Express) {
       // Handle regular subscription payments (sselfie-studio plan)
       else if (plan === 'sselfie-studio' || !plan) {
         try {
-          console.log(`💰 SUBSCRIPTION PAYMENT: Flow=${flow || 'legacy'}, Session=${session.id}`);
           
           // Create or update user with subscription access
           await handleSubscriptionPayment(session, flow);
           
-          console.log(`✅ SUBSCRIPTION ACCESS: Granted for session ${session.id}`);
         } catch (error) {
           console.error('Subscription payment processing error:', error);
         }
@@ -411,7 +402,6 @@ async function grantRetrainingAccess(userId: string, sessionId: string) {
       retrainingPaidAt: new Date(),
     });
 
-    console.log(`🔄 RETRAINING ACCESS: User ${userId} can now access training with session ${sessionId}`);
   } catch (error) {
     console.error('Error granting retraining access:', error);
     throw error;
@@ -424,18 +414,15 @@ async function handleSubscriptionPayment(session: any, flow?: string) {
     const customerEmail = session.customer_email || session.customer_details?.email;
     
     if (!customerEmail) {
-      console.log('No customer email found in session, skipping user creation');
       return;
     }
     
-    console.log(`📧 Processing subscription for email: ${customerEmail} (flow: ${flow || 'legacy'})`);
     
     // Check if user already exists
-    let user = await storage.getUserByEmail(customerEmail);
+    const user = await storage.getUserByEmail(customerEmail);
     
     if (user) {
       // Update existing user with subscription details
-      console.log(`👤 Updating existing user: ${user.id} (flow: ${flow || 'legacy'})`);
       
       await storage.updateUserProfile(user.id, {
         plan: 'sselfie-studio',
@@ -446,10 +433,8 @@ async function handleSubscriptionPayment(session: any, flow?: string) {
         updatedAt: new Date(),
       });
       
-      console.log(`✅ User ${user.id} upgraded to SSELFIE STUDIO plan`);
     } else {
       // Create new user with subscription
-      console.log(`👤 Creating new user for email: ${customerEmail} (flow: ${flow || 'legacy'})`);
       
       const newUserId = generateUserId(); // Generate unique user ID
       
@@ -468,14 +453,11 @@ async function handleSubscriptionPayment(session: any, flow?: string) {
         updatedAt: new Date(),
       });
       
-      console.log(`✅ New user ${newUserId} created with SSELFIE STUDIO plan`);
     }
 
     // Enhanced logging for modal vs page flow
     if (flow === 'modal') {
-      console.log('🎯 MODAL FLOW: Payment processed for enhanced modal system');
     } else {
-      console.log('📄 LEGACY FLOW: Payment processed for legacy page system');
     }
   } catch (error) {
     console.error('Error handling subscription payment:', error);
@@ -509,7 +491,6 @@ async function triggerPostPurchaseAutomation(userId: string, plan: string) {
       });
     }
 
-    console.log(`Post-purchase automation completed for user ${userId}, plan ${plan}`);
   } catch (error) {
     console.error('Automation error:', error);
   }
@@ -519,7 +500,6 @@ async function triggerPostPurchaseAutomation(userId: string, plan: string) {
 // async function sendWelcomeEmail(user: any, plan: string) {
 //   try {
 //     await EmailService.sendWelcomeEmail(user.email, user.firstName || 'Beautiful', plan);
-//     console.log(`Welcome email sent successfully to ${user.email} for ${plan}`);
 //   } catch (error) {
 //     console.error('Failed to send welcome email:', error);
 //     // Don't throw error - payment should still process even if email fails

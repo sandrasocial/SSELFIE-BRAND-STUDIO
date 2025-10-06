@@ -44,7 +44,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         });
       }
 
-      console.log('✅ /api/me success:', {
         userId: user.id,
         email: user.email,
         plan: user.plan,

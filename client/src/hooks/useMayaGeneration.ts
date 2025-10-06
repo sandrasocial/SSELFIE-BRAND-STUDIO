@@ -13,7 +13,6 @@ export function useMayaGeneration(
 ) {
   const generateFromSpecificConcept = useCallback(async (concept: any) => {
     // Placeholder implementation
-    console.log('Generating from concept:', concept);
     return null;
   }, []);
 

@@ -59,7 +59,6 @@ export class TokenBudgetManager {
       };
     }
     
-    console.log('🔧 Applying smart token budget:', {
       originalTokens,
       maxTokens: options.maxTokens,
       preserveSubject: options.preserveSubject,

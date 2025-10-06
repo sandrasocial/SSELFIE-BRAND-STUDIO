@@ -154,7 +154,6 @@ export function SupportChatBubble({ isOpen, onToggle }: SupportChatBubbleProps) 
   // PHASE 5: Handle escalation requests
   const handleEscalation = async (escalationData: any) => {
     try {
-      console.log('🚨 ESCALATION TRIGGERED:', escalationData);
       
       // Send escalation request to backend
       const escalationResponse = await apiRequest('/api/support/escalate', 'POST', {

@@ -112,7 +112,6 @@ const VideoGenerateDialog: React.FC<VideoGenerateDialogProps> = ({
     setVideoUrl(null);
 
     try {
-      console.log('🎬 VEO 3: Starting generation', {
         imageId,
         mode,
         hasAudioScript: !!audioScript.trim(),
@@ -128,7 +127,6 @@ const VideoGenerateDialog: React.FC<VideoGenerateDialogProps> = ({
         aspectRatio
       });
 
-      console.log('✅ VEO 3: Generation started', response);
 
       setJob(response);
       setVideoStatus('pending');
@@ -162,7 +160,6 @@ const VideoGenerateDialog: React.FC<VideoGenerateDialogProps> = ({
         videoId: job.videoId
       });
       
-      console.log('💾 VEO 3: Video saved');
     } catch (error) {
       console.error('❌ VEO 3: Save failed', error);
     }

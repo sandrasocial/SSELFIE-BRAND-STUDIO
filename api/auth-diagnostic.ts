@@ -22,7 +22,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const diagnostics: Record<string, any> = {
+  const diagnostics: {
+    timestamp: string;
+    checks: Record<string, unknown>;
+    status?: string;
+    summary?: string;
+  } = {
     timestamp: new Date().toISOString(),
     checks: {}
   };
@@ -93,7 +98,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // 4. Check if authenticated (try to extract token)
     let hasValidToken = false;
-    let tokenInfo: any = null;
+    let tokenInfo: { hasToken: boolean; format?: string; parts?: number; tokenPreview?: string; error?: string } | null = null;
 
     if (cookieHeader) {
       const cookies: Record<string, string> = {};
@@ -156,10 +161,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // 6. Overall status
     const allChecks = Object.values(diagnostics.checks);
-    const hasIssues = allChecks.some((check: any) => 
-      check.status === 'missing_keys' || 
-      check.reachable === false ||
-      check.hasValidToken === false
+    const hasIssues = allChecks.some((check: unknown) =>
+      (check as Record<string, unknown>).status === 'missing_keys' ||
+      (check as Record<string, unknown>).reachable === false ||
+      (check as Record<string, unknown>).hasValidToken === false
     );
 
     diagnostics.status = hasIssues ? 'issues_detected' : 'healthy';

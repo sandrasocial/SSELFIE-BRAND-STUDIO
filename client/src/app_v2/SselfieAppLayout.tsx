@@ -152,7 +152,7 @@ const SselfieAppLayout: React.FC = () => {
 
   // Handle URL parameters for tab navigation and initial prompts
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
+    const urlParams = new URL(window.location.href).searchParams;
     const tabParam = urlParams.get('tab');
     const promptParam = urlParams.get('prompt');
     

@@ -36,15 +36,12 @@ export class ArchitectureValidator {
     }
     
     const userType = isPremium ? 'Premium' : 'Free';
-    console.log(`✅ ${userType} user validation passed for user: ${userId}`);
-    console.log(`✅ Using individual model version: ${requestBody.version}`);
   }
   
   /**
    * 🔒 COMPLIANCE LOGGING - Records architecture compliance for audit
    */
   static logArchitectureCompliance(userId: string, operation: string): void {
-    console.log(`🔒 ARCHITECTURE COMPLIANCE: User ${userId} - ${operation} - Using correct V2 individual model architecture`);
   }
   
   /**
@@ -65,7 +62,6 @@ export class ArchitectureValidator {
       throw new Error('User model version not available - training may need completion');
     }
     
-    console.log('✅ User model validation passed:', userId);
   }
   
   /**
@@ -81,7 +77,6 @@ export class ArchitectureValidator {
       throw new Error('User ID not found in session');
     }
     
-    console.log('✅ Authentication validation passed for user:', userId);
     return userId;
   }
   
@@ -91,6 +86,5 @@ export class ArchitectureValidator {
   static enforceZeroTolerance(): void {
     // This method exists to remind developers of the zero tolerance policy
     // NO fallbacks, NO mock data, NO placeholders are allowed
-    console.log('🔒 ZERO TOLERANCE: No fallbacks or mock data permitted');
   }
 }

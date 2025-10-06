@@ -90,7 +90,6 @@ router.post('/', requireStackAuth, async (req: any, res) => {
     // Store preferences
     userPreferences[userId] = preferences;
     
-    console.log(`✅ PREFERENCES: Updated notification preferences for user ${userId}`);
     
     res.json({
       success: true,

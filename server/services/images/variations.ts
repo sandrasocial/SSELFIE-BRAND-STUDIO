@@ -26,7 +26,6 @@ export class ImageVariationsService {
    */
   static async generateVariations(request: VariationRequest): Promise<VariationResponse> {
     try {
-      console.log('🎨 VARIATIONS: Starting variations for user', request.userId, 'image', request.originalImageId);
 
       const count = request.count || 3;
 
@@ -53,7 +52,6 @@ export class ImageVariationsService {
         throw new Error('Could not derive prompt for variations');
       }
 
-      console.log('🎨 VARIATIONS: Using derived prompt:', derivedPrompt);
 
       // Create initial variant records
       const variantIds: number[] = [];
@@ -101,7 +99,6 @@ export class ImageVariationsService {
         });
       }
 
-      console.log('✅ VARIATIONS: Started successfully with prediction ID:', result.predictionId);
 
       return {
         success: true,

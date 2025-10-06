@@ -27,7 +27,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   // Validate Stack Auth configuration
   if (!STACK_AUTH_PROJECT_ID) {
-    console.error('❌ Stack Auth: Missing project ID');
     return res.status(500).json({
       error: 'Stack Auth configuration error',
       message: 'Missing project ID'
@@ -37,14 +36,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Extract the path after /api/auth/
   const authPath = req.url?.replace('/api/auth', '') || '';
   const stackAuthUrl = `${STACK_AUTH_API_BASE}/projects/${STACK_AUTH_PROJECT_ID}${authPath}`;
-
-  console.log('🔐 Stack Auth request:', {
-    method: req.method,
-    path: authPath,
-    url: stackAuthUrl,
-    hasBody: !!req.body,
-    userAgent: req.headers['user-agent']?.substring(0, 50)
-  });
 
   try {
     // Prepare headers for Stack Auth API
@@ -116,23 +107,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     });
 
-    console.log('✅ Stack Auth response:', {
-      status: response.status,
-      contentType,
-      hasSetCookie: !!setCookieHeader,
-      responseSize: responseData.length
-    });
-
     return res.status(response.status).send(responseData);
 
   } catch (error) {
-    console.error('❌ Stack Auth proxy error:', {
-      error: error instanceof Error ? error.message : error,
-      stack: error instanceof Error ? error.stack : undefined,
-      url: stackAuthUrl,
-      method: req.method
-    });
-
     return res.status(500).json({
       error: 'Authentication service unavailable',
       message: error instanceof Error ? error.message : 'Unknown error',

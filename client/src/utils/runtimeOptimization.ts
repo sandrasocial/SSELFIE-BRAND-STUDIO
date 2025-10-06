@@ -21,7 +21,6 @@ export class MemoryManager {
   }
 
   cleanup() {
-    console.log('🧹 Memory Manager: Running cleanup tasks');
     this.cleanupTasks.forEach(task => {
       try {
         task();
@@ -38,7 +37,6 @@ export class MemoryManager {
       const usedMB = memory.usedJSHeapSize / 1024 / 1024;
       const totalMB = memory.totalJSHeapSize / 1024 / 1024;
       
-      console.log(`📊 Memory Usage: ${usedMB.toFixed(2)}MB / ${totalMB.toFixed(2)}MB`);
       
       if (usedMB > this.memoryThreshold / 1024 / 1024) {
         console.warn('⚠️ High memory usage detected, running cleanup');
@@ -96,7 +94,6 @@ export class VirtualScroller {
 
   private renderVisibleItems() {
     // This would be implemented based on your specific rendering needs
-    console.log(`Rendering items ${this.startIndex} to ${this.endIndex}`);
   }
 }
 
@@ -243,14 +240,12 @@ export class RequestOptimizer {
     if (useCache) {
       const cached = this.requestCache.get(key);
       if (cached && Date.now() - cached.timestamp < this.cacheTimeout) {
-        console.log(`📦 Request cache hit: ${key}`);
         return cached.data;
       }
     }
 
     // Check if request is already pending
     if (this.pendingRequests.has(key)) {
-      console.log(`⏳ Request deduplication: ${key}`);
       return this.pendingRequests.get(key)!;
     }
 
@@ -298,7 +293,6 @@ export function initializeRuntimeOptimization() {
     memoryManager.cleanup();
   });
 
-  console.log('🚀 Runtime optimization initialized');
 }
 
 export default {

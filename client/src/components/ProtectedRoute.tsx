@@ -19,7 +19,6 @@ export function ProtectedRoute({
   useEffect(() => {
     // Only redirect if we're done loading AND user is not authenticated
     if (!isLoading && !isAuthenticated) {
-      console.log('🔒 ProtectedRoute: User not authenticated, redirecting to sign-in');
       setLocation(fallbackPath);
     }
   }, [isAuthenticated, isLoading, setLocation, fallbackPath]);

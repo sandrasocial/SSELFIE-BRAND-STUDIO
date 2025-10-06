@@ -64,7 +64,6 @@ router.post('/api/images/:id/variations', requireStackAuth, asyncHandler(async (
   }
 
   try {
-    console.log('🎨 VARIATIONS: Starting variations for user:', userId, 'image:', imageId, 'count:', count);
 
     const result = await ImageVariationsService.generateVariations({
       originalImageId: parseInt(imageId),
@@ -101,7 +100,6 @@ router.get('/api/images/:id/variations/status/:predictionId', requireStackAuth, 
   const { variantIds } = req.query;
 
   try {
-    console.log('🎨 VARIATIONS: Checking status for prediction:', predictionId);
 
     if (!variantIds) {
       throw createError.validation('variantIds query parameter is required');
@@ -133,7 +131,6 @@ router.get('/api/images/:id/variations', requireStackAuth, asyncHandler(async (r
   const { imageType = 'ai_image' } = req.query;
 
   try {
-    console.log('🎨 VARIATIONS: Getting variations for image:', imageId, 'type:', imageType);
 
     const variations = await ImageVariationsService.getImageVariations(
       parseInt(imageId),
@@ -163,7 +160,6 @@ router.get('/api/images/variations/user', requireStackAuth, asyncHandler(async (
   const userId = authReq.user.id;
 
   try {
-    console.log('🎨 VARIATIONS: Getting all user variations for:', userId);
 
     const variations = await ImageVariationsService.getUserVariations(userId);
 
@@ -188,7 +184,6 @@ router.delete('/api/images/variations/:variantId', requireStackAuth, asyncHandle
   const { variantId } = req.params;
 
   try {
-    console.log('🎨 VARIATIONS: Deleting variation:', variantId, 'for user:', userId);
 
     // Get the variant to verify ownership
     const variant = await storage.getImageVariant(parseInt(variantId), userId);
@@ -224,7 +219,6 @@ router.post('/api/images/:id/save-variation', requireStackAuth, asyncHandler(asy
   const { id: variantId } = req.params;
 
   try {
-    console.log('🎨 VARIATIONS: Saving variation as new image:', variantId, 'for user:', userId);
 
     // Get the variant
     const variant = await storage.getImageVariant(parseInt(variantId), userId);

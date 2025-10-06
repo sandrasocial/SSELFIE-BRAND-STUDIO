@@ -42,7 +42,6 @@ export const useAdaptivePolling = ({
     }
 
     const interval = getPollingInterval(progress);
-    console.log(`🔄 Adaptive polling: ${interval}ms interval for ${progress}% progress`);
 
     intervalRef.current = setInterval(async () => {
       const now = Date.now();
@@ -67,7 +66,6 @@ export const useAdaptivePolling = ({
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
-      console.log('🛑 Adaptive polling stopped');
     }
   }, []);
 

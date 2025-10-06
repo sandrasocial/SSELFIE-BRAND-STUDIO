@@ -96,13 +96,12 @@ export function withDatabaseTimeoutAndRetry<T>(
     const backoffDelay = Math.min(1000 * Math.pow(2, attemptNum - 1), 3000);
     
     if (attemptNum > 1) {
-      console.log(`⏳ Retrying ${label} (attempt ${attemptNum}/${retries + 1}) with ${backoffDelay}ms backoff`);
       await new Promise(resolve => setTimeout(resolve, backoffDelay));
     }
     
     try {
       return await withDatabaseTimeout(promiseFactory(), fallbackValue, ms, `${label}-attempt-${attemptNum}`);
-    } catch (error) {
+    } catch {
       if (attemptNum < retries + 1) {
         console.warn(`⚠️ ${label} attempt ${attemptNum} failed, retrying...`);
         return attempt(attemptNum + 1);

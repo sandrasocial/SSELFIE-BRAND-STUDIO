@@ -48,7 +48,7 @@ export abstract class BaseService {
   protected log(level: 'info' | 'warn' | 'error', message: string, data?: any): void {
     const timestamp = new Date().toISOString();
     const serviceName = this.constructor.name;
-    
+
     console[level](`[${timestamp}] ${serviceName}: ${message}`, data ? JSON.stringify(data, null, 2) : '');
   }
 

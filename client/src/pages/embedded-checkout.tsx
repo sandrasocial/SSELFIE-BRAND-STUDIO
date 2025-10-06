@@ -71,7 +71,6 @@ function SSELFIEEmbeddedCheckout({ clientSecret }: EmbeddedCheckoutPageProps) {
   const [, setLocation] = useLocation();
   
   const handleComplete = () => {
-    console.log('🎉 Payment completed successfully');
     setLocation('/payment-success');
   };
 

@@ -9,13 +9,11 @@ export function useMayaPersistence(userId?: string) {
 
   const saveChat = useCallback(async (messages: any[]) => {
     // Placeholder implementation
-    console.log('Saving chat for user:', userId, messages);
     return null;
   }, [userId]);
 
   const loadChat = useCallback(async () => {
     // Placeholder implementation
-    console.log('Loading chat for user:', userId);
     return [];
   }, [userId]);
 

@@ -1,14 +1,10 @@
 /* eslint-disable no-console */
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { withTimeout, withDatabaseTimeout, withDatabaseTimeoutAndRetry, withExternalApiTimeout, isTimeoutError } from './_utils/timing.js';
-import type { ConceptCard } from '../shared/types/concept-card.js';
 
-export const config = { 
+export const config = {
   runtime: 'nodejs',
   maxDuration: 40
 } as const;
-
-import { StackAuthUserInfo } from './_shared/stack-auth-types.js';
 
 // Lazy-load jose at runtime to avoid bootstrap issues
 type JoseModule = typeof import('jose');
@@ -22,7 +18,6 @@ async function getJose() {
 }
 
 // Types
-// Minimal InsertUser type for local use
 interface InsertUser {
   id: string;
   email?: string | null;
@@ -40,13 +35,597 @@ interface InsertUser {
   lastLoginAt?: Date;
 }
 
-// Minimal UserModel type for local use
 interface UserModel {
   id: string | number;
   userId: string;
   trainingStatus?: string | null;
   createdAt?: Date | null;
   updatedAt?: Date | null;
+}
+
+interface AuthenticatedUser {
+  id: string;
+  email: string;
+  firstName: string | null;
+  lastName: string | null;
+  plan: string;
+  role: string;
+  stackUser: any;
+}
+
+// Minimal user fields helper
+function getDefaultUserFields(user: any) {
+  return {
+    id: user.id,
+    email: user.email || null,
+    displayName: user.displayName || null,
+    firstName: user.firstName || null,
+    lastName: user.lastName || null,
+    profileImageUrl: user.profileImageUrl || null,
+    plan: user.plan || 'sselfie-studio',
+    role: user.role || 'user',
+    monthlyGenerationLimit: user.plan === 'sselfie-studio' ? 100 : -1,
+    mayaAiAccess: true,
+    victoriaAiAccess: false,
+    onboardingProgress: user.onboardingProgress || null,
+    preferredOnboardingMode: user.preferredOnboardingMode || null,
+    lastLoginAt: new Date()
+  };
+}
+
+// Parse cookie header
+function parseCookieHeader(cookieHeader: string | undefined): Record<string, string> {
+  const cookies: Record<string, string> = {};
+  if (!cookieHeader) return cookies;
+
+  cookieHeader.split(';').forEach(cookie => {
+    const [name, ...rest] = cookie.trim().split('=');
+    if (name) {
+      cookies[name.trim()] = rest.join('=').trim();
+    }
+  });
+  return cookies;
+}
+
+// Set logout cookies
+function setLogoutCookies(res: VercelResponse) {
+  const cookies = [
+    'stack-access=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0',
+    'stack-access-token=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0',
+    'stack_session=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0',
+    '__Secure-next-auth.session-token=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0'
+  ];
+
+  cookies.forEach(cookie => {
+    res.setHeader('Set-Cookie', cookie);
+  });
+}
+
+// JWT verification
+async function verifyJWTToken(token: string) {
+  const jose = await getJose();
+  const STACK_AUTH_PROJECT_ID = process.env['STACK_AUTH_PROJECT_ID'] || process.env['VITE_STACK_PROJECT_ID'];
+
+  if (!STACK_AUTH_PROJECT_ID) {
+    throw new Error('STACK_AUTH_PROJECT_ID not configured');
+  }
+
+  const jwksUrl = `https://api.stack-auth.com/api/v1/projects/${STACK_AUTH_PROJECT_ID}/.well-known/jwks.json`;
+  const JWKS = jose.createRemoteJWKSet(new URL(jwksUrl));
+
+  const { payload } = await jose.jwtVerify(token, JWKS, {
+    issuer: `https://api.stack-auth.com/api/v1/projects/${STACK_AUTH_PROJECT_ID}`,
+    audience: STACK_AUTH_PROJECT_ID
+  });
+
+  return payload;
+}
+
+// Main handler function
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  try {
+    console.log('🔍 API Handler: Request received', req.url);
+    console.log('🔍 Method:', req.method);
+
+    // Vercel Skew Protection
+    if (process.env['VERCEL_SKEW_PROTECTION_ENABLED'] === '1' && process.env['VERCEL_DEPLOYMENT_ID']) {
+      try {
+        const cookieValue = `__vdpl=${process.env['VERCEL_DEPLOYMENT_ID']}; Path=/; HttpOnly; Secure; SameSite=Lax`;
+        const existing = res.getHeader('Set-Cookie');
+        if (Array.isArray(existing)) {
+          res.setHeader('Set-Cookie', [...existing, cookieValue]);
+        } else if (typeof existing === 'string' && existing.length > 0) {
+          res.setHeader('Set-Cookie', [existing, cookieValue]);
+        } else {
+          res.setHeader('Set-Cookie', cookieValue);
+        }
+      } catch (e) {
+        console.log('⚠️ Failed to set __vdpl cookie:', (e as Error).message);
+      }
+    }
+
+    // Set CORS headers
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-stack-access-token');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+
+    // Handle preflight requests
+    if (req.method === 'OPTIONS') {
+      return res.status(200).end();
+    }
+
+    // Health check
+    if (req.url?.includes('/api/health')) {
+      return res.status(200).json({
+        status: 'healthy',
+        service: 'SSELFIE Studio API',
+        timestamp: new Date().toISOString(),
+      });
+    }
+
+    // Logout endpoint
+    if (req.url === '/api/logout') {
+      setLogoutCookies(res);
+      res.setHeader('Cache-Control', 'no-store');
+      return res.status(200).json({ ok: true, loggedOut: true });
+    }
+
+    // Get authenticated user helper function
+    async function getAuthenticatedUser(): Promise<AuthenticatedUser> {
+      let accessToken: string | undefined;
+
+      // Check Authorization header
+      const authHeader = req.headers.authorization;
+      if (authHeader?.startsWith('Bearer ')) {
+        accessToken = authHeader.substring(7);
+        console.log('🔐 Found Bearer token in Authorization header');
+      }
+
+      // Check cookies
+      const cookiesSource: Record<string, string> = (req as unknown as { cookies?: Record<string, string> }).cookies || parseCookieHeader(req.headers.cookie as string);
+      if (!accessToken && cookiesSource) {
+        console.log('🍪 All cookies received:', Object.keys(cookiesSource));
+
+        const cookiesToTry = [
+          'stack-access',
+          'stack-access-token',
+          'stack_session',
+          '__Secure-next-auth.session-token',
+        ];
+
+        for (const cookieName of cookiesToTry) {
+          const cookieValue = cookiesSource[cookieName];
+
+          if (cookieValue) {
+            console.log(`🍪 Found cookie: ${cookieName}`);
+
+            try {
+              // Try parsing as JSON array
+              if (cookieValue.startsWith('[')) {
+                const stackAccessArray = JSON.parse(cookieValue);
+                if (Array.isArray(stackAccessArray) && stackAccessArray.length >= 2) {
+                  accessToken = stackAccessArray[1];
+                  console.log('🔐 Found access token in JSON array format');
+                  break;
+                }
+              }
+
+              // Try parsing as JSON object
+              if (cookieValue.startsWith('{')) {
+                const stackAccessObj = JSON.parse(cookieValue);
+                if (stackAccessObj.accessToken || stackAccessObj.token || stackAccessObj.jwt) {
+                  accessToken = stackAccessObj.accessToken || stackAccessObj.token || stackAccessObj.jwt;
+                  console.log('🔐 Found access token in JSON object format');
+                  break;
+                }
+              }
+
+              // Try as direct token
+              if (cookieValue.length > 20 && cookieValue.includes('.')) {
+                accessToken = cookieValue;
+                console.log('🔐 Found access token in direct string format');
+                break;
+              }
+
+            } catch (parseError) {
+              console.log(`⚠️ Failed to parse ${cookieName} cookie:`, (parseError as Error).message);
+
+              if (cookieValue.length > 20) {
+                accessToken = cookieValue;
+                console.log('🔐 Using raw cookie value as token');
+                break;
+              }
+            }
+          }
+        }
+
+        if (!accessToken) {
+          console.log('🔍 No valid access token found in cookies');
+        }
+      }
+
+      if (!accessToken) {
+        throw new Error('No access token found');
+      }
+
+      console.log('🔐 Verifying JWT token...');
+
+      // Verify JWT token
+      const userInfo = await verifyJWTToken(accessToken);
+
+      console.log('✅ JWT verified successfully');
+
+      // Extract user information
+      const userId = String(userInfo.sub || userInfo.user_id || userInfo.id || '');
+      const userEmail = String(userInfo.email || userInfo.primary_email || userInfo.primaryEmail || userInfo.email_address || userInfo.user_email || '');
+      const userName = String(userInfo.displayName || userInfo.display_name || userInfo.name || userInfo.given_name || userInfo.full_name || '');
+
+      console.log('📊 Extracted user info:', {
+        id: userId,
+        email: userEmail,
+        name: userName
+      });
+
+      return {
+        id: userId,
+        email: userEmail,
+        firstName: userName?.split(' ')[0] || null,
+        lastName: userName?.split(' ').slice(1).join(' ') || null,
+        plan: 'sselfie-studio',
+        role: 'user',
+        stackUser: userInfo
+      };
+    }
+
+    // Ensure DB user exists
+    async function ensureDbUserFromStack(stackUser: {
+      id?: string;
+      email?: string | null;
+      displayName?: string | null;
+      firstName?: string | null;
+      lastName?: string | null;
+      profileImageUrl?: string | null;
+    }) {
+      const { storage } = await import('../server/storage.js');
+      const stackId = (stackUser.id || '') as string;
+      const email = (stackUser.email || '') as string;
+
+      // Try by ID
+      let dbUser = stackId ? await storage.getUser(stackId) : undefined;
+      if (dbUser) return dbUser;
+
+      // Try by linked stack auth id
+      if (!dbUser && stackId) {
+        dbUser = await storage.getUserByStackAuthId(stackId);
+        if (dbUser) return dbUser;
+      }
+
+      // Try by email, then link
+      if (!dbUser && email) {
+        const byEmail = await storage.getUserByEmail(email);
+        if (byEmail) {
+          return await storage.linkStackAuthId(byEmail.id, stackId || byEmail.id);
+        }
+      }
+
+      // Create new user
+      return await storage.upsertUser({
+        id: stackId || email || `user_${Date.now()}`,
+        email: email || undefined,
+        displayName: stackUser.displayName || null,
+        firstName: stackUser.firstName ? stackUser.firstName.split(' ')[0] : null,
+        lastName: stackUser.lastName ? stackUser.lastName.split(' ').slice(1).join(' ') : null,
+        profileImageUrl: stackUser.profileImageUrl || null,
+      } as any);
+    }
+
+    // Auto-registration endpoint
+    if (req.url === '/api/auth/auto-register') {
+      if (req.method !== 'POST') {
+        return res.status(405).json({ error: 'Method not allowed' });
+      }
+
+      try {
+        const { email, plan, source } = req.body || {};
+
+        if (!email || !plan) {
+          return res.status(400).json({ error: 'Email and plan are required' });
+        }
+
+        console.log('🚀 AUTO-REGISTRATION: Creating database user for:', email, 'plan:', plan);
+
+        const { storage } = await import('../server/storage.js');
+        const existingUser = await storage.getUserByEmail(email);
+
+        if (existingUser) {
+          console.log('✅ AUTO-REGISTRATION: User already exists, updating plan:', existingUser.id);
+
+          const updatedUser = await storage.updateUserProfile(existingUser.id, {
+            plan: plan,
+            monthlyGenerationLimit: plan === 'sselfie-studio' ? 100 : -1,
+            mayaAiAccess: true,
+            lastLoginAt: new Date()
+          });
+
+          return res.status(200).json({
+            success: true,
+            message: 'Account updated successfully',
+            userId: updatedUser.id,
+            email: updatedUser.email,
+            action: 'updated'
+          });
+        }
+
+        const newUserId = `user_${Date.now()}_${email.split('@')[0]}`;
+        const newUser = await storage.upsertUser(getDefaultUserFields({
+          id: newUserId,
+          email: email,
+          displayName: email.split('@')[0],
+          firstName: null,
+          lastName: null,
+          profileImageUrl: null,
+          plan: plan,
+          monthlyGenerationLimit: plan === 'sselfie-studio' ? 100 : -1,
+          onboardingProgress: JSON.stringify({ source: source || 'payment-success' })
+        }) as InsertUser & { email: string });
+
+        console.log('✅ AUTO-REGISTRATION: Database user created successfully:', newUser.id);
+
+        res.setHeader('Cache-Control', 'no-store');
+        return res.status(201).json({
+          success: true,
+          message: 'Account pre-created successfully',
+          userId: newUser.id,
+          email: newUser.email,
+          plan: newUser.plan,
+          action: 'created'
+        });
+
+      } catch (error) {
+        console.error('❌ AUTO-REGISTRATION: Failed:', error);
+        return res.status(500).json({
+          success: false,
+          error: 'Failed to create account',
+          message: (error as Error).message
+        });
+      }
+    }
+
+    // Auth user endpoint
+    if (req.url?.includes('/api/auth/user')) {
+      console.log('🔍 Auth user endpoint called');
+
+      try {
+        const user = await getAuthenticatedUser();
+        res.setHeader('Cache-Control', 'no-store');
+        return res.status(200).json(user);
+      } catch (error) {
+        console.log('❌ Authentication failed:', (error as Error).message);
+        return res.status(401).json({
+          message: 'Authentication required',
+          error: (error as Error).message
+        });
+      }
+    }
+
+    // User model endpoint - Simplified for minimal setup
+    if (req.url?.includes('/api/user-model')) {
+      console.log('🔍 User model endpoint called');
+
+      try {
+        const user = await getAuthenticatedUser();
+        const { storage } = await import('../server/storage.js');
+
+        console.log('🔍 Getting model for user:', user.id, user.email);
+
+        // Get or create user in database
+        let dbUser = await ensureDbUserFromStack(user);
+
+        // Get user model
+        let userModel: UserModel | null = null;
+        try {
+          userModel = await storage.getUserModel(dbUser.id);
+        } catch (error) {
+          console.warn('⚠️ Model fetch failed:', (error as Error).message);
+        }
+
+        let trainingStatus = 'not_started';
+        let needsTraining = true;
+        let canRetrain = false;
+
+        if (userModel) {
+          trainingStatus = userModel.trainingStatus || 'not_started';
+          needsTraining = trainingStatus !== 'completed';
+          canRetrain = true;
+        }
+
+        const modelStatus = {
+          id: userModel?.id || null,
+          userId: dbUser.id,
+          trainingStatus: trainingStatus,
+          needsTraining: needsTraining,
+          canRetrain: canRetrain,
+          modelType: 'sselfie-studio',
+          createdAt: userModel?.createdAt || null,
+          updatedAt: userModel?.updatedAt || null,
+          userPlan: dbUser.plan,
+          hasActiveSubscription: (dbUser.monthlyGenerationLimit === -1 || (dbUser.monthlyGenerationLimit && dbUser.monthlyGenerationLimit > 0)),
+          onboardingSource: 'minimal-setup'
+        };
+
+        console.log('📊 Returning model status:', {
+          trainingStatus,
+          needsTraining,
+          canRetrain,
+          userPlan: dbUser.plan
+        });
+
+        res.setHeader('Cache-Control', 'no-store');
+        return res.status(200).json(modelStatus);
+
+      } catch (error) {
+        console.error('❌ User model endpoint failed:', error);
+        return res.status(500).json({
+          error: 'Failed to retrieve user data',
+          message: (error as Error).message
+        });
+      }
+    }
+
+    // Maya chat endpoint - Simplified for minimal setup
+    if (req.url?.includes('/api/maya/chat')) {
+      console.log('🔍 Maya chat endpoint called');
+
+      if (req.method !== 'POST') {
+        return res.status(405).json({ error: 'Method not allowed' });
+      }
+
+      try {
+        const user = await getAuthenticatedUser();
+        const body = req.body || {};
+        const { message } = body;
+
+        if (!message) {
+          return res.status(400).json({ error: 'Message is required' });
+        }
+
+        console.log('🎨 MAYA: Processing chat for user:', user.id);
+
+        // Simple response for minimal setup
+        const response = {
+          id: `maya_${Date.now()}`,
+          userId: user.id,
+          message: message,
+          response: "Hello! I'm Maya, your AI creative director. I'm here to help you create amazing brand visuals. What kind of images would you like to generate today?",
+          conceptCards: [],
+          timestamp: new Date().toISOString(),
+          context: 'minimal-setup'
+        };
+
+        console.log('📊 Returning Maya response');
+        res.setHeader('Cache-Control', 'no-store');
+        return res.status(200).json(response);
+
+      } catch (error) {
+        console.log('❌ Maya chat failed:', (error as Error).message);
+        return res.status(401).json({
+          message: 'Authentication required',
+          error: (error as Error).message
+        });
+      }
+    }
+
+    // Maya chats list endpoint - Simplified
+    if (req.url?.includes('/api/maya-chats')) {
+      console.log('🔍 Maya chats list endpoint called');
+
+      try {
+        const user = await getAuthenticatedUser();
+
+        const chats = [
+          {
+            id: `chat_1_${user.id}`,
+            userId: user.id,
+            title: 'Welcome to SSELFIE Studio',
+            lastMessage: 'Hello! I\'m Maya, your AI creative director.',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          }
+        ];
+
+        console.log('📊 Returning Maya chats:', chats.length, 'chats');
+        res.setHeader('Cache-Control', 'no-store');
+        return res.status(200).json(chats);
+
+      } catch (error) {
+        console.log('❌ Maya chats fetch failed:', (error as Error).message);
+        return res.status(401).json({
+          message: 'Authentication required',
+          error: (error as Error).message
+        });
+      }
+    }
+
+    // Training status endpoint - Simplified
+    if (req.url === '/api/training/status') {
+      try {
+        const user = await getAuthenticatedUser();
+        const { storage } = await import('../server/storage.js');
+        const model = await storage.getUserModelByUserId(user.id);
+        const status = model?.trainingStatus || 'not_started';
+        const progress = model?.trainingProgress || (status === 'completed' ? 100 : 0);
+
+        res.setHeader('Cache-Control', 'no-store');
+        return res.status(200).json({ status, progress, model });
+      } catch (error) {
+        return res.status(401).json({ error: 'Authentication required', message: (error as Error).message });
+      }
+    }
+
+    // Gallery endpoint - Simplified
+    if (req.url === '/api/gallery' || req.url?.startsWith('/api/gallery?') || req.url === '/api/gallery-images') {
+      console.log('🔍 Gallery endpoint called');
+
+      try {
+        const user = await getAuthenticatedUser();
+        const { storage } = await import('../server/storage.js');
+
+        // Get images from database
+        const aiImages = await storage.getAIImages(user.id);
+        const generatedImages = await storage.getGeneratedImages(user.id);
+
+        const galleryImages = [
+          ...aiImages.map(img => ({
+            id: img.id.toString(),
+            userId: img.userId,
+            type: 'ai_generated',
+            title: img.category || 'AI Generated Image',
+            description: 'AI-generated image',
+            imageUrl: img.url,
+            createdAt: (img.createdAt || new Date()).toISOString(),
+            tags: img.category ? [img.category] : ['ai-generated']
+          })),
+          ...generatedImages.map(img => ({
+            id: `gen_${img.id}`,
+            userId: img.userId,
+            type: 'generated',
+            title: 'Generated Image',
+            description: 'Generated image',
+            imageUrl: img.url,
+            createdAt: (img.createdAt || new Date()).toISOString(),
+            tags: [img.category || 'generated']
+          }))
+        ];
+
+        galleryImages.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+        console.log('📊 Returning gallery images:', galleryImages.length, 'total images');
+        res.setHeader('Cache-Control', 'no-store');
+        return res.status(200).json(galleryImages);
+
+      } catch (error) {
+        console.log('❌ Gallery fetch failed:', (error as Error).message);
+        return res.status(500).json({
+          message: 'Failed to fetch gallery images',
+          error: (error as Error).message
+        });
+      }
+    }
+
+    // Default response
+    return res.status(200).json({
+      message: 'SSELFIE Studio API - Minimal Setup',
+      endpoint: req.url
+    });
+
+  } catch (error) {
+    console.error('❌ API Handler Error:', error);
+    return res.status(500).json({
+      error: 'Internal server error',
+      message: (error as Error).message
+    });
+  }
 }
 
 // Minimal AiImage type for local use
@@ -105,14 +684,7 @@ async function timedFetch(url: string, ms = 3000, init?: FetchInit) {
         clearTimeout(id);
       }
     },
-    // Create a Node.js compatible response object instead of using Response constructor
-    { 
-      ok: false, 
-      status: 408, 
-      statusText: 'Request Timeout',
-      json: async () => ({ error: 'Network timeout' }),
-      text: async () => 'Network timeout'
-    } as any,
+    new Response(JSON.stringify({ error: 'Network timeout' }), { status: 408 }),
     ms,
     1,
     `fetch-${url}`
@@ -152,6 +724,7 @@ const circuitBreaker: CircuitBreakerState = {
 };
 
 const CIRCUIT_BREAKER_THRESHOLD = 5;
+const CIRCUIT_BREAKER_TIMEOUT = 30000;
 const CIRCUIT_BREAKER_RESET_TIME = 60000;
 
 function checkCircuitBreaker(): boolean {
@@ -160,6 +733,7 @@ function checkCircuitBreaker(): boolean {
   if (circuitBreaker.isOpen && now - circuitBreaker.lastFailure > CIRCUIT_BREAKER_RESET_TIME) {
     circuitBreaker.isOpen = false;
     circuitBreaker.failures = 0;
+    console.log('🔄 Circuit breaker reset');
   }
   
   return !circuitBreaker.isOpen;
@@ -171,12 +745,14 @@ function recordCircuitBreakerFailure() {
   
   if (circuitBreaker.failures >= CIRCUIT_BREAKER_THRESHOLD) {
     circuitBreaker.isOpen = true;
+    console.log('⚠️ Circuit breaker opened due to repeated database failures');
   }
 }
 
 function recordCircuitBreakerSuccess() {
   if (circuitBreaker.failures > 0) {
     circuitBreaker.failures = 0;
+    console.log('✅ Circuit breaker: database operations successful');
   }
 }
 
@@ -189,6 +765,7 @@ function nowMs(): number {
 function logStart(route: string, meta?: Record<string, unknown>) {
   const start = nowMs();
   try { 
+    console.log(`▶️ ${route} start`, meta || {}); 
   } catch {
     // Ignore logging errors
   }
@@ -196,6 +773,7 @@ function logStart(route: string, meta?: Record<string, unknown>) {
     end: (outcome: string, extra?: Record<string, unknown>) => {
       const elapsed = Math.round(nowMs() - start);
       try { 
+        console.log(`⏱️ ${route} ${outcome}`, { elapsedMs: elapsed, ...(extra || {}) }); 
       } catch {
         // Ignore logging errors
       }
@@ -204,7 +782,122 @@ function logStart(route: string, meta?: Record<string, unknown>) {
   };
 }
 
+// Gender context application
+async function applyGenderContext(conceptCards: ConceptCard[], userId: string): Promise<ConceptCard[]> {
+  try {
+    console.log('🎯 Applying gender context to concept cards for user:', userId);
+    
+    const { storage } = await import('../server/storage.js');
+    const { enforceGender, normalizeGender } = await import('../server/utils/gender-prompt.js');
+    
+    const [user, userModel] = await Promise.all([
+      storage.getUser(userId),
+      storage.getUserModelByUserId(userId)
+    ]);
+    
+    if (!user?.gender || !userModel?.triggerWord) {
+      console.log('⚠️ Gender or trigger word not available, skipping gender enforcement');
+      return conceptCards;
+    }
+    
+    const secureGender = normalizeGender(user.gender);
+    if (!secureGender) {
+      console.log('⚠️ Invalid gender format, skipping gender enforcement');
+      return conceptCards;
+    }
+    
+    console.log(`✅ Applying gender context: ${secureGender} with trigger: ${userModel.triggerWord}`);
+    
+    return conceptCards.map((concept, index) => {
+      let updatedPrompt = concept.fluxPrompt;
+      let updatedDescription = concept.description;
+      
+      if (updatedPrompt) {
+        const enforcedPrompt = enforceGender(userModel.triggerWord!, updatedPrompt, secureGender);
+        if (enforcedPrompt !== updatedPrompt) {
+          console.log(`✅ Gender enforced in concept ${index + 1}: ${concept.title}`);
+          updatedPrompt = enforcedPrompt;
+        }
+      }
+      
+      if (updatedDescription) {
+        if (secureGender === 'man') {
+          updatedDescription = updatedDescription
+            .replace(/\bshe\b/gi, 'he')
+            .replace(/\bher\b/gi, 'his')
+            .replace(/\bwoman\b/gi, 'man')
+            .replace(/\bwomen\b/gi, 'men');
+        } else if (secureGender === 'woman') {
+          updatedDescription = updatedDescription
+            .replace(/\bhe\b/gi, 'she')
+            .replace(/\bhis\b/gi, 'her')
+            .replace(/\bman\b/gi, 'woman')
+            .replace(/\bmen\b/gi, 'women');
+        } else if (secureGender === 'non-binary') {
+          updatedDescription = updatedDescription
+            .replace(/\b(he|she)\b/gi, 'they')
+            .replace(/\b(his|her)\b/gi, 'their')
+            .replace(/\b(man|woman)\b/gi, 'person')
+            .replace(/\b(men|women)\b/gi, 'people');
+        }
+      }
+      
+      return {
+        ...concept,
+        fluxPrompt: updatedPrompt,
+        description: updatedDescription
+      };
+    });
+    
+  } catch (error) {
+    console.log('❌ Gender context application failed (non-blocking):', error instanceof Error ? error.message : error);
+    return conceptCards;
+  }
+}
 
+// Extract concept cards from Maya's response
+function extractConceptCards(response: string): ConceptCard[] {
+  const conceptCards: ConceptCard[] = [];
+  
+  try {
+    const conceptSections = response.split('---').filter(section => section.trim());
+    
+    conceptSections.forEach((section, index) => {
+      const lines = section.trim().split('\n').filter(line => line.trim());
+      
+      if (lines.length >= 2) {
+        const titleLine = lines[0];
+        const emojiMatch = titleLine.match(/^([🎯✨💼🌟💫🏆📸🎬])/u);
+        const titleMatch = titleLine.match(/\*\*(.*?)\*\*/);
+        
+        const emoji = emojiMatch ? emojiMatch[1] : '🎯';
+        const title = titleMatch ? titleMatch[1].trim() : `Concept ${index + 1}`;
+        const description = lines[1] || '';
+        
+        let fluxPrompt = '';
+        const fluxPromptLine = lines.find(line => line.includes('FLUX_PROMPT:'));
+        if (fluxPromptLine) {
+          fluxPrompt = fluxPromptLine.replace('FLUX_PROMPT:', '').trim();
+        }
+        
+        if (title && description) {
+          conceptCards.push({
+            id: `concept_${Date.now()}_${index + 1}`,
+            title: title,
+            description: description,
+            fluxPrompt: fluxPrompt,
+            category: getCategoryFromTitle(title),
+            emoji: emoji
+          });
+        }
+      }
+    });
+  } catch (error) {
+    console.log('❌ Error extracting concept cards:', (error as Error).message);
+  }
+  
+  return conceptCards;
+}
 
 // Categorize concepts
 function getCategoryFromTitle(title: string): string {
@@ -250,10 +943,10 @@ async function verifyJWTToken(token: string): Promise<StackAuthUserInfo> {
 }
 
 // Default user fields
-function getDefaultUserFields(overrides: Partial<InsertUser> = {}): InsertUser {
+function getDefaultUserFields(overrides: Partial<InsertUser> & { email: string }): InsertUser & { email: string } {
   return {
     id: overrides.id ?? '',
-    email: overrides.email ?? null,
+    email: overrides.email!, // Required field, should always be provided
     displayName: overrides.displayName ?? null,
     firstName: overrides.firstName ?? null,
     lastName: overrides.lastName ?? null,
@@ -287,6 +980,8 @@ function parseCookieHeader(cookieHeader?: string): Record<string, string> {
 // Main handler function
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
+    console.log('🔍 API Handler: Request received', req.url);
+    console.log('🔍 Method:', req.method);
 
     // Vercel Skew Protection
     if (process.env['VERCEL_SKEW_PROTECTION_ENABLED'] === '1' && process.env['VERCEL_DEPLOYMENT_ID']) {
@@ -301,6 +996,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           res.setHeader('Set-Cookie', cookieValue);
         }
       } catch (e) {
+        console.log('⚠️ Failed to set __vdpl cookie:', (e as Error).message);
       }
     }
     
@@ -366,11 +1062,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const authHeader = req.headers.authorization;
       if (authHeader?.startsWith('Bearer ')) {
         accessToken = authHeader.substring(7);
+        console.log('🔐 Found Bearer token in Authorization header');
       }
       
       // Check cookies
       const cookiesSource: Record<string, string> = (req as unknown as { cookies?: Record<string, string> }).cookies || parseCookieHeader(req.headers.cookie as string);
       if (!accessToken && cookiesSource) {
+        console.log('🍪 All cookies received:', Object.keys(cookiesSource));
         
         const cookiesToTry = [
           'stack-access',
@@ -383,6 +1081,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           const cookieValue = cookiesSource[cookieName];
           
           if (cookieValue) {
+            console.log(`🍪 Found cookie: ${cookieName}`);
             
             try {
               // Try parsing as JSON array
@@ -390,6 +1089,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 const stackAccessArray = JSON.parse(cookieValue);
                 if (Array.isArray(stackAccessArray) && stackAccessArray.length >= 2) {
                   accessToken = stackAccessArray[1];
+                  console.log('🔐 Found access token in JSON array format');
                   break;
                 }
               }
@@ -399,6 +1099,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 const stackAccessObj = JSON.parse(cookieValue);
                 if (stackAccessObj.accessToken || stackAccessObj.token || stackAccessObj.jwt) {
                   accessToken = stackAccessObj.accessToken || stackAccessObj.token || stackAccessObj.jwt;
+                  console.log('🔐 Found access token in JSON object format');
                   break;
                 }
               }
@@ -406,13 +1107,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               // Try as direct token
               if (cookieValue.length > 20 && cookieValue.includes('.')) {
                 accessToken = cookieValue;
+                console.log('🔐 Found access token in direct string format');
                 break;
               }
               
             } catch (parseError) {
+              console.log(`⚠️ Failed to parse ${cookieName} cookie:`, (parseError as Error).message);
               
               if (cookieValue.length > 20) {
                 accessToken = cookieValue;
+                console.log('🔐 Using raw cookie value as token');
                 break;
               }
             }
@@ -420,6 +1124,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
         
         if (!accessToken) {
+          console.log('🔍 No valid access token found in cookies');
         }
       }
       
@@ -427,16 +1132,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         throw new Error('No access token found');
       }
 
+      console.log('🔐 Verifying JWT token...');
       
       // Verify JWT token
       const userInfo = await verifyJWTToken(accessToken);
       
+      console.log('✅ JWT verified successfully');
       
       // Extract user information
       const userId = String(userInfo.sub || userInfo.user_id || userInfo.id || '');
       const userEmail = String(userInfo.email || userInfo.primary_email || userInfo.primaryEmail || userInfo.email_address || userInfo.user_email || '');
       const userName = String(userInfo.displayName || userInfo.display_name || userInfo.name || userInfo.given_name || userInfo.full_name || '');
       
+      console.log('📊 Extracted user info:', {
         id: userId,
         email: userEmail,
         name: userName
@@ -485,14 +1193,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
 
       // Create new user
-      return await storage.upsertUser(getDefaultUserFields({
+      return await storage.upsertUser({
         id: stackId || email || `user_${Date.now()}`,
-        email: email || null,
+        email: email || undefined,
         displayName: stackUser.displayName || null,
-        firstName: stackUser.firstName || (stackUser.displayName ? stackUser.displayName.split(' ')[0] : null),
-        lastName: stackUser.lastName || (stackUser.displayName ? stackUser.displayName.split(' ').slice(1).join(' ') : null),
+        firstName: stackUser.firstName ? stackUser.firstName.split(' ')[0] : null,
+        lastName: stackUser.lastName ? stackUser.lastName.split(' ').slice(1).join(' ') : null,
         profileImageUrl: stackUser.profileImageUrl || null,
-      }));
+      } as any);
     }
 
     // Admin export: trained users document
@@ -553,11 +1261,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           return res.status(400).json({ error: 'Email and plan are required' });
         }
         
+        console.log('🚀 AUTO-REGISTRATION: Creating database user for:', email, 'plan:', plan);
         
         const { storage } = await import('../server/storage.js');
         const existingUser = await storage.getUserByEmail(email);
         
         if (existingUser) {
+          console.log('✅ AUTO-REGISTRATION: User already exists, updating plan:', existingUser.id);
           
           const updatedUser = await storage.updateUserProfile(existingUser.id, {
             plan: plan,
@@ -586,8 +1296,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           plan: plan,
           monthlyGenerationLimit: plan === 'sselfie-studio' ? 100 : -1,
           onboardingProgress: JSON.stringify({ source: source || 'payment-success' })
-        }));
+        }) as InsertUser & { email: string });
         
+        console.log('✅ AUTO-REGISTRATION: Database user created successfully:', newUser.id);
         
         res.setHeader('Cache-Control', 'no-store');
         return res.status(201).json({
@@ -611,11 +1322,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Stack Auth API proxy endpoints
     if (req.url?.startsWith('/api/auth/') && !req.url.includes('auto-register')) {
+      console.log('🔍 Stack Auth API proxy called:', req.url);
       
       try {
         const stackAuthPath = req.url.replace('/api/auth', '');
         const stackAuthUrl = `https://api.stack-auth.com/api/v1/projects/${STACK_AUTH_PROJECT_ID}${stackAuthPath}`;
         
+        console.log('🔄 Proxying to Stack Auth:', stackAuthUrl);
         
         const proxyResponse = await fetch(stackAuthUrl, {
           method: req.method,
@@ -638,6 +1351,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(proxyResponse.status).send(responseData);
         
       } catch (error) {
+        console.log('❌ Stack Auth proxy failed:', (error as Error).message);
         return res.status(500).json({ 
           error: 'Stack Auth proxy failed',
           message: (error as Error).message
@@ -647,12 +1361,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Auth user endpoint
     if (req.url?.includes('/api/auth/user')) {
+      console.log('🔍 Auth user endpoint called');
       
       try {
         const user = await getAuthenticatedUser();
         res.setHeader('Cache-Control', 'no-store');
         return res.status(200).json(user);
       } catch (error) {
+        console.log('❌ Authentication failed:', (error as Error).message);
         return res.status(401).json({ 
           message: 'Authentication required',
           error: (error as Error).message
@@ -818,6 +1534,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const user = await getAuthenticatedUser();
         const { storage } = await import('../server/storage.js');
         
+        console.log('🔍 Getting model for user:', user.id, user.email);
         
         let dbUser = null;
         let userModel: UserModel | null = null;
@@ -826,15 +1543,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         try {
           const result = await withDatabaseTimeoutAndRetry(
             () => storage.getUserModelByStackAuthAndEmail(user.id as string, user.email as string || ''), 
-            { user: null, model: null }, 
+            null, 
             3000,
             1,
             'getUserModelByStackAuthAndEmail'
           );
           
-          dbUser = result?.user || null;
-          userModel = result?.model || null;
+          userModel = result || null;
+          dbUser = userModel ? await storage.getUser(userModel.userId) : null;
           
+          console.log('✅ Bulletproof lookup result:', {
             foundUser: !!dbUser,
             foundModel: !!userModel,
             trainingStatus: userModel?.trainingStatus || 'not_started',
@@ -919,12 +1637,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           needsTraining = trainingStatus !== 'completed';
           canRetrain = true;
           
+          console.log('📊 Existing user model found:', {
             id: userModel.id,
             status: trainingStatus,
             needsTraining,
             canRetrain
           });
         } else {
+          console.log('🆕 New user detected - no model exists');
           needsTraining = true;
           canRetrain = false;
         }
@@ -954,6 +1674,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           onboardingSource: onboardingSourceSafe
         };
         
+        console.log('📊 Returning model status:', {
           trainingStatus,
           needsTraining,
           canRetrain,
@@ -1011,6 +1732,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           return res.status(400).json({ error: 'Image URL is required' });
         }
         
+        console.log('🎬 MAYA VIDEO DIRECTION: Creating motion prompt for user:', user.id);
         
         const videoDirectorPrompt = `You are Maya, SSELFIE Studio's AI Creative Director and Video Director. 
 
@@ -1086,7 +1808,9 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
           if (claudeResponse.ok) {
             const data = await claudeResponse.json();
             videoPrompt = data.content[0].text;
+            console.log('✅ MAYA VIDEO DIRECTION: Generated custom prompt via Claude Vision');
           } else {
+            console.log('⚠️ MAYA VIDEO DIRECTION: Claude Vision failed, using fallback prompt');
           }
           
           res.setHeader('Cache-Control', 'no-store');
@@ -1111,6 +1835,7 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
         
       } catch (authError) {
         t.end('unauthorized');
+        console.log('❌ Maya video prompt auth failed:', (authError as Error).message);
         return res.status(401).json({ 
           error: 'Authentication required',
           message: (authError as Error).message
@@ -1120,11 +1845,14 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
 
     // Maya generate endpoint
     if (req.url?.includes('/api/maya/generate')) {
+      console.log('🔍 Maya generate endpoint called:', req.url);
       
       try {
         const user = await getAuthenticatedUser();
+        console.log('🔍 Maya generate for user:', user.id);
         
         const body = req.body || {};
+        console.log('🔍 Maya generate request body:', JSON.stringify(body, null, 2));
         
         const { conceptCard } = body as {
           conceptCard?: {
@@ -1142,11 +1870,15 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
         // Use the new MayaService instead of old ModelTrainingService
         const { mayaService } = await import('../server/services/maya-service.js');
         
+        console.log('🎨 MAYA: Starting image generation for user:', user.id);
+        console.log('🎯 Concept:', conceptCard.title);
+        console.log('🎯 Prompt:', conceptCard.fluxPrompt);
         
         const generationResult = await mayaService.generateImages(user.id as string, {
           conceptCard
         });
         
+        console.log('✅ Generation result:', generationResult);
         
         res.setHeader('Cache-Control', 'no-store');
         return res.status(200).json({
@@ -1157,6 +1889,7 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
         });
         
       } catch (error) {
+        console.log('❌ Maya generate failed:', (error as Error).message);
         return res.status(500).json({ 
           message: 'Image generation failed',
           error: (error as Error).message
@@ -1166,6 +1899,7 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
 
     // Maya generation status endpoint
     if (req.url?.includes('/api/maya/status')) {
+      console.log('🔍 Maya status endpoint called:', req.url);
       
       try {
         const user = await getAuthenticatedUser();
@@ -1179,14 +1913,17 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
         // Use the new MayaService instead of old ModelTrainingService
         const { mayaService } = await import('../server/services/maya-service.js');
         
+        console.log('🔍 Checking generation status for generation:', generationId);
         
         const statusResult = await mayaService.getGenerationStatus(user.id as string, generationId);
         
+        console.log('� Generation status result:', statusResult);
         
         res.setHeader('Cache-Control', 'no-store');
         return res.status(200).json(statusResult);
         
       } catch (error) {
+        console.log('❌ Maya status check failed:', (error as Error).message);
         return res.status(500).json({ 
           message: 'Status check failed',
           error: (error as Error).message
@@ -1204,8 +1941,10 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
       
       try {
         const user = await getAuthenticatedUser();
+        console.log('🔍 Maya chat for user:', user.id, user.email);
         
         const body = req.body || {};
+        console.log('🔍 Maya chat request body:', JSON.stringify(body, null, 2));
         
         const { message, context = 'styling', conversationHistory = [] } = body as {
           message?: string;
@@ -1220,6 +1959,7 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
         // Use the new MayaService instead of direct Claude API calls
         const { mayaService } = await import('../server/services/maya-service.js');
         
+        console.log('🎨 MAYA: Using MayaService for chat processing');
         
         const chatResult = await mayaService.processChat(user.id as string, {
           message,
@@ -1233,18 +1973,20 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
           id: `maya_${Date.now()}`,
           userId: user.id,
           message: message,
-          response: chatResult.response,
-          conceptCards: chatResult.conceptCards,
+          response: chatResult.message,
+          conceptCards: [],
           timestamp: new Date().toISOString(),
           context: context
         };
         
+        console.log('📊 Returning Maya response:', JSON.stringify(response, null, 2));
         res.setHeader('Cache-Control', 'no-store');
         t.end('ok', { concepts: response.conceptCards?.length || 0 });
         return res.status(200).json(response);
         
       } catch (error) {
         t.end('error', { error: (error as Error).message });
+        console.log('❌ Maya chat failed:', (error as Error).message);
         
         if (isTimeoutError(error)) {
           return res.status(503).json({ 
@@ -1263,9 +2005,11 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
 
     // Maya chats list endpoint
     if (req.url?.includes('/api/maya-chats')) {
+      console.log('🔍 Maya chats list endpoint called');
       
       try {
         const user = await getAuthenticatedUser();
+        console.log('🔍 Getting Maya chats for user:', user.id);
         
         const chats = [
           {
@@ -1286,10 +2030,12 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
           }
         ];
         
+        console.log('📊 Returning Maya chats:', chats.length, 'chats');
         res.setHeader('Cache-Control', 'no-store');
         return res.status(200).json(chats);
         
       } catch (error) {
+        console.log('❌ Maya chats fetch failed:', (error as Error).message);
         return res.status(401).json({ 
           message: 'Authentication required',
           error: (error as Error).message
@@ -1347,6 +2093,17 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
       }
     }
 
+    if (req.url === '/api/cron/generation-completion-monitor') {
+      try {
+        const { GenerationCompletionMonitor } = await import('../server/generation-completion-monitor.js');
+        const monitor = new GenerationCompletionMonitor();
+        await monitor.checkAllInProgressGenerations();
+        return res.status(200).json({ ok: true });
+      } catch (error) {
+        return res.status(500).json({ ok: false, error: (error as Error).message });
+      }
+    }
+
     // Gallery endpoints
     if (req.url === '/api/gallery' || req.url?.startsWith('/api/gallery?') || req.url === '/api/gallery-images' || req.url?.startsWith('/api/gallery-images?')) {
       const t = logStart('GET /api/gallery-images');
@@ -1363,6 +2120,7 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
         }
 
         const user = await getAuthenticatedUser();
+        console.log('🔍 Getting gallery images for user:', user.id, user.email);
         
         const { storage } = await import('../server/storage.js');
         
@@ -1383,25 +2141,27 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
           recordCircuitBreakerSuccess();
         }
         
+        console.log('📊 Found AI images:', aiImages.length);
+        console.log('📊 Found generated images:', generatedImages.length);
         
         const galleryImages = [
           ...aiImages.map(img => ({
             id: img.id.toString(),
             userId: img.userId,
             type: 'ai_generated',
-            title: img.style || 'AI Generated Image',
-            description: img.prompt || 'AI-generated image',
-            imageUrl: img.imageUrl,
+            title: img.category || 'AI Generated Image',
+            description: 'AI-generated image',
+            imageUrl: img.url,
             createdAt: (img.createdAt || new Date()).toISOString(),
-            tags: img.style ? [img.style] : ['ai-generated']
+            tags: img.category ? [img.category] : ['ai-generated']
           })),
           ...generatedImages.map(img => ({
             id: `gen_${img.id}`,
             userId: img.userId,
             type: 'generated',
             title: 'Generated Image',
-            description: img.prompt || 'Generated image',
-            imageUrl: img.selectedUrl || (img.imageUrls ? JSON.parse(img.imageUrls)[0] : null),
+            description: 'Generated image',
+            imageUrl: img.url,
             createdAt: (img.createdAt || new Date()).toISOString(),
             tags: [img.category || 'generated']
           }))
@@ -1409,12 +2169,14 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
         
         galleryImages.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         
+        console.log('📊 Returning gallery images:', galleryImages.length, 'total images');
         res.setHeader('Cache-Control', 'no-store');
         t.end('ok', { count: galleryImages.length });
         return res.status(200).json(galleryImages);
         
       } catch (error) {
         t.end('error', { error: (error as Error).message });
+        console.log('❌ Gallery fetch failed:', (error as Error).message);
         return res.status(500).json({ 
           message: 'Failed to fetch gallery images',
           error: (error as Error).message
@@ -1443,6 +2205,7 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
         const { storage } = await import('../server/storage.js');
         await storage.updateUserProfile(user.id as string, { gender });
         
+        console.log(`✅ Updated gender for user ${user.id}: ${gender}`);
         
         res.setHeader('Cache-Control', 'no-store');
         return res.status(200).json({ 
@@ -1451,6 +2214,7 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
         });
         
       } catch (error) {
+        console.log('❌ Gender update failed:', (error as Error).message);
         return res.status(500).json({ 
           error: 'Failed to update gender',
           message: (error as Error).message 
@@ -1550,6 +2314,7 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
 
     // 🔥 CRITICAL FIX: Stack Auth API Proxy for /api/v1/ requests
     if (req.url?.startsWith('/api/v1/')) {
+      console.log('🔍 Stack Auth API Proxy:', {
         url: req.url,
         method: req.method,
         headers: {
@@ -1583,6 +2348,7 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
           }
         });
 
+        console.log('🌐 Forwarding to Stack Auth:', stackAuthUrl);
 
         const stackAuthResponse = await fetch(stackAuthUrl, {
           method: req.method,
@@ -1592,6 +2358,7 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
 
         const responseData = await stackAuthResponse.json();
 
+        console.log('✅ Stack Auth Response:', {
           status: stackAuthResponse.status,
           hasConfig: !!responseData.config,
           hasSignUpEnabled: responseData.config?.sign_up_enabled !== undefined

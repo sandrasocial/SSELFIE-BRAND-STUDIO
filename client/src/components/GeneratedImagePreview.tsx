@@ -35,8 +35,6 @@ const GeneratedImagePreview: React.FC<GeneratedImagePreviewProps> = ({
 
   const handleSaveImage = async (imageUrl: string) => {
     try {
-      console.log('🔄 Attempting to save image:', imageUrl);
-      console.log('🔄 Concept data:', concept);
       
       const response = await fetch('/api/save-image', {
         method: 'POST',
@@ -49,13 +47,10 @@ const GeneratedImagePreview: React.FC<GeneratedImagePreviewProps> = ({
         credentials: 'include'
       });
 
-      console.log('📊 Save response status:', response.status);
       
       if (response.ok) {
         const result = await response.json();
-        console.log('✅ Save response:', result);
         setSavedImages(prev => new Set([...prev, imageUrl]));
-        console.log('✅ Image saved to gallery successfully');
       } else {
         const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
         console.error('❌ Failed to save image:', response.status, errorData);
@@ -66,7 +61,6 @@ const GeneratedImagePreview: React.FC<GeneratedImagePreviewProps> = ({
   };
 
   const handleSaveAll = async () => {
-    console.log('🔄 Attempting to save all images:', imageUrls);
     
     try {
       for (const imageUrl of imageUrls) {
@@ -77,7 +71,6 @@ const GeneratedImagePreview: React.FC<GeneratedImagePreviewProps> = ({
         onSave(imageUrls);
       }
       
-      console.log('✅ All images saved successfully');
     } catch (error) {
       console.error('❌ Error saving all images:', error);
     }

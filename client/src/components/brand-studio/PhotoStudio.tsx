@@ -155,7 +155,6 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
   // Auto-save and gallery functionality
   const handleAutoSaveToGallery = async (imageUrl: string, conceptTitle: string) => {
     try {
-      console.log('Auto-saving to gallery:', conceptTitle);
       const response = await fetch('/api/ai-images', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -168,7 +167,6 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
       });
 
       if (response.ok) {
-        console.log('Auto-saved to gallery successfully');
       }
     } catch (error) {
       console.error('Auto-save failed:', error);
@@ -177,7 +175,6 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
 
   const handleSaveToGallery = async (imageUrl: string, conceptTitle: string) => {
     try {
-      console.log('Manual save to gallery:', conceptTitle);
       toast({ title: "Saving to Gallery", description: "Adding image to your personal collection..." });
 
       const response = await fetch('/api/ai-images', {
@@ -222,9 +219,6 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
     if (handoffContext && user) {
       try {
         const context = JSON.parse(handoffContext);
-        console.log('ENHANCED HANDOFF: Received authenticated context from workspace:', context.message);
-        console.log('User Profile:', context.userProfile);
-        console.log('Business Context:', context.businessContext);
         
         if (context.userProfile?.userId === user.id) {
           const userName = context.userProfile?.name || 'there';
@@ -236,7 +230,6 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
             setMessage(''); // Clear the input to prevent duplicate sends
           }, 1000);
           
-          console.log('✅ HANDOFF: User authentication verified, enhanced context applied');
         } else {
           console.warn('⚠️ HANDOFF: User authentication mismatch, proceeding with standard flow');
         }
@@ -266,7 +259,6 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
   // Image generation using provider's mutation system
   const handleGenerateImage = async (card: ConceptCard) => {
     try {
-      console.log('🎯 Starting image generation for:', card.title);
       toast({ title: "Generating Images", description: `Creating visuals for "${card.title}"...` });
       
       const generationPayload = {
@@ -278,7 +270,6 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
         emoji: card.emoji
       };
       
-      console.log('🚀 Image generation request:', generationPayload);
       
       // Call the generation endpoint
       const response = await fetch('/api/generate-user-images', {
@@ -296,10 +287,8 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
       }
 
       const result: GenerationResponse = await response.json();
-      console.log('✅ Generation response:', result);
 
       if (result.images && result.images.length > 0) {
-        console.log('🖼️ Generated images:', result.images);
         
         toast({ 
           title: "Generation Complete!", 
@@ -358,7 +347,6 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
   const startSimpleConversation = () => {
     // Show Maya's welcome message without sending it as a user message
     // The provider should handle this via a static Maya welcome or direct message injection
-    console.log('Starting conversation with Maya...');
     // TODO: Implement proper welcome message injection via provider
     // For now, this is a placeholder that doesn't send user messages
   };

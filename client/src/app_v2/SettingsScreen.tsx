@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useAuth } from '../hooks/use-auth.js';
 import { 
   CreditCard, 

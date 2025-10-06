@@ -150,7 +150,6 @@ class PerformanceMonitor {
 
   private logMetric(name: string, value: number) {
     const status = this.getMetricStatus(name, value);
-    console.log(`📊 ${name}: ${value.toFixed(2)}ms ${status}`);
     
     // Send to analytics in production
     if (process.env.NODE_ENV === 'production') {

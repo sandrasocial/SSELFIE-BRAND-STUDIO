@@ -27,7 +27,6 @@ class PWAManager {
 
     // Listen for successful installation
     window.addEventListener('appinstalled', () => {
-      console.log('SSELFIE Studio: PWA installed successfully');
       this.isInstalled = true;
       this.hideInstallBanner();
       this.trackInstallation();
@@ -41,7 +40,6 @@ class PWAManager {
     if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production' && !/handler\//.test(window.location.pathname)) {
       try {
         const registration = await navigator.serviceWorker.register('/sw.js');
-        console.log('SSELFIE Studio: Service Worker registered', registration);
         
         // Handle updates - add error handling to prevent promise rejections
         registration.addEventListener('updatefound', () => {
@@ -87,10 +85,8 @@ class PWAManager {
       const { outcome } = await this.deferredPrompt.userChoice;
       
       if (outcome === 'accepted') {
-        console.log('SSELFIE Studio: User accepted install prompt');
         return true;
       } else {
-        console.log('SSELFIE Studio: User dismissed install prompt');
         return false;
       }
     } catch (error) {
@@ -188,7 +184,6 @@ class PWAManager {
 
   private showUpdateAvailable() {
     // Simple update notification
-    console.log('SSELFIE Studio: Update available');
     
     // Could show a toast notification here
     if (window.location.pathname === '/') {
@@ -217,7 +212,6 @@ class PWAManager {
 
   private trackInstallation() {
     // Track PWA installation for analytics
-    console.log('SSELFIE Studio: PWA installation tracked');
     
     // Could send to analytics service here
     try {

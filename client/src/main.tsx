@@ -15,8 +15,6 @@ import { queryClient } from "./lib/queryClient.js";
 import { stackClientApp } from "../../stack/client.js";
 
 // Debug logging for troubleshooting
-console.log('SSELFIE Studio: Main.tsx loading...');
-console.log('SSELFIE Studio: Root element found:', !!document.getElementById("root"));
 
 // Add visible debug indicator
 const debugDiv = document.createElement('div');
@@ -27,7 +25,6 @@ document.body.appendChild(debugDiv);
 
 // Disable Vite HMR to prevent WebSocket connection errors
 if (import.meta.hot) {
-  console.log('Disabling HMR to prevent connection issues');
   import.meta.hot.accept(() => {
     // Accept all hot updates without triggering WebSocket connections
   });
@@ -58,13 +55,11 @@ window.addEventListener('unhandledrejection', (event) => {
 
 // React sanity check for debugging
 if (import.meta.env.DEV) {
-  console.log("React sanity:", { 
     version: React.version, 
     hasUse: typeof (React as any).use === "function" 
   });
 }
 
-console.log('SSELFIE Studio: Starting up with Stack Auth authentication...');
 
 // Global listener for static modal video save events
 window.addEventListener('video:preview:save', async (e: Event) => {
@@ -80,7 +75,6 @@ window.addEventListener('video:preview:save', async (e: Event) => {
     if (!res.ok) {
       console.warn('[Video Save] Failed to persist video:', res.status, await res.text());
     } else {
-      console.log('[Video Save] Persisted video successfully');
     }
   } catch (err) {
     console.warn('[Video Save] Error persisting video', err);
@@ -88,17 +82,14 @@ window.addEventListener('video:preview:save', async (e: Event) => {
 });
 
 try {
-  console.log('SSELFIE Studio: Checking for root element...');
   const container = document.getElementById("root");
   if (!container) {
     console.error('❌ Root element not found!');
     throw new Error("Failed to find the root element");
   }
 
-  console.log('SSELFIE Studio: Creating React root...');
   const root = createRoot(container);
 
-  console.log('SSELFIE Studio: Rendering app WITH Stack Auth...');
   root.render(
     <React.StrictMode>
       {/* Re-enable Stack Auth provider */}
@@ -117,7 +108,6 @@ try {
     </React.StrictMode>
   );
 
-  console.log('✅ SSELFIE Studio: App rendered successfully WITH Stack Auth!');
 } catch (error) {
   console.error('❌ SSELFIE Studio: Fatal error during app initialization:', error);
   

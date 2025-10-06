@@ -134,7 +134,6 @@ export function MayaUploadComponent({
         DEFAULT_IMAGE_PROCESSING_OPTIONS,
         (completed, total, currentFile) => {
           const progress = Math.round((completed / total) * 100);
-          console.log(`Maya processing: ${progress}% (${currentFile})`);
         }
       );
 
@@ -150,7 +149,6 @@ export function MayaUploadComponent({
         })
       );
 
-      console.log(`✅ Maya Enhanced: Compressed ${compressedBase64Images.length} images successfully`);
       startTraining.mutate(compressedBase64Images);
     } catch (error) {
       toast({

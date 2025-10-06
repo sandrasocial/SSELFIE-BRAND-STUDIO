@@ -68,15 +68,12 @@ router.get('/api/gallery', requireStackAuth, asyncHandler(async (req: Authentica
   
   try {
     res.setHeader('Cache-Control', 'no-store');
-    console.log('🔍 Gallery: Fetching images for user:', userId);
     
     // Get AI images from the database
     const aiImages = await storage.getAIImages(userId);
-    console.log('📊 Gallery: Found', aiImages.length, 'AI images');
     
     // Also get generated images (newer table)
     const generatedImages = await storage.getGeneratedImages(userId);
-    console.log('📊 Gallery: Found', generatedImages.length, 'generated images');
     
     // Combine both sources and format for frontend
     const allImages: GalleryImage[] = [
@@ -119,7 +116,6 @@ router.get('/api/gallery', requireStackAuth, asyncHandler(async (req: Authentica
     // Sort by creation date (newest first)
     allImages.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     
-    console.log('📊 Gallery: Returning', allImages.length, 'total images');
     
     const responseData: SuccessResponse<{
       gallery: GalleryImage[];
@@ -145,15 +141,12 @@ router.get('/api/gallery-images', requireStackAuth, asyncHandler(async (req: Aut
   
   try {
     res.setHeader('Cache-Control', 'no-store');
-    console.log('🔍 Gallery: Fetching images for user:', userId);
     
     // Get AI images from the database
     const aiImages = await storage.getAIImages(userId);
-    console.log('📊 Gallery: Found', aiImages.length, 'AI images');
     
     // Also get generated images (newer table)
     const generatedImages = await storage.getGeneratedImages(userId);
-    console.log('📊 Gallery: Found', generatedImages.length, 'generated images');
     
     // Combine both sources and format for frontend
     const allImages: GalleryImage[] = [
@@ -196,7 +189,6 @@ router.get('/api/gallery-images', requireStackAuth, asyncHandler(async (req: Aut
     // Sort by creation date (newest first)
     allImages.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     
-    console.log('📊 Gallery: Returning', allImages.length, 'total images');
     
     const responseData: SuccessResponse<GalleryImage[]> = {
       data: allImages

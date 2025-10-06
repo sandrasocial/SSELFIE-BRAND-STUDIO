@@ -1141,7 +1141,7 @@ exports.imageVariants = (0, pg_core_1.pgTable)("image_variants", {
     createdAt: (0, pg_core_1.timestamp)("created_at").defaultNow(),
 });
 // Export styleguide tables and types  
-var styleguide_schema_js_1 = require("./styleguide-schema.js");
+const styleguide_schema_js_1 = require("./styleguide-schema.js");
 Object.defineProperty(exports, "userStyleguides", { enumerable: true, get: function () { return styleguide_schema_js_1.userStyleguides; } });
 Object.defineProperty(exports, "styleguideTemplates", { enumerable: true, get: function () { return styleguide_schema_js_1.styleguideTemplates; } });
 // Website management schema types

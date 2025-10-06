@@ -12,7 +12,6 @@ export function MyUserButton() {
       extraItems={[{
         text: 'Custom Action',
         icon: <CustomIcon />,
-        onClick: () => console.log('Custom action clicked')
       }]}
     />
   );

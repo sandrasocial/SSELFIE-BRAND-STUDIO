@@ -151,9 +151,7 @@ export function logConfigurationStatus(): void {
   console.group('🔧 Environment Configuration Status');
   
   if (validation.isValid) {
-    console.log('✅ Configuration is valid');
     if (validation.config?.stripe) {
-      console.log(`🔑 Stripe: ${validation.config.stripe.isTestMode ? 'Test Mode' : 'Live Mode'}`);
     }
   } else {
     console.error('❌ Configuration is invalid');

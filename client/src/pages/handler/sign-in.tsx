@@ -3,7 +3,6 @@ import { SafeStackSignIn } from "../../components/SafeStackSignIn.js";
 
 // Handles the sign-in page for email/password and OAuth
 const SignInHandler: React.FC = () => {
-  console.log('🔍 SignInHandler: Component is rendering');
   
   // Add visible debug indicator
   React.useEffect(() => {

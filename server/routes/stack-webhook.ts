@@ -5,12 +5,10 @@ import crypto from "crypto";
 
 // Stack Auth webhook handler for user sync
 export function setupStackWebhook(app: Express) {
-  console.log('🔧 Setting up Stack Auth webhook...');
 
   // Stack Auth webhook endpoint for user sync
   app.post('/api/webhooks/stack', async (req, res) => {
     try {
-      console.log('📥 Stack Auth webhook received:', req.body?.event_type);
       
       // Verify webhook signature (if Stack Auth provides one)
       // TODO: Add signature verification when Stack Auth documentation is available
@@ -19,7 +17,6 @@ export function setupStackWebhook(app: Express) {
       const eventType = event.event_type;
       const userData = event.data;
 
-      console.log('📊 Webhook event details:', {
         type: eventType,
         userId: userData?.id,
         email: userData?.primary_email
@@ -36,7 +33,6 @@ export function setupStackWebhook(app: Express) {
           break;
         
         default:
-          console.log(`⚠️ Unhandled Stack Auth event type: ${eventType}`);
       }
 
       // Acknowledge successful processing
@@ -51,13 +47,11 @@ export function setupStackWebhook(app: Express) {
     }
   });
 
-  console.log('✅ Stack Auth webhook handler setup complete at /api/webhooks/stack');
 }
 
 // Handle user creation and updates from Stack Auth
 async function handleUserUpsert(stackUser: any) {
   try {
-    console.log('🔄 Processing user upsert for:', stackUser.id);
 
     // Map Stack Auth user data to your user schema
     const userData: InsertUser = {
@@ -85,7 +79,6 @@ async function handleUserUpsert(stackUser: any) {
     // Upsert user to database
     const user = await storage.upsertUser(userData);
     
-    console.log('✅ User synced successfully:', {
       id: user.id,
       email: user.email,
       plan: user.plan
@@ -101,11 +94,9 @@ async function handleUserUpsert(stackUser: any) {
 // Handle user deletion from Stack Auth
 async function handleUserDeletion(stackUser: any) {
   try {
-    console.log('🗑️ Processing user deletion for:', stackUser.id);
     
     // Note: You may want to soft-delete or archive user data instead
     // For now, we'll log it but not actually delete to preserve user content
-    console.log('⚠️ User deletion received - implement based on business requirements');
     
     // TODO: Implement user deletion logic based on business requirements
     // Consider: soft delete, data retention policies, cascade deletes

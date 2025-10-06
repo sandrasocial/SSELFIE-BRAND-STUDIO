@@ -12,12 +12,10 @@ import { analyticsReporting } from '../enterprise/analytics-reporting.js';
 import { requireStackAuth } from '../stack-auth.js'
 
 export function registerEnterpriseRoutes(app: Express): void {
-  console.log('🏢 Registering Enterprise Scaling API routes...');
 
   // Predictive Intelligence Endpoints
   app.get('/api/enterprise/predictive-metrics', requireStackAuth, async (req, res) => {
     try {
-      console.log('🔮 PREDICTIVE INTELLIGENCE: Generating metrics...');
       const metrics = await predictiveIntelligence.generatePredictiveMetrics();
       res.json({
         success: true,
@@ -37,7 +35,6 @@ export function registerEnterpriseRoutes(app: Express): void {
   // Security Audit Endpoints
   app.get('/api/enterprise/security-report', requireStackAuth, async (req, res) => {
     try {
-      console.log('🔒 SECURITY AUDIT: Generating security report...');
       const report = await securityAudit.generateSecurityReport();
       res.json({
         success: true,
@@ -76,7 +73,6 @@ export function registerEnterpriseRoutes(app: Express): void {
   // Performance Monitoring Endpoints
   app.get('/api/enterprise/performance-report', requireStackAuth, async (req, res) => {
     try {
-      console.log('📊 PERFORMANCE MONITOR: Generating performance report...');
       const report = await PerformanceMonitor.generatePerformanceReport();
       res.json({
         success: true,
@@ -142,7 +138,6 @@ export function registerEnterpriseRoutes(app: Express): void {
   // Global Expansion Endpoints
   app.get('/api/enterprise/global-expansion', requireStackAuth, async (req, res) => {
     try {
-      console.log('🌍 GLOBAL EXPANSION: Generating expansion metrics...');
       const metrics = await globalExpansion.generateExpansionMetrics();
       res.json({
         success: true,
@@ -162,7 +157,6 @@ export function registerEnterpriseRoutes(app: Express): void {
   // Advanced Analytics & Reporting Endpoints
   app.get('/api/enterprise/analytics-report', requireStackAuth, async (req, res) => {
     try {
-      console.log('📈 ENTERPRISE ANALYTICS: Generating comprehensive report...');
       const report = await analyticsReporting.generateEnterpriseReport();
       res.json({
         success: true,
@@ -182,7 +176,6 @@ export function registerEnterpriseRoutes(app: Express): void {
   // Executive Summary endpoint for quick dashboard overview
   app.get('/api/enterprise/executive-summary', requireStackAuth, async (req, res) => {
     try {
-      console.log('📋 EXECUTIVE SUMMARY: Generating quick overview...');
       const fullReport = await analyticsReporting.generateEnterpriseReport();
       
       // Return only executive summary for faster loading
@@ -282,5 +275,4 @@ export function registerEnterpriseRoutes(app: Express): void {
     }
   });
 
-  console.log('✅ Enterprise Scaling API routes registered successfully');
 }

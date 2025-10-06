@@ -51,7 +51,6 @@ export class FluxRealizer {
       customElements = []
     } = options;
     
-    console.log('🔧 Generating FLUX prompt for:', recipe.name, 'Gender:', userGender);
     
     const components = {
       trigger: '',
@@ -136,7 +135,6 @@ export class FluxRealizer {
     const wordCount = prompt.split(/\s+/).length;
     const characterCount = prompt.length;
     
-    console.log('✅ Generated FLUX prompt:', { 
       wordCount, 
       characterCount,
       hasNegatives: !!components.negatives 
