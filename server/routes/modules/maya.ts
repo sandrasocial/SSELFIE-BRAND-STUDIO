@@ -128,7 +128,6 @@ router.post('/api/maya-chat', requireStackAuth, asyncHandler(async (req: Authent
 
     // Re-enabling context integration using the Unified Intelligence Service (Phase 3 Fix)
     try {
-      console.log('🎯 MAYA: Applying personalized adaptation with Unified Intelligence (Phase 3 Fix)');
       
       // Retrieve the consolidated user intelligence
       const unifiedIntelligence = await unifiedMayaIntelligenceService.getUnifiedStyleIntelligence(
@@ -150,7 +149,6 @@ The user's current message context is: ${JSON.stringify(context)}
       // Inject the context to augment the base personality
       mayaPersonality = `${basePersonality}\n\n[CONTEXTUAL STYLING DATA]:\n${contextualData}`;
       
-      console.log('✅ MAYA: Successfully augmented personality with Unified Intelligence context.');
 
     } catch (adaptError) {
       console.error('❌ MAYA: Unified Intelligence augmentation failed, falling back to base personality:', adaptError);
@@ -174,7 +172,7 @@ The user's current message context is: ${JSON.stringify(context)}
     );
 
     // Extract concept cards if Maya suggests photo concepts
-    let conceptCards: MayaConceptCard[] = [];
+    const conceptCards: MayaConceptCard[] = [];
     try {
       const conceptRegex = /(?:concept|idea|suggestion)[\s\S]*?(?:title|name):\s*["']?([^"'\n]+)["']?[\s\S]*?(?:prompt|description):\s*["']?([^"'\n]+)["']?/gi;
       let match;
@@ -185,7 +183,6 @@ The user's current message context is: ${JSON.stringify(context)}
         });
       }
     } catch (parseError) {
-      console.log('No concept cards extracted from response');
     }
 
     // Save chat to database
@@ -234,7 +231,6 @@ router.post('/api/maya/chat', requireStackAuth, asyncHandler(async (req: any, re
 
     // Re-enabling context integration using the Unified Intelligence Service (Phase 3 Fix)
     try {
-      console.log('🎯 MAYA: Applying personalized adaptation with Unified Intelligence (Phase 3 Fix)');
       
       // Retrieve the consolidated user intelligence
       const unifiedIntelligence = await unifiedMayaIntelligenceService.getUnifiedStyleIntelligence(
@@ -256,7 +252,6 @@ The user's current message context is: ${JSON.stringify(context)}
       // Inject the context to augment the base personality
       mayaPersonality = `${basePersonality}\n\n[CONTEXTUAL STYLING DATA]:\n${contextualData}`;
       
-      console.log('✅ MAYA: Successfully augmented personality with Unified Intelligence context.');
 
     } catch (adaptError) {
       console.error('❌ MAYA: Unified Intelligence augmentation failed, falling back to base personality:', adaptError);
@@ -277,7 +272,7 @@ The user's current message context is: ${JSON.stringify(context)}
       mayaPersonality
     );
 
-    let conceptCards = [];
+    const conceptCards = [];
     try {
       const conceptRegex = /(?:concept|idea|suggestion)[\s\S]*?(?:title|name):\s*["']?([^"'\n]+)["']?[\s\S]*?(?:prompt|description):\s*["']?([^"'\n]+)["']?/gi;
       let match;
@@ -288,7 +283,6 @@ The user's current message context is: ${JSON.stringify(context)}
         });
       }
     } catch (parseError) {
-      console.log('No concept cards extracted from response');
     }
 
     const chatId = await storage.saveMayaChat(userId, {
@@ -494,7 +488,6 @@ router.post('/api/maya/get-video-prompt', requireStackAuth, asyncHandler(async (
   validateRequired({ imageUrl }, ['imageUrl']);
 
   try {
-    console.log(`🎬 MAYA VIDEO DIRECTION: Creating motion prompt for user ${userId}`);
     
     // Maya's video director system prompt
     const videoDirectorPrompt = `You are Maya, SSELFIE Studio's AI Creative Director and Video Director. 
@@ -536,7 +529,6 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
       'maya'
     );
 
-    console.log(`✅ MAYA VIDEO DIRECTION: Generated motion prompt for user ${userId}`);
 
     const responseData: SuccessResponse<{
       videoPrompt: string;
@@ -555,6 +547,43 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
   } catch (error) {
     console.error('❌ MAYA VIDEO DIRECTION ERROR:', error);
     throw createError.internal('Failed to generate video direction');
+  }
+}));
+
+// Heart image from Maya chat preview to gallery
+router.post('/api/maya/heart-image', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest & { body: { imageUrl: string; prompt?: string; category?: string } }, res: Response) => {
+  const userId = req.user.id;
+  const { imageUrl, prompt, category } = req.body;
+  validateRequired({ imageUrl }, ['imageUrl']);
+
+  try {
+    
+    // Import the MayaChatPreviewService
+    const { MayaChatPreviewService } = await import('../../maya-chat-preview-service.js');
+    
+    // Heart the image to gallery
+    const galleryImage = await MayaChatPreviewService.heartImageToGallery(
+      userId,
+      imageUrl,
+      prompt || 'Hearted from Maya chat',
+      category || 'Maya AI'
+    );
+
+    const responseData: SuccessResponse<{
+      galleryImage: typeof galleryImage;
+      message: string;
+    }> = {
+      data: {
+        galleryImage,
+        message: 'Image saved to your gallery!'
+      }
+    };
+
+    sendSuccess(res, responseData);
+
+  } catch (error) {
+    console.error('❌ MAYA HEART ERROR:', error);
+    throw createError.internal('Failed to save image to gallery');
   }
 }));
 

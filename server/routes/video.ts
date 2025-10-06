@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import { requireStackAuth } from '../stack-auth.js';
 import { generateVeo3Video, getVeo3Status, getQualityPreset } from '../services/video/veo3.js';
 import { storage } from '../storage.js';
-import { generatedImages, aiImages } from '../../shared/schema.js';
+import { generatedImages, aiImages, GeneratedImage } from '../../shared/schema.js';
 import { eq, and } from 'drizzle-orm';
 import { db } from '../drizzle.js';
 import { StackAuthUser } from '../stack-auth.js';
@@ -83,7 +83,7 @@ router.post('/generate', requireStackAuth, async (req: Request<{}, {}, VideoGene
     }
 
     let initImageUrl: string | undefined;
-    let imageRecord: any = null;
+    let imageRecord: GeneratedImage[] = [];
 
     // If imageId provided, resolve to URL for init image
     if (imageId) {

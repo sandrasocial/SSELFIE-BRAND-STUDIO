@@ -24,7 +24,6 @@ router.post('/api/inpaint', requireStackAuth, asyncHandler(async (req: any, res)
   validateRequired({ imageId, maskPng, prompt }, ['imageId', 'maskPng', 'prompt']);
 
   try {
-    console.log('🎨 INPAINT: Starting inpainting for user:', userId, 'imageId:', imageId);
 
     // First, find the original image
     let originalImage: any = null;
@@ -87,7 +86,6 @@ router.get('/api/inpaint/:predictionId/status', requireStackAuth, asyncHandler(a
   const { variantId } = req.query;
 
   try {
-    console.log('🎨 INPAINT: Checking status for prediction:', predictionId);
 
     if (!variantId) {
       throw createError.badRequest('variantId query parameter is required');
@@ -113,7 +111,6 @@ router.get('/api/inpaint/variants/:imageId', requireStackAuth, asyncHandler(asyn
   const { imageType = 'ai_image' } = req.query;
 
   try {
-    console.log('🎨 INPAINT: Getting variants for image:', imageId, 'type:', imageType);
 
     const variants = await SDInpaintService.getImageInpaintVariants(
       parseInt(imageId), 
@@ -142,7 +139,6 @@ router.get('/api/inpaint/user-variants', requireStackAuth, asyncHandler(async (r
   const userId = req.user.id;
 
   try {
-    console.log('🎨 INPAINT: Getting all user variants for:', userId);
 
     const variants = await SDInpaintService.getUserInpaintVariants(userId);
 
@@ -166,7 +162,6 @@ router.delete('/api/inpaint/variant/:variantId', requireStackAuth, asyncHandler(
   const { variantId } = req.params;
 
   try {
-    console.log('🎨 INPAINT: Deleting variant:', variantId, 'for user:', userId);
 
     // Get the variant to verify ownership
     const variant = await storage.getImageVariant(parseInt(variantId));

@@ -4,13 +4,9 @@ import { useAuth } from '../hooks/use-auth.js';
 
 // Custom Stack Auth SignIn wrapper that handles project configuration errors gracefully
 export const SafeStackSignIn: React.FC = () => {
-  console.log('🔍 SafeStackSignIn: Component is rendering');
-  console.log('🔍 SafeStackSignIn: Stack app available =', !!useStackApp());
-  console.log('🔍 SafeStackSignIn: Current location =', window.location.href);
   
   // Add visible debug indicator
   React.useEffect(() => {
-    console.log('🔍 SafeStackSignIn: useEffect triggered');
     const debugDiv = document.createElement('div');
     debugDiv.id = 'sselfie-debug';
     debugDiv.style.cssText = 'position:fixed;top:10px;right:10px;background:red;color:white;padding:5px;z-index:9999;font-size:12px;';
@@ -32,7 +28,6 @@ export const SafeStackSignIn: React.FC = () => {
     if (isAuthenticated && isOnSignInPage && window.location.pathname !== "/") {
       // Add small delay to prevent redirect loops during OAuth completion
       setTimeout(() => {
-        console.log('🔄 Redirecting authenticated user from sign-in page to home');
         window.location.replace("/");
       }, 1000);
     }
@@ -44,9 +39,6 @@ export const SafeStackSignIn: React.FC = () => {
       const handleClick = (e: MouseEvent) => {
         const target = e.target as HTMLElement;
         if (target.closest('[data-provider="google"]') || target.textContent?.toLowerCase().includes('google')) {
-          console.log('🔍 Google OAuth button clicked at:', new Date().toISOString());
-          console.log('🔍 Current location:', window.location.href);
-          console.log('🔍 Stack Auth URLs:', (window as any).__stackAuthUrls);
         }
       };
 

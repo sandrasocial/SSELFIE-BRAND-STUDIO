@@ -25,7 +25,6 @@ export function setupRollbackRoutes(app: Express) {
       // Remove backup file
       await unlink(backupPath);
       
-      console.log(`🔄 Rolled back file: ${filePath}`);
       
       res.json({
         success: true,

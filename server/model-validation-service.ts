@@ -23,7 +23,6 @@ export class ModelValidationService {
    * Prevents ANY fallback to generic models
    */
   static async validateAndCorrectUserModel(userId: string): Promise<ModelValidationResult> {
-    console.log(`🔍 CRITICAL MODEL VALIDATION: Checking user ${userId}`);
     
     try {
       const userModel = await storage.getUserModelByUserId(userId);
@@ -58,14 +57,12 @@ export class ModelValidationService {
       
       // Fix corruption pattern: version_id contains full model:version path
       if (versionId && versionId.includes(':')) {
-        console.log(`🚨 CORRUPTION DETECTED: User ${userId} has corrupted model data`);
         const parts = versionId.split(':');
         if (parts.length === 2) {
           modelId = parts[0]; // Extract the full model path
           versionId = parts[1]; // Extract just the version hash
           needsCorrection = true;
           
-          console.log(`🔧 CORRECTING: Model: ${modelId}, Version: ${versionId}`);
           
           // Update database immediately
           await this.correctDatabaseModel(userId, modelId, versionId);
@@ -111,11 +108,6 @@ export class ModelValidationService {
       }
       
       // ALL VALIDATIONS PASSED
-      console.log(`✅ User ${userId} model validated${needsCorrection ? ' and corrected' : ''}:`);
-      console.log(`   Model ID: ${modelId}`);
-      console.log(`   Version ID: ${versionId}`);
-      console.log(`   Trigger Word: ${userModel.triggerWord}`);
-      console.log(`   Packaged Model: Using trained model with built-in LoRA`);
       
       return {
         isValid: true,
@@ -144,7 +136,6 @@ export class ModelValidationService {
    */
   private static async correctDatabaseModel(userId: string, modelId: string, versionId: string): Promise<void> {
     try {
-      console.log(`🔧 CORRECTING DATABASE: User ${userId} model data`);
       
       const { db } = await import('./db.js');
       const { userModels } = await import('../shared/schema.js');
@@ -159,7 +150,6 @@ export class ModelValidationService {
         })
         .where(eq(userModels.userId, userId));
       
-      console.log(`✅ CORRECTED: User ${userId} model data updated in database`);
       
     } catch (error) {
       console.error(`❌ Failed to correct model data for user ${userId}:`, error);
@@ -191,7 +181,6 @@ export class ModelValidationService {
    * Run this to check system health
    */
   static async validateAllCompletedModels(): Promise<{healthy: number, corrupted: number, corrected: number}> {
-    console.log('🔍 SYSTEM HEALTH CHECK: Validating all completed models...');
     
     let healthy = 0;
     let corrupted = 0;
@@ -222,7 +211,6 @@ export class ModelValidationService {
         }
       }
       
-      console.log(`📊 VALIDATION COMPLETE: ${healthy} healthy, ${corrupted} corrupted, ${corrected} corrected`);
       
       return { healthy, corrupted, corrected };
       

@@ -8,7 +8,7 @@ import ErrorBoundary from '../components/ErrorBoundary.js';
 import StoryStudioModal from '../components/StoryStudioModal.js';
 import BrandAssetPlacementModal from '../components/BrandAssetPlacementModal.js';
 import { VideoGenerateDialog } from '../features/video/index.js';
-import { Camera, Grid, Search, MoreHorizontal, Heart, Download, Trash2, Play, Plus, Filter, Calendar, Star, Eye, X, Check, SortAsc, SortDesc } from 'lucide-react';
+import { Camera, Grid, Search, Heart, Download, Trash2, Play, Plus, Filter, Calendar, Star, Eye, X, Check, SortAsc, SortDesc } from 'lucide-react';
 
 // ImageDetailModal Component
 interface GalleryImage {
@@ -750,7 +750,6 @@ function SSELFIEGallery({ hideMemberNav = false }: { hideMemberNav?: boolean }) 
           onClose={() => setIsVideoModalOpen(false)}
           onSuccess={() => {
             // eslint-disable-next-line no-console
-            console.log('✅ Video generation started for image:', selectedImage.id);
             queryClient.invalidateQueries({ queryKey: ['/api/gallery-images'] });
           }}
         />

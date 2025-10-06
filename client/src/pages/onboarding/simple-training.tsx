@@ -117,7 +117,6 @@ function SimpleTraining() {
 
   // Initialize training state based on userModel data
   useEffect(() => {
-    console.log('📊 User Model Debug:', {
       userModel,
       isAuthenticated,
       trainingStatus: userModel?.trainingStatus,
@@ -126,7 +125,6 @@ function SimpleTraining() {
     
     // Check if training failed and needs restart
     if (trainingStatus?.needsRestart && userModel?.trainingStatus !== 'completed') {
-      console.log('🚨 TRAINING FAILURE DETECTED:', trainingStatus.reason);
       setIsRetrainingMode(true);
       // Removed red toast notification per user request
       return; // Don't proceed with normal training flow
@@ -134,19 +132,16 @@ function SimpleTraining() {
 
     // 🔄 PHASE 1: USER TYPE DETECTION - New users vs. trained users
     if (userModel?.canRetrain && userModel?.needsTraining && !userModel?.id) {
-      console.log('🔄 PHASE 1: NEW USER DETECTED - Enabling normal training flow');
       setIsRetrainingMode(false); // Use normal training flow for new users
     }
     
     if (userModel && userModel.trainingStatus === 'training') {
-      console.log('🔄 Found active training on page load:', userModel);
       setIsTrainingStarted(true);
       setTrainingProgress(userModel.trainingProgress || 5);
       if (userModel.startedAt) {
         setStartTime(new Date(userModel.startedAt));
       }
     } else if (userModel && userModel.trainingStatus === 'completed') {
-      console.log('✅ Found completed training on page load');
       // 🔄 PHASE 4: Enhanced retraining logic with retraining access support
       const currentPath = window.location.pathname;
       const isOnTrainingPage = currentPath.includes('simple-training') || currentPath.includes('ai-training');
@@ -155,7 +150,6 @@ function SimpleTraining() {
       if (isOnTrainingPage) {
         if (hasRetrainingAccess) {
           // 🔄 PHASE 4: User has retraining access - allow training to continue
-          console.log('🎉 PHASE 4: User has retraining access - allowing training access');
           toast({
             title: "🎉 Retraining Access Active!",
             description: "Your retraining session is ready! Upload new photos and refresh your AI model.",
@@ -163,7 +157,6 @@ function SimpleTraining() {
           // Let training continue normally - don't redirect
         } else {
           // 🔄 PHASE 4: User without retraining access - route to retraining checkout
-          console.log('🔄 PHASE 4: User with completed training - routing to retraining checkout');
           toast({
             title: "✨ AI Model Ready!",
             description: "Your AI model is trained and ready! Redirecting you to Maya to start creating beautiful photos.",
@@ -174,7 +167,6 @@ function SimpleTraining() {
           }, 2000);
         }
       } else {
-        console.log('✅ Training complete but user on different page - no redirect needed');
       }
     }
   }, [userModel, trainingStatus, isAuthenticated]);
@@ -189,12 +181,10 @@ function SimpleTraining() {
     const isOnTrainingPage = currentPath.includes('simple-training') || currentPath.includes('ai-training');
     
     if (isCurrentlyTraining && isAuthenticated && isOnTrainingPage) {
-      console.log('🔄 Training detected on training page, starting status polling...');
       
       const interval = setInterval(async () => {
         // STOP POLLING: If training is no longer active, clear interval immediately
         if (!isTrainingStarted && userModel?.trainingStatus !== 'training') {
-          console.log('🛑 Training no longer active, stopping poll');
           clearInterval(interval);
           return;
         }
@@ -204,7 +194,6 @@ function SimpleTraining() {
         
         // Check if training completed
         if (updatedData?.data?.trainingStatus === 'completed') {
-          console.log('✅ Training completed! Stopping polling...');
           setIsTrainingStarted(false);
           setTrainingProgress(100);
           clearInterval(interval); // CRITICAL: Stop polling immediately
@@ -234,7 +223,6 @@ function SimpleTraining() {
             if (progressResponse.ok) {
               const progressData = await progressResponse.json();
               setTrainingProgress(progressData.progress || 0);
-              console.log(`📊 Training progress: ${progressData.progress}%`);
             }
           } catch (error) {
             console.error('Failed to fetch training progress:', error);
@@ -243,7 +231,6 @@ function SimpleTraining() {
       }, 5000); // Poll every 5 seconds
 
       return () => {
-        console.log('🧹 Cleaning up training polling interval');
         clearInterval(interval);
       };
     }
@@ -779,14 +766,11 @@ function SimpleTraining() {
                 data-test-id="training-upload-component"
                 onUploadComplete={(success) => {
                   if (success) {
-                    console.log('Training initiated successfully via MayaUploadComponent');
                     setIsTrainingStarted(true);
                   } else {
-                    console.log('Training initiation failed');
                   }
                 }}
                 onTrainingStart={() => {
-                  console.log('Training started, beginning onboarding process');
                   setIsTrainingStarted(true);
                 }}
                 className="luxury-training-upload"

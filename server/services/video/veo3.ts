@@ -66,7 +66,6 @@ export async function generateVeo3Video(options: VeoGenerationOptions): Promise<
   }
 
   const preset = QUALITY_PRESETS[mode];
-  console.log('🎬 VEO 3: Starting generation', { 
     userId, 
     mode, 
     hasAudioScript: !!audioScript,
@@ -78,7 +77,6 @@ export async function generateVeo3Video(options: VeoGenerationOptions): Promise<
   let audioWarning: string | undefined;
   if (audioScript) {
     audioWarning = 'Audio script provided but VEO 3 does not currently support direct audio generation. The script has been saved for future reference.';
-    console.log('⚠️ VEO 3: Audio script provided but not supported by API', { audioScriptLength: audioScript.length });
   }
 
   // Get available VEO 3 models
@@ -114,10 +112,8 @@ export async function generateVeo3Video(options: VeoGenerationOptions): Promise<
   // Add init image if provided
   if (initImageUrl) {
     requestPayload.config.imageUrl = initImageUrl;
-    console.log('🖼️ VEO 3: Using init image for image-to-video generation');
   }
 
-  console.log('🎬 VEO 3: Request payload', {
     promptPreview: motionPrompt.slice(0, 100) + '...',
     config: requestPayload.config
   });
@@ -128,7 +124,6 @@ export async function generateVeo3Video(options: VeoGenerationOptions): Promise<
     try {
       const jobId = await startVeo3Generation(modelVersion, requestPayload);
       
-      console.log('✅ VEO 3: Generation started successfully', { 
         jobId, 
         modelVersion, 
         mode,
@@ -172,7 +167,6 @@ export async function getVeo3Status(jobId: string, userId: string): Promise<VeoS
     const opName = jobId.startsWith('operations/') ? jobId : `operations/${jobId}`;
     const url = `https://generativelanguage.googleapis.com/v1beta/${opName}?key=${process.env['GOOGLE_API_KEY']}`;
     
-    console.log('🔍 VEO 3: Checking status', { jobId: jobId.slice(-20), userId });
     
     const response = await fetch(url);
     if (!response.ok) {
@@ -195,7 +189,6 @@ export async function getVeo3Status(jobId: string, userId: string): Promise<VeoS
     if (!result.done) {
       // Still processing
       const progress = result.metadata?.progressPercent || 0;
-      console.log('⏳ VEO 3: Still processing', { progress, jobId: jobId.slice(-20) });
       
       return { 
         status: 'processing', 
@@ -209,7 +202,6 @@ export async function getVeo3Status(jobId: string, userId: string): Promise<VeoS
     const videoUrl = veoResult.response?.video?.uri || veoResult.response?.uri || null;
     
     if (videoUrl) {
-      console.log('✅ VEO 3: Generation completed successfully', { jobId: jobId.slice(-20) });
       return {
         status: 'completed',
         progress: 100,
@@ -262,12 +254,9 @@ async function getAvailableVeo3Models(): Promise<string[]> {
         }
       }
       
-      console.log('📋 VEO 3: Discovered models', candidateModels);
     } else {
-      console.log('⚠️ VEO 3: Could not list models', response.status);
     }
   } catch (error) {
-    console.log('⚠️ VEO 3: Model discovery failed', error instanceof Error ? error.message : error);
   }
 
   // Fallback to known VEO 3 model names if discovery fails

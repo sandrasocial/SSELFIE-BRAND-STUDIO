@@ -3,13 +3,12 @@ import { StackAuth } from '@stackframe/stack';
 import { z } from 'zod';
 import { drizzle } from 'drizzle-orm/neon-http';
 import { neon } from '@neondatabase/serverless';
-import { mayaPayments, insertMayaPaymentsSchema } from '../../../shared/schema-maya';
+import { mayaPayments } from '../../../shared/schema-maya';
 import { eq, and, desc } from 'drizzle-orm';
 import Stripe from 'stripe';
 
 // Initialize database connection
-const sql = neon(process.env.DATABASE_URL!);
-const db = drizzle(sql);
+const db = drizzle(neon(process.env.DATABASE_URL!));
 
 // Initialize Stack Auth
 const stackAuth = new StackAuth({

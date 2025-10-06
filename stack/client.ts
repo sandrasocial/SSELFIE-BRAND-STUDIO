@@ -11,7 +11,6 @@ const STACK_PUBLISHABLE_CLIENT_KEY = (globalThis as any).__STACK_PUBLISHABLE_CLI
   "pck_bqv6htnwq1f37nd2fn6qatxx2f8x0tnxvjj7xwgh1zmhg";
 
 // 🔍 Enhanced debug logging to trace environment variable injection
-console.log('🔍 Stack Auth Environment Variable Analysis:', {
   globalsProjectId: (globalThis as any).__STACK_PROJECT_ID__,
   globalsKey: (globalThis as any).__STACK_PUBLISHABLE_CLIENT_KEY__?.substring(0, 20) + '...',
   importMetaProjectId: import.meta.env?.VITE_STACK_PROJECT_ID,
@@ -22,7 +21,6 @@ console.log('🔍 Stack Auth Environment Variable Analysis:', {
 });
 
 // Debug logging
-console.log('🔍 Stack Auth Config:', {
   projectId: STACK_PROJECT_ID,
   publishableClientKey: STACK_PUBLISHABLE_CLIENT_KEY?.substring(0, 20) + '...',
   projectIdPresent: !!STACK_PROJECT_ID,
@@ -94,7 +92,6 @@ try {
   }
 
   // Debug the Stack Auth instance
-  console.log('🔍 Stack Auth Instance Created Successfully:', {
     projectId: stackClientApp.projectId,
     urls: stackClientApp.urls,
     tokenStore: 'cookie',
@@ -107,7 +104,6 @@ try {
     const preferredDomain = 'https://www.sselfie.ai'; // Use www.sselfie.ai to match deployed domain
     const urlKeys = ['signIn', 'signUp', 'afterSignIn', 'afterSignUp', 'afterSignOut', 'oauthCallback', 'error'] as const;
 
-    console.log('🔧 URL Override Debug:', {
       currentOrigin,
       preferredDomain,
       currentHostname: window.location.hostname,
@@ -129,19 +125,16 @@ try {
 
         if (newUrl !== currentUrl) {
           (stackClientApp.urls as any)[key] = newUrl;
-          console.log(`🔧 Fixed URL ${key}: ${currentUrl} → ${newUrl}`);
         }
       }
     });
 
-    console.log('🔧 Final OAuth URLs after override:', stackClientApp.urls);
 
     // Expose URLs for debugging
     (window as any).__stackAuthUrls = stackClientApp.urls;
   }
 
   // 🔍 DEBUG: Check if Stack Auth is working properly
-  console.log('🔍 Stack Auth Client Methods Available:', {
     hasGetUser: typeof stackClientApp.getUser === 'function',
     hasCurrentUser: 'currentUser' in stackClientApp,
     clientReady: !!stackClientApp
@@ -152,10 +145,8 @@ try {
     // Give Stack Auth time to fetch project configuration
     setTimeout(async () => {
       try {
-        console.log('🔍 Testing Stack Auth project configuration...');
         // Test if we can access the project configuration
         const user = await stackClientApp.getUser();
-        console.log('✅ Stack Auth project configuration loaded successfully');
       } catch (error) {
         console.warn('⚠️ Stack Auth project configuration issue:', error);
         // This is expected if no user is signed in, so we don't throw

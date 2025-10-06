@@ -74,6 +74,27 @@ export interface StackAuthUser extends DatabaseUser {
   isAdmin?: boolean; // Added for compatibility - derived from role
 }
 
+// JWT payload interface to replace any types
+interface JWTPayload {
+  sub?: string;
+  user_id?: string;
+  id?: string;
+  email?: string;
+  primary_email?: string;
+  primaryEmail?: string;
+  email_address?: string;
+  user_email?: string;
+  displayName?: string;
+  display_name?: string;
+  name?: string;
+  given_name?: string;
+  full_name?: string;
+  profileImageUrl?: string;
+  profile_image_url?: string;
+  avatar_url?: string;
+  [key: string]: unknown;
+}
+
 declare global {
   namespace Express {
     interface Request {
@@ -88,29 +109,31 @@ declare global {
 async function verifyJWTToken(token: string) {
   try {
     // Add timeout to JWT verification to prevent hanging
-    const verificationPromise = new Promise(async (resolve, reject) => {
-      try {
-        let payload;
-        if (process.env['NODE_ENV'] === 'test' && testPublicKey) {
-          // Use test public key and RS256
-          const { payload: testPayload } = await jwtVerify(token, testPublicKey, {
-            algorithms: ['RS256'],
-            issuer: `${STACK_AUTH_API_URL}/projects/${STACK_AUTH_PROJECT_ID}`,
-            audience: STACK_AUTH_PROJECT_ID,
-          });
-          payload = testPayload;
-        } else {
-          // Verify JWT using Stack Auth's JWKS
-          const { payload: prodPayload } = await jwtVerify(token, remoteJwks!, {
-            issuer: `${STACK_AUTH_API_URL}/projects/${STACK_AUTH_PROJECT_ID}`,
-            audience: STACK_AUTH_PROJECT_ID,
-          });
-          payload = prodPayload;
+    const verificationPromise = new Promise((resolve, reject) => {
+      (async () => {
+        try {
+          let payload;
+          if (process.env['NODE_ENV'] === 'test' && testPublicKey) {
+            // Use test public key and RS256
+            const { payload: testPayload } = await jwtVerify(token, testPublicKey, {
+              algorithms: ['RS256'],
+              issuer: `${STACK_AUTH_API_URL}/projects/${STACK_AUTH_PROJECT_ID}`,
+              audience: STACK_AUTH_PROJECT_ID,
+            });
+            payload = testPayload;
+          } else {
+            // Verify JWT using Stack Auth's JWKS
+            const { payload: prodPayload } = await jwtVerify(token, remoteJwks!, {
+              issuer: `${STACK_AUTH_API_URL}/projects/${STACK_AUTH_PROJECT_ID}`,
+              audience: STACK_AUTH_PROJECT_ID,
+            });
+            payload = prodPayload;
+          }
+          resolve(payload);
+        } catch (error) {
+          reject(error);
         }
-        resolve(payload);
-      } catch (error) {
-        reject(error);
-      }
+      })();
     });
 
     // Race between verification and timeout
@@ -135,15 +158,11 @@ export async function verifyStackAuthToken(req: Request, res: Response, next: Ne
       return next();
     }
     
-    console.log('🔍 Stack Auth: Starting token verification');
-    console.log('🔍 Request path:', req.path);
-    console.log('🔍 Available cookies:', Object.keys(req.cookies || {}));
     
     // Check Authorization header for Bearer token
     const authHeader = req.headers.authorization;
     if (authHeader?.startsWith('Bearer ')) {
       accessToken = authHeader.substring(7);
-      console.log('🔐 Stack Auth: Found Bearer token in Authorization header');
     }
     
     // Check cookies for stored access token
@@ -170,7 +189,6 @@ export async function verifyStackAuthToken(req: Request, res: Response, next: Ne
         const token = tryParseAccessFromCookieValue(exact);
         if (token) {
           accessToken = token;
-          console.log('🔐 Stack Auth: Found access token in stack-access cookie');
         }
       }
 
@@ -181,7 +199,6 @@ export async function verifyStackAuthToken(req: Request, res: Response, next: Ne
           const token = tryParseAccessFromCookieValue(req.cookies[key]);
           if (token) {
             accessToken = token;
-            console.log(`🔐 Stack Auth: Found access token in cookie '${key}'`);
             break;
           }
         }
@@ -192,32 +209,24 @@ export async function verifyStackAuthToken(req: Request, res: Response, next: Ne
         const legacy = req.cookies['stack-access-token'];
         if (legacy) {
           accessToken = legacy;
-          console.log('🔐 Stack Auth: Found access token in stack-access-token cookie');
         }
       }
 
       if (!accessToken) {
-        console.log('🔍 Stack Auth: No access token cookies found');
-        console.log('🔍 Available cookies:', Object.keys(req.cookies));
         // Log cookie names only (no values) to avoid leaking data
       }
     }
     
     if (!accessToken) {
-      console.log('❌ Stack Auth: No access token found');
-      console.log('🔍 Headers:', JSON.stringify(req.headers, null, 2));
       return res.status(401).json({ message: 'Authentication required' });
     }
 
-    console.log('🔐 Stack Auth: Verifying JWT token...');
-    console.log('🔍 Token preview:', accessToken.substring(0, 20) + '...');
     
     // Check cache first for performance
     const tokenHash = hashToken(accessToken);
     const cached = authCache.get(tokenHash);
     
     if (cached && (Date.now() - cached.timestamp < CACHE_DURATION)) {
-      console.log('⚡ Stack Auth: Using cached authentication');
       req.user = cached.dbUser as StackAuthUser;
       return next();
     }
@@ -228,27 +237,22 @@ export async function verifyStackAuthToken(req: Request, res: Response, next: Ne
     }
     
     // Verify JWT token directly
-    const userInfo = await verifyJWTToken(accessToken);
+    const userInfo = await verifyJWTToken(accessToken) as JWTPayload;
     
-    console.log('✅ Stack Auth: JWT verified successfully');
-    console.log('🔍 Stack Auth: Full JWT payload:', JSON.stringify(userInfo, null, 2));
     
     // Extract user information with multiple field name attempts and enhanced debugging
-    const userId = (userInfo as any)?.sub || (userInfo as any)?.user_id || (userInfo as any)?.id || '';
-    const userEmail = (userInfo as any)?.email || (userInfo as any)?.primary_email || (userInfo as any)?.primaryEmail || (userInfo as any)?.email_address || (userInfo as any)?.user_email || '';
-    const userName = (userInfo as any)?.displayName || (userInfo as any)?.display_name || (userInfo as any)?.name || (userInfo as any)?.given_name || (userInfo as any)?.full_name || 'User';
+    const userId = userInfo?.sub || userInfo?.user_id || userInfo?.id || '';
+    const userEmail = userInfo?.email || userInfo?.primary_email || userInfo?.primaryEmail || userInfo?.email_address || userInfo?.user_email || '';
+    const userName = userInfo?.displayName || userInfo?.display_name || userInfo?.name || userInfo?.given_name || userInfo?.full_name || 'User';
     
     // 🔍 ENHANCED DEBUGGING: Log all available fields to identify email field
-    console.log('🔍 Stack Auth: Full JWT user info keys:', Object.keys(userInfo));
-    console.log('🔍 Stack Auth: Email field search:', {
-      email: (userInfo as any).email,
-      primary_email: (userInfo as any).primary_email, 
-      primaryEmail: (userInfo as any).primaryEmail,
-      email_address: (userInfo as any).email_address,
-      user_email: (userInfo as any).user_email
+      email: userInfo.email,
+      primary_email: userInfo.primary_email, 
+      primaryEmail: userInfo.primaryEmail,
+      email_address: userInfo.email_address,
+      user_email: userInfo.user_email
     });
     
-    console.log('📊 Stack Auth: Extracted user info:', {
       id: userId,
       email: userEmail,
       name: userName
@@ -267,30 +271,25 @@ export async function verifyStackAuthToken(req: Request, res: Response, next: Ne
         
         if (dbUser) {
           // Step 3: Link existing user to Stack Auth ID
-          console.log(`🔗 Stack Auth: Linking existing user ${dbUser.email} (ID: ${dbUser.id}) to Stack Auth ID: ${userId}`);
           dbUser = await storage.linkStackAuthId(dbUser.id, userId);
-          console.log('✅ Stack Auth: Existing user successfully linked to Stack Auth');
         }
       }
     }
     
     if (!dbUser) {
       // Step 4: Create new user if not found by Stack Auth ID or email
-      console.log('🔄 Stack Auth: Creating new user in database...');
       dbUser = await storage.upsertUser({
         id: userId,
         stackAuthId: userId,
         email: userEmail || null,
         firstName: userName?.split(' ')[0] || null,
         lastName: userName?.split(' ').slice(1).join(' ') || null,
-        profileImageUrl: (userInfo as any).profileImageUrl || (userInfo as any).profile_image_url || (userInfo as any).avatar_url || null,
+        profileImageUrl: userInfo.profileImageUrl || userInfo.profile_image_url || userInfo.avatar_url || null,
         plan: null, // New users have no plan until they subscribe
         monthlyGenerationLimit: 0, // No generations until they subscribe
         mayaAiAccess: false // No AI access until they subscribe
       });
-      console.log('✅ Stack Auth: New user created (no subscription):', dbUser.email);
     } else {
-      console.log('✅ Stack Auth: User authenticated successfully:', dbUser.email);
     }
     
     // Set user information in request from database user
@@ -303,7 +302,6 @@ export async function verifyStackAuthToken(req: Request, res: Response, next: Ne
       tokenHash
     });
 
-    console.log('🎯 Stack Auth: User authenticated successfully, ID:', dbUser.id, 'Plan:', dbUser.plan || 'No subscription');
     
     next();
   } catch (error: unknown) {
@@ -338,12 +336,10 @@ export function requireActiveSubscription(req: Request, res: Response, next: Nex
       
       // Allow admin users and users with active subscriptions
       if (user.role === 'admin' || user.monthlyGenerationLimit === -1) {
-        console.log('✅ Admin user access granted:', user.email);
         return next();
       }
       
       if (!subscription || subscription.status !== 'active') {
-        console.log('❌ No active subscription for user:', user.email);
         return res.status(402).json({ 
           message: 'SSELFIE Studio subscription required (€47/month)', 
           redirectTo: '/checkout',
@@ -351,7 +347,6 @@ export function requireActiveSubscription(req: Request, res: Response, next: Nex
         });
       }
       
-      console.log('✅ Active subscription verified for user:', user.email);
       next();
     } catch (_error) {
       console.error('❌ Subscription validation error:', _error);

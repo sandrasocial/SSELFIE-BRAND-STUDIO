@@ -43,8 +43,6 @@ export function useAuth() {
   const isStackAuthLoading = stackUser === undefined; // undefined = loading, null = not auth'd
   
   // 🔍 ENHANCED DEBUG: Log Stack Auth state with timing
-  console.log('🔍 useAuth() execution at:', new Date().toISOString());
-  console.log('🔍 Stack Auth State:', {
     stackUser: stackUser ? {
       id: stackUser.id,
       email: stackUser.primaryEmail,
@@ -125,9 +123,7 @@ export function useAuth() {
     refetchOnMount: 'always',
     queryFn: async () => {
       try {
-        console.log('🔍 Fetching user data from /api/me...');
         const data = await apiFetch('/me');
-        console.log('✅ User data fetched successfully');
         return data?.user ?? null;
       } catch (error: any) {
         console.error('❌ Failed to fetch user data:', error);
@@ -135,14 +131,12 @@ export function useAuth() {
         // CRITICAL: If server returns 401, the Stack Auth session is invalid
         // Clear the session and force reauthentication
         if (error?.status === 401 && stackUser) {
-          console.log('🔄 Server returned 401, clearing Stack Auth session for reauthentication...');
           try {
             // Get Stack Auth instance and sign out
             const { getStackApp } = await import('../stack/stack-context.js');
             const stackApp = getStackApp?.();
             if (stackApp && stackUser) {
               await stackUser.signOut();
-              console.log('✅ Stack Auth session cleared, user will be redirected to sign in');
             }
           } catch (signOutError) {
             console.error('❌ Failed to clear Stack Auth session:', signOutError);
@@ -179,7 +173,6 @@ export function useAuth() {
                              prevAuthStateRef.current.userId !== stackUser?.id;
 
     if (authStateChanged) {
-      console.log('🔄 Auth state transition detected. Invalidating all core queries to prevent stale data/loading issues.');
       // CRITICAL FIX: Aggressively invalidate core queries
       queryClient.invalidateQueries({ queryKey: ["/api/me"] });
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
@@ -230,7 +223,6 @@ export function useAuth() {
   // Determine error state
   const error = isDbError ? (dbError?.message || 'Failed to load user data') : null;
 
-  console.log('🔍 Auth state:', {
     isAuthenticated,
     isLoading,
     hasUser: !!user,

@@ -382,7 +382,6 @@ export class DatabaseStorage implements IStorage {
 
   // Link existing user account to Stack Auth ID (safer approach - preserve original ID)
   async linkStackAuthId(existingUserId: string, stackAuthId: string): Promise<User> {
-    console.log(`🔗 Linking existing user ${existingUserId} to Stack Auth ID ${stackAuthId}`);
     
     // Add Stack Auth ID to existing user while preserving original ID and all relationships
     const [linkedUser] = await db
@@ -394,7 +393,6 @@ export class DatabaseStorage implements IStorage {
       .where(eq(users.id, existingUserId))
       .returning();
     
-    console.log(`✅ Successfully linked user to Stack Auth ID: ${linkedUser.email}`);
     return linkedUser;
   }
   
@@ -405,8 +403,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createUser(userData: InsertUser): Promise<User> {
-    console.log('🔄 Creating new user:', userData.email);
-    let finalUserData = getDefaultUserFields(userData);
+    const finalUserData = getDefaultUserFields(userData);
     // Special admin setup for ssa@ssasocial.com
     if (finalUserData.email === 'ssa@ssasocial.com') {
       finalUserData.role = 'admin';
@@ -414,7 +411,6 @@ export class DatabaseStorage implements IStorage {
       finalUserData.plan = 'sselfie-studio';
       finalUserData.mayaAiAccess = true;
       finalUserData.victoriaAiAccess = true;
-      console.log('👑 Setting admin privileges for ssa@ssasocial.com');
     }
     const [user] = await db
       .insert(users)
@@ -424,7 +420,6 @@ export class DatabaseStorage implements IStorage {
         updatedAt: new Date(),
       })
       .returning();
-    console.log('✅ Created new user:', user.id, user.email);
     return user;
   }
 
@@ -434,8 +429,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async upsertUser(userData: InsertUser): Promise<User> {
-    console.log('🔄 Upserting user:', userData.id, userData.email);
-    let finalUserData = getDefaultUserFields(userData);
+    const finalUserData = getDefaultUserFields(userData);
     // Special admin setup for ssa@ssasocial.com
     if (finalUserData.email === 'ssa@ssasocial.com') {
       finalUserData.role = 'admin';
@@ -443,12 +437,10 @@ export class DatabaseStorage implements IStorage {
       finalUserData.plan = 'sselfie-studio';
       finalUserData.mayaAiAccess = true;
       finalUserData.victoriaAiAccess = true;
-      console.log('👑 Setting admin privileges for ssa@ssasocial.com');
     }
     // First try to find existing user by ID
     const existingUser = await this.getUser(finalUserData.id);
     if (existingUser) {
-      console.log('✅ Found existing user by ID, updating...');
       const [user] = await db
         .update(users)
         .set({
@@ -466,7 +458,6 @@ export class DatabaseStorage implements IStorage {
         .from(users)
         .where(eq(users.email, finalUserData.email));
       if (userByEmail) {
-        console.log('✅ Found existing user by email, updating with new Stack Auth ID...');
         // Update the existing user record with the new Stack Auth ID
         const [updatedUser] = await db
           .update(users)
@@ -481,7 +472,6 @@ export class DatabaseStorage implements IStorage {
       }
     }
     // User doesn't exist by ID or email, create new one
-    console.log('🆕 Creating new user...');
     try {
       const [user] = await db
         .insert(users)
@@ -492,7 +482,6 @@ export class DatabaseStorage implements IStorage {
       // If duplicate key error on email, try to return existing user
       const e = error as { code?: string; constraint?: string };
       if (e?.code === '23505' && e?.constraint === 'users_email_unique') {
-        console.log('🔄 Duplicate email constraint, fetching existing user...');
         const [existingUser] = await db
           .select()
           .from(users)
@@ -525,7 +514,6 @@ export class DatabaseStorage implements IStorage {
       lastName: stackUser.displayName?.split(' ').slice(1).join(' '),
     };
     
-    console.log('🔄 Syncing Stack Auth user:', userData.id, userData.email);
     return this.upsertUser(userData);
   }
 
@@ -871,7 +859,6 @@ export class DatabaseStorage implements IStorage {
 
   // 🔥 BULLETPROOF: Get user model with aggressive Stack Auth ID and email linking
   async getUserModelByStackAuthAndEmail(stackAuthId: string, email: string): Promise<{ user: User | undefined; model: UserModel | undefined }> {
-    console.log('🔍 Bulletproof user lookup:', {
       stackAuthId: stackAuthId.substring(0, 8) + '...',
       email
     });
@@ -887,7 +874,6 @@ export class DatabaseStorage implements IStorage {
 
       if (userRecord && !userRecord.stackAuthId) {
         // Found existing user by email, but they are unlinked. Link them now.
-        console.log('🔗 Found user by email but unlinked. Linking to Stack Auth ID now.', {
           userId: userRecord.id,
           email: userRecord.email
         });
@@ -901,7 +887,6 @@ export class DatabaseStorage implements IStorage {
           .where(eq(users.id, userRecord.id))
           .returning().then(res => res[0]);
           
-        console.log('✅ Successfully linked user to Stack Auth ID');
       } else if (userRecord && userRecord.stackAuthId) {
         // Update last login for existing linked user
         userRecord = await db.update(users)
@@ -914,16 +899,14 @@ export class DatabaseStorage implements IStorage {
       }
 
       if (!userRecord) {
-        console.log('❌ No user found by Stack Auth ID or email');
         return { user: undefined, model: undefined };
       }
 
       // Now get the user model for this user
-      let userModel = await db.query.userModels.findFirst({
+      const userModel = await db.query.userModels.findFirst({
         where: eq(userModels.userId, userRecord.id)
       });
 
-      console.log('✅ Bulletproof lookup result:', {
         foundUser: !!userRecord,
         foundModel: !!userModel,
         trainingStatus: userModel?.trainingStatus || 'none',
@@ -942,7 +925,6 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createUserModel(data: InsertUserModel): Promise<UserModel> {
-    console.log('Creating user model with data:', data);
     const [model] = await db.insert(userModels).values([data]).returning();
     return model;
   }
@@ -976,14 +958,12 @@ export class DatabaseStorage implements IStorage {
 
   // 🚨 CRITICAL: Clean up failed training data completely
   async deleteFailedTrainingData(userId: string): Promise<void> {
-    console.log(`🗑️ CLEANUP: Deleting all failed training data for user ${userId}`);
     
     // Delete in correct order to avoid foreign key constraints
     await db.delete(generationTrackers).where(eq(generationTrackers.userId, userId));
     await db.delete(aiImages).where(eq(aiImages.userId, userId));
     await db.delete(userModels).where(eq(userModels.userId, userId));
     
-    console.log(`✅ CLEANUP: All training data deleted for user ${userId} - ready for fresh start`);
   }
 
   // 🔍 Check if user needs to restart training due to failure
@@ -1015,7 +995,6 @@ export class DatabaseStorage implements IStorage {
     // Check if user model already exists (with dual ID support)
     const existingModel = await this.getUserModel(userId);
     if (existingModel) {
-      console.log('✅ User model already exists for user:', userId);
       return existingModel;
     }
     
@@ -1024,7 +1003,6 @@ export class DatabaseStorage implements IStorage {
     const actualUserId = user?.id || userId;
 
     // Create new user model that requires actual training
-    console.log('🔄 Creating new user model for user:', actualUserId);
     const triggerWord = `user${actualUserId}`;
     const modelData: InsertUserModel = {
       userId: actualUserId,
@@ -1045,7 +1023,6 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deleteUserModel(userId: string): Promise<void> {
-    console.log(`🗑️ Deleting user model for user: ${userId}`);
     await db.delete(userModels).where(eq(userModels.userId, userId));
   }
 
@@ -1548,7 +1525,6 @@ export class DatabaseStorage implements IStorage {
         JSON.stringify(enhancedMemoryData),
         []
       );
-      console.log(`💾 Agent memory saved for ${agentId} with ${enhancedMemoryData.conversationHistory?.length || 0} conversation messages`);
     } catch (error) {
       console.error('Failed to save agent memory:', error);
       throw error;
@@ -1609,7 +1585,6 @@ export class DatabaseStorage implements IStorage {
           ));
       }
       
-      console.log(`🧹 Agent memory cleared for ${agentId}`);
     } catch (error) {
       console.error('Failed to clear agent memory:', error);
       throw error;
@@ -1836,11 +1811,9 @@ export class DatabaseStorage implements IStorage {
       if (processedMsg.conceptCards && Array.isArray(processedMsg.conceptCards)) {
         const conceptsWithPrompts = (processedMsg.conceptCards as Array<Record<string, unknown>>).filter((card) => 'fullPrompt' in card && (card as { fullPrompt?: string }).fullPrompt);
         if (conceptsWithPrompts.length > 0) {
-          console.log(`💾 DATABASE RETRIEVAL: Retrieved ${conceptsWithPrompts.length} concept cards with preserved fullPrompt fields`);
           conceptsWithPrompts.forEach((card, index: number) => {
             const title = (card as { title?: string }).title || '';
             const fullPromptLen = (card as { fullPrompt?: string }).fullPrompt?.length || 0;
-            console.log(`  📋 Retrieved concept ${index + 1}: "${title}" - fullPrompt: ${fullPromptLen} chars`);
           });
         }
       }
@@ -1853,17 +1826,14 @@ export class DatabaseStorage implements IStorage {
   // Use getMayaChatMessages(chatId) for session-specific loading
 
   async createMayaChatMessage(data: InsertMayaChatMessage): Promise<MayaChatMessage> {
-    console.log(`📝 MAYA MESSAGE: Saving ${data.role} message with concept cards: ${data.conceptCards ? 'YES' : 'NO'}`);
     
     // CRITICAL: Ensure fullPrompt field is preserved in concept cards
     if (data.conceptCards && Array.isArray(data.conceptCards)) {
       const conceptsWithPrompts = (data.conceptCards as Array<Record<string, unknown>>).filter((card) => 'fullPrompt' in card && card.fullPrompt);
       if (conceptsWithPrompts.length > 0) {
-        console.log(`💾 DATABASE STORAGE: Preserving ${conceptsWithPrompts.length} concept cards with embedded fullPrompt fields`);
         conceptsWithPrompts.forEach((card, index: number) => {
           const title = (card as { title?: string }).title || '';
           const fullPromptLen = (card as { fullPrompt?: string }).fullPrompt?.length || 0;
-          console.log(`  📋 Concept ${index + 1}: "${title}" - fullPrompt: ${fullPromptLen} chars`);
         });
       }
     }
@@ -1882,7 +1852,6 @@ export class DatabaseStorage implements IStorage {
 
   // CRITICAL FIX: Add missing getMayaConceptById method for generation system
   async getMayaConceptById(conceptId: string): Promise<Record<string, unknown> | undefined> {
-    console.log(`🔍 CONCEPT RETRIEVAL: Searching for concept ID "${conceptId}"`);
     
     // Search through Maya chat messages for concept cards with matching ID
     const messages = await db
@@ -1898,13 +1867,11 @@ export class DatabaseStorage implements IStorage {
         if (conceptCard) {
           const title = (conceptCard as { title?: string }).title || '';
           const fullPrompt = (conceptCard as { fullPrompt?: string }).fullPrompt;
-          console.log(`✅ CONCEPT FOUND: "${title}" with fullPrompt: ${!!fullPrompt} (${fullPrompt?.length || 0} chars)`);
           return conceptCard as Record<string, unknown>;
         }
       }
     }
     
-    console.log(`⚠️ CONCEPT NOT FOUND: No concept found with ID "${conceptId}"`);
     return undefined;
   }
 
@@ -2103,7 +2070,6 @@ export class DatabaseStorage implements IStorage {
       }
     });
     
-    console.log(`✅ LoRA WEIGHTS STORED: User ${data.userId}, scales=${JSON.stringify(mayaScales)}`);
   }
 
   async getLoRAWeights(userId: string): Promise<{ s3Bucket: string; s3Key: string } | undefined> {
@@ -2468,7 +2434,6 @@ export class DatabaseStorage implements IStorage {
   }): Promise<void> {
     // This would typically insert into a usage_history table
     // For now, we'll just log it
-    console.log('Usage history:', data);
   }
 
   // Get user usage history

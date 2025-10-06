@@ -121,7 +121,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
 
     } catch (error) {
-      console.error('❌ Auto-registration failed:', error);
       return res.status(500).json({
         success: false,
         error: 'Failed to create account',
@@ -135,17 +134,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Stack Auth v1 API requests (e.g., /api/v1/projects/current)
     const stackAuthPath = req.url.replace('/api/v1', ''); 
     const stackAuthUrl = `https://api.stack-auth.com/api/v1${stackAuthPath}`;
-    
-    console.log('🔄 Stack Auth v1 proxy:', {
-      originalPath: req.url,
-      stackAuthPath,
-      stackAuthUrl,
-      method: req.method,
-      headers: {
-        'x-stack-access-type': req.headers['x-stack-access-type'],
-        'x-stack-project-id': req.headers['x-stack-project-id'],
-      }
-    });
 
     try {
       const headers: Record<string, string> = {
@@ -204,22 +192,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         res.setHeader('Set-Cookie', setCookie);
       }
 
-      console.log('✅ Stack Auth v1 proxy success:', {
-        status: response.status,
-        contentType,
-        hasSetCookie: !!setCookie,
-        dataPreview: data.substring(0, 200) + '...'
-      });
-
       return res.status(response.status).send(data);
 
     } catch (error) {
-      console.error('❌ Stack Auth v1 proxy failed:', {
-        error: error instanceof Error ? error.message : error,
-        url: stackAuthUrl,
-        method: req.method
-      });
-      
       return res.status(500).json({
         error: 'Stack Auth v1 proxy failed',
         message: error instanceof Error ? error.message : 'Unknown error'
@@ -231,13 +206,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.url?.startsWith('/api/auth/') && !req.url.includes('auto-register')) {
     const stackAuthPath = req.url.replace('/api/auth', '');
     const stackAuthUrl = `https://api.stack-auth.com/api/v1/projects/${process.env.STACK_AUTH_PROJECT_ID}${stackAuthPath}`;
-    
-    console.log('🔄 Stack Auth proxy:', {
-      path: stackAuthPath,
-      method: req.method,
-      hasAuth: !!req.headers.authorization,
-      projectId: process.env.STACK_AUTH_PROJECT_ID?.substring(0, 8) + '...'
-    });
 
     try {
       const headers: Record<string, string> = {
@@ -251,7 +219,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (process.env.STACK_AUTH_SECRET_KEY && (req.method === 'POST' || req.method === 'PUT' || req.method === 'DELETE')) {
         headers['x-stack-access-type'] = 'server';
         headers['x-stack-secret-server-key'] = process.env.STACK_AUTH_SECRET_KEY;
-        console.log('🔐 Using server-side Stack Auth authentication');
       }
 
       // Forward authorization header if present
@@ -293,21 +260,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         res.setHeader('Set-Cookie', setCookie);
       }
 
-      console.log('✅ Stack Auth proxy success:', {
-        status: response.status,
-        contentType,
-        hasSetCookie: !!setCookie
-      });
-
       return res.status(response.status).send(data);
 
     } catch (error) {
-      console.error('❌ Stack Auth proxy failed:', {
-        error: error instanceof Error ? error.message : error,
-        url: stackAuthUrl,
-        method: req.method
-      });
-      
       return res.status(500).json({
         error: 'Stack Auth proxy failed',
         message: error instanceof Error ? error.message : 'Unknown error'
@@ -341,43 +296,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   // Skip auth middleware entirely for public routes
   if (isPublicRoute) {
-    try {
-      const { default: main } = await import('./index.js');
-      return main(req, res);
-    } catch (error) {
-      console.error('❌ Public route handler failed:', {
-        url: req.url,
-        method: req.method,
-        error: error instanceof Error ? { message: error.message, stack: error.stack } : error
-      });
-      throw error;
-    }
+    const { default: main } = await import('./index.js');
+    return main(req, res);
   }
 
   // Use optional auth for most routes, required auth only for protected routes
-  try {
-    return withAuth(req, res, async (req: AuthenticatedRequest, res: VercelResponse) => {
-      try {
-        // Import main handler dynamically to avoid circular dependencies
-        const { default: main } = await import('./index.js');
-        return main(req, res);
-      } catch (error) {
-        console.error('❌ Route handler failed:', {
-          url: req.url,
-          method: req.method,
-          error: error instanceof Error ? { message: error.message, stack: error.stack } : error
-        });
-        throw error;
-      }
-    }, { 
-      optional: !isProtectedRoute 
-    });
-  } catch (error) {
-    console.error('❌ Auth middleware failed:', {
-      url: req.url,
-      method: req.method,
-      error: error instanceof Error ? { message: error.message, stack: error.stack } : error
-    });
-    throw error;
-  }
+  return withAuth(req, res, async (req: AuthenticatedRequest, res: VercelResponse) => {
+    // Import main handler dynamically to avoid circular dependencies
+    const { default: main } = await import('./index.js');
+    return main(req, res);
+  }, { 
+    optional: !isProtectedRoute 
+  });
 }

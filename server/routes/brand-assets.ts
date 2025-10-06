@@ -85,7 +85,6 @@ router.post('/', requireStackAuth, upload.single('asset'), async (req, res) => {
       return res.status(400).json({ error: 'Invalid kind. Must be "logo" or "product"' });
     }
 
-    console.log(`🎨 BRAND ASSETS: Uploading ${kind} asset for user ${userId}`);
 
     // Upload file to S3 using BulletproofUploadService
     const s3Key = `brand-assets/${userId}/${Date.now()}-${file.originalname}`;
@@ -123,7 +122,6 @@ router.post('/', requireStackAuth, upload.single('asset'), async (req, res) => {
 
     const savedAsset = await storage.saveBrandAsset(assetData);
 
-    console.log(`✅ BRAND ASSETS: ${kind} asset uploaded successfully with ID ${savedAsset.id}`);
     res.json({ asset: savedAsset });
 
   } catch (error) {
@@ -175,7 +173,6 @@ router.delete('/:assetId', requireStackAuth, async (req, res) => {
       return res.status(404).json({ error: 'Asset not found or already deleted' });
     }
 
-    console.log(`✅ BRAND ASSETS: Asset ${assetId} deleted successfully`);
     res.json({ success: true });
 
   } catch (error) {

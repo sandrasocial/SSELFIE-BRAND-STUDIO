@@ -53,7 +53,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
     }
     
-    console.log(`🖼️ Sandra images request: ${imageName}`);
     
     // 💡 FIX 1: Explicitly check for known failing images and redirect to stable source
     const knownFailingImages: Record<string, string> = {
@@ -69,7 +68,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Check if this is a known failing image and redirect immediately
     if (knownFailingImages[imageName]) {
       const fallbackUrl = knownFailingImages[imageName];
-      console.log(`❌ Known failing image ${imageName}. Redirecting to stable fallback: ${fallbackUrl}`);
       return res.status(307)
         .setHeader('Location', fallbackUrl)
         .setHeader('Cache-Control', 'public, max-age=300') // Cache redirect for 5 minutes
@@ -89,7 +87,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // All external images (postimg.cc) are now redirected to stable fallbacks
     if (imageUrl.includes('postimg.cc') || imageUrl.includes('i.postimg')) {
       const fallbackUrl = '/gallery-luxury-workspace.jpg'; // Default stable fallback
-      console.log(`🔄 External image detected (${imageName}). Redirecting to stable fallback: ${fallbackUrl}`);
       
       return res.status(307)
         .setHeader('Location', fallbackUrl)
@@ -105,7 +102,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // For any remaining images that are not external (should be rare)
     // Redirect to fallback as well to be safe
     const defaultFallbackUrl = '/gallery-luxury-workspace.jpg';
-    console.log(`🔄 Unknown image source for ${imageName}. Using default fallback: ${defaultFallbackUrl}`);
     
     return res.status(307)
       .setHeader('Location', defaultFallbackUrl)

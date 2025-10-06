@@ -1,6 +1,13 @@
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-export const config = { runtime: 'nodejs' } as const;
+
+// Type declaration for RequestInit in case it's not available globally
+type RequestInit = {
+  method?: string;
+  headers?: Record<string, string>;
+  body?: string | null;
+  redirect?: 'follow' | 'error' | 'manual';
+};
 
 // Stack Auth project config (should match your server setup)
 const STACK_AUTH_PROJECT_ID = process.env.STACK_AUTH_PROJECT_ID || process.env.VITE_STACK_PROJECT_ID || '253d7343-a0d4-43a1-be5c-822f590d40be';
@@ -85,8 +92,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const buffer = await stackRes.arrayBuffer();
       res.send(Buffer.from(buffer));
     }
-  } catch (error: any) {
-    console.error('❌ Stack Auth proxy error:', error);
-    res.status(502).json({ error: 'Stack Auth proxy failed', message: error.message });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    res.status(502).json({ error: 'Stack Auth proxy failed', message });
   }
 }

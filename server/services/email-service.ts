@@ -37,7 +37,6 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
       tags: (params.tags || []).map(tag => ({ name: tag, value: tag }))
     });
 
-    console.log('Email sent successfully:', result.data?.id);
     return true;
   } catch (error) {
     console.error('Email sending failed:', error);

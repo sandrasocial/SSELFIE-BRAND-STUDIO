@@ -211,7 +211,6 @@ export function BrandStudioProvider({ children }: { children: React.ReactNode })
     },
     onSuccess: (data) => {
       // Handle Maya's intelligent response with proper concept card extraction
-      console.log('✅ MAYA: Received response with', data.conceptCards?.length || 0, 'concept cards');
       
       if (data.response || data.content || data.message) {
         const mayaMessage: ChatMessage = {

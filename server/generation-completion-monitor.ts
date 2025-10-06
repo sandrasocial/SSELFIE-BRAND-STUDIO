@@ -6,8 +6,8 @@
  */
 
 import { storage } from './storage.js'
-// MAYA FAÇADE: Replaced Maya-specific import with façade API calls
-// import { MayaChatPreviewService } from './maya-chat-preview-service.js'; .js// REMOVED: Direct entanglement
+// RESTORE: Maya Chat Preview Service for proper user journey
+import { MayaChatPreviewService } from './maya-chat-preview-service.js';
 
 export class GenerationCompletionMonitor {
   private static instance: GenerationCompletionMonitor;
@@ -25,7 +25,6 @@ export class GenerationCompletionMonitor {
    */
   static async checkAndUpdateGeneration(predictionId: string, trackerId: number): Promise<boolean> {
     try {
-      console.log(`🎬 GENERATION MONITOR: Checking prediction ${predictionId} for tracker ${trackerId}`);
       
       const response = await fetch(`https://api.replicate.com/v1/predictions/${predictionId}`, {
         headers: {
@@ -40,7 +39,6 @@ export class GenerationCompletionMonitor {
       }
 
       const predictionData = await response.json();
-      console.log(`📊 GENERATION MONITOR: Prediction ${predictionId} status: ${predictionData.status}`);
 
       const tracker = await storage.getGenerationTracker(trackerId);
       if (!tracker) {
@@ -49,7 +47,6 @@ export class GenerationCompletionMonitor {
       }
 
       if (predictionData.status === 'succeeded' && predictionData.output) {
-        console.log(`✅ GENERATION MONITOR: Generation completed! Updating tracker ${trackerId}`);
         
         const imageUrls = Array.isArray(predictionData.output) ? predictionData.output : [predictionData.output];
         
@@ -60,27 +57,46 @@ export class GenerationCompletionMonitor {
           updatedAt: new Date()
         });
 
-        // MAYA FAÇADE: Save to gallery through standard API instead of Maya-specific service
+        // RESTORE: Save to Maya chat previews instead of direct gallery save
         try {
-          for (const imageUrl of imageUrls) {
-            await storage.saveGeneratedImage({
-              userId: tracker.userId,
-              imageUrls: JSON.stringify([imageUrl]),
-              prompt: tracker.prompt || 'Maya Editorial Photoshoot',
-              category: 'Maya Editorial',
-              subcategory: 'Professional'
-            });
+          // Get or create a Maya chat for this user
+          let chatId: number;
+          try {
+            // Try to get existing chat, or create new one
+            const existingChats = await storage.getMayaChats(tracker.userId);
+            if (existingChats && existingChats.length > 0) {
+              chatId = existingChats[0].id;
+            } else {
+              // Create new chat if none exists
+              const chatIdStr = await storage.createMayaChat(tracker.userId, {
+                title: 'Maya Creative Session',
+                initialMessage: 'Welcome to your creative session! I\'m here to help you create stunning personal brand photos.'
+              });
+              chatId = parseInt(chatIdStr);
+            }
+          } catch (chatError) {
+            console.error('❌ GENERATION MONITOR: Failed to get/create chat:', chatError);
+            // Fallback: create a simple chat ID
+            chatId = Date.now();
           }
-          console.log(`✅ GENERATION MONITOR: Saved ${imageUrls.length} images to gallery via façade`);
-        } catch (saveError) {
-          console.log(`⚠️ GENERATION MONITOR: Gallery save failed for user ${tracker.userId}:`, saveError);
-          // Don't fail the whole operation if gallery saving fails
+
+          // Save images as chat previews using MayaChatPreviewService
+          const previewMessage = await MayaChatPreviewService.saveChatPreview(
+            chatId,
+            imageUrls,
+            tracker.prompt || 'Maya Editorial Photoshoot',
+            predictionData.id,
+            tracker.userId
+          );
+          
+        } catch (previewError) {
+          console.error('❌ GENERATION MONITOR: Chat preview save failed:', previewError);
+          // Don't fail the whole operation if preview saving fails
         }
 
         return true;
         
       } else if (predictionData.status === 'failed') {
-        console.log(`❌ GENERATION MONITOR: Generation failed for tracker ${trackerId}`);
         
         const errorMessage = predictionData.error || 'Generation failed';
         
@@ -107,17 +123,14 @@ export class GenerationCompletionMonitor {
    */
   async checkAllInProgressGenerations(): Promise<void> {
     try {
-      console.log('🔍 GENERATION MONITOR: Checking all in-progress generations...');
 
       // Get all processing generation trackers
       const processingTrackers = await storage.getProcessingGenerationTrackers();
       
       if (processingTrackers.length === 0) {
-        console.log('✅ GENERATION MONITOR: No in-progress generations found');
         return;
       }
 
-      console.log(`📊 GENERATION MONITOR: Found ${processingTrackers.length} in-progress generations to check`);
 
       // Check each tracker
       for (const tracker of processingTrackers) {
@@ -139,11 +152,9 @@ export class GenerationCompletionMonitor {
    */
   startMonitoring(): void {
     if (this.intervalId) {
-      console.log('⚠️ GENERATION MONITOR: Monitoring already running');
       return;
     }
 
-    console.log('🚀 GENERATION MONITOR: Starting automatic generation monitoring...');
     
     // Check every 30 seconds (same as training monitor)
     this.intervalId = setInterval(() => {
@@ -161,7 +172,6 @@ export class GenerationCompletionMonitor {
     if (this.intervalId) {
       clearInterval(this.intervalId);
       this.intervalId = null;
-      console.log('🛑 GENERATION MONITOR: Stopped automatic monitoring');
     }
   }
 }

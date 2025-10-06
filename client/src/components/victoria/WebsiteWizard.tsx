@@ -90,12 +90,10 @@ export function WebsiteWizard({ onComplete }: WebsiteWizardProps) {
   const handleSubmit = async () => {
     if (isFormValid()) {
       try {
-        console.log('💾 Saving onboarding data before website generation...');
         
         // First, save the onboarding data to the database
         await saveOnboardingMutation.mutateAsync(formData as WebsiteGenerationRequest);
         
-        console.log('✅ Onboarding data saved successfully, now generating website...');
         
         // Then generate the website with Victoria
         const result = await generateWebsite.mutateAsync(formData as WebsiteGenerationRequest);

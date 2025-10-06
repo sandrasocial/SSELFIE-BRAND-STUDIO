@@ -55,7 +55,6 @@ export class PaymentSuccessService {
    * Handle retraining payment success
    */
   private static async handleRetrainingSuccess(data: PaymentSuccessData): Promise<PaymentSuccessResult> {
-    console.log('🔄 Handling retraining payment success');
     
     return {
       success: true,
@@ -129,7 +128,6 @@ export class PaymentSuccessService {
       });
 
       if (upgradeResponse.ok) {
-        console.log('✅ User upgrade successful');
         return;
       }
 
@@ -141,7 +139,6 @@ export class PaymentSuccessService {
         body: JSON.stringify({ plan: 'sselfie-studio' })
       });
 
-      console.log('✅ User upgrade via automation successful');
     } catch (error) {
       console.error('User upgrade failed:', error);
       // Don't throw - payment was still processed
@@ -159,7 +156,6 @@ export class PaymentSuccessService {
         return modelData.trainingStatus || null;
       }
     } catch (error) {
-      console.log('Could not check training status:', error);
     }
     return null;
   }
@@ -169,7 +165,6 @@ export class PaymentSuccessService {
    */
   private static async handleAutoRegistration(email: string, plan: string): Promise<PaymentSuccessResult> {
     try {
-      console.log('🚀 AUTO-REGISTRATION: Creating account for:', email);
       
       const response = await fetch('/api/auth/auto-register', {
         method: 'POST',
@@ -184,7 +179,6 @@ export class PaymentSuccessService {
       const data = await response.json();
       
       if (data.success) {
-        console.log('✅ AUTO-REGISTRATION: Account created successfully');
         
         // Clear stored email
         localStorage.removeItem('checkout-email');

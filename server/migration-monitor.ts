@@ -29,7 +29,6 @@ export class MigrationMonitor {
     }
 
     this.isRunning = true;
-    console.log('🚀 MIGRATION MONITOR: Starting automatic URL migration service');
 
     // Check every 5 minutes for images that need migration
     this.intervalId = setInterval(async () => {
@@ -49,7 +48,6 @@ export class MigrationMonitor {
       this.intervalId = null;
     }
     this.isRunning = false;
-    console.log('⏹️ MIGRATION MONITOR: Stopped');
   }
 
   /**
@@ -57,22 +55,18 @@ export class MigrationMonitor {
    */
   private async scanAndMigrateImages(): Promise<void> {
     try {
-      console.log('🔍 MIGRATION MONITOR: Scanning for temp URLs that need migration...');
 
       // Get all images with Replicate URLs from the last 24 hours
       const recentImages = await this.getReplicateImages();
       
       if (recentImages === null) {
-        console.log('⚠️ MIGRATION MONITOR: Database schema issue, skipping migration');
         return;
       }
       
       if (recentImages.length === 0) {
-        console.log('✅ MIGRATION MONITOR: No temp URLs found - all images already permanent');
         return;
       }
 
-      console.log(`🔄 MIGRATION MONITOR: Found ${recentImages.length} images with temp URLs - starting migration`);
 
       let successCount = 0;
       let failureCount = 0;
@@ -90,7 +84,6 @@ export class MigrationMonitor {
           await this.updateImageUrl(image.id, permanentUrl);
           
           successCount++;
-          console.log(`✅ MIGRATION SUCCESS: Image ${image.id} migrated to permanent storage`);
           
           // Small delay to avoid overwhelming S3
           await new Promise(resolve => setTimeout(resolve, 200));
@@ -101,7 +94,6 @@ export class MigrationMonitor {
         }
       }
 
-      console.log(`📊 MIGRATION MONITOR: Completed batch - ${successCount} successful, ${failureCount} failed`);
 
     } catch (error) {
       console.error('❌ MIGRATION MONITOR: Error during scan:', error);
@@ -119,7 +111,6 @@ export class MigrationMonitor {
     } catch (error) {
       // Handle schema mismatches gracefully
       if (error.message?.includes('column') && error.message?.includes('does not exist')) {
-        console.log('⚠️ MIGRATION MONITOR: Database schema mismatch, migration paused until schema is updated');
         return null;
       }
       
@@ -147,18 +138,15 @@ export class MigrationMonitor {
    */
   static async migrateUserImages(userId: string): Promise<void> {
     try {
-      console.log(`🔄 MANUAL MIGRATION: Starting for user ${userId}`);
       
       const selectSql = "SELECT * FROM ai_images WHERE user_id = $1 AND image_url LIKE 'https://replicate.delivery%'";
       const result = await query(selectSql, [userId]) as any;
       const userImages = result.rows || result;
 
       if (userImages.length === 0) {
-        console.log(`✅ MANUAL MIGRATION: No temp URLs found for user ${userId}`);
         return;
       }
 
-      console.log(`🔄 MANUAL MIGRATION: Found ${userImages.length} temp URLs for user ${userId}`);
 
       for (const image of userImages) {
         try {
@@ -172,14 +160,12 @@ export class MigrationMonitor {
           const updateSql = "UPDATE ai_images SET image_url = $1 WHERE id = $2";
           await query(updateSql, [permanentUrl, image.id]);
 
-          console.log(`✅ MANUAL MIGRATION: Image ${image.id} migrated successfully`);
 
         } catch (error) {
           console.error(`❌ MANUAL MIGRATION: Failed for image ${image.id}:`, error);
         }
       }
 
-      console.log(`✅ MANUAL MIGRATION: Completed for user ${userId}`);
 
     } catch (error) {
       console.error(`❌ MANUAL MIGRATION: Error for user ${userId}:`, error);

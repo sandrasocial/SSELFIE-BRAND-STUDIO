@@ -138,7 +138,6 @@ export function registerAutomationRoutes(app: Express) {
       
       // In production, integrate with email automation service
       // For now, just log the automation trigger
-      console.log(`Email sequence triggered: ${sequenceType}, step ${step} for user ${userId}`);
       
       res.json({ message: 'Email sequence triggered' });
     } catch (error) {
@@ -175,7 +174,6 @@ export function registerAutomationRoutes(app: Express) {
       const aiImages = await Promise.all(aiImagePromises);
 
       // In production, queue these for background processing
-      console.log(`Bulk AI generation queued: ${prompts.length} images for user ${userId}`);
 
       res.json({ 
         message: 'Bulk AI generation started',
@@ -272,10 +270,6 @@ async function sendWelcomeEmail(user: any, plan: string) {
   const template = templates[plan as keyof typeof templates] || templates['free'];
   
   // In production, integrate with email service (SendGrid, Mailchimp, etc.)
-  console.log(`Sending email to ${user.email}:`);
-  console.log(`Subject: ${template.subject}`);
-  console.log(`Body: ${template.body}`);
   
   // Log automation event
-  console.log(`Welcome email automation completed for user ${user.id}, plan ${plan}`);
 }

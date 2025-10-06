@@ -10,7 +10,6 @@ import { sql } from 'drizzle-orm';
 
 export async function ensureConceptCardsTable(): Promise<void> {
   try {
-    console.log('🔧 DATABASE: Ensuring concept_cards table exists...');
     
     // Create concept_cards table without foreign key constraints (standalone for hybrid backend)
     await db.execute(sql`
@@ -51,7 +50,6 @@ export async function ensureConceptCardsTable(): Promise<void> {
       CREATE INDEX IF NOT EXISTS idx_concept_cards_sort ON concept_cards(sort_order);
     `);
 
-    console.log('✅ DATABASE: concept_cards table and indexes ensured');
     
   } catch (error) {
     console.error('❌ DATABASE: Failed to ensure concept_cards table:', error);

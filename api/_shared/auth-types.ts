@@ -1,6 +1,22 @@
 import { StackAuthUserInfo } from './stack-auth-types.js';
 import { VercelRequest, VercelResponse } from '@vercel/node';
 
+// JSON data types for flexible storage
+export interface OnboardingProgress {
+  step?: number;
+  completedSteps?: string[];
+  preferences?: Record<string, unknown>;
+  [key: string]: unknown;
+}
+
+export interface BrandStrategyContext {
+  businessGoals?: string[];
+  platformStrategy?: string;
+  brandPositioning?: Record<string, unknown>;
+  coachingResponses?: Record<string, unknown>;
+  [key: string]: unknown;
+}
+
 // Define User interface based on the actual database schema
 // This matches the `users` table in shared/schema.ts
 export interface DatabaseUser {
@@ -34,7 +50,7 @@ export interface DatabaseUser {
   retrainingPaidAt: Date | null;
   
   // Conversational onboarding tracking - Maya handles incomplete profiles gracefully
-  onboardingProgress: any; // JSON data
+  onboardingProgress: OnboardingProgress | null; // JSON data
   preferredOnboardingMode: string | null; // conversational, guided, completed
   
   // Essential profile data for Maya personalization
@@ -48,7 +64,7 @@ export interface DatabaseUser {
   trainingCoachingCompleted: boolean | null;
   trainingCoachingPhase: string | null; // businessGoals, platformStrategy, brandPositioning, completed
   trainingCoachingStep: number | null;
-  brandStrategyContext: any; // JSON data - Stores coaching responses and brand strategy insights
+  brandStrategyContext: BrandStrategyContext | null; // JSON data - Stores coaching responses and brand strategy insights
 }
 
 export interface AuthenticatedUser extends DatabaseUser {
@@ -60,7 +76,7 @@ export interface AuthenticatedRequest extends VercelRequest {
 }
 
 // Handler that requires authentication
-export type AuthenticatedHandler<T = any> = (
+export type AuthenticatedHandler<T = void> = (
   req: AuthenticatedRequest,
   res: VercelResponse
 ) => Promise<T>;

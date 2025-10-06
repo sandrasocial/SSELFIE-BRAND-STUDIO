@@ -73,7 +73,6 @@ export const useTrainingStatus = (userId: string, enabled: boolean = true) => {
         };
         setTrainingStage(stage);
 
-        console.log(`📊 Training progress updated: ${data.progress}% (${data.stage})`);
       }
     } catch (error) {
       console.error('Failed to fetch training progress:', error);

@@ -31,7 +31,6 @@ export function useEnhancedToast() {
 
     // Log for development
     if (import.meta.env.DEV) {
-      console.log('Toast:', options);
     }
   };
 

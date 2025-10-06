@@ -50,7 +50,6 @@ Generated with your personal AI model using Sandra's proven settings
 
       const previewMessage = await storage.saveMayaChatMessage(messageInput as any);
 
-      console.log(`✅ MAYA CHAT PREVIEW: Saved ${imageUrls.length} images to chat ${chatId} as message ${previewMessage.id}`);
       return previewMessage as unknown as ChatMessage;
       
     } catch (error) {
@@ -100,7 +99,6 @@ Generated with your personal AI model using Sandra's proven settings
 
       const galleryImage = await storage.saveAIImage(imageInput);
 
-      console.log(`💖 MAYA HEART: Saved image ${galleryImage.id} to gallery for user ${userId} with selected/favorite flags`);
       return galleryImage as GalleryImage;
       
     } catch (error) {

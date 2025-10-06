@@ -62,7 +62,6 @@ router.post('/levelpartner-signup', optionalStackAuth, async (req: Request<{}, {
     const utm_term = req.query.utm_term as string || req.body.utm_term;
     const utm_content = req.query.utm_content as string || req.body.utm_content;
     
-    console.log('🎯 LevelPartner signup received:', {
       name,
       email,
       source,
@@ -86,7 +85,6 @@ router.post('/levelpartner-signup', optionalStackAuth, async (req: Request<{}, {
         
         if (sessionResult.length > 0) {
           sessionData = sessionResult[0];
-          console.log('📊 Stage Mode session found:', {
             id: sessionData.id,
             title: sessionData.title,
             createdAt: sessionData.createdAt
@@ -140,7 +138,6 @@ router.post('/levelpartner-signup', optionalStackAuth, async (req: Request<{}, {
       }
     };
 
-    console.log('📤 Sending to LevelPartner:', levelPartnerPayload);
 
     // Send to LevelPartner API
     const levelPartnerResponse = await fetch(process.env.LEVELPARTNER_API_URL || 'https://api.levelpartner.com/v1/subscriptions', {
@@ -180,7 +177,6 @@ router.post('/levelpartner-signup', optionalStackAuth, async (req: Request<{}, {
     }
 
     const levelPartnerResult = await levelPartnerResponse.json();
-    console.log('✅ LevelPartner success:', levelPartnerResult);
 
     // Track signup success event if sessionId is provided
     if (sessionId) {
@@ -202,7 +198,6 @@ router.post('/levelpartner-signup', optionalStackAuth, async (req: Request<{}, {
           userAgent: req.headers['user-agent'],
           ipAddress: req.ip || req.connection.remoteAddress,
         });
-        console.log('📊 Signup success event tracked for session:', sessionId);
       } catch (error) {
         console.warn('⚠️ Failed to track signup success event:', error.message);
         // Don't break the response - analytics tracking is optional

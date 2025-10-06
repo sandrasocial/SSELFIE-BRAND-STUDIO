@@ -42,7 +42,7 @@ export function showVideoPreview(source: string | Blob, opts: VideoPreviewOption
 
 	player.src = src;
 	// Persist original canonical URL (if provided) for save events
-	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+	 
 	// @ts-ignore
 	window.__videoPreview = { ...(window as any).__videoPreview, showVideoPreview, hideVideoPreview, lastOriginalSrc: opts.originalSrc || (typeof source === 'string' ? source : undefined) };
 	player.loop = !!opts.loop;
@@ -204,7 +204,7 @@ function ensureInit() {
 					const player = qs<HTMLVideoElement>('#video-preview-player');
 					if (!player || !player.src) return;
 					const detail: Record<string, any> = { src: player.src };
-					// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+					 
 					// @ts-ignore
 					if ((window as any).__videoPreview?.lastOriginalSrc) {
 						detail['originalSrc'] = (window as any).__videoPreview.lastOriginalSrc;
@@ -228,7 +228,6 @@ function ensureInit() {
 			}
 		}
 
-		console.log('[VideoPreview] Modal controller initialized with focus trap & actions');
 }
 
 // Auto init after DOM ready
@@ -239,7 +238,7 @@ if (document.readyState === 'loading') {
 }
 
 // Expose helpers for manual triggering in console / other scripts
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+ 
 // @ts-ignore
 window.__videoPreview = { showVideoPreview, hideVideoPreview };
 

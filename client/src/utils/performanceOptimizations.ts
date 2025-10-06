@@ -27,7 +27,6 @@ export const enableServiceWorkerCaching = () => {
     try {
       navigator.serviceWorker.register('/sw.js')
         .then(registration => {
-          console.log('SSELFIE Studio: Service Worker registered successfully', registration);
           return registration;
         })
         .catch(registrationError => {

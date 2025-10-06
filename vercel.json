@@ -146,10 +146,6 @@
     {
       "path": "/api/cron/training-completion-monitor",
       "schedule": "*/2 * * * *"
-    },
-    {
-      "path": "/api/cron/generation-completion-monitor", 
-      "schedule": "* * * * *"
     }
   ],
   "build": {

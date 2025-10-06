@@ -19,9 +19,8 @@ if (!STACK_PUBLISHABLE_CLIENT_KEY || !STACK_PUBLISHABLE_CLIENT_KEY.startsWith("p
 }
 
 // Optional one-time debug (guarded)
-// eslint-disable-next-line no-console
+ 
 if (import.meta.env.DEV) {
-  console.log("Neon Auth env (sanity):", {
     projectIdPresent: !!STACK_PROJECT_ID,
     pckStartsWith: STACK_PUBLISHABLE_CLIENT_KEY.startsWith("pck_"),
     keyLength: STACK_PUBLISHABLE_CLIENT_KEY.length,

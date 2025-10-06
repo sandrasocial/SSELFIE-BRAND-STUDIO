@@ -72,13 +72,12 @@ export default function SimpleCheckout() {
 
   // Check for payment success from URL parameters
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
+    const urlParams = new URL(window.location.href).searchParams;
     const status = urlParams.get('status');
     const planParam = urlParams.get('plan');
     const emailParam = urlParams.get('email');
 
     if (status === 'success') {
-      console.log('🎉 Payment success detected from URL');
       
       // Set modal to success state
       setPaymentStatus('success');
@@ -175,7 +174,6 @@ export default function SimpleCheckout() {
       // This fixes: multiple email collection, scrollability, style consistency
       const embeddedCheckoutUrl = `/embedded-checkout?email=${encodeURIComponent(email)}&plan=${plan}`;
       
-      console.log('� Redirecting to embedded checkout:', embeddedCheckoutUrl);
       
       setProcessingStep('complete');
       

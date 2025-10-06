@@ -60,7 +60,6 @@ export default function PaymentSuccess() {
             }
           }
         } catch (error) {
-          console.log('Could not check training status:', error);
         }
         
         // New user or training not completed - redirect to training
@@ -95,7 +94,6 @@ export default function PaymentSuccess() {
   // 🚀 AUTO-REGISTRATION: Create account for paying users automatically
   const handleAutoRegistration = async (email: string, plan: string) => {
     try {
-      console.log('🚀 AUTO-REGISTRATION: Creating account for:', email);
       
       const response = await fetch('/api/auth/auto-register', {
         method: 'POST',
@@ -110,7 +108,6 @@ export default function PaymentSuccess() {
       const data = await response.json();
       
       if (data.success) {
-        console.log('✅ AUTO-REGISTRATION: Account created successfully');
         
         // Show success message
         toast({
@@ -205,7 +202,6 @@ export default function PaymentSuccess() {
 
         if (upgradeResponse.ok) {
           const upgradeData = await upgradeResponse.json();
-          console.log('✅ User upgrade successful:', upgradeData);
           
           // Clear stored plan
           localStorage.removeItem('userPlan');

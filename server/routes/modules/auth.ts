@@ -63,7 +63,6 @@ router.get('/api/auth/user', requireStackAuth, asyncHandler(async (req: Authenti
 
   // If user doesn't exist in database but Stack Auth user exists, create them
   if (!user && req.user) {
-    console.log('🔄 Auto-creating user from Stack Auth data:', req.user.email);
     user = await userService.createUser(req.user.email || req.user.id, {
       id: req.user.id,
       email: req.user.email,
@@ -72,7 +71,6 @@ router.get('/api/auth/user', requireStackAuth, asyncHandler(async (req: Authenti
       lastName: req.user.lastName,
       profileImageUrl: req.user.profileImageUrl,
     }) as UserProfile;
-    console.log('✅ User auto-created successfully:', user.id);
   }
 
   if (!user) {
@@ -106,7 +104,7 @@ router.post('/api/auth/auto-register', asyncHandler(async (req: AuthenticatedReq
   const { email, name } = req.body;
   validateRequired({ email }, ['email']);
 
-  let existingUser = await userService.getUserByEmail(email) as UserProfile;
+  const existingUser = await userService.getUserByEmail(email) as UserProfile;
 
   if (existingUser) {
     const responseData: SuccessResponse<{ userId: string }> = {

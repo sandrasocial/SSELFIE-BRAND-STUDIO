@@ -37,7 +37,7 @@ interface SystemHealthMetrics {
 }
 
 // Mock health data (in production, this would query actual system metrics)
-let systemHealth: SystemHealthMetrics = {
+const systemHealth: SystemHealthMetrics = {
   agents: {
     total: 14,
     active: 14,
@@ -198,7 +198,6 @@ router.post('/update', async (req, res) => {
         });
     }
 
-    console.log(`📊 HEALTH: Updated ${component} metrics`);
     
     res.json({
       success: true,

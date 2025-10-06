@@ -18,7 +18,6 @@ if (!STACK_PROJECT_ID || !STACK_PUBLISHABLE_CLIENT_KEY || !STACK_SECRET_SERVER_K
   throw new Error('Stack Auth server configuration is incomplete');
 }
 
-console.log('🔍 Stack Auth Server Config:', {
   projectId: STACK_PROJECT_ID,
   publishableClientKey: STACK_PUBLISHABLE_CLIENT_KEY?.substring(0, 20) + '...',
   hasSecretKey: !!STACK_SECRET_SERVER_KEY,
@@ -44,7 +43,6 @@ try {
     },
   });
 
-  console.log('✅ Stack Auth Server Instance Created Successfully:', {
     projectId: stackServerApp.projectId,
     urls: stackServerApp.urls,
     hasServerPermissions: true

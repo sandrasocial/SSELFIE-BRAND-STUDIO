@@ -44,10 +44,8 @@ export function adminContextDetection(req: AdminContextRequest, res: Response, n
         canAccessPlatformFeatures: true,
         separateAnalytics: true
       };
-      
-      console.log(`🎯 ADMIN CONTEXT: Platform owner (${userEmail}) detected - enhanced Maya context enabled`);
+
     } else {
-      console.log(`👤 MEMBER CONTEXT: Subscriber user (${userId}) - standard Maya experience`);
     }
 
     next();
@@ -66,15 +64,15 @@ export function adminContextDetection(req: AdminContextRequest, res: Response, n
  */
 export function getConversationId(userId: string, isAdmin: boolean, chatId?: number, context?: string): string {
   const contextSuffix = context === 'support' ? '_support' : '';
-  
+
   if (isAdmin) {
     return `maya_admin_platform_${userId}${contextSuffix}`;
   }
-  
+
   if (chatId) {
     return `maya_member_${userId}_${chatId}${contextSuffix}`;
   }
-  
+
   return `maya_member_${userId}${contextSuffix}`;
 }
 

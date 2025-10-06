@@ -265,7 +265,7 @@ export function generateModelId(userId: string, modelType: string): string {
 }
 
 // Validate image metadata
-export function validateImageMetadata(metadata: any): boolean {
+export function validateImageMetadata(metadata: Record<string, unknown>): boolean {
   const required = ['dimensions', 'format'];
   return required.every(field => field in metadata);
 }

@@ -14,7 +14,6 @@ if (typeof window !== 'undefined') {
       const name = eqPos > -1 ? c.substr(0, eqPos).trim() : c.trim();
       if (name.includes('stack') && document.cookie.includes(`${name}=undefined`)) {
         document.cookie = name + '=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/';
-        console.log(`🧹 Cleared invalid cookie: ${name}`);
       }
     });
 
@@ -22,7 +21,6 @@ if (typeof window !== 'undefined') {
     Object.keys(localStorage).forEach(key => {
       if (key.toLowerCase().includes('stack') && localStorage.getItem(key) === 'undefined') {
         localStorage.removeItem(key);
-        console.log(`🧹 Cleared invalid localStorage: ${key}`);
       }
     });
 
@@ -30,7 +28,6 @@ if (typeof window !== 'undefined') {
     Object.keys(sessionStorage).forEach(key => {
       if (key.toLowerCase().includes('stack') && sessionStorage.getItem(key) === 'undefined') {
         sessionStorage.removeItem(key);
-        console.log(`🧹 Cleared invalid sessionStorage: ${key}`);
       }
     });
   };

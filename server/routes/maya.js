@@ -34,13 +34,12 @@ router.post('/chat', requireStackAuth, async (req, res) => {
             return res.status(400).json({ error: 'Message is required' });
         }
 
-        console.log('🎨 MAYA: Chat request from user:', userId, 'Message:', message.substring(0, 100) + '...');
 
         // Get Maya's complete personality prompt from the personality system
         const systemPrompt = PersonalityManager.getNaturalPrompt('maya');
 
         // Build conversation context (limit to last 10 exchanges to prevent context overflow)
-        let conversationMessages = [];
+        const conversationMessages = [];
         if (history && Array.isArray(history)) {
             // Take only the last 10 messages to prevent context from getting too long
             const recentHistory = history.slice(-10);
@@ -76,7 +75,7 @@ router.post('/chat', requireStackAuth, async (req, res) => {
         const mayaResponse = response.content[0].type === 'text' ? response.content[0].text : '';
 
         // Extract concept cards using improved regex patterns
-        let conceptCards = [];
+        const conceptCards = [];
         try {
             // Look for Maya's emoji-based concept card format first
             const emojiConceptPattern = /(\p{Emoji})\s*\*\*([^*]+)\*\*\s*\n([^*]+?)\s*\n\s*FLUX_PROMPT:\s*\[([^\]]+)\]/gu;
@@ -167,10 +166,8 @@ router.post('/chat', requireStackAuth, async (req, res) => {
                 }
             }
         } catch (parseError) {
-            console.log('Concept card extraction failed:', parseError.message);
         }
 
-        console.log('✅ MAYA: Generated response with', conceptCards.length, 'concept cards');
 
         res.json({
             response: mayaResponse,
@@ -200,7 +197,6 @@ router.post('/generate', requireStackAuth, async (req, res) => {
             return res.status(400).json({ error: 'Concept card with FLUX prompt is required' });
         }
 
-        console.log('🎨 MAYA: Starting image generation for user:', userId, 'concept:', conceptCard.title);
 
         // For now, simulate image generation with mock URLs
         // TODO: Integrate with actual FLUX/Replicate API
@@ -217,7 +213,6 @@ router.post('/generate', requireStackAuth, async (req, res) => {
         setTimeout(async () => {
             try {
                 // TODO: Save generated images to storage and update concept card
-                console.log('✅ MAYA: Images generated for generation ID:', generationId);
             } catch (error) {
                 console.error('❌ MAYA: Failed to save generated images:', error);
             }
@@ -247,7 +242,6 @@ router.get('/status/:generationId', requireStackAuth, async (req, res) => {
         const { generationId } = req.params;
         const userId = req.user?.id;
 
-        console.log('🎨 MAYA: Checking generation status:', generationId, 'for user:', userId);
 
         // For now, simulate completed status with mock images
         // TODO: Check actual generation status from queue/storage
