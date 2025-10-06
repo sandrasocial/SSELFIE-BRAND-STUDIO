@@ -9,9 +9,9 @@ export function ProtectedRoute({
   fallbackPath = '/handler/sign-in',
   ...props 
 }: { 
-  component: ComponentType<any>;
+  component: ComponentType<Record<string, unknown>>;
   fallbackPath?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }) {
   const { isAuthenticated, isLoading } = useAuth();
   const [, setLocation] = useLocation();

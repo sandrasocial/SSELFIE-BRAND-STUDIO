@@ -1,6 +1,15 @@
 // PWA Installation and Management Utilities
 // Handles app installation prompts and PWA features
 
+interface AnalyticsParams {
+  event_category: string;
+  event_label: string;
+}
+
+interface WindowWithGtag extends Window {
+  gtag?: (command: string, action: string, params: AnalyticsParams) => void;
+}
+
 interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>;
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
@@ -215,8 +224,9 @@ class PWAManager {
     
     // Could send to analytics service here
     try {
-      if (typeof (window as any).gtag !== 'undefined') {
-        (window as any).gtag('event', 'pwa_install', {
+      const windowWithGtag = window as WindowWithGtag;
+      if (windowWithGtag.gtag) {
+        windowWithGtag.gtag('event', 'pwa_install', {
           event_category: 'engagement',
           event_label: 'PWA installed'
         });

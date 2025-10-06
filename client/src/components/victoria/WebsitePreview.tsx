@@ -2,8 +2,17 @@ import React, { useState } from 'react';
 import { Button } from '../ui/button.js';
 import { useWebsiteBuilder } from '../../hooks/useWebsiteBuilder.js';
 
+interface Website {
+  id: string;
+  preview: string;
+  status: 'draft' | 'deployed' | 'deploying';
+  deploymentUrl?: string;
+  template?: string;
+  estimatedGenerationTime?: number;
+}
+
 interface WebsitePreviewProps {
-  website: any;
+  website: Website;
   onCustomize: () => void;
   onDeploy: () => void;
 }
@@ -116,7 +125,8 @@ export function WebsitePreview({ website, onCustomize, onDeploy }: WebsitePrevie
             <Button
               variant="outline"
               size="sm"
-              onClick={() => navigator.clipboard.writeText(website.deploymentUrl)}
+              onClick={() => website.deploymentUrl && navigator.clipboard.writeText(website.deploymentUrl)}
+              disabled={!website.deploymentUrl}
             >
               Copy URL
             </Button>

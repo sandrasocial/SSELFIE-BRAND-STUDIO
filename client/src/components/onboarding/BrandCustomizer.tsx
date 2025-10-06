@@ -40,7 +40,7 @@ export const BrandCustomizer: FC<BrandCustomizationProps> = ({
     brandName: ''
   });
 
-  const handleChange = (field: string, value: any) => {
+  const handleChange = (field: string, value: string | object) => {
     const updated = {
       ...customization,
       [field]: value

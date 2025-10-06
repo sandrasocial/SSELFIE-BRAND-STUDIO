@@ -89,7 +89,7 @@ export function NotificationPreferences() {
     }
   });
 
-  const updatePreference = (key: string, value: any) => {
+  const updatePreference = (key: string, value: unknown) => {
     setPreferences(prev => ({
       ...prev,
       [key]: value

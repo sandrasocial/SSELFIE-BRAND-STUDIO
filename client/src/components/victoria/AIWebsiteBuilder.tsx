@@ -10,10 +10,22 @@ import { Button } from '../ui/button.js';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '../../hooks/use-toast.js';
 import { apiRequest } from '../../lib/queryClient.js';
+import { BrandOnboarding, Website } from '../../../shared/schema.js';
+
+interface SelectedImages {
+  aiPhotos: Array<{
+    id: string | number;
+    url?: string;
+    imageUrl: string;
+    title?: string;
+    createdAt?: string;
+  }>;
+  flatlayImages: string[];
+}
 
 export function AIWebsiteBuilder() {
   const [currentView, setCurrentView] = useState<'checking' | 'photo-selection' | 'brand-questionnaire' | 'mode-select' | 'wizard' | 'chat' | 'preview' | 'customize'>('checking');
-  const [selectedImages, setSelectedImages] = useState<any>(null);
+  const [selectedImages, setSelectedImages] = useState<SelectedImages | null>(null);
   const [brandAssessment, setBrandAssessment] = useState<PersonalBrandAssessment>({
     personalStory: '',
     targetAudience: '',
@@ -31,13 +43,13 @@ export function AIWebsiteBuilder() {
   const { data: existingOnboarding, isLoading: checkingOnboarding } = useQuery({
     queryKey: ['/api/brand-onboarding'],
     retry: false,
-  }) as { data: any | undefined; isLoading: boolean };
+  }) as { data: BrandOnboarding | undefined; isLoading: boolean };
 
   // Check if user has existing websites
   const { data: userWebsites, isLoading: checkingWebsites } = useQuery({
     queryKey: ['/api/victoria/websites'],
     retry: false,
-  }) as { data: any[] | undefined; isLoading: boolean };
+  }) as { data: Website[] | undefined; isLoading: boolean };
 
   useEffect(() => {
     if (isGenerating && generationProgress === 0) {
@@ -65,7 +77,7 @@ export function AIWebsiteBuilder() {
 
   // Save brand assessment mutation
   const saveBrandAssessmentMutation = useMutation({
-    mutationFn: async (data: PersonalBrandAssessment & { selectedImages: any }) => {
+    mutationFn: async (data: PersonalBrandAssessment & { selectedImages: SelectedImages }) => {
       return apiRequest('POST', '/api/save-brand-assessment', data);
     },
     onSuccess: () => {
@@ -86,7 +98,7 @@ export function AIWebsiteBuilder() {
     },
   });
 
-  const handlePhotoSelectionComplete = (images: any) => {
+  const handlePhotoSelectionComplete = (images: SelectedImages) => {
     setSelectedImages(images);
     setCurrentView('brand-questionnaire');
   };
@@ -100,7 +112,7 @@ export function AIWebsiteBuilder() {
     });
   };
 
-  const handleWizardComplete = (website: any) => {
+  const handleWizardComplete = (website: Website) => {
     setCurrentView('preview');
   };
 
@@ -305,7 +317,7 @@ export function AIWebsiteBuilder() {
 }
 
 // Website Customizer Component
-function WebsiteCustomizer({ website, onSave }: { website: any; onSave: () => void }) {
+function WebsiteCustomizer({ website, onSave }: { website: Website; onSave: () => void }) {
   const [customizations, setCustomizations] = useState({
     colors: {
       primary: '#1a1a1a',

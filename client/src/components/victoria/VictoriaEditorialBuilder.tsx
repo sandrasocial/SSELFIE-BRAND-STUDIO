@@ -8,6 +8,27 @@ import { VictoriaChat } from './VictoriaChat.js';
 import { Button } from '../ui/button.js';
 import { useQuery } from '@tanstack/react-query';
 import { apiRequest } from '../../lib/queryClient.js';
+import { BrandOnboarding } from '../../../../shared/schema.js';
+
+interface Website {
+  id: string;
+  preview: string;
+  status: 'draft' | 'deployed' | 'deploying';
+  deploymentUrl?: string;
+  template?: string;
+  estimatedGenerationTime?: number;
+}
+
+interface GalleryImage {
+  id: string;
+  userId: string;
+  type: 'ai_generated' | 'generated';
+  title: string;
+  description: string;
+  imageUrl: string;
+  createdAt: string;
+  tags: string[];
+}
 
 interface WebsiteData {
   businessName: string;
@@ -43,7 +64,7 @@ export function VictoriaEditorialBuilder({ onWebsiteGenerated }: VictoriaEditori
   const [websiteData, setWebsiteData] = useState<WebsiteData | null>(null);
 
   // Fetch user's gallery images
-  const { data: galleryImages = [] } = useQuery<any[]>({
+  const { data: galleryImages = [] } = useQuery<GalleryImage[]>({
     queryKey: ['/api/ai-images'],
   });
 
@@ -53,7 +74,7 @@ export function VictoriaEditorialBuilder({ onWebsiteGenerated }: VictoriaEditori
   });
 
   // Load existing brand onboarding data
-  const { data: brandData, isLoading: brandLoading } = useQuery({
+  const { data: brandData, isLoading: brandLoading } = useQuery<BrandOnboarding | undefined>({
     queryKey: ['/api/brand-onboarding'],
     retry: false,
   });
@@ -74,12 +95,12 @@ export function VictoriaEditorialBuilder({ onWebsiteGenerated }: VictoriaEditori
     );
   };
 
-  const handleVictoriaWebsiteGeneration = (generatedWebsite: any) => {
+  const handleVictoriaWebsiteGeneration = (generatedWebsite: Website) => {
     const websiteWithImages: WebsiteData = {
       ...generatedWebsite,
       selectedImages,
       flatlayImages: selectedFlatlays,
-      pages: generateEditorialPages(generatedWebsite, selectedImages, selectedFlatlays)
+      pages: generateEditorialPages(brandData || generatedWebsite, selectedImages, selectedFlatlays)
     };
     
     setWebsiteData(websiteWithImages);
@@ -87,7 +108,7 @@ export function VictoriaEditorialBuilder({ onWebsiteGenerated }: VictoriaEditori
     setCurrentPhase('preview');
   };
 
-  const generateEditorialPages = (businessData: any, images: string[], flatlays: string[]): WebsitePage[] => {
+  const generateEditorialPages = (businessData: BrandOnboarding | any, images: string[], flatlays: string[]): WebsitePage[] => {
     // Use brand onboarding data if available
     const data = brandData || businessData;
     return [

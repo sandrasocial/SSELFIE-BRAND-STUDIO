@@ -18,7 +18,7 @@ export abstract class BaseService {
   /**
    * Validate required fields
    */
-  protected validateRequired(data: any, fields: string[]): void {
+  protected validateRequired(data: Record<string, unknown>, fields: string[]): void {
     const missing = fields.filter(field => !data[field]);
     if (missing.length > 0) {
       throw new Error(`Missing required fields: ${missing.join(', ')}`);
@@ -28,12 +28,12 @@ export abstract class BaseService {
   /**
    * Sanitize input data
    */
-  protected sanitizeInput(data: any): any {
+  protected sanitizeInput(data: unknown): unknown {
     if (typeof data === 'string') {
       return data.trim();
     }
     if (typeof data === 'object' && data !== null) {
-      const sanitized: any = {};
+      const sanitized: Record<string, unknown> = {};
       for (const [key, value] of Object.entries(data)) {
         sanitized[key] = this.sanitizeInput(value);
       }
@@ -45,7 +45,7 @@ export abstract class BaseService {
   /**
    * Log service operations
    */
-  protected log(level: 'info' | 'warn' | 'error', message: string, data?: any): void {
+  protected log(level: 'info' | 'warn' | 'error', message: string, data?: unknown): void {
     const timestamp = new Date().toISOString();
     const serviceName = this.constructor.name;
 
@@ -55,8 +55,8 @@ export abstract class BaseService {
   /**
    * Handle service errors
    */
-  protected handleError(error: any, operation: string): never {
-    this.log('error', `Error in ${operation}`, { error: error.message, stack: error.stack });
+  protected handleError(error: unknown, operation: string): never {
+    this.log('error', `Error in ${operation}`, { error: error instanceof Error ? error.message : String(error), stack: error instanceof Error ? error.stack : undefined });
     throw error;
   }
 }

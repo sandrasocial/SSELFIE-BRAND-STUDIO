@@ -12,6 +12,17 @@ interface EmailAccount {
   lastSyncAt?: Date;
 }
 
+interface RawEmailMessage {
+  id: string;
+  accountId?: string;
+  from: string;
+  to: string | string[];
+  subject: string;
+  body: string;
+  receivedAt: string | Date;
+  [key: string]: unknown; // Allow additional properties from different email providers
+}
+
 interface EmailMessage {
   id: string;
   accountId: string;
@@ -146,7 +157,7 @@ export class EmailManagementAgent {
   }
 
   // 🏷️ Intelligent email categorization (different logic for personal vs business)
-  private async categorizeEmails(emails: any[], accountType: 'personal' | 'business'): Promise<EmailMessage[]> {
+  private async categorizeEmails(emails: RawEmailMessage[], accountType: 'personal' | 'business'): Promise<EmailMessage[]> {
     const processed: EmailMessage[] = [];
 
     for (const email of emails) {
@@ -168,9 +179,9 @@ export class EmailManagementAgent {
 
       processed.push({
         id: email.id,
-        accountId: email.accountId,
+        accountId: email.accountId || 'unknown',
         from: email.from,
-        to: email.to,
+        to: Array.isArray(email.to) ? email.to : [email.to],
         subject: email.subject,
         body: email.body,
         receivedAt: new Date(email.receivedAt),
@@ -189,7 +200,7 @@ export class EmailManagementAgent {
   }
 
   // 🎯 Smart categorization logic
-  private async categorizeEmail(email: any, accountType: 'personal' | 'business'): Promise<EmailMessage['category']> {
+  private async categorizeEmail(email: RawEmailMessage, accountType: 'personal' | 'business'): Promise<EmailMessage['category']> {
     const subject = email.subject.toLowerCase();
     const from = email.from.toLowerCase();
     const body = email.body.toLowerCase();
@@ -211,7 +222,7 @@ export class EmailManagementAgent {
   }
 
   // 🔥 Priority determination
-  private async determinePriority(email: any, category: EmailMessage['category'], accountType: 'personal' | 'business'): Promise<EmailMessage['priority']> {
+  private async determinePriority(email: RawEmailMessage, category: EmailMessage['category'], accountType: 'personal' | 'business'): Promise<EmailMessage['priority']> {
     if (category === 'urgent') return 'high';
     if (category === 'customer' && accountType === 'business') return 'high';
     if (category === 'business' && this.isVIPSender(email.from)) return 'high';
@@ -358,7 +369,7 @@ export class EmailManagementAgent {
     return 'neutral';
   }
 
-  private async determineResponseNeeded(email: any, accountType: 'personal' | 'business'): Promise<boolean> {
+  private async determineResponseNeeded(email: RawEmailMessage, accountType: 'personal' | 'business'): Promise<boolean> {
     // Business emails with questions usually need responses
     if (accountType === 'business') {
       const questionKeywords = ['?', 'question', 'how', 'when', 'what', 'why', 'please let me know'];
@@ -370,7 +381,7 @@ export class EmailManagementAgent {
     return !email.from.includes('noreply') && !this.isMarketingEmail(email.from, email.subject);
   }
 
-  private async generateTags(email: any, accountType: 'personal' | 'business'): Promise<string[]> {
+  private async generateTags(email: RawEmailMessage, accountType: 'personal' | 'business'): Promise<string[]> {
     const tags: string[] = [accountType];
 
     if (this.containsUrgentKeywords(email.subject, email.body)) tags.push('urgent');
@@ -381,13 +392,13 @@ export class EmailManagementAgent {
     return tags;
   }
 
-  private async generateEmailSummary(email: any): Promise<string> {
+  private async generateEmailSummary(email: RawEmailMessage): Promise<string> {
     // AI-powered email summary (placeholder for now)
     const bodyPreview = email.body.substring(0, 200) + '...';
     return `Summary: Email from ${email.from} regarding ${email.subject}. ${bodyPreview}`;
   }
 
-  private async generateSuggestedResponse(email: any, accountType: 'personal' | 'business'): Promise<string> {
+  private async generateSuggestedResponse(email: RawEmailMessage, accountType: 'personal' | 'business'): Promise<string> {
     // AI-powered response suggestion (placeholder for now)
     if (accountType === 'business') {
       return `Thank you for your email. I'll review your message and get back to you within 24 hours. Best regards, Sandra`;
@@ -411,7 +422,7 @@ export class EmailManagementAgent {
   }
 
   // 📱 Mock email fetching (to be replaced with real Gmail/Outlook API)
-  private async fetchUnreadEmails(account: EmailAccount): Promise<any[]> {
+  private async fetchUnreadEmails(account: EmailAccount): Promise<RawEmailMessage[]> {
     // This is where you'd integrate with Gmail API, Outlook API, etc.
     // For now, returning mock data to demonstrate the system
 

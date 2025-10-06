@@ -246,6 +246,7 @@ export async function verifyStackAuthToken(req: Request, res: Response, next: Ne
     const userName = userInfo?.displayName || userInfo?.display_name || userInfo?.name || userInfo?.given_name || userInfo?.full_name || 'User';
     
     // 🔍 ENHANCED DEBUGGING: Log all available fields to identify email field
+    console.log('🔍 Available userInfo fields:', {
       email: userInfo.email,
       primary_email: userInfo.primary_email, 
       primaryEmail: userInfo.primaryEmail,
@@ -253,6 +254,7 @@ export async function verifyStackAuthToken(req: Request, res: Response, next: Ne
       user_email: userInfo.user_email
     });
     
+    console.log('🔍 Creating/linking user with:', {
       id: userId,
       email: userEmail,
       name: userName

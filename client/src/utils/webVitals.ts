@@ -10,12 +10,14 @@ interface PerformanceEntry {
   duration: number;
 }
 
-interface WebVitalsMetric {
-  name: string;
-  value: number;
-  delta: number;
-  id: string;
-  entries: PerformanceEntry[];
+interface PerformanceMemory {
+  usedJSHeapSize: number;
+  totalJSHeapSize: number;
+  jsHeapSizeLimit: number;
+}
+
+interface PerformanceWithMemory extends Performance {
+  memory?: PerformanceMemory;
 }
 
 // Performance thresholds for SSELFIE Studio
@@ -130,8 +132,8 @@ export const optimizeRuntime = () => {
   // Memory usage monitoring
   if ('memory' in performance) {
     const checkMemory = () => {
-      const memory = (performance as any).memory;
-      if (memory.usedJSHeapSize > memory.jsHeapSizeLimit * 0.9) {
+      const perfWithMemory = performance as PerformanceWithMemory;
+      if (perfWithMemory.memory && perfWithMemory.memory.usedJSHeapSize > perfWithMemory.memory.jsHeapSizeLimit * 0.9) {
         console.warn('⚠️ High memory usage detected');
       }
     };

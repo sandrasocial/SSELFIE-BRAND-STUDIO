@@ -27,9 +27,19 @@ interface CoordinationMetrics {
   };
 }
 
+interface Deployment {
+  id: string;
+  name: string;
+  status: string;
+  startTime: string;
+  progress?: number;
+  agents?: string[];
+  [key: string]: unknown;
+}
+
 interface ActivityData {
   coordinationMetrics: CoordinationMetrics;
-  activeDeployments: any[];
+  activeDeployments: Deployment[];
   timestamp: string;
 }
 
@@ -66,7 +76,7 @@ export function useAgentActivityData() {
     isLoading: deploymentsLoading,
     error: deploymentsError,
     refetch: refetchDeployments
-  } = useQuery<{ deployments: any[] }>({
+  } = useQuery<{ deployments: Deployment[] }>({
     queryKey: ['/api/autonomous-orchestrator/active-deployments'],
     staleTime: 300000, // Data is stale after 5 minutes (no auto-refresh)
     queryFn: async () => {
@@ -116,7 +126,7 @@ export function useAgentActivityData() {
  * Hook for getting specific deployment status
  */
 export function useDeploymentStatus(deploymentId: string | null) {
-  return useQuery<{ deployment: any; timestamp: string }>({
+  return useQuery<{ deployment: Deployment; timestamp: string }>({
     queryKey: ['/api/autonomous-orchestrator/deployment-status', deploymentId],
     enabled: !!deploymentId,
     refetchInterval: 10000, // Refresh every 10 seconds when active

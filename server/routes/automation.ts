@@ -1,10 +1,10 @@
-import type { Express } from "express";
+import type { Express, Request, Response } from "express";
 import { requireStackAuth } from '../stack-auth.js'
 import { storage } from "../storage.js";
 
 export function registerAutomationRoutes(app: Express) {
   // Welcome email automation
-  app.post('/api/automation/welcome-email', requireStackAuth, async (req: any, res) => {
+  app.post('/api/automation/welcome-email', requireStackAuth, async (req: Request, res: Response) => {
     try {
       const { plan } = req.body;
       const userId = (req.user as any)?.claims?.sub;
@@ -23,7 +23,7 @@ export function registerAutomationRoutes(app: Express) {
   });
 
   // Setup onboarding automation
-  app.post('/api/automation/setup-onboarding', requireStackAuth, async (req: any, res) => {
+  app.post('/api/automation/setup-onboarding', requireStackAuth, async (req: Request, res: Response) => {
     try {
       const { plan } = req.body;
       const userId = (req.user as any)?.claims?.sub;
@@ -50,15 +50,15 @@ export function registerAutomationRoutes(app: Express) {
   });
 
   // Update subscription automation (FIXED: Works both with auth and email)
-  app.post('/api/automation/update-subscription', async (req: any, res) => {
+  app.post('/api/automation/update-subscription', async (req: Request, res: Response) => {
     try {
       const { plan, email, userId } = req.body;
       
       let targetUserId = userId;
       
-      // If no userId provided, try to get from authentication
-      if (!targetUserId && req.requireStackAuth()) {
-        targetUserId = (req.user as any)?.claims?.sub;
+      // If no userId provided, try to get from authentication (if available)
+      if (!targetUserId && req.user) {
+        targetUserId = (req.user as { claims?: { sub?: string } })?.claims?.sub;
       }
       
       // If still no userId, try to find user by email
@@ -90,7 +90,7 @@ export function registerAutomationRoutes(app: Express) {
   });
 
   // NEW: Direct user upgrade endpoint for post-payment processing
-  app.post('/api/upgrade-user', async (req: any, res) => {
+  app.post('/api/upgrade-user', async (req: Request, res: Response) => {
     try {
       const { email, plan } = req.body;
       
@@ -131,7 +131,7 @@ export function registerAutomationRoutes(app: Express) {
   });
 
   // Email sequence automation (for future implementation)
-  app.post('/api/automation/email-sequence', requireStackAuth, async (req: any, res) => {
+  app.post('/api/automation/email-sequence', requireStackAuth, async (req: Request, res: Response) => {
     try {
       const { sequenceType, step } = req.body;
       const userId = (req.user as any)?.claims?.sub;
@@ -147,7 +147,7 @@ export function registerAutomationRoutes(app: Express) {
   });
 
   // AI generation automation (for bulk processing)
-  app.post('/api/automation/bulk-ai-generation', requireStackAuth, async (req: any, res) => {
+  app.post('/api/automation/bulk-ai-generation', requireStackAuth, async (req: Request, res: Response) => {
     try {
       const { prompts } = req.body;
       const userId = (req.user as any)?.claims?.sub;
@@ -186,7 +186,7 @@ export function registerAutomationRoutes(app: Express) {
   });
 }
 
-async function sendWelcomeEmail(user: any, plan: string) {
+async function sendWelcomeEmail(user: { firstName?: string | null; email?: string | null }, plan: string) {
   // Email templates based on plan - Sandra's warm bestfriend voice
   const templates = {
     'free': {

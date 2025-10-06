@@ -1,43 +1,83 @@
-export const config = { 
+import type { VercelRequest, VercelResponse } from '@vercel/node';
+
+export const config = {
   runtime: 'nodejs',
   maxDuration: 5
 };
 
-export default function handler(req: any, res: any) {
+interface VercelResponseLike {
+  setHeader?: (name: string, value: string) => void;
+  status?: (code: number) => { json: (data: unknown) => void; end?: (body?: string) => void };
+}
+
+interface WebResponseLike {
+  Response: new (body: string, init?: { status?: number; headers?: Record<string, string> }) => Response;
+}
+
+function isVercelResponse(res: VercelResponse): res is VercelResponse & VercelResponseLike {
+  return typeof (res as VercelResponseLike).status === 'function';
+}
+
+function hasWebResponse(global: typeof globalThis): global is typeof globalThis & WebResponseLike {
+  return 'Response' in global && typeof global.Response === 'function';
+}
+
+export default function handler(req: VercelRequest, res: VercelResponse) {
   try {
-    if (res?.setHeader) res.setHeader('Cache-Control', 'no-store');
-    if (res?.status) {
-      return res.status(200).json({ 
-        ok: true, 
-        route: 'api/ping', 
-        method: req?.method ?? 'UNKNOWN',
+    const vercelRes = res as VercelResponseLike;
+
+    if (vercelRes.setHeader) {
+      vercelRes.setHeader('Cache-Control', 'no-store');
+    }
+
+    if (isVercelResponse(res)) {
+      return res.status(200).json({
+        ok: true,
+        route: 'api/ping',
+        method: req.method ?? 'UNKNOWN',
         timestamp: new Date().toISOString()
       });
     }
+
     // Fallback if res is not Node-style
-    // @ts-ignore
-    return new Response(JSON.stringify({ 
-      ok: true, 
-      route: 'api/ping', 
-      method: req?.method ?? 'UNKNOWN',
+    if (hasWebResponse(globalThis)) {
+      return new globalThis.Response(JSON.stringify({
+        ok: true,
+        route: 'api/ping',
+        method: req.method ?? 'UNKNOWN',
+        timestamp: new Date().toISOString()
+      }), {
+        status: 200,
+        headers: { 'content-type': 'application/json', 'cache-control': 'no-store' }
+      });
+    }
+
+    throw new Error('Unsupported response type');
+
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const body = JSON.stringify({
+      ok: false,
+      route: 'api/ping',
+      error: errorMessage,
       timestamp: new Date().toISOString()
-    }), {
-      status: 200,
-      headers: { 'content-type': 'application/json', 'cache-control': 'no-store' }
     });
-  } catch (e: any) {
-    const body = JSON.stringify({ 
-      ok: false, 
-      route: 'api/ping', 
-      error: e?.message ?? String(e),
-      timestamp: new Date().toISOString()
-    });
-    if (res?.status && res?.setHeader) {
+
+    const vercelRes = res as VercelResponseLike;
+
+    if (isVercelResponse(res) && vercelRes.setHeader) {
       res.setHeader('Content-Type', 'application/json');
       return res.status(500).end(body);
     }
-    // @ts-ignore
-    return new Response(body, { status: 500, headers: { 'content-type': 'application/json' } });
+
+    if (hasWebResponse(globalThis)) {
+      return new globalThis.Response(body, {
+        status: 500,
+        headers: { 'content-type': 'application/json' }
+      });
+    }
+
+    throw new Error('Unsupported response type');
   }
 }
 

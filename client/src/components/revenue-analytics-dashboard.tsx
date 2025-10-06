@@ -55,14 +55,14 @@ export function RevenueAnalyticsDashboard() {
       {/* Time Frame Selector */}
       <div className="flex justify-center">
         <div className="flex border border-gray-300">
-          {[
-            { id: 'month', label: 'Month' },
-            { id: 'quarter', label: 'Quarter' },
-            { id: 'year', label: 'Year' }
-          ].map((period) => (
+          {([
+            { id: 'month' as const, label: 'Month' },
+            { id: 'quarter' as const, label: 'Quarter' },
+            { id: 'year' as const, label: 'Year' }
+          ]).map((period) => (
             <button
               key={period.id}
-              onClick={() => setTimeframe(period.id as any)}
+              onClick={() => setTimeframe(period.id)}
               className={`px-6 py-3 text-xs uppercase tracking-[0.3em] transition-colors ${
                 timeframe === period.id
                   ? 'bg-black text-white'

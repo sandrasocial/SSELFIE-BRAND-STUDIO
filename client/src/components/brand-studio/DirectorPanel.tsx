@@ -1,12 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronUp } from 'lucide-react';
+import type { ConceptCard } from '../../../../shared/types/concept-card.js';
 
 interface ChatMessage {
   id: string;
   type: 'user' | 'maya';
   content: string;
   timestamp: string;
-  conceptCards?: any[];
+  conceptCards?: ConceptCard[];
   quickButtons?: string[];
   isStreaming?: boolean;
 }

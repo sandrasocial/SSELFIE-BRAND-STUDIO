@@ -202,8 +202,8 @@ interface CanvasPanelProps {
   onConceptGenerate?: (concept: ConceptCard) => void;
   children?: React.ReactNode;
   className?: string;
-  onItemSelect?: (item: any) => void;
-  selectedItem?: any;
+  onItemSelect?: (item: ConceptCard | null) => void;
+  selectedItem?: ConceptCard | null;
 }
 
 export const CanvasPanel: React.FC<CanvasPanelProps> = ({

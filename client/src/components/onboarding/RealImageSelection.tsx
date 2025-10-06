@@ -3,11 +3,19 @@ import { useQuery } from '@tanstack/react-query';
 import { Card } from '../ui/card.js';
 // ScrollArea component removed
 import { Check, Image, Sparkles } from 'lucide-react';
-import { cleanedFlatlayCollections } from '../../data/cleaned-flatlay-collections.js';
+import { cleanedFlatlayCollections, type FlatlayImage } from '../../data/cleaned-flatlay-collections.js';
+
+interface AIPhoto {
+  id: string | number;
+  url?: string;
+  imageUrl: string;
+  title?: string;
+  createdAt?: string;
+}
 
 interface RealImageSelectionProps {
   onSelectionComplete: (selected: {
-    aiPhotos: any[];
+    aiPhotos: AIPhoto[];
     flatlayImages: string[];
   }) => void;
 }
@@ -15,11 +23,11 @@ interface RealImageSelectionProps {
 export const RealImageSelection: FC<RealImageSelectionProps> = ({ 
   onSelectionComplete 
 }) => {
-  const [selectedAIPhotos, setSelectedAIPhotos] = useState<any[]>([]);
+  const [selectedAIPhotos, setSelectedAIPhotos] = useState<AIPhoto[]>([]);
   const [selectedFlatlayImages, setSelectedFlatlayImages] = useState<string[]>([]);
 
   // Fetch user's actual AI-generated photos from the same endpoint used in sselfie-gallery
-  const { data: aiImages = [], isLoading: loadingAI } = useQuery<any[]>({
+  const { data: aiImages = [], isLoading: loadingAI } = useQuery<AIPhoto[]>({
     queryKey: ['/api/gallery-images'],
     retry: false,
   });
@@ -32,7 +40,7 @@ export const RealImageSelection: FC<RealImageSelectionProps> = ({
 
   const favorites = favoritesData?.favorites || [];
 
-  const handleAIPhotoSelect = (photo: any) => {
+  const handleAIPhotoSelect = (photo: AIPhoto) => {
     setSelectedAIPhotos(prev => {
       if (prev.find(p => p.id === photo.id)) {
         return prev.filter(p => p.id !== photo.id);
@@ -97,7 +105,7 @@ export const RealImageSelection: FC<RealImageSelectionProps> = ({
             
             {Array.isArray(aiImages) && aiImages.length > 0 ? (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {aiImages.map((photo: any) => (
+                {aiImages.map((photo: AIPhoto) => (
                   <Card 
                     key={photo.id} 
                     className={`aspect-[3/4] cursor-pointer transition-all duration-300 relative overflow-hidden ${
@@ -117,7 +125,7 @@ export const RealImageSelection: FC<RealImageSelectionProps> = ({
                         <Check className="w-4 h-4 text-pure-white" />
                       </div>
                     )}
-                    {favorites.includes(photo.id) && (
+                    {favorites.includes(Number(photo.id)) && (
                       <div className="absolute top-2 left-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center">
                         <span className="text-pure-white text-xs">★</span>
                       </div>
@@ -158,7 +166,7 @@ Selected: {selectedAIPhotos.length} of 8 AI photos
             </div>
             
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {cleanedFlatlayCollections.flatMap(collection => collection.images).map((image: any) => (
+              {cleanedFlatlayCollections.flatMap(collection => collection.images).map((image: FlatlayImage) => (
                 <Card 
                   key={image.id} 
                   className={`aspect-[3/4] cursor-pointer transition-all duration-300 relative overflow-hidden ${

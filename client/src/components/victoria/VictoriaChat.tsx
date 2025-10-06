@@ -10,8 +10,17 @@ interface ChatMessage {
   timestamp: Date;
 }
 
+interface Website {
+  id: string;
+  preview: string;
+  status: 'draft' | 'deployed' | 'deploying';
+  deploymentUrl?: string;
+  template?: string;
+  estimatedGenerationTime?: number;
+}
+
 interface VictoriaChatProps {
-  onWebsiteGenerated: (website: any) => void;
+  onWebsiteGenerated: (website: Website) => void;
   selectedImages?: string[];
   selectedFlatlays?: string[];
 }

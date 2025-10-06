@@ -2,12 +2,19 @@ import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { apiRequest } from '../lib/queryClient.js';
 
+interface UserContext {
+  pageConfig?: unknown;
+  selectedTemplate?: unknown;
+  dashboardConfig?: unknown;
+  [key: string]: unknown;
+}
+
 interface SandraAiChatProps {
   context: 'brandbook' | 'landing-page' | 'dashboard-builder' | 'general';
-  userContext?: any;
-  dashboardConfig?: any;
-  onUpdate?: (update: any) => void;
-  onSuggestion?: (suggestion: any) => void;
+  userContext?: UserContext;
+  dashboardConfig?: unknown;
+  onUpdate?: (update: unknown) => void;
+  onSuggestion?: (suggestion: unknown) => void;
   placeholder?: string;
 }
 
@@ -31,9 +38,9 @@ export function SandraAiChat({ context, userContext, dashboardConfig, onUpdate, 
         context,
         userContext,
         chatHistory,
-        pageConfig: (userContext as any)?.pageConfig,
-        selectedTemplate: (userContext as any)?.selectedTemplate,
-        dashboardConfig: (userContext as any)?.dashboardConfig
+        pageConfig: userContext?.pageConfig,
+        selectedTemplate: userContext?.selectedTemplate,
+        dashboardConfig: userContext?.dashboardConfig
       });
       return response;
     },

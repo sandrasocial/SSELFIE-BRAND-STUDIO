@@ -4,6 +4,7 @@
  */
 
 import { Logger } from './logger.js';
+import type { Request, Response, NextFunction } from 'express';
 
 export interface CacheOptions {
   ttl?: number; // Time to live in seconds
@@ -199,11 +200,14 @@ export const aiGenerationCache = new Cache('ai-generation', { ttl: 1800, maxSize
 export const staticDataCache = new Cache('static-data', { ttl: 3600, maxSize: 100 }); // 1 hour
 
 // Cache decorator for methods
-export function cached(cache: Cache, keyGenerator?: (...args: any[]) => string) {
-  return function (target: any, propertyName: string, descriptor: PropertyDescriptor) {
-    const method = descriptor.value;
+export function cached<T extends (...args: unknown[]) => unknown>(
+  cache: Cache,
+  keyGenerator?: (...args: Parameters<T>) => string
+) {
+  return function (target: unknown, propertyName: string, descriptor: PropertyDescriptor) {
+    const method = descriptor.value as T;
 
-    descriptor.value = async function (...args: any[]) {
+    descriptor.value = async function (...args: Parameters<T>) {
       const key = keyGenerator ? keyGenerator(...args) : `${propertyName}:${JSON.stringify(args)}`;
 
       // Try to get from cache
@@ -223,7 +227,7 @@ export function cached(cache: Cache, keyGenerator?: (...args: any[]) => string) 
 
 // Cache middleware for Express routes
 export const cacheMiddleware = (cache: Cache, ttl?: number) => {
-  return (req: any, res: any, next: any) => {
+  return (req: Request, res: Response, next: NextFunction) => {
     const key = `${req.method}:${req.originalUrl}:${JSON.stringify(req.query)}`;
 
     const cached = cache.get(key);
@@ -234,7 +238,7 @@ export const cacheMiddleware = (cache: Cache, ttl?: number) => {
     // Store original res.json
     const originalJson = res.json;
 
-    res.json = function (data: any) {
+    res.json = function (data: unknown) {
       // Cache successful responses
       if (res.statusCode >= 200 && res.statusCode < 300) {
         cache.set(key, data, ttl);

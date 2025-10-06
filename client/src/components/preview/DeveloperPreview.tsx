@@ -6,7 +6,7 @@ interface DeveloperPreviewProps {
   onEdit: (edit: {
     component: string;
     property: string;
-    value: any;
+    value: unknown;
   }) => void;
 }
 

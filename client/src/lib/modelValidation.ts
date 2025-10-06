@@ -16,14 +16,17 @@ interface ModelValidationError extends Error {
   redirectTo?: string;
 }
 
-export function isModelValidationError(error: any): error is ModelValidationError {
-  return error && typeof error === 'object' && 
-         (error.requiresTraining === true || 
-          error.message?.includes('AI model') || 
-          error.message?.includes('training'));
+type ToastFunction = (message: { title?: string; description?: string; variant?: 'default' | 'destructive' }) => void;
+type NavigateFunction = (path: string) => void;
+
+export function isModelValidationError(error: unknown): error is ModelValidationError {
+  return error !== null && typeof error === 'object' && 
+         ('requiresTraining' in error || 
+          ('message' in error && typeof error.message === 'string' && 
+           (error.message.includes('AI model') || error.message.includes('training'))));
 }
 
-export function handleModelValidationError(error: ModelValidationError, toast: any, navigate: any) {
+export function handleModelValidationError(error: ModelValidationError, toast: ToastFunction, navigate: NavigateFunction) {
   // Show user-friendly error message
   toast({
     title: "AI Model Required",
@@ -37,13 +40,15 @@ export function handleModelValidationError(error: ModelValidationError, toast: a
   }, 1500);
 }
 
-export function parseModelValidationResponse(response: any): ModelValidationResponse | null {
-  if (response.requiresTraining || response.trainingStatus) {
+export function parseModelValidationResponse(response: unknown): ModelValidationResponse | null {
+  if (response && typeof response === 'object' && 
+      ('requiresTraining' in response || 'trainingStatus' in response)) {
+    const resp = response as Record<string, unknown>;
     return {
-      error: response.error,
-      requiresTraining: response.requiresTraining,
-      trainingStatus: response.trainingStatus,
-      redirectTo: response.redirectTo
+      error: typeof resp.error === 'string' ? resp.error : undefined,
+      requiresTraining: typeof resp.requiresTraining === 'boolean' ? resp.requiresTraining : undefined,
+      trainingStatus: typeof resp.trainingStatus === 'string' ? resp.trainingStatus : undefined,
+      redirectTo: typeof resp.redirectTo === 'string' ? resp.redirectTo : undefined
     };
   }
   return null;

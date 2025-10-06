@@ -27,10 +27,19 @@ export interface MayaAnalysis {
   optimizationRecommendations: Partial<UserParameters>;
 }
 
+// Pattern analysis for successful/failed generations
+export interface GenerationPattern {
+  parameter: keyof UserParameters;
+  value: number | string;
+  impact: 'positive' | 'negative' | 'neutral';
+  confidence: number; // 0-1
+  sampleSize: number;
+}
+
 // Maya Phase 3: Quality Learning Interface
 export interface MayaLearning {
-  successPatterns: any[];
-  failurePatterns: any[];
+  successPatterns: GenerationPattern[];
+  failurePatterns: GenerationPattern[];
   improvedParameters: UserParameters;
   confidenceScore: number;
 }
