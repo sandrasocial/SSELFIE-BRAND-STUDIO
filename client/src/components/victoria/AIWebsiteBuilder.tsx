@@ -48,20 +48,16 @@ export function AIWebsiteBuilder() {
   // Handle user flow - start with photo selection for new users
   useEffect(() => {
     if (!checkingOnboarding && !checkingWebsites) {
-      console.log('🔍 BUILD Navigation:', {
         hasBrandOnboarding: !!existingOnboarding,
         websiteCount: userWebsites?.length || 0
       });
       
       // If user has completed brand onboarding and has websites, skip to website management
       if (existingOnboarding && userWebsites && userWebsites.length > 0) {
-        console.log('✅ Returning user with websites, skipping to preview');
         setCurrentView('preview');
       } else if (existingOnboarding) {
-        console.log('✅ Returning user with brand onboarding, showing mode selection');
         setCurrentView('mode-select');
       } else {
-        console.log('🆕 New user, starting with photo selection');
         setCurrentView('photo-selection');
       }
     }

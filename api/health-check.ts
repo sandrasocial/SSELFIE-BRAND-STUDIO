@@ -30,8 +30,7 @@ export default async function handler(_req: VercelRequest, res: VercelResponse) 
     
     const isHealthy = healthResult.status === 'healthy' && dbHealth.healthy;
     
-    const anyRes: any = res as any;
-    const body = {
+    const responseBody = {
       ok: isHealthy,
       status: isHealthy ? 'healthy' : 'degraded',
       timestamp: healthResult.timestamp,
@@ -41,21 +40,24 @@ export default async function handler(_req: VercelRequest, res: VercelResponse) 
       service: 'SSELFIE Studio API'
     };
     
-    try { anyRes.setHeader?.('Cache-Control', 'no-store, max-age=0'); } catch {}
-    try { anyRes.setHeader?.('Content-Type', 'application/json'); } catch {}
-    
-    if (typeof anyRes.status === 'function') {
-      return anyRes.status(isHealthy ? 200 : 503).json(body);
+    // Handle Vercel response
+    if (typeof (res as VercelResponse).status === 'function') {
+      (res as VercelResponse).setHeader('Cache-Control', 'no-store, max-age=0');
+      (res as VercelResponse).setHeader('Content-Type', 'application/json');
+      return (res as VercelResponse).status(isHealthy ? 200 : 503).json(responseBody);
     }
     
-    const NodeResponse = (globalThis as any).Response;
-    return new NodeResponse(JSON.stringify(body), { 
-      status: isHealthy ? 200 : 503, 
-      headers: { 
-        'content-type': 'application/json', 
-        'cache-control': 'no-store, max-age=0' 
-      } 
-    });
+    // Handle Node.js Response
+    const NodeResponse = (globalThis as { Response?: typeof Response }).Response;
+    if (NodeResponse) {
+      return new NodeResponse(JSON.stringify(responseBody), { 
+        status: isHealthy ? 200 : 503, 
+        headers: { 
+          'content-type': 'application/json', 
+          'cache-control': 'no-store, max-age=0' 
+        } 
+      });
+    }
   } catch (error) {
     // Fast-fail error response
     const errorBody = {
@@ -66,17 +68,20 @@ export default async function handler(_req: VercelRequest, res: VercelResponse) 
       error: error instanceof Error ? error.message : 'Unknown error'
     };
     
-    const anyRes: any = res as any;
-    if (typeof anyRes.status === 'function') {
-      return anyRes.status(503).json(errorBody);
+    // Handle Vercel response
+    if (typeof (res as VercelResponse).status === 'function') {
+      return (res as VercelResponse).status(503).json(errorBody);
     }
     
-    const NodeResponse = (globalThis as any).Response;
-    return new NodeResponse(JSON.stringify(errorBody), { 
-      status: 503, 
-      headers: { 
-        'content-type': 'application/json' 
-      } 
-    });
+    // Handle Node.js Response
+    const NodeResponse = (globalThis as { Response?: typeof Response }).Response;
+    if (NodeResponse) {
+      return new NodeResponse(JSON.stringify(errorBody), { 
+        status: 503, 
+        headers: { 
+          'content-type': 'application/json' 
+        } 
+      });
+    }
   }
 }

@@ -48,8 +48,6 @@ router.post('/place', requireStackAuth, async (req, res) => {
     const placementData = placementRequestSchema.parse(req.body);
     const { imageId, assetId, mode, position, scale } = placementData;
 
-    console.log(`🎨 BRAND PLACEMENT: Processing ${mode} placement for user ${userId}`);
-    console.log(`   Image ID: ${imageId}, Asset ID: ${assetId}`);
 
     // Verify user owns both the image and the asset
     const [image, asset] = await Promise.all([
@@ -85,7 +83,6 @@ router.post('/place', requireStackAuth, async (req, res) => {
 
     if (mode === 'overlay') {
       // Fast path: Simple client-side compositing
-      console.log(`🖼️ OVERLAY MODE: Preparing client-side placement data`);
       
       // Return placement data for client-side overlay
       res.json({
@@ -104,7 +101,6 @@ router.post('/place', requireStackAuth, async (req, res) => {
 
     } else if (mode === 'inpaint') {
       // Complex path: Server-side inpainting for realistic blending
-      console.log(`🎨 INPAINT MODE: Starting server-side processing`);
       
       try {
         // Start background processing for inpaint
@@ -197,7 +193,6 @@ async function processInpaintPlacement(
   scale?: number
 ): Promise<void> {
   try {
-    console.log(`🔄 INPAINT PROCESSING: Starting for variant ${variantId}`);
     
     // Update status to processing
     await storage.updateImageVariant(variantId, {
@@ -223,7 +218,6 @@ async function processInpaintPlacement(
       variantUrl: mockResultUrl
     });
 
-    console.log(`✅ INPAINT PROCESSING: Completed for variant ${variantId}`);
 
   } catch (error) {
     console.error(`❌ INPAINT PROCESSING: Failed for variant ${variantId}:`, error);

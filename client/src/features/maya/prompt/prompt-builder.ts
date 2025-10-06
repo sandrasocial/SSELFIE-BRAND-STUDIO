@@ -53,7 +53,6 @@ export class PromptBuilder {
     const errors: string[] = [];
     const prompts: GeneratedPrompt[] = [];
     
-    console.log('🏗️ Building prompts with Aesthetic Recipes system:', request);
     
     try {
       // Validate request
@@ -90,7 +89,6 @@ export class PromptBuilder {
         };
       }
       
-      console.log(`📚 Selected ${selectedRecipes.length} recipes:`, selectedRecipes.map(r => r.recipe.name));
       
       // Step 2: Generate prompts for each selected recipe
       for (const selectedRecipe of selectedRecipes) {
@@ -114,7 +112,6 @@ export class PromptBuilder {
         budgetApplied
       };
       
-      console.log('✅ Prompt building complete:', {
         promptsGenerated: prompts.length,
         errors: errors.length,
         ...metadata
@@ -214,7 +211,6 @@ export class PromptBuilder {
     
     for (const prompt of prompts) {
       if (prompt.metadata.tokenCount > maxTokens) {
-        console.log('🔧 Applying token budget safeTrim:', {
           original: prompt.metadata.tokenCount,
           target: maxTokens
         });
@@ -390,7 +386,6 @@ export class PromptBuilder {
     request: PromptBuildRequest,
     count: number = 3
   ): Promise<PromptBuilderResult> {
-    console.log(`🔄 Generating ${count} prompt variations`);
     
     const allPrompts: GeneratedPrompt[] = [];
     const allErrors: string[] = [];

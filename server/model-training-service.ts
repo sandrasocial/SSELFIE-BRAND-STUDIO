@@ -74,9 +74,9 @@ export class ModelTrainingService {
       } else {
         return { status: 'processing' };
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('❌ Error in checkGenerationStatus:', error);
-      throw new Error(error.message || 'Failed to check generation status');
+      throw new Error(error instanceof Error ? error.message : 'Failed to check generation status');
     }
   }
   // Configure AWS S3 (use eu-north-1 for sselfie-training-zips bucket)
@@ -219,12 +219,9 @@ export class ModelTrainingService {
       
       // 🔒 PHASE 1 FIX: PRESERVE WORKING MODEL DATA - Critical Database Safety
       // Don't clear existing model data until replacement is confirmed working
-      console.log(`🔍 Storing training ID: ${trainingData.id} for user ${userId}`);
       
       // Get existing model data to preserve working functionality
       const currentModel = await storage.getUserModelByUserId(userId);
-      console.log(`🔒 PHASE 1: Preserving existing model data for user ${userId}`);
-      console.log(`🔒 PHASE 1: Existing model - ID: ${currentModel?.replicateModelId}, Version: ${currentModel?.replicateVersionId}`);
       
       await storage.updateUserModel(userId, {
         trainingId: trainingData.id, // Store training ID in dedicated field
@@ -240,7 +237,6 @@ export class ModelTrainingService {
         ...(currentModel?.replicateModelId ? {} : { replicateModelId: null }),
         ...(currentModel?.replicateVersionId ? {} : { replicateVersionId: null })
       });
-      console.log(`✅ PHASE 1: Training started while preserving working model for user ${userId}`);
       
       
       return {
@@ -263,7 +259,6 @@ export class ModelTrainingService {
       
       // Use trainingId if available (new architecture), otherwise fallback to replicateModelId (legacy)
       const trainingId = userModel.trainingId || userModel.replicateModelId;
-      console.log(`🔍 Checking training status for user ${userId}, trainingId: ${trainingId}`);
       
       // Check REAL Replicate API training status
       const trainingStatusResponse = await fetch(`https://api.replicate.com/v1/trainings/${trainingId}`, {
@@ -294,11 +289,17 @@ export class ModelTrainingService {
       } else {
         // 📊 PHASE 4: Enhanced progress tracking with real Replicate logs
         progress = await this.calculateRealTrainingProgress(trainingData, userModel);
-        console.log(`📊 PHASE 4: Real progress calculated: ${progress}% for user ${userId}`);
       }
       
       // Update model with real status and version ID when training completes
-      const updateData: any = {
+      const updateData: {
+        trainingStatus: string;
+        trainingProgress: number;
+        replicateModelId?: string;
+        replicateVersionId?: string;
+        completedAt?: Date;
+        trainedModelPath?: string;
+      } = {
         trainingStatus: status,
         trainingProgress: progress
       };
@@ -306,7 +307,6 @@ export class ModelTrainingService {
       // 🔒 PHASE 1 FIX: SAFE MODEL REPLACEMENT - Only replace after validation
       if (status === 'completed') {
         try {
-          console.log(`✅ TRAINING COMPLETED: Safely extracting and validating new model for user ${userId}`);
           
           let newModelId = null;
           let newVersionId = null;
@@ -319,7 +319,6 @@ export class ModelTrainingService {
               if (modelParts.length === 2) {
                 newModelId = modelParts[0];
                 newVersionId = modelParts[1];
-                console.log(`✅ PHASE 1: Extracted model from output.model: ${newModelId}:${newVersionId}`);
               }
             }
             
@@ -329,7 +328,6 @@ export class ModelTrainingService {
               if (versionMatch) {
                 newModelId = versionMatch[1];
                 newVersionId = versionMatch[2];
-                console.log(`✅ PHASE 1: Extracted model from version URL: ${newModelId}:${newVersionId}`);
               }
             }
           }
@@ -351,15 +349,12 @@ export class ModelTrainingService {
             
             // Get existing model for backup logging
             const existingModel = await storage.getUserModelByUserId(userId);
-            console.log(`🔒 PHASE 1: Replacing model - Previous: ${existingModel?.replicateModelId}:${existingModel?.replicateVersionId}`);
-            console.log(`🔒 PHASE 1: Replacing model - New: ${newModelId}:${newVersionId}`);
             
             // SAFE REPLACEMENT: Only now replace the working model with validated new model
             updateData.replicateModelId = newModelId;
             updateData.replicateVersionId = newVersionId;
             updateData.completedAt = new Date();
             
-            console.log(`✅ PHASE 1 + 3: Model safely replaced after format and API validation for user ${userId}`);
           } else {
             console.error(`❌ PHASE 1: Could not extract valid model data from training completion`);
             console.error(`❌ PHASE 1: Training output:`, JSON.stringify(trainingData.output, null, 2));
@@ -369,7 +364,6 @@ export class ModelTrainingService {
         } catch (error) {
           console.error('❌ PHASE 1: Failed to safely replace model data:', error);
           // PHASE 1 SAFETY: Keep existing working model if replacement fails
-          console.log(`🔒 PHASE 1: Preserving existing working model due to replacement failure`);
           updateData.trainingStatus = 'extraction_failed'; // Mark for retry
         }
       }
@@ -377,7 +371,6 @@ export class ModelTrainingService {
       // 🔒 PHASE 1: Update trainedModelPath only if we have new model data
       if (status === 'completed' && updateData.replicateModelId) {
         updateData.trainedModelPath = updateData.replicateModelId;
-        console.log(`✅ PHASE 1: Updated trainedModelPath to: ${updateData.replicateModelId}`);
       }
       
       await storage.updateUserModel(userId, updateData);
@@ -392,7 +385,6 @@ export class ModelTrainingService {
   // 🔧 PHASE 3: Retry model extraction for failed trainings
   static async retryModelExtraction(userId: string): Promise<{ success: boolean; message: string }> {
     try {
-      console.log(`🔧 PHASE 3: Attempting model extraction retry for user ${userId}`);
       
       const userModel = await storage.getUserModelByUserId(userId);
       if (!userModel || !userModel.trainingId) {
@@ -433,7 +425,6 @@ export class ModelTrainingService {
           if (modelParts.length === 2) {
             newModelId = modelParts[0];
             newVersionId = modelParts[1];
-            console.log(`✅ PHASE 3: Extracted model from output.model: ${newModelId}:${newVersionId}`);
           }
         }
         
@@ -443,7 +434,6 @@ export class ModelTrainingService {
           if (versionMatch) {
             newModelId = versionMatch[1];
             newVersionId = versionMatch[2];
-            console.log(`✅ PHASE 3: Extracted model from version URL: ${newModelId}:${newVersionId}`);
           }
         }
       }
@@ -475,7 +465,6 @@ export class ModelTrainingService {
         completedAt: new Date()
       });
 
-      console.log(`✅ PHASE 3: Model extraction retry successful for user ${userId}`);
       return { 
         success: true, 
         message: `Model extraction successful. New model: ${newModelId}:${newVersionId}` 
@@ -491,7 +480,17 @@ export class ModelTrainingService {
   }
 
   // 📊 PHASE 4: Calculate real training progress from Replicate logs and timing
-  static async calculateRealTrainingProgress(trainingData: any, userModel: any): Promise<number> {
+  static async calculateRealTrainingProgress(
+    trainingData: {
+      logs?: string[];
+      output?: unknown;
+      status?: string;
+    },
+    userModel: {
+      startedAt?: Date | string | null;
+      createdAt?: Date | string | null;
+    }
+  ): Promise<number> {
     try {
       // Get training start time - prefer startedAt or fall back to createdAt
       const trainingStartTime = userModel.startedAt 
@@ -524,7 +523,6 @@ export class ModelTrainingService {
             const currentStep = parseInt(stepMatch[1]);
             const totalSteps = parseInt(stepMatch[2]);
             logBasedProgress = Math.round((currentStep / totalSteps) * 90); // Cap at 90% until completion
-            console.log(`📊 PHASE 4: Found step progress: ${currentStep}/${totalSteps} = ${logBasedProgress}%`);
             break;
           }
           
@@ -532,7 +530,6 @@ export class ModelTrainingService {
           const percentMatch = logEntry.match(percentRegex);
           if (percentMatch) {
             logBasedProgress = Math.min(parseInt(percentMatch[1]), 90); // Cap at 90% until completion
-            console.log(`📊 PHASE 4: Found percentage progress: ${logBasedProgress}%`);
             break;
           }
         }
@@ -593,7 +590,6 @@ export class ModelTrainingService {
   // 🔧 PHASE 3: Validate model version exists and is accessible
   static async validateModelVersion(modelId: string, versionId: string): Promise<boolean> {
     try {
-      console.log(`🔧 PHASE 3: Validating model ${modelId}:${versionId}`);
       
       const versionResponse = await fetch(`https://api.replicate.com/v1/models/${modelId}/versions/${versionId}`, {
         headers: {
@@ -615,7 +611,6 @@ export class ModelTrainingService {
         return false;
       }
 
-      console.log(`✅ PHASE 3: Model validation successful for ${modelId}:${versionId}`);
       return true;
 
     } catch (error) {
@@ -641,7 +636,7 @@ export class ModelTrainingService {
     userId: string,
     customPrompt: string,
     count: number = 4,
-    options?: { seed?: number; paramsOverride?: any; categoryContext?: string }
+    options?: { seed?: number; paramsOverride?: unknown; categoryContext?: string }
   ): Promise<{ images: string[]; generatedImageId?: number; predictionId?: string }> {
     
     try {
@@ -670,14 +665,11 @@ export class ModelTrainingService {
       
       // CRITICAL FIX: Use same format as Maya and unified service
       const modelVersion = `${userModel.replicateModelId}:${fullModelVersion}`;
-      console.log(`🔒 MODEL TRAINING SERVICE VERSION VALIDATION: Model: ${userModel.replicateModelId}, Version: ${fullModelVersion}, Combined: ${modelVersion}`);
       const triggerWord = userModel.triggerWord;
       
       
       // TASK 2: Add debugging to trace prompt processing
       const promptId = `MAYA-${Date.now()}`;
-      console.log(`🔍 [${promptId}] MODEL TRAINING SERVICE ENTRY:`);
-      console.log(`🏭 RECEIVED PROMPT FROM MAYA: "${customPrompt.substring(0, 300)}"`);
       
       // Handle prompt formatting and enhancement
       let basePrompt;
@@ -685,18 +677,14 @@ export class ModelTrainingService {
       if (customPrompt.includes('{trigger_word}')) {
         // Legacy prompt format with placeholder
         basePrompt = customPrompt.replace('{trigger_word}', triggerWord);
-        console.log(`🔧 [${promptId}] LEGACY FORMAT: Replaced trigger word placeholder`);
       } else if (customPrompt.startsWith(triggerWord)) {
         // Sandra's custom prompts already start with trigger word - use as-is
         basePrompt = customPrompt;
-        console.log(`✅ [${promptId}] TRIGGER WORD PRESENT: Using Maya's prompt as-is`);
       } else {
         // Add trigger word to beginning if not present
         basePrompt = `${triggerWord} ${customPrompt}`;
-        console.log(`🔧 [${promptId}] ADDING TRIGGER: Prepended "${triggerWord}"`);
       }
       
-      console.log(`🎯 [${promptId}] BASE PROMPT: "${basePrompt.substring(0, 300)}"`);      
       
       // PHASE 4: SECURE GENDER VALIDATION + MANDATORY INJECTION
       const user = await storage.getUser(userId);
@@ -709,20 +697,15 @@ export class ModelTrainingService {
       const secureGender = normalizeGender(user.gender);
 
       if (secureGender) {
-        console.log(`👤 [${promptId}] USER GENDER: ${secureGender}`);
       } else {
-        console.log(`⚠️ [${promptId}] USER GENDER MISSING: proceeding without explicit token`);
       }
 
       // ENFORCE: Ensure gender token injected right after trigger word when available.
-      let genderEnhancedPrompt = enforceGender(triggerWord, basePrompt, secureGender || undefined);
+      const genderEnhancedPrompt = enforceGender(triggerWord, basePrompt, secureGender || undefined);
       if (genderEnhancedPrompt !== basePrompt) {
-        console.log(`✅ [${promptId}] GENDER INJECTED: "${genderEnhancedPrompt.substring(0,140)}"`);
       } else {
-        console.log(`ℹ️ [${promptId}] GENDER ALREADY PRESENT OR NOT AVAILABLE`);
       }
       
-      console.log(`🎯 [${promptId}] ENHANCED PROMPT: "${genderEnhancedPrompt.substring(0, 300)}"`);      
       
       // PHASE 5: NATURAL SKIN TEXTURE ENHANCEMENT - Professional realistic appearance
   let textureEnhancedPrompt = genderEnhancedPrompt;
@@ -745,37 +728,29 @@ export class ModelTrainingService {
       if (!hasTextureTerms) {
         // Add subtle, professional skin texture enhancement
         textureEnhancedPrompt = `${textureEnhancedPrompt}, natural skin texture, professional lighting, realistic skin details`;
-        console.log(`✨ [${promptId}] TEXTURE ENHANCED: Added natural skin texture for professional realism`);
       } else {
-        console.log(`✨ [${promptId}] TEXTURE PRESENT: Skin enhancement already in prompt`);
       }
       
       // Additional professional quality enhancements
       if (!textureEnhancedPrompt.toLowerCase().includes('high quality')) {
         textureEnhancedPrompt = `${textureEnhancedPrompt}, high quality, detailed, professional photography`;
-        console.log(`📸 [${promptId}] QUALITY ENHANCED: Added professional photography terms`);
       }
       
-      console.log(`✨ [${promptId}] TEXTURE ENHANCED PROMPT: "${textureEnhancedPrompt.substring(0, 300)}"`);
       
       // Personality-first: keep Maya's prompt with gender and texture enhancement, ensure trigger appears once and first
       const finalPrompt = ModelTrainingService.formatPrompt(textureEnhancedPrompt, triggerWord);
-      console.log(`🚀 [${promptId}] PROMPT FORMATTED: ${finalPrompt.length} characters ready for generation`);
 
       // SINGLE PATH LOGIC: Only packaged models supported for consistency
       // All users must have completed trained models with valid model + version IDs
 
       // ✅ MAYA PURE INTELLIGENCE: Maya already provides count in her concept creation
       // No need for separate parameter intelligence - Maya handles this in her main response
-      console.log(`🎯 MAYA PURE INTELLIGENCE: Using Maya's embedded count intelligence`);
-      console.log(`🔍 [${promptId}] FINAL PROMPT: ${finalPrompt.length} characters processed`);
       
       // Maya determines optimal count as part of her styling intelligence
       const intelligentParams = { count: count, reasoning: "Maya's integrated styling intelligence" };
       
       // ✅ MAYA PURE INTELLIGENCE: Let Maya specify ALL parameters in her prompt
       // Maya's intelligence includes parameter optimization knowledge - trust her completely
-      console.log(`🎯 MAYA PURE INTELLIGENCE: Trusting Maya's complete parameter intelligence`);
       
       // MAYA'S INTELLIGENT FLUX PARAMETERS: Use Maya's personality as single source of truth
       // MAYA FAÇADE: Configuration now accessed via façade API
@@ -785,7 +760,6 @@ export class ModelTrainingService {
   const mayaParams = { guidance_scale: 5, num_inference_steps: 50, megapixels: "1" };
       const aspectRatio = "4:5"; // Standard portrait aspect ratio
 
-      console.log(`🎯 MAYA FAÇADE: Using standard parameters - Maya intelligence via API only`);
       
       // Maya will specify parameters naturally in her response if needed
       // FLUX optimization settings with Maya's quality intelligence  
@@ -808,7 +782,6 @@ export class ModelTrainingService {
         ? options.seed!
         : Math.floor(Math.random() * 1e9);
 
-      console.log(`🎯 MAYA SINGLE PATH: Using packaged model for consistent quality`);
 
       // PACKAGED MODEL ONLY: Consistent quality for all users
       if (!userModel?.replicateModelId || !userModel?.replicateVersionId) {
@@ -818,8 +791,23 @@ export class ModelTrainingService {
       // ✅ RESTORED: Check for extracted LoRA weights first
       const loraWeights = await storage.getLoRAWeights(userId);
       
-      let userModelVersion = `${userModel.replicateModelId}:${userModel.replicateVersionId}`;
-      const requestBody: any = {
+      const userModelVersion = `${userModel.replicateModelId}:${userModel.replicateVersionId}`;
+      const requestBody: {
+        version: string;
+        input: {
+          prompt: string;
+          num_outputs: number;
+          guidance_scale: number;
+          num_inference_steps: number;
+          aspect_ratio: string;
+          megapixels: string;
+          output_format: string;
+          output_quality: number;
+          seed: number;
+          lora_weights?: string;
+          lora_scale?: number;
+        };
+      } = {
         version: userModelVersion,
         input: {
           prompt: finalPrompt,
@@ -849,21 +837,15 @@ export class ModelTrainingService {
   const mayaLoraScale = this.getMayaLoraScale(finalPrompt, options?.categoryContext);
   requestBody.input.lora_scale = mayaLoraScale;
         
-  console.log(`🎨 LORA PERSONALIZATION: Using extracted weights with lora_scale=${mayaLoraScale} (shot type optimized)`);
-  console.log(`🔒 Secure LoRA Weights: ${secureLoRAUrl.substring(0, 100)}...`);
       } else {
-        console.log(`📦 PACKAGED MODEL: No extracted LoRA weights, using packaged model`);
       }
 
       // ✅ RESTORED: Allow base FLUX model when using extracted LoRA weights
       if (requestBody.version.includes("flux-1.1-pro") && !requestBody.input.lora_weights) {
         throw new Error("BLOCKED: Base FLUX model requires LoRA weights for personalization.");
       } else if (requestBody.version.includes("flux-1.1-pro")) {
-        console.log(`✅ BASE FLUX + LORA: Using base FLUX model with personalized LoRA weights`);
       }
 
-      console.log("🚚 Replicate payload keys:", Object.keys(requestBody.input), "version:", requestBody.version);
-      console.log("🎯 MAYA QUALITY PARAMS: guidance_scale =", requestBody.input.guidance_scale, "steps =", requestBody.input.num_inference_steps, "megapixels =", requestBody.input.megapixels, "(API-compliant)");
 
       const response = await fetch('https://api.replicate.com/v1/predictions', {
         method: 'POST',
@@ -894,24 +876,21 @@ export class ModelTrainingService {
       };
       
     } catch (error) {
-      throw new Error(`Failed to generate images: ${error.message}`);
+      throw new Error(`Failed to generate images: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
   // 🎯 MAYA PURE INTELLIGENCE: Absolute minimal formatting to preserve Maya's complete styling intelligence
   static formatPrompt(prompt: string, triggerWord: string): string {
-    console.log(`🎯 MAYA PURE INTELLIGENCE: Zero-interference formatting mode activated`);
     
     // Only normalize basic whitespace, preserve ALL Maya content
     const normalizedPrompt = (prompt || "").replace(/\s+/g, " ").trim();
 
     // Check if trigger word is already properly positioned
     if (normalizedPrompt.startsWith(triggerWord)) {
-      console.log(`✅ MAYA PURE INTELLIGENCE: Trigger word already present, using Maya's exact output`);
       return normalizedPrompt;
     } else {
       // Only add trigger word if missing, preserve Maya's complete content
-      console.log(`✅ MAYA PURE INTELLIGENCE: Adding trigger word to preserve Maya's complete styling intelligence`);
       return `${triggerWord}, ${normalizedPrompt}`;
     }
   }
@@ -922,7 +901,6 @@ export class ModelTrainingService {
     checksum: string; 
     fileSize: number; 
   }> {
-    console.log(`🔧 EXTRACTING LoRA WEIGHTS: Starting extraction for training ${trainingId}, user ${userId}`);
     
     try {
       // Get training details from Replicate
@@ -938,7 +916,6 @@ export class ModelTrainingService {
       }
 
       const trainingData = await response.json();
-      console.log(`🔍 TRAINING DATA:`, JSON.stringify(trainingData, null, 2));
 
       // Extract the LoRA weights URL from training output
       let loraWeightsUrl = null;
@@ -958,7 +935,6 @@ export class ModelTrainingService {
         throw new Error('No LoRA weights URL found in training output');
       }
 
-      console.log(`📥 DOWNLOADING LoRA WEIGHTS: ${loraWeightsUrl}`);
 
       // Download the LoRA weights file
       const weightsResponse = await fetch(loraWeightsUrl);
@@ -973,7 +949,6 @@ export class ModelTrainingService {
       const crypto = await import('crypto');
       const checksum = crypto.createHash('sha256').update(Buffer.from(weightsBuffer)).digest('hex');
 
-      console.log(`📊 LoRA WEIGHTS INFO: Size=${fileSize} bytes, Checksum=${checksum.substring(0, 16)}...`);
 
       // Upload to S3 for permanent storage
       const s3Key = `lora-weights/${userId}/${trainingId}-${Date.now()}.safetensors`;
@@ -998,7 +973,6 @@ export class ModelTrainingService {
       // 🔒 SECURITY FIX: Store S3 coordinates for presigned URL generation, not direct URL
       const bucketName = process.env['AWS_S3_BUCKET'] || 'sselfie-studio-assets';
       
-      console.log(`✅ LoRA WEIGHTS EXTRACTED: Stored securely in bucket ${bucketName}/${s3Key}`);
 
       return {
         loraWeightsUrl: `s3://${bucketName}/${s3Key}`,
@@ -1008,7 +982,7 @@ export class ModelTrainingService {
 
     } catch (error) {
       console.error(`❌ LoRA EXTRACTION FAILED for ${trainingId}:`, error);
-      throw new Error(`LoRA extraction failed: ${error.message}`);
+      throw new Error(`LoRA extraction failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -1023,12 +997,11 @@ export class ModelTrainingService {
       // Generate presigned URL valid for 1 hour (3600 seconds) by default
       const presignedUrl = await getSignedUrl(this.s3, command, { expiresIn });
       
-      console.log(`🔒 SECURE LORA ACCESS: Generated presigned URL for ${s3Key} (expires in ${expiresIn}s)`);
       return presignedUrl;
       
     } catch (error) {
       console.error(`❌ PRESIGNED URL GENERATION FAILED for ${s3Key}:`, error);
-      throw new Error(`Failed to generate secure LoRA URL: ${error.message}`);
+      throw new Error(`Failed to generate secure LoRA URL: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -1046,7 +1019,6 @@ export class ModelTrainingService {
           promptLower.includes('close-up') || promptLower.includes('face') ||
           promptLower.includes('professional headshot') || promptLower.includes('linkedin photo') ||
           categoryLower.includes('headshot') || categoryLower.includes('portrait')) {
-        console.log(`🎯 MAYA FAÇADE: Detected closeUpPortrait - using default lora_scale=0.9`);
         return 0.9; // MAYA FAÇADE: Using stable default values instead of direct personality access
       }
       
@@ -1057,7 +1029,6 @@ export class ModelTrainingService {
           promptLower.includes('travel') || promptLower.includes('outdoor') ||
           categoryLower.includes('lifestyle') || categoryLower.includes('travel') ||
           categoryLower.includes('environmental')) {
-        console.log(`🎯 MAYA FAÇADE: Detected fullScenery - using default lora_scale=1.0`);
         return 1.0; // MAYA FAÇADE: Using stable default values instead of direct personality access
       }
       
@@ -1067,12 +1038,10 @@ export class ModelTrainingService {
           promptLower.includes('concept') || promptLower.includes('dramatic') ||
           categoryLower.includes('creative') || categoryLower.includes('artistic') ||
           categoryLower.includes('editorial')) {
-        console.log(`🎯 MAYA FAÇADE: Detected creativeOptimized - using default lora_scale=1.1`);
         return 1.1; // MAYA FAÇADE: Using stable default values instead of direct personality access
       }
       
       // Default to half-body shot (most common professional/business photos)
-      console.log(`🎯 MAYA FAÇADE: Default halfBodyShot - using default lora_scale=1.0`);
       return 1.0; // MAYA FAÇADE: Using stable default values instead of direct personality access
       
     } catch (error) {
@@ -1138,7 +1107,6 @@ RESPOND EXACTLY IN THIS JSON FORMAT:
   "reasoning": "Your warm Maya explanation of why this single perfect image captures the styling vision"
 }`;
 
-      console.log(`🎯 MAYA PARAMETER AI: Analyzing prompt for intelligent count selection`);
       
       // Get Maya's AI-driven parameter selection using the correct method
       const mayaResponse = await claudeService.sendMessage(mayaParameterPrompt, `parameter_selection_${Date.now()}`, 'maya', false);
@@ -1178,7 +1146,6 @@ RESPOND EXACTLY IN THIS JSON FORMAT:
           const result = strategies[i]();
           if (result) {
             jsonString = result;
-            console.log(`🎯 MAYA JSON: Strategy ${i + 1} succeeded`);
             break;
           }
         }
@@ -1188,13 +1155,9 @@ RESPOND EXACTLY IN THIS JSON FORMAT:
         }
         
         // Now parse the extracted JSON
-        console.log(`🧹 MAYA JSON EXTRACTED:`, jsonString.substring(0, 200));
         mayaChoice = JSON.parse(jsonString);
-        console.log(`✅ MAYA JSON PARSE: Success!`);
         
       } catch (parseError) {
-        console.log(`⚠️ MAYA PARAMETER PARSE FAILED, using default count:`, parseError);
-        console.log(`📝 MAYA RESPONSE DEBUG (first 300 chars):`, mayaResponse.substring(0, 300));
         
         // Fallback to intelligent count selection - FORCE TO 1
         return {
@@ -1206,7 +1169,6 @@ RESPOND EXACTLY IN THIS JSON FORMAT:
       // Validate Maya's choices - FORCE TO 1 for focused styling (user preference)
       const selectedCount = 1; // Always generate 1 perfect image per concept
       
-      console.log(`✅ MAYA PARAMETER AI: Selected ${selectedCount} images - ${mayaChoice.reasoning}`);
       
       return {
         count: selectedCount,
@@ -1214,7 +1176,6 @@ RESPOND EXACTLY IN THIS JSON FORMAT:
       };
       
     } catch (error) {
-      console.log(`⚠️ MAYA PARAMETER AI FAILED, using default count:`, error);
       
       // Fallback that still respects Maya's intelligence
       return {

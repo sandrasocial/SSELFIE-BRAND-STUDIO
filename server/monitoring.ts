@@ -3,6 +3,8 @@
  * Sets up Sentry, performance monitoring, and logging
  */
 
+import type { Request, Response, NextFunction } from 'express';
+
 interface MonitoringConfig {
   sentry: {
     dsn?: string;
@@ -45,7 +47,7 @@ const config: MonitoringConfig = {
     id: process.env.ANALYTICS_ID,
   },
   logging: {
-    level: (process.env.LOG_LEVEL as any) || 'info',
+    level: (process.env.LOG_LEVEL as 'error' | 'warn' | 'info' | 'debug') || 'info',
     structured: true,
     includeStackTrace: process.env['NODE_ENV'] !== 'production',
   },
@@ -65,7 +67,7 @@ const config: MonitoringConfig = {
 interface ErrorContext {
   user?: { id: string; email?: string };
   tags?: Record<string, string>;
-  extra?: Record<string, any>;
+  extra?: Record<string, unknown>;
   level?: 'error' | 'warning' | 'info' | 'debug';
 }
 
@@ -109,7 +111,7 @@ class ErrorTracker {
     this.logStructured(level, message, logData);
   }
 
-  private logStructured(level: string, message: string, data: any) {
+  private logStructured(level: string, message: string, data: Record<string, unknown>) {
     const logEntry = {
       level,
       message,
@@ -129,31 +131,26 @@ class ErrorTracker {
         }
         break;
       default:
-        console.log(JSON.stringify(logEntry));
     }
   }
 
-  addBreadcrumb(message: string, category?: string, data?: any) {
+  addBreadcrumb(message: string, category?: string, data?: Record<string, unknown>) {
     if (this.config.debug) {
-      console.log('🍞 Breadcrumb:', { message, category, data, timestamp: new Date().toISOString() });
     }
   }
 
   setUser(user: { id: string; email?: string; username?: string }) {
     if (this.config.debug) {
-      console.log('👤 User context set:', user);
     }
   }
 
   setTag(key: string, value: string) {
     if (this.config.debug) {
-      console.log('🏷️ Tag set:', { key, value });
     }
   }
 
-  setExtra(key: string, value: any) {
+  setExtra(key: string, value: unknown) {
     if (this.config.debug) {
-      console.log('➕ Extra context set:', { key, value });
     }
   }
 }
@@ -174,12 +171,10 @@ class PerformanceMonitor {
       setName: (newName: string) => name = newName,
       setTag: (key: string, value: string) => {
         if (config.sentry.debug) {
-          console.log(`🏷️ Transaction tag: ${key}=${value}`);
         }
       },
-      setData: (key: string, value: any) => {
+      setData: (key: string, value: unknown) => {
         if (config.sentry.debug) {
-          console.log(`📊 Transaction data: ${key}=`, value);
         }
       },
       finish: () => {
@@ -210,7 +205,12 @@ class PerformanceMonitor {
   }
 
   getMetrics() {
-    const metrics: Record<string, any> = {};
+    const metrics: Record<string, {
+      count: number;
+      avgTime: number;
+      maxTime: number;
+      totalTime: number;
+    }> = {};
     
     this.metrics.forEach((data, name) => {
       metrics[name] = {
@@ -261,7 +261,7 @@ class AlertManager {
     this.config = alertConfig;
   }
 
-  sendAlert(level: 'critical' | 'warning' | 'info', title: string, message: string, context?: any) {
+  sendAlert(level: 'critical' | 'warning' | 'info', title: string, message: string, context?: Record<string, unknown>) {
     if (!this.config.enabled) {
       return;
     }
@@ -276,7 +276,6 @@ class AlertManager {
     };
 
     // Log the alert
-    console.log(`🚨 ALERT [${level.toUpperCase()}]: ${title}`, alert);
 
     // In production, this would send to webhook/Slack/etc.
     if (this.config.webhookUrl) {
@@ -284,10 +283,9 @@ class AlertManager {
     }
   }
 
-  private async sendWebhookAlert(alert: any) {
+  private async sendWebhookAlert(alert: { level: string; title: string; message: string; context?: Record<string, unknown>; timestamp: string; environment: string }) {
     try {
       // In a real implementation, you would make an HTTP request to the webhook
-      console.log('📤 Sending webhook alert:', alert);
     } catch (error) {
       console.error('Failed to send webhook alert:', error);
     }
@@ -309,32 +307,39 @@ class StructuredLogger {
     return logLevelIndex <= currentLevelIndex;
   }
 
-  error(message: string, meta?: any) {
+  error(message: string, meta?: Record<string, unknown>) {
     if (this.shouldLog('error')) {
       this.log('error', message, meta);
     }
   }
 
-  warn(message: string, meta?: any) {
+  warn(message: string, meta?: Record<string, unknown>) {
     if (this.shouldLog('warn')) {
       this.log('warn', message, meta);
     }
   }
 
-  info(message: string, meta?: any) {
+  info(message: string, meta?: Record<string, unknown>) {
     if (this.shouldLog('info')) {
       this.log('info', message, meta);
     }
   }
 
-  debug(message: string, meta?: any) {
+  debug(message: string, meta?: Record<string, unknown>) {
     if (this.shouldLog('debug')) {
       this.log('debug', message, meta);
     }
   }
 
-  private log(level: string, message: string, meta?: any) {
-    const logEntry: any = {
+  private log(level: string, message: string, meta?: Record<string, unknown>) {
+    const logEntry: {
+      level: string;
+      message: string;
+      timestamp: string;
+      environment: string;
+      meta?: Record<string, unknown>;
+      stack?: string;
+    } = {
       level,
       message,
       timestamp: new Date().toISOString(),
@@ -364,7 +369,6 @@ class StructuredLogger {
         console.debug(output);
         break;
       default:
-        console.log(output);
     }
   }
 }
@@ -377,7 +381,7 @@ export const logger = new StructuredLogger(config.logging);
 
 // Monitoring middleware for Express
 export function monitoringMiddleware() {
-  return (req: any, res: any, next: any) => {
+  return (req: Request, res: Response, next: NextFunction) => {
     const transaction = performanceMonitor.startTransaction(
       `${req.method} ${req.route?.path || req.path}`,
       'http.request'
@@ -388,7 +392,7 @@ export function monitoringMiddleware() {
     transaction.setTag('route', req.route?.path || req.path);
     
     if (req.user?.id) {
-      errorTracker.setUser({ id: req.user.id, email: req.user.email });
+      errorTracker.setUser({ id: req.user.id, email: req.user.email || undefined });
     }
 
     // Add breadcrumb
@@ -437,7 +441,7 @@ export function monitoringMiddleware() {
 
 // Global error handler
 export function globalErrorHandler() {
-  return (error: Error, req: any, res: any, next: any) => {
+  return (error: Error, req: Request, res: Response, next: NextFunction) => {
     errorTracker.captureException(error, {
       tags: { route: req.path, method: req.method },
       extra: { url: req.originalUrl, body: req.body, query: req.query }
@@ -459,7 +463,7 @@ export function globalErrorHandler() {
 
     res.status(500).json({
       error: 'Internal server error',
-      requestId: req.id || 'unknown'
+      requestId: 'unknown'
     });
   };
 }

@@ -44,7 +44,7 @@ export class Cache<T = any> {
    */
   get(key: string): T | null {
     const item = this.cache.get(key);
-    
+
     if (!item) {
       this.logger.debug(`Cache miss: ${key}`);
       return null;
@@ -60,7 +60,7 @@ export class Cache<T = any> {
     // Update access statistics
     item.accessCount++;
     item.lastAccessed = Date.now();
-    
+
     this.logger.debug(`Cache hit: ${key} (access count: ${item.accessCount})`);
     return item.value;
   }
@@ -122,7 +122,7 @@ export class Cache<T = any> {
     const totalAccesses = items.reduce((sum, item) => sum + item.accessCount, 0);
     const hitRate = totalAccesses > 0 ? items.length / totalAccesses : 0;
     const timestamps = items.map(item => item.createdAt);
-    
+
     return {
       size: this.cache.size,
       maxSize: this.options.maxSize,
@@ -154,13 +154,13 @@ export class Cache<T = any> {
   private evictLeastRecentlyUsed(): void {
     const items = Array.from(this.cache.entries());
     items.sort((a, b) => a[1].lastAccessed - b[1].lastAccessed);
-    
+
     // Remove 10% of items
     const toRemove = Math.ceil(items.length * 0.1);
     for (let i = 0; i < toRemove; i++) {
       this.cache.delete(items[i][0]);
     }
-    
+
     this.logger.debug(`Evicted ${toRemove} LRU items from cache`);
   }
 
@@ -205,7 +205,7 @@ export function cached(cache: Cache, keyGenerator?: (...args: any[]) => string) 
 
     descriptor.value = async function (...args: any[]) {
       const key = keyGenerator ? keyGenerator(...args) : `${propertyName}:${JSON.stringify(args)}`;
-      
+
       // Try to get from cache
       const cached = cache.get(key);
       if (cached !== null) {
@@ -215,7 +215,7 @@ export function cached(cache: Cache, keyGenerator?: (...args: any[]) => string) 
       // Execute method and cache result
       const result = await method.apply(this, args);
       cache.set(key, result);
-      
+
       return result;
     };
   };
@@ -225,7 +225,7 @@ export function cached(cache: Cache, keyGenerator?: (...args: any[]) => string) 
 export const cacheMiddleware = (cache: Cache, ttl?: number) => {
   return (req: any, res: any, next: any) => {
     const key = `${req.method}:${req.originalUrl}:${JSON.stringify(req.query)}`;
-    
+
     const cached = cache.get(key);
     if (cached) {
       return res.json(cached);
@@ -233,13 +233,13 @@ export const cacheMiddleware = (cache: Cache, ttl?: number) => {
 
     // Store original res.json
     const originalJson = res.json;
-    
+
     res.json = function (data: any) {
       // Cache successful responses
       if (res.statusCode >= 200 && res.statusCode < 300) {
         cache.set(key, data, ttl);
       }
-      
+
       return originalJson.call(this, data);
     };
 

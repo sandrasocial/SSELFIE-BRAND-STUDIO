@@ -1,5 +1,5 @@
-import { setupEnhancementRoutes } from './services/backend-enhancement-services.js';
-import type { Express } from "express";
+// import { setupEnhancementRoutes } from './services/backend-enhancement-services.js'; // FILE MISSING
+import type { Express, Request, Response } from "express";
 import express from "express";
 import { createServer, type Server } from "http";
 import cookieParser from "cookie-parser";
@@ -19,14 +19,14 @@ import { analyticsRoutes } from './routes/analytics.js';
 import path from 'path';
 import fs from 'fs';
 import { ModelRetrainService } from './retrain-model.js';
-import { setupVite } from './vite.js';
+// import { setupVite } from './vite.js'; // FILE MISSING
 import emailManagementRouter from './routes/email-management-routes.js';
 import { registerCheckoutRoutes } from './routes/checkout.js';
-import supportEscalationRouter from './routes/support-escalation.js';
+// import supportEscalationRouter from './routes/support-escalation.js'; // UNUSED
 // import adminEmpireApiRouter from './routes/admin-empire-api.js'; // File doesn't exist
-import memberProtectionRouter from './routes/member-protection.js';
-import systemValidationRouter from './routes/system-validation.js';
-import phase2CoordinationRouter from './routes/phase2-coordination.js';
+// import memberProtectionRouter from './routes/member-protection.js'; // UNUSED
+// import systemValidationRouter from './routes/system-validation.js'; // UNUSED
+// import phase2CoordinationRouter from './routes/phase2-coordination.js'; // UNUSED
 // New modular routes
 import utilityRoutes from './routes/modules/utility.js';
 import authRoutes from './routes/modules/auth.js';
@@ -37,9 +37,7 @@ import agentProtocolRoutes from './routes/modules/agent-protocol.js';
 import websitesRoutes from './routes/modules/websites.js';
 import trainingRoutes from './routes/modules/training.js';
 import levelPartnerWebhook from './routes/levelpartner-webhook.js';
-import hairTrendsRoute from './routes/hair-trends-route.js';
 import trendsCurrentRoute from './routes/trends-current.js';
-import { scheduleTrendAnalysis } from './scheduled-tasks/fetch-hair-trends.js';
 import claudeRoutes from './routes/modules/claude.js';
 import usageRoutes from './routes/modules/usage.js';
 // Reconstructed wrapper function (previously removed during refactor cleanup)
@@ -51,7 +49,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ extended: true, limit: '10mb' }));
   app.use(cookieParser());
-  console.log('✅ Cookie parser middleware initialized');
 
   // Register new modular routes
   app.use('/', utilityRoutes);
@@ -63,11 +60,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/', websitesRoutes);
   app.use('/', trainingRoutes);
   app.use('/', levelPartnerWebhook);
-  app.use('/api', hairTrendsRoute);
   app.use('/api/trends', trendsCurrentRoute);
   app.use('/', claudeRoutes);
   app.use('/', usageRoutes);
-  console.log('✅ Modular routes registered (including LevelPartner webhook and Hair Trends)');
 
   // NOTE: The remainder of the file already assumes an existing `app` context.
   // Imports consolidated above wrapper during refactor.
@@ -75,7 +70,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
 // REMOVED: registerAdminConversationRoutes - using unified consulting-agents-routes only
 
 // Generate Victoria website HTML content
-function generateWebsiteHTML_Legacy(websiteData: any, onboardingData: any) {
+function generateWebsiteHTML_Legacy(
+  websiteData: {
+    businessName?: string;
+    businessDescription?: string;
+    targetAudience?: string;
+    keyFeatures?: string[];
+    brandPersonality?: string;
+    businessType?: string;
+  },
+  onboardingData: {
+    brandStory?: string;
+    targetAudience?: string;
+    brandVoice?: string;
+    stylePreferences?: string;
+    businessType?: string;
+  }
+) {
   const businessName = websiteData.businessName || 'Your Business';
   const businessDescription = websiteData.businessDescription || onboardingData?.brandStory || 'Professional services';
   const targetAudience = websiteData.targetAudience || onboardingData?.targetAudience || 'Our valued clients';
@@ -252,8 +263,16 @@ function generateWebsiteHTML_Legacy(websiteData: any, onboardingData: any) {
 }
 
 // 🎬 STORY STUDIO HELPER FUNCTIONS
-function parseStoryScenes(mayaResponse: string, originalMessage: string): any[] {
-  const scenes: any[] = [];
+function parseStoryScenes(mayaResponse: string, originalMessage: string): {
+  id: string;
+  scene: number;
+  prompt: string;
+}[] {
+  const scenes: {
+    id: string;
+    scene: number;
+    prompt: string;
+  }[] = [];
   
   try {
     // Extract scenes from Maya''s response using intelligent parsing
@@ -274,7 +293,6 @@ function parseStoryScenes(mayaResponse: string, originalMessage: string): any[] 
       }
     }
   } catch (error) {
-    console.log('📝 Story: Using fallback scene parsing');
   }
   
   // If parsing failed or no scenes found, create intelligent defaults
@@ -337,7 +355,11 @@ function generateDefaultScenePrompt(sceneNumber: number, originalMessage: string
   }
 }
 
-function createFallbackScenes(message: string): any[] {
+function createFallbackScenes(message: string): {
+  id: string;
+  scene: number;
+  prompt: string;
+}[] {
   const messageContext = message?.toLowerCase() || '';
   
   return [
@@ -366,8 +388,33 @@ function createFallbackScenes(message: string): any[] {
 
 // 🎬 ENHANCED VIDEO PROCESSING FUNCTIONS FOR VEO INTEGRATION
 
-async function parseVideoScenes(mayaResponse: string, originalMessage: string, userModel: any, keyframes: any[]): Promise<any[]> {
-  const scenes: any[] = [];
+async function parseVideoScenes(
+  mayaResponse: string,
+  originalMessage: string,
+  userModel: { replicateModelId?: string; userId?: string },
+  keyframes: unknown[]
+): Promise<{
+  id: string;
+  scene: number;
+  prompt: string;
+  originalPrompt?: string;
+  userLoraModel?: string;
+  keyframeIndex?: number | null;
+  duration?: number;
+  cameraMovement?: string;
+  textOverlay?: string | null;
+}[]> {
+  const scenes: {
+    id: string;
+    scene: number;
+    prompt: string;
+    originalPrompt?: string;
+    userLoraModel?: string;
+    keyframeIndex?: number | null;
+    duration?: number;
+    cameraMovement?: string;
+    textOverlay?: string | null;
+  }[] = [];
   
   try {
     // Extract scenes from Maya''s enhanced video response
@@ -394,14 +441,13 @@ async function parseVideoScenes(mayaResponse: string, originalMessage: string, u
       }
     }
     
-    console.log('📝 Video: Parsed', scenes.length, 'enhanced scenes with LoRA integration');
   } catch (error) {
     console.error('Video scene parsing error:', error);
   }
   
   // If parsing failed, create personalized defaults
   if (scenes.length === 0) {
-    return await createPersonalizedFallbackScenes(originalMessage, userModel.userId);
+    return await createPersonalizedFallbackScenes(originalMessage, userModel.userId || 'unknown');
   }
   
   // Ensure minimum 3 scenes
@@ -419,7 +465,13 @@ async function parseVideoScenes(mayaResponse: string, originalMessage: string, u
   return scenes;
 }
 
-async function createPersonalizedFallbackScenes(message: string, userId: string): Promise<any[]> {
+async function createPersonalizedFallbackScenes(message: string, userId: string): Promise<{
+  id: string;
+  scene: number;
+  prompt: string;
+  userLoraModel?: string | null;
+  duration: number;
+}[]> {
   const messageContext = message?.toLowerCase() || '';
   
   // Get user model for personalization
@@ -457,7 +509,7 @@ async function createPersonalizedFallbackScenes(message: string, userId: string)
   ];
 }
 
-function enhanceSceneWithLoRA(sceneContent: string, userModel: any): string {
+function enhanceSceneWithLoRA(sceneContent: string, userModel: { replicateModelId?: string | null }): string {
   // Enhance scene prompts with LoRA model integration
   const loraReference = userModel?.replicateModelId ? `${userModel.replicateModelId} (professional trained model)` : 'user';
   
@@ -485,7 +537,7 @@ function extractTextOverlay(sceneContent: string): string | null {
   return overlayMatch ? overlayMatch[1] : null;
 }
 
-function generatePersonalizedScenePrompt(sceneNumber: number, originalMessage: string, userModel: any): string {
+function generatePersonalizedScenePrompt(sceneNumber: number, originalMessage: string, userModel: { replicateModelId?: string | null }): string {
   const loraRef = userModel?.replicateModelId ? `featuring ${userModel.replicateModelId} (professional trained model)` : 'featuring the user';
   
   switch (sceneNumber) {
@@ -510,12 +562,10 @@ function generatePersonalizedScenePrompt(sceneNumber: number, originalMessage: s
   
   // (Static file serving and Vite dev server setup moved to server/start.ts)
     // 🚨 CRITICAL FIX: Register admin consulting route BEFORE session middleware
-    console.log('🤖 REGISTERING FIXED AGENT ROUTES: Clean conversation system');
     
-    app.get('/api/test-auth', requireStackAuth, async (req: any, res) => {
+    app.get('/api/test-auth', requireStackAuth, async (req: Request, res: Response) => {
     try {
       const stackUser = req.user;
-      console.log('🧪 STACK AUTH TEST - Raw user from token:', stackUser);
       
       if (!stackUser || !stackUser.id) {
         return res.status(401).json({
@@ -527,7 +577,6 @@ function generatePersonalizedScenePrompt(sceneNumber: number, originalMessage: s
 
       // Try to find user in database
       const dbUser = await storage.getUser(stackUser.id);
-      console.log('🧪 STACK AUTH TEST - User from database:', dbUser ? 'FOUND' : 'NOT FOUND');
 
       res.json({
         success: true,
@@ -572,7 +621,6 @@ function generatePersonalizedScenePrompt(sceneNumber: number, originalMessage: s
     res.setHeader('Content-Type', 'application/zip');
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
     
-    console.log(`📦 Serving training ZIP: ${filename} (${fs.statSync(filePath).size} bytes)`);
     res.sendFile(filePath);
   });
   
@@ -593,20 +641,16 @@ function generatePersonalizedScenePrompt(sceneNumber: number, originalMessage: s
   // Legacy maya router disabled to prevent conflicts with modular Maya routes
   // const { default: mayaUnifiedRouter } = await import('./routes/maya.js');
   // app.use('/api/maya', mayaUnifiedRouter);
-  console.log('🎨 MAYA ROUTES: Active via modular system (./routes/modules/maya)');
   
   // HYBRID BACKEND: Concept Cards API for clean persistence and unique React keys
   const { default: conceptCardsRouter } = await import('./routes/concept-cards.js');
   app.use('/api/concepts', conceptCardsRouter);
-  console.log('💡 CONCEPT CARDS: API active at /api/concepts/* (ULID-based unique keys)');
   
   // Stage Mode Live Session Routes  
   app.use('/api/live', liveSessionRoutes);
-  console.log('🎪 LIVE SESSIONS: Stage Mode API active at /api/live/* (Interactive presentations)');
   
   // Stage Mode Analytics Routes
   app.use('/api/analytics', analyticsRoutes);
-  console.log('📊 ANALYTICS: Stage Mode analytics API active at /api/analytics/* (Event tracking)');
   
   // P3-C BRAND ASSETS: Upload and placement of brand assets (logos, product shots)
   if (process.env['BRAND_ASSETS_ENABLED'] === '1') {
@@ -614,19 +658,16 @@ function generatePersonalizedScenePrompt(sceneNumber: number, originalMessage: s
     const { default: brandPlacementRouter } = await import('./routes/brand-placement.js');
     app.use('/api/brand-assets', brandAssetsRouter);
     app.use('/api/brand-assets', brandPlacementRouter);
-    console.log('🎨 BRAND ASSETS: API active at /api/brand-assets/* (Upload & Placement)');
   }
   
   // 🎥 STORY STUDIO API - Server-side AI video story generation
   // Initialize Gemini AI client for server-side operations
-  let geminiAI: any = null;
+  let geminiAI: GoogleGenAI | null = null;
   try {
     const { GoogleGenAI } = await import('@google/genai');
     if (process.env['GOOGLE_API_KEY']) {
       geminiAI = new GoogleGenAI({ apiKey: process.env['GOOGLE_API_KEY'] });
-      console.log('🔑 STORY STUDIO: Gemini AI initialized server-side');
     } else {
-      console.log('ℹ️ STORY STUDIO: GOOGLE_API_KEY not configured - Story features will be limited');
     }
   } catch (error) {
     console.error('❌ STORY STUDIO: Failed to initialize Gemini AI:', error);
@@ -644,7 +685,6 @@ function generatePersonalizedScenePrompt(sceneNumber: number, originalMessage: s
   
   // 🎬 VEO 3 Video generation routes
   app.use('/api/video', videoRoutes);
-  console.log('🎬 VEO 3: Video generation API active at /api/video/*');
   
   // 📧 AVA Email Management Agent Routes
   app.use('/api/email-management', emailManagementRouter);
@@ -672,7 +712,7 @@ function generatePersonalizedScenePrompt(sceneNumber: number, originalMessage: s
   // RESTORED: Sandra's admin user management system active
   
   // Image proxy endpoint to bypass CORS issues with S3
-  app.get('/api/proxy-image', requireStackAuth, async (req: any, res) => {
+  app.get('/api/proxy-image', requireStackAuth, async (req: Request, res: Response) => {
     try {
       const { url } = req.query;
       
@@ -685,7 +725,6 @@ function generatePersonalizedScenePrompt(sceneNumber: number, originalMessage: s
         return res.status(403).json({ error: 'Unauthorized image source' });
       }
       
-      console.log('🖼️ Proxying image:', url);
       
       const response = await fetch(url, {
         headers: {
@@ -718,7 +757,7 @@ function generatePersonalizedScenePrompt(sceneNumber: number, originalMessage: s
 
   /*
   // Maya Chat endpoint - MEMBER AGENT (Personal Brand Photography Guide)
-  app.post('/api/maya-chat', requireStackAuth, async (req: any, res) => {
+  app.post('/api/maya-chat', requireStackAuth, async (req: Request, res: Response) => {
     try {
       const { message, chatHistory } = req.body;
       const userId = req.user.id;
@@ -727,7 +766,6 @@ function generatePersonalizedScenePrompt(sceneNumber: number, originalMessage: s
         return res.status(400).json({ error: 'Message is required' });
       }
 
-      console.log('💬 Maya MEMBER chat message received from user:'', userId);
 
       // MAYA FAÇADE: Removed PersonalityManager import - Maya's personality via API only
       // const { PersonalityManager } = await import('./agents/personalities/personality-config.js'); // REMOVED: Direct dependency
@@ -842,14 +880,12 @@ Remember: You are the MEMBER experience Maya - provide creative guidance and ima
           if (prompts.length > 0) {
             // Use the first prompt for generation, store all for reference
             generatedPrompt = prompts[0];
-            console.log(`✅ MAYA PROVIDED ${prompts.length} PROMPTS:`, prompts.map(p => p.substring(0, 100)));
             
             // Remove all prompt blocks from conversation response
             response = response.replace(/```prompt\s*([\s\S]*?)\s*```/g, '').trim();
             // Clean up extra whitespace
             response = response.replace(/\n\s*\n\s*\n/g, '\n\n').trim();
           } else {
-            console.log('⚠️ MAYA MISSING PROMPTS: Maya should provide hidden prompts in ```prompt``` blocks');
             // No fallback - this encourages Maya to learn the proper format
             canGenerate = false;
           }
@@ -882,7 +918,6 @@ Remember: You are the MEMBER experience Maya - provide creative guidance and ima
       const { userId } = req.body;
       const { ModelValidationService } = await import('./model-validation-service.js');
       
-      console.log(`🔍 Testing model validation for user: ${userId}`);
       const validation = await ModelValidationService.validateAndCorrectUserModel(userId);
       
       res.json({
@@ -902,7 +937,6 @@ Remember: You are the MEMBER experience Maya - provide creative guidance and ima
       const { prompt } = req.body;
       const { UnifiedGenerationService } = await import('./unified-generation-service.js');
       
-      console.log(`🔍 Testing ADMIN model with OPTIMIZED parameters`);
       const result = await UnifiedGenerationService.generateImages({
         userId: '42585527', // Admin user ID
         prompt: prompt || 'Young woman standing confidently in a mystical natural environment at golden hour, wearing sophisticated layered styling choices with unexpected textures, wind gently lifting hair, natural makeup with dewy skin, dreamy ethereal light creating mystical atmosphere, shot with editorial depth'
@@ -924,7 +958,6 @@ Remember: You are the MEMBER experience Maya - provide creative guidance and ima
     try {
       const { prompt } = req.body;
       
-      console.log(`🔍 Testing Shannon's model generation directly`);
       
       // Use Shannon's exact model details
       const modelVersion = 'sandrasocial/shannon-1753945376880-selfie-lora-1753983966781:2fed9e1abe9a80206d0a7b146914ee9f653b8aaf5b0dd7e82b8feb57ab5ec753';
@@ -933,7 +966,7 @@ Remember: You are the MEMBER experience Maya - provide creative guidance and ima
       const testPrompt = prompt || 'Young woman standing confidently in a mystical natural environment at golden hour, wearing sophisticated layered styling choices with unexpected textures, wind gently lifting hair, natural makeup with dewy skin, dreamy ethereal light creating mystical atmosphere, shot with editorial depth';
       
       // 🎯 MAYA INTELLIGENCE PRESERVED: Only add trigger word, preserve all Maya's choices
-      let mayaPrompt = testPrompt.trim();
+      const mayaPrompt = testPrompt.trim();
       
       // Only add trigger word if not already present, preserve Maya's complete styling intelligence
       const finalPrompt = mayaPrompt.startsWith(triggerWord) 
@@ -941,7 +974,6 @@ Remember: You are the MEMBER experience Maya - provide creative guidance and ima
         : `${triggerWord}, ${mayaPrompt}`;
       
       // Shannon test uses the model directly without LoRA weights
-      console.log(`🔧 SHANNON TEST: Using model directly: ${modelVersion}`);
       
       // Shannon test uses the trained model directly
       const requestBody = {
@@ -956,9 +988,6 @@ Remember: You are the MEMBER experience Maya - provide creative guidance and ima
         }
       };
       
-      console.log(`🚀 SHANNON TEST: Using trained model directly`);
-      console.log(`   Model: ${modelVersion}`);
-      console.log(`   Trigger: ${triggerWord}`);
       
       const replicateResponse = await fetch('https://api.replicate.com/v1/predictions', {
         method: 'POST',
@@ -992,7 +1021,7 @@ Remember: You are the MEMBER experience Maya - provide creative guidance and ima
   // REMOVED DUPLICATE AI IMAGES ROUTE #2
 
   // Stack Auth logout endpoint
-  app.get('/api/admin/agents/coordination-metrics', async (req: any, res) => {
+  app.get('/api/admin/agents/coordination-metrics', async (req: Request, res: Response) => {
     try {
       // Admin authentication check
       const adminToken = req.headers['x-admin-token'];
@@ -1038,7 +1067,7 @@ Remember: You are the MEMBER experience Maya - provide creative guidance and ima
   });
 
   // Active deployments endpoint for AgentActivityDashboard
-  app.get('/api/admin/agents/active-deployments', async (req: any, res) => {
+  app.get('/api/admin/agents/active-deployments', async (req: Request, res: Response) => {
     try {
       // Admin authentication check
       const adminToken = req.headers['x-admin-token'];
@@ -1059,19 +1088,21 @@ Remember: You are the MEMBER experience Maya - provide creative guidance and ima
   });
 
   // Token usage monitoring endpoint for smart routing analysis
-  app.get('/api/admin/token-usage-stats', async (req: any, res) => {
+  app.get('/api/admin/token-usage-stats', async (req: Request, res: Response) => {
     try {
-      const { tokenUsageMonitor } = await import('./monitoring/token-usage-monitor.js');
+      // const { tokenUsageMonitor } = await import('./monitoring/token-usage-monitor.js'); // FILE MISSING
       const timeWindow = parseInt(req.query.hours as string) || 24;
-      const stats = tokenUsageMonitor.getUsageStats(timeWindow);
-      const recentEntries = tokenUsageMonitor.getRecentEntries(20);
+      // const stats = tokenUsageMonitor.getUsageStats(timeWindow);
+      // const recentEntries = tokenUsageMonitor.getRecentEntries(20);
+      const stats = { totalTokens: 0, averageTokensPerRequest: 0 };
+      const recentEntries: any[] = [];
 
       res.json({
         success: true,
         stats,
         recentEntries,
-        message: `Token usage stats for last ${timeWindow} hours`,
-        smartRoutingActive: true
+        message: `Token usage stats for last ${timeWindow} hours (monitoring disabled)`,
+        smartRoutingActive: false
       });
     } catch (error) {
       console.error('Token usage stats error:', error);
@@ -1085,24 +1116,20 @@ Remember: You are the MEMBER experience Maya - provide creative guidance and ima
   // REMOVED: Smart routing test endpoint (smart routing layer removed for direct access)
   
   // Claude API route for frontend compatibility (bypass auth for now)
-  app.post('/api/admin/agents/execute', async (req: any, res) => {
+  app.post('/api/admin/agents/execute', async (req: Request, res: Response) => {
     try {
       // Admin authentication bypass
       const adminToken = req.headers.authorization?.replace('Bearer ', '') || req.headers['x-admin-token'];
       const isAdminRequest = adminToken === 'sandra-admin-2025';
       
-      console.log('🔐 AUTH DEBUG: adminToken =', adminToken, 'isAdminRequest =', isAdminRequest);
       
       let userId;
       if (isAdminRequest) {
         userId = '42585527'; // Sandra's actual admin user ID
-        console.log('✅ ADMIN AUTH: Using Sandra admin userId:', userId);
       } else if (req.requireStackAuth()) {
         userId = req.user.id;
-        console.log('🔒 SESSION AUTH: Using session userId:', userId);
       }
 
-      console.log('👤 FINAL userId:', userId);
 
       if (!userId) {
         return res.status(401).json({ success: false, message: 'Unauthorized' });
@@ -1126,22 +1153,18 @@ Remember: You are the MEMBER experience Maya - provide creative guidance and ima
 
   // API endpoint for loading agent conversation history
   app.get('/dev-workspace', (req, res) => {
-      console.log('🔧 DEV ROUTE: Direct workspace access requested');
       
       // Redirect to workspace with admin bypass parameter
       const workspaceUrl = '/workspace?dev_admin=sandra';
       res.redirect(workspaceUrl);
     });
     
-    console.log('✅ DEV ROUTE: Development workspace bypass available at /dev-workspace');
 
   // CRITICAL FIX: Start background monitoring services
-  console.log('🚀 MONITORING: Starting background completion monitors...');
   
   // Start Training Completion Monitor
   const { TrainingCompletionMonitor } = await import('./training-completion-monitor.js');
   TrainingCompletionMonitor.getInstance().startMonitoring();
-  console.log('✅ MONITORING: Training completion monitor started');
   
   // Start Generation Completion Monitor (CRITICAL: This was missing!)
   const { GenerationCompletionMonitor } = await import('./generation-completion-monitor.js');
@@ -1154,7 +1177,6 @@ Remember: You are the MEMBER experience Maya - provide creative guidance and ima
   // DISABLED: Agent insights causing runtime errors due to missing API endpoints
   // const { AgentContextMonitor } = await import('./services/agent-context-monitor.js');
   // AgentContextMonitor.getInstance().startMonitoring(30); // Check every 30 minutes for launch opportunities
-  console.log('🧠 AGENT INSIGHTS: Disabled until API endpoints implemented');
   
   // Connect Slack Interactive System with raw body parsing for signature verification
   // const slackInteractivityRouter = await import('./routes/slack-interactivity.js'); // DISABLED
@@ -1165,15 +1187,12 @@ Remember: You are the MEMBER experience Maya - provide creative guidance and ima
   }));
   
   // app.use('/api/slack', slackInteractivityRouter.default); // DISABLED
-  console.log('✅ SLACK: Interactive agent conversation system connected');
 
   // Connect Slack Testing Routes (DISABLED - moved to legacy)
   // const testSlackAgentsRouter = await import('./routes/test-slack-agents.js');
   // app.use('/api/test-slack-agents', testSlackAgentsRouter.default);
   // app.use('/api/test-slack', testSlackAgentsRouter.default);
-  // console.log('✅ SLACK: Agent testing interface ready');
 
-  console.log('✅ MONITORING: All monitors active - Generation, Training, URL Migration protecting user experience!');
   
   // JSON health alias for frontend helpers
   app.get('/api/health-check', (_req, res) => {
@@ -1182,11 +1201,11 @@ Remember: You are the MEMBER experience Maya - provide creative guidance and ima
   });
 
   // Favorites minimal stubs to avoid 404 HTML
-  app.get('/api/images/favorites', requireStackAuth, async (req: any, res) => {
+  app.get('/api/images/favorites', requireStackAuth, async (req: Request, res: Response) => {
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
     res.json({ favorites: [] });
   });
-  app.post('/api/images/:id/favorite', requireStackAuth, async (req: any, res) => {
+  app.post('/api/images/:id/favorite', requireStackAuth, async (req: Request, res: Response) => {
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
     res.json({ ok: true });
   });
@@ -1196,9 +1215,5 @@ Remember: You are the MEMBER experience Maya - provide creative guidance and ima
     res.status(404).json({ error: 'Not found' });
   });
 
-  // Initialize Sophia trend analysis scheduling
-  console.log('🤖 Initializing Sophia trend analysis system...');
-  scheduleTrendAnalysis();
-  
   return server;
 }

@@ -69,13 +69,13 @@ export async function checkDatabaseHealth(): Promise<{ healthy: boolean; latency
     // Use HTTP connection for health check (faster for single queries)
     const result = await sql`SELECT 1 as health_check`;
     const latency = Date.now() - start;
-    return { 
-      healthy: true, 
+    return {
+      healthy: true,
       latency,
     };
   } catch (error) {
-    return { 
-      healthy: false, 
+    return {
+      healthy: false,
       error: error instanceof Error ? error.message : 'Unknown database error',
       latency: Date.now() - start
     };
@@ -99,7 +99,7 @@ export const transaction = async <T>(
   // Use Neon's transaction function for HTTP-based transactions
   const queries: any[] = [];
   let result: T;
-  
+
   // Create a proxy to collect queries
   const txProxy = new Proxy(db, {
     get(target, prop) {
@@ -117,12 +117,12 @@ export const transaction = async <T>(
 
   try {
     result = await callback(txProxy);
-    
+
     if (queries.length > 1) {
       // Use Neon's transaction function for multiple queries
       await sql.transaction(queries, options);
     }
-    
+
     return result;
   } catch (error) {
     console.error('❌ Transaction error:', error);
@@ -136,7 +136,6 @@ export const cleanup = async () => {
     try {
       await wsPool.end();
       wsPool = null;
-      console.log('✅ Database connections cleaned up');
     } catch (error) {
       console.error('❌ Error cleaning up database connections:', error);
     }

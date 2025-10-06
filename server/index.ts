@@ -1,5 +1,5 @@
-
 import "./env-setup.js";
+
 import express from 'express';
 import path from 'path';
 import fs from 'fs';
@@ -32,6 +32,7 @@ app.get('/health', cacheMiddleware(staticDataCache, 30), (req, res) => {
     timestamp: new Date().toISOString(),
   });
 });
+
 app.get('/api/health', cacheMiddleware(staticDataCache, 30), (req, res) => {
   res.status(200).json({
     status: 'healthy',
@@ -39,6 +40,7 @@ app.get('/api/health', cacheMiddleware(staticDataCache, 30), (req, res) => {
     env: process.env['NODE_ENV'] || 'development'
   });
 });
+
 app.get('/', (req, res) => {
   res.status(200).send('SSELFIE Studio API');
 });
@@ -46,16 +48,14 @@ app.get('/', (req, res) => {
 // Register all routes (async for test compatibility)
 async function setupApp() {
   try {
-    console.log('🚀 Setting up SSELFIE Studio server...');
-    
+
     // Setup static file serving based on environment
     const isProduction = process.env['NODE_ENV'] === 'production';
-    
+
     if (isProduction) {
       // In production, Vercel handles static files via vercel.json routes
       // Only serve attached assets (user uploads, etc.)
       app.use('/attached_assets', express.static(path.join(process.cwd(), 'attached_assets')));
-      console.log('📁 Production: Vercel handling static files, serving attached assets only');
     } else {
       // Development mode: serve built files if they exist
       const distPath = path.join(process.cwd(), 'client', 'dist');
@@ -63,7 +63,7 @@ async function setupApp() {
         app.use(express.static(distPath));
         app.use('/assets', express.static(path.join(distPath, 'assets')));
         app.use('/attached_assets', express.static(path.join(process.cwd(), 'attached_assets')));
-        
+
         // SPA fallback for development
         app.get('*', (req, res) => {
           if (req.path.startsWith('/api/') || req.path === '/health') {
@@ -71,29 +71,23 @@ async function setupApp() {
           }
           res.sendFile(path.join(distPath, 'index.html'));
         });
-        console.log('📁 Development: Serving static files from client/dist');
       }
     }
-    
+
     // Register API routes and get HTTP server
     const server = await registerRoutes(app);
-    
+
     // Initialize Socket.IO for real-time features if enabled
     if (LIVE_SOCKET_ENABLED) {
       liveSessionsManager.initialize(server);
-      console.log('🔄 Socket.IO real-time server initialized');
     } else {
-      console.log('⚡ Socket.IO disabled via LIVE_SOCKET_ENABLED environment variable');
     }
-    
+
     // Start the server
     const port = Number(process.env['PORT']) || 5000;
     server.listen(port, '0.0.0.0', () => {
-      console.log(`✅ SSELFIE Studio server running on port ${port}`);
-      console.log(`🔗 API available at: http://localhost:${port}/api`);
     });
-    
-    console.log('✅ Server setup completed successfully');
+
   } catch (error) {
     console.error('❌ Server setup failed:', error);
     throw error;

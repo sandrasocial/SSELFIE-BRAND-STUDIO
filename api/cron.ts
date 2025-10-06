@@ -21,7 +21,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    console.log('🕐 Cron job executed at:', new Date().toISOString());
     
     // This is a simple test cron job
     // In production, this would trigger various maintenance tasks

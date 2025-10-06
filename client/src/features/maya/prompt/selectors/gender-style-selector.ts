@@ -31,9 +31,8 @@ export class GenderStyleSelector {
   static selectRecipes(criteria: RecipeMatchCriteria): MatchedRecipe[] {
     const { styleKey, tags = [], mood, userGender, userIntent, fallbackCount = 2 } = criteria;
     
-    console.log('🎯 Recipe Selection Criteria:', { styleKey, tags, mood, userGender, userIntent });
     
-    let candidates: MatchedRecipe[] = [];
+    const candidates: MatchedRecipe[] = [];
     
     // Primary match: exact styleKey match
     if (styleKey) {
@@ -79,7 +78,6 @@ export class GenderStyleSelector {
     candidates.sort((a, b) => b.matchScore - a.matchScore);
     const selected = candidates.slice(0, Math.max(fallbackCount, 1));
     
-    console.log(`✅ Selected ${selected.length} recipes:`, selected.map(s => ({ 
       name: s.recipe.name, 
       score: s.matchScore, 
       reasons: s.matchReasons 

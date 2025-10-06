@@ -18,7 +18,6 @@ const router = Router();
  */
 router.get('/current', requireStackAuth, async (req: AuthenticatedRequest, res) => {
   try {
-    console.log('🎯 Current trends requested for Workshop Mode by user:', req.user?.id);
 
     // Fetch latest trends from database
     const result = await db.execute(sql`

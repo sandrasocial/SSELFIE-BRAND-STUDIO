@@ -45,7 +45,6 @@ export class SentenceRealizer {
       customElements = []
     } = options;
     
-    console.log('📝 Generating prose for:', recipe.name, 'Target words:', targetWordCount);
     
     const elements = {
       setting: [],
@@ -117,7 +116,6 @@ export class SentenceRealizer {
     
     const wordCount = proseText.split(/\s+/).length;
     
-    console.log('✅ Generated prose:', { wordCount, targetWordCount });
     
     return {
       text: proseText,

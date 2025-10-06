@@ -1,8 +1,16 @@
 /* eslint-disable no-console */
 import React, { useEffect } from 'react';
 import { Route, useLocation } from "wouter";
+
+// Global type declarations for browser APIs
+declare global {
+  interface Window {
+    URLSearchParams: typeof URLSearchParams;
+  }
+  var URLSearchParams: typeof URLSearchParams;
+}
 import { ProtectedRoute } from './components/ProtectedRoute.js';
-import { SignIn, SignUp, StackHandler } from "@stackframe/react"; 
+import { StackHandler } from "@stackframe/react"; 
 import { stackClientApp } from '../../stack/client.js';
 import { useAuth } from "./hooks/use-auth.js";
 // Removed unused environment imports - using consolidated config
@@ -53,14 +61,8 @@ const NotFound = lazy(() => import("./pages/not-found.js"));
 // Critical pages (marked as priority in routed-pages-priority.ts)  
 const SSELFIEGallery = lazy(() => import("./pages/sselfie-gallery.js"));
 
-// Stage Mode components (lazy loaded)
-const PresenterConsole = lazy(() => import("./features/live/PresenterConsole.js"));
-const AudienceClient = lazy(() => import("./features/live/AudienceClient.js"));
-const SessionStats = lazy(() => import("./features/live/SessionStats.js"));
-
 // Components
 import { PageLoader } from "./components/PageLoader.js";
-import { Auth } from "./components/Auth.js";
 
 // Smart Home component - Routes users through simplified journey
 // NEW USER JOURNEY: Authentication → Training → App Studio → Advanced Features  
@@ -68,8 +70,7 @@ function SmartHome() {
   const [, setLocation] = useLocation();
   const { 
     isAuthenticated, 
-    isLoading,
-    user 
+    isLoading
   } = useAuth();
 
   const { 
@@ -84,33 +85,27 @@ function SmartHome() {
   });
 
   useEffect(() => {
-    console.log('🎯 SmartHome routing decision at:', new Date().toISOString());
-    console.log('🎯 SmartHome state:', {
       isLoading,
       isAuthenticated,
       isModelLoading,
       isModelError,
       hasUserModel: !!userModel,
       currentPath: window.location.pathname,
-      userModelStatus: userModel ? (userModel as any).trainingStatus : 'no-model'
+      userModelStatus: userModel ? (userModel as { trainingStatus?: string }).trainingStatus : 'no-model'
     });
 
     // 🔥 LOOP PREVENTION: Don't redirect if we're already where we should be
     const currentPath = window.location.pathname;
     if (currentPath === '/app' || currentPath === '/simple-training') {
-      console.log('🛑 Already on target route, preventing redirect loop');
       return;
     }
 
     // 1. Check for authenticated state and completion/error of the model fetch
     if (!isLoading && isAuthenticated) {
-      console.log('✅ User is authenticated, checking model status...');
       
       // 🔥 CRITICAL FIX: Handle model API errors gracefully for existing users
       if (isModelError) {
         console.error('🛑 User Model fetch failed (isModelError=true)');
-        console.log('🔄 API error detected - allowing authenticated user to access /app as fallback');
-        console.log('📍 ROUTING DECISION: /api/user-model failed → /app (fallback for existing users)');
         // For authenticated users with API errors, send them to /app instead of training
         // This handles cases where existing users can authenticate but model API fails
         setLocation('/app', { replace: true });
@@ -119,33 +114,22 @@ function SmartHome() {
       
       // 🎯 If model successfully loaded, check training status
       if (!isModelLoading && userModel) {
-        const trainingStatus = (userModel as { trainingStatus?: string }).trainingStatus;
-        console.log('📊 Model loaded, training status:', trainingStatus);
+                const trainingStatus = (userModel as { trainingStatus?: string }).trainingStatus;
         
         if (trainingStatus === 'completed') {
-          console.log('✅ User trained and model loaded → /app');
-          console.log('📍 ROUTING DECISION: Trained user → /app');
           setLocation('/app', { replace: true });
         } else {
-          console.log('🎯 User model loaded but needs training → /simple-training');
-          console.log('📍 ROUTING DECISION: Untrained user → /simple-training');
           setLocation('/simple-training', { replace: true });
         }
       } else if (!isModelLoading && !userModel) {
         // Model loaded but no data - likely new user
-        console.log('🆕 No user model found → /simple-training (new user)');
-        console.log('📍 ROUTING DECISION: New user → /simple-training');
         setLocation('/simple-training', { replace: true });
       } else {
-        console.log('⏳ Still loading user model, waiting...');
       }
       // If still loading model, wait for it to complete
       
     } else if (!isLoading && !isAuthenticated) {
-      console.log('🔍 User not authenticated → staying on landing page');
-      console.log('📍 ROUTING DECISION: Not authenticated → stay on landing');
     } else {
-      console.log('⏳ Still loading authentication state...');
     }
     
   }, [isAuthenticated, isLoading, isModelLoading, isModelError, userModel, setLocation]);
@@ -167,8 +151,6 @@ function SmartHome() {
 // Protected wrapper component that handles Stack Auth authentication
 
 function Router() {
-  console.log('🔍 Router: Rendering with pathname =', window.location.pathname);
-  console.log('🔍 Router: Full URL =', window.location.href);
   
   return (
     <div>
@@ -200,22 +182,19 @@ function Router() {
       )} />
       <Route path="/password-reset" component={() => (
         <Suspense fallback={<PageLoader />}>
-          <PasswordResetPage searchParams={Object.fromEntries(new URLSearchParams(window.location.search))} />
+          <PasswordResetPage searchParams={Object.fromEntries(new URL(window.location.href).searchParams)} />
         </Suspense>
       )} />
 
       {/* STACK AUTH HANDLER - Consolidated wildcard route for ALL Stack redirects/callbacks including OAuth */}
       <Route path="/handler/sign-in" component={() => {
-        console.log('🔍 Route matched: /handler/sign-in');
         return <SignInHandler />;
       }} />
       <Route path="/handler/sign-up" component={() => {
-        console.log('🔍 Route matched: /handler/sign-up');
         return <SignInHandler />;
       }} />
       {/* ✅ CRITICAL FIX: OAuth callback handler MUST come before wildcard routes to preserve query parameters */}
       <Route path="/handler/oauth-callback" component={() => {
-        console.log('🔍 Route matched: /handler/oauth-callback');
         return (
           <StackHandler
             app={stackClientApp}
@@ -225,11 +204,9 @@ function Router() {
         );
       }} />
       <Route path="/handler/:rest*" component={() => {
-        console.log('🔍 Route matched: /handler/:rest* with rest =', window.location.pathname.replace('/handler/', ''));
         return <HandlerRoutes />;
       }} />
       <Route path="/handler" component={() => {
-        console.log('🔍 Route matched: /handler');
         return <HandlerRoutes />;
       }} />
       
@@ -360,29 +337,6 @@ function Router() {
 
 
 
-      {/* STAGE MODE ROUTES */}
-      <Route path="/hair/live/:sessionId" component={() => (
-        <ProtectedRoute component={() => (
-          <Suspense fallback={<PageLoader />}>
-            <PresenterConsole />
-          </Suspense>
-        )} />
-      )} />
-
-      <Route path="/hair/guest/:sessionId" component={() => (
-        <Suspense fallback={<PageLoader />}>
-          <AudienceClient />
-        </Suspense>
-      )} />
-
-      <Route path="/hair/live/:sessionId/stats" component={() => (
-        <ProtectedRoute component={() => (
-          <Suspense fallback={<PageLoader />}>
-            <SessionStats />
-          </Suspense>
-        )} />
-      )} />
-
       {/* ROUTE ALIASES & REDIRECTS */}
       <Route path="/gallery" component={() => {
         // Redirect /gallery to /sselfie-gallery for compatibility
@@ -392,7 +346,7 @@ function Router() {
 
       {/* CATCH-ALL 404 ROUTE - Must be ABSOLUTE last, use proper syntax */}
       <Route path="/:rest*">
-        {(params) => {
+        {() => {
           // Only show 404 if we're not on a valid route
           const validPaths = [
             '/', '/app', '/studio', '/workspace', '/maya', '/sselfie-gallery', 
@@ -425,14 +379,9 @@ function Router() {
 function HandlerRoutes() {
   const handlerPath = window.location.pathname.replace('/handler/', '') || '';
 
-  console.log('🔍 HandlerRoutes: handlerPath =', handlerPath);
-  console.log('🔍 HandlerRoutes: full location =', window.location.href);
-  console.log('🔍 HandlerRoutes: Stack client app exists =', !!stackClientApp);
-  console.log('🔍 HandlerRoutes: Stack client app urls =', stackClientApp?.urls);
 
   // ✅ Use StackHandler for ALL Stack Auth operations to ensure consistency
   // This includes sign-in, sign-up, magic-link, password-reset, email-verification
-  console.log('🔍 HandlerRoutes: Using StackHandler for =', handlerPath);
 
   try {
     return (
@@ -474,7 +423,6 @@ function App() {
   // Enhanced domain access handling
   useEffect(() => {
     try {
-      console.log('SSELFIE Studio: App initializing...');
       
       // Do not force domain canonicalization in client; avoid potential redirect loops
       
@@ -485,7 +433,6 @@ function App() {
         showDomainHelp();
       }
       
-      console.log('SSELFIE Studio: Domain access validated, app ready');
       
       // Phase 4: Runtime performance optimizations
       optimizeImageLoading();
@@ -496,8 +443,6 @@ function App() {
       initializeMobileOptimization();
       
       // Phase 6: Performance monitoring
-      console.log('📊 Performance monitoring initialized');
-      console.log('📊 Performance Score:', performanceMonitor.getPerformanceScore());
       
       // Phase 7: Runtime optimization
       initializeRuntimeOptimization();
@@ -506,7 +451,6 @@ function App() {
     }
   }, []);
 
-  console.log('SSELFIE Studio: App rendering...');
   
   return (
     <ErrorBoundary>

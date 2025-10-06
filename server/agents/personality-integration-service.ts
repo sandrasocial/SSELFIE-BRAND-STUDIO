@@ -35,9 +35,6 @@ export class PersonalityIntegrationService {
     const agentName = agentPersonality?.name || agentId;
     const mission = (agentPersonality as any)?.identity?.mission || (agentPersonality as any)?.mission || (agentPersonality as any)?.description || 'Expert assistance';
 
-    console.log(`🤖 PERSONALITY ACTIVATION: ${agentName.toUpperCase()}`);
-    console.log(`🎯 Mission: ${mission}`);
-    console.log(`🔧 Admin Privileges: ${isAdminRequest ? 'FULL PROJECT ACCESS' : 'Standard access'}`);
 
     const capabilities = isAdminRequest ? [
       'FULL PROJECT ACCESS: Use tools directly to implement solutions',
@@ -109,7 +106,6 @@ export class PersonalityIntegrationService {
       return false;
     }
     
-    console.log(`✅ PERSONALITY VALIDATED: ${personality.name} ready for activation`);
     return true;
   }
 

@@ -75,7 +75,6 @@ export class LuxuryPerformanceOptimizer {
         
         if (loadedImages === images.length) {
           this.metrics.imageLoadTime = totalLoadTime / loadedImages;
-          console.log(`🎯 Average image load time: ${this.metrics.imageLoadTime.toFixed(2)}ms`);
           
           // Alert if luxury standard not met (3000ms target)
           if (this.metrics.imageLoadTime > 3000) {
@@ -126,7 +125,6 @@ export class LuxuryPerformanceOptimizer {
 
     const onLoad = () => {
       const loadTime = performance.now() - startTime;
-      console.log(`🖼️ Image loaded in ${loadTime.toFixed(2)}ms`);
       
       // Luxury reveal animation
       requestAnimationFrame(() => {
@@ -174,7 +172,6 @@ export class LuxuryPerformanceOptimizer {
           
           clearTimeout(timeout);
           
-          console.log(`✨ Image generated in ${duration.toFixed(2)}ms`);
           
           if (duration > 3000) {
             console.warn('⚠️ Image generation exceeded luxury standard');

@@ -111,7 +111,7 @@ export class Logger {
    */
   private outputLog(entry: LogEntry): void {
     const { timestamp, level, message, service, ...rest } = entry;
-    
+
     const logMessage = {
       timestamp,
       level: level.toUpperCase(),
@@ -171,4 +171,3 @@ export class Logger {
 }
 
 // Export default logger instance
-export const logger = new Logger('SSELFIE Studio');

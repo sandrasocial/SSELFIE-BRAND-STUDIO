@@ -104,7 +104,6 @@ export const Interactive: Story = {
     variations: sampleVariations,
     selectedIndex: 0,
     onSelect: (index: number) => {
-      console.log('Selected variation:', index);
     }
   },
   parameters: {

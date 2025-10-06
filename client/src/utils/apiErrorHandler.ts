@@ -151,7 +151,6 @@ export class ApiErrorHandler {
 
         // Wait before retrying (exponential backoff)
         const delay = this.retryDelay * Math.pow(2, attempt - 1);
-        console.log(`Retrying in ${delay}ms... (attempt ${attempt}/${maxRetries})`);
         
         await new Promise(resolve => setTimeout(resolve, delay));
       }

@@ -9,11 +9,6 @@ export default function AuthSuccess() {
 
   useEffect(() => {
     // 🔍 ENHANCED DEBUG: Check Stack Auth state and cookies
-    console.log('🔍 Auth success page loaded at:', new Date().toISOString());
-    console.log('🔍 Current URL:', window.location.href);
-    console.log('🔍 Current cookies:', document.cookie);
-    console.log('🔍 LocalStorage keys:', Object.keys(localStorage));
-    console.log('🔍 SessionStorage keys:', Object.keys(sessionStorage));
     
     // Check if Stack Auth is available
     let stackAuthReady = false;
@@ -21,9 +16,7 @@ export default function AuthSuccess() {
       // Try to access Stack Auth instance
       const stackAuth = (window as any).stackAuth || (globalThis as any).stackAuth;
       stackAuthReady = !!stackAuth;
-      console.log('🔍 Stack Auth instance available:', stackAuthReady);
     } catch (error) {
-      console.log('🔍 Stack Auth check failed:', error);
     }
     
     // 🔥 CRITICAL FIX: Wait longer for Stack Auth to complete token creation
@@ -33,8 +26,6 @@ export default function AuthSuccess() {
     
     const checkAuthAndRedirect = () => {
       attempts++;
-      console.log(`🔄 Auth check attempt ${attempts}/${maxAttempts}`);
-      console.log('🔍 Cookies now:', document.cookie.substring(0, 200));
       
       // 🔥 CRITICAL: Check specifically for stack-access tokens (not just any stack cookie)
       // OAuth cookies (stack-oauth-outer, stack-oauth-inner) are temporary
@@ -43,29 +34,22 @@ export default function AuthSuccess() {
       const hasOAuthCookies = document.cookie.includes('stack-oauth-outer') || 
                              document.cookie.includes('stack-oauth-inner');
       
-      console.log('🔍 Has Stack Access Token:', hasStackAccessToken);
-      console.log('🔍 Has OAuth Cookies:', hasOAuthCookies);
       
       // ✅ SUCCESS: Access token created
       if (hasStackAccessToken) {
-        console.log('✅ Stack Access Token detected! Auth complete.');
-        console.log('🎯 Redirecting to home - let SmartHome handle proper routing');
         setLocation('/', { replace: true });
       } 
       // ⏳ WAITING: OAuth in progress
       else if (hasOAuthCookies && attempts < maxAttempts) {
-        console.log('⏳ OAuth cookies present, waiting for access token creation...');
         setTimeout(checkAuthAndRedirect, 500);
       }
       // ⚠️ TIMEOUT: Redirect anyway after max attempts
       else if (attempts >= maxAttempts) {
         console.warn('⚠️ Timeout reached, redirecting without access token confirmation');
-        console.log('🔍 This may indicate OAuth token exchange failed - redirecting to home anyway');
         setLocation('/', { replace: true });
       }
       // 🔄 RETRY: Keep waiting
       else {
-        console.log('⏳ Waiting for Stack Auth cookies, retrying in 500ms...');
         setTimeout(checkAuthAndRedirect, 500);
       }
     };

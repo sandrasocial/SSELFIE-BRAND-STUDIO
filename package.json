@@ -27,7 +27,6 @@
     "@radix-ui/react-toggle-group": "^1.1.10",
     "@replit/vite-plugin-cartographer": "^0.2.8",
     "@sendgrid/mail": "^8.1.6",
-    "@slack/web-api": "^7.10.0",
     "@stackframe/react": "^2.8.41",
     "@stackframe/stack": "^2.8.41",
     "@stripe/react-stripe-js": "^3.10.0",

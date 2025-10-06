@@ -8,7 +8,6 @@ export class ModelRetrainService {
    */
   static async restartTraining(userId: string): Promise<{ success: boolean; message: string; replicateModelId?: string }> {
     try {
-      console.log(`🔄 Restarting training for user: ${userId}`);
       
       // Get existing user model record to verify training was completed before
       const existingModel = await storage.getUserModelByUserId(userId);
@@ -26,7 +25,6 @@ export class ModelRetrainService {
         };
       }
       
-      console.log(`📋 Found existing model: ${existingModel.modelName} with trigger word: ${existingModel.triggerWord}`);
       
       // Use existing S3 training ZIP from completed training
       const s3ZipUrl = `https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/training_${userId}_${existingModel.modelName?.split('-').pop() || Date.now()}.zip`;
@@ -52,7 +50,6 @@ export class ModelRetrainService {
         }
       };
       
-      console.log(`🚀 Starting Replicate training with trigger word: ${existingModel.triggerWord}`);
       
       const response = await fetch('https://api.replicate.com/v1/trainings', {
         method: 'POST',
@@ -75,7 +72,6 @@ export class ModelRetrainService {
       const result = await response.json();
       const replicateModelId = result.id;
       
-      console.log(`✅ New training started! ID: ${replicateModelId}`);
       
       // Update database with new training details
       await storage.updateUserModel(userId, {
@@ -88,7 +84,6 @@ export class ModelRetrainService {
         updatedAt: new Date()
       });
       
-      console.log(`📝 Database updated with new training ID: ${replicateModelId}`);
       
       return {
         success: true,

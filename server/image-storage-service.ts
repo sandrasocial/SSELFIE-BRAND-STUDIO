@@ -50,7 +50,6 @@ export class ImageStorageService {
    */
   static async storeImagePermanently(replicateUrl: string, userId: string, imageId: string): Promise<string> {
     try {
-      console.log(`Storing image permanently: ${replicateUrl}`);
       
       if (!this.BUCKET_NAME) {
         const error: ImageStorageError = {
@@ -78,7 +77,6 @@ export class ImageStorageService {
           }
           
           if (retries < maxRetries) {
-            console.log(`⚠️ S3 MIGRATION: Retrying download for ${replicateUrl} (attempt ${retries + 1}/${maxRetries})`);
             await new Promise(resolve => setTimeout(resolve, (retries + 1) * 2000));
             retries++;
             continue;
@@ -157,7 +155,6 @@ export class ImageStorageService {
         timestamp: Date.now()
       };
       
-      console.log(`✅ S3 UPLOAD SUCCESS:`, result);
       return permanentUrl;
       
     } catch (error) {
@@ -174,7 +171,6 @@ export class ImageStorageService {
     const results: MigrationResult[] = [];
     
     try {
-      console.log(`Starting migration for user ${userId}...`);
       
       const userImages = await storage.getAIImages(userId) as AIImage[];
       
@@ -211,7 +207,6 @@ export class ImageStorageService {
             .set({ imageUrl: permanentUrl })
             .where(eq(aiImages.id, image.id));
           
-          console.log(`Migrated image ${image.id} to permanent storage`);
           
           results.push({
             success: true,
@@ -232,7 +227,6 @@ export class ImageStorageService {
         }
       }
       
-      console.log(`Migration completed for user ${userId}`);
       return results;
       
     } catch (error) {

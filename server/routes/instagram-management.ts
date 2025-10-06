@@ -9,7 +9,6 @@ const router = Router();
 router.post('/process', requireStackAuth, async (req: any, res) => {
   try {
     const userId = req.user.id;
-    console.log(`📱 Processing Instagram messages for user ${userId}`);
 
     const processedMessages = await instagramIntegration.processInstagramMessages(userId);
 
@@ -32,7 +31,6 @@ router.post('/process', requireStackAuth, async (req: any, res) => {
 router.get('/dashboard', requireStackAuth, async (req: any, res) => {
   try {
     const userId = req.user.id;
-    console.log(`📱 Loading REAL Instagram dashboard for user ${userId}`);
     
     // Try to get real Instagram data from integration
     const processedMessages = await instagramIntegration.getProcessedMessages(userId);
@@ -77,7 +75,6 @@ router.get('/dashboard', requireStackAuth, async (req: any, res) => {
       ]
     };
 
-    console.log(`📱 Instagram dashboard loaded: ${totalMessages} total messages`);
     res.json(dashboard);
   } catch (error) {
     console.error('❌ Instagram dashboard error:', error);

@@ -97,6 +97,35 @@ export default [js.configs.recommended, {
     'no-var': 'error',
   },
 }, {
+  // Configuration for generated Drizzle schema files (CommonJS)
+  files: ['shared/*.js', 'shared/types/*.js'],
+  languageOptions: {
+    parser: tsparser,
+    parserOptions: {
+      ecmaVersion: 'latest',
+      sourceType: 'commonjs',
+    },
+    globals: {
+      // Node.js CommonJS globals
+      require: 'readonly',
+      exports: 'readonly',
+      module: 'readonly',
+      __dirname: 'readonly',
+      __filename: 'readonly',
+      process: 'readonly',
+      Buffer: 'readonly',
+      global: 'readonly',
+      NodeJS: 'readonly',
+    },
+  },
+  rules: {
+    // Relax rules for generated files
+    '@typescript-eslint/no-unused-vars': 'off',
+    '@typescript-eslint/no-explicit-any': 'off',
+    'no-console': 'off',
+    'no-undef': 'off', // Allow CommonJS globals
+  },
+}, {
   ignores: [
     'node_modules/',
     'dist/',
@@ -106,15 +135,10 @@ export default [js.configs.recommended, {
     '.eslintrc.js',
     // Vercel build output
     '.vercel/',
-    // Archive and backup directories
-    'archive/',
-    'tools/debug/',
     // Debug and test files
     '*.spec.ts',
     '*-debug.*',
     '*-diagnostic.spec.*',
     'debug-*',
-    // Legacy files
-    'legacy/',
   ],
 }, ...storybook.configs["flat/recommended"], ...storybook.configs["flat/recommended"], ...storybook.configs["flat/recommended"]];

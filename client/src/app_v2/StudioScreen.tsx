@@ -436,7 +436,6 @@ const StudioScreen: React.FC<StudioScreenProps> = ({ onTabChange }) => {
               title: "Studio Generated Images",
               description: "Images generated through the studio interface"
             }}
-            onSave={(urls) => console.log('Saving images:', urls)}
           />
         </div>
       )}

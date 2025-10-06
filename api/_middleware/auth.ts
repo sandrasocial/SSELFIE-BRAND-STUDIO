@@ -48,11 +48,9 @@ async function getJWKS() {
   
   // Use cached JWKS if available and not expired
   if (JWKS && (now - JWKS_LAST_FETCH) < JWKS_CACHE_TIME) {
-    console.log('✅ Using cached JWKS');
     return JWKS;
   }
 
-  console.log('🔄 Fetching fresh JWKS from Stack Auth...');
 
   try {
     const jose = await import('jose');
@@ -71,7 +69,6 @@ async function getJWKS() {
     JWKS = jose.createLocalJWKSet(jwksData);
     JWKS_LAST_FETCH = now;
     
-    console.log('✅ JWKS fetched and cached successfully');
     return JWKS;
     
   } catch (error) {
@@ -83,7 +80,6 @@ async function getJWKS() {
     
     // Return cached JWKS even if expired, as fallback
     if (JWKS) {
-      console.log('⚠️ Using expired JWKS as fallback');
       return JWKS;
     }
     
@@ -93,7 +89,6 @@ async function getJWKS() {
 
 // Verify JWT token with improved error handling
 async function verifyJWTToken(token: string): Promise<JWTPayload & StackAuthUserInfo> {
-  console.log('🔍 Verifying JWT token...');
   
   try {
     const jose = await import('jose');
@@ -103,7 +98,6 @@ async function verifyJWTToken(token: string): Promise<JWTPayload & StackAuthUser
       throw new Error('JWKS not available - authentication service unreachable');
     }
 
-    console.log('🔍 Using JWKS for verification');
 
     const { payload } = await jose.jwtVerify(token, jwks, {
       issuer: `${STACK_AUTH_API_URL}/projects/${STACK_AUTH_PROJECT_ID}`,
@@ -111,7 +105,6 @@ async function verifyJWTToken(token: string): Promise<JWTPayload & StackAuthUser
       clockTolerance: 30, // Allow 30 seconds clock skew
     });
 
-    console.log('✅ JWT verification successful');
     
     return payload as JWTPayload & StackAuthUserInfo;
   } catch (error) {
@@ -132,30 +125,23 @@ import { AuthenticatedHandler, AuthOptions, AuthResponse, AuthenticatedRequest }
 export async function getAuthenticatedUser(req: VercelRequest): Promise<AuthenticatedUser> {
   let accessToken: string | undefined;
   
-  console.log('🔍 Auth: Extracting token from request...');
   
   // 🔍 ENHANCED DEBUG: Log all request details
-  console.log('🔍 Request URL:', req.url);
-  console.log('🔍 Request Method:', req.method);
-  console.log('🔍 All Headers:', JSON.stringify(req.headers, null, 2));
   
   // 1. Check Authorization header (preferred method)
   const authHeader = req.headers.authorization;
   if (authHeader?.startsWith('Bearer ')) {
     accessToken = authHeader.substring(7);
-    console.log('✅ Token found in Authorization header');
   }
 
   // 2. Check Stack Auth specific headers
   if (!accessToken && req.headers['x-stack-access-token']) {
     accessToken = req.headers['x-stack-access-token'] as string;
-    console.log('✅ Token found in x-stack-access-token header');
   }
 
   // 3. Check cookies for Stack Auth tokens (using the correct format)
   if (!accessToken) {
     const cookieHeader = req.headers.cookie;
-    console.log('🔍 Full request headers:', JSON.stringify({
       cookie: cookieHeader,
       authorization: req.headers.authorization,
       'x-stack-access-token': req.headers['x-stack-access-token'],
@@ -165,8 +151,6 @@ export async function getAuthenticatedUser(req: VercelRequest): Promise<Authenti
     
     if (cookieHeader) {
       const cookies = parseCookieHeader(cookieHeader);
-      console.log('🔍 Parsed cookies:', Object.keys(cookies));
-      console.log('🔍 Cookie values (first 50 chars):', Object.fromEntries(
         Object.entries(cookies).map(([k, v]) => [k, v.substring(0, 50) + (v.length > 50 ? '...' : '')])
       ));
       
@@ -177,13 +161,11 @@ export async function getAuthenticatedUser(req: VercelRequest): Promise<Authenti
           // New format: JSON array ["token_id", "jwt"]
           const parsed = JSON.parse(val);
           if (Array.isArray(parsed) && parsed.length >= 2 && typeof parsed[1] === 'string') {
-            console.log('✅ Successfully parsed JSON array cookie format');
             return parsed[1] as string;
           }
         } catch {
           // Some environments may store the raw JWT as a string
           if (val.split('.').length === 3) {
-            console.log('✅ Found raw JWT in cookie');
             return val; // looks like a JWT
           }
         }
@@ -193,23 +175,19 @@ export async function getAuthenticatedUser(req: VercelRequest): Promise<Authenti
       // 1) Check exact 'stack-access' cookie first
       const stackAccess = cookies['stack-access'];
       if (stackAccess) {
-        console.log('🔍 Found stack-access cookie, length:', stackAccess.length);
         const token = tryParseAccessFromCookieValue(stackAccess);
         if (token) {
           accessToken = token;
-          console.log('✅ Token found in stack-access cookie (JSON format)');
         }
       }
 
       // 2) Check any cookie whose name starts with 'stack-access'
       if (!accessToken) {
         const matchingKeys = Object.keys(cookies).filter(k => k.startsWith('stack-access'));
-        console.log('🔍 Stack-access cookies found:', matchingKeys);
         for (const key of matchingKeys) {
           const token = tryParseAccessFromCookieValue(cookies[key]);
           if (token) {
             accessToken = token;
-            console.log(`✅ Token found in cookie '${key}' (JSON format)`);
             break;
           }
         }
@@ -218,12 +196,10 @@ export async function getAuthenticatedUser(req: VercelRequest): Promise<Authenti
       // 2.5) Check OAuth cookies as fallback (these might contain temporary tokens)
       if (!accessToken) {
         const oauthKeys = Object.keys(cookies).filter(k => k.startsWith('stack-oauth-outer-'));
-        console.log('🔍 OAuth outer cookies found:', oauthKeys);
         for (const key of oauthKeys) {
           const token = tryParseAccessFromCookieValue(cookies[key]);
           if (token) {
             accessToken = token;
-            console.log(`⚠️ Using OAuth cookie as fallback: ${key}`);
             break;
           }
         }
@@ -240,7 +216,6 @@ export async function getAuthenticatedUser(req: VercelRequest): Promise<Authenti
               cookieValue.length > 20 &&
               cookieValue.split('.').length === 3) {
             accessToken = cookieValue;
-            console.log(`✅ Token found in legacy cookie: ${cookieName}`);
             break;
           }
         }
@@ -249,11 +224,9 @@ export async function getAuthenticatedUser(req: VercelRequest): Promise<Authenti
   }
 
   if (!accessToken) {
-    console.log('❌ No valid access token found in request');
     throw new Error('No access token found');
   }
 
-  console.log('🔍 Token extracted, length:', accessToken.length);
 
   // Verify JWT token
   const userInfo = await verifyJWTToken(accessToken);
@@ -268,7 +241,6 @@ export async function getAuthenticatedUser(req: VercelRequest): Promise<Authenti
     throw new Error('Invalid user info: missing required fields');
   }
 
-  console.log('🔍 Auth middleware: Stack user info received:', {
     stackAuthId: stackAuthId.substring(0, 8) + '...',
     email: userEmail,
     displayName: userName,
@@ -277,19 +249,44 @@ export async function getAuthenticatedUser(req: VercelRequest): Promise<Authenti
 
   // 🔥 HARDENED: Database lookup with bulletproof Stack Auth ID and email linking
   try {
-    console.log('🔍 Starting hardened database user lookup...');
     
-    const { userService } = await import('../../server/services/user-service.js');
+    const { storage: storageInstance } = await import('../../server/storage.js');
     
     // Call hardened getOrCreateUser function with three-step lookup strategy
-    const dbUserProfile = await userService.getOrCreateUser(
-      stackAuthId,
-      userEmail,
-      userName,
-      (userInfo.profileImageUrl || userInfo.profile_image_url || userInfo.avatar_url) || null
-    );
+    let dbUserProfile = await storageInstance.getUserByStackAuthId(stackAuthId);
+    
+    if (!dbUserProfile) {
+      // Try to find by email
+      if (userEmail) {
+        dbUserProfile = await storageInstance.getUserByEmail(userEmail);
+        if (dbUserProfile) {
+          // Link the Stack Auth ID
+          dbUserProfile = await storageInstance.linkStackAuthId(dbUserProfile.id, stackAuthId);
+        }
+      }
+      
+      // Create new user if not found
+      if (!dbUserProfile) {
+        const userData = {
+          id: stackAuthId,
+          email: userEmail,
+          displayName: userName,
+          firstName: userName?.split(' ')[0] || null,
+          lastName: userName?.split(' ').slice(1).join(' ') || null,
+          profileImageUrl: (userInfo.profileImageUrl || userInfo.profile_image_url || userInfo.avatar_url) || null,
+          plan: 'sselfie-studio',
+          role: 'user',
+          monthlyGenerationLimit: 100,
+          mayaAiAccess: true,
+          victoriaAiAccess: false,
+          preferredOnboardingMode: 'conversational',
+          onboardingProgress: JSON.stringify({ source: 'direct-signup' }),
+          lastLoginAt: new Date()
+        };
+        dbUserProfile = await storageInstance.upsertUser(userData);
+      }
+    }
 
-    console.log('✅ User service returned profile:', {
       userId: dbUserProfile.id,
       email: dbUserProfile.email,
       displayName: dbUserProfile.displayName
@@ -305,7 +302,6 @@ export async function getAuthenticatedUser(req: VercelRequest): Promise<Authenti
       throw new Error(`Failed to retrieve user by Stack Auth ID ${stackAuthId.substring(0, 8)}... after successful user service call`);
     }
 
-    console.log('✅ Full database user retrieved after hardened lookup:', {
       id: dbUser.id,
       email: dbUser.email,
       stackAuthId: dbUser.stackAuthId?.substring(0, 8) + '...',
@@ -313,7 +309,6 @@ export async function getAuthenticatedUser(req: VercelRequest): Promise<Authenti
       role: dbUser.role
     });
 
-    console.log('✅ Database user synced:', {
       id: dbUser.id,
       email: dbUser.email,
       plan: dbUser.plan,
@@ -381,7 +376,6 @@ export async function withAuth<T>(
 ): Promise<T> {
   // Handle bypass option (e.g. for cron jobs)
   if (options.bypass || req.url?.startsWith('/api/cron/')) {
-    console.log('🔓 Bypassing auth:', {
       url: req.url,
       method: req.method,
       headers: req.headers,
@@ -410,7 +404,6 @@ export async function withAuth<T>(
   } catch (error) {
     // For optional auth, allow request through without user
     if (options.optional) {
-      console.log('📝 Optional auth failed, continuing without user');
       return await handler(req as AuthenticatedRequest, res);
     }
 

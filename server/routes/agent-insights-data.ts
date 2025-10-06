@@ -218,7 +218,6 @@ router.post('/store', async (req, res) => {
       insights.splice(0, insights.length - 200);
     }
 
-    console.log(`📊 INSIGHT STORED: ${agentName} - ${title}`);
     
     res.json({
       success: true,

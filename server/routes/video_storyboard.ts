@@ -50,7 +50,6 @@ const router = express.Router();
 let ai: any;
 if (process.env['GOOGLE_API_KEY']) {
   ai = new GoogleGenAI({ apiKey: process.env['GOOGLE_API_KEY'] });
-  console.log('🎬 STORYBOARD: Google Gemini AI initialized for storyboard generation');
 } else {
   console.error('❌ STORYBOARD: GOOGLE_API_KEY environment variable not set. Storyboard routes will fail.');
 }
@@ -100,7 +99,6 @@ router.post('/storyboard', requireStackAuth, async (req: Request<{}, {}, Storybo
       }
     }
 
-    console.log('🎬 STORYBOARD: Multi-scene request', { 
       userId, 
       sceneCount: scenes.length, 
       mode,
@@ -120,7 +118,7 @@ router.post('/storyboard', requireStackAuth, async (req: Request<{}, {}, Storybo
         
         // Try generated images first
         const generatedImageResults = await db.select().from(generatedImages).where(eq(generatedImages.id, imageId)).limit(1);
-        let imageRecord = generatedImageResults[0];
+        const imageRecord = generatedImageResults[0];
         
         // Fall back to legacy ai images if not found in generated images
         if (!imageRecord) {
@@ -159,7 +157,6 @@ router.post('/storyboard', requireStackAuth, async (req: Request<{}, {}, Storybo
       const profile = await storage.getUserProfile(userId);
       userLoraModel = profile?.['replicateModelId'] || null;
     } catch (error) {
-      console.log('⚠️ STORYBOARD: Unable to load user profile for LoRA model (continuing)', error?.message);
     }
 
     // Generate videos for each scene sequentially using existing VEO infrastructure
@@ -169,7 +166,6 @@ router.post('/storyboard', requireStackAuth, async (req: Request<{}, {}, Storybo
       const scene = scenes[i];
       const duration = scene.duration || 5; // Default 5 seconds
       
-      console.log(`🎥 STORYBOARD: Starting scene ${i + 1}/${scenes.length}`, {
         motionPrompt: scene.motionPrompt.slice(0, 50) + '...',
         duration
       });
@@ -193,7 +189,6 @@ router.post('/storyboard', requireStackAuth, async (req: Request<{}, {}, Storybo
           };
         }
 
-        console.log(`🎬 STORYBOARD: Generating scene ${i + 1} with VEO`, {
           model: payload.model,
           aspectRatio: payload.config.aspectRatio,
           duration: payload.config.durationSeconds
@@ -209,7 +204,6 @@ router.post('/storyboard', requireStackAuth, async (req: Request<{}, {}, Storybo
           duration
         });
 
-        console.log(`✅ STORYBOARD: Scene ${i + 1} started`, { jobId: operation.name });
 
       } catch (sceneError) {
         console.error(`❌ STORYBOARD: Scene ${i + 1} generation failed:`, sceneError);
@@ -266,7 +260,6 @@ router.post('/storyboard', requireStackAuth, async (req: Request<{}, {}, Storybo
       });
     }
 
-    console.log(`✅ STORYBOARD: Multi-scene storyboard initiated`, {
       storyboardId: storyboardJobId,
       scenesStarted: response.scenesStarted,
       scenesFailed: response.scenesFailed
@@ -342,7 +335,6 @@ router.get('/storyboard/:storyboardId', requireStackAuth, async (req: Request<St
     // 3. Update database with final result
 
     // For now, return processing status
-    console.log(`🔍 STORYBOARD: Status check for ${storyboardId} (${storyboard.status})`);
 
     res.json({
       storyboardId,

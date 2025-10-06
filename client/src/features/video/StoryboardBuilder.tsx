@@ -121,7 +121,6 @@ export function StoryboardBuilder({ imageId, onGenerate, className }: Storyboard
         ...(imageId && { imageId })
       };
 
-      console.log('🎬 STORYBOARD UI: Generating storyboard', payload);
 
       const response = await fetch('/api/video/storyboard', {
         method: 'POST',

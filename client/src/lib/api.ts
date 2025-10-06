@@ -31,7 +31,6 @@ async function getStackAuthToken(): Promise<string | null> {
         if (token) {
           _cachedToken = token;
           _tokenCacheTime = now;
-          console.log('✅ Stack Auth token retrieved from tokenStore');
           return token;
         }
       }
@@ -48,7 +47,7 @@ async function getStackAuthToken(): Promise<string | null> {
       // Look for Stack Auth cookies
       if (name && (name.includes('stack-access') || name.includes('stack_session') || name === 'stack-access-token')) {
         try {
-          let decodedValue = decodeURIComponent(value);
+          const decodedValue = decodeURIComponent(value);
           
           // Try parsing as JSON array (Stack Auth cookie format)
           if (decodedValue.startsWith('[')) {
@@ -56,7 +55,6 @@ async function getStackAuthToken(): Promise<string | null> {
             if (Array.isArray(stackAccessArray) && stackAccessArray.length >= 2 && stackAccessArray[1]) {
               _cachedToken = stackAccessArray[1];
               _tokenCacheTime = now;
-              console.log('✅ Stack Auth token retrieved from cookie array');
               return stackAccessArray[1];
             }
           }
@@ -67,7 +65,6 @@ async function getStackAuthToken(): Promise<string | null> {
             if (stackAccessObj.accessToken) {
               _cachedToken = stackAccessObj.accessToken;
               _tokenCacheTime = now;
-              console.log('✅ Stack Auth token retrieved from cookie object');
               return stackAccessObj.accessToken;
             }
           }
@@ -78,7 +75,6 @@ async function getStackAuthToken(): Promise<string | null> {
             if (parts.length === 3) {
               _cachedToken = decodedValue;
               _tokenCacheTime = now;
-              console.log('✅ Stack Auth token retrieved from cookie direct');
               return decodedValue;
             }
           }
@@ -90,7 +86,6 @@ async function getStackAuthToken(): Promise<string | null> {
       }
     }
     
-    console.log('⚠️ No Stack Auth token found');
     return null;
     
   } catch (error) {
@@ -115,7 +110,6 @@ export async function apiFetch(path: string, opts: FetchOpts = {}) {
     if (token) {
       headers['x-stack-access-token'] = token; // 💡 CRITICAL STACK AUTH HEADER
       headers['Authorization'] = `Bearer ${token}`;
-      console.log('🔐 Added Stack Auth token to request:', path);
     } else {
       console.warn('⚠️ No Stack Auth token available for request:', path);
     }

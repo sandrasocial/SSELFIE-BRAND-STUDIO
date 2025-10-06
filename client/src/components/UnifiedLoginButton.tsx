@@ -12,8 +12,6 @@ export default function UnifiedLoginButton({ text, showBrand }: UnifiedLoginButt
   const { user, isAuthenticated, isLoading } = useAuth();
 
   const handleLogin = async () => {
-    console.log('🔍 UnifiedLoginButton: Login button clicked');
-    console.log('🚀 UnifiedLoginButton: Redirecting to Stack Auth handler');
     // Always use the handler route for consistency
     window.location.href = `/handler/sign-in`;
   };

@@ -6,23 +6,15 @@
 import { DatabaseStorage } from '../storage.js';
 import { GenerationTracker } from '../../shared/schema.js';
 import {
-  MayaModel,
-  MayaImage,
-  MayaConcept,
   MayaProfile,
-  InsertMayaModel,
-  InsertMayaImage,
-  InsertMayaConcept,
-  InsertMayaProfile
+  InsertMayaProfile,
+  InsertMayaImage
 } from '../../shared/schema-maya.js';
 import {
   Conversation,
-  Message,
-  ConceptCard,
   InsertConversation,
   InsertMessage,
   InsertConceptCard,
-  User,
   UserModel
 } from '../../shared/schema.js';
 import Anthropic from '@anthropic-ai/sdk';
@@ -151,10 +143,8 @@ export class MayaService {
    */
   async processChat(userId: string, request: MayaChatRequest): Promise<MayaChatResponse> {
     try {
-      console.log('🎨 MAYA: Processing chat for user:', userId);
-
       // Get or create user profile
-      const userProfile = await this.getOrCreateUserProfile(userId);
+      await this.getOrCreateUserProfile(userId);
 
       // Get or create conversation
       let conversation: Conversation;
@@ -177,7 +167,7 @@ export class MayaService {
       const systemPrompt = PersonalityManager.getNaturalPrompt('maya');
 
       // Build conversation context
-      let conversationMessages: Array<{ role: 'user' | 'assistant'; content: string }> = [];
+      const conversationMessages: Array<{ role: 'user' | 'assistant'; content: string }> = [];
 
       // Add conversation history if provided
       if (request.history && Array.isArray(request.history)) {
@@ -254,9 +244,8 @@ export class MayaService {
       await this.updateConversationSummary(conversation.id);
 
       // Update user profile stats
-      await this.updateUserProfileStats(userId);
+      await this.updateUserProfileStats();
 
-      console.log('✅ MAYA: Chat processed with', conceptCards.length, 'concept cards');
 
       return {
         response: mayaResponse,
@@ -275,11 +264,10 @@ export class MayaService {
    */
   async generateImages(userId: string, request: MayaGenerationRequest): Promise<MayaGenerationResponse> {
     try {
-      console.log('🎨 MAYA: Starting image generation for user:', userId);
 
       // Validate user has access
       const userProfile: MayaProfile = await this.getOrCreateUserProfile(userId);
-      if (!(userProfile.featureAccess as any)?.basicGeneration) {
+      if (!(userProfile.featureAccess as { basicGeneration?: boolean })?.basicGeneration) {
         throw new Error('User does not have generation access');
       }
 
@@ -445,7 +433,6 @@ export class MayaService {
             await this.db.insertMayaImage(imageData);
           }
 
-          console.log('✅ MAYA: Generation completed for', tracker.id);
           return;
         } else if (statusData.status === 'failed') {
           // Generation failed
@@ -478,7 +465,13 @@ export class MayaService {
   /**
    * Get generation status
    */
-  async getGenerationStatus(userId: string, generationId: string): Promise<any> {
+  async getGenerationStatus(userId: string, generationId: string): Promise<{
+    generationId: string;
+    status: string;
+    images?: string[];
+    completedAt?: Date;
+    progress?: number;
+  }> {
     try {
       // Find tracker by predictionId (which is stored in the predictionId field)
       const trackers = await this.db.getUserGenerationTrackers(userId);
@@ -580,7 +573,6 @@ export class MayaService {
       }
 
     } catch (parseError) {
-      console.log('Concept card extraction failed:', parseError.message);
     }
 
     return conceptCards.slice(0, 3); // Limit to 3 concepts
@@ -614,7 +606,7 @@ export class MayaService {
   /**
    * Update user profile statistics
    */
-  private async updateUserProfileStats(userId: string): Promise<void> {
+  private async updateUserProfileStats(): Promise<void> {
     try {
       // This would update various stats like conversation count, etc.
       // Implementation depends on what stats we want to track

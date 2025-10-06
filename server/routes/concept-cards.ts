@@ -65,7 +65,6 @@ router.post('/', requireStackAuth, async (req, res) => {
     // Create concept card (with idempotency check in storage)
     const conceptCard = await storage.createConceptCard(validatedData);
 
-    console.log(`✅ CONCEPT CARD: Created ${conceptCard.id} for user ${userId}`);
     res.status(201).json({ conceptCard });
   } catch (error) {
     console.error('❌ CONCEPT CARDS: Create error:', error);
@@ -147,7 +146,6 @@ router.patch('/:id', requireStackAuth, async (req, res) => {
 
     const conceptCard = await storage.updateConceptCard(id, updates);
 
-    console.log(`✅ CONCEPT CARD: Updated ${id} for user ${userId}`);
     res.json({ conceptCard });
   } catch (error) {
     console.error('❌ CONCEPT CARDS: Update error:', error);
@@ -185,7 +183,6 @@ router.patch('/:id/generation', requireStackAuth, async (req, res) => {
       Boolean(hasGenerated)
     );
 
-    console.log(`✅ CONCEPT CARD: Updated generation status ${id} for user ${userId}`);
     res.json({ conceptCard });
   } catch (error) {
     console.error('❌ CONCEPT CARDS: Update generation error:', error);
@@ -216,7 +213,6 @@ router.delete('/:id', requireStackAuth, async (req, res) => {
 
     await storage.deleteConceptCard(id);
 
-    console.log(`✅ CONCEPT CARD: Deleted ${id} for user ${userId}`);
     res.status(204).send();
   } catch (error) {
     console.error('❌ CONCEPT CARDS: Delete error:', error);

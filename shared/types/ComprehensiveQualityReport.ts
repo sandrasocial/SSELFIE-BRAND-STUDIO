@@ -35,7 +35,6 @@ export class ComprehensiveQualitySuite {
   }
 
   async runCompleteQualityAudit(): Promise<ComprehensiveQualityReport> {
-    console.log('🔍 Starting comprehensive luxury quality audit...');
     
     try {
       // Test core components
@@ -54,7 +53,6 @@ export class ComprehensiveQualitySuite {
       const recommendations: string[] = [];
 
       for (const component of components) {
-        console.log(`✅ Testing luxury standards for: ${component}`);
         
         try {
           const luxuryStandards = this.luxuryValidator.validateLuxuryStandards(component);
@@ -84,7 +82,6 @@ export class ComprehensiveQualitySuite {
       }
 
       // Test individual model quality with error handling
-      console.log('🔍 Testing individual model quality...');
       let modelMetrics: ModelQualityMetrics;
       try {
         modelMetrics = this.modelValidator.validateModelQuality('test-user');
@@ -100,7 +97,6 @@ export class ComprehensiveQualitySuite {
       }
 
       // Test premium tier validation with error handling  
-      console.log('🔍 Testing premium tier experience...');
       let premiumMetrics: PremiumTierMetrics;
       try {
         premiumMetrics = this.premiumValidator.validatePremiumTier();

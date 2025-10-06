@@ -27,7 +27,6 @@ export class SDInpaintService {
    */
   static async startInpainting(request: InpaintRequest): Promise<InpaintResponse> {
     try {
-      console.log('🎨 INPAINT: Starting inpainting for user', request.userId);
 
       // Check if INPAINT_ENABLED flag is set
       if (process.env.INPAINT_ENABLED !== '1') {
@@ -75,7 +74,6 @@ export class SDInpaintService {
         }
       };
 
-      console.log('🎨 INPAINT: Sending request to Replicate');
 
       const response = await fetch('https://api.replicate.com/v1/predictions', {
         method: 'POST',
@@ -111,7 +109,6 @@ export class SDInpaintService {
         generationStatus: 'processing'
       });
 
-      console.log('✅ INPAINT: Started successfully with prediction ID:', prediction.id);
 
       return {
         success: true,

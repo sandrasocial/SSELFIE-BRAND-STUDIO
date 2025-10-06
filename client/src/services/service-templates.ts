@@ -10,7 +10,6 @@ export class ServiceTemplateManager {
   private templates: Map<string, ServiceTemplate> = new Map();
 
   async loadTemplates(): Promise<void> {
-    console.log('📋 SERVICE TEMPLATES: Loading pre-configured service templates...');
     this.initializeDefaultTemplates();
   }
 

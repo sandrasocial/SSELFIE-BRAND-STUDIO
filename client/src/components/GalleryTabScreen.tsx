@@ -395,7 +395,6 @@ function GalleryTabScreen() {
           imageSource={selectedImage.source || 'unknown'}
           onClose={() => setIsVideoModalOpen(false)}
           onSuccess={() => {
-            console.log('✅ Video generation started for image:', selectedImage.id);
             queryClient.invalidateQueries({ queryKey: ['/api/gallery-images'] });
           }}
         />

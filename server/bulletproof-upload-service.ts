@@ -34,7 +34,6 @@ export class BulletproofUploadService {
     userId: string, 
     imageFiles: string[]
   ): Promise<{ success: boolean; errors: string[]; validImages: string[] }> {
-    console.log(`🔍 VALIDATION: Starting image validation for user ${userId}`);
     
     const errors: string[] = [];
     const validImages: string[] = [];
@@ -51,11 +50,9 @@ export class BulletproofUploadService {
       return { success: false, errors, validImages };
     }
     
-    console.log(`🛡️ VALIDATION GATE 1 PASSED: ${imageFiles.length} images provided (meets minimum 10)`);
     
     // 🛡️ CRITICAL CHECK 3: Recommended minimum for quality
     if (imageFiles.length < 15) {
-      console.log(`⚠️  WARNING: Only ${imageFiles.length} images - recommend 15-20 for best results`);
     }
     
     for (let i = 0; i < imageFiles.length; i++) {
@@ -101,13 +98,11 @@ export class BulletproofUploadService {
     // 🛡️ CRITICAL CHECK 4: Final validation after processing
     if (validImages.length < 10) {
       errors.push(`❌ CRITICAL: Only ${validImages.length} valid images after processing. Need minimum 10 valid images.`);
-      console.log(`❌ VALIDATION FAILED: Insufficient valid images (${validImages.length}/10 minimum)`);
       return { success: false, errors, validImages };
     }
     
     const success = validImages.length >= 10 && errors.length === 0;
     
-    console.log(`✅ VALIDATION GATE 2 PASSED: ${validImages.length} valid images, ${errors.length} errors`);
     
     return { success, errors, validImages };
   }
@@ -155,7 +150,6 @@ export class BulletproofUploadService {
     userId: string, 
     validImages: string[]
   ): Promise<{ success: boolean; errors: string[]; s3Urls: string[] }> {
-    console.log(`📤 S3 UPLOAD: Starting upload for user ${userId}`);
     
     const errors: string[] = [];
     const s3Urls: string[] = [];
@@ -200,7 +194,6 @@ export class BulletproofUploadService {
         const s3Url = `https://${bucketName}.s3.amazonaws.com/${fileName}`;
         
         s3Urls.push(s3Url);
-        console.log(`✅ S3 UPLOAD: Image ${i + 1} uploaded successfully`);
         
       } catch (error) {
         console.error(`❌ S3 UPLOAD: Failed to upload image ${i + 1}:`, error);
@@ -212,13 +205,11 @@ export class BulletproofUploadService {
     // 🛡️ CRITICAL GATE 2: Final S3 validation
     if (s3Urls.length < 10) {
       errors.push(`❌ CRITICAL: Only ${s3Urls.length} images uploaded to S3. Need minimum 10.`);
-      console.log(`❌ S3 UPLOAD FAILED: Insufficient uploads (${s3Urls.length}/10 minimum)`);
       return { success: false, errors, s3Urls };
     }
     
     const success = s3Urls.length >= 10 && errors.length === 0;
     
-    console.log(`✅ S3 GATE 2 PASSED: ${s3Urls.length} images uploaded, ${errors.length} errors`);
     
     return { success, errors, s3Urls };
   }
@@ -234,18 +225,15 @@ export class BulletproofUploadService {
     validImages: string[],
     s3Urls: string[]
   ): Promise<{ success: boolean; errors: string[]; zipUrl: string | null }> {
-    console.log(`📦 ZIP CREATION: Starting for user ${userId}`);
     
     const errors: string[] = [];
     
     // 🛡️ CRITICAL GATE 3: Check image count before ANY ZIP operations
     if (!validImages || validImages.length < 10) {
       errors.push(`❌ CRITICAL: Cannot create ZIP - only ${validImages?.length || 0} images. Need minimum 10.`);
-      console.log(`❌ ZIP CREATION BLOCKED: Insufficient images (${validImages?.length || 0}/10 minimum)`);
       return { success: false, errors, zipUrl: null };
     }
     
-    console.log(`🛡️ ZIP GATE 3 PASSED: ${validImages.length} images available (meets minimum 10)`);
     
     const tempDir = path.join(process.cwd(), 'temp_training');
     
@@ -272,7 +260,6 @@ export class BulletproofUploadService {
           const imageBuffer = Buffer.from(base64Data, 'base64');
           
           archive.append(imageBuffer, { name: `image_${i + 1}.jpg` });
-          console.log(`✅ ZIP: Added image ${i + 1} to ZIP (${imageBuffer.length} bytes)`);
           
         } catch (error) {
           console.error(`❌ ZIP: Failed to add image ${i + 1}:`, error);
@@ -295,11 +282,9 @@ export class BulletproofUploadService {
       
       if (zipStats.size < minZipSize) {
         errors.push(`❌ CRITICAL: ZIP file too small (${zipStats.size} bytes). Expected at least ${minZipSize} bytes for 10+ images.`);
-        console.log(`❌ ZIP VALIDATION FAILED: File too small (${zipStats.size}/${minZipSize} bytes minimum)`);
         return { success: false, errors, zipUrl: null };
       }
       
-      console.log(`🛡️ ZIP GATE 4 PASSED: ZIP file ${zipStats.size} bytes (meets minimum ${minZipSize})`);
       
       // 🛡️ CRITICAL GATE 5: Count actual files in ZIP
       let actualFileCount = 0;
@@ -312,11 +297,9 @@ export class BulletproofUploadService {
       
       if (actualFileCount < 10) {
         errors.push(`❌ CRITICAL: Only ${actualFileCount} files successfully added to ZIP. Need minimum 10.`);
-        console.log(`❌ ZIP FILE COUNT FAILED: Only ${actualFileCount}/10 minimum files in ZIP`);
         return { success: false, errors, zipUrl: null };
       }
       
-      console.log(`🛡️ ZIP GATE 5 PASSED: ${actualFileCount} files in ZIP (meets minimum 10)`);
       
       if (zipStats.size < 1024) { // ZIP must be at least 1KB (legacy check)
         errors.push('ZIP file creation failed - file too small');
@@ -346,7 +329,6 @@ export class BulletproofUploadService {
       
       const s3ZipUrl = `https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/${s3Key}`;
       
-      console.log(`✅ ZIP CREATION: Created ${zipStats.size} bytes and uploaded to S3: ${s3ZipUrl}`);
       
       // Clean up local file
       try {
@@ -376,7 +358,6 @@ export class BulletproofUploadService {
     zipUrl: string, 
     triggerWord: string
   ): Promise<{ success: boolean; errors: string[]; trainingId: string | null; modelName: string | null }> {
-    console.log(`🚀 REPLICATE TRAINING: Starting for user ${userId}`);
     
     const errors: string[] = [];
     const timestamp = Date.now();
@@ -402,7 +383,6 @@ export class BulletproofUploadService {
       // Handle existing model scenarios
       if (!createModelResponse.ok) {
         if (createModelResponse.status === 422 || createModelResponse.status === 409) {
-          console.log(`⚠️ Model ${modelName} already exists (status ${createModelResponse.status}) - will use existing model for training`);
           // Model already exists, which is fine - we can still train to it
         } else {
           const errorData = await createModelResponse.json();
@@ -411,7 +391,6 @@ export class BulletproofUploadService {
           return { success: false, errors, trainingId: null, modelName: null };
         }
       } else {
-        console.log(`✅ Model ${modelName} created successfully`);
       }
       
       // Start training
@@ -448,7 +427,6 @@ export class BulletproofUploadService {
       
       const trainingData = await trainingResponse.json();
       
-      console.log(`✅ REPLICATE TRAINING: Started successfully with ID ${trainingData.id}`);
       
       return { success: true, errors: [], trainingId: trainingData.id, modelName: modelName };
       
@@ -472,13 +450,12 @@ export class BulletproofUploadService {
     triggerWord: string,
     modelName: string
   ): Promise<{ success: boolean; errors: string[] }> {
-    console.log(`💾 DATABASE UPDATE: Storing training for user ${userId}`);
     
     const errors: string[] = [];
     
     try {
       // Check if user model exists, create if not
-      let existingModel = await storage.getUserModelByUserId(userId);
+      const existingModel = await storage.getUserModelByUserId(userId);
       
       if (!existingModel) {
         // Create new user model
@@ -510,7 +487,6 @@ export class BulletproofUploadService {
         return { success: false, errors };
       }
       
-      console.log(`✅ DATABASE UPDATE: Training stored successfully for user ${userId}`);
       
       return { success: true, errors: [] };
       
@@ -537,10 +513,9 @@ export class BulletproofUploadService {
     trainingId: string | null;
     requiresRestart: boolean;
   }> {
-    console.log(`🛡️ BULLETPROOF UPLOAD: Starting complete workflow for user ${userId}`);
     
     const allErrors: string[] = [];
-    let trainingId: string | null = null;
+    const trainingId: string | null = null;
     
     // Generate trigger word
     const triggerWord = `user${userId}`;
@@ -581,7 +556,6 @@ export class BulletproofUploadService {
     setTimeout(async () => {
       try {
         const { TrainingCompletionMonitor } = await import('./training-completion-monitor.js');
-        console.log(`🔍 SCHEDULED CHECK: Checking training ${trainingStart.trainingId} for user ${userId}`);
         await TrainingCompletionMonitor.checkAndUpdateTraining(trainingStart.trainingId, userId);
       } catch (error) {
         console.error(`❌ SCHEDULED CHECK FAILED for training ${trainingStart.trainingId}:`, error);
@@ -592,7 +566,6 @@ export class BulletproofUploadService {
       return { success: false, errors: allErrors, trainingId: null, requiresRestart: true };
     }
     
-    console.log(`✅ BULLETPROOF UPLOAD: Complete success for user ${userId}`);
     
     return { 
       success: true, 
