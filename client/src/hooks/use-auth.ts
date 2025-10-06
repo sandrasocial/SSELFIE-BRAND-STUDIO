@@ -49,6 +49,7 @@ export function useAuth() {
       hasId: !!stackUser.id,
       displayName: stackUser.displayName
     } : stackUser,
+  console.log('🔍 useAuth Debug State:', {
     isAuthenticated,
     isStackAuthLoading,
     currentPath: window.location.pathname,
@@ -223,6 +224,7 @@ export function useAuth() {
   // Determine error state
   const error = isDbError ? (dbError?.message || 'Failed to load user data') : null;
 
+  console.log('🔍 useAuth Final State:', {
     isAuthenticated,
     isLoading,
     hasUser: !!user,

@@ -10,7 +10,7 @@ const STACK_AUTH_API_URL = 'https://api.stack-auth.com/api/v1';
 const JWKS_URL = `${STACK_AUTH_API_URL}/projects/${STACK_AUTH_PROJECT_ID}/.well-known/jwks.json`;
 
 // JWKS cache
-let JWKS: LocalJWKSet | null = null;
+let JWKS: ReturnType<typeof import('jose').createLocalJWKSet> | null = null;
 let JWKS_LAST_FETCH = 0;
 const JWKS_CACHE_TIME = 3600000; // 1 hour
 
@@ -60,13 +60,13 @@ async function getJWKS() {
       throw new Error(`JWKS fetch failed: HTTP ${resp.status} ${resp.statusText}`);
     }
     
-    const jwksData = await resp.json();
+    const jwksData = await resp.json() as { keys: unknown[] };
     
     if (!jwksData || !jwksData.keys || !Array.isArray(jwksData.keys)) {
       throw new Error('Invalid JWKS response format');
     }
 
-    JWKS = jose.createLocalJWKSet(jwksData);
+    JWKS = jose.createLocalJWKSet(jwksData as any);
     JWKS_LAST_FETCH = now;
     
     return JWKS;
@@ -99,7 +99,7 @@ async function verifyJWTToken(token: string): Promise<JWTPayload & StackAuthUser
     }
 
 
-    const { payload } = await jose.jwtVerify(token, jwks, {
+    const { payload } = await jose.jwtVerify(token, jwks as any, {
       issuer: `${STACK_AUTH_API_URL}/projects/${STACK_AUTH_PROJECT_ID}`,
       audience: STACK_AUTH_PROJECT_ID,
       clockTolerance: 30, // Allow 30 seconds clock skew
@@ -118,7 +118,7 @@ async function verifyJWTToken(token: string): Promise<JWTPayload & StackAuthUser
   }
 }
 
-import { AuthenticatedUser } from '../_shared/auth-types.js';
+import { AuthenticatedUser, OnboardingProgress, BrandStrategyContext } from '../_shared/auth-types.js';
 import { AuthenticatedHandler, AuthOptions, AuthResponse, AuthenticatedRequest } from '../_shared/auth-middleware-types.js';
 
 // Get authenticated user helper with improved token extraction
@@ -324,6 +324,8 @@ export async function getAuthenticatedUser(req: VercelRequest): Promise<Authenti
     // Return the complete user object with Stack Auth info
     const user: AuthenticatedUser = {
       ...dbUser,
+      onboardingProgress: dbUser.onboardingProgress as OnboardingProgress | null,
+      brandStrategyContext: dbUser.brandStrategyContext as BrandStrategyContext | null,
       stackUser: userInfo
     };
 

@@ -2256,6 +2256,210 @@ export class DatabaseStorage implements IStorage {
       .returning();
     return updated;
   }
+
+  // Concept card operations (with idempotency)
+  async createConceptCard(data: typeof conceptCards.$inferInsert): Promise<ConceptCard> {
+    const [conceptCard] = await db
+      .insert(conceptCards)
+      .values({
+        ...data,
+        userId: data.userId || '',
+        clientId: data.clientId || '',
+        title: data.title || '',
+        conversationId: data.conversationId || '',
+        status: data.status || 'draft'
+      })
+      .onConflictDoUpdate({
+        target: [conceptCards.userId, conceptCards.clientId],
+        set: {
+          ...data,
+          updatedAt: new Date()
+        }
+      })
+      .returning();
+    return conceptCard;
+  }
+
+  async getConceptCard(id: string): Promise<ConceptCard | undefined> {
+    const [conceptCard] = await db
+      .select()
+      .from(conceptCards)
+      .where(eq(conceptCards.id, id));
+    return conceptCard;
+  }
+
+  async getConceptCardByClientId(userId: string, clientId: string): Promise<ConceptCard | undefined> {
+    const [conceptCard] = await db
+      .select()
+      .from(conceptCards)
+      .where(and(
+        eq(conceptCards.userId, userId),
+        eq(conceptCards.clientId, clientId)
+      ));
+    return conceptCard;
+  }
+
+  async getUserConceptCards(userId: string, conversationId?: string): Promise<ConceptCard[]> {
+    const conditions = [eq(conceptCards.userId, userId)];
+    if (conversationId) {
+      conditions.push(eq(conceptCards.conversationId, conversationId));
+    }
+
+    return await db
+      .select()
+      .from(conceptCards)
+      .where(and(...conditions))
+      .orderBy(desc(conceptCards.updatedAt));
+  }
+
+  async updateConceptCard(id: string, updates: Partial<ConceptCard>): Promise<ConceptCard> {
+    const [conceptCard] = await db
+      .update(conceptCards)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(conceptCards.id, id))
+      .returning();
+    return conceptCard;
+  }
+
+  async updateConceptCardGeneration(id: string, generatedImages: unknown[], isLoading: boolean, isGenerating: boolean, hasGenerated: boolean): Promise<ConceptCard> {
+    const [conceptCard] = await db
+      .update(conceptCards)
+      .set({
+        generatedImages,
+        isLoading,
+        isGenerating,
+        hasGenerated,
+        updatedAt: new Date()
+      })
+      .where(eq(conceptCards.id, id))
+      .returning();
+    return conceptCard;
+  }
+
+  async deleteConceptCard(id: string): Promise<void> {
+    await db.delete(conceptCards).where(eq(conceptCards.id, id));
+  }
+
+  // Brand Assets operations (P3-C feature)
+  async getBrandAssets(userId: string): Promise<BrandAsset[]> {
+    return await db
+      .select()
+      .from(brandAssets)
+      .where(eq(brandAssets.userId, userId))
+      .orderBy(desc(brandAssets.createdAt));
+  }
+
+  async saveBrandAsset(data: typeof brandAssets.$inferInsert): Promise<BrandAsset> {
+    const [asset] = await db
+      .insert(brandAssets)
+      .values({
+        ...data,
+        userId: data.userId || '',
+        kind: data.kind || 'logo',
+        url: data.url || '',
+        filename: data.filename || '',
+        fileSize: data.fileSize || 0
+      })
+      .returning();
+    return asset;
+  }
+
+  async deleteBrandAsset(assetId: number, userId: string): Promise<boolean> {
+    const result = await db
+      .delete(brandAssets)
+      .where(and(eq(brandAssets.id, assetId), eq(brandAssets.userId, userId)));
+    return Boolean((result as unknown as { rowCount?: number }).rowCount ?? true);
+  }
+
+  async getBrandAsset(assetId: number, userId: string): Promise<BrandAsset | undefined> {
+    const [asset] = await db
+      .select()
+      .from(brandAssets)
+      .where(and(eq(brandAssets.id, assetId), eq(brandAssets.userId, userId)));
+    return asset;
+  }
+
+  // Image Variants operations (for non-destructive placement)
+  async saveImageVariant(data: typeof imageVariants.$inferInsert): Promise<ImageVariant> {
+    const [variant] = await db
+      .insert(imageVariants)
+      .values({
+        ...data,
+        userId: data.userId || '',
+        originalImageId: data.originalImageId || 0,
+        variantUrl: data.variantUrl || '',
+        variantType: data.variantType || 'placement',
+        brandAssetId: data.brandAssetId || undefined,
+        placementData: data.placementData || {}
+      })
+      .returning();
+    return variant;
+  }
+
+  async getImageVariants(userId: string, originalImageId?: number): Promise<ImageVariant[]> {
+    const conditions = [eq(imageVariants.userId, userId)];
+    if (originalImageId) {
+      conditions.push(eq(imageVariants.originalImageId, originalImageId));
+    }
+
+    return await db
+      .select()
+      .from(imageVariants)
+      .where(and(...conditions))
+      .orderBy(desc(imageVariants.createdAt));
+  }
+
+  async getImageVariant(variantId: number, userId: string): Promise<ImageVariant | undefined> {
+    const [variant] = await db
+      .select()
+      .from(imageVariants)
+      .where(and(eq(imageVariants.id, variantId), eq(imageVariants.userId, userId)));
+    return variant;
+  }
+
+  async updateImageVariant(variantId: number, updates: Partial<ImageVariant>): Promise<ImageVariant> {
+    const [variant] = await db
+      .update(imageVariants)
+      .set(updates)
+      .where(eq(imageVariants.id, variantId))
+      .returning();
+    return variant;
+  }
+
+  // Maya Profile operations
+  async getMayaProfile(userId: string): Promise<MayaProfile | undefined> {
+    const [profile] = await db
+      .select()
+      .from(mayaProfile)
+      .where(eq(mayaProfile.userId, userId));
+    return profile;
+  }
+
+  async insertMayaProfile(data: InsertMayaProfile): Promise<MayaProfile> {
+    const [profile] = await db
+      .insert(mayaProfile)
+      .values(data)
+      .returning();
+    return profile;
+  }
+
+  async updateMayaProfile(userId: string, updates: Partial<MayaProfile>): Promise<MayaProfile> {
+    const [profile] = await db
+      .update(mayaProfile)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(mayaProfile.userId, userId))
+      .returning();
+    return profile;
+  }
+
+  // Maya Images operations
+  async insertMayaImage(data: InsertMayaImage): Promise<MayaImage> {
+    const [image] = await db
+      .insert(mayaImages)
+      .values(data)
+      .returning();
+    return image;
+  }
 }
 
 export const storage = new DatabaseStorage();

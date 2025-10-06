@@ -1,4 +1,4 @@
-import { neon, Pool, neonConfig } from '@neondatabase/serverless';
+import { neon, Pool, neonConfig, NeonQueryPromise } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-http';
 import { drizzle as drizzleWs } from 'drizzle-orm/neon-serverless';
 import { DATABASE_URL } from './env.js'
@@ -37,7 +37,7 @@ export const getWebSocketPool = () => {
 };
 
 // Export HTTP-based query function for single queries (recommended for serverless)
-export const query = async (text: string, params?: any[]) => {
+export const query = async (text: string, params?: unknown[]) => {
   try {
     if (params && params.length > 0) {
       // Use parameterized query for safety
@@ -53,7 +53,7 @@ export const query = async (text: string, params?: any[]) => {
 };
 
 // Pool query function for when WebSocket connection is needed
-export const poolQuery = async (text: string, params?: any[]) => {
+export const poolQuery = async (text: string, params?: unknown[]) => {
   const pool = getWebSocketPool();
   try {
     return await pool.query(text, params);
@@ -97,7 +97,7 @@ export const transaction = async <T>(
   }
 ): Promise<T> => {
   // Use Neon's transaction function for HTTP-based transactions
-  const queries: any[] = [];
+  const queries: NeonQueryPromise<false, false, any>[] = [];
   let result: T;
 
   // Create a proxy to collect queries
@@ -105,7 +105,7 @@ export const transaction = async <T>(
     get(target, prop) {
       const value = target[prop as keyof typeof target];
       if (typeof value === 'function') {
-        return (...args: any[]) => {
+        return (...args: unknown[]) => {
           const query = value.apply(target, args);
           queries.push(query);
           return query;

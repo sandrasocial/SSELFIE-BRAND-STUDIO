@@ -1,6 +1,5 @@
 // @ts-ignore - node-fetch types may not be available but functionality works
 import fetch from 'node-fetch';
-import { type VeoVideoResult } from './veo-api.js';
 
 export interface VeoGenerationMode {
   mode: 'preview' | 'production';
@@ -39,6 +38,27 @@ export interface VeoStatusResult {
   completedAt?: string;
 }
 
+interface Veo3RequestPayload {
+  prompt: { text: string };
+  config: {
+    aspectRatio: string;
+    durationSeconds: number;
+    quality?: 'HIGH' | 'MEDIUM';
+    frameRate?: number;
+    imageUrl?: string;
+  };
+}
+
+interface GoogleModelInfo {
+  name?: string;
+  [key: string]: unknown;
+}
+
+interface GoogleModelsResponse {
+  models?: GoogleModelInfo[];
+  [key: string]: unknown;
+}
+
 // Quality presets for different modes
 const QUALITY_PRESETS: Record<VeoGenerationOptions['mode'], VeoQualityPreset> = {
   preview: {
@@ -66,12 +86,6 @@ export async function generateVeo3Video(options: VeoGenerationOptions): Promise<
   }
 
   const preset = QUALITY_PRESETS[mode];
-    userId, 
-    mode, 
-    hasAudioScript: !!audioScript,
-    hasInitImage: !!initImageUrl,
-    preset: preset.description 
-  });
 
   // Prepare audio warning if audio script provided but not supported
   let audioWarning: string | undefined;
@@ -91,19 +105,19 @@ export async function generateVeo3Video(options: VeoGenerationOptions): Promise<
   const mappedAspect = aspectMap[aspectRatio] || aspectRatio;
 
   // Prepare the request payload
-  const requestPayload: any = {
+  const requestPayload: Veo3RequestPayload = {
     prompt: { text: motionPrompt.slice(0, 800) }, // Limit prompt length
     config: {
       aspectRatio: mappedAspect,
       durationSeconds: preset.maxDurationSeconds,
       ...(mode === 'production' && {
         // Production-specific settings
-        quality: 'HIGH',
+        quality: 'HIGH' as const,
         frameRate: 30
       }),
       ...(mode === 'preview' && {
         // Preview-specific settings for faster generation
-        quality: 'MEDIUM',
+        quality: 'MEDIUM' as const,
         frameRate: 24
       })
     }
@@ -114,21 +128,11 @@ export async function generateVeo3Video(options: VeoGenerationOptions): Promise<
     requestPayload.config.imageUrl = initImageUrl;
   }
 
-    promptPreview: motionPrompt.slice(0, 100) + '...',
-    config: requestPayload.config
-  });
-
   // Try each model until one succeeds
   let lastError: Error | null = null;
   for (const modelVersion of candidateModels) {
     try {
       const jobId = await startVeo3Generation(modelVersion, requestPayload);
-      
-        jobId, 
-        modelVersion, 
-        mode,
-        estimatedTime: getEstimatedTime(mode)
-      });
 
       return {
         jobId,
@@ -175,7 +179,12 @@ export async function getVeo3Status(jobId: string, userId: string): Promise<VeoS
       return { status: 'failed', error: `Status check failed: ${response.status}` };
     }
 
-    const result = await response.json();
+    const result = await response.json() as {
+      error?: { message: string };
+      done?: boolean;
+      metadata?: { progressPercent?: number };
+      response?: { video?: { uri?: string }; uri?: string };
+    };
     
     if (result.error) {
       console.error('❌ VEO 3: Generation error', result.error);
@@ -198,7 +207,7 @@ export async function getVeo3Status(jobId: string, userId: string): Promise<VeoS
     }
 
     // Generation completed
-    const veoResult = result as VeoVideoResult;
+    const veoResult = result;
     const videoUrl = veoResult.response?.video?.uri || veoResult.response?.uri || null;
     
     if (videoUrl) {
@@ -242,10 +251,10 @@ async function getAvailableVeo3Models(): Promise<string[]> {
     const response = await fetch(listUrl);
     
     if (response.ok) {
-      const data: any = await response.json();
+      const data = await response.json() as GoogleModelsResponse;
       const veo3Models = (data.models || [])
-        .map((model: any) => model.name?.split('/').pop())
-        .filter((name: string) => name && /veo.*3/i.test(name));
+        .map((model: GoogleModelInfo) => model.name?.split('/').pop())
+        .filter((name: string | undefined): name is string => name !== undefined && /veo.*3/i.test(name));
       
       // Add discovered models that aren't already in the list
       for (const model of veo3Models) {
@@ -275,7 +284,7 @@ async function getAvailableVeo3Models(): Promise<string[]> {
 /**
  * Start VEO 3 generation with specific model
  */
-async function startVeo3Generation(modelVersion: string, payload: any): Promise<string> {
+async function startVeo3Generation(modelVersion: string, payload: Veo3RequestPayload): Promise<string> {
   const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelVersion}:generateVideo?key=${process.env['GOOGLE_API_KEY']}`;
   
   const response = await fetch(endpoint, {
@@ -289,7 +298,11 @@ async function startVeo3Generation(modelVersion: string, payload: any): Promise<
     throw new Error(`VEO 3 generation failed (${response.status}): ${errorText}`);
   }
 
-  const result = await response.json();
+  const result = await response.json() as {
+    name?: string;
+    operationId?: string;
+    id?: string;
+  };
   const jobId = result.name || result.operationId || result.id || `veo3_${Date.now()}`;
   
   return jobId;
