@@ -14,7 +14,7 @@ interface ChatMessage {
   timestamp: string;
   conceptCards?: ConceptCard[];
   quickButtons?: string[];
-  generatedImages?: any[];
+  generatedImages?: string[];
 }
 
 interface BrandStudioState {
@@ -37,7 +37,7 @@ interface BrandStudioContextType extends BrandStudioState {
   selectConceptCard: (id: string | null) => void;
   generateImage: (cardId: string) => void;
   setActiveTab: (tab: 'photo' | 'story' | 'maya') => void;
-  setHandoffData: (data: BrandStudioState['handoffData']) => void;
+    setHandoffData: (data: BrandStudioState['handoffData']) => void;
   clearHandoffData: () => void;
   startNewSession: () => void;
   // Additional properties
@@ -226,7 +226,7 @@ export function BrandStudioProvider({ children }: { children: React.ReactNode })
         
         // Update concept cards with proper IDs for selection
         if (data.conceptCards?.length > 0) {
-          const processedConceptCards = data.conceptCards.map((card: any, index: number) => ({
+          const processedConceptCards = data.conceptCards.map((card: ConceptCard, index: number) => ({
             ...card,
             id: card.id || `concept_${Date.now()}_${index}`,
             canGenerate: true,
@@ -367,7 +367,7 @@ export function BrandStudioProvider({ children }: { children: React.ReactNode })
     dispatch({ type: 'SET_ACTIVE_TAB', payload: tab });
   }, []);
 
-  const setHandoffData = useCallback((data: any) => {
+  const setHandoffData = useCallback((data: BrandStudioState['handoffData']) => {
     dispatch({ type: 'SET_HANDOFF_DATA', payload: data });
   }, []);
 

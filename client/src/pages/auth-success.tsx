@@ -4,6 +4,10 @@ import React, { useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { PageLoader } from '../components/PageLoader.js';
 
+interface GlobalWithStackAuth {
+  stackAuth?: unknown;
+}
+
 export default function AuthSuccess() {
   const [, setLocation] = useLocation();
 
@@ -14,7 +18,8 @@ export default function AuthSuccess() {
     let stackAuthReady = false;
     try {
       // Try to access Stack Auth instance
-      const stackAuth = (window as any).stackAuth || (globalThis as any).stackAuth;
+      const globalWithStack = (window as GlobalWithStackAuth) || (globalThis as GlobalWithStackAuth);
+      const stackAuth = globalWithStack.stackAuth;
       stackAuthReady = !!stackAuth;
     } catch (error) {
     }

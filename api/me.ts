@@ -44,6 +44,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         });
       }
 
+      console.log('🔍 ENHANCED DEBUG: User authenticated for /api/me:', {
         userId: user.id,
         email: user.email,
         plan: user.plan,

@@ -5,6 +5,14 @@ import React from 'react';
  * Tracks Core Web Vitals and performance metrics
  */
 
+interface AnalyticsParams {
+  metric_name: string;
+  metric_value: number;
+  metric_rating: 'good' | 'poor';
+}
+
+declare const gtag: (command: string, action: string, params: AnalyticsParams) => void;
+
 interface PerformanceMetrics {
   lcp: number | null; // Largest Contentful Paint
   fid: number | null; // First Input Delay
@@ -12,6 +20,21 @@ interface PerformanceMetrics {
   fcp: number | null; // First Contentful Paint
   ttfb: number | null; // Time to First Byte
   loadTime: number | null; // Page load time
+}
+
+interface PerformanceEntryWithProcessing extends PerformanceEntry {
+  processingStart: number;
+  startTime: number;
+}
+
+interface LayoutShiftEntry extends PerformanceEntry {
+  value: number;
+  hadRecentInput: boolean;
+}
+
+interface ResourceTimingEntry extends PerformanceEntry {
+  duration: number;
+  name: string;
 }
 
 class PerformanceMonitor {
@@ -60,7 +83,7 @@ class PerformanceMonitor {
       try {
         const fidObserver = new PerformanceObserver((list) => {
           const entries = list.getEntries();
-          entries.forEach((entry: any) => {
+          entries.forEach((entry: PerformanceEntryWithProcessing) => {
             this.metrics.fid = entry.processingStart - entry.startTime;
             this.logMetric('FID', this.metrics.fid);
           });
@@ -76,7 +99,7 @@ class PerformanceMonitor {
         let clsValue = 0;
         const clsObserver = new PerformanceObserver((list) => {
           const entries = list.getEntries();
-          entries.forEach((entry: any) => {
+          entries.forEach((entry: LayoutShiftEntry) => {
             if (!entry.hadRecentInput) {
               clsValue += entry.value;
             }
@@ -133,7 +156,7 @@ class PerformanceMonitor {
       try {
         const resourceObserver = new PerformanceObserver((list) => {
           const entries = list.getEntries();
-          entries.forEach((entry: any) => {
+          entries.forEach((entry: ResourceTimingEntry) => {
             // Log slow resources
             if (entry.duration > 1000) {
               console.warn(`Slow resource: ${entry.name} took ${entry.duration}ms`);
@@ -178,8 +201,6 @@ class PerformanceMonitor {
   private sendToAnalytics(name: string, value: number) {
     // Send to your analytics service
     // Example: Google Analytics, Mixpanel, etc.
-    // Add gtag type declaration
-    declare const gtag: (command: string, action: string, params: any) => void;
     
     if (typeof gtag !== 'undefined') {
       gtag('event', 'web_vitals', {

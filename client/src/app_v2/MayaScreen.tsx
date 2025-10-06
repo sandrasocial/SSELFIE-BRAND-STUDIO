@@ -172,11 +172,11 @@ const MayaChatContent: React.FC<MayaChatContentProps> = ({ initialPrompt, onProm
                     <span className="text-xs tracking-[0.15em] uppercase font-light text-stone-600">Generated Photos</span>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {message.generatedImages.map((image: any, imageIndex: number) => (
+                    {message.generatedImages.map((image: string, imageIndex: number) => (
                       <div key={imageIndex} className="relative group">
                         <div className="aspect-square rounded-2xl overflow-hidden bg-stone-100/40 border border-stone-200/50">
                           <img 
-                            src={image.url || image} 
+                            src={image} 
                             alt={`Generated photo ${imageIndex + 1}`}
                             className="w-full h-full object-cover"
                           />

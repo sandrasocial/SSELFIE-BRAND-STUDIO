@@ -13,6 +13,11 @@ export interface ApiRequestOptions {
   signal?: AbortSignal;
 }
 
+export interface EnhancedError extends Error {
+  originalError: Error;
+  attempts: number;
+}
+
 const DEFAULT_RETRY_CONFIG: RetryConfig = {
   maxRetries: 3,
   baseDelay: 1000,
@@ -23,7 +28,7 @@ const DEFAULT_RETRY_CONFIG: RetryConfig = {
 /**
  * Enhanced API request with retry logic and error handling
  */
-export async function enhancedApiRequest<T = any>(
+export async function enhancedApiRequest<T = unknown>(
   url: string,
   method: string = 'GET',
   data?: unknown,
@@ -109,15 +114,12 @@ function shouldStopRetrying(error: Error): boolean {
   return false;
 }
 
-/**
- * Enhance error with retry information
- */
-function enhanceError(error: Error, attempts: number): Error {
-  const enhancedError = new Error(`${error.message} (after ${attempts} attempts)`);
+function enhanceError(error: Error, attempts: number): EnhancedError {
+  const enhancedError = new Error(`${error.message} (after ${attempts} attempts)`) as EnhancedError;
   enhancedError.name = error.name;
   enhancedError.stack = error.stack;
-  (enhancedError as any).originalError = error;
-  (enhancedError as any).attempts = attempts;
+  enhancedError.originalError = error;
+  enhancedError.attempts = attempts;
   return enhancedError;
 }
 
@@ -151,7 +153,7 @@ function combineAbortSignals(signals: AbortSignal[]): AbortSignal {
 /**
  * Specialized checkout API request
  */
-export async function checkoutApiRequest<T = any>(
+export async function checkoutApiRequest<T = unknown>(
   url: string,
   method: string = 'GET',
   data?: unknown,

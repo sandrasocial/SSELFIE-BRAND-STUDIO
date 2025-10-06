@@ -16,6 +16,7 @@ async function verifyJWTToken(token: string): Promise<JWTPayload & { sub?: strin
     audience: STACK_AUTH_PROJECT_ID,
   });
   return payload;
+}
 
 export default async function mainHandler(req: VercelRequest, res: VercelResponse) {
   try {
@@ -68,5 +69,3 @@ export default async function mainHandler(req: VercelRequest, res: VercelRespons
     return res.status(500).json({ ok: false, error: error instanceof Error ? error.message : 'Internal error' });
   }
 }
-
-

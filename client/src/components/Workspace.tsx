@@ -11,7 +11,7 @@ export default function Workspace() {
   const { user, isAuthenticated } = useAuth();
   const [activeStep, setActiveStep] = useState<number | null>(null);
 
-  const { data: aiImages = [], isLoading } = useQuery({
+  const { data: aiImages = [], isLoading } = useQuery<AiImage[]>({
     queryKey: ['/api/ai-images'],
     enabled: isAuthenticated,
   });
@@ -21,10 +21,12 @@ export default function Workspace() {
     enabled: isAuthenticated,
   });
 
-  const isPremium = (subscriptionData as any)?.subscription?.status === 'active';
+  const isPremium = subscriptionData && typeof subscriptionData === 'object' && 'subscription' in subscriptionData &&
+    subscriptionData.subscription && typeof subscriptionData.subscription === 'object' && 'status' in subscriptionData.subscription &&
+    subscriptionData.subscription.status === 'active';
 
   const getJourneySteps = () => {
-    const hasImages = (aiImages as any).length > 0;
+    const hasImages = aiImages.length > 0;
     
     return [
       {

@@ -18,6 +18,20 @@ export type ChartConfig = {
   )
 }
 
+interface ChartTooltipItem {
+  dataKey?: string;
+  name?: string;
+  value?: number | string;
+  color?: string;
+  payload?: Record<string, unknown>;
+}
+
+interface ChartLegendItem {
+  dataKey?: string;
+  value?: string;
+  color?: string;
+}
+
 type ChartContextProps = {
   config: ChartConfig
 }
@@ -111,10 +125,10 @@ const ChartTooltipContent = forwardRef<
       indicator?: "line" | "dot" | "dashed"
       nameKey?: string
       labelKey?: string
-      payload?: any[]
-      label?: any
+      payload?: unknown[]
+      label?: string | number
     }
->(
+>((
   (
     {
       active = false, // Ensure active prop is always defined (controlled)
@@ -256,14 +270,14 @@ const ChartTooltipContent = forwardRef<
     )
   }
 )
-ChartTooltipContent.displayName = "ChartTooltip"
+ChartTooltipContent.displayName = "ChartTooltipContent"
 
 const ChartLegend = RechartsPrimitive.Legend
 
 const ChartLegendContent = forwardRef<
   HTMLDivElement,
   ComponentProps<"div"> & {
-    payload?: Array<any>;
+    payload?: Array<unknown>;
     verticalAlign?: "top" | "bottom" | "middle";
     hideIcon?: boolean;
     nameKey?: string;
@@ -288,7 +302,7 @@ const ChartLegendContent = forwardRef<
           className
         )}
       >
-        {payload.map((item: any) => {
+        {payload.map((item: ChartLegendItem) => {
           const key = `${nameKey || item.dataKey || "value"}`
           const itemConfig = getPayloadConfigFromPayload(config, item, key)
 

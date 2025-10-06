@@ -12,6 +12,31 @@ interface ProgressStep {
   estimatedTime?: string;
 }
 
+interface SubscriptionData {
+  status: string;
+  planType?: string;
+  billingCycle?: string;
+}
+
+interface OnboardingData {
+  currentStep?: string;
+  brandVibe?: string;
+  photoSourceType?: 'ai-model' | 'own-photos' | 'branded-photos';
+  ownPhotosUploaded?: string[];
+  brandedPhotosDetails?: string;
+}
+
+interface UserModelData {
+  status: string;
+  trainingProgress?: number;
+}
+
+interface AiImage {
+  id: string;
+  url: string;
+  category?: string;
+}
+
 export function UserProgressTracker() {
   const { user, isAuthenticated } = useAuth();
 
@@ -54,23 +79,23 @@ export function UserProgressTracker() {
       id: 'payment',
       title: 'Subscription',
       description: 'Access granted',
-      completed: (subscription as any)?.status === 'active'
+      completed: (subscription as SubscriptionData)?.status === 'active'
     },
     {
       id: 'onboarding',
       title: 'Brand Foundation',
       description: 'Vision defined',
-      completed: (onboarding as any)?.currentStep === 'completed' || !!(onboarding as any)?.brandVibe,
+      completed: (onboarding as OnboardingData)?.currentStep === 'completed' || !!(onboarding as OnboardingData)?.brandVibe,
       href: '/onboarding'
     },
     {
       id: 'photos',
       title: 'Visual Assets',
       description: 'Images prepared',
-      completed: !!(onboarding as any)?.photoSourceType && (
-        (onboarding as any).photoSourceType === 'ai-model' ? (userModel as any)?.status === 'completed' :
-        (onboarding as any).photoSourceType === 'own-photos' ? ((onboarding as any).ownPhotosUploaded?.length || 0) > 0 :
-        !!(onboarding as any).brandedPhotosDetails
+      completed: !!(onboarding as OnboardingData)?.photoSourceType && (
+        (onboarding as OnboardingData).photoSourceType === 'ai-model' ? (userModel as UserModelData)?.status === 'completed' :
+        (onboarding as OnboardingData).photoSourceType === 'own-photos' ? ((onboarding as OnboardingData).ownPhotosUploaded?.length || 0) > 0 :
+        !!(onboarding as OnboardingData).brandedPhotosDetails
       ),
       href: '/onboarding'
     },
@@ -78,7 +103,7 @@ export function UserProgressTracker() {
       id: 'ai-training',
       title: 'AI Creation',
       description: 'Model trained',
-      completed: (userModel as any)?.status === 'completed' || (Array.isArray(aiImages) ? aiImages.length > 0 : false),
+      completed: (userModel as UserModelData)?.status === 'completed' || (Array.isArray(aiImages) ? aiImages.length > 0 : false),
       href: '/ai-generator'
     },
     {

@@ -5,6 +5,14 @@ import React, { Component, ReactNode } from 'react';
 import { ErrorState, RetryStrategy, DEFAULT_RETRY_STRATEGIES } from '../../types/training.js';
 import { Colors, Typography, Spacing, Transitions } from '../../styles/designSystem.js';
 
+interface ErrorReportingService {
+  captureException: (error: Error, context: { context: string; extra: React.ErrorInfo }) => void;
+}
+
+interface WindowWithErrorReporting extends Window {
+  errorReporting?: ErrorReportingService;
+}
+
 interface TrainingErrorBoundaryProps {
   children: ReactNode;
   onRetry?: () => void;
@@ -56,11 +64,14 @@ export class TrainingErrorBoundary extends Component<
     console.error('Training Error Boundary caught error:', error, errorInfo);
     
     // Report to error tracking service if available
-    if (typeof window !== 'undefined' && (window as any).errorReporting) {
-      (window as any).errorReporting.captureException(error, {
-        context: 'TrainingErrorBoundary',
-        extra: errorInfo
-      });
+    if (typeof window !== 'undefined') {
+      const windowWithErrorReporting = window as WindowWithErrorReporting;
+      if (windowWithErrorReporting.errorReporting) {
+        windowWithErrorReporting.errorReporting.captureException(error, {
+          context: 'TrainingErrorBoundary',
+          extra: errorInfo
+        });
+      }
     }
   }
 

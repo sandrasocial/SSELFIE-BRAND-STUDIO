@@ -4,6 +4,12 @@ import { useQuery } from '@tanstack/react-query';
 import { useLocation } from 'wouter';
 import { useToast } from '../hooks/use-toast.js';
 
+interface Subscription {
+  plan: string;
+  status: string;
+  [key: string]: unknown;
+}
+
 interface PaymentVerificationProps {
   children: ReactNode;
   requiredPlan?: string;
@@ -17,7 +23,7 @@ export function PaymentVerification({ children, requiredPlan }: PaymentVerificat
   const [isChecking, setIsChecking] = useState(true);
 
   // Check user's subscription status
-  const { data: subscription, isLoading: subscriptionLoading } = useQuery({
+  const { data: subscription, isLoading: subscriptionLoading } = useQuery<Subscription | null>({
     queryKey: ['/api/subscription'],
     enabled: isAuthenticated && user?.email !== 'ssa@ssasocial.com',
     retry: 1,
@@ -47,7 +53,7 @@ export function PaymentVerification({ children, requiredPlan }: PaymentVerificat
     // FIXED: Free users should get immediate access to workspace
     // Only block access if user needs specific premium features
     if (requiredPlan && requiredPlan !== 'free') {
-      const hasRequiredPlan = subscription && typeof subscription === 'object' && subscription !== null && 'plan' in subscription ? (subscription as any).plan === requiredPlan : false;
+      const hasRequiredPlan = subscription?.plan === requiredPlan;
       if (!hasRequiredPlan) {
         toast({
           title: "Upgrade Required",

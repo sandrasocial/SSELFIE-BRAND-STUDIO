@@ -1,10 +1,16 @@
 import React, { useState } from 'react';
 import { Heart, Download, X, Save, Sparkles } from 'lucide-react';
 
+interface ConceptData {
+  fluxPrompt?: string;
+  title?: string;
+  description?: string;
+}
+
 interface GeneratedImagePreviewProps {
   imageUrls: string[];
   isLoading: boolean;
-  concept?: any;
+  concept?: ConceptData;
   onSave?: (imageUrls: string[]) => void;
 }
 

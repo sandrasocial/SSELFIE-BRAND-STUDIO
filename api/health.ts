@@ -26,6 +26,23 @@ interface HealthCheckResult {
   };
 }
 
+interface VercelResponseLike {
+  setHeader?: (name: string, value: string) => void;
+  status?: (code: number) => { json: (data: unknown) => void };
+}
+
+interface WebResponseLike {
+  Response: new (body: string, init?: { status?: number; headers?: Record<string, string> }) => Response;
+}
+
+function isVercelResponse(res: VercelResponse): res is VercelResponse & VercelResponseLike {
+  return typeof (res as VercelResponseLike).status === 'function';
+}
+
+function hasWebResponse(global: typeof globalThis): global is typeof globalThis & WebResponseLike {
+  return 'Response' in global && typeof global.Response === 'function';
+}
+
 async function checkDatabaseConnection(): Promise<{ connected: boolean; responseTime?: number; error?: string }> {
   try {
     const startTime = Date.now();
@@ -87,13 +104,15 @@ function getMemoryUsage() {
 export default async function handler(_req: VercelRequest, res: VercelResponse) {
   try {
     // Support both VercelResponse and Web-standard Response surfaces
-    const anyRes: any = res as any;
-    
+    const vercelRes = res as VercelResponseLike;
+
     // Set security headers
-    try { anyRes.setHeader?.('Cache-Control', 'no-store'); } catch {}
-    try { anyRes.setHeader?.('Content-Type', 'application/json'); } catch {}
-    try { anyRes.setHeader?.('X-Content-Type-Options', 'nosniff'); } catch {}
-    try { anyRes.setHeader?.('X-Frame-Options', 'DENY'); } catch {}
+    if (vercelRes.setHeader) {
+      vercelRes.setHeader('Cache-Control', 'no-store');
+      vercelRes.setHeader('Content-Type', 'application/json');
+      vercelRes.setHeader('X-Content-Type-Options', 'nosniff');
+      vercelRes.setHeader('X-Frame-Options', 'DENY');
+    }
 
     // Perform health checks
     const [databaseStatus, services] = await Promise.all([
@@ -105,7 +124,7 @@ export default async function handler(_req: VercelRequest, res: VercelResponse) 
     const uptime = process.uptime();
 
     // Determine overall health status
-    const isHealthy = databaseStatus.connected && 
+    const isHealthy = databaseStatus.connected &&
       Object.values(services).every(service => service.status !== 'unhealthy') &&
       memory.percentage < 90; // Memory usage should be under 90%
 
@@ -121,20 +140,23 @@ export default async function handler(_req: VercelRequest, res: VercelResponse) 
 
     const statusCode = healthResult.ok ? 200 : 503;
 
-    if (typeof anyRes.status === 'function') {
-      return anyRes.status(statusCode).json(healthResult);
+    if (isVercelResponse(res)) {
+      return res.status(statusCode).json(healthResult);
     }
-    
-    const NodeResponse = (globalThis as any).Response;
-    return new NodeResponse(JSON.stringify(healthResult), { 
-      status: statusCode, 
-      headers: { 
-        'content-type': 'application/json', 
-        'cache-control': 'no-store',
-        'x-content-type-options': 'nosniff',
-        'x-frame-options': 'DENY'
-      } 
-    });
+
+    if (hasWebResponse(globalThis)) {
+      return new globalThis.Response(JSON.stringify(healthResult), {
+        status: statusCode,
+        headers: {
+          'content-type': 'application/json',
+          'cache-control': 'no-store',
+          'x-content-type-options': 'nosniff',
+          'x-frame-options': 'DENY'
+        }
+      });
+    }
+
+    throw new Error('Unsupported response type');
 
   } catch (error) {
     const errorResult = {
@@ -144,18 +166,20 @@ export default async function handler(_req: VercelRequest, res: VercelResponse) 
       error: error instanceof Error ? error.message : 'Health check failed'
     };
 
-    const anyRes: any = res as any;
-    if (typeof anyRes.status === 'function') {
-      return anyRes.status(500).json(errorResult);
+    if (isVercelResponse(res)) {
+      return res.status(500).json(errorResult);
     }
-    
-    const NodeResponse = (globalThis as any).Response;
-    return new NodeResponse(JSON.stringify(errorResult), { 
-      status: 500, 
-      headers: { 
-        'content-type': 'application/json', 
-        'cache-control': 'no-store' 
-      } 
-    });
+
+    if (hasWebResponse(globalThis)) {
+      return new globalThis.Response(JSON.stringify(errorResult), {
+        status: 500,
+        headers: {
+          'content-type': 'application/json',
+          'cache-control': 'no-store'
+        }
+      });
+    }
+
+    throw new Error('Unsupported response type');
   }
 }

@@ -24,12 +24,8 @@ export function WelcomeHeader() {
   };
 
   // Calculate remaining generations
-  const monthlyGenerationLimit = (user && 'monthlyGenerationLimit' in user && typeof (user as any).monthlyGenerationLimit === 'number') 
-    ? (user as any).monthlyGenerationLimit 
-    : 100;
-  const generationsUsedThisMonth = (user && 'generationsUsedThisMonth' in user && typeof (user as any).generationsUsedThisMonth === 'number') 
-    ? (user as any).generationsUsedThisMonth 
-    : 0;
+  const monthlyGenerationLimit = user?.monthlyGenerationLimit ?? 100;
+  const generationsUsedThisMonth = user?.generationsUsedThisMonth ?? 0;
   const generationsRemaining = monthlyGenerationLimit === -1 ? '∞' : monthlyGenerationLimit - generationsUsedThisMonth;
 
   // Maya's tip (TODO: Make this dynamic from backend)
