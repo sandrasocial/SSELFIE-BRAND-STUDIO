@@ -629,7 +629,7 @@
   "scripts": {
     "dev": "cd server && npx tsx index.ts",
     "dev:client": "npx vite --port 5173",
-    "dev:server": "cd server && npx tsx start.ts",
+    "dev:server": "cd server && npx tsx index.ts",
     "start": "cd server && npx tsx index.ts",
     "build": "npm run type-check:critical && vite build --config vite.config.ts",
     "build:server": "npm run build:server:ts",
