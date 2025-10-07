@@ -82,15 +82,6 @@ export default {
           black: '#000000',
           surface: '#0A0A0A', 
           elevated: '#171717',
-          'background': 'var(--color-background)',
-          'surface': 'var(--color-surface)',
-          'surface-elevated': 'var(--color-surface-elevated)',
-          'text-primary': 'var(--color-text-primary)',
-          'text-secondary': 'var(--color-text-secondary)',
-          'text-tertiary': 'var(--color-text-tertiary)',
-          'accent-primary': 'var(--color-accent-primary)',
-          'accent-secondary': 'var(--color-accent-secondary)',
-          'accent-tertiary': 'var(--color-accent-tertiary)',
         },
         // Sophisticated Neutrals
         neutral: {

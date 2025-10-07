@@ -16,12 +16,12 @@ import { stackClientApp } from "../../stack/client.js";
 
 // Debug logging for troubleshooting
 
-// Add visible debug indicator
-const debugDiv = document.createElement('div');
-debugDiv.id = 'main-debug';
-debugDiv.style.cssText = 'position:fixed;top:10px;left:10px;background:purple;color:white;padding:5px;z-index:9999;font-size:12px;';
-debugDiv.textContent = 'Main.tsx Loaded';
-document.body.appendChild(debugDiv);
+// Add visible debug indicator - REMOVED FOR PRODUCTION
+// const debugDiv = document.createElement('div');
+// debugDiv.id = 'main-debug';
+// debugDiv.style.cssText = 'position:fixed;top:10px;left:10px;background:purple;color:white;padding:5px;z-index:9999;font-size:12px;';
+// debugDiv.textContent = 'Main.tsx Loaded';
+// document.body.appendChild(debugDiv);
 
 // Disable Vite HMR to prevent WebSocket connection errors
 if (import.meta.hot) {
@@ -76,6 +76,7 @@ window.addEventListener('video:preview:save', async (e: Event) => {
     if (!res.ok) {
       console.warn('[Video Save] Failed to persist video:', res.status, await res.text());
     } else {
+      // Video saved successfully
     }
   } catch (err) {
     console.warn('[Video Save] Error persisting video', err);
@@ -89,12 +90,12 @@ try {
     throw new Error("Failed to find the root element");
   }
 
-  const root = createRoot(container);
+  const root = createRoot(container as Element);
 
   root.render(
     <React.StrictMode>
       {/* Re-enable Stack Auth provider */}
-      <StackProvider app={stackClientApp}>
+      <StackProvider app={stackClientApp as any}>
         <StackTheme>
           {/* 2. QueryClientProvider wraps the entire application logic */}
           <QueryClientProvider client={queryClient}>

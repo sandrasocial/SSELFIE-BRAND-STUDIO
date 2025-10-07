@@ -47,7 +47,7 @@ interface VideoGenerationPayload {
 const router = express.Router();
 
 // Initialize the Google GenAI client (following existing video route pattern)
-let ai: any;
+let ai: GoogleGenAI | null = null;
 if (process.env['GOOGLE_API_KEY']) {
   ai = new GoogleGenAI({ apiKey: process.env['GOOGLE_API_KEY'] });
 } else {
@@ -99,8 +99,9 @@ router.post('/storyboard', requireStackAuth, async (req: Request<{}, {}, Storybo
       }
     }
 
-      userId, 
-      sceneCount: scenes.length, 
+    console.log('📹 STORYBOARD: Starting multi-scene generation:', {
+      userId,
+      sceneCount: scenes.length,
       mode,
       imageId: imageId || 'none'
     });
@@ -157,6 +158,7 @@ router.post('/storyboard', requireStackAuth, async (req: Request<{}, {}, Storybo
       const profile = await storage.getUserProfile(userId);
       userLoraModel = profile?.['replicateModelId'] || null;
     } catch (error) {
+      // Silently handle profile loading errors
     }
 
     // Generate videos for each scene sequentially using existing VEO infrastructure
@@ -166,6 +168,7 @@ router.post('/storyboard', requireStackAuth, async (req: Request<{}, {}, Storybo
       const scene = scenes[i];
       const duration = scene.duration || 5; // Default 5 seconds
       
+      console.log('🎬 STORYBOARD: Generating scene video:', {
         motionPrompt: scene.motionPrompt.slice(0, 50) + '...',
         duration
       });
@@ -189,6 +192,7 @@ router.post('/storyboard', requireStackAuth, async (req: Request<{}, {}, Storybo
           };
         }
 
+        console.log('🎬 STORYBOARD: Scene payload prepared:', {
           model: payload.model,
           aspectRatio: payload.config.aspectRatio,
           duration: payload.config.durationSeconds
@@ -260,6 +264,7 @@ router.post('/storyboard', requireStackAuth, async (req: Request<{}, {}, Storybo
       });
     }
 
+    console.log('📹 STORYBOARD: Multi-scene generation completed:', {
       storyboardId: storyboardJobId,
       scenesStarted: response.scenesStarted,
       scenesFailed: response.scenesFailed

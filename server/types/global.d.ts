@@ -5,17 +5,6 @@
 
 // Node.js global types
 declare global {
-  var process: {
-    env: Record<string, string | undefined>;
-  };
-
-  var console: {
-    log(...args: unknown[]): void;
-    error(...args: unknown[]): void;
-    warn(...args: unknown[]): void;
-    info(...args: unknown[]): void;
-  };
-
   var require: (module: string) => unknown;
 
   namespace NodeJS {

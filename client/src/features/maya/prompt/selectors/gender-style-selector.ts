@@ -78,6 +78,7 @@ export class GenderStyleSelector {
     candidates.sort((a, b) => b.matchScore - a.matchScore);
     const selected = candidates.slice(0, Math.max(fallbackCount, 1));
     
+    console.log('🔍 Recipe selection results:', selected.map(s => ({
       name: s.recipe.name, 
       score: s.matchScore, 
       reasons: s.matchReasons 
