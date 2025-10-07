@@ -131,7 +131,7 @@ export class MayaService {
   async getUserModel(userId: string): Promise<UserModel | null> {
     try {
       const userModel = await this.db.getUserModel(userId);
-      return userModel;
+      return userModel || null;
     } catch (error) {
       console.error('❌ MAYA: Failed to get user model:', error);
       return null;
@@ -149,10 +149,11 @@ export class MayaService {
       // Get or create conversation
       let conversation: Conversation;
       if (request.conversationId) {
-        conversation = await this.db.getConversation(request.conversationId);
-        if (!conversation || conversation.userId !== userId) {
+        const foundConversation = await this.db.getConversation(request.conversationId);
+        if (!foundConversation || foundConversation.userId !== userId) {
           throw new Error('Conversation not found or access denied');
         }
+        conversation = foundConversation;
       } else {
         // Create new conversation
         const newConversation: InsertConversation = {
@@ -272,7 +273,7 @@ export class MayaService {
       }
 
       // Check generation limits
-      if (userProfile.monthlyGenerations >= 100) { // Default limit
+      if ((userProfile.monthlyGenerations || 0) >= 100) { // Default limit
         throw new Error('Monthly generation limit exceeded');
       }
 
@@ -295,8 +296,8 @@ export class MayaService {
 
       // Update user profile stats
       await this.db.updateMayaProfile(userId, {
-        totalGenerations: userProfile.totalGenerations + 1,
-        monthlyGenerations: userProfile.monthlyGenerations + 1,
+        totalGenerations: (userProfile.totalGenerations || 0) + 1,
+        monthlyGenerations: (userProfile.monthlyGenerations || 0) + 1,
       });
 
       return {
@@ -487,13 +488,13 @@ export class MayaService {
           generationId,
           status: 'completed',
           images: imageUrls,
-          completedAt: tracker.updatedAt,
+          completedAt: tracker.updatedAt || undefined,
         };
       }
 
       return {
         generationId,
-        status: tracker.status,
+        status: tracker.status || 'processing',
         progress: 50, // Estimated progress
       };
 
