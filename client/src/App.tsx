@@ -184,9 +184,10 @@ function Router() {
       }} />
       {/* ✅ CRITICAL FIX: OAuth callback handler MUST come before wildcard routes to preserve query parameters */}
       <Route path="/handler/oauth-callback" component={() => {
+        const OAuthCallback = React.lazy(() => import("./pages/handler/oauth-callback.js"));
         return (
           <Suspense fallback={<PageLoader />}>
-            <HandlerRoutes />
+            <OAuthCallback />
           </Suspense>
         );
       }} />

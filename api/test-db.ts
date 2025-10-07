@@ -80,9 +80,9 @@ export default async function handler(req: any, res: any) {
       imageDataStatus = {
         success: true,
         counts: {
-          users: usersCount.rows?.[0]?.count || usersCount[0]?.count || 0,
-          aiImages: aiImagesCount.rows?.[0]?.count || aiImagesCount[0]?.count || 0,
-          generatedImages: generatedImagesCount.rows?.[0]?.count || generatedImagesCount[0]?.count || 0
+          users: (usersCount.rows?.[0] as any)?.count || 0,
+          aiImages: (aiImagesCount.rows?.[0] as any)?.count || 0,
+          generatedImages: (generatedImagesCount.rows?.[0] as any)?.count || 0
         },
         sampleData: {
           users: sampleUsers.rows || sampleUsers,

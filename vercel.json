@@ -18,6 +18,14 @@
       }
     },
     {
+      "src": "api/auth-diagnostic.ts",
+      "use": "@vercel/node",
+      "config": {
+        "maxDuration": 10,
+        "memory": 256
+      }
+    },
+    {
       "src": "api/[...route].ts",
       "use": "@vercel/node",
       "config": {
@@ -149,6 +157,10 @@
     {
       "source": "/api/save-to-gallery",
       "destination": "/api/[...route].ts"
+    },
+    {
+      "source": "/api/auth-diagnostic",
+      "destination": "/api/auth-diagnostic.ts"
     },
     {
       "source": "/(app|simple-training|training|auth-success|terms|privacy|sign-in|sign-up|magic-link|forgot-password|password-reset)",
