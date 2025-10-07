@@ -131,6 +131,26 @@
       "destination": "/api/[...route].ts"
     },
     {
+      "source": "/api/gallery-images",
+      "destination": "/api/[...route].ts"
+    },
+    {
+      "source": "/api/gallery",
+      "destination": "/api/[...route].ts"
+    },
+    {
+      "source": "/api/images/(.*)",
+      "destination": "/api/[...route].ts"
+    },
+    {
+      "source": "/api/usage/(.*)",
+      "destination": "/api/[...route].ts"
+    },
+    {
+      "source": "/api/save-to-gallery",
+      "destination": "/api/[...route].ts"
+    },
+    {
       "source": "/(app|simple-training|training|auth-success|terms|privacy|sign-in|sign-up|magic-link|forgot-password|password-reset)",
       "destination": "/index.html"
     },
