@@ -110,14 +110,8 @@ function SmartHome() {
 function HandlerRoutes() {
   const handlerPath = window.location.pathname.replace('/handler/', '') || '';
 
-  console.log('🔍 HandlerRoutes: handlerPath =', handlerPath);
-  console.log('🔍 HandlerRoutes: full location =', window.location.href);
-  console.log('🔍 HandlerRoutes: Stack client app exists =', !!stackClientApp);
-  console.log('🔍 HandlerRoutes: Stack client app urls =', stackClientApp?.urls);
-
   // ✅ Use StackHandler for ALL Stack Auth operations to ensure consistency
   // This includes sign-in, sign-up, magic-link, password-reset, email-verification
-  console.log('🔍 HandlerRoutes: Using StackHandler for =', handlerPath);
 
   try {
     return (
@@ -147,9 +141,6 @@ function HandlerRoutes() {
 }
 
 function Router() {
-  console.log('🔍 Router: Rendering with pathname =', window.location.pathname);
-  console.log('🔍 Router: Full URL =', window.location.href);
-  
   return (
     <div>
       {/* Post-auth success handoff - MOVED TO TOP for priority matching */}
@@ -186,16 +177,13 @@ function Router() {
 
       {/* STACK AUTH HANDLER - Consolidated wildcard route for ALL Stack redirects/callbacks including OAuth */}
       <Route path="/handler/sign-in" component={() => {
-        console.log('🔍 Route matched: /handler/sign-in');
         return <SignInHandler />;
       }} />
       <Route path="/handler/sign-up" component={() => {
-        console.log('🔍 Route matched: /handler/sign-up');
         return <SignInHandler />;
       }} />
       {/* ✅ CRITICAL FIX: OAuth callback handler MUST come before wildcard routes to preserve query parameters */}
       <Route path="/handler/oauth-callback" component={() => {
-        console.log('🔍 Route matched: /handler/oauth-callback');
         return (
           <Suspense fallback={<PageLoader />}>
             <HandlerRoutes />
@@ -203,7 +191,6 @@ function Router() {
         );
       }} />
       <Route path="/handler/:path*" component={() => {
-        console.log('🔍 Route matched: /handler/:path*');
         return (
           <Suspense fallback={<PageLoader />}>
             <HandlerRoutes />
