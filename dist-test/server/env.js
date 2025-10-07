@@ -1,12 +1,9 @@
-
 /// <reference path="types/global.d.ts" />
-
 import * as dotenv from 'dotenv';
 // Only load .env.server in non-production environments
 if (process.env['NODE_ENV'] !== 'production') {
-	dotenv.config({ path: '.env.server' });
+    dotenv.config({ path: '.env.server' });
 }
-
 export const DATABASE_URL = process.env['DATABASE_URL'] || process.env['NEON_DB_URL'];
 export const STACK_SECRET_SERVER_KEY = process.env['STACK_SECRET_SERVER_KEY'] || process.env['STACK_AUTH_SECRET_KEY'];
 export const VITE_STACK_PUBLISHABLE_CLIENT_KEY = process.env['VITE_STACK_PUBLISHABLE_CLIENT_KEY'];
@@ -32,11 +29,8 @@ export const STRIPE_SECRET_KEY = process.env['STRIPE_SECRET_KEY'];
 export const TESTING_VITE_STRIPE_PUBLIC_KEY = process.env['TESTING_VITE_STRIPE_PUBLIC_KEY'] || process.env['VITE_STRIPE_PUBLISHABLE_KEY'];
 export const ALLOWED_EMBED_HOSTS = process.env['ALLOWED_EMBED_HOSTS'] || 'mentimeter.com,*.mentimeter.com,canva.com,*.canva.com';
 export const LIVE_SOCKET_ENABLED = process.env['LIVE_SOCKET_ENABLED'] === '1';
-
 // VEO 3 Video Generation Configuration
 export const VEO3_ENABLED = process.env['VEO3_ENABLED'];
 export const GOOGLE_API_KEY = process.env['GOOGLE_API_KEY'];
 export const VEO3_MODEL = process.env['VEO3_MODEL'];
 export const VEO_GOOGLE_MODEL = process.env['VEO_GOOGLE_MODEL']; // Legacy compatibility
-
-

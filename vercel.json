@@ -63,10 +63,6 @@
       "destination": "/api/[...route].ts"
     },
     {
-      "source": "/handler/(.*)",
-      "destination": "/index.html"
-    },
-    {
       "source": "/(app|simple-training|training|auth-success|terms|privacy|sign-in|sign-up|magic-link|forgot-password|password-reset)",
       "destination": "/index.html"
     },
@@ -76,6 +72,10 @@
     },
     {
       "source": "/app/(.*)",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/handler/(.*)",
       "destination": "/index.html"
     }
   ],

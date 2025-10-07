@@ -2,7 +2,9 @@ import { defineConfig } from 'drizzle-kit';
 
 export default defineConfig({
   schema: [
-    './shared/schema-maya.ts'
+    './shared/schema.ts',
+    './shared/schema-maya.ts',
+    './shared/styleguide-schema.ts'
   ],
   out: './drizzle',
   dialect: 'postgresql',
