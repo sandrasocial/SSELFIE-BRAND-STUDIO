@@ -14,8 +14,8 @@
     "noImplicitOverride": false,
     "noPropertyAccessFromIndexSignature": false,
     "strictFunctionTypes": false,
-    "module": "Node16",
-    "moduleResolution": "node16",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "moduleDetection": "auto",
     "resolveJsonModule": true,
     "isolatedModules": true,
@@ -38,8 +38,6 @@
     },
     "types": [
       "@types/node",
-      "jest",
-      "@testing-library/jest-dom",
       "vite/client"
     ]
   },
@@ -48,6 +46,7 @@
     "client/src/**/*",
     "shared/**/*",
     "server/**/*",
-    "server/types/global.d.ts"
+    "server/types/global.d.ts",
+    "stack/**/*"
   ]
 }

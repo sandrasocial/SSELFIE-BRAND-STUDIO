@@ -135,6 +135,7 @@ export class FluxRealizer {
     const wordCount = prompt.split(/\s+/).length;
     const characterCount = prompt.length;
     
+    console.log('🔍 FLUX prompt metrics:', {
       wordCount, 
       characterCount,
       hasNegatives: !!components.negatives 
