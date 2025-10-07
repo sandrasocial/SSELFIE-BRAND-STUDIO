@@ -26,8 +26,8 @@ export const SafeStackSignIn: React.FC = () => {
                           window.location.pathname.includes('/handler/sign-in') ||
                           window.location.pathname.includes('/auth');
     if (isAuthenticated && isOnSignInPage) {
-      // Redirect to main app after successful authentication
-      window.location.replace("/app");
+      // Redirect to home (SmartHome will handle routing based on user status)
+      window.location.replace("/");
     }
   }, [isAuthenticated]);
 
