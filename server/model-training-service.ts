@@ -62,7 +62,7 @@ export class ModelTrainingService {
               ContentType: 'image/png',
               // No ACL - bucket policy handles permissions
             });
-            await s3.send(putCmd);
+            await ModelTrainingService.s3.send(putCmd);
             const publicUrl = `https://${bucket}.s3.amazonaws.com/${key}`;
             uploadedUrls.push(publicUrl);
           } catch (err) {
