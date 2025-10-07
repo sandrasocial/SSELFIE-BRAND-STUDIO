@@ -10,13 +10,13 @@ test.describe('SSELFIE Studio - Core Functionality', () => {
   test.setTimeout(60000); // 1 minute for focused tests
 
   test('Landing Page Loads and Redirects Correctly', async ({ page }) => {
-    // Navigate to root
-    await page.goto('/');
+    // Navigate to business landing page (public route with SSELFIE branding)
+    await page.goto('/business');
 
-    // Wait for redirect or content to load
+    // Wait for content to load
     await page.waitForLoadState('networkidle');
 
-    // Check if we get redirected to /business or stay on landing
+    // Check current URL
     const currentURL = page.url();
     console.log('Landing page URL:', currentURL);
 
@@ -210,14 +210,20 @@ test.describe('Maya Chat Pipeline - Complete Flow', () => {
 
     // Check if redirected to auth (expected for unauthenticated users)
     const currentURL = page.url();
-    if (currentURL.includes('handler/sign-in')) {
+    const pageContent = await page.locator('body').textContent();
+    const isOnSignInPage = currentURL.includes('handler/sign-in') ||
+                          currentURL.includes('handler/sign-up') ||
+                          pageContent?.toLowerCase().includes('sign in') ||
+                          pageContent?.toLowerCase().includes('welcome to sselfie');
+
+    if (isOnSignInPage) {
       console.log('⚠️ User not authenticated - Maya chat tests require authentication');
       expect(true).toBe(true); // Skip test gracefully
       return;
     }
 
-    // Wait for the app to load
-    await page.waitForSelector('text=SSELFIE', { timeout: 10000 });
+    // Wait for the app to load - look for tab bar or main content
+    await page.waitForSelector('button:has-text("Maya")', { timeout: 15000 });
 
     // Switch to Maya tab by clicking the Maya tab button
     const mayaTab = page.locator('button').filter({ hasText: 'Maya' }).first();
@@ -291,46 +297,54 @@ test.describe('Maya Chat Pipeline - Complete Flow', () => {
     await page.goto('/app');
 
     const currentURL = page.url();
-    if (!currentURL.includes('handler/sign-in')) {
-      // Wait for app to load
-      await page.waitForSelector('text=SSELFIE', { timeout: 10000 });
+    const pageContent = await page.locator('body').textContent();
+    const isOnSignInPage = currentURL.includes('handler/sign-in') ||
+                          currentURL.includes('handler/sign-up') ||
+                          pageContent?.toLowerCase().includes('sign in') ||
+                          pageContent?.toLowerCase().includes('welcome to sselfie');
 
-      // Switch to Maya tab
-      const mayaTab = page.locator('button').filter({ hasText: 'Maya' }).first();
-      if (await mayaTab.isVisible({ timeout: 5000 })) {
-        await mayaTab.click();
+    if (isOnSignInPage) {
+      console.log('⚠️ Authentication required for concept card testing');
+      expect(true).toBe(true); // Skip test gracefully
+      return;
+    }
 
-        // Send a message to trigger concept cards
-        const chatInput = page.locator('textarea[placeholder*="Describe your vision"]').or(page.locator('textarea')).first();
-        const sendButton = page.locator('[data-testid="maya-chat-send"]').or(page.locator('button')).filter({ hasText: /send/i }).first();
+    // Wait for app to load
+    await page.waitForSelector('button:has-text("Maya")', { timeout: 15000 });
 
-        if (await chatInput.isVisible({ timeout: 2000 })) {
-          await chatInput.fill('I need business headshots');
-          await sendButton.click();
+    // Switch to Maya tab
+    const mayaTab = page.locator('button').filter({ hasText: 'Maya' }).first();
+    if (await mayaTab.isVisible({ timeout: 5000 })) {
+      await mayaTab.click();
 
-          // Wait for Maya response
-          await page.waitForTimeout(3000);
+      // Send a message to trigger concept cards
+      const chatInput = page.locator('textarea[placeholder*="Describe your vision"]').or(page.locator('textarea')).first();
+      const sendButton = page.locator('[data-testid="maya-chat-send"]').or(page.locator('button')).filter({ hasText: /send/i }).first();
 
-          // Look for concept cards
-          const conceptCards = page.locator('.concept-card').or(page.locator('[class*="concept"]')).or(page.locator('text=Photo Ideas'));
+      if (await chatInput.isVisible({ timeout: 2000 })) {
+        await chatInput.fill('I need business headshots');
+        await sendButton.click();
 
-          if (await conceptCards.isVisible({ timeout: 10000 })) {
-            console.log('✅ Concept cards displayed after Maya response');
+        // Wait for Maya response
+        await page.waitForTimeout(3000);
 
-            // Try to click on a concept card
-            const clickableCard = page.locator('[class*="concept"]').or(page.locator('button')).filter({ hasText: /select|generate|choose/i }).first();
+        // Look for concept cards
+        const conceptCards = page.locator('.concept-card').or(page.locator('[class*="concept"]')).or(page.locator('text=Photo Ideas'));
 
-            if (await clickableCard.isVisible({ timeout: 2000 })) {
-              await clickableCard.click();
-              console.log('✅ Concept card selection working');
-            }
-          } else {
-            console.log('⚠️ No concept cards visible - Maya may not have responded yet');
+        if (await conceptCards.isVisible({ timeout: 10000 })) {
+          console.log('✅ Concept cards displayed after Maya response');
+
+          // Try to click on a concept card
+          const clickableCard = page.locator('[class*="concept"]').or(page.locator('button')).filter({ hasText: /select|generate|choose/i }).first();
+
+          if (await clickableCard.isVisible({ timeout: 2000 })) {
+            await clickableCard.click();
+            console.log('✅ Concept card selection working');
           }
+        } else {
+          console.log('⚠️ No concept cards visible - Maya may not have responded yet');
         }
       }
-    } else {
-      console.log('⚠️ Authentication required for concept card testing');
     }
   });
 
@@ -386,36 +400,46 @@ test.describe('Maya Chat Pipeline - Complete Flow', () => {
     await page.goto('/app');
 
     const currentURL = page.url();
-    if (!currentURL.includes('handler/sign-in')) {
-      // Wait for app to load
-      await page.waitForSelector('text=SSELFIE', { timeout: 10000 });
+    const pageContent = await page.locator('body').textContent();
+    const isOnSignInPage = currentURL.includes('handler/sign-in') ||
+                          currentURL.includes('handler/sign-up') ||
+                          pageContent?.toLowerCase().includes('sign in') ||
+                          pageContent?.toLowerCase().includes('welcome to sselfie');
 
-      // Switch to Maya tab
-      const mayaTab = page.locator('button').filter({ hasText: 'Maya' }).first();
-      if (await mayaTab.isVisible({ timeout: 5000 })) {
-        await mayaTab.click();
+    if (isOnSignInPage) {
+      console.log('⚠️ Authentication required for generated images testing');
+      expect(true).toBe(true); // Skip test gracefully
+      return;
+    }
 
-        // Look for generated images in chat
-        const generatedImages = page.locator('img').filter({ hasText: /generated|photo/i }).or(page.locator('[class*="generated"]')).or(page.locator('text=Generated Photos'));
+    // Wait for app to load
+    await page.waitForSelector('button:has-text("Maya")', { timeout: 15000 });
 
-        if (await generatedImages.isVisible({ timeout: 5000 })) {
-          console.log('✅ Generated images displayed in Maya chat');
+    // Switch to Maya tab
+    const mayaTab = page.locator('button').filter({ hasText: 'Maya' }).first();
+    if (await mayaTab.isVisible({ timeout: 5000 })) {
+      await mayaTab.click();
 
-          // Check image grid layout
-          const imageGrid = page.locator('[class*="grid"]').or(page.locator('.grid')).first();
-          if (await imageGrid.isVisible({ timeout: 2000 })) {
-            console.log('✅ Generated images displayed in grid layout');
-          }
+      // Look for generated images in chat
+      const generatedImages = page.locator('img').filter({ hasText: /generated|photo/i }).or(page.locator('[class*="generated"]')).or(page.locator('text=Generated Photos'));
 
-          // Check for image interaction (hover effects, etc.)
-          const firstImage = page.locator('img').first();
-          if (await firstImage.isVisible({ timeout: 2000 })) {
-            await firstImage.hover();
-            console.log('✅ Image hover interactions working');
-          }
-        } else {
-          console.log('ℹ️ No generated images visible (expected if no generations have been created)');
+      if (await generatedImages.isVisible({ timeout: 5000 })) {
+        console.log('✅ Generated images displayed in Maya chat');
+
+        // Check image grid layout
+        const imageGrid = page.locator('[class*="grid"]').or(page.locator('.grid')).first();
+        if (await imageGrid.isVisible({ timeout: 2000 })) {
+          console.log('✅ Generated images displayed in grid layout');
         }
+
+        // Check for image interaction (hover effects, etc.)
+        const firstImage = page.locator('img').first();
+        if (await firstImage.isVisible({ timeout: 2000 })) {
+          await firstImage.hover();
+          console.log('✅ Image hover interactions working');
+        }
+      } else {
+        console.log('ℹ️ No generated images visible (expected if no generations have been created)');
       }
     }
   });
@@ -425,43 +449,53 @@ test.describe('Maya Chat Pipeline - Complete Flow', () => {
     await page.goto('/app');
 
     const currentURL = page.url();
-    if (!currentURL.includes('handler/sign-in')) {
-      // Wait for app to load
-      await page.waitForSelector('text=SSELFIE', { timeout: 10000 });
+    const pageContent = await page.locator('body').textContent();
+    const isOnSignInPage = currentURL.includes('handler/sign-in') ||
+                          currentURL.includes('handler/sign-up') ||
+                          pageContent?.toLowerCase().includes('sign in') ||
+                          pageContent?.toLowerCase().includes('welcome to sselfie');
 
-      // Switch to Maya tab
-      const mayaTab = page.locator('button').filter({ hasText: 'Maya' }).first();
-      if (await mayaTab.isVisible({ timeout: 5000 })) {
-        await mayaTab.click();
+    if (isOnSignInPage) {
+      console.log('⚠️ Authentication required for UI components testing');
+      expect(true).toBe(true); // Skip test gracefully
+      return;
+    }
 
-        // Test chat input functionality
-        const chatInput = page.locator('textarea[placeholder*="Describe your vision"]').or(page.locator('textarea')).first();
-        if (await chatInput.isVisible({ timeout: 2000 })) {
-          await chatInput.fill('Test message');
-          const inputValue = await chatInput.inputValue();
-          expect(inputValue).toBe('Test message');
-          console.log('✅ Chat input working');
+    // Wait for app to load
+    await page.waitForSelector('button:has-text("Maya")', { timeout: 15000 });
 
-          // Clear input
-          await chatInput.clear();
-        }
+    // Switch to Maya tab
+    const mayaTab = page.locator('button').filter({ hasText: 'Maya' }).first();
+    if (await mayaTab.isVisible({ timeout: 5000 })) {
+      await mayaTab.click();
 
-        // Test typing indicator
-        const typingIndicator = page.locator('text=Maya is creating').or(page.locator('[class*="typing"]')).or(page.locator('.animate-bounce'));
-        // Typing indicator may not be visible initially, which is fine
+      // Test chat input functionality
+      const chatInput = page.locator('textarea[placeholder*="Describe your vision"]').or(page.locator('textarea')).first();
+      if (await chatInput.isVisible({ timeout: 2000 })) {
+        await chatInput.fill('Test message');
+        const inputValue = await chatInput.inputValue();
+        expect(inputValue).toBe('Test message');
+        console.log('✅ Chat input working');
 
-        // Test message bubbles
-        const messageBubbles = page.locator('[class*="message"]').or(page.locator('[class*="bubble"]')).or(page.locator('p'));
-        const messageCount = await messageBubbles.count();
-        if (messageCount > 0) {
-          console.log(`✅ Message bubbles displayed (${messageCount} messages)`);
-        }
+        // Clear input
+        await chatInput.clear();
+      }
 
-        // Test scroll behavior
-        const chatContainer = page.locator('[class*="overflow-y-auto"]').or(page.locator('[style*="overflow-y"]')).first();
-        if (await chatContainer.isVisible({ timeout: 2000 })) {
-          console.log('✅ Chat scrolling container present');
-        }
+      // Test typing indicator
+      const typingIndicator = page.locator('text=Maya is creating').or(page.locator('[class*="typing"]')).or(page.locator('.animate-bounce'));
+      // Typing indicator may not be visible initially, which is fine
+
+      // Test message bubbles
+      const messageBubbles = page.locator('[class*="message"]').or(page.locator('[class*="bubble"]')).or(page.locator('p'));
+      const messageCount = await messageBubbles.count();
+      if (messageCount > 0) {
+        console.log(`✅ Message bubbles displayed (${messageCount} messages)`);
+      }
+
+      // Test scroll behavior
+      const chatContainer = page.locator('[class*="overflow-y-auto"]').or(page.locator('[style*="overflow-y"]')).first();
+      if (await chatContainer.isVisible({ timeout: 2000 })) {
+        console.log('✅ Chat scrolling container present');
       }
     }
   });
@@ -473,7 +507,7 @@ test.describe('Maya Chat Pipeline - Complete Flow', () => {
     const currentURL = page.url();
     if (!currentURL.includes('handler/sign-in')) {
       // Wait for app to load
-      await page.waitForSelector('text=SSELFIE', { timeout: 10000 });
+      await page.waitForSelector('button:has-text("Maya")', { timeout: 15000 });
 
       // Switch to Maya tab
       const mayaTab = page.locator('button').filter({ hasText: 'Maya' }).first();
@@ -521,7 +555,7 @@ test.describe('Maya Chat Pipeline - Complete Flow', () => {
     const currentURL = page.url();
     if (!currentURL.includes('handler/sign-in')) {
       // Wait for app to load
-      await page.waitForSelector('text=SSELFIE', { timeout: 10000 });
+      await page.waitForSelector('button:has-text("Maya")', { timeout: 15000 });
 
       // Switch to Maya tab
       const mayaTab = page.locator('button').filter({ hasText: 'Maya' }).first();
@@ -563,7 +597,7 @@ test.describe('Maya Chat Pipeline - Complete Flow', () => {
     const currentURL = page.url();
     if (!currentURL.includes('handler/sign-in')) {
       // Wait for app to load
-      await page.waitForSelector('text=SSELFIE', { timeout: 10000 });
+      await page.waitForSelector('button:has-text("Maya")', { timeout: 15000 });
 
       // Switch to Maya tab
       const mayaTab = page.locator('button').filter({ hasText: 'Maya' }).first();

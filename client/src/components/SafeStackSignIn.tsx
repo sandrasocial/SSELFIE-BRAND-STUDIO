@@ -25,11 +25,9 @@ export const SafeStackSignIn: React.FC = () => {
     const isOnSignInPage = window.location.pathname.includes('/sign-in') ||
                           window.location.pathname.includes('/handler/sign-in') ||
                           window.location.pathname.includes('/auth');
-    if (isAuthenticated && isOnSignInPage && window.location.pathname !== "/") {
-      // Add small delay to prevent redirect loops during OAuth completion
-      setTimeout(() => {
-        window.location.replace("/");
-      }, 1000);
+    if (isAuthenticated && isOnSignInPage) {
+      // Redirect to main app after successful authentication
+      window.location.replace("/app");
     }
   }, [isAuthenticated]);
 
