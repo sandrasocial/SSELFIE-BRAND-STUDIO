@@ -191,6 +191,14 @@ export class TrainingCompletionMonitor {
       };
     }
     }
+    
+    // If we reach here, all retries have been exhausted
+    return {
+      userId,
+      modelId: replicateModelId,
+      status: 'failed',
+      error: 'Maximum retries exceeded'
+    };
   }
 
   /**
