@@ -1,7 +1,8 @@
 import * as FormData from 'form-data';
-import archiver from 'archiver';
 import * as fs from 'fs';
 import * as path from 'path';
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const archiver = require('archiver');
 import { fileURLToPath } from 'url';
 import { storage } from './storage.js';
 // MAYA FAÇADE: Removed PersonalityManager dependency - Maya isolated

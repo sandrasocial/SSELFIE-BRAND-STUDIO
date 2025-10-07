@@ -15,14 +15,38 @@ export interface QueryResult<T = unknown> {
 
 export type QueryParams = string | number | boolean | null | Buffer | Date | QueryParams[];
 
-// Use HTTP-based connection for drizzle operations (optimal for serverless)
-const sql = neon(DATABASE_URL!, {
-  fetchOptions: {
-    priority: 'high' // Prioritize database requests
+// Lazy initialization to ensure environment variables are loaded
+let _sql: ReturnType<typeof neon> | null = null;
+let _db: ReturnType<typeof drizzle> | null = null;
+
+function getSql() {
+  if (!_sql) {
+    const dbUrl = DATABASE_URL;
+    if (!dbUrl) {
+      throw new Error(`No database connection string available. DATABASE_URL is ${DATABASE_URL}, NEON_DB_URL is ${process.env.NEON_DB_URL || 'undefined'}`);
+    }
+    _sql = neon(dbUrl, {
+      fetchOptions: {
+        priority: 'high' // Prioritize database requests
+      }
+    });
+  }
+  return _sql;
+}
+
+function getDb() {
+  if (!_db) {
+    _db = drizzle(getSql(), { schema });
+  }
+  return _db;
+}
+
+// Export lazy-initialized database connection
+export const db = new Proxy({} as ReturnType<typeof drizzle>, {
+  get(_, prop) {
+    return getDb()[prop as keyof typeof _db];
   }
 });
-
-export const db = drizzle(sql, { schema });
 
 // Export a serverless-optimized query helper
 export const serverlessQuery = async <T = unknown>(
@@ -34,6 +58,9 @@ export const serverlessQuery = async <T = unknown>(
     if (!text?.trim()) {
       throw new Error('Query text is required');
     }
+
+    // Get sql connection with lazy initialization
+    const sql = getSql();
 
     // Execute query with proper type handling
     const result = params?.length 
