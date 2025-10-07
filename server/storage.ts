@@ -364,6 +364,9 @@ export interface IStorage {
 
   // Maya Images operations
   insertMayaImage(data: InsertMayaImage): Promise<MayaImage>;
+
+  // Maya Profile sync operations
+  ensureMayaProfile(userId: string): Promise<MayaProfile>;
 }
 
 /* eslint-disable no-console */
@@ -388,10 +391,15 @@ export class DatabaseStorage implements IStorage {
       .update(users)
       .set({
         stackAuthId: stackAuthId, // Store Stack Auth ID in separate column
-        updatedAt: new Date()
+        updatedAt: new Date(),
+        lastLoginAt: new Date()
       })
       .where(eq(users.id, existingUserId))
       .returning();
+    
+    // 🔥 CRITICAL FIX: Ensure Maya profile and user model exist for linked users
+    await this.ensureMayaProfile(linkedUser.id);
+    await this.ensureUserModel(linkedUser.id);
     
     return linkedUser;
   }
@@ -438,10 +446,13 @@ export class DatabaseStorage implements IStorage {
       finalUserData.mayaAiAccess = true;
       finalUserData.victoriaAiAccess = true;
     }
+    
+    let user: User;
+    
     // First try to find existing user by ID
     const existingUser = await this.getUser(finalUserData.id);
     if (existingUser) {
-      const [user] = await db
+      const [updatedUser] = await db
         .update(users)
         .set({
           ...finalUserData,
@@ -449,10 +460,10 @@ export class DatabaseStorage implements IStorage {
         })
         .where(eq(users.id, finalUserData.id))
         .returning();
-      return user;
+      user = updatedUser;
     }
     // If not found by ID, check by email and update that record with new ID
-    if (finalUserData.email) {
+    else if (finalUserData.email) {
       const [userByEmail] = await db
         .select()
         .from(users)
@@ -468,30 +479,41 @@ export class DatabaseStorage implements IStorage {
           })
           .where(eq(users.email, finalUserData.email))
           .returning();
-        return updatedUser;
-      }
-    }
-    // User doesn't exist by ID or email, create new one
-    try {
-      const [user] = await db
-        .insert(users)
-        .values(finalUserData)
-        .returning();
-      return user;
-    } catch (error: unknown) {
-      // If duplicate key error on email, try to return existing user
-      const e = error as { code?: string; constraint?: string };
-      if (e?.code === '23505' && e?.constraint === 'users_email_unique') {
-        const [existingUser] = await db
-          .select()
-          .from(users)
-          .where(eq(users.email, finalUserData.email || ''));
-        if (existingUser) {
-          return existingUser;
+        user = updatedUser;
+      } else {
+        // User doesn't exist by ID or email, create new one
+        try {
+          const [newUser] = await db
+            .insert(users)
+            .values(finalUserData)
+            .returning();
+          user = newUser;
+        } catch (error: unknown) {
+          // If duplicate key error on email, try to return existing user
+          const e = error as { code?: string; constraint?: string };
+          if (e?.code === '23505' && e?.constraint === 'users_email_unique') {
+            const [existingUser] = await db
+              .select()
+              .from(users)
+              .where(eq(users.email, finalUserData.email || ''));
+            if (existingUser) {
+              user = existingUser;
+            } else {
+              throw error;
+            }
+          } else {
+            throw error;
+          }
         }
       }
-      throw error;
+    } else {
+      throw new Error('Cannot create user without email');
     }
+
+    // 🔥 CRITICAL FIX: Auto-create Maya profile for every new user
+    await this.ensureMayaProfile(user.id);
+    
+    return user;
   }
 
   async updateUserProfile(userId: string, updates: Partial<User>): Promise<User> {
@@ -2459,6 +2481,40 @@ export class DatabaseStorage implements IStorage {
       .values(data)
       .returning();
     return image;
+  }
+
+  // 🔥 CRITICAL FIX: Ensure Maya profile exists for user synchronization
+  async ensureMayaProfile(userId: string): Promise<MayaProfile> {
+    try {
+      // Check if Maya profile already exists
+      const existingProfile = await this.getMayaProfile(userId);
+      if (existingProfile) {
+        return existingProfile;
+      }
+
+      // Create new Maya profile with default settings
+      const defaultProfile: InsertMayaProfile = {
+        userId,
+        onboardingStatus: 'pending',
+        onboardingStep: 1,
+        completedSteps: [],
+        preferences: {},
+        billingInfo: {},
+        totalGenerations: 0,
+        monthlyGenerations: 0,
+        lastResetDate: new Date(),
+        featureAccess: {
+          mayaChat: true,
+          imageGeneration: true,
+          modelTraining: true
+        }
+      };
+
+      return await this.insertMayaProfile(defaultProfile);
+    } catch (error) {
+      console.error('❌ Failed to ensure Maya profile for user:', userId, error);
+      throw error;
+    }
   }
 }
 
