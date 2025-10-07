@@ -386,7 +386,10 @@ export async function withAuth<T>(
       return await handler(req as AuthenticatedRequest, res);
     }
 
-    console.error('❌ Auth failed:', error);
+    console.warn('🔒 Expected auth failure for protected endpoint:', {
+      url: req.url,
+      error: error instanceof Error ? error.message : error
+    });
 
     // Clear cookies on auth failure with proper domain configuration
     const domain = process.env.VERCEL_ENV === 'production' 
