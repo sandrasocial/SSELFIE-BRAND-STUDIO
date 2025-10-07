@@ -20,7 +20,7 @@ import SselfieAppLayout from "./app_v2/SselfieAppLayout.js";
 import { lazy, Suspense } from "react";
 
 // Auth components (Lazy loaded for better performance)
-const MagicLinkSignInPage = lazy(() => import("../features/MagicLinkSignInPage.js").then(module => ({ default: module.MagicLinkSignInPage })));
+const SignInHandler = lazy(() => import("./pages/handler/sign-in.js"));
 
 // Business landing page
 const BusinessLanding = lazy(() => import("./pages/landing/business-landing.js"));
@@ -58,16 +58,16 @@ const App: React.FC = () => {
   if (!isAuthenticated) {
     return (
       <Suspense fallback={<PageLoader />}>
-        <MagicLinkSignInPage />
+        <SignInHandler />
       </Suspense>
     );
   }
 
-  // If authenticated, show the main app
+  // If authenticated, show the main app with routing
   return (
     <Router>
       <div>
-        {/* Business landing page (public route) */}
+        {/* Business landing page (public route, but authenticated users can still access) */}
         <Route path="/" component={() => (
           <Suspense fallback={<PageLoader />}>
             <BusinessLanding />
@@ -81,7 +81,7 @@ const App: React.FC = () => {
           </Suspense>
         )} />
 
-        {/* Catch-all route - redirect to app */}
+        {/* Catch-all route - redirect to app for authenticated users */}
         <Route path="/:rest*" component={() => {
           window.location.href = '/app';
           return <PageLoader />;

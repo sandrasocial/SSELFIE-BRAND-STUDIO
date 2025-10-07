@@ -47,21 +47,16 @@ try {
   stackClientApp = new StackClientApp({
     projectId: STACK_PROJECT_ID,
     publishableClientKey: STACK_PUBLISHABLE_CLIENT_KEY,
-    // Use cookie storage for better reliability and cross-domain functionality
     tokenStore: "cookie",
-    // Configure URLs for proper Stack Auth OAuth flow
     urls: {
       signIn: "/handler/sign-in",
-      signUp: "/handler/sign-up", 
-      afterSignIn: "/auth-success",  // ✅ FIXED: Must match App.tsx route
-      afterSignUp: "/auth-success",  // ✅ FIXED: Must match App.tsx route
-      afterSignOut: "/",             // ✅ RESTORED: Working configuration
-      // 🔥 CRITICAL FIX: Must match the route in App.tsx exactly
-      oauthCallback: "/handler/oauth-callback",  // ✅ RESTORED: Stack Auth calls this after OAuth
-      // 🔧 LOOP PREVENTION: Explicit error handling
+      signUp: "/handler/sign-up",
+      afterSignIn: "/app",
+      afterSignUp: "/app",
+      afterSignOut: "/",
+      oauthCallback: "/handler/oauth-callback",
       error: "/handler/sign-in?error=auth_failed",
     },
-    // 🔥 REMOVED: baseUrl should not be set to app domain - let Stack Auth use its default API
   });
 
   // 🔥 CRITICAL FIX: Override token store methods to prevent "undefined" tokens
@@ -101,44 +96,7 @@ try {
     currentOrigin: typeof window !== 'undefined' ? window.location.origin : 'server-side'
   });
 
-  // 🔥 CRITICAL FIX: Override URLs to use correct domain (www.sselfie.ai for deployed app)
-  if (typeof window !== 'undefined') {
-    const currentOrigin = window.location.origin;
-    const preferredDomain = 'https://www.sselfie.ai'; // Use www.sselfie.ai to match deployed domain
-    const urlKeys = ['signIn', 'signUp', 'afterSignIn', 'afterSignUp', 'afterSignOut', 'oauthCallback', 'error'] as const;
-
-    console.log('🔍 Stack Auth URL Override Debug:', {
-      currentOrigin,
-      preferredDomain,
-      currentHostname: window.location.hostname,
-      originalUrls: stackClientApp.urls
-    });
-
-    urlKeys.forEach(key => {
-      const currentUrl = (stackClientApp.urls as any)[key];
-      if (currentUrl) {
-        let newUrl = currentUrl;
-        // Always use www.sselfie.ai for deployed app OAuth URLs
-        if (currentUrl.includes('sselfie.ai') && !currentUrl.includes('www.sselfie.ai')) {
-          newUrl = currentUrl.replace(/https:\/\/sselfie\.ai/g, 'https://www.sselfie.ai');
-        }
-        // If URL doesn't match current domain, update it
-        else if (!currentUrl.startsWith(currentOrigin) && !currentUrl.startsWith(preferredDomain)) {
-          newUrl = currentUrl.replace(/^https:\/\/[^/]+/, preferredDomain);
-        }
-
-        if (newUrl !== currentUrl) {
-          (stackClientApp.urls as any)[key] = newUrl;
-        }
-      }
-    });
-
-
-    // Expose URLs for debugging
-    (window as any).__stackAuthUrls = stackClientApp.urls;
-  }
-
-  // 🔍 DEBUG: Check if Stack Auth is working properly
+  //  DEBUG: Check if Stack Auth is working properly
   console.log('🔍 Stack Auth Readiness Check:', {
     hasGetUser: typeof stackClientApp.getUser === 'function',
     hasCurrentUser: 'currentUser' in stackClientApp,
