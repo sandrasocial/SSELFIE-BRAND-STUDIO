@@ -1,4 +1,5 @@
-import type { Config } from 'tailwindcss';
+// @ts-check
+/** @type {import('tailwindcss').Config} */
 import typography from '@tailwindcss/typography';
 import forms from '@tailwindcss/forms';
 
