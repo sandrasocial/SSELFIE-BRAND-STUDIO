@@ -271,6 +271,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     req.url.startsWith('/api/sandra-images/') ||
     req.url.startsWith('/api/hair-trends') ||
     req.url.startsWith('/api/auth/') ||
+    req.url.startsWith('/api/admin/') || // Admin routes use x-admin-token, not Stack Auth
     req.url === '/api/logout'
   );
 
@@ -282,7 +283,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     req.url.includes('/api/ai-images') ||
     req.url.includes('/api/gallery-images') ||
     req.url.includes('/api/story') ||
-    req.url.includes('/api/admin') ||
     req.url.includes('/api/victoria') ||
     req.url.includes('/api/training') ||
     req.url.includes('/api/user-model')
