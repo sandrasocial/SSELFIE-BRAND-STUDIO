@@ -62,11 +62,49 @@ export default async function handler(req: any, res: any) {
 
     console.log('🔍 Drizzle status:', drizzleStatus);
 
+    // Test 4: Check database content - image tables
+    let imageDataStatus;
+    try {
+      const { db } = await import('../server/drizzle.js');
+      
+      // Count records in image tables
+      const aiImagesCount = await db.execute(`SELECT COUNT(*) as count FROM ai_images`);
+      const generatedImagesCount = await db.execute(`SELECT COUNT(*) as count FROM generated_images`);
+      const usersCount = await db.execute(`SELECT COUNT(*) as count FROM users`);
+      
+      // Get sample data
+      const sampleUsers = await db.execute(`SELECT id, email, plan FROM users LIMIT 3`);
+      const sampleAiImages = await db.execute(`SELECT id, user_id, image_url, style, created_at FROM ai_images LIMIT 3`);
+      const sampleGeneratedImages = await db.execute(`SELECT id, user_id, category, selected_url, created_at FROM generated_images LIMIT 3`);
+      
+      imageDataStatus = {
+        success: true,
+        counts: {
+          users: usersCount.rows?.[0]?.count || usersCount[0]?.count || 0,
+          aiImages: aiImagesCount.rows?.[0]?.count || aiImagesCount[0]?.count || 0,
+          generatedImages: generatedImagesCount.rows?.[0]?.count || generatedImagesCount[0]?.count || 0
+        },
+        sampleData: {
+          users: sampleUsers.rows || sampleUsers,
+          aiImages: sampleAiImages.rows || sampleAiImages,
+          generatedImages: sampleGeneratedImages.rows || sampleGeneratedImages
+        }
+      };
+    } catch (imageError) {
+      imageDataStatus = {
+        success: false,
+        error: imageError instanceof Error ? imageError.message : 'Unknown error'
+      };
+    }
+
+    console.log('🔍 Image data status:', imageDataStatus);
+
     return res.status(200).json({
       timestamp: new Date().toISOString(),
       envStatus,
       envModuleStatus,
       drizzleStatus,
+      imageDataStatus,
       message: drizzleStatus.success ? 'Database connection working!' : 'Database connection failed'
     });
 
