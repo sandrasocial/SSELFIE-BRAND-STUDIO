@@ -156,7 +156,7 @@ router.post('/storyboard', requireStackAuth, async (req: Request<{}, {}, Storybo
     let userLoraModel = null;
     try {
       const profile = await storage.getUserProfile(userId);
-      userLoraModel = profile?.['replicateModelId'] || null;
+      userLoraModel = (profile as any)?.replicateModelId || null;
     } catch (error) {
       // Silently handle profile loading errors
     }
@@ -187,9 +187,7 @@ router.post('/storyboard', requireStackAuth, async (req: Request<{}, {}, Storybo
 
         // Add source image if available (for first scene or if specified per scene)
         if (sourceImageUrl && (i === 0 || scene.useSourceImage)) {
-          payload.image = {
-            imageUrl: sourceImageUrl
-          };
+          payload.image = sourceImageUrl as any;
         }
 
         console.log('🎬 STORYBOARD: Scene payload prepared:', {
@@ -198,7 +196,7 @@ router.post('/storyboard', requireStackAuth, async (req: Request<{}, {}, Storybo
           duration: payload.config.durationSeconds
         });
 
-        const operation = await ai.models.generateVideos(payload);
+        const operation = await ai.models.generateVideos(payload as any);
         
         sceneJobs.push({
           sceneIndex: i,
@@ -219,7 +217,7 @@ router.post('/storyboard', requireStackAuth, async (req: Request<{}, {}, Storybo
           jobId: '',
           status: 'failed',
           duration: scene.duration || 5,
-          error: sceneError.message || 'Scene generation failed'
+          error: (sceneError as Error)?.message || 'Scene generation failed'
         });
       }
     }

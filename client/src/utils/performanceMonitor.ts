@@ -247,9 +247,20 @@ class PerformanceMonitor {
     return count > 0 ? Math.round(score / count) : 0;
   }
 
+  public startMonitoring() {
+    if (!this.isInitialized) {
+      this.initialize();
+    }
+  }
+
+  public stopMonitoring() {
+    this.cleanup();
+  }
+
   public cleanup() {
     this.observers.forEach(observer => observer.disconnect());
     this.observers = [];
+    this.isInitialized = false;
   }
 }
 
