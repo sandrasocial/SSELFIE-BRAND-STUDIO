@@ -1804,24 +1804,8 @@ export type LiveEvent = typeof liveEvents.$inferSelect;
 export type HairLead = typeof hairLeads.$inferSelect;
 // export type InsertHairLead = z.infer<typeof insertHairLeadSchema>;
 
-// Maya Core Tables - Import from schema-maya.ts
-export { 
-  mayaModels, 
-  mayaImages, 
-  mayaConcepts, 
-  mayaPayments, 
-  mayaProfile,
-  type MayaModel,
-  type MayaImage, 
-  type MayaConcept,
-  type MayaPayment,
-  type MayaProfile,
-  type InsertMayaModel,
-  type InsertMayaImage,
-  type InsertMayaConcept, 
-  type InsertMayaPayment,
-  type InsertMayaProfile
-} from './schema-maya.js';
+// Note: Maya core tables (mayaProfile, mayaModels, mayaImages, etc.) are defined in schema-maya.ts
+// Import them directly from schema-maya.js in files that need them to avoid re-export issues
 
 // Note: Website type already defined above at line 502
 // Note: styleguide_templates and user_styleguides are imported from styleguide-schema.ts
