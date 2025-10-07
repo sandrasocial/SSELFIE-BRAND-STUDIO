@@ -51,8 +51,8 @@ try {
     urls: {
       signIn: "/handler/sign-in",
       signUp: "/handler/sign-up",
-      afterSignIn: "/app",
-      afterSignUp: "/app",
+      afterSignIn: "/auth-success",  // ✅ FIXED: Must match App.tsx route and auth-success.tsx
+      afterSignUp: "/auth-success",  // ✅ FIXED: Must match App.tsx route and auth-success.tsx
       afterSignOut: "/",
       oauthCallback: "/handler/oauth-callback",
       error: "/handler/sign-in?error=auth_failed",
