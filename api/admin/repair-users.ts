@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
-import { userSyncRepair } from '../user-sync-repair.js';
-import { authenticateAdmin } from '../stack-auth.js';
+import { userSyncRepair } from '../../server/user-sync-repair.js';
+import { authenticateAdmin } from '../../server/stack-auth.js';
 
 /**
  * Admin endpoint to repair user synchronization issues
