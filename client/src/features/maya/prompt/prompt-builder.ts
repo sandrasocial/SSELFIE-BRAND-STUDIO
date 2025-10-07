@@ -112,6 +112,13 @@ export class PromptBuilder {
         budgetApplied
       };
       
+        console.log('🔍 Prompt building metadata:', {
+        selectedRecipes: selectedRecipes.map(r => r.recipe.name),
+        totalProcessingTime: Date.now() - startTime,
+        budgetApplied
+      });
+      
+      console.log('🔍 Prompt building summary:', {
         promptsGenerated: prompts.length,
         errors: errors.length,
         ...metadata
@@ -211,6 +218,7 @@ export class PromptBuilder {
     
     for (const prompt of prompts) {
       if (prompt.metadata.tokenCount > maxTokens) {
+        console.log('🔍 Token budget applied:', {
           original: prompt.metadata.tokenCount,
           target: maxTokens
         });

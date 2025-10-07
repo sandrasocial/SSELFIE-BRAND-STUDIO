@@ -156,6 +156,7 @@ export class PaymentSuccessService {
         return modelData.trainingStatus || null;
       }
     } catch (error) {
+      // Silently handle errors when checking training status
     }
     return null;
   }
@@ -206,7 +207,7 @@ export class PaymentSuccessService {
   /**
    * Get user data for payment success handling
    */
-  static async getUserData(isAuthenticated: boolean, user?: any): Promise<UserData> {
+  static async getUserData(isAuthenticated: boolean, user?: { id: string; email?: string; plan?: string }): Promise<UserData> {
     if (!isAuthenticated || !user) {
       return { isAuthenticated: false };
     }

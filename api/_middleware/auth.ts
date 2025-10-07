@@ -2,7 +2,11 @@ import { VercelRequest, VercelResponse } from '@vercel/node';
 import { JWTVerifyResult, JWTPayload } from 'jose';
 import { StackAuthUserInfo } from '../_shared/stack-auth-types.js';
 import { LocalJWKSet } from '../_shared/jwks-types.js';
-import { Response } from 'node-fetch';
+
+// Global type declarations for server environment
+declare global {
+  var Response: typeof globalThis.Response;
+}
 
 // Constants
 const STACK_AUTH_PROJECT_ID = process.env.STACK_AUTH_PROJECT_ID || process.env.VITE_STACK_PROJECT_ID || '253d7343-a0d4-43a1-be5c-822f590d40be';
@@ -30,13 +34,13 @@ function parseCookieHeader(cookieHeader?: string): Record<string, string> {
 }
 
 // Timed fetch helper
-async function timedFetch(url: string, ms = 3000, init?: { method?: string; headers?: Record<string, string>; body?: string }): Promise<Response> {
+async function timedFetch(url: string, ms = 3000, init?: { method?: string; headers?: Record<string, string>; body?: string }): Promise<any> {
   const AbortCtor = typeof AbortController !== 'undefined' ? AbortController : (globalThis as any).AbortController;
   const ac = new AbortCtor();
   const id = setTimeout(() => ac.abort(), ms);
   try {
     const f = (globalThis as any).fetch || fetch;
-    return await f(url, { ...(init || {}), signal: ac.signal }) as Response;
+    return await f(url, { ...(init || {}), signal: ac.signal }) as any;
   } finally {
     clearTimeout(id);
   }
@@ -51,6 +55,7 @@ async function getJWKS() {
     return JWKS;
   }
 
+  // Fetch new JWKS if cache is expired or empty
 
   try {
     const jose = await import('jose');
@@ -97,6 +102,8 @@ async function verifyJWTToken(token: string): Promise<JWTPayload & StackAuthUser
     if (!jwks) {
       throw new Error('JWKS not available - authentication service unreachable');
     }
+
+    // Verify JWT token
 
 
     const { payload } = await jose.jwtVerify(token, jwks as any, {
@@ -228,6 +235,8 @@ export async function getAuthenticatedUser(req: VercelRequest): Promise<Authenti
   if (!accessToken) {
     throw new Error('No access token found');
   }
+
+  // Extract and validate JWT token
 
 
   // Verify JWT token
@@ -374,6 +383,8 @@ export async function getAuthenticatedUser(req: VercelRequest): Promise<Authenti
     return fallbackUser;
   }
 }
+
+// Authentication middleware function
 
 // Auth middleware
 export async function withAuth<T>(

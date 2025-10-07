@@ -292,6 +292,7 @@ export async function verifyStackAuthToken(req: Request, res: Response, next: Ne
         mayaAiAccess: false // No AI access until they subscribe
       });
     } else {
+      // User exists, continue with existing user data
     }
     
     // Set user information in request from database user
@@ -385,6 +386,7 @@ export async function authenticateAdmin(req: Request, res: Response, next: NextF
     
     next();
   } catch {
+    // Authentication failed, return 401
     return res.status(401).json({ error: 'Authentication required' });
   }
 }

@@ -152,6 +152,7 @@ export function logConfigurationStatus(): void {
   
   if (validation.isValid) {
     if (validation.config?.stripe) {
+      // Stripe configuration is valid
     }
   } else {
     console.error('❌ Configuration is invalid');
