@@ -22,15 +22,25 @@ let _db: any = null;
 
 function getSql() {
   if (!_sql) {
-    const dbUrl = DATABASE_URL;
+    // Check environment variables dynamically to handle Vercel serverless timing
+    const dbUrl = DATABASE_URL || process.env.DATABASE_URL || process.env.NEON_DB_URL;
+    console.log('🔍 Database connection check:', {
+      DATABASE_URL_FROM_ENV: !!DATABASE_URL,
+      PROCESS_ENV_DATABASE_URL: !!process.env.DATABASE_URL,
+      PROCESS_ENV_NEON_DB_URL: !!process.env.NEON_DB_URL,
+      FINAL_DB_URL: !!dbUrl,
+      NODE_ENV: process.env.NODE_ENV
+    });
+    
     if (!dbUrl) {
-      throw new Error(`No database connection string available. DATABASE_URL is ${DATABASE_URL}, NEON_DB_URL is ${process.env.NEON_DB_URL || 'undefined'}`);
+      throw new Error(`No database connection string available. DATABASE_URL=${!!DATABASE_URL}, process.env.DATABASE_URL=${!!process.env.DATABASE_URL}, process.env.NEON_DB_URL=${!!process.env.NEON_DB_URL}, NODE_ENV=${process.env.NODE_ENV}`);
     }
     _sql = neon(dbUrl, {
       fetchOptions: {
         priority: 'high' // Prioritize database requests
       }
     });
+    console.log('✅ Database connection established successfully');
   }
   return _sql;
 }
