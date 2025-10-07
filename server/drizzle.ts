@@ -1,4 +1,5 @@
 /// <reference path="types/global.d.ts" />
+// Fixed: Lazy initialization to prevent serverless environment variable timing issues
 import { drizzle } from 'drizzle-orm/neon-http';
 import { neon } from '@neondatabase/serverless';
 import type { QueryResult as NeonQueryResult } from '@neondatabase/serverless';
