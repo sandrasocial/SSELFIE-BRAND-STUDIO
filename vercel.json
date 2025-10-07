@@ -10,6 +10,14 @@
       }
     },
     {
+      "src": "api/test-db.ts",
+      "use": "@vercel/node",
+      "config": {
+        "maxDuration": 10,
+        "memory": 256
+      }
+    },
+    {
       "src": "api/[...route].ts",
       "use": "@vercel/node",
       "config": {
@@ -151,7 +159,7 @@
   "build": {
     "env": {
       "VERCEL_FORCE_NO_BUILD_CACHE": "1",
-      "BUILD_TIMESTAMP": "2025-10-07-19-40"
+      "BUILD_TIMESTAMP": "2025-10-07-20-00-DEBUG"
     }
   },
   "git": {
