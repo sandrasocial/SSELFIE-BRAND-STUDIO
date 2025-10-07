@@ -16,8 +16,8 @@ export interface QueryResult<T = unknown> {
 export type QueryParams = string | number | boolean | null | Buffer | Date | QueryParams[];
 
 // Lazy initialization to ensure environment variables are loaded
-let _sql: ReturnType<typeof neon> | null = null;
-let _db: ReturnType<typeof drizzle> | null = null;
+let _sql: any = null;
+let _db: any = null;
 
 function getSql() {
   if (!_sql) {
@@ -41,10 +41,11 @@ function getDb() {
   return _db;
 }
 
-// Export lazy-initialized database connection
-export const db = new Proxy({} as ReturnType<typeof drizzle>, {
+// Export lazy-initialized database connection with proper typing
+export const db = new Proxy({} as ReturnType<typeof drizzle<typeof schema>>, {
   get(_, prop) {
-    return getDb()[prop as keyof typeof _db];
+    const instance = getDb();
+    return instance[prop as keyof typeof instance];
   }
 });
 
