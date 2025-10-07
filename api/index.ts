@@ -809,6 +809,70 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     }
 
+    // Admin user repair endpoint
+    if (req.url === '/api/admin/repair-users') {
+      if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+      
+      const adminToken = req.headers['x-admin-token'] as string;
+      const expected = process.env['ADMIN_TOKEN'] || 'sandra-admin-2025';
+      if (adminToken !== expected) return res.status(401).json({ error: 'Unauthorized' });
+
+      try {
+        const { userSyncRepair } = await import('../server/user-sync-repair.js');
+        const { action = 'check', userIdentifier } = req.body;
+
+        switch (action) {
+          case 'check': {
+            const status = await userSyncRepair.checkUserSyncStatus();
+            return res.json({
+              success: true,
+              status,
+              message: `Found ${status.issuesFound.length} synchronization issues`
+            });
+          }
+
+          case 'repair-all': {
+            const result = await userSyncRepair.repairAllUsers();
+            return res.json({
+              success: true,
+              result,
+              message: `Repaired ${result.repaired} users with ${result.errors.length} errors`
+            });
+          }
+
+          case 'repair-user': {
+            if (!userIdentifier) {
+              return res.status(400).json({
+                success: false,
+                message: 'userIdentifier required for repair-user action'
+              });
+            }
+
+            const success = await userSyncRepair.repairUser(userIdentifier);
+            return res.json({
+              success,
+              message: success 
+                ? `User ${userIdentifier} repaired successfully`
+                : `Failed to repair user ${userIdentifier}`
+            });
+          }
+
+          default:
+            return res.status(400).json({
+              success: false,
+              message: 'Invalid action. Use: check, repair-all, or repair-user'
+            });
+        }
+      } catch (error) {
+        console.error('❌ User repair endpoint error:', error);
+        return res.status(500).json({
+          success: false,
+          message: 'User repair operation failed',
+          error: error instanceof Error ? error.message : String(error)
+        });
+      }
+    }
+
     // ✅ REMOVED DUPLICATE /api/me ENDPOINT - Now using dedicated api/me.ts with hardened middleware
 
     // User model endpoint - Enhanced with robust error handling and fallback logic
@@ -827,7 +891,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         try {
           const result = await withDatabaseTimeoutAndRetry(
             () => storage.getUserModelByStackAuthAndEmail(user.id as string, user.email as string || ''), 
-            { user: null, model: null }, 
+            { user: undefined, model: undefined }, 
             3000,
             1,
             'getUserModelByStackAuthAndEmail'
