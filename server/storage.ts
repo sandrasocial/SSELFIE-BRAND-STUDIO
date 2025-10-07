@@ -2215,7 +2215,7 @@ export class DatabaseStorage implements IStorage {
       .from(messages)
       .where(eq(messages.id, messageId));
     
-    if (!targetMessage.length) return [];
+    if (!targetMessage.length || !targetMessage[0].createdAt) return [];
     
     return await db
       .select()
@@ -2223,7 +2223,7 @@ export class DatabaseStorage implements IStorage {
       .where(
         and(
           eq(messages.conversationId, conversationId),
-          gte(messages.createdAt, targetMessage[0].createdAt)
+          gte(messages.createdAt, targetMessage[0].createdAt!)
         )
       )
       .orderBy(messages.createdAt);
