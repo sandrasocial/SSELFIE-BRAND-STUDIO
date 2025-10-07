@@ -132,9 +132,6 @@ import { AuthenticatedHandler, AuthOptions, AuthResponse, AuthenticatedRequest }
 export async function getAuthenticatedUser(req: VercelRequest): Promise<AuthenticatedUser> {
   let accessToken: string | undefined;
   
-  
-  // 🔍 ENHANCED DEBUG: Log all request details
-  
   // 1. Check Authorization header (preferred method)
   const authHeader = req.headers.authorization;
   if (authHeader?.startsWith('Bearer ')) {
@@ -149,19 +146,9 @@ export async function getAuthenticatedUser(req: VercelRequest): Promise<Authenti
   // 3. Check cookies for Stack Auth tokens (using the correct format)
   if (!accessToken) {
     const cookieHeader = req.headers.cookie;
-    console.log('🔍 ENHANCED DEBUG: Request details:', JSON.stringify({
-      cookie: cookieHeader,
-      authorization: req.headers.authorization,
-      'x-stack-access-token': req.headers['x-stack-access-token'],
-      host: req.headers.host,
-      origin: req.headers.origin
-    }, null, 2));
     
     if (cookieHeader) {
       const cookies = parseCookieHeader(cookieHeader);
-      console.log('🔍 ENHANCED DEBUG: Parsed cookies:', JSON.stringify(
-        Object.entries(cookies).map(([k, v]) => [k, v.substring(0, 50) + (v.length > 50 ? '...' : '')])
-      ));
       
       // Helper function to extract JWT from Stack Auth cookie format
       const tryParseAccessFromCookieValue = (val: unknown): string | undefined => {
@@ -252,12 +239,7 @@ export async function getAuthenticatedUser(req: VercelRequest): Promise<Authenti
     throw new Error('Invalid user info: missing required fields');
   }
 
-  console.log('🔍 ENHANCED DEBUG: User info extracted:', {
-    stackAuthId: stackAuthId.substring(0, 8) + '...',
-    email: userEmail,
-    displayName: userName,
-    hasProfileImage: !!(userInfo.profileImageUrl || userInfo.profile_image_url || userInfo.avatar_url)
-  });
+  // User info extracted successfully
 
   // 🔥 HARDENED: Database lookup with bulletproof Stack Auth ID and email linking
   try {
@@ -299,11 +281,7 @@ export async function getAuthenticatedUser(req: VercelRequest): Promise<Authenti
       }
     }
 
-    console.log('🔍 ENHANCED DEBUG: User profile found/created:', {
-      userId: dbUserProfile.id,
-      email: dbUserProfile.email,
-      displayName: dbUserProfile.displayName
-    });
+    // User profile found/created successfully
 
     // Get the full database user record to ensure complete data
     const { storage } = await import('../../server/storage.js');
@@ -315,20 +293,7 @@ export async function getAuthenticatedUser(req: VercelRequest): Promise<Authenti
       throw new Error(`Failed to retrieve user by Stack Auth ID ${stackAuthId.substring(0, 8)}... after successful user service call`);
     }
 
-    console.log('🔍 ENHANCED DEBUG: Database user retrieved:', {
-      id: dbUser.id,
-      email: dbUser.email,
-      stackAuthId: dbUser.stackAuthId?.substring(0, 8) + '...',
-      plan: dbUser.plan,
-      role: dbUser.role
-    });
-
-    console.log('🔍 ENHANCED DEBUG: User object created:', {
-      id: dbUser.id,
-      email: dbUser.email,
-      plan: dbUser.plan,
-      hasStackAuthId: !!dbUser.stackAuthId
-    });
+    // Database user retrieved and user object created successfully
 
     // Return the complete user object with Stack Auth info
     const user: AuthenticatedUser = {
@@ -341,7 +306,8 @@ export async function getAuthenticatedUser(req: VercelRequest): Promise<Authenti
     return user;
 
   } catch (dbError) {
-    console.error('❌ Database sync failed, using fallback user:', dbError);
+    // Database sync failed, using fallback user (this is expected during deployment/cache issues)
+    console.warn('⚠️  Database sync failed, using fallback user:', dbError instanceof Error ? dbError.message : dbError);
     
     // Fallback: create minimal user object if database sync fails
     const fallbackUser: AuthenticatedUser = {
@@ -395,13 +361,6 @@ export async function withAuth<T>(
 ): Promise<T> {
   // Handle bypass option (e.g. for cron jobs)
   if (options.bypass || req.url?.startsWith('/api/cron/')) {
-    console.log('🔍 ENHANCED DEBUG: Bypass auth for cron job:', {
-      url: req.url,
-      method: req.method,
-      headers: req.headers,
-      query: req.query,
-      bypass: options.bypass
-    });
     try {
       return await handler(req as AuthenticatedRequest, res);
     } catch (error) {
