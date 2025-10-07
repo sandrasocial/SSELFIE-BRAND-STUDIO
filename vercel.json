@@ -63,11 +63,71 @@
       "destination": "/api/me.ts"
     },
     {
+      "source": "/api/test-db",
+      "destination": "/api/test-db.ts"
+    },
+    {
       "source": "/api/cron/(.*)",
       "destination": "/api/[...route].ts"
     },
     {
-      "source": "/api/(.*)",
+      "source": "/api/maya/(.*)",
+      "destination": "/api/[...route].ts"
+    },
+    {
+      "source": "/api/admin/(.*)",
+      "destination": "/api/[...route].ts"
+    },
+    {
+      "source": "/api/video/(.*)",
+      "destination": "/api/[...route].ts"
+    },
+    {
+      "source": "/api/auth/(.*)",
+      "destination": "/api/[...route].ts"
+    },
+    {
+      "source": "/api/handler/(.*)",
+      "destination": "/api/[...route].ts"
+    },
+    {
+      "source": "/api/user-model",
+      "destination": "/api/[...route].ts"
+    },
+    {
+      "source": "/api/ai-images",
+      "destination": "/api/[...route].ts"
+    },
+    {
+      "source": "/api/onboarding",
+      "destination": "/api/[...route].ts"
+    },
+    {
+      "source": "/api/subscription",
+      "destination": "/api/[...route].ts"
+    },
+    {
+      "source": "/api/subscription/(.*)",
+      "destination": "/api/[...route].ts"
+    },
+    {
+      "source": "/api/brandbook",
+      "destination": "/api/[...route].ts"
+    },
+    {
+      "source": "/api/generated-images",
+      "destination": "/api/[...route].ts"
+    },
+    {
+      "source": "/api/start-model-training",
+      "destination": "/api/[...route].ts"
+    },
+    {
+      "source": "/api/training-status",
+      "destination": "/api/[...route].ts"
+    },
+    {
+      "source": "/api/training/(.*)",
       "destination": "/api/[...route].ts"
     },
     {
