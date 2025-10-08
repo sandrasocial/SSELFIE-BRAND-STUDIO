@@ -29,6 +29,7 @@ import adminRoutes from './routes/modules/admin.js';
 import agentProtocolRoutes from './routes/modules/agent-protocol.js';
 import websitesRoutes from './routes/modules/websites.js';
 import trainingRoutes from './routes/modules/training.js';
+import verticalSliceRoutes from './routes/vertical-slice.js';
 import claudeRoutes from './routes/modules/claude.js';
 import usageRoutes from './routes/modules/usage.js';
 // Reconstructed wrapper function (previously removed during refactor cleanup)
@@ -52,6 +53,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/', trainingRoutes);
   app.use('/', claudeRoutes);
   app.use('/', usageRoutes);
+  app.use('/api', verticalSliceRoutes); // Vertical slice demonstration routes
 
   // NOTE: The remainder of the file already assumes an existing `app` context.
   // Imports consolidated above wrapper during refactor.

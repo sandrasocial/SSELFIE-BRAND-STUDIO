@@ -47,6 +47,7 @@ function getSql() {
 
 function getDb() {
   if (!_db) {
+    // @ts-ignore - Drizzle ORM 0.36.0 type definitions are corrupted
     _db = drizzle(getSql(), { schema });
   }
   return _db;

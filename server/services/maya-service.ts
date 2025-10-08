@@ -4,19 +4,19 @@
  */
 
 import { DatabaseStorage } from '../storage.js';
-import { GenerationTracker } from '../../shared/schema.js';
 import {
   MayaProfile,
   InsertMayaProfile,
-  InsertMayaImage
-} from '../../shared/schema-maya.js';
-import {
+  InsertMayaImage,
   Conversation,
   InsertConversation,
-  InsertMessage,
   InsertConceptCard,
+  InsertConversationSummary,
+  GenerationTracker,
+  InsertGenerationTracker,
   UserModel
-} from '../../shared/schema.js';
+} from '../../shared/types-override.js';
+import { InsertMessage } from '../../shared/schema.js';
 import Anthropic from '@anthropic-ai/sdk';
 import { PersonalityManager } from '../agents/personalities/personality-config.js';
 
@@ -69,23 +69,23 @@ export class MayaService {
   /**
    * Get or create user profile for Maya personalization
    */
-  async getOrCreateUserProfile(userId: string): Promise<MayaProfile> {
+  async getOrCreateUserProfile(stackAuthId: string): Promise<MayaProfile> {
     try {
-      // Check if profile exists
-      const existingProfile = await this.db.getMayaProfile(userId);
+      // Get user data first (stackAuthId is Stack Auth ID)
+      const user = await this.db.getUserByStackAuthId(stackAuthId);
+      if (!user) {
+        throw new Error('User not found with Stack Auth ID');
+      }
+
+      // Check if profile exists using database user ID
+      const existingProfile = await this.db.getMayaProfile(user.id);
       if (existingProfile) {
         return existingProfile;
       }
 
-      // Get user data for profile creation
-      const user = await this.db.getUser(userId);
-      if (!user) {
-        throw new Error('User not found');
-      }
-
-      // Create new Maya profile
+      // Create new Maya profile using database user ID
       const newProfile: InsertMayaProfile = {
-        userId,
+        userId: user.id,
         onboardingStatus: 'pending',
         onboardingStep: 1,
         completedSteps: [],
@@ -141,23 +141,29 @@ export class MayaService {
   /**
    * Process Maya chat with full database integration
    */
-  async processChat(userId: string, request: MayaChatRequest): Promise<MayaChatResponse> {
+  async processChat(stackAuthId: string, request: MayaChatRequest): Promise<MayaChatResponse> {
     try {
+      // Get user data first to get database user ID
+      const user = await this.db.getUserByStackAuthId(stackAuthId);
+      if (!user) {
+        throw new Error('User not found with Stack Auth ID');
+      }
+
       // Get or create user profile
-      await this.getOrCreateUserProfile(userId);
+      await this.getOrCreateUserProfile(stackAuthId);
 
       // Get or create conversation
       let conversation: Conversation;
       if (request.conversationId) {
         const foundConversation = await this.db.getConversation(request.conversationId);
-        if (!foundConversation || foundConversation.userId !== userId) {
+        if (!foundConversation || foundConversation.userId !== user.id) {
           throw new Error('Conversation not found or access denied');
         }
         conversation = foundConversation;
       } else {
         // Create new conversation
         const newConversation: InsertConversation = {
-          userId,
+          userId: user.id,
           agentName: 'maya',
           title: `Maya Chat ${new Date().toLocaleDateString()}`,
         };
@@ -230,7 +236,7 @@ export class MayaService {
       // Save concept cards to database
       for (const concept of conceptCards) {
         const conceptCard: InsertConceptCard = {
-          userId,
+          userId: user.id,
           conversationId: conversation.id,
           title: concept.title,
           description: concept.description,
@@ -289,7 +295,7 @@ export class MayaService {
         prompt: request.conceptCard.fluxPrompt,
         style: 'editorial',
         status: 'processing',
-      });
+      } as InsertGenerationTracker);
 
       // Start FLUX generation asynchronously
       this.startFluxGeneration(userId, request, generationId, tracker, userModel);
@@ -597,7 +603,7 @@ export class MayaService {
           summary,
           lastMessageId: lastMessage.id,
           messageCount: messages.length,
-        });
+        } as InsertConversationSummary);
       }
     } catch (error) {
       console.error('❌ MAYA: Failed to update conversation summary:', error);

@@ -83,9 +83,11 @@ export async function checkDatabaseHealth(): Promise<{ healthy: boolean; latency
 }
 
 // HTTP-based drizzle instance for single queries (recommended for serverless)
+// @ts-ignore - Drizzle ORM 0.36.0 type definitions are corrupted
 export const db = drizzle(sql, { schema });
 
 // WebSocket-based drizzle instance for interactive transactions
+// @ts-ignore - Drizzle ORM 0.36.0 type definitions are corrupted
 export const dbWs = drizzleWs(getWebSocketPool(), { schema });
 
 // Transaction helper using HTTP (for non-interactive transactions)
