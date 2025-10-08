@@ -78,7 +78,7 @@ export const serverlessQuery = async <T = unknown>(
     // Execute query with proper type handling
     const result = params?.length 
       ? await sql.query(text, params)
-      : await sql`${sql.unsafe(text)}`;
+      : await sql`${text}`;
 
     // Ensure result structure - convert array results to QueryResult format
     if (Array.isArray(result)) {
