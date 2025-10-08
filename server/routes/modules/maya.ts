@@ -162,14 +162,12 @@ The user's current message context is: ${JSON.stringify(context)}
     })).filter((msg: { role: string; content: string }) => msg.content.trim());
 
     // Generate response using Claude with full personality system
-    const mayaResponse = await claudeService.sendMessage(
+    const mayaResponseObj = await claudeService.sendMessage(
       message,
-      `maya-chat-${userId}`,
-      'maya',
-      false,
       claudeHistory,
       mayaPersonality
     );
+    const mayaResponse = mayaResponseObj.content;
 
     // Extract concept cards if Maya suggests photo concepts
     const conceptCards: MayaConceptCard[] = [];
@@ -263,14 +261,12 @@ The user's current message context is: ${JSON.stringify(context)}
       content: entry.user || entry.maya || entry.response || ''
     })).filter((msg: any) => msg.content.trim());
 
-    const mayaResponse = await claudeService.sendMessage(
+    const mayaResponseObj = await claudeService.sendMessage(
       message,
-      `maya-chat-${userId}`,
-      'maya',
-      false,
       claudeHistory,
       mayaPersonality
     );
+    const mayaResponse = mayaResponseObj.content;
 
     const conceptCards = [];
     try {
@@ -523,12 +519,14 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
     const claudeService = new ClaudeApiServiceSimple();
     const videoConversationId = `video_direction_${userId}_${Date.now()}`;
     
-    const mayaVideoPrompt = await claudeService.sendMessageWithImage(
-      videoDirectorPrompt,
-      imageUrl,
-      videoConversationId,
-      'maya'
+    // Generate video direction prompt using regular Claude service
+    // Note: Image processing capability would need to be added to ClaudeApiServiceSimple for full functionality
+    const mayaVideoResponseObj = await claudeService.sendMessage(
+      `${videoDirectorPrompt}\n\nImage URL for context: ${imageUrl}`,
+      [],
+      'You are Maya, a professional AI creative director helping with video generation.'
     );
+    const mayaVideoPrompt = mayaVideoResponseObj.content;
 
 
     const responseData: SuccessResponse<{

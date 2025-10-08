@@ -98,13 +98,13 @@ test.describe('Comprehensive User Journey', () => {
       }
 
       // Verify we're logged out (redirected to home or login page)
-      await page.waitForURL(/\/(|login|signin)$/, { timeout: 10000 });
+      await page.waitForURL(/\/(|handler\/sign-in)$/, { timeout: 10000 });
     });
 
     // Step 4: Log in with the newly created account
     await test.step('Log in with new account', async () => {
       // Navigate to login if not already there
-      if (!page.url().includes('login') && !page.url().includes('signin')) {
+      if (!page.url().includes('handler/sign-in')) {
         const loginButton = page.locator('text=Login').or(page.locator('text=Sign In')).first();
         await loginButton.click();
       }

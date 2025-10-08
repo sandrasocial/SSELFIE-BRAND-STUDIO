@@ -35,11 +35,10 @@ function getSql() {
     if (!dbUrl) {
       throw new Error(`No database connection string available. DATABASE_URL=${!!DATABASE_URL}, process.env.DATABASE_URL=${!!process.env.DATABASE_URL}, process.env.NEON_DB_URL=${!!process.env.NEON_DB_URL}, NODE_ENV=${process.env.NODE_ENV}`);
     }
-    _sql = neon(dbUrl, {
-      fetchOptions: {
-        priority: 'high' // Prioritize database requests
-      }
-    });
+    
+    // For Drizzle 0.36.0+ compatibility with Neon serverless
+    _sql = neon(dbUrl);
+    
     console.log('✅ Database connection established successfully');
   }
   return _sql;
@@ -47,8 +46,9 @@ function getSql() {
 
 function getDb() {
   if (!_db) {
-    // @ts-ignore - Drizzle ORM 0.36.0 type definitions are corrupted
-    _db = drizzle(getSql(), { schema });
+    // Updated for Drizzle ORM 0.36.0+ compatibility
+    const sql = getSql();
+    _db = drizzle(sql);
   }
   return _db;
 }

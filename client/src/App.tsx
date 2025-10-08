@@ -41,6 +41,7 @@ const Privacy = lazy(() => import("./pages/legal/privacy.js"));
 import AuthSuccessComponent from "./pages/auth-success.js";
 const NotFound = lazy(() => import("./pages/not-found.js"));
 const SSELFIEGallery = lazy(() => import("./pages/sselfie-gallery.js"));
+const AICommandCenter = lazy(() => import("./pages/AICommandCenter.js"));
 
 // Components
 import { PageLoader } from "./components/PageLoader.js";
@@ -263,6 +264,15 @@ function Router() {
         <ProtectedRouteWrapper>
           <Suspense fallback={<PageLoader />}>
             <SselfieAppLayout />
+          </Suspense>
+        </ProtectedRouteWrapper>
+      )} />
+
+      {/* AI Command Center - Protected route for authenticated users */}
+      <Route path="/ai-command-center" component={() => (
+        <ProtectedRouteWrapper>
+          <Suspense fallback={<PageLoader />}>
+            <AICommandCenter />
           </Suspense>
         </ProtectedRouteWrapper>
       )} />

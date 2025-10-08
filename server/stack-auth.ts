@@ -264,16 +264,42 @@ export async function verifyStackAuthToken(req: Request, res: Response, next: Ne
     const { storage } = await import('./storage.js');
     
     // Step 1: Try to find user by Stack Auth ID first
-    let dbUser = await storage.getUserByStackAuthId(userId);
+    let dbUser;
+    try {
+      dbUser = await storage.getUserByStackAuthId(userId);
+      console.log('🔍 Step 1 - getUserByStackAuthId result:', {
+        userId,
+        found: !!dbUser,
+        dbUserId: dbUser?.id,
+        dbUserEmail: dbUser?.email
+      });
+    } catch (error) {
+      console.error('❌ Step 1 - getUserByStackAuthId error:', error);
+    }
     
     if (!dbUser) {
       // Step 2: Try to find existing user by email (for migration from integer IDs)
       if (userEmail) {
-        dbUser = await storage.getUserByEmail(userEmail);
-        
-        if (dbUser) {
-          // Step 3: Link existing user to Stack Auth ID
-          dbUser = await storage.linkStackAuthId(dbUser.id, userId);
+        try {
+          dbUser = await storage.getUserByEmail(userEmail);
+          console.log('🔍 Step 2 - getUserByEmail result:', {
+            userEmail,
+            found: !!dbUser,
+            dbUserId: dbUser?.id,
+            dbUserStackAuthId: dbUser?.stackAuthId
+          });
+          
+          if (dbUser) {
+            // Step 3: Link existing user to Stack Auth ID
+            console.log('🔗 Step 3 - Linking existing user to Stack Auth ID');
+            dbUser = await storage.linkStackAuthId(dbUser.id, userId);
+            console.log('✅ Step 3 - Successfully linked user:', {
+              dbUserId: dbUser.id,
+              stackAuthId: userId
+            });
+          }
+        } catch (error) {
+          console.error('❌ Step 2/3 error:', error);
         }
       }
     }
