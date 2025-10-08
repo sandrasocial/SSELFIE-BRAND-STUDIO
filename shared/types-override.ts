@@ -47,13 +47,6 @@ export interface User {
   profession: string | null;
   brandStyle: string | null;
   photoGoals: string | null;
-  
-  // Training-time coaching system
-  trainingCoachingStarted: boolean;
-  trainingCoachingCompleted: boolean;
-  trainingCoachingPhase: string | null;
-  trainingCoachingStep: number;
-  brandStrategyContext: any;
 }
 
 export interface InsertUser {
@@ -84,11 +77,6 @@ export interface InsertUser {
   profession?: string | null;
   brandStyle?: string | null;
   photoGoals?: string | null;
-  trainingCoachingStarted?: boolean;
-  trainingCoachingCompleted?: boolean;
-  trainingCoachingPhase?: string | null;
-  trainingCoachingStep?: number;
-  brandStrategyContext?: any;
 }
 
 // =============================================================================

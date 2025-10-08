@@ -68,13 +68,26 @@ function ProtectedRouteWrapper({ children }: { children: React.ReactNode }) {
 }
 
 // Smart Home component - Routes users through simplified journey
-// NEW USER JOURNEY: Authentication → Training → App Studio → Advanced Features  
+// NEW USER JOURNEY: Authentication → AI Training → Payment → App Studio
 function SmartHome() {
   const { user, isLoading, isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
 
+  // Check actual AI model training status from mayaModels table
+  const { data: userModel, isLoading: modelLoading } = useQuery<{
+    trainingStatus?: string;
+    trainingProgress?: number;
+    id?: number;
+    userId?: string;
+  }>({
+    queryKey: ['/api/user-model'],
+    enabled: isAuthenticated && !!user,
+    retry: false,
+    staleTime: 30 * 1000
+  });
+
   useEffect(() => {
-    if (isLoading) return;
+    if (isLoading || modelLoading) return;
 
     if (!isAuthenticated) {
       setLocation('/handler/sign-in');
@@ -83,8 +96,10 @@ function SmartHome() {
 
     // Authenticated user routing logic
     if (user) {
-      // Priority 1: Training required (new users or users without training)
-      if (!user.trainingCoachingCompleted) {
+      // Priority 1: AI Model Training required (check actual model status, not coaching)
+      const hasTrainedModel = userModel?.trainingStatus === 'completed';
+      
+      if (!hasTrainedModel) {
         setLocation('/simple-training');
         return;
       }
@@ -101,7 +116,7 @@ function SmartHome() {
       // Priority 3: Full access - route to main app
       setLocation('/app');
     }
-  }, [isLoading, isAuthenticated, user, setLocation]);
+  }, [isLoading, modelLoading, isAuthenticated, user, userModel, setLocation]);
 
   return <PageLoader />;
 }

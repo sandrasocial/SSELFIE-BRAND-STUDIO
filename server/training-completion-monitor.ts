@@ -144,23 +144,7 @@ export class TrainingCompletionMonitor {
             // Don't fail the completion if email fails
           }
 
-          // TRAINING-TIME COACHING INTEGRATION - Generate strategic first concepts
-          try {
-            const user = await storage.getUser(userId);
-            if (user?.trainingCoachingCompleted && user?.brandStrategyContext) {
-              
-              // Parse brand strategy context
-              const strategyData = JSON.parse(user.brandStrategyContext as string);
-              const responses = strategyData.responses;
-              
-              
-              // Flag that strategic concepts are ready for this user
-            } else {
-            }
-          } catch (strategyError) {
-            console.error(`⚠️ STRATEGIC CONCEPTS: Failed to process for user ${userId}:`, strategyError);
-            // Don't fail training completion if strategic concepts fail
-          }
+          // Training completion successful - no additional brand coaching needed
 
           return statusUpdate;
           
@@ -269,23 +253,7 @@ export class TrainingCompletionMonitor {
           // Don't fail the completion if email fails
         }
 
-        // TRAINING-TIME COACHING INTEGRATION - Generate strategic first concepts
-        try {
-          const user = await storage.getUser(userId);
-          if (user?.trainingCoachingCompleted && user?.brandStrategyContext) {
-            
-            // Parse brand strategy context
-            const strategyData = JSON.parse(user.brandStrategyContext as string);
-            const responses = strategyData.responses;
-            
-            
-            // Flag that strategic concepts are ready for this user
-          } else {
-          }
-        } catch (strategyError) {
-          console.error(`⚠️ STRATEGIC CONCEPTS: Failed to process for user ${userId}:`, strategyError);
-          // Don't fail training completion if strategic concepts fail
-        }
+        // Training completion successful - no additional brand coaching needed
 
         
         return {
