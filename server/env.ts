@@ -21,6 +21,7 @@ export const ADMIN_USER_ID = process.env['ADMIN_USER_ID'];
 export const SHANNON_USER_ID = process.env['SHANNON_USER_ID'];
 export const FLODESK_API_KEY = process.env['FLODESK_API_KEY'];
 export const RESEND_API_KEY = process.env['RESEND_API_KEY'];
+export const HIGHLEVEL_API_KEY = process.env['HIGHLEVEL_API_KEY'];
 export const INSTAGRAM_BUSINESS_ACCOUNT_ID = process.env['INSTAGRAM_BUSINESS_ACCOUNT_ID'];
 export const META_ACCESS_TOKEN = process.env['META_ACCESS_TOKEN'];
 export const MANYCHAT_API_TOKEN = process.env['MANYCHAT_API_TOKEN'];

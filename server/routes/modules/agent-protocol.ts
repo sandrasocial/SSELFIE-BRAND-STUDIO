@@ -45,12 +45,17 @@ router.get('/api/agent-protocol/:agentId', asyncHandler(async (req: Request, res
 
   // Mock implementation - replace with actual agent service
   const status: AgentStatus = {
-    agentId,
+    state: 'active',
     status: 'active',
-    lastSeen: new Date().toISOString()
+    lastUpdate: new Date(),
+    health: {
+      cpu: 25,
+      memory: 45,
+      status: 'healthy'
+    }
   };
-  const responseData: SuccessResponse<{ status: AgentStatus }> = {
-    data: { status }
+  const responseData: SuccessResponse<{ status: AgentStatus; agentId: string }> = {
+    data: { status, agentId }
   };
   sendSuccess(res, responseData);
 }));
@@ -113,7 +118,35 @@ router.get('/api/agents/:agentId', requireStackAuth, asyncHandler(async (req: Au
   const agent: Agent = {
     id: agentId,
     name: 'Test Agent',
-    status: 'active'
+    type: 'ai-assistant',
+    status: {
+      state: 'active',
+      status: 'active',
+      lastUpdate: new Date(),
+      health: {
+        cpu: 30,
+        memory: 50,
+        status: 'healthy'
+      }
+    },
+    capabilities: {
+      id: agentId,
+      name: 'AI Assistant',
+      version: '1.0.0',
+      protocols: ['chat', 'generation'],
+      capabilities: {
+        canChat: true,
+        canGenerate: true,
+        canAnalyze: true,
+        canPlan: true,
+        supportedFormats: ['text', 'json']
+      },
+      canGenerateImages: true,
+      canProcessText: true,
+      canAnalyzeData: true,
+      supportedFormats: ['text', 'json', 'markdown']
+    },
+    lastActivity: new Date()
   };
   const responseData: SuccessResponse<{ agent: Agent }> = {
     data: { agent }
