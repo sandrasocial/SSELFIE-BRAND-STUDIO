@@ -125,7 +125,7 @@ async function verifyJWTToken(token: string): Promise<JWTPayload & StackAuthUser
   }
 }
 
-import { AuthenticatedUser, OnboardingProgress, BrandStrategyContext } from '../_shared/auth-types.js';
+import { AuthenticatedUser, OnboardingProgress } from '../_shared/auth-types.js';
 import { AuthenticatedHandler, AuthOptions, AuthResponse, AuthenticatedRequest } from '../_shared/auth-middleware-types.js';
 
 // Get authenticated user helper with improved token extraction
@@ -299,7 +299,6 @@ export async function getAuthenticatedUser(req: VercelRequest): Promise<Authenti
     const user: AuthenticatedUser = {
       ...dbUser,
       onboardingProgress: dbUser.onboardingProgress as OnboardingProgress | null,
-      brandStrategyContext: dbUser.brandStrategyContext as BrandStrategyContext | null,
       stackUser: userInfo
     };
 
@@ -338,11 +337,6 @@ export async function getAuthenticatedUser(req: VercelRequest): Promise<Authenti
       profession: null,
       brandStyle: null,
       photoGoals: null,
-      trainingCoachingStarted: false,
-      trainingCoachingCompleted: false,
-      trainingCoachingPhase: null,
-      trainingCoachingStep: 0,
-      brandStrategyContext: null,
       stackUser: userInfo
     };
 

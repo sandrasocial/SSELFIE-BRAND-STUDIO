@@ -117,11 +117,6 @@ export class UserService extends BaseService {
       profession: '',
       brandStyle: '',
       photoGoals: '',
-      trainingCoachingStarted: false,
-      trainingCoachingCompleted: false,
-      trainingCoachingPhase: '',
-      trainingCoachingStep: 0,
-      brandStrategyContext: {},
       ...overrides
     };
   }
