@@ -4,7 +4,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAdaptivePolling } from './useAdaptivePolling.js';
-import { ProgressMetrics, TrainingStage } from '../types/training.js';
+import { ProgressMetrics, TrainingStage } from '../../../shared/types/client-training.js';
 import { apiRequest } from '../lib/queryClient.js';
 
 interface TrainingStatusData {

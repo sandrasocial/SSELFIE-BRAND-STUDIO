@@ -6,21 +6,24 @@
     "noEmitOnError": false,
     "module": "Node16",
     "moduleResolution": "node16",
+    "target": "ES2020",
     "declaration": false,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "noImplicitAny": false,
     "strict": false,
+    "downlevelIteration": true,
     "types": []
   },
   "include": [
     "server/**/*.ts",
     "shared/**/*.ts",
     "api/**/*.ts",
-    "server/types/global.d.ts"
+    "shared/types/global.d.ts"
   ],
   "exclude": [
     "node_modules",

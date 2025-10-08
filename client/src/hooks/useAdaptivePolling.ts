@@ -2,7 +2,7 @@
 // Implements smart polling strategy with progress-based intervals
 
 import { useEffect, useRef, useCallback } from 'react';
-import { AdaptivePollingConfig, DEFAULT_ADAPTIVE_POLLING } from '../types/training.js';
+import { AdaptivePollingConfig, DEFAULT_ADAPTIVE_POLLING } from '../../../shared/types/client-training.js';
 
 interface UseAdaptivePollingOptions {
   enabled: boolean;
@@ -71,7 +71,7 @@ export const useAdaptivePolling = ({
 
   // Effect to manage polling lifecycle
   useEffect(() => {
-    if (enabled && onPoll) {
+    if (enabled) {
       startPolling();
     } else {
       stopPolling();

@@ -1,5 +1,5 @@
 
-/// <reference path="types/global.d.ts" />
+/// <reference path="../shared/types/global.d.ts" />
 
 import * as dotenv from 'dotenv';
 // Only load .env.server in non-production environments

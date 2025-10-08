@@ -6,8 +6,8 @@
 import { Router, Response, Request } from 'express';
 import { requireStackAuth } from '../../stack-auth.js';
 import { asyncHandler, createError, sendSuccess, validateRequired } from '../middleware/error-handler.js';
-import { AuthenticatedRequest } from '../../types/ai-generation.js';
-import { SuccessResponse } from '../../types/ai-generation.js';
+import { AuthenticatedRequest } from '../../../shared/types/ai-generation.js';
+import { SuccessResponse } from '../../../shared/types/ai-generation.js';
 
 interface TrainingStatus {
   userId: string;

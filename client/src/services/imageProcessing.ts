@@ -7,7 +7,7 @@ import {
   DEFAULT_IMAGE_PROCESSING_OPTIONS, 
   DEFAULT_VALIDATION_RULES,
   ErrorState 
-} from '../types/training.js';
+} from '../../../shared/types/client-training.js';
 
 export class ImageProcessingService {
   private static instance: ImageProcessingService;
@@ -24,7 +24,7 @@ export class ImageProcessingService {
 
   private getCanvas(): HTMLCanvasElement {
     if (!this.canvas) {
-      this.canvas = document.createElement('canvas');
+      this.canvas = document.createElement('canvas') as HTMLCanvasElement;
     }
     return this.canvas;
   }

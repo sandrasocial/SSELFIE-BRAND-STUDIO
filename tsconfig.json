@@ -46,7 +46,7 @@
     "client/src/**/*",
     "shared/**/*",
     "server/**/*",
-    "server/types/global.d.ts",
+    "shared/types/global.d.ts",
     "stack/**/*"
   ]
 }

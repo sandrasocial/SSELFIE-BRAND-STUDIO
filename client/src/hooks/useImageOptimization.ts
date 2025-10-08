@@ -7,7 +7,7 @@ import {
   DEFAULT_IMAGE_PROCESSING_OPTIONS,
   DEFAULT_VALIDATION_RULES,
   ErrorState
-} from '../types/training.js';
+} from '../../../shared/types/client-training.js';
 
 // Legacy interface for backwards compatibility
 interface ImageOptimizationOptions {
@@ -29,7 +29,7 @@ export const useImageOptimization = () => {
   // Get canvas instance (create if needed)
   const getCanvas = useCallback(() => {
     if (!canvasRef.current) {
-      canvasRef.current = document.createElement('canvas');
+      canvasRef.current = document.createElement('canvas') as HTMLCanvasElement;
       addCleanup(() => {
         if (canvasRef.current) {
           const ctx = canvasRef.current.getContext('2d');
@@ -59,6 +59,10 @@ export const useImageOptimization = () => {
       img.onload = () => {
         try {
           const canvas = getCanvas();
+          if (!canvas) {
+            reject(new Error('Could not create canvas'));
+            return;
+          }
           const ctx = canvas.getContext('2d');
           
           if (!ctx) {
@@ -129,6 +133,10 @@ export const useImageOptimization = () => {
   const checkWebPSupport = useCallback((): Promise<boolean> => {
     return new Promise((resolve) => {
       const canvas = getCanvas();
+      if (!canvas) {
+        resolve(false);
+        return;
+      }
       
       canvas.width = 1;
       canvas.height = 1;

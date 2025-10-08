@@ -3,11 +3,12 @@
  * Handles image gallery management
  */
 
-import { Router, Response } from 'express';
+import type { Response } from 'express';
+import express from 'express';
 import { requireStackAuth } from '../../stack-auth.js';
 import { asyncHandler, createError, sendSuccess, validateRequired } from '../middleware/error-handler.js';
 import { storage } from '../../storage.js';
-import { AuthenticatedRequest, SuccessResponse } from '../../types/ai-generation.js';
+import { AuthenticatedRequest, SuccessResponse } from '../../../shared/types/ai-generation.js';
 
 interface ImageMetadata {
   width: number;
@@ -20,11 +21,11 @@ interface GalleryImage {
   id: number | string;
   userId: string;
   url: string;
-  prompt?: string;
-  style?: string;
+  prompt: string | null;
+  style: string | null;
   category: string;
   source: string;
-  createdAt: Date;
+  createdAt: Date | null;
   metadata: ImageMetadata;
 }
 
@@ -60,7 +61,18 @@ interface UpdateImageMetadataRequest {
   metadata: ImageMetadata;
 }
 
-const router = Router();
+const router = express.Router();
+
+// Favorites endpoints - stubs to avoid 404 errors
+router.get('/api/images/favorites', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  res.setHeader('Content-Type', 'application/json; charset=utf-8');
+  sendSuccess(res, { favorites: [] });
+}));
+
+router.post('/api/images/:id/favorite', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  res.setHeader('Content-Type', 'application/json; charset=utf-8');
+  sendSuccess(res, { ok: true });
+}));
 
 // Get user gallery
 router.get('/api/gallery', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
@@ -114,7 +126,11 @@ router.get('/api/gallery', requireStackAuth, asyncHandler(async (req: Authentica
     ];
     
     // Sort by creation date (newest first)
-    allImages.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    allImages.sort((a, b) => {
+      const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return bTime - aTime;
+    });
     
     
     const responseData: SuccessResponse<{
@@ -187,7 +203,11 @@ router.get('/api/gallery-images', requireStackAuth, asyncHandler(async (req: Aut
     ];
     
     // Sort by creation date (newest first)
-    allImages.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    allImages.sort((a, b) => {
+      const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return bTime - aTime;
+    });
     
     
     const responseData: SuccessResponse<GalleryImage[]> = {
@@ -282,6 +302,8 @@ router.get('/api/gallery/image/:imageId', requireStackAuth, asyncHandler(async (
     id: imageId,
     userId,
     url: 'mock-url',
+    prompt: null,
+    style: null,
     category: 'gallery',
     source: 'workspace',
     createdAt: new Date(),

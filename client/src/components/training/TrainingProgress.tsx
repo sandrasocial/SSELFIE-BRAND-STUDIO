@@ -2,7 +2,7 @@
 // Consistent progress UI with luxury design and animations
 
 import React from 'react';
-import { ProgressUIProps, TrainingStage } from '../../types/training.js';
+import { ProgressUIProps, TrainingStage } from '../../../../shared/types/client-training.js';
 import { Colors, Typography, Spacing, Transitions } from '../../styles/designSystem.js';
 
 export const TrainingProgress: React.FC<ProgressUIProps> = ({

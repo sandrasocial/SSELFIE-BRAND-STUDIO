@@ -2,7 +2,7 @@
 // Comprehensive error handling for training flow with recovery strategies
 
 import React, { Component, ReactNode } from 'react';
-import { ErrorState, RetryStrategy, DEFAULT_RETRY_STRATEGIES } from '../../types/training.js';
+import { ErrorState, RetryStrategy, DEFAULT_RETRY_STRATEGIES } from '../../../../shared/types/client-training.js';
 import { Colors, Typography, Spacing, Transitions } from '../../styles/designSystem.js';
 
 interface ErrorReportingService {

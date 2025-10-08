@@ -1,34 +1,27 @@
-// Re-export all types from unified files
-export * from './unified-chat.js';
-export * from './base.js';
-export * from './concept-card.js';
+// src/types/index.ts
 
-// Define global interfaces
-export interface ServiceResponse<T> {
-  success: boolean;
-  data?: T;
-  message?: string;
-  error?: string;
-  timestamp: string;
-}
-
-export interface BaseEntity {
+export interface User {
   id: string;
-  createdAt: Date;
-  updatedAt: Date;
+  email: string;
+  firstName?: string;
+  lastName?: string;
+  plan?: string;
+  role?: string;
+  gender?: string; // Added to fix simple-training error
+  monthlyGenerationLimit: number;
+  generationsUsedThisMonth: number;
 }
 
-export interface OptionalBaseEntity {
-  id?: string;
-  createdAt?: Date;
-  updatedAt?: Date;
+export interface UserModel {
+  trainingStatus?: string;
+  hasRetrainingAccess?: boolean; // Added to fix simple-training error
+  // Add any other userModel properties you need
 }
 
-// Define utility types
-export type DeepPartial<T> = {
-  [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
-};
+import type { BaseChatMessage, MayaChatMessage } from './unified-chat.js';
 
-export type RequiredKeys<T> = {
-  [K in keyof T]-?: T[K];
-};
+export interface ClientChatMessage extends Omit<BaseChatMessage, 'content'> {
+  sender: 'user' | 'ai';
+  type: 'text' | 'concept';
+  content: string | Record<string, unknown>; // Can be string or a concept card object
+}
