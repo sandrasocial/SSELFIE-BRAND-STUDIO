@@ -5,7 +5,7 @@ import {
   ServerChatMessageInput as ChatMessageInput,
   GalleryImageInput,
   ChatPreviewError 
-} from './types/chat.js';
+} from '../shared/types/chat.js';
 
 /**
  * Maya Chat Preview Service

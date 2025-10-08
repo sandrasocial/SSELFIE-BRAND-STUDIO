@@ -2,7 +2,7 @@
   "version": 2,
   "builds": [
     {
-      "src": "api/me.ts",
+      "src": "server/me.ts",
       "use": "@vercel/node",
       "config": {
         "maxDuration": 25,
@@ -10,7 +10,7 @@
       }
     },
     {
-      "src": "api/test-db.ts",
+      "src": "server/health.ts",
       "use": "@vercel/node",
       "config": {
         "maxDuration": 10,
@@ -18,56 +18,23 @@
       }
     },
     {
-      "src": "api/auth-diagnostic.ts",
-      "use": "@vercel/node",
-      "config": {
-        "maxDuration": 10,
-        "memory": 256
-      }
-    },
-    {
-      "src": "api/maya-diagnostic.ts",
-      "use": "@vercel/node",
-      "config": {
-        "maxDuration": 15,
-        "memory": 512
-      }
-    },
-    {
-      "src": "api/create-maya-tables.ts",
-      "use": "@vercel/node",
-      "config": {
-        "maxDuration": 30,
-        "memory": 512
-      }
-    },
-    {
-      "src": "api/[...route].ts",
+      "src": "server/[...route].ts",
       "use": "@vercel/node",
       "config": {
         "maxDuration": 60,
         "memory": 1024,
         "includeFiles": [
-          "api/**",
-          "dist-server/**", 
-          "dist-server/server/**",
-          "dist-server/shared/**",
           "server/**",
           "shared/**", 
-          "components/**",
-          "client/src/**",
           "drizzle/**",
           ".env*",
           "tsconfig*.json",
           "package.json",
-          "vite.config.ts",
-          "postcss.config.js",
-          "tailwind.config.js",
           "server/storage.ts",
           "server/drizzle.ts",
-          "server/index.ts",
-          "server/index-launch.ts",
-          "shared/schema.ts"
+          "server/stack-auth.ts",
+          "shared/schema.ts",
+          "shared/schema-maya.ts"
         ]
       }
     },
@@ -84,107 +51,95 @@
   "rewrites": [
     {
       "source": "/api/me",
-      "destination": "/api/me.ts"
+      "destination": "/server/me.ts"
     },
     {
-      "source": "/api/test-db",
-      "destination": "/api/test-db.ts"
+      "source": "/api/health",
+      "destination": "/server/health.ts"
     },
     {
       "source": "/api/cron/(.*)",
-      "destination": "/api/[...route].ts"
+      "destination": "/server/[...route].ts"
     },
     {
       "source": "/api/maya/(.*)",
-      "destination": "/api/[...route].ts"
+      "destination": "/server/[...route].ts"
     },
     {
       "source": "/api/admin/(.*)",
-      "destination": "/api/[...route].ts"
+      "destination": "/server/[...route].ts"
     },
     {
       "source": "/api/video/(.*)",
-      "destination": "/api/[...route].ts"
+      "destination": "/server/[...route].ts"
     },
     {
       "source": "/api/auth/(.*)",
-      "destination": "/api/[...route].ts"
+      "destination": "/server/[...route].ts"
     },
     {
       "source": "/api/handler/(.*)",
-      "destination": "/api/[...route].ts"
+      "destination": "/server/[...route].ts"
     },
     {
       "source": "/api/user-model",
-      "destination": "/api/[...route].ts"
+      "destination": "/server/[...route].ts"
     },
     {
       "source": "/api/ai-images",
-      "destination": "/api/[...route].ts"
+      "destination": "/server/[...route].ts"
     },
     {
       "source": "/api/onboarding",
-      "destination": "/api/[...route].ts"
+      "destination": "/server/[...route].ts"
     },
     {
       "source": "/api/subscription",
-      "destination": "/api/[...route].ts"
+      "destination": "/server/[...route].ts"
     },
     {
       "source": "/api/subscription/(.*)",
-      "destination": "/api/[...route].ts"
+      "destination": "/server/[...route].ts"
     },
     {
       "source": "/api/brandbook",
-      "destination": "/api/[...route].ts"
+      "destination": "/server/[...route].ts"
     },
     {
       "source": "/api/generated-images",
-      "destination": "/api/[...route].ts"
+      "destination": "/server/[...route].ts"
     },
     {
       "source": "/api/start-model-training",
-      "destination": "/api/[...route].ts"
+      "destination": "/server/[...route].ts"
     },
     {
       "source": "/api/training-status",
-      "destination": "/api/[...route].ts"
+      "destination": "/server/[...route].ts"
     },
     {
       "source": "/api/training/(.*)",
-      "destination": "/api/[...route].ts"
+      "destination": "/server/[...route].ts"
     },
     {
       "source": "/api/gallery-images",
-      "destination": "/api/[...route].ts"
+      "destination": "/server/[...route].ts"
     },
     {
       "source": "/api/gallery",
-      "destination": "/api/[...route].ts"
+      "destination": "/server/[...route].ts"
     },
     {
       "source": "/api/images/(.*)",
-      "destination": "/api/[...route].ts"
+      "destination": "/server/[...route].ts"
     },
     {
       "source": "/api/usage/(.*)",
-      "destination": "/api/[...route].ts"
+      "destination": "/server/[...route].ts"
     },
     {
       "source": "/api/save-to-gallery",
-      "destination": "/api/[...route].ts"
-    },
-    {
-      "source": "/api/auth-diagnostic",
-      "destination": "/api/auth-diagnostic.ts"
-    },
-    {
-      "source": "/api/maya-diagnostic",
-      "destination": "/api/maya-diagnostic.ts"
-    },
-    {
-      "source": "/api/create-maya-tables",
-      "destination": "/api/create-maya-tables.ts"
+      "destination": "/server/[...route].ts"
     },
     {
       "source": "/(app|simple-training|training|auth-success|terms|privacy|sign-in|sign-up|magic-link|forgot-password|password-reset|business|ai-command-center)",
