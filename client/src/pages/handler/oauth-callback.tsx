@@ -13,16 +13,29 @@ const OAuthCallback: React.FC = () => {
         const code = urlParams.get('code');
         const state = urlParams.get('state');
         const error = urlParams.get('error');
+        const errorDescription = urlParams.get('error_description');
+
+        console.log('📋 OAuth Parameters:', {
+          code: code ? code.substring(0, 20) + '...' : null,
+          state: state ? state.substring(0, 20) + '...' : null,
+          error,
+          errorDescription,
+          fullURL: window.location.href
+        });
 
         if (error) {
-          console.error('❌ OAuth error:', error);
-          window.location.href = '/handler/sign-in?error=oauth_failed';
+          console.error('❌ OAuth error from provider:', error, errorDescription);
+          window.location.href = `/handler/sign-in?error=oauth_failed&details=${encodeURIComponent(error + ': ' + (errorDescription || ''))}`;
           return;
         }
 
         if (!code) {
-          console.error('❌ No OAuth code found');
-          window.location.href = '/handler/sign-in?error=no_code';
+          console.error('❌ No OAuth code found - this usually means:');
+          console.error('   1. OAuth redirect URI not whitelisted in Stack Auth dashboard');
+          console.error('   2. User cancelled OAuth flow');
+          console.error('   3. OAuth provider error');
+          console.error('   Current URL:', window.location.href);
+          window.location.href = '/handler/sign-in?error=no_code&url=' + encodeURIComponent(window.location.href);
           return;
         }
 

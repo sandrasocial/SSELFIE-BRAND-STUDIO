@@ -186,28 +186,17 @@ export function BrandStudioProvider({ children }: { children: React.ReactNode })
         [msg.type]: msg.content
       }));
 
-      const response = await fetch('/api/maya/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
-          message: messageContent,
-          chatHistory: chatHistory,
-          context: {
-            styling: true,
-            conversationId: state.conversationId,
-            userIntent: 'creative_direction',
-            sessionType: 'brand_studio'
-          }
-        })
+      // Use authenticated apiRequest instead of direct fetch
+      return await apiRequest('/api/maya/chat', 'POST', {
+        message: messageContent,
+        chatHistory: chatHistory,
+        context: {
+          styling: true,
+          conversationId: state.conversationId,
+          userIntent: 'creative_direction',
+          sessionType: 'brand_studio'
+        }
       });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || 'Failed to send message');
-      }
-
-      return response.json();
     },
     onSuccess: (data) => {
       // Handle Maya's intelligent response with proper concept card extraction
