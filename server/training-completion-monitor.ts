@@ -11,7 +11,7 @@ import {
   TrainingStatusUpdate,
   TrainingMonitorConfig,
   TrainingError
-} from './types/training.js';
+} from '../shared/types/training.js';
 
 export class TrainingCompletionMonitor {
   private static instance: TrainingCompletionMonitor;

@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { withAuth } from '../api/_middleware/auth.js';
+import { withAuth } from './_middleware/auth.js';
 import type { AuthenticatedRequest } from './_shared/auth-types.js';
 export const config = { runtime: 'nodejs' } as const;
 

@@ -27,18 +27,12 @@
     }
   },
   "include": [
-    "api/[...route].ts",
-    "api/_middleware/auth.ts",
-    "api/_shared/main.ts",
-    "api/_utils/serverless-db.ts",
-    "api/auth/[...auth].ts",
-    "api/me.ts",
-    "api/health.ts",
-    "api/ping.ts",
-    "api/index.ts",
+    "server/[...route].ts",
     "server/storage.ts",
     "server/drizzle.ts",
     "server/stack-auth.ts",
+    "server/me.ts",
+    "server/health.ts",
     "shared/schema.ts",
     "shared/schema-maya.ts",
     "shared/schema-maya-onboarding.ts",
@@ -59,15 +53,12 @@
     // Route modules with type errors
     "server/routes/live-session.ts",
     "server/routes/modules/admin.ts",
-    "server/routes/modules/ai-generation.ts",
     "server/routes/modules/auth.ts",
     "server/routes/modules/claude.ts",
     "server/routes/modules/gallery.ts",
-    "server/routes/modules/maya.ts",
     "server/routes/modules/training.ts",
     "server/routes/modules/utility.ts",
     // Service files with type errors
-    "server/services/claude-api-service-simple.ts",
     "server/services/hybrid-intelligence/local-processing-engine.ts",
     "server/services/images/variations.ts",
     "server/services/maya-adaptation-engine.ts",
@@ -88,7 +79,6 @@
     "server/routes/white-label-setup.ts",
     "server/services/veo-service.ts",
     "server/services/website-generator.ts",
-    "server/agents/personalities/personality-config.ts",
     "server/services/unified-state-manager.ts",
     "server/services/gmail-integration.ts",
     "server/agents/personality-integration-service.ts",
@@ -96,7 +86,6 @@
     "server/tools/agent_handoff.ts",
     "server/services/agent-coordination-bridge.ts",
     "server/workflows/active/workflow-persistence.ts",
-    "server/services/workflow-executor.ts",
-    "server/generation-completion-monitor.ts"
+    "server/services/workflow-executor.ts"
   ]
 }
