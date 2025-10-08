@@ -43,20 +43,12 @@ export function SSELFIEChat() {
   // Send message to Maya
   const sendMessage = useMutation({
     mutationFn: async (messageContent: string) => {
-      const response = await fetch('/api/maya/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: messageContent,
-          context: 'mobile_tab'
-        })
+      // Import and use authenticated apiRequest
+      const { apiRequest } = await import('../lib/queryClient.js');
+      return await apiRequest('/api/maya/chat', 'POST', {
+        message: messageContent,
+        context: 'mobile_tab'
       });
-      
-      if (!response.ok) {
-        throw new Error('Failed to send message');
-      }
-      
-      return response.json();
     },
     onSuccess: (data) => {
       const mayaMessage: ChatMessage = {
@@ -107,7 +99,7 @@ export function SSELFIEChat() {
     setMessage('');
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
