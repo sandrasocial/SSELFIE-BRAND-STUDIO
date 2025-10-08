@@ -29,6 +29,9 @@ const PasswordResetPage = lazy(() => import("../features/ResetPasswordPage.js").
 // Temporarily import SignInHandler directly to test if lazy loading is the issue
 import SignInHandler from "./pages/handler/sign-in.js";
 
+// Post-login handler for routing based on training status
+import PostLoginHandler from "./pages/handler/PostLoginHandler.js";
+
 const BusinessLanding = lazy(() => import("./pages/landing/business-landing.js"));
 const SimpleTraining = lazy(() => import("./pages/onboarding/simple-training.js"));
 const SimpleCheckout = lazy(() => import("./pages/simple-checkout.js"));
@@ -68,27 +71,14 @@ function ProtectedRouteWrapper({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-// Smart Home component - Routes users through simplified journey
+// Smart Home component - Routes users through simplified journey  
 // NEW USER JOURNEY: Authentication → AI Training → Payment → App Studio
 function SmartHome() {
-  const { user, isLoading, isAuthenticated } = useAuth();
+  const { isLoading, isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
 
-  // Check actual AI model training status from mayaModels table
-  const { data: userModel, isLoading: modelLoading } = useQuery<{
-    trainingStatus?: string;
-    trainingProgress?: number;
-    id?: number;
-    userId?: string;
-  }>({
-    queryKey: ['/api/user-model'],
-    enabled: isAuthenticated && !!user,
-    retry: false,
-    staleTime: 30 * 1000
-  });
-
   useEffect(() => {
-    if (isLoading || modelLoading) return;
+    if (isLoading) return;
 
     if (!isAuthenticated) {
       // Show business landing page for anonymous users instead of forcing sign-in
@@ -96,31 +86,23 @@ function SmartHome() {
       return;
     }
 
-    // Authenticated user routing logic
-    if (user) {
-      // Priority 1: AI Model Training required (check actual model status, not coaching)
-      const hasTrainedModel = userModel?.trainingStatus === 'completed';
-      
-      if (!hasTrainedModel) {
-        setLocation('/simple-training');
-        return;
-      }
+    // For authenticated users, delegate routing to PostLoginHandler
+    // This handles the complex logic of checking training status and redirecting appropriately
+    // No need to redirect here - just render PostLoginHandler directly
+  }, [isLoading, isAuthenticated, setLocation]);
 
-      // Priority 2: Payment required (trained users without active subscription)
-      const hasActiveSubscription = user.monthlyGenerationLimit === -1 ||
-        (user.plan === 'sselfie-studio' && (user.monthlyGenerationLimit || 0) > 0);
-      
-      if (!hasActiveSubscription) {
-        setLocation('/simple-checkout');
-        return;
-      }
+  // Show loading while checking auth
+  if (isLoading) {
+    return <PageLoader />;
+  }
 
-      // Priority 3: Full access - route to main app
-      setLocation('/app');
-    }
-  }, [isLoading, modelLoading, isAuthenticated, user, userModel, setLocation]);
+  // If not authenticated, redirect to business landing
+  if (!isAuthenticated) {
+    return <PageLoader />; // Will redirect via useEffect
+  }
 
-  return <PageLoader />;
+  // For authenticated users, use PostLoginHandler to determine where to go
+  return <PostLoginHandler />;
 }
 
 // 🔥 CLEANED UP: Stack Auth Handler - Single source of truth for authentication
