@@ -40,11 +40,14 @@ export const getWebSocketPool = () => {
 export const query = async (text: string, params?: unknown[]) => {
   try {
     if (params && params.length > 0) {
-      // Use parameterized query for safety
+      // For parameterized queries, we need to use the new query method
+      const { neonConfig } = await import('@neondatabase/serverless');
+      const { neon } = await import('@neondatabase/serverless');
+      const sql = neon(process.env.DATABASE_URL!);
       return await sql.query(text, params);
     } else {
       // Use template literal for simple queries
-      return await sql`${sql.unsafe(text)}`;
+      return await sql`${text}`;
     }
   } catch (error) {
     console.error('❌ Database query error:', error);

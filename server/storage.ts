@@ -887,12 +887,16 @@ export class DatabaseStorage implements IStorage {
 
     try {
       // Find existing user by Stack Auth ID (primary) OR by Email (for new Stack logins)
-      let userRecord = await db.query.users.findFirst({
-        where: or(
+      const userRecords = await db
+        .select()
+        .from(users)
+        .where(or(
           eq(users.stackAuthId, stackAuthId), 
           eq(users.email, email) 
-        )
-      });
+        ))
+        .limit(1);
+      
+      let userRecord = userRecords[0] || null;
 
       if (userRecord && !userRecord.stackAuthId) {
         // Found existing user by email, but they are unlinked. Link them now.
@@ -926,9 +930,13 @@ export class DatabaseStorage implements IStorage {
       }
 
       // Now get the user model for this user
-      const userModel = await db.query.userModels.findFirst({
-        where: eq(userModels.userId, userRecord.id)
-      });
+      const userModelRecords = await db
+        .select()
+        .from(userModels)
+        .where(eq(userModels.userId, userRecord.id))
+        .limit(1);
+      
+      const userModel = userModelRecords[0] || null;
 
       console.log('✅ User lookup result:', {
         foundUser: !!userRecord,
@@ -1399,9 +1407,13 @@ export class DatabaseStorage implements IStorage {
     // Create or get conversation - USE STABLE ID per agent per user
     const convId = conversationId || `admin_${agentId}_${userId}`;
     
-    let conversation = await db.query.claudeConversations.findFirst({
-      where: eq(claudeConversations.conversationId, convId)
-    });
+    const conversationRecords = await db
+      .select()
+      .from(claudeConversations)
+      .where(eq(claudeConversations.conversationId, convId))
+      .limit(1);
+    
+    let conversation = conversationRecords[0] || null;
     
     if (!conversation) {
       [conversation] = await db.insert(claudeConversations).values({
@@ -1593,12 +1605,16 @@ export class DatabaseStorage implements IStorage {
   async clearAgentMemory(agentId: string, userId: string): Promise<void> {
     try {
       // Find memory conversation
-      const conversation = await db.query.claudeConversations.findFirst({
-        where: and(
+      const conversationRecords = await db
+        .select()
+        .from(claudeConversations)
+        .where(and(
           eq(claudeConversations.agentName, agentId),
           eq(claudeConversations.userId, userId)
-        )
-      });
+        ))
+        .limit(1);
+      
+      const conversation = conversationRecords[0] || null;
       
       if (conversation) {
         // Delete memory messages (where content is '**CONVERSATION_MEMORY**')

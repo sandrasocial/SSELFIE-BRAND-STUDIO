@@ -90,7 +90,8 @@ function SmartHome() {
     if (isLoading || modelLoading) return;
 
     if (!isAuthenticated) {
-      setLocation('/handler/sign-in');
+      // Show business landing page for anonymous users instead of forcing sign-in
+      setLocation('/business');
       return;
     }
 
@@ -224,7 +225,7 @@ function Router() {
         </Suspense>
       )} />
 
-      {/* Protected onboarding and payment routes */}
+      {/* Protected onboarding routes */}
       <Route path="/simple-training" component={() => (
         <ProtectedRouteWrapper>
           <Suspense fallback={<PageLoader />}>
@@ -232,12 +233,12 @@ function Router() {
           </Suspense>
         </ProtectedRouteWrapper>
       )} />
+      
+      {/* Public checkout - allows new users to purchase before authentication */}
       <Route path="/simple-checkout" component={() => (
-        <ProtectedRouteWrapper>
-          <Suspense fallback={<PageLoader />}>
-            <SimpleCheckout />
-          </Suspense>
-        </ProtectedRouteWrapper>
+        <Suspense fallback={<PageLoader />}>
+          <SimpleCheckout />
+        </Suspense>
       )} />
       <Route path="/embedded-checkout" component={() => (
         <Suspense fallback={<PageLoader />}>
