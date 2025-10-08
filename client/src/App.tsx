@@ -259,8 +259,15 @@ function Router() {
         </Suspense>
       )} />
 
-      {/* Main authenticated app */}
+      {/* Main authenticated app routes */}
       <Route path="/app" component={() => (
+        <ProtectedRouteWrapper>
+          <Suspense fallback={<PageLoader />}>
+            <SselfieAppLayout />
+          </Suspense>
+        </ProtectedRouteWrapper>
+      )} />
+      <Route path="/app/:tab*" component={() => (
         <ProtectedRouteWrapper>
           <Suspense fallback={<PageLoader />}>
             <SselfieAppLayout />
