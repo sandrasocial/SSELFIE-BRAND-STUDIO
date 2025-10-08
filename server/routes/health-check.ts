@@ -31,7 +31,7 @@ interface ExternalServicesHealthDetails {
 }
 
 interface ServiceHealthDetails {
-  totalServices?: number;
+  activeServices?: number;
   healthyServices?: number;
   unhealthyServices?: number;
   error?: string;
@@ -46,13 +46,14 @@ interface HealthStatus {
   checks?: {
     database: { status: string; details?: DatabaseHealthDetails };
     externalServices: { status: string; details?: ExternalServicesHealthDetails };
-    performance: { status: string; averageResponseTime: string; successRate: string; totalOperations: number };
-    services: { status: string; total: number; healthy: number; degraded: number; unhealthy: number };
-    errors: { status: string; totalErrors: number; recentErrors: number };
+    performance: { status: string; cpu: string; memory: string };
+    services: { status: string; active: number; healthy: number };
+    errors: { status: string; totalErrors: number; errorRate: string };
   };
   system?: {
-    memory: { used: string; average: string; peak: string };
-    cpu: { current: string; average: string };
+    memory: string;
+    cpu: string;
+    status: string;
   };
 }
 
@@ -102,34 +103,25 @@ router.get('/health/detailed', async (req: Request, res: Response) => {
         database: databaseStatus,
         externalServices: externalServicesStatus,
         performance: {
-          status: performanceSummary.averageResponseTime < 5000 ? 'healthy' : 'degraded',
-          averageResponseTime: `${performanceSummary.averageResponseTime.toFixed(2)}ms`,
-          successRate: `${performanceSummary.successRate.toFixed(2)}%`,
-          totalOperations: performanceSummary.totalOperations
+          status: performanceSummary.status,
+          cpu: `${performanceSummary.cpu}%`,
+          memory: `${performanceSummary.memory}%`
         },
         services: {
-          status: serviceStats.healthyServices === serviceStats.totalServices ? 'healthy' : 'degraded',
-          total: serviceStats.totalServices,
-          healthy: serviceStats.healthyServices,
-          degraded: serviceStats.degradedServices,
-          unhealthy: serviceStats.unhealthyServices
+          status: serviceStats.status,
+          active: serviceStats.activeServices,
+          healthy: serviceStats.healthyServices
         },
         errors: {
-          status: errorStats.totalErrors < 100 ? 'healthy' : 'degraded',
+          status: errorStats.status,
           totalErrors: errorStats.totalErrors,
-          recentErrors: errorStats.recentErrors.length
+          errorRate: `${(errorStats.errorRate * 100).toFixed(2)}%`
         }
       },
       system: {
-        memory: {
-          used: `${(performanceSummary.memoryUsage.current / 1024 / 1024).toFixed(2)}MB`,
-          average: `${(performanceSummary.memoryUsage.average / 1024 / 1024).toFixed(2)}MB`,
-          peak: `${(performanceSummary.memoryUsage.peak / 1024 / 1024).toFixed(2)}MB`
-        },
-        cpu: {
-          current: `${performanceSummary.cpuUsage.current.toFixed(2)}s`,
-          average: `${performanceSummary.cpuUsage.average.toFixed(2)}s`
-        }
+        memory: `${performanceSummary.memory}%`,
+        cpu: `${performanceSummary.cpu}%`,
+        status: performanceSummary.status
       }
     };
     
@@ -329,9 +321,9 @@ async function checkServiceHealth(): Promise<{ status: string; details?: Service
     return {
       status: unhealthyServices > 0 ? 'degraded' : 'healthy',
       details: {
-        totalServices: serviceStats.totalServices,
+        activeServices: serviceStats.activeServices,
         healthyServices: serviceStats.healthyServices,
-        unhealthyServices: serviceStats.unhealthyServices
+        unhealthyServices: serviceStats.unhealthyServices || 0
       }
     };
   } catch (error) {

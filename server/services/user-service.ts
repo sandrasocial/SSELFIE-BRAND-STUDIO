@@ -74,7 +74,7 @@ export class UserService extends BaseService {
         throw new Error('User ID is required');
       }
 
-      const sanitizedUpdates = this.sanitizeInput(updates);
+      const sanitizedUpdates = this.sanitizeInput(updates) as UpdateUserProfileRequest;
 
       // Validate gender if provided
       if (sanitizedUpdates.gender && !['man', 'woman', 'other'].includes(sanitizedUpdates.gender)) {
@@ -126,7 +126,7 @@ export class UserService extends BaseService {
       if (!email) {
         throw new Error('Email is required');
       }
-      const sanitizedData = this.sanitizeInput(userData);
+      const sanitizedData = this.sanitizeInput(userData) as Partial<UserProfile>;
       const userId = sanitizedData.id || this.generateId('user');
       this.log('info', 'Creating new user', { email, userId, isStackAuthUser: !!sanitizedData.id });
 
@@ -220,12 +220,13 @@ export class UserService extends BaseService {
       });
 
       // Use the migration service for enhanced user lookup
-      const { userMigrationService } = await import('./user-migration-service.js');
+      const { UserMigrationService } = await import('./user-migration-service.js');
+      const userMigrationService = new UserMigrationService();
       const userRecord = await userMigrationService.findOrMigrateUser(
         stackAuthId,
         email,
-        displayName,
-        profileImageUrl
+        displayName || null,
+        profileImageUrl || null
       );
 
       if (!userRecord) {
