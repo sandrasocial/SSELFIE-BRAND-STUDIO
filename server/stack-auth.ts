@@ -290,7 +290,7 @@ export async function verifyStackAuthToken(req: Request, res: Response, next: Ne
         plan: null, // New users have no plan until they subscribe
         monthlyGenerationLimit: 0, // No generations until they subscribe
         mayaAiAccess: false // No AI access until they subscribe
-      });
+      } as any);
     } else {
       // User exists, continue with existing user data
     }

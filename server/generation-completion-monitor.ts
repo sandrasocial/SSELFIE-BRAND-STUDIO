@@ -125,7 +125,13 @@ export class GenerationCompletionMonitor {
     try {
 
       // Get all processing generation trackers
-      const processingTrackers = await storage.getProcessingGenerationTrackers();
+      let processingTrackers;
+      try {
+        processingTrackers = await storage.getProcessingGenerationTrackers();
+      } catch (dbError) {
+        console.error('❌ Generation Monitor: Database connection error:', dbError instanceof Error ? dbError.message : 'Unknown error');
+        return; // Skip this cycle if database is unavailable
+      }
       
       if (processingTrackers.length === 0) {
         return;

@@ -460,8 +460,12 @@ async function createPersonalizedFallbackScenes(message: string, userId: string)
   id: string;
   scene: number;
   prompt: string;
-  userLoraModel?: string | null;
-  duration: number;
+  originalPrompt?: string;
+  userLoraModel?: string;
+  keyframeIndex?: number | null;
+  duration?: number;
+  cameraMovement?: string;
+  textOverlay?: string | null;
 }[]> {
   const messageContext = message?.toLowerCase() || '';
   
@@ -480,21 +484,21 @@ async function createPersonalizedFallbackScenes(message: string, userId: string)
       id: 'scene_1',
       scene: 1,
       prompt: `Opening Hook: ${messageContext.includes('business') ? 'Professional introduction shot' : 'Personal lifestyle moment'} ${loraPrompt} that immediately establishes brand presence and captures attention.`,
-      userLoraModel: userModel?.replicateModelId,
+      userLoraModel: userModel?.replicateModelId || undefined,
       duration: 5
     },
     {
       id: 'scene_2', 
       scene: 2,
       prompt: `Brand Development: Showcase expertise and personality ${loraPrompt} through authentic behind-the-scenes or process demonstration that builds connection.`,
-      userLoraModel: userModel?.replicateModelId,
+      userLoraModel: userModel?.replicateModelId || undefined,
       duration: 8
     },
     {
       id: 'scene_3',
       scene: 3,
       prompt: `Value & Call-to-Action: Present transformation or results ${loraPrompt} with clear next steps for audience engagement and conversion.`,
-      userLoraModel: userModel?.replicateModelId,
+      userLoraModel: userModel?.replicateModelId || undefined,
       duration: 7
     }
   ];
@@ -574,7 +578,7 @@ function generatePersonalizedScenePrompt(sceneNumber: number, originalMessage: s
         message: 'Stack Auth integration working correctly!',
         stackAuth: {
           userId: stackUser.id,
-          email: stackUser.primaryEmail,
+          email: (stackUser as any).email || 'N/A',
           displayName: stackUser.displayName
         },
         database: {
@@ -630,7 +634,7 @@ function generatePersonalizedScenePrompt(sceneNumber: number, originalMessage: s
   
   // 🎥 STORY STUDIO API - Server-side AI video story generation
   // Initialize Gemini AI client for server-side operations
-  let geminiAI: GoogleGenAI | null = null;
+  let geminiAI: any = null;
   try {
     const { GoogleGenAI } = await import('@google/genai');
     if (process.env['GOOGLE_API_KEY']) {
