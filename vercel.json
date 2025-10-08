@@ -156,6 +156,64 @@
     {
       "source": "/handler/(.*)",
       "destination": "/index.html"
+    },
+    {
+      "src": "/flatlay-luxury-planning.jpg",
+      "dest": "/public/flatlay-luxury-planning.jpg",
+      "headers": {
+        "Cache-Control": "public, max-age=31536000, immutable"
+      }
+    },
+    {
+      "src": "/gallery-luxury-workspace.jpg", 
+      "dest": "/public/gallery-luxury-workspace.jpg",
+      "headers": {
+        "Cache-Control": "public, max-age=31536000, immutable"
+      }
+    },
+    {
+      "src": "/hero-homepage.png",
+      "dest": "/public/hero-homepage.png",
+      "headers": {
+        "Cache-Control": "public, max-age=31536000, immutable"
+      }
+    },
+    {
+      "src": "/hero-about.png",
+      "dest": "/public/hero-about.png",
+      "headers": {
+        "Cache-Control": "public, max-age=31536000, immutable"
+      }
+    },
+    {
+      "src": "/hero-dashboard.png",
+      "dest": "/public/hero-dashboard.png",
+      "headers": {
+        "Cache-Control": "public, max-age=31536000, immutable"
+      }
+    },
+    {
+      "src": "/hero-luxury.png",
+      "dest": "/public/hero-luxury.png",
+      "headers": {
+        "Cache-Control": "public, max-age=31536000, immutable"
+      }
+    },
+    {
+      "source": "/favicon.png",
+      "destination": "/favicon.png"
+    },
+    {
+      "source": "/icon-192.png",
+      "destination": "/icon-192.png"
+    },
+    {
+      "source": "/icon-512.png",
+      "destination": "/icon-512.png"
+    },
+    {
+      "source": "/manifest.json",
+      "destination": "/manifest.json"
     }
   ],
   "headers": [

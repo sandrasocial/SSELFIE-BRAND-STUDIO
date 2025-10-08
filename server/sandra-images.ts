@@ -54,15 +54,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
     
     
-    // 💡 FIX 1: Explicitly check for known failing images and redirect to stable source
+    // 💡 FIX 1: Explicitly check for known failing images and redirect to real hero images
     const knownFailingImages: Record<string, string> = {
-      'brand-essence.jpg': '/gallery-luxury-workspace.jpg',
-      'hero-editorial.jpg': '/flatlay-luxury-planning.jpg',
-      'pricing-hero.jpg': '/gallery-luxury-workspace.jpg',
-      'method-hero.jpg': '/flatlay-luxury-planning.jpg',
-      'contact-hero.jpg': '/gallery-luxury-workspace.jpg',
-      'ai-hero.jpg': '/flatlay-luxury-planning.jpg',
-      'dashboard-hero.jpg': '/gallery-luxury-workspace.jpg'
+      'brand-essence.jpg': '/hero-about.png',
+      'hero-editorial.jpg': '/hero-homepage.png',
+      'pricing-hero.jpg': '/hero-luxury.png',
+      'method-hero.jpg': '/hero-dashboard.png',
+      'contact-hero.jpg': '/hero-about.png',
+      'ai-hero.jpg': '/hero-luxury.png',
+      'dashboard-hero.jpg': '/hero-dashboard.png'
     };
     
     // Check if this is a known failing image and redirect immediately
@@ -84,15 +84,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
     
     // 🛑 CRITICAL FIX: Remove external image fetching entirely for stability
-    // All external images (postimg.cc) are now redirected to stable fallbacks
+    // All external images (postimg.cc) are now redirected to real local hero images
     if (imageUrl.includes('postimg.cc') || imageUrl.includes('i.postimg')) {
-      const fallbackUrl = '/gallery-luxury-workspace.jpg'; // Default stable fallback
+      const fallbackUrl = '/hero-homepage.png'; // Default to main hero image
       
       return res.status(307)
         .setHeader('Location', fallbackUrl)
         .setHeader('Cache-Control', 'public, max-age=300') // Cache redirect for 5 minutes
         .json({ 
-          message: 'Redirected to stable fallback to prevent timeouts',
+          message: 'Redirected to stable local hero image to prevent timeouts',
           originalImage: imageName,
           originalUrl: imageUrl,
           fallbackUrl: fallbackUrl
@@ -100,8 +100,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
     
     // For any remaining images that are not external (should be rare)
-    // Redirect to fallback as well to be safe
-    const defaultFallbackUrl = '/gallery-luxury-workspace.jpg';
+    // Redirect to main hero image as fallback
+    const defaultFallbackUrl = '/hero-homepage.png';
     
     return res.status(307)
       .setHeader('Location', defaultFallbackUrl)
@@ -111,8 +111,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   } catch (error) {
     console.error('❌ Sandra images API error:', error);
     
-    // Even on error, redirect to fallback instead of returning error
-    const errorFallbackUrl = '/gallery-luxury-workspace.jpg';
+    // Even on error, redirect to main hero image instead of returning error
+    const errorFallbackUrl = '/hero-homepage.png';
     return res.status(307)
       .setHeader('Location', errorFallbackUrl)
       .setHeader('Cache-Control', 'no-cache')
