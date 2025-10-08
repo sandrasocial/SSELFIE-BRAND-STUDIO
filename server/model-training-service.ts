@@ -62,7 +62,7 @@ export class ModelTrainingService {
               ContentType: 'image/png',
               // No ACL - bucket policy handles permissions
             });
-            await ModelTrainingService.s3.send(putCmd);
+            await (ModelTrainingService.s3 as any).send(putCmd);
             const publicUrl = `https://${bucket}.s3.amazonaws.com/${key}`;
             uploadedUrls.push(publicUrl);
           } catch (err) {
@@ -968,7 +968,7 @@ export class ModelTrainingService {
         }
       });
 
-      await ModelTrainingService.s3.send(uploadCommand);
+      await (ModelTrainingService.s3 as any).send(uploadCommand);
 
       // 🔒 SECURITY FIX: Store S3 coordinates for presigned URL generation, not direct URL
       const bucketName = process.env['AWS_S3_BUCKET'] || 'sselfie-studio-assets';
