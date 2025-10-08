@@ -9,14 +9,6 @@ export interface OnboardingProgress {
   [key: string]: unknown;
 }
 
-export interface BrandStrategyContext {
-  businessGoals?: string[];
-  platformStrategy?: string;
-  brandPositioning?: Record<string, unknown>;
-  coachingResponses?: Record<string, unknown>;
-  [key: string]: unknown;
-}
-
 // Define User interface based on the actual database schema
 // This matches the `users` table in shared/schema.ts
 export interface DatabaseUser {
@@ -58,13 +50,6 @@ export interface DatabaseUser {
   profession: string | null; // User's business/profession
   brandStyle: string | null; // "professional" | "creative" | "lifestyle" | "luxury"
   photoGoals: string | null; // What they want photos for (business use case)
-  
-  // Training-time coaching system for brand strategy discovery
-  trainingCoachingStarted: boolean | null;
-  trainingCoachingCompleted: boolean | null;
-  trainingCoachingPhase: string | null; // businessGoals, platformStrategy, brandPositioning, completed
-  trainingCoachingStep: number | null;
-  brandStrategyContext: BrandStrategyContext | null; // JSON data - Stores coaching responses and brand strategy insights
 }
 
 export interface AuthenticatedUser extends DatabaseUser {
