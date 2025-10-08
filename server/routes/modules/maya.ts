@@ -10,8 +10,8 @@ import { storage } from '../../storage.js';
 import { ModelTrainingService } from '../../model-training-service.js';
 import { PersonalityManager } from '../../agents/personalities/personality-config.js';
 import { ClaudeApiServiceSimple } from '../../services/claude-api-service-simple.js';
-import { AuthenticatedRequest } from '../../types/ai-generation.js';
-import { SuccessResponse } from '../../types/ai-generation.js';
+import { AuthenticatedRequest } from '../../../shared/types/ai-generation.js';
+import { SuccessResponse } from '../../../shared/types/ai-generation.js';
 import { unifiedMayaIntelligenceService } from '../../services/unified-maya-intelligence-service.js';
 
 interface MayaChat {
@@ -156,10 +156,10 @@ The user's current message context is: ${JSON.stringify(context)}
     }
 
     // Convert chat history to Claude format
-    const claudeHistory: ClaudeHistoryEntry[] = chatHistory.map(entry => ({
+    const claudeHistory: ClaudeHistoryEntry[] = chatHistory.map((entry: { user?: string; maya?: string; response?: string }) => ({
       role: entry.user ? 'user' : 'assistant',
       content: entry.user || entry.maya || entry.response || ''
-    })).filter(msg => msg.content.trim());
+    })).filter((msg: { role: string; content: string }) => msg.content.trim());
 
     // Generate response using Claude with full personality system
     const mayaResponse = await claudeService.sendMessage(
@@ -362,7 +362,7 @@ router.post('/api/maya-generate', requireStackAuth, asyncHandler(async (req: Aut
       prompt: string;
     }> = {
       data: {
-        jobId: result.predictionId,
+        jobId: result.predictionId || 'no-prediction-id',
         generationId: generationId.toString(),
         images: result.images,
         prompt: finalPrompt
@@ -440,7 +440,8 @@ router.post('/api/maya-chats', requireStackAuth, asyncHandler(async (req: Authen
   const { title, initialMessage } = req.body;
 
   const chatId = await storage.createMayaChat(userId, {
-    title: title || 'New Maya Chat',
+    userId,
+    chatTitle: title || 'New Maya Chat',
     initialMessage
   });
 

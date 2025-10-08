@@ -11,7 +11,7 @@ import {
   DEFAULT_VALIDATION_RULES, 
   DEFAULT_IMAGE_PROCESSING_OPTIONS,
   ErrorState 
-} from '../../types/training.js';
+} from '../../../../shared/types/client-training.js';
 import { Colors, Typography, Spacing } from '../../styles/designSystem.js';
 
 interface MayaUploadComponentProps {

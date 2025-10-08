@@ -8,8 +8,8 @@ import { requireStackAuth } from '../../stack-auth.js';
 import { storage } from '../../storage.js';
 import { asyncHandler, createError, sendSuccess, validateRequired } from '../middleware/error-handler.js';
 import { userService } from '../../services/user-service.js';
-import { AuthenticatedRequest } from '../../types/ai-generation.js';
-import { SuccessResponse } from '../../types/ai-generation.js';
+import { AuthenticatedRequest } from '../../../shared/types/ai-generation.js';
+import { SuccessResponse } from '../../../shared/types/ai-generation.js';
 
 // User types
 interface UserProfile {
