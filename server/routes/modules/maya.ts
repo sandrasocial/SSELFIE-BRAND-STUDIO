@@ -12,6 +12,7 @@ import { PersonalityManager } from '../../agents/personalities/personality-confi
 import { ClaudeApiServiceSimple } from '../../services/claude-api-service-simple.js';
 import { AuthenticatedRequest } from '../../../shared/types/ai-generation.js';
 import { SuccessResponse } from '../../../shared/types/ai-generation.js';
+import { InsertAiImage } from '../../../shared/types-override.js';
 import { unifiedMayaIntelligenceService } from '../../services/unified-maya-intelligence-service.js';
 
 interface MayaChat {
@@ -343,13 +344,14 @@ router.post('/api/maya-generate', requireStackAuth, asyncHandler(async (req: Aut
     );
 
     // Save generation to database
-    const generationId = await storage.saveAIImage({
+    const imageData: InsertAiImage = {
       userId,
       prompt: finalPrompt,
       imageUrl: result.images[0] || '',
       style: style || 'maya-styled',
       predictionId: result.predictionId
-    });
+    };
+    const generationId = await storage.saveAIImage(imageData);
 
     const responseData: SuccessResponse<{
       jobId: string;

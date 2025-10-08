@@ -9,6 +9,7 @@ import { requireStackAuth, requireActiveSubscription } from '../../stack-auth.js
 import { storage } from '../../storage.js';
 import { ModelTrainingService } from '../../model-training-service.js';
 import { asyncHandler, createError, sendSuccess, validateRequired } from '../middleware/error-handler.js';
+import { InsertAiImage } from '../../../shared/types-override.js';
 import {
   AuthenticatedRequest,
   StoryConceptRequest,
@@ -241,13 +242,14 @@ router.post('/api/ai-images', requireActiveSubscription, asyncHandler(async (req
     );
 
     // Save generation to database
-    const savedImage = await storage.saveAIImage({
+    const imageData: InsertAiImage = {
       userId,
       prompt,
       imageUrl: result.images[0] || '',
       style: style || 'ai-generated',
       predictionId: result.predictionId
-    });
+    };
+    const savedImage = await storage.saveAIImage(imageData);
 
     const responseData: SuccessResponse<{
       jobId: string;

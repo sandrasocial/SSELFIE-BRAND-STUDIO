@@ -69,7 +69,8 @@ export class GenerationCompletionMonitor {
             } else {
               // Create new chat if none exists
               const chatIdStr = await storage.createMayaChat(tracker.userId, {
-                title: 'Maya Creative Session',
+                userId: tracker.userId,
+                chatTitle: 'Maya Creative Session',
                 initialMessage: 'Welcome to your creative session! I\'m here to help you create stunning personal brand photos.'
               });
               chatId = parseInt(chatIdStr);
