@@ -187,11 +187,11 @@
       "destination": "/api/create-maya-tables.ts"
     },
     {
-      "source": "/(app|simple-training|training|auth-success|terms|privacy|sign-in|sign-up|magic-link|forgot-password|password-reset)",
+      "source": "/(app|simple-training|training|auth-success|terms|privacy|sign-in|sign-up|magic-link|forgot-password|password-reset|business|ai-command-center)",
       "destination": "/index.html"
     },
     {
-      "source": "/(app|simple-training|training|auth-success|terms|privacy|sign-in|sign-up|magic-link|forgot-password|password-reset)/",
+      "source": "/(app|simple-training|training|auth-success|terms|privacy|sign-in|sign-up|magic-link|forgot-password|password-reset|business|ai-command-center)/",
       "destination": "/index.html"
     },
     {

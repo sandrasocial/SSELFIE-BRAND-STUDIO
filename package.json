@@ -13,7 +13,7 @@
     "@aws-sdk/lib-storage": "^3.864.0",
     "@aws-sdk/s3-request-presigner": "^3.884.0",
     "@google/genai": "^1.19.0",
-    "@neondatabase/serverless": "^1.0.1",
+    "@neondatabase/serverless": "^1.0.2",
     "@radix-ui/react-aspect-ratio": "^1.1.7",
     "@radix-ui/react-avatar": "^1.1.10",
     "@radix-ui/react-collapsible": "^1.1.11",
