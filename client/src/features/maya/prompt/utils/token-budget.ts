@@ -58,7 +58,8 @@ export class TokenBudgetManager {
         preservedElements: []
       };
     }
-    
+
+    console.log('🔧 Token budget trimming required:', {
       originalTokens,
       maxTokens: options.maxTokens,
       preserveSubject: options.preserveSubject,
