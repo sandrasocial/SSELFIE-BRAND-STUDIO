@@ -52,17 +52,28 @@ const StatusBar: React.FC<{ currentTime: Date }> = ({ currentTime }) => {
 // Tab Navigation Component
 interface TabBarProps {
   activeTab: string;
-  onTabChange: (tabId: string) => void;
+  onTabChange?: (tabId: string) => void;
 }
 
 const TabBar: React.FC<TabBarProps> = ({ activeTab, onTabChange }) => {
+  const [, setLocation] = useLocation();
+  
   const tabs = [
-    { id: 'studio', label: 'Studio', icon: Camera },
-    { id: 'maya', label: 'Maya', icon: MessageCircle },
-    { id: 'gallery', label: 'Gallery', icon: Grid },
-    { id: 'profile', label: 'Profile', icon: User },
-    { id: 'more', label: 'More', icon: Settings }
+    { id: 'studio', label: 'Studio', icon: Camera, path: '/app/studio' },
+    { id: 'maya', label: 'Maya', icon: MessageCircle, path: '/app/maya' },
+    { id: 'gallery', label: 'Gallery', icon: Grid, path: '/app/gallery' },
+    { id: 'profile', label: 'Profile', icon: User, path: '/app/profile' },
+    { id: 'more', label: 'More', icon: Settings, path: '/app/more' }
   ];
+
+  const handleTabClick = (tab: typeof tabs[0]) => {
+    // Use URL routing for navigation
+    setLocation(tab.path);
+    // Fallback to callback for backward compatibility
+    if (onTabChange) {
+      onTabChange(tab.id);
+    }
+  };
   
   return (
     <div className="absolute bottom-4 sm:bottom-5 left-3 sm:left-4 right-3 sm:right-4">
@@ -75,7 +86,7 @@ const TabBar: React.FC<TabBarProps> = ({ activeTab, onTabChange }) => {
             return (
               <button
                 key={tab.id}
-                onClick={() => onTabChange(tab.id)}
+                onClick={() => handleTabClick(tab)}
                 className={`flex flex-col items-center space-y-1.5 sm:space-y-2 px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl transition-all duration-300 ease-out min-w-[65px] sm:min-w-[75px] ${
                   isActive 
                     ? 'bg-stone-200/60 transform scale-[1.02]' 
@@ -150,15 +161,24 @@ const SselfieAppLayout: React.FC = () => {
     return () => clearInterval(clockTimer);
   }, []);
 
-  // Handle URL parameters for tab navigation and initial prompts
+  // Determine active tab from URL path
   useEffect(() => {
-    const urlParams = new URL(window.location.href).searchParams;
-    const tabParam = urlParams.get('tab');
-    const promptParam = urlParams.get('prompt');
-    
-    if (tabParam && ['studio', 'maya', 'gallery', 'profile', 'more'].includes(tabParam)) {
-      setActiveTab(tabParam);
+    const path = location;
+    if (path.includes('/app/maya')) {
+      setActiveTab('maya');
+    } else if (path.includes('/app/gallery')) {
+      setActiveTab('gallery');
+    } else if (path.includes('/app/profile')) {
+      setActiveTab('profile');
+    } else if (path.includes('/app/more')) {
+      setActiveTab('more');
+    } else {
+      setActiveTab('studio'); // Default to studio for /app and /app/studio
     }
+
+    // Handle URL parameters for initial prompts
+    const urlParams = new URL(window.location.href).searchParams;
+    const promptParam = urlParams.get('prompt');
     
     if (promptParam) {
       setInitialPrompt(decodeURIComponent(promptParam));
