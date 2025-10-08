@@ -7,12 +7,11 @@ async function syncTrainingStatus() {
   try {
     console.log('🔄 Starting training status synchronization...');
     
-    // Get all users with completed models but trainingCoachingCompleted = false
+    // Get all users with completed models
     const usersWithCompletedModels = await db
       .select({
         userId: users.id,
         email: users.email,
-        trainingCoachingCompleted: users.trainingCoachingCompleted,
       })
       .from(users)
       .innerJoin(mayaModels, eq(users.id, mayaModels.userId))
@@ -20,35 +19,12 @@ async function syncTrainingStatus() {
 
     console.log(`📊 Found ${usersWithCompletedModels.length} users with completed models`);
     
-    let updatedCount = 0;
-    
-    for (const user of usersWithCompletedModels) {
-      if (!user.trainingCoachingCompleted) {
-        console.log(`🔧 Updating training status for user: ${user.email}`);
-        
-        await db
-          .update(users)
-          .set({
-            trainingCoachingCompleted: true,
-            updatedAt: new Date()
-          })
-          .where(eq(users.id, user.userId));
-        
-        updatedCount++;
-      } else {
-        console.log(`✅ User ${user.email} already has correct status`);
-      }
-    }
-    
-    console.log(`✅ Successfully updated ${updatedCount} users`);
-    
     // Now show current status for the specific user
     console.log('\n📋 Current status for admin user:');
     const adminUser = await db
       .select({
         id: users.id,
         email: users.email,
-        trainingCoachingCompleted: users.trainingCoachingCompleted,
       })
       .from(users)
       .where(eq(users.email, 'ssa@ssasocial.com'))
@@ -68,7 +44,7 @@ async function syncTrainingStatus() {
         console.log('Admin model:', {
           trainingStatus: adminModel[0].trainingStatus,
           trainingProgress: adminModel[0].trainingProgress,
-          completedAt: adminModel[0].completedAt
+          createdAt: adminModel[0].createdAt
         });
       } else {
         console.log('❌ No model found for admin user');
