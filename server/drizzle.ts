@@ -20,7 +20,7 @@ export type QueryParams = string | number | boolean | null | Buffer | Date | Que
 let _sql: any = null;
 let _db: any = null;
 
-function getSql() {
+export function getSql() {
   if (!_sql) {
     // Check environment variables dynamically to handle Vercel serverless timing
     const dbUrl = DATABASE_URL || process.env.DATABASE_URL || process.env.NEON_DB_URL;
