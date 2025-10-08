@@ -8,7 +8,7 @@ import {
   ValidationRules, 
   DEFAULT_IMAGE_PROCESSING_OPTIONS,
   ErrorState
-} from '../types/training.js';
+} from '../../../shared/types/client-training.js';
 
 // Legacy interface for backwards compatibility
 interface ImageOptimizationOptions {
@@ -110,7 +110,7 @@ export const useEnhancedImageOptimization = () => {
 
   // Check WebP support
   const checkWebPSupport = useCallback((): boolean => {
-    const canvas = document.createElement('canvas');
+    const canvas = document.createElement('canvas') as HTMLCanvasElement;
     return canvas.toDataURL('image/webp').indexOf('webp') > -1;
   }, []);
 

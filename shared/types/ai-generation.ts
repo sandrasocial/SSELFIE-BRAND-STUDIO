@@ -4,7 +4,7 @@
 
 /// <reference path="global.d.ts" />
 import { Request } from 'express';
-import { DatabaseUser } from '../../api/_shared/auth-types.js';
+import { DatabaseUser } from './auth-types.js';
 
 /** Server-side authenticated user (without stackUser requirement) */
 export interface ServerAuthenticatedUser extends DatabaseUser {

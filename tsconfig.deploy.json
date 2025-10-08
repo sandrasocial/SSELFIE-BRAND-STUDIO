@@ -76,7 +76,7 @@
     "server/utils/email-service.ts",
     "server/workflows/enhanced-handoff-system.ts",
     // Type definitions with errors
-    "server/types/trends.ts",
+    "shared/types/trends.ts",
     "shared/storage.interface.ts",
     // Non-critical files
     "server/routes/consulting-agents-routes.ts",

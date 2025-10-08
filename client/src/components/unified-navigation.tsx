@@ -46,11 +46,15 @@ export function UnifiedNavigation({
   const isAdmin = user?.email === 'ssa@ssasocial.com';
   const isImpersonating = user?.email === 'shannon@soulresets.com' && user?.role === 'user';
 
-  // Editorial Navigation Items with Icons
-  const navItems = [
+  // Navigation Items with Icons - conditional based on auth state
+  const navItems = user ? [
+    // Authenticated users see member navigation
     { path: '/maya', label: 'Studio', icon: Home },
     { path: '/sselfie-gallery', label: 'Gallery', icon: Camera },
     { path: '/account-settings', label: 'Account', icon: User },
+  ] : [
+    // Unauthenticated users see business navigation
+    // Empty array - no navigation items for business landing
   ];
 
   const handleLogout = () => {
@@ -135,68 +139,89 @@ export function UnifiedNavigation({
             {/* Auth Section */}
             {showAuth && (
               <div className="flex items-center gap-4" role="menuitem">
-                {/* Stack Auth UserButton with unified styling */}
-                <UserButton
-                  showUserInfo={false}
-                  extraItems={[
-                    {
-                      text: 'Subscription & Billing',
-                      icon: <CreditCard size={16} strokeWidth={1.2} />,
-                      onClick: () => setLocation('/account-settings?tab=billing')
-                    },
-                    {
-                      text: 'Business Profile',
-                      icon: <User size={16} strokeWidth={1.2} />,
-                      onClick: () => setLocation('/profile')
-                    }
-                  ]}
-                />
-
-                {isImpersonating && (
-                  <button
-                    onClick={async () => {
-                      try {
-                        const response = await fetch('/api/admin/stop-impersonation', {
-                          method: 'POST',
-                          headers: {
-                            'Content-Type': 'application/json',
-                            'x-admin-token': 'sandra-admin-2025'
-                          }
-                        });
-                        if (response.ok) {
-                          window.location.href = '/admin-dashboard';
+                {user ? (
+                  <>
+                    {/* Authenticated users see UserButton and logout */}
+                    <UserButton
+                      showUserInfo={false}
+                      extraItems={[
+                        {
+                          text: 'Subscription & Billing',
+                          icon: <CreditCard size={16} strokeWidth={1.2} />,
+                          onClick: () => setLocation('/account-settings?tab=billing')
+                        },
+                        {
+                          text: 'Business Profile',
+                          icon: <User size={16} strokeWidth={1.2} />,
+                          onClick: () => setLocation('/profile')
                         }
-                      } catch (error) {
-                        console.error('Failed to stop impersonation:', error);
-                      }
-                    }}
-                    aria-label="Stop impersonation and return to admin dashboard"
-                    className={`
-                      ${TypographyClasses.caption}
-                      text-white/70 hover:text-white
-                      transition-all duration-300 ease-sophisticated
-                      flex items-center gap-2
-                      px-3 py-2 rounded-lg hover:bg-white/5
-                    `}
-                  >
-                    <Shield size={16} strokeWidth={1.2} />
-                    Back to Admin
-                  </button>
-                )}
+                      ]}
+                    />
 
-                <button
-                  onClick={handleLogout}
-                  aria-label="Logout from account"
-                  className={`
-                    ${TypographyClasses.button}
-                    text-white border border-white/30 hover:bg-white hover:text-black
-                    transition-all duration-300 ease-sophisticated
-                    px-6 py-2 rounded-lg
-                    min-h-[44px]
-                  `}
-                >
-                  LOGOUT
-                </button>
+                    {isImpersonating && (
+                      <button
+                        onClick={async () => {
+                          try {
+                            const response = await fetch('/api/admin/stop-impersonation', {
+                              method: 'POST',
+                              headers: {
+                                'Content-Type': 'application/json',
+                                'x-admin-token': 'sandra-admin-2025'
+                              }
+                            });
+                            if (response.ok) {
+                              window.location.href = '/admin-dashboard';
+                            }
+                          } catch (error) {
+                            console.error('Failed to stop impersonation:', error);
+                          }
+                        }}
+                        aria-label="Stop impersonation and return to admin dashboard"
+                        className={`
+                          ${TypographyClasses.caption}
+                          text-white/70 hover:text-white
+                          transition-all duration-300 ease-sophisticated
+                          flex items-center gap-2
+                          px-3 py-2 rounded-lg hover:bg-white/5
+                        `}
+                      >
+                        <Shield size={16} strokeWidth={1.2} />
+                        Back to Admin
+                      </button>
+                    )}
+
+                    <button
+                      onClick={handleLogout}
+                      aria-label="Logout from account"
+                      className={`
+                        ${TypographyClasses.button}
+                        text-white border border-white/30 hover:bg-white hover:text-black
+                        transition-all duration-300 ease-sophisticated
+                        px-6 py-2 rounded-lg
+                        min-h-[44px]
+                      `}
+                    >
+                      LOGOUT
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    {/* Unauthenticated users see login button */}
+                    <button
+                      onClick={() => window.location.href = '/handler/sign-in'}
+                      aria-label="Sign in to account"
+                      className={`
+                        ${TypographyClasses.button}
+                        text-white border border-white/30 hover:bg-white hover:text-black
+                        transition-all duration-300 ease-sophisticated
+                        px-6 py-2 rounded-lg
+                        min-h-[44px]
+                      `}
+                    >
+                      LOGIN
+                    </button>
+                  </>
+                )}
               </div>
             )}
           </div>
@@ -264,52 +289,75 @@ export function UnifiedNavigation({
 
             {showAuth && (
               <>
-                {isImpersonating && (
-                  <button
-                    onClick={async () => {
-                      try {
-                        const response = await fetch('/api/admin/stop-impersonation', {
-                          method: 'POST',
-                          headers: {
-                            'Content-Type': 'application/json',
-                            'x-admin-token': 'sandra-admin-2025'
+                {user ? (
+                  <>
+                    {/* Authenticated mobile menu items */}
+                    {isImpersonating && (
+                      <button
+                        onClick={async () => {
+                          try {
+                            const response = await fetch('/api/admin/stop-impersonation', {
+                              method: 'POST',
+                              headers: {
+                                'Content-Type': 'application/json',
+                                'x-admin-token': 'sandra-admin-2025'
+                              }
+                            });
+                            if (response.ok) {
+                              window.location.href = '/admin-dashboard';
+                            }
+                          } catch (error) {
+                            console.error('Failed to stop impersonation:', error);
                           }
-                        });
-                        if (response.ok) {
-                          window.location.href = '/admin-dashboard';
-                        }
-                      } catch (error) {
-                        console.error('Failed to stop impersonation:', error);
-                      }
-                      setMobileMenuOpen(false);
-                    }}
-                    className={`
-                      ${TypographyClasses.caption}
-                      text-white/70 hover:text-white
-                      transition-all duration-300 ease-sophisticated
-                      mt-8 flex items-center gap-3
-                      px-4 py-3 rounded-lg hover:bg-white/5
-                    `}
-                  >
-                    <Shield size={18} strokeWidth={1.2} />
-                    Back to Admin
-                  </button>
-                )}
+                          setMobileMenuOpen(false);
+                        }}
+                        className={`
+                          ${TypographyClasses.caption}
+                          text-white/70 hover:text-white
+                          transition-all duration-300 ease-sophisticated
+                          mt-8 flex items-center gap-3
+                          px-4 py-3 rounded-lg hover:bg-white/5
+                        `}
+                      >
+                        <Shield size={18} strokeWidth={1.2} />
+                        Back to Admin
+                      </button>
+                    )}
 
-                <button
-                  onClick={() => {
-                    handleLogout();
-                    setMobileMenuOpen(false);
-                  }}
-                  className={`
-                    ${TypographyClasses.button}
-                    text-white border border-white/30 hover:bg-white hover:text-black
-                    transition-all duration-300 ease-sophisticated
-                    mt-8 px-6 py-3 rounded-lg
-                  `}
-                >
-                  LOGOUT
-                </button>
+                    <button
+                      onClick={() => {
+                        handleLogout();
+                        setMobileMenuOpen(false);
+                      }}
+                      className={`
+                        ${TypographyClasses.button}
+                        text-white border border-white/30 hover:bg-white hover:text-black
+                        transition-all duration-300 ease-sophisticated
+                        mt-8 px-6 py-3 rounded-lg
+                      `}
+                    >
+                      LOGOUT
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    {/* Unauthenticated mobile menu items */}
+                    <button
+                      onClick={() => {
+                        window.location.href = '/handler/sign-in';
+                        setMobileMenuOpen(false);
+                      }}
+                      className={`
+                        ${TypographyClasses.button}
+                        text-white border border-white/30 hover:bg-white hover:text-black
+                        transition-all duration-300 ease-sophisticated
+                        px-6 py-3 rounded-lg
+                      `}
+                    >
+                      LOGIN
+                    </button>
+                  </>
+                )}
               </>
             )}
 

@@ -3,7 +3,7 @@
  * Handles story generation, video generation, Victoria AI, and Maya AI
  */
 
-/// <reference path="../../types/global.d.ts" />
+/// <reference path="../../../shared/types/global.d.ts" />
 import express, { Router, Request, Response } from 'express';
 import { requireStackAuth, requireActiveSubscription } from '../../stack-auth.js';
 import { storage } from '../../storage.js';
@@ -24,7 +24,7 @@ import {
   MayaChat,
   SuccessResponse,
   ErrorResponse
-} from '../../types/ai-generation.js';
+} from '../../../shared/types/ai-generation.js';
 
 const router = Router();
 
@@ -256,8 +256,22 @@ router.post('/api/ai-images', requireActiveSubscription, asyncHandler(async (req
       prompt: string;
     }> = {
       data: {
-        jobId: result.predictionId,
-        generatedImage: savedImage,
+        jobId: result.predictionId || 'no-prediction-id',
+        generatedImage: {
+          id: savedImage.id,
+          userId: savedImage.userId,
+          prompt: savedImage.prompt || '',
+          generatedPrompt: savedImage.generatedPrompt || '',
+          imageUrl: savedImage.imageUrl,
+          style: savedImage.style || '',
+          category: savedImage.category || '',
+          source: savedImage.source || '',
+          predictionId: savedImage.predictionId || '',
+          generationStatus: savedImage.generationStatus || '',
+          isSelected: savedImage.isSelected || false,
+          isFavorite: savedImage.isFavorite || false,
+          createdAt: savedImage.createdAt || new Date()
+        },
         images: result.images,
         prompt
       },

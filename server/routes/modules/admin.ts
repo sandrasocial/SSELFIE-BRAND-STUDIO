@@ -8,7 +8,7 @@ import { requireStackAuth } from '../../stack-auth.js';
 import { adminContextDetection } from '../../middleware/admin-context.js';
 import { asyncHandler, createError, sendSuccess } from '../middleware/error-handler.js';
 import { requireAdmin } from '../middleware/auth.js';
-import { AuthenticatedRequest, SuccessResponse } from '../../types/ai-generation.js';
+import { AuthenticatedRequest, SuccessResponse } from '../../../shared/types/ai-generation.js';
 
 // Extended request type for admin routes
 interface AdminRequest extends AuthenticatedRequest {

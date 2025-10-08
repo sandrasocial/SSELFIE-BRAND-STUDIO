@@ -16,7 +16,7 @@ import {
   AuthenticatedRequest,
   SuccessResponse,
   ErrorResponse
-} from '../../types/agent-protocol.js';
+} from '../../../shared/types/agent-protocol.js';
 
 const router = Router();
 

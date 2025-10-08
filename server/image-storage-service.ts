@@ -1,7 +1,7 @@
 import { S3Client, PutObjectCommand, S3ServiceException } from '@aws-sdk/client-s3';
 import { Upload } from '@aws-sdk/lib-storage';
 import { storage } from './storage.js';
-import { AIImage, ImageStorageError, ImageUploadResult, MigrationResult } from './types/storage.js';
+import { AIImage, ImageStorageError, ImageUploadResult, MigrationResult } from '../shared/types/storage.js';
 
 /**
  * Image Storage Service

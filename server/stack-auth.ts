@@ -1,11 +1,11 @@
 /* eslint-disable no-console */
 import { jwtVerify, createRemoteJWKSet } from 'jose';
-import fs from 'fs';
-import path from 'path';
+import * as fs from 'fs';
+import * as path from 'path';
 import { fileURLToPath, URL } from 'url';
 import type { Request, Response, NextFunction } from 'express';
 
-// ES module __dirname equivalent
+// ES module __dirname equivalent - with Node16 compatibility
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -41,7 +41,7 @@ const MAX_CACHE_SIZE = 500; // Reduced from 1000 to 500 for better memory manage
 // Clean expired cache entries
 function cleanExpiredCache() {
   const now = Date.now();
-  for (const [key, cached] of authCache.entries()) {
+  for (const [key, cached] of Array.from(authCache.entries())) {
     if (now - cached.timestamp > CACHE_DURATION) {
       authCache.delete(key);
     }
@@ -68,7 +68,7 @@ function hashToken(token: string): string {
 }
 
 // Import the proper User type from auth types to maintain consistency
-import type { DatabaseUser } from '../api/_shared/auth-types.js';
+import { DatabaseUser } from '../shared/types/auth-types.js';
 
 export interface StackAuthUser extends DatabaseUser {
   isAdmin?: boolean; // Added for compatibility - derived from role

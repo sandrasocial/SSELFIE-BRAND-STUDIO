@@ -1,5 +1,5 @@
 import { KeyboardEvent, memo } from 'react';
-import { PhotoshootPrompt } from '../../types/photoshoot.js';
+import { PhotoshootPrompt } from '../../../../shared/types/client-photoshoot.js';
 import { useToast } from '../../hooks/use-toast.js';
 
 interface PromptCardProps {
@@ -29,7 +29,7 @@ export const PromptCard = memo<PromptCardProps>(({
     }
   };
 
-  const handleKeyDown = (e: KeyboardEvent) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
       handleClick();

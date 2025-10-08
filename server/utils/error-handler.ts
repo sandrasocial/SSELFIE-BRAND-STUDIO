@@ -5,7 +5,7 @@
 
 import { Logger } from './logger.js';
 import { Request, Response, NextFunction } from 'express';
-import { AuthenticatedRequest } from '../types/ai-generation.js';
+import { AuthenticatedRequest } from '../../shared/types/ai-generation.js';
 
 export interface ErrorContext {
   error: Error;
