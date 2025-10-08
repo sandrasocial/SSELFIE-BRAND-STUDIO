@@ -26,6 +26,22 @@
       }
     },
     {
+      "src": "api/maya-diagnostic.ts",
+      "use": "@vercel/node",
+      "config": {
+        "maxDuration": 15,
+        "memory": 512
+      }
+    },
+    {
+      "src": "api/create-maya-tables.ts",
+      "use": "@vercel/node",
+      "config": {
+        "maxDuration": 30,
+        "memory": 512
+      }
+    },
+    {
       "src": "api/[...route].ts",
       "use": "@vercel/node",
       "config": {
@@ -161,6 +177,14 @@
     {
       "source": "/api/auth-diagnostic",
       "destination": "/api/auth-diagnostic.ts"
+    },
+    {
+      "source": "/api/maya-diagnostic",
+      "destination": "/api/maya-diagnostic.ts"
+    },
+    {
+      "source": "/api/create-maya-tables",
+      "destination": "/api/create-maya-tables.ts"
     },
     {
       "source": "/(app|simple-training|training|auth-success|terms|privacy|sign-in|sign-up|magic-link|forgot-password|password-reset)",
