@@ -321,7 +321,13 @@ export class TrainingCompletionMonitor {
     try {
       
       // Get all users with training status that isn't completed
-      const inProgressModels = await storage.getAllInProgressTrainings();
+      let inProgressModels;
+      try {
+        inProgressModels = await storage.getAllInProgressTrainings();
+      } catch (dbError) {
+        console.error('❌ Training Monitor: Database connection error:', dbError instanceof Error ? dbError.message : 'Unknown error');
+        return; // Skip this cycle if database is unavailable
+      }
       
       if (inProgressModels.length === 0) {
         return;

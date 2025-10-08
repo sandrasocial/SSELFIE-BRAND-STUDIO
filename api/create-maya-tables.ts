@@ -52,9 +52,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     `;
     
     // Execute the SQL
-    await db.execute(createMayaProfileTable);
-    await db.execute(addForeignKey);
-    await db.execute(addIndexes);
+    const { sql } = await import('drizzle-orm');
+    await db.execute(sql.raw(createMayaProfileTable));
+    await db.execute(sql.raw(addForeignKey));
+    await db.execute(sql.raw(addIndexes));
     
     // Also create other Maya tables if needed
     const createOtherMayaTables = `
@@ -142,7 +143,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       );
     `;
     
-    await db.execute(createOtherMayaTables);
+    await db.execute(sql.raw(createOtherMayaTables));
 
     return res.status(200).json({
       success: true,

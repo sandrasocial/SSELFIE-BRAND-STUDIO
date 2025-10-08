@@ -29,7 +29,7 @@ export const getWebSocketPool = () => {
     });
 
     // Add connection error handling
-    wsPool.on('error', (err) => {
+    wsPool.on('error', (err: any) => {
       console.error('❌ Unexpected WebSocket pool error:', err);
     });
   }
@@ -105,17 +105,17 @@ export const transaction = async <T>(
   // Create a proxy to collect queries
   const txProxy = new Proxy(db, {
     get(target, prop) {
-      const value = target[prop as keyof typeof target];
+      const value = (target as any)[prop as string];
       if (typeof value === 'function') {
         return (...args: unknown[]) => {
           const query = value.apply(target, args);
-          queries.push(query);
+          (queries as any[]).push(query);
           return query;
         };
       }
       return value;
     }
-  });
+  }) as any;
 
   try {
     result = await callback(txProxy);

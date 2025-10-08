@@ -103,7 +103,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         plan: plan,
         monthlyGenerationLimit: plan === 'sselfie-studio' ? 100 : -1,
         onboardingProgress: JSON.stringify({ source: source || 'payment-success' })
-      });
+      } as any);
 
       return res.status(201).json({
         success: true,

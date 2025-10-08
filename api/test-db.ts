@@ -45,7 +45,8 @@ export default async function handler(req: any, res: any) {
     let drizzleStatus;
     try {
       const { db } = await import('../server/drizzle.js');
-      const result = await db.execute(`SELECT 1 as test`);
+      const { sql } = await import('drizzle-orm');
+      const result = await db.execute(sql`SELECT 1 as test`);
       drizzleStatus = {
         success: true, 
         connectionWorking: true,
@@ -66,16 +67,17 @@ export default async function handler(req: any, res: any) {
     let imageDataStatus;
     try {
       const { db } = await import('../server/drizzle.js');
+      const { sql } = await import('drizzle-orm');
       
       // Count records in image tables
-      const aiImagesCount = await db.execute(`SELECT COUNT(*) as count FROM ai_images`);
-      const generatedImagesCount = await db.execute(`SELECT COUNT(*) as count FROM generated_images`);
-      const usersCount = await db.execute(`SELECT COUNT(*) as count FROM users`);
+      const aiImagesCount = await db.execute(sql`SELECT COUNT(*) as count FROM ai_images`);
+      const generatedImagesCount = await db.execute(sql`SELECT COUNT(*) as count FROM generated_images`);
+      const usersCount = await db.execute(sql`SELECT COUNT(*) as count FROM users`);
       
       // Get sample data
-      const sampleUsers = await db.execute(`SELECT id, email, plan FROM users LIMIT 3`);
-      const sampleAiImages = await db.execute(`SELECT id, user_id, image_url, style, created_at FROM ai_images LIMIT 3`);
-      const sampleGeneratedImages = await db.execute(`SELECT id, user_id, category, selected_url, created_at FROM generated_images LIMIT 3`);
+      const sampleUsers = await db.execute(sql`SELECT id, email, plan FROM users LIMIT 3`);
+      const sampleAiImages = await db.execute(sql`SELECT id, user_id, image_url, style, created_at FROM ai_images LIMIT 3`);
+      const sampleGeneratedImages = await db.execute(sql`SELECT id, user_id, category, selected_url, created_at FROM generated_images LIMIT 3`);
       
       imageDataStatus = {
         success: true,
