@@ -1365,6 +1365,49 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
       }
     }
 
+    // Maya chat history endpoint - CRITICAL FOR CONVERSATION CONTINUITY
+    if (req.url?.includes('/api/maya/chat-history')) {
+      try {
+        const user = await getAuthenticatedUser();
+        const { storage } = await import('../server/storage.js');
+        
+        // Get Maya chat messages for this user
+        const mayaChats = await storage.getMayaChats(user.id as string);
+        
+        if (mayaChats.length === 0) {
+          res.setHeader('Cache-Control', 'no-store');
+          return res.status(200).json({ messages: [] });
+        }
+        
+        // Get messages from the most recent chat
+        const latestChat = mayaChats[0];
+        const messages = await storage.getMayaChatMessages(latestChat.id.toString(), user.id as string);
+        
+        // Transform messages to expected format
+        const formattedMessages = messages.map(msg => ({
+          id: msg.id,
+          type: msg.role === 'user' ? 'user' : 'maya',
+          content: msg.content,
+          timestamp: msg.createdAt,
+          chatId: msg.chatId
+        }));
+        
+        res.setHeader('Cache-Control', 'no-store');
+        return res.status(200).json({ 
+          messages: formattedMessages,
+          chatId: latestChat.id,
+          totalMessages: formattedMessages.length
+        });
+        
+      } catch (error) {
+        console.error('❌ Maya chat history error:', error);
+        return res.status(401).json({ 
+          message: 'Authentication required',
+          error: (error as Error).message
+        });
+      }
+    }
+
     // Training status endpoints
     if (req.url === '/api/training/status' || req.url?.startsWith('/api/training/status?')) {
       try {
