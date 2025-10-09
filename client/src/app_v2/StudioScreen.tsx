@@ -235,7 +235,7 @@ const StudioScreen: React.FC<StudioScreenProps> = ({ onTabChange }) => {
                     // Navigate to Maya chat with the daily tip
                     const tipPrompt = `Maya, I love your daily tip: "${inspiration.tip}" Can you help me create these kinds of photos?`;
                     onTabChange?.('maya');
-                    setLocation(`/sselfie-app?tab=maya&prompt=${encodeURIComponent(tipPrompt)}`);
+                    setLocation(`/app?tab=maya&prompt=${encodeURIComponent(tipPrompt)}`);
                   }}
                   className="group relative aspect-[4/5] overflow-hidden rounded-2xl border border-stone-200/40 bg-stone-100/40 cursor-pointer hover:border-stone-300/60 transition-all duration-200 hover:scale-[1.02]"
                 >
@@ -311,7 +311,7 @@ const StudioScreen: React.FC<StudioScreenProps> = ({ onTabChange }) => {
                       // Navigate to Maya chat with the selected style
                       const stylePrompt = `I'd like to create ${style.title.toLowerCase()} style images. ${style.description}. Can you help me generate some amazing photos in this style?`;
                       onTabChange?.('maya');
-                      setLocation(`/sselfie-app?tab=maya&prompt=${encodeURIComponent(stylePrompt)}`);
+                      setLocation(`/app?tab=maya&prompt=${encodeURIComponent(stylePrompt)}`);
                     }}
                     className={`w-full p-4 rounded-2xl border transition-all duration-200 text-left ${
                       selectedStyle?.id === style.id

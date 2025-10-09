@@ -1,4 +1,4 @@
-/// <reference path="../server/types/global.d.ts" />
+/// <reference path="./types/global.d.ts" />
 import { pgTable, text, varchar, timestamp, jsonb, integer, boolean } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 // User styleguides created by SANDRA AI

@@ -223,7 +223,7 @@ function SSELFIEGallery({ hideMemberNav = false }: { hideMemberNav?: boolean }) 
 
   const downloadImage = (imageUrl: string, filename?: string) => {
     try {
-      const link = document.createElement('a');
+      const link = document.createElement('a') as HTMLAnchorElement;
       link.href = imageUrl;
       link.download = filename || 'sselfie-image';
       link.target = '_blank';
@@ -538,7 +538,7 @@ function SSELFIEGallery({ hideMemberNav = false }: { hideMemberNav?: boolean }) 
                 }
               </p>
               <button 
-                onClick={() => searchQuery ? setSearchQuery('') : window.location.href = '/maya'}
+                onClick={() => searchQuery ? setSearchQuery('') : window.location.href = '/app'}
                 className="bg-stone-950 text-stone-50 px-8 py-4 text-xs tracking-[0.15em] uppercase font-light rounded-2xl hover:bg-stone-800 transition-colors flex items-center gap-3 mx-auto"
               >
                 <Plus size={16} strokeWidth={1.5} />

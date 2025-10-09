@@ -3,6 +3,7 @@ import { Redirect } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../../hooks/use-auth.js';
 import { PageLoader } from '../../components/PageLoader.js';
+import { ROUTES } from '../../constants/routes.js';
 
 interface UserModel {
   trainingStatus?: string;
@@ -47,7 +48,7 @@ interface MeResponse {
  * 2. Fetches user model data from /api/user-model endpoint  
  * 3. Redirects based on training status:
  *    - If modelStatus is 'completed' or trainingStatus is 'completed' → /app
- *    - Otherwise → /onboarding/simple-training
+ *    - Otherwise → /simple-training
  */
 export default function PostLoginHandler() {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
@@ -89,36 +90,34 @@ export default function PostLoginHandler() {
 
   // If not authenticated, redirect to sign-in
   if (!isAuthenticated) {
-    return <Redirect to="/handler/sign-in" />;
+    return <Redirect to={ROUTES.SIGN_IN} />;
   }
 
   // Handle API errors - if we can't determine status, send to training as safe fallback
   if (meError || modelError) {
     console.error('🚨 PostLoginHandler API Error:', { meError, modelError });
-    return <Redirect to="/onboarding/simple-training" />;
+    return <Redirect to={ROUTES.SIMPLE_TRAINING} />;
   }
 
-  // Check training status from multiple sources for robustness
-  const isModelTrained = 
-    // Primary check: userModel trainingStatus from /api/user-model
-    userModel?.trainingStatus === 'completed' ||
-    // Secondary check: modelStatus from /api/me (newly added)
-    meData?.user?.modelStatus === 'completed' ||
-    // Tertiary check: userModel needsTraining flag (inverted) - must not be 'not_started'
-    (userModel?.needsTraining === false && userModel?.trainingStatus !== 'not_started');
+  // Check training status - use userModel as single source of truth
+  const isModelTrained = userModel?.trainingStatus === 'completed';
+  
+  // Fallback to meData if userModel is not available (API error case)
+  const fallbackTrained = !userModel && meData?.user?.modelStatus === 'completed';
+  
+  const shouldGoToApp = isModelTrained || fallbackTrained;
 
   console.log('🎯 PostLoginHandler Routing Decision:', {
-    isModelTrained,
-    trainingStatus: userModel?.trainingStatus,
-    modelStatus: meData?.user?.modelStatus,
-    needsTraining: userModel?.needsTraining,
-    redirectTo: isModelTrained ? '/app' : '/simple-training'
+    userModelStatus: userModel?.trainingStatus,
+    fallbackStatus: meData?.user?.modelStatus,
+    shouldGoToApp,
+    redirectTo: shouldGoToApp ? ROUTES.APP : ROUTES.SIMPLE_TRAINING
   });
 
   // Route based on training status
-  if (isModelTrained) {
-    return <Redirect to="/app" />;
+  if (shouldGoToApp) {
+    return <Redirect to={ROUTES.APP} />;
   } else {
-    return <Redirect to="/simple-training" />;
+    return <Redirect to={ROUTES.SIMPLE_TRAINING} />;
   }
 }

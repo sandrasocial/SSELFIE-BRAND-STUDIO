@@ -6,7 +6,7 @@ export default function WelcomeEditorial() {
     if (typeof window !== 'undefined' && (window as any).handleGetStarted) {
       (window as any).handleGetStarted();
     } else {
-      window.location.href = '/maya';
+      window.location.href = '/app';
     }
   };
 

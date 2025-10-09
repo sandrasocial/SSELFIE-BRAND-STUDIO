@@ -7,7 +7,7 @@ import { useToast } from '../../hooks/use-toast.js';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { apiRequest } from '../../lib/queryClient.js';
 import ErrorBoundary from '../../components/ErrorBoundary.js';
-import { User, UserModel } from '../../types/index.js';
+import type { User, UserModel } from '../../../../shared/types/index.js';
 import { MayaUploadComponent } from '../../components/maya/MayaUploadComponent.js';
 import { TypographyClasses } from '../../styles/premium-typography.js';
 
@@ -95,7 +95,7 @@ function SimpleTraining() {
       
       // Redirect to training page after clearing data
       setTimeout(() => {
-        window.location.href = '/ai-training';
+        window.location.href = '/simple-training';
       }, 500);
     },
     onError: () => {
@@ -145,7 +145,7 @@ function SimpleTraining() {
     } else if (userModel && userModel.trainingStatus === 'completed') {
       // 🔄 PHASE 4: Enhanced retraining logic with retraining access support
       const currentPath = window.location.pathname;
-      const isOnTrainingPage = currentPath.includes('simple-training') || currentPath.includes('ai-training');
+      const isOnTrainingPage = currentPath.includes('simple-training');
       const hasRetrainingAccess = (userModel as any)?.hasRetrainingAccess === true;
       
       if (isOnTrainingPage) {
@@ -157,15 +157,13 @@ function SimpleTraining() {
           });
           // Let training continue normally - don't redirect
         } else {
-          // 🔄 PHASE 4: User without retraining access - route to retraining checkout
+          // 🔄 PHASE 4: User without retraining access - show completion message
           toast({
             title: "✨ AI Model Ready!",
-            description: "Your AI model is trained and ready! Redirecting you to Maya to start creating beautiful photos.",
+            description: "Your AI model is trained and ready! You can now start creating beautiful photos.",
           });
           
-          setTimeout(() => {
-            window.location.href = '/app';
-          }, 2000);
+          // Note: PostLoginHandler will handle routing to /app automatically
         }
       } else {
       }
@@ -179,7 +177,7 @@ function SimpleTraining() {
     // CRITICAL FIX: Only poll when we're actually on the training page and training is active
     // PREVENT MAYA INTERFERENCE: Do not poll or redirect if user is not on training-related pages
     const currentPath = window.location.pathname;
-    const isOnTrainingPage = currentPath.includes('simple-training') || currentPath.includes('ai-training');
+    const isOnTrainingPage = currentPath.includes('simple-training');
     
     if (isCurrentlyTraining && isAuthenticated && isOnTrainingPage) {
       
@@ -199,17 +197,15 @@ function SimpleTraining() {
           setTrainingProgress(100);
           clearInterval(interval); // CRITICAL: Stop polling immediately
           
-          // 🔄 PHASE 1: TRAINING COMPLETION - Route to workspace for newly trained users
-          const stillOnTrainingPage = window.location.pathname.includes('simple-training') || window.location.pathname.includes('ai-training');
+          // 🔄 PHASE 1: TRAINING COMPLETION - Show completion message
+          const stillOnTrainingPage = window.location.pathname.includes('simple-training');
           if (stillOnTrainingPage) {
             toast({
               title: "Model Ready",
-              description: "Your AI training is complete. Redirecting to Maya...",
+              description: "Your AI training is complete! You can now create amazing photos.",
             });
             
-            setTimeout(() => {
-              window.location.href = '/app';
-            }, 2000);
+            // Note: PostLoginHandler will automatically redirect to /app when it detects completion
           }
           
           return; // Exit early

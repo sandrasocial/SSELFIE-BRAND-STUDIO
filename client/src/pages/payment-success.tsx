@@ -62,14 +62,15 @@ export default function PaymentSuccess() {
         } catch (error) {
         }
         
-        // New user or training not completed - redirect to training
+        // New user or training not completed - show success message
         toast({
           title: "Welcome to SSELFIE Studio!",
           description: "Your payment was successful. Let's start creating your AI model.",
         });
         
+        // Note: Will auto-redirect via PostLoginHandler after payment confirmation
         setTimeout(() => {
-          setLocation('/simple-training');
+          setLocation('/');  // Go to home, let SmartHome/PostLoginHandler decide
         }, 3000);
       };
       
