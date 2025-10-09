@@ -3,7 +3,7 @@ import { Express } from 'express';
 import { storage } from '../storage.js'
 import { S3Client } from '@aws-sdk/client-s3';
 import { Upload } from '@aws-sdk/lib-storage';
-import { checkAdminAccess } from '../middleware/admin-middleware.js';
+import { isPlatformAdmin } from '../middleware/admin-context.js';
 
 // Configure AWS S3
 const s3 = new S3Client({
@@ -17,7 +17,11 @@ const s3 = new S3Client({
 export function registerCoverImageRoutes(app: Express) {
   // Save approved cover image to permanent storage
   app.post('/api/save-cover-image', async (req, res) => {
-    checkAdminAccess(req, res, () => {});
+    // Check admin access
+    const userId = (req.user as any)?.claims?.sub || (req.user as any)?.id;
+    if (!isPlatformAdmin(userId, (req.user as any)?.email)) {
+      return res.status(403).json({ error: 'Admin access required' });
+    }
 
     try {
       const { promptId, tempImageUrl, collectionId } = req.body;
@@ -49,7 +53,7 @@ export function registerCoverImageRoutes(app: Express) {
           promptId,
           collectionId,
           imageUrl: permanentUrl,
-          createdBy: req.user.id,
+          createdBy: userId,
           createdAt: new Date()
         });
       }

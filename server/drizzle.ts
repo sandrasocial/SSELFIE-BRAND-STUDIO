@@ -1,10 +1,16 @@
 /// <reference path="../shared/types/global.d.ts" />
-// Fixed: Lazy initialization to prevent serverless environment variable timing issues
-import { drizzle } from 'drizzle-orm/neon-http';
-import { neon } from '@neondatabase/serverless';
+// Correct Drizzle 0.42.0 + Neon WebSocket Pool initialization
+import { drizzle } from 'drizzle-orm/neon-serverless';
+import { Pool, neonConfig } from '@neondatabase/serverless';
 import type { QueryResult as NeonQueryResult } from '@neondatabase/serverless';
 import { DATABASE_URL } from './env.js';
 import * as schema from '../shared/schema.js';
+import * as ws from 'ws';
+
+// Configure WebSocket for Node.js environment
+if (typeof window === 'undefined') {
+  neonConfig.webSocketConstructor = ws.WebSocket;
+}
 
 export interface QueryResult<T = unknown> {
   rows: T[];
@@ -17,11 +23,11 @@ export interface QueryResult<T = unknown> {
 export type QueryParams = string | number | boolean | null | Buffer | Date | QueryParams[];
 
 // Lazy initialization to ensure environment variables are loaded
-let _sql: any = null;
+let _pool: Pool | null = null;
 let _db: any = null;
 
-export function getSql() {
-  if (!_sql) {
+export function getPool() {
+  if (!_pool) {
     // Check environment variables dynamically to handle Vercel serverless timing
     const dbUrl = DATABASE_URL || process.env.DATABASE_URL || process.env.NEON_DB_URL;
     console.log('🔍 Database connection check:', {
@@ -36,19 +42,19 @@ export function getSql() {
       throw new Error(`No database connection string available. DATABASE_URL=${!!DATABASE_URL}, process.env.DATABASE_URL=${!!process.env.DATABASE_URL}, process.env.NEON_DB_URL=${!!process.env.NEON_DB_URL}, NODE_ENV=${process.env.NODE_ENV}`);
     }
     
-    // For Drizzle 0.36.0+ compatibility with Neon serverless
-    _sql = neon(dbUrl);
+    // Use WebSocket Pool for Drizzle compatibility - correct constructor
+    _pool = new Pool({ connectionString: dbUrl });
     
-    console.log('✅ Database connection established successfully');
+    console.log('✅ Database Pool connection established successfully');
   }
-  return _sql;
+  return _pool;
 }
 
 function getDb() {
   if (!_db) {
-    // Updated for Drizzle ORM 0.36.0+ compatibility
-    const sql = getSql();
-    _db = drizzle(sql);
+    // Drizzle ORM 0.42.x with Neon WebSocket Pool
+    const pool = getPool();
+    _db = drizzle(pool, { schema });
   }
   return _db;
 }
@@ -72,35 +78,25 @@ export const serverlessQuery = async <T = unknown>(
       throw new Error('Query text is required');
     }
 
-    // Get sql connection with lazy initialization
-    const sql = getSql();
+    // Get Pool connection with lazy initialization
+    const pool = getPool();
 
-    // Execute query with proper type handling
-    const result = params?.length 
-      ? await sql.query(text, params)
-      : await sql`${text}`;
-
-    // Ensure result structure - convert array results to QueryResult format
-    if (Array.isArray(result)) {
+    // Execute query using the correct Pool client method
+    const client = await pool.connect();
+    try {
+      const result = await client.query(text, params || []);
       return {
-        rows: result,
-        command: 'SELECT',
-        rowCount: result.length,
-        oid: 0,
-        fields: []
+        rows: result.rows || [],
+        command: result.command || 'SELECT', 
+        rowCount: result.rowCount || 0,
+        oid: (result as any).oid || 0,
+        fields: (result as any).fields || []
       } as QueryResult<T>;
+    } finally {
+      client.release();
     }
 
-    // Cast to proper type if already in correct format
-    const queryResult = result as unknown as NeonQueryResult;
 
-    return {
-      rows: queryResult.rows || [],
-      command: (queryResult as any).command || 'SELECT',
-      rowCount: queryResult.rowCount || 0,
-      oid: (queryResult as any).oid || 0,
-      fields: (queryResult as any).fields || []
-    } as QueryResult<T>;
   } catch (error) {
     console.error('❌ Serverless query error:', error instanceof Error ? error.message : 'Unknown error');
     throw error instanceof Error ? error : new Error('Query execution failed');

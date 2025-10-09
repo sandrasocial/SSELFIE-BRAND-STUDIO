@@ -3,10 +3,8 @@
  * Addresses missing module declarations and node global types
  */
 
-// Node.js global types
+// Node.js global types - augment existing global declarations
 declare global {
-  var require: (module: string) => unknown;
-
   namespace NodeJS {
     interface ProcessEnv {
       NODE_ENV?: string;
@@ -100,66 +98,9 @@ declare module 'node:crypto' {
   export function createHmac(algorithm: string, key: string): unknown;
 }
 
-// Dotenv types
+// Dotenv types - only define if not already provided
 declare module 'dotenv' {
   export function config(options?: { path?: string; encoding?: string; debug?: boolean; override?: boolean }): { parsed?: Record<string, string>; error?: Error };
-  const dotenv: {
-    config: (options?: { path?: string; encoding?: string; debug?: boolean; override?: boolean }) => { parsed?: Record<string, string>; error?: Error };
-  };
-  export default dotenv;
-}
-
-// Vercel and serverless environment types
-declare module '@vercel/node' {
-  export interface VercelRequest {
-    query: { [key: string]: string | string[] };
-    body: unknown;
-    cookies: { [key: string]: string };
-    headers: { [key: string]: string };
-    method: string;
-    url: string;
-  }
-
-  export interface VercelResponse {
-    status: (code: number) => VercelResponse;
-    json: (object: unknown) => VercelResponse;
-    send: (body: unknown) => VercelResponse;
-    setHeader: (name: string, value: string) => VercelResponse;
-    end: () => void;
-  }
-}
-
-// JOSE types
-declare module 'jose' {
-  export interface JWTPayload {
-    [key: string]: unknown;
-  }
-
-  export interface JWTVerifyResult {
-    payload: JWTPayload;
-    protectedHeader: unknown;
-  }
-
-  export function jwtVerify(token: string, secret: unknown): Promise<JWTVerifyResult>;
-  export function createRemoteJWKSet(url: URL): unknown;
-}
-
-// Node fetch types
-declare module 'node-fetch' {
-  export interface Response {
-    ok: boolean;
-    status: number;
-    statusText: string;
-    json(): Promise<unknown>;
-    text(): Promise<string>;
-  }
-
-  export default function fetch(url: string, init?: {
-    method?: string;
-    headers?: Record<string, string>;
-    body?: string;
-    timeout?: number;
-  }): Promise<Response>;
 }
 
 export {};

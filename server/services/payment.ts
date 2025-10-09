@@ -1,5 +1,6 @@
 import Stripe from 'stripe';
-import { logger } from '../config/monitoring.js';
+// TODO: Add proper logging when monitoring config is available
+// import { logger } from '../config/monitoring.js';
 
 const stripe = new Stripe(process.env['STRIPE_SECRET_KEY']!, {
   apiVersion: '2025-08-27.basil'
@@ -16,7 +17,7 @@ export class PaymentService {
       });
       return subscription;
     } catch (error) {
-      logger.error(`Subscription creation failed: ${error.message}`);
+      console.error(`Subscription creation failed:`, error);
       throw error;
     }
   }
@@ -41,19 +42,19 @@ export class PaymentService {
       
       return { status: 'success' };
     } catch (error) {
-      logger.error(`Webhook handling failed: ${error.message}`);
+      console.error(`Webhook handling failed:`, error);
       throw error;
     }
   }
 
   private async handleInvoicePaid(invoice: any) {
     // Implement invoice paid logic
-    logger.info(`Invoice paid: ${invoice.id}`);
+    console.log(`Invoice paid: ${invoice.id}`);
   }
 
   private async handleSubscriptionCanceled(subscription: any) {
     // Implement subscription cancellation logic
-    logger.info(`Subscription canceled: ${subscription.id}`);
+    console.log(`Subscription canceled: ${subscription.id}`);
   }
 
   async generateInvoice(customerId: string, amount: number) {
@@ -73,7 +74,7 @@ export class PaymentService {
 
       return invoice;
     } catch (error) {
-      logger.error(`Invoice generation failed: ${error.message}`);
+      console.error(`Invoice generation failed:`, error);
       throw error;
     }
   }

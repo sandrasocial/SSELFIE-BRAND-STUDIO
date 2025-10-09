@@ -1,9 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { withAuth } from './_middleware/auth.js';
 import type { AuthenticatedRequest } from './_shared/auth-types.js';
-import { db } from '../server/drizzle.js';
-import { mayaModels } from '../shared/schema-maya.js';
-import { eq } from 'drizzle-orm';
 
 export const config = {
   runtime: 'nodejs',
@@ -49,37 +46,71 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       console.log('🔍 User model request for user:', user.id);
 
-      // Check if user has a trained model
-      const existingModel = await db
-        .select()
-        .from(mayaModels)
-        .where(eq(mayaModels.userId, user.id))
-        .orderBy(mayaModels.createdAt)
-        .limit(1);
+      // FIXED: Use the same storage service as /api/me for consistency
+      const { storage } = await import('../server/storage.js');
+      
+      try {
+        // Get user model from the correct table (userModels, not mayaModels)
+        const existingModel = await storage.getUserModel(user.id);
 
-      if (existingModel && existingModel.length > 0) {
-        // Return existing model data
-        const model = existingModel[0];
-        const userModel = {
-          id: model.id,
-          userId: model.userId,
-          trainingStatus: model.trainingStatus,
-          trainingProgress: model.trainingProgress || 0,
-          modelType: model.modelType,
-          qualityScore: model.qualityScore,
-          createdAt: model.createdAt?.toISOString(),
-          updatedAt: model.updatedAt?.toISOString()
-        };
+        if (existingModel) {
+          // Return existing model data in the format expected by the client
+          const userModel = {
+            id: existingModel.id,
+            userId: existingModel.userId,
+            trainingStatus: existingModel.trainingStatus,
+            trainingProgress: existingModel.trainingProgress || 0,
+            modelType: existingModel.modelType,
+            needsTraining: existingModel.trainingStatus !== 'completed',
+            canRetrain: existingModel.trainingStatus === 'completed',
+            createdAt: existingModel.createdAt?.toISOString(),
+            updatedAt: existingModel.updatedAt?.toISOString(),
+            // Add fields that PostLoginHandler might check
+            replicateModelId: existingModel.replicateModelId,
+            replicateVersionId: existingModel.replicateVersionId,
+            modelName: existingModel.modelName
+          };
 
-        res.setHeader('Cache-Control', 'no-store');
-        return res.status(200).json(userModel);
-      } else {
-        // No model exists yet - return default pending status
+          console.log('✅ Found user model:', { 
+            userId: user.id, 
+            trainingStatus: userModel.trainingStatus,
+            needsTraining: userModel.needsTraining
+          });
+
+          res.setHeader('Cache-Control', 'no-store');
+          return res.status(200).json(userModel);
+        } else {
+          // No model exists yet - return default status that will route to training
+          const userModel = {
+            id: null,
+            userId: user.id,
+            trainingStatus: 'not_started',
+            trainingProgress: 0,
+            needsTraining: true,
+            canRetrain: false,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          };
+
+          console.log('ℹ️ No model found for user, returning default:', { 
+            userId: user.id, 
+            trainingStatus: userModel.trainingStatus 
+          });
+
+          res.setHeader('Cache-Control', 'no-store');
+          return res.status(200).json(userModel);
+        }
+      } catch (modelError) {
+        console.error('❌ Error fetching user model:', modelError);
+        
+        // Return safe fallback that routes to training
         const userModel = {
           id: null,
           userId: user.id,
-          trainingStatus: 'pending',
+          trainingStatus: 'not_started',
           trainingProgress: 0,
+          needsTraining: true,
+          canRetrain: false,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString()
         };

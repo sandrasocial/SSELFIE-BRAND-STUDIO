@@ -3,7 +3,7 @@
  * Structured logging with different levels and outputs
  */
 
-/// <reference path="../types/global.d.ts" />
+// Logger utility for serverless deployment
 
 export interface LogEntry {
   timestamp: string;

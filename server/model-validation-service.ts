@@ -147,7 +147,7 @@ export class ModelValidationService {
           replicateModelId: modelId,
           replicateVersionId: versionId,
           updatedAt: new Date()
-        })
+        } as any)
         .where(eq(userModels.userId, userId));
       
       
