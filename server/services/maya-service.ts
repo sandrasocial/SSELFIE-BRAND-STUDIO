@@ -247,18 +247,30 @@ export class MayaService {
         content: request.message
       });
 
-      // Call Claude API
-      const response = await this.anthropic.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
-        max_tokens: 4096,
-        temperature: 0.7,
-        system: systemPrompt,
-        messages: conversationMessages
-      });
+      // Call Claude API with fallback handling
+      let mayaResponse = '';
+      
+      try {
+        const response = await this.anthropic.messages.create({
+          model: 'claude-3-5-sonnet-20241022',
+          max_tokens: 4096,
+          temperature: 0.7,
+          system: systemPrompt,
+          messages: conversationMessages
+        });
 
-      const mayaResponse = response.content[0].type === 'text'
-        ? response.content[0].text
-        : '';
+        mayaResponse = response.content[0].type === 'text'
+          ? response.content[0].text
+          : '';
+          
+        console.log('✅ MAYA: Claude API call successful');
+        
+      } catch (apiError) {
+        console.error('❌ MAYA: Claude API failed, using fallback response:', (apiError as Error).message);
+        
+        // 🔧 FALLBACK: Provide Maya response without Claude API
+        mayaResponse = this.generateFallbackResponse(request.message, user);
+      }
 
       // Save user message to database
       const userMessage: InsertMessage = {
@@ -673,6 +685,29 @@ export class MayaService {
     } catch (error) {
       console.error('❌ MAYA: Failed to update user profile stats:', error);
     }
+  }
+
+  /**
+   * Generate fallback response when Claude API is unavailable
+   */
+  private generateFallbackResponse(message: string, user: any): string {
+    console.log('🔄 MAYA: Generating fallback response for API key issue');
+    
+    return `Hello! I'm Maya, your AI Creative Director at SSELFIE Studio.
+
+I'm currently experiencing a temporary technical issue with my AI capabilities, but I'm still here to help! 
+
+The issue is related to my connection with Claude AI - specifically an invalid API key that needs to be updated by the development team. 
+
+Once this is resolved, I'll be back to my full capabilities:
+• Creating personalized concept cards with detailed styling
+• Professional headshot and lifestyle photography direction
+• Fashion expertise across 12 signature aesthetic looks
+• Location scouting and creative direction
+
+Please check back soon, or contact support if this issue persists. I'm excited to help you create stunning visuals for your brand once I'm back online!
+
+Thank you for your patience! 🎨✨`;
   }
 }
 
