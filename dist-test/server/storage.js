@@ -492,53 +492,158 @@ export class DatabaseStorage {
     }
     // 🔥 BULLETPROOF: Get user model with aggressive Stack Auth ID and email linking
     async getUserModelByStackAuthAndEmail(stackAuthId, email) {
-        console.log('🔥 BULLETPROOF: Attempting user lookup with:', {
+        console.log('🔥 BULLETPROOF: Attempting optimized user lookup with:', {
             stackAuthId: stackAuthId.substring(0, 8) + '...',
             email
         });
         try {
-            // Find existing user by Stack Auth ID (primary) OR by Email (for new Stack logins)
-            const userRecords = await db
-                .select()
+            // OPTIMIZATION: Single query with LEFT JOIN to get both user and model data
+            const results = await db
+                .select({
+                // User fields
+                userId: users.id,
+                userStackAuthId: users.stackAuthId,
+                userEmail: users.email,
+                userFirstName: users.firstName,
+                userLastName: users.lastName,
+                userDisplayName: users.displayName,
+                userProfileImageUrl: users.profileImageUrl,
+                userCreatedAt: users.createdAt,
+                userUpdatedAt: users.updatedAt,
+                userLastLoginAt: users.lastLoginAt,
+                userStripeCustomerId: users.stripeCustomerId,
+                userStripeSubscriptionId: users.stripeSubscriptionId,
+                userPlan: users.plan,
+                userRole: users.role,
+                userMonthlyGenerationLimit: users.monthlyGenerationLimit,
+                userGenerationsUsedThisMonth: users.generationsUsedThisMonth,
+                userMayaAiAccess: users.mayaAiAccess,
+                userVictoriaAiAccess: users.victoriaAiAccess,
+                userHasRetrainingAccess: users.hasRetrainingAccess,
+                userRetrainingSessionId: users.retrainingSessionId,
+                userRetrainingPaidAt: users.retrainingPaidAt,
+                userOnboardingProgress: users.onboardingProgress,
+                userPreferredOnboardingMode: users.preferredOnboardingMode,
+                userGender: users.gender,
+                userProfession: users.profession,
+                userBrandStyle: users.brandStyle,
+                userPhotoGoals: users.photoGoals,
+                // Model fields (nullable)
+                modelId: userModels.id,
+                modelTrainingId: userModels.trainingId,
+                modelReplicateModelId: userModels.replicateModelId,
+                modelReplicateVersionId: userModels.replicateVersionId,
+                modelTrainedModelPath: userModels.trainedModelPath,
+                modelTriggerWord: userModels.triggerWord,
+                modelTrainingStatus: userModels.trainingStatus,
+                modelModelName: userModels.modelName,
+                modelIsLuxury: userModels.isLuxury,
+                modelFinetuneId: userModels.finetuneId,
+                modelModelType: userModels.modelType,
+                modelTrainingProgress: userModels.trainingProgress,
+                modelEstimatedCompletionTime: userModels.estimatedCompletionTime,
+                modelFailureReason: userModels.failureReason,
+                modelStartedAt: userModels.startedAt,
+                modelCreatedAt: userModels.createdAt,
+                modelUpdatedAt: userModels.updatedAt,
+                modelCompletedAt: userModels.completedAt,
+            })
                 .from(users)
+                .leftJoin(userModels, eq(users.id, userModels.userId))
                 .where(or(eq(users.stackAuthId, stackAuthId), eq(users.email, email)))
                 .limit(1);
-            let userRecord = userRecords[0] || null;
-            if (userRecord && !userRecord.stackAuthId) {
-                // Found existing user by email, but they are unlinked. Link them now.
+            let result = results[0] || null;
+            if (!result) {
+                return { user: undefined, model: undefined };
+            }
+            // Check if we need to link Stack Auth ID
+            const needsLinking = result.userId && !result.userStackAuthId && result.userEmail === email;
+            const needsLoginUpdate = result.userId && result.userStackAuthId === stackAuthId;
+            if (needsLinking) {
                 console.log('🔗 Linking existing user to Stack Auth:', {
-                    userId: userRecord.id,
-                    email: userRecord.email
+                    userId: result.userId,
+                    email: result.userEmail
                 });
-                userRecord = await db.update(users)
+                // Update user with Stack Auth ID
+                await db.update(users)
                     .set({
                     stackAuthId: stackAuthId,
                     updatedAt: new Date(),
                     lastLoginAt: new Date()
                 })
-                    .where(eq(users.id, userRecord.id))
-                    .returning().then(res => res[0]);
+                    .where(eq(users.id, result.userId));
+                // Update result with new values
+                result.userStackAuthId = stackAuthId;
+                result.userLastLoginAt = new Date();
+                result.userUpdatedAt = new Date();
             }
-            else if (userRecord && userRecord.stackAuthId) {
+            else if (needsLoginUpdate) {
                 // Update last login for existing linked user
-                userRecord = await db.update(users)
+                await db.update(users)
                     .set({
                     lastLoginAt: new Date(),
                     updatedAt: new Date()
                 })
-                    .where(eq(users.id, userRecord.id))
-                    .returning().then(res => res[0]);
+                    .where(eq(users.id, result.userId));
+                // Update result with new values
+                result.userLastLoginAt = new Date();
+                result.userUpdatedAt = new Date();
             }
-            if (!userRecord) {
-                return { user: undefined, model: undefined };
+            // Reconstruct user object
+            const userRecord = {
+                id: result.userId,
+                stackAuthId: result.userStackAuthId,
+                email: result.userEmail,
+                firstName: result.userFirstName,
+                lastName: result.userLastName,
+                displayName: result.userDisplayName,
+                profileImageUrl: result.userProfileImageUrl,
+                createdAt: result.userCreatedAt,
+                updatedAt: result.userUpdatedAt,
+                lastLoginAt: result.userLastLoginAt,
+                stripeCustomerId: result.userStripeCustomerId,
+                stripeSubscriptionId: result.userStripeSubscriptionId,
+                plan: result.userPlan,
+                role: result.userRole,
+                monthlyGenerationLimit: result.userMonthlyGenerationLimit,
+                generationsUsedThisMonth: result.userGenerationsUsedThisMonth,
+                mayaAiAccess: result.userMayaAiAccess,
+                victoriaAiAccess: result.userVictoriaAiAccess,
+                hasRetrainingAccess: result.userHasRetrainingAccess,
+                retrainingSessionId: result.userRetrainingSessionId,
+                retrainingPaidAt: result.userRetrainingPaidAt,
+                onboardingProgress: result.userOnboardingProgress,
+                preferredOnboardingMode: result.userPreferredOnboardingMode,
+                gender: result.userGender,
+                profession: result.userProfession,
+                brandStyle: result.userBrandStyle,
+                photoGoals: result.userPhotoGoals,
+            };
+            // Reconstruct model object if it exists
+            let userModel = null;
+            if (result.modelId) {
+                userModel = {
+                    id: result.modelId,
+                    userId: result.userId,
+                    trainingId: result.modelTrainingId,
+                    replicateModelId: result.modelReplicateModelId,
+                    replicateVersionId: result.modelReplicateVersionId,
+                    trainedModelPath: result.modelTrainedModelPath,
+                    triggerWord: result.modelTriggerWord || '',
+                    trainingStatus: result.modelTrainingStatus,
+                    modelName: result.modelModelName,
+                    isLuxury: result.modelIsLuxury,
+                    finetuneId: result.modelFinetuneId,
+                    modelType: result.modelModelType,
+                    trainingProgress: result.modelTrainingProgress,
+                    estimatedCompletionTime: result.modelEstimatedCompletionTime,
+                    failureReason: result.modelFailureReason,
+                    startedAt: result.modelStartedAt,
+                    createdAt: result.modelCreatedAt,
+                    updatedAt: result.modelUpdatedAt,
+                    completedAt: result.modelCompletedAt,
+                };
             }
-            // Now get the user model for this user
-            const userModelRecords = await db
-                .select()
-                .from(userModels)
-                .where(eq(userModels.userId, userRecord.id))
-                .limit(1);
-            const userModel = userModelRecords[0] || null;
             console.log('✅ User lookup result:', {
                 foundUser: !!userRecord,
                 foundModel: !!userModel,
@@ -547,7 +652,7 @@ export class DatabaseStorage {
             });
             return {
                 user: userRecord,
-                model: userModel
+                model: userModel || undefined
             };
         }
         catch (error) {
