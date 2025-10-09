@@ -63,9 +63,19 @@ export class MayaService {
 
   constructor(db: DatabaseStorage) {
     this.db = db;
+    
+    // 🔧 FIX: Add proper error handling for missing API key
+    const apiKey = process.env['ANTHROPIC_API_KEY'];
+    if (!apiKey) {
+      console.error('❌ MAYA: ANTHROPIC_API_KEY environment variable is not set');
+      throw new Error('Maya AI service is not properly configured - missing API key');
+    }
+    
     this.anthropic = new Anthropic({
-      apiKey: process.env['ANTHROPIC_API_KEY'],
+      apiKey: apiKey,
     });
+    
+    console.log('✅ MAYA: Service initialized with Claude API access');
   }
 
   /**
@@ -74,9 +84,22 @@ export class MayaService {
   async getOrCreateUserProfile(stackAuthId: string): Promise<MayaProfile> {
     try {
       // Get user data first (stackAuthId is Stack Auth ID)
-      const user = await this.db.getUserByStackAuthId(stackAuthId);
+      let user = await this.db.getUserByStackAuthId(stackAuthId);
+      
+      // 🔧 FIX: If user not found by Stack Auth ID, try to find and link existing user
       if (!user) {
-        throw new Error('User not found with Stack Auth ID');
+        console.log(`🔍 MAYA: User not found by Stack Auth ID: ${stackAuthId}, attempting auto-linking...`);
+        
+        // Try to find user by the Stack Auth ID as primary ID (legacy users)
+        user = await this.db.getUser(stackAuthId);
+        
+        if (user) {
+          // Link the Stack Auth ID to this user
+          console.log(`🔗 MAYA: Linking Stack Auth ID ${stackAuthId} to user ${user.id}`);
+          user = await this.db.linkStackAuthId(user.id, stackAuthId);
+        } else {
+          throw new Error(`User not found with Stack Auth ID: ${stackAuthId}. User may need to complete registration.`);
+        }
       }
 
       // Check if profile exists using database user ID
@@ -133,6 +156,14 @@ export class MayaService {
   async getUserModel(userId: string): Promise<UserModel | null> {
     try {
       const userModel = await this.db.getUserModel(userId);
+      
+      // 🔍 DEBUG: Log model status for troubleshooting
+      if (userModel) {
+        console.log(`🎯 MAYA: User ${userId} model found - Status: ${userModel.trainingStatus}, Trigger: ${userModel.triggerWord}`);
+      } else {
+        console.log(`🔍 MAYA: No trained model found for user ${userId}`);
+      }
+      
       return userModel || null;
     } catch (error) {
       console.error('❌ MAYA: Failed to get user model:', error);
@@ -146,9 +177,22 @@ export class MayaService {
   async processChat(stackAuthId: string, request: MayaChatRequest): Promise<MayaChatResponse> {
     try {
       // Get user data first to get database user ID
-      const user = await this.db.getUserByStackAuthId(stackAuthId);
+      let user = await this.db.getUserByStackAuthId(stackAuthId);
+      
+      // 🔧 FIX: If user not found by Stack Auth ID, try to find and link existing user
       if (!user) {
-        throw new Error('User not found with Stack Auth ID');
+        console.log(`🔍 MAYA: User not found by Stack Auth ID: ${stackAuthId}, attempting auto-linking...`);
+        
+        // Try to find user by the Stack Auth ID as primary ID (legacy users)
+        user = await this.db.getUser(stackAuthId);
+        
+        if (user) {
+          // Link the Stack Auth ID to this user
+          console.log(`🔗 MAYA: Linking Stack Auth ID ${stackAuthId} to user ${user.id}`);
+          user = await this.db.linkStackAuthId(user.id, stackAuthId);
+        } else {
+          throw new Error(`User not found with Stack Auth ID: ${stackAuthId}. User may need to complete registration.`);
+        }
       }
 
       // Get or create user profile
