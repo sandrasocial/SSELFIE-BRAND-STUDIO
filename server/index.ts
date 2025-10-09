@@ -892,8 +892,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           const result = await withDatabaseTimeoutAndRetry(
             () => storage.getUserModelByStackAuthAndEmail(user.id as string, user.email as string || ''), 
             { user: undefined, model: undefined }, 
-            3000,
-            1,
+            8000, // Increased from 3000ms to 8000ms for optimized JOIN query
+            2,    // Increased retries from 1 to 2
             'getUserModelByStackAuthAndEmail'
           );
           
@@ -965,7 +965,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             const result = await withDatabaseTimeout(
               storage.getUserModel(dbUser.id), 
               null,
-              3000,
+              8000, // Increased timeout for better reliability
               'getUserModel'
             );
             userModel = result ?? null;

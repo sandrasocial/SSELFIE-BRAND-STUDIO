@@ -720,7 +720,9 @@ export default async function handler(req, res) {
                 let userModel = null;
                 // � BULLETPROOF: Use aggressive Stack Auth ID and email linking
                 try {
-                    const result = await withDatabaseTimeoutAndRetry(() => storage.getUserModelByStackAuthAndEmail(user.id, user.email || ''), { user: undefined, model: undefined }, 3000, 1, 'getUserModelByStackAuthAndEmail');
+                    const result = await withDatabaseTimeoutAndRetry(() => storage.getUserModelByStackAuthAndEmail(user.id, user.email || ''), { user: undefined, model: undefined }, 8000, // Increased from 3000ms to 8000ms for optimized JOIN query
+                    2, // Increased retries from 1 to 2
+                    'getUserModelByStackAuthAndEmail');
                     dbUser = result?.user || null;
                     userModel = result?.model || null;
                     console.log('🔍 ENHANCED DEBUG: Bulletproof lookup result:', {
@@ -770,7 +772,8 @@ export default async function handler(req, res) {
                 // Fetch user model if not already obtained from bulletproof lookup
                 if (dbUser && !userModel) {
                     try {
-                        const result = await withDatabaseTimeout(storage.getUserModel(dbUser.id), null, 3000, 'getUserModel');
+                        const result = await withDatabaseTimeout(storage.getUserModel(dbUser.id), null, 8000, // Increased timeout for better reliability
+                        'getUserModel');
                         userModel = result ?? null;
                     }
                     catch (error) {

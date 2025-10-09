@@ -24,9 +24,13 @@ function getDb() {
       throw new Error(`No database connection string available. DATABASE_URL=${!!DATABASE_URL}, process.env.DATABASE_URL=${!!process.env.DATABASE_URL}, process.env.NEON_DB_URL=${!!process.env.NEON_DB_URL}, NODE_ENV=${process.env.NODE_ENV}`);
     }
     
-    // Use HTTP adapter instead of WebSocket for Vercel serverless reliability
+    // Use HTTP adapter with optimized configuration for Vercel serverless
     const sql = neon(dbUrl);
-    _db = drizzle(sql, { schema });
+    _db = drizzle(sql, { 
+      schema,
+      // Enable query logging in development
+      logger: process.env.NODE_ENV === 'development'
+    });
     
     console.log('✅ Database connection established successfully (HTTP mode)');
   }
