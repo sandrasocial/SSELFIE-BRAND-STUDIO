@@ -12,6 +12,7 @@ import { ErrorBoundary } from "./components/ErrorBoundary.js";
 import { initializeMobileOptimization } from "./utils/mobileOptimization.js";
 import { performanceMonitor } from "./utils/performanceMonitor.js";
 import { initializeRuntimeOptimization } from "./utils/runtimeOptimization.js";
+import { ROUTES } from "./constants/routes.js";
 
 // Luxury Mobile Styling
 import "./styles/luxury-mobile.css";
@@ -82,7 +83,7 @@ function SmartHome() {
 
     if (!isAuthenticated) {
       // Show business landing page for anonymous users instead of forcing sign-in
-      setLocation('/business');
+      setLocation(ROUTES.BUSINESS_LANDING);
       return;
     }
 

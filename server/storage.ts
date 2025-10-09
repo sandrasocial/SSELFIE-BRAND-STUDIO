@@ -94,10 +94,13 @@ import {
 import {
   mayaProfile,
   mayaImages,
+  mayaConcepts,
   type MayaProfile,
   type InsertMayaProfile,
   type MayaImage,
-  type InsertMayaImage
+  type InsertMayaImage,
+  type MayaConcept,
+  type InsertMayaConcept
 } from "../shared/schema-maya.js";
 import { db } from "./drizzle.js";
 /// <reference path="types/global.d.ts" />
@@ -359,6 +362,9 @@ export interface IStorage {
 
   // Maya Images operations
   insertMayaImage(data: InsertMayaImage): Promise<MayaImage>;
+
+  // Maya Concepts operations
+  insertMayaConcept(data: InsertMayaConcept): Promise<MayaConcept>;
 
   // Maya Profile sync operations
   ensureMayaProfile(userId: string): Promise<MayaProfile>;
@@ -2499,6 +2505,15 @@ export class DatabaseStorage implements IStorage {
       .values(data)
       .returning();
     return image;
+  }
+
+  // Maya Concepts operations
+  async insertMayaConcept(data: InsertMayaConcept): Promise<MayaConcept> {
+    const [concept] = await db
+      .insert(mayaConcepts)
+      .values(data)
+      .returning();
+    return concept;
   }
 
   // 🔥 CRITICAL FIX: Ensure Maya profile exists for user synchronization

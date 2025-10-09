@@ -1,0 +1,259 @@
+import { withAuth } from './_middleware/auth.js';
+export const config = { runtime: 'nodejs' };
+export default async function handler(req, res) {
+    // Set CORS headers
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-stack-access-token');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    // Handle preflight requests
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end();
+    }
+    // Public routes that don't require authentication - handle BEFORE auth middleware
+    // Health check endpoints
+    if (req.url?.includes('/api/health') || req.url?.includes('/api/health-check')) {
+        return res.status(200).json({
+            status: 'healthy',
+            service: 'SSELFIE Studio API',
+            timestamp: new Date().toISOString(),
+        });
+    }
+    // Ping endpoint - public
+    if (req.url === '/api/ping') {
+        return res.status(200).json({
+            status: 'ok',
+            message: 'SSELFIE Studio API is running',
+            timestamp: new Date().toISOString(),
+        });
+    }
+    // Sandra Images API - Public access for image serving
+    if (req.url?.startsWith('/api/sandra-images/')) {
+        const sandraImagesHandler = await import('./sandra-images.js');
+        return sandraImagesHandler.default(req, res);
+    }
+    // Gallery Images API - Public access
+    if (req.url?.startsWith('/api/gallery-images')) {
+        const galleryImagesHandler = await import('./gallery-images.js');
+        return galleryImagesHandler.default(req, res);
+    }
+    // Handle logout
+    if (req.url === '/api/logout') {
+        const expired = [
+            'stack-access',
+            'stack-access-token',
+            'stack_session',
+            '__Secure-next-auth.session-token'
+        ].map(name => `${name}=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0`);
+        res.setHeader('Set-Cookie', expired);
+        res.setHeader('Cache-Control', 'no-store');
+        return res.status(200).json({ ok: true, loggedOut: true });
+    }
+    // Auto-registration and other auth endpoints
+    if (req.url === '/api/auth/auto-register') {
+        const { storage } = await import('../server/storage.js');
+        const { email, plan, source } = req.body || {};
+        if (!email || !plan) {
+            return res.status(400).json({ error: 'Email and plan are required' });
+        }
+        try {
+            // Check existing user
+            const existingUser = await storage.getUserByEmail(email);
+            if (existingUser) {
+                const updatedUser = await storage.updateUserProfile(existingUser.id, {
+                    plan: plan,
+                    monthlyGenerationLimit: plan === 'sselfie-studio' ? 100 : -1,
+                    mayaAiAccess: true,
+                    lastLoginAt: new Date()
+                });
+                return res.status(200).json({
+                    success: true,
+                    message: 'Account updated successfully',
+                    userId: updatedUser.id,
+                    email: updatedUser.email,
+                    action: 'updated'
+                });
+            }
+            // Create new user
+            const newUserId = `user_${Date.now()}_${email.split('@')[0]}`;
+            const newUser = await storage.upsertUser({
+                id: newUserId,
+                email: email,
+                displayName: email.split('@')[0],
+                firstName: null,
+                lastName: null,
+                profileImageUrl: null,
+                plan: plan,
+                monthlyGenerationLimit: plan === 'sselfie-studio' ? 100 : -1,
+                onboardingProgress: JSON.stringify({ source: source || 'payment-success' })
+            });
+            return res.status(201).json({
+                success: true,
+                message: 'Account pre-created successfully',
+                userId: newUser.id,
+                email: newUser.email,
+                plan: newUser.plan,
+                action: 'created'
+            });
+        }
+        catch (error) {
+            return res.status(500).json({
+                success: false,
+                error: 'Failed to create account',
+                message: error.message
+            });
+        }
+    }
+    // 🔥 CRITICAL FIX: Stack Auth API v1 proxy - Handle Stack Auth client API requests
+    if (req.url?.startsWith('/api/v1/')) {
+        // Stack Auth v1 API requests (e.g., /api/v1/projects/current)
+        const stackAuthPath = req.url.replace('/api/v1', '');
+        const stackAuthUrl = `https://api.stack-auth.com/api/v1${stackAuthPath}`;
+        try {
+            const headers = {
+                'Content-Type': 'application/json',
+            };
+            // 🔥 CRITICAL: Forward all Stack Auth headers from the request
+            const stackAuthHeaders = [
+                'x-stack-access-type',
+                'x-stack-project-id',
+                'x-stack-publishable-client-key',
+                'x-stack-secret-server-key',
+                'x-stack-access-token',
+                'x-stack-refresh-token',
+                'x-stack-admin-access-token',
+                'x-stack-random-nonce',
+                'x-stack-allow-anonymous-user',
+                'x-stack-override-error-status',
+                'x-stack-client-version'
+            ];
+            stackAuthHeaders.forEach(header => {
+                if (req.headers[header]) {
+                    headers[header] = req.headers[header];
+                }
+            });
+            // Forward authorization header if present
+            if (req.headers.authorization) {
+                headers['Authorization'] = req.headers.authorization;
+            }
+            const response = await fetch(stackAuthUrl, {
+                method: req.method,
+                headers,
+                body: req.method !== 'GET' && req.body ? JSON.stringify(req.body) : undefined
+            });
+            const contentType = response.headers.get('content-type') || 'application/json';
+            let data;
+            // Handle different content types
+            if (contentType.includes('application/json')) {
+                data = await response.text();
+            }
+            else {
+                data = await response.text();
+            }
+            // Forward response headers
+            res.setHeader('Content-Type', contentType);
+            res.setHeader('Cache-Control', 'no-store');
+            // Forward Set-Cookie headers for auth state
+            const setCookie = response.headers.get('set-cookie');
+            if (setCookie) {
+                res.setHeader('Set-Cookie', setCookie);
+            }
+            return res.status(response.status).send(data);
+        }
+        catch (error) {
+            return res.status(500).json({
+                error: 'Stack Auth v1 proxy failed',
+                message: error instanceof Error ? error.message : 'Unknown error'
+            });
+        }
+    }
+    // Stack Auth API proxy - Enhanced with better error handling and logging  
+    if (req.url?.startsWith('/api/auth/') && !req.url.includes('auto-register')) {
+        const stackAuthPath = req.url.replace('/api/auth', '');
+        const stackAuthUrl = `https://api.stack-auth.com/api/v1/projects/${process.env.STACK_AUTH_PROJECT_ID}${stackAuthPath}`;
+        try {
+            const headers = {
+                'Content-Type': 'application/json',
+                'x-stack-project-id': process.env.STACK_AUTH_PROJECT_ID || '',
+                'x-stack-publishable-client-key': process.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY || '',
+                'x-stack-access-type': 'client', // 🔥 CRITICAL FIX: Required header for Stack Auth API
+            };
+            // 🔥 ENHANCED: Add server-side authentication if secret key is available and request requires it
+            if (process.env.STACK_AUTH_SECRET_KEY && (req.method === 'POST' || req.method === 'PUT' || req.method === 'DELETE')) {
+                headers['x-stack-access-type'] = 'server';
+                headers['x-stack-secret-server-key'] = process.env.STACK_AUTH_SECRET_KEY;
+            }
+            // Forward authorization header if present
+            if (req.headers.authorization) {
+                headers['Authorization'] = req.headers.authorization;
+            }
+            // Forward Stack Auth specific headers
+            const stackHeaders = ['x-stack-access-token', 'x-stack-refresh-token', 'x-stack-admin-access-token'];
+            stackHeaders.forEach(header => {
+                if (req.headers[header]) {
+                    headers[header] = req.headers[header];
+                }
+            });
+            const response = await fetch(stackAuthUrl, {
+                method: req.method,
+                headers,
+                body: req.method !== 'GET' && req.body ? JSON.stringify(req.body) : undefined
+            });
+            const contentType = response.headers.get('content-type') || 'application/json';
+            let data;
+            // Handle different content types
+            if (contentType.includes('application/json')) {
+                data = await response.text();
+            }
+            else {
+                data = await response.text();
+            }
+            // Forward response headers
+            res.setHeader('Content-Type', contentType);
+            res.setHeader('Cache-Control', 'no-store');
+            // Forward Set-Cookie headers for auth state
+            const setCookie = response.headers.get('set-cookie');
+            if (setCookie) {
+                res.setHeader('Set-Cookie', setCookie);
+            }
+            return res.status(response.status).send(data);
+        }
+        catch (error) {
+            return res.status(500).json({
+                error: 'Stack Auth proxy failed',
+                message: error instanceof Error ? error.message : 'Unknown error'
+            });
+        }
+    }
+    // Define public routes that should never require authentication
+    const isPublicRoute = req.url && (req.url.startsWith('/api/health') ||
+        req.url === '/api/ping' ||
+        req.url.startsWith('/api/sandra-images/') ||
+        req.url.startsWith('/api/hair-trends') ||
+        req.url.startsWith('/api/auth/') ||
+        req.url.startsWith('/api/admin/') || // Admin routes use x-admin-token, not Stack Auth
+        req.url === '/api/logout');
+    // Define protected routes that require authentication
+    const isProtectedRoute = req.url && (req.url.includes('/api/me') ||
+        req.url.includes('/api/maya') ||
+        req.url.includes('/api/video') ||
+        req.url.includes('/api/ai-images') ||
+        req.url.includes('/api/gallery-images') ||
+        req.url.includes('/api/story') ||
+        req.url.includes('/api/victoria') ||
+        req.url.includes('/api/training') ||
+        req.url.includes('/api/user-model'));
+    // Skip auth middleware entirely for public routes
+    if (isPublicRoute) {
+        const { default: main } = await import('./index.js');
+        return main(req, res);
+    }
+    // Use optional auth for most routes, required auth only for protected routes
+    return withAuth(req, res, async (req, res) => {
+        // Import main handler dynamically to avoid circular dependencies
+        const { default: main } = await import('./index.js');
+        return main(req, res);
+    }, {
+        optional: !isProtectedRoute
+    });
+}

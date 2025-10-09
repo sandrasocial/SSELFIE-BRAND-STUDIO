@@ -27,7 +27,7 @@ async function testSimpleDrizzle() {
     const testUserId = '4baecefb-d77a-4221-91cd-26d790a0a917';
     const userResult = await db.execute(sql`SELECT * FROM users WHERE id = ${testUserId}`);
     console.log('✅ Parameterized query: PASSED');
-    console.log('   Found user:', userResult.length > 0 ? 'YES' : 'NO');
+    console.log('   Found user:', userResult.rows.length > 0 ? 'YES' : 'NO');
 
     console.log('\n🎉 Simple Drizzle queries work!');
     console.log('💡 Issue is likely with schema definition, not connection');

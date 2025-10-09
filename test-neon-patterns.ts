@@ -25,8 +25,7 @@ async function testNeonClientPatterns() {
     console.log('📋 Testing Pattern 1: neon() function...');
     const sql1 = neon(dbUrl);
     console.log('   Client type:', typeof sql1);
-    console.log('   Has query method:', typeof sql1.query);
-    console.log('   Has execute method:', typeof sql1.execute);
+    console.log('   Is function:', typeof sql1 === 'function');
     console.log('   Constructor:', sql1.constructor.name);
     console.log('   Keys:', Object.keys(sql1));
 

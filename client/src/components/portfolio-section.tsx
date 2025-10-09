@@ -13,7 +13,7 @@ export const PortfolioSection = () => {
       extendedWindow.handleGetStarted();
     } else {
       // Fallback to Maya page
-      window.location.href = '/maya';
+      window.location.href = '/app';
     }
   };
 
