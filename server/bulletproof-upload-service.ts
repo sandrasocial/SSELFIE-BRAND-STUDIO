@@ -433,7 +433,7 @@ export class BulletproofUploadService {
     } catch (error) {
       console.error(`❌ REPLICATE TRAINING: Failed for user ${userId}:`, error);
       console.error(`❌ REPLICATE API TOKEN:`, process.env['REPLICATE_API_TOKEN'] ? 'Present' : 'MISSING');
-      errors.push(`Training start failed: ${error.message || error}`);
+      errors.push(`Training start failed: ${error instanceof Error ? error.message : String(error)}`);
       return { success: false, errors, trainingId: null, modelName: null };
     }
   }
@@ -446,12 +446,18 @@ export class BulletproofUploadService {
    */
   static async updateDatabaseWithTraining(
     userId: string, 
-    trainingId: string, 
+    trainingId: string | null, 
     triggerWord: string,
-    modelName: string
+    modelName: string | null
   ): Promise<{ success: boolean; errors: string[] }> {
     
     const errors: string[] = [];
+    
+    // Handle null training ID
+    if (!trainingId) {
+      errors.push('Training ID is required but was null');
+      return { success: false, errors };
+    }
     
     try {
       // Check if user model exists, create if not
@@ -461,13 +467,13 @@ export class BulletproofUploadService {
         // Create new user model
         await storage.createUserModel({
           userId: userId,
-          replicateModelId: trainingId,
+          trainingId: trainingId,
           modelName: modelName,
           triggerWord: triggerWord,
           trainingStatus: 'training',
           trainingProgress: 0,
           startedAt: new Date()
-        });
+        } as any);
       } else {
         // Update existing user model
         await storage.updateUserModel(userId, {
@@ -556,7 +562,9 @@ export class BulletproofUploadService {
     setTimeout(async () => {
       try {
         const { TrainingCompletionMonitor } = await import('./training-completion-monitor.js');
-        await TrainingCompletionMonitor.checkAndUpdateTraining(trainingStart.trainingId, userId);
+        if (trainingStart.trainingId) {
+          await TrainingCompletionMonitor.checkAndUpdateTraining(trainingStart.trainingId, userId);
+        }
       } catch (error) {
         console.error(`❌ SCHEDULED CHECK FAILED for training ${trainingStart.trainingId}:`, error);
       }

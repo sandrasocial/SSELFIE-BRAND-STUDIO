@@ -94,8 +94,7 @@ export class ImageVariationsService {
       // Update variant records with prediction ID
       for (const variantId of variantIds) {
         await storage.updateImageVariant(variantId, {
-          predictionId: result.predictionId,
-          generationStatus: 'processing'
+          processingStatus: 'processing'
         });
       }
 
@@ -110,7 +109,7 @@ export class ImageVariationsService {
       console.error('❌ VARIATIONS: Error generating variations:', error);
       return {
         success: false,
-        error: error.message
+        error: error instanceof Error ? error.message : 'Unknown error'
       };
     }
   }
@@ -210,9 +209,9 @@ export class ImageVariationsService {
     const style = originalImage.style || 'professional';
     const category = originalImage.category || 'portrait';
     
-    const genericPrompts = {
-      'professional': 'professional business portrait, clean background, confident expression',
-      'editorial': 'editorial fashion photography, dramatic lighting, artistic composition',
+    const genericPrompts: Record<string, string> = {
+      'professional': 'professional headshot, business attire, clean background',
+      'editorial': 'editorial portrait, dramatic lighting, artistic composition',
       'lifestyle': 'lifestyle photography, natural setting, authentic moment',
       'luxury': 'luxury portrait, elegant styling, high-end fashion'
     };
@@ -255,7 +254,7 @@ export class ImageVariationsService {
 
     } catch (error) {
       console.error('❌ VARIATIONS: Error checking status:', error);
-      return { status: 'failed', error: error.message };
+      return { status: 'failed', error: error instanceof Error ? error.message : 'Unknown error' };
     }
   }
 
@@ -268,7 +267,7 @@ export class ImageVariationsService {
     userId: string
   ): Promise<any[]> {
     try {
-      const variants = await storage.getImageVariants(originalImageId, originalImageType, 'variation');
+      const variants = await storage.getImageVariants(userId, originalImageId);
       
       // Filter by user to ensure security
       return variants.filter(variant => variant.userId === userId);

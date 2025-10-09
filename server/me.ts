@@ -44,11 +44,64 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         });
       }
 
+      // Get user's training status from database with proper user sync
+      let modelStatus = 'not_started';
+      let debugInfo: any = {};
+      
+      try {
+        const { storage } = await import('../server/storage.js');
+        
+        console.log('🔍 DEBUG: Looking up training status for user:', user.id);
+        
+        // First, ensure the user exists in our database (auto-sync)
+        let dbUser = await storage.getUser(user.id);
+        if (!dbUser) {
+          console.log('🔄 User not found in database, creating from Stack Auth data...');
+          
+          // Create user from Stack Auth data
+          dbUser = await storage.upsertUser({
+            id: user.id,
+            stackAuthId: user.id, // Link to Stack Auth
+            email: user.email,
+            displayName: user.displayName,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            profileImageUrl: user.profileImageUrl,
+            plan: user.plan || 'sselfie-studio',
+            monthlyGenerationLimit: user.monthlyGenerationLimit || 100,
+            mayaAiAccess: true,
+            lastLoginAt: new Date()
+          } as any);
+          
+          console.log('✅ Created database user:', dbUser.id);
+        }
+        
+        // Now get training status
+        const userModel = await storage.getUserModel(user.id);
+        if (userModel && userModel.trainingStatus) {
+          modelStatus = userModel.trainingStatus;
+          console.log('🎯 Found training status:', modelStatus);
+        }
+        
+        debugInfo = {
+          userSynced: true,
+          dbUserId: dbUser.id,
+          modelFound: !!userModel,
+          trainingStatus: modelStatus
+        };
+        
+      } catch (error) {
+        console.error('🔍 Error in user sync and training lookup:', error);
+        debugInfo = { error: (error as Error).message };
+      }
+
       console.log('🔍 ENHANCED DEBUG: User authenticated for /api/me:', {
         userId: user.id,
         email: user.email,
         plan: user.plan,
-        hasStackAuth: !!user.stackUser
+        hasStackAuth: !!user.stackUser,
+        modelStatus,
+        lookupDebug: debugInfo
       });
 
       // Return user data (excluding sensitive information)
@@ -58,6 +111,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         stripeCustomerId: undefined,
         stripeSubscriptionId: undefined,
         stackUser: undefined, // Don't expose raw Stack Auth data
+        // Add training status for routing
+        modelStatus
       };
 
       res.setHeader('Cache-Control', 'no-store');

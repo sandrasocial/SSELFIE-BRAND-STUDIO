@@ -1,5 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
-import { logger } from '../config/monitoring.js';
+// Simple logger for error handling
+const logger = {
+  error: (data: any) => {
+    console.error('[ERROR]', data);
+  }
+};
 import { StackAuthUser } from '../stack-auth.js';
 
 // Extend Express Request type to include user property

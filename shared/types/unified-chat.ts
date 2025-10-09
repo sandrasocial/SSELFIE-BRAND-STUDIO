@@ -46,11 +46,12 @@ export interface MayaChatContext {
 }
 
 // Claude chat specific interfaces
-export interface ClaudeMessage extends Omit<BaseChatMessage, 'id' | 'metadata' | 'role'>, Omit<DbClaudeMessage, 'metadata' | 'role'> {
+export interface ClaudeMessage extends Omit<BaseChatMessage, 'id' | 'metadata' | 'role' | 'timestamp'>, Omit<DbClaudeMessage, 'metadata' | 'role' | 'timestamp'> {
   conversationId: string;
   tokens: number;  
   completionTokens: number;
   promptTokens: number;
+  timestamp: Date; // Explicitly define timestamp as Date
   metadata?: Record<string, unknown>;
   role: BaseChatMessage['role']; // Use BaseChatMessage role type explicitly
 }

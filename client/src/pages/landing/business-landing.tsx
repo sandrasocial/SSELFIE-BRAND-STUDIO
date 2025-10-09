@@ -70,9 +70,9 @@ export default function BusinessLanding() {
     ];
 
     // Set canonical URL
-    let canonical = document.querySelector('link[rel="canonical"]');
+    let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
     if (!canonical) {
-      canonical = document.createElement('link');
+      canonical = document.createElement('link') as HTMLLinkElement;
       canonical.setAttribute('rel', 'canonical');
       document.head.appendChild(canonical);
     }
@@ -86,9 +86,9 @@ export default function BusinessLanding() {
     ];
     
     faviconLinks.forEach(linkData => {
-      let link = document.querySelector(`link[rel="${linkData.rel}"]`);
+      let link = document.querySelector(`link[rel="${linkData.rel}"]`) as HTMLLinkElement | null;
       if (!link) {
-        link = document.createElement('link');
+        link = document.createElement('link') as HTMLLinkElement;
         link.setAttribute('rel', linkData.rel);
         if (linkData.type) link.setAttribute('type', linkData.type);
         if (linkData.sizes) link.setAttribute('sizes', linkData.sizes);
@@ -100,9 +100,9 @@ export default function BusinessLanding() {
     // Apply all meta tags
     metaTags.forEach(tag => {
       const selector = tag.name ? `meta[name="${tag.name}"]` : `meta[property="${tag.property}"]`;
-      let meta = document.querySelector(selector);
+      let meta = document.querySelector(selector) as HTMLMetaElement | null;
       if (!meta) {
-        meta = document.createElement('meta');
+        meta = document.createElement('meta') as HTMLMetaElement;
         if (tag.name) meta.setAttribute('name', tag.name);
         if (tag.property) meta.setAttribute('property', tag.property);
         document.head.appendChild(meta);
@@ -302,7 +302,7 @@ export default function BusinessLanding() {
     existingScripts.forEach(script => script.remove());
     
     structuredData.forEach((schema, index) => {
-      const script = document.createElement('script');
+      const script = document.createElement('script') as HTMLScriptElement;
       script.type = 'application/ld+json';
       script.textContent = JSON.stringify(schema);
       document.head.appendChild(script);
@@ -336,7 +336,7 @@ export default function BusinessLanding() {
       <section className="relative min-h-screen bg-black text-white overflow-hidden" itemScope itemType="https://schema.org/Service">
         <div className="absolute inset-0 opacity-60">
           <OptimizedImage 
-            src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/undefined/undefined_1756382691095.png"
+            src="/hero-homepage.png"
             alt="Professional transformation through AI photography"
             className="w-full h-full object-cover object-center"
             priority={true}
@@ -435,7 +435,7 @@ export default function BusinessLanding() {
               <div className="relative overflow-hidden rounded-lg mb-6 sm:mb-8"
                    style={{ height: 'clamp(240px, 50vw, 320px)' }}>
                 <OptimizedImage
-                  src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_gn5xs1grwxrme0cs3g4tfwe220_0_1757111996442.png"
+                  src="/hero-luxury.png"
                   alt="Upload process showing selfies being uploaded to AI system"
                   className="w-full h-full object-cover object-[center_20%]"
                 />
@@ -463,7 +463,7 @@ export default function BusinessLanding() {
             <div className="text-center">
               <div className="relative h-80 mb-8 overflow-hidden rounded-lg">
                 <OptimizedImage
-                  src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_8r00hax7n1rm80cryjbs9enxam_0_1756450255292.png"
+                  src="/hero-about.png"
                   alt="AI creation process transforming selfies into professional photos"
                   className="w-full h-full object-cover object-[center_20%]"
                 />
@@ -490,7 +490,7 @@ export default function BusinessLanding() {
             <div className="text-center">
               <div className="relative h-80 mb-8 overflow-hidden rounded-lg">
                 <OptimizedImage
-                  src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_5s2emwbk3srma0crywrbh9kg4c_0_1756493820306.png"
+                  src="/hero-dashboard.png"
                   alt="Professional gallery showing variety of business headshots and brand photos"
                   className="w-full h-full object-cover object-[center_20%]"
                 />
@@ -636,7 +636,7 @@ export default function BusinessLanding() {
             {/* Sandra's Portrait */}
             <div className="relative h-[500px] overflow-hidden">
               <OptimizedImage
-                src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_g826ygf2d9rm80crzjkvnvmpyr_0_1756585536824.png"
+                src="/hero-luxury.png"
                 alt="Sandra Sigurjónsdóttir, Founder of SSELFIE Studio"
                 className="w-full h-full object-cover"
               />
@@ -703,7 +703,7 @@ export default function BusinessLanding() {
       <section className="relative py-24 sm:py-32 bg-black text-white overflow-hidden">
         <div className="absolute inset-0 opacity-30">
           <OptimizedImage
-            src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_rr4fnv2rb5rm80crzyd87jm48g_0_1756634973175.png"
+            src="/hero-about.png"
             alt="Professional transformation showcasing AI-generated business photography"
             className="w-full h-full object-cover"
           />
