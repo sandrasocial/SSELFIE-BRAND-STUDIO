@@ -22,6 +22,27 @@ async function getJose() {
 }
 
 // Types
+// Minimal User type for local use
+interface User {
+  id: string;
+  email?: string | null;
+  displayName?: string | null;
+  firstName?: string | null;
+  lastName?: string | null;
+  profileImageUrl?: string | null;
+  plan?: string;
+  role?: string;
+  monthlyGenerationLimit?: number;
+  mayaAiAccess?: boolean;
+  victoriaAiAccess?: boolean;
+  onboardingProgress?: any;
+  preferredOnboardingMode?: string;
+  lastLoginAt?: Date | null;
+  stackAuthId?: string | null;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
 // Minimal InsertUser type for local use
 interface InsertUser {
   id: string;
@@ -884,21 +905,34 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const { storage } = await import('../server/storage.js');
         
         
-        let dbUser = null;
+        let dbUser: any = null;
         let userModel: UserModel | null = null;
         
         // � BULLETPROOF: Use aggressive Stack Auth ID and email linking
         try {
-          const result = await withDatabaseTimeoutAndRetry(
-            () => storage.getUserModelByStackAuthAndEmail(user.id as string, user.email as string || ''), 
-            { user: undefined, model: undefined }, 
-            8000, // Increased from 3000ms to 8000ms for optimized JOIN query
-            2,    // Increased retries from 1 to 2
-            'getUserModelByStackAuthAndEmail'
+          // First get user by Stack Auth ID
+          const foundUser = await withDatabaseTimeoutAndRetry(
+            () => storage.getUserByStackAuthId(user.id as string), 
+            undefined, 
+            5000, // Reduced timeout for simpler query
+            2,    
+            'getUserByStackAuthId'
           );
+          dbUser = foundUser || null;
           
-          dbUser = result?.user || null;
-          userModel = result?.model || null;
+          // If user found, get their model
+          if (dbUser?.id) {
+            const foundModel = await withDatabaseTimeoutAndRetry(
+              () => storage.getUserModel(dbUser.id), 
+              undefined,
+              5000,
+              2,
+              'getUserModel'
+            );
+            userModel = foundModel || null;
+          } else {
+            userModel = null;
+          }
           
           console.log('🔍 ENHANCED DEBUG: Bulletproof lookup result:', {
             foundUser: !!dbUser,

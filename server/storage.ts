@@ -18,6 +18,7 @@ import {
   mayaChats,
   mayaChatMessages,
   userStyleMemory,
+  agentConversations,
   type User,
   type InsertUser,
   type UserProfile,
@@ -2258,46 +2259,90 @@ export class DatabaseStorage implements IStorage {
   // Conversation operations
   async createConversation(data: any): Promise<Conversation> {
     const [conversation] = await db
-      .insert(conversations)
+      .insert(agentConversations)
       .values({
-        ...data,
+        agentId: data.agentName || 'maya',
         userId: data.userId || '',
-        agentName: data.agentName || 'maya',
-        title: data.title || 'New Conversation',
-        status: data.status || 'active'
+        userMessage: '', // Initial empty message
+        agentResponse: '', // Initial empty response
+        conversationTitle: data.title || 'New Conversation',
+        isActive: true,
+        messageCount: 0
       } as any)
       .returning();
-    return conversation;
+    return {
+      id: conversation.id.toString(),
+      userId: conversation.userId,
+      agentName: conversation.agentId,
+      title: conversation.conversationTitle,
+      status: conversation.isActive ? 'active' : 'inactive',
+      createdAt: conversation.createdAt,
+      updatedAt: conversation.updatedAt
+    } as Conversation;
   }
 
   async getConversation(id: string): Promise<Conversation | undefined> {
     const [conversation] = await db
       .select()
-      .from(conversations)
-      .where(eq(conversations.id, id));
-    return conversation;
+      .from(agentConversations)
+      .where(eq(agentConversations.id, parseInt(id)));
+    
+    if (!conversation) return undefined;
+    
+    return {
+      id: conversation.id.toString(),
+      userId: conversation.userId,
+      agentName: conversation.agentId,
+      title: conversation.conversationTitle,
+      status: conversation.isActive ? 'active' : 'inactive',
+      createdAt: conversation.createdAt,
+      updatedAt: conversation.updatedAt
+    } as Conversation;
   }
 
   async getUserConversations(userId: string, agentName?: string): Promise<Conversation[]> {
-    const conditions = [eq(conversations.userId, userId)];
+    const conditions = [eq(agentConversations.userId, userId)];
     if (agentName) {
-      conditions.push(eq(conversations.agentName, agentName));
+      conditions.push(eq(agentConversations.agentId, agentName));
     }
     
-    return await db
+    const results = await db
       .select()
-      .from(conversations)
+      .from(agentConversations)
       .where(and(...conditions))
-      .orderBy(desc(conversations.updatedAt));
+      .orderBy(desc(agentConversations.updatedAt));
+    
+    return results.map(conversation => ({
+      id: conversation.id.toString(),
+      userId: conversation.userId,
+      agentName: conversation.agentId,
+      title: conversation.conversationTitle,
+      status: conversation.isActive ? 'active' : 'inactive',
+      createdAt: conversation.createdAt,
+      updatedAt: conversation.updatedAt
+    })) as Conversation[];
   }
 
   async updateConversation(id: string, updates: Partial<Conversation>): Promise<Conversation> {
     const [conversation] = await db
-      .update(conversations)
-      .set({ ...updates, updatedAt: new Date() } as any)
-      .where(eq(conversations.id, id))
+      .update(agentConversations)
+      .set({ 
+        conversationTitle: updates.title,
+        isActive: updates.status === 'active',
+        updatedAt: new Date() 
+      } as any)
+      .where(eq(agentConversations.id, parseInt(id)))
       .returning();
-    return conversation;
+    
+    return {
+      id: conversation.id.toString(),
+      userId: conversation.userId,
+      agentName: conversation.agentId,
+      title: conversation.conversationTitle,
+      status: conversation.isActive ? 'active' : 'inactive',
+      createdAt: conversation.createdAt,
+      updatedAt: conversation.updatedAt
+    } as Conversation;
   }
 
   async archiveConversation(id: string): Promise<Conversation> {
@@ -2306,30 +2351,45 @@ export class DatabaseStorage implements IStorage {
 
   // Message operations
   async createMessage(data: any): Promise<Message> {
+    // Maya messages should be stored in mayaChatMessages table
     const [message] = await db
-      .insert(messages)
+      .insert(mayaChatMessages)
       .values({
-        ...data,
+        chatId: parseInt(data.conversationId) || 0,
         role: data.role || 'user',
         content: data.content || '',
-        conversationId: data.conversationId || ''
+        canGenerate: false
       } as any)
       .returning();
-    return message;
+    return {
+      id: message.id.toString(),
+      conversationId: data.conversationId,
+      role: message.role,
+      content: message.content,
+      meta: null,
+      tokenCount: 0,
+      createdAt: message.createdAt
+    } as Message;
   }
 
   async getConversationMessages(conversationId: string, limit?: number): Promise<Message[]> {
     const baseQuery = db
       .select()
-      .from(messages)
-      .where(eq(messages.conversationId, conversationId))
-      .orderBy(desc(messages.createdAt));
+      .from(mayaChatMessages)
+      .where(eq(mayaChatMessages.chatId, parseInt(conversationId)))
+      .orderBy(desc(mayaChatMessages.createdAt));
     
-    if (limit) {
-      return await baseQuery.limit(limit);
-    }
+    const results = await (limit ? baseQuery.limit(limit) : baseQuery);
     
-    return await baseQuery;
+    return results.map(msg => ({
+      id: msg.id.toString(),
+      conversationId: conversationId,
+      role: msg.role,
+      content: msg.content,
+      meta: msg.conceptCards || null,
+      tokenCount: 0,
+      createdAt: msg.createdAt
+    })) as Message[];
   }
 
   async getLastMessages(conversationId: string, count: number): Promise<Message[]> {
