@@ -100,11 +100,11 @@ export default function PostLoginHandler() {
 
   // Check training status from multiple sources for robustness
   const isModelTrained = 
-    // Primary check: userModel trainingStatus
+    // Primary check: userModel trainingStatus from /api/user-model
     userModel?.trainingStatus === 'completed' ||
-    // Secondary check: meData modelStatus (if available)
+    // Secondary check: modelStatus from /api/me (newly added)
     meData?.user?.modelStatus === 'completed' ||
-    // Tertiary check: userModel needsTraining flag (inverted)
+    // Tertiary check: userModel needsTraining flag (inverted) - must not be 'not_started'
     (userModel?.needsTraining === false && userModel?.trainingStatus !== 'not_started');
 
   console.log('🎯 PostLoginHandler Routing Decision:', {

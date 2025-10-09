@@ -1,6 +1,5 @@
 import { db } from './server/drizzle.js';
-import { users } from './shared/schema.js';
-import { mayaModels } from './shared/schema-maya.js';
+import { users, userModels } from './shared/schema.js';
 import { eq } from 'drizzle-orm';
 
 async function syncTrainingStatus() {
@@ -14,8 +13,8 @@ async function syncTrainingStatus() {
         email: users.email,
       })
       .from(users)
-      .innerJoin(mayaModels, eq(users.id, mayaModels.userId))
-      .where(eq(mayaModels.trainingStatus, 'completed'));
+      .innerJoin(userModels, eq(users.id, userModels.userId))
+      .where(eq(userModels.trainingStatus, 'completed'));
 
     console.log(`📊 Found ${usersWithCompletedModels.length} users with completed models`);
     
@@ -36,8 +35,8 @@ async function syncTrainingStatus() {
       // Check their model status
       const adminModel = await db
         .select()
-        .from(mayaModels)
-        .where(eq(mayaModels.userId, adminUser[0].id))
+        .from(userModels)
+        .where(eq(userModels.userId, adminUser[0].id))
         .limit(1);
       
       if (adminModel.length > 0) {

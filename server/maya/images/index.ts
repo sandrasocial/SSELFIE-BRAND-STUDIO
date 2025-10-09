@@ -134,12 +134,13 @@ async function handleGetImages(req: VercelRequest, res: VercelResponse, userId: 
 
 async function handleCreateImage(req: VercelRequest, res: VercelResponse, userId: string) {
   try {
-    const validatedData = createImageSchema.parse({
-      ...req.body,
+    const parsedBody = createImageSchema.parse(req.body);
+    const validatedData = {
+      ...parsedBody,
       userId
-    });
+    };
     
-    const [newImage] = await db.insert(mayaImages).values(validatedData).returning();
+    const [newImage] = await db.insert(mayaImages).values(validatedData as any).returning();
     
     return res.status(201).json({
       success: true,
@@ -184,10 +185,7 @@ async function handleUpdateImage(req: VercelRequest, res: VercelResponse, userId
     
     const [updatedImage] = await db
       .update(mayaImages)
-      .set({
-        ...validatedData,
-        updatedAt: new Date()
-      })
+      .set(validatedData as any)
       .where(and(
         eq(mayaImages.id, parseInt(imageId as string)),
         eq(mayaImages.userId, userId)

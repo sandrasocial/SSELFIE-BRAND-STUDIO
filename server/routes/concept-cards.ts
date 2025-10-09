@@ -12,15 +12,8 @@ import { storage } from '../storage.js';
 import { insertConceptCardSchema } from '../../shared/schema.js';
 import { z } from 'zod';
 
-// Type definitions for concept cards routes
-interface AuthenticatedRequest extends Request {
-  user?: {
-    id: string;
-    claims?: {
-      sub: string;
-    };
-  };
-}
+// Import the correct type from shared types
+import type { AuthenticatedRequest } from '../../shared/types/ai-generation.js';
 
 const router = Router();
 
@@ -30,7 +23,7 @@ const router = Router();
  */
 router.get('/', requireStackAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const userId = req.user?.id || req.user?.claims?.sub;
+    const userId = req.user.id;
     if (!userId) {
       return res.status(401).json({ error: 'Authentication required' });
     }
@@ -58,7 +51,7 @@ router.get('/', requireStackAuth, async (req: AuthenticatedRequest, res: Respons
  */
 router.post('/', requireStackAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const userId = req.user?.id || req.user?.claims?.sub;
+    const userId = req.user.id;
     if (!userId) {
       return res.status(401).json({ error: 'Authentication required' });
     }
@@ -101,7 +94,7 @@ router.post('/', requireStackAuth, async (req: AuthenticatedRequest, res: Respon
  */
 router.get('/:id', requireStackAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const userId = req.user?.id || req.user?.claims?.sub;
+    const userId = req.user.id;
     const { id } = req.params;
 
     const conceptCard = await storage.getConceptCard(id);
@@ -132,7 +125,7 @@ router.get('/:id', requireStackAuth, async (req: AuthenticatedRequest, res: Resp
  */
 router.patch('/:id', requireStackAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const userId = req.user?.id || req.user?.claims?.sub;
+    const userId = req.user.id;
     const { id } = req.params;
 
     // Check ownership
@@ -176,7 +169,7 @@ router.patch('/:id', requireStackAuth, async (req: AuthenticatedRequest, res: Re
  */
 router.patch('/:id/generation', requireStackAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const userId = req.user?.id || req.user?.claims?.sub;
+    const userId = req.user.id;
     const { id } = req.params;
     const { generatedImages, isLoading, isGenerating, hasGenerated } = req.body;
 
@@ -202,7 +195,7 @@ router.patch('/:id/generation', requireStackAuth, async (req: AuthenticatedReque
     console.error('❌ CONCEPT CARDS: Update generation error:', error);
     res.status(500).json({ 
       error: 'Failed to update concept card generation',
-      details: process.env['NODE_ENV'] === 'development' ? error.message : undefined
+      details: process.env['NODE_ENV'] === 'development' ? (error instanceof Error ? error.message : String(error)) : undefined
     });
   }
 });
@@ -213,7 +206,7 @@ router.patch('/:id/generation', requireStackAuth, async (req: AuthenticatedReque
  */
 router.delete('/:id', requireStackAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const userId = req.user?.id || req.user?.claims?.sub;
+    const userId = req.user.id;
     const { id } = req.params;
 
     // Check ownership

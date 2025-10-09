@@ -146,12 +146,13 @@ async function handleGetConcepts(req: VercelRequest, res: VercelResponse, userId
 
 async function handleCreateConcept(req: VercelRequest, res: VercelResponse, userId: string) {
   try {
-    const validatedData = createConceptSchema.parse({
-      ...req.body,
+    const parsedBody = createConceptSchema.parse(req.body);
+    const validatedData = {
+      ...parsedBody,
       userId
-    });
+    };
     
-    const [newConcept] = await db.insert(mayaConcepts).values(validatedData).returning();
+    const [newConcept] = await db.insert(mayaConcepts).values(validatedData as any).returning();
     
     return res.status(201).json({
       success: true,
@@ -181,10 +182,7 @@ async function handleUpdateConcept(req: VercelRequest, res: VercelResponse, user
     
     const [updatedConcept] = await db
       .update(mayaConcepts)
-      .set({
-        ...validatedData,
-        updatedAt: new Date()
-      })
+      .set(validatedData)
       .where(and(
         eq(mayaConcepts.id, parseInt(conceptId as string)),
         eq(mayaConcepts.userId, userId)
