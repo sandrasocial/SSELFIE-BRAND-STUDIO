@@ -1,4 +1,4 @@
-/// <reference path="../server/types/global.d.ts" />
+/// <reference path="./types/global.d.ts" />
 import { pgTable, text, varchar, timestamp, jsonb, serial, boolean, integer, decimal, uuid, } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
@@ -60,12 +60,6 @@ export const users = pgTable("users", {
     profession: varchar("profession"), // User's business/profession
     brandStyle: varchar("brand_style"), // "professional" | "creative" | "lifestyle" | "luxury"
     photoGoals: text("photo_goals"), // What they want photos for (business use case)
-    // Training-time coaching system for brand strategy discovery
-    trainingCoachingStarted: boolean("training_coaching_started").default(false),
-    trainingCoachingCompleted: boolean("training_coaching_completed").default(false),
-    trainingCoachingPhase: varchar("training_coaching_phase"), // businessGoals, platformStrategy, brandPositioning, completed
-    trainingCoachingStep: integer("training_coaching_step").default(0),
-    brandStrategyContext: jsonb("brand_strategy_context"), // Stores coaching responses and brand strategy insights
 });
 // Email management for Ava agent
 export const emailAccounts = pgTable("email_accounts", {
@@ -1136,7 +1130,9 @@ export const imageVariants = pgTable("image_variants", {
     createdAt: timestamp("created_at").defaultNow(),
 });
 // Export styleguide tables and types  
-export { userStyleguides, styleguideTemplates } from "./styleguide-schema.js";
+// Temporarily commented out to fix migration
+// export { userStyleguides, styleguideTemplates } from "./styleguide-schema.js";
+// export type { UserStyleguide, StyleguideTemplate, InsertUserStyleguide, InsertStyleguideTemplate } from "./styleguide-schema.js";
 // Website management schema types
 // MISSING TABLE DEFINITIONS - Adding to resolve database schema mismatches
 // Architecture audit tracking table

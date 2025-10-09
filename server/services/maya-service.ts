@@ -10,12 +10,14 @@ import {
   InsertMayaImage,
   Conversation,
   InsertConversation,
-  InsertConceptCard,
   InsertConversationSummary,
   GenerationTracker,
   InsertGenerationTracker,
   UserModel
 } from '../../shared/types-override.js';
+import { 
+  InsertMayaConcept
+} from '../../shared/schema-maya.js';
 import { InsertMessage } from '../../shared/schema.js';
 import Anthropic from '@anthropic-ai/sdk';
 import { PersonalityManager } from '../agents/personalities/personality-config.js';
@@ -233,18 +235,25 @@ export class MayaService {
       // Extract concept cards from response
       const conceptCards = this.extractConceptCards(mayaResponse);
 
-      // Save concept cards to database
+      // Save concept cards to Maya concepts database
       for (const concept of conceptCards) {
-        const conceptCard: InsertConceptCard = {
+        const mayaConcept = {
           userId: user.id,
-          conversationId: conversation.id,
           title: concept.title,
           description: concept.description,
+          prompt: concept.fluxPrompt,
+          type: 'portrait', // Default type for Maya conversations
+          metadata: {
+            conversationId: conversation.id,
+            source: 'maya_chat',
+            creativeLook: concept.creativeLook,
+            emoji: concept.emoji
+          },
           tags: [],
           status: 'draft',
-          sortOrder: 0,
-        };
-        await this.db.createConceptCard(conceptCard);
+          isTemplate: false,
+        } as InsertMayaConcept;
+        await this.db.insertMayaConcept(mayaConcept);
       }
 
       // Update conversation summary
