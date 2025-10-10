@@ -173,6 +173,8 @@ export class MayaService {
 
   /**
    * Process Maya chat with full database integration
+   * @deprecated Use processAndSaveChat instead to avoid duplicate Claude API calls
+   * This method makes its own Claude API call which causes redundancy when used with unified-maya-intelligence-service
    */
   async processChat(stackAuthId: string, request: MayaChatRequest): Promise<MayaChatResponse> {
     try {
@@ -327,6 +329,118 @@ export class MayaService {
 
     } catch (error) {
       console.error('❌ MAYA: Chat processing failed:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Process and save chat with pre-generated Maya response
+   * Used by unified-maya-intelligence-service to avoid duplicate Claude API calls
+   */
+  async processAndSaveChat(stackAuthId: string, request: {
+    message: string;
+    conversationId?: string;
+    mayaResponseContent: string;
+  }): Promise<{
+    conversationId: string;
+    conceptCards: Array<{
+      id: string;
+      title: string;
+      description: string;
+      fluxPrompt: string;
+      creativeLook: string;
+      emoji: string;
+    }>;
+  }> {
+    try {
+      // Get user data first to get database user ID
+      let user = await this.db.getUserByStackAuthId(stackAuthId);
+      
+      // 🔧 FIX: If user not found by Stack Auth ID, try to find and link existing user
+      if (!user) {
+        console.log(`🔍 MAYA: User not found by Stack Auth ID: ${stackAuthId}, attempting auto-linking...`);
+        
+        // Try to find user by the Stack Auth ID as primary ID (legacy users)
+        user = await this.db.getUser(stackAuthId);
+        
+        if (user) {
+          // Link the Stack Auth ID to this user
+          await this.db.linkStackAuthId(user.id, stackAuthId);
+          console.log(`✅ MAYA: Successfully linked Stack Auth ID ${stackAuthId} to existing user ${user.id}`);
+        }
+      }
+
+      if (!user) {
+        throw new Error(`User not found: ${stackAuthId}`);
+      }
+
+      console.log(`🎯 MAYA: Processing pre-generated response for user ${user.id}`);
+
+      // Create or get Maya chat session
+      const mayaChatId = request.conversationId || `maya_${Date.now()}_${user.id}`;
+
+      // Extract concept cards from the pre-generated response
+      const conceptCards = this.extractConceptCards(request.mayaResponseContent);
+
+      // Save user message to Maya chat database
+      const userMessage = {
+        chatId: parseInt(mayaChatId),
+        role: 'user',
+        content: request.message,
+      };
+      await this.db.createMayaChatMessage(userMessage);
+
+      // Save Maya response with concept cards to database
+      const mayaMessage = {
+        chatId: parseInt(mayaChatId),
+        role: 'assistant',
+        content: request.mayaResponseContent,
+        conceptCards: conceptCards.map(card => ({
+          title: card.title,
+          description: card.description,
+          prompt: card.fluxPrompt,
+          type: 'professional',
+          metadata: { emoji: card.emoji },
+          tags: [card.creativeLook],
+          status: 'active',
+          isTemplate: false
+        }))
+      };
+      await this.db.createMayaChatMessage(mayaMessage);
+
+      // Save individual concept cards to the concepts table
+      for (const conceptCard of conceptCards) {
+        try {
+          const conceptData = {
+            userId: user.id,
+            title: conceptCard.title,
+            description: conceptCard.description || '',
+            prompt: conceptCard.fluxPrompt,
+            type: 'professional' as const,
+            metadata: { emoji: conceptCard.emoji },
+            tags: [conceptCard.creativeLook],
+            status: 'active' as const,
+            isTemplate: false
+          };
+          await this.db.insertMayaConcept(conceptData as InsertMayaConcept);
+        } catch (conceptError) {
+          console.error('❌ MAYA: Failed to save concept card:', conceptError);
+          // Continue processing other concepts
+        }
+      }
+
+      console.log(`✅ MAYA: Processed ${conceptCards.length} concept cards for pre-generated response`);
+
+      // Update user profile stats
+      await this.updateUserProfileStats();
+
+      return {
+        conversationId: mayaChatId,
+        conceptCards
+      };
+
+    } catch (error) {
+      console.error('❌ MAYA: ProcessAndSaveChat failed:', error);
       throw error;
     }
   }
@@ -601,8 +715,8 @@ export class MayaService {
       for (const section of conceptSections) {
         if (section.trim().length < 50) continue; // Skip short sections
         
-        // Enhanced regex pattern for more robust concept card extraction
-        const emojiConceptPattern = /([^\w\s])\s*\*\*([^*]+)\*\*\s*\n([^*]+?)\s*\n\s*FLUX_PROMPT:\s*\[([^\]]+)\]/g;
+        // Enhanced regex pattern for more robust concept card extraction with flexible whitespace and newlines
+        const emojiConceptPattern = /([^\w\s])\s*\*\*([^*]+)\*\*\s*[\r\n]+([^*]+?)[\r\n]+\s*FLUX_PROMPT:\s*\[([^\]]+)\]/g;
         
         let match;
         while ((match = emojiConceptPattern.exec(section)) !== null) {
