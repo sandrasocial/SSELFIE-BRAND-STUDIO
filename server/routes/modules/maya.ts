@@ -219,6 +219,69 @@ router.post('/api/maya/chat', requireStackAuth, asyncHandler(async (req: any, re
   }
 }));
 
+// Check user's generation readiness (diagnostic endpoint)
+router.get('/api/maya-generation-status', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  const userId = req.user.id;
+  
+  try {
+    console.log(`🔍 MAYA DIAGNOSTICS: Checking generation readiness for user ${userId}`);
+    
+    // Check user model
+    const userModel = await storage.getUserModelByUserId(userId);
+    
+    // Check LoRA weights
+    const loraWeights = await storage.getUserActiveLoraWeight(userId);
+    
+    // Check user profile
+    const userProfile = await storage.getUser(userId);
+    
+    const diagnostics = {
+      userId,
+      user: {
+        exists: !!userProfile,
+        email: userProfile?.email,
+        gender: userProfile?.gender,
+        plan: userProfile?.plan,
+        role: userProfile?.role
+      },
+      model: {
+        exists: !!userModel,
+        trainingStatus: userModel?.trainingStatus,
+        hasReplicateModelId: !!userModel?.replicateModelId,
+        hasReplicateVersionId: !!userModel?.replicateVersionId,
+        hasTriggerWord: !!userModel?.triggerWord,
+        modelType: userModel?.modelType,
+        createdAt: userModel?.createdAt,
+        completedAt: userModel?.completedAt
+      },
+      loraWeights: {
+        exists: !!loraWeights,
+        hasS3Bucket: !!loraWeights?.s3Bucket,
+        hasS3Key: !!loraWeights?.s3Key,
+        status: loraWeights?.status
+      },
+      ready: !!(
+        userModel && 
+        userModel.trainingStatus === 'completed' &&
+        userModel.replicateModelId &&
+        userModel.replicateVersionId &&
+        userModel.triggerWord &&
+        loraWeights &&
+        loraWeights.s3Bucket &&
+        loraWeights.s3Key
+      )
+    };
+    
+    console.log(`🔍 MAYA DIAGNOSTICS: Results:`, diagnostics);
+    
+    sendSuccess(res, { data: diagnostics, message: 'Generation readiness check completed' });
+    
+  } catch (error) {
+    console.error('❌ MAYA DIAGNOSTICS: Error:', error);
+    throw createError.internal('Failed to check generation readiness');
+  }
+}));
+
 // Generate images with Maya's full pipeline
 router.post('/api/maya-generate', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest & { body: MayaGenerateRequest }, res: Response) => {
   const userId = req.user.id;
@@ -226,16 +289,70 @@ router.post('/api/maya-generate', requireStackAuth, asyncHandler(async (req: Aut
   validateRequired({ prompt }, ['prompt']);
 
   try {
+    console.log(`🎨 MAYA GENERATE: Request from user ${userId}:`, {
+      prompt: prompt?.substring(0, 100),
+      style,
+      count,
+      conceptName,
+      requestBody: JSON.stringify(req.body)
+    });
+
+    // Log authentication details
+    console.log(`🔐 MAYA GENERATE: Auth details:`, {
+      userId,
+      userExists: !!req.user,
+      hasEmail: !!req.user?.email,
+      userRole: req.user?.role
+    });
+
     // Get user's model and LoRA weights
     const userModel = await storage.getUserModelByUserId(userId);
+    console.log(`🎯 MAYA GENERATE: User model status:`, {
+      modelExists: !!userModel,
+      trainingStatus: userModel?.trainingStatus,
+      triggerWord: userModel?.triggerWord,
+      replicateModelId: userModel?.replicateModelId?.substring(0, 20)
+    });
+
     if (!userModel || userModel.trainingStatus !== 'completed') {
-      throw createError.validation('User model not ready. Please complete training first.');
+      console.log(`❌ MAYA GENERATE: User model not ready - Status: ${userModel?.trainingStatus || 'not found'}`);
+      console.log(`❌ MAYA GENERATE: Model details:`, {
+        hasModel: !!userModel,
+        userId: userModel?.userId,
+        trainingStatus: userModel?.trainingStatus,
+        replicateModelId: userModel?.replicateModelId?.substring(0, 30),
+        replicateVersionId: userModel?.replicateVersionId?.substring(0, 30),
+        triggerWord: userModel?.triggerWord,
+        createdAt: userModel?.createdAt
+      });
+      
+      const errorMessage = !userModel 
+        ? 'No AI model found for this user. Please train your model first in the Photo tab.'
+        : `Model training not completed (Status: ${userModel.trainingStatus}). Please wait for training to finish or contact support.`;
+        
+      throw createError.validation(errorMessage);
     }
 
     // Get user's LoRA weights
     const loraWeights = await storage.getUserActiveLoraWeight(userId);
+    console.log(`🎯 MAYA GENERATE: LoRA weights status:`, {
+      weightsFound: !!loraWeights,
+      weightsCount: loraWeights ? Object.keys(loraWeights).length : 0
+    });
+
     if (!loraWeights) {
-      throw createError.validation('User LoRA weights not available. Please retrain your model.');
+      console.log(`❌ MAYA GENERATE: LoRA weights not available for user ${userId}`);
+      console.log(`❌ MAYA GENERATE: Checking LoRA weights availability...`);
+      
+      // Try to get more details about available LoRA weights
+      try {
+        // Check if there are any LoRA weight records for this user (simplified check)
+        console.log(`❌ MAYA GENERATE: getUserActiveLoraWeight returned null for user ${userId}`);
+      } catch (weightsError) {
+        console.log(`❌ MAYA GENERATE: Error checking LoRA weights:`, weightsError);
+      }
+      
+      throw createError.validation('User LoRA weights not available. Your model may need to be retrained or LoRA extraction may have failed. Please contact support.');
     }
 
     // Use Maya's optimization service for prompt enhancement only
@@ -258,11 +375,50 @@ router.post('/api/maya-generate', requireStackAuth, asyncHandler(async (req: Aut
       { seed, categoryContext: style }
     );
 
+    console.log(`🎯 MAYA GENERATE: Generation started, predictionId: ${result.predictionId}`);
+
+    // Wait for generation completion
+    let finalImages: string[] = [];
+    if (result.predictionId) {
+      console.log(`⏳ MAYA GENERATE: Waiting for completion of ${result.predictionId}`);
+      
+      // Poll until completion (max 120 seconds)
+      const maxPollingTime = 120000; // 2 minutes
+      const pollInterval = 3000; // 3 seconds
+      const startTime = Date.now();
+      
+      while (Date.now() - startTime < maxPollingTime) {
+        try {
+          const statusResult = await ModelTrainingService.checkGenerationStatus(result.predictionId);
+          console.log(`🔄 MAYA GENERATE: Status check - ${statusResult.status}`);
+          
+          if (statusResult.status === 'succeeded' && statusResult.imageUrls) {
+            finalImages = statusResult.imageUrls;
+            console.log(`✅ MAYA GENERATE: Completed with ${finalImages.length} images`);
+            break;
+          } else if (statusResult.status === 'failed' || statusResult.status === 'canceled') {
+            throw new Error(`Generation failed with status: ${statusResult.status}`);
+          }
+          
+          // Wait before next poll
+          await new Promise(resolve => setTimeout(resolve, pollInterval));
+          
+        } catch (pollError) {
+          console.error(`❌ MAYA GENERATE: Polling error:`, pollError);
+          throw new Error(`Generation polling failed: ${pollError instanceof Error ? pollError.message : 'Unknown error'}`);
+        }
+      }
+      
+      if (finalImages.length === 0) {
+        throw new Error('Generation timed out after 2 minutes');
+      }
+    }
+
     // Save generation to database
     const imageData: InsertAiImage = {
       userId,
       prompt: finalPrompt,
-      imageUrl: result.images[0] || '',
+      imageUrl: finalImages[0] || '',
       style: style || 'maya-styled',
       predictionId: result.predictionId
     };
@@ -277,7 +433,7 @@ router.post('/api/maya-generate', requireStackAuth, asyncHandler(async (req: Aut
       data: {
         jobId: result.predictionId || 'no-prediction-id',
         generationId: generationId.toString(),
-        images: result.images,
+        images: finalImages,
         prompt: finalPrompt
       },
       message: 'Maya generation completed successfully'
