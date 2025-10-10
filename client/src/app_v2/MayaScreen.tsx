@@ -24,6 +24,9 @@ const MayaChatContent: React.FC<MayaChatContentProps> = ({ initialPrompt, onProm
     isLoading
   } = useBrandStudio();
 
+  // Debug logging for concept cards
+  console.log('Brand Studio Data:', { messages, conceptCardsById });
+
   const [showWelcome] = useState(true);
   const welcomeMessage = {
     id: 'welcome-maya',
@@ -65,7 +68,7 @@ const MayaChatContent: React.FC<MayaChatContentProps> = ({ initialPrompt, onProm
     sendMessage(messageText);
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();

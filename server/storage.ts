@@ -240,7 +240,7 @@ export interface IStorage {
   createMayaChat(userId: string, data: MayaChatCreateInput): Promise<string>;
   saveMayaChat(userId: string, data: { message: string; response: string; conceptCards: Array<Record<string, unknown>>; context: Record<string, unknown> }): Promise<string>;
   getMayaChatMessages(chatId: string, userId: string): Promise<MayaChatMessage[]>;
-  saveMayaMessage(chatId: string, userId: string, data: { message: string; role: string }): Promise<string>;
+  saveMayaMessage(chatId: string, userId: string, data: { message: string; role: string; conceptCards?: any[] }): Promise<string>;
   updateMayaMessage(messageId: string, userId: string, updates: { content: string }): Promise<void>;
   // REMOVED: getAllMayaChatMessages to prevent session mixing
   createMayaChatMessage(data: InsertMayaChatMessage): Promise<MayaChatMessage>;
@@ -1831,29 +1831,53 @@ export class DatabaseStorage implements IStorage {
 
   // Save Maya chat with message and response
   async saveMayaChat(userId: string, data: { message: string; response: string; conceptCards: any[]; context: any }): Promise<string> {
-    const [chat] = await db
-      .insert(mayaChats)
-      .values({
-        userId,
-        chatTitle: 'New Maya Chat',
-        chatCategory: 'Style Consultation',
-        lastActivity: new Date()
-      } as any)
-      .returning();
+    console.log(`💾 STORAGE: Starting saveMayaChat for user ${userId}`);
     
-    // Save user message
-    await this.saveMayaMessage(chat.id.toString(), userId, {
-      message: data.message,
-      role: 'user'
-    });
-    
-    // Save Maya response
-    await this.saveMayaMessage(chat.id.toString(), userId, {
-      message: data.response,
-      role: 'assistant'
-    });
-    
-    return chat.id.toString();
+    try {
+      const [chat] = await db
+        .insert(mayaChats)
+        .values({
+          userId,
+          chatTitle: 'New Maya Chat',
+          chatCategory: 'Style Consultation',
+          lastActivity: new Date()
+        } as any)
+        .returning();
+      
+      console.log(`✅ STORAGE: Chat created with ID ${chat.id}`);
+      
+      // Save user message
+      await this.saveMayaMessage(chat.id.toString(), userId, {
+        message: data.message,
+        role: 'user'
+      });
+      
+      // Save Maya response WITH concept cards
+      console.log(`💾 STORAGE: Saving Maya response with ${data.conceptCards?.length || 0} concept cards`);
+      console.log(`🔍 STORAGE CONCEPT CARDS:`, JSON.stringify(data.conceptCards, null, 2));
+      try {
+        await this.saveMayaMessage(chat.id.toString(), userId, {
+          message: data.response,
+          role: 'assistant',
+          conceptCards: data.conceptCards
+        });
+        console.log(`✅ STORAGE: Maya message saved successfully`);
+      } catch (error) {
+        console.error('❌ STORAGE: Error saving Maya response message:', error);
+        // Try saving without concept cards as fallback
+        console.log(`🔄 STORAGE: Attempting fallback save without concept cards`);
+        await this.saveMayaMessage(chat.id.toString(), userId, {
+          message: data.response,
+          role: 'assistant'
+        });
+        console.log(`✅ STORAGE: Fallback save successful`);
+      }
+      
+      return chat.id.toString();
+    } catch (error) {
+      console.error('❌ STORAGE: Error in saveMayaChat:', error);
+      throw error;
+    }
   }
 
   // Get Maya chat messages
@@ -1866,18 +1890,54 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Save Maya message
-  async saveMayaMessage(chatId: string, userId: string, data: { message: string; role: string }): Promise<string> {
-    const [message] = await db
-      .insert(mayaChatMessages)
-      .values({
-        chatId: parseInt(chatId),
-        content: data.message,
-        role: data.role as 'user' | 'assistant',
-        createdAt: new Date()
-      } as any)
-      .returning();
-    
-    return message.id.toString();
+  async saveMayaMessage(chatId: string, userId: string, data: { message: string; role: string; conceptCards?: any[] }): Promise<string> {
+    // Validate and sanitize concept cards
+    let conceptCards = null;
+    if (data.conceptCards && Array.isArray(data.conceptCards) && data.conceptCards.length > 0) {
+      try {
+        // Ensure concept cards are valid JSON objects and clean them
+        conceptCards = data.conceptCards
+          .filter(card => card && typeof card === 'object' && card.title && card.prompt)
+          .map(card => ({
+            title: String(card.title || '').trim(),
+            prompt: String(card.prompt || '').trim(),
+            ...(card.emoji && { emoji: String(card.emoji).trim() })
+          }))
+          .filter(card => card.title && card.prompt); // Remove any that became empty
+        
+        // Test JSON serialization
+        JSON.stringify(conceptCards);
+        console.log(`💾 STORAGE: Validated ${conceptCards.length} concept cards`);
+        
+        if (conceptCards.length === 0) {
+          conceptCards = null;
+        }
+      } catch (error) {
+        console.error('❌ STORAGE: Error validating concept cards:', error);
+        console.error('❌ STORAGE: Original data:', JSON.stringify(data.conceptCards, null, 2));
+        conceptCards = null;
+      }
+    }
+
+    try {
+      const [message] = await db
+        .insert(mayaChatMessages)
+        .values({
+          chatId: parseInt(chatId),
+          content: data.message,
+          role: data.role as 'user' | 'assistant',
+          conceptCards: conceptCards,
+          createdAt: new Date()
+        } as any)
+        .returning();
+      
+      console.log(`✅ STORAGE: Message saved with ID ${message.id}, conceptCards: ${conceptCards ? 'YES' : 'NO'}`);
+      return message.id.toString();
+    } catch (error) {
+      console.error('❌ STORAGE: Database error saving Maya message:', error);
+      console.error('❌ STORAGE: Attempted data:', { chatId, role: data.role, conceptCardsLength: Array.isArray(conceptCards) ? conceptCards.length : 0 });
+      throw error;
+    }
   }
 
   // Update Maya message
