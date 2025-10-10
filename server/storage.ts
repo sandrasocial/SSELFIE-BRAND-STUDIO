@@ -1813,7 +1813,7 @@ export class DatabaseStorage implements IStorage {
       .insert(mayaChats)
       .values({
         userId,
-        chatTitle: data.title,
+        chatTitle: data.chatTitle || data.title || 'New Maya Chat',
         chatCategory: 'Style Consultation',
         lastActivity: new Date()
       } as any)

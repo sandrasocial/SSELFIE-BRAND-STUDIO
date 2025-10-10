@@ -137,6 +137,19 @@
     "client/src/hooks/use-auth.ts",
     "client/src/components/UnifiedLoginButton.tsx",
     
+    // CRITICAL: Complete Maya client-side system
+    "client/src/app_v2/MayaScreen.tsx",
+    "client/src/app_v2/SselfieAppLayout.tsx",
+    "client/src/app_v2/StudioScreen.tsx",
+    "client/src/app_v2/GalleryScreen.tsx", 
+    "client/src/app_v2/ProfileScreen.tsx",
+    "client/src/app_v2/SettingsScreen.tsx",
+    "client/src/contexts/BrandStudioContext.tsx",
+    "client/src/components/MayaDiagnostic.tsx",
+    
+    // Complete client-side App.tsx and routing
+    "client/src/App.tsx",
+    
     // Critical authentication pages for SSR
     "client/src/pages/auth-success.tsx",
     "client/src/pages/simple-checkout.tsx",

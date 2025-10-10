@@ -22,7 +22,7 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: 'https://sselfie.ai',
+    baseURL: process.env.PLAYWRIGHT_BASE_URL || 'https://sselfie-brand-studio-eog1j7osq-sselfie-studio.vercel.app',
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
@@ -79,7 +79,7 @@ export default defineConfig({
   ],
 
   /* Run your local dev server before starting the tests */
-  webServer: {
+  webServer: process.env.PLAYWRIGHT_USE_PRODUCTION ? undefined : {
     command: 'pnpm dev:client',
     url: 'http://localhost:5173',
     reuseExistingServer: !process.env.CI,
