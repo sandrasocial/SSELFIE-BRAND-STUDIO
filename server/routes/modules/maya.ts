@@ -123,122 +123,32 @@ router.post('/api/maya-chat', requireStackAuth, asyncHandler(async (req: Authent
   validateRequired({ message }, ['message']);
 
   try {
-    // Get Maya's full personality with adaptation
-    const basePersonality = PersonalityManager.getNaturalPrompt('maya');
-    let mayaPersonality = basePersonality;
+    console.log(`🎯 MAYA ROUTES: Processing message via unified service for user ${userId}`);
 
-    // Re-enabling context integration using the Unified Intelligence Service (Phase 3 Fix)
-    try {
-      
-      // Retrieve the consolidated user intelligence
-      const unifiedIntelligence = await unifiedMayaIntelligenceService.getUnifiedStyleIntelligence(
-        userId, 
-        context, 
-        'chat' 
-      );
-      
-      // Augment the base personality prompt by embedding the latest contextual data 
-      // This is necessary for the Claude model to use non-generic data (like location/topic).
-      const contextualData = `USER STYLE INTELLIGENCE (DO NOT mention this block directly to the user): 
-User Profile: ${JSON.stringify(unifiedIntelligence.userProfile, null, 2)}
-Style Predictions: ${unifiedIntelligence.stylePredictions.predictedStyles.join(', ')}
-Trend Intelligence: ${unifiedIntelligence.trendIntelligence.currentTrends.join(', ')}
-Brand Alignment: ${unifiedIntelligence.brandAlignment.brandVoice} voice, ${unifiedIntelligence.brandAlignment.visualDirection.join(', ')} visual direction.
-The user's current message context is: ${JSON.stringify(context)}
-`;
-      
-      // Inject the context to augment the base personality
-      mayaPersonality = `${basePersonality}\n\n[CONTEXTUAL STYLING DATA]:\n${contextualData}`;
-      
-
-    } catch (adaptError) {
-      console.error('❌ MAYA: Unified Intelligence augmentation failed, falling back to base personality:', adaptError);
-      // mayaPersonality remains basePersonality
-    }
-
-    // Convert chat history to Claude format
-    const claudeHistory: ClaudeHistoryEntry[] = chatHistory.map((entry: { user?: string; maya?: string; response?: string }) => ({
+    // Build conversation history
+    const previousMessages = chatHistory.map((entry: { user?: string; maya?: string; response?: string }) => ({
       role: entry.user ? 'user' : 'assistant',
       content: entry.user || entry.maya || entry.response || ''
     })).filter((msg: { role: string; content: string }) => msg.content.trim());
 
-    // Generate response using Claude with full personality system
-    const mayaResponseObj = await claudeService.sendMessage(
+    // Use unified service for single Claude API call and complete processing
+    const unifiedResponse = await unifiedMayaIntelligenceService.processMessage({
+      userId,
       message,
-      claudeHistory,
-      mayaPersonality
-    );
-    const mayaResponse = mayaResponseObj.content;
-
-    // Extract concept cards using the SAME logic as Maya service
-    const conceptCards: MayaConceptCard[] = [];
-    try {
-      console.log('🔍 MAYA ROUTES: Extracting concept cards from response...');
-      
-      // Split response by concept separators first
-      const conceptSections = mayaResponse.split(/---+/);
-      
-      for (const section of conceptSections) {
-        if (section.trim().length < 50) continue; // Skip short sections
-        
-        // Maya personality format: [EMOJI] **CONCEPT NAME**
-        const conceptHeaderMatch = section.match(/([^\w\s])\s*\*\*([^*\n]+)\*\*/);
-        
-        if (conceptHeaderMatch) {
-          const title = conceptHeaderMatch[2].trim();
-          
-          // Extract FLUX_PROMPT
-          const fluxPromptMatch = section.match(/FLUX_PROMPT:\s*(.+?)(?=\n\n|$)/s);
-          let prompt = '';
-          
-          if (fluxPromptMatch) {
-            prompt = fluxPromptMatch[1].trim().replace(/\[|\]/g, '');
-          } else {
-            // If no FLUX_PROMPT found, extract description after title
-            const titleEnd = section.indexOf('**', section.indexOf('**') + 2) + 2;
-            if (titleEnd > 0) {
-              const description = section.substring(titleEnd).trim();
-              prompt = `Professional photo of sandra, ${title.toLowerCase()}, ${description.substring(0, 100)}`;
-            }
-          }
-          
-          if (title && prompt && title.length > 3 && prompt.length > 10) {
-            console.log(`✅ MAYA ROUTES: Found concept card - ${title}`);
-            conceptCards.push({
-              title,
-              prompt
-            });
-          }
-        }
+      conversationId: context.conversationId,
+      context: {
+        previousMessages,
+        brandContext: context.brandContext || {}
       }
-
-      // Fallback if no structured concepts found
-      if (conceptCards.length === 0) {
-        const fallbackRegex = /(?:concept|idea|suggestion)[\s\S]*?(?:title|name):\s*["']?([^"'\n]+)["']?[\s\S]*?(?:prompt|description):\s*["']?([^"'\n]+)["']?/gi;
-        let match;
-        while ((match = fallbackRegex.exec(mayaResponse)) !== null) {
-          conceptCards.push({
-            title: match[1].trim(),
-            prompt: match[2].trim()
-          });
-        }
-      }
-      
-      console.log(`🎯 MAYA ROUTES: Extracted ${conceptCards.length} concept cards`);
-      console.log(`🔍 CONCEPT CARDS:`, JSON.stringify(conceptCards, null, 2));
-    } catch (parseError) {
-      console.error('❌ MAYA ROUTES: Concept card extraction error:', parseError);
-    }
-
-    // Save chat to database
-    console.log(`💾 MAYA ROUTES: Saving chat with ${conceptCards.length} concept cards`);
-    const chatId = await storage.saveMayaChat(userId, {
-      message,
-      response: mayaResponse,
-      conceptCards,
-      context
     });
-    console.log(`✅ MAYA ROUTES: Chat saved with ID ${chatId}`);
+
+    console.log(`✅ MAYA ROUTES: Unified service processed ${unifiedResponse.conceptCards?.length || 0} concept cards`);
+
+    // Convert concept cards to expected format
+    const conceptCards: MayaConceptCard[] = unifiedResponse.conceptCards?.map(card => ({
+      title: card.title,
+      prompt: card.fluxPrompt
+    })) || [];
 
     const responseData: SuccessResponse<{
       response: string;
@@ -249,9 +159,9 @@ The user's current message context is: ${JSON.stringify(context)}
       timestamp: string;
     }> = {
       data: {
-        response: mayaResponse,
+        response: unifiedResponse.response,
         conceptCards,
-        chatId,
+        chatId: unifiedResponse.conversationId,
         agentName: 'Maya - AI Creative Director',
         agentType: 'member',
         timestamp: new Date().toISOString()
@@ -266,125 +176,38 @@ The user's current message context is: ${JSON.stringify(context)}
   }
 }));
 
-// Alias for legacy frontend endpoint: /api/maya/chat → use same handler as /api/maya-chat
+// Alias for legacy frontend endpoint: /api/maya/chat → use unified service
 router.post('/api/maya/chat', requireStackAuth, asyncHandler(async (req: any, res) => {
   const userId = req.user.id;
   const { message, chatHistory, context } = req.body;
   validateRequired({ message }, ['message']);
 
   try {
-    const basePersonality = PersonalityManager.getNaturalPrompt('maya');
-    let mayaPersonality = basePersonality;
+    console.log(`🎯 MAYA LEGACY: Processing message via unified service for user ${userId}`);
 
-    // Re-enabling context integration using the Unified Intelligence Service (Phase 3 Fix)
-    try {
-      
-      // Retrieve the consolidated user intelligence
-      const unifiedIntelligence = await unifiedMayaIntelligenceService.getUnifiedStyleIntelligence(
-        userId, 
-        context, 
-        'chat' 
-      );
-      
-      // Augment the base personality prompt by embedding the latest contextual data 
-      // This is necessary for the Claude model to use non-generic data (like location/topic).
-      const contextualData = `USER STYLE INTELLIGENCE (DO NOT mention this block directly to the user): 
-User Profile: ${JSON.stringify(unifiedIntelligence.userProfile, null, 2)}
-Style Predictions: ${unifiedIntelligence.stylePredictions.predictedStyles.join(', ')}
-Trend Intelligence: ${unifiedIntelligence.trendIntelligence.currentTrends.join(', ')}
-Brand Alignment: ${unifiedIntelligence.brandAlignment.brandVoice} voice, ${unifiedIntelligence.brandAlignment.visualDirection.join(', ')} visual direction.
-The user's current message context is: ${JSON.stringify(context)}
-`;
-      
-      // Inject the context to augment the base personality
-      mayaPersonality = `${basePersonality}\n\n[CONTEXTUAL STYLING DATA]:\n${contextualData}`;
-      
-
-    } catch (adaptError) {
-      console.error('❌ MAYA: Unified Intelligence augmentation failed, falling back to base personality:', adaptError);
-      // mayaPersonality remains basePersonality
-    }
-
-    const claudeHistory = (chatHistory || []).map((entry: any) => ({
+    // Build conversation history
+    const previousMessages = (chatHistory || []).map((entry: { user?: string; maya?: string; response?: string }) => ({
       role: entry.user ? 'user' : 'assistant',
       content: entry.user || entry.maya || entry.response || ''
-    })).filter((msg: any) => msg.content.trim());
+    })).filter((msg: { role: string; content: string }) => msg.content.trim());
 
-    const mayaResponseObj = await claudeService.sendMessage(
+    // Use unified service for single Claude API call and complete processing
+    const unifiedResponse = await unifiedMayaIntelligenceService.processMessage({
+      userId,
       message,
-      claudeHistory,
-      mayaPersonality
-    );
-    const mayaResponse = mayaResponseObj.content;
-
-    const conceptCards = [];
-    try {
-      console.log('🔍 MAYA LEGACY: Extracting concept cards from response...');
-      
-      // Use the same extraction logic as above
-      const conceptSections = mayaResponse.split(/---+/);
-      
-      for (const section of conceptSections) {
-        if (section.trim().length < 50) continue;
-        
-        const conceptHeaderMatch = section.match(/([^\w\s])\s*\*\*([^*\n]+)\*\*/);
-        
-        if (conceptHeaderMatch) {
-          const title = conceptHeaderMatch[2].trim();
-          
-          const fluxPromptMatch = section.match(/FLUX_PROMPT:\s*(.+?)(?=\n\n|$)/s);
-          let prompt = '';
-          
-          if (fluxPromptMatch) {
-            prompt = fluxPromptMatch[1].trim().replace(/\[|\]/g, '');
-          } else {
-            const titleEnd = section.indexOf('**', section.indexOf('**') + 2) + 2;
-            if (titleEnd > 0) {
-              const description = section.substring(titleEnd).trim();
-              prompt = `Professional photo of sandra, ${title.toLowerCase()}, ${description.substring(0, 100)}`;
-            }
-          }
-          
-          if (title && prompt && title.length > 3 && prompt.length > 10) {
-            conceptCards.push({
-              title,
-              prompt
-            });
-          }
-        }
+      conversationId: context?.conversationId,
+      context: {
+        previousMessages,
+        brandContext: context?.brandContext || {}
       }
-
-      // Fallback
-      if (conceptCards.length === 0) {
-        const fallbackRegex = /(?:concept|idea|suggestion)[\s\S]*?(?:title|name):\s*["']?([^"'\n]+)["']?[\s\S]*?(?:prompt|description):\s*["']?([^"'\n]+)["']?/gi;
-        let match;
-        while ((match = fallbackRegex.exec(mayaResponse)) !== null) {
-          conceptCards.push({
-            title: match[1].trim(),
-            prompt: match[2].trim()
-          });
-        }
-      }
-      
-      console.log(`🎯 MAYA LEGACY: Extracted ${conceptCards.length} concept cards`);
-      console.log(`🔍 LEGACY CONCEPT CARDS:`, JSON.stringify(conceptCards, null, 2));
-    } catch (parseError) {
-      console.error('❌ MAYA LEGACY: Concept card extraction error:', parseError);
-    }
-
-    console.log(`💾 MAYA LEGACY: Saving chat with ${conceptCards.length} concept cards`);
-    const chatId = await storage.saveMayaChat(userId, {
-      message,
-      response: mayaResponse,
-      conceptCards,
-      context: context || {}
     });
-    console.log(`✅ MAYA LEGACY: Chat saved with ID ${chatId}`);
+
+        console.log(`✅ MAYA LEGACY: Unified service processed ${unifiedResponse.conceptCards?.length || 0} concept cards`);
 
     sendSuccess(res, {
-      response: mayaResponse,
-      conceptCards,
-      chatId,
+      response: unifiedResponse.response,
+      conceptCards: unifiedResponse.conceptCards,
+      chatId: unifiedResponse.conversationId,
       agentName: 'Maya - AI Creative Director',
       agentType: 'member',
       timestamp: new Date().toISOString()
