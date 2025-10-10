@@ -64,19 +64,13 @@ export class UnifiedMayaIntelligenceService {
         systemPrompt
       );
 
-      // Process the response through Maya service for concept cards and advanced features
-      const mayaResponse = await this.mayaService.processChat(userId, {
-        message,
-        history: history.map(msg => ({
-          [msg.role === 'user' ? 'user' : 'maya']: msg.content
-        })),
-        conversationId
-      });
+      // Extract concept cards directly from Claude response
+      const conceptCards = this.extractConceptCards(claudeResponse.content);
 
       return {
         response: claudeResponse.content,
-        conversationId: mayaResponse.conversationId,
-        conceptCards: mayaResponse.conceptCards,
+        conversationId: conversationId || `maya_${Date.now()}`,
+        conceptCards: conceptCards,
         nextActions: this.generateNextActions(claudeResponse.content),
         confidence: this.calculateConfidence(claudeResponse.content, context)
       };
@@ -174,6 +168,66 @@ export class UnifiedMayaIntelligenceService {
       mode,
       timestamp: new Date().toISOString()
     };
+  }
+
+  /**
+   * Extract concept cards from Maya's response
+   * Moved from maya-service.ts for centralized processing
+   */
+  private extractConceptCards(response: string): Array<{
+    id: string;
+    title: string;
+    description: string;
+    fluxPrompt: string;
+    creativeLook: string;
+    emoji: string;
+  }> {
+    const conceptCards = [];
+
+    try {
+      console.log('🔍 UNIFIED MAYA: Extracting concept cards from response:', response.substring(0, 500));
+      
+      // Split response by concept separators first
+      const conceptSections = response.split(/---+/);
+      
+      for (const section of conceptSections) {
+        if (section.trim().length < 50) continue; // Skip short sections
+        
+        // Enhanced regex pattern for more robust concept card extraction
+        const emojiConceptPattern = /([^\w\s])\s*\*\*([^*]+)\*\*\s*\n([^*]+?)\s*\n\s*FLUX_PROMPT:\s*\[([^\]]+)\]/g;
+        
+        let match;
+        while ((match = emojiConceptPattern.exec(section)) !== null) {
+          const emoji = match[1].trim();
+          const title = match[2].trim();
+          let description = match[3].trim();
+          let fluxPrompt = match[4].trim();
+          
+          // Clean up text
+          description = description.replace(/\n+/g, ' ').trim();
+          fluxPrompt = fluxPrompt.replace(/\[|\]/g, '').trim();
+          
+          if (title && description && title.length > 3 && description.length > 10) {
+            console.log(`✅ UNIFIED MAYA: Found concept card - ${emoji} ${title}`);
+            conceptCards.push({
+              id: `concept_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+              title,
+              description,
+              fluxPrompt,
+              creativeLook: 'Professional',
+              emoji,
+            });
+          }
+        }
+      }
+
+      console.log(`🎯 UNIFIED MAYA: Extracted ${conceptCards.length} concept cards total`);
+      return conceptCards;
+
+    } catch (error) {
+      console.error('❌ UNIFIED MAYA: Error extracting concept cards:', error);
+      return [];
+    }
   }
 }
 

@@ -170,27 +170,75 @@ The user's current message context is: ${JSON.stringify(context)}
     );
     const mayaResponse = mayaResponseObj.content;
 
-    // Extract concept cards if Maya suggests photo concepts
+    // Extract concept cards using the SAME logic as Maya service
     const conceptCards: MayaConceptCard[] = [];
     try {
-      const conceptRegex = /(?:concept|idea|suggestion)[\s\S]*?(?:title|name):\s*["']?([^"'\n]+)["']?[\s\S]*?(?:prompt|description):\s*["']?([^"'\n]+)["']?/gi;
-      let match;
-      while ((match = conceptRegex.exec(mayaResponse)) !== null) {
-        conceptCards.push({
-          title: match[1].trim(),
-          prompt: match[2].trim()
-        });
+      console.log('🔍 MAYA ROUTES: Extracting concept cards from response...');
+      
+      // Split response by concept separators first
+      const conceptSections = mayaResponse.split(/---+/);
+      
+      for (const section of conceptSections) {
+        if (section.trim().length < 50) continue; // Skip short sections
+        
+        // Maya personality format: [EMOJI] **CONCEPT NAME**
+        const conceptHeaderMatch = section.match(/([^\w\s])\s*\*\*([^*\n]+)\*\*/);
+        
+        if (conceptHeaderMatch) {
+          const title = conceptHeaderMatch[2].trim();
+          
+          // Extract FLUX_PROMPT
+          const fluxPromptMatch = section.match(/FLUX_PROMPT:\s*(.+?)(?=\n\n|$)/s);
+          let prompt = '';
+          
+          if (fluxPromptMatch) {
+            prompt = fluxPromptMatch[1].trim().replace(/\[|\]/g, '');
+          } else {
+            // If no FLUX_PROMPT found, extract description after title
+            const titleEnd = section.indexOf('**', section.indexOf('**') + 2) + 2;
+            if (titleEnd > 0) {
+              const description = section.substring(titleEnd).trim();
+              prompt = `Professional photo of sandra, ${title.toLowerCase()}, ${description.substring(0, 100)}`;
+            }
+          }
+          
+          if (title && prompt && title.length > 3 && prompt.length > 10) {
+            console.log(`✅ MAYA ROUTES: Found concept card - ${title}`);
+            conceptCards.push({
+              title,
+              prompt
+            });
+          }
+        }
       }
+
+      // Fallback if no structured concepts found
+      if (conceptCards.length === 0) {
+        const fallbackRegex = /(?:concept|idea|suggestion)[\s\S]*?(?:title|name):\s*["']?([^"'\n]+)["']?[\s\S]*?(?:prompt|description):\s*["']?([^"'\n]+)["']?/gi;
+        let match;
+        while ((match = fallbackRegex.exec(mayaResponse)) !== null) {
+          conceptCards.push({
+            title: match[1].trim(),
+            prompt: match[2].trim()
+          });
+        }
+      }
+      
+      console.log(`🎯 MAYA ROUTES: Extracted ${conceptCards.length} concept cards`);
+      console.log(`🔍 CONCEPT CARDS:`, JSON.stringify(conceptCards, null, 2));
     } catch (parseError) {
+      console.error('❌ MAYA ROUTES: Concept card extraction error:', parseError);
     }
 
     // Save chat to database
+    console.log(`💾 MAYA ROUTES: Saving chat with ${conceptCards.length} concept cards`);
     const chatId = await storage.saveMayaChat(userId, {
       message,
       response: mayaResponse,
       conceptCards,
       context
     });
+    console.log(`✅ MAYA ROUTES: Chat saved with ID ${chatId}`);
 
     const responseData: SuccessResponse<{
       response: string;
@@ -271,23 +319,67 @@ The user's current message context is: ${JSON.stringify(context)}
 
     const conceptCards = [];
     try {
-      const conceptRegex = /(?:concept|idea|suggestion)[\s\S]*?(?:title|name):\s*["']?([^"'\n]+)["']?[\s\S]*?(?:prompt|description):\s*["']?([^"'\n]+)["']?/gi;
-      let match;
-      while ((match = conceptRegex.exec(mayaResponse)) !== null) {
-        conceptCards.push({
-          title: match[1].trim(),
-          prompt: match[2].trim()
-        });
+      console.log('🔍 MAYA LEGACY: Extracting concept cards from response...');
+      
+      // Use the same extraction logic as above
+      const conceptSections = mayaResponse.split(/---+/);
+      
+      for (const section of conceptSections) {
+        if (section.trim().length < 50) continue;
+        
+        const conceptHeaderMatch = section.match(/([^\w\s])\s*\*\*([^*\n]+)\*\*/);
+        
+        if (conceptHeaderMatch) {
+          const title = conceptHeaderMatch[2].trim();
+          
+          const fluxPromptMatch = section.match(/FLUX_PROMPT:\s*(.+?)(?=\n\n|$)/s);
+          let prompt = '';
+          
+          if (fluxPromptMatch) {
+            prompt = fluxPromptMatch[1].trim().replace(/\[|\]/g, '');
+          } else {
+            const titleEnd = section.indexOf('**', section.indexOf('**') + 2) + 2;
+            if (titleEnd > 0) {
+              const description = section.substring(titleEnd).trim();
+              prompt = `Professional photo of sandra, ${title.toLowerCase()}, ${description.substring(0, 100)}`;
+            }
+          }
+          
+          if (title && prompt && title.length > 3 && prompt.length > 10) {
+            conceptCards.push({
+              title,
+              prompt
+            });
+          }
+        }
       }
+
+      // Fallback
+      if (conceptCards.length === 0) {
+        const fallbackRegex = /(?:concept|idea|suggestion)[\s\S]*?(?:title|name):\s*["']?([^"'\n]+)["']?[\s\S]*?(?:prompt|description):\s*["']?([^"'\n]+)["']?/gi;
+        let match;
+        while ((match = fallbackRegex.exec(mayaResponse)) !== null) {
+          conceptCards.push({
+            title: match[1].trim(),
+            prompt: match[2].trim()
+          });
+        }
+      }
+      
+      console.log(`🎯 MAYA LEGACY: Extracted ${conceptCards.length} concept cards`);
+      console.log(`🔍 LEGACY CONCEPT CARDS:`, JSON.stringify(conceptCards, null, 2));
     } catch (parseError) {
+      console.error('❌ MAYA LEGACY: Concept card extraction error:', parseError);
     }
 
+    console.log(`💾 MAYA LEGACY: Saving chat with ${conceptCards.length} concept cards`);
     const chatId = await storage.saveMayaChat(userId, {
       message,
       response: mayaResponse,
       conceptCards,
       context: context || {}
     });
+    console.log(`✅ MAYA LEGACY: Chat saved with ID ${chatId}`);
 
     sendSuccess(res, {
       response: mayaResponse,

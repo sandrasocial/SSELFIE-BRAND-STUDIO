@@ -576,7 +576,11 @@ export class MayaService {
   }
 
   /**
-   * Extract concept cards from Maya response
+   * Extract concept cards from Maya response using the CORRECT format
+   * Matches the Maya personality config format exactly:
+   * [EMOJI] **CONCEPT NAME IN ALL CAPS**
+   * [Description...]
+   * FLUX_PROMPT: [Detailed prompt...]
    */
   private extractConceptCards(response: string): Array<{
     id: string;
@@ -589,65 +593,90 @@ export class MayaService {
     const conceptCards = [];
 
     try {
-      // Look for Maya's emoji-based concept card format first
-      // Simplified pattern that looks for any non-word character followed by **title**
-      const emojiConceptPattern = /([^\w\s])\s*\*\*([^*]+)\*\*\s*\n([^*]+?)\s*\n\s*FLUX_PROMPT:\s*\[([^\]]+)\]/g;
-
-      let emojiMatch;
-      while ((emojiMatch = emojiConceptPattern.exec(response)) !== null) {
-        const emoji = emojiMatch[1];
-        const title = emojiMatch[2].trim();
-        const description = emojiMatch[3].trim();
-        const fluxPrompt = emojiMatch[4].trim();
-
-        if (title && description && title.length > 3 && description.length > 10) {
-          conceptCards.push({
-            id: `concept_${Date.now()}_${conceptCards.length}`,
-            title,
-            description,
-            fluxPrompt,
-            creativeLook: 'Professional',
-            emoji,
-          });
+      console.log('🔍 MAYA: Extracting concept cards from response:', response.substring(0, 500));
+      
+      // Split response by concept separators first
+      const conceptSections = response.split(/---+/);
+      
+      for (const section of conceptSections) {
+        if (section.trim().length < 50) continue; // Skip short sections
+        
+        // Enhanced regex pattern for more robust concept card extraction
+        const emojiConceptPattern = /([^\w\s])\s*\*\*([^*]+)\*\*\s*\n([^*]+?)\s*\n\s*FLUX_PROMPT:\s*\[([^\]]+)\]/g;
+        
+        let match;
+        while ((match = emojiConceptPattern.exec(section)) !== null) {
+          const emoji = match[1].trim();
+          const title = match[2].trim();
+          let description = match[3].trim();
+          let fluxPrompt = match[4].trim();
+          
+          // Clean up text
+          description = description.replace(/\n+/g, ' ').trim();
+          fluxPrompt = fluxPrompt.replace(/\[|\]/g, '').trim();
+          
+          if (title && description && title.length > 3 && description.length > 10) {
+            console.log(`✅ MAYA: Found concept card - ${emoji} ${title}`);
+            conceptCards.push({
+              id: `concept_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+              title,
+              description,
+              fluxPrompt,
+              creativeLook: 'Professional',
+              emoji,
+            });
+          }
         }
       }
 
-      // Fallback patterns if no emoji-based concepts found
+      // Fallback: Try to find any concept-like patterns if no structured concepts found
       if (conceptCards.length === 0) {
-        const conceptPatterns = [
-          /\*\*([^*\n]+)\*\*:\s*([^\n*]+)/g,
-          /###\s*([^\n]+)\n([^\n#]+)/g,
-          /-\s*\*\*([^*\n]+)\*\*:\s*([^\n-]+)/g,
+        console.log('🔄 MAYA: No structured concepts found, trying fallback patterns...');
+        
+        const fallbackPatterns = [
+          // Pattern for emoji + title format
+          /([^\w\s])\s*\*\*([^*\n]+)\*\*([^]+?)(?=\n\n|$)/g,
+          // Pattern for concepts with "concept" keyword
+          /(?:concept|idea|suggestion)[\s\S]*?(?:title|name):\s*["']?([^"'\n]+)["']?[\s\S]*?(?:prompt|description):\s*["']?([^"'\n]+)["']?/gi
         ];
 
-        for (const pattern of conceptPatterns) {
+        for (const pattern of fallbackPatterns) {
           let match;
-          while ((match = pattern.exec(response)) !== null) {
-            let title = '', description = '';
+          while ((match = pattern.exec(response)) !== null && conceptCards.length < 3) {
+            let emoji = '📸', title = '', description = '';
 
-            if (match[1] && match[2]) {
+            if (match.length === 4) {
+              // Emoji + title + description format
+              emoji = match[1];
+              title = match[2].trim();
+              description = match[3].trim().substring(0, 200);
+            } else if (match.length === 3) {
+              // Title + description format
               title = match[1].trim();
               description = match[2].trim();
             }
 
             if (title && description && title.length > 3 && description.length > 10) {
               conceptCards.push({
-                id: `concept_${Date.now()}_${conceptCards.length}`,
+                id: `concept_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
                 title,
                 description,
-                fluxPrompt: `${title}: ${description}`,
+                fluxPrompt: `Professional photo of sandra, ${title.toLowerCase()}, ${description.substring(0, 100)}`,
                 creativeLook: 'Creative',
-                emoji: '📸',
+                emoji,
               });
             }
           }
         }
       }
 
+      console.log(`🎯 MAYA: Extracted ${conceptCards.length} concept cards`);
+
     } catch (parseError) {
+      console.error('❌ MAYA: Concept card extraction error:', parseError);
     }
 
-    return conceptCards.slice(0, 3); // Limit to 3 concepts
+    return conceptCards.slice(0, 5); // Allow up to 5 concepts as per Maya personality config
   }
 
   /**

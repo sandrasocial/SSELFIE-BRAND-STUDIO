@@ -194,7 +194,7 @@ export class PromptBuilder {
     const totalTokens = this.estimateTokenCount(prose.text + fluxPrompt.prompt);
     
     return {
-      prose: prose.text,
+      prose: `📸 ${prose.text}`,
       fluxPrompt: fluxPrompt.prompt,
       recipe,
       metadata: {
