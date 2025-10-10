@@ -2411,14 +2411,15 @@ export class DatabaseStorage implements IStorage {
 
   // Message operations
   async createMessage(data: any): Promise<Message> {
-    // Maya messages should be stored in mayaChatMessages table
+    // FIXED: This method is for regular conversation messages, NOT Maya chat messages
+    // Maya messages should use createMayaChatMessage() instead
     const [message] = await db
-      .insert(mayaChatMessages)
+      .insert(messages)
       .values({
-        chatId: parseInt(data.conversationId) || 0,
+        conversationId: data.conversationId || '',
         role: data.role || 'user',
         content: data.content || '',
-        canGenerate: false
+        meta: null
       } as any)
       .returning();
     return {

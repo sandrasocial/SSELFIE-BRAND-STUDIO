@@ -380,7 +380,32 @@ export class MayaService {
       console.log(`🎯 MAYA: Processing pre-generated response for user ${user.id}`);
 
       // Create or get Maya chat session
-      const mayaChatId = request.conversationId || `maya_${Date.now()}_${user.id}`;
+      let mayaChatId: string;
+      
+      if (request.conversationId && !isNaN(parseInt(request.conversationId))) {
+        // Use existing chat ID if it's a valid number
+        mayaChatId = request.conversationId;
+        
+        // Verify the chat exists
+        const existingChat = await this.db.getMayaChat(mayaChatId, user.id);
+        if (!existingChat) {
+          console.warn(`⚠️ MAYA: Chat ${mayaChatId} not found, creating new chat`);
+          mayaChatId = await this.db.createMayaChat(user.id, {
+            userId: user.id,
+            chatTitle: `Maya Chat ${new Date().toLocaleDateString()}`,
+            title: `Maya Chat ${new Date().toLocaleDateString()}`
+          });
+        }
+      } else {
+        // Create new Maya chat
+        mayaChatId = await this.db.createMayaChat(user.id, {
+          userId: user.id,
+          chatTitle: `Maya Chat ${new Date().toLocaleDateString()}`,
+          title: `Maya Chat ${new Date().toLocaleDateString()}`
+        });
+      }
+
+      console.log(`✅ MAYA: Using chat ID ${mayaChatId} for user ${user.id}`);
 
       // Extract concept cards from the pre-generated response
       const conceptCards = this.extractConceptCards(request.mayaResponseContent);
