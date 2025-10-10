@@ -3,7 +3,7 @@
  * Handles all Maya AI operations with full database integration and FLUX API
  */
 
-import { DatabaseStorage } from '../storage.js';
+import { getDatabase, type IStorage } from '../../shared/database-provider.js';
 import {
   MayaProfile,
   InsertMayaProfile,
@@ -58,10 +58,10 @@ export interface MayaGenerationResponse {
 }
 
 export class MayaService {
-  private db: DatabaseStorage;
+  private db: IStorage;
   private anthropic: Anthropic;
 
-  constructor(db: DatabaseStorage) {
+  constructor(db: IStorage) {
     this.db = db;
     
     // 🔧 FIX: Add proper error handling for missing API key
@@ -907,5 +907,5 @@ Thank you for your patience! 🎨✨`;
   }
 }
 
-// Export singleton instance
-export const mayaService = new MayaService(new DatabaseStorage());
+// Export singleton instance using database provider
+export const mayaService = new MayaService(getDatabase());

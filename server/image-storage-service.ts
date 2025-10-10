@@ -1,6 +1,6 @@
 import { S3Client, PutObjectCommand, S3ServiceException } from '@aws-sdk/client-s3';
 import { Upload } from '@aws-sdk/lib-storage';
-import { storage } from './storage.js';
+import { getDatabase } from '../shared/database-provider.js';
 import { AIImage, ImageStorageError, ImageUploadResult, MigrationResult } from '../shared/types/storage.js';
 
 /**
@@ -172,7 +172,7 @@ export class ImageStorageService {
     
     try {
       
-      const userImages = await storage.getAIImages(userId) as AIImage[];
+      const userImages = await getDatabase().getAIImages(userId) as AIImage[];
       
       for (const image of userImages) {
         // Skip if already using S3 URL

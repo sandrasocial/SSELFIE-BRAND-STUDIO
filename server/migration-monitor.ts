@@ -5,7 +5,7 @@
  */
 
 import { query } from './db.js'
-import { storage } from './storage.js'
+import { getDatabase } from '../shared/database-provider.js'
 import { ImageStorageService } from './image-storage-service.js'
 
 export class MigrationMonitor {

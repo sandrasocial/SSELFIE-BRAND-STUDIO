@@ -3,7 +3,7 @@ import { Upload } from '@aws-sdk/lib-storage';
 import fs from 'fs';
 import path from 'path';
 import archiver from 'archiver';
-import { storage } from './storage.js';
+import { getDatabase } from '../shared/database-provider.js';
 
 /**
  * BULLETPROOF UPLOAD SERVICE - PREVENTS CROSS-CONTAMINATION
@@ -461,11 +461,11 @@ export class BulletproofUploadService {
     
     try {
       // Check if user model exists, create if not
-      const existingModel = await storage.getUserModelByUserId(userId);
+      const existingModel = await getDatabase().getUserModelByUserId(userId);
       
       if (!existingModel) {
         // Create new user model
-        await storage.createUserModel({
+        await getDatabase().createUserModel({
           userId: userId,
           trainingId: trainingId,
           modelName: modelName,
@@ -476,7 +476,7 @@ export class BulletproofUploadService {
         } as any);
       } else {
         // Update existing user model
-        await storage.updateUserModel(userId, {
+        await getDatabase().updateUserModel(userId, {
           replicateModelId: trainingId,
           modelName: modelName,
           triggerWord: triggerWord,
@@ -487,7 +487,7 @@ export class BulletproofUploadService {
       }
       
       // Verify database update
-      const updatedModel = await storage.getUserModelByUserId(userId);
+      const updatedModel = await getDatabase().getUserModelByUserId(userId);
       if (!updatedModel || updatedModel.replicateModelId !== trainingId) {
         errors.push('Database update verification failed');
         return { success: false, errors };
