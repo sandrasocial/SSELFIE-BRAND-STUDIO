@@ -295,6 +295,9 @@ export class MayaService {
 
       // Save concept cards to Maya concepts database
       for (const concept of conceptCards) {
+        // Clean emoji to prevent JSON encoding issues
+        const cleanEmoji = this.cleanEmojiForDatabase(concept.emoji);
+        
         const mayaConcept = {
           userId: user.id,
           title: concept.title,
@@ -305,7 +308,7 @@ export class MayaService {
             conversationId: conversation.id,
             source: 'maya_chat',
             creativeLook: concept.creativeLook,
-            emoji: concept.emoji
+            emoji: cleanEmoji
           },
           tags: [],
           status: 'draft',
@@ -411,13 +414,16 @@ export class MayaService {
       // Save individual concept cards to the concepts table
       for (const conceptCard of conceptCards) {
         try {
+          // Clean emoji to prevent JSON encoding issues
+          const cleanEmoji = this.cleanEmojiForDatabase(conceptCard.emoji);
+          
           const conceptData = {
             userId: user.id,
             title: conceptCard.title,
             description: conceptCard.description || '',
             prompt: conceptCard.fluxPrompt,
             type: 'professional' as const,
-            metadata: { emoji: conceptCard.emoji },
+            metadata: { emoji: cleanEmoji },
             tags: [conceptCard.creativeLook],
             status: 'active' as const,
             isTemplate: false
@@ -827,6 +833,28 @@ export class MayaService {
       // Implementation depends on what stats we want to track
     } catch (error) {
       console.error('❌ MAYA: Failed to update user profile stats:', error);
+    }
+  }
+
+  /**
+   * Clean emoji characters to prevent JSON encoding issues in database
+   */
+  private cleanEmojiForDatabase(emoji: string): string {
+    if (!emoji) return '';
+    
+    try {
+      // Remove or replace problematic Unicode characters that cause JSON parsing issues
+      // This specifically handles surrogate pairs that cause the "low surrogate must follow high surrogate" error
+      const cleaned = emoji
+        .replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, '') // Remove surrogate pairs
+        .replace(/[\uD800-\uDFFF]/g, '') // Remove any remaining surrogates
+        .replace(/[^\u0000-\u007F\u00A0-\u024F\u1E00-\u1EFF\u2000-\u206F\u2070-\u209F\u20A0-\u20CF\u2100-\u214F\u2190-\u21FF\u2200-\u22FF]/g, ''); // Keep basic Latin, extended Latin, and common symbols
+      
+      // If emoji is completely cleaned out, provide a fallback
+      return cleaned || '🎯';
+    } catch (error) {
+      console.warn('⚠️ MAYA: Error cleaning emoji, using fallback:', error);
+      return '🎯'; // Safe fallback emoji
     }
   }
 
