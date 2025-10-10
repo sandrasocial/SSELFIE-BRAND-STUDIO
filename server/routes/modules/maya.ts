@@ -202,7 +202,7 @@ router.post('/api/maya/chat', requireStackAuth, asyncHandler(async (req: any, re
       }
     });
 
-        console.log(`✅ MAYA LEGACY: Unified service processed ${unifiedResponse.conceptCards?.length || 0} concept cards`);
+    console.log(`✅ MAYA LEGACY: Unified service processed ${unifiedResponse.conceptCards?.length || 0} concept cards`);
 
     sendSuccess(res, {
       response: unifiedResponse.response,
