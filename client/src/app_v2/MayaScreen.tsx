@@ -21,7 +21,8 @@ const MayaChatContent: React.FC<MayaChatContentProps> = ({ initialPrompt, onProm
     sendMessage,
     selectConceptCard,
     generateImage,
-    isLoading
+    isLoading,
+    isGenerating
   } = useBrandStudio();
 
   // Debug logging for concept cards
@@ -127,43 +128,69 @@ const MayaChatContent: React.FC<MayaChatContentProps> = ({ initialPrompt, onProm
                     <div className="w-1 h-1 rounded-full bg-stone-600"></div>
                     <span className="text-xs tracking-[0.15em] uppercase font-light text-stone-600">Photo Ideas</span>
                   </div>
-                  {message.conceptCards.map((card, cardIndex) => (
-                    <div
-                      key={card.id || cardIndex}
-                      onClick={() => {
-                        selectConceptCard(card.id);
-                        generateImage(card.id);
-                      }}
-                      className={`bg-stone-100/40 border border-stone-200/50 rounded-2xl p-5 transition-all duration-200 hover:bg-stone-100/60 hover:border-stone-300/60 cursor-pointer ${
-                        selectedConceptCardId === card.id ? 'ring-2 ring-stone-600/40 bg-stone-100/60' : ''
-                      }`}
-                    >
-                      <div className="space-y-5">
-                        <div className="flex items-center justify-between">
-                          <div className="px-3 py-1.5 bg-stone-500/10 rounded-full border border-stone-400/20">
-                            <span className="text-xs tracking-[0.1em] uppercase font-light text-stone-600">
-                              {card.creativeLook || card.category || 'Concept'}
-                            </span>
-                          </div>
-                          {card.emoji && <span className="text-2xl">{card.emoji}</span>}
-                        </div>
-                        
-                        <div className="space-y-3">
-                          <h4 className="text-base font-serif font-extralight tracking-[0.1em] text-stone-950 uppercase leading-tight">
-                            {card.title}
-                          </h4>
-                          <p className="text-sm font-light leading-relaxed text-stone-600">
-                            {card.description}
-                          </p>
-                          {selectedConceptCardId === card.id && (
-                            <div className="mt-3 pt-3 border-t border-stone-300/30">
-                              <p className="text-xs font-light text-stone-500">Selected for generation</p>
+                  {message.conceptCards.map((card, cardIndex) => {
+                    const isCardGenerating = isGenerating && selectedConceptCardId === card.id;
+                    
+                    return (
+                      <div
+                        key={card.id || cardIndex}
+                        onClick={() => {
+                          if (!isGenerating) {
+                            selectConceptCard(card.id);
+                            generateImage(card.id);
+                          }
+                        }}
+                        className={`bg-stone-100/40 border border-stone-200/50 rounded-2xl p-5 transition-all duration-200 ${
+                          isGenerating 
+                            ? 'cursor-not-allowed opacity-60' 
+                            : 'hover:bg-stone-100/60 hover:border-stone-300/60 cursor-pointer'
+                        } ${
+                          selectedConceptCardId === card.id ? 'ring-2 ring-stone-600/40 bg-stone-100/60' : ''
+                        }`}
+                      >
+                        <div className="space-y-5">
+                          <div className="flex items-center justify-between">
+                            <div className="px-3 py-1.5 bg-stone-500/10 rounded-full border border-stone-400/20">
+                              <span className="text-xs tracking-[0.1em] uppercase font-light text-stone-600">
+                                {card.creativeLook || card.category || 'Concept'}
+                              </span>
                             </div>
-                          )}
+                            {card.emoji && <span className="text-2xl">{card.emoji}</span>}
+                          </div>
+                          
+                          <div className="space-y-3">
+                            <h4 className="text-base font-serif font-extralight tracking-[0.1em] text-stone-950 uppercase leading-tight">
+                              {card.title}
+                            </h4>
+                            <p className="text-sm font-light leading-relaxed text-stone-600">
+                              {card.description}
+                            </p>
+                            
+                            {/* Generation Status */}
+                            {selectedConceptCardId === card.id && (
+                              <div className="mt-3 pt-3 border-t border-stone-300/30">
+                                {isCardGenerating ? (
+                                  <div className="flex items-center gap-2">
+                                    <div className="w-3 h-3 border-2 border-stone-400 border-t-transparent rounded-full animate-spin"></div>
+                                    <p className="text-xs font-light text-stone-600">Generating images...</p>
+                                  </div>
+                                ) : (
+                                  <p className="text-xs font-light text-stone-500">Selected for generation</p>
+                                )}
+                              </div>
+                            )}
+                            
+                            {/* Generate Button */}
+                            {!isCardGenerating && selectedConceptCardId !== card.id && (
+                              <div className="mt-3 pt-3 border-t border-stone-300/30">
+                                <p className="text-xs font-light text-stone-500 opacity-60">Click to generate images</p>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
 
