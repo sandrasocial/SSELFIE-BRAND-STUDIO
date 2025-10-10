@@ -13,6 +13,7 @@ import { initializeMobileOptimization } from "./utils/mobileOptimization.js";
 import { performanceMonitor } from "./utils/performanceMonitor.js";
 import { initializeRuntimeOptimization } from "./utils/runtimeOptimization.js";
 import { ROUTES } from "./constants/routes.js";
+import { MayaDiagnostic } from "./components/MayaDiagnostic.js";
 
 // Luxury Mobile Styling
 import "./styles/luxury-mobile.css";
@@ -240,6 +241,15 @@ function Router() {
         <Suspense fallback={<PageLoader />}>
           <ThankYou />
         </Suspense>
+      )} />
+
+      {/* Maya Chat - Direct route for Maya AI chat interface */}
+      <Route path="/maya" component={() => (
+        <ProtectedRouteWrapper>
+          <Suspense fallback={<PageLoader />}>
+            <SselfieAppLayout />
+          </Suspense>
+        </ProtectedRouteWrapper>
       )} />
 
       {/* Main authenticated app routes */}

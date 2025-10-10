@@ -164,7 +164,7 @@ const SselfieAppLayout: React.FC = () => {
   // Determine active tab from URL path
   useEffect(() => {
     const path = location;
-    if (path.includes('/app/maya')) {
+    if (path.includes('/maya') || path.includes('/app/maya')) {
       setActiveTab('maya');
     } else if (path.includes('/app/gallery')) {
       setActiveTab('gallery');
