@@ -909,3 +909,7 @@ Thank you for your patience! 🎨✨`;
 
 // Export singleton instance using database provider
 export const mayaService = new MayaService(getDatabase());
+
+// Register with service container for dependency injection
+import { serviceContainer, ServiceTokens } from '../../shared/service-container.js';
+serviceContainer.register(ServiceTokens.MAYA_SERVICE, () => mayaService, true);
