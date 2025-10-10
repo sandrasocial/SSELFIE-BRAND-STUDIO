@@ -439,6 +439,14 @@ export class MayaService {
       // Save individual concept cards to the concepts table
       for (const conceptCard of conceptCards) {
         try {
+          console.log(`🎨 MAYA CONCEPT: Saving concept card:`, {
+            title: conceptCard.title,
+            hasDescription: !!conceptCard.description,
+            hasFluxPrompt: !!conceptCard.fluxPrompt,
+            fluxPromptLength: conceptCard.fluxPrompt?.length || 0,
+            fluxPromptStart: conceptCard.fluxPrompt?.substring(0, 60) || 'NO PROMPT'
+          });
+
           // Clean emoji to prevent JSON encoding issues
           const cleanEmoji = this.cleanEmojiForDatabase(conceptCard.emoji);
           
@@ -461,6 +469,17 @@ export class MayaService {
       }
 
       console.log(`✅ MAYA: Processed ${conceptCards.length} concept cards for pre-generated response`);
+
+      // Debug concept cards being returned
+      conceptCards.forEach((card, index) => {
+        console.log(`🎯 MAYA CONCEPT ${index + 1}:`, {
+          id: card.id,
+          title: card.title,
+          hasDescription: !!card.description,
+          hasFluxPrompt: !!card.fluxPrompt,
+          fluxPromptLength: card.fluxPrompt?.length || 0
+        });
+      });
 
       // Update user profile stats
       await this.updateUserProfileStats();

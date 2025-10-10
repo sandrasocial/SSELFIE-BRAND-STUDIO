@@ -45,6 +45,7 @@ interface BrandStudioContextType extends BrandStudioState {
   setSelectedItem: (item: ConceptCard | null) => void;
   // Status
   isLoading: boolean;
+  isGenerating: boolean;
 }
 
 // Action types
@@ -73,14 +74,23 @@ function brandStudioReducer(state: BrandStudioState, action: BrandStudioAction):
       return { ...state, messages: action.payload };
       
     case 'ADD_MESSAGE':
-      // Deduplicate: only add if message with same ID doesn't exist
-      const existingMessage = state.messages.find(msg => msg.id === action.payload.id);
-      if (existingMessage) return state;
+      // Extract concept cards if present and add to conceptCardsById
+      const newMessage = action.payload;
+      let updatedConceptCardsById = { ...state.conceptCardsById };
+      
+      if (newMessage.conceptCards && newMessage.conceptCards.length > 0) {
+        console.log('🃏 CONCEPT CARDS: Storing', newMessage.conceptCards.length, 'concept cards in state');
+        newMessage.conceptCards.forEach(card => {
+          console.log('🃏 STORING CARD:', { id: card.id, title: card.title, hasFluxPrompt: !!card.fluxPrompt });
+          updatedConceptCardsById[card.id] = card;
+        });
+      }
       
       return {
         ...state,
-        messages: [...state.messages, action.payload],
-        pendingMessageIds: state.pendingMessageIds.filter(id => id !== action.payload.id)
+        messages: [...state.messages, newMessage],
+        conceptCardsById: updatedConceptCardsById,
+        pendingMessageIds: state.pendingMessageIds.filter(id => id !== newMessage.id)
       };
       
     case 'SET_TYPING':
@@ -241,13 +251,33 @@ export function BrandStudioProvider({ children }: { children: React.ReactNode })
       const conceptCard = state.conceptCardsById[cardId];
       if (!conceptCard) throw new Error('Concept card not found');
 
-      const response = await fetch('/api/maya/generate', {
+      console.log('🎨 GENERATE: Starting generation for card:', {
+        cardId,
+        title: conceptCard.title,
+        hasPrompt: !!conceptCard.prompt,
+        hasFluxPrompt: !!conceptCard.fluxPrompt,
+        promptLength: typeof conceptCard.prompt === 'string' ? conceptCard.prompt.length : 0,
+        fluxPromptLength: typeof conceptCard.fluxPrompt === 'string' ? conceptCard.fluxPrompt.length : 0,
+        fullCard: conceptCard
+      });
+
+      const finalPrompt = conceptCard.fluxPrompt || conceptCard.prompt;
+      if (!finalPrompt) {
+        throw new Error('No prompt available for generation. Concept card missing prompt data.');
+      }
+
+      console.log('🎨 GENERATE: Using prompt:', String(finalPrompt).substring(0, 100) + '...');
+
+      // Use the correct endpoint: /api/maya-generate (with dash)
+      const response = await fetch('/api/maya-generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({
-          conceptCard: conceptCard,
-          conversationId: state.conversationId
+          prompt: finalPrompt,
+          style: conceptCard.creativeLook || 'professional',
+          count: 2,
+          conceptName: conceptCard.title
         })
       });
 
@@ -259,12 +289,39 @@ export function BrandStudioProvider({ children }: { children: React.ReactNode })
       return response.json();
     },
     onSuccess: (data) => {
-      // Start polling for generation status
-      if (data.generationId) {
-        pollGenerationStatus(data.generationId);
+      console.log('🎨 GENERATE SUCCESS:', data);
+      
+      // Maya generation returns images immediately, no polling needed
+      if (data.data?.images && data.data.images.length > 0) {
+        // Add generated images to the conversation immediately
+        const imageMessage: ChatMessage = {
+          id: `images_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          type: 'maya',
+          content: `Here are your generated photos based on the selected concept:`,
+          timestamp: new Date().toISOString(),
+          generatedImages: data.data.images
+        };
+        
+        dispatch({ type: 'ADD_MESSAGE', payload: imageMessage });
+        
+        toast({ 
+          title: "Images Generated!", 
+          description: "Your photos are ready to view." 
+        });
+      } else {
+        console.log('⚠️ No images in generation response:', data);
+        toast({ 
+          title: "Generation Issue", 
+          description: "Images were requested but not returned. Check console for details." 
+        });
       }
     },
     onError: (error) => {
+      console.error('❌ GENERATE ERROR:', error);
+      
+      // Clear the selected concept card on error
+      dispatch({ type: 'SELECT_CONCEPT_CARD', payload: null });
+      
       toast({ 
         title: "Generation Error", 
         description: error.message || "Failed to generate image. Please try again." 
@@ -272,58 +329,7 @@ export function BrandStudioProvider({ children }: { children: React.ReactNode })
     }
   });
 
-  // Poll generation status
-  const pollGenerationStatus = useCallback(async (generationId: string) => {
-    const pollInterval = setInterval(async () => {
-      try {
-        const response = await fetch(`/api/maya/status/${generationId}`, {
-          credentials: 'include'
-        });
 
-        if (!response.ok) {
-          clearInterval(pollInterval);
-          return;
-        }
-
-        const status = await response.json();
-
-        if (status.status === 'completed' && status.images) {
-          clearInterval(pollInterval);
-          
-          // Add generated images to the conversation
-          const imageMessage: ChatMessage = {
-            id: `images_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-            type: 'maya',
-            content: `Here are your generated photos based on the selected concept:`,
-            timestamp: new Date().toISOString(),
-            generatedImages: status.images
-          };
-          
-          dispatch({ type: 'ADD_MESSAGE', payload: imageMessage });
-          
-          toast({ 
-            title: "Images Generated!", 
-            description: "Your photos are ready to view." 
-          });
-        } else if (status.status === 'failed') {
-          clearInterval(pollInterval);
-          toast({ 
-            title: "Generation Failed", 
-            description: "Image generation failed. Please try again." 
-          });
-        }
-        // Continue polling if still processing
-      } catch (error) {
-        clearInterval(pollInterval);
-        console.error('Polling error:', error);
-      }
-    }, 2000); // Poll every 2 seconds
-
-    // Stop polling after 5 minutes
-    setTimeout(() => {
-      clearInterval(pollInterval);
-    }, 300000);
-  }, [toast]);
 
   const sendMessage = useCallback((content: string) => {
     if (!content.trim() || sendMessageMutation.isPending) return;
@@ -344,9 +350,15 @@ export function BrandStudioProvider({ children }: { children: React.ReactNode })
   }, [sendMessageMutation]);
 
   const generateImage = useCallback((cardId: string) => {
+    console.log('🎨 GENERATE IMAGE CALLED:', { 
+      cardId, 
+      isPending: generateImageMutation.isPending,
+      hasCard: !!state.conceptCardsById[cardId] 
+    });
+    
     if (!cardId || generateImageMutation.isPending) return;
     generateImageMutation.mutate(cardId);
-  }, [generateImageMutation]);
+  }, [generateImageMutation, state.conceptCardsById]);
 
   const selectConceptCard = useCallback((id: string | null) => {
     dispatch({ type: 'SELECT_CONCEPT_CARD', payload: id });
@@ -381,7 +393,8 @@ export function BrandStudioProvider({ children }: { children: React.ReactNode })
     startNewSession,
     selectedItem: null,
     setSelectedItem: () => {},
-    isLoading: isLoading || sendMessageMutation.isPending
+    isLoading: isLoading || sendMessageMutation.isPending,
+    isGenerating: generateImageMutation.isPending
   };
 
   return (
