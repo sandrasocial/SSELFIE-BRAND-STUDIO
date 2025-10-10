@@ -1,4 +1,4 @@
-import { storage } from './storage.js'
+import { getDatabase } from '../shared/database-provider.js'
 
 export class ModelRetrainService {
   
@@ -10,7 +10,7 @@ export class ModelRetrainService {
     try {
       
       // Get existing user model record to verify training was completed before
-      const existingModel = await storage.getUserModelByUserId(userId);
+      const existingModel = await getDatabase().getUserModelByUserId(userId);
       if (!existingModel) {
         return {
           success: false,
@@ -74,7 +74,7 @@ export class ModelRetrainService {
       
       
       // Update database with new training details
-      await storage.updateUserModel(userId, {
+      await getDatabase().updateUserModel(userId, {
         replicateModelId: replicateModelId,
         modelName: newModelName,
         trainingStatus: 'training',
