@@ -1319,16 +1319,20 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
           return res.status(400).json({ error: 'Message is required' });
         }
         
-        // Use the new MayaService instead of direct Claude API calls
-        const { mayaService } = await import('../server/services/maya-service.js');
+        // Use the unified Maya intelligence service for proper Claude API + database integration
+        const { UnifiedMayaIntelligenceService } = await import('../server/services/unified-maya-intelligence-service.js');
+        const unifiedMayaService = new UnifiedMayaIntelligenceService();
         
-        
-        const chatResult = await mayaService.processChat(user.id as string, {
+        const chatResult = await unifiedMayaService.processMessage({
+          userId: user.id as string,
           message,
-          history: conversationHistory.map(entry => ({
-            user: entry.role === 'user' ? (entry.content || entry.message || '') : undefined,
-            maya: entry.role === 'assistant' ? (entry.content || entry.message || '') : undefined
-          })).filter(entry => entry.user || entry.maya)
+          conversationId: undefined, // Let service create new conversation if needed
+          context: {
+            previousMessages: conversationHistory.map(entry => ({
+              role: entry.role as 'user' | 'assistant',
+              content: entry.content || entry.message || ''
+            }))
+          }
         });
         
         const response = {
