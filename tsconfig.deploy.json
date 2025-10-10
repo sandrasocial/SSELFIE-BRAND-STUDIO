@@ -158,7 +158,36 @@
     // Essential middleware for serverless functions
     "server/middleware/security.ts",
     "server/middleware/admin-context.ts",
-    "server/middleware/errorHandler.ts"
+    "server/middleware/errorHandler.ts",
+    
+    // Performance Optimization Services - Production Critical
+    "shared/database-provider.ts",
+    "shared/service-container.ts",
+    "server/services/performance/api-retry-service.ts",
+    "server/services/performance/connection-pool-manager.ts",
+    "server/services/performance/claude-api-cache-service.ts",
+    "server/services/performance/performance-monitor-service.ts",
+    "server/services/performance/performance-hub.ts",
+    
+    // Refactored Maya Services - Modular Architecture
+    "server/services/maya/profile-service.ts",
+    "server/services/maya/conversation-service.ts",
+    "server/services/maya/concept-card-service.ts",
+    "server/services/maya/generation-coordinator.ts",
+    "server/services/maya-service-refactored.ts",
+    
+    // Refactored Training Services - Specialized Pipeline
+    "server/services/training/replicate-service.ts",
+    "server/services/training/s3-operations-service.ts",
+    "server/services/training/training-status-monitor.ts",
+    "server/services/training/training-orchestrator.ts",
+    "server/services/model-training-service-refactored.ts",
+    
+    // Refactored Upload Services - Modular Workflow
+    "server/services/upload/file-validator.ts",
+    "server/services/upload/upload-manager.ts",
+    "server/services/upload/training-initiator.ts",
+    "server/services/bulletproof-upload-service-refactored.ts"
   ],
   "exclude": [
     "node_modules",
