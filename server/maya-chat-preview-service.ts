@@ -1,4 +1,4 @@
-import { storage } from './storage.js';
+import { getDatabase } from '../shared/database-provider.js';
 import { 
   ServerChatMessage as ChatMessage, 
   GalleryImage, 
@@ -48,7 +48,7 @@ Generated with your personal AI model using Sandra's proven settings
         }
       };
 
-      const previewMessage = await storage.saveMayaChatMessage(messageInput as any);
+      const previewMessage = await getDatabase().saveMayaChatMessage(messageInput as any);
 
       return previewMessage as unknown as ChatMessage;
       
@@ -97,7 +97,7 @@ Generated with your personal AI model using Sandra's proven settings
         }
       };
 
-      const galleryImage = await storage.saveAIImage(imageInput);
+      const galleryImage = await getDatabase().saveAIImage(imageInput);
 
       return galleryImage as GalleryImage;
       

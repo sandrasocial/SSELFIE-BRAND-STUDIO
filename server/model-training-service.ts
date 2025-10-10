@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import archiver from 'archiver';
 import { fileURLToPath } from 'url';
-import { storage } from './storage.js';
+import { getDatabase } from '../shared/database-provider.js';
 // MAYA FAÇADE: Removed PersonalityManager dependency - Maya isolated
 // import { PersonalityManager } = await import('./agents/personalities/personality-config.js'); // REMOVED: Outbound dependency
 import { ArchitectureValidator } from './architecture-validator.js';
@@ -170,7 +170,7 @@ export class ModelTrainingService {
     
     try {
       // Check if user already has a model
-      const existingModel = await storage.getUserModelByUserId(userId);
+      const existingModel = await getDatabase().getUserModelByUserId(userId);
       if (existingModel) {
         // For retraining, we'll update the existing model
       }
@@ -222,9 +222,9 @@ export class ModelTrainingService {
       // Don't clear existing model data until replacement is confirmed working
       
       // Get existing model data to preserve working functionality
-      const currentModel = await storage.getUserModelByUserId(userId);
+      const currentModel = await getDatabase().getUserModelByUserId(userId);
       
-      await storage.updateUserModel(userId, {
+      await getDatabase().updateUserModel(userId, {
         trainingId: trainingData.id, // Store training ID in dedicated field
         triggerWord: triggerWord,
         trainingStatus: 'training',
@@ -253,7 +253,7 @@ export class ModelTrainingService {
   // Check training status
   static async checkTrainingStatus(userId: string): Promise<{ status: string; progress: number }> {
     try {
-      const userModel = await storage.getUserModelByUserId(userId);
+      const userModel = await getDatabase().getUserModelByUserId(userId);
       if (!userModel || (!userModel.trainingId && !userModel.replicateModelId)) {
         throw new Error('No training found for user');
       }
@@ -349,7 +349,7 @@ export class ModelTrainingService {
             }
             
             // Get existing model for backup logging
-            const existingModel = await storage.getUserModelByUserId(userId);
+            const existingModel = await getDatabase().getUserModelByUserId(userId);
             
             // SAFE REPLACEMENT: Only now replace the working model with validated new model
             updateData.replicateModelId = newModelId;
@@ -374,7 +374,7 @@ export class ModelTrainingService {
         updateData.trainedModelPath = updateData.replicateModelId;
       }
       
-      await storage.updateUserModel(userId, updateData);
+      await getDatabase().updateUserModel(userId, updateData);
       
       return { status, progress };
       
@@ -387,7 +387,7 @@ export class ModelTrainingService {
   static async retryModelExtraction(userId: string): Promise<{ success: boolean; message: string }> {
     try {
       
-      const userModel = await storage.getUserModelByUserId(userId);
+      const userModel = await getDatabase().getUserModelByUserId(userId);
       if (!userModel || !userModel.trainingId) {
         throw new Error('No training found for user');
       }
@@ -458,7 +458,7 @@ export class ModelTrainingService {
       }
 
       // 🔧 PHASE 3: Apply the validated model data
-      await storage.updateUserModel(userId, {
+      await getDatabase().updateUserModel(userId, {
         replicateModelId: newModelId,
         replicateVersionId: newVersionId,
         trainedModelPath: newModelId,
@@ -645,7 +645,7 @@ export class ModelTrainingService {
       ArchitectureValidator.enforceZeroTolerance();
       
       // INDIVIDUAL MODELS ONLY: Every user MUST have their own trained model
-      const userModel = await storage.getUserModelByUserId(userId);
+      const userModel = await getDatabase().getUserModelByUserId(userId);
       
       if (!userModel || userModel.trainingStatus !== 'completed' || !userModel.replicateVersionId) {
         throw new Error('USER_MODEL_NOT_TRAINED: User must train their AI model before generating images. Individual models required.');
@@ -688,7 +688,7 @@ export class ModelTrainingService {
       
       
       // PHASE 4: SECURE GENDER VALIDATION + MANDATORY INJECTION
-      const user = await storage.getUser(userId);
+      const user = await getDatabase().getUser(userId);
       if (!user) {
         throw new Error('User not found for image generation');
       }
@@ -790,7 +790,7 @@ export class ModelTrainingService {
       }
       
       // ✅ RESTORED: Check for extracted LoRA weights first
-      const loraWeights = await storage.getLoRAWeights(userId);
+      const loraWeights = await getDatabase().getLoRAWeights(userId);
       
       const userModelVersion = `${userModel.replicateModelId}:${userModel.replicateVersionId}`;
       const requestBody: {

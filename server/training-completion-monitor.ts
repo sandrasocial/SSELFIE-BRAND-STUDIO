@@ -4,7 +4,7 @@
  * Prevents users from getting stuck in "processing" status
  */
 
-import { storage } from './storage.js';
+import { getDatabase } from '../shared/database-provider.js';
 import { paths } from './utils/paths.js';
 import { 
   ReplicateTrainingStatus,
@@ -96,7 +96,7 @@ export class TrainingCompletionMonitor {
           }
           
           // CRITICAL: Extract and store the trigger word from existing model data
-          const existingModel = await storage.getUserModelByUserId(userId);
+          const existingModel = await getDatabase().getUserModelByUserId(userId);
           let triggerWord = existingModel?.triggerWord;
           
           // If no trigger word exists, generate one following the pattern
@@ -105,7 +105,7 @@ export class TrainingCompletionMonitor {
           }
           
           // ✅ RESTORED: Store both packaged model and extracted LoRA weights
-          await storage.updateUserModel(userId, {
+          await getDatabase().updateUserModel(userId, {
             trainingStatus: 'completed',
             replicateModelId: replicateModelId, // Keep training ID for reference
             replicateVersionId: versionId, // Training version
@@ -118,7 +118,7 @@ export class TrainingCompletionMonitor {
           // Store LoRA weights metadata in separate table
           if (extractedWeights) {
             try {
-              await storage.storeLoRAWeights({
+              await getDatabase().storeLoRAWeights({
                 userId: userId,
                 trainingId: replicateModelId,
                 weightsUrl: extractedWeights.loraWeightsUrl,
@@ -133,7 +133,7 @@ export class TrainingCompletionMonitor {
 
           // Send model ready email notification
           try {
-            const user = await storage.getUser(userId);
+            const user = await getDatabase().getUser(userId);
             if (user?.email) {
               const { sendTrainingCompleteEmail } = await import('./services/email-service.js');
               const userName = user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.firstName || 'there';
@@ -150,7 +150,7 @@ export class TrainingCompletionMonitor {
           
         } else if (trainingData.status === 'failed') {
           
-          await storage.updateUserModel(userId, {
+          await getDatabase().updateUserModel(userId, {
             trainingStatus: 'failed',
             updatedAt: new Date()
           });
@@ -222,7 +222,7 @@ export class TrainingCompletionMonitor {
       if (modelData.latest_version?.id) {
         
         // CRITICAL: Extract and store the trigger word from existing model data
-        const existingModel = await storage.getUserModelByUserId(userId);
+        const existingModel = await getDatabase().getUserModelByUserId(userId);
         let triggerWord = existingModel?.triggerWord;
         
         // If no trigger word exists, generate one following the pattern
@@ -230,7 +230,7 @@ export class TrainingCompletionMonitor {
           triggerWord = `user${userId}`;
         }
         
-        await storage.updateUserModel(userId, {
+        await getDatabase().updateUserModel(userId, {
           trainingStatus: 'completed',
           replicateModelId: `${process.env.REPLICATE_USERNAME || 'models'}/${modelName}`,
           replicateVersionId: modelData.latest_version.id,
@@ -242,7 +242,7 @@ export class TrainingCompletionMonitor {
 
         // Send model ready email notification
         try {
-          const user = await storage.getUser(userId);
+          const user = await getDatabase().getUser(userId);
           if (user?.email) {
             const { sendTrainingCompleteEmail } = await import('./services/email-service.js');
             const userName = user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.firstName || 'there';
@@ -291,7 +291,7 @@ export class TrainingCompletionMonitor {
       // Get all users with training status that isn't completed
       let inProgressModels;
       try {
-        inProgressModels = await storage.getAllInProgressTrainings();
+        inProgressModels = await getDatabase().getAllInProgressTrainings();
       } catch (dbError) {
         console.error('❌ Training Monitor: Database connection error:', dbError instanceof Error ? dbError.message : 'Unknown error');
         return; // Skip this cycle if database is unavailable
