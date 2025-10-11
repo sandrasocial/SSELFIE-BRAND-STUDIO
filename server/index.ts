@@ -1232,6 +1232,16 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
       try {
         const user = await getAuthenticatedUser();
         
+        // CRITICAL: Ensure user exists in database before generation
+        const { UserService } = await import('../server/services/user-service.js');
+        const userService = new UserService();
+        const dbUser = await userService.getOrCreateUser(
+          user.id as string,
+          user.email as string,
+          user.firstName || user.lastName ? `${user.firstName || ''} ${user.lastName || ''}`.trim() : null,
+          null // No profile image URL available in AuthenticatedUser
+        );
+        
         const body = req.body || {};
         
         const { conceptCard } = body as {
@@ -1247,11 +1257,11 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
           return res.status(400).json({ error: 'Concept card with fluxPrompt is required' });
         }
         
-        // Use the new MayaService instead of old ModelTrainingService
+        // Use the new MayaService with the database user ID
         const { mayaService } = await import('../server/services/maya-service.js');
         
         
-        const generationResult = await mayaService.generateImages(user.id as string, {
+        const generationResult = await mayaService.generateImages(dbUser.id, {
           conceptCard
         });
         
@@ -1399,7 +1409,7 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
         const mayaResponse = claudeResponse.content[0].type === 'text' ? claudeResponse.content[0].text : '';
         
         // Enhanced concept card extraction with multiple robust patterns
-        const conceptCards = [];
+        const conceptCards: ConceptCard[] = [];
         try {
             console.log('🔍 MAYA: Extracting concept cards from response length:', mayaResponse.length);
             console.log('🔍 MAYA: Response sample:', mayaResponse.substring(0, 800));
@@ -1505,8 +1515,26 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
             }
         }
 
+        // Clean up the response by removing concept card sections if we extracted cards
+        let cleanedResponse = mayaResponse;
+        if (conceptCards.length > 0) {
+          // Remove FLUX_PROMPT sections from the response to avoid duplication
+          cleanedResponse = mayaResponse
+            .replace(/FLUX_PROMPT:\s*\[[^\]]+\]/g, '')
+            .replace(/\*\*([^*]+)\*\*\s*([^\n]*)\s*/g, (match, title, desc) => {
+              // If this title matches an extracted concept, remove it
+              const hasMatchingConcept = conceptCards.some(card => 
+                card.title.toLowerCase().includes(title.toLowerCase()) || 
+                title.toLowerCase().includes(card.title.toLowerCase())
+              );
+              return hasMatchingConcept ? '' : match;
+            })
+            .replace(/\n\s*\n\s*\n/g, '\n\n') // Clean up extra newlines
+            .trim();
+        }
+
         const chatResult = {
-          response: mayaResponse,
+          response: cleanedResponse,
           conceptCards: conceptCards
         };
         
