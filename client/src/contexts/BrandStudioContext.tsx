@@ -315,16 +315,18 @@ export function BrandStudioProvider({ children }: { children: React.ReactNode })
 
   // Load conversation history - NOW ENABLED with working endpoint
   const { isLoading, refetch: refetchChatHistory } = useQuery({
-    queryKey: ['/api/maya/chat-history', state.conversationId],
+    queryKey: ['/api/maya/chat-history'],
     queryFn: async () => {
+      console.log('🔄 CLIENT: Fetching Maya chat history');
       const response = await apiRequest('/api/maya/chat-history', 'GET');
+      console.log(`📋 CLIENT: Received ${response.messages?.length || 0} messages from chat history`);
       if (response.messages?.length > 0) {
         // FIXED: Set messages atomically instead of appending to prevent duplicates
         dispatch({ type: 'SET_MESSAGES', payload: response.messages });
       }
       return response;
     },
-    enabled: !!user && !!state.conversationId, // Enable when user is authenticated and has conversation ID
+    enabled: !!user, // Enable when user is authenticated (no conversation ID dependency)
     staleTime: 30000,
     refetchOnWindowFocus: false, // Prevent duplicate loading on focus
   });

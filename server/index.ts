@@ -1666,19 +1666,32 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
         const user = await getAuthenticatedUser();
         const { storage } = await import('../server/storage.js');
         
-        // Get Maya chat messages for this user
-        const mayaChats = await storage.getMayaChats(user.id as string);
+        // Get database user ID (Maya chats use internal database user ID)
+        const { UserService } = await import('../server/services/user-service.js');
+        const userService = new UserService();
+        const dbUser = await userService.getOrCreateUser(
+          user.id as string,
+          user.email as string,
+          user.firstName || user.lastName ? `${user.firstName || ''} ${user.lastName || ''}`.trim() : null,
+          null
+        );
+        
+        console.log(`🔍 MAYA HISTORY: Getting chats for Stack user ${user.id} → DB user ${dbUser.id}`);
+        
+        // Get Maya chat messages for this user (using database user ID)
+        const mayaChats = await storage.getMayaChats(dbUser.id);
         
         if (mayaChats.length === 0) {
+          console.log(`📋 MAYA HISTORY: No Maya chats found for DB user ${dbUser.id}`);
           res.setHeader('Cache-Control', 'no-store');
           return res.status(200).json({ messages: [] });
         }
         
         // Get messages from the most recent chat
         const latestChat = mayaChats[0];
-        const messages = await storage.getMayaChatMessages(latestChat.id.toString(), user.id as string);
+        const messages = await storage.getMayaChatMessages(latestChat.id.toString(), dbUser.id);
         
-        console.log(`📋 MAYA HISTORY: Retrieved ${messages.length} messages from chat ${latestChat.id} for user ${user.id}`);
+        console.log(`📋 MAYA HISTORY: Retrieved ${messages.length} messages from chat ${latestChat.id} for DB user ${dbUser.id}`);
         
         // Transform messages to expected format with image support
         const formattedMessages = messages.map(msg => {
