@@ -15,9 +15,9 @@ export const getWebSocketPool = () => {
   if (!wsPool) {
     wsPool = new Pool({
       connectionString: DATABASE_URL,
-      max: 5, // Reduced for serverless
-      idleTimeoutMillis: 10000, // Shorter idle timeout for serverless
-      connectionTimeoutMillis: 5000,
+      max: 10, // Increased for better concurrency
+      idleTimeoutMillis: 30000, // Longer idle timeout to reduce reconnections
+      connectionTimeoutMillis: 3000, // Faster connection timeout
     });
 
     // Add connection error handling
