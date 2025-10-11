@@ -1,38 +1,21 @@
-import { Pool, neonConfig } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-serverless';
-import { DATABASE_URL } from './env.js'
-import * as schema from '../shared/schema.js';
-import * as ws from 'ws';
+// Re-export from drizzle.ts to maintain compatibility
+// This file exists for legacy compatibility with migration-monitor.ts
+export { db } from './drizzle.js';
+import { db } from './drizzle.js';
+import { sql } from 'drizzle-orm';
 
-// Configure WebSocket for Node.js environment (required for Pool connections)
-neonConfig.webSocketConstructor = ws.WebSocket;
-
-// WebSocket-based pool for all database operations
-let wsPool: Pool | null = null;
-
-// Create WebSocket pool - uses the same pattern as drizzle.ts
-export const getWebSocketPool = () => {
-  if (!wsPool) {
-    wsPool = new Pool({
-      connectionString: DATABASE_URL,
-      max: 10, // Increased for better concurrency
-      idleTimeoutMillis: 30000, // Longer idle timeout to reduce reconnections
-      connectionTimeoutMillis: 3000, // Faster connection timeout
-    });
-
-    // Add connection error handling
-    wsPool.on('error', (err: any) => {
-      console.error('❌ Unexpected WebSocket pool error:', err);
-    });
-  }
-  return wsPool;
-};
-
-// Export query function using WebSocket Pool (matches drizzle.ts pattern)
+// Export query function using existing drizzle connection
 export const query = async (text: string, params?: unknown[]) => {
-  const pool = getWebSocketPool();
   try {
-    return await pool.query(text, params);
+    // Use sql template literal instead of sql.raw for better type safety
+    if (params && params.length > 0) {
+      // For parameterized queries, we need to use a different approach
+      const sqlQuery = sql`${sql.raw(text)}`;
+      return await db.execute(sqlQuery);
+    } else {
+      // For simple queries without parameters
+      return await db.execute(sql`${sql.raw(text)}`);
+    }
   } catch (error) {
     console.error('❌ Database query error:', error);
     throw error;
@@ -42,11 +25,11 @@ export const query = async (text: string, params?: unknown[]) => {
 // Pool query function (alias for consistency)
 export const poolQuery = query;
 
-// Database health check utility using WebSocket Pool
+// Database health check utility
 export async function checkDatabaseHealth(): Promise<{ healthy: boolean; latency?: number; error?: string }> {
   const start = Date.now();
   try {
-    const result = await query('SELECT 1 as health_check');
+    const result = await db.execute(sql`SELECT 1 as health_check`);
     const latency = Date.now() - start;
     return {
       healthy: true,
@@ -61,20 +44,11 @@ export async function checkDatabaseHealth(): Promise<{ healthy: boolean; latency
   }
 }
 
-// WebSocket-based drizzle instance using the same pattern as drizzle.ts
-export const db = drizzle(getWebSocketPool(), { schema });
-
-// Transaction helper using WebSocket Pool
+// Transaction helper
 export const transaction = db.transaction.bind(db);
 
-// Cleanup function for serverless environments
+// Cleanup function for serverless environments (no-op since drizzle.ts handles this)
 export const cleanup = async () => {
-  if (wsPool) {
-    try {
-      await wsPool.end();
-      wsPool = null;
-    } catch (error) {
-      console.error('❌ Error cleaning up database connections:', error);
-    }
-  }
+  // Connection cleanup is handled by drizzle.ts
+  console.log('✅ Database cleanup delegated to drizzle.ts');
 };

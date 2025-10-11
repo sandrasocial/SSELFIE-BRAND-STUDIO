@@ -282,6 +282,55 @@ router.get('/api/maya-generation-status', requireStackAuth, asyncHandler(async (
   }
 }));
 
+// Background polling function for async generation
+async function pollGenerationAndSaveResults(
+  predictionId: string, 
+  userId: string, 
+  prompt: string, 
+  style: string = 'maya-styled'
+): Promise<void> {
+  const maxPollingTime = 120000; // 2 minutes
+  const pollInterval = 3000; // 3 seconds
+  const startTime = Date.now();
+  
+  console.log(`🔄 BACKGROUND POLLING: Starting for prediction ${predictionId}`);
+  
+  try {
+    while (Date.now() - startTime < maxPollingTime) {
+      try {
+        const statusResult = await ModelTrainingService.checkGenerationStatus(predictionId);
+        console.log(`🔄 BACKGROUND POLLING: Status ${statusResult.status} for ${predictionId}`);
+        
+        if (statusResult.status === 'succeeded' && statusResult.imageUrls) {
+          console.log(`✅ BACKGROUND POLLING: Completed with ${statusResult.imageUrls.length} images`);
+          
+          // Update the database record with the final images
+          await storage.updateAIImageByPredictionId(predictionId, { imageUrl: statusResult.imageUrls[0] });
+          
+          // TODO: Notify frontend via WebSocket or SSE
+          console.log(`💾 BACKGROUND POLLING: Saved images for ${predictionId}`);
+          return;
+          
+        } else if (statusResult.status === 'failed' || statusResult.status === 'canceled') {
+          console.error(`❌ BACKGROUND POLLING: Generation failed with status ${statusResult.status}`);
+          return;
+        }
+        
+        // Wait before next poll
+        await new Promise(resolve => setTimeout(resolve, pollInterval));
+        
+      } catch (pollError) {
+        console.error(`❌ BACKGROUND POLLING: Error polling ${predictionId}:`, pollError);
+        // Continue polling despite individual errors
+      }
+    }
+    
+    console.warn(`⏰ BACKGROUND POLLING: Timeout after ${maxPollingTime}ms for ${predictionId}`);
+  } catch (error) {
+    console.error(`❌ BACKGROUND POLLING: Fatal error for ${predictionId}:`, error);
+  }
+}
+
 // Generate images with Maya's full pipeline
 router.post('/api/maya-generate', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest & { body: MayaGenerateRequest }, res: Response) => {
   const userId = req.user.id;
@@ -377,66 +426,46 @@ router.post('/api/maya-generate', requireStackAuth, asyncHandler(async (req: Aut
 
     console.log(`🎯 MAYA GENERATE: Generation started, predictionId: ${result.predictionId}`);
 
-    // Wait for generation completion
-    let finalImages: string[] = [];
+    // ✅ ASYNC APPROACH: Don't block the response, start background polling
     if (result.predictionId) {
-      console.log(`⏳ MAYA GENERATE: Waiting for completion of ${result.predictionId}`);
+      console.log(`⚡ MAYA GENERATE: Starting async polling for ${result.predictionId}`);
       
-      // Poll until completion (max 120 seconds)
-      const maxPollingTime = 120000; // 2 minutes
-      const pollInterval = 3000; // 3 seconds
-      const startTime = Date.now();
-      
-      while (Date.now() - startTime < maxPollingTime) {
+      // Start background polling without blocking the response
+      setImmediate(async () => {
         try {
-          const statusResult = await ModelTrainingService.checkGenerationStatus(result.predictionId);
-          console.log(`🔄 MAYA GENERATE: Status check - ${statusResult.status}`);
-          
-          if (statusResult.status === 'succeeded' && statusResult.imageUrls) {
-            finalImages = statusResult.imageUrls;
-            console.log(`✅ MAYA GENERATE: Completed with ${finalImages.length} images`);
-            break;
-          } else if (statusResult.status === 'failed' || statusResult.status === 'canceled') {
-            throw new Error(`Generation failed with status: ${statusResult.status}`);
-          }
-          
-          // Wait before next poll
-          await new Promise(resolve => setTimeout(resolve, pollInterval));
-          
-        } catch (pollError) {
-          console.error(`❌ MAYA GENERATE: Polling error:`, pollError);
-          throw new Error(`Generation polling failed: ${pollError instanceof Error ? pollError.message : 'Unknown error'}`);
+          await pollGenerationAndSaveResults(result.predictionId!, userId, finalPrompt, style);
+        } catch (error) {
+          console.error(`❌ MAYA GENERATE: Background polling failed for ${result.predictionId}:`, error);
         }
-      }
-      
-      if (finalImages.length === 0) {
-        throw new Error('Generation timed out after 2 minutes');
-      }
+      });
     }
 
-    // Save generation to database
+    // Save initial generation record (will be updated when images are ready)
     const imageData: InsertAiImage = {
       userId,
       prompt: finalPrompt,
-      imageUrl: finalImages[0] || '',
+      imageUrl: '', // Will be updated by background polling
       style: style || 'maya-styled',
       predictionId: result.predictionId
     };
     const generationId = await storage.saveAIImage(imageData);
 
+    // ✅ ASYNC RESPONSE: Return immediately with job info
     const responseData: SuccessResponse<{
       jobId: string;
       generationId: string;
       images: string[];
       prompt: string;
+      status: string;
     }> = {
       data: {
         jobId: result.predictionId || 'no-prediction-id',
         generationId: generationId.toString(),
-        images: finalImages,
-        prompt: finalPrompt
+        images: [], // Empty - will be populated by background polling
+        prompt: finalPrompt,
+        status: 'processing'
       },
-      message: 'Maya generation completed successfully'
+      message: 'Maya generation started successfully'
     };
 
     sendSuccess(res, responseData);
@@ -444,6 +473,33 @@ router.post('/api/maya-generate', requireStackAuth, asyncHandler(async (req: Aut
   } catch (error) {
     console.error('❌ MAYA: Generation failed:', error);
     throw createError.internal('Image generation failed');
+  }
+}));
+
+// Check generation status (for frontend polling)
+router.get('/api/maya-generation/:jobId', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  const userId = req.user.id;
+  const { jobId } = req.params;
+  
+  try {
+    // Check Replicate status
+    const replicateStatus = await ModelTrainingService.checkGenerationStatus(jobId);
+    
+    const responseData = {
+      data: {
+        jobId,
+        status: replicateStatus.status,
+        images: replicateStatus.imageUrls || [],
+        isComplete: replicateStatus.status === 'succeeded'
+      },
+      message: 'Generation status retrieved'
+    };
+    
+    sendSuccess(res, responseData);
+    
+  } catch (error) {
+    console.error('❌ MAYA: Status check failed:', error);
+    throw createError.internal('Failed to check generation status');
   }
 }));
 

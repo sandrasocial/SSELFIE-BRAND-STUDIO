@@ -74,27 +74,63 @@ router.post('/chat', requireStackAuth, async (req, res) => {
 
         const mayaResponse = response.content[0].type === 'text' ? response.content[0].text : '';
 
-        // Extract concept cards using improved regex patterns
+        // Extract concept cards using Maya's personality-trained format
         const conceptCards = [];
         try {
-            // Look for Maya's emoji-based concept card format first
-            const emojiConceptPattern = /(\p{Emoji})\s*\*\*([^*]+)\*\*\s*\n([^*]+?)\s*\n\s*FLUX_PROMPT:\s*\[([^\]]+)\]/gu;
-            let emojiMatch;
-            while ((emojiMatch = emojiConceptPattern.exec(mayaResponse)) !== null) {
-                const emoji = emojiMatch[1];
-                const title = emojiMatch[2].trim();
-                const description = emojiMatch[3].trim();
-                const fluxPrompt = emojiMatch[4].trim();
+            console.log('🔍 MAYA: Extracting concept cards from response:', mayaResponse.substring(0, 800));
+            
+            // Enhanced regex for Maya's personality format: [EMOJI] **CONCEPT NAME IN ALL CAPS**
+            const conceptSections = mayaResponse.split('---').filter(section => section.trim().length > 50);
+            
+            for (const section of conceptSections) {
+                // Maya's trained format: [EMOJI] **CONCEPT NAME** \n Description \n FLUX_PROMPT: [prompt]
+                const conceptPattern = /([^\w\s])\s*\*\*([^*]+)\*\*\s*[\r\n]+([^]+?)[\r\n]+\s*FLUX_PROMPT:\s*\[([^\]]+)\]/gm;
+                
+                let match;
+                while ((match = conceptPattern.exec(section)) !== null) {
+                    const emoji = match[1].trim();
+                    const title = match[2].trim();
+                    const description = match[3].trim().substring(0, 300); // Limit description
+                    const fluxPrompt = match[4].trim();
 
-                if (title && description && title.length > 3 && description.length > 10) {
-                    conceptCards.push({
-                        id: `concept_${Date.now()}_${conceptCards.length}`,
-                        title: title,
-                        description: description,
-                        fluxPrompt: fluxPrompt,
-                        creativeLook: 'Professional',
-                        emoji: emoji
-                    });
+                    if (title && description && fluxPrompt && title.length > 3 && description.length > 20) {
+                        console.log(`✅ MAYA: Extracted concept - ${title} with ${fluxPrompt.length} char prompt`);
+                        conceptCards.push({
+                            id: `concept_${Date.now()}_${conceptCards.length}`,
+                            title: title,
+                            description: description,
+                            fluxPrompt: fluxPrompt,
+                            creativeLook: 'Professional',
+                            emoji: emoji
+                        });
+                    }
+                }
+            }
+            
+            // Backup pattern for simpler format (if personality training isn't followed)
+            if (conceptCards.length === 0) {
+                console.log('🔄 MAYA: Trying backup extraction patterns...');
+                const backupPattern = /([^\w\s])\s*\*\*([^*]+)\*\*\s*[\r\n]+([^]+?)(?=\n\n|$)/gm;
+                
+                let backupMatch;
+                while ((backupMatch = backupPattern.exec(mayaResponse)) !== null && conceptCards.length < 4) {
+                    const emoji = backupMatch[1].trim();
+                    const title = backupMatch[2].trim();
+                    const description = backupMatch[3].trim().substring(0, 200);
+
+                    if (title && description && title.length > 3 && description.length > 20) {
+                        // Generate a basic FLUX prompt if not provided
+                        const basicFluxPrompt = `Professional portrait of sandra, ${title.toLowerCase()}, ${description.substring(0, 100)}, high-quality photography, perfect lighting, elegant composition`;
+                        
+                        conceptCards.push({
+                            id: `concept_${Date.now()}_${conceptCards.length}`,
+                            title: title,
+                            description: description,
+                            fluxPrompt: basicFluxPrompt,
+                            creativeLook: 'Professional',
+                            emoji: emoji
+                        });
+                    }
                 }
             }
 
