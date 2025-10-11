@@ -331,7 +331,7 @@ export class TrainingStatusMonitor {
         progress: (userModel as any).trainingProgress || 0,
         stage: (userModel as any).trainingStage || 'Training in progress',
         error: (userModel as any).trainingError,
-        startedAt: new Date(userModel.createdAt),
+        startedAt: userModel.createdAt ? new Date(userModel.createdAt) : new Date(),
         completedAt: userModel.completedAt ? new Date(userModel.completedAt) : undefined
       };
 

@@ -86,7 +86,7 @@ export class MayaProfileService {
    */
   async getUserModel(userId: string): Promise<UserModel | null> {
     try {
-      return await this.db.getUserModelByUserId(userId);
+      return await this.db.getUserModelByUserId(userId) || null;
     } catch (error) {
       console.error('❌ MAYA PROFILE: Failed to get user model:', error);
       return null;
@@ -117,8 +117,8 @@ export class MayaProfileService {
       }
 
       await this.db.updateMayaProfile(userId, {
-        totalGenerations: profile.totalGenerations + increment,
-        monthlyGenerations: profile.monthlyGenerations + increment
+        totalGenerations: (profile.totalGenerations || 0) + increment,
+        monthlyGenerations: (profile.monthlyGenerations || 0) + increment
       });
       
       console.log(`📊 MAYA PROFILE: Updated generation stats for user ${userId}`);
@@ -151,7 +151,7 @@ export class MayaProfileService {
   async hasFeatureAccess(userId: string, feature: 'mayaChat' | 'imageGeneration' | 'modelTraining'): Promise<boolean> {
     try {
       const profile = await this.db.getMayaProfile(userId);
-      return profile?.featureAccess?.[feature] ?? false;
+      return (profile?.featureAccess as any)?.[feature] ?? false;
     } catch (error) {
       console.error('❌ MAYA PROFILE: Failed to check feature access:', error);
       return false;

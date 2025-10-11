@@ -413,7 +413,12 @@ export class ApiRetryService {
    */
   async getHealthStatus(): Promise<{
     status: 'healthy' | 'degraded' | 'unhealthy';
-    stats: ReturnType<typeof this.getStats>;
+    stats: {
+      cacheSize: number;
+      cacheHitRate: number;
+      circuitBreakers: Array<{id: string; state: string; failures: number}>;
+      pendingRequests: number;
+    };
     openCircuitBreakers: number;
   }> {
     const stats = this.getStats();

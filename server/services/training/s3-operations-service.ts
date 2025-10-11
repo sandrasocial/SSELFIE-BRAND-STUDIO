@@ -176,7 +176,7 @@ export class S3OperationsService {
         resolve();
       });
 
-      archive.on('error', (err) => {
+      archive.on('error', (err: Error) => {
         console.error('❌ S3 OPERATIONS: ZIP creation error:', err);
         reject(err);
       });
