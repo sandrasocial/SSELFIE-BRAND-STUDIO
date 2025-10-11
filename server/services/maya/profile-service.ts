@@ -7,7 +7,7 @@ import { getDatabase, type IStorage } from '../../../shared/database-provider.js
 import { 
   MayaProfile,
   InsertMayaProfile
-} from '../../../shared/schema-maya.js';
+} from '../../../shared/schema.js';
 import { UserModel } from '../../../shared/schema.js';
 
 export class MayaProfileService {

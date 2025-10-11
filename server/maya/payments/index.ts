@@ -3,7 +3,7 @@ import { VercelRequest, VercelResponse } from '@vercel/node';
 import { z } from 'zod';
 import { drizzle } from 'drizzle-orm/neon-http';
 import { neon } from '@neondatabase/serverless';
-import { mayaPayments } from '../../../shared/schema-maya';
+import { mayaPayments } from '../../../shared/schema';
 import { eq, and, desc } from 'drizzle-orm';
 import Stripe from 'stripe';
 

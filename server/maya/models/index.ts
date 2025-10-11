@@ -1,49 +1,36 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-// Note: Using simplified auth for Maya models service
 import { z } from 'zod';
 import { drizzle } from 'drizzle-orm/neon-http';
 import { neon } from '@neondatabase/serverless';
-import { mayaModels, insertMayaModelsSchema } from '../../../shared/schema-maya';
+import { mayaModels, insertMayaModelsSchema } from '../../../shared/schema';
 import { eq, and } from 'drizzle-orm';
 
 // Initialize database connection
 const sql = neon(process.env.DATABASE_URL!);
 const db = drizzle(sql);
 
-// Request validation schemas
-const createModelSchema = insertMayaModelsSchema.extend({
-  trainingImages: z.array(z.string()).min(5, 'At least 5 training images required'),
-});
-
+// Request validation schemas - simplified to work with userModels
 const updateModelSchema = z.object({
   trainingStatus: z.enum(['pending', 'training', 'completed', 'failed']).optional(),
-  trainingProgress: z.number().min(0).max(100).optional(),
-  qualityScore: z.number().min(1).max(100).optional(),
-  metadata: z.record(z.any()).optional(),
 });
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
-    // Authentication - simplified for Maya models service
-    const authHeader = req.headers.authorization;
-    if (!authHeader) {
-      return res.status(401).json({ error: 'Unauthorized' });
+    // Stack Auth authentication - get real user ID
+    const userId = (req as any).user?.claims?.sub;
+    if (!userId) {
+      return res.status(401).json({ error: 'Authentication required' });
     }
-
-    // For now, use a placeholder user ID (this should be properly authenticated in production)
-    const userId = 'demo-user';
 
     switch (req.method) {
       case 'GET':
         return await handleGetModels(req, res, userId);
-      case 'POST':
-        return await handleCreateModel(req, res, userId);
       case 'PUT':
         return await handleUpdateModel(req, res, userId);
       case 'DELETE':
         return await handleDeleteModel(req, res, userId);
       default:
-        res.setHeader('Allow', ['GET', 'POST', 'PUT', 'DELETE']);
+        res.setHeader('Allow', ['GET', 'PUT', 'DELETE']);
         return res.status(405).json({ error: 'Method not allowed' });
     }
   } catch (error) {
@@ -54,14 +41,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
 async function handleGetModels(req: VercelRequest, res: VercelResponse, userId: string) {
   try {
-    const { modelType, status } = req.query;
+    const { status } = req.query;
     
-    // Build where conditions
+    // Build where conditions for userModels
     const whereConditions = [eq(mayaModels.userId, userId)];
-    
-    if (modelType) {
-      whereConditions.push(eq(mayaModels.modelType, modelType as string));
-    }
     
     if (status) {
       whereConditions.push(eq(mayaModels.trainingStatus, status as string));
@@ -69,56 +52,30 @@ async function handleGetModels(req: VercelRequest, res: VercelResponse, userId: 
     
     const models = await db.select().from(mayaModels).where(and(...whereConditions));
     
+    // Transform userModels to Maya-compatible format
+    const mayaCompatibleModels = models.map(model => ({
+      id: model.id,
+      userId: model.userId,
+      modelType: 'lora', // All user models are LoRA models
+      trainingStatus: model.trainingStatus || 'unknown',
+      replicateVersionId: model.replicateVersionId,
+      createdAt: model.createdAt,
+      updatedAt: model.updatedAt,
+      metadata: {
+        replicateModelId: model.replicateModelId,
+        replicateVersionId: model.replicateVersionId,
+        generationCount: 0 // Could be calculated if needed
+      }
+    }));
+    
     return res.status(200).json({
       success: true,
-      data: models,
-      count: models.length
+      data: mayaCompatibleModels,
+      count: mayaCompatibleModels.length
     });
   } catch (error) {
     console.error('Error fetching models:', error);
     return res.status(500).json({ error: 'Failed to fetch models' });
-  }
-}
-
-async function handleCreateModel(req: VercelRequest, res: VercelResponse, userId: string) {
-  try {
-    const validatedData = createModelSchema.parse({
-      ...req.body,
-      userId
-    });
-    
-    // Start model training process
-    const modelData = {
-      userId,
-      modelType: validatedData.modelType,
-      trainingStatus: 'pending' as const,
-      trainingProgress: 0,
-      metadata: {
-        trainingImages: validatedData.trainingImages,
-        modelParameters: (validatedData.metadata as any)?.modelParameters || {},
-        trainingLogs: [],
-      }
-    };
-    
-    const [newModel] = await db.insert(mayaModels).values(modelData).returning();
-    
-    // TODO: Trigger actual model training job here
-    // await triggerModelTraining(newModel.id, validatedData.trainingImages);
-    
-    return res.status(201).json({
-      success: true,
-      data: newModel,
-      message: 'Model training started'
-    });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ 
-        error: 'Validation error',
-        details: error.errors 
-      });
-    }
-    console.error('Error creating model:', error);
-    return res.status(500).json({ error: 'Failed to create model' });
   }
 }
 
@@ -131,9 +88,17 @@ async function handleUpdateModel(req: VercelRequest, res: VercelResponse, userId
     
     const validatedData = updateModelSchema.parse(req.body);
     
+    const updateData: any = {
+      updatedAt: new Date()
+    };
+    
+    if (validatedData.trainingStatus) {
+      updateData.trainingStatus = validatedData.trainingStatus;
+    }
+
     const [updatedModel] = await db
       .update(mayaModels)
-      .set(validatedData)
+      .set(updateData)
       .where(and(
         eq(mayaModels.id, parseInt(modelId as string)),
         eq(mayaModels.userId, userId)
@@ -146,7 +111,15 @@ async function handleUpdateModel(req: VercelRequest, res: VercelResponse, userId
     
     return res.status(200).json({
       success: true,
-      data: updatedModel
+      data: {
+        id: updatedModel.id,
+        userId: updatedModel.userId,
+        modelType: 'lora',
+        trainingStatus: updatedModel.trainingStatus,
+        replicateVersionId: updatedModel.replicateVersionId,
+        createdAt: updatedModel.createdAt,
+        updatedAt: updatedModel.updatedAt
+      }
     });
   } catch (error) {
     if (error instanceof z.ZodError) {

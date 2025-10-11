@@ -3,7 +3,7 @@ import { stackServerApp } from '../../../stack/server.js';
 import { z } from 'zod';
 import { drizzle } from 'drizzle-orm/neon-http';
 import { neon } from '@neondatabase/serverless';
-import { mayaProfile, insertMayaProfileSchema, userPreferencesSchema } from '../../../shared/schema-maya';
+import { mayaProfile, insertMayaProfileSchema, userPreferencesSchema } from '../../../shared/schema';
 import { eq } from 'drizzle-orm';
 
 // Initialize database connection

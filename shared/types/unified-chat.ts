@@ -8,7 +8,7 @@ import type {
 import type {
   MayaChat as DbMayaChat,
   MayaChatMessage as DbMayaChatMessage,
-} from '../schema-maya';
+} from '../schema';
 
 // Base chat message interface
 export interface BaseChatMessage {

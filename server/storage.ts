@@ -83,32 +83,28 @@ import {
   // Brand Assets types
   brandAssets,
   imageVariants,
+  mayaChats,
+  mayaChatMessages,
+  mayaProfile,
+  mayaImages,
+  mayaConcepts,
   type BrandAsset,
   // type InsertBrandAsset,
   type ImageVariant,
   // type InsertImageVariant,
-} from "../shared/schema.js";
-
-// Maya-specific imports from consolidated schema
-import {
-  mayaChats,
-  mayaChatMessages,
   type MayaChat,
   type InsertMayaChat,
   type MayaChatMessage,
   type InsertMayaChatMessage,
-} from "../shared/schema-maya";
-import {
-  mayaProfile,
-  mayaImages,
-  mayaConcepts,
   type MayaProfile,
   type InsertMayaProfile,
   type MayaImage,
   type InsertMayaImage,
   type MayaConcept,
-  type InsertMayaConcept
-} from "../shared/schema-maya.js";
+  type InsertMayaConcept,
+} from "../shared/schema.js";
+
+// Maya imports now available from main schema (emergency deployment fix)
 import { db } from "./drizzle.js";
 /// <reference path="types/global.d.ts" />
 import { eq, and, or, desc, asc, gte, lte, sql } from "drizzle-orm";
