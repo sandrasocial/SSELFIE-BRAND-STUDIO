@@ -868,7 +868,14 @@ export class MayaService {
 
       if (tracker.status === 'completed') {
         const imageUrls = tracker.imageUrls ? JSON.parse(tracker.imageUrls) : [];
-        console.log(`✅ MAYA STATUS: Returning ${imageUrls.length} completed images`);
+        console.log(`✅ MAYA STATUS: Returning ${imageUrls.length} completed images:`, imageUrls.map((url: string) => url.substring(0, 50) + '...'));
+        console.log(`✅ MAYA STATUS: Full tracker data:`, {
+          id: tracker.id,
+          status: tracker.status,
+          imageUrls: tracker.imageUrls,
+          prompt: tracker.prompt?.substring(0, 100) + '...',
+          updatedAt: tracker.updatedAt
+        });
         return {
           generationId,
           status: 'completed',

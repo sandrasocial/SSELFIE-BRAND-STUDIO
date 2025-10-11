@@ -1678,6 +1678,8 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
         const latestChat = mayaChats[0];
         const messages = await storage.getMayaChatMessages(latestChat.id.toString(), user.id as string);
         
+        console.log(`📋 MAYA HISTORY: Retrieved ${messages.length} messages from chat ${latestChat.id} for user ${user.id}`);
+        
         // Transform messages to expected format with image support
         const formattedMessages = messages.map(msg => {
           const baseMessage = {
@@ -1694,11 +1696,13 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
               const imageUrls = JSON.parse(msg.imagePreview);
               if (Array.isArray(imageUrls) && imageUrls.length > 0) {
                 (baseMessage as any).generatedImages = imageUrls;
-                console.log(`✅ MAYA HISTORY: Converted ${imageUrls.length} preview images to generatedImages`);
+                console.log(`✅ MAYA HISTORY: Message ${msg.id} - Converted ${imageUrls.length} preview images to generatedImages:`, imageUrls.map((url: string) => url.substring(0, 50) + '...'));
               }
             } catch (parseError) {
               console.warn('⚠️ MAYA HISTORY: Failed to parse imagePreview:', parseError);
             }
+          } else {
+            console.log(`📝 MAYA HISTORY: Message ${msg.id} - No imagePreview field`);
           }
 
           return baseMessage;
