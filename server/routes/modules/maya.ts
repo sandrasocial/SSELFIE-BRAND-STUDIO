@@ -1,8 +1,21 @@
 /**
- * Maya Routes - Real Implementation
- * Handles Maya AI chat, personality system, and image generation
+ * Maya Routes - DISABLED TO PREVENT ROUTING CONFLICTS
+ * 
+ * ⚠️ CRITICAL: This router module has been disabled to eliminate conflicts with server/index.ts
+ * 
+ * All Maya routes are now handled exclusively by server/index.ts:
+ * - /api/maya/chat
+ * - /api/maya-chat  
+ * - /api/maya/generate
+ * - /api/maya/status
+ * 
+ * This ensures single, consistent routing path for Maya functionality.
+ * 
+ * Original implementation moved to comments below to preserve code.
  */
 
+// DISABLED IMPORTS - Commented out to prevent route registration
+/*
 import { Router, Response } from 'express';
 import { requireStackAuth } from '../../stack-auth.js';
 import { asyncHandler, createError, sendSuccess, validateRequired } from '../middleware/error-handler.js';
@@ -14,6 +27,7 @@ import { AuthenticatedRequest } from '../../../shared/types/ai-generation.js';
 import { SuccessResponse } from '../../../shared/types/ai-generation.js';
 import { InsertAiImage } from '../../../shared/types-override.js';
 import { unifiedMayaIntelligenceService } from '../../services/unified-maya-intelligence-service.js';
+*/
 
 interface MayaChat {
   id: number;
@@ -76,6 +90,8 @@ interface ClaudeHistoryEntry {
   content: string;
 }
 
+// DISABLED: Router implementation commented out to prevent conflicts with server/index.ts
+/*
 const router = Router();
 
 // Initialize Claude AI service
@@ -714,5 +730,9 @@ router.post('/api/maya/heart-image', requireStackAuth, asyncHandler(async (req: 
     throw createError.internal('Failed to save image to gallery');
   }
 }));
+*/
 
+// DISABLED: Export empty router to prevent conflicts
+import { Router } from 'express';
+const router = Router();
 export default router;

@@ -1,7 +1,25 @@
 /**
- * Maya Conversation Service
- * Handles chat processing and conversation management for Maya AI
+ * ⚠️  DEPRECATED SERVICE - CONSOLIDATED INTO MAYA-SERVICE.TS ⚠️
+ * 
+ * This service has been DEPRECATED as part of Phase 2: Service Unification.
+ * All conversation management logic has been consolidated into server/services/maya-service.ts
+ * 
+ * REASON FOR DEPRECATION:
+ * - Multiple fragmented services caused routing conflicts and inconsistent behavior
+ * - Duplicate conversation handling created confusion in data flows
+ * - Single unified service provides consistent chat processing
+ * 
+ * All functionality from this service has been integrated into:
+ * - server/services/maya-service.ts (processChat and processAndSaveChat methods)
+ * 
+ * @deprecated DO NOT USE - Use server/services/maya-service.ts instead
+ * @since Service Unification Phase 2
  */
+
+/*
+// Legacy Maya Conversation Service - DEPRECATED
+// Handles chat processing and conversation management for Maya AI
+*/
 
 import { getDatabase, type IStorage } from '../../../shared/database-provider.js';
 import Anthropic from '@anthropic-ai/sdk';

@@ -1,7 +1,25 @@
 /**
- * Maya Concept Card Service
- * Handles concept card extraction and management for Maya AI
+ * ⚠️  DEPRECATED SERVICE - CONSOLIDATED INTO MAYA-SERVICE.TS ⚠️
+ * 
+ * This service has been DEPRECATED as part of Phase 2: Service Unification.
+ * All concept card extraction logic has been consolidated into server/services/maya-service.ts
+ * 
+ * REASON FOR DEPRECATION:
+ * - Multiple fragmented services caused inconsistent concept card extraction
+ * - Conflicting extraction patterns led to UI rendering issues
+ * - Single unified service provides robust, consistent extraction
+ * 
+ * All enhanced patterns from this service have been integrated into:
+ * - server/services/maya-service.ts (extractConceptCards method)
+ * 
+ * @deprecated DO NOT USE - Use server/services/maya-service.ts instead
+ * @since Service Unification Phase 2
  */
+
+/*
+// Legacy Maya Concept Card Service - DEPRECATED
+// Handles concept card extraction and management for Maya AI
+*/
 
 import { getDatabase, type IStorage } from '../../../shared/database-provider.js';
 

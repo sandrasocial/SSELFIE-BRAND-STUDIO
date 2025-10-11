@@ -19,6 +19,7 @@ import {
   InsertMayaConcept
 } from '../../shared/schema-maya.js';
 import { InsertMessage } from '../../shared/schema.js';
+import { ConceptCard } from '../../shared/types/concept-card.js';
 import Anthropic from '@anthropic-ai/sdk';
 import { PersonalityManager } from '../agents/personalities/personality-config.js';
 
@@ -40,14 +41,7 @@ export interface MayaGenerationRequest {
 
 export interface MayaChatResponse {
   response: string;
-  conceptCards: Array<{
-    id: string;
-    title: string;
-    description: string;
-    fluxPrompt: string;
-    creativeLook: string;
-    emoji: string;
-  }>;
+  conceptCards: ConceptCard[];
   conversationId: string;
 }
 
@@ -296,7 +290,7 @@ export class MayaService {
       // Save concept cards to Maya concepts database
       for (const concept of conceptCards) {
         // Clean emoji to prevent JSON encoding issues
-        const cleanEmoji = this.cleanEmojiForDatabase(concept.emoji);
+        const cleanEmoji = this.cleanEmojiForDatabase(concept.emoji || '📸');
         
         const mayaConcept = {
           userId: user.id,
@@ -346,14 +340,7 @@ export class MayaService {
     mayaResponseContent: string;
   }): Promise<{
     conversationId: string;
-    conceptCards: Array<{
-      id: string;
-      title: string;
-      description: string;
-      fluxPrompt: string;
-      creativeLook: string;
-      emoji: string;
-    }>;
+    conceptCards: ConceptCard[];
   }> {
     try {
       // Get user data first to get database user ID
@@ -424,12 +411,12 @@ export class MayaService {
         role: 'assistant',
         content: request.mayaResponseContent,
         conceptCards: conceptCards.map(card => ({
-          title: card.title,
-          description: card.description,
-          prompt: card.fluxPrompt,
+          title: card.title || 'Untitled Concept',
+          description: card.description || '',
+          prompt: card.fluxPrompt || '',
           type: 'professional',
-          metadata: { emoji: card.emoji },
-          tags: [card.creativeLook],
+          metadata: { emoji: card.emoji || '📸' },
+          tags: [card.creativeLook || 'Professional'],
           status: 'active',
           isTemplate: false
         }))
@@ -448,7 +435,7 @@ export class MayaService {
           });
 
           // Clean emoji to prevent JSON encoding issues
-          const cleanEmoji = this.cleanEmojiForDatabase(conceptCard.emoji);
+          const cleanEmoji = this.cleanEmojiForDatabase(conceptCard.emoji || '📸');
           
           const conceptData = {
             userId: user.id,
@@ -574,10 +561,10 @@ export class MayaService {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          version: "flux-dev", // or flux-pro for premium
+          version: "5599ed30703defd1d160a25a63321b4dec97101d98b4674bcc56e41f62f35637", // FLUX-dev model
           input: {
             prompt: fluxPrompt,
-            num_outputs: 4,
+            num_outputs: 2,
             aspect_ratio: "1:1",
             output_format: "webp",
             output_quality: 80,
@@ -598,8 +585,19 @@ export class MayaService {
         status: 'processing',
       });
 
-      // Store generation result when complete
-      this.monitorGenerationCompletion(userId, predictionData.id, tracker, request.conceptCard);
+      // Use GenerationCompletionMonitor for proper chat preview integration
+      console.log(`✅ MAYA: Started generation ${predictionData.id}, triggering completion monitor`);
+
+      // Trigger the completion monitor to check this specific generation
+      try {
+        const { GenerationCompletionMonitor } = await import('../generation-completion-monitor.js');
+        // Start monitoring this specific generation (non-blocking)
+        setTimeout(async () => {
+          await GenerationCompletionMonitor.checkAndUpdateGeneration(predictionData.id, tracker.id);
+        }, 10000); // Check after 10 seconds
+      } catch (error) {
+        console.error('❌ MAYA: Failed to trigger completion monitor:', error);
+      }
 
     } catch (error) {
       console.error('❌ MAYA: FLUX generation start failed:', error);
@@ -612,91 +610,14 @@ export class MayaService {
   }
 
   /**
-   * Monitor generation completion
+   * REMOVED: Old monitoring method replaced by GenerationCompletionMonitor
+   * The GenerationCompletionMonitor service automatically:
+   * 1. Polls Replicate API for completion
+   * 2. Updates generation tracker status
+   * 3. Saves images to Maya chat previews (not gallery)
+   * 4. Migrates URLs to permanent S3 storage
+   * This ensures proper concept card → generation → preview → gallery flow
    */
-  private async monitorGenerationCompletion(
-    userId: string,
-    predictionId: string,
-    tracker: GenerationTracker,
-    conceptCard: MayaGenerationRequest['conceptCard']
-  ): Promise<void> {
-    try {
-      // Poll for completion (simplified - in production use webhooks)
-      const maxAttempts = 60; // 5 minutes max
-      let attempts = 0;
-
-      while (attempts < maxAttempts) {
-        const statusResponse = await fetch(`https://api.replicate.com/v1/predictions/${predictionId}`, {
-          headers: {
-            'Authorization': `Token ${process.env['REPLICATE_API_TOKEN']}`,
-          }
-        });
-
-        if (!statusResponse.ok) {
-          throw new Error(`Status check failed: ${statusResponse.status}`);
-        }
-
-        const statusData = await statusResponse.json();
-
-        if (statusData.status === 'succeeded') {
-          // Generation completed successfully
-          const imageUrls = statusData.output || [];
-
-          // Update tracker
-          await this.db.updateGenerationTracker(tracker.id, {
-            status: 'completed',
-            imageUrls: JSON.stringify(imageUrls),
-            updatedAt: new Date(),
-          });
-
-          // Save images to database
-          for (let i = 0; i < imageUrls.length; i++) {
-            const imageData: InsertMayaImage = {
-              userId,
-              url: imageUrls[i],
-              category: 'concept',
-              subcategory: conceptCard.title.toLowerCase(),
-              metadata: {
-                conceptId: conceptCard.id,
-                generationId: tracker.predictionId || `gen_${tracker.id}`,
-                prompt: conceptCard.fluxPrompt,
-                modelUsed: 'flux-dev',
-              },
-              viewCount: 0,
-              shareCount: 0,
-              downloadCount: 0,
-            };
-            await this.db.insertMayaImage(imageData);
-          }
-
-          return;
-        } else if (statusData.status === 'failed') {
-          // Generation failed
-          await this.db.updateGenerationTracker(tracker.id, {
-            status: 'failed',
-          });
-          console.error('❌ MAYA: Generation failed for', tracker.id);
-          return;
-        }
-
-        // Wait before next check
-        await new Promise(resolve => setTimeout(resolve, 5000)); // 5 seconds
-        attempts++;
-      }
-
-      // Timeout
-      await this.db.updateGenerationTracker(tracker.id, {
-        status: 'failed',
-      });
-      console.error('❌ MAYA: Generation timeout for', tracker.id);
-
-    } catch (error) {
-      console.error('❌ MAYA: Generation monitoring failed:', error);
-      await this.db.updateGenerationTracker(tracker.id, {
-        status: 'failed',
-      });
-    }
-  }
 
   /**
    * Get generation status
@@ -743,39 +664,40 @@ export class MayaService {
    * Extract concept cards from Maya response with multiple robust patterns
    * Handles various formatting variations in Maya's personality responses
    */
-  private extractConceptCards(response: string): Array<{
-    id: string;
-    title: string;
-    description: string;
-    fluxPrompt: string;
-    creativeLook: string;
-    emoji: string;
-  }> {
+  /**
+   * UNIFIED CONCEPT CARD EXTRACTION - Single Source of Truth
+   * Consolidates best patterns from all Maya services for robust extraction
+   * Returns standardized ConceptCard objects matching shared/types/concept-card.ts
+   */
+  private extractConceptCards(response: string): ConceptCard[] {
     const conceptCards = [];
 
     try {
       console.log('🔍 MAYA SERVICE: Extracting concept cards from response:', response.substring(0, 500));
       
-      // Use same robust extraction as main index.ts
+      // Use same robust extraction as main index.ts with enhancements
       const conceptSections = response.split(/---+/).filter(section => section.trim().length > 50);
       console.log(`🔍 MAYA SERVICE: Found ${conceptSections.length} concept sections`);
       
       for (let i = 0; i < conceptSections.length && conceptCards.length < 5; i++) {
         const section = conceptSections[i].trim();
         
-        // Multiple extraction patterns for robustness
+        // Enhanced extraction patterns for maximum robustness
         const patterns = [
           // Pattern 1: Full Maya format [EMOJI] **CONCEPT** \n Description \n FLUX_PROMPT: [prompt]
           /([^\w\s])\s*\*\*([^*]+)\*\*\s*[\r\n]+([^*]+?)[\r\n]+\s*FLUX_PROMPT:\s*\[([^\]]+)\]/g,
           
           // Pattern 2: Simplified emoji format
-          /([📸🎯✨💼🌟💫🏆🎬🏔️🎿☕])\s*\*\*([^*]+)\*\*\s*([\s\S]*?)\s*FLUX_PROMPT:\s*\[([\s\S]*?)\]/g,
+          /([📸🎯✨💼🌟💫🏆🎬🏔️🎿☕🤍🖤🌊🎭💎])\s*\*\*([^*]+)\*\*\s*([\s\S]*?)\s*FLUX_PROMPT:\s*\[([\s\S]*?)\]/g,
           
           // Pattern 3: Any emoji + title format
           /([^\w\s\[\]])\s*\*\*([^*]+)\*\*\s*([\s\S]*?)\s*FLUX_PROMPT:\s*\[([\s\S]*?)\]/g,
           
           // Pattern 4: Just title + FLUX_PROMPT
-          /\*\*([^*]+)\*\*\s*([\s\S]*?)\s*FLUX_PROMPT:\s*\[([\s\S]*?)\]/g
+          /\*\*([^*]+)\*\*\s*([\s\S]*?)\s*FLUX_PROMPT:\s*\[([\s\S]*?)\]/g,
+          
+          // Pattern 5: Numbered lists with description
+          /(\d+\.\s*)([^\n\r]+)[\r\n]+([\s\S]*?)\s*FLUX_PROMPT:\s*\[([\s\S]*?)\]/g
         ];
         
         let sectionMatched = false;
@@ -787,16 +709,26 @@ export class MayaService {
             
             if (match.length >= 4) {
               if (match.length === 5) {
-                // Full format with emoji
-                emoji = match[1] || '📸';
-                title = match[2]?.trim();
-                description = match[3]?.trim();
-                fluxPrompt = match[4]?.trim();
+                // Full format with emoji or numbered
+                if (match[1].match(/\d+\.\s*/)) {
+                  // Numbered format
+                  title = match[2]?.trim();
+                  description = match[3]?.trim();
+                  fluxPrompt = match[4]?.trim();
+                  emoji = this.selectEmojiFromContent(title, description);
+                } else {
+                  // Emoji format
+                  emoji = match[1] || '📸';
+                  title = match[2]?.trim();
+                  description = match[3]?.trim();
+                  fluxPrompt = match[4]?.trim();
+                }
               } else {
                 // Without emoji
                 title = match[1]?.trim();
                 description = match[2]?.trim();
                 fluxPrompt = match[3]?.trim();
+                emoji = this.selectEmojiFromContent(title, description);
               }
               
               // Clean up text
@@ -805,14 +737,22 @@ export class MayaService {
               
               if (title && title.length > 3 && (description.length > 10 || fluxPrompt.length > 10)) {
                 console.log(`✅ MAYA SERVICE: Extracted concept - ${emoji} ${title}`);
-                conceptCards.push({
+                
+                const creativeLook = this.determineCreativeLook(title, description);
+                const conceptCard = {
                   id: `concept_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
                   title: title,
                   description: description || `Professional ${title.toLowerCase()} concept`,
-                  fluxPrompt: fluxPrompt || `Professional photo of sandra, ${title.toLowerCase()}, high quality photography`,
-                  creativeLook: 'Professional',
-                  emoji: emoji
-                });
+                  fluxPrompt: fluxPrompt || this.generateEnhancedFluxPrompt(title, description, creativeLook),
+                  creativeLook: creativeLook,
+                  emoji: emoji,
+                  category: this.categorizeCard(title, description),
+                  tags: this.extractTags(title + ' ' + description),
+                  type: this.determineConceptType(title, description),
+                  createdAt: new Date().toISOString()
+                };
+                
+                conceptCards.push(conceptCard);
                 sectionMatched = true;
               }
             }
@@ -822,25 +762,36 @@ export class MayaService {
         }
       }
 
-      // Fallback: Intelligent text analysis for concept keywords
+      // Enhanced fallback: Intelligent text analysis for concept keywords
       if (conceptCards.length === 0) {
-        console.log('🔄 MAYA SERVICE: No structured concepts found, analyzing text...');
+        console.log('🔄 MAYA SERVICE: No structured concepts found, analyzing text with enhanced intelligence...');
         
-        const conceptKeywords = ['professional', 'business', 'creative', 'lifestyle', 'portrait', 'headshot', 'flatlay', 'editorial'];
+        const conceptKeywords = [
+          'professional', 'business', 'creative', 'lifestyle', 'portrait', 'headshot', 
+          'flatlay', 'editorial', 'luxury', 'elegant', 'sophisticated', 'modern',
+          'classic', 'timeless', 'scandinavian', 'urban', 'coastal', 'avant-garde'
+        ];
+        
         const lines = response.split('\n').filter(line => line.trim().length > 20);
         
         for (const line of lines.slice(0, 10)) {
           for (const keyword of conceptKeywords) {
             if (line.toLowerCase().includes(keyword) && conceptCards.length < 3) {
               const title = `${keyword.charAt(0).toUpperCase() + keyword.slice(1)} Concept`;
+              const creativeLook = this.determineCreativeLook(title, line);
+              
               console.log(`✅ MAYA SERVICE: Generated concept from keyword - ${title}`);
               conceptCards.push({
                 id: `concept_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
                 title: title,
                 description: line.trim().substring(0, 200),
-                fluxPrompt: `Professional photo of sandra, ${keyword} style, high quality photography`,
-                creativeLook: 'Professional',
-                emoji: '📸'
+                fluxPrompt: this.generateEnhancedFluxPrompt(title, line, creativeLook),
+                creativeLook: creativeLook,
+                emoji: this.selectEmojiFromContent(title, line),
+                category: this.categorizeCard(title, line),
+                tags: this.extractTags(title + ' ' + line),
+                type: this.determineConceptType(title, line),
+                createdAt: new Date().toISOString()
               });
               break;
             }
@@ -855,6 +806,166 @@ export class MayaService {
     }
 
     return conceptCards.slice(0, 5); // Allow up to 5 concepts as per Maya personality config
+  }
+
+  /**
+   * Enhanced emoji selection based on content analysis
+   * Consolidated from MayaConceptCardService with additional patterns
+   */
+  private selectEmojiFromContent(title: string, description: string): string {
+    const content = (title + ' ' + description).toLowerCase();
+    
+    // Content-based emoji selection (enhanced)
+    if (content.includes('strategy') || content.includes('plan')) return '🎯';
+    if (content.includes('brand') || content.includes('identity')) return '✨';
+    if (content.includes('social') || content.includes('media')) return '📱';
+    if (content.includes('network') || content.includes('connection')) return '🤝';
+    if (content.includes('creative') || content.includes('design')) return '🎨';
+    if (content.includes('leadership') || content.includes('executive')) return '👑';
+    if (content.includes('innovation') || content.includes('tech')) return '💡';
+    if (content.includes('growth') || content.includes('success')) return '📈';
+    
+    // Style-based patterns from UnifiedMayaIntelligenceService
+    if (content.includes('scandinavian') || content.includes('minimalist') || content.includes('nordic')) return '🤍';
+    if (content.includes('urban') || content.includes('moody') || content.includes('dramatic')) return '🖤';
+    if (content.includes('coastal') || content.includes('ocean') || content.includes('seaside')) return '🌊';
+    if (content.includes('editorial') || content.includes('avant-garde') || content.includes('artistic')) return '🎭';
+    if (content.includes('classic') || content.includes('timeless') || content.includes('elegant')) return '💎';
+    if (content.includes('luxury') || content.includes('high-end') || content.includes('sophisticated')) return '💫';
+    
+    return '📸'; // Default professional photography emoji
+  }
+
+  /**
+   * Determine creative look classification
+   * Enhanced from MayaConceptCardService with UnifiedMayaIntelligenceService patterns
+   */
+  private determineCreativeLook(title: string, description: string): string {
+    const content = (title + ' ' + description).toLowerCase();
+    
+    // Maya's sophisticated Creative Look system
+    if (content.includes('scandinavian') || content.includes('minimalist') || content.includes('nordic') || content.includes('clean')) {
+      return 'Scandinavian Minimalist';
+    } else if (content.includes('urban') || content.includes('moody') || content.includes('dramatic') || content.includes('edge')) {
+      return 'Urban Moody';
+    } else if (content.includes('coastal') || content.includes('ocean') || content.includes('seaside') || content.includes('flowing')) {
+      return 'High-End Coastal';
+    } else if (content.includes('editorial') || content.includes('avant-garde') || content.includes('artistic') || content.includes('bold')) {
+      return 'Editorial Avant-Garde';
+    } else if (content.includes('classic') || content.includes('timeless') || content.includes('traditional') || content.includes('heritage')) {
+      return 'Classic Timeless';
+    } else if (content.includes('luxury') || content.includes('elegant') || content.includes('sophisticated') || content.includes('refined')) {
+      return 'Luxury Refined';
+    } else if (content.includes('creative') || content.includes('artistic') || content.includes('innovative') || content.includes('unique')) {
+      return 'Creative Artistic';
+    } else if (content.includes('business') || content.includes('corporate') || content.includes('professional') || content.includes('executive')) {
+      return 'Professional Corporate';
+    } else if (content.includes('modern') || content.includes('contemporary') || content.includes('tech') || content.includes('innovative')) {
+      return 'Modern Contemporary';
+    }
+    
+    return 'Professional'; // Default
+  }
+
+  /**
+   * Categorize concept cards for better organization
+   * Enhanced from MayaConceptCardService
+   */
+  private categorizeCard(title: string, description: string): string {
+    const content = (title + ' ' + description).toLowerCase();
+    
+    if (content.includes('brand') || content.includes('identity')) return 'branding';
+    if (content.includes('social') || content.includes('media')) return 'social-media';
+    if (content.includes('leadership') || content.includes('executive')) return 'leadership';
+    if (content.includes('strategy') || content.includes('plan')) return 'strategy';
+    if (content.includes('network') || content.includes('relationship')) return 'networking';
+    if (content.includes('creative') || content.includes('design') || content.includes('artistic')) return 'creative';
+    if (content.includes('professional') || content.includes('career') || content.includes('business')) return 'professional';
+    if (content.includes('lifestyle') || content.includes('personal')) return 'lifestyle';
+    if (content.includes('editorial') || content.includes('fashion')) return 'editorial';
+    
+    return 'general';
+  }
+
+  /**
+   * Extract relevant tags from content
+   * Enhanced from MayaConceptCardService
+   */
+  private extractTags(content: string): string[] {
+    const tags: string[] = [];
+    const tagKeywords = [
+      'professional', 'luxury', 'creative', 'modern', 'classic', 'timeless',
+      'brand', 'strategy', 'leadership', 'social', 'network', 'business',
+      'corporate', 'executive', 'innovative', 'elegant', 'sophisticated',
+      'scandinavian', 'minimalist', 'urban', 'moody', 'coastal', 'editorial',
+      'avant-garde', 'artistic', 'refined', 'contemporary', 'lifestyle'
+    ];
+    
+    const lowercaseContent = content.toLowerCase();
+    
+    tagKeywords.forEach(keyword => {
+      if (lowercaseContent.includes(keyword)) {
+        tags.push(keyword);
+      }
+    });
+    
+    // Limit to top 5 tags
+    return tags.slice(0, 5);
+  }
+
+  /**
+   * Determine concept type for UI organization
+   */
+  private determineConceptType(title: string, description: string): 'portrait' | 'flatlay' | 'lifestyle' {
+    const content = (title + ' ' + description).toLowerCase();
+    
+    if (content.includes('flatlay') || content.includes('overhead') || content.includes('product') || content.includes('accessories')) {
+      return 'flatlay';
+    } else if (content.includes('lifestyle') || content.includes('candid') || content.includes('action') || content.includes('environment')) {
+      return 'lifestyle';
+    }
+    
+    return 'portrait'; // Default - most Maya concepts are portraits
+  }
+
+  /**
+   * Generate enhanced FLUX prompts with professional photography elements
+   * Enhanced from MayaConceptCardService with style integration
+   */
+  private generateEnhancedFluxPrompt(title: string, description: string, creativeLook: string): string {
+    const basePrompt = `Professional portrait photography of sandra, ${title.toLowerCase()}`;
+    
+    // Creative look specific styling
+    let styleElements = [];
+    switch (creativeLook) {
+      case 'Scandinavian Minimalist':
+        styleElements = ['clean Nordic aesthetic', 'soft natural lighting', 'understated elegance', 'soft whites and beiges'];
+        break;
+      case 'Urban Moody':
+        styleElements = ['dramatic city aesthetic', 'bold contrasts', 'sophisticated edge', 'deep blacks and charcoal'];
+        break;
+      case 'High-End Coastal':
+        styleElements = ['luxurious seaside elegance', 'flowing textures', 'ocean-inspired tones', 'ocean blues and pearl whites'];
+        break;
+      case 'Editorial Avant-Garde':
+        styleElements = ['high-fashion editorial', 'bold creative elements', 'artistic vision', 'dramatic lighting'];
+        break;
+      case 'Classic Timeless':
+        styleElements = ['elegant traditional aesthetic', 'refined sophistication', 'heritage appeal', 'navy and cream tones'];
+        break;
+      default:
+        styleElements = ['high-quality professional photography', 'studio lighting', 'modern aesthetic', 'clean composition'];
+    }
+    
+    const technicalElements = [
+      'sharp focus',
+      'professional lighting',
+      '8k resolution',
+      'luxury fashion editorial style',
+      'perfect composition'
+    ];
+    
+    return `${basePrompt}, ${styleElements.join(', ')}, ${technicalElements.join(', ')}`;
   }
 
   /**
