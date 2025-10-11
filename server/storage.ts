@@ -409,14 +409,17 @@ export class DatabaseStorage implements IStorage {
   // Get user by Stack Auth ID (for linked accounts)
   async getUserByStackAuthId(stackAuthId: string): Promise<User | undefined> {
     // Import cache inside function to avoid circular dependencies
+    console.log(`🔍 USER LOOKUP: Starting getUserByStackAuthId for ${stackAuthId.substring(0, 8)}...`);
     const { userCache } = await import('./_utils/user-cache.js');
     
     // Check cache first
     const cached = userCache.get(stackAuthId);
     if (cached !== null) {
-      console.log(`🚀 USER CACHE: Cache ${cached ? 'hit' : 'hit (null)'} for ${stackAuthId.substring(0, 8)}`);
+      console.log(`🚀 USER CACHE: Cache ${cached ? 'HIT' : 'HIT (null)'} for ${stackAuthId.substring(0, 8)}...`);
       return cached;
     }
+    
+    console.log(`🔍 USER CACHE: Cache MISS for ${stackAuthId.substring(0, 8)}..., querying database`);
     
     // Cache miss - query database
     console.log(`💾 USER CACHE: Cache miss for ${stackAuthId.substring(0, 8)}, querying database`);
@@ -693,6 +696,15 @@ export class DatabaseStorage implements IStorage {
     return updated;
   }
 
+  async updateAIImageByPredictionId(predictionId: string, data: Partial<AiImage>): Promise<AiImage | null> {
+    const [updated] = await db
+      .update(aiImages)
+      .set({ ...data } as any)
+      .where(eq(aiImages.predictionId, predictionId))
+      .returning();
+    return updated || null;
+  }
+
   // Generated Images operations (NEW ENHANCED GALLERY - primary table)
   async getGeneratedImages(userId: string): Promise<GeneratedImage[]> {
     // Direct lookup first
@@ -870,6 +882,7 @@ export class DatabaseStorage implements IStorage {
   // User Model operations - with dual ID support for Stack Auth migration
   async getUserModel(userId: string): Promise<UserModel | undefined> {
     // Import cache inside function to avoid circular dependencies
+    console.log(`🔍 MODEL LOOKUP: Starting getUserModel for ${userId.substring(0, 8)}...`);
     const { userCache } = await import('./_utils/user-cache.js');
     
     // Check cache first
@@ -881,22 +894,41 @@ export class DatabaseStorage implements IStorage {
     
     console.log(`💾 MODEL CACHE: Cache miss for ${userId.substring(0, 8)}, querying database`);
     
-    // Direct lookup first
-    let [model] = await db
-      .select()
+    // Optimized single query with JOIN to avoid nested Stack Auth lookups
+    // This uses the new performance indexes for efficient querying
+    const result = await db
+      .select({
+        id: userModels.id,
+        userId: userModels.userId,
+        trainingId: userModels.trainingId,
+        replicateModelId: userModels.replicateModelId,
+        replicateVersionId: userModels.replicateVersionId,
+        trainedModelPath: userModels.trainedModelPath,
+        triggerWord: userModels.triggerWord,
+        trainingStatus: userModels.trainingStatus,
+        modelName: userModels.modelName,
+        isLuxury: userModels.isLuxury,
+        finetuneId: userModels.finetuneId,
+        modelType: userModels.modelType,
+        trainingProgress: userModels.trainingProgress,
+        estimatedCompletionTime: userModels.estimatedCompletionTime,
+        failureReason: userModels.failureReason,
+        startedAt: userModels.startedAt,
+        createdAt: userModels.createdAt,
+        updatedAt: userModels.updatedAt,
+        completedAt: userModels.completedAt
+      })
       .from(userModels)
-      .where(eq(userModels.userId, userId));
+      .leftJoin(users, eq(users.id, userModels.userId))
+      .where(
+        or(
+          eq(userModels.userId, userId),           // Direct user ID match
+          eq(users.stackAuthId, userId)            // Stack Auth ID match via users table
+        )
+      )
+      .limit(1);
     
-    if (!model) {
-      // For Stack Auth users, also check by linked original user ID
-      const linkedUser = await this.getUserByStackAuthId(userId);
-      if (linkedUser) {
-        [model] = await db
-          .select()
-          .from(userModels)
-          .where(eq(userModels.userId, linkedUser.id));
-      }
-    }
+    const model = result[0];
     
     // Store in cache
     userCache.setModel(userId, model);

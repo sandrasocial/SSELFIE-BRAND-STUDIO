@@ -183,6 +183,10 @@
     "server/services/training/training-orchestrator.ts",
     "server/services/model-training-service-refactored.ts",
     
+    // Enhanced Replicate Integration - Official SDK
+    "server/services/replicate-client.ts",
+    "server/webhooks/replicate.ts",
+    
     // Refactored Upload Services - Modular Workflow
     "server/services/upload/file-validator.ts",
     "server/services/upload/upload-manager.ts",

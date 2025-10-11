@@ -291,28 +291,20 @@ export function BrandStudioProvider({ children }: { children: React.ReactNode })
     onSuccess: (data) => {
       console.log('🎨 GENERATE SUCCESS:', data);
       
-      // Maya generation returns images immediately, no polling needed
-      if (data.data?.images && data.data.images.length > 0) {
-        // Add generated images to the conversation immediately
-        const imageMessage: ChatMessage = {
-          id: `images_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-          type: 'maya',
-          content: `Here are your generated photos based on the selected concept:`,
-          timestamp: new Date().toISOString(),
-          generatedImages: data.data.images
-        };
-        
-        dispatch({ type: 'ADD_MESSAGE', payload: imageMessage });
-        
+      // ✅ ASYNC APPROACH: Generation started, now poll for completion
+      if (data.data?.jobId) {
         toast({ 
-          title: "Images Generated!", 
-          description: "Your photos are ready to view." 
+          title: "Generation Started!", 
+          description: "Your images are being created. This may take 1-2 minutes." 
         });
+        
+        // Start polling for completion
+        pollForGenerationCompletion(data.data.jobId);
       } else {
-        console.log('⚠️ No images in generation response:', data);
+        console.log('⚠️ No job ID in generation response:', data);
         toast({ 
           title: "Generation Issue", 
-          description: "Images were requested but not returned. Check console for details." 
+          description: "Failed to start generation. Please try again." 
         });
       }
     },
@@ -348,6 +340,72 @@ export function BrandStudioProvider({ children }: { children: React.ReactNode })
     // Send to Maya
     sendMessageMutation.mutate(content.trim());
   }, [sendMessageMutation]);
+
+  // Polling function for async generation completion
+  const pollForGenerationCompletion = useCallback(async (jobId: string) => {
+    const maxPolls = 40; // 40 polls * 3 seconds = 2 minutes max
+    const pollInterval = 3000; // 3 seconds
+    let pollCount = 0;
+    
+    console.log(`🔄 CLIENT POLLING: Starting for job ${jobId}`);
+    
+    const poll = async (): Promise<void> => {
+      try {
+        const response = await fetch(`/api/maya/status?predictionId=${jobId}`, {
+          credentials: 'include'
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to check generation status');
+        }
+        
+        const data = await response.json();
+        console.log(`🔄 CLIENT POLLING: Status ${data.data?.status} for ${jobId}`);
+        
+        if (data.data?.isComplete && data.data?.images?.length > 0) {
+          // Generation complete - add images to chat
+          const imageMessage: ChatMessage = {
+            id: `images_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            type: 'maya',
+            content: `Here are your generated photos:`,
+            timestamp: new Date().toISOString(),
+            generatedImages: data.data.images
+          };
+          
+          dispatch({ type: 'ADD_MESSAGE', payload: imageMessage });
+          
+          toast({ 
+            title: "Images Ready!", 
+            description: "Your photos have been generated successfully." 
+          });
+          
+          return; // Stop polling
+        }
+        
+        // Continue polling if not complete
+        pollCount++;
+        if (pollCount < maxPolls) {
+          setTimeout(poll, pollInterval);
+        } else {
+          console.warn(`⏰ CLIENT POLLING: Timeout for job ${jobId}`);
+          toast({
+            title: "Generation Timeout",
+            description: "Image generation is taking longer than expected. Please try again."
+          });
+        }
+        
+      } catch (error) {
+        console.error(`❌ CLIENT POLLING: Error for job ${jobId}:`, error);
+        toast({
+          title: "Generation Error",
+          description: "Failed to check generation status. Please try again."
+        });
+      }
+    };
+    
+    // Start polling
+    setTimeout(poll, pollInterval);
+  }, [dispatch, toast]);
 
   const generateImage = useCallback((cardId: string) => {
     console.log('🎨 GENERATE IMAGE CALLED:', { 

@@ -372,6 +372,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return sandraImagesHandler.default(req, res);
     }
 
+    // Replicate Webhooks - Public endpoints for webhook notifications
+    if (req.url?.startsWith('/api/webhooks/replicate')) {
+      const replicateWebhookHandler = await import('./webhooks/replicate.js');
+      return replicateWebhookHandler.default(req, res);
+    }
+
     // Logout endpoint
     if (req.url === '/api/logout') {
       setLogoutCookies(res);
@@ -914,8 +920,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           const foundUser = await withDatabaseTimeoutAndRetry(
             () => storage.getUserByStackAuthId(user.id as string), 
             undefined, 
-            5000, // Reduced timeout for simpler query
-            2,    
+            3000, // Increased timeout for indexed queries + retry logic
+            3,    
             'getUserByStackAuthId'
           );
           dbUser = foundUser || null;
@@ -925,8 +931,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             const foundModel = await withDatabaseTimeoutAndRetry(
               () => storage.getUserModel(dbUser.id), 
               undefined,
-              5000,
-              2,
+              3000, // Increased timeout for indexed queries + retry logic
+              3,
               'getUserModel'
             );
             userModel = foundModel || null;
@@ -1319,23 +1325,99 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
           return res.status(400).json({ error: 'Message is required' });
         }
         
-        // Use the unified Maya intelligence service for proper Claude API + database integration
-        const { UnifiedMayaIntelligenceService } = await import('../server/services/unified-maya-intelligence-service.js');
-        const unifiedMayaService = new UnifiedMayaIntelligenceService();
+        // Use Maya's personality system directly for authentic intelligent responses
+        const { PersonalityManager } = await import('../server/agents/personalities/personality-config.js');
+        const { Anthropic } = await import('@anthropic-ai/sdk');
+        const { ANTHROPIC_API_KEY } = await import('../server/env.js');
         
-        const chatResult = await unifiedMayaService.processMessage({
-          userId: user.id as string,
-          message,
-          conversationId: undefined, // Let service create new conversation if needed
-          context: {
-            previousMessages: conversationHistory.map(entry => ({
-              role: entry.role as 'user' | 'assistant',
-              content: entry.content || entry.message || ''
-            }))
-          }
+        const anthropic = new Anthropic({ apiKey: ANTHROPIC_API_KEY });
+        
+        // Get Maya's complete personality prompt
+        const systemPrompt = PersonalityManager.getNaturalPrompt('maya');
+
+        // Build conversation context (limit to last 10 exchanges)
+        const conversationMessages = [];
+        if (conversationHistory && Array.isArray(conversationHistory)) {
+            const recentHistory = conversationHistory.slice(-10);
+            recentHistory.forEach((entry: any) => {
+                if (entry.user || (entry.role === 'user' && entry.content)) {
+                    conversationMessages.push({
+                        role: 'user',
+                        content: entry.user || entry.content || entry.message || ''
+                    });
+                }
+                if (entry.maya || entry.response || (entry.role === 'assistant' && entry.content)) {
+                    conversationMessages.push({
+                        role: 'assistant',
+                        content: entry.maya || entry.response || entry.content || ''
+                    });
+                }
+            });
+        }
+
+        // Add the current user message
+        conversationMessages.push({
+            role: 'user',
+            content: message
         });
+
+        console.log(`🎭 MAYA: Processing with personality system - ${conversationMessages.length} messages`);
+
+        // Get Maya's response using her complete personality
+        const claudeResponse = await anthropic.messages.create({
+            model: 'claude-3-5-sonnet-20241022',
+            max_tokens: 2000,
+            temperature: 0.7,
+            system: systemPrompt,
+            messages: conversationMessages as any[]
+        });
+
+        const mayaResponse = claudeResponse.content[0].type === 'text' ? claudeResponse.content[0].text : '';
         
-        const response = {
+        // Extract concept cards using Maya's personality-trained format
+        const conceptCards = [];
+        try {
+            console.log('🔍 MAYA: Extracting concept cards from response length:', mayaResponse.length);
+            
+            // Enhanced regex for Maya's personality format: [EMOJI] **CONCEPT NAME IN ALL CAPS**
+            const conceptSections = mayaResponse.split('---').filter(section => section.trim().length > 50);
+            console.log(`🔍 MAYA: Found ${conceptSections.length} concept sections`);
+            
+            for (const section of conceptSections) {
+                const conceptPattern = /([^\w\s])\s*\*\*([^*]+)\*\*\s*[\r\n]+([^]+?)[\r\n]+\s*FLUX_PROMPT:\s*\[([^\]]+)\]/gm;
+                
+                let match;
+                while ((match = conceptPattern.exec(section)) !== null) {
+                    const emoji = match[1].trim();
+                    const title = match[2].trim();
+                    const description = match[3].trim().substring(0, 300);
+                    const fluxPrompt = match[4].trim();
+
+                    if (title && description && fluxPrompt && title.length > 3 && description.length > 20) {
+                        console.log(`✅ MAYA: Extracted concept - ${title}`);
+                        conceptCards.push({
+                            id: `concept_${Date.now()}_${conceptCards.length}`,
+                            title: title,
+                            description: description,
+                            fluxPrompt: fluxPrompt,
+                            creativeLook: 'Professional',
+                            emoji: emoji
+                        });
+                    }
+                }
+            }
+            
+            console.log(`✅ MAYA: Extracted ${conceptCards.length} concept cards total`);
+        } catch (parseError) {
+            console.error('❌ MAYA: Concept card extraction error:', parseError);
+        }
+
+        const chatResult = {
+          response: mayaResponse,
+          conceptCards: conceptCards
+        };
+        
+        const finalResponse = {
           id: `maya_${Date.now()}`,
           userId: user.id,
           message: message,
@@ -1346,8 +1428,8 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
         };
         
         res.setHeader('Cache-Control', 'no-store');
-        t.end('ok', { concepts: response.conceptCards?.length || 0 });
-        return res.status(200).json(response);
+        t.end('ok', { concepts: finalResponse.conceptCards?.length || 0 });
+        return res.status(200).json(finalResponse);
         
       } catch (error) {
         t.end('error', { error: (error as Error).message });
