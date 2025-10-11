@@ -1257,10 +1257,10 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
           return res.status(400).json({ error: 'Concept card with fluxPrompt is required' });
         }
         
-        // Use the new MayaService with the database user ID
+        // Use the new MayaService with the internal database user ID (needed for trigger word)
         const { mayaService } = await import('../server/services/maya-service.js');
         
-        
+        console.log(`🔍 MAYA: Generating images for internal user ID: ${dbUser.id} (trigger: user${dbUser.id})`);
         const generationResult = await mayaService.generateImages(dbUser.id, {
           conceptCard
         });

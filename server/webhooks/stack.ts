@@ -112,6 +112,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                    process.env.STACK_WEBHOOK_VERIFICATION_SECRET || 
                    'whsec_7WGUrgkt9xr/owfaNByhs9LjnxyX4Wa3';
   
+  console.log('🔐 Stack webhook secret verification:', {
     provided: providedSecret ? '***' + providedSecret.slice(-4) : 'none',
     expected: expected ? '***' + expected.slice(-4) : 'none',
   });
@@ -150,6 +151,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       profileImageUrl: userData.profileImageUrl || userData.avatar_url || userData.picture || null,
     };
     
+    console.log('📨 Stack webhook received:', {
       type: eventType,
       userId: stackUser.id,
       email: stackUser.email,
@@ -167,6 +169,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Process the user sync
     const dbUser = await ensureDbUserFromStack(stackUser);
     
+    console.log('✅ Stack user sync completed:', {
       eventType,
       stackUserId: stackUser.id,
       dbUserId: dbUser.id,
