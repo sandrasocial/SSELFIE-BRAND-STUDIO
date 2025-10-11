@@ -1305,6 +1305,7 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
     // Maya chat endpoints
     if (req.url?.includes('/api/maya/chat') || req.url?.includes('/api/maya-chat') || req.url?.includes('/api/maya-generate')) {
       const t = logStart('POST /api/maya/chat');
+      console.log('🚀 MAYA INDEX.TS: Using MAIN handler with FIXED concept card extraction');
       
       if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method not allowed. Only POST requests are supported.' });

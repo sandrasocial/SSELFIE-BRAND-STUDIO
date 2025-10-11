@@ -50,6 +50,7 @@ export class UnifiedMayaIntelligenceService {
   async processMessage(request: MayaIntelligenceRequest): Promise<MayaIntelligenceResponse> {
     const { userId, message, conversationId, context } = request;
 
+    console.log('⚠️ UNIFIED MAYA SERVICE: This path should NOT be used - using different extraction logic!');
     try {
       // 🎯 INTENT DETECTION: Check if user wants to generate images
       const imageGenerationIntent = this.detectImageGenerationIntent(message);
