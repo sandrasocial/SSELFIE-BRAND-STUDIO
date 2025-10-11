@@ -1307,9 +1307,10 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
         const { MayaChatPreviewService } = await import('../server/maya-chat-preview-service.js');
         
         const galleryImage = await MayaChatPreviewService.heartImageToGallery(
+          user.id as string,
           imageUrl,
-          category || 'maya_generated', 
-          user.id as string
+          'Hearted from Maya chat',
+          category || 'Maya AI'
         );
         
         console.log(`✅ MAYA HEART: Image saved to gallery with ID: ${galleryImage.id}`);
@@ -1677,14 +1678,31 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
         const latestChat = mayaChats[0];
         const messages = await storage.getMayaChatMessages(latestChat.id.toString(), user.id as string);
         
-        // Transform messages to expected format
-        const formattedMessages = messages.map(msg => ({
-          id: msg.id,
-          type: msg.role === 'user' ? 'user' : 'maya',
-          content: msg.content,
-          timestamp: msg.createdAt,
-          chatId: msg.chatId
-        }));
+        // Transform messages to expected format with image support
+        const formattedMessages = messages.map(msg => {
+          const baseMessage = {
+            id: msg.id,
+            type: msg.role === 'user' ? 'user' : 'maya',
+            content: msg.content,
+            timestamp: msg.createdAt,
+            chatId: msg.chatId
+          };
+
+          // 🎯 CRITICAL FIX: Convert imagePreview to generatedImages for UI compatibility
+          if (msg.imagePreview) {
+            try {
+              const imageUrls = JSON.parse(msg.imagePreview);
+              if (Array.isArray(imageUrls) && imageUrls.length > 0) {
+                (baseMessage as any).generatedImages = imageUrls;
+                console.log(`✅ MAYA HISTORY: Converted ${imageUrls.length} preview images to generatedImages`);
+              }
+            } catch (parseError) {
+              console.warn('⚠️ MAYA HISTORY: Failed to parse imagePreview:', parseError);
+            }
+          }
+
+          return baseMessage;
+        });
         
         res.setHeader('Cache-Control', 'no-store');
         return res.status(200).json({ 
