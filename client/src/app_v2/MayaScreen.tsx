@@ -122,6 +122,10 @@ const MayaChatContent: React.FC<MayaChatContentProps> = ({ initialPrompt, onProm
               </div>
               
               {/* Concept Cards */}
+              {(() => {
+                console.log(`🎨 MAYA UI: Message ${message.id} has ${message.conceptCards?.length || 0} concept cards`);
+                return null;
+              })()}
               {message.type === 'maya' && message.conceptCards && message.conceptCards.length > 0 && (
                 <div className="mt-4 space-y-3">
                   <div className="flex items-center gap-3">
