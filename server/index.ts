@@ -1344,23 +1344,6 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
           return res.status(400).json({ error: 'Generation ID is required' });
         }
         
-        // ENHANCED: Trigger completion monitor check before status check
-        try {
-          const { GenerationCompletionMonitor } = await import('../server/generation-completion-monitor.js');
-          // Find tracker for this generation ID
-          const { storage } = await import('../server/storage.js');
-          const trackers = await storage.getUserGenerationTrackers(user.id as string);
-          const tracker = trackers.find(t => t.predictionId === generationId);
-          
-          if (tracker && (tracker.status === 'processing' || tracker.status === 'pending')) {
-            // Force check this generation
-            console.log(`🔄 MAYA STATUS: Force checking generation ${generationId}`);
-            await GenerationCompletionMonitor.checkAndUpdateGeneration(generationId, tracker.id);
-          }
-        } catch (monitorError) {
-          console.warn('⚠️ MAYA STATUS: Monitor check failed:', monitorError);
-        }
-        
         // Get database user ID for Maya service (Maya service expects internal DB user ID)
         const { UserService } = await import('../server/services/user-service.js');
         const userService = new UserService();
@@ -1370,6 +1353,27 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
           user.firstName || user.lastName ? `${user.firstName || ''} ${user.lastName || ''}`.trim() : null,
           null
         );
+        
+        // ENHANCED: Trigger completion monitor check before status check (using correct DB user ID)
+        try {
+          const { GenerationCompletionMonitor } = await import('../server/generation-completion-monitor.js');
+          // FIXED: Find tracker using the corrected ID system (generationId is now the Replicate prediction ID)
+          const { storage } = await import('../server/storage.js');
+          const trackers = await storage.getUserGenerationTrackers(dbUser.id);
+          const tracker = trackers.find(t => t.predictionId === generationId); // SIMPLIFIED: Direct match since predictionId is now Replicate ID
+          
+          if (tracker && (tracker.status === 'processing' || tracker.status === 'pending')) {
+            // Force check this generation with the tracker's prediction ID
+            console.log(`🔄 MAYA STATUS: Force checking generation ${generationId} for DB user ${dbUser.id}`);
+            await GenerationCompletionMonitor.checkAndUpdateGeneration(generationId, tracker.id);
+          } else if (tracker) {
+            console.log(`🔍 MAYA STATUS: Tracker found but status is ${tracker.status}, skipping monitor check`);
+          } else {
+            console.log(`⚠️ MAYA STATUS: No tracker found for generation ${generationId} and DB user ${dbUser.id}`);
+          }
+        } catch (monitorError) {
+          console.warn('⚠️ MAYA STATUS: Monitor check failed:', monitorError);
+        }
         
         // Use the new MayaService with database user ID
         const { mayaService } = await import('../server/services/maya-service.js');

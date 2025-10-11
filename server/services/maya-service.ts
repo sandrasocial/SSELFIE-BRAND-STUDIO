@@ -583,19 +583,12 @@ export class MayaService {
       
       console.log(`✅ MAYA GENERATION: Valid model found - Version: ${userModel.replicateVersionId}, Trigger: ${userModel.triggerWord}`);
 
-      // Create generation tracker
+      // CRITICAL FIX: Don't create tracker here - create it AFTER getting Replicate prediction ID
+      // to avoid ID mismatch issues. Pass generationId for response, get Replicate ID in startFluxGeneration
       const generationId = `gen_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-      const tracker = await this.db.createGenerationTracker({
-        userId: internalUserId, // Use internal database user ID
-        predictionId: generationId,
-        prompt: request.conceptCard.fluxPrompt,
-        style: 'editorial',
-        status: 'processing',
-      } as InsertGenerationTracker);
-
-      // Start FLUX generation asynchronously
-      this.startFluxGeneration(internalUserId, request, generationId, tracker, userModel);
+      // Start FLUX generation asynchronously - will create tracker with correct Replicate prediction ID
+      const { trackerId } = await this.startFluxGeneration(internalUserId, request, generationId, userModel);
 
       // Update user profile stats using Stack Auth ID
       await this.db.updateMayaProfile(user.stackAuthId, {
@@ -622,9 +615,8 @@ export class MayaService {
     userId: string,
     request: MayaGenerationRequest,
     generationId: string,
-    tracker: GenerationTracker,
     userModel?: UserModel | null
-  ): Promise<void> {
+  ): Promise<{ trackerId: number }> {
     try {
       // CRITICAL: Get complete user data including gender
       const user = await this.db.getUser(userId);
@@ -768,17 +760,18 @@ export class MayaService {
       }
       console.log(`✅ MAYA FLUX: Replicate prediction created: ${predictionData.id}`);
 
-      // 🎯 IMPROVEMENT: Enhanced tracking with SDK and webhook metadata
-      console.log(`🔍 MAYA FLUX: Updating tracker ${tracker.id} with Replicate prediction ID: ${predictionData.id}`);
-      
+      // CRITICAL FIX: Create tracker with correct Replicate prediction ID to avoid ID mismatch
       const enhancedPrompt = `${request.conceptCard.fluxPrompt}||REPLICATE_ID:${predictionData.id}||SDK:${!!predictionData.sdkUsed}||WEBHOOK:enabled`;
       
-      await this.db.updateGenerationTracker(tracker.id, {
+      const tracker = await this.db.createGenerationTracker({
+        userId: userId, // Use internal database user ID
+        predictionId: predictionData.id, // CRITICAL: Use actual Replicate prediction ID, not generated ID
         prompt: enhancedPrompt,
+        style: 'editorial',
         status: 'processing',
-      });
+      } as InsertGenerationTracker);
 
-      console.log(`✅ MAYA FLUX: Generation started successfully - Prediction: ${predictionData.id}, Tracker: ${tracker.id}`);
+      console.log(`✅ MAYA FLUX: Generation tracker created successfully - Prediction: ${predictionData.id}, Tracker: ${tracker.id}`);
 
       // 🎯 ADD: Cancellation support method for future use
       // Store the prediction ID for potential cancellation
@@ -815,13 +808,13 @@ export class MayaService {
         console.error('❌ MAYA: Failed to trigger completion monitor:', error);
       }
 
+      return { trackerId: tracker.id };
+
     } catch (error) {
       console.error('❌ MAYA: FLUX generation start failed:', error);
 
-      // Update tracker with failure
-      await this.db.updateGenerationTracker(tracker.id, {
-        status: 'failed',
-      });
+      // Can't update tracker if creation failed - error will be caught in generateImages
+      throw error;
     }
   }
 
@@ -848,11 +841,13 @@ export class MayaService {
     try {
       console.log(`🔍 MAYA STATUS: Looking for generation ${generationId} for user ${userId}`);
       
-      // Find tracker by predictionId (original generation ID)
+      // CRITICAL FIX: Find tracker by Replicate prediction ID (which is now stored in predictionId field)
       const trackers = await this.db.getUserGenerationTrackers(userId);
       console.log(`🔍 MAYA STATUS: Found ${trackers.length} trackers for user`);
       
-      const tracker = trackers.find(t => t.predictionId === generationId);
+      const tracker = trackers.find(t => 
+        t.predictionId === generationId // FIXED: Now stored as actual Replicate prediction ID
+      );
 
       if (!tracker) {
         console.error(`❌ MAYA STATUS: Generation ${generationId} not found for user ${userId}`);
