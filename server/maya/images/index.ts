@@ -2,7 +2,7 @@ import { VercelRequest, VercelResponse } from '@vercel/node';
 import { z } from 'zod';
 import { drizzle } from 'drizzle-orm/neon-http';
 import { neon } from '@neondatabase/serverless';
-import { mayaImages, insertMayaImagesSchema } from '../../../shared/schema-maya';
+import { mayaImages, insertMayaImagesSchema } from '../../../shared/schema';
 import { eq, and, desc, asc } from 'drizzle-orm';
 
 // Initialize database connection

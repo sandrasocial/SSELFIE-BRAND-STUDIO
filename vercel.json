@@ -33,8 +33,7 @@
           "server/storage.ts",
           "server/drizzle.ts",
           "server/stack-auth.ts",
-          "shared/schema.ts",
-          "shared/schema-maya.ts"
+          "shared/schema.ts"
         ]
       }
     },

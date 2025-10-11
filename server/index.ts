@@ -931,7 +931,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             const foundModel = await withDatabaseTimeoutAndRetry(
               () => storage.getUserModel(dbUser.id), 
               undefined,
-              3000, // Increased timeout for indexed queries + retry logic
+              6000, // Increased timeout for serverless cold starts + indexed queries
               3,
               'getUserModel'
             );
@@ -1319,6 +1319,12 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
       }
     }
 
+    // Maya models endpoint
+    if (req.url?.includes('/api/maya/models')) {
+      const mayaModelsHandler = await import('./maya/models/index.js');
+      return mayaModelsHandler.default(req, res);
+    }
+
     // Maya chat endpoints
     if (req.url?.includes('/api/maya/chat') || req.url?.includes('/api/maya-chat') || req.url?.includes('/api/maya-generate')) {
       const t = logStart('POST /api/maya/chat');
@@ -1574,6 +1580,7 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
 
     // Maya chat history endpoint - CRITICAL FOR CONVERSATION CONTINUITY
     if (req.url?.includes('/api/maya/chat-history')) {
+      if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed - use GET' });
       try {
         const user = await getAuthenticatedUser();
         const { storage } = await import('../server/storage.js');

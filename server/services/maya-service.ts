@@ -15,10 +15,7 @@ import {
   InsertGenerationTracker,
   UserModel
 } from '../../shared/types-override.js';
-import { 
-  InsertMayaConcept
-} from '../../shared/schema-maya.js';
-import { InsertMessage } from '../../shared/schema.js';
+import { InsertMessage, InsertMayaConcept } from '../../shared/schema.js';
 import { ConceptCard } from '../../shared/types/concept-card.js';
 import Anthropic from '@anthropic-ai/sdk';
 import { PersonalityManager } from '../agents/personalities/personality-config.js';
@@ -296,17 +293,7 @@ export class MayaService {
           userId: user.id,
           title: concept.title,
           description: concept.description,
-          prompt: concept.fluxPrompt,
           type: 'portrait', // Default type for Maya conversations
-          metadata: {
-            conversationId: conversation.id,
-            source: 'maya_chat',
-            creativeLook: concept.creativeLook,
-            emoji: cleanEmoji
-          },
-          tags: [],
-          status: 'draft',
-          isTemplate: false,
         } as InsertMayaConcept;
         await this.db.insertMayaConcept(mayaConcept);
       }
@@ -441,12 +428,7 @@ export class MayaService {
             userId: user.id,
             title: conceptCard.title,
             description: conceptCard.description || '',
-            prompt: conceptCard.fluxPrompt,
             type: 'professional' as const,
-            metadata: { emoji: cleanEmoji },
-            tags: [conceptCard.creativeLook],
-            status: 'active' as const,
-            isTemplate: false
           };
           await this.db.insertMayaConcept(conceptData as InsertMayaConcept);
         } catch (conceptError) {
