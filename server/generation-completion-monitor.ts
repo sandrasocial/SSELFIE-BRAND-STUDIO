@@ -113,6 +113,9 @@ export class GenerationCompletionMonitor {
           }
 
           // Save images as chat previews using MayaChatPreviewService
+          console.log(`💬 GENERATION MONITOR: Saving chat preview with ${permanentImageUrls.length} images to chat ${chatId}`);
+          console.log(`💬 GENERATION MONITOR: Image URLs:`, permanentImageUrls.map(url => url.substring(0, 50) + '...'));
+          
           const previewMessage = await MayaChatPreviewService.saveChatPreview(
             chatId,
             permanentImageUrls, // Use permanent URLs
@@ -120,6 +123,8 @@ export class GenerationCompletionMonitor {
             predictionData.id,
             tracker.userId
           );
+          
+          console.log(`✅ GENERATION MONITOR: Chat preview saved with message ID: ${previewMessage.id}`);
           
         } catch (previewError) {
           console.error('❌ GENERATION MONITOR: Chat preview save failed:', previewError);

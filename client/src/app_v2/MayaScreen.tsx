@@ -23,7 +23,9 @@ const MayaChatContent: React.FC<MayaChatContentProps> = ({ initialPrompt, onProm
     selectConceptCard,
     generateImage,
     isLoading,
-    isGenerating
+    isGenerating,
+    isPolling,
+    getPollingStatus
   } = useBrandStudio();
 
   // Debug logging for concept cards
@@ -219,6 +221,8 @@ const MayaChatContent: React.FC<MayaChatContentProps> = ({ initialPrompt, onProm
                     }
 
                     const isCardGenerating = isGenerating && selectedConceptCardId === card.id;
+                    const isCardPolling = isPolling(card.id);
+                    const pollingStatus = getPollingStatus(card.id);
                     
                     return (
                       <ConceptCardErrorBoundary 
@@ -230,7 +234,7 @@ const MayaChatContent: React.FC<MayaChatContentProps> = ({ initialPrompt, onProm
                         key={card.id || cardIndex}
                         onClick={() => {
                           try {
-                            if (!isGenerating && card.id) {
+                            if (!isGenerating && !isCardPolling && card.id) {
                               console.log('🎯 MAYA UI: Generating image for concept:', card.title);
                               selectConceptCard(card.id);
                               generateImage(card.id);
@@ -239,13 +243,15 @@ const MayaChatContent: React.FC<MayaChatContentProps> = ({ initialPrompt, onProm
                             console.error('❌ MAYA UI: Error in concept card click:', error);
                           }
                         }}
-                        className={`bg-stone-100/40 border border-stone-200/50 rounded-2xl p-5 transition-all duration-200 ${
-                          isGenerating 
-                            ? 'cursor-not-allowed opacity-60' 
-                            : 'hover:bg-stone-100/60 hover:border-stone-300/60 cursor-pointer'
-                        } ${
-                          selectedConceptCardId === card.id ? 'ring-2 ring-stone-600/40 bg-stone-100/60' : ''
-                        }`}
+        className={`bg-stone-100/40 border border-stone-200/50 rounded-2xl p-5 transition-all duration-200 ${
+          (isGenerating || isCardPolling)
+            ? 'cursor-not-allowed opacity-60' 
+            : 'hover:bg-stone-100/60 hover:border-stone-300/60 cursor-pointer'
+        } ${
+          selectedConceptCardId === card.id ? 'ring-2 ring-stone-600/40 bg-stone-100/60' : ''
+        } ${
+          isCardPolling ? 'ring-2 ring-blue-400/60 bg-blue-50/30' : ''
+        }`}
                       >
                         <div className="space-y-5">
                           <div className="flex items-center justify-between">
@@ -266,15 +272,27 @@ const MayaChatContent: React.FC<MayaChatContentProps> = ({ initialPrompt, onProm
                             </p>
                             
                             {/* Generation Status */}
-                            {selectedConceptCardId === card.id && (
+                            {(selectedConceptCardId === card.id || isCardPolling) && (
                               <div className="mt-3 pt-3 border-t border-stone-300/30">
                                 {isCardGenerating ? (
                                   <div className="bg-blue-50/60 border border-blue-200/40 rounded-lg p-3">
                                     <div className="flex items-center gap-3">
                                       <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
                                       <div className="flex-1">
+                                        <p className="text-xs font-medium text-blue-800">Starting generation...</p>
+                                        <p className="text-xs text-blue-600 mt-0.5">Connecting to your AI model</p>
+                                      </div>
+                                    </div>
+                                  </div>
+                                ) : isCardPolling ? (
+                                  <div className="bg-blue-50/60 border border-blue-200/40 rounded-lg p-3">
+                                    <div className="flex items-center gap-3">
+                                      <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                                      <div className="flex-1">
                                         <p className="text-xs font-medium text-blue-800">Creating your images...</p>
-                                        <p className="text-xs text-blue-600 mt-0.5">Using your personal AI model</p>
+                                        <p className="text-xs text-blue-600 mt-0.5">
+                                          {pollingStatus ? `Poll ${pollingStatus.pollCount}/40 • ${Math.floor((pollingStatus.duration || 0) / 1000)}s` : 'Processing...'}
+                                        </p>
                                       </div>
                                     </div>
                                   </div>

@@ -119,6 +119,13 @@ interface BrandStudioState {
     conceptCard?: ConceptCard;
     fromPhoto?: boolean;
   } | null;
+  // 🎯 ADD: Polling state for ongoing generations
+  pollingGenerations: Record<string, {
+    jobId: string;
+    cardId: string;
+    startedAt: number;
+    pollCount: number;
+  }>;
 }
 
 interface BrandStudioContextType extends BrandStudioState {
@@ -136,6 +143,9 @@ interface BrandStudioContextType extends BrandStudioState {
   // Status
   isLoading: boolean;
   isGenerating: boolean;
+  // 🎯 ADD: Polling status helpers
+  isPolling: (cardId: string) => boolean;
+  getPollingStatus: (cardId: string) => { jobId?: string; pollCount?: number; duration?: number } | null;
 }
 
 // Action types
@@ -151,6 +161,9 @@ type BrandStudioAction =
   | { type: 'SET_ACTIVE_TAB'; payload: 'photo' | 'story' | 'maya' }
   | { type: 'SET_HANDOFF_DATA'; payload: BrandStudioState['handoffData'] }
   | { type: 'CLEAR_HANDOFF_DATA' }
+  | { type: 'START_POLLING'; payload: { jobId: string; cardId: string } }
+  | { type: 'UPDATE_POLLING'; payload: { jobId: string; pollCount: number } }
+  | { type: 'STOP_POLLING'; payload: string } // jobId
   | { type: 'CLEAR_CONVERSATION' };
 
 // Reducer
@@ -217,6 +230,42 @@ function brandStudioReducer(state: BrandStudioState, action: BrandStudioAction):
     case 'CLEAR_HANDOFF_DATA':
       return { ...state, handoffData: null };
       
+    case 'START_POLLING':
+      return {
+        ...state,
+        pollingGenerations: {
+          ...state.pollingGenerations,
+          [action.payload.jobId]: {
+            jobId: action.payload.jobId,
+            cardId: action.payload.cardId,
+            startedAt: Date.now(),
+            pollCount: 0
+          }
+        }
+      };
+      
+    case 'UPDATE_POLLING':
+      const existingPoll = state.pollingGenerations[action.payload.jobId];
+      if (!existingPoll) return state;
+      
+      return {
+        ...state,
+        pollingGenerations: {
+          ...state.pollingGenerations,
+          [action.payload.jobId]: {
+            ...existingPoll,
+            pollCount: action.payload.pollCount
+          }
+        }
+      };
+      
+    case 'STOP_POLLING':
+      const { [action.payload]: _, ...remainingPolls } = state.pollingGenerations;
+      return {
+        ...state,
+        pollingGenerations: remainingPolls
+      };
+      
     case 'CLEAR_CONVERSATION':
       return {
         ...state,
@@ -224,7 +273,8 @@ function brandStudioReducer(state: BrandStudioState, action: BrandStudioAction):
         conceptCardsById: {},
         selectedConceptCardId: null,
         pendingMessageIds: [],
-        isTyping: false
+        isTyping: false,
+        pollingGenerations: {}
       };
       
     default:
@@ -242,6 +292,7 @@ const initialState: BrandStudioState = {
   pendingMessageIds: [],
   activeTab: 'photo',
   handoffData: null,
+  pollingGenerations: {}
 };
 
 // Context
@@ -407,6 +458,16 @@ export function BrandStudioProvider({ children }: { children: React.ReactNode })
           description: "Your images are being created. This may take 1-2 minutes." 
         });
         
+        // Get the card ID from the current selection 
+        const currentCardId = state.selectedConceptCardId;
+        if (currentCardId) {
+          // Start polling state tracking
+          dispatch({ 
+            type: 'START_POLLING', 
+            payload: { jobId: data.generationId, cardId: currentCardId } 
+          });
+        }
+        
         // Start polling for completion
         pollForGenerationCompletion(data.generationId);
       } else {
@@ -475,8 +536,13 @@ export function BrandStudioProvider({ children }: { children: React.ReactNode })
           // 🎯 FIXED: Generation complete - refresh chat history to get preview service messages
           console.log(`✅ CLIENT POLLING: Generation completed, refreshing chat history`);
           
+          // Stop polling state tracking
+          dispatch({ type: 'STOP_POLLING', payload: jobId });
+          
           // Refresh chat history to pick up messages from Maya Chat Preview Service
           try {
+            // 🚧 Add small delay to ensure Maya Chat Preview Service has saved the message
+            await new Promise(resolve => setTimeout(resolve, 1000));
             await refetchChatHistory();
             
             toast({ 
@@ -488,6 +554,7 @@ export function BrandStudioProvider({ children }: { children: React.ReactNode })
             
             // FALLBACK: If refresh fails, create message with images from status
             if (data.images && data.images.length > 0) {
+              console.log(`🔄 CLIENT POLLING: Using fallback - creating message with ${data.images.length} images`);
               const imageMessage: ChatMessage = {
                 id: `images_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
                 type: 'maya',
@@ -500,15 +567,60 @@ export function BrandStudioProvider({ children }: { children: React.ReactNode })
             }
           }
           
+          // 🎯 ENHANCED FALLBACK: Check if chat history refresh worked, if not use status images
+          setTimeout(async () => {
+            console.log(`🔍 CLIENT POLLING: Double-checking chat history after refresh`);
+            try {
+              const recheckResponse = await fetch(`/api/maya/chat-history`, {
+                credentials: 'include'
+              });
+              
+              if (recheckResponse.ok) {
+                const historyData = await recheckResponse.json();
+                const recentMessages = historyData.messages || [];
+                const hasRecentImages = recentMessages.some((msg: any) => 
+                  msg.generatedImages && msg.generatedImages.length > 0 &&
+                  new Date(msg.timestamp).getTime() > Date.now() - 10000 // Within last 10 seconds
+                );
+                
+                if (!hasRecentImages && data.images && data.images.length > 0) {
+                  console.log(`🔄 CLIENT POLLING: No recent images in history, using fallback message`);
+                  const imageMessage: ChatMessage = {
+                    id: `fallback_images_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                    type: 'maya',
+                    content: `🎬 **YOUR IMAGES ARE READY!**\n\nHere are your stunning photos! Click the heart ♡ on any image you love to save it to your gallery.`,
+                    timestamp: new Date().toISOString(),
+                    generatedImages: data.images
+                  };
+                  
+                  dispatch({ type: 'ADD_MESSAGE', payload: imageMessage });
+                }
+              }
+            } catch (recheckError) {
+              console.error('❌ CLIENT POLLING: Recheck failed:', recheckError);
+            }
+          }, 2000); // Check again after 2 seconds
+          
           return; // Stop polling
         }
         
         // Continue polling if not complete
         pollCount++;
+        
+        // Update polling count in state
+        dispatch({ 
+          type: 'UPDATE_POLLING', 
+          payload: { jobId, pollCount } 
+        });
+        
         if (pollCount < maxPolls) {
           setTimeout(poll, pollInterval);
         } else {
           console.warn(`⏰ CLIENT POLLING: Timeout for job ${jobId}`);
+          
+          // Stop polling on timeout
+          dispatch({ type: 'STOP_POLLING', payload: jobId });
+          
           toast({
             title: "Generation Timeout",
             description: "Image generation is taking longer than expected. Please try again."
@@ -517,6 +629,10 @@ export function BrandStudioProvider({ children }: { children: React.ReactNode })
         
       } catch (error) {
         console.error(`❌ CLIENT POLLING: Error for job ${jobId}:`, error);
+        
+        // Stop polling on error
+        dispatch({ type: 'STOP_POLLING', payload: jobId });
+        
         toast({
           title: "Generation Error",
           description: "Failed to check generation status. Please try again."
@@ -561,6 +677,22 @@ export function BrandStudioProvider({ children }: { children: React.ReactNode })
     dispatch({ type: 'SET_CONVERSATION_ID', payload: newConversationId });
   }, []);
 
+  // 🎯 Polling helper functions
+  const isPolling = useCallback((cardId: string) => {
+    return Object.values(state.pollingGenerations).some(poll => poll.cardId === cardId);
+  }, [state.pollingGenerations]);
+
+  const getPollingStatus = useCallback((cardId: string) => {
+    const poll = Object.values(state.pollingGenerations).find(p => p.cardId === cardId);
+    if (!poll) return null;
+    
+    return {
+      jobId: poll.jobId,
+      pollCount: poll.pollCount,
+      duration: Date.now() - poll.startedAt
+    };
+  }, [state.pollingGenerations]);
+
   const contextValue: BrandStudioContextType = {
     ...state,
     sendMessage,
@@ -573,7 +705,9 @@ export function BrandStudioProvider({ children }: { children: React.ReactNode })
     selectedItem: null,
     setSelectedItem: () => {},
     isLoading: isLoading || sendMessageMutation.isPending,
-    isGenerating: generateImageMutation.isPending
+    isGenerating: generateImageMutation.isPending,
+    isPolling,
+    getPollingStatus
   };
 
   return (
