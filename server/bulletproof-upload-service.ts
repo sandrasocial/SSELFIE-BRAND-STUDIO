@@ -368,8 +368,8 @@ export class BulletproofUploadService {
       const createModelResponse = await fetch('https://api.replicate.com/v1/models', {
         method: 'POST',
         headers: {
-          'Authorization': `Token ${process.env['REPLICATE_API_TOKEN']}`,
-          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env['REPLICATE_API_TOKEN']}`,
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           owner: "sandrasocial",
@@ -397,8 +397,8 @@ export class BulletproofUploadService {
       const trainingResponse = await fetch('https://api.replicate.com/v1/models/ostris/flux-dev-lora-trainer/versions/26dce37af90b9d997eeb970d92e47de3064d46c300504ae376c75bef6a9022d2/trainings', {
         method: 'POST',
         headers: {
-          'Authorization': `Token ${process.env['REPLICATE_API_TOKEN']}`,
-          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env['REPLICATE_API_TOKEN']}`,
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           input: {

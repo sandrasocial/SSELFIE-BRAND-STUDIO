@@ -194,7 +194,7 @@ export class ModelTrainingService {
       const trainingResponse = await fetch('https://api.replicate.com/v1/models/ostris/flux-dev-lora-trainer/versions/26dce37af90b9d997eeb970d92e47de3064d46c300504ae376c75bef6a9022d2/trainings', {
         method: 'POST',
         headers: {
-          'Authorization': `Token ${process.env['REPLICATE_API_TOKEN']}`,
+          'Authorization': `Bearer ${process.env['REPLICATE_API_TOKEN']}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -268,7 +268,7 @@ export class ModelTrainingService {
       // Check REAL Replicate API training status
       const trainingStatusResponse = await fetch(`https://api.replicate.com/v1/trainings/${trainingId}`, {
         headers: {
-          'Authorization': `Token ${process.env['REPLICATE_API_TOKEN']}`,
+          'Authorization': `Bearer ${process.env['REPLICATE_API_TOKEN']}`,
           'Content-Type': 'application/json'
         }
       });
@@ -404,7 +404,7 @@ export class ModelTrainingService {
       // Get training data from Replicate
       const trainingResponse = await fetch(`https://api.replicate.com/v1/trainings/${userModel.trainingId}`, {
         headers: {
-          'Authorization': `Token ${process.env['REPLICATE_API_TOKEN']}`,
+          'Authorization': `Bearer ${process.env['REPLICATE_API_TOKEN']}`,
           'Content-Type': 'application/json'
         }
       });
@@ -598,7 +598,7 @@ export class ModelTrainingService {
       
       const versionResponse = await fetch(`https://api.replicate.com/v1/models/${modelId}/versions/${versionId}`, {
         headers: {
-          'Authorization': `Token ${process.env['REPLICATE_API_TOKEN']}`,
+          'Authorization': `Bearer ${process.env['REPLICATE_API_TOKEN']}`,
           'Content-Type': 'application/json'
         }
       });
@@ -913,7 +913,7 @@ export class ModelTrainingService {
       // Get training details from Replicate
       const response = await fetch(`https://api.replicate.com/v1/trainings/${trainingId}`, {
         headers: {
-          'Authorization': `Token ${process.env['REPLICATE_API_TOKEN']}`,
+          'Authorization': `Bearer ${process.env['REPLICATE_API_TOKEN']}`,
           'Content-Type': 'application/json'
         }
       });
