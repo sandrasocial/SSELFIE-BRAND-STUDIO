@@ -127,4 +127,45 @@ export function withErrorBoundary<P extends object>(
   };
 }
 
+/**
+ * ConceptCard-specific error boundary with specialized fallback
+ */
+export const ConceptCardErrorBoundary: React.FC<{
+  children: ReactNode;
+  cardIndex?: number;
+  cardTitle?: string;
+}> = ({ children, cardIndex, cardTitle }) => {
+  const handleError = (error: Error, errorInfo: ErrorInfo) => {
+    console.error(`🎨 ConceptCard Error (${cardIndex || 'unknown'}):`, {
+      error: error.message,
+      cardTitle,
+      errorInfo,
+      stack: error.stack
+    });
+  };
+
+  const fallback = (
+    <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5">
+      <div className="flex items-center gap-3">
+        <span className="text-amber-600">🔧</span>
+        <div>
+          <h4 className="text-sm font-medium text-amber-800">Concept Card Error</h4>
+          <p className="text-xs text-amber-600 mt-1">
+            {cardTitle ? `"${cardTitle}" couldn't be displayed.` : 'This concept card had a rendering error.'}
+          </p>
+          <p className="text-xs text-amber-500 mt-2">
+            Please try refreshing or generating new concepts.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <ErrorBoundary fallback={fallback} onError={handleError}>
+      {children}
+    </ErrorBoundary>
+  );
+};
+
 export default ErrorBoundary;

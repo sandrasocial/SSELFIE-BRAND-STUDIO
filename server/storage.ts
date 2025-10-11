@@ -15,8 +15,7 @@ import {
   brandOnboarding,
   userLandingPages,
   emailCaptures,
-  mayaChats,
-  mayaChatMessages,
+
   userStyleMemory,
   agentConversations,
   type User,
@@ -57,10 +56,7 @@ import {
   type InsertUserLandingPage,
   type EmailCapture,
   type InsertEmailCapture,
-  type MayaChat,
-  type InsertMayaChat,
-  type MayaChatMessage,
-  type InsertMayaChatMessage,
+
   claudeConversations,
   claudeMessages,
   type ClaudeConversation,
@@ -92,6 +88,16 @@ import {
   type ImageVariant,
   // type InsertImageVariant,
 } from "../shared/schema.js";
+
+// Maya-specific imports from consolidated schema
+import {
+  mayaChats,
+  mayaChatMessages,
+  type MayaChat,
+  type InsertMayaChat,
+  type MayaChatMessage,
+  type InsertMayaChatMessage,
+} from "../shared/schema-maya";
 import {
   mayaProfile,
   mayaImages,

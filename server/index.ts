@@ -1284,6 +1284,23 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
           return res.status(400).json({ error: 'Generation ID is required' });
         }
         
+        // ENHANCED: Trigger completion monitor check before status check
+        try {
+          const { GenerationCompletionMonitor } = await import('../server/generation-completion-monitor.js');
+          // Find tracker for this generation ID
+          const { storage } = await import('../server/storage.js');
+          const trackers = await storage.getUserGenerationTrackers(user.id as string);
+          const tracker = trackers.find(t => t.predictionId === generationId);
+          
+          if (tracker && (tracker.status === 'processing' || tracker.status === 'pending')) {
+            // Force check this generation
+            console.log(`🔄 MAYA STATUS: Force checking generation ${generationId}`);
+            await GenerationCompletionMonitor.checkAndUpdateGeneration(generationId, tracker.id);
+          }
+        } catch (monitorError) {
+          console.warn('⚠️ MAYA STATUS: Monitor check failed:', monitorError);
+        }
+        
         // Use the new MayaService instead of old ModelTrainingService
         const { mayaService } = await import('../server/services/maya-service.js');
         
@@ -1643,6 +1660,18 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
         const { TrainingCompletionMonitor } = await import('../server/training-completion-monitor.js');
         await TrainingCompletionMonitor.checkAllInProgressTrainings();
         return res.status(200).json({ ok: true });
+      } catch (error) {
+        return res.status(500).json({ ok: false, error: (error as Error).message });
+      }
+    }
+
+    // ADDED: Generation completion monitor cron endpoint
+    if (req.url === '/api/cron/generation-completion-monitor') {
+      try {
+        const { GenerationCompletionMonitor } = await import('../server/generation-completion-monitor.js');
+        const monitor = GenerationCompletionMonitor.getInstance();
+        await monitor.checkAllInProgressGenerations();
+        return res.status(200).json({ ok: true, message: 'Generation monitoring complete' });
       } catch (error) {
         return res.status(500).json({ ok: false, error: (error as Error).message });
       }

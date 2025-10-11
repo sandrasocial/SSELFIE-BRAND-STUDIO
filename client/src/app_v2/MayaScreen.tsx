@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useBrandStudio, BrandStudioProvider } from '../contexts/BrandStudioContext.js';
 import { Send, Camera } from 'lucide-react';
 import type { ConceptCard } from '../../../shared/types/concept-card.js';
+import ErrorBoundary, { ConceptCardErrorBoundary } from '../components/ErrorBoundary.js';
 
 interface MayaChatContentProps {
   initialPrompt?: string | null;
@@ -77,7 +78,8 @@ const MayaChatContent: React.FC<MayaChatContentProps> = ({ initialPrompt, onProm
   };
 
   return (
-    <div className="h-full flex flex-col space-y-4 pb-2">
+    <ErrorBoundary>
+      <div className="h-full flex flex-col space-y-4 pb-2">
       {/* Maya Header */}
       <div className="flex items-center justify-between pt-4 pb-2">
         <div className="flex items-center gap-4 flex-1 min-w-0">
@@ -133,15 +135,63 @@ const MayaChatContent: React.FC<MayaChatContentProps> = ({ initialPrompt, onProm
                     <span className="text-xs tracking-[0.15em] uppercase font-light text-stone-600">Photo Ideas</span>
                   </div>
                   {message.conceptCards.map((card, cardIndex) => {
+                    // Enhanced validation for concept cards
+                    if (!card || typeof card !== 'object') {
+                      console.error(`❌ MAYA UI: Card ${cardIndex} is invalid:`, card);
+                      return (
+                        <div key={`error-${cardIndex}`} className="bg-red-50 border border-red-200 rounded-2xl p-5">
+                          <div className="flex items-center gap-3">
+                            <span className="text-red-500">⚠️</span>
+                            <div>
+                              <h4 className="text-sm font-medium text-red-800">Concept Card Error</h4>
+                              <p className="text-xs text-red-600 mt-1">This concept card couldn't be displayed properly.</p>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    }
+
+                    if (!card.id || !card.title || !card.description) {
+                      console.error(`❌ MAYA UI: Card ${cardIndex} missing required fields:`, { 
+                        hasId: !!card.id, 
+                        hasTitle: !!card.title, 
+                        hasDescription: !!card.description,
+                        card 
+                      });
+                      return (
+                        <div key={card.id || `incomplete-${cardIndex}`} className="bg-yellow-50 border border-yellow-200 rounded-2xl p-5">
+                          <div className="flex items-center gap-3">
+                            <span className="text-yellow-600">⚠️</span>
+                            <div>
+                              <h4 className="text-sm font-medium text-yellow-800">Incomplete Concept Card</h4>
+                              <p className="text-xs text-yellow-600 mt-1">
+                                {card.title || 'Untitled concept'} - Missing required information.
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    }
+
                     const isCardGenerating = isGenerating && selectedConceptCardId === card.id;
                     
                     return (
-                      <div
+                      <ConceptCardErrorBoundary 
+                        key={card.id}
+                        cardIndex={cardIndex}
+                        cardTitle={card.title}
+                      >
+                        <div
                         key={card.id || cardIndex}
                         onClick={() => {
-                          if (!isGenerating) {
-                            selectConceptCard(card.id);
-                            generateImage(card.id);
+                          try {
+                            if (!isGenerating && card.id) {
+                              console.log('🎯 MAYA UI: Generating image for concept:', card.title);
+                              selectConceptCard(card.id);
+                              generateImage(card.id);
+                            }
+                          } catch (error) {
+                            console.error('❌ MAYA UI: Error in concept card click:', error);
                           }
                         }}
                         className={`bg-stone-100/40 border border-stone-200/50 rounded-2xl p-5 transition-all duration-200 ${
@@ -156,18 +206,18 @@ const MayaChatContent: React.FC<MayaChatContentProps> = ({ initialPrompt, onProm
                           <div className="flex items-center justify-between">
                             <div className="px-3 py-1.5 bg-stone-500/10 rounded-full border border-stone-400/20">
                               <span className="text-xs tracking-[0.1em] uppercase font-light text-stone-600">
-                                {card.creativeLook || card.category || 'Concept'}
+                                {String(card.creativeLook || card.category || 'Concept')}
                               </span>
                             </div>
-                            {card.emoji && <span className="text-2xl">{card.emoji}</span>}
+                            {card.emoji && <span className="text-2xl">{String(card.emoji)}</span>}
                           </div>
                           
                           <div className="space-y-3">
                             <h4 className="text-base font-serif font-extralight tracking-[0.1em] text-stone-950 uppercase leading-tight">
-                              {card.title}
+                              {String(card.title)}
                             </h4>
                             <p className="text-sm font-light leading-relaxed text-stone-600">
-                              {card.description}
+                              {String(card.description)}
                             </p>
                             
                             {/* Generation Status */}
@@ -193,6 +243,7 @@ const MayaChatContent: React.FC<MayaChatContentProps> = ({ initialPrompt, onProm
                           </div>
                         </div>
                       </div>
+                      </ConceptCardErrorBoundary>
                     );
                   })}
                 </div>
@@ -280,6 +331,7 @@ const MayaChatContent: React.FC<MayaChatContentProps> = ({ initialPrompt, onProm
         </div>
       </div>
     </div>
+    </ErrorBoundary>
   );
 };
 
