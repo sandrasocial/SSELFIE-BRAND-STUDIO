@@ -38,6 +38,22 @@
       }
     },
     {
+      "src": "server/webhooks/stack.ts",
+      "use": "@vercel/node",
+      "config": {
+        "maxDuration": 30,
+        "memory": 512
+      }
+    },
+    {
+      "src": "server/webhooks/replicate.ts",
+      "use": "@vercel/node",
+      "config": {
+        "maxDuration": 30,
+        "memory": 512
+      }
+    },
+    {
       "src": "package.json",
       "use": "@vercel/static-build",
       "config": {
@@ -75,6 +91,14 @@
     {
       "source": "/api/auth/(.*)",
       "destination": "/server/[...route].ts"
+    },
+    {
+      "source": "/api/webhooks/stack",
+      "destination": "/server/webhooks/stack.ts"
+    },
+    {
+      "source": "/api/webhooks/replicate",
+      "destination": "/server/webhooks/replicate.ts"
     },
     {
       "source": "/api/handler/(.*)",

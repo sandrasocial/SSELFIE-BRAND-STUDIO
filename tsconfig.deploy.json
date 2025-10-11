@@ -28,6 +28,7 @@
   },
   "include": [
     "server/[...route].ts",
+    "server/index.ts",
     "server/storage.ts",
     "server/drizzle.ts",
     "server/stack-auth.ts",
@@ -64,6 +65,7 @@
     "server/routes/modules/ai-generation.ts",
     "server/utils/gender-prompt.ts",
     "server/_shared/memory-types.ts",
+    "server/types.ts",
     // Maya service modules - critical for aesthetics, styling, categories
     "server/maya/chat.ts",
     "server/maya/concepts/index.ts", 
@@ -83,11 +85,12 @@
     "server/image-storage-service.ts",
     "server/bulletproof-upload-service.ts",
     "server/model-training-service.ts",
-    "server/model-validation-service.ts",
+    "server/model-validation-service.ts", 
     "server/migration-monitor.ts",
     "server/training-completion-monitor.ts",
     "server/generation-completion-monitor.ts",
     "server/retrain-model.ts",
+    "server/routes/images.ts",
     "server/services/user-migration-service.ts",
     "server/services/highlevel-service.ts",
     "server/services/payment.ts",
@@ -195,6 +198,7 @@
     "server/routes/consulting-agents-routes.ts",
     "server/routes/admin.ts", 
     "server/routes/admin-cache-management.ts",
+    "server/routes/levelpartner-webhook.ts", // Schema type errors - business tracking only
     "server/routes/gmail-auth.ts",
     "server/routes/subscriber-import.ts",
     "server/routes/slack-interactivity.ts",

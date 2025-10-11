@@ -483,6 +483,17 @@ export class MayaService {
 
       // Get user's trained model for personalization
       const userModel = await this.getUserModel(userId);
+      
+      // CRITICAL: Validate user has completed trained model
+      if (!userModel || userModel.trainingStatus !== 'completed') {
+        throw new Error(`User does not have a completed trained model. Status: ${userModel?.trainingStatus || 'no_model'}`);
+      }
+      
+      if (!userModel.replicateVersionId) {
+        throw new Error('User model missing replicateVersionId for personalized generation');
+      }
+      
+      console.log(`🎯 MAYA: Starting generation for user with model ${userModel.replicateVersionId}, trigger: ${userModel.triggerWord}`);
 
       // Create generation tracker
       const generationId = `gen_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -527,15 +538,36 @@ export class MayaService {
     userModel?: UserModel | null
   ): Promise<void> {
     try {
-      // Prepare FLUX prompt with user model if available
-      let fluxPrompt = request.conceptCard.fluxPrompt;
-
-      if (userModel?.triggerWord && userModel.trainingStatus === 'completed') {
-        // Add trigger word for personalized generation
-        fluxPrompt = `${userModel.triggerWord}, ${fluxPrompt}`;
+      // CRITICAL: Get complete user data including gender
+      const user = await this.db.getUser(userId);
+      if (!user) {
+        throw new Error('User not found in database');
       }
 
-      // Call Replicate FLUX API
+      // Get user's trained model data for personalized generation
+      if (!userModel || userModel.trainingStatus !== 'completed') {
+        throw new Error('User must have a completed trained model for image generation');
+      }
+
+      // CRITICAL: Use user's custom LoRA model, not generic FLUX
+      if (!userModel.replicateVersionId) {
+        throw new Error('User model missing replicateVersionId - cannot generate personalized images');
+      }
+
+      // Build personalized prompt with gender injection
+      const { enforceGender } = await import('../utils/gender-prompt.js');
+      
+      // Start with the concept prompt
+      let fluxPrompt = request.conceptCard.fluxPrompt;
+      
+      // Add trigger word and enforce gender for proper personalization
+      if (userModel.triggerWord) {
+        fluxPrompt = enforceGender(userModel.triggerWord, fluxPrompt, user.gender);
+      }
+
+      console.log(`🎯 MAYA: Generating with LoRA model ${userModel.replicateVersionId}, prompt: ${fluxPrompt.substring(0, 100)}...`);
+
+      // Call Replicate API with user's custom trained model
       const replicateResponse = await fetch('https://api.replicate.com/v1/predictions', {
         method: 'POST',
         headers: {
@@ -543,7 +575,7 @@ export class MayaService {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          version: "5599ed30703defd1d160a25a63321b4dec97101d98b4674bcc56e41f62f35637", // FLUX-dev model
+          version: userModel.replicateVersionId, // CRITICAL: Use user's LoRA model
           input: {
             prompt: fluxPrompt,
             num_outputs: 2,
