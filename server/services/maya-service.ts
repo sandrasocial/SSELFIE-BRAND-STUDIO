@@ -757,30 +757,31 @@ export class MayaService {
     const conceptCards = [];
 
     try {
-      console.log('🔍 MAYA: Extracting concept cards from response:', response.substring(0, 500));
+      console.log('🔍 MAYA SERVICE: Extracting concept cards from response:', response.substring(0, 500));
       
-      // Split response by concept separators first
-      const conceptSections = response.split(/---+/);
+      // Split by Maya's concept separators (---)
+      const conceptSections = response.split(/---+/).filter(section => section.trim().length > 50);
+      console.log(`🔍 MAYA SERVICE: Found ${conceptSections.length} concept sections`);
       
-      for (const section of conceptSections) {
-        if (section.trim().length < 50) continue; // Skip short sections
+      for (let i = 0; i < conceptSections.length; i++) {
+        const section = conceptSections[i].trim();
         
-        // Enhanced regex pattern for more robust concept card extraction with flexible whitespace and newlines
-        const emojiConceptPattern = /([^\w\s])\s*\*\*([^*]+)\*\*\s*[\r\n]+([^*]+?)[\r\n]+\s*FLUX_PROMPT:\s*\[([^\]]+)\]/g;
+        // Maya's trained format: [EMOJI] **CONCEPT NAME** \n Description \n FLUX_PROMPT: [prompt]
+        // More flexible regex that handles various whitespace and newline patterns
+        const conceptPattern = /([^\w\s])\s*\*\*([^*]+)\*\*\s*\n([\s\S]*?)\n\s*FLUX_PROMPT:\s*\[([\s\S]*?)\]/g;
         
         let match;
-        while ((match = emojiConceptPattern.exec(section)) !== null) {
+        while ((match = conceptPattern.exec(section)) !== null) {
           const emoji = match[1].trim();
           const title = match[2].trim();
           let description = match[3].trim();
           let fluxPrompt = match[4].trim();
+
+          // Clean up description by removing extra whitespace and newlines
+          description = description.replace(/\s+/g, ' ').substring(0, 300);
           
-          // Clean up text
-          description = description.replace(/\n+/g, ' ').trim();
-          fluxPrompt = fluxPrompt.replace(/\[|\]/g, '').trim();
-          
-          if (title && description && title.length > 3 && description.length > 10) {
-            console.log(`✅ MAYA: Found concept card - ${emoji} ${title}`);
+          if (title && description && fluxPrompt && title.length > 3 && description.length > 20) {
+            console.log(`✅ MAYA SERVICE: Extracted concept - ${emoji} ${title}`);
             conceptCards.push({
               id: `concept_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
               title,
@@ -791,53 +792,42 @@ export class MayaService {
             });
           }
         }
-      }
-
-      // Fallback: Try to find any concept-like patterns if no structured concepts found
-      if (conceptCards.length === 0) {
-        console.log('🔄 MAYA: No structured concepts found, trying fallback patterns...');
         
-        const fallbackPatterns = [
-          // Pattern for emoji + title format
-          /([^\w\s])\s*\*\*([^*\n]+)\*\*([^]+?)(?=\n\n|$)/g,
-          // Pattern for concepts with "concept" keyword
-          /(?:concept|idea|suggestion)[\s\S]*?(?:title|name):\s*["']?([^"'\n]+)["']?[\s\S]*?(?:prompt|description):\s*["']?([^"'\n]+)["']?/gi
-        ];
-
-        for (const pattern of fallbackPatterns) {
-          let match;
-          while ((match = pattern.exec(response)) !== null && conceptCards.length < 3) {
-            let emoji = '📸', title = '', description = '';
-
-            if (match.length === 4) {
-              // Emoji + title + description format
-              emoji = match[1];
-              title = match[2].trim();
-              description = match[3].trim().substring(0, 200);
-            } else if (match.length === 3) {
-              // Title + description format
-              title = match[1].trim();
-              description = match[2].trim();
-            }
-
-            if (title && description && title.length > 3 && description.length > 10) {
+        // Fallback: If no structured concepts found, try simpler patterns
+        if (conceptCards.length === 0 && section.includes('**') && section.includes('FLUX_PROMPT:')) {
+          console.log('🔄 MAYA SERVICE: Trying fallback pattern for section:', section.substring(0, 100));
+          
+          // Simpler pattern that looks for any **title** followed by FLUX_PROMPT:
+          const fallbackPattern = /\*\*([^*]+)\*\*\s*([\s\S]*?)\s*FLUX_PROMPT:\s*\[([\s\S]*?)\]/g;
+          let fallbackMatch;
+          
+          while ((fallbackMatch = fallbackPattern.exec(section)) !== null) {
+            const title = fallbackMatch[1].trim();
+            let description = fallbackMatch[2].trim();
+            let fluxPrompt = fallbackMatch[3].trim();
+            
+            // Clean up description
+            description = description.replace(/\s+/g, ' ').substring(0, 300);
+            
+            if (title && description && fluxPrompt && title.length > 3) {
+              console.log(`✅ MAYA SERVICE: Fallback extracted - ${title}`);
               conceptCards.push({
                 id: `concept_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
                 title,
-                description,
-                fluxPrompt: `Professional photo of sandra, ${title.toLowerCase()}, ${description.substring(0, 100)}`,
-                creativeLook: 'Creative',
-                emoji,
+                description: description || title,
+                fluxPrompt,
+                creativeLook: 'Professional',
+                emoji: '📸'
               });
             }
           }
         }
       }
 
-      console.log(`🎯 MAYA: Extracted ${conceptCards.length} concept cards`);
+      console.log(`🎯 MAYA SERVICE: Extracted ${conceptCards.length} concept cards`);
 
     } catch (parseError) {
-      console.error('❌ MAYA: Concept card extraction error:', parseError);
+      console.error('❌ MAYA SERVICE: Concept card extraction error:', parseError);
     }
 
     return conceptCards.slice(0, 5); // Allow up to 5 concepts as per Maya personality config
