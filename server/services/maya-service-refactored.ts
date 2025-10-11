@@ -1,8 +1,26 @@
 /**
- * Maya AI Service - Refactored Composition Service
- * Orchestrates Maya AI brand strategist functionality using modular services
- * Provides unified interface for user profiles, conversations, concept cards, and image generation
+ * ⚠️  DEPRECATED SERVICE - CONSOLIDATED INTO MAYA-SERVICE.TS ⚠️
+ * 
+ * This refactored service has been DEPRECATED as part of Phase 2: Service Unification.
+ * All Maya functionality has been consolidated into server/services/maya-service.ts
+ * 
+ * REASON FOR DEPRECATION:
+ * - Modular architecture created complexity without clear benefits
+ * - Multiple services led to fragmented extraction logic and routing conflicts
+ * - Single unified service provides better maintainability and consistency
+ * 
+ * All modular service patterns have been evaluated and best features integrated into:
+ * - server/services/maya-service.ts (unified Maya service)
+ * 
+ * @deprecated DO NOT USE - Use server/services/maya-service.ts instead
+ * @since Service Unification Phase 2
  */
+
+/*
+// Legacy Maya AI Service - Refactored Composition Service - DEPRECATED
+// Orchestrates Maya AI brand strategist functionality using modular services
+// Provides unified interface for user profiles, conversations, concept cards, and image generation
+*/
 
 import { getDatabase, type IStorage } from '../../shared/database-provider.js';
 import { MayaProfileService } from './maya/profile-service.js';

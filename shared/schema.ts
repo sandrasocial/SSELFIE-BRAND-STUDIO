@@ -620,23 +620,6 @@ export const userPersonalBrand = pgTable("user_personal_brand", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// Maya Personal Memory data for personalized interactions
-export const mayaPersonalMemory = pgTable("maya_personal_memory", {
-  id: serial("id").primaryKey(),
-  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
-  personalInsights: jsonb("personal_insights"),
-  ongoingGoals: jsonb("ongoing_goals"),
-  conversationStyle: jsonb("conversation_style"),
-  userFeedbackPatterns: jsonb("user_feedback_patterns"),
-  preferredTopics: jsonb("preferred_topics"),
-  personalizedStylingNotes: text("personalized_styling_notes"),
-  successfulPromptPatterns: jsonb("successful_prompt_patterns"),
-  lastMemoryUpdate: timestamp("last_memory_update").defaultNow(),
-  memoryVersion: integer("memory_version").default(1),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
-
 // User Style Memory for learning preferences and patterns - ✨ PHASE 4.3 ENHANCED
 export const userStyleMemory = pgTable("user_style_memory", {
   id: serial("id").primaryKey(),
@@ -691,31 +674,6 @@ export const promptAnalysis = pgTable("prompt_analysis", {
   generationTime: integer("generation_time"), // How long it took to generate
   successScore: decimal("success_score").default("0.0"), // 0.0 to 1.0 based on user actions
   
-  createdAt: timestamp("created_at").defaultNow(),
-});
-
-// Maya Chat History tables - STEP 3.1: Performance Optimized
-export const mayaChats = pgTable("maya_chats", {
-  id: serial("id").primaryKey(),
-  userId: varchar("user_id").notNull(),
-  chatTitle: varchar("chat_title").notNull(),
-  chatSummary: text("chat_summary"),
-  chatCategory: varchar("chat_category").default("Style Consultation"),
-  lastActivity: timestamp("last_activity").defaultNow(),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
-
-export const mayaChatMessages = pgTable("maya_chat_messages", {
-  id: serial("id").primaryKey(),
-  chatId: integer("chat_id").references(() => mayaChats.id).notNull(),
-  role: varchar("role").notNull(), // 'user' or 'maya'
-  content: text("content").notNull(),
-  imagePreview: text("image_preview"), // JSON array of image URLs
-  generatedPrompt: text("generated_prompt"),
-  conceptCards: jsonb("concept_cards"), // ENHANCED: JSON array of concept cards with enhanced context
-  quickButtons: text("quick_buttons"), // JSON array of quick action buttons
-  canGenerate: boolean("can_generate").default(false), // Whether this message can generate images
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -846,11 +804,8 @@ export const insertLiveEventSchema = z.object({
 
 export const insertUserLandingPageSchema = createInsertSchema(userLandingPages).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertUserPersonalBrandSchema = createInsertSchema(userPersonalBrand).omit({ id: true, createdAt: true, updatedAt: true });
-export const insertMayaPersonalMemorySchema = createInsertSchema(mayaPersonalMemory).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertUserStyleMemorySchema = createInsertSchema(userStyleMemory).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertPromptAnalysisSchema = createInsertSchema(promptAnalysis).omit({ id: true, createdAt: true });
-export const insertMayaChatSchema = createInsertSchema(mayaChats).omit({ id: true, createdAt: true, updatedAt: true });
-export const insertMayaChatMessageSchema = createInsertSchema(mayaChatMessages).omit({ id: true, createdAt: true });
 export const insertGenerationTrackerSchema = createInsertSchema(generationTrackers).omit({ id: true, createdAt: true });
 export const insertTrainingRunSchema = createInsertSchema(trainingRuns).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertLoraWeightSchema = createInsertSchema(loraWeights).omit({ id: true, createdAt: true, updatedAt: true });
@@ -876,12 +831,7 @@ export type Website = typeof websites.$inferSelect;
 export type InsertWebsite = typeof websites.$inferInsert;
 export type UserPersonalBrand = typeof userPersonalBrand.$inferSelect;
 export type InsertUserPersonalBrand = typeof userPersonalBrand.$inferInsert;
-export type MayaPersonalMemory = typeof mayaPersonalMemory.$inferSelect;
-export type InsertMayaPersonalMemory = typeof mayaPersonalMemory.$inferInsert;
-export type MayaChat = typeof mayaChats.$inferSelect;
-export type InsertMayaChat = typeof mayaChats.$inferInsert;
-export type MayaChatMessage = typeof mayaChatMessages.$inferSelect;
-export type InsertMayaChatMessage = typeof mayaChatMessages.$inferInsert;
+
 export type GenerationTracker = typeof generationTrackers.$inferSelect;
 export type InsertGenerationTracker = typeof generationTrackers.$inferInsert;
 export type TrainingRun = typeof trainingRuns.$inferSelect;
@@ -1522,22 +1472,6 @@ export const userStyleEvolution = pgTable("user_style_evolution", {
   createdAt: timestamp("created_at").defaultNow()
 });
 
-// Real-time Context Tracking  
-export const mayaContextSessions = pgTable("maya_context_sessions", {
-  id: serial("id").primaryKey(),
-  userId: varchar("user_id").references(() => users.id).notNull(),
-  sessionId: varchar("session_id").notNull(),
-  
-  // Session context
-  currentMood: varchar("current_mood"),
-  stylingGoals: jsonb("styling_goals").default('[]'),
-  contextualCues: jsonb("contextual_cues").default('{}'),
-  adaptationTriggers: jsonb("adaptation_triggers").default('[]'),
-  
-  sessionStarted: timestamp("session_started").defaultNow(),
-  lastInteraction: timestamp("last_interaction").defaultNow()
-});
-
 // HYBRID BACKEND ARCHITECTURE: Maya Conversations and Concept Cards
 // New conversation system for Maya context preservation
 export const conversations = pgTable("conversations", {
@@ -1682,15 +1616,6 @@ export const insertUserStyleEvolutionSchema = z.object({
   sustainabilityPreferences: z.record(z.any()).default({})
 });
 
-export const insertMayaContextSessionSchema = z.object({
-  userId: z.string(),
-  sessionId: z.string(),
-  currentMood: z.string().optional(),
-  stylingGoals: z.array(z.any()).default([]),
-  contextualCues: z.record(z.any()).default({}),
-  adaptationTriggers: z.array(z.any()).default([])
-});
-
 // New hybrid backend insert schemas
 export const insertConversationSchema = z.object({
   userId: z.string(),
@@ -1767,8 +1692,6 @@ export type SavedPrompt = typeof savedPrompts.$inferSelect;
 // export type InsertSavedPrompt = z.infer<typeof insertSavedPromptSchema>;
 export type UserStyleEvolution = typeof userStyleEvolution.$inferSelect;
 // export type InsertUserStyleEvolution = z.infer<typeof insertUserStyleEvolutionSchema>;
-export type MayaContextSession = typeof mayaContextSessions.$inferSelect;
-// export type InsertMayaContextSession = z.infer<typeof insertMayaContextSessionSchema>;
 
 // New hybrid backend types
 export type Conversation = typeof conversations.$inferSelect;

@@ -1,10 +1,25 @@
 /**
- * @license
- * Copyright 2025 Google LLC
- * SPDX-License-Identifier: Apache-2.0
+ * ⚠️  LEGACY ROUTER MODULE - DISABLED FOR ROUTING CONSOLIDATION ⚠️
+ * 
+ * This legacy Maya router has been disabled to eliminate routing conflicts.
+ * All Maya functionality has been consolidated into server/index.ts main handler.
+ * 
+ * REASON FOR DISABLING:
+ * - Conflicting routes with server/index.ts causing unpredictable behavior
+ * - Multiple Maya implementations creating inconsistent data flows
+ * - Generation pipeline requires single consistent routing path
+ * 
+ * Maya endpoints now handled exclusively through:
+ * - server/index.ts (main API handler)
+ * - server/services/maya-service.ts (core business logic)
+ * 
+ * @deprecated DO NOT RE-ENABLE - Use server/index.ts Maya handlers instead
  */
 
-// Secure Maya Chat Routes
+// DISABLED: All legacy Maya routes commented out below
+
+/*
+// Legacy Maya Chat Routes - DISABLED
 // All AI operations performed server-side with Anthropic Claude API
 
 import express from 'express';
@@ -304,4 +319,9 @@ router.get('/status/:generationId', requireStackAuth, async (req, res) => {
     }
 });
 
+*/
+
+// DISABLED: Export empty router to prevent conflicts
+import express from 'express';
+const router = express.Router();
 export default router;

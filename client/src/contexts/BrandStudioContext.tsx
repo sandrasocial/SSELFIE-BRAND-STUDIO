@@ -5,6 +5,96 @@ import { useAuth } from '../hooks/use-auth.js';
 import { useToast } from '../hooks/use-toast.js';
 import type { ConceptCard } from '../../../shared/types/concept-card.js';
 
+// Validation Functions
+
+/**
+ * Validates concept cards received from the API to ensure they have the required structure
+ * @param cards - Raw concept cards data from API response
+ * @returns boolean indicating if the data is valid
+ */
+const validateConceptCards = (cards: any): boolean => {
+  // Handle null/undefined
+  if (!cards) return true; // No cards is valid (empty response)
+  
+  // Must be an array
+  if (!Array.isArray(cards)) {
+    console.error('❌ VALIDATION: Concept cards is not an array:', typeof cards);
+    return false;
+  }
+
+  // Validate each card structure
+  return cards.every((card, index) => {
+    // Basic existence check
+    if (!card || typeof card !== 'object') {
+      console.error(`❌ VALIDATION: Card ${index} is not an object:`, card);
+      return false;
+    }
+
+    // Required fields with type validation
+    const requiredFields = [
+      { field: 'title', type: 'string' },
+      { field: 'description', type: 'string' }
+    ];
+
+    for (const { field, type } of requiredFields) {
+      if (!(field in card) || typeof card[field] !== type) {
+        console.error(`❌ VALIDATION: Card ${index} missing or invalid ${field}:`, { 
+          field, 
+          expected: type, 
+          actual: typeof card[field],
+          card 
+        });
+        return false;
+      }
+    }
+
+    // Optional fields with type validation (if present)
+    const optionalFields = [
+      { field: 'id', type: 'string' },
+      { field: 'prompt', type: 'string' },
+      { field: 'fluxPrompt', type: 'string' },
+      { field: 'shotType', type: 'string' },
+      { field: 'creativeLook', type: 'string' }
+    ];
+
+    for (const { field, type } of optionalFields) {
+      if (field in card && card[field] !== null && card[field] !== undefined && typeof card[field] !== type) {
+        console.error(`❌ VALIDATION: Card ${index} has invalid ${field} type:`, { 
+          field, 
+          expected: type, 
+          actual: typeof card[field],
+          value: card[field] 
+        });
+        return false;
+      }
+    }
+
+    return true;
+  });
+};
+
+/**
+ * Sanitizes and enhances concept cards with default values and proper IDs
+ * @param cards - Validated concept cards from API
+ * @returns Enhanced concept cards ready for state
+ */
+const sanitizeConceptCards = (cards: any[]): ConceptCard[] => {
+  return cards.map((card, index) => ({
+    ...card,
+    id: card.id || `concept_${Date.now()}_${index}`,
+    canGenerate: true,
+    isGenerating: false,
+    // Ensure required fields are strings
+    title: String(card.title || ''),
+    description: String(card.description || ''),
+    // Preserve optional fields
+    prompt: card.prompt || undefined,
+    fluxPrompt: card.fluxPrompt || undefined,
+    shotType: card.shotType || undefined,
+    creativeLook: card.creativeLook || undefined
+  }));
+};
+
 // Types
 
 interface ChatMessage {
@@ -209,35 +299,46 @@ export function BrandStudioProvider({ children }: { children: React.ReactNode })
       });
     },
     onSuccess: (data) => {
-      // Handle Maya's intelligent response with proper concept card extraction
+      // Handle Maya's intelligent response with proper concept card extraction and validation
       console.log('🔍 MAYA CLIENT: Full API response received:', JSON.stringify(data, null, 2));
       console.log('🎯 MAYA CLIENT: Concept cards in response:', data.conceptCards?.length || 0);
       
       if (data.response || data.content || data.message) {
+        // Validate concept cards before processing
+        const rawConceptCards = data.conceptCards || [];
+        let validatedConceptCards: ConceptCard[] = [];
+        
+        if (validateConceptCards(rawConceptCards)) {
+          if (rawConceptCards.length > 0) {
+            validatedConceptCards = sanitizeConceptCards(rawConceptCards);
+            console.log('✅ MAYA CLIENT: Concept cards validated and sanitized:', validatedConceptCards.length);
+          }
+        } else {
+          console.error('❌ MAYA CLIENT: Concept card validation failed, skipping malformed data');
+          toast({ 
+            title: "Concept Card Error", 
+            description: "Some concept cards couldn't be displayed due to invalid data format."
+          });
+        }
+
         const mayaMessage: ChatMessage = {
           id: `maya_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
           type: 'maya',
           content: data.response || data.content || data.message || '',
           timestamp: new Date().toISOString(),
-          conceptCards: data.conceptCards || [],
+          conceptCards: validatedConceptCards,
           quickButtons: data.quickButtons || []
         };
         
-        console.log('📝 MAYA CLIENT: Created message with concept cards:', mayaMessage.conceptCards?.length || 0);
+        console.log('📝 MAYA CLIENT: Created message with validated concept cards:', mayaMessage.conceptCards?.length || 0);
         dispatch({ type: 'ADD_MESSAGE', payload: mayaMessage });
         
-        // Update concept cards with proper IDs for selection
-        if (data.conceptCards?.length > 0) {
-          const processedConceptCards = data.conceptCards.map((card: ConceptCard, index: number) => ({
-            ...card,
-            id: card.id || `concept_${Date.now()}_${index}`,
-            canGenerate: true,
-            isGenerating: false
-          }));
-          console.log('✅ MAYA CLIENT: Processing concept cards:', processedConceptCards);
-          dispatch({ type: 'UPDATE_CONCEPT_CARDS', payload: processedConceptCards });
+        // Update concept cards state with validated data
+        if (validatedConceptCards.length > 0) {
+          console.log('✅ MAYA CLIENT: Updating state with validated concept cards:', validatedConceptCards);
+          dispatch({ type: 'UPDATE_CONCEPT_CARDS', payload: validatedConceptCards });
         } else {
-          console.log('❌ MAYA CLIENT: No concept cards to process');
+          console.log('❌ MAYA CLIENT: No valid concept cards to process');
         }
       }
       dispatch({ type: 'SET_TYPING', payload: false });
@@ -274,16 +375,18 @@ export function BrandStudioProvider({ children }: { children: React.ReactNode })
 
       console.log('🎨 GENERATE: Using prompt:', String(finalPrompt).substring(0, 100) + '...');
 
-      // Use the correct endpoint: /api/maya-generate (with dash)
-      const response = await fetch('/api/maya-generate', {
+      // FIXED: Use correct endpoint /api/maya/generate (matches server handler)
+      const response = await fetch('/api/maya/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({
-          prompt: finalPrompt,
-          style: conceptCard.creativeLook || 'professional',
-          count: 2,
-          conceptName: conceptCard.title
+          conceptCard: {
+            id: conceptCard.id,
+            title: conceptCard.title,
+            description: conceptCard.description,
+            fluxPrompt: finalPrompt
+          }
         })
       });
 
@@ -298,16 +401,16 @@ export function BrandStudioProvider({ children }: { children: React.ReactNode })
       console.log('🎨 GENERATE SUCCESS:', data);
       
       // ✅ ASYNC APPROACH: Generation started, now poll for completion
-      if (data.data?.jobId) {
+      if (data.generationId) {
         toast({ 
           title: "Generation Started!", 
           description: "Your images are being created. This may take 1-2 minutes." 
         });
         
         // Start polling for completion
-        pollForGenerationCompletion(data.data.jobId);
+        pollForGenerationCompletion(data.generationId);
       } else {
-        console.log('⚠️ No job ID in generation response:', data);
+        console.log('⚠️ No generation ID in response:', data);
         toast({ 
           title: "Generation Issue", 
           description: "Failed to start generation. Please try again." 
@@ -366,16 +469,16 @@ export function BrandStudioProvider({ children }: { children: React.ReactNode })
         }
         
         const data = await response.json();
-        console.log(`🔄 CLIENT POLLING: Status ${data.data?.status} for ${jobId}`);
+        console.log(`🔄 CLIENT POLLING: Status ${data.status} for ${jobId}`);
         
-        if (data.data?.isComplete && data.data?.images?.length > 0) {
+        if (data.status === 'completed' && data.images && data.images.length > 0) {
           // Generation complete - add images to chat
           const imageMessage: ChatMessage = {
             id: `images_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
             type: 'maya',
             content: `Here are your generated photos:`,
             timestamp: new Date().toISOString(),
-            generatedImages: data.data.images
+            generatedImages: data.images
           };
           
           dispatch({ type: 'ADD_MESSAGE', payload: imageMessage });

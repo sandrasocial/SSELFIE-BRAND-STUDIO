@@ -1,7 +1,7 @@
 import { pgTable, serial, varchar, text, jsonb, boolean, timestamp, integer, decimal } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
-import { users } from "./schema.js";
+import { users } from "./schema";
 
 // =============================================================================
 // MAYA CORE SCHEMA - Complete Database Structure
@@ -225,6 +225,10 @@ export type MayaImage = typeof mayaImages.$inferSelect;
 export type MayaConcept = typeof mayaConcepts.$inferSelect;
 export type MayaPayment = typeof mayaPayments.$inferSelect;
 export type MayaProfile = typeof mayaProfile.$inferSelect;
+export type MayaPersonalMemory = typeof mayaPersonalMemory.$inferSelect;
+export type MayaChat = typeof mayaChats.$inferSelect;
+export type MayaChatMessage = typeof mayaChatMessages.$inferSelect;
+export type MayaContextSession = typeof mayaContextSessions.$inferSelect;
 
 // Insert Types (for creating new records)
 export type InsertMayaModel = typeof mayaModels.$inferInsert;
@@ -232,6 +236,10 @@ export type InsertMayaImage = typeof mayaImages.$inferInsert;
 export type InsertMayaConcept = typeof mayaConcepts.$inferInsert;
 export type InsertMayaPayment = typeof mayaPayments.$inferInsert;
 export type InsertMayaProfile = typeof mayaProfile.$inferInsert;
+export type InsertMayaPersonalMemory = typeof mayaPersonalMemory.$inferInsert;
+export type InsertMayaChat = typeof mayaChats.$inferInsert;
+export type InsertMayaChatMessage = typeof mayaChatMessages.$inferInsert;
+export type InsertMayaContextSession = typeof mayaContextSessions.$inferInsert;
 
 // =============================================================================
 // UTILITY TYPES AND ENUMS - For Frontend Components
@@ -254,6 +262,135 @@ export type SubscriptionStatus = 'active' | 'canceled' | 'past_due' | 'unpaid';
 
 // Onboarding Status
 export type OnboardingStatus = 'pending' | 'in_progress' | 'completed';
+
+// =============================================================================
+// MAYA PERSONAL MEMORY TABLE - Personalized Interactions and Learning
+// =============================================================================
+
+export const mayaPersonalMemory = pgTable("maya_personal_memory", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  
+  // Personal Insights and Memory
+  personalInsights: jsonb("personal_insights"),
+  ongoingGoals: jsonb("ongoing_goals"),
+  conversationStyle: jsonb("conversation_style"),
+  userFeedbackPatterns: jsonb("user_feedback_patterns"),
+  preferredTopics: jsonb("preferred_topics"),
+  
+  // Styling and Personalization
+  personalizedStylingNotes: text("personalized_styling_notes"),
+  successfulPromptPatterns: jsonb("successful_prompt_patterns"),
+  
+  // Memory Management
+  lastMemoryUpdate: timestamp("last_memory_update").defaultNow(),
+  memoryVersion: integer("memory_version").default(1),
+  
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// =============================================================================
+// MAYA CHAT TABLES - Conversation Management
+// =============================================================================
+
+export const mayaChats = pgTable("maya_chats", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  
+  // Chat Metadata
+  chatTitle: varchar("chat_title").notNull(),
+  chatSummary: text("chat_summary"),
+  chatCategory: varchar("chat_category").default("Style Consultation"),
+  
+  // Activity Tracking
+  lastActivity: timestamp("last_activity").defaultNow(),
+  
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const mayaChatMessages = pgTable("maya_chat_messages", {
+  id: serial("id").primaryKey(),
+  chatId: integer("chat_id").references(() => mayaChats.id, { onDelete: "cascade" }).notNull(),
+  
+  // Message Content
+  role: varchar("role").notNull(), // 'user' or 'maya'
+  content: text("content").notNull(),
+  
+  // Enhanced Message Features
+  imagePreview: text("image_preview"), // JSON array of image URLs
+  generatedPrompt: text("generated_prompt"),
+  conceptCards: jsonb("concept_cards"), // JSON array of concept cards with enhanced context
+  quickButtons: text("quick_buttons"), // JSON array of quick action buttons
+  
+  // Generation Capabilities
+  canGenerate: boolean("can_generate").default(false), // Whether this message can generate images
+  
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// =============================================================================
+// MAYA CONTEXT SESSIONS TABLE - Session Management and Context Preservation
+// =============================================================================
+
+export const mayaContextSessions = pgTable("maya_context_sessions", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  sessionId: varchar("session_id").notNull(),
+  
+  // Session Context
+  currentMood: varchar("current_mood"),
+  stylingGoals: jsonb("styling_goals").default('[]'),
+  contextualCues: jsonb("contextual_cues").default('{}'),
+  adaptationTriggers: jsonb("adaptation_triggers").default('[]'),
+  
+  // Session Tracking
+  sessionStarted: timestamp("session_started").defaultNow(),
+  lastInteraction: timestamp("last_interaction").defaultNow(),
+});
+
+// =============================================================================
+// ADDITIONAL ZOD VALIDATION SCHEMAS - New Maya Tables
+// =============================================================================
+
+// Maya Personal Memory Schemas
+export const insertMayaPersonalMemorySchema = createInsertSchema(mayaPersonalMemory).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const selectMayaPersonalMemorySchema = createSelectSchema(mayaPersonalMemory);
+
+// Maya Chats Schemas
+export const insertMayaChatSchema = createInsertSchema(mayaChats).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const selectMayaChatSchema = createSelectSchema(mayaChats);
+
+// Maya Chat Messages Schemas
+export const insertMayaChatMessageSchema = createInsertSchema(mayaChatMessages).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const selectMayaChatMessageSchema = createSelectSchema(mayaChatMessages);
+
+// Maya Context Sessions Schemas
+export const insertMayaContextSessionSchema = createInsertSchema(mayaContextSessions).omit({
+  id: true,
+  sessionStarted: true,
+  lastInteraction: true,
+});
+
+export const selectMayaContextSessionSchema = createSelectSchema(mayaContextSessions);
 
 // =============================================================================
 // HELPER FUNCTIONS - Utility Functions for Maya Operations
