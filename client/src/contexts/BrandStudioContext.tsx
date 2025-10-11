@@ -210,6 +210,8 @@ export function BrandStudioProvider({ children }: { children: React.ReactNode })
     },
     onSuccess: (data) => {
       // Handle Maya's intelligent response with proper concept card extraction
+      console.log('🔍 MAYA CLIENT: Full API response received:', JSON.stringify(data, null, 2));
+      console.log('🎯 MAYA CLIENT: Concept cards in response:', data.conceptCards?.length || 0);
       
       if (data.response || data.content || data.message) {
         const mayaMessage: ChatMessage = {
@@ -221,6 +223,7 @@ export function BrandStudioProvider({ children }: { children: React.ReactNode })
           quickButtons: data.quickButtons || []
         };
         
+        console.log('📝 MAYA CLIENT: Created message with concept cards:', mayaMessage.conceptCards?.length || 0);
         dispatch({ type: 'ADD_MESSAGE', payload: mayaMessage });
         
         // Update concept cards with proper IDs for selection
@@ -231,7 +234,10 @@ export function BrandStudioProvider({ children }: { children: React.ReactNode })
             canGenerate: true,
             isGenerating: false
           }));
+          console.log('✅ MAYA CLIENT: Processing concept cards:', processedConceptCards);
           dispatch({ type: 'UPDATE_CONCEPT_CARDS', payload: processedConceptCards });
+        } else {
+          console.log('❌ MAYA CLIENT: No concept cards to process');
         }
       }
       dispatch({ type: 'SET_TYPING', payload: false });
