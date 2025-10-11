@@ -29,48 +29,52 @@ export const IMAGE_CATEGORIES = {
 // Each user gets ONLY their own trained LoRA weights - NO EXCEPTIONS
 export class ModelTrainingService {
   /**
-   * Poll Replicate API for prediction status and return { status, imageUrls }
+   * Poll Replicate API for prediction status using enhanced Replicate client
    */
   static async checkGenerationStatus(predictionId: string): Promise<{ status: string; imageUrls?: string[] }> {
     try {
-      const response = await fetch(`https://api.replicate.com/v1/predictions/${predictionId}`, {
-        headers: {
-          'Authorization': `Token ${process.env['REPLICATE_API_TOKEN']}`,
-          'Content-Type': 'application/json',
-        },
-      });
-      if (!response.ok) {
-        throw new Error(`Failed to fetch prediction status: ${response.status}`);
-      }
-      const data = await response.json();
-      // Replicate returns status: 'starting', 'processing', 'succeeded', 'failed', 'canceled'
-      if (data.status === 'succeeded' && Array.isArray(data.output)) {
-        // Download each Replicate image and upload to S3 for permanent URL
-        const s3 = ModelTrainingService.s3;
-        const bucket = process.env['AWS_S3_BUCKET'] || 'sselfie-studio-assets';
-        const uploadedUrls: string[] = [];
-        for (const imageUrl of data.output) {
-          try {
-            const imgResp = await fetch(imageUrl);
-            if (!imgResp.ok) throw new Error(`Failed to fetch image: ${imageUrl}`);
-            const imgBuffer = Buffer.from(await imgResp.arrayBuffer());
-            const key = `maya-generated/${predictionId}/${Date.now()}-${Math.random().toString(36).slice(2,8)}.png`;
-            const putCmd = new PutObjectCommand({
-              Bucket: bucket,
-              Key: key,
-              Body: imgBuffer,
-              ContentType: 'image/png',
-              // No ACL - bucket policy handles permissions
-            });
-            await (ModelTrainingService.s3 as any).send(putCmd);
-            const publicUrl = `https://${bucket}.s3.amazonaws.com/${key}`;
-            uploadedUrls.push(publicUrl);
-          } catch (err) {
-            console.error('❌ Error uploading image to S3:', err);
+      // ✅ UPGRADED: Use official Replicate client for better reliability
+      const { replicateClient } = await import('./services/replicate-client.js');
+      
+      const prediction = await replicateClient.getPredictionStatus(predictionId);
+      
+      console.log(`📊 STATUS CHECK: Prediction ${predictionId} status: ${prediction.status}`);
+      
+      // Extract image URLs using the client's helper method
+      if (prediction.status === 'succeeded' && prediction.output) {
+        const imageUrls = replicateClient.extractImageUrls(prediction.output);
+        
+        if (imageUrls.length > 0) {
+          // Migrate images to permanent S3 storage
+          const { ImageStorageService } = await import('./image-storage-service.js');
+          const imageStorageService = new ImageStorageService();
+          const uploadedUrls: string[] = [];
+          
+          for (const tempUrl of imageUrls) {
+            try {
+              const migrationResult = await ImageStorageService.migrateTempUrlToS3(tempUrl, predictionId);
+              
+              if (migrationResult.success && migrationResult.permanentUrl) {
+                uploadedUrls.push(migrationResult.permanentUrl);
+                console.log(`✅ STATUS CHECK: Migrated ${tempUrl} to S3: ${migrationResult.permanentUrl}`);
+              } else {
+                console.error('❌ STATUS CHECK: Migration failed:', migrationResult.error);
+                // Fallback to original URL if migration fails
+                uploadedUrls.push(tempUrl);
+              }
+            } catch (err) {
+              console.error('❌ STATUS CHECK: Error migrating to S3:', err);
+              // Fallback to original URL if migration fails
+              uploadedUrls.push(tempUrl);
+            }
           }
+          
+          return { status: 'succeeded', imageUrls: uploadedUrls };
+        } else {
+          console.warn(`⚠️ STATUS CHECK: No images found in prediction ${predictionId} output`);
+          return { status: 'failed' };
         }
-        return { status: 'succeeded', imageUrls: uploadedUrls };
-      } else if (data.status === 'failed' || data.status === 'canceled') {
+      } else if (prediction.status === 'failed' || prediction.status === 'canceled') {
         return { status: 'failed' };
       } else {
         return { status: 'processing' };
@@ -848,26 +852,28 @@ export class ModelTrainingService {
       }
 
 
-      const response = await fetch('https://api.replicate.com/v1/predictions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Token ${process.env['REPLICATE_API_TOKEN']}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestBody)
-      });
+      // ✅ UPGRADED: Use official Replicate client for better error handling and TypeScript support
+      const { replicateClient } = await import('./services/replicate-client.js');
+      
+      const generationConfig = {
+        modelVersionId: requestBody.version,
+        prompt: requestBody.input.prompt,
+        numOutputs: requestBody.input.num_outputs,
+        aspectRatio: requestBody.input.aspect_ratio,
+        outputFormat: requestBody.input.output_format,
+        outputQuality: requestBody.input.output_quality,
+        guidanceScale: requestBody.input.guidance_scale,
+        numInferenceSteps: requestBody.input.num_inference_steps,
+        seed: requestBody.input.seed,
+        ...(requestBody.input.megapixels && { megapixels: requestBody.input.megapixels }),
+        ...(requestBody.input.lora_weights && { 
+          loraWeights: requestBody.input.lora_weights,
+          loraScale: requestBody.input.lora_scale
+        })
+      };
 
-      
-      const prediction = await response.json();
-      
-      
-      if (!response.ok) {
-        throw new Error(`Replicate API error (${response.status}): ${JSON.stringify(prediction)}`);
-      }
-      
-      if (!prediction.id) {
-        throw new Error(`No prediction ID returned from Replicate API: ${JSON.stringify(prediction)}`);
-      }
+      const result = await replicateClient.startGeneration(generationConfig);
+      const prediction = result.prediction;
       
       // ✅ UNIFIED POLLING STRATEGY: Always return immediately for Maya chat
       // All polling handled by /api/maya/check-generation route

@@ -272,6 +272,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     req.url.startsWith('/api/hair-trends') ||
     req.url.startsWith('/api/auth/') ||
     req.url.startsWith('/api/admin/') || // Admin routes use x-admin-token, not Stack Auth
+    req.url.startsWith('/api/webhooks/') || // Webhook endpoints (Replicate, Stripe, etc.)
     req.url === '/api/logout'
   );
 
