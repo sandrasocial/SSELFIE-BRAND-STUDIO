@@ -578,7 +578,20 @@ export class ClaudeApiCacheService {
   async getHealthStatus(): Promise<{
     status: 'healthy' | 'degraded' | 'unhealthy';
     issues: string[];
-    stats: ReturnType<typeof this.getStats>;
+    stats: {
+      cache: {
+        size: number;
+        hitRate: number;
+        totalTokensCached: number;
+        averageHitsPerEntry: number;
+      };
+      rateLimiting: any;
+      batch: {
+        queueSize: number;
+        isProcessing: boolean;
+        averageBatchSize: number;
+      };
+    };
   }> {
     const stats = this.getStats();
     const issues: string[] = [];

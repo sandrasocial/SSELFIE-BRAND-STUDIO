@@ -88,7 +88,7 @@ export function quickHealthCheck(): Promise<{ status: 'healthy' | 'degraded'; ti
 export function withDatabaseTimeoutAndRetry<T>(
   promiseFactory: () => Promise<T>,
   fallbackValue: T,
-  ms: number = 2000,
+  ms: number = 1500, // Reduced from 2000ms with caching
   retries: number = 2,
   label: string = 'critical-db-op'
 ): Promise<T> {

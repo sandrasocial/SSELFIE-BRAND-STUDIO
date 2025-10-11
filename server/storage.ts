@@ -408,7 +408,24 @@ export class DatabaseStorage implements IStorage {
   
   // Get user by Stack Auth ID (for linked accounts)
   async getUserByStackAuthId(stackAuthId: string): Promise<User | undefined> {
+    // Import cache inside function to avoid circular dependencies
+    const { userCache } = await import('./_utils/user-cache.js');
+    
+    // Check cache first
+    const cached = userCache.get(stackAuthId);
+    if (cached !== null) {
+      console.log(`🚀 USER CACHE: Cache ${cached ? 'hit' : 'hit (null)'} for ${stackAuthId.substring(0, 8)}`);
+      return cached;
+    }
+    
+    // Cache miss - query database
+    console.log(`💾 USER CACHE: Cache miss for ${stackAuthId.substring(0, 8)}, querying database`);
     const [user] = await db.select().from(users).where(eq(users.stackAuthId, stackAuthId));
+    
+    // Store in cache
+    userCache.set(stackAuthId, user);
+    console.log(`✅ USER CACHE: Stored ${user ? 'user' : 'null'} for ${stackAuthId.substring(0, 8)}`);
+    
     return user;
   }
 
@@ -852,6 +869,18 @@ export class DatabaseStorage implements IStorage {
 
   // User Model operations - with dual ID support for Stack Auth migration
   async getUserModel(userId: string): Promise<UserModel | undefined> {
+    // Import cache inside function to avoid circular dependencies
+    const { userCache } = await import('./_utils/user-cache.js');
+    
+    // Check cache first
+    const cached = userCache.getModel(userId);
+    if (cached !== null) {
+      console.log(`🚀 MODEL CACHE: Cache ${cached ? 'hit' : 'hit (null)'} for ${userId.substring(0, 8)}`);
+      return cached;
+    }
+    
+    console.log(`💾 MODEL CACHE: Cache miss for ${userId.substring(0, 8)}, querying database`);
+    
     // Direct lookup first
     let [model] = await db
       .select()
@@ -868,6 +897,10 @@ export class DatabaseStorage implements IStorage {
           .where(eq(userModels.userId, linkedUser.id));
       }
     }
+    
+    // Store in cache
+    userCache.setModel(userId, model);
+    console.log(`✅ MODEL CACHE: Stored ${model ? 'model' : 'null'} for ${userId.substring(0, 8)}`);
     
     return model;
   }

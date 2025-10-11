@@ -154,8 +154,8 @@ export class TrainingOrchestrator {
         progress: progress.progress,
         stage: progress.stage,
         trainingId: progress.trainingId,
-        modelVersionId: userModel?.replicateVersionId,
-        loraWeightsUrl: userModel?.trainedModelPath,
+        modelVersionId: userModel?.replicateVersionId || undefined,
+        loraWeightsUrl: userModel?.trainedModelPath || undefined,
         error: progress.error,
         estimatedTimeRemaining: progress.eta
       };
