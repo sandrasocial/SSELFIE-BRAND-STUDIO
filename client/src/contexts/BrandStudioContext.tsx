@@ -263,7 +263,7 @@ export function BrandStudioProvider({ children }: { children: React.ReactNode })
   }, [user, state.conversationId]);
 
   // Load conversation history - NOW ENABLED with working endpoint
-  const { isLoading } = useQuery({
+  const { isLoading, refetch: refetchChatHistory } = useQuery({
     queryKey: ['/api/maya/chat-history', state.conversationId],
     queryFn: async () => {
       const response = await apiRequest('/api/maya/chat-history', 'GET');
@@ -471,22 +471,34 @@ export function BrandStudioProvider({ children }: { children: React.ReactNode })
         const data = await response.json();
         console.log(`🔄 CLIENT POLLING: Status ${data.status} for ${jobId}`);
         
-        if (data.status === 'completed' && data.images && data.images.length > 0) {
-          // Generation complete - add images to chat
-          const imageMessage: ChatMessage = {
-            id: `images_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-            type: 'maya',
-            content: `Here are your generated photos:`,
-            timestamp: new Date().toISOString(),
-            generatedImages: data.images
-          };
+        if (data.status === 'completed') {
+          // 🎯 FIXED: Generation complete - refresh chat history to get preview service messages
+          console.log(`✅ CLIENT POLLING: Generation completed, refreshing chat history`);
           
-          dispatch({ type: 'ADD_MESSAGE', payload: imageMessage });
-          
-          toast({ 
-            title: "Images Ready!", 
-            description: "Your photos have been generated successfully." 
-          });
+          // Refresh chat history to pick up messages from Maya Chat Preview Service
+          try {
+            await refetchChatHistory();
+            
+            toast({ 
+              title: "Images Ready!", 
+              description: "Your photos have been generated successfully." 
+            });
+          } catch (refreshError) {
+            console.error('❌ CLIENT POLLING: Failed to refresh chat history:', refreshError);
+            
+            // FALLBACK: If refresh fails, create message with images from status
+            if (data.images && data.images.length > 0) {
+              const imageMessage: ChatMessage = {
+                id: `images_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                type: 'maya',
+                content: `🎬 **YOUR IMAGES ARE READY!**\n\nHere are your stunning photos! Click the heart ♡ on any image you love to save it to your gallery.`,
+                timestamp: new Date().toISOString(),
+                generatedImages: data.images
+              };
+              
+              dispatch({ type: 'ADD_MESSAGE', payload: imageMessage });
+            }
+          }
           
           return; // Stop polling
         }

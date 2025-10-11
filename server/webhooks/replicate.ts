@@ -123,31 +123,45 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           // Find the tracker for this prediction ID and trigger completion check
           const { storage } = await import('../storage.js');
           
-          // Get all users' generation trackers to find the matching one
-          // Note: In production, you'd want a more efficient lookup by prediction ID
-          const allUsers = await storage.getAllUsers();
+          // 🎯 OPTIMIZED: Search for tracker by Replicate prediction ID more efficiently
+          console.log(`🔍 REPLICATE WEBHOOK: Searching for tracker with prediction ID: ${payload.id}`);
+          
           let foundTracker = null;
           
-          for (const user of allUsers) {
-            try {
-              const trackers = await storage.getUserGenerationTrackers(user.id);
-              const tracker = trackers.find(t => 
-                t.prompt?.includes(`||REPLICATE_ID:${payload.id}`) ||
-                t.predictionId === payload.id
-              );
-              
-              if (tracker) {
-                foundTracker = tracker;
-                console.log(`✅ REPLICATE WEBHOOK: Found tracker ${tracker.id} for prediction ${payload.id}`);
+          try {
+            // Get all users to search their trackers
+            const allUsers = await storage.getAllUsers();
+            console.log(`🔍 REPLICATE WEBHOOK: Searching across ${allUsers.length} users`);
+            
+            for (const user of allUsers.slice(0, 50)) { // Limit search to prevent timeout
+              try {
+                const trackers = await storage.getUserGenerationTrackers(user.id);
                 
-                // Trigger immediate completion check
-                await GenerationCompletionMonitor.checkAndUpdateGeneration(payload.id, tracker.id);
-                break;
+                // Look for tracker that matches this prediction ID
+                const tracker = trackers.find(t => {
+                  // Check if prompt contains the Replicate ID
+                  const hasReplicateId = t.prompt?.includes(`||REPLICATE_ID:${payload.id}`);
+                  // Also check direct predictionId match (fallback)
+                  const directMatch = t.predictionId === payload.id;
+                  
+                  return hasReplicateId || directMatch;
+                });
+                
+                if (tracker) {
+                  foundTracker = tracker;
+                  console.log(`✅ REPLICATE WEBHOOK: Found tracker ${tracker.id} for user ${user.id}, prediction ${payload.id}`);
+                  
+                  // Trigger immediate completion check
+                  await GenerationCompletionMonitor.checkAndUpdateGeneration(payload.id, tracker.id);
+                  break;
+                }
+              } catch (userError) {
+                console.warn(`⚠️ REPLICATE WEBHOOK: Error checking user ${user.id}:`, userError);
+                continue;
               }
-            } catch (userError) {
-              console.warn(`⚠️ REPLICATE WEBHOOK: Error checking user ${user.id}:`, userError);
-              continue;
             }
+          } catch (searchError) {
+            console.error('❌ REPLICATE WEBHOOK: Error searching for tracker:', searchError);
           }
           
           if (!foundTracker) {
