@@ -1378,31 +1378,72 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
         const conceptCards = [];
         try {
             console.log('🔍 MAYA: Extracting concept cards from response length:', mayaResponse.length);
+            console.log('🔍 MAYA: Response sample:', mayaResponse.substring(0, 800));
             
-            // Enhanced regex for Maya's personality format: [EMOJI] **CONCEPT NAME IN ALL CAPS**
-            const conceptSections = mayaResponse.split('---').filter(section => section.trim().length > 50);
+            // Split by Maya's concept separators (---)
+            const conceptSections = mayaResponse.split(/---+/).filter(section => section.trim().length > 50);
             console.log(`🔍 MAYA: Found ${conceptSections.length} concept sections`);
             
-            for (const section of conceptSections) {
-                const conceptPattern = /([^\w\s])\s*\*\*([^*]+)\*\*\s*[\r\n]+([^]+?)[\r\n]+\s*FLUX_PROMPT:\s*\[([^\]]+)\]/gm;
+            for (let i = 0; i < conceptSections.length; i++) {
+                const section = conceptSections[i].trim();
+                console.log(`🔍 MAYA: Processing section ${i}:`, section.substring(0, 200));
+                
+                // Maya's trained format: [EMOJI] **CONCEPT NAME** \n Description \n FLUX_PROMPT: [prompt]
+                // More flexible regex that handles various whitespace and newline patterns
+                const conceptPattern = /([^\w\s])\s*\*\*([^*]+)\*\*\s*\n([\s\S]*?)\n\s*FLUX_PROMPT:\s*\[([\s\S]*?)\]/g;
                 
                 let match;
                 while ((match = conceptPattern.exec(section)) !== null) {
                     const emoji = match[1].trim();
                     const title = match[2].trim();
-                    const description = match[3].trim().substring(0, 300);
-                    const fluxPrompt = match[4].trim();
+                    let description = match[3].trim();
+                    let fluxPrompt = match[4].trim();
 
+                    // Clean up description by removing extra whitespace and newlines
+                    description = description.replace(/\s+/g, ' ').substring(0, 300);
+                    
                     if (title && description && fluxPrompt && title.length > 3 && description.length > 20) {
-                        console.log(`✅ MAYA: Extracted concept - ${title}`);
+                        console.log(`✅ MAYA: Extracted concept - ${emoji} ${title}`);
                         conceptCards.push({
-                            id: `concept_${Date.now()}_${conceptCards.length}`,
+                            id: `concept_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
                             title: title,
                             description: description,
                             fluxPrompt: fluxPrompt,
                             creativeLook: 'Professional',
                             emoji: emoji
                         });
+                    } else {
+                        console.log(`⚠️ MAYA: Skipped concept - title: ${title?.length}, desc: ${description?.length}, prompt: ${fluxPrompt?.length}`);
+                    }
+                }
+                
+                // Fallback: If no structured concepts found, try simpler patterns
+                if (conceptCards.length === 0 && section.includes('**') && section.includes('FLUX_PROMPT:')) {
+                    console.log('🔄 MAYA: Trying fallback pattern for section:', section.substring(0, 100));
+                    
+                    // Simpler pattern that looks for any **title** followed by FLUX_PROMPT:
+                    const fallbackPattern = /\*\*([^*]+)\*\*\s*([\s\S]*?)\s*FLUX_PROMPT:\s*\[([\s\S]*?)\]/g;
+                    let fallbackMatch;
+                    
+                    while ((fallbackMatch = fallbackPattern.exec(section)) !== null) {
+                        const title = fallbackMatch[1].trim();
+                        let description = fallbackMatch[2].trim();
+                        let fluxPrompt = fallbackMatch[3].trim();
+                        
+                        // Clean up description
+                        description = description.replace(/\s+/g, ' ').substring(0, 300);
+                        
+                        if (title && description && fluxPrompt && title.length > 3) {
+                            console.log(`✅ MAYA: Fallback extracted - ${title}`);
+                            conceptCards.push({
+                                id: `concept_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                                title: title,
+                                description: description || title,
+                                fluxPrompt: fluxPrompt,
+                                creativeLook: 'Professional',
+                                emoji: '📸'
+                            });
+                        }
                     }
                 }
             }
@@ -1410,6 +1451,9 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
             console.log(`✅ MAYA: Extracted ${conceptCards.length} concept cards total`);
         } catch (parseError) {
             console.error('❌ MAYA: Concept card extraction error:', parseError);
+            if (parseError instanceof Error) {
+                console.error('❌ MAYA: Stack trace:', parseError.stack);
+            }
         }
 
         const chatResult = {
