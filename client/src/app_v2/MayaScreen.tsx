@@ -77,6 +77,51 @@ const MayaChatContent: React.FC<MayaChatContentProps> = ({ initialPrompt, onProm
     }
   };
 
+  // 💖 Heart Image Handler - Save to Gallery
+  const handleHeartImage = async (imageUrl: string, imageIndex: number) => {
+    try {
+      console.log(`💖 MAYA UI: Hearting image ${imageIndex + 1}`, imageUrl);
+      
+      const response = await fetch('/api/maya/heart-image', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          imageUrl,
+          category: 'maya_generated'
+        })
+      });
+
+      if (response.ok) {
+        // Show success feedback
+        const button = document.querySelector(`[data-image-index="${imageIndex}"]`);
+        if (button) {
+          button.innerHTML = '♥️';
+          setTimeout(() => {
+            button.innerHTML = '♡';
+          }, 2000);
+        }
+        
+        // Optional: Show toast notification
+        console.log('✅ MAYA UI: Image saved to gallery successfully');
+      } else {
+        console.error('❌ MAYA UI: Failed to save image to gallery');
+      }
+    } catch (error) {
+      console.error('❌ MAYA UI: Heart image error:', error);
+    }
+  };
+
+  // 🔍 View Full Size Handler
+  const handleViewFullSize = (imageUrl: string, imageIndex: number) => {
+    console.log(`🔍 MAYA UI: Viewing full size image ${imageIndex + 1}`, imageUrl);
+    
+    // Open image in new tab for full size viewing
+    window.open(imageUrl, '_blank');
+  };
+
   return (
     <ErrorBoundary>
       <div className="h-full flex flex-col space-y-4 pb-2">
@@ -224,12 +269,22 @@ const MayaChatContent: React.FC<MayaChatContentProps> = ({ initialPrompt, onProm
                             {selectedConceptCardId === card.id && (
                               <div className="mt-3 pt-3 border-t border-stone-300/30">
                                 {isCardGenerating ? (
-                                  <div className="flex items-center gap-2">
-                                    <div className="w-3 h-3 border-2 border-stone-400 border-t-transparent rounded-full animate-spin"></div>
-                                    <p className="text-xs font-light text-stone-600">Generating images...</p>
+                                  <div className="bg-blue-50/60 border border-blue-200/40 rounded-lg p-3">
+                                    <div className="flex items-center gap-3">
+                                      <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                                      <div className="flex-1">
+                                        <p className="text-xs font-medium text-blue-800">Creating your images...</p>
+                                        <p className="text-xs text-blue-600 mt-0.5">Using your personal AI model</p>
+                                      </div>
+                                    </div>
                                   </div>
                                 ) : (
-                                  <p className="text-xs font-light text-stone-500">Selected for generation</p>
+                                  <div className="bg-green-50/60 border border-green-200/40 rounded-lg p-3">
+                                    <div className="flex items-center gap-3">
+                                      <span className="text-green-600">✓</span>
+                                      <p className="text-xs font-medium text-green-800">Selected for generation</p>
+                                    </div>
+                                  </div>
                                 )}
                               </div>
                             )}
@@ -237,7 +292,10 @@ const MayaChatContent: React.FC<MayaChatContentProps> = ({ initialPrompt, onProm
                             {/* Generate Button */}
                             {!isCardGenerating && selectedConceptCardId !== card.id && (
                               <div className="mt-3 pt-3 border-t border-stone-300/30">
-                                <p className="text-xs font-light text-stone-500 opacity-60">Click to generate images</p>
+                                <div className="flex items-center justify-between">
+                                  <p className="text-xs font-light text-stone-500">Click to generate images</p>
+                                  <span className="text-xs text-stone-400">📸</span>
+                                </div>
                               </div>
                             )}
                           </div>
@@ -252,27 +310,66 @@ const MayaChatContent: React.FC<MayaChatContentProps> = ({ initialPrompt, onProm
               {/* Generated Images */}
               {message.type === 'maya' && message.generatedImages && message.generatedImages.length > 0 && (
                 <div className="mt-4 space-y-3">
-                  <div className="flex items-center gap-3">
-                    <div className="w-1 h-1 rounded-full bg-stone-600"></div>
-                    <span className="text-xs tracking-[0.15em] uppercase font-light text-stone-600">Generated Photos</span>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-1 h-1 rounded-full bg-stone-600"></div>
+                      <span className="text-xs tracking-[0.15em] uppercase font-light text-stone-600">Your Images Are Ready!</span>
+                    </div>
+                    <div className="text-xs font-light text-stone-500">
+                      Click ♡ to save to gallery
+                    </div>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {message.generatedImages.map((image: string, imageIndex: number) => (
                       <div key={imageIndex} className="relative group">
-                        <div className="aspect-square rounded-2xl overflow-hidden bg-stone-100/40 border border-stone-200/50">
+                        <div className="aspect-[3/4] rounded-2xl overflow-hidden bg-stone-100/40 border border-stone-200/50">
                           <img 
                             src={image} 
                             alt={`Generated photo ${imageIndex + 1}`}
                             className="w-full h-full object-cover"
+                            loading="lazy"
                           />
                         </div>
-                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-200 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100">
-                          <button className="bg-stone-900/80 text-stone-50 px-3 py-1.5 rounded-full text-xs font-light">
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-200 rounded-2xl">
+                          {/* Heart Button for Save to Gallery */}
+                          <button 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleHeartImage(image, imageIndex);
+                            }}
+                            data-image-index={imageIndex}
+                            className="absolute top-3 right-3 w-10 h-10 bg-white/90 hover:bg-white text-stone-800 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 shadow-lg"
+                            title="Save to Gallery"
+                          >
+                            <span className="text-lg">♡</span>
+                          </button>
+                          
+                          {/* View Full Size Button */}
+                          <button 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleViewFullSize(image, imageIndex);
+                            }}
+                            className="absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-white/90 hover:bg-white text-stone-800 px-4 py-2 rounded-full text-xs font-medium transition-all duration-200 hover:scale-105 shadow-lg"
+                          >
                             View Full Size
                           </button>
                         </div>
                       </div>
                     ))}
+                  </div>
+                  
+                  {/* Professional Quality Notice */}
+                  <div className="bg-stone-50/60 border border-stone-200/50 rounded-xl p-4 mt-4">
+                    <div className="flex items-center gap-3">
+                      <span className="text-stone-600">📸</span>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-stone-800">Professional-Quality Images</p>
+                        <p className="text-xs text-stone-600 mt-1">
+                          Generated with your personal AI model • 3:4 aspect ratio • PNG format • LoRA scale 1.05
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
@@ -283,14 +380,39 @@ const MayaChatContent: React.FC<MayaChatContentProps> = ({ initialPrompt, onProm
         {/* Typing Indicator */}
         {isTyping && (
           <div className="flex justify-start">
-            <div className="bg-stone-100/40 border border-stone-200/40 p-4 rounded-2xl max-w-[90%]">
+            <div className="bg-gradient-to-r from-stone-100/60 to-stone-50/80 border border-stone-200/40 p-5 rounded-2xl max-w-[90%] shadow-sm">
               <div className="flex items-center gap-4">
                 <div className="flex gap-1">
-                  <div className="w-2 h-2 rounded-full animate-bounce bg-stone-600"></div>
-                  <div className="w-2 h-2 rounded-full animate-bounce bg-stone-600" style={{animationDelay: '0.2s'}}></div>
-                  <div className="w-2 h-2 rounded-full animate-bounce bg-stone-600" style={{animationDelay: '0.4s'}}></div>
+                  <div className="w-2.5 h-2.5 rounded-full animate-bounce bg-stone-600"></div>
+                  <div className="w-2.5 h-2.5 rounded-full animate-bounce bg-stone-600" style={{animationDelay: '0.2s'}}></div>
+                  <div className="w-2.5 h-2.5 rounded-full animate-bounce bg-stone-600" style={{animationDelay: '0.4s'}}></div>
                 </div>
-                <span className="text-sm font-light text-stone-600">Maya is creating your photos...</span>
+                <div className="flex-1">
+                  <span className="text-sm font-medium text-stone-800">Maya is creating your photos...</span>
+                  <div className="text-xs text-stone-600 mt-1">
+                    Using your personal AI model • This takes 30-60 seconds
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Generation Loading State */}
+        {isGenerating && !isTyping && (
+          <div className="flex justify-start">
+            <div className="bg-gradient-to-r from-blue-50/80 to-indigo-50/60 border border-blue-200/40 p-5 rounded-2xl max-w-[90%] shadow-sm">
+              <div className="flex items-center gap-4">
+                <div className="w-8 h-8 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+                <div className="flex-1">
+                  <span className="text-sm font-medium text-blue-800">Images generating...</span>
+                  <div className="text-xs text-blue-600 mt-1">
+                    🎨 Applying your personal LoRA model • 📐 3:4 aspect ratio • 🎯 LoRA scale 1.05
+                  </div>
+                  <div className="text-xs text-blue-500 mt-2 font-light italic">
+                    Your images will appear here automatically when ready
+                  </div>
+                </div>
               </div>
             </div>
           </div>

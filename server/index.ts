@@ -1291,6 +1291,46 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
       }
     }
 
+    // 💖 Maya heart image endpoint - Save image to gallery
+    if (req.url?.includes('/api/maya/heart-image')) {
+      try {
+        const user = await getAuthenticatedUser();
+        const { imageUrl, category } = req.body;
+        
+        if (!imageUrl) {
+          return res.status(400).json({ error: 'Image URL is required' });
+        }
+
+        console.log(`💖 MAYA HEART: User ${user.id} saving image to gallery`);
+        
+        // Use the MayaChatPreviewService to save the image
+        const { MayaChatPreviewService } = await import('../server/maya-chat-preview-service.js');
+        
+        const galleryImage = await MayaChatPreviewService.heartImageToGallery(
+          imageUrl,
+          category || 'maya_generated', 
+          user.id as string
+        );
+        
+        console.log(`✅ MAYA HEART: Image saved to gallery with ID: ${galleryImage.id}`);
+        
+        res.setHeader('Cache-Control', 'no-store');
+        return res.status(200).json({
+          success: true,
+          message: 'Image saved to gallery successfully',
+          galleryImageId: galleryImage.id
+        });
+        
+      } catch (error) {
+        console.error('❌ MAYA HEART: Error saving image to gallery:', error);
+        return res.status(500).json({ 
+          success: false,
+          message: 'Failed to save image to gallery',
+          error: (error as Error).message
+        });
+      }
+    }
+
     // Maya generation status endpoint
     if (req.url?.includes('/api/maya/status')) {
       

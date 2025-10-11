@@ -112,11 +112,58 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Determine webhook type from URL path
     if (endpoint?.includes('/predictions')) {
+      console.log(`🔔 REPLICATE WEBHOOK: Processing prediction ${payload.id} with status ${payload.status}`);
+      
+      // 🎯 IMPROVEMENT: Actually process the webhook instead of just acknowledging
+      if (payload.status === 'succeeded' || payload.status === 'failed') {
+        try {
+          // Import and trigger the completion monitor for this prediction
+          const { GenerationCompletionMonitor } = await import('../generation-completion-monitor.js');
+          
+          // Find the tracker for this prediction ID and trigger completion check
+          const { storage } = await import('../storage.js');
+          
+          // Get all users' generation trackers to find the matching one
+          // Note: In production, you'd want a more efficient lookup by prediction ID
+          const allUsers = await storage.getAllUsers();
+          let foundTracker = null;
+          
+          for (const user of allUsers) {
+            try {
+              const trackers = await storage.getUserGenerationTrackers(user.id);
+              const tracker = trackers.find(t => 
+                t.prompt?.includes(`||REPLICATE_ID:${payload.id}`) ||
+                t.predictionId === payload.id
+              );
+              
+              if (tracker) {
+                foundTracker = tracker;
+                console.log(`✅ REPLICATE WEBHOOK: Found tracker ${tracker.id} for prediction ${payload.id}`);
+                
+                // Trigger immediate completion check
+                await GenerationCompletionMonitor.checkAndUpdateGeneration(payload.id, tracker.id);
+                break;
+              }
+            } catch (userError) {
+              console.warn(`⚠️ REPLICATE WEBHOOK: Error checking user ${user.id}:`, userError);
+              continue;
+            }
+          }
+          
+          if (!foundTracker) {
+            console.warn(`⚠️ REPLICATE WEBHOOK: No tracker found for prediction ${payload.id}`);
+          }
+          
+        } catch (processingError) {
+          console.error(`❌ REPLICATE WEBHOOK: Processing failed for ${payload.id}:`, processingError);
+        }
+      }
+      
       return res.status(200).json({ 
         received: true, 
         predictionId: payload.id,
         status: payload.status,
-        message: 'Prediction webhook endpoint ready for future implementation'
+        message: 'Prediction webhook processed successfully'
       });
     } 
     
