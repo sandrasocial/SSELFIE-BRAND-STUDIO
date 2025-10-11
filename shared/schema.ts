@@ -1721,8 +1721,263 @@ export type LiveEvent = typeof liveEvents.$inferSelect;
 export type HairLead = typeof hairLeads.$inferSelect;
 // export type InsertHairLead = z.infer<typeof insertHairLeadSchema>;
 
-// Note: Maya core tables (mayaProfile, mayaModels, mayaImages, etc.) are defined in schema-maya.ts
-// Import them directly from schema-maya.js in files that need them to avoid re-export issues
+// =============================================================================
+// MAYA CORE TABLES - EMERGENCY DEPLOYMENT FIX
+// =============================================================================
+// Temporarily moved from schema-maya.ts to fix Vercel deployment module resolution
+
+export const mayaChats = pgTable("maya_chats", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  
+  // Chat Metadata
+  chatTitle: varchar("chat_title").notNull(),
+  chatSummary: text("chat_summary"),
+  chatCategory: varchar("chat_category").default("Style Consultation"),
+  
+  // Activity Tracking
+  lastActivity: timestamp("last_activity").defaultNow(),
+  
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const mayaChatMessages = pgTable("maya_chat_messages", {
+  id: serial("id").primaryKey(),
+  chatId: integer("chat_id").references(() => mayaChats.id, { onDelete: "cascade" }).notNull(),
+  
+  // Message Content
+  role: varchar("role").notNull(), // 'user' or 'maya'
+  content: text("content").notNull(),
+  
+  // Enhanced Message Features
+  imagePreview: text("image_preview"), // JSON array of image URLs
+  generatedPrompt: text("generated_prompt"),
+  conceptCards: jsonb("concept_cards"), // JSON array of concept cards with enhanced context
+  quickButtons: text("quick_buttons"), // JSON array of quick action buttons
+  
+  // Generation Capabilities
+  canGenerate: boolean("can_generate").default(false), // Whether this message can generate images
+  
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const mayaProfile = pgTable('maya_profile', {
+  id: serial('id').primaryKey(),
+  userId: varchar('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  
+  // Onboarding Status
+  onboardingStatus: varchar('onboarding_status').default('pending'), // 'pending', 'in_progress', 'completed'
+  onboardingStep: integer('onboarding_step').default(1),
+  completedSteps: jsonb('completed_steps').default([]),
+  
+  // User Preferences
+  preferences: jsonb('preferences').default({}),
+  
+  // Billing Information
+  billingInfo: jsonb('billing_info').default({}),
+  
+  // Usage Statistics
+  totalGenerations: integer('total_generations').default(0),
+  monthlyGenerations: integer('monthly_generations').default(0),
+  lastResetDate: timestamp('last_reset_date').defaultNow(),
+  
+  // Feature Access
+  featureAccess: jsonb('feature_access').default({}),
+  
+  // Timestamps
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+export const mayaImages = pgTable('maya_images', {
+  id: serial('id').primaryKey(),
+  userId: varchar('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  
+  // Image Storage
+  url: varchar('url').notNull(),
+  thumbnailUrl: varchar('thumbnail_url'),
+  
+  // Image Classification
+  category: varchar('category'), // 'portrait', 'lifestyle', 'product', 'concept'
+  subcategory: varchar('subcategory'), // More specific categorization
+  
+  // Image Metadata
+  metadata: jsonb('metadata').default({}),
+  
+  // User Interaction
+  isFavorite: boolean('is_favorite').default(false),
+  isArchived: boolean('is_archived').default(false),
+  rating: integer('rating'), // 1-5 user rating
+  
+  // Usage Tracking
+  viewCount: integer('view_count').default(0),
+  shareCount: integer('share_count').default(0),
+  downloadCount: integer('download_count').default(0),
+  
+  // Timestamps
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+export const mayaConcepts = pgTable('maya_concepts', {
+  id: serial('id').primaryKey(),
+  userId: varchar('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  
+  // Concept Definition
+  title: varchar('title').notNull(),
+  description: text('description'),
+  prompt: text('prompt'),
+  type: varchar('type'), // 'portrait', 'flatlay', 'lifestyle', 'brand'
+  
+  // Concept Details
+  metadata: jsonb('metadata').default({}),
+  
+  // Performance Tracking
+  usageCount: integer('usage_count').default(0),
+  successRate: integer('success_rate'), // Percentage of successful generations
+  avgRating: decimal('avg_rating'), // Average user rating
+  
+  // Status and Organization
+  status: varchar('status').default('active'), // 'active', 'archived', 'draft'
+  tags: jsonb('tags').default([]),
+  isTemplate: boolean('is_template').default(false),
+  
+  // Timestamps
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+export const mayaPayments = pgTable('maya_payments', {
+  id: serial('id').primaryKey(),
+  userId: varchar('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  
+  // Stripe Integration
+  stripeSessionId: varchar('stripe_session_id'),
+  stripeCustomerId: varchar('stripe_customer_id'),
+  stripeSubscriptionId: varchar('stripe_subscription_id'),
+  
+  // Subscription Details
+  subscriptionStatus: varchar('subscription_status'), // 'active', 'canceled', 'past_due', 'unpaid'
+  planType: varchar('plan_type'), // 'basic', 'pro', 'enterprise'
+  billingCycle: varchar('billing_cycle'), // 'monthly', 'yearly'
+  
+  // Payment Information
+  amount: integer('amount'), // Amount in cents
+  currency: varchar('currency').default('usd'),
+  
+  // Payment Metadata
+  metadata: jsonb('metadata').default({}),
+  
+  // Status Tracking
+  isActive: boolean('is_active').default(true),
+  trialEndsAt: timestamp('trial_ends_at'),
+  subscriptionEndsAt: timestamp('subscription_ends_at'),
+  
+  // Timestamps
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// Maya Models Table
+export const mayaModels = pgTable('maya_models', {
+  id: serial('id').primaryKey(),
+  userId: varchar('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  
+  // Model Configuration
+  modelType: varchar('model_type').notNull(), // 'flux', 'replicate', 'custom'
+  trainingStatus: varchar('training_status').notNull(), // 'pending', 'training', 'completed', 'failed'
+  trainingProgress: integer('training_progress').default(0), // 0-100 percentage
+  
+  // Replicate Integration
+  replicateModelId: varchar('replicate_model_id'),
+  replicateVersionId: varchar('replicate_version_id'),
+  
+  // Model Metadata
+  metadata: jsonb('metadata').default({}),
+  
+  // Model Performance
+  qualityScore: integer('quality_score'), // 1-100 quality rating
+  usageCount: integer('usage_count').default(0),
+  lastUsed: timestamp('last_used'),
+  
+  // Timestamps
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// Maya validation schemas
+export const insertMayaImagesSchema = createInsertSchema(mayaImages).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertMayaConceptsSchema = createInsertSchema(mayaConcepts).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertMayaProfileSchema = createInsertSchema(mayaProfile).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertMayaModelsSchema = createInsertSchema(mayaModels).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+// Additional validation schemas needed by Maya services
+export const conceptMetadataSchema = z.object({
+  styleElements: z.array(z.string()).optional(),
+  colorScheme: z.array(z.string()).optional(),
+  mood: z.string().optional(),
+  settings: z.array(z.string()).optional(),
+  props: z.array(z.string()).optional(),
+  lighting: z.string().optional(),
+  composition: z.string().optional(),
+  inspirationSources: z.array(z.string()).optional(),
+});
+
+export const userPreferencesSchema = z.object({
+  communicationStyle: z.enum(['casual', 'professional', 'friendly']).optional(),
+  generationSettings: z.object({
+    defaultQuality: z.string().optional(),
+    preferredAspectRatio: z.string().optional(),
+    autoSave: z.boolean().optional(),
+  }).optional(),
+  privacySettings: z.object({
+    shareGenerations: z.boolean().optional(),
+    allowDataCollection: z.boolean().optional(),
+  }).optional(),
+  notificationSettings: z.object({
+    emailUpdates: z.boolean().optional(),
+    trainingComplete: z.boolean().optional(),
+    newFeatures: z.boolean().optional(),
+  }).optional(),
+});
+
+// Maya Types
+export type MayaChat = typeof mayaChats.$inferSelect;
+export type InsertMayaChat = typeof mayaChats.$inferInsert;
+export type MayaChatMessage = typeof mayaChatMessages.$inferSelect;
+export type InsertMayaChatMessage = typeof mayaChatMessages.$inferInsert;
+export type MayaProfile = typeof mayaProfile.$inferSelect;
+export type InsertMayaProfile = typeof mayaProfile.$inferInsert;
+export type MayaImage = typeof mayaImages.$inferSelect;
+export type InsertMayaImage = typeof mayaImages.$inferInsert;
+export type MayaConcept = typeof mayaConcepts.$inferSelect;
+export type InsertMayaConcept = typeof mayaConcepts.$inferInsert;
+export type MayaPayment = typeof mayaPayments.$inferSelect;
+export type InsertMayaPayment = typeof mayaPayments.$inferInsert;
+export type MayaModel = typeof mayaModels.$inferSelect;
+export type InsertMayaModel = typeof mayaModels.$inferInsert;
 
 // Note: Website type already defined above at line 502
 // Note: styleguide_templates and user_styleguides are imported from styleguide-schema.ts

@@ -35,7 +35,6 @@
     "server/me.ts",
     "server/health.ts",
     "shared/schema.ts",
-    "shared/schema-maya.ts",
     "shared/schema-maya-onboarding.ts",
     "shared/styleguide-schema.ts",
     "shared/types/unified-chat.ts",
@@ -72,14 +71,7 @@
     "server/maya/models/index.ts",
     "server/maya/profile/index.ts", 
     "server/maya/payments/index.ts",
-    // Maya aesthetic recipes system - frontend prompt pipeline
-    "client/src/features/maya/prompt/prompt-builder.ts",
-    "client/src/features/maya/prompt/recipes/types.ts",
-    "client/src/features/maya/prompt/recipes/index.ts",
-    "client/src/features/maya/prompt/selectors/gender-style-selector.ts",
-    "client/src/features/maya/prompt/realizers/sentence-realizer.ts",
-    "client/src/features/maya/prompt/realizers/flux-realizer.ts",
-    "client/src/features/maya/prompt/utils/token-budget.ts",
+
     // Maya personality system - critical for conversational AI
     "server/agents/personalities/personality-config.ts",
     "server/agents/personalities/maya-personality.ts",
@@ -126,39 +118,22 @@
     "shared/types/generation.ts",
     "shared/types/ai-generation.ts",
     
-    // Critical client-side API utilities needed for serverless functions
-    "client/src/lib/api.ts",
-    "client/src/lib/queryClient.ts", 
-    "client/src/lib/auth-utils.ts",
-    "client/src/lib/authUtils.ts",
-    "client/src/utils/api-client.ts",
-    
-    // Essential authentication components for SSR/serverless
-    "client/src/hooks/use-auth.ts",
-    "client/src/components/UnifiedLoginButton.tsx",
-    
-    // CRITICAL: Complete Maya client-side system
-    "client/src/app_v2/MayaScreen.tsx",
-    "client/src/app_v2/SselfieAppLayout.tsx",
-    "client/src/app_v2/StudioScreen.tsx",
-    "client/src/app_v2/GalleryScreen.tsx", 
-    "client/src/app_v2/ProfileScreen.tsx",
-    "client/src/app_v2/SettingsScreen.tsx",
-    "client/src/contexts/BrandStudioContext.tsx",
-    "client/src/components/MayaDiagnostic.tsx",
-    
-    // Complete client-side App.tsx and routing
-    "client/src/App.tsx",
-    
-    // Critical authentication pages for SSR
-    "client/src/pages/auth-success.tsx",
-    "client/src/pages/simple-checkout.tsx",
-    "client/src/pages/payment-success.tsx",
+
     
     // Essential middleware for serverless functions
     "server/middleware/security.ts",
     "server/middleware/admin-context.ts",
     "server/middleware/errorHandler.ts",
+    
+    // Critical serverless utilities
+    "server/_utils/timing.ts",
+    "server/_utils/serverless-db.ts",
+    "server/_utils/user-cache.ts",
+    
+    // Additional critical server files
+    "server/user-sync-repair.ts",
+    "server/env.ts",
+    "server/types.ts",
     
     // Performance Optimization Services - Production Critical
     "shared/database-provider.ts",
