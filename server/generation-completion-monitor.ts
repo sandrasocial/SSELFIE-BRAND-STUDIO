@@ -48,17 +48,42 @@ export class GenerationCompletionMonitor {
 
       if (predictionData.status === 'succeeded' && predictionData.output) {
         
-        const imageUrls = Array.isArray(predictionData.output) ? predictionData.output : [predictionData.output];
+        const temporaryImageUrls = Array.isArray(predictionData.output) ? predictionData.output : [predictionData.output];
+        
+        // 🔧 CRITICAL FIX: Migrate Replicate URLs to permanent S3 storage
+        console.log(`🔄 GENERATION MONITOR: Migrating ${temporaryImageUrls.length} images to permanent storage`);
+        const permanentImageUrls: string[] = [];
+        
+        try {
+          const { ImageStorageService } = await import('./image-storage-service.js');
+          
+          for (const tempUrl of temporaryImageUrls) {
+            if (tempUrl && typeof tempUrl === 'string') {
+              const migrationResult = await ImageStorageService.migrateTempUrlToS3(tempUrl, tracker.userId);
+              if (migrationResult.success && migrationResult.permanentUrl) {
+                permanentImageUrls.push(migrationResult.permanentUrl);
+                console.log(`✅ GENERATION MONITOR: Migrated ${tempUrl.substring(0, 50)}... → ${migrationResult.permanentUrl.substring(0, 50)}...`);
+              } else {
+                console.warn(`⚠️ GENERATION MONITOR: Migration failed for ${tempUrl}, using original`);
+                permanentImageUrls.push(tempUrl);
+              }
+            }
+          }
+        } catch (migrationError) {
+          console.error('❌ GENERATION MONITOR: Image migration failed:', migrationError);
+          // Fallback to original URLs if migration fails
+          permanentImageUrls.push(...temporaryImageUrls);
+        }
         
         // Extract original prompt (remove Replicate ID metadata)
         const originalPrompt = tracker.prompt?.includes('||REPLICATE_ID:') 
           ? tracker.prompt.split('||REPLICATE_ID:')[0]
           : tracker.prompt;
         
-        // Update tracker with completed images and restore original prompt
+        // Update tracker with permanent image URLs and restore original prompt
         await storage.updateGenerationTracker(trackerId, {
           status: 'completed',
-          imageUrls: JSON.stringify(imageUrls),
+          imageUrls: JSON.stringify(permanentImageUrls), // Use permanent URLs
           prompt: originalPrompt, // Restore clean prompt
           updatedAt: new Date()
         });
@@ -90,7 +115,7 @@ export class GenerationCompletionMonitor {
           // Save images as chat previews using MayaChatPreviewService
           const previewMessage = await MayaChatPreviewService.saveChatPreview(
             chatId,
-            imageUrls,
+            permanentImageUrls, // Use permanent URLs
             tracker.prompt || 'Maya Editorial Photoshoot',
             predictionData.id,
             tracker.userId
