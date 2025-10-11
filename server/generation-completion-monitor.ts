@@ -88,9 +88,36 @@ export class GenerationCompletionMonitor {
           updatedAt: new Date()
         });
 
-        // RESTORE: Save to Maya chat previews instead of direct gallery save
+        // ✅ CRITICAL FIX: Save images directly to gallery AND chat previews
         try {
-          // Get or create a Maya chat for this user
+          // FIRST: Save all images directly to the gallery so they appear in RecentImagesPreview
+          console.log(`📸 GENERATION MONITOR: Saving ${permanentImageUrls.length} images directly to gallery`);
+          
+          for (const imageUrl of permanentImageUrls) {
+            try {
+              const galleryImageData = {
+                userId: tracker.userId,
+                imageUrl: imageUrl,
+                prompt: originalPrompt || 'Maya AI Generated',
+                generatedPrompt: originalPrompt || 'Maya AI Generated',
+                style: 'editorial', // Default style for Maya generations
+                category: 'Maya AI', // Category for concept card generations
+                source: 'maya-chat', // Source tracking
+                predictionId: predictionData.id,
+                generationStatus: 'completed',
+                isSelected: true, // Mark as selected so it appears in gallery
+                isFavorite: false // Start as not favorite, user can heart later
+              };
+              
+              const savedImage = await storage.saveAIImage(galleryImageData);
+              console.log(`✅ GENERATION MONITOR: Saved image ${savedImage.id} to gallery: ${imageUrl.substring(0, 50)}...`);
+              
+            } catch (saveError) {
+              console.error(`❌ GENERATION MONITOR: Failed to save image to gallery: ${imageUrl}`, saveError);
+            }
+          }
+          
+          // SECOND: Also save to Maya chat previews for the chat interface
           let chatId: number;
           try {
             // Try to get existing chat, or create new one
@@ -114,7 +141,6 @@ export class GenerationCompletionMonitor {
 
           // Save images as chat previews using MayaChatPreviewService
           console.log(`💬 GENERATION MONITOR: Saving chat preview with ${permanentImageUrls.length} images to chat ${chatId}`);
-          console.log(`💬 GENERATION MONITOR: Image URLs:`, permanentImageUrls.map(url => url.substring(0, 50) + '...'));
           
           const previewMessage = await MayaChatPreviewService.saveChatPreview(
             chatId,
@@ -126,9 +152,9 @@ export class GenerationCompletionMonitor {
           
           console.log(`✅ GENERATION MONITOR: Chat preview saved with message ID: ${previewMessage.id}`);
           
-        } catch (previewError) {
-          console.error('❌ GENERATION MONITOR: Chat preview save failed:', previewError);
-          // Don't fail the whole operation if preview saving fails
+        } catch (saveError) {
+          console.error('❌ GENERATION MONITOR: Image saving failed:', saveError);
+          // Don't fail the whole operation if saving fails
         }
 
         return true;

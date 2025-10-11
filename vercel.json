@@ -165,11 +165,11 @@
       "destination": "/server/[...route].ts"
     },
     {
-      "source": "/(app|simple-training|training|auth-success|terms|privacy|sign-in|sign-up|magic-link|forgot-password|password-reset|business|ai-command-center)",
+      "source": "/(app|maya|simple-training|training|auth-success|terms|privacy|sign-in|sign-up|magic-link|forgot-password|password-reset|business|ai-command-center)",
       "destination": "/index.html"
     },
     {
-      "source": "/(app|simple-training|training|auth-success|terms|privacy|sign-in|sign-up|magic-link|forgot-password|password-reset|business|ai-command-center)/",
+      "source": "/(app|maya|simple-training|training|auth-success|terms|privacy|sign-in|sign-up|magic-link|forgot-password|password-reset|business|ai-command-center)/",
       "destination": "/index.html"
     },
     {
