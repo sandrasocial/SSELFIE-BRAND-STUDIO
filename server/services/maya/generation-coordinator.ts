@@ -119,7 +119,7 @@ export class MayaGenerationCoordinator {
       const response = await fetch(replicateUrl, {
         method: 'POST',
         headers: {
-          'Authorization': `Token ${this.replicateApiToken}`,
+          'Authorization': `Bearer ${this.replicateApiToken}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(payload)
@@ -165,7 +165,7 @@ export class MayaGenerationCoordinator {
       try {
         const response = await fetch(`https://api.replicate.com/v1/predictions/${generationId}`, {
           headers: {
-            'Authorization': `Token ${this.replicateApiToken}`
+            'Authorization': `Bearer ${this.replicateApiToken}`
           }
         });
 
@@ -261,7 +261,7 @@ export class MayaGenerationCoordinator {
       // Check status from Replicate API
       const response = await fetch(`https://api.replicate.com/v1/predictions/${generationId}`, {
         headers: {
-          'Authorization': `Token ${this.replicateApiToken}`
+          'Authorization': `Bearer ${this.replicateApiToken}`
         }
       });
 

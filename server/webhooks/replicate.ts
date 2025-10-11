@@ -25,6 +25,36 @@ interface ReplicateWebhookPayload {
   completed_at?: string;
 }
 
+// Verify Replicate webhook signature
+function verifyWebhookSignature(
+  payload: string,
+  signature: string,
+  timestamp: string,
+  secret: string
+): boolean {
+  try {
+    const crypto = require('crypto');
+    
+    // Construct the signed payload string as per Replicate's specification
+    const signedPayload = `${timestamp}.${payload}`;
+    
+    // Create HMAC signature
+    const expectedSignature = crypto
+      .createHmac('sha256', secret)
+      .update(signedPayload, 'utf8')
+      .digest('hex');
+    
+    // Compare signatures (constant time comparison)
+    return crypto.timingSafeEqual(
+      Buffer.from(signature, 'hex'),
+      Buffer.from(expectedSignature, 'hex')
+    );
+  } catch (error) {
+    console.error('❌ WEBHOOK SIGNATURE VERIFICATION ERROR:', error);
+    return false;
+  }
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -45,6 +75,36 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
+    // Validate webhook signature if secret is configured
+    const webhookSecret = process.env['REPLICATE_WEBHOOK_SECRET'];
+    if (webhookSecret) {
+      const signature = req.headers['x-replicate-webhook-signature'] as string;
+      const timestamp = req.headers['x-replicate-webhook-timestamp'] as string;
+      const rawBody = JSON.stringify(req.body);
+
+      if (!signature || !timestamp) {
+        console.error('❌ REPLICATE WEBHOOK: Missing signature or timestamp headers');
+        return res.status(401).json({
+          error: 'Unauthorized',
+          message: 'Missing required webhook headers'
+        });
+      }
+
+      // Remove 'sha256=' prefix if present
+      const cleanSignature = signature.replace('sha256=', '');
+
+      if (!verifyWebhookSignature(rawBody, cleanSignature, timestamp, webhookSecret)) {
+        console.error('❌ REPLICATE WEBHOOK: Invalid signature');
+        return res.status(401).json({
+          error: 'Unauthorized', 
+          message: 'Invalid webhook signature'
+        });
+      }
+
+      console.log('✅ REPLICATE WEBHOOK: Signature verified successfully');
+    } else {
+      console.warn('⚠️ REPLICATE WEBHOOK: No webhook secret configured, skipping signature validation');
+    }
     const payload: ReplicateWebhookPayload = req.body;
     const endpoint = req.url;
 
