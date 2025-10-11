@@ -724,10 +724,10 @@ export class MayaService {
           outputQuality: requestBody.input.output_quality,
           guidanceScale: requestBody.input.guidance,
           numInferenceSteps: requestBody.input.num_inference_steps,
-          loraScale: requestBody.input.lora_scale,
-          // 🎯 ADD: Webhook for real-time completion  
-          webhookUrl: `${process.env['VERCEL_URL'] || 'https://sselfie-brand-studio.vercel.app'}/api/webhooks/replicate/predictions`,
-          webhookEvents: ['completed' as 'completed']
+          loraScale: requestBody.input.lora_scale
+          // 🚫 TEMPORARILY DISABLED: Webhook causing "Invalid webhook URL" error
+          // webhookUrl: `https://sselfie.ai/api/webhooks/replicate/predictions`,
+          // webhookEvents: ['completed' as 'completed']
         };
 
         console.log(`✅ MAYA FLUX: Using official Replicate SDK`);
