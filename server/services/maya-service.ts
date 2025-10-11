@@ -465,6 +465,60 @@ export class MayaService {
   }
 
   /**
+   * 🎯 NEW: Cancel an active generation using Replicate SDK
+   */
+  async cancelGeneration(predictionId: string): Promise<{ success: boolean, message: string }> {
+    try {
+      const cancellationInfo = (global as any).activeGenerations?.get(predictionId);
+      if (!cancellationInfo) {
+        return { success: false, message: 'Generation not found or already completed' };
+      }
+
+      // Try to use the official SDK for cancellation
+      try {
+        const { ReplicateClient } = await import('./replicate-client.js');
+        const replicateClient = new ReplicateClient();
+        
+        await replicateClient.cancelPrediction(predictionId);
+        console.log(`✅ MAYA CANCEL: Successfully canceled prediction ${predictionId} using SDK`);
+        
+      } catch (sdkError) {
+        console.warn('⚠️ MAYA CANCEL: SDK unavailable, using fallback API:', sdkError);
+        
+        // Fallback to raw API
+        const response = await fetch(`https://api.replicate.com/v1/predictions/${predictionId}/cancel`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${process.env['REPLICATE_API_TOKEN']}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error(`Cancel request failed: ${response.status}`);
+        }
+      }
+
+      // Update tracker status
+      await this.db.updateGenerationTracker(cancellationInfo.trackerId, {
+        status: 'canceled'
+      });
+
+      // Remove from active generations
+      (global as any).activeGenerations?.delete(predictionId);
+
+      return { success: true, message: 'Generation canceled successfully' };
+      
+    } catch (error) {
+      console.error(`❌ MAYA CANCEL: Failed to cancel prediction ${predictionId}:`, error);
+      return { 
+        success: false, 
+        message: error instanceof Error ? error.message : 'Cancellation failed' 
+      };
+    }
+  }
+
+  /**
    * Generate images using FLUX API
    */
   async generateImages(userId: string, request: MayaGenerationRequest): Promise<MayaGenerationResponse> {
@@ -638,57 +692,117 @@ export class MayaService {
         version: modelVersion,
         input: {
           prompt: fluxPrompt,
+          guidance: 5,
+          num_inference_steps: 50,
+          lora_scale: 1.05,  // ✅ RESTORED: For extracted LoRA weights
           num_outputs: 2,
-          aspect_ratio: "1:1",
-          output_format: "webp",
-          output_quality: 80,
+          aspect_ratio: "3:4",  // Changed from 1:1
+          output_format: "png", // Changed from webp
+          output_quality: 95,   // Changed from 80
           safety_tolerance: 2,
         }
       };
 
-      console.log(`🔍 MAYA FLUX: Calling Replicate API with model: ${userModel.replicateVersionId}`);
-      console.log(`🔍 MAYA FLUX: Request body:`, JSON.stringify(requestBody, null, 2));
+      // 🎯 IMPROVEMENT: Use official Replicate SDK for better reliability
+      console.log(`🔍 MAYA FLUX: Using Replicate SDK with model: ${userModel.replicateVersionId}`);
+      console.log(`🔍 MAYA FLUX: Generation parameters:`, JSON.stringify(requestBody.input, null, 2));
 
-      // 🔧 CRITICAL FIX: Try both API endpoints for compatibility
-      console.log(`🔍 MAYA FLUX: Trying Replicate API endpoint: /v1/predictions`);
+      // 🎯 TRY: Use official Replicate SDK first
+      let predictionData: any;
       
-      // Call Replicate API with user's custom trained model
-      const replicateResponse = await fetch('https://api.replicate.com/v1/predictions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${process.env['REPLICATE_API_TOKEN']}`,
-          'Content-Type': 'application/json',
-          'User-Agent': 'SSELFIE-Studio/1.0'
-        },
-        body: JSON.stringify(requestBody)
-      });
+      try {
+        const { ReplicateClient } = await import('./replicate-client.js');
+        const replicateClient = new ReplicateClient();
+        
+        // Convert parameters to SDK format
+        const generationConfig = {
+          modelVersionId: modelVersion,
+          prompt: fluxPrompt,
+          numOutputs: requestBody.input.num_outputs,
+          aspectRatio: requestBody.input.aspect_ratio,
+          outputFormat: requestBody.input.output_format,
+          outputQuality: requestBody.input.output_quality,
+          guidanceScale: requestBody.input.guidance,
+          numInferenceSteps: requestBody.input.num_inference_steps,
+          loraScale: requestBody.input.lora_scale,
+          // 🎯 ADD: Webhook for real-time completion  
+          webhookUrl: `${process.env['VERCEL_URL'] || 'https://sselfie-brand-studio.vercel.app'}/api/webhooks/replicate/predictions`,
+          webhookEvents: ['completed' as 'completed']
+        };
 
-      // 🔍 CRITICAL: Log complete response for debugging
-      console.log(`🔍 MAYA FLUX: Replicate response status: ${replicateResponse.status}`);
+        console.log(`✅ MAYA FLUX: Using official Replicate SDK`);
+        const { predictionId, prediction } = await replicateClient.startGeneration(generationConfig);
+        
+        predictionData = {
+          id: predictionId,
+          status: prediction.status,
+          input: prediction.input,
+          output: prediction.output
+        };
 
-      console.log(`🔍 MAYA FLUX: Replicate response status: ${replicateResponse.status}`);
+        console.log(`✅ MAYA FLUX: SDK prediction created: ${predictionId}`);
+        
+      } catch (sdkError) {
+        console.warn('⚠️ MAYA FLUX: SDK unavailable, using fallback fetch:', sdkError);
+        
+        // 🔄 FALLBACK: Raw fetch if SDK fails
+        const replicateResponse = await fetch('https://api.replicate.com/v1/predictions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${process.env['REPLICATE_API_TOKEN']}`,
+            'Content-Type': 'application/json',
+            'User-Agent': 'SSELFIE-Studio/1.0'
+          },
+          body: JSON.stringify(requestBody)
+        });
 
-      if (!replicateResponse.ok) {
-        const errorText = await replicateResponse.text();
-        console.error(`❌ MAYA FLUX: Replicate API error ${replicateResponse.status}: ${errorText}`);
-        throw new Error(`Replicate API error: ${replicateResponse.status} - ${errorText}`);
+        console.log(`🔍 MAYA FLUX: Fallback response status: ${replicateResponse.status}`);
+
+        if (!replicateResponse.ok) {
+          const errorText = await replicateResponse.text();
+          console.error(`❌ MAYA FLUX: Fallback API error ${replicateResponse.status}: ${errorText}`);
+          throw new Error(`Replicate API error: ${replicateResponse.status} - ${errorText}`);
+        }
+
+        predictionData = await replicateResponse.json();
       }
-
-      const predictionData = await replicateResponse.json();
       console.log(`✅ MAYA FLUX: Replicate prediction created: ${predictionData.id}`);
 
-      // Store Replicate prediction ID in prompt field temporarily for tracking
-      // Keep original generationId in predictionId for client polling
+      // 🎯 IMPROVEMENT: Enhanced tracking with SDK and webhook metadata
       console.log(`🔍 MAYA FLUX: Updating tracker ${tracker.id} with Replicate prediction ID: ${predictionData.id}`);
+      
+      const enhancedPrompt = `${request.conceptCard.fluxPrompt}||REPLICATE_ID:${predictionData.id}||SDK:${!!predictionData.sdkUsed}||WEBHOOK:enabled`;
+      
       await this.db.updateGenerationTracker(tracker.id, {
-        // Keep original predictionId for client polling
-        // Store Replicate ID in the prompt field's metadata
-        prompt: `${request.conceptCard.fluxPrompt}||REPLICATE_ID:${predictionData.id}`,
+        prompt: enhancedPrompt,
         status: 'processing',
       });
 
-      // Use GenerationCompletionMonitor for proper chat preview integration
       console.log(`✅ MAYA FLUX: Generation started successfully - Prediction: ${predictionData.id}, Tracker: ${tracker.id}`);
+
+      // 🎯 ADD: Cancellation support method for future use
+      // Store the prediction ID for potential cancellation
+      const cancellationInfo = {
+        predictionId: predictionData.id,
+        trackerId: tracker.id,
+        userId: tracker.userId,
+        startTime: Date.now()
+      };
+      
+      // Store in memory for quick cancellation access (could be moved to Redis in production)
+      if (!(global as any).activeGenerations) {
+        (global as any).activeGenerations = new Map();
+      }
+      (global as any).activeGenerations.set(predictionData.id, cancellationInfo);
+
+      // Force immediate check in development/testing
+      if (process.env.NODE_ENV !== 'production') {
+        console.log(`🔄 MAYA FLUX DEV: Forcing immediate completion check for testing`);
+        setTimeout(async () => {
+          const { GenerationCompletionMonitor } = await import('../generation-completion-monitor.js');
+          await GenerationCompletionMonitor.checkAndUpdateGeneration(predictionData.id, tracker.id);
+        }, 5000); // Check after 5 seconds for testing
+      }
 
       // Trigger the completion monitor to check this specific generation
       try {
