@@ -232,7 +232,6 @@ export class ConnectionPool<T> {
       }
     });
     return result;
-    return null;
   }
 
   /**
