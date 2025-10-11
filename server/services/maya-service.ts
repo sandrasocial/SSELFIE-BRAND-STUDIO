@@ -469,9 +469,22 @@ export class MayaService {
    */
   async generateImages(userId: string, request: MayaGenerationRequest): Promise<MayaGenerationResponse> {
     try {
+      // userId is already the internal database user ID (needed for trigger words)
+      const internalUserId = userId;
+      console.log(`🔍 MAYA: Using internal user ID ${internalUserId} for generation (trigger: user${internalUserId})`);
 
-      // Validate user has access
-      const userProfile: MayaProfile = await this.getOrCreateUserProfile(userId);
+      // Get user to find their Stack Auth ID for profile operations
+      const user = await this.db.getUser(internalUserId);
+      if (!user) {
+        throw new Error(`User not found with internal ID: ${internalUserId}`);
+      }
+      
+      if (!user.stackAuthId) {
+        throw new Error(`User ${internalUserId} does not have a Stack Auth ID linked`);
+      }
+
+      // Validate user has access using Stack Auth ID
+      const userProfile: MayaProfile = await this.getOrCreateUserProfile(user.stackAuthId);
       if (!(userProfile.featureAccess as { basicGeneration?: boolean })?.basicGeneration) {
         throw new Error('User does not have generation access');
       }
@@ -499,7 +512,7 @@ export class MayaService {
       const generationId = `gen_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
       const tracker = await this.db.createGenerationTracker({
-        userId,
+        userId: internalUserId, // Use internal database user ID
         predictionId: generationId,
         prompt: request.conceptCard.fluxPrompt,
         style: 'editorial',
@@ -507,10 +520,10 @@ export class MayaService {
       } as InsertGenerationTracker);
 
       // Start FLUX generation asynchronously
-      this.startFluxGeneration(userId, request, generationId, tracker, userModel);
+      this.startFluxGeneration(internalUserId, request, generationId, tracker, userModel);
 
-      // Update user profile stats
-      await this.db.updateMayaProfile(userId, {
+      // Update user profile stats using Stack Auth ID
+      await this.db.updateMayaProfile(user.stackAuthId, {
         totalGenerations: (userProfile.totalGenerations || 0) + 1,
         monthlyGenerations: (userProfile.monthlyGenerations || 0) + 1,
       });
