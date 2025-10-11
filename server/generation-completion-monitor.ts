@@ -28,9 +28,9 @@ export class GenerationCompletionMonitor {
       
       const response = await fetch(`https://api.replicate.com/v1/predictions/${predictionId}`, {
         headers: {
-          'Authorization': `Token ${process.env["REPLICATE_API_TOKEN"]}`,
-          'Content-Type': 'application/json'
-        }
+          'Authorization': `Bearer ${process.env["REPLICATE_API_TOKEN"]}`,
+          'Content-Type': 'application/json',
+        },
       });
 
       if (!response.ok) {
@@ -50,10 +50,16 @@ export class GenerationCompletionMonitor {
         
         const imageUrls = Array.isArray(predictionData.output) ? predictionData.output : [predictionData.output];
         
-        // Update tracker with completed images
+        // Extract original prompt (remove Replicate ID metadata)
+        const originalPrompt = tracker.prompt?.includes('||REPLICATE_ID:') 
+          ? tracker.prompt.split('||REPLICATE_ID:')[0]
+          : tracker.prompt;
+        
+        // Update tracker with completed images and restore original prompt
         await storage.updateGenerationTracker(trackerId, {
           status: 'completed',
           imageUrls: JSON.stringify(imageUrls),
+          prompt: originalPrompt, // Restore clean prompt
           updatedAt: new Date()
         });
 

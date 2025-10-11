@@ -48,9 +48,9 @@ export class TrainingCompletionMonitor {
 
         const response = await fetch(`https://api.replicate.com/v1/trainings/${replicateModelId}`, {
           headers: {
-            'Authorization': `Token ${process.env["REPLICATE_API_TOKEN"]}`,
-            'Content-Type': 'application/json'
-          }
+            'Authorization': `Bearer ${process.env["REPLICATE_API_TOKEN"]}`,
+            'Content-Type': 'application/json',
+          },
         });
 
         if (!response.ok) {
@@ -78,6 +78,13 @@ export class TrainingCompletionMonitor {
           
           // Standard FLUX training completion - extract version ID
           const versionId = trainingData.version?.id || null;
+          
+          // 🔍 CRITICAL DEBUG: Log version ID extraction
+          console.log(`🔍 TRAINING COMPLETION: Version ID extraction for user ${userId}:`, {
+            hasVersion: !!trainingData.version,
+            versionId: versionId,
+            fullVersionData: trainingData.version
+          });
           
           // ✅ RESTORED: LoRA weights extraction for personalized images
           
@@ -194,9 +201,9 @@ export class TrainingCompletionMonitor {
       
       const response = await fetch(`https://api.replicate.com/v1/models/${process.env.REPLICATE_USERNAME || 'models'}/${modelName}`, {
         headers: {
-          'Authorization': `Token ${process.env["REPLICATE_API_TOKEN"]}`,
-          'Content-Type': 'application/json'
-        }
+          'Authorization': `Bearer ${process.env["REPLICATE_API_TOKEN"]}`,
+          'Content-Type': 'application/json',
+        },
       });
 
       if (response.status === 404) {

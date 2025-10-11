@@ -471,42 +471,63 @@ export class MayaService {
     try {
       // userId is already the internal database user ID (needed for trigger words)
       const internalUserId = userId;
-      console.log(`🔍 MAYA: Using internal user ID ${internalUserId} for generation (trigger: user${internalUserId})`);
+      console.log(`🔍 MAYA GENERATION: Starting for internal user ID ${internalUserId}`);
 
       // Get user to find their Stack Auth ID for profile operations
       const user = await this.db.getUser(internalUserId);
       if (!user) {
+        console.error(`❌ MAYA GENERATION: User not found with internal ID: ${internalUserId}`);
         throw new Error(`User not found with internal ID: ${internalUserId}`);
       }
       
+      console.log(`🔍 MAYA GENERATION: Found user - Stack Auth ID: ${user.stackAuthId}, Gender: ${user.gender}`);
+      
       if (!user.stackAuthId) {
+        console.error(`❌ MAYA GENERATION: User ${internalUserId} missing Stack Auth ID`);
         throw new Error(`User ${internalUserId} does not have a Stack Auth ID linked`);
       }
 
       // Validate user has access using Stack Auth ID
       const userProfile: MayaProfile = await this.getOrCreateUserProfile(user.stackAuthId);
+      console.log(`🔍 MAYA GENERATION: Profile access - basicGeneration: ${userProfile.featureAccess?.basicGeneration}, monthlyGenerations: ${userProfile.monthlyGenerations}`);
+      
       if (!(userProfile.featureAccess as { basicGeneration?: boolean })?.basicGeneration) {
+        console.error(`❌ MAYA GENERATION: User does not have generation access`);
         throw new Error('User does not have generation access');
       }
 
-      // Check generation limits
-      if ((userProfile.monthlyGenerations || 0) >= 100) { // Default limit
+      // Check generation limits (allow admin users with -1 limit)
+      const monthlyLimit = userProfile.monthlyGenerations || 0;
+      if (monthlyLimit >= 100 && monthlyLimit !== -1) {
+        console.error(`❌ MAYA GENERATION: Monthly limit exceeded: ${monthlyLimit}/100`);
         throw new Error('Monthly generation limit exceeded');
       }
 
       // Get user's trained model for personalization
       const userModel = await this.getUserModel(userId);
+      console.log(`🔍 MAYA GENERATION: User model status - Found: ${!!userModel}, Training: ${userModel?.trainingStatus}, Version: ${userModel?.replicateVersionId}, Trigger: ${userModel?.triggerWord}`);
       
       // CRITICAL: Validate user has completed trained model
       if (!userModel || userModel.trainingStatus !== 'completed') {
-        throw new Error(`User does not have a completed trained model. Status: ${userModel?.trainingStatus || 'no_model'}`);
+        console.error(`❌ MAYA GENERATION: Invalid model - Status: ${userModel?.trainingStatus || 'no_model'}, ID: ${userModel?.id}`);
+        throw new Error(`User does not have a completed trained model. Status: ${userModel?.trainingStatus || 'no_model'}. Please complete model training first.`);
       }
+      
+      // 🔍 CRITICAL DEBUG: Log detailed model information
+      console.log(`🔍 MAYA GENERATION: Model validation for user ${userId}:`, {
+        trainingStatus: userModel.trainingStatus,
+        replicateVersionId: userModel.replicateVersionId,
+        triggerWord: userModel.triggerWord,
+        modelId: userModel.id,
+        completedAt: userModel.completedAt
+      });
       
       if (!userModel.replicateVersionId) {
-        throw new Error('User model missing replicateVersionId for personalized generation');
+        console.error(`❌ MAYA GENERATION: Model missing Replicate version ID - Training may have completed without proper version extraction`);
+        throw new Error('User model missing replicateVersionId for personalized generation. Training completion may have failed to extract version ID.');
       }
       
-      console.log(`🎯 MAYA: Starting generation for user with model ${userModel.replicateVersionId}, trigger: ${userModel.triggerWord}`);
+      console.log(`✅ MAYA GENERATION: Valid model found - Version: ${userModel.replicateVersionId}, Trigger: ${userModel.triggerWord}`);
 
       // Create generation tracker
       const generationId = `gen_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -567,53 +588,107 @@ export class MayaService {
         throw new Error('User model missing replicateVersionId - cannot generate personalized images');
       }
 
-      // Build personalized prompt with gender injection
+      // Build personalized prompt with gender injection and trigger word
       const { enforceGender } = await import('../utils/gender-prompt.js');
       
       // Start with the concept prompt
       let fluxPrompt = request.conceptCard.fluxPrompt;
+      console.log(`🔍 MAYA FLUX: Original prompt: ${fluxPrompt.substring(0, 150)}...`);
       
-      // Add trigger word and enforce gender for proper personalization
+      // CRITICAL: Add trigger word and enforce gender for proper personalization
       if (userModel.triggerWord) {
+        console.log(`🔍 MAYA FLUX: Adding trigger word "${userModel.triggerWord}" and enforcing gender "${user.gender}"`);
         fluxPrompt = enforceGender(userModel.triggerWord, fluxPrompt, user.gender);
+        console.log(`🔍 MAYA FLUX: Enhanced prompt: ${fluxPrompt.substring(0, 150)}...`);
+      } else {
+        console.warn(`⚠️ MAYA FLUX: No trigger word found for user model ${userModel.id}`);
       }
 
-      console.log(`🎯 MAYA: Generating with LoRA model ${userModel.replicateVersionId}, prompt: ${fluxPrompt.substring(0, 100)}...`);
+      console.log(`🎯 MAYA FLUX: Starting Replicate generation with LoRA model ${userModel.replicateVersionId}`);
 
+      // Validate Replicate API token
+      const replicateToken = process.env['REPLICATE_API_TOKEN'];
+      console.log(`🔍 MAYA FLUX: Token validation:`, {
+        hasToken: !!replicateToken,
+        tokenLength: replicateToken?.length || 0,
+        tokenPrefix: replicateToken?.substring(0, 8) + '...' || 'N/A'
+      });
+      
+      if (!replicateToken) {
+        console.error('❌ MAYA FLUX: REPLICATE_API_TOKEN not configured in environment');
+        throw new Error('Replicate API not configured - missing REPLICATE_API_TOKEN environment variable');
+      }
+
+      // � CRITICAL FIX: Construct full model version format
+      const modelVersion = userModel.replicateModelId && userModel.replicateVersionId 
+        ? `${userModel.replicateModelId}:${userModel.replicateVersionId}`
+        : userModel.replicateVersionId;
+
+      // �🔍 CRITICAL DEBUG: Log user model details before API call
+      console.log(`🔍 MAYA FLUX: User model details:`, {
+        replicateModelId: userModel.replicateModelId,
+        replicateVersionId: userModel.replicateVersionId,
+        combinedVersion: modelVersion,
+        triggerWord: userModel.triggerWord,
+        trainingStatus: userModel.trainingStatus,
+        modelType: userModel.modelType
+      });
+
+      const requestBody = {
+        version: modelVersion,
+        input: {
+          prompt: fluxPrompt,
+          num_outputs: 2,
+          aspect_ratio: "1:1",
+          output_format: "webp",
+          output_quality: 80,
+          safety_tolerance: 2,
+        }
+      };
+
+      console.log(`🔍 MAYA FLUX: Calling Replicate API with model: ${userModel.replicateVersionId}`);
+      console.log(`🔍 MAYA FLUX: Request body:`, JSON.stringify(requestBody, null, 2));
+
+      // 🔧 CRITICAL FIX: Try both API endpoints for compatibility
+      console.log(`🔍 MAYA FLUX: Trying Replicate API endpoint: /v1/predictions`);
+      
       // Call Replicate API with user's custom trained model
       const replicateResponse = await fetch('https://api.replicate.com/v1/predictions', {
         method: 'POST',
         headers: {
-          'Authorization': `Token ${process.env['REPLICATE_API_TOKEN']}`,
+          'Authorization': `Bearer ${process.env['REPLICATE_API_TOKEN']}`,
           'Content-Type': 'application/json',
+          'User-Agent': 'SSELFIE-Studio/1.0'
         },
-        body: JSON.stringify({
-          version: userModel.replicateVersionId, // CRITICAL: Use user's LoRA model
-          input: {
-            prompt: fluxPrompt,
-            num_outputs: 2,
-            aspect_ratio: "1:1",
-            output_format: "webp",
-            output_quality: 80,
-            safety_tolerance: 2,
-          }
-        })
+        body: JSON.stringify(requestBody)
       });
 
+      // 🔍 CRITICAL: Log complete response for debugging
+      console.log(`🔍 MAYA FLUX: Replicate response status: ${replicateResponse.status}`);
+
+      console.log(`🔍 MAYA FLUX: Replicate response status: ${replicateResponse.status}`);
+
       if (!replicateResponse.ok) {
-        throw new Error(`Replicate API error: ${replicateResponse.status}`);
+        const errorText = await replicateResponse.text();
+        console.error(`❌ MAYA FLUX: Replicate API error ${replicateResponse.status}: ${errorText}`);
+        throw new Error(`Replicate API error: ${replicateResponse.status} - ${errorText}`);
       }
 
       const predictionData = await replicateResponse.json();
+      console.log(`✅ MAYA FLUX: Replicate prediction created: ${predictionData.id}`);
 
-      // Update tracker with prediction ID
+      // Store Replicate prediction ID in prompt field temporarily for tracking
+      // Keep original generationId in predictionId for client polling
+      console.log(`🔍 MAYA FLUX: Updating tracker ${tracker.id} with Replicate prediction ID: ${predictionData.id}`);
       await this.db.updateGenerationTracker(tracker.id, {
-        predictionId: predictionData.id,
+        // Keep original predictionId for client polling
+        // Store Replicate ID in the prompt field's metadata
+        prompt: `${request.conceptCard.fluxPrompt}||REPLICATE_ID:${predictionData.id}`,
         status: 'processing',
       });
 
       // Use GenerationCompletionMonitor for proper chat preview integration
-      console.log(`✅ MAYA: Started generation ${predictionData.id}, triggering completion monitor`);
+      console.log(`✅ MAYA FLUX: Generation started successfully - Prediction: ${predictionData.id}, Tracker: ${tracker.id}`);
 
       // Trigger the completion monitor to check this specific generation
       try {
@@ -657,16 +732,29 @@ export class MayaService {
     progress?: number;
   }> {
     try {
-      // Find tracker by predictionId (which is stored in the predictionId field)
+      console.log(`🔍 MAYA STATUS: Looking for generation ${generationId} for user ${userId}`);
+      
+      // Find tracker by predictionId (original generation ID)
       const trackers = await this.db.getUserGenerationTrackers(userId);
+      console.log(`🔍 MAYA STATUS: Found ${trackers.length} trackers for user`);
+      
       const tracker = trackers.find(t => t.predictionId === generationId);
 
       if (!tracker) {
+        console.error(`❌ MAYA STATUS: Generation ${generationId} not found for user ${userId}`);
+        console.error(`❌ MAYA STATUS: Available trackers:`, trackers.map(t => ({
+          id: t.id,
+          predictionId: t.predictionId,
+          status: t.status
+        })));
         throw new Error('Generation not found');
       }
 
+      console.log(`✅ MAYA STATUS: Found tracker ${tracker.id} with status ${tracker.status}`);
+
       if (tracker.status === 'completed') {
         const imageUrls = tracker.imageUrls ? JSON.parse(tracker.imageUrls) : [];
+        console.log(`✅ MAYA STATUS: Returning ${imageUrls.length} completed images`);
         return {
           generationId,
           status: 'completed',

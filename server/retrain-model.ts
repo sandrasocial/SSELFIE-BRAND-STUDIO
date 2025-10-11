@@ -51,25 +51,25 @@ export class ModelRetrainService {
       };
       
       
-      const response = await fetch('https://api.replicate.com/v1/trainings', {
+      const trainingResponse = await fetch('https://api.replicate.com/v1/trainings', {
         method: 'POST',
         headers: {
-          'Authorization': `Token ${process.env["REPLICATE_API_TOKEN"]}`,
+          'Authorization': `Bearer ${process.env["REPLICATE_API_TOKEN"]}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(trainingData)
       });
       
-      if (!response.ok) {
-        const errorData = await response.text();
-        console.error('❌ Replicate training failed:', response.status, errorData);
+      if (!trainingResponse.ok) {
+        const errorData = await trainingResponse.text();
+        console.error('❌ Replicate training failed:', trainingResponse.status, errorData);
         return {
           success: false,
-          message: `Training failed: ${response.status} - ${errorData}`
+          message: `Training failed: ${trainingResponse.status} - ${errorData}`
         };
       }
-      
-      const result = await response.json();
+
+      const result = await trainingResponse.json();
       const replicateModelId = result.id;
       
       

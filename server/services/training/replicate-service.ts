@@ -261,7 +261,7 @@ export class ReplicateService {
     const response = await fetch(url, {
       ...options,
       headers: {
-        'Authorization': `Token ${this.apiToken}`,
+        'Authorization': `Bearer ${this.apiToken}`,
         'Content-Type': 'application/json',
         ...options.headers
       }

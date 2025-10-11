@@ -1232,6 +1232,8 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
       try {
         const user = await getAuthenticatedUser();
         
+        console.log(`🔍 MAYA GENERATE: Request from Stack Auth user: ${user.id}`);
+        
         // CRITICAL: Ensure user exists in database before generation
         const { UserService } = await import('../server/services/user-service.js');
         const userService = new UserService();
@@ -1241,6 +1243,8 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
           user.firstName || user.lastName ? `${user.firstName || ''} ${user.lastName || ''}`.trim() : null,
           null // No profile image URL available in AuthenticatedUser
         );
+        
+        console.log(`🔍 MAYA GENERATE: Database user found - ID: ${dbUser.id}, Gender: ${dbUser.gender}`);
         
         const body = req.body || {};
         
@@ -1254,16 +1258,21 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
         };
         
         if (!conceptCard || !conceptCard.fluxPrompt) {
+          console.error(`❌ MAYA GENERATE: Invalid concept card:`, conceptCard);
           return res.status(400).json({ error: 'Concept card with fluxPrompt is required' });
         }
+        
+        console.log(`🔍 MAYA GENERATE: Concept card - Title: "${conceptCard.title}", Prompt length: ${conceptCard.fluxPrompt.length}`);
         
         // Use the new MayaService with the internal database user ID (needed for trigger word)
         const { mayaService } = await import('../server/services/maya-service.js');
         
-        console.log(`🔍 MAYA: Generating images for internal user ID: ${dbUser.id} (trigger: user${dbUser.id})`);
+        console.log(`🎯 MAYA GENERATE: Starting generation for database user ID: ${dbUser.id}`);
         const generationResult = await mayaService.generateImages(dbUser.id, {
           conceptCard
         });
+        
+        console.log(`✅ MAYA GENERATE: Generation started - ID: ${generationResult.generationId}, Status: ${generationResult.status}`);
         
         
         res.setHeader('Cache-Control', 'no-store');
@@ -1311,11 +1320,21 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
           console.warn('⚠️ MAYA STATUS: Monitor check failed:', monitorError);
         }
         
-        // Use the new MayaService instead of old ModelTrainingService
+        // Get database user ID for Maya service (Maya service expects internal DB user ID)
+        const { UserService } = await import('../server/services/user-service.js');
+        const userService = new UserService();
+        const dbUser = await userService.getOrCreateUser(
+          user.id as string,
+          user.email as string,
+          user.firstName || user.lastName ? `${user.firstName || ''} ${user.lastName || ''}`.trim() : null,
+          null
+        );
+        
+        // Use the new MayaService with database user ID
         const { mayaService } = await import('../server/services/maya-service.js');
         
-        
-        const statusResult = await mayaService.getGenerationStatus(user.id as string, generationId);
+        console.log(`🔍 MAYA STATUS: Checking status for generation ${generationId}, user ${dbUser.id}`);
+        const statusResult = await mayaService.getGenerationStatus(dbUser.id, generationId);
         
         
         res.setHeader('Cache-Control', 'no-store');
@@ -1333,6 +1352,34 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
     if (req.url?.includes('/api/maya/models')) {
       const mayaModelsHandler = await import('./maya/models/index.js');
       return mayaModelsHandler.default(req, res);
+    }
+
+    // Environment diagnostic endpoint (admin only)
+    if (req.url?.includes('/api/maya/env-check')) {
+      try {
+        const user = await getAuthenticatedUser();
+        
+        // Only allow admin user
+        if (user.email !== 'ssa@ssasocial.com') {
+          return res.status(403).json({ error: 'Admin access required' });
+        }
+
+        const envCheck = {
+          replicateToken: !!process.env['REPLICATE_API_TOKEN'] ? `${process.env['REPLICATE_API_TOKEN']?.substring(0, 8)}...` : 'MISSING',
+          anthropicKey: !!process.env['ANTHROPIC_API_KEY'] ? `${process.env['ANTHROPIC_API_KEY']?.substring(0, 8)}...` : 'MISSING',
+          databaseUrl: !!process.env['DATABASE_URL'] ? 'CONFIGURED' : 'MISSING',
+          stackAuth: !!process.env['STACK_SECRET_SERVER_KEY'] ? 'CONFIGURED' : 'MISSING',
+          nodeEnv: process.env['NODE_ENV'] || 'undefined'
+        };
+
+        return res.status(200).json({
+          success: true,
+          environment: envCheck,
+          timestamp: new Date().toISOString()
+        });
+      } catch (error) {
+        return res.status(500).json({ error: 'Environment check failed' });
+      }
     }
 
     // Maya chat endpoints
@@ -1408,102 +1455,67 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
 
         const mayaResponse = claudeResponse.content[0].type === 'text' ? claudeResponse.content[0].text : '';
         
-        // Enhanced concept card extraction with multiple robust patterns
+        // ENHANCED concept card extraction - strict format matching
         const conceptCards: ConceptCard[] = [];
         try {
             console.log('🔍 MAYA: Extracting concept cards from response length:', mayaResponse.length);
-            console.log('🔍 MAYA: Response sample:', mayaResponse.substring(0, 800));
+            console.log('🔍 MAYA: Response sample:', mayaResponse.substring(0, 1200));
             
-            // PATTERN 1: Maya's trained format with concept separators
-            const conceptSections = mayaResponse.split(/---+/).filter(section => section.trim().length > 50);
-            console.log(`🔍 MAYA: Found ${conceptSections.length} concept sections`);
+            // Split by triple dashes (Maya's trained separator)
+            const conceptSections = mayaResponse.split(/---+/).filter(section => {
+                const trimmed = section.trim();
+                // Must contain both a title and FLUX_PROMPT to be valid
+                return trimmed.length > 50 && trimmed.includes('**') && trimmed.includes('FLUX_PROMPT:');
+            });
+            
+            console.log(`🔍 MAYA: Found ${conceptSections.length} valid concept sections`);
             
             for (let i = 0; i < conceptSections.length && conceptCards.length < 5; i++) {
                 const section = conceptSections[i].trim();
+                console.log(`🔍 MAYA: Processing section ${i + 1}:`, section.substring(0, 200));
                 
-                // Multiple extraction patterns for robustness
-                const patterns = [
-                    // Pattern 1: Full Maya format [EMOJI] **CONCEPT** \n Description \n FLUX_PROMPT: [prompt]
-                    /([^\w\s])\s*\*\*([^*]+)\*\*\s*[\r\n]+([^*]+?)[\r\n]+\s*FLUX_PROMPT:\s*\[([^\]]+)\]/g,
-                    
-                    // Pattern 2: Simplified emoji format
-                    /([📸🎯✨💼🌟💫🏆🎬🏔️🎿☕])\s*\*\*([^*]+)\*\*\s*([\s\S]*?)\s*FLUX_PROMPT:\s*\[([\s\S]*?)\]/g,
-                    
-                    // Pattern 3: Any emoji + title format
-                    /([^\w\s\[\]])\s*\*\*([^*]+)\*\*\s*([\s\S]*?)\s*FLUX_PROMPT:\s*\[([\s\S]*?)\]/g,
-                    
-                    // Pattern 4: Just title + FLUX_PROMPT
-                    /\*\*([^*]+)\*\*\s*([\s\S]*?)\s*FLUX_PROMPT:\s*\[([\s\S]*?)\]/g
-                ];
+                // STRICT extraction pattern matching Maya's trained format:
+                // [EMOJI] **CONCEPT NAME**
+                // Description paragraph
+                // FLUX_PROMPT: [detailed prompt in brackets]
+                const strictPattern = /([^\w\s])\s*\*\*([^*]+)\*\*\s*[\r\n]+([\s\S]*?)\s*FLUX_PROMPT:\s*\[([^\]]+)\]/i;
+                const match = strictPattern.exec(section);
                 
-                let sectionMatched = false;
-                
-                for (const pattern of patterns) {
-                    let match;
-                    while ((match = pattern.exec(section)) !== null && conceptCards.length < 5) {
-                        let emoji = '📸', title = '', description = '', fluxPrompt = '';
+                if (match) {
+                    const emoji = match[1]?.trim() || '📸';
+                    const title = match[2]?.trim();
+                    const description = match[3]?.trim().replace(/\s+/g, ' ');
+                    const fluxPrompt = match[4]?.trim();
+                    
+                    // Validate extracted data
+                    if (title && title.length > 2 && description && description.length > 10 && fluxPrompt && fluxPrompt.length > 20) {
+                        console.log(`✅ MAYA: Successfully extracted concept - ${emoji} ${title}`);
+                        console.log(`🎯 MAYA: FLUX prompt preview: ${fluxPrompt.substring(0, 100)}...`);
                         
-                        if (match.length >= 4) {
-                            if (match.length === 5) {
-                                // Full format with emoji
-                                emoji = match[1] || '📸';
-                                title = match[2]?.trim();
-                                description = match[3]?.trim();
-                                fluxPrompt = match[4]?.trim();
-                            } else {
-                                // Without emoji
-                                title = match[1]?.trim();
-                                description = match[2]?.trim();
-                                fluxPrompt = match[3]?.trim();
-                            }
-                            
-                            // Clean up text
-                            description = description?.replace(/\s+/g, ' ').substring(0, 300) || '';
-                            fluxPrompt = fluxPrompt?.replace(/[\[\]]/g, '').trim() || '';
-                            
-                            if (title && title.length > 3 && (description.length > 10 || fluxPrompt.length > 10)) {
-                                console.log(`✅ MAYA: Extracted concept - ${emoji} ${title}`);
-                                conceptCards.push({
-                                    id: `concept_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-                                    title: title,
-                                    description: description || `Professional ${title.toLowerCase()} concept`,
-                                    fluxPrompt: fluxPrompt || `Professional photo of sandra, ${title.toLowerCase()}, high quality photography`,
-                                    creativeLook: 'Professional',
-                                    emoji: emoji
-                                });
-                                sectionMatched = true;
-                            }
-                        }
+                        conceptCards.push({
+                            id: `concept_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                            title: title.toUpperCase(),
+                            description: description.substring(0, 400),
+                            fluxPrompt: fluxPrompt,
+                            creativeLook: 'Professional',
+                            emoji: emoji
+                        });
+                    } else {
+                        console.warn(`⚠️ MAYA: Invalid concept data in section ${i + 1}:`, { 
+                            titleLength: title?.length, 
+                            descriptionLength: description?.length, 
+                            fluxPromptLength: fluxPrompt?.length 
+                        });
                     }
-                    
-                    if (sectionMatched) break; // Found matches with this pattern, move to next section
+                } else {
+                    console.warn(`⚠️ MAYA: Section ${i + 1} doesn't match expected format`);
                 }
             }
             
-            // PATTERN 2: If no structured concepts found, intelligent text analysis
+            // If extraction completely failed, something is seriously wrong - don't create fallback concepts
             if (conceptCards.length === 0) {
-                console.log('🔄 MAYA: No structured concepts found, analyzing text for concept keywords...');
-                
-                const conceptKeywords = ['professional', 'business', 'creative', 'lifestyle', 'portrait', 'headshot', 'flatlay', 'editorial', 'casual', 'elegant'];
-                const lines = mayaResponse.split('\n').filter(line => line.trim().length > 20);
-                
-                for (const line of lines.slice(0, 10)) {
-                    for (const keyword of conceptKeywords) {
-                        if (line.toLowerCase().includes(keyword) && conceptCards.length < 3) {
-                            const title = `${keyword.charAt(0).toUpperCase() + keyword.slice(1)} Concept`;
-                            console.log(`✅ MAYA: Generated concept from keyword - ${title}`);
-                            conceptCards.push({
-                                id: `concept_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-                                title: title,
-                                description: line.trim().substring(0, 200),
-                                fluxPrompt: `Professional photo of sandra, ${keyword} style, high quality photography`,
-                                creativeLook: 'Professional',
-                                emoji: '📸'
-                            });
-                            break; // Only one concept per line
-                        }
-                    }
-                }
+                console.error('❌ MAYA: CRITICAL - No concept cards extracted from response. Maya may not be following trained format.');
+                console.error('❌ MAYA: Full response for debugging:', mayaResponse);
             }
             
             console.log(`✅ MAYA: Extracted ${conceptCards.length} concept cards total`);
