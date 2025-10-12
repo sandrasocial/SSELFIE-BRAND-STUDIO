@@ -11,6 +11,6 @@ export default handler;
 
 // Vercel serverless function configuration
 export const config = {
-  runtime: 'nodejs20.x',
+  runtime: 'nodejs',
   maxDuration: 40,
 };
