@@ -1,212 +1,284 @@
 /**
  * Training Routes
- * Handles model training and data management
+ * Handles model training, user models, and training status
+ * 
+ * Migrated from server/index.ts (Day 3, Phase 2)
+ * Production code with bulletproof user lookup and timeout handling
  */
 
-import { Router, Response, Request } from 'express';
+import type { Response } from 'express';
+import { Router } from 'express';
 import { requireStackAuth } from '../../stack-auth.js';
-import { asyncHandler, createError, sendSuccess, validateRequired } from '../middleware/error-handler.js';
-import { AuthenticatedRequest } from '../../../shared/types/ai-generation.js';
-import { SuccessResponse } from '../../../shared/types/ai-generation.js';
-
-interface TrainingStatus {
-  userId: string;
-  status: 'idle' | 'training' | 'error';
-  lastTraining: string | null;
-}
-
-interface TrainingRequest {
-  id: string;
-  status: 'pending' | 'running' | 'completed' | 'failed';
-  progress: number;
-}
-
-interface TrainingStartRequest {
-  modelType: string;
-  data: unknown;
-}
-
-interface TrainingStopRequest {
-  trainingId: string;
-}
-
-interface TrainingValidateRequest {
-  data: unknown;
-}
-
-interface ValidationResult {
-  valid: boolean;
-  errors: string[];
-}
-
-interface TrainingMetricsRequest {
-  trainingId: string;
-}
-
-interface TrainingMetrics {
-  accuracy: number;
-  loss: number;
-  epoch: number;
-}
-
-interface MemoryAudit {
-  totalMemory: string;
-  usedMemory: string;
-  freeMemory: string;
-}
+import { asyncHandler } from '../middleware/error-handler.js';
+import type { AuthenticatedRequest } from '../../../shared/types/ai-generation.js';
+import { withDatabaseTimeout, withDatabaseTimeoutAndRetry, isTimeoutError } from '../../_utils/timing.js';
+import { storage } from '../../storage.js';
 
 const router = Router();
 
-// Get training status
-router.get('/api/training/status', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const userId = req.user.id;
+// Types for user model
+interface UserModel {
+  id: number;
+  userId: string;
+  trainingStatus: string | null;
+  trainingProgress?: number | null;
+  replicateModelId?: string | null;
+  replicateVersionId?: string | null;
+  triggerWord?: string | null;
+  modelType?: string | null;
+  createdAt: Date | null;
+  updatedAt: Date | null;
+}
 
-  // Mock implementation - replace with actual training service
-  const status: TrainingStatus = { userId, status: 'idle', lastTraining: null };
-  
-  const responseData: SuccessResponse<{ status: TrainingStatus }> = {
-    data: { status }
-  };
-  
-  sendSuccess(res, responseData);
-}));
+// Helper to get authenticated user from request
+async function getAuthenticatedUser(req: AuthenticatedRequest) {
+  if (!req.user || !req.user.id) {
+    throw new Error('Authentication required');
+  }
+  return req.user;
+}
 
-// Get training request status
-router.get('/api/training/request/:requestId', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const { requestId } = req.params;
+// JSON response helper
+function json(res: Response, status: number, data: any) {
+  res.setHeader('Content-Type', 'application/json');
+  res.status(status).json(data);
+}
 
-  // Mock implementation - replace with actual training service
-  const request: TrainingRequest = { id: requestId, status: 'completed', progress: 100 };
-  
-  const responseData: SuccessResponse<{ request: TrainingRequest }> = {
-    data: { request }
-  };
-  
-  sendSuccess(res, responseData);
-}));
-
-// Start training
-router.post('/api/training/start', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest & { body: TrainingStartRequest }, res: Response) => {
-  const userId = req.user.id;
-  const { modelType, data } = req.body;
-  validateRequired({ modelType, data }, ['modelType', 'data']);
-
-  // Mock implementation - replace with actual training service
-  const trainingId = `training_${Date.now()}`;
-  
-  const responseData: SuccessResponse<{ trainingId: string }> = {
-    data: { trainingId },
-    message: 'Training started successfully'
-  };
-  
-  sendSuccess(res, responseData, 'Training started successfully', 202);
-}));
-
-// Stop training
-router.post('/api/training/stop', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest & { body: TrainingStopRequest }, res: Response) => {
-  const userId = req.user.id;
-  const { trainingId } = req.body;
-  validateRequired({ trainingId }, ['trainingId']);
-
-  // Mock implementation - replace with actual training service
-  const responseData: SuccessResponse<{ success: true }> = {
-    data: { success: true },
-    message: 'Training stopped successfully'
-  };
-  
-  sendSuccess(res, responseData);
-}));
-
-// Validate training data
-router.post('/api/training/validate', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest & { body: TrainingValidateRequest }, res: Response) => {
-  const userId = req.user.id;
-  const { data } = req.body;
-  validateRequired({ data }, ['data']);
-
-  // Mock implementation - replace with actual validation service
-  const validation: ValidationResult = { valid: true, errors: [] };
-  
-  const responseData: SuccessResponse<{ validation: ValidationResult }> = {
-    data: { validation }
-  };
-  
-  sendSuccess(res, responseData);
-}));
-
-// Get training metrics
-router.post('/api/training/metrics', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest & { body: TrainingMetricsRequest }, res: Response) => {
-  const userId = req.user.id;
-  const { trainingId } = req.body;
-  validateRequired({ trainingId }, ['trainingId']);
-
-  // Mock implementation - replace with actual metrics service
-  const metrics: TrainingMetrics = { accuracy: 0.95, loss: 0.05, epoch: 10 };
-  
-  const responseData: SuccessResponse<{ metrics: TrainingMetrics }> = {
-    data: { metrics }
-  };
-  
-  sendSuccess(res, responseData);
-}));
-
-// Consolidate data
-router.post('/api/training/consolidate/:userId', asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const { userId } = req.params;
-  validateRequired({ userId }, ['userId']);
-
-  // Mock implementation - replace with actual consolidation service
-  const responseData: SuccessResponse<{ success: true }> = {
-    data: { success: true },
-    message: 'Data consolidation initiated'
-  };
-  
-  sendSuccess(res, responseData);
-}));
-
-// Get consolidation status
-router.get('/api/training/consolidation/status', asyncHandler(async (_req: Request, res: Response) => {
-  // Mock implementation - replace with actual consolidation service
-  const responseData: SuccessResponse<{
-    status: 'healthy' | 'unhealthy';
-    lastConsolidation: string;
-  }> = {
-    data: {
-      status: 'healthy',
-      lastConsolidation: new Date().toISOString()
+// Timing helper
+function logStart(label: string) {
+  const start = Date.now();
+  return {
+    end: (status: string, meta?: any) => {
+      const elapsed = Date.now() - start;
+      console.log(`⏱️  ${label} [${status}] ${elapsed}ms`, meta || '');
+      return elapsed;
     }
   };
+}
+
+// ============================================================================
+// USER MODEL ENDPOINT - Critical for onboarding and training status
+// ============================================================================
+router.get('/api/user-model', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  const t = logStart('GET /api/user-model');
   
-  sendSuccess(res, responseData);
+  try {
+    const user = await getAuthenticatedUser(req);
+    
+    let dbUser: any = null;
+    let userModel: UserModel | null = null;
+    
+    // 🛡️ BULLETPROOF: Use aggressive Stack Auth ID and email linking
+    try {
+      // First get user by Stack Auth ID
+      const foundUser = await withDatabaseTimeoutAndRetry(
+        () => storage.getUserByStackAuthId(user.id as string), 
+        undefined, 
+        3000,
+        3,    
+        'getUserByStackAuthId'
+      );
+      dbUser = foundUser || null;
+      
+      // If user found, get their model
+      if (dbUser?.id) {
+        const foundModel = await withDatabaseTimeoutAndRetry(
+          () => storage.getUserModel(dbUser.id), 
+          undefined,
+          6000,
+          3,
+          'getUserModel'
+        );
+        userModel = foundModel || null;
+      } else {
+        userModel = null;
+      }
+      
+      console.log('🔍 Bulletproof lookup result:', {
+        foundUser: !!dbUser,
+        foundModel: !!userModel,
+        trainingStatus: userModel?.trainingStatus || 'not_started',
+        userEmail: dbUser?.email
+      });
+      
+    } catch (dbError) {
+      console.error('❌ Bulletproof user lookup failed:', {
+        userId: user.id,
+        email: user.email,
+        error: (dbError as Error).message
+      });
+      
+      // Fallback to traditional lookup
+      try {
+        dbUser = await withDatabaseTimeout(
+          storage.getUser(user.id as string), 
+          null, 
+          2000,
+          'getUser'
+        );
+        
+        if (!dbUser && user.email) {
+          dbUser = await withDatabaseTimeout(
+            storage.getUserByEmail(user.email as string), 
+            null, 
+            2000,
+            'getUserByEmail'
+          );
+        }
+      } catch (fallbackError) {
+        console.error('❌ Fallback user lookup also failed:', (fallbackError as Error).message);
+      }
+    }
+    
+    // 🎯 If no database user found, create minimal fallback model for new users
+    if (!dbUser) {
+      console.warn(`❌ User ${user.id} authenticated but missing DB record. Creating minimal fallback model.`);
+      
+      const minimalModel = {
+        id: null,
+        userId: user.id,
+        trainingStatus: 'not_started' as const,
+        needsTraining: true,
+        canRetrain: false,
+        modelType: 'sselfie-studio',
+        createdAt: null,
+        updatedAt: null,
+        userPlan: 'sselfie-studio',
+        hasActiveSubscription: false,
+        onboardingSource: 'unknown'
+      };
+      
+      res.setHeader('Cache-Control', 'no-store');
+      t.end('fallback');
+      json(res, 200, minimalModel);
+      return;
+    }
+    
+    // Fetch user model if not already obtained from bulletproof lookup
+    if (dbUser && !userModel) {
+      try {
+        const result = await withDatabaseTimeout(
+          storage.getUserModel(dbUser.id), 
+          null,
+          8000,
+          'getUserModel'
+        );
+        userModel = result ?? null;
+      } catch (error) {
+        console.warn('📊 Model fetch failed or timed out for:', dbUser.id, (error as Error).message);
+        userModel = null;
+      }
+    }
+    
+    let trainingStatus = 'not_started';
+    let needsTraining = true;
+    let canRetrain = false;
+    
+    if (userModel) {
+      trainingStatus = userModel.trainingStatus || 'not_started';
+      needsTraining = trainingStatus !== 'completed';
+      canRetrain = true;
+    } else {
+      needsTraining = true;
+      canRetrain = false;
+    }
+    
+    let onboardingSourceSafe = 'unknown';
+    try {
+      const op = (dbUser as any).onboardingProgress;
+      if (op) {
+        const obj = typeof op === 'string' ? JSON.parse(op) : op;
+        onboardingSourceSafe = (obj && obj.source) || 'unknown';
+      }
+    } catch {
+      // Ignore parsing errors
+    }
+
+    const modelStatus = {
+      id: userModel?.id || null,
+      userId: dbUser.id,
+      trainingStatus: trainingStatus,
+      needsTraining: needsTraining,
+      canRetrain: canRetrain,
+      modelType: 'sselfie-studio',
+      createdAt: userModel?.createdAt || null,
+      updatedAt: userModel?.updatedAt || null,
+      userPlan: dbUser.plan,
+      hasActiveSubscription: (dbUser.monthlyGenerationLimit === -1 || (dbUser.monthlyGenerationLimit && dbUser.monthlyGenerationLimit > 0)),
+      onboardingSource: onboardingSourceSafe
+    };
+    
+    res.setHeader('Cache-Control', 'no-store');
+    t.end('ok');
+    json(res, 200, modelStatus);
+    
+  } catch (error) {
+    const elapsed = t.end('error', { error: (error as Error).message });
+    console.error('❌ Critical Error in /api/user-model:', {
+      error: (error as Error).message,
+      stack: (error as Error).stack,
+      elapsedMs: elapsed
+    });
+    
+    if (isTimeoutError(error)) {
+      json(res, 500, { 
+        error: 'Database timeout - please try again',
+        message: 'Service temporarily unavailable',
+        code: 'TIMEOUT'
+      });
+      return;
+    }
+    
+    json(res, 500, { 
+      error: 'Failed to retrieve user data',
+      message: 'Internal server error',
+      code: 'INTERNAL_ERROR'
+    });
+  }
 }));
 
-// Get memory audit
-router.get('/api/training/memory/audit', asyncHandler(async (_req: Request, res: Response) => {
-  // Mock implementation - replace with actual audit service
-  const audit: MemoryAudit = {
-    totalMemory: '1GB',
-    usedMemory: '500MB',
-    freeMemory: '500MB'
-  };
-  
-  const responseData: SuccessResponse<{ audit: MemoryAudit }> = {
-    data: { audit }
-  };
-  
-  sendSuccess(res, responseData);
+// ============================================================================
+// TRAINING STATUS ENDPOINT
+// ============================================================================
+router.get('/api/training/status', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const user = await getAuthenticatedUser(req);
+    const model = await storage.getUserModelByUserId(user.id as string);
+    const status = model?.trainingStatus || 'not_started';
+    const progress = model?.trainingProgress || (status === 'completed' ? 100 : 0);
+    const predictionId = (await storage.getUserGenerationTrackers(user.id as string))?.[0]?.predictionId || null;
+    
+    res.setHeader('Cache-Control', 'no-store');
+    res.status(200).json({ status, progress, predictionId, model });
+  } catch (error) {
+    res.status(401).json({ 
+      error: 'Authentication required', 
+      message: (error as Error).message 
+    });
+  }
 }));
 
-// Cleanup memory
-router.post('/api/training/memory/cleanup/:userId', asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const { userId } = req.params;
-  validateRequired({ userId }, ['userId']);
-
-  // Mock implementation - replace with actual cleanup service
-  const responseData: SuccessResponse<{ success: true }> = {
-    data: { success: true },
-    message: 'Memory cleanup completed'
-  };
-  
-  sendSuccess(res, responseData);
+// ============================================================================
+// TRAINING PROGRESS ENDPOINT (User-specific)
+// ============================================================================
+router.get('/api/training-progress/:userId', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const user = await getAuthenticatedUser(req);
+    const targetUserId = req.params.userId;
+    
+    // Ensure user can only access their own progress
+    if ((user.id as string) !== targetUserId) {
+      res.status(403).json({ error: 'Forbidden' });
+      return;
+    }
+    
+    const model = await storage.getUserModelByUserId(targetUserId);
+    const progress = model?.trainingProgress || (model?.trainingStatus === 'completed' ? 100 : 0);
+    
+    res.status(200).json({ progress });
+  } catch (error) {
+    res.status(401).json({ error: 'Authentication required' });
+  }
 }));
 
 export default router;
