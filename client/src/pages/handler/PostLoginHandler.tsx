@@ -53,14 +53,7 @@ interface MeResponse {
 export default function PostLoginHandler() {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
 
-  // Fetch user profile data from /api/me
-  const { data: meData, isLoading: meLoading, error: meError } = useQuery<MeResponse>({
-    queryKey: ['/api/me'],
-    enabled: isAuthenticated && !!user,
-    retry: false,
-    staleTime: 30 * 1000
-  });
-
+  // ✅ REMOVED DUPLICATE /api/me CALL - user data already comes from useAuth()
   // Fetch user model training status from /api/user-model
   const { data: userModel, isLoading: modelLoading, error: modelError } = useQuery<UserModel>({
     queryKey: ['/api/user-model'],
@@ -71,20 +64,19 @@ export default function PostLoginHandler() {
 
   // Debug logging
   useEffect(() => {
-    if (meData || userModel) {
+    if (user || userModel) {
       console.log('🔍 PostLoginHandler Debug:', {
-        meData: meData?.user,
+        user, // Already has user data from useAuth
         userModel,
         authLoading,
-        meLoading,
         modelLoading,
         isAuthenticated
       });
     }
-  }, [meData, userModel, authLoading, meLoading, modelLoading, isAuthenticated]);
+  }, [user, userModel, authLoading, modelLoading, isAuthenticated]);
 
   // Show loading while fetching data
-  if (authLoading || meLoading || modelLoading) {
+  if (authLoading || modelLoading) {
     return <PageLoader />;
   }
 
@@ -94,22 +86,18 @@ export default function PostLoginHandler() {
   }
 
   // Handle API errors - if we can't determine status, send to training as safe fallback
-  if (meError || modelError) {
-    console.error('🚨 PostLoginHandler API Error:', { meError, modelError });
+  if (modelError) {
+    console.error('🚨 PostLoginHandler API Error:', { modelError });
     return <Redirect to={ROUTES.SIMPLE_TRAINING} />;
   }
 
   // Check training status - use userModel as single source of truth
   const isModelTrained = userModel?.trainingStatus === 'completed';
   
-  // Fallback to meData if userModel is not available (API error case)
-  const fallbackTrained = !userModel && meData?.user?.modelStatus === 'completed';
-  
-  const shouldGoToApp = isModelTrained || fallbackTrained;
+  const shouldGoToApp = isModelTrained;
 
   console.log('🎯 PostLoginHandler Routing Decision:', {
     userModelStatus: userModel?.trainingStatus,
-    fallbackStatus: meData?.user?.modelStatus,
     shouldGoToApp,
     redirectTo: shouldGoToApp ? ROUTES.APP : ROUTES.SIMPLE_TRAINING
   });

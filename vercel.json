@@ -28,17 +28,6 @@
       "headers": [{"key": "Cache-Control", "value": "no-store"}]
     }
   ],
-  "redirects": [
-    {"source": "/gallery-luxury-workspace.jpg", "destination": "/gallery-luxury-workspace.jpg", "permanent": true},
-    {"source": "/hero-homepage.png", "destination": "/hero-homepage.png", "permanent": true},
-    {"source": "/hero-about.png", "destination": "/hero-about.png", "permanent": true},
-    {"source": "/hero-dashboard.png", "destination": "/hero-dashboard.png", "permanent": true},
-    {"source": "/hero-luxury.png", "destination": "/hero-luxury.png", "permanent": true},
-    {"source": "/favicon.png", "destination": "/favicon.png", "permanent": true},
-    {"source": "/icon-192.png", "destination": "/icon-192.png", "permanent": true},
-    {"source": "/icon-512.png", "destination": "/icon-512.png", "permanent": true},
-    {"source": "/manifest.json", "destination": "/manifest.json", "permanent": true}
-  ],
   "crons": [
     {
       "path": "/api/cron/check-training",

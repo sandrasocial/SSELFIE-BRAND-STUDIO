@@ -30,23 +30,29 @@ const router = Router();
 // Me endpoint: JSON only, no cache, ensures user exists
 router.get('/api/me', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: ExpressResponse) => {
   res.setHeader('Cache-Control', 'no-store');
-  const userId = req.user.id;
-  let user = await userService.getUser(userId) as UserProfile;
   
-  if (!user && req.user) {
-    user = await userService.createUser(req.user.email || req.user.id, {
-      id: req.user.id,
-      email: req.user.email,
-      displayName: req.user.displayName,
-      firstName: req.user.firstName,
-      lastName: req.user.lastName,
-      profileImageUrl: req.user.profileImageUrl,
-    }) as UserProfile;
-  }
+  // ✅ PERFORMANCE FIX: req.user is already the cached database user from stack-auth middleware
+  // No need to query database again - just return it directly
+  const dbUser = req.user;
   
-  if (!user) {
+  if (!dbUser) {
     throw createError.notFound('User not found');
   }
+  
+  // Convert to UserProfile format (UserProfile expects undefined, not null)
+  const user: UserProfile = {
+    id: dbUser.id,
+    email: dbUser.email ?? '',
+    displayName: dbUser.displayName ?? undefined,
+    firstName: dbUser.firstName ?? undefined,
+    lastName: dbUser.lastName ?? undefined,
+    gender: (dbUser.gender as 'man' | 'woman' | 'other' | undefined) ?? undefined,
+    profileImageUrl: dbUser.profileImageUrl ?? undefined,
+    plan: dbUser.plan ?? undefined,
+    role: dbUser.role ?? undefined,
+    monthlyGenerationLimit: dbUser.monthlyGenerationLimit ?? undefined,
+    createdAt: dbUser.createdAt
+  };
   
   const responseData: SuccessResponse<{ user: UserProfile }> = {
     data: { user }

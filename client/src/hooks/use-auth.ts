@@ -46,10 +46,11 @@ export function useAuth() {
   } = useQuery({
     queryKey: ["/api/me", stackUser?.id],
     enabled: isAuthenticated && !isStackAuthLoading,
-    staleTime: 2 * 60 * 1000, // 2 minutes
-    gcTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000, // 5 minutes (cached on backend anyway)
+    gcTime: 10 * 60 * 1000, // 10 minutes
     refetchOnWindowFocus: false,
-    refetchOnMount: 'always',
+    refetchOnMount: false, // FIXED: Don't refetch on every mount - use cache
+    retry: 1, // Only retry once on failure
     queryFn: async () => {
       try {
         const data = await apiFetch('/me');
@@ -75,14 +76,8 @@ export function useAuth() {
     }
   });
 
-  // Invalidate queries on authentication state changes
-  useEffect(() => {
-    if (isAuthenticated && stackUser?.id) {
-      // Force refetch user data when authenticated
-      queryClient.invalidateQueries({ queryKey: ["/api/me"] });
-      queryClient.refetchQueries({ queryKey: ["/api/me", stackUser.id], exact: true });
-    }
-  }, [isAuthenticated, stackUser?.id, queryClient]);
+  // ✅ REMOVED: Don't invalidate/refetch on every render - causes infinite loop
+  // The query will automatically refetch when stackUser.id changes (in queryKey)
 
   // Determine overall loading state
   const isLoading = isStackAuthLoading || (isAuthenticated && isDbLoading && !dbUser);
