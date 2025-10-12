@@ -67,66 +67,39 @@ router.get('/api/user-model', requireStackAuth, asyncHandler(async (req: Authent
     let dbUser: any = null;
     let userModel: UserModel | null = null;
     
-    // 🛡️ BULLETPROOF: Use aggressive Stack Auth ID and email linking
+    // 🛡️ CRITICAL FIX: req.user is already the database user from stack-auth middleware
+    // The stack-auth middleware already does the full lookup (by Stack Auth ID, then by email, then links)
+    // So user.id is the database ID (e.g., "42585527"), not the Stack Auth UUID
+    dbUser = user;
+    
+    console.log('✅ Using authenticated database user:', {
+      userId: dbUser.id,
+      email: dbUser.email,
+      plan: dbUser.plan,
+      stackAuthId: dbUser.stackAuthId
+    });
+    
+    // Get their training model
     try {
-      // First get user by Stack Auth ID
-      const foundUser = await withDatabaseTimeoutAndRetry(
-        () => storage.getUserByStackAuthId(user.id as string), 
-        undefined, 
-        3000,
-        3,    
-        'getUserByStackAuthId'
+      const foundModel = await withDatabaseTimeoutAndRetry(
+        () => storage.getUserModel(dbUser.id), 
+        undefined,
+        6000,
+        3,
+        'getUserModel'
       );
-      dbUser = foundUser || null;
+      userModel = foundModel || null;
       
-      // If user found, get their model
-      if (dbUser?.id) {
-        const foundModel = await withDatabaseTimeoutAndRetry(
-          () => storage.getUserModel(dbUser.id), 
-          undefined,
-          6000,
-          3,
-          'getUserModel'
-        );
-        userModel = foundModel || null;
-      } else {
-        userModel = null;
-      }
-      
-      console.log('🔍 Bulletproof lookup result:', {
-        foundUser: !!dbUser,
+      console.log('🔍 Model lookup result:', {
         foundModel: !!userModel,
-        trainingStatus: userModel?.trainingStatus || 'not_started',
-        userEmail: dbUser?.email
+        trainingStatus: userModel?.trainingStatus || 'not_started'
       });
-      
     } catch (dbError) {
-      console.error('❌ Bulletproof user lookup failed:', {
-        userId: user.id,
-        email: user.email,
+      console.error('❌ Error fetching user model:', {
+        userId: dbUser.id,
         error: (dbError as Error).message
       });
-      
-      // Fallback to traditional lookup
-      try {
-        dbUser = await withDatabaseTimeout(
-          storage.getUser(user.id as string), 
-          null, 
-          2000,
-          'getUser'
-        );
-        
-        if (!dbUser && user.email) {
-          dbUser = await withDatabaseTimeout(
-            storage.getUserByEmail(user.email as string), 
-            null, 
-            2000,
-            'getUserByEmail'
-          );
-        }
-      } catch (fallbackError) {
-        console.error('❌ Fallback user lookup also failed:', (fallbackError as Error).message);
-      }
+      userModel = null;
     }
     
     // 🎯 If no database user found, create minimal fallback model for new users
