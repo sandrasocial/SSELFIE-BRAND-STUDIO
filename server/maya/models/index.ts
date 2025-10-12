@@ -16,10 +16,28 @@ const updateModelSchema = z.object({
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
-    // Stack Auth authentication - get real user ID
-    const userId = (req as any).user?.claims?.sub;
-    if (!userId) {
-      return res.status(401).json({ error: 'Authentication required' });
+    // CRITICAL: Stack Auth validation - NO hardcoded users, NO demo data
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ error: 'Unauthorized - Authentication required' });
+    }
+
+    // Extract and verify JWT token
+    const token = authHeader.replace('Bearer ', '');
+    let userId: string;
+    
+    try {
+      const { jwtVerify } = await import('jose');
+      const secret = new TextEncoder().encode(process.env.STACK_SECRET_SERVER_KEY);
+      const { payload } = await jwtVerify(token, secret);
+      userId = payload.sub as string;
+      
+      if (!userId) {
+        return res.status(401).json({ error: 'Invalid authentication token' });
+      }
+    } catch (error) {
+      console.error('JWT verification failed:', error);
+      return res.status(401).json({ error: 'Authentication failed' });
     }
 
     switch (req.method) {

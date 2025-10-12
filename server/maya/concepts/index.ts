@@ -40,14 +40,29 @@ const conceptQuerySchema = z.object({
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
-    // Authentication - using simple approach for API routes
+    // CRITICAL: Stack Auth validation - NO hardcoded users, NO demo data
     const authHeader = req.headers.authorization;
     if (!authHeader) {
-      return res.status(401).json({ error: 'Unauthorized' });
+      return res.status(401).json({ error: 'Unauthorized - Authentication required' });
     }
 
-    // For now, use a placeholder user ID (this should be properly authenticated in production)
-    const userId = 'demo-user';
+    // Extract and verify JWT token
+    const token = authHeader.replace('Bearer ', '');
+    let userId: string;
+    
+    try {
+      const { jwtVerify } = await import('jose');
+      const secret = new TextEncoder().encode(process.env.STACK_SECRET_SERVER_KEY);
+      const { payload } = await jwtVerify(token, secret);
+      userId = payload.sub as string;
+      
+      if (!userId) {
+        return res.status(401).json({ error: 'Invalid authentication token' });
+      }
+    } catch (error) {
+      console.error('JWT verification failed:', error);
+      return res.status(401).json({ error: 'Authentication failed' });
+    }
 
     switch (req.method) {
       case 'GET':
