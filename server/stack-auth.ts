@@ -315,6 +315,7 @@ export async function verifyStackAuthToken(req: Request, res: Response, next: Ne
     
     if (!dbUser) {
       // Step 4: Create new user if not found by Stack Auth ID or email
+      console.log('🔗 Step 4 - Creating NEW user (not found in database)');
       dbUser = await storage.upsertUser({
         id: userId,
         stackAuthId: userId,
@@ -328,9 +329,20 @@ export async function verifyStackAuthToken(req: Request, res: Response, next: Ne
       } as any);
     } else {
       // User exists, continue with existing user data
+      console.log('✅ User found in database:', {
+        dbUserId: dbUser.id,
+        dbUserEmail: dbUser.email,
+        dbUserPlan: dbUser.plan,
+        dbUserStackAuthId: dbUser.stackAuthId
+      });
     }
     
     // Set user information in request from database user
+    console.log('🔗 Setting req.user with database user:', {
+      id: dbUser.id,
+      email: dbUser.email,
+      stackAuthId: dbUser.stackAuthId
+    });
     req.user = dbUser as StackAuthUser;
     
     // Cache the authenticated user for performance
