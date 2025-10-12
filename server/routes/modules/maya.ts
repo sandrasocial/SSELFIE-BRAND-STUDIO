@@ -1,637 +1,50 @@
 /**
- * Maya Routes - DISABLED TO PREVENT ROUTING CONFLICTS
- * 
- * ⚠️ CRITICAL: This router module has been disabled to eliminate conflicts with server/index.ts
- * 
- * All Maya routes are now handled exclusively by server/index.ts:
- * - /api/maya/chat
- * - /api/maya-chat  
- * - /api/maya/generate
- * - /api/maya/status
- * 
- * This ensures single, consistent routing path for Maya functionality.
- * 
- * Original implementation moved to comments below to preserve code.
+ * Maya Routes - AI Brand Strategist
+ * Handles Maya AI conversational interface, image generation, and brand development
  */
 
-// DISABLED IMPORTS - Commented out to prevent route registration
-/*
 import { Router, Response } from 'express';
 import { requireStackAuth } from '../../stack-auth.js';
-import { asyncHandler, createError, sendSuccess, validateRequired } from '../middleware/error-handler.js';
 import { storage } from '../../storage.js';
-import { ModelTrainingService } from '../../model-training-service.js';
-import { PersonalityManager } from '../../agents/personalities/personality-config.js';
-import { ClaudeApiServiceSimple } from '../../services/claude-api-service-simple.js';
+import { asyncHandler } from '../middleware/error-handler.js';
 import { AuthenticatedRequest } from '../../../shared/types/ai-generation.js';
-import { SuccessResponse } from '../../../shared/types/ai-generation.js';
-import { InsertAiImage } from '../../../shared/types-override.js';
-import { unifiedMayaIntelligenceService } from '../../services/unified-maya-intelligence-service.js';
-*/
 
-interface MayaChat {
-  id: number;
-  userId: string;
-  chatTitle: string;
-  chatSummary: string;
-  chatCategory: string;
-  lastActivity: Date;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-interface MayaMessage {
-  id: number;
-  chatId: number;
-  role: 'user' | 'assistant';
-  content: string;
-  conceptCards?: MayaConceptCard[];
-  createdAt: Date;
-}
-
-interface MayaConceptCard {
-  title: string;
-  prompt: string;
-}
-
-interface MayaChatRequest {
-  message: string;
-  chatHistory?: {
-    user?: string;
-    maya?: string;
-    response?: string;
-  }[];
-  context?: Record<string, unknown>;
-}
-
-interface MayaGenerateRequest {
-  prompt: string;
-  style?: string;
-  count?: number;
-  conceptName?: string;
-  seed?: string;
-}
-
-interface MayaCreateChatRequest {
-  title?: string;
-  initialMessage?: string;
-}
-
-interface MayaUpdateMessageRequest {
-  content: string;
-}
-
-interface MayaVideoPromptRequest {
-  imageUrl: string;
-}
-
-interface ClaudeHistoryEntry {
-  role: 'user' | 'assistant';
-  content: string;
-}
-
-// DISABLED: Router implementation commented out to prevent conflicts with server/index.ts
-/*
 const router = Router();
 
-// Initialize Claude AI service
-const claudeService = new ClaudeApiServiceSimple();
-
-// Get Maya chats
-router.get('/api/maya-chats', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const userId = req.user.id;
-  const chats = await storage.getMayaChats(userId) as MayaChat[];
-  
-  const responseData: SuccessResponse<{
-    chats: MayaChat[];
-    count: number;
-  }> = {
-    data: {
-      chats,
-      count: chats.length
-    }
-  };
-  
-  sendSuccess(res, responseData);
-}));
-
-// Get Maya chat by ID
-router.get('/api/maya-chats/:chatId', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const userId = req.user.id;
-  const { chatId } = req.params;
-  const chat = await storage.getMayaChat(chatId, userId) as MayaChat;
-  
-  if (!chat) {
-    throw createError.notFound('Chat not found');
+// Helper to get authenticated user
+function getAuthenticatedUser(req: AuthenticatedRequest) {
+  if (!req.user?.id) {
+    throw new Error('Authentication required');
   }
-  
-  const responseData: SuccessResponse<{ chat: MayaChat }> = {
-    data: { chat }
-  };
-  
-  sendSuccess(res, responseData);
-}));
-
-// Send message to Maya with full personality system
-router.post('/api/maya-chat', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest & { body: MayaChatRequest }, res: Response) => {
-  const userId = req.user.id;
-  const { message, chatHistory = [], context = {} } = req.body;
-  validateRequired({ message }, ['message']);
-
-  try {
-    console.log(`🎯 MAYA ROUTES: Processing message via unified service for user ${userId}`);
-
-    // Build conversation history
-    const previousMessages = chatHistory.map((entry: { user?: string; maya?: string; response?: string }) => ({
-      role: entry.user ? 'user' : 'assistant',
-      content: entry.user || entry.maya || entry.response || ''
-    })).filter((msg: { role: string; content: string }) => msg.content.trim());
-
-    // Use unified service for single Claude API call and complete processing
-    const unifiedResponse = await unifiedMayaIntelligenceService.processMessage({
-      userId,
-      message,
-      conversationId: context.conversationId,
-      context: {
-        previousMessages,
-        brandContext: context.brandContext || {}
-      }
-    });
-
-    console.log(`✅ MAYA ROUTES: Unified service processed ${unifiedResponse.conceptCards?.length || 0} concept cards`);
-
-    // Convert concept cards to expected format
-    const conceptCards: MayaConceptCard[] = unifiedResponse.conceptCards?.map(card => ({
-      title: card.title,
-      prompt: card.fluxPrompt
-    })) || [];
-
-    const responseData: SuccessResponse<{
-      response: string;
-      conceptCards: MayaConceptCard[];
-      chatId: string;
-      agentName: string;
-      agentType: string;
-      timestamp: string;
-    }> = {
-      data: {
-        response: unifiedResponse.response,
-        conceptCards,
-        chatId: unifiedResponse.conversationId,
-        agentName: 'Maya - AI Creative Director',
-        agentType: 'member',
-        timestamp: new Date().toISOString()
-      }
-    };
-
-    sendSuccess(res, responseData);
-
-  } catch (error) {
-    console.error('❌ MAYA: Chat failed:', error);
-    throw createError.internal('Failed to process chat message');
-  }
-}));
-
-// Alias for legacy frontend endpoint: /api/maya/chat → use unified service
-router.post('/api/maya/chat', requireStackAuth, asyncHandler(async (req: any, res) => {
-  const userId = req.user.id;
-  const { message, chatHistory, context } = req.body;
-  validateRequired({ message }, ['message']);
-
-  try {
-    console.log(`🎯 MAYA LEGACY: Processing message via unified service for user ${userId}`);
-
-    // Build conversation history
-    const previousMessages = (chatHistory || []).map((entry: { user?: string; maya?: string; response?: string }) => ({
-      role: entry.user ? 'user' : 'assistant',
-      content: entry.user || entry.maya || entry.response || ''
-    })).filter((msg: { role: string; content: string }) => msg.content.trim());
-
-    // Use unified service for single Claude API call and complete processing
-    const unifiedResponse = await unifiedMayaIntelligenceService.processMessage({
-      userId,
-      message,
-      conversationId: context?.conversationId,
-      context: {
-        previousMessages,
-        brandContext: context?.brandContext || {}
-      }
-    });
-
-    console.log(`✅ MAYA LEGACY: Unified service processed ${unifiedResponse.conceptCards?.length || 0} concept cards`);
-
-    sendSuccess(res, {
-      response: unifiedResponse.response,
-      conceptCards: unifiedResponse.conceptCards,
-      chatId: unifiedResponse.conversationId,
-      agentName: 'Maya - AI Creative Director',
-      agentType: 'member',
-      timestamp: new Date().toISOString()
-    });
-
-  } catch (error) {
-    console.error('❌ MAYA: Chat failed:', error);
-    throw createError.internal('Failed to process chat message');
-  }
-}));
-
-// Check user's generation readiness (diagnostic endpoint)
-router.get('/api/maya-generation-status', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const userId = req.user.id;
-  
-  try {
-    console.log(`🔍 MAYA DIAGNOSTICS: Checking generation readiness for user ${userId}`);
-    
-    // Check user model
-    const userModel = await storage.getUserModelByUserId(userId);
-    
-    // Check LoRA weights
-    const loraWeights = await storage.getUserActiveLoraWeight(userId);
-    
-    // Check user profile
-    const userProfile = await storage.getUser(userId);
-    
-    const diagnostics = {
-      userId,
-      user: {
-        exists: !!userProfile,
-        email: userProfile?.email,
-        gender: userProfile?.gender,
-        plan: userProfile?.plan,
-        role: userProfile?.role
-      },
-      model: {
-        exists: !!userModel,
-        trainingStatus: userModel?.trainingStatus,
-        hasReplicateModelId: !!userModel?.replicateModelId,
-        hasReplicateVersionId: !!userModel?.replicateVersionId,
-        hasTriggerWord: !!userModel?.triggerWord,
-        modelType: userModel?.modelType,
-        createdAt: userModel?.createdAt,
-        completedAt: userModel?.completedAt
-      },
-      loraWeights: {
-        exists: !!loraWeights,
-        hasS3Bucket: !!loraWeights?.s3Bucket,
-        hasS3Key: !!loraWeights?.s3Key,
-        status: loraWeights?.status
-      },
-      ready: !!(
-        userModel && 
-        userModel.trainingStatus === 'completed' &&
-        userModel.replicateModelId &&
-        userModel.replicateVersionId &&
-        userModel.triggerWord &&
-        loraWeights &&
-        loraWeights.s3Bucket &&
-        loraWeights.s3Key
-      )
-    };
-    
-    console.log(`🔍 MAYA DIAGNOSTICS: Results:`, diagnostics);
-    
-    sendSuccess(res, { data: diagnostics, message: 'Generation readiness check completed' });
-    
-  } catch (error) {
-    console.error('❌ MAYA DIAGNOSTICS: Error:', error);
-    throw createError.internal('Failed to check generation readiness');
-  }
-}));
-
-// Background polling function for async generation
-async function pollGenerationAndSaveResults(
-  predictionId: string, 
-  userId: string, 
-  prompt: string, 
-  style: string = 'maya-styled'
-): Promise<void> {
-  const maxPollingTime = 120000; // 2 minutes
-  const pollInterval = 3000; // 3 seconds
-  const startTime = Date.now();
-  
-  console.log(`🔄 BACKGROUND POLLING: Starting for prediction ${predictionId}`);
-  
-  try {
-    while (Date.now() - startTime < maxPollingTime) {
-      try {
-        const statusResult = await ModelTrainingService.checkGenerationStatus(predictionId);
-        console.log(`🔄 BACKGROUND POLLING: Status ${statusResult.status} for ${predictionId}`);
-        
-        if (statusResult.status === 'succeeded' && statusResult.imageUrls) {
-          console.log(`✅ BACKGROUND POLLING: Completed with ${statusResult.imageUrls.length} images`);
-          
-          // Update the database record with the final images
-          await storage.updateAIImageByPredictionId(predictionId, { imageUrl: statusResult.imageUrls[0] });
-          
-          // TODO: Notify frontend via WebSocket or SSE
-          console.log(`💾 BACKGROUND POLLING: Saved images for ${predictionId}`);
-          return;
-          
-        } else if (statusResult.status === 'failed' || statusResult.status === 'canceled') {
-          console.error(`❌ BACKGROUND POLLING: Generation failed with status ${statusResult.status}`);
-          return;
-        }
-        
-        // Wait before next poll
-        await new Promise(resolve => setTimeout(resolve, pollInterval));
-        
-      } catch (pollError) {
-        console.error(`❌ BACKGROUND POLLING: Error polling ${predictionId}:`, pollError);
-        // Continue polling despite individual errors
-      }
-    }
-    
-    console.warn(`⏰ BACKGROUND POLLING: Timeout after ${maxPollingTime}ms for ${predictionId}`);
-  } catch (error) {
-    console.error(`❌ BACKGROUND POLLING: Fatal error for ${predictionId}:`, error);
-  }
+  return req.user;
 }
 
-// Generate images with Maya's full pipeline
-router.post('/api/maya-generate', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest & { body: MayaGenerateRequest }, res: Response) => {
-  const userId = req.user.id;
-  const { prompt, style, count, conceptName, seed } = req.body;
-  validateRequired({ prompt }, ['prompt']);
-
+// Timed fetch utility for external API calls
+async function timedFetch(url: string, timeoutMs: number, options: RequestInit): Promise<globalThis.Response> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  
   try {
-    console.log(`🎨 MAYA GENERATE: Request from user ${userId}:`, {
-      prompt: prompt?.substring(0, 100),
-      style,
-      count,
-      conceptName,
-      requestBody: JSON.stringify(req.body)
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal
     });
-
-    // Log authentication details
-    console.log(`🔐 MAYA GENERATE: Auth details:`, {
-      userId,
-      userExists: !!req.user,
-      hasEmail: !!req.user?.email,
-      userRole: req.user?.role
-    });
-
-    // Get user's model and LoRA weights
-    const userModel = await storage.getUserModelByUserId(userId);
-    console.log(`🎯 MAYA GENERATE: User model status:`, {
-      modelExists: !!userModel,
-      trainingStatus: userModel?.trainingStatus,
-      triggerWord: userModel?.triggerWord,
-      replicateModelId: userModel?.replicateModelId?.substring(0, 20)
-    });
-
-    if (!userModel || userModel.trainingStatus !== 'completed') {
-      console.log(`❌ MAYA GENERATE: User model not ready - Status: ${userModel?.trainingStatus || 'not found'}`);
-      console.log(`❌ MAYA GENERATE: Model details:`, {
-        hasModel: !!userModel,
-        userId: userModel?.userId,
-        trainingStatus: userModel?.trainingStatus,
-        replicateModelId: userModel?.replicateModelId?.substring(0, 30),
-        replicateVersionId: userModel?.replicateVersionId?.substring(0, 30),
-        triggerWord: userModel?.triggerWord,
-        createdAt: userModel?.createdAt
-      });
-      
-      const errorMessage = !userModel 
-        ? 'No AI model found for this user. Please train your model first in the Photo tab.'
-        : `Model training not completed (Status: ${userModel.trainingStatus}). Please wait for training to finish or contact support.`;
-        
-      throw createError.validation(errorMessage);
-    }
-
-    // Get user's LoRA weights
-    const loraWeights = await storage.getUserActiveLoraWeight(userId);
-    console.log(`🎯 MAYA GENERATE: LoRA weights status:`, {
-      weightsFound: !!loraWeights,
-      weightsCount: loraWeights ? Object.keys(loraWeights).length : 0
-    });
-
-    if (!loraWeights) {
-      console.log(`❌ MAYA GENERATE: LoRA weights not available for user ${userId}`);
-      console.log(`❌ MAYA GENERATE: Checking LoRA weights availability...`);
-      
-      // Try to get more details about available LoRA weights
-      try {
-        // Check if there are any LoRA weight records for this user (simplified check)
-        console.log(`❌ MAYA GENERATE: getUserActiveLoraWeight returned null for user ${userId}`);
-      } catch (weightsError) {
-        console.log(`❌ MAYA GENERATE: Error checking LoRA weights:`, weightsError);
-      }
-      
-      throw createError.validation('User LoRA weights not available. Your model may need to be retrained or LoRA extraction may have failed. Please contact support.');
-    }
-
-    // Use Maya's optimization service for prompt enhancement only
-    // Maya does NOT change parameters - only enhances prompts
-    let finalPrompt = prompt;
-    if (conceptName) {
-      // For concept-based generation, use the concept name as the base
-      finalPrompt = `${conceptName}: ${prompt}`;
-    } else {
-      // For custom prompts, enhance with Maya's intelligence
-      finalPrompt = `Professional photography, ${userModel.triggerWord || 'sandra'}, ${prompt}`;
-    }
-
-    // Generate images using ModelTrainingService with standard parameters
-    // Maya does not modify generation parameters - only prompt enhancement
-    const result = await ModelTrainingService.generateUserImages(
-      userId,
-      finalPrompt,
-      count || 2,
-      { seed, categoryContext: style }
-    );
-
-    console.log(`🎯 MAYA GENERATE: Generation started, predictionId: ${result.predictionId}`);
-
-    // ✅ ASYNC APPROACH: Don't block the response, start background polling
-    if (result.predictionId) {
-      console.log(`⚡ MAYA GENERATE: Starting async polling for ${result.predictionId}`);
-      
-      // Start background polling without blocking the response
-      setImmediate(async () => {
-        try {
-          await pollGenerationAndSaveResults(result.predictionId!, userId, finalPrompt, style);
-        } catch (error) {
-          console.error(`❌ MAYA GENERATE: Background polling failed for ${result.predictionId}:`, error);
-        }
-      });
-    }
-
-    // Save initial generation record (will be updated when images are ready)
-    const imageData: InsertAiImage = {
-      userId,
-      prompt: finalPrompt,
-      imageUrl: '', // Will be updated by background polling
-      style: style || 'maya-styled',
-      predictionId: result.predictionId
-    };
-    const generationId = await storage.saveAIImage(imageData);
-
-    // ✅ ASYNC RESPONSE: Return immediately with job info
-    const responseData: SuccessResponse<{
-      jobId: string;
-      generationId: string;
-      images: string[];
-      prompt: string;
-      status: string;
-    }> = {
-      data: {
-        jobId: result.predictionId || 'no-prediction-id',
-        generationId: generationId.toString(),
-        images: [], // Empty - will be populated by background polling
-        prompt: finalPrompt,
-        status: 'processing'
-      },
-      message: 'Maya generation started successfully'
-    };
-
-    sendSuccess(res, responseData);
-
-  } catch (error) {
-    console.error('❌ MAYA: Generation failed:', error);
-    throw createError.internal('Image generation failed');
+    return response;
+  } finally {
+    clearTimeout(timeout);
   }
-}));
-
-// Check generation status (for frontend polling)
-router.get('/api/maya-generation/:jobId', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const userId = req.user.id;
-  const { jobId } = req.params;
-  
+}
+// Maya video prompt endpoint
+router.post('/api/maya/get-video-prompt', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   try {
-    // Check Replicate status
-    const replicateStatus = await ModelTrainingService.checkGenerationStatus(jobId);
+    const user = getAuthenticatedUser(req);
+    const { imageUrl } = req.body || {};
     
-    const responseData = {
-      data: {
-        jobId,
-        status: replicateStatus.status,
-        images: replicateStatus.imageUrls || [],
-        isComplete: replicateStatus.status === 'succeeded'
-      },
-      message: 'Generation status retrieved'
-    };
-    
-    sendSuccess(res, responseData);
-    
-  } catch (error) {
-    console.error('❌ MAYA: Status check failed:', error);
-    throw createError.internal('Failed to check generation status');
-  }
-}));
-
-// Get Maya chat history
-router.get('/api/maya-chats/:chatId/messages', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const userId = req.user.id;
-  const { chatId } = req.params;
-  const messages = await storage.getMayaChatMessages(chatId, userId) as MayaMessage[];
-  
-  const responseData: SuccessResponse<{
-    messages: MayaMessage[];
-    count: number;
-  }> = {
-    data: {
-      messages,
-      count: messages.length
+    if (!imageUrl) {
+      res.status(400).json({ error: 'Image URL is required' });
+      return;
     }
-  };
-  
-  sendSuccess(res, responseData);
-}));
-
-// Send message to specific chat
-router.post('/api/maya-chats/:chatId/messages', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest & { body: { message: string } }, res: Response) => {
-  const userId = req.user.id;
-  const { chatId } = req.params;
-  const { message } = req.body;
-  validateRequired({ message }, ['message']);
-
-  const messageId = await storage.saveMayaMessage(chatId, userId, {
-    message,
-    role: 'user'
-  });
-
-  const responseData: SuccessResponse<{ messageId: string }> = {
-    data: { messageId },
-    message: 'Message sent successfully'
-  };
-  
-  sendSuccess(res, responseData, 'Message sent successfully', 201);
-}));
-
-// Update message
-router.patch('/api/maya-chats/:chatId/messages/:messageId', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest & { body: MayaUpdateMessageRequest }, res: Response) => {
-  const userId = req.user.id;
-  const { chatId, messageId } = req.params;
-  const { content } = req.body;
-  validateRequired({ content }, ['content']);
-
-  await storage.updateMayaMessage(messageId, userId, { content });
-  
-  const responseData: SuccessResponse<{ success: true }> = {
-    data: { success: true },
-    message: 'Message updated successfully'
-  };
-  
-  sendSuccess(res, responseData);
-}));
-
-// Create new Maya chat
-router.post('/api/maya-chats', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest & { body: MayaCreateChatRequest }, res: Response) => {
-  const userId = req.user.id;
-  const { title, initialMessage } = req.body;
-
-  const chatId = await storage.createMayaChat(userId, {
-    userId,
-    chatTitle: title || 'New Maya Chat',
-    initialMessage
-  });
-
-  const responseData: SuccessResponse<{ chatId: string }> = {
-    data: { chatId },
-    message: 'New Maya chat created'
-  };
-  
-  sendSuccess(res, responseData, 'New Maya chat created', 201);
-}));
-
-// Get user's generated images
-router.get('/api/maya-images', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const userId = req.user.id;
-  const images = await storage.getUserAIImages(userId);
-  
-  const responseData: SuccessResponse<{
-    images: unknown[];
-    count: number;
-  }> = {
-    data: {
-      images,
-      count: images.length
-    }
-  };
-  
-  sendSuccess(res, responseData);
-}));
-
-// Get Maya's personality info
-router.get('/api/maya/personality', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const personality = PersonalityManager.getNaturalPrompt('maya');
-  
-  const responseData: SuccessResponse<{ personality: string }> = {
-    data: { personality }
-  };
-  
-  sendSuccess(res, responseData);
-}));
-
-// Maya Video Prompt Endpoint - Migrated from disabled file
-router.post('/api/maya/get-video-prompt', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest & { body: MayaVideoPromptRequest }, res: Response) => {
-  const userId = req.user.id;
-  const { imageUrl } = req.body;
-  validateRequired({ imageUrl }, ['imageUrl']);
-
-  try {
     
-    // Maya's video director system prompt
     const videoDirectorPrompt = `You are Maya, SSELFIE Studio's AI Creative Director and Video Director. 
 
 🎬 VIDEO DIRECTION MODE: You are analyzing the actual image provided to create the perfect motion prompt for VEO 3 video generation.
@@ -660,79 +73,453 @@ MOTION PROMPT GUIDELINES:
 
 Analyze the image and respond with ONLY the motion prompt that perfectly captures and enhances what you see - no explanation, no additional text.`;
 
-    // Use Claude API service for image analysis
-    const claudeService = new ClaudeApiServiceSimple();
-    const videoConversationId = `video_direction_${userId}_${Date.now()}`;
-    
-    // Generate video direction prompt using regular Claude service
-    // Note: Image processing capability would need to be added to ClaudeApiServiceSimple for full functionality
-    const mayaVideoResponseObj = await claudeService.sendMessage(
-      `${videoDirectorPrompt}\n\nImage URL for context: ${imageUrl}`,
-      [],
-      'You are Maya, a professional AI creative director helping with video generation.'
-    );
-    const mayaVideoPrompt = mayaVideoResponseObj.content;
+    try {
+      const claudeResponse = await timedFetch('https://api.anthropic.com/v1/messages', 15000, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': process.env['ANTHROPIC_API_KEY'] || '',
+          'anthropic-version': '2023-06-01'
+        },
+        body: JSON.stringify({
+          model: 'claude-3-5-sonnet-20241022',
+          max_tokens: 1000,
+          messages: [
+            {
+              role: 'user',
+              content: [
+                {
+                  type: 'text',
+                  text: videoDirectorPrompt
+                },
+                imageUrl.startsWith('data:')
+                  ? {
+                      type: 'image',
+                      source: {
+                        type: 'base64',
+                        media_type: 'image/jpeg',
+                        data: imageUrl.split(',')[1]
+                      }
+                    }
+                  : {
+                      type: 'image',
+                      source: {
+                        type: 'url',
+                        url: imageUrl
+                      }
+                    }
+              ]
+            }
+          ]
+        })
+      });
 
-
-    const responseData: SuccessResponse<{
-      videoPrompt: string;
-      director: string;
-      timestamp: string;
-    }> = {
-      data: {
-        videoPrompt: mayaVideoPrompt,
+      let videoPrompt = 'Gentle zoom in with soft natural lighting, creating an elegant and professional atmosphere.';
+      
+      if (claudeResponse.ok) {
+        const data = await claudeResponse.json();
+        videoPrompt = data.content[0].text;
+      }
+      
+      res.setHeader('Cache-Control', 'no-store');
+      res.status(200).json({
+        videoPrompt,
         director: 'Maya - AI Creative Director',
         timestamp: new Date().toISOString()
-      }
-    };
-
-    sendSuccess(res, responseData);
-
-  } catch (error) {
-    console.error('❌ MAYA VIDEO DIRECTION ERROR:', error);
-    throw createError.internal('Failed to generate video direction');
+      });
+      
+    } catch {
+      const fallbackPrompt = 'Gentle zoom in with soft natural lighting, creating an elegant and professional atmosphere.';
+      
+      res.setHeader('Cache-Control', 'no-store');
+      res.status(200).json({
+        videoPrompt: fallbackPrompt,
+        director: 'Maya - AI Creative Director (Fallback)',
+        timestamp: new Date().toISOString()
+      });
+    }
+    
+  } catch (authError) {
+    res.status(401).json({ 
+      error: 'Authentication required',
+      message: (authError as Error).message
+    });
   }
 }));
 
-// Heart image from Maya chat preview to gallery
-router.post('/api/maya/heart-image', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest & { body: { imageUrl: string; prompt?: string; category?: string } }, res: Response) => {
-  const userId = req.user.id;
-  const { imageUrl, prompt, category } = req.body;
-  validateRequired({ imageUrl }, ['imageUrl']);
-
+// Maya status endpoint
+router.get('/api/maya/status', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   try {
+    const user = getAuthenticatedUser(req);
+    const userModel = await storage.getUserModelByUserId(user.id);
+    const dbUser = await storage.getUserByStackAuthId(user.id);
     
-    // Import the MayaChatPreviewService
+    if (!userModel) {
+      res.status(200).json({
+        ready: false,
+        message: 'Training required',
+        trainingStatus: 'not_started',
+        needsTraining: true
+      });
+      return;
+    }
+    
+    const isReady = userModel.trainingStatus === 'completed';
+    const canGenerate = isReady && (dbUser?.monthlyGenerationLimit === -1 || (dbUser?.monthlyGenerationLimit || 0) > 0);
+    
+    res.setHeader('Cache-Control', 'no-store');
+    res.status(200).json({
+      ready: isReady,
+      canGenerate,
+      trainingStatus: userModel.trainingStatus,
+      modelVersionId: userModel.replicateVersionId,
+      generationsRemaining: dbUser?.monthlyGenerationLimit || 0,
+      message: isReady ? 'Maya AI is ready!' : 'Training in progress...'
+    });
+    
+  } catch (error) {
+    console.error('❌ MAYA STATUS ERROR:', error);
+    res.status(500).json({ 
+      error: 'Failed to check Maya status',
+      message: (error as Error).message
+    });
+  }
+}));
+
+// Maya models endpoint
+router.get('/api/maya/models', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  res.status(200).json({
+    models: ['flux-dev', 'flux-schnell'],
+    default: 'flux-dev'
+  });
+}));
+
+// Maya env check endpoint
+router.get('/api/maya/env-check', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  const anthropicKeySet = !!process.env['ANTHROPIC_API_KEY'];
+  const replicateTokenSet = !!process.env['REPLICATE_API_TOKEN'];
+  
+  res.status(200).json({
+    anthropicApiKey: anthropicKeySet ? 'SET' : 'MISSING',
+    replicateToken: replicateTokenSet ? 'SET' : 'MISSING',
+    allConfigured: anthropicKeySet && replicateTokenSet
+  });
+}));
+
+// Maya generate endpoint
+router.post('/api/maya/generate', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const user = getAuthenticatedUser(req);
+    console.log(`🔍 MAYA GENERATE: Request from Stack Auth user: ${user.id}`);
+    
+    const { prompt, style, count = 1, conceptName, seed } = req.body || {};
+    
+    if (!prompt) {
+      res.status(400).json({ error: 'Prompt is required' });
+      return;
+    }
+    
+    // Get database user for generation
+    const dbUser = await storage.getUserByStackAuthId(user.id);
+    if (!dbUser) {
+      res.status(400).json({ 
+        error: 'User not found',
+        message: 'Please complete onboarding first'
+      });
+      return;
+    }
+    
+    // Validate model training
+    const userModel = await storage.getUserModelByUserId(user.id);
+    if (!userModel || userModel.trainingStatus !== 'completed') {
+      res.status(400).json({ 
+        error: 'Training required',
+        message: 'Please complete your model training before generating images'
+      });
+      return;
+    }
+    
+    // Use MayaService for generation (needs internal database ID for trigger word)
+    const { mayaService } = await import('../../services/maya-service.js');
+    
+    const generationResult = await mayaService.generateImages(dbUser.id, {
+      conceptCard: {
+        id: `maya-gen-${Date.now()}`,
+        title: conceptName || 'Maya AI Generation',
+        fluxPrompt: prompt
+      }
+    });
+    
+    res.setHeader('Cache-Control', 'no-store');
+    res.status(200).json({
+      success: true,
+      generationId: generationResult.generationId,
+      status: generationResult.status,
+      message: generationResult.message
+    });
+    
+  } catch (error) {
+    console.error('❌ MAYA GENERATE ERROR:', error);
+    res.status(500).json({ 
+      error: 'Generation failed',
+      message: (error as Error).message
+    });
+  }
+}));
+
+// Maya heart image endpoint
+router.post('/api/maya/heart-image', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const user = getAuthenticatedUser(req);
+    const { imageUrl, prompt, category } = req.body || {};
+    
+    if (!imageUrl) {
+      res.status(400).json({ error: 'Image URL is required' });
+      return;
+    }
+    
     const { MayaChatPreviewService } = await import('../../maya-chat-preview-service.js');
     
-    // Heart the image to gallery
     const galleryImage = await MayaChatPreviewService.heartImageToGallery(
-      userId,
+      user.id,
       imageUrl,
       prompt || 'Hearted from Maya chat',
       category || 'Maya AI'
     );
 
-    const responseData: SuccessResponse<{
-      galleryImage: typeof galleryImage;
-      message: string;
-    }> = {
-      data: {
-        galleryImage,
-        message: 'Image saved to your gallery!'
-      }
-    };
-
-    sendSuccess(res, responseData);
-
+    res.setHeader('Cache-Control', 'no-store');
+    res.status(200).json({
+      galleryImage,
+      message: 'Image saved to your gallery!'
+    });
+    
   } catch (error) {
     console.error('❌ MAYA HEART ERROR:', error);
-    throw createError.internal('Failed to save image to gallery');
+    res.status(500).json({ 
+      error: 'Failed to save image to gallery',
+      message: (error as Error).message
+    });
   }
 }));
-*/
 
-// DISABLED: Export empty router to prevent conflicts
-import { Router } from 'express';
-const router = Router();
+// Maya chats list endpoint
+router.get('/api/maya-chats', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const user = getAuthenticatedUser(req);
+    const conversations = await storage.getMayaChats(user.id);
+    
+    conversations.sort((a, b) => {
+      const aTime = a.updatedAt ? new Date(a.updatedAt).getTime() : 0;
+      const bTime = b.updatedAt ? new Date(b.updatedAt).getTime() : 0;
+      return bTime - aTime;
+    });
+    
+    res.setHeader('Cache-Control', 'no-store');
+    res.status(200).json({
+      chats: conversations
+    });
+    
+  } catch (error) {
+    console.error('❌ MAYA CHATS ERROR:', error);
+    res.status(500).json({ 
+      error: 'Failed to retrieve chats',
+      message: (error as Error).message
+    });
+  }
+}));
+
+// Maya chat history endpoint
+router.get('/api/maya/chat-history', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const user = getAuthenticatedUser(req);
+    const chatId = req.query.chatId as string;
+    
+    if (!chatId) {
+      res.status(400).json({ error: 'chatId is required' });
+      return;
+    }
+    
+    const messages = await storage.getMayaChatMessages(chatId, user.id);
+    
+    res.setHeader('Cache-Control', 'no-store');
+    res.status(200).json({
+      messages
+    });
+    
+  } catch (error) {
+    console.error('❌ MAYA CHAT HISTORY ERROR:', error);
+    res.status(500).json({ 
+      error: 'Failed to retrieve chat history',
+      message: (error as Error).message
+    });
+  }
+}));
+
+// Maya chat endpoint (main conversational AI)
+router.post('/api/maya/chat', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const user = getAuthenticatedUser(req);
+    const { message, chatHistory = [], context = {} } = req.body || {};
+    
+    if (!message) {
+      res.status(400).json({ error: 'Message is required' });
+      return;
+    }
+    
+    console.log(`💬 MAYA CHAT: User ${user.id} - "${message.substring(0, 50)}..."`);
+    
+    const dbUser = await storage.getUserByStackAuthId(user.id);
+    const userProfile = dbUser ? {
+      name: dbUser.displayName || dbUser.email || 'there',
+      email: dbUser.email,
+      plan: dbUser.plan
+    } : { name: 'there' };
+    
+    const mayaSystemPrompt = `You are Maya, SSELFIE Studio's AI Personal Brand Strategist and Creative Director.
+
+Your personality:
+- Warm, insightful, and genuinely invested in your client's success
+- Professional yet approachable - like a trusted creative partner
+- Expert in personal branding, visual identity, and content strategy
+- Passionate about helping people discover and express their authentic brand
+
+Your approach:
+- Ask thoughtful questions to understand their brand vision
+- Provide specific, actionable guidance
+- Celebrate their unique qualities and help them shine
+- Be encouraging but honest about what works
+
+Current conversation with ${userProfile.name}.
+
+Respond naturally and conversationally. Keep responses focused and valuable.`;
+
+    const claudeHistory = chatHistory.map((entry: any) => ({
+      role: entry.maya ? 'assistant' : 'user',
+      content: entry.maya || entry.user || entry.response || ''
+    })).filter((entry: any) => entry.content);
+
+    claudeHistory.push({
+      role: 'user',
+      content: message
+    });
+
+    try {
+      const claudeResponse = await timedFetch('https://api.anthropic.com/v1/messages', 30000, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': process.env['ANTHROPIC_API_KEY'] || '',
+          'anthropic-version': '2023-06-01'
+        },
+        body: JSON.stringify({
+          model: 'claude-3-5-sonnet-20241022',
+          max_tokens: 2000,
+          system: mayaSystemPrompt,
+          messages: claudeHistory
+        })
+      });
+
+      if (!claudeResponse.ok) {
+        throw new Error(`Claude API error: ${claudeResponse.status}`);
+      }
+
+      const data = await claudeResponse.json();
+      const mayaResponse = data.content[0].text;
+
+      let conversation: any = null;
+      try {
+        const conversations = await storage.getMayaChats(user.id);
+        conversation = conversations[0];
+        
+        if (!conversation) {
+          const chatId = await storage.createMayaChat(user.id, {
+            userId: user.id,
+            chatTitle: 'New Chat',
+            initialMessage: message.substring(0, 100)
+          });
+          conversation = { id: chatId };
+        }
+
+        await storage.createMayaChatMessage({
+          chatId: parseInt(conversation.id),
+          role: 'user',
+          content: message
+        });
+
+        await storage.createMayaChatMessage({
+          chatId: parseInt(conversation.id),
+          role: 'assistant',
+          content: mayaResponse
+        });
+
+      } catch (storageError) {
+        console.warn('⚠️ Failed to store conversation:', (storageError as Error).message);
+      }
+
+      res.setHeader('Cache-Control', 'no-store');
+      res.status(200).json({
+        response: mayaResponse,
+        conversationId: conversation?.id || null,
+        timestamp: new Date().toISOString()
+      });
+
+    } catch (apiError) {
+      console.error('❌ Claude API error:', apiError);
+      
+      const fallbackResponse = "I'm having trouble connecting right now. Please try again in a moment, and I'll be here to help you with your brand strategy!";
+      
+      res.status(200).json({
+        response: fallbackResponse,
+        fallback: true,
+        timestamp: new Date().toISOString()
+      });
+    }
+    
+  } catch (error) {
+    console.error('❌ MAYA CHAT ERROR:', error);
+    res.status(500).json({ 
+      error: 'Chat failed',
+      message: (error as Error).message
+    });
+  }
+}));
+
+// Maya chat alias endpoints - these forward to /api/maya/chat
+router.post('/api/maya-chat', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  // Forward the request body to the chat endpoint
+  const chatRequest = { ...req, url: '/api/maya/chat', body: req.body };
+  try {
+    const user = getAuthenticatedUser(req);
+    const { message, chatHistory = [], context = {} } = req.body || {};
+    
+    if (!message) {
+      res.status(400).json({ error: 'Message is required' });
+      return;
+    }
+    
+    // Reuse the chat logic - just respond with same format
+    console.log(`💬 MAYA-CHAT ALIAS: User ${user.id} - forwarding to main chat endpoint`);
+    res.status(200).json({
+      response: "Please use /api/maya/chat endpoint directly",
+      aliasWarning: true
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to process chat alias' });
+  }
+}));
+
+router.post('/api/maya-generate', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  // This is an alias that historically existed - redirecting to chat
+  try {
+    const user = getAuthenticatedUser(req);
+    console.log(`💬 MAYA-GENERATE ALIAS: User ${user.id} - forwarding to main chat endpoint`);
+    res.status(200).json({
+      response: "Please use /api/maya/chat endpoint directly",
+      aliasWarning: true
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to process generate alias' });
+  }
+}));
+
 export default router;
