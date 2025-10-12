@@ -305,41 +305,4 @@ router.get('/api/ai-images', requireActiveSubscription, asyncHandler(async (req:
   sendSuccess(res, responseData);
 }));
 
-// Maya AI Routes
-router.get('/api/maya-chats', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const userId = req.user.id;
-  const chats = await storage.getMayaChats(userId) as MayaChat[];
-
-  const responseData: SuccessResponse<{
-    chats: MayaChat[];
-    count: number;
-  }> = {
-    data: {
-      chats,
-      count: chats.length
-    }
-  };
-  
-  sendSuccess(res, responseData);
-}));
-
-router.get('/api/maya-chats/categorized', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const userId = req.user.id;
-
-  // TODO: Implement categorized Maya chats
-  const responseData: SuccessResponse<{
-    categories: string[];
-    chats: MayaChat[];
-    count: number;
-  }> = {
-    data: {
-      categories: [],
-      chats: [],
-      count: 0
-    }
-  };
-  
-  sendSuccess(res, responseData);
-}));
-
 export default router;
