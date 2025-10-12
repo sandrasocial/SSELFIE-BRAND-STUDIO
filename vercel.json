@@ -1,38 +1,15 @@
 {
   "version": 2,
-  "buildCommand": "npm run vercel-build",
-  "outputDirectory": "client/dist",
-  "installCommand": "npm install --force",
-  "functions": {
-    "server/api/maya/*.ts": {
-      "maxDuration": 60,
-      "memory": 1024
-    },
-    "server/maya/**/*.ts": {
-      "maxDuration": 60,
-      "memory": 1024
-    },
-    "server/api/gallery/*.ts": {
-      "maxDuration": 30,
-      "memory": 512
-    },
-    "server/api/**/*.ts": {
-      "maxDuration": 30,
-      "memory": 512
-    },
-    "server/webhooks/*.ts": {
-      "maxDuration": 30,
-      "memory": 512
-    },
-    "server/health.ts": {
-      "maxDuration": 10,
-      "memory": 256
-    },
-    "server/[...route].ts": {
-      "maxDuration": 60,
-      "memory": 1024
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "buildCommand": "npm run vercel-build",
+        "outputDirectory": "client/dist"
+      }
     }
-  },
+  ],
   "rewrites": [
     {"source": "/api/me", "destination": "/server/api/me.ts"},
     {"source": "/api/health", "destination": "/server/health.ts"},
