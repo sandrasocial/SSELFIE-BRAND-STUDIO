@@ -1,95 +1,133 @@
 import React from 'react';
-import ReactDOM from 'react-dom/client';
-import { StackProvider } from '@stackframe/stack';
-import { StackClientApp } from '@stackframe/stack';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Router, Route, Switch } from 'wouter';
-import './index.css';
+import { createRoot } from "react-dom/client";
+import App from "./App.js";
+import "./index.css";
 
-// App V2 Components
-import SselfieAppLayout from './app_v2/SselfieAppLayout';
-import MayaScreen from './app_v2/MayaScreen';
-import GalleryScreen from './app_v2/GalleryScreen';
-import StudioScreen from './app_v2/StudioScreen';
-import ProfileScreen from './app_v2/ProfileScreen';
-import SettingsScreen from './app_v2/SettingsScreen';
+// 💡 IMPORT ALL PROVIDERS HERE
+import { QueryClientProvider } from '@tanstack/react-query';
+import { StackProvider, StackTheme } from '@stackframe/react';
+import { Toaster } from './components/ui/toaster.js';
+import { TooltipProvider } from './components/ui/tooltip.js';
 
-// Stack Auth Configuration
-const stackProjectId = import.meta.env.VITE_STACK_PROJECT_ID || '253d7343-a0d4-43a1-be5c-822f590d40be';
-const stackPublishableKey = import.meta.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY || 'pck_bqv6htnwq1f37nd2fn6qatxx2f8x0tnxvjj7xwgh1zmhg';
+// Import queryClient and stackClientApp
+import { queryClient } from "./lib/queryClient.js";
+// Re-enable Stack Auth import
+import { stackClientApp } from "../../stack/client.js";
 
-// Initialize Stack Client App
-const stackApp = new StackClientApp({
-  tokenStore: 'cookie',
-  projectId: stackProjectId,
-  publishableClientKey: stackPublishableKey,
-  urls: {
-    signIn: '/handler/sign-in',
-    afterSignIn: '/app',
-    afterSignOut: '/',
-  },
+// Debug logging for troubleshooting
+
+// Add visible debug indicator - REMOVED FOR PRODUCTION
+// const debugDiv = document.createElement('div');
+// debugDiv.id = 'main-debug';
+// debugDiv.style.cssText = 'position:fixed;top:10px;left:10px;background:purple;color:white;padding:5px;z-index:9999;font-size:12px;';
+// debugDiv.textContent = 'Main.tsx Loaded';
+// document.body.appendChild(debugDiv);
+
+// Disable Vite HMR to prevent WebSocket connection errors
+if (import.meta.hot) {
+  import.meta.hot.accept(() => {
+    // Accept all hot updates without triggering WebSocket connections
+  });
+}
+
+// Add global error handlers to catch unhandled promise rejections
+window.addEventListener('unhandledrejection', (event) => {
+  // Prevent the default console.error that React shows
+  event.preventDefault();
+  
+  // Check if this is a WebSocket or development-related error
+  const isWebSocketError = event.reason && (
+    event.reason.message?.includes('WebSocket') ||
+    event.reason.message?.includes('websocket') ||
+    event.reason.message?.includes('HMR') ||
+    event.reason.message?.includes('Service Worker') ||
+    event.reason.toString().includes('WebSocket')
+  );
+  
+  if (isWebSocketError) {
+    // Silently ignore WebSocket/HMR errors - these are development only
+    return;
+  }
+  
+  // Only log actual application errors
+  console.warn('SSELFIE Studio: Unhandled promise rejection caught:', event.reason);
 });
 
-// React Query Client
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 1,
-      refetchOnWindowFocus: false,
-      staleTime: 30 * 1000, // 30 seconds
-    },
-  },
+// React sanity check for debugging
+if (import.meta.env.DEV) {
+  console.log('🔍 React Debug Info:', {
+    version: React.version, 
+    hasUse: typeof (React as any).use === "function" 
+  });
+}
+
+
+// Global listener for static modal video save events
+window.addEventListener('video:preview:save', async (e: Event) => {
+  const detail = (e as CustomEvent).detail || {};
+  const canonical = detail.originalSrc || detail.src;
+  if (!canonical) return;
+  try {
+    const res = await fetch('/api/videos/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ videoUrl: canonical, source: 'static-modal' })
+    });
+    if (!res.ok) {
+      console.warn('[Video Save] Failed to persist video:', res.status, await res.text());
+    } else {
+      // Video saved successfully
+    }
+  } catch (err) {
+    console.warn('[Video Save] Error persisting video', err);
+  }
 });
 
-// Main App Component
-function App() {
-  return (
+try {
+  const container = document.getElementById("root");
+  if (!container) {
+    console.error('❌ Root element not found!');
+    throw new Error("Failed to find the root element");
+  }
+
+  const root = createRoot(container as Element);
+
+  root.render(
     <React.StrictMode>
-      <StackProvider app={stackApp}>
-        <QueryClientProvider client={queryClient}>
-          <Router>
-            <Switch>
-              {/* App V2 Routes - SselfieAppLayout handles all app routes internally */}
-              <Route path="/app">
-                <SselfieAppLayout />
-              </Route>
-              
-              <Route path="/app/:rest*">
-                <SselfieAppLayout />
-              </Route>
-
-              {/* Default route */}
-              <Route path="/">
-                <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-                  <div className="text-center">
-                    <h1 className="text-4xl font-bold text-gray-900 mb-4">
-                      Welcome to SSELFIE Studio
-                    </h1>
-                    <p className="text-lg text-gray-600 mb-8">
-                      AI-Powered Personal Branding Platform
-                    </p>
-                    <a
-                      href="/app"
-                      className="inline-block px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition"
-                    >
-                      Get Started
-                    </a>
-                  </div>
-                </div>
-              </Route>
-            </Switch>
-          </Router>
-        </QueryClientProvider>
+      {/* Re-enable Stack Auth provider */}
+      <StackProvider app={stackClientApp as any}>
+        <StackTheme>
+          {/* 2. QueryClientProvider wraps the entire application logic */}
+          <QueryClientProvider client={queryClient}>
+            <TooltipProvider>
+              {/* 3. App component only renders the router */}
+              <App />
+              <Toaster />
+            </TooltipProvider>
+          </QueryClientProvider>
+        </StackTheme>
       </StackProvider>
     </React.StrictMode>
   );
-}
 
-// Mount the app
-const rootElement = document.getElementById('root');
-if (!rootElement) {
-  throw new Error('Failed to find the root element');
+} catch (error) {
+  console.error('❌ SSELFIE Studio: Fatal error during app initialization:', error);
+  
+  // Fallback error display
+  const container = document.getElementById("root");
+  if (container) {
+    container.innerHTML = `
+      <div style="padding: 20px; text-align: center; font-family: -apple-system, sans-serif;">
+        <h1 style="color: #dc2626;">SSELFIE Studio - Loading Error</h1>
+        <p style="color: #666;">There was an error loading the application.</p>
+        <details style="margin-top: 20px; text-align: left; max-width: 600px; margin-left: auto; margin-right: auto;">
+          <summary style="cursor: pointer; font-weight: bold;">Technical Details</summary>
+          <pre style="background: #f5f5f5; padding: 10px; overflow-x: auto; margin-top: 10px;">${error}</pre>
+        </details>
+        <p style="margin-top: 20px;">
+          <a href="/" style="color: #2563eb; text-decoration: none;">← Try Again</a>
+        </p>
+      </div>
+    `;
+  }
 }
-// @ts-ignore - React 19 type issue
-const root = ReactDOM.createRoot(rootElement);
-root.render(<App />);
