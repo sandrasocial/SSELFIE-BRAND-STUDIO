@@ -3,7 +3,7 @@
  * Handles user authentication and profile management
  */
 
-import { Router, Response } from 'express';
+import { Router, type Response as ExpressResponse } from 'express';
 import { requireStackAuth } from '../../stack-auth.js';
 import { storage } from '../../storage.js';
 import { asyncHandler, createError, sendSuccess, validateRequired } from '../middleware/error-handler.js';
@@ -28,7 +28,7 @@ interface UserProfile {
 
 const router = Router();
 // Me endpoint: JSON only, no cache, ensures user exists
-router.get('/api/me', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+router.get('/api/me', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: ExpressResponse) => {
   res.setHeader('Cache-Control', 'no-store');
   const userId = req.user.id;
   let user = await userService.getUser(userId) as UserProfile;
@@ -56,7 +56,7 @@ router.get('/api/me', requireStackAuth, asyncHandler(async (req: AuthenticatedRe
 }));
 
 // Get current user
-router.get('/api/auth/user', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+router.get('/api/auth/user', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: ExpressResponse) => {
   res.setHeader('Cache-Control', 'no-store');
   const userId = req.user.id;
   let user = await userService.getUser(userId) as UserProfile;
@@ -100,7 +100,7 @@ interface AutoRegisterRequest {
 }
 
 // Auto-register user
-router.post('/api/auth/auto-register', asyncHandler(async (req: AuthenticatedRequest & { body: AutoRegisterRequest }, res: Response) => {
+router.post('/api/auth/auto-register', asyncHandler(async (req: AuthenticatedRequest & { body: AutoRegisterRequest }, res: ExpressResponse) => {
   const { email, name } = req.body;
   validateRequired({ email }, ['email']);
 
@@ -131,7 +131,7 @@ interface UpdateGenderRequest {
 }
 
 // Update user gender
-router.post('/api/user/update-gender', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest & { body: UpdateGenderRequest }, res: Response) => {
+router.post('/api/user/update-gender', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest & { body: UpdateGenderRequest }, res: ExpressResponse) => {
   const userId = req.user.id;
   const { gender } = req.body;
   validateRequired({ gender }, ['gender']);
@@ -159,7 +159,7 @@ interface PublicProfile {
 }
 
 // Get user profile
-router.get('/api/profile', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+router.get('/api/profile', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: ExpressResponse) => {
   const userId = req.user.id;
   const user = await userService.getUser(userId) as UserProfile;
 
@@ -189,7 +189,7 @@ interface UpdateProfileRequest {
 }
 
 // Update user profile
-router.put('/api/profile', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest & { body: UpdateProfileRequest }, res: Response) => {
+router.put('/api/profile', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest & { body: UpdateProfileRequest }, res: ExpressResponse) => {
   const userId = req.user.id;
   const { displayName, firstName, lastName, profileImageUrl, gender } = req.body;
 
