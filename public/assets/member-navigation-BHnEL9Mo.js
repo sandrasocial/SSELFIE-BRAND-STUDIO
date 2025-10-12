@@ -1,0 +1,1 @@
+import{j as i}from"./index-Dww5k1Pu.js";import{U as o}from"./unified-navigation-DD6V8vGz.js";function t(e){return i.jsxDEV(o,{...e},void 0,!1,{fileName:"/workspaces/SSELFIE-BRAND-STUDIO/client/src/components/member-navigation.tsx",lineNumber:12,columnNumber:10},this)}export{t as M};

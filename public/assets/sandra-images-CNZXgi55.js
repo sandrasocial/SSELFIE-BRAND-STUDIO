@@ -1,0 +1,1 @@
+const t={hero:{about:"https://i.postimg.cc/bNF14sGc/out-1-4.png"},editorial:{thinking:"https://i.postimg.cc/6QPS39bD/out-1_(13).png",aiSuccess:"https://i.postimg.cc/76vVdbWY/out-0-7.png"}};export{t as S};

@@ -1,0 +1,68 @@
+import{g as m,u as w,f as k,j as e,C as I,U as f,X as x}from"./index-Dww5k1Pu.js";import{r as c,U as y}from"./stackauth-DQoC2kQW.js";const L=m("CreditCard",[["rect",{width:"20",height:"14",x:"2",y:"5",rx:"2",key:"ynyp8z"}],["line",{x1:"2",x2:"22",y1:"10",y2:"10",key:"1b3vmo"}]]),T=m("Home",[["path",{d:"m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z",key:"y5dka4"}],["polyline",{points:"9 22 9 12 15 12 15 22",key:"e2us08"}]]),O=m("Menu",[["line",{x1:"4",x2:"20",y1:"12",y2:"12",key:"1e0a9i"}],["line",{x1:"4",x2:"20",y1:"6",y2:"6",key:"1owob3"}],["line",{x1:"4",x2:"20",y1:"18",y2:"18",key:"yk5zj1"}]]),b=m("Shield",[["path",{d:"M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10",key:"1irkt0"}]]),t={editorialHeadline:"font-serif font-light leading-tight tracking-wide text-stone-900",editorialHeadlineLarge:"font-serif text-5xl sm:text-6xl font-light leading-tight tracking-wide text-stone-900",editorialHeadlineMedium:"font-serif text-3xl sm:text-4xl font-light leading-tight tracking-wide text-stone-900",body:"font-sans text-base font-light leading-relaxed text-stone-700",bodyLarge:"font-sans text-lg font-light leading-relaxed text-stone-700",bodySmall:"font-sans text-sm font-light leading-normal text-stone-600",caption:"font-sans text-xs font-light leading-normal tracking-wide uppercase text-stone-500",label:"font-sans text-sm font-medium leading-normal tracking-normal text-stone-700",button:"font-sans text-sm font-medium leading-none tracking-wide uppercase"},F={brand:{primary:"text-4xl sm:text-5xl font-serif font-thin tracking-widest text-stone-900 uppercase leading-none"}};function A({transparent:N=!0,darkText:U=!1,showAuth:d=!0}){const[s,a]=w(),[r,n]=c.useState(!1),[g,S]=c.useState(!1),{user:o}=k();c.useEffect(()=>{const i=()=>{const D=window.scrollY>50;S(D)};return window.addEventListener("scroll",i),()=>window.removeEventListener("scroll",i)},[]),c.useEffect(()=>{window.scrollTo(0,0)},[]);const l=i=>!!(i==="/maya"&&(s==="/maya"||s==="/studio")||i!=="/maya"&&s.startsWith(i));o?.email;const u=o?.email==="shannon@soulresets.com"&&o?.role==="user",p=o?[{path:"/maya",label:"Studio",icon:T},{path:"/sselfie-gallery",label:"Gallery",icon:I},{path:"/account-settings",label:"Account",icon:f}]:[],h=()=>{window.location.href="/api/auth/logout"},v=`
+    ${F.brand.primary}
+    cursor-pointer
+    touch-manipulation
+    transition-all
+    duration-300
+    ease-sophisticated
+    select-none
+  `,E=g||!N||r?"bg-black/90 backdrop-blur-md":"bg-transparent";return e.jsxDEV("nav",{role:"navigation","aria-label":"Main navigation",className:`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-sophisticated ${E}`,children:[e.jsxDEV("div",{className:"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6",children:e.jsxDEV("div",{className:"flex items-center justify-between",children:[e.jsxDEV("button",{onClick:i=>{i.preventDefault(),s==="/maya"||s==="/studio"?window.scrollTo({top:0,behavior:"smooth"}):a("/maya")},"aria-label":"SSELFIE home page",className:v,style:{fontFamily:"Times New Roman, serif",minHeight:"44px",display:"flex",alignItems:"center"},itemProp:"publisher",itemScope:!0,itemType:"https://schema.org/Organization",children:e.jsxDEV("span",{itemProp:"name",children:"SSELFIE"},void 0,!1,{fileName:"/workspaces/SSELFIE-BRAND-STUDIO/client/src/components/unified-navigation.tsx",lineNumber:111,columnNumber:13},this)},void 0,!1,{fileName:"/workspaces/SSELFIE-BRAND-STUDIO/client/src/components/unified-navigation.tsx",lineNumber:89,columnNumber:11},this),e.jsxDEV("div",{className:"hidden md:flex items-center space-x-8",role:"menubar",children:[p.map(i=>e.jsxDEV("button",{onClick:()=>a(i.path),role:"menuitem","aria-current":l(i.path)?"page":void 0,"aria-label":`Navigate to ${i.label}`,className:`
+                  ${t.caption}
+                  flex items-center gap-2
+                  transition-all duration-300 ease-sophisticated
+                  px-3 py-2 rounded-lg
+                  ${l(i.path)?"text-white bg-white/10":"text-white/70 hover:text-white hover:bg-white/5"}
+                `,children:[e.jsxDEV(i.icon,{size:16,strokeWidth:1.2},void 0,!1,{fileName:"/workspaces/SSELFIE-BRAND-STUDIO/client/src/components/unified-navigation.tsx",lineNumber:134,columnNumber:17},this),i.label]},i.path,!0,{fileName:"/workspaces/SSELFIE-BRAND-STUDIO/client/src/components/unified-navigation.tsx",lineNumber:117,columnNumber:15},this)),d&&e.jsxDEV("div",{className:"flex items-center gap-4",role:"menuitem",children:o?e.jsxDEV(e.Fragment,{children:[e.jsxDEV(y,{showUserInfo:!1,extraItems:[{text:"Subscription & Billing",icon:e.jsxDEV(L,{size:16,strokeWidth:1.2},void 0,!1,{fileName:"/workspaces/SSELFIE-BRAND-STUDIO/client/src/components/unified-navigation.tsx",lineNumber:150,columnNumber:33},this),onClick:()=>a("/account-settings?tab=billing")},{text:"Business Profile",icon:e.jsxDEV(f,{size:16,strokeWidth:1.2},void 0,!1,{fileName:"/workspaces/SSELFIE-BRAND-STUDIO/client/src/components/unified-navigation.tsx",lineNumber:155,columnNumber:33},this),onClick:()=>a("/profile")}]},void 0,!1,{fileName:"/workspaces/SSELFIE-BRAND-STUDIO/client/src/components/unified-navigation.tsx",lineNumber:145,columnNumber:21},this),u&&e.jsxDEV("button",{onClick:async()=>{try{(await fetch("/api/admin/stop-impersonation",{method:"POST",headers:{"Content-Type":"application/json","x-admin-token":"sandra-admin-2025"}})).ok&&(window.location.href="/admin-dashboard")}catch(i){console.error("Failed to stop impersonation:",i)}},"aria-label":"Stop impersonation and return to admin dashboard",className:`
+                          ${t.caption}
+                          text-white/70 hover:text-white
+                          transition-all duration-300 ease-sophisticated
+                          flex items-center gap-2
+                          px-3 py-2 rounded-lg hover:bg-white/5
+                        `,children:[e.jsxDEV(b,{size:16,strokeWidth:1.2},void 0,!1,{fileName:"/workspaces/SSELFIE-BRAND-STUDIO/client/src/components/unified-navigation.tsx",lineNumber:188,columnNumber:25},this),"Back to Admin"]},void 0,!0,{fileName:"/workspaces/SSELFIE-BRAND-STUDIO/client/src/components/unified-navigation.tsx",lineNumber:162,columnNumber:23},this),e.jsxDEV("button",{onClick:h,"aria-label":"Logout from account",className:`
+                        ${t.button}
+                        text-white border border-white/30 hover:bg-white hover:text-black
+                        transition-all duration-300 ease-sophisticated
+                        px-6 py-2 rounded-lg
+                        min-h-[44px]
+                      `,children:"LOGOUT"},void 0,!1,{fileName:"/workspaces/SSELFIE-BRAND-STUDIO/client/src/components/unified-navigation.tsx",lineNumber:193,columnNumber:21},this)]},void 0,!0,{fileName:"/workspaces/SSELFIE-BRAND-STUDIO/client/src/components/unified-navigation.tsx",lineNumber:143,columnNumber:19},this):e.jsxDEV(e.Fragment,{children:e.jsxDEV("button",{onClick:()=>window.location.href="/handler/sign-in","aria-label":"Sign in to account",className:`
+                        ${t.button}
+                        text-white border border-white/30 hover:bg-white hover:text-black
+                        transition-all duration-300 ease-sophisticated
+                        px-6 py-2 rounded-lg
+                        min-h-[44px]
+                      `,children:"LOGIN"},void 0,!1,{fileName:"/workspaces/SSELFIE-BRAND-STUDIO/client/src/components/unified-navigation.tsx",lineNumber:210,columnNumber:21},this)},void 0,!1,{fileName:"/workspaces/SSELFIE-BRAND-STUDIO/client/src/components/unified-navigation.tsx",lineNumber:208,columnNumber:19},this)},void 0,!1,{fileName:"/workspaces/SSELFIE-BRAND-STUDIO/client/src/components/unified-navigation.tsx",lineNumber:141,columnNumber:15},this)]},void 0,!0,{fileName:"/workspaces/SSELFIE-BRAND-STUDIO/client/src/components/unified-navigation.tsx",lineNumber:115,columnNumber:11},this),e.jsxDEV("button",{onClick:()=>n(!r),"aria-label":"Toggle mobile menu","aria-expanded":r,"aria-controls":"mobile-menu",className:`
+              md:hidden
+              ${t.caption}
+              text-white/70 hover:text-white
+              transition-all duration-300 ease-sophisticated
+              p-2 rounded-lg hover:bg-white/5
+            `,children:r?e.jsxDEV(x,{size:20,strokeWidth:1.5},void 0,!1,{fileName:"/workspaces/SSELFIE-BRAND-STUDIO/client/src/components/unified-navigation.tsx",lineNumber:244,columnNumber:15},this):e.jsxDEV(O,{size:20,strokeWidth:1.5},void 0,!1,{fileName:"/workspaces/SSELFIE-BRAND-STUDIO/client/src/components/unified-navigation.tsx",lineNumber:246,columnNumber:15},this)},void 0,!1,{fileName:"/workspaces/SSELFIE-BRAND-STUDIO/client/src/components/unified-navigation.tsx",lineNumber:230,columnNumber:11},this)]},void 0,!0,{fileName:"/workspaces/SSELFIE-BRAND-STUDIO/client/src/components/unified-navigation.tsx",lineNumber:87,columnNumber:9},this)},void 0,!1,{fileName:"/workspaces/SSELFIE-BRAND-STUDIO/client/src/components/unified-navigation.tsx",lineNumber:86,columnNumber:7},this),r&&e.jsxDEV("div",{id:"mobile-menu",role:"dialog","aria-modal":"true","aria-label":"Mobile navigation menu",className:"md:hidden fixed top-0 left-0 right-0 bottom-0 z-[999] bg-black/97 backdrop-blur-md",style:{background:"rgba(0, 0, 0, 0.97)"},children:e.jsxDEV("div",{className:"flex flex-col items-center justify-center h-full space-y-8 px-6",role:"menu",children:[p.map(i=>e.jsxDEV("button",{onClick:()=>{a(i.path),n(!1)},role:"menuitem","aria-current":l(i.path)?"page":void 0,"aria-label":`Navigate to ${i.label}`,className:`
+                  ${t.body}
+                  text-white
+                  flex items-center gap-3
+                  transition-all duration-300 ease-sophisticated
+                  px-4 py-3 rounded-lg
+                  ${l(i.path)?"bg-white/10":"hover:bg-white/5"}
+                `,children:[e.jsxDEV(i.icon,{size:18,strokeWidth:1.2},void 0,!1,{fileName:"/workspaces/SSELFIE-BRAND-STUDIO/client/src/components/unified-navigation.tsx",lineNumber:285,columnNumber:17},this),i.label]},i.path,!0,{fileName:"/workspaces/SSELFIE-BRAND-STUDIO/client/src/components/unified-navigation.tsx",lineNumber:264,columnNumber:15},this)),d&&e.jsxDEV(e.Fragment,{children:o?e.jsxDEV(e.Fragment,{children:[u&&e.jsxDEV("button",{onClick:async()=>{try{(await fetch("/api/admin/stop-impersonation",{method:"POST",headers:{"Content-Type":"application/json","x-admin-token":"sandra-admin-2025"}})).ok&&(window.location.href="/admin-dashboard")}catch(i){console.error("Failed to stop impersonation:",i)}n(!1)},className:`
+                          ${t.caption}
+                          text-white/70 hover:text-white
+                          transition-all duration-300 ease-sophisticated
+                          mt-8 flex items-center gap-3
+                          px-4 py-3 rounded-lg hover:bg-white/5
+                        `,children:[e.jsxDEV(b,{size:18,strokeWidth:1.2},void 0,!1,{fileName:"/workspaces/SSELFIE-BRAND-STUDIO/client/src/components/unified-navigation.tsx",lineNumber:322,columnNumber:25},this),"Back to Admin"]},void 0,!0,{fileName:"/workspaces/SSELFIE-BRAND-STUDIO/client/src/components/unified-navigation.tsx",lineNumber:296,columnNumber:23},this),e.jsxDEV("button",{onClick:()=>{h(),n(!1)},className:`
+                        ${t.button}
+                        text-white border border-white/30 hover:bg-white hover:text-black
+                        transition-all duration-300 ease-sophisticated
+                        mt-8 px-6 py-3 rounded-lg
+                      `,children:"LOGOUT"},void 0,!1,{fileName:"/workspaces/SSELFIE-BRAND-STUDIO/client/src/components/unified-navigation.tsx",lineNumber:327,columnNumber:21},this)]},void 0,!0,{fileName:"/workspaces/SSELFIE-BRAND-STUDIO/client/src/components/unified-navigation.tsx",lineNumber:293,columnNumber:19},this):e.jsxDEV(e.Fragment,{children:e.jsxDEV("button",{onClick:()=>{window.location.href="/handler/sign-in",n(!1)},className:`
+                        ${t.button}
+                        text-white border border-white/30 hover:bg-white hover:text-black
+                        transition-all duration-300 ease-sophisticated
+                        px-6 py-3 rounded-lg
+                      `,children:"LOGIN"},void 0,!1,{fileName:"/workspaces/SSELFIE-BRAND-STUDIO/client/src/components/unified-navigation.tsx",lineNumber:345,columnNumber:21},this)},void 0,!1,{fileName:"/workspaces/SSELFIE-BRAND-STUDIO/client/src/components/unified-navigation.tsx",lineNumber:343,columnNumber:19},this)},void 0,!1,{fileName:"/workspaces/SSELFIE-BRAND-STUDIO/client/src/components/unified-navigation.tsx",lineNumber:291,columnNumber:15},this),e.jsxDEV("button",{onClick:()=>n(!1),className:`
+                absolute top-6 right-6
+                ${t.caption}
+                text-white/70 hover:text-white
+                transition-all duration-300 ease-sophisticated
+                p-2 rounded-lg hover:bg-white/5
+              `,children:e.jsxDEV(x,{size:20,strokeWidth:1.5},void 0,!1,{fileName:"/workspaces/SSELFIE-BRAND-STUDIO/client/src/components/unified-navigation.tsx",lineNumber:375,columnNumber:15},this)},void 0,!1,{fileName:"/workspaces/SSELFIE-BRAND-STUDIO/client/src/components/unified-navigation.tsx",lineNumber:365,columnNumber:13},this)]},void 0,!0,{fileName:"/workspaces/SSELFIE-BRAND-STUDIO/client/src/components/unified-navigation.tsx",lineNumber:262,columnNumber:11},this)},void 0,!1,{fileName:"/workspaces/SSELFIE-BRAND-STUDIO/client/src/components/unified-navigation.tsx",lineNumber:254,columnNumber:9},this)]},void 0,!0,{fileName:"/workspaces/SSELFIE-BRAND-STUDIO/client/src/components/unified-navigation.tsx",lineNumber:81,columnNumber:5},this)}export{t as T,A as U};

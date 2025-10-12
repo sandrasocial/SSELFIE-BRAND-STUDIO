@@ -261,6 +261,51 @@
     
     // Stack Auth
     "client/src/stack/stack-context.ts",
-    "stack/client.ts"
+    "stack/client.ts",
+    
+    // Core App Routing (restored from main)
+    "client/src/App.tsx",
+    
+    // Pages - Landing & Legal
+    "client/src/pages/landing/business-landing.tsx",
+    "client/src/pages/legal/terms.tsx",
+    "client/src/pages/legal/privacy.tsx",
+    
+    // Pages - Onboarding & Training
+    "client/src/pages/onboarding/simple-training.tsx",
+    "client/src/pages/auth-success.tsx",
+    "client/src/pages/payment-success.tsx",
+    "client/src/pages/thank-you.tsx",
+    
+    // Pages - Checkout & Gallery
+    "client/src/pages/simple-checkout.tsx",
+    "client/src/pages/embedded-checkout.tsx",
+    "client/src/pages/sselfie-gallery.tsx",
+    "client/src/pages/AICommandCenter.tsx",
+    "client/src/pages/not-found.tsx",
+    
+    // Pages - Handlers
+    "client/src/pages/handler/sign-in.tsx",
+    "client/src/pages/handler/PostLoginHandler.tsx",
+    
+    // Auth Features
+    "client/features/MagicLinkSignInPage.tsx",
+    "client/features/MyForgotPassword.tsx",
+    "client/features/ResetPasswordPage.tsx",
+    
+    // Components - Additional
+    "client/src/components/PageLoader.tsx",
+    "client/src/components/MayaDiagnostic.tsx",
+    
+    // Utils - Performance & Mobile
+    "client/src/utils/browserCompat.ts",
+    "client/src/utils/performanceOptimizations.ts",
+    "client/src/utils/webVitals.ts",
+    "client/src/utils/mobileOptimization.ts",
+    "client/src/utils/performanceMonitor.ts",
+    "client/src/utils/runtimeOptimization.ts",
+    
+    // Constants
+    "client/src/constants/routes.ts"
   ]
 }
