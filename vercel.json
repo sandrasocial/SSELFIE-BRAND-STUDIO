@@ -210,6 +210,14 @@
       }
     },
     {
+      "src": "server/api/gallery/delete.ts",
+      "use": "@vercel/node",
+      "config": {
+        "maxDuration": 10,
+        "memory": 256
+      }
+    },
+    {
       "src": "server/maya/payments/index.ts",
       "use": "@vercel/node",
       "config": {
@@ -459,6 +467,10 @@
     {
       "source": "/api/images/(\\d+)/favorite",
       "destination": "/server/api/gallery/favorite-toggle.ts"
+    },
+    {
+      "source": "/api/ai-images/(\\d+)",
+      "destination": "/server/api/gallery/delete.ts"
     },
     {
       "source": "/api/images/(.*)",
