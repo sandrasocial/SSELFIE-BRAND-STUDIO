@@ -138,6 +138,22 @@
       }
     },
     {
+      "src": "server/api/maya/models.ts",
+      "use": "@vercel/node",
+      "config": {
+        "maxDuration": 10,
+        "memory": 256
+      }
+    },
+    {
+      "src": "server/api/maya/env-check.ts",
+      "use": "@vercel/node",
+      "config": {
+        "maxDuration": 10,
+        "memory": 256
+      }
+    },
+    {
       "src": "server/[...route].ts",
       "use": "@vercel/node",
       "config": {
@@ -247,6 +263,14 @@
     {
       "source": "/api/maya/status",
       "destination": "/server/api/maya/status.ts"
+    },
+    {
+      "source": "/api/maya/models",
+      "destination": "/server/api/maya/models.ts"
+    },
+    {
+      "source": "/api/maya/env-check",
+      "destination": "/server/api/maya/env-check.ts"
     },
     {
       "source": "/api/cron/(.*)",
