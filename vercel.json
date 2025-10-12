@@ -186,6 +186,14 @@
       }
     },
     {
+      "src": "server/api/gallery/images.ts",
+      "use": "@vercel/node",
+      "config": {
+        "maxDuration": 30,
+        "memory": 512
+      }
+    },
+    {
       "src": "server/maya/payments/index.ts",
       "use": "@vercel/node",
       "config": {
@@ -422,7 +430,7 @@
     },
     {
       "source": "/api/gallery-images",
-      "destination": "/server/[...route].ts"
+      "destination": "/server/api/gallery/images.ts"
     },
     {
       "source": "/api/gallery",

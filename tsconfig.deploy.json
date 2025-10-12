@@ -68,8 +68,10 @@
     "server/utils/gender-prompt.ts",
     "server/_shared/memory-types.ts",
     "server/types.ts",
+    // Gallery API - pure serverless endpoints
+    "server/api/gallery/images.ts",
+
     // Maya service modules - critical for aesthetics, styling, categories
-    "server/maya/chat.ts",
     "server/maya/concepts/index.ts", 
     "server/maya/images/index.ts",
     "server/maya/models/index.ts",
