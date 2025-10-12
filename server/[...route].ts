@@ -6,6 +6,7 @@ import { adaptExpressRouter } from './_utils/express-to-vercel-adapter.js';
 // Import route modules
 import authRouter from './routes/modules/auth.js';
 import trainingRouter from './routes/modules/training.js';
+import galleryRouter from './routes/modules/gallery.js';
 
 export const config = { runtime: 'nodejs' } as const;
 
@@ -22,6 +23,15 @@ const TRAINING_ROUTES = [
   '/api/user-model',
   '/api/training/status',
   '/api/training-progress'
+];
+
+// Gallery routes handled by gallery.ts module
+const GALLERY_ROUTES = [
+  '/api/gallery',
+  '/api/gallery-images',
+  '/api/images/favorites',
+  '/api/images',
+  '/api/ai-images'
 ];
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -324,6 +334,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     console.log(`🔄 [TRAINING MODULE] Handling: ${req.url}`);
     const trainingHandler = adaptExpressRouter(trainingRouter);
     return trainingHandler(req, res);
+  }
+
+  // 🔄 GALLERY ROUTES: Handle via gallery.ts module (Phase 3 Migration - Day 4)
+  const isGalleryRoute = req.url && GALLERY_ROUTES.some(route => req.url === route || req.url?.startsWith(route));
+  if (isGalleryRoute) {
+    console.log(`🔄 [GALLERY MODULE] Handling: ${req.url}`);
+    const galleryHandler = adaptExpressRouter(galleryRouter);
+    return galleryHandler(req, res);
   }
 
   // Skip auth middleware entirely for public routes

@@ -9,6 +9,49 @@ import { requireStackAuth } from '../../stack-auth.js';
 import { asyncHandler, createError, sendSuccess, validateRequired } from '../middleware/error-handler.js';
 import { storage } from '../../storage.js';
 import { AuthenticatedRequest, SuccessResponse } from '../../../shared/types/ai-generation.js';
+import { withTimeout } from '../../_utils/timing.js';
+
+// Circuit Breaker Pattern for Gallery Reliability
+interface CircuitBreakerState {
+  failures: number;
+  isOpen: boolean;
+  lastFailure: number;
+}
+
+const circuitBreaker: CircuitBreakerState = {
+  failures: 0,
+  isOpen: false,
+  lastFailure: 0
+};
+
+const CIRCUIT_BREAKER_THRESHOLD = 5;
+const CIRCUIT_BREAKER_RESET_TIME = 60000;
+
+function checkCircuitBreaker(): boolean {
+  const now = Date.now();
+  
+  if (circuitBreaker.isOpen && now - circuitBreaker.lastFailure > CIRCUIT_BREAKER_RESET_TIME) {
+    circuitBreaker.isOpen = false;
+    circuitBreaker.failures = 0;
+  }
+  
+  return !circuitBreaker.isOpen;
+}
+
+function recordCircuitBreakerFailure() {
+  circuitBreaker.failures++;
+  circuitBreaker.lastFailure = Date.now();
+  
+  if (circuitBreaker.failures >= CIRCUIT_BREAKER_THRESHOLD) {
+    circuitBreaker.isOpen = true;
+  }
+}
+
+function recordCircuitBreakerSuccess() {
+  if (circuitBreaker.failures > 0) {
+    circuitBreaker.failures = 0;
+  }
+}
 
 interface ImageMetadata {
   width: number;
@@ -27,6 +70,19 @@ interface GalleryImage {
   source: string;
   createdAt: Date | null;
   metadata: ImageMetadata;
+}
+
+interface AiImage {
+  id: number;
+  userId: string;
+  imageUrl: string;
+  prompt?: string | null;
+  style?: string | null;
+  category?: string | null;
+  source?: string | null;
+  createdAt?: Date | null;
+  isFavorite?: boolean | null;
+  isSelected?: boolean | null;
 }
 
 interface UploadImageRequest {
@@ -63,162 +119,208 @@ interface UpdateImageMetadataRequest {
 
 const router = express.Router();
 
-// Favorites endpoints - stubs to avoid 404 errors
+// Favorites GET endpoint - Production version with filtering
 router.get('/api/images/favorites', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  res.setHeader('Content-Type', 'application/json; charset=utf-8');
-  sendSuccess(res, { favorites: [] });
+  try {
+    const userId = req.user.id;
+    const ai = await withTimeout(storage.getAIImages(userId), 5000, 'getAIImages') as unknown as AiImage[];
+    const favIds = ai
+      .filter((img: AiImage) => Boolean(img.isFavorite || img.isSelected))
+      .map((img: AiImage) => img.id);
+    res.setHeader('Cache-Control', 'no-store');
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
+    res.status(200).json({ favorites: favIds });
+  } catch {
+    res.status(200).json({ favorites: [] });
+  }
 }));
 
 router.post('/api/images/:id/favorite', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  res.setHeader('Content-Type', 'application/json; charset=utf-8');
-  sendSuccess(res, { ok: true });
+  try {
+    const userId = req.user.id;
+    const imageId = parseInt(req.params.id, 10);
+    
+    if (!imageId || Number.isNaN(imageId)) {
+      res.status(400).json({ error: 'Invalid image id' });
+      return;
+    }
+    
+    const img = await withTimeout(storage.getAIImage(userId, imageId), 4000, 'getAIImage') as unknown as AiImage | undefined;
+    const next = !(img?.isFavorite ?? false);
+    await withTimeout(storage.updateAIImage(imageId, { isFavorite: next } as Partial<AiImage>), 4000, 'updateAIImage');
+    
+    res.setHeader('Cache-Control', 'no-store');
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
+    res.status(200).json({ ok: true, id: imageId, isFavorite: next });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to toggle favorite', message: (error as Error).message });
+  }
 }));
 
-// Get user gallery
+// Get user gallery - Production version with circuit breaker
 router.get('/api/gallery', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const userId = req.user.id;
   
   try {
+    // Circuit breaker check
+    if (!checkCircuitBreaker()) {
+      console.warn('⚠️ Circuit breaker open for gallery-images');
+      res.status(503).json({
+        images: [],
+        total: 0,
+        message: 'Service temporarily unavailable',
+        code: 'CIRCUIT_BREAKER_OPEN'
+      });
+      return;
+    }
+
     res.setHeader('Cache-Control', 'no-store');
     
-    // Get AI images from the database
-    const aiImages = await storage.getAIImages(userId);
+    // Parallel fetch with timeout and error recovery
+    const [aiImages, generatedImages] = await Promise.all([
+      withTimeout(storage.getAIImages(userId), 2500, 'getAIImages').catch(err => {
+        console.warn('⚠️ AI images fetch failed:', (err as Error).message);
+        recordCircuitBreakerFailure();
+        return [];
+      }),
+      withTimeout(storage.getGeneratedImages(userId), 2500, 'getGeneratedImages').catch(err => {
+        console.warn('⚠️ Generated images fetch failed:', (err as Error).message);
+        recordCircuitBreakerFailure();
+        return [];
+      })
+    ]);
     
-    // Also get generated images (newer table)
-    const generatedImages = await storage.getGeneratedImages(userId);
+    if (aiImages.length > 0 || generatedImages.length > 0) {
+      recordCircuitBreakerSuccess();
+    }
     
-    // Combine both sources and format for frontend
-    const allImages: GalleryImage[] = [
-      // AI Images (legacy format)
+    // Format images for frontend
+    const galleryImages = [
       ...aiImages.map(img => ({
-        id: img.id,
+        id: img.id.toString(),
         userId: img.userId,
-        url: img.imageUrl,
-        prompt: img.prompt,
-        style: img.style,
-        category: img.category || 'gallery',
-        source: img.source || 'workspace',
-        createdAt: img.createdAt,
-        metadata: {
-          width: 1024,
-          height: 1024,
-          format: 'png',
-          size: '1.2MB'
-        }
+        type: 'ai_generated',
+        title: img.style || 'AI Generated Image',
+        description: img.prompt || 'AI-generated image',
+        imageUrl: img.imageUrl,
+        createdAt: (img.createdAt || new Date()).toISOString(),
+        tags: img.style ? [img.style] : ['ai-generated']
       })),
-      // Generated Images (newer format)
       ...generatedImages.map(img => ({
-        id: img.id,
+        id: `gen_${img.id}`,
         userId: img.userId,
-        url: img.selectedUrl || (img.imageUrls ? JSON.parse(img.imageUrls)[0] : ''),
-        prompt: img.prompt,
-        style: img.category || 'gallery',
-        category: img.category || 'gallery',
-        source: 'maya-generation',
-        createdAt: img.createdAt,
-        metadata: {
-          width: 1024,
-          height: 1024,
-          format: 'png',
-          size: '1.2MB'
-        }
+        type: 'generated',
+        title: 'Generated Image',
+        description: img.prompt || 'Generated image',
+        imageUrl: img.selectedUrl || (img.imageUrls ? JSON.parse(img.imageUrls)[0] : null),
+        createdAt: (img.createdAt || new Date()).toISOString(),
+        tags: [img.category || 'generated']
       }))
     ];
     
-    // Sort by creation date (newest first)
-    allImages.sort((a, b) => {
-      const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-      const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-      return bTime - aTime;
-    });
+    galleryImages.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     
-    
-    const responseData: SuccessResponse<{
-      gallery: GalleryImage[];
-      count: number;
-    }> = {
-      data: {
-        gallery: allImages,
-        count: allImages.length
-      }
-    };
-    
-    sendSuccess(res, responseData);
+    res.status(200).json(galleryImages);
     
   } catch (error) {
     console.error('❌ Gallery: Error fetching images:', error);
-    throw createError.internal('Failed to fetch gallery images');
+    res.status(500).json({ 
+      message: 'Failed to fetch gallery images',
+      error: (error as Error).message
+    });
   }
 }));
 
-// Get user gallery images (frontend calls this endpoint)
+// Get user gallery images (frontend calls this endpoint) - Production version with circuit breaker
 router.get('/api/gallery-images', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const userId = req.user.id;
   
   try {
+    // Circuit breaker check
+    if (!checkCircuitBreaker()) {
+      console.warn('⚠️ Circuit breaker open for gallery-images');
+      res.status(503).json({
+        images: [],
+        total: 0,
+        message: 'Service temporarily unavailable',
+        code: 'CIRCUIT_BREAKER_OPEN'
+      });
+      return;
+    }
+
     res.setHeader('Cache-Control', 'no-store');
     
-    // Get AI images from the database
-    const aiImages = await storage.getAIImages(userId);
+    // Parallel fetch with timeout and error recovery
+    const [aiImages, generatedImages] = await Promise.all([
+      withTimeout(storage.getAIImages(userId), 2500, 'getAIImages').catch(err => {
+        console.warn('⚠️ AI images fetch failed:', (err as Error).message);
+        recordCircuitBreakerFailure();
+        return [];
+      }),
+      withTimeout(storage.getGeneratedImages(userId), 2500, 'getGeneratedImages').catch(err => {
+        console.warn('⚠️ Generated images fetch failed:', (err as Error).message);
+        recordCircuitBreakerFailure();
+        return [];
+      })
+    ]);
     
-    // Also get generated images (newer table)
-    const generatedImages = await storage.getGeneratedImages(userId);
+    if (aiImages.length > 0 || generatedImages.length > 0) {
+      recordCircuitBreakerSuccess();
+    }
     
-    // Combine both sources and format for frontend
-    const allImages: GalleryImage[] = [
-      // AI Images (legacy format)
+    // Format images for frontend
+    const galleryImages = [
       ...aiImages.map(img => ({
-        id: img.id,
+        id: img.id.toString(),
         userId: img.userId,
-        url: img.imageUrl,
-        prompt: img.prompt,
-        style: img.style,
-        category: img.category || 'gallery',
-        source: img.source || 'workspace',
-        createdAt: img.createdAt,
-        metadata: {
-          width: 1024,
-          height: 1024,
-          format: 'png',
-          size: '1.2MB'
-        }
+        type: 'ai_generated',
+        title: img.style || 'AI Generated Image',
+        description: img.prompt || 'AI-generated image',
+        imageUrl: img.imageUrl,
+        createdAt: (img.createdAt || new Date()).toISOString(),
+        tags: img.style ? [img.style] : ['ai-generated']
       })),
-      // Generated Images (newer format)
       ...generatedImages.map(img => ({
-        id: img.id,
+        id: `gen_${img.id}`,
         userId: img.userId,
-        url: img.selectedUrl || (img.imageUrls ? JSON.parse(img.imageUrls)[0] : ''),
-        prompt: img.prompt,
-        style: img.category || 'gallery',
-        category: img.category || 'gallery',
-        source: 'maya-generation',
-        createdAt: img.createdAt,
-        metadata: {
-          width: 1024,
-          height: 1024,
-          format: 'png',
-          size: '1.2MB'
-        }
+        type: 'generated',
+        title: 'Generated Image',
+        description: img.prompt || 'Generated image',
+        imageUrl: img.selectedUrl || (img.imageUrls ? JSON.parse(img.imageUrls)[0] : null),
+        createdAt: (img.createdAt || new Date()).toISOString(),
+        tags: [img.category || 'generated']
       }))
     ];
     
-    // Sort by creation date (newest first)
-    allImages.sort((a, b) => {
-      const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-      const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-      return bTime - aTime;
-    });
+    galleryImages.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     
-    
-    const responseData: SuccessResponse<GalleryImage[]> = {
-      data: allImages
-    };
-    
-    sendSuccess(res, responseData);
+    res.status(200).json(galleryImages);
     
   } catch (error) {
     console.error('❌ Gallery: Error fetching images:', error);
-    throw createError.internal('Failed to fetch gallery images');
+    res.status(500).json({ 
+      message: 'Failed to fetch gallery images',
+      error: (error as Error).message
+    });
+  }
+}));
+
+// Delete AI image endpoint - Production version
+router.delete('/api/ai-images/:id', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const userId = req.user.id;
+    const imageId = parseInt(req.params.id, 10);
+    
+    if (!imageId || Number.isNaN(imageId)) {
+      res.status(400).json({ error: 'Invalid image id' });
+      return;
+    }
+    
+    const ok = await storage.deleteAIImage(userId, imageId);
+    res.setHeader('Cache-Control', 'no-store');
+    res.status(200).json({ ok, id: imageId });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to delete image', message: (error as Error).message });
   }
 }));
 
