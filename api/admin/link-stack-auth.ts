@@ -12,7 +12,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
   
   try {
-    const { storage } = await import('../../server/storage.ts');
+    const { storage } = await import('../../server/storage.js');
     
     // Find existing admin user by email
     const existingUser = await storage.getUserByEmail('ssa@ssasocial.com');
