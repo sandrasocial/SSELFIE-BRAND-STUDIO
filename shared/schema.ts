@@ -80,6 +80,17 @@ export const users = pgTable("users", {
   profession: varchar("profession"), // User's business/profession
   brandStyle: varchar("brand_style"), // "professional" | "creative" | "lifestyle" | "luxury"
   photoGoals: text("photo_goals"), // What they want photos for (business use case)
+  
+  // Legacy/migration fields - exist in database for backward compatibility
+  authProvider: varchar("auth_provider"), // Legacy: 'stack-auth' - kept for migration compatibility
+  stackAuthUserId: varchar("stack_auth_user_id"), // Legacy: duplicate of stackAuthId - kept for migration compatibility  
+  legacyUserId: varchar("legacy_user_id"), // Legacy: original numeric ID before migration
+  profileCompleted: boolean("profile_completed"), // Legacy: onboarding completion flag
+  onboardingStep: integer("onboarding_step"), // Legacy: onboarding progress (0-5)
+  visualTemplate: varchar("visual_template"), // Legacy: template preference
+  brandColors: jsonb("brand_colors"), // Legacy: brand color palette
+  typographyPreferences: jsonb("typography_preferences"), // Legacy: font preferences
+  feedAesthetic: varchar("feed_aesthetic"), // Legacy: Instagram feed style
 });
 
 // Email management for Ava agent
