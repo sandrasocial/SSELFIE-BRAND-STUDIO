@@ -43,11 +43,26 @@ const OAuthCallback: React.FC = () => {
 
         // Use Stack Auth to process the OAuth callback
         if (stackClientApp && typeof stackClientApp.callOAuthCallback === 'function') {
+          console.log('🔄 Calling Stack Auth OAuth callback...');
+          console.log('🔍 Current cookies BEFORE callback:', document.cookie);
+          
           await stackClientApp.callOAuthCallback();
           console.log('✅ Stack Auth OAuth callback processed');
           
+          // Check cookies immediately after callback
+          console.log('🔍 Current cookies AFTER callback:', document.cookie);
+          
+          // Check if user is authenticated
+          const user = await stackClientApp.getUser();
+          console.log('🔍 User after OAuth callback:', user ? 'AUTHENTICATED ✅' : 'NOT AUTHENTICATED ❌');
+          
+          if (user) {
+            console.log('🔍 User details:', { id: user.id, email: user.primaryEmail });
+          }
+          
           // Wait a moment for cookies to be set, then redirect to auth-success
           setTimeout(() => {
+            console.log('🔍 Current cookies BEFORE redirect:', document.cookie);
             window.location.href = '/auth-success';
           }, 1000);
         } else {

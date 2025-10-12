@@ -14,7 +14,7 @@
     "noPropertyAccessFromIndexSignature": false,
     "strictFunctionTypes": false,
     "module": "ESNext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "moduleDetection": "auto",
     "resolveJsonModule": true,
     "isolatedModules": true,
