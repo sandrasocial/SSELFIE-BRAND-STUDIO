@@ -203,6 +203,16 @@ function Router() {
       {/* Home page - Smart routing based on auth and training status */}
       <Route path="/" component={SmartHome} />
 
+      {/* Debug route for auth diagnostics */}
+      <Route path="/auth-diagnostic" component={() => {
+        const AuthDiagnostic = React.lazy(() => import("./pages/auth-diagnostic.js"));
+        return (
+          <Suspense fallback={<PageLoader />}>
+            <AuthDiagnostic />
+          </Suspense>
+        );
+      }} />
+
       {/* Public landing pages */}
       <Route path="/business" component={() => (
         <Suspense fallback={<PageLoader />}>
