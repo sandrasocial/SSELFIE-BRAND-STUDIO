@@ -79,16 +79,9 @@ router.get('/api/user-model', requireStackAuth, asyncHandler(async (req: Authent
       stackAuthId: dbUser.stackAuthId
     });
     
-    // Get their training model
+    // Get their training model (cache hit returns instantly, no timeout needed)
     try {
-      const foundModel = await withDatabaseTimeoutAndRetry(
-        () => storage.getUserModel(dbUser.id), 
-        undefined,
-        6000,
-        3,
-        'getUserModel'
-      );
-      userModel = foundModel || null;
+      userModel = await storage.getUserModel(dbUser.id) || null;
       
       console.log('🔍 Model lookup result:', {
         foundModel: !!userModel,
