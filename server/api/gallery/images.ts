@@ -73,13 +73,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   try {
     // 1. Authenticate with Stack Auth (using shared auth helper)
+    console.log('🔍 Gallery Images: Using getUserFromRequest helper (JWKS verification)');
     const user = await getUserFromRequest(req);
     if (!user) {
+      console.log('❌ Gallery Images: No user returned from getUserFromRequest');
       return res.status(401).json({ error: 'Authentication required' });
     }
     
     const userId = user.id;
-    console.log(`🖼️  Gallery Images: Fetching for user ${userId}`);
+    console.log(`✅ Gallery Images: Authenticated user ${userId} via JWKS`);
 
     // 2. Set response headers (no-cache for fresh data)
     res.setHeader('Cache-Control', 'no-store');
