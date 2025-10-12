@@ -1,489 +1,91 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "server/me.ts",
-      "use": "@vercel/node",
-      "config": {
-        "maxDuration": 25,
-        "memory": 512
-      }
+  "buildCommand": "npm run vercel-build",
+  "outputDirectory": "client/dist",
+  "installCommand": "npm install --force",
+  "functions": {
+    "server/api/maya/*.ts": {
+      "maxDuration": 60,
+      "memory": 1024
     },
-    {
-      "src": "server/health.ts",
-      "use": "@vercel/node",
-      "config": {
-        "maxDuration": 10,
-        "memory": 256
-      }
+    "server/maya/**/*.ts": {
+      "maxDuration": 60,
+      "memory": 1024
     },
-    {
-      "src": "server/api/me.ts",
-      "use": "@vercel/node",
-      "config": {
-        "maxDuration": 25,
-        "memory": 512
-      }
+    "server/api/gallery/*.ts": {
+      "maxDuration": 30,
+      "memory": 512
     },
-    {
-      "src": "server/api/profile.ts",
-      "use": "@vercel/node",
-      "config": {
-        "maxDuration": 25,
-        "memory": 512
-      }
+    "server/api/**/*.ts": {
+      "maxDuration": 30,
+      "memory": 512
     },
-    {
-      "src": "server/api/auth/user.ts",
-      "use": "@vercel/node",
-      "config": {
-        "maxDuration": 25,
-        "memory": 512
-      }
+    "server/webhooks/*.ts": {
+      "maxDuration": 30,
+      "memory": 512
     },
-    {
-      "src": "server/api/auth/auto-register.ts",
-      "use": "@vercel/node",
-      "config": {
-        "maxDuration": 25,
-        "memory": 512
-      }
+    "server/health.ts": {
+      "maxDuration": 10,
+      "memory": 256
     },
-    {
-      "src": "server/api/auth/update-profile.ts",
-      "use": "@vercel/node",
-      "config": {
-        "maxDuration": 25,
-        "memory": 512
-      }
-    },
-    {
-      "src": "server/api/user/update-gender.ts",
-      "use": "@vercel/node",
-      "config": {
-        "maxDuration": 25,
-        "memory": 512
-      }
-    },
-    {
-      "src": "server/api/training/user-model.ts",
-      "use": "@vercel/node",
-      "config": {
-        "maxDuration": 30,
-        "memory": 512
-      }
-    },
-    {
-      "src": "server/api/training/status.ts",
-      "use": "@vercel/node",
-      "config": {
-        "maxDuration": 25,
-        "memory": 512
-      }
-    },
-    {
-      "src": "server/api/training/progress.ts",
-      "use": "@vercel/node",
-      "config": {
-        "maxDuration": 25,
-        "memory": 512
-      }
-    },
-    {
-      "src": "server/api/maya/chat.ts",
-      "use": "@vercel/node",
-      "config": {
-        "maxDuration": 60,
-        "memory": 1024
-      }
-    },
-    {
-      "src": "server/api/maya/generate.ts",
-      "use": "@vercel/node",
-      "config": {
-        "maxDuration": 60,
-        "memory": 1024
-      }
-    },
-    {
-      "src": "server/api/maya/heart-image.ts",
-      "use": "@vercel/node",
-      "config": {
-        "maxDuration": 60,
-        "memory": 1024
-      }
-    },
-    {
-      "src": "server/api/maya/chats.ts",
-      "use": "@vercel/node",
-      "config": {
-        "maxDuration": 30,
-        "memory": 512
-      }
-    },
-    {
-      "src": "server/api/maya/chat-history.ts",
-      "use": "@vercel/node",
-      "config": {
-        "maxDuration": 30,
-        "memory": 512
-      }
-    },
-    {
-      "src": "server/api/maya/status.ts",
-      "use": "@vercel/node",
-      "config": {
-        "maxDuration": 30,
-        "memory": 512
-      }
-    },
-    {
-      "src": "server/api/maya/models.ts",
-      "use": "@vercel/node",
-      "config": {
-        "maxDuration": 10,
-        "memory": 256
-      }
-    },
-    {
-      "src": "server/api/maya/env-check.ts",
-      "use": "@vercel/node",
-      "config": {
-        "maxDuration": 10,
-        "memory": 256
-      }
-    },
-    {
-      "src": "server/maya/concepts/index.ts",
-      "use": "@vercel/node",
-      "config": {
-        "maxDuration": 30,
-        "memory": 512
-      }
-    },
-    {
-      "src": "server/maya/images/index.ts",
-      "use": "@vercel/node",
-      "config": {
-        "maxDuration": 30,
-        "memory": 512
-      }
-    },
-    {
-      "src": "server/maya/models/index.ts",
-      "use": "@vercel/node",
-      "config": {
-        "maxDuration": 30,
-        "memory": 512
-      }
-    },
-    {
-      "src": "server/maya/profile/index.ts",
-      "use": "@vercel/node",
-      "config": {
-        "maxDuration": 30,
-        "memory": 512
-      }
-    },
-    {
-      "src": "server/api/gallery/images.ts",
-      "use": "@vercel/node",
-      "config": {
-        "maxDuration": 30,
-        "memory": 512
-      }
-    },
-    {
-      "src": "server/api/gallery/favorites.ts",
-      "use": "@vercel/node",
-      "config": {
-        "maxDuration": 10,
-        "memory": 256
-      }
-    },
-    {
-      "src": "server/api/gallery/favorite-toggle.ts",
-      "use": "@vercel/node",
-      "config": {
-        "maxDuration": 10,
-        "memory": 256
-      }
-    },
-    {
-      "src": "server/api/gallery/delete.ts",
-      "use": "@vercel/node",
-      "config": {
-        "maxDuration": 10,
-        "memory": 256
-      }
-    },
-    {
-      "src": "server/maya/payments/index.ts",
-      "use": "@vercel/node",
-      "config": {
-        "maxDuration": 60,
-        "memory": 1024
-      }
-    },
-    {
-      "src": "server/[...route].ts",
-      "use": "@vercel/node",
-      "config": {
-        "maxDuration": 60,
-        "memory": 1024,
-        "includeFiles": [
-          "server/**",
-          "shared/**", 
-          "drizzle/**",
-          ".env*",
-          "tsconfig*.json",
-          "package.json",
-          "server/storage.ts",
-          "server/drizzle.ts",
-          "server/stack-auth.ts",
-          "shared/schema.ts"
-        ]
-      }
-    },
-    {
-      "src": "server/webhooks/stack.ts",
-      "use": "@vercel/node",
-      "config": {
-        "maxDuration": 30,
-        "memory": 512
-      }
-    },
-    {
-      "src": "server/webhooks/replicate.ts",
-      "use": "@vercel/node",
-      "config": {
-        "maxDuration": 30,
-        "memory": 512
-      }
-    },
-    {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "buildCommand": "npm run vercel-build:safe",
-        "outputDirectory": "client/dist",
-        "installCommand": "npm install --force"
-      }
+    "server/[...route].ts": {
+      "maxDuration": 60,
+      "memory": 1024
     }
-  ],
+  },
   "rewrites": [
-    {
-      "source": "/api/me",
-      "destination": "/server/api/me.ts"
-    },
-    {
-      "source": "/api/health",
-      "destination": "/server/health.ts"
-    },
-    {
-      "source": "/api/me",
-      "destination": "/server/api/me.ts"
-    },
-    {
-      "source": "/api/auth/user",
-      "destination": "/server/api/auth/user.ts"
-    },
-    {
-      "source": "/api/profile",
-      "destination": "/server/api/profile.ts"
-    },
-    {
-      "source": "/api/auth/auto-register",
-      "destination": "/server/api/auth/auto-register.ts"
-    },
-    {
-      "source": "/api/user/update-gender",
-      "destination": "/server/api/user/update-gender.ts"
-    },
-    {
-      "source": "/api/user-model",
-      "destination": "/server/api/training/user-model.ts"
-    },
-    {
-      "source": "/api/training/status",
-      "destination": "/server/api/training/status.ts"
-    },
-    {
-      "source": "/api/training-progress/(.*)",
-      "destination": "/server/api/training/progress.ts"
-    },
-    {
-      "source": "/api/maya/chat",
-      "destination": "/server/api/maya/chat.ts"
-    },
-    {
-      "source": "/api/maya/generate",
-      "destination": "/server/api/maya/generate.ts"
-    },
-    {
-      "source": "/api/maya/heart-image",
-      "destination": "/server/api/maya/heart-image.ts"
-    },
-    {
-      "source": "/api/maya-chats",
-      "destination": "/server/api/maya/chats.ts"
-    },
-    {
-      "source": "/api/maya/chat-history",
-      "destination": "/server/api/maya/chat-history.ts"
-    },
-    {
-      "source": "/api/maya/status",
-      "destination": "/server/api/maya/status.ts"
-    },
-    {
-      "source": "/api/maya/models",
-      "destination": "/server/api/maya/models.ts"
-    },
-    {
-      "source": "/api/maya/env-check",
-      "destination": "/server/api/maya/env-check.ts"
-    },
-    {
-      "source": "/api/maya/concepts",
-      "destination": "/server/maya/concepts/index.ts"
-    },
-    {
-      "source": "/api/maya/concepts/(.*)",
-      "destination": "/server/maya/concepts/index.ts"
-    },
-    {
-      "source": "/api/maya/images",
-      "destination": "/server/maya/images/index.ts"
-    },
-    {
-      "source": "/api/maya/images/(.*)",
-      "destination": "/server/maya/images/index.ts"
-    },
-    {
-      "source": "/api/maya/user-models",
-      "destination": "/server/maya/models/index.ts"
-    },
-    {
-      "source": "/api/maya/user-models/(.*)",
-      "destination": "/server/maya/models/index.ts"
-    },
-    {
-      "source": "/api/maya/profile",
-      "destination": "/server/maya/profile/index.ts"
-    },
-    {
-      "source": "/api/maya/payments",
-      "destination": "/server/maya/payments/index.ts"
-    },
-    {
-      "source": "/api/maya/payments/(.*)",
-      "destination": "/server/maya/payments/index.ts"
-    },
-    {
-      "source": "/api/cron/(.*)",
-      "destination": "/server/[...route].ts"
-    },
-    {
-      "source": "/api/maya/(.*)",
-      "destination": "/server/[...route].ts"
-    },
-    {
-      "source": "/api/admin/(.*)",
-      "destination": "/server/[...route].ts"
-    },
-    {
-      "source": "/api/video/(.*)",
-      "destination": "/server/[...route].ts"
-    },
-    {
-      "source": "/api/auth/(.*)",
-      "destination": "/server/[...route].ts"
-    },
-    {
-      "source": "/api/webhooks/stack",
-      "destination": "/server/webhooks/stack.ts"
-    },
-    {
-      "source": "/api/webhooks/replicate",
-      "destination": "/server/webhooks/replicate.ts"
-    },
-    {
-      "source": "/api/handler/(.*)",
-      "destination": "/server/[...route].ts"
-    },
-    {
-      "source": "/api/user-model",
-      "destination": "/server/[...route].ts"
-    },
-    {
-      "source": "/api/ai-images",
-      "destination": "/server/[...route].ts"
-    },
-    {
-      "source": "/api/onboarding",
-      "destination": "/server/[...route].ts"
-    },
-    {
-      "source": "/api/subscription",
-      "destination": "/server/[...route].ts"
-    },
-    {
-      "source": "/api/subscription/(.*)",
-      "destination": "/server/[...route].ts"
-    },
-    {
-      "source": "/api/brandbook",
-      "destination": "/server/[...route].ts"
-    },
-    {
-      "source": "/api/generated-images",
-      "destination": "/server/[...route].ts"
-    },
-    {
-      "source": "/api/start-model-training",
-      "destination": "/server/[...route].ts"
-    },
-    {
-      "source": "/api/training-status",
-      "destination": "/server/[...route].ts"
-    },
-    {
-      "source": "/api/training/(.*)",
-      "destination": "/server/[...route].ts"
-    },
-    {
-      "source": "/api/gallery-images",
-      "destination": "/server/api/gallery/images.ts"
-    },
-    {
-      "source": "/api/gallery",
-      "destination": "/server/api/gallery/images.ts"
-    },
-    {
-      "source": "/api/images/favorites",
-      "destination": "/server/api/gallery/favorites.ts"
-    },
-    {
-      "source": "/api/images/(\\d+)/favorite",
-      "destination": "/server/api/gallery/favorite-toggle.ts"
-    },
-    {
-      "source": "/api/ai-images/(\\d+)",
-      "destination": "/server/api/gallery/delete.ts"
-    },
-    {
-      "source": "/api/images/(.*)",
-      "destination": "/server/[...route].ts"
-    },
-    {
-      "source": "/api/usage/(.*)",
-      "destination": "/server/[...route].ts"
-    },
-    {
-      "source": "/api/save-to-gallery",
-      "destination": "/server/[...route].ts"
-    },
+    {"source": "/api/me", "destination": "/server/api/me.ts"},
+    {"source": "/api/health", "destination": "/server/health.ts"},
+    {"source": "/api/auth/user", "destination": "/server/api/auth/user.ts"},
+    {"source": "/api/profile", "destination": "/server/api/profile.ts"},
+    {"source": "/api/auth/auto-register", "destination": "/server/api/auth/auto-register.ts"},
+    {"source": "/api/user/update-gender", "destination": "/server/api/user/update-gender.ts"},
+    {"source": "/api/user-model", "destination": "/server/api/training/user-model.ts"},
+    {"source": "/api/training/status", "destination": "/server/api/training/status.ts"},
+    {"source": "/api/training-progress/(.*)", "destination": "/server/api/training/progress.ts"},
+    {"source": "/api/maya/chat", "destination": "/server/api/maya/chat.ts"},
+    {"source": "/api/maya/generate", "destination": "/server/api/maya/generate.ts"},
+    {"source": "/api/maya/heart-image", "destination": "/server/api/maya/heart-image.ts"},
+    {"source": "/api/maya-chats", "destination": "/server/api/maya/chats.ts"},
+    {"source": "/api/maya/chat-history", "destination": "/server/api/maya/chat-history.ts"},
+    {"source": "/api/maya/status", "destination": "/server/api/maya/status.ts"},
+    {"source": "/api/maya/models", "destination": "/server/api/maya/models.ts"},
+    {"source": "/api/maya/env-check", "destination": "/server/api/maya/env-check.ts"},
+    {"source": "/api/maya/concepts", "destination": "/server/maya/concepts/index.ts"},
+    {"source": "/api/maya/concepts/(.*)", "destination": "/server/maya/concepts/index.ts"},
+    {"source": "/api/maya/images", "destination": "/server/maya/images/index.ts"},
+    {"source": "/api/maya/images/(.*)", "destination": "/server/maya/images/index.ts"},
+    {"source": "/api/maya/user-models", "destination": "/server/maya/models/index.ts"},
+    {"source": "/api/maya/user-models/(.*)", "destination": "/server/maya/models/index.ts"},
+    {"source": "/api/maya/profile", "destination": "/server/maya/profile/index.ts"},
+    {"source": "/api/maya/payments", "destination": "/server/maya/payments/index.ts"},
+    {"source": "/api/maya/payments/(.*)", "destination": "/server/maya/payments/index.ts"},
+    {"source": "/api/gallery-images", "destination": "/server/api/gallery/images.ts"},
+    {"source": "/api/gallery", "destination": "/server/api/gallery/images.ts"},
+    {"source": "/api/images/favorites", "destination": "/server/api/gallery/favorites.ts"},
+    {"source": "/api/images/(\\d+)/favorite", "destination": "/server/api/gallery/favorite-toggle.ts"},
+    {"source": "/api/ai-images/(\\d+)", "destination": "/server/api/gallery/delete.ts"},
+    {"source": "/api/webhooks/stack", "destination": "/server/webhooks/stack.ts"},
+    {"source": "/api/webhooks/replicate", "destination": "/server/webhooks/replicate.ts"},
+    {"source": "/api/cron/(.*)", "destination": "/server/[...route].ts"},
+    {"source": "/api/maya/(.*)", "destination": "/server/[...route].ts"},
+    {"source": "/api/admin/(.*)", "destination": "/server/[...route].ts"},
+    {"source": "/api/video/(.*)", "destination": "/server/[...route].ts"},
+    {"source": "/api/auth/(.*)", "destination": "/server/[...route].ts"},
+    {"source": "/api/handler/(.*)", "destination": "/server/[...route].ts"},
+    {"source": "/api/user-model", "destination": "/server/[...route].ts"},
+    {"source": "/api/ai-images", "destination": "/server/[...route].ts"},
+    {"source": "/api/onboarding", "destination": "/server/[...route].ts"},
+    {"source": "/api/subscription", "destination": "/server/[...route].ts"},
+    {"source": "/api/subscription/(.*)", "destination": "/server/[...route].ts"},
+    {"source": "/api/brandbook", "destination": "/server/[...route].ts"},
+    {"source": "/api/generated-images", "destination": "/server/[...route].ts"},
+    {"source": "/api/start-model-training", "destination": "/server/[...route].ts"},
+    {"source": "/api/training-status", "destination": "/server/[...route].ts"},
+    {"source": "/api/training/(.*)", "destination": "/server/[...route].ts"},
+    {"source": "/api/images/(.*)", "destination": "/server/[...route].ts"},
+    {"source": "/api/usage/(.*)", "destination": "/server/[...route].ts"},
+    {"source": "/api/save-to-gallery", "destination": "/server/[...route].ts"},
     {
       "source": "/(app|maya|simple-training|training|auth-success|terms|privacy|sign-in|sign-up|magic-link|forgot-password|password-reset|business|ai-command-center)",
       "destination": "/index.html"
@@ -492,135 +94,46 @@
       "source": "/(app|maya|simple-training|training|auth-success|terms|privacy|sign-in|sign-up|magic-link|forgot-password|password-reset|business|ai-command-center)/",
       "destination": "/index.html"
     },
-    {
-      "source": "/app/(.*)",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/handler/(.*)",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/flatlay-luxury-planning.jpg",
-      "destination": "/flatlay-luxury-planning.jpg"
-    },
-    {
-      "source": "/gallery-luxury-workspace.jpg",
-      "destination": "/gallery-luxury-workspace.jpg"
-    },
-    {
-      "source": "/hero-homepage.png",
-      "destination": "/hero-homepage.png"
-    },
-    {
-      "source": "/hero-about.png",
-      "destination": "/hero-about.png"
-    },
-    {
-      "source": "/hero-dashboard.png",
-      "destination": "/hero-dashboard.png"
-    },
-    {
-      "source": "/hero-luxury.png",
-      "destination": "/hero-luxury.png"
-    },
-    {
-      "source": "/favicon.png",
-      "destination": "/favicon.png"
-    },
-    {
-      "source": "/icon-192.png",
-      "destination": "/icon-192.png"
-    },
-    {
-      "source": "/icon-512.png",
-      "destination": "/icon-512.png"
-    },
-    {
-      "source": "/manifest.json",
-      "destination": "/manifest.json"
-    }
+    {"source": "/app/(.*)", "destination": "/index.html"},
+    {"source": "/handler/(.*)", "destination": "/index.html"}
   ],
   "headers": [
     {
       "source": "/static/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=31536000, immutable"
-        }
-      ]
+      "headers": [{"key": "Cache-Control", "value": "public, max-age=31536000, immutable"}]
     },
     {
       "source": "/assets/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=31536000, immutable"
-        }
-      ]
+      "headers": [{"key": "Cache-Control", "value": "public, max-age=31536000, immutable"}]
     },
     {
       "source": "/api/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "no-store"
-        }
-      ]
-    },
-    {
-      "source": "/(.*)\\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|webp|avif)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=31536000, immutable"
-        }
-      ]
-    },
-    {
-      "source": "/((?!api).)*",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=0, must-revalidate"
-        },
-        {
-          "key": "X-Frame-Options",
-          "value": "DENY"
-        },
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        },
-        {
-          "key": "Referrer-Policy",
-          "value": "strict-origin-when-cross-origin"
-        },
-        {
-          "key": "Permissions-Policy",
-          "value": "camera=(), microphone=(), geolocation=()"
-        }
-      ]
+      "headers": [{"key": "Cache-Control", "value": "no-store"}]
     }
+  ],
+  "redirects": [
+    {"source": "/gallery-luxury-workspace.jpg", "destination": "/gallery-luxury-workspace.jpg", "permanent": true},
+    {"source": "/hero-homepage.png", "destination": "/hero-homepage.png", "permanent": true},
+    {"source": "/hero-about.png", "destination": "/hero-about.png", "permanent": true},
+    {"source": "/hero-dashboard.png", "destination": "/hero-dashboard.png", "permanent": true},
+    {"source": "/hero-luxury.png", "destination": "/hero-luxury.png", "permanent": true},
+    {"source": "/favicon.png", "destination": "/favicon.png", "permanent": true},
+    {"source": "/icon-192.png", "destination": "/icon-192.png", "permanent": true},
+    {"source": "/icon-512.png", "destination": "/icon-512.png", "permanent": true},
+    {"source": "/manifest.json", "destination": "/manifest.json", "permanent": true}
   ],
   "crons": [
     {
-      "path": "/api/cron/training-completion-monitor",
-      "schedule": "*/2 * * * *"
+      "path": "/api/cron/check-training",
+      "schedule": "*/5 * * * *"
     }
   ],
-  "build": {
-    "env": {
-      "VERCEL_FORCE_NO_BUILD_CACHE": "1",
-      "BUILD_TIMESTAMP": "2025-10-07-20-00-DEBUG"
-    }
+  "env": {
+    "TURBO_TELEMETRY_DISABLED": "1"
   },
-  "git": {
-    "deploymentEnabled": {
-      "main": true,
-      "develop": false
-    }
+  "deploymentEnabled": {
+    "main": true,
+    "develop": false
   },
   "github": {
     "autoAlias": false,

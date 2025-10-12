@@ -1,0 +1,59 @@
+# Development and Test Files
+node_modules
+.git
+.github
+tests/
+test-results/
+playwright-report/
+*.test.ts
+*.spec.ts
+*.test.tsx
+*.spec.tsx
+__tests__/
+coverage/
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# Development Tools
+.storybook/
+stories/
+.vscode/
+.idea/
+*.log
+*.logs
+
+# Build artifacts (only needed for local dev)
+dist-test/
+
+# Environment files (handled by Vercel dashboard)
+.env.local
+.env.development
+.env.test
+
+# Temporary files
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Package manager files (Vercel handles this)
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# TypeScript incremental build info
+*.tsbuildinfo
+
+# Analysis and debugging files
+MAYA-*.md
+OAUTH-*.md
+PRODUCTION-*.md
+PERFORMANCE-*.md
+STACK-AUTH-*.md
+README-*.md
+APP-STYLEGUIDE
+replit.md
