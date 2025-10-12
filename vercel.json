@@ -434,7 +434,7 @@
     },
     {
       "source": "/api/gallery",
-      "destination": "/server/[...route].ts"
+      "destination": "/server/api/gallery/images.ts"
     },
     {
       "source": "/api/images/(.*)",
