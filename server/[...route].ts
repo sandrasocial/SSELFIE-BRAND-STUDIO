@@ -1,7 +1,20 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { withAuth } from './_middleware/auth.js';
 import type { AuthenticatedRequest } from './_shared/auth-types.js';
+import { adaptExpressRouter } from './_utils/express-to-vercel-adapter.js';
+
+// Import route modules
+import authRouter from './routes/modules/auth.js';
+
 export const config = { runtime: 'nodejs' } as const;
+
+// Auth routes handled by auth.ts module
+const AUTH_ROUTES = [
+  '/api/me',
+  '/api/auth/user',
+  '/api/profile',
+  '/api/user/update-gender'
+];
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Set CORS headers
@@ -288,6 +301,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     req.url.includes('/api/training') ||
     req.url.includes('/api/user-model')
   );
+
+  // 🔄 AUTH ROUTES: Handle via auth.ts module (Phase 1 Migration)
+  const isAuthRoute = req.url && AUTH_ROUTES.some(route => req.url === route || req.url?.startsWith(route));
+  if (isAuthRoute) {
+    console.log(`🔄 [AUTH MODULE] Handling: ${req.url}`);
+    const authHandler = adaptExpressRouter(authRouter);
+    return authHandler(req, res);
+  }
 
   // Skip auth middleware entirely for public routes
   if (isPublicRoute) {
