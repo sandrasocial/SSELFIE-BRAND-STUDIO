@@ -18,6 +18,54 @@
       }
     },
     {
+      "src": "server/api/me.ts",
+      "use": "@vercel/node",
+      "config": {
+        "maxDuration": 25,
+        "memory": 512
+      }
+    },
+    {
+      "src": "server/api/profile.ts",
+      "use": "@vercel/node",
+      "config": {
+        "maxDuration": 25,
+        "memory": 512
+      }
+    },
+    {
+      "src": "server/api/auth/user.ts",
+      "use": "@vercel/node",
+      "config": {
+        "maxDuration": 25,
+        "memory": 512
+      }
+    },
+    {
+      "src": "server/api/auth/auto-register.ts",
+      "use": "@vercel/node",
+      "config": {
+        "maxDuration": 25,
+        "memory": 512
+      }
+    },
+    {
+      "src": "server/api/auth/update-profile.ts",
+      "use": "@vercel/node",
+      "config": {
+        "maxDuration": 25,
+        "memory": 512
+      }
+    },
+    {
+      "src": "server/api/user/update-gender.ts",
+      "use": "@vercel/node",
+      "config": {
+        "maxDuration": 25,
+        "memory": 512
+      }
+    },
+    {
       "src": "server/[...route].ts",
       "use": "@vercel/node",
       "config": {
@@ -66,11 +114,31 @@
   "rewrites": [
     {
       "source": "/api/me",
-      "destination": "/server/me.ts"
+      "destination": "/server/api/me.ts"
     },
     {
       "source": "/api/health",
       "destination": "/server/health.ts"
+    },
+    {
+      "source": "/api/me",
+      "destination": "/server/api/me.ts"
+    },
+    {
+      "source": "/api/auth/user",
+      "destination": "/server/api/auth/user.ts"
+    },
+    {
+      "source": "/api/profile",
+      "destination": "/server/api/profile.ts"
+    },
+    {
+      "source": "/api/auth/auto-register",
+      "destination": "/server/api/auth/auto-register.ts"
+    },
+    {
+      "source": "/api/user/update-gender",
+      "destination": "/server/api/user/update-gender.ts"
     },
     {
       "source": "/api/cron/(.*)",
