@@ -1,4 +1,4 @@
-import { MagicLinkSignIn } from '@stackframe/stack';
+import { MagicLinkSignIn } from '@stackframe/react';
 
 export function MagicLinkSignInPage() {
   return (

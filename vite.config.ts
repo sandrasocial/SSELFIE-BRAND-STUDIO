@@ -44,11 +44,6 @@ export default defineConfig(({ mode }) => {
         react: path.resolve(__dirname, "node_modules/react"),
         "react-dom": path.resolve(__dirname, "node_modules/react-dom"),
 
-        // Stub Next.js modules that Stack Auth tries to import (but never uses in React apps)
-        'next/headers': path.resolve(__dirname, "client/src/stubs/next-headers.ts"),
-        'next/navigation': path.resolve(__dirname, "client/src/stubs/next-navigation.ts"),
-        'next/router': path.resolve(__dirname, "client/src/stubs/next-router.ts"),
-
         // your existing aliases (unchanged)
         "@": path.resolve(__dirname, "client", "src"),
         "@shared": path.resolve(__dirname, "shared"),
