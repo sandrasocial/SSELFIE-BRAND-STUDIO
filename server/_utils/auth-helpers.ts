@@ -8,14 +8,10 @@
 import type { VercelRequest } from '@vercel/node';
 import { jwtVerify, createRemoteJWKSet } from 'jose';
 import { storage } from '../storage.js';
+import { STACK_PROJECT_ID, STACK_JWKS_URL, STACK_ISSUER } from '../config/env.js';
 
-// Stack Auth configuration
-const STACK_AUTH_PROJECT_ID = process.env.STACK_AUTH_PROJECT_ID || process.env.VITE_STACK_PROJECT_ID || '253d7343-a0d4-43a1-be5c-822f590d40be';
-const STACK_AUTH_API_URL = 'https://api.stack-auth.com/api/v1';
-const JWKS_URL = `${STACK_AUTH_API_URL}/projects/${STACK_AUTH_PROJECT_ID}/.well-known/jwks.json`;
-
-// JWKS resolver
-const remoteJwks = createRemoteJWKSet(new URL(JWKS_URL));
+// JWKS resolver (uses centralized environment configuration)
+const remoteJwks = createRemoteJWKSet(new URL(STACK_JWKS_URL));
 
 /**
  * Verify JWT token and get payload
@@ -23,8 +19,8 @@ const remoteJwks = createRemoteJWKSet(new URL(JWKS_URL));
 async function verifyJWTToken(token: string): Promise<any> {
   try {
     const { payload } = await jwtVerify(token, remoteJwks, {
-      issuer: `${STACK_AUTH_API_URL}/projects/${STACK_AUTH_PROJECT_ID}`,
-      audience: STACK_AUTH_PROJECT_ID,
+      issuer: STACK_ISSUER,
+      audience: STACK_PROJECT_ID,
     });
     return payload;
   } catch (error) {
