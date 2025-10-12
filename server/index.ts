@@ -1558,80 +1558,9 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
       }
     }
 
-    // Gallery endpoints
-    if (req.url === '/api/gallery' || req.url?.startsWith('/api/gallery?') || req.url === '/api/gallery-images' || req.url?.startsWith('/api/gallery-images?')) {
-      const t = logStart('GET /api/gallery-images');
-      
-      try {
-        if (!checkCircuitBreaker()) {
-          console.warn('⚠️ Circuit breaker open for gallery-images');
-          return res.status(503).json({
-            images: [],
-            total: 0,
-            message: 'Service temporarily unavailable',
-            code: 'CIRCUIT_BREAKER_OPEN'
-          });
-        }
-
-        const user = await getAuthenticatedUser();
-        
-        const { storage } = await import('../server/storage.js');
-        
-        const [aiImages, generatedImages] = await Promise.all([
-          withTimeout(storage.getAIImages(user.id as string), 2500, 'getAIImages').catch(err => {
-            console.warn('⚠️ AI images fetch failed:', (err as Error).message);
-            recordCircuitBreakerFailure();
-            return [];
-          }),
-          withTimeout(storage.getGeneratedImages(user.id as string), 2500, 'getGeneratedImages').catch(err => {
-            console.warn('⚠️ Generated images fetch failed:', (err as Error).message);
-            recordCircuitBreakerFailure();
-            return [];
-          })
-        ]);
-        
-        if (aiImages.length > 0 || generatedImages.length > 0) {
-          recordCircuitBreakerSuccess();
-        }
-        
-        
-        const galleryImages = [
-          ...aiImages.map(img => ({
-            id: img.id.toString(),
-            userId: img.userId,
-            type: 'ai_generated',
-            title: img.style || 'AI Generated Image',
-            description: img.prompt || 'AI-generated image',
-            imageUrl: img.imageUrl,
-            createdAt: (img.createdAt || new Date()).toISOString(),
-            tags: img.style ? [img.style] : ['ai-generated']
-          })),
-          ...generatedImages.map(img => ({
-            id: `gen_${img.id}`,
-            userId: img.userId,
-            type: 'generated',
-            title: 'Generated Image',
-            description: img.prompt || 'Generated image',
-            imageUrl: img.selectedUrl || (img.imageUrls ? JSON.parse(img.imageUrls)[0] : null),
-            createdAt: (img.createdAt || new Date()).toISOString(),
-            tags: [img.category || 'generated']
-          }))
-        ];
-        
-        galleryImages.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-        
-        res.setHeader('Cache-Control', 'no-store');
-        t.end('ok', { count: galleryImages.length });
-        return res.status(200).json(galleryImages);
-        
-      } catch (error) {
-        t.end('error', { error: (error as Error).message });
-        return res.status(500).json({ 
-          message: 'Failed to fetch gallery images',
-          error: (error as Error).message
-        });
-      }
-    }
+    // ✅ REMOVED GALLERY ENDPOINTS - Now handled by server/routes/modules/gallery.ts (Day 4, Phase 3)
+    // - /api/gallery
+    // - /api/gallery-images
 
     // ✅ REMOVED /api/user/update-gender ENDPOINT - Now handled by server/routes/modules/auth.ts
 
@@ -1668,62 +1597,10 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
       }
     }
 
-    // Favorites endpoints
-    if (req.url === '/api/images/favorites' || req.url?.startsWith('/api/images/favorites?')) {
-      try {
-        const user = await getAuthenticatedUser();
-        const { storage } = await import('../server/storage.js');
-        const ai = await withTimeout(storage.getAIImages(user.id as string), 5000, 'getAIImages') as unknown as AiImage[];
-        const favIds = ai
-          .filter((img: AiImage) => Boolean(img.isFavorite || img.isSelected))
-          .map((img: AiImage) => img.id);
-        res.setHeader('Cache-Control', 'no-store');
-        return res.status(200).json({ favorites: favIds });
-      } catch {
-        return res.status(200).json({ favorites: [] });
-      }
-    }
-
-    if (req.url?.startsWith('/api/images/') && req.url?.endsWith('/favorite')) {
-      if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-      
-      try {
-        const user = await getAuthenticatedUser();
-        const url = new (globalThis as any).URL(req.url || '', `http://${req.headers.host}`);
-        const parts = url.pathname.split('/');
-        const idStr = parts[3];
-        const imageId = parseInt(idStr, 10);
-        if (!imageId || Number.isNaN(imageId)) return res.status(400).json({ error: 'Invalid image id' });
-        
-        const { storage } = await import('../server/storage.js');
-        const img = await withTimeout(storage.getAIImage(user.id as string, imageId), 4000, 'getAIImage') as unknown as AiImage | undefined;
-        const next = !(img?.isFavorite ?? false);
-        await withTimeout(storage.updateAIImage(imageId, { isFavorite: next } as Partial<AiImage>), 4000, 'updateAIImage');
-        res.setHeader('Cache-Control', 'no-store');
-        return res.status(200).json({ ok: true, id: imageId, isFavorite: next });
-      } catch (error) {
-        return res.status(500).json({ error: 'Failed to toggle favorite', message: (error as Error).message });
-      }
-    }
-
-    // Delete AI image endpoint
-    if (req.method === 'DELETE' && req.url?.startsWith('/api/ai-images/')) {
-      try {
-        const user = await getAuthenticatedUser();
-        const url = new (globalThis as any).URL(req.url || '', `http://${req.headers.host}`);
-        const parts = url.pathname.split('/');
-        const idStr = parts[3];
-        const imageId = parseInt(idStr, 10);
-        if (!imageId || Number.isNaN(imageId)) return res.status(400).json({ error: 'Invalid image id' });
-        
-        const { storage } = await import('../server/storage.js');
-        const ok = await storage.deleteAIImage(user.id as string, imageId);
-        res.setHeader('Cache-Control', 'no-store');
-        return res.status(200).json({ ok, id: imageId });
-      } catch (error) {
-        return res.status(500).json({ error: 'Failed to delete image', message: (error as Error).message });
-      }
-    }
+    // ✅ REMOVED FAVORITES ENDPOINTS - Now handled by server/routes/modules/gallery.ts (Day 4, Phase 3)
+    // - GET /api/images/favorites
+    // - POST /api/images/:id/favorite
+    // - DELETE /api/ai-images/:id
 
     // 🔥 CRITICAL FIX: Stack Auth API Proxy for /api/v1/ requests
     if (req.url?.startsWith('/api/v1/')) {
