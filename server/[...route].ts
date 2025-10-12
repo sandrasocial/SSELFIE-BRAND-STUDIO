@@ -7,6 +7,7 @@ import { adaptExpressRouter } from './_utils/express-to-vercel-adapter.js';
 import authRouter from './routes/modules/auth.js';
 import trainingRouter from './routes/modules/training.js';
 import galleryRouter from './routes/modules/gallery.js';
+import mayaRouter from './routes/modules/maya.js';
 
 export const config = { runtime: 'nodejs' } as const;
 
@@ -32,6 +33,21 @@ const GALLERY_ROUTES = [
   '/api/images/favorites',
   '/api/images',
   '/api/ai-images'
+];
+
+// Maya routes handled by maya.ts module (Phase 4 Migration - Day 5)
+const MAYA_ROUTES = [
+  '/api/maya/get-video-prompt',
+  '/api/maya/generate',
+  '/api/maya/heart-image',
+  '/api/maya/status',
+  '/api/maya/models',
+  '/api/maya/env-check',
+  '/api/maya/chat',
+  '/api/maya-chat',
+  '/api/maya-generate',
+  '/api/maya-chats',
+  '/api/maya/chat-history'
 ];
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -342,6 +358,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     console.log(`🔄 [GALLERY MODULE] Handling: ${req.url}`);
     const galleryHandler = adaptExpressRouter(galleryRouter);
     return galleryHandler(req, res);
+  }
+
+  // 🔄 MAYA ROUTES: Handle via maya.ts module (Phase 4 Migration - Day 5)
+  const isMayaRoute = req.url && MAYA_ROUTES.some(route => req.url === route || req.url?.startsWith(route));
+  if (isMayaRoute) {
+    console.log(`🔄 [MAYA MODULE] Handling: ${req.url}`);
+    const mayaHandler = adaptExpressRouter(mayaRouter);
+    return mayaHandler(req, res);
   }
 
   // Skip auth middleware entirely for public routes
