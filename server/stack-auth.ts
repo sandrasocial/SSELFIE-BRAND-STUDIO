@@ -245,6 +245,15 @@ export async function verifyStackAuthToken(req: Request, res: Response, next: Ne
     const userEmail = userInfo?.email || userInfo?.primary_email || userInfo?.primaryEmail || userInfo?.email_address || userInfo?.user_email || '';
     const userName = userInfo?.displayName || userInfo?.display_name || userInfo?.name || userInfo?.given_name || userInfo?.full_name || 'User';
     
+    // 🔍 ENHANCED DEBUGGING: Log FULL JWT payload to debug ID mismatch
+    console.log('🔍 FULL JWT Payload:', JSON.stringify(userInfo, null, 2));
+    console.log('🔍 Extracted IDs:', {
+      sub: userInfo?.sub,
+      user_id: userInfo?.user_id,
+      id: userInfo?.id,
+      finalUserId: userId
+    });
+    
     // 🔍 ENHANCED DEBUGGING: Log all available fields to identify email field
     console.log('🔍 Available userInfo fields:', {
       email: userInfo.email,
