@@ -66,6 +66,30 @@
       }
     },
     {
+      "src": "server/api/training/user-model.ts",
+      "use": "@vercel/node",
+      "config": {
+        "maxDuration": 30,
+        "memory": 512
+      }
+    },
+    {
+      "src": "server/api/training/status.ts",
+      "use": "@vercel/node",
+      "config": {
+        "maxDuration": 25,
+        "memory": 512
+      }
+    },
+    {
+      "src": "server/api/training/progress.ts",
+      "use": "@vercel/node",
+      "config": {
+        "maxDuration": 25,
+        "memory": 512
+      }
+    },
+    {
       "src": "server/[...route].ts",
       "use": "@vercel/node",
       "config": {
@@ -139,6 +163,18 @@
     {
       "source": "/api/user/update-gender",
       "destination": "/server/api/user/update-gender.ts"
+    },
+    {
+      "source": "/api/user-model",
+      "destination": "/server/api/training/user-model.ts"
+    },
+    {
+      "source": "/api/training/status",
+      "destination": "/server/api/training/status.ts"
+    },
+    {
+      "source": "/api/training-progress/(.*)",
+      "destination": "/server/api/training/progress.ts"
     },
     {
       "source": "/api/cron/(.*)",
