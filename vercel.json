@@ -131,10 +131,6 @@
   "env": {
     "TURBO_TELEMETRY_DISABLED": "1"
   },
-  "deploymentEnabled": {
-    "main": true,
-    "develop": false
-  },
   "github": {
     "autoAlias": false,
     "enabled": true,
