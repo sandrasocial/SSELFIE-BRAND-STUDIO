@@ -90,6 +90,54 @@
       }
     },
     {
+      "src": "server/api/maya/chat.ts",
+      "use": "@vercel/node",
+      "config": {
+        "maxDuration": 60,
+        "memory": 1024
+      }
+    },
+    {
+      "src": "server/api/maya/generate.ts",
+      "use": "@vercel/node",
+      "config": {
+        "maxDuration": 60,
+        "memory": 1024
+      }
+    },
+    {
+      "src": "server/api/maya/heart-image.ts",
+      "use": "@vercel/node",
+      "config": {
+        "maxDuration": 60,
+        "memory": 1024
+      }
+    },
+    {
+      "src": "server/api/maya/chats.ts",
+      "use": "@vercel/node",
+      "config": {
+        "maxDuration": 30,
+        "memory": 512
+      }
+    },
+    {
+      "src": "server/api/maya/chat-history.ts",
+      "use": "@vercel/node",
+      "config": {
+        "maxDuration": 30,
+        "memory": 512
+      }
+    },
+    {
+      "src": "server/api/maya/status.ts",
+      "use": "@vercel/node",
+      "config": {
+        "maxDuration": 30,
+        "memory": 512
+      }
+    },
+    {
       "src": "server/[...route].ts",
       "use": "@vercel/node",
       "config": {
@@ -175,6 +223,30 @@
     {
       "source": "/api/training-progress/(.*)",
       "destination": "/server/api/training/progress.ts"
+    },
+    {
+      "source": "/api/maya/chat",
+      "destination": "/server/api/maya/chat.ts"
+    },
+    {
+      "source": "/api/maya/generate",
+      "destination": "/server/api/maya/generate.ts"
+    },
+    {
+      "source": "/api/maya/heart-image",
+      "destination": "/server/api/maya/heart-image.ts"
+    },
+    {
+      "source": "/api/maya-chats",
+      "destination": "/server/api/maya/chats.ts"
+    },
+    {
+      "source": "/api/maya/chat-history",
+      "destination": "/server/api/maya/chat-history.ts"
+    },
+    {
+      "source": "/api/maya/status",
+      "destination": "/server/api/maya/status.ts"
     },
     {
       "source": "/api/cron/(.*)",
