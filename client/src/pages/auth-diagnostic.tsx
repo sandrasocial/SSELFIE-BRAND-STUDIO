@@ -80,7 +80,7 @@ export default function AuthDiagnostic() {
           <h2 className="text-xl font-semibold mb-4">Actions</h2>
           <div className="space-x-4">
             <button
-              onClick={() => window.location.href = '/api/auth/logout'}
+              onClick={() => window.location.href = '/api/logout'}
               className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
             >
               Logout

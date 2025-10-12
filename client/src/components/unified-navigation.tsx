@@ -58,7 +58,7 @@ export function UnifiedNavigation({
   ];
 
   const handleLogout = () => {
-    window.location.href = '/api/auth/logout';
+    window.location.href = '/api/logout';
   };
 
   // Unified logo styling using design system
