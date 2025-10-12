@@ -3,6 +3,11 @@
  * Proxies to main handler
  */
 
-import handler from '../server/[...route]';
+import handler from '../server/[...route].js';
 
 export default handler;
+
+export const config = {
+  runtime: 'nodejs20.x',
+  maxDuration: 40,
+};
