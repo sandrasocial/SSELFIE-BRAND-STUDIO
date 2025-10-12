@@ -70,12 +70,14 @@ export default defineConfig(({ mode }) => {
           manualChunks: {
             // Minimal chunking - only separate the most problematic dependencies
             'vendor': ['react', 'react-dom'],
-            'stackauth': ['@stackframe/react', '@stackframe/stack']
+            'stackauth': ['@stackframe/react'] // Only React package, not Next.js
           },
           // Conservative interop settings
           interop: 'compat',
           exports: 'named'
-        }
+        },
+        // Prevent Next.js Stack package from being bundled
+        external: ['@stackframe/stack']
       },
       // Enable source maps for debugging
       sourcemap: mode === 'development',
@@ -98,10 +100,12 @@ export default defineConfig(({ mode }) => {
         "wouter",
         "@stackframe/react"
       ],
+      exclude: ["@stackframe/stack"], // Exclude Next.js package
       force: true
     },
     ssr: {
       noExternal: ["@stackframe/react"],
+      external: ["@stackframe/stack"] // Don't try to SSR the Next.js package
     },
     define: {
       global: 'globalThis',
