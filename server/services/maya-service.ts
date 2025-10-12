@@ -100,9 +100,9 @@ export class MayaService {
       }
 
       // Create new Maya profile using database user ID
-      const newProfile: InsertMayaProfile = {
+      const newProfile = {
         userId: user.id,
-        onboardingStatus: 'pending',
+        onboardingStatus: 'pending' as const,
         onboardingStep: 1,
         completedSteps: [],
         preferences: {
@@ -201,9 +201,9 @@ export class MayaService {
         conversation = foundConversation;
       } else {
         // Create new conversation
-        const newConversation: InsertConversation = {
+        const newConversation = {
           userId: user.id,
-          agentName: 'maya',
+          agentName: 'maya' as const,
           title: `Maya Chat ${new Date().toLocaleDateString()}`,
         };
         conversation = await this.db.createConversation(newConversation);
@@ -545,10 +545,11 @@ export class MayaService {
       }
 
       // Validate user has access using Stack Auth ID
-      const userProfile: MayaProfile = await this.getOrCreateUserProfile(user.stackAuthId);
-      console.log(`🔍 MAYA GENERATION: Profile access - basicGeneration: ${userProfile.featureAccess?.basicGeneration}, monthlyGenerations: ${userProfile.monthlyGenerations}`);
+      const userProfile = await this.getOrCreateUserProfile(user.stackAuthId);
+      const featureAccess = userProfile.featureAccess as Record<string, unknown> | null;
+      console.log(`🔍 MAYA GENERATION: Profile access - basicGeneration: ${featureAccess?.basicGeneration}, monthlyGenerations: ${userProfile.monthlyGenerations}`);
       
-      if (!(userProfile.featureAccess as { basicGeneration?: boolean })?.basicGeneration) {
+      if (!featureAccess?.basicGeneration) {
         console.error(`❌ MAYA GENERATION: User does not have generation access`);
         throw new Error('User does not have generation access');
       }

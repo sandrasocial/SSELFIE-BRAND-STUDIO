@@ -4,7 +4,8 @@
  * Runs continuously to ensure no images are lost due to URL expiration
  */
 
-import { query } from './db.js'
+import { db } from './db.js'
+import { sql as sqlTemplate } from 'drizzle-orm'
 import { getDatabase } from '../shared/database-provider.js'
 import { ImageStorageService } from './image-storage-service.js'
 
@@ -106,11 +107,11 @@ export class MigrationMonitor {
   private async getReplicateImages(limit: number = 20): Promise<any[] | null> {
     try {
       const sql = "SELECT id, user_id, image_url, created_at FROM ai_images WHERE image_url LIKE 'https://replicate.delivery%' AND created_at > NOW() - INTERVAL '24 hours' LIMIT $1";
-      const result = await query(sql, [limit]) as any;
+      const result = await db.execute(sqlTemplate.raw(sql)) as any;
       return result.rows || result;
     } catch (error) {
       // Handle schema mismatches gracefully
-      if (error.message?.includes('column') && error.message?.includes('does not exist')) {
+      if (error instanceof Error && error.message?.includes('column') && error.message?.includes('does not exist')) {
         return null;
       }
       
@@ -125,7 +126,7 @@ export class MigrationMonitor {
   private async updateImageUrl(imageId: number, permanentUrl: string): Promise<void> {
     try {
       const sql = "UPDATE ai_images SET image_url = $1 WHERE id = $2";
-      await query(sql, [permanentUrl, imageId]);
+      await db.execute(sqlTemplate.raw(sql));
 
     } catch (error) {
       console.error(`❌ MIGRATION MONITOR: Error updating image ${imageId}:`, error);
@@ -140,7 +141,7 @@ export class MigrationMonitor {
     try {
       
       const selectSql = "SELECT * FROM ai_images WHERE user_id = $1 AND image_url LIKE 'https://replicate.delivery%'";
-      const result = await query(selectSql, [userId]) as any;
+      const result = await db.execute(sqlTemplate.raw(selectSql)) as any;
       const userImages = result.rows || result;
 
       if (userImages.length === 0) {
@@ -158,7 +159,7 @@ export class MigrationMonitor {
           );
 
           const updateSql = "UPDATE ai_images SET image_url = $1 WHERE id = $2";
-          await query(updateSql, [permanentUrl, image.id]);
+          await db.execute(sqlTemplate.raw(updateSql));
 
 
         } catch (error) {

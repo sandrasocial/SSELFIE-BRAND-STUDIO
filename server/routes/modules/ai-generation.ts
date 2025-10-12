@@ -242,13 +242,13 @@ router.post('/api/ai-images', requireActiveSubscription, asyncHandler(async (req
     );
 
     // Save generation to database
-    const imageData: InsertAiImage = {
+    const imageData = {
       userId,
       prompt,
       imageUrl: result.images[0] || '',
       style: style || 'ai-generated',
       predictionId: result.predictionId
-    };
+    } as InsertAiImage;
     const savedImage = await storage.saveAIImage(imageData);
 
     const responseData: SuccessResponse<{

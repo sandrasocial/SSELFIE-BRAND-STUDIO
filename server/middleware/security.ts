@@ -8,10 +8,10 @@ import { Logger } from '../utils/logger.js';
 import { ALLOWED_EMBED_HOSTS } from '../env.js'
 
 export class SecurityMiddleware {
-  private logger: Logger;
+  private logger: typeof Logger;
 
   constructor() {
-    this.logger = new Logger('SecurityMiddleware');
+    this.logger = Logger;
   }
 
   /**
@@ -79,7 +79,8 @@ export class SecurityMiddleware {
 
         next();
       } catch (error) {
-        this.logger.error('Input validation error', { error: error.message });
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        this.logger.error('Input validation error', { error: errorMessage });
         return res.status(400).json({
           success: false,
           error: { message: 'Input validation failed', code: 'VALIDATION_ERROR' }
