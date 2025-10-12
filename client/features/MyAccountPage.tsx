@@ -1,4 +1,4 @@
-import { AccountSettings } from '@stackframe/stack';
+import { AccountSettings } from '@stackframe/react';
 
 // Replace with your actual icon and content components
 function SettingsIcon() {

@@ -1,4 +1,4 @@
-import { ForgotPassword } from '@stackframe/stack';
+import { ForgotPassword } from '@stackframe/react';
 
 export const MyForgotPassword = () => {
   return (

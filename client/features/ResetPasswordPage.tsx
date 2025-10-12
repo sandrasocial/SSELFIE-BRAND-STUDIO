@@ -1,4 +1,4 @@
-import { PasswordReset } from '@stackframe/stack';
+import { PasswordReset } from '@stackframe/react';
 
 export function ResetPasswordPage(props: { searchParams: Record<string, string> }) {
   return (
