@@ -5,6 +5,7 @@ import { adaptExpressRouter } from './_utils/express-to-vercel-adapter.js';
 
 // Import route modules
 import authRouter from './routes/modules/auth.js';
+import trainingRouter from './routes/modules/training.js';
 
 export const config = { runtime: 'nodejs' } as const;
 
@@ -14,6 +15,13 @@ const AUTH_ROUTES = [
   '/api/auth/user',
   '/api/profile',
   '/api/user/update-gender'
+];
+
+// Training routes handled by training.ts module
+const TRAINING_ROUTES = [
+  '/api/user-model',
+  '/api/training/status',
+  '/api/training-progress'
 ];
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -308,6 +316,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     console.log(`🔄 [AUTH MODULE] Handling: ${req.url}`);
     const authHandler = adaptExpressRouter(authRouter);
     return authHandler(req, res);
+  }
+
+  // 🔄 TRAINING ROUTES: Handle via training.ts module (Phase 2 Migration - Day 3)
+  const isTrainingRoute = req.url && TRAINING_ROUTES.some(route => req.url === route || req.url?.startsWith(route));
+  if (isTrainingRoute) {
+    console.log(`🔄 [TRAINING MODULE] Handling: ${req.url}`);
+    const trainingHandler = adaptExpressRouter(trainingRouter);
+    return trainingHandler(req, res);
   }
 
   // Skip auth middleware entirely for public routes
