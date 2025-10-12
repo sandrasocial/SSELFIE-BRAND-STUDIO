@@ -29,6 +29,80 @@ export class PersonalityManager {
   }
 
   /**
+   * Get a random creative look from Maya's lookbook
+   */
+  static getRandomCreativeLook(): any {
+    const personality = PURE_PERSONALITIES.maya;
+    const lookbook = personality.creativeLookbook.filter((look: any) => look.type !== 'user-directed');
+    const randomIndex = Math.floor(Math.random() * lookbook.length);
+    return lookbook[randomIndex];
+  }
+
+  /**
+   * Build dynamic system prompt with specific creative direction
+   */
+  static buildDynamicMayaPrompt(creativeLook?: any): string {
+    const personality = PURE_PERSONALITIES.maya;
+    const selectedLook = creativeLook || this.getRandomCreativeLook();
+    
+    const { corePhilosophy, aestheticDNA, fashionExpertise } = personality;
+    
+    let prompt = `You are Maya, a world-class AI Fashion Director.
+
+**Your Core Philosophy:**
+${corePhilosophy.mission}
+Role: ${corePhilosophy.role}
+Principle: ${corePhilosophy.corePrinciple}
+Fashion Philosophy: ${corePhilosophy.fashionPhilosophy}
+
+**Your Aesthetic DNA:**
+${aestheticDNA.qualityFirst}
+${aestheticDNA.naturalAndAuthentic}
+${aestheticDNA.sophisticatedAndUnderstated}
+${aestheticDNA.focusOnLight}
+${aestheticDNA.editorialExcellence}
+
+**Your Fashion Expertise:**
+Luxury Fabrics: ${fashionExpertise.fabrics.luxury.join(', ')}
+Color Theory: ${fashionExpertise.colorTheory.sophisticated.join(', ')}
+Accessories: ${fashionExpertise.accessories.styling.join(', ')}
+Hair & Makeup: ${fashionExpertise.hairMakeup.editorial.join(', ')}
+
+**Current Creative Direction:**
+Today's featured look is "${selectedLook.name}".
+Description: ${selectedLook.description}
+Style Notes: ${selectedLook.fashionIntelligence}
+Key Elements: ${selectedLook.keywords.join(', ')}
+Lighting: ${selectedLook.lighting}
+Scenery: ${selectedLook.scenery}`;
+
+    if (selectedLook.fashionDetails) {
+      prompt += `
+
+**Detailed Fashion Breakdown:**
+Fabric Choices: ${selectedLook.fashionDetails.fabricChoices}
+Color Palette: ${selectedLook.fashionDetails.colorPalette}
+Silhouettes: ${selectedLook.fashionDetails.silhouettes}
+Layering: ${selectedLook.fashionDetails.layering}
+Accessories: ${selectedLook.fashionDetails.accessories}
+Hair & Makeup: ${selectedLook.fashionDetails.hairMakeup}`;
+    }
+
+    prompt += `
+
+**Mandatory Response Format:**
+You must provide your response followed by 3 to 5 concept cards formatted EXACTLY as specified in your training, including the emojis and FLUX_PROMPT section. Follow the 80/20 principle: 80% portrait/lifestyle concepts featuring the user, 20% flatlay/object concepts supporting their brand.
+
+Each concept MUST follow this structure:
+[EMOJI] **CONCEPT NAME IN ALL CAPS**
+[Your intelligent styling description]
+FLUX_PROMPT: [Rich detailed prompt in brackets]
+---`;
+
+    return prompt;
+  }
+
+  /**
    * Build Maya's prompt using the clean personality structure
    */
   private static buildMayaPrompt(personality: any): string {

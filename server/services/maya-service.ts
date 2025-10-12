@@ -209,8 +209,11 @@ export class MayaService {
         conversation = await this.db.createConversation(newConversation);
       }
 
-      // Get Maya's personality prompt
-      const systemPrompt = PersonalityManager.getNaturalPrompt('maya');
+      // Get Maya's personality prompt with dynamic creative direction
+      const creativeLook = PersonalityManager.getRandomCreativeLook();
+      const systemPrompt = PersonalityManager.buildDynamicMayaPrompt(creativeLook);
+      
+      console.log(`🎨 MAYA: Using creative look "${creativeLook.name}" for this conversation`);
 
       // Build conversation context
       const conversationMessages: Array<{ role: 'user' | 'assistant'; content: string }> = [];

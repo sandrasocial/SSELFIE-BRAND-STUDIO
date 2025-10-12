@@ -1,8 +1,9 @@
-import React, { createContext, useContext, useReducer, useCallback } from 'react';
+import React, { createContext, useContext, useReducer, useCallback, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '../lib/queryClient.js';
 import { useAuth } from '../hooks/use-auth.js';
 import { useToast } from '../hooks/use-toast.js';
+import { useMayaGeneration } from '../hooks/useMayaGeneration.js';
 import type { ConceptCard } from '../../../shared/types/concept-card.js';
 
 // Validation Functions
@@ -157,6 +158,7 @@ type BrandStudioAction =
   | { type: 'ADD_PENDING_MESSAGE'; payload: string }
   | { type: 'REMOVE_PENDING_MESSAGE'; payload: string }
   | { type: 'UPDATE_CONCEPT_CARDS'; payload: ConceptCard[] }
+  | { type: 'UPDATE_CONCEPT_CARD_STATUS'; payload: { cardId: string; updates: Partial<ConceptCard> } }
   | { type: 'SELECT_CONCEPT_CARD'; payload: string | null }
   | { type: 'SET_ACTIVE_TAB'; payload: 'photo' | 'story' | 'maya' }
   | { type: 'SET_HANDOFF_DATA'; payload: BrandStudioState['handoffData'] }
@@ -217,6 +219,21 @@ function brandStudioReducer(state: BrandStudioState, action: BrandStudioAction):
         conceptCardsById[card.id] = card;
       });
       return { ...state, conceptCardsById };
+      
+    case 'UPDATE_CONCEPT_CARD_STATUS':
+      const existingCard = state.conceptCardsById[action.payload.cardId];
+      if (!existingCard) return state;
+      
+      return {
+        ...state,
+        conceptCardsById: {
+          ...state.conceptCardsById,
+          [action.payload.cardId]: {
+            ...existingCard,
+            ...action.payload.updates
+          }
+        }
+      };
       
     case 'SELECT_CONCEPT_CARD':
       return { ...state, selectedConceptCardId: action.payload };
@@ -304,6 +321,10 @@ export function BrandStudioProvider({ children }: { children: React.ReactNode })
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  
+  // Polling state for generation tracking
+  const [pollingGenerationId, setPollingGenerationId] = useState<string | null>(null);
+  const [activeCardId, setActiveCardId] = useState<string | null>(null);
 
   // Generate conversation ID on mount
   React.useEffect(() => {
@@ -405,6 +426,83 @@ export function BrandStudioProvider({ children }: { children: React.ReactNode })
     }
   });
 
+  // Callbacks for generation completion (defined after refetchChatHistory)
+  const onGenerationComplete = useCallback(({ images }: { images: string[] }) => {
+    console.log('✅ CONTEXT: Generation completed with images:', images);
+    
+    if (activeCardId) {
+      // Update concept card with completed status and images
+      dispatch({
+        type: 'UPDATE_CONCEPT_CARD_STATUS',
+        payload: {
+          cardId: activeCardId,
+          updates: {
+            isGenerating: false,
+            hasGenerated: true,
+            isLoading: false,
+            generatedImages: images
+          }
+        }
+      });
+      
+      toast({
+        title: "Images Ready!",
+        description: "Your photos have been generated successfully."
+      });
+      
+      // Refresh chat history to show images in chat
+      setTimeout(() => {
+        refetchChatHistory();
+      }, 1000);
+    }
+    
+    // Stop polling
+    if (pollingGenerationId) {
+      dispatch({ type: 'STOP_POLLING', payload: pollingGenerationId });
+    }
+    setPollingGenerationId(null);
+    setActiveCardId(null);
+  }, [activeCardId, pollingGenerationId, toast, refetchChatHistory]);
+
+  const onGenerationError = useCallback(() => {
+    console.error('❌ CONTEXT: Generation failed');
+    
+    if (activeCardId) {
+      // Update concept card with failed status
+      dispatch({
+        type: 'UPDATE_CONCEPT_CARD_STATUS',
+        payload: {
+          cardId: activeCardId,
+          updates: {
+            isGenerating: false,
+            hasGenerated: false,
+            isLoading: false
+          }
+        }
+      });
+      
+      toast({
+        title: "Generation Failed",
+        description: "Failed to generate images. Please try again."
+      });
+    }
+    
+    // Stop polling
+    if (pollingGenerationId) {
+      dispatch({ type: 'STOP_POLLING', payload: pollingGenerationId });
+    }
+    setPollingGenerationId(null);
+    setActiveCardId(null);
+  }, [activeCardId, pollingGenerationId, toast]);
+
+  // Use the polling hook for generation status
+  useMayaGeneration({
+    generationId: pollingGenerationId,
+    onComplete: onGenerationComplete,
+    onError: onGenerationError,
+    enabled: !!pollingGenerationId
+  });
+
   // Generate image mutation
   const generateImageMutation = useMutation({
     mutationFn: async (cardId: string) => {
@@ -450,28 +548,38 @@ export function BrandStudioProvider({ children }: { children: React.ReactNode })
 
       return response.json();
     },
-    onSuccess: (data) => {
-      console.log('🎨 GENERATE SUCCESS:', data);
+    onSuccess: (data, cardId) => {
+      console.log('🎨 GENERATE SUCCESS:', data, 'for card:', cardId);
       
-      // ✅ ASYNC APPROACH: Generation started, now poll for completion
+      // ✅ NEW APPROACH: Set card to generating state and start polling with the new hook
       if (data.generationId) {
+        // Update the concept card to generating state
+        dispatch({
+          type: 'UPDATE_CONCEPT_CARD_STATUS',
+          payload: {
+            cardId: cardId,
+            updates: {
+              isGenerating: true,
+              isLoading: true,
+              hasGenerated: false
+            }
+          }
+        });
+        
+        // Start polling state tracking
+        dispatch({ 
+          type: 'START_POLLING', 
+          payload: { jobId: data.generationId, cardId: cardId } 
+        });
+        
+        // Set state for the polling hook
+        setPollingGenerationId(data.generationId);
+        setActiveCardId(cardId);
+        
         toast({ 
           title: "Generation Started!", 
           description: "Your images are being created. This may take 1-2 minutes." 
         });
-        
-        // Get the card ID from the current selection 
-        const currentCardId = state.selectedConceptCardId;
-        if (currentCardId) {
-          // Start polling state tracking
-          dispatch({ 
-            type: 'START_POLLING', 
-            payload: { jobId: data.generationId, cardId: currentCardId } 
-          });
-        }
-        
-        // Start polling for completion
-        pollForGenerationCompletion(data.generationId);
       } else {
         console.log('⚠️ No generation ID in response:', data);
         toast({ 
@@ -480,11 +588,21 @@ export function BrandStudioProvider({ children }: { children: React.ReactNode })
         });
       }
     },
-    onError: (error) => {
+    onError: (error, cardId) => {
       console.error('❌ GENERATE ERROR:', error);
       
-      // Clear the selected concept card on error
-      dispatch({ type: 'SELECT_CONCEPT_CARD', payload: null });
+      // Update card to failed state
+      dispatch({
+        type: 'UPDATE_CONCEPT_CARD_STATUS',
+        payload: {
+          cardId: cardId,
+          updates: {
+            isGenerating: false,
+            isLoading: false,
+            hasGenerated: false
+          }
+        }
+      });
       
       toast({ 
         title: "Generation Error", 
