@@ -3,7 +3,7 @@
  * Handles Maya AI conversational interface, image generation, and brand development
  */
 
-import { Router, Response } from 'express';
+import { Router, type Response as ExpressResponse } from 'express';
 import { requireStackAuth } from '../../stack-auth.js';
 import { storage } from '../../storage.js';
 import { asyncHandler } from '../middleware/error-handler.js';
@@ -35,7 +35,7 @@ async function timedFetch(url: string, timeoutMs: number, options: RequestInit):
   }
 }
 // Maya video prompt endpoint
-router.post('/api/maya/get-video-prompt', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+router.post('/api/maya/get-video-prompt', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: ExpressResponse) => {
   try {
     const user = getAuthenticatedUser(req);
     const { imageUrl } = req.body || {};
@@ -148,7 +148,7 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
 }));
 
 // Maya status endpoint
-router.get('/api/maya/status', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+router.get('/api/maya/status', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: ExpressResponse) => {
   try {
     const user = getAuthenticatedUser(req);
     const userModel = await storage.getUserModelByUserId(user.id);
@@ -187,7 +187,7 @@ router.get('/api/maya/status', requireStackAuth, asyncHandler(async (req: Authen
 }));
 
 // Maya models endpoint
-router.get('/api/maya/models', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+router.get('/api/maya/models', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: ExpressResponse) => {
   res.status(200).json({
     models: ['flux-dev', 'flux-schnell'],
     default: 'flux-dev'
@@ -195,7 +195,7 @@ router.get('/api/maya/models', requireStackAuth, asyncHandler(async (req: Authen
 }));
 
 // Maya env check endpoint
-router.get('/api/maya/env-check', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+router.get('/api/maya/env-check', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: ExpressResponse) => {
   const anthropicKeySet = !!process.env['ANTHROPIC_API_KEY'];
   const replicateTokenSet = !!process.env['REPLICATE_API_TOKEN'];
   
@@ -207,7 +207,7 @@ router.get('/api/maya/env-check', requireStackAuth, asyncHandler(async (req: Aut
 }));
 
 // Maya generate endpoint
-router.post('/api/maya/generate', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+router.post('/api/maya/generate', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: ExpressResponse) => {
   try {
     const user = getAuthenticatedUser(req);
     console.log(`🔍 MAYA GENERATE: Request from Stack Auth user: ${user.id}`);
@@ -268,7 +268,7 @@ router.post('/api/maya/generate', requireStackAuth, asyncHandler(async (req: Aut
 }));
 
 // Maya heart image endpoint
-router.post('/api/maya/heart-image', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+router.post('/api/maya/heart-image', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: ExpressResponse) => {
   try {
     const user = getAuthenticatedUser(req);
     const { imageUrl, prompt, category } = req.body || {};
@@ -303,7 +303,7 @@ router.post('/api/maya/heart-image', requireStackAuth, asyncHandler(async (req: 
 }));
 
 // Maya chats list endpoint
-router.get('/api/maya-chats', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+router.get('/api/maya-chats', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: ExpressResponse) => {
   try {
     const user = getAuthenticatedUser(req);
     const conversations = await storage.getMayaChats(user.id);
@@ -329,7 +329,7 @@ router.get('/api/maya-chats', requireStackAuth, asyncHandler(async (req: Authent
 }));
 
 // Maya chat history endpoint
-router.get('/api/maya/chat-history', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+router.get('/api/maya/chat-history', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: ExpressResponse) => {
   try {
     const user = getAuthenticatedUser(req);
     const chatId = req.query.chatId as string;
@@ -356,7 +356,7 @@ router.get('/api/maya/chat-history', requireStackAuth, asyncHandler(async (req: 
 }));
 
 // Maya chat endpoint (main conversational AI)
-router.post('/api/maya/chat', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+router.post('/api/maya/chat', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: ExpressResponse) => {
   try {
     const user = getAuthenticatedUser(req);
     const { message, chatHistory = [], context = {} } = req.body || {};
@@ -485,7 +485,7 @@ Respond naturally and conversationally. Keep responses focused and valuable.`;
 }));
 
 // Maya chat alias endpoints - these forward to /api/maya/chat
-router.post('/api/maya-chat', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+router.post('/api/maya-chat', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: ExpressResponse) => {
   // Forward the request body to the chat endpoint
   const chatRequest = { ...req, url: '/api/maya/chat', body: req.body };
   try {
@@ -508,7 +508,7 @@ router.post('/api/maya-chat', requireStackAuth, asyncHandler(async (req: Authent
   }
 }));
 
-router.post('/api/maya-generate', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+router.post('/api/maya-generate', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: ExpressResponse) => {
   // This is an alias that historically existed - redirecting to chat
   try {
     const user = getAuthenticatedUser(req);

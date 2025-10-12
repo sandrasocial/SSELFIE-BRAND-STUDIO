@@ -1,15 +1,14 @@
 /**
  * Gallery Routes
- * Handles image gallery management
+ * Handles image gallery, favorites, and AI image management
  */
 
-import type { Response } from 'express';
-import express from 'express';
+import { Router, type Response as ExpressResponse } from 'express';
 import { requireStackAuth } from '../../stack-auth.js';
 import { asyncHandler, createError, sendSuccess, validateRequired } from '../middleware/error-handler.js';
 import { storage } from '../../storage.js';
-import { AuthenticatedRequest, SuccessResponse } from '../../../shared/types/ai-generation.js';
 import { withTimeout } from '../../_utils/timing.js';
+import { AuthenticatedRequest, SuccessResponse } from '../../../shared/types/ai-generation.js';
 
 // Circuit Breaker Pattern for Gallery Reliability
 interface CircuitBreakerState {
@@ -117,10 +116,10 @@ interface UpdateImageMetadataRequest {
   metadata: ImageMetadata;
 }
 
-const router = express.Router();
+const router = Router();
 
 // Favorites GET endpoint - Production version with filtering
-router.get('/api/images/favorites', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+router.get('/api/images/favorites', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: ExpressResponse) => {
   try {
     const userId = req.user.id;
     const ai = await withTimeout(storage.getAIImages(userId), 5000, 'getAIImages') as unknown as AiImage[];
@@ -135,7 +134,7 @@ router.get('/api/images/favorites', requireStackAuth, asyncHandler(async (req: A
   }
 }));
 
-router.post('/api/images/:id/favorite', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+router.post('/api/images/:id/favorite', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: ExpressResponse) => {
   try {
     const userId = req.user.id;
     const imageId = parseInt(req.params.id, 10);
@@ -158,7 +157,7 @@ router.post('/api/images/:id/favorite', requireStackAuth, asyncHandler(async (re
 }));
 
 // Get user gallery - Production version with circuit breaker
-router.get('/api/gallery', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+router.get('/api/gallery', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: ExpressResponse) => {
   const userId = req.user.id;
   
   try {
@@ -232,7 +231,7 @@ router.get('/api/gallery', requireStackAuth, asyncHandler(async (req: Authentica
 }));
 
 // Get user gallery images (frontend calls this endpoint) - Production version with circuit breaker
-router.get('/api/gallery-images', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+router.get('/api/gallery-images', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: ExpressResponse) => {
   const userId = req.user.id;
   
   try {
@@ -306,7 +305,7 @@ router.get('/api/gallery-images', requireStackAuth, asyncHandler(async (req: Aut
 }));
 
 // Delete AI image endpoint - Production version
-router.delete('/api/ai-images/:id', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+router.delete('/api/ai-images/:id', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: ExpressResponse) => {
   try {
     const userId = req.user.id;
     const imageId = parseInt(req.params.id, 10);
@@ -325,7 +324,7 @@ router.delete('/api/ai-images/:id', requireStackAuth, asyncHandler(async (req: A
 }));
 
 // Upload image to gallery
-router.post('/api/gallery/upload', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest & { body: UploadImageRequest }, res: Response) => {
+router.post('/api/gallery/upload', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest & { body: UploadImageRequest }, res: ExpressResponse) => {
   const userId = req.user.id;
   const { imageUrl, metadata } = req.body;
   validateRequired({ imageUrl }, ['imageUrl']);
@@ -341,7 +340,7 @@ router.post('/api/gallery/upload', requireStackAuth, asyncHandler(async (req: Au
 }));
 
 // Save image to gallery
-router.post('/api/gallery/save', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest & { body: SaveImageRequest }, res: Response) => {
+router.post('/api/gallery/save', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest & { body: SaveImageRequest }, res: ExpressResponse) => {
   const userId = req.user.id;
   const { imageUrl, prompt, style } = req.body;
   validateRequired({ imageUrl }, ['imageUrl']);
@@ -357,7 +356,7 @@ router.post('/api/gallery/save', requireStackAuth, asyncHandler(async (req: Auth
 }));
 
 // Generate gallery image
-router.post('/api/gallery/generate', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest & { body: GenerateImageRequest }, res: Response) => {
+router.post('/api/gallery/generate', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest & { body: GenerateImageRequest }, res: ExpressResponse) => {
   const userId = req.user.id;
   const { prompt, style, count } = req.body;
   validateRequired({ prompt }, ['prompt']);
@@ -373,7 +372,7 @@ router.post('/api/gallery/generate', requireStackAuth, asyncHandler(async (req: 
 }));
 
 // Get gallery by category
-router.get('/api/gallery/category/:category', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+router.get('/api/gallery/category/:category', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: ExpressResponse) => {
   const userId = req.user.id;
   const { category } = req.params;
 
@@ -395,7 +394,7 @@ router.get('/api/gallery/category/:category', requireStackAuth, asyncHandler(asy
 }));
 
 // Get specific image
-router.get('/api/gallery/image/:imageId', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+router.get('/api/gallery/image/:imageId', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: ExpressResponse) => {
   const userId = req.user.id;
   const { imageId } = req.params;
 
@@ -425,7 +424,7 @@ router.get('/api/gallery/image/:imageId', requireStackAuth, asyncHandler(async (
 }));
 
 // Update image metadata
-router.post('/api/gallery/image/:imageId', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest & { body: UpdateImageMetadataRequest }, res: Response) => {
+router.post('/api/gallery/image/:imageId', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest & { body: UpdateImageMetadataRequest }, res: ExpressResponse) => {
   const userId = req.user.id;
   const { imageId } = req.params;
   const { metadata } = req.body;
@@ -441,7 +440,7 @@ router.post('/api/gallery/image/:imageId', requireStackAuth, asyncHandler(async 
 }));
 
 // Delete image
-router.delete('/api/gallery/image/:imageId', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+router.delete('/api/gallery/image/:imageId', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: ExpressResponse) => {
   const userId = req.user.id;
   const { imageId } = req.params;
 
@@ -468,7 +467,7 @@ interface Prediction {
 }
 
 // Get generation tracker
-router.get('/api/gallery/tracker/:trackerId', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+router.get('/api/gallery/tracker/:trackerId', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: ExpressResponse) => {
   const userId = req.user.id;
   const { trackerId } = req.params;
 
@@ -486,7 +485,7 @@ router.get('/api/gallery/tracker/:trackerId', requireStackAuth, asyncHandler(asy
 }));
 
 // Get prediction status
-router.get('/api/gallery/prediction/:predictionId', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+router.get('/api/gallery/prediction/:predictionId', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: ExpressResponse) => {
   const userId = req.user.id;
   const { predictionId } = req.params;
 
@@ -504,7 +503,7 @@ router.get('/api/gallery/prediction/:predictionId', requireStackAuth, asyncHandl
 }));
 
 // Generate concept images
-router.post('/api/gallery/concept', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest & { body: GenerateConceptRequest }, res: Response) => {
+router.post('/api/gallery/concept', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest & { body: GenerateConceptRequest }, res: ExpressResponse) => {
   const userId = req.user.id;
   const { concept, style, count } = req.body;
   validateRequired({ concept }, ['concept']);
@@ -520,7 +519,7 @@ router.post('/api/gallery/concept', requireStackAuth, asyncHandler(async (req: A
 }));
 
 // Generate style images
-router.post('/api/gallery/style', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest & { body: GenerateStyleRequest }, res: Response) => {
+router.post('/api/gallery/style', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest & { body: GenerateStyleRequest }, res: ExpressResponse) => {
   const userId = req.user.id;
   const { style, count } = req.body;
   validateRequired({ style }, ['style']);
@@ -555,7 +554,7 @@ interface GalleryInspectResult {
 }
 
 // DEBUG: Inspect gallery linkage for current user and any linked legacy ID
-router.get('/api/debug/gallery-inspect', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+router.get('/api/debug/gallery-inspect', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: ExpressResponse) => {
   res.setHeader('Cache-Control', 'no-store');
   const stackUserId = req.user.id;
   const linkedUser = await storage.getUserByStackAuthId(stackUserId);

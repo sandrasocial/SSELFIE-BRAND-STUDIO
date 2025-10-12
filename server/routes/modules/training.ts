@@ -6,8 +6,7 @@
  * Production code with bulletproof user lookup and timeout handling
  */
 
-import type { Response } from 'express';
-import { Router } from 'express';
+import { Router, type Response as ExpressResponse } from 'express';
 import { requireStackAuth } from '../../stack-auth.js';
 import { asyncHandler } from '../middleware/error-handler.js';
 import type { AuthenticatedRequest } from '../../../shared/types/ai-generation.js';
@@ -39,7 +38,7 @@ async function getAuthenticatedUser(req: AuthenticatedRequest) {
 }
 
 // JSON response helper
-function json(res: Response, status: number, data: any) {
+function json(res: ExpressResponse, status: number, data: any) {
   res.setHeader('Content-Type', 'application/json');
   res.status(status).json(data);
 }
@@ -59,7 +58,7 @@ function logStart(label: string) {
 // ============================================================================
 // USER MODEL ENDPOINT - Critical for onboarding and training status
 // ============================================================================
-router.get('/api/user-model', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+router.get('/api/user-model', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: ExpressResponse) => {
   const t = logStart('GET /api/user-model');
   
   try {
@@ -240,7 +239,7 @@ router.get('/api/user-model', requireStackAuth, asyncHandler(async (req: Authent
 // ============================================================================
 // TRAINING STATUS ENDPOINT
 // ============================================================================
-router.get('/api/training/status', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+router.get('/api/training/status', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: ExpressResponse) => {
   try {
     const user = await getAuthenticatedUser(req);
     const model = await storage.getUserModelByUserId(user.id as string);
@@ -261,7 +260,7 @@ router.get('/api/training/status', requireStackAuth, asyncHandler(async (req: Au
 // ============================================================================
 // TRAINING PROGRESS ENDPOINT (User-specific)
 // ============================================================================
-router.get('/api/training-progress/:userId', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+router.get('/api/training-progress/:userId', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: ExpressResponse) => {
   try {
     const user = await getAuthenticatedUser(req);
     const targetUserId = req.params.userId;
