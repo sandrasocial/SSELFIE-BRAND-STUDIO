@@ -110,7 +110,8 @@ export class MigrationMonitor {
       return result.rows || result;
     } catch (error) {
       // Handle schema mismatches gracefully
-      if (error.message?.includes('column') && error.message?.includes('does not exist')) {
+      const errorMessage = error instanceof Error ? error.message : '';
+      if (errorMessage.includes('column') && errorMessage.includes('does not exist')) {
         return null;
       }
       
