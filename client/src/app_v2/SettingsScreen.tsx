@@ -45,7 +45,7 @@ const SettingsScreen: React.FC = () => {
   }
 
   const handleLogout = () => {
-    window.location.href = '/api/auth/logout';
+    window.location.href = '/api/logout';
   };
 
   const openCustomerPortal = () => {
