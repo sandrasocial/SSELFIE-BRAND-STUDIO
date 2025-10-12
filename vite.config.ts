@@ -79,6 +79,7 @@ export default defineConfig(({ mode }) => {
         // Externalize Next.js modules that Stack Auth tries to import
         external: [
           'next/navigation',
+          'next/headers',
           'next/router', 
           'next/link',
           'next/image',
