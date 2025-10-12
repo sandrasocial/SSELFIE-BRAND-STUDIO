@@ -194,6 +194,22 @@
       }
     },
     {
+      "src": "server/api/gallery/favorites.ts",
+      "use": "@vercel/node",
+      "config": {
+        "maxDuration": 10,
+        "memory": 256
+      }
+    },
+    {
+      "src": "server/api/gallery/favorite-toggle.ts",
+      "use": "@vercel/node",
+      "config": {
+        "maxDuration": 10,
+        "memory": 256
+      }
+    },
+    {
       "src": "server/maya/payments/index.ts",
       "use": "@vercel/node",
       "config": {
@@ -435,6 +451,14 @@
     {
       "source": "/api/gallery",
       "destination": "/server/api/gallery/images.ts"
+    },
+    {
+      "source": "/api/images/favorites",
+      "destination": "/server/api/gallery/favorites.ts"
+    },
+    {
+      "source": "/api/images/(\\d+)/favorite",
+      "destination": "/server/api/gallery/favorite-toggle.ts"
     },
     {
       "source": "/api/images/(.*)",
