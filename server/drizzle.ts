@@ -12,27 +12,23 @@ function getDb() {
   if (!_db) {
     // Get database URL with fallbacks
     const dbUrl = DATABASE_URL || process.env.DATABASE_URL || process.env.NEON_DB_URL;
-    console.log('🔍 Database connection check (HTTP mode):', {
-      DATABASE_URL_FROM_ENV: !!DATABASE_URL,
-      PROCESS_ENV_DATABASE_URL: !!process.env.DATABASE_URL,
-      PROCESS_ENV_NEON_DB_URL: !!process.env.NEON_DB_URL,
-      FINAL_DB_URL: !!dbUrl,
-      NODE_ENV: process.env.NODE_ENV
-    });
     
     if (!dbUrl) {
       throw new Error(`No database connection string available. DATABASE_URL=${!!DATABASE_URL}, process.env.DATABASE_URL=${!!process.env.DATABASE_URL}, process.env.NEON_DB_URL=${!!process.env.NEON_DB_URL}, NODE_ENV=${process.env.NODE_ENV}`);
     }
     
     // Use HTTP adapter with optimized configuration for Vercel serverless
-    const sql = neon(dbUrl);
-    _db = drizzle(sql, { 
-      schema,
-      // Enable query logging in development
-      logger: process.env.NODE_ENV === 'development'
+    const sql = neon(dbUrl, {
+      fullResults: false // Only return rows, not metadata for better performance
     });
     
-    console.log('✅ Database connection established successfully (HTTP mode)');
+    _db = drizzle(sql, { 
+      schema,
+      // Disable logging in production to reduce overhead
+      logger: false
+    });
+    
+    console.log('✅ Database connection established (Neon HTTP serverless mode)');
   }
   return _db;
 }
