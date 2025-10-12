@@ -72,8 +72,10 @@ export function getRouterPaths(router: Router): string[] {
   const paths: string[] = [];
   
   // Extract paths from router stack
-  if (router.stack) {
-    router.stack.forEach((layer: any) => {
+  // Note: 'stack' is not in the TypeScript definitions but exists at runtime
+  const routerWithStack = router as any;
+  if (routerWithStack.stack) {
+    routerWithStack.stack.forEach((layer: any) => {
       if (layer.route) {
         // Regular route
         paths.push(layer.route.path);
