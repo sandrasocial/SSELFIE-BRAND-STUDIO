@@ -8,6 +8,7 @@
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { storage } from '../../storage.js';
+import { getUserFromRequest } from '../../_utils/auth-helpers.js';
 
 export const config = {
   runtime: 'nodejs',
@@ -71,31 +72,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    // 1. Authenticate with Stack Auth (JWT verification)
-    const authHeader = req.headers.authorization;
-    if (!authHeader?.startsWith('Bearer ')) {
+    // 1. Authenticate with Stack Auth (using shared auth helper)
+    const user = await getUserFromRequest(req);
+    if (!user) {
       return res.status(401).json({ error: 'Authentication required' });
     }
-
-    const token = authHeader.replace('Bearer ', '');
     
-    // JWT verification with jose
-    const { jwtVerify } = await import('jose');
-    const secret = new TextEncoder().encode(process.env['STACK_SECRET_SERVER_KEY']);
-    
-    let userId: string;
-    try {
-      const { payload } = await jwtVerify(token, secret);
-      userId = payload.sub as string;
-      
-      if (!userId) {
-        return res.status(401).json({ error: 'Invalid token: missing user ID' });
-      }
-    } catch (error) {
-      console.error('❌ Gallery Images: JWT verification failed:', error);
-      return res.status(401).json({ error: 'Invalid or expired token' });
-    }
-
+    const userId = user.id;
     console.log(`🖼️  Gallery Images: Fetching for user ${userId}`);
 
     // 2. Set response headers (no-cache for fresh data)
