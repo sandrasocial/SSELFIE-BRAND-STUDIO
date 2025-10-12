@@ -40,9 +40,14 @@ export default defineConfig(({ mode }) => {
     // 🔒 Force a single React copy for the whole graph
     resolve: {
       alias: {
-        // lock React to the root node_modules so sub-deps can’t sneak in a second copy
+        // lock React to the root node_modules so sub-deps can't sneak in a second copy
         react: path.resolve(__dirname, "node_modules/react"),
         "react-dom": path.resolve(__dirname, "node_modules/react-dom"),
+
+        // Stub Next.js modules that Stack Auth tries to import (but never uses in React apps)
+        'next/headers': path.resolve(__dirname, "client/src/stubs/next-headers.ts"),
+        'next/navigation': path.resolve(__dirname, "client/src/stubs/next-navigation.ts"),
+        'next/router': path.resolve(__dirname, "client/src/stubs/next-router.ts"),
 
         // your existing aliases (unchanged)
         "@": path.resolve(__dirname, "client", "src"),
@@ -75,16 +80,7 @@ export default defineConfig(({ mode }) => {
           // Conservative interop settings
           interop: 'compat',
           exports: 'named'
-        },
-        // Externalize Next.js modules that Stack Auth tries to import
-        external: [
-          'next/navigation',
-          'next/headers',
-          'next/router', 
-          'next/link',
-          'next/image',
-          'next/head'
-        ],
+        }
       },
       // Enable source maps for debugging
       sourcemap: mode === 'development',
