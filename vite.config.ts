@@ -76,7 +76,14 @@ export default defineConfig(({ mode }) => {
           interop: 'compat',
           exports: 'named'
         },
-        external: [],
+        // Externalize Next.js modules that Stack Auth tries to import
+        external: [
+          'next/navigation',
+          'next/router', 
+          'next/link',
+          'next/image',
+          'next/head'
+        ],
       },
       // Enable source maps for debugging
       sourcemap: mode === 'development',
