@@ -154,6 +154,46 @@
       }
     },
     {
+      "src": "server/maya/concepts/index.ts",
+      "use": "@vercel/node",
+      "config": {
+        "maxDuration": 30,
+        "memory": 512
+      }
+    },
+    {
+      "src": "server/maya/images/index.ts",
+      "use": "@vercel/node",
+      "config": {
+        "maxDuration": 30,
+        "memory": 512
+      }
+    },
+    {
+      "src": "server/maya/models/index.ts",
+      "use": "@vercel/node",
+      "config": {
+        "maxDuration": 30,
+        "memory": 512
+      }
+    },
+    {
+      "src": "server/maya/profile/index.ts",
+      "use": "@vercel/node",
+      "config": {
+        "maxDuration": 30,
+        "memory": 512
+      }
+    },
+    {
+      "src": "server/maya/payments/index.ts",
+      "use": "@vercel/node",
+      "config": {
+        "maxDuration": 60,
+        "memory": 1024
+      }
+    },
+    {
       "src": "server/[...route].ts",
       "use": "@vercel/node",
       "config": {
@@ -271,6 +311,42 @@
     {
       "source": "/api/maya/env-check",
       "destination": "/server/api/maya/env-check.ts"
+    },
+    {
+      "source": "/api/maya/concepts",
+      "destination": "/server/maya/concepts/index.ts"
+    },
+    {
+      "source": "/api/maya/concepts/(.*)",
+      "destination": "/server/maya/concepts/index.ts"
+    },
+    {
+      "source": "/api/maya/images",
+      "destination": "/server/maya/images/index.ts"
+    },
+    {
+      "source": "/api/maya/images/(.*)",
+      "destination": "/server/maya/images/index.ts"
+    },
+    {
+      "source": "/api/maya/user-models",
+      "destination": "/server/maya/models/index.ts"
+    },
+    {
+      "source": "/api/maya/user-models/(.*)",
+      "destination": "/server/maya/models/index.ts"
+    },
+    {
+      "source": "/api/maya/profile",
+      "destination": "/server/maya/profile/index.ts"
+    },
+    {
+      "source": "/api/maya/payments",
+      "destination": "/server/maya/payments/index.ts"
+    },
+    {
+      "source": "/api/maya/payments/(.*)",
+      "destination": "/server/maya/payments/index.ts"
     },
     {
       "source": "/api/cron/(.*)",
