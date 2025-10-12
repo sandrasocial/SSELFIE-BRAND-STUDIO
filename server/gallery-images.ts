@@ -3,10 +3,12 @@ export const config = {
   runtime: 'nodejs',
   maxDuration: 25
 } as const;
-import main from './index.js';
+
+// ✅ MIGRATION FIX: Route directly to serverless endpoint (not deleted Express router)
+import galleryImagesHandler from './api/gallery/images.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  return main(req, res);
+  return galleryImagesHandler(req, res);
 }
 
 
