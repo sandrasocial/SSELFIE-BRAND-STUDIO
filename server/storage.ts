@@ -140,6 +140,16 @@ function getDefaultUserFields(overrides: any = {}): InsertUser {
     retrainingPaidAt: null,
     stripeCustomerId: '',
     stripeSubscriptionId: '',
+    // Legacy fields - optional, for backward compatibility
+    authProvider: overrides.authProvider ?? null,
+    stackAuthUserId: overrides.stackAuthUserId ?? null,
+    legacyUserId: overrides.legacyUserId ?? null,
+    profileCompleted: overrides.profileCompleted ?? null,
+    onboardingStep: overrides.onboardingStep ?? null,
+    visualTemplate: overrides.visualTemplate ?? null,
+    brandColors: overrides.brandColors ?? null,
+    typographyPreferences: overrides.typographyPreferences ?? null,
+    feedAesthetic: overrides.feedAesthetic ?? null,
     ...overrides
   };
 }
@@ -1067,6 +1077,16 @@ export class DatabaseStorage implements IStorage {
         profession: result.userProfession,
         brandStyle: result.userBrandStyle,
         photoGoals: result.userPhotoGoals,
+        // Legacy fields for backward compatibility
+        authProvider: (result as any).userAuthProvider || null,
+        stackAuthUserId: (result as any).userStackAuthUserId || null,
+        legacyUserId: (result as any).userLegacyUserId || null,
+        profileCompleted: (result as any).userProfileCompleted || null,
+        onboardingStep: (result as any).userOnboardingStep || null,
+        visualTemplate: (result as any).userVisualTemplate || null,
+        brandColors: (result as any).userBrandColors || null,
+        typographyPreferences: (result as any).userTypographyPreferences || null,
+        feedAesthetic: (result as any).userFeedAesthetic || null,
       };
 
       // Reconstruct model object if it exists
