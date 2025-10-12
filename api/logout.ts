@@ -8,6 +8,6 @@ import handler from '../server/[...route].js';
 export default handler;
 
 export const config = {
-  runtime: 'nodejs20.x',
+  runtime: 'nodejs',
   maxDuration: 40,
 };
