@@ -673,20 +673,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     }
 
-    // Auth user endpoint
-    if (req.url?.includes('/api/auth/user')) {
-      
-      try {
-        const user = await getAuthenticatedUser();
-        res.setHeader('Cache-Control', 'no-store');
-        return res.status(200).json(user);
-      } catch (error) {
-        return res.status(401).json({ 
-          message: 'Authentication required',
-          error: (error as Error).message
-        });
-      }
-    }
+    // ✅ REMOVED /api/auth/user ENDPOINT - Now handled by server/routes/modules/auth.ts
 
     // Admin endpoints
     if (req.url === '/api/admin/backfill-stack-users') {
@@ -1878,41 +1865,7 @@ Analyze the image and respond with ONLY the motion prompt that perfectly capture
       }
     }
 
-    // User gender update endpoint
-    if (req.url === '/api/user/update-gender') {
-      if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Method not allowed' });
-      }
-      
-      try {
-        const user = await getAuthenticatedUser();
-        const { gender } = req.body || {};
-        
-        if (!gender) {
-          return res.status(400).json({ error: 'Gender is required' });
-        }
-        
-        if (!['man', 'woman', 'female', 'male', 'non-binary', 'other'].includes(gender.toLowerCase())) {
-          return res.status(400).json({ error: 'Invalid gender value' });
-        }
-        
-        const { storage } = await import('../server/storage.js');
-        await storage.updateUserProfile(user.id as string, { gender });
-        
-        
-        res.setHeader('Cache-Control', 'no-store');
-        return res.status(200).json({ 
-          success: true, 
-          message: 'Gender updated successfully' 
-        });
-        
-      } catch (error) {
-        return res.status(500).json({ 
-          error: 'Failed to update gender',
-          message: (error as Error).message 
-        });
-      }
-    }
+    // ✅ REMOVED /api/user/update-gender ENDPOINT - Now handled by server/routes/modules/auth.ts
 
     // Test database connection endpoint
     if (req.url === '/api/test-db') {
