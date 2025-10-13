@@ -12,12 +12,12 @@
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getUserFromRequest } from '../../_utils/auth-helpers';
-import { getRequestBody } from '../../_utils/request-helpers';
-import { sendSuccess, sendUnauthorized, sendBadRequest, sendMethodNotAllowed, sendError } from '../../_utils/response-helpers';
-import { storage } from '../../storage';
+import { getUserFromRequest } from '../../_utils/auth-helpers.js';
+import { getRequestBody } from '../../_utils/request-helpers.js';
+import { sendSuccess, sendUnauthorized, sendBadRequest, sendMethodNotAllowed, sendError } from '../../_utils/response-helpers.js';
+import { storage } from '../../storage.js';
 import Anthropic from '@anthropic-ai/sdk';
-import { PersonalityManager } from '../../agents/personalities/personality-config';
+import { PersonalityManager } from '../../agents/personalities/personality-config.js';
 
 export const config = { runtime: 'nodejs', maxDuration: 60 };
 

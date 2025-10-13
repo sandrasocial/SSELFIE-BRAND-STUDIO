@@ -3,8 +3,8 @@
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getUserFromRequest } from '../../_utils/auth-helpers';
-import { sendError, sendMethodNotAllowed, sendUnauthorized, setNoCacheHeaders } from '../../_utils/response-helpers';
+import { getUserFromRequest } from '../../_utils/auth-helpers.js';
+import { sendError, sendMethodNotAllowed, sendUnauthorized, setNoCacheHeaders } from '../../_utils/response-helpers.js';
 
 export const config = { runtime: 'nodejs', maxDuration: 60 };
 
