@@ -117,7 +117,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       conceptCards: conceptCards.length > 0 ? conceptCards : undefined
     });
 
-    return sendSuccess(res, {
+    // Return data directly (frontend expects unwrapped response)
+    res.status(200).json({
       response: mayaResponse,
       conceptCards,
       chatId
