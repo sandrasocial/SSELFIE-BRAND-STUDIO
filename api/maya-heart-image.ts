@@ -6,7 +6,7 @@ export const config = {
 } as const;
 
 // Route to Maya heart-image serverless endpoint
-import heartImageHandler from './api/maya/heart-image';
+import heartImageHandler from '../server/api/maya/heart-image';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   return heartImageHandler(req, res);

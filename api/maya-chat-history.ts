@@ -5,9 +5,9 @@ export const config = {
   maxDuration: 25
 } as const;
 
-// Route to Maya chats list serverless endpoint
-import chatsHandler from './api/maya/chats';
+// Route to Maya chat history serverless endpoint
+import chatHistoryHandler from '../server/api/maya/chat-history';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  return chatsHandler(req, res);
+  return chatHistoryHandler(req, res);
 }

@@ -2,12 +2,12 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 export const config = { 
   runtime: 'nodejs',
-  maxDuration: 25
+  maxDuration: 60
 } as const;
 
-// Route to Maya models serverless endpoint
-import modelsHandler from './api/maya/models';
+// Route to Maya image generation serverless endpoint
+import generateHandler from '../server/api/maya/generate';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  return modelsHandler(req, res);
+  return generateHandler(req, res);
 }
