@@ -6,7 +6,7 @@ export const config = {
 } as const;
 
 // Route to Maya image generation serverless endpoint
-import generateHandler from '../server/api/maya/generate';
+import generateHandler from '../server/api/maya/generate.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   return generateHandler(req, res);

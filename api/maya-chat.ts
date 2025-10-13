@@ -6,7 +6,7 @@ export const config = {
 } as const;
 
 // Route to Maya chat serverless endpoint
-import chatHandler from '../server/api/maya/chat';
+import chatHandler from '../server/api/maya/chat.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   return chatHandler(req, res);
