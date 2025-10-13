@@ -19,7 +19,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (!user) return sendUnauthorized(res);
 
     const userModel = await storage.getUserModelByUserId(user.id);
-    const dbUser = await storage.getUserByStackAuthId(user.id);
+    const dbUser = user; // getUserFromRequest already returns database user
     
     if (!userModel) {
       setNoCacheHeaders(res);
