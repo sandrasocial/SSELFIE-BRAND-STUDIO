@@ -6,10 +6,10 @@
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getUserFromRequest } from '../../_utils/auth-helpers.js';
-import { sendError, sendMethodNotAllowed, sendUnauthorized, setNoCacheHeaders } from '../../_utils/response-helpers.js';
-import { getQueryParam } from '../../_utils/request-helpers.js';
-import { storage } from '../../storage.js';
+import { getUserFromRequest } from '../../_utils/auth-helpers';
+import { sendError, sendMethodNotAllowed, sendUnauthorized, setNoCacheHeaders } from '../../_utils/response-helpers';
+import { getQueryParam } from '../../_utils/request-helpers';
+import { storage } from '../../storage';
 
 export const config = { runtime: 'nodejs', maxDuration: 30 };
 
