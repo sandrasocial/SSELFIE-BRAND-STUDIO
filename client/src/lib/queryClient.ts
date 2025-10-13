@@ -23,9 +23,41 @@ export async function apiRequest(
   try {
     const { getStackApp } = await import('../stack/stack-context.js');
     const stack = getStackApp?.();
-    const token = await (stack as any)?.getAccessToken?.();
-    if (token) authHeader = { Authorization: `Bearer ${token}` };
-  } catch {}
+    
+    // Stack Auth with cookie storage - get token from tokenStore
+    const tokenStore = (stack as any)?.tokenStore;
+    let token: string | null = null;
+    
+    if (tokenStore?.getItem) {
+      // Try to get access token from cookie store
+      const projectId = stack?.projectId || '253d7343-a0d4-43a1-be5c-822f590d40be';
+      token = tokenStore.getItem(`stack-access-${projectId}`) || tokenStore.getItem('stack-access');
+      
+      // Parse if it's an array format like in the cookie
+      if (token && token.startsWith('[')) {
+        try {
+          const parsed = JSON.parse(decodeURIComponent(token));
+          token = Array.isArray(parsed) && parsed[1] ? parsed[1] : null;
+        } catch (e) {
+          console.warn('[API] Failed to parse token from cookie:', e);
+        }
+      }
+    }
+    
+    // Fallback: try getAccessToken if available
+    if (!token && typeof (stack as any)?.getAccessToken === 'function') {
+      token = await (stack as any)?.getAccessToken?.();
+    }
+    
+    if (token) {
+      console.log('[API] Adding Authorization header with token');
+      authHeader = { Authorization: `Bearer ${token}` };
+    } else {
+      console.warn('[API] No auth token found for request to:', url);
+    }
+  } catch (err) {
+    console.error('[API] Error getting auth token:', err);
+  }
   
   const res = await fetch(finalUrl, {
     method,
