@@ -6,7 +6,7 @@ export const config = {
 } as const;
 
 // Route to Maya chat history serverless endpoint
-import chatHistoryHandler from '../server/api/maya/chat-history';
+import chatHistoryHandler from '../server/api/maya/chat-history.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   return chatHistoryHandler(req, res);

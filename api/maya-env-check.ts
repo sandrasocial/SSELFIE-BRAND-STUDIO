@@ -6,7 +6,7 @@ export const config = {
 } as const;
 
 // Route to Maya env-check serverless endpoint
-import envCheckHandler from '../server/api/maya/env-check';
+import envCheckHandler from '../server/api/maya/env-check.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   return envCheckHandler(req, res);

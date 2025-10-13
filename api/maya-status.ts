@@ -6,7 +6,7 @@ export const config = {
 } as const;
 
 // Route to Maya status serverless endpoint
-import statusHandler from '../server/api/maya/status';
+import statusHandler from '../server/api/maya/status.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   return statusHandler(req, res);
