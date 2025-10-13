@@ -14,11 +14,11 @@ import { storage } from '../../storage.js';
 // Stack Auth Configuration
 // ===========================
 
-const STACK_SECRET_SERVER_KEY = process.env['STACK_SECRET_SERVER_KEY'];
+const STACK_SECRET_SERVER_KEY = process.env['STACK_SECRET_SERVER_KEY'] || process.env['STACK_AUTH_SECRET_KEY'];
 const STACK_PROJECT_ID = 'f29aeef9-7b86-4db4-917a-2def37f7c23c';
 
 if (!STACK_SECRET_SERVER_KEY) {
-  throw new Error('STACK_SECRET_SERVER_KEY environment variable is required');
+  throw new Error('STACK_SECRET_SERVER_KEY or STACK_AUTH_SECRET_KEY environment variable is required');
 }
 
 // Initialize JWKS (cached globally for serverless reuse)
