@@ -1,47 +1,13 @@
-/**/**
-
- * Vercel Serverless Function - /api/maya/env-check * GET /api/maya/env-check - Pure Serverless
-
- * Proxies to server implementation */
-
+/**
+ * Vercel Serverless Function - /api/maya/env-check
+ * Proxies to server implementation
  */
 
-import type { VercelRequest, VercelResponse } from '@vercel/node';
-
-import handler from '../../server/api/maya/env-check.js';import { getUserFromRequest } from '../../_utils/auth-helpers.js';
-
-import { sendMethodNotAllowed, sendUnauthorized, setNoCacheHeaders } from '../../_utils/response-helpers.js';
+import handler from '../../server/api/maya/env-check.js';
 
 export default handler;
 
-export const config = { runtime: 'nodejs', maxDuration: 10 };
-
 export const config = {
-
-  runtime: 'nodejs',export default async function handler(req: VercelRequest, res: VercelResponse) {
-
-  maxDuration: 10,  if (req.method !== 'GET') {
-
-};    return sendMethodNotAllowed(res, ['GET']);
-
-  }
-
-  try {
-    const user = await getUserFromRequest(req);
-    if (!user) return sendUnauthorized(res);
-
-    const anthropicKeySet = !!process.env['ANTHROPIC_API_KEY'];
-    const replicateTokenSet = !!process.env['REPLICATE_API_TOKEN'];
-    
-    setNoCacheHeaders(res);
-    return res.status(200).json({
-      anthropic: anthropicKeySet,
-      replicate: replicateTokenSet,
-      status: (anthropicKeySet && replicateTokenSet) ? 'ready' : 'incomplete'
-    });
-
-  } catch (error) {
-    console.error('[ERROR] /api/maya/env-check:', error);
-    return res.status(500).json({ error: 'Failed to check environment' });
-  }
-}
+  runtime: 'nodejs',
+  maxDuration: 10,
+};
