@@ -1,5 +1,8 @@
 /**
  * GET /api/maya/chat-history - Pure Serverless
+ * 
+ * Returns all messages from user's most recent Maya chat.
+ * No chatId required - automatically gets latest chat.
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
@@ -19,21 +22,48 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const user = await getUserFromRequest(req);
     if (!user) return sendUnauthorized(res);
 
-    const chatId = getQueryParam(req, 'chatId');
-    if (!chatId) {
-      return sendError(res, 'chatId query parameter required', 400);
+    // Get database user
+    const dbUser = await storage.getUserByStackAuthId(user.id);
+    if (!dbUser) {
+      return sendError(res, 'User not found', 404);
     }
 
-    const messages = await storage.getMayaChatMessages(chatId, user.id);
+    // Get chatId from query param OR get user's latest chat
+    let chatId = getQueryParam(req, 'chatId');
+    
+    if (!chatId) {
+      // No chatId provided - get user's most recent chat
+      const userChats = await storage.getMayaChats(dbUser.id);
+      
+      if (userChats.length === 0) {
+        // No chats yet - return empty array
+        console.log(`📭 No Maya chats found for user ${dbUser.id}`);
+        setNoCacheHeaders(res);
+        return res.status(200).json({
+          success: true,
+          messages: []
+        });
+      }
+      
+      // Use most recent chat
+      chatId = userChats[0].id.toString();
+      console.log(`💬 Using latest chat ${chatId} for user ${dbUser.id}`);
+    }
+
+    // Get messages for the chat
+    const messages = await storage.getMayaChatMessages(chatId, dbUser.id);
+    
+    console.log(`📋 Returning ${messages.length} messages from chat ${chatId}`);
 
     setNoCacheHeaders(res);
     return res.status(200).json({
       success: true,
-      messages
+      messages,
+      chatId // Include chatId in response for client reference
     });
 
   } catch (error) {
     console.error('[ERROR] /api/maya/chat-history:', error);
-    return sendError(res, 'Failed to fetch chat history', 500);
+    return sendError(res, error instanceof Error ? error.message : 'Failed to fetch chat history', 500);
   }
 }
