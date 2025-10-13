@@ -1,82 +1,13 @@
-/**/**
+/**
+ * Vercel Serverless Function - /api/maya/chat-history
+ * Proxies to server implementation
+ */
 
- * Vercel Serverless Function - /api/maya/chat-history * GET /api/maya/chat-history - Pure Serverless
+import handler from '../../server/api/maya/chat-history.js';
 
- * Proxies to server implementation * 
+export default handler;
 
- */ * Returns all messages from user's most recent Maya chat.
-
- * No chatId required - automatically gets latest chat.
-
-import handler from '../../server/api/maya/chat-history.js'; */
-
-
-
-export default handler;import type { VercelRequest, VercelResponse } from '@vercel/node';
-
-import { getUserFromRequest } from '../../_utils/auth-helpers.js';
-
-export const config = {import { sendError, sendMethodNotAllowed, sendUnauthorized, setNoCacheHeaders } from '../../_utils/response-helpers.js';
-
-  runtime: 'nodejs',import { getQueryParam } from '../../_utils/request-helpers.js';
-
-  maxDuration: 30,import { storage } from '../../storage.js';
-
+export const config = {
+  runtime: 'nodejs',
+  maxDuration: 30,
 };
-
-export const config = { runtime: 'nodejs', maxDuration: 30 };
-
-export default async function handler(req: VercelRequest, res: VercelResponse) {
-  if (req.method !== 'GET') {
-    return sendMethodNotAllowed(res, ['GET']);
-  }
-
-  try {
-    const user = await getUserFromRequest(req);
-    if (!user) return sendUnauthorized(res);
-
-    // Get database user
-    const dbUser = await storage.getUserByStackAuthId(user.id);
-    if (!dbUser) {
-      return sendError(res, 'User not found', 404);
-    }
-
-    // Get chatId from query param OR get user's latest chat
-    let chatId = getQueryParam(req, 'chatId');
-    
-    if (!chatId) {
-      // No chatId provided - get user's most recent chat
-      const userChats = await storage.getMayaChats(dbUser.id);
-      
-      if (userChats.length === 0) {
-        // No chats yet - return empty array
-        console.log(`📭 No Maya chats found for user ${dbUser.id}`);
-        setNoCacheHeaders(res);
-        return res.status(200).json({
-          success: true,
-          messages: []
-        });
-      }
-      
-      // Use most recent chat
-      chatId = userChats[0].id.toString();
-      console.log(`💬 Using latest chat ${chatId} for user ${dbUser.id}`);
-    }
-
-    // Get messages for the chat
-    const messages = await storage.getMayaChatMessages(chatId, dbUser.id);
-    
-    console.log(`📋 Returning ${messages.length} messages from chat ${chatId}`);
-
-    setNoCacheHeaders(res);
-    return res.status(200).json({
-      success: true,
-      messages,
-      chatId // Include chatId in response for client reference
-    });
-
-  } catch (error) {
-    console.error('[ERROR] /api/maya/chat-history:', error);
-    return sendError(res, error instanceof Error ? error.message : 'Failed to fetch chat history', 500);
-  }
-}
