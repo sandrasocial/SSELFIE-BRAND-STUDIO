@@ -2,12 +2,12 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 export const config = { 
   runtime: 'nodejs',
-  maxDuration: 60
+  maxDuration: 25
 } as const;
 
-// Route to Maya chat serverless endpoint
-import chatHandler from './api/maya/chat';
+// Route to Maya status serverless endpoint
+import statusHandler from '../server/api/maya/status';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  return chatHandler(req, res);
+  return statusHandler(req, res);
 }
