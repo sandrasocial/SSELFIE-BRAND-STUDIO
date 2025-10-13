@@ -7,7 +7,8 @@ import { adaptExpressRouter } from './_utils/express-to-vercel-adapter.js';
 import authRouter from './routes/modules/auth.js';
 import trainingRouter from './routes/modules/training.js';
 import galleryRouter from './routes/modules/gallery.js';
-import mayaRouter from './routes/modules/maya.js';
+// 🚨 DISABLED: Maya routes now handled by dedicated serverless endpoints
+// import mayaRouter from './routes/modules/maya.js';
 
 export const config = { runtime: 'nodejs' } as const;
 
@@ -360,13 +361,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return galleryHandler(req, res);
   }
 
-  // 🔄 MAYA ROUTES: Handle via maya.ts module (Phase 4 Migration - Day 5)
-  const isMayaRoute = req.url && MAYA_ROUTES.some(route => req.url === route || req.url?.startsWith(route));
-  if (isMayaRoute) {
-    console.log(`🔄 [MAYA MODULE] Handling: ${req.url}`);
-    const mayaHandler = adaptExpressRouter(mayaRouter);
-    return mayaHandler(req, res);
-  }
+  // � DISABLED: Maya routes now handled by dedicated serverless endpoints in /server/maya-*.ts
+  // These endpoints have proper PersonalityManager integration and concept card extraction
+  // The old Express router uses generic prompts and is DEPRECATED
+  // �🔄 MAYA ROUTES: Handle via maya.ts module (Phase 4 Migration - Day 5)
+  // const isMayaRoute = req.url && MAYA_ROUTES.some(route => req.url === route || req.url?.startsWith(route));
+  // if (isMayaRoute) {
+  //   console.log(`🔄 [MAYA MODULE] Handling: ${req.url}`);
+  //   const mayaHandler = adaptExpressRouter(mayaRouter);
+  //   return mayaHandler(req, res);
+  // }
 
   // Skip auth middleware entirely for public routes
   if (isPublicRoute) {
