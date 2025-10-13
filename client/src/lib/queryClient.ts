@@ -18,42 +18,45 @@ export async function apiRequest(
   data?: unknown | undefined,
 ): Promise<any> {
   const finalUrl = getApiUrl(url);
-  // Attach Stack Auth bearer if available (unifies with apiFetch behavior)
+  // Attach Stack Auth bearer if available
   let authHeader: Record<string, string> = {};
   try {
-    const { getStackApp } = await import('../stack/stack-context.js');
-    const stack = getStackApp?.();
-    
-    // Stack Auth with cookie storage - get token from tokenStore
-    const tokenStore = (stack as any)?.tokenStore;
+    // Read Stack Auth token directly from browser cookies
     let token: string | null = null;
     
-    if (tokenStore?.getItem) {
-      // Try to get access token from cookie store
-      const projectId = stack?.projectId || '253d7343-a0d4-43a1-be5c-822f590d40be';
-      token = tokenStore.getItem(`stack-access-${projectId}`) || tokenStore.getItem('stack-access');
+    if (typeof document !== 'undefined' && document.cookie) {
+      // Parse cookies to find stack-access
+      const cookies = document.cookie.split(';').reduce((acc, cookie) => {
+        const [key, value] = cookie.trim().split('=');
+        acc[key] = value;
+        return acc;
+      }, {} as Record<string, string>);
       
-      // Parse if it's an array format like in the cookie
-      if (token && token.startsWith('[')) {
+      // Stack Auth stores token in stack-access cookie as ["refreshToken", "accessToken"]
+      const stackAccessCookie = cookies['stack-access'];
+      
+      if (stackAccessCookie) {
         try {
-          const parsed = JSON.parse(decodeURIComponent(token));
-          token = Array.isArray(parsed) && parsed[1] ? parsed[1] : null;
+          // Decode and parse the cookie value
+          const decoded = decodeURIComponent(stackAccessCookie);
+          const parsed = JSON.parse(decoded);
+          
+          // Extract access token (second element in array)
+          if (Array.isArray(parsed) && parsed[1]) {
+            token = parsed[1];
+            console.log('[API] Token extracted from stack-access cookie');
+          }
         } catch (e) {
-          console.warn('[API] Failed to parse token from cookie:', e);
+          console.warn('[API] Failed to parse stack-access cookie:', e);
         }
       }
     }
     
-    // Fallback: try getAccessToken if available
-    if (!token && typeof (stack as any)?.getAccessToken === 'function') {
-      token = await (stack as any)?.getAccessToken?.();
-    }
-    
     if (token) {
-      console.log('[API] Adding Authorization header with token');
       authHeader = { Authorization: `Bearer ${token}` };
+      console.log('[API] Adding Authorization header for:', url);
     } else {
-      console.warn('[API] No auth token found for request to:', url);
+      console.warn('[API] No auth token found in cookies for:', url);
     }
   } catch (err) {
     console.error('[API] Error getting auth token:', err);
