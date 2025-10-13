@@ -69,11 +69,12 @@ export async function getUserFromRequest(req: VercelRequest) {
     
     console.log(`[AUTH] Fetching user from database for userId: ${userId}`);
     
-    // Get user from database
-    const user = await storage.getUser(userId);
+    // Get user from database by Stack Auth ID (JWT sub claim)
+    // This handles cases where user.id might still be legacy ID but stackAuthId is the JWT sub
+    const user = await storage.getUserByStackAuthId(userId);
     
     if (!user) {
-      console.log(`[AUTH] User not found in database for userId: ${userId}`);
+      console.log(`[AUTH] User not found in database for stackAuthId: ${userId}`);
       return null;
     }
     
