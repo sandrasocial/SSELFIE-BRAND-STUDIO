@@ -611,7 +611,8 @@
     "test:e2e:headed": "npx playwright test --headed",
     "test:e2e:debug": "npx playwright test --debug",
     "test:e2e:ui": "npx playwright test --ui",
-    "test:install": "npx playwright install"
+    "test:install": "npx playwright install",
+    "db:migrate-images": "tsx server/admin/scripts/migrate-image-user-ids.ts"
   },
   "keywords": [],
   "author": "",
