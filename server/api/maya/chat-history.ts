@@ -23,10 +23,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (!user) return sendUnauthorized(res);
 
     // Get database user
-    const dbUser = await storage.getUserByStackAuthId(user.id);
-    if (!dbUser) {
-      return sendError(res, 'User not found', 404);
-    }
+    const dbUser = user; // getUserFromRequest already returns database user
 
     // Get chatId from query param OR get user's latest chat
     let chatId = getQueryParam(req, 'chatId');

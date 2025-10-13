@@ -24,10 +24,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return sendError(res, 'Prompt is required', 400);
     }
 
-    const dbUser = await storage.getUserByStackAuthId(user.id);
-    if (!dbUser) {
-      return sendError(res, 'User not found. Please complete onboarding first', 400);
-    }
+    const dbUser = user; // getUserFromRequest already returns database user
 
     const userModel = await storage.getUserModelByUserId(user.id);
     if (!userModel || userModel.trainingStatus !== 'completed') {

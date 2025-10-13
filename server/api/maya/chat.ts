@@ -106,11 +106,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     console.log(`💬 MAYA CHAT: User ${user.id} - "${message.substring(0, 50)}..."`);
 
-    // Get database user and context
-    const dbUser = await storage.getUserByStackAuthId(user.id);
-    if (!dbUser) {
-      return sendError(res, 'User not found', 404);
-    }
+    // getUserFromRequest already returns the database user, no need to look up again
+    const dbUser = user;
 
     // Get user model for trigger word awareness
     const userModel = await storage.getUserModel(dbUser.id);
