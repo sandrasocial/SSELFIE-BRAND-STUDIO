@@ -37,29 +37,47 @@ export async function getUserFromRequest(req: VercelRequest) {
     const authHeader = req.headers.authorization as string | undefined;
     
     if (!authHeader) {
+      console.log('[AUTH] No authorization header');
       return null;
     }
     
     if (!authHeader.startsWith('Bearer ')) {
+      console.log('[AUTH] Authorization header does not start with Bearer');
       return null;
     }
     
     const token = authHeader.slice(7);
     if (!token) {
+      console.log('[AUTH] Token is empty after extracting Bearer');
       return null;
     }
     
+    console.log(`[AUTH] Verifying JWT token with JWKS: ${STACK_JWKS_URL}`);
+    console.log(`[AUTH] Expected issuer: ${STACK_ISSUER}`);
+    console.log(`[AUTH] Expected audience: ${STACK_PROJECT_ID}`);
+    
     // Verify JWT token
     const payload = await verifyJWTToken(token);
+    console.log('[AUTH] JWT verified successfully, payload:', JSON.stringify(payload, null, 2));
     
     // Extract user ID from JWT
     const userId = payload?.sub || payload?.user_id || payload?.id;
     if (!userId) {
+      console.log('[AUTH] No userId found in JWT payload');
       return null;
     }
     
+    console.log(`[AUTH] Fetching user from database for userId: ${userId}`);
+    
     // Get user from database
     const user = await storage.getUser(userId);
+    
+    if (!user) {
+      console.log(`[AUTH] User not found in database for userId: ${userId}`);
+      return null;
+    }
+    
+    console.log(`[AUTH] User found: ${user.id} (${user.email})`);
     return user;
     
   } catch (error) {
