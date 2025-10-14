@@ -19,6 +19,7 @@ import { InsertMessage, InsertMayaConcept } from '../../shared/schema.js';
 import { ConceptCard } from '../../shared/types/concept-card.js';
 import Anthropic from '@anthropic-ai/sdk';
 import { PersonalityManager } from '../agents/personalities/personality-config.js';
+import { ReplicateClient } from './replicate-client.js';
 
 export interface MayaChatRequest {
   message: string;
@@ -281,6 +282,9 @@ export class MayaService {
       // Extract concept cards from response
       const conceptCards = this.extractConceptCards(mayaResponse);
 
+      // Clean the response to remove concept card formatting for display
+      const cleanResponse = this.cleanResponseForDisplay(mayaResponse, conceptCards);
+
       // Save user message to Maya chat database
       const userMessage = {
         chatId: parseInt(mayaChatId),
@@ -293,7 +297,7 @@ export class MayaService {
       const mayaMessage = {
         chatId: parseInt(mayaChatId),
         role: 'assistant',
-        content: mayaResponse,
+        content: cleanResponse,  // Use cleaned response without concept card formatting
         conceptCards: conceptCards.map(card => ({
           title: card.title || 'Untitled Concept',
           description: card.description || '',
@@ -418,6 +422,9 @@ export class MayaService {
       // Extract concept cards from the pre-generated response
       const conceptCards = this.extractConceptCards(request.mayaResponseContent);
 
+      // Clean the response to remove concept card formatting for display
+      const cleanResponse = this.cleanResponseForDisplay(request.mayaResponseContent, conceptCards);
+
       // Save user message to Maya chat database
       const userMessage = {
         chatId: parseInt(mayaChatId),
@@ -430,7 +437,7 @@ export class MayaService {
       const mayaMessage = {
         chatId: parseInt(mayaChatId),
         role: 'assistant',
-        content: request.mayaResponseContent,
+        content: cleanResponse,  // Use cleaned response without concept card formatting
         conceptCards: conceptCards.map(card => ({
           title: card.title || 'Untitled Concept',
           description: card.description || '',
@@ -510,7 +517,6 @@ export class MayaService {
 
       // Try to use the official SDK for cancellation
       try {
-        const { ReplicateClient } = await import('./replicate-client.js');
         const replicateClient = new ReplicateClient();
         
         await replicateClient.cancelPrediction(predictionId);
@@ -731,7 +737,6 @@ export class MayaService {
       let predictionData: any;
       
       try {
-        const { ReplicateClient } = await import('./replicate-client.js');
         const replicateClient = new ReplicateClient();
         
         // Convert parameters to SDK format
@@ -929,7 +934,7 @@ export class MayaService {
    * Returns standardized ConceptCard objects matching shared/types/concept-card.ts
    */
   private extractConceptCards(response: string): ConceptCard[] {
-    const conceptCards = [];
+    const conceptCards: ConceptCard[] = [];
 
     try {
       console.log('🔍 MAYA SERVICE: Extracting concept cards from response:', response.substring(0, 500));
@@ -1068,6 +1073,65 @@ export class MayaService {
   }
 
   /**
+   * Clean Maya response by removing concept card formatting for clean chat display
+   * Keeps conversational text but removes the structured concept card sections
+   */
+  private cleanResponseForDisplay(response: string, extractedCards: ConceptCard[]): string {
+    let cleanResponse = response;
+
+    try {
+      // Remove concept card sections that were successfully extracted
+      for (const card of extractedCards) {
+        // Remove sections that match the concept card patterns
+        // Pattern 1: Emoji + **TITLE** + description + FLUX_PROMPT: [prompt]
+        const emojiPattern = new RegExp(
+          `[^\\w\\s]\\s*\\*\\*${this.escapeRegex(card.title)}\\*\\*\\s*[\\r\\n]+[^*]+?[\\r\\n]+\\s*FLUX_PROMPT:\\s*\\[[^\\]]*\\]`,
+          'gi'
+        );
+        cleanResponse = cleanResponse.replace(emojiPattern, '').trim();
+
+        // Pattern 2: Just **TITLE** + description + FLUX_PROMPT: [prompt]
+        const titlePattern = new RegExp(
+          `\\*\\*${this.escapeRegex(card.title)}\\*\\*\\s*[\\r\\n]+[^*]+?[\\r\\n]+\\s*FLUX_PROMPT:\\s*\\[[^\\]]*\\]`,
+          'gi'
+        );
+        cleanResponse = cleanResponse.replace(titlePattern, '').trim();
+      }
+
+      // Remove any remaining "---" separators that were used to split concept sections
+      cleanResponse = cleanResponse.replace(/---+[\r\n]*/g, '').trim();
+
+      // Clean up extra whitespace and empty lines
+      cleanResponse = cleanResponse
+        .split('\n')
+        .filter(line => line.trim().length > 0)
+        .join('\n')
+        .trim();
+
+      // If the response is now empty or too short, provide a fallback
+      if (cleanResponse.length < 10) {
+        cleanResponse = "I've created some concept cards for you based on your request. Check them out below!";
+      }
+
+      console.log(`🧹 MAYA: Cleaned response for display (${cleanResponse.length} chars):`, cleanResponse.substring(0, 200) + (cleanResponse.length > 200 ? '...' : ''));
+
+    } catch (error) {
+      console.error('❌ MAYA: Error cleaning response for display:', error);
+      // Return original response if cleaning fails
+      return response;
+    }
+
+    return cleanResponse;
+  }
+
+  /**
+   * Helper method to escape special regex characters
+   */
+  private escapeRegex(string: string): string {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+
+  /**
    * Enhanced emoji selection based on content analysis
    * Consolidated from MayaConceptCardService with additional patterns
    */
@@ -1195,7 +1259,7 @@ export class MayaService {
     const basePrompt = `Professional portrait photography of sandra, ${title.toLowerCase()}`;
     
     // Creative look specific styling
-    let styleElements = [];
+    let styleElements: string[] = [];
     switch (creativeLook) {
       case 'Scandinavian Minimalist':
         styleElements = ['clean Nordic aesthetic', 'soft natural lighting', 'understated elegance', 'soft whites and beiges'];
