@@ -179,7 +179,7 @@
     "server/services/maya/concept-card-service.ts",
     "server/services/maya/generation-coordinator.ts",
     "server/services/maya-service-refactored.ts",
-    
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
     // Refactored Training Services - Specialized Pipeline
     "server/services/training/replicate-service.ts",
     "server/services/training/s3-operations-service.ts",
