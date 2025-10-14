@@ -2104,6 +2104,25 @@ export class DatabaseStorage implements IStorage {
 
   async createMayaChatMessage(data: InsertMayaChatMessage): Promise<MayaChatMessage> {
     
+    // CRITICAL FIX: Clean emojis from concept cards to prevent JSONB serialization errors
+    if (data.conceptCards && Array.isArray(data.conceptCards)) {
+      data.conceptCards = data.conceptCards.map(card => ({
+        ...card,
+        emoji: this.cleanEmojiForDatabase((card as any).emoji || '📸'),
+        title: (card as any).title || 'Untitled Concept',
+        description: (card as any).description || '',
+        prompt: (card as any).prompt || '',
+        type: (card as any).type || 'professional',
+        metadata: {
+          ...(card as any).metadata,
+          emoji: this.cleanEmojiForDatabase(((card as any).metadata as any)?.emoji || '📸')
+        },
+        tags: (card as any).tags || [],
+        status: (card as any).status || 'active',
+        isTemplate: (card as any).isTemplate || false
+      }));
+    }
+
     // CRITICAL: Ensure fullPrompt field is preserved in concept cards
     // @ts-ignore - Complex message data structure with dynamic properties
     if (data.conceptCards && Array.isArray(data.conceptCards)) {
@@ -2838,6 +2857,28 @@ export class DatabaseStorage implements IStorage {
     } catch (error) {
       console.error('❌ Failed to ensure Maya profile for user:', userId, error);
       throw error;
+    }
+  }
+
+  /**
+   * Clean emoji characters to prevent JSON encoding issues in database
+   */
+  private cleanEmojiForDatabase(emoji: string): string {
+    if (!emoji) return '';
+    
+    try {
+      // Remove or replace problematic Unicode characters that cause JSON parsing issues
+      // This specifically handles surrogate pairs that cause the "low surrogate must follow high surrogate" error
+      const cleaned = emoji
+        .replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, '') // Remove surrogate pairs
+        .replace(/[\uD800-\uDFFF]/g, '') // Remove any remaining surrogates
+        .replace(/[^\u0000-\u007F\u00A0-\u024F\u1E00-\u1EFF\u2000-\u206F\u2070-\u209F\u20A0-\u20CF\u2100-\u214F\u2190-\u21FF\u2200-\u22FF]/g, ''); // Keep basic Latin, extended Latin, and common symbols
+      
+      // If emoji is completely cleaned out, provide a fallback
+      return cleaned || '🎯';
+    } catch (error) {
+      console.warn('⚠️ STORAGE: Error cleaning emoji, using fallback:', error);
+      return '🎯'; // Safe fallback emoji
     }
   }
 }
