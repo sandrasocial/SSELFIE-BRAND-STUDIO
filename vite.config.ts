@@ -67,17 +67,26 @@ export default defineConfig(({ mode }) => {
         input: path.resolve(__dirname, "client/index.html"),
         output: {
           format: 'es',
-          manualChunks: {
-            // Minimal chunking - only separate the most problematic dependencies
-            'vendor': ['react', 'react-dom'],
-            'stackauth': ['@stackframe/react'] // Only React package, not Next.js
+          manualChunks: (id) => {
+            // 🚨 CRITICAL: Isolate Stack Auth completely to prevent React conflicts
+            if (id.includes('@stackframe') || id.includes('stackframe')) {
+              return 'stackauth';
+            }
+            // Keep React in its own chunk but don't bundle it with Stack Auth
+            if (id.includes('node_modules/react') || id.includes('node_modules/react-dom')) {
+              return 'react-core';
+            }
+            // Everything else goes to vendor
+            if (id.includes('node_modules')) {
+              return 'vendor';
+            }
           },
           // Conservative interop settings
           interop: 'compat',
           exports: 'named'
         },
-        // Prevent Next.js Stack package from being bundled
-        external: ['@stackframe/stack']
+        // 🚨 CRITICAL: Make React external to prevent bundling conflicts
+        external: mode === 'production' ? ['react', 'react-dom', 'react/jsx-runtime'] : []
       },
       // Enable source maps for debugging
       sourcemap: mode === 'development',
@@ -95,20 +104,17 @@ export default defineConfig(({ mode }) => {
     // helpful nudges for prebundling and SSR
     optimizeDeps: {
       include: [
-        "react", 
-        "react-dom", 
-        "react/jsx-runtime",
         "@tanstack/react-query",
         "wouter",
         "@stackframe/react"
       ],
-      exclude: ["@stackframe/stack"], // Exclude Next.js package
-      force: true,
-      // 🚨 CRITICAL: Disable React optimization in production to prevent version conflicts
-      ...(mode === 'production' && {
-        include: ["@tanstack/react-query", "wouter", "@stackframe/react"],
-        exclude: ["react", "react-dom", "react/jsx-runtime", "@stackframe/stack"]
-      })
+      exclude: [
+        "react", 
+        "react-dom", 
+        "react/jsx-runtime",
+        "@stackframe/stack"
+      ], // 🚨 CRITICAL: Always exclude React to prevent conflicts
+      force: true
     },
     ssr: {
       noExternal: ["@stackframe/react"],
