@@ -641,7 +641,7 @@ export function BrandStudioProvider({ children }: { children: React.ReactNode })
     
     const poll = async (): Promise<void> => {
       try {
-        const response = await fetch(`/api/maya/status?predictionId=${jobId}`, {
+        const response = await fetch(`/api/maya/generation-status?predictionId=${jobId}`, {
           credentials: 'include'
         });
         

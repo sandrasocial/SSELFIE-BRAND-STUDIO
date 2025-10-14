@@ -344,7 +344,7 @@ export class MayaService {
       await this.updateUserProfileStats();
 
       return {
-        response: mayaResponse,
+        response: cleanResponse,  // Use cleaned response without concept card formatting
         conceptCards,
         conversationId: mayaChatId,
       };
