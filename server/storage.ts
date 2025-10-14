@@ -650,26 +650,13 @@ export class DatabaseStorage implements IStorage {
 
   // AI Image operations
   async getAIImages(userId: string): Promise<AiImage[]> {
-    // Direct lookup first
-    let images = await db
+    // Direct lookup only - Stack Auth middleware provides correct database user ID
+    // Removed fallback query to prevent timeouts in serverless environment
+    return await db
       .select()
       .from(aiImages)
       .where(eq(aiImages.userId, userId))
       .orderBy(desc(aiImages.createdAt));
-    
-    if (images.length === 0) {
-      // For Stack Auth users, check by linked original user ID
-      const linkedUser = await this.getUserByStackAuthId(userId);
-      if (linkedUser) {
-        images = await db
-          .select()
-          .from(aiImages)
-          .where(eq(aiImages.userId, linkedUser.id))
-          .orderBy(desc(aiImages.createdAt));
-      }
-    }
-    
-    return images;
   }
 
   async getUserAIImages(userId: string): Promise<AiImage[]> {
@@ -719,26 +706,13 @@ export class DatabaseStorage implements IStorage {
 
   // Generated Images operations (NEW ENHANCED GALLERY - primary table)
   async getGeneratedImages(userId: string): Promise<GeneratedImage[]> {
-    // Direct lookup first
-    let images = await db
+    // Direct lookup only - Stack Auth middleware provides correct database user ID
+    // Removed fallback query to prevent timeouts in serverless environment
+    return await db
       .select()
       .from(generatedImages)
       .where(eq(generatedImages.userId, userId))
       .orderBy(desc(generatedImages.createdAt));
-    
-    if (images.length === 0) {
-      // For Stack Auth users, check by linked original user ID
-      const linkedUser = await this.getUserByStackAuthId(userId);
-      if (linkedUser) {
-        images = await db
-          .select()
-          .from(generatedImages)
-          .where(eq(generatedImages.userId, linkedUser.id))
-          .orderBy(desc(generatedImages.createdAt));
-      }
-    }
-    
-    return images;
   }
 
   async saveGeneratedImage(data: InsertGeneratedImage): Promise<GeneratedImage> {
@@ -757,26 +731,13 @@ export class DatabaseStorage implements IStorage {
 
   // Generated Videos operations (VEO 3 video generation)
   async getGeneratedVideos(userId: string): Promise<GeneratedVideo[]> {
-    // Direct lookup first
-    let videos = await db
+    // Direct lookup only - Stack Auth middleware provides correct database user ID
+    // Removed fallback query to prevent timeouts in serverless environment
+    return await db
       .select()
       .from(generatedVideos)
       .where(eq(generatedVideos.userId, userId))
       .orderBy(desc(generatedVideos.createdAt));
-    
-    if (videos.length === 0) {
-      // For Stack Auth users, check by linked original user ID
-      const linkedUser = await this.getUserByStackAuthId(userId);
-      if (linkedUser) {
-        videos = await db
-          .select()
-          .from(generatedVideos)
-          .where(eq(generatedVideos.userId, linkedUser.id))
-          .orderBy(desc(generatedVideos.createdAt));
-      }
-    }
-    
-    return videos;
   }
 
   async saveGeneratedVideo(data: InsertGeneratedVideo): Promise<GeneratedVideo> {
@@ -1139,24 +1100,13 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateUserModel(userId: string, data: Partial<UserModel>): Promise<UserModel> {
-    // Try direct update first
-    let [updated] = await db
+    // Direct update only - Stack Auth middleware provides correct database user ID
+    // Removed fallback query to prevent timeouts in serverless environment
+    const [updated] = await db
       .update(userModels)
       .set({ ...data, updatedAt: new Date() } as any)
       .where(eq(userModels.userId, userId))
       .returning();
-    
-    if (!updated) {
-      // For Stack Auth users, try updating by linked original user ID
-      const linkedUser = await this.getUserByStackAuthId(userId);
-      if (linkedUser) {
-        [updated] = await db
-          .update(userModels)
-          .set({ ...data, updatedAt: new Date() } as any)
-          .where(eq(userModels.userId, linkedUser.id))
-          .returning();
-      }
-    }
     
     if (!updated) {
       throw new Error(`User model not found for user: ${userId}`);
