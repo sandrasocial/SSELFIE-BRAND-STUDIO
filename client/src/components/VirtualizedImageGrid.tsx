@@ -103,7 +103,7 @@ export const VirtualizedImageGrid: React.FC<VirtualizedImageGridProps> = ({
       }
     });
 
-    resizeObserver.observe(container);
+    resizeObserver.observe(container as Element);
     addCleanup(() => resizeObserver.disconnect());
 
     return () => resizeObserver.disconnect();

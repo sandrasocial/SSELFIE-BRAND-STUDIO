@@ -87,7 +87,7 @@ export const OptimizedImageAdvanced: React.FC<OptimizedImageAdvancedProps> = ({
     observerRef.current = observer;
 
     if (imgRef.current) {
-      observer.observe(imgRef.current);
+      observer.observe(imgRef.current as Element);
     }
 
     return () => {

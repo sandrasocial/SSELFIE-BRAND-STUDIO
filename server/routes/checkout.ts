@@ -59,7 +59,7 @@ export function registerCheckoutRoutes(app: Express) {
   app.post("/api/create-retrain-checkout-session", requireStackAuth, async (req: Request & { body: RetrainCheckoutRequest }, res: Response) => {
     try {
       const { successUrl, cancelUrl } = req.body;
-      const userId = req.user.id;
+      const userId = req.user!.id;
       
       if (!userId) {
         return res.status(401).json({ message: 'User authentication required for retraining' });

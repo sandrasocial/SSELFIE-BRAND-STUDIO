@@ -24,7 +24,7 @@ export const HeroFullBleed: FC<HeroFullBleedProps> = ({
   alignment = 'center',
   fullHeight = true
 }) => {
-  const handleCTAClick = (e: MouseEvent) => {
+  const handleCTAClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (onCta) {
       e.preventDefault();
       onCta();

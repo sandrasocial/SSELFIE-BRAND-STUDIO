@@ -9,7 +9,6 @@ import { Input } from './ui/input.js';
 import { apiRequest } from '../lib/queryClient.js';
 import ErrorBoundary from './ErrorBoundary.js';
 import StoryStudioModal from './StoryStudioModal.js';
-import VideoGenerateDialog from '../features/video/VideoGenerateDialog.js';
 import BrandAssetPlacementModal from './BrandAssetPlacementModal.js';
 import { 
   Search, 
@@ -147,7 +146,6 @@ function GalleryTabScreen() {
   const { user, isAuthenticated } = useAuth();
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
-  const [isVideoDialogOpen, setIsVideoDialogOpen] = useState(false);
   const [isBrandPlacementModalOpen, setIsBrandPlacementModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterBy, setFilterBy] = useState<'all' | 'favorites' | 'recent'>('all');
@@ -225,7 +223,7 @@ function GalleryTabScreen() {
 
   // Helper functions (same as original)
   const downloadImage = (imageUrl: string, filename: string) => {
-    const link = document.createElement('a');
+    const link = document.createElement('a') as HTMLAnchorElement;
     link.href = imageUrl;
     link.download = filename;
     document.body.appendChild(link);
@@ -263,7 +261,7 @@ function GalleryTabScreen() {
   };
 
   const handleCreateVideo = () => {
-    setIsVideoDialogOpen(true);
+    setIsVideoModalOpen(true);
   };
 
   const handlePlaceBrandAsset = () => {
@@ -375,7 +373,7 @@ function GalleryTabScreen() {
       </div>
 
       {/* Modals (same as original) */}
-      {selectedImage && !isVideoModalOpen && !isVideoDialogOpen && (
+      {selectedImage && !isVideoModalOpen && (
         <ImageDetailModal
           selectedImage={selectedImage}
           onClose={handleCloseModal}
@@ -394,21 +392,6 @@ function GalleryTabScreen() {
           imageUrl={selectedImage.imageUrl || selectedImage.url || ''}
           imageSource={selectedImage.source || 'unknown'}
           onClose={() => setIsVideoModalOpen(false)}
-          onSuccess={() => {
-            queryClient.invalidateQueries({ queryKey: ['/api/gallery-images'] });
-          }}
-        />
-      )}
-
-      {isVideoDialogOpen && selectedImage && (
-        <VideoGenerateDialog
-          isOpen={isVideoDialogOpen}
-          onClose={() => {
-            setIsVideoDialogOpen(false);
-            setSelectedImage(null);
-          }}
-          imageId={selectedImage.id.toString()}
-          imageUrl={selectedImage.imageUrl || selectedImage.url || ''}
           onSuccess={() => {
             queryClient.invalidateQueries({ queryKey: ['/api/gallery-images'] });
           }}

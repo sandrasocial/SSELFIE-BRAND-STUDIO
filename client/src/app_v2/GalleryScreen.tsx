@@ -224,7 +224,7 @@ const GalleryScreen: React.FC = () => {
 
   const downloadImage = (imageUrl: string, filename?: string) => {
     try {
-      const link = document.createElement('a');
+      const link = document.createElement('a') as HTMLAnchorElement;
       link.href = imageUrl;
       link.download = filename || 'sselfie-image';
       link.target = '_blank';
