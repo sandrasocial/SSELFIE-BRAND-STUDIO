@@ -4,7 +4,8 @@
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getUserFromRequest } from '../../_utils/auth-helpers.js';
+import { withAuth } from '../../_middleware/auth.js';
+import type { AuthenticatedRequest } from '../../_shared/auth-types.js';
 import { getRequestBody } from '../../_utils/request-helpers.js';
 import { sendSuccess, sendUnauthorized, sendBadRequest, sendMethodNotAllowed, sendError } from '../../_utils/response-helpers.js';
 
@@ -14,15 +15,16 @@ export const config = { runtime: 'nodejs', maxDuration: 60 };
 
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  if (req.method !== 'POST') {
-    return sendMethodNotAllowed(res, ['POST']);
-  }
-
-  try {
-    const user = await getUserFromRequest(req);
-    if (!user) {
-      return sendUnauthorized(res);
+  return withAuth(req, res, async (req: AuthenticatedRequest, res: VercelResponse) => {
+    if (req.method !== 'POST') {
+      return sendMethodNotAllowed(res, ['POST']);
     }
+
+    try {
+      const user = req.user;
+      if (!user) {
+        return sendUnauthorized(res);
+      }
 
     const { message, chatHistory = [], conversationId } = getRequestBody(req);
     if (!message) {
@@ -76,4 +78,5 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     
     return sendError(res, error instanceof Error ? error.message : 'Failed to process chat', 500);
   }
+  });
 }

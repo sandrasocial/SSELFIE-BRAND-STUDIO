@@ -3,20 +3,22 @@
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getUserFromRequest } from '../../_utils/auth-helpers.js';
+import { withAuth } from '../../_middleware/auth.js';
+import type { AuthenticatedRequest } from '../../_shared/auth-types.js';
 import { sendError, sendMethodNotAllowed, sendUnauthorized, sendBadRequest, setNoCacheHeaders } from '../../_utils/response-helpers.js';
 import { storage } from '../../storage.js';
 
 export const config = { runtime: 'nodejs', maxDuration: 60 };
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  if (req.method !== 'POST') {
-    return sendMethodNotAllowed(res, ['POST']);
-  }
+  return withAuth(req, res, async (req: AuthenticatedRequest, res: VercelResponse) => {
+    if (req.method !== 'POST') {
+      return sendMethodNotAllowed(res, ['POST']);
+    }
 
-  try {
-    const user = await getUserFromRequest(req);
-    if (!user) return sendUnauthorized(res);
+    try {
+      const user = req.user;
+      if (!user) return sendUnauthorized(res);
 
     const { prompt, style, count = 1, conceptName, seed, conceptCard } = req.body || {};
     
@@ -89,4 +91,5 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     
     return sendError(res, 'Image generation failed. Please try again or contact support if this persists.', 500);
   }
+  });
 }

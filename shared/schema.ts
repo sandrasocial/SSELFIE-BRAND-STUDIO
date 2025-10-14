@@ -11,6 +11,7 @@ import {
   integer,
   decimal,
   uuid,
+  foreignKey,
 } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
@@ -1733,9 +1734,170 @@ export type HairLead = typeof hairLeads.$inferSelect;
 // export type InsertHairLead = z.infer<typeof insertHairLeadSchema>;
 
 // =============================================================================
-// MAYA CORE TABLES - EMERGENCY DEPLOYMENT FIX
+// MAYA PERSONAL MEMORY TABLE - Personalized Interactions and Learning
 // =============================================================================
-// Temporarily moved from schema-maya.ts to fix Vercel deployment module resolution
+
+export const mayaPersonalMemory = pgTable("maya_personal_memory", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  
+  // Personal Insights and Memory
+  personalInsights: jsonb("personal_insights"),
+  ongoingGoals: jsonb("ongoing_goals"),
+  conversationStyle: jsonb("conversation_style"),
+  userFeedbackPatterns: jsonb("user_feedback_patterns"),
+  preferredTopics: jsonb("preferred_topics"),
+  
+  // Styling and Personalization
+  personalizedStylingNotes: text("personalized_styling_notes"),
+  successfulPromptPatterns: jsonb("successful_prompt_patterns"),
+  
+  // Memory Management
+  lastMemoryUpdate: timestamp("last_memory_update").defaultNow(),
+  memoryVersion: integer("memory_version").default(1),
+  
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// =============================================================================
+// USER SIMPLIFIED PROFILE TABLE - Streamlined User Profile
+// =============================================================================
+
+export const userSimplifiedProfile = pgTable("user_simplified_profile", {
+  id: serial().primaryKey().notNull(),
+  userId: varchar("user_id").notNull(),
+  transformationStory: text("transformation_story"),
+  currentSituation: text("current_situation"),
+  futureVision: text("future_vision"),
+  businessGoals: text("business_goals"),
+  businessType: varchar("business_type"),
+  stylePreferences: text("style_preferences"),
+  photoGoals: text("photo_goals"),
+  isCompleted: boolean("is_completed").default(false),
+  createdAt: timestamp("created_at", { mode: 'string' }).defaultNow(),
+  updatedAt: timestamp("updated_at", { mode: 'string' }).defaultNow(),
+}, (table) => {
+  return {
+    userSimplifiedProfileUserIdFkey: foreignKey({
+      columns: [table.userId],
+      foreignColumns: [users.id],
+      name: "user_simplified_profile_user_id_fkey"
+    }).onDelete("cascade"),
+  }
+});
+
+// =============================================================================
+// USER STYLEGUIDES TABLE - User Style Guide Management
+// =============================================================================
+
+export const userStyleguides = pgTable("user_styleguides", {
+  id: serial().primaryKey().notNull(),
+  userId: varchar("user_id").notNull(),
+  templateId: varchar("template_id").notNull(),
+  title: varchar().notNull(),
+  colors: jsonb().notNull(),
+  typography: jsonb().notNull(),
+  content: jsonb().notNull(),
+  aiImages: jsonb("ai_images"),
+  moodboardImages: jsonb("moodboard_images"),
+  status: varchar().default('draft'),
+  createdAt: timestamp("created_at", { mode: 'string' }).defaultNow(),
+  updatedAt: timestamp("updated_at", { mode: 'string' }).defaultNow(),
+}, (table) => {
+  return {
+    userStyleguidesUserIdFkey: foreignKey({
+      columns: [table.userId],
+      foreignColumns: [users.id],
+      name: "user_styleguides_user_id_fkey"
+    }).onUpdate("cascade").onDelete("cascade"),
+  }
+});
+
+// =============================================================================
+// FEED TEMPLATES TABLE - Social Media Feed Templates
+// =============================================================================
+
+export const feedTemplates = pgTable("feed_templates", {
+  id: serial().primaryKey().notNull(),
+  userId: varchar("user_id"),
+  name: varchar().notNull(),
+  category: varchar().notNull(),
+  description: text(),
+  textOverlayStyle: jsonb("text_overlay_style"),
+  colorPalette: jsonb("color_palette"),
+  typographySettings: jsonb("typography_settings"),
+  layoutConfig: jsonb("layout_config"),
+  isPublic: boolean("is_public").default(false),
+  usageCount: integer("usage_count").default(0),
+  createdAt: timestamp("created_at", { mode: 'string' }).defaultNow(),
+}, (table) => {
+  return {
+    feedTemplatesUserIdFkey: foreignKey({
+      columns: [table.userId],
+      foreignColumns: [users.id],
+      name: "feed_templates_user_id_fkey"
+    }),
+  }
+});
+
+// =============================================================================
+// BRANDED POSTS TABLE - Social Media Posts with Branding
+// =============================================================================
+
+export const brandedPosts = pgTable("branded_posts", {
+  id: serial().primaryKey().notNull(),
+  userId: varchar("user_id"),
+  templateId: integer("template_id"),
+  originalImageUrl: varchar("original_image_url").notNull(),
+  processedImageUrl: varchar("processed_image_url"),
+  textOverlay: text("text_overlay"),
+  overlayPosition: varchar("overlay_position"),
+  overlayStyle: jsonb("overlay_style"),
+  socialPlatform: varchar("social_platform"),
+  engagementData: jsonb("engagement_data"),
+  isPublished: boolean("is_published").default(false),
+  createdAt: timestamp("created_at", { mode: 'string' }).defaultNow(),
+}, (table) => {
+  return {
+    brandedPostsUserIdFkey: foreignKey({
+      columns: [table.userId],
+      foreignColumns: [users.id],
+      name: "branded_posts_user_id_fkey"
+    }),
+    brandedPostsTemplateIdFkey: foreignKey({
+      columns: [table.templateId],
+      foreignColumns: [feedTemplates.id],
+      name: "branded_posts_template_id_fkey"
+    }),
+  }
+});
+
+// =============================================================================
+// FEED COLLECTIONS TABLE - Collections of Social Media Posts
+// =============================================================================
+
+export const feedCollections = pgTable("feed_collections", {
+  id: serial().primaryKey().notNull(),
+  userId: varchar("user_id"),
+  name: varchar().notNull(),
+  description: text(),
+  postIds: jsonb("post_ids"),
+  colorTheme: jsonb("color_theme"),
+  brandGuidelines: jsonb("brand_guidelines"),
+  targetPlatforms: jsonb("target_platforms"),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at", { mode: 'string' }).defaultNow(),
+}, (table) => {
+  return {
+    feedCollectionsUserIdFkey: foreignKey({
+      columns: [table.userId],
+      foreignColumns: [users.id],
+      name: "feed_collections_user_id_fkey"
+    }),
+  }
+});
 
 export const mayaChats = pgTable("maya_chats", {
   id: serial("id").primaryKey(),
@@ -1919,31 +2081,6 @@ export const mayaModels = pgTable('maya_models', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
-// Maya validation schemas
-export const insertMayaImagesSchema = createInsertSchema(mayaImages).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
-
-export const insertMayaConceptsSchema = createInsertSchema(mayaConcepts).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
-
-export const insertMayaProfileSchema = createInsertSchema(mayaProfile).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
-
-export const insertMayaModelsSchema = createInsertSchema(mayaModels).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
-
 // Additional validation schemas needed by Maya services
 export const conceptMetadataSchema = z.object({
   styleElements: z.array(z.string()).optional(),
@@ -1989,7 +2126,184 @@ export type MayaPayment = typeof mayaPayments.$inferSelect;
 export type InsertMayaPayment = typeof mayaPayments.$inferInsert;
 export type MayaModel = typeof mayaModels.$inferSelect;
 export type InsertMayaModel = typeof mayaModels.$inferInsert;
+export type MayaPersonalMemory = typeof mayaPersonalMemory.$inferSelect;
+export type InsertMayaPersonalMemory = typeof mayaPersonalMemory.$inferInsert;
 
-// Note: Website type already defined above at line 502
-// Note: styleguide_templates and user_styleguides are imported from styleguide-schema.ts
-// Note: agentTasks, emailCaptures, and userWebsiteOnboarding are already defined earlier in this file
+// Additional Missing Table Types
+export type UserSimplifiedProfile = typeof userSimplifiedProfile.$inferSelect;
+export type InsertUserSimplifiedProfile = typeof userSimplifiedProfile.$inferInsert;
+export type UserStyleguide = typeof userStyleguides.$inferSelect;
+export type InsertUserStyleguide = typeof userStyleguides.$inferInsert;
+export type FeedTemplate = typeof feedTemplates.$inferSelect;
+export type InsertFeedTemplate = typeof feedTemplates.$inferInsert;
+export type BrandedPost = typeof brandedPosts.$inferSelect;
+export type InsertBrandedPost = typeof brandedPosts.$inferInsert;
+export type FeedCollection = typeof feedCollections.$inferSelect;
+export type InsertFeedCollection = typeof feedCollections.$inferInsert;
+export type MayaSubscription = typeof mayaSubscriptions.$inferSelect;
+export type InsertMayaSubscription = typeof mayaSubscriptions.$inferInsert;
+export type MayaUsageTracking = typeof mayaUsageTracking.$inferSelect;
+export type InsertMayaUsageTracking = typeof mayaUsageTracking.$inferInsert;
+export type MayaUsageBudget = typeof mayaUsageBudgets.$inferSelect;
+export type InsertMayaUsageBudget = typeof mayaUsageBudgets.$inferInsert;
+export type UserStyleProfile = typeof userStyleProfile.$inferSelect;
+export type InsertUserStyleProfile = typeof userStyleProfile.$inferInsert;
+
+// Maya Subscriptions Table
+export const mayaSubscriptions = pgTable("maya_subscriptions", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  stripeCustomerId: varchar("stripe_customer_id"),
+  stripeSubscriptionId: varchar("stripe_subscription_id"),
+  plan: varchar("plan").notNull(),
+  status: varchar("status").notNull(),
+  currentPeriodStart: timestamp("current_period_start"),
+  currentPeriodEnd: timestamp("current_period_end"),
+  cancelAtPeriodEnd: boolean("cancel_at_period_end").default(false),
+  generationsPerMonth: integer("generations_per_month").default(100),
+  generationsUsed: integer("generations_used").default(0),
+  generationsRemaining: integer("generations_remaining"),
+  storyStudioEnabled: boolean("story_studio_enabled").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  cancelledAt: timestamp("cancelled_at"),
+});
+
+// Maya Usage Tracking Table
+export const mayaUsageTracking = pgTable("maya_usage_tracking", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  actionType: varchar("action_type").notNull(),
+  resourceType: varchar("resource_type").notNull(),
+  cost: decimal("cost"),
+  quotaUsed: integer("quota_used").default(1),
+  modelId: varchar("model_id"),
+  promptTokens: integer("prompt_tokens"),
+  completionTokens: integer("completion_tokens"),
+  requestId: varchar("request_id"),
+  metadata: jsonb("metadata"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Maya Usage Budgets Table
+export const mayaUsageBudgets = pgTable("maya_usage_budgets", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  budgetType: varchar("budget_type").notNull(),
+  generationLimit: integer("generation_limit").notNull(),
+  resetDate: timestamp("reset_date"),
+  currentUsage: integer("current_usage").default(0),
+  isLimitReached: boolean("is_limit_reached").default(false),
+  alertThreshold: integer("alert_threshold").default(80),
+  isActive: boolean("is_active").default(true),
+  isOverridden: boolean("is_overridden").default(false),
+  overrideReason: text("override_reason"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// User Style Profile Table
+export const userStyleProfile = pgTable("user_style_profile", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  personalBrandId: integer("personal_brand_id").references(() => userPersonalBrand.id, { onDelete: "cascade" }),
+  styleCategories: jsonb("style_categories").default('[]'),
+  colorPreferences: jsonb("color_preferences").default('{"avoidColors":[],"accentColors":[],"primaryColors":[]}'),
+  settingsPreferences: jsonb("settings_preferences").default('[]'),
+  locationVibes: jsonb("location_vibes").default('[]'),
+  clothingPreferences: jsonb("clothing_preferences").default('{"comfortLevel":"moderate","favoriteItems":[],"occasionTypes":[],"preferredStyles":[],"bodyTypeConsiderations":[]}'),
+  beautyPreferences: jsonb("beauty_preferences").default('{"makeupStyle":"natural","hairPreferences":[],"beautyComfortLevel":"moderate","skinToneConsiderations":""}'),
+  styleAvoidances: jsonb("style_avoidances").default('[]'),
+  boundariesAndLimits: text("boundaries_and_limits"),
+  inspirationImages: jsonb("inspiration_images").default('[]'),
+  styleIcons: jsonb("style_icons").default('[]'),
+  brandReferences: jsonb("brand_references").default('[]'),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// =============================================================================
+// INSERT SCHEMAS - All table definitions must come before these
+// =============================================================================
+
+// Maya Insert Schemas
+export const insertMayaImagesSchema = createInsertSchema(mayaImages).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertMayaConceptsSchema = createInsertSchema(mayaConcepts).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertMayaProfileSchema = createInsertSchema(mayaProfile).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertMayaModelsSchema = createInsertSchema(mayaModels).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertMayaPersonalMemorySchema = createInsertSchema(mayaPersonalMemory).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+// Additional Missing Table Insert Schemas
+export const insertUserSimplifiedProfileSchema = createInsertSchema(userSimplifiedProfile).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertUserStyleguideSchema = createInsertSchema(userStyleguides).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertFeedTemplateSchema = createInsertSchema(feedTemplates).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertBrandedPostSchema = createInsertSchema(brandedPosts).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertFeedCollectionSchema = createInsertSchema(feedCollections).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertMayaSubscriptionSchema = createInsertSchema(mayaSubscriptions).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertMayaUsageTrackingSchema = createInsertSchema(mayaUsageTracking).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertMayaUsageBudgetSchema = createInsertSchema(mayaUsageBudgets).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertUserStyleProfileSchema = createInsertSchema(userStyleProfile).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});

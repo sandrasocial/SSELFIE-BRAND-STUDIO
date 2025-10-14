@@ -137,11 +137,6 @@ export const mayaPersonalMemoryRelations = relations(mayaPersonalMemory, ({one})
 		references: [users.id],
 		relationName: "mayaPersonalMemory_userId_users_id"
 	}),
-	userPersonalBrand_personalBrandId: one(userPersonalBrand, {
-		fields: [mayaPersonalMemory.personalBrandId],
-		references: [userPersonalBrand.id],
-		relationName: "mayaPersonalMemory_personalBrandId_userPersonalBrand_id"
-	}),
 }));
 
 export const userPersonalBrandRelations = relations(userPersonalBrand, ({one, many}) => ({
