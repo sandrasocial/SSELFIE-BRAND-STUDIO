@@ -150,7 +150,7 @@ export default function ImageInpaint({
   }, []);
 
   // Drawing functions
-  const startDrawing = useCallback((e: React.MouseEvent | React.TouchEvent) => {
+  const startDrawing = useCallback((e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
     e.preventDefault();
     setIsDrawing(true);
     
@@ -168,7 +168,7 @@ export default function ImageInpaint({
     ctx.fill();
   }, [isErasing, brushSize, getEventPos]);
 
-  const draw = useCallback((e: React.MouseEvent | React.TouchEvent) => {
+  const draw = useCallback((e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
     e.preventDefault();
     if (!isDrawing) return;
     
@@ -237,7 +237,7 @@ export default function ImageInpaint({
     if (!maskCanvas) return;
     
     // Create a link and download
-    const link = document.createElement('a');
+    const link = document.createElement('a') as HTMLAnchorElement;
     link.download = 'inpaint-mask.png';
     link.href = maskCanvas.toDataURL();
     link.click();

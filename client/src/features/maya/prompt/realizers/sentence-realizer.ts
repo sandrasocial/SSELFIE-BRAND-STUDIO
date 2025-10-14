@@ -46,7 +46,13 @@ export class SentenceRealizer {
     } = options;
     
     
-    const elements = {
+    const elements: {
+      setting: string[];
+      character: string[];
+      atmosphere: string[];
+      sensory: string[];
+      story: string[];
+    } = {
       setting: [],
       character: [],
       atmosphere: [],

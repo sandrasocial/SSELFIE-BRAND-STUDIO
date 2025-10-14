@@ -9,7 +9,7 @@
 export function setupMobileViewport() {
   // Add viewport meta tag if it doesn't exist
   if (!document.querySelector('meta[name="viewport"]')) {
-    const viewport = document.createElement('meta');
+    const viewport = document.createElement('meta') as HTMLMetaElement;
     viewport.name = 'viewport';
     viewport.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover';
     document.head.appendChild(viewport);
@@ -210,27 +210,26 @@ export function setupMobileGestures() {
   };
 }
 
-/**
- * Optimize images for mobile devices
- */
 export function optimizeImagesForMobile() {
   const images = document.querySelectorAll('img');
   
   images.forEach((img) => {
+    const htmlImg = img as HTMLImageElement;
+    
     // Add loading="lazy" for better performance
-    if (!img.hasAttribute('loading')) {
-      img.setAttribute('loading', 'lazy');
+    if (!htmlImg.hasAttribute('loading')) {
+      htmlImg.setAttribute('loading', 'lazy');
     }
 
     // Add proper alt text if missing
-    if (!img.alt) {
-      img.alt = 'Image';
+    if (!htmlImg.alt) {
+      htmlImg.alt = 'Image';
     }
 
     // Ensure images are responsive
-    if (!img.style.maxWidth) {
-      img.style.maxWidth = '100%';
-      img.style.height = 'auto';
+    if (!htmlImg.style.maxWidth) {
+      htmlImg.style.maxWidth = '100%';
+      htmlImg.style.height = 'auto';
     }
   });
 }

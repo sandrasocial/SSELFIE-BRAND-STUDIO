@@ -1,114 +1,57 @@
 import React from 'react';
 import { createRoot } from "react-dom/client";
-import App from "./App.js";
-import "./index.css";
-
-// 💡 IMPORT ALL PROVIDERS HERE
 import { QueryClientProvider } from '@tanstack/react-query';
 import { StackProvider, StackTheme } from '@stackframe/react';
-import { Toaster } from './components/ui/toaster.js';
-import { TooltipProvider } from './components/ui/tooltip.js';
+import { Toaster } from './components/ui/toaster';
+import { TooltipProvider } from './components/ui/tooltip';
+import { ErrorBoundary } from "./components/ErrorBoundary";
+import { stackClientApp } from "../../stack/client";
+import { queryClient } from "./lib/queryClient";
+import App from "./App";
+import "./index.css";
 
-// Import queryClient and stackClientApp
-import { queryClient } from "./lib/queryClient.js";
-// Re-enable Stack Auth import
-import { stackClientApp } from "../../stack/client.js";
-
-// Debug logging for troubleshooting
-
-// Add visible debug indicator - REMOVED FOR PRODUCTION
-// const debugDiv = document.createElement('div');
-// debugDiv.id = 'main-debug';
-// debugDiv.style.cssText = 'position:fixed;top:10px;left:10px;background:purple;color:white;padding:5px;z-index:9999;font-size:12px;';
-// debugDiv.textContent = 'Main.tsx Loaded';
-// document.body.appendChild(debugDiv);
-
-// Disable Vite HMR to prevent WebSocket connection errors
-if (import.meta.hot) {
-  import.meta.hot.accept(() => {
-    // Accept all hot updates without triggering WebSocket connections
-  });
-}
-
-// Add global error handlers to catch unhandled promise rejections
-window.addEventListener('unhandledrejection', (event) => {
-  // Prevent the default console.error that React shows
-  event.preventDefault();
-  
-  // Check if this is a WebSocket or development-related error
-  const isWebSocketError = event.reason && (
-    event.reason.message?.includes('WebSocket') ||
-    event.reason.message?.includes('websocket') ||
-    event.reason.message?.includes('HMR') ||
-    event.reason.message?.includes('Service Worker') ||
-    event.reason.toString().includes('WebSocket')
+// Simple test component
+function TestApp() {
+  console.log('✅ TestApp component is rendering!');
+  return (
+    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
+      <h1>SSELFIE Studio - Basic Test</h1>
+      <p>If you see this, the basic React setup is working!</p>
+      <p>React version: {React.version}</p>
+      <p>Current time: {new Date().toLocaleString()}</p>
+      <p>Console check: Open browser dev tools to see the log message.</p>
+    </div>
   );
-  
-  if (isWebSocketError) {
-    // Silently ignore WebSocket/HMR errors - these are development only
-    return;
-  }
-  
-  // Only log actual application errors
-  console.warn('SSELFIE Studio: Unhandled promise rejection caught:', event.reason);
-});
-
-// React sanity check for debugging
-if (import.meta.env.DEV) {
-  console.log('🔍 React Debug Info:', {
-    version: React.version, 
-    hasUse: typeof (React as any).use === "function" 
-  });
 }
-
-
-// Global listener for static modal video save events
-window.addEventListener('video:preview:save', async (e: Event) => {
-  const detail = (e as CustomEvent).detail || {};
-  const canonical = detail.originalSrc || detail.src;
-  if (!canonical) return;
-  try {
-    const res = await fetch('/api/videos/save', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ videoUrl: canonical, source: 'static-modal' })
-    });
-    if (!res.ok) {
-      console.warn('[Video Save] Failed to persist video:', res.status, await res.text());
-    } else {
-      // Video saved successfully
-    }
-  } catch (err) {
-    console.warn('[Video Save] Error persisting video', err);
-  }
-});
 
 try {
+  console.log('🚀 SSELFIE Studio: Starting app initialization...');
   const container = document.getElementById("root");
   if (!container) {
     console.error('❌ Root element not found!');
     throw new Error("Failed to find the root element");
   }
 
+  console.log('✅ Root element found, creating React root...');
   const root = createRoot(container as Element);
-
+  console.log('✅ React root created, rendering minimal app...');
   root.render(
     <React.StrictMode>
-      {/* Re-enable Stack Auth provider */}
       <StackProvider app={stackClientApp as any}>
         <StackTheme>
-          {/* 2. QueryClientProvider wraps the entire application logic */}
           <QueryClientProvider client={queryClient}>
             <TooltipProvider>
-              {/* 3. App component only renders the router */}
-              <App />
-              <Toaster />
+              <ErrorBoundary>
+                <App />
+                <Toaster />
+              </ErrorBoundary>
             </TooltipProvider>
           </QueryClientProvider>
         </StackTheme>
       </StackProvider>
     </React.StrictMode>
   );
+  console.log('✅ Minimal app rendered successfully!');
 
 } catch (error) {
   console.error('❌ SSELFIE Studio: Fatal error during app initialization:', error);
@@ -122,7 +65,7 @@ try {
         <p style="color: #666;">There was an error loading the application.</p>
         <details style="margin-top: 20px; text-align: left; max-width: 600px; margin-left: auto; margin-right: auto;">
           <summary style="cursor: pointer; font-weight: bold;">Technical Details</summary>
-          <pre style="background: #f5f5f5; padding: 10px; overflow-x: auto; margin-top: 10px;">${error}</pre>
+          <pre style="background: #f5f55; padding: 10px; overflow-x: auto; margin-top: 10px;">${error}</pre>
         </details>
         <p style="margin-top: 20px;">
           <a href="/" style="color: #2563eb; text-decoration: none;">← Try Again</a>

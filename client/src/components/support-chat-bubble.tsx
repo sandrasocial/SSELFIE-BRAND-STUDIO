@@ -143,7 +143,7 @@ export function SupportChatBubble({ isOpen, onToggle }: SupportChatBubbleProps) 
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       sendMessage();

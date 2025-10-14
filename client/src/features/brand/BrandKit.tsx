@@ -120,7 +120,7 @@ const BrandKit: React.FC<BrandKitProps> = ({ onAssetSelect, selectedAssetId }) =
     }
   };
 
-  const handleDrop = (event: React.DragEvent, kind: 'logo' | 'product') => {
+  const handleDrop = (event: React.DragEvent<HTMLDivElement>, kind: 'logo' | 'product') => {
     event.preventDefault();
     setDragOver(false);
     
@@ -130,12 +130,12 @@ const BrandKit: React.FC<BrandKitProps> = ({ onAssetSelect, selectedAssetId }) =
     }
   };
 
-  const handleDragOver = (event: React.DragEvent) => {
+  const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     setDragOver(true);
   };
 
-  const handleDragLeave = (event: React.DragEvent) => {
+  const handleDragLeave = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     setDragOver(false);
   };
