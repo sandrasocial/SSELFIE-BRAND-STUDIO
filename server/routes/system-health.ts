@@ -230,7 +230,7 @@ function calculateOverallHealth() {
   else if (overallScore >= 60) status = 'warning';
   else status = 'critical';
 
-  const alerts = [];
+  const alerts: string[] = [];
   if (scores.agents < 100) alerts.push('Some agents not responding');
   if (scores.insights < 90) alerts.push('Insight generation issues');
   if (scores.notifications < 95) alerts.push('Notification delivery problems');

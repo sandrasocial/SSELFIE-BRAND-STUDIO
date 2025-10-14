@@ -4,11 +4,11 @@ import type {
   User,
   BrandOnboarding,
   AgentConversation,
-} from '../schema';
+} from '../schema.js';
 import type {
   MayaChat as DbMayaChat,
   MayaChatMessage as DbMayaChatMessage,
-} from '../schema';
+} from '../schema.js';
 
 // Base chat message interface
 export interface BaseChatMessage {
