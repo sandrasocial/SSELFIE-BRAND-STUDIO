@@ -32,58 +32,130 @@ async function verifyJWTToken(token: string): Promise<any> {
  * Extract and validate user from Bearer token in request headers
  * @returns User object if authenticated, null otherwise
  */
-export async function getUserFromRequest(req: VercelRequest) {
+/**
+ * Enhanced Authentication Helpers
+ * Centralized user authentication and linking logic for SSELFIE Studio
+ */
+
+import { getDatabase, type IStorage } from '../../shared/database-provider.js';
+import type { User } from '../../shared/types-override.js';
+
+const db = getDatabase();
+
+/**
+ * Enhanced user resolution that handles Stack Auth ID linking automatically
+ * @param stackAuthId - Stack Auth user ID from JWT
+ * @returns Database user object with proper linking
+ */
+export async function resolveUserWithAutoLinking(stackAuthId: string): Promise<any> {
   try {
-    const authHeader = req.headers.authorization as string | undefined;
-    
-    if (!authHeader) {
-      console.log('[AUTH] No authorization header');
-      return null;
-    }
-    
-    if (!authHeader.startsWith('Bearer ')) {
-      console.log('[AUTH] Authorization header does not start with Bearer');
-      return null;
-    }
-    
-    const token = authHeader.slice(7);
-    if (!token) {
-      console.log('[AUTH] Token is empty after extracting Bearer');
-      return null;
-    }
-    
-    console.log(`[AUTH] Verifying JWT token with JWKS: ${STACK_JWKS_URL}`);
-    console.log(`[AUTH] Expected issuer: ${STACK_ISSUER}`);
-    console.log(`[AUTH] Expected audience: ${STACK_PROJECT_ID}`);
-    
-    // Verify JWT token
-    const payload = await verifyJWTToken(token);
-    console.log('[AUTH] JWT verified successfully, payload:', JSON.stringify(payload, null, 2));
-    
-    // Extract user ID from JWT
-    const userId = payload?.sub || payload?.user_id || payload?.id;
-    if (!userId) {
-      console.log('[AUTH] No userId found in JWT payload');
-      return null;
-    }
-    
-    console.log(`[AUTH] Fetching user from database for userId: ${userId}`);
-    
-    // Get user from database by Stack Auth ID (JWT sub claim)
-    // This handles cases where user.id might still be legacy ID but stackAuthId is the JWT sub
-    const user = await storage.getUserByStackAuthId(userId);
-    
+    // First try to find user by Stack Auth ID
+    let user = await db.getUserByStackAuthId(stackAuthId);
+
     if (!user) {
-      console.log(`[AUTH] User not found in database for stackAuthId: ${userId}`);
+      console.log(`🔍 AUTH: User not found by Stack Auth ID: ${stackAuthId}, attempting auto-linking...`);
+
+      // Try to find user by the Stack Auth ID as primary ID (legacy users)
+      user = await db.getUser(stackAuthId);
+
+      if (user) {
+        // Link the Stack Auth ID to this user
+        console.log(`🔗 AUTH: Linking Stack Auth ID ${stackAuthId} to existing user ${user.id}`);
+        user = await db.linkStackAuthId(user.id, stackAuthId);
+        console.log(`✅ AUTH: Successfully linked user ${user.id} with Stack Auth ID ${stackAuthId}`);
+      } else {
+        console.warn(`❌ AUTH: No user found for Stack Auth ID: ${stackAuthId}`);
+        throw new Error(`User not found. Please complete registration.`);
+      }
+    }
+
+    return user;
+  } catch (error) {
+    console.error('❌ AUTH: Failed to resolve user:', error);
+    throw error;
+  }
+}
+
+/**
+ * Get authenticated user from request with enhanced error handling
+ * @param req - Vercel request object
+ * @returns Database user object
+ */
+export async function getUserFromRequest(req: any): Promise<User> {
+  try {
+    // Extract user from Stack Auth JWT
+    const stackAuthUser = req.user?.claims?.sub;
+
+    if (!stackAuthUser) {
+      console.warn('❌ AUTH: No Stack Auth user found in request');
+      throw new Error('Authentication required');
+    }
+
+    console.log(`🔍 AUTH: Resolving user for Stack Auth ID: ${stackAuthUser}`);
+    return await resolveUserWithAutoLinking(stackAuthUser);
+  } catch (error) {
+    console.error('❌ AUTH: Failed to get user from request:', error);
+    throw error;
+  }
+}
+
+/**
+ * Validate user has access to Maya features
+ * @param user - Database user object
+ * @returns Maya profile if access granted
+ */
+export async function validateMayaAccess(user: User) {
+  try {
+    // Get or create Maya profile
+    const profile = await db.getMayaProfile(user.id);
+
+    if (!profile) {
+      console.log(`🔍 MAYA: Creating new profile for user ${user.id}`);
+      // Profile will be created by getOrCreateUserProfile in MayaService
       return null;
     }
-    
-    console.log(`[AUTH] User found: ${user.id} (${user.email})`);
-    return user;
-    
+
+    // Check feature access
+    if (!(profile.featureAccess as any)?.basicGeneration) {
+      console.warn(`❌ MAYA: User ${user.id} does not have Maya access`);
+      throw new Error('Maya AI features are not available for this account');
+    }
+
+    return profile;
   } catch (error) {
-    console.error('[AUTH ERROR] Failed to get user from request:', error);
-    return null;
+    console.error('❌ MAYA: Access validation failed:', error);
+    throw error;
+  }
+}
+
+/**
+ * Validate user has completed model training for generation
+ * @param user - Database user object
+ * @returns User model if available and trained
+ */
+export async function validateUserModel(user: any) {
+  try {
+    const userModel = await db.getUserModel(user.id);
+
+    if (!userModel) {
+      console.warn(`❌ MODEL: No model found for user ${user.id}`);
+      throw new Error('Please complete your model training before generating images');
+    }
+
+    if (userModel.trainingStatus !== 'completed') {
+      console.warn(`❌ MODEL: Model training not complete for user ${user.id}, status: ${userModel.trainingStatus}`);
+      throw new Error(`Model training is ${userModel.trainingStatus}. Please wait for completion.`);
+    }
+
+    if (!userModel.replicateVersionId) {
+      console.error(`❌ MODEL: Model missing version ID for user ${user.id}`);
+      throw new Error('Model training completed but version ID is missing. Please contact support.');
+    }
+
+    return userModel;
+  } catch (error) {
+    console.error('❌ MODEL: Validation failed:', error);
+    throw error;
   }
 }
 

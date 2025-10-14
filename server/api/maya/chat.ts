@@ -29,6 +29,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return sendBadRequest(res, 'Message is required');
     }
 
+    if (typeof message !== 'string' || message.trim().length === 0) {
+      return sendBadRequest(res, 'Message must be a non-empty string');
+    }
+
+    if (message.length > 2000) {
+      return sendBadRequest(res, 'Message is too long (maximum 2000 characters)');
+    }
+
     console.log(`💬 MAYA CHAT: User ${user.id} - "${message.substring(0, 50)}..."`);
 
     // Use MayaService for full pipeline (creative looks, prompt, concept cards, storage)
@@ -50,6 +58,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   } catch (error) {
     console.error('❌ Error in /api/maya/chat:', error);
+    
+    // Enhanced error classification for better client handling
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    
+    if (errorMessage.includes('anthropic') || errorMessage.includes('claude')) {
+      return sendError(res, 'AI service temporarily unavailable. Please try again in a moment.', 503);
+    }
+    
+    if (errorMessage.includes('rate') || errorMessage.includes('limit')) {
+      return sendError(res, 'Too many requests. Please wait a moment and try again.', 429);
+    }
+    
+    if (errorMessage.includes('timeout')) {
+      return sendError(res, 'Request timed out. Please try again.', 408);
+    }
+    
     return sendError(res, error instanceof Error ? error.message : 'Failed to process chat', 500);
   }
 }

@@ -20,6 +20,7 @@ import "./styles/luxury-mobile.css";
 
 // Core pages (loaded immediately) - PAID AUTHENTICATED USERS ONLY
 import SselfieAppLayout from "./app_v2/SselfieAppLayout.js";
+import MayaPage from "./pages/MayaPage.js";
 
 // Lazy load non-critical pages for better performance
 import { lazy, Suspense } from "react";
@@ -257,7 +258,7 @@ function Router() {
       <Route path="/maya" component={() => (
         <ProtectedRouteWrapper>
           <Suspense fallback={<PageLoader />}>
-            <SselfieAppLayout />
+            <MayaPage />
           </Suspense>
         </ProtectedRouteWrapper>
       )} />

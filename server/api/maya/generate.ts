@@ -4,7 +4,7 @@
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { getUserFromRequest } from '../../_utils/auth-helpers.js';
-import { sendError, sendMethodNotAllowed, sendUnauthorized, setNoCacheHeaders } from '../../_utils/response-helpers.js';
+import { sendError, sendMethodNotAllowed, sendUnauthorized, sendBadRequest, setNoCacheHeaders } from '../../_utils/response-helpers.js';
 import { storage } from '../../storage.js';
 
 export const config = { runtime: 'nodejs', maxDuration: 60 };
@@ -25,14 +25,26 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const finalConceptName = conceptCard?.title || conceptName || 'Maya AI Generation';
     
     if (!finalPrompt) {
-      return sendError(res, 'Prompt is required', 400);
+      return sendBadRequest(res, 'Prompt is required for image generation');
+    }
+
+    if (typeof finalPrompt !== 'string' || finalPrompt.trim().length === 0) {
+      return sendBadRequest(res, 'Prompt must be a non-empty string');
+    }
+
+    if (finalPrompt.length > 1000) {
+      return sendBadRequest(res, 'Prompt is too long (maximum 1000 characters)');
     }
 
     const dbUser = user; // getUserFromRequest already returns database user
 
     const userModel = await storage.getUserModelByUserId(user.id);
-    if (!userModel || userModel.trainingStatus !== 'completed') {
+    if (!userModel) {
       return sendError(res, 'Please complete your model training before generating images', 400);
+    }
+
+    if (userModel.trainingStatus !== 'completed') {
+      return sendError(res, 'Your model training is not yet complete. Please wait for training to finish.', 400);
     }
 
     const { mayaService } = await import('../../services/maya-service.js');
@@ -55,6 +67,26 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   } catch (error) {
     console.error('[ERROR] /api/maya/generate:', error);
-    return sendError(res, 'Generation failed', 500);
+    
+    // Enhanced error classification
+    const errorMessage = error instanceof Error ? error.message : 'Unknown generation error';
+    
+    if (errorMessage.includes('replicate') || errorMessage.includes('flux')) {
+      return sendError(res, 'Image generation service temporarily unavailable. Please try again in a moment.', 503);
+    }
+    
+    if (errorMessage.includes('rate') || errorMessage.includes('limit') || errorMessage.includes('quota')) {
+      return sendError(res, 'Generation limit reached. Please try again later.', 429);
+    }
+    
+    if (errorMessage.includes('model') && errorMessage.includes('not found')) {
+      return sendError(res, 'Your personal model is not available. Please contact support.', 500);
+    }
+    
+    if (errorMessage.includes('timeout')) {
+      return sendError(res, 'Generation request timed out. Please try again.', 408);
+    }
+    
+    return sendError(res, 'Image generation failed. Please try again or contact support if this persists.', 500);
   }
 }

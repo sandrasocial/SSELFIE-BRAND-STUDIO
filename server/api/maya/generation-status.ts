@@ -21,7 +21,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const { predictionId } = req.query;
 
     if (!predictionId || typeof predictionId !== 'string') {
-      return sendError(res, 'predictionId query parameter is required', 400);
+      return sendError(res, 'predictionId query parameter is required and must be a string', 400);
+    }
+
+    if (predictionId.length === 0 || predictionId.length > 100) {
+      return sendError(res, 'predictionId must be between 1 and 100 characters', 400);
     }
 
     const { mayaService } = await import('../../services/maya-service.js');
@@ -33,6 +37,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   } catch (error) {
     console.error('[ERROR] /api/maya/generation-status:', error);
-    return sendError(res, 'Failed to check generation status', 500);
+    
+    // Enhanced error classification
+    const errorMessage = error instanceof Error ? error.message : 'Unknown status check error';
+    
+    if (errorMessage.includes('not found') || errorMessage.includes('invalid')) {
+      return sendError(res, 'Generation job not found or invalid', 404);
+    }
+    
+    if (errorMessage.includes('timeout')) {
+      return sendError(res, 'Status check timed out. Please try again.', 408);
+    }
+    
+    if (errorMessage.includes('rate') || errorMessage.includes('limit')) {
+      return sendError(res, 'Too many status checks. Please wait a moment.', 429);
+    }
+    
+    return sendError(res, 'Failed to check generation status. Please try again.', 500);
   }
 }

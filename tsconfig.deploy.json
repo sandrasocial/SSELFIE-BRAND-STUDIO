@@ -65,7 +65,6 @@
     "server/routes/modules/claude.ts",
     "shared/storage.interface.ts",
     "server/services/maya-service.ts",
-    "server/services/unified-maya-intelligence-service.ts",
     "server/services/claude-api-service-simple.ts",
     "server/services/images/variations.ts",
     "server/routes/images.ts",
