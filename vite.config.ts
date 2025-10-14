@@ -37,6 +37,15 @@ export default defineConfig(({ mode }) => {
     },
 
     root: path.resolve(__dirname, "client"),
+    server: {
+      proxy: {
+        '/api': {
+          target: 'http://localhost:3001',
+          changeOrigin: true,
+          secure: false,
+        }
+      }
+    },
     build: {
       outDir: path.resolve(__dirname, "client/dist"),
       emptyOutDir: true,
