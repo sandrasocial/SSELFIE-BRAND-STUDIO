@@ -8,7 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import { detectBrowserIssues, showDomainHelp } from "./utils/browserCompat.js";
 import { optimizeImageLoading, enableServiceWorkerCaching } from "./utils/performanceOptimizations.js";
 import { optimizeRuntime } from "./utils/webVitals.js";
-import { ErrorBoundary } from "./components/ErrorBoundary.js";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 import { initializeMobileOptimization } from "./utils/mobileOptimization.js";
 import { performanceMonitor } from "./utils/performanceMonitor.js";
 import { initializeRuntimeOptimization } from "./utils/runtimeOptimization.js";
@@ -26,31 +26,32 @@ import MayaPage from "./pages/MayaPage.js";
 import { lazy, Suspense } from "react";
 
 // Auth components (Lazy loaded for better performance)
-const MagicLinkSignInPage = lazy(() => import("../features/MagicLinkSignInPage.js").then(module => ({ default: module.MagicLinkSignInPage })));
-const MyForgotPassword = lazy(() => import("../features/MyForgotPassword.js").then(module => ({ default: module.MyForgotPassword })));
-const PasswordResetPage = lazy(() => import("../features/ResetPasswordPage.js").then(module => ({ default: module.ResetPasswordPage })));
+// Temporarily disabled - components don't exist yet
+// const MagicLinkSignInPage = lazy(() => import("../features/MagicLinkSignInPage.js").then(module => ({ default: module.MagicLinkSignInPage })));
+// const MyForgotPassword = lazy(() => import("../features/MyForgotPassword.js").then(module => ({ default: module.MyForgotPassword })));
+// const PasswordResetPage = lazy(() => import("../features/ResetPasswordPage.js").then(module => ({ default: module.ResetPasswordPage })));
 // Temporarily import SignInHandler directly to test if lazy loading is the issue
-import SignInHandler from "./pages/handler/sign-in.js";
+import SignInHandler from "./pages/handler/sign-in";
 
 // Post-login handler for routing based on training status
-import PostLoginHandler from "./pages/handler/PostLoginHandler.js";
+import PostLoginHandler from "./pages/handler/PostLoginHandler";
 
-const BusinessLanding = lazy(() => import("./pages/landing/business-landing.js"));
-const SimpleTraining = lazy(() => import("./pages/onboarding/simple-training.js"));
-const SimpleCheckout = lazy(() => import("./pages/simple-checkout.js"));
-const EmbeddedCheckout = lazy(() => import("./pages/embedded-checkout.js"));
-const PaymentSuccess = lazy(() => import("./pages/payment-success.js"));
-const ThankYou = lazy(() => import("./pages/thank-you.js"));
-const Terms = lazy(() => import("./pages/legal/terms.js"));
-const Privacy = lazy(() => import("./pages/legal/privacy.js"));
+const BusinessLanding = lazy(() => import("./pages/landing/business-landing"));
+const SimpleTraining = lazy(() => import("./pages/onboarding/simple-training"));
+const SimpleCheckout = lazy(() => import("./pages/simple-checkout"));
+const EmbeddedCheckout = lazy(() => import("./pages/embedded-checkout"));
+const PaymentSuccess = lazy(() => import("./pages/payment-success"));
+const ThankYou = lazy(() => import("./pages/thank-you"));
+const Terms = lazy(() => import("./pages/legal/terms"));
+const Privacy = lazy(() => import("./pages/legal/privacy"));
 // Import AuthSuccess directly instead of lazy loading to fix OAuth callback 404 issue
-import AuthSuccessComponent from "./pages/auth-success.js";
-const NotFound = lazy(() => import("./pages/not-found.js"));
-const SSELFIEGallery = lazy(() => import("./pages/sselfie-gallery.js"));
-const AICommandCenter = lazy(() => import("./pages/AICommandCenter.js"));
+import AuthSuccessComponent from "./pages/auth-success";
+const NotFound = lazy(() => import("./pages/not-found"));
+const SSELFIEGallery = lazy(() => import("./pages/sselfie-gallery"));
+const AICommandCenter = lazy(() => import("./pages/AICommandCenter"));
 
 // Components
-import { PageLoader } from "./components/PageLoader.js";
+import { PageLoader } from "./components/PageLoader";
 
 // Protected Route Wrapper Component
 function ProtectedRouteWrapper({ children }: { children: React.ReactNode }) {
@@ -161,6 +162,7 @@ function Router() {
       }} />
 
       {/* ✅ ADDED: Primary non-OAuth sign-in flows for users without Google */}
+      {/* Temporarily disabled - components don't exist yet
       <Route path="/magic-link" component={() => (
         <Suspense fallback={<PageLoader />}>
           <MagicLinkSignInPage />
@@ -176,6 +178,7 @@ function Router() {
           <PasswordResetPage searchParams={Object.fromEntries(new URLSearchParams(window.location.search))} />
         </Suspense>
       )} />
+      */}
 
       {/* STACK AUTH HANDLER - Consolidated wildcard route for ALL Stack redirects/callbacks including OAuth */}
       <Route path="/handler/sign-in" component={() => {
@@ -186,7 +189,7 @@ function Router() {
       }} />
       {/* ✅ CRITICAL FIX: OAuth callback handler MUST come before wildcard routes to preserve query parameters */}
       <Route path="/handler/oauth-callback" component={() => {
-        const OAuthCallback = React.lazy(() => import("./pages/handler/oauth-callback.js"));
+        const OAuthCallback = React.lazy(() => import("./pages/handler/oauth-callback"));
         return (
           <Suspense fallback={<PageLoader />}>
             <OAuthCallback />
@@ -206,7 +209,7 @@ function Router() {
 
       {/* Debug route for auth diagnostics */}
       <Route path="/auth-diagnostic" component={() => {
-        const AuthDiagnostic = React.lazy(() => import("./pages/auth-diagnostic.js"));
+        const AuthDiagnostic = React.lazy(() => import("./pages/auth-diagnostic"));
         return (
           <Suspense fallback={<PageLoader />}>
             <AuthDiagnostic />
@@ -320,6 +323,7 @@ function Router() {
 function App() {
   // Initialize optimizations
   useEffect(() => {
+    console.log('🚀 SSELFIE Studio: App useEffect starting...');
     // Performance monitoring
     performanceMonitor.startMonitoring();
     
@@ -347,12 +351,13 @@ function App() {
     // Runtime optimization
     initializeRuntimeOptimization();
     
+    console.log('✅ SSELFIE Studio: App useEffect completed');
     return () => {
       performanceMonitor.stopMonitoring();
     };
   }, []);
 
-  console.log('SSELFIE Studio: App rendering...');
+  console.log('🎨 SSELFIE Studio: App component rendering...');
   
   return (
     <ErrorBoundary>

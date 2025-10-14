@@ -26,7 +26,7 @@ export const PricingCard: FC<PricingCardProps> = ({
   badge,
   className = ""
 }) => {
-  const handleClick = (e: MouseEvent) => {
+  const handleClick = (e: MouseEvent<HTMLButtonElement>) => {
     if (onCtaClick) {
       e.preventDefault();
       onCtaClick();

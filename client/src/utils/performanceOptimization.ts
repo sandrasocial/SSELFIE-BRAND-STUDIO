@@ -79,6 +79,7 @@ export class LuxuryPerformanceOptimizer {
     let loadedImages = 0;
 
     images.forEach((img) => {
+      const htmlImg = img as HTMLImageElement;
       const startTime = performance.now();
       
       const onLoad = () => {
@@ -96,10 +97,10 @@ export class LuxuryPerformanceOptimizer {
         }
       };
 
-      if (img.complete) {
+      if (htmlImg.complete) {
         onLoad();
       } else {
-        img.addEventListener('load', onLoad);
+        htmlImg.addEventListener('load', onLoad);
       }
     });
   }

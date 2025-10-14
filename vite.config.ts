@@ -12,18 +12,6 @@ export default defineConfig(({ mode }) => {
     react({ jsxRuntime: "automatic" })
   ];
   
-  // Validate required public environment variables
-  const requiredPublicEnvVars = [
-    'VITE_STACK_PROJECT_ID',
-    'VITE_STACK_PUBLISHABLE_CLIENT_KEY'
-  ];
-  
-  for (const envVar of requiredPublicEnvVars) {
-    if (!process.env[envVar]) {
-      throw new Error(`Missing required public environment variable: ${envVar}`);
-    }
-  }
-  
   return {
     plugins,
     css: {
@@ -37,87 +25,49 @@ export default defineConfig(({ mode }) => {
       },
     },
 
-    // 🔒 Force a single React copy for the whole graph
     resolve: {
       alias: {
-        // lock React to the root node_modules so sub-deps can't sneak in a second copy
+        // Force single React instance
         react: path.resolve(__dirname, "node_modules/react"),
         "react-dom": path.resolve(__dirname, "node_modules/react-dom"),
-
-        // your existing aliases (unchanged)
         "@": path.resolve(__dirname, "client", "src"),
         "@shared": path.resolve(__dirname, "shared"),
         "@assets": path.resolve(__dirname, "attached_assets"),
       },
     },
 
-    // your existing root/build/server config (unchanged)
     root: path.resolve(__dirname, "client"),
     build: {
       outDir: path.resolve(__dirname, "client/dist"),
       emptyOutDir: true,
-      // Better CommonJS support
-      commonjsOptions: {
-        include: [/node_modules/],
-        transformMixedEsModules: true
-      },
-      // Optimize bundle size
-      chunkSizeWarningLimit: 1200,
       rollupOptions: {
         input: path.resolve(__dirname, "client/index.html"),
         output: {
-          format: 'es'
+          manualChunks: (id) => {
+            // Isolate problematic @stackframe/react
+            if (id.includes('@stackframe/react')) {
+              return 'stackframe-react';
+            }
+            // Group other vendor libraries
+            if (id.includes('node_modules')) {
+              return 'vendor';
+            }
+          },
         }
-      },
-      // Enable source maps for debugging
-      sourcemap: mode === 'development',
-      // Temporarily disable minification to test if this fixes the React internal API issue
-      minify: false,
-    },
-    server: {
-      host: "0.0.0.0",
-      port: parseInt(process.env['PORT'] || "8080"),
-      fs: { strict: false },
-      // 🚨 CRITICAL: Disable HMR in production to prevent React Fast Refresh issues
-      hmr: mode === 'development'
-    },
-
-    // helpful nudges for prebundling and SSR
-    optimizeDeps: {
-      include: [
-        "@tanstack/react-query",
-        "wouter",
-        "@stackframe/react"
-      ],
-      exclude: [
-        "react",
-        "react-dom",
-        "react/jsx-runtime",
-        "@stackframe/stack"
-      ],
-      force: true
-    },
-    ssr: {
-      noExternal: ["@stackframe/react"],
-      external: ["@stackframe/stack"] // Don't try to SSR the Next.js package
+      }
     },
     define: {
       global: 'globalThis',
-      // � CRITICAL FIX: Stack Auth expects Next.js style environment variables
-      // Define both globalThis prefix and process.env for full compatibility
       'globalThis.__STACK_PROJECT_ID__': JSON.stringify(process.env.VITE_STACK_PROJECT_ID || "253d7343-a0d4-43a1-be5c-822f590d40be"),
       'globalThis.__STACK_PUBLISHABLE_CLIENT_KEY__': JSON.stringify(process.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY || "pck_bqv6htnwq1f37nd2fn6qatxx2f8x0tnxvjj7xwgh1zmhg"),
-      // Stack Auth checks process.env (Next.js style)
       'globalThis.process': JSON.stringify({ 
         env: {
           NEXT_PUBLIC_STACK_PROJECT_ID: process.env.VITE_STACK_PROJECT_ID || "253d7343-a0d4-43a1-be5c-822f590d40be",
           NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY: process.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY || "pck_bqv6htnwq1f37nd2fn6qatxx2f8x0tnxvjj7xwgh1zmhg",
-          // Also provide Vite-style variables
           VITE_STACK_PROJECT_ID: process.env.VITE_STACK_PROJECT_ID || "253d7343-a0d4-43a1-be5c-822f590d40be",
           VITE_STACK_PUBLISHABLE_CLIENT_KEY: process.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY || "pck_bqv6htnwq1f37nd2fn6qatxx2f8x0tnxvjj7xwgh1zmhg"
         }
       }),
-      // Also define without globalThis for backwards compatibility
       __STACK_PROJECT_ID__: JSON.stringify(process.env.VITE_STACK_PROJECT_ID || "253d7343-a0d4-43a1-be5c-822f590d40be"),
       __STACK_PUBLISHABLE_CLIENT_KEY__: JSON.stringify(process.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY || "pck_bqv6htnwq1f37nd2fn6qatxx2f8x0tnxvjj7xwgh1zmhg"),
     },

@@ -19,7 +19,7 @@ export const EmailCaptureModal: FC<EmailCaptureModalProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
     if (!email || !email.includes('@')) {

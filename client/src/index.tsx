@@ -131,16 +131,16 @@ function trapFocus(e: KeyboardEvent) {
 	const modal = qs<HTMLDivElement>('#video-preview-modal');
 	if (!modal || !modal.classList.contains('active')) return;
 	const focusableSelectors = 'button, [href], video, [tabindex]:not([tabindex="-1"])';
-	const focusables = Array.from(modal.querySelectorAll<HTMLElement>(focusableSelectors)).filter(el => !el.hasAttribute('disabled'));
+	const focusables = Array.from(modal.querySelectorAll(focusableSelectors)).filter((el): el is HTMLElement => el instanceof HTMLElement && !el.hasAttribute('disabled'));
 	if (focusables.length === 0) return;
 	const first = focusables[0];
 	const last = focusables[focusables.length - 1];
 	if (e.shiftKey && document.activeElement === first) {
 		e.preventDefault();
-		last?.focus();
+		(last as HTMLElement)?.focus();
 	} else if (!e.shiftKey && document.activeElement === last) {
 		e.preventDefault();
-		first?.focus();
+		(first as HTMLElement)?.focus();
 	}
 }
 
@@ -181,7 +181,7 @@ function ensureInit() {
 				actionBar.style.gap = '8px';
 
 				const createBtn = (label: string, handler: () => void) => {
-					const btn = document.createElement('button');
+					const btn = document.createElement('button') as HTMLButtonElement;
 					btn.type = 'button';
 					btn.textContent = label;
 					btn.style.padding = '6px 12px';
@@ -215,7 +215,7 @@ function ensureInit() {
 				const downloadBtn = createBtn('Download', () => {
 					const player = qs<HTMLVideoElement>('#video-preview-player');
 					if (!player || !player.src) return;
-					const a = document.createElement('a');
+					const a = document.createElement('a') as HTMLAnchorElement;
 					a.href = player.src;
 					a.download = `video-${Date.now()}.mp4`;
 					document.body.appendChild(a);
