@@ -16,7 +16,6 @@
     {"source": "/api/maya/chat", "destination": "/api/maya-chat"},
     {"source": "/api/maya/chat-history", "destination": "/api/maya-chat-history"},
     {"source": "/api/maya/chats", "destination": "/api/maya-chats"},
-    {"source": "/api/maya/generate", "destination": "/api/maya-generate"},
     {"source": "/api/maya/status", "destination": "/api/maya-status"},
     {"source": "/api/maya/models", "destination": "/api/maya-models"},
     {"source": "/api/maya/heart-image", "destination": "/api/maya-heart-image"},

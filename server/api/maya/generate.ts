@@ -18,9 +18,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const user = await getUserFromRequest(req);
     if (!user) return sendUnauthorized(res);
 
-    const { prompt, style, count = 1, conceptName, seed } = req.body || {};
+    const { prompt, style, count = 1, conceptName, seed, conceptCard } = req.body || {};
     
-    if (!prompt) {
+    // Handle both old format (direct prompt) and new format (conceptCard.fluxPrompt)
+    const finalPrompt = conceptCard?.fluxPrompt || prompt;
+    const finalConceptName = conceptCard?.title || conceptName || 'Maya AI Generation';
+    
+    if (!finalPrompt) {
       return sendError(res, 'Prompt is required', 400);
     }
 
@@ -35,9 +39,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     
     const generationResult = await mayaService.generateImages(dbUser.id, {
       conceptCard: {
-        id: `maya-gen-${Date.now()}`,
-        title: conceptName || 'Maya AI Generation',
-        fluxPrompt: prompt
+        id: conceptCard?.id || `maya-gen-${Date.now()}`,
+        title: finalConceptName,
+        fluxPrompt: finalPrompt
       }
     });
 
