@@ -1004,7 +1004,7 @@ export class DatabaseStorage implements IStorage {
         ))
         .limit(1);
       
-      let result = results[0] || null;
+      const result = results[0] || null;
       
       if (!result) {
         return { user: undefined, model: undefined };
@@ -2102,25 +2102,11 @@ export class DatabaseStorage implements IStorage {
   // REMOVED: getAllMayaChatMessages method to prevent session mixing
   // Use getMayaChatMessages(chatId) for session-specific loading
 
-  async createMayaChatMessage(data: InsertMayaChatMessage): Promise<MayaChatMessage> {
+  async createMayaChatMessage(data: Omit<InsertMayaChatMessage, 'conceptCards'> & { conceptCards?: any[] }): Promise<MayaChatMessage> {
     
-    // CRITICAL FIX: Clean emojis from concept cards to prevent JSONB serialization errors
+    // CRITICAL FIX: Clean concept cards to prevent JSONB serialization errors
     if (data.conceptCards && Array.isArray(data.conceptCards)) {
-      data.conceptCards = data.conceptCards.map(card => ({
-        ...card,
-        emoji: this.cleanEmojiForDatabase((card as any).emoji || '📸'),
-        title: (card as any).title || 'Untitled Concept',
-        description: (card as any).description || '',
-        prompt: (card as any).prompt || '',
-        type: (card as any).type || 'professional',
-        metadata: {
-          ...(card as any).metadata,
-          emoji: this.cleanEmojiForDatabase(((card as any).metadata as any)?.emoji || '📸')
-        },
-        tags: (card as any).tags || [],
-        status: (card as any).status || 'active',
-        isTemplate: (card as any).isTemplate || false
-      }));
+      data.conceptCards = data.conceptCards.map(card => this.cleanConceptCardForDatabase(card));
     }
 
     // CRITICAL: Ensure fullPrompt field is preserved in concept cards
@@ -2144,7 +2130,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   // CRITICAL FIX: Missing saveMayaChatMessage method causing GenerationCompletionMonitor failure
-  async saveMayaChatMessage(data: InsertMayaChatMessage): Promise<MayaChatMessage> {
+  async saveMayaChatMessage(data: Omit<InsertMayaChatMessage, 'conceptCards'> & { conceptCards?: any[] }): Promise<MayaChatMessage> {
     return this.createMayaChatMessage(data);
   }
 
@@ -2861,24 +2847,94 @@ export class DatabaseStorage implements IStorage {
   }
 
   /**
-   * Clean emoji characters to prevent JSON encoding issues in database
+   * Clean concept card data to prevent JSON encoding issues in database
+   * Handles problematic characters that cause JSONB serialization failures
    */
-  private cleanEmojiForDatabase(emoji: string): string {
-    if (!emoji) return '';
-    
+  private cleanConceptCardForDatabase(card: any): any {
     try {
-      // Remove or replace problematic Unicode characters that cause JSON parsing issues
-      // This specifically handles surrogate pairs that cause the "low surrogate must follow high surrogate" error
-      const cleaned = emoji
-        .replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, '') // Remove surrogate pairs
-        .replace(/[\uD800-\uDFFF]/g, '') // Remove any remaining surrogates
-        .replace(/[^\u0000-\u007F\u00A0-\u024F\u1E00-\u1EFF\u2000-\u206F\u2070-\u209F\u20A0-\u20CF\u2100-\u214F\u2190-\u21FF\u2200-\u22FF]/g, ''); // Keep basic Latin, extended Latin, and common symbols
-      
-      // If emoji is completely cleaned out, provide a fallback
-      return cleaned || '🎯';
+      // Create a clean copy of the concept card
+      const cleanedCard = {
+        ...card,
+        emoji: this.sanitizeStringForJson((card as any).emoji || '📸'),
+        title: this.sanitizeStringForJson((card as any).title || 'Untitled Concept'),
+        description: this.sanitizeStringForJson((card as any).description || ''),
+        prompt: this.sanitizeStringForJson((card as any).prompt || ''),
+        fluxPrompt: this.sanitizeStringForJson((card as any).fluxPrompt || ''),
+        creativeLook: this.sanitizeStringForJson((card as any).creativeLook || ''),
+        category: this.sanitizeStringForJson((card as any).category || ''),
+        type: (card as any).type || 'professional',
+        metadata: card.metadata ? {
+          ...card.metadata,
+          emoji: this.sanitizeStringForJson(card.metadata.emoji || '📸')
+        } : { emoji: '📸' },
+        tags: Array.isArray(card.tags) ? card.tags.map((tag: string) => this.sanitizeStringForJson(tag)) : [],
+        status: (card as any).status || 'active',
+        isTemplate: (card as any).isTemplate || false
+      };
+
+      // Ensure the cleaned card can be JSON serialized
+      JSON.stringify(cleanedCard);
+
+      return cleanedCard;
     } catch (error) {
-      console.warn('⚠️ STORAGE: Error cleaning emoji, using fallback:', error);
-      return '🎯'; // Safe fallback emoji
+      console.warn('⚠️ STORAGE: Error cleaning concept card, using safe defaults:', error);
+      // Return a completely safe fallback
+      return {
+        emoji: '🎯',
+        title: 'Concept Card',
+        description: 'Generated concept',
+        prompt: '',
+        fluxPrompt: '',
+        creativeLook: 'Professional',
+        category: 'general',
+        type: 'professional',
+        metadata: { emoji: '🎯' },
+        tags: [],
+        status: 'active',
+        isTemplate: false
+      };
+    }
+  }
+
+  /**
+   * Sanitize a string to be safe for JSON serialization
+   * Removes or escapes characters that cause JSON parsing issues
+   */
+  private sanitizeStringForJson(str: string): string {
+    if (typeof str !== 'string') return '';
+
+    try {
+      // First, try to JSON stringify and parse to see if it's safe
+      const testJson = JSON.stringify(str);
+      JSON.parse(`"${testJson.slice(1, -1)}"`); // Test parsing the string content
+      return str; // If it works, return original
+    } catch (error) {
+      // If JSON serialization fails, clean the string
+      console.warn('⚠️ STORAGE: String failed JSON test, cleaning:', str.substring(0, 50));
+
+      // Remove problematic characters that cause hex escape issues
+      const cleaned = str
+      // Remove null bytes and other control characters
+        .split('').filter(char => char.charCodeAt(0) >= 32 && char.charCodeAt(0) <= 126 || char.charCodeAt(0) >= 160).join('')
+        // Handle backslashes that might cause escape issues
+        .replace(/\\/g, '\\\\')
+        // Handle quotes that might break JSON
+        .replace(/"/g, '\\"')
+        // Remove any remaining problematic Unicode that causes issues
+        .replace(/[\uD800-\uDFFF]/g, '') // Remove surrogate pairs
+        // Limit length to prevent extremely long strings
+        .substring(0, 10000);
+
+      // Test again
+      try {
+        const testJson = JSON.stringify(cleaned);
+        JSON.parse(`"${testJson.slice(1, -1)}"`);
+        return cleaned;
+      } catch (secondError) {
+        // If still failing, return a very safe string
+        console.warn('⚠️ STORAGE: String still problematic after cleaning, using safe fallback');
+        return 'Safe content';
+      }
     }
   }
 }
