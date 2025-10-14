@@ -3,19 +3,23 @@
 export { db } from './drizzle.js';
 import { db } from './drizzle.js';
 import { sql } from 'drizzle-orm';
+import { neon } from '@neondatabase/serverless';
+import { DATABASE_URL } from './env.js';
 
-// Export query function using existing drizzle connection
+// Get neon client for raw queries
+function getNeonClient() {
+  const dbUrl = DATABASE_URL || process.env.DATABASE_URL || process.env.NEON_DB_URL;
+  if (!dbUrl) {
+    throw new Error('No database connection string available');
+  }
+  return neon(dbUrl);
+}
+
+// Export query function using neon client for raw SQL with parameters
 export const query = async (text: string, params?: unknown[]) => {
   try {
-    // Use sql template literal instead of sql.raw for better type safety
-    if (params && params.length > 0) {
-      // For parameterized queries, we need to use a different approach
-      const sqlQuery = sql`${sql.raw(text)}`;
-      return await db.execute(sqlQuery);
-    } else {
-      // For simple queries without parameters
-      return await db.execute(sql`${sql.raw(text)}`);
-    }
+    const client = getNeonClient();
+    return await client(text, params);
   } catch (error) {
     console.error('❌ Database query error:', error);
     throw error;

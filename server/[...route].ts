@@ -30,7 +30,7 @@ const TRAINING_ROUTES = [
 // Gallery routes handled by gallery.ts module
 const GALLERY_ROUTES = [
   '/api/gallery',
-  '/api/gallery-images',
+  // '/api/gallery-images', // REMOVED: Now handled by pure serverless function with auth middleware
   '/api/images/favorites',
   '/api/images',
   '/api/ai-images'
@@ -98,12 +98,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.url?.startsWith('/api/sandra-images/')) {
     const sandraImagesHandler = await import('./sandra-images.js');
     return sandraImagesHandler.default(req, res);
-  }
-
-  // Gallery Images API - Public access
-  if (req.url?.startsWith('/api/gallery-images')) {
-    const galleryImagesHandler = await import('./gallery-images.js');
-    return galleryImagesHandler.default(req, res);
   }
 
   // Handle logout
@@ -352,24 +346,57 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const isAuthRoute = req.url && AUTH_ROUTES.some(route => req.url === route || req.url?.startsWith(route));
   if (isAuthRoute) {
     console.log(`🔄 [AUTH MODULE] Handling: ${req.url}`);
-    const authHandler = adaptExpressRouter(authRouter);
-    return authHandler(req, res);
+    return withAuth(req, res, async (req: AuthenticatedRequest, res: VercelResponse) => {
+      // Handle auth routes directly without Express adapter
+      if (req.url === '/api/me') {
+        res.setHeader('Cache-Control', 'no-store');
+
+        const dbUser = req.user;
+        if (!dbUser) {
+          return res.status(404).json({ error: 'User not found' });
+        }
+
+        const user = {
+          id: dbUser.id,
+          email: dbUser.email ?? '',
+          displayName: dbUser.displayName ?? undefined,
+          firstName: dbUser.firstName ?? undefined,
+          lastName: dbUser.lastName ?? undefined,
+          gender: (dbUser.gender as 'man' | 'woman' | 'other' | undefined) ?? undefined,
+          profileImageUrl: dbUser.profileImageUrl ?? undefined,
+          plan: dbUser.plan ?? undefined,
+          role: dbUser.role ?? undefined,
+          monthlyGenerationLimit: dbUser.monthlyGenerationLimit ?? undefined,
+          createdAt: dbUser.createdAt
+        };
+
+        return res.status(200).json({ data: { user } });
+      }
+
+      // For other auth routes, fall back to main handler
+      const { default: main } = await import('./index.js');
+      return main(req, res);
+    });
   }
 
   // 🔄 TRAINING ROUTES: Handle via training.ts module (Phase 2 Migration - Day 3)
   const isTrainingRoute = req.url && TRAINING_ROUTES.some(route => req.url === route || req.url?.startsWith(route));
   if (isTrainingRoute) {
     console.log(`🔄 [TRAINING MODULE] Handling: ${req.url}`);
-    const trainingHandler = adaptExpressRouter(trainingRouter);
-    return trainingHandler(req, res);
+    return withAuth(req, res, async (req: AuthenticatedRequest, res: VercelResponse) => {
+      const trainingHandler = adaptExpressRouter(trainingRouter);
+      return trainingHandler(req, res);
+    });
   }
 
   // 🔄 GALLERY ROUTES: Handle via gallery.ts module (Phase 3 Migration - Day 4)
   const isGalleryRoute = req.url && GALLERY_ROUTES.some(route => req.url === route || req.url?.startsWith(route));
   if (isGalleryRoute) {
     console.log(`🔄 [GALLERY MODULE] Handling: ${req.url}`);
-    const galleryHandler = adaptExpressRouter(galleryRouter);
-    return galleryHandler(req, res);
+    return withAuth(req, res, async (req: AuthenticatedRequest, res: VercelResponse) => {
+      const galleryHandler = adaptExpressRouter(galleryRouter);
+      return galleryHandler(req, res);
+    });
   }
 
   // Maya routes are handled by dedicated Vercel serverless functions in /server/api/maya/

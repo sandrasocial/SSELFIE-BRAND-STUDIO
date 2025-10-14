@@ -26,8 +26,16 @@ export function adaptExpressRouter(router: Router) {
     app.use(router);
     
     // Convert Vercel request to Express-compatible format
-    const expressReq = req as any;
+    const expressReq = Object.create(req) as any; // Create a new object that inherits from req
     const expressRes = res as any;
+    
+    // Preserve user object from Vercel request (set by withAuth middleware)
+    if ((req as any).user) {
+      expressReq.user = (req as any).user;
+    }
+    
+    // Copy all properties from the original request
+    Object.assign(expressReq, req);
     
     // Handle the request through Express
     return new Promise<void>((resolve, reject) => {

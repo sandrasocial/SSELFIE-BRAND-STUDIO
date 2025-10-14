@@ -366,6 +366,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
     }
 
+    // Gallery Images API - Pure serverless endpoint with authentication
+    if (req.url?.startsWith('/api/gallery-images')) {
+      // Apply authentication before calling the handler
+      const authenticatedUser = await getAuthenticatedUser();
+      (req as any).user = authenticatedUser;
+      (req as any).user.claims = authenticatedUser.stackUser;
+
+      const galleryImagesHandler = await import('./api/gallery/images.js');
+      return galleryImagesHandler.default(req, res);
+    }
+
     // Sandra Images API - Public access for image serving
     if (req.url?.startsWith('/api/sandra-images/')) {
       const sandraImagesHandler = await import('./sandra-images.js');

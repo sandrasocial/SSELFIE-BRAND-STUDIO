@@ -4,7 +4,6 @@
  */
 
 import { Router, type Response as ExpressResponse } from 'express';
-import { requireStackAuth } from '../../stack-auth.js';
 import { storage } from '../../storage.js';
 import { asyncHandler, createError, sendSuccess, validateRequired } from '../middleware/error-handler.js';
 import { userService } from '../../services/user-service.js';
@@ -28,7 +27,7 @@ interface UserProfile {
 
 const router = Router();
 // Me endpoint: JSON only, no cache, ensures user exists
-router.get('/api/me', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: ExpressResponse) => {
+router.get('/api/me', asyncHandler(async (req: AuthenticatedRequest, res: ExpressResponse) => {
   res.setHeader('Cache-Control', 'no-store');
   
   // ✅ PERFORMANCE FIX: req.user is already the cached database user from stack-auth middleware
@@ -62,7 +61,7 @@ router.get('/api/me', requireStackAuth, asyncHandler(async (req: AuthenticatedRe
 }));
 
 // Get current user
-router.get('/api/auth/user', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: ExpressResponse) => {
+router.get('/api/auth/user', asyncHandler(async (req: AuthenticatedRequest, res: ExpressResponse) => {
   res.setHeader('Cache-Control', 'no-store');
   const userId = req.user.id;
   let user = await userService.getUser(userId) as UserProfile;
@@ -137,7 +136,7 @@ interface UpdateGenderRequest {
 }
 
 // Update user gender
-router.post('/api/user/update-gender', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest & { body: UpdateGenderRequest }, res: ExpressResponse) => {
+router.post('/api/user/update-gender', asyncHandler(async (req: AuthenticatedRequest & { body: UpdateGenderRequest }, res: ExpressResponse) => {
   const userId = req.user.id;
   const { gender } = req.body;
   validateRequired({ gender }, ['gender']);
@@ -165,7 +164,7 @@ interface PublicProfile {
 }
 
 // Get user profile
-router.get('/api/profile', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest, res: ExpressResponse) => {
+router.get('/api/profile', asyncHandler(async (req: AuthenticatedRequest, res: ExpressResponse) => {
   const userId = req.user.id;
   const user = await userService.getUser(userId) as UserProfile;
 
@@ -195,7 +194,7 @@ interface UpdateProfileRequest {
 }
 
 // Update user profile
-router.put('/api/profile', requireStackAuth, asyncHandler(async (req: AuthenticatedRequest & { body: UpdateProfileRequest }, res: ExpressResponse) => {
+router.put('/api/profile', asyncHandler(async (req: AuthenticatedRequest & { body: UpdateProfileRequest }, res: ExpressResponse) => {
   const userId = req.user.id;
   const { displayName, firstName, lastName, profileImageUrl, gender } = req.body;
 
