@@ -109,7 +109,7 @@ export class UserMigrationService {
   async findOrphanedUsersWithData() {
     try {
       const allUsers = await storage.getAllUsers();
-      const orphanedUsers = [];
+      const orphanedUsers: any[] = [];
 
       for (const user of allUsers) {
         if (!user.stackAuthId && this.shouldMigrateUser(user)) {

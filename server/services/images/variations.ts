@@ -146,7 +146,7 @@ export class ImageVariationsService {
    * Generate multiple variation prompts from a base prompt
    */
   private static generateVariationPrompts(basePrompt: string, count: number): string[] {
-    const variations = [];
+    const variations: string[] = [];
     
     // Add variation modifiers to create diverse results
     const styleModifiers = [

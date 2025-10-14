@@ -88,6 +88,8 @@ export default defineConfig(({ mode }) => {
       host: "0.0.0.0",
       port: parseInt(process.env['PORT'] || "8080"),
       fs: { strict: false },
+      // 🚨 CRITICAL: Disable HMR in production to prevent React Fast Refresh issues
+      hmr: mode === 'development'
     },
 
     // helpful nudges for prebundling and SSR
@@ -101,7 +103,12 @@ export default defineConfig(({ mode }) => {
         "@stackframe/react"
       ],
       exclude: ["@stackframe/stack"], // Exclude Next.js package
-      force: true
+      force: true,
+      // 🚨 CRITICAL: Disable React optimization in production to prevent version conflicts
+      ...(mode === 'production' && {
+        include: ["@tanstack/react-query", "wouter", "@stackframe/react"],
+        exclude: ["react", "react-dom", "react/jsx-runtime", "@stackframe/stack"]
+      })
     },
     ssr: {
       noExternal: ["@stackframe/react"],
@@ -109,7 +116,7 @@ export default defineConfig(({ mode }) => {
     },
     define: {
       global: 'globalThis',
-      // 🔥 CRITICAL FIX: Stack Auth expects Next.js style environment variables
+      // � CRITICAL FIX: Stack Auth expects Next.js style environment variables
       // Define both globalThis prefix and process.env for full compatibility
       'globalThis.__STACK_PROJECT_ID__': JSON.stringify(process.env.VITE_STACK_PROJECT_ID || "253d7343-a0d4-43a1-be5c-822f590d40be"),
       'globalThis.__STACK_PUBLISHABLE_CLIENT_KEY__': JSON.stringify(process.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY || "pck_bqv6htnwq1f37nd2fn6qatxx2f8x0tnxvjj7xwgh1zmhg"),

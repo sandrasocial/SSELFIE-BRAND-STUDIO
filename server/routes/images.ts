@@ -29,8 +29,8 @@ interface VariationStatusParams extends Record<string, string> {
   predictionId: string;
 }
 
-interface VariationStatusQuery extends Record<string, string | string[]> {
-  variantIds?: string | string[];
+interface VariationStatusQuery {
+  variantIds?: string;
 }
 
 interface DeleteVariantParams extends Record<string, string> {
@@ -93,7 +93,7 @@ router.post('/api/images/:id/variations', requireStackAuth, asyncHandler(async (
  * GET /api/images/:id/variations/status/:predictionId
  * Check status of variation generation
  */
-router.get('/api/images/:id/variations/status/:predictionId', requireStackAuth, asyncHandler(async (req: Request<VariationStatusParams, {}, {}, VariationStatusQuery>, res: Response) => {
+router.get('/api/images/:id/variations/status/:predictionId', requireStackAuth, asyncHandler(async (req: Request<VariationStatusParams>, res: Response) => {
   const authReq = req as AuthenticatedRequest;
   const userId = authReq.user.id;
   const { id: imageId, predictionId } = req.params;
@@ -106,9 +106,14 @@ router.get('/api/images/:id/variations/status/:predictionId', requireStackAuth, 
     }
 
     // Parse variant IDs
-    const variantIdArray = Array.isArray(variantIds) 
-      ? variantIds.map(id => parseInt(id)) 
-      : variantIds.split(',').map(id => parseInt(id.trim()));
+    let variantIdArray: number[];
+    if (Array.isArray(variantIds)) {
+      variantIdArray = variantIds.map((id: any) => parseInt(id));
+    } else if (typeof variantIds === 'string') {
+      variantIdArray = variantIds.split(',').map((id: string) => parseInt(id.trim()));
+    } else {
+      throw createError.validation('Invalid variantIds format');
+    }
 
     const result = await ImageVariationsService.checkVariationStatus(predictionId, variantIdArray);
 
