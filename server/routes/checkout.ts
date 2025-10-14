@@ -504,7 +504,7 @@ async function handleSubscriptionPayment(session: Stripe.Checkout.Session, flow?
         preferredOnboardingMode: 'conversational',
         createdAt: new Date(),
         updatedAt: new Date(),
-      });
+      } as any);
       
     }
 
@@ -541,7 +541,7 @@ async function triggerPostPurchaseAutomation(userId: string, plan: string) {
         brandVoice: '',
         targetAudience: '',
         businessGoals: '',
-      });
+      } as any);
     }
 
   } catch (error) {
