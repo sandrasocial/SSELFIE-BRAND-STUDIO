@@ -40,6 +40,10 @@ export default defineConfig(({ mode }) => {
     // 🔒 Force a single React copy for the whole graph
     resolve: {
       alias: {
+        // lock React to the root node_modules so sub-deps can't sneak in a second copy
+        react: path.resolve(__dirname, "node_modules/react"),
+        "react-dom": path.resolve(__dirname, "node_modules/react-dom"),
+
         // your existing aliases (unchanged)
         "@": path.resolve(__dirname, "client", "src"),
         "@shared": path.resolve(__dirname, "shared"),
@@ -62,17 +66,7 @@ export default defineConfig(({ mode }) => {
       rollupOptions: {
         input: path.resolve(__dirname, "client/index.html"),
         output: {
-          format: 'es',
-          manualChunks: (id) => {
-            // 🚨 CRITICAL: Isolate Stack Auth completely to prevent React conflicts
-            if (id.includes('@stackframe') || id.includes('stackframe')) {
-              return 'stackauth';
-            }
-            // Everything else goes to vendor
-            if (id.includes('node_modules')) {
-              return 'vendor';
-            }
-          }
+          format: 'es'
         }
       },
       // Enable source maps for debugging
@@ -96,6 +90,9 @@ export default defineConfig(({ mode }) => {
         "@stackframe/react"
       ],
       exclude: [
+        "react",
+        "react-dom",
+        "react/jsx-runtime",
         "@stackframe/stack"
       ],
       force: true
