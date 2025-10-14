@@ -7,8 +7,9 @@
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { withAuth } from '../../_middleware/auth.js';
+import type { AuthenticatedRequest } from '../../_shared/auth-types.js';
 import { storage } from '../../storage.js';
-import { getUserFromRequest } from '../../_utils/auth-helpers.js';
 
 export const config = {
   runtime: 'nodejs',
@@ -67,19 +68,19 @@ function extractImageId(req: VercelRequest): number | null {
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  // Only allow POST requests
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
-
-  try {
-    // 1. Authenticate with Stack Auth (using shared auth helper)
-    const user = await getUserFromRequest(req);
-    if (!user) {
-      return res.status(401).json({ error: 'Authentication required' });
+  return withAuth(req, res, async (req: AuthenticatedRequest, res: VercelResponse) => {
+    // Only allow POST requests
+    if (req.method !== 'POST') {
+      return res.status(405).json({ error: 'Method not allowed' });
     }
-    
-    const userId = user.id;
+
+    try {
+      const user = req.user;
+      if (!user) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+      
+      const userId = user.id;
 
     // 2. Extract and validate image ID
     const imageId = extractImageId(req);
@@ -136,4 +137,5 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       message: (error as Error).message 
     });
   }
+  });
 }
