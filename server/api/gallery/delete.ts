@@ -7,52 +7,9 @@
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { jwtVerify, createRemoteJWKSet, type JWTPayload } from 'jose';
+import { withAuth } from '../../_middleware/auth.js';
+import type { AuthenticatedRequest } from '../../_shared/auth-types.js';
 import { storage } from '../../storage.js';
-
-// ===========================
-// Stack Auth Configuration
-// ===========================
-
-const STACK_SECRET_SERVER_KEY = process.env['STACK_SECRET_SERVER_KEY'] || process.env['STACK_AUTH_SECRET_KEY'];
-const STACK_PROJECT_ID = 'f29aeef9-7b86-4db4-917a-2def37f7c23c';
-
-if (!STACK_SECRET_SERVER_KEY) {
-  throw new Error('STACK_SECRET_SERVER_KEY or STACK_AUTH_SECRET_KEY environment variable is required');
-}
-
-// Initialize JWKS (cached globally for serverless reuse)
-const JWKS_ENDPOINT = `https://api.stack-auth.com/api/v1/projects/${STACK_PROJECT_ID}/.well-known/jwks.json`;
-const jwks = createRemoteJWKSet(new URL(JWKS_ENDPOINT));
-
-// ===========================
-// Authentication Helper
-// ===========================
-
-interface StackAuthPayload extends JWTPayload {
-  sub: string;
-  user_id?: string;
-}
-
-async function verifyStackAuthToken(authHeader: string | undefined): Promise<string | null> {
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return null;
-  }
-
-  const token = authHeader.substring(7);
-  
-  try {
-    const { payload } = await jwtVerify(token, jwks, {
-      issuer: `https://api.stack-auth.com/api/v1/projects/${STACK_PROJECT_ID}`,
-    });
-
-    const userId = (payload as StackAuthPayload).sub || (payload as StackAuthPayload).user_id;
-    return userId || null;
-  } catch (error) {
-    console.error('JWT verification failed:', (error as Error).message);
-    return null;
-  }
-}
 
 // ===========================
 // ID Extraction Helper
@@ -103,67 +60,66 @@ async function withTimeout<T>(
 // ===========================
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  // Only allow DELETE method
-  if (req.method !== 'DELETE') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
-
-  // Set cache headers
-  res.setHeader('Cache-Control', 'no-store');
-  res.setHeader('Content-Type', 'application/json');
-
-  try {
-    // ===========================
-    // 1. Authenticate User
-    // ===========================
-    const authHeader = req.headers.authorization;
-    const userId = await verifyStackAuthToken(authHeader);
-
-    if (!userId) {
-      return res.status(401).json({ error: 'Authentication required' });
+  return withAuth(req, res, async (req: AuthenticatedRequest, res: VercelResponse) => {
+    // Only allow DELETE method
+    if (req.method !== 'DELETE') {
+      return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    // ===========================
-    // 2. Extract & Validate Image ID
-    // ===========================
-    const imageId = extractImageId(req);
+    // Set cache headers
+    res.setHeader('Cache-Control', 'no-store');
+    res.setHeader('Content-Type', 'application/json');
 
-    if (!imageId) {
-      return res.status(400).json({ error: 'Invalid image id' });
-    }
+    try {
+      const user = req.user;
+      if (!user) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+      
+      const userId = user.id;
 
-    // ===========================
-    // 3. Delete Image (4s timeout)
-    // ===========================
-    const ok = await withTimeout(
-      storage.deleteAIImage(userId, imageId),
-      4000,
-      'deleteAIImage'
-    );
+      // ===========================
+      // 2. Extract & Validate Image ID
+      // ===========================
+      const imageId = extractImageId(req);
 
-    // ===========================
-    // 4. Return Success
-    // ===========================
-    return res.status(200).json({ 
-      ok, 
-      id: imageId 
-    });
+      if (!imageId) {
+        return res.status(400).json({ error: 'Invalid image id' });
+      }
 
-  } catch (error) {
-    console.error('Delete AI image error:', error);
-    
-    // Handle timeout errors
-    if (error instanceof Error && error.message.includes('timed out')) {
-      return res.status(504).json({
-        error: 'Request timeout',
-        message: error.message
+      // ===========================
+      // 3. Delete Image (4s timeout)
+      // ===========================
+      const ok = await withTimeout(
+        storage.deleteAIImage(userId, imageId),
+        4000,
+        'deleteAIImage'
+      );
+
+      // ===========================
+      // 4. Return Success
+      // ===========================
+      return res.status(200).json({ 
+        ok, 
+        id: imageId 
+      });
+
+    } catch (error) {
+      console.error('Delete AI image error:', error);
+      
+      // Handle timeout errors
+      if (error instanceof Error && error.message.includes('timed out')) {
+        return res.status(504).json({
+          error: 'Request timeout',
+          message: error.message
+        });
+      }
+
+      // Generic error response
+      return res.status(500).json({
+        error: 'Failed to delete image',
+        message: error instanceof Error ? error.message : 'Unknown error'
       });
     }
-
-    // Generic error response
-    return res.status(500).json({
-      error: 'Failed to delete image',
-      message: error instanceof Error ? error.message : 'Unknown error'
-    });
-  }
+  });
 }
