@@ -40,10 +40,6 @@ export default defineConfig(({ mode }) => {
     // 🔒 Force a single React copy for the whole graph
     resolve: {
       alias: {
-        // lock React to the root node_modules so sub-deps can't sneak in a second copy
-        react: path.resolve(__dirname, "node_modules/react"),
-        "react-dom": path.resolve(__dirname, "node_modules/react-dom"),
-
         // your existing aliases (unchanged)
         "@": path.resolve(__dirname, "client", "src"),
         "@shared": path.resolve(__dirname, "shared"),
@@ -72,18 +68,11 @@ export default defineConfig(({ mode }) => {
             if (id.includes('@stackframe') || id.includes('stackframe')) {
               return 'stackauth';
             }
-            // Keep React in its own chunk but don't bundle it with Stack Auth
-            if (id.includes('node_modules/react') || id.includes('node_modules/react-dom')) {
-              return 'react-core';
-            }
             // Everything else goes to vendor
             if (id.includes('node_modules')) {
               return 'vendor';
             }
-          },
-          // Conservative interop settings
-          interop: 'compat',
-          exports: 'named'
+          }
         }
       },
       // Enable source maps for debugging
@@ -107,11 +96,8 @@ export default defineConfig(({ mode }) => {
         "@stackframe/react"
       ],
       exclude: [
-        "react", 
-        "react-dom", 
-        "react/jsx-runtime",
         "@stackframe/stack"
-      ], // 🚨 CRITICAL: Always exclude React to prevent conflicts
+      ],
       force: true
     },
     ssr: {
