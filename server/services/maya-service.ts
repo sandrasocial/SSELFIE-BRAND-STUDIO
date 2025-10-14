@@ -191,23 +191,33 @@ export class MayaService {
       // Get or create user profile
       await this.getOrCreateUserProfile(stackAuthId);
 
-      // Get or create conversation
-      let conversation: Conversation;
-      if (request.conversationId) {
-        const foundConversation = await this.db.getConversation(request.conversationId);
-        if (!foundConversation || foundConversation.userId !== user.id) {
-          throw new Error('Conversation not found or access denied');
+      // Get or create Maya chat session
+      let mayaChatId: string;
+      
+      if (request.conversationId && !isNaN(parseInt(request.conversationId))) {
+        // Use existing chat ID if it's a valid number
+        mayaChatId = request.conversationId;
+        
+        // Verify the chat exists
+        const existingChat = await this.db.getMayaChat(mayaChatId, user.id);
+        if (!existingChat) {
+          console.warn(`⚠️ MAYA: Chat ${mayaChatId} not found, creating new chat`);
+          mayaChatId = await this.db.createMayaChat(user.id, {
+            userId: user.id,
+            chatTitle: `Maya Chat ${new Date().toLocaleDateString()}`,
+            title: `Maya Chat ${new Date().toLocaleDateString()}`
+          });
         }
-        conversation = foundConversation;
       } else {
-        // Create new conversation
-        const newConversation: InsertConversation = {
+        // Create new Maya chat
+        mayaChatId = await this.db.createMayaChat(user.id, {
           userId: user.id,
-          agentName: 'maya',
-          title: `Maya Chat ${new Date().toLocaleDateString()}`,
-        };
-        conversation = await this.db.createConversation(newConversation);
+          chatTitle: `Maya Chat ${new Date().toLocaleDateString()}`,
+          title: `Maya Chat ${new Date().toLocaleDateString()}`
+        });
       }
+
+      console.log(`✅ MAYA: Using chat ID ${mayaChatId} for user ${user.id}`);
 
       // Get Maya's personality prompt with dynamic creative direction
       const creativeLook = PersonalityManager.getRandomCreativeLook();
@@ -268,50 +278,71 @@ export class MayaService {
         mayaResponse = this.generateFallbackResponse(request.message, user);
       }
 
-      // Save user message to database
-      const userMessage: InsertMessage = {
-        conversationId: conversation.id,
-        role: 'user',
-        content: request.message,
-      };
-      await this.db.createMessage(userMessage);
-
-      // Save Maya response to database
-      const mayaMessage: InsertMessage = {
-        conversationId: conversation.id,
-        role: 'assistant',
-        content: mayaResponse,
-      };
-      await this.db.createMessage(mayaMessage);
-
       // Extract concept cards from response
       const conceptCards = this.extractConceptCards(mayaResponse);
 
-      // Save concept cards to Maya concepts database
-      for (const concept of conceptCards) {
-        // Clean emoji to prevent JSON encoding issues
-        const cleanEmoji = this.cleanEmojiForDatabase(concept.emoji || '📸');
-        
-        const mayaConcept = {
-          userId: user.id,
-          title: concept.title,
-          description: concept.description,
-          type: 'portrait', // Default type for Maya conversations
-        } as InsertMayaConcept;
-        await this.db.insertMayaConcept(mayaConcept);
+      // Save user message to Maya chat database
+      const userMessage = {
+        chatId: parseInt(mayaChatId),
+        role: 'user',
+        content: request.message,
+      };
+      await this.db.createMayaChatMessage(userMessage);
+
+      // Save Maya response with concept cards to database
+      const mayaMessage = {
+        chatId: parseInt(mayaChatId),
+        role: 'assistant',
+        content: mayaResponse,
+        conceptCards: conceptCards.map(card => ({
+          title: card.title || 'Untitled Concept',
+          description: card.description || '',
+          prompt: card.fluxPrompt || '',
+          type: 'professional',
+          metadata: { emoji: card.emoji || '📸' },
+          tags: [card.creativeLook || 'Professional'],
+          status: 'active',
+          isTemplate: false
+        }))
+      };
+      await this.db.createMayaChatMessage(mayaMessage);
+
+      // Save individual concept cards to the concepts table
+      for (const conceptCard of conceptCards) {
+        try {
+          console.log(`🎨 MAYA CONCEPT: Saving concept card:`, {
+            title: conceptCard.title,
+            hasDescription: !!conceptCard.description,
+            hasFluxPrompt: !!conceptCard.fluxPrompt,
+            fluxPromptLength: conceptCard.fluxPrompt?.length || 0,
+            fluxPromptStart: conceptCard.fluxPrompt?.substring(0, 60) || 'NO PROMPT'
+          });
+
+          // Clean emoji to prevent JSON encoding issues
+          const cleanEmoji = this.cleanEmojiForDatabase(conceptCard.emoji || '📸');
+          
+          const conceptData = {
+            userId: user.id,
+            title: conceptCard.title,
+            description: conceptCard.description || '',
+            type: 'professional' as const,
+          };
+          await this.db.insertMayaConcept(conceptData as InsertMayaConcept);
+        } catch (conceptError) {
+          console.error('❌ MAYA: Failed to save concept card:', conceptError);
+          // Continue processing other concepts
+        }
       }
 
-      // Update conversation summary
-      await this.updateConversationSummary(conversation.id);
+      console.log(`✅ MAYA: Processed ${conceptCards.length} concept cards for response`);
 
       // Update user profile stats
       await this.updateUserProfileStats();
 
-
       return {
         response: mayaResponse,
         conceptCards,
-        conversationId: conversation.id,
+        conversationId: mayaChatId,
       };
 
     } catch (error) {
