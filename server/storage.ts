@@ -114,7 +114,7 @@ import { type MayaChatCreateInput } from '../shared/types/chat.js';
 function getDefaultUserFields(overrides: any = {}): InsertUser {
   return {
     id: overrides.id ?? '',
-    stackAuthId: overrides.stackAuthId ?? '',
+    stackAuthId: overrides.stackAuthId ?? overrides.id ?? '',
     email: overrides.email ?? '',
     firstName: overrides.firstName ?? '',
     lastName: overrides.lastName ?? '',

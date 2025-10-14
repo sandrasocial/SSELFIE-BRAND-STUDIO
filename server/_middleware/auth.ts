@@ -371,12 +371,16 @@ export async function withAuth<T>(
     // Add user to request
     const user = await getAuthenticatedUser(req);
     (req as AuthenticatedRequest).user = user;
+    // Set claims for backward compatibility with getUserFromRequest
+    (req as any).user.claims = user.stackUser;
 
     // Call handler with authenticated request
     return await handler(req as AuthenticatedRequest, res);
   } catch (error) {
     // For optional auth, allow request through without user
     if (options.optional) {
+      (req as any).user = (req as any).user || {};
+      (req as any).user.claims = (req as any).user.stackUser || null;
       return await handler(req as AuthenticatedRequest, res);
     }
 

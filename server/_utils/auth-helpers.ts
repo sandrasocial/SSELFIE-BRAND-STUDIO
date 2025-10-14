@@ -38,16 +38,17 @@ async function verifyJWTToken(token: string): Promise<any> {
  */
 
 import { getDatabase, type IStorage } from '../../shared/database-provider.js';
-import type { User } from '../../shared/types-override.js';
+import type { User, InsertUser } from '../../shared/types-override.js';
 
 const db = getDatabase();
 
 /**
  * Enhanced user resolution that handles Stack Auth ID linking automatically
  * @param stackAuthId - Stack Auth user ID from JWT
+ * @param email - User email from JWT for fallback linking
  * @returns Database user object with proper linking
  */
-export async function resolveUserWithAutoLinking(stackAuthId: string): Promise<any> {
+export async function resolveUserWithAutoLinking(stackAuthId: string, email?: string): Promise<any> {
   try {
     // First try to find user by Stack Auth ID
     let user = await db.getUserByStackAuthId(stackAuthId);
@@ -63,9 +64,48 @@ export async function resolveUserWithAutoLinking(stackAuthId: string): Promise<a
         console.log(`🔗 AUTH: Linking Stack Auth ID ${stackAuthId} to existing user ${user.id}`);
         user = await db.linkStackAuthId(user.id, stackAuthId);
         console.log(`✅ AUTH: Successfully linked user ${user.id} with Stack Auth ID ${stackAuthId}`);
+      } else if (email) {
+        // Try to find user by email and link them
+        console.log(`🔍 AUTH: Looking for user by email: ${email}`);
+        const userByEmail = await db.getUserByEmail(email);
+
+        if (userByEmail) {
+          console.log(`🔗 AUTH: Found existing user ${userByEmail.id} by email, linking Stack Auth ID ${stackAuthId}`);
+          user = await db.linkStackAuthId(userByEmail.id, stackAuthId);
+          console.log(`✅ AUTH: Successfully linked user ${user.id} with Stack Auth ID ${stackAuthId} via email`);
+        } else {
+          // No existing user found - create a new user
+          console.log(`🔍 AUTH: No existing user found for email ${email}, creating new user for Stack Auth ID ${stackAuthId}`);
+          const newUser = await db.upsertUser({
+            id: stackAuthId,
+            email: email,
+            displayName: email?.split('@')[0] || null,
+            firstName: null,
+            lastName: null,
+            profileImageUrl: null,
+            plan: 'sselfie-studio',
+            monthlyGenerationLimit: 100,
+            onboardingProgress: { source: 'stack-auth-auto' }
+          } as any);
+          user = newUser;
+          console.log(`✅ AUTH: Created new user ${user.id} for Stack Auth ID ${stackAuthId}`);
+        }
       } else {
-        console.warn(`❌ AUTH: No user found for Stack Auth ID: ${stackAuthId}`);
-        throw new Error(`User not found. Please complete registration.`);
+        // No email provided - create a new user with generated ID
+        console.log(`🔍 AUTH: No email provided, creating new user for Stack Auth ID: ${stackAuthId}`);
+        const newUser = await db.upsertUser({
+          id: stackAuthId,
+          email: null,
+          displayName: null,
+          firstName: null,
+          lastName: null,
+          profileImageUrl: null,
+          plan: 'sselfie-studio',
+          monthlyGenerationLimit: 100,
+          onboardingProgress: { source: 'stack-auth-no-email' }
+        } as any);
+        user = newUser;
+        console.log(`✅ AUTH: Created new user ${user.id} for Stack Auth ID ${stackAuthId} (no email)`);
       }
     }
 
@@ -85,14 +125,15 @@ export async function getUserFromRequest(req: any): Promise<User> {
   try {
     // Extract user from Stack Auth JWT
     const stackAuthUser = req.user?.claims?.sub;
+    const userEmail = req.user?.claims?.email || req.user?.claims?.primary_email || req.user?.claims?.primaryEmail || req.user?.claims?.email_address || req.user?.claims?.user_email;
 
     if (!stackAuthUser) {
       console.warn('❌ AUTH: No Stack Auth user found in request');
       throw new Error('Authentication required');
     }
 
-    console.log(`🔍 AUTH: Resolving user for Stack Auth ID: ${stackAuthUser}`);
-    return await resolveUserWithAutoLinking(stackAuthUser);
+    console.log(`🔍 AUTH: Resolving user for Stack Auth ID: ${stackAuthUser}, email: ${userEmail || 'not provided'}`);
+    return await resolveUserWithAutoLinking(stackAuthUser, userEmail);
   } catch (error) {
     console.error('❌ AUTH: Failed to get user from request:', error);
     throw error;

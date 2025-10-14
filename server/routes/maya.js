@@ -319,8 +319,6 @@ router.get('/status/:generationId', requireStackAuth, async (req, res) => {
     }
 });
 
-*/
-
 // DISABLED: Export empty router to prevent conflicts
 import express from 'express';
 const router = express.Router();
