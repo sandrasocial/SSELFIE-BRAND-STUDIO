@@ -108,6 +108,148 @@ interface ChatMessage {
   generatedImages?: string[];
 }
 
+// Enhanced error types for better user experience
+interface MayaError {
+  type: 'network' | 'auth' | 'validation' | 'generation' | 'timeout' | 'rate_limit' | 'server' | 'unknown';
+  message: string;
+  userMessage: string;
+  recoverable: boolean;
+  retryable: boolean;
+  details?: any;
+}
+
+// Error classification and user-friendly messages
+const classifyError = (error: any): MayaError => {
+  const errorMessage = error?.message || error?.toString() || 'Unknown error';
+
+  // Network errors
+  if (errorMessage.includes('fetch') || errorMessage.includes('network') || errorMessage.includes('connection')) {
+    return {
+      type: 'network',
+      message: errorMessage,
+      userMessage: 'Connection lost. Please check your internet and try again.',
+      recoverable: true,
+      retryable: true
+    };
+  }
+
+  // Authentication errors
+  if (errorMessage.includes('auth') || errorMessage.includes('unauthorized') || errorMessage.includes('forbidden')) {
+    return {
+      type: 'auth',
+      message: errorMessage,
+      userMessage: 'Please sign in again to continue.',
+      recoverable: true,
+      retryable: false
+    };
+  }
+
+  // Validation errors
+  if (errorMessage.includes('validation') || errorMessage.includes('required') || errorMessage.includes('invalid')) {
+    return {
+      type: 'validation',
+      message: errorMessage,
+      userMessage: 'Please check your input and try again.',
+      recoverable: true,
+      retryable: false
+    };
+  }
+
+  // Generation errors
+  if (errorMessage.includes('generation') || errorMessage.includes('model') || errorMessage.includes('training')) {
+    return {
+      type: 'generation',
+      message: errorMessage,
+      userMessage: 'Image generation failed. Please try a different concept or contact support if this persists.',
+      recoverable: true,
+      retryable: true
+    };
+  }
+
+  // Timeout errors
+  if (errorMessage.includes('timeout') || errorMessage.includes('timed out')) {
+    return {
+      type: 'timeout',
+      message: errorMessage,
+      userMessage: 'Request timed out. Please try again.',
+      recoverable: true,
+      retryable: true
+    };
+  }
+
+  // Rate limiting
+  if (errorMessage.includes('rate') || errorMessage.includes('limit') || errorMessage.includes('429')) {
+    return {
+      type: 'rate_limit',
+      message: errorMessage,
+      userMessage: 'Too many requests. Please wait a moment and try again.',
+      recoverable: true,
+      retryable: true
+    };
+  }
+
+  // Server errors
+  if (errorMessage.includes('server') || errorMessage.includes('500') || errorMessage.includes('502') || errorMessage.includes('503')) {
+    return {
+      type: 'server',
+      message: errorMessage,
+      userMessage: 'Server temporarily unavailable. Please try again in a few minutes.',
+      recoverable: true,
+      retryable: true
+    };
+  }
+
+  // Default unknown error
+  return {
+    type: 'unknown',
+    message: errorMessage,
+    userMessage: 'Something went wrong. Please try again or contact support.',
+    recoverable: true,
+    retryable: true
+  };
+};
+
+// Enhanced error handling utilities
+const handleMayaError = (error: any, context: string, toast: any, onRetry?: () => void) => {
+  const classifiedError = classifyError(error);
+  
+  console.error(`❌ MAYA ERROR [${context}]:`, {
+    type: classifiedError.type,
+    message: classifiedError.message,
+    recoverable: classifiedError.recoverable,
+    retryable: classifiedError.retryable,
+    details: classifiedError.details
+  });
+
+  // Show user-friendly error message
+  const toastMessage: any = {
+    title: getErrorTitle(classifiedError.type),
+    description: classifiedError.userMessage
+  };
+
+  // Add retry instruction for retryable errors
+  if (classifiedError.retryable && onRetry) {
+    toastMessage.description += ' Tap to retry.';
+  }
+
+  toast(toastMessage);
+
+  return classifiedError;
+};
+
+const getErrorTitle = (errorType: MayaError['type']): string => {
+  switch (errorType) {
+    case 'network': return 'Connection Error';
+    case 'auth': return 'Authentication Required';
+    case 'validation': return 'Invalid Input';
+    case 'generation': return 'Generation Failed';
+    case 'timeout': return 'Request Timeout';
+    case 'rate_limit': return 'Too Many Requests';
+    case 'server': return 'Server Error';
+    default: return 'Error';
+  }
+};
+
 interface BrandStudioState {
   conversationId: string | null;
   messages: ChatMessage[];
@@ -325,6 +467,7 @@ export function BrandStudioProvider({ children }: { children: React.ReactNode })
   // Polling state for generation tracking
   const [pollingGenerationId, setPollingGenerationId] = useState<string | null>(null);
   const [activeCardId, setActiveCardId] = useState<string | null>(null);
+  const [lastMessageContent, setLastMessageContent] = useState<string>('');
 
   // Generate conversation ID on mount
   React.useEffect(() => {
@@ -417,12 +560,18 @@ export function BrandStudioProvider({ children }: { children: React.ReactNode })
       }
       dispatch({ type: 'SET_TYPING', payload: false });
     },
-    onError: () => {
+    onError: (error) => {
       dispatch({ type: 'SET_TYPING', payload: false });
-      toast({ 
-        title: "Connection Error", 
-        description: "Failed to send message. Please try again." 
+      
+      // Enhanced error handling with classification and recovery
+      const classifiedError = handleMayaError(error, 'CHAT_SEND', toast, () => {
+        // Retry logic for recoverable errors
+        if (classifiedError.retryable) {
+          sendMessageMutation.mutate(lastMessageContent);
+        }
       });
+      
+      // Store last message for potential retry (already done in sendMessage)
     }
   });
 
@@ -464,8 +613,8 @@ export function BrandStudioProvider({ children }: { children: React.ReactNode })
     setActiveCardId(null);
   }, [activeCardId, pollingGenerationId, toast, refetchChatHistory]);
 
-  const onGenerationError = useCallback(() => {
-    console.error('❌ CONTEXT: Generation failed');
+  const onGenerationError = useCallback((error: MayaError) => {
+    console.error('❌ CONTEXT: Generation failed:', error);
     
     if (activeCardId) {
       // Update concept card with failed status
@@ -481,10 +630,18 @@ export function BrandStudioProvider({ children }: { children: React.ReactNode })
         }
       });
       
-      toast({
-        title: "Generation Failed",
-        description: "Failed to generate images. Please try again."
-      });
+      // Show enhanced error message with retry option if applicable
+      const toastMessage: any = {
+        title: getErrorTitle(error.type),
+        description: error.userMessage
+      };
+
+      // Add retry instruction for retryable errors
+      if (error.retryable) {
+        toastMessage.description += ' Tap to retry.';
+      }
+
+      toast(toastMessage);
     }
     
     // Stop polling
@@ -604,9 +761,12 @@ export function BrandStudioProvider({ children }: { children: React.ReactNode })
         }
       });
       
-      toast({ 
-        title: "Generation Error", 
-        description: error.message || "Failed to generate image. Please try again." 
+      // Enhanced error handling with classification and recovery
+      const classifiedError = handleMayaError(error, 'IMAGE_GENERATION', toast, () => {
+        // Retry logic for recoverable errors
+        if (classifiedError.retryable) {
+          generateImageMutation.mutate(cardId);
+        }
       });
     }
   });
@@ -616,11 +776,16 @@ export function BrandStudioProvider({ children }: { children: React.ReactNode })
   const sendMessage = useCallback((content: string) => {
     if (!content.trim() || sendMessageMutation.isPending) return;
 
+    const trimmedContent = content.trim();
+    
+    // Store message content for potential retry
+    setLastMessageContent(trimmedContent);
+
     // Add user message immediately
     const userMessage: ChatMessage = {
       id: `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       type: 'user',
-      content: content.trim(),
+      content: trimmedContent,
       timestamp: new Date().toISOString()
     };
 
@@ -628,7 +793,7 @@ export function BrandStudioProvider({ children }: { children: React.ReactNode })
     dispatch({ type: 'SET_TYPING', payload: true });
 
     // Send to Maya
-    sendMessageMutation.mutate(content.trim());
+    sendMessageMutation.mutate(trimmedContent);
   }, [sendMessageMutation]);
 
   // Polling function for async generation completion

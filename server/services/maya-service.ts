@@ -4,6 +4,7 @@
  */
 
 import { getDatabase, type IStorage } from '../../shared/database-provider.js';
+import { resolveUserWithAutoLinking, validateMayaAccess, validateUserModel } from '../_utils/auth-helpers.js';
 import {
   MayaProfile,
   InsertMayaProfile,
@@ -75,24 +76,8 @@ export class MayaService {
    */
   async getOrCreateUserProfile(stackAuthId: string): Promise<MayaProfile> {
     try {
-      // Get user data first (stackAuthId is Stack Auth ID)
-      let user = await this.db.getUserByStackAuthId(stackAuthId);
-      
-      // 🔧 FIX: If user not found by Stack Auth ID, try to find and link existing user
-      if (!user) {
-        console.log(`🔍 MAYA: User not found by Stack Auth ID: ${stackAuthId}, attempting auto-linking...`);
-        
-        // Try to find user by the Stack Auth ID as primary ID (legacy users)
-        user = await this.db.getUser(stackAuthId);
-        
-        if (user) {
-          // Link the Stack Auth ID to this user
-          console.log(`🔗 MAYA: Linking Stack Auth ID ${stackAuthId} to user ${user.id}`);
-          user = await this.db.linkStackAuthId(user.id, stackAuthId);
-        } else {
-          throw new Error(`User not found with Stack Auth ID: ${stackAuthId}. User may need to complete registration.`);
-        }
-      }
+      // Use simplified authentication helper
+      const user = await resolveUserWithAutoLinking(stackAuthId);
 
       // Check if profile exists using database user ID
       const existingProfile = await this.db.getMayaProfile(user.id);
@@ -170,24 +155,8 @@ export class MayaService {
    */
   async processChat(stackAuthId: string, request: MayaChatRequest): Promise<MayaChatResponse> {
     try {
-      // Get user data first to get database user ID
-      let user = await this.db.getUserByStackAuthId(stackAuthId);
-      
-      // 🔧 FIX: If user not found by Stack Auth ID, try to find and link existing user
-      if (!user) {
-        console.log(`🔍 MAYA: User not found by Stack Auth ID: ${stackAuthId}, attempting auto-linking...`);
-        
-        // Try to find user by the Stack Auth ID as primary ID (legacy users)
-        user = await this.db.getUser(stackAuthId);
-        
-        if (user) {
-          // Link the Stack Auth ID to this user
-          console.log(`🔗 MAYA: Linking Stack Auth ID ${stackAuthId} to user ${user.id}`);
-          user = await this.db.linkStackAuthId(user.id, stackAuthId);
-        } else {
-          throw new Error(`User not found with Stack Auth ID: ${stackAuthId}. User may need to complete registration.`);
-        }
-      }
+      // Use simplified authentication helper
+      const user = await resolveUserWithAutoLinking(stackAuthId);
 
       // Get or create user profile
       await this.getOrCreateUserProfile(stackAuthId);
@@ -368,26 +337,8 @@ export class MayaService {
     conceptCards: ConceptCard[];
   }> {
     try {
-      // Get user data first to get database user ID
-      let user = await this.db.getUserByStackAuthId(stackAuthId);
-      
-      // 🔧 FIX: If user not found by Stack Auth ID, try to find and link existing user
-      if (!user) {
-        console.log(`🔍 MAYA: User not found by Stack Auth ID: ${stackAuthId}, attempting auto-linking...`);
-        
-        // Try to find user by the Stack Auth ID as primary ID (legacy users)
-        user = await this.db.getUser(stackAuthId);
-        
-        if (user) {
-          // Link the Stack Auth ID to this user
-          await this.db.linkStackAuthId(user.id, stackAuthId);
-          console.log(`✅ MAYA: Successfully linked Stack Auth ID ${stackAuthId} to existing user ${user.id}`);
-        }
-      }
-
-      if (!user) {
-        throw new Error(`User not found: ${stackAuthId}`);
-      }
+      // Use simplified authentication helper
+      const user = await resolveUserWithAutoLinking(stackAuthId);
 
       console.log(`🎯 MAYA: Processing pre-generated response for user ${user.id}`);
 
@@ -597,31 +548,8 @@ export class MayaService {
         throw new Error('Monthly generation limit exceeded');
       }
 
-      // Get user's trained model for personalization
-      const userModel = await this.getUserModel(userId);
-      console.log(`🔍 MAYA GENERATION: User model status - Found: ${!!userModel}, Training: ${userModel?.trainingStatus}, Version: ${userModel?.replicateVersionId}, Trigger: ${userModel?.triggerWord}`);
-      
-      // CRITICAL: Validate user has completed trained model
-      if (!userModel || userModel.trainingStatus !== 'completed') {
-        console.error(`❌ MAYA GENERATION: Invalid model - Status: ${userModel?.trainingStatus || 'no_model'}, ID: ${userModel?.id}`);
-        throw new Error(`User does not have a completed trained model. Status: ${userModel?.trainingStatus || 'no_model'}. Please complete model training first.`);
-      }
-      
-      // 🔍 CRITICAL DEBUG: Log detailed model information
-      console.log(`🔍 MAYA GENERATION: Model validation for user ${userId}:`, {
-        trainingStatus: userModel.trainingStatus,
-        replicateVersionId: userModel.replicateVersionId,
-        triggerWord: userModel.triggerWord,
-        modelId: userModel.id,
-        completedAt: userModel.completedAt
-      });
-      
-      if (!userModel.replicateVersionId) {
-        console.error(`❌ MAYA GENERATION: Model missing Replicate version ID - Training may have completed without proper version extraction`);
-        throw new Error('User model missing replicateVersionId for personalized generation. Training completion may have failed to extract version ID.');
-      }
-      
-      console.log(`✅ MAYA GENERATION: Valid model found - Version: ${userModel.replicateVersionId}, Trigger: ${userModel.triggerWord}`);
+      // Validate user has completed model training
+      const userModel = await validateUserModel(user);
 
       // CRITICAL FIX: Don't create tracker here - create it AFTER getting Replicate prediction ID
       // to avoid ID mismatch issues. Pass generationId for response, get Replicate ID in startFluxGeneration

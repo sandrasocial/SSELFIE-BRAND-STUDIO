@@ -37,19 +37,8 @@ const GALLERY_ROUTES = [
 ];
 
 // Maya routes handled by maya.ts module (Phase 4 Migration - Day 5)
-const MAYA_ROUTES = [
-  '/api/maya/get-video-prompt',
-  '/api/maya/generate',
-  '/api/maya/heart-image',
-  '/api/maya/status',
-  '/api/maya/models',
-  '/api/maya/env-check',
-  '/api/maya/chat',
-  '/api/maya-chat',
-  '/api/maya-generate',
-  '/api/maya-chats',
-  '/api/maya/chat-history'
-];
+// NOTE: Maya routes are now handled by dedicated Vercel serverless functions in /server/api/maya/
+// The Express router implementation has been deprecated to avoid routing conflicts
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Set CORS headers
@@ -383,16 +372,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return galleryHandler(req, res);
   }
 
-  // � DISABLED: Maya routes now handled by dedicated serverless endpoints in /server/maya-*.ts
-  // These endpoints have proper PersonalityManager integration and concept card extraction
-  // The old Express router uses generic prompts and is DEPRECATED
-  // �🔄 MAYA ROUTES: Handle via maya.ts module (Phase 4 Migration - Day 5)
-  // const isMayaRoute = req.url && MAYA_ROUTES.some(route => req.url === route || req.url?.startsWith(route));
-  // if (isMayaRoute) {
-  //   console.log(`🔄 [MAYA MODULE] Handling: ${req.url}`);
-  //   const mayaHandler = adaptExpressRouter(mayaRouter);
-  //   return mayaHandler(req, res);
-  // }
+  // Maya routes are handled by dedicated Vercel serverless functions in /server/api/maya/
+  // No Express router routing needed - conflicts resolved
 
   // Skip auth middleware entirely for public routes
   if (isPublicRoute) {
