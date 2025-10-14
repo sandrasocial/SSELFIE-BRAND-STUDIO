@@ -74,6 +74,7 @@
     "server/services/video/veo3.ts",
     "server/services/user-service.ts",
     "server/services/email-service.ts",
+    "server/routes/checkout.ts",
     "server/routes/concept-cards.ts",
     "shared/types/concept-card.ts",
     "shared/types/chat.ts",
