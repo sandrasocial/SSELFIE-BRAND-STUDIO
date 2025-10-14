@@ -173,7 +173,7 @@ export function registerCheckoutRoutes(app: Express) {
   // Get user's subscription details
   app.get("/api/subscription", requireStackAuth, async (req: Request, res: Response) => {
     try {
-      const userId = req.user.id;
+      const userId = req.user!.id;
       if (!userId) {
         return res.status(401).json({ message: 'User authentication required' });
       }
@@ -205,7 +205,7 @@ export function registerCheckoutRoutes(app: Express) {
   // Get user's invoices
   app.get("/api/invoices", requireStackAuth, async (req: Request, res: Response) => {
     try {
-      const userId = req.user.id;
+      const userId = req.user!.id;
       if (!userId) {
         return res.status(401).json({ message: 'User authentication required' });
       }
@@ -232,7 +232,7 @@ export function registerCheckoutRoutes(app: Express) {
   // Cancel subscription (at period end)
   app.post("/api/subscription/cancel", requireStackAuth, async (req: Request, res: Response) => {
     try {
-      const userId = req.user.id;
+      const userId = req.user!.id;
       if (!userId) {
         return res.status(401).json({ message: 'User authentication required' });
       }
@@ -258,7 +258,7 @@ export function registerCheckoutRoutes(app: Express) {
   // Reactivate subscription (remove cancel_at_period_end)
   app.post("/api/subscription/reactivate", requireStackAuth, async (req: Request, res: Response) => {
     try {
-      const userId = req.user.id;
+      const userId = req.user!.id;
       if (!userId) {
         return res.status(401).json({ message: 'User authentication required' });
       }
