@@ -37,14 +37,9 @@ export default defineConfig(({ mode }) => {
       },
     },
 
-    // 🔒 Force a single React copy for the whole graph
+    // 🔒 Simplified resolve config
     resolve: {
       alias: {
-        // lock React to the root node_modules so sub-deps can't sneak in a second copy
-        react: path.resolve(__dirname, "node_modules/react"),
-        "react-dom": path.resolve(__dirname, "node_modules/react-dom"),
-
-        // your existing aliases (unchanged)
         "@": path.resolve(__dirname, "client", "src"),
         "@shared": path.resolve(__dirname, "shared"),
         "@assets": path.resolve(__dirname, "attached_assets"),
@@ -90,9 +85,6 @@ export default defineConfig(({ mode }) => {
         "@stackframe/react"
       ],
       exclude: [
-        "react",
-        "react-dom",
-        "react/jsx-runtime",
         "@stackframe/stack"
       ],
       force: true
