@@ -699,20 +699,14 @@ export class MayaService {
         throw new Error('Replicate API not configured - missing REPLICATE_API_TOKEN environment variable');
       }
 
-      // � CRITICAL FIX: Construct full model version format
-      const modelVersion = userModel.replicateModelId && userModel.replicateVersionId 
-        ? `${userModel.replicateModelId}:${userModel.replicateVersionId}`
-        : userModel.replicateVersionId;
+      // � CRITICAL FIX: Use only the version ID for Replicate API
+      // Replicate expects just the version ID, not model:version format
+      const modelVersion = userModel.replicateVersionId;
 
-      // �🔍 CRITICAL DEBUG: Log user model details before API call
-      console.log(`🔍 MAYA FLUX: User model details:`, {
-        replicateModelId: userModel.replicateModelId,
-        replicateVersionId: userModel.replicateVersionId,
-        combinedVersion: modelVersion,
-        triggerWord: userModel.triggerWord,
-        trainingStatus: userModel.trainingStatus,
-        modelType: userModel.modelType
-      });
+      if (!modelVersion) {
+        console.error(`❌ MAYA FLUX: No replicateVersionId found for user model ${userModel.id}`);
+        throw new Error('User model missing replicateVersionId - cannot generate personalized images');
+      }
 
       const requestBody = {
         version: modelVersion,
