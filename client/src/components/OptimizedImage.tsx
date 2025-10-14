@@ -39,7 +39,7 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
   const getOptimizedSrc = (originalSrc: string): string => {
     // Check if browser supports WebP
     if (typeof window !== 'undefined') {
-      const canvas = document.createElement('canvas');
+      const canvas = document.createElement('canvas') as HTMLCanvasElement;
       const ctx = canvas.getContext('2d');
       if (ctx && canvas.toDataURL('image/webp').indexOf('data:image/webp') === 0) {
         // If it's an S3 URL, try to get WebP version
@@ -72,11 +72,11 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
       }
     );
 
-    observer.observe(imgRef.current);
+    observer.observe(imgRef.current as Element);
 
     addCleanup(() => {
       if (imgRef.current) {
-        observer.unobserve(imgRef.current);
+        observer.unobserve(imgRef.current as Element);
       }
       observer.disconnect();
     });

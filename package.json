@@ -433,9 +433,9 @@
     "random-bytes": "^1.0.0",
     "range-parser": "^1.2.1",
     "raw-body": "^2.5.1",
-    "react": "19.0.0",
+    "react": "^18.3.1",
     "react-day-picker": "^8.10.1",
-    "react-dom": "19.0.0",
+    "react-dom": "^18.3.1",
     "react-is": "^18.3.1",
     "react-refresh": "^0.17.0",
     "react-remove-scroll": "^2.7.1",
@@ -632,8 +632,8 @@
     "@types/cookie-parser": "^1.4.9",
     "@types/express": "^5.0.3",
     "@types/node": "^24.5.2",
-    "@types/react": "^19.2.2",
-    "@types/react-dom": "^19.1.9",
+    "@types/react": "^18.3.11",
+    "@types/react-dom": "^18.3.1",
     "@types/ws": "^8.18.1",
     "@typescript-eslint/eslint-plugin": "^8.43.0",
     "@typescript-eslint/parser": "^8.43.0",
@@ -656,8 +656,6 @@
     "vitest": "^3.2.4"
   },
   "overrides": {
-    "react": "19.0.0",
-    "react-dom": "19.0.0",
     "string-width-cjs": "npm:string-width@4.2.3",
     "strip-ansi-cjs": "npm:strip-ansi@6.0.1",
     "wrap-ansi-cjs": "npm:wrap-ansi@7.0.0"

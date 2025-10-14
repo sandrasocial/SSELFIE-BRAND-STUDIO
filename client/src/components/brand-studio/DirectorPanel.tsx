@@ -19,13 +19,13 @@ interface DirectorPanelProps {
   message: string;
   setMessage: (message: string) => void;
   onSendMessage: () => void;
-  onKeyPress?: (e: React.KeyboardEvent) => void;
+  onKeyPress?: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
   disabled?: boolean;
   placeholder?: string;
   className?: string;
   children?: React.ReactNode;
-  messagesEndRef?: React.RefObject<HTMLDivElement>;
-  chatContainerRef?: React.RefObject<HTMLDivElement>;
+  messagesEndRef?: React.RefObject<HTMLDivElement | null>;
+  chatContainerRef?: React.RefObject<HTMLDivElement | null>;
   shouldAutoScroll?: boolean;
   onScroll?: () => void;
 }
@@ -82,7 +82,7 @@ export const DirectorPanel: React.FC<DirectorPanelProps> = ({
     ? "Describe the professional photos you need for your business..."
     : "Tell me about the story you want to create...";
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       onSendMessage();
@@ -103,7 +103,7 @@ export const DirectorPanel: React.FC<DirectorPanelProps> = ({
                   ref={inputRef}
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
-                  onKeyPress={handleKeyPress}
+                  onKeyDown={handleKeyDown}
                   placeholder={placeholder || defaultPlaceholder}
                   className="w-full resize-none border border-gray-200 focus:border-black focus:outline-none px-4 py-3 bg-white transition-colors rounded"
                   rows={1}
@@ -146,7 +146,7 @@ export const DirectorPanel: React.FC<DirectorPanelProps> = ({
             </div>
             
             <div 
-              ref={externalChatContainerRef}
+              ref={externalChatContainerRef as React.LegacyRef<HTMLDivElement>}
               className="flex-1 overflow-y-auto p-4 pb-24"
               onScroll={onScroll}
             >
@@ -179,7 +179,7 @@ export const DirectorPanel: React.FC<DirectorPanelProps> = ({
                 </div>
               )}
               
-              <div ref={externalMessagesEndRef || messagesEndRef} />
+              <div ref={(externalMessagesEndRef || messagesEndRef) as React.LegacyRef<HTMLDivElement>} />
             </div>
           </div>
         )}
@@ -213,7 +213,7 @@ export const DirectorPanel: React.FC<DirectorPanelProps> = ({
 
       {/* Chat Messages */}
       <div 
-        ref={externalChatContainerRef}
+        ref={externalChatContainerRef as React.LegacyRef<HTMLDivElement>}
         className="flex-1 overflow-y-auto p-6 space-y-6"
         onScroll={onScroll}
       >
@@ -251,7 +251,7 @@ export const DirectorPanel: React.FC<DirectorPanelProps> = ({
           </div>
         )}
 
-        <div ref={externalMessagesEndRef || messagesEndRef} />
+        <div ref={(externalMessagesEndRef || messagesEndRef) as React.LegacyRef<HTMLDivElement>} />
       </div>
 
       {/* Desktop Input */}
@@ -262,7 +262,7 @@ export const DirectorPanel: React.FC<DirectorPanelProps> = ({
               ref={inputRef}
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              onKeyPress={handleKeyPress}
+              onKeyDown={handleKeyDown}
               placeholder={placeholder || defaultPlaceholder}
               className="w-full resize-none border border-gray-200 focus:border-black focus:outline-none px-4 py-3 bg-white transition-colors rounded-sm"
               rows={1}

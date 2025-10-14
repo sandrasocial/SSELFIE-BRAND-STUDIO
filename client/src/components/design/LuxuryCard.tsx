@@ -11,7 +11,7 @@ interface LuxuryCardProps {
   imageSrc?: string;
 }
 
-// @ts-expect-error TS2339: styled-components type resolution issue
+// styled-components type resolution issue
 const CardContainer = styled.div`
   background: #ffffff;
   border: 1px solid #0a0a0a;
@@ -21,7 +21,7 @@ const CardContainer = styled.div`
   font-family: 'Times New Roman', Times, serif;
 `;
 
-// @ts-expect-error TS2339: styled-components type resolution issue
+// styled-components type resolution issue
 const CardTitle = styled.h2`
   color: #0a0a0a;
   font-family: 'Times New Roman', Times, serif;
@@ -32,7 +32,7 @@ const CardTitle = styled.h2`
   line-height: 1.2;
 `;
 
-// @ts-expect-error TS2339: styled-components type resolution issue
+// styled-components type resolution issue
 const CardSubtitle = styled.h3`
   color: #666666;
   font-family: 'Times New Roman', Times, serif;
@@ -42,7 +42,7 @@ const CardSubtitle = styled.h3`
   margin: 0 0 2rem 0;
 `;
 
-// @ts-expect-error TS2339: styled-components type resolution issue
+// styled-components type resolution issue
 const CardContent = styled.div`
   color: #0a0a0a;
   font-family: 'Times New Roman', Times, serif;
@@ -51,7 +51,7 @@ const CardContent = styled.div`
   margin: 0;
 `;
 
-// @ts-expect-error TS2339: styled-components type resolution issue
+// styled-components type resolution issue
 const LuxuryImage = styled.img`
   width: 100%;
   height: auto;
