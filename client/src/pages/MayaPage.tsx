@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useBrandStudio, BrandStudioProvider } from '../contexts/BrandStudioContext.js';
 import { Send, Camera, ArrowLeft, MessageCircle } from 'lucide-react';
 import { useLocation } from 'wouter';
+import { useAuth } from '../hooks/use-auth.js';
 import type { ConceptCard } from '../../../shared/types/concept-card.js';
 import ErrorBoundary, { ConceptCardErrorBoundary } from '../components/ErrorBoundary.js';
 
@@ -503,6 +504,40 @@ interface MayaPageProps {
 
 const MayaPage: React.FC<MayaPageProps> = ({ initialPrompt, onPromptUsed }) => {
   const [, setLocation] = useLocation();
+  const { user, isAuthenticated, isLoading } = useAuth();
+
+  // Check if user has Maya AI access
+  useEffect(() => {
+    if (!isLoading && isAuthenticated && user) {
+      if (!user.mayaAiAccess) {
+        console.log('❌ MAYA PAGE: User does not have Maya AI access, redirecting to /app');
+        setLocation('/app');
+        return;
+      }
+    }
+  }, [user, isAuthenticated, isLoading, setLocation]);
+
+  // Show loading while checking access
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-stone-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-stone-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-stone-600">Loading Maya...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // If not authenticated, redirect will be handled by ProtectedRouteWrapper
+  if (!isAuthenticated) {
+    return null;
+  }
+
+  // If user doesn't have Maya access, redirect to /app
+  if (!user?.mayaAiAccess) {
+    return null; // Will redirect via useEffect
+  }
 
   return (
     <div className="min-h-screen bg-stone-50">

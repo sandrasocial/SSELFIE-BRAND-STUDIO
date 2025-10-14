@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useBrandStudio, BrandStudioProvider } from '../contexts/BrandStudioContext.js';
 import { Send, Camera } from 'lucide-react';
+import { useAuth } from '../hooks/use-auth.js';
 import type { ConceptCard } from '../../../shared/types/concept-card.js';
 import ErrorBoundary, { ConceptCardErrorBoundary } from '../components/ErrorBoundary.js';
 
@@ -482,6 +483,25 @@ interface MayaScreenProps {
 }
 
 const MayaScreen: React.FC<MayaScreenProps> = ({ initialPrompt, onPromptUsed }) => {
+  const { user, isAuthenticated, isLoading } = useAuth();
+
+  // Check if user has Maya AI access
+  if (!isLoading && isAuthenticated && user && !user.mayaAiAccess) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <div className="text-center p-8">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-stone-100 flex items-center justify-center">
+            <Camera size={32} className="text-stone-400" />
+          </div>
+          <h3 className="text-lg font-serif font-light text-stone-950 mb-2">Maya AI Access Required</h3>
+          <p className="text-sm text-stone-600">
+            Maya AI features are not available for this account. Please upgrade your plan to access AI-powered photo generation.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <BrandStudioProvider>
       <MayaChatContent initialPrompt={initialPrompt} onPromptUsed={onPromptUsed} />

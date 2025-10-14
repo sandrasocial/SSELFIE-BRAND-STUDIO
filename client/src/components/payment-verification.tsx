@@ -25,7 +25,7 @@ export function PaymentVerification({ children, requiredPlan }: PaymentVerificat
   // Check user's subscription status
   const { data: subscription, isLoading: subscriptionLoading } = useQuery<Subscription | null>({
     queryKey: ['/api/subscription'],
-    enabled: isAuthenticated && user?.email !== 'ssa@ssasocial.com',
+    enabled: isAuthenticated && user?.role !== 'admin',
     retry: 1,
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
     refetchOnWindowFocus: false,
@@ -38,8 +38,8 @@ export function PaymentVerification({ children, requiredPlan }: PaymentVerificat
       return;
     }
 
-    // Admin users (Sandra) bypass all payment verification immediately
-    if (user?.email === 'ssa@ssasocial.com') {
+    // Admin users bypass all payment verification immediately
+    if (user?.role === 'admin') {
       setHasAccess(true);
       setIsChecking(false);
       return;

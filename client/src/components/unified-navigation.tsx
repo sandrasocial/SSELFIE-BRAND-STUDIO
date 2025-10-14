@@ -42,9 +42,8 @@ export function UnifiedNavigation({
     return false;
   };
 
-  // Check if user is admin (Sandra) or if we're in impersonation mode
-  const isAdmin = user?.email === 'ssa@ssasocial.com';
-  const isImpersonating = user?.email === 'shannon@soulresets.com' && user?.role === 'user';
+  // Check if user is admin
+  const isAdmin = user?.role === 'admin';
 
   // Navigation Items with Icons - conditional based on auth state
   const navItems = user ? [
@@ -158,38 +157,6 @@ export function UnifiedNavigation({
                       ]}
                     />
 
-                    {isImpersonating && (
-                      <button
-                        onClick={async () => {
-                          try {
-                            const response = await fetch('/api/admin/stop-impersonation', {
-                              method: 'POST',
-                              headers: {
-                                'Content-Type': 'application/json',
-                                'x-admin-token': 'sandra-admin-2025'
-                              }
-                            });
-                            if (response.ok) {
-                              window.location.href = '/admin-dashboard';
-                            }
-                          } catch (error) {
-                            console.error('Failed to stop impersonation:', error);
-                          }
-                        }}
-                        aria-label="Stop impersonation and return to admin dashboard"
-                        className={`
-                          ${TypographyClasses.caption}
-                          text-white/70 hover:text-white
-                          transition-all duration-300 ease-sophisticated
-                          flex items-center gap-2
-                          px-3 py-2 rounded-lg hover:bg-white/5
-                        `}
-                      >
-                        <Shield size={16} strokeWidth={1.2} />
-                        Back to Admin
-                      </button>
-                    )}
-
                     <button
                       onClick={handleLogout}
                       aria-label="Logout from account"
@@ -292,38 +259,6 @@ export function UnifiedNavigation({
                 {user ? (
                   <>
                     {/* Authenticated mobile menu items */}
-                    {isImpersonating && (
-                      <button
-                        onClick={async () => {
-                          try {
-                            const response = await fetch('/api/admin/stop-impersonation', {
-                              method: 'POST',
-                              headers: {
-                                'Content-Type': 'application/json',
-                                'x-admin-token': 'sandra-admin-2025'
-                              }
-                            });
-                            if (response.ok) {
-                              window.location.href = '/admin-dashboard';
-                            }
-                          } catch (error) {
-                            console.error('Failed to stop impersonation:', error);
-                          }
-                          setMobileMenuOpen(false);
-                        }}
-                        className={`
-                          ${TypographyClasses.caption}
-                          text-white/70 hover:text-white
-                          transition-all duration-300 ease-sophisticated
-                          mt-8 flex items-center gap-3
-                          px-4 py-3 rounded-lg hover:bg-white/5
-                        `}
-                      >
-                        <Shield size={18} strokeWidth={1.2} />
-                        Back to Admin
-                      </button>
-                    )}
-
                     <button
                       onClick={() => {
                         handleLogout();

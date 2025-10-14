@@ -20,8 +20,7 @@ export function RollbackButton({ filePath, className }: RollbackButtonProps) {
     setIsRollingBack(true);
     try {
       const response = await apiRequest('POST', '/api/admin/rollback-file', {
-        filePath,
-        adminToken: 'sandra-admin-2025'
+        filePath
       });
 
       if (response.ok) {
