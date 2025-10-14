@@ -999,7 +999,7 @@ export const mayaChatMessages = pgTable("maya_chat_messages", {
 	imagePreview: text("image_preview"),
 	generatedPrompt: text("generated_prompt"),
 	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow(),
-	conceptCards: text("concept_cards"),
+	conceptCards: jsonb("concept_cards"),
 	quickButtons: text("quick_buttons"),
 	canGenerate: boolean("can_generate").default(false),
 	originalStylingContext: text("original_styling_context"),

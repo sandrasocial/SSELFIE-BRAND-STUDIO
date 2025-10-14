@@ -132,16 +132,6 @@ export const inspirationPhotosRelations = relations(inspirationPhotos, ({one}) =
 }));
 
 export const mayaPersonalMemoryRelations = relations(mayaPersonalMemory, ({one}) => ({
-	userPersonalBrand_personalBrandId: one(userPersonalBrand, {
-		fields: [mayaPersonalMemory.personalBrandId],
-		references: [userPersonalBrand.id],
-		relationName: "mayaPersonalMemory_personalBrandId_userPersonalBrand_id"
-	}),
-	user_userId: one(users, {
-		fields: [mayaPersonalMemory.userId],
-		references: [users.id],
-		relationName: "mayaPersonalMemory_userId_users_id"
-	}),
 	user_userId: one(users, {
 		fields: [mayaPersonalMemory.userId],
 		references: [users.id],
@@ -157,11 +147,6 @@ export const mayaPersonalMemoryRelations = relations(mayaPersonalMemory, ({one})
 export const userPersonalBrandRelations = relations(userPersonalBrand, ({one, many}) => ({
 	mayaPersonalMemories_personalBrandId: many(mayaPersonalMemory, {
 		relationName: "mayaPersonalMemory_personalBrandId_userPersonalBrand_id"
-	}),
-	user_userId: one(users, {
-		fields: [userPersonalBrand.userId],
-		references: [users.id],
-		relationName: "userPersonalBrand_userId_users_id"
 	}),
 	user_userId: one(users, {
 		fields: [userPersonalBrand.userId],
@@ -238,11 +223,6 @@ export const subscriptionsRelations = relations(subscriptions, ({one}) => ({
 }));
 
 export const userProfilesRelations = relations(userProfiles, ({one}) => ({
-	user_userId: one(users, {
-		fields: [userProfiles.userId],
-		references: [users.id],
-		relationName: "userProfiles_userId_users_id"
-	}),
 	user_userId: one(users, {
 		fields: [userProfiles.userId],
 		references: [users.id],
@@ -478,11 +458,6 @@ export const mayaSubscriptionsRelations = relations(mayaSubscriptions, ({one}) =
 }));
 
 export const mayaPaymentsRelations = relations(mayaPayments, ({one}) => ({
-	user_userId: one(users, {
-		fields: [mayaPayments.userId],
-		references: [users.id],
-		relationName: "mayaPayments_userId_users_id"
-	}),
 	user_userId: one(users, {
 		fields: [mayaPayments.userId],
 		references: [users.id],
