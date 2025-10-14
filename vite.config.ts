@@ -71,8 +71,8 @@ export default defineConfig(({ mode }) => {
       },
       // Enable source maps for debugging
       sourcemap: mode === 'development',
-      // Optimize minification - use esbuild (faster, no extra deps)
-      minify: 'esbuild',
+      // Temporarily disable minification to test if this fixes the React internal API issue
+      minify: false,
     },
     server: {
       host: "0.0.0.0",
