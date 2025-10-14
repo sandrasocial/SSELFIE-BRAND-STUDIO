@@ -367,6 +367,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           plan: dbUser.plan ?? undefined,
           role: dbUser.role ?? undefined,
           monthlyGenerationLimit: dbUser.monthlyGenerationLimit ?? undefined,
+          mayaAiAccess: dbUser.mayaAiAccess ?? undefined,
+          victoriaAiAccess: dbUser.victoriaAiAccess ?? undefined,
+          hasRetrainingAccess: dbUser.hasRetrainingAccess ?? undefined,
           createdAt: dbUser.createdAt
         };
 
