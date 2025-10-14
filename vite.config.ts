@@ -84,9 +84,7 @@ export default defineConfig(({ mode }) => {
           // Conservative interop settings
           interop: 'compat',
           exports: 'named'
-        },
-        // 🚨 CRITICAL: Make React external to prevent bundling conflicts
-        external: mode === 'production' ? ['react', 'react-dom', 'react/jsx-runtime'] : []
+        }
       },
       // Enable source maps for debugging
       sourcemap: mode === 'development',
