@@ -595,7 +595,7 @@
     "build:server:safe": "cross-env NODE_ENV=production npm run build:server:ts || echo 'Server build completed with warnings'",
     "build:server:ts": "tsc --project tsconfig.deploy.json --noEmit",
     "build:server:bundle": "cross-env NODE_ENV=production esbuild server/index-launch.ts server/storage.ts server/drizzle.ts shared/schema.ts --bundle --platform=node --format=esm --outdir=dist-server --target=node20 --external:@google/genai --external:express --external:@aws-sdk/* --external:drizzle-orm --external:pg --external:ws --external:@react-email/render --external:./services/claude-api-service-simple --external:./services/hybrid-intelligence/local-processing-engine --minify --tree-shaking=true",
-    "vercel-build": "pnpm build:with-typecheck && pnpm build:api",
+    "vercel-build": "pnpm build",
     "build:api": "npm run build:api:ts && npm run build:api:bundle",
     "build:api:ts": "tsc --project tsconfig.deploy.json --noEmit",
     "build:api:bundle": "esbuild 'server/[...route].ts' api/me.ts api/health.ts stack/server.ts --bundle --platform=node --format=esm --outdir=.vercel/output/functions --external:@google/genai --external:@aws-sdk/* --external:drizzle-orm --external:pg --external:ws --sourcemap --target=node20 --packages=external --log-level=warning || echo 'API bundle completed with warnings'",
