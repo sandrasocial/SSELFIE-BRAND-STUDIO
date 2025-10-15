@@ -2,7 +2,7 @@ import React from "react";
 import { StackProvider, StackTheme, StackClientApp } from "@stackframe/react";
 import { stackClientApp } from "../../../../stack/client.js";
 import { PageLoader } from "../PageLoader";
-import { patchStackFrameReact } from "../../lib/stackframe-patch";
+
 
 interface StackAuthProviderProps {
   children: React.ReactNode;
@@ -50,13 +50,6 @@ export default function StackAuthProvider({ children }: StackAuthProviderProps) 
   React.useEffect(() => {
     mountedRef.current = true;
     
-    // Apply the Stack Auth patch
-    try {
-      patchStackFrameReact();
-    } catch (error) {
-      console.error('Failed to patch Stack Auth:', error);
-    }
-
     return () => {
       mountedRef.current = false;
     };
@@ -83,16 +76,29 @@ export default function StackAuthProvider({ children }: StackAuthProviderProps) 
           (window as any).__STACK_AUTH_PROVIDER__ = true;
         }
 
-        // Give Stack Auth time to fully initialize
-        await new Promise(resolve => setTimeout(resolve, 200));
+        // Give Stack Auth more time to fully initialize
+        await new Promise(resolve => setTimeout(resolve, 1500));
 
-        // Test basic API access (catch failure gracefully)
-        try {
-          await stackClientApp.getUser();
-        } catch (err) {
-          // Ignore "not authenticated" errors
-          if (!((err as Error)?.message?.includes?.('not authenticated'))) {
-            console.warn('Stack Auth API test failed:', err);
+        // Cache project ID for faster access
+        if (process.env.NODE_ENV === 'development') {
+          console.log('🔑 Stack Auth Project ID:', stackClientApp.projectId);
+        }
+
+        // Test basic API access and retry if needed
+        let retries = 3;
+        while (retries > 0) {
+          try {
+            await stackClientApp.getUser();
+            break;
+          } catch (err) {
+            // Ignore "not authenticated" errors
+            if (!((err as Error)?.message?.includes?.('not authenticated'))) {
+              console.warn(`Stack Auth API test failed (${retries} retries left):`, err);
+            }
+            retries--;
+            if (retries > 0) {
+              await new Promise(resolve => setTimeout(resolve, 500));
+            }
           }
         }
 

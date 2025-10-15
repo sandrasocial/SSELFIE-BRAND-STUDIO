@@ -25,8 +25,7 @@
  */
 export const STACK_PROJECT_ID = 
   process.env.VITE_STACK_PROJECT_ID || 
-  process.env.STACK_AUTH_PROJECT_ID || 
-  '253d7343-a0d4-43a1-be5c-822f590d40be';
+  process.env.STACK_AUTH_PROJECT_ID;
 
 // Debug logging for troubleshooting
 console.log('[ENV CONFIG] Loaded Stack Auth configuration:', {

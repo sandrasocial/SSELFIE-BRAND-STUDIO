@@ -32,6 +32,7 @@ export default defineConfig(({ mode }) => {
         'use server': "'use server'",
         global: 'globalThis'
       },
+      banner: '/* eslint-disable */\n"use client";',
       supported: {
         'module-level-directives': true,
         'use-client': true,
@@ -43,8 +44,7 @@ export default defineConfig(({ mode }) => {
           useDefineForClassFields: true,
           jsx: 'preserve'
         }
-      },
-      banner: '/* eslint-disable */\n"use client";'
+      }
     },
     css: {
       postcss: {
@@ -67,7 +67,7 @@ export default defineConfig(({ mode }) => {
       },
       dedupe: ['react', 'react-dom', '@stackframe/react']
     },
-      optimizeDeps: {
+    optimizeDeps: {
       include: [
         'react', 
         'react-dom', 
@@ -81,12 +81,17 @@ export default defineConfig(({ mode }) => {
       esbuildOptions: {
         target: 'esnext',
         define: {
-          'use client': 'false',
-          'use server': 'false'
+          'use client': "'use client'",
+          'use server': "'use server'",
+          global: 'globalThis'
         },
         supported: {
+          'module-level-directives': true,
           'use-client': true,
           'use-server': true
+        },
+        banner: {
+          js: '/* eslint-disable */\n"use client";'
         },
         jsx: 'automatic',
         jsxImportSource: 'react',
@@ -101,7 +106,8 @@ export default defineConfig(({ mode }) => {
           }
         }
       }
-    },    root: path.resolve(__dirname, "client"),
+    },
+    root: path.resolve(__dirname, "client"),
     server: {
       proxy: {
         '/api': {
@@ -116,46 +122,62 @@ export default defineConfig(({ mode }) => {
       emptyOutDir: true,
       sourcemap: process.env.NODE_ENV !== 'production',
       cssCodeSplit: false,
-      reportCompressedSize: false, // Disable for faster builds
-      chunkSizeWarningLimit: 2000, // Increased limit for large modules
+      reportCompressedSize: false,
+      chunkSizeWarningLimit: 2000,
       rollupOptions: {
         input: path.resolve(__dirname, "client/index.html"),
         preserveEntrySignatures: 'strict',
         output: {
-          manualChunks: {
+          manualChunks: (id) => {
             // Framework chunks
-            'react-core': ['react', 'react-dom', 'react/jsx-runtime'],
+            if (id.includes('node_modules/react') || id.includes('node_modules/react-dom')) {
+              return 'react-core';
+            }
             
-            // Break down @stackframe/react into smaller chunks
-            'stackframe-core': [
-              '@stackframe/react/dist/esm/index.js',
-              '@stackframe/react/dist/esm/lib/hooks.js'
-            ],
-            'stackframe-auth': [
-              '@stackframe/react/dist/esm/components/auth/**',
-              '@stackframe/react/dist/esm/components/credential-sign-in.js',
-              '@stackframe/react/dist/esm/components/credential-sign-up.js',
-              '@stackframe/react/dist/esm/components/oauth-button.js',
-              '@stackframe/react/dist/esm/components/oauth-button-group.js'
-            ],
-            'stackframe-ui': [
-              '@stackframe/react/dist/esm/components/ui/**',
-              '@stackframe/react/dist/esm/components/elements/**' 
-            ],
+            // @stackframe/react chunks
+            if (id.includes('@stackframe/react')) {
+              if (id.includes('/lib/hooks') || id.includes('/index.js')) {
+                return 'stackframe-core';
+              }
+              if (id.includes('/components/auth/') || 
+                  id.includes('credential-sign-in') || 
+                  id.includes('credential-sign-up') || 
+                  id.includes('oauth-button')) {
+                return 'stackframe-auth';
+              }
+              if (id.includes('/components/ui/') || id.includes('/components/elements/')) {
+                return 'stackframe-ui';
+              }
+              return 'stackframe-other';
+            }
 
-            // UI library chunks  
-            'radix-ui': ['@radix-ui/**'],
-            'ui-libs': ['cmdk', 'lucide-react'],
+            // UI library chunks
+            if (id.includes('@radix-ui/')) {
+              return 'radix-ui';
+            }
+            if (id.includes('cmdk') || id.includes('lucide-react')) {
+              return 'ui-libs';
+            }
 
             // App code chunks
-            'app-core': ['@/lib/**', '@/utils/**'],
-            'app-features': ['@/features/**'],
-            'app-pages': ['@/pages/**'],
-            'app-ui': ['@/components/ui/**'],
-            'app-components': ['@/components/**'],
+            if (id.includes('client/src/lib/') || id.includes('client/src/utils/')) {
+              return 'app-core';
+            }
+            if (id.includes('client/src/features/')) {
+              return 'app-features';
+            }
+            if (id.includes('client/src/pages/')) {
+              return 'app-pages';
+            }
+            if (id.includes('client/src/components/ui/')) {
+              return 'app-ui';
+            }
+            if (id.includes('client/src/components/')) {
+              return 'app-components';
+            }
           },
           inlineDynamicImports: false,
-          experimentalMinChunkSize: 20000, // 20kb
+          experimentalMinChunkSize: 20000,
           compact: true,
           assetFileNames: (assetInfo) => {
             if (assetInfo.name?.endsWith('.css')) {
@@ -171,8 +193,8 @@ export default defineConfig(({ mode }) => {
           },
           chunkFileNames: (chunkInfo) => {
             const prefix = chunkInfo.name.startsWith('app-') ? 'app' : 
-                          chunkInfo.name.startsWith('vendor-') ? 'vendor' : 
-                          'chunks';
+                         chunkInfo.name.startsWith('vendor-') ? 'vendor' : 
+                         'chunks';
             return `assets/js/${prefix}/[name].[hash].js`;
           },
           entryFileNames: 'assets/js/[name].[hash].js'
@@ -180,7 +202,7 @@ export default defineConfig(({ mode }) => {
       },
       target: ['es2020', 'edge88', 'firefox78', 'chrome87', 'safari14'],
       minify: 'esbuild',
-      assetsInlineLimit: 4096, // 4kb
+      assetsInlineLimit: 4096,
       modulePreload: {
         polyfill: false
       }

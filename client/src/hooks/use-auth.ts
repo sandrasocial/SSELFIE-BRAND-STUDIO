@@ -31,33 +31,50 @@ export interface User {
 // Simplified Stack Auth integration
 export function useAuth() {
   const queryClient = useQueryClient();
-  const [stackUser, setStackUser] = useState<any>(undefined);
-  const [isStackAuthLoading, setIsStackAuthLoading] = useState(true);
+  const [authState, setAuthState] = useState<{
+    stackUser: any | null;
+    isLoading: boolean;
+  }>({
+    stackUser: undefined,
+    isLoading: true
+  });
 
   useEffect(() => {
     let mounted = true;
+    let timeoutId: NodeJS.Timeout;
     
     async function checkAuth() {
       try {
         if (!stackClientApp) {
           console.error('Stack Auth client not initialized');
           if (mounted) {
-            setStackUser(null);
-            setIsStackAuthLoading(false);
+            setAuthState({
+              stackUser: null,
+              isLoading: false
+            });
           }
           return;
         }
 
+        // Add a small delay to prevent rapid re-renders
+        await new Promise(resolve => {
+          timeoutId = setTimeout(resolve, 100);
+        });
+
         const user = await stackClientApp.getUser();
         if (mounted) {
-          setStackUser(user || null);
-          setIsStackAuthLoading(false);
+          setAuthState({
+            stackUser: user || null,
+            isLoading: false
+          });
         }
       } catch (error) {
         console.error('Stack Auth check failed:', error);
         if (mounted) {
-          setStackUser(null);
-          setIsStackAuthLoading(false);
+          setAuthState({
+            stackUser: null,
+            isLoading: false
+          });
         }
       }
     }
@@ -66,8 +83,13 @@ export function useAuth() {
 
     return () => {
       mounted = false;
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
     };
   }, []);
+
+  const { stackUser, isLoading: isStackLoading } = authState;
 
   // Debug Stack Auth state
   console.log('🔐 useAuth Hook State:', {
@@ -87,7 +109,7 @@ export function useAuth() {
     isError: isDbError
   } = useQuery({
     queryKey: ["/api/me", stackUser?.id],
-    enabled: isAuthenticated && !isStackAuthLoading,
+    enabled: isAuthenticated && !isStackLoading,
     staleTime: 5 * 60 * 1000, // 5 minutes (cached on backend anyway)
     gcTime: 10 * 60 * 1000, // 10 minutes
     refetchOnWindowFocus: false,
@@ -103,7 +125,9 @@ export function useAuth() {
         // If server returns 401, the session is invalid
         if (error?.status === 401 && stackUser) {
           try {
-            await stackUser.signOut();
+            if (stackUser.signOut) {
+              await stackUser.signOut();
+            }
           } catch (signOutError) {
             console.error('Failed to clear Stack Auth session:', signOutError);
           }
@@ -118,11 +142,8 @@ export function useAuth() {
     }
   });
 
-  // ✅ REMOVED: Don't invalidate/refetch on every render - causes infinite loop
-  // The query will automatically refetch when stackUser.id changes (in queryKey)
-
   // Determine overall loading state
-  const isLoading = isStackAuthLoading || (isAuthenticated && isDbLoading);
+  const isLoading = isStackLoading || (isAuthenticated && isDbLoading);
 
   // Create user object
   let user: User | undefined = undefined;
@@ -159,6 +180,6 @@ export function useAuth() {
     hasActiveSubscription,
     requiresPayment: isAuthenticated && !hasActiveSubscription && !isLoading,
     error,
-    stackUser,
+    stackUser: authState.stackUser,
   };
 }
