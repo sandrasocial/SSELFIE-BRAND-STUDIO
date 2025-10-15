@@ -26,13 +26,24 @@ cookies*.txt
 fresh_cookies.txt
 test_cookies.txt
 
-# Environment variables
+# Environment & Secrets (CRITICAL)
 .env
+.env.*
+!.env.*.example
 .env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env.development
+.env.test
+.env.production
+.env.server
+.env.maya
 .env.vercel
+*.pem
+*.key
+secrets/
+**/credentials.json
+**/service-account.json
+**/.stackframe/
+config/secrets/
 
 # Database
 *.db

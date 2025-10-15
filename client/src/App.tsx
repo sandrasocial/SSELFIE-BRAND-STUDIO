@@ -21,12 +21,12 @@ import { MayaDiagnostic } from "./components/MayaDiagnostic.js";
 // Luxury Mobile Styling
 import "./styles/luxury-mobile.css";
 
-// Core pages (loaded immediately) - PAID AUTHENTICATED USERS ONLY
-import SselfieAppLayout from "./app_v2/SselfieAppLayout.js";
-import MayaPage from "./pages/MayaPage.js";
-
-// Lazy load non-critical pages for better performance
+// Lazy load all pages for better performance
 import { lazy, Suspense } from "react";
+
+// Core pages (loaded as needed)
+const SselfieAppLayout = lazy(() => import("./app_v2/SselfieAppLayout.js"));
+const MayaPage = lazy(() => import("./pages/MayaPage.js"));
 
 // Auth components (Lazy loaded for better performance)
 // Temporarily disabled - components don't exist yet
@@ -34,10 +34,10 @@ import { lazy, Suspense } from "react";
 // const MyForgotPassword = lazy(() => import("../features/MyForgotPassword.js").then(module => ({ default: module.MyForgotPassword })));
 // const PasswordResetPage = lazy(() => import("../features/ResetPasswordPage.js").then(module => ({ default: module.ResetPasswordPage })));
 // Temporarily import SignInHandler directly to test if lazy loading is the issue
-import SignInHandler from "./pages/handler/sign-in";
+const SignInHandler = lazy(() => import("./pages/handler/sign-in"));
 
 // Post-login handler for routing based on training status
-import PostLoginHandler from "./pages/handler/PostLoginHandler";
+const PostLoginHandler = lazy(() => import("./pages/handler/PostLoginHandler"));
 
 const BusinessLanding = lazy(() => import("./pages/landing/business-landing"));
 const SimpleTraining = lazy(() => import("./pages/onboarding/simple-training"));
@@ -47,8 +47,8 @@ const PaymentSuccess = lazy(() => import("./pages/payment-success"));
 const ThankYou = lazy(() => import("./pages/thank-you"));
 const Terms = lazy(() => import("./pages/legal/terms"));
 const Privacy = lazy(() => import("./pages/legal/privacy"));
-// Import AuthSuccess directly instead of lazy loading to fix OAuth callback 404 issue
-import AuthSuccessComponent from "./pages/auth-success";
+// Lazy load auth success component
+const AuthSuccessComponent = lazy(() => import("./pages/auth-success"));
 import { PUBLIC_ROUTES } from "./constants/routes";
 const NotFound = lazy(() => import("./pages/not-found"));
 const SSELFIEGallery = lazy(() => import("./pages/sselfie-gallery"));
@@ -56,12 +56,12 @@ const AICommandCenter = lazy(() => import("./pages/AICommandCenter"));
 
 // Components
 import { PageLoader } from "./components/PageLoader";
+import { Lazy } from "./components/Lazy";
 
 // Protected Route Wrapper Component
 function ProtectedRouteWrapper({ children }: { children: React.ReactNode }) {
   const [location, setLocation] = useLocation();
   const { isAuthenticated, isLoading } = useAuth();
-  
   // Check if current route is public
   const isPublicRoute = PUBLIC_ROUTES.some(route => 
     location === route || location.startsWith(route + '/')
@@ -111,7 +111,11 @@ function SmartHome() {
   }
 
   // For authenticated users, use PostLoginHandler to determine where to go
-  return <PostLoginHandler />;
+  return (
+    <Suspense fallback={<PageLoader />}>
+      <PostLoginHandler />
+    </Suspense>
+  );
 }
 
 // 🔥 CLEANED UP: Stack Auth Handler - Single source of truth for authentication
@@ -153,7 +157,9 @@ function Router() {
     <div>
       {/* Post-auth success handoff - MOVED TO TOP for priority matching */}
       <Route path="/auth-success" component={() => (
-        <AuthSuccessComponent />
+        <Lazy>
+          <AuthSuccessComponent />
+        </Lazy>
       )} />
 
       {/* ✅ CLEANED UP: Redirect to Stack Auth handlers for consistency */}
@@ -166,48 +172,31 @@ function Router() {
         return <PageLoader />;
       }} />
 
-      {/* ✅ ADDED: Primary non-OAuth sign-in flows for users without Google */}
-      {/* Temporarily disabled - components don't exist yet
-      <Route path="/magic-link" component={() => (
-        <Suspense fallback={<PageLoader />}>
-          <MagicLinkSignInPage />
-        </Suspense>
-      )} />
-      <Route path="/forgot-password" component={() => (
-        <Suspense fallback={<PageLoader />}>
-          <MyForgotPassword />
-        </Suspense>
-      )} />
-      <Route path="/password-reset" component={() => (
-        <Suspense fallback={<PageLoader />}>
-          <PasswordResetPage searchParams={Object.fromEntries(new URLSearchParams(window.location.search))} />
-        </Suspense>
-      )} />
-      */}
-
       {/* STACK AUTH HANDLER - Consolidated wildcard route for ALL Stack redirects/callbacks including OAuth */}
-      <Route path="/handler/sign-in" component={() => {
-        return <SignInHandler />;
-      }} />
-      <Route path="/handler/sign-up" component={() => {
-        return <SignInHandler />;
-      }} />
+      <Route path="/handler/sign-in" component={() => (
+        <Lazy>
+          <SignInHandler />
+        </Lazy>
+      )} />
+      <Route path="/handler/sign-up" component={() => (
+        <Lazy>
+          <SignInHandler />
+        </Lazy>
+      )} />
       {/* ✅ CRITICAL FIX: OAuth callback handler MUST come before wildcard routes to preserve query parameters */}
       <Route path="/handler/oauth-callback" component={() => {
         const OAuthCallback = React.lazy(() => import("./pages/handler/oauth-callback"));
         return (
-          <Suspense fallback={<PageLoader />}>
+          <Lazy>
             <OAuthCallback />
-          </Suspense>
+          </Lazy>
         );
       }} />
-      <Route path="/handler/:path*" component={() => {
-        return (
-          <Suspense fallback={<PageLoader />}>
-            <HandlerRoutes />
-          </Suspense>
-        );
-      }} />
+      <Route path="/handler/:path*" component={() => (
+        <Lazy>
+          <HandlerRoutes />
+        </Lazy>
+      )} />
 
       {/* Home page - Smart routing based on auth and training status */}
       <Route path="/" component={SmartHome} />
@@ -216,112 +205,112 @@ function Router() {
       <Route path="/auth-diagnostic" component={() => {
         const AuthDiagnostic = React.lazy(() => import("./pages/auth-diagnostic"));
         return (
-          <Suspense fallback={<PageLoader />}>
+          <Lazy>
             <AuthDiagnostic />
-          </Suspense>
+          </Lazy>
         );
       }} />
 
       {/* Public landing pages */}
       <Route path="/business" component={() => (
-        <Suspense fallback={<PageLoader />}>
+        <Lazy>
           <BusinessLanding />
-        </Suspense>
+        </Lazy>
       )} />
 
       {/* Protected onboarding routes */}
       <Route path="/simple-training" component={() => (
         <ProtectedRouteWrapper>
-          <Suspense fallback={<PageLoader />}>
+          <Lazy>
             <SimpleTraining />
-          </Suspense>
+          </Lazy>
         </ProtectedRouteWrapper>
       )} />
       
       {/* Public checkout - allows new users to purchase before authentication */}
       <Route path="/simple-checkout" component={() => (
-        <Suspense fallback={<PageLoader />}>
+        <Lazy>
           <SimpleCheckout />
-        </Suspense>
+        </Lazy>
       )} />
       <Route path="/embedded-checkout" component={() => (
-        <Suspense fallback={<PageLoader />}>
+        <Lazy>
           <EmbeddedCheckout />
-        </Suspense>
+        </Lazy>
       )} />
       <Route path="/payment-success" component={() => (
         <ProtectedRouteWrapper>
-          <Suspense fallback={<PageLoader />}>
+          <Lazy>
             <PaymentSuccess />
-          </Suspense>
+          </Lazy>
         </ProtectedRouteWrapper>
       )} />
       <Route path="/thank-you" component={() => (
-        <Suspense fallback={<PageLoader />}>
+        <Lazy>
           <ThankYou />
-        </Suspense>
+        </Lazy>
       )} />
 
       {/* Maya Chat - Direct route for Maya AI chat interface */}
       <Route path="/maya" component={() => (
         <ProtectedRouteWrapper>
-          <Suspense fallback={<PageLoader />}>
+          <Lazy>
             <MayaPage />
-          </Suspense>
+          </Lazy>
         </ProtectedRouteWrapper>
       )} />
 
       {/* Main authenticated app routes */}
       <Route path="/app" component={() => (
         <ProtectedRouteWrapper>
-          <Suspense fallback={<PageLoader />}>
+          <Lazy>
             <SselfieAppLayout />
-          </Suspense>
+          </Lazy>
         </ProtectedRouteWrapper>
       )} />
       <Route path="/app/:tab*" component={() => (
         <ProtectedRouteWrapper>
-          <Suspense fallback={<PageLoader />}>
+          <Lazy>
             <SselfieAppLayout />
-          </Suspense>
+          </Lazy>
         </ProtectedRouteWrapper>
       )} />
 
       {/* AI Command Center - Protected route for authenticated users */}
       <Route path="/ai-command-center" component={() => (
         <ProtectedRouteWrapper>
-          <Suspense fallback={<PageLoader />}>
+          <Lazy>
             <AICommandCenter />
-          </Suspense>
+          </Lazy>
         </ProtectedRouteWrapper>
       )} />
 
       {/* SSELFIE Gallery - Protected Route */}
       <Route path="/sselfie-gallery" component={() => (
         <ProtectedRouteWrapper>
-          <Suspense fallback={<PageLoader />}>
+          <Lazy>
             <SSELFIEGallery />
-          </Suspense>
+          </Lazy>
         </ProtectedRouteWrapper>
       )} />
 
       {/* Legal pages */}
       <Route path="/terms" component={() => (
-        <Suspense fallback={<PageLoader />}>
+        <Lazy>
           <Terms />
-        </Suspense>
+        </Lazy>
       )} />
       <Route path="/privacy" component={() => (
-        <Suspense fallback={<PageLoader />}>
+        <Lazy>
           <Privacy />
-        </Suspense>
+        </Lazy>
       )} />
 
       {/* 404 Not Found - Must be last */}
       <Route path="/:rest*" component={() => (
-        <Suspense fallback={<PageLoader />}>
+        <Lazy>
           <NotFound />
-        </Suspense>
+        </Lazy>
       )} />
     </div>
   );

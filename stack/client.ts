@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 import { StackClientApp } from "@stackframe/react";
+import { useState, useEffect, useRef } from 'react';
 
 // 🔥 CRITICAL FIX: Use build-time constants with proper fallback chain
 const STACK_PROJECT_ID = (globalThis as any).__STACK_PROJECT_ID__ || 
@@ -44,6 +45,22 @@ if (!STACK_PUBLISHABLE_CLIENT_KEY.startsWith('pck_')) {
 let stackClientApp: StackClientApp;
 
 try {
+  // Use custom cookie configuration
+  const cookieConfig = {
+    secure: true,
+    sameSite: "lax",
+    path: "/",
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+  };
+
+  // Apply cookie configuration to document.cookie
+  if (typeof document !== 'undefined') {
+    const cookieStr = Object.entries(cookieConfig)
+      .map(([key, value]) => `${key}=${value}`)
+      .join('; ');
+    document.cookie = cookieStr;
+  }
+
   stackClientApp = new StackClientApp({
     projectId: STACK_PROJECT_ID,
     publishableClientKey: STACK_PUBLISHABLE_CLIENT_KEY,
@@ -119,6 +136,56 @@ try {
 } catch (error) {
   console.error('❌ Failed to create Stack Auth instance:', error);
   throw error;
+}
+
+// Apply our custom useUser implementation
+// This adds proper Suspense support and error handling
+try {
+  // Create our own useUser implementation
+  const originalUseUser = stackClientApp.useUser;
+  Object.defineProperty(stackClientApp, 'useUser', {
+    value: function useUserPatched() {
+      const [data, setData] = useState<unknown | null>(null);
+      const [error, setError] = useState<Error | null>(null);
+      
+      // Use a ref to track if we are mounting
+      const mountingRef = useRef(true);
+      const promiseRef = useRef<Promise<unknown> | null>(null);
+
+      if (!data && !error && mountingRef.current) {
+        // Only create one promise
+        if (!promiseRef.current) {
+          promiseRef.current = stackClientApp.getUser()
+            .then(user => {
+              setData(user);
+              return user;
+            })
+            .catch(err => {
+              setError(err);
+              throw err;
+            });
+        }
+        
+        // Throw the promise for Suspense
+        throw promiseRef.current;
+      }
+
+      // After first mount, don't throw again
+      useEffect(() => {
+        mountingRef.current = false;
+      }, []);
+
+      if (error) throw error;
+      return data;
+    },
+    configurable: true,
+    enumerable: true
+  });
+
+  console.log('✅ Stack Auth useUser patched successfully');
+} catch (err) {
+  console.error('❌ Failed to patch Stack Auth:', err);
+  throw err;
 }
 
 export { stackClientApp };
