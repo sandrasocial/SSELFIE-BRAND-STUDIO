@@ -84,11 +84,20 @@
     "server/utils/gender-prompt.ts",
     "server/_shared/memory-types.ts",
     "server/types.ts",
-    // Gallery API - pure serverless endpoints
-    "server/api/gallery/images.ts",
-    "server/api/gallery/favorites.ts",
-    "server/api/gallery/favorite-toggle.ts",
-    "server/api/gallery/delete.ts",
+    // All API routes that Vercel builds as serverless functions
+    "api/health.ts",
+    "api/me.ts",
+    "api/logout.ts",
+    "api/user-model.ts",
+    "api/images/favorites.ts",
+    "api/images/[id]/favorite.ts",
+    "api/gallery-images/index.ts",
+    "api/ai-images/[id].ts",
+    "api/admin/link-stack-auth.ts",
+    "api/admin/update-stack-auth-id.ts",
+    "api/ai-agent/command.ts",
+    "api/debug-env.ts",
+    "api/simple-health.ts",
 
     // Maya service modules - critical for aesthetics, styling, categories
     "server/maya/concepts/index.ts", 

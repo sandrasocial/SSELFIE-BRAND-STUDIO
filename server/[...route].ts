@@ -55,20 +55,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   // 🔥 CRITICAL FIX: Start background monitoring services for serverless environment
   // These services must be started in the serverless handler since routes.ts is not called
   try {
+    // TEMPORARILY DISABLED: Background monitors causing production issues
     // Start Training Completion Monitor
-    const { TrainingCompletionMonitor } = await import('./training-completion-monitor.js');
-    TrainingCompletionMonitor.getInstance().startMonitoring();
-    console.log('✅ Started Training Completion Monitor');
+    // const { TrainingCompletionMonitor } = await import('./training-completion-monitor.js');
+    // TrainingCompletionMonitor.getInstance().startMonitoring();
+    // console.log('✅ Started Training Completion Monitor');
 
     // Start Generation Completion Monitor (CRITICAL for Maya concept cards!)
-    const { GenerationCompletionMonitor } = await import('./generation-completion-monitor.js');
-    GenerationCompletionMonitor.getInstance().startMonitoring();
-    console.log('✅ Started Generation Completion Monitor');
+    // const { GenerationCompletionMonitor } = await import('./generation-completion-monitor.js');
+    // GenerationCompletionMonitor.getInstance().startMonitoring();
+    // console.log('✅ Started Generation Completion Monitor');
 
     // Start Migration Monitor to prevent image loss
-    const { migrationMonitor } = await import('./migration-monitor.js');
-    migrationMonitor.startMonitoring();
-    console.log('✅ Started Migration Monitor');
+    // const { migrationMonitor } = await import('./migration-monitor.js');
+    // migrationMonitor.startMonitoring();
+    // console.log('✅ Started Migration Monitor');
   } catch (monitorError) {
     console.error('❌ Failed to start background monitors:', monitorError);
     // Don't fail the request if monitors can't start
