@@ -244,16 +244,21 @@ export default function ImageInpaint({
     link.click();
   }, []);
 
+  interface InpaintResponse {
+    predictionId: string;
+    variantId: number;
+  }
+
   // Start inpainting mutation
   const inpaintMutation = useMutation({
-    mutationFn: async (data: { maskPng: string; prompt: string }) => {
+    mutationFn: async (data: { maskPng: string; prompt: string }): Promise<InpaintResponse> => {
       return await apiFetch('/inpaint', {
         method: 'POST',
-        body: JSON.stringify({
+        json: {
           imageId,
           maskPng: data.maskPng,
           prompt: data.prompt
-        })
+        }
       });
     },
     onSuccess: (data) => {

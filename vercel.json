@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "pnpm install --force && pnpm build && pnpm build:api",
+  "buildCommand": "yarn install --force && yarn build && yarn build:api",
   "ignoreCommand": "false",
   "outputDirectory": "dist",
   "functions": {
