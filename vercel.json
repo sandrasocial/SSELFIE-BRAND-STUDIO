@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "buildCommand": "cd client && vite build",
+  "buildCommand": "pnpm build && pnpm build:api",
   "ignoreCommand": "false",
-  "outputDirectory": "client/dist",
+  "outputDirectory": "dist",
   "functions": {
     "api/maya-*.ts": {
       "memory": 3008,
