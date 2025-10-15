@@ -21,22 +21,55 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    
-    // This is a simple test cron job
-    // In production, this would trigger various maintenance tasks
+    // 🔥 CRITICAL: Execute training completion monitoring
+    console.log('🔄 Starting training completion monitoring...');
+    try {
+      const { TrainingCompletionMonitor } = await import('./training-completion-monitor.js');
+      await TrainingCompletionMonitor.checkAllInProgressTrainings();
+      console.log('✅ Training completion monitoring completed');
+    } catch (trainingError) {
+      console.error('❌ Training monitoring failed:', trainingError);
+    }
+
+    // 🔥 CRITICAL: Execute generation completion monitoring
+    console.log('🔄 Starting generation completion monitoring...');
+    try {
+      const { GenerationCompletionMonitor } = await import('./generation-completion-monitor.js');
+      const monitor = GenerationCompletionMonitor.getInstance();
+      await monitor.checkAllInProgressGenerations();
+      console.log('✅ Generation completion monitoring completed');
+    } catch (generationError) {
+      console.error('❌ Generation monitoring failed:', generationError);
+    }
+
+    // 🔥 Execute migration monitoring to prevent image loss
+    console.log('🔄 Starting migration monitoring...');
+    try {
+      const { migrationMonitor } = await import('./migration-monitor.js');
+      await migrationMonitor.runMigrationScan();
+      console.log('✅ Migration monitoring completed');
+    } catch (migrationError) {
+      console.error('❌ Migration monitoring failed:', migrationError);
+    }
     
     res.json({
       success: true,
-      message: 'Cron job executed successfully',
+      message: 'All cron jobs executed successfully',
       timestamp: new Date().toISOString(),
-      service: 'SSELFIE Studio Cron'
+      service: 'SSELFIE Studio Cron',
+      executed: [
+        'training-completion-monitor',
+        'generation-completion-monitor', 
+        'migration-monitor'
+      ]
     });
 
   } catch (error) {
     console.error('❌ Cron job failed:', error);
     res.status(500).json({
       success: false,
-      error: 'Cron job execution failed'
+      error: 'Cron job execution failed',
+      message: (error as Error).message
     });
   }
 }

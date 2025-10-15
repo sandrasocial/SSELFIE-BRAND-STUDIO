@@ -40,14 +40,10 @@ export class MigrationMonitor {
   }
 
   /**
-   * Stop monitoring
+   * Public method for cron jobs to trigger image migration scan
    */
-  stopMonitoring(): void {
-    if (this.intervalId) {
-      clearInterval(this.intervalId);
-      this.intervalId = null;
-    }
-    this.isRunning = false;
+  async runMigrationScan(): Promise<void> {
+    await this.scanAndMigrateImages();
   }
 
   /**
