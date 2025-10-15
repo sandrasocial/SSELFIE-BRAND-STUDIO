@@ -27,16 +27,7 @@ export default defineConfig(({ mode }) => {
       jsxImportSource: 'react',
       target: ['esnext'],
       legalComments: 'none',
-      define: {
-        'use client': "'use client'",
-        'use server': "'use server'",
-        global: 'globalThis'
-      },
-      supported: {
-        'module-level-directives': true,
-        'use-client': true,
-        'use-server': true
-      },
+      define: { global: 'globalThis' }
       tsconfigRaw: {
         compilerOptions: {
           experimentalDecorators: true,
@@ -58,13 +49,14 @@ export default defineConfig(({ mode }) => {
     },
 
     resolve: {
-      alias: {
-        '@': path.resolve(__dirname, "client", "src"),
-        '@shared': path.resolve(__dirname, "shared"),
-        '@assets': path.resolve(__dirname, "attached_assets"),
-        'react': path.resolve(__dirname, "node_modules/react"),
-        'react-dom': path.resolve(__dirname, "node_modules/react-dom"),
-      },
+    alias: {
+      '@': path.resolve(__dirname, "client", "src"),
+      '@shared': path.resolve(__dirname, "shared"),
+      '@assets': path.resolve(__dirname, "attached_assets"),
+      'react': path.resolve(__dirname, "node_modules/react"),
+      'react-dom': path.resolve(__dirname, "node_modules/react-dom"),
+      '@stackframe/react': path.resolve(__dirname, "node_modules/@stackframe/react"),
+    },
       dedupe: ['react', 'react-dom', '@stackframe/react']
     },
       optimizeDeps: {
@@ -122,37 +114,33 @@ export default defineConfig(({ mode }) => {
         input: path.resolve(__dirname, "client/index.html"),
         preserveEntrySignatures: 'strict',
         output: {
-          manualChunks: {
-            // Framework chunks
-            'react-core': ['react', 'react-dom', 'react/jsx-runtime'],
-            
-            // Break down @stackframe/react into smaller chunks
-            'stackframe-core': [
-              '@stackframe/react/dist/esm/index.js',
-              '@stackframe/react/dist/esm/lib/hooks.js'
-            ],
-            'stackframe-auth': [
-              '@stackframe/react/dist/esm/components/auth/**',
-              '@stackframe/react/dist/esm/components/credential-sign-in.js',
-              '@stackframe/react/dist/esm/components/credential-sign-up.js',
-              '@stackframe/react/dist/esm/components/oauth-button.js',
-              '@stackframe/react/dist/esm/components/oauth-button-group.js'
-            ],
-            'stackframe-ui': [
-              '@stackframe/react/dist/esm/components/ui/**',
-              '@stackframe/react/dist/esm/components/elements/**' 
-            ],
-
-            // UI library chunks  
-            'radix-ui': ['@radix-ui/**'],
-            'ui-libs': ['cmdk', 'lucide-react'],
-
-            // App code chunks
-            'app-core': ['@/lib/**', '@/utils/**'],
-            'app-features': ['@/features/**'],
-            'app-pages': ['@/pages/**'],
-            'app-ui': ['@/components/ui/**'],
-            'app-components': ['@/components/**'],
+          manualChunks(id) {
+            if (id.includes('node_modules')) {
+              if (id.includes('react')) {
+                return 'vendor-react';
+              }
+              if (id.includes('@stackframe')) {
+                return 'vendor-stackframe';
+              }
+              if (id.includes('@radix-ui')) {
+                return 'vendor-radix';
+              }
+              if (id.includes('lucide-react') || id.includes('cmdk')) {
+                return 'vendor-ui';
+              }
+              return 'vendor';
+            }
+            if (id.includes('/components/')) {
+              return 'components';
+            }
+            if (id.includes('/pages/')) {
+              return 'pages';
+            }
+            if (id.includes('/features/')) {
+              return 'features';
+            }
+            return null;
+          },
           },
           inlineDynamicImports: false,
           experimentalMinChunkSize: 20000, // 20kb
