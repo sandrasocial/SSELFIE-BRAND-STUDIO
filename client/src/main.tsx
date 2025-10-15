@@ -35,10 +35,12 @@ try {
   console.log('✅ Root element found, creating React root...');
   const root = createRoot(container as Element);
   console.log('✅ React root created, rendering minimal app...');
+  
+  // TEMPORARILY DISABLE STACK AUTH TO TEST BASIC REACT LOADING
   root.render(
     <React.StrictMode>
-      <StackProvider app={stackClientApp as any}>
-        <StackTheme>
+      {/* <StackProvider app={stackClientApp as any}>
+        <StackTheme> */}
           <QueryClientProvider client={queryClient}>
             <TooltipProvider>
               <ErrorBoundary>
@@ -47,8 +49,8 @@ try {
               </ErrorBoundary>
             </TooltipProvider>
           </QueryClientProvider>
-        </StackTheme>
-      </StackProvider>
+        {/* </StackTheme>
+      </StackProvider> */}
     </React.StrictMode>
   );
   console.log('✅ Minimal app rendered successfully!');
