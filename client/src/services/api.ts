@@ -1,3 +1,5 @@
+import { MayaChatHistory, PhotoPrompt, Scene, StoryGenerationOptions } from '../types/api';
+
 /**
  * @license
  * Copyright 2025 Google LLC
@@ -9,7 +11,7 @@
  * @param {string} concept - The user's concept for the story.
  * @returns {Promise<Array<{scene: number, prompt: string}>>} - A promise that resolves to an array of scenes.
  */
-export async function draftStoryboard(concept) {
+export async function draftStoryboard(concept: string) {
     const response = await fetch('/api/video/draft-storyboard', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -29,7 +31,11 @@ export async function draftStoryboard(concept) {
  * @param {string} format - The aspect ratio for the videos (e.g., '9:16').
  * @returns {Promise<Array<{jobId: string, sceneId: string, sceneNum: number}>>} - A promise that resolves to an array of jobs.
  */
-export async function generateStory(scenes, conditioningImages, format) {
+export async function generateStory(
+    scenes: Scene[],
+    conditioningImages: Record<string, File>,
+    format: string
+) {
     const formData = new FormData();
     formData.append('scenes', JSON.stringify(scenes));
     formData.append('format', format);
@@ -56,7 +62,7 @@ export async function generateStory(scenes, conditioningImages, format) {
  * @param {string} jobId - The ID of the job to check.
  * @returns {Promise<object>} A promise that resolves to the job status object.
  */
-export async function getJobStatus(jobId) {
+export async function getJobStatus(jobId: string) {
     const response = await fetch(`/api/video/status/${jobId}`);
     if (!response.ok) {
         throw new Error(`Failed to get job status: ${response.statusText}`);
@@ -67,10 +73,13 @@ export async function getJobStatus(jobId) {
 /**
  * Sends a message to the Maya chat API.
  * @param {string} message - The user's message.
- * @param {object} history - The chat history (not fully implemented in component).
+ * @param {MayaChatHistory} history - The chat history.
  * @returns {Promise<{response: string, conceptCards: Array<{title: string, prompt: string}>>>} - A promise that resolves to Maya's response.
  */
-export async function sendMayaMessage(message, history) {
+export async function sendMayaMessage(
+    message: string,
+    history?: MayaChatHistory
+) {
     // Use authenticated apiFetch instead of raw fetch to prevent 401 errors
     const { apiFetch } = await import('../lib/api');
     return apiFetch('/maya/chat', {
@@ -81,10 +90,10 @@ export async function sendMayaMessage(message, history) {
 
 /**
  * Calls the backend to generate a photo/image based on a prompt.
- * @param {string} prompt - The prompt for image generation.
+ * @param {PhotoPrompt} prompt - The prompt for image generation.
  * @returns {Promise<{imageUrls: string[]}>} - A promise that resolves to an object containing an array of image URLs.
  */
-export async function generatePhotoImage(prompt) {
+export async function generatePhotoImage(prompt: PhotoPrompt) {
     const response = await fetch('/api/photo/generate-image', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

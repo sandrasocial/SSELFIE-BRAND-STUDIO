@@ -4,6 +4,7 @@
  */
 
 import { Logger } from './logger.js';
+import { createErrorLog } from './error-handling.js';
 
 export interface AppConfig {
   database: {
@@ -178,7 +179,7 @@ export class ConfigManager {
 
       return value as T;
     } catch (error) {
-      this.logger.error(`Error accessing configuration path '${path}':`, error);
+      this.logger.error(`Error accessing configuration path '${path}':`, createErrorLog(error, { path }));
       return null;
     }
   }

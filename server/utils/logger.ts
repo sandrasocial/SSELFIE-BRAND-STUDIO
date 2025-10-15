@@ -24,7 +24,7 @@ export interface LogEntry {
     message: string;
     stack?: string;
   };
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   environment: string;
   version: string;
 }
@@ -37,48 +37,48 @@ export class Logger {
   constructor(service: string) {
     this.service = service;
     this.enabled = true;
-    this.logLevel = (process.env['LOG_LEVEL'] as any) || 'info';
+    this.logLevel = (process.env['LOG_LEVEL'] as LogEntry['level']) || 'info';
   }
 
   /**
    * Log debug message
    */
-  public debug(message: string, metadata?: Record<string, any>): void {
+  public debug(message: string, metadata?: Record<string, unknown>): void {
     this.log('debug', message, metadata);
   }
 
   /**
    * Log info message
    */
-  public info(message: string, metadata?: Record<string, any>): void {
+  public info(message: string, metadata?: Record<string, unknown>): void {
     this.log('info', message, metadata);
   }
 
   /**
    * Log warning message
    */
-  public warn(message: string, metadata?: Record<string, any>): void {
+  public warn(message: string, metadata?: Record<string, unknown>): void {
     this.log('warn', message, metadata);
   }
 
   /**
    * Log error message
    */
-  public error(message: string, metadata?: Record<string, any>): void {
+  public error(message: string, metadata?: Record<string, unknown>): void {
     this.log('error', message, metadata);
   }
 
   /**
    * Log fatal message
    */
-  public fatal(message: string, metadata?: Record<string, any>): void {
+  public fatal(message: string, metadata?: Record<string, unknown>): void {
     this.log('fatal', message, metadata);
   }
 
   /**
    * Log message with specified level
    */
-  private log(level: LogEntry['level'], message: string, metadata?: Record<string, any>): void {
+  private log(level: LogEntry['level'], message: string, metadata?: Record<string, unknown>): void {
     if (!this.enabled || !this.shouldLog(level)) {
       return;
     }
@@ -140,7 +140,7 @@ export class Logger {
   /**
    * Create child logger with additional context
    */
-  public child(additionalContext: Record<string, any>): Logger {
+  public child(additionalContext: Record<string, unknown>): Logger {
     const childLogger = new Logger(this.service);
     childLogger.log = (level, message, metadata) => {
       this.log(level, message, { ...additionalContext, ...metadata });

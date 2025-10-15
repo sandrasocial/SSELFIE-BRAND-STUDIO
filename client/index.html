@@ -1,20 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <!-- CRITICAL: Global process polyfill for Stack Auth - MUST BE FIRST -->
-    <script>
-      if (typeof process === 'undefined') {
-        window.process = {
-          env: {
-            NODE_ENV: 'development'
-          }
-        };
-      }
-      if (typeof global === 'undefined') {
-        window.global = globalThis;
-      }
-    </script>
-    
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
     
@@ -72,9 +58,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://i.postimg.cc" />
     <link rel="dns-prefetch" href="https://api.replicate.com" />
-    
-    <!-- Editorial Typography - Times New Roman Font Loading -->
-    <link rel="preload" as="font" type="font/truetype" href="data:font/truetype;charset=utf-8;base64," crossorigin />
     
     <!-- Editorial Typography CSS -->
     <style>
@@ -146,12 +129,7 @@
         "name": "Sandra Sigurjónsdóttir",
         "url": "https://instagram.com/sandra.social"
       },
-      "screenshot": "https://sselfie.ai/og-image.jpg",
-      "aggregateRating": {
-        "@type": "AggregateRating",
-        "ratingValue": "4.9",
-        "reviewCount": "1000"
-      }
+      "screenshot": "https://sselfie.ai/og-image.jpg"
     }
     </script>
   </head>
@@ -161,7 +139,7 @@
       <div style="display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: -apple-system, sans-serif;">
         <div style="text-align: center;">
           <h1 style="color: #1f2937; margin-bottom: 16px;">SSELFIE Studio</h1>
-          <div style="color: #6366f1;">Loading...</div>
+          <div style="color: #1f2937;">Loading...</div>
         </div>
       </div>
     </div>
@@ -174,12 +152,6 @@
       </div>
     </div>
     
-    <script type="module" src="/src/main.tsx"></script>
-    <script>
-      // Override Vite client to prevent WebSocket connection attempts
-      if (window.__vite_plugin_react_preamble_installed__) {
-        console.log('Vite React plugin detected, disabling problematic features');
-      }
-    </script>
+    <script type="module" src="/src/entry.tsx"></script>
   </body>
 </html>

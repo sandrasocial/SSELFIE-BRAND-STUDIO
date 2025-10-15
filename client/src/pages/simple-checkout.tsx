@@ -250,7 +250,9 @@ export default function SimpleCheckout() {
         if (result.redirectPath?.startsWith('http')) {
           window.location.href = result.redirectPath;
         } else {
-          setLocation(result.redirectPath);
+          if (result.redirectPath) {
+            setLocation(result.redirectPath);
+          }
         }
       }, 500);
     } else {

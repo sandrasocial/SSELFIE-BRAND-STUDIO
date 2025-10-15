@@ -5,6 +5,7 @@
 
 import { environmentAuditor } from './env-audit.js';
 import { Logger } from './logger.js';
+import { createErrorLog } from './error-handling.js';
 
 const logger = new Logger('EnvValidator');
 
@@ -34,7 +35,7 @@ export async function validateEnvironment(): Promise<boolean> {
     
     return true;
   } catch (error) {
-    logger.error('Environment validation error:', error);
+    logger.error('Environment validation error:', createErrorLog(error));
     return false;
   }
 }

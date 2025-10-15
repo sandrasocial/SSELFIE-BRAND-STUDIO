@@ -7,6 +7,7 @@ import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiFetch } from '../../lib/api.js';
 import { useAuth } from '../../hooks/use-auth.js';
+import { CanvasInteractionEvent, Point } from '../../types/canvas';
 
 interface ImageInpaintProps {
   imageUrl: string;
@@ -126,7 +127,7 @@ export default function ImageInpaint({
   }, [maskHistory, historyIndex]);
 
   // Get mouse/touch position relative to canvas
-  const getEventPos = useCallback((e: React.MouseEvent | React.TouchEvent) => {
+  const getEventPos = useCallback((e: CanvasInteractionEvent): Point => {
     const canvas = canvasRef.current;
     if (!canvas) return { x: 0, y: 0 };
     
@@ -150,7 +151,7 @@ export default function ImageInpaint({
   }, []);
 
   // Drawing functions
-  const startDrawing = useCallback((e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+  const startDrawing = useCallback((e: CanvasInteractionEvent) => {
     e.preventDefault();
     setIsDrawing(true);
     
@@ -168,7 +169,7 @@ export default function ImageInpaint({
     ctx.fill();
   }, [isErasing, brushSize, getEventPos]);
 
-  const draw = useCallback((e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+  const draw = useCallback((e: CanvasInteractionEvent) => {
     e.preventDefault();
     if (!isDrawing) return;
     

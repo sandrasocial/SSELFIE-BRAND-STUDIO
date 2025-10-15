@@ -88,7 +88,7 @@ router.post('/levelpartner-signup', optionalStackAuth, async (req: Request<{}, {
           sessionData = sessionResult[0];
         }
       } catch (error) {
-        console.warn('⚠️ Failed to fetch session data:', error.message);
+        console.warn('⚠️ Failed to fetch session data:', getErrorMessage(error));
         // Continue without session data - don't break the signup process
       }
     }
@@ -196,7 +196,7 @@ router.post('/levelpartner-signup', optionalStackAuth, async (req: Request<{}, {
           ipAddress: req.ip || req.connection.remoteAddress,
         });
       } catch (error) {
-        console.warn('⚠️ Failed to track signup success event:', error.message);
+        console.warn('⚠️ Failed to track signup success event:', getErrorMessage(error));
         // Don't break the response - analytics tracking is optional
       }
     }

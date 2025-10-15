@@ -1,4 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { Logger } from '../utils/logger.js';
+
+const logger = new Logger('StackWebhook');
 
 // Types
 interface StackUser {
@@ -106,13 +109,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Verify webhook secret
   const providedSecret = (req.headers['x-stack-webhook-secret'] as string) || 
                         (req.headers['x-stack-verification-secret'] as string) || 
-                        (req.query as any)?.secret;
+                        (typeof req.query?.secret === 'string' ? req.query.secret : undefined);
                         
   const expected = process.env.STACK_WEBHOOK_SECRET || 
                    process.env.STACK_WEBHOOK_VERIFICATION_SECRET || 
                    'whsec_7WGUrgkt9xr/owfaNByhs9LjnxyX4Wa3';
   
-  console.log('🔐 Stack webhook secret verification:', {
+  logger.info('Stack webhook secret verification', {
     provided: providedSecret ? '***' + providedSecret.slice(-4) : 'none',
     expected: expected ? '***' + expected.slice(-4) : 'none',
   });
@@ -151,7 +154,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       profileImageUrl: userData.profileImageUrl || userData.avatar_url || userData.picture || null,
     };
     
-    console.log('📨 Stack webhook received:', {
+    logger.info('Stack webhook received', {
       type: eventType,
       userId: stackUser.id,
       email: stackUser.email,
@@ -169,7 +172,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Process the user sync
     const dbUser = await ensureDbUserFromStack(stackUser);
     
-    console.log('✅ Stack user sync completed:', {
+    logger.info('Stack user sync completed', {
       eventType,
       stackUserId: stackUser.id,
       dbUserId: dbUser.id,
@@ -186,8 +189,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
     
   } catch (error) {
-    console.error('❌ Stack Auth webhook error:', error);
-    console.error('❌ Error stack:', (error as Error).stack);
+    logger.error('Stack Auth webhook error', {
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined
+    });
     
     return res.status(500).json({ 
       error: 'Webhook processing failed', 

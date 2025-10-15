@@ -20,7 +20,7 @@ export interface CacheItem<T> {
   lastAccessed: number;
 }
 
-export class Cache<T = any> {
+export class Cache<T = unknown> {
   private cache = new Map<string, CacheItem<T>>();
   private logger: Logger;
   private options: Required<CacheOptions>;
