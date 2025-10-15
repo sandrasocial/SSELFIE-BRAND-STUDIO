@@ -5,6 +5,9 @@
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const crypto = require('crypto');
+
 export const config = { 
   runtime: 'nodejs',
   maxDuration: 30
@@ -13,13 +16,13 @@ export const config = {
 interface ReplicateWebhookPayload {
   id: string;
   status: 'starting' | 'processing' | 'succeeded' | 'failed' | 'canceled';
-  output?: any;
+  output?: unknown;
   error?: string;
   progress?: number;
   logs?: string;
   model?: string;
   version?: string;
-  input?: Record<string, any>;
+  input?: Record<string, unknown>;
   created_at?: string;
   started_at?: string;
   completed_at?: string;
@@ -33,14 +36,11 @@ function verifyWebhookSignature(
   secret: string
 ): boolean {
   try {
-    const crypto = require('crypto');
-    
     // Construct the signed payload string as per Replicate's specification
     const signedPayload = `${timestamp}.${payload}`;
     
     // Create HMAC signature
-    const expectedSignature = crypto
-      .createHmac('sha256', secret)
+    const expectedSignature = crypto.createHmac('sha256', secret)
       .update(signedPayload, 'utf8')
       .digest('hex');
     

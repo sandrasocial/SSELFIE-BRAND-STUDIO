@@ -27,21 +27,35 @@ export default defineConfig({
   build: {
     target: 'esnext',
     minify: 'esbuild',
-    sourcemap: true,
+    sourcemap: false,
+    reportCompressedSize: false,
     rollupOptions: {
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom'],
           ui: ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu'],
-          utils: ['lodash', 'date-fns']
-        }
+          utils: ['lodash', 'date-fns'],
+          auth: ['@auth/*'],
+          features: ['@features/*']
+        },
+        inlineDynamicImports: false
+      },
+      treeshake: {
+        moduleSideEffects: true,
+        propertyReadSideEffects: false,
+        tryCatchDeoptimization: false
       }
     },
     chunkSizeWarningLimit: 1000,
-    assetsInlineLimit: 4096
+    assetsInlineLimit: 8192
   },
   esbuild: {
-    drop: ['console', 'debugger']
+    drop: ['console', 'debugger'],
+    treeShaking: true,
+    minifyIdentifiers: true,
+    minifySyntax: true,
+    minifyWhitespace: true,
+    legalComments: 'none'
   },
   optimizeDeps: {
     include: ['react', 'react-dom', 'lodash', 'date-fns']

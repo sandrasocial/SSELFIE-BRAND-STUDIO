@@ -8,17 +8,45 @@ interface StackAuthWrapperProps {
 
 export default function StackAuthWrapper({ children }: StackAuthWrapperProps) {
   console.log('🔐 Initializing Stack Auth wrapper...');
+  const [isReady, setIsReady] = React.useState(false);
 
-  // Ensure React.forwardRef is available
-  if (!React.forwardRef) {
-    console.error('❌ React.forwardRef is not available in StackAuthWrapper!');
-    throw new Error('React.forwardRef is required for Stack Auth');
+  React.useEffect(() => {
+    // Initialize Stack Auth
+    try {
+      if (!stackClientApp) {
+        console.error('❌ Stack Auth client app is not initialized');
+        return;
+      }
+
+      // Test Stack Auth initialization
+      Promise.resolve(stackClientApp.getUser())
+        .then(() => {
+          console.log('✅ Stack Auth initialized successfully');
+          setIsReady(true);
+        })
+        .catch((error) => {
+          // This is expected if no user is signed in
+          console.log('ℹ️ Stack Auth initialized (no user)', error);
+          setIsReady(true);
+        });
+    } catch (error) {
+      console.error('❌ Stack Auth initialization error:', error);
+    }
+  }, []);
+
+  if (!isReady) {
+    return (
+      <div className="min-h-screen bg-stone-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
+          <p className="text-gray-600">Initializing authentication...</p>
+        </div>
+      </div>
+    );
   }
 
-  console.log('✅ React.forwardRef available, initializing Stack Auth...');
-
   return (
-    <StackProvider app={stackClientApp as any}>
+    <StackProvider app={stackClientApp as any /* TODO: Fix type */}>
       <StackTheme>
         {children}
       </StackTheme>

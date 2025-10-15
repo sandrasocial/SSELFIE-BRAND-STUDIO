@@ -131,7 +131,7 @@ function trapFocus(e: KeyboardEvent) {
 	const modal = qs<HTMLDivElement>('#video-preview-modal');
 	if (!modal || !modal.classList.contains('active')) return;
 	const focusableSelectors = 'button, [href], video, [tabindex]:not([tabindex="-1"])';
-	const focusables = Array.from(modal.querySelectorAll(focusableSelectors)).filter((el): el is HTMLElement => el instanceof HTMLElement && !el.hasAttribute('disabled'));
+  const focusables = Array.from(modal.querySelectorAll(focusableSelectors)).filter((el): el is Element => el instanceof HTMLElement && !el.hasAttribute('disabled'));
 	if (focusables.length === 0) return;
 	const first = focusables[0];
 	const last = focusables[focusables.length - 1];

@@ -46,6 +46,7 @@ const Terms = lazy(() => import("./pages/legal/terms"));
 const Privacy = lazy(() => import("./pages/legal/privacy"));
 // Import AuthSuccess directly instead of lazy loading to fix OAuth callback 404 issue
 import AuthSuccessComponent from "./pages/auth-success";
+import { PUBLIC_ROUTES } from "./constants/routes";
 const NotFound = lazy(() => import("./pages/not-found"));
 const SSELFIEGallery = lazy(() => import("./pages/sselfie-gallery"));
 const AICommandCenter = lazy(() => import("./pages/AICommandCenter"));
@@ -56,18 +57,29 @@ import { PageLoader } from "./components/PageLoader";
 // Protected Route Wrapper Component
 function ProtectedRouteWrapper({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth();
-  const [, setLocation] = useLocation();
+  const [location, setLocation] = useLocation();
+  
+  // Check if current route is public
+  const isPublicRoute = PUBLIC_ROUTES.some(route => 
+    location === route || location.startsWith(route + '/')
+  );
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
+    if (!isLoading && !isAuthenticated && !isPublicRoute) {
       setLocation('/handler/sign-in');
     }
-  }, [isAuthenticated, isLoading, setLocation]);
+  }, [isAuthenticated, isLoading, setLocation, isPublicRoute, location]);
 
   if (isLoading) {
     return <PageLoader />;
   }
 
+  // Allow public routes through without auth check
+  if (isPublicRoute) {
+    return <>{children}</>;
+  }
+
+  // Require auth for protected routes
   if (!isAuthenticated) {
     return <PageLoader />;
   }
@@ -291,11 +303,13 @@ function Router() {
         </ProtectedRouteWrapper>
       )} />
 
-      {/* SSELFIE Gallery - Public showcase */}
+      {/* SSELFIE Gallery - Protected Route */}
       <Route path="/sselfie-gallery" component={() => (
-        <Suspense fallback={<PageLoader />}>
-          <SSELFIEGallery />
-        </Suspense>
+        <ProtectedRouteWrapper>
+          <Suspense fallback={<PageLoader />}>
+            <SSELFIEGallery />
+          </Suspense>
+        </ProtectedRouteWrapper>
       )} />
 
       {/* Legal pages */}

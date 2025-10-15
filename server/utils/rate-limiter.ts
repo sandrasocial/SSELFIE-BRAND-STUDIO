@@ -8,7 +8,7 @@ import { Logger } from './logger.js';
 export interface RateLimitOptions {
   windowMs: number; // Time window in milliseconds
   maxRequests: number; // Maximum requests per window
-  keyGenerator?: (req: any) => string; // Custom key generator
+  keyGenerator?: (req: { ip?: string; [key: string]: unknown }) => string; // Custom key generator
   skipSuccessfulRequests?: boolean; // Don't count successful requests
   skipFailedRequests?: boolean; // Don't count failed requests
   message?: string; // Custom error message
@@ -228,8 +228,8 @@ export class MultiTierRateLimiter {
   /**
    * Get statistics for all tiers
    */
-  getAllStats(): Record<string, any> {
-    const stats: Record<string, any> = {};
+  getAllStats(): Record<string, ReturnType<RateLimiter['getStats']>> {
+    const stats: Record<string, ReturnType<RateLimiter['getStats']>> = {};
     
     for (const [tierName, limiter] of this.limiters.entries()) {
       stats[tierName] = limiter.getStats();
@@ -258,7 +258,7 @@ export class MultiTierRateLimiter {
 export function createRateLimitMiddleware(options: RateLimitOptions) {
   const limiter = new RateLimiter(options);
   
-  return (req: any, res: any, next: any) => {
+  return (req: { ip?: string; [key: string]: unknown }, res: { set: (key: string | Record<string, string>, value?: string) => void; status: (code: number) => { json: (data: unknown) => void } }, next: () => void) => {
     const key = options.keyGenerator ? options.keyGenerator(req) : req.ip || 'unknown';
     const result = limiter.check(key);
     

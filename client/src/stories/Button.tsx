@@ -29,7 +29,7 @@ export const Button = ({
       {...props}
     >
       {label}
-      <style jsx>{`
+      <style>{`
         button {
           background-color: ${backgroundColor};
         }
