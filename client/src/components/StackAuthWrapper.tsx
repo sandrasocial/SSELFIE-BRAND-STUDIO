@@ -6,6 +6,46 @@ interface StackAuthWrapperProps {
   children: React.ReactNode;
 }
 
+function ErrorDisplay({ message }: { message: string }) {
+  return (
+    <div className="min-h-screen bg-stone-50 flex items-center justify-center">
+      <div className="text-center max-w-md mx-auto px-4">
+        <div className="text-red-600 mb-4">⚠️</div>
+        <h2 className="text-xl font-semibold text-gray-800 mb-2">Authentication Error</h2>
+        <p className="text-gray-600 mb-4">There was a problem initializing authentication.</p>
+        <button 
+          onClick={() => window.location.reload()}
+          className="px-4 py-2 bg-black text-white rounded hover:bg-gray-800 transition-colors"
+        >
+          Try Again
+        </button>
+        <details className="mt-4 text-left">
+          <summary className="cursor-pointer text-sm text-gray-500">Technical Details</summary>
+          <pre className="mt-2 p-2 bg-gray-100 rounded text-xs overflow-auto">
+            {message}
+          </pre>
+        </details>
+      </div>
+    </div>
+  );
+}
+
+function LoadingDisplay({ attempt, maxAttempts }: { attempt: number; maxAttempts: number }) {
+  return (
+    <div className="min-h-screen bg-stone-50 flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
+        <p className="text-gray-600">Initializing authentication...</p>
+        {attempt > 0 && (
+          <p className="text-sm text-gray-400 mt-2">
+            Attempt {attempt}/{maxAttempts}...
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function StackAuthWrapper({ children }: StackAuthWrapperProps) {
   console.log('🔐 Initializing Stack Auth wrapper...');
   const [isReady, setIsReady] = React.useState(false);
@@ -14,104 +54,75 @@ export default function StackAuthWrapper({ children }: StackAuthWrapperProps) {
   const maxAttempts = 3;
 
   React.useEffect(() => {
-    // Ensure Stack Auth is properly initialized
+    let mounted = true;
+    let timeoutId: NodeJS.Timeout;
+
     const initializeAuth = async () => {
       try {
+        console.log('🔄 Stack Auth initialization starting...');
         if (!stackClientApp) {
           throw new Error('Stack Auth client app is not initialized');
         }
 
-        // Verify Stack Auth is working
-        await new Promise<void>((resolve, reject) => {
-          const timeout = setTimeout(() => {
-            reject(new Error('Stack Auth initialization timeout'));
-          }, 5000);
+        // Initialize immediately - don't wait for getUser()
+        if (mounted) {
+          console.log('✅ Stack Auth provider ready');
+          setIsReady(true);
+          setError(null);
+        }
 
-          Promise.resolve(stackClientApp.getUser())
-            .then(() => {
-              console.log('✅ Stack Auth initialized successfully (with user)');
-              clearTimeout(timeout);
-              resolve();
-            })
-            .catch((error) => {
-              if (error?.message?.includes('not authenticated')) {
-                // This is expected if no user is signed in
-                console.log('✅ Stack Auth initialized successfully (no user)');
-                clearTimeout(timeout);
-                resolve();
-              } else {
-                reject(error);
-              }
-            });
-        });
-
-        setIsReady(true);
-        setError(null);
+        // Check user state in the background
+        try {
+          const user = await stackClientApp.getUser();
+          console.log('✅ Stack Auth initialized successfully:', user ? 'with user' : 'no user');
+        } catch (error: any) {
+          if (error?.message?.includes?.('not authenticated')) {
+            console.log('✅ Stack Auth initialized successfully (no user)');
+          } else {
+            console.warn('⚠️ Non-critical Stack Auth error:', error);
+          }
+        }
       } catch (error) {
         console.error('❌ Stack Auth initialization error:', error);
-        if (initAttempts.current < maxAttempts) {
+        if (mounted && initAttempts.current < maxAttempts) {
           initAttempts.current++;
           console.log(`🔄 Retrying Stack Auth initialization (attempt ${initAttempts.current}/${maxAttempts})...`);
-          setTimeout(initializeAuth, 1000); // Retry after 1 second
-        } else {
-          setError(error as Error);
+          setTimeout(initializeAuth, 1000);
+        } else if (mounted) {
+          setError(error instanceof Error ? error : new Error('Unknown error during initialization'));
         }
       }
     };
 
+    // Start initialization immediately
     initializeAuth();
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   if (error) {
-    return (
-      <div className="min-h-screen bg-stone-50 flex items-center justify-center">
-        <div className="text-center max-w-md mx-auto px-4">
-          <div className="text-red-600 mb-4">⚠️</div>
-          <h2 className="text-xl font-semibold text-gray-800 mb-2">Authentication Error</h2>
-          <p className="text-gray-600 mb-4">There was a problem initializing authentication.</p>
-          <button 
-            onClick={() => window.location.reload()}
-            className="px-4 py-2 bg-black text-white rounded hover:bg-gray-800 transition-colors"
-          >
-            Try Again
-          </button>
-          <details className="mt-4 text-left">
-            <summary className="cursor-pointer text-sm text-gray-500">Technical Details</summary>
-            <pre className="mt-2 p-2 bg-gray-100 rounded text-xs overflow-auto">
-              {error.message}
-            </pre>
-          </details>
-        </div>
-      </div>
-    );
+    return <ErrorDisplay message={error.message} />;
   }
 
   if (!isReady) {
-    return (
-      <div className="min-h-screen bg-stone-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
-          <p className="text-gray-600">Initializing authentication...</p>
-          {initAttempts.current > 0 && (
-            <p className="text-sm text-gray-400 mt-2">
-              Attempt {initAttempts.current}/{maxAttempts}...
-            </p>
-          )}
-        </div>
-      </div>
-    );
+    return <LoadingDisplay attempt={initAttempts.current} maxAttempts={maxAttempts} />;
   }
 
   // Ensure stackClientApp is properly typed and available
   if (!stackClientApp) {
-    throw new Error('Stack Auth client app is not available');
+    return <ErrorDisplay message="Stack Auth client app is not available" />;
   }
 
+  // We need to cast to the exact type expected by StackProvider
   return (
-    <StackProvider app={stackClientApp as any /* WORKAROUND: Type mismatch in tokenStore null handling */}>
-      <StackTheme>
-        {children}
-      </StackTheme>
-    </StackProvider>
+    <React.Suspense fallback={<LoadingDisplay attempt={0} maxAttempts={maxAttempts} />}>
+      <StackProvider app={stackClientApp as any /* Type cast needed for tokenStore compatibility */}>
+        <StackTheme>
+          {children}
+        </StackTheme>
+      </StackProvider>
+    </React.Suspense>
   );
 }
