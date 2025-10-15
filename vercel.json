@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "pnpm build && pnpm build:api",
+  "buildCommand": "pnpm install --force && pnpm build && pnpm build:api",
   "ignoreCommand": "false",
   "outputDirectory": "dist",
   "functions": {
