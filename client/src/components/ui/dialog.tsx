@@ -109,15 +109,17 @@ const DialogDescription = forwardRef<
 ))
 DialogDescription.displayName = DialogPrimitive.Description.displayName
 
-export {
-  Dialog,
-  DialogPortal,
-  DialogOverlay,
-  DialogClose,
-  DialogTrigger,
-  DialogContent,
-  DialogHeader,
-  DialogFooter,
-  DialogTitle,
-  DialogDescription,
+const DialogComponent = {
+  Root: Dialog,
+  Trigger: DialogTrigger,
+  Portal: DialogPortal,
+  Close: DialogClose,
+  Overlay: DialogOverlay,
+  Content: DialogContent,
+  Header: DialogHeader,
+  Footer: DialogFooter,
+  Title: DialogTitle,
+  Description: DialogDescription,
 }
+
+export default DialogComponent
