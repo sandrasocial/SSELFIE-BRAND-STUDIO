@@ -172,18 +172,8 @@ function Router() {
         return <PageLoader />;
       }} />
 
-      {/* STACK AUTH HANDLER - Consolidated wildcard route for ALL Stack redirects/callbacks including OAuth */}
-      <Route path="/handler/sign-in" component={() => (
-        <Lazy>
-          <SignInHandler />
-        </Lazy>
-      )} />
-      <Route path="/handler/sign-up" component={() => (
-        <Lazy>
-          <SignInHandler />
-        </Lazy>
-      )} />
-      {/* ✅ CRITICAL FIX: OAuth callback handler MUST come before wildcard routes to preserve query parameters */}
+      {/* STACK AUTH HANDLER - Consolidated routes for ALL Stack Auth operations */}
+      {/* ✅ CRITICAL FIX: OAuth callback handler MUST come before other routes to preserve query parameters */}
       <Route path="/handler/oauth-callback" component={() => {
         const OAuthCallback = React.lazy(() => import("./pages/handler/oauth-callback"));
         return (
@@ -192,6 +182,8 @@ function Router() {
           </Lazy>
         );
       }} />
+      
+      {/* Use HandlerRoutes for all Stack Auth operations for consistency */}
       <Route path="/handler/:path*" component={() => (
         <Lazy>
           <HandlerRoutes />

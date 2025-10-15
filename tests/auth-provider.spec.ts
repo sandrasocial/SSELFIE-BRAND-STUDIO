@@ -1,4 +1,5 @@
-import { test as base, expect, Page, ConsoleMessage as PlaywrightConsoleMessage } from '@playwright/test';
+import { expect, test as base } from '@playwright/test';
+import type { Page, ConsoleMessage as PlaywrightConsoleMessage, TestType } from '@playwright/test';
 
 // Error tracking interfaces
 interface ConsoleMessage {
@@ -97,7 +98,7 @@ async function setupErrorTracking(page: Page): Promise<{ errors: ErrorEvent[], c
 
 // Create a test fixture with error tracking
 const test = base.extend<{ trackedPage: PageWithErrorTracking }>({
-  trackedPage: async ({ page }, use) => {
+  trackedPage: async ({ page }, use: (r: PageWithErrorTracking) => Promise<void>) => {
     const { errors, consoleMessages } = await setupErrorTracking(page);
     const trackedPage = page as PageWithErrorTracking;
     trackedPage.errorTracker = { errors, consoleMessages };
@@ -106,21 +107,21 @@ const test = base.extend<{ trackedPage: PageWithErrorTracking }>({
 });
 
 test.describe('Stack Auth Provider', () => {
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ page }: { page: Page }) => {
     const { errors, consoleMessages } = await setupErrorTracking(page);
     const trackedPage = page as PageWithErrorTracking;
     trackedPage.errorTracker = { errors, consoleMessages };
   });
 
-  test('should not show Stack Auth provider error on initial load', async ({ page }) => {
+  test('should not show Stack Auth provider error on initial load', async ({ page }: { page: Page }) => {
     const trackedPage = page as PageWithErrorTracking;
 
     // Enable error logging
-    page.on('pageerror', (error) => {
+    page.on('pageerror', (error: Error) => {
       console.error('🔥 Page Error:', error);
     });
 
-    page.on('console', (msg) => {
+    page.on('console', (msg: PlaywrightConsoleMessage) => {
       if (msg.type() === 'error') {
         console.error('🔥 Console Error:', msg.text());
       }
@@ -145,7 +146,7 @@ test.describe('Stack Auth Provider', () => {
     expect(stackAuthErrors).toHaveLength(0);
   });
 
-  test('should maintain Stack Auth provider through navigation', async ({ page }) => {
+  test('should maintain Stack Auth provider through navigation', async ({ page }: { page: Page }) => {
     const trackedPage = page as PageWithErrorTracking;
 
     // Start at home page
@@ -174,7 +175,7 @@ test.describe('Stack Auth Provider', () => {
     expect(stackAuthErrors).toHaveLength(0);
   });
 
-  test('should preserve Stack Auth provider after page reload', async ({ page }) => {
+  test('should preserve Stack Auth provider after page reload', async ({ page }: { page: Page }) => {
     const trackedPage = page as PageWithErrorTracking;
 
     // Load protected route
