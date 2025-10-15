@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "buildCommand": "yarn install --force && yarn build && yarn build:api",
+  "buildCommand": "pnpm install --no-frozen-lockfile && pnpm build",
   "ignoreCommand": "false",
-  "outputDirectory": "dist",
+  "outputDirectory": "client/dist",
   "functions": {
     "api/maya-*.ts": {
       "memory": 3008,
