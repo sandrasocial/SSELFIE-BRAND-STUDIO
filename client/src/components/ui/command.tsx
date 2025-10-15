@@ -4,7 +4,8 @@ import { Command as CommandPrimitive } from "cmdk"
 // Removed Lucide React icons to comply with Sandra's no-icons styleguide
 
 import { cn } from "../../lib/utils.js"
-import { Dialog, DialogContent } from './dialog.js'
+import DialogComponent from './dialog.js'
+const { Root: Dialog, Content: DialogContent } = DialogComponent
 
 const Command = forwardRef<
   ElementRef<typeof CommandPrimitive>,
@@ -138,14 +139,16 @@ const CommandShortcut = ({
 }
 CommandShortcut.displayName = "CommandShortcut"
 
-export {
-  Command,
-  CommandDialog,
-  CommandInput,
-  CommandList,
-  CommandEmpty,
-  CommandGroup,
-  CommandItem,
-  CommandShortcut,
-  CommandSeparator,
+const CommandComponent = {
+  Root: Command,
+  Dialog: CommandDialog,
+  Input: CommandInput,
+  List: CommandList,
+  Empty: CommandEmpty,
+  Group: CommandGroup,
+  Item: CommandItem,
+  Shortcut: CommandShortcut,
+  Separator: CommandSeparator,
 }
+
+export default CommandComponent

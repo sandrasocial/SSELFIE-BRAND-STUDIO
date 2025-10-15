@@ -1,12 +1,14 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { createRoot } from "react-dom/client";
 import { QueryClientProvider } from '@tanstack/react-query';
-import { Toaster } from './components/ui/toaster';
-import { TooltipProvider } from './components/ui/tooltip';
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { queryClient } from "./lib/queryClient";
 import App from "./App";
 import "./index.css";
+
+// Lazy load UI providers
+const LazyTooltipProvider = React.lazy(() => import('./components/ui/tooltip').then(mod => ({ default: mod.TooltipProvider })));
+const LazyToaster = React.lazy(() => import('./components/ui/toaster').then(mod => ({ default: mod.Toaster })));
 
 // Simple test component
 function TestApp() {
@@ -54,12 +56,16 @@ try {
       <React.Suspense fallback={<LoadingScreen />}>
         <StackAuthWrapper>
           <QueryClientProvider client={queryClient}>
-            <TooltipProvider>
-              <ErrorBoundary>
-                <App />
-                <Toaster />
-              </ErrorBoundary>
-            </TooltipProvider>
+            <ErrorBoundary>
+              <Suspense fallback={<LoadingScreen />}>
+                <LazyTooltipProvider>
+                  <ErrorBoundary>
+                    <App />
+                    <LazyToaster />
+                  </ErrorBoundary>
+                </LazyTooltipProvider>
+              </Suspense>
+            </ErrorBoundary>
           </QueryClientProvider>
         </StackAuthWrapper>
       </React.Suspense>
