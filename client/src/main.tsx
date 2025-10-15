@@ -1,8 +1,6 @@
-import React, { Suspense } from 'react';
+import React from 'react';
 import { createRoot } from "react-dom/client";
-import { QueryClientProvider } from '@tanstack/react-query';
-import { ErrorBoundary } from "./components/ErrorBoundary";
-import { queryClient } from "./lib/queryClient";
+import RootWrapper from "./components/RootWrapper";
 import App from "./App";
 import "./index.css";
 
@@ -52,24 +50,9 @@ try {
   console.log('✅ React root created, rendering app with lazy-loaded Stack Auth...');
 
   root.render(
-    <React.StrictMode>
-      <React.Suspense fallback={<LoadingScreen />}>
-        <StackAuthWrapper>
-          <QueryClientProvider client={queryClient}>
-            <ErrorBoundary>
-              <Suspense fallback={<LoadingScreen />}>
-                <LazyTooltipProvider>
-                  <ErrorBoundary>
-                    <App />
-                    <LazyToaster />
-                  </ErrorBoundary>
-                </LazyTooltipProvider>
-              </Suspense>
-            </ErrorBoundary>
-          </QueryClientProvider>
-        </StackAuthWrapper>
-      </React.Suspense>
-    </React.StrictMode>
+    <RootWrapper>
+      <App />
+    </RootWrapper>
   );
   console.log('✅ App with lazy-loaded Stack Auth rendered successfully!');
 

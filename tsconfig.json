@@ -24,6 +24,9 @@
     "noUncheckedIndexedAccess": false,
     "exactOptionalPropertyTypes": false,
     "jsx": "react-jsx",
+    "jsxImportSource": "react",
+    "experimentalDecorators": true,
+    "useDefineForClassFields": true,
     "baseUrl": ".",
     "paths": {
       "@/*": ["client/src/*"],

@@ -4,6 +4,7 @@ import { db } from '../db.js'
 import { liveSessions, liveEvents } from '../../shared/schema.js';
 import { eq } from 'drizzle-orm';
 import { StackAuthUser } from '../stack-auth.js';
+import { getErrorMessage } from '../utils/error.js';
 
 // Define request types for type safety
 interface OptionalAuthenticatedRequest extends Request {

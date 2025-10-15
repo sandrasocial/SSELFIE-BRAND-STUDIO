@@ -1,7 +1,7 @@
-import { useUser } from "@stackframe/react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { apiFetch } from "../lib/api.js";
+import { stackClientApp } from "../../../stack/client.js";
 
 export interface User {
   id: string;
@@ -30,12 +30,54 @@ export interface User {
 
 // Simplified Stack Auth integration
 export function useAuth() {
-  const stackUser = useUser();
   const queryClient = useQueryClient();
+  const [stackUser, setStackUser] = useState<any>(undefined);
+  const [isStackAuthLoading, setIsStackAuthLoading] = useState(true);
+
+  useEffect(() => {
+    let mounted = true;
+    
+    async function checkAuth() {
+      try {
+        if (!stackClientApp) {
+          console.error('Stack Auth client not initialized');
+          if (mounted) {
+            setStackUser(null);
+            setIsStackAuthLoading(false);
+          }
+          return;
+        }
+
+        const user = await stackClientApp.getUser();
+        if (mounted) {
+          setStackUser(user || null);
+          setIsStackAuthLoading(false);
+        }
+      } catch (error) {
+        console.error('Stack Auth check failed:', error);
+        if (mounted) {
+          setStackUser(null);
+          setIsStackAuthLoading(false);
+        }
+      }
+    }
+
+    checkAuth();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  // Debug Stack Auth state
+  console.log('🔐 useAuth Hook State:', {
+    stackUser,
+    stackUserId: stackUser?.id,
+    stackUserState: stackUser === undefined ? 'loading' : stackUser === null ? 'no-user' : 'has-user'
+  });
 
   // Determine authentication state
   const isAuthenticated = !!stackUser?.id;
-  const isStackAuthLoading = stackUser === undefined;
 
   // Only fetch database user if Stack Auth user exists
   const {
@@ -80,7 +122,7 @@ export function useAuth() {
   // The query will automatically refetch when stackUser.id changes (in queryKey)
 
   // Determine overall loading state
-  const isLoading = isStackAuthLoading || (isAuthenticated && isDbLoading && !dbUser);
+  const isLoading = isStackAuthLoading || (isAuthenticated && isDbLoading);
 
   // Create user object
   let user: User | undefined = undefined;

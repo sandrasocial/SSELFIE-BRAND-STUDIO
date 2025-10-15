@@ -1,16 +1,19 @@
 /* eslint-disable no-console */
 import React, { useEffect } from 'react';
 import { Route, useLocation } from "wouter";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 import { StackHandler } from "@stackframe/react"; 
 import { stackClientApp } from '../../stack/client.js';
-import { useAuth } from "./hooks/use-auth.js";
 import { useQuery } from "@tanstack/react-query";
 import { detectBrowserIssues, showDomainHelp } from "./utils/browserCompat.js";
 import { optimizeImageLoading, enableServiceWorkerCaching } from "./utils/performanceOptimizations.js";
 import { optimizeRuntime } from "./utils/webVitals.js";
-import { ErrorBoundary } from "./components/ErrorBoundary";
 import { initializeMobileOptimization } from "./utils/mobileOptimization.js";
 import { performanceMonitor } from "./utils/performanceMonitor.js";
+import { WithStackAuth } from "./components/auth/WithStackAuth";
+import RootWrapper from "./components/RootWrapper";
+// IMPORTANT: Import useAuth after other dependencies to ensure proper provider context
+import { useAuth } from "./hooks/use-auth.js";
 import { initializeRuntimeOptimization } from "./utils/runtimeOptimization.js";
 import { ROUTES } from "./constants/routes.js";
 import { MayaDiagnostic } from "./components/MayaDiagnostic.js";
@@ -56,55 +59,45 @@ import { PageLoader } from "./components/PageLoader";
 
 // Protected Route Wrapper Component
 function ProtectedRouteWrapper({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, isLoading } = useAuth();
   const [location, setLocation] = useLocation();
+  const { isAuthenticated, isLoading } = useAuth();
   
   // Check if current route is public
   const isPublicRoute = PUBLIC_ROUTES.some(route => 
     location === route || location.startsWith(route + '/')
   );
 
+  // Handle auth state changes
   useEffect(() => {
     if (!isLoading && !isAuthenticated && !isPublicRoute) {
       setLocation('/handler/sign-in');
     }
-  }, [isAuthenticated, isLoading, setLocation, isPublicRoute, location]);
-
-  if (isLoading) {
-    return <PageLoader />;
-  }
+  }, [isAuthenticated, isLoading, isPublicRoute, setLocation]);
 
   // Allow public routes through without auth check
   if (isPublicRoute) {
     return <>{children}</>;
   }
 
-  // Require auth for protected routes
-  if (!isAuthenticated) {
+  // Show loading state
+  if (isLoading || !isAuthenticated) {
     return <PageLoader />;
   }
 
+  // Render protected route
   return <>{children}</>;
 }
 
 // Smart Home component - Routes users through simplified journey  
 // NEW USER JOURNEY: Authentication → AI Training → Payment → App Studio
 function SmartHome() {
-  const { isLoading, isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
+  const { isLoading, isAuthenticated } = useAuth();
 
   useEffect(() => {
-    if (isLoading) return;
-
-    if (!isAuthenticated) {
-      // Show business landing page for anonymous users instead of forcing sign-in
+    if (!isLoading && !isAuthenticated) {
       setLocation(ROUTES.BUSINESS_LANDING);
-      return;
     }
-
-    // For authenticated users, delegate routing to PostLoginHandler
-    // This handles the complex logic of checking training status and redirecting appropriately
-    // No need to redirect here - just render PostLoginHandler directly
   }, [isLoading, isAuthenticated, setLocation]);
 
   // Show loading while checking auth
@@ -112,9 +105,9 @@ function SmartHome() {
     return <PageLoader />;
   }
 
-  // If not authenticated, redirect to business landing
+  // If not authenticated, show loader while redirecting
   if (!isAuthenticated) {
-    return <PageLoader />; // Will redirect via useEffect
+    return <PageLoader />;
   }
 
   // For authenticated users, use PostLoginHandler to determine where to go
@@ -371,11 +364,11 @@ function App() {
     };
   }, []);
 
-  console.log('🎨 SSELFIE Studio: App component rendering...');
-  
   return (
     <ErrorBoundary>
-      <Router />
+      <RootWrapper>
+        <Router />
+      </RootWrapper>
     </ErrorBoundary>
   );
 }

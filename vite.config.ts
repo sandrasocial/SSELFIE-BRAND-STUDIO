@@ -11,13 +11,24 @@ export default defineConfig(({ mode }) => {
   const plugins = [
     react({ 
       jsxRuntime: "automatic",
-      // Include runtime helpers
-      jsxImportSource: "react"
+      jsxImportSource: "react",
+      babel: {
+        parserOpts: {
+          plugins: ['jsx', 'typescript']
+        }
+      }
     })
   ];
   
   return {
     plugins,
+    esbuild: {
+      // Enable JSX features needed for Stack Auth
+      jsx: 'automatic',
+      jsxImportSource: 'react',
+      // Allow use of modern features
+      target: ['esnext']
+    },
     css: {
       postcss: {
         plugins: [
