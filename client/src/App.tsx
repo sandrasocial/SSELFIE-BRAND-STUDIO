@@ -1,7 +1,8 @@
+/* eslint-disable no-console */
 import React, { useEffect } from 'react';
 import { Route, useLocation } from "wouter";
-// import { StackHandler } from "@stackframe/react"; 
-// import { stackClientApp } from '../../stack/client.js';
+import { StackHandler } from "@stackframe/react"; 
+import { stackClientApp } from '../../stack/client.js';
 import { useAuth } from "./hooks/use-auth.js";
 import { useQuery } from "@tanstack/react-query";
 import { detectBrowserIssues, showDomainHelp } from "./utils/browserCompat.js";
@@ -54,23 +55,22 @@ import { PageLoader } from "./components/PageLoader";
 
 // Protected Route Wrapper Component
 function ProtectedRouteWrapper({ children }: { children: React.ReactNode }) {
-  // TEMPORARILY DISABLE AUTH CHECK
-  // const { isAuthenticated, isLoading } = useAuth();
-  // const [, setLocation] = useLocation();
+  const { isAuthenticated, isLoading } = useAuth();
+  const [, setLocation] = useLocation();
 
-  // useEffect(() => {
-  //   if (!isLoading && !isAuthenticated) {
-  //     setLocation('/handler/sign-in');
-  //   }
-  // }, [isAuthenticated, isLoading, setLocation]);
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      setLocation('/handler/sign-in');
+    }
+  }, [isAuthenticated, isLoading, setLocation]);
 
-  // if (isLoading) {
-  //   return <PageLoader />;
-  // }
+  if (isLoading) {
+    return <PageLoader />;
+  }
 
-  // if (!isAuthenticated) {
-  //   return <PageLoader />;
-  // }
+  if (!isAuthenticated) {
+    return <PageLoader />;
+  }
 
   return <>{children}</>;
 }
@@ -78,39 +78,35 @@ function ProtectedRouteWrapper({ children }: { children: React.ReactNode }) {
 // Smart Home component - Routes users through simplified journey  
 // NEW USER JOURNEY: Authentication → AI Training → Payment → App Studio
 function SmartHome() {
-  // TEMPORARILY DISABLE AUTH CHECK
-  // const { isLoading, isAuthenticated } = useAuth();
-  // const [, setLocation] = useLocation();
+  const { isLoading, isAuthenticated } = useAuth();
+  const [, setLocation] = useLocation();
 
-  // useEffect(() => {
-  //   if (isLoading) return;
+  useEffect(() => {
+    if (isLoading) return;
 
-  //   if (!isAuthenticated) {
-  //     // Show business landing page for anonymous users instead of forcing sign-in
-  //     setLocation(ROUTES.BUSINESS_LANDING);
-  //     return;
-  //   }
+    if (!isAuthenticated) {
+      // Show business landing page for anonymous users instead of forcing sign-in
+      setLocation(ROUTES.BUSINESS_LANDING);
+      return;
+    }
 
-  //   // For authenticated users, delegate routing to PostLoginHandler
-  //   // This handles the complex logic of checking training status and redirecting appropriately
-  //   // No need to redirect here - just render PostLoginHandler directly
-  // }, [isLoading, isAuthenticated, setLocation]);
+    // For authenticated users, delegate routing to PostLoginHandler
+    // This handles the complex logic of checking training status and redirecting appropriately
+    // No need to redirect here - just render PostLoginHandler directly
+  }, [isLoading, isAuthenticated, setLocation]);
 
-  // // Show loading while checking auth
-  // if (isLoading) {
-  //   return <PageLoader />;
-  // }
+  // Show loading while checking auth
+  if (isLoading) {
+    return <PageLoader />;
+  }
 
-  // // If not authenticated, redirect to business landing
-  // if (!isAuthenticated) {
-  //   return <PageLoader />; // Will redirect via useEffect
-  // }
+  // If not authenticated, redirect to business landing
+  if (!isAuthenticated) {
+    return <PageLoader />; // Will redirect via useEffect
+  }
 
-  // // For authenticated users, use PostLoginHandler to determine where to go
-  // return <PostLoginHandler />;
-
-  // TEMPORARILY: Just show the business landing page directly
-  return <BusinessLanding />;
+  // For authenticated users, use PostLoginHandler to determine where to go
+  return <PostLoginHandler />;
 }
 
 // 🔥 CLEANED UP: Stack Auth Handler - Single source of truth for authentication
@@ -121,27 +117,12 @@ function HandlerRoutes() {
   // This includes sign-in, sign-up, magic-link, password-reset, email-verification
 
   try {
-    // TEMPORARILY DISABLE STACK AUTH HANDLER
-    // return (
-    //   <StackHandler
-    //     app={stackClientApp}
-    //     location={window.location.pathname + window.location.search + window.location.hash}
-    //     fullPage={true}
-    //   />
-    // );
     return (
-      <div className="min-h-screen bg-stone-50 flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl mb-4">Stack Auth Temporarily Disabled</h2>
-          <p className="text-gray-600 mb-4">Testing basic React loading without Stack Auth.</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="bg-black text-white px-6 py-2 rounded"
-          >
-            Reload
-          </button>
-        </div>
-      </div>
+      <StackHandler
+        app={stackClientApp}
+        location={window.location.pathname + window.location.search + window.location.hash}
+        fullPage={true}
+      />
     );
   } catch (error) {
     console.error('🔥 StackHandler Error:', error);
