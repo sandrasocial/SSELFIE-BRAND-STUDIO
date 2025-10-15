@@ -7,12 +7,19 @@
 export const optimizeImageLoading = () => {
   // Preload critical images
   const criticalImages = [
-    '/api/sandra-images/hero-editorial.jpg',
-    '/api/sandra-images/brand-essence.jpg'
+    'https://assets.sselfie.ai/hero-homepage.webp',
+    'https://assets.sselfie.ai/hero-luxury.webp',
+    'https://assets.sselfie.ai/hero-about.webp',
+    'https://assets.sselfie.ai/hero-dashboard.webp',
+    // Preload fallback images as well
+    'https://assets.sselfie.ai/fallback/hero-homepage.jpg',
+    'https://assets.sselfie.ai/fallback/hero-luxury.jpg',
+    'https://assets.sselfie.ai/fallback/hero-about.jpg',
+    'https://assets.sselfie.ai/fallback/hero-dashboard.jpg'
   ];
 
   criticalImages.forEach(src => {
-    const link = document.createElement('link');
+    const link = document.createElement('link') as HTMLLinkElement;
     link.rel = 'preload';
     link.as = 'image';
     link.href = src;
