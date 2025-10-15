@@ -1,11 +1,9 @@
 import React from 'react';
 import { createRoot } from "react-dom/client";
 import { QueryClientProvider } from '@tanstack/react-query';
-import { StackProvider, StackTheme } from '@stackframe/react';
 import { Toaster } from './components/ui/toaster';
 import { TooltipProvider } from './components/ui/tooltip';
 import { ErrorBoundary } from "./components/ErrorBoundary";
-import { stackClientApp } from "../../stack/client";
 import { queryClient } from "./lib/queryClient";
 import App from "./App";
 import "./index.css";
@@ -24,6 +22,21 @@ function TestApp() {
   );
 }
 
+// Lazy load Stack Auth components to ensure React is fully initialized
+const StackAuthWrapper = React.lazy(() => import('./components/StackAuthWrapper'));
+
+// Simple loading component
+function LoadingScreen() {
+  return (
+    <div className="min-h-screen bg-stone-50 flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
+        <p className="text-gray-600">Loading SSELFIE Studio...</p>
+      </div>
+    </div>
+  );
+}
+
 try {
   console.log('🚀 SSELFIE Studio: Starting app initialization...');
   const container = document.getElementById("root");
@@ -34,13 +47,12 @@ try {
 
   console.log('✅ Root element found, creating React root...');
   const root = createRoot(container as Element);
-  console.log('✅ React root created, rendering minimal app...');
-  
-  // TEMPORARILY DISABLE STACK AUTH TO TEST BASIC REACT LOADING
+  console.log('✅ React root created, rendering app with lazy-loaded Stack Auth...');
+
   root.render(
     <React.StrictMode>
-      {/* <StackProvider app={stackClientApp as any}>
-        <StackTheme> */}
+      <React.Suspense fallback={<LoadingScreen />}>
+        <StackAuthWrapper>
           <QueryClientProvider client={queryClient}>
             <TooltipProvider>
               <ErrorBoundary>
@@ -49,11 +61,11 @@ try {
               </ErrorBoundary>
             </TooltipProvider>
           </QueryClientProvider>
-        {/* </StackTheme>
-      </StackProvider> */}
+        </StackAuthWrapper>
+      </React.Suspense>
     </React.StrictMode>
   );
-  console.log('✅ Minimal app rendered successfully!');
+  console.log('✅ App with lazy-loaded Stack Auth rendered successfully!');
 
 } catch (error) {
   console.error('❌ SSELFIE Studio: Fatal error during app initialization:', error);
