@@ -25,7 +25,7 @@ console.log('🔍 Stack Auth Server Configuration:', {
   secretKeyPrefix: STACK_SECRET_SERVER_KEY?.substring(0, 10) + '...'
 });
 
-let stackServerApp: StackServerApp;
+let stackServerApp: InstanceType<typeof StackServerApp>;
 
 try {
   stackServerApp = new StackServerApp({

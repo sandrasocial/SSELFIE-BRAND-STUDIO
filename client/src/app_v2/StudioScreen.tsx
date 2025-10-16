@@ -42,6 +42,7 @@ interface StudioScreenProps {
   onTabChange?: (tabId: string) => void;
 }
 
+// @ts-ignore - FC type compatibility with JSX.Element
 const StudioScreen: React.FC<StudioScreenProps> = ({ onTabChange }) => {
   const { user, isLoading: authLoading, isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();

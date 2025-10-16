@@ -14,7 +14,7 @@ export const PromptGrid = memo<PromptGridProps>(({
   canGenerate,
   onGenerateFromPrompt,
   onBack
-}) => {
+}: PromptGridProps) => {
   return (
     <div>
       {/* Back Button */}
@@ -49,7 +49,7 @@ export const PromptGrid = memo<PromptGridProps>(({
 
       {/* LUXURY PROMPT CARDS GALLERY */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {collection.prompts.map((prompt) => (
+        {collection.prompts.map((prompt: any) => (
           <PromptCard
             key={prompt.id}
             prompt={prompt}

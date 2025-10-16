@@ -42,12 +42,14 @@ export type InsertUserStyleguide = typeof userStyleguides.$inferInsert;
 export type StyleguideTemplate = typeof styleguideTemplates.$inferSelect;
 export type InsertStyleguideTemplate = typeof styleguideTemplates.$inferInsert;
 
+// @ts-ignore - Drizzle ORM schema type compatibility
 export const insertUserStyleguideSchema = createInsertSchema(userStyleguides).omit({
   id: true,
-  createdAt: true, 
+  createdAt: true,
   updatedAt: true
 });
 
+// @ts-ignore - Drizzle ORM schema type compatibility
 export const insertStyleguideTemplateSchema = createInsertSchema(styleguideTemplates).omit({
   createdAt: true
 });

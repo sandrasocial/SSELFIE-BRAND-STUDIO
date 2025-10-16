@@ -1,8 +1,6 @@
 import React from 'react';
 import { PageLoader } from './loaders';
-
 import type { WithChildren } from '../types/react-types';
-import { PageLoader } from './loaders';
 
 /**
  * Type-safe wrapper for lazy-loaded components compatible with React 19
@@ -14,4 +12,3 @@ export const SuspenseWrapper = React.memo(function SuspenseWrapper({ children }:
     </React.Suspense>
   );
 });
-}

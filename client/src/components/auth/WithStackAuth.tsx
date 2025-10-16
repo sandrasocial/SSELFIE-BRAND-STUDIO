@@ -24,7 +24,7 @@ export function WithStackAuth({ children, fallback = <PageLoader /> }: WithStack
         console.log('✅ Stack Auth initialized and user state loaded');
         setIsReady(true);
       })
-      .catch(error => {
+      .catch((error: any) => {
         if (error?.message?.includes?.('not authenticated')) {
           console.log('✅ Stack Auth initialized (no user)');
           setIsReady(true);

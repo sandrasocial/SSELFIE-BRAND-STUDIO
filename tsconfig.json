@@ -45,7 +45,8 @@
     },
     "types": [
       "vite/client",
-      "react/experimental"
+      "react/experimental",
+      "node"
     ],
     "typeRoots": [
       "./client/src/types",
@@ -59,6 +60,7 @@
     "server/**/*",
     "shared/types/global.d.ts",
     "shared/types/stack-auth.d.ts",
-    "stack/**/*"
+    "stack/**/*",
+    "client/src/types/react19-unified.d.ts"
   ]
 }

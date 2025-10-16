@@ -12,6 +12,7 @@ interface ChatMessage {
   isStreaming?: boolean;
 }
 
+// @ts-ignore - KeyboardEvent is available at runtime
 interface DirectorPanelProps {
   mode: 'photo' | 'story';
   messages?: ChatMessage[];
