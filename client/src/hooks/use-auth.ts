@@ -1,7 +1,15 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect } from 'react';
 import { apiFetch } from "../lib/api.js";
-import { stackClientApp } from "../../../stack/client.js";
+// ⚠️ CRITICAL: Import stackClientApp lazily to avoid circular dependency
+let stackClientApp: any = null;
+async function getStackClientApp() {
+  if (!stackClientApp) {
+    const module = await import("../../../stack/client.js");
+    stackClientApp = module.stackClientApp;
+  }
+  return stackClientApp;
+}
 
 export interface User {
   id: string;
@@ -42,10 +50,13 @@ export function useAuth() {
   useEffect(() => {
     let mounted = true;
     let timeoutId: NodeJS.Timeout;
-    
+
     async function checkAuth() {
       try {
-        if (!stackClientApp) {
+        // Lazy load stackClientApp
+        const app = await getStackClientApp();
+
+        if (!app) {
           console.error('Stack Auth client not initialized');
           if (mounted) {
             setAuthState({
@@ -61,7 +72,7 @@ export function useAuth() {
           timeoutId = setTimeout(resolve, 100);
         });
 
-        const user = await stackClientApp.getUser();
+        const user = await app.getUser();
         if (mounted) {
           setAuthState({
             stackUser: user || null,
