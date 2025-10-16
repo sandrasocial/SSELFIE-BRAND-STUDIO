@@ -1,12 +1,13 @@
-import { defineConfig, type ProxyOptions, type UserConfig, type ConfigEnv } from 'vite';
+import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { type IncomingMessage, type ServerResponse } from 'http';
+import tailwindcss from 'tailwindcss';
+import autoprefixer from 'autoprefixer';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
+export default defineConfig(({ mode }) => {
   const plugins = [
     react({
       jsxRuntime: "automatic",
@@ -15,9 +16,7 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
         parserOpts: {
           plugins: ['jsx', 'typescript']
         }
-      },
-      // Add better error overlay handling
-      include: "**/*.{js,ts,jsx,tsx}",
+      }
     })
   ];
   
@@ -41,7 +40,14 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
       }
     },
     css: {
-      postcss: './client/postcss.config.js'
+      postcss: {
+        plugins: [
+          tailwindcss({
+            config: './client/tailwind.config.ts'
+          }),
+          autoprefixer(),
+        ],
+      },
     },
 
     resolve: {
@@ -49,15 +55,10 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
         '@': path.resolve(__dirname, "client", "src"),
         '@shared': path.resolve(__dirname, "shared"),
         '@assets': path.resolve(__dirname, "attached_assets"),
-        '@lib': path.resolve(__dirname, "client", "src", "lib"),
         'react': path.resolve(__dirname, "node_modules/react"),
         'react-dom': path.resolve(__dirname, "node_modules/react-dom"),
       },
-      dedupe: [
-        'react', 
-        'react-dom', 
-        '@stackframe/react'
-      ]
+      dedupe: ['react', 'react-dom', '@stackframe/react']
     },
     optimizeDeps: {
       include: [
@@ -79,38 +80,39 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
           js: '/* eslint-disable */\n"use client";'
         },
         jsx: 'automatic',
-        jsxImportSource: 'react'
+        jsxImportSource: 'react',
+        tsconfigRaw: {
+          compilerOptions: {
+            experimentalDecorators: true,
+            useDefineForClassFields: true,
+            jsx: 'preserve',
+            module: 'esnext',
+            target: 'esnext',
+            moduleResolution: 'bundler'
+          }
+        }
       }
     },
     root: path.resolve(__dirname, "client"),
     server: {
       proxy: {
         '/api': {
-          target: process.env.NODE_ENV === 'production' 
-            ? process.env.API_URL || 'https://api.sselfie.com'
-            : 'http://localhost:3001',
+          target: 'http://localhost:3001',
           changeOrigin: true,
-          secure: process.env.NODE_ENV === 'production',
-          ws: true
+          secure: false,
         }
-      },
-      hmr: {
-        overlay: true
-      },
-      watch: {
-        usePolling: true
       }
     },
-      build: {
+    build: {
       outDir: path.resolve(__dirname, "client/dist"),
       emptyOutDir: true,
       sourcemap: process.env.NODE_ENV !== 'production',
       cssCodeSplit: false,
       reportCompressedSize: false,
       chunkSizeWarningLimit: 2000,
-      minify: process.env.NODE_ENV === 'production' ? 'esbuild' : false,
       rollupOptions: {
         input: path.resolve(__dirname, "client/index.html"),
+        preserveEntrySignatures: 'strict',
         output: {
           manualChunks: (id) => {
             // Framework chunks
@@ -118,9 +120,21 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
               return 'react-core';
             }
             
-            // Keep all @stackframe/react code in a single chunk to avoid circular dependencies
+            // @stackframe/react chunks
             if (id.includes('@stackframe/react')) {
-              return 'stackframe';
+              if (id.includes('/lib/hooks') || id.includes('/index.js')) {
+                return 'stackframe-core';
+              }
+              if (id.includes('/components/auth/') || 
+                  id.includes('credential-sign-in') || 
+                  id.includes('credential-sign-up') || 
+                  id.includes('oauth-button')) {
+                return 'stackframe-auth';
+              }
+              if (id.includes('/components/ui/') || id.includes('/components/elements/')) {
+                return 'stackframe-ui';
+              }
+              return 'stackframe-other';
             }
 
             // UI library chunks
@@ -173,6 +187,7 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
         }
       },
       target: ['es2020', 'edge88', 'firefox78', 'chrome87', 'safari14'],
+      minify: 'esbuild',
       assetsInlineLimit: 4096,
       modulePreload: {
         polyfill: false

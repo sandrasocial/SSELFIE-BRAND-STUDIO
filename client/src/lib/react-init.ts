@@ -1,6 +1,15 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 
+declare global {
+  interface Window {
+    React: typeof React;
+    ReactDOM: typeof ReactDOM;
+    __REACT_INIT_TIME__: number;
+    __REACT_INIT_STATUS__: string;
+  }
+}
+
 // Ensure React is initialized before any other code runs
 try {
   if (typeof window !== 'undefined') {

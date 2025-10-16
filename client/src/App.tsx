@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
-import React from 'react';
-import { useEffect } from '../src/lib/react-hooks';
+import { useEffect } from 'react';
+import { lazy } from 'react';
 import { Route, useLocation } from "wouter";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { StackHandler } from "@stackframe/react"; 
@@ -18,12 +18,10 @@ import { useAuth } from "./hooks/use-auth.js";
 import { initializeRuntimeOptimization } from "./utils/runtimeOptimization.js";
 import { ROUTES } from "./constants/routes.js";
 import { MayaDiagnostic } from "./components/MayaDiagnostic.js";
+import { Suspense } from './lib/react-hooks';
 
 // Luxury Mobile Styling
 import "./styles/luxury-mobile.css";
-
-// Lazy load all pages for better performance
-import { lazy, Suspense } from '../src/lib/react-hooks';
 
 // Core pages (loaded as needed)
 const SselfieAppLayout = lazy(() => import("./app_v2/SselfieAppLayout.js"));
@@ -56,7 +54,7 @@ const SSELFIEGallery = lazy(() => import("./pages/sselfie-gallery"));
 const AICommandCenter = lazy(() => import("./pages/AICommandCenter"));
 
 // Components
-import { PageLoader } from "./components/PageLoader";
+import { PageLoader, ComponentLoader, ButtonLoader } from './components/loaders';
 import { Lazy } from "./components/Lazy";
 
 // Protected Route Wrapper Component

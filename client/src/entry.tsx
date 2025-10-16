@@ -1,28 +1,24 @@
 /// <reference types="react-dom" />
 
-import './lib/react-init';
 import * as React from 'react';
-import { createRoot } from 'react-dom/client';
+import { createRoot, type Container } from 'react-dom/client';
 import App from './App';
 import './index.css';
 
 async function initializeApp() {
   try {
-    const container = document.getElementById('root');
-    if (!container) {
+    const rootElement = document.getElementById('root');
+    if (!rootElement) {
       throw new Error('Failed to find root element');
     }
 
-    // Ensure React is available
-    if (!window.React) {
-      throw new Error('React not initialized');
-    }
+    // Create the root with proper typing
+    const root = createRoot(rootElement as Element);
 
-    const root = createRoot(container as Element);
-    
     // Clear loading message
-    container.innerHTML = '';
+    rootElement.innerHTML = '';
     
+    // Render the app
     root.render(
       <React.StrictMode>
         <App />

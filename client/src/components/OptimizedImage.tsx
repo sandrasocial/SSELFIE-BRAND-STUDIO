@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, type ReactElement } from 'react';
 import { useMemoryCleanup } from '../hooks/useMemoryCleanup.js';
 
 interface OptimizedImageProps {
@@ -17,7 +17,7 @@ interface OptimizedImageProps {
  * Phase 4: Optimized Image Component with advanced loading strategies
  * Features: Progressive loading, WebP support, intersection observer, memory cleanup
  */
-export const OptimizedImage: React.FC<OptimizedImageProps> = ({
+export function OptimizedImage({
   src,
   alt,
   className = "",
@@ -27,7 +27,7 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
   priority = false,
   onLoad,
   onError
-}) => {
+}: OptimizedImageProps): ReactElement {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isInView, setIsInView] = useState(priority);
   const [currentSrc, setCurrentSrc] = useState<string | null>(priority ? src : null);
@@ -103,7 +103,7 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
   };
 
   // Progressive loading effect
-  const imageStyle: React.CSSProperties = {
+  const imageStyle = {
     opacity: isLoaded ? 1 : 0,
     transition: 'opacity 0.3s ease-in-out',
     width: width ? `${width}px` : '100%',
