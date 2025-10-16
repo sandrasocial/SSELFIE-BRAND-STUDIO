@@ -23,10 +23,10 @@ test.describe('Landing Page Load', () => {
     });
 
     // Navigate to the landing page
-    await page.goto('https://sselfie.ai', { waitUntil: 'networkidle' });
+    await page.goto('https://sselfie.ai', { waitUntil: 'domcontentloaded' });
 
-    // Wait a bit for any deferred errors
-    await page.waitForTimeout(2000);
+    // Wait for the page to load (longer timeout for lazy loading)
+    await page.waitForTimeout(5000);
 
     // Check for React initialization errors
     const hasReactError = consoleErrors.some(err => 

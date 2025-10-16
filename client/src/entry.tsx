@@ -4,8 +4,8 @@
 // This exports React to the global scope so radix-ui and other libraries can use it
 import './react-global';
 
-import React from 'react';
-import { createRoot, Suspense } from 'react-dom/client';
+import React, { Suspense } from 'react';
+import { createRoot } from 'react-dom/client';
 import './index.css';
 
 // Lazy load App to prevent radix-ui from being imported before React is ready
