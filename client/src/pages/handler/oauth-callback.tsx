@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { stackClientApp } from "../../../../stack/client.js";
+// ⚠️ CRITICAL: Import stackClientApp lazily to avoid circular dependency
 
 // OAuth Callback Handler - Processes Google OAuth callback and redirects
 const OAuthCallback: React.FC = () => {
@@ -7,7 +7,7 @@ const OAuthCallback: React.FC = () => {
     const processOAuthCallback = async () => {
       try {
         console.log('🔍 Processing OAuth callback:', window.location.href);
-        
+
         // Extract OAuth parameters from URL
         const urlParams = new URLSearchParams(window.location.search);
         const code = urlParams.get('code');
@@ -41,25 +41,28 @@ const OAuthCallback: React.FC = () => {
 
         console.log('✅ OAuth code found, processing with Stack Auth...');
 
+        // Lazy load stackClientApp
+        const { stackClientApp } = await import("../../../../stack/client.js");
+
         // Use Stack Auth to process the OAuth callback
         if (stackClientApp && typeof stackClientApp.callOAuthCallback === 'function') {
           console.log('🔄 Calling Stack Auth OAuth callback...');
           console.log('🔍 Current cookies BEFORE callback:', document.cookie);
-          
+
           await stackClientApp.callOAuthCallback();
           console.log('✅ Stack Auth OAuth callback processed');
-          
+
           // Check cookies immediately after callback
           console.log('🔍 Current cookies AFTER callback:', document.cookie);
-          
+
           // Check if user is authenticated
           const user = await stackClientApp.getUser();
           console.log('🔍 User after OAuth callback:', user ? 'AUTHENTICATED ✅' : 'NOT AUTHENTICATED ❌');
-          
+
           if (user) {
             console.log('🔍 User details:', { id: user.id, email: user.primaryEmail });
           }
-          
+
           // Wait a moment for cookies to be set, then redirect to auth-success
           setTimeout(() => {
             console.log('🔍 Current cookies BEFORE redirect:', document.cookie);

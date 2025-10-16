@@ -1,7 +1,18 @@
 import React from "react";
 import { StackProvider, StackTheme, StackClientApp } from "@stackframe/react";
-import { stackClientApp } from "../../../../stack/client.js";
+// ⚠️ CRITICAL: Import stackClientApp lazily to avoid circular dependency
+// This import happens AFTER React is fully initialized
 import PageLoader from "../PageLoader";
+
+// Lazy load stackClientApp only when this component mounts
+let stackClientApp: StackClientApp | null = null;
+async function getStackClientApp() {
+  if (!stackClientApp) {
+    const module = await import("../../../../stack/client.js");
+    stackClientApp = module.stackClientApp;
+  }
+  return stackClientApp;
+}
 
 
 interface StackAuthProviderProps {
@@ -62,17 +73,20 @@ export default function StackAuthProvider({ children }: StackAuthProviderProps) 
 
     async function initializeAuth() {
       try {
+        // Lazy load stackClientApp - this happens AFTER React is fully initialized
+        const app = await getStackClientApp();
+
         // Validate Stack Auth instance
-        if (!stackClientApp || !isStackAppInitialized(stackClientApp)) {
+        if (!app || !isStackAppInitialized(app)) {
           throw new Error('Stack Auth client app is not available or not properly initialized');
         }
 
         // Store reference
-        stackAppRef.current = stackClientApp;
+        stackAppRef.current = app;
 
         // Expose Stack Auth for debugging only in development
         if (process.env.NODE_ENV === 'development') {
-          (window as any).stackClientApp = stackClientApp;
+          (window as any).stackClientApp = app;
           (window as any).__STACK_AUTH_PROVIDER__ = true;
         }
 
@@ -81,14 +95,14 @@ export default function StackAuthProvider({ children }: StackAuthProviderProps) 
 
         // Cache project ID for faster access
         if (process.env.NODE_ENV === 'development') {
-          console.log('🔑 Stack Auth Project ID:', stackClientApp.projectId);
+          console.log('🔑 Stack Auth Project ID:', app.projectId);
         }
 
         // Test basic API access and retry if needed
         let retries = 3;
         while (retries > 0) {
           try {
-            await stackClientApp.getUser();
+            await app.getUser();
             break;
           } catch (err) {
             // Ignore "not authenticated" errors
