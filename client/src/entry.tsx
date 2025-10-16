@@ -5,9 +5,28 @@
 import './react-global';
 
 import React from 'react';
-import { createRoot } from 'react-dom/client';
-import App from './App';
+import { createRoot, Suspense } from 'react-dom/client';
 import './index.css';
+
+// Lazy load App to prevent radix-ui from being imported before React is ready
+const App = React.lazy(() => import('./App'));
+
+// Simple loading fallback
+const LoadingFallback = () => (
+  <div style={{
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    minHeight: '100vh',
+    fontFamily: '-apple-system, sans-serif',
+    backgroundColor: '#000'
+  }}>
+    <div style={{ textAlign: 'center' }}>
+      <h1 style={{ color: '#fff', marginBottom: '16px' }}>SSELFIE Studio</h1>
+      <div style={{ color: '#999' }}>Loading...</div>
+    </div>
+  </div>
+);
 
 // Initialize the app
 const rootElement = document.getElementById('root');
@@ -20,6 +39,8 @@ const root = createRoot(rootElement);
 
 root.render(
   <React.StrictMode>
-    <App />
+    <Suspense fallback={<LoadingFallback />}>
+      <App />
+    </Suspense>
   </React.StrictMode>
 );
