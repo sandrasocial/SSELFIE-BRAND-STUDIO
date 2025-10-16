@@ -815,7 +815,7 @@ export const insertLiveSessionSchema = z.object({
 export const insertLiveEventSchema = z.object({
   sessionId: z.string().uuid(),
   eventType: z.string(),
-  meta: z.record(z.any()).optional().default({}),
+  meta: z.record(z.string(), z.any()).optional().default({}),
   userAgent: z.string().optional(),
   ipAddress: z.string().optional(),
   utmSource: z.string().optional(),
@@ -1021,7 +1021,7 @@ export const insertUserWebsiteOnboardingSchema = z.object({
   personalBrandName: z.string().optional(),
   story: z.string().optional(),
   businessType: z.string().optional(),
-  colorPreferences: z.record(z.any()).default({}),
+  colorPreferences: z.record(z.string(), z.any()).default({}),
   targetAudience: z.string().optional(),
   brandKeywords: z.array(z.string()).default([]),
   goals: z.string().optional(),
@@ -1037,12 +1037,12 @@ export const insertUserGeneratedWebsitesSchema = z.object({
   htmlContent: z.string(),
   cssContent: z.string(),
   jsContent: z.string().default(''),
-  metadata: z.record(z.any()).default({}),
+  metadata: z.record(z.string(), z.any()).default({}),
   isPublished: z.boolean().default(false),
   status: z.string().default('draft'),
   templateUsed: z.string().optional(),
-  customizations: z.record(z.any()).default({}),
-  analytics: z.record(z.any()).default({}),
+  customizations: z.record(z.string(), z.any()).default({}),
+  analytics: z.record(z.string(), z.any()).default({}),
   seoScore: z.number().default(0)
 });
 
@@ -1051,7 +1051,7 @@ export const insertWebsiteBuilderConversationsSchema = z.object({
   websiteId: z.number().optional(),
   onboardingId: z.number().optional(),
   messages: z.array(z.any()).default([]),
-  context: z.record(z.any()).default({}),
+  context: z.record(z.string(), z.any()).default({}),
   isActive: z.boolean().default(true),
   conversationType: z.string().default('onboarding')
 });
@@ -1198,7 +1198,7 @@ export const insertAgentPerformanceMetricsSchema = z.object({
 export const insertAgentTrainingSessionsSchema = z.object({
   agentId: z.string(),
   sessionType: z.string(),
-  trainingData: z.record(z.any()),
+  trainingData: z.record(z.string(), z.any()),
   improvements: z.string().optional(),
   performanceGain: z.number().optional(),
   trainedBy: z.string().optional()
@@ -1297,7 +1297,7 @@ export const insertApprovalQueueSchema = z.object({
   contentType: z.string(),
   contentTitle: z.string(),
   contentPreview: z.string(),
-  fullContent: z.record(z.any()),
+  fullContent: z.record(z.string(), z.any()),
   targetAudience: z.string().optional(),
   impactLevel: z.string().default("medium"),
   estimatedCost: z.number().optional(),
@@ -1317,7 +1317,7 @@ export const insertAgentHandoffRequestsSchema = z.object({
   urgencyLevel: z.string().default("normal"),
   conversationId: z.string().optional(),
   originalTask: z.string().optional(),
-  currentProgress: z.record(z.any()).optional(),
+  currentProgress: z.record(z.string(), z.any()).optional(),
   status: z.string().default("pending"),
   responseRequired: z.boolean().default(true),
   respondedAt: z.date().optional()
@@ -1593,10 +1593,10 @@ export const insertBrandbookSchema = z.object({
 
 export const insertDashboardSchema = z.object({
   userId: z.string(),
-  config: z.record(z.any()),
-  onboardingData: z.record(z.any()).optional(),
+  config: z.record(z.string(), z.any()),
+  onboardingData: z.record(z.string(), z.any()).optional(),
   templateType: z.string(),
-  quickLinks: z.record(z.any()).optional(),
+  quickLinks: z.record(z.string(), z.any()).optional(),
   customUrl: z.string().optional(),
   isPublished: z.boolean().default(false),
   backgroundColor: z.string().default("#ffffff"),
@@ -1608,7 +1608,7 @@ export const insertInspirationPhotoSchema = z.object({
   userId: z.string(),
   imageUrl: z.string(),
   description: z.string().optional(),
-  tags: z.record(z.any()).optional(),
+  tags: z.record(z.string(), z.any()).optional(),
   source: z.string().default("upload"),
   isActive: z.boolean().default(true)
 });
@@ -1624,7 +1624,7 @@ export const insertSandraConversationSchema = z.object({
   userId: z.string(),
   message: z.string(),
   response: z.string(),
-  userStylePreferences: z.record(z.any()).optional(),
+  userStylePreferences: z.record(z.string(), z.any()).optional(),
   suggestedPrompt: z.string().optional()
 });
 
@@ -1640,13 +1640,13 @@ export const insertSavedPromptSchema = z.object({
 
 export const insertUserStyleEvolutionSchema = z.object({
   userId: z.string(),
-  learningProgress: z.record(z.any()).default({}),
+  learningProgress: z.record(z.string(), z.any()).default({}),
   styleEvolutionPath: z.array(z.any()).default([]),
-  feedbackPatterns: z.record(z.any()).optional().default({}),
-  contextualPreferences: z.record(z.any()).optional().default({}),
-  trendAdaptation: z.record(z.any()).optional().default({}),
-  culturalContext: z.record(z.any()).optional().default({}),
-  sustainabilityPreferences: z.record(z.any()).optional().default({})
+  feedbackPatterns: z.record(z.string(), z.any()).optional().default({}),
+  contextualPreferences: z.record(z.string(), z.any()).optional().default({}),
+  trendAdaptation: z.record(z.string(), z.any()).optional().default({}),
+  culturalContext: z.record(z.string(), z.any()).optional().default({}),
+  sustainabilityPreferences: z.record(z.string(), z.any()).optional().default({})
 });
 
 // New hybrid backend insert schemas
@@ -1661,7 +1661,7 @@ export const insertMessageSchema = z.object({
   conversationId: z.string(),
   role: z.string(),
   content: z.string(),
-  meta: z.record(z.any()).optional(),
+  meta: z.record(z.string(), z.any()).optional(),
   tokenCount: z.number().default(0)
 });
 
@@ -1682,7 +1682,7 @@ export const insertConceptCardSchema = z.object({
   tags: z.array(z.string()).default([]),
   status: z.string().default("draft"),
   sortOrder: z.number().default(0),
-  generatedImages: z.record(z.any()).optional(),
+  generatedImages: z.record(z.string(), z.any()).optional(),
   isLoading: z.boolean().default(false),
   isGenerating: z.boolean().default(false),
   hasGenerated: z.boolean().default(false)
@@ -1695,7 +1695,7 @@ export const insertBrandAssetSchema = z.object({
   url: z.string(),
   filename: z.string(),
   fileSize: z.number().optional(),
-  meta: z.record(z.any()).optional()
+  meta: z.record(z.string(), z.any()).optional()
 });
 
 export const insertImageVariantSchema = z.object({
@@ -1704,7 +1704,7 @@ export const insertImageVariantSchema = z.object({
   variantUrl: z.string(),
   variantType: z.string(),
   brandAssetId: z.number().optional(),
-  placementData: z.record(z.any()).optional(),
+  placementData: z.record(z.string(), z.any()).optional(),
   processingStatus: z.string().default("pending")
 });
 
