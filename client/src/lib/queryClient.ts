@@ -1,4 +1,5 @@
 import type { QueryFunction } from "@tanstack/react-query";
+import { QueryClient } from "@tanstack/react-query";
 
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
@@ -101,7 +102,6 @@ let _queryClient: any = null;
 
 export function getQueryClient() {
   if (!_queryClient) {
-    const { QueryClient } = require("@tanstack/react-query");
     _queryClient = new QueryClient({
       defaultOptions: {
         queries: {
