@@ -40,12 +40,17 @@
       "@assets/*": ["attached_assets/*"],
       "@server/*": ["server/*"],
       "server/*": ["server/*"],
-      "@models/*": ["shared/models/*"]
+      "@models/*": ["shared/models/*"],
+      "react": ["./client/src/types/react-env.d.ts", "react/experimental"]
     },
     "types": [
-      "vite/client"
+      "vite/client",
+      "react/experimental"
     ],
-    "typeRoots": ["./types", "./node_modules/@types"]
+    "typeRoots": [
+      "./client/src/types",
+      "./node_modules/@types"
+    ],
   },
     "include": [
     "vite.config.ts",

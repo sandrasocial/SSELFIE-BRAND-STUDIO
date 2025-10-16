@@ -1,8 +1,17 @@
 import 'react';
 
 declare module 'react' {
+  interface ReactPortal {
+    children?: ReactNode;
+  }
+
+  interface SuspenseProps {
+    children?: ReactNode;
+    fallback?: ReactNode;
+  }
+  
   export interface FunctionComponent<P = {}> {
-    (props: P): ReactElement<any, any> | null;
+    (props: P): ReactElement | null;
     propTypes?: WeakValidationMap<P>;
     contextTypes?: ValidationMap<any>;
     defaultProps?: Partial<P>;
@@ -11,21 +20,36 @@ declare module 'react' {
 
   export interface FC<P = {}> extends FunctionComponent<P> {}
 
-  export type ReactElement = {
+  export type Key = string | number;
+
+  export interface ReactElement<
+    P = any,
+    T extends string | JSXElementConstructor<any> = string | JSXElementConstructor<any>
+  > {
     $$typeof: symbol | number;
-    type: string | ComponentType<any>;
-    props: any;
-    key: string | null;
-  };
+    type: T;
+    props: P;
+    key: Key | null;
+  }
+
+  export interface LazyExoticComponent<T extends ComponentType<any>> {
+    (props: ComponentProps<T>): JSX.Element;
+    _payload?: { _status: -1 | 0 | 1 | 2; _result: T };
+  }
 }
 
-// Patch for event handlers
 declare global {
   namespace JSX {
-    interface DOMAttributes<T> {
-      onClick?: (event: React.MouseEvent<T, MouseEvent>) => void;
-      onMouseEnter?: (event: React.MouseEvent<T, MouseEvent>) => void;
-      onMouseLeave?: (event: React.MouseEvent<T, MouseEvent>) => void;
+    interface ElementChildrenAttribute {
+      children: {};
+    }
+
+    interface IntrinsicElements {
+      [elemName: string]: any;
+    }
+
+    interface ElementClass extends React.Component<any> {
+      render(): React.ReactNode;
     }
   }
 }

@@ -46,7 +46,7 @@ export const users = pgTable("users", {
   // Core user fields - Stack Auth compatible
   id: varchar("id").primaryKey().notNull(), // Stack Auth uses string IDs
   stackAuthId: varchar("stack_auth_id").unique(), // For linking existing users to Stack Auth
-  email: varchar("email").unique(),
+  email: varchar("email").unique(), 
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
   displayName: varchar("display_name"),
@@ -249,8 +249,19 @@ export const aiImages = pgTable("ai_images", {
   generationStatus: varchar("generation_status").default("pending"), // pending, processing, completed, failed
   isSelected: boolean("is_selected").default(false),
   isFavorite: boolean("is_favorite").default(false),
-  createdAt: timestamp("created_at").defaultNow(),
-});
+  createdAt: timestamp("created_at").defaultNow()
+}, (table) => ({
+  // Index for querying images by user and category
+  userCategoryIdx: index("user_category_idx").on(table.userId, table.category),
+  // Index for querying by style
+  styleIdx: index("style_idx").on(table.style),
+  // Index for filtering by status
+  statusIdx: index("status_idx").on(table.generationStatus),
+  // Index for favorite images
+  userFavoriteIdx: index("user_favorite_idx").on(table.userId, table.isFavorite),
+  // Index for creation date queries
+  createdAtIdx: index("created_at_idx").on(table.createdAt)
+}));
 
 // Templates table
 export const templates = pgTable("templates", {
@@ -390,19 +401,19 @@ export const userUsage = pgTable("user_usage", {
 // Usage history for detailed tracking
 export const usageHistory = pgTable("usage_history", {
   id: serial("id").primaryKey(),
-  userId: varchar("user_id").references(() => users.id).notNull(),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
   actionType: varchar("action_type").notNull(), // 'generation', 'api_call', 'sandra_chat'
   resourceUsed: varchar("resource_used").notNull(), // 'replicate_ai', 'claude_api', 'openai_api'
   cost: decimal("cost").notNull(), // Actual cost in USD
   details: jsonb("details"), // Store generation params, prompts, etc.
-  generatedImageId: integer("generated_image_id").references(() => generatedImages.id),
+  generatedImageId: integer("generated_image_id").references(() => generatedImages.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
 // Onboarding data table - simplified for streamlined vision
 export const onboardingData = pgTable("onboarding_data", {
   id: serial("id").primaryKey(),
-  userId: varchar("user_id").references(() => users.id).notNull(),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
 
   // Step 1: Brand Story
   brandStory: text("brand_story"),
@@ -433,7 +444,7 @@ export const onboardingData = pgTable("onboarding_data", {
 // Selfie uploads table
 export const selfieUploads = pgTable("selfie_uploads", {
   id: serial("id").primaryKey(),
-  userId: varchar("user_id").references(() => users.id).notNull(),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
   filename: varchar("filename").notNull(),
   originalUrl: varchar("original_url").notNull(),
   processedUrl: varchar("processed_url"),
@@ -446,7 +457,7 @@ export const selfieUploads = pgTable("selfie_uploads", {
 // User AI Models table for individual trained models - Enhanced for FLUX Pro
 export const userModels = pgTable("user_models", {
   id: serial("id").primaryKey(),
-  userId: varchar("user_id").references(() => users.id).notNull().unique(), // One model per user
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull().unique(), // One model per user
   trainingId: varchar("training_id"), // Replicate training ID (separate from model path)
   replicateModelId: varchar("replicate_model_id"), // Final model path only (e.g., sandrasocial/user123-selfie-lora)
   replicateVersionId: varchar("replicate_version_id"), // The actual trained model version to use
@@ -471,8 +482,8 @@ export const userModels = pgTable("user_models", {
 // Image categories and generation tracking
 export const generatedImages = pgTable("generated_images", {
   id: serial("id").primaryKey(),
-  userId: varchar("user_id").references(() => users.id).notNull(),
-  modelId: integer("model_id").references(() => userModels.id),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  modelId: integer("model_id").references(() => userModels.id, { onDelete: "set null" }),
   category: varchar("category").notNull(), // Lifestyle, Editorial, Portrait, etc.
   subcategory: varchar("subcategory").notNull(), // Working, Travel, etc.
   prompt: text("prompt").notNull(),
@@ -1492,6 +1503,12 @@ export const conversations = pgTable("conversations", {
   agentName: varchar("agent_name").notNull().default("maya"), // maya, victoria, etc.
   title: varchar("title"),
   status: varchar("status").default("active"), // active, archived
+}, (table) => ({
+  // Index for querying conversations by user and agent
+  userAgentIdx: index("user_agent_idx").on(table.userId, table.agentName),
+  // Index for status filtering
+  statusIdx: index("status_idx").on(table.status)
+}));
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -1504,8 +1521,15 @@ export const messages = pgTable("messages", {
   content: text("content").notNull(),
   meta: jsonb("meta"), // attachments, tool calls, etc.
   tokenCount: integer("token_count").default(0),
-  createdAt: timestamp("created_at").defaultNow(),
-});
+  createdAt: timestamp("created_at").defaultNow()
+}, (table) => ({
+  // Index for querying messages by conversation
+  convIdx: index("conv_idx").on(table.conversationId),
+  // Index for filtering by role
+  roleIdx: index("role_idx").on(table.role),
+  // Index for querying by date range
+  createdAtIdx: index("created_at_idx").on(table.createdAt)
+}));
 
 // Conversation summaries for performance (rolling summaries)
 export const conversationSummaries = pgTable("conversation_summaries", {
@@ -2111,23 +2135,25 @@ export const userPreferencesSchema = z.object({
   }).optional(),
 });
 
-// Maya Types
-export type MayaChat = typeof mayaChats.$inferSelect;
-export type InsertMayaChat = typeof mayaChats.$inferInsert;
-export type MayaChatMessage = typeof mayaChatMessages.$inferSelect;
-export type InsertMayaChatMessage = typeof mayaChatMessages.$inferInsert;
-export type MayaProfile = typeof mayaProfile.$inferSelect;
-export type InsertMayaProfile = typeof mayaProfile.$inferInsert;
-export type MayaImage = typeof mayaImages.$inferSelect;
-export type InsertMayaImage = typeof mayaImages.$inferInsert;
-export type MayaConcept = typeof mayaConcepts.$inferSelect;
-export type InsertMayaConcept = typeof mayaConcepts.$inferInsert;
-export type MayaPayment = typeof mayaPayments.$inferSelect;
-export type InsertMayaPayment = typeof mayaPayments.$inferInsert;
-export type MayaModel = typeof mayaModels.$inferSelect;
-export type InsertMayaModel = typeof mayaModels.$inferInsert;
-export type MayaPersonalMemory = typeof mayaPersonalMemory.$inferSelect;
-export type InsertMayaPersonalMemory = typeof mayaPersonalMemory.$inferInsert;
+// Import Maya types from schema-maya.ts
+export type {
+  MayaChat,
+  MayaChatMessage,
+  MayaProfile,
+  MayaImage,
+  MayaConcept,
+  MayaPayment,
+  MayaModel,
+  MayaPersonalMemory,
+  InsertMayaChat,
+  InsertMayaChatMessage,
+  InsertMayaProfile,
+  InsertMayaImage,
+  InsertMayaConcept,
+  InsertMayaPayment,
+  InsertMayaModel,
+  InsertMayaPersonalMemory
+} from './schema-maya';
 
 // Additional Missing Table Types
 export type UserSimplifiedProfile = typeof userSimplifiedProfile.$inferSelect;

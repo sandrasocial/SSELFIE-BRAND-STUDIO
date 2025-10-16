@@ -134,8 +134,9 @@ export async function getAuthenticatedUser(req: VercelRequest): Promise<Authenti
   
   // 1. Check Authorization header (preferred method)
   const authHeader = req.headers.authorization;
-  if (authHeader?.startsWith('Bearer ')) {
-    accessToken = authHeader.substring(7);
+  const authHeaderValue = Array.isArray(authHeader) ? authHeader[0] : authHeader;
+  if (authHeaderValue?.startsWith('Bearer ')) {
+    accessToken = authHeaderValue.substring(7);
   }
 
   // 2. Check Stack Auth specific headers
@@ -146,9 +147,10 @@ export async function getAuthenticatedUser(req: VercelRequest): Promise<Authenti
   // 3. Check cookies for Stack Auth tokens (using the correct format)
   if (!accessToken) {
     const cookieHeader = req.headers.cookie;
+    const cookieHeaderValue = Array.isArray(cookieHeader) ? cookieHeader[0] : cookieHeader;
     
-    if (cookieHeader) {
-      const cookies = parseCookieHeader(cookieHeader);
+    if (cookieHeaderValue) {
+      const cookies = parseCookieHeader(cookieHeaderValue);
       
       // Helper function to extract JWT from Stack Auth cookie format
       const tryParseAccessFromCookieValue = (val: unknown): string | undefined => {

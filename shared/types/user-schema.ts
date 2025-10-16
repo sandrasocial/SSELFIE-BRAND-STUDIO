@@ -15,7 +15,7 @@ export const users = pgTable("users", {
 // Subscriptions table
 export const subscriptions = pgTable("subscriptions", {
   id: text("id").primaryKey(),
-  userId: text("user_id").references(() => users.id).notNull(),
+  userId: text("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
   status: text("status").notNull(),
   priceId: text("price_id"),
   customerId: text("customer_id"),
@@ -28,7 +28,7 @@ export const subscriptions = pgTable("subscriptions", {
 // AI Images table
 export const aiImages = pgTable("ai_images", {
   id: text("id").primaryKey(),
-  userId: text("user_id").references(() => users.id).notNull(),
+  userId: text("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
   imageUrl: text("image_url").notNull(),
   prompt: text("prompt"),
   status: text("status").default("pending"),
@@ -38,7 +38,7 @@ export const aiImages = pgTable("ai_images", {
 // User Website Onboarding table
 export const userWebsiteOnboarding = pgTable("user_website_onboarding", {
   id: text("id").primaryKey(),
-  userId: text("user_id").references(() => users.id).notNull(),
+  userId: text("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
   businessName: text("business_name").notNull(),
   businessDescription: text("business_description").notNull(),
   targetAudience: text("target_audience").notNull(),
@@ -57,8 +57,8 @@ export const userWebsiteOnboarding = pgTable("user_website_onboarding", {
 // User Generated Websites table
 export const userGeneratedWebsites = pgTable("user_generated_websites", {
   id: text("id").primaryKey(),
-  userId: text("user_id").references(() => users.id).notNull(),
-  onboardingId: text("onboarding_id").references(() => userWebsiteOnboarding.id),
+  userId: text("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  onboardingId: text("onboarding_id").references(() => userWebsiteOnboarding.id, { onDelete: "set null" }),
   websiteName: text("website_name").notNull(),
   websiteStructure: jsonb("website_structure").notNull(), // Store complete website structure
   designTheme: text("design_theme").notNull(),
@@ -81,8 +81,8 @@ export const userGeneratedWebsites = pgTable("user_generated_websites", {
 // Website Builder Conversations table
 export const websiteBuilderConversations = pgTable("website_builder_conversations", {
   id: text("id").primaryKey(),
-  userId: text("user_id").references(() => users.id).notNull(),
-  websiteId: text("website_id").references(() => userGeneratedWebsites.id),
+  userId: text("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  websiteId: text("website_id").references(() => userGeneratedWebsites.id, { onDelete: "cascade" }),
   conversationHistory: jsonb("conversation_history").notNull(), // Array of messages
   currentContext: jsonb("current_context"), // Current state of the conversation
   lastActivity: timestamp("last_activity").defaultNow().notNull(),
