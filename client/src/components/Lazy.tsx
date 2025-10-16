@@ -1,18 +1,34 @@
-import React, { Suspense } from 'react';
-import { PageLoader } from './PageLoader';
+import * as React from 'react';
+import type { FC, ReactNode, ComponentProps } from 'react';
+import { Suspense } from '../lib/react-hooks';
+import { PageLoader } from './loaders';
 
-interface LazyProps {
-  children: React.ReactNode;
+const DefaultFallback = React.memo(function DefaultFallback() {
+  return React.createElement(PageLoader);
+});
+
+interface LazyProps extends ComponentProps<'div'> {
+  fallback?: ReactNode;
+  children: ReactNode;
 }
 
 /**
  * A reusable component that wraps lazy-loaded components with Suspense boundary
  * and provides consistent loading fallback using PageLoader.
  */
-export function Lazy({ children }: LazyProps) {
+const Lazy: FC<LazyProps> = React.memo(function Lazy({ children, fallback, ...props }: LazyProps) {
+  const fallbackElement = React.useMemo(() => fallback ?? React.createElement(DefaultFallback), [fallback]);
+  
   return (
-    <Suspense fallback={<PageLoader />}>
-      {children}
-    </Suspense>
+    <div {...props}>
+      <Suspense fallback={fallbackElement}>
+        {children}
+      </Suspense>
+    </div>
   );
-}
+});
+
+Lazy.displayName = 'Lazy';
+
+export { Lazy };
+export default Lazy;

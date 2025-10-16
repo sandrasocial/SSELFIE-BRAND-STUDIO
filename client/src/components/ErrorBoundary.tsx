@@ -1,5 +1,5 @@
-import React from 'react';
-import type { ReactNode, ErrorInfo } from '../types/react-types';
+import React, { Component } from 'react';
+import type { ComponentType, ReactNode, ReactElement, ErrorInfo, JSXElementConstructor } from 'react';
 
 interface Props {
   children: ReactNode;
@@ -12,28 +12,16 @@ interface State {
   error?: Error;
 }
 
-interface ErrorBoundaryComponent extends React.Component<Props, State> {
-  props: Props;
-  state: State;
-  context: any;
-  setState<K extends keyof State>(
-    state: ((prevState: Readonly<State>, props: Readonly<Props>) => (Pick<State, K> | State | null)) | (Pick<State, K> | State | null),
-    callback?: () => void
-  ): void;
-  forceUpdate(callback?: () => void): void;
-}
+type ReactComponent = string | JSXElementConstructor<any>;
+type ReactChild = ReactElement<any, ReactComponent>;
 
-export class ErrorBoundary extends React.Component<Props, State> implements ErrorBoundaryComponent {
-  public static displayName = 'ErrorBoundary';
+export class ErrorBoundary extends Component<Props, State> {
+  static displayName = 'ErrorBoundary';
   
-  public static defaultProps = {
+  static defaultProps: Partial<Props> = {
     fallback: undefined,
     onError: undefined,
   };
-
-  declare public props: Props;
-  declare public state: State;
-  declare public context: any;
 
   constructor(props: Props) {
     super(props);
@@ -44,17 +32,14 @@ export class ErrorBoundary extends React.Component<Props, State> implements Erro
     return { hasError: true, error };
   }
 
-  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('ErrorBoundary caught an error:', error, errorInfo);
-    
-    // Call the onError callback if provided
-    const { onError } = this.props;
-    if (onError) {
-      onError(error, errorInfo);
+  componentDidCatch(error: Error, info: ErrorInfo): void {
+    console.error('ErrorBoundary caught an error:', error, info);
+    if (this.props.onError) {
+      this.props.onError(error, info);
     }
   }
 
-  render() {
+  render(): ReactNode {
     if (this.state.hasError) {
       // Custom fallback UI
       const { fallback } = this.props;
@@ -137,14 +122,14 @@ export function useErrorHandler() {
 
 // Higher-order component for wrapping components with error boundaries
 export function withErrorBoundary<P extends object>(
-  WrappedComponent: React.ComponentType<P>,
+  WrappedComponent: ComponentType<P>,
   fallback?: ReactNode
-) {
-  const WithErrorBoundary: React.FC<P> = (props: P) => (
-    <ErrorBoundary fallback={fallback}>
-      <WrappedComponent {...props} />
-    </ErrorBoundary>
-  );
+): ComponentType<P> {
+  const WithErrorBoundary = React.memo(function WithErrorBoundary(props: P): ReactNode {
+    return React.createElement(ErrorBoundary, { fallback }, 
+      React.createElement(WrappedComponent, props)
+    );
+  });
   WithErrorBoundary.displayName = `withErrorBoundary(${WrappedComponent.displayName || WrappedComponent.name || 'Component'})`;
   return WithErrorBoundary;
 }
@@ -152,42 +137,45 @@ export function withErrorBoundary<P extends object>(
 /**
  * ConceptCard-specific error boundary with specialized fallback
  */
-export const ConceptCardErrorBoundary: React.FC<{
+export const ConceptCardErrorBoundary = React.memo(function ConceptCardErrorBoundary({ 
+  children, 
+  cardIndex, 
+  cardTitle 
+}: { 
   children: ReactNode;
   cardIndex?: number;
   cardTitle?: string;
-}> = ({ children, cardIndex, cardTitle }) => {
-  const handleError = (error: Error, errorInfo: ErrorInfo) => {
+}): ReactNode {
+  const handleError = React.useCallback((error: Error, errorInfo: ErrorInfo) => {
     console.error(`🎨 ConceptCard Error (${cardIndex || 'unknown'}):`, {
       error: error.message,
       cardTitle,
       errorInfo,
       stack: error.stack
     });
-  };
+  }, [cardIndex, cardTitle]);
 
-  const fallback = (
-    <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5">
-      <div className="flex items-center gap-3">
-        <span className="text-amber-600">🔧</span>
-        <div>
-          <h4 className="text-sm font-medium text-amber-800">Concept Card Error</h4>
-          <p className="text-xs text-amber-600 mt-1">
-            {cardTitle ? `"${cardTitle}" couldn't be displayed.` : 'This concept card had a rendering error.'}
-          </p>
-          <p className="text-xs text-amber-500 mt-2">
-            Please try refreshing or generating new concepts.
-          </p>
-        </div>
-      </div>
-    </div>
-  );
+  const fallback = React.useMemo(() => (
+    React.createElement('div', { className: "bg-amber-50 border border-amber-200 rounded-2xl p-5" },
+      React.createElement('div', { className: "flex items-center gap-3" },
+        React.createElement('span', { className: "text-amber-600" }, "🔧"),
+        React.createElement('div', null,
+          React.createElement('h4', { className: "text-sm font-medium text-amber-800" }, "Concept Card Error"),
+          React.createElement('p', { className: "text-xs text-amber-600 mt-1" },
+            cardTitle ? `"${cardTitle}" couldn't be displayed.` : 'This concept card had a rendering error.'
+          ),
+          React.createElement('p', { className: "text-xs text-amber-500 mt-2" },
+            "Please try refreshing or generating new concepts."
+          )
+        )
+      )
+    )
+  ), [cardTitle]);
 
-  return (
-    <ErrorBoundary fallback={fallback} onError={handleError}>
-      {children}
-    </ErrorBoundary>
-  );
-};
+  return React.createElement(ErrorBoundary, { 
+    fallback, 
+    onError: handleError 
+  }, children);
+});
 
 export default ErrorBoundary;

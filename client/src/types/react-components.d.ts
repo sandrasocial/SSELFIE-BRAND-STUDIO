@@ -1,5 +1,15 @@
-import type { ComponentType, ReactNode, ReactElement, ErrorInfo } from 'react';
+import type { 
+  ComponentType, 
+  ReactNode, 
+  ReactElement, 
+  ErrorInfo, 
+  WeakValidationMap, 
+  ValidationMap,
+  ComponentPropsWithRef,
+  PropsWithChildren
+} from 'react';
 
+// Basic Component Interface
 export interface ComponentInterface<P = {}, S = {}> {
   props: Readonly<P>;
   state: Readonly<S>;
@@ -15,6 +25,27 @@ export interface ComponentInterface<P = {}, S = {}> {
   };
 }
 
+// React 19 Function Component Types
+declare module 'react' {
+  interface FunctionComponent<P = {}> {
+    (props: PropsWithChildren<P>, context?: any): ReactElement | Promise<ReactElement> | null;
+    propTypes?: WeakValidationMap<P> | undefined;
+    contextTypes?: ValidationMap<any> | undefined;
+    defaultProps?: Partial<P> | undefined;
+    displayName?: string | undefined;
+  }
+
+  type FC<P = {}> = FunctionComponent<P>;
+
+  // Lazy Component Types
+  interface LazyExoticComponent<T extends ComponentType<any>> {
+    (props: ComponentPropsWithRef<T>): ReactElement | Promise<ReactElement> | null;
+    readonly _payload: { _status: -1 | 0 | 1 | 2; _result: T };
+    readonly _init: () => T;
+  }
+}
+
+// Error Boundary Types
 export interface ErrorBoundaryProps {
   children: ReactNode;
   fallback?: ReactNode;
