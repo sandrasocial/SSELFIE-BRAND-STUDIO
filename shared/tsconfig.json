@@ -18,6 +18,6 @@
   },
   "include": ["./**/*"],
   "references": [
-    { "path": "../tsconfig.deploy.json" }
+    { "path": "../tsconfig.json" }
   ]
 }
