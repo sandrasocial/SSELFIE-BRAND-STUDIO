@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { useLocation } from 'wouter';
 import { stackClientApp } from '../../../stack/client.js';
 

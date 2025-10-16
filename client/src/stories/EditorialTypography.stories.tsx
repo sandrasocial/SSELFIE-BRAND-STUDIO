@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { EditorialHeading, EditorialText } from '../components/editorial/EditorialTypography.js';
 
 export default {

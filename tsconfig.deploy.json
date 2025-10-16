@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "composite": true,
     "target": "ES2022",
     "lib": ["ES2022", "DOM"],
     "module": "ESNext",
@@ -33,6 +34,8 @@
     "server/drizzle.ts",
     "server/stack-auth.ts",
     "stack/server.ts",
+    "stack/server/types.ts",
+    "stack/server/endpoints.ts",
     "server/me.ts",
     "server/health.ts",
     "shared/schema.ts",
@@ -100,6 +103,23 @@
     "api/simple-health.ts",
 
     // Maya service modules - critical for aesthetics, styling, categories
+    "server/_middleware/auth.ts",
+    "server/_utils/express-to-vercel-adapter.ts",
+    "server/_shared/stack-auth-types.ts",
+    "server/_shared/jwks-types.ts",
+    "server/_shared/auth-types.ts",
+    "server/_shared/auth-middleware-types.ts",
+    "server/config/env.ts",
+    "server/architecture-validator.ts",
+    "server/routes/middleware/auth.ts",
+    "server/routes/middleware/error-handler.ts",
+    "server/utils/logger.ts",
+    "server/utils/paths.ts",
+    "server/api/gallery/delete.ts",
+    "server/api/gallery/favorite-toggle.ts",
+    "server/api/gallery/favorites.ts",
+    "server/api/gallery/images.ts",
+
     "server/maya/concepts/index.ts", 
     "server/maya/images/index.ts",
     "server/maya/models/index.ts",
@@ -133,7 +153,8 @@
     
     // Critical shared types used by serverless functions
     "shared/types/auth-types.ts",
-    "shared/types/stack-auth-types.ts", 
+    "shared/types/stack-auth-types.ts",
+    "shared/types/stack-auth.d.ts",
     "shared/types/client-types.ts",
     "shared/types/user-types.ts",
     "shared/types/user.ts",
@@ -176,6 +197,11 @@
     // Performance Optimization Services - Production Critical
     "shared/database-provider.ts",
     "shared/service-container.ts",
+    "shared/types/storage.ts",
+    "server/maya/profile/index.ts",
+    "stack/server.ts",
+    "shared/types/user-schema.ts",
+    "server/db.ts",
     "server/services/performance/api-retry-service.ts",
     "server/services/performance/connection-pool-manager.ts",
     "server/services/performance/claude-api-cache-service.ts",

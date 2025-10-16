@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { StackProvider, StackTheme } from '@stackframe/react';
 import { stackClientApp } from '../../../stack/client';
 

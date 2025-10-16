@@ -1,6 +1,12 @@
-import React, { HTMLAttributes, forwardRef } from 'react';
+import React from 'react';
 import { cn } from "../../lib/utils.js"
 import { VariantProps, cva } from "class-variance-authority"
+
+type TypographyElement = HTMLHeadingElement | HTMLParagraphElement | HTMLDivElement | HTMLSpanElement;
+
+interface TypographyProps extends React.HTMLAttributes<TypographyElement> {
+  variant?: VariantProps<typeof typographyVariants>["variant"];
+}
 
 const typographyVariants = cva("", {
   variants: {
@@ -37,24 +43,17 @@ const typographyVariants = cva("", {
   }
 })
 
-interface TypographyProps
-  extends HTMLAttributes<HTMLHeadingElement | HTMLParagraphElement>,
-    VariantProps<typeof typographyVariants> {
-  as?: "h1" | "h2" | "h3" | "h4" | "p" | "div" | "span"
-}
-
-const Typography = forwardRef<HTMLHeadingElement | HTMLParagraphElement, TypographyProps>(
-  ({ className, variant, as = "p", ...props }, ref) => {
-    const Comp = as
-    return (
-      <Comp
-        className={cn(typographyVariants({ variant, className }))}
-        ref={ref}
-        {...props}
-      />
-    )
-  }
-)
+const Typography = React.forwardRef<TypographyElement, TypographyProps>(
+  ({ className, variant, children, ...props }, ref) => (
+    <p 
+      ref={ref}
+      className={cn(typographyVariants({ variant, className }))}
+      {...props}
+    >
+      {children}
+    </p>
+  )
+);
 
 Typography.displayName = "Typography"
 

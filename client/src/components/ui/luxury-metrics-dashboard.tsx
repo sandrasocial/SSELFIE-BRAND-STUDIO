@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { cn } from "../../lib/utils.js";
 import { Typography } from "./typography.js";
-import { LuxuryLoading } from "./luxury-loading.js";
+import { LuxuryLoading } from "./luxury-loading-fixed.js";
 
 interface LuxuryMetrics {
   luxuryPerceptionScore: number; // Target > 7/10
@@ -31,14 +31,14 @@ interface MetricCardProps {
   className?: string;
 }
 
-const MetricCard: React.FC<MetricCardProps> = ({ 
+const MetricCard = ({ 
   title, 
   value, 
   target, 
   unit = '', 
   trend = 'stable',
-  className 
-}) => {
+  className
+}: MetricCardProps) => {
   const percentage = Math.min((value / target) * 100, 100);
   const isOnTarget = value >= target;
   const isExcellent = value >= target * 1.1;
@@ -51,7 +51,7 @@ const MetricCard: React.FC<MetricCardProps> = ({
       className
     )}>
       <div className="flex items-center justify-between mb-luxury-xs">
-        <Typography variant="small" className="text-neutral-600 dark:text-neutral-400 uppercase tracking-wide">
+        <Typography as="span" variant="small" className="text-neutral-600 dark:text-neutral-400 uppercase tracking-wide">
           {title}
         </Typography>
         
@@ -97,7 +97,7 @@ const MetricCard: React.FC<MetricCardProps> = ({
         />
       </div>
       
-      <Typography variant="caption" className={cn(
+      <Typography as="div" variant="caption" className={cn(
         isExcellent ? "text-emerald-600" : isOnTarget ? "text-green-600" : "text-amber-600"
       )}>
         {isExcellent ? "Exceeding luxury standards" : isOnTarget ? "Meeting luxury standards" : "Below luxury target"}
@@ -106,7 +106,7 @@ const MetricCard: React.FC<MetricCardProps> = ({
   );
 };
 
-export const LuxuryMetricsDashboard: React.FC<{ className?: string }> = ({ className }) => {
+export const LuxuryMetricsDashboard = ({ className }: { className?: string }) => {
   const [metrics, setMetrics] = useState<LuxuryMetrics | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -145,9 +145,7 @@ export const LuxuryMetricsDashboard: React.FC<{ className?: string }> = ({ class
       <div className={cn("p-luxury-lg", className)}>
         <div className="text-center mb-luxury-lg">
           <LuxuryLoading variant="spinner" size="lg" className="mx-auto mb-luxury-sm" />
-          <Typography variant="luxury-subtitle">
-            Analyzing luxury quality metrics...
-          </Typography>
+          <Typography as="div" variant="luxury-subtitle" children="Analyzing luxury quality metrics..." />
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-luxury-md">
@@ -175,34 +173,24 @@ export const LuxuryMetricsDashboard: React.FC<{ className?: string }> = ({ class
     <div className={cn("p-luxury-lg", className)}>
       {/* Header */}
       <div className="text-center mb-luxury-lg animate-luxury-fade-up">
-        <Typography variant="luxury-eyebrow" className="text-neutral-500 mb-luxury-xs">
-          Quality Assurance Dashboard
-        </Typography>
-        <Typography variant="luxury-title" className="mb-luxury-sm">
-          Luxury Standards Monitor
-        </Typography>
-        <Typography variant="luxury-body" className="text-neutral-600 dark:text-neutral-400 max-w-2xl mx-auto">
-          Real-time monitoring of SSELFIE's luxury quality standards and performance metrics
-        </Typography>
+        <Typography as="div" variant="luxury-eyebrow" className="text-neutral-500 mb-luxury-xs" children="Quality Assurance Dashboard" />
+        <Typography as="div" variant="luxury-title" className="mb-luxury-sm" children="Luxury Standards Monitor" />
+        <Typography as="div" variant="luxury-body" className="text-neutral-600 dark:text-neutral-400 max-w-2xl mx-auto" children="Real-time monitoring of SSELFIE's luxury quality standards and performance metrics" />
       </div>
 
       {/* Overall Score */}
       <div className="bg-gradient-to-r from-neutral-900 to-neutral-800 text-white rounded-editorial-xl p-luxury-lg mb-luxury-lg animate-luxury-fade-up">
         <div className="text-center">
-          <Typography variant="luxury-eyebrow" className="text-neutral-300 mb-luxury-xs">
-            Overall Luxury Score
-          </Typography>
+          <Typography variant="luxury-eyebrow" className="text-neutral-300 mb-luxury-xs" children="Overall Luxury Score" />
           <div className="flex items-center justify-center mb-luxury-sm">
             <span className="text-6xl font-light font-serif">{overallScore.toFixed(1)}</span>
             <span className="text-2xl text-neutral-300 ml-2">/10</span>
           </div>
           <Typography variant="luxury-body" className={cn(
             overallScore >= 8 ? "text-emerald-400" : overallScore >= 7 ? "text-green-400" : "text-amber-400"
-          )}>
-            {overallScore >= 8 ? "Exceeding Chanel Digital Standards" : 
+          )} children={overallScore >= 8 ? "Exceeding Chanel Digital Standards" : 
              overallScore >= 7 ? "Meeting Luxury Expectations" : 
-             "Requires Premium Enhancement"}
-          </Typography>
+             "Requires Premium Enhancement"} />
         </div>
       </div>
 
@@ -278,14 +266,12 @@ export const LuxuryMetricsDashboard: React.FC<{ className?: string }> = ({ class
 
       {/* Quality Benchmarks */}
       <div className="bg-white dark:bg-neutral-900 rounded-editorial-lg p-luxury-lg shadow-luxury animate-luxury-fade-up">
-        <Typography variant="h4" className="mb-luxury-md">
-          Luxury Quality Benchmarks
-        </Typography>
+        <Typography variant="h4" className="mb-luxury-md" children="Luxury Quality Benchmarks" />
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-luxury-md">
           <div className="space-y-luxury-xs">
             <div className="flex items-center justify-between">
-              <Typography variant="luxury-body">Times New Roman Typography</Typography>
+              <Typography variant="luxury-body" children="Times New Roman Typography" />
               <div className={cn(
                 "flex items-center",
                 metrics.qualityBenchmarks.fontHierarchyCompliance ? "text-green-600" : "text-red-600"
@@ -305,7 +291,7 @@ export const LuxuryMetricsDashboard: React.FC<{ className?: string }> = ({ class
             </div>
             
             <div className="flex items-center justify-between">
-              <Typography variant="luxury-body">24px+ Luxury Spacing</Typography>
+              <Typography variant="luxury-body" children="24px+ Luxury Spacing" />
               <div className={cn(
                 "flex items-center",
                 metrics.qualityBenchmarks.spacingStandardsCompliance ? "text-green-600" : "text-red-600"
@@ -324,7 +310,7 @@ export const LuxuryMetricsDashboard: React.FC<{ className?: string }> = ({ class
           
           <div className="space-y-luxury-xs">
             <div className="flex items-center justify-between">
-              <Typography variant="luxury-body">Premium Animation Quality</Typography>
+              <Typography variant="luxury-body" children="Premium Animation Quality" />
               <div className={cn(
                 "flex items-center",
                 metrics.qualityBenchmarks.animationQuality ? "text-green-600" : "text-red-600"
@@ -341,12 +327,10 @@ export const LuxuryMetricsDashboard: React.FC<{ className?: string }> = ({ class
             </div>
             
             <div className="flex items-center justify-between">
-              <Typography variant="luxury-body">Premium Feel Rating</Typography>
+              <Typography variant="luxury-body" children="Premium Feel Rating" />
               <div className="flex items-center text-green-600">
                 <span className="font-semibold mr-2">{metrics.qualityBenchmarks.premiumFeelRating}/10</span>
-                <Typography variant="caption" className="text-green-600">
-                  Luxury Standard
-                </Typography>
+                <Typography variant="caption" className="text-green-600" children="Luxury Standard" />
               </div>
             </div>
           </div>

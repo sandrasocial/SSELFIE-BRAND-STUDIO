@@ -1,5 +1,5 @@
 // components/shared/SecureIframe.tsx - Luxury iframe wrapper
-import React from 'react';
+import * as React from 'react';
 
 interface SecureIframeProps {
   src: string;

@@ -3,7 +3,7 @@
  * Canvas-based mask editor with brush/erase tools for inpainting
  */
 
-import React, { useRef, useEffect, useState, useCallback } from 'react';
+import { useRef, useEffect, useState, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiFetch } from '../../lib/api.js';
 import { useAuth } from '../../hooks/use-auth.js';
@@ -261,14 +261,14 @@ export default function ImageInpaint({
         }
       });
     },
-    onSuccess: (data) => {
+    onSuccess: (data: any) => {
       setInpaintProgress({
         predictionId: data.predictionId,
         variantId: data.variantId,
         status: 'processing'
       });
     },
-    onError: (error) => {
+    onError: (error: Error) => {
       console.error('Error starting inpainting:', error);
     }
   });

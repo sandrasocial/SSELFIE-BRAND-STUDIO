@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import * as React from 'react';
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { GlobalFooter } from "../../components/global-footer.js";
 import { OptimizedImage } from "../../components/OptimizedImage.js";

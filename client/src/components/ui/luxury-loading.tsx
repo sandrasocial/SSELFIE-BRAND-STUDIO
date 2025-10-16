@@ -1,30 +1,17 @@
-import React from 'react';
+import * as React from 'react';
 import { cn } from "../../lib/utils.js";
 
-interface LuxuryLoadingProps {
-  variant?: 'spinner' | 'skeleton' | 'pulse' | 'shimmer';
-  size?: 'sm' | 'md' | 'lg' | 'xl';
-  className?: string;
-}
-
-interface LuxurySkeletonProps {
-  lines?: number;
-  avatar?: boolean;
-  className?: string;
-  animate?: boolean;
-}
-
-interface LuxuryImageSkeletonProps {
-  aspectRatio?: 'square' | 'video' | 'portrait' | 'landscape';
-  className?: string;
-}
+import {
+  LuxuryLoadingProps,
+  LuxurySkeletonProps,
+  LuxuryImageSkeletonProps,
+  LuxuryCardSkeletonProps,
+  LuxuryGridSkeletonProps,
+  LuxuryLoadingOverlayProps
+} from '../../types/luxury.js';
 
 // Main luxury loading spinner
-export const LuxuryLoading: React.FC<LuxuryLoadingProps> = ({ 
-  variant = 'spinner', 
-  size = 'md', 
-  className 
-}) => {
+export function LuxuryLoading({
   const sizeClasses = {
     sm: 'w-4 h-4',
     md: 'w-8 h-8',
@@ -76,7 +63,7 @@ export const LuxuryLoading: React.FC<LuxuryLoadingProps> = ({
 };
 
 // Luxury skeleton for text content
-export const LuxurySkeleton: React.FC<LuxurySkeletonProps> = ({ 
+export function LuxurySkeleton({ 
   lines = 3, 
   avatar = false, 
   className,

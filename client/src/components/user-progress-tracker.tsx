@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { useAuth } from '../hooks/use-auth.js';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'wouter';

@@ -1,5 +1,5 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { stackServerApp } from '../../../stack/server.js';
+import { verifyStackAuthToken, requireStackAuth } from '../../stack-auth.js';
 import { z } from 'zod';
 import { drizzle } from 'drizzle-orm/neon-http';
 import { neon } from '@neondatabase/serverless';

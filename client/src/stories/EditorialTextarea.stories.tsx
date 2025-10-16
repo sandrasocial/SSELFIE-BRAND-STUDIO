@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { EditorialTextarea } from '../components/editorial/EditorialTextarea.js';
 
 export default {

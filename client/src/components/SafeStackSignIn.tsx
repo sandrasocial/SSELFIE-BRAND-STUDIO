@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { SignIn as StackSignIn, useStackApp } from '@stackframe/react';
 import { useAuth } from '../hooks/use-auth.js';
 
@@ -155,27 +155,26 @@ export const SafeStackSignIn: React.FC = () => {
 };
 
 // Simple Error Boundary component
-class ErrorBoundary extends React.Component<
-  { children: React.ReactNode; fallback: React.ReactNode },
-  { hasError: boolean }
-> {
-  constructor(props: { children: React.ReactNode; fallback: React.ReactNode }) {
-    super(props);
-    this.state = { hasError: false };
+const ErrorBoundary: React.FC<{ fallback: React.ReactNode; children: React.ReactNode }> = ({ 
+  children,
+  fallback
+}) => {
+  const [hasError, setHasError] = React.useState(false);
+
+  React.useEffect(() => {
+    const errorHandler = (event: ErrorEvent) => {
+      event.preventDefault();
+      setHasError(true);
+      console.error('Stack Auth SignIn Error:', event.error);
+    };
+
+    window.addEventListener('error', errorHandler);
+    return () => window.removeEventListener('error', errorHandler);
+  }, []);
+
+  if (hasError) {
+    return <>{fallback}</>;
   }
 
-  static getDerivedStateFromError() {
-    return { hasError: true };
-  }
-
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('Stack Auth SignIn Error:', error, errorInfo);
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return this.props.fallback;
-    }
-    return this.props.children;
-  }
-}
+  return <>{children}</>;
+};

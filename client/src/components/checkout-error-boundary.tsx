@@ -1,9 +1,9 @@
-import { Component, ErrorInfo, ReactNode } from 'react';
+import * as React from 'react';
 
 interface Props {
-  children: ReactNode;
-  fallback?: ReactNode;
-  onError?: (error: Error, errorInfo: ErrorInfo) => void;
+  children: React.ReactNode;
+  fallback?: React.ReactNode;
+  onError?: (error: Error, errorInfo: React.ErrorInfo) => void;
 }
 
 interface State {
@@ -12,7 +12,7 @@ interface State {
   retryCount: number;
 }
 
-export class CheckoutErrorBoundary extends Component<Props, State> {
+export class CheckoutErrorBoundary extends React.Component<Props, State> {
   private retryTimeoutId: NodeJS.Timeout | null = null;
 
   constructor(props: Props) {
@@ -32,12 +32,12 @@ export class CheckoutErrorBoundary extends Component<Props, State> {
     };
   }
 
-  override componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
     console.error('Checkout Error Boundary caught error:', error, errorInfo);
     this.props.onError?.(error, errorInfo);
   }
 
-  override componentWillUnmount() {
+  componentWillUnmount(): void {
     if (this.retryTimeoutId) {
       clearTimeout(this.retryTimeoutId);
     }
@@ -49,7 +49,7 @@ export class CheckoutErrorBoundary extends Component<Props, State> {
       return;
     }
 
-    this.setState(prevState => ({
+    this.setState((prevState: State) => ({
       hasError: false,
       error: null,
       retryCount: prevState.retryCount + 1
@@ -60,7 +60,7 @@ export class CheckoutErrorBoundary extends Component<Props, State> {
     window.location.reload();
   };
 
-  override render() {
+  render(): React.ReactNode {
     if (this.state.hasError) {
       if (this.props.fallback) {
         return this.props.fallback;

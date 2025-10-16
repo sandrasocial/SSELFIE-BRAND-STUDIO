@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { useAuth } from '../hooks/use-auth.js';
 import { useLocation } from 'wouter';
 import { ErrorBoundary } from './ErrorBoundary.js';

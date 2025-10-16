@@ -117,7 +117,7 @@ export class S3OperationsService {
           }
           
           const buffer = Buffer.from(await response.arrayBuffer());
-          fs.writeFileSync(filepath, buffer);
+          fs.writeFileSync(filepath, new Uint8Array(buffer));
           imageFiles.push(filepath);
           
           console.log(`📥 Downloaded image ${i + 1}/${imageUrls.length}`);

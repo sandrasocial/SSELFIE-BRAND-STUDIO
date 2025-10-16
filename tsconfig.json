@@ -1,24 +1,28 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "lib": ["dom", "dom.iterable", "esnext", "ES2022", "ES2015", "ES2016"],
+    "lib": ["dom", "dom.iterable", "esnext", "ES2022"],
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
-    "noFallthroughCasesInSwitch": true,
+    "noFallthroughCasesInSwitch": false,
     "noImplicitReturns": false,
     "noImplicitOverride": false,
     "noPropertyAccessFromIndexSignature": false,
-    "strictFunctionTypes": false,
+    "strictFunctionTypes": true,
+    "allowImportingTsExtensions": true,
     "module": "ESNext",
     "moduleResolution": "bundler",
     "moduleDetection": "auto",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true,
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "emitDeclarationOnly": true,
     "strictNullChecks": true,
     "noImplicitAny": true,
     "noUncheckedIndexedAccess": false,
@@ -43,14 +47,16 @@
       "@types/react",
       "@types/react-dom",
       "vite/client"
-    ]
+    ],
+    "typeRoots": ["./types", "./node_modules/@types"]
   },
-  "include": [
+    "include": [
     "vite.config.ts",
     "client/src/**/*",
     "shared/**/*",
     "server/**/*",
     "shared/types/global.d.ts",
+    "shared/types/stack-auth.d.ts",
     "stack/**/*"
   ]
 }

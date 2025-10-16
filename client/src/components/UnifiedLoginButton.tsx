@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { Button } from './ui/button.js';
 import { useAuth } from '../hooks/use-auth.js';
 import { stackClientApp } from "../../../stack/client.js";

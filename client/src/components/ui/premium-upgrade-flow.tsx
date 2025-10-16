@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { cn } from "../../lib/utils.js";
 import { LuxuryButton } from "./luxury-button.js";
 import { Typography } from "./typography.js";
-import { LuxuryLoading } from "./luxury-loading.js";
+import { LuxuryLoading } from "./luxury-loading-fixed.js";
 
 interface PremiumTier {
   id: string;
@@ -53,12 +53,12 @@ const premiumTiers: PremiumTier[] = [
   }
 ];
 
-export const PremiumUpgradeFlow: React.FC<PremiumUpgradeFlowProps> = ({
-  currentTier,
-  onUpgrade,
-  onClose,
-  className
-}) => {
+export function PremiumUpgradeFlow({
+  currentTier, 
+  onUpgrade, 
+  onClose, 
+  className = ''
+}: PremiumUpgradeFlowProps) {
   const [selectedTier, setSelectedTier] = useState<string>('premium');
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState<'selection' | 'invitation' | 'processing'>('selection');
