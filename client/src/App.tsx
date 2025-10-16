@@ -7,6 +7,8 @@ import { ErrorBoundary } from "./components/ErrorBoundary";
 import { StackHandler } from "@stackframe/react";
 // ⚠️ CRITICAL: Do NOT import stackClientApp here - it causes circular dependency
 // stackClientApp is imported lazily in StackAuthProvider.tsx instead
+// Import it dynamically when needed
+let stackClientApp: any = null;
 import { useQuery } from "@tanstack/react-query";
 import { detectBrowserIssues, showDomainHelp } from "./utils/browserCompat.js";
 import { optimizeImageLoading, enableServiceWorkerCaching } from "./utils/performanceOptimizations.js";
@@ -110,22 +112,51 @@ function SmartHome() {
 
 // 🔥 CLEANED UP: Stack Auth Handler - Single source of truth for authentication
 function HandlerRoutes() {
-  const handlerPath = window.location.pathname.replace('/handler/', '') || '';
+  const [app, setApp] = React.useState<any>(null);
+  const [error, setError] = React.useState<Error | null>(null);
+
+  React.useEffect(() => {
+    // Lazy load stackClientApp only when needed
+    import('../../stack/client').then(module => {
+      setApp(module.stackClientApp);
+    }).catch(err => {
+      console.error('🔥 Failed to load Stack Auth:', err);
+      setError(err);
+    });
+  }, []);
+
+  if (error) {
+    return createElement('div',
+      { className: "min-h-screen bg-stone-50 flex items-center justify-center" },
+      createElement('div',
+        { className: "text-center" },
+        createElement('h2', { className: "text-2xl mb-4" }, "Authentication Error"),
+        createElement('p', { className: "text-gray-600 mb-4" }, "Failed to load authentication: " + error.message),
+        createElement('button', {
+          onClick: () => window.location.reload(),
+          className: "bg-black text-white px-6 py-2 rounded"
+        }, "Retry")
+      )
+    );
+  }
+
+  if (!app) {
+    return createElement(PageLoader);
+  }
 
   // ✅ Use StackHandler for ALL Stack Auth operations to ensure consistency
   // This includes sign-in, sign-up, magic-link, password-reset, email-verification
-
   try {
     return createElement(StackHandler, {
-      app: stackClientApp,
+      app: app,
       location: window.location.pathname + window.location.search + window.location.hash,
       fullPage: true
     });
   } catch (error) {
     console.error('🔥 StackHandler Error:', error);
-    return createElement('div', 
+    return createElement('div',
       { className: "min-h-screen bg-stone-50 flex items-center justify-center" },
-      createElement('div', 
+      createElement('div',
         { className: "text-center" },
         createElement('h2', { className: "text-2xl mb-4" }, "Authentication Error"),
         createElement('p', { className: "text-gray-600 mb-4" }, "There was an issue with authentication."),
