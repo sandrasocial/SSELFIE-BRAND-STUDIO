@@ -1,4 +1,4 @@
-import { QueryClient, QueryFunction } from "@tanstack/react-query";
+import type { QueryFunction } from "@tanstack/react-query";
 
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
@@ -20,7 +20,7 @@ export async function apiRequest(
   console.log('[API v3] Request to:', url); // Version marker for cache bust
   const finalUrl = getApiUrl(url);
   let authHeader: Record<string, string> = {};
-  
+
   // Extract Stack Auth token from cookie (browser only)
   if (typeof document !== 'undefined' && document.cookie) {
     try {
@@ -29,12 +29,12 @@ export async function apiRequest(
         const [key, value] = cookie.trim().split('=');
         if (key) cookies[key] = value;
       });
-      
+
       const stackAccessCookie = cookies['stack-access'];
       if (stackAccessCookie) {
         const decoded = decodeURIComponent(stackAccessCookie);
         const parsed = JSON.parse(decoded);
-        
+
         // Stack Auth cookie format: ["refreshToken", "accessToken"]
         if (Array.isArray(parsed) && parsed[1]) {
           authHeader = { Authorization: `Bearer ${parsed[1]}` };
@@ -47,7 +47,7 @@ export async function apiRequest(
       console.error('[API v3] ❌ Token extraction failed:', err);
     }
   }
-  
+
   const res = await fetch(finalUrl, {
     method,
     headers: {
@@ -60,7 +60,7 @@ export async function apiRequest(
   });
 
   await throwIfResNotOk(res);
-  
+
   // Handle JSON responses properly
   const contentType = res.headers.get('content-type');
   if (contentType && contentType.includes('application/json')) {
@@ -71,7 +71,7 @@ export async function apiRequest(
     const text = await res.text();
     throw new Error(`Expected JSON but received HTML from ${finalUrl}. First bytes: ${text.slice(0, 120)}`);
   }
-  
+
   return res;
 }
 
@@ -83,7 +83,7 @@ export const getQueryFn: <T>(options: {
   async ({ queryKey }) => {
     const url = queryKey[0] as string;
     const finalUrl = getApiUrl(url);
-    
+
     const res = await fetch(finalUrl, {
       credentials: "include",
     });
@@ -96,24 +96,41 @@ export const getQueryFn: <T>(options: {
     return await res.json();
   };
 
-export const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      queryFn: getQueryFn({ on401: "throw" }),
-      refetchInterval: false,
-      refetchOnWindowFocus: false,
-      staleTime: 5 * 60 * 1000, // 5 minutes for user data
-      gcTime: 10 * 60 * 1000, // 10 minutes garbage collection
-      retry: (failureCount, error: any) => {
-        // Don't retry on 4xx errors except 408/429
-        if (error?.message?.includes('4') && !error.message.includes('408') && !error.message.includes('429')) {
-          return false;
-        }
-        return failureCount < 2;
+// Lazy initialize QueryClient to avoid module loading issues
+let _queryClient: any = null;
+
+export function getQueryClient() {
+  if (!_queryClient) {
+    const { QueryClient } = require("@tanstack/react-query");
+    _queryClient = new QueryClient({
+      defaultOptions: {
+        queries: {
+          queryFn: getQueryFn({ on401: "throw" }),
+          refetchInterval: false,
+          refetchOnWindowFocus: false,
+          staleTime: 5 * 60 * 1000, // 5 minutes for user data
+          gcTime: 10 * 60 * 1000, // 10 minutes garbage collection
+          retry: (failureCount, error: any) => {
+            // Don't retry on 4xx errors except 408/429
+            if (error?.message?.includes('4') && !error.message.includes('408') && !error.message.includes('429')) {
+              return false;
+            }
+            return failureCount < 2;
+          },
+        },
+        mutations: {
+          retry: false,
+        },
       },
-    },
-    mutations: {
-      retry: false,
-    },
+    });
+  }
+  return _queryClient;
+}
+
+// Export as a getter for backward compatibility
+export const queryClient = new Proxy({}, {
+  get: (target, prop) => {
+    const client = getQueryClient();
+    return (client as any)[prop];
   },
-});
+}) as any;
