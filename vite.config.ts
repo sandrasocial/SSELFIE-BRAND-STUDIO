@@ -113,7 +113,11 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
         'toposort',
         'use-sync-external-store/shim',  // Pre-bundle the shim version
         'wouter',  // Pre-bundle wouter to handle CommonJS dependencies
-        '@tanstack/react-query'  // Pre-bundle react-query
+        '@tanstack/react-query',  // Pre-bundle react-query
+        'normalize-wheel',  // Pre-bundle normalize-wheel
+        'color',  // Pre-bundle color
+        'recharts',  // Pre-bundle recharts
+        'react-redux'  // Pre-bundle react-redux
       ],
       exclude: [
         '@radix-ui',
