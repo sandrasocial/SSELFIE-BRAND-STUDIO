@@ -41,8 +41,7 @@
       "@assets/*": ["attached_assets/*"],
       "@server/*": ["server/*"],
       "server/*": ["server/*"],
-      "@models/*": ["shared/models/*"],
-      "react": ["./client/src/types/react-env.d.ts", "react/experimental"]
+      "@models/*": ["shared/models/*"]
     },
     "types": [
       "vite/client",
