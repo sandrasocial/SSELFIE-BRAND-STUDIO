@@ -1,8 +1,8 @@
 {
   "framework": "vite",
   "version": 2,
-  "buildCommand": "pnpm build",
-  "installCommand": "pnpm install",
+  "buildCommand": "npm run build",
+  "installCommand": "npm install",
   "outputDirectory": "client/dist",
   "functions": {
     "api/maya-*.ts": {
