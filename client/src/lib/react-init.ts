@@ -1,37 +1,28 @@
-// This module MUST be imported first to ensure React is available globally
-// before any third-party libraries (like lucide-react, react-icons) try to use it
-
-import * as React from 'react';
-import * as ReactDOM from 'react-dom';
+// React initialization - this runs at module load time
+// We use require() to avoid circular dependency issues with ES6 imports
 
 declare global {
   interface Window {
-    React: typeof React;
-    ReactDOM: typeof ReactDOM;
+    React: any;
+    ReactDOM: any;
     __REACT_INIT_TIME__: number;
     __REACT_INIT_STATUS__: string;
     __REACT_INITIALIZED__: boolean;
   }
 }
 
-// Ensure React is initialized IMMEDIATELY before any other code runs
-// This prevents circular dependency issues and ensures third-party libraries can access React
-if (typeof window !== 'undefined' && !window.__REACT_INITIALIZED__) {
-  try {
-    // Set React globally so third-party libraries can access it
-    window.React = React;
-    window.ReactDOM = ReactDOM;
-    window.__REACT_INITIALIZED__ = true;
+// Use require to load React at runtime, avoiding circular dependencies
+const React = require('react');
+const ReactDOM = require('react-dom');
 
-    // Add diagnostic info
-    window.__REACT_INIT_TIME__ = Date.now();
-    window.__REACT_INIT_STATUS__ = 'completed';
-
-    console.log('✅ React initialized globally');
-  } catch (error) {
-    console.error('❌ React initialization error:', error);
-    window.__REACT_INIT_STATUS__ = 'failed';
-  }
+// Make React available globally IMMEDIATELY
+if (typeof window !== 'undefined') {
+  window.React = React;
+  window.ReactDOM = ReactDOM;
+  window.__REACT_INITIALIZED__ = true;
+  window.__REACT_INIT_TIME__ = Date.now();
+  window.__REACT_INIT_STATUS__ = 'completed';
+  console.log('✅ React initialized globally');
 }
 
 export { React, ReactDOM };
