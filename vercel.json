@@ -1,7 +1,8 @@
 {
+  "framework": "vite",
   "version": 2,
-  "buildCommand": "pnpm install --no-frozen-lockfile && pnpm build",
-  "ignoreCommand": "false",
+  "buildCommand": "pnpm build",
+  "installCommand": "pnpm install",
   "outputDirectory": "client/dist",
   "functions": {
     "api/maya-*.ts": {

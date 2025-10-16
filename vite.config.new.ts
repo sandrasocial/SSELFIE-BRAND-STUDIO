@@ -13,10 +13,11 @@ export default defineConfig(({ mode }) => {
       jsxRuntime: "automatic",
       jsxImportSource: "react",
       babel: {
-        parserOpts: {
-          plugins: ['jsx', 'typescript']
+          parserOpts: {
+            plugins: ['jsx', 'typescript']
+          },
+          plugins: [['client-only', { noImplicitServer: false }]]
         }
-      }
     })
   ];
   
@@ -28,16 +29,9 @@ export default defineConfig(({ mode }) => {
       target: ['esnext'],
       legalComments: 'none',
       define: {
-        'use client': "'use client'",
-        'use server': "'use server'",
         global: 'globalThis'
       },
-      banner: '/* eslint-disable */\n"use client";',
-      supported: {
-        'module-level-directives': true,
-        'use-client': true,
-        'use-server': true
-      },
+      banner: '/* eslint-disable */',
       tsconfigRaw: {
         compilerOptions: {
           experimentalDecorators: true,
@@ -81,14 +75,7 @@ export default defineConfig(({ mode }) => {
       esbuildOptions: {
         target: 'esnext',
         define: {
-          'use client': "'use client'",
-          'use server': "'use server'",
           global: 'globalThis'
-        },
-        supported: {
-          'module-level-directives': true,
-          'use-client': true,
-          'use-server': true
         },
         banner: {
           js: '/* eslint-disable */\n"use client";'
