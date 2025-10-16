@@ -1,10 +1,14 @@
 
 /// <reference path="../shared/types/global.d.ts" />
 
-import * as dotenv from 'dotenv';
 // Only load .env.server in non-production environments
 if (process.env['NODE_ENV'] !== 'production') {
-	dotenv.config({ path: '.env.server' });
+	try {
+		const dotenv = require('dotenv');
+		dotenv.config({ path: '.env.server' });
+	} catch (e) {
+		// dotenv is optional in production
+	}
 }
 
 export const DATABASE_URL = process.env['DATABASE_URL'] || process.env['NEON_DB_URL'];
