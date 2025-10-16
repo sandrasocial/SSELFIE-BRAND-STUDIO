@@ -5,15 +5,7 @@
   "installCommand": "npm install",
   "outputDirectory": "client/dist",
   "functions": {
-    "server/api/maya/**": {
-      "memory": 3008,
-      "maxDuration": 30
-    },
     "api/**": {
-      "memory": 1024,
-      "maxDuration": 10
-    },
-    "server/api/**": {
       "memory": 1024,
       "maxDuration": 10
     }
