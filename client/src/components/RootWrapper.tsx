@@ -1,7 +1,7 @@
 import React, { Suspense, useEffect, useState } from 'react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { ErrorBoundary } from "./ErrorBoundary";
-import { queryClient } from "../lib/queryClient";
+import { getQueryClient } from "../lib/queryClient";
 import PageLoader from './PageLoader';
 import { isPublicRoute } from '../constants/routes';
 
@@ -30,7 +30,7 @@ export default function RootWrapper({ children }: RootWrapperProps) {
     return (
       <React.StrictMode>
         <ErrorBoundary>
-          <QueryClientProvider client={queryClient}>
+          <QueryClientProvider client={getQueryClient()}>
             <Suspense fallback={<PageLoader />}>
               <LazyTooltipProvider>
                 <ErrorBoundary>
@@ -49,7 +49,7 @@ export default function RootWrapper({ children }: RootWrapperProps) {
   return (
     <React.StrictMode>
       <ErrorBoundary>
-        <QueryClientProvider client={queryClient}>
+        <QueryClientProvider client={getQueryClient()}>
           <Suspense fallback={<PageLoader />}>
             <StackAuthProvider>
               <Suspense fallback={<PageLoader />}>
