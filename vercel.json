@@ -5,11 +5,15 @@
   "installCommand": "npm install",
   "outputDirectory": "client/dist",
   "functions": {
-    "api/maya-*.ts": {
+    "server/api/maya/**": {
       "memory": 3008,
       "maxDuration": 30
     },
     "api/**": {
+      "memory": 1024,
+      "maxDuration": 10
+    },
+    "server/api/**": {
       "memory": 1024,
       "maxDuration": 10
     }
@@ -25,14 +29,7 @@
       "destination": "/index.html"
     },
     {"source": "/app/(.*)", "destination": "/index.html"},
-    {"source": "/handler/(.*)", "destination": "/index.html"},
-    {"source": "/api/maya/chat", "destination": "/api/maya-chat"},
-    {"source": "/api/maya/chat-history", "destination": "/api/maya-chat-history"},
-    {"source": "/api/maya/chats", "destination": "/api/maya-chats"},
-    {"source": "/api/maya/status", "destination": "/api/maya-status"},
-    {"source": "/api/maya/models", "destination": "/api/maya-models"},
-    {"source": "/api/maya/heart-image", "destination": "/api/maya-heart-image"},
-    {"source": "/api/maya/env-check", "destination": "/api/maya-env-check"}
+    {"source": "/handler/(.*)", "destination": "/index.html"}
   ],
   "headers": [
     {
