@@ -1,5 +1,5 @@
 import * as React from 'react';
-import type { ComponentProps, FC } from 'react';
+import type { ComponentProps, FC, ReactNode } from 'react';
 
 interface LoaderProps extends ComponentProps<'div'> {}
 
@@ -36,5 +36,3 @@ export const ButtonLoader = React.memo(function ButtonLoader(): ReactNode {
     <div className="editorial-spinner w-4 h-4" />
   );
 });
-
-export default PageLoader;

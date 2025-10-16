@@ -2,7 +2,7 @@
 // On completion, simply redirect to the home page (which will run SmartHome)
 import React, { useEffect } from 'react';
 import { useLocation } from 'wouter';
-import { PageLoader } from '../components/PageLoader.js';
+import PageLoader from '../components/PageLoader.js';
 
 interface GlobalWithStackAuth {
   stackAuth?: unknown;

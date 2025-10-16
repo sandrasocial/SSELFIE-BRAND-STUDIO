@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useStackApp } from '@stackframe/react';
-import { PageLoader } from '../PageLoader';
+import PageLoader from '../PageLoader';
 
 interface WithStackAuthProps {
   children: React.ReactNode;

@@ -1,7 +1,7 @@
 import React from "react";
 import { StackProvider, StackTheme, StackClientApp } from "@stackframe/react";
 import { stackClientApp } from "../../../../stack/client.js";
-import { PageLoader } from "../PageLoader";
+import PageLoader from "../PageLoader";
 
 
 interface StackAuthProviderProps {
