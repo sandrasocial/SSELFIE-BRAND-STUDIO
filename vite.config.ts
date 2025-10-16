@@ -59,16 +59,20 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
       ]
     },
     optimizeDeps: {
+      // ⚠️ CRITICAL: Only pre-bundle React and React-DOM
+      // Do NOT pre-bundle radix-ui, cmdk, or lucide-react as they depend on React
+      // being fully initialized first. Pre-bundling them causes circular dependency errors.
       include: [
-        'react', 
-        'react-dom', 
-        '@stackframe/react',
+        'react',
+        'react-dom'
+      ],
+      exclude: [
         '@radix-ui/**',
         'cmdk',
-        'lucide-react'
+        'lucide-react',
+        '@stackframe/react'
       ],
-      exclude: [],
-      force: true,
+      force: false,
       esbuildOptions: {
         target: 'esnext',
         define: {
