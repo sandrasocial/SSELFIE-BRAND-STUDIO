@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { useStackApp } from '@stackframe/react';
 import { PageLoader } from '../PageLoader';
 

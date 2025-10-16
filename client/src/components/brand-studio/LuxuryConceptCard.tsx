@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { Camera, Loader2 } from 'lucide-react';
 import type { ConceptCard } from '../../../../shared/types/concept-card.js';
 

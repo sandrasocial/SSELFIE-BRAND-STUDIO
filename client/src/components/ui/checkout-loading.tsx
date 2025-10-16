@@ -1,5 +1,5 @@
-import React from 'react';
-import { LuxuryLoading, LuxurySkeleton } from './luxury-loading.js';
+import * as React from 'react';
+import { LuxuryLoading, LuxurySkeleton } from './luxury-loading-fixed.js';
 
 interface CheckoutLoadingProps {
   variant?: 'processing' | 'validation' | 'skeleton';
@@ -45,9 +45,11 @@ export const CheckoutLoading: React.FC<CheckoutLoadingProps> = ({
   );
 };
 
-export const PaymentProgressIndicator: React.FC<{ 
+export function PaymentProgressIndicator({ 
+  step 
+}: { 
   step: 'validation' | 'processing' | 'complete';
-}> = ({ step }) => {
+}) {
   const steps = [
     { key: 'validation', label: 'Validating' },
     { key: 'processing', label: 'Processing' },

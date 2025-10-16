@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { PreLoginNavigationUnified } from './pre-login-navigation-unified.js';
 import { SandraImages } from '../lib/sandra-images.js';
 

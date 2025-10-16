@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { Camera, CheckCircle, AlertTriangle } from 'lucide-react';
 import { SandraImages } from '../../lib/sandra-images.js';
 

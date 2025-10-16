@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { SandraImages } from '../lib/sandra-images.js';
 
 export default function WelcomeEditorial() {

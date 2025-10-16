@@ -3,24 +3,36 @@
   "compilerOptions": {
     "composite": true,
     "module": "ESNext",
-    "moduleResolution": "bundler",
+    "moduleResolution": "node",
     "jsx": "react-jsx",
     "jsxImportSource": "react",
-    "noEmit": true,
     "allowJs": true,
-    "types": ["@types/node", "@types/react", "@types/react-dom", "vite/client"],
-    "baseUrl": ".",
+    "types": ["node", "react", "react-dom", "vite/client"],
+    "typeRoots": [
+      "../node_modules/@types",
+      "./src/types"
+    ],
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "noImplicitAny": false,
+    "experimentalDecorators": true,
+    "baseUrl": "./src",
     "paths": {
-      "@/*": ["src/*"],
-      "@components/*": ["src/components/*"],
-      "@lib/*": ["src/lib/*"],
-      "@shared/*": ["../shared/*"],
-      "@server/*": ["../server/*"],
-      "@models/*": ["../shared/models/*"]
+      "@/*": ["./*"],
+      "@components/*": ["./components/*"],
+      "@lib/*": ["./lib/*"],
+      "@shared/*": ["../../shared/*"],
+      "@server/*": ["../../server/*"],
+      "@models/*": ["../../shared/models/*"]
     }
   },
-  "include": ["src/**/*", "../shared/**/*", "../shared/types/global.d.ts"],
-  "references": [
-    { "path": "../shared" }
-  ]
+  "include": [
+    "src/**/*",
+    "../shared/**/*",
+    "../shared/types/global.d.ts",
+    "../stack/**/*"
+  ],
+  "references": []
 }

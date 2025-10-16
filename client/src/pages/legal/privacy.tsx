@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { GlobalFooter } from '../../components/global-footer.js';
 import { Link } from 'wouter';
 import { HeroFullBleed } from '../../components/hero-full-bleed.js';

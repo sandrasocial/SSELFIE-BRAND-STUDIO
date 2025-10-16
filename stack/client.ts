@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import { StackClientApp } from "@stackframe/react";
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from '../client/src/lib/react-hooks';
 
 // 🔥 CRITICAL FIX: Use build-time constants with proper fallback chain
 const STACK_PROJECT_ID = (globalThis as any).__STACK_PROJECT_ID__ || 

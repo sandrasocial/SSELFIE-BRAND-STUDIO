@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { EditorialCard } from '../components/editorial/EditorialCard.js';
 
 export default {

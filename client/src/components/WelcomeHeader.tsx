@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { useAuth } from '../hooks/use-auth.js';
 import { Sparkles, Zap } from 'lucide-react';
 import RecentImagesPreview from './RecentImagesPreview.js';

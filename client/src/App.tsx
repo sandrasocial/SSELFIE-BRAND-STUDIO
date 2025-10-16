@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
-import React, { useEffect } from 'react';
+import React from 'react';
+import { useEffect } from '../src/lib/react-hooks';
 import { Route, useLocation } from "wouter";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { StackHandler } from "@stackframe/react"; 
@@ -22,7 +23,7 @@ import { MayaDiagnostic } from "./components/MayaDiagnostic.js";
 import "./styles/luxury-mobile.css";
 
 // Lazy load all pages for better performance
-import { lazy, Suspense } from "react";
+import { lazy, Suspense } from '../src/lib/react-hooks';
 
 // Core pages (loaded as needed)
 const SselfieAppLayout = lazy(() => import("./app_v2/SselfieAppLayout.js"));

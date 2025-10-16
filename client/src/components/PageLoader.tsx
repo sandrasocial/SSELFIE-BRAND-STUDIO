@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 
 // Editorial Luxury Loading Component
 export const PageLoader: React.FC = () => (

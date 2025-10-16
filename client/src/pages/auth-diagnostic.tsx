@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { useUser } from '@stackframe/react';
 import { useAuth } from '../hooks/use-auth.js';
 import { useQuery } from '@tanstack/react-query';

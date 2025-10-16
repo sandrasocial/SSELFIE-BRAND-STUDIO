@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef } from '../lib/react-hooks';
 import { stackClientApp } from '../../../stack/client.js';
 
 // Apply the patch to Stack Auth
@@ -19,11 +19,11 @@ export function patchStackFrameReact() {
           // Only create one promise
           if (!promiseRef.current) {
             promiseRef.current = stackClientApp.getUser()
-              .then(user => {
+              .then((user: any) => {
                 setData(user);
                 return user;
               })
-              .catch(err => {
+              .catch((err: Error) => {
                 setError(err);
                 throw err;
               });
