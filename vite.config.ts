@@ -51,12 +51,10 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
         '@shared': path.resolve(__dirname, "shared"),
         '@assets': path.resolve(__dirname, "attached_assets"),
         '@lib': path.resolve(__dirname, "client", "src", "lib"),
-        'react': path.resolve(__dirname, "node_modules/react"),
-        'react-dom': path.resolve(__dirname, "node_modules/react-dom"),
       },
       dedupe: [
-        'react', 
-        'react-dom', 
+        'react',
+        'react-dom',
         '@stackframe/react'
       ]
     },
