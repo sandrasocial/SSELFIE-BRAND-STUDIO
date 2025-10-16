@@ -23,7 +23,7 @@ test.describe('Landing Page Load', () => {
     });
 
     // Navigate to the landing page
-    await page.goto('https://sselfie.ai', { waitUntil: 'domcontentloaded' });
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
 
     // Wait for the page to load (longer timeout for lazy loading)
     await page.waitForTimeout(5000);
@@ -78,7 +78,7 @@ test.describe('Landing Page Load', () => {
       }
     });
 
-    await page.goto('https://sselfie.ai', { waitUntil: 'networkidle' });
+    await page.goto('/', { waitUntil: 'networkidle' });
     await page.waitForTimeout(2000);
 
     console.log('\n=== LOADED CHUNKS ===');
@@ -94,7 +94,7 @@ test.describe('Landing Page Load', () => {
   });
 
   test('should have React available globally', async ({ page }) => {
-    await page.goto('https://sselfie.ai', { waitUntil: 'networkidle' });
+    await page.goto('/', { waitUntil: 'networkidle' });
     await page.waitForTimeout(2000);
 
     // Check if React is available
