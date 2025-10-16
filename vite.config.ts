@@ -3,8 +3,49 @@ import react from '@vitejs/plugin-react';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { type IncomingMessage, type ServerResponse } from 'http';
+import type { Plugin } from 'vite';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+// ⚠️ CRITICAL: Plugin to inject React initialization before any modules load
+// This ensures radix-ui and other libraries can access React.forwardRef
+const reactInitPlugin = (): Plugin => {
+  return {
+    name: 'react-init-plugin',
+    apply: 'build',
+    enforce: 'post',
+    generateBundle(options, bundle) {
+      // Find the entry HTML file
+      const htmlFile = Object.keys(bundle).find(key => key.endsWith('.html'));
+      if (!htmlFile) return;
+
+      const html = bundle[htmlFile];
+      if (html.type !== 'asset') return;
+
+      let htmlContent = html.source as string;
+
+      // Inject inline React initialization script BEFORE the module script
+      const reactInitScript = `
+<script>
+// ⚠️ CRITICAL: Initialize React globally BEFORE any modules load
+// This must run synchronously before any ES modules execute
+(function() {
+  // Create a marker that React is being initialized
+  window.__REACT_INIT_STARTED__ = true;
+  console.log('⏳ React initialization started...');
+})();
+</script>`;
+
+      // Insert the script before the module script tag
+      htmlContent = htmlContent.replace(
+        /<script type="module"/,
+        reactInitScript + '\n    <script type="module"'
+      );
+
+      html.source = htmlContent;
+    }
+  };
+};
 
 export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
   const plugins = [
@@ -18,7 +59,8 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
       },
       // Add better error overlay handling
       include: "**/*.{js,ts,jsx,tsx}",
-    })
+    }),
+    reactInitPlugin()
   ];
   
   return {
@@ -64,10 +106,17 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
       // being fully initialized first. Pre-bundling them causes circular dependency errors.
       include: [
         'react',
-        'react-dom'
+        'react-dom',
+        'yup',  // Pre-bundle yup and its dependencies to handle CommonJS properly
+        'tiny-case',
+        'property-expr',
+        'toposort',
+        'use-sync-external-store/shim',  // Pre-bundle the shim version
+        'wouter',  // Pre-bundle wouter to handle CommonJS dependencies
+        '@tanstack/react-query'  // Pre-bundle react-query
       ],
       exclude: [
-        '@radix-ui/**',
+        '@radix-ui',
         'cmdk',
         'lucide-react',
         '@stackframe/react'
@@ -116,11 +165,16 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
         input: path.resolve(__dirname, "client/index.html"),
         output: {
           manualChunks: (id) => {
+            // ⚠️ CRITICAL: react-global MUST be in its own chunk that loads first
+            if (id.includes('client/src/react-global')) {
+              return 'react-global';
+            }
+
             // Framework chunks
             if (id.includes('node_modules/react') || id.includes('node_modules/react-dom')) {
               return 'react-core';
             }
-            
+
             // Keep all @stackframe/react code in a single chunk to avoid circular dependencies
             if (id.includes('@stackframe/react')) {
               return 'stackframe';
