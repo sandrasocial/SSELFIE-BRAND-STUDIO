@@ -1,5 +1,10 @@
 /// <reference types="react-dom" />
 
+// CRITICAL: Import react-init FIRST to ensure React is available globally
+// This must happen before any other imports to prevent third-party libraries
+// (like lucide-react, react-icons) from trying to use React before it's initialized
+import './lib/react-init';
+
 import * as React from 'react';
 import { createRoot, type Container } from 'react-dom/client';
 import App from './App';
@@ -17,7 +22,7 @@ async function initializeApp() {
 
     // Clear loading message
     rootElement.innerHTML = '';
-    
+
     // Render the app
     root.render(
       <React.StrictMode>
