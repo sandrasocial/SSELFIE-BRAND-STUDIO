@@ -97,7 +97,7 @@ export const getQueryFn: <T>(options: {
     return await res.json();
   };
 
-// Initialize QueryClient immediately (not lazy) to avoid Proxy issues with QueryClientProvider
+// Initialize QueryClient immediately
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
