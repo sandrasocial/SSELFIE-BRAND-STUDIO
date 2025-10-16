@@ -1,38 +1,79 @@
-import React, { ComponentPropsWithoutRef, ElementRef, HTMLAttributes, forwardRef } from 'react';
-import { type DialogProps } from "@radix-ui/react-dialog"
-import { Command as CommandPrimitive } from "cmdk"
-// Removed Lucide React icons to comply with Sandra's no-icons styleguide
+import React, { forwardRef } from 'react';
+import type { 
+  ComponentPropsWithoutRef,
+  ElementRef,
+  ReactNode,
+  ForwardRefExoticComponent,
+  RefAttributes,
+  MouseEventHandler as ReactMouseEventHandler,
+  JSXElementConstructor,
+  DetailedHTMLProps,
+  HTMLAttributes
+} from 'react';
+import * as RadixDialog from "@radix-ui/react-dialog";
+import { Command as CommandPrimitive } from "cmdk";
+import { cn } from "../../lib/utils.js";
+import DialogComponent from './dialog.js';
 
-import { cn } from "../../lib/utils.js"
-import DialogComponent from './dialog.js'
-const { Root: Dialog, Content: DialogContent } = DialogComponent
+const { Root: DialogRoot, Content: DialogContentComponent } = DialogComponent;
 
-const Command = forwardRef<
-  ElementRef<typeof CommandPrimitive>,
-  ComponentPropsWithoutRef<typeof CommandPrimitive>
->(({ className, ...props }, ref) => (
-  <CommandPrimitive
-    ref={ref}
-    className={cn(
-      "flex h-full w-full flex-col overflow-hidden rounded-md bg-popover text-popover-foreground",
-      className
-    )}
-    {...props}
-  />
-))
-Command.displayName = CommandPrimitive.displayName
+type DialogRootProps = ComponentPropsWithoutRef<typeof DialogRoot>;
+type DialogContentProps = ComponentPropsWithoutRef<typeof DialogContentComponent> & {
+  className?: string;
+  children?: ReactNode;
+};
 
-const CommandDialog = ({ children, ...props }: DialogProps) => {
-  return (
-    <Dialog {...props}>
-      <DialogContent className="overflow-hidden p-0 shadow-lg">
-        <Command className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-group]]:px-2 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5">
-          {children}
-        </Command>
-      </DialogContent>
-    </Dialog>
-  )
+interface CommandDialogProps extends DialogRootProps {
+  children?: ReactNode;
 }
+
+type SpanProps = DetailedHTMLProps<HTMLAttributes<HTMLSpanElement>, HTMLSpanElement>;
+
+interface CommandShortcutProps extends SpanProps {
+  className?: string;
+}
+
+const DialogContentMemo = React.memo(function DialogContent({ className, children, ...props }: DialogContentProps) {
+  return (
+    <div className={cn("overflow-hidden p-0 shadow-lg", className)} {...props}>
+      {children}
+    </div>
+  );
+});
+
+const Command = React.memo(forwardRef<ElementRef<typeof CommandPrimitive>, ComponentPropsWithoutRef<typeof CommandPrimitive>>(
+  ({ className, ...props }, ref) => (
+    <CommandPrimitive
+      ref={ref}
+      className={cn(
+        "flex h-full w-full flex-col overflow-hidden rounded-md bg-white dark:bg-gray-800",
+        className
+      )}
+      {...props}
+    />
+  )
+));
+Command.displayName = CommandPrimitive.displayName;
+
+const CommandDialogContent = React.memo(forwardRef<ElementRef<typeof DialogContentComponent>, DialogContentProps>(
+  ({ className, children, ...props }, ref) => (
+    <DialogContentMemo {...props} className={className}>
+      <CommandPrimitive className={cn("[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-gray-500 [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-group]]:px-2 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5")}>
+        {children}
+      </CommandPrimitive>
+    </DialogContentMemo>
+  )
+));
+
+const CommandDialog = React.memo(({ children, ...props }: CommandDialogProps) => (
+  <DialogRoot {...props}>
+    <DialogContentMemo>
+      <CommandPrimitive className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-group]]:px-2 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5">
+        {children}
+      </CommandPrimitive>
+    </DialogContentMemo>
+  </DialogRoot>
+));
 
 const CommandInput = forwardRef<
   ElementRef<typeof CommandPrimitive.Input>,
@@ -123,20 +164,38 @@ const CommandItem = forwardRef<
 
 CommandItem.displayName = CommandPrimitive.Item.displayName
 
-const CommandShortcut = ({
+const CommandShortcut = React.memo(function CommandShortcut({
   className,
+  onClick,
+  onMouseEnter,
+  onMouseLeave,
   ...props
-}: HTMLAttributes<HTMLSpanElement>) => {
+}) {
+  const handleClick: ReactMouseEventHandler<HTMLSpanElement> = (event) => {
+    onClick?.(event);
+  };
+
+  const handleMouseEnter: ReactMouseEventHandler<HTMLSpanElement> = (event) => {
+    onMouseEnter?.(event);
+  };
+
+  const handleMouseLeave: ReactMouseEventHandler<HTMLSpanElement> = (event) => {
+    onMouseLeave?.(event);
+  };
+
   return (
     <span
       className={cn(
         "ml-auto text-xs tracking-widest text-muted-foreground",
         className
       )}
+      onClick={handleClick}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
       {...props}
     />
-  )
-}
+  );
+});
 CommandShortcut.displayName = "CommandShortcut"
 
 const CommandComponent = {

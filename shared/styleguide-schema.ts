@@ -42,5 +42,12 @@ export type InsertUserStyleguide = typeof userStyleguides.$inferInsert;
 export type StyleguideTemplate = typeof styleguideTemplates.$inferSelect;
 export type InsertStyleguideTemplate = typeof styleguideTemplates.$inferInsert;
 
-export const insertUserStyleguideSchema = createInsertSchema(userStyleguides);
-export const insertStyleguideTemplateSchema = createInsertSchema(styleguideTemplates);
+export const insertUserStyleguideSchema = createInsertSchema(userStyleguides).omit({
+  id: true,
+  createdAt: true, 
+  updatedAt: true
+});
+
+export const insertStyleguideTemplateSchema = createInsertSchema(styleguideTemplates).omit({
+  createdAt: true
+});

@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
-import { useEffect } from 'react';
-import { lazy } from 'react';
+import React, { type ReactNode, useEffect } from 'react';
+const { createElement } = React;
+import type { JSXComponent, EnhancedProps } from './types/react-types';
 import { Route, useLocation } from "wouter";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { StackHandler } from "@stackframe/react"; 
@@ -13,49 +14,40 @@ import { initializeMobileOptimization } from "./utils/mobileOptimization.js";
 import { performanceMonitor } from "./utils/performanceMonitor.js";
 import { WithStackAuth } from "./components/auth/WithStackAuth";
 import RootWrapper from "./components/RootWrapper";
-// IMPORTANT: Import useAuth after other dependencies to ensure proper provider context
 import { useAuth } from "./hooks/use-auth.js";
 import { initializeRuntimeOptimization } from "./utils/runtimeOptimization.js";
 import { ROUTES } from "./constants/routes.js";
 import { MayaDiagnostic } from "./components/MayaDiagnostic.js";
-import { Suspense } from './lib/react-hooks';
 
 // Luxury Mobile Styling
 import "./styles/luxury-mobile.css";
 
-// Core pages (loaded as needed)
-const SselfieAppLayout = lazy(() => import("./app_v2/SselfieAppLayout.js"));
-const MayaPage = lazy(() => import("./pages/MayaPage.js"));
+// Import all lazy-loaded pages
+import {
+  SselfieAppLayout,
+  MayaPage,
+  SignInHandler,
+  PostLoginHandler,
+  BusinessLanding,
+  SimpleTraining,
+  SimpleCheckout,
+  EmbeddedCheckout,
+  PaymentSuccess,
+  ThankYou,
+  Terms,
+  Privacy,
+  AuthSuccessComponent,
+  NotFound,
+  SSELFIEGallery,
+  AICommandCenter
+} from './pages/lazy-pages';
 
-// Auth components (Lazy loaded for better performance)
-// Temporarily disabled - components don't exist yet
-// const MagicLinkSignInPage = lazy(() => import("../features/MagicLinkSignInPage.js").then(module => ({ default: module.MagicLinkSignInPage })));
-// const MyForgotPassword = lazy(() => import("../features/MyForgotPassword.js").then(module => ({ default: module.MyForgotPassword })));
-// const PasswordResetPage = lazy(() => import("../features/ResetPasswordPage.js").then(module => ({ default: module.ResetPasswordPage })));
-// Temporarily import SignInHandler directly to test if lazy loading is the issue
-const SignInHandler = lazy(() => import("./pages/handler/sign-in"));
-
-// Post-login handler for routing based on training status
-const PostLoginHandler = lazy(() => import("./pages/handler/PostLoginHandler"));
-
-const BusinessLanding = lazy(() => import("./pages/landing/business-landing"));
-const SimpleTraining = lazy(() => import("./pages/onboarding/simple-training"));
-const SimpleCheckout = lazy(() => import("./pages/simple-checkout"));
-const EmbeddedCheckout = lazy(() => import("./pages/embedded-checkout"));
-const PaymentSuccess = lazy(() => import("./pages/payment-success"));
-const ThankYou = lazy(() => import("./pages/thank-you"));
-const Terms = lazy(() => import("./pages/legal/terms"));
-const Privacy = lazy(() => import("./pages/legal/privacy"));
-// Lazy load auth success component
-const AuthSuccessComponent = lazy(() => import("./pages/auth-success"));
 import { PUBLIC_ROUTES } from "./constants/routes";
-const NotFound = lazy(() => import("./pages/not-found"));
-const SSELFIEGallery = lazy(() => import("./pages/sselfie-gallery"));
-const AICommandCenter = lazy(() => import("./pages/AICommandCenter"));
 
 // Components
-import { PageLoader, ComponentLoader, ButtonLoader } from './components/loaders';
-import { Lazy } from "./components/Lazy";
+import { PageLoader } from './components/loaders';
+
+import { SuspenseWrapper } from './components/SuspenseWrapper';
 
 // Protected Route Wrapper Component
 function ProtectedRouteWrapper({ children }: { children: React.ReactNode }) {
@@ -75,16 +67,16 @@ function ProtectedRouteWrapper({ children }: { children: React.ReactNode }) {
 
   // Allow public routes through without auth check
   if (isPublicRoute) {
-    return <>{children}</>;
+    return createElement(React.Fragment, null, children);
   }
 
   // Show loading state
   if (isLoading || !isAuthenticated) {
-    return <PageLoader />;
+    return createElement(PageLoader);
   }
 
   // Render protected route
-  return <>{children}</>;
+  return createElement(React.Fragment, null, children);
 }
 
 // Smart Home component - Routes users through simplified journey  
@@ -110,10 +102,8 @@ function SmartHome() {
   }
 
   // For authenticated users, use PostLoginHandler to determine where to go
-  return (
-    <Suspense fallback={<PageLoader />}>
-      <PostLoginHandler />
-    </Suspense>
+  return createElement(SuspenseWrapper, null,
+    createElement(PostLoginHandler)
   );
 }
 
@@ -125,186 +115,209 @@ function HandlerRoutes() {
   // This includes sign-in, sign-up, magic-link, password-reset, email-verification
 
   try {
-    return (
-      <StackHandler
-        app={stackClientApp}
-        location={window.location.pathname + window.location.search + window.location.hash}
-        fullPage={true}
-      />
-    );
+    return createElement(StackHandler, {
+      app: stackClientApp,
+      location: window.location.pathname + window.location.search + window.location.hash,
+      fullPage: true
+    });
   } catch (error) {
     console.error('🔥 StackHandler Error:', error);
-    return (
-      <div className="min-h-screen bg-stone-50 flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl mb-4">Authentication Error</h2>
-          <p className="text-gray-600 mb-4">There was an issue with authentication.</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="bg-black text-white px-6 py-2 rounded"
-          >
-            Retry
-          </button>
-        </div>
-      </div>
+    return createElement('div', 
+      { className: "min-h-screen bg-stone-50 flex items-center justify-center" },
+      createElement('div', 
+        { className: "text-center" },
+        createElement('h2', { className: "text-2xl mb-4" }, "Authentication Error"),
+        createElement('p', { className: "text-gray-600 mb-4" }, "There was an issue with authentication."),
+        createElement('button', {
+          onClick: () => window.location.reload(),
+          className: "bg-black text-white px-6 py-2 rounded"
+        }, "Retry")
+      )
     );
   }
 }
 
 function Router() {
-  return (
-    <div>
-      {/* Post-auth success handoff - MOVED TO TOP for priority matching */}
-      <Route path="/auth-success" component={() => (
-        <Lazy>
-          <AuthSuccessComponent />
-        </Lazy>
-      )} />
+  const routes = [
+    // Post-auth success handoff - MOVED TO TOP for priority matching
+    createElement(Route, {
+      path: "/auth-success",
+      component: () => createElement(SuspenseWrapper, null, 
+        createElement(AuthSuccessComponent)
+      )
+    }),
 
-      {/* ✅ CLEANED UP: Redirect to Stack Auth handlers for consistency */}
-      <Route path="/sign-in" component={() => {
+    // CLEANED UP: Redirect to Stack Auth handlers for consistency
+    createElement(Route, {
+      path: "/sign-in",
+      component: () => {
         window.location.replace('/handler/sign-in');
-        return <PageLoader />;
-      }} />
-      <Route path="/sign-up" component={() => {
+        return createElement(PageLoader);
+      }
+    }),
+    createElement(Route, {
+      path: "/sign-up",
+      component: () => {
         window.location.replace('/handler/sign-up');
-        return <PageLoader />;
-      }} />
+        return createElement(PageLoader);
+      }
+    }),
 
-      {/* STACK AUTH HANDLER - Consolidated routes for ALL Stack Auth operations */}
-      {/* ✅ CRITICAL FIX: OAuth callback handler MUST come before other routes to preserve query parameters */}
-      <Route path="/handler/oauth-callback" component={() => {
+    // STACK AUTH HANDLER - Consolidated routes for ALL Stack Auth operations
+    // CRITICAL FIX: OAuth callback handler MUST come before other routes to preserve query parameters
+    createElement(Route, {
+      path: "/handler/oauth-callback",
+      component: () => {
         const OAuthCallback = React.lazy(() => import("./pages/handler/oauth-callback"));
-        return (
-          <Lazy>
-            <OAuthCallback />
-          </Lazy>
+        return createElement(SuspenseWrapper, null,
+          createElement(OAuthCallback)
         );
-      }} />
+      }
+    }),
       
-      {/* Use HandlerRoutes for all Stack Auth operations for consistency */}
-      <Route path="/handler/:path*" component={() => (
-        <Lazy>
-          <HandlerRoutes />
-        </Lazy>
-      )} />
+    // Use HandlerRoutes for all Stack Auth operations for consistency
+    createElement(Route, {
+      path: "/handler/:path*",
+      component: () => createElement(SuspenseWrapper, null,
+        createElement(HandlerRoutes)
+      )
+    }),
 
-      {/* Home page - Smart routing based on auth and training status */}
-      <Route path="/" component={SmartHome} />
+    // Home page - Smart routing based on auth and training status
+    createElement(Route, {
+      path: "/",
+      component: SmartHome
+    }),
 
-      {/* Debug route for auth diagnostics */}
-      <Route path="/auth-diagnostic" component={() => {
+    // Debug route for auth diagnostics
+    createElement(Route, {
+      path: "/auth-diagnostic",
+      component: () => {
         const AuthDiagnostic = React.lazy(() => import("./pages/auth-diagnostic"));
-        return (
-          <Lazy>
-            <AuthDiagnostic />
-          </Lazy>
+        return createElement(SuspenseWrapper, null,
+          createElement(AuthDiagnostic)
         );
-      }} />
+      }
+    }),
 
-      {/* Public landing pages */}
-      <Route path="/business" component={() => (
-        <Lazy>
-          <BusinessLanding />
-        </Lazy>
-      )} />
+    // Public landing pages
+    createElement(Route, {
+      path: "/business",
+      component: () => createElement(SuspenseWrapper, null,
+        createElement(BusinessLanding)
+      )
+    }),
 
-      {/* Protected onboarding routes */}
-      <Route path="/simple-training" component={() => (
-        <ProtectedRouteWrapper>
-          <Lazy>
-            <SimpleTraining />
-          </Lazy>
-        </ProtectedRouteWrapper>
-      )} />
+    // Protected onboarding routes
+    createElement(Route, {
+      path: "/simple-training",
+      component: () => createElement(ProtectedRouteWrapper, null,
+        createElement(SuspenseWrapper, null,
+          createElement(SimpleTraining)
+        )
+      )
+    }),
       
-      {/* Public checkout - allows new users to purchase before authentication */}
-      <Route path="/simple-checkout" component={() => (
-        <Lazy>
-          <SimpleCheckout />
-        </Lazy>
-      )} />
-      <Route path="/embedded-checkout" component={() => (
-        <Lazy>
-          <EmbeddedCheckout />
-        </Lazy>
-      )} />
-      <Route path="/payment-success" component={() => (
-        <ProtectedRouteWrapper>
-          <Lazy>
-            <PaymentSuccess />
-          </Lazy>
-        </ProtectedRouteWrapper>
-      )} />
-      <Route path="/thank-you" component={() => (
-        <Lazy>
-          <ThankYou />
-        </Lazy>
-      )} />
+    // Public checkout - allows new users to purchase before authentication
+    createElement(Route, {
+      path: "/simple-checkout",
+      component: () => createElement(SuspenseWrapper, null,
+        createElement(SimpleCheckout)
+      )
+    }),
+    createElement(Route, {
+      path: "/embedded-checkout",
+      component: () => createElement(SuspenseWrapper, null,
+        createElement(EmbeddedCheckout)
+      )
+    }),
+    createElement(Route, {
+      path: "/payment-success",
+      component: () => createElement(ProtectedRouteWrapper, null,
+        createElement(SuspenseWrapper, null,
+          createElement(PaymentSuccess)
+        )
+      )
+    }),
+    createElement(Route, {
+      path: "/thank-you",
+      component: () => createElement(SuspenseWrapper, null,
+        createElement(ThankYou)
+      )
+    }),
 
-      {/* Maya Chat - Direct route for Maya AI chat interface */}
-      <Route path="/maya" component={() => (
-        <ProtectedRouteWrapper>
-          <Lazy>
-            <MayaPage />
-          </Lazy>
-        </ProtectedRouteWrapper>
-      )} />
+    // Maya Chat - Direct route for Maya AI chat interface
+    createElement(Route, {
+      path: "/maya",
+      component: () => createElement(ProtectedRouteWrapper, null,
+        createElement(SuspenseWrapper, null,
+          createElement(MayaPage)
+        )
+      )
+    }),
 
-      {/* Main authenticated app routes */}
-      <Route path="/app" component={() => (
-        <ProtectedRouteWrapper>
-          <Lazy>
-            <SselfieAppLayout />
-          </Lazy>
-        </ProtectedRouteWrapper>
-      )} />
-      <Route path="/app/:tab*" component={() => (
-        <ProtectedRouteWrapper>
-          <Lazy>
-            <SselfieAppLayout />
-          </Lazy>
-        </ProtectedRouteWrapper>
-      )} />
+    // Main authenticated app routes
+    createElement(Route, {
+      path: "/app",
+      component: () => createElement(ProtectedRouteWrapper, null,
+        createElement(SuspenseWrapper, null,
+          createElement(SselfieAppLayout)
+        )
+      )
+    }),
+    createElement(Route, {
+      path: "/app/:tab*",
+      component: () => createElement(ProtectedRouteWrapper, null,
+        createElement(SuspenseWrapper, null,
+          createElement(SselfieAppLayout)
+        )
+      )
+    }),
 
-      {/* AI Command Center - Protected route for authenticated users */}
-      <Route path="/ai-command-center" component={() => (
-        <ProtectedRouteWrapper>
-          <Lazy>
-            <AICommandCenter />
-          </Lazy>
-        </ProtectedRouteWrapper>
-      )} />
+    // AI Command Center - Protected route for authenticated users
+    createElement(Route, {
+      path: "/ai-command-center",
+      component: () => createElement(ProtectedRouteWrapper, null,
+        createElement(SuspenseWrapper, null,
+          createElement(AICommandCenter)
+        )
+      )
+    }),
 
-      {/* SSELFIE Gallery - Protected Route */}
-      <Route path="/sselfie-gallery" component={() => (
-        <ProtectedRouteWrapper>
-          <Lazy>
-            <SSELFIEGallery />
-          </Lazy>
-        </ProtectedRouteWrapper>
-      )} />
+    // SSELFIE Gallery - Protected Route
+    createElement(Route, {
+      path: "/sselfie-gallery",
+      component: () => createElement(ProtectedRouteWrapper, null,
+        createElement(SuspenseWrapper, null,
+          createElement(SSELFIEGallery)
+        )
+      )
+    }),
 
-      {/* Legal pages */}
-      <Route path="/terms" component={() => (
-        <Lazy>
-          <Terms />
-        </Lazy>
-      )} />
-      <Route path="/privacy" component={() => (
-        <Lazy>
-          <Privacy />
-        </Lazy>
-      )} />
+    // Legal pages
+    createElement(Route, {
+      path: "/terms",
+      component: () => createElement(SuspenseWrapper, null,
+        createElement(Terms)
+      )
+    }),
+    createElement(Route, {
+      path: "/privacy",
+      component: () => createElement(SuspenseWrapper, null,
+        createElement(Privacy)
+      )
+    }),
 
-      {/* 404 Not Found - Must be last */}
-      <Route path="/:rest*" component={() => (
-        <Lazy>
-          <NotFound />
-        </Lazy>
-      )} />
-    </div>
-  );
+    // 404 Not Found - Must be last
+    createElement(Route, {
+      path: "/:rest*",
+      component: () => createElement(SuspenseWrapper, null,
+        createElement(NotFound)
+      )
+    })
+  ];
+  
+  return createElement('div', null, routes);
 }
 
 function App() {
@@ -344,12 +357,10 @@ function App() {
     };
   }, []);
 
-  return (
-    <ErrorBoundary>
-      <RootWrapper>
-        <Router />
-      </RootWrapper>
-    </ErrorBoundary>
+  return createElement(ErrorBoundary, null,
+    createElement(RootWrapper, null,
+      createElement(Router)
+    )
   );
 }
 

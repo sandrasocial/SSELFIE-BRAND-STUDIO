@@ -1,31 +1,4 @@
-import * as React from 'react';
 import type { Router } from 'express';
-
-declare module 'react' {
-  export interface SuspenseProps {
-    children?: React.ReactNode;
-    fallback: React.ReactNode;
-  }
-
-  export interface ComponentProps<T> {
-    children?: React.ReactNode;
-    [key: string]: any;
-  }
-
-  export type ForwardRefRenderFunction<T, P = {}> = {
-    (props: P, ref: React.Ref<T>): React.ReactElement | null;
-    displayName?: string;
-    defaultProps?: never;
-    propTypes?: never;
-  }
-
-  export interface ForwardRefExoticComponent<P> {
-    (props: P): React.ReactElement | null;
-    displayName?: string;
-    defaultProps?: never;
-    propTypes?: never;
-  }
-}
 
 declare module '@stackframe/react' {
   export interface StackClientApp {

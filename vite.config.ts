@@ -41,7 +41,12 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
       }
     },
     css: {
-      postcss: './client/postcss.config.js'
+      postcss: {
+        plugins: [
+          require('tailwindcss')('./client/tailwind.config.ts'),
+          require('autoprefixer')()
+        ]
+      }
     },
 
     resolve: {

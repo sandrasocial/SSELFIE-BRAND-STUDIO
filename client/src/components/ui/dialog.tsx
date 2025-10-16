@@ -1,8 +1,10 @@
 "use client"
 
-import * as React from "react"
-const { forwardRef } = React
+import { forwardRef } from "react"
+import type { ComponentPropsWithoutRef, ElementRef, HTMLAttributes } from 'react'
 import * as DialogPrimitive from "@radix-ui/react-dialog"
+import type { DialogProps } from '@radix-ui/react-dialog'
+import type { FC, ReactNode } from 'react'
 // Removed Lucide React icon import to comply with Sandra's no-icons styleguide
 
 import { cn } from "../../lib/utils.js"

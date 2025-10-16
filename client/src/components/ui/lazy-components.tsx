@@ -1,4 +1,5 @@
-import React, { Suspense } from 'react';
+import { lazy, Suspense, type ComponentType, type FC } from 'react';
+import type { ComponentProps, ReactNode, Ref } from 'react';
 import type * as DialogPrimitive from '@radix-ui/react-dialog';
 import type * as AlertDialogPrimitive from '@radix-ui/react-alert-dialog';
 import type { Command as CommandPrimitive } from 'cmdk';
@@ -12,51 +13,43 @@ const LoadingFallback = () => (
 );
 
 // Properly typed lazy imports
-export const Dialog = React.lazy(() => import('./dialog').then(mod => ({
-  default: mod.default.Root
+export const Dialog = lazy(() => import('./dialog').then(mod => ({
+  default: mod.default.Root as ComponentType<DialogPrimitive.DialogProps>
 })));
 
-export const Command = React.lazy(() => import('./command').then(mod => ({
-  default: mod.default.Root
+export const Command = lazy(() => import('./command').then(mod => ({
+  default: mod.default.Root as ComponentType<ComponentProps<typeof CommandPrimitive> & { ref?: Ref<HTMLDivElement> }>
 })));
 
-export const Sheet = React.lazy(() => import('./sheet').then(mod => ({
-  default: mod.Sheet
+export const Sheet = lazy(() => import('./sheet').then(mod => ({
+  default: mod.Sheet as ComponentType<DialogPrimitive.DialogProps>
 })));
 
-export const AlertDialog = React.lazy(() => import('./alert-dialog').then(mod => ({
-  default: mod.AlertDialog
+export const AlertDialog = lazy(() => import('./alert-dialog').then(mod => ({
+  default: mod.AlertDialog as ComponentType<AlertDialogPrimitive.AlertDialogProps>
 })));
 
 // Type-safe Suspense wrappers
-export function SuspenseDialog(props: DialogPrimitive.DialogProps) {
-  return (
-    <Suspense fallback={<LoadingFallback />}>
-      <Dialog {...props} />
-    </Suspense>
-  );
-}
+export const SuspenseDialog: FC<DialogPrimitive.DialogProps> = (props) => (
+  <Suspense fallback={<LoadingFallback />}>
+    <Dialog {...props} />
+  </Suspense>
+);
 
-export function SuspenseCommand(props: React.ComponentProps<typeof CommandPrimitive> & { ref?: React.Ref<HTMLDivElement> }) {
-  return (
-    <Suspense fallback={<LoadingFallback />}>
-      <Command {...props} />
-    </Suspense>
-  );
-}
+export const SuspenseCommand: FC<ComponentProps<typeof CommandPrimitive> & { ref?: Ref<HTMLDivElement> }> = (props) => (
+  <Suspense fallback={<LoadingFallback />}>
+    <Command {...props} />
+  </Suspense>
+);
 
-export function SuspenseSheet(props: DialogPrimitive.DialogProps) {
-  return (
-    <Suspense fallback={<LoadingFallback />}>
-      <Sheet {...props} />
-    </Suspense>
-  );
-}
+export const SuspenseSheet: FC<DialogPrimitive.DialogProps> = (props) => (
+  <Suspense fallback={<LoadingFallback />}>
+    <Sheet {...props} />
+  </Suspense>
+);
 
-export function SuspenseAlertDialog(props: AlertDialogPrimitive.AlertDialogProps) {
-  return (
-    <Suspense fallback={<LoadingFallback />}>
-      <AlertDialog {...props} />
-    </Suspense>
-  );
-}
+export const SuspenseAlertDialog: FC<AlertDialogPrimitive.AlertDialogProps> = (props) => (
+  <Suspense fallback={<LoadingFallback />}>
+    <AlertDialog {...props} />
+  </Suspense>
+);
