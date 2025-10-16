@@ -19,7 +19,9 @@ function getNeonClient() {
 export const query = async (text: string, params?: unknown[]) => {
   try {
     const client = getNeonClient();
-    return await client(text, params);
+    // Convert string to template string for neon client
+    const templateString = text as unknown as TemplateStringsArray;
+    return await client(templateString, ...(params || []));
   } catch (error) {
     console.error('❌ Database query error:', error);
     throw error;

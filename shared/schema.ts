@@ -1642,11 +1642,11 @@ export const insertUserStyleEvolutionSchema = z.object({
   userId: z.string(),
   learningProgress: z.record(z.any()).default({}),
   styleEvolutionPath: z.array(z.any()).default([]),
-  feedbackPatterns: z.record(z.any()).default({}),
-  contextualPreferences: z.record(z.any()).default({}),
-  trendAdaptation: z.record(z.any()).default({}),
-  culturalContext: z.record(z.any()).default({}),
-  sustainabilityPreferences: z.record(z.any()).default({})
+  feedbackPatterns: z.record(z.any()).optional().default({}),
+  contextualPreferences: z.record(z.any()).optional().default({}),
+  trendAdaptation: z.record(z.any()).optional().default({}),
+  culturalContext: z.record(z.any()).optional().default({}),
+  sustainabilityPreferences: z.record(z.any()).optional().default({})
 });
 
 // New hybrid backend insert schemas
