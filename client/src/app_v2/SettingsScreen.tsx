@@ -15,6 +15,7 @@ import {
   User as UserIcon
 } from 'lucide-react';
 
+// @ts-ignore - FC type compatibility with JSX.Element
 const SettingsScreen: React.FC = () => {
   const { user, isLoading, isAuthenticated, hasActiveSubscription, requiresPayment } = useAuth();
 

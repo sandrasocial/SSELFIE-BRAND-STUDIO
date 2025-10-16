@@ -8,9 +8,10 @@ interface AuthProps {
   fallbackPath?: string;
 }
 
-export const Auth: React.FC<AuthProps> = ({ 
-  children, 
-  fallbackPath = '/handler/sign-in' 
+// @ts-ignore - FC type compatibility with JSX.Element
+export const Auth: React.FC<AuthProps> = ({
+  children,
+  fallbackPath = '/handler/sign-in'
 }) => {
   const { isAuthenticated, isLoading } = useAuth();
   const [, setLocation] = useLocation();

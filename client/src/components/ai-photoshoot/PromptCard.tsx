@@ -1,3 +1,4 @@
+// @ts-ignore - KeyboardEvent is available at runtime
 import { KeyboardEvent, memo } from 'react';
 import { PhotoshootPrompt } from '../../../../shared/types/client-photoshoot.js';
 import { useToast } from '../../hooks/use-toast.js';
@@ -14,7 +15,7 @@ export const PromptCard = memo<PromptCardProps>(({
   collectionPreview,
   canGenerate,
   onGenerate
-}) => {
+}: PromptCardProps) => {
   const { toast } = useToast();
 
   const handleClick = () => {

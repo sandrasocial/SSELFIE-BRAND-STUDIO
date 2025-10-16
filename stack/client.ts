@@ -42,7 +42,7 @@ if (!STACK_PUBLISHABLE_CLIENT_KEY.startsWith('pck_')) {
   throw new Error('Stack Auth publishable client key is invalid');
 }
 
-let stackClientApp: StackClientApp;
+let stackClientApp: InstanceType<typeof StackClientApp>;
 
 try {
   // Use custom cookie configuration
@@ -144,23 +144,23 @@ try {
   // Create our own useUser implementation
   const originalUseUser = stackClientApp.useUser;
   Object.defineProperty(stackClientApp, 'useUser', {
-    value: function useUserPatched() {
+    value: function useUserPatched(): any {
       const [data, setData] = useState<unknown | null>(null);
       const [error, setError] = useState<Error | null>(null);
-      
+
       // Use a ref to track if we are mounting
-      const mountingRef = useRef(true);
+      const mountingRef = useRef<boolean>(true);
       const promiseRef = useRef<Promise<unknown> | null>(null);
 
       if (!data && !error && mountingRef.current) {
         // Only create one promise
         if (!promiseRef.current) {
           promiseRef.current = stackClientApp.getUser()
-            .then(user => {
+            .then((user: any) => {
               setData(user);
               return user;
             })
-            .catch(err => {
+            .catch((err: any) => {
               setError(err);
               throw err;
             });

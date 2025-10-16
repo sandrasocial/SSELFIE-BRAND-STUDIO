@@ -12,7 +12,7 @@ export const PhotoshootCollectionGrid = memo<PhotoshootCollectionGridProps>(({
   collections,
   selectedCollection,
   onSelectCollection
-}) => {
+}: PhotoshootCollectionGridProps) => {
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
       {collections.map((collection) => (

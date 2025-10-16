@@ -40,13 +40,9 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
         }
       }
     },
+    // PostCSS configuration is in postcss.config.js
     css: {
-      postcss: {
-        plugins: [
-          require('tailwindcss')('./client/tailwind.config.ts'),
-          require('autoprefixer')()
-        ]
-      }
+      postcss: './postcss.config.js'
     },
 
     resolve: {

@@ -11,7 +11,7 @@ export const CollectionCard = memo<CollectionCardProps>(({
   collection,
   isSelected,
   onSelect
-}) => {
+}: CollectionCardProps) => {
   return (
     <div
       onClick={onSelect}
