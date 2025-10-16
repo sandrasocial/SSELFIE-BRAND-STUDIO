@@ -97,40 +97,30 @@ export const getQueryFn: <T>(options: {
     return await res.json();
   };
 
-// Lazy initialize QueryClient to avoid module loading issues
-let _queryClient: any = null;
-
-export function getQueryClient() {
-  if (!_queryClient) {
-    _queryClient = new QueryClient({
-      defaultOptions: {
-        queries: {
-          queryFn: getQueryFn({ on401: "throw" }),
-          refetchInterval: false,
-          refetchOnWindowFocus: false,
-          staleTime: 5 * 60 * 1000, // 5 minutes for user data
-          gcTime: 10 * 60 * 1000, // 10 minutes garbage collection
-          retry: (failureCount, error: any) => {
-            // Don't retry on 4xx errors except 408/429
-            if (error?.message?.includes('4') && !error.message.includes('408') && !error.message.includes('429')) {
-              return false;
-            }
-            return failureCount < 2;
-          },
-        },
-        mutations: {
-          retry: false,
-        },
+// Initialize QueryClient immediately (not lazy) to avoid Proxy issues with QueryClientProvider
+export const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      queryFn: getQueryFn({ on401: "throw" }),
+      refetchInterval: false,
+      refetchOnWindowFocus: false,
+      staleTime: 5 * 60 * 1000, // 5 minutes for user data
+      gcTime: 10 * 60 * 1000, // 10 minutes garbage collection
+      retry: (failureCount, error: any) => {
+        // Don't retry on 4xx errors except 408/429
+        if (error?.message?.includes('4') && !error.message.includes('408') && !error.message.includes('429')) {
+          return false;
+        }
+        return failureCount < 2;
       },
-    });
-  }
-  return _queryClient;
-}
-
-// Export as a getter for backward compatibility
-export const queryClient = new Proxy({}, {
-  get: (target, prop) => {
-    const client = getQueryClient();
-    return (client as any)[prop];
+    },
+    mutations: {
+      retry: false,
+    },
   },
-}) as any;
+});
+
+// Export getter function for backward compatibility
+export function getQueryClient() {
+  return queryClient;
+}
