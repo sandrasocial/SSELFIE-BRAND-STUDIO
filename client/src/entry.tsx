@@ -1,14 +1,16 @@
 /// <reference types="react-dom" />
 
-// CRITICAL: Import react-init FIRST to ensure React is available globally
-// This must happen before any other imports to prevent third-party libraries
-// (like lucide-react, react-icons) from trying to use React before it's initialized
-import './lib/react-init';
-
 import * as React from 'react';
 import { createRoot, type Container } from 'react-dom/client';
 import App from './App';
 import './index.css';
+
+// Initialize React globally for third-party libraries
+if (typeof window !== 'undefined') {
+  window.React = React;
+  window.__REACT_INITIALIZED__ = true;
+  console.log('✅ React initialized globally in entry.tsx');
+}
 
 async function initializeApp() {
   try {

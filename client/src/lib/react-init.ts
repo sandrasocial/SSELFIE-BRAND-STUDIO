@@ -1,5 +1,8 @@
 // React initialization - this runs at module load time
-// We use require() to avoid circular dependency issues with ES6 imports
+// Using ES module imports to ensure proper module resolution
+
+import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 
 declare global {
   interface Window {
@@ -10,10 +13,6 @@ declare global {
     __REACT_INITIALIZED__: boolean;
   }
 }
-
-// Use require to load React at runtime, avoiding circular dependencies
-const React = require('react');
-const ReactDOM = require('react-dom');
 
 // Make React available globally IMMEDIATELY
 if (typeof window !== 'undefined') {
