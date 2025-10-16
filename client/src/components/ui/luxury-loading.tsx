@@ -12,6 +12,10 @@ import {
 
 // Main luxury loading spinner
 export function LuxuryLoading({
+  size = 'md',
+  variant = 'spinner',
+  className
+}: LuxuryLoadingProps) {
   const sizeClasses = {
     sm: 'w-4 h-4',
     md: 'w-8 h-8',
@@ -63,12 +67,12 @@ export function LuxuryLoading({
 };
 
 // Luxury skeleton for text content
-export function LuxurySkeleton({ 
-  lines = 3, 
-  avatar = false, 
+export function LuxurySkeleton({
+  lines = 3,
+  avatar = false,
   className,
-  animate = true 
-}) => {
+  animate = true
+}: LuxurySkeletonProps) {
   return (
     <div className={cn("space-y-luxury-xs", className)}>
       {avatar && (
