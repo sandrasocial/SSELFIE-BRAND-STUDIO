@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { Suspense, useEffect, useState } from 'react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { ErrorBoundary } from "./ErrorBoundary";
 import { getQueryClient } from "../lib/queryClient";
@@ -89,31 +89,23 @@ export default function RootWrapper({ children }: RootWrapperProps) {
     return <PageLoader />;
   }
 
-  // ✅ CRITICAL FIX: For public routes, skip Stack Auth entirely
-  // This prevents authentication from blocking public pages
-  // NO Suspense boundary here - routes handle their own Suspense
-  if (isPublic) {
-    console.log('🟢 RootWrapper: Rendering PUBLIC route without StackAuthProvider');
-    return (
-      <ErrorBoundary>
-        <QueryClientProvider client={getQueryClient()}>
-          <LazyTooltipProvider>
-            <ErrorBoundary>
-              {children}
-              <LazyToaster />
-            </ErrorBoundary>
-          </LazyTooltipProvider>
-        </QueryClientProvider>
-      </ErrorBoundary>
-    );
-  }
-
-  // ✅ CRITICAL FIX: For protected routes, include Stack Auth
-  // StackAuthProvider is now imported directly (not lazy)
-  // This ensures it initializes properly for protected routes
-  // NO Suspense boundary here - routes handle their own Suspense
-  console.log('🔐 RootWrapper: Rendering PROTECTED route with StackAuthProvider');
-  return (
+  // ✅ CRITICAL FIX: Single Suspense boundary at top level
+  // This is the ONLY Suspense boundary in the entire app
+  // All lazy components use this single boundary
+  const content = isPublic ? (
+    // Public routes - no authentication
+    <ErrorBoundary>
+      <QueryClientProvider client={getQueryClient()}>
+        <LazyTooltipProvider>
+          <ErrorBoundary>
+            {children}
+            <LazyToaster />
+          </ErrorBoundary>
+        </LazyTooltipProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
+  ) : (
+    // Protected routes - with authentication
     <ErrorBoundary>
       <QueryClientProvider client={getQueryClient()}>
         <StackAuthProvider>
@@ -126,5 +118,12 @@ export default function RootWrapper({ children }: RootWrapperProps) {
         </StackAuthProvider>
       </QueryClientProvider>
     </ErrorBoundary>
+  );
+
+  // ✅ SINGLE Suspense boundary wraps everything
+  return (
+    <Suspense fallback={<PageLoader />}>
+      {content}
+    </Suspense>
   );
 }

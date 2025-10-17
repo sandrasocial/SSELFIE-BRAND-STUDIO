@@ -23,26 +23,8 @@ import ReactDOM from 'react-dom/client';
 console.log('✓ React initialized globally');
 
 // NOW we can safely import other modules
-import { Suspense } from 'react';
 import { createRoot } from 'react-dom/client';
 import './index.css';
-
-// Simple loading fallback
-const LoadingFallback = () => (
-  <div style={{
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    minHeight: '100vh',
-    fontFamily: '-apple-system, sans-serif',
-    backgroundColor: '#fff'
-  }}>
-    <div style={{ textAlign: 'center' }}>
-      <h1 style={{ color: '#1f2937', marginBottom: '16px' }}>SSELFIE Studio</h1>
-      <div style={{ color: '#1f2937' }}>Loading...</div>
-    </div>
-  </div>
-);
 
 // Initialize the app
 const rootElement = document.getElementById('root');
@@ -53,14 +35,15 @@ if (!rootElement) {
 
 const root = createRoot(rootElement);
 
-// ✅ FIX #1: Import App directly instead of lazy loading
-// This removes an unnecessary async layer that can fail silently
+// ✅ CRITICAL FIX: Import App directly (not lazy)
+// NO Suspense boundary here - RootWrapper handles all Suspense
+// This prevents duplicate loading screens
 import App from './App';
+
+console.log('🚀 Rendering app...');
 
 root.render(
   <React.StrictMode>
-    <Suspense fallback={<LoadingFallback />}>
-      <App />
-    </Suspense>
+    <App />
   </React.StrictMode>
 );
