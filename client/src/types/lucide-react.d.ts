@@ -64,6 +64,7 @@ declare module 'lucide-react' {
   export const SortAsc: any;
   export const SortDesc: any;
   export const Play: any;
+  export const PlayCircle: any;
   export const Pause: any;
   export const Volume2: any;
   export const Maximize: any;
@@ -82,6 +83,7 @@ declare module 'lucide-react' {
   export const Smartphone: any;
   export const Tablet: any;
   export const Monitor: any;
+  export const Laptop: any;
   export const Headphones: any;
   export const Music: any;
   export const Video: any;
@@ -98,6 +100,9 @@ declare module 'lucide-react' {
   export const RotateCcw: any;
   export const RotateCw: any;
   export const Save: any;
+  export const Server: any;
+  export const Sun: any;
+  export const Moon: any;
   export const Scissors: any;
   export const Sliders: any;
   export const Square: any;
