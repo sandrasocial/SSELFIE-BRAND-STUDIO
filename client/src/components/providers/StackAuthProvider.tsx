@@ -57,12 +57,17 @@ export default function StackAuthProvider({ children }: StackAuthProviderProps) 
   const initStartedRef = React.useRef(false);
   const mountedRef = React.useRef(true);
   const stackAppRef = React.useRef<StackClientApp | null>(null);
+  const timeoutRef = React.useRef<NodeJS.Timeout | null>(null);
 
   React.useEffect(() => {
     mountedRef.current = true;
-    
+
     return () => {
       mountedRef.current = false;
+      // Clean up timeout on unmount
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
     };
   }, []);
 
@@ -73,6 +78,8 @@ export default function StackAuthProvider({ children }: StackAuthProviderProps) 
 
     async function initializeAuth() {
       try {
+        console.log('🔄 Stack Auth Provider: Starting initialization...');
+
         // Lazy load stackClientApp - this happens AFTER React is fully initialized
         const app = await getStackClientApp();
 
@@ -98,18 +105,30 @@ export default function StackAuthProvider({ children }: StackAuthProviderProps) 
           console.log('🔑 Stack Auth Project ID:', app.projectId);
         }
 
-        // Test basic API access and retry if needed
+        // Test basic API access with timeout
         let retries = 3;
+        let apiTestSucceeded = false;
+
         while (retries > 0) {
           try {
-            await app.getUser();
+            await Promise.race([
+              app.getUser(),
+              new Promise((_, reject) =>
+                setTimeout(() => reject(new Error('API test timeout')), 5000)
+              )
+            ]);
+            apiTestSucceeded = true;
             break;
           } catch (err) {
-            // Ignore "not authenticated" errors
-            if (!((err as Error)?.message?.includes?.('not authenticated'))) {
-              console.warn(`Stack Auth API test failed (${retries} retries left):`, err);
+            // Ignore "not authenticated" errors - this is expected
+            if ((err as Error)?.message?.includes?.('not authenticated')) {
+              apiTestSucceeded = true;
+              break;
             }
+
+            console.warn(`Stack Auth API test failed (${retries} retries left):`, err);
             retries--;
+
             if (retries > 0) {
               await new Promise(resolve => setTimeout(resolve, 500));
             }
@@ -118,7 +137,7 @@ export default function StackAuthProvider({ children }: StackAuthProviderProps) 
 
         // Mark as fully initialized if still mounted
         if (mountedRef.current) {
-          console.log('✅ Stack Auth Provider initialized');
+          console.log('✅ Stack Auth Provider initialized successfully');
           setHasProvider(true);
           setIsInitialized(true);
         }
@@ -130,14 +149,29 @@ export default function StackAuthProvider({ children }: StackAuthProviderProps) 
       }
     }
 
-    // Start initialization
-    initializeAuth().catch(error => {
+    // Start initialization with timeout
+    const initPromise = initializeAuth().catch(error => {
       console.error('Unhandled Stack Auth initialization error:', error);
       if (mountedRef.current) {
         setError('Critical authentication initialization error');
       }
     });
-  }, []);
+
+    // Set a maximum timeout for initialization (10 seconds)
+    timeoutRef.current = setTimeout(() => {
+      if (mountedRef.current && !isInitialized) {
+        console.warn('⚠️ Stack Auth initialization timeout - proceeding anyway');
+        setHasProvider(true);
+        setIsInitialized(true);
+      }
+    }, 10000);
+
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, [isInitialized]);
 
   // Handle errors
   if (error) {

@@ -55,6 +55,7 @@
   "include": [
     "vite.config.ts",
     "client/src/**/*",
+    "client/src/types/react19-fix.d.ts",
     "shared/**/*",
     "server/**/*",
     "api/**/*",
