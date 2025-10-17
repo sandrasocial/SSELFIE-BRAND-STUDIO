@@ -47,49 +47,9 @@ import { PUBLIC_ROUTES } from "./constants/routes";
 // Components
 import { PageLoader } from './components/loaders';
 
-// Protected Route Wrapper Component
-function ProtectedRouteWrapper({ children }: { children: React.ReactNode }) {
-  const [location, setLocation] = useLocation();
-  const { isAuthenticated, isLoading } = useAuth();
-  const [redirected, setRedirected] = useState(false);
-
-  // Check if current route is public
-  const isPublicRoute = PUBLIC_ROUTES.some(route =>
-    location === route || location.startsWith(route + '/')
-  );
-
-  // Handle auth state changes
-  useEffect(() => {
-    // Only redirect once to prevent infinite loops
-    if (!redirected && !isLoading && !isAuthenticated && !isPublicRoute) {
-      console.log(`🔐 ProtectedRouteWrapper: Redirecting unauthenticated user from ${location} to sign-in`);
-      setRedirected(true);
-      setLocation('/handler/sign-in');
-    }
-  }, [isAuthenticated, isLoading, isPublicRoute, setLocation, redirected]);
-
-  // Allow public routes through without auth check
-  if (isPublicRoute) {
-    console.log(`✅ ProtectedRouteWrapper: Public route ${location} - allowing access`);
-    return createElement(React.Fragment, null, children);
-  }
-
-  // Show loading state while checking auth
-  if (isLoading) {
-    console.log(`⏳ ProtectedRouteWrapper: Auth is loading for ${location}`);
-    return createElement(PageLoader);
-  }
-
-  // If not authenticated, show loader while redirecting
-  if (!isAuthenticated) {
-    console.log(`🔄 ProtectedRouteWrapper: User not authenticated for ${location}, redirecting...`);
-    return createElement(PageLoader);
-  }
-
-  // Render protected route
-  console.log(`✅ ProtectedRouteWrapper: User authenticated, rendering protected route ${location}`);
-  return createElement(React.Fragment, null, children);
-}
+// ✅ REMOVED: ProtectedRouteWrapper is no longer needed
+// StackAuthProvider now handles authentication for all routes
+// This eliminates redundant auth checks and loading screens
 
 // Smart Home component - Routes users through simplified journey
 // NEW USER JOURNEY: Authentication → AI Training → Payment → App Studio
@@ -233,11 +193,7 @@ function Router() {
       {/* Protected onboarding routes */}
       <Route
         path="/simple-training"
-        component={() => (
-          <ProtectedRouteWrapper>
-            <SimpleTraining />
-          </ProtectedRouteWrapper>
-        )}
+        component={() => <SimpleTraining />}
       />
 
       {/* Public checkout - allows new users to purchase before authentication */}
@@ -251,11 +207,7 @@ function Router() {
       />
       <Route
         path="/payment-success"
-        component={() => (
-          <ProtectedRouteWrapper>
-            <PaymentSuccess />
-          </ProtectedRouteWrapper>
-        )}
+        component={() => <PaymentSuccess />}
       />
       <Route
         path="/thank-you"
@@ -265,49 +217,29 @@ function Router() {
       {/* Maya Chat - Direct route for Maya AI chat interface */}
       <Route
         path="/maya"
-        component={() => (
-          <ProtectedRouteWrapper>
-            <MayaPage />
-          </ProtectedRouteWrapper>
-        )}
+        component={() => <MayaPage />}
       />
 
       {/* Main authenticated app routes */}
       <Route
         path="/app"
-        component={() => (
-          <ProtectedRouteWrapper>
-            <SselfieAppLayout />
-          </ProtectedRouteWrapper>
-        )}
+        component={() => <SselfieAppLayout />}
       />
       <Route
         path="/app/:tab*"
-        component={() => (
-          <ProtectedRouteWrapper>
-            <SselfieAppLayout />
-          </ProtectedRouteWrapper>
-        )}
+        component={() => <SselfieAppLayout />}
       />
 
       {/* AI Command Center - Protected route for authenticated users */}
       <Route
         path="/ai-command-center"
-        component={() => (
-          <ProtectedRouteWrapper>
-            <AICommandCenter />
-          </ProtectedRouteWrapper>
-        )}
+        component={() => <AICommandCenter />}
       />
 
       {/* SSELFIE Gallery - Protected Route */}
       <Route
         path="/sselfie-gallery"
-        component={() => (
-          <ProtectedRouteWrapper>
-            <SSELFIEGallery />
-          </ProtectedRouteWrapper>
-        )}
+        component={() => <SSELFIEGallery />}
       />
 
       {/* Legal pages */}
