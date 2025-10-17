@@ -50,14 +50,17 @@ export function useAuth() {
   useEffect(() => {
     let mounted = true;
     let timeoutId: NodeJS.Timeout;
+    let authCheckTimeoutId: NodeJS.Timeout;
 
     async function checkAuth() {
       try {
+        console.log('🔐 useAuth: Checking authentication status...');
+
         // Lazy load stackClientApp
         const app = await getStackClientApp();
 
         if (!app) {
-          console.error('Stack Auth client not initialized');
+          console.error('❌ useAuth: Stack Auth client not initialized');
           if (mounted) {
             setAuthState({
               stackUser: null,
@@ -72,15 +75,35 @@ export function useAuth() {
           timeoutId = setTimeout(resolve, 100);
         });
 
-        const user = await app.getUser();
+        // Get user with timeout
+        const userPromise = app.getUser();
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Auth check timeout')), 8000)
+        );
+
+        const user = await Promise.race([userPromise, timeoutPromise]);
+
         if (mounted) {
+          console.log('✅ useAuth: Auth check completed', { hasUser: !!user });
           setAuthState({
             stackUser: user || null,
             isLoading: false
           });
         }
       } catch (error) {
-        console.error('Stack Auth check failed:', error);
+        // Ignore "not authenticated" errors - this is expected
+        if ((error as Error)?.message?.includes?.('not authenticated')) {
+          console.log('✅ useAuth: User not authenticated (expected)');
+          if (mounted) {
+            setAuthState({
+              stackUser: null,
+              isLoading: false
+            });
+          }
+          return;
+        }
+
+        console.error('❌ useAuth: Auth check failed:', error);
         if (mounted) {
           setAuthState({
             stackUser: null,
@@ -92,10 +115,24 @@ export function useAuth() {
 
     checkAuth();
 
+    // Set a maximum timeout for auth check (10 seconds)
+    authCheckTimeoutId = setTimeout(() => {
+      if (mounted) {
+        console.warn('⚠️ useAuth: Auth check timeout - proceeding without user');
+        setAuthState({
+          stackUser: null,
+          isLoading: false
+        });
+      }
+    }, 10000);
+
     return () => {
       mounted = false;
       if (timeoutId) {
         clearTimeout(timeoutId);
+      }
+      if (authCheckTimeoutId) {
+        clearTimeout(authCheckTimeoutId);
       }
     };
   }, []);
