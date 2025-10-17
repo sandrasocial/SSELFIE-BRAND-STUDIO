@@ -77,4 +77,19 @@ declare module 'react' {
   export type ComponentProps<T extends React.ElementType<any>> = React.ComponentProps<T>;
   export type ComponentPropsWithoutRef<T extends React.ElementType<any>> = React.ComponentPropsWithoutRef<T>;
   export type ComponentPropsWithRef<T extends React.ElementType<any>> = React.ComponentPropsWithRef<T>;
+
+  // HTML Attributes
+  export type HTMLAttributes<T = HTMLElement> = React.HTMLAttributes<T>;
+  export type ButtonHTMLAttributes<T = HTMLButtonElement> = React.ButtonHTMLAttributes<T>;
+  export type InputHTMLAttributes<T = HTMLInputElement> = React.InputHTMLAttributes<T>;
+  export type TextareaHTMLAttributes<T = HTMLTextAreaElement> = React.TextareaHTMLAttributes<T>;
+  export type CSSProperties = React.CSSProperties;
+
+  // Element types
+  export type ElementType<P = any> = React.ElementType<P>;
+  export type ElementRef<_T = any> = any;
+
+  // Forward ref types
+  export type ForwardRefExoticComponent<P> = React.ForwardRefExoticComponent<P>;
+  export type MouseEventHandler<T = HTMLElement> = React.MouseEventHandler<T>;
 }
