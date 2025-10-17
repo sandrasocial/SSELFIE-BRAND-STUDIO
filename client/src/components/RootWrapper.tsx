@@ -10,36 +10,10 @@ import { useLocation } from 'wouter';
 // This prevents it from being loaded for public routes
 import StackAuthProvider from './providers/StackAuthProvider';
 
-// Lazy load providers - wrap in proper component structure
-const LazyTooltipProvider = React.lazy(() =>
-  import('./ui/tooltip').then(mod => {
-    console.log('✅ Tooltip module loaded:', Object.keys(mod));
-    // Ensure we have the TooltipProvider component
-    if (!mod.TooltipProvider) {
-      console.error('❌ TooltipProvider not found in tooltip module. Available exports:', Object.keys(mod));
-      throw new Error('TooltipProvider export missing');
-    }
-    return { default: mod.TooltipProvider };
-  }).catch(err => {
-    console.error('❌ Failed to load tooltip module:', err);
-    throw err;
-  })
-);
-
-const LazyToaster = React.lazy(() =>
-  import('./ui/toaster').then(mod => {
-    console.log('✅ Toaster module loaded:', Object.keys(mod));
-    // Ensure we have the Toaster component
-    if (!mod.Toaster) {
-      console.error('❌ Toaster not found in toaster module. Available exports:', Object.keys(mod));
-      throw new Error('Toaster export missing');
-    }
-    return { default: mod.Toaster };
-  }).catch(err => {
-    console.error('❌ Failed to load toaster module:', err);
-    throw err;
-  })
-);
+// ✅ CRITICAL FIX: Import providers directly (NOT lazy)
+// Lazy loading them inside Suspense causes the fallback to show
+import { TooltipProvider } from './ui/tooltip';
+import { Toaster } from './ui/toaster';
 
 interface RootWrapperProps {
   children: React.ReactNode;
@@ -96,12 +70,12 @@ export default function RootWrapper({ children }: RootWrapperProps) {
     // Public routes - no authentication
     <ErrorBoundary>
       <QueryClientProvider client={getQueryClient()}>
-        <LazyTooltipProvider>
+        <TooltipProvider>
           <ErrorBoundary>
             {children}
-            <LazyToaster />
+            <Toaster />
           </ErrorBoundary>
-        </LazyTooltipProvider>
+        </TooltipProvider>
       </QueryClientProvider>
     </ErrorBoundary>
   ) : (
@@ -109,12 +83,12 @@ export default function RootWrapper({ children }: RootWrapperProps) {
     <ErrorBoundary>
       <QueryClientProvider client={getQueryClient()}>
         <StackAuthProvider>
-          <LazyTooltipProvider>
+          <TooltipProvider>
             <ErrorBoundary>
               {children}
-              <LazyToaster />
+              <Toaster />
             </ErrorBoundary>
-          </LazyTooltipProvider>
+          </TooltipProvider>
         </StackAuthProvider>
       </QueryClientProvider>
     </ErrorBoundary>
