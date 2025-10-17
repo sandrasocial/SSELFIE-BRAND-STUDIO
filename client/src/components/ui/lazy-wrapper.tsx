@@ -7,61 +7,45 @@ import { Button, type ButtonProps } from './button';
 import { Toaster } from './toaster';
 import { TooltipProvider } from './tooltip';
 
-const LoadingFallback = () => <div className="min-h-[40px] animate-pulse bg-stone-100 rounded-lg" />;
+// ✅ CLEANUP: Removed nested Suspense wrappers
+// RootWrapper handles all Suspense boundaries
 
 // Create wrapper components that defer initialization
 export const LazyDialog = React.memo(() => (
-  <Suspense fallback={<LoadingFallback />}>
-    <DialogComponent.Root />
-  </Suspense>
+  <DialogComponent.Root />
 ));
 
 export const LazyCommand = React.memo(() => (
-  <Suspense fallback={<LoadingFallback />}>
-    <CommandComponent.Root />
-  </Suspense>
+  <CommandComponent.Root />
 ));
 
 export const LazySheet = React.memo(() => (
-  <Suspense fallback={<LoadingFallback />}>
-    <Sheet />
-  </Suspense>
+  <Sheet />
 ));
 
 export const LazyAlertDialog = React.memo(() => (
-  <Suspense fallback={<LoadingFallback />}>
-    <AlertDialog />
-  </Suspense>
+  <AlertDialog />
 ));
 
 export const LazyButton = React.memo((props: ButtonProps) => (
-  <Suspense fallback={<LoadingFallback />}>
-    <Button {...props} />
-  </Suspense>
+  <Button {...props} />
 ));
 
 export const LazyToaster = React.memo(() => (
-  <Suspense fallback={<LoadingFallback />}>
-    <Toaster />
-  </Suspense>
+  <Toaster />
 ));
 
 export const LazyTooltipProvider = React.memo(({ children }: PropsWithChildren) => (
-  <Suspense fallback={<LoadingFallback />}>
-    <TooltipProvider>
-      {children}
-    </TooltipProvider>
-  </Suspense>
+  <TooltipProvider>
+    {children}
+  </TooltipProvider>
 ));
 
 // Create a withSuspense HOC for wrapping any component
 export function withSuspense<P extends object>(
-  Component: ComponentType<P>,
-  fallback = <LoadingFallback />
+  Component: ComponentType<P>
 ) {
   return React.memo((props: P) => (
-    <Suspense fallback={fallback}>
-      <Component {...props} />
-    </Suspense>
+    <Component {...props} />
   ));
 }
