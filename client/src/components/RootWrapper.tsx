@@ -4,6 +4,7 @@ import { ErrorBoundary } from "./ErrorBoundary";
 import { getQueryClient } from "../lib/queryClient";
 import PageLoader from './PageLoader';
 import { isPublicRoute } from '../constants/routes';
+import { useLocation } from 'wouter';
 
 // Lazy load providers
 const LazyTooltipProvider = React.lazy(() => import('./ui/tooltip').then(mod => ({ default: mod.TooltipProvider })));
@@ -15,15 +16,14 @@ interface RootWrapperProps {
 }
 
 export default function RootWrapper({ children }: RootWrapperProps) {
-  const [currentPath, setCurrentPath] = useState<string>('');
+  const [location] = useLocation();
   const [isPublic, setIsPublic] = useState<boolean>(false);
 
-  // Detect if current route is public
+  // Detect if current route is public and update when route changes
   useEffect(() => {
-    const path = window.location.pathname;
-    setCurrentPath(path);
+    const path = location || window.location.pathname;
     setIsPublic(isPublicRoute(path));
-  }, []);
+  }, [location]);
 
   // For public routes, skip Stack Auth initialization
   if (isPublic) {

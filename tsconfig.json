@@ -27,7 +27,7 @@
     "noImplicitAny": false,
     "noUncheckedIndexedAccess": false,
     "exactOptionalPropertyTypes": false,
-    "noEmit": false,
+    "noEmit": true,
     "jsx": "react-jsx",
     "jsxImportSource": "react",
     "experimentalDecorators": true,
@@ -45,15 +45,14 @@
     },
     "types": [
       "vite/client",
-      "react/experimental",
       "node"
     ],
     "typeRoots": [
       "./client/src/types",
       "./node_modules/@types"
-    ],
+    ]
   },
-    "include": [
+  "include": [
     "vite.config.ts",
     "client/src/**/*",
     "shared/**/*",
@@ -61,8 +60,7 @@
     "api/**/*",
     "shared/types/global.d.ts",
     "shared/types/stack-auth.d.ts",
-    "stack/**/*",
-    "client/src/types/react19-unified.d.ts"
+    "stack/**/*"
   ],
   "exclude": [
     "node_modules",

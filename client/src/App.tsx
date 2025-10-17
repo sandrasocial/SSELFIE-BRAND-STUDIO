@@ -170,186 +170,161 @@ function HandlerRoutes() {
 }
 
 function Router() {
-  const routes = [
-    // Post-auth success handoff - MOVED TO TOP for priority matching
-    createElement(Route, {
-      path: "/auth-success",
-      component: () => createElement(SuspenseWrapper, null, 
-        createElement(AuthSuccessComponent)
-      )
-    }),
+  return (
+    <>
+      {/* Post-auth success handoff - MOVED TO TOP for priority matching */}
+      <Route
+        path="/auth-success"
+        component={() => <SuspenseWrapper><AuthSuccessComponent /></SuspenseWrapper>}
+      />
 
-    // CLEANED UP: Redirect to Stack Auth handlers for consistency
-    createElement(Route, {
-      path: "/sign-in",
-      component: () => {
-        window.location.replace('/handler/sign-in');
-        return createElement(PageLoader);
-      }
-    }),
-    createElement(Route, {
-      path: "/sign-up",
-      component: () => {
-        window.location.replace('/handler/sign-up');
-        return createElement(PageLoader);
-      }
-    }),
+      {/* CLEANED UP: Redirect to Stack Auth handlers for consistency */}
+      <Route
+        path="/sign-in"
+        component={() => {
+          window.location.replace('/handler/sign-in');
+          return <PageLoader />;
+        }}
+      />
+      <Route
+        path="/sign-up"
+        component={() => {
+          window.location.replace('/handler/sign-up');
+          return <PageLoader />;
+        }}
+      />
 
-    // STACK AUTH HANDLER - Consolidated routes for ALL Stack Auth operations
-    // CRITICAL FIX: OAuth callback handler MUST come before other routes to preserve query parameters
-    createElement(Route, {
-      path: "/handler/oauth-callback",
-      component: () => {
-        const OAuthCallback = React.lazy(() => import("./pages/handler/oauth-callback"));
-        return createElement(SuspenseWrapper, null,
-          createElement(OAuthCallback)
-        );
-      }
-    }),
-      
-    // Use HandlerRoutes for all Stack Auth operations for consistency
-    createElement(Route, {
-      path: "/handler/:path*",
-      component: () => createElement(SuspenseWrapper, null,
-        createElement(HandlerRoutes)
-      )
-    }),
+      {/* STACK AUTH HANDLER - Consolidated routes for ALL Stack Auth operations */}
+      {/* CRITICAL FIX: OAuth callback handler MUST come before other routes to preserve query parameters */}
+      <Route
+        path="/handler/oauth-callback"
+        component={() => {
+          const OAuthCallback = React.lazy(() => import("./pages/handler/oauth-callback"));
+          return <SuspenseWrapper><OAuthCallback /></SuspenseWrapper>;
+        }}
+      />
 
-    // Home page - Smart routing based on auth and training status
-    createElement(Route, {
-      path: "/",
-      component: SmartHome
-    }),
+      {/* Use HandlerRoutes for all Stack Auth operations for consistency */}
+      <Route
+        path="/handler/:path*"
+        component={() => <SuspenseWrapper><HandlerRoutes /></SuspenseWrapper>}
+      />
 
-    // Debug route for auth diagnostics
-    createElement(Route, {
-      path: "/auth-diagnostic",
-      component: () => {
-        const AuthDiagnostic = React.lazy(() => import("./pages/auth-diagnostic"));
-        return createElement(SuspenseWrapper, null,
-          createElement(AuthDiagnostic)
-        );
-      }
-    }),
+      {/* Home page - Smart routing based on auth and training status */}
+      <Route path="/" component={SmartHome} />
 
-    // Public landing pages
-    createElement(Route, {
-      path: "/business",
-      component: () => createElement(SuspenseWrapper, null,
-        createElement(BusinessLanding)
-      )
-    }),
+      {/* Debug route for auth diagnostics */}
+      <Route
+        path="/auth-diagnostic"
+        component={() => {
+          const AuthDiagnostic = React.lazy(() => import("./pages/auth-diagnostic"));
+          return <SuspenseWrapper><AuthDiagnostic /></SuspenseWrapper>;
+        }}
+      />
 
-    // Protected onboarding routes
-    createElement(Route, {
-      path: "/simple-training",
-      component: () => createElement(ProtectedRouteWrapper, null,
-        createElement(SuspenseWrapper, null,
-          createElement(SimpleTraining)
-        )
-      )
-    }),
-      
-    // Public checkout - allows new users to purchase before authentication
-    createElement(Route, {
-      path: "/simple-checkout",
-      component: () => createElement(SuspenseWrapper, null,
-        createElement(SimpleCheckout)
-      )
-    }),
-    createElement(Route, {
-      path: "/embedded-checkout",
-      component: () => createElement(SuspenseWrapper, null,
-        createElement(EmbeddedCheckout)
-      )
-    }),
-    createElement(Route, {
-      path: "/payment-success",
-      component: () => createElement(ProtectedRouteWrapper, null,
-        createElement(SuspenseWrapper, null,
-          createElement(PaymentSuccess)
-        )
-      )
-    }),
-    createElement(Route, {
-      path: "/thank-you",
-      component: () => createElement(SuspenseWrapper, null,
-        createElement(ThankYou)
-      )
-    }),
+      {/* Public landing pages */}
+      <Route
+        path="/business"
+        component={() => <SuspenseWrapper><BusinessLanding /></SuspenseWrapper>}
+      />
 
-    // Maya Chat - Direct route for Maya AI chat interface
-    createElement(Route, {
-      path: "/maya",
-      component: () => createElement(ProtectedRouteWrapper, null,
-        createElement(SuspenseWrapper, null,
-          createElement(MayaPage)
-        )
-      )
-    }),
+      {/* Protected onboarding routes */}
+      <Route
+        path="/simple-training"
+        component={() => (
+          <ProtectedRouteWrapper>
+            <SuspenseWrapper><SimpleTraining /></SuspenseWrapper>
+          </ProtectedRouteWrapper>
+        )}
+      />
 
-    // Main authenticated app routes
-    createElement(Route, {
-      path: "/app",
-      component: () => createElement(ProtectedRouteWrapper, null,
-        createElement(SuspenseWrapper, null,
-          createElement(SselfieAppLayout)
-        )
-      )
-    }),
-    createElement(Route, {
-      path: "/app/:tab*",
-      component: () => createElement(ProtectedRouteWrapper, null,
-        createElement(SuspenseWrapper, null,
-          createElement(SselfieAppLayout)
-        )
-      )
-    }),
+      {/* Public checkout - allows new users to purchase before authentication */}
+      <Route
+        path="/simple-checkout"
+        component={() => <SuspenseWrapper><SimpleCheckout /></SuspenseWrapper>}
+      />
+      <Route
+        path="/embedded-checkout"
+        component={() => <SuspenseWrapper><EmbeddedCheckout /></SuspenseWrapper>}
+      />
+      <Route
+        path="/payment-success"
+        component={() => (
+          <ProtectedRouteWrapper>
+            <SuspenseWrapper><PaymentSuccess /></SuspenseWrapper>
+          </ProtectedRouteWrapper>
+        )}
+      />
+      <Route
+        path="/thank-you"
+        component={() => <SuspenseWrapper><ThankYou /></SuspenseWrapper>}
+      />
 
-    // AI Command Center - Protected route for authenticated users
-    createElement(Route, {
-      path: "/ai-command-center",
-      component: () => createElement(ProtectedRouteWrapper, null,
-        createElement(SuspenseWrapper, null,
-          createElement(AICommandCenter)
-        )
-      )
-    }),
+      {/* Maya Chat - Direct route for Maya AI chat interface */}
+      <Route
+        path="/maya"
+        component={() => (
+          <ProtectedRouteWrapper>
+            <SuspenseWrapper><MayaPage /></SuspenseWrapper>
+          </ProtectedRouteWrapper>
+        )}
+      />
 
-    // SSELFIE Gallery - Protected Route
-    createElement(Route, {
-      path: "/sselfie-gallery",
-      component: () => createElement(ProtectedRouteWrapper, null,
-        createElement(SuspenseWrapper, null,
-          createElement(SSELFIEGallery)
-        )
-      )
-    }),
+      {/* Main authenticated app routes */}
+      <Route
+        path="/app"
+        component={() => (
+          <ProtectedRouteWrapper>
+            <SuspenseWrapper><SselfieAppLayout /></SuspenseWrapper>
+          </ProtectedRouteWrapper>
+        )}
+      />
+      <Route
+        path="/app/:tab*"
+        component={() => (
+          <ProtectedRouteWrapper>
+            <SuspenseWrapper><SselfieAppLayout /></SuspenseWrapper>
+          </ProtectedRouteWrapper>
+        )}
+      />
 
-    // Legal pages
-    createElement(Route, {
-      path: "/terms",
-      component: () => createElement(SuspenseWrapper, null,
-        createElement(Terms)
-      )
-    }),
-    createElement(Route, {
-      path: "/privacy",
-      component: () => createElement(SuspenseWrapper, null,
-        createElement(Privacy)
-      )
-    }),
+      {/* AI Command Center - Protected route for authenticated users */}
+      <Route
+        path="/ai-command-center"
+        component={() => (
+          <ProtectedRouteWrapper>
+            <SuspenseWrapper><AICommandCenter /></SuspenseWrapper>
+          </ProtectedRouteWrapper>
+        )}
+      />
 
-    // 404 Not Found - Must be last
-    createElement(Route, {
-      path: "/:rest*",
-      component: () => createElement(SuspenseWrapper, null,
-        createElement(NotFound)
-      )
-    })
-  ];
-  
-  return createElement('div', null, routes);
+      {/* SSELFIE Gallery - Protected Route */}
+      <Route
+        path="/sselfie-gallery"
+        component={() => (
+          <ProtectedRouteWrapper>
+            <SuspenseWrapper><SSELFIEGallery /></SuspenseWrapper>
+          </ProtectedRouteWrapper>
+        )}
+      />
+
+      {/* Legal pages */}
+      <Route
+        path="/terms"
+        component={() => <SuspenseWrapper><Terms /></SuspenseWrapper>}
+      />
+      <Route
+        path="/privacy"
+        component={() => <SuspenseWrapper><Privacy /></SuspenseWrapper>}
+      />
+
+      {/* 404 Not Found - Must be last */}
+      <Route
+        path="/:rest*"
+        component={() => <SuspenseWrapper><NotFound /></SuspenseWrapper>}
+      />
+    </>
+  );
 }
 
 function App() {
