@@ -53,7 +53,7 @@ router.post('/process', requireStackAuth, async (req: Request, res: Response) =>
 
     res.json({
       message: 'Email processing completed',
-      insights: insights.length,
+      insights: (insights as any).processed || 0,
       data: insights
     });
   } catch (error) {

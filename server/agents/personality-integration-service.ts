@@ -32,7 +32,7 @@ export class PersonalityIntegrationService {
    */
   createPersonalityContext(agentId: string, isAdminRequest: boolean = false): PersonalityContext {
     const agentPersonality = PURE_PERSONALITIES[agentId as keyof typeof PURE_PERSONALITIES];
-    const agentName = agentPersonality?.name || agentId;
+    const agentName = (agentPersonality as any)?.name || agentId;
     const mission = (agentPersonality as any)?.identity?.mission || (agentPersonality as any)?.mission || (agentPersonality as any)?.description || 'Expert assistance';
 
 
@@ -115,9 +115,9 @@ export class PersonalityIntegrationService {
   getAgentVoicePatterns(agentId: string): any {
     const personality = PURE_PERSONALITIES[agentId as keyof typeof PURE_PERSONALITIES];
     if (!personality) return null;
-    
+
     // Handle different personality structures safely
-    const voice = personality.voice as any;
+    const voice = (personality as any).voice as any;
     const traits = (personality as any).traits;
     const workStyle = (personality as any).workStyle;
     

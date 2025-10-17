@@ -93,19 +93,19 @@ router.post('/generate', requireStackAuth, async (req: Request<{}, {}, VideoGene
       }
 
       // Try generated images first
-      imageRecord = await db.select().from(generatedImages)
+      imageRecord = (await db.select().from(generatedImages)
         .where(and(
           eq(generatedImages.id, parsedImageId),
           eq(generatedImages.userId, userId)
-        )).limit(1);
+        )).limit(1)) as any;
 
       if (imageRecord.length === 0) {
-        // Try legacy images  
-        imageRecord = await db.select().from(aiImages)
+        // Try legacy images
+        imageRecord = (await db.select().from(aiImages)
           .where(and(
             eq(aiImages.id, parsedImageId),
             eq(aiImages.userId, userId)
-          )).limit(1);
+          )).limit(1)) as any;
       }
 
       if (imageRecord.length === 0) {
@@ -113,10 +113,10 @@ router.post('/generate', requireStackAuth, async (req: Request<{}, {}, VideoGene
       }
 
       const record = imageRecord[0];
-      initImageUrl = record.selectedUrl || record.imageUrl;
+      initImageUrl = record.selectedUrl || (record as any).imageUrl || (record as any).imageUrls;
 
       // Handle JSON array of URLs if needed
-      if (!initImageUrl && record.imageUrls) {
+      if (!initImageUrl && (record as any).imageUrls) {
         try {
           const urls = Array.isArray(record.imageUrls) ? record.imageUrls : JSON.parse(record.imageUrls);
           initImageUrl = urls?.[0];

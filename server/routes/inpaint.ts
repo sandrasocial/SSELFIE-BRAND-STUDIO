@@ -166,8 +166,8 @@ router.delete('/api/inpaint/variant/:variantId', requireStackAuth, asyncHandler(
   try {
 
     // Get the variant to verify ownership
-    const variant = await storage.getImageVariant(parseInt(variantId));
-    
+    const variant = await storage.getImageVariant(parseInt(variantId), userId);
+
     if (!variant) {
       throw createError.notFound('Variant not found');
     }
@@ -179,7 +179,7 @@ router.delete('/api/inpaint/variant/:variantId', requireStackAuth, asyncHandler(
     // TODO: Implement deleteImageVariant method in storage
     // For now, we'll update the status to 'deleted'
     await storage.updateImageVariant(parseInt(variantId), {
-      generationStatus: 'deleted'
+      processingStatus: 'deleted'
     });
 
     sendSuccess(res, { message: 'Variant deleted successfully' });
