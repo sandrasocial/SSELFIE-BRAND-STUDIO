@@ -3,9 +3,10 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { withTimeout, withDatabaseTimeout, withDatabaseTimeoutAndRetry, withExternalApiTimeout, isTimeoutError } from './_utils/timing.js';
 import type { ConceptCard } from '../shared/types/concept-card.js';
 
-export const config = { 
+export const config = {
   runtime: 'nodejs',
-  maxDuration: 40
+  maxDuration: 60,
+  memory: 3008
 } as const;
 
 import { StackAuthUserInfo } from './_shared/stack-auth-types.js';
