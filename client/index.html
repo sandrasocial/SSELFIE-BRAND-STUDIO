@@ -56,8 +56,19 @@
     
     <!-- Preconnect for Performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://i.postimg.cc" />
     <link rel="dns-prefetch" href="https://api.replicate.com" />
+
+    <!-- Local Font (CORS-safe) -->
+    <link rel="preload" href="/fonts/Billabong.woff" as="font" type="font/woff" crossorigin />
+    <style>
+      @font-face {
+        font-family: 'Billabong';
+        src: url('/fonts/Billabong.woff') format('woff');
+        font-weight: normal;
+        font-style: normal;
+        font-display: swap;
+      }
+    </style>
     
     <!-- Editorial Typography CSS -->
     <style>
