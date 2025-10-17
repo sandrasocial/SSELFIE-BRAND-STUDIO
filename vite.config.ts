@@ -70,9 +70,6 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
       jsxImportSource: 'react',
       target: ['esnext'],
       legalComments: 'none',
-      define: {
-        global: 'globalThis'
-      },
       banner: '/* eslint-disable */',
       tsconfigRaw: {
         compilerOptions: {
@@ -116,6 +113,12 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
         'normalize-wheel',
         'color',
         'queue-microtask',
+        'content-type',
+        'qrcode',
+        'simple-swizzle',
+        'color-string',
+        'color-name',
+        'color-convert',
       ],
       exclude: [
         '@radix-ui',
@@ -127,7 +130,6 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
         'pend',
         'callsites',
         '@alloc/quick-lru',
-        'simple-swizzle',
         'pg-int8',
         'node-gyp-build',
         '@pkgjs/parseargs',
@@ -168,7 +170,7 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
       build: {
       outDir: path.resolve(__dirname, "client/dist"),
       emptyOutDir: true,
-      sourcemap: process.env.NODE_ENV !== 'production',
+      sourcemap: true,
       cssCodeSplit: false,
       reportCompressedSize: false,
       chunkSizeWarningLimit: 2000,
@@ -256,6 +258,8 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
       }
     },
     define: {
+      'exports': '{}',
+      'module': '{}',
       global: 'globalThis',
       'globalThis.__STACK_PROJECT_ID__': JSON.stringify(process.env.VITE_STACK_PROJECT_ID || "253d7343-a0d4-43a1-be5c-822f590d40be"),
       'globalThis.__STACK_PUBLISHABLE_CLIENT_KEY__': JSON.stringify(process.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY || "pck_bqv6htnwq1f37nd2fn6qatxx2f8x0tnxvjj7xwgh1zmhg"),
