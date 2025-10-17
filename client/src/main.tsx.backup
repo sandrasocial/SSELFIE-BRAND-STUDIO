@@ -1,18 +1,18 @@
 import React from 'react';
 import { createRoot } from "react-dom/client";
-import App from "./App";
+import App from "./App.js";
 import "./index.css";
 
 // 💡 IMPORT ALL PROVIDERS HERE
 import { QueryClientProvider } from '@tanstack/react-query';
 import { StackProvider, StackTheme } from '@stackframe/react';
-import { Toaster } from './components/ui/toaster';
-import { TooltipProvider } from './components/ui/tooltip';
+import { Toaster } from './components/ui/toaster.js';
+import { TooltipProvider } from './components/ui/tooltip.js';
 
 // Import queryClient and stackClientApp
-import { queryClient } from "./lib/queryClient";
+import { queryClient } from "./lib/queryClient.js";
 // Re-enable Stack Auth import
-import { stackClientApp } from "../../stack/client";
+import { stackClientApp } from "../../stack/client.js";
 
 // Debug logging for troubleshooting
 console.log('SSELFIE Studio: Main.tsx loading...');
@@ -37,7 +37,7 @@ if (import.meta.hot) {
 window.addEventListener('unhandledrejection', (event) => {
   // Prevent the default console.error that React shows
   event.preventDefault();
-
+  
   // Check if this is a WebSocket or development-related error
   const isWebSocketError = event.reason && (
     event.reason.message?.includes('WebSocket') ||
@@ -46,21 +46,21 @@ window.addEventListener('unhandledrejection', (event) => {
     event.reason.message?.includes('Service Worker') ||
     event.reason.toString().includes('WebSocket')
   );
-
+  
   if (isWebSocketError) {
     // Silently ignore WebSocket/HMR errors - these are development only
     return;
   }
-
+  
   // Only log actual application errors
   console.warn('SSELFIE Studio: Unhandled promise rejection caught:', event.reason);
 });
 
 // React sanity check for debugging
 if (import.meta.env.DEV) {
-  console.log("React sanity:", {
-    version: React.version,
-    hasUse: typeof (React as any).use === "function"
+  console.log("React sanity:", { 
+    version: React.version, 
+    hasUse: typeof (React as any).use === "function" 
   });
 }
 
@@ -120,7 +120,7 @@ try {
   console.log('✅ SSELFIE Studio: App rendered successfully WITH Stack Auth!');
 } catch (error) {
   console.error('❌ SSELFIE Studio: Fatal error during app initialization:', error);
-
+  
   // Fallback error display
   const container = document.getElementById("root");
   if (container) {
