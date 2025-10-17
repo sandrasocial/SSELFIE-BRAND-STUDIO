@@ -6,6 +6,10 @@ import PageLoader from './PageLoader';
 import { isPublicRoute } from '../constants/routes';
 import { useLocation } from 'wouter';
 
+// ✅ CRITICAL FIX: Import StackAuthProvider directly (not lazy)
+// This prevents it from being loaded for public routes
+import StackAuthProvider from './providers/StackAuthProvider';
+
 // Lazy load providers - wrap in proper component structure
 const LazyTooltipProvider = React.lazy(() =>
   import('./ui/tooltip').then(mod => {
@@ -33,21 +37,6 @@ const LazyToaster = React.lazy(() =>
     return { default: mod.Toaster };
   }).catch(err => {
     console.error('❌ Failed to load toaster module:', err);
-    throw err;
-  })
-);
-
-const StackAuthProvider = React.lazy(() =>
-  import('./providers/StackAuthProvider').then(mod => {
-    console.log('✅ StackAuthProvider module loaded:', Object.keys(mod));
-    // Ensure we have the default export
-    if (!mod.default) {
-      console.error('❌ StackAuthProvider default export not found. Available exports:', Object.keys(mod));
-      throw new Error('StackAuthProvider default export missing');
-    }
-    return { default: mod.default };
-  }).catch(err => {
-    console.error('❌ Failed to load StackAuthProvider module:', err);
     throw err;
   })
 );
@@ -100,9 +89,10 @@ export default function RootWrapper({ children }: RootWrapperProps) {
     return <PageLoader />;
   }
 
-  // ✅ FIX #7: For public routes, skip Stack Auth initialization
-  // Flatten Suspense hierarchy - single Suspense boundary at top level
+  // ✅ CRITICAL FIX: For public routes, skip Stack Auth entirely
+  // This prevents authentication from blocking public pages
   if (isPublic) {
+    console.log('🟢 RootWrapper: Rendering PUBLIC route without StackAuthProvider');
     return (
       <ErrorBoundary>
         <QueryClientProvider client={getQueryClient()}>
@@ -119,21 +109,23 @@ export default function RootWrapper({ children }: RootWrapperProps) {
     );
   }
 
-  // ✅ FIX #8: For protected/auth routes, include Stack Auth
-  // Flatten Suspense hierarchy - remove nested Suspense boundaries
+  // ✅ CRITICAL FIX: For protected routes, include Stack Auth
+  // StackAuthProvider is now imported directly (not lazy)
+  // This ensures it initializes properly for protected routes
+  console.log('🔐 RootWrapper: Rendering PROTECTED route with StackAuthProvider');
   return (
     <ErrorBoundary>
       <QueryClientProvider client={getQueryClient()}>
-        <Suspense fallback={<PageLoader />}>
-          <StackAuthProvider>
+        <StackAuthProvider>
+          <Suspense fallback={<PageLoader />}>
             <LazyTooltipProvider>
               <ErrorBoundary>
                 {children}
                 <LazyToaster />
               </ErrorBoundary>
             </LazyTooltipProvider>
-          </StackAuthProvider>
-        </Suspense>
+          </Suspense>
+        </StackAuthProvider>
       </QueryClientProvider>
     </ErrorBoundary>
   );
