@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card.js';
 import { Badge } from '../ui/badge.js';
-import { Clock, CheckCircle, AlertCircle, PlayCircle, Users } from 'lucide-react';
+import { Clock, CheckCircle, AlertCircle, PlayCircle, User } from 'lucide-react';
 import TaskStatusIndicator from './TaskStatusIndicator.js';
 
 interface BridgeTask {
@@ -114,7 +114,7 @@ export default function StatusDashboard({ className = "" }: StatusDashboardProps
         <Card className="border-zinc-200 bg-white">
           <CardContent className="p-6 text-center">
             <div className="flex items-center justify-center mb-2">
-              <Users className="h-5 w-5 text-zinc-600" />
+              <User className="h-5 w-5 text-zinc-600" />
             </div>
             <div className="text-2xl font-serif font-light text-black mb-1">
               {stats.total}

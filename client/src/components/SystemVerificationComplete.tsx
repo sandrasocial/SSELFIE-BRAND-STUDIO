@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { CheckCircle, AlertCircle, Users, Settings, Server } from 'lucide-react';
+import { CheckCircle, AlertCircle, User, Settings, Server } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card.js';
 import { Badge } from './ui/badge.js';
 
