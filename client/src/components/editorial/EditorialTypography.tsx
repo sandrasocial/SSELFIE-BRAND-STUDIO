@@ -8,7 +8,7 @@ interface EditorialHeadingProps {
 
 export function EditorialHeading({ level = 1, children, className = '' }: EditorialHeadingProps) {
   const baseClasses = 'editorial-headline editorial-text-header';
-  
+
   const levelClasses = {
     1: 'text-display-xl',
     2: 'text-display-lg',
@@ -17,13 +17,13 @@ export function EditorialHeading({ level = 1, children, className = '' }: Editor
     5: 'text-body-lg',
     6: 'text-body'
   };
-  
-  const Component = `h${level}` as keyof JSX.IntrinsicElements;
-  
-  return (
-    <Component className={`${baseClasses} ${levelClasses[level]} ${className}`}>
-      {children}
-    </Component>
+
+  const headingLevel = `h${level}` as const;
+
+  return React.createElement(
+    headingLevel,
+    { className: `${baseClasses} ${levelClasses[level]} ${className}` },
+    children
   );
 }
 

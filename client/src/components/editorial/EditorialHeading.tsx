@@ -1,4 +1,4 @@
-import { FC, ReactNode } from 'react';
+import React, { FC, ReactNode } from 'react';
 interface EditorialHeadingProps {
   children: ReactNode;
   level?: 1 | 2 | 3 | 4;
@@ -11,7 +11,7 @@ export const EditorialHeading: FC<EditorialHeadingProps> = ({
   className = ''
 }) => {
   const baseClasses = 'font-serif font-bold text-zinc-900 mb-6 leading-tight';
-  
+
   const sizeClasses = {
     1: 'text-4xl md:text-5xl lg:text-6xl',
     2: 'text-3xl md:text-4xl lg:text-5xl',
@@ -19,11 +19,11 @@ export const EditorialHeading: FC<EditorialHeadingProps> = ({
     4: 'text-xl md:text-2xl lg:text-3xl'
   };
 
-  const Component = `h${level}` as keyof JSX.IntrinsicElements;
+  const headingLevel = `h${level}` as const;
 
-  return (
-    <Component className={`${baseClasses} ${sizeClasses[level]} ${className}`}>
-      {children}
-    </Component>
+  return React.createElement(
+    headingLevel,
+    { className: `${baseClasses} ${sizeClasses[level]} ${className}` },
+    children
   );
 }
