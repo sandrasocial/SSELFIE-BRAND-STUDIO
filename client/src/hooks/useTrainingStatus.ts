@@ -30,11 +30,11 @@ export const useTrainingStatus = (userId: string, enabled: boolean = true) => {
   const [trainingStage, setTrainingStage] = useState<TrainingStage | null>(null);
 
   // Query for user model status
-  const { 
-    data: userModel, 
+  const {
+    data: userModel,
     refetch: refetchUserModel,
     isLoading: isUserModelLoading
-  } = useQuery<UserModelResponse>({
+  } = useQuery({
     queryKey: ['/api/user-model'],
     enabled: enabled && !!userId,
     staleTime: 30 * 1000, // 30 seconds

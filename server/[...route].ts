@@ -1,14 +1,9 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { withAuth } from './_middleware/auth.js';
 import type { AuthenticatedRequest } from './_shared/auth-types.js';
-import { adaptExpressRouter } from './_utils/express-to-vercel-adapter.js';
 
-// Import route modules
-import authRouter from './routes/modules/auth.js';
-import trainingRouter from './routes/modules/training.js';
-import galleryRouter from './routes/modules/gallery.js';
-// 🚨 DISABLED: Maya routes now handled by dedicated serverless endpoints
-// import mayaRouter from './routes/modules/maya.js';
+// ✅ PURE SERVERLESS: All routes now handled by dedicated serverless functions
+// No Express adapter needed - removed in Phase 3b migration
 
 export const config = {
   runtime: 'nodejs',
@@ -347,68 +342,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     req.url.includes('/api/user-model')
   );
 
-  // 🔄 AUTH ROUTES: Handle via auth.ts module (Phase 1 Migration)
+  // ✅ AUTH ROUTES: Now handled by pure serverless functions in /server/api/auth/
+  // No Express adapter needed - Phase 3b migration complete
   const isAuthRoute = req.url && AUTH_ROUTES.some(route => req.url === route || req.url?.startsWith(route));
   if (isAuthRoute) {
-    console.log(`🔄 [AUTH MODULE] Handling: ${req.url}`);
-    return withAuth(req, res, async (req: AuthenticatedRequest, res: VercelResponse) => {
-      // Handle auth routes directly without Express adapter
-      if (req.url === '/api/me') {
-        res.setHeader('Cache-Control', 'no-store');
-
-        const dbUser = req.user;
-        if (!dbUser) {
-          return res.status(404).json({ error: 'User not found' });
-        }
-
-        const user = {
-          id: dbUser.id,
-          email: dbUser.email ?? '',
-          displayName: dbUser.displayName ?? undefined,
-          firstName: dbUser.firstName ?? undefined,
-          lastName: dbUser.lastName ?? undefined,
-          gender: (dbUser.gender as 'man' | 'woman' | 'other' | undefined) ?? undefined,
-          profileImageUrl: dbUser.profileImageUrl ?? undefined,
-          plan: dbUser.plan ?? undefined,
-          role: dbUser.role ?? undefined,
-          monthlyGenerationLimit: dbUser.monthlyGenerationLimit ?? undefined,
-          mayaAiAccess: dbUser.mayaAiAccess ?? undefined,
-          victoriaAiAccess: dbUser.victoriaAiAccess ?? undefined,
-          hasRetrainingAccess: dbUser.hasRetrainingAccess ?? undefined,
-          createdAt: dbUser.createdAt
-        };
-
-        return res.status(200).json({ data: { user } });
-      }
-
-      // For other auth routes, fall back to main handler
-      const { default: main } = await import('./index.js');
-      return main(req, res);
-    });
+    console.log(`✅ [PURE SERVERLESS] Handling auth route: ${req.url}`);
+    // Auth routes are now handled by dedicated serverless functions
+    // This is just a logging checkpoint - actual routing happens at Vercel level
   }
 
-  // 🔄 TRAINING ROUTES: Handle via training.ts module (Phase 2 Migration - Day 3)
-  const isTrainingRoute = req.url && TRAINING_ROUTES.some(route => req.url === route || req.url?.startsWith(route));
-  if (isTrainingRoute) {
-    console.log(`🔄 [TRAINING MODULE] Handling: ${req.url}`);
-    return withAuth(req, res, async (req: AuthenticatedRequest, res: VercelResponse) => {
-      const trainingHandler = adaptExpressRouter(trainingRouter);
-      return trainingHandler(req, res);
-    });
-  }
+  // ✅ TRAINING ROUTES: Now handled by pure serverless functions in /server/api/training/
+  // No Express adapter needed - Phase 3b migration complete
 
-  // 🔄 GALLERY ROUTES: Handle via gallery.ts module (Phase 3 Migration - Day 4)
-  const isGalleryRoute = req.url && GALLERY_ROUTES.some(route => req.url === route || req.url?.startsWith(route));
-  if (isGalleryRoute) {
-    console.log(`🔄 [GALLERY MODULE] Handling: ${req.url}`);
-    return withAuth(req, res, async (req: AuthenticatedRequest, res: VercelResponse) => {
-      const galleryHandler = adaptExpressRouter(galleryRouter);
-      return galleryHandler(req, res);
-    });
-  }
+  // ✅ GALLERY ROUTES: Now handled by pure serverless functions in /server/api/gallery/
+  // No Express adapter needed - Phase 3b migration complete
 
-  // Maya routes are handled by dedicated Vercel serverless functions in /server/api/maya/
-  // No Express router routing needed - conflicts resolved
+  // ✅ Maya routes are handled by dedicated Vercel serverless functions in /server/api/maya/
+  // No Express router routing needed - Phase 3b migration complete
 
   // Skip auth middleware entirely for public routes
   if (isPublicRoute) {

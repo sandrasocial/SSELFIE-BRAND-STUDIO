@@ -4,10 +4,7 @@ import { cn } from "../../lib/utils.js"
 
 const Tabs = TabsPrimitive.Root
 
-const TabsList = React.forwardRef<
-  React.ElementRef<typeof TabsPrimitive.List>,
-  React.ComponentPropsWithoutRef<typeof TabsPrimitive.List>
->(({ className, ...props }, ref) => (
+const TabsList = React.forwardRef(({ className, ...props }, ref) => (
   <TabsPrimitive.List
     ref={ref}
     className={cn(
@@ -19,10 +16,7 @@ const TabsList = React.forwardRef<
 ))
 TabsList.displayName = TabsPrimitive.List.displayName
 
-const TabsTrigger = React.forwardRef<
-  React.ElementRef<typeof TabsPrimitive.Trigger>,
-  React.ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger> & { value: string }
->(({ className, value, ...props }, ref) => (
+const TabsTrigger = React.forwardRef(({ className, value, ...props }, ref) => (
   <TabsPrimitive.Trigger
     ref={ref}
     value={value}
@@ -35,10 +29,7 @@ const TabsTrigger = React.forwardRef<
 ))
 TabsTrigger.displayName = TabsPrimitive.Trigger.displayName
 
-const TabsContent = React.forwardRef<
-  React.ElementRef<typeof TabsPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof TabsPrimitive.Content> & { value: string }
->(({ className, value, ...props }, ref) => (
+const TabsContent = React.forwardRef(({ className, value, ...props }, ref) => (
   <TabsPrimitive.Content
     ref={ref}
     value={value}

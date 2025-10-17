@@ -25,7 +25,7 @@ export default function StyleguidePreview({ userId, className = "" }: Styleguide
   const { user } = useAuth();
   const targetUserId = userId || user?.id;
 
-  const { data: styleguide, isLoading } = useQuery<Styleguide>({
+  const { data: styleguide, isLoading } = useQuery({
     queryKey: [`/api/styleguide/${targetUserId}`],
     enabled: !!targetUserId,
   });

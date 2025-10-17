@@ -158,7 +158,7 @@ function GalleryTabScreen() {
   };
 
   // Same API calls as original sselfie-gallery.tsx
-  const { data: aiImagesData, isLoading } = useQuery<GalleryImage[]>({
+  const { data: aiImagesData, isLoading } = useQuery({
     queryKey: ['/api/gallery-images'],
     enabled: isAuthenticated && !!user,
     staleTime: 5 * 60 * 1000,
@@ -171,7 +171,7 @@ function GalleryTabScreen() {
 
   const aiImages = Array.isArray(aiImagesData) ? aiImagesData : [];
 
-  const { data: favoritesData } = useQuery<{ favorites: number[] }>({
+  const { data: favoritesData } = useQuery({
     queryKey: ['/api/images/favorites'],
     enabled: isAuthenticated && !!user,
     staleTime: 5 * 60 * 1000,

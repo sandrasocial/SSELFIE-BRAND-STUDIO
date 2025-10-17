@@ -35,7 +35,7 @@ const BrandKit: React.FC<BrandKitProps> = ({ onAssetSelect, selectedAssetId }) =
   const [dragOver, setDragOver] = useState(false);
 
   // Fetch brand assets
-  const { data: assets = [], isLoading, error } = useQuery<BrandAsset[]>({
+  const { data: assets = [], isLoading, error } = useQuery({
     queryKey: ['/api/brand-assets'],
     enabled: isAuthenticated && !!user,
     staleTime: 5 * 60 * 1000, // 5 minutes

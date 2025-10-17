@@ -23,7 +23,7 @@ export function PaymentVerification({ children, requiredPlan }: PaymentVerificat
   const [isChecking, setIsChecking] = useState(true);
 
   // Check user's subscription status
-  const { data: subscription, isLoading: subscriptionLoading } = useQuery<Subscription | null>({
+  const { data: subscription, isLoading: subscriptionLoading } = useQuery({
     queryKey: ['/api/subscription'],
     enabled: isAuthenticated && user?.role !== 'admin',
     retry: 1,

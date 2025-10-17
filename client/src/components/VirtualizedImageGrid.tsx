@@ -110,8 +110,8 @@ export const VirtualizedImageGrid: React.FC<VirtualizedImageGridProps> = ({
   }, [addCleanup]);
 
   // Optimized image component
-  const ImageCard = React.memo<{ image: ImageItem; style: React.CSSProperties }>(
-    ({ image, style }) => {
+  const ImageCard = React.memo(
+    ({ image, style }: { image: ImageItem; style: React.CSSProperties }) => {
       const isLoaded = loadedImages.has(image.id);
       
       return (

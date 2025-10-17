@@ -11,7 +11,7 @@ export default function Workspace() {
   const { user, isAuthenticated } = useAuth();
   const [activeStep, setActiveStep] = useState<number | null>(null);
 
-  const { data: aiImages = [], isLoading } = useQuery<AiImage[]>({
+  const { data: aiImages = [], isLoading } = useQuery({
     queryKey: ['/api/ai-images'],
     enabled: isAuthenticated,
   });

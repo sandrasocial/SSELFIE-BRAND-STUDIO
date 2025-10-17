@@ -27,13 +27,13 @@ export const RealImageSelection: FC<RealImageSelectionProps> = ({
   const [selectedFlatlayImages, setSelectedFlatlayImages] = useState<string[]>([]);
 
   // Fetch user's actual AI-generated photos from the same endpoint used in sselfie-gallery
-  const { data: aiImages = [], isLoading: loadingAI } = useQuery<AIPhoto[]>({
+  const { data: aiImages = [], isLoading: loadingAI } = useQuery({
     queryKey: ['/api/gallery-images'],
     retry: false,
   });
 
   // Fetch user's favorites for UI indication
-  const { data: favoritesData } = useQuery<{ favorites: number[] }>({
+  const { data: favoritesData } = useQuery({
     queryKey: ['/api/images/favorites'],
     retry: false,
   });

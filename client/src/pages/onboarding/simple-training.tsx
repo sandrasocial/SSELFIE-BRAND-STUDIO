@@ -46,24 +46,7 @@ function SimpleTraining() {
   } = useTrainingStatus(user?.id || '', isAuthenticated);
 
   // Check user model status with proper authentication and typing
-  const { data: userModel, refetch: refetchUserModel } = useQuery<{
-    id?: number;
-    userId?: string;
-    replicateModelId?: string;
-    trainingStatus?: string;
-    trainingProgress?: number;
-    startedAt?: string;
-    modelName?: string;
-    replicateVersionId?: string;
-    triggerWord?: string;
-    isLuxury?: boolean;
-    modelType?: string;
-    estimatedCompletionTime?: string;
-    failureReason?: string;
-    completedAt?: string;
-    canRetrain?: boolean;
-    needsTraining?: boolean;
-  }>({
+  const { data: userModel, refetch: refetchUserModel } = useQuery({
     queryKey: ['/api/user-model'],
     retry: false,
     enabled: isAuthenticated, // Only when authenticated
@@ -72,10 +55,7 @@ function SimpleTraining() {
   });
 
   // Check training status for failures
-  const { data: trainingStatus, refetch: refetchTrainingStatus } = useQuery<{
-    needsRestart: boolean;
-    reason: string;
-  }>({
+  const { data: trainingStatus, refetch: refetchTrainingStatus } = useQuery({
     queryKey: ['/api/training-status'],
     retry: false,
     enabled: isAuthenticated,

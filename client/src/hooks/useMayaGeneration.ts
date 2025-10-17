@@ -120,15 +120,15 @@ export function useMayaGeneration({
   onError,
   enabled = true
 }: UseMayaGenerationOptions) {
-  const query = useQuery<GenerationResult>({
+  const query = useQuery({
     queryKey: ['generationStatus', generationId],
     queryFn: async () => {
       if (!generationId) throw new Error('No generation ID provided');
-      
+
       const response = await fetch(`/api/maya/generation-status?predictionId=${generationId}`, {
         credentials: 'include'
       });
-      
+
       if (!response.ok) {
         throw new Error('Failed to check generation status');
       }

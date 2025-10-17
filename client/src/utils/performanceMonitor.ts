@@ -269,8 +269,8 @@ export const performanceMonitor = new PerformanceMonitor();
 
 // Hook for React components
 export function usePerformanceMonitor() {
-  const [metrics, setMetrics] = React.useState<PerformanceMetrics>(performanceMonitor.getMetrics());
-  const [score, setScore] = React.useState<number>(performanceMonitor.getPerformanceScore());
+  const [metrics, setMetrics] = React.useState(performanceMonitor.getMetrics());
+  const [score, setScore] = React.useState(performanceMonitor.getPerformanceScore());
 
   React.useEffect(() => {
     const interval = setInterval(() => {
