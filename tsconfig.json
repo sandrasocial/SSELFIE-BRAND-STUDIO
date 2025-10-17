@@ -25,6 +25,7 @@
     "emitDeclarationOnly": false,
     "strictNullChecks": false,
     "noImplicitAny": false,
+    "noImplicitThis": false,
     "noUncheckedIndexedAccess": false,
     "exactOptionalPropertyTypes": false,
     "noEmit": true,
