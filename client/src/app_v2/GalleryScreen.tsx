@@ -131,7 +131,7 @@ const GalleryScreen: React.FC = () => {
   const queryClient = useQueryClient();
 
   // Fetch user's gallery images
-  const { data: aiImagesData, isLoading } = useQuery<GalleryImage[]>({
+  const { data: aiImagesData, isLoading } = useQuery({
     queryKey: ['/api/gallery-images'],
     enabled: isAuthenticated && !!user,
     staleTime: 5 * 60 * 1000,
@@ -147,7 +147,7 @@ const GalleryScreen: React.FC = () => {
   const aiImages = Array.isArray(aiImagesData) ? aiImagesData : [];
 
   // Fetch user's favorites
-  const { data: favoritesData } = useQuery<{ favorites: number[] }>({
+  const { data: favoritesData } = useQuery({
     queryKey: ['/api/images/favorites'],
     enabled: isAuthenticated && !!user,
     staleTime: 5 * 60 * 1000,

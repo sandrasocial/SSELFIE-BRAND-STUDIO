@@ -29,12 +29,12 @@ interface UsageStats {
 export default function UsageTracker() {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const { data: usageStatus } = useQuery<UsageStatus>({
+  const { data: usageStatus } = useQuery({
     queryKey: ["/api/usage/status"],
     refetchInterval: 30000, // Refresh every 30 seconds
   });
 
-  const { data: usageStats } = useQuery<UsageStats>({
+  const { data: usageStats } = useQuery({
     queryKey: ["/api/usage/stats"],
     refetchInterval: 60000, // Refresh every minute
   });

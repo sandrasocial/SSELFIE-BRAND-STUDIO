@@ -52,7 +52,7 @@ export function useAgentActivityData() {
     isLoading: coordinationLoading,
     error: coordinationError,
     refetch: refetchCoordination
-  } = useQuery<CoordinationMetrics>({
+  } = useQuery({
     queryKey: ['/api/admin/agents/coordination-metrics'],
     staleTime: 300000, // Data is stale after 5 minutes (no auto-refresh)
     queryFn: async () => {
@@ -76,7 +76,7 @@ export function useAgentActivityData() {
     isLoading: deploymentsLoading,
     error: deploymentsError,
     refetch: refetchDeployments
-  } = useQuery<{ deployments: Deployment[] }>({
+  } = useQuery({
     queryKey: ['/api/autonomous-orchestrator/active-deployments'],
     staleTime: 300000, // Data is stale after 5 minutes (no auto-refresh)
     queryFn: async () => {
@@ -126,7 +126,7 @@ export function useAgentActivityData() {
  * Hook for getting specific deployment status
  */
 export function useDeploymentStatus(deploymentId: string | null) {
-  return useQuery<{ deployment: Deployment; timestamp: string }>({
+  return useQuery({
     queryKey: ['/api/autonomous-orchestrator/deployment-status', deploymentId],
     enabled: !!deploymentId,
     refetchInterval: 10000, // Refresh every 10 seconds when active

@@ -43,9 +43,9 @@ const typographyVariants = cva("", {
   }
 })
 
-const Typography = React.forwardRef<TypographyElement, TypographyProps>(
+const Typography = React.forwardRef(
   ({ className, variant, children, ...props }, ref) => (
-    <p 
+    <p
       ref={ref}
       className={cn(typographyVariants({ variant, className }))}
       {...props}

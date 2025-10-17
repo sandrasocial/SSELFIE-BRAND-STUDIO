@@ -8,7 +8,7 @@ type User = {
 };
 
 export const Page: React.FC = () => {
-  const [user, setUser] = React.useState<User>();
+  const [user, setUser] = React.useState(undefined as User | undefined);
 
   return (
     <article>

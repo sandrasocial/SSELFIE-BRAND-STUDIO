@@ -20,7 +20,7 @@ interface RecentImagesPreviewProps {
 const RecentImagesPreview: React.FC<RecentImagesPreviewProps> = ({ onTabChange }) => {
   const { user, isAuthenticated } = useAuth();
 
-  const { data: imagesData, isLoading } = useQuery<GalleryImage[]>({
+  const { data: imagesData, isLoading } = useQuery({
     queryKey: ['/api/gallery-images'],
     enabled: isAuthenticated && !!user,
     staleTime: 5 * 60 * 1000,

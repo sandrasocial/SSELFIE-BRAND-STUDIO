@@ -50,7 +50,7 @@ const StudioScreen: React.FC<StudioScreenProps> = ({ onTabChange }) => {
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
   const [detailsExpanded, setDetailsExpanded] = useState(false);
 
-  const { data: userModel, isLoading: modelLoading, error } = useQuery<UserModel>({
+  const { data: userModel, isLoading: modelLoading, error } = useQuery({
     queryKey: ['/api/user-model'],
     enabled: !!user && isAuthenticated,
     retry: false,

@@ -55,7 +55,7 @@ export default function PostLoginHandler() {
 
   // ✅ REMOVED DUPLICATE /api/me CALL - user data already comes from useAuth()
   // Fetch user model training status from /api/user-model
-  const { data: userModel, isLoading: modelLoading, error: modelError } = useQuery<UserModel>({
+  const { data: userModel, isLoading: modelLoading, error: modelError } = useQuery({
     queryKey: ['/api/user-model'],
     enabled: isAuthenticated && !!user,
     retry: false,
