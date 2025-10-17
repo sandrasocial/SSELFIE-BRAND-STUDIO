@@ -5,9 +5,8 @@ import type { JSXComponent, EnhancedProps } from './types/react-types';
 import { Route, useLocation } from "wouter";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { StackHandler } from "@stackframe/react";
-// ⚠️ CRITICAL: Do NOT import stackClientApp here - it causes circular dependency
-// stackClientApp is imported lazily in StackAuthProvider.tsx instead
-// Import it dynamically when needed
+// ✅ Import stackClientApp directly - it's already initialized in main.tsx
+import { stackClientApp } from "../../stack/client";
 import { useQuery } from "@tanstack/react-query";
 import { detectBrowserIssues, showDomainHelp } from "./utils/browserCompat.js";
 import { optimizeImageLoading, enableServiceWorkerCaching } from "./utils/performanceOptimizations.js";
@@ -73,26 +72,16 @@ function SmartHome() {
 
 // 🔥 CLEANED UP: Stack Auth Handler - Single source of truth for authentication
 function HandlerRoutes() {
-  const [app, setApp] = useState<any>(null);
-  const [error, setError] = useState<Error | null>(null);
+  // ✅ stackClientApp is already initialized in main.tsx and imported at the top
+  // No need for dynamic loading - just use it directly
 
-  useEffect(() => {
-    // Lazy load stackClientApp only when needed
-    import('../../stack/client').then(module => {
-      setApp(module.stackClientApp);
-    }).catch(err => {
-      console.error('🔥 Failed to load Stack Auth:', err);
-      setError(err);
-    });
-  }, []);
-
-  if (error) {
+  if (!stackClientApp) {
     return createElement('div',
       { className: "min-h-screen bg-stone-50 flex items-center justify-center" },
       createElement('div',
         { className: "text-center" },
         createElement('h2', { className: "text-2xl mb-4" }, "Authentication Error"),
-        createElement('p', { className: "text-gray-600 mb-4" }, "Failed to load authentication: " + error.message),
+        createElement('p', { className: "text-gray-600 mb-4" }, "Stack Auth is not initialized"),
         createElement('button', {
           onClick: () => window.location.reload(),
           className: "bg-black text-white px-6 py-2 rounded"
@@ -101,15 +90,11 @@ function HandlerRoutes() {
     );
   }
 
-  if (!app) {
-    return createElement(PageLoader);
-  }
-
   // ✅ Use StackHandler for ALL Stack Auth operations to ensure consistency
   // This includes sign-in, sign-up, magic-link, password-reset, email-verification
   try {
     return createElement(StackHandler, {
-      app: app,
+      app: stackClientApp,
       location: window.location.pathname + window.location.search + window.location.hash,
       fullPage: true
     });
