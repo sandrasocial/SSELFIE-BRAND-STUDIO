@@ -14,7 +14,6 @@ import { optimizeImageLoading, enableServiceWorkerCaching } from "./utils/perfor
 import { optimizeRuntime } from "./utils/webVitals.js";
 import { initializeMobileOptimization } from "./utils/mobileOptimization.js";
 import { performanceMonitor } from "./utils/performanceMonitor.js";
-import { WithStackAuth } from "./components/auth/WithStackAuth";
 import RootWrapper from "./components/RootWrapper";
 import { useAuth } from "./hooks/use-auth.js";
 import { initializeRuntimeOptimization } from "./utils/runtimeOptimization.js";

@@ -39,11 +39,14 @@ const root = createRoot(rootElement);
 // NO Suspense boundary here - RootWrapper handles all Suspense
 // This prevents duplicate loading screens
 import App from './App';
+import RootWrapper from './components/RootWrapper';
 
 console.log('🚀 Rendering app...');
 
 root.render(
   <React.StrictMode>
-    <App />
+    <RootWrapper>
+      <App />
+    </RootWrapper>
   </React.StrictMode>
 );
