@@ -83,7 +83,9 @@ declare module 'react' {
   export type ButtonHTMLAttributes<T = HTMLButtonElement> = React.ButtonHTMLAttributes<T>;
   export type InputHTMLAttributes<T = HTMLInputElement> = React.InputHTMLAttributes<T>;
   export type TextareaHTMLAttributes<T = HTMLTextAreaElement> = React.TextareaHTMLAttributes<T>;
+  export type DetailedHTMLProps<E extends React.HTMLAttributes<T>, T> = React.DetailedHTMLProps<E, T>;
   export type CSSProperties = React.CSSProperties;
+  export type RefAttributes<T> = React.RefAttributes<T>;
 
   // Element types
   export type ElementType<P = any> = React.ElementType<P>;
