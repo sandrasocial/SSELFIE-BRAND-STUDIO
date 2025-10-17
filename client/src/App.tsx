@@ -49,8 +49,6 @@ import { PUBLIC_ROUTES } from "./constants/routes";
 // Components
 import { PageLoader } from './components/loaders';
 
-import { SuspenseWrapper } from './components/SuspenseWrapper';
-
 // Protected Route Wrapper Component
 function ProtectedRouteWrapper({ children }: { children: React.ReactNode }) {
   const [location, setLocation] = useLocation();
@@ -125,9 +123,7 @@ function SmartHome() {
 
   // For authenticated users, use PostLoginHandler to determine where to go
   console.log('✅ SmartHome: User authenticated, showing post-login handler');
-  return createElement(SuspenseWrapper, null,
-    createElement(PostLoginHandler)
-  );
+  return createElement(PostLoginHandler);
 }
 
 // 🔥 CLEANED UP: Stack Auth Handler - Single source of truth for authentication
@@ -195,7 +191,7 @@ function Router() {
       {/* Post-auth success handoff - MOVED TO TOP for priority matching */}
       <Route
         path="/auth-success"
-        component={() => <SuspenseWrapper><AuthSuccessComponent /></SuspenseWrapper>}
+        component={() => <AuthSuccessComponent />}
       />
 
       {/* CLEANED UP: Redirect to Stack Auth handlers for consistency */}
@@ -220,14 +216,14 @@ function Router() {
         path="/handler/oauth-callback"
         component={() => {
           const OAuthCallback = React.lazy(() => import("./pages/handler/oauth-callback"));
-          return <SuspenseWrapper><OAuthCallback /></SuspenseWrapper>;
+          return <OAuthCallback />;
         }}
       />
 
       {/* Use HandlerRoutes for all Stack Auth operations for consistency */}
       <Route
         path="/handler/:path*"
-        component={() => <SuspenseWrapper><HandlerRoutes /></SuspenseWrapper>}
+        component={() => <HandlerRoutes />}
       />
 
       {/* Home page - Smart routing based on auth and training status */}
@@ -238,14 +234,14 @@ function Router() {
         path="/auth-diagnostic"
         component={() => {
           const AuthDiagnostic = React.lazy(() => import("./pages/auth-diagnostic"));
-          return <SuspenseWrapper><AuthDiagnostic /></SuspenseWrapper>;
+          return <AuthDiagnostic />;
         }}
       />
 
       {/* Public landing pages */}
       <Route
         path="/business"
-        component={() => <SuspenseWrapper><BusinessLanding /></SuspenseWrapper>}
+        component={() => <BusinessLanding />}
       />
 
       {/* Protected onboarding routes */}
@@ -253,7 +249,7 @@ function Router() {
         path="/simple-training"
         component={() => (
           <ProtectedRouteWrapper>
-            <SuspenseWrapper><SimpleTraining /></SuspenseWrapper>
+            <SimpleTraining />
           </ProtectedRouteWrapper>
         )}
       />
@@ -261,23 +257,23 @@ function Router() {
       {/* Public checkout - allows new users to purchase before authentication */}
       <Route
         path="/simple-checkout"
-        component={() => <SuspenseWrapper><SimpleCheckout /></SuspenseWrapper>}
+        component={() => <SimpleCheckout />}
       />
       <Route
         path="/embedded-checkout"
-        component={() => <SuspenseWrapper><EmbeddedCheckout /></SuspenseWrapper>}
+        component={() => <EmbeddedCheckout />}
       />
       <Route
         path="/payment-success"
         component={() => (
           <ProtectedRouteWrapper>
-            <SuspenseWrapper><PaymentSuccess /></SuspenseWrapper>
+            <PaymentSuccess />
           </ProtectedRouteWrapper>
         )}
       />
       <Route
         path="/thank-you"
-        component={() => <SuspenseWrapper><ThankYou /></SuspenseWrapper>}
+        component={() => <ThankYou />}
       />
 
       {/* Maya Chat - Direct route for Maya AI chat interface */}
@@ -285,7 +281,7 @@ function Router() {
         path="/maya"
         component={() => (
           <ProtectedRouteWrapper>
-            <SuspenseWrapper><MayaPage /></SuspenseWrapper>
+            <MayaPage />
           </ProtectedRouteWrapper>
         )}
       />
@@ -295,7 +291,7 @@ function Router() {
         path="/app"
         component={() => (
           <ProtectedRouteWrapper>
-            <SuspenseWrapper><SselfieAppLayout /></SuspenseWrapper>
+            <SselfieAppLayout />
           </ProtectedRouteWrapper>
         )}
       />
@@ -303,7 +299,7 @@ function Router() {
         path="/app/:tab*"
         component={() => (
           <ProtectedRouteWrapper>
-            <SuspenseWrapper><SselfieAppLayout /></SuspenseWrapper>
+            <SselfieAppLayout />
           </ProtectedRouteWrapper>
         )}
       />
@@ -313,7 +309,7 @@ function Router() {
         path="/ai-command-center"
         component={() => (
           <ProtectedRouteWrapper>
-            <SuspenseWrapper><AICommandCenter /></SuspenseWrapper>
+            <AICommandCenter />
           </ProtectedRouteWrapper>
         )}
       />
@@ -323,7 +319,7 @@ function Router() {
         path="/sselfie-gallery"
         component={() => (
           <ProtectedRouteWrapper>
-            <SuspenseWrapper><SSELFIEGallery /></SuspenseWrapper>
+            <SSELFIEGallery />
           </ProtectedRouteWrapper>
         )}
       />
@@ -331,17 +327,17 @@ function Router() {
       {/* Legal pages */}
       <Route
         path="/terms"
-        component={() => <SuspenseWrapper><Terms /></SuspenseWrapper>}
+        component={() => <Terms />}
       />
       <Route
         path="/privacy"
-        component={() => <SuspenseWrapper><Privacy /></SuspenseWrapper>}
+        component={() => <Privacy />}
       />
 
       {/* 404 Not Found - Must be last */}
       <Route
         path="/:rest*"
-        component={() => <SuspenseWrapper><NotFound /></SuspenseWrapper>}
+        component={() => <NotFound />}
       />
     </>
   );
