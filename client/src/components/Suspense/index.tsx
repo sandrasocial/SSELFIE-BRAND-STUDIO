@@ -1,4 +1,4 @@
-import React, { 
+import React, {
   type ComponentType,
   type ReactElement,
   type ReactNode,
@@ -6,8 +6,6 @@ import React, {
   type FunctionComponent,
   lazy
 } from 'react';
-
-const PageLoader = React.memo(() => React.createElement('div', null, 'Loading...'));
 
 // React 19 compatible types
 type SuspenseProps = {
@@ -20,25 +18,24 @@ type Component<P> = {
   displayName?: string;
 };
 
-// Create a type-safe wrapper for lazy components
+// ✅ CRITICAL FIX: createLazyComponent should NOT wrap in Suspense
+// Suspense wrapping happens at the route level in App.tsx
+// This prevents duplicate loading screens
 export const createLazyComponent = <P extends object>(
   importFn: () => Promise<{ default: ComponentType<P> }>,
   displayName?: string
 ): FunctionComponent<P> => {
   // Create the lazy component
   const LazyComponent = lazy(importFn);
-  
-  // Create the wrapper component
+
+  // Return the lazy component directly WITHOUT Suspense wrapper
+  // The route will handle Suspense wrapping
   const WrappedComponent: FunctionComponent<P> = React.memo((props: P) => {
-    return React.createElement(
-      React.Suspense as unknown as ComponentType<SuspenseProps>,
-      { fallback: React.createElement(PageLoader) },
-      React.createElement(LazyComponent, props)
-    );
+    return React.createElement(LazyComponent, props);
   });
 
   // Set display name
   WrappedComponent.displayName = displayName || 'LazyComponent';
-  
+
   return WrappedComponent;
 };
