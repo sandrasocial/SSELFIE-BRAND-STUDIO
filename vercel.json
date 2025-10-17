@@ -8,10 +8,6 @@
     "api/**": {
       "memory": 3008,
       "maxDuration": 60
-    },
-    "server/**": {
-      "memory": 3008,
-      "maxDuration": 60
     }
   },
 

@@ -141,9 +141,9 @@ async function handleUpdateModel(req: VercelRequest, res: VercelResponse, userId
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         error: 'Validation error',
-        details: error.errors 
+        details: error.issues
       });
     }
     console.error('Error updating model:', error);

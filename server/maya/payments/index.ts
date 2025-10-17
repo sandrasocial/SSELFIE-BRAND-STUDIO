@@ -12,7 +12,7 @@ const db = drizzle(neon(process.env.DATABASE_URL!));
 
 // Initialize Stripe
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-08-27.basil',
+  apiVersion: '2025-09-30.clover',
 });
 
 // Request validation schemas
@@ -27,7 +27,7 @@ const updatePaymentSchema = z.object({
   subscriptionStatus: z.enum(['active', 'canceled', 'past_due', 'unpaid']).optional(),
   planType: z.enum(['basic', 'pro', 'enterprise']).optional(),
   billingCycle: z.enum(['monthly', 'yearly']).optional(),
-  metadata: z.record(z.any()).optional(),
+  metadata: z.record(z.string(), z.any()).optional(),
 });
 
 // Plan pricing configuration
@@ -190,9 +190,9 @@ async function handleCreatePaymentSession(req: VercelRequest, res: VercelRespons
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         error: 'Validation error',
-        details: error.errors 
+        details: error.issues
       });
     }
     console.error('Error creating payment session:', error);
@@ -228,9 +228,9 @@ async function handleUpdatePayment(req: VercelRequest, res: VercelResponse, user
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         error: 'Validation error',
-        details: error.errors 
+        details: error.issues
       });
     }
     console.error('Error updating payment:', error);

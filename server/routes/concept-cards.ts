@@ -74,9 +74,9 @@ router.post('/', requireStackAuth, async (req: AuthenticatedRequest, res: Respon
     console.error('❌ CONCEPT CARDS: Create error:', error);
     
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         error: 'Invalid concept card data',
-        details: error.errors
+        details: error.issues
       });
     }
 

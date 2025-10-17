@@ -149,9 +149,9 @@ async function handleGetConcepts(req: VercelRequest, res: VercelResponse, userId
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         error: 'Invalid query parameters',
-        details: error.errors 
+        details: error.issues
       });
     }
     console.error('Error fetching concepts:', error);
@@ -176,9 +176,9 @@ async function handleCreateConcept(req: VercelRequest, res: VercelResponse, user
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         error: 'Validation error',
-        details: error.errors 
+        details: error.issues
       });
     }
     console.error('Error creating concept:', error);
@@ -214,9 +214,9 @@ async function handleUpdateConcept(req: VercelRequest, res: VercelResponse, user
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         error: 'Validation error',
-        details: error.errors 
+        details: error.issues
       });
     }
     console.error('Error updating concept:', error);
