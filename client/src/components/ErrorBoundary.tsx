@@ -13,7 +13,7 @@ interface State {
 }
 
 type ReactComponent = string | JSXElementConstructor<any>;
-type ReactChild = ReactElement<any, ReactComponent>;
+type ReactChild = ReactElement;
 
 export class ErrorBoundary extends Component<Props, State> {
   static displayName = 'ErrorBoundary';

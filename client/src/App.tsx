@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import React, { type ReactNode, useEffect } from 'react';
+import React, { type ReactNode, useEffect, useState } from 'react';
 const { createElement } = React;
 import type { JSXComponent, EnhancedProps } from './types/react-types';
 import { Route, useLocation } from "wouter";
@@ -56,7 +56,7 @@ import { SuspenseWrapper } from './components/SuspenseWrapper';
 function ProtectedRouteWrapper({ children }: { children: React.ReactNode }) {
   const [location, setLocation] = useLocation();
   const { isAuthenticated, isLoading } = useAuth();
-  const [redirected, setRedirected] = React.useState(false);
+  const [redirected, setRedirected] = useState(false);
 
   // Check if current route is public
   const isPublicRoute = PUBLIC_ROUTES.some(route =>
@@ -101,7 +101,7 @@ function ProtectedRouteWrapper({ children }: { children: React.ReactNode }) {
 function SmartHome() {
   const [, setLocation] = useLocation();
   const { isLoading, isAuthenticated } = useAuth();
-  const [redirected, setRedirected] = React.useState(false);
+  const [redirected, setRedirected] = useState(false);
 
   useEffect(() => {
     // Only redirect once to prevent infinite loops
@@ -133,10 +133,10 @@ function SmartHome() {
 
 // 🔥 CLEANED UP: Stack Auth Handler - Single source of truth for authentication
 function HandlerRoutes() {
-  const [app, setApp] = React.useState<any>(null);
-  const [error, setError] = React.useState<Error | null>(null);
+  const [app, setApp] = useState<any>(null);
+  const [error, setError] = useState<Error | null>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     // Lazy load stackClientApp only when needed
     import('../../stack/client').then(module => {
       setApp(module.stackClientApp);
