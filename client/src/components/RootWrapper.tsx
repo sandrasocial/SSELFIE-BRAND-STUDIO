@@ -18,12 +18,32 @@ interface RootWrapperProps {
 export default function RootWrapper({ children }: RootWrapperProps) {
   const [location] = useLocation();
   const [isPublic, setIsPublic] = useState<boolean>(false);
+  const [isReady, setIsReady] = useState<boolean>(false);
 
   // Detect if current route is public and update when route changes
   useEffect(() => {
     const path = location || window.location.pathname;
-    setIsPublic(isPublicRoute(path));
+    const publicRoute = isPublicRoute(path);
+    setIsPublic(publicRoute);
+
+    // Mark as ready after first route detection
+    setIsReady(true);
+
+    console.log(`🔀 Route changed to: ${path} (public: ${publicRoute})`);
   }, [location]);
+
+  // Show loading state while determining route type
+  if (!isReady) {
+    return (
+      <React.StrictMode>
+        <ErrorBoundary>
+          <Suspense fallback={<PageLoader />}>
+            <PageLoader />
+          </Suspense>
+        </ErrorBoundary>
+      </React.StrictMode>
+    );
+  }
 
   // For public routes, skip Stack Auth initialization
   if (isPublic) {

@@ -56,23 +56,54 @@ try {
   );
   console.log('✅ App with lazy-loaded Stack Auth rendered successfully!');
 
+  // Set up global error handler for unhandled promise rejections
+  window.addEventListener('unhandledrejection', (event) => {
+    console.error('❌ Unhandled promise rejection:', event.reason);
+    // Don't prevent default - let the browser handle it
+  });
+
+  // Set up global error handler for runtime errors
+  window.addEventListener('error', (event) => {
+    console.error('❌ Global error:', event.error);
+    // Don't prevent default - let the browser handle it
+  });
+
 } catch (error) {
   console.error('❌ SSELFIE Studio: Fatal error during app initialization:', error);
-  
+
   // Fallback error display
   const container = document.getElementById("root");
   if (container) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorStack = error instanceof Error ? error.stack : '';
+
     container.innerHTML = `
-      <div style="padding: 20px; text-align: center; font-family: -apple-system, sans-serif;">
-        <h1 style="color: #dc2626;">SSELFIE Studio - Loading Error</h1>
-        <p style="color: #666;">There was an error loading the application.</p>
-        <details style="margin-top: 20px; text-align: left; max-width: 600px; margin-left: auto; margin-right: auto;">
-          <summary style="cursor: pointer; font-weight: bold;">Technical Details</summary>
-          <pre style="background: #f5f55; padding: 10px; overflow-x: auto; margin-top: 10px;">${error}</pre>
-        </details>
-        <p style="margin-top: 20px;">
-          <a href="/" style="color: #2563eb; text-decoration: none;">← Try Again</a>
-        </p>
+      <div style="padding: 20px; text-align: center; font-family: -apple-system, sans-serif; background: #f9fafb; min-height: 100vh; display: flex; align-items: center; justify-content: center;">
+        <div style="max-width: 600px; width: 100%; background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 40px;">
+          <div style="font-size: 48px; margin-bottom: 20px;">⚠️</div>
+          <h1 style="color: #dc2626; margin: 0 0 10px 0; font-size: 24px;">SSELFIE Studio - Loading Error</h1>
+          <p style="color: #666; margin: 0 0 20px 0;">There was an error loading the application. Please try refreshing the page.</p>
+
+          <details style="margin: 20px 0; text-align: left; background: #f3f4f6; padding: 12px; border-radius: 4px; border-left: 4px solid #dc2626;">
+            <summary style="cursor: pointer; font-weight: bold; color: #374151;">Technical Details</summary>
+            <pre style="background: #fff; padding: 12px; overflow-x: auto; margin-top: 10px; border-radius: 4px; font-size: 12px; color: #dc2626; border: 1px solid #fee2e2;">Error: ${errorMessage}
+
+${errorStack || 'No stack trace available'}</pre>
+          </details>
+
+          <div style="margin-top: 20px; display: flex; gap: 10px;">
+            <button onclick="window.location.reload()" style="flex: 1; padding: 10px 20px; background: #000; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500;">
+              Refresh Page
+            </button>
+            <button onclick="window.location.href = '/'" style="flex: 1; padding: 10px 20px; background: #e5e7eb; color: #374151; border: none; border-radius: 4px; cursor: pointer; font-weight: 500;">
+              Go Home
+            </button>
+          </div>
+
+          <p style="margin-top: 20px; font-size: 12px; color: #999;">
+            If this problem persists, please contact support or try clearing your browser cache.
+          </p>
+        </div>
       </div>
     `;
   }

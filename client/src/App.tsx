@@ -82,29 +82,36 @@ function ProtectedRouteWrapper({ children }: { children: React.ReactNode }) {
   return createElement(React.Fragment, null, children);
 }
 
-// Smart Home component - Routes users through simplified journey  
+// Smart Home component - Routes users through simplified journey
 // NEW USER JOURNEY: Authentication → AI Training → Payment → App Studio
 function SmartHome() {
   const [, setLocation] = useLocation();
   const { isLoading, isAuthenticated } = useAuth();
+  const [redirected, setRedirected] = React.useState(false);
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
+    // Only redirect once to prevent infinite loops
+    if (!redirected && !isLoading && !isAuthenticated) {
+      console.log('🔀 SmartHome: Redirecting unauthenticated user to business landing');
+      setRedirected(true);
       setLocation(ROUTES.BUSINESS_LANDING);
     }
-  }, [isLoading, isAuthenticated, setLocation]);
+  }, [isLoading, isAuthenticated, setLocation, redirected]);
 
   // Show loading while checking auth
   if (isLoading) {
+    console.log('⏳ SmartHome: Auth is loading...');
     return <PageLoader />;
   }
 
   // If not authenticated, show loader while redirecting
   if (!isAuthenticated) {
+    console.log('🔄 SmartHome: User not authenticated, redirecting...');
     return <PageLoader />;
   }
 
   // For authenticated users, use PostLoginHandler to determine where to go
+  console.log('✅ SmartHome: User authenticated, showing post-login handler');
   return createElement(SuspenseWrapper, null,
     createElement(PostLoginHandler)
   );
