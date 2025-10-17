@@ -1,17 +1,11 @@
-import * as React from 'react';
-import { useState, useEffect } from "react";
+import React, { useEffect } from 'react';
 import { useLocation } from "wouter";
 import { GlobalFooter } from "../../components/global-footer.js";
 import { OptimizedImage } from "../../components/OptimizedImage.js";
-import { SignIn } from "@stackframe/react";
-import { stackClientApp } from "../../../../stack/client.js";
-import { STACK_PROJECT_ID, STACK_PUBLISHABLE_CLIENT_KEY } from "../../env.js";
 import { UnifiedNavigation } from "../../components/unified-navigation.js";
 
 export default function BusinessLanding() {
   const [, setLocation] = useLocation();
-  const [authLoading, setAuthLoading] = useState(false);
-  // We avoid using useStackApp to prevent SDK conflicts on public pages
 
   // Comprehensive SEO Meta Tags
   useEffect(() => {
@@ -317,14 +311,11 @@ export default function BusinessLanding() {
 
   const handleLogin = async () => {
     try {
-      setAuthLoading(true);
       window.location.href = '/handler/sign-in';
     } catch (error) {
       console.error('Login redirect failed:', error);
       // Fallback: Try direct navigation
       setLocation('/handler/sign-in');
-    } finally {
-      setAuthLoading(false);
     }
   };
 
