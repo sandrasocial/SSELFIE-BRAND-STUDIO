@@ -101,29 +101,29 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
       ]
     },
     optimizeDeps: {
-      // ⚠️ CRITICAL: Only pre-bundle React and React-DOM
-      // Do NOT pre-bundle radix-ui, cmdk, or lucide-react as they depend on React
-      // being fully initialized first. Pre-bundling them causes circular dependency errors.
+      // ⚠️ CRITICAL: Exclude CommonJS modules to prevent "exports is not defined"
+      // Vite will handle them naturally without pre-bundling
       include: [
         'react',
         'react-dom',
-        'yup',  // Pre-bundle yup and its dependencies to handle CommonJS properly
-        'tiny-case',
-        'property-expr',
-        'toposort',
-        'use-sync-external-store/shim',  // Pre-bundle the shim version
-        'wouter',  // Pre-bundle wouter to handle CommonJS dependencies
-        '@tanstack/react-query',  // Pre-bundle react-query
-        'normalize-wheel',  // Pre-bundle normalize-wheel
-        'color',  // Pre-bundle color
-        'recharts',  // Pre-bundle recharts
-        'react-redux'  // Pre-bundle react-redux
+        'use-sync-external-store/shim',
+        'wouter',
+        '@tanstack/react-query',
       ],
       exclude: [
         '@radix-ui',
         'cmdk',
         'lucide-react',
-        '@stackframe/react'
+        '@stackframe/react',
+        // Exclude all CommonJS modules - let Vite handle them naturally
+        'yup',
+        'tiny-case',
+        'property-expr',
+        'toposort',
+        'normalize-wheel',
+        'color',
+        'recharts',
+        'react-redux'
       ],
       force: false,
       esbuildOptions: {
@@ -165,6 +165,12 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
       reportCompressedSize: false,
       chunkSizeWarningLimit: 2000,
       minify: process.env.NODE_ENV === 'production' ? 'esbuild' : false,
+      commonjsOptions: {
+        // Ensure CommonJS modules are properly converted
+        transformMixedEsModules: true,
+        esmExternals: true,
+        defaultIsModuleExports: true,
+      },
       rollupOptions: {
         input: path.resolve(__dirname, "client/index.html"),
         output: {
