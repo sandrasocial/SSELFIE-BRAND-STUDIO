@@ -159,15 +159,16 @@ export default function StackAuthProvider({ children }: StackAuthProviderProps) 
       }
     });
 
-    // ✅ FIX #4: Reduce initialization timeout from 10s to 5s
+    // ✅ FIX #4: Reduce initialization timeout from 5s to 2s
     // This prevents app from hanging for too long
+    // Faster perceived performance
     timeoutRef.current = setTimeout(() => {
       if (mountedRef.current && !isInitialized) {
         console.warn('⚠️ Stack Auth initialization timeout - proceeding anyway');
         setHasProvider(true);
         setIsInitialized(true);
       }
-    }, 5000);
+    }, 2000);
 
     return () => {
       if (timeoutRef.current) {

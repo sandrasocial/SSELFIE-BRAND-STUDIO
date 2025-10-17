@@ -115,7 +115,8 @@ export function useAuth() {
 
     checkAuth();
 
-    // Set a maximum timeout for auth check (10 seconds)
+    // Set a maximum timeout for auth check (3 seconds)
+    // Reduced from 10s for faster perceived performance
     authCheckTimeoutId = setTimeout(() => {
       if (mounted) {
         console.warn('⚠️ useAuth: Auth check timeout - proceeding without user');
@@ -124,7 +125,7 @@ export function useAuth() {
           isLoading: false
         });
       }
-    }, 10000);
+    }, 3000);
 
     return () => {
       mounted = false;
