@@ -115,6 +115,7 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
         'toposort',
         'normalize-wheel',
         'color',
+        'queue-microtask',
       ],
       exclude: [
         '@radix-ui',
@@ -122,7 +123,15 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
         'lucide-react',
         '@stackframe/react',
         'recharts',
-        'react-redux'
+        'react-redux',
+        'pend',
+        'callsites',
+        '@alloc/quick-lru',
+        'simple-swizzle',
+        'pg-int8',
+        'node-gyp-build',
+        '@pkgjs/parseargs',
+        'yauzl-promise'
       ],
       force: false,
       esbuildOptions: {
@@ -169,6 +178,8 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
         transformMixedEsModules: true,
         esmExternals: true,
         defaultIsModuleExports: true,
+        include: [/node_modules/],
+        extensions: ['.js', '.cjs']
       },
       rollupOptions: {
         input: path.resolve(__dirname, "client/index.html"),
