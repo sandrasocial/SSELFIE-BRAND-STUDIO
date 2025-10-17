@@ -53,7 +53,7 @@ export function registerCheckoutRoutes(app: Express) {
     throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
   }
   const stripe = new Stripe(process.env['STRIPE_SECRET_KEY'], {
-    apiVersion: "2025-08-27.basil",
+    apiVersion: "2025-09-30.clover",
   });
   // 🔄 PHASE 3: Create Retraining Checkout Session
   app.post("/api/create-retrain-checkout-session", requireStackAuth, async (req: Request & { body: RetrainCheckoutRequest }, res: Response) => {

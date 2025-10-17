@@ -150,9 +150,9 @@ async function handleCreateProfile(req: VercelRequest, res: VercelResponse, user
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         error: 'Validation error',
-        details: error.errors 
+        details: error.issues
       });
     }
     console.error('Error creating profile:', error);
@@ -200,9 +200,9 @@ async function handleUpdateProfile(req: VercelRequest, res: VercelResponse, user
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         error: 'Validation error',
-        details: error.errors 
+        details: error.issues
       });
     }
     console.error('Error updating profile:', error);

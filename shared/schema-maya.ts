@@ -430,7 +430,7 @@ export function formatPlanName(planType: SubscriptionPlan): string {
 // Model metadata validator
 export const modelMetadataSchema = z.object({
   trainingImages: z.array(z.string()).optional(),
-  modelParameters: z.record(z.any()).optional(),
+  modelParameters: z.record(z.string(), z.any()).optional(),
   trainingLogs: z.array(z.string()).optional(),
   errorDetails: z.string().optional(),
   modelVersion: z.string().optional(),
@@ -447,7 +447,7 @@ export const imageMetadataSchema = z.object({
   format: z.string().optional(),
   prompt: z.string().optional(),
   model: z.string().optional(),
-  generationParams: z.record(z.any()).optional(),
+  generationParams: z.record(z.string(), z.any()).optional(),
   tags: z.array(z.string()).optional(),
   colorPalette: z.array(z.string()).optional(),
 });

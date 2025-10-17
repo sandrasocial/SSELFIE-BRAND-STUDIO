@@ -20,7 +20,7 @@ const updateImageSchema = z.object({
   isFavorite: z.boolean().optional(),
   isArchived: z.boolean().optional(),
   rating: z.number().min(1).max(5).optional(),
-  metadata: z.record(z.any()).optional(),
+  metadata: z.record(z.string(), z.any()).optional(),
 });
 
 const imageQuerySchema = z.object({
@@ -137,9 +137,9 @@ async function handleGetImages(req: VercelRequest, res: VercelResponse, userId: 
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         error: 'Invalid query parameters',
-        details: error.errors 
+        details: error.issues
       });
     }
     console.error('Error fetching images:', error);
@@ -164,9 +164,9 @@ async function handleCreateImage(req: VercelRequest, res: VercelResponse, userId
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         error: 'Validation error',
-        details: error.errors 
+        details: error.issues
       });
     }
     console.error('Error creating image:', error);
@@ -217,9 +217,9 @@ async function handleUpdateImage(req: VercelRequest, res: VercelResponse, userId
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         error: 'Validation error',
-        details: error.errors 
+        details: error.issues
       });
     }
     console.error('Error updating image:', error);
