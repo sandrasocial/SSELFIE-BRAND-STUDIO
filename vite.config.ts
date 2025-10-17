@@ -101,26 +101,26 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
       ]
     },
     optimizeDeps: {
-      // ⚠️ CRITICAL: Exclude CommonJS modules to prevent "exports is not defined"
-      // Vite will handle them naturally without pre-bundling
+      // ⚠️ CRITICAL: Include yup and its dependencies for proper pre-bundling
+      // yup is used by @stackframe/react and needs to be bundled with tiny-case
       include: [
         'react',
         'react-dom',
         'use-sync-external-store/shim',
         'wouter',
         '@tanstack/react-query',
-      ],
-      exclude: [
-        '@radix-ui',
-        'cmdk',
-        'lucide-react',
-        '@stackframe/react',
         'yup',
         'tiny-case',
         'property-expr',
         'toposort',
         'normalize-wheel',
         'color',
+      ],
+      exclude: [
+        '@radix-ui',
+        'cmdk',
+        'lucide-react',
+        '@stackframe/react',
         'recharts',
         'react-redux'
       ],
