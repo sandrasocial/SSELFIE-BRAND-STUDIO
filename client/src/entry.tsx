@@ -53,9 +53,9 @@ if (!rootElement) {
 
 const root = createRoot(rootElement);
 
-// Lazy load App to ensure React is exported globally first
-// Use dynamic import to defer loading until after React is initialized
-const App = React.lazy(() => import('./App'));
+// ✅ FIX #1: Import App directly instead of lazy loading
+// This removes an unnecessary async layer that can fail silently
+import App from './App';
 
 root.render(
   <React.StrictMode>

@@ -95,58 +95,46 @@ export default function RootWrapper({ children }: RootWrapperProps) {
     return () => clearTimeout(timeout);
   }, [isReady]);
 
-  // Show loading state while determining route type
+  // ✅ FIX #6: Show loading state while determining route type
   if (!isReady) {
-    return (
-      <React.StrictMode>
-        <ErrorBoundary>
-          <Suspense fallback={<PageLoader />}>
-            <PageLoader />
-          </Suspense>
-        </ErrorBoundary>
-      </React.StrictMode>
-    );
+    return <PageLoader />;
   }
 
-  // For public routes, skip Stack Auth initialization
+  // ✅ FIX #7: For public routes, skip Stack Auth initialization
+  // Flatten Suspense hierarchy - single Suspense boundary at top level
   if (isPublic) {
     return (
-      <React.StrictMode>
-        <ErrorBoundary>
-          <QueryClientProvider client={getQueryClient()}>
-            <Suspense fallback={<PageLoader />}>
-              <LazyTooltipProvider>
-                <ErrorBoundary>
-                  {children}
-                  <LazyToaster />
-                </ErrorBoundary>
-              </LazyTooltipProvider>
-            </Suspense>
-          </QueryClientProvider>
-        </ErrorBoundary>
-      </React.StrictMode>
-    );
-  }
-
-  // For protected/auth routes, include Stack Auth
-  return (
-    <React.StrictMode>
       <ErrorBoundary>
         <QueryClientProvider client={getQueryClient()}>
           <Suspense fallback={<PageLoader />}>
-            <StackAuthProvider>
-              <Suspense fallback={<PageLoader />}>
-                <LazyTooltipProvider>
-                  <ErrorBoundary>
-                    {children}
-                    <LazyToaster />
-                  </ErrorBoundary>
-                </LazyTooltipProvider>
-              </Suspense>
-            </StackAuthProvider>
+            <LazyTooltipProvider>
+              <ErrorBoundary>
+                {children}
+                <LazyToaster />
+              </ErrorBoundary>
+            </LazyTooltipProvider>
           </Suspense>
         </QueryClientProvider>
       </ErrorBoundary>
-    </React.StrictMode>
+    );
+  }
+
+  // ✅ FIX #8: For protected/auth routes, include Stack Auth
+  // Flatten Suspense hierarchy - remove nested Suspense boundaries
+  return (
+    <ErrorBoundary>
+      <QueryClientProvider client={getQueryClient()}>
+        <Suspense fallback={<PageLoader />}>
+          <StackAuthProvider>
+            <LazyTooltipProvider>
+              <ErrorBoundary>
+                {children}
+                <LazyToaster />
+              </ErrorBoundary>
+            </LazyTooltipProvider>
+          </StackAuthProvider>
+        </Suspense>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 }

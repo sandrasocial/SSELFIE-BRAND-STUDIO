@@ -97,16 +97,18 @@ export default function StackAuthProvider({ children }: StackAuthProviderProps) 
           (window as any).__STACK_AUTH_PROVIDER__ = true;
         }
 
-        // Give Stack Auth more time to fully initialize
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        // ✅ FIX #2: Remove 1.5s artificial delay
+        // This was causing unnecessary wait time
+        // Removed: await new Promise(resolve => setTimeout(resolve, 1500));
 
         // Cache project ID for faster access
         if (process.env.NODE_ENV === 'development') {
           console.log('🔑 Stack Auth Project ID:', app.projectId);
         }
 
-        // Test basic API access with timeout
-        let retries = 3;
+        // ✅ FIX #3: Reduce retry timeout from 5s to 2s and max retries from 3 to 2
+        // This significantly reduces wait time if API is slow
+        let retries = 2;
         let apiTestSucceeded = false;
 
         while (retries > 0) {
@@ -114,7 +116,7 @@ export default function StackAuthProvider({ children }: StackAuthProviderProps) 
             await Promise.race([
               app.getUser(),
               new Promise((_, reject) =>
-                setTimeout(() => reject(new Error('API test timeout')), 5000)
+                setTimeout(() => reject(new Error('API test timeout')), 2000)
               )
             ]);
             apiTestSucceeded = true;
@@ -130,7 +132,7 @@ export default function StackAuthProvider({ children }: StackAuthProviderProps) 
             retries--;
 
             if (retries > 0) {
-              await new Promise(resolve => setTimeout(resolve, 500));
+              await new Promise(resolve => setTimeout(resolve, 300));
             }
           }
         }
@@ -157,14 +159,15 @@ export default function StackAuthProvider({ children }: StackAuthProviderProps) 
       }
     });
 
-    // Set a maximum timeout for initialization (10 seconds)
+    // ✅ FIX #4: Reduce initialization timeout from 10s to 5s
+    // This prevents app from hanging for too long
     timeoutRef.current = setTimeout(() => {
       if (mountedRef.current && !isInitialized) {
         console.warn('⚠️ Stack Auth initialization timeout - proceeding anyway');
         setHasProvider(true);
         setIsInitialized(true);
       }
-    }, 10000);
+    }, 5000);
 
     return () => {
       if (timeoutRef.current) {
