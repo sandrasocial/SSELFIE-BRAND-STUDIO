@@ -6,12 +6,20 @@
   "outputDirectory": "client/dist",
   "functions": {
     "api/**": {
-      "memory": 1024,
-      "maxDuration": 10
+      "memory": 3008,
+      "maxDuration": 60
+    },
+    "server/**": {
+      "memory": 3008,
+      "maxDuration": 60
     }
   },
 
   "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/$1"
+    },
     {
       "source": "/(app|maya|simple-training|auth-success|terms|privacy|sign-in|sign-up|magic-link|forgot-password|password-reset|business|ai-command-center|sselfie-gallery|simple-checkout|payment-success|thank-you|auth-diagnostic)",
       "destination": "/index.html"

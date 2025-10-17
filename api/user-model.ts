@@ -9,5 +9,6 @@ export default handler;
 
 export const config = {
   runtime: 'nodejs',
-  maxDuration: 40,
+  maxDuration: 60,
+  memory: 3008
 };

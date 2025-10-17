@@ -10,7 +10,11 @@ import galleryRouter from './routes/modules/gallery.js';
 // 🚨 DISABLED: Maya routes now handled by dedicated serverless endpoints
 // import mayaRouter from './routes/modules/maya.js';
 
-export const config = { runtime: 'nodejs' } as const;
+export const config = {
+  runtime: 'nodejs',
+  maxDuration: 60,
+  memory: 3008
+} as const;
 
 // Auth routes handled by auth.ts module
 const AUTH_ROUTES = [
