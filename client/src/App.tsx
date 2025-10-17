@@ -56,29 +56,43 @@ import { SuspenseWrapper } from './components/SuspenseWrapper';
 function ProtectedRouteWrapper({ children }: { children: React.ReactNode }) {
   const [location, setLocation] = useLocation();
   const { isAuthenticated, isLoading } = useAuth();
+  const [redirected, setRedirected] = React.useState(false);
+
   // Check if current route is public
-  const isPublicRoute = PUBLIC_ROUTES.some(route => 
+  const isPublicRoute = PUBLIC_ROUTES.some(route =>
     location === route || location.startsWith(route + '/')
   );
 
   // Handle auth state changes
   useEffect(() => {
-    if (!isLoading && !isAuthenticated && !isPublicRoute) {
+    // Only redirect once to prevent infinite loops
+    if (!redirected && !isLoading && !isAuthenticated && !isPublicRoute) {
+      console.log(`🔐 ProtectedRouteWrapper: Redirecting unauthenticated user from ${location} to sign-in`);
+      setRedirected(true);
       setLocation('/handler/sign-in');
     }
-  }, [isAuthenticated, isLoading, isPublicRoute, setLocation]);
+  }, [isAuthenticated, isLoading, isPublicRoute, setLocation, redirected]);
 
   // Allow public routes through without auth check
   if (isPublicRoute) {
+    console.log(`✅ ProtectedRouteWrapper: Public route ${location} - allowing access`);
     return createElement(React.Fragment, null, children);
   }
 
-  // Show loading state
-  if (isLoading || !isAuthenticated) {
+  // Show loading state while checking auth
+  if (isLoading) {
+    console.log(`⏳ ProtectedRouteWrapper: Auth is loading for ${location}`);
+    return createElement(PageLoader);
+  }
+
+  // If not authenticated, show loader while redirecting
+  if (!isAuthenticated) {
+    console.log(`🔄 ProtectedRouteWrapper: User not authenticated for ${location}, redirecting...`);
     return createElement(PageLoader);
   }
 
   // Render protected route
+  console.log(`✅ ProtectedRouteWrapper: User authenticated, rendering protected route ${location}`);
   return createElement(React.Fragment, null, children);
 }
 
