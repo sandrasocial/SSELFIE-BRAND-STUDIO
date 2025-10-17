@@ -53,10 +53,7 @@ function Calendar({
         ...classNames,
       }}
       components={{
-        IconLeft: ({ className, ...props }) => (
-          <span className={cn("text-xs", className)} {...props}>‹</span>
-        ),
-        IconRight: ({ className, ...props }) => (
+        Chevron: ({ className, ...props }) => (
           <span className={cn("text-xs", className)} {...props}>›</span>
         ),
       }}

@@ -40,6 +40,9 @@ declare module 'react' {
   export type MouseEvent<T = HTMLElement> = React.MouseEvent<T>;
   export type FocusEvent<T = HTMLElement> = React.FocusEvent<T>;
   export type FormEvent<T = HTMLFormElement> = React.FormEvent<T>;
+  export type TouchEvent<T = HTMLElement> = React.TouchEvent<T>;
+  export type UIEvent<T = HTMLElement> = React.UIEvent<T>;
+  export type DragEvent<T = HTMLElement> = React.DragEvent<T>;
 
   // Ref types
   export type Ref<T> = React.Ref<T>;
@@ -58,6 +61,7 @@ declare module 'react' {
   export const memo: typeof React.memo;
   export const forwardRef: typeof React.forwardRef;
   export const lazy: typeof React.lazy;
+  export type LazyExoticComponent<T extends React.ComponentType<any>> = React.LazyExoticComponent<T>;
 
   // Context
   export const createContext: typeof React.createContext;
@@ -83,6 +87,8 @@ declare module 'react' {
   export type ButtonHTMLAttributes<T = HTMLButtonElement> = React.ButtonHTMLAttributes<T>;
   export type InputHTMLAttributes<T = HTMLInputElement> = React.InputHTMLAttributes<T>;
   export type TextareaHTMLAttributes<T = HTMLTextAreaElement> = React.TextareaHTMLAttributes<T>;
+  export type TdHTMLAttributes<T = HTMLTableDataCellElement> = React.TdHTMLAttributes<T>;
+  export type ThHTMLAttributes<T = HTMLTableHeaderCellElement> = React.ThHTMLAttributes<T>;
   export type DetailedHTMLProps<E extends React.HTMLAttributes<T>, T> = React.DetailedHTMLProps<E, T>;
   export type CSSProperties = React.CSSProperties;
   export type RefAttributes<T> = React.RefAttributes<T>;

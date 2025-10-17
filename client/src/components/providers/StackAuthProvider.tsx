@@ -1,11 +1,11 @@
 import React from "react";
-import { StackProvider, StackTheme, StackClientApp } from "@stackframe/react";
+import { StackProvider, StackTheme } from "@stackframe/react";
 // ⚠️ CRITICAL: Import stackClientApp lazily to avoid circular dependency
 // This import happens AFTER React is fully initialized
 import PageLoader from "../PageLoader";
 
 // Lazy load stackClientApp only when this component mounts
-let stackClientApp: StackClientApp | null = null;
+let stackClientApp: any = null;
 async function getStackClientApp() {
   if (!stackClientApp) {
     const module = await import("../../../../stack/client.js");
@@ -20,14 +20,14 @@ interface StackAuthProviderProps {
 }
 
 // Type guard to check if the app is properly initialized
-function isStackAppInitialized(app: StackClientApp): app is StackClientApp & {
+function isStackAppInitialized(app: any): app is any & {
   getUser: () => Promise<any>;
   projectId: string;
 } {
   return (
-    typeof app === 'object' && 
-    app !== null && 
-    'projectId' in app && 
+    typeof app === 'object' &&
+    app !== null &&
+    'projectId' in app &&
     typeof (app as any).getUser === 'function'
   );
 }
@@ -56,7 +56,7 @@ export default function StackAuthProvider({ children }: StackAuthProviderProps) 
   const [hasProvider, setHasProvider] = React.useState(false);
   const initStartedRef = React.useRef(false);
   const mountedRef = React.useRef(true);
-  const stackAppRef = React.useRef<StackClientApp | null>(null);
+  const stackAppRef = React.useRef<any>(null);
   const timeoutRef = React.useRef<NodeJS.Timeout | null>(null);
 
   React.useEffect(() => {

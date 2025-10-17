@@ -226,15 +226,16 @@ export class LuxuryPerformanceOptimizer {
   // Remove skeleton loaders with luxury animation
   static removeLuxurySkeleton(container: HTMLElement): void {
     const skeletons = container.querySelectorAll('.luxury-skeleton');
-    
+
     skeletons.forEach((skeleton, index) => {
       setTimeout(() => {
-        skeleton.style.opacity = '0';
-        skeleton.style.transform = 'scale(0.95)';
-        skeleton.style.transition = 'all 0.3s cubic-bezier(0.23, 1, 0.32, 1)';
-        
+        const el = skeleton as HTMLElement;
+        el.style.opacity = '0';
+        el.style.transform = 'scale(0.95)';
+        el.style.transition = 'all 0.3s cubic-bezier(0.23, 1, 0.32, 1)';
+
         setTimeout(() => {
-          skeleton.remove();
+          el.remove();
         }, 300);
       }, index * 100);
     });
