@@ -323,7 +323,7 @@ function brandStudioReducer(state: BrandStudioState, action: BrandStudioAction):
     case 'ADD_MESSAGE':
       // Extract concept cards if present and add to conceptCardsById
       const newMessage = action.payload;
-      let updatedConceptCardsById = { ...state.conceptCardsById };
+      const updatedConceptCardsById = { ...state.conceptCardsById };
       
       if (newMessage.conceptCards && newMessage.conceptCards.length > 0) {
         console.log('🃏 CONCEPT CARDS: Storing', newMessage.conceptCards.length, 'concept cards in state');

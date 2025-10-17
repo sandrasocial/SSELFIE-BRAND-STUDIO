@@ -8,7 +8,6 @@ import { StackHandler } from "@stackframe/react";
 // ⚠️ CRITICAL: Do NOT import stackClientApp here - it causes circular dependency
 // stackClientApp is imported lazily in StackAuthProvider.tsx instead
 // Import it dynamically when needed
-let stackClientApp: any = null;
 import { useQuery } from "@tanstack/react-query";
 import { detectBrowserIssues, showDomainHelp } from "./utils/browserCompat.js";
 import { optimizeImageLoading, enableServiceWorkerCaching } from "./utils/performanceOptimizations.js";

@@ -8,12 +8,18 @@ interface ImportMetaEnv {
   readonly VITE_APP_BASE_URL: string;
   readonly LEVELPARTNER_API_KEY: string;
   readonly LEVELPARTNER_API_URL: string;
+  readonly DEV: boolean;
+  readonly PROD: boolean;
+  readonly MODE: string;
   // Add other env vars as needed
   [key: string]: string | undefined;
 }
 
 interface ImportMeta {
   readonly env: ImportMetaEnv;
+  readonly hot?: {
+    accept: (callback?: () => void) => void;
+  };
 }
 
 declare namespace NodeJS {
@@ -26,18 +32,4 @@ declare namespace NodeJS {
     // Add other env vars as needed
     [key: string]: string | undefined;
   }
-}
-
-interface ImportMetaEnv {
-  readonly DEV: boolean;
-  readonly PROD: boolean;
-  readonly MODE: string;
-  // Add more env variables as needed
-}
-
-interface ImportMeta {
-  readonly env: ImportMetaEnv;
-  readonly hot?: {
-    accept: (callback?: () => void) => void;
-  };
 }

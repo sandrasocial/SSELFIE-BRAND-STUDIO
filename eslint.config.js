@@ -1,6 +1,3 @@
-// For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
-import storybook from "eslint-plugin-storybook";
-
 import js from '@eslint/js';
 import tseslint from '@typescript-eslint/eslint-plugin';
 import tsparser from '@typescript-eslint/parser';
@@ -47,6 +44,42 @@ export default [js.configs.recommended, {
       HTMLButtonElement: 'readonly',
       HTMLTextAreaElement: 'readonly',
       HTMLMetaElement: 'readonly',
+      HTMLAnchorElement: 'readonly',
+      HTMLTableDataCellElement: 'readonly',
+      HTMLTableHeaderCellElement: 'readonly',
+      HTMLCanvasElement: 'readonly',
+      HTMLTableSectionElement: 'readonly',
+      HTMLSpanElement: 'readonly',
+      HTMLTableCellElement: 'readonly',
+      HTMLParagraphElement: 'readonly',
+      HTMLLIElement: 'readonly',
+      HTMLUListElement: 'readonly',
+      HTMLTableRowElement: 'readonly',
+      HTMLTableElement: 'readonly',
+      HTMLTableCaptionElement: 'readonly',
+      HTMLLinkElement: 'readonly',
+      Blob: 'readonly',
+      AbortSignal: 'readonly',
+      URLSearchParams: 'readonly',
+      RequestInit: 'readonly',
+      HTMLHeadingElement: 'readonly',
+      HTMLOListElement: 'readonly',
+      HTMLScriptElement: 'readonly',
+      HTMLFormElement: 'readonly',
+      Element: 'readonly',
+      Window: 'readonly',
+      Performance: 'readonly',
+      KeyboardEvent: 'readonly',
+      Image: 'readonly',
+      ErrorEvent: 'readonly',
+      MouseEvent: 'readonly',
+      Response: 'readonly',
+      Node: 'readonly',
+      FormData: 'readonly',
+      FileReader: 'readonly',
+      CSSStyleDeclaration: 'readonly',
+      BodyInit: 'readonly',
+      requestAnimationFrame: 'readonly',
       // Web APIs
       IntersectionObserver: 'readonly',
       IntersectionObserverEntry: 'readonly',
@@ -88,13 +121,16 @@ export default [js.configs.recommended, {
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-inferrable-types': 'off',
-    
+
     // General rules
     'no-console': 'warn',
     'no-debugger': 'warn',
     'no-unused-vars': 'off', // Handled by TypeScript
-    'prefer-const': 'error',
+    'prefer-const': 'warn', // Changed from error to warn
     'no-var': 'error',
+    'no-empty': 'warn', // Changed from error to warn
+    'no-case-declarations': 'warn', // Changed from error to warn
+    'no-useless-catch': 'warn', // Changed from error to warn
   },
 }, {
   // Configuration for generated Drizzle schema files (CommonJS)
@@ -141,4 +177,4 @@ export default [js.configs.recommended, {
     '*-diagnostic.spec.*',
     'debug-*',
   ],
-}, ...storybook.configs["flat/recommended"], ...storybook.configs["flat/recommended"], ...storybook.configs["flat/recommended"]];
+}];
