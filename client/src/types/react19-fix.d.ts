@@ -15,6 +15,7 @@ declare module 'react' {
   export type FC<P = {}> = React.FC<P>;
   export type ComponentType<P = {}> = React.ComponentType<P>;
   export type Component<P = {}, S = {}> = React.Component<P, S>;
+  export const Component: typeof React.Component;
 
   // Hook types - re-export from React namespace
   export const useState: typeof React.useState;
