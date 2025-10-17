@@ -6,10 +6,51 @@ import PageLoader from './PageLoader';
 import { isPublicRoute } from '../constants/routes';
 import { useLocation } from 'wouter';
 
-// Lazy load providers
-const LazyTooltipProvider = React.lazy(() => import('./ui/tooltip').then(mod => ({ default: mod.TooltipProvider })));
-const LazyToaster = React.lazy(() => import('./ui/toaster').then(mod => ({ default: mod.Toaster })));
-const StackAuthProvider = React.lazy(() => import('./providers/StackAuthProvider').then(mod => ({ default: mod.default })));
+// Lazy load providers - wrap in proper component structure
+const LazyTooltipProvider = React.lazy(() =>
+  import('./ui/tooltip').then(mod => {
+    console.log('✅ Tooltip module loaded:', Object.keys(mod));
+    // Ensure we have the TooltipProvider component
+    if (!mod.TooltipProvider) {
+      console.error('❌ TooltipProvider not found in tooltip module. Available exports:', Object.keys(mod));
+      throw new Error('TooltipProvider export missing');
+    }
+    return { default: mod.TooltipProvider };
+  }).catch(err => {
+    console.error('❌ Failed to load tooltip module:', err);
+    throw err;
+  })
+);
+
+const LazyToaster = React.lazy(() =>
+  import('./ui/toaster').then(mod => {
+    console.log('✅ Toaster module loaded:', Object.keys(mod));
+    // Ensure we have the Toaster component
+    if (!mod.Toaster) {
+      console.error('❌ Toaster not found in toaster module. Available exports:', Object.keys(mod));
+      throw new Error('Toaster export missing');
+    }
+    return { default: mod.Toaster };
+  }).catch(err => {
+    console.error('❌ Failed to load toaster module:', err);
+    throw err;
+  })
+);
+
+const StackAuthProvider = React.lazy(() =>
+  import('./providers/StackAuthProvider').then(mod => {
+    console.log('✅ StackAuthProvider module loaded:', Object.keys(mod));
+    // Ensure we have the default export
+    if (!mod.default) {
+      console.error('❌ StackAuthProvider default export not found. Available exports:', Object.keys(mod));
+      throw new Error('StackAuthProvider default export missing');
+    }
+    return { default: mod.default };
+  }).catch(err => {
+    console.error('❌ Failed to load StackAuthProvider module:', err);
+    throw err;
+  })
+);
 
 interface RootWrapperProps {
   children: React.ReactNode;
