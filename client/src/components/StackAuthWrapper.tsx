@@ -115,14 +115,13 @@ export default function StackAuthWrapper({ children }: StackAuthWrapperProps) {
     return <ErrorDisplay message="Stack Auth client app is not available" />;
   }
 
-  // We need to cast to the exact type expected by StackProvider
+  // ✅ CLEANUP: Removed nested Suspense boundary
+  // RootWrapper handles all Suspense boundaries
   return (
-    <React.Suspense fallback={<LoadingDisplay attempt={0} maxAttempts={maxAttempts} />}>
-      <StackProvider app={stackClientApp as any /* Type cast needed for tokenStore compatibility */}>
-        <StackTheme>
-          {children}
-        </StackTheme>
-      </StackProvider>
-    </React.Suspense>
+    <StackProvider app={stackClientApp as any /* Type cast needed for tokenStore compatibility */}>
+      <StackTheme>
+        {children}
+      </StackTheme>
+    </StackProvider>
   );
 }

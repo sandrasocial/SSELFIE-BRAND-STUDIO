@@ -29,27 +29,20 @@ export const AlertDialog = lazy(() => import('./alert-dialog').then(mod => ({
   default: mod.AlertDialog as ComponentType<AlertDialogPrimitive.AlertDialogProps>
 })));
 
-// Type-safe Suspense wrappers
+// ✅ CLEANUP: Removed nested Suspense wrappers
+// RootWrapper handles all Suspense boundaries
 export const SuspenseDialog: FC<DialogPrimitive.DialogProps> = (props) => (
-  <Suspense fallback={<LoadingFallback />}>
-    <Dialog {...props} />
-  </Suspense>
+  <Dialog {...props} />
 );
 
 export const SuspenseCommand: FC<ComponentProps<typeof CommandPrimitive> & { ref?: Ref<HTMLDivElement> }> = (props) => (
-  <Suspense fallback={<LoadingFallback />}>
-    <Command {...props} />
-  </Suspense>
+  <Command {...props} />
 );
 
 export const SuspenseSheet: FC<DialogPrimitive.DialogProps> = (props) => (
-  <Suspense fallback={<LoadingFallback />}>
-    <Sheet {...props} />
-  </Suspense>
+  <Sheet {...props} />
 );
 
 export const SuspenseAlertDialog: FC<AlertDialogPrimitive.AlertDialogProps> = (props) => (
-  <Suspense fallback={<LoadingFallback />}>
-    <AlertDialog {...props} />
-  </Suspense>
+  <AlertDialog {...props} />
 );

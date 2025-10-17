@@ -186,14 +186,13 @@ export default function StackAuthProvider({ children }: StackAuthProviderProps) 
     return <PageLoader />;
   }
 
-  // Wrap in error boundary for runtime errors
+  // ✅ CLEANUP: Removed nested Suspense boundary
+  // RootWrapper handles all Suspense boundaries
   return (
-    <React.Suspense fallback={<PageLoader />}>
-      <StackProvider app={stackAppRef.current as any}>
-        <StackTheme>
-          {children}
-        </StackTheme>
-      </StackProvider>
-    </React.Suspense>
+    <StackProvider app={stackAppRef.current as any}>
+      <StackTheme>
+        {children}
+      </StackTheme>
+    </StackProvider>
   );
 }
