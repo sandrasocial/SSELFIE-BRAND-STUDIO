@@ -1,6 +1,5 @@
 import { defineConfig, type ProxyOptions, type UserConfig, type ConfigEnv } from 'vite';
 import react from '@vitejs/plugin-react';
-import { cjsInterop } from 'vite-plugin-cjs-interop';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { type IncomingMessage, type ServerResponse } from 'http';
@@ -61,17 +60,6 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
       // Add better error overlay handling
       include: "**/*.{js,ts,jsx,tsx}",
     }),
-    cjsInterop({
-      // Handle CommonJS modules properly
-      dependencies: [
-        'yup',
-        'tiny-case',
-        'property-expr',
-        'toposort',
-        'normalize-wheel',
-        'color'
-      ]
-    }),
     reactInitPlugin()
   ];
   
@@ -113,8 +101,8 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
       ]
     },
     optimizeDeps: {
-      // ⚠️ CRITICAL: Exclude CommonJS modules - the @rollup/plugin-commonjs will handle them
-      // Pre-bundling CommonJS modules causes "exports is not defined" errors
+      // ⚠️ CRITICAL: Exclude CommonJS modules to prevent "exports is not defined"
+      // Vite will handle them naturally without pre-bundling
       include: [
         'react',
         'react-dom',
