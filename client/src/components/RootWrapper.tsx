@@ -21,47 +21,29 @@ interface RootWrapperProps {
 
 export default function RootWrapper({ children }: RootWrapperProps) {
   const [location] = useLocation();
-  const [isPublic, setIsPublic] = useState<boolean>(false);
-  const [isReady, setIsReady] = useState<boolean>(false);
+  const [isPublic, setIsPublic] = useState<boolean>(() => {
+    // ✅ CRITICAL FIX: Initialize isPublic immediately (synchronous)
+    // isPublicRoute() is a fast synchronous function, no need to wait
+    const path = location || window.location.pathname;
+    return isPublicRoute(path);
+  });
 
-  // Detect if current route is public and update when route changes
+  // Update isPublic when location changes
   useEffect(() => {
     try {
       const path = location || window.location.pathname;
-      console.log(`🔀 RootWrapper: Detecting route: ${path}`);
+      console.log(`🔀 RootWrapper: Route changed to: ${path}`);
 
       const publicRoute = isPublicRoute(path);
       setIsPublic(publicRoute);
 
-      // Mark as ready after first route detection
-      setIsReady(true);
-
-      console.log(`🔀 RootWrapper: Route detected - ${path} (public: ${publicRoute})`);
+      console.log(`🔀 RootWrapper: Route is ${publicRoute ? 'public' : 'protected'}`);
     } catch (error) {
       console.error('❌ RootWrapper: Error detecting route:', error);
       // Default to public route on error to allow app to load
       setIsPublic(true);
-      setIsReady(true);
     }
   }, [location]);
-
-  // Set a timeout to force ready state after 2 seconds to prevent infinite loading
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      if (!isReady) {
-        console.warn('⚠️ RootWrapper: Route detection timeout - forcing ready state');
-        setIsReady(true);
-        setIsPublic(true); // Default to public route
-      }
-    }, 2000);
-
-    return () => clearTimeout(timeout);
-  }, [isReady]);
-
-  // ✅ FIX #6: Show loading state while determining route type
-  if (!isReady) {
-    return <PageLoader />;
-  }
 
   // ✅ CRITICAL FIX: Single Suspense boundary at top level
   // This is the ONLY Suspense boundary in the entire app
