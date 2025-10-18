@@ -1,7 +1,7 @@
 import React, { ComponentType, useEffect } from 'react';
 import { useLocation } from 'wouter';
-import { useAuth } from '../hooks/use-auth.js';
-import PageLoader from './PageLoader.js';
+import { useAuth } from '../../../hooks/use-auth.js';
+import PageLoader from '../../../components/ui/page-loader.js';
 
 // Simplified ProtectedRoute with single authentication check
 export function ProtectedRoute({ 
@@ -34,3 +34,4 @@ export function ProtectedRoute({
 
   return <Component {...props} />;
 }
+

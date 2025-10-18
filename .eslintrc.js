@@ -43,8 +43,30 @@ module.exports = {
   ignorePatterns: [
     'node_modules/',
     'dist/',
+    'client/dist/',
     'build/',
     'coverage/',
     '*.config.js',
+    'client/public/sw.js',
+  ],
+  overrides: [
+    {
+      files: ['**/*.d.ts'],
+      rules: {
+        'no-undef': 'off',
+      },
+    },
+    {
+      files: ['tests/**/*.{ts,tsx}'],
+      rules: {
+        'no-undef': 'off',
+      },
+    },
+    {
+      files: ['server/webhooks/replicate.ts'],
+      globals: {
+        require: 'readonly',
+      },
+    },
   ],
 };

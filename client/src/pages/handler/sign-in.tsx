@@ -1,5 +1,5 @@
 import React from "react";
-import { SafeStackSignIn } from "../../components/SafeStackSignIn.js";
+import { SafeStackSignIn } from "../../features/auth/components/SafeStackSignIn.js";
 
 // Handles the sign-in page for email/password and OAuth
 const SignInHandler: React.FC = () => {

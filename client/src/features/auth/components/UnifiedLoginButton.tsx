@@ -1,7 +1,6 @@
 import * as React from 'react';
-import { Button } from './ui/button.js';
-import { useAuth } from '../hooks/use-auth.js';
-import { stackClientApp } from "../../../stack/client.js";
+import { Button } from '../../../components/ui/button.js';
+import { useAuth } from '../../../hooks/use-auth.js';
 
 interface UnifiedLoginButtonProps {
   text: string;
@@ -53,18 +52,12 @@ export default function UnifiedLoginButton({ text, showBrand }: UnifiedLoginButt
     );
   }
 
+  // Show the login button for non-authenticated users
   if (isLoading) {
     return (
       <div className="text-center max-w-md mx-auto">
-        {showBrand && (
-          <h1 className="text-3xl font-bold mb-4">SSELFIE Studio</h1>
-        )}
-        
         <div className="bg-white p-6 rounded-lg shadow-lg">
-          <div className="text-center space-y-4">
-            <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto"></div>
-            <p className="text-sm text-gray-600">Loading...</p>
-          </div>
+          <p className="text-sm text-gray-600">Loading...</p>
         </div>
       </div>
     );
@@ -99,3 +92,4 @@ export default function UnifiedLoginButton({ text, showBrand }: UnifiedLoginButt
     </div>
   );
 }
+

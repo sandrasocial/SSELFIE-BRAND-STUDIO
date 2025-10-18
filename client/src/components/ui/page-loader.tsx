@@ -86,3 +86,4 @@ export const ButtonLoader = React.memo(function ButtonLoader(): ReactElement {
     <div className="editorial-spinner w-4 h-4" />
   );
 });
+

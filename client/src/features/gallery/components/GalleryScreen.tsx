@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { useAuth } from '../hooks/use-auth.js';
+import { useAuth } from '../../../hooks/use-auth.js';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiRequest } from '../lib/queryClient.js';
-import { apiFetch } from '../lib/api.js';
-import ErrorBoundary from '../components/ErrorBoundary.js';
-import StoryStudioModal from '../components/StoryStudioModal.js';
-import BrandAssetPlacementModal from '../components/BrandAssetPlacementModal.js';
+import { apiRequest } from '../../../lib/queryClient.js';
+import { apiFetch } from '../../../lib/api.js';
+import ErrorBoundary from '../../../components/ErrorBoundary.js';
+import StoryStudioModal from '../../../components/StoryStudioModal.js';
+import BrandAssetPlacementModal from '../../../components/BrandAssetPlacementModal.js';
 import { Camera, Grid, Search, Heart, Download, Trash2, Plus, Filter, X, SortAsc, SortDesc } from 'lucide-react';
 
 // ImageDetailModal Component
@@ -17,14 +17,14 @@ interface GalleryImage {
   source?: string;
 }
 
-function ImageDetailModal({ 
-  selectedImage, 
-  onClose, 
-  onToggleFavorite, 
-  onDownload, 
-  onDelete, 
+function ImageDetailModal({
+  selectedImage,
+  onClose,
+  onToggleFavorite,
+  onDownload,
+  onDelete,
   onPlaceBrandAsset,
-  isFavorite 
+  isFavorite
 }: {
   selectedImage: GalleryImage;
   onClose: () => void;
@@ -35,11 +35,11 @@ function ImageDetailModal({
   isFavorite: boolean;
 }) {
   return (
-    <div 
+    <div
       className="fixed inset-0 bg-stone-950/95 backdrop-blur-sm z-50 flex items-center justify-center p-4 sm:p-8"
       onClick={onClose}
     >
-      <div 
+      <div
         className="max-w-6xl max-h-[95vh] w-full flex flex-col bg-white rounded-3xl overflow-hidden shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
@@ -54,7 +54,7 @@ function ImageDetailModal({
               <p className="text-xs tracking-[0.15em] uppercase text-stone-500 font-light">Professional Portrait</p>
             </div>
           </div>
-          
+
         <button
           onClick={onClose}
             className="p-3 hover:bg-stone-200/60 rounded-2xl transition-colors"
@@ -63,30 +63,30 @@ function ImageDetailModal({
             <X size={20} className="text-stone-600" strokeWidth={1.5} />
         </button>
         </div>
-        
+
         {/* Image */}
         <div className="flex-1 flex items-center justify-center p-8 bg-stone-50 overflow-auto">
-          <img 
-            src={selectedImage.imageUrl || selectedImage.url || ''} 
-            alt={selectedImage.title || 'Gallery image'} 
+          <img
+            src={selectedImage.imageUrl || selectedImage.url || ''}
+            alt={selectedImage.title || 'Gallery image'}
             className="max-w-full max-h-[70vh] object-contain rounded-2xl shadow-2xl"
           />
         </div>
-        
+
         {/* Actions */}
         <div className="p-6 sm:p-8 border-t border-stone-200/40 bg-white">
           <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-            <button 
+            <button
               onClick={onToggleFavorite}
               className="flex items-center justify-center gap-2 py-3 px-4 bg-stone-100 hover:bg-stone-200 rounded-2xl transition-colors text-xs tracking-[0.15em] uppercase font-light"
             >
               <Heart size={16} className={isFavorite ? 'text-red-500 fill-current' : 'text-stone-600'} strokeWidth={1.5} />
               {isFavorite ? 'Unfavorite' : 'Favorite'}
             </button>
-            
+
             {/* P3-C: Brand Asset Placement Feature */}
             {process.env.REACT_APP_BRAND_ASSETS_ENABLED === '1' && (
-              <button 
+              <button
                 onClick={onPlaceBrandAsset}
                 className="flex items-center justify-center gap-2 py-3 px-4 bg-stone-100 hover:bg-stone-200 rounded-2xl transition-colors text-xs tracking-[0.15em] uppercase font-light text-stone-600"
               >
@@ -94,16 +94,16 @@ function ImageDetailModal({
                 Brand Asset
               </button>
             )}
-            
-            <button 
+
+            <button
               onClick={onDownload}
               className="flex items-center justify-center gap-2 py-3 px-4 bg-stone-100 hover:bg-stone-200 rounded-2xl transition-colors text-xs tracking-[0.15em] uppercase font-light text-stone-600"
             >
               <Download size={16} className="text-stone-600" strokeWidth={1.5} />
               Download
             </button>
-            
-            <button 
+
+            <button
               onClick={onDelete}
               className="flex items-center justify-center gap-2 py-3 px-4 bg-red-50 hover:bg-red-100 rounded-2xl transition-colors text-xs tracking-[0.15em] uppercase font-light text-red-600"
             >
@@ -162,14 +162,14 @@ const GalleryScreen: React.FC = () => {
 
     // Apply search filter
     if (searchQuery) {
-      filtered = filtered.filter(image => 
+      filtered = filtered.filter(image =>
         (image.title || '').toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
     // Apply category filter
     if (filterBy === 'favorites') {
-      filtered = filtered.filter(image => 
+      filtered = filtered.filter(image =>
         favorites.includes(typeof image.id === 'string' ? parseInt(image.id, 10) : image.id)
       );
     } else if (filterBy === 'recent') {
@@ -340,17 +340,17 @@ const GalleryScreen: React.FC = () => {
           </p>
         </div>
         <div className="flex space-x-3 ml-6 flex-shrink-0">
-          <button 
+          <button
             onClick={() => setShowFilters(!showFilters)}
             className={`p-4 rounded-2xl border transition-all duration-200 hover:scale-[1.02] ${
-              showFilters 
-                ? 'bg-stone-200/70 border-stone-300/60' 
+              showFilters
+                ? 'bg-stone-200/70 border-stone-300/60'
                 : 'bg-stone-100/50 border-stone-200/40 hover:bg-stone-100/70'
             }`}
           >
             <Filter size={18} strokeWidth={1.5} className="text-stone-600" />
           </button>
-          <button 
+          <button
             onClick={() => setViewMode(viewMode === 'grid' ? 'masonry' : 'grid')}
             className="p-4 bg-stone-100/50 rounded-2xl border border-stone-200/40 hover:bg-stone-100/70 hover:border-stone-300/50 transition-all duration-200 hover:scale-[1.02]"
           >
@@ -371,7 +371,7 @@ const GalleryScreen: React.FC = () => {
               <p className="text-xs tracking-[0.1em] uppercase text-stone-500 font-light">Find Your Perfect Shot</p>
             </div>
           </div>
-          
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Search Input */}
             <div className="relative lg:col-span-2">
@@ -384,7 +384,7 @@ const GalleryScreen: React.FC = () => {
                 className="pl-12 pr-4 py-4 border border-stone-200/60 rounded-2xl focus:outline-none focus:ring-2 focus:ring-stone-600/40 focus:border-stone-600/60 bg-white/60 w-full font-light text-sm"
               />
             </div>
-            
+
             {/* Filter Dropdown */}
             <div>
               <select
@@ -397,7 +397,7 @@ const GalleryScreen: React.FC = () => {
                 <option value="recent">Recent</option>
               </select>
             </div>
-            
+
             {/* Sort Dropdown */}
             <div>
               <select
@@ -422,7 +422,7 @@ const GalleryScreen: React.FC = () => {
             {searchQuery || filterBy !== 'all' ? 'No matching images' : 'No images yet'}
           </h3>
           <p className="text-stone-600 font-light mb-6">
-            {searchQuery || filterBy !== 'all' 
+            {searchQuery || filterBy !== 'all'
               ? 'Try adjusting your search or filter'
               : 'Start generating images to build your gallery'
             }
@@ -442,7 +442,7 @@ const GalleryScreen: React.FC = () => {
             const isFavorite = favorites.includes(typeof image.id === 'string' ? parseInt(image.id, 10) : image.id);
             const imageId = typeof image.id === 'string' ? image.id : image.id.toString();
             const isSelected = selectedImages.has(image.id);
-            
+
             return (
               <div
                 key={imageId}
@@ -450,13 +450,13 @@ const GalleryScreen: React.FC = () => {
                 onClick={() => setSelectedImage(image)}
               >
                 <div className={viewMode === 'masonry' ? 'relative' : 'aspect-square relative'}>
-                  <img 
-                    src={image.imageUrl || image.url || ''} 
+                  <img
+                    src={image.imageUrl || image.url || ''}
                     alt={image.title || 'Gallery image'}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     loading="lazy"
                   />
-                  
+
                   {/* Heart favorite indicator */}
                   <div className="absolute top-3 right-3">
                     <button
@@ -465,21 +465,21 @@ const GalleryScreen: React.FC = () => {
                         toggleFavorite(image.id);
                       }}
                       className={`p-2 rounded-xl backdrop-blur-sm transition-all duration-200 ${
-                        isFavorite 
-                          ? 'bg-red-500/90 hover:bg-red-600/90' 
+                        isFavorite
+                          ? 'bg-red-500/90 hover:bg-red-600/90'
                           : 'bg-stone-950/60 hover:bg-stone-950/80'
                       }`}
                     >
-                      <Heart 
-                        size={14} 
-                        className={isFavorite ? 'text-stone-50 fill-current' : 'text-stone-50'} 
-                        strokeWidth={1.5} 
+                      <Heart
+                        size={14}
+                        className={isFavorite ? 'text-stone-50 fill-current' : 'text-stone-50'}
+                        strokeWidth={1.5}
                       />
                     </button>
                   </div>
-                  
+
                   <div className="absolute inset-0 bg-stone-950/0 group-hover:bg-stone-950/30 transition-all duration-300"></div>
-                  
+
                   <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 bg-gradient-to-t from-stone-950/80 via-stone-950/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300">
                     <div className="flex justify-between items-end">
                       <div className="space-y-2 flex-1 min-w-0">
@@ -492,7 +492,7 @@ const GalleryScreen: React.FC = () => {
                         </div>
                       </div>
                       <div className="flex space-x-2 ml-4 flex-shrink-0">
-                        <button 
+                        <button
                           onClick={(e) => {
                             e.stopPropagation();
                             handleDownloadOld(image);
@@ -501,7 +501,7 @@ const GalleryScreen: React.FC = () => {
                         >
                           <Download size={14} className="text-stone-50" strokeWidth={1.5} />
                         </button>
-                        <button 
+                        <button
                           onClick={(e) => {
                             e.stopPropagation();
                             deleteImage(image.id);

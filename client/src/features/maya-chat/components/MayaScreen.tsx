@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useBrandStudio, BrandStudioProvider } from '../contexts/BrandStudioContext.js';
+import { useBrandStudio, BrandStudioProvider } from '../../../contexts/BrandStudioContext.js';
 import { Send, Camera } from 'lucide-react';
-import { useAuth } from '../hooks/use-auth.js';
-import type { ConceptCard } from '../../../shared/types/concept-card.js';
-import ErrorBoundary, { ConceptCardErrorBoundary } from '../components/ErrorBoundary.js';
+import { useAuth } from '../../../hooks/use-auth.js';
+import type { ConceptCard } from '../../../../../shared/types/concept-card.js';
+import ErrorBoundary, { ConceptCardErrorBoundary } from '../../../components/ErrorBoundary.js';
 
 interface MayaChatContentProps {
   initialPrompt?: string | null;
@@ -103,9 +103,9 @@ const MayaChatContent: React.FC<MayaChatContentProps> = ({ initialPrompt, onProm
         // Show success feedback
         const button = document.querySelector(`[data-image-index="${imageIndex}"]`);
         if (button) {
-          button.innerHTML = '♥️';
+          (button as HTMLElement).innerHTML = '♥️';
           setTimeout(() => {
-            button.innerHTML = '♡';
+            (button as HTMLElement).innerHTML = '♡';
           }, 2000);
         }
         
@@ -423,7 +423,7 @@ const MayaChatContent: React.FC<MayaChatContentProps> = ({ initialPrompt, onProm
         {isGenerating && !isTyping && (
           <div className="flex justify-start">
             <div className="bg-gradient-to-r from-blue-50/80 to-indigo-50/60 border border-blue-200/40 p-5 rounded-2xl max-w-[90%] shadow-sm">
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
                 <div className="w-8 h-8 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
                 <div className="flex-1">
                   <span className="text-sm font-medium text-blue-800">Images generating...</span>
@@ -513,3 +513,4 @@ const MayaScreen: React.FC<MayaScreenProps> = ({ initialPrompt, onPromptUsed }) 
 };
 
 export default MayaScreen;
+

@@ -1,6 +1,5 @@
 import * as React from 'react';
-import { PreLoginNavigationUnified } from './pre-login-navigation-unified.js';
-import { SandraImages } from '../lib/sandra-images.js';
+import { PreLoginNavigationUnified } from '../pre-login-navigation-unified.js';
 
 interface LoadingScreenProps {
   message?: string;
@@ -90,3 +89,4 @@ export function ProcessingLoader({
     </div>
   );
 }
+

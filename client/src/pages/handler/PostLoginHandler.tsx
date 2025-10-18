@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { Redirect } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../../hooks/use-auth.js';
-import PageLoader from '../../components/PageLoader.js';
+import PageLoader from '../../components/ui/page-loader.js';
 import { ROUTES } from '../../constants/routes.js';
 
 interface UserModel {

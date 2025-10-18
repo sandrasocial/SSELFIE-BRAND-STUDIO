@@ -328,7 +328,7 @@ export class TrainingOrchestrator {
   ): Promise<void> {
     try {
       // Get or create user model
-      let userModel = await this.db.getUserModelByUserId(userId);
+      const userModel = await this.db.getUserModelByUserId(userId);
       
       if (!userModel) {
         // Create new user model

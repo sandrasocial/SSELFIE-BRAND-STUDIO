@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
 import { useLocation } from 'wouter';
-import { useAuth } from '../hooks/use-auth.js';
-import PageLoader from './PageLoader.js';
-import { ROUTES, PUBLIC_ROUTES, isPublicRoute, isAuthRoute } from '../constants/routes.js';
+import { useAuth } from '../../../hooks/use-auth.js';
+import PageLoader from '../../../components/ui/page-loader.js';
+import { ROUTES, PUBLIC_ROUTES, isPublicRoute, isAuthRoute } from '../../../constants/routes.js';
 
 export function AuthWrapper({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth();

@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useLocation } from "wouter";
 import { GlobalFooter } from "../../components/global-footer.js";
-import { OptimizedImage } from "../../components/OptimizedImage.js";
+import { OptimizedImage } from "../../components/ui/optimized-image.js";
 import { UnifiedNavigation } from "../../components/unified-navigation.js";
 
 export default function BusinessLanding() {

@@ -4,11 +4,11 @@ import { useLocation } from 'wouter';
 import { Camera, Grid, User, Settings, MessageCircle } from 'lucide-react';
 
 // Import screen components
-import StudioScreen from './StudioScreen.js';
-import MayaScreen from './MayaScreen.js';
-import GalleryScreen from './GalleryScreen.js';
-import ProfileScreen from './ProfileScreen.js';
-import SettingsScreen from './SettingsScreen.js';
+import StudioScreen from '../features/brand-studio/components/StudioScreen.js';
+import MayaScreen from '../features/maya-chat/components/MayaScreen.js';
+import GalleryScreen from '../features/gallery/components/GalleryScreen.js';
+import ProfileScreen from '../features/profile/components/ProfileScreen.js';
+import SettingsScreen from '../features/settings/components/SettingsScreen.js';
 
 // Loading Screen Component
 const LoadingScreen: React.FC = () => (

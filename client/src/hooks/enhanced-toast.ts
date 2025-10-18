@@ -1,5 +1,5 @@
 import { useToast } from './use-toast.js';
-import { ErrorClassification, classifyError } from '../utils/api-client.js';
+import { ErrorClassification, classifyError } from '../lib/api-client.js';
 
 export interface ToastOptions {
   title?: string;
