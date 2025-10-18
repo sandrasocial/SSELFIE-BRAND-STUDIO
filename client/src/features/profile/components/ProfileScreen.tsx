@@ -1,10 +1,18 @@
 import * as React from 'react';
 import { useAuth } from '../../../hooks/use-auth.js';
+import { useLocation } from 'wouter';
 import { User, Camera, Settings } from 'lucide-react';
+import { useProfileSummary, useRecentImages } from '../hooks/useProfile.js';
+import SettingsScreen from '../../settings/components/SettingsScreen.js';
 
 // @ts-ignore - FC type compatibility with JSX.Element
 const ProfileScreen: React.FC = () => {
   const { user, isLoading, isAuthenticated } = useAuth();
+  const [, setLocation] = useLocation();
+  const { data: profile } = useProfileSummary();
+  const { data: recentImages } = useRecentImages(6);
+  const initialSection: 'profile' | 'settings' = 'profile';
+  const [activeSection, setActiveSection] = React.useState(initialSection);
 
   if (isLoading) {
     return (
@@ -32,9 +40,14 @@ const ProfileScreen: React.FC = () => {
     );
   }
 
+  if (activeSection === 'settings') {
+    return <SettingsScreen onBack={() => setActiveSection('profile')} />;
+  }
+
+  const photosCount = profile?.stats?.photos ?? 0;
   const stats = [
-    { value: user.generationsUsedThisMonth || '0', label: 'Photos' },
-    { value: user.monthlyGenerationLimit === -1 ? '∞' : (user.monthlyGenerationLimit || '100'), label: 'Limit' },
+    { value: String(photosCount), label: 'Photos' },
+    { value: user.monthlyGenerationLimit === -1 ? '∞' : String(user.monthlyGenerationLimit || 100), label: 'Limit' },
     { value: user.plan === 'admin' ? 'Admin' : 'Studio', label: 'Plan' }
   ];
 
@@ -87,7 +100,8 @@ const ProfileScreen: React.FC = () => {
           <div className="absolute inset-0 bg-stone-800 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-500"></div>
           <span className="relative z-10 group-hover:text-stone-50 transition-colors duration-500">Edit Profile</span>
         </button>
-        <button 
+        <button
+          onClick={() => setActiveSection('settings')}
           className="bg-stone-100/50 text-stone-950 px-6 py-5 rounded-2xl font-light tracking-[0.15em] uppercase text-sm border border-stone-200/40 transition-all duration-300 hover:bg-stone-100/70 hover:border-stone-300/50 hover:scale-[1.01] flex items-center justify-center gap-3 min-h-[56px]"
         >
           <Settings size={16} strokeWidth={1.5} />
@@ -189,14 +203,20 @@ const ProfileScreen: React.FC = () => {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <h3 className="text-xl sm:text-2xl font-serif font-extralight tracking-[0.15em] text-stone-950 uppercase">Recent Work</h3>
-          <button className="text-sm tracking-[0.15em] uppercase font-light transition-colors duration-200 text-stone-600 hover:text-stone-800">
+          <button onClick={() => setLocation('/app/gallery')} className="text-sm tracking-[0.15em] uppercase font-light transition-colors duration-200 text-stone-600 hover:text-stone-800">
             View All
           </button>
         </div>
         <div className="grid grid-cols-3 gap-3 sm:gap-4">
-          {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className="aspect-square bg-stone-200/30 rounded-2xl border border-stone-300/30 flex items-center justify-center cursor-pointer group transition-all duration-200 hover:scale-[1.02] hover:bg-stone-200/50">
-              <Camera size={24} strokeWidth={1.5} className="text-stone-500 group-hover:text-stone-700 transition-colors" />
+          {(recentImages ?? []).map((img) => (
+            <div key={img.id} className="aspect-square rounded-2xl border border-stone-300/30 overflow-hidden bg-stone-200/30">
+              {img.url ? (
+                <img src={img.url} alt="Recent" className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <Camera size={24} strokeWidth={1.5} className="text-stone-500" />
+                </div>
+              )}
             </div>
           ))}
         </div>
