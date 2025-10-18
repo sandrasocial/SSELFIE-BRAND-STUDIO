@@ -27,7 +27,18 @@ interface UpdateProfileRequest {
   firstName?: string;
   lastName?: string;
   profileImageUrl?: string;
-  gender?: 'man' | 'woman' | 'other';
+  gender?: string; // canonicalized server-side to 'woman' | 'man' | 'non-binary' | null
+}
+
+// Canonicalize incoming gender values to enforce server-side consistency
+function clampGender(input: string | null | undefined): 'woman' | 'man' | 'non-binary' | null {
+  if (!input) return null;
+  const g = String(input).toLowerCase().trim();
+  if (['woman','female','f'].includes(g)) return 'woman';
+  if (['man','male','m'].includes(g)) return 'man';
+  if (['non-binary','nonbinary','non binary','nb','enby'].includes(g)) return 'non-binary';
+  if (['other','prefer-not-to-say','prefer not to say','prefer_not_to_say','na','n/a','none','unknown'].includes(g)) return null;
+  return null;
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -53,12 +64,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (lastName) updates.lastName = lastName;
     if (profileImageUrl) updates.profileImageUrl = profileImageUrl;
     
-    if (gender) {
-      // Validate gender value
-      if (!['man', 'woman', 'other'].includes(gender)) {
-        return sendBadRequest(res, 'Invalid gender value. Must be "man", "woman", or "other"');
+    if (gender !== undefined) {
+      const canonical = clampGender(gender);
+      if (gender && canonical === null && !['other','prefer-not-to-say','prefer not to say','prefer_not_to_say','na','n/a','none','unknown'].includes(String(gender).toLowerCase())) {
+        return sendBadRequest(res, 'Invalid gender value. Allowed: "man", "woman", "non-binary", or "prefer-not-to-say"');
       }
-      updates.gender = gender;
+      updates.gender = canonical; // null means intentionally unspecified
     }
 
     // Check if there are any updates

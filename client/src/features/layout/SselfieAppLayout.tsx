@@ -11,7 +11,7 @@ import HeaderBar from '../../components/shared/HeaderBar';
 import StudioScreen from '../../features/brand-studio/components/StudioScreen';
 import TrainingScreen from '../../features/training/components/TrainingScreen';
 import MayaScreen from '../../features/maya-chat/components/MayaScreen';
-import GalleryScreen from '../../features/gallery/components/GalleryScreen';
+import GalleryScreen from '../../features/gallery/components/TwoTabGalleryScreen.js';
 import ProfileScreen from '../../features/profile/components/ProfileScreen';
 
 // Placeholder for the new Academy feature

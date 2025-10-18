@@ -128,9 +128,9 @@ async function timedFetch(url: string, ms = 3000, init?: FetchInit) {
       }
     },
     // Create a Node.js compatible response object instead of using Response constructor
-    { 
-      ok: false, 
-      status: 408, 
+    {
+      ok: false,
+      status: 408,
       statusText: 'Request Timeout',
       json: async () => ({ error: 'Network timeout' }),
       text: async () => 'Network timeout'
@@ -149,7 +149,7 @@ function setLogoutCookies(res: VercelResponse) {
     'stack_session',
     '__Secure-next-auth.session-token'
   ].map(name => `${name}=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0`);
-  
+
   const existing = res.getHeader('Set-Cookie');
   if (Array.isArray(existing)) {
     res.setHeader('Set-Cookie', [...existing, ...expired]);
@@ -178,19 +178,19 @@ const CIRCUIT_BREAKER_RESET_TIME = 60000;
 
 function checkCircuitBreaker(): boolean {
   const now = Date.now();
-  
+
   if (circuitBreaker.isOpen && now - circuitBreaker.lastFailure > CIRCUIT_BREAKER_RESET_TIME) {
     circuitBreaker.isOpen = false;
     circuitBreaker.failures = 0;
   }
-  
+
   return !circuitBreaker.isOpen;
 }
 
 function recordCircuitBreakerFailure() {
   circuitBreaker.failures++;
   circuitBreaker.lastFailure = Date.now();
-  
+
   if (circuitBreaker.failures >= CIRCUIT_BREAKER_THRESHOLD) {
     circuitBreaker.isOpen = true;
   }
@@ -210,14 +210,14 @@ function nowMs(): number {
 
 function logStart(route: string, meta?: Record<string, unknown>) {
   const start = nowMs();
-  try { 
+  try {
   } catch {
     // Ignore logging errors
   }
   return {
     end: (outcome: string, extra?: Record<string, unknown>) => {
       const elapsed = Math.round(nowMs() - start);
-      try { 
+      try {
       } catch {
         // Ignore logging errors
       }
@@ -231,7 +231,7 @@ function logStart(route: string, meta?: Record<string, unknown>) {
 // Categorize concepts
 function getCategoryFromTitle(title: string): string {
   const titleLower = title.toLowerCase();
-  
+
   if (titleLower.includes('professional') || titleLower.includes('headshot') || titleLower.includes('business')) {
     return 'Professional';
   } else if (titleLower.includes('lifestyle') || titleLower.includes('casual') || titleLower.includes('relaxed')) {
@@ -252,19 +252,19 @@ async function verifyJWTToken(token: string): Promise<StackAuthUserInfo> {
   try {
     const jose = await getJose();
     const { jwtVerify, createLocalJWKSet } = jose;
-    
+
     if (!JWKS) {
       const resp = await timedFetch(JWKS_URL, 3000);
       if (!resp.ok) throw new Error(`JWKS HTTP ${resp.status}`);
       const jwks = await resp.json();
       JWKS = createLocalJWKSet(jwks);
     }
-    
+
     const { payload } = await jwtVerify(token, JWKS, {
       issuer: `${STACK_AUTH_API_URL}/projects/${STACK_AUTH_PROJECT_ID}`,
       audience: STACK_AUTH_PROJECT_ID,
     });
-    
+
     return payload as unknown as StackAuthUserInfo;
   } catch (error) {
     throw new Error(`JWT verification failed: ${(error as Error).message}`);
@@ -325,13 +325,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       } catch (e) {
       }
     }
-    
+
     // Set CORS headers
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-stack-access-token');
     res.setHeader('Access-Control-Allow-Credentials', 'true');
-    
+
     // Handle preflight requests
     if (req.method === 'OPTIONS') {
       return res.status(200).end();
@@ -345,15 +345,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
       const NodeResponse = (globalThis as any).Response;
       try {
-        return new NodeResponse(JSON.stringify(body), { 
-          status, 
-          headers: { 'content-type': 'application/json' } 
+        return new NodeResponse(JSON.stringify(body), {
+          status,
+          headers: { 'content-type': 'application/json' }
         });
       } catch {
-        return { 
-          status, 
-          headers: { 'content-type': 'application/json' }, 
-          body: JSON.stringify(body) 
+        return {
+          status,
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(body)
         };
       }
     };
@@ -378,6 +378,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return galleryImagesHandler.default(req, res);
     }
 
+	    // Feed Layout API - Save/Load per-user feed design
+	    if (req.url?.startsWith('/api/gallery/feed-layout')) {
+	      const authenticatedUser = await getAuthenticatedUser();
+	      (req as any).user = authenticatedUser;
+	      (req as any).user.claims = authenticatedUser.stackUser;
+	      const feedLayoutHandler = await import('./api/gallery/feed-layout.js');
+	      return feedLayoutHandler.default(req, res);
+	    }
+
+
     // Sandra Images API - Public access for image serving
     if (req.url?.startsWith('/api/sandra-images/')) {
       const sandraImagesHandler = await import('./sandra-images.js');
@@ -396,33 +406,33 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       res.setHeader('Cache-Control', 'no-store');
       return res.status(200).json({ ok: true, loggedOut: true });
     }
-    
+
     // Get authenticated user helper function
     async function getAuthenticatedUser(): Promise<AuthenticatedUser> {
       let accessToken: string | undefined;
-      
+
       // Check Authorization header
       const authHeader = req.headers.authorization;
       if (authHeader?.startsWith('Bearer ')) {
         accessToken = authHeader.substring(7);
       }
-      
+
       // Check cookies
       const cookiesSource: Record<string, string> = (req as unknown as { cookies?: Record<string, string> }).cookies || parseCookieHeader(req.headers.cookie as string);
       if (!accessToken && cookiesSource) {
-        
+
         const cookiesToTry = [
           'stack-access',
           'stack-access-token',
           'stack_session',
           '__Secure-next-auth.session-token',
         ];
-        
+
         for (const cookieName of cookiesToTry) {
           const cookieValue = cookiesSource[cookieName];
-          
+
           if (cookieValue) {
-            
+
             try {
               // Try parsing as JSON array
               if (cookieValue.startsWith('[')) {
@@ -432,7 +442,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                   break;
                 }
               }
-              
+
               // Try parsing as JSON object
               if (cookieValue.startsWith('{')) {
                 const stackAccessObj = JSON.parse(cookieValue);
@@ -441,15 +451,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                   break;
                 }
               }
-              
+
               // Try as direct token
               if (cookieValue.length > 20 && cookieValue.includes('.')) {
                 accessToken = cookieValue;
                 break;
               }
-              
+
             } catch (parseError) {
-              
+
               if (cookieValue.length > 20) {
                 accessToken = cookieValue;
                 break;
@@ -457,31 +467,31 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             }
           }
         }
-        
+
         if (!accessToken) {
         }
       }
-      
+
       if (!accessToken) {
         throw new Error('No access token found');
       }
 
-      
+
       // Verify JWT token
       const userInfo = await verifyJWTToken(accessToken);
-      
-      
+
+
       // Extract user information
       const userId = String(userInfo.sub || userInfo.user_id || userInfo.id || '');
       const userEmail = String(userInfo.email || userInfo.primary_email || userInfo.primaryEmail || userInfo.email_address || userInfo.user_email || '');
       const userName = String(userInfo.displayName || userInfo.display_name || userInfo.name || userInfo.given_name || userInfo.full_name || '');
-      
+
       console.log('🔍 ENHANCED DEBUG: User info extracted:', {
         id: userId,
         email: userEmail,
         name: userName
       });
-      
+
       return {
         id: userId,
         email: userEmail,
@@ -494,13 +504,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // Ensure DB user exists
-    async function ensureDbUserFromStack(stackUser: { 
-      id?: string; 
-      email?: string | null; 
-      displayName?: string | null; 
-      firstName?: string | null; 
-      lastName?: string | null; 
-      profileImageUrl?: string | null; 
+    async function ensureDbUserFromStack(stackUser: {
+      id?: string;
+      email?: string | null;
+      displayName?: string | null;
+      firstName?: string | null;
+      lastName?: string | null;
+      profileImageUrl?: string | null;
     }) {
       const { storage } = await import('../server/storage.js');
       const stackId = (stackUser.id || '') as string;
@@ -538,7 +548,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Admin export: trained users document
     if (req.url === '/api/admin/export-trained-users-doc') {
       if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
-      
+
       try {
         const adminToken = req.headers['x-admin-token'] as string;
         const expected = process.env['ADMIN_TOKEN'] || 'sandra-admin-2025';
@@ -585,27 +595,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method not allowed' });
       }
-      
+
       try {
         const { email, plan, source } = req.body || {};
-        
+
         if (!email || !plan) {
           return res.status(400).json({ error: 'Email and plan are required' });
         }
-        
-        
+
+
         const { storage } = await import('../server/storage.js');
         const existingUser = await storage.getUserByEmail(email);
-        
+
         if (existingUser) {
-          
+
           const updatedUser = await storage.updateUserProfile(existingUser.id, {
             plan: plan,
             monthlyGenerationLimit: plan === 'sselfie-studio' ? 100 : -1,
             mayaAiAccess: true,
             lastLoginAt: new Date()
           });
-          
+
           return res.status(200).json({
             success: true,
             message: 'Account updated successfully',
@@ -614,7 +624,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             action: 'updated'
           });
         }
-        
+
         const newUserId = `user_${Date.now()}_${email.split('@')[0]}`;
         const newUser = await storage.upsertUser(getDefaultUserFields({
           id: newUserId,
@@ -627,8 +637,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           monthlyGenerationLimit: plan === 'sselfie-studio' ? 100 : -1,
           onboardingProgress: JSON.stringify({ source: source || 'payment-success' })
         }));
-        
-        
+
+
         res.setHeader('Cache-Control', 'no-store');
         return res.status(201).json({
           success: true,
@@ -638,7 +648,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           plan: newUser.plan,
           action: 'created'
         });
-        
+
       } catch (error) {
         console.error('❌ AUTO-REGISTRATION: Failed:', error);
         return res.status(500).json({
@@ -651,12 +661,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Stack Auth API proxy endpoints
     if (req.url?.startsWith('/api/auth/') && !req.url.includes('auto-register')) {
-      
+
       try {
         const stackAuthPath = req.url.replace('/api/auth', '');
         const stackAuthUrl = `https://api.stack-auth.com/api/v1/projects/${STACK_AUTH_PROJECT_ID}${stackAuthPath}`;
-        
-        
+
+
         const proxyResponse = await fetch(stackAuthUrl, {
           method: req.method,
           headers: {
@@ -669,16 +679,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           },
           body: req.body ? JSON.stringify(req.body) : undefined
         });
-        
+
         const responseData = await proxyResponse.text();
-        
+
         res.setHeader('Content-Type', proxyResponse.headers.get('content-type') || 'application/json');
         res.setHeader('Cache-Control', 'no-store');
-        
+
         return res.status(proxyResponse.status).send(responseData);
-        
+
       } catch (error) {
-        return res.status(500).json({ 
+        return res.status(500).json({
           error: 'Stack Auth proxy failed',
           message: (error as Error).message
         });
@@ -693,10 +703,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const adminToken = req.headers['x-admin-token'] as string;
       const expected = process.env['ADMIN_TOKEN'] || 'sandra-admin-2025';
       if (adminToken !== expected) return res.status(401).json({ error: 'Unauthorized' });
-      
+
       const users = (req.body && (req.body as { users?: Array<{ id: string; email?: string | null; displayName?: string | null; firstName?: string | null; lastName?: string | null; profileImageUrl?: string | null }> }).users) || [];
       if (!Array.isArray(users)) return res.status(400).json({ error: 'users array required' });
-      
+
       const results: Array<{ id: string; email: string | null }> = [];
       for (const u of users) {
         const dbUser = await ensureDbUserFromStack({
@@ -709,7 +719,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         });
         results.push({ id: dbUser.id, email: dbUser.email });
       }
-      
+
       res.setHeader('Cache-Control', 'no-store');
       return res.status(200).json({ ok: true, count: results.length, users: results });
     }
@@ -719,10 +729,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const adminToken = req.headers['x-admin-token'] as string;
       const expected = process.env['ADMIN_TOKEN'] || 'sandra-admin-2025';
       if (adminToken !== expected) return res.status(401).json({ error: 'Unauthorized' });
-      
+
       const { legacyUserId, stackId } = (req.body || {}) as { legacyUserId?: string | number; stackId?: string };
       if (!legacyUserId || !stackId) return res.status(400).json({ error: 'legacyUserId and stackId required' });
-      
+
       const { storage } = await import('../server/storage.js');
       const linked = await storage.linkStackAuthId(String(legacyUserId), String(stackId));
       res.setHeader('Cache-Control', 'no-store');
@@ -734,11 +744,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const adminToken = req.headers['x-admin-token'] as string;
       const expected = process.env['ADMIN_TOKEN'] || 'sandra-admin-2025';
       if (adminToken !== expected) return res.status(401).json({ error: 'Unauthorized' });
-      
+
       const { storage } = await import('../server/storage.js');
       const users = await storage.getAllUsers();
       const result: Array<{ email: string | null; stackId: string | null; legacyUserId: string; triggerWord: string; modelStatus: string; modelName: string | null }> = [];
-      
+
       for (const u of users as Array<{ id: string; stackAuthId?: string; email?: string }>) {
         const legacyUserId = u.id;
         const stackId = u.stackAuthId || null;
@@ -753,7 +763,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           modelName: model?.modelName || null
         });
       }
-      
+
       res.setHeader('Cache-Control', 'no-store');
       return res.status(200).json({ count: result.length, users: result });
     }
@@ -781,12 +791,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           const u = await storage.getUser(userId);
           const email = (u as { email?: string } | undefined)?.email || null;
           const stackId = (u as { stackAuthId?: string } | undefined)?.stackAuthId || null;
-          
+
           if (!stackId) {
             skipped.push({ userId, reason: 'No stackAuthId' });
             continue;
           }
-          
+
           const triggerWord = m.triggerWord || `user${String(userId).replace(/[^a-zA-Z0-9]/g, '')}`;
           const modelStatus = m.trainingStatus || 'completed';
           const modelName = m.modelName || '';
@@ -838,7 +848,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Admin user repair endpoint
     if (req.url === '/api/admin/repair-users') {
       if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-      
+
       const adminToken = req.headers['x-admin-token'] as string;
       const expected = process.env['ADMIN_TOKEN'] || 'sandra-admin-2025';
       if (adminToken !== expected) return res.status(401).json({ error: 'Unauthorized' });
@@ -877,7 +887,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             const success = await userSyncRepair.repairUser(userIdentifier);
             return res.json({
               success,
-              message: success 
+              message: success
                 ? `User ${userIdentifier} repaired successfully`
                 : `Failed to repair user ${userIdentifier}`
             });
@@ -900,7 +910,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // ✅ REMOVED DUPLICATE /api/me ENDPOINT - Now using dedicated api/me.ts with hardened middleware
-    
+
     // ✅ REMOVED /api/user-model ENDPOINT - Now handled by server/routes/modules/training.ts (Day 3, Phase 2)
 
     // ✅ REMOVED MAYA ENDPOINTS - Now handled by server/routes/modules/maya.ts (Day 5, Phase 4)
@@ -964,11 +974,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       try {
         const { storage } = await import('../server/storage.js');
         const user = await getAuthenticatedUser();
-        
+
         const dbUser = await storage.getUser(user.id as string);
         const aiImages = await storage.getAIImages(user.id as string);
         const generatedImages = await storage.getGeneratedImages(user.id as string);
-        
+
         return res.status(200).json({
           message: 'Database connection test',
           user: {
@@ -1019,7 +1029,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // Forward all Stack Auth headers
         const stackHeaders = [
           'x-stack-access-type',
-          'x-stack-project-id', 
+          'x-stack-project-id',
           'x-stack-publishable-client-key',
           'x-stack-random-nonce',
           'x-stack-allow-anonymous-user',
@@ -1066,18 +1076,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       message: 'SSELFIE Studio API',
       endpoint: req.url
     });
-    
+
   } catch (error) {
     console.error('❌ API Handler Error:', error);
     const body = { error: 'Internal server error', message: (error as Error).message };
-    
+
     if (typeof (res as any).status === 'function') {
       return res.status(500).json(body);
     } else {
       const NodeResponse = (globalThis as any).Response;
-      return new NodeResponse(JSON.stringify(body), { 
-        status: 500, 
-        headers: { 'content-type': 'application/json' } 
+      return new NodeResponse(JSON.stringify(body), {
+        status: 500,
+        headers: { 'content-type': 'application/json' }
       });
     }
   }

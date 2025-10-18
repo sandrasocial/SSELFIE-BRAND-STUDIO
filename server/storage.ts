@@ -103,11 +103,15 @@ import {
   type MayaConcept,
   type InsertMayaConcept,
 } from "../shared/schema.js";
+import { feedLayouts } from "../shared/schema.js";
+
 
 // Maya imports now available from main schema (emergency deployment fix)
 import { db } from "./drizzle.js";
 /// <reference path="types/global.d.ts" />
 import { eq, and, or, desc, asc, gte, lte, sql } from "drizzle-orm";
+import type { FeedLayoutSlot } from '../shared/types/feed-layout.js';
+
 import { type MayaChatCreateInput } from '../shared/types/chat.js';
 
 // Utility: Default user fields for onboarding/business logic
@@ -200,6 +204,11 @@ export interface IStorage {
   updateGenerationTracker(id: number, updates: Partial<GenerationTracker>): Promise<GenerationTracker>;
   getGenerationTracker(id: number): Promise<GenerationTracker | undefined>;
   getUserGenerationTrackers(userId: string): Promise<GenerationTracker[]>;
+
+	  // Feed Layout operations
+	  getFeedLayout(userId: string): Promise<{ userId: string; layout: FeedLayoutSlot[]; updatedAt: Date } | null>;
+	  upsertFeedLayout(userId: string, layout: FeedLayoutSlot[]): Promise<void>;
+
   getCompletedGenerationTrackersForUser(userId: string, hoursBack: number): Promise<GenerationTracker[]>;
   getProcessingGenerationTrackers(): Promise<GenerationTracker[]>; // CRITICAL FIX: Missing interface method
   updateAIImage(id: number, data: Partial<AiImage>): Promise<AiImage>;
@@ -274,7 +283,7 @@ export interface IStorage {
   getAgentConversations(agentId: string, userId: string): Promise<ClaudeMessage[]>;
   getAgentConversationHistory(agentId: string, userId: string, conversationId?: string): Promise<Array<{ role: string; content: string }>>;
   getAllAgentConversations(userId: string): Promise<ClaudeMessage[]>;
-  
+
   // Agent memory operations
   saveAgentMemory(agentId: string, userId: string, memoryData: unknown): Promise<void>;
   getAgentMemory(agentId: string, userId: string): Promise<Record<string, unknown> | null>;
@@ -310,7 +319,7 @@ export interface IStorage {
   getTrainingRunByTrainingId(trainingId: string): Promise<TrainingRun | undefined>;
   updateTrainingRun(id: number, updates: Partial<TrainingRun>): Promise<TrainingRun>;
   listUserTrainingRuns(userId: string): Promise<TrainingRun[]>;
-  
+
   createLoraWeight(weight: InsertLoraWeight): Promise<LoraWeight>;
   getLoraWeight(id: number): Promise<LoraWeight | undefined>;
   getUserActiveLoraWeight(userId: string): Promise<LoraWeight | undefined>;
@@ -399,7 +408,7 @@ export class DatabaseStorage implements IStorage {
 
   // Link existing user account to Stack Auth ID (safer approach - preserve original ID)
   async linkStackAuthId(existingUserId: string, stackAuthId: string): Promise<User> {
-    
+
     // Add Stack Auth ID to existing user while preserving original ID and all relationships
     const [linkedUser] = await db
       .update(users)
@@ -410,37 +419,37 @@ export class DatabaseStorage implements IStorage {
       } as any)
       .where(eq(users.id, existingUserId))
       .returning();
-    
+
     // 🔥 CRITICAL FIX: Ensure Maya profile and user model exist for linked users
     await this.ensureMayaProfile(linkedUser.id);
     await this.ensureUserModel(linkedUser.id);
-    
+
     return linkedUser;
   }
-  
+
   // Get user by Stack Auth ID (for linked accounts)
   async getUserByStackAuthId(stackAuthId: string): Promise<User | undefined> {
     // Import cache inside function to avoid circular dependencies
     console.log(`🔍 USER LOOKUP: Starting getUserByStackAuthId for ${stackAuthId.substring(0, 8)}...`);
     const { userCache } = await import('./_utils/user-cache.js');
-    
+
     // Check cache first
     const cached = userCache.get(stackAuthId);
     if (cached !== null) {
       console.log(`🚀 USER CACHE: Cache ${cached ? 'HIT' : 'HIT (null)'} for ${stackAuthId.substring(0, 8)}...`);
       return cached;
     }
-    
+
     console.log(`🔍 USER CACHE: Cache MISS for ${stackAuthId.substring(0, 8)}..., querying database`);
-    
+
     // Cache miss - query database
     console.log(`💾 USER CACHE: Cache miss for ${stackAuthId.substring(0, 8)}, querying database`);
     const [user] = await db.select().from(users).where(eq(users.stackAuthId, stackAuthId));
-    
+
     // Store in cache
     userCache.set(stackAuthId, user);
     console.log(`✅ USER CACHE: Stored ${user ? 'user' : 'null'} for ${stackAuthId.substring(0, 8)}`);
-    
+
     return user;
   }
 
@@ -478,14 +487,14 @@ export class DatabaseStorage implements IStorage {
       finalUserData.role = 'admin';
       finalUserData.monthlyGenerationLimit = -1; // Unlimited
       finalUserData.plan = 'sselfie-studio';
-     
+
       finalUserData.mayaAiAccess = true;
-     
+
       finalUserData.victoriaAiAccess = true;
     }
-    
+
     let user: User;
-    
+
     // First try to find existing user by ID
     const existingUser = await this.getUser(finalUserData.id);
     if (existingUser) {
@@ -549,7 +558,7 @@ export class DatabaseStorage implements IStorage {
 
     // 🔥 CRITICAL FIX: Auto-create Maya profile for every new user
     await this.ensureMayaProfile(user.id);
-    
+
     return user;
   }
 
@@ -564,7 +573,7 @@ export class DatabaseStorage implements IStorage {
 
   // Stack Auth user synchronization
   async syncStackAuthUser(stackUser: { id: string; primaryEmail?: string; displayName?: string; profileImageUrl?: string }): Promise<User> {
-   
+
     const userData: InsertUser = {
       id: stackUser.id,
       email: stackUser.primaryEmail || '',
@@ -573,7 +582,7 @@ export class DatabaseStorage implements IStorage {
       firstName: stackUser.displayName?.split(' ')[0],
       lastName: stackUser.displayName?.split(' ').slice(1).join(' '),
     } as any;
-    
+
     return this.upsertUser(userData);
   }
 
@@ -581,11 +590,11 @@ export class DatabaseStorage implements IStorage {
   async updateUserRetrainingAccess(userId: string, retrainingData: { hasRetrainingAccess: boolean; retrainingSessionId: string; retrainingPaidAt: Date }): Promise<User> {
     const [updatedUser] = await db
       .update(users)
-      .set({ 
+      .set({
         hasRetrainingAccess: retrainingData.hasRetrainingAccess,
         retrainingSessionId: retrainingData.retrainingSessionId,
         retrainingPaidAt: retrainingData.retrainingPaidAt,
-        updatedAt: new Date() 
+        updatedAt: new Date()
       } as any)
       .where(eq(users.id, userId))
       .returning();
@@ -695,6 +704,25 @@ export class DatabaseStorage implements IStorage {
     return updated;
   }
 
+
+	  // Feed Layout operations
+	  async getFeedLayout(userId: string): Promise<{ userId: string; layout: FeedLayoutSlot[]; updatedAt: Date } | null> {
+	    const result = await db.select().from(feedLayouts).where(eq(feedLayouts.userId, userId)).limit(1);
+	    const row = result[0] as { userId: string; layout: FeedLayoutSlot[]; updatedAt: Date } | undefined;
+	    return row || null;
+	  }
+
+	  async upsertFeedLayout(userId: string, layout: FeedLayoutSlot[]): Promise<void> {
+	    // Insert or update on conflict by primary key (userId)
+	    await db
+	      .insert(feedLayouts)
+	      .values({ userId, layout: layout as unknown as object, updatedAt: new Date() } as any)
+	      .onConflictDoUpdate({
+	        target: feedLayouts.userId,
+	        set: { layout: layout as unknown as object, updatedAt: new Date() } as any,
+	      });
+	  }
+
   async updateAIImageByPredictionId(predictionId: string, data: Partial<AiImage>): Promise<AiImage | null> {
     const [updated] = await db
       .update(aiImages)
@@ -773,7 +801,7 @@ export class DatabaseStorage implements IStorage {
         ))
         .orderBy(desc(generatedVideos.createdAt));
     }
-    
+
     return await db
       .select()
       .from(generatedVideos)
@@ -857,16 +885,16 @@ export class DatabaseStorage implements IStorage {
     // Import cache inside function to avoid circular dependencies
     console.log(`🔍 MODEL LOOKUP: Starting getUserModel for ${userId.substring(0, 8)}...`);
     const { userCache } = await import('./_utils/user-cache.js');
-    
+
     // Check cache first
     const cached = userCache.getModel(userId);
     if (cached !== null) {
       console.log(`🚀 MODEL CACHE: Cache ${cached ? 'hit' : 'hit (null)'} for ${userId.substring(0, 8)}`);
       return cached;
     }
-    
+
     console.log(`💾 MODEL CACHE: Cache miss for ${userId.substring(0, 8)}, querying database`);
-    
+
     // CRITICAL FIX: Simplified query without JOIN to avoid timeouts in serverless
     // The userId passed here is already the database user ID from stack-auth middleware
     console.log(`🔍 Querying user_models where user_id = ${userId}`);
@@ -875,13 +903,13 @@ export class DatabaseStorage implements IStorage {
       .from(userModels)
       .where(eq(userModels.userId, userId))
       .limit(1);
-    
+
     console.log(`🔍 Query result:`, model ? 'Found model' : 'No model found');
-    
+
     // Store in cache
     userCache.setModel(userId, model);
     console.log(`✅ MODEL CACHE: Stored ${model ? 'model' : 'null'} for ${userId.substring(0, 8)}`);
-    
+
     return model;
   }
 
@@ -960,13 +988,13 @@ export class DatabaseStorage implements IStorage {
         .from(users)
         .leftJoin(userModels, eq(users.id, userModels.userId))
         .where(or(
-          eq(users.stackAuthId, stackAuthId), 
-          eq(users.email, email) 
+          eq(users.stackAuthId, stackAuthId),
+          eq(users.email, email)
         ))
         .limit(1);
-      
+
       const result = results[0] || null;
-      
+
       if (!result) {
         return { user: undefined, model: undefined };
       }
@@ -980,30 +1008,30 @@ export class DatabaseStorage implements IStorage {
           userId: result.userId,
           email: result.userEmail
         });
-        
+
         // Update user with Stack Auth ID
         await db.update(users)
-          .set({ 
+          .set({
             stackAuthId: stackAuthId,
             updatedAt: new Date(),
             lastLoginAt: new Date()
           } as any)
           .where(eq(users.id, result.userId));
-          
+
         // Update result with new values
         result.userStackAuthId = stackAuthId;
         result.userLastLoginAt = new Date();
         result.userUpdatedAt = new Date();
-          
+
       } else if (needsLoginUpdate) {
         // Update last login for existing linked user
         await db.update(users)
-          .set({ 
+          .set({
             lastLoginAt: new Date(),
             updatedAt: new Date()
           } as any)
           .where(eq(users.id, result.userId));
-          
+
         // Update result with new values
         result.userLastLoginAt = new Date();
         result.userUpdatedAt = new Date();
@@ -1083,9 +1111,9 @@ export class DatabaseStorage implements IStorage {
         userEmail: userRecord.email
       });
 
-      return { 
-        user: userRecord, 
-        model: userModel || undefined 
+      return {
+        user: userRecord,
+        model: userModel || undefined
       };
 
     } catch (error) {
@@ -1107,28 +1135,28 @@ export class DatabaseStorage implements IStorage {
       .set({ ...data, updatedAt: new Date() } as any)
       .where(eq(userModels.userId, userId))
       .returning();
-    
+
     if (!updated) {
       throw new Error(`User model not found for user: ${userId}`);
     }
-    
+
     return updated;
   }
 
   // 🚨 CRITICAL: Clean up failed training data completely
   async deleteFailedTrainingData(userId: string): Promise<void> {
-    
+
     // Delete in correct order to avoid foreign key constraints
     await db.delete(generationTrackers).where(eq(generationTrackers.userId, userId));
     await db.delete(aiImages).where(eq(aiImages.userId, userId));
     await db.delete(userModels).where(eq(userModels.userId, userId));
-    
+
   }
 
   // 🔍 Check if user needs to restart training due to failure
   async checkTrainingStatus(userId: string): Promise<{ needsRestart: boolean; reason: string }> {
     const model = await this.getUserModel(userId);
-    
+
     // 🔧 FIX: Only show restart UI if there's actually FAILED training data
     // New users with no model should go through normal training flow
     if (!model) {
@@ -1156,7 +1184,7 @@ export class DatabaseStorage implements IStorage {
     if (existingModel) {
       return existingModel;
     }
-    
+
     // For new user models, use the original user ID (not Stack Auth ID)
     const user = await this.getUser(userId);
     const actualUserId = user?.id || userId;
@@ -1272,7 +1300,7 @@ export class DatabaseStorage implements IStorage {
         ]
       },
       {
-        name: 'Editorial Magazine', 
+        name: 'Editorial Magazine',
         images: [
           '/api/flatlay-gallery/editorial-1.jpg',
           '/api/flatlay-gallery/editorial-2.jpg',
@@ -1348,7 +1376,7 @@ export class DatabaseStorage implements IStorage {
 
   async getGenerationLimits(userId: string): Promise<{ allowed: number; used: number }> {
     const user = await this.getUser(userId);
-    
+
     // Admin users get unlimited access
     if (user?.role === 'admin') {
       return {
@@ -1359,7 +1387,7 @@ export class DatabaseStorage implements IStorage {
 
     // Generation limits based on plan
     const monthlyLimit = user?.monthlyGenerationLimit || 30; // Default to basic plan
-    
+
     return {
       allowed: monthlyLimit,
       used: user?.generationsUsedThisMonth || 0
@@ -1533,15 +1561,15 @@ export class DatabaseStorage implements IStorage {
   async saveAgentConversation(agentId: string, userId: string, userMessage: string, agentResponse: string, fileOperations?: any[], conversationId?: string): Promise<ClaudeConversation> {
     // Create or get conversation - USE STABLE ID per agent per user
     const convId = conversationId || `admin_${agentId}_${userId}`;
-    
+
     const conversationRecords = await db
       .select()
       .from(claudeConversations)
       .where(eq(claudeConversations.conversationId, convId))
       .limit(1);
-    
+
     let conversation = conversationRecords[0] || null;
-    
+
     if (!conversation) {
       [conversation] = await db.insert(claudeConversations).values({
         userId,
@@ -1552,7 +1580,7 @@ export class DatabaseStorage implements IStorage {
         messageCount: 0
       } as any).returning();
     }
-    
+
     // Save user message
     await db.insert(claudeMessages).values({
       conversationId: convId,
@@ -1560,23 +1588,23 @@ export class DatabaseStorage implements IStorage {
       content: userMessage,
       metadata: fileOperations ? { fileOperations } : null
       } as any);
-    
-    // Save agent response  
+
+    // Save agent response
     await db.insert(claudeMessages).values({
       conversationId: convId,
-      role: 'assistant', 
+      role: 'assistant',
       content: agentResponse,
       metadata: fileOperations ? { fileOperations } : null
       } as any);
-    
+
     // Update conversation metadata
     await db.update(claudeConversations)
-      .set({ 
+      .set({
         lastMessageAt: new Date(),
         messageCount: sql`${claudeConversations.messageCount} + 2`
       } as any)
       .where(eq(claudeConversations.conversationId, convId));
-      
+
     return conversation;
   }
 
@@ -1589,15 +1617,15 @@ export class DatabaseStorage implements IStorage {
         eq(claudeConversations.userId, userId)
       ))
       .orderBy(desc(claudeConversations.lastMessageAt));
-    
+
     if (conversations.length === 0) return [];
-    
+
     // Get messages from the most recent conversation
     const messages = await db.select()
       .from(claudeMessages)
       .where(eq(claudeMessages.conversationId, conversations[0].conversationId))
       .orderBy(claudeMessages.timestamp);
-      
+
     return messages;
   }
 
@@ -1608,13 +1636,13 @@ export class DatabaseStorage implements IStorage {
         .from(claudeMessages)
         .where(eq(claudeMessages.conversationId, conversationId))
         .orderBy(claudeMessages.timestamp);
-      
-      return messages.map(msg => ({ 
-        role: msg.role === 'assistant' ? 'ai' : msg.role, 
-        content: msg.content 
+
+      return messages.map(msg => ({
+        role: msg.role === 'assistant' ? 'ai' : msg.role,
+        content: msg.content
       }));
     }
-    
+
     // Get all conversations for this agent and user
     const conversations = await db.select()
       .from(claudeConversations)
@@ -1623,18 +1651,18 @@ export class DatabaseStorage implements IStorage {
         eq(claudeConversations.userId, userId)
       ))
       .orderBy(desc(claudeConversations.lastMessageAt));
-    
+
     if (conversations.length === 0) return [];
-    
+
     // Get messages from most recent conversation
     const messages = await db.select()
       .from(claudeMessages)
       .where(eq(claudeMessages.conversationId, conversations[0].conversationId))
       .orderBy(claudeMessages.timestamp);
-      
-    return messages.map(msg => ({ 
-      role: msg.role === 'assistant' ? 'ai' : msg.role, 
-      content: msg.content 
+
+    return messages.map(msg => ({
+      role: msg.role === 'assistant' ? 'ai' : msg.role,
+      content: msg.content
     }));
   }
 
@@ -1644,16 +1672,16 @@ export class DatabaseStorage implements IStorage {
       .from(claudeConversations)
       .where(eq(claudeConversations.userId, userId))
       .orderBy(desc(claudeConversations.lastMessageAt));
-    
+
     if (conversations.length === 0) return [];
-    
+
     // Get messages from all conversations
     const conversationIds = conversations.map(c => c.conversationId);
     const messages = await db.select()
       .from(claudeMessages)
       .where(sql`${claudeMessages.conversationId} = ANY(${conversationIds})`)
       .orderBy(claudeMessages.timestamp);
-      
+
     return messages;
   }
 
@@ -1679,7 +1707,7 @@ export class DatabaseStorage implements IStorage {
         conversationHistory,
         lastSaved: new Date().toISOString()
       };
-      
+
       // Save memory as special conversation entry
       await this.saveAgentConversation(
         agentId,
@@ -1697,7 +1725,7 @@ export class DatabaseStorage implements IStorage {
   async getAgentMemory(agentId: string, userId: string): Promise<any | null> {
     try {
       const conversations = await this.getAgentConversations(agentId, userId);
-      
+
       // Find the most recent memory entry (user message was '**CONVERSATION_MEMORY**')
       const memoryEntry = conversations
         .filter(msg => msg.role === 'user' && msg.content === '**CONVERSATION_MEMORY**')
@@ -1706,22 +1734,22 @@ export class DatabaseStorage implements IStorage {
           const dateB = b.timestamp ? new Date(b.timestamp).getTime() : 0;
           return dateB - dateA;
         })[0];
-      
+
       if (memoryEntry) {
         // Find the corresponding assistant response
-        const memoryResponse = conversations.find(msg => 
-          msg.role === 'assistant' && 
+        const memoryResponse = conversations.find(msg =>
+          msg.role === 'assistant' &&
           Math.abs(
-            (msg.timestamp ? new Date(msg.timestamp).getTime() : 0) - 
+            (msg.timestamp ? new Date(msg.timestamp).getTime() : 0) -
             (memoryEntry.timestamp ? new Date(memoryEntry.timestamp).getTime() : 0)
           ) < 1000
         );
-        
+
         if (memoryResponse && memoryResponse.content) {
           return JSON.parse(memoryResponse.content);
         }
       }
-      
+
       return null;
     } catch (error) {
       console.error('Failed to retrieve agent memory:', error);
@@ -1740,9 +1768,9 @@ export class DatabaseStorage implements IStorage {
           eq(claudeConversations.userId, userId)
         ))
         .limit(1);
-      
+
       const conversation = conversationRecords[0] || null;
-      
+
       if (conversation) {
         // Delete memory messages (where content is '**CONVERSATION_MEMORY**')
         await db.delete(claudeMessages)
@@ -1751,7 +1779,7 @@ export class DatabaseStorage implements IStorage {
             eq(claudeMessages.content, '**CONVERSATION_MEMORY**')
           ));
       }
-      
+
     } catch (error) {
       console.error('Failed to clear agent memory:', error);
       throw error;
@@ -1787,7 +1815,7 @@ export class DatabaseStorage implements IStorage {
   // Get Maya chats by category for organized display
   async getMayaChatsByCategory(userId: string): Promise<Record<string, MayaChat[]>> {
     const chats = await this.getMayaChats(userId);
-    
+
     const categorizedChats: Record<string, MayaChat[]> = {
       "Photo Generation": [],
       "Professional & Business": [],
@@ -1830,21 +1858,21 @@ export class DatabaseStorage implements IStorage {
         lastActivity: new Date()
       } as any)
       .returning();
-    
+
     if (data.initialMessage) {
       await this.saveMayaMessage(chat.id.toString(), userId, {
         message: data.initialMessage,
         role: 'user'
       });
     }
-    
+
     return chat.id.toString();
   }
 
   // Save Maya chat with message and response
   async saveMayaChat(userId: string, data: { message: string; response: string; conceptCards: any[]; context: any }): Promise<string> {
     console.log(`💾 STORAGE: Starting saveMayaChat for user ${userId}`);
-    
+
     try {
       const [chat] = await db
         .insert(mayaChats)
@@ -1855,15 +1883,15 @@ export class DatabaseStorage implements IStorage {
           lastActivity: new Date()
         } as any)
         .returning();
-      
+
       console.log(`✅ STORAGE: Chat created with ID ${chat.id}`);
-      
+
       // Save user message
       await this.saveMayaMessage(chat.id.toString(), userId, {
         message: data.message,
         role: 'user'
       });
-      
+
       // Save Maya response WITH concept cards
       console.log(`💾 STORAGE: Saving Maya response with ${data.conceptCards?.length || 0} concept cards`);
       console.log(`🔍 STORAGE CONCEPT CARDS:`, JSON.stringify(data.conceptCards, null, 2));
@@ -1884,7 +1912,7 @@ export class DatabaseStorage implements IStorage {
         });
         console.log(`✅ STORAGE: Fallback save successful`);
       }
-      
+
       return chat.id.toString();
     } catch (error) {
       console.error('❌ STORAGE: Error in saveMayaChat:', error);
@@ -1916,11 +1944,11 @@ export class DatabaseStorage implements IStorage {
             ...(card.emoji && { emoji: String(card.emoji).trim() })
           }))
           .filter(card => card.title && card.prompt); // Remove any that became empty
-        
+
         // Test JSON serialization
         JSON.stringify(conceptCards);
         console.log(`💾 STORAGE: Validated ${conceptCards.length} concept cards`);
-        
+
         if (conceptCards.length === 0) {
           conceptCards = null;
         }
@@ -1942,7 +1970,7 @@ export class DatabaseStorage implements IStorage {
           createdAt: new Date()
         } as any)
         .returning();
-      
+
       console.log(`✅ STORAGE: Message saved with ID ${message.id}, conceptCards: ${conceptCards ? 'YES' : 'NO'}`);
       return message.id.toString();
     } catch (error) {
@@ -1977,7 +2005,7 @@ export class DatabaseStorage implements IStorage {
   async upgradeUserPlan(userId: string, plan: string): Promise<User> {
     // Determine the plan settings based on new pricing structure
     let planSettings: Partial<User>;
-    
+
     if (plan === 'basic') {
       planSettings = {
         plan: 'basic',
@@ -2024,7 +2052,7 @@ export class DatabaseStorage implements IStorage {
       .from(mayaChatMessages)
       .where(eq(mayaChatMessages.chatId, chatId))
       .orderBy(mayaChatMessages.createdAt);
-    
+
     // Parse JSON fields for frontend compatibility and verify fullPrompt preservation
     return messages.map(msg => {
       const processedMsg = {
@@ -2033,7 +2061,7 @@ export class DatabaseStorage implements IStorage {
         conceptCards: msg.conceptCards ? (msg.conceptCards as unknown) : null, // ENHANCED: conceptCards stored as JSONB with fullPrompt preserved
         quickButtons: msg.quickButtons ? JSON.parse(msg.quickButtons) : null,
       };
-      
+
       // CRITICAL: Verify fullPrompt field preservation in retrieved concept cards
       if (processedMsg.conceptCards && Array.isArray(processedMsg.conceptCards)) {
         const conceptsWithPrompts = (processedMsg.conceptCards as Array<Record<string, unknown>>).filter((card) => 'fullPrompt' in card && (card as { fullPrompt?: string }).fullPrompt);
@@ -2044,7 +2072,7 @@ export class DatabaseStorage implements IStorage {
           });
         }
       }
-      
+
       return processedMsg;
     });
   }
@@ -2053,7 +2081,7 @@ export class DatabaseStorage implements IStorage {
   // Use getMayaChatMessages(chatId) for session-specific loading
 
   async createMayaChatMessage(data: Omit<InsertMayaChatMessage, 'conceptCards'> & { conceptCards?: any[] }): Promise<MayaChatMessage> {
-    
+
     // CRITICAL FIX: Clean concept cards to prevent JSONB serialization errors
     if (data.conceptCards && Array.isArray(data.conceptCards)) {
       data.conceptCards = data.conceptCards.map(card => this.cleanConceptCardForDatabase(card));
@@ -2071,7 +2099,7 @@ export class DatabaseStorage implements IStorage {
         });
       }
     }
-    
+
     const [message] = await db
       .insert(mayaChatMessages)
       .values(data)
@@ -2086,14 +2114,14 @@ export class DatabaseStorage implements IStorage {
 
   // CRITICAL FIX: Add missing getMayaConceptById method for generation system
   async getMayaConceptById(conceptId: string): Promise<Record<string, unknown> | undefined> {
-    
+
     // Search through Maya chat messages for concept cards with matching ID
     const messages = await db
       .select()
       .from(mayaChatMessages)
       .where(eq(mayaChatMessages.role, 'maya'))
       .orderBy(desc(mayaChatMessages.createdAt));
-    
+
     // Look through each message's conceptCards for the matching conceptId
     for (const message of messages) {
       if (message.conceptCards && Array.isArray(message.conceptCards)) {
@@ -2105,14 +2133,14 @@ export class DatabaseStorage implements IStorage {
         }
       }
     }
-    
+
     return undefined;
   }
 
 
 
   async updateMayaChatMessage(messageId: number, data: Partial<{ imagePreview: string; generatedPrompt: string }>): Promise<void> {
-   
+
     await db
       .update(mayaChatMessages)
       .set(data as any)
@@ -2166,9 +2194,9 @@ export class DatabaseStorage implements IStorage {
   async hasUnlimitedGenerations(userId: string): Promise<boolean> {
     try {
       const [user] = await db
-        .select({ 
+        .select({
           role: users.role,
-          monthlyGenerationLimit: users.monthlyGenerationLimit 
+          monthlyGenerationLimit: users.monthlyGenerationLimit
         })
         .from(users)
         .where(eq(users.id, userId));
@@ -2262,10 +2290,10 @@ export class DatabaseStorage implements IStorage {
     const urlParts = data.weightsUrl.replace('https://', '').split('/');
     const s3Bucket = urlParts[0].split('.s3.amazonaws.com')[0];
     const s3Key = urlParts.slice(1).join('/');
-    
+
     // Generate trigger word for this user
     const triggerWord = `user${data.userId.replace(/[^a-zA-Z0-9]/g, '')}`;
-    
+
     // Find or create training run record
     let trainingRun = await this.getTrainingRunByTrainingId(data.trainingId);
     if (!trainingRun) {
@@ -2277,15 +2305,15 @@ export class DatabaseStorage implements IStorage {
         completedAt: data.extractedAt
       } as any);
     }
-    
+
     // Create LoRA weight record with Maya's intelligent scaling defaults
     const mayaScales = {
       closeUpPortrait: 0.9,  // From Maya personality
-      halfBodyShot: 1.0,     // From Maya personality  
+      halfBodyShot: 1.0,     // From Maya personality
       fullScenery: 0.85,     // From Maya personality
       creativeOptimized: 1.1 // From Maya personality - the key 1.1 value!
     };
-    
+
     await this.createLoraWeight({
       userId: data.userId,
       trainingRunId: trainingRun.id,
@@ -2304,7 +2332,7 @@ export class DatabaseStorage implements IStorage {
         originalUrl: data.weightsUrl
       }
     } as any);
-    
+
   }
 
   async getLoRAWeights(userId: string): Promise<{ s3Bucket: string; s3Key: string } | undefined> {
@@ -2332,7 +2360,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   // HYBRID BACKEND ARCHITECTURE: Implementation of conversation and concept card operations
-  
+
   // Conversation operations
   async createConversation(data: any): Promise<Conversation> {
     const [conversation] = await db
@@ -2363,9 +2391,9 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(agentConversations)
       .where(eq(agentConversations.id, parseInt(id)));
-    
+
     if (!conversation) return undefined;
-    
+
     return {
       id: conversation.id.toString(),
       userId: conversation.userId,
@@ -2382,13 +2410,13 @@ export class DatabaseStorage implements IStorage {
     if (agentName) {
       conditions.push(eq(agentConversations.agentId, agentName));
     }
-    
+
     const results = await db
       .select()
       .from(agentConversations)
       .where(and(...conditions))
       .orderBy(desc(agentConversations.updatedAt));
-    
+
     return results.map(conversation => ({
       id: conversation.id.toString(),
       userId: conversation.userId,
@@ -2403,14 +2431,14 @@ export class DatabaseStorage implements IStorage {
   async updateConversation(id: string, updates: Partial<Conversation>): Promise<Conversation> {
     const [conversation] = await db
       .update(agentConversations)
-      .set({ 
+      .set({
         conversationTitle: updates.title,
         isActive: updates.status === 'active',
-        updatedAt: new Date() 
+        updatedAt: new Date()
       } as any)
       .where(eq(agentConversations.id, parseInt(id)))
       .returning();
-    
+
     return {
       id: conversation.id.toString(),
       userId: conversation.userId,
@@ -2456,9 +2484,9 @@ export class DatabaseStorage implements IStorage {
       .from(mayaChatMessages)
       .where(eq(mayaChatMessages.chatId, parseInt(conversationId)))
       .orderBy(desc(mayaChatMessages.createdAt));
-    
+
     const results = await (limit ? baseQuery.limit(limit) : baseQuery);
-    
+
     return results.map(msg => ({
       id: msg.id.toString(),
       conversationId: conversationId,
@@ -2484,9 +2512,9 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(messages)
       .where(eq(messages.id, messageId));
-    
+
     if (!targetMessage.length || !targetMessage[0].createdAt) return [];
-    
+
     return await db
       .select()
       .from(messages)
@@ -2502,14 +2530,14 @@ export class DatabaseStorage implements IStorage {
   // Conversation summary operations
   async upsertConversationSummary(data: any): Promise<ConversationSummary> {
     const existing = await this.getConversationSummary(data.conversationId);
-    
+
     if (existing) {
       const [summary] = await db
         .update(conversationSummaries)
-        .set({ 
-          ...data, 
+        .set({
+          ...data,
           summary: data.summary || '',
-          updatedAt: new Date() 
+          updatedAt: new Date()
         })
         .where(eq(conversationSummaries.conversationId, data.conversationId))
         .returning();
@@ -2538,11 +2566,11 @@ export class DatabaseStorage implements IStorage {
   async updateConversationSummary(conversationId: string, summary: string, lastMessageId: string, messageCount: number): Promise<ConversationSummary> {
     const [updated] = await db
       .update(conversationSummaries)
-      .set({ 
-        summary, 
-        lastMessageId, 
-        messageCount, 
-        updatedAt: new Date() 
+      .set({
+        summary,
+        lastMessageId,
+        messageCount,
+        updatedAt: new Date()
       } as any)
       .where(eq(conversationSummaries.conversationId, conversationId))
       .returning();

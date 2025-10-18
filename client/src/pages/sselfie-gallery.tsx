@@ -8,6 +8,8 @@ import ErrorBoundary from '../components/ErrorBoundary.js';
 import BrandAssetPlacementModal from '../components/BrandAssetPlacementModal.js';
 import { Camera, Grid, Search, Heart, Download, Trash2, Plus, Filter, Calendar, Star, Eye, X, Check, SortAsc, SortDesc } from 'lucide-react';
 
+import GalleryScreen from '../features/gallery/components/TwoTabGalleryScreen.js';
+
 // ImageDetailModal Component
 interface GalleryImage {
   id: string | number;
@@ -17,14 +19,14 @@ interface GalleryImage {
   source?: string;
 }
 
-function ImageDetailModal({ 
-  selectedImage, 
-  onClose, 
-  onToggleFavorite, 
-  onDownload, 
-  onDelete, 
+function ImageDetailModal({
+  selectedImage,
+  onClose,
+  onToggleFavorite,
+  onDownload,
+  onDelete,
   onPlaceBrandAsset,
-  isFavorite 
+  isFavorite
 }: {
   selectedImage: GalleryImage;
   onClose: () => void;
@@ -35,11 +37,11 @@ function ImageDetailModal({
   isFavorite: boolean;
 }) {
   return (
-    <div 
+    <div
       className="fixed inset-0 bg-stone-950/95 backdrop-blur-sm z-50 flex items-center justify-center p-4 sm:p-8"
       onClick={onClose}
     >
-      <div 
+      <div
         className="max-w-6xl max-h-[95vh] w-full flex flex-col bg-white rounded-3xl overflow-hidden shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
@@ -54,7 +56,7 @@ function ImageDetailModal({
               <p className="text-xs tracking-[0.15em] uppercase text-stone-500 font-light">Professional Portrait</p>
             </div>
           </div>
-          
+
         <button
           onClick={onClose}
             className="p-3 hover:bg-stone-200/60 rounded-2xl transition-colors"
@@ -63,30 +65,30 @@ function ImageDetailModal({
             <X size={20} className="text-stone-600" strokeWidth={1.5} />
         </button>
         </div>
-        
+
         {/* Image */}
         <div className="flex-1 flex items-center justify-center p-8 bg-stone-50">
-          <img 
-            src={selectedImage.imageUrl || selectedImage.url || ''} 
-            alt={selectedImage.title || 'Gallery image'} 
+          <img
+            src={selectedImage.imageUrl || selectedImage.url || ''}
+            alt={selectedImage.title || 'Gallery image'}
             className="max-w-full max-h-[60vh] object-contain rounded-2xl shadow-2xl"
           />
         </div>
-        
+
         {/* Actions */}
         <div className="p-6 sm:p-8 border-t border-stone-200/40 bg-white">
           <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-            <button 
+            <button
               onClick={onToggleFavorite}
               className="flex items-center justify-center gap-2 py-3 px-4 bg-stone-100 hover:bg-stone-200 rounded-2xl transition-colors text-xs tracking-[0.15em] uppercase font-light"
             >
               <Heart size={16} className={isFavorite ? 'text-red-500 fill-current' : 'text-stone-600'} strokeWidth={1.5} />
               {isFavorite ? 'Unfavorite' : 'Favorite'}
             </button>
-            
+
             {/* P3-C: Brand Asset Placement Feature */}
             {process.env.REACT_APP_BRAND_ASSETS_ENABLED === '1' && (
-              <button 
+              <button
                 onClick={onPlaceBrandAsset}
                 className="flex items-center justify-center gap-2 py-3 px-4 bg-stone-100 hover:bg-stone-200 rounded-2xl transition-colors text-xs tracking-[0.15em] uppercase font-light text-stone-600"
               >
@@ -94,16 +96,16 @@ function ImageDetailModal({
                 Brand Asset
               </button>
             )}
-            
-            <button 
+
+            <button
               onClick={onDownload}
               className="flex items-center justify-center gap-2 py-3 px-4 bg-stone-100 hover:bg-stone-200 rounded-2xl transition-colors text-xs tracking-[0.15em] uppercase font-light text-stone-600"
             >
               <Download size={16} className="text-stone-600" strokeWidth={1.5} />
               Download
             </button>
-            
-            <button 
+
+            <button
               onClick={onDelete}
               className="flex items-center justify-center gap-2 py-3 px-4 bg-red-50 hover:bg-red-100 rounded-2xl transition-colors text-xs tracking-[0.15em] uppercase font-light text-red-600"
             >
@@ -161,14 +163,14 @@ function SSELFIEGallery({ hideMemberNav = false }: { hideMemberNav?: boolean }) 
 
     // Apply search filter
     if (searchQuery) {
-      filtered = filtered.filter(image => 
+      filtered = filtered.filter(image =>
         (image.title || '').toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
     // Apply category filter
     if (filterBy === 'favorites') {
-      filtered = filtered.filter(image => 
+      filtered = filtered.filter(image =>
         favorites.includes(typeof image.id === 'string' ? parseInt(image.id, 10) : image.id)
       );
     } else if (filterBy === 'recent') {
@@ -332,7 +334,7 @@ function SSELFIEGallery({ hideMemberNav = false }: { hideMemberNav?: boolean }) 
   return (
     <div className="min-h-screen bg-stone-50">
       {!hideMemberNav && <MemberNavigation />}
-      
+
       {/* Gallery Container */}
       <div className="px-6 sm:px-8" style={{ paddingTop: '100px' }}>
         {/* Gallery Header */}
@@ -346,7 +348,7 @@ function SSELFIEGallery({ hideMemberNav = false }: { hideMemberNav?: boolean }) 
                 </div>
                 <h2 className="text-4xl sm:text-5xl font-serif font-extralight tracking-[0.25em] text-stone-950 uppercase">Gallery</h2>
               </div>
-              
+
               {/* Gallery Stats */}
               <div className="flex items-center gap-8">
                 <div className="flex items-center gap-3">
@@ -371,7 +373,7 @@ function SSELFIEGallery({ hideMemberNav = false }: { hideMemberNav?: boolean }) 
                 )}
               </div>
             </div>
-            
+
             {/* Action Buttons */}
             <div className="flex items-center gap-4">
               {/* Search */}
@@ -385,19 +387,19 @@ function SSELFIEGallery({ hideMemberNav = false }: { hideMemberNav?: boolean }) 
                   className="pl-12 pr-4 py-3 bg-white border border-stone-200/60 rounded-2xl text-stone-950 text-sm placeholder-stone-500 focus:outline-none focus:ring-2 focus:ring-stone-600/40 focus:border-stone-600/60 w-64 font-light"
                 />
               </div>
-              
+
               {/* Filter Toggle */}
-              <button 
+              <button
                 onClick={() => setShowFilters(!showFilters)}
                 className={`p-3 rounded-2xl border transition-all duration-200 ${
-                  showFilters 
-                    ? 'bg-stone-950 border-stone-950 text-stone-50' 
+                  showFilters
+                    ? 'bg-stone-950 border-stone-950 text-stone-50'
                     : 'bg-white border-stone-200/60 hover:border-stone-300 text-stone-600'
                 }`}
               >
                 <Filter size={16} className={showFilters ? 'text-stone-50' : 'text-stone-600'} strokeWidth={1.5} />
               </button>
-              
+
               {/* View Mode */}
               <div className="flex bg-white rounded-2xl border border-stone-200/60 p-1">
                 <button
@@ -513,14 +515,14 @@ function SSELFIEGallery({ hideMemberNav = false }: { hideMemberNav?: boolean }) 
             </div>
           )}
         </div>
-        
+
         {/* Gallery Grid */}
         <div className={`mt-12 ${viewMode === 'masonry' ? 'columns-2 sm:columns-3 gap-4 sm:gap-6' : 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6'}`}>
         {isLoading ? (
             Array.from({ length: 8 }).map((_, i) => (
-              <div 
-                key={i} 
-                className={`${viewMode === 'masonry' ? 'break-inside-avoid mb-4' : ''} aspect-square bg-stone-200 rounded-2xl animate-pulse`} 
+              <div
+                key={i}
+                className={`${viewMode === 'masonry' ? 'break-inside-avoid mb-4' : ''} aspect-square bg-stone-200 rounded-2xl animate-pulse`}
               />
             ))
           ) : filteredImages.length === 0 ? (
@@ -532,12 +534,12 @@ function SSELFIEGallery({ hideMemberNav = false }: { hideMemberNav?: boolean }) 
                 {searchQuery ? 'No Results Found' : 'No Photos Yet'}
               </h3>
               <p className="text-stone-600 leading-relaxed font-light mb-8 max-w-md mx-auto">
-                {searchQuery 
-                  ? `No photos match "${searchQuery}"` 
+                {searchQuery
+                  ? `No photos match "${searchQuery}"`
                   : 'Start creating professional portraits with Maya'
                 }
               </p>
-              <button 
+              <button
                 onClick={() => searchQuery ? setSearchQuery('') : window.location.href = '/app'}
                 className="bg-stone-950 text-stone-50 px-8 py-4 text-xs tracking-[0.15em] uppercase font-light rounded-2xl hover:bg-stone-800 transition-colors flex items-center gap-3 mx-auto"
               >
@@ -549,24 +551,24 @@ function SSELFIEGallery({ hideMemberNav = false }: { hideMemberNav?: boolean }) 
             filteredImages.map((image, index) => {
               const isSelected = selectedImages.has(image.id);
               const isFavorite = favorites.includes(typeof image.id === 'string' ? parseInt(image.id, 10) : image.id);
-              
+
               return (
-              <div 
-                key={image.id} 
+              <div
+                key={image.id}
                   className={`${viewMode === 'masonry' ? 'break-inside-avoid mb-4 sm:mb-6' : ''} relative group cursor-pointer`}
               >
                   <div className={`${viewMode === 'masonry' ? 'aspect-[4/5]' : 'aspect-square'} relative overflow-hidden rounded-2xl border-2 transition-all duration-300 ${
-                    isSelected 
-                      ? 'border-stone-950 shadow-xl' 
+                    isSelected
+                      ? 'border-stone-950 shadow-xl'
                       : 'border-stone-200/60 hover:border-stone-300/80 hover:shadow-lg'
                   }`}>
-                <img 
-                  src={image.imageUrl || image.url || ''} 
-                  alt={image.title || 'Generated art'} 
+                <img
+                  src={image.imageUrl || image.url || ''}
+                  alt={image.title || 'Generated art'}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                       onClick={() => setSelectedImage(image)}
                     />
-                    
+
                     {/* Selection Overlay */}
                     {isSelected && (
                       <div className="absolute inset-0 bg-stone-950/20 backdrop-blur-sm flex items-center justify-center">
@@ -575,10 +577,10 @@ function SSELFIEGallery({ hideMemberNav = false }: { hideMemberNav?: boolean }) 
                         </div>
                       </div>
                     )}
-                    
+
                     {/* Hover Overlay */}
                     <div className="absolute inset-0 bg-stone-950/0 group-hover:bg-stone-950/20 transition-all duration-300"></div>
-                    
+
                     {/* Selection Checkbox */}
                     <div className="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                       <button
@@ -595,7 +597,7 @@ function SSELFIEGallery({ hideMemberNav = false }: { hideMemberNav?: boolean }) 
                         {isSelected && <Check size={14} className="text-stone-950" strokeWidth={2} />}
                       </button>
                     </div>
-                    
+
                     {/* Favorite Indicator */}
                     {isFavorite && (
                       <div className="absolute top-3 right-3">
@@ -604,7 +606,7 @@ function SSELFIEGallery({ hideMemberNav = false }: { hideMemberNav?: boolean }) 
                         </div>
                       </div>
                     )}
-                    
+
                     {/* Action Overlay */}
                     <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-stone-950/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                       <div className="flex justify-between items-center">
@@ -619,20 +621,20 @@ function SSELFIEGallery({ hideMemberNav = false }: { hideMemberNav?: boolean }) 
                           )}
                         </div>
                         <div className="flex space-x-2">
-                          <button 
+                          <button
                             onClick={(e) => {
                               e.stopPropagation();
                               toggleFavorite(image.id);
                             }}
                             className="p-2 bg-stone-50/20 backdrop-blur-sm rounded-xl hover:bg-stone-50/30 transition-colors"
                           >
-                            <Heart 
-                              size={14} 
-                              className={`${isFavorite ? 'text-red-400 fill-current' : 'text-stone-50'}`} 
-                              strokeWidth={1.5} 
+                            <Heart
+                              size={14}
+                              className={`${isFavorite ? 'text-red-400 fill-current' : 'text-stone-50'}`}
+                              strokeWidth={1.5}
                             />
                           </button>
-                          <button 
+                          <button
                             onClick={(e) => {
                               e.stopPropagation();
                               setSelectedImage(image);
@@ -671,9 +673,9 @@ function SSELFIEGallery({ hideMemberNav = false }: { hideMemberNav?: boolean }) 
                     {selectedImages.size} Selected
                   </span>
                 </div>
-                
+
                 <div className="w-px h-6 bg-stone-200"></div>
-                
+
                 <div className="flex items-center gap-3">
                   <button
                     onClick={handleBulkDownload}
@@ -682,7 +684,7 @@ function SSELFIEGallery({ hideMemberNav = false }: { hideMemberNav?: boolean }) 
                     <Download size={14} className="text-stone-600" strokeWidth={1.5} />
                     <span className="text-xs text-stone-600 tracking-[0.1em] uppercase font-light">Download</span>
                   </button>
-                  
+
                   <button
                     onClick={handleBulkDelete}
                     className="flex items-center gap-2 px-6 py-3 bg-red-50 rounded-2xl hover:bg-red-100 transition-colors"
@@ -690,7 +692,7 @@ function SSELFIEGallery({ hideMemberNav = false }: { hideMemberNav?: boolean }) 
                     <Trash2 size={14} className="text-red-600" strokeWidth={1.5} />
                     <span className="text-xs text-red-600 tracking-[0.1em] uppercase font-light">Delete</span>
                   </button>
-                  
+
                   <button
                     onClick={clearSelection}
                     className="flex items-center gap-2 px-6 py-3 bg-stone-100 rounded-2xl hover:bg-stone-200 transition-colors"
@@ -738,7 +740,10 @@ function SSELFIEGallery({ hideMemberNav = false }: { hideMemberNav?: boolean }) 
 export default function SSELFIEGalleryWithErrorBoundary(props: { hideMemberNav?: boolean }) {
   return (
     <ErrorBoundary>
-      <SSELFIEGallery hideMemberNav={props?.hideMemberNav} />
+      <div className="min-h-screen bg-stone-50">
+        {!props?.hideMemberNav && <MemberNavigation />}
+        <GalleryScreen />
+      </div>
     </ErrorBoundary>
   );
 }
