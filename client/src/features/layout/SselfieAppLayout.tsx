@@ -14,8 +14,7 @@ import MayaScreen from '../../features/maya-chat/components/MayaScreen';
 import GalleryScreen from '../../features/gallery/components/TwoTabGalleryScreen.js';
 import ProfileScreen from '../../features/profile/components/ProfileScreen';
 
-// Placeholder for the new Academy feature
-const AcademyScreen = () => <div className="p-8"><h2>Academy Coming Soon</h2></div>;
+import AcademyScreen from '../../features/academy/AcademyScreen';
 
 const SselfieAppLayout = () => {
   const [location, setLocation] = useLocation();

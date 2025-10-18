@@ -1,13 +1,14 @@
 import * as React from 'react';
 import { useAuth } from '../../../hooks/use-auth.js';
-import { 
-  CreditCard, 
-  Settings as SettingsIcon, 
-  Shield, 
-  LogOut, 
-  ExternalLink, 
-  Zap, 
-  Calendar, 
+import { useUserSettings } from '../../profile/hooks/useProfile.js';
+import {
+  CreditCard,
+  Settings as SettingsIcon,
+  Shield,
+  LogOut,
+  ExternalLink,
+  Zap,
+  Calendar,
   TrendingUp,
   ChevronRight,
   Bell,
@@ -15,9 +16,11 @@ import {
   User as UserIcon
 } from 'lucide-react';
 
+type Props = { onBack?: () => void };
 // @ts-ignore - FC type compatibility with JSX.Element
-const SettingsScreen: React.FC = () => {
-  const { user, isLoading, isAuthenticated, hasActiveSubscription, requiresPayment } = useAuth();
+const SettingsScreen: React.FC<Props> = ({ onBack }) => {
+  const { user, isLoading, isAuthenticated, hasActiveSubscription, requiresPayment, stackUser } = useAuth();
+  const { data: settings, isLoading: settingsLoading, updateSettings } = useUserSettings();
 
   if (isLoading) {
     return (
@@ -45,55 +48,95 @@ const SettingsScreen: React.FC = () => {
     );
   }
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      // Prefer Stack Auth signOut when available
+      if (stackUser && typeof (stackUser as any).signOut === 'function') {
+        await (stackUser as any).signOut();
+        return;
+      }
+    } catch {}
+    // Fallback to server endpoint
     window.location.href = '/api/logout';
+  };
+
+  const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+
+  const cycle = <T,>(arr: readonly T[], current: T): T => {
+    const i = arr.findIndex((v) => v === current);
+    return arr[(i + 1) % arr.length];
+  };
+
+  const applyUpdate = (key: string, value: any) => {
+    // Build minimal nested update object from dot key
+    const parts = key.split('.');
+    const nested: any = {};
+    let cursor = nested;
+    for (let i = 0; i < parts.length - 1; i++) {
+      cursor[parts[i]] = {};
+      cursor = cursor[parts[i]];
+    }
+    cursor[parts[parts.length - 1]] = value;
+    updateSettings.mutate(nested);
   };
 
   const openCustomerPortal = () => {
     window.open('/api/payments/customer-portal', '_blank');
   };
 
-  const settingsGroups = [
-    { 
-      title: 'Notifications', 
-      icon: Bell, 
+  const groups = [
+    {
+      title: 'Notifications',
+      icon: Bell,
       items: [
-        { name: 'Photo completion alerts', status: 'On', type: 'toggle' },
-        { name: 'Maya updates', status: 'Weekly', type: 'select' },
-        { name: 'Tips & inspiration', status: 'On', type: 'toggle' }
-      ] 
+        { key: 'notifications.photoComplete', name: 'Photo completion alerts', status: settings?.notifications?.photoComplete ? 'On' : 'Off', type: 'toggle' as const },
+        { key: 'notifications.mayaUpdates', name: 'Maya updates', status: capitalize(settings?.notifications?.mayaUpdates || 'weekly'), type: 'select' as const, options: ['off','daily','weekly'] as const },
+        { key: 'notifications.tips', name: 'Tips & inspiration', status: settings?.notifications?.tips ? 'On' : 'Off', type: 'toggle' as const }
+      ]
     },
-    { 
-      title: 'Photo Quality', 
-      icon: Camera, 
+    {
+      title: 'Photo Quality',
+      icon: Camera,
       items: [
-        { name: 'Image resolution', status: 'High', type: 'select' },
-        { name: 'Auto-enhance', status: 'On', type: 'toggle' },
-        { name: 'Background removal', status: 'Auto', type: 'select' }
-      ] 
+        { key: 'photoQuality.resolution', name: 'Image resolution', status: capitalize(settings?.photoQuality?.resolution || 'high'), type: 'select' as const, options: ['standard','high'] as const },
+        { key: 'photoQuality.autoEnhance', name: 'Auto-enhance', status: settings?.photoQuality?.autoEnhance ? 'On' : 'Off', type: 'toggle' as const },
+        { key: 'photoQuality.backgroundRemoval', name: 'Background removal', status: capitalize(settings?.photoQuality?.backgroundRemoval || 'auto'), type: 'select' as const, options: ['off','auto'] as const }
+      ]
     },
-    { 
-      title: 'Account', 
-      icon: UserIcon, 
+    {
+      title: 'Account',
+      icon: UserIcon,
       items: [
-        { name: 'Profile visibility', status: 'Public', type: 'select' },
-        { name: 'Data backup', status: 'Cloud', type: 'select' },
-        { name: 'Photo sharing', status: 'On', type: 'toggle' }
-      ] 
+        { key: 'account.profileVisibility', name: 'Profile visibility', status: capitalize(settings?.account?.profileVisibility || 'public'), type: 'select' as const, options: ['private','public'] as const },
+        { key: 'account.dataBackup', name: 'Data backup', status: capitalize(settings?.account?.dataBackup || 'cloud'), type: 'select' as const, options: ['cloud','local'] as const },
+        { key: 'account.photoSharing', name: 'Photo sharing', status: settings?.account?.photoSharing ? 'On' : 'Off', type: 'toggle' as const }
+      ]
     },
   ];
 
   return (
     <div className="space-y-8 pb-4">
       {/* Header */}
-      <div className="pt-4 sm:pt-6 text-center">
-        <h1 className="text-3xl sm:text-5xl font-serif font-extralight tracking-[0.3em] text-stone-950 uppercase leading-none mb-3">
-          SETTINGS
-        </h1>
-        <p className="text-xs tracking-[0.2em] uppercase font-light text-stone-500">
-          Your Preferences
-        </p>
-      </div>
+      {onBack ? (
+        <div className="pt-4 sm:pt-6 flex items-center justify-between">
+          <button
+            onClick={onBack}
+            className="p-4 bg-stone-100/50 rounded-2xl border border-stone-200/40 hover:bg-stone-100/70 hover:border-stone-300/50 transition-all duration-200"
+          >
+            <ChevronRight size={18} className="text-stone-600 transform rotate-180" strokeWidth={1.5} />
+          </button>
+          <div className="text-center flex-1 -ml-16">
+            <h1 className="text-3xl sm:text-5xl font-serif font-extralight tracking-[0.3em] text-stone-950 uppercase leading-none mb-3">SETTINGS</h1>
+            <p className="text-xs tracking-[0.2em] uppercase font-light text-stone-500">Your Preferences</p>
+          </div>
+          <div className="w-[56px]" />
+        </div>
+      ) : (
+        <div className="pt-4 sm:pt-6 text-center">
+          <h1 className="text-3xl sm:text-5xl font-serif font-extralight tracking-[0.3em] text-stone-950 uppercase leading-none mb-3">SETTINGS</h1>
+          <p className="text-xs tracking-[0.2em] uppercase font-light text-stone-500">Your Preferences</p>
+        </div>
+      )}
 
       {/* Current Plan */}
       <div className="bg-stone-100/50 border border-stone-200/40 rounded-3xl p-6 sm:p-8">
@@ -215,7 +258,7 @@ const SettingsScreen: React.FC = () => {
 
       {/* Settings Groups */}
       <div className="space-y-6">
-        {settingsGroups.map((group, index) => {
+        {groups.map((group, index) => {
           const Icon = group.icon;
           return (
             <div key={index} className="bg-stone-100/40 rounded-3xl p-6 sm:p-8 border border-stone-200/40">
@@ -225,10 +268,24 @@ const SettingsScreen: React.FC = () => {
                 </div>
                 <h3 className="text-lg font-serif font-extralight tracking-[0.15em] text-stone-950 uppercase">{group.title}</h3>
               </div>
-              
+
               <div className="space-y-2">
                 {group.items.map((item, itemIndex) => (
-                  <div key={itemIndex} className="flex items-center justify-between py-5 hover:bg-stone-200/30 rounded-2xl px-6 -mx-6 transition-all duration-200 cursor-pointer group min-h-[60px]">
+                  <div
+                    key={itemIndex}
+                    onClick={() => {
+                      if (!settings) return;
+                      if (item.type === 'toggle') {
+                        applyUpdate(item.key, item.status === 'On' ? false : true);
+                      } else if (item.type === 'select' && 'options' in item) {
+                        const current = (item.status || '').toLowerCase();
+                        // @ts-ignore
+                        const next = cycle(item.options, current);
+                        applyUpdate(item.key, next);
+                      }
+                    }}
+                    className="flex items-center justify-between py-5 hover:bg-stone-200/30 rounded-2xl px-6 -mx-6 transition-all duration-200 cursor-pointer group min-h-[60px]"
+                  >
                     <span className="text-sm sm:text-base text-stone-950 font-light flex-1 min-w-0 truncate">{item.name}</span>
                     <div className="flex items-center space-x-4 ml-4">
                       <span className="text-xs sm:text-sm font-light text-stone-600">{item.status}</span>
