@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, type ReactElement } from 'react';
-import { useMemoryCleanup } from '../hooks/useMemoryCleanup.js';
+import { useMemoryCleanup } from '../../hooks/useMemoryCleanup.js';
 
 interface OptimizedImageProps {
   src: string;
@@ -14,7 +14,7 @@ interface OptimizedImageProps {
 }
 
 /**
- * Phase 4: Optimized Image Component with advanced loading strategies
+ * Optimized Image Component with advanced loading strategies
  * Features: Progressive loading, WebP support, intersection observer, memory cleanup
  */
 export function OptimizedImage({
@@ -108,7 +108,7 @@ export function OptimizedImage({
     transition: 'opacity 0.3s ease-in-out',
     width: width ? `${width}px` : '100%',
     height: height ? `${height}px` : 'auto',
-  };
+  } as const;
 
   return (
     <div 
@@ -154,6 +154,7 @@ export function OptimizedImage({
       )}
     </div>
   );
-};
+}
 
 export default OptimizedImage;
+

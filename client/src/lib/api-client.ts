@@ -1,4 +1,4 @@
-import { apiRequest } from '../lib/queryClient.js';
+import { apiRequest } from './queryClient.js';
 
 export interface RetryConfig {
   maxRetries: number;
@@ -258,3 +258,4 @@ export function classifyError(error: Error): ErrorClassification {
     shouldRetry: true
   };
 }
+

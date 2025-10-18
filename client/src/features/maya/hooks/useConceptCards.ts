@@ -7,11 +7,11 @@
  */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiRequest } from '../lib/queryClient.js';
-import type { ConceptCard, CreateConceptCardData, UpdateConceptCardData } from '../../../shared/types/concept-card.js';
+import { apiRequest } from '../../../lib/queryClient.js';
+import type { ConceptCard, CreateConceptCardData, UpdateConceptCardData } from '../../../../../shared/types/concept-card.js';
 
 // Re-export the unified types
-export type { ConceptCard, CreateConceptCardData, UpdateConceptCardData } from '../../../shared/types/concept-card.js';
+export type { ConceptCard, CreateConceptCardData, UpdateConceptCardData } from '../../../../../shared/types/concept-card.js';
 
 /**
  * Get user's concept cards with optional conversation filter
@@ -148,30 +148,6 @@ export const useUpdateConceptCardGeneration = () => {
 };
 
 /**
- * Delete concept card
- */
-export const useDeleteConceptCard = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (id: string) => {
-      await apiRequest(`/api/concepts/${id}`, 'DELETE');
-      return id;
-    },
-    onSuccess: (deletedId) => {
-      // Remove from cache
-      queryClient.removeQueries({ queryKey: ['/api/concepts', deletedId] });
-      
-      // Invalidate list queries
-      queryClient.invalidateQueries({ queryKey: ['/api/concepts'] });
-    },
-    onError: (error) => {
-      console.error('Failed to delete concept card:', error);
-    }
-  });
-};
-
-/**
  * Optimistic update helper for concept card generation
  * Updates the UI immediately while the mutation is in progress
  */
@@ -203,3 +179,4 @@ export const useOptimisticConceptCardUpdate = () => {
 
   return { updateOptimistically };
 };
+

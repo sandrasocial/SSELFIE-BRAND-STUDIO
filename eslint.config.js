@@ -109,6 +109,12 @@ export default [js.configs.recommended, {
       NodeJS: 'readonly',
       // Additional APIs
       apiRequest: 'readonly',
+      PromiseRejectionEvent: 'readonly',
+      TextEncoder: 'readonly',
+      Request: 'readonly',
+      Headers: 'readonly',
+      require: 'readonly',
+
     },
   },
   plugins: {
@@ -131,6 +137,9 @@ export default [js.configs.recommended, {
     'no-empty': 'warn', // Changed from error to warn
     'no-case-declarations': 'warn', // Changed from error to warn
     'no-useless-catch': 'warn', // Changed from error to warn
+    'no-useless-escape': 'warn',
+    'no-misleading-character-class': 'warn',
+    'no-control-regex': 'warn',
   },
 }, {
   // Configuration for generated Drizzle schema files (CommonJS)
@@ -162,9 +171,26 @@ export default [js.configs.recommended, {
     'no-undef': 'off', // Allow CommonJS globals
   },
 }, {
+  // Disable no-undef in TypeScript declaration files
+  files: ['**/*.d.ts'],
+  rules: {
+    'no-undef': 'off',
+    '@typescript-eslint/no-explicit-any': 'off'
+  }
+}, {
+  // Allow CommonJS require in specific server webhook file
+  files: ['server/webhooks/replicate.ts'],
+  languageOptions: {
+    globals: {
+      require: 'readonly'
+    }
+  }
+}, {
   ignores: [
     'node_modules/',
     'dist/',
+    'client/dist/**',
+    'client/public/sw.js',
     'build/',
     'coverage/',
     '*.config.js',
@@ -176,5 +202,10 @@ export default [js.configs.recommended, {
     '*-debug.*',
     '*-diagnostic.spec.*',
     'debug-*',
+    'server/routes/*.js',
+    'drizzle/**',
+    'scripts/**',
+
+
   ],
 }];

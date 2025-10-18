@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useAuth } from '../hooks/use-auth.js';
+import { useAuth } from '../../../hooks/use-auth.js';
 import { User, Camera, Settings } from 'lucide-react';
 
 // @ts-ignore - FC type compatibility with JSX.Element
@@ -206,3 +206,4 @@ const ProfileScreen: React.FC = () => {
 };
 
 export default ProfileScreen;
+

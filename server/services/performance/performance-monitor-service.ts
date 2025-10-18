@@ -142,7 +142,7 @@ export class PerformanceMonitorService {
       const poolStats = await connectionPoolManager.getStats();
       const poolHealth = await connectionPoolManager.getAllHealth();
       
-      let avgResponseTime = 0;
+      const avgResponseTime = 0;
       let totalConnections = 0;
       let unhealthyPools = 0;
       

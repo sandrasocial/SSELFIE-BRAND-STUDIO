@@ -5,7 +5,7 @@
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
+ 
 const crypto = require('crypto');
 
 export const config = { 

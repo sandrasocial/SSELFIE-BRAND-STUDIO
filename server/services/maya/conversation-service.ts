@@ -243,7 +243,7 @@ export class MayaConversationService {
   }> {
     try {
       // Get user data first to get database user ID
-      let user = await this.db.getUserByStackAuthId(stackAuthId);
+      const user = await this.db.getUserByStackAuthId(stackAuthId);
       
       if (!user) {
         throw new Error(`User not found with Stack Auth ID: ${stackAuthId}`);

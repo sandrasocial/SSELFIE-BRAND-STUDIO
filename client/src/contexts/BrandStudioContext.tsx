@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '../lib/queryClient.js';
 import { useAuth } from '../hooks/use-auth.js';
 import { useToast } from '../hooks/use-toast.js';
-import { useMayaGeneration } from '../hooks/useMayaGeneration.js';
+import { useMayaGeneration } from '../features/maya/hooks/useMayaGeneration.js';
 import type { ConceptCard } from '../../../shared/types/concept-card.js';
 
 // Validation Functions

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useAuth } from '../hooks/use-auth.js';
+import { useAuth } from '../../../hooks/use-auth.js';
 import { 
   CreditCard, 
   Settings as SettingsIcon, 
@@ -267,3 +267,4 @@ const SettingsScreen: React.FC = () => {
 };
 
 export default SettingsScreen;
+

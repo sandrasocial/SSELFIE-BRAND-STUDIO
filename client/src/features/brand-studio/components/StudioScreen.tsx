@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useLocation } from 'wouter';
-import { useAuth } from '../hooks/use-auth.js';
-import { apiFetch } from '../lib/api.js';
-import { WelcomeHeader } from '../components/WelcomeHeader.js';
-import QuickAccessPanel from '../components/QuickAccessPanel.js';
-import GeneratedImagePreview from '../components/GeneratedImagePreview.js';
+import { useAuth } from '../../../hooks/use-auth.js';
+import { apiFetch } from '../../../lib/api.js';
+import { WelcomeHeader } from '../../../components/WelcomeHeader.js';
+import QuickAccessPanel from '../../../components/QuickAccessPanel.js';
+import GeneratedImagePreview from '../../../components/GeneratedImagePreview.js';
 import { 
   Zap, 
   Clock, 
@@ -323,3 +323,4 @@ const StudioScreen: React.FC<StudioScreenProps> = ({ onTabChange }) => {
 };
 
 export default StudioScreen;
+

@@ -39,7 +39,7 @@ const root = createRoot(rootElement);
 // NO Suspense boundary here - RootWrapper handles all Suspense
 // This prevents duplicate loading screens
 import App from './App';
-import RootWrapper from './components/RootWrapper';
+import RootWrapper from './components/layout/RootWrapper';
 
 console.log('🚀 Rendering app...');
 

@@ -1,6 +1,6 @@
 import React from 'react';
-import { useAuth } from '../hooks/use-auth.js';
-import PageLoader from './PageLoader.js';
+import { useAuth } from '../../../hooks/use-auth.js';
+import PageLoader from '../../../components/ui/page-loader.js';
 
 /**
  * AuthGate

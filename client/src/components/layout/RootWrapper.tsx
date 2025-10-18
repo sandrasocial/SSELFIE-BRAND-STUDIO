@@ -1,17 +1,17 @@
 import React, { Suspense } from 'react';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { ErrorBoundary } from "./ErrorBoundary";
-import { getQueryClient } from "../lib/queryClient";
-import PageLoader from './PageLoader';
+import { ErrorBoundary } from "../ErrorBoundary";
+import { getQueryClient } from "../../lib/queryClient";
+import PageLoader from '../ui/page-loader';
 
 // ✅ CRITICAL FIX: Import StackAuthProvider directly (not lazy)
 // This prevents it from being loaded for public routes
-import StackAuthProvider from './providers/StackAuthProvider';
+import StackAuthProvider from '../providers/StackAuthProvider';
 
 // ✅ CRITICAL FIX: Import providers directly (NOT lazy)
 // Lazy loading them inside Suspense causes the fallback to show
-import { TooltipProvider } from './ui/tooltip';
-import { Toaster } from './ui/toaster';
+import { TooltipProvider } from '../ui/tooltip';
+import { Toaster } from '../ui/toaster';
 
 interface RootWrapperProps {
   children: React.ReactNode;
@@ -39,3 +39,4 @@ export default function RootWrapper({ children }: RootWrapperProps) {
     </Suspense>
   );
 }
+

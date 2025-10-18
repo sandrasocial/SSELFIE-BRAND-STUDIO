@@ -1,5 +1,5 @@
 import * as React from 'react';
-import UnifiedLoginButton from './UnifiedLoginButton.js';
+import UnifiedLoginButton from '../features/auth/components/UnifiedLoginButton.js';
 
 export default function LoginPrompt() {
   return (

@@ -9,11 +9,11 @@ import { StackHandler } from "@stackframe/react";
 import { stackClientApp } from "../../stack/client";
 import { useQuery } from "@tanstack/react-query";
 import { detectBrowserIssues, showDomainHelp } from "./utils/browserCompat.js";
-import { optimizeImageLoading, enableServiceWorkerCaching } from "./utils/performanceOptimizations.js";
+import { optimizeImageLoading, enableServiceWorkerCaching } from "./utils/performance.js";
 import { optimizeRuntime } from "./utils/webVitals.js";
 import { initializeMobileOptimization } from "./utils/mobileOptimization.js";
 import { performanceMonitor } from "./utils/performanceMonitor.js";
-import RootWrapper from "./components/RootWrapper";
+import RootWrapper from "./components/layout/RootWrapper";
 import { useAuth } from "./hooks/use-auth.js";
 import { initializeRuntimeOptimization } from "./utils/runtimeOptimization.js";
 import { ROUTES } from "./constants/routes.js";
@@ -44,7 +44,7 @@ import { PUBLIC_ROUTES } from "./constants/routes";
 
 // Components
 import { PageLoader } from './components/loaders';
-import { AuthWrapper } from './components/AuthWrapper.js';
+import { AuthWrapper } from './features/auth/components/AuthWrapper.js';
 
 // ✅ REMOVED: ProtectedRouteWrapper is no longer needed
 // StackAuthProvider now handles authentication for all routes

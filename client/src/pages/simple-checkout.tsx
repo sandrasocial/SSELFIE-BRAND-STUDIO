@@ -17,8 +17,8 @@ import {
   checkoutApiRequest, 
   checkNetworkConnectivity,
   classifyError
-} from '../utils/api-client.js';
-import { 
+} from '../lib/api-client.js';
+import {
   getStripeConfig, 
   logConfigurationStatus,
   ConfigurationError
