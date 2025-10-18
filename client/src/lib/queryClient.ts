@@ -1,14 +1,14 @@
 import type { QueryFunction } from "@tanstack/react-query";
-import { QueryClient } from "@tanstack/react-query";
+import { QueryClient } from "@tanstack/query-core";
 
 // Minimal diagnostic after imports are initialized
 if (typeof window !== 'undefined') {
   try {
     const ctorType = typeof QueryClient;
     const ctorName = (QueryClient as any)?.name || '(no name)';
-    console.log('[RQ] typeof QueryClient:', ctorType, 'name:', ctorName);
+    console.log('[RQ-core] typeof QueryClient:', ctorType, 'name:', ctorName);
   } catch (e) {
-    console.warn('[RQ] QueryClient inspect failed:', e);
+    console.warn('[RQ-core] QueryClient inspect failed:', e);
   }
 }
 

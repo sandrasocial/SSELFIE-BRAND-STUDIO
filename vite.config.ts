@@ -95,7 +95,8 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
         'react',
         'react-dom',
         '@stackframe/react',
-        '@tanstack/react-query'
+        '@tanstack/react-query',
+        '@tanstack/query-core'
       ]
     },
     optimizeDeps: {
@@ -106,7 +107,7 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
         'react-dom',
         'use-sync-external-store/shim',
         'wouter',
-        '@tanstack/react-query',
+        
         'yup',
         'tiny-case',
         'property-expr',
