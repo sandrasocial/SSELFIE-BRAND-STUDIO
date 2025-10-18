@@ -24,21 +24,26 @@ import { stackClientApp } from "../../stack/client";
   }
 
   const container = document.getElementById('root');
-  if (container) {
-    const root = createRoot(container);
-    root.render(
-      <React.StrictMode>
-        <StackProvider app={stackClientApp}>
-          <StackTheme>
-            <TooltipProvider>
-              <App />
-              <Toaster />
-            </TooltipProvider>
-          </StackTheme>
-        </StackProvider>
-      </React.StrictMode>
-    );
-  }
+  if (!container) return;
+
+  // HMR-safe: reuse existing root if present
+  const w = window as any;
+  const existingRoot = w.__APP_ROOT__ as any | undefined;
+  const root = existingRoot ?? createRoot(container);
+  w.__APP_ROOT__ = root;
+
+  root.render(
+    <React.StrictMode>
+      <StackProvider app={stackClientApp}>
+        <StackTheme>
+          <TooltipProvider>
+            <App />
+            <Toaster />
+          </TooltipProvider>
+        </StackTheme>
+      </StackProvider>
+    </React.StrictMode>
+  );
 })();
 
 
@@ -53,19 +58,3 @@ import { stackClientApp } from "../../stack/client";
 
 
 
-const container = document.getElementById('root');
-if (container) {
-  const root = createRoot(container);
-  root.render(
-    <React.StrictMode>
-      <StackProvider app={stackClientApp}>
-        <StackTheme>
-          <TooltipProvider>
-            <App />
-            <Toaster />
-          </TooltipProvider>
-        </StackTheme>
-      </StackProvider>
-    </React.StrictMode>
-  );
-}

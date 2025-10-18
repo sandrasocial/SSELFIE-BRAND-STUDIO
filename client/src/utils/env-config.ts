@@ -24,8 +24,8 @@ function validateStripeConfig(): {
   const errors: string[] = [];
   const warnings: string[] = [];
 
-  const publicKey = import.meta.env['VITE_STRIPE_PUBLIC_KEY'];
-  const testingKey = import.meta.env.TESTING_VITE_STRIPE_PUBLIC_KEY;
+  const publicKey = import.meta.env['VITE_STRIPE_PUBLIC_KEY'] || import.meta.env['VITE_STRIPE_PUBLISHABLE_KEY'];
+  const testingKey = import.meta.env['VITE_TESTING_STRIPE_PUBLIC_KEY'] || import.meta.env['TESTING_VITE_STRIPE_PUBLIC_KEY'];
 
   if (!publicKey && !testingKey) {
     errors.push('No Stripe public key found. Set VITE_STRIPE_PUBLIC_KEY or TESTING_VITE_STRIPE_PUBLIC_KEY');
