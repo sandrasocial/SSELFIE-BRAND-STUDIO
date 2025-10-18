@@ -14,14 +14,15 @@ export function ProtectedRoute({
   [key: string]: unknown;
 }) {
   const { isAuthenticated, isLoading } = useAuth();
-  const [, setLocation] = useLocation();
+  const [location, setLocation] = useLocation();
 
   useEffect(() => {
     // Only redirect if we're done loading AND user is not authenticated
-    if (!isLoading && !isAuthenticated) {
+    // and we are not already at the fallback to avoid loops
+    if (!isLoading && !isAuthenticated && location !== fallbackPath) {
       setLocation(fallbackPath);
     }
-  }, [isAuthenticated, isLoading, setLocation, fallbackPath]);
+  }, [isAuthenticated, isLoading, setLocation, fallbackPath, location]);
 
   if (isLoading) {
     return <PageLoader />;

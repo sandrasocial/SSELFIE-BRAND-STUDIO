@@ -44,6 +44,7 @@ import { PUBLIC_ROUTES } from "./constants/routes";
 
 // Components
 import { PageLoader } from './components/loaders';
+import { AuthWrapper } from './components/AuthWrapper.js';
 
 // ✅ REMOVED: ProtectedRouteWrapper is no longer needed
 // StackAuthProvider now handles authentication for all routes
@@ -284,7 +285,9 @@ function App() {
 
   return createElement(ErrorBoundary, null,
     createElement(RootWrapper, null,
-      createElement(Router)
+      createElement(AuthWrapper, null,
+        createElement(Router)
+      )
     )
   );
 }
