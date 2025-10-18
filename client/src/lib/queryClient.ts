@@ -1,5 +1,11 @@
 import type { QueryFunction } from "@tanstack/react-query";
-import { QueryClient } from "@tanstack/react-query";
+import * as ReactQuery from "@tanstack/react-query";
+
+// Robustly resolve QueryClient across ESM/CJS interop
+const QueryClientCtor: any =
+  (ReactQuery as any).QueryClient ||
+  (ReactQuery as any).default?.QueryClient ||
+  (ReactQuery as any).default;
 
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
@@ -98,7 +104,7 @@ export const getQueryFn: <T>(options: {
   };
 
 // Initialize QueryClient immediately
-export const queryClient = new QueryClient({
+export const queryClient = new QueryClientCtor({
   defaultOptions: {
     queries: {
       queryFn: getQueryFn({ on401: "throw" }),
