@@ -18,6 +18,20 @@ function safeFirst(arr: unknown): string | null {
   }
 }
 
+function safeParseUrls(imageUrls: unknown): string[] | null {
+  try {
+    if (!imageUrls) return null;
+    if (Array.isArray(imageUrls)) return imageUrls as string[];
+    if (typeof imageUrls === 'string') {
+      const parsed = JSON.parse(imageUrls);
+      return Array.isArray(parsed) ? (parsed as string[]) : null;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     if (req.method !== 'GET') {
@@ -59,24 +73,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const trainingStatus = (m?.trainingStatus as string) || null;
       if (trainingStatus === 'completed') modelsCompleted += 1;
 
-      const sample = imgs.slice(0, 5).map((g) => ({
-        id: g.id,
-        selectedUrl: g.selectedUrl,
-        firstUrl: g.imageUrls ? safeFirst(JSON.parse(g.imageUrls as any)) : null,
-      }));
+      const sample = imgs.slice(0, 5).map((g) => {
+        const parsed = safeParseUrls((g as any).imageUrls);
+        return {
+          id: g.id,
+          selectedUrl: (g as any).selectedUrl ?? null,
+          firstUrl: parsed ? safeFirst(parsed) : null,
+        };
+      });
 
       details.push({
         userId,
-        email: u.email ?? null,
+        email: (u as any).email ?? null,
         hasModel: !!m,
         trainingStatus,
-        replicateVersionId: m?.replicateVersionId ?? null,
+        replicateVersionId: (m as any)?.replicateVersionId ?? null,
         generatedImages: imgs.length,
         sampleImages: sample,
       });
 
-      const model = m;
-      if (!u.stackAuthId && !u.stackAuthUserId) {
+      const model = m as any;
+      if (!(u as any).stackAuthId && !(u as any).stackAuthUserId) {
         issues.push({ type: 'missing-stack-auth-id', message: 'User has no stackAuthId/stackAuthUserId', userId });
       }
       if (model && model.userId !== userId) {
@@ -94,4 +111,3 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(500).json({ error: 'audit_failed', message: error instanceof Error ? error.message : String(error) });
   }
 }
-
