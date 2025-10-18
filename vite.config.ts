@@ -152,12 +152,18 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
     server: {
       proxy: {
         '/api': {
-          target: process.env.NODE_ENV === 'production' 
+          target: process.env.NODE_ENV === 'production'
             ? process.env.API_URL || 'https://api.sselfie.com'
-            : 'http://localhost:3001',
+            : 'http://localhost:5173',
           changeOrigin: true,
           secure: process.env.NODE_ENV === 'production',
-          ws: true
+          ws: true,
+          bypass: (req) => {
+            // Don't proxy health checks during dev - they'll fail anyway
+            if (req.url?.includes('/api/health') || req.url?.includes('/api/ping')) {
+              return '/dev-null';
+            }
+          }
         }
       },
       hmr: {
