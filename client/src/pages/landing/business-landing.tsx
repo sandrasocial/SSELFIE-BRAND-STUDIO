@@ -327,8 +327,8 @@ export default function BusinessLanding() {
       {/* HERO - Optimized Layout */}
       <section className="relative min-h-screen bg-black text-white overflow-hidden" itemScope itemType="https://schema.org/Service">
         <div className="absolute inset-0 opacity-60">
-          <OptimizedImage 
-            src="https://assets.sselfie.ai/hero-homepage.webp"
+          <OptimizedImage
+            src="/hero-homepage.png"
             alt="Professional transformation through AI photography"
             className="w-full h-full object-cover object-center"
             priority={true}
@@ -336,7 +336,7 @@ export default function BusinessLanding() {
             onError={() => {
               const fallbackImg = document.querySelector('[data-hero-image]') as HTMLImageElement;
               if (fallbackImg) {
-                fallbackImg.src = "https://assets.sselfie.ai/fallback/hero-homepage.jpg";
+                fallbackImg.src = "/hero-luxury.png";
               }
             }}
             data-hero-image
@@ -348,11 +348,14 @@ export default function BusinessLanding() {
             <div className="w-full max-w-2xl">
               <div className="mb-8">
                 <div className="w-16 h-px bg-white/30 mb-6"></div>
+                <div className="text-xs uppercase tracking-[0.4em] text-white/70 mb-4">
+                  SSELFIE Studio
+                </div>
               </div>
 
-              <h1 
+              <h1
                 className="font-serif font-light mb-6 tracking-[-0.02em] leading-none"
-                style={{ 
+                style={{
                   fontFamily: "Times New Roman, serif",
                   fontSize: 'clamp(2rem, 8vw, 4.5rem)'
                 }}
@@ -435,13 +438,13 @@ export default function BusinessLanding() {
               <div className="relative overflow-hidden rounded-lg mb-6 sm:mb-8"
                    style={{ height: 'clamp(240px, 50vw, 320px)' }}>
                 <OptimizedImage
-                  src="https://assets.sselfie.ai/hero-luxury.webp"
+                  src="/hero-luxury.png"
                   alt="Upload process showing selfies being uploaded to AI system"
                   className="w-full h-full object-cover object-[center_20%]"
                   onError={() => {
                     const img = document.querySelector('[data-step1-image]') as HTMLImageElement;
                     if (img) {
-                      img.src = "https://assets.sselfie.ai/fallback/hero-luxury.jpg";
+                      img.src = "/hero-homepage.png";
                     }
                   }}
                   data-step1-image
@@ -470,13 +473,13 @@ export default function BusinessLanding() {
             <div className="text-center">
               <div className="relative h-80 mb-8 overflow-hidden rounded-lg">
                 <OptimizedImage
-                  src="https://assets.sselfie.ai/hero-about.webp"
+                  src="/hero-about.png"
                   alt="AI creation process transforming selfies into professional photos"
                   className="w-full h-full object-cover object-[center_20%]"
                   onError={() => {
                     const img = document.querySelector('[data-step2-image]') as HTMLImageElement;
                     if (img) {
-                      img.src = "https://assets.sselfie.ai/fallback/hero-about.jpg";
+                      img.src = "/hero-luxury.png";
                     }
                   }}
                   data-step2-image
@@ -504,13 +507,13 @@ export default function BusinessLanding() {
             <div className="text-center">
               <div className="relative h-80 mb-8 overflow-hidden rounded-lg">
                 <OptimizedImage
-                  src="https://assets.sselfie.ai/hero-dashboard.webp"
+                  src="/hero-dashboard.png"
                   alt="Professional gallery showing variety of business headshots and brand photos"
                   className="w-full h-full object-cover object-[center_20%]"
                   onError={() => {
                     const img = document.querySelector('[data-step3-image]') as HTMLImageElement;
                     if (img) {
-                      img.src = "https://assets.sselfie.ai/fallback/hero-dashboard.jpg";
+                      img.src = "/hero-about.png";
                     }
                   }}
                   data-step3-image
@@ -657,13 +660,13 @@ export default function BusinessLanding() {
             {/* Sandra's Portrait */}
             <div className="relative h-[500px] overflow-hidden">
               <OptimizedImage
-                src="https://assets.sselfie.ai/founder-portrait.webp"
+                src="/hero-luxury.png"
                 alt="Sandra Sigurjónsdóttir, Founder of SSELFIE Studio"
                 className="w-full h-full object-cover"
                 onError={() => {
                   const img = document.querySelector('[data-founder-image]') as HTMLImageElement;
                   if (img) {
-                    img.src = "https://assets.sselfie.ai/fallback/founder-portrait.jpg";
+                    img.src = "/hero-homepage.png";
                   }
                 }}
                 data-founder-image
