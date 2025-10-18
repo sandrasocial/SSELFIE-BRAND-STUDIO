@@ -1,4 +1,20 @@
 /* eslint-disable no-console */
+// ===============================
+// DEPRECATED: Use server/_middleware/auth.ts (withAuth)
+// -----------------------------------------------
+// This module was part of the legacy Express-based stack. The production
+// serverless architecture uses Vercel handlers with the shared middleware in
+// server/_middleware/auth.ts as the single source of truth for Stack Auth.
+// Keep this file only for legacy references. Do not import it in new code.
+// If this file is loaded at runtime in non-test environments, emit a warning.
+// ===============================
+if (process.env.NODE_ENV !== 'test') {
+  try {
+    // eslint-disable-next-line no-console
+    console.warn('[DEPRECATED] server/stack-auth.ts loaded. Prefer server/_middleware/auth.ts (withAuth).');
+  } catch {}
+}
+
 import { jwtVerify, createRemoteJWKSet } from 'jose';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -46,7 +62,7 @@ function cleanExpiredCache() {
       authCache.delete(key);
     }
   }
-  
+
   // Prevent memory leaks by limiting cache size
   if (authCache.size > MAX_CACHE_SIZE) {
     const entries = Array.from(authCache.entries());
@@ -151,20 +167,20 @@ async function verifyJWTToken(token: string) {
 export async function verifyStackAuthToken(req: Request, res: Response, next: NextFunction) {
   try {
     let accessToken: string | undefined;
-    
+
     // Skip authentication for non-protected routes to improve performance
     const skipPaths = ['/api/proxy-image', '/notification-preferences'];
     if (skipPaths.some(path => req.path.startsWith(path))) {
       return next();
     }
-    
-    
+
+
     // Check Authorization header for Bearer token
     const authHeader = req.headers.authorization;
     if (authHeader?.startsWith('Bearer ')) {
       accessToken = authHeader.substring(7);
     }
-    
+
     // Check cookies for stored access token
     if (!accessToken && req.cookies) {
       // Helper: attempt to parse token from any cookie named like 'stack-access*'
@@ -216,35 +232,35 @@ export async function verifyStackAuthToken(req: Request, res: Response, next: Ne
         // Log cookie names only (no values) to avoid leaking data
       }
     }
-    
+
     if (!accessToken) {
       return res.status(401).json({ message: 'Authentication required' });
     }
 
-    
+
     // Check cache first for performance
     const tokenHash = hashToken(accessToken);
     const cached = authCache.get(tokenHash);
-    
+
     if (cached && (Date.now() - cached.timestamp < CACHE_DURATION)) {
       req.user = cached.dbUser as StackAuthUser;
       return next();
     }
-    
+
     // Clean expired cache periodically
     if (Math.random() < 0.1) {
       cleanExpiredCache();
     }
-    
+
     // Verify JWT token directly
     const userInfo = await verifyJWTToken(accessToken) as JWTPayload;
-    
-    
+
+
     // Extract user information with multiple field name attempts and enhanced debugging
     const userId = userInfo?.sub || userInfo?.user_id || userInfo?.id || '';
     const userEmail = userInfo?.email || userInfo?.primary_email || userInfo?.primaryEmail || userInfo?.email_address || userInfo?.user_email || '';
     const userName = userInfo?.displayName || userInfo?.display_name || userInfo?.name || userInfo?.given_name || userInfo?.full_name || 'User';
-    
+
     // 🔍 ENHANCED DEBUGGING: Log FULL JWT payload to debug ID mismatch
     console.log('🔍 FULL JWT Payload:', JSON.stringify(userInfo, null, 2));
     console.log('🔍 Extracted IDs:', {
@@ -253,25 +269,25 @@ export async function verifyStackAuthToken(req: Request, res: Response, next: Ne
       id: userInfo?.id,
       finalUserId: userId
     });
-    
+
     // 🔍 ENHANCED DEBUGGING: Log all available fields to identify email field
     console.log('🔍 Available userInfo fields:', {
       email: userInfo.email,
-      primary_email: userInfo.primary_email, 
+      primary_email: userInfo.primary_email,
       primaryEmail: userInfo.primaryEmail,
       email_address: userInfo.email_address,
       user_email: userInfo.user_email
     });
-    
+
     console.log('🔍 Creating/linking user with:', {
       id: userId,
       email: userEmail,
       name: userName
     });
-    
+
     // Get or create user in our database with email-based linking for existing users
     const { storage } = await import('./storage.js');
-    
+
     // Step 1: Try to find user by Stack Auth ID first
     let dbUser;
     try {
@@ -285,7 +301,7 @@ export async function verifyStackAuthToken(req: Request, res: Response, next: Ne
     } catch (error) {
       console.error('❌ Step 1 - getUserByStackAuthId error:', error);
     }
-    
+
     if (!dbUser) {
       // Step 2: Try to find existing user by email (for migration from integer IDs)
       if (userEmail) {
@@ -297,7 +313,7 @@ export async function verifyStackAuthToken(req: Request, res: Response, next: Ne
             dbUserId: dbUser?.id,
             dbUserStackAuthId: dbUser?.stackAuthId
           });
-          
+
           if (dbUser) {
             // Step 3: Link existing user to Stack Auth ID
             console.log('🔗 Step 3 - Linking existing user to Stack Auth ID');
@@ -312,7 +328,7 @@ export async function verifyStackAuthToken(req: Request, res: Response, next: Ne
         }
       }
     }
-    
+
     if (!dbUser) {
       // Step 4: Create new user if not found by Stack Auth ID or email
       console.log('🔗 Step 4 - Creating NEW user (not found in database)');
@@ -336,7 +352,7 @@ export async function verifyStackAuthToken(req: Request, res: Response, next: Ne
         dbUserStackAuthId: dbUser.stackAuthId
       });
     }
-    
+
     // Set user information in request from database user
     console.log('🔗 Setting req.user with database user:', {
       id: dbUser.id,
@@ -344,7 +360,7 @@ export async function verifyStackAuthToken(req: Request, res: Response, next: Ne
       stackAuthId: dbUser.stackAuthId
     });
     req.user = dbUser as StackAuthUser;
-    
+
     // Cache the authenticated user for performance
     authCache.set(tokenHash, {
       dbUser,
@@ -352,7 +368,7 @@ export async function verifyStackAuthToken(req: Request, res: Response, next: Ne
       tokenHash
     });
 
-    
+
     next();
   } catch (error: unknown) {
     console.error('❌ Stack Auth: Token verification failed:', error);
@@ -360,7 +376,7 @@ export async function verifyStackAuthToken(req: Request, res: Response, next: Ne
       console.error('❌ Error type:', error.constructor.name);
       console.error('❌ Error message:', error.message);
     }
-    return res.status(401).json({ 
+    return res.status(401).json({
       message: 'Invalid or expired token',
       error: process.env['NODE_ENV'] === 'development' && error instanceof Error ? error.message : undefined
     });
@@ -375,28 +391,28 @@ export function requireActiveSubscription(req: Request, res: Response, next: Nex
   requireStackAuth(req, res, async () => {
     try {
       const user = req.user as StackAuthUser;
-      
+
       if (!user || !user.id) {
         return res.status(401).json({ message: 'Authentication required' });
       }
-      
+
       // Check if user has active subscription
       const { storage } = await import('./storage.js');
       const subscription = await storage.getUserSubscription(user.id);
-      
+
       // Allow admin users and users with active subscriptions
       if (user.role === 'admin' || user.monthlyGenerationLimit === -1) {
         return next();
       }
-      
+
       if (!subscription || subscription.status !== 'active') {
-        return res.status(402).json({ 
-          message: 'SSELFIE Studio subscription required (€47/month)', 
+        return res.status(402).json({
+          message: 'SSELFIE Studio subscription required (€47/month)',
           redirectTo: '/checkout',
-          requiresPayment: true 
+          requiresPayment: true
         });
       }
-      
+
       next();
     } catch (_error) {
       console.error('❌ Subscription validation error:', _error);
@@ -425,12 +441,12 @@ export async function optionalStackAuth(req: Request, res: Response, next: NextF
 export async function authenticateAdmin(req: Request, res: Response, next: NextFunction) {
   try {
     await verifyStackAuthToken(req, res, () => {});
-    
+
     // Check if user has admin role
     if (!req.user || !req.user.isAdmin) {
       return res.status(403).json({ error: 'Admin access required' });
     }
-    
+
     next();
   } catch {
     // Authentication failed, return 401
