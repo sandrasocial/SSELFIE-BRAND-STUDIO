@@ -264,8 +264,6 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
       }
     },
     define: {
-      'exports': '{}',
-      'module': '{}',
       global: 'globalThis',
       'globalThis.__STACK_PROJECT_ID__': JSON.stringify(process.env.VITE_STACK_PROJECT_ID || "253d7343-a0d4-43a1-be5c-822f590d40be"),
       'globalThis.__STACK_PUBLISHABLE_CLIENT_KEY__': JSON.stringify(process.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY || "pck_bqv6htnwq1f37nd2fn6qatxx2f8x0tnxvjj7xwgh1zmhg"),
