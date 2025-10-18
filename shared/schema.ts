@@ -46,17 +46,17 @@ export const users = pgTable("users", {
   // Core user fields - Stack Auth compatible
   id: varchar("id").primaryKey().notNull(), // Stack Auth uses string IDs
   stackAuthId: varchar("stack_auth_id").unique(), // For linking existing users to Stack Auth
-  email: varchar("email").unique(), 
+  email: varchar("email").unique(),
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
   displayName: varchar("display_name"),
   profileImageUrl: varchar("profile_image_url"),
-  
+
   // Stack Auth managed timestamps
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
   lastLoginAt: timestamp("last_login_at"),
-  
+
   // Business logic - preserved from existing system
   stripeCustomerId: varchar("stripe_customer_id"),
   stripeSubscriptionId: varchar("stripe_subscription_id"),
@@ -66,25 +66,25 @@ export const users = pgTable("users", {
   generationsUsedThisMonth: integer("generations_used_this_month").default(0),
   mayaAiAccess: boolean("maya_ai_access").default(true), // Available on both tiers
   victoriaAiAccess: boolean("victoria_ai_access").default(false), // Only for full-access tier
-  
+
   // 🔄 PHASE 3: Retraining access tracking
   hasRetrainingAccess: boolean("has_retraining_access").default(false),
   retrainingSessionId: varchar("retraining_session_id"),
   retrainingPaidAt: timestamp("retraining_paid_at"),
-  
+
   // Conversational onboarding tracking - Maya handles incomplete profiles gracefully
   onboardingProgress: jsonb("onboarding_progress").default('{}'), // Store conversational progress without blocking
   preferredOnboardingMode: varchar("preferred_onboarding_mode").default("conversational"), // conversational, guided, completed
-  
+
   // Essential profile data for Maya personalization
   gender: varchar("gender"), // "man" | "woman" | "non-binary" - CRITICAL for image generation
   profession: varchar("profession"), // User's business/profession
   brandStyle: varchar("brand_style"), // "professional" | "creative" | "lifestyle" | "luxury"
   photoGoals: text("photo_goals"), // What they want photos for (business use case)
-  
+
   // Legacy/migration fields - exist in database for backward compatibility
   authProvider: varchar("auth_provider"), // Legacy: 'stack-auth' - kept for migration compatibility
-  stackAuthUserId: varchar("stack_auth_user_id"), // Legacy: duplicate of stackAuthId - kept for migration compatibility  
+  stackAuthUserId: varchar("stack_auth_user_id"), // Legacy: duplicate of stackAuthId - kept for migration compatibility
   legacyUserId: varchar("legacy_user_id"), // Legacy: original numeric ID before migration
   profileCompleted: boolean("profile_completed"), // Legacy: onboarding completion flag
   onboardingStep: integer("onboarding_step"), // Legacy: onboarding progress (0-5)
@@ -344,7 +344,7 @@ export const agentConversations = pgTable("agent_conversations", {
   agentResponse: text("agent_response").notNull(),
   devPreview: jsonb("dev_preview"),
   timestamp: timestamp("timestamp").defaultNow(),
-  
+
   // Enhanced conversation threading and management fields
   conversationTitle: varchar("conversation_title"),
   conversationData: jsonb("conversation_data"), // Store full conversation history
@@ -354,11 +354,11 @@ export const agentConversations = pgTable("agent_conversations", {
   isStarred: boolean("is_starred").default(false),
   isArchived: boolean("is_archived").default(false),
   tags: jsonb("tags").default('[]'), // Array of string tags
-  
+
   // Threading support
   parentThreadId: integer("parent_thread_id"),
   branchedFromMessageId: varchar("branched_from_message_id"),
-  
+
   // Enhanced timestamps
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -493,6 +493,14 @@ export const generatedImages = pgTable("generated_images", {
   createdAt: timestamp("created_at").defaultNow()
 });
 
+// Feed layouts for Instagram-style planner (one per user)
+export const feedLayouts = pgTable("feed_layouts", {
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).primaryKey().notNull(),
+  layout: jsonb("layout").notNull().default('[]'),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+
 // Generated Videos table (for VEO 3 video generation)
 export const generatedVideos = pgTable("generated_videos", {
   id: serial("id").primaryKey(),
@@ -624,7 +632,7 @@ export const userLandingPages = pgTable("user_landing_pages", {
 export const userPersonalBrand = pgTable("user_personal_brand", {
   id: serial("id").primaryKey(),
   userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
-  
+
   // Personal details - 8 core fields only
   name: text("name"),
   transformationStory: text("transformation_story"),
@@ -634,7 +642,7 @@ export const userPersonalBrand = pgTable("user_personal_brand", {
   businessType: varchar("business_type"),
   stylePreferences: text("style_preferences"),
   photoGoals: text("photo_goals"),
-  
+
   // System fields
   onboardingStep: integer("onboarding_step").default(1),
   isCompleted: boolean("is_completed").default(false),
@@ -647,26 +655,26 @@ export const userPersonalBrand = pgTable("user_personal_brand", {
 export const userStyleMemory = pgTable("user_style_memory", {
   id: serial("id").primaryKey(),
   userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
-  
+
   // Preference tracking
   preferredCategories: jsonb("preferred_categories").default('[]'), // ["Business", "Lifestyle", etc.]
   favoritePromptPatterns: jsonb("favorite_prompt_patterns").default('[]'), // Successful prompt structures
   colorPreferences: jsonb("color_preferences").default('[]'), // Preferred color palettes
   settingPreferences: jsonb("setting_preferences").default('[]'), // Indoor, outdoor, urban, etc.
   stylingKeywords: jsonb("styling_keywords").default('[]'), // Words that resonate with user
-  
+
   // Learning metrics
   totalInteractions: integer("total_interactions").default(0),
   totalFavorites: integer("total_favorites").default(0),
   averageSessionLength: integer("average_session_length").default(0), // in minutes
   mostActiveHours: jsonb("most_active_hours").default('[]'), // Time patterns
-  
+
   // Success patterns
   highPerformingPrompts: jsonb("high_performing_prompts").default('[]'), // Prompts that got favorited
   rejectedPrompts: jsonb("rejected_prompts").default('[]'), // Prompts user didn't like
-  
+
   // PHASE 4.3: Enhanced fields temporarily disabled for database compatibility
-  
+
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -675,28 +683,28 @@ export const userStyleMemory = pgTable("user_style_memory", {
 export const promptAnalysis = pgTable("prompt_analysis", {
   id: serial("id").primaryKey(),
   userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
-  
+
   // Prompt details
   originalPrompt: text("original_prompt").notNull(),
   generatedPrompt: text("generated_prompt"), // The FLUX prompt used
   conceptTitle: text("concept_title"),
   category: varchar("category"), // Business, Lifestyle, etc.
-  
+
   // User interaction data
   wasGenerated: boolean("was_generated").default(false),
   wasFavorited: boolean("was_favorited").default(false),
   wasSaved: boolean("was_saved").default(false),
   viewDuration: integer("view_duration"), // How long user looked at result
-  
+
   // Technical analysis
   promptLength: integer("prompt_length"),
   keywordDensity: jsonb("keyword_density").default('{}'), // Word frequency analysis
   technicalSpecs: jsonb("technical_specs").default('{}'), // Camera, lighting, etc.
-  
+
   // Performance metrics
   generationTime: integer("generation_time"), // How long it took to generate
   successScore: decimal("success_score").default("0.0"), // 0.0 to 1.0 based on user actions
-  
+
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -725,22 +733,22 @@ export const loraWeights = pgTable("lora_weights", {
   trainingRunId: integer("training_run_id").references(() => trainingRuns.id, { onDelete: "cascade" }).notNull(),
   triggerWord: varchar("trigger_word").notNull(),
   baseModel: varchar("base_model").notNull().default("flux-dev"),
-  
+
   // Object Storage Details for .safetensors file
   s3Bucket: varchar("s3_bucket"),
   s3Key: varchar("s3_key"), // Path to .safetensors file in object storage
   fileSize: integer("file_size"), // File size in bytes
   checksum: varchar("checksum"), // File integrity verification
-  
+
   // LoRA Technical Details
   rank: integer("rank").default(32), // LoRA rank used in training
   networkType: varchar("network_type").default("lora"), // "lora", "locon", etc.
   status: varchar("status").default("available"), // 'available', 'archived', 'failed'
-  
+
   // Maya's Intelligent Scaling Defaults per shot type
   defaultScales: jsonb("default_scales"), // { closeUpPortrait: 1.0, halfBodyShot: 0.9, fullScenery: 0.85 }
   metadata: jsonb("metadata"), // Additional LoRA metadata
-  
+
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -845,7 +853,7 @@ export const insertAgentCapabilitySchema = createInsertSchema(agentCapabilities)
 
 
 
-// Type exports  
+// Type exports
 export type InsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
 
@@ -892,6 +900,9 @@ export type InsertSubscription = typeof subscriptions.$inferInsert;
 export type Subscription = typeof subscriptions.$inferSelect;
 export type InsertOnboardingData = typeof onboardingData.$inferInsert;
 export type OnboardingData = typeof onboardingData.$inferSelect;
+export type InsertFeedLayout = typeof feedLayouts.$inferInsert;
+export type FeedLayout = typeof feedLayouts.$inferSelect;
+
 export type InsertSelfieUpload = typeof selfieUploads.$inferInsert;
 export type SelfieUpload = typeof selfieUploads.$inferSelect;
 export type InsertUserModel = typeof userModels.$inferInsert;
@@ -1365,7 +1376,7 @@ export const imageVariants = pgTable("image_variants", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-// Export styleguide tables and types  
+// Export styleguide tables and types
 // Temporarily commented out to fix migration
 // export { userStyleguides, styleguideTemplates } from "./styleguide-schema.js";
 // export type { UserStyleguide, StyleguideTemplate, InsertUserStyleguide, InsertStyleguideTemplate } from "./styleguide-schema.js";
@@ -1462,7 +1473,7 @@ export const sandraConversations = pgTable("sandra_conversations", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-// User saved prompts table  
+// User saved prompts table
 export const savedPrompts = pgTable("saved_prompts", {
   id: serial("id").primaryKey(),
   userId: varchar("user_id").references(() => users.id).notNull(),
@@ -1479,18 +1490,18 @@ export const savedPrompts = pgTable("saved_prompts", {
 export const userStyleEvolution = pgTable("user_style_evolution", {
   id: serial("id").primaryKey(),
   userId: varchar("user_id").references(() => users.id).notNull(),
-  
+
   // Adaptation tracking
   learningProgress: jsonb("learning_progress").default('{}'),
   styleEvolutionPath: jsonb("style_evolution_path").default('[]'),
   feedbackPatterns: jsonb("feedback_patterns").default('{}'),
   contextualPreferences: jsonb("contextual_preferences").default('{}'),
-  
+
   // Contemporary elements
   trendAdaptation: jsonb("trend_adaptation").default('{}'),
   culturalContext: jsonb("cultural_context").default('{}'),
   sustainabilityPreferences: jsonb("sustainability_preferences").default('{}'),
-  
+
   lastAdaptation: timestamp("last_adaptation").defaultNow(),
   createdAt: timestamp("created_at").defaultNow()
 });
@@ -1510,7 +1521,7 @@ export const conversations = pgTable("conversations", {
   statusIdx: index("status_idx").on(table.status)
 }));
 
-// Messages for detailed conversation history  
+// Messages for detailed conversation history
 export const messages = pgTable("messages", {
   id: varchar("id").primaryKey().$defaultFn(() => ulid()), // ULID for React keys
   conversationId: varchar("conversation_id").references(() => conversations.id, { onDelete: "cascade" }).notNull(),
@@ -1761,22 +1772,22 @@ export type HairLead = typeof hairLeads.$inferSelect;
 export const mayaPersonalMemory = pgTable("maya_personal_memory", {
   id: serial("id").primaryKey(),
   userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
-  
+
   // Personal Insights and Memory
   personalInsights: jsonb("personal_insights"),
   ongoingGoals: jsonb("ongoing_goals"),
   conversationStyle: jsonb("conversation_style"),
   userFeedbackPatterns: jsonb("user_feedback_patterns"),
   preferredTopics: jsonb("preferred_topics"),
-  
+
   // Styling and Personalization
   personalizedStylingNotes: text("personalized_styling_notes"),
   successfulPromptPatterns: jsonb("successful_prompt_patterns"),
-  
+
   // Memory Management
   lastMemoryUpdate: timestamp("last_memory_update").defaultNow(),
   memoryVersion: integer("memory_version").default(1),
-  
+
   // Timestamps
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -1923,15 +1934,15 @@ export const feedCollections = pgTable("feed_collections", {
 export const mayaChats = pgTable("maya_chats", {
   id: serial("id").primaryKey(),
   userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
-  
+
   // Chat Metadata
   chatTitle: varchar("chat_title").notNull(),
   chatSummary: text("chat_summary"),
   chatCategory: varchar("chat_category").default("Style Consultation"),
-  
+
   // Activity Tracking
   lastActivity: timestamp("last_activity").defaultNow(),
-  
+
   // Timestamps
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -1940,20 +1951,20 @@ export const mayaChats = pgTable("maya_chats", {
 export const mayaChatMessages = pgTable("maya_chat_messages", {
   id: serial("id").primaryKey(),
   chatId: integer("chat_id").references(() => mayaChats.id, { onDelete: "cascade" }).notNull(),
-  
+
   // Message Content
   role: varchar("role").notNull(), // 'user' or 'maya'
   content: text("content").notNull(),
-  
+
   // Enhanced Message Features
   imagePreview: text("image_preview"), // JSON array of image URLs
   generatedPrompt: text("generated_prompt"),
   conceptCards: jsonb("concept_cards"), // JSON array of concept cards with enhanced context
   quickButtons: text("quick_buttons"), // JSON array of quick action buttons
-  
+
   // Generation Capabilities
   canGenerate: boolean("can_generate").default(false), // Whether this message can generate images
-  
+
   // Timestamps
   createdAt: timestamp("created_at").defaultNow(),
 });
@@ -1961,26 +1972,26 @@ export const mayaChatMessages = pgTable("maya_chat_messages", {
 export const mayaProfile = pgTable('maya_profile', {
   id: serial('id').primaryKey(),
   userId: varchar('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
-  
+
   // Onboarding Status
   onboardingStatus: varchar('onboarding_status').default('pending'), // 'pending', 'in_progress', 'completed'
   onboardingStep: integer('onboarding_step').default(1),
   completedSteps: jsonb('completed_steps').default([]),
-  
+
   // User Preferences
   preferences: jsonb('preferences').default({}),
-  
+
   // Billing Information
   billingInfo: jsonb('billing_info').default({}),
-  
+
   // Usage Statistics
   totalGenerations: integer('total_generations').default(0),
   monthlyGenerations: integer('monthly_generations').default(0),
   lastResetDate: timestamp('last_reset_date').defaultNow(),
-  
+
   // Feature Access
   featureAccess: jsonb('feature_access').default({}),
-  
+
   // Timestamps
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
@@ -1989,28 +2000,28 @@ export const mayaProfile = pgTable('maya_profile', {
 export const mayaImages = pgTable('maya_images', {
   id: serial('id').primaryKey(),
   userId: varchar('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
-  
+
   // Image Storage
   url: varchar('url').notNull(),
   thumbnailUrl: varchar('thumbnail_url'),
-  
+
   // Image Classification
   category: varchar('category'), // 'portrait', 'lifestyle', 'product', 'concept'
   subcategory: varchar('subcategory'), // More specific categorization
-  
+
   // Image Metadata
   metadata: jsonb('metadata').default({}),
-  
+
   // User Interaction
   isFavorite: boolean('is_favorite').default(false),
   isArchived: boolean('is_archived').default(false),
   rating: integer('rating'), // 1-5 user rating
-  
+
   // Usage Tracking
   viewCount: integer('view_count').default(0),
   shareCount: integer('share_count').default(0),
   downloadCount: integer('download_count').default(0),
-  
+
   // Timestamps
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
@@ -2019,26 +2030,26 @@ export const mayaImages = pgTable('maya_images', {
 export const mayaConcepts = pgTable('maya_concepts', {
   id: serial('id').primaryKey(),
   userId: varchar('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
-  
+
   // Concept Definition
   title: varchar('title').notNull(),
   description: text('description'),
   prompt: text('prompt'),
   type: varchar('type'), // 'portrait', 'flatlay', 'lifestyle', 'brand'
-  
+
   // Concept Details
   metadata: jsonb('metadata').default({}),
-  
+
   // Performance Tracking
   usageCount: integer('usage_count').default(0),
   successRate: integer('success_rate'), // Percentage of successful generations
   avgRating: decimal('avg_rating'), // Average user rating
-  
+
   // Status and Organization
   status: varchar('status').default('active'), // 'active', 'archived', 'draft'
   tags: jsonb('tags').default([]),
   isTemplate: boolean('is_template').default(false),
-  
+
   // Timestamps
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
@@ -2047,29 +2058,29 @@ export const mayaConcepts = pgTable('maya_concepts', {
 export const mayaPayments = pgTable('maya_payments', {
   id: serial('id').primaryKey(),
   userId: varchar('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
-  
+
   // Stripe Integration
   stripeSessionId: varchar('stripe_session_id'),
   stripeCustomerId: varchar('stripe_customer_id'),
   stripeSubscriptionId: varchar('stripe_subscription_id'),
-  
+
   // Subscription Details
   subscriptionStatus: varchar('subscription_status'), // 'active', 'canceled', 'past_due', 'unpaid'
   planType: varchar('plan_type'), // 'basic', 'pro', 'enterprise'
   billingCycle: varchar('billing_cycle'), // 'monthly', 'yearly'
-  
+
   // Payment Information
   amount: integer('amount'), // Amount in cents
   currency: varchar('currency').default('usd'),
-  
+
   // Payment Metadata
   metadata: jsonb('metadata').default({}),
-  
+
   // Status Tracking
   isActive: boolean('is_active').default(true),
   trialEndsAt: timestamp('trial_ends_at'),
   subscriptionEndsAt: timestamp('subscription_ends_at'),
-  
+
   // Timestamps
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
@@ -2079,24 +2090,24 @@ export const mayaPayments = pgTable('maya_payments', {
 export const mayaModels = pgTable('maya_models', {
   id: serial('id').primaryKey(),
   userId: varchar('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
-  
+
   // Model Configuration
   modelType: varchar('model_type').notNull(), // 'flux', 'replicate', 'custom'
   trainingStatus: varchar('training_status').notNull(), // 'pending', 'training', 'completed', 'failed'
   trainingProgress: integer('training_progress').default(0), // 0-100 percentage
-  
+
   // Replicate Integration
   replicateModelId: varchar('replicate_model_id'),
   replicateVersionId: varchar('replicate_version_id'),
-  
+
   // Model Metadata
   metadata: jsonb('metadata').default({}),
-  
+
   // Model Performance
   qualityScore: integer('quality_score'), // 1-100 quality rating
   usageCount: integer('usage_count').default(0),
   lastUsed: timestamp('last_used'),
-  
+
   // Timestamps
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),

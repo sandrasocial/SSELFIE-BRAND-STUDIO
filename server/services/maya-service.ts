@@ -56,18 +56,18 @@ export class MayaService {
 
   constructor(db: IStorage) {
     this.db = db;
-    
+
     // 🔧 FIX: Add proper error handling for missing API key
     const apiKey = process.env['ANTHROPIC_API_KEY'];
     if (!apiKey) {
       console.error('❌ MAYA: ANTHROPIC_API_KEY environment variable is not set');
       throw new Error('Maya AI service is not properly configured - missing API key');
     }
-    
+
     this.anthropic = new Anthropic({
       apiKey: apiKey,
     });
-    
+
     console.log('✅ MAYA: Service initialized with Claude API access');
   }
 
@@ -133,14 +133,14 @@ export class MayaService {
   async getUserModel(userId: string): Promise<UserModel | null> {
     try {
       const userModel = await this.db.getUserModel(userId);
-      
+
       // 🔍 DEBUG: Log model status for troubleshooting
       if (userModel) {
         console.log(`🎯 MAYA: User ${userId} model found - Status: ${userModel.trainingStatus}, Trigger: ${userModel.triggerWord}`);
       } else {
         console.log(`🔍 MAYA: No trained model found for user ${userId}`);
       }
-      
+
       return userModel || null;
     } catch (error) {
       console.error('❌ MAYA: Failed to get user model:', error);
@@ -150,8 +150,8 @@ export class MayaService {
 
   /**
    * Process Maya chat with full database integration
-   * @deprecated Use processAndSaveChat instead to avoid duplicate Claude API calls
-   * This method makes its own Claude API call which causes redundancy when used with unified-maya-intelligence-service
+   * SINGLE ENTRYPOINT: Builds system prompt via PersonalityManager and calls Claude, then persists.
+   * Use processAndSaveChat() only when an upstream service already produced a response to persist/extract.
    */
   async processChat(stackAuthId: string, request: MayaChatRequest): Promise<MayaChatResponse> {
     try {
@@ -163,11 +163,11 @@ export class MayaService {
 
       // Get or create Maya chat session
       let mayaChatId: string;
-      
+
       if (request.conversationId && !isNaN(parseInt(request.conversationId))) {
         // Use existing chat ID if it's a valid number
         mayaChatId = request.conversationId;
-        
+
         // Verify the chat exists
         const existingChat = await this.db.getMayaChat(mayaChatId, user.id);
         if (!existingChat) {
@@ -190,9 +190,11 @@ export class MayaService {
       console.log(`✅ MAYA: Using chat ID ${mayaChatId} for user ${user.id}`);
 
       // Get Maya's personality prompt with dynamic creative direction
+      // PersonalityManager is the single source of truth for Maya's system prompt
+
       const creativeLook = PersonalityManager.getRandomCreativeLook();
       const systemPrompt = PersonalityManager.buildDynamicMayaPrompt(creativeLook);
-      
+
       console.log(`🎨 MAYA: Using creative look "${creativeLook.name}" for this conversation`);
 
       // Build conversation context
@@ -225,7 +227,7 @@ export class MayaService {
 
       // Call Claude API with fallback handling
       let mayaResponse = '';
-      
+
       try {
         const response = await this.anthropic.messages.create({
           model: 'claude-3-5-sonnet-20241022',
@@ -238,12 +240,12 @@ export class MayaService {
         mayaResponse = response.content[0].type === 'text'
           ? response.content[0].text
           : '';
-          
+
         console.log('✅ MAYA: Claude API call successful');
-        
+
       } catch (apiError) {
         console.error('❌ MAYA: Claude API failed, using fallback response:', (apiError as Error).message);
-        
+
         // 🔧 FALLBACK: Provide Maya response without Claude API
         mayaResponse = this.generateFallbackResponse(request.message, user);
       }
@@ -293,7 +295,7 @@ export class MayaService {
 
           // Clean emoji to prevent JSON encoding issues
           const cleanEmoji = this.cleanEmojiForDatabase(conceptCard.emoji || '📸');
-          
+
           const conceptData = {
             userId: user.id,
             title: conceptCard.title,
@@ -344,11 +346,11 @@ export class MayaService {
 
       // Create or get Maya chat session
       let mayaChatId: string;
-      
+
       if (request.conversationId && !isNaN(parseInt(request.conversationId))) {
         // Use existing chat ID if it's a valid number
         mayaChatId = request.conversationId;
-        
+
         // Verify the chat exists
         const existingChat = await this.db.getMayaChat(mayaChatId, user.id);
         if (!existingChat) {
@@ -415,7 +417,7 @@ export class MayaService {
 
           // Clean emoji to prevent JSON encoding issues
           const cleanEmoji = this.cleanEmojiForDatabase(conceptCard.emoji || '📸');
-          
+
           const conceptData = {
             userId: user.id,
             title: conceptCard.title,
@@ -469,13 +471,13 @@ export class MayaService {
       // Try to use the official SDK for cancellation
       try {
         const replicateClient = new ReplicateClient();
-        
+
         await replicateClient.cancelPrediction(predictionId);
         console.log(`✅ MAYA CANCEL: Successfully canceled prediction ${predictionId} using SDK`);
-        
+
       } catch (sdkError) {
         console.warn('⚠️ MAYA CANCEL: SDK unavailable, using fallback API:', sdkError);
-        
+
         // Fallback to raw API
         const response = await fetch(`https://api.replicate.com/v1/predictions/${predictionId}/cancel`, {
           method: 'POST',
@@ -499,12 +501,12 @@ export class MayaService {
       (global as any).activeGenerations?.delete(predictionId);
 
       return { success: true, message: 'Generation canceled successfully' };
-      
+
     } catch (error) {
       console.error(`❌ MAYA CANCEL: Failed to cancel prediction ${predictionId}:`, error);
-      return { 
-        success: false, 
-        message: error instanceof Error ? error.message : 'Cancellation failed' 
+      return {
+        success: false,
+        message: error instanceof Error ? error.message : 'Cancellation failed'
       };
     }
   }
@@ -524,9 +526,9 @@ export class MayaService {
         console.error(`❌ MAYA GENERATION: User not found with internal ID: ${internalUserId}`);
         throw new Error(`User not found with internal ID: ${internalUserId}`);
       }
-      
+
       console.log(`🔍 MAYA GENERATION: Found user - Stack Auth ID: ${user.stackAuthId}, Gender: ${user.gender}`);
-      
+
       if (!user.stackAuthId) {
         console.error(`❌ MAYA GENERATION: User ${internalUserId} missing Stack Auth ID`);
         throw new Error(`User ${internalUserId} does not have a Stack Auth ID linked`);
@@ -535,7 +537,7 @@ export class MayaService {
       // Validate user has access using Stack Auth ID
       const userProfile: MayaProfile = await this.getOrCreateUserProfile(user.stackAuthId);
       console.log(`🔍 MAYA GENERATION: Profile access - basicGeneration: ${userProfile.featureAccess?.basicGeneration}, monthlyGenerations: ${userProfile.monthlyGenerations}`);
-      
+
       if (!(userProfile.featureAccess as { basicGeneration?: boolean })?.basicGeneration) {
         console.error(`❌ MAYA GENERATION: User does not have generation access`);
         throw new Error('User does not have generation access');
@@ -592,7 +594,13 @@ export class MayaService {
         throw new Error('User not found in database');
       }
 
+	      // SECURITY CHECKPOINT: User must have a completed personal LoRA model before generation
+
+
       // Get user's trained model data for personalized generation
+
+	      // SECURITY CHECKPOINT: Use only user's own Replicate model version; never generic base models
+
       if (!userModel || userModel.trainingStatus !== 'completed') {
         throw new Error('User must have a completed trained model for image generation');
       }
@@ -604,11 +612,14 @@ export class MayaService {
 
       // Build personalized prompt with gender injection and trigger word
       const { enforceGender } = await import('../utils/gender-prompt.js');
-      
+
+
+	      // SECURITY CHECKPOINT: Trigger word injection + gender enforcement happen server-side
+
       // Start with the concept prompt
       let fluxPrompt = request.conceptCard.fluxPrompt;
       console.log(`🔍 MAYA FLUX: Original prompt: ${fluxPrompt.substring(0, 150)}...`);
-      
+
       // CRITICAL: Add trigger word and enforce gender for proper personalization
       if (userModel.triggerWord) {
         console.log(`🔍 MAYA FLUX: Adding trigger word "${userModel.triggerWord}" and enforcing gender "${user.gender}"`);
@@ -627,7 +638,7 @@ export class MayaService {
         tokenLength: replicateToken?.length || 0,
         tokenPrefix: replicateToken?.substring(0, 8) + '...' || 'N/A'
       });
-      
+
       if (!replicateToken) {
         console.error('❌ MAYA FLUX: REPLICATE_API_TOKEN not configured in environment');
         throw new Error('Replicate API not configured - missing REPLICATE_API_TOKEN environment variable');
@@ -663,10 +674,10 @@ export class MayaService {
 
       // 🎯 TRY: Use official Replicate SDK first
       let predictionData: any;
-      
+
       try {
         const replicateClient = new ReplicateClient();
-        
+
         // Convert parameters to SDK format
         const generationConfig = {
           modelVersionId: modelVersion,
@@ -685,7 +696,7 @@ export class MayaService {
 
         console.log(`✅ MAYA FLUX: Using official Replicate SDK`);
         const { predictionId, prediction } = await replicateClient.startGeneration(generationConfig);
-        
+
         predictionData = {
           id: predictionId,
           status: prediction.status,
@@ -694,10 +705,10 @@ export class MayaService {
         };
 
         console.log(`✅ MAYA FLUX: SDK prediction created: ${predictionId}`);
-        
+
       } catch (sdkError) {
         console.warn('⚠️ MAYA FLUX: SDK unavailable, using fallback fetch:', sdkError);
-        
+
         // 🔄 FALLBACK: Raw fetch if SDK fails
         const replicateResponse = await fetch('https://api.replicate.com/v1/predictions', {
           method: 'POST',
@@ -723,7 +734,7 @@ export class MayaService {
 
       // CRITICAL FIX: Create tracker with correct Replicate prediction ID to avoid ID mismatch
       const enhancedPrompt = `${request.conceptCard.fluxPrompt}||REPLICATE_ID:${predictionData.id}||SDK:${!!predictionData.sdkUsed}||WEBHOOK:enabled`;
-      
+
       const tracker = await this.db.createGenerationTracker({
         userId: userId, // Use internal database user ID
         predictionId: predictionData.id, // CRITICAL: Use actual Replicate prediction ID, not generated ID
@@ -742,7 +753,7 @@ export class MayaService {
         userId: tracker.userId,
         startTime: Date.now()
       };
-      
+
       // Store in memory for quick cancellation access (could be moved to Redis in production)
       if (!(global as any).activeGenerations) {
         (global as any).activeGenerations = new Map();
@@ -801,12 +812,12 @@ export class MayaService {
   }> {
     try {
       console.log(`🔍 MAYA STATUS: Looking for generation ${generationId} for user ${userId}`);
-      
+
       // CRITICAL FIX: Find tracker by Replicate prediction ID (which is now stored in predictionId field)
       const trackers = await this.db.getUserGenerationTrackers(userId);
       console.log(`🔍 MAYA STATUS: Found ${trackers.length} trackers for user`);
-      
-      const tracker = trackers.find(t => 
+
+      const tracker = trackers.find(t =>
         t.predictionId === generationId // FIXED: Now stored as actual Replicate prediction ID
       );
 
@@ -866,39 +877,39 @@ export class MayaService {
 
     try {
       console.log('🔍 MAYA SERVICE: Extracting concept cards from response:', response.substring(0, 500));
-      
+
       // Use same robust extraction as main index.ts with enhancements
       const conceptSections = response.split(/---+/).filter(section => section.trim().length > 50);
       console.log(`🔍 MAYA SERVICE: Found ${conceptSections.length} concept sections`);
-      
+
       for (let i = 0; i < conceptSections.length && conceptCards.length < 5; i++) {
         const section = conceptSections[i].trim();
-        
+
         // Enhanced extraction patterns for maximum robustness
         const patterns = [
           // Pattern 1: Full Maya format [EMOJI] **CONCEPT** \n Description \n FLUX_PROMPT: [prompt]
           /([^\w\s])\s*\*\*([^*]+)\*\*\s*[\r\n]+([^*]+?)[\r\n]+\s*FLUX_PROMPT:\s*\[([^\]]+)\]/g,
-          
+
           // Pattern 2: Simplified emoji format
           /([📸🎯✨💼🌟💫🏆🎬🏔️🎿☕🤍🖤🌊🎭💎])\s*\*\*([^*]+)\*\*\s*([\s\S]*?)\s*FLUX_PROMPT:\s*\[([\s\S]*?)\]/g,
-          
+
           // Pattern 3: Any emoji + title format
           /([^\w\s\[\]])\s*\*\*([^*]+)\*\*\s*([\s\S]*?)\s*FLUX_PROMPT:\s*\[([\s\S]*?)\]/g,
-          
+
           // Pattern 4: Just title + FLUX_PROMPT
           /\*\*([^*]+)\*\*\s*([\s\S]*?)\s*FLUX_PROMPT:\s*\[([\s\S]*?)\]/g,
-          
+
           // Pattern 5: Numbered lists with description
           /(\d+\.\s*)([^\n\r]+)[\r\n]+([\s\S]*?)\s*FLUX_PROMPT:\s*\[([\s\S]*?)\]/g
         ];
-        
+
         let sectionMatched = false;
-        
+
         for (const pattern of patterns) {
           let match;
           while ((match = pattern.exec(section)) !== null && conceptCards.length < 5) {
             let emoji = '📸', title = '', description = '', fluxPrompt = '';
-            
+
             if (match.length >= 4) {
               if (match.length === 5) {
                 // Full format with emoji or numbered
@@ -922,14 +933,14 @@ export class MayaService {
                 fluxPrompt = match[3]?.trim();
                 emoji = this.selectEmojiFromContent(title, description);
               }
-              
+
               // Clean up text
               description = description?.replace(/\s+/g, ' ').substring(0, 300) || '';
               fluxPrompt = fluxPrompt?.replace(/[\[\]]/g, '').trim() || '';
-              
+
               if (title && title.length > 3 && (description.length > 10 || fluxPrompt.length > 10)) {
                 console.log(`✅ MAYA SERVICE: Extracted concept - ${emoji} ${title}`);
-                
+
                 const creativeLook = this.determineCreativeLook(title, description);
                 const conceptCard = {
                   id: `concept_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -943,13 +954,13 @@ export class MayaService {
                   type: this.determineConceptType(title, description),
                   createdAt: new Date().toISOString()
                 };
-                
+
                 conceptCards.push(conceptCard);
                 sectionMatched = true;
               }
             }
           }
-          
+
           if (sectionMatched) break; // Found matches with this pattern, move to next section
         }
       }
@@ -957,21 +968,21 @@ export class MayaService {
       // Enhanced fallback: Intelligent text analysis for concept keywords
       if (conceptCards.length === 0) {
         console.log('🔄 MAYA SERVICE: No structured concepts found, analyzing text with enhanced intelligence...');
-        
+
         const conceptKeywords = [
-          'professional', 'business', 'creative', 'lifestyle', 'portrait', 'headshot', 
+          'professional', 'business', 'creative', 'lifestyle', 'portrait', 'headshot',
           'flatlay', 'editorial', 'luxury', 'elegant', 'sophisticated', 'modern',
           'classic', 'timeless', 'scandinavian', 'urban', 'coastal', 'avant-garde'
         ];
-        
+
         const lines = response.split('\n').filter(line => line.trim().length > 20);
-        
+
         for (const line of lines.slice(0, 10)) {
           for (const keyword of conceptKeywords) {
             if (line.toLowerCase().includes(keyword) && conceptCards.length < 3) {
               const title = `${keyword.charAt(0).toUpperCase() + keyword.slice(1)} Concept`;
               const creativeLook = this.determineCreativeLook(title, line);
-              
+
               console.log(`✅ MAYA SERVICE: Generated concept from keyword - ${title}`);
               conceptCards.push({
                 id: `concept_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -1065,7 +1076,7 @@ export class MayaService {
    */
   private selectEmojiFromContent(title: string, description: string): string {
     const content = (title + ' ' + description).toLowerCase();
-    
+
     // Content-based emoji selection (enhanced)
     if (content.includes('strategy') || content.includes('plan')) return '🎯';
     if (content.includes('brand') || content.includes('identity')) return '✨';
@@ -1075,7 +1086,7 @@ export class MayaService {
     if (content.includes('leadership') || content.includes('executive')) return '👑';
     if (content.includes('innovation') || content.includes('tech')) return '💡';
     if (content.includes('growth') || content.includes('success')) return '📈';
-    
+
     // Style-based patterns from UnifiedMayaIntelligenceService
     if (content.includes('scandinavian') || content.includes('minimalist') || content.includes('nordic')) return '🤍';
     if (content.includes('urban') || content.includes('moody') || content.includes('dramatic')) return '🖤';
@@ -1083,7 +1094,7 @@ export class MayaService {
     if (content.includes('editorial') || content.includes('avant-garde') || content.includes('artistic')) return '🎭';
     if (content.includes('classic') || content.includes('timeless') || content.includes('elegant')) return '💎';
     if (content.includes('luxury') || content.includes('high-end') || content.includes('sophisticated')) return '💫';
-    
+
     return '📸'; // Default professional photography emoji
   }
 
@@ -1093,7 +1104,7 @@ export class MayaService {
    */
   private determineCreativeLook(title: string, description: string): string {
     const content = (title + ' ' + description).toLowerCase();
-    
+
     // Maya's sophisticated Creative Look system
     if (content.includes('scandinavian') || content.includes('minimalist') || content.includes('nordic') || content.includes('clean')) {
       return 'Scandinavian Minimalist';
@@ -1114,7 +1125,7 @@ export class MayaService {
     } else if (content.includes('modern') || content.includes('contemporary') || content.includes('tech') || content.includes('innovative')) {
       return 'Modern Contemporary';
     }
-    
+
     return 'Professional'; // Default
   }
 
@@ -1124,7 +1135,7 @@ export class MayaService {
    */
   private categorizeCard(title: string, description: string): string {
     const content = (title + ' ' + description).toLowerCase();
-    
+
     if (content.includes('brand') || content.includes('identity')) return 'branding';
     if (content.includes('social') || content.includes('media')) return 'social-media';
     if (content.includes('leadership') || content.includes('executive')) return 'leadership';
@@ -1134,7 +1145,7 @@ export class MayaService {
     if (content.includes('professional') || content.includes('career') || content.includes('business')) return 'professional';
     if (content.includes('lifestyle') || content.includes('personal')) return 'lifestyle';
     if (content.includes('editorial') || content.includes('fashion')) return 'editorial';
-    
+
     return 'general';
   }
 
@@ -1151,15 +1162,15 @@ export class MayaService {
       'scandinavian', 'minimalist', 'urban', 'moody', 'coastal', 'editorial',
       'avant-garde', 'artistic', 'refined', 'contemporary', 'lifestyle'
     ];
-    
+
     const lowercaseContent = content.toLowerCase();
-    
+
     tagKeywords.forEach(keyword => {
       if (lowercaseContent.includes(keyword)) {
         tags.push(keyword);
       }
     });
-    
+
     // Limit to top 5 tags
     return tags.slice(0, 5);
   }
@@ -1169,13 +1180,13 @@ export class MayaService {
    */
   private determineConceptType(title: string, description: string): 'portrait' | 'flatlay' | 'lifestyle' {
     const content = (title + ' ' + description).toLowerCase();
-    
+
     if (content.includes('flatlay') || content.includes('overhead') || content.includes('product') || content.includes('accessories')) {
       return 'flatlay';
     } else if (content.includes('lifestyle') || content.includes('candid') || content.includes('action') || content.includes('environment')) {
       return 'lifestyle';
     }
-    
+
     return 'portrait'; // Default - most Maya concepts are portraits
   }
 
@@ -1185,7 +1196,7 @@ export class MayaService {
    */
   private generateEnhancedFluxPrompt(title: string, description: string, creativeLook: string): string {
     const basePrompt = `Professional portrait photography of sandra, ${title.toLowerCase()}`;
-    
+
     // Creative look specific styling
     let styleElements: string[] = [];
     switch (creativeLook) {
@@ -1207,7 +1218,7 @@ export class MayaService {
       default:
         styleElements = ['high-quality professional photography', 'studio lighting', 'modern aesthetic', 'clean composition'];
     }
-    
+
     const technicalElements = [
       'sharp focus',
       'professional lighting',
@@ -1215,7 +1226,7 @@ export class MayaService {
       'luxury fashion editorial style',
       'perfect composition'
     ];
-    
+
     return `${basePrompt}, ${styleElements.join(', ')}, ${technicalElements.join(', ')}`;
   }
 
@@ -1261,7 +1272,7 @@ export class MayaService {
    */
   private cleanEmojiForDatabase(emoji: string): string {
     if (!emoji) return '';
-    
+
     try {
       // Remove or replace problematic Unicode characters that cause JSON parsing issues
       // This specifically handles surrogate pairs that cause the "low surrogate must follow high surrogate" error
@@ -1269,7 +1280,7 @@ export class MayaService {
         .replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, '') // Remove surrogate pairs
         .replace(/[\uD800-\uDFFF]/g, '') // Remove any remaining surrogates
         .replace(/[^\u0000-\u007F\u00A0-\u024F\u1E00-\u1EFF\u2000-\u206F\u2070-\u209F\u20A0-\u20CF\u2100-\u214F\u2190-\u21FF\u2200-\u22FF]/g, ''); // Keep basic Latin, extended Latin, and common symbols
-      
+
       // If emoji is completely cleaned out, provide a fallback
       return cleaned || '🎯';
     } catch (error) {
@@ -1283,12 +1294,12 @@ export class MayaService {
    */
   private generateFallbackResponse(message: string, user: any): string {
     console.log('🔄 MAYA: Generating fallback response for API key issue');
-    
+
     return `Hello! I'm Maya, your AI Creative Director at SSELFIE Studio.
 
-I'm currently experiencing a temporary technical issue with my AI capabilities, but I'm still here to help! 
+I'm currently experiencing a temporary technical issue with my AI capabilities, but I'm still here to help!
 
-The issue is related to my connection with Claude AI - specifically an invalid API key that needs to be updated by the development team. 
+The issue is related to my connection with Claude AI - specifically an invalid API key that needs to be updated by the development team.
 
 Once this is resolved, I'll be back to my full capabilities:
 • Creating personalized concept cards with detailed styling

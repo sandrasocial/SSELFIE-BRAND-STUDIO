@@ -6,7 +6,7 @@ import { Camera, Grid, User, Settings, MessageCircle } from 'lucide-react';
 // Import screen components
 import StudioScreen from '../features/brand-studio/components/StudioScreen.js';
 import MayaScreen from '../features/maya-chat/components/MayaScreen.js';
-import GalleryScreen from '../features/gallery/components/GalleryScreen.js';
+import GalleryScreen from '../features/gallery/components/TwoTabGalleryScreen.js';
 import ProfileScreen from '../features/profile/components/ProfileScreen.js';
 import SettingsScreen from '../features/settings/components/SettingsScreen.js';
 

@@ -76,9 +76,9 @@ export class UserService extends BaseService {
 
       const sanitizedUpdates = this.sanitizeInput(updates) as UpdateUserProfileRequest;
 
-      // Validate gender if provided
-      if (sanitizedUpdates.gender && !['man', 'woman', 'other'].includes(sanitizedUpdates.gender)) {
-        throw new Error('Invalid gender value. Must be "man", "woman", or "other"');
+      // Canonicalize gender to server-approved tokens ('woman' | 'man' | 'non-binary' | null)
+      if ('gender' in sanitizedUpdates) {
+        sanitizedUpdates.gender = this.clampGender(sanitizedUpdates.gender ?? null);
       }
 
       this.log('info', 'Updating user profile', { userId, updates: sanitizedUpdates });
@@ -99,6 +99,19 @@ export class UserService extends BaseService {
       return null; // Explicit return for type safety
     }
   }
+  /**
+   * Canonicalize gender to 'woman' | 'man' | 'non-binary' | null
+   */
+  private clampGender(input: string | null): 'woman' | 'man' | 'non-binary' | null {
+    if (!input) return null;
+    const g = String(input).toLowerCase().trim();
+    if (['woman','female','f'].includes(g)) return 'woman';
+    if (['man','male','m'].includes(g)) return 'man';
+    if (['non-binary','nonbinary','non binary','nb','enby'].includes(g)) return 'non-binary';
+    if (['other','prefer-not-to-say','prefer not to say','prefer_not_to_say','na','n/a','none','unknown'].includes(g)) return null;
+    return null;
+  }
+
 
   /**
    * Create new user
