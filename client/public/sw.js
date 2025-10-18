@@ -10,14 +10,14 @@ const IMAGE_CACHE = 'sselfie-images-v1.0.0';
 
 // Cache strategies
 const CACHE_STRATEGIES = {
-  // Static assets - cache first
-  STATIC: ['css', 'js', 'woff', 'woff2', 'ttf', 'eot'],
+  // Static assets - cache first (fonts only)
+  STATIC: ['woff', 'woff2', 'ttf', 'eot'],
   // Images - cache first with fallback
   IMAGES: ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg'],
   // API calls - network first with cache fallback
   API: ['/api/'],
-  // HTML pages - network first with cache fallback
-  HTML: ['html']
+  // HTML/JS/CSS - network first with cache fallback
+  HTML: ['html', 'js', 'css']
 };
 
 // Install event - cache static assets
@@ -43,26 +43,24 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Activate event - clean up old caches
+// Activate event - clean up old caches and take control
 self.addEventListener('activate', (event) => {
-  
-  event.waitUntil(
-    caches.keys()
-      .then((cacheNames) => {
-        return Promise.all(
-          cacheNames.map((cacheName) => {
-            if (cacheName !== STATIC_CACHE && 
-                cacheName !== DYNAMIC_CACHE && 
-                cacheName !== IMAGE_CACHE) {
-              return caches.delete(cacheName);
-            }
-          })
-        );
-      })
-      .then(() => {
-        return self.clients.claim();
-      })
-  );
+
+  event.waitUntil((async () => {
+    try {
+      const cacheNames = await caches.keys();
+      await Promise.all(
+        cacheNames
+          .filter((name) => name.startsWith('sselfie-'))
+          .map((name) => caches.delete(name))
+      );
+    } catch (e) {
+      // no-op
+    } finally {
+      await self.clients.claim();
+      await self.skipWaiting();
+    }
+  })());
 });
 
 // Fetch event - implement caching strategies
@@ -177,27 +175,27 @@ async function networkFirstWithCache(request, cacheName) {
 function getCacheStrategy(url) {
   const pathname = url.pathname;
   const extension = pathname.split('.').pop()?.toLowerCase();
-  
+
   // API calls
   if (pathname.startsWith('/api/')) {
     return 'API';
   }
-  
-  // HTML pages
-  if (extension === 'html' || pathname === '/' || !extension) {
+
+  // HTML/JS/CSS should be network-first
+  if (extension === 'html' || extension === 'js' || extension === 'css' || pathname === '/' || !extension) {
     return 'HTML';
   }
-  
+
   // Images
   if (CACHE_STRATEGIES.IMAGES.includes(extension)) {
     return 'IMAGES';
   }
-  
-  // Static assets
+
+  // Static assets (fonts)
   if (CACHE_STRATEGIES.STATIC.includes(extension)) {
     return 'STATIC';
   }
-  
+
   return 'HTML';
 }
 
