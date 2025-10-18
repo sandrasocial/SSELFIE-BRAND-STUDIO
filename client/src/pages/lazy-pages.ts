@@ -1,8 +1,8 @@
 import { createLazyComponent } from '../components/Suspense';
 
 // Core App Components
-export const SselfieAppLayout = createLazyComponent(() => 
-  import('../app_v2/SselfieAppLayout.js'), 'SselfieAppLayout');
+export const SselfieAppLayout = createLazyComponent(() =>
+  import('../features/layout/SselfieAppLayout'), 'SselfieAppLayout');
 
 export const MayaPage = createLazyComponent(() => 
   import('./MayaPage.js'), 'MayaPage');

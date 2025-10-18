@@ -3,20 +3,14 @@ import { useQuery } from '@tanstack/react-query';
 import { useLocation } from 'wouter';
 import { useAuth } from '../../../hooks/use-auth.js';
 import { apiFetch } from '../../../lib/api.js';
-import { WelcomeHeader } from '../../../components/WelcomeHeader.js';
-import QuickAccessPanel from '../../../components/QuickAccessPanel.js';
-import GeneratedImagePreview from '../../../components/GeneratedImagePreview.js';
-import { 
-  Zap, 
-  Clock, 
-  CheckCircle, 
-  AlertCircle, 
-  Settings,
-  RefreshCw,
+import {
   Camera,
   Plus,
-  ChevronDown
+  Star,
+  Grid,
+  ChevronRight
 } from 'lucide-react';
+import { StatTile } from '../../../components/shared/Card';
 
 interface UserModel {
   id: string | null;
@@ -40,10 +34,11 @@ interface StyleOption {
 
 interface StudioScreenProps {
   onTabChange?: (tabId: string) => void;
+  hasTrainedModel?: boolean;
 }
 
 // @ts-ignore - FC type compatibility with JSX.Element
-const StudioScreen: React.FC<StudioScreenProps> = ({ onTabChange }) => {
+const StudioScreen: React.FC<StudioScreenProps> = ({ onTabChange, hasTrainedModel }) => {
   const { user, isLoading: authLoading, isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
   const [selectedStyle, setSelectedStyle] = useState<StyleOption | null>(null);
@@ -57,6 +52,64 @@ const StudioScreen: React.FC<StudioScreenProps> = ({ onTabChange }) => {
     staleTime: 30 * 1000,
     queryFn: () => apiFetch('/user-model')
   });
+  // Gallery and Favorites stats for Studio KPIs (real endpoints)
+  const { data: galleryImagesData } = useQuery({
+    queryKey: ['/api/gallery-images'],
+    enabled: isAuthenticated && !!user,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    queryFn: async () => {
+      const data = await apiFetch('/gallery-images');
+      return Array.isArray(data) ? data : (data?.images || []);
+    }
+  });
+  const galleryImages = Array.isArray(galleryImagesData) ? galleryImagesData : [];
+
+  const { data: favoritesData } = useQuery({
+    queryKey: ['/api/images/favorites'],
+    enabled: isAuthenticated && !!user,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
+  const favoritesCount = (favoritesData && typeof favoritesData === 'object' && 'favorites' in favoritesData)
+    ? (favoritesData as any).favorites.length
+    : 0;
+
+  // Studio KPIs (live via serverless endpoint)
+  const { data: kpis } = useQuery({
+    queryKey: ['/api/studio/kpis'],
+    enabled: isAuthenticated && !!user,
+    staleTime: 30 * 1000,
+    refetchInterval: 15 * 1000,
+    refetchOnWindowFocus: false,
+    queryFn: async () => apiFetch('/studio/kpis')
+  });
+  const activeSessions = (kpis as any)?.activeSessions ?? 0;
+  const queueCount = (kpis as any)?.queueCount ?? 0;
+
+  // Recent Activity (live)
+  const { data: activityData } = useQuery({
+    queryKey: ['/api/studio/recent-activity'],
+    enabled: isAuthenticated && !!user,
+    staleTime: 60 * 1000,
+    refetchInterval: 30 * 1000,
+    refetchOnWindowFocus: false,
+    queryFn: async () => apiFetch('/studio/recent-activity')
+  });
+  const activities: Array<{ id: string; action: string; createdAt: string | Date }> = (activityData as any)?.activities ?? [];
+
+  const formatRelative = (date: string | Date) => {
+    const d = typeof date === 'string' ? new Date(date) : date;
+    const now = new Date();
+    const diffMs = now.getTime() - d.getTime();
+    const mins = Math.floor(diffMs / 60000);
+    if (mins < 60) return `${mins}m ago`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `${hrs}h ago`;
+    const days = Math.floor(hrs / 24);
+    return `${days}d ago`;
+  };
+
 
   // Helper functions
   const getStatusText = (status: string): string => {
@@ -81,20 +134,6 @@ const StudioScreen: React.FC<StudioScreenProps> = ({ onTabChange }) => {
     return colorMap[status] || 'text-stone-500';
   };
 
-  const getStatusIcon = (status: string) => {
-    switch(status) {
-      case 'completed':
-        return <CheckCircle className="w-5 h-5 text-stone-900" strokeWidth={1.5} />;
-      case 'training':
-        return <RefreshCw className="w-5 h-5 text-amber-600 animate-spin" strokeWidth={1.5} />;
-      case 'pending':
-        return <Clock className="w-5 h-5 text-stone-500" strokeWidth={1.5} />;
-      case 'failed':
-        return <AlertCircle className="w-5 h-5 text-red-600" strokeWidth={1.5} />;
-      default:
-        return <div className="w-5 h-5 rounded-full border-2 border-stone-300" />;
-    }
-  };
 
   // Loading State
   if (authLoading || modelLoading) {
@@ -129,8 +168,75 @@ const StudioScreen: React.FC<StudioScreenProps> = ({ onTabChange }) => {
   }
 
   const trainingStatus = userModel?.trainingStatus || 'not_started';
-  const needsTraining = trainingStatus === 'not_started' || trainingStatus === 'failed';
+  const isTrainedByModel = trainingStatus === 'completed';
+  const isTrained = (typeof hasTrainedModel === 'boolean') ? !!hasTrainedModel : isTrainedByModel;
+  const needsTraining = !isTrained;
 
+  // Pixel-accurate artifact two-state layout
+  if (needsTraining) {
+    return (
+      <div className="space-y-8 pb-4">
+        {/* Header */}
+        <div className="pt-4 sm:pt-6 text-center">
+          <h1 className="text-3xl sm:text-5xl font-serif font-extralight tracking-[0.3em] text-stone-950 uppercase leading-none mb-3">
+            Welcome to Studio
+          </h1>
+          <p className="text-xs tracking-[0.2em] uppercase font-light text-stone-500">Start Here • Train Your AI Model</p>
+        </div>
+
+        {/* Primary Train Card */}
+        <div className="rounded-2xl sm:rounded-3xl border border-white/60 bg-white/60 backdrop-blur-2xl shadow-2xl shadow-stone-900/20 p-6 sm:p-8">
+          <div className="flex items-start gap-4">
+            <div className="w-12 h-12 rounded-[1rem] bg-white/60 backdrop-blur-xl border border-white/70 flex items-center justify-center text-stone-700">
+              <Star className="w-6 h-6" strokeWidth={1.5} />
+            </div>
+            <div className="flex-1">
+              <div className="font-serif font-extralight uppercase tracking-[0.2em] text-stone-950 leading-none text-2xl mb-2">
+                Train Your AI First
+              </div>
+              <div className="text-stone-600 text-sm mb-4">
+                Upload 15–20 selfies to create your personal LoRA model. This unlocks professional photos tailored to you.
+              </div>
+              <button
+                type="button"
+                onClick={() => (onTabChange ? onTabChange('training') : setLocation('/training'))}
+                className="group relative bg-stone-950 text-white font-semibold tracking-[0.15em] uppercase rounded-2xl px-6 py-3 text-xs hover:shadow-2xl hover:shadow-stone-900/40 hover:scale-[1.02] active:scale-95 transition-all"
+              >
+                Start Training Now
+                <ChevronRight className="inline w-4 h-4 ml-2 align-middle" strokeWidth={1.5} />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Benefits Grid */}
+        <div className="grid grid-cols-3 gap-3 sm:gap-4">
+          {[{t:'Accurate',d:'Looks like you'},{t:'Fast',d:'Ready in minutes'},{t:'Professional',d:'Editorial quality'}].map((b,i)=> (
+            <div key={i} className="rounded-2xl border border-white/50 bg-white/40 backdrop-blur-xl p-4 sm:p-5">
+              <div className="text-[10px] tracking-[0.15em] uppercase font-light text-stone-500 mb-2">{String(i+1).padStart(2,'0')}</div>
+              <div className="text-base font-serif font-extralight text-stone-950 mb-1">{b.t}</div>
+              <div className="text-xs text-stone-600">{b.d}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Checklist */}
+        <div className="rounded-2xl sm:rounded-3xl bg-stone-100/50 border border-stone-200/40 p-6 sm:p-8">
+          <div className="text-xs tracking-[0.2em] uppercase font-light text-stone-500 mb-4">What You'll Need</div>
+          <div className="grid grid-cols-2 gap-3 sm:gap-4">
+            {[ '10–20 Selfie Photos', 'Good Lighting', 'Variety of Angles', 'About 20 Minutes' ].map((item,idx) => (
+              <div key={idx} className="flex items-center gap-3">
+                <div className="w-1.5 h-1.5 bg-stone-600 rounded-full"></div>
+                <span className="text-sm font-light text-stone-950">{item}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Trained state
   return (
     <div className="space-y-8 pb-4">
       {/* Header */}
@@ -138,186 +244,112 @@ const StudioScreen: React.FC<StudioScreenProps> = ({ onTabChange }) => {
         <h1 className="text-3xl sm:text-5xl font-serif font-extralight tracking-[0.3em] text-stone-950 uppercase leading-none mb-3">
           STUDIO
         </h1>
-        <p className="text-xs tracking-[0.2em] uppercase font-light text-stone-500">
-          Your Creative Hub
-        </p>
+        <p className="text-xs tracking-[0.2em] uppercase font-light text-stone-500">Creative Control Center</p>
       </div>
 
-      {/* Welcome Component - Works with or without props */}
-      <WelcomeHeader onTabChange={onTabChange} />
-
-      {/* Status Overview Cards - ENHANCED HIERARCHY */}
+      {/* KPI Grid */}
       <div className="grid grid-cols-3 gap-3 sm:gap-4">
-        {/* Training Status - PRIMARY EMPHASIS */}
-        <div className="col-span-3 sm:col-span-1 bg-gradient-to-br from-stone-100/80 to-stone-100/40 border border-stone-200/60 rounded-2xl sm:rounded-3xl p-5 sm:p-6 hover:border-stone-300/80 transition-all duration-300 shadow-sm hover:shadow-md min-h-[120px] sm:min-h-[140px] flex flex-col justify-between">
-          <div className="flex items-center justify-between mb-4">
-            <div className="text-xs tracking-[0.15em] uppercase font-light text-stone-500">Status</div>
-            {getStatusIcon(trainingStatus)}
-          </div>
-          <div>
-            <div className={`text-3xl sm:text-4xl font-serif font-extralight mb-2 ${getStatusColor(trainingStatus)}`}>
-              {getStatusText(trainingStatus)}
+        {[
+          { label: 'Active', value: String(activeSessions), hint: 'Sessions' },
+          { label: 'Ready', value: String(galleryImages.length), hint: 'Photos' },
+          { label: 'Queue', value: String(queueCount), hint: 'Pending' },
+        ].map((k, i) => (
+          <div key={i} className="rounded-2xl border border-white/50 bg-white/40 backdrop-blur-xl p-4 sm:p-5">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-3">
+                <div className="w-1.5 h-1.5 bg-stone-600 rounded-full"></div>
+                <span className="text-[10px] tracking-[0.15em] uppercase font-light text-stone-500">{k.label}</span>
+              </div>
+              <span className="text-2xl sm:text-3xl font-serif font-extralight text-stone-950 leading-none">{k.value}</span>
             </div>
-            <div className="text-xs font-light text-stone-600">
-              {trainingStatus === 'completed' ? 'Model Active' : 'Training Required'}
-            </div>
+            <div className="text-xs text-stone-500">{k.hint}</div>
           </div>
-        </div>
+        ))}
+      </div>
 
-        {/* Used This Month */}
-        <div className="bg-stone-100/50 border border-stone-200/40 rounded-2xl sm:rounded-3xl p-5 sm:p-6 hover:bg-stone-100/70 hover:border-stone-200/60 transition-all duration-200 min-h-[120px] sm:min-h-[140px] flex flex-col justify-between">
-          <div className="text-xs tracking-[0.15em] uppercase font-light mb-4 text-stone-500">Used</div>
-          <div>
-            <div className="text-3xl sm:text-4xl font-serif font-extralight text-stone-950 mb-2">
-              {user.generationsUsedThisMonth || 0}
+      {/* Current Session */}
+      <div className="rounded-2xl sm:rounded-3xl bg-stone-100/50 border border-stone-200/40 overflow-hidden">
+        <div className="flex items-start gap-4 p-6 sm:p-8">
+          <div className="w-1.5 h-12 bg-stone-600 rounded-full mt-1"></div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between gap-3 mb-2">
+              <h3 className="text-lg font-serif font-extralight tracking-[0.15em] text-stone-950 uppercase truncate">Current Session</h3>
+              <span className="text-[10px] tracking-[0.15em] uppercase font-light text-stone-500">Live</span>
             </div>
-            <div className="text-xs font-light text-stone-600">This Month</div>
-          </div>
-        </div>
-
-        {/* Monthly Limit */}
-        <div className="bg-stone-100/50 border border-stone-200/40 rounded-2xl sm:rounded-3xl p-5 sm:p-6 hover:bg-stone-100/70 hover:border-stone-200/60 transition-all duration-200 min-h-[120px] sm:min-h-[140px] flex flex-col justify-between">
-          <div className="text-xs tracking-[0.15em] uppercase font-light mb-4 text-stone-500">Limit</div>
-          <div>
-            <div className="text-3xl sm:text-4xl font-serif font-extralight text-stone-950 mb-2">
-              {user.monthlyGenerationLimit === -1 ? '∞' : user.monthlyGenerationLimit || 100}
+            <div className="text-sm text-stone-600 mb-4 truncate">Executive Portrait • Editorial • Natural Light</div>
+            <div className="grid grid-cols-3 gap-3 sm:gap-4">
+              {[ 'Mood', 'Frames', 'Looks' ].map((s, idx) => (
+                <div key={idx} className="flex items-center gap-3 p-3 sm:p-4 rounded-xl bg-white/50 border border-white/60">
+                  <div className="w-1 sm:w-1.5 h-1 sm:h-1.5 bg-stone-600 rounded-full flex-shrink-0"></div>
+                  <span className="text-xs sm:text-sm font-light text-stone-950 truncate">{s}</span>
+                  <span className="text-[10px] sm:text-xs tracking-[0.1em] uppercase font-light text-stone-500 ml-auto flex-shrink-0">{['3/5','6/12','2/4'][idx]}</span>
+                </div>
+              ))}
             </div>
-            <div className="text-xs font-light text-stone-600">Per Month</div>
+            <div className="mt-4">
+              <div className="h-2 bg-white/60 rounded-full overflow-hidden">
+                <div className="h-full bg-stone-900 rounded-full" style={{ width: '40%' }} />
+              </div>
+              <div className="mt-2 text-xs text-stone-500">Progress • 40%</div>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Primary CTA Section - CLEAR HIERARCHY */}
-      {needsTraining ? (
-        <div className="bg-gradient-to-br from-stone-950 via-stone-900 to-stone-950 border border-stone-800 rounded-2xl sm:rounded-3xl p-6 sm:p-8 text-center shadow-lg">
-          <div className="mb-6">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-stone-800/50 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Camera className="w-8 h-8 sm:w-10 sm:h-10 text-stone-300" strokeWidth={1.5} />
-            </div>
-            <h3 className="text-xl sm:text-2xl font-serif font-extralight tracking-[0.2em] text-stone-50 uppercase mb-3">
-              Start Your Journey
-            </h3>
-            <p className="text-sm font-light text-stone-300 max-w-md mx-auto">
-              Train your AI model with 15 selfies to unlock professional photos
-            </p>
-          </div>
-          <button
-            onClick={() => setLocation('/training')}
-            className="w-full sm:w-auto bg-stone-50 hover:bg-stone-100 text-stone-950 px-8 py-4 rounded-xl font-light tracking-[0.2em] uppercase text-sm transition-all duration-300 hover:scale-[1.02] shadow-md hover:shadow-lg min-h-[56px]"
-          >
-            Begin Training
-          </button>
-        </div>
-      ) : (
-        <QuickAccessPanel onTabChange={onTabChange} />
-      )}
-
-      {/* Expandable Details Section - IMPROVED AFFORDANCE */}
-      <div className="bg-stone-100/50 border border-stone-200/40 rounded-2xl sm:rounded-3xl overflow-hidden">
+      {/* Actions */}
+      <div className="grid grid-cols-2 gap-3 sm:gap-4">
         <button
-          onClick={() => setDetailsExpanded(!detailsExpanded)}
-          className="w-full px-6 py-5 flex items-center justify-between hover:bg-stone-100/70 transition-colors duration-200 min-h-[64px]"
-          aria-expanded={detailsExpanded}
+          type="button"
+          onClick={() => (onTabChange ? onTabChange('maya') : setLocation('/maya'))}
+          className="rounded-2xl border border-white/60 bg-white/60 backdrop-blur-2xl p-6 sm:p-8 text-left hover:scale-[1.02] active:scale-95 transition-all"
         >
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-1.5 h-1.5 bg-stone-600 rounded-full"></div>
+            <span className="text-[10px] tracking-[0.15em] uppercase font-light text-stone-500">Action</span>
+          </div>
           <div className="flex items-center gap-3">
-            <Settings className="w-5 h-5 text-stone-600" strokeWidth={1.5} />
-            <span className="text-base font-serif font-extralight tracking-[0.15em] text-stone-950 uppercase">
-              Model Details
-            </span>
+            <Plus className="w-5 h-5 text-stone-700" strokeWidth={1.5} />
+            <span className="text-base font-serif font-extralight text-stone-950">New Session</span>
           </div>
-          <ChevronDown 
-            className={`w-5 h-5 text-stone-600 transition-transform duration-300 ${
-              detailsExpanded ? 'rotate-180' : ''
-            }`}
-            strokeWidth={1.5}
-          />
         </button>
-
-        {/* Expanded Content */}
-        {detailsExpanded && (
-          <div className="px-6 pb-6 space-y-6 border-t border-stone-200/30">
-            {/* Stats Grid */}
-            <div className="grid grid-cols-3 gap-3 pt-6">
-              <div className="text-center p-4 bg-stone-200/30 rounded-xl border border-stone-300/30">
-                <div className="text-xs tracking-[0.15em] uppercase font-light mb-2 text-stone-500">Status</div>
-                <div className="flex items-center justify-center mb-2">
-                  {getStatusIcon(trainingStatus)}
-                </div>
-                <div className="text-xs font-light text-stone-600">{getStatusText(trainingStatus)}</div>
-              </div>
-              <div className="text-center p-4 bg-stone-200/30 rounded-xl border border-stone-300/30">
-                <div className="text-xs tracking-[0.15em] uppercase font-light mb-2 text-stone-500">Used</div>
-                <div className="text-2xl font-serif font-extralight text-stone-950 mb-1">
-                  {user.generationsUsedThisMonth || 0}
-                </div>
-                <div className="text-xs font-light text-stone-600">This Month</div>
-              </div>
-              <div className="text-center p-4 bg-stone-200/30 rounded-xl border border-stone-300/30">
-                <div className="text-xs tracking-[0.15em] uppercase font-light mb-2 text-stone-500">Limit</div>
-                <div className="text-2xl font-serif font-extralight text-stone-950 mb-1">
-                  {user.monthlyGenerationLimit === -1 ? '∞' : user.monthlyGenerationLimit || 100}
-                </div>
-                <div className="text-xs font-light text-stone-600">Per Month</div>
-              </div>
-            </div>
-
-            {/* Model Information */}
-            <div>
-              <h4 className="text-base font-serif font-extralight tracking-[0.15em] text-stone-950 uppercase mb-4">
-                Model Information
-              </h4>
-              <div className="space-y-1">
-                {userModel && (
-                  <>
-                    <div className="flex items-center justify-between py-4 border-b border-stone-200/30 last:border-b-0 min-h-[56px]">
-                      <span className="text-sm font-light text-stone-950">Training Status</span>
-                      <span className={`text-xs tracking-[0.1em] uppercase font-light ${getStatusColor(trainingStatus)}`}>
-                        {getStatusText(userModel.trainingStatus)}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between py-4 border-b border-stone-200/30 last:border-b-0 min-h-[56px]">
-                      <span className="text-sm font-light text-stone-950">Model Type</span>
-                      <span className="text-xs tracking-[0.1em] uppercase font-light text-stone-500">
-                        {userModel.modelType || 'Standard'}
-                      </span>
-                    </div>
-                    {userModel.createdAt && (
-                      <div className="flex items-center justify-between py-4 border-b border-stone-200/30 last:border-b-0 min-h-[56px]">
-                        <span className="text-sm font-light text-stone-950">Created</span>
-                        <span className="text-xs tracking-[0.1em] uppercase font-light text-stone-500">
-                          {new Date(userModel.createdAt).toLocaleDateString()}
-                        </span>
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
-            </div>
+        <button
+          type="button"
+          onClick={() => (onTabChange ? onTabChange('gallery') : setLocation('/gallery'))}
+          className="rounded-2xl border border-white/60 bg-white/60 backdrop-blur-2xl p-6 sm:p-8 text-left hover:scale-[1.02] active:scale-95 transition-all"
+        >
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-1.5 h-1.5 bg-stone-600 rounded-full"></div>
+            <span className="text-[10px] tracking-[0.15em] uppercase font-light text-stone-500">Browse</span>
           </div>
-        )}
+          <div className="flex items-center gap-3">
+            <Grid className="w-5 h-5 text-stone-700" strokeWidth={1.5} />
+            <span className="text-base font-serif font-extralight text-stone-950">Browse Gallery</span>
+          </div>
+        </button>
       </div>
 
-      {/* Generated Images Section */}
-      {generatedImages.length > 0 && (
-        <div className="bg-stone-100/50 border border-stone-200/40 rounded-2xl sm:rounded-3xl p-6 sm:p-8">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-serif font-extralight tracking-[0.1em] text-stone-950 uppercase">
-              Generated Images
-            </h3>
-            <span className="text-xs tracking-[0.15em] uppercase font-light text-stone-500">
-              {generatedImages.length} {generatedImages.length === 1 ? 'Image' : 'Images'}
-            </span>
-          </div>
-          <GeneratedImagePreview
-            imageUrls={generatedImages}
-            isLoading={false}
-            concept={{
-              title: "Studio Generated Images",
-              description: "Images generated through the studio interface"
-            }}
-          />
+      {/* Recent Activity */}
+      <div className="rounded-2xl sm:rounded-3xl bg-stone-100/50 border border-stone-200/40 p-6 sm:p-8">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-serif font-extralight tracking-[0.1em] text-stone-950 uppercase">Recent Activity</h3>
+          <span className="text-[10px] tracking-[0.15em] uppercase font-light text-stone-500">Today</span>
         </div>
-      )}
+        <div className="space-y-3">
+          {activities.length === 0 ? (
+            <div className="text-xs text-stone-500">No recent activity</div>
+          ) : (
+            activities.map((item) => (
+              <div key={item.id} className="flex items-center justify-between">
+                <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+                  <div className="w-1 sm:w-1.5 h-1 sm:h-1.5 bg-stone-600 rounded-full flex-shrink-0"></div>
+                  <span className="text-xs sm:text-sm font-light text-stone-950 truncate">{item.action}</span>
+                </div>
+                <span className="text-[10px] sm:text-xs tracking-[0.1em] uppercase font-light text-stone-500 ml-3 sm:ml-4 flex-shrink-0">{formatRelative(item.createdAt)}</span>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
     </div>
   );
 };

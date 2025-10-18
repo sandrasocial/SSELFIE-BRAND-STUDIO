@@ -1,3 +1,5 @@
+@import './styles/tokens.css';
+
 input,textarea,select,button{-webkit-appearance:none;appearance:none}
 audio,canvas,embed,iframe,img,object,svg,video{display:block}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}
 button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;appearance:button;background-color:transparent;background-image:none}
@@ -23,7 +25,7 @@ table{text-indent:0;border-color:inherit;border-collapse:collapse}
     -webkit-text-size-adjust: 100%;
     -webkit-tap-highlight-color: transparent;
   }
-  
+
   input, textarea, button, select {
     /* Prevent zoom on iOS */
     font-size: 16px !important;
@@ -329,7 +331,7 @@ h1, h2, h3 {
   --body-gray: #757575;
   --light-gray: #e8e8e8;
   --accent-line: #f0f0f0;
-  
+
   /* Spacing System */
   --space-xs: 12px;
   --space-sm: 20px;
@@ -340,7 +342,7 @@ h1, h2, h3 {
   --space-3xl: 128px;
   --space-4xl: 160px;
   --space-5xl: 200px;
-  
+
   /* Typography Scale */
   --text-xs: 11px;
   --text-sm: 13px;
@@ -650,25 +652,25 @@ h1, h2, h3 {
     grid-template-columns: 1fr;
     min-height: auto;
   }
-  
+
   .hero-image-primary {
     height: 60vh;
   }
-  
+
   .hero-content-editorial {
     padding: var(--space-3xl) var(--space-xl);
   }
-  
+
   .process-editorial-cards {
     grid-template-columns: 1fr;
     gap: var(--space-2xl);
   }
-  
+
   .editorial-split {
     grid-template-columns: 1fr;
     min-height: auto;
   }
-  
+
   .split-content {
     padding: var(--space-3xl) var(--space-xl);
   }
