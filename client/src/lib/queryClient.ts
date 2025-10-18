@@ -1,28 +1,14 @@
 import type { QueryFunction } from "@tanstack/react-query";
-import * as ReactQuery from "@tanstack/react-query";
+import { QueryClient } from "@tanstack/react-query";
 
-// Robustly resolve QueryClient across ESM/CJS interop
-const QueryClientCtor: any =
-  (ReactQuery as any).QueryClient ||
-  (ReactQuery as any).default?.QueryClient ||
-  (ReactQuery as any).default;
-// Diagnostics for runtime module shape (will print once in browser)
+// Minimal diagnostic after imports are initialized
 if (typeof window !== 'undefined') {
   try {
-    const rq: any = ReactQuery as any;
-    // Limit surface to avoid flooding console
-    const rqKeys = Object.keys(rq || {}).slice(0, 20);
-    const rqDefaultKeys = rq?.default ? Object.keys(rq.default).slice(0, 20) : null;
-    console.group('[RQ] @tanstack/react-query module shape');
-    console.log('typeof ReactQuery:', typeof rq, 'toStringTag:', rq?.[Symbol.toStringTag]);
-    console.log('ReactQuery keys:', rqKeys);
-    console.log('typeof ReactQuery.QueryClient:', typeof rq?.QueryClient);
-    console.log('typeof ReactQuery.default:', typeof rq?.default);
-    console.log('default keys:', rqDefaultKeys);
-    console.log('typeof ReactQuery.default?.QueryClient:', typeof rq?.default?.QueryClient);
-    console.groupEnd();
+    const ctorType = typeof QueryClient;
+    const ctorName = (QueryClient as any)?.name || '(no name)';
+    console.log('[RQ] typeof QueryClient:', ctorType, 'name:', ctorName);
   } catch (e) {
-    console.warn('[RQ] Failed to inspect module shape', e);
+    console.warn('[RQ] QueryClient inspect failed:', e);
   }
 }
 
@@ -106,11 +92,11 @@ export async function apiRequest(
 type UnauthorizedBehavior = "returnNull" | "throw";
 // Log resolved constructor shape before instantiation
 if (typeof window !== 'undefined') {
-  const ctorType = typeof QueryClientCtor;
-  const ctorName = (QueryClientCtor && QueryClientCtor.name) || '(no name)';
-  console.log('[RQ] Resolved QueryClientCtor type:', ctorType, 'name:', ctorName);
+  const ctorType = typeof QueryClient;
+  const ctorName = (QueryClient as any)?.name || '(no name)';
+  console.log('[RQ] Instantiation check - typeof QueryClient:', ctorType, 'name:', ctorName);
   if (ctorType !== 'function') {
-    console.error('[RQ] QueryClientCtor is not a function:', QueryClientCtor);
+    console.error('[RQ] QueryClient is not a function:', QueryClient);
   }
 }
 
@@ -135,7 +121,7 @@ export const getQueryFn: <T>(options: {
   };
 
 // Initialize QueryClient immediately
-export const queryClient = new QueryClientCtor({
+export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       queryFn: getQueryFn({ on401: "throw" }),

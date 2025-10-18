@@ -94,7 +94,8 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
       dedupe: [
         'react',
         'react-dom',
-        '@stackframe/react'
+        '@stackframe/react',
+        '@tanstack/react-query'
       ]
     },
     optimizeDeps: {
