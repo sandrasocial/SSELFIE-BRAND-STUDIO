@@ -18,12 +18,14 @@ interface MayaUploadComponentProps {
   onUploadComplete?: (success: boolean) => void;
   onTrainingStart?: () => void;
   className?: string;
+  gender?: string;
 }
 
-export function MayaUploadComponent({ 
-  onUploadComplete, 
+export function MayaUploadComponent({
+  onUploadComplete,
   onTrainingStart,
-  className = "" 
+  className = "",
+  gender,
 }: MayaUploadComponentProps) {
   const [selfieImages, setSelfieImages] = useState<File[]>([]);
   const [isUploadingImages, setIsUploadingImages] = useState(false);
@@ -39,7 +41,8 @@ export function MayaUploadComponent({
     mutationFn: async (images: string[]) => {
       setIsUploadingImages(true);
       const response = await apiRequest('/api/start-model-training', 'POST', {
-        selfieImages: images
+        selfieImages: images,
+        gender,
       });
       return response;
     },
@@ -109,6 +112,15 @@ export function MayaUploadComponent({
 
   // Start training handler - extracted from simple-training
   const handleStartTraining = async () => {
+    // Enforce gender selection if required by flow
+    if (!gender) {
+      toast({
+        title: "Gender Required",
+        description: "Please select your gender before starting training.",
+      });
+      return;
+    }
+
     // Critical frontend validation: Never allow less than 10 images
     if (selfieImages.length < 10) {
       toast({
@@ -117,7 +129,7 @@ export function MayaUploadComponent({
       });
       return;
     }
-    
+
     if (selfieImages.length < 15) {
       toast({
         title: "Recommendation",
@@ -261,9 +273,9 @@ export function MayaUploadComponent({
           {/* Start Training Button */}
           <button
             onClick={handleStartTraining}
-            disabled={selfieImages.length < 10 || isUploadingImages || startTraining.isPending}
+            disabled={selfieImages.length < 10 || isUploadingImages || startTraining.isPending || !gender}
             className={`w-full py-3 px-6 text-sm tracking-[0.2em] uppercase font-light transition-all duration-300 ${
-              selfieImages.length >= 10 && !isUploadingImages && !startTraining.isPending
+              selfieImages.length >= 10 && !isUploadingImages && !startTraining.isPending && !!gender
                 ? 'bg-black text-white hover:bg-gray-800'
                 : 'bg-gray-100 text-gray-400 cursor-not-allowed'
             }`}

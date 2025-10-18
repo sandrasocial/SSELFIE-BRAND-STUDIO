@@ -1,0 +1,80 @@
+:root {
+  /* Core brand colors (aligned to artifact) */
+  --luxury-black: #0a0a0a; /* deep neutral for text and active surfaces */
+  --pure-white: #ffffff;
+  --soft-gray: #6b7280; /* Tailwind stone-500 approximation */
+  --mid-gray: #f5f5f5;  /* page bg in some screens */
+
+  /* Semantic roles (can map to Tailwind utilities in components) */
+  --color-text: var(--luxury-black);
+  --color-surface: var(--pure-white);
+  --color-surface-muted: rgba(255, 255, 255, 0.5);
+  --color-border: rgba(255, 255, 255, 0.6);
+  --accent-line: rgba(23, 23, 25, 0.08);
+
+  /* Radii (used by UI.radii presets) */
+  --radius-lg: 1rem;            /* rounded-xl baseline */
+  --radius-xl: 1.25rem;         /* rounded-[1.25rem] */
+  --radius-2xl: 1.5rem;         /* rounded-[1.5rem] */
+  --radius-3xl: 1.75rem;        /* rounded-[1.75rem] */
+  --radius-container-lg: 2rem;  /* rounded-[2rem] */
+  --radius-container-xl: 2.5rem;/* rounded-[2.5rem] */
+  --radius-container-2xl: 3rem; /* rounded-[3rem] */
+
+  /* Shadows (soft glassy look) */
+  --shadow-soft: 0 10px 25px rgba(28, 25, 23, 0.10);
+  --shadow-strong: 0 20px 45px rgba(28, 25, 23, 0.20);
+
+  /* Tracking / letter spacing presets (artifact uses uppercase with wide tracking) */
+  --tracking-h1: 0.30em; /* STUDIO / SSELFIE large headings */
+  --tracking-h2: 0.20em;
+  --tracking-caption: 0.15em;
+}
+
+/* Utility classes for brand typography (opt-in) */
+.brand-h1 {
+  font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  font-weight: 200; /* extralight */
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-h1);
+  color: var(--luxury-black);
+}
+.brand-h2 {
+  font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  font-weight: 200;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-h2);
+  color: var(--luxury-black);
+}
+.brand-caption {
+  font-size: 10px;
+  font-weight: 300;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-caption);
+  color: #78716c; /* stone-500ish */
+}
+
+/* Single-word headline style (apply only when the text is a single word) */
+/* Note: CSS cannot auto-detect word count reliably; use this class intentionally */
+.headline-single-word {
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-h1);
+}
+
+/* Glass surfaces mapped to tokens (compose with Tailwind utilities as needed) */
+.glass-surface {
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-soft);
+  border-radius: var(--radius-xl);
+}
+
+/* Icon container active state */
+.icon-active {
+  background: var(--luxury-black);
+  color: var(--pure-white);
+  box-shadow: 0 10px 20px rgba(28, 25, 23, 0.30);
+}
+

@@ -74,6 +74,8 @@
     "legacy/**/*",
     "examples/**/*",
     "middleware/**/*",
-    "pages/**/*"
+    "pages/**/*",
+    "client/src/features/training/components/design/artifact-sselfieappuxstyle",
+    "client/src/features/training/components/design/artifact-sselfieappuxstylecomponents"
   ]
 }
