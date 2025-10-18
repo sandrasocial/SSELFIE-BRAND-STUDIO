@@ -17,7 +17,5 @@
     }
   },
   "include": ["./**/*"],
-  "references": [
-    { "path": "../tsconfig.json" }
-  ]
+  "references": []
 }
