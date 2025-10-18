@@ -6,6 +6,27 @@ const QueryClientCtor: any =
   (ReactQuery as any).QueryClient ||
   (ReactQuery as any).default?.QueryClient ||
   (ReactQuery as any).default;
+// Diagnostics for runtime module shape (will print once in browser)
+if (typeof window !== 'undefined') {
+  try {
+    const rq: any = ReactQuery as any;
+    // Limit surface to avoid flooding console
+    const rqKeys = Object.keys(rq || {}).slice(0, 20);
+    const rqDefaultKeys = rq?.default ? Object.keys(rq.default).slice(0, 20) : null;
+    console.group('[RQ] @tanstack/react-query module shape');
+    console.log('typeof ReactQuery:', typeof rq, 'toStringTag:', rq?.[Symbol.toStringTag]);
+    console.log('ReactQuery keys:', rqKeys);
+    console.log('typeof ReactQuery.QueryClient:', typeof rq?.QueryClient);
+    console.log('typeof ReactQuery.default:', typeof rq?.default);
+    console.log('default keys:', rqDefaultKeys);
+    console.log('typeof ReactQuery.default?.QueryClient:', typeof rq?.default?.QueryClient);
+    console.groupEnd();
+  } catch (e) {
+    console.warn('[RQ] Failed to inspect module shape', e);
+  }
+}
+
+
 
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
@@ -83,6 +104,16 @@ export async function apiRequest(
 }
 
 type UnauthorizedBehavior = "returnNull" | "throw";
+// Log resolved constructor shape before instantiation
+if (typeof window !== 'undefined') {
+  const ctorType = typeof QueryClientCtor;
+  const ctorName = (QueryClientCtor && QueryClientCtor.name) || '(no name)';
+  console.log('[RQ] Resolved QueryClientCtor type:', ctorType, 'name:', ctorName);
+  if (ctorType !== 'function') {
+    console.error('[RQ] QueryClientCtor is not a function:', QueryClientCtor);
+  }
+}
+
 export const getQueryFn: <T>(options: {
   on401: UnauthorizedBehavior;
 }) => any =
