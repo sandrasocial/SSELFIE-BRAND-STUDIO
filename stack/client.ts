@@ -1,13 +1,52 @@
 /* eslint-disable no-console */
 import { StackClientApp } from "@stackframe/react";
 
+// Proxy Stack Auth network calls to our same-origin /api/auth endpoint so cookies are set correctly
+(function setupStackAuthFetchProxy(){
+  try {
+    const g: any = globalThis as any;
+    if (g.__STACK_FETCH_PROXY_INSTALLED__) return;
+    g.__STACK_FETCH_PROXY_INSTALLED__ = true;
+
+    const originalFetch: typeof fetch = g.fetch?.bind(g) || fetch;
+
+    g.fetch = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
+      try {
+        const toUrl = (inp: any): string => {
+          if (typeof inp === 'string') return inp;
+          if (inp instanceof URL) return inp.toString();
+          if (typeof Request !== 'undefined' && inp instanceof Request) return inp.url;
+          return String(inp);
+        };
+
+        const url = toUrl(input);
+        const match = url.match(/^https:\/\/api\.stack-auth\.com\/api\/v1\/projects\/[^/]+(\/.*)?$/);
+        if (match) {
+          const restPath = match[1] || '/';
+          const proxiedUrl = `/api/auth${restPath}`;
+          const finalInit: RequestInit = { ...(init || {}), credentials: 'include' };
+          if (typeof window !== 'undefined') {
+            console.debug('🔁 Proxying Stack Auth request →', proxiedUrl);
+          }
+          return await originalFetch(proxiedUrl as any, finalInit);
+        }
+      } catch (e) {
+        console.warn('Stack fetch proxy error (non-fatal):', e);
+      }
+      return originalFetch(input as any, init as any);
+    };
+  } catch (e) {
+    console.warn('Stack fetch proxy setup failed (continuing without proxy):', e);
+  }
+})();
+
 // 🔥 CRITICAL FIX: Use build-time constants with proper fallback chain
-const STACK_PROJECT_ID = (globalThis as any).__STACK_PROJECT_ID__ || 
-  import.meta.env?.VITE_STACK_PROJECT_ID || 
+const STACK_PROJECT_ID = (globalThis as any).__STACK_PROJECT_ID__ ||
+  import.meta.env?.VITE_STACK_PROJECT_ID ||
   "253d7343-a0d4-43a1-be5c-822f590d40be";
 
-const STACK_PUBLISHABLE_CLIENT_KEY = (globalThis as any).__STACK_PUBLISHABLE_CLIENT_KEY__ || 
-  import.meta.env?.VITE_STACK_PUBLISHABLE_CLIENT_KEY || 
+const STACK_PUBLISHABLE_CLIENT_KEY = (globalThis as any).__STACK_PUBLISHABLE_CLIENT_KEY__ ||
+  import.meta.env?.VITE_STACK_PUBLISHABLE_CLIENT_KEY ||
   "pck_bqv6htnwq1f37nd2fn6qatxx2f8x0tnxvjj7xwgh1zmhg";
 
 // 🔍 Enhanced debug logging to trace environment variable injection
