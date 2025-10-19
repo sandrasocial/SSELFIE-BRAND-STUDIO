@@ -42,7 +42,7 @@ const OAuthCallback: React.FC = () => {
         console.log('✅ OAuth code found, processing with Stack Auth...');
 
         // Lazy load stackClientApp
-        const { stackClientApp } = await import("../../../../stack/client.js");
+        const { stackClientApp } = await import("../../../../stack/client");
 
         // Use Stack Auth to process the OAuth callback
         if (stackClientApp && typeof stackClientApp.callOAuthCallback === 'function') {

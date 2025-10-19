@@ -2,7 +2,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 /**
  * Stack Auth Handler - Comprehensive authentication endpoint proxy
- * 
+ *
  * This handler provides proper routing for all Stack Auth endpoints including:
  * - Sign in/Sign up flows
  * - OAuth callbacks
@@ -18,16 +18,41 @@ const STACK_AUTH_API_BASE = 'https://api.stack-auth.com/api/v1';
 console.log('🔧 Stack Auth Proxy Env:', { projectId: STACK_PROJECT_ID, hasSecret: !!STACK_SECRET_SERVER_KEY, hasPCK: !!STACK_PUBLISHABLE_CLIENT_KEY });
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  // Set CORS headers for Stack Auth
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  // Set CORS headers for Stack Auth with credentials-safe origin handling
+  const originHeader = (req.headers.origin as string) || '';
+  const refererHeader = (req.headers.referer as string) || '';
+  const inferredOrigin = (() => {
+    try {
+      if (!refererHeader) return '';
+      const u = new URL(refererHeader);
+      return `${u.protocol}//${u.host}`;
+    } catch {
+      return '';
+    }
+  })();
+  const allowedOrigins = (process.env.CORS_ORIGINS || '').split(',').map(s => s.trim()).filter(Boolean);
+  const candidateOrigin = originHeader || inferredOrigin;
+  let allowOrigin = '';
+  if (candidateOrigin && (allowedOrigins.length === 0 || allowedOrigins.includes(candidateOrigin))) {
+    allowOrigin = candidateOrigin;
+  } else if (process.env.VERCEL_ENV === 'production') {
+    allowOrigin = 'https://www.sselfie.ai';
+  } else {
+    allowOrigin = candidateOrigin || 'http://localhost:5173';
+  }
+  res.setHeader('Access-Control-Allow-Origin', allowOrigin);
+  res.setHeader('Vary', 'Origin');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-stack-access-token, x-stack-project-id, x-stack-publishable-client-key');
   res.setHeader('Access-Control-Allow-Credentials', 'true');
 
   // Handle preflight requests
   if (req.method === 'OPTIONS') {
+    console.log(`[StackAuthProxy] OPTIONS ${req.url} allowOrigin=${allowOrigin}`);
     return res.status(200).end();
   }
+
+  console.log(`[StackAuthProxy] ${req.method} ${req.url} origin=${originHeader} allowOrigin=${allowOrigin}`);
 
   // Validate Stack Auth configuration
   if (!STACK_PROJECT_ID) {
@@ -77,6 +102,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
 
     // Make request to Stack Auth API
+
+
     const response = await fetch(stackAuthUrl, {
       method: req.method,
       headers,
@@ -89,9 +116,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Forward response headers
     res.setHeader('Content-Type', contentType);
+
+    console.log(`[StackAuthProxy] -> ${response.status} path=${authPath || '/'} setCookieHeader=${!!response.headers.get('set-cookie')}`);
+
     res.setHeader('Cache-Control', 'no-store');
 
     // Forward authentication cookies (support multiple Set-Cookie headers)
+
     const headersAny: any = response.headers as any;
     const setCookies: string[] | undefined = typeof headersAny.getSetCookie === 'function' ? headersAny.getSetCookie() : undefined;
     if (Array.isArray(setCookies) && setCookies.length > 0) {
