@@ -39,8 +39,6 @@ import {
   SSELFIEGallery,
   AICommandCenter
 } from './pages/lazy-pages';
-// Eagerly import OAuth callback to guarantee mount on /handler/oauth-callback
-import OAuthCallback from "./pages/handler/oauth-callback";
 
 import { PUBLIC_ROUTES } from "./constants/routes";
 
@@ -62,12 +60,9 @@ function SmartHome() {
   // Instead, redirect to business landing immediately
   // The business landing page will handle auth checks if needed
   useEffect(() => {
-    // Ensure we only log/redirect once across mounts in production/preview
-    const win: any = window as any;
-    if (!redirected && !win.__SMART_HOME_REDIRECTED__) {
+    if (!redirected) {
       console.log('🔀 SmartHome: Redirecting to business landing');
       setRedirected(true);
-      win.__SMART_HOME_REDIRECTED__ = true;
       setLocation(ROUTES.BUSINESS_LANDING);
     }
   }, [redirected, setLocation]);
@@ -99,11 +94,6 @@ function HandlerRoutes() {
   // ✅ Use StackHandler for ALL Stack Auth operations to ensure consistency
   // This includes sign-in, sign-up, magic-link, password-reset, email-verification
   try {
-    // Do not render StackHandler on the explicit OAuth callback route; our dedicated
-    // component handles the code+state processing and sets cookies before redirecting.
-    if (window.location.pathname.startsWith('/handler/oauth-callback')) {
-      return null;
-    }
     return createElement(StackHandler, {
       app: stackClientApp,
       location: window.location.pathname + window.location.search + window.location.hash,
@@ -155,7 +145,10 @@ function Router() {
       {/* CRITICAL FIX: OAuth callback handler MUST come before other routes to preserve query parameters */}
       <Route
         path="/handler/oauth-callback"
-        component={OAuthCallback}
+        component={() => {
+          const OAuthCallback = React.lazy(() => import("./pages/handler/oauth-callback"));
+          return <OAuthCallback />;
+        }}
       />
 
       {/* Use HandlerRoutes for all Stack Auth operations for consistency */}
