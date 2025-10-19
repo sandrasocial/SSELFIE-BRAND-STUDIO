@@ -10,8 +10,12 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
  * - User management
  */
 
-const STACK_AUTH_PROJECT_ID = process.env.STACK_AUTH_PROJECT_ID || process.env.VITE_STACK_PROJECT_ID;
+const STACK_PROJECT_ID = process.env.STACK_PROJECT_ID || process.env.STACK_AUTH_PROJECT_ID || process.env.VITE_STACK_PROJECT_ID;
+const STACK_SECRET_SERVER_KEY = process.env.STACK_SECRET_SERVER_KEY || process.env.STACK_AUTH_SECRET_KEY;
+const STACK_PUBLISHABLE_CLIENT_KEY = process.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY;
 const STACK_AUTH_API_BASE = 'https://api.stack-auth.com/api/v1';
+// One-time debug of selected envs
+console.log('🔧 Stack Auth Proxy Env:', { projectId: STACK_PROJECT_ID, hasSecret: !!STACK_SECRET_SERVER_KEY, hasPCK: !!STACK_PUBLISHABLE_CLIENT_KEY });
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Set CORS headers for Stack Auth
@@ -26,7 +30,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   // Validate Stack Auth configuration
-  if (!STACK_AUTH_PROJECT_ID) {
+  if (!STACK_PROJECT_ID) {
     return res.status(500).json({
       error: 'Stack Auth configuration error',
       message: 'Missing project ID'
@@ -35,26 +39,26 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   // Extract the path after /api/auth/
   const authPath = req.url?.replace('/api/auth', '') || '';
-  const stackAuthUrl = `${STACK_AUTH_API_BASE}/projects/${STACK_AUTH_PROJECT_ID}${authPath}`;
+  const stackAuthUrl = `${STACK_AUTH_API_BASE}/projects/${STACK_PROJECT_ID}${authPath}`;
 
   try {
     // Prepare headers for Stack Auth API
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      'x-stack-project-id': STACK_AUTH_PROJECT_ID,
+      'x-stack-project-id': STACK_PROJECT_ID,
       'User-Agent': req.headers['user-agent'] || 'SSELFIE-Studio/1.0',
-      'x-stack-access-type': 'client', // 🔥 CRITICAL FIX: Required header for Stack Auth API
+      'x-stack-access-type': 'client',
     };
 
     // Add publishable client key if available
-    if (process.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY) {
-      headers['x-stack-publishable-client-key'] = process.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY;
+    if (STACK_PUBLISHABLE_CLIENT_KEY) {
+      headers['x-stack-publishable-client-key'] = STACK_PUBLISHABLE_CLIENT_KEY;
     }
 
     // 🔥 ENHANCED: Use server-side authentication if secret key is available and request requires it
-    if (process.env.STACK_AUTH_SECRET_KEY && (req.method === 'POST' || req.method === 'PUT' || req.method === 'DELETE')) {
+    if (STACK_SECRET_SERVER_KEY && (req.method === 'POST' || req.method === 'PUT' || req.method === 'DELETE')) {
       headers['x-stack-access-type'] = 'server';
-      headers['x-stack-secret-server-key'] = process.env.STACK_AUTH_SECRET_KEY;
+      headers['x-stack-secret-server-key'] = STACK_SECRET_SERVER_KEY;
     }
 
     // Forward relevant headers
@@ -87,10 +91,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     res.setHeader('Content-Type', contentType);
     res.setHeader('Cache-Control', 'no-store');
 
-    // Forward authentication cookies
-    const setCookieHeader = response.headers.get('set-cookie');
-    if (setCookieHeader) {
-      res.setHeader('Set-Cookie', setCookieHeader);
+    // Forward authentication cookies (support multiple Set-Cookie headers)
+    const headersAny: any = response.headers as any;
+    const setCookies: string[] | undefined = typeof headersAny.getSetCookie === 'function' ? headersAny.getSetCookie() : undefined;
+    if (Array.isArray(setCookies) && setCookies.length > 0) {
+      res.setHeader('Set-Cookie', setCookies);
+    } else {
+      const setCookie = response.headers.get('set-cookie');
+      if (setCookie) {
+        res.setHeader('Set-Cookie', setCookie);
+      }
     }
 
     // Forward other important headers

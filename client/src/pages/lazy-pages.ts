@@ -4,8 +4,8 @@ import { createLazyComponent } from '../components/Suspense';
 export const SselfieAppLayout = createLazyComponent(() =>
   import('../features/layout/SselfieAppLayout'), 'SselfieAppLayout');
 
-export const MayaPage = createLazyComponent(() => 
-  import('./MayaPage.js'), 'MayaPage');
+export const MayaPage = createLazyComponent(() =>
+  import('./MayaPage'), 'MayaPage');
 
 // Auth Components
 export const SignInHandler = createLazyComponent(() =>

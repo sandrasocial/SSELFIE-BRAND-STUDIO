@@ -52,13 +52,7 @@ try {
     maxAge: 30 * 24 * 60 * 60, // 30 days
   };
 
-  // Apply cookie configuration to document.cookie
-  if (typeof document !== 'undefined') {
-    const cookieStr = Object.entries(cookieConfig)
-      .map(([key, value]) => `${key}=${value}`)
-      .join('; ');
-    document.cookie = cookieStr;
-  }
+  // NOTE: Do not set cookie flags as separate cookies. Stack Auth SDK manages cookies safely.
 
   stackClientApp = new StackClientApp({
     projectId: STACK_PROJECT_ID,

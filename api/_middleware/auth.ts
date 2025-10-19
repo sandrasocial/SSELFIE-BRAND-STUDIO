@@ -21,12 +21,7 @@ import type { StackAuthUserInfo } from '../_shared/stack-auth-types.js';
 // CONFIGURATION
 // ============================================================================
 
-const STACK_AUTH_PROJECT_ID = process.env.STACK_AUTH_PROJECT_ID ||
-  process.env.VITE_STACK_PROJECT_ID ||
-  '253d7343-a0d4-43a1-be5c-822f590d40be';
-
-const STACK_AUTH_API_URL = 'https://api.stack-auth.com/api/v1';
-const JWKS_URL = `${STACK_AUTH_API_URL}/projects/${STACK_AUTH_PROJECT_ID}/.well-known/jwks.json`;
+import { STACK_PROJECT_ID, STACK_AUTH_API_URL, JWKS_URL, STACK_ISSUER } from '../../server/_shared/stack-config.js';
 
 // Token cache for performance
 const TOKEN_CACHE = new Map<string, { payload: any; timestamp: number }>();
@@ -142,8 +137,8 @@ async function verifyJWTToken(token: string): Promise<JWTPayload & StackAuthUser
     const localJwks = createLocalJWKSet(jwks);
 
     const { payload } = await jwtVerify(token, localJwks, {
-      issuer: `${STACK_AUTH_API_URL}/projects/${STACK_AUTH_PROJECT_ID}`,
-      audience: STACK_AUTH_PROJECT_ID,
+      issuer: STACK_ISSUER,
+      audience: STACK_PROJECT_ID,
       clockTolerance: 30, // Allow 30 seconds clock skew
     });
 
@@ -163,19 +158,69 @@ async function verifyJWTToken(token: string): Promise<JWTPayload & StackAuthUser
  * Extract token from request (cookies or headers)
  */
 function extractToken(req: VercelRequest): string | undefined {
-  // 1. Check Stack Auth cookie (preferred method)
+  // 1) Cookies (preferred): support multiple Stack Auth cookie names and formats
   const cookies = parseCookies(req.headers.cookie);
+
+  // Legacy/internal cookie used by some paths
   if (cookies['__stack_auth_token']) {
     return cookies['__stack_auth_token'];
   }
 
-  // 2. Check Authorization header (Bearer token)
+  const candidateCookieNames = [
+    'stack-access',
+    'stack_access',
+    'stack-access-token',
+    'stack_access_token',
+    'stack-token',
+    'stack_session',
+  ];
+
+  const tryParseCookieVal = (val?: string): string | undefined => {
+    if (!val || typeof val !== 'string') return undefined;
+    const trimmed = val.trim();
+    // JSON array format: ["token_id","jwt"]
+    if (trimmed.startsWith('[')) {
+      try {
+        const parsed = JSON.parse(trimmed);
+        if (Array.isArray(parsed) && typeof parsed[1] === 'string' && parsed[1]) {
+          return parsed[1];
+        }
+      } catch {}
+    }
+    // JSON object format: { accessToken: "jwt" } or { token: "jwt" }
+    if (trimmed.startsWith('{')) {
+      try {
+        const obj = JSON.parse(trimmed);
+        if (typeof obj?.accessToken === 'string' && obj.accessToken) return obj.accessToken;
+        if (typeof obj?.token === 'string' && obj.token) return obj.token;
+      } catch {}
+    }
+    // Raw JWT-like
+    if (trimmed.split('.').length >= 3 && trimmed.length > 20) return trimmed;
+    return undefined;
+  };
+
+  for (const name of candidateCookieNames) {
+    const v = cookies[name];
+    const token = tryParseCookieVal(v);
+    if (token) return token;
+  }
+
+  // As a fallback, scan all cookies for a parsable token
+  for (const [name, v] of Object.entries(cookies)) {
+    if (/^stack[-_].*/i.test(name)) {
+      const token = tryParseCookieVal(v);
+      if (token) return token;
+    }
+  }
+
+  // 2) Authorization header (Bearer token)
   const authHeader = req.headers.authorization;
   if (authHeader?.startsWith('Bearer ')) {
     return authHeader.substring(7);
   }
 
-  // 3. Check custom Stack Auth header
+  // 3) Custom header forwarded by our proxy (if used)
   if (req.headers['x-stack-access-token']) {
     return req.headers['x-stack-access-token'] as string;
   }

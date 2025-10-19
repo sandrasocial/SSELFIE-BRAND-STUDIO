@@ -51,6 +51,10 @@
     {
       "path": "/api/cron/check-training",
       "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/cron/migrate-replicate-urls",
+      "schedule": "*/15 * * * *"
     }
   ],
   "github": {

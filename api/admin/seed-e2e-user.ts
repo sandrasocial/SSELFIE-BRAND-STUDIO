@@ -59,12 +59,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         trainedModelPath: 'e2e/path',
         isLuxury: false,
       } as any);
-    } else if ((model as any).trainingStatus !== 'completed') {
+    } else if (model.trainingStatus !== 'completed') {
       model = await storage.updateUserModel(user.id, {
         trainingStatus: 'completed',
-        replicateModelId: (model as any).replicateModelId || 'e2e-model',
-        replicateVersionId: (model as any).replicateVersionId || 'e2e-version',
-        trainedModelPath: (model as any).trainedModelPath || 'e2e/path',
+        replicateModelId: model.replicateModelId || 'e2e-model',
+        replicateVersionId: model.replicateVersionId || 'e2e-version',
+        trainedModelPath: model.trainedModelPath || 'e2e/path',
       } as any);
     }
 

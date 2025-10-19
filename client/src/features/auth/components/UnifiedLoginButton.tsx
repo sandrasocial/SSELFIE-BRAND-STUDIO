@@ -8,7 +8,7 @@ interface UnifiedLoginButtonProps {
 }
 
 export default function UnifiedLoginButton({ text, showBrand }: UnifiedLoginButtonProps) {
-  const { user, isAuthenticated, isLoading } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth({ silent: true });
 
   const handleLogin = async () => {
     // Always use the handler route for consistency

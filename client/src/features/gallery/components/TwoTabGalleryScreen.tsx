@@ -31,8 +31,9 @@ export default function GalleryScreen() {
     enabled: isAuthenticated && !!user,
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
+    queryFn: async () => apiFetch('/images/favorites'),
   });
-  const favorites: number[] = favoritesData?.favorites || [];
+  const favorites: number[] = Array.isArray((favoritesData as any)?.favorites) ? (favoritesData as any).favorites : [];
 
   const toggleFavoriteMutation = useMutation({
     mutationFn: async (imageId: number) => apiRequest(`/api/images/${imageId}/favorite`, 'POST'),

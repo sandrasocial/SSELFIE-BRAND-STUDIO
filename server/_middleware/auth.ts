@@ -8,10 +8,9 @@ declare global {
   var Response: typeof globalThis.Response;
 }
 
-// Constants
-const STACK_AUTH_PROJECT_ID = process.env.STACK_AUTH_PROJECT_ID || process.env.VITE_STACK_PROJECT_ID || '253d7343-a0d4-43a1-be5c-822f590d40be';
-const STACK_AUTH_API_URL = 'https://api.stack-auth.com/api/v1';
-const JWKS_URL = `${STACK_AUTH_API_URL}/projects/${STACK_AUTH_PROJECT_ID}/.well-known/jwks.json`;
+import { STACK_PROJECT_ID, STACK_AUTH_API_URL, JWKS_URL, STACK_ISSUER } from '../_shared/stack-config.js';
+// One-time debug
+console.log('🔧 Stack Auth Middleware Env:', { projectId: STACK_PROJECT_ID });
 
 // JWKS cache
 let JWKS: ReturnType<typeof import('jose').createLocalJWKSet> | null = null;
@@ -107,8 +106,8 @@ async function verifyJWTToken(token: string): Promise<JWTPayload & StackAuthUser
 
 
     const { payload } = await jose.jwtVerify(token, jwks as any, {
-      issuer: `${STACK_AUTH_API_URL}/projects/${STACK_AUTH_PROJECT_ID}`,
-      audience: STACK_AUTH_PROJECT_ID,
+      issuer: STACK_ISSUER,
+      audience: STACK_PROJECT_ID,
       clockTolerance: 30, // Allow 30 seconds clock skew
     });
 
@@ -181,7 +180,7 @@ export async function getAuthenticatedUser(req: VercelRequest): Promise<Authenti
 
       // 2) Check any cookie whose name starts with 'stack-access'
       if (!accessToken) {
-        const matchingKeys = Object.keys(cookies).filter(k => k.startsWith('stack-access'));
+        const matchingKeys = Object.keys(cookies).filter(k => /(^|[-_])stack[-_]?access/i.test(k) || k.includes('stack-access'));
         for (const key of matchingKeys) {
           const token = tryParseAccessFromCookieValue(cookies[key]);
           if (token) {
@@ -208,13 +207,23 @@ export async function getAuthenticatedUser(req: VercelRequest): Promise<Authenti
         const legacyNames = ['stack-access-token', 'stack_session'];
         for (const cookieName of legacyNames) {
           const cookieValue = cookies[cookieName];
-          if (cookieValue && 
-              cookieValue !== 'undefined' && 
-              cookieValue !== 'null' && 
+          if (cookieValue &&
+              cookieValue !== 'undefined' &&
+              cookieValue !== 'null' &&
               cookieValue.length > 20 &&
-              cookieValue.split('.').length === 3) {
+              cookieValue.split('.').length >= 3) {
             accessToken = cookieValue;
             break;
+          }
+        }
+
+        // 4) Ultimate fallback: scan all cookies for a JWT-like value
+        if (!accessToken) {
+          for (const [k, v] of Object.entries(cookies)) {
+            if (typeof v === 'string' && v.length > 20 && v.split('.').length >= 3) {
+              accessToken = v;
+              break;
+            }
           }
         }
       }
@@ -231,10 +240,16 @@ export async function getAuthenticatedUser(req: VercelRequest): Promise<Authenti
   // Verify JWT token
   const userInfo = await verifyJWTToken(accessToken);
 
+  // DEBUG: Log full JWT payload and key fields to trace mapping
+  try {
+    console.log('🔐 JWT payload:', JSON.stringify(userInfo, null, 2));
+  } catch {}
+
   // Extract user info from JWT
   const stackAuthId = String(userInfo.sub || userInfo.user_id || userInfo.id || '');
   const userEmail = String(userInfo.email || userInfo.primary_email || userInfo.primaryEmail || userInfo.email_address || userInfo.user_email || '');
   const userName = String(userInfo.displayName || userInfo.display_name || userInfo.name || userInfo.given_name || userInfo.full_name || '');
+  console.log('🆔 Extracted from JWT:', { stackAuthId: stackAuthId?.slice(0,8) + '...', userEmail, userName });
 
   // Ensure we have required fields
   if (!stackAuthId || !userEmail) {
@@ -249,20 +264,27 @@ export async function getAuthenticatedUser(req: VercelRequest): Promise<Authenti
     const { storage: storageInstance } = await import('../../server/storage.js');
     
     // Call hardened getOrCreateUser function with three-step lookup strategy
+    console.log('🔎 DB LINK: getUserByStackAuthId →', stackAuthId?.slice(0,8) + '...');
     let dbUserProfile = await storageInstance.getUserByStackAuthId(stackAuthId);
-    
+    console.log('🔎 DB LINK: byStackAuthId result:', !!dbUserProfile);
+
     if (!dbUserProfile) {
       // Try to find by email
       if (userEmail) {
+        console.log('🔎 DB LINK: getUserByEmail →', userEmail);
         dbUserProfile = await storageInstance.getUserByEmail(userEmail);
+        console.log('🔎 DB LINK: byEmail result:', !!dbUserProfile, '→ will link if found');
         if (dbUserProfile) {
           // Link the Stack Auth ID
+          console.log('🔗 DB LINK: linkStackAuthId(existingId, stackAuthId)', { existingId: dbUserProfile.id?.slice(0,8) + '...', stackAuthId: stackAuthId?.slice(0,8) + '...' });
           dbUserProfile = await storageInstance.linkStackAuthId(dbUserProfile.id, stackAuthId);
+          console.log('✅ DB LINK: linked user now has stackAuthId');
         }
       }
-      
+
       // Create new user if not found
       if (!dbUserProfile) {
+        console.log('🆕 DB LINK: upsertUser (create new) with id=stackAuthId');
         const userData = {
           id: stackAuthId,
           email: userEmail,
@@ -280,6 +302,7 @@ export async function getAuthenticatedUser(req: VercelRequest): Promise<Authenti
           lastLoginAt: new Date()
         };
         dbUserProfile = await storageInstance.upsertUser(userData);
+        console.log('✅ DB LINK: upsertUser created', { id: dbUserProfile.id?.slice(0,8) + '...', stackAuthId: dbUserProfile.stackAuthId?.slice(0,8) + '...' });
       }
     }
 
@@ -288,12 +311,14 @@ export async function getAuthenticatedUser(req: VercelRequest): Promise<Authenti
     // Get the full database user record to ensure complete data
     const { storage } = await import('../../server/storage.js');
     const dbUser = await storage.getUserByStackAuthId(stackAuthId);
-    
+
     if (!dbUser) {
       // This should not happen after hardened getOrCreateUser, but handle gracefully
       console.error('❌ Critical: User not found by Stack Auth ID after hardened sync');
       throw new Error(`Failed to retrieve user by Stack Auth ID ${stackAuthId.substring(0, 8)}... after successful user service call`);
     }
+
+    console.log('✅ DB LINK: Final dbUser', { id: dbUser.id?.slice(0,8) + '...', stackAuthId: dbUser.stackAuthId?.slice(0,8) + '...', email: dbUser.email });
 
     // Database user retrieved and user object created successfully
 
@@ -303,6 +328,8 @@ export async function getAuthenticatedUser(req: VercelRequest): Promise<Authenti
       onboardingProgress: dbUser.onboardingProgress as OnboardingProgress | null,
       stackUser: userInfo
     };
+
+    console.log('✅ AUTH: Authenticated user object constructed', { id: user.id?.slice(0,8) + '...', stackAuthId: user.stackAuthId?.slice(0,8) + '...' });
 
     return user;
 
@@ -372,6 +399,7 @@ export async function withAuth<T>(
   try {
     // Add user to request
     const user = await getAuthenticatedUser(req);
+    console.log('👤 withAuth: attaching user to request', { id: user.id?.slice(0,8) + '...', stackAuthId: user.stackAuthId?.slice(0,8) + '...', email: user.email });
     (req as AuthenticatedRequest).user = user;
     // Set claims for backward compatibility with getUserFromRequest
     (req as any).user.claims = user.stackUser;

@@ -127,9 +127,9 @@ test.describe('Stack Auth Provider', () => {
       }
     });
 
-    // Load the app
-    await page.goto('http://localhost:5173');
-    
+    // Load the app (respect baseURL)
+    await page.goto('/');
+
     // Wait for initial load
     await page.waitForLoadState('networkidle');
 
@@ -139,7 +139,7 @@ test.describe('Stack Auth Provider', () => {
     );
 
     // Navigate to a protected route that uses auth
-    await page.goto('http://localhost:5173/app');
+    await page.goto('/app');
     await page.waitForLoadState('networkidle');
 
     // Verify no Stack Auth provider errors
@@ -150,7 +150,7 @@ test.describe('Stack Auth Provider', () => {
     const trackedPage = page as PageWithErrorTracking;
 
     // Start at home page
-    await page.goto('http://localhost:5173');
+    await page.goto('/');
     await page.waitForLoadState('networkidle');
 
     // Navigate through various routes that use auth
@@ -162,7 +162,7 @@ test.describe('Stack Auth Provider', () => {
     ];
 
     for (const route of routes) {
-      await page.goto(`http://localhost:5173${route}`);
+      await page.goto(route);
       await page.waitForLoadState('networkidle');
       // Give time for any potential errors to surface
       await page.waitForTimeout(1000);
@@ -179,7 +179,7 @@ test.describe('Stack Auth Provider', () => {
     const trackedPage = page as PageWithErrorTracking;
 
     // Load protected route
-    await page.goto('http://localhost:5173/app');
+    await page.goto('/app');
     await page.waitForLoadState('networkidle');
 
     // Reload page

@@ -19,7 +19,7 @@ export function UnifiedNavigation({
   const [location, setLocation] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const { user } = useAuth();
+  const { user } = useAuth({ silent: true });
 
   useEffect(() => {
     const handleScroll = () => {

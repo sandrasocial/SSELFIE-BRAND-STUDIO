@@ -13,8 +13,8 @@ import { test, expect } from '@playwright/test';
  * 7. Gallery displays images
  */
 
-const BASE_URL = process.env['BASE_URL'] || 'http://localhost:5173';
-const API_URL = process.env['API_URL'] || 'http://localhost:5173/api';
+const BASE_URL = process.env.PLAYWRIGHT_BASE_URL || process.env.BASE_URL || 'https://sselfie.ai';
+const API_URL = process.env.API_URL || `${BASE_URL}/api`;
 
 test.describe('SSELFIE Studio - Core User Journey', () => {
   

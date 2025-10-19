@@ -402,7 +402,12 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getUserByEmail(email: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.email, email));
+    const normalized = (email || '').trim().toLowerCase();
+    // Case-insensitive lookup to robustly link legacy users regardless of email casing
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(sql`lower(${users.email}) = ${normalized}`);
     return user;
   }
 
@@ -515,15 +520,20 @@ export class DatabaseStorage implements IStorage {
         .from(users)
         .where(eq(users.email, finalUserData.email));
       if (userByEmail) {
-        // Update the existing user record with the new Stack Auth ID
+        // Link the existing user to Stack Auth by setting stackAuthId, preserving original primary key
         const [updatedUser] = await db
           .update(users)
           .set({
-            ...finalUserData,
-            id: finalUserData.id,
+            stackAuthId: finalUserData.id,
+            // Update optional profile fields if provided
+            firstName: finalUserData.firstName || undefined,
+            lastName: finalUserData.lastName || undefined,
+            displayName: finalUserData.displayName || undefined,
+            profileImageUrl: finalUserData.profileImageUrl || undefined,
             updatedAt: new Date(),
+            lastLoginAt: new Date(),
           } as any)
-          .where(eq(users.email, finalUserData.email))
+          .where(sql`lower(${users.email}) = ${String(finalUserData.email || '').toLowerCase()}`)
           .returning();
         user = updatedUser;
       } else {
@@ -535,13 +545,13 @@ export class DatabaseStorage implements IStorage {
             .returning();
           user = newUser;
         } catch (error: unknown) {
-          // If duplicate key error on email, try to return existing user
+          // If duplicate key error on email, try to return existing user (case-insensitive)
           const e = error as { code?: string; constraint?: string };
           if (e?.code === '23505' && e?.constraint === 'users_email_unique') {
             const [existingUser] = await db
               .select()
               .from(users)
-              .where(eq(users.email, finalUserData.email || ''));
+              .where(sql`lower(${users.email}) = ${String(finalUserData.email || '').toLowerCase()}`);
             if (existingUser) {
               user = existingUser;
             } else {

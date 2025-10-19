@@ -1,0 +1,1600 @@
+// @ts-nocheck
+// Visual artifact reference only. Excluded from strict typing to avoid interfering with app compile.
+
+import React, { useState, useEffect } from 'react';
+import { Camera, Home, User, Settings, Star, Grid, Search, Bell, ChevronRight, Heart, Share2, MessageCircle, Play, Plus, MoreHorizontal, Send, X, Image } from 'lucide-react';
+
+const SselfieApp = () => {
+  const [activeTab, setActiveTab] = useState('studio');
+  const [isLoading, setIsLoading] = useState(true);
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [hasTrainedModel, setHasTrainedModel] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 2500);
+    const clockTimer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => {
+      clearTimeout(timer);
+      clearInterval(clockTimer);
+    };
+  }, []);
+
+  const tabs = [
+    { id: 'studio', label: 'Studio', icon: Camera },
+    { id: 'training', label: 'Training', icon: Star },
+    { id: 'maya', label: 'Maya', icon: MessageCircle },
+    { id: 'gallery', label: 'Gallery', icon: Image },
+    { id: 'academy', label: 'Academy', icon: Grid },
+    { id: 'profile', label: 'Profile', icon: User },
+  ];
+
+  const user = {
+    name: 'Sarah Chen',
+    avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
+    membershipTier: 'Premium',
+    followers: '3.2k',
+    following: '428',
+    posts: '127'
+  };
+
+  if (isLoading) {
+    return (
+      <div className="h-screen bg-white flex items-center justify-center relative overflow-hidden">
+        <div className="absolute inset-0">
+          <div className="absolute top-1/4 left-1/3 w-64 sm:w-96 h-64 sm:h-96 bg-stone-100/40 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-1/4 right-1/3 w-64 sm:w-96 h-64 sm:h-96 bg-stone-200/30 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1s'}}></div>
+        </div>
+
+        <div className="relative z-10 text-center px-6 sm:px-8">
+          <div className="mb-12 sm:mb-16 relative w-32 h-32 sm:w-40 sm:h-40 mx-auto">
+            {/* Outer spinning ring */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-full border-2 border-transparent border-t-stone-950 animate-spin" style={{animationDuration: '2s'}}></div>
+            </div>
+
+            {/* Inner spinning ring */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full border-2 border-transparent border-b-stone-400 animate-spin" style={{animationDuration: '1.5s', animationDirection: 'reverse'}}></div>
+            </div>
+
+            {/* Logo in center */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-xl sm:rounded-2xl flex items-center justify-center shadow-2xl shadow-stone-900/20 p-2.5 sm:p-3">
+                <img
+                  src="https://i.postimg.cc/65NtYqMK/Black-transperent-logo.png"
+                  alt="SSELFIE Logo"
+                  className="w-full h-full object-contain"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-4 sm:space-y-6">
+            <h1 className="text-stone-950 text-4xl sm:text-5xl md:text-6xl font-serif font-extralight tracking-[0.5em] leading-none mb-2">
+              SSELFIE
+            </h1>
+            <div className="flex items-center justify-center gap-1.5 sm:gap-2">
+              <div className="w-1 h-1 bg-stone-950 rounded-full animate-bounce"></div>
+              <div className="w-1 h-1 bg-stone-950 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+              <div className="w-1 h-1 bg-stone-950 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+            </div>
+            <p className="text-[10px] sm:text-xs font-light tracking-[0.35em] uppercase text-stone-500 mt-3 sm:mt-4">
+              Luxury AI Photography
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="h-screen bg-gradient-to-br from-stone-50 via-stone-100/50 to-stone-50 relative overflow-hidden" style={{
+      fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+    }}>
+      <div className="absolute inset-0">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-stone-200/20 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-stone-300/20 rounded-full blur-3xl"></div>
+      </div>
+
+      <div className="relative h-full mx-1 sm:mx-2 md:mx-3 pt-1 sm:pt-2 pb-28 sm:pb-28">
+        <div className="h-full bg-white/30 backdrop-blur-3xl rounded-[2rem] sm:rounded-[2.5rem] md:rounded-[3rem] border border-white/40 overflow-hidden shadow-2xl shadow-stone-900/10">
+
+          <div className="flex justify-between items-center px-4 sm:px-6 md:px-8 py-4 sm:py-5 md:py-6 bg-gradient-to-b from-white/40 to-transparent backdrop-blur-xl border-b border-white/20">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 bg-black/80 backdrop-blur-xl rounded-full">
+                <div className="text-white font-medium tracking-wide text-xs sm:text-sm">
+                  {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center space-x-2 sm:space-x-3">
+              <button
+                onClick={() => setHasTrainedModel(!hasTrainedModel)}
+                className="px-3 sm:px-4 py-1.5 sm:py-2 text-[10px] sm:text-xs tracking-wide font-medium bg-white/60 hover:bg-white/80 backdrop-blur-xl rounded-full transition-all duration-300 border border-white/40 shadow-lg shadow-stone-900/10"
+                title="Toggle user type"
+              >
+                {hasTrainedModel ? 'Current' : 'New'} User
+              </button>
+              <div className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 sm:py-2 bg-white/60 backdrop-blur-xl rounded-full border border-white/40">
+                <div className="flex space-x-0.5 sm:space-x-1">
+                  <div className="w-0.5 sm:w-1 h-2 sm:h-3 bg-stone-900 rounded-full"></div>
+                  <div className="w-0.5 sm:w-1 h-2 sm:h-3 bg-stone-900 rounded-full"></div>
+                  <div className="w-0.5 sm:w-1 h-2 sm:h-3 bg-stone-900 rounded-full"></div>
+                  <div className="w-0.5 sm:w-1 h-2 sm:h-3 bg-stone-400 rounded-full"></div>
+                </div>
+                <div className="w-4 sm:w-5 h-4 sm:h-5 bg-stone-900 rounded-full flex items-center justify-center text-white text-[8px] sm:text-[10px] font-bold">
+                  95
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex-1 px-4 sm:px-6 md:px-8 pb-4 sm:pb-6 md:pb-8 pt-0 h-full overflow-y-auto">
+            {activeTab === 'studio' && <StudioScreen user={user} hasTrainedModel={hasTrainedModel} setActiveTab={setActiveTab} />}
+            {activeTab === 'training' && <TrainingScreen user={user} setHasTrainedModel={setHasTrainedModel} setActiveTab={setActiveTab} />}
+            {activeTab === 'maya' && <MayaScreen />}
+            {activeTab === 'gallery' && <GalleryScreen user={user} />}
+            {activeTab === 'academy' && <AcademyScreen />}
+            {activeTab === 'profile' && <ProfileScreen user={user} />}
+          </div>
+        </div>
+      </div>
+
+      <div className="absolute bottom-3 sm:bottom-4 md:bottom-5 left-2 sm:left-3 md:left-4 right-2 sm:right-3 md:right-4">
+        <div className="bg-white/20 backdrop-blur-3xl rounded-[1.75rem] sm:rounded-[2rem] md:rounded-[2.5rem] border border-white/40 px-1.5 sm:px-2 md:px-3 py-2.5 sm:py-3 md:py-4 shadow-2xl shadow-stone-900/20">
+          <div className="flex justify-around items-center">
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
+
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex flex-col items-center space-y-1 px-1.5 sm:px-2.5 md:px-4 py-2 sm:py-2.5 md:py-3 rounded-[1rem] sm:rounded-[1.25rem] md:rounded-[1.5rem] transition-all duration-500 ease-out min-w-[52px] sm:min-w-[58px] md:min-w-[68px] relative ${
+                    isActive
+                      ? 'transform scale-105'
+                      : 'hover:scale-[1.02] active:scale-95'
+                  }`}
+                >
+                  {isActive && (
+                    <div className="absolute inset-0 bg-gradient-to-b from-white/90 to-white/70 backdrop-blur-2xl rounded-[1rem] sm:rounded-[1.25rem] md:rounded-[1.5rem] shadow-xl shadow-stone-900/20 border border-white/60"></div>
+                  )}
+                  <div className={`relative z-10 w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-[0.875rem] sm:rounded-[1rem] md:rounded-[1.125rem] flex items-center justify-center transition-all duration-500 ${
+                    isActive
+                      ? 'bg-stone-950 shadow-lg shadow-stone-900/30'
+                      : 'bg-white/40 backdrop-blur-xl'
+                  }`}>
+                    <Icon
+                      size={isActive ? 19 : 17}
+                      strokeWidth={2}
+                      className={`transition-all duration-500 ${
+                        isActive ? 'text-white' : 'text-stone-600'
+                      }`}
+                    />
+                  </div>
+                  <span className={`relative z-10 text-[8px] sm:text-[9px] md:text-[10px] font-semibold tracking-wide transition-all duration-500 ${
+                    isActive ? 'text-stone-900' : 'text-stone-500 opacity-70'
+                  }`}>
+                    {tab.label}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const StudioScreen = ({ user, hasTrainedModel, setActiveTab }) => {
+  if (!hasTrainedModel) {
+    return (
+      <div className="space-y-8 pb-4">
+        <div className="pt-3 sm:pt-4 md:pt-6 text-center">
+          <h1 className="text-2xl sm:text-3xl md:text-5xl font-serif font-extralight tracking-[0.3em] text-stone-950 uppercase leading-none mb-2 sm:mb-3">
+            Welcome to Studio
+          </h1>
+          <p className="text-[10px] sm:text-xs tracking-[0.2em] uppercase font-light text-stone-500">
+            Start Here • Train Your AI Model
+          </p>
+        </div>
+
+        <div className="bg-stone-100/50 border border-stone-200/40 rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-12 text-center">
+          <div className="w-20 h-20 bg-white/60 backdrop-blur-xl rounded-full flex items-center justify-center mx-auto mb-6 border border-white/80 shadow-lg shadow-stone-900/5">
+            <Star size={36} className="text-stone-700" strokeWidth={1.8} />
+          </div>
+
+          <h2 className="text-2xl sm:text-3xl font-serif font-extralight tracking-[0.2em] text-stone-950 uppercase mb-4">
+            Train Your AI First
+          </h2>
+
+          <p className="text-base font-light text-stone-600 mb-8 max-w-md mx-auto leading-relaxed">
+            Before you can create stunning photos, you need to train your personal AI model with your selfies. This takes about 20 minutes.
+          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10 max-w-2xl mx-auto">
+            {[
+              { label: 'Accurate', desc: 'Photos that look like you' },
+              { label: 'Fast', desc: '20 minute training' },
+              { label: 'Professional', desc: 'Gallery-ready results' }
+            ].map((item, i) => (
+              <div key={i} className="p-6 bg-white/50 backdrop-blur-2xl rounded-[1.5rem] border border-white/60 shadow-xl shadow-stone-900/10 hover:shadow-2xl hover:shadow-stone-900/20 hover:scale-[1.02] transition-all duration-300">
+                <div className="w-14 h-14 bg-stone-950 rounded-[1.125rem] flex items-center justify-center mx-auto mb-4 shadow-lg shadow-stone-900/30">
+                  <div className="text-lg font-bold text-white">{i + 1}</div>
+                </div>
+                <div className="text-sm font-semibold text-stone-950 mb-2">{item.label}</div>
+                <div className="text-xs font-medium text-stone-600">{item.desc}</div>
+              </div>
+            ))}
+          </div>
+
+          <button
+            onClick={() => setActiveTab('training')}
+            className="group relative bg-stone-950 text-white px-8 sm:px-12 py-4 sm:py-5 rounded-xl sm:rounded-[1.25rem] font-semibold tracking-wide text-xs sm:text-sm transition-all duration-300 hover:shadow-2xl hover:shadow-stone-900/40 hover:scale-[1.02] active:scale-[0.98] min-h-[52px] sm:min-h-[60px] overflow-hidden"
+          >
+            <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <span className="relative z-10 flex items-center justify-center gap-2">
+              Start Training Now
+              <ChevronRight size={14} strokeWidth={2.5} className="group-hover:translate-x-1 transition-transform duration-300" />
+            </span>
+          </button>
+        </div>
+
+        <div className="bg-stone-100/50 border border-stone-200/40 rounded-3xl p-6 sm:p-8">
+          <h3 className="text-lg font-serif font-extralight tracking-[0.15em] text-stone-950 uppercase mb-6">What You'll Need</h3>
+
+          <div className="space-y-4">
+            {[
+              { title: '10-20 Selfie Photos', desc: 'Clear, well-lit photos of yourself' },
+              { title: 'Good Lighting', desc: 'Natural window light works best' },
+              { title: 'Variety', desc: 'Different angles and expressions' },
+              { title: '20 Minutes', desc: 'Time for AI training to complete' }
+            ].map((item, i) => (
+              <div key={i} className="flex items-start gap-4 p-4 bg-white/50 backdrop-blur-xl rounded-xl border border-white/60 shadow-lg shadow-stone-900/5">
+                <div className="w-8 h-8 bg-gradient-to-br from-stone-100/80 to-stone-200/60 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 border border-white/60 shadow-inner shadow-stone-900/5">
+                  <div className="w-1.5 h-1.5 bg-stone-700 rounded-full"></div>
+                </div>
+                <div className="flex-1">
+                  <h4 className="text-sm font-light text-stone-950 mb-1">{item.title}</h4>
+                  <p className="text-xs font-light text-stone-600">{item.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-8 pb-4">
+      <div className="pt-4 sm:pt-6 text-center">
+        <h1 className="text-3xl sm:text-5xl font-serif font-extralight tracking-[0.3em] text-stone-950 uppercase leading-none mb-3">
+          STUDIO
+        </h1>
+        <p className="text-xs tracking-[0.2em] uppercase font-light text-stone-500">
+          Creative Control Center
+        </p>
+      </div>
+
+      <div className="grid grid-cols-3 gap-3 sm:gap-4 md:gap-6">
+        {[
+          { label: 'Active', value: '12', desc: 'Sessions', color: 'stone' },
+          { label: 'Ready', value: '47', desc: 'Photos', color: 'stone' },
+          { label: 'Queue', value: '3', desc: 'Pending', color: 'stone' }
+        ].map((item, index) => (
+          <div key={index} className="group relative bg-white/40 backdrop-blur-2xl border border-white/50 rounded-xl sm:rounded-[1.5rem] p-3 sm:p-5 md:p-6 hover:bg-white/60 transition-all duration-500 min-h-[95px] sm:min-h-[110px] md:min-h-[130px] flex flex-col justify-center shadow-xl shadow-stone-900/10 hover:shadow-2xl hover:shadow-stone-900/20 hover:scale-[1.02] active:scale-[0.98]">
+            <div className="absolute top-2 sm:top-3 right-2 sm:right-3 w-1.5 sm:w-2 h-1.5 sm:h-2 rounded-full bg-stone-900 shadow-lg"></div>
+            <div className="text-[10px] sm:text-xs tracking-wider uppercase font-semibold mb-2 sm:mb-3 text-stone-600">{item.label}</div>
+            <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-stone-950 mb-1 sm:mb-2">{item.value}</div>
+            <div className="text-[10px] sm:text-xs font-medium text-stone-500">{item.desc}</div>
+          </div>
+        ))}
+      </div>
+
+      <div className="bg-stone-100/50 border border-stone-200/40 rounded-3xl p-6 sm:p-8">
+        <div className="flex justify-between items-start mb-6 sm:mb-8">
+          <div className="flex-1 min-w-0">
+            <div className="text-xs tracking-[0.15em] uppercase font-light mb-3 text-stone-500">Current Session</div>
+            <h3 className="text-xl sm:text-2xl font-serif font-extralight tracking-[0.1em] text-stone-950 uppercase">Executive Portrait</h3>
+            <p className="text-sm font-light mt-3 text-stone-600">Professional series • 5 shots remaining</p>
+          </div>
+          <div className="flex items-center gap-2 ml-4 flex-shrink-0">
+            <div className="w-2 h-2 bg-stone-900 rounded-full"></div>
+            <span className="text-xs tracking-[0.1em] uppercase font-light text-stone-600">Live</span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
+          <div className="aspect-[4/3] bg-stone-200/40 rounded-2xl border border-stone-300/30 flex items-center justify-center group hover:bg-stone-200/60 transition-all duration-200 cursor-pointer">
+            <Camera size={24} className="text-stone-500 group-hover:text-stone-700 transition-colors" strokeWidth={1.5} />
+          </div>
+          <div className="space-y-4">
+            <div className="flex justify-between text-xs">
+              <span className="tracking-[0.1em] uppercase font-light text-stone-500">Progress</span>
+              <span className="font-light text-stone-600">40%</span>
+            </div>
+            <div className="w-full h-1.5 bg-stone-200 rounded-full overflow-hidden">
+              <div className="w-2/5 h-full bg-stone-700 rounded-full"></div>
+            </div>
+            <div className="space-y-3 pt-2">
+              {[
+                { name: 'Close-up headshot', done: true },
+                { name: 'Half body shot', done: true },
+                { name: 'Full scene', done: false },
+              ].map((shot, i) => (
+                <div key={i} className="flex items-center justify-between">
+                  <span className="text-xs font-light text-stone-600">{shot.name}</span>
+                  <div className={`w-2 h-2 rounded-full ${shot.done ? 'bg-stone-900' : 'bg-stone-300'}`}></div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <button className="w-full bg-stone-950 text-stone-50 py-4 sm:py-5 rounded-2xl font-light tracking-[0.15em] uppercase text-sm transition-all duration-200 hover:bg-stone-800 hover:transform hover:translate-y-[-1px] min-h-[52px] focus:outline-none focus:ring-2 focus:ring-stone-600/40">
+          Continue Session
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+        {[
+          { icon: Plus, title: 'New Session', desc: 'Start fresh photo series' },
+          { icon: Grid, title: 'Browse Gallery', desc: 'View completed work' }
+        ].map((action, index) => (
+          <button key={index} className="group relative bg-white/40 backdrop-blur-2xl border border-white/60 rounded-[1.75rem] p-6 text-left hover:bg-white/60 hover:border-white/80 transition-all duration-300 min-h-[130px] flex flex-col justify-between shadow-xl shadow-stone-900/10 hover:shadow-2xl hover:shadow-stone-900/20 hover:scale-[1.02] active:scale-[0.98] overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-stone-200/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-full blur-2xl"></div>
+            <div className="relative z-10 flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-stone-950 rounded-[1.125rem] flex items-center justify-center shadow-lg">
+                <action.icon size={20} className="text-white" strokeWidth={2.5} />
+              </div>
+              <div className="w-8 h-8 bg-white/60 backdrop-blur-xl rounded-full flex items-center justify-center group-hover:bg-white/80 transition-all duration-300">
+                <ChevronRight size={16} className="text-stone-600 group-hover:translate-x-0.5 transition-transform" strokeWidth={2.5} />
+              </div>
+            </div>
+            <div className="relative z-10">
+              <h4 className="text-base font-semibold text-stone-950 mb-2">{action.title}</h4>
+              <p className="text-xs font-medium text-stone-600">{action.desc}</p>
+            </div>
+          </button>
+        ))}
+      </div>
+
+      <div className="space-y-6">
+        <h3 className="text-lg font-serif font-extralight tracking-[0.15em] text-stone-950 uppercase">Recent Activity</h3>
+        <div className="space-y-1">
+          {[
+            { action: 'Executive session completed', time: '2h ago' },
+            { action: 'Brand photos exported', time: '1d ago' },
+            { action: 'New session started', time: '3d ago' },
+          ].map((item, index) => (
+            <div key={index} className="flex items-center justify-between py-4 border-b border-stone-200/30 last:border-b-0 hover:bg-stone-100/30 transition-colors duration-200 px-4 -mx-4 rounded-xl">
+              <div className="flex items-center gap-4 flex-1 min-w-0">
+                <div className="w-1.5 h-1.5 bg-stone-600 rounded-full flex-shrink-0"></div>
+                <span className="text-sm font-light text-stone-950 truncate">{item.action}</span>
+              </div>
+              <span className="text-xs tracking-[0.1em] uppercase font-light text-stone-500 ml-4 flex-shrink-0">{item.time}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const TrainingScreen = ({ user, setHasTrainedModel, setActiveTab }) => {
+  const [trainingStage, setTrainingStage] = useState('upload');
+  const [trainingProgress, setTrainingProgress] = useState(0);
+  const [uploadedImages, setUploadedImages] = useState(0);
+  const [selectedGender, setSelectedGender] = useState('');
+
+  return (
+    <div className="space-y-8 pb-4">
+      <div className="pt-3 sm:pt-4 md:pt-6 text-center">
+        <h1 className="text-2xl sm:text-3xl md:text-5xl font-serif font-extralight tracking-[0.3em] text-stone-950 uppercase leading-none mb-2 sm:mb-3">
+          AI Training
+        </h1>
+        <p className="text-[10px] sm:text-xs tracking-[0.2em] uppercase font-light text-stone-500">
+          Train Your Personal Model
+        </p>
+      </div>
+
+      {trainingStage === 'upload' && (
+        <>
+          {/* Gender Selection */}
+          <div className="bg-stone-100/50 border border-stone-200/40 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8">
+            <div className="text-center mb-4 sm:mb-6">
+              <h3 className="text-base sm:text-lg md:text-xl font-serif font-extralight tracking-[0.15em] text-stone-950 uppercase mb-2 sm:mb-3">Select Your Gender</h3>
+              <p className="text-xs sm:text-sm font-light text-stone-600">This helps us train your AI model more accurately</p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 max-w-2xl mx-auto mb-4 sm:mb-6">
+              {[
+                { value: 'woman', label: 'Woman' },
+                { value: 'man', label: 'Man' },
+                { value: 'non-binary', label: 'Non Binary' }
+              ].map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() => setSelectedGender(option.value)}
+                  className={`group p-6 rounded-[1.5rem] font-semibold tracking-wide text-sm transition-all duration-300 min-h-[90px] relative overflow-hidden ${
+                    selectedGender === option.value
+                      ? 'bg-stone-950 text-white shadow-2xl shadow-stone-900/40 scale-[1.02]'
+                      : 'bg-white/50 backdrop-blur-xl text-stone-950 border border-white/60 hover:bg-white/70 hover:border-white/80 hover:scale-[1.02]'
+                  } border shadow-lg shadow-stone-900/10 active:scale-[0.98]`}
+                >
+                  {selectedGender === option.value && (
+                    <div className="absolute inset-0 bg-white/10"></div>
+                  )}
+                  <span className="relative z-10">{option.label}</span>
+                </button>
+              ))}
+            </div>
+
+            {selectedGender && (
+              <div className="text-center">
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-stone-100 backdrop-blur-xl rounded-full border border-stone-200 shadow-lg">
+                  <div className="w-2 h-2 bg-stone-950 rounded-full shadow-lg shadow-stone-900/50"></div>
+                  <span className="text-xs tracking-wider uppercase font-semibold text-stone-950">
+                    Selected: {selectedGender === 'woman' ? 'Woman' : selectedGender === 'man' ? 'Man' : 'Non Binary'}
+                  </span>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Upload Section */}
+          <div className="bg-stone-100/50 border border-stone-200/40 rounded-3xl p-6 sm:p-8">
+            <div className="text-center mb-8">
+              <div className="text-xs tracking-[0.15em] uppercase font-light mb-4 text-stone-500">Step 1 of 2</div>
+              <h3 className="text-xl sm:text-2xl font-serif font-extralight tracking-[0.1em] text-stone-950 uppercase mb-4">Upload Your Selfies</h3>
+              <p className="text-sm font-light text-stone-600 mb-6">Upload 10-20 selfies to train your AI model. Good lighting and variety work best.</p>
+            </div>
+
+            <div className="border-2 border-dashed border-stone-300/60 rounded-[1.5rem] p-8 sm:p-12 text-center mb-6 bg-white/30 backdrop-blur-xl hover:bg-white/50 hover:border-stone-400/60 transition-all duration-300 cursor-pointer group">
+              <div className="w-16 h-16 bg-stone-950 rounded-[1.25rem] flex items-center justify-center mx-auto mb-6 shadow-xl shadow-stone-900/30 group-hover:scale-110 transition-transform duration-300">
+                <Camera size={28} className="text-white" strokeWidth={2.5} />
+              </div>
+              <h4 className="text-base font-semibold text-stone-950 mb-3">Click to Upload Photos</h4>
+              <p className="text-sm font-medium text-stone-600 mb-4">or drag and drop</p>
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-stone-100/60 backdrop-blur-xl rounded-full">
+                <div className="w-2 h-2 bg-stone-950 rounded-full"></div>
+                <span className="text-xs tracking-wider uppercase font-semibold text-stone-700">
+                  {uploadedImages} / 10 minimum
+                </span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+              {[
+                { label: 'Clear Photos', desc: 'Well-lit selfies' },
+                { label: 'Variety', desc: 'Different angles' },
+                { label: '10-20 Images', desc: 'Best results' }
+              ].map((item, i) => (
+                <div key={i} className="text-center p-4 bg-stone-50/50 rounded-xl border border-stone-200/30">
+                  <div className="w-8 h-8 bg-stone-950 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <div className="w-2 h-2 bg-white rounded-full"></div>
+                  </div>
+                  <div className="text-sm font-light text-stone-950 mb-1">{item.label}</div>
+                  <div className="text-xs font-light text-stone-600">{item.desc}</div>
+                </div>
+              ))}
+            </div>
+
+            <button
+              onClick={() => {
+                setTrainingStage('training');
+                setUploadedImages(12);
+                let progress = 0;
+                const interval = setInterval(() => {
+                  progress += Math.random() * 5;
+                  if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                    setTimeout(() => setTrainingStage('completed'), 1000);
+                  }
+                  setTrainingProgress(Math.min(Math.round(progress), 100));
+                }, 500);
+              }}
+              className="w-full bg-stone-950 text-stone-50 py-4 sm:py-5 rounded-2xl font-light tracking-[0.15em] uppercase text-sm transition-all duration-200 hover:bg-stone-800 min-h-[52px]"
+            >
+              Start Training
+            </button>
+          </div>
+
+          <div className="space-y-6">
+            <h3 className="text-lg font-serif font-extralight tracking-[0.15em] text-stone-950 uppercase">Example Training Photos</h3>
+            <div className="grid grid-cols-3 gap-3">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <div key={i} className="aspect-square bg-stone-200/30 rounded-2xl border border-stone-300/30 flex items-center justify-center">
+                  <Camera size={20} strokeWidth={1.5} className="text-stone-500" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
+
+      {trainingStage === 'training' && (
+        <div className="bg-white/50 backdrop-blur-2xl border border-white/60 rounded-[1.75rem] p-6 sm:p-8 shadow-xl shadow-stone-900/10">
+          <div className="text-center mb-8">
+            <div className="relative w-24 h-24 mx-auto mb-6">
+              <div className="absolute inset-0 rounded-full bg-stone-200/30 animate-ping"></div>
+              <div className="relative w-24 h-24 rounded-full bg-stone-950 flex items-center justify-center shadow-2xl shadow-stone-900/40 animate-pulse">
+                <div className="text-white text-2xl font-bold">{trainingProgress}%</div>
+              </div>
+            </div>
+            <h3 className="text-xl sm:text-2xl font-bold text-stone-950 mb-4">Training Your Model</h3>
+            <p className="text-sm font-medium text-stone-600 mb-8">This takes about 20 minutes. You'll get a notification when it's ready.</p>
+          </div>
+
+          <div className="mb-8">
+            <div className="flex justify-between text-sm font-semibold text-stone-700 mb-3">
+              <span>Progress</span>
+              <span>{trainingProgress}%</span>
+            </div>
+            <div className="relative w-full h-3 bg-stone-200/40 rounded-full overflow-hidden shadow-inner">
+              <div
+                className="h-full bg-stone-950 rounded-full transition-all duration-500 shadow-lg"
+                style={{ width: `${trainingProgress}%` }}
+              ></div>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            {[
+              { stage: 'Preprocessing', done: trainingProgress > 20 },
+              { stage: 'Training Model', done: trainingProgress > 70 },
+              { stage: 'Finalizing', done: trainingProgress > 95 }
+            ].map((item, i) => (
+              <div key={i} className="flex items-center justify-between p-4 bg-white/50 backdrop-blur-xl rounded-[1.25rem] border border-white/60 shadow-lg">
+                <span className="text-sm font-semibold text-stone-950">{item.stage}</span>
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-all duration-300 ${
+                  item.done
+                    ? 'bg-stone-950 shadow-lg shadow-stone-900/30'
+                    : 'bg-stone-300/60'
+                }`}>
+                  {item.done && <div className="w-2 h-2 bg-white rounded-full"></div>}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-8 text-center">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-stone-100 backdrop-blur-xl rounded-full border border-stone-200">
+              <div className="flex gap-1">
+                <div className="w-1.5 h-1.5 rounded-full bg-stone-950 animate-bounce"></div>
+                <div className="w-1.5 h-1.5 rounded-full bg-stone-950 animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                <div className="w-1.5 h-1.5 rounded-full bg-stone-950 animate-bounce" style={{animationDelay: '0.2s'}}></div>
+              </div>
+              <span className="text-xs tracking-wider uppercase font-semibold text-stone-700">
+                {Math.max(0, Math.round((100 - trainingProgress) / 5))} minutes remaining
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {trainingStage === 'completed' && (
+        <div className="bg-white/50 backdrop-blur-2xl border border-white/60 rounded-xl sm:rounded-[1.75rem] p-5 sm:p-6 md:p-8 text-center shadow-xl shadow-stone-900/10">
+          <div className="relative w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-4 sm:mb-6">
+            <div className="absolute inset-0 bg-stone-200/30 rounded-full animate-ping"></div>
+            <div className="relative w-20 h-20 sm:w-24 sm:h-24 bg-stone-950 rounded-full flex items-center justify-center shadow-2xl shadow-stone-900/40">
+              <Star size={32} className="text-white" strokeWidth={2.5} fill="currentColor" />
+            </div>
+          </div>
+          <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-stone-950 mb-3 sm:mb-4">Training Complete</h3>
+          <p className="text-xs sm:text-sm font-medium text-stone-600 mb-6 sm:mb-8">Your AI model is ready! You can now create professional photos.</p>
+
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-6 sm:mb-8">
+            <div className="p-4 sm:p-6 bg-white/60 backdrop-blur-xl rounded-xl sm:rounded-[1.5rem] border border-white/70 shadow-lg shadow-stone-900/10">
+              <div className="text-2xl sm:text-3xl font-bold text-stone-950 mb-1 sm:mb-2">{uploadedImages}</div>
+              <div className="text-[10px] sm:text-xs tracking-wider uppercase font-semibold text-stone-600">Photos Trained</div>
+            </div>
+            <div className="p-4 sm:p-6 bg-white/60 backdrop-blur-xl rounded-xl sm:rounded-[1.5rem] border border-white/70 shadow-lg shadow-stone-900/10">
+              <div className="text-2xl sm:text-3xl font-bold text-stone-950 mb-1 sm:mb-2">100%</div>
+              <div className="text-[10px] sm:text-xs tracking-wider uppercase font-semibold text-stone-600">Model Ready</div>
+            </div>
+          </div>
+
+          <button
+            onClick={() => {
+              setHasTrainedModel(true);
+              setActiveTab('studio');
+            }}
+            className="group relative w-full bg-stone-950 text-white py-4 sm:py-5 rounded-xl sm:rounded-[1.5rem] font-semibold tracking-wide text-xs sm:text-sm transition-all duration-300 hover:shadow-2xl hover:shadow-stone-900/40 mb-3 sm:mb-4 min-h-[52px] sm:min-h-[60px] overflow-hidden hover:scale-[1.02] active:scale-[0.98]"
+          >
+            <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <span className="relative z-10 flex items-center justify-center gap-2">
+              Go to Studio
+              <ChevronRight size={14} strokeWidth={2.5} className="group-hover:translate-x-1 transition-transform" />
+            </span>
+          </button>
+
+          <button
+            onClick={() => setTrainingStage('upload')}
+            className="w-full bg-white/60 backdrop-blur-xl text-stone-950 border border-white/70 py-4 sm:py-5 rounded-xl sm:rounded-[1.5rem] font-semibold text-xs sm:text-sm transition-all duration-300 hover:bg-white/80 hover:border-white/90 min-h-[52px] sm:min-h-[60px] shadow-lg shadow-stone-900/10 hover:scale-[1.02] active:scale-[0.98]"
+          >
+            Retrain Model
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const MayaScreen = () => {
+  const [messages, setMessages] = useState([
+    {
+      role: 'maya',
+      content: 'I help people get amazing photos that actually look like them.\n\nI create 5 different shots every time - some close-ups, some full body, and some lifestyle scenes that work together like a perfect feed. What kind of photos are you dreaming of?',
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    }
+  ]);
+  const [inputValue, setInputValue] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
+
+  const handleSendMessage = () => {
+    if (inputValue.trim() && !isTyping) {
+      const userMessage = {
+        role: 'user',
+        content: inputValue.trim(),
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+
+      setMessages(prev => [...prev, userMessage]);
+      setInputValue('');
+
+      setTimeout(() => {
+        setIsTyping(true);
+        setTimeout(() => {
+          setIsTyping(false);
+          const mayaMessage = {
+            role: 'maya',
+            content: 'I can see your vision. You have great instincts.\n\nHere\'s what I\'m thinking - 5 photos that will make you look incredible:',
+            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            concepts: [
+              {
+                title: 'The LinkedIn Winner',
+                description: 'Sharp focus on your face with perfect lighting. This is your main profile photo.',
+                category: 'Close-Up'
+              },
+              {
+                title: 'The Approachable Expert',
+                description: 'Waist up, slight smile, clean background. Shows personality while staying professional.',
+                category: 'Half Body'
+              },
+              {
+                title: 'Working in Your Element',
+                description: 'You doing what you do best - maybe at your desk or in a meeting. Shows authenticity.',
+                category: 'Lifestyle'
+              }
+            ]
+          };
+          setMessages(prev => [...prev, mayaMessage]);
+        }, 2800);
+      }, 800);
+    }
+  };
+
+  return (
+    <div className="h-full flex flex-col space-y-3 sm:space-y-4 pb-2">
+      <div className="flex items-center justify-between pt-3 sm:pt-4 pb-2">
+        <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+          <div className="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-full border-2 border-stone-200/60 overflow-hidden flex-shrink-0">
+            <img
+              src="https://i.postimg.cc/fTtCnzZv/out-1-22.png"
+              alt="Maya"
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <div className="flex-1 min-w-0">
+            <h3 className="text-lg sm:text-xl md:text-2xl font-serif font-extralight tracking-[0.25em] text-stone-950 uppercase">Maya</h3>
+            <p className="text-[10px] sm:text-xs tracking-[0.15em] uppercase font-light text-stone-500">Your Photo Stylist</p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-1.5 sm:gap-2 ml-3 sm:ml-4 flex-shrink-0">
+          <div className="w-1.5 sm:w-2 h-1.5 sm:h-2 bg-stone-900 rounded-full"></div>
+          <span className="text-[10px] sm:text-xs font-light text-stone-600">Online</span>
+        </div>
+      </div>
+
+      <div className="flex-1 overflow-y-auto space-y-3 sm:space-y-4 pr-1" style={{ maxHeight: 'calc(100vh - 320px)' }}>
+        {messages.map((msg, index) => (
+          <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+            <div className={`max-w-[85%] ${msg.role === 'user' ? 'order-2' : 'order-1'}`}>
+              <div className={`p-5 sm:p-6 rounded-[1.5rem] sm:rounded-[1.75rem] transition-all duration-300 hover:scale-[1.01] ${
+                msg.role === 'user'
+                  ? 'bg-stone-950 text-white shadow-xl shadow-stone-900/30'
+                  : 'bg-white/50 backdrop-blur-2xl border border-white/70 shadow-xl shadow-stone-900/10 text-stone-950'
+              }`}>
+                <div className="space-y-3">
+                  <p className="text-sm sm:text-base leading-relaxed font-medium">{msg.content}</p>
+                  <div className={`text-xs font-medium ${msg.role === 'user' ? 'text-white/70' : 'text-stone-500'}`}>
+                    {msg.timestamp}
+                  </div>
+                </div>
+              </div>
+
+              {msg.role === 'maya' && msg.concepts && (
+                <div className="mt-4 space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-1 h-1 rounded-full bg-stone-600"></div>
+                    <span className="text-xs tracking-[0.15em] uppercase font-light text-stone-600">Photo Ideas</span>
+                  </div>
+                  {msg.concepts.map((concept, conceptIndex) => (
+                    <ConceptCard key={conceptIndex} concept={concept} />
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+
+        {isTyping && (
+          <div className="flex justify-start">
+            <div className="bg-white/50 backdrop-blur-xl border border-white/70 p-4 rounded-2xl max-w-[90%] shadow-lg shadow-stone-900/5">
+              <div className="flex items-center gap-4">
+                <div className="flex gap-1">
+                  <div className="w-2 h-2 rounded-full animate-bounce bg-stone-700"></div>
+                  <div className="w-2 h-2 rounded-full animate-bounce bg-stone-700" style={{animationDelay: '0.2s'}}></div>
+                  <div className="w-2 h-2 rounded-full animate-bounce bg-stone-700" style={{animationDelay: '0.4s'}}></div>
+                </div>
+                <span className="text-sm font-light text-stone-600">Maya is creating your photos...</span>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="border-t border-white/30 pt-3 sm:pt-4 mt-auto flex-shrink-0">
+        <div className="flex gap-2 sm:gap-3">
+          <div className="flex-1 relative group">
+            <input
+              type="text"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyPress={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSendMessage();
+                }
+              }}
+              placeholder="Message Maya..."
+              className="w-full px-4 sm:px-5 py-3 sm:py-4 bg-white/40 backdrop-blur-2xl border border-white/60 rounded-xl sm:rounded-[1.5rem] text-stone-950 placeholder-stone-500 focus:outline-none focus:ring-2 focus:ring-stone-900/50 focus:border-stone-900/50 focus:bg-white/60 pr-12 sm:pr-14 font-medium text-sm min-h-[48px] sm:min-h-[56px] shadow-lg shadow-stone-900/10 transition-all duration-300"
+              disabled={isTyping}
+            />
+            <div className="absolute right-2 sm:right-3 top-1/2 transform -translate-y-1/2">
+              <div className="w-8 h-8 sm:w-9 sm:h-9 bg-stone-950 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg shadow-stone-900/30 group-hover:shadow-xl group-hover:scale-105 transition-all duration-300">
+                <Camera size={14} className="text-white" strokeWidth={2.5} />
+              </div>
+            </div>
+          </div>
+          <button
+            onClick={handleSendMessage}
+            className="group relative px-4 sm:px-5 py-3 sm:py-4 bg-stone-950 text-white rounded-xl sm:rounded-[1.5rem] font-semibold transition-all duration-300 hover:shadow-2xl hover:shadow-stone-900/40 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden min-h-[48px] sm:min-h-[56px] min-w-[48px] sm:min-w-[56px] flex items-center justify-center hover:scale-105 active:scale-95"
+            disabled={isTyping || !inputValue.trim()}
+          >
+            <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <Send size={16} strokeWidth={2.5} className="relative z-10 transition-transform duration-300 group-hover:translate-x-0.5" />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const ConceptCard = ({ concept }) => {
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [isGenerated, setIsGenerated] = useState(false);
+
+  const handleGenerate = async () => {
+    setIsGenerating(true);
+    setTimeout(() => {
+      setIsGenerating(false);
+      setIsGenerated(true);
+    }, 3500);
+  };
+
+  return (
+    <div className="bg-white/50 backdrop-blur-2xl border border-white/70 rounded-[1.75rem] p-6 transition-all duration-300 hover:bg-white/70 hover:border-white/90 hover:scale-[1.01] shadow-xl shadow-stone-900/10">
+      <div className="space-y-5">
+        <div className="flex items-center justify-between">
+          <div className="px-4 py-2 bg-stone-100 backdrop-blur-xl rounded-full border border-stone-200 shadow-inner">
+            <span className="text-xs tracking-wider uppercase font-semibold text-stone-950">{concept.category}</span>
+          </div>
+          <div className="w-2 h-2 rounded-full bg-stone-950 shadow-lg shadow-stone-900/50"></div>
+        </div>
+
+        <div className="space-y-3">
+          <h4 className="text-base font-bold text-stone-950 leading-tight">{concept.title}</h4>
+          <p className="text-sm font-medium leading-relaxed text-stone-600">{concept.description}</p>
+        </div>
+      </div>
+
+      {!isGenerating && !isGenerated && (
+        <div className="mt-6">
+          <button
+            onClick={handleGenerate}
+            className="group relative w-full bg-stone-950 text-white px-6 py-4 rounded-[1.25rem] font-semibold tracking-wide text-sm transition-all duration-300 hover:shadow-2xl hover:shadow-stone-900/40 hover:scale-[1.02] active:scale-[0.98] min-h-[52px] overflow-hidden"
+          >
+            <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <span className="relative z-10">Create This Photo</span>
+          </button>
+        </div>
+      )}
+
+      {isGenerating && (
+        <div className="mt-6 flex flex-col items-center justify-center py-8 space-y-4">
+          <div className="relative w-10 h-10">
+            <div className="absolute inset-0 rounded-full bg-stone-200/20 animate-ping"></div>
+            <div className="relative w-10 h-10 rounded-full bg-stone-950 animate-spin border-4 border-transparent border-t-white shadow-lg"></div>
+          </div>
+          <div className="text-center space-y-2">
+            <span className="text-sm tracking-wider uppercase font-semibold text-stone-700">Creating Magic</span>
+            <div className="flex gap-1 justify-center">
+              <div className="w-1.5 h-1.5 rounded-full bg-stone-950 animate-bounce"></div>
+              <div className="w-1.5 h-1.5 rounded-full bg-stone-950 animate-bounce" style={{animationDelay: '0.1s'}}></div>
+              <div className="w-1.5 h-1.5 rounded-full bg-stone-950 animate-bounce" style={{animationDelay: '0.2s'}}></div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isGenerated && (
+        <div className="mt-6 space-y-4">
+          <div className="p-5 bg-stone-100 backdrop-blur-xl border border-stone-200 rounded-[1.25rem] shadow-xl shadow-stone-900/10">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-stone-950 rounded-xl flex items-center justify-center shadow-lg shadow-stone-900/30">
+                <div className="w-2 h-2 bg-white rounded-full"></div>
+              </div>
+              <div className="space-y-1 flex-1 min-w-0">
+                <h4 className="text-sm font-semibold text-stone-950">Photo Ready</h4>
+                <p className="text-xs font-medium text-stone-600">Looking absolutely stunning</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="aspect-video bg-white/40 backdrop-blur-2xl rounded-[1.5rem] border border-white/60 flex items-center justify-center hover:bg-white/60 transition-all duration-300 cursor-pointer group relative overflow-hidden shadow-xl shadow-stone-900/10">
+            <Camera size={32} className="text-stone-500 group-hover:text-stone-700 group-hover:scale-110 transition-all duration-300" strokeWidth={2} />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <button className="px-5 py-4 bg-stone-950 text-white rounded-[1.25rem] font-semibold text-sm transition-all duration-300 hover:shadow-2xl hover:shadow-stone-900/40 hover:scale-[1.02] active:scale-[0.98] min-h-[52px]">
+              Save Photo
+            </button>
+            <button className="px-5 py-4 bg-white/50 backdrop-blur-2xl text-stone-950 border border-white/60 rounded-[1.25rem] font-semibold text-sm transition-all duration-300 hover:bg-white/70 hover:border-white/80 hover:scale-[1.02] active:scale-[0.98] min-h-[52px] shadow-lg shadow-stone-900/10">
+              Share
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const GalleryScreen = ({ user }) => {
+  const [galleryView, setGalleryView] = useState('instagram');
+  const [favorites, setFavorites] = useState(new Set());
+
+  const allImages = [
+    { id: 1, url: 'https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=400&h=400&fit=crop', category: 'close-up', favorited: false },
+    { id: 2, url: 'https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?w=400&h=400&fit=crop', category: 'half-body', favorited: false },
+    { id: 3, url: 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400&h=400&fit=crop', category: 'full-scenery', favorited: false },
+    { id: 4, url: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=400&h=400&fit=crop', category: 'close-up', favorited: false },
+    { id: 5, url: 'https://images.unsplash.com/photo-1594736797933-d0401ba2fe65?w=400&h=400&fit=crop', category: 'flatlay', favorited: false },
+    { id: 6, url: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=400&h=400&fit=crop', category: 'half-body', favorited: false },
+    { id: 7, url: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400&h=400&fit=crop', category: 'full-scenery', favorited: false },
+    { id: 8, url: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400&h=400&fit=crop', category: 'close-up', favorited: false },
+    { id: 9, url: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=400&h=400&fit=crop', category: 'flatlay', favorited: false },
+  ];
+
+  const toggleFavorite = (imageId) => {
+    setFavorites(prev => {
+      const newFavorites = new Set(prev);
+      if (newFavorites.has(imageId)) {
+        newFavorites.delete(imageId);
+      } else {
+        newFavorites.add(imageId);
+      }
+      return newFavorites;
+    });
+  };
+
+  const favoritedImages = allImages.filter(img => favorites.has(img.id));
+
+  if (galleryView === 'instagram') {
+    return (
+      <div className="space-y-6 pb-4">
+        <div className="pt-4">
+          <div className="flex items-center justify-between mb-6">
+            <h1 className="text-2xl sm:text-3xl font-serif font-extralight tracking-[0.3em] text-stone-950 uppercase">
+              Gallery
+            </h1>
+            <button
+              onClick={() => setGalleryView('all')}
+              className="px-4 py-2 text-xs tracking-[0.15em] uppercase font-light bg-stone-100/50 border border-stone-200/40 rounded-xl hover:bg-stone-100/70 transition-all duration-200"
+            >
+              All Images
+            </button>
+          </div>
+        </div>
+
+        <div className="bg-stone-100/40 rounded-3xl p-6 sm:p-8 border border-stone-200/40">
+          <div className="flex items-center gap-6 mb-6">
+            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden border-2 border-stone-300/60 flex-shrink-0">
+              <img
+                src={user.avatar}
+                alt={user.name}
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="flex-1">
+              <h2 className="text-lg sm:text-xl font-light tracking-wide text-stone-950 mb-2">{user.name}</h2>
+              <p className="text-xs font-light text-stone-600">Your curated AI photo collection</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-3 gap-6 mb-6 pb-6 border-b border-stone-200/40">
+            <div className="text-center">
+              <div className="text-xl sm:text-2xl font-light text-stone-950 mb-1">{favoritedImages.length}</div>
+              <div className="text-xs tracking-[0.1em] uppercase font-light text-stone-500">Posts</div>
+            </div>
+            <div className="text-center">
+              <div className="text-xl sm:text-2xl font-light text-stone-950 mb-1">{user.followers}</div>
+              <div className="text-xs tracking-[0.1em] uppercase font-light text-stone-500">Followers</div>
+            </div>
+            <div className="text-center">
+              <div className="text-xl sm:text-2xl font-light text-stone-950 mb-1">{user.following}</div>
+              <div className="text-xs tracking-[0.1em] uppercase font-light text-stone-500">Following</div>
+            </div>
+          </div>
+
+          <div className="flex gap-2 overflow-x-auto pb-2">
+            {['All', 'Close-Up', 'Half Body', 'Full Scenery', 'Flatlay'].map((category) => (
+              <button
+                key={category}
+                className="px-4 py-2 text-xs tracking-[0.1em] uppercase font-light bg-stone-50 border border-stone-200/40 rounded-full hover:bg-stone-100 transition-all duration-200 whitespace-nowrap flex-shrink-0"
+              >
+                {category}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {favoritedImages.length > 0 ? (
+          <div className="grid grid-cols-3 gap-1">
+            {favoritedImages.map((image) => (
+              <div key={image.id} className="aspect-square relative group overflow-hidden bg-stone-200/30">
+                <img
+                  src={image.url}
+                  alt={`Gallery ${image.id}`}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-stone-950/0 group-hover:bg-stone-950/30 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
+                  <div className="flex items-center gap-4 text-stone-50">
+                    <div className="flex items-center gap-1">
+                      <Heart size={16} fill="currentColor" strokeWidth={1.5} />
+                      <span className="text-sm font-light">{Math.floor(Math.random() * 500)}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <MessageCircle size={16} strokeWidth={1.5} />
+                      <span className="text-sm font-light">{Math.floor(Math.random() * 50)}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="bg-stone-100/40 rounded-3xl p-12 text-center border border-stone-200/40">
+            <Heart size={48} className="mx-auto mb-6 text-stone-400" strokeWidth={1.5} />
+            <h3 className="text-xl font-serif font-extralight tracking-[0.15em] text-stone-950 uppercase mb-3">
+              No Favorites Yet
+            </h3>
+            <p className="text-sm font-light text-stone-600 mb-6">
+              Heart your favorite images in the All Images view to build your Instagram feed
+            </p>
+            <button
+              onClick={() => setGalleryView('all')}
+              className="px-8 py-3 bg-stone-950 text-stone-50 rounded-2xl font-light tracking-[0.15em] uppercase text-sm transition-all duration-200 hover:bg-stone-800"
+            >
+              Browse All Images
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6 pb-4">
+      <div className="pt-4">
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-2xl sm:text-3xl font-serif font-extralight tracking-[0.3em] text-stone-950 uppercase">
+            All Images
+          </h1>
+          <button
+            onClick={() => setGalleryView('instagram')}
+            className="px-4 py-2 text-xs tracking-[0.15em] uppercase font-light bg-stone-100/50 border border-stone-200/40 rounded-xl hover:bg-stone-100/70 transition-all duration-200"
+          >
+            Instagram Feed
+          </button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-4 gap-4 mb-6">
+        {[
+          { label: 'Total', value: allImages.length, icon: Grid },
+          { label: 'Favorited', value: favorites.size, icon: Heart },
+          { label: 'Close-Up', value: allImages.filter(i => i.category === 'close-up').length, icon: Camera },
+          { label: 'Scenery', value: allImages.filter(i => i.category === 'full-scenery').length, icon: Camera }
+        ].map((stat, i) => (
+          <div key={i} className="group bg-white/50 backdrop-blur-2xl border border-white/60 rounded-[1.5rem] p-4 text-center shadow-xl shadow-stone-900/10 hover:shadow-2xl hover:shadow-stone-900/20 hover:scale-105 transition-all duration-300">
+            <div className="w-11 h-11 bg-stone-950 rounded-[1rem] flex items-center justify-center mx-auto mb-3 shadow-lg group-hover:scale-110 transition-transform duration-300">
+              <stat.icon size={18} className="text-white" strokeWidth={2.5} />
+            </div>
+            <div className="text-2xl font-bold text-stone-950 mb-1">{stat.value}</div>
+            <div className="text-[10px] tracking-wider uppercase font-semibold text-stone-500">{stat.label}</div>
+          </div>
+        ))}
+      </div>
+
+      {['close-up', 'half-body', 'full-scenery', 'flatlay'].map((category) => {
+        const categoryImages = allImages.filter(img => img.category === category);
+        if (categoryImages.length === 0) return null;
+
+        return (
+          <div key={category} className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-serif font-extralight tracking-[0.15em] text-stone-950 uppercase">
+                {category.replace('-', ' ')}
+              </h3>
+              <span className="text-xs tracking-[0.1em] uppercase font-light text-stone-500">
+                {categoryImages.length} images
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+              {categoryImages.map((image) => {
+                const isFavorited = favorites.has(image.id);
+
+                return (
+                  <div key={image.id} className="relative group">
+                    <div className="aspect-square overflow-hidden rounded-2xl border border-stone-200/40 bg-stone-200/30">
+                      <img
+                        src={image.url}
+                        alt={`${category} ${image.id}`}
+                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      />
+                    </div>
+
+                    <button
+                      onClick={() => toggleFavorite(image.id)}
+                      className={`absolute top-3 right-3 p-2.5 rounded-full backdrop-blur-xl transition-all duration-200 shadow-lg ${
+                        isFavorited
+                          ? 'bg-stone-950/80 text-stone-50'
+                          : 'bg-white/70 text-stone-950 hover:bg-white/90 border border-white/80'
+                      }`}
+                    >
+                      <Heart
+                        size={18}
+                        strokeWidth={1.8}
+                        fill={isFavorited ? 'currentColor' : 'none'}
+                        className="transition-all duration-200"
+                      />
+                    </button>
+
+                    <div className="absolute bottom-3 left-3 px-3 py-1.5 bg-white/70 backdrop-blur-xl rounded-full border border-white/80 shadow-lg shadow-stone-900/10">
+                      <span className="text-xs tracking-[0.1em] uppercase font-light text-stone-950">
+                        {category.replace('-', ' ')}
+                      </span>
+                    </div>
+
+                    <div className="absolute inset-0 bg-stone-950/0 group-hover:bg-stone-950/40 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100 rounded-2xl">
+                      <div className="flex items-center gap-3">
+                        <button className="p-3 bg-white/90 backdrop-blur-xl rounded-full hover:bg-white transition-colors shadow-lg border border-white">
+                          <Share2 size={18} strokeWidth={1.8} className="text-stone-950" />
+                        </button>
+                        <button className="p-3 bg-white/90 backdrop-blur-xl rounded-full hover:bg-white transition-colors shadow-lg border border-white">
+                          <MoreHorizontal size={18} strokeWidth={1.8} className="text-stone-950" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+const AcademyScreen = () => {
+  const [selectedView, setSelectedView] = useState('overview');
+
+  const membershipTiers = [
+    {
+      name: 'Studio Essential',
+      price: '$49',
+      period: 'month',
+      description: 'Perfect for getting started with AI photography',
+      features: [
+        '50 AI photo generations per month',
+        'Basic training tutorials',
+        'Email support',
+        'Standard quality exports'
+      ],
+      highlighted: false
+    },
+    {
+      name: 'Studio Professional',
+      price: '$99',
+      period: 'month',
+      description: 'For professionals who need more power',
+      features: [
+        '200 AI photo generations per month',
+        'All Academy courses included',
+        'Priority support',
+        'High-quality exports',
+        'Advanced editing tools',
+        'Commercial usage rights'
+      ],
+      highlighted: true
+    },
+    {
+      name: 'Studio Enterprise',
+      price: '$299',
+      period: 'month',
+      description: 'Unlimited creation for agencies and teams',
+      features: [
+        'Unlimited AI photo generations',
+        'Team collaboration tools',
+        '1-on-1 coaching sessions',
+        'API access',
+        'White-label options',
+        'Dedicated account manager'
+      ],
+      highlighted: false
+    }
+  ];
+
+  const courses = [
+    {
+      title: 'AI Photography Fundamentals',
+      duration: '2 hours',
+      lessons: 8,
+      description: 'Master the basics of AI-powered photography',
+      level: 'Beginner'
+    },
+    {
+      title: 'Professional Portrait Mastery',
+      duration: '3 hours',
+      lessons: 12,
+      description: 'Create stunning professional headshots and portraits',
+      level: 'Intermediate'
+    },
+    {
+      title: 'Brand Photography Strategy',
+      duration: '4 hours',
+      lessons: 15,
+      description: 'Build a cohesive visual brand identity',
+      level: 'Advanced'
+    },
+    {
+      title: 'Social Media Content Creation',
+      duration: '2.5 hours',
+      lessons: 10,
+      description: 'Optimize your photos for maximum engagement',
+      level: 'Intermediate'
+    }
+  ];
+
+  if (selectedView === 'membership') {
+    return (
+      <div className="space-y-8 pb-4">
+        <div className="flex items-center gap-4 pt-4">
+          <button
+            onClick={() => setSelectedView('overview')}
+            className="p-4 bg-stone-100/50 rounded-2xl border border-stone-200/40 hover:bg-stone-100/70 transition-all duration-200"
+          >
+            <ChevronRight size={18} className="text-stone-600 transform rotate-180" strokeWidth={1.5} />
+          </button>
+          <div className="flex-1">
+            <h2 className="text-2xl sm:text-3xl font-serif font-extralight tracking-[0.2em] text-stone-950 uppercase">Membership Plans</h2>
+            <p className="text-xs tracking-[0.15em] uppercase font-light text-stone-500 mt-2">Choose Your Plan</p>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          {membershipTiers.map((tier, i) => (
+            <div
+              key={i}
+              className={`bg-stone-100/50 border rounded-3xl p-6 sm:p-8 transition-all duration-200 ${
+                tier.highlighted
+                  ? 'border-stone-950 bg-stone-950 text-stone-50'
+                  : 'border-stone-200/40 hover:border-stone-300/60'
+              }`}
+            >
+              {tier.highlighted && (
+                <div className="inline-block px-4 py-1.5 bg-stone-50 text-stone-950 rounded-full text-xs tracking-[0.15em] uppercase font-light mb-4">
+                  Most Popular
+                </div>
+              )}
+
+              <div className="mb-6">
+                <h3 className="text-xl sm:text-2xl font-serif font-extralight tracking-[0.15em] uppercase mb-2">
+                  {tier.name}
+                </h3>
+                <div className="flex items-baseline gap-2 mb-3">
+                  <span className="text-4xl sm:text-5xl font-serif font-extralight">{tier.price}</span>
+                  <span className={`text-sm font-light tracking-wide ${tier.highlighted ? 'opacity-80' : 'text-stone-600'}`}>
+                    / {tier.period}
+                  </span>
+                </div>
+                <p className={`text-sm font-light ${tier.highlighted ? 'opacity-90' : 'text-stone-600'}`}>
+                  {tier.description}
+                </p>
+              </div>
+
+              <div className="space-y-3 mb-8">
+                {tier.features.map((feature, j) => (
+                  <div key={j} className="flex items-start gap-3">
+                    <div className={`w-1.5 h-1.5 rounded-full mt-2 flex-shrink-0 ${
+                      tier.highlighted ? 'bg-stone-50' : 'bg-stone-950'
+                    }`}></div>
+                    <span className={`text-sm font-light ${tier.highlighted ? 'opacity-90' : 'text-stone-950'}`}>
+                      {feature}
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              <a
+                href="https://your-gohighlevel-link.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`block w-full text-center py-4 rounded-2xl font-light tracking-[0.15em] uppercase text-sm transition-all duration-200 min-h-[52px] ${
+                  tier.highlighted
+                    ? 'bg-stone-50 text-stone-950 hover:bg-stone-100'
+                    : 'bg-stone-950 text-stone-50 hover:bg-stone-800'
+                }`}
+              >
+                Choose {tier.name}
+              </a>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (selectedView === 'courses') {
+    return (
+      <div className="space-y-8 pb-4">
+        <div className="flex items-center gap-4 pt-4">
+          <button
+            onClick={() => setSelectedView('overview')}
+            className="p-4 bg-stone-100/50 rounded-2xl border border-stone-200/40 hover:bg-stone-100/70 transition-all duration-200"
+          >
+            <ChevronRight size={18} className="text-stone-600 transform rotate-180" strokeWidth={1.5} />
+          </button>
+          <div className="flex-1">
+            <h2 className="text-2xl sm:text-3xl font-serif font-extralight tracking-[0.2em] text-stone-950 uppercase">All Courses</h2>
+            <p className="text-xs tracking-[0.15em] uppercase font-light text-stone-500 mt-2">Professional Training</p>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          {courses.map((course, i) => (
+            <div
+              key={i}
+              className="bg-white/50 backdrop-blur-xl border border-white/60 rounded-3xl p-6 sm:p-8 hover:border-white/80 transition-all duration-300 shadow-lg shadow-stone-900/5"
+            >
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-3">
+                    <span className="px-3 py-1 bg-gradient-to-br from-stone-100/80 to-stone-200/60 border border-white/60 rounded-full text-xs tracking-[0.1em] uppercase font-light text-stone-700 shadow-inner shadow-stone-900/5">
+                      {course.level}
+                    </span>
+                  </div>
+                  <h3 className="text-lg sm:text-xl font-serif font-extralight tracking-[0.15em] uppercase mb-2">
+                    {course.title}
+                  </h3>
+                  <p className="text-sm font-light text-stone-600 mb-4">
+                    {course.description}
+                  </p>
+                  <div className="flex items-center gap-6 text-xs tracking-[0.1em] uppercase font-light text-stone-500">
+                    <span>{course.duration}</span>
+                    <span>{course.lessons} Lessons</span>
+                  </div>
+                </div>
+              </div>
+
+              <a
+                href="https://your-gohighlevel-course-link.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block w-full text-center bg-stone-950 text-stone-50 py-4 rounded-2xl font-light tracking-[0.15em] uppercase text-sm transition-all duration-200 hover:bg-stone-800 min-h-[52px]"
+              >
+                Access Course
+              </a>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-8 pb-4">
+      <div className="pt-4 sm:pt-6 text-center">
+        <h1 className="text-3xl sm:text-5xl font-serif font-extralight tracking-[0.3em] text-stone-950 uppercase leading-none mb-3">
+          Academy
+        </h1>
+        <p className="text-xs tracking-[0.2em] uppercase font-light text-stone-500">
+          Master Professional Photography
+        </p>
+      </div>
+
+      <div className="grid grid-cols-3 gap-4">
+        {[
+          { label: 'Active', value: 'Pro', desc: 'Membership' },
+          { label: 'Completed', value: '4/12', desc: 'Courses' },
+          { label: 'Certificates', value: '1', desc: 'Earned' }
+        ].map((stat, i) => (
+          <div key={i} className="bg-stone-100/50 border border-stone-200/40 rounded-2xl p-4 sm:p-5">
+            <div className="text-xs tracking-[0.1em] uppercase font-light mb-2 text-stone-500">{stat.label}</div>
+            <div className="text-2xl sm:text-3xl font-serif font-extralight text-stone-950 mb-1">{stat.value}</div>
+            <div className="text-xs font-light text-stone-600">{stat.desc}</div>
+          </div>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <button
+          onClick={() => setSelectedView('membership')}
+          className="group relative bg-white/50 backdrop-blur-2xl border border-white/60 rounded-[1.75rem] p-8 text-left hover:bg-white/70 hover:border-white/80 transition-all duration-300 shadow-xl shadow-stone-900/10 hover:shadow-2xl hover:shadow-stone-900/20 overflow-hidden hover:scale-[1.02] active:scale-[0.98]"
+        >
+          <div className="absolute top-0 right-0 w-40 h-40 bg-stone-200/20 rounded-full blur-3xl"></div>
+          <div className="relative z-10 w-14 h-14 bg-stone-950 rounded-[1.25rem] flex items-center justify-center mb-6 shadow-xl shadow-stone-900/30 group-hover:scale-110 transition-transform duration-300">
+            <Star size={26} className="text-white" strokeWidth={2.5} />
+          </div>
+          <h3 className="text-xl sm:text-2xl font-bold text-stone-950 mb-3 relative z-10">
+            Membership Plans
+          </h3>
+          <p className="text-sm font-medium text-stone-600 mb-6 relative z-10">
+            Upgrade your plan for unlimited AI generations and exclusive features
+          </p>
+          <div className="flex items-center gap-2 text-xs tracking-wider uppercase font-semibold text-stone-600 group-hover:text-stone-950 transition-colors relative z-10">
+            <span>View Plans</span>
+            <ChevronRight size={14} strokeWidth={2.5} className="group-hover:translate-x-1 transition-transform" />
+          </div>
+        </button>
+
+        <button
+          onClick={() => setSelectedView('courses')}
+          className="group relative bg-white/50 backdrop-blur-2xl border border-white/60 rounded-[1.75rem] p-8 text-left hover:bg-white/70 hover:border-white/80 transition-all duration-300 shadow-xl shadow-stone-900/10 hover:shadow-2xl hover:shadow-stone-900/20 overflow-hidden hover:scale-[1.02] active:scale-[0.98]"
+        >
+          <div className="absolute top-0 right-0 w-40 h-40 bg-stone-200/20 rounded-full blur-3xl"></div>
+          <div className="relative z-10 w-14 h-14 bg-stone-950 rounded-[1.25rem] flex items-center justify-center mb-6 shadow-xl shadow-stone-900/30 group-hover:scale-110 transition-transform duration-300">
+            <Grid size={26} className="text-white" strokeWidth={2.5} />
+          </div>
+          <h3 className="text-xl sm:text-2xl font-bold text-stone-950 mb-3 relative z-10">
+            All Courses
+          </h3>
+          <p className="text-sm font-medium text-stone-600 mb-6 relative z-10">
+            Access our complete library of professional photography courses
+          </p>
+          <div className="flex items-center gap-2 text-xs tracking-wider uppercase font-semibold text-stone-600 group-hover:text-stone-950 transition-colors relative z-10">
+            <span>Browse Courses</span>
+            <ChevronRight size={14} strokeWidth={2.5} className="group-hover:translate-x-1 transition-transform" />
+          </div>
+        </button>
+      </div>
+
+      <div className="relative bg-stone-950 text-white rounded-[1.75rem] p-8 overflow-hidden shadow-2xl">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-stone-800/50 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 w-48 h-48 bg-stone-700/30 rounded-full blur-3xl"></div>
+        <div className="relative z-10 flex items-start justify-between mb-6">
+          <div className="flex-1">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/10 backdrop-blur-xl rounded-full text-xs tracking-wider uppercase font-semibold mb-4 border border-white/20">
+              <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
+              Recommended
+            </div>
+            <h3 className="text-xl sm:text-2xl font-bold mb-3">
+              Professional Portrait Mastery
+            </h3>
+            <p className="text-sm font-medium opacity-90 mb-6 max-w-md">
+              12 lessons • 3 hours • Create stunning professional headshots that capture attention and build authority
+            </p>
+          </div>
+        </div>
+
+        <a
+          href="https://your-gohighlevel-featured-course.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group relative block w-full text-center bg-white text-stone-950 py-4 rounded-[1.25rem] font-semibold text-sm transition-all duration-300 hover:shadow-2xl hover:shadow-white/30 min-h-[56px] hover:scale-[1.02] active:scale-[0.98] overflow-hidden"
+        >
+          <div className="absolute inset-0 bg-stone-100 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+          <span className="relative z-10">Start Learning</span>
+        </a>
+      </div>
+    </div>
+  );
+};
+
+const ProfileScreen = ({ user }) => {
+  const [activeSection, setActiveSection] = useState('profile');
+
+  if (activeSection === 'settings') {
+    return <SettingsScreen onBack={() => setActiveSection('profile')} />;
+  }
+
+  return (
+    <div className="space-y-8 pb-4">
+      <div className="text-center space-y-8 pt-4">
+        <div className="relative inline-block">
+          <img
+            src={user.avatar}
+            alt={user.name}
+            className="w-32 h-32 sm:w-40 sm:h-40 rounded-full object-cover border-2 border-stone-200/60 shadow-sm"
+          />
+          <div className="absolute -bottom-1 -right-1 w-9 h-9 bg-stone-50 rounded-full border-2 border-stone-100 flex items-center justify-center shadow-sm">
+            <div className="w-4 h-4 bg-stone-900 rounded-full"></div>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <h2 className="text-3xl sm:text-5xl font-serif font-extralight tracking-[0.25em] text-stone-950 uppercase">{user.name}</h2>
+          <p className="text-xs tracking-[0.3em] uppercase font-light bg-stone-500/10 px-4 py-2 rounded-full inline-block text-stone-600">
+            {user.membershipTier} Member
+          </p>
+        </div>
+
+        <div className="grid grid-cols-3 gap-8 pt-4">
+          {[
+            { value: user.posts, label: 'Photos' },
+            { value: user.followers, label: 'Followers' },
+            { value: user.following, label: 'Following' }
+          ].map((stat, index) => (
+            <div key={index} className="text-center space-y-3">
+              <div className="text-3xl sm:text-4xl font-serif font-extralight text-stone-950">{stat.value}</div>
+              <div className="text-xs tracking-[0.15em] uppercase font-light text-stone-500">{stat.label}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <button className="group relative bg-stone-950 text-white px-6 py-5 rounded-[1.5rem] font-semibold tracking-wide text-sm transition-all duration-300 hover:shadow-2xl hover:shadow-stone-900/40 hover:scale-105 active:scale-95 min-h-[60px] overflow-hidden">
+          <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+          <span className="relative z-10">Edit Profile</span>
+        </button>
+        <button
+          onClick={() => setActiveSection('settings')}
+          className="bg-white/50 backdrop-blur-2xl text-stone-950 px-6 py-5 rounded-[1.5rem] font-semibold text-sm border border-white/60 transition-all duration-300 hover:bg-white/70 hover:border-white/80 hover:scale-105 active:scale-95 flex items-center justify-center gap-3 min-h-[60px] shadow-lg shadow-stone-900/10"
+        >
+          <div className="w-9 h-9 bg-gradient-to-br from-stone-600 to-stone-700 rounded-xl flex items-center justify-center shadow-lg">
+            <Settings size={16} strokeWidth={2.5} className="text-white" />
+          </div>
+          Settings
+        </button>
+      </div>
+
+      <div className="space-y-4 sm:space-y-6">
+        <div className="flex items-center justify-between">
+          <h3 className="text-base sm:text-xl md:text-2xl font-serif font-extralight tracking-[0.15em] text-stone-950 uppercase">Recent Work</h3>
+          <button className="text-xs sm:text-sm tracking-[0.15em] uppercase font-light transition-colors duration-200 text-stone-600 hover:text-stone-800">
+            View All
+          </button>
+        </div>
+        <div className="grid grid-cols-3 gap-2 sm:gap-3 md:gap-4">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div key={i} className="aspect-square bg-stone-200/30 rounded-xl sm:rounded-2xl border border-stone-300/30 flex items-center justify-center cursor-pointer group transition-all duration-200 hover:scale-[1.02] hover:bg-stone-200/50">
+              <Camera size={20} strokeWidth={1.5} className="text-stone-500 group-hover:text-stone-700 transition-colors" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const SettingsScreen = ({ onBack }) => (
+  <div className="space-y-8 pb-4">
+    <div className="flex items-center gap-4 pt-4">
+      <button
+        onClick={onBack}
+        className="p-4 bg-stone-100/50 rounded-2xl border border-stone-200/40 hover:bg-stone-100/70 hover:border-stone-300/50 transition-all duration-200"
+      >
+        <ChevronRight size={18} className="text-stone-600 transform rotate-180" strokeWidth={1.5} />
+      </button>
+      <div className="flex-1 min-w-0">
+        <h2 className="text-2xl sm:text-4xl font-serif font-extralight tracking-[0.3em] text-stone-950 uppercase">Settings</h2>
+        <p className="text-xs tracking-[0.15em] uppercase font-light mt-2 text-stone-500">Your Preferences</p>
+      </div>
+    </div>
+
+    <div className="space-y-6">
+      {[
+        {
+          title: 'Notifications',
+          icon: Bell,
+          items: [
+            { name: 'Photo completion alerts', status: 'On', type: 'toggle' },
+            { name: 'Maya updates', status: 'Weekly', type: 'select' },
+            { name: 'Tips & inspiration', status: 'On', type: 'toggle' }
+          ]
+        },
+        {
+          title: 'Photo Quality',
+          icon: Camera,
+          items: [
+            { name: 'Image resolution', status: 'High', type: 'select' },
+            { name: 'Auto-enhance', status: 'On', type: 'toggle' },
+            { name: 'Background removal', status: 'Auto', type: 'select' }
+          ]
+        },
+        {
+          title: 'Account',
+          icon: User,
+          items: [
+            { name: 'Profile visibility', status: 'Public', type: 'select' },
+            { name: 'Data backup', status: 'Cloud', type: 'select' },
+            { name: 'Photo sharing', status: 'On', type: 'toggle' }
+          ]
+        },
+      ].map((group, index) => (
+        <div key={index} className="bg-white/50 backdrop-blur-2xl rounded-xl sm:rounded-[1.75rem] p-4 sm:p-6 md:p-8 border border-white/60 shadow-xl shadow-stone-900/10">
+          <div className="flex items-center space-x-3 sm:space-x-4 mb-6 sm:mb-8">
+            <div className="p-2.5 sm:p-3.5 bg-stone-950 rounded-lg sm:rounded-[1.125rem] shadow-lg">
+              <group.icon size={18} className="text-white" strokeWidth={2.5} />
+            </div>
+            <h3 className="text-base sm:text-lg md:text-xl font-bold text-stone-950">{group.title}</h3>
+          </div>
+
+          <div className="space-y-1 sm:space-y-2">
+            {group.items.map((item, itemIndex) => (
+              <div key={itemIndex} className="flex items-center justify-between py-3 sm:py-5 hover:bg-white/30 rounded-lg sm:rounded-[1.25rem] px-3 sm:px-6 -mx-3 sm:-mx-6 transition-all duration-300 cursor-pointer group min-h-[56px] sm:min-h-[68px]">
+                <span className="text-xs sm:text-sm md:text-base text-stone-950 font-medium flex-1 min-w-0 truncate">{item.name}</span>
+                <div className="flex items-center space-x-3 sm:space-x-4 ml-3 sm:ml-4">
+                  <span className="text-[10px] sm:text-xs md:text-sm font-semibold text-stone-600">{item.status}</span>
+                  {item.type === 'toggle' ? (
+                    <div className={`relative w-12 h-7 sm:w-14 sm:h-8 md:w-16 md:h-9 rounded-full transition-all duration-300 cursor-pointer shadow-inner ${
+                      item.status === 'On'
+                        ? 'bg-stone-950 shadow-stone-900/30'
+                        : 'bg-stone-300/60'
+                    }`}>
+                      <div className={`absolute top-1 w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 bg-white rounded-full shadow-lg transition-all duration-300 ${
+                        item.status === 'On' ? 'translate-x-6 sm:translate-x-7 md:translate-x-8' : 'translate-x-1'
+                      }`}></div>
+                    </div>
+                  ) : (
+                    <div className="w-7 h-7 sm:w-8 sm:h-8 bg-white/60 backdrop-blur-xl rounded-full flex items-center justify-center group-hover:bg-white/80 transition-all duration-300 shadow-lg">
+                      <ChevronRight size={14} className="text-stone-600" strokeWidth={2.5} />
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <div className="pt-6 border-t border-stone-200/30">
+      <button className="w-full text-sm tracking-[0.15em] uppercase font-light border rounded-2xl py-5 transition-colors hover:text-stone-950 hover:bg-stone-100/30 min-h-[56px] text-stone-600 border-stone-300/40">
+        Sign Out
+      </button>
+    </div>
+  </div>
+);
+
+export default SselfieApp;

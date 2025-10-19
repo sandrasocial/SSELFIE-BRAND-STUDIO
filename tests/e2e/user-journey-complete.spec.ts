@@ -15,8 +15,8 @@ import { test, expect, Page } from '@playwright/test';
  * We will fix issues as they appear, not modify tests to pass.
  */
 
-const BASE_URL = process.env['BASE_URL'] || 'http://localhost:5173';
-const API_URL = process.env['API_URL'] || 'http://localhost:5173/api';
+const BASE_URL = process.env.PLAYWRIGHT_BASE_URL || process.env.BASE_URL || 'https://sselfie.ai';
+const API_URL = process.env.API_URL || `${BASE_URL}/api`;
 
 // Test data
 const TEST_EMAIL = `test-${Date.now()}@sselfie.test`;

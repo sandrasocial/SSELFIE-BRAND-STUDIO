@@ -10,6 +10,8 @@ export const config = {
 } as const;
 
 import { StackAuthUserInfo } from './_shared/stack-auth-types.js';
+import { logoutSetCookieHeaders } from './_shared/cookies.js';
+
 
 // Lazy-load jose at runtime to avoid bootstrap issues
 type JoseModule = typeof import('jose');
@@ -103,10 +105,8 @@ interface AuthenticatedUser {
   stackUser: StackAuthUserInfo;
 }
 
-// Stack Auth configuration
-const STACK_AUTH_PROJECT_ID = process.env['STACK_AUTH_PROJECT_ID'] || process.env['VITE_STACK_PROJECT_ID'] || '253d7343-a0d4-43a1-be5c-822f590d40be';
-const STACK_AUTH_API_URL = 'https://api.stack-auth.com/api/v1';
-const JWKS_URL = `${STACK_AUTH_API_URL}/projects/${STACK_AUTH_PROJECT_ID}/.well-known/jwks.json`;
+// Stack Auth configuration (shared)
+import { STACK_PROJECT_ID, STACK_AUTH_API_URL, JWKS_URL, STACK_ISSUER } from './_shared/stack-config.js';
 
 // Create JWKS resolver
 let JWKS: any;
@@ -141,15 +141,9 @@ async function timedFetch(url: string, ms = 3000, init?: FetchInit) {
   );
 }
 
-// Cookie management
+// Cookie management (shared)
 function setLogoutCookies(res: VercelResponse) {
-  const expired = [
-    'stack-access',
-    'stack-access-token',
-    'stack_session',
-    '__Secure-next-auth.session-token'
-  ].map(name => `${name}=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0`);
-
+  const expired = logoutSetCookieHeaders();
   const existing = res.getHeader('Set-Cookie');
   if (Array.isArray(existing)) {
     res.setHeader('Set-Cookie', [...existing, ...expired]);
@@ -261,8 +255,8 @@ async function verifyJWTToken(token: string): Promise<StackAuthUserInfo> {
     }
 
     const { payload } = await jwtVerify(token, JWKS, {
-      issuer: `${STACK_AUTH_API_URL}/projects/${STACK_AUTH_PROJECT_ID}`,
-      audience: STACK_AUTH_PROJECT_ID,
+      issuer: STACK_ISSUER,
+      audience: STACK_PROJECT_ID,
     });
 
     return payload as unknown as StackAuthUserInfo;
@@ -665,7 +659,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       try {
         const stackAuthPath = req.url.replace('/api/auth', '');
-        const stackAuthUrl = `https://api.stack-auth.com/api/v1/projects/${STACK_AUTH_PROJECT_ID}${stackAuthPath}`;
+        const stackAuthUrl = `https://api.stack-auth.com/api/v1/projects/${STACK_PROJECT_ID}${stackAuthPath}`;
 
 
         const proxyResponse = await fetch(stackAuthUrl, {
@@ -673,7 +667,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           headers: {
             'Content-Type': 'application/json',
             'Authorization': req.headers.authorization || '',
-            'x-stack-project-id': STACK_AUTH_PROJECT_ID,
+            'x-stack-project-id': STACK_PROJECT_ID,
             'x-stack-access-type': 'client', // 🔥 CRITICAL FIX: Required header for Stack Auth API
             'x-stack-publishable-client-key': process.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY || '',
             ...(req.body ? {} : {})
