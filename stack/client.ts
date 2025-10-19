@@ -20,15 +20,42 @@ import { StackClientApp } from "@stackframe/react";
         };
 
         const url = toUrl(input);
-        const match = url.match(/^https:\/\/api\.stack-auth\.com\/api\/v1\/projects\/[^/]+(\/.*)?$/);
-        if (match) {
-          const restPath = match[1] || '/';
-          const proxiedUrl = `/api/auth${restPath}`;
-          const finalInit: RequestInit = { ...(init || {}), credentials: 'include' };
+        // Build absolute URL for reliable matching, even for relative inputs like "api/v1/..."
+        let absUrl: URL | null = null;
+        try {
           if (typeof window !== 'undefined') {
-            console.debug('🔁 Proxying Stack Auth request →', proxiedUrl);
+            absUrl = new URL(url, window.location.origin);
+          } else {
+            absUrl = new URL(url, 'http://localhost');
           }
-          return await originalFetch(proxiedUrl as any, finalInit);
+        } catch (_) {}
+
+        if (absUrl) {
+          const pathname = absUrl.pathname; // e.g., "/api/v1/projects/<id>/users/me"
+          const host = absUrl.host; // e.g., "api.stack-auth.com" or current host
+
+          // Do not re-proxy our own /api/auth calls
+          if (pathname.startsWith('/api/auth')) {
+            return originalFetch(input as any, init as any);
+          }
+
+          // Match:
+          // 1) Absolute https://api.stack-auth.com/api/v1/projects/<id>(/...)?
+          // 2) Same-origin /api/v1/projects/<id>(/...)? (also handles missing leading slash via URL())
+          const isStackHost = host === 'api.stack-auth.com';
+          const m = pathname.match(/^\/?api\/v1\/projects\/[^\/]+(\/.*)?$/);
+
+          if (isStackHost || m) {
+            // When matching absolute stack host, we still need to extract the rest path after the project id
+            const pathMatch = pathname.match(/^\/?api\/v1\/projects\/[^\/]+(\/.*)?$/);
+            const restPath = (pathMatch && pathMatch[1]) || '/';
+            const proxiedUrl = `/api/auth${restPath}${absUrl.search || ''}`;
+            const finalInit: RequestInit = { ...(init || {}), credentials: 'include' };
+            if (typeof window !== 'undefined') {
+              console.debug('🔁 Proxying Stack Auth request', { original: absUrl.toString(), proxied: proxiedUrl });
+            }
+            return await originalFetch(proxiedUrl as any, finalInit);
+          }
         }
       } catch (e) {
         console.warn('Stack fetch proxy error (non-fatal):', e);

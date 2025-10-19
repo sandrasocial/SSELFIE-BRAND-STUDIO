@@ -66,6 +66,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const authPath = req.url?.replace('/api/auth', '') || '';
   const stackAuthUrl = `${STACK_AUTH_API_BASE}/projects/${STACK_PROJECT_ID}${authPath}`;
 
+  console.log(`[StackAuthProxy] upstream -> ${stackAuthUrl}`);
+
   try {
     // Prepare headers for Stack Auth API
     const headers: Record<string, string> = {
