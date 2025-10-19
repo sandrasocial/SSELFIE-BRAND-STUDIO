@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect } from 'react';
 import { apiFetch } from "../lib/api.js";
+import { isPublicRoute, isAuthRoute } from "../constants/routes.js";
 // ⚠️ CRITICAL: Import stackClientApp lazily to avoid circular dependency
 let stackClientApp: any = null;
 async function getStackClientApp() {
@@ -37,7 +38,7 @@ export interface User {
 }
 
 // Simplified Stack Auth integration
-export function useAuth() {
+export function useAuth(options?: { force?: boolean; silent?: boolean }) {
   const queryClient = useQueryClient();
   const [authState, setAuthState] = useState<{
     stackUser: any | null;
@@ -52,9 +53,20 @@ export function useAuth() {
     let timeoutId: NodeJS.Timeout;
     let authCheckTimeoutId: NodeJS.Timeout;
 
+    // Fast-path: skip auth checks on public and auth routes unless forced
+    try {
+      const path = typeof window !== 'undefined' ? window.location.pathname : '/';
+      const allowlisted = isPublicRoute(path) || isAuthRoute(path);
+      if (allowlisted && !options?.force) {
+        if (!options?.silent) console.log('🔓 useAuth: Skipping auth check on public/auth route:', path);
+        setAuthState({ stackUser: null, isLoading: false });
+        return () => { mounted = false; };
+      }
+    } catch {}
+
     async function checkAuth() {
       try {
-        console.log('🔐 useAuth: Checking authentication status...');
+        if (!options?.silent) console.log('🔐 useAuth: Checking authentication status...');
 
         // Lazy load stackClientApp
         const app = await getStackClientApp();
@@ -115,17 +127,16 @@ export function useAuth() {
 
     checkAuth();
 
-    // Set a maximum timeout for auth check (3 seconds)
-    // Reduced from 10s for faster perceived performance
+    // Set a maximum timeout for auth check (2 seconds)
     authCheckTimeoutId = setTimeout(() => {
       if (mounted) {
-        console.warn('⚠️ useAuth: Auth check timeout - proceeding without user');
+        if (!options?.silent) console.warn('⚠️ useAuth: Auth check timeout - proceeding without user');
         setAuthState({
           stackUser: null,
           isLoading: false
         });
       }
-    }, 3000);
+    }, 2000);
 
     return () => {
       mounted = false;
@@ -140,12 +151,14 @@ export function useAuth() {
 
   const { stackUser, isLoading: isStackLoading } = authState;
 
-  // Debug Stack Auth state
-  console.log('🔐 useAuth Hook State:', {
-    stackUser,
-    stackUserId: stackUser?.id,
-    stackUserState: stackUser === undefined ? 'loading' : stackUser === null ? 'no-user' : 'has-user'
-  });
+  // Debug Stack Auth state (silenceable)
+  if (!options?.silent) {
+    console.log('🔐 useAuth Hook State:', {
+      stackUser,
+      stackUserId: stackUser?.id,
+      stackUserState: stackUser === undefined ? 'loading' : stackUser === null ? 'no-user' : 'has-user'
+    });
+  }
 
   // Determine authentication state
   const isAuthenticated = !!stackUser?.id;
