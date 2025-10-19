@@ -232,11 +232,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       // Forward response headers
       res.setHeader('Content-Type', contentType);
       res.setHeader('Cache-Control', 'no-store');
-      
-      // Forward Set-Cookie headers for auth state
-      const setCookie = response.headers.get('set-cookie');
-      if (setCookie) {
-        res.setHeader('Set-Cookie', setCookie);
+
+      // Forward Set-Cookie headers for auth state (support multiple cookies)
+      const headersAny: any = response.headers as any;
+      const setCookies: string[] | undefined = typeof headersAny.getSetCookie === 'function' ? headersAny.getSetCookie() : undefined;
+      if (Array.isArray(setCookies) && setCookies.length > 0) {
+        res.setHeader('Set-Cookie', setCookies);
+      } else {
+        const setCookie = response.headers.get('set-cookie');
+        if (setCookie) {
+          res.setHeader('Set-Cookie', setCookie);
+        }
       }
 
       return res.status(response.status).send(data);
@@ -300,11 +306,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       // Forward response headers
       res.setHeader('Content-Type', contentType);
       res.setHeader('Cache-Control', 'no-store');
-      
-      // Forward Set-Cookie headers for auth state
-      const setCookie = response.headers.get('set-cookie');
-      if (setCookie) {
-        res.setHeader('Set-Cookie', setCookie);
+
+      // Forward Set-Cookie headers for auth state (support multiple cookies)
+      const headersAny: any = response.headers as any;
+      const setCookies: string[] | undefined = typeof headersAny.getSetCookie === 'function' ? headersAny.getSetCookie() : undefined;
+      if (Array.isArray(setCookies) && setCookies.length > 0) {
+        res.setHeader('Set-Cookie', setCookies);
+      } else {
+        const setCookie = response.headers.get('set-cookie');
+        if (setCookie) {
+          res.setHeader('Set-Cookie', setCookie);
+        }
       }
 
       return res.status(response.status).send(data);
