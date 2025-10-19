@@ -1,6 +1,8 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { withAuth } from './_middleware/auth.js';
 import type { AuthenticatedRequest } from './_shared/auth-types.js';
+import { logoutSetCookieHeaders } from './_shared/cookies.js';
+
 
 // ✅ PURE SERVERLESS: All routes now handled by dedicated serverless functions
 // No Express adapter needed - removed in Phase 3b migration
@@ -75,7 +77,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   // Public routes that don't require authentication - handle BEFORE auth middleware
-  
+
   // Health check endpoints
   if (req.url?.includes('/api/health') || req.url?.includes('/api/health-check')) {
     return res.status(200).json({
@@ -102,13 +104,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   // Handle logout
   if (req.url === '/api/logout') {
-    const expired = [
-      'stack-access',
-      'stack-access-token', 
-      'stack_session',
-      '__Secure-next-auth.session-token'
-    ].map(name => `${name}=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0`);
-    
+    const expired = logoutSetCookieHeaders();
     res.setHeader('Set-Cookie', expired);
     res.setHeader('Cache-Control', 'no-store');
     return res.status(200).json({ ok: true, loggedOut: true });
@@ -118,7 +114,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.url === '/api/auth/auto-register') {
     const { storage } = await import('../server/storage.js');
     const { email, plan, source } = req.body || {};
-    
+
     if (!email || !plan) {
       return res.status(400).json({ error: 'Email and plan are required' });
     }
@@ -126,7 +122,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     try {
       // Check existing user
       const existingUser = await storage.getUserByEmail(email);
-      
+
       if (existingUser) {
         const updatedUser = await storage.updateUserProfile(existingUser.id, {
           plan: plan,
@@ -179,7 +175,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   // 🔥 CRITICAL FIX: Stack Auth API v1 proxy - Handle Stack Auth client API requests
   if (req.url?.startsWith('/api/v1/')) {
     // Stack Auth v1 API requests (e.g., /api/v1/projects/current)
-    const stackAuthPath = req.url.replace('/api/v1', ''); 
+    const stackAuthPath = req.url.replace('/api/v1', '');
     const stackAuthUrl = `https://api.stack-auth.com/api/v1${stackAuthPath}`;
 
     try {
@@ -190,7 +186,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       // 🔥 CRITICAL: Forward all Stack Auth headers from the request
       const stackAuthHeaders = [
         'x-stack-access-type',
-        'x-stack-project-id', 
+        'x-stack-project-id',
         'x-stack-publishable-client-key',
         'x-stack-secret-server-key',
         'x-stack-access-token',
@@ -232,11 +228,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       // Forward response headers
       res.setHeader('Content-Type', contentType);
       res.setHeader('Cache-Control', 'no-store');
-      
-      // Forward Set-Cookie headers for auth state
-      const setCookie = response.headers.get('set-cookie');
-      if (setCookie) {
-        res.setHeader('Set-Cookie', setCookie);
+
+      // Forward Set-Cookie headers for auth state (support multiple cookies)
+      const headersAny: any = response.headers as any;
+      const setCookies: string[] | undefined = typeof headersAny.getSetCookie === 'function' ? headersAny.getSetCookie() : undefined;
+      if (Array.isArray(setCookies) && setCookies.length > 0) {
+        res.setHeader('Set-Cookie', setCookies);
+      } else {
+        const setCookie = response.headers.get('set-cookie');
+        if (setCookie) {
+          res.setHeader('Set-Cookie', setCookie);
+        }
       }
 
       return res.status(response.status).send(data);
@@ -249,23 +251,29 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
   }
 
-  // Stack Auth API proxy - Enhanced with better error handling and logging  
+  // Stack Auth API proxy - Enhanced with better error handling and logging
   if (req.url?.startsWith('/api/auth/') && !req.url.includes('auto-register')) {
     const stackAuthPath = req.url.replace('/api/auth', '');
-    const stackAuthUrl = `https://api.stack-auth.com/api/v1/projects/${process.env.STACK_AUTH_PROJECT_ID}${stackAuthPath}`;
+
+    // Canonical envs with fallbacks
+    const PROJECT_ID = process.env.STACK_PROJECT_ID || process.env.STACK_AUTH_PROJECT_ID || process.env.VITE_STACK_PROJECT_ID || '';
+    const SECRET_KEY = process.env.STACK_SECRET_SERVER_KEY || process.env.STACK_AUTH_SECRET_KEY || '';
+    const PCK = process.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY || '';
+
+    const stackAuthUrl = `https://api.stack-auth.com/api/v1/projects/${PROJECT_ID}${stackAuthPath}`;
 
     try {
       const headers: Record<string, string> = {
         'Content-Type': 'application/json',
-        'x-stack-project-id': process.env.STACK_AUTH_PROJECT_ID || '',
-        'x-stack-publishable-client-key': process.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY || '',
-        'x-stack-access-type': 'client', // 🔥 CRITICAL FIX: Required header for Stack Auth API
+        'x-stack-project-id': PROJECT_ID,
+        'x-stack-publishable-client-key': PCK,
+        'x-stack-access-type': 'client',
       };
 
-      // 🔥 ENHANCED: Add server-side authentication if secret key is available and request requires it
-      if (process.env.STACK_AUTH_SECRET_KEY && (req.method === 'POST' || req.method === 'PUT' || req.method === 'DELETE')) {
+      // Use server-side access when appropriate
+      if (SECRET_KEY && (req.method === 'POST' || req.method === 'PUT' || req.method === 'DELETE')) {
         headers['x-stack-access-type'] = 'server';
-        headers['x-stack-secret-server-key'] = process.env.STACK_AUTH_SECRET_KEY;
+        headers['x-stack-secret-server-key'] = SECRET_KEY;
       }
 
       // Forward authorization header if present
@@ -288,23 +296,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
 
       const contentType = response.headers.get('content-type') || 'application/json';
-      let data: string;
-
-      // Handle different content types
-      if (contentType.includes('application/json')) {
-        data = await response.text();
-      } else {
-        data = await response.text();
-      }
+      const data = await response.text();
 
       // Forward response headers
       res.setHeader('Content-Type', contentType);
       res.setHeader('Cache-Control', 'no-store');
-      
-      // Forward Set-Cookie headers for auth state
-      const setCookie = response.headers.get('set-cookie');
-      if (setCookie) {
-        res.setHeader('Set-Cookie', setCookie);
+
+      // Forward Set-Cookie headers for auth state (support multiple cookies)
+      const headersAny: any = response.headers as any;
+      const setCookies: string[] | undefined = typeof headersAny.getSetCookie === 'function' ? headersAny.getSetCookie() : undefined;
+      if (Array.isArray(setCookies) && setCookies.length > 0) {
+        res.setHeader('Set-Cookie', setCookies);
+      } else {
+        const setCookie = response.headers.get('set-cookie');
+        if (setCookie) {
+          res.setHeader('Set-Cookie', setCookie);
+        }
       }
 
       return res.status(response.status).send(data);
@@ -371,7 +378,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Import main handler dynamically to avoid circular dependencies
     const { default: main } = await import('./index.js');
     return main(req, res);
-  }, { 
-    optional: !isProtectedRoute 
+  }, {
+    optional: !isProtectedRoute
   });
 }

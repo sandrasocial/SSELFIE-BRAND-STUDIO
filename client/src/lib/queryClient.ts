@@ -1,5 +1,8 @@
 import type { QueryFunction } from "@tanstack/react-query";
-import { QueryClient } from "@tanstack/react-query";
+
+
+
+
 
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
@@ -77,6 +80,7 @@ export async function apiRequest(
 }
 
 type UnauthorizedBehavior = "returnNull" | "throw";
+
 export const getQueryFn: <T>(options: {
   on401: UnauthorizedBehavior;
 }) => any =
@@ -97,30 +101,73 @@ export const getQueryFn: <T>(options: {
     return await res.json();
   };
 
-// Initialize QueryClient immediately
-export const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      queryFn: getQueryFn({ on401: "throw" }),
-      refetchInterval: false,
-      refetchOnWindowFocus: false,
-      staleTime: 5 * 60 * 1000, // 5 minutes for user data
-      gcTime: 10 * 60 * 1000, // 10 minutes garbage collection
-      retry: (failureCount, error: any) => {
-        // Don't retry on 4xx errors except 408/429
-        if (error?.message?.includes('4') && !error.message.includes('408') && !error.message.includes('429')) {
-          return false;
-        }
-        return failureCount < 2;
-      },
-    },
-    mutations: {
-      retry: false,
-    },
-  },
-});
+// Runtime-safe lazy initialization via dynamic import
+let _queryClient: any = null;
+let _initPromise: Promise<any> | null = null;
 
-// Export getter function for backward compatibility
+export async function initQueryClient(): Promise<any> {
+  if (_queryClient) return _queryClient;
+  if (_initPromise) {
+    await _initPromise; return _queryClient;
+  }
+  _initPromise = (async () => {
+    let QueryClientCtor: any | undefined;
+    let source = 'unknown';
+    try {
+      const rq: any = await import('@tanstack/react-query');
+      try {
+        console.log('[RQ dyn] react-query keys:', Object.keys(rq || {}));
+        if (rq?.default) console.log('[RQ dyn] react-query default keys:', Object.keys(rq.default || {}));
+      } catch {}
+      QueryClientCtor = rq?.QueryClient || rq?.default?.QueryClient || rq?.default;
+      source = '@tanstack/react-query';
+    } catch (e) {
+      console.warn('[RQ dyn] failed import @tanstack/react-query', e);
+    }
+    if (typeof QueryClientCtor !== 'function') {
+      try {
+        const core: any = await import('@tanstack/query-core');
+        try {
+          console.log('[RQ dyn] query-core keys:', Object.keys(core || {}));
+          if (core?.default) console.log('[RQ dyn] query-core default keys:', Object.keys(core.default || {}));
+        } catch {}
+        QueryClientCtor = core?.QueryClient || core?.default?.QueryClient || core?.default;
+        source = '@tanstack/query-core';
+      } catch (e) {
+        console.error('[RQ dyn] failed import @tanstack/query-core', e);
+      }
+    }
+    if (typeof QueryClientCtor !== 'function') {
+      console.error('[RQ dyn] QueryClientCtor invalid:', QueryClientCtor, 'source:', source);
+      throw new Error('QueryClient constructor not found at runtime');
+    }
+    _queryClient = new QueryClientCtor({
+      defaultOptions: {
+        queries: {
+          queryFn: getQueryFn({ on401: "throw" }),
+          refetchInterval: false,
+          refetchOnWindowFocus: false,
+          staleTime: 5 * 60 * 1000,
+          gcTime: 10 * 60 * 1000,
+          retry: (failureCount: number, error: any) => {
+            if (error?.message?.includes('4') && !error.message.includes('408') && !error.message.includes('429')) {
+              return false;
+            }
+            return failureCount < 2;
+          },
+        },
+        mutations: { retry: false },
+      },
+    });
+    console.log('[RQ dyn] QueryClient initialized from', source);
+  })();
+  await _initPromise;
+  return _queryClient;
+}
+
 export function getQueryClient() {
-  return queryClient;
+  if (!_queryClient) {
+    throw new Error('QueryClient not initialized. Call initQueryClient() before rendering.');
+  }
+  return _queryClient;
 }

@@ -4,7 +4,11 @@ import { defineConfig, devices } from '@playwright/test';
  * @see https://playwright.dev/docs/test-configuration
  */
 export default defineConfig({
-  testDir: './tests/e2e',
+  // Only run Playwright E2E/spec tests. Exclude Vitest tests to avoid expect conflicts.
+  testDir: './tests',
+  testMatch: ['tests/e2e/**/*.spec.ts', 'tests/*.spec.ts'],
+  testIgnore: ['tests/integration/**', 'tests/unit/**'],
+
   /* Run tests in files in parallel */
   fullyParallel: false, // Set to false for user journey tests that may conflict
   /* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -22,20 +26,20 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:5173',
+    baseURL: process.env.PLAYWRIGHT_BASE_URL || 'https://sselfie.ai',
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on',
-    
+
     /* Screenshot on failure */
     screenshot: 'only-on-failure',
-    
+
     /* Video recording for debugging */
     video: 'retain-on-failure',
-    
+
     /* Ignore HTTPS errors for development */
     ignoreHTTPSErrors: true,
-    
+
     /* Browser viewport */
     viewport: { width: 1280, height: 720 },
   },
