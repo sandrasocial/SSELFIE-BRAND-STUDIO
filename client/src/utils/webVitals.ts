@@ -116,7 +116,9 @@ export const optimizeRuntime = () => {
   if ('PerformanceLongTaskTiming' in window) {
     const observer = new PerformanceObserver((list) => {
       list.getEntries().forEach((entry) => {
-        if (entry.duration > 50) { // Long task threshold
+        // Use a higher threshold in production to avoid noisy logs on real devices
+        const threshold = process.env.NODE_ENV === 'production' ? 150 : 50;
+        if (entry.duration > threshold) {
           console.warn('⚠️ Long task detected:', entry.duration + 'ms');
         }
       });
