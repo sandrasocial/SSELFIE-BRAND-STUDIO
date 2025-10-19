@@ -8,10 +8,12 @@ declare global {
   var Response: typeof globalThis.Response;
 }
 
-// Constants
-const STACK_AUTH_PROJECT_ID = process.env.STACK_AUTH_PROJECT_ID || process.env.VITE_STACK_PROJECT_ID || '253d7343-a0d4-43a1-be5c-822f590d40be';
+// Constants (canonical env names with fallbacks)
+const STACK_PROJECT_ID = process.env.STACK_PROJECT_ID || process.env.STACK_AUTH_PROJECT_ID || process.env.VITE_STACK_PROJECT_ID || '253d7343-a0d4-43a1-be5c-822f590d40be';
 const STACK_AUTH_API_URL = 'https://api.stack-auth.com/api/v1';
-const JWKS_URL = `${STACK_AUTH_API_URL}/projects/${STACK_AUTH_PROJECT_ID}/.well-known/jwks.json`;
+const JWKS_URL = `${STACK_AUTH_API_URL}/projects/${STACK_PROJECT_ID}/.well-known/jwks.json`;
+// One-time debug
+console.log('🔧 Stack Auth Middleware Env:', { projectId: STACK_PROJECT_ID });
 
 // JWKS cache
 let JWKS: ReturnType<typeof import('jose').createLocalJWKSet> | null = null;
@@ -107,8 +109,8 @@ async function verifyJWTToken(token: string): Promise<JWTPayload & StackAuthUser
 
 
     const { payload } = await jose.jwtVerify(token, jwks as any, {
-      issuer: `${STACK_AUTH_API_URL}/projects/${STACK_AUTH_PROJECT_ID}`,
-      audience: STACK_AUTH_PROJECT_ID,
+      issuer: `${STACK_AUTH_API_URL}/projects/${STACK_PROJECT_ID}`,
+      audience: STACK_PROJECT_ID,
       clockTolerance: 30, // Allow 30 seconds clock skew
     });
 

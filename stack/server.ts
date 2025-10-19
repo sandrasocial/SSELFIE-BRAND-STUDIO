@@ -2,19 +2,17 @@
 import { StackServerApp } from "@stackframe/react";
 
 // Server-side Stack Auth configuration
-const STACK_PROJECT_ID = process.env.STACK_AUTH_PROJECT_ID || 
-  process.env.VITE_STACK_PROJECT_ID || 
-  "253d7343-a0d4-43a1-be5c-822f590d40be";
+const STACK_PROJECT_ID = process.env.STACK_PROJECT_ID || process.env.STACK_AUTH_PROJECT_ID || process.env.VITE_STACK_PROJECT_ID || "253d7343-a0d4-43a1-be5c-822f590d40be";
 
 const STACK_PUBLISHABLE_CLIENT_KEY = process.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY || 
   "pck_bqv6htnwq1f37nd2fn6qatxx2f8x0tnxvjj7xwgh1zmhg";
 
-const STACK_SECRET_SERVER_KEY = process.env.STACK_AUTH_SECRET_KEY;
+const STACK_SECRET_SERVER_KEY = process.env.STACK_SECRET_SERVER_KEY || process.env.STACK_AUTH_SECRET_KEY;
 
 // Validate server configuration
 if (!STACK_PROJECT_ID || !STACK_PUBLISHABLE_CLIENT_KEY || !STACK_SECRET_SERVER_KEY) {
   console.error('❌ Stack Auth Server: Missing required configuration');
-  console.error('Required env vars: STACK_AUTH_PROJECT_ID, VITE_STACK_PUBLISHABLE_CLIENT_KEY, STACK_SECRET_SERVER_KEY');
+  console.error('Required env vars: STACK_PROJECT_ID (or VITE_STACK_PROJECT_ID), VITE_STACK_PUBLISHABLE_CLIENT_KEY, STACK_SECRET_SERVER_KEY');
   throw new Error('Stack Auth server configuration is incomplete');
 }
 

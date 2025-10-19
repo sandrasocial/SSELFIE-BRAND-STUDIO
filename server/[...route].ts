@@ -255,23 +255,29 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
   }
 
-  // Stack Auth API proxy - Enhanced with better error handling and logging  
+  // Stack Auth API proxy - Enhanced with better error handling and logging
   if (req.url?.startsWith('/api/auth/') && !req.url.includes('auto-register')) {
     const stackAuthPath = req.url.replace('/api/auth', '');
-    const stackAuthUrl = `https://api.stack-auth.com/api/v1/projects/${process.env.STACK_AUTH_PROJECT_ID}${stackAuthPath}`;
+
+    // Canonical envs with fallbacks
+    const PROJECT_ID = process.env.STACK_PROJECT_ID || process.env.STACK_AUTH_PROJECT_ID || process.env.VITE_STACK_PROJECT_ID || '';
+    const SECRET_KEY = process.env.STACK_SECRET_SERVER_KEY || process.env.STACK_AUTH_SECRET_KEY || '';
+    const PCK = process.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY || '';
+
+    const stackAuthUrl = `https://api.stack-auth.com/api/v1/projects/${PROJECT_ID}${stackAuthPath}`;
 
     try {
       const headers: Record<string, string> = {
         'Content-Type': 'application/json',
-        'x-stack-project-id': process.env.STACK_AUTH_PROJECT_ID || '',
-        'x-stack-publishable-client-key': process.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY || '',
-        'x-stack-access-type': 'client', // 🔥 CRITICAL FIX: Required header for Stack Auth API
+        'x-stack-project-id': PROJECT_ID,
+        'x-stack-publishable-client-key': PCK,
+        'x-stack-access-type': 'client',
       };
 
-      // 🔥 ENHANCED: Add server-side authentication if secret key is available and request requires it
-      if (process.env.STACK_AUTH_SECRET_KEY && (req.method === 'POST' || req.method === 'PUT' || req.method === 'DELETE')) {
+      // Use server-side access when appropriate
+      if (SECRET_KEY && (req.method === 'POST' || req.method === 'PUT' || req.method === 'DELETE')) {
         headers['x-stack-access-type'] = 'server';
-        headers['x-stack-secret-server-key'] = process.env.STACK_AUTH_SECRET_KEY;
+        headers['x-stack-secret-server-key'] = SECRET_KEY;
       }
 
       // Forward authorization header if present
@@ -294,14 +300,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
 
       const contentType = response.headers.get('content-type') || 'application/json';
-      let data: string;
-
-      // Handle different content types
-      if (contentType.includes('application/json')) {
-        data = await response.text();
-      } else {
-        data = await response.text();
-      }
+      const data = await response.text();
 
       // Forward response headers
       res.setHeader('Content-Type', contentType);
