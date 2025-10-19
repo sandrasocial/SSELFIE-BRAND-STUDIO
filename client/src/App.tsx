@@ -2,7 +2,7 @@
 import React, { type ReactNode, useEffect, useState } from 'react';
 const { createElement } = React;
 import type { JSXComponent, EnhancedProps } from './types/react-types';
-import { Route, useLocation } from "wouter";
+import { Route, Switch, useLocation } from "wouter";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { StackHandler } from "@stackframe/react";
 // ✅ Import stackClientApp directly - it's already initialized in main.tsx
@@ -121,7 +121,7 @@ function HandlerRoutes() {
 
 function Router() {
   return (
-    <>
+    <Switch>
       {/* Post-auth success handoff - MOVED TO TOP for priority matching */}
       <Route
         path="/auth-success"
@@ -245,7 +245,7 @@ function Router() {
         path="/:rest*"
         component={() => <NotFound />}
       />
-    </>
+    </Switch>
   );
 }
 
