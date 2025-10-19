@@ -19,5 +19,11 @@ export function detectBrowserIssues(): string[] {
 }
 
 export function showDomainHelp(): void {
-  console.warn('Browser compatibility issues detected. Please update your browser.');
+  try {
+    const issues = detectBrowserIssues();
+    if (issues.length === 0) return; // No issues detected — don't warn
+    console.warn('Browser compatibility issues detected:', issues);
+  } catch {
+    // Never block runtime if detection fails — be silent in production
+  }
 }
