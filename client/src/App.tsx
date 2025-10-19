@@ -60,9 +60,12 @@ function SmartHome() {
   // Instead, redirect to business landing immediately
   // The business landing page will handle auth checks if needed
   useEffect(() => {
-    if (!redirected) {
+    // Ensure we only log/redirect once across mounts in production/preview
+    const win: any = window as any;
+    if (!redirected && !win.__SMART_HOME_REDIRECTED__) {
       console.log('🔀 SmartHome: Redirecting to business landing');
       setRedirected(true);
+      win.__SMART_HOME_REDIRECTED__ = true;
       setLocation(ROUTES.BUSINESS_LANDING);
     }
   }, [redirected, setLocation]);
