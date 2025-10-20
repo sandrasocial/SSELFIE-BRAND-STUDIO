@@ -154,35 +154,37 @@ export async function getAuthenticatedUser(req: VercelRequest): Promise<Authenti
       // Helper function to extract JWT from Stack Auth cookie format
       const tryParseAccessFromCookieValue = (val: unknown): string | undefined => {
         if (!val || typeof val !== 'string') return undefined;
+        
+        // If it already looks like a JWT, return it
+        if (val.split('.').length === 3) {
+          return val;
+        }
+        
+        // Try to parse as JSON array format: ["token_id", "jwt"]
         try {
-          // New format: JSON array ["token_id", "jwt"]
           const parsed = JSON.parse(val);
           if (Array.isArray(parsed) && parsed.length >= 2 && typeof parsed[1] === 'string') {
-            return parsed[1] as string;
+            return parsed[1];
           }
         } catch {
-          // Some environments may store the raw JWT as a string
-          if (val.split('.').length === 3) {
-            return val; // looks like a JWT
-          }
+          // Not JSON, continue with other attempts
         }
+        
         return undefined;
       };
       
-      // 1) Check exact 'stack-access' cookie first
-      const stackAccess = cookies['stack-access'];
-      if (stackAccess) {
-        const token = tryParseAccessFromCookieValue(stackAccess);
-        if (token) {
-          accessToken = token;
-        }
-      }
-
-      // 2) Check any cookie whose name starts with 'stack-access'
-      if (!accessToken) {
-        const matchingKeys = Object.keys(cookies).filter(k => /(^|[-_])stack[-_]?access/i.test(k) || k.includes('stack-access'));
-        for (const key of matchingKeys) {
-          const token = tryParseAccessFromCookieValue(cookies[key]);
+      // 1) Check common Stack Auth cookie names
+      const cookieNames = [
+        'stack-access',
+        'stack-access-token', 
+        'stack_access_token',
+        'stack_session',
+        '__stack_auth_token'
+      ];
+      
+      for (const cookieName of cookieNames) {
+        if (cookies[cookieName]) {
+          const token = tryParseAccessFromCookieValue(cookies[cookieName]);
           if (token) {
             accessToken = token;
             break;
@@ -190,38 +192,13 @@ export async function getAuthenticatedUser(req: VercelRequest): Promise<Authenti
         }
       }
 
-      // 2.5) Check OAuth cookies as fallback (these might contain temporary tokens)
+      // 2) Fallback: Look for any cookie with 'stack' in the name
       if (!accessToken) {
-        const oauthKeys = Object.keys(cookies).filter(k => k.startsWith('stack-oauth-outer-'));
-        for (const key of oauthKeys) {
-          const token = tryParseAccessFromCookieValue(cookies[key]);
-          if (token) {
-            accessToken = token;
-            break;
-          }
-        }
-      }
-
-      // 3) Legacy fallback for simple string tokens
-      if (!accessToken) {
-        const legacyNames = ['stack-access-token', 'stack_session'];
-        for (const cookieName of legacyNames) {
-          const cookieValue = cookies[cookieName];
-          if (cookieValue &&
-              cookieValue !== 'undefined' &&
-              cookieValue !== 'null' &&
-              cookieValue.length > 20 &&
-              cookieValue.split('.').length >= 3) {
-            accessToken = cookieValue;
-            break;
-          }
-        }
-
-        // 4) Ultimate fallback: scan all cookies for a JWT-like value
-        if (!accessToken) {
-          for (const [k, v] of Object.entries(cookies)) {
-            if (typeof v === 'string' && v.length > 20 && v.split('.').length >= 3) {
-              accessToken = v;
+        for (const [cookieName, cookieValue] of Object.entries(cookies)) {
+          if (cookieName.toLowerCase().includes('stack') && cookieValue) {
+            const token = tryParseAccessFromCookieValue(cookieValue);
+            if (token) {
+              accessToken = token;
               break;
             }
           }
@@ -252,8 +229,13 @@ export async function getAuthenticatedUser(req: VercelRequest): Promise<Authenti
   console.log('🆔 Extracted from JWT:', { stackAuthId: stackAuthId?.slice(0,8) + '...', userEmail, userName });
 
   // Ensure we have required fields
-  if (!stackAuthId || !userEmail) {
-    throw new Error('Invalid user info: missing required fields');
+  if (!stackAuthId) {
+    throw new Error('Invalid user info: missing Stack Auth ID');
+  }
+  
+  // Email is optional but preferred
+  if (!userEmail) {
+    console.warn('⚠️  No email found in JWT payload - user may have limited functionality');
   }
 
   // User info extracted successfully
