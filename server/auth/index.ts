@@ -72,6 +72,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Prepare headers for Stack Auth API
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
+      'Accept': 'application/json',
       'x-stack-project-id': STACK_PROJECT_ID,
       'User-Agent': req.headers['user-agent'] || 'SSELFIE-Studio/1.0',
       'x-stack-access-type': 'client',
