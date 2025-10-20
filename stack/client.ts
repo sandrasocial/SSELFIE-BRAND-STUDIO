@@ -39,22 +39,26 @@ import { StackClientApp } from "@stackframe/react";
             return originalFetch(input as any, init as any);
           }
 
-          // Match:
-          // 1) Absolute https://api.stack-auth.com/api/v1/projects/<id>(/...)?
-          // 2) Same-origin /api/v1/projects/<id>(/...)? (also handles missing leading slash via URL())
+          // Match absolute Stack host OR any same-origin /api/v1/* call
           const isStackHost = host === 'api.stack-auth.com';
-          const m = pathname.match(/^\/?api\/v1\/projects\/[^\/]+(\/.*)?$/);
+          const isApiV1 = pathname.match(/^\/?api\/v1(\/.*)?$/);
 
-          if (isStackHost || m) {
-            // When matching absolute stack host, we still need to extract the rest path after the project id
-            const pathMatch = pathname.match(/^\/?api\/v1\/projects\/[^\/]+(\/.*)?$/);
-            const restPath = (pathMatch && pathMatch[1]) || '/';
+          if (isStackHost || isApiV1) {
+            // If path is /api/v1/projects/<pid>/..., strip the project prefix and forward only the tail.
+            // Otherwise, forward the portion after /api/v1 and let the server add /projects/<pid>.
+            const projectPath = pathname.match(/^\/?api\/v1\/projects\/[^\/]+(\/.*)?$/);
+            const restPath = projectPath ? (projectPath[1] || '/') : ((isApiV1 && isApiV1[1]) || '/');
             const proxiedUrl = `/api/auth${restPath}${absUrl.search || ''}`;
             const finalInit: RequestInit = { ...(init || {}), credentials: 'include' };
             if (typeof window !== 'undefined') {
               console.debug('🔁 Proxying Stack Auth request', { original: absUrl.toString(), proxied: proxiedUrl });
             }
             return await originalFetch(proxiedUrl as any, finalInit);
+          }
+
+          // If we reached here and the path looks like Stack API but wasn't proxied, log it for diagnostics
+          if (pathname && /\/api\/v1\b/.test(pathname)) {
+            console.warn('⚠️ Stack fetch proxy: missed interception for', absUrl.toString());
           }
         }
       } catch (e) {
