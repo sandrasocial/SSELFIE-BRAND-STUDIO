@@ -100,14 +100,15 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
       ]
     },
     optimizeDeps: {
-      // ⚠️ CRITICAL: Include yup and its dependencies for proper pre-bundling
-      // yup is used by @stackframe/react and needs to be bundled with tiny-case
+      // ⚠️ CRITICAL: Include packages for proper pre-bundling in dev
+      // - yup is used by @stackframe/react and needs to be bundled with tiny-case
+      // - cookie is a CommonJS module pulled by @stackframe/react; prebundle to avoid "exports is not defined" in dev
       include: [
         'react',
         'react-dom',
         'use-sync-external-store/shim',
         'wouter',
-        
+
         'yup',
         'tiny-case',
         'property-expr',
@@ -121,6 +122,7 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
         'color-string',
         'color-name',
         'color-convert',
+        'cookie',
       ],
       exclude: [
         '@radix-ui',
@@ -156,7 +158,7 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
         '/api': {
           target: process.env.NODE_ENV === 'production'
             ? process.env.API_URL || 'https://api.sselfie.com'
-            : 'http://localhost:5173',
+            : 'http://localhost:3002',
           changeOrigin: true,
           secure: process.env.NODE_ENV === 'production',
           ws: true,

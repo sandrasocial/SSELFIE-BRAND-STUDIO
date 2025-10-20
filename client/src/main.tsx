@@ -3,18 +3,16 @@ import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
 
-// 💡 IMPORT ALL PROVIDERS HERE
+// IMPORTANT: Initialize Stack fetch proxy and client BEFORE importing any @stackframe/react modules
+import { stackClientApp } from "../../stack/client";
 
+// 💡 IMPORT ALL PROVIDERS HERE (safe after proxy setup)
 import { StackProvider, StackTheme } from '@stackframe/react';
 import { Toaster } from './components/ui/toaster';
 import { TooltipProvider } from './components/ui/tooltip';
 
-// Import query client initializer and stack client
-
+// Import query client initializer
 import { initQueryClient } from "./lib/queryClient";
-
-// Re-enable Stack Auth import
-import { stackClientApp } from "../../stack/client";
 
 (async () => {
   try {
@@ -45,16 +43,3 @@ import { stackClientApp } from "../../stack/client";
     </React.StrictMode>
   );
 })();
-
-
-
-
-
-
-
-
-
-
-
-
-
