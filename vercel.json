@@ -13,15 +13,23 @@
 
   "rewrites": [
     {
+      "source": "/api/v1/(.*)",
+      "destination": "/api/[...route]"
+    },
+    {
+      "source": "/api/auth/(.*)",
+      "destination": "/api/auth/[...path]"
+    },
+    {
       "source": "/api/(.*)",
       "destination": "/api/$1"
     },
     {
-      "source": "/(app|maya|simple-training|auth-success|terms|privacy|sign-in|sign-up|magic-link|forgot-password|password-reset|business|ai-command-center|sselfie-gallery|simple-checkout|payment-success|thank-you|auth-diagnostic)",
+      "source": "/(app|maya|simple-training|auth-success|terms|privacy|sign-in|sign-up|magic-link|forgot-password|password-reset|business|ai-command-center|sselfie-gallery|simple-checkout|payment-success|thank-you|auth-diagnostic|test-auth|stack-debug)",
       "destination": "/index.html"
     },
     {
-      "source": "/(app|maya|simple-training|auth-success|terms|privacy|sign-in|sign-up|magic-link|forgot-password|password-reset|business|ai-command-center|sselfie-gallery|simple-checkout|payment-success|thank-you|auth-diagnostic)/",
+      "source": "/(app|maya|simple-training|auth-success|terms|privacy|sign-in|sign-up|magic-link|forgot-password|password-reset|business|ai-command-center|sselfie-gallery|simple-checkout|payment-success|thank-you|auth-diagnostic|test-auth|stack-debug)/",
       "destination": "/index.html"
     },
     {"source": "/app/(.*)", "destination": "/index.html"},

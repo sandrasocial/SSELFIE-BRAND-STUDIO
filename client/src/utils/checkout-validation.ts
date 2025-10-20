@@ -166,11 +166,25 @@ export function validateEmailRealtime(email: string): {
     return { isValid: false, status: 'incomplete' };
   }
 
+  // Only show @ symbol message if they've typed enough characters and still no @
   if (!email.includes('@')) {
+    if (email.length >= 5) {
+      return { 
+        isValid: false, 
+        status: 'incomplete', 
+        message: 'Include an @ symbol' 
+      };
+    }
+    return { isValid: false, status: 'incomplete' };
+  }
+
+  // If they have @ but incomplete domain
+  const parts = email.split('@');
+  if (parts.length === 2 && parts[1].length < 2) {
     return { 
       isValid: false, 
       status: 'incomplete', 
-      message: 'Include an @ symbol' 
+      message: 'Continue typing domain...' 
     };
   }
 

@@ -64,11 +64,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   // Extract the path after /api/auth/ and rebuild Stack API path
   const authPath = req.url?.replace('/api/auth', '') || '';
-  // Ensure path starts with /api/v1; the client proxy strips it
+  // Stack Auth API structure: https://api.stack-auth.com/api/v1/...
+  // Our proxy receives: /api/auth/projects/current
+  // Should send to: https://api.stack-auth.com/api/v1/projects/current
   const upstreamPath = authPath.startsWith('/api/v1') ? authPath : `/api/v1${authPath}`;
   const stackAuthUrl = `${STACK_AUTH_API_BASE}${upstreamPath}`;
 
-  console.log(`[StackAuthProxy] upstream -> ${stackAuthUrl}`);
+  console.log(`[StackAuthProxy] DEBUG:`, {
+    originalUrl: req.url,
+    authPath,
+    upstreamPath,
+    stackAuthUrl,
+    baseUrl: STACK_AUTH_API_BASE
+  });
 
   try {
     // Prepare headers for Stack Auth API
@@ -123,6 +131,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     res.setHeader('Content-Type', contentType);
 
     console.log(`[StackAuthProxy] -> ${response.status} path=${authPath || '/'} setCookieHeader=${!!response.headers.get('set-cookie')}`);
+    
+    // Debug response for authentication endpoints
+    if (authPath.includes('password/sign-in') || authPath.includes('users/me')) {
+      console.log(`[StackAuthProxy] DEBUG Response for ${authPath}:`, {
+        status: response.status,
+        headers: Object.fromEntries(response.headers.entries()),
+        bodyPreview: responseData.substring(0, 200) + (responseData.length > 200 ? '...' : '')
+      });
+    }
 
     res.setHeader('Cache-Control', 'no-store');
 

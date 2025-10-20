@@ -4,7 +4,7 @@ const { createElement } = React;
 import type { JSXComponent, EnhancedProps } from './types/react-types';
 import { Route, Switch, useLocation } from "wouter";
 import { ErrorBoundary } from "./components/ErrorBoundary";
-import { StackHandler } from "@stackframe/react";
+import { StackHandler, StackProvider, StackTheme } from "@stackframe/react";
 // ✅ Import stackClientApp directly - it's already initialized in main.tsx
 import { stackClientApp } from "../../stack/client";
 import { useQuery } from "@tanstack/react-query";
@@ -34,7 +34,6 @@ import {
   ThankYou,
   Terms,
   Privacy,
-  AuthSuccessComponent,
   NotFound,
   SSELFIEGallery,
   AICommandCenter
@@ -52,33 +51,29 @@ import { AuthWrapper } from './features/auth/components/AuthWrapper.js';
 
 // Smart Home component - Routes users through simplified journey
 // NEW USER JOURNEY: Authentication → AI Training → Payment → App Studio
+// Simple Home component - Let Stack Auth handle authentication flow
 function SmartHome() {
-  const [, setLocation] = useLocation();
-  const [redirected, setRedirected] = useState(false);
+  const { user, isAuthenticated, isLoading } = useAuth({ silent: true });
 
-  // ✅ CRITICAL FIX: Don't call useAuth() here - it causes stuck loading page
-  // Instead, redirect to business landing immediately
-  // The business landing page will handle auth checks if needed
-  useEffect(() => {
-    // Ensure we only log/redirect once across mounts in production/preview
-    const win: any = window as any;
-    if (!redirected && !win.__SMART_HOME_REDIRECTED__) {
-      console.log('🔀 SmartHome: Redirecting to business landing');
-      setRedirected(true);
-      win.__SMART_HOME_REDIRECTED__ = true;
-      setLocation(ROUTES.BUSINESS_LANDING);
-    }
-  }, [redirected, setLocation]);
+  if (isLoading) {
+    return <PageLoader />;
+  }
 
-  // Show minimal loading while redirecting
-  return <PageLoader />;
+  if (isAuthenticated && user) {
+    // User is authenticated, redirect to main app
+    window.location.href = ROUTES.APP;
+    return <PageLoader />;
+  } else {
+    // User not authenticated, redirect to business landing
+    window.location.href = ROUTES.BUSINESS_LANDING;
+    return <PageLoader />;
+  }
 }
 
-// 🔥 CLEANED UP: Stack Auth Handler - Single source of truth for authentication
+// ✅ Stack Auth Handler - Following documentation exactly
 function HandlerRoutes() {
-  // ✅ stackClientApp is already initialized in main.tsx and imported at the top
-  // No need for dynamic loading - just use it directly
-
+  const [location] = useLocation();
+  
   if (!stackClientApp) {
     return createElement('div',
       { className: "min-h-screen bg-stone-50 flex items-center justify-center" },
@@ -94,67 +89,19 @@ function HandlerRoutes() {
     );
   }
 
-  // ✅ Use StackHandler for ALL Stack Auth operations to ensure consistency
-  // This includes sign-in, sign-up, magic-link, password-reset, email-verification
-  try {
-    return createElement(StackHandler, {
-      app: stackClientApp,
-      location: window.location.pathname + window.location.search + window.location.hash,
-      fullPage: true
-    });
-  } catch (error) {
-    console.error('🔥 StackHandler Error:', error);
-    return createElement('div',
-      { className: "min-h-screen bg-stone-50 flex items-center justify-center" },
-      createElement('div',
-        { className: "text-center" },
-        createElement('h2', { className: "text-2xl mb-4" }, "Authentication Error"),
-        createElement('p', { className: "text-gray-600 mb-4" }, "There was an issue with authentication."),
-        createElement('button', {
-          onClick: () => window.location.reload(),
-          className: "bg-black text-white px-6 py-2 rounded"
-        }, "Retry")
-      )
-    );
-  }
+  // ✅ Use StackHandler exactly as Stack Auth documentation shows
+  return createElement(StackHandler, {
+    app: stackClientApp,
+    location: location,
+    fullPage: true
+  });
 }
 
 function Router() {
   return (
     <Switch>
-      {/* Post-auth success handoff - MOVED TO TOP for priority matching */}
-      <Route
-        path="/auth-success"
-        component={() => <AuthSuccessComponent />}
-      />
-
-      {/* CLEANED UP: Redirect to Stack Auth handlers for consistency */}
-      <Route
-        path="/sign-in"
-        component={() => {
-          window.location.replace('/handler/sign-in');
-          return <PageLoader />;
-        }}
-      />
-      <Route
-        path="/sign-up"
-        component={() => {
-          window.location.replace('/handler/sign-up');
-          return <PageLoader />;
-        }}
-      />
-
       {/* STACK AUTH HANDLER - Consolidated routes for ALL Stack Auth operations */}
-      {/* CRITICAL FIX: OAuth callback handler MUST come before other routes to preserve query parameters */}
-      <Route
-        path="/handler/oauth-callback"
-        component={() => {
-          const OAuthCallback = React.lazy(() => import("./pages/handler/oauth-callback"));
-          return <OAuthCallback />;
-        }}
-      />
-
-      {/* Use HandlerRoutes for all Stack Auth operations for consistency */}
+      {/* Stack Auth handles all /handler/* routes automatically including OAuth callback */}
       <Route
         path="/handler/:path*"
         component={() => <HandlerRoutes />}
@@ -162,15 +109,6 @@ function Router() {
 
       {/* Home page - Smart routing based on auth and training status */}
       <Route path="/" component={SmartHome} />
-
-      {/* Debug route for auth diagnostics */}
-      <Route
-        path="/auth-diagnostic"
-        component={() => {
-          const AuthDiagnostic = React.lazy(() => import("./pages/auth-diagnostic"));
-          return <AuthDiagnostic />;
-        }}
-      />
 
       {/* Public landing pages */}
       <Route
@@ -287,9 +225,13 @@ function App() {
   }, []);
 
   return createElement(ErrorBoundary, null,
-    createElement(RootWrapper, null,
-      createElement(AuthWrapper, null,
-        createElement(Router)
+    createElement(StackProvider, { app: stackClientApp },
+      createElement(StackTheme, null,
+        createElement(RootWrapper, null,
+          createElement(AuthWrapper, null,
+            createElement(Router)
+          )
+        )
       )
     )
   );
