@@ -7,14 +7,14 @@ import { ROUTES, PUBLIC_ROUTES, isPublicRoute, isAuthRoute } from '../../../cons
 export function AuthWrapper({ children }: { children: React.ReactNode }) {
   const [location, setLocation] = useLocation();
 
-  // Fast-path: on public/auth routes, do not invoke useAuth at all
+  // Always call useAuth; React hooks must not be conditional
+  const { isAuthenticated, isLoading } = useAuth();
+
+  // Fast-path: allow public/auth routes without gating
   const allowlisted = isPublicRoute(location) || isAuthRoute(location) || PUBLIC_ROUTES.includes(location as any);
   if (allowlisted) {
     return <>{children}</>;
   }
-
-  // Only protected routes use auth checks
-  const { isAuthenticated, isLoading } = useAuth();
 
   useEffect(() => {
     if (isLoading) return;

@@ -13,7 +13,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 const STACK_PROJECT_ID = process.env.STACK_PROJECT_ID || process.env.STACK_AUTH_PROJECT_ID || process.env.VITE_STACK_PROJECT_ID;
 const STACK_SECRET_SERVER_KEY = process.env.STACK_SECRET_SERVER_KEY || process.env.STACK_AUTH_SECRET_KEY;
 const STACK_PUBLISHABLE_CLIENT_KEY = process.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY;
-const STACK_AUTH_API_BASE = 'https://api.stack-auth.com/api/v1';
+const STACK_AUTH_API_BASE = 'https://api.stack-auth.com';
 // One-time debug of selected envs
 console.log('🔧 Stack Auth Proxy Env:', { projectId: STACK_PROJECT_ID, hasSecret: !!STACK_SECRET_SERVER_KEY, hasPCK: !!STACK_PUBLISHABLE_CLIENT_KEY });
 
@@ -62,9 +62,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
   }
 
-  // Extract the path after /api/auth/
+  // Extract the path after /api/auth/ and rebuild Stack API path
   const authPath = req.url?.replace('/api/auth', '') || '';
-  const stackAuthUrl = `${STACK_AUTH_API_BASE}/projects/${STACK_PROJECT_ID}${authPath}`;
+  // Ensure path starts with /api/v1; the client proxy strips it
+  const upstreamPath = authPath.startsWith('/api/v1') ? authPath : `/api/v1${authPath}`;
+  const stackAuthUrl = `${STACK_AUTH_API_BASE}${upstreamPath}`;
 
   console.log(`[StackAuthProxy] upstream -> ${stackAuthUrl}`);
 
