@@ -153,30 +153,36 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
       }
     },
     root: path.resolve(__dirname, "client"),
-    server: {
-      proxy: {
-        '/api': {
-          target: process.env.NODE_ENV === 'production'
-            ? process.env.API_URL || 'https://api.sselfie.com'
-            : 'http://localhost:3002',
-          changeOrigin: true,
-          secure: process.env.NODE_ENV === 'production',
-          ws: true,
-          bypass: (req) => {
-            // Don't proxy health checks during dev - they'll fail anyway
-            if (req.url?.includes('/api/health') || req.url?.includes('/api/ping')) {
-              return '/dev-null';
+    server: (() => {
+      const isProd = process.env.NODE_ENV === 'production';
+      const isVercelDev = !!process.env.VERCEL; // vercel dev sets VERCEL=1
+      const devApiTarget = process.env.VITE_API_PROXY_TARGET || 'http://localhost:3002';
+      const base = {
+        hmr: { overlay: true },
+        watch: { usePolling: true }
+      } as any;
+      if (isVercelDev) {
+        // Under `vercel dev`, API routes are served by the same origin; do not proxy.
+        return base;
+      }
+      return {
+        ...base,
+        proxy: {
+          '/api': {
+            target: isProd ? (process.env.API_URL || 'https://api.sselfie.com') : devApiTarget,
+            changeOrigin: true,
+            secure: isProd,
+            ws: true,
+            bypass: (req: IncomingMessage) => {
+              // Don't proxy health checks during dev - they'll fail anyway
+              if (req.url?.includes('/api/health') || req.url?.includes('/api/ping')) {
+                return '/dev-null';
+              }
             }
           }
         }
-      },
-      hmr: {
-        overlay: true
-      },
-      watch: {
-        usePolling: true
-      }
-    },
+      } as any;
+    })(),
       build: {
       outDir: path.resolve(__dirname, "client/dist"),
       emptyOutDir: true,
