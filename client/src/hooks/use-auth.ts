@@ -1,16 +1,6 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState, useEffect } from 'react';
+import { useQuery } from "@tanstack/react-query";
+import { useUser } from "@stackframe/react";
 import { apiFetch } from "../lib/api.js";
-import { isPublicRoute, isAuthRoute } from "../constants/routes.js";
-// ⚠️ CRITICAL: Import stackClientApp lazily to avoid circular dependency
-let stackClientApp: any = null;
-async function getStackClientApp() {
-  if (!stackClientApp) {
-    const module = await import("../../../stack/client.js");
-    stackClientApp = module.stackClientApp;
-  }
-  return stackClientApp;
-}
 
 export interface User {
   id: string;
@@ -37,120 +27,11 @@ export interface User {
   generationsUsedThisMonth?: number;
 }
 
-// Simplified Stack Auth integration
+// Simplified Stack Auth integration using native useUser hook
 export function useAuth(options?: { force?: boolean; silent?: boolean }) {
-  const queryClient = useQueryClient();
-  const [authState, setAuthState] = useState<{
-    stackUser: any | null;
-    isLoading: boolean;
-  }>({
-    stackUser: undefined,
-    isLoading: true
-  });
-
-  useEffect(() => {
-    let mounted = true;
-    let timeoutId: NodeJS.Timeout;
-    let authCheckTimeoutId: NodeJS.Timeout;
-
-    // Fast-path: skip auth checks on public and auth routes unless forced
-    try {
-      const path = typeof window !== 'undefined' ? window.location.pathname : '/';
-      const allowlisted = isPublicRoute(path) || isAuthRoute(path);
-      if (allowlisted && !options?.force) {
-        if (!options?.silent) console.log('🔓 useAuth: Skipping auth check on public/auth route:', path);
-        setAuthState({ stackUser: null, isLoading: false });
-        return () => { mounted = false; };
-      }
-    } catch {}
-
-    async function checkAuth() {
-      try {
-        if (!options?.silent) console.log('🔐 useAuth: Checking authentication status...');
-
-        // Lazy load stackClientApp
-        const app = await getStackClientApp();
-
-        if (!app) {
-          console.error('❌ useAuth: Stack Auth client not initialized');
-          if (mounted) {
-            setAuthState({
-              stackUser: null,
-              isLoading: false
-            });
-          }
-          return;
-        }
-
-        // Add a small delay to prevent rapid re-renders
-        await new Promise(resolve => {
-          timeoutId = setTimeout(resolve, 100);
-        });
-
-        // Get user with timeout
-        const userPromise = app.getUser();
-        const timeoutPromise = new Promise((_, reject) =>
-          setTimeout(() => reject(new Error('Auth check timeout')), 8000)
-        );
-
-        const user = await Promise.race([userPromise, timeoutPromise]);
-
-        if (mounted) {
-          console.log('✅ useAuth: Auth check completed', { hasUser: !!user });
-          setAuthState({
-            stackUser: user || null,
-            isLoading: false
-          });
-        }
-      } catch (error) {
-        // Ignore "not authenticated" errors - this is expected
-        if ((error as Error)?.message?.includes?.('not authenticated')) {
-          console.log('✅ useAuth: User not authenticated (expected)');
-          if (mounted) {
-            setAuthState({
-              stackUser: null,
-              isLoading: false
-            });
-          }
-          return;
-        }
-
-        console.error('❌ useAuth: Auth check failed:', error);
-        if (mounted) {
-          setAuthState({
-            stackUser: null,
-            isLoading: false
-          });
-        }
-      }
-    }
-
-    checkAuth();
-
-    // Set a maximum timeout for auth check (2 seconds)
-    authCheckTimeoutId = setTimeout(() => {
-      if (mounted) {
-        if (!options?.silent) console.warn('⚠️ useAuth: Auth check timeout - proceeding without user');
-        setAuthState({
-          stackUser: null,
-          isLoading: false
-        });
-      }
-    }, 2000);
-
-    return () => {
-      mounted = false;
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
-      if (authCheckTimeoutId) {
-        clearTimeout(authCheckTimeoutId);
-      }
-    };
-  }, []);
-
-  const { stackUser, isLoading: isStackLoading } = authState;
-
+  // Use Stack Auth's native useUser hook - no timeout issues
+  const stackUser = useUser();
+  
   // Debug Stack Auth state (silenceable)
   if (!options?.silent) {
     console.log('🔐 useAuth Hook State:', {
@@ -171,11 +52,11 @@ export function useAuth(options?: { force?: boolean; silent?: boolean }) {
     isError: isDbError
   } = useQuery({
     queryKey: ["/api/me", stackUser?.id],
-    enabled: isAuthenticated && !isStackLoading,
+    enabled: isAuthenticated,
     staleTime: 5 * 60 * 1000, // 5 minutes (cached on backend anyway)
     gcTime: 10 * 60 * 1000, // 10 minutes
     refetchOnWindowFocus: false,
-    refetchOnMount: false, // FIXED: Don't refetch on every mount - use cache
+    refetchOnMount: false, // Don't refetch on every mount - use cache
     retry: 1, // Only retry once on failure
     queryFn: async () => {
       try {
@@ -204,8 +85,8 @@ export function useAuth(options?: { force?: boolean; silent?: boolean }) {
     }
   });
 
-  // Determine overall loading state
-  const isLoading = isStackLoading || (isAuthenticated && isDbLoading);
+  // Determine overall loading state - Stack Auth manages its own loading
+  const isLoading = stackUser === undefined || (isAuthenticated && isDbLoading);
 
   // Create user object
   let user: User | undefined = undefined;
@@ -242,6 +123,6 @@ export function useAuth(options?: { force?: boolean; silent?: boolean }) {
     hasActiveSubscription,
     requiresPayment: isAuthenticated && !hasActiveSubscription && !isLoading,
     error,
-    stackUser: authState.stackUser,
+    stackUser,
   };
 }

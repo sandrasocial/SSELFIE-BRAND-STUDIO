@@ -7,21 +7,22 @@ import { ROUTES, PUBLIC_ROUTES, isPublicRoute, isAuthRoute } from '../../../cons
 export function AuthWrapper({ children }: { children: React.ReactNode }) {
   const [location, setLocation] = useLocation();
 
-  // Always call useAuth; React hooks must not be conditional
+  // ✅ FIXED: Always call ALL hooks before any conditional logic
   const { isAuthenticated, isLoading } = useAuth();
 
-  // Fast-path: allow public/auth routes without gating
-  const allowlisted = isPublicRoute(location) || isAuthRoute(location) || PUBLIC_ROUTES.includes(location as any);
-  if (allowlisted) {
-    return <>{children}</>;
-  }
-
+  // ✅ FIXED: Call useEffect hook ALWAYS, before any returns
   useEffect(() => {
     if (isLoading) return;
     if (!isAuthenticated) {
       setLocation(ROUTES.BUSINESS_LANDING);
     }
   }, [isAuthenticated, isLoading, setLocation]);
+
+  // ✅ FIXED: Move conditional logic AFTER all hooks
+  const allowlisted = isPublicRoute(location) || isAuthRoute(location) || PUBLIC_ROUTES.includes(location as any);
+  if (allowlisted) {
+    return <>{children}</>;
+  }
 
   if (isLoading) {
     return <PageLoader />;
