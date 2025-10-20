@@ -40,3 +40,6 @@ export const SSELFIEGallery = createLazyComponent(() =>
 
 export const AICommandCenter = createLazyComponent(() =>
   import('./AICommandCenter'), 'AICommandCenter');
+
+export const SignInPage = createLazyComponent(() =>
+  import('./sign-in'), 'SignInPage');

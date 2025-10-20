@@ -13,10 +13,22 @@ export function AuthWrapper({ children }: { children: React.ReactNode }) {
   // ✅ FIXED: Call useEffect hook ALWAYS, before any returns
   useEffect(() => {
     if (isLoading) return;
+    
+    // ✅ FIXED: Don't redirect if user is trying to authenticate
+    // Allow Stack Auth components to render and handle authentication
     if (!isAuthenticated) {
-      setLocation(ROUTES.BUSINESS_LANDING);
+      // Only redirect to business landing if we're on a protected route
+      // Don't redirect if user is in the middle of authentication flow
+      const isOnSignInFlow = location.includes('sign-in') || 
+                            location.includes('auth') || 
+                            location.includes('login') ||
+                            location === '/'; // Allow root page for Stack Auth
+      
+      if (!isOnSignInFlow && !isPublicRoute(location) && !isAuthRoute(location)) {
+        setLocation(ROUTES.BUSINESS_LANDING);
+      }
     }
-  }, [isAuthenticated, isLoading, setLocation]);
+  }, [isAuthenticated, isLoading, setLocation, location]);
 
   // ✅ FIXED: Move conditional logic AFTER all hooks
   const allowlisted = isPublicRoute(location) || isAuthRoute(location) || PUBLIC_ROUTES.includes(location as any);
