@@ -36,7 +36,8 @@ import {
   Privacy,
   NotFound,
   SSELFIEGallery,
-  AICommandCenter
+  AICommandCenter,
+  SignInPage
 } from './pages/lazy-pages';
 
 import { PUBLIC_ROUTES } from "./constants/routes";
@@ -114,6 +115,12 @@ function Router() {
       <Route
         path="/business"
         component={() => <BusinessLanding />}
+      />
+
+      {/* Authentication pages */}
+      <Route
+        path="/sign-in"
+        component={() => <SignInPage />}
       />
 
       {/* Protected onboarding routes */}

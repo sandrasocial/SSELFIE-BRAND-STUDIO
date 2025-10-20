@@ -129,12 +129,13 @@ try {
     publishableClientKey: STACK_PUBLISHABLE_CLIENT_KEY,
     tokenStore: "cookie",
     urls: {
-      signIn: "/handler/sign-in",
-      signUp: "/handler/sign-up",
+      // ✅ FIXED: Use Stack Auth's built-in UI routes instead of custom handlers
+      signIn: "/",  // Let Stack Auth handle sign-in at root
+      signUp: "/",  // Let Stack Auth handle sign-up at root  
       afterSignIn: "/app",  // ✅ SIMPLIFIED: Direct redirect to app after sign-in
       afterSignUp: "/app",  // ✅ SIMPLIFIED: Direct redirect to app after sign-up
       afterSignOut: "/",
-      error: "/handler/sign-in?error=auth_failed",
+      error: "/",  // Redirect to root on error instead of non-existent handler
     },
   });
 
