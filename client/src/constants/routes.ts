@@ -14,8 +14,6 @@ export const ROUTES = {
   // Authentication & Onboarding
   SIGN_IN: '/handler/sign-in',
   SIGN_UP: '/handler/sign-up',
-  AUTH_SUCCESS: '/auth-success',
-  OAUTH_CALLBACK: '/handler/oauth-callback',
   
   // Training & Onboarding
   SIMPLE_TRAINING: '/simple-training',
@@ -71,8 +69,6 @@ export const PUBLIC_ROUTES = [
 export const AUTH_ROUTES = [
   ROUTES.SIGN_IN,
   ROUTES.SIGN_UP,
-  ROUTES.AUTH_SUCCESS,
-  ROUTES.OAUTH_CALLBACK,
   ROUTES.MAGIC_LINK,
   ROUTES.FORGOT_PASSWORD,
   ROUTES.PASSWORD_RESET

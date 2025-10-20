@@ -12,60 +12,60 @@ import { StackClientApp } from "@stackframe/react";
 
     g.fetch = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
       try {
-        const toUrl = (inp: any): string => {
-          if (typeof inp === 'string') return inp;
-          if (inp instanceof URL) return inp.toString();
-          if (typeof Request !== 'undefined' && inp instanceof Request) return inp.url;
-          return String(inp);
-        };
+        const url = typeof input === 'string' ? input : 
+                   input instanceof URL ? input.toString() : 
+                   (input as Request)?.url || String(input);
 
-        const url = toUrl(input);
-        // Build absolute URL for reliable matching, even for relative inputs like "api/v1/..."
-        let absUrl: URL | null = null;
-        try {
-          if (typeof window !== 'undefined') {
-            absUrl = new URL(url, window.location.origin);
-          } else {
-            absUrl = new URL(url, 'http://localhost');
-          }
-        } catch (_) {}
+        console.log('🔍 Fetch intercepted:', url);
 
-        if (absUrl) {
-          const pathname = absUrl.pathname; // e.g., "/api/v1/projects/<id>/users/me"
-          const host = absUrl.host; // e.g., "api.stack-auth.com" or current host
-
-          // Do not re-proxy our own /api/auth calls
-          if (pathname.startsWith('/api/auth')) {
-            return originalFetch(input as any, init as any);
-          }
-
-          // Match absolute Stack host OR any same-origin /api/v1/* call
-          const isStackHost = host === 'api.stack-auth.com';
-          const isApiV1 = pathname.match(/^\/?api\/v1(\/.*)?$/);
-
-          if (isStackHost || isApiV1) {
-            // If path is /api/v1/projects/<pid>/..., strip the project prefix and forward only the tail.
-            // Otherwise, forward the portion after /api/v1 and let the server add /projects/<pid>.
-            const projectPath = pathname.match(/^\/?api\/v1\/projects\/[^\/]+(\/.*)?$/);
-            const restPath = projectPath ? (projectPath[1] || '/') : ((isApiV1 && isApiV1[1]) || '/');
-            const proxiedUrl = `/api/auth${restPath}${absUrl.search || ''}`;
-            const finalInit: RequestInit = { ...(init || {}), credentials: 'include' };
-            if (typeof window !== 'undefined') {
-              console.debug('🔁 Proxying Stack Auth request', { original: absUrl.toString(), proxied: proxiedUrl });
-            }
-            return await originalFetch(proxiedUrl as any, finalInit);
-          }
-
-          // If we reached here and the path looks like Stack API but wasn't proxied, log it for diagnostics
-          if (pathname && /\/api\/v1\b/.test(pathname)) {
-            console.warn('⚠️ Stack fetch proxy: missed interception for', absUrl.toString());
-          }
+        // 🔥 SIMPLIFIED: Catch ALL Stack Auth API calls
+        if (url.includes('api.stack-auth.com')) {
+          const stackUrl = new URL(url);
+          // Extract the path after /api/v1/ to avoid double paths
+          const path = stackUrl.pathname.replace('/api/v1', '') + stackUrl.search;
+          const proxiedUrl = `/api/auth${path}`;
+          
+          console.log('🔁 Proxying Stack Auth request:', url, '→', proxiedUrl);
+          
+          const finalInit: RequestInit = { 
+            ...(init || {}), 
+            credentials: 'include' 
+          };
+          
+          return await originalFetch(proxiedUrl, finalInit);
         }
+
+        // Also catch relative /api/v1/* calls
+        if (url.includes('/api/v1/')) {
+          const urlObj = new URL(url, window.location.origin);
+          // Extract the path after /api/v1/ to avoid double paths
+          const path = urlObj.pathname.replace('/api/v1', '') + urlObj.search;
+          const proxiedUrl = `/api/auth${path}`;
+          
+          console.log('🔁 Proxying API v1 request:', url, '→', proxiedUrl);
+          
+          const finalInit: RequestInit = { 
+            ...(init || {}), 
+            credentials: 'include' 
+          };
+          
+          return await originalFetch(proxiedUrl, finalInit);
+        }
+
+        // Don't proxy our own /api/auth calls
+        if (url.includes('/api/auth')) {
+          console.log('✅ Allowing direct /api/auth call:', url);
+          return originalFetch(input as any, init as any);
+        }
+
       } catch (e) {
         console.warn('Stack fetch proxy error (non-fatal):', e);
       }
+      
       return originalFetch(input as any, init as any);
     };
+    
+    console.log('✅ Stack Auth fetch proxy installed');
   } catch (e) {
     console.warn('Stack fetch proxy setup failed (continuing without proxy):', e);
   }
@@ -131,10 +131,9 @@ try {
     urls: {
       signIn: "/handler/sign-in",
       signUp: "/handler/sign-up",
-      afterSignIn: "/auth-success",  // ✅ FIXED: Must match App.tsx route and auth-success.tsx
-      afterSignUp: "/auth-success",  // ✅ FIXED: Must match App.tsx route and auth-success.tsx
+      afterSignIn: "/app",  // ✅ SIMPLIFIED: Direct redirect to app after sign-in
+      afterSignUp: "/app",  // ✅ SIMPLIFIED: Direct redirect to app after sign-up
       afterSignOut: "/",
-      oauthCallback: "/handler/oauth-callback",
       error: "/handler/sign-in?error=auth_failed",
     },
   });

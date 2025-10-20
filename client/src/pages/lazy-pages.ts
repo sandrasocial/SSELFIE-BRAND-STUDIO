@@ -7,13 +7,6 @@ export const SselfieAppLayout = createLazyComponent(() =>
 export const MayaPage = createLazyComponent(() =>
   import('./MayaPage'), 'MayaPage');
 
-// Auth Components
-export const SignInHandler = createLazyComponent(() =>
-  import('./handler/sign-in'), 'SignInHandler');
-
-export const PostLoginHandler = createLazyComponent(() =>
-  import('./handler/PostLoginHandler'), 'PostLoginHandler');
-
 // Page Components
 export const BusinessLanding = createLazyComponent(() =>
   import('./landing/business-landing'), 'BusinessLanding');
@@ -38,9 +31,6 @@ export const Terms = createLazyComponent(() =>
 
 export const Privacy = createLazyComponent(() =>
   import('./legal/privacy'), 'Privacy');
-
-export const AuthSuccessComponent = createLazyComponent(() =>
-  import('./auth-success'), 'AuthSuccess');
 
 export const NotFound = createLazyComponent(() =>
   import('./not-found'), 'NotFound');
