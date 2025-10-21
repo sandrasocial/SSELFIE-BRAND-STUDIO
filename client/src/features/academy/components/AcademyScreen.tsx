@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Star, Grid, ChevronRight } from 'lucide-react';
+import { useAuth } from '../../../hooks/use-auth.js';
 
 interface MembershipTier {
   name: string;
@@ -19,7 +20,12 @@ interface Course {
 }
 
 const AcademyScreen: React.FC = () => {
+  const { user, isAuthenticated } = useAuth();
   const [selectedView, setSelectedView] = useState<'overview' | 'membership' | 'courses'>('overview');
+
+  // Get user's current plan
+  const userPlan = user?.plan || 'free';
+  const currentPlanDisplay = userPlan === 'admin' ? 'Admin' : userPlan === 'pro' ? 'Pro' : 'Free';
 
   const membershipTiers: MembershipTier[] = [
     {
@@ -247,7 +253,7 @@ const AcademyScreen: React.FC = () => {
 
       <div className="grid grid-cols-3 gap-4">
         {[
-          { label: 'Active', value: 'Pro', desc: 'Membership' },
+          { label: 'Active', value: currentPlanDisplay, desc: 'Membership' },
           { label: 'Completed', value: '4/12', desc: 'Courses' },
           { label: 'Certificates', value: '1', desc: 'Earned' }
         ].map((stat, i) => (
