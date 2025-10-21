@@ -35,6 +35,11 @@ export default [js.configs.recommended, {
       CustomEvent: 'readonly',
       AbortController: 'readonly',
       gtag: 'readonly',
+      // Fetch API Types
+      Request: 'readonly',
+      Response: 'readonly',
+      RequestInfo: 'readonly',
+      RequestInit: 'readonly',
       // DOM Types
       HTMLElement: 'readonly',
       HTMLImageElement: 'readonly',
