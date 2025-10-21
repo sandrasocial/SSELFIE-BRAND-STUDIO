@@ -31,8 +31,8 @@ const ChatMessageBubble: React.FC<ChatMessageBubbleProps> = ({ message }) => {
 
   return (
     <div className={`flex ${role === 'user' ? 'justify-end' : 'justify-start'}`}>
-      <div className={`max-w-[90%] ${role === 'user' ? 'order-2' : 'order-1'}`}>
-        <div className={`p-5 sm:p-6 rounded-[1.5rem] sm:rounded-[1.75rem] ${
+      <div className={`max-w-[85%] ${role === 'user' ? 'order-2' : 'order-1'}`}>
+        <div className={`p-5 sm:p-6 rounded-[1.5rem] sm:rounded-[1.75rem] transition-all duration-300 hover:scale-[1.01] ${
           role === 'user'
             ? 'bg-stone-950 text-white shadow-xl shadow-stone-900/30'
             : 'bg-white/50 backdrop-blur-2xl border border-white/70 shadow-xl shadow-stone-900/10 text-stone-950'
@@ -40,7 +40,7 @@ const ChatMessageBubble: React.FC<ChatMessageBubbleProps> = ({ message }) => {
           <div className="space-y-3">
             <p className="text-sm sm:text-base leading-relaxed font-medium whitespace-pre-wrap">{message.content}</p>
             {message.timestamp && (
-              <div className="text-xs font-light text-stone-500 opacity-60">
+              <div className={`text-xs font-medium ${role === 'user' ? 'text-white/70' : 'text-stone-500'}`}>
                 {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </div>
             )}

@@ -80,6 +80,12 @@ const SselfieAppLayout = () => {
 
   return (
     <div className="h-screen bg-gradient-to-br from-stone-50 via-stone-100/50 to-stone-50 relative overflow-hidden">
+      {/* Floating orbs background */}
+      <div className="absolute inset-0">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-stone-200/20 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-stone-300/20 rounded-full blur-3xl"></div>
+      </div>
+
       <div className="relative h-full mx-1 sm:mx-2 md:mx-3 pt-1 sm:pt-2 pb-28 sm:pb-28">
         <div className="h-full bg-white/30 backdrop-blur-3xl rounded-[2rem] sm:rounded-[2.5rem] md:rounded-[3rem] border border-white/40 overflow-hidden shadow-2xl shadow-stone-900/10">
           <HeaderBar
@@ -100,7 +106,7 @@ const SselfieAppLayout = () => {
       </div>
 
       <div className="absolute bottom-4 sm:bottom-5 left-3 sm:left-4 right-3 sm:right-4">
-        <div className="bg-white/20 backdrop-blur-3xl rounded-[2rem] sm:rounded-[2.5rem] border border-white/40 px-2 sm:px-3 py-3 sm:py-4 shadow-2xl shadow-stone-900/20">
+        <div className="bg-white/20 backdrop-blur-3xl rounded-[1.75rem] sm:rounded-[2rem] md:rounded-[2.5rem] border border-white/40 px-1.5 sm:px-2 md:px-3 py-2.5 sm:py-3 md:py-4 shadow-2xl shadow-stone-900/20">
           <div className="flex justify-around items-center">
             {tabs.map((tab) => {
               const Icon = tab.icon as any;
@@ -109,13 +115,13 @@ const SselfieAppLayout = () => {
                 <button
                   key={tab.id}
                   onClick={() => handleTabChange(tab.id)}
-                  className={`flex flex-col items-center space-y-1.5 px-2.5 sm:px-4 py-2.5 sm:py-3 rounded-[1.25rem] sm:rounded-[1.5rem] transition-all duration-500 ease-out min-w-[58px] sm:min-w-[68px] relative ${isActive ? 'transform scale-105' : 'hover:scale-[1.02] active:scale-95'}`}
+                  className={`flex flex-col items-center space-y-1 px-1.5 sm:px-2.5 md:px-4 py-2 sm:py-2.5 md:py-3 rounded-[1rem] sm:rounded-[1.25rem] md:rounded-[1.5rem] transition-all duration-500 ease-out min-w-[52px] sm:min-w-[58px] md:min-w-[68px] relative ${isActive ? 'transform scale-105' : 'hover:scale-[1.02] active:scale-95'}`}
                 >
-                  {isActive && <div className="absolute inset-0 bg-gradient-to-b from-white/90 to-white/70 backdrop-blur-2xl rounded-[1.25rem] sm:rounded-[1.5rem] shadow-xl shadow-stone-900/20 border border-white/60"></div>}
-                  <div className={`relative z-10 w-11 h-11 sm:w-12 sm:h-12 rounded-[1rem] sm:rounded-[1.125rem] flex items-center justify-center transition-all duration-500 ${isActive ? 'bg-stone-950 shadow-lg shadow-stone-900/30' : 'bg-white/40 backdrop-blur-xl'}`}>
-                    <Icon size={isActive ? 20 : 18} strokeWidth={2} className={`transition-all duration-500 ${isActive ? 'text-white' : 'text-stone-600'}`} />
+                  {isActive && <div className="absolute inset-0 bg-gradient-to-b from-white/90 to-white/70 backdrop-blur-2xl rounded-[1rem] sm:rounded-[1.25rem] md:rounded-[1.5rem] shadow-xl shadow-stone-900/20 border border-white/60"></div>}
+                  <div className={`relative z-10 w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-[0.875rem] sm:rounded-[1rem] md:rounded-[1.125rem] flex items-center justify-center transition-all duration-500 ${isActive ? 'bg-stone-950 shadow-lg shadow-stone-900/30' : 'bg-white/40 backdrop-blur-xl'}`}>
+                    <Icon size={isActive ? 19 : 17} strokeWidth={2} className={`transition-all duration-500 ${isActive ? 'text-white' : 'text-stone-600'}`} />
                   </div>
-                  <span className={`relative z-10 text-[9px] sm:text-[10px] font-semibold tracking-wide transition-all duration-500 ${isActive ? 'text-stone-900' : 'text-stone-500 opacity-70'}`}>{tab.label}</span>
+                  <span className={`relative z-10 text-[8px] sm:text-[9px] md:text-[10px] font-semibold tracking-wide transition-all duration-500 ${isActive ? 'text-stone-900' : 'text-stone-500 opacity-70'}`}>{tab.label}</span>
                 </button>
               );
             })}

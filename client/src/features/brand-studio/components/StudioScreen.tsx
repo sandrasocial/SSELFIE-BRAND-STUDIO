@@ -177,57 +177,81 @@ const StudioScreen: React.FC<StudioScreenProps> = ({ onTabChange, hasTrainedMode
     return (
       <div className="space-y-8 pb-4">
         {/* Header */}
-        <div className="pt-4 sm:pt-6 text-center">
-          <h1 className="text-3xl sm:text-5xl font-serif font-extralight tracking-[0.3em] text-stone-950 uppercase leading-none mb-3">
+        <div className="pt-3 sm:pt-4 md:pt-6 text-center">
+          <h1 className="text-2xl sm:text-3xl md:text-5xl font-serif font-extralight tracking-[0.3em] text-stone-950 uppercase leading-none mb-2 sm:mb-3">
             Welcome to Studio
           </h1>
-          <p className="text-xs tracking-[0.2em] uppercase font-light text-stone-500">Start Here • Train Your AI Model</p>
+          <p className="text-[10px] sm:text-xs tracking-[0.2em] uppercase font-light text-stone-500">
+            Start Here • Train Your AI Model
+          </p>
         </div>
 
         {/* Primary Train Card */}
-        <div className="rounded-2xl sm:rounded-3xl border border-white/60 bg-white/60 backdrop-blur-2xl shadow-2xl shadow-stone-900/20 p-6 sm:p-8">
-          <div className="flex items-start gap-4">
-            <div className="w-12 h-12 rounded-[1rem] bg-white/60 backdrop-blur-xl border border-white/70 flex items-center justify-center text-stone-700">
-              <Star className="w-6 h-6" strokeWidth={1.5} />
-            </div>
-            <div className="flex-1">
-              <div className="font-serif font-extralight uppercase tracking-[0.2em] text-stone-950 leading-none text-2xl mb-2">
-                Train Your AI First
-              </div>
-              <div className="text-stone-600 text-sm mb-4">
-                Upload 15–20 selfies to create your personal LoRA model. This unlocks professional photos tailored to you.
-              </div>
-              <button
-                type="button"
-                onClick={() => (onTabChange ? onTabChange('training') : setLocation('/training'))}
-                className="group relative bg-stone-950 text-white font-semibold tracking-[0.15em] uppercase rounded-2xl px-6 py-3 text-xs hover:shadow-2xl hover:shadow-stone-900/40 hover:scale-[1.02] active:scale-95 transition-all"
-              >
-                Start Training Now
-                <ChevronRight className="inline w-4 h-4 ml-2 align-middle" strokeWidth={1.5} />
-              </button>
-            </div>
+        <div className="bg-stone-100/50 border border-stone-200/40 rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-12 text-center">
+          <div className="w-20 h-20 bg-white/60 backdrop-blur-xl rounded-full flex items-center justify-center mx-auto mb-6 border border-white/80 shadow-lg shadow-stone-900/5">
+            <Star size={36} className="text-stone-700" strokeWidth={1.8} />
           </div>
+
+          <h2 className="text-2xl sm:text-3xl font-serif font-extralight tracking-[0.2em] text-stone-950 uppercase mb-4">
+            Train Your AI First
+          </h2>
+
+          <p className="text-base font-light text-stone-600 mb-8 max-w-md mx-auto leading-relaxed">
+            Before you can create stunning photos, you need to train your personal AI model with your selfies. This takes about 20 minutes.
+          </p>
+
+          {/* Benefits Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10 max-w-2xl mx-auto">
+            {[
+              { label: 'Accurate', desc: 'Photos that look like you' },
+              { label: 'Fast', desc: '20 minute training' },
+              { label: 'Professional', desc: 'Gallery-ready results' }
+            ].map((item, i) => (
+              <div key={i} className="p-6 bg-white/50 backdrop-blur-2xl rounded-[1.5rem] border border-white/60 shadow-xl shadow-stone-900/10 hover:shadow-2xl hover:shadow-stone-900/20 hover:scale-[1.02] transition-all duration-300">
+                <div className="w-14 h-14 bg-stone-950 rounded-[1.125rem] flex items-center justify-center mx-auto mb-4 shadow-lg shadow-stone-900/30">
+                  <div className="text-lg font-bold text-white">{i + 1}</div>
+                </div>
+                <div className="text-sm font-semibold text-stone-950 mb-2">{item.label}</div>
+                <div className="text-xs font-medium text-stone-600">{item.desc}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* CTA Button */}
+          <button
+            type="button"
+            onClick={() => (onTabChange ? onTabChange('training') : setLocation('/training'))}
+            className="group relative bg-stone-950 text-white px-8 sm:px-12 py-4 sm:py-5 rounded-xl sm:rounded-[1.25rem] font-semibold tracking-wide text-xs sm:text-sm transition-all duration-300 hover:shadow-2xl hover:shadow-stone-900/40 hover:scale-[1.02] active:scale-[0.98] min-h-[52px] sm:min-h-[60px] overflow-hidden"
+          >
+            <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <span className="relative z-10 flex items-center justify-center gap-2">
+              Start Training Now
+              <ChevronRight size={14} strokeWidth={2.5} className="group-hover:translate-x-1 transition-transform duration-300" />
+            </span>
+          </button>
         </div>
 
-        {/* Benefits Grid */}
-        <div className="grid grid-cols-3 gap-3 sm:gap-4">
-          {[{t:'Accurate',d:'Looks like you'},{t:'Fast',d:'Ready in minutes'},{t:'Professional',d:'Editorial quality'}].map((b,i)=> (
-            <div key={i} className="rounded-2xl border border-white/50 bg-white/40 backdrop-blur-xl p-4 sm:p-5">
-              <div className="text-[10px] tracking-[0.15em] uppercase font-light text-stone-500 mb-2">{String(i+1).padStart(2,'0')}</div>
-              <div className="text-base font-serif font-extralight text-stone-950 mb-1">{b.t}</div>
-              <div className="text-xs text-stone-600">{b.d}</div>
-            </div>
-          ))}
-        </div>
+        {/* What You'll Need Checklist */}
+        <div className="bg-stone-100/50 border border-stone-200/40 rounded-3xl p-6 sm:p-8">
+          <h3 className="text-lg font-serif font-extralight tracking-[0.15em] text-stone-950 uppercase mb-6">
+            What You'll Need
+          </h3>
 
-        {/* Checklist */}
-        <div className="rounded-2xl sm:rounded-3xl bg-stone-100/50 border border-stone-200/40 p-6 sm:p-8">
-          <div className="text-xs tracking-[0.2em] uppercase font-light text-stone-500 mb-4">What You'll Need</div>
-          <div className="grid grid-cols-2 gap-3 sm:gap-4">
-            {[ '10–20 Selfie Photos', 'Good Lighting', 'Variety of Angles', 'About 20 Minutes' ].map((item,idx) => (
-              <div key={idx} className="flex items-center gap-3">
-                <div className="w-1.5 h-1.5 bg-stone-600 rounded-full"></div>
-                <span className="text-sm font-light text-stone-950">{item}</span>
+          <div className="space-y-4">
+            {[
+              { title: '10-20 Selfie Photos', desc: 'Clear, well-lit photos of yourself' },
+              { title: 'Good Lighting', desc: 'Natural window light works best' },
+              { title: 'Variety', desc: 'Different angles and expressions' },
+              { title: '20 Minutes', desc: 'Time for AI training to complete' }
+            ].map((item, i) => (
+              <div key={i} className="flex items-start gap-4 p-4 bg-white/50 backdrop-blur-xl rounded-xl border border-white/60 shadow-lg shadow-stone-900/5">
+                <div className="w-8 h-8 bg-gradient-to-br from-stone-100/80 to-stone-200/60 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 border border-white/60 shadow-inner shadow-stone-900/5">
+                  <div className="w-1.5 h-1.5 bg-stone-700 rounded-full"></div>
+                </div>
+                <div className="flex-1">
+                  <h4 className="text-sm font-light text-stone-950 mb-1">{item.title}</h4>
+                  <p className="text-xs font-light text-stone-600">{item.desc}</p>
+                </div>
               </div>
             ))}
           </div>
@@ -254,97 +278,111 @@ const StudioScreen: React.FC<StudioScreenProps> = ({ onTabChange, hasTrainedMode
           { label: 'Ready', value: String(galleryImages.length), hint: 'Photos' },
           { label: 'Queue', value: String(queueCount), hint: 'Pending' },
         ].map((k, i) => (
-          <div key={i} className="rounded-2xl border border-white/50 bg-white/40 backdrop-blur-xl p-4 sm:p-5">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-3">
-                <div className="w-1.5 h-1.5 bg-stone-600 rounded-full"></div>
-                <span className="text-[10px] tracking-[0.15em] uppercase font-light text-stone-500">{k.label}</span>
-              </div>
-              <span className="text-2xl sm:text-3xl font-serif font-extralight text-stone-950 leading-none">{k.value}</span>
-            </div>
-            <div className="text-xs text-stone-500">{k.hint}</div>
+          <div key={i} className="group relative bg-white/40 backdrop-blur-2xl border border-white/50 rounded-xl sm:rounded-[1.5rem] p-3 sm:p-5 md:p-6 hover:bg-white/60 transition-all duration-500 min-h-[95px] sm:min-h-[110px] md:min-h-[130px] flex flex-col justify-center shadow-xl shadow-stone-900/10 hover:shadow-2xl hover:shadow-stone-900/20 hover:scale-[1.02] active:scale-[0.98]">
+            {/* Status Indicator */}
+            <div className="absolute top-2 sm:top-3 right-2 sm:right-3 w-1.5 sm:w-2 h-1.5 sm:h-2 rounded-full bg-stone-900 shadow-lg"></div>
+
+            {/* Label */}
+            <span className="text-[10px] sm:text-xs tracking-wider uppercase font-semibold mb-2 sm:mb-3 text-stone-600">{k.label}</span>
+
+            {/* Value */}
+            <span className="text-2xl sm:text-3xl md:text-4xl font-bold text-stone-950 mb-1 sm:mb-2">{k.value}</span>
+
+            {/* Description */}
+            <span className="text-[10px] sm:text-xs font-medium text-stone-500">{k.hint}</span>
           </div>
         ))}
       </div>
 
       {/* Current Session */}
-      <div className="rounded-2xl sm:rounded-3xl bg-stone-100/50 border border-stone-200/40 overflow-hidden">
-        <div className="flex items-start gap-4 p-6 sm:p-8">
-          <div className="w-1.5 h-12 bg-stone-600 rounded-full mt-1"></div>
+      <div className="bg-stone-100/50 border border-stone-200/40 rounded-3xl p-6 sm:p-8">
+        <div className="flex justify-between items-start mb-6 sm:mb-8">
           <div className="flex-1 min-w-0">
-            <div className="flex items-center justify-between gap-3 mb-2">
-              <h3 className="text-lg font-serif font-extralight tracking-[0.15em] text-stone-950 uppercase truncate">Current Session</h3>
-              <span className="text-[10px] tracking-[0.15em] uppercase font-light text-stone-500">Live</span>
+            <div className="text-xs tracking-[0.15em] uppercase font-light mb-3 text-stone-500">Current Session</div>
+            <h3 className="text-xl sm:text-2xl font-serif font-extralight tracking-[0.1em] text-stone-950 uppercase">Executive Portrait</h3>
+            <p className="text-sm font-light mt-3 text-stone-600">Professional series • 5 shots remaining</p>
+          </div>
+          <div className="flex items-center gap-2 ml-4 flex-shrink-0">
+            <div className="w-2 h-2 bg-stone-900 rounded-full"></div>
+            <span className="text-xs tracking-[0.1em] uppercase font-light text-stone-600">Live</span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
+          <div className="aspect-[4/3] bg-stone-200/40 rounded-2xl border border-stone-300/30 flex items-center justify-center group hover:bg-stone-200/60 transition-all duration-200 cursor-pointer">
+            <Camera size={24} className="text-stone-500 group-hover:text-stone-700 transition-colors" strokeWidth={1.5} />
+          </div>
+          <div className="space-y-4">
+            <div className="flex justify-between text-xs">
+              <span className="tracking-[0.1em] uppercase font-light text-stone-500">Progress</span>
+              <span className="font-light text-stone-600">40%</span>
             </div>
-            <div className="text-sm text-stone-600 mb-4 truncate">Executive Portrait • Editorial • Natural Light</div>
-            <div className="grid grid-cols-3 gap-3 sm:gap-4">
-              {[ 'Mood', 'Frames', 'Looks' ].map((s, idx) => (
-                <div key={idx} className="flex items-center gap-3 p-3 sm:p-4 rounded-xl bg-white/50 border border-white/60">
-                  <div className="w-1 sm:w-1.5 h-1 sm:h-1.5 bg-stone-600 rounded-full flex-shrink-0"></div>
-                  <span className="text-xs sm:text-sm font-light text-stone-950 truncate">{s}</span>
-                  <span className="text-[10px] sm:text-xs tracking-[0.1em] uppercase font-light text-stone-500 ml-auto flex-shrink-0">{['3/5','6/12','2/4'][idx]}</span>
+            <div className="w-full h-1.5 bg-stone-200 rounded-full overflow-hidden">
+              <div className="w-2/5 h-full bg-stone-700 rounded-full"></div>
+            </div>
+            <div className="space-y-3 pt-2">
+              {[
+                { name: 'Close-up headshot', done: true },
+                { name: 'Half body shot', done: true },
+                { name: 'Full scene', done: false },
+              ].map((shot, i) => (
+                <div key={i} className="flex items-center justify-between">
+                  <span className="text-xs font-light text-stone-600">{shot.name}</span>
+                  <div className={`w-2 h-2 rounded-full ${shot.done ? 'bg-stone-900' : 'bg-stone-300'}`}></div>
                 </div>
               ))}
             </div>
-            <div className="mt-4">
-              <div className="h-2 bg-white/60 rounded-full overflow-hidden">
-                <div className="h-full bg-stone-900 rounded-full" style={{ width: '40%' }} />
-              </div>
-              <div className="mt-2 text-xs text-stone-500">Progress • 40%</div>
-            </div>
           </div>
         </div>
+
+        <button className="w-full bg-stone-950 text-stone-50 py-4 sm:py-5 rounded-2xl font-light tracking-[0.15em] uppercase text-sm transition-all duration-200 hover:bg-stone-800 hover:transform hover:translate-y-[-1px] min-h-[52px] focus:outline-none focus:ring-2 focus:ring-stone-600/40">
+          Continue Session
+        </button>
       </div>
 
       {/* Actions */}
-      <div className="grid grid-cols-2 gap-3 sm:gap-4">
-        <button
-          type="button"
-          onClick={() => (onTabChange ? onTabChange('maya') : setLocation('/maya'))}
-          className="rounded-2xl border border-white/60 bg-white/60 backdrop-blur-2xl p-6 sm:p-8 text-left hover:scale-[1.02] active:scale-95 transition-all"
-        >
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-1.5 h-1.5 bg-stone-600 rounded-full"></div>
-            <span className="text-[10px] tracking-[0.15em] uppercase font-light text-stone-500">Action</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <Plus className="w-5 h-5 text-stone-700" strokeWidth={1.5} />
-            <span className="text-base font-serif font-extralight text-stone-950">New Session</span>
-          </div>
-        </button>
-        <button
-          type="button"
-          onClick={() => (onTabChange ? onTabChange('gallery') : setLocation('/gallery'))}
-          className="rounded-2xl border border-white/60 bg-white/60 backdrop-blur-2xl p-6 sm:p-8 text-left hover:scale-[1.02] active:scale-95 transition-all"
-        >
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-1.5 h-1.5 bg-stone-600 rounded-full"></div>
-            <span className="text-[10px] tracking-[0.15em] uppercase font-light text-stone-500">Browse</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <Grid className="w-5 h-5 text-stone-700" strokeWidth={1.5} />
-            <span className="text-base font-serif font-extralight text-stone-950">Browse Gallery</span>
-          </div>
-        </button>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+        {[
+          { icon: Plus, title: 'New Session', desc: 'Start fresh photo series', action: 'maya' },
+          { icon: Grid, title: 'Browse Gallery', desc: 'View completed work', action: 'gallery' }
+        ].map((action, index) => (
+          <button
+            key={index}
+            type="button"
+            onClick={() => (onTabChange ? onTabChange(action.action) : setLocation(action.action === 'maya' ? '/maya' : '/gallery'))}
+            className="group relative bg-white/40 backdrop-blur-2xl border border-white/60 rounded-[1.75rem] p-6 text-left hover:bg-white/60 hover:border-white/80 transition-all duration-300 min-h-[130px] flex flex-col justify-between shadow-xl shadow-stone-900/10 hover:shadow-2xl hover:shadow-stone-900/20 hover:scale-[1.02] active:scale-[0.98] overflow-hidden"
+          >
+            <div className="absolute top-0 right-0 w-32 h-32 bg-stone-200/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-full blur-2xl"></div>
+            <div className="relative z-10 flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-stone-950 rounded-[1.125rem] flex items-center justify-center shadow-lg">
+                <action.icon size={20} className="text-white" strokeWidth={2.5} />
+              </div>
+              <div className="w-8 h-8 bg-white/60 backdrop-blur-xl rounded-full flex items-center justify-center group-hover:bg-white/80 transition-all duration-300">
+                <ChevronRight size={16} className="text-stone-600 group-hover:translate-x-0.5 transition-transform" strokeWidth={2.5} />
+              </div>
+            </div>
+            <div className="relative z-10">
+              <h4 className="text-base font-semibold text-stone-950 mb-2">{action.title}</h4>
+              <p className="text-xs font-medium text-stone-600">{action.desc}</p>
+            </div>
+          </button>
+        ))}
       </div>
 
       {/* Recent Activity */}
-      <div className="rounded-2xl sm:rounded-3xl bg-stone-100/50 border border-stone-200/40 p-6 sm:p-8">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-serif font-extralight tracking-[0.1em] text-stone-950 uppercase">Recent Activity</h3>
-          <span className="text-[10px] tracking-[0.15em] uppercase font-light text-stone-500">Today</span>
-        </div>
-        <div className="space-y-3">
+      <div className="space-y-6">
+        <h3 className="text-lg font-serif font-extralight tracking-[0.15em] text-stone-950 uppercase">Recent Activity</h3>
+        <div className="space-y-1">
           {activities.length === 0 ? (
-            <div className="text-xs text-stone-500">No recent activity</div>
+            <div className="text-xs text-stone-500 py-4 px-4">No recent activity</div>
           ) : (
             activities.map((item) => (
-              <div key={item.id} className="flex items-center justify-between">
-                <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
-                  <div className="w-1 sm:w-1.5 h-1 sm:h-1.5 bg-stone-600 rounded-full flex-shrink-0"></div>
-                  <span className="text-xs sm:text-sm font-light text-stone-950 truncate">{item.action}</span>
+              <div key={item.id} className="flex items-center justify-between py-4 border-b border-stone-200/30 last:border-b-0 hover:bg-stone-100/30 transition-colors duration-200 px-4 -mx-4 rounded-xl">
+                <div className="flex items-center gap-4 flex-1 min-w-0">
+                  <div className="w-1.5 h-1.5 bg-stone-600 rounded-full flex-shrink-0"></div>
+                  <span className="text-sm font-light text-stone-950 truncate">{item.action}</span>
                 </div>
-                <span className="text-[10px] sm:text-xs tracking-[0.1em] uppercase font-light text-stone-500 ml-3 sm:ml-4 flex-shrink-0">{formatRelative(item.createdAt)}</span>
+                <span className="text-xs tracking-[0.1em] uppercase font-light text-stone-500 ml-4 flex-shrink-0">{formatRelative(item.createdAt)}</span>
               </div>
             ))
           )}
