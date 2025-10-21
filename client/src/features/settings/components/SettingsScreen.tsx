@@ -155,9 +155,9 @@ const SettingsScreen: React.FC<Props> = ({ onBack }) => {
           </div>
         </div>
 
-        <div className="flex items-center justify-between p-4 sm:p-6 bg-stone-200/30 rounded-2xl mb-6">
+        <div className="flex items-center justify-between p-4 sm:p-6 bg-white/40 backdrop-blur-2xl border border-white/60 rounded-2xl mb-6 shadow-xl shadow-stone-900/10 hover:shadow-2xl hover:shadow-stone-900/20 transition-all duration-300">
           <div className="flex items-center gap-3 flex-1 min-w-0">
-            <div className="w-10 h-10 bg-stone-900 rounded-xl flex items-center justify-center flex-shrink-0">
+            <div className="w-10 h-10 bg-stone-950 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg">
               <Zap className="h-5 w-5 text-stone-50" strokeWidth={1.5} />
             </div>
             <div className="min-w-0">
@@ -175,7 +175,7 @@ const SettingsScreen: React.FC<Props> = ({ onBack }) => {
           {user.plan !== 'admin' && (
             <button
               onClick={openCustomerPortal}
-              className="ml-4 flex items-center gap-2 px-4 py-2 text-sm font-light text-stone-700 bg-stone-100/50 border border-stone-200/40 rounded-xl hover:bg-stone-100/70 transition-colors flex-shrink-0"
+              className="ml-4 flex items-center gap-2 px-4 py-2 text-sm font-light text-stone-950 bg-white/50 backdrop-blur-xl border border-white/60 rounded-xl hover:bg-white/70 hover:shadow-lg hover:shadow-stone-900/10 transition-all duration-300 flex-shrink-0"
             >
               <ExternalLink size={14} strokeWidth={1.5} />
               <span className="hidden sm:inline">Manage</span>
@@ -196,10 +196,10 @@ const SettingsScreen: React.FC<Props> = ({ onBack }) => {
           </div>
           
           {user.monthlyGenerationLimit !== -1 && (
-            <div className="w-full bg-stone-200 rounded-full h-1.5">
-              <div 
-                className="bg-stone-900 h-1.5 rounded-full transition-all duration-300" 
-                style={{ 
+            <div className="w-full bg-stone-200/40 rounded-full h-1.5 shadow-inner">
+              <div
+                className="bg-stone-950 h-1.5 rounded-full transition-all duration-300 shadow-lg shadow-stone-900/20"
+                style={{
                   width: `${Math.min(((user.generationsUsedThisMonth || 0) / (user.monthlyGenerationLimit || 100)) * 100, 100)}%`
                 }}
               ></div>
@@ -303,8 +303,8 @@ const SettingsScreen: React.FC<Props> = ({ onBack }) => {
                           }`}></div>
                         </div>
                       ) : (
-                        <div className="w-7 h-7 sm:w-8 sm:h-8 bg-white/60 backdrop-blur-xl rounded-full flex items-center justify-center group-hover:bg-white/80 transition-all duration-300 shadow-lg">
-                          <ChevronRight size={14} className="text-stone-600" strokeWidth={2.5} />
+                        <div className="w-7 h-7 sm:w-8 sm:h-8 bg-white/60 backdrop-blur-2xl rounded-full flex items-center justify-center group-hover:bg-white/80 transition-all duration-300 shadow-lg shadow-stone-900/10">
+                          <ChevronRight size={14} className="text-stone-600 group-hover:text-stone-950 transition-colors" strokeWidth={2.5} />
                         </div>
                       )}
                     </div>
@@ -317,10 +317,10 @@ const SettingsScreen: React.FC<Props> = ({ onBack }) => {
       </div>
 
       {/* Sign Out */}
-      <div className="pt-6 border-t border-stone-200/30">
+      <div className="pt-6 border-t border-white/40">
         <button
           onClick={handleLogout}
-          className="w-full text-sm tracking-[0.15em] uppercase font-light border rounded-2xl py-5 transition-colors hover:text-stone-950 hover:bg-stone-100/30 min-h-[56px] text-stone-600 border-stone-300/40"
+          className="w-full text-sm tracking-[0.15em] uppercase font-light border rounded-2xl py-5 transition-all duration-300 hover:text-stone-950 hover:bg-white/40 hover:shadow-lg hover:shadow-stone-900/10 min-h-[56px] text-stone-600 border-white/60 bg-white/20 backdrop-blur-xl"
         >
           Sign Out
         </button>
