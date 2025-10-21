@@ -1,13 +1,33 @@
 import React, { useState } from 'react';
-import { ChevronRight, Star, Grid } from 'lucide-react';
-import { ACADEMY_PORTAL_URL } from './constants.js';
+import { Star, Grid, ChevronRight } from 'lucide-react';
+import { useAuth } from '../../hooks/use-auth.js';
 
-export default function AcademyScreen() {
-  const [selectedView, setSelectedView] = useState('overview');
-  const coursesUrl = 'https://sselfie.app.clientclub.net/courses'; // TODO: replace with real courses portal URL
-  const membershipUrl = 'https://sselfie.app.clientclub.net/membership'; // TODO: replace with real membership/upgrade URL
+interface MembershipTier {
+  name: string;
+  price: string;
+  period: string;
+  description: string;
+  features: string[];
+  highlighted: boolean;
+}
 
-  const membershipTiers = [
+interface Course {
+  title: string;
+  duration: string;
+  lessons: number;
+  description: string;
+  level: string;
+}
+
+const AcademyScreen: React.FC = () => {
+  const { user, isAuthenticated } = useAuth();
+  const [selectedView, setSelectedView] = useState<'overview' | 'membership' | 'courses'>('overview');
+
+  // Get user's current plan
+  const userPlan = user?.plan || 'free';
+  const currentPlanDisplay = userPlan === 'admin' ? 'Admin' : userPlan === 'pro' ? 'Pro' : 'Free';
+
+  const membershipTiers: MembershipTier[] = [
     {
       name: 'Studio Essential',
       price: '$49',
@@ -22,16 +42,17 @@ export default function AcademyScreen() {
       highlighted: false
     },
     {
-      name: 'Studio Pro',
+      name: 'Studio Professional',
       price: '$99',
       period: 'month',
-      description: 'For serious content creators',
+      description: 'For professionals who need more power',
       features: [
-        '500 AI photo generations per month',
-        'Advanced training courses',
-        'Priority email & chat support',
-        '4K quality exports',
-        'Custom style training'
+        '200 AI photo generations per month',
+        'All Academy courses included',
+        'Priority support',
+        'High-quality exports',
+        'Advanced editing tools',
+        'Commercial usage rights'
       ],
       highlighted: true
     },
@@ -39,20 +60,20 @@ export default function AcademyScreen() {
       name: 'Studio Enterprise',
       price: '$299',
       period: 'month',
-      description: 'For professional studios',
+      description: 'Unlimited creation for agencies and teams',
       features: [
         'Unlimited AI photo generations',
-        'All training content',
-        '24/7 phone & chat support',
-        '8K quality exports',
-        'Team collaboration',
-        'API access'
+        'Team collaboration tools',
+        '1-on-1 coaching sessions',
+        'API access',
+        'White-label options',
+        'Dedicated account manager'
       ],
       highlighted: false
     }
   ];
 
-  const courses = [
+  const courses: Course[] = [
     {
       title: 'AI Photography Fundamentals',
       duration: '2 hours',
@@ -83,107 +104,80 @@ export default function AcademyScreen() {
     }
   ];
 
-  const cards = [
-    {
-      title: 'Courses',
-      description: 'Explore your personal branding courses and continue learning.',
-      href: coursesUrl,
-      cta: 'Open Courses',
-    },
-    {
-      title: 'Membership',
-      description: 'Manage your plan and upgrade for premium content & perks.',
-      href: membershipUrl,
-      cta: 'Manage Membership',
-    },
-    {
-      title: 'Portal Login',
-      description: 'Access the full Academy experience in the external portal.',
-      href: ACADEMY_PORTAL_URL,
-      cta: 'Open Portal',
-    },
-  ];
-
   if (selectedView === 'membership') {
     return (
-      <div className="px-4 sm:px-6 md:px-8 pt-6 sm:pt-8 pb-8">
-        <div className="space-y-8 pb-4">
-          <div className="flex items-center gap-4 pt-4">
-            <button
-              onClick={() => setSelectedView('overview')}
-              className="p-4 bg-stone-100/50 rounded-2xl border border-stone-200/40 hover:bg-stone-100/70 hover:border-stone-300/50 transition-all duration-200"
-            >
-              <ChevronRight size={18} className="text-stone-600 transform rotate-180" strokeWidth={1.5} />
-            </button>
-            <div className="flex-1 min-w-0">
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif font-extralight tracking-[0.3em] text-stone-950 uppercase">
-                Membership Plans
-              </h2>
-              <p className="text-xs tracking-[0.15em] uppercase font-light mt-2 text-stone-500">
-                Choose Your Plan
-              </p>
-            </div>
+      <div className="space-y-8 pb-4">
+        <div className="flex items-center gap-4 pt-4">
+          <button
+            onClick={() => setSelectedView('overview')}
+            className="p-4 bg-stone-100/50 rounded-2xl border border-stone-200/40 hover:bg-stone-100/70 transition-all duration-200"
+          >
+            <ChevronRight size={18} className="text-stone-600 transform rotate-180" strokeWidth={1.5} />
+          </button>
+          <div className="flex-1">
+            <h2 className="text-2xl sm:text-3xl font-serif font-extralight tracking-[0.2em] text-stone-950 uppercase">Membership Plans</h2>
+            <p className="text-xs tracking-[0.15em] uppercase font-light text-stone-500 mt-2">Choose Your Plan</p>
           </div>
+        </div>
 
-          <div className="space-y-4">
-            {membershipTiers.map((tier, i) => (
-              <div
-                key={i}
-                className={`bg-stone-100/50 border rounded-3xl p-6 sm:p-8 transition-all duration-200 ${
-                  tier.highlighted
-                    ? 'border-stone-950 bg-stone-950 text-stone-50'
-                    : 'border-stone-200/40 hover:border-stone-300/60'
-                }`}
-              >
-                {tier.highlighted && (
-                  <div className="inline-block px-4 py-1.5 bg-stone-50 text-stone-950 rounded-full text-xs tracking-[0.15em] uppercase font-light mb-4">
-                    Most Popular
-                  </div>
-                )}
+        <div className="space-y-4">
+          {membershipTiers.map((tier, i) => (
+            <div
+              key={i}
+              className={`bg-stone-100/50 border rounded-3xl p-6 sm:p-8 transition-all duration-200 ${
+                tier.highlighted
+                  ? 'border-stone-950 bg-stone-950 text-stone-50'
+                  : 'border-stone-200/40 hover:border-stone-300/60'
+              }`}
+            >
+              {tier.highlighted && (
+                <div className="inline-block px-4 py-1.5 bg-stone-50 text-stone-950 rounded-full text-xs tracking-[0.15em] uppercase font-light mb-4">
+                  Most Popular
+                </div>
+              )}
 
-                <div className="mb-6">
-                  <h3 className="text-xl sm:text-2xl font-serif font-extralight tracking-[0.15em] uppercase mb-2">
-                    {tier.name}
-                  </h3>
-                  <div className="flex items-baseline gap-2 mb-3">
-                    <span className="text-4xl sm:text-5xl font-serif font-extralight">{tier.price}</span>
-                    <span className={`text-sm font-light tracking-wide ${tier.highlighted ? 'opacity-80' : 'text-stone-600'}`}>
-                      / {tier.period}
+              <div className="mb-6">
+                <h3 className="text-xl sm:text-2xl font-serif font-extralight tracking-[0.15em] uppercase mb-2">
+                  {tier.name}
+                </h3>
+                <div className="flex items-baseline gap-2 mb-3">
+                  <span className="text-4xl sm:text-5xl font-serif font-extralight">{tier.price}</span>
+                  <span className={`text-sm font-light tracking-wide ${tier.highlighted ? 'opacity-80' : 'text-stone-600'}`}>
+                    / {tier.period}
+                  </span>
+                </div>
+                <p className={`text-sm font-light ${tier.highlighted ? 'opacity-90' : 'text-stone-600'}`}>
+                  {tier.description}
+                </p>
+              </div>
+
+              <div className="space-y-3 mb-8">
+                {tier.features.map((feature, j) => (
+                  <div key={j} className="flex items-start gap-3">
+                    <div className={`w-1.5 h-1.5 rounded-full mt-2 flex-shrink-0 ${
+                      tier.highlighted ? 'bg-stone-50' : 'bg-stone-950'
+                    }`}></div>
+                    <span className={`text-sm font-light ${tier.highlighted ? 'opacity-90' : 'text-stone-950'}`}>
+                      {feature}
                     </span>
                   </div>
-                  <p className={`text-sm font-light ${tier.highlighted ? 'opacity-90' : 'text-stone-600'}`}>
-                    {tier.description}
-                  </p>
-                </div>
-
-                <div className="space-y-3 mb-8">
-                  {tier.features.map((feature, j) => (
-                    <div key={j} className="flex items-start gap-3">
-                      <div className={`w-1.5 h-1.5 rounded-full mt-2 flex-shrink-0 ${
-                        tier.highlighted ? 'bg-stone-50' : 'bg-stone-950'
-                      }`}></div>
-                      <span className={`text-sm font-light ${tier.highlighted ? 'opacity-90' : 'text-stone-950'}`}>
-                        {feature}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-
-                <a
-                  href="https://your-gohighlevel-link.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`block w-full text-center py-4 rounded-2xl font-light tracking-[0.15em] uppercase text-sm transition-all duration-200 min-h-[52px] ${
-                    tier.highlighted
-                      ? 'bg-stone-50 text-stone-950 hover:bg-stone-100'
-                      : 'bg-stone-950 text-stone-50 hover:bg-stone-800'
-                  }`}
-                >
-                  Choose {tier.name}
-                </a>
+                ))}
               </div>
-            ))}
-          </div>
+
+              <a
+                href="https://your-gohighlevel-link.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`block w-full text-center py-4 rounded-2xl font-light tracking-[0.15em] uppercase text-sm transition-all duration-200 min-h-[52px] ${
+                  tier.highlighted
+                    ? 'bg-stone-50 text-stone-950 hover:bg-stone-100'
+                    : 'bg-stone-950 text-stone-50 hover:bg-stone-800'
+                }`}
+              >
+                Choose {tier.name}
+              </a>
+            </div>
+          ))}
         </div>
       </div>
     );
@@ -191,80 +185,87 @@ export default function AcademyScreen() {
 
   if (selectedView === 'courses') {
     return (
-      <div className="px-4 sm:px-6 md:px-8 pt-6 sm:pt-8 pb-8">
-        <div className="space-y-8 pb-4">
-          <div className="flex items-center gap-4 pt-4">
-            <button
-              onClick={() => setSelectedView('overview')}
-              className="p-4 bg-stone-100/50 rounded-2xl border border-stone-200/40 hover:bg-stone-100/70 hover:border-stone-300/50 transition-all duration-200"
-            >
-              <ChevronRight size={18} className="text-stone-600 transform rotate-180" strokeWidth={1.5} />
-            </button>
-            <div className="flex-1 min-w-0">
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif font-extralight tracking-[0.3em] text-stone-950 uppercase">
-                All Courses
-              </h2>
-              <p className="text-xs tracking-[0.15em] uppercase font-light mt-2 text-stone-500">
-                Professional Training
-              </p>
-            </div>
+      <div className="space-y-8 pb-4">
+        <div className="flex items-center gap-4 pt-4">
+          <button
+            onClick={() => setSelectedView('overview')}
+            className="p-4 bg-stone-100/50 rounded-2xl border border-stone-200/40 hover:bg-stone-100/70 transition-all duration-200"
+          >
+            <ChevronRight size={18} className="text-stone-600 transform rotate-180" strokeWidth={1.5} />
+          </button>
+          <div className="flex-1">
+            <h2 className="text-2xl sm:text-3xl font-serif font-extralight tracking-[0.2em] text-stone-950 uppercase">All Courses</h2>
+            <p className="text-xs tracking-[0.15em] uppercase font-light text-stone-500 mt-2">Professional Training</p>
           </div>
+        </div>
 
-          <div className="space-y-4">
-            {courses.map((course, i) => (
-              <div
-                key={i}
-                className="bg-white/50 backdrop-blur-xl border border-white/60 rounded-3xl p-6 sm:p-8 hover:border-white/80 transition-all duration-300 shadow-lg shadow-stone-900/5"
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-3">
-                      <span className="px-3 py-1 bg-gradient-to-br from-stone-100/80 to-stone-200/60 border border-white/60 rounded-full text-xs tracking-[0.1em] uppercase font-light text-stone-700 shadow-inner shadow-stone-900/5">
-                        {course.level}
-                      </span>
-                    </div>
-                    <h3 className="text-lg sm:text-xl font-serif font-extralight tracking-[0.15em] uppercase mb-2">
-                      {course.title}
-                    </h3>
-                    <p className="text-sm font-light text-stone-600 mb-4">
-                      {course.description}
-                    </p>
-                    <div className="flex items-center gap-6 text-xs tracking-[0.1em] uppercase font-light text-stone-500">
-                      <span>{course.duration}</span>
-                      <span>{course.lessons} Lessons</span>
-                    </div>
+        <div className="space-y-4">
+          {courses.map((course, i) => (
+            <div
+              key={i}
+              className="bg-white/50 backdrop-blur-xl border border-white/60 rounded-3xl p-6 sm:p-8 hover:border-white/80 transition-all duration-300 shadow-lg shadow-stone-900/5"
+            >
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-3">
+                    <span className="px-3 py-1 bg-gradient-to-br from-stone-100/80 to-stone-200/60 border border-white/60 rounded-full text-xs tracking-[0.1em] uppercase font-light text-stone-700 shadow-inner shadow-stone-900/5">
+                      {course.level}
+                    </span>
+                  </div>
+                  <h3 className="text-lg sm:text-xl font-serif font-extralight tracking-[0.15em] uppercase mb-2">
+                    {course.title}
+                  </h3>
+                  <p className="text-sm font-light text-stone-600 mb-4">
+                    {course.description}
+                  </p>
+                  <div className="flex items-center gap-6 text-xs tracking-[0.1em] uppercase font-light text-stone-500">
+                    <span>{course.duration}</span>
+                    <span>{course.lessons} Lessons</span>
                   </div>
                 </div>
-
-                <a
-                  href="https://your-gohighlevel-course-link.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block w-full text-center bg-stone-950 text-stone-50 py-4 rounded-2xl font-light tracking-[0.15em] uppercase text-sm transition-all duration-200 hover:bg-stone-800 min-h-[52px]"
-                >
-                  Access Course
-                </a>
               </div>
-            ))}
-          </div>
+
+              <a
+                href="https://your-gohighlevel-course-link.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block w-full text-center bg-stone-950 text-stone-50 py-4 rounded-2xl font-light tracking-[0.15em] uppercase text-sm transition-all duration-200 hover:bg-stone-800 min-h-[52px]"
+              >
+                Access Course
+              </a>
+            </div>
+          ))}
         </div>
       </div>
     );
   }
 
   return (
-    <div className="px-4 sm:px-6 md:px-8 pt-6 sm:pt-8 pb-8">
-      <div className="pt-3 sm:pt-4 md:pt-6 text-center mb-8 sm:mb-12">
-        <h1 className="text-2xl sm:text-3xl md:text-5xl font-serif font-extralight tracking-[0.3em] text-stone-950 uppercase leading-none mb-2 sm:mb-3">
+    <div className="space-y-8 pb-4">
+      <div className="pt-4 sm:pt-6 text-center">
+        <h1 className="text-3xl sm:text-5xl font-serif font-extralight tracking-[0.3em] text-stone-950 uppercase leading-none mb-3">
           Academy
         </h1>
-        <p className="text-[10px] sm:text-xs tracking-[0.2em] uppercase font-light text-stone-500">
+        <p className="text-xs tracking-[0.2em] uppercase font-light text-stone-500">
           Master Professional Photography
         </p>
       </div>
 
-      {/* Overview Action Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8 sm:mb-12">
+      <div className="grid grid-cols-3 gap-4">
+        {[
+          { label: 'Active', value: currentPlanDisplay, desc: 'Membership' },
+          { label: 'Completed', value: '4/12', desc: 'Courses' },
+          { label: 'Certificates', value: '1', desc: 'Earned' }
+        ].map((stat, i) => (
+          <div key={i} className="bg-stone-100/50 border border-stone-200/40 rounded-2xl p-4 sm:p-5">
+            <div className="text-xs tracking-[0.1em] uppercase font-light mb-2 text-stone-500">{stat.label}</div>
+            <div className="text-2xl sm:text-3xl font-serif font-extralight text-stone-950 mb-1">{stat.value}</div>
+            <div className="text-xs font-light text-stone-600">{stat.desc}</div>
+          </div>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <button
           onClick={() => setSelectedView('membership')}
           className="group relative bg-white/50 backdrop-blur-2xl border border-white/60 rounded-[1.75rem] p-8 text-left hover:bg-white/70 hover:border-white/80 transition-all duration-300 shadow-xl shadow-stone-900/10 hover:shadow-2xl hover:shadow-stone-900/20 overflow-hidden hover:scale-[1.02] active:scale-[0.98]"
@@ -306,40 +307,6 @@ export default function AcademyScreen() {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8 mb-8 sm:mb-12">
-        {cards.map((card, index) => (
-          <div
-            key={card.title}
-            className="group bg-white/50 backdrop-blur-2xl border border-white/60 rounded-xl sm:rounded-[1.75rem] p-6 sm:p-8 shadow-xl shadow-stone-900/10 hover:shadow-2xl hover:shadow-stone-900/20 hover:bg-white/70 hover:border-white/80 transition-all duration-300 hover:scale-[1.02] flex flex-col"
-          >
-            <div className="mb-6 sm:mb-8 flex-1">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 bg-stone-950 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
-                  <span className="text-white font-bold text-sm">{index + 1}</span>
-                </div>
-                <div className="w-1.5 h-1.5 rounded-full bg-stone-600"></div>
-              </div>
-              <h3 className="font-serif font-extralight tracking-[0.15em] uppercase text-stone-950 text-base sm:text-lg md:text-xl mb-3 sm:mb-4">
-                {card.title}
-              </h3>
-              <p className="text-stone-600 text-sm sm:text-base leading-relaxed font-light">
-                {card.description}
-              </p>
-            </div>
-            <a
-              href={card.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group/btn relative inline-flex items-center justify-center w-full bg-stone-950 text-white hover:shadow-2xl hover:shadow-stone-900/40 rounded-xl sm:rounded-[1.25rem] py-4 sm:py-5 text-sm sm:text-base font-semibold tracking-wide transition-all duration-300 hover:scale-105 active:scale-95 min-h-[52px] sm:min-h-[56px] overflow-hidden"
-            >
-              <div className="absolute inset-0 bg-white/10 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
-              <span className="relative z-10">{card.cta}</span>
-            </a>
-          </div>
-        ))}
-      </div>
-
-      {/* Featured Course Card */}
       <div className="relative bg-stone-950 text-white rounded-[1.75rem] p-8 overflow-hidden shadow-2xl">
         <div className="absolute top-0 right-0 w-64 h-64 bg-stone-800/50 rounded-full blur-3xl"></div>
         <div className="absolute bottom-0 left-0 w-48 h-48 bg-stone-700/30 rounded-full blur-3xl"></div>
@@ -359,7 +326,7 @@ export default function AcademyScreen() {
         </div>
 
         <a
-          href="https://sselfie.app.clientclub.net/courses/professional-portrait-mastery"
+          href="https://your-gohighlevel-featured-course.com"
           target="_blank"
           rel="noopener noreferrer"
           className="group relative block w-full text-center bg-white text-stone-950 py-4 rounded-[1.25rem] font-semibold text-sm transition-all duration-300 hover:shadow-2xl hover:shadow-white/30 min-h-[56px] hover:scale-[1.02] active:scale-[0.98] overflow-hidden"
@@ -370,4 +337,6 @@ export default function AcademyScreen() {
       </div>
     </div>
   );
-}
+};
+
+export default AcademyScreen;

@@ -1,130 +1,48 @@
 import React, { useState, useEffect } from 'react';
-import { Camera, Star, MessageCircle, Image, Grid, User } from 'lucide-react';
-import { useLocation } from 'wouter';
 import { useAuth } from '../../hooks/use-auth.js';
+import { useLocation } from 'wouter';
+import { Camera, Grid, User, Star, MessageCircle, Image } from 'lucide-react';
 
-// Shared UI
-import LoadingScreen from '../../components/shared/LoadingScreen';
-import HeaderBar from '../../components/shared/HeaderBar';
+// Import screen components
+import StudioScreen from '../brand-studio/components/StudioScreen.js';
+import MayaScreen from '../maya-chat/components/MayaScreen.js';
+import ProfileScreen from '../profile/components/ProfileScreen.js';
+import LoadingScreen from '../../components/LoadingScreen.js';
 
-// Import Feature Screens
-import StudioScreen from '../../features/brand-studio/components/StudioScreen';
-import TrainingScreen from '../../features/training/components/TrainingScreen';
-import MayaScreen from '../../features/maya-chat/components/MayaScreen';
-import GalleryScreen from '../../features/gallery/components/TwoTabGalleryScreen.js';
-import ProfileScreen from '../../features/profile/components/ProfileScreen';
+// Lazy-loaded screens
+const GalleryScreen = React.lazy(() => import('../gallery/components/EnhancedGalleryScreen.js'));
+const AcademyScreen = React.lazy(() => import('../academy/components/AcademyScreen.js'));
+const TrainingScreen = React.lazy(() => import('../training/components/TrainingScreen.js'));
 
-import AcademyScreen from '../../features/academy/AcademyScreen';
-
-const SselfieAppLayout = () => {
-  const [location, setLocation] = useLocation();
-  const { user, isAuthenticated } = useAuth();
-  const [activeTab, setActiveTab] = useState('studio');
-  const [isLoading, setIsLoading] = useState(true);
-
-  const [userType, setUserType] = useState<'member' | 'pro'>('member');
-
-  // Track training completion acknowledgment
-  const [hasTrainedModel, setHasTrainedModel] = useState(false);
-
-  // Derive header user type from real user when available
-  useEffect(() => {
-    const derived: 'member' | 'pro' = (user?.plan === 'admin' || user?.monthlyGenerationLimit === -1) ? 'pro' : 'member';
-    setUserType(derived);
-  }, [user]);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 1200);
-    return () => clearTimeout(timer);
-  }, []);
-
-  const tabs = [
-    { id: 'studio', label: 'Studio', icon: Camera },
-    { id: 'training', label: 'Training', icon: Star },
-    { id: 'maya', label: 'Maya', icon: MessageCircle },
-    { id: 'gallery', label: 'Gallery', icon: Image },
-    { id: 'academy', label: 'Academy', icon: Grid },
-    { id: 'profile', label: 'Profile', icon: User },
-  ];
-  // Canonicalize /app to /app/studio once
-  useEffect(() => {
-    if (location === '/app' || location === '/app/') {
-      setLocation('/app/studio', { replace: true });
-    }
-  }, [location]);
-
-
-  useEffect(() => {
-    // Sync active tab with URL (/app/:tab*)
-    const path = location || '';
-    if (!path.startsWith('/app')) return;
-    const remainder = path.replace(/^\/app\/?/, '');
-    const fromUrl = remainder.split('/')[0];
-    if (fromUrl && fromUrl !== activeTab) setActiveTab(fromUrl);
-    if (!fromUrl && activeTab !== 'studio') setActiveTab('studio');
-  }, [location]);
-
-  const handleTabChange = (id: string) => {
-    if (id !== activeTab) setActiveTab(id);
-    setLocation(`/app/${id}`);
-  };
-
-  // Compute displayed credits from real user values
-  const used = user?.generationsUsedThisMonth ?? 0;
-  const limit = user?.monthlyGenerationLimit ?? 100;
-  const displayCredits: number | string = limit === -1 ? '∞' : Math.max(0, limit - used);
-
-  if (isLoading) {
-    return <LoadingScreen />;
-  }
-
+// Status Bar Component with enhanced design
+// @ts-ignore - FC type compatibility with JSX.Element
+const StatusBar: React.FC<{ currentTime: Date; hasTrainedModel: boolean; setHasTrainedModel: (value: boolean) => void }> = ({ currentTime, hasTrainedModel, setHasTrainedModel }) => {
   return (
-    <div className="h-screen bg-gradient-to-br from-stone-50 via-stone-100/50 to-stone-50 relative overflow-hidden">
-      {/* Floating orbs background */}
-      <div className="absolute inset-0">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-stone-200/20 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-stone-300/20 rounded-full blur-3xl"></div>
-      </div>
-
-      <div className="relative h-full mx-1 sm:mx-2 md:mx-3 pt-1 sm:pt-2 pb-28 sm:pb-28">
-        <div className="h-full bg-white/30 backdrop-blur-3xl rounded-[2rem] sm:rounded-[2.5rem] md:rounded-[3rem] border border-white/40 overflow-hidden shadow-2xl shadow-stone-900/10">
-          <HeaderBar
-            credits={displayCredits}
-            userType={userType}
-            onToggleUserType={() => setUserType((prev) => (prev === 'member' ? 'pro' : 'member'))}
-          />
-
-          <div className="flex-1 px-6 sm:px-8 pb-6 sm:pb-8 pt-0 h-full overflow-y-auto">
-            {activeTab === 'studio' && <StudioScreen hasTrainedModel={hasTrainedModel} onTabChange={handleTabChange} />}
-            {activeTab === 'training' && <TrainingScreen user={user} setHasTrainedModel={setHasTrainedModel} setActiveTab={handleTabChange} />}
-            {activeTab === 'maya' && <MayaScreen />}
-            {activeTab === 'gallery' && <GalleryScreen />}
-            {activeTab === 'academy' && <AcademyScreen />}
-            {activeTab === 'profile' && <ProfileScreen />}
+    <div className="flex justify-between items-center px-4 sm:px-6 md:px-8 py-4 sm:py-5 md:py-6 bg-gradient-to-b from-white/40 to-transparent backdrop-blur-xl border-b border-white/20">
+      <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 bg-black/80 backdrop-blur-xl rounded-full">
+          <div className="text-white font-medium tracking-wide text-xs sm:text-sm">
+            {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
           </div>
         </div>
       </div>
-
-      <div className="absolute bottom-4 sm:bottom-5 left-3 sm:left-4 right-3 sm:right-4">
-        <div className="bg-white/20 backdrop-blur-3xl rounded-[1.75rem] sm:rounded-[2rem] md:rounded-[2.5rem] border border-white/40 px-1.5 sm:px-2 md:px-3 py-2.5 sm:py-3 md:py-4 shadow-2xl shadow-stone-900/20">
-          <div className="flex justify-around items-center">
-            {tabs.map((tab) => {
-              const Icon = tab.icon as any;
-              const isActive = activeTab === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => handleTabChange(tab.id)}
-                  className={`flex flex-col items-center space-y-1 px-1.5 sm:px-2.5 md:px-4 py-2 sm:py-2.5 md:py-3 rounded-[1rem] sm:rounded-[1.25rem] md:rounded-[1.5rem] transition-all duration-500 ease-out min-w-[52px] sm:min-w-[58px] md:min-w-[68px] relative ${isActive ? 'transform scale-105' : 'hover:scale-[1.02] active:scale-95'}`}
-                >
-                  {isActive && <div className="absolute inset-0 bg-gradient-to-b from-white/90 to-white/70 backdrop-blur-2xl rounded-[1rem] sm:rounded-[1.25rem] md:rounded-[1.5rem] shadow-xl shadow-stone-900/20 border border-white/60"></div>}
-                  <div className={`relative z-10 w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-[0.875rem] sm:rounded-[1rem] md:rounded-[1.125rem] flex items-center justify-center transition-all duration-500 ${isActive ? 'bg-stone-950 shadow-lg shadow-stone-900/30' : 'bg-white/40 backdrop-blur-xl'}`}>
-                    <Icon size={isActive ? 19 : 17} strokeWidth={2} className={`transition-all duration-500 ${isActive ? 'text-white' : 'text-stone-600'}`} />
-                  </div>
-                  <span className={`relative z-10 text-[8px] sm:text-[9px] md:text-[10px] font-semibold tracking-wide transition-all duration-500 ${isActive ? 'text-stone-900' : 'text-stone-500 opacity-70'}`}>{tab.label}</span>
-                </button>
-              );
-            })}
+      <div className="flex items-center space-x-2 sm:space-x-3">
+        <button
+          onClick={() => setHasTrainedModel(!hasTrainedModel)}
+          className="px-3 sm:px-4 py-1.5 sm:py-2 text-[10px] sm:text-xs tracking-wide font-medium bg-white/60 hover:bg-white/80 backdrop-blur-xl rounded-full transition-all duration-300 border border-white/40 shadow-lg shadow-stone-900/10"
+          title="Toggle user type"
+        >
+          {hasTrainedModel ? 'Current' : 'New'} User
+        </button>
+        <div className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 sm:py-2 bg-white/60 backdrop-blur-xl rounded-full border border-white/40">
+          <div className="flex space-x-0.5 sm:space-x-1">
+            <div className="w-0.5 sm:w-1 h-2 sm:h-3 bg-stone-900 rounded-full"></div>
+            <div className="w-0.5 sm:w-1 h-2 sm:h-3 bg-stone-900 rounded-full"></div>
+            <div className="w-0.5 sm:w-1 h-2 sm:h-3 bg-stone-900 rounded-full"></div>
+            <div className="w-0.5 sm:w-1 h-2 sm:h-3 bg-stone-400 rounded-full"></div>
+          </div>
+          <div className="w-4 sm:w-5 h-4 sm:h-5 bg-stone-900 rounded-full flex items-center justify-center text-white text-[8px] sm:text-[10px] font-bold">
+            95
           </div>
         </div>
       </div>
@@ -132,5 +50,231 @@ const SselfieAppLayout = () => {
   );
 };
 
-export default SselfieAppLayout;
+// Tab Navigation Component with enhanced design
+interface TabBarProps {
+  activeTab: string;
+  onTabChange?: (tabId: string) => void;
+}
 
+// @ts-ignore - FC type compatibility with JSX.Element
+const TabBar: React.FC<TabBarProps> = ({ activeTab, onTabChange }) => {
+  const [, setLocation] = useLocation();
+
+  const tabs = [
+    { id: 'studio', label: 'Studio', icon: Camera, path: '/app/studio' },
+    { id: 'training', label: 'Training', icon: Star, path: '/app/training' },
+    { id: 'maya', label: 'Maya', icon: MessageCircle, path: '/app/maya' },
+    { id: 'gallery', label: 'Gallery', icon: Image, path: '/app/gallery' },
+    { id: 'academy', label: 'Academy', icon: Grid, path: '/app/academy' },
+    { id: 'profile', label: 'Profile', icon: User, path: '/app/profile' }
+  ];
+
+  const handleTabClick = (tab: typeof tabs[0]) => {
+    // Use URL routing for navigation
+    setLocation(tab.path);
+    // Fallback to callback for backward compatibility
+    if (onTabChange) {
+      onTabChange(tab.id);
+    }
+  };
+
+  return (
+    <div className="absolute bottom-3 sm:bottom-4 md:bottom-5 left-2 sm:left-3 md:left-4 right-2 sm:right-3 md:right-4">
+      <div className="bg-white/20 backdrop-blur-3xl rounded-[1.75rem] sm:rounded-[2rem] md:rounded-[2.5rem] border border-white/40 px-1.5 sm:px-2 md:px-3 py-2.5 sm:py-3 md:py-4 shadow-2xl shadow-stone-900/20">
+        <div className="flex justify-around items-center">
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.id;
+
+            return (
+              <button
+                key={tab.id}
+                onClick={() => handleTabClick(tab)}
+                className={`flex flex-col items-center space-y-1 px-1.5 sm:px-2.5 md:px-4 py-2 sm:py-2.5 md:py-3 rounded-[1rem] sm:rounded-[1.25rem] md:rounded-[1.5rem] transition-all duration-500 ease-out min-w-[52px] sm:min-w-[58px] md:min-w-[68px] relative ${
+                  isActive
+                    ? 'transform scale-105'
+                    : 'hover:scale-[1.02] active:scale-95'
+                }`}
+              >
+                {isActive && (
+                  <div className="absolute inset-0 bg-gradient-to-b from-white/90 to-white/70 backdrop-blur-2xl rounded-[1rem] sm:rounded-[1.25rem] md:rounded-[1.5rem] shadow-xl shadow-stone-900/20 border border-white/60"></div>
+                )}
+                <div className={`relative z-10 w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-[0.875rem] sm:rounded-[1rem] md:rounded-[1.125rem] flex items-center justify-center transition-all duration-500 ${
+                  isActive
+                    ? 'bg-stone-950 shadow-lg shadow-stone-900/30'
+                    : 'bg-white/40 backdrop-blur-xl'
+                }`}>
+                  <Icon
+                    size={isActive ? 19 : 17}
+                    strokeWidth={2}
+                    className={`transition-all duration-500 ${
+                      isActive ? 'text-white' : 'text-stone-600'
+                    }`}
+                  />
+                </div>
+                <span className={`relative z-10 text-[8px] sm:text-[9px] md:text-[10px] font-semibold tracking-wide transition-all duration-500 ${
+                  isActive ? 'text-stone-900' : 'text-stone-500 opacity-70'
+                }`}>
+                  {tab.label}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Main Content Component
+interface MainContentProps {
+  activeTab: string;
+  onTabChange: (tabId: string) => void;
+  initialPrompt: string | null;
+  onPromptUsed: () => void;
+  hasTrainedModel: boolean;
+  setHasTrainedModel: (value: boolean) => void;
+}
+
+// @ts-ignore - FC type compatibility with JSX.Element
+const MainContent: React.FC<MainContentProps> = ({ activeTab, onTabChange, initialPrompt, onPromptUsed, hasTrainedModel, setHasTrainedModel }) => {
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'studio':
+        return <StudioScreen onTabChange={onTabChange} hasTrainedModel={hasTrainedModel} />;
+      case 'training':
+        return (
+          <React.Suspense fallback={<div className="text-center py-8">Loading...</div>}>
+            <TrainingScreen setHasTrainedModel={setHasTrainedModel} setActiveTab={onTabChange} />
+          </React.Suspense>
+        );
+      case 'maya':
+        return <MayaScreen initialPrompt={initialPrompt} onPromptUsed={onPromptUsed} />;
+      case 'gallery':
+        return (
+          <React.Suspense fallback={<div className="text-center py-8">Loading...</div>}>
+            <GalleryScreen />
+          </React.Suspense>
+        );
+      case 'academy':
+        return (
+          <React.Suspense fallback={<div className="text-center py-8">Loading...</div>}>
+            <AcademyScreen />
+          </React.Suspense>
+        );
+      case 'profile':
+        return <ProfileScreen />;
+      default:
+        return <StudioScreen onTabChange={onTabChange} hasTrainedModel={hasTrainedModel} />;
+    }
+  };
+
+  return (
+    <div className="flex-1 px-4 sm:px-6 md:px-8 pb-4 sm:pb-6 md:pb-8 pt-0 h-full overflow-y-auto">
+      {renderContent()}
+    </div>
+  );
+};
+
+// Main App Layout Component
+// @ts-ignore - FC type compatibility with JSX.Element
+const SselfieAppLayout: React.FC = () => {
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [activeTab, setActiveTab] = useState('studio');
+  const [isLoading, setIsLoading] = useState(true);
+  const [initialPrompt, setInitialPrompt] = useState<string | null>(null);
+  const [hasTrainedModel, setHasTrainedModel] = useState(false);
+  const { user, isLoading: authLoading } = useAuth();
+  const [location] = useLocation();
+
+  useEffect(() => {
+    const clockTimer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(clockTimer);
+  }, []);
+
+  // Determine active tab from URL path
+  useEffect(() => {
+    const path = location;
+    if (path.includes('/maya') || path.includes('/app/maya')) {
+      setActiveTab('maya');
+    } else if (path.includes('/app/training')) {
+      setActiveTab('training');
+    } else if (path.includes('/app/gallery')) {
+      setActiveTab('gallery');
+    } else if (path.includes('/app/academy')) {
+      setActiveTab('academy');
+    } else if (path.includes('/app/profile')) {
+      setActiveTab('profile');
+    } else {
+      setActiveTab('studio'); // Default to studio for /app and /app/studio
+    }
+
+    // Handle URL parameters for initial prompts
+    const urlParams = new URL(window.location.href).searchParams;
+    const promptParam = urlParams.get('prompt');
+
+    if (promptParam) {
+      setInitialPrompt(decodeURIComponent(promptParam));
+      // Clear the URL parameters after capturing them
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, '', newUrl);
+    }
+  }, [location]);
+
+  // Show loading screen while auth is loading or for minimum 1.5 seconds for smooth experience
+  useEffect(() => {
+    const minLoadTime = setTimeout(() => {
+      if (!authLoading) {
+        setIsLoading(false);
+      }
+    }, 1500);
+
+    return () => clearTimeout(minLoadTime);
+  }, [authLoading]);
+
+  // Also hide loading when auth completes
+  useEffect(() => {
+    if (!authLoading && user) {
+      setIsLoading(false);
+    }
+  }, [authLoading, user]);
+
+  const handleTabChange = (tabId: string) => {
+    setActiveTab(tabId);
+  };
+
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
+
+  return (
+    <div className="h-screen bg-gradient-to-br from-stone-50 via-stone-100/50 to-stone-50 relative overflow-hidden" style={{
+      fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+    }}>
+      <div className="absolute inset-0">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-stone-200/20 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-stone-300/20 rounded-full blur-3xl"></div>
+      </div>
+
+      <div className="relative h-full mx-1 sm:mx-2 md:mx-3 pt-1 sm:pt-2 pb-28 sm:pb-28">
+        <div className="h-full bg-white/30 backdrop-blur-3xl rounded-[2rem] sm:rounded-[2.5rem] md:rounded-[3rem] border border-white/40 overflow-hidden shadow-2xl shadow-stone-900/10">
+
+          <StatusBar currentTime={currentTime} hasTrainedModel={hasTrainedModel} setHasTrainedModel={setHasTrainedModel} />
+
+          <MainContent
+            activeTab={activeTab}
+            onTabChange={handleTabChange}
+            initialPrompt={initialPrompt}
+            onPromptUsed={() => setInitialPrompt(null)}
+            hasTrainedModel={hasTrainedModel}
+            setHasTrainedModel={setHasTrainedModel}
+          />
+        </div>
+      </div>
+
+      <TabBar activeTab={activeTab} onTabChange={handleTabChange} />
+    </div>
+  );
+};
+
+export default SselfieAppLayout;
