@@ -35,9 +35,9 @@ try {
     // Configure URLs to match client configuration (MUST be relative for Stack Auth security)
     urls: {
       signIn: "/handler/sign-in",
-      signUp: "/handler/sign-up", 
-      afterSignIn: "/auth-success",  // ✅ FIXED: Must be relative like client
-      afterSignUp: "/auth-success",  // ✅ FIXED: Must be relative like client
+      signUp: "/handler/sign-up",
+      afterSignIn: "/app",           // ✅ FIXED: Aligned with client config to use /app
+      afterSignUp: "/app",           // ✅ FIXED: Aligned with client config to use /app
       afterSignOut: "/",             // ✅ FIXED: Must be relative like client
     },
   });

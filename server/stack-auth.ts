@@ -10,7 +10,7 @@
 // ===============================
 if (process.env.NODE_ENV !== 'test') {
   try {
-    // eslint-disable-next-line no-console
+     
     console.warn('[DEPRECATED] server/stack-auth.ts loaded. Prefer server/_middleware/auth.ts (withAuth).');
   } catch {}
 }

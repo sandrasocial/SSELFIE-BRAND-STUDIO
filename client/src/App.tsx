@@ -102,7 +102,14 @@ function Router() {
   return (
     <Switch>
       {/* STACK AUTH HANDLER - Consolidated routes for ALL Stack Auth operations */}
-      {/* Stack Auth handles all /handler/* routes automatically including OAuth callback */}
+      {/* ✅ FIXED: Explicit OAuth callback route handling */}
+      {/* Stack Auth handles all /handler/* routes automatically including:
+          - /handler/sign-in (Email/Password authentication)
+          - /handler/sign-up (User registration)
+          - /handler/oauth-callback (OAuth provider callbacks - Google, GitHub, etc.)
+          - /handler/verify-email (Email verification)
+          - /handler/reset-password (Password reset)
+      */}
       <Route
         path="/handler/:path*"
         component={() => <HandlerRoutes />}
