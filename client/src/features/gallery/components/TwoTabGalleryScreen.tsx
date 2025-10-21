@@ -73,12 +73,24 @@ export default function GalleryScreen() {
 
   return (
     <div className="px-6 sm:px-8" style={{ paddingTop: '100px' }}>
-      {/* Tabs */}
-      <div className="mb-6">
-        <div className="flex gap-6 border-b border-stone-200/70 bg-white/60 backdrop-blur-2xl rounded-t-2xl px-4 pt-4">
-          <button onClick={() => setActiveTab('gallery')} className={`pb-3 text-sm tracking-[0.2em] uppercase font-light ${activeTab==='gallery'?'text-stone-950 border-b-2 border-stone-950':'text-stone-500 hover:text-stone-700'}`}>Gallery</button>
-          <button onClick={() => setActiveTab('feed')} className={`pb-3 text-sm tracking-[0.2em] uppercase font-light ${activeTab==='feed'?'text-stone-950 border-b-2 border-stone-950':'text-stone-500 hover:text-stone-700'}`}>Feed Designer</button>
-        </div>
+      {/* Tab Switcher */}
+      <div className="flex gap-8 border-b border-stone-200/40 mb-6">
+        {[
+          { id: 'gallery', label: 'Gallery' },
+          { id: 'feed', label: 'Feed Designer' }
+        ].map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`pb-3 text-sm tracking-[0.2em] uppercase font-light transition-all duration-300 ${
+              activeTab === tab.id
+                ? 'text-stone-950 border-b-2 border-stone-950'
+                : 'text-stone-500 hover:text-stone-700'
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
       </div>
 
       {/* Tab content */}

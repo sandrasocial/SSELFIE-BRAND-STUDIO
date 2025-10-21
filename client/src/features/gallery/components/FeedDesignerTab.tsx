@@ -4,6 +4,7 @@ import { arrayMove } from '@dnd-kit/sortable';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiFetch } from '../../../lib/api.js';
 import { useAuth } from '../../../hooks/use-auth.js';
+import { Heart } from 'lucide-react';
 import type { GalleryImage } from './ImageDetailModal.js';
 import FeedHeader from './FeedHeader.js';
 import FeedGrid from './FeedGrid.js';
@@ -144,28 +145,42 @@ export default function FeedDesignerTab({ images }: { images: GalleryImage[] }) 
 
       <FeedHeader />
 
-      {/* Available Photos tray */}
-      <div className="bg-white/60 backdrop-blur-2xl border border-stone-200/70 rounded-3xl p-4 sm:p-6">
-        <div className="text-xs tracking-[0.2em] uppercase text-stone-500 font-light mb-3">Available Photos</div>
-        <div className="flex gap-3 overflow-x-auto pb-1">
-          {images.slice(0, 20).map((img) => (
-            <DraggableImage key={String(img.id)} image={img} />
-          ))}
+      {images.length === 0 ? (
+        <div className="bg-white/50 backdrop-blur-2xl rounded-xl sm:rounded-[1.75rem] p-12 text-center border border-white/60 shadow-xl shadow-stone-900/10">
+          <Heart size={48} className="mx-auto mb-6 text-stone-400" strokeWidth={1.5} />
+          <h3 className="text-base sm:text-lg md:text-xl font-bold text-stone-950 mb-3">
+            No Photos Available
+          </h3>
+          <p className="text-xs sm:text-sm md:text-base font-medium text-stone-600 mb-6">
+            Generate or upload photos in the Gallery to start designing your Instagram feed
+          </p>
         </div>
-      </div>
-
-      {/* DnD Context + Grid */}
-      <DndContext sensors={sensors} onDragStart={handleDragStart} onDragOver={handleDragOver} onDragEnd={handleDragEnd}>
-        <FeedGrid slots={feedSlots} overId={overId} onRemove={removeAt} />
-
-        <DragOverlay>
-          {activeImage ? (
-            <div className="w-32 h-32 rounded-xl overflow-hidden border border-stone-200/60 shadow-2xl">
-              <img src={activeImage.imageUrl || activeImage.url || ''} alt={activeImage.title || 'Drag preview'} className="w-full h-full object-cover" />
+      ) : (
+        <>
+          {/* Available Photos tray */}
+          <div className="bg-white/60 backdrop-blur-2xl border border-stone-200/70 rounded-3xl p-4 sm:p-6">
+            <div className="text-xs tracking-[0.2em] uppercase text-stone-500 font-light mb-3">Available Photos</div>
+            <div className="flex gap-3 overflow-x-auto pb-1">
+              {images.slice(0, 20).map((img) => (
+                <DraggableImage key={String(img.id)} image={img} />
+              ))}
             </div>
-          ) : null}
-        </DragOverlay>
-      </DndContext>
+          </div>
+
+          {/* DnD Context + Grid */}
+          <DndContext sensors={sensors} onDragStart={handleDragStart} onDragOver={handleDragOver} onDragEnd={handleDragEnd}>
+            <FeedGrid slots={feedSlots} overId={overId} onRemove={removeAt} />
+
+            <DragOverlay>
+              {activeImage ? (
+                <div className="w-32 h-32 rounded-xl overflow-hidden border border-stone-200/60 shadow-2xl">
+                  <img src={activeImage.imageUrl || activeImage.url || ''} alt={activeImage.title || 'Drag preview'} className="w-full h-full object-cover" />
+                </div>
+              ) : null}
+            </DragOverlay>
+          </DndContext>
+        </>
+      )}
     </div>
   );
 }

@@ -118,18 +118,21 @@ const SettingsScreen: React.FC<Props> = ({ onBack }) => {
     <div className="space-y-8 pb-4">
       {/* Header */}
       {onBack ? (
-        <div className="pt-4 sm:pt-6 flex items-center justify-between">
+        <div className="flex items-center gap-4 pt-4">
           <button
             onClick={onBack}
             className="p-4 bg-stone-100/50 rounded-2xl border border-stone-200/40 hover:bg-stone-100/70 hover:border-stone-300/50 transition-all duration-200"
           >
             <ChevronRight size={18} className="text-stone-600 transform rotate-180" strokeWidth={1.5} />
           </button>
-          <div className="text-center flex-1 -ml-16">
-            <h1 className="text-3xl sm:text-5xl font-serif font-extralight tracking-[0.3em] text-stone-950 uppercase leading-none mb-3">SETTINGS</h1>
-            <p className="text-xs tracking-[0.2em] uppercase font-light text-stone-500">Your Preferences</p>
+          <div className="flex-1 min-w-0">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif font-extralight tracking-[0.3em] text-stone-950 uppercase">
+              Settings
+            </h2>
+            <p className="text-xs tracking-[0.15em] uppercase font-light mt-2 text-stone-500">
+              Your Preferences
+            </p>
           </div>
-          <div className="w-[56px]" />
         </div>
       ) : (
         <div className="pt-4 sm:pt-6 text-center">
@@ -261,15 +264,15 @@ const SettingsScreen: React.FC<Props> = ({ onBack }) => {
         {groups.map((group, index) => {
           const Icon = group.icon;
           return (
-            <div key={index} className="bg-stone-100/40 rounded-3xl p-6 sm:p-8 border border-stone-200/40">
-              <div className="flex items-center space-x-4 mb-8">
-                <div className="p-3 bg-stone-500/10 rounded-2xl border border-stone-400/20">
-                  <Icon size={20} className="text-stone-600" strokeWidth={1.5} />
+            <div key={index} className="bg-white/50 backdrop-blur-2xl rounded-xl sm:rounded-[1.75rem] p-4 sm:p-6 md:p-8 border border-white/60 shadow-xl shadow-stone-900/10">
+              <div className="flex items-center space-x-3 sm:space-x-4 mb-6 sm:mb-8">
+                <div className="p-2.5 sm:p-3.5 bg-stone-950 rounded-lg sm:rounded-[1.125rem] shadow-lg">
+                  <Icon size={18} className="text-white" strokeWidth={2.5} />
                 </div>
-                <h3 className="text-lg font-serif font-extralight tracking-[0.15em] text-stone-950 uppercase">{group.title}</h3>
+                <h3 className="text-base sm:text-lg md:text-xl font-bold text-stone-950">{group.title}</h3>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-1 sm:space-y-2">
                 {group.items.map((item, itemIndex) => (
                   <div
                     key={itemIndex}
@@ -284,21 +287,25 @@ const SettingsScreen: React.FC<Props> = ({ onBack }) => {
                         applyUpdate(item.key, next);
                       }
                     }}
-                    className="flex items-center justify-between py-5 hover:bg-stone-200/30 rounded-2xl px-6 -mx-6 transition-all duration-200 cursor-pointer group min-h-[60px]"
+                    className="flex items-center justify-between py-3 sm:py-5 hover:bg-white/30 rounded-lg sm:rounded-[1.25rem] px-3 sm:px-6 -mx-3 sm:-mx-6 transition-all duration-300 cursor-pointer group min-h-[56px] sm:min-h-[68px]"
                   >
-                    <span className="text-sm sm:text-base text-stone-950 font-light flex-1 min-w-0 truncate">{item.name}</span>
-                    <div className="flex items-center space-x-4 ml-4">
-                      <span className="text-xs sm:text-sm font-light text-stone-600">{item.status}</span>
+                    <span className="text-xs sm:text-sm md:text-base text-stone-950 font-medium flex-1 min-w-0 truncate">{item.name}</span>
+                    <div className="flex items-center space-x-3 sm:space-x-4 ml-3 sm:ml-4">
+                      <span className="text-[10px] sm:text-xs md:text-sm font-semibold text-stone-600">{item.status}</span>
                       {item.type === 'toggle' ? (
-                        <div className={`w-12 h-6 sm:w-14 sm:h-7 rounded-full relative transition-colors duration-200 ${
-                          item.status === 'On' ? 'bg-stone-600/30' : 'bg-stone-300'
+                        <div className={`relative w-12 h-7 sm:w-14 sm:h-8 md:w-16 md:h-9 rounded-full transition-all duration-300 cursor-pointer shadow-inner ${
+                          item.status === 'On'
+                            ? 'bg-stone-950 shadow-stone-900/30'
+                            : 'bg-stone-300/60'
                         }`}>
-                          <div className={`w-5 h-5 sm:w-6 sm:h-6 bg-stone-50 rounded-full absolute top-0.5 transition-transform duration-200 ${
-                            item.status === 'On' ? 'translate-x-6 sm:translate-x-7' : 'translate-x-0.5'
+                          <div className={`absolute top-1 w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 bg-white rounded-full shadow-lg transition-all duration-300 ${
+                            item.status === 'On' ? 'translate-x-6 sm:translate-x-7 md:translate-x-8' : 'translate-x-1'
                           }`}></div>
                         </div>
                       ) : (
-                        <ChevronRight size={16} className="text-stone-500 group-hover:text-stone-700 transition-colors" strokeWidth={1.5} />
+                        <div className="w-7 h-7 sm:w-8 sm:h-8 bg-white/60 backdrop-blur-xl rounded-full flex items-center justify-center group-hover:bg-white/80 transition-all duration-300 shadow-lg">
+                          <ChevronRight size={14} className="text-stone-600" strokeWidth={2.5} />
+                        </div>
                       )}
                     </div>
                   </div>
@@ -311,11 +318,10 @@ const SettingsScreen: React.FC<Props> = ({ onBack }) => {
 
       {/* Sign Out */}
       <div className="pt-6 border-t border-stone-200/30">
-        <button 
+        <button
           onClick={handleLogout}
-          className="w-full text-sm tracking-[0.15em] uppercase font-light border rounded-2xl py-5 transition-colors hover:text-stone-950 hover:bg-stone-100/30 min-h-[56px] text-stone-600 border-stone-300/40 flex items-center justify-center gap-2"
+          className="w-full text-sm tracking-[0.15em] uppercase font-light border rounded-2xl py-5 transition-colors hover:text-stone-950 hover:bg-stone-100/30 min-h-[56px] text-stone-600 border-stone-300/40"
         >
-          <LogOut size={16} strokeWidth={1.5} />
           Sign Out
         </button>
       </div>

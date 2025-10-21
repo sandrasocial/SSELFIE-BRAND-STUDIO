@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Grid, Search, Star, Calendar, Filter, Check, Plus, SortDesc, SortAsc, Eye, Download, Trash2 } from 'lucide-react';
+import { Grid, Search, Star, Calendar, Filter, Check, Plus, SortDesc, SortAsc, Eye, Download, Trash2, Heart, Camera } from 'lucide-react';
 import CategoryFilter, { type Category } from './CategoryFilter.js';
 import ImageGrid from './ImageGrid.js';
 import type { GalleryImage } from './ImageDetailModal.js';
@@ -91,30 +91,29 @@ export default function GalleryTab({ images, favorites, viewMode, onChangeViewMo
 
   return (
     <div className="space-y-8 py-8 sm:py-12">
-      {/* Header */}
-      <div className="flex justify-between items-start">
-        <div className="space-y-6">
-          <div>
-            <div className="text-xs tracking-[0.3em] uppercase text-stone-500 font-light mb-4">Professional Collection</div>
-            <h2 className="text-4xl sm:text-5xl font-serif font-extralight tracking-[0.25em] text-stone-950 uppercase">Gallery</h2>
-          </div>
+      {/* Screen Header */}
+      <div className="pt-3 sm:pt-4 md:pt-6 text-center mb-6">
+        <h1 className="text-2xl sm:text-3xl md:text-5xl font-serif font-extralight tracking-[0.3em] text-stone-950 uppercase leading-none mb-2 sm:mb-3">
+          Gallery
+        </h1>
+        <p className="text-[10px] sm:text-xs tracking-[0.2em] uppercase font-light text-stone-500">
+          Professional Collection • {stats.total} Photos
+        </p>
+      </div>
 
-          <div className="flex items-center gap-8">
-            <div className="flex items-center gap-3">
-              <div className="w-2 h-2 bg-stone-600 rounded-full" />
-              <span className="text-xs text-stone-600 tracking-[0.2em] uppercase font-light">{stats.total} Photos</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <Star size={12} className="text-stone-600" strokeWidth={1.5} />
-              <span className="text-xs text-stone-600 tracking-[0.2em] uppercase font-light">{stats.favorites} Favorites</span>
-            </div>
-            {stats.selected > 0 && (
-              <div className="flex items-center gap-3">
-                <Check size={12} className="text-stone-950" strokeWidth={1.5} />
-                <span className="text-xs text-stone-950 tracking-[0.2em] uppercase font-light">{stats.selected} Selected</span>
-              </div>
-            )}
+      {/* Stats and Actions */}
+      <div className="flex justify-between items-center">
+        <div className="flex items-center gap-6 sm:gap-8">
+          <div className="flex items-center gap-3">
+            <div className="w-2 h-2 bg-stone-600 rounded-full" />
+            <span className="text-xs text-stone-600 tracking-[0.2em] uppercase font-light">{stats.favorites} Favorites</span>
           </div>
+          {stats.selected > 0 && (
+            <div className="flex items-center gap-3">
+              <Check size={12} className="text-stone-950" strokeWidth={1.5} />
+              <span className="text-xs text-stone-950 tracking-[0.2em] uppercase font-light">{stats.selected} Selected</span>
+            </div>
+          )}
         </div>
 
         {/* Actions */}
@@ -131,6 +130,24 @@ export default function GalleryTab({ images, favorites, viewMode, onChangeViewMo
             <button onClick={() => onChangeViewMode('masonry')} className={`p-2 rounded-xl ${viewMode === 'masonry' ? 'bg-stone-100 text-stone-950' : 'hover:bg-stone-50 text-stone-600'}`}><Eye size={16} strokeWidth={1.5} /></button>
           </div>
         </div>
+      </div>
+
+      {/* Stat Cards */}
+      <div className="grid grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
+        {[
+          { label: 'Total', value: images.length, icon: Grid },
+          { label: 'Favorited', value: favorites.length, icon: Heart },
+          { label: 'Close-Up', value: images.filter(i => (i.title || i.source || '').toLowerCase().includes('close')).length, icon: Camera },
+          { label: 'Scenery', value: images.filter(i => (i.title || i.source || '').toLowerCase().includes('scenery')).length, icon: Camera }
+        ].map((stat, i) => (
+          <div key={i} className="group bg-white/50 backdrop-blur-2xl border border-white/60 rounded-[1.5rem] p-4 sm:p-5 text-center shadow-xl shadow-stone-900/10 hover:shadow-2xl hover:shadow-stone-900/20 hover:scale-105 transition-all duration-300">
+            <div className="w-11 h-11 bg-stone-950 rounded-[1rem] flex items-center justify-center mx-auto mb-3 shadow-lg group-hover:scale-110 transition-transform duration-300">
+              <stat.icon size={18} className="text-white" strokeWidth={2.5} />
+            </div>
+            <div className="text-2xl sm:text-3xl font-bold text-stone-950 mb-1">{stat.value}</div>
+            <div className="text-[10px] sm:text-xs tracking-wider uppercase font-semibold text-stone-500">{stat.label}</div>
+          </div>
+        ))}
       </div>
 
       {/* Filters Panel */}
@@ -177,26 +194,56 @@ export default function GalleryTab({ images, favorites, viewMode, onChangeViewMo
         </div>
       )}
 
-      {/* Grid */}
-      <ImageGrid
-        images={filteredImages}
-        favorites={favorites}
-        selected={selectedImages}
-        viewMode={viewMode}
-        onOpen={onOpenModal}
-        onToggleFavorite={onToggleFavorite}
-        onToggleSelect={onToggleSelect}
-        onDownload={downloadImage}
-        onDelete={onDelete}
-      />
+      {/* Grid or Empty State */}
+      {filteredImages.length === 0 ? (
+        filterBy === 'favorites' ? (
+          <div className="bg-white/50 backdrop-blur-2xl rounded-xl sm:rounded-[1.75rem] p-12 text-center border border-white/60 shadow-xl shadow-stone-900/10">
+            <Heart size={48} className="mx-auto mb-6 text-stone-400" strokeWidth={1.5} />
+            <h3 className="text-base sm:text-lg md:text-xl font-bold text-stone-950 mb-3">
+              No Favorites Yet
+            </h3>
+            <p className="text-xs sm:text-sm md:text-base font-medium text-stone-600 mb-6">
+              Heart your favorite images in the All Images view to build your Instagram feed
+            </p>
+            <button
+              onClick={() => setFilterBy('all')}
+              className="px-6 sm:px-8 py-3 sm:py-4 bg-stone-950 text-stone-50 rounded-2xl font-light tracking-[0.15em] uppercase text-xs sm:text-sm transition-all duration-200 hover:bg-stone-800 min-h-[48px] sm:min-h-[52px]"
+            >
+              Browse All Images
+            </button>
+          </div>
+        ) : (
+          <div className="bg-white/50 backdrop-blur-2xl rounded-xl sm:rounded-[1.75rem] p-12 text-center border border-white/60 shadow-xl shadow-stone-900/10">
+            <Heart size={48} className="mx-auto mb-6 text-stone-400" strokeWidth={1.5} />
+            <h3 className="text-base sm:text-lg md:text-xl font-bold text-stone-950 mb-3">
+              No Photos Found
+            </h3>
+            <p className="text-xs sm:text-sm md:text-base font-medium text-stone-600 mb-6">
+              Try adjusting your search or filters to find more photos
+            </p>
+          </div>
+        )
+      ) : (
+        <>
+          <ImageGrid
+            images={filteredImages}
+            favorites={favorites}
+            selected={selectedImages}
+            viewMode={viewMode}
+            onOpen={onOpenModal}
+            onToggleFavorite={onToggleFavorite}
+            onToggleSelect={onToggleSelect}
+            onDownload={downloadImage}
+            onDelete={onDelete}
+          />
 
-      {/* Load More Button */}
-      {filteredImages.length > 0 && (
-        <div className="text-center pt-12">
-          <button className="text-stone-600 text-sm tracking-[0.15em] uppercase font-light hover:text-stone-950 transition-colors px-8 py-4 rounded-2xl hover:bg-stone-100">
-            Load More Photos
-          </button>
-        </div>
+          {/* Load More Button */}
+          <div className="text-center pt-12">
+            <button className="text-stone-600 text-sm tracking-[0.15em] uppercase font-light hover:text-stone-950 transition-colors px-8 py-4 rounded-2xl hover:bg-stone-100">
+              Load More Photos
+            </button>
+          </div>
+        </>
       )}
     </div>
   );

@@ -32,24 +32,32 @@ export default function HeaderBar({
       {...rest}
     >
       {/* Left: time */}
-      <div className="text-[10px] tracking-[0.15em] uppercase font-light text-stone-500">{time}</div>
+      <div className="flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 bg-black/80 backdrop-blur-xl rounded-full">
+        <div className="text-white font-medium tracking-wide text-xs sm:text-sm">
+          {time}
+        </div>
+      </div>
 
       {/* Center: user type toggle */}
       <button
         type="button"
         onClick={onToggleUserType}
-        className={cn(
-          'rounded-full px-3 py-1.5 border border-white/50 bg-white/40 backdrop-blur-xl text-[10px] tracking-[0.15em] uppercase',
-          'text-stone-700 hover:bg-white/60 transition-colors',
-        )}
+        className="px-3 sm:px-4 py-1.5 sm:py-2 text-[10px] sm:text-xs tracking-wide font-medium bg-white/60 hover:bg-white/80 backdrop-blur-xl rounded-full transition-all duration-300 border border-white/40 shadow-lg shadow-stone-900/10"
       >
         {userType === 'pro' ? 'Pro User' : 'Member'}
       </button>
 
       {/* Right: credits */}
-      <div className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 bg-stone-100 backdrop-blur-xl border border-stone-200 text-[10px] tracking-[0.15em] uppercase text-stone-700">
-        <span>Credits</span>
-        <span className="font-semibold text-stone-900">{credits}</span>
+      <div className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 sm:py-2 bg-white/60 backdrop-blur-xl rounded-full border border-white/40">
+        <div className="flex space-x-0.5 sm:space-x-1">
+          <div className="w-0.5 sm:w-1 h-2 sm:h-3 bg-stone-900 rounded-full"></div>
+          <div className="w-0.5 sm:w-1 h-2 sm:h-3 bg-stone-900 rounded-full"></div>
+          <div className="w-0.5 sm:w-1 h-2 sm:h-3 bg-stone-900 rounded-full"></div>
+          <div className="w-0.5 sm:w-1 h-2 sm:h-3 bg-stone-400 rounded-full"></div>
+        </div>
+        <div className="w-4 sm:w-5 h-4 sm:h-5 bg-stone-900 rounded-full flex items-center justify-center text-white text-[8px] sm:text-[10px] font-bold">
+          {credits}
+        </div>
       </div>
     </div>
   );

@@ -53,14 +53,24 @@ const ProfileScreen: React.FC = () => {
 
   return (
     <div className="space-y-8 pb-4">
-      {/* Profile Header */}
-      <div className="text-center space-y-8 pt-4">
+      {/* Screen Header */}
+      <div className="pt-3 sm:pt-4 md:pt-6 text-center">
+        <h1 className="text-2xl sm:text-3xl md:text-5xl font-serif font-extralight tracking-[0.3em] text-stone-950 uppercase leading-none mb-2 sm:mb-3">
+          Profile
+        </h1>
+        <p className="text-[10px] sm:text-xs tracking-[0.2em] uppercase font-light text-stone-500">
+          Your Account • Settings
+        </p>
+      </div>
+
+      {/* Profile Avatar and Info */}
+      <div className="text-center space-y-6">
         <div className="relative inline-block">
-          <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-full overflow-hidden border-2 border-stone-200/60 shadow-sm bg-stone-200/40">
+          <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-full overflow-hidden border-2 border-stone-200/60 shadow-2xl shadow-stone-900/20 bg-stone-200/40">
             {user.profileImageUrl ? (
-              <img 
-                src={user.profileImageUrl} 
-                alt={user.displayName || 'Profile'} 
+              <img
+                src={user.profileImageUrl}
+                alt={user.displayName || 'Profile'}
                 className="w-full h-full object-cover"
               />
             ) : (
@@ -69,42 +79,44 @@ const ProfileScreen: React.FC = () => {
               </div>
             )}
           </div>
-          <div className="absolute -bottom-1 -right-1 w-9 h-9 bg-stone-50 rounded-full border-2 border-stone-100 flex items-center justify-center shadow-sm">
-            <div className="w-4 h-4 bg-stone-900 rounded-full"></div>
+          <div className="absolute -bottom-1 -right-1 w-9 h-9 sm:w-10 sm:h-10 bg-stone-50 rounded-full border-2 sm:border-3 border-stone-100 flex items-center justify-center shadow-lg shadow-stone-900/30">
+            <div className="w-4 h-4 sm:w-5 sm:h-5 bg-stone-900 rounded-full"></div>
           </div>
         </div>
-        
-        <div className="space-y-4">
-          <h2 className="text-3xl sm:text-5xl font-serif font-extralight tracking-[0.25em] text-stone-950 uppercase">
+
+        <div className="space-y-3">
+          <h2 className="text-xl sm:text-2xl font-serif font-extralight tracking-[0.2em] text-stone-950 uppercase">
             {user.displayName || `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'User'}
           </h2>
-          <p className="text-xs tracking-[0.3em] uppercase font-light bg-stone-500/10 px-4 py-2 rounded-full inline-block text-stone-600">
+          <p className="text-xs sm:text-sm tracking-[0.15em] uppercase font-light bg-stone-500/10 px-4 py-2 sm:py-2.5 rounded-full inline-block text-stone-600 border border-stone-200/40">
             {user.plan === 'admin' ? 'Admin' : 'Studio'} Member
           </p>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-8 pt-4">
+        <div className="grid grid-cols-3 gap-6 sm:gap-8 pt-4">
           {stats.map((stat, index) => (
             <div key={index} className="text-center space-y-3">
-              <div className="text-3xl sm:text-4xl font-serif font-extralight text-stone-950">{stat.value}</div>
-              <div className="text-xs tracking-[0.15em] uppercase font-light text-stone-500">{stat.label}</div>
+              <div className="text-3xl sm:text-4xl md:text-5xl font-serif font-extralight text-stone-950">{stat.value}</div>
+              <div className="text-xs sm:text-sm tracking-[0.15em] uppercase font-light text-stone-500">{stat.label}</div>
             </div>
           ))}
         </div>
       </div>
 
       {/* Action Buttons */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <button className="group relative bg-stone-950 text-stone-50 px-6 py-5 rounded-2xl font-light tracking-[0.15em] uppercase text-sm transition-all duration-300 hover:scale-[1.01] overflow-hidden shadow-sm min-h-[56px]">
-          <div className="absolute inset-0 bg-stone-800 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-500"></div>
-          <span className="relative z-10 group-hover:text-stone-50 transition-colors duration-500">Edit Profile</span>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+        <button className="group relative bg-stone-950 text-white px-6 sm:px-8 py-5 sm:py-6 rounded-xl sm:rounded-[1.5rem] font-semibold tracking-wide text-sm sm:text-base transition-all duration-300 hover:shadow-2xl hover:shadow-stone-900/40 hover:scale-105 active:scale-95 min-h-[60px] sm:min-h-[64px] overflow-hidden">
+          <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+          <span className="relative z-10">Edit Profile</span>
         </button>
         <button
           onClick={() => setActiveSection('settings')}
-          className="bg-stone-100/50 text-stone-950 px-6 py-5 rounded-2xl font-light tracking-[0.15em] uppercase text-sm border border-stone-200/40 transition-all duration-300 hover:bg-stone-100/70 hover:border-stone-300/50 hover:scale-[1.01] flex items-center justify-center gap-3 min-h-[56px]"
+          className="group bg-white/50 backdrop-blur-2xl text-stone-950 px-6 sm:px-8 py-5 sm:py-6 rounded-xl sm:rounded-[1.5rem] font-semibold text-sm sm:text-base border border-white/60 transition-all duration-300 hover:bg-white/70 hover:border-white/80 hover:scale-105 active:scale-95 flex items-center justify-center gap-3 min-h-[60px] sm:min-h-[64px] shadow-lg shadow-stone-900/10 hover:shadow-2xl hover:shadow-stone-900/20"
         >
-          <Settings size={16} strokeWidth={1.5} />
+          <div className="w-9 h-9 sm:w-10 sm:h-10 bg-gradient-to-br from-stone-600 to-stone-700 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+            <Settings size={16} strokeWidth={2.5} className="text-white" />
+          </div>
           Settings
         </button>
       </div>
