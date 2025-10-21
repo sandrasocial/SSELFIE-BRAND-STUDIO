@@ -124,6 +124,7 @@ async function getJWKS() {
 
 /**
  * Verify JWT token with Stack Auth JWKS
+ * ✅ FIXED: Invalidates JWKS cache on verification failure to catch key rotations
  */
 async function verifyJWTToken(token: string): Promise<JWTPayload & StackAuthUserInfo> {
   try {
@@ -150,77 +151,55 @@ async function verifyJWTToken(token: string): Promise<JWTPayload & StackAuthUser
       tokenPrefix: token.substring(0, 20) + '...'
     });
 
+    // ✅ FIXED: Invalidate JWKS cache on verification failure
+    // This ensures we fetch fresh keys if Stack Auth rotated them
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    if (errorMsg.includes('signature') || errorMsg.includes('key') || errorMsg.includes('invalid')) {
+      console.warn('⚠️ Invalidating JWKS cache due to verification failure - may indicate key rotation');
+      JWKS_CACHE = null;
+      JWKS_LAST_FETCH = 0;
+    }
+
     throw new Error(`JWT verification failed: ${(error as Error).message}`);
   }
 }
 
 /**
  * Extract token from request (cookies or headers)
+ * ✅ SIMPLIFIED: Stack Auth uses 'stack-access' as the primary cookie name
  */
 function extractToken(req: VercelRequest): string | undefined {
-  // 1) Cookies (preferred): support multiple Stack Auth cookie names and formats
   const cookies = parseCookies(req.headers.cookie);
 
-  // Legacy/internal cookie used by some paths
-  if (cookies['__stack_auth_token']) {
-    return cookies['__stack_auth_token'];
+  // ✅ PRIMARY: Stack Auth's standard cookie name
+  if (cookies['stack-access']) {
+    const token = cookies['stack-access'];
+    if (token && typeof token === 'string' && token.length > 20) {
+      return token;
+    }
   }
 
-  const candidateCookieNames = [
-    'stack-access',
+  // FALLBACK: Try alternative cookie names for backward compatibility
+  const fallbackCookieNames = [
     'stack_access',
     'stack-access-token',
     'stack_access_token',
-    'stack-token',
-    'stack_session',
   ];
 
-  const tryParseCookieVal = (val?: string): string | undefined => {
-    if (!val || typeof val !== 'string') return undefined;
-    const trimmed = val.trim();
-    // JSON array format: ["token_id","jwt"]
-    if (trimmed.startsWith('[')) {
-      try {
-        const parsed = JSON.parse(trimmed);
-        if (Array.isArray(parsed) && typeof parsed[1] === 'string' && parsed[1]) {
-          return parsed[1];
-        }
-      } catch {}
-    }
-    // JSON object format: { accessToken: "jwt" } or { token: "jwt" }
-    if (trimmed.startsWith('{')) {
-      try {
-        const obj = JSON.parse(trimmed);
-        if (typeof obj?.accessToken === 'string' && obj.accessToken) return obj.accessToken;
-        if (typeof obj?.token === 'string' && obj.token) return obj.token;
-      } catch {}
-    }
-    // Raw JWT-like
-    if (trimmed.split('.').length >= 3 && trimmed.length > 20) return trimmed;
-    return undefined;
-  };
-
-  for (const name of candidateCookieNames) {
-    const v = cookies[name];
-    const token = tryParseCookieVal(v);
-    if (token) return token;
-  }
-
-  // As a fallback, scan all cookies for a parsable token
-  for (const [name, v] of Object.entries(cookies)) {
-    if (/^stack[-_].*/i.test(name)) {
-      const token = tryParseCookieVal(v);
-      if (token) return token;
+  for (const name of fallbackCookieNames) {
+    const token = cookies[name];
+    if (token && typeof token === 'string' && token.length > 20) {
+      return token;
     }
   }
 
-  // 2) Authorization header (Bearer token)
+  // FALLBACK: Authorization header (Bearer token)
   const authHeader = req.headers.authorization;
   if (authHeader?.startsWith('Bearer ')) {
     return authHeader.substring(7);
   }
 
-  // 3) Custom header forwarded by our proxy (if used)
+  // FALLBACK: Custom header forwarded by proxy
   if (req.headers['x-stack-access-token']) {
     return req.headers['x-stack-access-token'] as string;
   }
@@ -230,6 +209,7 @@ function extractToken(req: VercelRequest): string | undefined {
 
 /**
  * Get or create database user from Stack Auth payload
+ * ✅ FIXED: Uses upsertUser to prevent race conditions with concurrent requests
  */
 async function getOrCreateDatabaseUser(
   payload: JWTPayload & StackAuthUserInfo
@@ -244,34 +224,30 @@ async function getOrCreateDatabaseUser(
     // Get database storage
     const { storage } = await import('../../server/storage.js');
 
-    // Try to get existing user
-    let user = await storage.getUser(userId);
+    // Extract user data from Stack Auth payload
+    const email = payload.email || payload.primary_email || payload.email_address;
+    const displayName = payload.displayName || payload.display_name || payload.name;
 
-    if (!user) {
-      // Create new user from Stack Auth payload
-      const email = payload.email || payload.primary_email || payload.email_address;
-      const displayName = payload.displayName || payload.display_name || payload.name;
+    // ✅ FIXED: Use upsertUser instead of separate get/create logic
+    // This prevents race conditions where multiple concurrent requests could create duplicate users
+    const user = await storage.upsertUser({
+      id: userId,
+      stackAuthId: userId,
+      email: email || null,
+      displayName: displayName || null,
+      firstName: payload.given_name || null,
+      lastName: null,
+      profileImageUrl: payload.profileImageUrl || payload.profile_image_url || null,
+    });
 
-      user = await storage.createUser({
-        id: userId,
-        stackAuthId: userId,
-        email: email || null,
-        displayName: displayName || null,
-        firstName: payload.given_name || null,
-        lastName: null,
-        profileImageUrl: payload.profileImageUrl || payload.profile_image_url || null,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        lastLoginAt: new Date(),
-      });
-    } else {
-      // Update last login
-      await storage.updateUserProfile(userId, { lastLoginAt: new Date() });
-    }
+    // Update last login timestamp
+    const updatedUser = await storage.updateUserProfile(userId, {
+      lastLoginAt: new Date()
+    });
 
     return {
-      ...user,
-      onboardingProgress: (user.onboardingProgress || {}) as any,
+      ...updatedUser,
+      onboardingProgress: (updatedUser.onboardingProgress || {}) as any,
       stackUser: payload as StackAuthUserInfo
     } as AuthenticatedUser;
   } catch (error) {
