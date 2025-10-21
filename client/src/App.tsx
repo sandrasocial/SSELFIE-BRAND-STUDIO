@@ -65,16 +65,18 @@ function SmartHome() {
     window.location.href = ROUTES.APP;
     return <PageLoader />;
   } else {
-    // User not authenticated, redirect to business landing
-    window.location.href = ROUTES.BUSINESS_LANDING;
-    return <PageLoader />;
+    // User not authenticated, show business landing
+    // ✅ FIXED: Don't redirect, let the Router handle it
+    // This prevents the flash and redirect loop
+    return <BusinessLanding />;
   }
 }
 
 // ✅ Stack Auth Handler - Following documentation exactly
 function HandlerRoutes() {
   const [location] = useLocation();
-  
+  const { stackUser } = useAuth({ silent: true });
+
   if (!stackClientApp) {
     return createElement('div',
       { className: "min-h-screen bg-stone-50 flex items-center justify-center" },
@@ -86,6 +88,18 @@ function HandlerRoutes() {
           onClick: () => window.location.reload(),
           className: "bg-black text-white px-6 py-2 rounded"
         }, "Retry")
+      )
+    );
+  }
+
+  // ✅ FIXED: After Stack Auth completes, redirect to /app
+  // This ensures the user is properly authenticated before showing the app
+  if (stackUser && location.includes('/handler/')) {
+    console.log('✅ Stack Auth completed, user authenticated:', stackUser.id);
+    window.location.href = ROUTES.APP;
+    return createElement('div', { className: "min-h-screen bg-stone-50 flex items-center justify-center" },
+      createElement('div', { className: "text-center" },
+        createElement('p', { className: "text-gray-600" }, "Redirecting to app...")
       )
     );
   }

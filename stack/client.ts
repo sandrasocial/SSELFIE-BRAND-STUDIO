@@ -129,11 +129,11 @@ try {
     publishableClientKey: STACK_PUBLISHABLE_CLIENT_KEY,
     tokenStore: "cookie",
     urls: {
-      // ✅ FIXED: Use Stack Auth's built-in UI routes instead of custom handlers
-      signIn: "/",  // Let Stack Auth handle sign-in at root
-      signUp: "/",  // Let Stack Auth handle sign-up at root  
-      afterSignIn: "/app",  // ✅ SIMPLIFIED: Direct redirect to app after sign-in
-      afterSignUp: "/app",  // ✅ SIMPLIFIED: Direct redirect to app after sign-up
+      // ✅ FIXED: Use /handler routes to match server configuration
+      signIn: "/handler/sign-in",  // Stack Auth sign-in page
+      signUp: "/handler/sign-up",  // Stack Auth sign-up page
+      afterSignIn: "/app",  // ✅ FIXED: Direct redirect to app after sign-in
+      afterSignUp: "/app",  // ✅ FIXED: Direct redirect to app after sign-up
       afterSignOut: "/",
       error: "/",  // Redirect to root on error instead of non-existent handler
     },
