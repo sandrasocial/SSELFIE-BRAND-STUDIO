@@ -74,7 +74,7 @@ export default function GalleryScreen() {
   return (
     <div className="px-6 sm:px-8" style={{ paddingTop: '100px' }}>
       {/* Tab Switcher */}
-      <div className="flex gap-8 border-b border-stone-200/40 mb-6">
+      <div className="flex gap-8 border-b border-white/40 mb-6">
         {[
           { id: 'gallery', label: 'Gallery' },
           { id: 'feed', label: 'Feed Designer' }

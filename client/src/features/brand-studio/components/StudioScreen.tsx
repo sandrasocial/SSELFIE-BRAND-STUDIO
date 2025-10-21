@@ -309,16 +309,16 @@ const StudioScreen: React.FC<StudioScreenProps> = ({ onTabChange, hasTrainedMode
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
-          <div className="aspect-[4/3] bg-stone-200/40 rounded-2xl border border-stone-300/30 flex items-center justify-center group hover:bg-stone-200/60 transition-all duration-200 cursor-pointer">
-            <Camera size={24} className="text-stone-500 group-hover:text-stone-700 transition-colors" strokeWidth={1.5} />
+          <div className="aspect-[4/3] bg-white/40 backdrop-blur-2xl rounded-2xl border border-white/60 flex items-center justify-center group hover:bg-white/60 hover:shadow-xl hover:shadow-stone-900/10 transition-all duration-300 cursor-pointer">
+            <Camera size={24} className="text-stone-600 group-hover:text-stone-950 transition-colors duration-300" strokeWidth={1.5} />
           </div>
           <div className="space-y-4">
             <div className="flex justify-between text-xs">
               <span className="tracking-[0.1em] uppercase font-light text-stone-500">Progress</span>
               <span className="font-light text-stone-600">40%</span>
             </div>
-            <div className="w-full h-1.5 bg-stone-200 rounded-full overflow-hidden">
-              <div className="w-2/5 h-full bg-stone-700 rounded-full"></div>
+            <div className="w-full h-1.5 bg-stone-200/40 rounded-full overflow-hidden shadow-inner">
+              <div className="w-2/5 h-full bg-stone-950 rounded-full shadow-lg shadow-stone-900/20"></div>
             </div>
             <div className="space-y-3 pt-2">
               {[
@@ -335,7 +335,7 @@ const StudioScreen: React.FC<StudioScreenProps> = ({ onTabChange, hasTrainedMode
           </div>
         </div>
 
-        <button className="w-full bg-stone-950 text-stone-50 py-4 sm:py-5 rounded-2xl font-light tracking-[0.15em] uppercase text-sm transition-all duration-200 hover:bg-stone-800 hover:transform hover:translate-y-[-1px] min-h-[52px] focus:outline-none focus:ring-2 focus:ring-stone-600/40">
+        <button className="w-full bg-stone-950 text-stone-50 py-4 sm:py-5 rounded-2xl font-light tracking-[0.15em] uppercase text-sm transition-all duration-300 hover:bg-stone-900 hover:shadow-2xl hover:shadow-stone-900/40 hover:scale-[1.02] active:scale-[0.98] min-h-[52px] focus:outline-none focus:ring-2 focus:ring-stone-600/40">
           Continue Session
         </button>
       </div>

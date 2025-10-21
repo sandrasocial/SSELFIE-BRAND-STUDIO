@@ -66,7 +66,7 @@ const ProfileScreen: React.FC = () => {
       {/* Profile Avatar and Info */}
       <div className="text-center space-y-6">
         <div className="relative inline-block">
-          <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-full overflow-hidden border-2 border-stone-200/60 shadow-2xl shadow-stone-900/20 bg-stone-200/40">
+          <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-full overflow-hidden border-2 border-white/60 shadow-2xl shadow-stone-900/20 bg-white/40 backdrop-blur-xl">
             {user.profileImageUrl ? (
               <img
                 src={user.profileImageUrl}
@@ -221,7 +221,7 @@ const ProfileScreen: React.FC = () => {
         </div>
         <div className="grid grid-cols-3 gap-3 sm:gap-4">
           {(recentImages ?? []).map((img) => (
-            <div key={img.id} className="aspect-square rounded-2xl border border-stone-300/30 overflow-hidden bg-stone-200/30">
+            <div key={img.id} className="aspect-square rounded-2xl border border-white/60 overflow-hidden bg-white/40 backdrop-blur-xl hover:bg-white/60 hover:shadow-xl hover:shadow-stone-900/10 transition-all duration-300">
               {img.url ? (
                 <img src={img.url} alt="Recent" className="w-full h-full object-cover" />
               ) : (

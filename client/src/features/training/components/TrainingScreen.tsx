@@ -221,9 +221,9 @@ const TrainingScreen = ({ user, setHasTrainedModel, setActiveTab }: any) => {
               <span>Progress</span>
               <span>{progress}%</span>
             </div>
-            <div className="relative w-full h-3 bg-stone-200/40 rounded-full overflow-hidden shadow-inner">
+            <div className="relative w-full h-3 bg-stone-200/30 rounded-full overflow-hidden shadow-inner">
               <div
-                className="h-full bg-stone-950 rounded-full transition-all duration-500 shadow-lg"
+                className="h-full bg-stone-950 rounded-full transition-all duration-500 shadow-lg shadow-stone-900/30"
                 style={{ width: `${progress}%` }}
               ></div>
             </div>
@@ -235,7 +235,7 @@ const TrainingScreen = ({ user, setHasTrainedModel, setActiveTab }: any) => {
               { stage: 'Training Model', done: progress > 70 },
               { stage: 'Finalizing', done: progress > 95 }
             ].map((item, i) => (
-              <div key={i} className="flex items-center justify-between p-4 bg-white/50 backdrop-blur-xl rounded-[1.25rem] border border-white/60 shadow-lg">
+              <div key={i} className="flex items-center justify-between p-4 bg-white/50 backdrop-blur-2xl rounded-[1.25rem] border border-white/60 shadow-xl shadow-stone-900/10 hover:shadow-2xl hover:shadow-stone-900/20 transition-all duration-300">
                 <span className="text-sm font-semibold text-stone-950">{item.stage}</span>
                 <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-all duration-300 ${
                   item.done
@@ -469,7 +469,7 @@ const TrainingScreen = ({ user, setHasTrainedModel, setActiveTab }: any) => {
           ].map((imageUrl, i) => (
             <div
               key={i}
-              className="aspect-square bg-stone-200/30 rounded-2xl border border-stone-300/30 flex items-center justify-center overflow-hidden hover:bg-stone-200/50 transition-colors duration-200 group"
+              className="aspect-square bg-white/40 backdrop-blur-xl rounded-2xl border border-white/60 flex items-center justify-center overflow-hidden hover:bg-white/60 hover:shadow-xl hover:shadow-stone-900/10 transition-all duration-300 group"
             >
               <img
                 src={imageUrl}
