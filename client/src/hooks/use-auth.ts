@@ -61,9 +61,12 @@ export function useAuth(options?: { force?: boolean; silent?: boolean }) {
     queryFn: async () => {
       try {
         const data = await apiFetch('/me');
-        return data?.user ?? null;
+        // Handle both response formats: { user } and { data: { user } }
+        const user = data?.data?.user ?? data?.user ?? null;
+        console.log('✅ User data fetched:', user?.id ? user.id.substring(0, 8) + '...' : 'null');
+        return user;
       } catch (error: any) {
-        console.error('Failed to fetch user data:', error);
+        console.error('❌ Failed to fetch user data:', error);
 
         // If server returns 401, the session is invalid
         if (error?.status === 401 && stackUser) {

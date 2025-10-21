@@ -14,6 +14,9 @@ import { TooltipProvider } from './components/ui/tooltip';
 // Import query client initializer
 import { initQueryClient } from "./lib/queryClient";
 
+// Import auth debug utilities (available in console)
+import './lib/auth-debug';
+
 (async () => {
   try {
     await initQueryClient();

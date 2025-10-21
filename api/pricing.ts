@@ -3,7 +3,11 @@
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { setCacheHeaders } from './_utils/response-helpers';
+
+// Helper function to set cache headers
+function setCacheHeaders(res: VercelResponse, maxAge: number = 3600): void {
+  res.setHeader('Cache-Control', `public, max-age=${maxAge}`);
+}
 
 export const config = { runtime: 'nodejs', maxDuration: 10 } as const;
 
