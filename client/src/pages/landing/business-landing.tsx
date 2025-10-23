@@ -734,9 +734,16 @@ export default function BusinessLanding() {
       <section className="relative py-24 sm:py-32 bg-black text-white overflow-hidden">
         <div className="absolute inset-0 opacity-30">
           <OptimizedImage
-            src="https://i.postimg.cc/MHvCG6J7/hero-about.png"
+            src="/hero-about.png"
             alt="Professional transformation showcasing AI-generated business photography"
             className="w-full h-full object-cover"
+            onError={() => {
+              const img = document.querySelector('[data-final-cta-image]') as HTMLImageElement;
+              if (img) {
+                img.src = "/hero-luxury.png";
+              }
+            }}
+            data-final-cta-image
           />
         </div>
 

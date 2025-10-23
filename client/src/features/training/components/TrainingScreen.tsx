@@ -8,6 +8,7 @@ import { useToast } from '../../../hooks/use-toast';
 import { SandraImages } from '../../../lib/sandra-images';
 
 // Props are intentionally untyped for now to align with neighboring screens
+// Note: setHasTrainedModel is optional - automatic user state detection handles this
 const TrainingScreen = ({ user, setHasTrainedModel, setActiveTab }: any) => {
   const [selectedGender, setSelectedGender] = useState<string>('');
   const [selfieImages, setSelfieImages] = useState<File[]>([]);
