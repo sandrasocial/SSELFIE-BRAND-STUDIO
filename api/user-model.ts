@@ -1,14 +1,14 @@
 /**
  * Vercel Serverless Function - /api/user-model
- * Proxies to main handler
+ * Pure serverless endpoint for user model training status
  */
 
-import handler from '../server/[...route].js';
+import handler from '../server/api/training/user-model.js';
 
 export default handler;
 
 export const config = {
   runtime: 'nodejs',
-  maxDuration: 60,
+  maxDuration: 30,
   memory: 3008
 };
