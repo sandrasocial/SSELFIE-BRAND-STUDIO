@@ -38,6 +38,7 @@ interface StudioScreenProps {
 }
 
 // @ts-ignore - FC type compatibility with JSX.Element
+// Note: hasTrainedModel is optional - component queries API directly for current state
 const StudioScreen: React.FC<StudioScreenProps> = ({ onTabChange, hasTrainedModel }) => {
   const { user, isLoading: authLoading, isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
