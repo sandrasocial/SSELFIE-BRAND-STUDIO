@@ -396,9 +396,9 @@ export default function BusinessLanding() {
       {/* PROBLEM - Simplified */}
       <section className="py-16 sm:py-20 bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="text-xs uppercase tracking-[0.4em] text-gray-400 mb-8">
-            The Reality
-          </div>
+                        <div className="text-xs uppercase tracking-[0.4em] text-gray-700 mb-8">
+                Full Package
+              </div>
 
           <h2 
             className="font-serif text-3xl sm:text-4xl md:text-5xl font-light mb-8 text-black leading-tight"
@@ -419,7 +419,7 @@ export default function BusinessLanding() {
       <section className="py-20 sm:py-32 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16 sm:mb-20">
-            <div className="text-xs uppercase tracking-[0.4em] text-gray-400 mb-8">
+            <div className="text-xs uppercase tracking-[0.4em] text-gray-700 mb-8">
               The Solution
             </div>
             <h2 
@@ -552,7 +552,7 @@ export default function BusinessLanding() {
       {/* SUCCESS - Simplified */}
       <section className="py-16 sm:py-20 bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="text-xs uppercase tracking-[0.4em] text-gray-400 mb-8">
+          <div className="text-xs uppercase tracking-[0.4em] text-gray-700 mb-8">
             Your New Reality
           </div>
 

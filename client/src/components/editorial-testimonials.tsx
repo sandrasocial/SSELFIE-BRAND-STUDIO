@@ -48,7 +48,7 @@ export default function EditorialTestimonials({
         {/* Header */}
         <div className="text-center mb-16 md:mb-20">
           <span 
-            className="text-xs tracking-[0.4em] uppercase text-[#B5B5B3] block mb-6 font-inter"
+            className="text-xs tracking-[0.4em] uppercase text-gray-700 block mb-6 font-inter"
           >
             {subtitle}
           </span>

@@ -159,7 +159,8 @@ function HandlerRoutes() {
 
 function Router() {
   return (
-    <Switch>
+    <main role="main" aria-label="Main content">
+      <Switch>
       {/* STACK AUTH HANDLER - Consolidated routes for ALL Stack Auth operations */}
       {/* ✅ FIXED: Explicit OAuth callback route handling */}
       {/* Stack Auth handles all /handler/* routes automatically including:
@@ -256,7 +257,8 @@ function Router() {
         path="/:rest*"
         component={() => <NotFound />}
       />
-    </Switch>
+      </Switch>
+    </main>
   );
 }
 

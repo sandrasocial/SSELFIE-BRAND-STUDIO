@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
     <!-- Primary Meta Tags -->
     <title>SSELFIE Studio - AI Personal Branding Platform | Transform Selfies Into Business</title>
@@ -147,10 +147,10 @@
     </div>
 
     <!-- Lightweight static video preview modal (non-React) -->
-    <div id="video-preview-modal" class="video-preview-modal" aria-hidden="true">
-      <div class="video-preview-content" role="dialog" aria-modal="true" aria-label="Video preview">
+    <div id="video-preview-modal" class="video-preview-modal" aria-hidden="true" tabindex="-1">
+      <div class="video-preview-content" role="dialog" aria-modal="true" aria-label="Video preview" tabindex="0">
         <button id="video-preview-close" class="video-preview-close-btn" type="button" aria-label="Close video preview">&times;</button>
-        <video id="video-preview-player" playsinline preload="metadata"></video>
+        <video id="video-preview-player" playsinline preload="metadata" tabindex="0"></video>
       </div>
     </div>
 

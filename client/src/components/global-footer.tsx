@@ -25,7 +25,7 @@ export const GlobalFooter: FC = () => {
 
           {/* Platform Links */}
           <div>
-            <h3 className="text-xs uppercase tracking-[0.3em] font-light text-white/80 mb-6">Platform</h3>
+            <h3 className="text-xs uppercase tracking-[0.3em] font-light text-white/90 mb-6">Platform</h3>
             <ul className="space-y-3">
               <li>
                 <Link href="/simple-training" className="text-white/60 hover:text-white transition-colors text-sm font-light">
@@ -47,7 +47,7 @@ export const GlobalFooter: FC = () => {
 
           {/* Contact Info */}
           <div>
-            <h3 className="text-xs uppercase tracking-[0.3em] font-light text-white/80 mb-6">Contact</h3>
+            <h3 className="text-xs uppercase tracking-[0.3em] font-light text-white/90 mb-6">Contact</h3>
             <ul className="space-y-3">
               <li>
                 <a href="mailto:hello@sselfie.ai" className="text-white/60 hover:text-white transition-colors text-sm font-light">
@@ -69,7 +69,7 @@ export const GlobalFooter: FC = () => {
 
           {/* Legal Links */}
           <div>
-            <h3 className="text-xs uppercase tracking-[0.3em] font-light text-white/80 mb-6">Legal</h3>
+            <h3 className="text-xs uppercase tracking-[0.3em] font-light text-white/90 mb-6">Legal</h3>
             <ul className="space-y-3">
               <li>
                 <Link href="/terms" className="text-white/60 hover:text-white transition-colors text-sm font-light">
@@ -92,10 +92,10 @@ export const GlobalFooter: FC = () => {
 
         <div className="mt-12 pt-8 border-t border-white/10">
           <div className="flex flex-col md:flex-row justify-between items-center">
-            <p className="text-white/40 text-xs font-light tracking-wide">
+            <p className="text-white/70 text-xs font-light tracking-wide">
               © 2025 SSELFIE STUDIO. All rights reserved.
             </p>
-            <p className="text-white/40 text-xs font-light mt-4 md:mt-0 italic" style={{ fontFamily: "Times New Roman, serif" }}>
+            <p className="text-white/70 text-xs font-light mt-4 md:mt-0 italic" style={{ fontFamily: "Times New Roman, serif" }}>
               Professional photos from your selfies.
             </p>
           </div>

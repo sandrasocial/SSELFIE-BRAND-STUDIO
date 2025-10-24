@@ -110,7 +110,7 @@ export const EmailCaptureModal: FC<EmailCaptureModalProps> = ({
           {/* Form Side */}
           <div className="lg:w-1/2 p-6 sm:p-8 lg:p-12 flex flex-col justify-center min-h-[400px]">
             <div className="max-w-md mx-auto w-full">
-              <div className="text-xs uppercase tracking-[0.4em] text-gray-500 mb-6">
+              <div className="text-xs uppercase tracking-[0.4em] text-gray-700 mb-6">
                 {plan === 'basic' ? 'Start Basic' : 'Join Full Access'}
               </div>
               
