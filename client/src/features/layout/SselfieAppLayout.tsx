@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../hooks/use-auth.js';
 import { useLocation } from 'wouter';
-import { Camera, Grid, User, Star, MessageCircle, Image } from 'lucide-react';
+import { Camera, Grid, User, Star, MessageCircle, Image } from '../../components/icons/index.js';
 import { useQuery } from '@tanstack/react-query';
 import { apiFetch } from '../../lib/api.js';
 
@@ -255,10 +255,7 @@ const SselfieAppLayout: React.FC = () => {
     setActiveTab(tabId);
   };
 
-  if (isLoading) {
-    return <LoadingScreen />;
-  }
-
+  // Always show navigation - don't hide the entire component during loading
   return (
     <div className="h-screen bg-gradient-to-br from-stone-50 via-stone-100/50 to-stone-50 relative overflow-hidden" style={{
       fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
@@ -273,17 +270,25 @@ const SselfieAppLayout: React.FC = () => {
 
           <StatusBar currentTime={currentTime} hasTrainedModel={hasTrainedModel} trainingStatus={trainingStatus} />
 
-          <MainContent
-            activeTab={activeTab}
-            onTabChange={handleTabChange}
-            initialPrompt={initialPrompt}
-            onPromptUsed={() => setInitialPrompt(null)}
-            hasTrainedModel={hasTrainedModel}
-          />
+          {/* Show loading screen as overlay if still loading, but keep navigation visible */}
+          {isLoading ? (
+            <div className="absolute inset-0 z-30 flex items-center justify-center bg-white/80 backdrop-blur-sm">
+              <LoadingScreen />
+            </div>
+          ) : (
+            <MainContent
+              activeTab={activeTab}
+              onTabChange={handleTabChange}
+              initialPrompt={initialPrompt}
+              onPromptUsed={() => setInitialPrompt(null)}
+              hasTrainedModel={hasTrainedModel}
+            />
+          )}
         </div>
       </div>
 
-      {/* 🔧 FIX: Ensure TabBar is visible with higher z-index and proper positioning */}
+      {/* 🔧 FIX: Navigation is ALWAYS visible - even during loading states */}
+      {/* This ensures users can see and use navigation in Vercel deployment */}
       <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 1000, pointerEvents: 'none' }}>
         <div style={{ pointerEvents: 'auto' }}>
           <TabBar activeTab={activeTab} onTabChange={handleTabChange} />
