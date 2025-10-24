@@ -43,11 +43,10 @@ const LuxuryConceptCard: React.FC<LuxuryConceptCardProps> = ({
 
   return (
     <div 
-      className={`luxury-concept-card group cursor-pointer transition-all duration-300 transform hover:scale-[1.02] hover:shadow-2xl ${
+      className={`luxury-concept-card group cursor-pointer transition-all duration-300 transform hover:scale-[1.02] hover:shadow-2xl bg-gradient-to-br ${gradientPattern} ${
         isSelected ? 'ring-2 ring-black shadow-2xl' : 'shadow-lg hover:shadow-xl'
       }`}
       onClick={onClick}
-      className={`bg-gradient-to-br ${gradientPattern}`}
     >
       {/* Content overlay */}
       <div className="relative p-6 bg-gradient-to-t from-black/80 via-black/20 to-transparent min-h-[280px] flex flex-col justify-end">

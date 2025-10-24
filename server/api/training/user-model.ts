@@ -30,20 +30,45 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return sendUnauthorized(res);
     }
 
-    console.log(`✅ User resolved: ${dbUser.id}, email: ${dbUser.email}`);
+    console.log(`✅ User resolved: ${dbUser.id}, email: ${dbUser.email}, stackAuthId: ${dbUser.stackAuthId || 'none'}`);
 
     let userModel: any = null;
 
-    // 🔥 CRITICAL FIX: Use dbUser.id for database queries
-    // - For OLD users (pre-Stack Auth): id is the original numeric ID where models were created
-    // - For NEW users (Stack Auth): id is already the Stack Auth ID
-    // - stackAuthId is only used for linking old users to Stack Auth, NOT for queries
+    // 🔥 CRITICAL FIX: Enhanced user model lookup with bulletproof linking
+    // Try multiple lookup strategies to ensure existing models are found
     const queryUserId = dbUser.id;
 
-    // Fetch user model using the correct user ID
+    // Fetch user model using multiple strategies
     try {
+      // Strategy 1: Direct user ID lookup
       userModel = await storage.getUserModel(queryUserId);
-      console.log(`📊 Model lookup result: ${userModel ? 'found' : 'not found'}`);
+      console.log(`📊 Direct model lookup result: ${userModel ? 'found' : 'not found'}`);
+
+      // Strategy 2: If no model found and user has email, try bulletproof lookup
+      if (!userModel && dbUser.email && dbUser.stackAuthId) {
+        console.log(`🔍 Attempting bulletproof lookup with stackAuthId: ${dbUser.stackAuthId.substring(0, 8)}... and email: ${dbUser.email}`);
+        const bulletproofResult = await storage.getUserModelByStackAuthAndEmail(dbUser.stackAuthId, dbUser.email);
+        if (bulletproofResult.model) {
+          userModel = bulletproofResult.model;
+          console.log(`✅ Bulletproof lookup found model: ${userModel.id}, status: ${userModel.trainingStatus}`);
+        } else {
+          console.log(`❌ Bulletproof lookup found no model`);
+        }
+      }
+
+      // Strategy 3: Legacy email-based lookup for pre-Stack Auth users
+      if (!userModel && dbUser.email) {
+        console.log(`🔍 Attempting legacy email-based lookup for: ${dbUser.email}`);
+        const userByEmail = await storage.getUserByEmail(dbUser.email);
+        if (userByEmail && userByEmail.id !== queryUserId) {
+          const legacyModel = await storage.getUserModel(userByEmail.id);
+          if (legacyModel) {
+            console.log(`� Found legacy model for user ${userByEmail.id}, linking to current user ${queryUserId}`);
+            userModel = legacyModel;
+          }
+        }
+      }
+
     } catch (error) {
       console.warn('📊 Model fetch failed:', error);
     }

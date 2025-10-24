@@ -233,13 +233,14 @@ const SselfieAppLayout: React.FC = () => {
     }
   }, [location]);
 
-  // Show loading screen while auth is loading or for minimum 1.5 seconds for smooth experience
+  // 🔧 FIX: Reduced loading time and improved navigation visibility
+  // Show loading screen while auth is loading or for minimum 800ms for smooth experience
   useEffect(() => {
     const minLoadTime = setTimeout(() => {
       if (!authLoading && !modelLoading) {
         setIsLoading(false);
       }
-    }, 1500);
+    }, 800); // Reduced from 1500ms to 800ms
 
     return () => clearTimeout(minLoadTime);
   }, [authLoading, modelLoading]);
@@ -247,7 +248,10 @@ const SselfieAppLayout: React.FC = () => {
   // Also hide loading when auth completes and model data is available
   useEffect(() => {
     if (!authLoading && !modelLoading && user) {
-      setIsLoading(false);
+      const quickTimeout = setTimeout(() => {
+        setIsLoading(false);
+      }, 100); // Quick timeout to ensure navigation shows promptly
+      return () => clearTimeout(quickTimeout);
     }
   }, [authLoading, modelLoading, user]);
 
@@ -289,10 +293,21 @@ const SselfieAppLayout: React.FC = () => {
 
       {/* 🔧 FIX: Navigation is ALWAYS visible - even during loading states */}
       {/* This ensures users can see and use navigation in Vercel deployment */}
-      <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 1000, pointerEvents: 'none' }}>
-        <div style={{ pointerEvents: 'auto' }}>
-          <TabBar activeTab={activeTab} onTabChange={handleTabChange} />
-        </div>
+      {/* Force visibility regardless of loading state for better UX */}
+      <div 
+        className="fixed bottom-0 left-0 right-0 z-[1000]" 
+        style={{ 
+          position: 'fixed', 
+          bottom: 0, 
+          left: 0, 
+          right: 0, 
+          zIndex: 1000, 
+          pointerEvents: 'auto',
+          visibility: 'visible',
+          opacity: 1
+        }}
+      >
+        <TabBar activeTab={activeTab} onTabChange={handleTabChange} />
       </div>
     </div>
   );

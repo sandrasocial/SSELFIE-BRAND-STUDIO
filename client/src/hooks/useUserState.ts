@@ -15,23 +15,35 @@ export function useUserState() {
   const [isNewUser, setIsNewUser] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // ✅ FIXED: Query for user model status with explicit queryFn
+  // ✅ FIXED: Query for user model status with explicit queryFn and better error handling
   // Without queryFn, the default query function doesn't include auth headers
   // This caused API calls to fail with 401, breaking routing logic
-  const { data: userModel, isLoading: modelLoading } = useQuery({
+  const { data: userModel, isLoading: modelLoading, error: modelError } = useQuery({
     queryKey: ['/api/user-model'],
     enabled: !!user && !authLoading,
-    staleTime: 60 * 1000, // 60 seconds
-    retry: 1,
-    queryFn: () => apiFetch('/user-model')
+    staleTime: 30 * 1000, // Reduced to 30 seconds for more responsive updates
+    retry: 2,
+    retryDelay: 1000,
+    queryFn: async () => {
+      console.log('🔍 useUserState: Fetching user model data for user', user?.id?.substring(0, 8) + '...');
+      const result = await apiFetch('/user-model');
+      console.log('✅ useUserState: User model data received', {
+        trainingStatus: result?.trainingStatus,
+        id: result?.id,
+        needsTraining: result?.needsTraining,
+        canRetrain: result?.canRetrain
+      });
+      return result;
+    }
   });
 
-  // ✅ FIXED: Query for generated images with explicit queryFn
+  // ✅ FIXED: Query for generated images with explicit queryFn and better error handling
   const { data: galleryData, isLoading: galleryLoading } = useQuery({
     queryKey: ['/api/gallery-images'],
     enabled: !!user && !authLoading,
-    staleTime: 60 * 1000, // 60 seconds
-    retry: 1,
+    staleTime: 30 * 1000, // Reduced to 30 seconds for more responsive updates
+    retry: 2,
+    retryDelay: 1000,
     queryFn: () => apiFetch('/gallery-images')
   });
 
