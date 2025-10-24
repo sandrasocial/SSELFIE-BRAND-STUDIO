@@ -17,9 +17,28 @@ export class ImageStorageService {
     region: 'eu-north-1'  // Fixed region for bucket compatibility
   });
 
-  private static readonly BUCKET_NAME = process.env.AWS_S3_BUCKET;
+  private static readonly BUCKET_NAME = process.env.AWS_S3_BUCKET || process.env.AWS_S3_BUCKET_NAME;
   private static readonly MAX_RETRIES = 3;
   private static readonly RETRY_DELAY = 2000;
+
+  /**
+   * Check if S3 is properly configured
+   */
+  static isS3Configured(): boolean {
+    return Boolean(this.BUCKET_NAME && process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY);
+  }
+
+  /**
+   * Get S3 configuration status for debugging
+   */
+  static getS3ConfigStatus(): { configured: boolean; bucketName?: string; hasAccessKey: boolean; hasSecretKey: boolean } {
+    return {
+      configured: this.isS3Configured(),
+      bucketName: this.BUCKET_NAME,
+      hasAccessKey: Boolean(process.env.AWS_ACCESS_KEY_ID),
+      hasSecretKey: Boolean(process.env.AWS_SECRET_ACCESS_KEY)
+    };
+  }
 
   /**
    * Migrate temporary URL to permanent S3 URL
@@ -50,11 +69,12 @@ export class ImageStorageService {
    */
   static async storeImagePermanently(replicateUrl: string, userId: string, imageId: string): Promise<string> {
     try {
-      
-      if (!this.BUCKET_NAME) {
+
+      if (!this.isS3Configured()) {
+        const configStatus = this.getS3ConfigStatus();
         const error: ImageStorageError = {
           type: 'configuration',
-          message: 'AWS_S3_BUCKET environment variable is required'
+          message: `S3 storage is not properly configured. Bucket: ${configStatus.bucketName || 'missing'}, Access Key: ${configStatus.hasAccessKey ? 'present' : 'missing'}, Secret Key: ${configStatus.hasSecretKey ? 'present' : 'missing'}`
         };
         throw error;
       }
