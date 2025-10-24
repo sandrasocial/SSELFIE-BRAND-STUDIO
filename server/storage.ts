@@ -114,6 +114,10 @@ import type { FeedLayoutSlot } from '../shared/types/feed-layout.js';
 
 import { type MayaChatCreateInput } from '../shared/types/chat.js';
 
+// Simple in-memory cache for generated images (serverless-friendly)
+const generatedImagesCache = new Map<string, { images: GeneratedImage[], timestamp: number }>();
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
 // Utility: Default user fields for onboarding/business logic
 function getDefaultUserFields(overrides: any = {}): InsertUser {
   return {
@@ -817,7 +821,16 @@ export class DatabaseStorage implements IStorage {
   // Generated Images operations (NEW ENHANCED GALLERY - primary table)
   async getGeneratedImages(userId: string): Promise<GeneratedImage[]> {
     console.log(`🔍 GENERATED IMAGES: Starting getGeneratedImages for ${userId.substring(0, 8)}...`);
-    
+
+    // Check cache first
+    const cached = generatedImagesCache.get(userId);
+    if (cached && (Date.now() - cached.timestamp) < CACHE_TTL) {
+      console.log(`🚀 CACHE HIT: Returning ${cached.images.length} cached images for ${userId.substring(0, 8)}`);
+      return cached.images;
+    }
+
+    console.log(`💾 CACHE MISS: Querying database for ${userId.substring(0, 8)}`);
+
     // 1. First try direct userId lookup
     let images = await db
       .select()
@@ -830,20 +843,20 @@ export class DatabaseStorage implements IStorage {
     // 2. If no images found and this looks like a Stack Auth ID, try to find images by user's email
     if (images.length === 0 && userId.includes('-')) {
       console.log(`🔍 GENERATED IMAGES: No images found for Stack Auth ID, searching by user email...`);
-      
+
       // Get current user to find their email
       const currentUser = await this.getUser(userId);
       if (currentUser?.email) {
         console.log(`🔍 User email: ${currentUser.email}`);
-        
+
         // Find all users with this email (including pre-Stack Auth users)
         const usersWithEmail = await db
           .select()
           .from(users)
           .where(sql`lower(${users.email}) = ${currentUser.email.toLowerCase()}`);
-          
+
         console.log(`🔍 Found ${usersWithEmail.length} users with email ${currentUser.email}`);
-        
+
         // Check for generated images associated with any of these user records
         for (const userRecord of usersWithEmail) {
           if (userRecord.id !== userId) {
@@ -853,18 +866,18 @@ export class DatabaseStorage implements IStorage {
               .from(generatedImages)
               .where(eq(generatedImages.userId, userRecord.id))
               .orderBy(desc(generatedImages.createdAt));
-              
+
             if (legacyImages.length > 0) {
               console.log(`✅ Found ${legacyImages.length} legacy generated images for user ${userRecord.id.substring(0, 8)}, migrating to current user ${userId.substring(0, 8)}`);
-              
+
               // Update the images to be associated with the current user ID
               await db
                 .update(generatedImages)
-                .set({ 
+                .set({
                   userId: userId
                 })
                 .where(eq(generatedImages.userId, userRecord.id));
-                
+
               images = legacyImages.map(img => ({ ...img, userId: userId }));
               break;
             }
@@ -874,10 +887,12 @@ export class DatabaseStorage implements IStorage {
     }
 
     console.log(`🔍 GENERATED IMAGES: Final result - ${images.length} images`);
-    return images;
-  }
 
-  async saveGeneratedImage(data: InsertGeneratedImage): Promise<GeneratedImage> {
+    // Cache the result
+    generatedImagesCache.set(userId, { images, timestamp: Date.now() });
+
+    return images;
+  }  async saveGeneratedImage(data: InsertGeneratedImage): Promise<GeneratedImage> {
     const [saved] = await db.insert(generatedImages).values(data).returning();
     return saved;
   }
