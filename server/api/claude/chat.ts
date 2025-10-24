@@ -24,8 +24,11 @@ export default async (req: VercelRequest, res: VercelResponse) => {
   return withAuth(req, res, async (req: AuthenticatedRequest, res: VercelResponse) => {
     try {
       const { message, conversationId, agentId } = req.body as ClaudeMessage;
-      // 🔥 FIX: Use stackAuthId for database queries to fix user ID mismatch
-      const userId = req.user.stackAuthId || req.user.id;
+      // 🔥 CRITICAL FIX: Use req.user.id for database queries
+      // - For OLD users (pre-Stack Auth): id is the original numeric ID where data was created
+      // - For NEW users (Stack Auth): id is already the Stack Auth ID
+      // - stackAuthId is only used for linking old users to Stack Auth, NOT for queries
+      const userId = req.user.id;
 
       if (!message) {
         return res.status(400).json({ error: 'Message is required' });

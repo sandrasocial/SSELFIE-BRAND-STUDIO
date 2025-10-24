@@ -25,8 +25,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Get database user
     const dbUser = user; // getUserFromRequest already returns database user
 
-    // 🔥 FIX: Use stackAuthId for database queries to fix user ID mismatch
-    const queryUserId = dbUser.stackAuthId || dbUser.id;
+    // 🔥 CRITICAL FIX: Use dbUser.id for database queries
+    // - For OLD users (pre-Stack Auth): id is the original numeric ID where data was created
+    // - For NEW users (Stack Auth): id is already the Stack Auth ID
+    // - stackAuthId is only used for linking old users to Stack Auth, NOT for queries
+    const queryUserId = dbUser.id;
 
     // Get chatId from query param OR get user's latest chat
     let chatId = getQueryParam(req, 'chatId');
