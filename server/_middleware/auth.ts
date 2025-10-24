@@ -1,6 +1,7 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { JWTPayload } from 'jose';
 import { StackAuthUserInfo } from '../_shared/stack-auth-types.js';
+import { stackServerApp } from '../../stack/server.js';
 
 // Global type declarations for server environment
 declare global {
@@ -131,10 +132,75 @@ async function verifyJWTToken(token: string): Promise<JWTPayload & StackAuthUser
 import { AuthenticatedUser, OnboardingProgress } from '../_shared/auth-types.js';
 import { AuthenticatedHandler, AuthOptions, AuthResponse, AuthenticatedRequest } from '../_shared/auth-middleware-types.js';
 
+// 🔥 NEW: Use Stack Auth's built-in getUser() method instead of manual JWT verification
+// This handles all token extraction and verification automatically
+export async function getAuthenticatedUserViaStackAuth(req: VercelRequest): Promise<AuthenticatedUser | null> {
+  try {
+    console.log('🔐 Attempting Stack Auth getUser()...');
+
+    // Stack Auth's built-in method handles:
+    // - Cookie parsing
+    // - Token extraction
+    // - JWT verification
+    // - User lookup
+    const stackUser = await stackServerApp.getUser(req as any);
+
+    if (!stackUser) {
+      console.warn('⚠️ Stack Auth getUser() returned null');
+      return null;
+    }
+
+    console.log('✅ Stack Auth getUser() succeeded:', {
+      userId: stackUser.id,
+      email: stackUser.email,
+      displayName: stackUser.displayName
+    });
+
+    // Convert Stack Auth user to our AuthenticatedUser format
+    return {
+      id: stackUser.id,
+      stackAuthId: stackUser.id, // For new users, id IS the stackAuthId
+      email: stackUser.email || null,
+      displayName: stackUser.displayName || null,
+      firstName: stackUser.firstName || null,
+      lastName: stackUser.lastName || null,
+      profileImageUrl: stackUser.profileImageUrl || null,
+      createdAt: stackUser.createdAt || new Date(),
+      updatedAt: stackUser.updatedAt || new Date(),
+      lastLoginAt: new Date(),
+      stripeCustomerId: null,
+      stripeSubscriptionId: null,
+      plan: 'sselfie-studio',
+      role: 'user',
+      monthlyGenerationLimit: 100,
+      generationsUsedThisMonth: 0,
+      mayaAiAccess: true,
+      victoriaAiAccess: false,
+      hasRetrainingAccess: false,
+      retrainingSessionId: null,
+      retrainingPaidAt: null,
+      onboardingProgress: {},
+      stackUser: stackUser as any
+    } as AuthenticatedUser;
+  } catch (error) {
+    console.warn('⚠️ Stack Auth getUser() failed:', error instanceof Error ? error.message : error);
+    return null;
+  }
+}
+
 // Get authenticated user helper with improved token extraction
 export async function getAuthenticatedUser(req: VercelRequest): Promise<AuthenticatedUser> {
+  // 🔥 CRITICAL FIX: Try Stack Auth's built-in getUser() method FIRST
+  // This handles all token extraction and verification automatically
+  // and works with Stack Auth's cookie format
+  const stackAuthUser = await getAuthenticatedUserViaStackAuth(req);
+  if (stackAuthUser) {
+    return stackAuthUser;
+  }
+
+  // Fallback: Manual JWT verification for Authorization headers
   let accessToken: string | undefined;
-  
+
   // 1. Check Authorization header (preferred method)
   const authHeader = req.headers.authorization;
   const authHeaderValue = Array.isArray(authHeader) ? authHeader[0] : authHeader;
