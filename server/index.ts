@@ -204,17 +204,11 @@ function nowMs(): number {
 
 function logStart(route: string, meta?: Record<string, unknown>) {
   const start = nowMs();
-  try {
-  } catch {
-    // Ignore logging errors
-  }
+  // Logging implementation removed
   return {
     end: (outcome: string, extra?: Record<string, unknown>) => {
       const elapsed = Math.round(nowMs() - start);
-      try {
-      } catch {
-        // Ignore logging errors
-      }
+      // Logging implementation removed
       return elapsed;
     }
   };
@@ -317,6 +311,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           res.setHeader('Set-Cookie', cookieValue);
         }
       } catch (e) {
+        // Intentionally ignoring cookie setting errors
       }
     }
 
@@ -463,8 +458,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           }
         }
 
-        if (!accessToken) {
-        }
+        // Access token is required
       }
 
       if (!accessToken) {

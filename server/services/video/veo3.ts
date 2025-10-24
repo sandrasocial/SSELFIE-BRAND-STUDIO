@@ -263,9 +263,10 @@ async function getAvailableVeo3Models(): Promise<string[]> {
         }
       }
       
-    } else {
     }
+    // If no new models found, will use fallback below
   } catch (error) {
+    // Intentionally ignoring discovery errors, will use fallback
   }
 
   // Fallback to known VEO 3 model names if discovery fails

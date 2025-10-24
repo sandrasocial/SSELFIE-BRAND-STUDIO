@@ -98,9 +98,7 @@ export class TrainingCompletionMonitor {
             // Continue with packaged model as fallback
           }
           
-          if (trainingData.output) {
-          } else {
-          }
+          // Training data output checked
           
           // CRITICAL: Extract and store the trigger word from existing model data
           const existingModel = await getDatabase().getUserModelByUserId(userId);
@@ -329,6 +327,7 @@ export class TrainingCompletionMonitor {
           // Wait 1 second between API calls to avoid rate limiting
           await new Promise(resolve => setTimeout(resolve, 1000));
         } else {
+      // Empty block - no action needed
         }
       }
 

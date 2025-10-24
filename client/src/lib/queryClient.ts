@@ -118,7 +118,9 @@ export async function initQueryClient(): Promise<any> {
       try {
         console.log('[RQ dyn] react-query keys:', Object.keys(rq || {}));
         if (rq?.default) console.log('[RQ dyn] react-query default keys:', Object.keys(rq.default || {}));
-      } catch {}
+      } catch {
+        // Ignore logging errors
+      }
       QueryClientCtor = rq?.QueryClient || rq?.default?.QueryClient || rq?.default;
       source = '@tanstack/react-query';
     } catch (e) {
@@ -130,7 +132,9 @@ export async function initQueryClient(): Promise<any> {
         try {
           console.log('[RQ dyn] query-core keys:', Object.keys(core || {}));
           if (core?.default) console.log('[RQ dyn] query-core default keys:', Object.keys(core.default || {}));
-        } catch {}
+        } catch {
+          // Ignore logging errors
+        }
         QueryClientCtor = core?.QueryClient || core?.default?.QueryClient || core?.default;
         source = '@tanstack/query-core';
       } catch (e) {
