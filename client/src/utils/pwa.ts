@@ -41,8 +41,11 @@ class PWAManager {
       this.trackInstallation();
     });
 
-    // Register service worker
-    this.registerServiceWorker();
+    // ✅ DISABLED: Service worker registration was causing 6-8 min deployment slowdown
+    // Service worker was caching API responses, auth tokens, and HTML/JS/CSS inappropriately
+    // This caused stale data, auth issues, and broken real-time features
+    // PWA still works via manifest.json - service worker registration disabled
+    // this.registerServiceWorker();
   }
 
   private async registerServiceWorker() {

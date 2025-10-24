@@ -9,7 +9,7 @@ import { StackHandler, StackProvider, StackTheme } from "@stackframe/react";
 import { stackClientApp } from "../../stack/client";
 import { useQuery } from "@tanstack/react-query";
 import { detectBrowserIssues, showDomainHelp } from "./utils/browserCompat.js";
-import { optimizeImageLoading, enableServiceWorkerCaching } from "./utils/performance.js";
+import { optimizeImageLoading } from "./utils/performance.js";
 import { optimizeRuntime } from "./utils/webVitals.js";
 import { initializeMobileOptimization } from "./utils/mobileOptimization.js";
 import { performanceMonitor } from "./utils/performanceMonitor.js";
@@ -233,10 +233,13 @@ function App() {
     
     // Optimize image loading
     optimizeImageLoading();
-    
-    // Enable service worker caching
-    enableServiceWorkerCaching();
-    
+
+    // ✅ DISABLED: Service worker caching was causing 6-8 min deployment slowdown
+    // Service worker was caching API responses, auth tokens, and HTML/JS/CSS inappropriately
+    // This caused stale data, auth issues, and broken real-time features
+    // PWA still works via manifest.json - service worker registration disabled
+    // enableServiceWorkerCaching();
+
     // Optimize runtime
     optimizeRuntime();
     

@@ -23,28 +23,8 @@ import type { StackAuthUserInfo } from '../_shared/stack-auth-types.js';
 
 import { STACK_PROJECT_ID, STACK_AUTH_API_URL, JWKS_URL, STACK_ISSUER } from '../../server/_shared/stack-config.js';
 
-// 🔥 CRITICAL FIX: Lazy-load Stack Auth server app for built-in authentication
-// This handles all token extraction and verification automatically
-let stackServerApp: any = null;
-let stackServerAppLoaded = false;
-
-async function getStackServerApp() {
-  if (stackServerAppLoaded) {
-    return stackServerApp;
-  }
-
-  try {
-    // Dynamically import to avoid issues in serverless environment
-    const stackModule = await import('../../stack/server.js');
-    stackServerApp = stackModule.stackServerApp;
-    stackServerAppLoaded = true;
-    console.log('✅ Stack Auth server app loaded in Vercel API middleware');
-    return stackServerApp;
-  } catch (error) {
-    console.warn('⚠️ Could not load Stack Auth server app:', error instanceof Error ? error.message : error);
-    return null;
-  }
-}
+// ✅ SIMPLIFIED: Use JWT verification which is working correctly
+// Stack Auth's StackServerApp.getUser() is not available in this context
 
 // Token cache for performance
 const TOKEN_CACHE = new Map<string, { payload: any; timestamp: number }>();
@@ -524,39 +504,8 @@ export async function withAuth<T = void>(
       return await handler(req as AuthenticatedRequest, res);
     }
 
-    // 🔥 CRITICAL FIX: Try Stack Auth's built-in getUser() method FIRST
-    // This handles all token extraction and verification automatically
-    // and works with Stack Auth's cookie format
-    console.log('🔐 Attempting Stack Auth getUser()...');
-    const stackApp = await getStackServerApp();
-    if (stackApp) {
-      try {
-        const stackUser = await stackApp.getUser(req as any);
-        if (stackUser) {
-          console.log('✅ Stack Auth getUser() succeeded:', {
-            userId: stackUser.id,
-            email: stackUser.email
-          });
-
-          // Convert Stack Auth user to our AuthenticatedUser format
-          const user = await getOrCreateDatabaseUser({
-            sub: stackUser.id,
-            email: stackUser.email,
-            displayName: stackUser.displayName,
-            given_name: stackUser.firstName,
-            profileImageUrl: stackUser.profileImageUrl
-          } as any);
-
-          (req as AuthenticatedRequest).user = user;
-          return await handler(req as AuthenticatedRequest, res);
-        }
-      } catch (stackAuthError) {
-        console.warn('⚠️ Stack Auth getUser() failed:', stackAuthError instanceof Error ? stackAuthError.message : stackAuthError);
-        // Fall through to manual JWT verification
-      }
-    }
-
-    // Fallback: Extract token from request manually
+    // ✅ Extract token from request using JWT verification
+    // This works with Stack Auth's cookie format and Authorization headers
     const token = extractToken(req);
 
     if (!token) {

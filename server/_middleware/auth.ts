@@ -16,26 +16,8 @@ let JWKS: ReturnType<typeof import('jose').createLocalJWKSet> | null = null;
 let JWKS_LAST_FETCH = 0;
 const JWKS_CACHE_TIME = 3600000; // 1 hour
 
-// 🔥 CRITICAL: Lazy-load Stack Auth server app to avoid circular dependencies and initialization issues
-let stackServerAppInstance: any = null;
-let stackServerAppLoaded = false;
-
-async function getStackServerApp() {
-  if (stackServerAppLoaded) {
-    return stackServerAppInstance;
-  }
-
-  try {
-    const stackModule = await import('../../stack/server.js');
-    stackServerAppInstance = stackModule.stackServerApp;
-    stackServerAppLoaded = true;
-    console.log('✅ Stack Auth server app loaded in server middleware');
-    return stackServerAppInstance;
-  } catch (error) {
-    console.warn('⚠️ Could not load Stack Auth server app:', error instanceof Error ? error.message : error);
-    return null;
-  }
-}
+// Note: Stack Auth's StackServerApp is not available for server-side getUser() calls
+// We rely on JWT verification instead, which is working correctly
 
 // Parse cookie header helper
 function parseCookieHeader(cookieHeader?: string): Record<string, string> {
@@ -152,80 +134,13 @@ async function verifyJWTToken(token: string): Promise<JWTPayload & StackAuthUser
 import { AuthenticatedUser, OnboardingProgress } from '../_shared/auth-types.js';
 import { AuthenticatedHandler, AuthOptions, AuthResponse, AuthenticatedRequest } from '../_shared/auth-middleware-types.js';
 
-// 🔥 NEW: Use Stack Auth's built-in getUser() method instead of manual JWT verification
-// This handles all token extraction and verification automatically
-export async function getAuthenticatedUserViaStackAuth(req: VercelRequest): Promise<AuthenticatedUser | null> {
-  try {
-    console.log('🔐 Attempting Stack Auth getUser()...');
-
-    // Stack Auth's built-in method handles:
-    // - Cookie parsing
-    // - Token extraction
-    // - JWT verification
-    // - User lookup
-    const stackApp = await getStackServerApp();
-    if (!stackApp) {
-      console.warn('⚠️ Stack Auth server app not available');
-      return null;
-    }
-
-    const stackUser = await stackApp.getUser(req as any);
-
-    if (!stackUser) {
-      console.warn('⚠️ Stack Auth getUser() returned null');
-      return null;
-    }
-
-    console.log('✅ Stack Auth getUser() succeeded:', {
-      userId: stackUser.id,
-      email: stackUser.primaryEmail,
-      displayName: stackUser.displayName
-    });
-
-    // Convert Stack Auth user to our AuthenticatedUser format
-    // Note: Stack Auth's CurrentServerUser has limited properties, so we use defaults for missing fields
-    return {
-      id: stackUser.id,
-      stackAuthId: stackUser.id, // For new users, id IS the stackAuthId
-      email: stackUser.primaryEmail || null,
-      displayName: stackUser.displayName || null,
-      firstName: null, // Stack Auth doesn't provide firstName separately
-      lastName: null, // Stack Auth doesn't provide lastName separately
-      profileImageUrl: stackUser.profileImageUrl || null,
-      createdAt: new Date(), // Stack Auth doesn't provide createdAt
-      updatedAt: new Date(), // Stack Auth doesn't provide updatedAt
-      lastLoginAt: new Date(),
-      stripeCustomerId: null,
-      stripeSubscriptionId: null,
-      plan: 'sselfie-studio',
-      role: 'user',
-      monthlyGenerationLimit: 100,
-      generationsUsedThisMonth: 0,
-      mayaAiAccess: true,
-      victoriaAiAccess: false,
-      hasRetrainingAccess: false,
-      retrainingSessionId: null,
-      retrainingPaidAt: null,
-      onboardingProgress: {},
-      stackUser: stackUser as any
-    } as AuthenticatedUser;
-  } catch (error) {
-    console.warn('⚠️ Stack Auth getUser() failed:', error instanceof Error ? error.message : error);
-    return null;
-  }
-}
+// ✅ SIMPLIFIED: Use JWT verification which is working correctly
+// Stack Auth's StackServerApp.getUser() is not available in this context
 
 // Get authenticated user helper with improved token extraction
 export async function getAuthenticatedUser(req: VercelRequest): Promise<AuthenticatedUser> {
-  // 🔥 CRITICAL FIX: Try Stack Auth's built-in getUser() method FIRST
-  // This handles all token extraction and verification automatically
-  // and works with Stack Auth's cookie format
-  const stackAuthUser = await getAuthenticatedUserViaStackAuth(req);
-  if (stackAuthUser) {
-    return stackAuthUser;
-  }
-
-  // Fallback: Manual JWT verification for Authorization headers
+  // ✅ Use JWT verification for token extraction and validation
+  // This works with Stack Auth's cookie format and Authorization headers
   let accessToken: string | undefined;
 
   // 1. Check Authorization header (preferred method)
