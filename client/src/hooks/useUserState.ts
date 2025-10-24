@@ -38,7 +38,6 @@ export function useUserState() {
   // Determine user state based on data
   useEffect(() => {
     if (authLoading || modelLoading || galleryLoading) {
-      console.log('🔄 useUserState: Loading...', { authLoading, modelLoading, galleryLoading });
       setIsLoading(true);
       return;
     }
@@ -58,7 +57,7 @@ export function useUserState() {
     const hasTrainedModel = userModel?.trainingStatus === 'completed';
     const hasGeneratedImages = galleryData && galleryData.length > 0;
 
-    // ✅ FIXED: Enhanced logging for debugging routing issues
+    // ✅ FIXED: Only log when data is loaded (not on every render)
     console.log('✅ useUserState: Data loaded', {
       userId: user?.id?.substring(0, 8) + '...',
       userEmail: user?.email,
@@ -76,12 +75,6 @@ export function useUserState() {
 
     // New user = no trained model AND no generated images
     const newUser = !hasTrainedModel && !hasGeneratedImages;
-
-    console.log('📊 useUserState: User classification', {
-      isNewUser: newUser,
-      hasTrainedModel,
-      hasGeneratedImages
-    });
 
     setIsNewUser(newUser);
     setIsLoading(false);
