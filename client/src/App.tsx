@@ -57,41 +57,58 @@ import { AuthWrapper } from './features/auth/components/AuthWrapper.js';
 function SmartHome() {
   const { user, isAuthenticated, isLoading } = useAuth({ silent: true });
   const { hasTrainedModel, isLoading: userStateLoading, userModel } = useUserState();
+  const [hasRedirected, setHasRedirected] = useState(false);
 
-  console.log('🏠 SmartHome: Render', {
-    isAuthenticated,
-    isLoading,
-    userStateLoading,
-    userId: user?.id?.substring(0, 8) + '...',
-    userEmail: user?.email,
-    hasTrainedModel,
-    trainingStatus: userModel?.trainingStatus
-  });
+  // ✅ FIXED: Only log when state changes (not on every render)
+  // This prevents infinite loop caused by console.log triggering re-renders
+  useEffect(() => {
+    console.log('🏠 SmartHome: State changed', {
+      isAuthenticated,
+      isLoading,
+      userStateLoading,
+      userId: user?.id?.substring(0, 8) + '...',
+      userEmail: user?.email,
+      hasTrainedModel,
+      trainingStatus: userModel?.trainingStatus,
+      hasRedirected
+    });
+  }, [isAuthenticated, isLoading, userStateLoading, hasTrainedModel, userModel?.trainingStatus, hasRedirected]);
+
+  // ✅ FIXED: Handle routing in useEffect to prevent infinite redirects
+  useEffect(() => {
+    if (isLoading || userStateLoading || hasRedirected) {
+      return;
+    }
+
+    if (isAuthenticated && user) {
+      if (hasTrainedModel) {
+        // User has trained model - go to Studio
+        console.log('✅ SmartHome: User has trained model, routing to /app/studio', {
+          userId: user.id?.substring(0, 8) + '...',
+          trainingStatus: userModel?.trainingStatus,
+          hasTrainedModel
+        });
+        setHasRedirected(true);
+        window.location.href = ROUTES.APP + '/studio';
+      } else {
+        // User needs to train model - go to Training
+        console.log('✅ SmartHome: User needs training, routing to /app/training', {
+          userId: user.id?.substring(0, 8) + '...',
+          trainingStatus: userModel?.trainingStatus,
+          hasTrainedModel
+        });
+        setHasRedirected(true);
+        window.location.href = ROUTES.APP + '/training';
+      }
+    }
+  }, [isAuthenticated, user, hasTrainedModel, userStateLoading, isLoading, hasRedirected, userModel?.trainingStatus]);
 
   if (isLoading || userStateLoading) {
-    console.log('⏳ SmartHome: Loading auth or user state...');
     return <PageLoader />;
   }
 
   if (isAuthenticated && user) {
-    // ✅ FIXED: Route based on training status with enhanced logging
-    if (hasTrainedModel) {
-      // User has trained model - go to Studio
-      console.log('✅ SmartHome: User has trained model, routing to /app/studio', {
-        userId: user.id?.substring(0, 8) + '...',
-        trainingStatus: userModel?.trainingStatus,
-        hasTrainedModel
-      });
-      window.location.href = ROUTES.APP + '/studio';
-    } else {
-      // User needs to train model - go to Training
-      console.log('✅ SmartHome: User needs training, routing to /app/training', {
-        userId: user.id?.substring(0, 8) + '...',
-        trainingStatus: userModel?.trainingStatus,
-        hasTrainedModel
-      });
-      window.location.href = ROUTES.APP + '/training';
-    }
+    // Routing handled in useEffect above
     return <PageLoader />;
   } else {
     // User not authenticated, show business landing
