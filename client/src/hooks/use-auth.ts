@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useUser } from "@stackframe/react";
+import { useMemo } from "react";
 import { apiFetch } from "../lib/api.js";
 
 export interface User {
@@ -91,24 +92,26 @@ export function useAuth(options?: { force?: boolean; silent?: boolean }) {
   // Determine overall loading state - Stack Auth manages its own loading
   const isLoading = stackUser === undefined || (isAuthenticated && isDbLoading);
 
-  // Create user object
-  let user: User | undefined = undefined;
-
-  if (dbUser) {
-    user = dbUser;
-  } else if (stackUser && isAuthenticated) {
-    // Fallback to Stack Auth data if DB fetch failed but we have Stack Auth data
-    user = {
-      id: stackUser.id,
-      email: stackUser.primaryEmail || '',
-      firstName: stackUser.displayName?.split(' ')[0],
-      lastName: stackUser.displayName?.split(' ').slice(1).join(' '),
-      displayName: stackUser.displayName || undefined,
-      profileImageUrl: stackUser.profileImageUrl || undefined,
-      plan: 'sselfie-studio',
-      role: 'user'
-    };
-  }
+  // ✅ FIXED: Memoize user object to prevent recreating on every render
+  // This prevents infinite loops in components that depend on user object
+  const user = useMemo(() => {
+    if (dbUser) {
+      return dbUser;
+    } else if (stackUser && isAuthenticated) {
+      // Fallback to Stack Auth data if DB fetch failed but we have Stack Auth data
+      return {
+        id: stackUser.id,
+        email: stackUser.primaryEmail || '',
+        firstName: stackUser.displayName?.split(' ')[0],
+        lastName: stackUser.displayName?.split(' ').slice(1).join(' '),
+        displayName: stackUser.displayName || undefined,
+        profileImageUrl: stackUser.profileImageUrl || undefined,
+        plan: 'sselfie-studio',
+        role: 'user'
+      };
+    }
+    return undefined;
+  }, [dbUser, stackUser, isAuthenticated]);
 
   // Check subscription status
   const hasActiveSubscription = user ? (
