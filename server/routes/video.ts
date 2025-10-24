@@ -1,11 +1,27 @@
 import { Router, Request, Response } from 'express';
-import { requireStackAuth } from '../stack-auth.js';
 import { generateVeo3Video, getVeo3Status, getQualityPreset } from '../services/video/veo3.js';
 import { storage } from '../storage.js';
 import { generatedImages, aiImages, GeneratedImage } from '../../shared/schema.js';
 import { eq, and } from 'drizzle-orm';
 import { db } from '../drizzle.js';
-import { StackAuthUser } from '../stack-auth.js';
+
+// ⚠️ DEPRECATED: This Express router uses legacy Stack Auth imports
+// Video generation is now handled by api/video/* serverless functions
+// This file is kept for reference only
+
+// Legacy type definition (kept for reference)
+interface StackAuthUser {
+  id: string;
+  email?: string;
+}
+
+// Legacy middleware stub (kept for reference)
+const requireStackAuth = (req: Request, res: Response, next: Function) => {
+  return res.status(501).json({
+    error: 'Deprecated endpoint',
+    message: 'Use api/video/* serverless functions instead'
+  });
+};
 
 // Define request types for type safety
 interface AuthenticatedRequest extends Request {

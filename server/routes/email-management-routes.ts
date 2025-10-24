@@ -1,7 +1,18 @@
 import { Router, Request, Response } from 'express';
 import { emailManagementAgent } from '../services/email-management-agent.js';
-import { requireStackAuth } from '../stack-auth.js'
 import { SlackNotificationService } from '../services/slack-notification-service.js';
+
+// ⚠️ DEPRECATED: This Express router uses legacy Stack Auth imports
+// Email management is now handled by api/email/* serverless functions
+// This file is kept for reference only
+
+// Legacy middleware stub (kept for reference)
+const requireStackAuth = (req: Request, res: Response, next: Function) => {
+  return res.status(501).json({
+    error: 'Deprecated endpoint',
+    message: 'Use api/email/* serverless functions instead'
+  });
+};
 
 const router = Router();
 

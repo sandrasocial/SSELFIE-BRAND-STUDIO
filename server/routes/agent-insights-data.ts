@@ -1,7 +1,18 @@
 import { Router, Request, Response } from 'express';
-import { requireStackAuth } from '../stack-auth.js';
 import { db } from '../drizzle.js';
 import { eq, desc, and, gte } from 'drizzle-orm';
+
+// ⚠️ DEPRECATED: This Express router uses legacy Stack Auth imports
+// Agent insights are now handled by api/agent-insights/* serverless functions
+// This file is kept for reference only
+
+// Legacy middleware stub (kept for reference)
+const requireStackAuth = (req: Request, res: Response, next: Function) => {
+  return res.status(501).json({
+    error: 'Deprecated endpoint',
+    message: 'Use api/agent-insights/* serverless functions instead'
+  });
+};
 
 const router = Router();
 

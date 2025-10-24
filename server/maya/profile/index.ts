@@ -1,10 +1,13 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { verifyStackAuthToken, requireStackAuth } from '../../stack-auth.js';
 import { z } from 'zod';
 import { drizzle } from 'drizzle-orm/neon-http';
 import { neon } from '@neondatabase/serverless';
 import { mayaProfile, insertMayaProfileSchema, userPreferencesSchema } from '../../../shared/schema.js';
 import { eq } from 'drizzle-orm';
+
+// ⚠️ DEPRECATED: This file uses legacy Stack Auth imports
+// Maya profile is now handled by api/maya/* serverless functions
+// This file is kept for reference only
 
 // Initialize database connection
 const sql = neon(process.env.DATABASE_URL!);

@@ -1,10 +1,18 @@
 import { Router, Request, Response } from 'express';
-import { optionalStackAuth } from '../stack-auth.js'
 import { db } from '../db.js'
 import { liveSessions, liveEvents } from '../../shared/schema.js';
 import { eq } from 'drizzle-orm';
-import { StackAuthUser } from '../stack-auth.js';
 import { getErrorMessage } from '../utils/error.js';
+
+// ⚠️ DEPRECATED: This Express router uses legacy Stack Auth imports
+// LevelPartner webhook is now handled by api/webhooks/levelpartner.ts serverless function
+// This file is kept for reference only
+
+// Legacy type definition (kept for reference)
+interface StackAuthUser {
+  id: string;
+  email?: string;
+}
 
 // Define request types for type safety
 interface OptionalAuthenticatedRequest extends Request {

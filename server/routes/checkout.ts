@@ -1,9 +1,20 @@
 import type { Express, Request, Response } from "express";
-import { requireStackAuth } from '../stack-auth.js';
 import { storage } from "../storage.js";
 // import { sendWelcomeEmail } from "../email-service.js";
 
 import Stripe from "stripe";
+
+// ⚠️ DEPRECATED: This Express router uses legacy Stack Auth imports
+// Checkout is now handled by api/checkout/* serverless functions
+// This file is kept for reference only
+
+// Legacy middleware stub (kept for reference)
+const requireStackAuth = (req: Request, res: Response, next: Function) => {
+  return res.status(501).json({
+    error: 'Deprecated endpoint',
+    message: 'Use api/checkout/* serverless functions instead'
+  });
+};
 
 // Type definitions for checkout routes
 interface RetrainCheckoutRequest {
