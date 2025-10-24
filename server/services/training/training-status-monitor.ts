@@ -215,13 +215,14 @@ export class TrainingStatusMonitor {
     switch (status) {
       case 'starting':
         return { percentage: 5 };
-      case 'processing':
+      case 'processing': {
         // Use Replicate's progress if available, otherwise estimate based on time
         const baseProgress = replicateProgress ? Math.round(replicateProgress * 100) : 25;
         return { 
           percentage: Math.min(Math.max(baseProgress, 10), 95), // Clamp between 10-95%
           eta: replicateProgress ? Math.round((1 - replicateProgress) * 1800) : 1800 // Rough ETA
         };
+      }
       case 'succeeded':
         return { percentage: 100 };
       case 'failed':
