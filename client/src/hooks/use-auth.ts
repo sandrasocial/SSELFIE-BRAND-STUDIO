@@ -33,8 +33,10 @@ export function useAuth(options?: { force?: boolean; silent?: boolean }) {
   // Use Stack Auth's native useUser hook - no timeout issues
   const stackUser = useUser();
   
-  // Debug Stack Auth state (silenceable)
-  if (!options?.silent) {
+  // 🔧 FIX: Only debug on first load or when explicitly requested (not silent)
+  // This prevents infinite console logging that was causing the loop
+  const shouldDebug = !options?.silent && options?.force;
+  if (shouldDebug) {
     console.log('🔐 useAuth Hook State:', {
       stackUser,
       stackUserId: stackUser?.id,
@@ -93,14 +95,20 @@ export function useAuth(options?: { force?: boolean; silent?: boolean }) {
   const isLoading = stackUser === undefined || (isAuthenticated && isDbLoading);
 
   // ✅ FIXED: Memoize user object to prevent recreating on every render
-  // This prevents infinite loops in components that depend on user object
+  // 🔧 CRITICAL FIX: Always use database user data when available to maintain consistency
   const user = useMemo(() => {
     if (dbUser) {
-      return dbUser;
+      // Always prefer database user data - this ensures consistent user.id throughout app
+      return {
+        ...dbUser,
+        // Ensure we maintain the Stack Auth ID for API calls while using database user ID for app logic
+        stackAuthId: stackUser?.id,
+      };
     } else if (stackUser && isAuthenticated) {
-      // Fallback to Stack Auth data if DB fetch failed but we have Stack Auth data
+      // Only use Stack Auth as fallback when database isn't available
       return {
         id: stackUser.id,
+        stackAuthId: stackUser.id, // Keep Stack Auth ID for API consistency
         email: stackUser.primaryEmail || '',
         firstName: stackUser.displayName?.split(' ')[0],
         lastName: stackUser.displayName?.split(' ').slice(1).join(' '),

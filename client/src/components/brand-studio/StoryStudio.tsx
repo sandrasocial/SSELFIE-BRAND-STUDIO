@@ -6,24 +6,21 @@ import React, { useState, useEffect, useRef } from 'react';
 import '../../styles/StoryStudio.css';
 import { draftStoryboard, generateStory, getJobStatus } from '../../services/api.js';
 
-// A curated list of background images to rotate through.
-const backgroundImages = [
-    'https://i.postimg.cc/VLCFmXVr/1.png', 'https://i.postimg.cc/WpDyqFyj/10.png',
-    'https://i.postimg.cc/SRz1B39j/100.png', 'https://i.postimg.cc/bJ5FFpsK/101.png',
-    'https://i.postimg.cc/F15CNpbp/102.png', 'https://i.postimg.cc/pVh2VdY5/103.png',
-    'https://i.postimg.cc/tRK9sH2S/104.png', 'https://i.postimg.cc/2Smmx7pn/105.png',
-    'https://i.postimg.cc/YqQMgyPp/106.png', 'https://i.postimg.cc/Bng37Psk/107.png',
-    'https://i.postimg.cc/zf2r8myk/108.png', 'https://i.postimg.cc/4dKT38tR/109.png',
-    'https://i.postimg.cc/dQzx2QMC/11.png', 'https://i.postimg.cc/4drRHzb7/110.png',
-    'https://i.postimg.cc/ryrkXPMS/111.png', 'https://i.postimg.cc/PrnktQ50/112.png',
-    'https://i.postimg.cc/3JjQW0yN/113.png', 'https://i.postimg.cc/wj68NxJV/114.png',
+// Stone gradient patterns for story backgrounds (replacing broken external images)
+const stoneGradientPatterns = [
+    'bg-gradient-to-br from-stone-50 via-stone-100 to-stone-200',
+    'bg-gradient-to-br from-stone-100 via-stone-200 to-stone-300',
+    'bg-gradient-to-br from-stone-50 via-stone-100 to-stone-200',
+    'bg-gradient-to-br from-stone-200 via-stone-300 to-stone-400',
+    'bg-gradient-to-br from-stone-100 via-stone-200 to-stone-300',
+    'bg-gradient-to-br from-stone-50 via-stone-200 to-stone-300',
 ];
 
-let imageIndex = 0;
-const getNextImage = () => {
-    const imageUrl = backgroundImages[imageIndex];
-    imageIndex = (imageIndex + 1) % backgroundImages.length;
-    return imageUrl;
+let gradientIndex = 0;
+const getNextGradient = () => {
+    const gradientClass = stoneGradientPatterns[gradientIndex];
+    gradientIndex = (gradientIndex + 1) % stoneGradientPatterns.length;
+    return gradientClass;
 };
 
 // --- Type Definitions ---
@@ -76,7 +73,7 @@ const SceneCard: React.FC<SceneCardProps> = ({ scene, onPromptChange, onImageAdd
     };
 
     return (
-        <div className="card-with-bg" style={{ backgroundImage: `url('${getNextImage()}')` }}>
+        <div className={`card-with-bg ${getNextGradient()}`}>
             <h4 className="spaced-title">SCENE {scene.scene}</h4>
             <div className="card-section">
                 <textarea
@@ -111,7 +108,7 @@ interface ResultCardProps {
 
 const ResultCard: React.FC<ResultCardProps> = ({ result }) => {
     return (
-        <div className="card-with-bg" style={{ backgroundImage: `url('${getNextImage()}')` }}>
+        <div className={`card-with-bg ${getNextGradient()}`}>
             <h4 className="spaced-title">SCENE {result.sceneNum} VIDEO</h4>
             {result.status === 'generating' && (
                 <div className="progress-container" style={{ display: 'block' }}>
@@ -256,7 +253,7 @@ export const StoryStudio = () => {
 
                 <div id="scene-director" className="card-section">
                     {scenes.length === 0 ? (
-                        <p className="placeholder-text" style={{ backgroundImage: `url('${getNextImage()}')` }}>This is where your story will take shape. Let's get started!</p>
+                        <p className={`placeholder-text ${getNextGradient()} p-4 text-stone-600 rounded-lg`}>This is where your story will take shape. Let's get started!</p>
                     ) : (
                         scenes.map(scene => (
                             <SceneCard key={scene.id} scene={scene}

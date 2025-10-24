@@ -2,26 +2,20 @@ import React, { useState } from 'react';
 import { Camera, Video, Sparkles, Heart, RefreshCw } from 'lucide-react';
 import type { ConceptCard } from '../../../../shared/types/concept-card.js';
 
-// Flatlay image collection for luxury visual backgrounds
-const FLATLAY_IMAGES = [
-  'https://i.postimg.cc/VLCFmXVr/1.png',
-  'https://i.postimg.cc/WpDyqFyj/10.png', 
-  'https://i.postimg.cc/SRz1B39j/100.png',
-  'https://i.postimg.cc/bJ5FFpsK/101.png',
-  'https://i.postimg.cc/F15CNpbp/102.png',
-  'https://i.postimg.cc/pVh2VdY5/103.png',
-  'https://i.postimg.cc/tRK9sH2S/104.png',
-  'https://i.postimg.cc/2Smmx7pn/105.png',
-  'https://i.postimg.cc/YqQMgyPp/106.png',
-  'https://i.postimg.cc/Bng37Psk/107.png',
-  'https://i.postimg.cc/zf2r8myk/108.png',
-  'https://i.postimg.cc/4dKT38tR/109.png',
-  'https://i.postimg.cc/dQzx2QMC/11.png',
-  'https://i.postimg.cc/4drRHzb7/110.png',
-  'https://i.postimg.cc/ryrkXPMS/111.png',
-  'https://i.postimg.cc/PrnktQ50/112.png',
-  'https://i.postimg.cc/3JjQW0yN/113.png',
-  'https://i.postimg.cc/wj68NxJV/114.png'
+// Stone palette gradients for luxury brand consistency (using only standard Tailwind classes)
+const STONE_GRADIENT_PATTERNS = [
+  'from-stone-100 via-stone-200 to-stone-300',
+  'from-stone-50 via-stone-100 to-stone-200', 
+  'from-stone-200 via-stone-300 to-stone-400',
+  'from-stone-100 via-stone-200 to-stone-300',
+  'from-stone-50 via-stone-200 to-stone-300',
+  'from-stone-100 via-stone-300 to-stone-400',
+  'from-stone-50 via-stone-100 to-stone-200',
+  'from-stone-100 via-stone-200 to-stone-300',
+  'from-stone-200 via-stone-300 to-stone-400',
+  'from-stone-100 via-stone-300 to-stone-400',
+  'from-stone-50 via-stone-200 to-stone-400',
+  'from-stone-100 via-stone-300 to-stone-500'
 ];
 
 // Remove the duplicate ConceptCard type definition since we're importing it
@@ -45,7 +39,7 @@ const LuxuryConceptCard: React.FC<LuxuryConceptCardProps> = ({
   onCreateVideo 
 }) => {
   // Select a flatlay background based on concept ID for consistency
-  const flatlayImage = FLATLAY_IMAGES[parseInt(concept.id.slice(-1)) % FLATLAY_IMAGES.length] || FLATLAY_IMAGES[0];
+  const gradientPattern = STONE_GRADIENT_PATTERNS[parseInt(concept.id.slice(-1)) % STONE_GRADIENT_PATTERNS.length] || STONE_GRADIENT_PATTERNS[0];
 
   return (
     <div 
@@ -53,12 +47,7 @@ const LuxuryConceptCard: React.FC<LuxuryConceptCardProps> = ({
         isSelected ? 'ring-2 ring-black shadow-2xl' : 'shadow-lg hover:shadow-xl'
       }`}
       onClick={onClick}
-      style={{
-        backgroundImage: `linear-gradient(135deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.1)), url(${flatlayImage})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
-      }}
+      className={`bg-gradient-to-br ${gradientPattern}`}
     >
       {/* Content overlay */}
       <div className="relative p-6 bg-gradient-to-t from-black/80 via-black/20 to-transparent min-h-[280px] flex flex-col justify-end">
@@ -273,13 +262,9 @@ export const CanvasPanel: React.FC<CanvasPanelProps> = ({
         {conceptCards.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center">
             <div 
-              className="w-full max-w-md h-64 rounded-xl mb-6 flex items-center justify-center"
-              style={{
-                backgroundImage: `linear-gradient(135deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.2)), url(${FLATLAY_IMAGES[0]})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center'
-              }}
+              className={`w-full max-w-md h-64 rounded-xl mb-6 flex items-center justify-center bg-gradient-to-br ${STONE_GRADIENT_PATTERNS[0]} relative`}
             >
+              <div className="absolute inset-0 bg-gradient-to-br from-stone-950/40 via-stone-950/20 to-transparent rounded-xl"></div>
               <div className="text-white text-center">
                 <Sparkles className="w-12 h-12 mx-auto mb-4 opacity-80" />
                 <h3 className="text-xl font-bold mb-2">Ready to Create</h3>
