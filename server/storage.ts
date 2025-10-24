@@ -414,6 +414,26 @@ export class DatabaseStorage implements IStorage {
   // Link existing user account to Stack Auth ID (safer approach - preserve original ID)
   async linkStackAuthId(existingUserId: string, stackAuthId: string): Promise<User> {
 
+    // 🔧 FIX: Check if Stack Auth ID is already being used by another user
+    const existingStackAuthUser = await db
+      .select()
+      .from(users)
+      .where(eq(users.stackAuthId, stackAuthId))
+      .limit(1);
+
+    if (existingStackAuthUser.length > 0 && existingStackAuthUser[0].id !== existingUserId) {
+      console.log(`⚠️ Stack Auth ID ${stackAuthId} already linked to user ${existingStackAuthUser[0].id}, consolidating users...`);
+      
+      // If the existing Stack Auth user has no models/data, remove it in favor of the legacy user
+      const stackAuthUserModel = await this.getUserModel(existingStackAuthUser[0].id);
+      const legacyUserModel = await this.getUserModel(existingUserId);
+      
+      if (!stackAuthUserModel && legacyUserModel) {
+        console.log(`🗑️ Removing empty Stack Auth user ${existingStackAuthUser[0].id} in favor of legacy user ${existingUserId}`);
+        await db.delete(users).where(eq(users.id, existingStackAuthUser[0].id));
+      }
+    }
+
     // Add Stack Auth ID to existing user while preserving original ID and all relationships
     const [linkedUser] = await db
       .update(users)
@@ -1046,19 +1066,26 @@ export class DatabaseStorage implements IStorage {
               .limit(1);
               
             if (legacyModel) {
-              console.log(`✅ Found legacy model for user ${userRecord.id.substring(0, 8)}, migrating to current user ${userId.substring(0, 8)}`);
+              console.log(`✅ Found legacy model for user ${userRecord.id.substring(0, 8)}, linking Stack Auth user ${userId.substring(0, 8)} to legacy user`);
               
-              // Update the model to be associated with the current user ID
-              const [updatedModel] = await db
-                .update(userModels)
-                .set({ 
-                  userId: userId,
-                  updatedAt: new Date()
-                })
-                .where(eq(userModels.id, legacyModel.id))
-                .returning();
+              // 🔧 FIX: Link Stack Auth ID to legacy user instead of migrating model
+              // This preserves all existing relationships and data integrity
+              if (!userRecord.stackAuthId) {
+                console.log(`🔗 Linking Stack Auth ID ${userId} to legacy user ${userRecord.id}`);
+                await db
+                  .update(users)
+                  .set({ 
+                    stackAuthId: userId,
+                    updatedAt: new Date(),
+                    lastLoginAt: new Date()
+                  })
+                  .where(eq(users.id, userRecord.id));
                 
-              model = updatedModel;
+                console.log(`✅ Successfully linked - user ${userRecord.id} now has stackAuthId: ${userId}`);
+              }
+              
+              // Return the model without changing its userId (preserve relationships)
+              model = legacyModel;
               break;
             }
           }

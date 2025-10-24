@@ -377,15 +377,15 @@ async function refreshAccessToken(refreshToken: string): Promise<string | null> 
 
 /**
  * Get or create database user from Stack Auth payload
- * ✅ FIXED: Uses upsertUser to prevent race conditions with concurrent requests
+ * 🔧 FIXED: Uses proper user linking instead of creating duplicates
  */
 async function getOrCreateDatabaseUser(
   payload: JWTPayload & StackAuthUserInfo
 ): Promise<AuthenticatedUser> {
   try {
     // Extract user ID from payload
-    const userId = payload.sub || payload.user_id || payload.id;
-    if (!userId) {
+    const stackAuthId = payload.sub || payload.user_id || payload.id;
+    if (!stackAuthId) {
       throw new Error('No user ID in JWT payload');
     }
 
@@ -396,17 +396,42 @@ async function getOrCreateDatabaseUser(
     const email = payload.email || payload.primary_email || payload.email_address;
     const displayName = payload.displayName || payload.display_name || payload.name;
 
-    // ✅ FIXED: Use upsertUser instead of separate get/create logic
-    // This prevents race conditions where multiple concurrent requests could create duplicate users
-    const user = await storage.upsertUser({
-      id: userId,
-      stackAuthId: userId,
-      email: email || null,
-      displayName: displayName || null,
-      firstName: payload.given_name || null,
-      lastName: null,
-      profileImageUrl: payload.profileImageUrl || payload.profile_image_url || null,
-    });
+    console.log(`🔍 AUTH: Looking up user for Stack Auth ID: ${stackAuthId.substring(0, 8)}..., email: ${email}`);
+
+    // 🔧 FIX: Use enhanced user linking instead of upsertUser
+    // 1. First try to find by Stack Auth ID
+    let user = await storage.getUserByStackAuthId(stackAuthId);
+    
+    if (user) {
+      console.log(`✅ AUTH: Found existing user by Stack Auth ID: ${user.id}`);
+    } else {
+      // 2. Try to find by email (for migration)
+      if (email) {
+        console.log(`🔍 AUTH: No Stack Auth user found, searching by email: ${email}`);
+        user = await storage.getUserByEmail(email);
+        
+        if (user) {
+          console.log(`🔗 AUTH: Found legacy user by email: ${user.id}, linking to Stack Auth ID: ${stackAuthId}`);
+          // Link the existing user to Stack Auth
+          user = await storage.linkStackAuthId(user.id, stackAuthId);
+          console.log(`✅ AUTH: Successfully linked legacy user to Stack Auth`);
+        }
+      }
+      
+      // 3. Create new user if not found
+      if (!user) {
+        console.log(`➕ AUTH: Creating new user for Stack Auth ID: ${stackAuthId}`);
+        user = await storage.createUser({
+          id: stackAuthId,
+          stackAuthId: stackAuthId,
+          email: email || null,
+          displayName: displayName || null,
+          firstName: payload.given_name || null,
+          lastName: null,
+          profileImageUrl: payload.profileImageUrl || payload.profile_image_url || null,
+        });
+      }
+    }
 
     if (!user) {
       throw new Error('Failed to create or retrieve user from database');
@@ -415,21 +440,21 @@ async function getOrCreateDatabaseUser(
     // Update last login timestamp
     let updatedUser = user;
     try {
-      const result = await storage.updateUserProfile(userId, {
+      const result = await storage.updateUserProfile(user.id, {
         lastLoginAt: new Date()
       });
       if (result) {
         updatedUser = result;
       }
     } catch (updateError) {
-      console.warn('⚠️ Failed to update user profile, using upserted user:', updateError);
-      // Continue with the upserted user if update fails
+      console.warn('⚠️ Failed to update user profile, using existing user:', updateError);
+      // Continue with the existing user if update fails
     }
 
-    // ✅ NEW: Ensure all required fields exist
+    // ✅ Return proper user object with actual database user ID
     return {
-      id: updatedUser.id || userId,
-      stackAuthId: updatedUser.stackAuthId || userId,
+      id: updatedUser.id,  // Use actual database user ID (could be legacy ID like "42585527")
+      stackAuthId: stackAuthId,  // Always use Stack Auth ID for API calls
       email: updatedUser.email || email || null,
       displayName: updatedUser.displayName || displayName || null,
       firstName: updatedUser.firstName || payload.given_name || null,
@@ -442,7 +467,8 @@ async function getOrCreateDatabaseUser(
   } catch (error) {
     console.error('❌ Failed to get or create database user:', {
       error: error instanceof Error ? error.message : error,
-      userId: payload.sub || payload.user_id || payload.id
+      stackAuthId: payload.sub || payload.user_id || payload.id,
+      email: payload.email || payload.primary_email || payload.email_address
     });
     throw error;
   }
