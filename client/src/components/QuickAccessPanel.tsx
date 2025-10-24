@@ -1,5 +1,5 @@
 import React from 'react';
-import { Camera, MessageCircle, Grid, User } from 'lucide-react';
+import { Camera, MessageCircle, Grid, User } from './icons/index.js';
 
 interface QuickAction {
   id: string;

@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
-import { Grid, Search, Star, Calendar, Filter, Check, Plus, SortDesc, SortAsc, Eye, Download, Trash2, Heart, Camera } from 'lucide-react';
+import { Grid, Search, Star, Filter, Plus, Heart, Camera } from '../../../components/icons/index.js';
+import { Calendar, Check, SortDesc, SortAsc, Eye, Download, Trash2 } from 'lucide-react';
 import CategoryFilter, { type Category } from './CategoryFilter.js';
 import ImageGrid from './ImageGrid.js';
 import type { GalleryImage } from './ImageDetailModal.js';
