@@ -55,8 +55,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(401).json({ error: 'Authentication required' });
       }
 
-      // 🔥 FIX: Use stackAuthId for database queries to fix user ID mismatch
-      const queryUserId = user.stackAuthId || user.id;
+      // 🔥 CRITICAL FIX: Use user.id for database queries
+      // - For OLD users (pre-Stack Auth): id is the original numeric ID where data was created
+      // - For NEW users (Stack Auth): id is already the Stack Auth ID
+      // - stackAuthId is only used for linking old users to Stack Auth, NOT for queries
+      const queryUserId = user.id;
 
       if (req.method === 'GET') {
         // Ensure profile exists, then read preferences json

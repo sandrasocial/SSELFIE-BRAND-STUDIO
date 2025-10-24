@@ -24,8 +24,11 @@ export default async (req: VercelRequest, res: VercelResponse) => {
   return withAuth(req, res, async (req: AuthenticatedRequest, res: VercelResponse) => {
     try {
       const { concept } = req.body as StoryConceptRequest;
-      // 🔥 FIX: Use stackAuthId for database queries to fix user ID mismatch
-      const userId = req.user.stackAuthId || req.user.id;
+      // 🔥 CRITICAL FIX: Use req.user.id for database queries
+      // - For OLD users (pre-Stack Auth): id is the original numeric ID where data was created
+      // - For NEW users (Stack Auth): id is already the Stack Auth ID
+      // - stackAuthId is only used for linking old users to Stack Auth, NOT for queries
+      const userId = req.user.id;
 
       if (!concept) {
         return res.status(400).json({ error: 'Concept is required' });

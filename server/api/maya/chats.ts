@@ -18,8 +18,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const user = await getUserFromRequest(req);
     if (!user) return sendUnauthorized(res);
 
-    // 🔥 FIX: Use stackAuthId for database queries to fix user ID mismatch
-    const queryUserId = user.stackAuthId || user.id;
+    // 🔥 CRITICAL FIX: Use user.id for database queries
+    // - For OLD users (pre-Stack Auth): id is the original numeric ID where data was created
+    // - For NEW users (Stack Auth): id is already the Stack Auth ID
+    // - stackAuthId is only used for linking old users to Stack Auth, NOT for queries
+    const queryUserId = user.id;
     const chats = await storage.getMayaChats(queryUserId);
 
     setNoCacheHeaders(res);
