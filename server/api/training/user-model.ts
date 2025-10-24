@@ -17,64 +17,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const user = await getUserFromRequest(req);
-    if (!user) {
+    // ✅ FIXED: getUserFromRequest returns a properly linked database user
+    // It already handles Stack Auth ID linking via resolveUserWithAutoLinking
+    const dbUser = await getUserFromRequest(req);
+    if (!dbUser) {
       return sendUnauthorized(res);
     }
 
-    let dbUser: any = null;
+    console.log(`✅ User resolved: ${dbUser.id}, email: ${dbUser.email}`);
+
     let userModel: any = null;
 
-    // Bulletproof user lookup with Stack Auth ID
+    // Fetch user model using the database user ID
     try {
-      const foundUser = await storage.getUserByStackAuthId(user.id);
-      dbUser = foundUser || null;
-
-      if (dbUser?.id) {
-        const foundModel = await storage.getUserModel(dbUser.id);
-        userModel = foundModel || null;
-      }
+      userModel = await storage.getUserModel(dbUser.id);
+      console.log(`📊 Model lookup result: ${userModel ? 'found' : 'not found'}`);
     } catch (error) {
-      console.error('❌ User lookup failed:', error);
-      
-      // Fallback to traditional lookup
-      try {
-        dbUser = await storage.getUser(user.id);
-        if (!dbUser && user.email) {
-          dbUser = await storage.getUserByEmail(user.email);
-        }
-      } catch (fallbackError) {
-        console.error('❌ Fallback lookup failed:', fallbackError);
-      }
-    }
-
-    // If no DB user, return minimal fallback model
-    if (!dbUser) {
-      const minimalModel = {
-        id: null,
-        userId: user.id,
-        trainingStatus: 'not_started',
-        needsTraining: true,
-        canRetrain: false,
-        modelType: 'sselfie-studio',
-        createdAt: null,
-        updatedAt: null,
-        userPlan: 'sselfie-studio',
-        hasActiveSubscription: false,
-        onboardingSource: 'unknown'
-      };
-
-      setNoCacheHeaders(res);
-      return sendSuccess(res, minimalModel);
-    }
-
-    // Fetch model if not already obtained
-    if (dbUser && !userModel) {
-      try {
-        userModel = await storage.getUserModel(dbUser.id);
-      } catch (error) {
-        console.warn('📊 Model fetch failed:', error);
-      }
+      console.warn('📊 Model fetch failed:', error);
     }
 
     const trainingStatus = userModel?.trainingStatus || 'not_started';
@@ -106,6 +65,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       hasActiveSubscription: dbUser.monthlyGenerationLimit === -1 || (dbUser.monthlyGenerationLimit && dbUser.monthlyGenerationLimit > 0),
       onboardingSource
     };
+
+    console.log(`✅ Returning model status:`, {
+      userId: dbUser.id,
+      trainingStatus,
+      needsTraining,
+      canRetrain
+    });
 
     setNoCacheHeaders(res);
     return sendSuccess(res, modelStatus);
