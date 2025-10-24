@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "dev": "vite",
-    "build": "npm run build:client && npm run build:server",
+    "build": "pnpm build:client && pnpm build:server",
     "build:client": "vite build",
     "build:server": "tsc --project tsconfig.server.json --outDir dist/server --declaration false --emitDeclarationOnly false",
     "lint": "eslint . --ext ts,tsx --fix",

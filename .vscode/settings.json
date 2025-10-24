@@ -17,5 +17,6 @@
     "**/node_modules": true,
     "**/.git": true,
     "**/.tsbuildinfo": true
-  }
+  },
+  "npm.packageManager": "pnpm"
 }
