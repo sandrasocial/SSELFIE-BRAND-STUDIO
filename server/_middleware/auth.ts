@@ -1,7 +1,6 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { JWTPayload } from 'jose';
 import { StackAuthUserInfo } from '../_shared/stack-auth-types.js';
-import { stackServerApp } from '../../stack/server.js';
 
 // Global type declarations for server environment
 declare global {
@@ -16,6 +15,27 @@ console.log('🔧 Stack Auth Middleware Env:', { projectId: STACK_PROJECT_ID });
 let JWKS: ReturnType<typeof import('jose').createLocalJWKSet> | null = null;
 let JWKS_LAST_FETCH = 0;
 const JWKS_CACHE_TIME = 3600000; // 1 hour
+
+// 🔥 CRITICAL: Lazy-load Stack Auth server app to avoid circular dependencies and initialization issues
+let stackServerAppInstance: any = null;
+let stackServerAppLoaded = false;
+
+async function getStackServerApp() {
+  if (stackServerAppLoaded) {
+    return stackServerAppInstance;
+  }
+
+  try {
+    const stackModule = await import('../../stack/server.js');
+    stackServerAppInstance = stackModule.stackServerApp;
+    stackServerAppLoaded = true;
+    console.log('✅ Stack Auth server app loaded in server middleware');
+    return stackServerAppInstance;
+  } catch (error) {
+    console.warn('⚠️ Could not load Stack Auth server app:', error instanceof Error ? error.message : error);
+    return null;
+  }
+}
 
 // Parse cookie header helper
 function parseCookieHeader(cookieHeader?: string): Record<string, string> {
@@ -143,7 +163,13 @@ export async function getAuthenticatedUserViaStackAuth(req: VercelRequest): Prom
     // - Token extraction
     // - JWT verification
     // - User lookup
-    const stackUser = await stackServerApp.getUser(req as any);
+    const stackApp = await getStackServerApp();
+    if (!stackApp) {
+      console.warn('⚠️ Stack Auth server app not available');
+      return null;
+    }
+
+    const stackUser = await stackApp.getUser(req as any);
 
     if (!stackUser) {
       console.warn('⚠️ Stack Auth getUser() returned null');
