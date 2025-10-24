@@ -1,14 +1,19 @@
 /**
  * Vercel Serverless Function - /api/me
- * Proxies to main handler
+ * Pattern 1: Entry point with withAuth middleware wrapper
+ *
+ * Returns the current authenticated user's profile
  */
 
-import handler from '../server/[...route].js';
+import type { VercelRequest, VercelResponse } from '@vercel/node';
+import handler from '../server/api/auth/me.js';
 
-export default handler;
+export default async function meHandler(req: VercelRequest, res: VercelResponse) {
+  return handler(req, res);
+}
 
 export const config = {
   runtime: 'nodejs',
-  maxDuration: 60,
+  maxDuration: 30,
   memory: 3008
 };

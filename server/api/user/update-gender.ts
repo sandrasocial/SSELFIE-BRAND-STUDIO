@@ -1,13 +1,15 @@
 /**
  * POST /api/user/update-gender - Pure Serverless Implementation
- * 
+ *
  * Update the gender field for the authenticated user.
+ *
+ * ✅ PATTERN 1: Accepts middleware-attached user from withAuth wrapper
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { getUserFromRequest } from '../../_utils/auth-helpers.js';
-import { 
-  sendSuccess, 
+import {
+  sendSuccess,
   sendUnauthorized,
   sendBadRequest,
   sendMethodNotAllowed,
@@ -43,8 +45,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    // Auth
-    const user = await getUserFromRequest(req);
+    // ✅ PATTERN 1: User already attached by withAuth middleware
+    // Fallback to getUserFromRequest for legacy compatibility
+    let user = (req as any).user;
+
+    if (!user) {
+      console.log('⚠️ No user attached to request, attempting getUserFromRequest fallback');
+      user = await getUserFromRequest(req);
+    }
+
     if (!user) {
       return sendUnauthorized(res);
     }
