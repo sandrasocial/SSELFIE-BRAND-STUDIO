@@ -60,8 +60,11 @@ export class TrainingErrorBoundary extends Component<
       errorInfo
     });
 
-    // Log error for monitoring
-    console.error('Training Error Boundary caught error:', error, errorInfo);
+    // Log error for monitoring (development only)
+    if (process.env['NODE_ENV'] === 'development') {
+      // eslint-disable-next-line no-console
+      console.error('Training Error Boundary caught error:', error, errorInfo);
+    }
     
     // Report to error tracking service if available
     if (typeof window !== 'undefined') {
@@ -138,7 +141,6 @@ export class TrainingErrorBoundary extends Component<
 
     // Check if we've exceeded max attempts
     if (this.state.retryCount >= strategy.maxAttempts) {
-      console.error('Max retry attempts exceeded');
       return;
     }
 
@@ -164,8 +166,7 @@ export class TrainingErrorBoundary extends Component<
         retryCount: this.state.retryCount + 1,
         isRetrying: false
       });
-    } catch (retryError) {
-      console.error('Retry failed:', retryError);
+    } catch {
       this.setState({
         retryCount: this.state.retryCount + 1,
         isRetrying: false

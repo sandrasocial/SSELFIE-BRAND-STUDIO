@@ -20,8 +20,7 @@ export default function UnifiedLoginButton({ text, showBrand }: UnifiedLoginButt
       // ✅ Use logout endpoint for Stack Auth
       window.location.href = '/api/logout';
       // Stack Auth handles redirect automatically
-    } catch (error) {
-      console.error('❌ Stack Auth: Logout error:', error);
+    } catch {
       // Fallback to simple redirect
       window.location.href = '/';
     }

@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useBrandStudio, BrandStudioProvider } from '../../../contexts/BrandStudioContext.js';
 import { useAuth } from '../../../hooks/use-auth.js';
 import { Camera } from 'lucide-react';
+import type { ConceptCard } from '../../../../../shared/types/concept-card.js';
+import type { UserModel } from '../../../../../shared/schema.js';
 
 import ErrorBoundary from '../../../components/ErrorBoundary.js';
 import MayaHeader from './MayaHeader';
@@ -29,8 +31,7 @@ const MayaChatContent: React.FC<MayaChatContentProps> = ({ initialPrompt, onProm
     isGenerating,
   } = useBrandStudio();
 
-  // Debug logging
-  console.log('Brand Studio Data:', { messages });
+  // Debug logging removed for production
 
   const [showWelcome] = useState(true);
   const welcomeMessage = {
@@ -83,7 +84,7 @@ const MayaChatContent: React.FC<MayaChatContentProps> = ({ initialPrompt, onProm
 
       {/* Chat Messages */}
       <div className="flex-1 overflow-y-auto space-y-4 pr-1" style={{ maxHeight: 'calc(100vh - 320px)' }}>
-        {allMessages.map((message: any, index: number) => (
+        {allMessages.map((message: { id?: string; type: 'user' | 'maya'; content: string; timestamp: string; conceptCards?: ConceptCard[]; generatedImages?: unknown[] }, index: number) => (
           <React.Fragment key={message.id || index}>
             <ChatMessageBubble message={message} />
 
@@ -138,7 +139,7 @@ interface MayaScreenProps {
   initialPrompt?: string | null;
   onPromptUsed?: () => void;
   hasTrainedModel?: boolean;
-  userModel?: any;
+  userModel?: UserModel;
 }
 
 // @ts-ignore - FC type compatibility with JSX.Element

@@ -5,17 +5,21 @@ import { useTrainingStatus } from '../../../hooks/useTrainingStatus';
 import { useEnhancedImageOptimization } from '../../../hooks/useEnhancedImageOptimization';
 import { apiRequest } from '../../../lib/queryClient';
 import { useToast } from '../../../hooks/use-toast';
-import { SandraImages } from '../../../lib/sandra-images';
 
-// Props are intentionally untyped for now to align with neighboring screens
-// Note: setHasTrainedModel is optional - automatic user state detection handles this
-const TrainingScreen = ({ user, setHasTrainedModel, setActiveTab }: any) => {
+
+interface TrainingScreenProps {
+  user?: { id: string; hasRetrainingAccess?: boolean };
+  setHasTrainedModel?: (hasModel: boolean) => void;
+  setActiveTab?: (tab: string) => void;
+}
+
+const TrainingScreen: React.FC<TrainingScreenProps> = ({ user, setHasTrainedModel, setActiveTab }) => {
   const [selectedGender, setSelectedGender] = useState<string>('');
   const [selfieImages, setSelfieImages] = useState<File[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [isCheckingPayment, setIsCheckingPayment] = useState(false);
-  const [retrainPriceEUR, setRetrainPriceEUR] = useState<number>(Number((import.meta as any)?.env?.VITE_RETRAIN_PRICE_EUR ?? 10));
+  const [retrainPriceEUR, setRetrainPriceEUR] = useState<number>(Number((import.meta as { env?: { VITE_RETRAIN_PRICE_EUR?: string } }).env?.VITE_RETRAIN_PRICE_EUR ?? 10));
 
   const [forceRetraining, setForceRetraining] = useState(false);
 
@@ -34,7 +38,7 @@ const TrainingScreen = ({ user, setHasTrainedModel, setActiveTab }: any) => {
         url.searchParams.delete('retraining');
         window.history.replaceState({}, document.title, url.pathname + (url.search ? '?' + url.searchParams.toString() : '') + url.hash);
       }
-    } catch (e) {
+    } catch {
       // noop
     }
   }, [queryClient]);
@@ -141,8 +145,7 @@ const TrainingScreen = ({ user, setHasTrainedModel, setActiveTab }: any) => {
       } else {
         throw new Error('Failed to create checkout session');
       }
-    } catch (error) {
-      console.error('Retraining checkout error:', error);
+    } catch {
       toast({ title: 'Payment Error', description: 'Failed to start checkout. Please try again.' });
       setIsCheckingPayment(false);
     }
@@ -183,9 +186,9 @@ const TrainingScreen = ({ user, setHasTrainedModel, setActiveTab }: any) => {
 
       toast({ title: 'Training Started', description: 'Your AI model is now training.' });
       refetch();
-    } catch (err: any) {
-      console.error('Start training failed', err);
-      toast({ title: 'Training Failed', description: err?.message || 'Please try again.' });
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Please try again.';
+      toast({ title: 'Training Failed', description: errorMessage });
     } finally {
       setIsUploading(false);
     }

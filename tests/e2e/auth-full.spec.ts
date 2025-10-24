@@ -166,7 +166,8 @@ test.describe('Suite A: Existing test user authentication', () => {
     const { requests, failed } = collectNetwork(page);
 
     if (!TEST_USER_EMAIL || !TEST_USER_PASSWORD) {
-      test.fail(true, 'TEST_USER_EMAIL/TEST_USER_PASSWORD not set');
+      test.skip(true, 'TEST_USER_EMAIL/TEST_USER_PASSWORD not set - skipping auth test');
+      return;
     }
 
     await gotoSignIn(page);
@@ -191,6 +192,11 @@ test.describe('Suite A: Existing test user authentication', () => {
 // Suite B: Existing User Login Flow
 test.describe('Suite B: Existing user login', () => {
   test('logs out then logs back in with existing credentials', async ({ page }) => {
+    if (!TEST_USER_EMAIL || !TEST_USER_PASSWORD) {
+      test.skip(true, 'TEST_USER_EMAIL/TEST_USER_PASSWORD not set - skipping auth test');
+      return;
+    }
+
     // Ensure we start in an authenticated state from Suite A
     // If not, try to sign in
     const mePre = await page.request.get('/api/me');
@@ -216,6 +222,11 @@ test.describe('Suite B: Existing user login', () => {
 // Suite C: Authentication State Persistence
 test.describe('Suite C: Auth state persistence', () => {
   test('persists auth across reload and direct protected navigation', async ({ page, context }) => {
+    if (!TEST_USER_EMAIL || !TEST_USER_PASSWORD) {
+      test.skip(true, 'TEST_USER_EMAIL/TEST_USER_PASSWORD not set - skipping auth test');
+      return;
+    }
+
     // Ensure logged in
     await gotoSignIn(page);
     await fillEmailPassword(page, TEST_USER_EMAIL, TEST_USER_PASSWORD);
@@ -239,7 +250,12 @@ test.describe('Suite C: Auth state persistence', () => {
 
 // Suite D: Logout Flow
 test.describe('Suite D: Logout flow', () => {
-  test('clears auth and protects /app after logout', async ({ page, context }) => {
+  test('clears auth and protects /app after logout', async ({ page }) => {
+    if (!TEST_USER_EMAIL || !TEST_USER_PASSWORD) {
+      test.skip(true, 'TEST_USER_EMAIL/TEST_USER_PASSWORD not set - skipping auth test');
+      return;
+    }
+
     // Ensure logged in first
     await gotoSignIn(page);
     await fillEmailPassword(page, TEST_USER_EMAIL, TEST_USER_PASSWORD);
@@ -250,9 +266,7 @@ test.describe('Suite D: Logout flow', () => {
     await logout(page);
 
     // Cookies should be cleared (most of them) or at least access removed on /app
-    const cookies = await context.cookies();
-    const stackCookies = cookies.filter(c => /stack/i.test(c.name));
-    // Some providers leave non-auth cookies; assert access instead
+    // Some providers leave non-auth cookies; we assert access protection instead
 
     // Try protected route should redirect away from /app
     await page.goto('/app', { waitUntil: 'domcontentloaded' });

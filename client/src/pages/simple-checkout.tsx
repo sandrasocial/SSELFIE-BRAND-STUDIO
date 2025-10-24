@@ -14,14 +14,12 @@ import {
   type CheckoutValidationResult
 } from '../utils/checkout-validation.js';
 import { 
-  checkoutApiRequest, 
   checkNetworkConnectivity,
   classifyError
 } from '../lib/api-client.js';
 import {
   getStripeConfig, 
-  logConfigurationStatus,
-  ConfigurationError
+  logConfigurationStatus
 } from '../utils/env-config.js';
 
 type ProcessingStep = 'idle' | 'validation' | 'processing' | 'complete';
@@ -61,7 +59,7 @@ export default function SimpleCheckout() {
         setConfigurationValid(false);
         toast.showConfigurationErrorToast();
       }
-    } catch (error) {
+    } catch {
       setConfigurationValid(false);
       toast.showConfigurationErrorToast();
     }
@@ -74,7 +72,6 @@ export default function SimpleCheckout() {
   useEffect(() => {
     const urlParams = new URL(window.location.href).searchParams;
     const status = urlParams.get('status');
-    const planParam = urlParams.get('plan');
     const emailParam = urlParams.get('email');
 
     if (status === 'success') {
@@ -183,7 +180,6 @@ export default function SimpleCheckout() {
       }, 1000);
       
     } catch (error) {
-      console.error('Checkout redirect error:', error);
       setProcessingStep('idle');
       setPaymentStatus('error');
       
@@ -197,7 +193,9 @@ export default function SimpleCheckout() {
     }
   };
 
-  // Enhanced test payment handler
+  // Enhanced test payment handler (for development/testing)
+  // Commented out - not currently used in production
+  /*
   const handleTestPayment = async () => {
     const validation = validateForm();
     
@@ -227,11 +225,11 @@ export default function SimpleCheckout() {
         setLocation(`/payment-success?plan=${plan}&email=${encodeURIComponent(email)}`);
       }, 1500);
     } catch (error) {
-      console.error('Test payment error:', error);
       setProcessingStep('idle');
       toast.showErrorToast('Test payment failed. Please try again.');
     }
   };
+  */
 
   // Handle continue from success modal
   const handleSuccessContinue = async () => {
@@ -315,8 +313,7 @@ export default function SimpleCheckout() {
   };
 
   return (
-    <CheckoutErrorBoundary onError={(error) => {
-      console.error('Checkout boundary error:', error);
+    <CheckoutErrorBoundary onError={() => {
       toast.showErrorToast('A critical error occurred. The page will reload.');
     }}>
       <div className="min-h-screen" style={{ 

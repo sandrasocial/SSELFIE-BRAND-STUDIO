@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { SignIn as StackSignIn, useStackApp } from '@stackframe/react';
+import { SignIn as StackSignIn } from '@stackframe/react';
 import { useAuth } from '../../../hooks/use-auth.js';
 
 // Custom Stack Auth SignIn wrapper that handles project configuration errors gracefully
@@ -39,7 +39,6 @@ export const SafeStackSignIn: React.FC = () => {
     const handleError = (error: ErrorEvent) => {
       // Only catch very specific Stack Auth project configuration errors
       if (error.message.includes('_clientProjectFromCrud') && error.message.includes('404')) {
-        console.error('\ud83d\uded1 Stack Auth project configuration error detected:', error.message);
         setHasProjectError(true);
         error.preventDefault(); // Prevent the error from bubbling up
       }
@@ -137,7 +136,6 @@ const ErrorBoundary: React.FC<{ fallback: React.ReactNode; children: React.React
     const errorHandler = (event: ErrorEvent) => {
       event.preventDefault();
       setHasError(true);
-      console.error('Stack Auth SignIn Error:', event.error);
     };
 
     window.addEventListener('error', errorHandler);
