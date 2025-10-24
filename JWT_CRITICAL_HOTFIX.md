@@ -11,15 +11,20 @@
 
 ### Error 1: "JWS Protected Header is invalid"
 ```
-❌ JWT verification failed: { 
-  error: 'JWS Protected Header is invalid', 
-  tokenLength: 823, 
-  tokenPrefix: '["z8dherrxdgnxd5mnz0...' 
+❌ JWT verification failed: {
+  error: 'JWS Protected Header is invalid',
+  tokenLength: 823,
+  tokenPrefix: '["z8dherrxdgnxd5mnz0...'
 }
 ```
 
-**Root Cause:** Malformed token format (JSON array instead of JWT)
-**Impact:** All requests with malformed tokens fail with 401
+**Root Cause:** Stack Auth stores tokens as JSON arrays in cookies
+- Stack Auth cookie format: `["refreshToken", "accessToken"]`
+- Server was receiving the entire JSON array as the token value
+- JWT verification failed because array string is not a valid JWT
+- Token starts with `[` instead of JWT header
+
+**Impact:** All authenticated requests fail with 401
 **Status:** ✅ FIXED
 
 ### Error 2: "Cannot read properties of undefined (reading 'onboardingProgress')"
@@ -39,33 +44,77 @@
 
 ## ✅ Fixes Applied
 
-### Fix 1: Token Format Validation
+### Fix 1: Handle Stack Auth JSON Array Cookie Format
+
+**Added:** `extractTokenFromStackAuthCookie()` function
+```typescript
+function extractTokenFromStackAuthCookie(cookieValue: string): string | undefined {
+  try {
+    // Try to parse as JSON array (Stack Auth format)
+    const decoded = decodeURIComponent(cookieValue);
+
+    // Check if it looks like a JSON array
+    if (decoded.startsWith('[')) {
+      const parsed = JSON.parse(decoded);
+
+      // Stack Auth format: ["refreshToken", "accessToken"]
+      if (Array.isArray(parsed) && parsed.length >= 2 && typeof parsed[1] === 'string') {
+        const token = parsed[1];
+        if (isValidJWTFormat(token)) {
+          console.log('✅ Extracted token from Stack Auth cookie array');
+          return token;
+        }
+      }
+    }
+
+    // Try direct JWT if not an array
+    if (isValidJWTFormat(decoded)) {
+      console.log('✅ Found direct JWT in cookie');
+      return decoded;
+    }
+  } catch (error) {
+    console.warn('⚠️ Failed to parse Stack Auth cookie:', error);
+  }
+
+  return undefined;
+}
+```
+
+**Updated:** `extractToken()` function
+- Now detects and parses Stack Auth's JSON array format
+- Extracts the actual JWT token (index 1) from the array
+- Falls back to direct JWT if not an array
+- Validates extracted token format
+
+**File:** `api/_middleware/auth.ts` (lines 196-285)
+
+### Fix 2: Token Format Validation
 
 **Added:** `isValidJWTFormat()` function
 ```typescript
 function isValidJWTFormat(token: string): boolean {
   if (!token || typeof token !== 'string') return false;
-  
+
   // JWT must have exactly 3 parts separated by dots
   const parts = token.split('.');
   if (parts.length !== 3) return false;
-  
+
   // Each part must be non-empty
   if (parts.some(part => !part)) return false;
-  
+
   // Token should not look like JSON (starts with [ or {)
   if (token.startsWith('[') || token.startsWith('{')) return false;
-  
+
   return true;
 }
 ```
 
-**Updated:** `extractToken()` function
-- Now validates token format before returning
-- Rejects malformed tokens
+**Purpose:**
+- Validates JWT structure before processing
+- Rejects malformed tokens early
 - Prevents "JWS Protected Header is invalid" errors
 
-**File:** `api/_middleware/auth.ts` (lines 176-244)
+**File:** `api/_middleware/auth.ts` (lines 176-191)
 
 ### Fix 2: User Object Null Checks
 
@@ -127,23 +176,35 @@ return {
 | Metric | Value |
 |--------|-------|
 | Files Modified | 1 |
-| Lines Added | 75 |
-| Functions Added | 1 |
+| Lines Added | 122 |
+| Functions Added | 2 |
 | Functions Enhanced | 2 |
 | Errors Fixed | 2 |
+| Commits | 2 |
 | Status | ✅ COMPLETE |
+
+### Commits Made
+1. **3eead6aa** - Initial critical fixes (token validation, null checks)
+2. **4d73b57a** - Stack Auth cookie format handling (JSON array extraction)
 
 ---
 
 ## 🔍 What Was Wrong
 
-### Problem 1: Malformed Token Processing
-- Cookie parser was accepting any string value
-- No validation of JWT format
-- Malformed tokens (JSON arrays) were being processed
-- JWT verification failed with cryptic error
+### Problem 1: Stack Auth Cookie Format Not Handled
+- Stack Auth stores tokens as JSON arrays: `["refreshToken", "accessToken"]`
+- Server was receiving the entire JSON array as the token value
+- No code to extract the actual JWT from the array
+- JWT verification failed because array string is not a valid JWT
+- Error: "JWS Protected Header is invalid" (token starts with `[`)
 
-### Problem 2: Missing Null Checks
+### Problem 2: No Token Format Validation
+- Cookie parser was accepting any string value
+- No validation of JWT format before processing
+- Malformed tokens were being sent to JWT verification
+- Cryptic error messages made debugging difficult
+
+### Problem 3: Missing Null Checks
 - `getOrCreateDatabaseUser()` assumed database operations always succeed
 - No fallback if `updateUserProfile()` fails
 - No validation of returned user object
