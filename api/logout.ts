@@ -1,11 +1,17 @@
 /**
  * Vercel Serverless Function - /api/logout
- * Proxies to main handler
+ * Pattern 1: Direct handler call (no auth required)
+ *
+ * POST /api/logout
+ * Clears authentication cookies and logs out the user
  */
 
-import handler from '../server/[...route].js';
+import { VercelRequest, VercelResponse } from '@vercel/node';
+import handler from '../server/api/auth/logout.js';
 
-export default handler;
+export default async function logoutEndpoint(req: VercelRequest, res: VercelResponse) {
+  return handler(req, res);
+}
 
 export const config = {
   runtime: 'nodejs',
