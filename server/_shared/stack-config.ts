@@ -6,6 +6,13 @@ export const STACK_PROJECT_ID: string =
   process.env.VITE_STACK_PROJECT_ID ||
   '253d7343-a0d4-43a1-be5c-822f590d40be';
 
+// ✅ FIX: Use the correct secret key variable name from Vercel production
+export const STACK_SECRET_SERVER_KEY: string =
+  process.env.STACK_SECRET_SERVER_KEY ||
+  process.env.STACK_AUTH_SECRET_KEY ||  // ← This is what's actually in Vercel
+  process.env.STACK_SERVER_KEY ||
+  '';
+
 // Set the environment variable if not already set (for production consistency)
 if (!process.env.STACK_PROJECT_ID && !process.env.STACK_AUTH_PROJECT_ID) {
   process.env.STACK_PROJECT_ID = STACK_PROJECT_ID;
