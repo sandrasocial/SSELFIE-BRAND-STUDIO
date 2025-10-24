@@ -152,21 +152,22 @@ export async function getAuthenticatedUserViaStackAuth(req: VercelRequest): Prom
 
     console.log('✅ Stack Auth getUser() succeeded:', {
       userId: stackUser.id,
-      email: stackUser.email,
+      email: stackUser.primaryEmail,
       displayName: stackUser.displayName
     });
 
     // Convert Stack Auth user to our AuthenticatedUser format
+    // Note: Stack Auth's CurrentServerUser has limited properties, so we use defaults for missing fields
     return {
       id: stackUser.id,
       stackAuthId: stackUser.id, // For new users, id IS the stackAuthId
-      email: stackUser.email || null,
+      email: stackUser.primaryEmail || null,
       displayName: stackUser.displayName || null,
-      firstName: stackUser.firstName || null,
-      lastName: stackUser.lastName || null,
+      firstName: null, // Stack Auth doesn't provide firstName separately
+      lastName: null, // Stack Auth doesn't provide lastName separately
       profileImageUrl: stackUser.profileImageUrl || null,
-      createdAt: stackUser.createdAt || new Date(),
-      updatedAt: stackUser.updatedAt || new Date(),
+      createdAt: new Date(), // Stack Auth doesn't provide createdAt
+      updatedAt: new Date(), // Stack Auth doesn't provide updatedAt
       lastLoginAt: new Date(),
       stripeCustomerId: null,
       stripeSubscriptionId: null,
