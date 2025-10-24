@@ -55,10 +55,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(401).json({ error: 'Authentication required' });
       }
 
+      // 🔥 FIX: Use stackAuthId for database queries to fix user ID mismatch
+      const queryUserId = user.stackAuthId || user.id;
+
       if (req.method === 'GET') {
         // Ensure profile exists, then read preferences json
-        await storage.ensureMayaProfile(user.id);
-        const rows = await db.select().from(mayaProfile).where(eq(mayaProfile.userId, user.id)).limit(1);
+        await storage.ensureMayaProfile(queryUserId);
+        const rows = await db.select().from(mayaProfile).where(eq(mayaProfile.userId, queryUserId)).limit(1);
         const prefs = (rows[0]?.preferences as unknown as UserSettings) || DEFAULT_SETTINGS;
         res.setHeader('Cache-Control', 'no-store');
         return res.status(200).json({ settings: { ...DEFAULT_SETTINGS, ...prefs } });
@@ -67,15 +70,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (req.method === 'PUT') {
         const incoming = (req.body || {}) as Partial<UserSettings>;
         // Ensure profile exists
-        await storage.ensureMayaProfile(user.id);
-        const rows = await db.select().from(mayaProfile).where(eq(mayaProfile.userId, user.id)).limit(1);
+        await storage.ensureMayaProfile(queryUserId);
+        const rows = await db.select().from(mayaProfile).where(eq(mayaProfile.userId, queryUserId)).limit(1);
         const current = (rows[0]?.preferences as unknown as UserSettings) || DEFAULT_SETTINGS;
         const merged: UserSettings = {
           notifications: { ...DEFAULT_SETTINGS.notifications, ...current?.notifications, ...incoming?.notifications },
           photoQuality: { ...DEFAULT_SETTINGS.photoQuality, ...current?.photoQuality, ...incoming?.photoQuality },
           account: { ...DEFAULT_SETTINGS.account, ...current?.account, ...incoming?.account }
         };
-        await db.update(mayaProfile).set({ preferences: merged, updatedAt: new Date() } as any).where(eq(mayaProfile.userId, user.id));
+        await db.update(mayaProfile).set({ preferences: merged, updatedAt: new Date() } as any).where(eq(mayaProfile.userId, queryUserId));
         return res.status(200).json({ success: true, settings: merged });
       }
 

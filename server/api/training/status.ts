@@ -22,11 +22,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return sendUnauthorized(res);
     }
 
-    const model = await storage.getUserModelByUserId(user.id);
+    // 🔥 FIX: Use stackAuthId for database queries to fix user ID mismatch
+    const queryUserId = user.stackAuthId || user.id;
+
+    const model = await storage.getUserModelByUserId(queryUserId);
     const status = model?.trainingStatus || 'not_started';
     const progress = model?.trainingProgress || (status === 'completed' ? 100 : 0);
-    
-    const trackers = await storage.getUserGenerationTrackers(user.id);
+
+    const trackers = await storage.getUserGenerationTrackers(queryUserId);
     const predictionId = trackers?.[0]?.predictionId || null;
 
     setNoCacheHeaders(res);

@@ -33,8 +33,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(401).json({ error: 'Authentication required' });
       }
 
+      // 🔥 FIX: Use stackAuthId for database queries to fix user ID mismatch
+      const queryUserId = user.stackAuthId || user.id;
+
       const [generatedImages] = await Promise.all([
-        storage.getGeneratedImages(user.id)
+        storage.getGeneratedImages(queryUserId)
       ]);
 
       const fullName = user.displayName || `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'User';
