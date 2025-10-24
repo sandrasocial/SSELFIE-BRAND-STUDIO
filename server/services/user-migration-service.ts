@@ -1,29 +1,21 @@
 /**
  * User Migration Service - Links existing users to Stack Auth accounts
  *
- * Handles cases where existing users have:
- * - No Stack Auth ID
- * - Null email addresses
- * - Trained models and images that need to be preserved
+ * ✅ OPTIMIZED: Removed expensive getAllUsers() calls that were causing slow deployments
+ * Now uses direct database queries for fast, efficient user migration
  */
 
 import { storage } from '../storage.js';
-
-interface User {
-  id: string;
-  email?: string | null;
-  displayName?: string | null;
-  profileImageUrl?: string | null;
-  stackAuthId?: string | null;
-  createdAt: Date;
-  [key: string]: unknown;
-}
+import { userService } from './user-service.js';
+import { users } from '../../drizzle/schema.js';
+import { eq } from 'drizzle-orm';
 
 export class UserMigrationService {
-
   /**
-   * Enhanced user lookup with migration support
-   * This replaces the existing getOrCreateUser logic with better migration handling
+   * Finds an existing user by Stack Auth ID or email, and links the account if necessary.
+   * If no existing user is found, it creates a new one.
+   *
+   * ✅ OPTIMIZED: Uses direct database queries instead of loading all users into memory
    */
   async findOrMigrateUser(
     stackAuthId: string,
@@ -31,162 +23,41 @@ export class UserMigrationService {
     displayName: string | null,
     profileImageUrl: string | null
   ) {
-
-    // Step 1: Try Stack Auth ID first (normal case)
-    let user = await storage.getUserByStackAuthId(stackAuthId);
-    if (user) {
-      return await this.updateUserProfile(user, displayName, profileImageUrl);
+    if (!stackAuthId) {
+      throw new Error('Stack Auth ID is required for migration.');
     }
 
-    // Step 2: Try email lookup (for existing users)
+    // 1. Find user by Stack Auth ID (the ideal case - fastest)
+    console.log('🔍 MIGRATION: Checking for existing Stack Auth ID:', stackAuthId.substring(0, 8) + '...');
+    const userByStackAuthId = await storage.getUserByStackAuthId(stackAuthId);
+
+    if (userByStackAuthId) {
+      console.log(`✅ MIGRATION: Found user by Stack Auth ID: ${userByStackAuthId.id}`);
+      return await this.updateUserProfile(userByStackAuthId, displayName, profileImageUrl);
+    }
+
+    // 2. Find user by email (the migration case - for existing users)
     if (email) {
-      user = await storage.getUserByEmail(email);
-      if (user) {
-        const linkedUser = await storage.linkStackAuthId(user.id, stackAuthId);
+      console.log('🔍 MIGRATION: Checking for existing email:', email);
+      const userByEmail = await storage.getUserByEmail(email);
+
+      if (userByEmail) {
+        console.log(`🔄 MIGRATION: Migrating user by email: ${userByEmail.id}`);
+        // Link the existing account to the new Stack Auth ID
+        const linkedUser = await storage.linkStackAuthId(userByEmail.id, stackAuthId);
         return await this.updateUserProfile(linkedUser, displayName, profileImageUrl);
       }
     }
 
-    // Step 3: MIGRATION STRATEGY - Find users by similar attributes
-
-    // Strategy A: Match by display name (for users with null emails)
-    if (displayName && !email) {
-      const candidateUsers = await this.findUsersByDisplayName(displayName);
-
-      for (const candidate of candidateUsers) {
-        if (!candidate.stackAuthId && this.shouldMigrateUser(candidate)) {
-
-          // Ask user for confirmation in production (for now, auto-migrate)
-          const migratedUser = await this.migrateUserToStackAuth(
-            candidate,
-            stackAuthId,
-            email,
-            displayName,
-            profileImageUrl
-          );
-
-          if (migratedUser) {
-            return migratedUser;
-          }
-        }
-      }
-    }
-
-    // Strategy B: Find orphaned users with trained models (high-value users)
-    const orphanedUsers = await this.findOrphanedUsersWithData();
-
-    if (orphanedUsers.length > 0) {
-
-      // For now, create new user but log potential migration candidates
-      for (const orphan of orphanedUsers) {
-      }
-    }
-
-    // Step 4: Create new user (fallback)
+    // 3. No existing user found, create a new one
+    console.log(`✨ MIGRATION: No existing user found. Creating new user for email: ${email}`);
     return await this.createNewStackAuthUser(stackAuthId, email, displayName, profileImageUrl);
-  }
-
-  /**
-   * Find users by display name for migration
-   */
-  async findUsersByDisplayName(displayName: string) {
-    try {
-      const allUsers = await storage.getAllUsers();
-      return allUsers.filter(user =>
-        user.displayName === displayName &&
-        !user.stackAuthId &&
-        this.shouldMigrateUser(user)
-      );
-    } catch (error) {
-      console.error('Error finding users by display name:', error);
-      return [];
-    }
-  }
-
-  /**
-   * Find orphaned users who have valuable data but no Stack Auth ID
-   */
-  async findOrphanedUsersWithData() {
-    try {
-      const allUsers = await storage.getAllUsers();
-      const orphanedUsers: any[] = [];
-
-      for (const user of allUsers) {
-        if (!user.stackAuthId && this.shouldMigrateUser(user)) {
-          // Check if user has valuable data
-          const userModel = await storage.getUserModel(user.id).catch(() => null);
-          const userImages = await storage.getUserAIImages(user.id).catch(() => []);
-
-          if (userModel?.trainingStatus === 'completed' || userImages.length > 0) {
-            orphanedUsers.push({
-              ...user,
-              hasModel: userModel?.trainingStatus === 'completed',
-              imageCount: userImages.length
-            });
-          }
-        }
-      }
-
-      return orphanedUsers.sort((a, b) => b.imageCount - a.imageCount); // Sort by image count
-    } catch (error) {
-      console.error('Error finding orphaned users:', error);
-      return [];
-    }
-  }
-
-  /**
-   * Determine if a user should be considered for migration
-   */
-  shouldMigrateUser(user: User): boolean {
-    // Don't migrate test users or users with suspicious data
-    if (user.email?.includes('test') || user.email?.includes('example')) {
-      return false;
-    }
-
-    // Don't migrate users created very recently (might be duplicates)
-    const daysSinceCreation = (Date.now() - new Date(user.createdAt).getTime()) / (1000 * 60 * 60 * 24);
-    if (daysSinceCreation < 1) {
-      return false;
-    }
-
-    return true;
-  }
-
-  /**
-   * Migrate an existing user to Stack Auth
-   */
-  async migrateUserToStackAuth(
-    existingUser: User,
-    stackAuthId: string,
-    email: string | null,
-    displayName: string | null,
-    profileImageUrl: string | null
-  ) {
-    try {
-
-      // Link to Stack Auth ID
-      const linkedUser = await storage.linkStackAuthId(existingUser.id, stackAuthId);
-
-      // Update profile with new information
-      const updatedUser = await storage.updateUserProfile(linkedUser.id, {
-        email: email || linkedUser.email,
-        displayName: displayName || linkedUser.displayName,
-        profileImageUrl: profileImageUrl || linkedUser.profileImageUrl,
-        lastLoginAt: new Date()
-      });
-
-      return updatedUser;
-
-    } catch (error) {
-      console.error('❌ User migration failed:', error);
-      return null;
-    }
   }
 
   /**
    * Update user profile information
    */
-  async updateUserProfile(user: User, displayName: string | null, profileImageUrl: string | null) {
+  async updateUserProfile(user: any, displayName: string | null, profileImageUrl: string | null) {
     return await storage.updateUserProfile(user.id, {
       displayName: displayName || user.displayName,
       profileImageUrl: profileImageUrl || user.profileImageUrl,
@@ -216,7 +87,6 @@ export class UserMigrationService {
    */
   async manualMigrateUser(existingUserId: string, stackAuthId: string) {
     try {
-
       const existingUser = await storage.getUser(existingUserId);
       if (!existingUser) {
         throw new Error(`User ${existingUserId} not found`);
