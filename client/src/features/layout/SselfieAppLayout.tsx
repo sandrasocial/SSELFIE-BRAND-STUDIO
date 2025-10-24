@@ -128,12 +128,27 @@ interface MainContentProps {
   onPromptUsed: () => void;
 }
 
+interface MainContentProps {
+  activeTab: string;
+  onTabChange: (tab: string) => void;
+  initialPrompt: string | null;
+  onPromptUsed: () => void;
+  hasTrainedModel?: boolean;
+  userModel?: any;
+}
+
 // @ts-ignore - FC type compatibility with JSX.Element
-const MainContent: React.FC<MainContentProps> = ({ activeTab, onTabChange, initialPrompt, onPromptUsed }) => {
+const MainContent: React.FC<MainContentProps> = ({ activeTab, onTabChange, initialPrompt, onPromptUsed, hasTrainedModel, userModel }) => {
   const renderContent = () => {
     switch (activeTab) {
       case 'studio':
-        return <StudioScreen onTabChange={onTabChange} />;
+        return (
+          <StudioScreen
+            onTabChange={onTabChange}
+            hasTrainedModel={hasTrainedModel}
+            userModel={userModel}
+          />
+        );
       case 'training':
         return (
           <React.Suspense fallback={<div className="text-center py-8">Loading...</div>}>
@@ -141,7 +156,14 @@ const MainContent: React.FC<MainContentProps> = ({ activeTab, onTabChange, initi
           </React.Suspense>
         );
       case 'maya':
-        return <MayaScreen initialPrompt={initialPrompt} onPromptUsed={onPromptUsed} />;
+        return (
+          <MayaScreen
+            initialPrompt={initialPrompt}
+            onPromptUsed={onPromptUsed}
+            hasTrainedModel={hasTrainedModel}
+            userModel={userModel}
+          />
+        );
       case 'gallery':
         return (
           <React.Suspense fallback={<div className="text-center py-8">Loading...</div>}>
@@ -157,7 +179,13 @@ const MainContent: React.FC<MainContentProps> = ({ activeTab, onTabChange, initi
       case 'profile':
         return <ProfileScreen />;
       default:
-        return <StudioScreen onTabChange={onTabChange} />;
+        return (
+          <StudioScreen
+            onTabChange={onTabChange}
+            hasTrainedModel={hasTrainedModel}
+            userModel={userModel}
+          />
+        );
     }
   };
 
@@ -176,7 +204,8 @@ const SselfieAppLayout: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [initialPrompt, setInitialPrompt] = useState<string | null>(null);
   const { user, isLoading: authLoading } = useAuth();
-  const { isNewUser, isLoading: userStateLoading } = useUserState();
+  // ✅ FIXED: Fetch model data once in parent component
+  const { isNewUser, isLoading: userStateLoading, hasTrainedModel, userModel } = useUserState();
   const [location] = useLocation();
 
   useEffect(() => {
@@ -260,6 +289,8 @@ const SselfieAppLayout: React.FC = () => {
             onTabChange={handleTabChange}
             initialPrompt={initialPrompt}
             onPromptUsed={() => setInitialPrompt(null)}
+            hasTrainedModel={hasTrainedModel}
+            userModel={userModel}
           />
         </div>
       </div>

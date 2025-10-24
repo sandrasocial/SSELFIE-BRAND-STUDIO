@@ -458,12 +458,28 @@ const initialState: BrandStudioState = {
 const BrandStudioContext = createContext<BrandStudioContextType | null>(null);
 
 // Provider component
-export function BrandStudioProvider({ children }: { children: React.ReactNode }) {
+// ✅ FIXED: Now accepts userModel from parent to provide model metadata to generation
+export function BrandStudioProvider({ children, userModel }: { children: React.ReactNode; userModel?: any }) {
   const [state, dispatch] = useReducer(brandStudioReducer, initialState);
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  
+
+  // ✅ FIXED: Store user model in state for use in generation
+  const [contextUserModel, setContextUserModel] = useState(userModel);
+
+  // Update context model when parent model changes
+  React.useEffect(() => {
+    if (userModel) {
+      console.log('✅ BrandStudioProvider: Received user model:', {
+        triggerWord: userModel.triggerWord,
+        trainingStatus: userModel.trainingStatus,
+        replicateVersionId: userModel.replicateVersionId
+      });
+      setContextUserModel(userModel);
+    }
+  }, [userModel]);
+
   // Polling state for generation tracking
   const [pollingGenerationId, setPollingGenerationId] = useState<string | null>(null);
   const [activeCardId, setActiveCardId] = useState<string | null>(null);
@@ -661,6 +677,7 @@ export function BrandStudioProvider({ children }: { children: React.ReactNode })
   });
 
   // Generate image mutation
+  // ✅ FIXED: Now uses user model data (trigger word, gender, model ID) for personalized generation
   const generateImageMutation = useMutation({
     mutationFn: async (cardId: string) => {
       const conceptCard = state.conceptCardsById[cardId];
@@ -673,7 +690,12 @@ export function BrandStudioProvider({ children }: { children: React.ReactNode })
         hasFluxPrompt: !!conceptCard.fluxPrompt,
         promptLength: typeof conceptCard.prompt === 'string' ? conceptCard.prompt.length : 0,
         fluxPromptLength: typeof conceptCard.fluxPrompt === 'string' ? conceptCard.fluxPrompt.length : 0,
-        fullCard: conceptCard
+        fullCard: conceptCard,
+        userModel: contextUserModel ? {
+          triggerWord: contextUserModel.triggerWord,
+          trainingStatus: contextUserModel.trainingStatus,
+          replicateVersionId: contextUserModel.replicateVersionId
+        } : null
       });
 
       const finalPrompt = conceptCard.fluxPrompt || conceptCard.prompt;
@@ -683,6 +705,7 @@ export function BrandStudioProvider({ children }: { children: React.ReactNode })
 
       console.log('🎨 GENERATE: Using prompt:', String(finalPrompt).substring(0, 100) + '...');
 
+      // ✅ FIXED: Pass user model data to backend for personalized generation
       // FIXED: Use correct endpoint /api/maya/generate (matches server handler)
       const response = await fetch('/api/maya/generate', {
         method: 'POST',
@@ -694,7 +717,8 @@ export function BrandStudioProvider({ children }: { children: React.ReactNode })
             title: conceptCard.title,
             description: conceptCard.description,
             fluxPrompt: finalPrompt
-          }
+          },
+          userModel: contextUserModel
         })
       });
 

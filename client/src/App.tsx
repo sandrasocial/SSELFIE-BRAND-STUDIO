@@ -15,6 +15,7 @@ import { initializeMobileOptimization } from "./utils/mobileOptimization.js";
 import { performanceMonitor } from "./utils/performanceMonitor.js";
 import RootWrapper from "./components/layout/RootWrapper";
 import { useAuth } from "./hooks/use-auth.js";
+import { useUserState } from "./hooks/useUserState.js";
 import { initializeRuntimeOptimization } from "./utils/runtimeOptimization.js";
 import { ROUTES } from "./constants/routes.js";
 import { MayaDiagnostic } from "./components/MayaDiagnostic.js";
@@ -52,22 +53,29 @@ import { AuthWrapper } from './features/auth/components/AuthWrapper.js';
 
 // Smart Home component - Routes users through simplified journey
 // NEW USER JOURNEY: Authentication → AI Training → Payment → App Studio
-// Simple Home component - Let Stack Auth handle authentication flow
+// ✅ FIXED: Now checks if user has trained model before routing
 function SmartHome() {
   const { user, isAuthenticated, isLoading } = useAuth({ silent: true });
+  const { hasTrainedModel, isLoading: userStateLoading } = useUserState();
 
-  if (isLoading) {
+  if (isLoading || userStateLoading) {
     return <PageLoader />;
   }
 
   if (isAuthenticated && user) {
-    // User is authenticated, redirect to main app
-    window.location.href = ROUTES.APP;
+    // ✅ FIXED: Route based on training status
+    if (hasTrainedModel) {
+      // User has trained model - go to Studio
+      console.log('✅ SmartHome: User has trained model, routing to /app/studio');
+      window.location.href = ROUTES.APP + '/studio';
+    } else {
+      // User needs to train model - go to Training
+      console.log('✅ SmartHome: User needs training, routing to /app/training');
+      window.location.href = ROUTES.APP + '/training';
+    }
     return <PageLoader />;
   } else {
     // User not authenticated, show business landing
-    // ✅ FIXED: Don't redirect, let the Router handle it
-    // This prevents the flash and redirect loop
     return <BusinessLanding />;
   }
 }

@@ -35,24 +35,29 @@ interface StyleOption {
 interface StudioScreenProps {
   onTabChange?: (tabId: string) => void;
   hasTrainedModel?: boolean;
+  userModel?: any;
 }
 
 // @ts-ignore - FC type compatibility with JSX.Element
-// Note: hasTrainedModel is optional - component queries API directly for current state
-const StudioScreen: React.FC<StudioScreenProps> = ({ onTabChange, hasTrainedModel }) => {
+// ✅ FIXED: Now accepts userModel from parent to avoid duplicate queries
+const StudioScreen: React.FC<StudioScreenProps> = ({ onTabChange, hasTrainedModel, userModel: parentUserModel }) => {
   const { user, isLoading: authLoading, isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
   const [selectedStyle, setSelectedStyle] = useState<StyleOption | null>(null);
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
   const [detailsExpanded, setDetailsExpanded] = useState(false);
 
-  const { data: userModel, isLoading: modelLoading, error } = useQuery({
+  // ✅ FIXED: Use parent model data if provided, otherwise query API (for backward compatibility)
+  const { data: queriedUserModel, isLoading: modelLoading, error } = useQuery({
     queryKey: ['/api/user-model'],
-    enabled: !!user && isAuthenticated,
+    enabled: !!user && isAuthenticated && !parentUserModel,
     retry: false,
     staleTime: 30 * 1000,
     queryFn: () => apiFetch('/user-model')
   });
+
+  // Use parent model data if provided, otherwise use queried data
+  const userModel = parentUserModel || queriedUserModel;
   // Gallery and Favorites stats for Studio KPIs (real endpoints)
   const { data: galleryImagesData } = useQuery({
     queryKey: ['/api/gallery-images'],
