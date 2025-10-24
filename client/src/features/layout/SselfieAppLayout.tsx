@@ -73,7 +73,7 @@ const TabBar: React.FC<TabBarProps> = ({ activeTab, onTabChange }) => {
   };
 
   return (
-    <div className="absolute bottom-3 sm:bottom-4 md:bottom-5 left-2 sm:left-3 md:left-4 right-2 sm:right-3 md:right-4">
+    <div className="w-full flex justify-center">
       <div className="bg-white/20 backdrop-blur-3xl rounded-[1.75rem] sm:rounded-[2rem] md:rounded-[2.5rem] border border-white/40 px-1.5 sm:px-2 md:px-3 py-2.5 sm:py-3 md:py-4 shadow-2xl shadow-stone-900/20">
         <div className="flex justify-around items-center">
           {tabs.map((tab) => {
@@ -240,16 +240,18 @@ const SselfieAppLayout: React.FC = () => {
   }
 
   return (
-    <div className="h-screen bg-gradient-to-br from-stone-50 via-stone-100/50 to-stone-50 relative overflow-hidden" style={{
+    <div className="h-screen bg-gradient-to-br from-stone-50 via-stone-100/50 to-stone-50 relative flex flex-col" style={{
       fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
     }}>
-      <div className="absolute inset-0">
+      {/* Background decorations */}
+      <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-stone-200/20 rounded-full blur-3xl"></div>
         <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-stone-300/20 rounded-full blur-3xl"></div>
       </div>
 
-      <div className="relative h-full mx-1 sm:mx-2 md:mx-3 pt-1 sm:pt-2 pb-28 sm:pb-28">
-        <div className="h-full bg-white/30 backdrop-blur-3xl rounded-[2rem] sm:rounded-[2.5rem] md:rounded-[3rem] border border-white/40 overflow-hidden shadow-2xl shadow-stone-900/10">
+      {/* Main content area - flex-1 to take available space */}
+      <div className="relative flex-1 mx-1 sm:mx-2 md:mx-3 pt-1 sm:pt-2 overflow-hidden">
+        <div className="h-full bg-white/30 backdrop-blur-3xl rounded-[2rem] sm:rounded-[2.5rem] md:rounded-[3rem] border border-white/40 overflow-hidden shadow-2xl shadow-stone-900/10 flex flex-col">
 
           <StatusBar currentTime={currentTime} />
 
@@ -262,7 +264,10 @@ const SselfieAppLayout: React.FC = () => {
         </div>
       </div>
 
-      <TabBar activeTab={activeTab} onTabChange={handleTabChange} />
+      {/* Bottom navigation - fixed positioning outside the card */}
+      <div className="relative mx-1 sm:mx-2 md:mx-3 pb-3 sm:pb-4 md:pb-5 pt-2 sm:pt-3">
+        <TabBar activeTab={activeTab} onTabChange={handleTabChange} />
+      </div>
     </div>
   );
 };
