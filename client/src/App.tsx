@@ -56,26 +56,46 @@ import { AuthWrapper } from './features/auth/components/AuthWrapper.js';
 // ✅ FIXED: Now checks if user has trained model before routing
 function SmartHome() {
   const { user, isAuthenticated, isLoading } = useAuth({ silent: true });
-  const { hasTrainedModel, isLoading: userStateLoading } = useUserState();
+  const { hasTrainedModel, isLoading: userStateLoading, userModel } = useUserState();
+
+  console.log('🏠 SmartHome: Render', {
+    isAuthenticated,
+    isLoading,
+    userStateLoading,
+    userId: user?.id?.substring(0, 8) + '...',
+    userEmail: user?.email,
+    hasTrainedModel,
+    trainingStatus: userModel?.trainingStatus
+  });
 
   if (isLoading || userStateLoading) {
+    console.log('⏳ SmartHome: Loading auth or user state...');
     return <PageLoader />;
   }
 
   if (isAuthenticated && user) {
-    // ✅ FIXED: Route based on training status
+    // ✅ FIXED: Route based on training status with enhanced logging
     if (hasTrainedModel) {
       // User has trained model - go to Studio
-      console.log('✅ SmartHome: User has trained model, routing to /app/studio');
+      console.log('✅ SmartHome: User has trained model, routing to /app/studio', {
+        userId: user.id?.substring(0, 8) + '...',
+        trainingStatus: userModel?.trainingStatus,
+        hasTrainedModel
+      });
       window.location.href = ROUTES.APP + '/studio';
     } else {
       // User needs to train model - go to Training
-      console.log('✅ SmartHome: User needs training, routing to /app/training');
+      console.log('✅ SmartHome: User needs training, routing to /app/training', {
+        userId: user.id?.substring(0, 8) + '...',
+        trainingStatus: userModel?.trainingStatus,
+        hasTrainedModel
+      });
       window.location.href = ROUTES.APP + '/training';
     }
     return <PageLoader />;
   } else {
     // User not authenticated, show business landing
+    console.log('🌐 SmartHome: User not authenticated, showing business landing');
     return <BusinessLanding />;
   }
 }
