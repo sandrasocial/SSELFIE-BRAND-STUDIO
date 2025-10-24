@@ -209,34 +209,64 @@ function isValidJWTFormat(token: string): boolean {
 /**
  * Extract JWT token from Stack Auth cookie format
  * Stack Auth stores tokens as: ["refreshToken", "accessToken"]
- * ✅ NEW: Handle Stack Auth's JSON array cookie format
+ * ✅ FIXED: Handle Stack Auth's JSON array cookie format properly
  */
 function extractTokenFromStackAuthCookie(cookieValue: string): string | undefined {
   try {
+    if (!cookieValue || cookieValue === 'undefined' || cookieValue === 'null') {
+      return undefined;
+    }
+
     // Try to parse as JSON array (Stack Auth format)
-    const decoded = decodeURIComponent(cookieValue);
+    let decoded = cookieValue;
+    
+    // Try URL decoding first
+    try {
+      decoded = decodeURIComponent(cookieValue);
+    } catch {
+      // If decoding fails, use original value
+      decoded = cookieValue;
+    }
 
     // Check if it looks like a JSON array
     if (decoded.startsWith('[')) {
       const parsed = JSON.parse(decoded);
 
       // Stack Auth format: ["refreshToken", "accessToken"]
-      if (Array.isArray(parsed) && parsed.length >= 2 && typeof parsed[1] === 'string') {
-        const token = parsed[1];
-        if (isValidJWTFormat(token)) {
-          console.log('✅ Extracted token from Stack Auth cookie array');
-          return token;
+      if (Array.isArray(parsed) && parsed.length >= 2) {
+        const accessToken = parsed[1];
+        if (accessToken && typeof accessToken === 'string' && accessToken !== 'undefined' && accessToken !== 'null') {
+          if (isValidJWTFormat(accessToken)) {
+            console.log('✅ Extracted token from Stack Auth cookie array:', cookieValue.substring(0, 30) + '...');
+            return accessToken;
+          }
         }
       }
     }
 
-    // Try direct JWT if not an array
+    // Check if it looks like a JSON object
+    if (decoded.startsWith('{')) {
+      const parsed = JSON.parse(decoded);
+      if (parsed.accessToken && typeof parsed.accessToken === 'string') {
+        if (isValidJWTFormat(parsed.accessToken)) {
+          console.log('✅ Extracted token from Stack Auth cookie object');
+          return parsed.accessToken;
+        }
+      }
+    }
+
+    // Try direct JWT if not an array or object
     if (isValidJWTFormat(decoded)) {
       console.log('✅ Found direct JWT in cookie');
       return decoded;
     }
+
+    console.warn('⚠️ No valid JWT found in cookie value:', decoded.substring(0, 50) + '...');
   } catch (error) {
-    console.warn('⚠️ Failed to parse Stack Auth cookie:', error);
+    console.warn('⚠️ Failed to parse Stack Auth cookie:', {
+      error: error instanceof Error ? error.message : error,
+      cookiePreview: cookieValue.substring(0, 50) + '...'
+    });
   }
 
   return undefined;
@@ -250,10 +280,14 @@ function extractTokenFromStackAuthCookie(cookieValue: string): string | undefine
 function extractToken(req: VercelRequest): string | undefined {
   const cookies = parseCookies(req.headers.cookie);
 
+  console.log('🔍 Available cookies:', Object.keys(cookies));
+
   // ✅ PRIMARY: Stack Auth's standard cookie name
   if (cookies['stack-access']) {
+    console.log('🔍 Found stack-access cookie, extracting token...');
     const token = extractTokenFromStackAuthCookie(cookies['stack-access']);
     if (token) {
+      console.log('✅ Successfully extracted token from stack-access cookie');
       return token;
     }
   }
@@ -268,12 +302,18 @@ function extractToken(req: VercelRequest): string | undefined {
   for (const name of fallbackCookieNames) {
     const cookieValue = cookies[name];
     if (cookieValue) {
+      console.log(`🔍 Trying fallback cookie: ${name}`);
       const token = extractTokenFromStackAuthCookie(cookieValue);
       if (token) {
+        console.log(`✅ Successfully extracted token from ${name} cookie`);
         return token;
       }
     }
   }
+
+  console.log('⚠️ No Stack Auth tokens found in cookies:', Object.keys(cookies).filter(key => 
+    key.includes('stack') || key.includes('auth') || key.includes('token')
+  ));
 
   // FALLBACK: Authorization header (Bearer token)
   const authHeader = req.headers.authorization;

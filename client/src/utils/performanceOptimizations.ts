@@ -3,28 +3,26 @@
  * Phase 3: Performance Optimization and Code Cleanup
  */
 
-// Image optimization
+// Image optimization - Updated to remove broken assets.sselfie.ai references
 export const optimizeImageLoading = () => {
-  // Preload critical images
-  const criticalImages = [
-    'https://assets.sselfie.ai/hero-homepage.webp',
-    'https://assets.sselfie.ai/hero-luxury.webp',
-    'https://assets.sselfie.ai/hero-about.webp',
-    'https://assets.sselfie.ai/hero-dashboard.webp',
-    // Preload fallback images as well
-    'https://assets.sselfie.ai/fallback/hero-homepage.jpg',
-    'https://assets.sselfie.ai/fallback/hero-luxury.jpg',
-    'https://assets.sselfie.ai/fallback/hero-about.jpg',
-    'https://assets.sselfie.ai/fallback/hero-dashboard.jpg'
-  ];
-
-  criticalImages.forEach(src => {
-    const link = document.createElement('link') as HTMLLinkElement;
-    link.rel = 'preload';
-    link.as = 'image';
-    link.href = src;
-    document.head.appendChild(link);
-  });
+  // Note: Removed broken assets.sselfie.ai preloading due to DNS resolution issues
+  // Hero sections now use stone gradient patterns for brand consistency
+  // This prevents network errors and improves performance
+  
+  console.log('🎨 SSELFIE Studio: Using stone gradient patterns for hero sections');
+  
+  // Optional: Preload any working static assets from main domain if needed
+  // const criticalAssets = [
+  //   '/images/logo.svg', // Example of working assets from main domain
+  // ];
+  
+  // criticalAssets.forEach(src => {
+  //   const link = document.createElement('link') as HTMLLinkElement;
+  //   link.rel = 'preload';
+  //   link.as = 'image';
+  //   link.href = src;
+  //   document.head.appendChild(link);
+  // });
 };
 
 // Bundle optimization
