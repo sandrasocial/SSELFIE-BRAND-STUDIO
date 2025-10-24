@@ -22,7 +22,9 @@ interface StartTrainingRequest {
 
 function ensureTmpDir(): string {
   const tmpDir = path.join('/tmp', 'sselfie-training');
-  try { if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir, { recursive: true }); } catch {}
+  try { if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir, { recursive: true }); } catch {
+      // Intentionally ignoring errors
+    }
   return tmpDir;
 }
 
@@ -94,7 +96,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
 
       // Cleanup temp files
-      localFiles.forEach((f) => { try { fs.unlinkSync(f); } catch {} });
+      localFiles.forEach((f) => { try { fs.unlinkSync(f); } catch {
+      // Intentionally ignoring errors
+    } });
 
       if (!result.success) {
         return res.status(200).json({ success: false, errors: [result.message], next: result.nextSteps || [] });

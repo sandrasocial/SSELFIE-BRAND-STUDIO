@@ -145,7 +145,6 @@ function SimpleTraining() {
           
           // Note: PostLoginHandler will handle routing to /app automatically
         }
-      } else {
       }
     }
   }, [userModel, trainingStatus, isAuthenticated]);
@@ -744,7 +743,6 @@ function SimpleTraining() {
                 onUploadComplete={(success) => {
                   if (success) {
                     setIsTrainingStarted(true);
-                  } else {
                   }
                 }}
                 onTrainingStart={() => {

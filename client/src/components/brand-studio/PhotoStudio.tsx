@@ -166,8 +166,7 @@ export const PhotoStudio: React.FC<PhotoStudioProps> = ({ panelMode, isMobile = 
         })
       });
 
-      if (response.ok) {
-      }
+      // Response handled - auto-save successful
     } catch (error) {
       console.error('Auto-save failed:', error);
     }

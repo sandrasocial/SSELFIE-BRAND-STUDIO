@@ -31,6 +31,7 @@ export function useEnhancedToast() {
 
     // Log for development
     if (import.meta.env.DEV) {
+      // Development logging disabled for now
     }
   };
 

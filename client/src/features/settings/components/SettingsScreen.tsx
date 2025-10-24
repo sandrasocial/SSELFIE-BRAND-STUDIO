@@ -55,7 +55,9 @@ const SettingsScreen: React.FC<Props> = ({ onBack }) => {
         await (stackUser as any).signOut();
         return;
       }
-    } catch {}
+    } catch {
+      // Ignore sign out errors, fallback to server endpoint
+    }
     // Fallback to server endpoint
     window.location.href = '/api/logout';
   };

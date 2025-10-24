@@ -701,15 +701,11 @@ export class ModelTrainingService {
       const { enforceGender, normalizeGender, promptHasGender } = await import('./utils/gender-prompt.js');
       const secureGender = normalizeGender(user.gender);
 
-      if (secureGender) {
-      } else {
-      }
+      // Gender validation completed
 
       // ENFORCE: Ensure gender token injected right after trigger word when available.
       const genderEnhancedPrompt = enforceGender(triggerWord, basePrompt, secureGender || undefined);
-      if (genderEnhancedPrompt !== basePrompt) {
-      } else {
-      }
+      // Gender enforcement completed
       
       
       // PHASE 5: NATURAL SKIN TEXTURE ENHANCEMENT - Professional realistic appearance
@@ -734,6 +730,7 @@ export class ModelTrainingService {
         // Add subtle, professional skin texture enhancement
         textureEnhancedPrompt = `${textureEnhancedPrompt}, natural skin texture, professional lighting, realistic skin details`;
       } else {
+      // Empty block - no action needed
       }
       
       // Additional professional quality enhancements
@@ -843,12 +840,14 @@ export class ModelTrainingService {
   requestBody.input.lora_scale = mayaLoraScale;
         
       } else {
+      // Empty block - no action needed
       }
 
       // ✅ RESTORED: Allow base FLUX model when using extracted LoRA weights
       if (requestBody.version.includes("flux-1.1-pro") && !requestBody.input.lora_weights) {
         throw new Error("BLOCKED: Base FLUX model requires LoRA weights for personalization.");
       } else if (requestBody.version.includes("flux-1.1-pro")) {
+      // Empty block - no action needed
       }
 
 

@@ -59,7 +59,9 @@ async function ensureEmailPasswordMode(page: any) {
         await el.click({ delay: 50 }).catch(() => {});
         break;
       }
-    } catch {}
+    } catch {
+      // Intentionally ignoring errors
+    }
   }
 }
 
@@ -76,7 +78,9 @@ async function switchToSignUpIfPresent(page: any) {
         await el.click({ delay: 50 }).catch(() => {});
         break;
       }
-    } catch {}
+    } catch {
+      // Intentionally ignoring errors
+    }
   }
 }
 
@@ -108,7 +112,9 @@ async function fillEmailPassword(page: any, email: string, password: string) {
         await el.fill(password);
         break;
       }
-    } catch {}
+    } catch {
+      // Intentionally ignoring errors
+    }
   }
 }
 

@@ -50,7 +50,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             const arr = JSON.parse(String(t.imageUrls));
             if (Array.isArray(arr)) count = arr.length;
           }
-        } catch {}
+        } catch {
+      // Intentionally ignoring errors
+    }
         return {
           id: `tracker_${String(t?.id ?? Math.random())}`,
           createdAt: new Date(t?.updatedAt || t?.createdAt || Date.now()),
@@ -83,7 +85,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           try {
             const arr = img?.imageUrls ? JSON.parse(String(img.imageUrls)) : [];
             if (Array.isArray(arr)) count = arr.length;
-          } catch {}
+          } catch {
+      // Intentionally ignoring errors
+    }
           return {
             id: `gen_${String(img?.id ?? Math.random())}`,
             createdAt: new Date(img?.createdAt || Date.now()),

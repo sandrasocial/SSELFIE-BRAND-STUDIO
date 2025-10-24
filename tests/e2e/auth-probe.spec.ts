@@ -33,7 +33,9 @@ test('OAuth callback route mounts and logs', async ({ page, baseURL }) => {
       page.waitForURL(/\/handler\/sign-in/i, { timeout: 10000 }),
     ]);
     mounted = true;
-  } catch {}
+  } catch {
+      // Intentionally ignoring errors
+    }
 
   const loggedProcessing = logs.some(l => /Processing OAuth callback/i.test(l));
 
@@ -89,7 +91,9 @@ test('Environment variables present (debug endpoint)', async ({ request, baseURL
       'STACK_SECRET_SERVER_KEY',
     ];
     present = ok && keys.every(k => data?.[k]?.present === true || typeof data?.[k] === 'boolean');
-  } catch {}
+  } catch {
+      // Intentionally ignoring errors
+    }
   results['Env vars configured'] = yesNo(present);
 });
 

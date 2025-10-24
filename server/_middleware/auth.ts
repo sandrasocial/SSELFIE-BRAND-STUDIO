@@ -260,7 +260,9 @@ export async function getAuthenticatedUser(req: VercelRequest): Promise<Authenti
   // DEBUG: Log full JWT payload and key fields to trace mapping
   try {
     console.log('🔐 JWT payload:', JSON.stringify(userInfo, null, 2));
-  } catch {}
+  } catch {
+      // Intentionally ignoring errors
+    }
 
   // Extract user info from JWT
   const stackAuthId = String(userInfo.sub || userInfo.user_id || userInfo.id || '');
