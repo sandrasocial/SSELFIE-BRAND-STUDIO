@@ -1,0 +1,98 @@
+# LEGACY FILES - SAFE FOR DELETION
+# All files verified as NOT IMPORTED and NOT REFERENCED
+# Total: 95 files
+
+## CATEGORY 1: LEGACY EXPRESS ROUTES (17 files)
+server/routes/agent-insights-data.ts
+server/routes/auth.ts
+server/routes/checkout.ts
+server/routes/concept-cards.ts
+server/routes/cover-image-routes.ts
+server/routes/email-automation.ts
+server/routes/email-management-routes.ts
+server/routes/health-check.ts
+server/routes/images.ts
+server/routes/inpaint.ts
+server/routes/instagram-management.ts
+server/routes/levelpartner-webhook.ts
+server/routes/system-health.ts
+server/routes/vertical-slice.ts
+server/routes/video.ts
+server/routes/video_storyboard.ts
+server/routes/maya.js
+
+## CATEGORY 2: LEGACY MIDDLEWARE (6 files)
+server/middleware/admin-context.ts
+server/middleware/errorHandler.ts
+server/middleware/rate-limiter.ts
+server/middleware/security.ts
+server/routes/middleware/auth.ts
+server/routes/middleware/error-handler.ts
+
+## CATEGORY 3: DEPRECATED/PLACEHOLDER FILES (47 files)
+server/stack-auth.ts
+server/image-compression-placeholder.ts
+server/config/security-placeholder.js
+server/maya-diagnostic.ts
+server/auth-diagnostic.ts
+server/health-detailed.ts
+server/ping.ts
+server/verify-user-isolation.js
+server/test-db.ts
+server/env-setup.ts
+server/health-check.ts
+server/health.ts
+server/gallery-images.ts
+server/user-model.ts
+server/sandra-images.ts
+server/server/storage.ts
+server/services/unified-maya-intelligence-service-BACKUP.ts
+server/services/maya-service-refactored.ts
+server/services/claude-api-service-simple.ts
+server/services/bulletproof-upload-service-refactored.ts
+server/bulletproof-upload-service.ts
+server/image-storage-service.ts
+server/maya-chat-preview-service.ts
+server/admin/check-tables.ts
+server/admin/env-diagnostic.ts
+server/admin/export-user-metadata.ts
+server/admin/repair-users.ts
+server/migration-monitor.ts
+server/generation-completion-monitor.ts
+server/training-completion-monitor.ts
+server/model-training-service.ts
+server/model-validation-service.ts
+server/monitoring.ts
+server/create-maya-tables.ts
+server/cron.ts
+server/retrain-model.ts
+server/user-sync-repair.ts
+server/architecture-validator.ts
+
+## CATEGORY 4: LEGACY MAYA/VIDEO MODULES (13 files)
+server/maya/payments/index.ts
+server/maya/concepts/index.ts
+server/maya/images/index.ts
+server/maya/models/index.ts
+server/maya/profile/index.ts
+server/video/draft-storyboard.ts
+server/video/generate-from-image.ts
+server/video/generate-story.ts
+server/video/save.ts
+server/video/status.ts
+server/realtime/live-sessions.ts
+
+## CATEGORY 5: TEST/DEBUG FILES (5 files)
+debug-test.js
+test-auth-middleware.js
+test-auth.js
+test-jwt.js
+playwright.auth-probe.config.ts
+
+## CATEGORY 6: EMPTY DIRECTORIES (after file deletion)
+server/routes/middleware/
+server/maya/
+server/video/
+server/realtime/
+server/admin/scripts/
+
