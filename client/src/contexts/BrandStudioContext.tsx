@@ -320,7 +320,7 @@ function brandStudioReducer(state: BrandStudioState, action: BrandStudioAction):
       // FIXED: Set messages atomically (for history loading)
       return { ...state, messages: action.payload };
       
-    case 'ADD_MESSAGE':
+    case 'ADD_MESSAGE': {
       // Extract concept cards if present and add to conceptCardsById
       const newMessage = action.payload;
       const updatedConceptCardsById = { ...state.conceptCardsById };
@@ -339,6 +339,7 @@ function brandStudioReducer(state: BrandStudioState, action: BrandStudioAction):
         conceptCardsById: updatedConceptCardsById,
         pendingMessageIds: state.pendingMessageIds.filter(id => id !== newMessage.id)
       };
+    }
       
     case 'SET_TYPING':
       return { ...state, isTyping: action.payload };
@@ -355,14 +356,15 @@ function brandStudioReducer(state: BrandStudioState, action: BrandStudioAction):
         pendingMessageIds: state.pendingMessageIds.filter(id => id !== action.payload)
       };
       
-    case 'UPDATE_CONCEPT_CARDS':
+    case 'UPDATE_CONCEPT_CARDS': {
       const conceptCardsById = { ...state.conceptCardsById };
       action.payload.forEach(card => {
         conceptCardsById[card.id] = card;
       });
       return { ...state, conceptCardsById };
+    }
       
-    case 'UPDATE_CONCEPT_CARD_STATUS':
+    case 'UPDATE_CONCEPT_CARD_STATUS': {
       const existingCard = state.conceptCardsById[action.payload.cardId];
       if (!existingCard) return state;
       
@@ -376,6 +378,7 @@ function brandStudioReducer(state: BrandStudioState, action: BrandStudioAction):
           }
         }
       };
+    }
       
     case 'SELECT_CONCEPT_CARD':
       return { ...state, selectedConceptCardId: action.payload };
@@ -403,7 +406,7 @@ function brandStudioReducer(state: BrandStudioState, action: BrandStudioAction):
         }
       };
       
-    case 'UPDATE_POLLING':
+    case 'UPDATE_POLLING': {
       const existingPoll = state.pollingGenerations[action.payload.jobId];
       if (!existingPoll) return state;
       
@@ -417,13 +420,15 @@ function brandStudioReducer(state: BrandStudioState, action: BrandStudioAction):
           }
         }
       };
+    }
       
-    case 'STOP_POLLING':
+    case 'STOP_POLLING': {
       const { [action.payload]: _, ...remainingPolls } = state.pollingGenerations;
       return {
         ...state,
         pollingGenerations: remainingPolls
       };
+    }
       
     case 'CLEAR_CONVERSATION':
       return {

@@ -60,10 +60,11 @@ export class LuxuryPerformanceOptimizer {
             case 'largest-contentful-paint':
               this.metrics.largestContentfulPaint = entry.startTime;
               break;
-            case 'layout-shift':
+            case 'layout-shift': {
               const layoutShiftEntry = entry as PerformanceEntry & { value: number };
               this.metrics.cumulativeLayoutShift += layoutShiftEntry.value;
               break;
+            }
           }
         }
       });
