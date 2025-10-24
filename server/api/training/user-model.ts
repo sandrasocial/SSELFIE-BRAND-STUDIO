@@ -17,9 +17,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    // ✅ FIXED: getUserFromRequest returns a properly linked database user
-    // It already handles Stack Auth ID linking via resolveUserWithAutoLinking
-    const dbUser = await getUserFromRequest(req);
+    // ✅ FIXED: When called through withAuth middleware, req.user is already set as AuthenticatedUser
+    // When called directly (legacy), fall back to getUserFromRequest
+    let dbUser = (req as any).user;
+
+    if (!dbUser) {
+      console.log('⚠️ No user attached to request, attempting getUserFromRequest fallback');
+      dbUser = await getUserFromRequest(req);
+    }
+
     if (!dbUser) {
       return sendUnauthorized(res);
     }

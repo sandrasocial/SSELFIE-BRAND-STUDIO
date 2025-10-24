@@ -123,7 +123,15 @@ export async function resolveUserWithAutoLinking(stackAuthId: string, email?: st
  */
 export async function getUserFromRequest(req: any): Promise<User> {
   try {
-    // Extract user from Stack Auth JWT
+    // ✅ FIXED: Handle both middleware-attached user and JWT extraction
+
+    // Case 1: User already attached by withAuth middleware (new pattern)
+    if (req.user && req.user.id && !req.user.claims) {
+      console.log(`✅ AUTH: User already attached by middleware: ${req.user.id}`);
+      return req.user;
+    }
+
+    // Case 2: Extract user from Stack Auth JWT (legacy pattern)
     const stackAuthUser = req.user?.claims?.sub;
     const userEmail = req.user?.claims?.email || req.user?.claims?.primary_email || req.user?.claims?.primaryEmail || req.user?.claims?.email_address || req.user?.claims?.user_email;
 
