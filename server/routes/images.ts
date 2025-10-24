@@ -1,14 +1,28 @@
 /**
  * Image Routes
- * Handles image variations and related functionality
+ * ⚠️ DEPRECATED: This Express router uses legacy Stack Auth imports
+ * Image handling is now handled by api/images/* serverless functions
+ * This file is kept for reference only
  */
 
 import { Router, Request, Response } from 'express';
-import { requireStackAuth } from './middleware/auth.js';
 import { asyncHandler, createError, sendSuccess, validateRequired } from './middleware/error-handler.js';
 import { ImageVariationsService, VariationRequest } from '../services/images/variations.js';
 import { storage } from '../storage.js';
-import { StackAuthUser } from '../stack-auth.js';
+
+// Legacy type definition (kept for reference)
+interface StackAuthUser {
+  id: string;
+  email?: string;
+}
+
+// Legacy middleware stub (kept for reference)
+const requireStackAuth = (req: Request, res: Response, next: Function) => {
+  return res.status(501).json({
+    error: 'Deprecated endpoint',
+    message: 'Use api/images/* serverless functions instead'
+  });
+};
 
 // Define request types for type safety
 interface AuthenticatedRequest extends Request {

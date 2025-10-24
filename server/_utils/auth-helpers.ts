@@ -1,42 +1,13 @@
 /**
- * Pure Serverless Authentication Helpers
- * 
- * Replaces Express middleware with direct function calls for auth validation.
- * No Express types, no middleware chain - just pure functions.
+ * Enhanced Authentication Helpers
+ * Centralized user authentication and linking logic for SSELFIE Studio
+ *
+ * NOTE: JWT verification is now handled by server/_middleware/auth.ts
+ * This file contains user resolution and linking utilities only.
  */
 
 import type { VercelRequest } from '@vercel/node';
-import { jwtVerify, createRemoteJWKSet } from 'jose';
 import { storage } from '../storage.js';
-import { STACK_PROJECT_ID, STACK_JWKS_URL, STACK_ISSUER } from '../config/env.js';
-
-// JWKS resolver (uses centralized environment configuration)
-const remoteJwks = createRemoteJWKSet(new URL(STACK_JWKS_URL));
-
-/**
- * Verify JWT token and get payload
- */
-async function verifyJWTToken(token: string): Promise<any> {
-  try {
-    const { payload } = await jwtVerify(token, remoteJwks, {
-      issuer: STACK_ISSUER,
-      audience: STACK_PROJECT_ID,
-    });
-    return payload;
-  } catch (error) {
-    throw new Error(`JWT verification failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
-  }
-}
-
-/**
- * Extract and validate user from Bearer token in request headers
- * @returns User object if authenticated, null otherwise
- */
-/**
- * Enhanced Authentication Helpers
- * Centralized user authentication and linking logic for SSELFIE Studio
- */
-
 import { getDatabase, type IStorage } from '../../shared/database-provider.js';
 import type { User, InsertUser } from '../../shared/types-override.js';
 

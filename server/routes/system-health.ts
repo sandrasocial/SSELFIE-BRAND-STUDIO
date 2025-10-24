@@ -1,5 +1,16 @@
-import { Router } from 'express';
-import { requireStackAuth } from '../stack-auth.js'
+import { Router, Request, Response } from 'express';
+
+// ⚠️ DEPRECATED: This Express router uses legacy Stack Auth imports
+// System health is now handled by api/system/* serverless functions
+// This file is kept for reference only
+
+// Legacy middleware stub (kept for reference)
+const requireStackAuth = (req: Request, res: Response, next: Function) => {
+  return res.status(501).json({
+    error: 'Deprecated endpoint',
+    message: 'Use api/system/* serverless functions instead'
+  });
+};
 
 const router = Router();
 

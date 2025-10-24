@@ -7,10 +7,13 @@
  */
 
 import { Router, Request, Response } from 'express';
-import { requireStackAuth } from '../stack-auth.js';
 import { storage } from '../storage.js';
 import { insertConceptCardSchema } from '../../shared/schema.js';
 import { z } from 'zod';
+
+// ⚠️ DEPRECATED: This Express router is no longer used in the serverless architecture
+// Concept cards are now handled by api/concept-cards/* serverless functions
+// This file is kept for reference only
 
 // Import the correct type from shared types
 import type { AuthenticatedRequest } from '../../shared/types/ai-generation.js';

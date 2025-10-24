@@ -1,7 +1,18 @@
 import { Router, Request, Response } from 'express';
 import { instagramIntegration } from '../services/instagram-integration.js';
-import { requireStackAuth } from '../stack-auth.js'
 import { SlackNotificationService } from '../services/slack-notification-service.js';
+
+// ⚠️ DEPRECATED: This Express router uses legacy Stack Auth imports
+// Instagram management is now handled by api/instagram/* serverless functions
+// This file is kept for reference only
+
+// Legacy middleware stub (kept for reference)
+const requireStackAuth = (req: Request, res: Response, next: Function) => {
+  return res.status(501).json({
+    error: 'Deprecated endpoint',
+    message: 'Use api/instagram/* serverless functions instead'
+  });
+};
 
 const router = Router();
 

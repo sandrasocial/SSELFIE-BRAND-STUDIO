@@ -1,13 +1,20 @@
 /**
  * Video Storyboard API Routes
- * Multi-scene video composition endpoint
+ * ⚠️ DEPRECATED: This Express router uses legacy Stack Auth imports
+ *
+ * Video storyboard is now handled by api/video/* serverless functions
+ * This file is kept for reference only
  */
 
 import * as express from 'express';
 import { Request, Response } from 'express';
-import { requireStackAuth } from '../stack-auth.js'
 import { GoogleGenAI, Type } from '@google/genai';
-import { StackAuthUser } from '../stack-auth.js';
+
+// Legacy type definition (kept for reference)
+interface StackAuthUser {
+  id: string;
+  email?: string;
+}
 
 // Define request types for type safety
 interface AuthenticatedRequest extends Request {

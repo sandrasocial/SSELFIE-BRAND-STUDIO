@@ -1,8 +1,17 @@
 // SSELFIE Studio Email Automation Routes
-// Triggers for automatic email sending
+// ⚠️ DEPRECATED: This Express router uses legacy Stack Auth imports
+// Email automation is now handled by api/email/* serverless functions
+// This file is kept for reference only
 
-import { Router } from 'express';
-import { requireStackAuth } from '../stack-auth.js'
+import { Router, Request, Response } from 'express';
+
+// Legacy middleware stub (kept for reference)
+const requireStackAuth = (req: Request, res: Response, next: Function) => {
+  return res.status(501).json({
+    error: 'Deprecated endpoint',
+    message: 'Use api/email/* serverless functions instead'
+  });
+};
 import { 
   sendWelcomeEmail, 
   sendTrainingCompleteEmail, 
