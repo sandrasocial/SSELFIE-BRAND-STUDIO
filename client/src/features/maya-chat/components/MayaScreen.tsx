@@ -137,11 +137,37 @@ const MayaChatContent: React.FC<MayaChatContentProps> = ({ initialPrompt, onProm
 interface MayaScreenProps {
   initialPrompt?: string | null;
   onPromptUsed?: () => void;
+  hasTrainedModel?: boolean;
+  userModel?: any;
 }
 
 // @ts-ignore - FC type compatibility with JSX.Element
-const MayaScreen: React.FC<MayaScreenProps> = ({ initialPrompt, onPromptUsed }) => {
+// ✅ FIXED: Now accepts model data and validates before showing Maya
+const MayaScreen: React.FC<MayaScreenProps> = ({ initialPrompt, onPromptUsed, hasTrainedModel, userModel }) => {
   const { user, isAuthenticated, isLoading } = useAuth();
+
+  // ✅ FIXED: Check if user has trained model before allowing Maya access
+  if (!isLoading && isAuthenticated && user && !hasTrainedModel) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <div className="text-center p-8">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-stone-100 flex items-center justify-center">
+            <Camera size={32} className="text-stone-400" />
+          </div>
+          <h3 className="text-lg font-serif font-light text-stone-950 mb-2">Complete Your Model Training First</h3>
+          <p className="text-sm text-stone-600 mb-6">
+            You need to complete your model training before you can use Maya AI to generate personalized photos.
+          </p>
+          <button
+            onClick={() => window.location.href = '/app/training'}
+            className="px-6 py-2 bg-stone-900 text-white rounded-lg hover:bg-stone-800 transition"
+          >
+            Go to Training
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   // Check if user has Maya AI access
   if (!isLoading && isAuthenticated && user && !user.mayaAiAccess) {
@@ -161,7 +187,7 @@ const MayaScreen: React.FC<MayaScreenProps> = ({ initialPrompt, onPromptUsed }) 
   }
 
   return (
-    <BrandStudioProvider>
+    <BrandStudioProvider userModel={userModel}>
       <MayaChatContent initialPrompt={initialPrompt} onPromptUsed={onPromptUsed} />
     </BrandStudioProvider>
   );
