@@ -93,25 +93,30 @@ async function getJWKS() {
 
 // Verify JWT token with improved error handling
 async function verifyJWTToken(token: string): Promise<JWTPayload & StackAuthUserInfo> {
-  
+
   try {
     const jose = await import('jose');
     const jwks = await getJWKS();
-    
+
     if (!jwks) {
       throw new Error('JWKS not available - authentication service unreachable');
     }
 
-    // Verify JWT token
-
+    // ✅ NEW: Support both regular and anonymous user tokens
+    // Regular tokens: issuer = https://api.stack-auth.com/api/v1/projects/{projectId}
+    // Anonymous tokens: issuer = https://api.stack-auth.com/api/v1/projects-anonymous-users/{projectId}
+    const anonymousIssuer = STACK_ISSUER.replace(
+      '/projects/',
+      '/projects-anonymous-users/'
+    );
 
     const { payload } = await jose.jwtVerify(token, jwks as any, {
-      issuer: STACK_ISSUER,
-      audience: STACK_PROJECT_ID,
+      issuer: [STACK_ISSUER, anonymousIssuer],
+      audience: [STACK_PROJECT_ID, `${STACK_PROJECT_ID}:anon`],
       clockTolerance: 30, // Allow 30 seconds clock skew
     });
 
-    
+
     return payload as JWTPayload & StackAuthUserInfo;
   } catch (error) {
     console.error('❌ JWT verification failed:', {
@@ -119,7 +124,7 @@ async function verifyJWTToken(token: string): Promise<JWTPayload & StackAuthUser
       tokenLength: token.length,
       tokenPrefix: token.substring(0, 20) + '...'
     });
-    
+
     throw new Error(`JWT verification failed: ${(error as Error).message}`);
   }
 }
@@ -154,22 +159,29 @@ export async function getAuthenticatedUser(req: VercelRequest): Promise<Authenti
       // Helper function to extract JWT from Stack Auth cookie format
       const tryParseAccessFromCookieValue = (val: unknown): string | undefined => {
         if (!val || typeof val !== 'string') return undefined;
-        
+
         // If it already looks like a JWT, return it
         if (val.split('.').length === 3) {
+          console.log('✅ Found direct JWT in cookie');
           return val;
         }
-        
+
         // Try to parse as JSON array format: ["token_id", "jwt"]
         try {
           const parsed = JSON.parse(val);
           if (Array.isArray(parsed) && parsed.length >= 2 && typeof parsed[1] === 'string') {
-            return parsed[1];
+            const token = parsed[1];
+            // Validate extracted token is a JWT
+            if (token.split('.').length === 3) {
+              console.log('✅ Extracted token from Stack Auth cookie array');
+              return token;
+            }
           }
-        } catch {
+        } catch (e) {
           // Not JSON, continue with other attempts
+          console.warn('⚠️ Failed to parse cookie as JSON:', e instanceof Error ? e.message : e);
         }
-        
+
         return undefined;
       };
       
@@ -208,11 +220,19 @@ export async function getAuthenticatedUser(req: VercelRequest): Promise<Authenti
   }
 
   if (!accessToken) {
+    console.warn('⚠️ No valid authentication token found', {
+      hasCookies: !!req.headers.cookie,
+      hasAuthHeader: !!authHeader,
+      hasCustomHeader: !!req.headers['x-stack-access-token']
+    });
     throw new Error('No access token found');
   }
 
   // Extract and validate JWT token
-
+  console.log('✅ Token extracted successfully', {
+    tokenLength: accessToken.length,
+    tokenPrefix: accessToken.substring(0, 20) + '...'
+  });
 
   // Verify JWT token
   const userInfo = await verifyJWTToken(accessToken);
