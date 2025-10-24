@@ -6,8 +6,8 @@
  */
 
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { withAuth } from '../../_middleware/auth';
-import type { AuthenticatedRequest } from '../../_shared/auth-types';
+import { withAuth } from '../../_middleware/auth.js';
+import type { AuthenticatedRequest } from '../../_shared/auth-types.js';
 
 interface UserProfile {
   id: string;
