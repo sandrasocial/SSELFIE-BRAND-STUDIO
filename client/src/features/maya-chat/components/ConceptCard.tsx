@@ -51,7 +51,7 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
         <div className="flex items-center justify-between">
           <div className="px-4 py-2 bg-stone-100 backdrop-blur-xl rounded-full border border-stone-200 shadow-inner">
             <span className="text-xs tracking-wider uppercase font-semibold text-stone-950">
-              {String(card.creativeLook || (card as any).category || 'Concept')}
+              {String(card.creativeLook || card.title || 'Concept')}
             </span>
           </div>
           <div className="w-2 h-2 rounded-full bg-stone-950 shadow-lg shadow-stone-900/50"></div>

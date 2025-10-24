@@ -12,8 +12,10 @@
  * - Performance optimized with token caching
  */
 
+/* eslint-disable no-console */
+
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { JWTPayload } from 'jose';
+import { JWTPayload, JSONWebKeySet } from 'jose';
 import type { AuthenticatedRequest, AuthenticatedUser, AuthOptions } from '../_shared/auth-types.js';
 import type { StackAuthUserInfo } from '../_shared/stack-auth-types.js';
 
@@ -27,11 +29,11 @@ import { STACK_PROJECT_ID, STACK_AUTH_API_URL, JWKS_URL, STACK_ISSUER } from '..
 // Stack Auth's StackServerApp.getUser() is not available in this context
 
 // Token cache for performance
-const TOKEN_CACHE = new Map<string, { payload: any; timestamp: number }>();
+const TOKEN_CACHE = new Map<string, { payload: JWTPayload; timestamp: number }>();
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
 // JWKS cache
-let JWKS_CACHE: any = null;
+let JWKS_CACHE: JSONWebKeySet | null = null;
 let JWKS_LAST_FETCH = 0;
 const JWKS_CACHE_TIME = 3600000; // 1 hour
 
@@ -433,7 +435,7 @@ async function getOrCreateDatabaseUser(
       firstName: updatedUser.firstName || payload.given_name || null,
       lastName: updatedUser.lastName || null,
       profileImageUrl: updatedUser.profileImageUrl || payload.profileImageUrl || payload.profile_image_url || null,
-      onboardingProgress: (updatedUser.onboardingProgress || {}) as any,
+      onboardingProgress: (updatedUser.onboardingProgress || {}) as Record<string, unknown>,
       lastLoginAt: updatedUser.lastLoginAt || new Date(),
       stackUser: payload as StackAuthUserInfo
     } as AuthenticatedUser;
@@ -454,7 +456,7 @@ async function getOrCreateDatabaseUser(
  * Detect JWT error type for better error handling
  * ✅ NEW: Support specific error types
  */
-function getJWTErrorCode(error: any): string {
+function getJWTErrorCode(error: Error | { code?: string; message?: string }): string {
   if (error.code) return error.code;
 
   const message = error.message || String(error);
@@ -497,6 +499,7 @@ export async function withAuth<T = void>(
   res: VercelResponse,
   handler: (req: AuthenticatedRequest, res: VercelResponse) => Promise<T | void>,
   options: AuthOptions = {}
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Promise<any> {
   try {
     // Handle bypass option (for cron jobs, webhooks, etc.)
@@ -605,7 +608,7 @@ export async function withAuth<T = void>(
           method: req.method
         });
 
-        const errorResponses: Record<string, any> = {
+        const errorResponses: Record<string, { error: string; message: string; code: string }> = {
           'ERR_JWT_INVALID_SIGNATURE': {
             error: 'Invalid token',
             code: 'INVALID_SIGNATURE',

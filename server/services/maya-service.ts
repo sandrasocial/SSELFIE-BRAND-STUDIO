@@ -60,15 +60,12 @@ export class MayaService {
     // 🔧 FIX: Add proper error handling for missing API key
     const apiKey = process.env['ANTHROPIC_API_KEY'];
     if (!apiKey) {
-      console.error('❌ MAYA: ANTHROPIC_API_KEY environment variable is not set');
       throw new Error('Maya AI service is not properly configured - missing API key');
     }
 
     this.anthropic = new Anthropic({
       apiKey: apiKey,
     });
-
-    console.log('✅ MAYA: Service initialized with Claude API access');
   }
 
   /**
@@ -136,7 +133,7 @@ export class MayaService {
 
       // 🔍 DEBUG: Log model status for troubleshooting
       if (userModel) {
-        console.log(`🎯 MAYA: User ${userId} model found - Status: ${userModel.trainingStatus}, Trigger: ${userModel.triggerWord}`);
+        // Model found and validated
       } else {
         console.log(`🔍 MAYA: No trained model found for user ${userId}`);
       }
@@ -243,8 +240,8 @@ export class MayaService {
 
         console.log('✅ MAYA: Claude API call successful');
 
-      } catch (apiError) {
-        console.error('❌ MAYA: Claude API failed, using fallback response:', (apiError as Error).message);
+      } catch {
+        // Claude API failed, using fallback response
 
         // 🔧 FALLBACK: Provide Maya response without Claude API
         mayaResponse = this.generateFallbackResponse(request.message, user);

@@ -56,7 +56,7 @@ import {
   brandOnboarding,
   // videoStoryboards, // Table doesn't exist in current DB
 } from '../../../shared/schema.js';
-import { eq, isNotNull, sql } from 'drizzle-orm';
+import { eq, isNotNull } from 'drizzle-orm';
 
 // Use websocket connection for transaction support
 const DATABASE_URL = process.env.DATABASE_URL || process.env.NEON_DB_URL || '';
@@ -188,6 +188,7 @@ async function migrateImageUserIds(): Promise<void> {
           console.log(`   📦 Updating tables (in transaction):`);
 
           // Helper function to update a table within transaction
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const updateTable = async (tableName: string, table: any) => {
             const result = await tx
               .update(table)

@@ -29,13 +29,13 @@ export interface ConceptCard {
   isSelected?: boolean;
   
   // Status and ordering
-  status?: 'draft' | 'final';
+  status?: 'draft' | 'final' | 'active';
   sortOrder?: number;
   
   // Visual properties
   emoji?: string;
   category?: string;
-  type?: 'portrait' | 'flatlay' | 'lifestyle';
+  type?: 'portrait' | 'flatlay' | 'lifestyle' | 'professional';
   creativeLook?: string;
   creativeLookDescription?: string;
   
@@ -51,7 +51,7 @@ export interface ConceptCard {
 export interface ServerConceptCard extends ConceptCard {
   // Server-side required properties
   userId: string;
-  status: 'draft' | 'final';
+  status: 'draft' | 'final' | 'active';
   sortOrder: number;
   isLoading: boolean;
   isGenerating: boolean;
@@ -64,7 +64,7 @@ export interface ClientConceptCard extends ConceptCard {
   // Client-side required properties
   title: string;
   description: string;
-  type?: 'portrait' | 'flatlay' | 'lifestyle';
+  type?: 'portrait' | 'flatlay' | 'lifestyle' | 'professional';
 }
 
 // For creating new concept cards
@@ -75,11 +75,11 @@ export interface CreateConceptCardData {
   clientId?: string;
   images?: string[];
   tags?: string[];
-  status?: 'draft' | 'final';
+  status?: 'draft' | 'final' | 'active';
   sortOrder?: number;
   fluxPrompt?: string;
   category?: string;
-  type?: 'portrait' | 'flatlay' | 'lifestyle';
+  type?: 'portrait' | 'flatlay' | 'lifestyle' | 'professional';
 }
 
 // For updating concept cards
@@ -88,11 +88,11 @@ export interface UpdateConceptCardData {
   description?: string;
   images?: string[];
   tags?: string[];
-  status?: 'draft' | 'final';
+  status?: 'draft' | 'final' | 'active';
   sortOrder?: number;
   fluxPrompt?: string;
   category?: string;
-  type?: 'portrait' | 'flatlay' | 'lifestyle';
+  type?: 'portrait' | 'flatlay' | 'lifestyle' | 'professional';
   generatedImages?: string[];
   isLoading?: boolean;
   isGenerating?: boolean;

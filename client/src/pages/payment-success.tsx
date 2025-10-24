@@ -1,9 +1,8 @@
 import React, { useEffect } from 'react';
 import { PreLoginNavigationUnified } from '../components/pre-login-navigation-unified.js';
 import { useAuth } from '../hooks/use-auth.js';
-import { Link, useLocation } from 'wouter';
+import { useLocation } from 'wouter';
 import { useToast } from '../hooks/use-toast.js';
-import { apiRequest } from '../lib/queryClient.js';
 
 export default function PaymentSuccess() {
   const { user, isAuthenticated } = useAuth();
@@ -11,16 +10,17 @@ export default function PaymentSuccess() {
   const [, setLocation] = useLocation();
 
   useEffect(() => {
-    // Track legacy page usage for migration metrics
-    console.warn('🚨 DEPRECATION: Using legacy payment-success page. Migrate to enhanced modal system.');
     
     // Track usage analytics (if available)
-    if (typeof window !== 'undefined' && (window as any).analytics) {
-      (window as any).analytics.track('legacy_success_page_used', {
-        timestamp: new Date(),
-        userAgent: navigator.userAgent,
-        plan: new URLSearchParams(window.location.search).get('plan') || 'unknown'
-      });
+    if (typeof window !== 'undefined') {
+      const windowWithAnalytics = window as unknown as { analytics?: { track: (event: string, data: Record<string, unknown>) => void } };
+      if (windowWithAnalytics.analytics) {
+        windowWithAnalytics.analytics.track('legacy_success_page_used', {
+          timestamp: new Date(),
+          userAgent: navigator.userAgent,
+          plan: new URLSearchParams(window.location.search).get('plan') || 'unknown'
+        });
+      }
     }
 
     // Get plan and type from URL params
@@ -59,7 +59,8 @@ export default function PaymentSuccess() {
               return;
             }
           }
-        } catch (error) {
+        } catch {
+          // Silently continue if model check fails
         }
         
         // New user or training not completed - show success message
@@ -125,7 +126,6 @@ export default function PaymentSuccess() {
         }, 4000);
         
       } else {
-        console.error('❌ AUTO-REGISTRATION: Failed to create account:', data.error);
         // Still redirect to sign-up even if database creation failed
         toast({
           title: "Payment Successful!",
@@ -137,8 +137,7 @@ export default function PaymentSuccess() {
         }, 3000);
       }
       
-    } catch (error) {
-      console.error('❌ AUTO-REGISTRATION: Network error:', error);
+    } catch {
       // Redirect to sign-up even on error - user can still access with their email
       toast({
         title: "Payment Successful!",
@@ -173,8 +172,7 @@ export default function PaymentSuccess() {
         setLocation('/simple-training');
       }, 3000);
 
-    } catch (error) {
-      console.error('Retraining success handling error:', error);
+    } catch {
       toast({
         title: "Payment Successful",
         description: "Your retraining access is ready. Please visit the training page to continue.",
@@ -202,8 +200,6 @@ export default function PaymentSuccess() {
         });
 
         if (upgradeResponse.ok) {
-          const upgradeData = await upgradeResponse.json();
-          
           // Clear stored plan
           localStorage.removeItem('userPlan');
           return;
@@ -219,8 +215,7 @@ export default function PaymentSuccess() {
           body: JSON.stringify({ plan: 'sselfie-studio' })
         });
       }
-    } catch (error) {
-      console.error('Upgrade automation failed:', error);
+    } catch {
       // Don't show error to user - they still got their payment processed
     }
   };

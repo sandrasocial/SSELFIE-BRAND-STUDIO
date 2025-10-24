@@ -88,6 +88,7 @@ export function decodeJWT(token: string): any {
     }
     
     const payload = parts[1];
+    // eslint-disable-next-line no-undef
     const decoded = JSON.parse(atob(payload));
     console.log('🔓 JWT Payload:', decoded);
     return decoded;

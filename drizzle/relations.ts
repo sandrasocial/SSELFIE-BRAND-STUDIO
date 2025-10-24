@@ -20,9 +20,6 @@ export const usersRelations = relations(users, ({many}) => ({
 	mayaPersonalMemories_userId: many(mayaPersonalMemory, {
 		relationName: "mayaPersonalMemory_userId_users_id"
 	}),
-	mayaPersonalMemories_userId: many(mayaPersonalMemory, {
-		relationName: "mayaPersonalMemory_userId_users_id"
-	}),
 	generatedImages: many(generatedImages),
 	projects: many(projects),
 	savedPrompts: many(savedPrompts),
@@ -32,12 +29,6 @@ export const usersRelations = relations(users, ({many}) => ({
 	subscriptions: many(subscriptions),
 	userProfiles_userId: many(userProfiles, {
 		relationName: "userProfiles_userId_users_id"
-	}),
-	userProfiles_userId: many(userProfiles, {
-		relationName: "userProfiles_userId_users_id"
-	}),
-	userPersonalBrands_userId: many(userPersonalBrand, {
-		relationName: "userPersonalBrand_userId_users_id"
 	}),
 	userPersonalBrands_userId: many(userPersonalBrand, {
 		relationName: "userPersonalBrand_userId_users_id"
@@ -71,9 +62,6 @@ export const usersRelations = relations(users, ({many}) => ({
 	generatedVideos: many(generatedVideos),
 	brandAssets: many(brandAssets),
 	mayaSubscriptions: many(mayaSubscriptions),
-	mayaPayments_userId: many(mayaPayments, {
-		relationName: "mayaPayments_userId_users_id"
-	}),
 	mayaPayments_userId: many(mayaPayments, {
 		relationName: "mayaPayments_userId_users_id"
 	}),
@@ -154,29 +142,11 @@ export const mayaPersonalMemoryRelations = relations(mayaPersonalMemory, ({one})
 		references: [users.id],
 		relationName: "mayaPersonalMemory_userId_users_id"
 	}),
-	user_userId: one(users, {
-		fields: [mayaPersonalMemory.userId],
-		references: [users.id],
-		relationName: "mayaPersonalMemory_userId_users_id"
-	}),
-	userPersonalBrand_personalBrandId: one(userPersonalBrand, {
-		fields: [mayaPersonalMemory.personalBrandId],
-		references: [userPersonalBrand.id],
-		relationName: "mayaPersonalMemory_personalBrandId_userPersonalBrand_id"
-	}),
 }));
 
 export const userPersonalBrandRelations = relations(userPersonalBrand, ({one, many}) => ({
 	mayaPersonalMemories_personalBrandId: many(mayaPersonalMemory, {
 		relationName: "mayaPersonalMemory_personalBrandId_userPersonalBrand_id"
-	}),
-	mayaPersonalMemories_personalBrandId: many(mayaPersonalMemory, {
-		relationName: "mayaPersonalMemory_personalBrandId_userPersonalBrand_id"
-	}),
-	user_userId: one(users, {
-		fields: [userPersonalBrand.userId],
-		references: [users.id],
-		relationName: "userPersonalBrand_userId_users_id"
 	}),
 	user_userId: one(users, {
 		fields: [userPersonalBrand.userId],
@@ -253,11 +223,6 @@ export const subscriptionsRelations = relations(subscriptions, ({one}) => ({
 }));
 
 export const userProfilesRelations = relations(userProfiles, ({one}) => ({
-	user_userId: one(users, {
-		fields: [userProfiles.userId],
-		references: [users.id],
-		relationName: "userProfiles_userId_users_id"
-	}),
 	user_userId: one(users, {
 		fields: [userProfiles.userId],
 		references: [users.id],
@@ -493,11 +458,6 @@ export const mayaSubscriptionsRelations = relations(mayaSubscriptions, ({one}) =
 }));
 
 export const mayaPaymentsRelations = relations(mayaPayments, ({one}) => ({
-	user_userId: one(users, {
-		fields: [mayaPayments.userId],
-		references: [users.id],
-		relationName: "mayaPayments_userId_users_id"
-	}),
 	user_userId: one(users, {
 		fields: [mayaPayments.userId],
 		references: [users.id],

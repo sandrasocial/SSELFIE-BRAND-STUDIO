@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useLocation } from 'wouter';
 import { useAuth } from '../../../hooks/use-auth.js';
@@ -10,8 +10,6 @@ import {
   Grid,
   ChevronRight
 } from 'lucide-react';
-import { StatTile } from '../../../components/shared/Card';
-
 interface UserModel {
   id: string | null;
   userId: string;
@@ -26,16 +24,19 @@ interface UserModel {
   onboardingSource: string;
 }
 
-interface StyleOption {
-  id: string;
-  title: string;
-  description: string;
+interface KpisData {
+  activeSessions: number;
+  queueCount: number;
+}
+
+interface ActivityData {
+  activities: Array<{ id: string; action: string; createdAt: string | Date }>;
 }
 
 interface StudioScreenProps {
   onTabChange?: (tabId: string) => void;
   hasTrainedModel?: boolean;
-  userModel?: any;
+  userModel?: UserModel;
 }
 
 // @ts-ignore - FC type compatibility with JSX.Element
@@ -43,12 +44,9 @@ interface StudioScreenProps {
 const StudioScreen: React.FC<StudioScreenProps> = ({ onTabChange, hasTrainedModel, userModel: parentUserModel }) => {
   const { user, isLoading: authLoading, isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
-  const [selectedStyle, setSelectedStyle] = useState<StyleOption | null>(null);
-  const [generatedImages, setGeneratedImages] = useState<string[]>([]);
-  const [detailsExpanded, setDetailsExpanded] = useState(false);
 
   // ✅ FIXED: Use parent model data if provided, otherwise query API (for backward compatibility)
-  const { data: queriedUserModel, isLoading: modelLoading, error } = useQuery({
+  const { data: queriedUserModel, isLoading: modelLoading } = useQuery({
     queryKey: ['/api/user-model'],
     enabled: !!user && isAuthenticated && !parentUserModel,
     retry: false,
@@ -71,16 +69,6 @@ const StudioScreen: React.FC<StudioScreenProps> = ({ onTabChange, hasTrainedMode
   });
   const galleryImages = Array.isArray(galleryImagesData) ? galleryImagesData : [];
 
-  const { data: favoritesData } = useQuery({
-    queryKey: ['/api/images/favorites'],
-    enabled: isAuthenticated && !!user,
-    staleTime: 5 * 60 * 1000,
-    refetchOnWindowFocus: false,
-  });
-  const favoritesCount = (favoritesData && typeof favoritesData === 'object' && 'favorites' in favoritesData)
-    ? (favoritesData as any).favorites.length
-    : 0;
-
   // Studio KPIs (live via serverless endpoint)
   const { data: kpis } = useQuery({
     queryKey: ['/api/studio/kpis'],
@@ -90,8 +78,8 @@ const StudioScreen: React.FC<StudioScreenProps> = ({ onTabChange, hasTrainedMode
     refetchOnWindowFocus: false,
     queryFn: async () => apiFetch('/studio/kpis')
   });
-  const activeSessions = (kpis as any)?.activeSessions ?? 0;
-  const queueCount = (kpis as any)?.queueCount ?? 0;
+  const activeSessions = (kpis as KpisData)?.activeSessions ?? 0;
+  const queueCount = (kpis as KpisData)?.queueCount ?? 0;
 
   // Recent Activity (live)
   const { data: activityData } = useQuery({
@@ -102,7 +90,7 @@ const StudioScreen: React.FC<StudioScreenProps> = ({ onTabChange, hasTrainedMode
     refetchOnWindowFocus: false,
     queryFn: async () => apiFetch('/studio/recent-activity')
   });
-  const activities: Array<{ id: string; action: string; createdAt: string | Date }> = (activityData as any)?.activities ?? [];
+  const activities: Array<{ id: string; action: string; createdAt: string | Date }> = (activityData as ActivityData)?.activities ?? [];
 
   const formatRelative = (date: string | Date) => {
     const d = typeof date === 'string' ? new Date(date) : date;
@@ -114,30 +102,6 @@ const StudioScreen: React.FC<StudioScreenProps> = ({ onTabChange, hasTrainedMode
     if (hrs < 24) return `${hrs}h ago`;
     const days = Math.floor(hrs / 24);
     return `${days}d ago`;
-  };
-
-
-  // Helper functions
-  const getStatusText = (status: string): string => {
-    const statusMap: Record<string, string> = {
-      'not_started': 'Not Started',
-      'pending': 'Pending',
-      'training': 'Training',
-      'completed': 'Ready',
-      'failed': 'Failed'
-    };
-    return statusMap[status] || status;
-  };
-
-  const getStatusColor = (status: string): string => {
-    const colorMap: Record<string, string> = {
-      'completed': 'text-stone-900',
-      'training': 'text-amber-600',
-      'pending': 'text-stone-500',
-      'failed': 'text-red-600',
-      'not_started': 'text-stone-400'
-    };
-    return colorMap[status] || 'text-stone-500';
   };
 
 
