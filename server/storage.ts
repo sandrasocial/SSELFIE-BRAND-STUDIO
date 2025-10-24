@@ -669,13 +669,65 @@ export class DatabaseStorage implements IStorage {
 
   // AI Image operations
   async getAIImages(userId: string): Promise<AiImage[]> {
-    // Direct lookup only - Stack Auth middleware provides correct database user ID
-    // Removed fallback query to prevent timeouts in serverless environment
-    return await db
+    console.log(`🔍 AI IMAGES: Starting getAIImages for ${userId.substring(0, 8)}...`);
+    
+    // 1. First try direct userId lookup
+    let images = await db
       .select()
       .from(aiImages)
       .where(eq(aiImages.userId, userId))
       .orderBy(desc(aiImages.createdAt));
+
+    console.log(`🔍 AI IMAGES: Direct lookup found ${images.length} images`);
+
+    // 2. If no images found and this looks like a Stack Auth ID, try to find images by user's email
+    if (images.length === 0 && userId.includes('-')) {
+      console.log(`🔍 AI IMAGES: No images found for Stack Auth ID, searching by user email...`);
+      
+      // Get current user to find their email
+      const currentUser = await this.getUser(userId);
+      if (currentUser?.email) {
+        console.log(`🔍 User email: ${currentUser.email}`);
+        
+        // Find all users with this email (including pre-Stack Auth users)
+        const usersWithEmail = await db
+          .select()
+          .from(users)
+          .where(sql`lower(${users.email}) = ${currentUser.email.toLowerCase()}`);
+          
+        console.log(`🔍 Found ${usersWithEmail.length} users with email ${currentUser.email}`);
+        
+        // Check for images associated with any of these user records
+        for (const userRecord of usersWithEmail) {
+          if (userRecord.id !== userId) {
+            console.log(`🔍 Checking AI images for user ID: ${userRecord.id.substring(0, 8)}...`);
+            const legacyImages = await db
+              .select()
+              .from(aiImages)
+              .where(eq(aiImages.userId, userRecord.id))
+              .orderBy(desc(aiImages.createdAt));
+              
+            if (legacyImages.length > 0) {
+              console.log(`✅ Found ${legacyImages.length} legacy AI images for user ${userRecord.id.substring(0, 8)}, migrating to current user ${userId.substring(0, 8)}`);
+              
+              // Update the images to be associated with the current user ID
+              await db
+                .update(aiImages)
+                .set({ 
+                  userId: userId
+                })
+                .where(eq(aiImages.userId, userRecord.id));
+                
+              images = legacyImages.map(img => ({ ...img, userId: userId }));
+              break;
+            }
+          }
+        }
+      }
+    }
+
+    console.log(`🔍 AI IMAGES: Final result - ${images.length} images`);
+    return images;
   }
 
   async getUserAIImages(userId: string): Promise<AiImage[]> {
@@ -744,13 +796,65 @@ export class DatabaseStorage implements IStorage {
 
   // Generated Images operations (NEW ENHANCED GALLERY - primary table)
   async getGeneratedImages(userId: string): Promise<GeneratedImage[]> {
-    // Direct lookup only - Stack Auth middleware provides correct database user ID
-    // Removed fallback query to prevent timeouts in serverless environment
-    return await db
+    console.log(`🔍 GENERATED IMAGES: Starting getGeneratedImages for ${userId.substring(0, 8)}...`);
+    
+    // 1. First try direct userId lookup
+    let images = await db
       .select()
       .from(generatedImages)
       .where(eq(generatedImages.userId, userId))
       .orderBy(desc(generatedImages.createdAt));
+
+    console.log(`🔍 GENERATED IMAGES: Direct lookup found ${images.length} images`);
+
+    // 2. If no images found and this looks like a Stack Auth ID, try to find images by user's email
+    if (images.length === 0 && userId.includes('-')) {
+      console.log(`🔍 GENERATED IMAGES: No images found for Stack Auth ID, searching by user email...`);
+      
+      // Get current user to find their email
+      const currentUser = await this.getUser(userId);
+      if (currentUser?.email) {
+        console.log(`🔍 User email: ${currentUser.email}`);
+        
+        // Find all users with this email (including pre-Stack Auth users)
+        const usersWithEmail = await db
+          .select()
+          .from(users)
+          .where(sql`lower(${users.email}) = ${currentUser.email.toLowerCase()}`);
+          
+        console.log(`🔍 Found ${usersWithEmail.length} users with email ${currentUser.email}`);
+        
+        // Check for generated images associated with any of these user records
+        for (const userRecord of usersWithEmail) {
+          if (userRecord.id !== userId) {
+            console.log(`🔍 Checking generated images for user ID: ${userRecord.id.substring(0, 8)}...`);
+            const legacyImages = await db
+              .select()
+              .from(generatedImages)
+              .where(eq(generatedImages.userId, userRecord.id))
+              .orderBy(desc(generatedImages.createdAt));
+              
+            if (legacyImages.length > 0) {
+              console.log(`✅ Found ${legacyImages.length} legacy generated images for user ${userRecord.id.substring(0, 8)}, migrating to current user ${userId.substring(0, 8)}`);
+              
+              // Update the images to be associated with the current user ID
+              await db
+                .update(generatedImages)
+                .set({ 
+                  userId: userId
+                })
+                .where(eq(generatedImages.userId, userRecord.id));
+                
+              images = legacyImages.map(img => ({ ...img, userId: userId }));
+              break;
+            }
+          }
+        }
+      }
+    }
+
+    console.log(`🔍 GENERATED IMAGES: Final result - ${images.length} images`);
+    return images;
   }
 
   async saveGeneratedImage(data: InsertGeneratedImage): Promise<GeneratedImage> {
@@ -905,16 +1009,64 @@ export class DatabaseStorage implements IStorage {
 
     console.log(`💾 MODEL CACHE: Cache miss for ${userId.substring(0, 8)}, querying database`);
 
-    // CRITICAL FIX: Simplified query without JOIN to avoid timeouts in serverless
-    // The userId passed here is already the database user ID from stack-auth middleware
+    // CRITICAL FIX: Multi-stage lookup for linked Stack Auth users
+    // 1. First try direct userId lookup
     console.log(`🔍 Querying user_models where user_id = ${userId}`);
-    const [model] = await db
+    let [model] = await db
       .select()
       .from(userModels)
       .where(eq(userModels.userId, userId))
       .limit(1);
 
-    console.log(`🔍 Query result:`, model ? 'Found model' : 'No model found');
+    // 2. If not found and this looks like a Stack Auth ID, try to find models by user's email
+    if (!model && userId.includes('-')) {
+      console.log(`🔍 No model found for Stack Auth ID, searching by user email...`);
+      
+      // Get current user to find their email
+      const currentUser = await this.getUser(userId);
+      if (currentUser?.email) {
+        console.log(`🔍 User email: ${currentUser.email}`);
+        
+        // Find all users with this email (including pre-Stack Auth users)
+        const usersWithEmail = await db
+          .select()
+          .from(users)
+          .where(sql`lower(${users.email}) = ${currentUser.email.toLowerCase()}`);
+          
+        console.log(`🔍 Found ${usersWithEmail.length} users with email ${currentUser.email}`);
+        
+        // Check for models associated with any of these user records
+        for (const userRecord of usersWithEmail) {
+          if (userRecord.id !== userId) {
+            console.log(`🔍 Checking models for user ID: ${userRecord.id.substring(0, 8)}...`);
+            const [legacyModel] = await db
+              .select()
+              .from(userModels)
+              .where(eq(userModels.userId, userRecord.id))
+              .limit(1);
+              
+            if (legacyModel) {
+              console.log(`✅ Found legacy model for user ${userRecord.id.substring(0, 8)}, migrating to current user ${userId.substring(0, 8)}`);
+              
+              // Update the model to be associated with the current user ID
+              const [updatedModel] = await db
+                .update(userModels)
+                .set({ 
+                  userId: userId,
+                  updatedAt: new Date()
+                })
+                .where(eq(userModels.id, legacyModel.id))
+                .returning();
+                
+              model = updatedModel;
+              break;
+            }
+          }
+        }
+      }
+    }
+
+    console.log(`🔍 Final query result:`, model ? 'Found model' : 'No model found');
 
     // Store in cache
     userCache.setModel(userId, model);
@@ -1807,11 +1959,66 @@ export class DatabaseStorage implements IStorage {
 
   // Maya chat operations
   async getMayaChats(userId: string): Promise<MayaChat[]> {
-    return await db
+    console.log(`🔍 MAYA CHATS: Starting getMayaChats for ${userId.substring(0, 8)}...`);
+    
+    // 1. First try direct userId lookup
+    let chats = await db
       .select()
       .from(mayaChats)
       .where(eq(mayaChats.userId, userId))
       .orderBy(desc(mayaChats.lastActivity || mayaChats.createdAt));
+
+    console.log(`🔍 MAYA CHATS: Direct lookup found ${chats.length} chats`);
+
+    // 2. If no chats found and this looks like a Stack Auth ID, try to find chats by user's email
+    if (chats.length === 0 && userId.includes('-')) {
+      console.log(`🔍 MAYA CHATS: No chats found for Stack Auth ID, searching by user email...`);
+      
+      // Get current user to find their email
+      const currentUser = await this.getUser(userId);
+      if (currentUser?.email) {
+        console.log(`🔍 User email: ${currentUser.email}`);
+        
+        // Find all users with this email (including pre-Stack Auth users)
+        const usersWithEmail = await db
+          .select()
+          .from(users)
+          .where(sql`lower(${users.email}) = ${currentUser.email.toLowerCase()}`);
+          
+        console.log(`🔍 Found ${usersWithEmail.length} users with email ${currentUser.email}`);
+        
+        // Check for Maya chats associated with any of these user records
+        for (const userRecord of usersWithEmail) {
+          if (userRecord.id !== userId) {
+            console.log(`🔍 Checking Maya chats for user ID: ${userRecord.id.substring(0, 8)}...`);
+            const legacyChats = await db
+              .select()
+              .from(mayaChats)
+              .where(eq(mayaChats.userId, userRecord.id))
+              .orderBy(desc(mayaChats.lastActivity || mayaChats.createdAt));
+              
+            if (legacyChats.length > 0) {
+              console.log(`✅ Found ${legacyChats.length} legacy Maya chats for user ${userRecord.id.substring(0, 8)}, migrating to current user ${userId.substring(0, 8)}`);
+              
+              // Update the chats to be associated with the current user ID
+              await db
+                .update(mayaChats)
+                .set({ 
+                  userId: userId,
+                  updatedAt: new Date()
+                })
+                .where(eq(mayaChats.userId, userRecord.id));
+                
+              chats = legacyChats.map(chat => ({ ...chat, userId: userId }));
+              break;
+            }
+          }
+        }
+      }
+    }
+
+    console.log(`🔍 MAYA CHATS: Final result - ${chats.length} chats`);
+    return chats;
   }
 
   // Get all Maya chats (for analytics)
@@ -2758,10 +2965,62 @@ export class DatabaseStorage implements IStorage {
 
   // Maya Profile operations
   async getMayaProfile(userId: string): Promise<MayaProfile | undefined> {
-    const [profile] = await db
+    console.log(`🔍 MAYA LOOKUP: Starting getMayaProfile for ${userId.substring(0, 8)}...`);
+    
+    // 1. First try direct userId lookup
+    let [profile] = await db
       .select()
       .from(mayaProfile)
       .where(eq(mayaProfile.userId, userId));
+
+    // 2. If not found and this looks like a Stack Auth ID, try to find profiles by user's email
+    if (!profile && userId.includes('-')) {
+      console.log(`🔍 No Maya profile found for Stack Auth ID, searching by user email...`);
+      
+      // Get current user to find their email
+      const currentUser = await this.getUser(userId);
+      if (currentUser?.email) {
+        console.log(`🔍 User email: ${currentUser.email}`);
+        
+        // Find all users with this email (including pre-Stack Auth users)
+        const usersWithEmail = await db
+          .select()
+          .from(users)
+          .where(sql`lower(${users.email}) = ${currentUser.email.toLowerCase()}`);
+          
+        console.log(`🔍 Found ${usersWithEmail.length} users with email ${currentUser.email}`);
+        
+        // Check for Maya profiles associated with any of these user records
+        for (const userRecord of usersWithEmail) {
+          if (userRecord.id !== userId) {
+            console.log(`🔍 Checking Maya profile for user ID: ${userRecord.id.substring(0, 8)}...`);
+            const [legacyProfile] = await db
+              .select()
+              .from(mayaProfile)
+              .where(eq(mayaProfile.userId, userRecord.id));
+              
+            if (legacyProfile) {
+              console.log(`✅ Found legacy Maya profile for user ${userRecord.id.substring(0, 8)}, migrating to current user ${userId.substring(0, 8)}`);
+              
+              // Update the profile to be associated with the current user ID
+              const [updatedProfile] = await db
+                .update(mayaProfile)
+                .set({ 
+                  userId: userId,
+                  updatedAt: new Date()
+                })
+                .where(eq(mayaProfile.id, legacyProfile.id))
+                .returning();
+                
+              profile = updatedProfile;
+              break;
+            }
+          }
+        }
+      }
+    }
+
+    console.log(`🔍 Maya profile result:`, profile ? 'Found profile' : 'No profile found');
     return profile;
   }
 
