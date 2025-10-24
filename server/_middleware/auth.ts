@@ -1,14 +1,13 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { JWTVerifyResult, JWTPayload } from 'jose';
+import { JWTPayload } from 'jose';
 import { StackAuthUserInfo } from '../_shared/stack-auth-types.js';
-import { LocalJWKSet } from '../_shared/jwks-types.js';
 
 // Global type declarations for server environment
 declare global {
   var Response: typeof globalThis.Response;
 }
 
-import { STACK_PROJECT_ID, STACK_AUTH_API_URL, JWKS_URL, STACK_ISSUER } from '../_shared/stack-config.js';
+import { STACK_PROJECT_ID, JWKS_URL, STACK_ISSUER } from '../_shared/stack-config.js';
 // One-time debug
 console.log('🔧 Stack Auth Middleware Env:', { projectId: STACK_PROJECT_ID });
 
