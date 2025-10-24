@@ -74,7 +74,7 @@ test.describe('Navigation Icons Fix Verification', () => {
         const svg = svgs.nth(i);
         const hasContent = await svg.locator('path, circle, rect, polygon, line').count() > 0;
         const viewBox = await svg.getAttribute('viewBox');
-        const stroke = await svg.evaluate(el => getComputedStyle(el).stroke);
+        const stroke = await svg.evaluate(el => window.getComputedStyle(el).stroke);
         
         console.log(`SVG ${i}: hasContent=${hasContent}, viewBox=${viewBox}, stroke=${stroke}`);
         
