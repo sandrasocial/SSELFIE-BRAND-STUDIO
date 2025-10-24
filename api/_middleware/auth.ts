@@ -176,6 +176,7 @@ async function verifyJWTToken(token: string): Promise<JWTPayload & StackAuthUser
 /**
  * Validate JWT token format (must be 3 parts separated by dots)
  * ✅ NEW: Prevent malformed tokens from being processed
+ * 🔥 ENHANCED: Validate each part is valid base64url to prevent image data being treated as JWT
  */
 function isValidJWTFormat(token: string): boolean {
   if (!token || typeof token !== 'string') return false;
@@ -189,6 +190,13 @@ function isValidJWTFormat(token: string): boolean {
 
   // Token should not look like JSON (starts with [ or {)
   if (token.startsWith('[') || token.startsWith('{')) return false;
+
+  // 🔥 FIX: Each part must be valid base64url (alphanumeric, -, _)
+  // This prevents image data or other binary data from being treated as JWT
+  const base64urlRegex = /^[A-Za-z0-9_-]+$/;
+  if (!parts.every(part => base64urlRegex.test(part))) {
+    return false;
+  }
 
   return true;
 }

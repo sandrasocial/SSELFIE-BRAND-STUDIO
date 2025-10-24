@@ -45,14 +45,14 @@ export function debugStackAuthState() {
 
 export function extractTokenFromCookies(): string | null {
   const cookies = document.cookie.split(';');
-  
+
   for (const cookie of cookies) {
     const [name, value] = cookie.trim().split('=');
-    
+
     if (!name || !value) continue;
-    
+
     const decodedValue = decodeURIComponent(value);
-    
+
     // Try parsing as JSON array (Stack Auth format)
     if (decodedValue.startsWith('[')) {
       try {
@@ -68,14 +68,14 @@ export function extractTokenFromCookies(): string | null {
         // Continue
       }
     }
-    
+
     // Try direct JWT
     if (decodedValue.split('.').length === 3) {
       console.log(`✅ Found JWT token in cookie: ${name}`);
       return decodedValue;
     }
   }
-  
+
   return null;
 }
 

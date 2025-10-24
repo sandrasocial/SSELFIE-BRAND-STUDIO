@@ -156,12 +156,23 @@ export async function getAuthenticatedUser(req: VercelRequest): Promise<Authenti
     if (cookieHeaderValue) {
       const cookies = parseCookieHeader(cookieHeaderValue);
       
+      // 🔥 FIX: Helper function to validate JWT format
+      const isValidJWTFormat = (token: string): boolean => {
+        const parts = token.split('.');
+        if (parts.length !== 3) return false;
+
+        // Each part should be valid base64url (alphanumeric, -, _)
+        // JWT parts are base64url encoded, so they should only contain: A-Z a-z 0-9 - _ =
+        const base64urlRegex = /^[A-Za-z0-9_-]+$/;
+        return parts.every(part => base64urlRegex.test(part) && part.length > 0);
+      };
+
       // Helper function to extract JWT from Stack Auth cookie format
       const tryParseAccessFromCookieValue = (val: unknown): string | undefined => {
         if (!val || typeof val !== 'string') return undefined;
 
-        // If it already looks like a JWT, return it
-        if (val.split('.').length === 3) {
+        // If it already looks like a JWT, validate and return it
+        if (isValidJWTFormat(val)) {
           console.log('✅ Found direct JWT in cookie');
           return val;
         }
@@ -171,10 +182,12 @@ export async function getAuthenticatedUser(req: VercelRequest): Promise<Authenti
           const parsed = JSON.parse(val);
           if (Array.isArray(parsed) && parsed.length >= 2 && typeof parsed[1] === 'string') {
             const token = parsed[1];
-            // Validate extracted token is a JWT
-            if (token.split('.').length === 3) {
+            // 🔥 FIX: Validate extracted token is actually a JWT
+            if (isValidJWTFormat(token)) {
               console.log('✅ Extracted token from Stack Auth cookie array');
               return token;
+            } else {
+              console.warn('⚠️ Cookie array element 2 is not a valid JWT format:', token.substring(0, 20) + '...');
             }
           }
         } catch (e) {
