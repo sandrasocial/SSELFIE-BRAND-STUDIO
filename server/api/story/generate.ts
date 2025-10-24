@@ -24,7 +24,8 @@ export default async (req: VercelRequest, res: VercelResponse) => {
   return withAuth(req, res, async (req: AuthenticatedRequest, res: VercelResponse) => {
     try {
       const { concept, style, length } = req.body as StoryGenerateRequest;
-      const userId = req.user.id;
+      // 🔥 FIX: Use stackAuthId for database queries to fix user ID mismatch
+      const userId = req.user.stackAuthId || req.user.id;
 
       if (!concept) {
         return res.status(400).json({ error: 'Concept is required' });

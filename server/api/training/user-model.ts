@@ -34,9 +34,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     let userModel: any = null;
 
-    // Fetch user model using the database user ID
+    // 🔥 FIX: Use stackAuthId for database queries to fix user ID mismatch
+    // When existing users sign in with Stack Auth, their primary ID may differ from stackAuthId
+    // We use stackAuthId for queries to ensure we get the correct user data
+    const queryUserId = dbUser.stackAuthId || dbUser.id;
+
+    // Fetch user model using the correct user ID
     try {
-      userModel = await storage.getUserModel(dbUser.id);
+      userModel = await storage.getUserModel(queryUserId);
       console.log(`📊 Model lookup result: ${userModel ? 'found' : 'not found'}`);
     } catch (error) {
       console.warn('📊 Model fetch failed:', error);
@@ -60,7 +65,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const modelStatus = {
       id: userModel?.id || null,
-      userId: dbUser.id,
+      userId: queryUserId,
       trainingStatus,
       needsTraining,
       canRetrain,
@@ -73,7 +78,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     };
 
     console.log(`✅ Returning model status:`, {
-      userId: dbUser.id,
+      userId: queryUserId,
       trainingStatus,
       needsTraining,
       canRetrain

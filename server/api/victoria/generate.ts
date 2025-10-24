@@ -24,7 +24,8 @@ export default async (req: VercelRequest, res: VercelResponse) => {
   return withAuth(req, res, async (req: AuthenticatedRequest, res: VercelResponse) => {
     try {
       const { prompt, style, businessType } = req.body as VictoriaGenerationRequest;
-      const userId = req.user.id;
+      // 🔥 FIX: Use stackAuthId for database queries to fix user ID mismatch
+      const userId = req.user.stackAuthId || req.user.id;
 
       if (!prompt) {
         return res.status(400).json({ error: 'Prompt is required' });

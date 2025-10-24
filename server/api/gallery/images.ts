@@ -81,8 +81,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         console.log('❌ Gallery Images: No user returned from withAuth');
         return res.status(401).json({ error: 'Authentication required' });
       }
-      
-      const userId = user.id;
+
+      // 🔥 FIX: Use stackAuthId for database queries to fix user ID mismatch
+      // When existing users sign in with Stack Auth, their primary ID may differ from stackAuthId
+      // We use stackAuthId for queries to ensure we get the correct user data
+      const userId = user.stackAuthId || user.id;
       console.log(`✅ Gallery Images: Authenticated user ${userId} via withAuth`);
 
     // 2. Set response headers (no-cache for fresh data)

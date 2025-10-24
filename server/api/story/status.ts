@@ -25,7 +25,8 @@ export default async (req: VercelRequest, res: VercelResponse) => {
   return withAuth(req, res, async (req: AuthenticatedRequest, res: VercelResponse) => {
     try {
       const { jobId } = req.query;
-      const userId = req.user.id;
+      // 🔥 FIX: Use stackAuthId for database queries to fix user ID mismatch
+      const userId = req.user.stackAuthId || req.user.id;
 
       if (!jobId || typeof jobId !== 'string') {
         return res.status(400).json({ error: 'Job ID is required' });

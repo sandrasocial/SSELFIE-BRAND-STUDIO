@@ -18,7 +18,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const user = await getUserFromRequest(req);
     if (!user) return sendUnauthorized(res);
 
-    const chats = await storage.getMayaChats(user.id);
+    // 🔥 FIX: Use stackAuthId for database queries to fix user ID mismatch
+    const queryUserId = user.stackAuthId || user.id;
+    const chats = await storage.getMayaChats(queryUserId);
 
     setNoCacheHeaders(res);
     return res.status(200).json({

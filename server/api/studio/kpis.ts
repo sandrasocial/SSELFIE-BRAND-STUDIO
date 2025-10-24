@@ -35,7 +35,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(401).json({ error: 'Authentication required' });
       }
 
-      const userId = user.id;
+      // 🔥 FIX: Use stackAuthId for database queries to fix user ID mismatch
+      // When existing users sign in with Stack Auth, their primary ID may differ from stackAuthId
+      // We use stackAuthId for queries to ensure we get the correct user data
+      const userId = user.stackAuthId || user.id;
 
       // Small timeout safety to avoid hanging in serverless env
       const withTimeout = <T,>(p: Promise<T>, ms: number) => {

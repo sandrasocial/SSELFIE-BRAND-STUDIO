@@ -20,7 +20,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const user = req.user;
       if (!user) return sendUnauthorized(res);
 
-    const userModel = await storage.getUserModelByUserId(user.id);
+    // 🔥 FIX: Use stackAuthId for database queries to fix user ID mismatch
+    // When existing users sign in with Stack Auth, their primary ID may differ from stackAuthId
+    // We use stackAuthId for queries to ensure we get the correct user data
+    const queryUserId = user.stackAuthId || user.id;
+    const userModel = await storage.getUserModelByUserId(queryUserId);
     const dbUser = user; // getUserFromRequest already returns database user
     
     if (!userModel) {

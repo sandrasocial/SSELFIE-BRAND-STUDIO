@@ -25,26 +25,29 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Get database user
     const dbUser = user; // getUserFromRequest already returns database user
 
+    // 🔥 FIX: Use stackAuthId for database queries to fix user ID mismatch
+    const queryUserId = dbUser.stackAuthId || dbUser.id;
+
     // Get chatId from query param OR get user's latest chat
     let chatId = getQueryParam(req, 'chatId');
-    
+
     if (!chatId) {
       // No chatId provided - get user's most recent chat
-      const userChats = await storage.getMayaChats(dbUser.id);
+      const userChats = await storage.getMayaChats(queryUserId);
       
       if (userChats.length === 0) {
         // No chats yet - return empty array
-        console.log(`📭 No Maya chats found for user ${dbUser.id}`);
+        console.log(`📭 No Maya chats found for user ${queryUserId}`);
         setNoCacheHeaders(res);
         return res.status(200).json({
           success: true,
           messages: []
         });
       }
-      
+
       // Use most recent chat
       chatId = userChats[0].id.toString();
-      console.log(`💬 Using latest chat ${chatId} for user ${dbUser.id}`);
+      console.log(`💬 Using latest chat ${chatId} for user ${queryUserId}`);
     }
 
     // Get messages for the chat
