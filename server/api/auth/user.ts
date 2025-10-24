@@ -1,18 +1,20 @@
 /**
  * GET /api/auth/user - Pure Serverless Implementation
- * 
+ *
  * Get current authenticated user information.
  * Auto-creates user in database if they exist in Stack Auth but not in DB.
+ *
+ * ✅ PATTERN 1: Accepts middleware-attached user from withAuth wrapper
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getUserFromRequest, requireAuth } from '../../_utils/auth-helpers.js';
-import { 
-  sendSuccess, 
-  sendUnauthorized, 
+import { getUserFromRequest } from '../../_utils/auth-helpers.js';
+import {
+  sendSuccess,
+  sendUnauthorized,
   sendMethodNotAllowed,
   sendError,
-  setNoCacheHeaders 
+  setNoCacheHeaders
 } from '../../_utils/response-helpers.js';
 import { userService } from '../../services/user-service.js';
 
@@ -39,8 +41,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    // Auth
-    const authUser = await getUserFromRequest(req);
+    // ✅ PATTERN 1: User already attached by withAuth middleware
+    // Fallback to getUserFromRequest for legacy compatibility
+    let authUser = (req as any).user;
+
+    if (!authUser) {
+      console.log('⚠️ No user attached to request, attempting getUserFromRequest fallback');
+      authUser = await getUserFromRequest(req);
+    }
+
     if (!authUser) {
       return sendUnauthorized(res);
     }

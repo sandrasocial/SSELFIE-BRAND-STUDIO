@@ -1,5 +1,7 @@
 /**
  * GET /api/maya/env-check - Pure Serverless
+ *
+ * ✅ PATTERN 1: Accepts middleware-attached user from withAuth wrapper
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
@@ -14,7 +16,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const user = await getUserFromRequest(req);
+    // ✅ PATTERN 1: User already attached by withAuth middleware
+    // Fallback to getUserFromRequest for legacy compatibility
+    let user = (req as any).user;
+
+    if (!user) {
+      console.log('⚠️ No user attached to request, attempting getUserFromRequest fallback');
+      user = await getUserFromRequest(req);
+    }
+
     if (!user) return sendUnauthorized(res);
 
     const anthropicKeySet = !!process.env['ANTHROPIC_API_KEY'];

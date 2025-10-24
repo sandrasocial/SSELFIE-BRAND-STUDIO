@@ -1,13 +1,15 @@
 /**
  * GET /api/profile - Pure Serverless Implementation
- * 
+ *
  * Get public profile information for the authenticated user.
+ *
+ * ✅ PATTERN 1: Accepts middleware-attached user from withAuth wrapper
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { getUserFromRequest } from '../_utils/auth-helpers.js';
-import { 
-  sendSuccess, 
+import {
+  sendSuccess,
   sendUnauthorized,
   sendNotFound,
   sendMethodNotAllowed,
@@ -34,8 +36,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    // Auth
-    const authUser = await getUserFromRequest(req);
+    // ✅ PATTERN 1: User already attached by withAuth middleware
+    // Fallback to getUserFromRequest for legacy compatibility
+    let authUser = (req as any).user;
+
+    if (!authUser) {
+      console.log('⚠️ No user attached to request, attempting getUserFromRequest fallback');
+      authUser = await getUserFromRequest(req);
+    }
+
     if (!authUser) {
       return sendUnauthorized(res);
     }
