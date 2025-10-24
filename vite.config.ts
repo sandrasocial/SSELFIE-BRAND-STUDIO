@@ -123,21 +123,9 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
         'color-name',
         'color-convert',
         'cookie',
-      ],
-      exclude: [
-        '@radix-ui',
-        'cmdk',
         'lucide-react',
         '@stackframe/react',
-        'recharts',
-        'react-redux',
-        'pend',
-        'callsites',
-        '@alloc/quick-lru',
-        'pg-int8',
-        'node-gyp-build',
-        '@pkgjs/parseargs',
-        'yauzl-promise'
+        'recharts'
       ],
       force: false,
       esbuildOptions: {

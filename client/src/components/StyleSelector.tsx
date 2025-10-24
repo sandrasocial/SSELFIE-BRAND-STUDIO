@@ -5,7 +5,7 @@ interface Style {
   id: string;
   title: string;
   description: string;
-  imageUrl: string;
+  imageUrl?: string;
   prompt: string;
 }
 
@@ -22,28 +22,28 @@ export function StyleSelector({ onStyleSelect, selectedStyleId }: StyleSelectorP
       id: 'professional',
       title: 'Professional Headshot',
       description: 'Clean, business-ready portraits',
-      imageUrl: 'https://i.postimg.cc/TPLcG2xr/out-0.png',
+      // Removed broken external image - using gradient
       prompt: 'professional corporate headshot, business attire, clean background, confident expression'
     },
     {
       id: 'editorial',
       title: 'Editorial Style',
       description: 'Magazine-quality fashion shots',
-      imageUrl: 'https://i.postimg.cc/pdwJdNV3/out-0-6.png',
+      // Removed broken external image - using gradient
       prompt: 'editorial fashion portrait, dramatic lighting, artistic composition, high fashion'
     },
     {
       id: 'lifestyle',
       title: 'Lifestyle Portrait',
       description: 'Natural, authentic moments',
-      imageUrl: 'https://i.postimg.cc/P5FMBpgX/out-0-1.png',
+      // Removed broken external image - using gradient
       prompt: 'lifestyle portrait, natural lighting, authentic expression, candid moment'
     },
     {
       id: 'creative',
       title: 'Creative Portrait',
       description: 'Artistic and unique angles',
-      imageUrl: 'https://i.postimg.cc/nLY7W4ZM/sselfie-7.jpg',
+      // Removed broken external image - using gradient
       prompt: 'creative portrait, artistic lighting, unique composition, expressive'
     }
   ];
@@ -82,22 +82,16 @@ export function StyleSelector({ onStyleSelect, selectedStyleId }: StyleSelectorP
                   : 'hover:scale-[1.02] ring-1 ring-stone-200/40'
               }`}
             >
-              {/* Image Container */}
-              <div className="aspect-[4/3] relative">
-                {/* Style Image */}
-                <img 
-                  src={style.imageUrl}
-                  alt={style.title}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  onError={(e) => {
-                    // Fallback to gradient if image fails to load
-                    e.currentTarget.style.display = 'none';
-                    e.currentTarget.parentElement?.classList.add('bg-gradient-to-br', 'from-stone-200', 'to-stone-300');
-                  }}
-                />
+              {/* Elegant Stone Gradient Background */}
+              <div className={`aspect-[4/3] relative ${
+                style.id === 'professional' ? 'bg-gradient-to-br from-stone-50 via-stone-100 to-stone-200' :
+                style.id === 'editorial' ? 'bg-gradient-to-br from-stone-100 via-stone-200 to-stone-300' :
+                style.id === 'lifestyle' ? 'bg-gradient-to-br from-stone-50 via-stone-100 to-stone-200' :
+                'bg-gradient-to-br from-stone-100 via-stone-200 to-stone-300'
+              }`}>
                 
-                {/* Gradient Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-stone-950/80 via-stone-950/20 to-transparent"></div>
+                {/* Elegant overlay for text readability */}
+                <div className="absolute inset-0 bg-gradient-to-t from-stone-950/70 via-stone-950/20 to-transparent"></div>
                 
                 {/* Selection Indicator */}
                 {isSelected && (

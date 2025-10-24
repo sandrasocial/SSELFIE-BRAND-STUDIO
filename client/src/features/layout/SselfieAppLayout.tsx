@@ -149,7 +149,7 @@ const MainContent: React.FC<MainContentProps> = ({ activeTab, onTabChange, initi
           </React.Suspense>
         );
       case 'maya':
-        return <MayaScreen initialPrompt={initialPrompt} onPromptUsed={onPromptUsed} />;
+        return <MayaScreen initialPrompt={initialPrompt} onPromptUsed={onPromptUsed} hasTrainedModel={hasTrainedModel} />;
       case 'gallery':
         return (
           <React.Suspense fallback={<div className="text-center py-8">Loading...</div>}>
@@ -283,7 +283,12 @@ const SselfieAppLayout: React.FC = () => {
         </div>
       </div>
 
-      <TabBar activeTab={activeTab} onTabChange={handleTabChange} />
+      {/* 🔧 FIX: Ensure TabBar is visible with higher z-index and proper positioning */}
+      <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 1000, pointerEvents: 'none' }}>
+        <div style={{ pointerEvents: 'auto' }}>
+          <TabBar activeTab={activeTab} onTabChange={handleTabChange} />
+        </div>
+      </div>
     </div>
   );
 };
