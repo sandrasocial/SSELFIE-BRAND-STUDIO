@@ -59,6 +59,20 @@ function SmartHome() {
   const { hasTrainedModel, isLoading: userStateLoading, userModel } = useUserState();
   const [hasRedirected, setHasRedirected] = useState(false);
 
+  // 🔧 DEBUG: Add more detailed logging for routing decisions
+  console.log('🏠 SmartHome: Routing state debug', {
+    isAuthenticated,
+    isLoading,
+    userStateLoading,
+    hasRedirected,
+    userId: user?.id?.substring(0, 8) + '...',
+    userEmail: user?.email,
+    hasTrainedModel,
+    trainingStatus: userModel?.trainingStatus,
+    userModelId: userModel?.id,
+    needsTraining: userModel?.needsTraining
+  });
+
   // ✅ FIXED: Only log when state changes (not on every render)
   // This prevents infinite loop caused by console.log triggering re-renders
   useEffect(() => {
@@ -81,22 +95,39 @@ function SmartHome() {
     }
 
     if (isAuthenticated && user) {
-      if (hasTrainedModel) {
-        // User has trained model - go to Studio
-        console.log('✅ SmartHome: User has trained model, routing to /app/studio', {
-          userId: user.id?.substring(0, 8) + '...',
-          trainingStatus: userModel?.trainingStatus,
-          hasTrainedModel
-        });
+      // 🔧 FIX: More robust routing logic with explicit model status checks
+      const modelStatus = userModel?.trainingStatus;
+      const isModelCompleted = modelStatus === 'completed';
+      const hasModelId = !!userModel?.id;
+      
+      // More detailed routing decision
+      console.log('🔀 SmartHome: Making routing decision', {
+        userId: user.id?.substring(0, 8) + '...',
+        hasTrainedModel,
+        modelStatus,
+        isModelCompleted,
+        hasModelId,
+        userModel: userModel ? {
+          id: userModel.id,
+          trainingStatus: userModel.trainingStatus,
+          needsTraining: userModel.needsTraining,
+          canRetrain: userModel.canRetrain
+        } : null
+      });
+
+      if (hasTrainedModel && isModelCompleted) {
+        // User has completed trained model - go to Studio
+        console.log('✅ SmartHome: User has completed training, routing to /app/studio');
         setHasRedirected(true);
         window.location.href = ROUTES.APP + '/studio';
+      } else if (modelStatus === 'training') {
+        // User model is currently training - go to training page to show progress
+        console.log('⏳ SmartHome: Model is training, routing to /app/training');
+        setHasRedirected(true);
+        window.location.href = ROUTES.APP + '/training';
       } else {
-        // User needs to train model - go to Training
-        console.log('✅ SmartHome: User needs training, routing to /app/training', {
-          userId: user.id?.substring(0, 8) + '...',
-          trainingStatus: userModel?.trainingStatus,
-          hasTrainedModel
-        });
+        // User needs to start or restart training
+        console.log('🎯 SmartHome: User needs training, routing to /app/training');
         setHasRedirected(true);
         window.location.href = ROUTES.APP + '/training';
       }
