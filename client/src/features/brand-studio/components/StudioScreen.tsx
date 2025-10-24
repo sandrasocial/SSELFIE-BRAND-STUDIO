@@ -85,8 +85,8 @@ const StudioScreen: React.FC<StudioScreenProps> = ({ onTabChange, hasTrainedMode
   const { data: kpis } = useQuery({
     queryKey: ['/api/studio/kpis'],
     enabled: isAuthenticated && !!user,
-    staleTime: 30 * 1000,
-    refetchInterval: 15 * 1000,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchInterval: 2 * 60 * 1000, // 2 minutes instead of 15 seconds
     refetchOnWindowFocus: false,
     queryFn: async () => apiFetch('/studio/kpis')
   });
@@ -97,8 +97,8 @@ const StudioScreen: React.FC<StudioScreenProps> = ({ onTabChange, hasTrainedMode
   const { data: activityData } = useQuery({
     queryKey: ['/api/studio/recent-activity'],
     enabled: isAuthenticated && !!user,
-    staleTime: 60 * 1000,
-    refetchInterval: 30 * 1000,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchInterval: 3 * 60 * 1000, // 3 minutes instead of 30 seconds
     refetchOnWindowFocus: false,
     queryFn: async () => apiFetch('/studio/recent-activity')
   });
