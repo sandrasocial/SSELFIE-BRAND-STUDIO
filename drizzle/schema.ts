@@ -1,6 +1,9 @@
 import { pgTable, serial, varchar, text, boolean, jsonb, timestamp, integer, numeric, uniqueIndex, index, foreignKey, unique, uuid, check, json, real, inet, pgMaterializedView, bigint } from "drizzle-orm/pg-core"
 import { sql } from "drizzle-orm"
 
+// PostgreSQL function for generating UUIDs
+const gen_random_uuid = () => sql`gen_random_uuid()`
+
 
 
 export const agentCapabilities = pgTable("agent_capabilities", {
