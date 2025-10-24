@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/use-auth.js';
 import { useLocation } from 'wouter';
 import { Camera, Grid, User, Star, MessageCircle, Image } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { apiFetch } from '../lib/api.js';
 
 // Import screen components
 import StudioScreen from '../features/brand-studio/components/StudioScreen.js';
@@ -14,9 +16,9 @@ const GalleryScreen = React.lazy(() => import('../features/gallery/components/En
 const AcademyScreen = React.lazy(() => import('../features/academy/components/AcademyScreen.js'));
 const TrainingScreen = React.lazy(() => import('../features/training/components/TrainingScreen.js'));
 
-// Status Bar Component with enhanced design
+// Status Bar Component with enhanced design  
 // @ts-ignore - FC type compatibility with JSX.Element
-const StatusBar: React.FC<{ currentTime: Date; hasTrainedModel: boolean; setHasTrainedModel: (value: boolean) => void }> = ({ currentTime, hasTrainedModel, setHasTrainedModel }) => {
+const StatusBar: React.FC<{ currentTime: Date; hasTrainedModel: boolean; trainingStatus: string }> = ({ currentTime, hasTrainedModel, trainingStatus }) => {
   return (
     <div className="flex justify-between items-center px-4 sm:px-6 md:px-8 py-4 sm:py-5 md:py-6 bg-gradient-to-b from-white/40 to-transparent backdrop-blur-xl border-b border-white/20">
       <div className="flex items-center gap-2 sm:gap-3">
@@ -27,13 +29,12 @@ const StatusBar: React.FC<{ currentTime: Date; hasTrainedModel: boolean; setHasT
         </div>
       </div>
       <div className="flex items-center space-x-2 sm:space-x-3">
-        <button
-          onClick={() => setHasTrainedModel(!hasTrainedModel)}
-          className="px-3 sm:px-4 py-1.5 sm:py-2 text-[10px] sm:text-xs tracking-wide font-medium bg-white/60 hover:bg-white/80 backdrop-blur-xl rounded-full transition-all duration-300 border border-white/40 shadow-lg shadow-stone-900/10"
-          title="Toggle user type"
+        <div
+          className="px-3 sm:px-4 py-1.5 sm:py-2 text-[10px] sm:text-xs tracking-wide font-medium bg-white/60 backdrop-blur-xl rounded-full border border-white/40 shadow-lg shadow-stone-900/10"
+          title={`Training Status: ${trainingStatus}`}
         >
-          {hasTrainedModel ? 'Current' : 'New'} User
-        </button>
+          {hasTrainedModel ? 'Model Ready' : trainingStatus === 'training' ? 'Training...' : 'New User'}
+        </div>
         <div className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 sm:py-2 bg-white/60 backdrop-blur-xl rounded-full border border-white/40">
           <div className="flex space-x-0.5 sm:space-x-1">
             <div className="w-0.5 sm:w-1 h-2 sm:h-3 bg-stone-900 rounded-full"></div>
@@ -133,11 +134,10 @@ interface MainContentProps {
   initialPrompt: string | null;
   onPromptUsed: () => void;
   hasTrainedModel: boolean;
-  setHasTrainedModel: (value: boolean) => void;
 }
 
 // @ts-ignore - FC type compatibility with JSX.Element
-const MainContent: React.FC<MainContentProps> = ({ activeTab, onTabChange, initialPrompt, onPromptUsed, hasTrainedModel, setHasTrainedModel }) => {
+const MainContent: React.FC<MainContentProps> = ({ activeTab, onTabChange, initialPrompt, onPromptUsed, hasTrainedModel }) => {
   const renderContent = () => {
     switch (activeTab) {
       case 'studio':
@@ -145,7 +145,7 @@ const MainContent: React.FC<MainContentProps> = ({ activeTab, onTabChange, initi
       case 'training':
         return (
           <React.Suspense fallback={<div className="text-center py-8">Loading...</div>}>
-            <TrainingScreen setHasTrainedModel={setHasTrainedModel} setActiveTab={onTabChange} />
+            <TrainingScreen setActiveTab={onTabChange} />
           </React.Suspense>
         );
       case 'maya':
@@ -183,9 +183,21 @@ const SselfieAppLayout: React.FC = () => {
   const [activeTab, setActiveTab] = useState('studio');
   const [isLoading, setIsLoading] = useState(true);
   const [initialPrompt, setInitialPrompt] = useState<string | null>(null);
-  const [hasTrainedModel, setHasTrainedModel] = useState(false);
-  const { user, isLoading: authLoading } = useAuth();
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const [location] = useLocation();
+
+  // Get real user model data
+  const { data: userModel, isLoading: modelLoading } = useQuery({
+    queryKey: ['/api/user-model'],
+    enabled: !!user && isAuthenticated,
+    retry: false,
+    staleTime: 30 * 1000,
+    queryFn: () => apiFetch('/user-model')
+  });
+
+  // Determine if user has a trained model based on real data
+  const hasTrainedModel = userModel?.trainingStatus === 'completed';
+  const trainingStatus = userModel?.trainingStatus || 'not_started';
 
   useEffect(() => {
     const clockTimer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -224,20 +236,20 @@ const SselfieAppLayout: React.FC = () => {
   // Show loading screen while auth is loading or for minimum 1.5 seconds for smooth experience
   useEffect(() => {
     const minLoadTime = setTimeout(() => {
-      if (!authLoading) {
+      if (!authLoading && !modelLoading) {
         setIsLoading(false);
       }
     }, 1500);
 
     return () => clearTimeout(minLoadTime);
-  }, [authLoading]);
+  }, [authLoading, modelLoading]);
 
-  // Also hide loading when auth completes
+  // Also hide loading when auth completes and model data is available
   useEffect(() => {
-    if (!authLoading && user) {
+    if (!authLoading && !modelLoading && user) {
       setIsLoading(false);
     }
-  }, [authLoading, user]);
+  }, [authLoading, modelLoading, user]);
 
   const handleTabChange = (tabId: string) => {
     setActiveTab(tabId);
@@ -259,7 +271,7 @@ const SselfieAppLayout: React.FC = () => {
       <div className="relative h-full mx-1 sm:mx-2 md:mx-3 pt-1 sm:pt-2 pb-28 sm:pb-28">
         <div className="h-full bg-white/30 backdrop-blur-3xl rounded-[2rem] sm:rounded-[2.5rem] md:rounded-[3rem] border border-white/40 overflow-hidden shadow-2xl shadow-stone-900/10">
 
-          <StatusBar currentTime={currentTime} hasTrainedModel={hasTrainedModel} setHasTrainedModel={setHasTrainedModel} />
+          <StatusBar currentTime={currentTime} hasTrainedModel={hasTrainedModel} trainingStatus={trainingStatus} />
 
           <MainContent
             activeTab={activeTab}
@@ -267,7 +279,6 @@ const SselfieAppLayout: React.FC = () => {
             initialPrompt={initialPrompt}
             onPromptUsed={() => setInitialPrompt(null)}
             hasTrainedModel={hasTrainedModel}
-            setHasTrainedModel={setHasTrainedModel}
           />
         </div>
       </div>
