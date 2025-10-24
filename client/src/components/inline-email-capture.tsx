@@ -91,7 +91,7 @@ export const InlineEmailCapture: FC<InlineEmailCaptureProps> = ({
 
           {/* Right side - Form */}
           <div className="order-1 lg:order-2">
-            <div className="text-xs uppercase tracking-[0.4em] text-white/60 mb-6">
+            <div className="text-xs uppercase tracking-[0.4em] text-white/85 mb-6">
               {plan === 'basic' ? 'Start Basic' : 'Join Full Access'}
             </div>
             
@@ -99,7 +99,7 @@ export const InlineEmailCapture: FC<InlineEmailCaptureProps> = ({
               Ready to build<br />your brand?
             </h2>
             
-            <p className="text-white/80 mb-8 leading-relaxed text-lg">
+            <p className="text-white/90 mb-8 leading-relaxed text-lg">
               {plan === 'basic' ? (
                 "Get your personal AI model trained on your selfies. Start creating professional photos with Maya's help for €29/month."
               ) : (
