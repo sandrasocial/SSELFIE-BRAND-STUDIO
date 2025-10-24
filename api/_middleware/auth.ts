@@ -174,8 +174,29 @@ async function verifyJWTToken(token: string): Promise<JWTPayload & StackAuthUser
 }
 
 /**
+ * Validate JWT token format (must be 3 parts separated by dots)
+ * ✅ NEW: Prevent malformed tokens from being processed
+ */
+function isValidJWTFormat(token: string): boolean {
+  if (!token || typeof token !== 'string') return false;
+
+  // JWT must have exactly 3 parts separated by dots
+  const parts = token.split('.');
+  if (parts.length !== 3) return false;
+
+  // Each part must be non-empty
+  if (parts.some(part => !part)) return false;
+
+  // Token should not look like JSON (starts with [ or {)
+  if (token.startsWith('[') || token.startsWith('{')) return false;
+
+  return true;
+}
+
+/**
  * Extract token from request (cookies or headers)
  * ✅ SIMPLIFIED: Stack Auth uses 'stack-access' as the primary cookie name
+ * ✅ NEW: Validate token format before returning
  */
 function extractToken(req: VercelRequest): string | undefined {
   const cookies = parseCookies(req.headers.cookie);
@@ -183,7 +204,7 @@ function extractToken(req: VercelRequest): string | undefined {
   // ✅ PRIMARY: Stack Auth's standard cookie name
   if (cookies['stack-access']) {
     const token = cookies['stack-access'];
-    if (token && typeof token === 'string' && token.length > 20) {
+    if (isValidJWTFormat(token)) {
       return token;
     }
   }
@@ -197,7 +218,7 @@ function extractToken(req: VercelRequest): string | undefined {
 
   for (const name of fallbackCookieNames) {
     const token = cookies[name];
-    if (token && typeof token === 'string' && token.length > 20) {
+    if (isValidJWTFormat(token)) {
       return token;
     }
   }
@@ -205,12 +226,18 @@ function extractToken(req: VercelRequest): string | undefined {
   // FALLBACK: Authorization header (Bearer token)
   const authHeader = req.headers.authorization;
   if (authHeader?.startsWith('Bearer ')) {
-    return authHeader.substring(7);
+    const token = authHeader.substring(7);
+    if (isValidJWTFormat(token)) {
+      return token;
+    }
   }
 
   // FALLBACK: Custom header forwarded by proxy
   if (req.headers['x-stack-access-token']) {
-    return req.headers['x-stack-access-token'] as string;
+    const token = req.headers['x-stack-access-token'] as string;
+    if (isValidJWTFormat(token)) {
+      return token;
+    }
   }
 
   return undefined;
@@ -327,18 +354,42 @@ async function getOrCreateDatabaseUser(
       profileImageUrl: payload.profileImageUrl || payload.profile_image_url || null,
     });
 
-    // Update last login timestamp
-    const updatedUser = await storage.updateUserProfile(userId, {
-      lastLoginAt: new Date()
-    });
+    if (!user) {
+      throw new Error('Failed to create or retrieve user from database');
+    }
 
+    // Update last login timestamp
+    let updatedUser = user;
+    try {
+      const result = await storage.updateUserProfile(userId, {
+        lastLoginAt: new Date()
+      });
+      if (result) {
+        updatedUser = result;
+      }
+    } catch (updateError) {
+      console.warn('⚠️ Failed to update user profile, using upserted user:', updateError);
+      // Continue with the upserted user if update fails
+    }
+
+    // ✅ NEW: Ensure all required fields exist
     return {
-      ...updatedUser,
+      id: updatedUser.id || userId,
+      stackAuthId: updatedUser.stackAuthId || userId,
+      email: updatedUser.email || email || null,
+      displayName: updatedUser.displayName || displayName || null,
+      firstName: updatedUser.firstName || payload.given_name || null,
+      lastName: updatedUser.lastName || null,
+      profileImageUrl: updatedUser.profileImageUrl || payload.profileImageUrl || payload.profile_image_url || null,
       onboardingProgress: (updatedUser.onboardingProgress || {}) as any,
+      lastLoginAt: updatedUser.lastLoginAt || new Date(),
       stackUser: payload as StackAuthUserInfo
     } as AuthenticatedUser;
   } catch (error) {
-    console.error('❌ Failed to get or create database user:', error);
+    console.error('❌ Failed to get or create database user:', {
+      error: error instanceof Error ? error.message : error,
+      userId: payload.sub || payload.user_id || payload.id
+    });
     throw error;
   }
 }
@@ -405,6 +456,14 @@ export async function withAuth<T = void>(
     const token = extractToken(req);
 
     if (!token) {
+      console.warn('⚠️ No valid authentication token found', {
+        url: req.url,
+        method: req.method,
+        hasCookies: !!req.headers.cookie,
+        hasAuthHeader: !!req.headers.authorization,
+        hasCustomHeader: !!req.headers['x-stack-access-token']
+      });
+
       if (options.optional) {
         // Optional auth - continue without user
         return await handler(req as AuthenticatedRequest, res);
@@ -415,6 +474,13 @@ export async function withAuth<T = void>(
         message: 'No authentication token provided'
       });
     }
+
+    // ✅ NEW: Log token extraction success
+    console.log('✅ Token extracted successfully', {
+      tokenLength: token.length,
+      tokenPrefix: token.substring(0, 20) + '...',
+      url: req.url
+    });
 
     // Check token cache
     const tokenHash = hashToken(token);
