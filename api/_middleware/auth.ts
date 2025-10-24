@@ -194,17 +194,53 @@ function isValidJWTFormat(token: string): boolean {
 }
 
 /**
+ * Extract JWT token from Stack Auth cookie format
+ * Stack Auth stores tokens as: ["refreshToken", "accessToken"]
+ * ✅ NEW: Handle Stack Auth's JSON array cookie format
+ */
+function extractTokenFromStackAuthCookie(cookieValue: string): string | undefined {
+  try {
+    // Try to parse as JSON array (Stack Auth format)
+    const decoded = decodeURIComponent(cookieValue);
+
+    // Check if it looks like a JSON array
+    if (decoded.startsWith('[')) {
+      const parsed = JSON.parse(decoded);
+
+      // Stack Auth format: ["refreshToken", "accessToken"]
+      if (Array.isArray(parsed) && parsed.length >= 2 && typeof parsed[1] === 'string') {
+        const token = parsed[1];
+        if (isValidJWTFormat(token)) {
+          console.log('✅ Extracted token from Stack Auth cookie array');
+          return token;
+        }
+      }
+    }
+
+    // Try direct JWT if not an array
+    if (isValidJWTFormat(decoded)) {
+      console.log('✅ Found direct JWT in cookie');
+      return decoded;
+    }
+  } catch (error) {
+    console.warn('⚠️ Failed to parse Stack Auth cookie:', error);
+  }
+
+  return undefined;
+}
+
+/**
  * Extract token from request (cookies or headers)
  * ✅ SIMPLIFIED: Stack Auth uses 'stack-access' as the primary cookie name
- * ✅ NEW: Validate token format before returning
+ * ✅ NEW: Handle Stack Auth's JSON array cookie format
  */
 function extractToken(req: VercelRequest): string | undefined {
   const cookies = parseCookies(req.headers.cookie);
 
   // ✅ PRIMARY: Stack Auth's standard cookie name
   if (cookies['stack-access']) {
-    const token = cookies['stack-access'];
-    if (isValidJWTFormat(token)) {
+    const token = extractTokenFromStackAuthCookie(cookies['stack-access']);
+    if (token) {
       return token;
     }
   }
@@ -217,9 +253,12 @@ function extractToken(req: VercelRequest): string | undefined {
   ];
 
   for (const name of fallbackCookieNames) {
-    const token = cookies[name];
-    if (isValidJWTFormat(token)) {
-      return token;
+    const cookieValue = cookies[name];
+    if (cookieValue) {
+      const token = extractTokenFromStackAuthCookie(cookieValue);
+      if (token) {
+        return token;
+      }
     }
   }
 
@@ -228,6 +267,7 @@ function extractToken(req: VercelRequest): string | undefined {
   if (authHeader?.startsWith('Bearer ')) {
     const token = authHeader.substring(7);
     if (isValidJWTFormat(token)) {
+      console.log('✅ Found token in Authorization header');
       return token;
     }
   }
@@ -236,6 +276,7 @@ function extractToken(req: VercelRequest): string | undefined {
   if (req.headers['x-stack-access-token']) {
     const token = req.headers['x-stack-access-token'] as string;
     if (isValidJWTFormat(token)) {
+      console.log('✅ Found token in custom header');
       return token;
     }
   }
