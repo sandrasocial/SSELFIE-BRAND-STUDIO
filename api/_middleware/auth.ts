@@ -124,6 +124,7 @@ async function getJWKS() {
 
 /**
  * Verify JWT token with Stack Auth JWKS
+ * ✅ FIXED: Supports both regular and anonymous user tokens
  * ✅ FIXED: Invalidates JWKS cache on verification failure to catch key rotations
  */
 async function verifyJWTToken(token: string): Promise<JWTPayload & StackAuthUserInfo> {
@@ -137,9 +138,17 @@ async function verifyJWTToken(token: string): Promise<JWTPayload & StackAuthUser
 
     const localJwks = createLocalJWKSet(jwks);
 
+    // ✅ NEW: Support both regular and anonymous user tokens
+    // Regular tokens: issuer = https://api.stack-auth.com/api/v1/projects/{projectId}
+    // Anonymous tokens: issuer = https://api.stack-auth.com/api/v1/projects-anonymous-users/{projectId}
+    const anonymousIssuer = STACK_ISSUER.replace(
+      '/projects/',
+      '/projects-anonymous-users/'
+    );
+
     const { payload } = await jwtVerify(token, localJwks, {
-      issuer: STACK_ISSUER,
-      audience: STACK_PROJECT_ID,
+      issuer: [STACK_ISSUER, anonymousIssuer],
+      audience: [STACK_PROJECT_ID, `${STACK_PROJECT_ID}:anon`],
       clockTolerance: 30, // Allow 30 seconds clock skew
     });
 
@@ -208,6 +217,84 @@ function extractToken(req: VercelRequest): string | undefined {
 }
 
 /**
+ * Extract refresh token from request cookies
+ * ✅ NEW: Support token refresh mechanism
+ */
+function extractRefreshToken(req: VercelRequest): string | undefined {
+  const cookies = parseCookies(req.headers.cookie);
+
+  // ✅ PRIMARY: Stack Auth's standard refresh token cookie name
+  if (cookies['stack-refresh']) {
+    const token = cookies['stack-refresh'];
+    if (token && typeof token === 'string' && token.length > 20) {
+      return token;
+    }
+  }
+
+  // FALLBACK: Try alternative refresh token cookie names
+  const fallbackCookieNames = [
+    'stack_refresh',
+    'stack-refresh-token',
+    'stack_refresh_token',
+  ];
+
+  for (const name of fallbackCookieNames) {
+    const token = cookies[name];
+    if (token && typeof token === 'string' && token.length > 20) {
+      return token;
+    }
+  }
+
+  return undefined;
+}
+
+/**
+ * Refresh access token using refresh token
+ * ✅ NEW: Implement token refresh mechanism
+ */
+async function refreshAccessToken(refreshToken: string): Promise<string | null> {
+  try {
+    // Call Stack Auth refresh endpoint
+    const response = await fetchWithTimeout(
+      `${STACK_AUTH_API_URL}/api/v1/auth/sessions/current/refresh`,
+      5000,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-stack-project-id': STACK_PROJECT_ID,
+          'x-stack-refresh-token': refreshToken,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      console.error('❌ Token refresh failed:', {
+        status: response.status,
+        statusText: response.statusText
+      });
+      return null;
+    }
+
+    const data = await response.json();
+    const newAccessToken = data.accessToken || data.access_token;
+
+    if (!newAccessToken) {
+      console.error('❌ No access token in refresh response');
+      return null;
+    }
+
+    console.log('✅ Token refreshed successfully');
+    return newAccessToken;
+  } catch (error) {
+    console.error('❌ Token refresh error:', {
+      error: error instanceof Error ? error.message : error
+    });
+    return null;
+  }
+}
+
+/**
  * Get or create database user from Stack Auth payload
  * ✅ FIXED: Uses upsertUser to prevent race conditions with concurrent requests
  */
@@ -257,11 +344,39 @@ async function getOrCreateDatabaseUser(
 }
 
 // ============================================================================
+// ERROR HANDLING
+// ============================================================================
+
+/**
+ * Detect JWT error type for better error handling
+ * ✅ NEW: Support specific error types
+ */
+function getJWTErrorCode(error: any): string {
+  if (error.code) return error.code;
+
+  const message = error.message || String(error);
+
+  if (message.includes('expired')) return 'ERR_JWT_EXPIRED';
+  if (message.includes('signature')) return 'ERR_JWT_INVALID_SIGNATURE';
+  if (message.includes('audience')) return 'ERR_JWT_INVALID_AUDIENCE';
+  if (message.includes('issuer')) return 'ERR_JWT_INVALID_ISSUER';
+  if (message.includes('malformed')) return 'ERR_JWT_MALFORMED';
+
+  return 'ERR_JWT_UNKNOWN';
+}
+
+// ============================================================================
 // MAIN AUTHENTICATION MIDDLEWARE
 // ============================================================================
 
 /**
  * ✅ UNIFIED withAuth middleware - Single source of truth for all authentication
+ *
+ * Features:
+ * - Supports regular and anonymous user tokens
+ * - Automatic token refresh on expiration
+ * - Multiple token extraction methods
+ * - Specific error handling
  *
  * Usage:
  * ```typescript
@@ -313,7 +428,96 @@ export async function withAuth<T = void>(
     }
 
     // Verify JWT token
-    const payload = await verifyJWTToken(token);
+    let payload: JWTPayload & StackAuthUserInfo;
+
+    try {
+      payload = await verifyJWTToken(token);
+    } catch (verifyError) {
+      // ✅ NEW: Handle token expiration with refresh
+      const errorCode = getJWTErrorCode(verifyError);
+
+      if (errorCode === 'ERR_JWT_EXPIRED') {
+        console.log('⏰ Token expired, attempting refresh...');
+
+        const refreshToken = extractRefreshToken(req);
+
+        if (refreshToken) {
+          const newAccessToken = await refreshAccessToken(refreshToken);
+
+          if (newAccessToken) {
+            // ✅ NEW: Set new token in cookie
+            res.setHeader(
+              'Set-Cookie',
+              `stack-access=${newAccessToken}; Path=/; HttpOnly; Secure; SameSite=Lax`
+            );
+
+            // Retry verification with new token
+            try {
+              payload = await verifyJWTToken(newAccessToken);
+              console.log('✅ Token refreshed and verified successfully');
+            } catch (retryError) {
+              console.error('❌ Verification failed after refresh:', retryError);
+              return res.status(401).json({
+                error: 'Token refresh failed',
+                code: 'TOKEN_REFRESH_FAILED',
+                message: 'Failed to verify refreshed token'
+              });
+            }
+          } else {
+            return res.status(401).json({
+              error: 'Token expired',
+              code: 'TOKEN_EXPIRED',
+              message: 'Your session has expired. Please sign in again.'
+            });
+          }
+        } else {
+          return res.status(401).json({
+            error: 'Token expired',
+            code: 'TOKEN_EXPIRED',
+            message: 'Your session has expired. Please sign in again.'
+          });
+        }
+      } else {
+        // ✅ NEW: Return specific error codes
+        console.error('❌ JWT verification failed:', {
+          code: errorCode,
+          error: verifyError instanceof Error ? verifyError.message : verifyError,
+          url: req.url,
+          method: req.method
+        });
+
+        const errorResponses: Record<string, any> = {
+          'ERR_JWT_INVALID_SIGNATURE': {
+            error: 'Invalid token',
+            code: 'INVALID_SIGNATURE',
+            message: 'Token signature is invalid'
+          },
+          'ERR_JWT_INVALID_AUDIENCE': {
+            error: 'Invalid token',
+            code: 'INVALID_AUDIENCE',
+            message: 'Token is for a different project'
+          },
+          'ERR_JWT_INVALID_ISSUER': {
+            error: 'Invalid token',
+            code: 'INVALID_ISSUER',
+            message: 'Token issuer is invalid'
+          },
+          'ERR_JWT_MALFORMED': {
+            error: 'Invalid token',
+            code: 'MALFORMED_TOKEN',
+            message: 'Token format is invalid'
+          }
+        };
+
+        const errorResponse = errorResponses[errorCode] || {
+          error: 'Authentication failed',
+          code: errorCode,
+          message: verifyError instanceof Error ? verifyError.message : 'Unknown error'
+        };
+
+        return res.status(401).json(errorResponse);
+      }
+    }
 
     // Cache the payload
     TOKEN_CACHE.set(tokenHash, {
