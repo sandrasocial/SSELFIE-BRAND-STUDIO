@@ -1,13 +1,12 @@
 {
-  "framework": "vite",
+  "framework": null,
   "version": 2,
   "buildCommand": "npm run build",
   "installCommand": "npm install",
   "outputDirectory": "client/dist",
   "functions": {
-    "api/**": {
-      "memory": 3008,
-      "maxDuration": 60
+    "api/**/*.ts": {
+      "runtime": "@vercel/node@5.4.1"
     }
   },
 

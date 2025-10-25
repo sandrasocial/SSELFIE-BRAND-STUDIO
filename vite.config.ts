@@ -143,16 +143,12 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
     root: path.resolve(__dirname, "client"),
     server: (() => {
       const isProd = process.env.NODE_ENV === 'production';
-      const isVercelDev = !!process.env.VERCEL; // vercel dev sets VERCEL=1
-      const devApiTarget = process.env.VITE_API_PROXY_TARGET || 'http://localhost:3002';
+      const devApiTarget = process.env.VITE_API_PROXY_TARGET || 'http://localhost:3001';
       const base = {
         hmr: { overlay: true },
         watch: { usePolling: true }
-      } as any;
-      if (isVercelDev) {
-        // Under `vercel dev`, API routes are served by the same origin; do not proxy.
-        return base;
-      }
+      };
+      // Always proxy API requests in development, regardless of Vercel dev mode
       return {
         ...base,
         proxy: {
@@ -168,8 +164,10 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
               }
             }
           }
-        }
-      } as any;
+        },
+        // Enable SPA routing - serve index.html for all routes that don't match static files
+        historyApiFallback: true
+      };
     })(),
       build: {
       outDir: path.resolve(__dirname, "client/dist"),

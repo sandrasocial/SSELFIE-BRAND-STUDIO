@@ -16,7 +16,7 @@ import { StackClientApp } from "@stackframe/react";
                    input instanceof URL ? input.toString() : 
                    (input as Request)?.url || String(input);
 
-        console.log('🔍 Fetch intercepted:', url);
+        console.log('🔍 Fetch intercepted:', url, 'method:', init?.method, 'hasBody:', !!init?.body);
 
         // 🔥 SIMPLIFIED: Catch ALL Stack Auth API calls
         if (url.includes('api.stack-auth.com')) {
@@ -26,11 +26,14 @@ import { StackClientApp } from "@stackframe/react";
           const proxiedUrl = `/api/auth${path}`;
           
           console.log('🔁 Proxying Stack Auth request:', url, '→', proxiedUrl);
+          console.log('🔁 Request details:', { method: init?.method, hasBody: !!init?.body, bodyType: typeof init?.body });
           
           const finalInit: RequestInit = { 
             ...(init || {}), 
             credentials: 'include' 
           };
+          
+          console.log('🔁 Final request init:', { method: finalInit.method, hasBody: !!finalInit.body });
           
           return await originalFetch(proxiedUrl, finalInit);
         }
@@ -43,11 +46,14 @@ import { StackClientApp } from "@stackframe/react";
           const proxiedUrl = `/api/auth${path}`;
           
           console.log('🔁 Proxying API v1 request:', url, '→', proxiedUrl);
+          console.log('🔁 Request details:', { method: init?.method, hasBody: !!init?.body });
           
           const finalInit: RequestInit = { 
             ...(init || {}), 
             credentials: 'include' 
           };
+          
+          console.log('🔁 Final request init:', { method: finalInit.method, hasBody: !!finalInit.body });
           
           return await originalFetch(proxiedUrl, finalInit);
         }
@@ -91,14 +97,10 @@ console.log('🔍 Stack Auth Environment Variables:', {
   globalThisKeys: Object.keys(globalThis).filter(k => k.includes('STACK')),
 });
 
-// Debug logging
-console.log('🔍 Stack Auth Configuration:', {
-  projectId: STACK_PROJECT_ID,
-  publishableClientKey: STACK_PUBLISHABLE_CLIENT_KEY?.substring(0, 20) + '...',
-  projectIdPresent: !!STACK_PROJECT_ID,
-  keyPresent: !!STACK_PUBLISHABLE_CLIENT_KEY,
-  keyStartsWith: STACK_PUBLISHABLE_CLIENT_KEY?.startsWith?.('pck_'),
-});
+// 🔥 CRITICAL FIX: Use relative path for OAuth callback as Stack handles redirects internally
+const OAUTH_CALLBACK_PATH = "/handler/oauth-callback";
+
+console.log('🔍 OAuth Callback Path:', OAUTH_CALLBACK_PATH);
 
 // Validate configuration before creating StackClientApp
 if (!STACK_PROJECT_ID || !STACK_PUBLISHABLE_CLIENT_KEY) {
@@ -132,6 +134,7 @@ try {
       // ✅ FIXED: Use /handler routes to match server configuration
       signIn: "/handler/sign-in",  // Stack Auth sign-in page
       signUp: "/handler/sign-up",  // Stack Auth sign-up page
+      oauthCallback: "/handler",  // 🔥 FIXED: Use /handler as Stack default for OAuth callbacks
       afterSignIn: "/app",  // ✅ FIXED: Direct redirect to app after sign-in
       afterSignUp: "/app",  // ✅ FIXED: Direct redirect to app after sign-up
       afterSignOut: "/",

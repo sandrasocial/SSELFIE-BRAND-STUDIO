@@ -37,8 +37,8 @@ import {
   Privacy,
   NotFound,
   SSELFIEGallery,
-  AICommandCenter,
-  SignInPage
+  AICommandCenter
+  // SignInPage - REMOVED: Let Stack handle all auth through /handler routes
 } from './pages/lazy-pages';
 
 import { PUBLIC_ROUTES } from "./constants/routes";
@@ -133,9 +133,9 @@ function SmartHome() {
       }
     } else if (!isAuthLoading && !isAuthenticated) {
       // User not authenticated - redirect to sign-in
-      console.log('🔐 SmartHome: User not authenticated, redirecting to /sign-in');
+      console.log('🔐 SmartHome: User not authenticated, redirecting to /handler/sign-in');
       setHasRedirected(true);
-      window.location.href = '/sign-in';
+      window.location.href = '/handler/sign-in';
     }
   }, [isAuthenticated, user, hasTrainedModel, isModelLoading, isAuthLoading, hasRedirected, modelStatus?.trainingStatus]);
 
@@ -152,10 +152,11 @@ function SmartHome() {
   }
 }
 
-// ✅ Stack Auth Handler - Following documentation exactly
+// ✅ Stack Auth Handler - Let Stack handle ALL authentication internally
 function HandlerRoutes() {
   const [location] = useLocation();
-  const { stackUser } = useAuth({ silent: true });
+
+  console.log('🔍 HandlerRoutes: Processing route:', location);
 
   if (!stackClientApp) {
     return createElement('div',
@@ -172,19 +173,11 @@ function HandlerRoutes() {
     );
   }
 
-  // ✅ FIXED: After Stack Auth completes, redirect to /app
-  // This ensures the user is properly authenticated before showing the app
-  if (stackUser && location.includes('/handler/')) {
-    console.log('✅ Stack Auth completed, user authenticated:', stackUser.id);
-    window.location.href = ROUTES.APP;
-    return createElement('div', { className: "min-h-screen bg-stone-50 flex items-center justify-center" },
-      createElement('div', { className: "text-center" },
-        createElement('p', { className: "text-gray-600" }, "Redirecting to app...")
-      )
-    );
-  }
+  // ✅ REMOVED: Custom redirect logic - Let Stack handle ALL authentication flows internally
+  // Stack will automatically redirect to afterSignIn/afterSignUp URLs after successful auth
 
   // ✅ Use StackHandler exactly as Stack Auth documentation shows
+  console.log('🔍 HandlerRoutes: Rendering StackHandler for location:', location);
   return createElement(StackHandler, {
     app: stackClientApp,
     location: location,
@@ -219,11 +212,11 @@ function Router() {
         component={() => <BusinessLanding />}
       />
 
-      {/* Authentication pages */}
-      <Route
+      {/* Authentication pages - REMOVED: Let Stack handle all auth through /handler routes */}
+      {/* <Route
         path="/sign-in"
         component={() => <SignInPage />}
-      />
+      /> */}
 
       {/* Protected onboarding routes */}
       <Route
