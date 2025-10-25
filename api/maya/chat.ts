@@ -1,18 +1,24 @@
 /**
  * Vercel Serverless Function - /api/maya/chat
- * Maya AI chat endpoint - delegates to server implementation
+ * Delegates to server implementation
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import handler from '../../dist/server/server/api/maya/chat.js';
 
-export default async function mayaChatHandler(req: VercelRequest, res: VercelResponse) {
-  return handler(req, res);
+ 
+
+export default async function chatHandler(req: VercelRequest, res: VercelResponse) {
+  try {
+    const { default: handler } = await import('../../server/api/maya/chat.js');
+    return handler(req, res);
+  } catch (error) {
+    console.error('❌ Failed to import Maya chat handler:', error);
+    res.status(500).json({ error: 'Import failed', details: error.message });
+  }
 }
 
 export const config = {
   runtime: 'nodejs',
-  maxDuration: 60,
-  memory: 3008
+  maxDuration: 30
 };
 

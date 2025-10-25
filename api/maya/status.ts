@@ -9,7 +9,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 export default async function statusHandler(req: VercelRequest, res: VercelResponse) {
   try {
-    const { default: handler } = await import('../../dist/server/server/api/maya/status.js');
+    const { default: handler } = await import('../../server/api/maya/status.js');
     return handler(req, res);
   } catch (error) {
     console.error('❌ Failed to import Maya status handler:', error);
