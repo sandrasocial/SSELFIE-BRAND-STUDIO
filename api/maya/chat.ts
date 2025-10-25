@@ -9,7 +9,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 export default async function chatHandler(req: VercelRequest, res: VercelResponse) {
   try {
-    const { default: handler } = await import('../../server/api/maya/chat.js');
+    const { default: handler } = await import('../../dist/server/server/api/maya/chat.js');
     return handler(req, res);
   } catch (error) {
     console.error('❌ Failed to import Maya chat handler:', error);
