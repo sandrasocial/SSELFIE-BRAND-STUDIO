@@ -1959,7 +1959,7 @@ export type {
   InsertMayaSubscription,
   InsertMayaUsageTracking,
   InsertMayaUsageBudget
-} from './schema-maya';
+} from './schema-maya.js';
 
 // Import Maya schemas from schema-maya.ts
 export {
@@ -1975,7 +1975,7 @@ export {
   insertMayaSubscriptionSchema,
   insertMayaUsageTrackingSchema,
   insertMayaUsageBudgetSchema
-} from './schema-maya';
+} from './schema-maya.js';
 
 // Additional Missing Table Types
 export type UserSimplifiedProfile = typeof userSimplifiedProfile.$inferSelect;
