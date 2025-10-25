@@ -4,7 +4,7 @@
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import handler from '../../dist/server/server/api/maya/chat-history.js';
+import handler from '../../server/api/maya/chat-history';
 
 export default async function mayaChatHistoryHandler(req: VercelRequest, res: VercelResponse) {
   return handler(req, res);

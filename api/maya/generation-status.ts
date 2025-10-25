@@ -4,7 +4,7 @@
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import handler from '../../dist/server/server/api/maya/generation-status.js';
+import handler from '../../server/api/maya/generation-status';
 
 export default async function mayaGenerationStatusHandler(req: VercelRequest, res: VercelResponse) {
   return handler(req, res);

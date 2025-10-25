@@ -25,7 +25,7 @@
     "noPropertyAccessFromIndexSignature": false,
     "noImplicitOverride": false,
     "noUncheckedIndexedAccess": false,
-    "exactOptionalPropertyTypes": false,
+    "downlevelIteration": true,
     "experimentalDecorators": true,
     "useDefineForClassFields": true,
     "baseUrl": ".",

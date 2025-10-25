@@ -8,7 +8,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { withAuth } from '../_middleware/auth.js';
 import type { AuthenticatedRequest } from '../_shared/auth-types.js';
-import handler from '../../dist/server/server/api/maya/env-check.js';
+import handler from '../../server/api/maya/env-check';
 
 export const config = {
   runtime: 'nodejs',

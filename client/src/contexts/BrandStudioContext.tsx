@@ -500,10 +500,10 @@ export function BrandStudioProvider({ children, userModel }: { children: React.R
 
   // Load conversation history - NOW ENABLED with working endpoint
   const { isLoading, refetch: refetchChatHistory } = useQuery({
-    queryKey: ['/api/maya/chat-history'],
+    queryKey: ['maya/chat-history'],
     queryFn: async () => {
       console.log('🔄 CLIENT: Fetching Maya chat history');
-      const response = await apiFetch('/api/maya/chat-history');
+      const response = await apiFetch('/maya/chat-history');
       console.log(`📋 CLIENT: Received ${response.messages?.length || 0} messages from chat history`);
       if (response.messages?.length > 0) {
         // FIXED: Set messages atomically instead of appending to prevent duplicates
@@ -525,7 +525,7 @@ export function BrandStudioProvider({ children, userModel }: { children: React.R
       }));
 
       // Use authenticated apiFetch instead of direct fetch
-      return await apiFetch('/api/maya/chat', {
+      return await apiFetch('/maya/chat', {
         method: 'POST',
         json: {
           message: messageContent,
@@ -713,13 +713,10 @@ export function BrandStudioProvider({ children, userModel }: { children: React.R
 
       console.log('🎨 GENERATE: Using prompt:', String(finalPrompt).substring(0, 100) + '...');
 
-      // ✅ FIXED: Pass user model data to backend for personalized generation
-      // FIXED: Use correct endpoint /api/maya/generate (matches server handler)
-      const response = await fetch('/api/maya/generate', {
+      // ✅ FIXED: Use apiFetch instead of direct fetch for consistent authentication
+      return await apiFetch('/maya/generate', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
+        json: {
           conceptCard: {
             id: conceptCard.id,
             title: conceptCard.title,
@@ -727,15 +724,8 @@ export function BrandStudioProvider({ children, userModel }: { children: React.R
             fluxPrompt: finalPrompt
           },
           userModel: contextUserModel
-        })
+        }
       });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || 'Failed to generate image');
-      }
-
-      return response.json();
     },
     onSuccess: (data, cardId) => {
       console.log('🎨 GENERATE SUCCESS:', data, 'for card:', cardId);
@@ -838,15 +828,7 @@ export function BrandStudioProvider({ children, userModel }: { children: React.R
     
     const poll = async (): Promise<void> => {
       try {
-        const response = await fetch(`/api/maya/generation-status?predictionId=${jobId}`, {
-          credentials: 'include'
-        });
-        
-        if (!response.ok) {
-          throw new Error('Failed to check generation status');
-        }
-        
-        const data = await response.json();
+        const data = await apiFetch(`/maya/generation-status?predictionId=${jobId}`);
         console.log(`🔄 CLIENT POLLING: Status ${data.status} for ${jobId}`);
         
         if (data.status === 'completed') {
@@ -888,30 +870,24 @@ export function BrandStudioProvider({ children, userModel }: { children: React.R
           setTimeout(async () => {
             console.log(`🔍 CLIENT POLLING: Double-checking chat history after refresh`);
             try {
-              const recheckResponse = await fetch(`/api/maya/chat-history`, {
-                credentials: 'include'
-              });
+              const historyData = await apiFetch('/maya/chat-history');
+              const recentMessages = historyData.messages || [];
+              const hasRecentImages = recentMessages.some((msg: any) => 
+                msg.generatedImages && msg.generatedImages.length > 0 &&
+                new Date(msg.timestamp).getTime() > Date.now() - 10000 // Within last 10 seconds
+              );
               
-              if (recheckResponse.ok) {
-                const historyData = await recheckResponse.json();
-                const recentMessages = historyData.messages || [];
-                const hasRecentImages = recentMessages.some((msg: any) => 
-                  msg.generatedImages && msg.generatedImages.length > 0 &&
-                  new Date(msg.timestamp).getTime() > Date.now() - 10000 // Within last 10 seconds
-                );
+              if (!hasRecentImages && data.images && data.images.length > 0) {
+                console.log(`🔄 CLIENT POLLING: No recent images in history, using fallback message`);
+                const imageMessage: ChatMessage = {
+                  id: `fallback_images_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                  type: 'maya',
+                  content: `🎬 **YOUR IMAGES ARE READY!**\n\nHere are your stunning photos! Click the heart ♡ on any image you love to save it to your gallery.`,
+                  timestamp: new Date().toISOString(),
+                  generatedImages: data.images
+                };
                 
-                if (!hasRecentImages && data.images && data.images.length > 0) {
-                  console.log(`🔄 CLIENT POLLING: No recent images in history, using fallback message`);
-                  const imageMessage: ChatMessage = {
-                    id: `fallback_images_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-                    type: 'maya',
-                    content: `🎬 **YOUR IMAGES ARE READY!**\n\nHere are your stunning photos! Click the heart ♡ on any image you love to save it to your gallery.`,
-                    timestamp: new Date().toISOString(),
-                    generatedImages: data.images
-                  };
-                  
-                  dispatch({ type: 'ADD_MESSAGE', payload: imageMessage });
-                }
+                dispatch({ type: 'ADD_MESSAGE', payload: imageMessage });
               }
             } catch (recheckError) {
               console.error('❌ CLIENT POLLING: Recheck failed:', recheckError);

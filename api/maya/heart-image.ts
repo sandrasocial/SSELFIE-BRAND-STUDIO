@@ -4,7 +4,7 @@
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import handler from '../../dist/server/server/api/maya/heart-image.js';
+import handler from '../../server/api/maya/heart-image';
 
 export default async function mayaHeartImageHandler(req: VercelRequest, res: VercelResponse) {
   return handler(req, res);

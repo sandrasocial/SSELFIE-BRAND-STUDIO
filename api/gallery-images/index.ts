@@ -4,7 +4,7 @@
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import imagesHandler from '../../dist/server/server/api/gallery/images.js';
+import imagesHandler from '../../server/api/gallery/images.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   return imagesHandler(req, res);
