@@ -10,6 +10,15 @@
 import express from 'express';
 import { createServer } from 'http';
 
+// Load environment variables
+try {
+  const dotenv = await import('dotenv');
+  dotenv.config({ path: '.env.server' });
+  console.log('✅ Loaded environment variables from .env.server');
+} catch (error) {
+  console.warn('⚠️ Could not load .env.server file:', error.message);
+}
+
 const app = express();
 const PORT = process.env.PORT || 3001; // Changed from 3002 to match Vite proxy
 

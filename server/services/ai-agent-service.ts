@@ -107,7 +107,7 @@ Return only valid JSON, no additional text.`;
 
       // Send command to Claude for intent analysis
       const response = await this.claude.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-3-5-sonnet-latest',
         max_tokens: 1000,
         temperature: 0.1,
         system: systemPrompt,
@@ -309,7 +309,7 @@ Format your response as JSON:
 Make the copy compelling, professional, and optimized for conversions. Include HTML formatting for structure.`;
 
       const response = await this.claude.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-3-5-sonnet-latest',
         max_tokens: 2000,
         temperature: 0.3, // Slightly higher for creative copy
         messages: [

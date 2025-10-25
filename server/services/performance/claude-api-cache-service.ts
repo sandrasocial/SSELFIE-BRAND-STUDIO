@@ -88,7 +88,7 @@ export class ClaudeApiCacheService {
     this.config = {
       apiKey: process.env['ANTHROPIC_API_KEY'] || '',
       baseUrl: 'https://api.anthropic.com/v1',
-      model: 'claude-3-5-sonnet-20241022',
+      model: 'claude-3-5-sonnet-latest',
       maxTokens: 8192,
       temperature: 0.7,
       rateLimitRpm: 1000, // 1000 requests per minute

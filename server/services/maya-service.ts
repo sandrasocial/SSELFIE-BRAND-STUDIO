@@ -4,7 +4,7 @@
  */
 
 import { getDatabase, type IStorage } from '../../shared/database-provider.js';
-import { resolveUserWithAutoLinking, validateMayaAccess, validateUserModel } from '../_utils/auth-helpers.js';
+import { resolveUserWithAutoLinking, validateMayaAccess } from '../_utils/auth-helpers.js';
 import {
   MayaProfile,
   InsertMayaProfile,
@@ -227,7 +227,7 @@ export class MayaService {
 
       try {
         const response = await this.anthropic.messages.create({
-          model: 'claude-3-5-sonnet-20241022',
+          model: 'claude-3-5-sonnet-latest',
           max_tokens: 4096,
           temperature: 0.7,
           system: systemPrompt,
@@ -533,7 +533,17 @@ export class MayaService {
 
       // ✅ FIXED: Users with trained models automatically get Maya access
       // Check if user has a completed model - if so, grant access automatically
-      const userModel = await validateUserModel(user);
+      const userModel = await this.getUserModel(internalUserId);
+      if (!userModel) {
+        console.error(`❌ MAYA GENERATION: No trained model found for user ${internalUserId}`);
+        throw new Error('Please complete your model training before generating images');
+      }
+
+      if (userModel.trainingStatus !== 'completed') {
+        console.error(`❌ MAYA GENERATION: Model training not complete for user ${internalUserId}, status: ${userModel.trainingStatus}`);
+        throw new Error(`Model training is ${userModel.trainingStatus}. Please wait for completion.`);
+      }
+
       console.log(`🔍 MAYA GENERATION: User has completed model: ${userModel.id}, granting automatic Maya access`);
 
       // Get or create Maya profile (will have basicGeneration: true by default)
