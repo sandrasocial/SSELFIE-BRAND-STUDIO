@@ -18,9 +18,9 @@ import {
 } from '../../shared/types-override.js';
 import { InsertMessage, InsertMayaConcept } from '../../shared/schema.js';
 import { ConceptCard } from '../../shared/types/concept-card.js';
-import Anthropic from '@anthropic-ai/sdk';
 import { PersonalityManager } from '../agents/personalities/personality-config.js';
 import { ReplicateClient } from './replicate-client.js';
+import { claudeApiCacheService } from './performance/claude-api-cache-service.js';
 
 export interface MayaChatRequest {
   message: string;
@@ -52,20 +52,10 @@ export interface MayaGenerationResponse {
 
 export class MayaService {
   private db: IStorage;
-  private anthropic: Anthropic;
 
   constructor(db: IStorage) {
     this.db = db;
-
-    // 🔧 FIX: Add proper error handling for missing API key
-    const apiKey = process.env['ANTHROPIC_API_KEY'];
-    if (!apiKey) {
-      throw new Error('Maya AI service is not properly configured - missing API key');
-    }
-
-    this.anthropic = new Anthropic({
-      apiKey: apiKey,
-    });
+    console.log('✅ MAYA: MayaService initialized with Claude API cache service');
   }
 
   /**
@@ -222,28 +212,27 @@ export class MayaService {
         content: request.message
       });
 
-      // Call Claude API with fallback handling
+      // Call Claude API with fallback handling using the cache service
       let mayaResponse = '';
 
       try {
-        const response = await this.anthropic.messages.create({
-          model: 'claude-3-5-haiku-20241022',
-          max_tokens: 4096,
+        const claudeRequest = {
+          messages: conversationMessages,
+          systemPrompt: systemPrompt,
+          maxTokens: 4096,
           temperature: 0.7,
-          system: systemPrompt,
-          messages: conversationMessages
-        });
+          cacheKey: `maya-chat-${mayaChatId}-${Date.now()}`, // Unique cache key per conversation
+          cacheTtlMs: 300000 // 5 minutes cache for chat responses
+        };
 
-        mayaResponse = response.content[0].type === 'text'
-          ? response.content[0].text
-          : '';
+        const response = await claudeApiCacheService.chat(claudeRequest);
+        mayaResponse = response.content;
 
-        console.log('✅ MAYA: Claude API call successful');
+        console.log('✅ MAYA: Claude API call successful via cache service');
 
-      } catch {
-        // Claude API failed, using fallback response
-
-        // 🔧 FALLBACK: Provide Maya response without Claude API
+      } catch (claudeError) {
+        console.error('❌ MAYA: Claude API call failed:', claudeError);
+        // Fallback response if Claude API fails
         mayaResponse = this.generateFallbackResponse(request.message, user);
       }
 
