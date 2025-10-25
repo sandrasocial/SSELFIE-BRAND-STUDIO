@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+/* eslint-disable no-console */
+
 /**
  * Simple development server for API functions
  * Runs the Vercel serverless functions locally using Express
@@ -26,6 +28,57 @@ app.get('/api/health', async (req, res) => {
     await handler(req, res);
   } catch (error) {
     console.error('Health check error:', error);
+    res.status(500).json({ error: 'Internal server error', details: error.message });
+  }
+});
+
+// Add test endpoint
+app.get('/api/test', (req, res) => {
+  console.log('📡 Test endpoint called');
+  res.json({ message: 'Test endpoint working' });
+});
+
+// Add /api/me endpoint
+app.get('/api/me', async (req, res) => {
+  console.log('📡 Handling /api/me request');
+  try {
+    // For now, return a mock response
+    res.json({
+      data: {
+        user: {
+          id: 'test-user-id',
+          email: 'test@example.com',
+          displayName: 'Test User',
+          plan: 'sselfie-studio'
+        }
+      }
+    });
+  } catch (error) {
+    console.error('/api/me error:', error);
+    res.status(500).json({ error: 'Internal server error', details: error.message });
+  }
+});
+
+// Add /api/user-model endpoint
+app.get('/api/user-model', async (req, res) => {
+  console.log('📡 Handling /api/user-model request');
+  try {
+    // For now, return a mock response
+    res.json({
+      id: null,
+      userId: 'test-user-id',
+      trainingStatus: 'not_started',
+      needsTraining: true,
+      canRetrain: false,
+      modelType: 'sselfie-studio',
+      createdAt: null,
+      updatedAt: null,
+      userPlan: 'sselfie-studio',
+      hasActiveSubscription: true,
+      onboardingSource: 'unknown'
+    });
+  } catch (error) {
+    console.error('/api/user-model error:', error);
     res.status(500).json({ error: 'Internal server error', details: error.message });
   }
 });
@@ -116,6 +169,7 @@ app.use('/api/auth', async (req, res) => {
 
 // Catch-all for other API routes
 app.use('/api', (req, res) => {
+  console.log('❌ Unhandled API request:', req.method, req.url);
   res.status(404).json({ error: 'API endpoint not implemented in dev server' });
 });
 

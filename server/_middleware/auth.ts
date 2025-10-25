@@ -270,9 +270,10 @@ export async function getAuthenticatedUser(req: VercelRequest): Promise<Authenti
   const userName = String(userInfo.displayName || userInfo.display_name || userInfo.name || userInfo.given_name || userInfo.full_name || '');
   console.log('🆔 Extracted from JWT:', { stackAuthId: stackAuthId?.slice(0,8) + '...', userEmail, userName });
 
-  // Ensure we have required fields
-  if (!stackAuthId) {
-    throw new Error('Invalid user info: missing Stack Auth ID');
+  // Ensure we have required fields - CRITICAL FIX: Check for actual valid ID, not just truthy string
+  if (!stackAuthId || stackAuthId === 'undefined' || stackAuthId === '') {
+    console.error('❌ Invalid Stack Auth ID extracted:', { stackAuthId, userInfo });
+    throw new Error('Invalid user info: missing or invalid Stack Auth ID');
   }
   
   // Email is optional but preferred
