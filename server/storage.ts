@@ -83,15 +83,25 @@ import {
   // Brand Assets types
   brandAssets,
   imageVariants,
+  type BrandAsset,
+  // type InsertBrandAsset,
+  type ImageVariant,
+  // type InsertImageVariant,
+} from "../shared/schema.js";
+
+// Maya imports from dedicated schema file
+import {
   mayaChats,
   mayaChatMessages,
   mayaProfile,
   mayaImages,
   mayaConcepts,
-  type BrandAsset,
-  // type InsertBrandAsset,
-  type ImageVariant,
-  // type InsertImageVariant,
+  mayaPersonalMemory,
+  mayaModels,
+  mayaPayments,
+  mayaSubscriptions,
+  mayaUsageTracking,
+  mayaUsageBudgets,
   type MayaChat,
   type InsertMayaChat,
   type MayaChatMessage,
@@ -102,7 +112,19 @@ import {
   type InsertMayaImage,
   type MayaConcept,
   type InsertMayaConcept,
-} from "../shared/schema.js";
+  type MayaPersonalMemory,
+  type InsertMayaPersonalMemory,
+  type MayaModel,
+  type InsertMayaModel,
+  type MayaPayment,
+  type InsertMayaPayment,
+  type MayaSubscription,
+  type InsertMayaSubscription,
+  type MayaUsageTracking,
+  type InsertMayaUsageTracking,
+  type MayaUsageBudget,
+  type InsertMayaUsageBudget,
+} from "../shared/schema-maya.js";
 import { feedLayouts } from "../shared/schema.js";
 
 

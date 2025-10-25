@@ -47,7 +47,7 @@ const StudioScreen: React.FC<StudioScreenProps> = ({ onTabChange, hasTrainedMode
 
   // ✅ FIXED: Use parent model data if provided, otherwise query API (for backward compatibility)
   const { data: queriedUserModel, isLoading: modelLoading } = useQuery({
-    queryKey: ['/api/user-model'],
+    queryKey: ['/api/user-model', user?.id], // Include user ID for per-user caching
     enabled: !!user && isAuthenticated && !parentUserModel,
     retry: false,
     staleTime: 30 * 1000,

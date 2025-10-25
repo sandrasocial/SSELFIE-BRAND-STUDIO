@@ -229,6 +229,9 @@ export type MayaPersonalMemory = typeof mayaPersonalMemory.$inferSelect;
 export type MayaChat = typeof mayaChats.$inferSelect;
 export type MayaChatMessage = typeof mayaChatMessages.$inferSelect;
 export type MayaContextSession = typeof mayaContextSessions.$inferSelect;
+export type MayaSubscription = typeof mayaSubscriptions.$inferSelect;
+export type MayaUsageTracking = typeof mayaUsageTracking.$inferSelect;
+export type MayaUsageBudget = typeof mayaUsageBudgets.$inferSelect;
 
 // Insert Types (for creating new records)
 export type InsertMayaModel = typeof mayaModels.$inferInsert;
@@ -240,6 +243,9 @@ export type InsertMayaPersonalMemory = typeof mayaPersonalMemory.$inferInsert;
 export type InsertMayaChat = typeof mayaChats.$inferInsert;
 export type InsertMayaChatMessage = typeof mayaChatMessages.$inferInsert;
 export type InsertMayaContextSession = typeof mayaContextSessions.$inferInsert;
+export type InsertMayaSubscription = typeof mayaSubscriptions.$inferInsert;
+export type InsertMayaUsageTracking = typeof mayaUsageTracking.$inferInsert;
+export type InsertMayaUsageBudget = typeof mayaUsageBudgets.$inferInsert;
 
 // =============================================================================
 // UTILITY TYPES AND ENUMS - For Frontend Components
@@ -391,6 +397,94 @@ export const insertMayaContextSessionSchema = createInsertSchema(mayaContextSess
 });
 
 export const selectMayaContextSessionSchema = createSelectSchema(mayaContextSessions);
+
+// =============================================================================
+// MAYA SUBSCRIPTIONS TABLE - Subscription Management and Billing
+// =============================================================================
+
+export const mayaSubscriptions = pgTable("maya_subscriptions", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  stripeCustomerId: varchar("stripe_customer_id"),
+  stripeSubscriptionId: varchar("stripe_subscription_id"),
+  plan: varchar("plan").notNull(),
+  status: varchar("status").notNull(),
+  currentPeriodStart: timestamp("current_period_start"),
+  currentPeriodEnd: timestamp("current_period_end"),
+  cancelAtPeriodEnd: boolean("cancel_at_period_end").default(false),
+  generationsPerMonth: integer("generations_per_month").default(100),
+  generationsUsed: integer("generations_used").default(0),
+  generationsRemaining: integer("generations_remaining"),
+  storyStudioEnabled: boolean("story_studio_enabled").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  cancelledAt: timestamp("cancelled_at"),
+});
+
+// =============================================================================
+// MAYA USAGE TRACKING TABLE - Generation and API Usage Monitoring
+// =============================================================================
+
+export const mayaUsageTracking = pgTable("maya_usage_tracking", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  actionType: varchar("action_type").notNull(),
+  resourceType: varchar("resource_type").notNull(),
+  cost: decimal("cost"),
+  quotaUsed: integer("quota_used").default(1),
+  modelId: varchar("model_id"),
+  promptTokens: integer("prompt_tokens"),
+  completionTokens: integer("completion_tokens"),
+  requestId: varchar("request_id"),
+  metadata: jsonb("metadata"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// =============================================================================
+// MAYA USAGE BUDGETS TABLE - Generation Limits and Budget Management
+// =============================================================================
+
+export const mayaUsageBudgets = pgTable("maya_usage_budgets", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  budgetType: varchar("budget_type").notNull(),
+  generationLimit: integer("generation_limit").notNull(),
+  resetDate: timestamp("reset_date"),
+  currentUsage: integer("current_usage").default(0),
+  isLimitReached: boolean("is_limit_reached").default(false),
+  alertThreshold: integer("alert_threshold").default(80),
+  isActive: boolean("is_active").default(true),
+  isOverridden: boolean("is_overridden").default(false),
+  overrideReason: text("override_reason"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Maya Subscriptions Schemas
+export const insertMayaSubscriptionSchema = createInsertSchema(mayaSubscriptions).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const selectMayaSubscriptionSchema = createSelectSchema(mayaSubscriptions);
+
+// Maya Usage Tracking Schemas
+export const insertMayaUsageTrackingSchema = createInsertSchema(mayaUsageTracking).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const selectMayaUsageTrackingSchema = createSelectSchema(mayaUsageTracking);
+
+// Maya Usage Budgets Schemas
+export const insertMayaUsageBudgetSchema = createInsertSchema(mayaUsageBudgets).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const selectMayaUsageBudgetSchema = createSelectSchema(mayaUsageBudgets);
 
 // =============================================================================
 // HELPER FUNCTIONS - Utility Functions for Maya Operations

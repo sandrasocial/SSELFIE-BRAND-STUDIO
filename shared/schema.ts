@@ -1766,34 +1766,6 @@ export type HairLead = typeof hairLeads.$inferSelect;
 // export type InsertHairLead = z.infer<typeof insertHairLeadSchema>;
 
 // =============================================================================
-// MAYA PERSONAL MEMORY TABLE - Personalized Interactions and Learning
-// =============================================================================
-
-export const mayaPersonalMemory = pgTable("maya_personal_memory", {
-  id: serial("id").primaryKey(),
-  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
-
-  // Personal Insights and Memory
-  personalInsights: jsonb("personal_insights"),
-  ongoingGoals: jsonb("ongoing_goals"),
-  conversationStyle: jsonb("conversation_style"),
-  userFeedbackPatterns: jsonb("user_feedback_patterns"),
-  preferredTopics: jsonb("preferred_topics"),
-
-  // Styling and Personalization
-  personalizedStylingNotes: text("personalized_styling_notes"),
-  successfulPromptPatterns: jsonb("successful_prompt_patterns"),
-
-  // Memory Management
-  lastMemoryUpdate: timestamp("last_memory_update").defaultNow(),
-  memoryVersion: integer("memory_version").default(1),
-
-  // Timestamps
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
-
-// =============================================================================
 // USER SIMPLIFIED PROFILE TABLE - Streamlined User Profile
 // =============================================================================
 
@@ -1931,188 +1903,6 @@ export const feedCollections = pgTable("feed_collections", {
   }
 });
 
-export const mayaChats = pgTable("maya_chats", {
-  id: serial("id").primaryKey(),
-  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
-
-  // Chat Metadata
-  chatTitle: varchar("chat_title").notNull(),
-  chatSummary: text("chat_summary"),
-  chatCategory: varchar("chat_category").default("Style Consultation"),
-
-  // Activity Tracking
-  lastActivity: timestamp("last_activity").defaultNow(),
-
-  // Timestamps
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
-
-export const mayaChatMessages = pgTable("maya_chat_messages", {
-  id: serial("id").primaryKey(),
-  chatId: integer("chat_id").references(() => mayaChats.id, { onDelete: "cascade" }).notNull(),
-
-  // Message Content
-  role: varchar("role").notNull(), // 'user' or 'maya'
-  content: text("content").notNull(),
-
-  // Enhanced Message Features
-  imagePreview: text("image_preview"), // JSON array of image URLs
-  generatedPrompt: text("generated_prompt"),
-  conceptCards: jsonb("concept_cards"), // JSON array of concept cards with enhanced context
-  quickButtons: text("quick_buttons"), // JSON array of quick action buttons
-
-  // Generation Capabilities
-  canGenerate: boolean("can_generate").default(false), // Whether this message can generate images
-
-  // Timestamps
-  createdAt: timestamp("created_at").defaultNow(),
-});
-
-export const mayaProfile = pgTable('maya_profile', {
-  id: serial('id').primaryKey(),
-  userId: varchar('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
-
-  // Onboarding Status
-  onboardingStatus: varchar('onboarding_status').default('pending'), // 'pending', 'in_progress', 'completed'
-  onboardingStep: integer('onboarding_step').default(1),
-  completedSteps: jsonb('completed_steps').default([]),
-
-  // User Preferences
-  preferences: jsonb('preferences').default({}),
-
-  // Billing Information
-  billingInfo: jsonb('billing_info').default({}),
-
-  // Usage Statistics
-  totalGenerations: integer('total_generations').default(0),
-  monthlyGenerations: integer('monthly_generations').default(0),
-  lastResetDate: timestamp('last_reset_date').defaultNow(),
-
-  // Feature Access
-  featureAccess: jsonb('feature_access').default({}),
-
-  // Timestamps
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
-});
-
-export const mayaImages = pgTable('maya_images', {
-  id: serial('id').primaryKey(),
-  userId: varchar('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
-
-  // Image Storage
-  url: varchar('url').notNull(),
-  thumbnailUrl: varchar('thumbnail_url'),
-
-  // Image Classification
-  category: varchar('category'), // 'portrait', 'lifestyle', 'product', 'concept'
-  subcategory: varchar('subcategory'), // More specific categorization
-
-  // Image Metadata
-  metadata: jsonb('metadata').default({}),
-
-  // User Interaction
-  isFavorite: boolean('is_favorite').default(false),
-  isArchived: boolean('is_archived').default(false),
-  rating: integer('rating'), // 1-5 user rating
-
-  // Usage Tracking
-  viewCount: integer('view_count').default(0),
-  shareCount: integer('share_count').default(0),
-  downloadCount: integer('download_count').default(0),
-
-  // Timestamps
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
-});
-
-export const mayaConcepts = pgTable('maya_concepts', {
-  id: serial('id').primaryKey(),
-  userId: varchar('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
-
-  // Concept Definition
-  title: varchar('title').notNull(),
-  description: text('description'),
-  prompt: text('prompt'),
-  type: varchar('type'), // 'portrait', 'flatlay', 'lifestyle', 'brand'
-
-  // Concept Details
-  metadata: jsonb('metadata').default({}),
-
-  // Performance Tracking
-  usageCount: integer('usage_count').default(0),
-  successRate: integer('success_rate'), // Percentage of successful generations
-  avgRating: decimal('avg_rating'), // Average user rating
-
-  // Status and Organization
-  status: varchar('status').default('active'), // 'active', 'archived', 'draft'
-  tags: jsonb('tags').default([]),
-  isTemplate: boolean('is_template').default(false),
-
-  // Timestamps
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
-});
-
-export const mayaPayments = pgTable('maya_payments', {
-  id: serial('id').primaryKey(),
-  userId: varchar('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
-
-  // Stripe Integration
-  stripeSessionId: varchar('stripe_session_id'),
-  stripeCustomerId: varchar('stripe_customer_id'),
-  stripeSubscriptionId: varchar('stripe_subscription_id'),
-
-  // Subscription Details
-  subscriptionStatus: varchar('subscription_status'), // 'active', 'canceled', 'past_due', 'unpaid'
-  planType: varchar('plan_type'), // 'basic', 'pro', 'enterprise'
-  billingCycle: varchar('billing_cycle'), // 'monthly', 'yearly'
-
-  // Payment Information
-  amount: integer('amount'), // Amount in cents
-  currency: varchar('currency').default('usd'),
-
-  // Payment Metadata
-  metadata: jsonb('metadata').default({}),
-
-  // Status Tracking
-  isActive: boolean('is_active').default(true),
-  trialEndsAt: timestamp('trial_ends_at'),
-  subscriptionEndsAt: timestamp('subscription_ends_at'),
-
-  // Timestamps
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
-});
-
-// Maya Models Table
-export const mayaModels = pgTable('maya_models', {
-  id: serial('id').primaryKey(),
-  userId: varchar('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
-
-  // Model Configuration
-  modelType: varchar('model_type').notNull(), // 'flux', 'replicate', 'custom'
-  trainingStatus: varchar('training_status').notNull(), // 'pending', 'training', 'completed', 'failed'
-  trainingProgress: integer('training_progress').default(0), // 0-100 percentage
-
-  // Replicate Integration
-  replicateModelId: varchar('replicate_model_id'),
-  replicateVersionId: varchar('replicate_version_id'),
-
-  // Model Metadata
-  metadata: jsonb('metadata').default({}),
-
-  // Model Performance
-  qualityScore: integer('quality_score'), // 1-100 quality rating
-  usageCount: integer('usage_count').default(0),
-  lastUsed: timestamp('last_used'),
-
-  // Timestamps
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
-});
-
 // Additional validation schemas needed by Maya services
 export const conceptMetadataSchema = z.object({
   styleElements: z.array(z.string()).optional(),
@@ -2153,6 +1943,10 @@ export type {
   MayaPayment,
   MayaModel,
   MayaPersonalMemory,
+  MayaContextSession,
+  MayaSubscription,
+  MayaUsageTracking,
+  MayaUsageBudget,
   InsertMayaChat,
   InsertMayaChatMessage,
   InsertMayaProfile,
@@ -2160,7 +1954,27 @@ export type {
   InsertMayaConcept,
   InsertMayaPayment,
   InsertMayaModel,
-  InsertMayaPersonalMemory
+  InsertMayaPersonalMemory,
+  InsertMayaContextSession,
+  InsertMayaSubscription,
+  InsertMayaUsageTracking,
+  InsertMayaUsageBudget
+} from './schema-maya';
+
+// Import Maya schemas from schema-maya.ts
+export {
+  insertMayaModelsSchema,
+  insertMayaImagesSchema,
+  insertMayaConceptsSchema,
+  insertMayaPaymentsSchema,
+  insertMayaProfileSchema,
+  insertMayaPersonalMemorySchema,
+  insertMayaChatSchema,
+  insertMayaChatMessageSchema,
+  insertMayaContextSessionSchema,
+  insertMayaSubscriptionSchema,
+  insertMayaUsageTrackingSchema,
+  insertMayaUsageBudgetSchema
 } from './schema-maya';
 
 // Additional Missing Table Types
@@ -2174,67 +1988,8 @@ export type BrandedPost = typeof brandedPosts.$inferSelect;
 export type InsertBrandedPost = typeof brandedPosts.$inferInsert;
 export type FeedCollection = typeof feedCollections.$inferSelect;
 export type InsertFeedCollection = typeof feedCollections.$inferInsert;
-export type MayaSubscription = typeof mayaSubscriptions.$inferSelect;
-export type InsertMayaSubscription = typeof mayaSubscriptions.$inferInsert;
-export type MayaUsageTracking = typeof mayaUsageTracking.$inferSelect;
-export type InsertMayaUsageTracking = typeof mayaUsageTracking.$inferInsert;
-export type MayaUsageBudget = typeof mayaUsageBudgets.$inferSelect;
-export type InsertMayaUsageBudget = typeof mayaUsageBudgets.$inferInsert;
 export type UserStyleProfile = typeof userStyleProfile.$inferSelect;
 export type InsertUserStyleProfile = typeof userStyleProfile.$inferInsert;
-
-// Maya Subscriptions Table
-export const mayaSubscriptions = pgTable("maya_subscriptions", {
-  id: serial("id").primaryKey(),
-  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
-  stripeCustomerId: varchar("stripe_customer_id"),
-  stripeSubscriptionId: varchar("stripe_subscription_id"),
-  plan: varchar("plan").notNull(),
-  status: varchar("status").notNull(),
-  currentPeriodStart: timestamp("current_period_start"),
-  currentPeriodEnd: timestamp("current_period_end"),
-  cancelAtPeriodEnd: boolean("cancel_at_period_end").default(false),
-  generationsPerMonth: integer("generations_per_month").default(100),
-  generationsUsed: integer("generations_used").default(0),
-  generationsRemaining: integer("generations_remaining"),
-  storyStudioEnabled: boolean("story_studio_enabled").default(true),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-  cancelledAt: timestamp("cancelled_at"),
-});
-
-// Maya Usage Tracking Table
-export const mayaUsageTracking = pgTable("maya_usage_tracking", {
-  id: serial("id").primaryKey(),
-  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
-  actionType: varchar("action_type").notNull(),
-  resourceType: varchar("resource_type").notNull(),
-  cost: decimal("cost"),
-  quotaUsed: integer("quota_used").default(1),
-  modelId: varchar("model_id"),
-  promptTokens: integer("prompt_tokens"),
-  completionTokens: integer("completion_tokens"),
-  requestId: varchar("request_id"),
-  metadata: jsonb("metadata"),
-  createdAt: timestamp("created_at").defaultNow(),
-});
-
-// Maya Usage Budgets Table
-export const mayaUsageBudgets = pgTable("maya_usage_budgets", {
-  id: serial("id").primaryKey(),
-  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
-  budgetType: varchar("budget_type").notNull(),
-  generationLimit: integer("generation_limit").notNull(),
-  resetDate: timestamp("reset_date"),
-  currentUsage: integer("current_usage").default(0),
-  isLimitReached: boolean("is_limit_reached").default(false),
-  alertThreshold: integer("alert_threshold").default(80),
-  isActive: boolean("is_active").default(true),
-  isOverridden: boolean("is_overridden").default(false),
-  overrideReason: text("override_reason"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
 
 // User Style Profile Table
 export const userStyleProfile = pgTable("user_style_profile", {
@@ -2259,37 +2014,6 @@ export const userStyleProfile = pgTable("user_style_profile", {
 // =============================================================================
 // INSERT SCHEMAS - All table definitions must come before these
 // =============================================================================
-
-// Maya Insert Schemas
-export const insertMayaImagesSchema = createInsertSchema(mayaImages).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
-
-export const insertMayaConceptsSchema = createInsertSchema(mayaConcepts).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
-
-export const insertMayaProfileSchema = createInsertSchema(mayaProfile).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
-
-export const insertMayaModelsSchema = createInsertSchema(mayaModels).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
-
-export const insertMayaPersonalMemorySchema = createInsertSchema(mayaPersonalMemory).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
 
 // Additional Missing Table Insert Schemas
 export const insertUserSimplifiedProfileSchema = createInsertSchema(userSimplifiedProfile).omit({
@@ -2317,24 +2041,6 @@ export const insertBrandedPostSchema = createInsertSchema(brandedPosts).omit({
 export const insertFeedCollectionSchema = createInsertSchema(feedCollections).omit({
   id: true,
   createdAt: true,
-});
-
-export const insertMayaSubscriptionSchema = createInsertSchema(mayaSubscriptions).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
-
-export const insertMayaUsageTrackingSchema = createInsertSchema(mayaUsageTracking).omit({
-  id: true,
-  createdAt: true,
-});
-
-// @ts-ignore - Drizzle ORM schema type compatibility
-export const insertMayaUsageBudgetSchema = createInsertSchema(mayaUsageBudgets).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
 });
 
 // @ts-ignore - Drizzle ORM schema type compatibility

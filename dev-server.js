@@ -11,7 +11,7 @@ import express from 'express';
 import { createServer } from 'http';
 
 const app = express();
-const PORT = process.env.PORT || 3002; // Changed from 3001 to avoid conflicts
+const PORT = process.env.PORT || 3001; // Changed from 3002 to match Vite proxy
 
 // Basic middleware
 app.use(express.json());
@@ -41,18 +41,48 @@ app.get('/api/test', (req, res) => {
 // Add /api/me endpoint
 app.get('/api/me', async (req, res) => {
   console.log('📡 Handling /api/me request');
+
   try {
-    // For now, return a mock response
-    res.json({
-      data: {
-        user: {
-          id: 'test-user-id',
-          email: 'test@example.com',
-          displayName: 'Test User',
-          plan: 'sselfie-studio'
+    // Check for Stack Auth token
+    const authHeader = req.headers.authorization;
+    const cookies = req.headers.cookie || '';
+    const stackAccessToken = cookies.split(';').find(c => c.trim().startsWith('stack-access='))?.split('=')[1] ||
+                           authHeader?.replace('Bearer ', '');
+
+    if (!stackAccessToken) {
+      console.log('❌ No Stack Auth token found');
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    console.log('🔑 Found Stack Auth token, validating...');
+
+    // For dev server, we'll simulate authentication validation
+    // In production, this would validate with Stack Auth API
+    try {
+      // Mock validation - in real implementation, validate token with Stack Auth
+      const mockUserId = '42585527'; // Use the real user ID from the logs
+      const mockUser = {
+        id: mockUserId,
+        stackAuthId: '4baecefb-1234-5678-9abc-123456789012', // Mock Stack Auth ID
+        email: 'ssa@ssasocial.com', // Use real email from logs
+        firstName: 'Test',
+        lastName: 'User',
+        displayName: 'Test User',
+        plan: 'sselfie-studio',
+        monthlyGenerationLimit: 100,
+        role: 'user'
+      };
+
+      console.log('✅ Token validated, returning user:', mockUser.id);
+      res.json({
+        data: {
+          user: mockUser
         }
-      }
-    });
+      });
+    } catch (validationError) {
+      console.error('❌ Token validation failed:', validationError.message);
+      res.status(401).json({ error: 'Invalid token' });
+    }
   } catch (error) {
     console.error('/api/me error:', error);
     res.status(500).json({ error: 'Internal server error', details: error.message });
@@ -62,11 +92,25 @@ app.get('/api/me', async (req, res) => {
 // Add /api/user-model endpoint
 app.get('/api/user-model', async (req, res) => {
   console.log('📡 Handling /api/user-model request');
+
   try {
-    // For now, return a mock response
+    // Check for Stack Auth token (same logic as /api/me)
+    const authHeader = req.headers.authorization;
+    const cookies = req.headers.cookie || '';
+    const stackAccessToken = cookies.split(';').find(c => c.trim().startsWith('stack-access='))?.split('=')[1] ||
+                           authHeader?.replace('Bearer ', '');
+
+    if (!stackAccessToken) {
+      console.log('❌ No Stack Auth token found for user-model');
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const mockUserId = '42585527'; // Use the real user ID from the logs
+
+    // For now, return a mock response with the authenticated user ID
     res.json({
       id: null,
-      userId: 'test-user-id',
+      userId: mockUserId,
       trainingStatus: 'not_started',
       needsTraining: true,
       canRetrain: false,

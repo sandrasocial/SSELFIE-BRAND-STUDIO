@@ -53,7 +53,7 @@ import { AuthWrapper } from './features/auth/components/AuthWrapper.js';
 function SmartHome() {
   const navigate = useLocation()[1];
   const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth({ force: true });
-  const { modelStatus, isLoading: isModelLoading, hasTrainedModel } = useUserModelStatus(isAuthenticated);
+  const { modelStatus, isLoading: isModelLoading, hasTrainedModel, error: modelError } = useUserModelStatus(isAuthenticated);
   const [hasRedirected, setHasRedirected] = useState(false);
 
   // 🔧 DEBUG: Add more detailed logging for routing decisions
@@ -67,7 +67,10 @@ function SmartHome() {
     hasTrainedModel,
     trainingStatus: modelStatus?.trainingStatus,
     modelStatusId: modelStatus?.id,
-    needsTraining: modelStatus?.needsTraining
+    needsTraining: modelStatus?.needsTraining,
+    canRetrain: modelStatus?.canRetrain,
+    modelStatus: modelStatus ? JSON.stringify(modelStatus) : 'null',
+    error: modelError?.message || 'none'
   });
 
   // ✅ FIXED: Only log when state changes (not on every render)

@@ -31,7 +31,6 @@ import {
   trainingRuns,
   selfieUploads,
   // Maya tables
-  mayaChats,
   conceptCards,
   // conversations, // Table doesn't exist in current DB
   savedPrompts,
@@ -56,6 +55,9 @@ import {
   brandOnboarding,
   // videoStoryboards, // Table doesn't exist in current DB
 } from '../../../shared/schema.js';
+
+// Import Maya tables from schema-maya.ts
+import { mayaChats } from '../../../shared/schema-maya.js';
 import { eq, isNotNull } from 'drizzle-orm';
 
 // Use websocket connection for transaction support

@@ -3,7 +3,7 @@ import { withAuth } from '../../_middleware/auth.js';
 import type { AuthenticatedRequest } from '../../_shared/auth-types.js';
 import { storage } from '../../storage.js';
 import { db } from '../../drizzle.js';
-import { mayaProfile } from '../../../shared/schema.js';
+import { mayaProfile } from '../../../shared/schema-maya.js';
 import { eq } from 'drizzle-orm';
 
 export const config = {

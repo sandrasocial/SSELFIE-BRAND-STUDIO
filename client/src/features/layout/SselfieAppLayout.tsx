@@ -187,17 +187,37 @@ const SselfieAppLayout: React.FC = () => {
   const [location] = useLocation();
 
   // Get real user model data
-  const { data: userModel, isLoading: modelLoading } = useQuery({
-    queryKey: ['/api/user-model'],
+  const { data: userModel, isLoading: modelLoading, error: modelError } = useQuery({
+    queryKey: ['/api/user-model', user?.id], // Include user ID for per-user caching
     enabled: !!user && isAuthenticated,
     retry: false,
-    staleTime: 30 * 1000,
+    staleTime: 0, // Disable caching to ensure fresh data
+    refetchOnMount: 'always', // Always refetch on mount
+    refetchOnWindowFocus: true, // Refetch when window gets focus
     queryFn: () => apiFetch('/user-model')
   });
 
   // Determine if user has a trained model based on real data
   const hasTrainedModel = userModel?.trainingStatus === 'completed';
   const trainingStatus = userModel?.trainingStatus || 'not_started';
+
+  // 🔍 DEBUG: Log user model query state
+  console.log('🔍 SselfieAppLayout: User model query state', {
+    userId: user?.id?.substring(0, 8) + '...',
+    isAuthenticated,
+    modelLoading,
+    modelError: modelError?.message,
+    hasUserModelData: !!userModel,
+    userModelTrainingStatus: userModel?.trainingStatus,
+    hasTrainedModel,
+    trainingStatus,
+    userModelData: userModel ? {
+      id: userModel.id,
+      trainingStatus: userModel.trainingStatus,
+      needsTraining: userModel.needsTraining,
+      canRetrain: userModel.canRetrain
+    } : null
+  });
 
   useEffect(() => {
     const clockTimer = setInterval(() => setCurrentTime(new Date()), 1000);

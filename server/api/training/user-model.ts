@@ -27,6 +27,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     if (!dbUser) {
+      console.log('❌ No authenticated user found');
       return sendUnauthorized(res);
     }
 
@@ -38,11 +39,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Try multiple lookup strategies to ensure existing models are found
     const queryUserId = dbUser.id;
 
+    console.log(`🔍 Starting model lookup for user ID: ${queryUserId}`);
+
     // Fetch user model using multiple strategies
     try {
       // Strategy 1: Direct user ID lookup
       userModel = await storage.getUserModel(queryUserId);
       console.log(`📊 Direct model lookup result: ${userModel ? 'found' : 'not found'}`);
+      if (userModel) {
+        console.log(`📊 Model details: id=${userModel.id}, trainingStatus=${userModel.trainingStatus}, userId=${userModel.userId}`);
+      }
 
       // Strategy 2: If no model found and user has email, try bulletproof lookup
       if (!userModel && dbUser.email && dbUser.stackAuthId) {
@@ -77,6 +83,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const needsTraining = trainingStatus !== 'completed';
     const canRetrain = !!userModel;
 
+    console.log(`✅ Final model status: trainingStatus=${trainingStatus}, needsTraining=${needsTraining}, canRetrain=${canRetrain}`);
+
     // Parse onboarding source safely
     let onboardingSource = 'unknown';
     try {
@@ -100,14 +108,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       updatedAt: userModel?.updatedAt || null,
       userPlan: dbUser.plan,
       hasActiveSubscription: dbUser.monthlyGenerationLimit === -1 || (dbUser.monthlyGenerationLimit && dbUser.monthlyGenerationLimit > 0),
-      onboardingSource
+      onboardingSource,
+      // DEBUG: Add debug information
+      debug: {
+        userId: queryUserId,
+        userEmail: dbUser.email,
+        stackAuthId: dbUser.stackAuthId,
+        modelFound: !!userModel,
+        modelId: userModel?.id,
+        modelUserId: userModel?.userId,
+        modelTrainingStatus: userModel?.trainingStatus
+      }
     };
 
     console.log(`✅ Returning model status:`, {
       userId: queryUserId,
       trainingStatus,
       needsTraining,
-      canRetrain
+      canRetrain,
+      hasModel: !!userModel
     });
 
     setNoCacheHeaders(res);
