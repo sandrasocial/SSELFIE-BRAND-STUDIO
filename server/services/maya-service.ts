@@ -227,7 +227,7 @@ export class MayaService {
 
       try {
         const response = await this.anthropic.messages.create({
-          model: 'claude-3-5-sonnet-latest',
+          model: 'claude-3-5-haiku-20241022',
           max_tokens: 4096,
           temperature: 0.7,
           system: systemPrompt,
