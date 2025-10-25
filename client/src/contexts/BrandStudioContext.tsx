@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useReducer, useCallback, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { apiRequest } from '../lib/queryClient.js';
+import { apiFetch } from '../lib/api';
 import { useAuth } from '../hooks/use-auth.js';
 import { useToast } from '../hooks/use-toast.js';
 import { useMayaGeneration } from '../features/maya/hooks/useMayaGeneration.js';
@@ -503,7 +503,7 @@ export function BrandStudioProvider({ children, userModel }: { children: React.R
     queryKey: ['/api/maya/chat-history'],
     queryFn: async () => {
       console.log('🔄 CLIENT: Fetching Maya chat history');
-      const response = await apiRequest('/api/maya/chat-history', 'GET');
+      const response = await apiFetch('/api/maya/chat-history');
       console.log(`📋 CLIENT: Received ${response.messages?.length || 0} messages from chat history`);
       if (response.messages?.length > 0) {
         // FIXED: Set messages atomically instead of appending to prevent duplicates
@@ -524,15 +524,18 @@ export function BrandStudioProvider({ children, userModel }: { children: React.R
         [msg.type]: msg.content
       }));
 
-      // Use authenticated apiRequest instead of direct fetch
-      return await apiRequest('/api/maya/chat', 'POST', {
-        message: messageContent,
-        chatHistory: chatHistory,
-        context: {
-          styling: true,
-          conversationId: state.conversationId,
-          userIntent: 'creative_direction',
-          sessionType: 'brand_studio'
+      // Use authenticated apiFetch instead of direct fetch
+      return await apiFetch('/api/maya/chat', {
+        method: 'POST',
+        json: {
+          message: messageContent,
+          chatHistory: chatHistory,
+          context: {
+            styling: true,
+            conversationId: state.conversationId,
+            userIntent: 'creative_direction',
+            sessionType: 'brand_studio'
+          }
         }
       });
     },

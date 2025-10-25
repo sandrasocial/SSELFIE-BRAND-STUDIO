@@ -41,12 +41,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     console.log(`💬 MAYA CHAT: User ${user.id} - "${message.substring(0, 50)}..."`);
 
-    // 🔥 CRITICAL FIX: Use user.id for database queries
-    // - For OLD users (pre-Stack Auth): id is the original numeric ID where data was created
-    // - For NEW users (Stack Auth): id is already the Stack Auth ID
-    // - stackAuthId is only used for linking old users to Stack Auth, NOT for queries
     // Use MayaService for full pipeline (creative looks, prompt, concept cards, storage)
-    const mayaResult = await mayaService.processChat(user.id, {
+    const mayaResult = await mayaService.processChat(user, {
       message,
       history: chatHistory.map((entry: any) => ({
         user: entry.role === 'user' ? entry.content : undefined,

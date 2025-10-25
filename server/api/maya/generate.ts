@@ -51,7 +51,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const { mayaService } = await import('../../services/maya-service.js');
     
-    const generationResult = await mayaService.generateImages(dbUser.id, {
+    const generationResult = await mayaService.generateImages(dbUser, {
       conceptCard: {
         id: conceptCard?.id || `maya-gen-${Date.now()}`,
         title: finalConceptName,

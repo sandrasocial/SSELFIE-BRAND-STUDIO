@@ -6,7 +6,8 @@
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getUserFromRequest } from '../../_utils/auth-helpers.js';
+import { withAuth } from '../../_middleware/auth.js';
+import type { AuthenticatedRequest } from '../../_shared/auth-types.js';
 import { sendError, sendMethodNotAllowed, sendUnauthorized, setNoCacheHeaders } from '../../_utils/response-helpers.js';
 import { getQueryParam } from '../../_utils/request-helpers.js';
 import { storage } from '../../storage.js';
@@ -14,16 +15,17 @@ import { storage } from '../../storage.js';
 export const config = { runtime: 'nodejs', maxDuration: 30 };
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  if (req.method !== 'GET') {
-    return sendMethodNotAllowed(res, ['GET']);
-  }
+  return withAuth(req, res, async (req: AuthenticatedRequest, res: VercelResponse) => {
+    if (req.method !== 'GET') {
+      return sendMethodNotAllowed(res, ['GET']);
+    }
 
-  try {
-    const user = await getUserFromRequest(req);
-    if (!user) return sendUnauthorized(res);
+    try {
+      const user = req.user;
+      if (!user) return sendUnauthorized(res);
 
-    // Get database user
-    const dbUser = user; // getUserFromRequest already returns database user
+      // Get database user
+      const dbUser = user; // withAuth already returns database user
 
     // 🔥 CRITICAL FIX: Use dbUser.id for database queries
     // - For OLD users (pre-Stack Auth): id is the original numeric ID where data was created
@@ -69,4 +71,5 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     console.error('[ERROR] /api/maya/chat-history:', error);
     return sendError(res, error instanceof Error ? error.message : 'Failed to fetch chat history', 500);
   }
+});
 }

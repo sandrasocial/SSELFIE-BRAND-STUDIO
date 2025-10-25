@@ -140,13 +140,12 @@ export class MayaService {
    * SINGLE ENTRYPOINT: Builds system prompt via PersonalityManager and calls Claude, then persists.
    * Use processAndSaveChat() only when an upstream service already produced a response to persist/extract.
    */
-  async processChat(stackAuthId: string, request: MayaChatRequest): Promise<MayaChatResponse> {
+  async processChat(user: any, request: MayaChatRequest): Promise<MayaChatResponse> {
     try {
-      // Use simplified authentication helper
-      const user = await resolveUserWithAutoLinking(stackAuthId);
+      // User is already resolved by withAuth middleware
 
       // Get or create user profile
-      await this.getOrCreateUserProfile(stackAuthId);
+      await this.getOrCreateUserProfile(user.stackAuthId || user.id);
 
       // Get or create Maya chat session
       let mayaChatId: string;
@@ -316,7 +315,7 @@ export class MayaService {
    * Process and save chat with pre-generated Maya response
    * Used by unified-maya-intelligence-service to avoid duplicate Claude API calls
    */
-  async processAndSaveChat(stackAuthId: string, request: {
+  async processAndSaveChat(user: any, request: {
     message: string;
     conversationId?: string;
     mayaResponseContent: string;
@@ -325,8 +324,7 @@ export class MayaService {
     conceptCards: ConceptCard[];
   }> {
     try {
-      // Use simplified authentication helper
-      const user = await resolveUserWithAutoLinking(stackAuthId);
+      // User is already resolved by withAuth middleware
 
       console.log(`🎯 MAYA: Processing pre-generated response for user ${user.id}`);
 
@@ -500,14 +498,14 @@ export class MayaService {
   /**
    * Generate images using FLUX API
    */
-  async generateImages(userId: string, request: MayaGenerationRequest): Promise<MayaGenerationResponse> {
+  async generateImages(user: any, request: MayaGenerationRequest): Promise<MayaGenerationResponse> {
     try {
       // userId is already the internal database user ID (needed for trigger words)
-      const internalUserId = userId;
+      const internalUserId = user.id;
       console.log(`🔍 MAYA GENERATION: Starting for internal user ID ${internalUserId}`);
 
       // Get user to find their Stack Auth ID for profile operations
-      const user = await this.db.getUser(internalUserId);
+      const dbUser = await this.db.getUser(internalUserId);
       if (!user) {
         console.error(`❌ MAYA GENERATION: User not found with internal ID: ${internalUserId}`);
         throw new Error(`User not found with internal ID: ${internalUserId}`);
