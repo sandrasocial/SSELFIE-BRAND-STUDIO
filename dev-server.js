@@ -11,7 +11,7 @@ import express from 'express';
 import { createServer } from 'http';
 
 const app = express();
-const PORT = process.env.PORT || 3001; // Changed from 3000 to avoid conflicts
+const PORT = process.env.PORT || 3002; // Changed from 3001 to avoid conflicts
 
 // Basic middleware
 app.use(express.json());

@@ -152,8 +152,26 @@ function SmartHome() {
 // ✅ Stack Auth Handler - Let Stack handle ALL authentication internally
 function HandlerRoutes() {
   const [location] = useLocation();
+  const navigate = useLocation()[1];
+  const { user, isAuthenticated, isLoading } = useAuth({ force: true });
 
-  console.log('🔍 HandlerRoutes: Processing route:', location);
+  console.log('🔍 HandlerRoutes: Processing route:', location, {
+    isAuthenticated,
+    isLoading,
+    userId: user?.id?.substring(0, 8) + '...',
+    currentPath: location
+  });
+
+  // ✅ FIXED: Add manual redirect logic for successful authentication
+  useEffect(() => {
+    if (isAuthenticated && user && !isLoading) {
+      // User is authenticated and on a handler route - redirect to app
+      if (location.startsWith('/handler/')) {
+        console.log('🔄 HandlerRoutes: User authenticated on handler route, redirecting to /app');
+        navigate('/app');
+      }
+    }
+  }, [isAuthenticated, user, isLoading, location, navigate]);
 
   if (!stackClientApp) {
     return createElement('div',
@@ -169,9 +187,6 @@ function HandlerRoutes() {
       )
     );
   }
-
-  // ✅ REMOVED: Custom redirect logic - Let Stack handle ALL authentication flows internally
-  // Stack will automatically redirect to afterSignIn/afterSignUp URLs after successful auth
 
   // ✅ Use StackHandler exactly as Stack Auth documentation shows
   console.log('🔍 HandlerRoutes: Rendering StackHandler for location:', location);
