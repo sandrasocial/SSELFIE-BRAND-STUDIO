@@ -20,14 +20,17 @@ export function useUserModelStatus(isAuthenticated: boolean) {
       console.log('🔍 useUserModelStatus: Fetching user model status');
       try {
         const result = await apiFetch('/user-model');
+        // ✅ FIXED: Extract data from API response wrapper
+        const modelData = result?.data || result;
         console.log('✅ useUserModelStatus: API call successful', {
-          trainingStatus: result?.trainingStatus,
-          needsTraining: result?.needsTraining,
-          canRetrain: result?.canRetrain,
-          hasTrainedModel: result?.trainingStatus === 'completed',
-          fullResponse: result
+          trainingStatus: modelData?.trainingStatus,
+          needsTraining: modelData?.needsTraining,
+          canRetrain: modelData?.canRetrain,
+          hasTrainedModel: modelData?.trainingStatus === 'completed',
+          fullResponse: result,
+          extractedData: modelData
         });
-        return result;
+        return modelData;
       } catch (error) {
         console.error('❌ useUserModelStatus: API call failed', {
           error: error instanceof Error ? error.message : error,

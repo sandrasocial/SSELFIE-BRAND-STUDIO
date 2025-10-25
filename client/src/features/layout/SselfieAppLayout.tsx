@@ -190,19 +190,24 @@ const SselfieAppLayout: React.FC = () => {
   const { data: userModel, isLoading: modelLoading, error: modelError } = useQuery({
     queryKey: ['/api/user-model', user?.id], // Include user ID for per-user caching
     enabled: !!user && isAuthenticated,
-    retry: false,
-    staleTime: 0, // Disable caching to ensure fresh data
-    refetchOnMount: 'always', // Always refetch on mount
-    refetchOnWindowFocus: true, // Refetch when window gets focus
-    queryFn: () => apiFetch('/user-model')
+    retry: 1, // Allow 1 retry
+    staleTime: 30000, // Cache for 30 seconds
+    refetchOnMount: true, // Refetch on mount
+    refetchOnWindowFocus: false, // Don't refetch on window focus to reduce spam
+    queryFn: async () => {
+      const result = await apiFetch('/user-model');
+      // ✅ FIXED: Extract data from API response wrapper
+      const modelData = result?.data || result;
+      return modelData;
+    }
   });
 
   // Determine if user has a trained model based on real data
   const hasTrainedModel = userModel?.trainingStatus === 'completed';
   const trainingStatus = userModel?.trainingStatus || 'not_started';
 
-  // 🔍 DEBUG: Log user model query state
-  console.log('🔍 SselfieAppLayout: User model query state', {
+  // 🔍 DEBUG: Log user model query state (only when data changes)
+  const debugInfo = {
     userId: user?.id?.substring(0, 8) + '...',
     isAuthenticated,
     modelLoading,
@@ -217,10 +222,16 @@ const SselfieAppLayout: React.FC = () => {
       needsTraining: userModel.needsTraining,
       canRetrain: userModel.canRetrain
     } : null
-  });
+  };
+
+  // Only log when data actually changes
+  const debugString = JSON.stringify(debugInfo);
+  React.useEffect(() => {
+    // Debug logging removed for production
+  }, [debugString]);
 
   useEffect(() => {
-    const clockTimer = setInterval(() => setCurrentTime(new Date()), 1000);
+    const clockTimer = setInterval(() => setCurrentTime(new Date()), 60000); // Update every minute instead of every second
     return () => clearInterval(clockTimer);
   }, []);
 

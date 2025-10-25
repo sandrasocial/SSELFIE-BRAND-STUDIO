@@ -1,6 +1,6 @@
 /**
  * GET /api/me
- * 
+ *
  * Returns the current authenticated user's profile
  * ✅ MIGRATED from server/routes/modules/auth.ts
  */
@@ -21,6 +21,7 @@ interface UserProfile {
   role?: string | null;
   monthlyGenerationLimit?: number | null;
   createdAt: Date;
+  stackAuthId?: string | null;
 }
 
 export default async (req: VercelRequest, res: VercelResponse) => {
@@ -40,7 +41,13 @@ export default async (req: VercelRequest, res: VercelResponse) => {
         return res.status(404).json({ error: 'User not found' });
       }
 
-      // Convert to UserProfile format
+      console.log('🔍 /api/me: Returning database user data', {
+        id: dbUser.id?.substring(0, 8) + '...',
+        email: dbUser.email,
+        stackAuthId: dbUser.stackAuthId?.substring(0, 8) + '...'
+      });
+
+      // Convert to UserProfile format - return DATABASE user data, not Stack Auth metadata
       const user: UserProfile = {
         id: dbUser.id,
         email: dbUser.email ?? null,
@@ -52,7 +59,8 @@ export default async (req: VercelRequest, res: VercelResponse) => {
         plan: dbUser.plan ?? undefined,
         role: dbUser.role ?? undefined,
         monthlyGenerationLimit: dbUser.monthlyGenerationLimit ?? undefined,
-        createdAt: dbUser.createdAt
+        createdAt: dbUser.createdAt,
+        stackAuthId: dbUser.stackAuthId ?? undefined
       };
 
       return res.status(200).json({

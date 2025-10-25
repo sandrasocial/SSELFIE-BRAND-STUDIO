@@ -37,14 +37,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // 🔥 CRITICAL FIX: Enhanced user model lookup with bulletproof linking
     // Try multiple lookup strategies to ensure existing models are found
-    const queryUserId = dbUser.id;
+    const databaseUserId = dbUser.id;
 
-    console.log(`🔍 Starting model lookup for user ID: ${queryUserId}`);
+    console.log(`🔍 Starting model lookup for user ID: ${databaseUserId}`);
+
+    console.log(`🔍 Starting model lookup for user ID: ${databaseUserId}`);
 
     // Fetch user model using multiple strategies
     try {
       // Strategy 1: Direct user ID lookup
-      userModel = await storage.getUserModel(queryUserId);
+      userModel = await storage.getUserModel(databaseUserId);
       console.log(`📊 Direct model lookup result: ${userModel ? 'found' : 'not found'}`);
       if (userModel) {
         console.log(`📊 Model details: id=${userModel.id}, trainingStatus=${userModel.trainingStatus}, userId=${userModel.userId}`);
@@ -66,10 +68,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (!userModel && dbUser.email) {
         console.log(`🔍 Attempting legacy email-based lookup for: ${dbUser.email}`);
         const userByEmail = await storage.getUserByEmail(dbUser.email);
-        if (userByEmail && userByEmail.id !== queryUserId) {
+        if (userByEmail && userByEmail.id !== databaseUserId) {
           const legacyModel = await storage.getUserModel(userByEmail.id);
           if (legacyModel) {
-            console.log(`� Found legacy model for user ${userByEmail.id}, linking to current user ${queryUserId}`);
+            console.log(`✅ Found legacy model for user ${userByEmail.id}, linking to current user ${databaseUserId}`);
             userModel = legacyModel;
           }
         }
@@ -79,7 +81,29 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       console.warn('📊 Model fetch failed:', error);
     }
 
-    const trainingStatus = userModel?.trainingStatus || 'not_started';
+    // 🔥 CRITICAL FIX: Smart training status determination
+    // If user has a model but trainingStatus is null/undefined, infer status from model data
+    let trainingStatus = userModel?.trainingStatus || 'not_started';
+    
+    if (userModel && !userModel.trainingStatus) {
+      // Model exists but status is null - check if it's actually trained
+      const hasReplicateData = userModel.replicateModelId || userModel.replicateVersionId;
+      const isOldModel = userModel.createdAt && (Date.now() - new Date(userModel.createdAt).getTime()) > (24 * 60 * 60 * 1000); // 24+ hours old
+      
+      if (hasReplicateData || isOldModel) {
+        console.log(`🔧 FIXING: Model ${userModel.id} has no status but appears trained (replicateData: ${!!hasReplicateData}, old: ${isOldModel})`);
+        trainingStatus = 'completed';
+        
+        // 🔥 AUTO-FIX: Update the database with correct status
+        try {
+          await storage.updateUserModel(userModel.userId, { trainingStatus: 'completed' });
+          console.log(`✅ FIXED: Updated model ${userModel.id} status to 'completed'`);
+        } catch (fixError) {
+          console.warn(`⚠️ Could not auto-fix model status:`, fixError);
+        }
+      }
+    }
+
     const needsTraining = trainingStatus !== 'completed';
     const canRetrain = !!userModel;
 
@@ -99,7 +123,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const modelStatus = {
       id: userModel?.id || null,
-      userId: queryUserId,
+      userId: databaseUserId,
       trainingStatus,
       needsTraining,
       canRetrain,
@@ -111,18 +135,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       onboardingSource,
       // DEBUG: Add debug information
       debug: {
-        userId: queryUserId,
+        userId: databaseUserId,
         userEmail: dbUser.email,
         stackAuthId: dbUser.stackAuthId,
         modelFound: !!userModel,
         modelId: userModel?.id,
         modelUserId: userModel?.userId,
-        modelTrainingStatus: userModel?.trainingStatus
+        originalTrainingStatus: userModel?.trainingStatus,
+        inferredTrainingStatus: trainingStatus,
+        hasReplicateData: !!(userModel?.replicateModelId || userModel?.replicateVersionId),
+        isOldModel: userModel?.createdAt ? (Date.now() - new Date(userModel.createdAt).getTime()) > (24 * 60 * 60 * 1000) : false
       }
     };
 
     console.log(`✅ Returning model status:`, {
-      userId: queryUserId,
+      userId: databaseUserId,
       trainingStatus,
       needsTraining,
       canRetrain,
