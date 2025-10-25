@@ -531,24 +531,17 @@ export class MayaService {
         throw new Error(`User ${internalUserId} does not have a Stack Auth ID linked`);
       }
 
-      // Validate user has access using Stack Auth ID
+      // ✅ FIXED: Users with trained models automatically get Maya access
+      // Check if user has a completed model - if so, grant access automatically
+      const userModel = await validateUserModel(user);
+      console.log(`🔍 MAYA GENERATION: User has completed model: ${userModel.id}, granting automatic Maya access`);
+
+      // Get or create Maya profile (will have basicGeneration: true by default)
       const userProfile: MayaProfile = await this.getOrCreateUserProfile(user.stackAuthId);
       console.log(`🔍 MAYA GENERATION: Profile access - basicGeneration: ${userProfile.featureAccess?.basicGeneration}, monthlyGenerations: ${userProfile.monthlyGenerations}`);
 
-      if (!(userProfile.featureAccess as { basicGeneration?: boolean })?.basicGeneration) {
-        console.error(`❌ MAYA GENERATION: User does not have generation access`);
-        throw new Error('User does not have generation access');
-      }
-
-      // Check generation limits (allow admin users with -1 limit)
-      const monthlyLimit = userProfile.monthlyGenerations || 0;
-      if (monthlyLimit >= 100 && monthlyLimit !== -1) {
-        console.error(`❌ MAYA GENERATION: Monthly limit exceeded: ${monthlyLimit}/100`);
-        throw new Error('Monthly generation limit exceeded');
-      }
-
-      // Validate user has completed model training
-      const userModel = await validateUserModel(user);
+      // ✅ REMOVED: Strict access check - users with trained models get automatic access
+      // The validateUserModel call above already ensures they have a completed model
 
       // CRITICAL FIX: Don't create tracker here - create it AFTER getting Replicate prediction ID
       // to avoid ID mismatch issues. Pass generationId for response, get Replicate ID in startFluxGeneration

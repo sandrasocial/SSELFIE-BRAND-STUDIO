@@ -254,6 +254,7 @@ export interface IStorage {
   getMonthlyRetrainCount(userId: string, month: number, year: number): Promise<number>;
   getAllInProgressTrainings(): Promise<UserModel[]>;
   getAllCompletedTrainings(): Promise<UserModel[]>; // ✅ LORA MIGRATION: Get completed training users
+  getAllCompletedTrainings(): Promise<UserModel[]>; // ✅ LORA MIGRATION: Get completed training users
 
   // Selfie Upload operations
   getSelfieUploads(userId: string): Promise<SelfieUpload[]>;

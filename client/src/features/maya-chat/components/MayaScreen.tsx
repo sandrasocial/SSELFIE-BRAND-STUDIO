@@ -147,7 +147,8 @@ interface MayaScreenProps {
 const MayaScreen: React.FC<MayaScreenProps> = ({ initialPrompt, onPromptUsed, hasTrainedModel, userModel }) => {
   const { user, isAuthenticated, isLoading } = useAuth();
 
-  // ✅ FIXED: Check if user has trained model before allowing Maya access
+  // ✅ FIXED: Users with trained models automatically get Maya AI access
+  // No need for separate mayaAiAccess field - trained model = Maya access
   if (!isLoading && isAuthenticated && user && !hasTrainedModel) {
     return (
       <div className="h-full flex items-center justify-center">
@@ -170,22 +171,7 @@ const MayaScreen: React.FC<MayaScreenProps> = ({ initialPrompt, onPromptUsed, ha
     );
   }
 
-  // Check if user has Maya AI access
-  if (!isLoading && isAuthenticated && user && !user.mayaAiAccess) {
-    return (
-      <div className="h-full flex items-center justify-center">
-        <div className="text-center p-8">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-stone-100 flex items-center justify-center">
-            <Camera size={32} className="text-stone-400" />
-          </div>
-          <h3 className="text-lg font-serif font-light text-stone-950 mb-2">Maya AI Access Required</h3>
-          <p className="text-sm text-stone-600">
-            Maya AI features are not available for this account. Please upgrade your plan to access AI-powered photo generation.
-          </p>
-        </div>
-      </div>
-    );
-  }
+  // ✅ REMOVED: Separate Maya AI access check - users with trained models get automatic access
 
   return (
     <BrandStudioProvider userModel={userModel}>
