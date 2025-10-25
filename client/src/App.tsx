@@ -17,8 +17,6 @@ import RootWrapper from "./components/layout/RootWrapper";
 import { useAuth } from "./hooks/use-auth.js";
 import { useUserModelStatus } from "./hooks/useUserModelStatus.js";
 import { initializeRuntimeOptimization } from "./utils/runtimeOptimization.js";
-import { ROUTES } from "./constants/routes.js";
-import { MayaDiagnostic } from "./components/MayaDiagnostic.js";
 
 // Luxury Mobile Styling
 import "./styles/luxury-mobile.css";
@@ -41,8 +39,6 @@ import {
   // SignInPage - REMOVED: Let Stack handle all auth through /handler routes
 } from './pages/lazy-pages';
 
-import { PUBLIC_ROUTES } from "./constants/routes";
-
 // Components
 import { PageLoader } from './components/loaders';
 import { AuthWrapper } from './features/auth/components/AuthWrapper.js';
@@ -55,7 +51,8 @@ import { AuthWrapper } from './features/auth/components/AuthWrapper.js';
 // NEW USER JOURNEY: Authentication → AI Training → Payment → App Studio
 // ✅ FIXED: Now checks if user has trained model before routing
 function SmartHome() {
-  const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth({ silent: true });
+  const navigate = useLocation()[1];
+  const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth({ force: true });
   const { modelStatus, isLoading: isModelLoading, hasTrainedModel } = useUserModelStatus(isAuthenticated);
   const [hasRedirected, setHasRedirected] = useState(false);
 
@@ -119,23 +116,23 @@ function SmartHome() {
         // User has completed trained model - go to Studio
         console.log('✅ SmartHome: User has completed training, routing to /app/studio');
         setHasRedirected(true);
-        window.location.href = ROUTES.APP + '/studio';
+        navigate('/app/studio');
       } else if (trainingStatus === 'training') {
         // User model is currently training - go to training page to show progress
         console.log('⏳ SmartHome: Model is training, routing to /app/training');
         setHasRedirected(true);
-        window.location.href = ROUTES.APP + '/training';
+        navigate('/app/training');
       } else {
         // User needs to start or restart training
         console.log('🎯 SmartHome: User needs training, routing to /app/training');
         setHasRedirected(true);
-        window.location.href = ROUTES.APP + '/training';
+        navigate('/app/training');
       }
     } else if (!isAuthLoading && !isAuthenticated) {
       // User not authenticated - redirect to sign-in
       console.log('🔐 SmartHome: User not authenticated, redirecting to /handler/sign-in');
       setHasRedirected(true);
-      window.location.href = '/handler/sign-in';
+      navigate('/handler/sign-in');
     }
   }, [isAuthenticated, user, hasTrainedModel, isModelLoading, isAuthLoading, hasRedirected, modelStatus?.trainingStatus]);
 

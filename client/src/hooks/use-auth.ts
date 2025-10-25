@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { useQuery } from "@tanstack/react-query";
 import { useUser } from "@stackframe/react";
 import { useMemo } from "react";
@@ -97,16 +98,26 @@ export function useAuth(options?: { force?: boolean; silent?: boolean }) {
   // ✅ FIXED: Memoize user object to prevent recreating on every render
   // 🔧 CRITICAL FIX: Always use database user data when available to maintain consistency
   const user = useMemo(() => {
+    console.log('🔐 useAuth: Computing user object', {
+      hasDbUser: !!dbUser,
+      hasStackUser: !!stackUser,
+      isAuthenticated,
+      dbUserId: dbUser?.id?.substring(0, 8) + '...',
+      stackUserId: stackUser?.id?.substring(0, 8) + '...'
+    });
+    
     if (dbUser) {
       // Always prefer database user data - this ensures consistent user.id throughout app
-      return {
+      const userObj = {
         ...dbUser,
         // Ensure we maintain the Stack Auth ID for API calls while using database user ID for app logic
         stackAuthId: stackUser?.id,
       };
+      console.log('🔐 useAuth: Returning dbUser', { id: userObj.id?.substring(0, 8) + '...', email: userObj.email });
+      return userObj;
     } else if (stackUser && isAuthenticated) {
       // Only use Stack Auth as fallback when database isn't available
-      return {
+      const userObj = {
         id: stackUser.id,
         stackAuthId: stackUser.id, // Keep Stack Auth ID for API consistency
         email: stackUser.primaryEmail || '',
@@ -117,7 +128,10 @@ export function useAuth(options?: { force?: boolean; silent?: boolean }) {
         plan: 'sselfie-studio',
         role: 'user'
       };
+      console.log('🔐 useAuth: Returning stackUser fallback', { id: userObj.id?.substring(0, 8) + '...', email: userObj.email });
+      return userObj;
     }
+    console.log('🔐 useAuth: Returning undefined (no user)');
     return undefined;
   }, [dbUser, stackUser, isAuthenticated]);
 
